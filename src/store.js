@@ -19,7 +19,8 @@ if (typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
   composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
 }
 
-export default function configureStore(initialState = {}, ea, history) {
+export default function configureStore(ea, history) {
+  const initialState = {};
   const store = createStore(
     // connectRouter(history)(reducers),
     reducers,

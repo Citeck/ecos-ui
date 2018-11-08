@@ -10,12 +10,12 @@ import { Provider } from 'react-redux';
 import configureStore from './store';
 import { validateUserRequest, checkThunk } from './actions/user';
 
-const store = configureStore(
-  {},
-  {
-    // api
-  }
-);
+import { MenuApi, UserApi } from './api';
+
+const store = configureStore({
+  menu: new MenuApi(),
+  user: new UserApi()
+});
 
 store.dispatch(validateUserRequest());
 store.dispatch(checkThunk());

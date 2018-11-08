@@ -3,7 +3,8 @@ import { validateUserSuccess, validateUserFailure } from '../actions/user';
 
 const initialState = {
   isInit: false,
-  fullName: ''
+  fullName: '',
+  nodeRef: ''
 };
 
 Object.freeze(initialState);
@@ -14,7 +15,8 @@ export default handleActions(
       return {
         ...state,
         isInit: true,
-        fullName: action.payload.fullName
+        fullName: action.payload.fullName,
+        nodeRef: action.payload.nodeRef
       };
     },
     [validateUserFailure]: state => {

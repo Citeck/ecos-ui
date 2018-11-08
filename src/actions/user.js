@@ -15,7 +15,8 @@ export function checkThunk() {
 
     setTimeout(() => {
       const state = getState();
-      console.log(state);
+      const userNodeRef = state.user.nodeRef;
+      api.user.getPhotoSize(userNodeRef).then(photoSize => console.log(photoSize));
     }, 3000);
   };
 }

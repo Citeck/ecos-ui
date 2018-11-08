@@ -1,7 +1,7 @@
 import { put, takeLatest, call } from 'redux-saga/effects';
 import { validateUserRequest, validateUserSuccess, validateUserFailure } from '../actions/user';
 
-// TODO delete
+// TODO use real api
 const fakeApi = {
   validate: () => {
     return new Promise(resolve => {
@@ -9,7 +9,8 @@ const fakeApi = {
         resolve({
           success: true,
           payload: {
-            fullName: 'Temporary User'
+            fullName: 'Administrator',
+            nodeRef: 'workspace://SpacesStore/a6ce05f5-bd4b-4196-a12f-a5601a2fa0cd'
           }
         });
       }, 1000);
