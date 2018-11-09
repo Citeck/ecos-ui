@@ -16,7 +16,7 @@ const UserMenu = ({ userFullName, userPhotoUrl, items, isMobile }) => {
     userImage = <FontAwesomeIcon icon={faUser} color="white" size="lg" />;
   }
 
-  let menuListItems = null;
+  let menuListItems = [];
   if (Array.isArray(items) && items.length > 0) {
     menuListItems = items.map((item, key) => <DropDownMenuItem key={key} data={item} />);
   }

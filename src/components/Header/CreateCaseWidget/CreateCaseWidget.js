@@ -12,7 +12,7 @@ const CreateCaseWidget = ({ items, isCascade }) => {
     return null;
   }
 
-  let menuListItems = null;
+  let menuListItems = [];
   if (Array.isArray(items) && items.length > 0) {
     menuListItems = items.map((item, key) => {
       return isCascade ? (
@@ -26,10 +26,6 @@ const CreateCaseWidget = ({ items, isCascade }) => {
   let dropdownMenuClasses = ['custom-dropdown-menu__body'];
   if (isCascade) {
     dropdownMenuClasses.push('cascade');
-  }
-
-  if (!menuListItems) {
-    return null;
   }
 
   return (
