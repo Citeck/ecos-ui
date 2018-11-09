@@ -21,11 +21,7 @@ export default class ClickOutside extends React.Component {
   }
 
   handleClickOutside(event) {
-    if (
-      typeof this.props.handleClickOutside === 'function' &&
-      this.wrapperRef &&
-      !this.wrapperRef.contains(event.target)
-    ) {
+    if (typeof this.props.handleClickOutside === 'function' && this.wrapperRef && !this.wrapperRef.contains(event.target)) {
       this.props.handleClickOutside();
     }
   }

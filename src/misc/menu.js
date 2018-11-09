@@ -29,13 +29,7 @@ export function processCreateVariantsItems(sites) {
       createVariants.push({
         id: 'HEADER_' + (site.siteId + '_' + variant.type).replace(/-/g, '_').toUpperCase(),
         label: variant.title,
-        targetUrl:
-          '/share/page/node-create?type=' +
-          variant.type +
-          '&viewId=' +
-          variant.formId +
-          '&destination=' +
-          variant.destination
+        targetUrl: '/share/page/node-create?type=' + variant.type + '&viewId=' + variant.formId + '&destination=' + variant.destination
       });
     }
 

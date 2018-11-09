@@ -8,11 +8,7 @@ export class MenuApi extends CommonApi {
   };
 
   getLiveSearchDocuments = (terms, startIndex) => {
-    const url =
-      'slingshot/live-search-docs?t=' +
-      generateSearchTerm(terms) +
-      '&maxResults=5&startIndex=' +
-      startIndex;
+    const url = 'slingshot/live-search-docs?t=' + generateSearchTerm(terms) + '&maxResults=5&startIndex=' + startIndex;
     return this.getJson(url).catch(() => {});
   };
 

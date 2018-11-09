@@ -8,8 +8,7 @@ import * as serviceWorker from './serviceWorker';
 
 import { Provider } from 'react-redux';
 import configureStore from './store';
-import { validateUserRequest, checkThunk } from './actions/user';
-// import { showModal } from './actions/modal';
+import { validateUserRequest } from './actions/user';
 
 import { MenuApi, UserApi } from './api';
 
@@ -21,23 +20,6 @@ const store = configureStore({
 });
 
 store.dispatch(validateUserRequest());
-store.dispatch(checkThunk());
-
-// store.dispatch(showModal({
-//   title: 'Test modal',
-//   content: 'Some content',
-//   buttons: [
-//     {
-//       label: 'Test',
-//       bsStyle: 'primary',
-//       onClick: () => { console.log("It's works!") }
-//     },
-//     {
-//       label: 'Cancel',
-//       isCloseButton: true,
-//     }
-//   ]
-// }));
 
 ReactDOM.render(
   <Provider store={store}>

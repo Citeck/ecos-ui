@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import CreateCaseWidget from './CreateCaseWidget';
+import Search from './Search';
 import { fetchCreateCaseWidgetData } from '../../actions/header';
 
 import './share-header.css';
@@ -30,7 +31,7 @@ class Header extends React.Component {
         <div className="alfresco-layout-LeftAndRight__right">
           {/*<UserMenu />*/}
           {/*<SitesMenu />*/}
-          {/*<Search />*/}
+          <Search />
         </div>
       </div>
     );

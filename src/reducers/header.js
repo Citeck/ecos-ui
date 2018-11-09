@@ -1,10 +1,33 @@
 import { handleActions } from 'redux-actions';
-import { setCreateCaseWidgetItems, setCreateCaseWidgetIsCascade } from '../actions/header';
+import {
+  setCreateCaseWidgetItems,
+  setCreateCaseWidgetIsCascade,
+  toggleAutocompleteVisibility,
+  updateAutocompleteResults,
+  updateAutocompleteDocumentsResults,
+  setLastSearchIndex
+} from '../actions/header';
 
 const initialState = {
   createCaseWidget: {
     isCascade: false,
     items: []
+  },
+  search: {
+    lastSearchIndex: null,
+    autocomplete: {
+      isVisible: false,
+      documents: {
+        hasMoreRecords: false,
+        items: []
+      },
+      sites: {
+        items: []
+      },
+      people: {
+        items: []
+      }
+    }
   }
 };
 
@@ -27,6 +50,64 @@ export default handleActions(
         createCaseWidget: {
           ...state.createCaseWidget,
           isCascade: action.payload
+        }
+      };
+    },
+    /* search */
+    [toggleAutocompleteVisibility]: (state, action) => {
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          autocomplete: {
+            ...state.search.autocomplete,
+            isVisible: action.payload
+          }
+        }
+      };
+    },
+    [updateAutocompleteResults]: (state, action) => {
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          autocomplete: {
+            ...state.search.autocomplete,
+            documents: {
+              hasMoreRecords: action.payload.documents.hasMoreRecords,
+              items: action.payload.documents.items
+            },
+            sites: {
+              items: action.payload.sites.items
+            },
+            people: {
+              items: action.payload.people.items
+            }
+          }
+        }
+      };
+    },
+    [updateAutocompleteDocumentsResults]: (state, action) => {
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          autocomplete: {
+            ...state.search.autocomplete,
+            documents: {
+              hasMoreRecords: action.payload.hasMoreRecords,
+              items: state.search.autocomplete.documents.items.concat(action.payload.items)
+            }
+          }
+        }
+      };
+    },
+    [setLastSearchIndex]: (state, action) => {
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          lastSearchIndex: action.payload
         }
       };
     }

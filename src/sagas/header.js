@@ -1,9 +1,5 @@
 import { put, takeLatest, call } from 'redux-saga/effects';
-import {
-  fetchCreateCaseWidgetData,
-  setCreateCaseWidgetItems,
-  setCreateCaseWidgetIsCascade
-} from '../actions/header';
+import { fetchCreateCaseWidgetData, setCreateCaseWidgetItems, setCreateCaseWidgetIsCascade } from '../actions/header';
 import { processCreateVariantsItems } from '../misc/menu';
 
 export function* fetchCreateCaseWidget({ api }) {
