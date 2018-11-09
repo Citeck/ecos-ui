@@ -5,7 +5,8 @@ import {
   toggleAutocompleteVisibility,
   updateAutocompleteResults,
   updateAutocompleteDocumentsResults,
-  setLastSearchIndex
+  setLastSearchIndex,
+  setUserMenuItems
 } from '../actions/header';
 
 const initialState = {
@@ -28,6 +29,9 @@ const initialState = {
         items: []
       }
     }
+  },
+  userMenu: {
+    items: []
   }
 };
 
@@ -108,6 +112,16 @@ export default handleActions(
         search: {
           ...state.search,
           lastSearchIndex: action.payload
+        }
+      };
+    },
+    /* userMenu */
+    [setUserMenuItems]: (state, action) => {
+      return {
+        ...state,
+        userMenu: {
+          ...state.userMenu,
+          items: action.payload
         }
       };
     }

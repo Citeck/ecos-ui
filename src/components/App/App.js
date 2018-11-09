@@ -1,12 +1,18 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import cn from 'classnames';
 import Header from '../Header';
 import Modal from '../Modal';
 
-const App = () => (
-  <div>
+const App = ({ isMobile }) => (
+  <div className={cn({ mobile: isMobile })}>
     <Header />
     <Modal />
   </div>
 );
 
-export default App;
+const mapStateToProps = state => ({
+  isMobile: state.view.isMobile
+});
+
+export default connect(mapStateToProps)(App);

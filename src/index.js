@@ -9,8 +9,10 @@ import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
 import configureStore from './store';
 import { validateUserRequest } from './actions/user';
+import { setIsMobile } from './actions/view';
 
 import { MenuApi, UserApi } from './api';
+import { isMobileDevice } from './misc/util';
 
 const store = configureStore({
   api: {
@@ -19,6 +21,7 @@ const store = configureStore({
   }
 });
 
+store.dispatch(setIsMobile(isMobileDevice()));
 store.dispatch(validateUserRequest());
 
 ReactDOM.render(

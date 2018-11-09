@@ -2,19 +2,24 @@ import React from 'react';
 import { connect } from 'react-redux';
 import CreateCaseWidget from './CreateCaseWidget';
 import Search from './Search';
-import { fetchCreateCaseWidgetData } from '../../actions/header';
+import UserMenu from './UserMenu';
+import { fetchCreateCaseWidgetData, fetchUserMenuData } from '../../actions/header';
 
 import './share-header.css';
 
 const mapDispatchToProps = dispatch => ({
   fetchCreateCaseWidgetData: () => {
     dispatch(fetchCreateCaseWidgetData());
+  },
+  fetchUserMenuData: () => {
+    dispatch(fetchUserMenuData());
   }
 });
 
 class Header extends React.Component {
   componentDidMount() {
     this.props.fetchCreateCaseWidgetData();
+    this.props.fetchUserMenuData();
   }
 
   render() {
@@ -29,7 +34,7 @@ class Header extends React.Component {
           <CreateCaseWidget />
         </div>
         <div className="alfresco-layout-LeftAndRight__right">
-          {/*<UserMenu />*/}
+          <UserMenu />
           {/*<SitesMenu />*/}
           <Search />
         </div>

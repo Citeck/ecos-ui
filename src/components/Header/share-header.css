@@ -37,6 +37,7 @@
   margin-top: 1px;
   font-family: Open Sans, Arial, Helvetica, sans-serif;
   outline: none;
+  width: 12em;
 }
 
 /* common */
@@ -106,6 +107,7 @@
   color: #ffffff;
   line-height: 40px;
   display: inline-block;
+  font-size: 14px;
 }
 
 .user-dropdown-menu__toggle i {
@@ -232,6 +234,8 @@
   width: 24px;
   display: inline-block;
   content: none;
+  font-family: FontAwesome;
+  font-style: normal;
 }
 /* User menu */
 .fa-custom__HEADER_USER_MENU_MY_PROFILE:before {
@@ -326,7 +330,7 @@
 
   box-sizing: border-box;
   min-width: 360px;
-  max-width: 480px;
+  max-width: 380px;
   width: max-content;
   padding: 1px;
 
@@ -337,6 +341,7 @@
 
 .autocomplete-section {
   overflow: hidden;
+  font-size: 14px;
 }
 
 .autocomplete-section:after {
@@ -414,12 +419,13 @@
   margin: 0;
 }
 
-.share-header-search__autocomplete .autocomplete-section__more a {
+.share-header-search__autocomplete .autocomplete-section__more span {
   color: #000;
   text-decoration: none;
+  cursor: pointer;
 }
 
-.autocomplete-section__more a:after {
+.autocomplete-section__more span:after {
   content: '▾';
   font-size: 12px;
   color: #000;

@@ -1,8 +1,14 @@
-import { put, takeLatest, call } from 'redux-saga/effects';
-import { fetchCreateCaseWidgetData, setCreateCaseWidgetItems, setCreateCaseWidgetIsCascade } from '../actions/header';
-import { processCreateVariantsItems } from '../misc/menu';
+import { put, takeLatest, call, select } from 'redux-saga/effects';
+import {
+  fetchCreateCaseWidgetData,
+  setCreateCaseWidgetItems,
+  setCreateCaseWidgetIsCascade,
+  fetchUserMenuData,
+  setUserMenuItems
+} from '../actions/header';
+import { processCreateVariantsItems, makeUserMenuItems } from '../helpers/menu';
 
-export function* fetchCreateCaseWidget({ api }) {
+function* fetchCreateCaseWidget({ api }) {
   try {
     const resp = yield call(api.menu.getCreateVariantsForAllSites);
     const createVariants = processCreateVariantsItems(resp);
@@ -18,8 +24,23 @@ export function* fetchCreateCaseWidget({ api }) {
   }
 }
 
+const getUsername = state => state.user.fullName;
+// TODO implement
+function* fetchUserMenu({ api }) {
+  try {
+    const userName = select(getUsername);
+    const menuItems = makeUserMenuItems(userName, true, true, false);
+    yield put(setUserMenuItems(menuItems));
+  } catch (e) {
+    // TODO use logplease
+    console.log('[fetchUserMenu saga] ' + e.message);
+    // yield put(validateUserFailure());
+  }
+}
+
 function* headerSaga(ea) {
   yield takeLatest(fetchCreateCaseWidgetData().type, fetchCreateCaseWidget, ea);
+  yield takeLatest(fetchUserMenuData().type, fetchUserMenu, ea);
 }
 
 export default headerSaga;

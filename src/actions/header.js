@@ -76,14 +76,19 @@ export function fetchAutocompleteItems(payload, successCallback) {
 }
 
 export function fetchMoreAutocompleteDocuments(payload) {
-  return (dispatch, getState, api) => {
+  return (dispatch, getState, { api }) => {
     const state = getState();
-    const documentsQty = state.search.autocomplete.documents.items.length;
+    const documentsQty = state.header.search.autocomplete.documents.items.length;
 
-    api.getLiveSearchDocuments(payload, documentsQty).then(documents => {
+    api.menu.getLiveSearchDocuments(payload, documentsQty).then(documents => {
       dispatch(updateAutocompleteDocumentsResults(documents));
     });
   };
 }
 
+/* ---------------- */
+
+/* User menu */
+export const fetchUserMenuData = createAction(prefix + 'USER_MENU_FETCH_DATA');
+export const setUserMenuItems = createAction(prefix + 'USER_MENU_SET_ITEMS');
 /* ---------------- */

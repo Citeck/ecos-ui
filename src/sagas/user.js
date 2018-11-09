@@ -13,7 +13,7 @@ const fakeApi = {
             nodeRef: 'workspace://SpacesStore/a6ce05f5-bd4b-4196-a12f-a5601a2fa0cd'
           }
         });
-      }, 1000);
+      }, 0);
     });
   }
 };
