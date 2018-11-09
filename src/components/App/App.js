@@ -1,9 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react';
+import Header from '../Header';
+import Modal from '../Modal';
 
-class App extends Component {
-  render() {
-    return <div>Citeck EcoS</div>;
-  }
-}
+const App = () => (
+  <div>
+    <Header />
+    <Modal />
+  </div>
+);
 
 export default App;

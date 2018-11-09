@@ -7,7 +7,7 @@ export const validateUserSuccess = createAction(prefix + 'VALIDATE_SUCCESS');
 export const validateUserFailure = createAction(prefix + 'VALIDATE_FAILURE');
 
 export function checkThunk() {
-  return (dispatch, getState, api) => {
+  return (dispatch, getState, { api }) => {
     const state = getState();
     console.log(state);
 

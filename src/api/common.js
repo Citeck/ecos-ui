@@ -1,3 +1,5 @@
+import { PROXY_URI } from '../constants/alfresco';
+
 const getOptions = {
   credentials: 'include',
   method: 'get'
@@ -12,7 +14,7 @@ const postOptions = {
 };
 
 export class CommonApi {
-  alfrescoProxyUri = '/share/proxy/alfresco/';
+  alfrescoProxyUri = PROXY_URI;
 
   getJson = url => {
     return fetch(this.alfrescoProxyUri + url, getOptions)
