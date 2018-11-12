@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import cn from 'classnames';
 import Header from '../Header';
+import SlideMenu from '../SlideMenu';
 import Modal from '../Modal';
 
 const App = ({ isInit, isInitFailure, isMobile }) => {
@@ -17,6 +18,7 @@ const App = ({ isInit, isInitFailure, isMobile }) => {
 
   return (
     <div className={cn({ mobile: isMobile })}>
+      <SlideMenu />
       <Header />
       <Modal />
     </div>
