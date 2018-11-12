@@ -4,10 +4,12 @@ import {
   setCreateCaseWidgetItems,
   setCreateCaseWidgetIsCascade,
   fetchUserMenuData,
-  setUserMenuItems
+  setUserMenuItems,
+  fetchSiteMenuData,
+  setSiteMenuItems
 } from '../actions/header';
 import { setUserThumbnail } from '../actions/user';
-import { processCreateVariantsItems, makeUserMenuItems } from '../helpers/menu';
+import { processCreateVariantsItems, makeUserMenuItems, processMenuItemsFromOldMenu } from '../helpers/menu';
 import { PROXY_URI } from '../constants/alfresco';
 
 function* fetchCreateCaseWidget({ api, fakeApi, logger }) {
@@ -50,9 +52,22 @@ function* fetchUserMenu({ api, fakeApi, logger }) {
   }
 }
 
+function* fetchSiteMenu({ api, fakeApi, logger }) {
+  try {
+    // TODO use real api
+    const oldSiteMenuItems = yield call(fakeApi.getSiteMenuItems);
+
+    const menuItems = processMenuItemsFromOldMenu(oldSiteMenuItems);
+    yield put(setSiteMenuItems(menuItems));
+  } catch (e) {
+    logger.error('[fetchSiteMenu saga] error', e.message);
+  }
+}
+
 function* headerSaga(ea) {
   yield takeLatest(fetchCreateCaseWidgetData().type, fetchCreateCaseWidget, ea);
   yield takeLatest(fetchUserMenuData().type, fetchUserMenu, ea);
+  yield takeLatest(fetchSiteMenuData().type, fetchSiteMenu, ea);
 }
 
 export default headerSaga;

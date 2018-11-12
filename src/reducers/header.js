@@ -6,7 +6,8 @@ import {
   updateAutocompleteResults,
   updateAutocompleteDocumentsResults,
   setLastSearchIndex,
-  setUserMenuItems
+  setUserMenuItems,
+  setSiteMenuItems
 } from '../actions/header';
 
 const initialState = {
@@ -29,6 +30,9 @@ const initialState = {
         items: []
       }
     }
+  },
+  siteMenu: {
+    items: []
   },
   userMenu: {
     items: []
@@ -121,6 +125,16 @@ export default handleActions(
         ...state,
         userMenu: {
           ...state.userMenu,
+          items: action.payload
+        }
+      };
+    },
+    /* siteMenu */
+    [setSiteMenuItems]: (state, action) => {
+      return {
+        ...state,
+        siteMenu: {
+          ...state.siteMenu,
           items: action.payload
         }
       };

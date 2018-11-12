@@ -103,3 +103,8 @@ export function fetchMoreAutocompleteDocuments(payload) {
 export const fetchUserMenuData = createAction(prefix + 'USER_MENU_FETCH_DATA');
 export const setUserMenuItems = createAction(prefix + 'USER_MENU_SET_ITEMS');
 /* ---------------- */
+
+/* Site menu */
+export const fetchSiteMenuData = createAction(prefix + 'SITE_MENU_FETCH_DATA');
+export const setSiteMenuItems = createAction(prefix + 'SITE_MENU_SET_ITEMS');
+/* ---------------- */

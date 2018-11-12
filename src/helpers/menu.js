@@ -109,3 +109,43 @@ export const makeUserMenuItems = (userName, isAvailable, isMutable, isExternalAu
 
   return userMenuItems;
 };
+
+export function processMenuItemsFromOldMenu(oldMenuItems) {
+  let siteMenuItems = [];
+
+  for (let item of oldMenuItems) {
+    if (!item.config) {
+      continue;
+    }
+
+    let newItem = {
+      id: item.id,
+      label: item.config.label
+    };
+
+    if (item.config.targetUrl) {
+      if (item.config.targetUrlType && item.config.targetUrlType === 'FULL_PATH') {
+        newItem.targetUrl = item.config.targetUrl;
+      } else {
+        newItem.targetUrl = '/share/page/' + item.config.targetUrl;
+      }
+
+      if (item.config.targetUrlLocation && item.config.targetUrlLocation === 'NEW') {
+        newItem.target = '_blank';
+      }
+    }
+
+    if (item.config.publishTopic) {
+      newItem.control = {
+        type: item.config.publishTopic
+      };
+      if (item.config.publishPayload) {
+        newItem.control.payload = item.config.publishPayload;
+      }
+    }
+
+    siteMenuItems.push(newItem);
+  }
+
+  return siteMenuItems;
+}

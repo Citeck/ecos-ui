@@ -79,6 +79,7 @@
   height: 40px;
   cursor: pointer;
   padding: 0 10px;
+  line-height: 40px;
 }
 
 .custom-dropdown-menu__toggle:hover {
@@ -157,6 +158,7 @@
   padding: 0 4px;
   display: block;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .custom-dropdown-menu__body .custom-dropdown-menu__item a:hover {
@@ -243,7 +245,7 @@
 }
 
 .fa-custom:before {
-  padding: 4px 0;
+  padding: 0;
   color: #6b6b6b;
   font-size: 16px;
   width: 24px;
