@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { t } from '../../../../misc/util';
+import { t } from '../../../../helpers/util';
 import SearchAutocompleteItem, {
   SEARCH_AUTOCOMPLETE_TYPE_DOCUMENTS,
   SEARCH_AUTOCOMPLETE_TYPE_SITES,

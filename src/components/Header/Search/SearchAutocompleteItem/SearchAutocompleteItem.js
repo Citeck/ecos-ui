@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { formatFileSize, getRelativeTime } from '../../../../misc/util';
+import { formatFileSize, getRelativeTime } from '../../../../helpers/util';
 import { PROXY_URI, URL_RESCONTEXT } from '../../../../constants/alfresco';
 
 export const SEARCH_AUTOCOMPLETE_TYPE_DOCUMENTS = 0;

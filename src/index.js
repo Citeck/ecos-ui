@@ -5,24 +5,28 @@ import ReactDOM from 'react-dom';
 import './index.scss';
 import App from './components/App';
 import * as serviceWorker from './serviceWorker';
+import Logger from 'logplease';
 
 import { Provider } from 'react-redux';
 import configureStore from './store';
-import { validateUserRequest } from './actions/user';
-import { setIsMobile } from './actions/view';
+import { initAppRequest } from './actions/app';
 
 import { MenuApi, UserApi } from './api';
-import { isMobileDevice } from './misc/util';
+import { fakeApi } from './api/fakeApi';
+
+const logger = Logger.create('EcoS');
+Logger.setLogLevel(Logger.LogLevels.DEBUG);
 
 const store = configureStore({
   api: {
     menu: new MenuApi(),
     user: new UserApi()
-  }
+  },
+  fakeApi,
+  logger
 });
 
-store.dispatch(setIsMobile(isMobileDevice()));
-store.dispatch(validateUserRequest());
+store.dispatch(initAppRequest());
 
 ReactDOM.render(
   <Provider store={store}>

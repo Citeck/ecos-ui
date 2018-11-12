@@ -1,10 +1,12 @@
 import { handleActions } from 'redux-actions';
-import { validateUserSuccess, validateUserFailure } from '../actions/user';
+import { validateUserSuccess, validateUserFailure, setUserThumbnail } from '../actions/user';
 
 const initialState = {
-  isInit: false,
   fullName: '',
-  nodeRef: ''
+  nodeRef: '',
+  thumbnail: null,
+  isAvailable: false,
+  isMutable: false
 };
 
 Object.freeze(initialState);
@@ -14,15 +16,21 @@ export default handleActions(
     [validateUserSuccess]: (state, action) => {
       return {
         ...state,
-        isInit: true,
         fullName: action.payload.fullName,
-        nodeRef: action.payload.nodeRef
+        nodeRef: action.payload.nodeRef,
+        isAvailable: action.payload.isAvailable,
+        isMutable: action.payload.isMutable
       };
     },
     [validateUserFailure]: state => {
       return {
+        ...state
+      };
+    },
+    [setUserThumbnail]: (state, action) => {
+      return {
         ...state,
-        isInit: true
+        thumbnail: action.payload
       };
     }
   },

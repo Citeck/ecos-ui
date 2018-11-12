@@ -12,7 +12,7 @@ import {
   fetchAutocompleteItems,
   fetchMoreAutocompleteDocuments
 } from '../../../actions/header';
-import { t, generateSearchTerm } from '../../../misc/util';
+import { t, generateSearchTerm } from '../../../helpers/util';
 
 const mapStateToProps = state => ({
   autocompleteIsVisible: state.header.search.autocomplete.isVisible

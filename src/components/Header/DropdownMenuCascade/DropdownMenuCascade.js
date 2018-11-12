@@ -1,6 +1,6 @@
 import React from 'react';
 import DropDownMenuItem from '../DropdownMenuItem';
-import { t } from '../../../misc/util';
+import { t } from '../../../helpers/util';
 
 const DropdownMenuCascade = ({ id, label, items }) => {
   const cascadeItems =

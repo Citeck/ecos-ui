@@ -5,6 +5,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import DropDownMenuItem from '../DropdownMenuItem';
 
+const mapStateToProps = state => ({
+  userPhotoUrl: state.user.thumbnail,
+  userFullName: state.user.fullName,
+  items: state.header.userMenu.items,
+  isMobile: state.view.isMobile
+});
+
 const UserMenu = ({ userFullName, userPhotoUrl, items, isMobile }) => {
   let userImage = userPhotoUrl ? (
     <div className="user-photo-header">
@@ -24,7 +31,7 @@ const UserMenu = ({ userFullName, userPhotoUrl, items, isMobile }) => {
   return (
     <div id="HEADER_USER_MENU">
       <UncontrolledDropdown className="custom-dropdown-menu">
-        <DropdownToggle tag="span" className="user-dropdown-menu__toggle custom-dropdown-menu__toggle">
+        <DropdownToggle tag="div" className="user-dropdown-menu__toggle custom-dropdown-menu__toggle">
           <span className="user-menu-username">{userFullName}</span>
           {userImage}
         </DropdownToggle>
@@ -35,12 +42,5 @@ const UserMenu = ({ userFullName, userPhotoUrl, items, isMobile }) => {
     </div>
   );
 };
-
-const mapStateToProps = state => ({
-  userPhotoUrl: state.user.photo,
-  userFullName: state.user.fullName,
-  items: state.header.userMenu.items,
-  isMobile: state.view.isMobile
-});
 
 export default connect(mapStateToProps)(UserMenu);

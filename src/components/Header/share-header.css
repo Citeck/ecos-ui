@@ -117,6 +117,21 @@
 .user-photo-header {
   float: right;
   margin-right: 5px;
+
+  border-radius: 50%;
+  padding-left: 5px;
+  height: 35px;
+  width: 35px;
+}
+
+.user-photo-header div {
+  margin-top: 2.5px;
+  height: 35px;
+  width: 35px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 50% 0;
+  border-radius: 50%;
 }
 
 /* dropdown menu body */

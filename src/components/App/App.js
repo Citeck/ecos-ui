@@ -4,14 +4,28 @@ import cn from 'classnames';
 import Header from '../Header';
 import Modal from '../Modal';
 
-const App = ({ isMobile }) => (
-  <div className={cn({ mobile: isMobile })}>
-    <Header />
-    <Modal />
-  </div>
-);
+const App = ({ isInit, isInitFailure, isMobile }) => {
+  if (!isInit) {
+    // TODO Loading component
+    return null;
+  }
+
+  if (isInitFailure) {
+    // TODO Crash app component
+    return null;
+  }
+
+  return (
+    <div className={cn({ mobile: isMobile })}>
+      <Header />
+      <Modal />
+    </div>
+  );
+};
 
 const mapStateToProps = state => ({
+  isInit: state.app.isInit,
+  isInitFailure: state.app.isInitFailure,
   isMobile: state.view.isMobile
 });
 

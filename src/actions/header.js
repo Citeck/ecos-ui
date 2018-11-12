@@ -50,15 +50,15 @@ export function getSearchTextFromHistory(isDesc, successCallback) {
 }
 
 export function fetchAutocompleteItems(payload, successCallback) {
-  return (dispatch, getState, { api }) => {
+  return (dispatch, getState, { api, logger }) => {
+    const initState = {
+      documents: { items: [], hasMoreRecords: false },
+      sites: { items: [] },
+      people: { items: [] }
+    };
+
     if (payload.length < 2) {
-      dispatch(
-        updateAutocompleteResults({
-          documents: { items: [], hasMoreRecords: false },
-          sites: { items: [] },
-          people: { items: [] }
-        })
-      );
+      dispatch(updateAutocompleteResults(initState));
       return;
     }
 
@@ -68,21 +68,32 @@ export function fetchAutocompleteItems(payload, successCallback) {
       api.menu.getLiveSearchPeople(payload)
     ];
 
-    Promise.all(promises).then(([documents, sites, people]) => {
-      dispatch(updateAutocompleteResults({ documents, sites, people }));
-      typeof successCallback === 'function' && successCallback();
-    });
+    Promise.all(promises)
+      .then(([documents, sites, people]) => {
+        dispatch(updateAutocompleteResults({ documents, sites, people }));
+        typeof successCallback === 'function' && successCallback();
+      })
+      .catch(e => {
+        logger.error('[fetchAutocompleteItems action] error', e.message);
+        dispatch(updateAutocompleteResults(initState));
+        typeof successCallback === 'function' && successCallback();
+      });
   };
 }
 
 export function fetchMoreAutocompleteDocuments(payload) {
-  return (dispatch, getState, { api }) => {
+  return (dispatch, getState, { api, logger }) => {
     const state = getState();
     const documentsQty = state.header.search.autocomplete.documents.items.length;
 
-    api.menu.getLiveSearchDocuments(payload, documentsQty).then(documents => {
-      dispatch(updateAutocompleteDocumentsResults(documents));
-    });
+    api.menu
+      .getLiveSearchDocuments(payload, documentsQty)
+      .then(documents => {
+        dispatch(updateAutocompleteDocumentsResults(documents));
+      })
+      .catch(e => {
+        logger.error('[fetchMoreAutocompleteDocuments action] error', e.message);
+      });
   };
 }
 

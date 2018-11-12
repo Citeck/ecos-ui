@@ -1,11 +1,13 @@
 import { combineReducers } from 'redux';
 
+import app from './app';
 import header from './header';
 import modal from './modal';
 import user from './user';
 import view from './view';
 
 const reducers = {
+  app,
   header,
   modal,
   user,
