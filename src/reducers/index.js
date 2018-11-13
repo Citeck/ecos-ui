@@ -6,9 +6,11 @@ import modal from './modal';
 import slideMenu from './slideMenu';
 import user from './user';
 import view from './view';
+import { rootReducer } from './card-details';
 
 const reducers = {
   app,
+  cardDetails: rootReducer,
   header,
   modal,
   slideMenu,

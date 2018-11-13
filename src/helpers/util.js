@@ -38,6 +38,7 @@ export function t(messageId, multipleValues, scope = 'global') {
   }
 
   return window.Alfresco.util.message(messageId, scope, multipleValues);
+  // return messageId;
 }
 
 const BYTES_KB = 1024;

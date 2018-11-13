@@ -1,0 +1,96 @@
+html {
+  overflow-y: scroll;
+}
+body {
+  font-family: Open Sans, Arial, Helvetica, sans-serif;
+  color: #333333;
+  margin: 0;
+}
+.alfresco-share {
+  font: 13px/1.231 Open Sans, arial, helvetica, clean, sans-serif;
+}
+.clear-both {
+  clear: both;
+}
+.share-hidden {
+  display: none;
+}
+.undo-share-margin {
+  margin: 0 -10px;
+}
+.hidden {
+  display: none !important;
+}
+/* See AKU-707: Hide the "X" on input fields on IE11 */
+input::-ms-clear {
+  display: none;
+}
+
+.document-metadata-header .alfresco-twister-actions {
+  display: none;
+}
+
+.avatar {
+  width: 64px;
+}
+
+.yui-u.first .document-details-panel {
+  background-color: transparent;
+}
+
+.yui-g .yui-gb:not(.plain) > div.yui-u.first,
+.yui-gb .yui-gb:not(.plain) > div.yui-u.first,
+.yui-gc .yui-gb:not(.plain) > div.yui-u.first,
+.yui-gd .yui-gb:not(.plain) > div.yui-u.first {
+  width: 32%;
+}
+
+#card-details-root,
+#page-content-root,
+#card-details-container {
+  height: 100%;
+  min-height: 100%;
+}
+
+.header-tabs {
+  padding: 2px 10px 2px 10px;
+}
+
+.header-tabs .header-tab {
+  padding: 3px 10px;
+  margin: 0 2px;
+}
+
+.header-tab.current {
+  background-color: lightgray;
+  font-weight: bold;
+}
+
+.header-tab:hover {
+  background-color: lightgray;
+}
+
+.card-details-mode-body.not-active {
+  transition: opacity 0.5s;
+  opacity: 0;
+}
+
+.card-details-mode-body.active {
+  transition: opacity 0.5s;
+  opacity: 1;
+}
+
+.card-details-mode-body.loading-overlay {
+  position: absolute;
+  left: 50%;
+}
+
+.card-details-mode-body.loading-overlay.not-active {
+  display: none;
+}
+
+.card-details-mode-body.loading-overlay > .loading-container {
+  position: relative;
+  left: -50%;
+  top: 100px;
+}
