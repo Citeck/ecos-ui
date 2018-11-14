@@ -1,7 +1,6 @@
 import React from 'react';
-// import {utils as CiteckUtils} from 'js/citeck/modules/utils/citeck';
+import isUndefined from 'lodash/isUndefined';
 import { loadHtml } from '../../helpers/citeck';
-// import 'lib/underscore';
 
 export default class SurfRegion extends React.Component {
   constructor(props) {
@@ -33,7 +32,7 @@ export default class SurfRegion extends React.Component {
 
   componentDidMount() {
     let self = this;
-    if (this.state.loaded === undefined) {
+    if (isUndefined(this.state.loaded)) {
       self.setState({
         loaded: false,
         initialized: false

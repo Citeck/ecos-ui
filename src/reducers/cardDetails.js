@@ -10,7 +10,7 @@ import {
   REQUEST_CARDLET_DATA,
   RECEIVE_CARDLET_DATA,
   RECEIVE_ERR_CARDLET_DATA
-} from '../actions/card-details';
+} from '../actions/cardDetails';
 
 let reducersStore = {
   [SET_CARD_MODE]: function(state = {}, action) {
@@ -57,7 +57,7 @@ let reducersStore = {
   },
   [REQUEST_CONTROL]: function(state = {}, action) {
     let controls = state.controls || {};
-    let controlUrl = '../cardlets/' + action.control.url;
+    let controlUrl = action.control.url;
     return {
       ...state,
       controls: {
@@ -70,7 +70,7 @@ let reducersStore = {
   },
   [RECEIVE_CONTROL]: function(state = {}, action) {
     let controls = state.controls || {};
-    let controlUrl = '../cardlets/' + action.control.url;
+    let controlUrl = action.control.url;
     return {
       ...state,
       controls: {

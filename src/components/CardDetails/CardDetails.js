@@ -1,67 +1,48 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import CardDetails from '../card-details/components';
-import { fetchCardlets, fetchNodeInfo, setCardMode, setPageArgs } from '../../actions/card-details';
-import { registerReducers } from '../../reducers/card-details';
+import SurfRegion from '../SurfRegion/SurfRegion';
+import CardletsBody from './CardletsBody';
+import './card-details.css';
 
-const mapDispatchToProps = dispatch => ({
-  dispatch
-});
+let createUploaderRegion = function(id) {
+  return (
+    <SurfRegion
+      key={`uploader-${id}`}
+      args={{
+        regionId: id,
+        scope: 'template',
+        templateId: 'card-details',
+        cacheAge: 1000
+      }}
+    />
+  );
+};
 
-class CardDetailsPage extends React.Component {
-  state = {
-    isReady: false
+const mapStateToProps = (state, ownProps) => {
+  return {
+    ...ownProps,
+    anyCardModeLoaded: !!(state.cardDetails.modesLoadingState || {})['any']
   };
+};
 
-  componentDidMount() {
-    const { dispatch } = this.props;
-    const props = this.props;
-
-    const DEFAULT_CARD_MODE = 'default';
-
-    function getCurrentCardMode() {
-      // return CiteckUtils.getURLParameterByName("mode") || DEFAULT_CARD_MODE;
-      return DEFAULT_CARD_MODE;
-    }
-
-    dispatch(setPageArgs(props.pageArgs));
-
-    let nodeBaseInfoPromise = dispatch(fetchNodeInfo(props.pageArgs.nodeRef));
-    let cardletsPromise = dispatch(fetchCardlets(props.pageArgs.nodeRef)).then(() => {
-      dispatch(setCardMode(getCurrentCardMode(), registerReducers));
-    });
-
-    Promise.all([cardletsPromise, nodeBaseInfoPromise]).then(() => {
-      window.__CARD_DETAILS_START = new Date().getTime();
-
-      window.onpopstate = function() {
-        dispatch(setCardMode(getCurrentCardMode(), registerReducers));
-      };
-
-      window.YAHOO.Bubbling.on('metadataRefresh', () => {
-        dispatch(fetchNodeInfo(props.pageArgs.nodeRef));
-      });
-
-      // ReactDOM.render(React.createElement(CardDetailsRoot, props), document.getElementById(elementId));
-      this.setState({ isReady: true });
-    });
+function CardDetails({ anyCardModeLoaded, ...props }) {
+  let uploadersComponents = [];
+  if (anyCardModeLoaded) {
+    uploadersComponents = [createUploaderRegion('dnd-upload'), createUploaderRegion('file-upload')];
   }
 
-  componentWillUnmount() {}
-
-  render() {
-    if (!this.state.isReady) {
-      return null;
-    }
-
-    return (
-      // <div />
-      <CardDetails {...this.props} />
-    );
-  }
+  return (
+    <div id="card-details-container">
+      <div id="doc3">
+        <div id="bd">
+          <CardletsBody {...props} />
+        </div>
+        <div id="card-details-uploaders" style={{ display: 'none' }}>
+          {uploadersComponents}
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(CardDetailsPage);
+export default connect(mapStateToProps)(CardDetails);

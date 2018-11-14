@@ -1,8 +1,0 @@
-.case-status .case-status-name.loading {
-  background: url(/share/res/citeck/components/invariants/images/loading.gif) no-repeat center;
-  width: 40px;
-}
-
-.case-status .status-line-el {
-  display: inline-block;
-}

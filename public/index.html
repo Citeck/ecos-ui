@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta id="metaviewport" name=viewport content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#000000">
     <!--
       manifest.json provides metadata used when your web app is added to the
@@ -19,7 +19,7 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>Citeck EcoS</title>
+    <title>Citeck ECOS</title>
 
 
 
@@ -102,12 +102,11 @@
 
 
   </head>
-  <body id="Share" class="yui-skin-citeckTheme alfresco-share  claro js">
+  <body id="Share" class="yui-skin-citeckTheme alfresco-share claro js mobile">
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
     <div id="root" class="page-content-root"></div>
-    <div class="page-content-root"><div id="card-details-root"></div></div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -239,30 +238,12 @@
     <script type="text/javascript" src="/share/res/js/lightbox_bc0f7ca3f123011aa02ad82dace7cae3.js"></script>
     <script type="text/javascript" src="/share/res/modules/create-site_60c9a76848df17fa1f408ecfa0fba17f.js"></script>
 
-
-
-
-
+    <script type="text/javascript" src="/share/res/citeck/mobile/mobile.js?3.5.0.18.11.12.11.59"></script>
 
 
 
 
     <script type="text/javascript">//<![CDATA[
-
-    // require(['js/citeck/modules/page/card-details/card-details'], function(components) {
-    //   components.renderPage('card-details-root', {
-    //     alfescoUrl: window.location.protocol + "//" + window.location.host + "\/share/proxy/alfresco/",
-    //     pageArgs: {
-    //       "nodeRef":"workspace://SpacesStore/074277e0-3cdb-4fa1-af5f-c0659db83662",
-    //       "pageid":"card-details",
-    //       "theme":"citeckTheme",
-    //       "aikauVersion":"1.0.63"
-    //     },
-    //     userName: "admin",
-    //     nodeBaseInfo: {"modified": "2018-11-07T18:42:48.610+03:00", "permissions": {"Read": true, "Write": true}, "pendingUpdate": false}
-    //   });
-    // });
-
     <!-- Android & iPad CSS overrides -->
     if (navigator.userAgent.indexOf(" Android ") !== -1 || navigator.userAgent.indexOf("iPad;") !== -1 || navigator.userAgent.indexOf("iPhone;") !== -1 ) {
       document.write("<link media='only screen and (max-device-width: 1024px)' rel='stylesheet' type='text/css' href='/share/res/css/tablet_7de8a1be3071a0284dec03f751448cb0.css'/>");
@@ -278,9 +259,6 @@
       url: Alfresco.constants.URL_CONTEXT + "service/modules/authenticated?noCache=" + new Date().getTime() + "&a=user"
     });
     //]]></script>
-
-
-
 
 
 

@@ -16,7 +16,7 @@ const SiteMenu = ({ items }) => {
     <div id="HEADER_SITE_MENU">
       <UncontrolledDropdown className="custom-dropdown-menu">
         <DropdownToggle tag="div" className="site-dropdown-menu__toggle custom-dropdown-menu__toggle">
-          <FontAwesomeIcon icon={faCog} color="white" size="lg" />
+          <FontAwesomeIcon icon={faCog} color="white" />
         </DropdownToggle>
         <DropdownMenu className="custom-dropdown-menu__body" id="HEADER_SITE_MENU__DROPDOWN" right>
           {menuListItems}

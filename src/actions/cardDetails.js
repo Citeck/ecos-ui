@@ -1,22 +1,22 @@
-// import NodeHeader from '../cardlets/js/citeck/modules/cardlets/node-header/node-header';
+const prefix = 'cardDetails/';
 
-export const SET_PAGE_ARGS = 'SET_PAGE_ARGS';
-export const SET_CARD_MODE = 'SET_CARD_MODE';
+export const SET_PAGE_ARGS = prefix + 'SET_PAGE_ARGS';
+export const SET_CARD_MODE = prefix + 'SET_CARD_MODE';
 
-export const REQUEST_CARDLETS = 'REQUEST_CARDLETS';
-export const RECEIVE_CARDLETS = 'RECEIVE_CARDLETS';
+export const REQUEST_CARDLETS = prefix + 'REQUEST_CARDLETS';
+export const RECEIVE_CARDLETS = prefix + 'RECEIVE_CARDLETS';
 
-export const REQUEST_CONTROL = 'REQUEST_CONTROLLER';
-export const RECEIVE_CONTROL = 'RECEIVE_CONTROLLER';
+export const REQUEST_CONTROL = prefix + 'REQUEST_CONTROLLER';
+export const RECEIVE_CONTROL = prefix + 'RECEIVE_CONTROLLER';
 
-export const REQUEST_NODE_INFO = 'REQUEST_NODE_BASE_INFO';
-export const RECEIVE_NODE_INFO = 'RECEIVE_NODE_BASE_INFO';
+export const REQUEST_NODE_INFO = prefix + 'REQUEST_NODE_BASE_INFO';
+export const RECEIVE_NODE_INFO = prefix + 'RECEIVE_NODE_BASE_INFO';
 
-export const REQUEST_CARDLET_DATA = 'REQUEST_CARDLET_DATA';
-export const RECEIVE_CARDLET_DATA = 'RECEIVE_CARDLET_DATA';
-export const RECEIVE_ERR_CARDLET_DATA = 'RECEIVE_ERR_CARDLET_DATA';
+export const REQUEST_CARDLET_DATA = prefix + 'REQUEST_CARDLET_DATA';
+export const RECEIVE_CARDLET_DATA = prefix + 'RECEIVE_CARDLET_DATA';
+export const RECEIVE_ERR_CARDLET_DATA = prefix + 'RECEIVE_ERR_CARDLET_DATA';
 
-export const CARD_MODE_LOADED = 'CARD_MODE_LOADED';
+export const CARD_MODE_LOADED = prefix + 'CARD_MODE_LOADED';
 
 const YAHOO = window.YAHOO;
 
@@ -95,10 +95,8 @@ export function fetchNodeInfo(nodeRef, infoType = 'full') {
 
 export function fetchCardletData(cardletProps) {
   return (dispatch, getState) => {
-    const controlUrl = '../cardlets/' + cardletProps.control.url;
-
     let state = getState();
-    let control = (state.cardDetails.controls || {})[controlUrl];
+    let control = (state.cardDetails.controls || {})[cardletProps.control.url];
 
     if (!control) {
       dispatch({
@@ -106,38 +104,19 @@ export function fetchCardletData(cardletProps) {
         control: cardletProps.control
       });
 
-      // require([controlUrl], function(data) {
-      //     let controlClass = data.default;
-      //     dispatch({
-      //         type: RECEIVE_CONTROL,
-      //         controlClass,
-      //         control: cardletProps.control
-      //     });
-      // });
-
-      // console.log('controlUrl', controlUrl);
-      let thenFunc = data => {
+      // TODO
+      const controlUrl = `/share/res/${cardletProps.control.url}.js?3.5.0.18.11.12.11.59`;
+      window.require([controlUrl], function(data) {
         let controlClass = data.default;
         dispatch({
           type: RECEIVE_CONTROL,
           controlClass,
           control: cardletProps.control
         });
-      };
-
-      switch (controlUrl) {
-        case '../cardlets/js/citeck/modules/cardlets/node-header/node-header':
-          import('../cardlets/js/citeck/modules/cardlets/node-header/node-header').then(thenFunc);
-          break;
-        case '../cardlets/js/citeck/modules/cardlets/document-children/document-children':
-          import('../cardlets/js/citeck/modules/cardlets/document-children/document-children').then(thenFunc);
-          break;
-        default:
-          import(controlUrl).then(thenFunc);
-      }
+      });
 
       state = getState();
-      control = state.cardDetails.controls[controlUrl];
+      control = state.cardDetails.controls[cardletProps.control.url];
     }
 
     let fetchData = controlClass => {
@@ -178,26 +157,11 @@ export function fetchCardletData(cardletProps) {
     };
 
     if (control.isFetching) {
-      // require([controlUrl], function (data) {
-      //     fetchData(data.default);
-      // });
-
-      // console.log('controlUrl2', controlUrl);
-      // import(controlUrl).then(data => {
-      //   fetchData(data.default);
-      // });
-      //
-      let thenFunc = data => {
+      // TODO
+      const controlUrl = `/share/res/${cardletProps.control.url}.js?3.5.0.18.11.12.11.59`;
+      window.require([controlUrl], function(data) {
         fetchData(data.default);
-      };
-
-      switch (controlUrl) {
-        case '../cardlets/js/citeck/modules/cardlets/node-header/node-header':
-          import('../cardlets/js/citeck/modules/cardlets/node-header/node-header').then(thenFunc);
-          break;
-        default:
-          import(controlUrl).then(thenFunc);
-      }
+      });
     } else {
       fetchData(control.controlClass);
     }

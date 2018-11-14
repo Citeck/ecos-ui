@@ -1,7 +1,13 @@
 import isObject from 'lodash/isObject';
 import isFunction from 'lodash/isFunction';
-
 import $ from 'jquery';
+
+export const getURLParameterByName = function(name) {
+  name = name.replace(/[[]/, '\\[').replace(/[\]]/, '\\]');
+  const regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
+    results = regex.exec(window.location.search);
+  return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+};
 
 export const setURLParameter = function(key, value) {
   key = encodeURI(key);
@@ -25,8 +31,6 @@ export const setURLParameter = function(key, value) {
 };
 
 export const requireInOrder = function(dependencies, callback) {
-  console.log('requireInOrder');
-
   return new Promise((resolve, reject) => {
     let scope = this;
     let orderedRequire = function(dependencies, idx, modules) {
@@ -36,7 +40,8 @@ export const requireInOrder = function(dependencies, callback) {
         }
         resolve(modules);
       } else {
-        require([dependencies[idx]], function(module) {
+        const controlUrl = `/share/res/${dependencies[idx]}.js?3.5.0.18.11.12.11.59`;
+        window.require([controlUrl], function(module) {
           modules.push(module);
           orderedRequire(dependencies, idx + 1, modules);
         });
@@ -67,8 +72,11 @@ export const loadHtml = function(url, args, htmlDest, successCallback, failureCa
     config.jsInlineDest = function(scripts) {
       for (let i = 0; i < scripts.length; i++) {
         try {
+          const script = document.createElement('script');
+          script.textContent = scripts[i];
+          document.body.appendChild(script);
           // eslint-disable-next-line
-          eval(scripts[i]);
+          // eval(scripts[i]);
         } catch (e) {
           console.error('Exception while eval scripts from loadHtml with config', config, e);
           throw e;
@@ -85,7 +93,7 @@ export const loadHtml = function(url, args, htmlDest, successCallback, failureCa
 
   if (!config.cssDest) {
     config.cssDest = function(cssData) {
-      require(cssData);
+      window.require(cssData);
     };
   }
 

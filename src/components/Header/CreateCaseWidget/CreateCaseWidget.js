@@ -32,7 +32,7 @@ const CreateCaseWidget = ({ items, isCascade }) => {
     <div id="HEADER_CREATE_CASE">
       <UncontrolledDropdown className="custom-dropdown-menu">
         <DropdownToggle tag="span" className="create-case-dropdown-menu__toggle custom-dropdown-menu__toggle">
-          <FontAwesomeIcon icon={faPlus} color="white" size="lg" />
+          <FontAwesomeIcon icon={faPlus} color="white" />
         </DropdownToggle>
         <DropdownMenu className={dropdownMenuClasses.join(' ')} id="HEADER_CREATE_CASE__DROPDOWN">
           {menuListItems}
