@@ -1,15 +1,20 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import queryString from 'query-string';
 import CardDetails from '../../components/CardDetails';
 import { fetchCardlets, fetchNodeInfo, setCardMode, setPageArgs } from '../../actions/cardDetails';
 import { registerReducers } from '../../reducers/cardDetails';
-import { getURLParameterByName } from '../../helpers/citeck';
 
 // TODO use injectAsyncReducer
 
 const mapDispatchToProps = dispatch => ({
-  dispatch
+  setPageArgs: pageArgs => dispatch(setPageArgs(pageArgs)),
+  fetchNodeInfo: nodeRef => dispatch(fetchNodeInfo(nodeRef)),
+  fetchCardlets: nodeRef => dispatch(fetchCardlets(nodeRef)),
+  setCardMode: (cardMode, registerReducers) => dispatch(setCardMode(cardMode, registerReducers))
 });
+
+const DEFAULT_CARD_MODE = 'default';
 
 class CardDetailsPage extends React.Component {
   state = {
@@ -17,44 +22,38 @@ class CardDetailsPage extends React.Component {
   };
 
   componentDidMount() {
-    const { dispatch } = this.props;
-
-    // const alfescoUrl = window.location.protocol + '//' + window.location.host + '/share/proxy/alfresco/';
-    // const userName = 'admin';
-    // const nodeBaseInfo = { modified: '2018-11-07T18:42:48.610+03:00', permissions: { Read: true, Write: true }, pendingUpdate: false };
-
-    const pageArgs = {
-      nodeRef: 'workspace://SpacesStore/9a1666e7-6f1f-48ae-85cc-c7e5dfc33307',
-      pageid: 'card-details',
-      theme: 'citeckTheme',
-      aikauVersion: '1.0.63'
-    };
-
-    const DEFAULT_CARD_MODE = 'default';
-
-    function getCurrentCardMode() {
-      return getURLParameterByName('mode') || DEFAULT_CARD_MODE;
+    const { setPageArgs, fetchNodeInfo, fetchCardlets, setCardMode } = this.props;
+    const searchParams = queryString.parse(this.props.location.search);
+    const nodeRef = searchParams.nodeRef;
+    if (!nodeRef) {
+      return null; // TODO
     }
 
-    dispatch(setPageArgs(pageArgs));
+    function getCurrentCardMode() {
+      return searchParams.mode || DEFAULT_CARD_MODE;
+    }
 
-    let nodeBaseInfoPromise = dispatch(fetchNodeInfo(pageArgs.nodeRef));
-    let cardletsPromise = dispatch(fetchCardlets(pageArgs.nodeRef)).then(() => {
-      dispatch(setCardMode(getCurrentCardMode(), registerReducers));
+    setPageArgs({
+      nodeRef,
+      theme: 'citeckTheme' // TODO get from store
+    });
+
+    let nodeBaseInfoPromise = fetchNodeInfo(nodeRef);
+    let cardletsPromise = fetchCardlets(nodeRef).then(() => {
+      setCardMode(getCurrentCardMode(), registerReducers);
     });
 
     Promise.all([cardletsPromise, nodeBaseInfoPromise]).then(() => {
       window.__CARD_DETAILS_START = new Date().getTime();
 
       window.onpopstate = function() {
-        dispatch(setCardMode(getCurrentCardMode(), registerReducers));
+        setCardMode(getCurrentCardMode(), registerReducers);
       };
 
       window.YAHOO.Bubbling.on('metadataRefresh', () => {
-        dispatch(fetchNodeInfo(pageArgs.nodeRef));
+        fetchNodeInfo(nodeRef);
       });
 
-      // ReactDOM.render(React.createElement(CardDetailsRoot, props), document.getElementById(elementId));
       this.setState({ isReady: true });
     });
   }

@@ -2,11 +2,13 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import thunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
-import reducers, { createReducer } from './reducers';
+import { routerMiddleware } from 'connected-react-router';
+import { createBrowserHistory } from 'history';
+import createRootReducer, { createReducer } from './reducers';
 import sagas from './sagas';
-// import { connectRouter, routerMiddleware } from 'connected-react-router';
 
 const sagaMiddleware = createSagaMiddleware();
+const history = createBrowserHistory();
 
 let optionalMiddlewares = [];
 if (process.env.NODE_ENV === 'development') {
@@ -19,20 +21,12 @@ if (typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
   composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
 }
 
-export default function configureStore(ea, history) {
+export default function configureStore(ea) {
   const initialState = {};
   const store = createStore(
-    // connectRouter(history)(reducers),
-    reducers,
+    createRootReducer(history),
     initialState,
-    composeEnhancers(
-      applyMiddleware(
-        sagaMiddleware,
-        // routerMiddleware(history),
-        thunk.withExtraArgument(ea),
-        ...optionalMiddlewares
-      )
-    )
+    composeEnhancers(applyMiddleware(routerMiddleware(history), sagaMiddleware, thunk.withExtraArgument(ea), ...optionalMiddlewares))
   );
 
   sagaMiddleware.run(sagas, ea);
@@ -41,7 +35,11 @@ export default function configureStore(ea, history) {
   return store;
 }
 
+export function getHistory() {
+  return history;
+}
+
 export function injectAsyncReducer(store, name, reducer) {
   store.asyncReducers[name] = reducer;
-  store.replaceReducer(createReducer(store.asyncReducers));
+  store.replaceReducer(createReducer(store.asyncReducers, history));
 }

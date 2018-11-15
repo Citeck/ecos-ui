@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Route, Switch } from 'react-router';
 import classNames from 'classnames';
 
 import CardDetailsPage from '../../pages/CardDetailsPage';
@@ -27,7 +28,13 @@ const App = ({ isInit, isInitFailure, isMobile }) => {
       <SlideMenu />
       <div className="sticky-wrapper">
         <Header />
-        <CardDetailsPage />
+
+        <Switch>
+          {/*<Route path="/share/page" exact component={DashboardPage} />*/}
+          <Route path="/share/page/(.*/)?card-details" component={CardDetailsPage} />
+          {/*<Route component={NotFoundPage} />*/}
+        </Switch>
+
         <div className="sticky-push" />
       </div>
       <Footer key="card-details-footer" className="sticky-footer" theme="citeckTheme" />

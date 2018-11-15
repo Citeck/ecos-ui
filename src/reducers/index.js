@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import { connectRouter } from 'connected-react-router';
 
 import app from './app';
 import header from './header';
@@ -18,10 +19,15 @@ const reducers = {
   view
 };
 
-export default combineReducers(reducers);
+export default history =>
+  combineReducers({
+    router: connectRouter(history),
+    ...reducers
+  });
 
-export const createReducer = asyncReducers => {
+export const createReducer = (asyncReducers, history) => {
   return combineReducers({
+    router: connectRouter(history),
     ...reducers,
     ...asyncReducers
   });
