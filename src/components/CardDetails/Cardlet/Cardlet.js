@@ -2,23 +2,26 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { fetchCardletData } from '../../../actions/cardDetails';
 
-const Cardlet = function(props) {
-  const { fetchData, modeLoaded, cardletState, controlClass, mobileOrder } = props;
-
-  fetchData(props);
-
-  let loaded = modeLoaded && cardletState.data && controlClass;
-
-  if (!loaded) {
-    return <div />;
+class Cardlet extends React.Component {
+  componentDidMount() {
+    this.props.fetchData(this.props);
   }
 
-  return (
-    <div className="cardlet" data-available-in-mobile={mobileOrder > -1} data-position-index-in-mobile={mobileOrder}>
-      <props.controlClass {...cardletState} />
-    </div>
-  );
-};
+  render() {
+    const { modeLoaded, cardletState, controlClass, mobileOrder } = this.props;
+    let loaded = modeLoaded && cardletState.data && controlClass;
+
+    if (!loaded) {
+      return <div />;
+    }
+
+    return (
+      <div className="cardlet" data-available-in-mobile={mobileOrder > -1} data-position-index-in-mobile={mobileOrder}>
+        <this.props.controlClass {...cardletState} />
+      </div>
+    );
+  }
+}
 
 const evalExpRegexp = /\${((?:(?!\${)[\S\s])+?)}/g;
 
@@ -29,7 +32,6 @@ const mapStateToProps = (state, ownProps) => {
   let rawProps = ownProps.control.props || {};
   let controlProps = {};
 
-  // TODO
   for (let prop in rawProps) {
     if (!rawProps.hasOwnProperty(prop)) {
       continue;
@@ -78,4 +80,4 @@ const CardletConnected = connect(
 
 export default CardletConnected;
 
-export const createCardlets = cardlets => (cardlets || []).map((data, idx) => <CardletConnected key={idx} {...data} />);
+export const renderCardletList = cardlets => (cardlets || []).map((data, idx) => <CardletConnected key={idx} {...data} />);

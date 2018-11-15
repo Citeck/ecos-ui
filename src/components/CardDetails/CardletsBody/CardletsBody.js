@@ -2,13 +2,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import CardletsModeTab from '../CardletsModeTab';
 import CardletsModeBody from '../CardletsModeBody';
-import { createCardlets } from '../Cardlet';
+import { renderCardletList } from '../Cardlet';
 
 const Alfresco = window.Alfresco;
 
 const CardletsBody = ({ modes, cardlets }) => (
   <div className="cardlets-body">
-    {createCardlets(cardlets['all']['top'])}
+    {renderCardletList(cardlets['all']['top'])}
     <div id="card-details-tabs" className="header-tabs">
       {modes.map(mode => {
         return <CardletsModeTab key={`card-mode-link-${mode.id}`} {...mode} />;
@@ -22,6 +22,7 @@ const CardletsBody = ({ modes, cardlets }) => (
   </div>
 );
 
+// TODO optimize
 const mapStateToProps = state => {
   let cardlets = {
     all: { top: [] }

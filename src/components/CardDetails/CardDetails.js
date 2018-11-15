@@ -25,7 +25,7 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-function CardDetails({ anyCardModeLoaded, ...props }) {
+function CardDetails({ anyCardModeLoaded }) {
   let uploadersComponents = [];
   if (anyCardModeLoaded) {
     uploadersComponents = [createUploaderRegion('dnd-upload'), createUploaderRegion('file-upload')];
@@ -35,7 +35,7 @@ function CardDetails({ anyCardModeLoaded, ...props }) {
     <div id="card-details-container">
       <div id="doc3">
         <div id="bd">
-          <CardletsBody {...props} />
+          <CardletsBody />
         </div>
         <div id="card-details-uploaders" style={{ display: 'none' }}>
           {uploadersComponents}

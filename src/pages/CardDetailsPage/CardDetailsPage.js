@@ -5,8 +5,6 @@ import CardDetails from '../../components/CardDetails';
 import { fetchCardlets, fetchNodeInfo, setCardMode, setPageArgs } from '../../actions/cardDetails';
 import { registerReducers } from '../../reducers/cardDetails';
 
-// TODO use injectAsyncReducer
-
 const mapDispatchToProps = dispatch => ({
   setPageArgs: pageArgs => dispatch(setPageArgs(pageArgs)),
   fetchNodeInfo: nodeRef => dispatch(fetchNodeInfo(nodeRef)),
@@ -58,7 +56,9 @@ class CardDetailsPage extends React.Component {
     });
   }
 
-  componentWillUnmount() {}
+  componentWillUnmount() {
+    // TODO remove listeners
+  }
 
   render() {
     if (!this.state.isReady) {

@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
-import { createCardlets } from '../Cardlet';
+import { renderCardletList } from '../Cardlet';
 
 function CardletsModeBody({ visited, cardlets, loaded, id, isActive }) {
   let cardletList = {
@@ -34,12 +34,12 @@ function CardletsModeBody({ visited, cardlets, loaded, id, isActive }) {
         </div>
       </div>
       <div className={contentClassNames}>
-        {createCardlets(cardletList['top'])}
+        {renderCardletList(cardletList['top'])}
         <div className="yui-gc">
-          <div className="yui-u first">{createCardlets(cardletList['left'])}</div>
-          <div className="yui-u">{createCardlets(cardletList['right'])}</div>
+          <div className="yui-u first">{renderCardletList(cardletList['left'])}</div>
+          <div className="yui-u">{renderCardletList(cardletList['right'])}</div>
         </div>
-        {createCardlets(cardletList['bottom'])}
+        {renderCardletList(cardletList['bottom'])}
       </div>
     </div>
   );

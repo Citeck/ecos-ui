@@ -1,1 +1,1 @@
-export { default, createCardlets } from './Cardlet';
+export { default, renderCardletList } from './Cardlet';
