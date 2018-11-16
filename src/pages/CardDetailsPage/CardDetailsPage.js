@@ -57,7 +57,9 @@ class CardDetailsPage extends React.Component {
   }
 
   componentWillUnmount() {
-    this.removeHistoryListener();
+    if (typeof this.removeHistoryListener === 'function') {
+      this.removeHistoryListener();
+    }
 
     // TODO remove all listeners
   }

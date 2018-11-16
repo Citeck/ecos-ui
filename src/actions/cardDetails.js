@@ -1,3 +1,5 @@
+import { URL_RESCONTEXT, PROXY_URI } from '../constants/alfresco';
+
 const prefix = 'cardDetails/';
 
 export const SET_PAGE_ARGS = prefix + 'SET_PAGE_ARGS';
@@ -104,8 +106,7 @@ export function fetchCardletData(cardletProps) {
         control: cardletProps.control
       });
 
-      // TODO
-      const controlUrl = `/share/res/${cardletProps.control.url}.js?3.5.0.18.11.12.11.59`;
+      const controlUrl = `${URL_RESCONTEXT}${cardletProps.control.url}.js`;
       window.require([controlUrl], function(data) {
         let controlClass = data.default;
         dispatch({
@@ -157,8 +158,7 @@ export function fetchCardletData(cardletProps) {
     };
 
     if (control.isFetching) {
-      // TODO
-      const controlUrl = `/share/res/${cardletProps.control.url}.js?3.5.0.18.11.12.11.59`;
+      const controlUrl = `${URL_RESCONTEXT}${cardletProps.control.url}.js`;
       window.require([controlUrl], function(data) {
         fetchData(data.default);
       });
@@ -175,7 +175,7 @@ export function fetchCardlets(nodeRef) {
       nodeRef: nodeRef
     });
 
-    return fetch('/share/proxy/alfresco/citeck/card/cardlets?mode=all&nodeRef=' + nodeRef, {
+    return fetch(`${PROXY_URI}citeck/card/cardlets?mode=all&nodeRef=${nodeRef}`, {
       credentials: 'include'
     })
       .then(response => {
