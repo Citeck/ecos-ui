@@ -1,13 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import { push } from 'connected-react-router';
+import queryString from 'query-string';
 import classNames from 'classnames';
-import { setCardMode } from '../../../actions/cardDetails';
-import { setURLParameter } from '../../../helpers/citeck';
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   onClick: () => {
-    setURLParameter('mode', ownProps.id);
-    dispatch(setCardMode(ownProps.id));
+    const pathName = ownProps.location.pathname;
+    const searchParams = queryString.parse(ownProps.location.search);
+    const newSearchString = queryString.stringify({ ...searchParams, mode: ownProps.id }, { sort: false });
+
+    dispatch(push(`${pathName}?${newSearchString}`));
   }
 });
 
@@ -18,7 +22,9 @@ const CardletsModeTab = ({ isActive, title, onClick }) => (
   </span>
 );
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(CardletsModeTab);
+export default withRouter(
+  connect(
+    null,
+    mapDispatchToProps
+  )(CardletsModeTab)
+);

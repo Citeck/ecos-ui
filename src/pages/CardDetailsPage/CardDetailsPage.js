@@ -19,16 +19,14 @@ class CardDetailsPage extends React.Component {
     isReady: false
   };
 
+  removeHistoryListener = null;
+
   componentDidMount() {
     const { setPageArgs, fetchNodeInfo, fetchCardlets, setCardMode } = this.props;
     const searchParams = queryString.parse(this.props.location.search);
     const nodeRef = searchParams.nodeRef;
     if (!nodeRef) {
       return null; // TODO
-    }
-
-    function getCurrentCardMode() {
-      return searchParams.mode || DEFAULT_CARD_MODE;
     }
 
     setPageArgs({
@@ -38,15 +36,17 @@ class CardDetailsPage extends React.Component {
 
     let nodeBaseInfoPromise = fetchNodeInfo(nodeRef);
     let cardletsPromise = fetchCardlets(nodeRef).then(() => {
-      setCardMode(getCurrentCardMode(), registerReducers);
+      setCardMode(searchParams.mode || DEFAULT_CARD_MODE, registerReducers);
     });
 
     Promise.all([cardletsPromise, nodeBaseInfoPromise]).then(() => {
       window.__CARD_DETAILS_START = new Date().getTime();
 
-      window.onpopstate = function() {
-        setCardMode(getCurrentCardMode(), registerReducers);
-      };
+      this.removeHistoryListener = this.props.history.listen((location, action) => {
+        const searchParams = queryString.parse(location.search);
+        setCardMode(searchParams.mode || DEFAULT_CARD_MODE);
+        //
+      });
 
       window.YAHOO.Bubbling.on('metadataRefresh', () => {
         fetchNodeInfo(nodeRef);
@@ -57,7 +57,9 @@ class CardDetailsPage extends React.Component {
   }
 
   componentWillUnmount() {
-    // TODO remove listeners
+    this.removeHistoryListener();
+
+    // TODO remove all listeners
   }
 
   render() {
