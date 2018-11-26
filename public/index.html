@@ -22,9 +22,9 @@
     <title>Citeck ECOS</title>
 
 
-
     <script type="text/javascript">//<![CDATA[
     var appContext = "\/share";
+    var cacheBust = "{{ASSETS_CACHE}}";
 
     var dojoConfig = {
       baseUrl: "\/share/res/",
@@ -32,7 +32,7 @@
       locale: (navigator.languages ? navigator.languages[0] : (navigator.language || navigator.userLanguage)).toLowerCase(),
       async: true,
       parseOnLoad: false,
-      cacheBust: "3.5.0.18.11.12.11.59",
+      cacheBust: cacheBust,
       packages: [
         // { name: "jquerymmenu", location: "/share/res/js/citeck/lib", main: "jquery.mmenu.all.min"},
         { name: "react-dom", location: "/share/res/js/citeck/lib", main: "react-dom.min"},
@@ -70,37 +70,20 @@
 
     <script type="text/javascript" src="/share/res/js/lib/dojo-1.10.4/dojo/dojo.js"></script>
 
-    <script type="text/javascript" src="/share/service/messages_d3b5c0086e181469d03b681f2b33a5e9.js?locale=ru"></script>
-
-
-
-
-
-    <style type="text/css" media="screen">
-      @import url("/share/res/css/yui-fonts-grids_fe8fbe97553ea9e004731970a95a499b.css");
-      @import url("/share/res/yui/columnbrowser/assets/columnbrowser_a6ca750d53c6b6c201614545f6c33ee7.css");
-      @import url("/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin_8d0c089e2ba8e57eaf72126e1fff5581.css");
-      @import url("/share/res/themes/citeckTheme/yui/assets/skin_d61c248745a22f868c969d0cc18f0516.css");
-      @import url("/share/res/css/base_b1b9615640803c553a02f8dfa9bc59ac.css");
-      @import url("/share/res/css/yui-layout_dcf75721dfd8e8e7c46cdcf6a269cedd.css");
-      @import url("/share/res/themes/citeckTheme/presentation_c92ec95782cc0016f88ad189288769a8.css");
-      @import url("/share/res/modules/create-site_a38bada01786d33165967625c46d10fd.css");
-    </style>
-
-    <style type="text/css" media="screen">
-      @import url("/share/res/components/form/form_2912bd6700da67b8ca6974dca52b6ebe.css");
-    </style>
-
-    <style type="text/css" media="screen">
-      @import url("/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro_cca50166019f5e7251eadfc9247b6551.css");
-    </style>
-
-
-
-
-    <!-- Alfresco web framework common resources -->
-    <script type="text/javascript" src="/share/res/modules/editors/tinymce/tinymce.min.js?checksum=f34ea2e33cbdf16fb05ecb3e9a6f6562"></script>
-
+    <script>
+      window.require([
+        'xstyle!/share/res/css/yui-fonts-grids.css',
+        'xstyle!/share/res/yui/columnbrowser/assets/columnbrowser.css',
+        'xstyle!/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin.css',
+        'xstyle!/share/res/themes/citeckTheme/yui/assets/skin.css',
+        'xstyle!/share/res/css/base.css',
+        'xstyle!/share/res/css/yui-layout.css',
+        'xstyle!/share/res/themes/citeckTheme/presentation.css',
+        'xstyle!/share/res/modules/create-site.css',
+        'xstyle!/share/res/components/form/form.css',
+        'xstyle!/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro.css',
+      ]);
+    </script>
 
   </head>
   <body id="Share" class="yui-skin-citeckTheme alfresco-share claro js ">
@@ -118,6 +101,17 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+
+    <script type="text/javascript" src="/share/service/messages.js?locale=ru&v={{ASSETS_CACHE}}"></script>
+
+    <script>
+      window.require([
+        '/share/res/modules/editors/tinymce/tinymce.min.js',
+      //   '/share/res/js/yui-common.js',
+      //   '/share/res/yui/history/history.js',
+      //   '/share/res/js/bubbling.v2.1.js',
+      ]);
+    </script>
 
     <script type="text/javascript" src="/share/res/js/yui-common_85fe398e5deaf2958d87495ebd1e083d.js"></script>
     <script type="text/javascript" src="/share/res/yui/history/history_543b42a00a378f4d4b6e70c81d915b0a.js"></script>

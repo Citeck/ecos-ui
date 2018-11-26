@@ -3,6 +3,12 @@ import { CommonApi } from './common';
 export class UserApi extends CommonApi {
   getPhotoSize = userNodeRef => {
     const url = 'citeck/node?nodeRef=' + userNodeRef + '&props=ecos:photo';
-    return this.getJson(url).then(data => data.props['ecos:photo'].size);
+    return this.getJson(url).then(data => {
+      if (!data.props || !data.props['ecos:photo']) {
+        return 0;
+      }
+
+      return data.props['ecos:photo'].size;
+    });
   };
 }
