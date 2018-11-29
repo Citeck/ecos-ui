@@ -136,7 +136,7 @@
 }
 
 /* dropdown menu body */
-.custom-dropdown-menu__body {
+.dropdown-menu.custom-dropdown-menu__body {
   border-radius: 0;
   color: #333;
   background-color: #f1f1f1;

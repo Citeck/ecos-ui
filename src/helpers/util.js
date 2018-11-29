@@ -33,11 +33,13 @@ export function t(messageId, multipleValues, scope = 'global') {
     return '';
   }
 
-  if (!window.Alfresco) {
+  const Alfresco = window.Alfresco;
+
+  if (!Alfresco || !Alfresco.util || !Alfresco.util.message) {
     return messageId;
   }
 
-  return window.Alfresco.util.message(messageId, scope, multipleValues);
+  return Alfresco.util.message(messageId, scope, multipleValues);
   // return messageId;
 }
 

@@ -8,6 +8,8 @@ import { isMobileDevice } from '../helpers/util';
 
 export function* initApp({ api, fakeApi, logger }) {
   try {
+    // Alfresco.constants.URL_CONTEXT + "service/modules/authenticated?noCache=" + new Date().getTime() + "&a=user"
+
     // --- Validate user ---
     const resp = yield call(fakeApi.validateUser);
     // const resp = yield call(api.auth.validate);

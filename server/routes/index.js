@@ -7,9 +7,10 @@ const replaceAll = function(target, search, replacement) {
   return target.replace(new RegExp(search, 'g'), replacement);
 };
 
-router.get('/', function(req, res) {
+const mainRoute = function(req, res) {
   const filePath = path.resolve(__dirname, '..', '..', 'build', 'index.html');
 
+  // TODO read template once, then store it in memory
   fs.readFile(filePath, 'utf8', (err, htmlData) => {
     if (err) {
       console.error('read err', err);
@@ -20,6 +21,9 @@ router.get('/', function(req, res) {
 
     res.send(htmlData);
   });
-});
+};
+
+router.get('/', mainRoute);
+router.get('/share/page/(**/)?card-details', mainRoute);
 
 module.exports = router;

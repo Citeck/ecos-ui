@@ -21,76 +21,49 @@
     -->
     <title>Citeck ECOS</title>
 
+    <style type="text/css" media="screen">
+      @import url("/share/res/css/yui-fonts-grids.css?{{ASSETS_CACHE}}");
+      @import url("/share/res/yui/columnbrowser/assets/columnbrowser.css?{{ASSETS_CACHE}}");
+      @import url("/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin.css?{{ASSETS_CACHE}}");
+      @import url("/share/res/themes/citeckTheme/yui/assets/skin.css?{{ASSETS_CACHE}}");
+      @import url("/share/res/css/base.css?{{ASSETS_CACHE}}");
+      @import url("/share/res/css/yui-layout.css?{{ASSETS_CACHE}}");
+      @import url("/share/res/themes/citeckTheme/presentation.css?{{ASSETS_CACHE}}");
+      @import url("/share/res/modules/create-site.css?{{ASSETS_CACHE}}");
+      @import url("/share/res/components/form/form.css?{{ASSETS_CACHE}}");
+      @import url("/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro.css?{{ASSETS_CACHE}}");
+    </style>
 
-    <script type="text/javascript">//<![CDATA[
-    var appContext = "\/share";
-    var cacheBust = "{{ASSETS_CACHE}}";
-
-    var dojoConfig = {
-      baseUrl: "\/share/res/",
-      tlmSiblingOfDojo: false,
-      locale: (navigator.languages ? navigator.languages[0] : (navigator.language || navigator.userLanguage)).toLowerCase(),
-      async: true,
-      parseOnLoad: false,
-      cacheBust: cacheBust,
-      packages: [
-        // { name: "jquerymmenu", location: "/share/res/js/citeck/lib", main: "jquery.mmenu.all.min"},
-        { name: "react-dom", location: "/share/res/js/citeck/lib", main: "react-dom.min"},
-        { name: "react-redux", location: "/share/res/js/citeck/lib", main: "react-redux.min"},
-        { name: "svg4everybody", location: "js/lib/svg4everybody", main: "svg4everybody.min"},
-        { name: "redux", location: "/share/res/js/citeck/lib", main: "redux.min"},
-        { name: "dijit", location: "js/lib/dojo-1.10.4/dijit"},
-        { name: "cmm", location: "js/alfresco/cmm"},
-        { name: "citeckMenuBarPopup", location: "js/citeck/menus/citeckMenuBarPopup"},
-        { name: "citeckLogo", location: "js/citeck/logo/citeckLogo"},
-        { name: "showdown", location: "js/lib/showdown-1.3.0", main: "showdown.min"},
-        { name: "react", location: "/share/res/js/citeck/lib", main: "react.min"},
-        { name: "jquery", location: "js/lib/jquery-1.11.1", main: "jquery-1.11.1.min"},
-        { name: "citeckHeaderItem", location: "js/citeck/header/citeckMenuItem"},
-        // { name: "react-custom-scrollbars", location: "/share/res/js/citeck/lib", main: "react-custom-scrollbars.min"},
-        { name: "citeckMenuBarItem", location: "js/citeck/menus/citeckMenuBarItem"},
-        { name: "share", location: "js/share"},
-        { name: "dojox", location: "js/lib/dojo-1.10.4/dojox"},
-        // { name: "react-bootstrap", location: "/share/res/js/citeck/lib", main: "react-bootstrap.min"},
-        { name: "webscripts", location: "../service/1-0-63"},
-        { name: "surf", location: "js/surf"},
-        { name: "citeckMenuItem", location: "js/citeck/menus/citeckMenuItem"},
-        // { name: "jqueryscrollbar", location: "/share/res/js/citeck/lib", main: "jquery.nicescroll.min"},
-        { name: "alfresco", location: "js/aikau/1.0.63/alfresco"},
-        { name: "citeckMenuGroup", location: "js/citeck/menus/citeckMenuGroup"},
-        { name: "xstyle", location: "/share/res/js/citeck/lib/xstyle", main: "css.min"},
-        { name: "cm", location: "js/lib/code-mirror"},
-        { name: "share-components", location: "components"},
-        { name: "service", location: "../service"},
-        { name: "jqueryui", location: "js/lib/jquery-ui-1.11.1", main: "jquery-ui.min"},
-        { name: "dojo", location: "js/lib/dojo-1.10.4/dojo"}
-      ]
-    };
-    //]]></script>
-
-    <script type="text/javascript" src="/share/res/js/lib/dojo-1.10.4/dojo/dojo.js"></script>
-
-    <script>
-      window.require([
-        'xstyle!/share/res/css/yui-fonts-grids.css',
-        'xstyle!/share/res/yui/columnbrowser/assets/columnbrowser.css',
-        'xstyle!/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin.css',
-        'xstyle!/share/res/themes/citeckTheme/yui/assets/skin.css',
-        'xstyle!/share/res/css/base.css',
-        'xstyle!/share/res/css/yui-layout.css',
-        'xstyle!/share/res/themes/citeckTheme/presentation.css',
-        'xstyle!/share/res/modules/create-site.css',
-        'xstyle!/share/res/components/form/form.css',
-        'xstyle!/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro.css',
-      ]);
-    </script>
+    <style type="text/css">
+      @font-face {
+        font-family: 'Open Sans';
+        font-style: normal;
+        font-weight: 400;
+        src: url(/share/res/js/aikau/1.0.63/alfresco/core/css/opensans.woff?{{ASSETS_CACHE}}) format('woff');
+      }
+      @font-face {
+        font-family: 'Open Sans Bold';
+        font-style: normal;
+        font-weight: 600;
+        src: url(/share/res/js/aikau/1.0.63/alfresco/core/css/opensansbold.woff?{{ASSETS_CACHE}}) format('woff');
+      }
+      @font-face {
+        font-family: 'Open Sans Condensed';
+        font-style: normal;
+        font-weight: 300;
+        src: url(/share/res/js/aikau/1.0.63/alfresco/core/css/opensanscondensed.woff?{{ASSETS_CACHE}}) format('woff');
+      }
+    </style>
 
   </head>
   <body id="Share" class="yui-skin-citeckTheme alfresco-share claro js ">
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
+
     <div id="root" class="page-content-root"></div>
+
+    <div id="alfresco-yuiloader"></div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -102,26 +75,42 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
 
-    <script type="text/javascript" src="/share/service/messages.js?locale=ru&v={{ASSETS_CACHE}}"></script>
-
-    <script>
-      window.require([
-        '/share/res/modules/editors/tinymce/tinymce.min.js',
-      //   '/share/res/js/yui-common.js',
-      //   '/share/res/yui/history/history.js',
-      //   '/share/res/js/bubbling.v2.1.js',
-      ]);
+    <script type="text/javascript">
+      var appContext = "/share";
+      var cacheBust = "{{ASSETS_CACHE}}";
     </script>
 
-    <script type="text/javascript" src="/share/res/js/yui-common_85fe398e5deaf2958d87495ebd1e083d.js"></script>
-    <script type="text/javascript" src="/share/res/yui/history/history_543b42a00a378f4d4b6e70c81d915b0a.js"></script>
-    <script type="text/javascript" src="/share/res/js/bubbling.v2.1_5a671b93e806ea64b41f915cf6147232.js"></script>
+    <script type="text/javascript" src="/share/service/surf/dojo/bootstrap.js?{{ASSETS_CACHE}}"></script>
+
+    <script type="text/javascript" src="/share/res/js/lib/dojo-1.10.4/dojo/dojo.js?{{ASSETS_CACHE}}"></script>
+    <script type="text/javascript" src="/share/res/js/yui-common.js?{{ASSETS_CACHE}}"></script>
+
+    <script type="text/javascript" src="/share/service/messages.js?locale=ru&v={{ASSETS_CACHE}}"></script>
+    <script type="text/javascript" src="/share/res/modules/editors/tinymce/tinymce.min.js?{{ASSETS_CACHE}}"></script>
+    <script type="text/javascript" src="/share/res/js/yui-common.js?{{ASSETS_CACHE}}"></script>
+    <script type="text/javascript" src="/share/res/yui/history/history.js?{{ASSETS_CACHE}}"></script>
+    <script type="text/javascript" src="/share/res/js/bubbling.v2.1.js?{{ASSETS_CACHE}}"></script>
+
+    <script type="text/javascript" src="/share/res/js/flash/AC_OETags.js?{{ASSETS_CACHE}}"></script>
+    <script type="text/javascript" src="/share/res/js/alfresco.js?{{ASSETS_CACHE}}"></script>
+    <script type="text/javascript" src="/share/res/modules/editors/tiny_mce.js?{{ASSETS_CACHE}}"></script>
+    <script type="text/javascript" src="/share/res/modules/editors/yui_editor.js?{{ASSETS_CACHE}}"></script>
+    <script type="text/javascript" src="/share/res/js/forms-runtime.js?{{ASSETS_CACHE}}"></script>
+
+    <script type="text/javascript" src="/share/res/js/share.js?{{ASSETS_CACHE}}"></script>
+    <script type="text/javascript" src="/share/res/modules/create-site.js?{{ASSETS_CACHE}}"></script>
+
+    <!--<script type="text/javascript" src="/share/res/citeck/mobile/mobile.js?{{ASSETS_CACHE}}"></script>-->
+
     <script type="text/javascript">//<![CDATA[
     YAHOO.Bubbling.unsubscribe = function(layer, handler, scope)
     {
       this.bubble[layer].unsubscribe(handler, scope);
     };
     //]]></script>
+
+    <!--<script type="text/javascript" src="/share/service/constants/Default.js?{{ASSETS_CACHE}}"></script>-->
+
     <script type="text/javascript">//<![CDATA[
     <!-- Alfresco web framework constants -->
     Alfresco.constants = Alfresco.constants || {};
@@ -168,11 +157,6 @@
 
     Alfresco.constants.TINY_MCE_SUPPORTED_LOCALES = "en,de,es,fr,it,ja,nl,zh_CN,ru,nb,pt_BR";
     //]]></script>
-    <script type="text/javascript" src="/share/res/js/flash/AC_OETags_23681d043aef7e80993a9f9354d71741.js"></script>
-    <script type="text/javascript" src="/share/res/js/alfresco_59f641aae3a63a5f1e6b5b89754aa9e0.js"></script>
-    <script type="text/javascript" src="/share/res/modules/editors/tiny_mce_947dfc74b7dbff0f5062c429a469db58.js"></script>
-    <script type="text/javascript" src="/share/res/modules/editors/yui_editor_0a0da13c6dc370802cb4c2dc6ef1f559.js"></script>
-    <script type="text/javascript" src="/share/res/js/forms-runtime_84ade72e6aefcb83b54f90b3b5f57145.js"></script>
     <script type="text/javascript">//<![CDATA[
     <!-- Share Constants -->
     Alfresco.service.Preferences.FAVOURITE_DOCUMENTS = "org.alfresco.share.documents.favourites";
@@ -198,8 +182,6 @@
         "consoletoolpage": "/console/{pageid}/{toolid}",
         "consolepage": "/console/{pageid}",
         "share-page": "/{pageid}/ws/{webscript}",
-        "journals": "/{pageid}/list/{listId}",
-        "sitejournals": "/site/{site}/{pageid}/list/{listId}",
         "journals": "/{pageid}/list/{listId}",
         "sitejournals": "/site/{site}/{pageid}/list/{listId}"
       };
@@ -229,33 +211,24 @@
       }
     ];
     //]]></script>
-    <script type="text/javascript" src="/share/res/js/share_bd3d23c66f7be6f4524d923c62dc2b3e.js"></script>
-    <script type="text/javascript" src="/share/res/js/lightbox_bc0f7ca3f123011aa02ad82dace7cae3.js"></script>
-    <script type="text/javascript" src="/share/res/modules/create-site_60c9a76848df17fa1f408ecfa0fba17f.js"></script>
-
-    <script type="text/javascript" src="/share/res/citeck/mobile/mobile.js?3.5.0.18.11.12.11.59"></script>
 
 
+    <script type="text/javascript" src="/share/res/js/lightbox.js?{{ASSETS_CACHE}}"></script>
 
-
-    <script type="text/javascript">//<![CDATA[
     <!-- Android & iPad CSS overrides -->
+    <script type="text/javascript">
     if (navigator.userAgent.indexOf(" Android ") !== -1 || navigator.userAgent.indexOf("iPad;") !== -1 || navigator.userAgent.indexOf("iPhone;") !== -1 ) {
-      document.write("<link media='only screen and (max-device-width: 1024px)' rel='stylesheet' type='text/css' href='/share/res/css/tablet_7de8a1be3071a0284dec03f751448cb0.css'/>");
-      document.write("<link rel='stylesheet' type='text/css' href='/share/res/css/tablet_7de8a1be3071a0284dec03f751448cb0.css'/>");
+      document.write("<link media='only screen and (max-device-width: 1024px)' rel='stylesheet' type='text/css' href='/share/res/css/tablet.css?{{ASSETS_CACHE}}'/>");
+      document.write("<link rel='stylesheet' type='text/css' href='/share/res/css/tablet.css?{{ASSETS_CACHE}}'/>");
     }
-    //]]></script>
+    </script>
 
-    <div id="alfresco-yuiloader"></div>
+    <script type="text/javascript">Alfresco.util.YUILoaderHelper.loadComponents(true);</script>
 
-    <script type="text/javascript">//<![CDATA[
-    Alfresco.util.YUILoaderHelper.loadComponents(true);
-    Alfresco.util.Ajax.jsonGet({
-      url: Alfresco.constants.URL_CONTEXT + "service/modules/authenticated?noCache=" + new Date().getTime() + "&a=user"
-    });
-    //]]></script>
-
-
-
+    <!--<script type="text/javascript">//<![CDATA[-->
+    <!--Alfresco.util.Ajax.jsonGet({-->
+      <!--url: Alfresco.constants.URL_CONTEXT + "service/modules/authenticated?noCache=" + new Date().getTime() + "&a=user"-->
+    <!--});-->
+    <!--//]]></script>-->
   </body>
 </html>
