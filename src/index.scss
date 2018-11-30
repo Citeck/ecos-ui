@@ -1,5 +1,25 @@
 @import './bootstrap.scss';
 
+/* TODO */
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/share/res/js/aikau/1.0.63/alfresco/core/css/opensans.woff) format('woff');
+}
+@font-face {
+  font-family: 'Open Sans Bold';
+  font-style: normal;
+  font-weight: 600;
+  src: url(/share/res/js/aikau/1.0.63/alfresco/core/css/opensansbold.woff) format('woff');
+}
+@font-face {
+  font-family: 'Open Sans Condensed';
+  font-style: normal;
+  font-weight: 300;
+  src: url(/share/res/js/aikau/1.0.63/alfresco/core/css/opensanscondensed.woff) format('woff');
+}
+
 .page-content-root {
   height: 100%;
   min-height: 100%;

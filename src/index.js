@@ -8,6 +8,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import * as serviceWorker from './serviceWorker';
 
 import configureStore, { getHistory } from './store';
+import { requireShareAssets } from './share';
 import { initAppRequest } from './actions/app';
 import { MenuApi, UserApi } from './api';
 import { fakeApi } from './api/fakeApi';
@@ -30,14 +31,16 @@ const history = getHistory();
 
 store.dispatch(initAppRequest());
 
-ReactDOM.render(
-  <Provider store={store}>
-    <ConnectedRouter history={history}>
-      <App />
-    </ConnectedRouter>
-  </Provider>,
-  document.getElementById('root')
-);
+requireShareAssets().then(() => {
+  ReactDOM.render(
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
+        <App />
+      </ConnectedRouter>
+    </Provider>,
+    document.getElementById('root')
+  );
+});
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
