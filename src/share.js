@@ -12,8 +12,7 @@ export function fillConstants() {
         Alfresco.constants[constant] = constants[constant];
       }
 
-      // TODO
-
+      // TODO check constants
       // window.Alfresco.constants.PROXY_URI = '/share/proxy/alfresco/';
       Alfresco.constants.PAGECONTEXT = '';
 

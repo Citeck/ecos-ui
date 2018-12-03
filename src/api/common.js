@@ -1,5 +1,3 @@
-import { PROXY_URI } from '../constants/alfresco';
-
 const getOptions = {
   credentials: 'include',
   method: 'get'
@@ -14,22 +12,20 @@ const postOptions = {
 };
 
 export class CommonApi {
-  alfrescoProxyUri = PROXY_URI;
-
   getJson = url => {
-    return fetch(this.alfrescoProxyUri + url, getOptions)
+    return fetch(url, getOptions)
       .then(checkStatus)
       .then(parseJSON);
   };
 
   getHtml = url => {
-    return fetch(this.alfrescoProxyUri + url, getOptions)
+    return fetch(url, getOptions)
       .then(checkStatus)
       .then(parseHtml);
   };
 
   postJson = (url, data) => {
-    return fetch(this.alfrescoProxyUri + url, {
+    return fetch(url, {
       ...postOptions,
       body: JSON.stringify(data)
     })

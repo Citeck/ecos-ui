@@ -6,7 +6,8 @@ const initialState = {
   nodeRef: '',
   thumbnail: null,
   isAvailable: false,
-  isMutable: false
+  isMutable: false,
+  isAuthenticated: false
 };
 
 Object.freeze(initialState);
@@ -19,7 +20,8 @@ export default handleActions(
         fullName: action.payload.fullName,
         nodeRef: action.payload.nodeRef,
         isAvailable: action.payload.isAvailable,
-        isMutable: action.payload.isMutable
+        isMutable: action.payload.isMutable,
+        isAuthenticated: true
       };
     },
     [validateUserFailure]: state => {

@@ -9,15 +9,20 @@ import SlideMenu from '../SlideMenu';
 import Modal from '../Modal';
 import Footer from '../Footer';
 
-const App = ({ isInit, isInitFailure, isMobile }) => {
+const App = ({ isInit, isInitFailure, isAuthenticated, isMobile }) => {
   if (!isInit) {
-    // TODO Loading component
+    // TODO: Loading component
     return null;
   }
 
   if (isInitFailure) {
-    // TODO Crash app component
+    // TODO: Crash app component
     return null;
+  }
+
+  if (!isAuthenticated) {
+    // TODO: login form
+    return 'TODO: render login form';
   }
 
   const appClassNames = classNames('app-container', { mobile: isMobile });
@@ -45,7 +50,8 @@ const App = ({ isInit, isInitFailure, isMobile }) => {
 const mapStateToProps = state => ({
   isInit: state.app.isInit,
   isInitFailure: state.app.isInitFailure,
-  isMobile: state.view.isMobile
+  isMobile: state.view.isMobile,
+  isAuthenticated: state.user.isAuthenticated
 });
 
 export default connect(mapStateToProps)(App);

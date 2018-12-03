@@ -8,15 +8,16 @@ import { isMobileDevice } from '../helpers/util';
 
 export function* initApp({ api, fakeApi, logger }) {
   try {
-    // Alfresco.constants.URL_CONTEXT + "service/modules/authenticated?noCache=" + new Date().getTime() + "&a=user"
-
     // --- Validate user ---
-    const resp = yield call(fakeApi.validateUser);
-    // const resp = yield call(api.auth.validate);
-    if (!resp.success) {
-      yield put(validateUserFailure());
-    } else {
-      yield put(validateUserSuccess(resp.payload));
+    const checkAuthResp = yield call(api.user.checkIsAuthenticated);
+    if (checkAuthResp.success) {
+      const resp = yield call(fakeApi.getUserData);
+      // const resp = yield call(api.auth.getUserData);
+      if (!resp.success) {
+        yield put(validateUserFailure());
+      } else {
+        yield put(validateUserSuccess(resp.payload));
+      }
     }
 
     // --- Detect mobile device ---
