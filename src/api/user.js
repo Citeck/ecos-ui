@@ -1,5 +1,5 @@
 import { CommonApi } from './common';
-import { PROXY_URI, URL_CONTEXT } from '../constants/alfresco';
+import { PROXY_URI, URL_CONTEXT, URL_PAGECONTEXT } from '../constants/alfresco';
 
 export class UserApi extends CommonApi {
   getPhotoSize = userNodeRef => {
@@ -16,5 +16,10 @@ export class UserApi extends CommonApi {
   checkIsAuthenticated = () => {
     const url = `${URL_CONTEXT}service/modules/authenticated?noCache=${new Date().getTime()}&a=user`;
     return this.getJson(url).catch(() => ({ success: false }));
+  };
+
+  doLogin = data => {
+    const url = `${URL_PAGECONTEXT}dologin`;
+    return this.postForm(url, data); // .catch();
   };
 }

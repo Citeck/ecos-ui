@@ -8,6 +8,7 @@ import Header from '../Header';
 import SlideMenu from '../SlideMenu';
 import Modal from '../Modal';
 import Footer from '../Footer';
+import LoginForm from '../LoginForm';
 
 const App = ({ isInit, isInitFailure, isAuthenticated, isMobile }) => {
   if (!isInit) {
@@ -21,8 +22,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile }) => {
   }
 
   if (!isAuthenticated) {
-    // TODO: login form
-    return 'TODO: render login form';
+    return <LoginForm />;
   }
 
   const appClassNames = classNames('app-container', { mobile: isMobile });

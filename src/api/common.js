@@ -11,6 +11,14 @@ const postOptions = {
   }
 };
 
+const postFormOptions = {
+  ...getOptions,
+  method: 'post',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  }
+};
+
 export class CommonApi {
   getJson = url => {
     return fetch(url, getOptions)
@@ -33,7 +41,16 @@ export class CommonApi {
       .then(parseJSON);
   };
 
-  // TODO implement postFrom, uploadFile
+  postForm = (url, data) => {
+    return fetch(url, {
+      ...postFormOptions,
+      body: new FormData(data)
+    })
+      .then(checkStatus)
+      .then(parseJSON);
+  };
+
+  // TODO implement uploadFile
 }
 
 function checkStatus(response) {
