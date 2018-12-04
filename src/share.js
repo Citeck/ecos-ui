@@ -13,6 +13,8 @@ export function fillConstants() {
       }
 
       // TODO check constants
+      Alfresco.constants.SITE = 'contracts'; // TODO !!! если нет константы, ломается card-details, вычислить из url?
+
       // window.Alfresco.constants.PROXY_URI = '/share/proxy/alfresco/';
       Alfresco.constants.PAGECONTEXT = '';
 
@@ -81,39 +83,35 @@ export function requireScripts() {
   return new Promise(resolve => {
     window.require(
       [
-        // '/share/res/js/share.js',
-        // '/share/res/modules/create-site.js',
+        '/share/res/modules/editors/tinymce/tinymce.min.js',
+        '/share/res/yui/history/history.js',
+        '/share/res/js/bubbling.v2.1.js',
+
+        '/share/res/js/flash/AC_OETags.js',
+        '/share/res/modules/editors/tiny_mce.js',
+        '/share/res/modules/editors/yui_editor.js',
+        '/share/res/js/forms-runtime.js',
+
+        '/share/res/js/share.js',
+        '/share/res/modules/create-site.js',
 
         '/share/res/js/lightbox.js',
         '/share/res/js/citeck/modules/utils/citeck.js',
-        '/share/res/citeck/components/form/constraints.js'
+        '/share/res/citeck/components/form/constraints.js',
 
-        // '/share/res/js/yui-common.js',
-        //
-        // '/share/service/messages.js',
-        // '/share/res/modules/editors/tinymce/tinymce.min.js',
-        // '/share/res/yui/history/history.js',
-        // '/share/res/js/bubbling.v2.1.js',
-        //
-        // '/share/res/js/flash/AC_OETags.js',
-        // '/share/res/js/alfresco.js',
-        // '/share/res/modules/editors/tiny_mce.js',
-        // '/share/res/modules/editors/yui_editor.js',
-        // '/share/res/js/forms-runtime.js',
-        //
-        // '/share/res/js/share.js',
-        // '/share/res/modules/create-site.js',
+        '/share/res/citeck/mobile/mobile.js'
       ],
       function() {
+        // TODO check it
         if (
           navigator.userAgent.indexOf(' Android ') !== -1 ||
           navigator.userAgent.indexOf('iPad;') !== -1 ||
           navigator.userAgent.indexOf('iPhone;') !== -1
         ) {
           document.write(
-            "<link media='only screen and (max-device-width: 1024px)' rel='stylesheet' type='text/css' href='/share/res/css/tablet.css?{{ASSETS_CACHE}}'/>"
+            "<link media='only screen and (max-device-width: 1024px)' rel='stylesheet' type='text/css' href='/share/res/css/tablet.css'/>"
           );
-          document.write("<link rel='stylesheet' type='text/css' href='/share/res/css/tablet.css?{{ASSETS_CACHE}}'/>");
+          document.write("<link rel='stylesheet' type='text/css' href='/share/res/css/tablet.css'/>");
         }
 
         window.Alfresco.util.YUILoaderHelper.loadComponents(true);
