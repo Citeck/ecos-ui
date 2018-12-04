@@ -1,8 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { UncontrolledDropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
 import DropDownMenuItem from '../DropdownMenuItem';
 
 const SiteMenu = ({ items }) => {
@@ -16,7 +14,7 @@ const SiteMenu = ({ items }) => {
     <div id="HEADER_SITE_MENU">
       <UncontrolledDropdown className="custom-dropdown-menu">
         <DropdownToggle tag="div" className="site-dropdown-menu__toggle custom-dropdown-menu__toggle">
-          <FontAwesomeIcon icon={faCog} color="white" />
+          <i className={'fa fa-cog'} />
         </DropdownToggle>
         <DropdownMenu className="custom-dropdown-menu__body" id="HEADER_SITE_MENU__DROPDOWN" right>
           {menuListItems}

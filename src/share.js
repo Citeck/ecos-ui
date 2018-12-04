@@ -132,6 +132,7 @@ export function requireStyles() {
         'xstyle!/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin.css',
         'xstyle!/share/res/themes/citeckTheme/yui/assets/skin.css',
         'xstyle!/share/res/css/base.css',
+        'xstyle!/share/res/js/citeck/modules/utils/citeck.css',
         'xstyle!/share/res/css/yui-layout.css',
         'xstyle!/share/res/themes/citeckTheme/presentation.css',
         'xstyle!/share/res/modules/create-site.css',

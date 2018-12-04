@@ -108,7 +108,6 @@
   color: #ffffff;
   line-height: 40px;
   display: inline-block;
-  font-size: 14px;
 }
 
 .user-dropdown-menu__toggle i {
@@ -320,7 +319,6 @@
   margin-right: 9px;
   margin-left: 9px;
   float: left;
-  line-height: 32px;
   cursor: pointer;
 }
 
@@ -410,8 +408,8 @@
 }
 
 .share-header-search__autocomplete .autocomplete-item__content p {
-  margin: 0;
-  padding: 0;
+  margin: 0 !important;
+  padding: 0 !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -422,7 +420,7 @@
 }
 
 .share-header-search__autocomplete .autocomplete-item__content a {
-  color: #000;
+  color: #000 !important;
 }
 
 .share-header-search__autocomplete .autocomplete-item__content .autocomplete-item__content_p_second a {
@@ -431,6 +429,7 @@
 
 .share-header-search__autocomplete .autocomplete-item__content a:hover {
   text-decoration: underline;
+  color: #000;
 }
 
 .autocomplete-section__more {

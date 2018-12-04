@@ -1,8 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import debounce from 'lodash/debounce';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import SearchDropdown from './SearchDropdown';
 import SearchAutocomplete from './SearchAutocomplete';
 import ClickOutside from '../../ClickOutside';
@@ -115,7 +113,7 @@ class Search extends React.Component {
             />
           </ClickOutside>
           <div className="share-header-search__clear-button" title={this.clearButtonTitle} onClick={this.onSearchClearClick}>
-            <FontAwesomeIcon icon={faTimesCircle} color="#989898" />
+            <i className={'fa fa-times-circle'} />
           </div>
         </div>
       </div>

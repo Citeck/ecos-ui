@@ -1,8 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { UncontrolledDropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 import DropDownMenuGroup from '../DropdownMenuGroup';
 import DropdownMenuCascade from '../DropdownMenuCascade';
@@ -32,7 +30,7 @@ const CreateCaseWidget = ({ items, isCascade }) => {
     <div id="HEADER_CREATE_CASE">
       <UncontrolledDropdown className="custom-dropdown-menu">
         <DropdownToggle tag="span" className="create-case-dropdown-menu__toggle custom-dropdown-menu__toggle">
-          <FontAwesomeIcon icon={faPlus} color="white" />
+          <i className={'fa fa-plus'} />
         </DropdownToggle>
         <DropdownMenu className={dropdownMenuClasses.join(' ')} id="HEADER_CREATE_CASE__DROPDOWN">
           {menuListItems}

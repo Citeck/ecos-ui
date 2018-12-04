@@ -1,7 +1,5 @@
 import React, { Fragment } from 'react';
 import { UncontrolledDropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronCircleDown } from '@fortawesome/free-solid-svg-icons';
 import DropDownMenuItem from '../../DropdownMenuItem';
 
 const SearchDropdown = () => {
@@ -20,7 +18,7 @@ const SearchDropdown = () => {
     <Fragment>
       <UncontrolledDropdown className="search-dropdown-menu">
         <DropdownToggle tag="span" className="search-dropdown-menu__toggle">
-          <FontAwesomeIcon icon={faChevronCircleDown} color="#989898" />
+          <i className={'fa fa-chevron-circle-down'} />
         </DropdownToggle>
         <DropdownMenu className="custom-dropdown-menu__body" id="HEADER_SEARCH__DROPDOWN">
           {searchDropdownListItems}
