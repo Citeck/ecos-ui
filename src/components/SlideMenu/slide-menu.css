@@ -391,21 +391,6 @@
   content: '\f2a1';
 }
 
-/**
- * fix bug for Android <= 4.1.2
- * see: http://timpietrusky.com/advanced-checkbox-hack
- */
-
-body {
-  -webkit-animation: bugfix infinite 1s;
-}
-
-@-webkit-keyframes bugfix {
-  to {
-    padding: 0;
-  }
-}
-
 /* mobile styles */
 @media screen and (min-width: 320px) {
   html,

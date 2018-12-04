@@ -81,7 +81,12 @@ export function requireScripts() {
   return new Promise(resolve => {
     window.require(
       [
-        '/share/res/js/lightbox.js'
+        // '/share/res/js/share.js',
+        // '/share/res/modules/create-site.js',
+
+        '/share/res/js/lightbox.js',
+        '/share/res/js/citeck/modules/utils/citeck.js',
+        '/share/res/citeck/components/form/constraints.js'
 
         // '/share/res/js/yui-common.js',
         //

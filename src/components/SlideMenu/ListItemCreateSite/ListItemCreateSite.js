@@ -1,14 +1,20 @@
 import React from 'react';
 import { t } from '../../../helpers/util';
 import ListItemIcon from '../ListItemIcon';
+import handleControl from '../../../helpers/handleControl';
+import connect from 'react-redux/es/connect/connect';
 
-const ListItemCreateSite = ({ item, toggleSlideMenu }) => {
+const mapDispatchToProps = dispatch => ({
+  dispatch
+});
+
+const ListItemCreateSite = ({ item, toggleSlideMenu, dispatch }) => {
   let label = t(item.label);
 
   const targetUrl = null;
   const clickHandler = () => {
+    handleControl('ALF_CREATE_SITE', null, dispatch);
     toggleSlideMenu();
-    window.Citeck.module.getCreateSiteInstance().show();
   };
 
   return (
@@ -19,4 +25,7 @@ const ListItemCreateSite = ({ item, toggleSlideMenu }) => {
   );
 };
 
-export default ListItemCreateSite;
+export default connect(
+  null,
+  mapDispatchToProps
+)(ListItemCreateSite);
