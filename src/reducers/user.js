@@ -2,6 +2,7 @@ import { handleActions } from 'redux-actions';
 import { validateUserSuccess, validateUserFailure, setUserThumbnail } from '../actions/user';
 
 const initialState = {
+  name: '',
   fullName: '',
   nodeRef: '',
   thumbnail: null,
@@ -17,6 +18,7 @@ export default handleActions(
     [validateUserSuccess]: (state, action) => {
       return {
         ...state,
+        name: action.payload.name,
         fullName: action.payload.fullName,
         nodeRef: action.payload.nodeRef,
         isAvailable: action.payload.isAvailable,
