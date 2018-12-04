@@ -5,7 +5,8 @@ import {
   setLargeLogo,
   setSlideMenuItems,
   setSlideMenuExpandableItems,
-  toggleExpanded
+  toggleExpanded,
+  toggleIsOpen
 } from '../actions/slideMenu';
 
 const initialState = {
@@ -13,7 +14,8 @@ const initialState = {
   largeLogo: null,
   selectedId: null,
   items: [],
-  expandableItems: []
+  expandableItems: [],
+  isOpen: false
 };
 
 Object.freeze(initialState);
@@ -64,6 +66,12 @@ export default handleActions(
             }
           ];
         })()
+      };
+    },
+    [toggleIsOpen]: (state, action) => {
+      return {
+        ...state,
+        isOpen: action.payload
       };
     }
   },

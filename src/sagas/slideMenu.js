@@ -9,7 +9,7 @@ import {
   setSlideMenuExpandableItems,
   setSelectedId
 } from '../actions/slideMenu';
-import { selectedMenuItemIdKey, processApiData, fetchExpandableItems } from '../helpers/slideMenu';
+import { selectedMenuItemIdKey, fetchExpandableItems } from '../helpers/slideMenu';
 
 function* fetchSmallLogo({ api, fakeApi, logger }) {
   try {
@@ -31,8 +31,9 @@ function* fetchLargeLogo({ api, fakeApi, logger }) {
 
 function* fetchSlideMenu({ api, fakeApi, logger }) {
   try {
-    const apiData = yield call(fakeApi.getSlideMenuItems);
-    const menuItems = processApiData(apiData);
+    const apiData = yield call(api.menu.getSlideMenuItems);
+    const menuItems = apiData.items;
+    // console.log('menuItems', menuItems);
 
     let selectedId = null;
     if (sessionStorage && sessionStorage.getItem) {

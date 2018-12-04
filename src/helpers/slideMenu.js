@@ -1,23 +1,5 @@
 export const selectedMenuItemIdKey = 'selectedMenuItemId';
 
-// TODO delete
-// const itemId = item.id; // .split(' ').join('_'); TODO
-export function processApiData(oldItems) {
-  if (!oldItems) {
-    return null;
-  }
-
-  return oldItems.map(item => {
-    let newItem = { ...item };
-    delete newItem['widgets'];
-    if (item.widgets) {
-      newItem.items = processApiData(item.widgets);
-    }
-
-    return newItem;
-  });
-}
-
 export function fetchExpandableItems(items, selectedId) {
   let flatList = [];
   items.map(item => {

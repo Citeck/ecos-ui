@@ -22,4 +22,14 @@ export class MenuApi extends CommonApi {
     const url = `${PROXY_URI}slingshot/live-search-people?t=${generateSearchTerm(terms)}&maxResults=5`;
     return this.getJson(url);
   };
+
+  getSlideMenuItems = () => {
+    const url = `${PROXY_URI}citeck/menu/menu`;
+    return this.getJson(url).catch(() => []);
+  };
+
+  getMenuItemIconUrl = iconName => {
+    const url = `${PROXY_URI}citeck/menu/icon?iconName=${iconName}`;
+    return this.getJson(url).catch(() => null);
+  };
 }

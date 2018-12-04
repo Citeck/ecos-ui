@@ -1,77 +1,53 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { setSelectedId } from '../../../actions/slideMenu';
-import { t } from '../../../helpers/util';
-
-const selectedMenuItemIdKey = 'selectedMenuItemId';
-
-const mapStateToProps = (state, ownProps) => ({
-  isSelected: state.slideMenu.selectedId === ownProps.item.id
-});
+import ListItemLink from '../ListItemLink';
+import ListItemCreateSite from '../ListItemCreateSite';
+import { toggleExpanded } from '../../../actions/slideMenu';
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  onSelectItem: id => {
-    sessionStorage && sessionStorage.setItem && sessionStorage.setItem(selectedMenuItemIdKey, id);
-    ownProps.toggleSlideMenu();
-    dispatch(setSelectedId(id));
-  }
+  setExpanded: id => dispatch(toggleExpanded(id))
 });
 
-const ListItem = ({ item, onSelectItem, isSelected, nestedList, toggleCollapse }) => {
-  if (item.sectionTitle) {
-    return (
-      <li id={item.id} className="slide-menu-list__item list-divider">
-        <span className="list-divider__text">{t(item.sectionTitle)}</span>
-        {nestedList}
-      </li>
-    );
+const ListItem = props => {
+  let { item, nestedList, setExpanded, isNestedListExpanded } = props;
+  let itemId = item.id;
+
+  let toggleCollapse = null;
+  if (nestedList) {
+    let classes = ['slide-menu-list__toggle-collapse'];
+    if (isNestedListExpanded) {
+      classes.push('slide-menu-list__toggle-collapse_expanded');
+    }
+
+    toggleCollapse = <div className={classes.join(' ')} onClick={() => setExpanded(itemId)} />;
   }
 
-  let label = t(item.label || `header.${item.id}.label`);
-  let icon = <i className={`fa fa-menu-default-icon ${item.id}`} />;
-  let targetUrl = null;
-  if (item.url) {
-    targetUrl = item.url;
-  }
-
-  // TODO handleControl
-  let clickHandler = null;
-  // if (item.control && item.control.type) {
-  //     clickHandler = event => {
-  //         event.preventDefault();
-  //         handleControl(control.type, control.payload, dispatch);
-  //     };
-  // }
-  if (item.clickEvent) {
-    clickHandler = item.clickEvent;
-  }
-
-  let classes = ['slide-menu-list__link'];
-  if (isSelected) {
-    classes.push('slide-menu-list__link_selected');
+  let component = null;
+  if (item.action) {
+    switch (item.action.type) {
+      case 'CREATE_SITE':
+        component = <ListItemCreateSite {...props} />;
+        break;
+      case 'FILTER_LINK':
+      case 'JOURNAL_LINK':
+      case 'PAGE_LINK':
+      case 'SITE_LINK':
+      default:
+        component = <ListItemLink {...props} withNestedList={nestedList} />;
+        break;
+    }
   }
 
   return (
-    <li id={item.id} className="slide-menu-list__item">
+    <li id={itemId} className="slide-menu-list__item">
       {toggleCollapse}
-      <a
-        href={targetUrl}
-        onClick={() => {
-          onSelectItem(item.id);
-          // eval(clickHandler);
-          console.log('clickHandler', clickHandler);
-        }}
-        className={classes.join(' ')}
-      >
-        {icon}
-        <span className={'slide-menu-list__link-label'}>{label}</span>
-      </a>
+      {component}
       {nestedList}
     </li>
   );
 };
 
 export default connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps
 )(ListItem);

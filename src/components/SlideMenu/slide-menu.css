@@ -35,7 +35,6 @@
   z-index: 10;
   overflow: hidden;
   white-space: nowrap;
-  font-size: 13px;
 }
 
 #slide-menu-checkbox:checked ~ .slide-menu {
@@ -83,7 +82,6 @@
 #slide-menu-checkbox:checked ~ .slide-menu-mask {
   visibility: visible;
   opacity: 1;
-  -webkit-transition: opacity 0.5s, visibility 0.5s;
   transition: opacity 0.5s, visibility 0.5s;
 }
 
@@ -107,7 +105,6 @@
 
   visibility: visible;
   opacity: 1;
-  -webkit-transition: opacity 0.3s, visibility 0.3s;
   transition: opacity 0.3s, visibility 0.3s;
 }
 
@@ -171,25 +168,89 @@
   overflow: hidden;
   color: inherit;
   display: block;
-  padding: 10px 10px 10px 17px;
+  padding: 10px 100px 10px 17px;
   margin: 0;
   line-height: 20px;
+  transition: background 0.4s ease;
+}
+
+#slide-menu-checkbox:checked ~ .slide-menu .slide-menu-list__link:hover {
+  background: rgba(255, 255, 255, 0.4);
+  text-decoration: none;
+}
+
+#slide-menu-checkbox:checked ~ .slide-menu .slide-menu-list__link:active,
+#slide-menu-checkbox:checked ~ .slide-menu .slide-menu-list__link:focus {
+  text-decoration: none;
+}
+
+#slide-menu-checkbox:checked ~ .slide-menu .slide-menu-list__link.slide-menu-list__link-with-nested-list {
+  margin-right: 50px;
+  padding: 10px 50px 10px 17px;
 }
 
 #slide-menu-checkbox:checked ~ .slide-menu .slide-menu-list__link_selected {
   background-color: #c6d3de;
 }
 
-.slide-menu-list__link-label {
+.slide-menu-list__link-wrapper {
   visibility: hidden;
   width: 0;
   display: block;
 }
 
-#slide-menu-checkbox:checked ~ .slide-menu .slide-menu-list__link-label {
+#slide-menu-checkbox:checked ~ .slide-menu .slide-menu-list__link-wrapper {
   visibility: visible;
-  display: inline-block;
   width: auto;
+  display: block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.slide-menu-list__link-badge-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #f96857;
+  position: absolute;
+  left: 35px;
+  top: 7px;
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.5s;
+}
+
+.slide-menu-collapsible-list_nested .slide-menu-list__link-badge-indicator {
+  display: none;
+}
+
+#slide-menu-checkbox:checked ~ .slide-menu .slide-menu-list__link-badge-indicator {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.slide-menu-list__link-badge {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+#slide-menu-checkbox:checked ~ .slide-menu .slide-menu-list__link-badge {
+  visibility: visible;
+  opacity: 1;
+  display: inline-block;
+  position: absolute;
+  right: 65px;
+  /* border: 6px; */
+  background-color: #f96857;
+  padding: 0 6px;
+  border-radius: 28px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 16px;
+  margin: 2px 0;
 }
 
 .slide-menu-list__link .fa {
@@ -201,6 +262,16 @@
   width: 25px;
   margin-right: 20px;
   float: left;
+}
+
+.slide-menu-list__link .list-item-icon-img {
+  line-height: 20px;
+  height: 20px;
+  width: 25px;
+  margin-right: 20px;
+  float: left;
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 
 .slide-menu-list__item {
@@ -219,6 +290,7 @@
   padding: 12px 10px 12px 20px;
   font-weight: 600;
   color: #52759d;
+  cursor: default;
 }
 
 .slide-menu-list__item.list-divider:before {
@@ -226,7 +298,7 @@
   display: block;
   box-sizing: border-box;
   width: 20px;
-  height: 33px;
+  height: 30px;
   margin-top: 10px;
   margin-left: 20px;
   border-top: 1px solid grey;
@@ -252,6 +324,11 @@
   position: absolute;
   right: 0;
   top: 0;
+  transition: background 0.4s ease;
+}
+
+.slide-menu-list__toggle-collapse:hover {
+  background: rgba(255, 255, 255, 0.4);
 }
 
 #slide-menu-checkbox:checked ~ .slide-menu .slide-menu-list__toggle-collapse {
@@ -306,6 +383,14 @@
   padding: 10px 0 10px 10px;
 }
 
+.yui-skin-citeckTheme .fa.HEADER_APPLICATION:before {
+  content: '\f108';
+}
+
+.yui-skin-citeckTheme .fa.HEADER_TYPES:before {
+  content: '\f2a1';
+}
+
 /**
  * fix bug for Android <= 4.1.2
  * see: http://timpietrusky.com/advanced-checkbox-hack
@@ -326,7 +411,7 @@ body {
   html,
   body {
     margin: 0;
-    /*overflow-x: hidden;*/
+    overflow-x: hidden;
   }
 }
 
@@ -338,12 +423,12 @@ body {
     left: 0;
     width: 80%;
   }
-  .page-content-root {
+  #page-content-root {
     -webkit-transform: translateX(0px);
     -moz-transform: translateX(0px);
     transform: translateX(0);
   }
-  #slide-menu-checkbox:checked ~ .page-content-root {
+  #slide-menu-checkbox:checked ~ #page-content-root {
     -webkit-transform: translateX(81%);
     -moz-transform: translateX(81%);
     transform: translateX(81%);
@@ -357,183 +442,10 @@ body {
   #slide-menu-checkbox:checked ~ .slide-menu {
     left: 0;
   }
-  .page-content-root {
+  #page-content-root {
     -webkit-transform: translateX(0px);
     -moz-transform: translateX(0px);
     transform: translateX(0);
     width: 100%;
   }
-}
-
-/* SLIDE MENU ICON*/
-.fa.HEADER_TASKS_ACTIVE_TASKS_JOURNAL:before,
-.fa.HEADER_TASKS_COMPLETED_TASKS_JOURNAL:before,
-.fa.HEADER_TASKS_CONTROLLED_JOURNAL:before,
-.fa.HEADER_TASKS_SUBORDINATE_TASKS_JOURNAL:before,
-.fa.HEADER_TASKS_INITIATOR_TASKS_JOURNAL:before,
-.fa.HEADER_TASKS_INCOME_PACKAGE_TASKS_JOURNAL:before,
-.fa.HEADER_SITES_SEARCH:before,
-.fa.HEADER_SITES_CREATE:before,
-.fa.HEADER_CONTRACTS:before,
-.fa.HEADER_CASES:before,
-.fa.HEADER_LETTERS:before,
-.fa.HEADER_MEETINGS:before,
-.fa.HEADER_ORDER_PASS:before,
-.fa.HEADER_ORDERS:before,
-.fa.HEADER_COMMON_DOCUMENTS:before,
-.fa.HEADER_ECOS_FINANCE:before,
-.fa.HEADER_COMMON_DOCUMENTS:before,
-.fa.HEADER_MENU_ORGSTRUCT_WIDGET:before,
-.fa.HEADER_COMPLETED_WORKFLOWS:before,
-.fa.HEADER_MY_WORKFLOWS:before,
-.fa.HEADER_MY_CONTENT:before,
-.fa.HEADER_MY_FILES:before,
-.fa.HEADER_MY_SITES:before,
-.fa[class*='_JOURNALS']:before,
-.fa.HEADER_REPOSITORY:before,
-.fa.HEADER_MY_PROFILE:before,
-.fa.HEADER_APPLICATION_MENU:before,
-.fa.HEADER_GROUPS:before,
-.fa.HEADER_USERS:before,
-.fa.HEADER_CATEGORIES:before,
-.fa.HEADER_SYSTEM:before,
-.fa.HEADER_TEMPLATES:before,
-.fa.HEADER_MORE:before,
-.fa.HEADER_LIFECYCLE_EDITOR:before,
-.fa.HEADER_FLOWABLE_MODELER:before {
-  color: inherit;
-  font-family: FontAwesome;
-  font-style: normal;
-}
-
-.fa.HEADER_TASKS_ACTIVE_TASKS_JOURNAL:before {
-  content: '\f03a';
-}
-
-.fa.HEADER_TASKS_COMPLETED_TASKS_JOURNAL:before {
-  content: '\f187';
-}
-
-.fa.HEADER_TASKS_CONTROLLED_JOURNAL:before {
-  content: '\f06e';
-}
-
-.fa.HEADER_TASKS_SUBORDINATE_TASKS_JOURNAL:before {
-  content: '\f037';
-}
-
-.fa.HEADER_TASKS_INITIATOR_TASKS_JOURNAL:before {
-  content: '\f0fe';
-}
-
-.fa.HEADER_TASKS_INCOME_PACKAGE_TASKS_JOURNAL:before {
-  content: '\f265';
-}
-
-.fa.HEADER_SITES_SEARCH:before {
-  content: '\f002';
-}
-
-.fa.HEADER_SITES_CREATE:before {
-  content: '\f055';
-}
-
-.fa.HEADER_CONTRACTS:before {
-  content: '\f2bb';
-}
-
-.fa.HEADER_CASES:before {
-  content: '\f0f2';
-}
-
-.fa.HEADER_LETTERS:before {
-  content: '\f0e0';
-}
-
-.fa.HEADER_MEETINGS:before {
-  content: '\f0c0';
-}
-
-.fa.HEADER_ORDER_PASS:before {
-  content: '\f207';
-}
-
-.fa.HEADER_ORDERS:before {
-  content: '\f0c9';
-}
-
-.fa.HEADER_COMMON_DOCUMENTS:before {
-  content: '\f05b';
-}
-
-.fa.HEADER_ECOS_FINANCE:before {
-  content: '\f09d';
-}
-
-.fa.HEADER_MENU_ORGSTRUCT_WIDGET:before {
-  content: '\f0e8';
-}
-
-.fa.HEADER_COMPLETED_WORKFLOWS:before {
-  content: '\f14a';
-}
-
-.fa.HEADER_MY_WORKFLOWS:before {
-  content: '\f247';
-}
-
-.fa.HEADER_MY_CONTENT:before {
-  content: '\f0db';
-}
-
-.fa.HEADER_MY_FILES:before {
-  content: '\f15b';
-}
-
-.fa.HEADER_MY_SITES:before {
-  content: '\f0ac';
-}
-
-.fa[class*='_JOURNALS']:before {
-  content: '\f1ea';
-}
-
-.fa.HEADER_REPOSITORY:before {
-  content: '\f0ae';
-}
-.fa.HEADER_FLOWABLE_MODELER:before {
-  content: '\f079';
-}
-
-.fa.HEADER_APPLICATION_MENU:before {
-  content: '\f108';
-}
-
-.fa.HEADER_GROUPS:before {
-  content: '\f24d';
-}
-
-.fa.HEADER_MY_PROFILE:before,
-.fa.HEADER_USERS:before {
-  content: '\f007';
-}
-
-.fa.HEADER_CATEGORIES:before {
-  content: '\f2a1';
-}
-
-.fa.HEADER_SYSTEM:before {
-  content: '\f085';
-}
-
-.fa.HEADER_TEMPLATES:before {
-  content: '\f121';
-}
-
-.fa.HEADER_MORE:before {
-  content: '\f141';
-}
-
-.fa.HEADER_LIFECYCLE_EDITOR:before {
-  content: '\f079';
 }

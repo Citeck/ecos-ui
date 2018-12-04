@@ -152,5 +152,8 @@ export function requireShareAssets() {
     })
     .then(() => {
       return requireScripts();
+    })
+    .catch(e => {
+      console.log('requireShareAssets error: ', e.message);
     });
 }
