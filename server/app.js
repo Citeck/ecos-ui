@@ -25,13 +25,26 @@ const index = require('./routes');
 app.use('/', index);
 
 // proxy to /share
-const PROXY_URL = process.env.PROXY_URL || 'http://localhost:8080';
-const jsonPlaceholderProxy = proxy({
-  target: PROXY_URL,
+const SHARE_PROXY_URL = process.env.PROXY_URL || 'http://localhost:8080';
+const shareProxy = proxy({
+  target: SHARE_PROXY_URL,
   changeOrigin: true,
   logLevel: 'debug',
-  ws: true
+  ws: true,
+  onProxyRes: (proxyRes, req, res) => {
+    // redirect from 8080 to 3000
+    if ([302, ].indexOf(proxyRes.statusCode) > -1 && proxyRes.headers.location) {
+      let redirectLocation = proxyRes.headers.location;
+      console.log('Received code ' + proxyRes.statusCode + ' from API Server for URL - ' + redirectLocation);
+
+      redirectLocation = redirectLocation.replace(SHARE_PROXY_URL, '');
+      console.log('Redirect location changed to ' + redirectLocation);
+
+      proxyRes.headers.location = redirectLocation;
+    }
+  }
 });
-app.use('/share', jsonPlaceholderProxy);
+
+app.use('/share', shareProxy);
 
 module.exports = app;
