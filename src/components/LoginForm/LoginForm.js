@@ -1,13 +1,8 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import queryString from 'query-string';
+import { t } from '../../helpers/util';
 import styles from './LoginForm.module.scss';
-import { tryLoginRequest } from '../../actions/user';
-
-const mapDispatchToProps = dispatch => ({
-  tryLoginRequest: (username, password) => {
-    dispatch(tryLoginRequest({ username, password }));
-  }
-});
 
 class LoginForm extends React.Component {
   state = {
@@ -27,23 +22,32 @@ class LoginForm extends React.Component {
     });
   };
 
-  onFormSubmit = e => {
-    e.preventDefault();
-    this.props.tryLoginRequest(this.state.username, this.state.password);
-  };
-
   render() {
-    const loginError = <div className={styles.error}>Some error text</div>;
+    const locationPath = this.props.location.pathname;
+    const locationSearch = this.props.location.search;
+    let searchParams = queryString.parse(locationSearch);
+
+    let loginError = null;
+    if (searchParams['error']) {
+      loginError = <div className={styles.error}>{t('message.loginautherror')}</div>;
+    }
+    delete searchParams['error'];
+
+    const successSearchString = queryString.stringify({ ...searchParams }, { sort: false });
+    const failureSearchString = queryString.stringify({ ...searchParams, error: true }, { sort: false });
 
     return (
       <div className={styles.wrapper}>
         <div className={styles.container}>
           <div className="theme-company-logo logo-com" />
           {loginError}
-          <form onSubmit={this.onFormSubmit} method="post" action="/share/page/dologin" className={styles.form}>
+          <form method="post" action="/share/page/dologin" className={styles.form}>
+            <input type="hidden" name="success" value={`${locationPath}?${successSearchString}`} />
+            <input type="hidden" name="failure" value={`${locationPath}?${failureSearchString}`} />
+
             <div className="form-field">
               <label>
-                Логин
+                {t('label.username')}
                 <br />
                 <input
                   type="text"
@@ -58,7 +62,7 @@ class LoginForm extends React.Component {
 
             <div className="form-field">
               <label>
-                Пароль
+                {t('label.password')}
                 <br />
                 <input
                   type="password"
@@ -73,7 +77,7 @@ class LoginForm extends React.Component {
 
             <div className="form-field">
               <button type="submit" className={styles.button}>
-                Войти
+                {t('button.login')}
               </button>
             </div>
           </form>
@@ -83,12 +87,4 @@ class LoginForm extends React.Component {
   }
 }
 
-// TODO withRouter
-/*
-<input type="hidden" name="success" value="/share/page/user/admin/dashboard" />
-<input type="hidden" name="failure" value="/share/page/user/admin/dashboard?error=true" />
-*/
-export default connect(
-  null,
-  mapDispatchToProps
-)(LoginForm);
+export default withRouter(LoginForm);

@@ -11,13 +11,19 @@ const postOptions = {
   }
 };
 
-const postFormOptions = {
-  ...getOptions,
-  method: 'post',
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
-  }
-};
+// const postUrlEncodedFormOptions = {
+//   ...getOptions,
+//   method: 'post',
+//   headers: {
+//     'Content-Type': 'application/x-www-form-urlencoded'
+//   }
+// };
+
+// const prepareUrlEncodedFormData = (params) => {
+//   return Object.keys(params).map((key) => {
+//     return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+//   }).join('&');
+// };
 
 export class CommonApi {
   getJson = url => {
@@ -41,14 +47,12 @@ export class CommonApi {
       .then(parseJSON);
   };
 
-  postForm = (url, data) => {
-    return fetch(url, {
-      ...postFormOptions,
-      body: new FormData(data)
-    })
-      .then(checkStatus)
-      .then(parseJSON);
-  };
+  // postUrlEncodedForm = (url, data) => {
+  //   return fetch(url, {
+  //     ...postUrlEncodedFormOptions,
+  //     body: prepareUrlEncodedFormData(data)
+  //   });
+  // };
 
   // TODO implement uploadFile
 }
