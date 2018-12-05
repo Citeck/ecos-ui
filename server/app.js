@@ -25,6 +25,7 @@ const index = require('./routes');
 app.use('/', index);
 
 // proxy to /share
+// TODO import common parts with src/setupProxy.js
 const SHARE_PROXY_URL = process.env.PROXY_URL || 'http://localhost:8080';
 const shareProxy = proxy({
   target: SHARE_PROXY_URL,
