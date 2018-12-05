@@ -108,10 +108,11 @@ export function requireScripts() {
           navigator.userAgent.indexOf('iPad;') !== -1 ||
           navigator.userAgent.indexOf('iPhone;') !== -1
         ) {
-          document.write(
-            "<link media='only screen and (max-device-width: 1024px)' rel='stylesheet' type='text/css' href='/share/res/css/tablet.css'/>"
-          );
-          document.write("<link rel='stylesheet' type='text/css' href='/share/res/css/tablet.css'/>");
+          // document.write(
+          //   "<link media='only screen and (max-device-width: 1024px)' rel='stylesheet' type='text/css' href='/share/res/css/tablet.css'/>"
+          // );
+          // document.write("<link rel='stylesheet' type='text/css' href='/share/res/css/tablet.css'/>");
+          window.require(['/share/res/css/tablet.css']);
         }
 
         window.Alfresco.util.YUILoaderHelper.loadComponents(true);

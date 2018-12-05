@@ -1,8 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { UncontrolledDropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
 import DropDownMenuItem from '../DropdownMenuItem';
 
 const mapStateToProps = state => ({
@@ -20,7 +18,7 @@ const UserMenu = ({ userFullName, userPhotoUrl, items, isMobile }) => {
   ) : null;
 
   if (userImage === null && isMobile) {
-    userImage = <FontAwesomeIcon icon={faUser} color="white" size="lg" />;
+    userImage = <i className={'fa fa-user'} />;
   }
 
   let menuListItems = [];
