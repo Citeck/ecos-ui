@@ -18,6 +18,8 @@ const mainRoute = function(req, res) {
     }
 
     htmlData = replaceAll(htmlData, '{{ASSETS_CACHE}}', '3.5.0.18.11.12.11.59'); // TODO
+    // TODO inject locale to /share/service/messages.js and html lang
+    // TODO detect mobile device and inject classes
 
     res.send(htmlData);
   });

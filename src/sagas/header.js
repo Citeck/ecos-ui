@@ -12,16 +12,15 @@ import { setUserThumbnail } from '../actions/user';
 import { processCreateVariantsItems, makeUserMenuItems, processMenuItemsFromOldMenu } from '../helpers/menu';
 import { PROXY_URI } from '../constants/alfresco';
 
-function* fetchCreateCaseWidget({ api, fakeApi, logger }) {
+function* fetchCreateCaseWidget({ api, logger }) {
   try {
     const resp = yield call(api.menu.getCreateVariantsForAllSites);
     const createVariants = processCreateVariantsItems(resp);
 
     yield put(setCreateCaseWidgetItems(createVariants));
 
-    // TODO use real api
-    const isCascadeMenu = yield call(fakeApi.getIsCascadeCreateVariantMenu);
-    yield put(setCreateCaseWidgetIsCascade(isCascadeMenu));
+    const isCascadeMenu = yield call(api.app.getEcosConfig, 'default-ui-create-menu');
+    yield put(setCreateCaseWidgetIsCascade(isCascadeMenu === 'cascad'));
   } catch (e) {
     logger.error('[fetchCreateCaseWidget saga] error', e.message);
   }

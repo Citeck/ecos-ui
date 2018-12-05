@@ -16,14 +16,6 @@ export const fakeApi = {
     });
   },
 
-  getIsCascadeCreateVariantMenu: () => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve(true);
-      }, 0);
-    });
-  },
-
   getIsExternalAuthentication: () => {
     return new Promise(resolve => {
       setTimeout(() => {

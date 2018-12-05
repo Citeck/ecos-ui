@@ -10,7 +10,7 @@ import * as serviceWorker from './serviceWorker';
 import configureStore, { getHistory } from './store';
 import { requireShareAssets } from './share';
 import { initAppRequest } from './actions/app';
-import { MenuApi, UserApi } from './api';
+import { AppApi, MenuApi, UserApi } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
 import './index.scss';
@@ -20,6 +20,7 @@ Logger.setLogLevel(Logger.LogLevels.DEBUG);
 
 const store = configureStore({
   api: {
+    app: new AppApi(),
     menu: new MenuApi(),
     user: new UserApi()
   },
