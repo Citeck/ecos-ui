@@ -5,6 +5,8 @@ import { t } from '../../helpers/util';
 import styles from './LoginForm.module.scss';
 
 class LoginForm extends React.Component {
+  usernameInput = null;
+
   state = {
     username: '',
     password: ''
@@ -22,6 +24,10 @@ class LoginForm extends React.Component {
     });
   };
 
+  componentDidMount() {
+    this.usernameInput.focus();
+  }
+
   render() {
     const locationPath = this.props.location.pathname;
     const locationSearch = this.props.location.search;
@@ -38,6 +44,8 @@ class LoginForm extends React.Component {
 
     return (
       <div className={styles.wrapper}>
+        <div className={styles.trademark} />
+
         <div className={styles.container}>
           <div className="theme-company-logo logo-com" />
           {loginError}
@@ -45,7 +53,7 @@ class LoginForm extends React.Component {
             <input type="hidden" name="success" value={`${locationPath}?${successSearchString}`} />
             <input type="hidden" name="failure" value={`${locationPath}?${failureSearchString}`} />
 
-            <div className="form-field">
+            <div className={styles.formField}>
               <label>
                 {t('label.username')}
                 <br />
@@ -56,11 +64,12 @@ class LoginForm extends React.Component {
                   value={this.state.username}
                   onChange={this.onChangeUsername}
                   className={styles.input}
+                  ref={el => (this.usernameInput = el)}
                 />
               </label>
             </div>
 
-            <div className="form-field">
+            <div className={styles.formField}>
               <label>
                 {t('label.password')}
                 <br />
@@ -75,7 +84,7 @@ class LoginForm extends React.Component {
               </label>
             </div>
 
-            <div className="form-field">
+            <div className={styles.formField}>
               <button type="submit" className={styles.button}>
                 {t('button.login')}
               </button>
