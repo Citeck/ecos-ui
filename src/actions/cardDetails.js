@@ -1,4 +1,6 @@
 import { URL_RESCONTEXT, PROXY_URI } from '../constants/alfresco';
+import { setNotificationMessage } from './notification';
+import { checkStatus, parseJSON } from '../api/common';
 
 const prefix = 'cardDetails/';
 
@@ -187,6 +189,24 @@ export function fetchCardlets(nodeRef) {
           receivedAt: Date.now(),
           data: json
         });
+      });
+  };
+}
+
+export function fetchStartMessage(nodeRef) {
+  return dispatch => {
+    return fetch(`/share/proxy/alfresco/acm/getSubmitMessage?nodeRef=${nodeRef}`, {
+      credentials: 'include'
+    })
+      .then(checkStatus)
+      .then(parseJSON)
+      .then(json => {
+        if (!json.disabled) {
+          dispatch(setNotificationMessage(json.message));
+        }
+      })
+      .catch(e => {
+        console.log('fetchStartMessage error: ', e.message);
       });
   };
 }

@@ -4,6 +4,7 @@ import { connectRouter } from 'connected-react-router';
 import app from './app';
 import header from './header';
 import modal from './modal';
+import notification from './notification';
 import slideMenu from './slideMenu';
 import user from './user';
 import view from './view';
@@ -14,6 +15,7 @@ const reducers = {
   cardDetails,
   header,
   modal,
+  notification,
   slideMenu,
   user,
   view

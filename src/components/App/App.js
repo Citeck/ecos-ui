@@ -5,6 +5,7 @@ import classNames from 'classnames';
 
 import CardDetailsPage from '../../pages/CardDetailsPage';
 import Header from '../Header';
+import Notification from '../Notification';
 import SlideMenu from '../SlideMenu';
 import Modal from '../Modal';
 import Footer from '../Footer';
@@ -33,6 +34,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile }) => {
       <SlideMenu />
       <div className="sticky-wrapper">
         <Header />
+        <Notification />
 
         <Switch>
           {/*<Route path="/share/page" exact component={DashboardPage} />*/}

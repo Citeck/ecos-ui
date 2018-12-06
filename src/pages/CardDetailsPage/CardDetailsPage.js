@@ -2,17 +2,19 @@ import React from 'react';
 import { connect } from 'react-redux';
 import queryString from 'query-string';
 import CardDetails from '../../components/CardDetails';
-import { fetchCardlets, fetchNodeInfo, setCardMode, setPageArgs } from '../../actions/cardDetails';
+import { fetchCardlets, fetchNodeInfo, setCardMode, setPageArgs, fetchStartMessage } from '../../actions/cardDetails';
 import { registerReducers } from '../../reducers/cardDetails';
 
 const mapDispatchToProps = dispatch => ({
   setPageArgs: pageArgs => dispatch(setPageArgs(pageArgs)),
   fetchNodeInfo: nodeRef => dispatch(fetchNodeInfo(nodeRef)),
   fetchCardlets: nodeRef => dispatch(fetchCardlets(nodeRef)),
+  fetchStartMessage: nodeRef => dispatch(fetchStartMessage(nodeRef)),
   setCardMode: (cardMode, registerReducers) => dispatch(setCardMode(cardMode, registerReducers))
 });
 
 const DEFAULT_CARD_MODE = 'default';
+const SHOW_MESSAGE_PARAM_NAME = 'showStartMsg';
 
 class CardDetailsPage extends React.Component {
   state = {
@@ -22,7 +24,7 @@ class CardDetailsPage extends React.Component {
   removeHistoryListener = null;
 
   componentDidMount() {
-    const { setPageArgs, fetchNodeInfo, fetchCardlets, setCardMode } = this.props;
+    const { setPageArgs, fetchNodeInfo, fetchCardlets, setCardMode, fetchStartMessage } = this.props;
     const searchParams = queryString.parse(this.props.location.search);
     const nodeRef = searchParams.nodeRef;
     if (!nodeRef) {
@@ -34,12 +36,21 @@ class CardDetailsPage extends React.Component {
       theme: 'citeckTheme' // TODO get from store
     });
 
-    let nodeBaseInfoPromise = fetchNodeInfo(nodeRef);
-    let cardletsPromise = fetchCardlets(nodeRef).then(() => {
-      setCardMode(searchParams.mode || DEFAULT_CARD_MODE, registerReducers);
-    });
+    let promises = [];
 
-    Promise.all([cardletsPromise, nodeBaseInfoPromise]).then(() => {
+    promises.push(fetchNodeInfo(nodeRef));
+
+    promises.push(
+      fetchCardlets(nodeRef).then(() => {
+        setCardMode(searchParams.mode || DEFAULT_CARD_MODE, registerReducers);
+      })
+    );
+
+    if (searchParams[SHOW_MESSAGE_PARAM_NAME] === 'true') {
+      promises.push(fetchStartMessage(nodeRef));
+    }
+
+    Promise.all(promises).then(() => {
       window.__CARD_DETAILS_START = new Date().getTime();
 
       this.removeHistoryListener = this.props.history.listen((location, action) => {
