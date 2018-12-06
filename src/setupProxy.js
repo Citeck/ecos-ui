@@ -5,7 +5,7 @@ const SHARE_PROXY_URL = process.env.PROXY_URL || 'http://localhost:8080';
 const proxyOptions = {
   target: SHARE_PROXY_URL,
   changeOrigin: true,
-  logLevel: 'debug',
+  logLevel: 'warn', // ['debug', 'info', 'warn', 'error', 'silent']
   ws: true,
   onProxyRes: (proxyRes, req, res) => {
     // redirect from 8080 to 3000

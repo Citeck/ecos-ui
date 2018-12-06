@@ -33,11 +33,12 @@
     <div id="root" class="page-content-root"></div>
     <div id="alfresco-yuiloader"></div>
 
-    <script type="text/javascript">
-      var cacheBust = "{{ASSETS_CACHE}}";
-    </script>
-
     <script type="text/javascript" src="/share/service/surf/dojo/bootstrap.js?{{ASSETS_CACHE}}"></script>
+    <script type="text/javascript">
+      if (window.dojoConfig) {
+        window.dojoConfig.cacheBust = "{{ASSETS_CACHE}}";
+      }
+    </script>
     <script type="text/javascript" src="/share/res/js/lib/dojo-1.10.4/dojo/dojo.js?{{ASSETS_CACHE}}"></script>
     <script type="text/javascript" src="/share/res/js/yui-common.js?{{ASSETS_CACHE}}"></script>
     <script type="text/javascript" src="/share/service/messages.js?locale=ru&v={{ASSETS_CACHE}}"></script>

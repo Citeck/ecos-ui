@@ -13,7 +13,7 @@ export function fillConstants() {
       }
 
       // TODO check constants
-      Alfresco.constants.SITE = 'contracts'; // TODO !!! если нет константы, ломается card-details, вычислить из url?
+      Alfresco.constants.SITE = ''; // TODO !!! если нет константы, ломается card-details, вычислить из url?
 
       // window.Alfresco.constants.PROXY_URI = '/share/proxy/alfresco/';
       Alfresco.constants.PAGECONTEXT = '';
