@@ -33,8 +33,10 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile }) => {
       <Modal />
       <SlideMenu />
       <div className="sticky-wrapper">
-        <Header />
-        <Notification />
+        <div id="alf-hd">
+          <Header />
+          <Notification />
+        </div>
 
         <Switch>
           {/*<Route path="/share/page" exact component={DashboardPage} />*/}

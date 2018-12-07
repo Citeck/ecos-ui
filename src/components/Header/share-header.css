@@ -455,6 +455,27 @@
   margin-left: 5px;
 }
 
+.hamburger-icon {
+  display: none;
+  padding: 9px 10px 5px 10px;
+}
+
+.hamburger-icon:after {
+  color: #fff;
+  content: '\f0c9';
+  font: normal normal normal 22px/1 FontAwesome;
+}
+
+.mobile .hamburger-icon {
+  display: block;
+  margin-right: 0;
+}
+
+.mobile #HEADER_APP_MENU_BAR {
+  height: 40px;
+  border-right: 1px solid #88a5c3;
+}
+
 .mobile .share-header-search__inner {
   position: static;
 }
@@ -469,7 +490,7 @@
 
 /* mobile styles */
 .mobile #alf-hd #SHARE_HEADER {
-  padding: 0;
+  padding: 0 !important;
 }
 
 .mobile .alfresco-layout-LeftAndRight__right {

@@ -408,12 +408,12 @@
     left: 0;
     width: 80%;
   }
-  #page-content-root {
+  .page-content-root {
     -webkit-transform: translateX(0px);
     -moz-transform: translateX(0px);
     transform: translateX(0);
   }
-  #slide-menu-checkbox:checked ~ #page-content-root {
+  #slide-menu-checkbox:checked ~ .page-content-root {
     -webkit-transform: translateX(81%);
     -moz-transform: translateX(81%);
     transform: translateX(81%);
@@ -427,7 +427,7 @@
   #slide-menu-checkbox:checked ~ .slide-menu {
     left: 0;
   }
-  #page-content-root {
+  .page-content-root {
     -webkit-transform: translateX(0px);
     -moz-transform: translateX(0px);
     transform: translateX(0);
