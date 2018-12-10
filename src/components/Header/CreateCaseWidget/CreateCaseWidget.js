@@ -4,6 +4,7 @@ import { UncontrolledDropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import DropDownMenuGroup from '../DropdownMenuGroup';
 import DropdownMenuCascade from '../DropdownMenuCascade';
+import { t } from '../../../helpers/util';
 
 const CreateCaseWidget = ({ items, isCascade }) => {
   if (!items) {
@@ -30,7 +31,10 @@ const CreateCaseWidget = ({ items, isCascade }) => {
     <div id="HEADER_CREATE_CASE">
       <UncontrolledDropdown className="custom-dropdown-menu">
         <DropdownToggle tag="span" className="create-case-dropdown-menu__toggle custom-dropdown-menu__toggle">
-          <i className={'fa fa-plus'} />
+          <div>
+            <i className={'fa fa-plus'} />
+            <span>{t('create_case.label')}</span>
+          </div>
         </DropdownToggle>
         <DropdownMenu className={dropdownMenuClasses.join(' ')} id="HEADER_CREATE_CASE__DROPDOWN">
           {menuListItems}
