@@ -19,7 +19,7 @@ app.use(express.static(path.resolve(__dirname, '..', 'build')));
 
 // React app routes
 const mainRoute = createMainRoute();
-router.get(['/', '/share/page/(**/)?card-details'], mainRoute);
+router.get(['/', '/share/page/(**/)?card-details', '/share/page/bpmn-designer(/**)?'], mainRoute);
 app.use('/', router);
 
 // Proxy to /share

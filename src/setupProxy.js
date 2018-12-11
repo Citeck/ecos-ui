@@ -23,7 +23,7 @@ const proxyOptions = {
 
 module.exports = function(app) {
   app.use(
-    proxy(['/share/**', '!**/card-details'], {
+    proxy(['/share/**', '!**/card-details', '!**/bpmn-designer', '!**/bpmn-designer/**'], {
       ...proxyOptions
     })
   );
