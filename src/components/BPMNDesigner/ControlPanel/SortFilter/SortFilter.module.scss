@@ -1,0 +1,76 @@
+@import '../../../../constants';
+
+.wrapper {
+  display: inline-block;
+  float: right;
+}
+
+.toggle {
+  line-height: 40px;
+  border-radius: $border-radius-standard;
+  font-size: $font-size-standard;
+  font-weight: $font-weight-bold;
+  color: $text-color-dark;
+  padding: 0 15px;
+  cursor: pointer;
+  padding-right: 40px;
+
+  &:hover {
+    background-color: $color-gray-1;
+  }
+
+  &:after {
+    content: '';
+    border-top: 2px solid $color-gray-dark;
+    border-left: 2px solid $color-gray-dark;
+    box-sizing: content-box;
+    display: block;
+    width: 6px;
+    height: 6px;
+    margin: auto;
+    position: absolute;
+    top: -2px;
+    bottom: 0;
+    transform: rotate(225deg);
+    right: 18px;
+    left: auto;
+    transition: transform 0.2s, right 0.2s;
+  }
+}
+
+.toggleIsOpen {
+  background-color: $color-blue-light;
+  color: $color-white;
+
+  &:hover {
+    background-color: $color-blue-light;
+  }
+
+  &:after {
+    border-top-color: $color-white;
+    border-left-color: $color-white;
+    transform: rotate(45deg);
+    top: 4px;
+  }
+}
+
+.dropdownMenu {
+  width: 100%;
+  border-radius: $border-radius-standard;
+  box-shadow: $box-shadow-dropdown;
+  border: none !important;
+  padding: 0 !important;
+  overflow: hidden;
+
+  li {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: $font-size-standard;
+    font-weight: $font-weight-bold;
+    color: $text-color-dark;
+
+    &:hover {
+      background-color: $color-gray-4;
+    }
+  }
+}

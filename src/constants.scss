@@ -1,0 +1,26 @@
+$text-color-dark: #444444;
+$text-color-gray: #767676;
+
+$color-white: #ffffff;
+$color-blue-dark: #4b75b7;
+$color-blue-light: #7396cd;
+$color-gray-1: #d8dee1;
+$color-gray-2: #cdd3d6;
+$color-gray-3: #d5dcde;
+$color-gray-4: #e8edef;
+$color-gray-dark: #141414;
+
+$font-weight-bold: 600;
+$font-size-standard: 14px;
+
+$border-radius-standard: 6px;
+$border-radius-large: 8px;
+$border-radius-extra-large: 12px;
+
+$box-shadow-dropdown: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
+
+$page-background-color: $color-gray-4;
+
+/* override bootstrap constants */
+$primary: $color-blue-dark;
+$secondary: $color-gray-4;

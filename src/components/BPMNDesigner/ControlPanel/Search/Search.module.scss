@@ -1,0 +1,28 @@
+@import '../../../../constants';
+
+.search {
+  border-radius: $border-radius-standard;
+  padding: 9px 15px 9px 12px;
+  display: inline-block;
+  background-color: $color-gray-3;
+
+  label {
+    margin: 0;
+    padding: 0 !important;
+  }
+
+  input {
+    outline: none !important;
+    border: none !important;
+    background-color: $color-gray-3;
+    font-weight: bold !important;
+    font-size: $font-size-standard !important;
+    margin-left: 8px;
+  }
+
+  i {
+    color: $text-color-gray;
+    font-size: 20px;
+    cursor: pointer;
+  }
+}
