@@ -40,7 +40,8 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
       case 'FILTER_LINK':
         if (params.siteName) {
           targetUrl = `${PAGE_PREFIX}/site/${params.siteName}/journals2/list/main#journal=${params.journalRef}&filter=${params.filterRef}`;
-        } else if (params.listId === 'global-tasks') {
+        } else {
+          // params.listId
           targetUrl = `${PAGE_PREFIX}/journals2/list/tasks#journal=${params.journalRef}&filter=${params.filterRef}`;
         }
         break;
