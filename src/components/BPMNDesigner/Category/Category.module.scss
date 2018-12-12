@@ -1,0 +1,79 @@
+@import '../../../constants';
+
+.category {
+  background: $color-white;
+  border-radius: $border-radius-extra-large;
+  margin-top: 10px;
+}
+
+.label {
+  padding: 20px 20px 20px 46px;
+  margin: 0;
+  text-transform: uppercase;
+  display: block;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-standard;
+  color: $text-color-dark !important;
+
+  cursor: pointer;
+  position: relative;
+
+  &:before {
+    content: '';
+    border-top: 2px solid $color-gray-dark;
+    border-left: 2px solid $color-gray-dark;
+    box-sizing: content-box;
+    display: block;
+    width: 5px;
+    height: 5px;
+    margin: auto;
+    position: absolute;
+    transform: rotate(135deg);
+    top: 24px;
+    left: 25px;
+    transition: transform 0.1s, right 0.1s;
+  }
+}
+
+.labelForCollapsed {
+  &:before {
+    transform: rotate(225deg);
+    top: 23px;
+  }
+}
+
+.content {
+  padding: 10px;
+}
+
+.categoryLevel1 {
+  background-color: #fff6d9;
+  border: 2px solid #bdb497;
+  border-radius: $border-radius-standard;
+
+  .label {
+    padding: 12px 20px 12px 36px;
+    text-transform: none;
+
+    &:before {
+      top: 16px;
+      left: 15px;
+    }
+  }
+
+  .labelForCollapsed {
+    &:before {
+      top: 15px;
+    }
+  }
+
+  .content {
+    padding: 5px;
+  }
+}
+
+.categoryLevel2 {
+  background-color: #e4d9b8;
+  border: 2px solid #bdb497;
+  border-radius: 0;
+}

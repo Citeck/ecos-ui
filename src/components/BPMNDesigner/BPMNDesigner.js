@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Button, Badge, Container, Row, Col } from 'reactstrap';
+import CategoriesList from './CategoriesList';
 import ControlPanel from './ControlPanel';
 import RightMenu from './RightMenu';
 import styles from './BPMNDesigner.module.scss';
@@ -34,7 +35,7 @@ function BPMNDesigner() {
               </Button>
             </div>
             <ControlPanel />
-            <div className={styles.whiteBlock}>Мои модели</div>
+            <CategoriesList />
             <div className={styles.addCategoryBlock}>
               <a href="/share/page/bpmn-designer">Добавить категорию</a>
             </div>
