@@ -3,3 +3,30 @@
 
 // Import Bootstrap and its default variables
 @import '~bootstrap/scss/bootstrap.scss';
+
+.tooltip-inner-custom {
+  max-width: 200px;
+  padding: 0.5rem 1rem;
+  color: #444;
+  text-align: center;
+  background-color: #fff;
+  border-radius: $border-radius-large;
+  box-shadow: $box-shadow-tooltip;
+  font-weight: $font-weight-bold;
+}
+
+.bs-tooltip-top .arrow-custom::before,
+.bs-tooltip-auto[x-placement^='top'] .arrow-custom::before {
+  top: -0.25rem;
+  left: 0.25rem;
+  border-width: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: $color-white;
+  border-top-color: $color-white;
+  transform: rotate(-45deg);
+  box-shadow: $box-shadow-tooltip-arrow-top;
+  &:before {
+    content: none;
+  }
+}
