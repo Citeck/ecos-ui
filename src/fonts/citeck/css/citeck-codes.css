@@ -31,6 +31,9 @@
 .icon-on:before {
   content: '\e80a';
 } /* '' */
+.icon-fucking-menu-small:before {
+  content: '\e80b';
+} /* '' */
 .icon-left:before {
   content: '\e80c';
 } /* '' */

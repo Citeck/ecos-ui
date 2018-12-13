@@ -11,7 +11,7 @@ function BPMNDesigner() {
   return (
     <Container>
       <Row>
-        <Col xs="8">
+        <Col md="8">
           <div className={styles.header}>
             <p className={styles.counter}>
               Всего{' '}
@@ -24,7 +24,7 @@ function BPMNDesigner() {
         </Col>
       </Row>
       <Row noGutters>
-        <Col xs="8">
+        <Col md="8">
           <div className={styles.whiteBlock}>
             <Button color="primary" size="lg" className={styles.headerBtn}>
               Создать модель
@@ -39,7 +39,7 @@ function BPMNDesigner() {
             <a href="/share/page/bpmn-designer">Добавить категорию</a>
           </div>
         </Col>
-        <Col xs="4">
+        <Col md="4">
           <RightMenu />
         </Col>
       </Row>

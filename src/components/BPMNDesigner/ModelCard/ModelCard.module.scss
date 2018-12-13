@@ -1,0 +1,87 @@
+@import '../../../constants';
+
+.card {
+  margin: 5px;
+  box-shadow: $box-shadow-default;
+  background-color: $color-white;
+  border-radius: $border-radius-large;
+  overflow: hidden;
+
+  &:hover {
+    .cardTopHover {
+      opacity: 1;
+    }
+  }
+}
+
+.cardTop {
+  height: 150px;
+  position: relative;
+
+  background: url(https://bpm.citeck.ru/flowable-modeler/app/rest/models/60a3f338-ee03-11e8-9d4e-001dd8b75f64/thumbnail?version=1544627716371);
+  background-repeat: no-repeat;
+  background-position: center 20px;
+  background-size: auto;
+}
+
+.cardTopHover {
+  opacity: 0;
+  background-color: rgba(32, 55, 91, 0.7);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  transition: opacity ease-out 0.2s;
+}
+
+.cardEditButton {
+  background: #2a446c;
+  border-radius: 4px;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  cursor: pointer;
+
+  &:before {
+    color: $color-white;
+    font-size: 15px;
+  }
+}
+
+.cardTopButton {
+  text-align: center;
+  position: relative;
+  top: 75px;
+
+  a {
+    color: $color-white !important;
+    border: 2px solid $color-white;
+    border-radius: $border-radius-large;
+    padding: 10px 15px;
+    font-size: $font-size-standard;
+    font-weight: $font-weight-bold;
+  }
+}
+
+.cardBottom {
+  background: $color-gray-4;
+  padding: 10px;
+}
+
+.label {
+  margin: 0;
+  font-size: 12px;
+  color: $color-black;
+  font-weight: $font-weight-bold;
+}
+
+.author,
+.datetime {
+  margin: 0;
+  font-size: 11px;
+  color: $text-color-gray;
+}
