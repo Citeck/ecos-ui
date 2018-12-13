@@ -2,13 +2,21 @@
 
 .search {
   border-radius: $border-radius-standard;
-  padding: 9px 15px 9px 12px;
+  padding: 9px 12px 9px 10px;
   display: inline-block;
   background-color: $color-gray-3;
 
   label {
     margin: 0;
     padding: 0 !important;
+    cursor: text;
+
+    &:before {
+      color: $color-gray-5;
+      font-size: 20px;
+      position: relative;
+      top: 1px;
+    }
   }
 
   input {
@@ -17,12 +25,6 @@
     background-color: $color-gray-3;
     font-weight: bold !important;
     font-size: $font-size-standard !important;
-    margin-left: 8px;
-  }
-
-  i {
-    color: $text-color-gray;
-    font-size: 20px;
-    cursor: pointer;
+    margin-left: 2px;
   }
 }

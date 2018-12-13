@@ -10,19 +10,29 @@ function RightMenu() {
         <nav>
           <ul>
             <li className={cn(styles.item, { [styles.itemActive]: true })}>
-              <a href="/share/page/bpmn-designer">Модели процессов</a>
+              <a href="/share/page/bpmn-designer" className="icon-models">
+                Модели процессов
+              </a>
             </li>
             <li className={styles.item}>
-              <a href="/share/page/bpmn-designer">Case models</a>
+              <a href="/share/page/bpmn-designer" className="icon-case-models">
+                Case models
+              </a>
             </li>
             <li className={styles.item}>
-              <a href="/share/page/bpmn-designer">Forms</a>
+              <a href="/share/page/bpmn-designer" className="icon-forms">
+                Forms
+              </a>
             </li>
             <li className={styles.item}>
-              <a href="/share/page/bpmn-designer">Decision tables</a>
+              <a href="/share/page/bpmn-designer" className="icon-decision-tables">
+                Decision tables
+              </a>
             </li>
             <li className={styles.item}>
-              <a href="/share/page/bpmn-designer">Apps</a>
+              <a href="/share/page/bpmn-designer" className="icon-apps">
+                Apps
+              </a>
             </li>
           </ul>
         </nav>

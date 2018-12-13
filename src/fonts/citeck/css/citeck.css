@@ -1,0 +1,149 @@
+@font-face {
+  font-family: 'citeck';
+  src: url('../font/citeck.eot?45401225');
+  src: url('../font/citeck.eot?45401225#iefix') format('embedded-opentype'), url('../font/citeck.woff2?45401225') format('woff2'),
+    url('../font/citeck.woff?45401225') format('woff'), url('../font/citeck.ttf?45401225') format('truetype'),
+    url('../font/citeck.svg?45401225#citeck') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: 'citeck';
+    src: url('../font/citeck.svg?45401225#citeck') format('svg');
+  }
+}
+*/
+
+[class^='icon-']:before,
+[class*=' icon-']:before {
+  font-family: 'citeck';
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: 0.2em;
+  text-align: center;
+  /* opacity: .8; */
+
+  /* For safety - reset parent styles, that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: 0.2em;
+
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+
+  /* Font smoothing. That was taken from TWBS */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+
+.icon-apps:before {
+  content: '\e800';
+} /* '' */
+.icon-case-models:before {
+  content: '\e801';
+} /* '' */
+.icon-check:before {
+  content: '\e802';
+} /* '' */
+.icon-close:before {
+  content: '\e803';
+} /* '' */
+.icon-decision-tables:before {
+  content: '\e804';
+} /* '' */
+.icon-delete:before {
+  content: '\e805';
+} /* '' */
+.icon-down:before {
+  content: '\e806';
+} /* '' */
+.icon-download:before {
+  content: '\e807';
+} /* '' */
+.icon-edit:before {
+  content: '\e808';
+} /* '' */
+.icon-off:before {
+  content: '\e809';
+} /* '' */
+.icon-on:before {
+  content: '\e80a';
+} /* '' */
+.icon-left:before {
+  content: '\e80c';
+} /* '' */
+.icon-menu-small-press:before {
+  content: '\e80d';
+} /* '' */
+.icon-models:before {
+  content: '\e80e';
+} /* '' */
+.icon-pie:before {
+  content: '\e80f';
+} /* '' */
+.icon-preview:before {
+  content: '\e810';
+} /* '' */
+.icon-reload:before {
+  content: '\e811';
+} /* '' */
+.icon-right:before {
+  content: '\e812';
+} /* '' */
+.icon-search:before {
+  content: '\e813';
+} /* '' */
+.icon-select-1:before {
+  content: '\e814';
+} /* '' */
+.icon-menu-normal-press:before {
+  content: '\e815';
+} /* '' */
+.icon-settings:before {
+  content: '\e816';
+} /* '' */
+.icon-up:before {
+  content: '\e818';
+} /* '' */
+.icon-warning:before {
+  content: '\e819';
+} /* '' */
+.icon-tiles:before {
+  content: '\e81a';
+} /* '' */
+.icon-select:before {
+  content: '\e81b';
+} /* '' */
+.icon-list:before {
+  content: '\e81c';
+} /* '' */
+.icon-drag:before {
+  content: '\e81d';
+} /* '' */
+.icon-menu-small:before {
+  content: '\e81e';
+} /* '' */
+.icon-menu-normal:before {
+  content: '\e81f';
+} /* '' */
+.icon-forms:before {
+  content: '\e820';
+} /* '' */

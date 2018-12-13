@@ -7,8 +7,8 @@ const ControlPanel = () => {
   return (
     <div style={{ marginBottom: 10, marginTop: 40 }}>
       <Search />
-      <SortFilter />
       <ViewSwitcher />
+      <SortFilter />
     </div>
   );
 };

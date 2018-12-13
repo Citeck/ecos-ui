@@ -13,13 +13,27 @@
   a {
     display: block;
     line-height: 40px;
-    padding: 0 15px;
+    padding: 0 15px 0 10px;
     color: inherit !important;
+
+    &:before {
+      font-size: 18px;
+      margin-right: 10px;
+      color: $color-gray-6;
+      position: relative;
+      top: 1px;
+    }
   }
 
   &:hover {
-    background-color: $color-gray-1;
+    background-color: $color-gray-4;
     color: $text-color-dark;
+
+    a {
+      &:before {
+        color: $text-color-gray;
+      }
+    }
   }
 }
 
@@ -30,5 +44,17 @@
   &:hover {
     background-color: $color-blue-light;
     color: $color-white;
+
+    a {
+      &:before {
+        color: $color-white;
+      }
+    }
+  }
+
+  a {
+    &:before {
+      color: $color-white;
+    }
   }
 }

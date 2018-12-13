@@ -13,7 +13,7 @@
   color: $text-color-dark;
   padding: 0 15px;
   cursor: pointer;
-  padding-right: 40px;
+  padding-right: 35px;
 
   &:hover {
     background-color: $color-gray-1;
@@ -32,7 +32,7 @@
     top: -2px;
     bottom: 0;
     transform: rotate(225deg);
-    right: 18px;
+    right: 15px;
     left: auto;
     transition: transform 0.2s, right 0.2s;
   }

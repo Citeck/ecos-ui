@@ -1,0 +1,33 @@
+@import '../../../../constants';
+
+.wrapper {
+  display: inline-block;
+  float: right;
+  line-height: 40px;
+  margin-left: 10px;
+  margin-right: 15px;
+}
+
+.item {
+  display: inline-block;
+  margin-left: 2px;
+  cursor: pointer;
+  color: $color-gray-5;
+
+  &:before {
+    font-size: 18px;
+    color: inherit;
+  }
+
+  &:hover {
+    color: $text-color-gray;
+  }
+}
+
+.itemActive {
+  color: $color-blue-light;
+
+  &:hover {
+    color: $color-blue-light;
+  }
+}
