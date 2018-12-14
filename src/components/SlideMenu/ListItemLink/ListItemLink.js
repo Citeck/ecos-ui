@@ -38,19 +38,39 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
 
     switch (item.action.type) {
       case 'FILTER_LINK':
-        if (params.siteName) {
-          targetUrl = `${PAGE_PREFIX}/site/${params.siteName}/journals2/list/main#journal=${params.journalRef}&filter=${params.filterRef}`;
-        } else {
-          // params.listId
-          targetUrl = `${PAGE_PREFIX}/journals2/list/tasks#journal=${params.journalRef}&filter=${params.filterRef}`;
-        }
-        break;
       case 'JOURNAL_LINK':
+        targetUrl = PAGE_PREFIX;
+
+        let listId = 'tasks';
         if (params.siteName) {
-          targetUrl = `${PAGE_PREFIX}/site/${params.siteName}/journals2/list/main#journal=${params.journalRef}&filter=`;
-        } else {
-          targetUrl = `${PAGE_PREFIX}/journals2/list/tasks#journal=${params.journalRef}&filter=`;
+          targetUrl += `/site/${params.siteName}`;
+          listId = params.listId || 'main';
         }
+
+        targetUrl += `/journals2/list/${listId}#`;
+
+        if (params.journalRef) {
+          targetUrl += `journal=${params.journalRef}`;
+        }
+
+        if (params.filterRef) {
+          targetUrl += `&filter=${params.filterRef}`;
+        } else {
+          targetUrl += `&filter=`;
+        }
+
+        if (params.settings) {
+          targetUrl += `&settings=${params.settings}`;
+        }
+
+        if (params.skipCount) {
+          targetUrl += `&skipCount=${params.skipCount}`;
+        }
+
+        if (params.maxItems) {
+          targetUrl += `&maxItems=${params.maxItems}`;
+        }
+
         break;
       case 'PAGE_LINK':
         let sectionPostfix = params.section ? params.section : '';
