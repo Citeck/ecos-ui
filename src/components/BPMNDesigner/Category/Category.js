@@ -24,7 +24,7 @@ class Category extends React.Component {
   };
 
   render() {
-    const { label, level } = this.props;
+    const { label, level, isEditable } = this.props;
 
     const dropdownActionsIconClasses = cn(styles.categoryActionIcon, styles.categoryActionIcon2, {
       [styles.categoryActionIconPressed]: this.state.dropdownOpen,
@@ -35,6 +35,8 @@ class Category extends React.Component {
     });
 
     const dragNDropIconClasses = cn('icon-drag', styles.categoryActionIcon);
+    const saveIconClasses = cn('icon-check', styles.categoryActionIcon);
+    const cancelIconClasses = cn('icon-close', styles.categoryActionIcon);
 
     const mainContainerClasses = cn(styles.category, {
       [styles.categoryLevel1]: level === 1,
@@ -45,35 +47,68 @@ class Category extends React.Component {
       [styles.labelForCollapsed]: this.state.isCollapsed
     });
 
+    let onClickLabel = this.toggleCollapse;
+    let actionButtons = (
+      <React.Fragment>
+        <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown}>
+          <DropdownToggle tag="div">
+            <span className={dropdownActionsIconClasses} />
+          </DropdownToggle>
+          <DropdownMenu className={styles.dropdownMenu}>
+            <ul>
+              <li>Добавить подкатегорию</li>
+              <li>Переименовать</li>
+              <li>Доступ</li>
+              <li>Удалить</li>
+            </ul>
+          </DropdownMenu>
+        </Dropdown>
+
+        <span
+          className={dragNDropIconClasses}
+          onClick={e => {
+            e.stopPropagation();
+          }}
+        />
+      </React.Fragment>
+    );
+
+    if (isEditable) {
+      onClickLabel = () => {
+        this.labelRef.focus();
+      };
+      actionButtons = (
+        <React.Fragment>
+          <span
+            className={cancelIconClasses}
+            onClick={e => {
+              e.stopPropagation();
+            }}
+          />
+          <span
+            className={saveIconClasses}
+            onClick={e => {
+              e.stopPropagation();
+            }}
+          />
+        </React.Fragment>
+      );
+    }
+
+    const labelTextClasses = cn(styles.labelText, {
+      [styles.labelTextEditable]: isEditable
+    });
+
     return (
       <div className={mainContainerClasses}>
         <div className={styles.categoryHeader}>
-          <h3 className={labelClasses} onClick={this.toggleCollapse}>
-            {label}
+          <h3 className={labelClasses} onClick={onClickLabel}>
+            <span className={labelTextClasses} suppressContentEditableWarning contentEditable={isEditable} ref={el => (this.labelRef = el)}>
+              {label}
+            </span>
           </h3>
 
-          <div className={styles.categoryActions}>
-            <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown}>
-              <DropdownToggle tag="div">
-                <span className={dropdownActionsIconClasses} />
-              </DropdownToggle>
-              <DropdownMenu className={styles.dropdownMenu}>
-                <ul>
-                  <li>Добавить подкатегорию</li>
-                  <li>Переименовать</li>
-                  <li>Доступ</li>
-                  <li>Удалить</li>
-                </ul>
-              </DropdownMenu>
-            </Dropdown>
-
-            <span
-              className={dragNDropIconClasses}
-              onClick={e => {
-                e.stopPropagation();
-              }}
-            />
-          </div>
+          <div className={styles.categoryActions}>{actionButtons}</div>
         </div>
 
         <Collapse isOpen={this.state.isCollapsed}>

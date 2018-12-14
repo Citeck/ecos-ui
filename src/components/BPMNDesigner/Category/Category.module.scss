@@ -19,6 +19,7 @@
 
   cursor: pointer;
   position: relative;
+  width: 100%;
 
   &:before {
     content: '';
@@ -37,6 +38,22 @@
   }
 }
 
+.labelText {
+  display: inline-block;
+  line-height: 1.4em;
+  white-space: nowrap;
+}
+
+.labelTextEditable {
+  background-color: rgba(0, 102, 255, 0.3);
+  &:before {
+    content: '.';
+    width: 0;
+    display: inline-block;
+    color: rgba(0, 102, 255, 0.3);
+  }
+}
+
 .labelForCollapsed {
   &:before {
     transform: rotate(225deg);
@@ -47,6 +64,7 @@
 .categoryHeader {
   display: flex;
   justify-content: space-between;
+  padding-right: 10px;
 }
 
 .categoryActions {
@@ -137,6 +155,10 @@
 
   .categoryActionIconPressed {
     color: #bdb497;
+  }
+
+  .categoryHeader {
+    padding-right: 0;
   }
 }
 
