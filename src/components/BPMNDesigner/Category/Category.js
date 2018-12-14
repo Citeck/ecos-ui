@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Collapse, Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import cn from 'classnames';
 import styles from './Category.module.scss';
@@ -28,9 +28,9 @@ class Category extends React.Component {
 
     const dropdownActionsIconClasses = cn(styles.categoryActionIcon, styles.categoryActionIcon2, {
       [styles.categoryActionIconPressed]: this.state.dropdownOpen,
-      'icon-menu-normal': level === 0,
+      'icon-menu-normal': level === 0 && !this.state.dropdownOpen,
       'icon-menu-normal-press': level === 0 && this.state.dropdownOpen,
-      'icon-menu-small': level !== 0,
+      'icon-menu-small': level !== 0 && !this.state.dropdownOpen,
       'icon-menu-small-press': level !== 0 && this.state.dropdownOpen
     });
 
@@ -49,7 +49,7 @@ class Category extends React.Component {
 
     let onClickLabel = this.toggleCollapse;
     let actionButtons = (
-      <React.Fragment>
+      <Fragment>
         <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown}>
           <DropdownToggle tag="div">
             <span className={dropdownActionsIconClasses} />
@@ -70,28 +70,43 @@ class Category extends React.Component {
             e.stopPropagation();
           }}
         />
-      </React.Fragment>
+      </Fragment>
     );
 
+    let onKeyPressLabel = null;
     if (isEditable) {
       onClickLabel = () => {
         this.labelRef.focus();
       };
+      onKeyPressLabel = e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          // TODO save action
+        }
+
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          // TODO cancel action
+        }
+      };
       actionButtons = (
-        <React.Fragment>
+        <Fragment>
           <span
             className={cancelIconClasses}
             onClick={e => {
               e.stopPropagation();
+              // TODO cancel action
             }}
           />
           <span
             className={saveIconClasses}
             onClick={e => {
               e.stopPropagation();
+              // TODO save action
+              // console.log(this.labelRef.innerText);
             }}
           />
-        </React.Fragment>
+        </Fragment>
       );
     }
 
@@ -103,7 +118,13 @@ class Category extends React.Component {
       <div className={mainContainerClasses}>
         <div className={styles.categoryHeader}>
           <h3 className={labelClasses} onClick={onClickLabel}>
-            <span className={labelTextClasses} suppressContentEditableWarning contentEditable={isEditable} ref={el => (this.labelRef = el)}>
+            <span
+              onKeyDown={onKeyPressLabel}
+              className={labelTextClasses}
+              suppressContentEditableWarning
+              contentEditable={isEditable}
+              ref={el => (this.labelRef = el)}
+            >
               {label}
             </span>
           </h3>

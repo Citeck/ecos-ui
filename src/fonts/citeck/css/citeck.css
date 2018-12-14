@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'citeck';
-  src: url('../font/citeck.eot?6564455');
-  src: url('../font/citeck.eot?6564455#iefix') format('embedded-opentype'), url('../font/citeck.woff2?6564455') format('woff2'),
-    url('../font/citeck.woff?6564455') format('woff'), url('../font/citeck.ttf?6564455') format('truetype'),
-    url('../font/citeck.svg?6564455#citeck') format('svg');
+  src: url('../font/citeck.eot?3682789');
+  src: url('../font/citeck.eot?3682789#iefix') format('embedded-opentype'), url('../font/citeck.woff2?3682789') format('woff2'),
+    url('../font/citeck.woff?3682789') format('woff'), url('../font/citeck.ttf?3682789') format('truetype'),
+    url('../font/citeck.svg?3682789#citeck') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -13,7 +13,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'citeck';
-    src: url('../font/citeck.svg?6564455#citeck') format('svg');
+    src: url('../font/citeck.svg?3682789#citeck') format('svg');
   }
 }
 */
@@ -78,75 +78,72 @@
 .icon-download:before {
   content: '\e807';
 } /* '' */
-.icon-edit:before {
+.icon-drag:before {
   content: '\e808';
 } /* '' */
-.icon-off:before {
+.icon-edit:before {
   content: '\e809';
 } /* '' */
-.icon-on:before {
+.icon-forms:before {
   content: '\e80a';
 } /* '' */
-.icon-fucking-menu-small:before {
+.icon-left:before {
   content: '\e80b';
 } /* '' */
-.icon-left:before {
+.icon-list:before {
   content: '\e80c';
 } /* '' */
-.icon-menu-small-press:before {
+.icon-menu-normal-press:before {
   content: '\e80d';
 } /* '' */
-.icon-models:before {
+.icon-menu-normal:before {
   content: '\e80e';
 } /* '' */
-.icon-pie:before {
+.icon-menu-small-press:before {
   content: '\e80f';
 } /* '' */
-.icon-preview:before {
+.icon-menu-small:before {
   content: '\e810';
 } /* '' */
-.icon-reload:before {
+.icon-minus:before {
   content: '\e811';
 } /* '' */
-.icon-right:before {
+.icon-models:before {
   content: '\e812';
 } /* '' */
-.icon-search:before {
+.icon-pie:before {
   content: '\e813';
 } /* '' */
-.icon-select-1:before {
+.icon-plus:before {
   content: '\e814';
 } /* '' */
-.icon-menu-normal-press:before {
+.icon-preview:before {
   content: '\e815';
 } /* '' */
-.icon-settings:before {
+.icon-reload:before {
   content: '\e816';
 } /* '' */
-.icon-up:before {
+.icon-right:before {
+  content: '\e817';
+} /* '' */
+.icon-search:before {
   content: '\e818';
 } /* '' */
-.icon-warning:before {
+.icon-settings:before {
   content: '\e819';
 } /* '' */
 .icon-tiles:before {
   content: '\e81a';
 } /* '' */
-.icon-select:before {
+.icon-up:before {
   content: '\e81b';
 } /* '' */
-.icon-list:before {
+.icon-warning:before {
   content: '\e81c';
 } /* '' */
-.icon-drag:before {
+.icon-off:before {
   content: '\e81d';
 } /* '' */
-.icon-menu-small:before {
+.icon-on:before {
   content: '\e81e';
 } /* '' */
-.icon-menu-normal:before {
-  content: '\e81f';
-} /* '' */
-.icon-forms:before {
-  content: '\e820';
-} /* '' */
