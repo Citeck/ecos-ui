@@ -16,7 +16,7 @@ function BPMNDesigner() {
             <p className={styles.counter}>
               Всего{' '}
               <Badge color="primary" pill>
-                0
+                10
               </Badge>
             </p>
             <h2 className={styles.h2}>Модели бизнес процессов</h2>
