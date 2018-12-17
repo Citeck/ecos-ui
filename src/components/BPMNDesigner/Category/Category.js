@@ -1,7 +1,13 @@
 import React, { Fragment } from 'react';
+import { connect } from 'react-redux';
 import { Collapse, Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import cn from 'classnames';
+import { ViewTypeCards, ViewTypeList } from '../../../constants/bpmn';
 import styles from './Category.module.scss';
+
+const mapStateToProps = state => ({
+  viewType: state.bpmn.viewType
+});
 
 class Category extends React.Component {
   state = {
@@ -114,30 +120,41 @@ class Category extends React.Component {
       [styles.labelTextEditable]: isEditable
     });
 
-    return (
-      <div className={mainContainerClasses}>
-        <div className={styles.categoryHeader}>
-          <h3 className={labelClasses} onClick={onClickLabel}>
-            <span
-              onKeyDown={onKeyPressLabel}
-              className={labelTextClasses}
-              suppressContentEditableWarning
-              contentEditable={isEditable}
-              ref={el => (this.labelRef = el)}
-            >
-              {label}
-            </span>
-          </h3>
+    const currentViewType = this.props.viewType;
 
-          <div className={styles.categoryActions}>{actionButtons}</div>
+    return (
+      <div>
+        <div className={mainContainerClasses}>
+          <div className={styles.categoryHeader}>
+            <h3 className={labelClasses} onClick={onClickLabel}>
+              <span
+                onKeyDown={onKeyPressLabel}
+                className={labelTextClasses}
+                suppressContentEditableWarning
+                contentEditable={isEditable}
+                ref={el => (this.labelRef = el)}
+              >
+                {label}
+              </span>
+            </h3>
+
+            <div className={styles.categoryActions}>{actionButtons}</div>
+          </div>
+          {currentViewType === ViewTypeCards ? (
+            <Collapse isOpen={this.state.isCollapsed}>
+              <div className={styles.content}>{this.props.children}</div>
+            </Collapse>
+          ) : null}
         </div>
 
-        <Collapse isOpen={this.state.isCollapsed}>
-          <div className={styles.content}>{this.props.children}</div>
-        </Collapse>
+        {currentViewType === ViewTypeList ? (
+          <Collapse isOpen={this.state.isCollapsed}>
+            <div className={styles.contentNested}>{this.props.children}</div>
+          </Collapse>
+        ) : null}
       </div>
     );
   }
 }
 
-export default Category;
+export default connect(mapStateToProps)(Category);

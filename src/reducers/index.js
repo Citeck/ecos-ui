@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
 
 import app from './app';
+import bpmn from './bpmn';
 import header from './header';
 import modal from './modal';
 import notification from './notification';
@@ -12,6 +13,7 @@ import { rootReducer as cardDetails } from './cardDetails';
 
 const reducers = {
   app,
+  bpmn,
   cardDetails,
   header,
   modal,
