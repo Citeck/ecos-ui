@@ -49,7 +49,7 @@ class Category extends React.Component {
       [styles.bpmnCategoryLevel1]: level === 1,
       [styles.bpmnCategoryLevel2]: level === 2,
       bpmnCategoryLevelOpen: this.state.collapseIsOpen,
-      bpmnCategoryListViewType: viewType === ViewTypeList
+      bpmnCategoryListViewType: viewType === ViewTypeList && level !== 0
     });
 
     const whiteContainerClasses = cn(styles.category, {

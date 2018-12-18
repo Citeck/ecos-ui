@@ -8,9 +8,11 @@ const Categories = ({ items, isParentHasNotModels }) => {
     return null;
   }
 
-  const categoryList = items.map(item => {
+  const categoryList = items.map((item, idx) => {
+    const itemId = item.id || idx;
+
     return (
-      <Category label={item.label} level={item.level} isEditable={item.isEditable}>
+      <Category key={itemId} label={item.label} level={item.level} isEditable={item.isEditable}>
         <Models items={item.models} />
         <Categories items={item.categories} isParentHasNotModels={!item.models} />
       </Category>
