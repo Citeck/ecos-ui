@@ -1,6 +1,10 @@
 @import './bootstrap.scss';
 @import './fonts/citeck/css/citeck.css';
 
+html {
+  overflow: auto;
+}
+
 /* TODO */
 @font-face {
   font-family: 'Open Sans';

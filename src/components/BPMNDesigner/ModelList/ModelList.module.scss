@@ -1,6 +1,6 @@
 @import '../../../constants';
 
-.card {
+.item {
   margin: 10px 0 0 0;
   padding: 0 5px;
   background-color: $color-white;
@@ -13,6 +13,30 @@
   &:hover {
     .viewCard {
       display: block;
+    }
+  }
+
+  &:before {
+    content: '';
+    display: block;
+    border-bottom: 4px solid white;
+    border-left: 4px solid white;
+    border-bottom-left-radius: 8px;
+    position: absolute;
+    left: -18px;
+    top: -20px;
+    height: 55px;
+    width: 14px;
+  }
+}
+
+.itemWrapper {
+  &:first-child {
+    .item {
+      &:before {
+        height: 30px;
+        top: 5px;
+      }
     }
   }
 }

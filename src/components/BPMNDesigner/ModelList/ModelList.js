@@ -8,8 +8,8 @@ const ModelCard = () => {
   const editIconClasses = cn('icon-edit', styles.editActionIcon);
 
   return (
-    <Col md="12">
-      <div className={styles.card}>
+    <Col xs={12} className={styles.itemWrapper}>
+      <div className={styles.item}>
         <div className={styles.leftPart}>
           <p className={styles.label}>Название модели</p>
           <p className={styles.authorAndDatetime}>

@@ -11,7 +11,7 @@ const mapStateToProps = state => ({
 
 class Category extends React.Component {
   state = {
-    isCollapsed: false,
+    collapseIsOpen: false,
     dropdownOpen: false
   };
 
@@ -25,12 +25,12 @@ class Category extends React.Component {
 
   toggleCollapse = () => {
     this.setState(prevState => ({
-      isCollapsed: !prevState.isCollapsed
+      collapseIsOpen: !prevState.collapseIsOpen
     }));
   };
 
   render() {
-    const { label, level, isEditable } = this.props;
+    const { label, level, isEditable, viewType, isParentHasNotModels } = this.props;
 
     const dropdownActionsIconClasses = cn(styles.categoryActionIcon, styles.categoryActionIcon2, {
       [styles.categoryActionIconPressed]: this.state.dropdownOpen,
@@ -44,13 +44,21 @@ class Category extends React.Component {
     const saveIconClasses = cn('icon-check', styles.categoryActionIcon);
     const cancelIconClasses = cn('icon-close', styles.categoryActionIcon);
 
-    const mainContainerClasses = cn(styles.category, {
+    const mainContainerClasses = cn({
+      [styles.bpmnCategoryLevel1]: level === 1,
+      [styles.bpmnCategoryLevel2]: level === 2,
+      [styles.bpmnCategoryLevelOpen]: this.state.collapseIsOpen,
+      [styles.bpmnCategoryListViewType]: viewType === ViewTypeList,
+      [styles.bpmnCategoryParentHasNotModels]: isParentHasNotModels
+    });
+
+    const whiteContainerClasses = cn(styles.category, {
       [styles.categoryLevel1]: level === 1,
       [styles.categoryLevel2]: level === 2
     });
 
     const labelClasses = cn(styles.label, {
-      [styles.labelForCollapsed]: this.state.isCollapsed
+      [styles.labelForCollapsed]: this.state.collapseIsOpen
     });
 
     let onClickLabel = this.toggleCollapse;
@@ -120,11 +128,9 @@ class Category extends React.Component {
       [styles.labelTextEditable]: isEditable
     });
 
-    const currentViewType = this.props.viewType;
-
     return (
-      <div>
-        <div className={mainContainerClasses}>
+      <div className={mainContainerClasses}>
+        <div className={whiteContainerClasses}>
           <div className={styles.categoryHeader}>
             <h3 className={labelClasses} onClick={onClickLabel}>
               <span
@@ -140,15 +146,15 @@ class Category extends React.Component {
 
             <div className={styles.categoryActions}>{actionButtons}</div>
           </div>
-          {currentViewType === ViewTypeCards ? (
-            <Collapse isOpen={this.state.isCollapsed}>
+          {viewType === ViewTypeCards ? (
+            <Collapse isOpen={this.state.collapseIsOpen}>
               <div className={styles.content}>{this.props.children}</div>
             </Collapse>
           ) : null}
         </div>
 
-        {currentViewType === ViewTypeList ? (
-          <Collapse isOpen={this.state.isCollapsed}>
+        {viewType === ViewTypeList ? (
+          <Collapse isOpen={this.state.collapseIsOpen}>
             <div className={styles.contentNested}>{this.props.children}</div>
           </Collapse>
         ) : null}
