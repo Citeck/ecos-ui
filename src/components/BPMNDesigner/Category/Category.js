@@ -4,6 +4,7 @@ import { Collapse, Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import cn from 'classnames';
 import { ViewTypeCards, ViewTypeList } from '../../../constants/bpmn';
 import styles from './Category.module.scss';
+import './Category.scss';
 
 const mapStateToProps = state => ({
   viewType: state.bpmn.viewType
@@ -30,7 +31,7 @@ class Category extends React.Component {
   };
 
   render() {
-    const { label, level, isEditable, viewType, isParentHasNotModels } = this.props;
+    const { label, level, isEditable, viewType } = this.props;
 
     const dropdownActionsIconClasses = cn(styles.categoryActionIcon, styles.categoryActionIcon2, {
       [styles.categoryActionIconPressed]: this.state.dropdownOpen,
@@ -47,9 +48,8 @@ class Category extends React.Component {
     const mainContainerClasses = cn({
       [styles.bpmnCategoryLevel1]: level === 1,
       [styles.bpmnCategoryLevel2]: level === 2,
-      [styles.bpmnCategoryLevelOpen]: this.state.collapseIsOpen,
-      [styles.bpmnCategoryListViewType]: viewType === ViewTypeList,
-      [styles.bpmnCategoryParentHasNotModels]: isParentHasNotModels
+      bpmnCategoryLevelOpen: this.state.collapseIsOpen,
+      bpmnCategoryListViewType: viewType === ViewTypeList
     });
 
     const whiteContainerClasses = cn(styles.category, {

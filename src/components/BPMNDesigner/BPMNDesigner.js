@@ -7,6 +7,81 @@ import RightMenu from './RightMenu';
 import styles from './BPMNDesigner.module.scss';
 import './BPMNDesigner.scss';
 
+const categories = [
+  {
+    label: 'Департамент дизайна',
+    level: 0,
+    models: 4,
+    categories: [
+      {
+        label: 'Отдел ландшафтного дизайна',
+        level: 1,
+        models: 4,
+        categories: [
+          {
+            label: 'Заголовок третьего уровня',
+            level: 2,
+            models: 4
+          },
+          {
+            label: 'Заголовок третьего уровня 2',
+            level: 2,
+            isEditable: true
+          }
+        ]
+      },
+      {
+        label: 'Отдел ландшафтного дизайна 2',
+        level: 1,
+        isEditable: true
+      }
+    ]
+  },
+  {
+    label: 'Департамент дизайна 2',
+    level: 0,
+    models: 4,
+    categories: [
+      {
+        label: 'Отдел ландшафтного дизайна',
+        level: 1,
+        models: 4,
+        categories: [
+          {
+            label: 'Заголовок третьего уровня',
+            level: 2,
+            models: 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label: 'Департамент дизайна 3',
+    level: 0,
+    models: 0,
+    categories: [
+      {
+        label: 'Отдел ландшафтного дизайна',
+        level: 1,
+        models: 0,
+        categories: [
+          {
+            label: 'Заголовок третьего уровня',
+            level: 2,
+            models: 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label: 'Департамент чего-то там',
+    level: 0,
+    isEditable: true
+  }
+];
+
 function BPMNDesigner() {
   return (
     <Container>
@@ -38,7 +113,7 @@ function BPMNDesigner() {
             </Button>
           </div>
           <ControlPanel />
-          <Categories />
+          <Categories items={categories} />
           <div className={styles.addCategoryBlock}>
             <a href="/share/page/bpmn-designer">Добавить категорию</a>
           </div>

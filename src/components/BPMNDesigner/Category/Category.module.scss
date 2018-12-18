@@ -184,45 +184,4 @@
   .contentNested {
     padding: 0 0 0 36px;
   }
-
-  &.bpmnCategoryListViewType {
-    &:before {
-      content: '';
-      display: block;
-      border-bottom: 4px solid white;
-      border-left: 4px solid white;
-      border-bottom-left-radius: 8px;
-      position: absolute;
-      left: -18px;
-      top: -28px;
-      height: 50px;
-      width: 14px;
-    }
-
-    &:after {
-      content: '';
-      display: block;
-      border-left: 4px solid white;
-      position: absolute;
-      left: -18px;
-      top: 30px;
-      bottom: 0;
-      opacity: 0;
-      width: 14px;
-      transition: opacity 0.5s ease;
-    }
-
-    &.bpmnCategoryLevelOpen {
-      &:after {
-        opacity: 1;
-      }
-    }
-  }
-
-  &.bpmnCategoryParentHasNotModels {
-    &:before {
-      height: 27px;
-      top: -5px;
-    }
-  }
 }
