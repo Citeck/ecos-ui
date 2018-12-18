@@ -7,7 +7,7 @@ const ModelCard = () => {
   const dragNDropIconClasses = cn('icon-drag', styles.dndActionIcon);
 
   return (
-    <Col md="4">
+    <Col xl={3} lg={4} md={4} sm={6}>
       <div className={styles.card}>
         <div className={styles.cardTop}>
           <div className={styles.cardTopHover}>

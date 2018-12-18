@@ -2,12 +2,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { UncontrolledTooltip } from 'reactstrap';
 import { ViewTypeList, ViewTypeCards } from '../../../../constants/bpmn';
+import { setViewType } from '../../../../actions/bpmn';
 import cn from 'classnames';
 import styles from './ViewSwitcher.module.scss';
-import { setViewType } from '../../../../actions/bpmn';
 
 const mapStateToProps = state => ({
-  viewType: state.bpmn.viewType
+  viewType: state.bpmn.viewType,
+  isMobile: state.view.isMobile
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -15,7 +16,31 @@ const mapDispatchToProps = dispatch => ({
   setListViewType: () => dispatch(setViewType(ViewTypeList))
 });
 
-const ViewSwitcher = ({ viewType, setCardViewType, setListViewType }) => {
+const ViewSwitcher = ({ viewType, setCardViewType, setListViewType, isMobile }) => {
+  const tooltipCards = isMobile ? null : (
+    <UncontrolledTooltip
+      target="bpmn-view-switcher-cards"
+      delay={0}
+      placement="top"
+      innerClassName="tooltip-inner-custom"
+      arrowClassName="arrow-custom"
+    >
+      Плитка
+    </UncontrolledTooltip>
+  );
+
+  const tooltipList = isMobile ? null : (
+    <UncontrolledTooltip
+      target="bpmn-view-switcher-list"
+      delay={0}
+      placement="top"
+      innerClassName="tooltip-inner-custom"
+      arrowClassName="arrow-custom"
+    >
+      Список
+    </UncontrolledTooltip>
+  );
+
   return (
     <div className={styles.wrapper}>
       <div
@@ -23,30 +48,14 @@ const ViewSwitcher = ({ viewType, setCardViewType, setListViewType }) => {
         className={cn('icon-tiles', styles.item, { [styles.itemActive]: viewType === ViewTypeCards })}
         onClick={setCardViewType}
       />
-      <UncontrolledTooltip
-        target="bpmn-view-switcher-cards"
-        delay={0}
-        placement="top"
-        innerClassName="tooltip-inner-custom"
-        arrowClassName="arrow-custom"
-      >
-        Плитка
-      </UncontrolledTooltip>
+      {tooltipCards}
 
       <div
         id="bpmn-view-switcher-list"
         className={cn('icon-list', styles.item, { [styles.itemActive]: viewType === ViewTypeList })}
         onClick={setListViewType}
       />
-      <UncontrolledTooltip
-        target="bpmn-view-switcher-list"
-        delay={0}
-        placement="top"
-        innerClassName="tooltip-inner-custom"
-        arrowClassName="arrow-custom"
-      >
-        Список
-      </UncontrolledTooltip>
+      {tooltipList}
     </div>
   );
 };

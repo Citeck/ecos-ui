@@ -2,7 +2,8 @@
 
 .wrapper {
   display: inline-block;
-  float: right;
+  white-space: nowrap;
+  height: 40px;
 }
 
 .toggle {

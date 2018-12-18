@@ -1,0 +1,11 @@
+.rightWrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 992px) {
+  .rightWrapper {
+    margin-top: 10px;
+    justify-content: space-between;
+  }
+}

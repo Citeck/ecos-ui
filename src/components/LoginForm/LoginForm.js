@@ -41,6 +41,10 @@ class LoginForm extends React.Component {
 
     const successSearchString = queryString.stringify({ ...searchParams }, { sort: false });
     const failureSearchString = queryString.stringify({ ...searchParams, error: true }, { sort: false });
+    let successUrl = `${locationPath}`;
+    if (successSearchString) {
+      successUrl += `?${successSearchString}`;
+    }
 
     return (
       <div className={styles.wrapper}>
@@ -50,7 +54,7 @@ class LoginForm extends React.Component {
           <div className="theme-company-logo logo-com" />
           {loginError}
           <form method="post" action="/share/page/dologin" className={styles.form}>
-            <input type="hidden" name="success" value={`${locationPath}?${successSearchString}`} />
+            <input type="hidden" name="success" value={successUrl} />
             <input type="hidden" name="failure" value={`${locationPath}?${failureSearchString}`} />
 
             <div className={styles.formField}>
