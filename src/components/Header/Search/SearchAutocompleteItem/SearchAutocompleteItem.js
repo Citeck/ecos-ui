@@ -18,10 +18,12 @@ const SearchAutocompleteItem = ({ type, item }) => {
   switch (type) {
     case SEARCH_AUTOCOMPLETE_TYPE_DOCUMENTS:
       itemLabel = item.name;
-      itemTitle = item.title;
+      itemTitle = item.title || '';
       if (item.description) {
-        const desc = ''; // TODO !!!
-        itemTitle += (desc.length !== 0 ? '\r\n' : '') + item.description;
+        if (itemTitle.length > 0) {
+          itemTitle += '\r\n';
+        }
+        itemTitle += item.description;
       }
 
       const site = item.site ? 'site/' + item.site.shortName + '/' : '';
