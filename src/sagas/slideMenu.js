@@ -7,7 +7,8 @@ import {
   setLargeLogo,
   setSlideMenuItems,
   setSlideMenuExpandableItems,
-  setSelectedId
+  setSelectedId,
+  setIsReady
 } from '../actions/slideMenu';
 import { selectedMenuItemIdKey, fetchExpandableItems } from '../helpers/slideMenu';
 
@@ -45,6 +46,7 @@ function* fetchSlideMenu({ api, fakeApi, logger }) {
 
     yield put(setSlideMenuItems(menuItems));
     yield put(setSlideMenuExpandableItems(expandableItems));
+    yield put(setIsReady(true));
   } catch (e) {
     logger.error('[fetchSlideMenu saga] error', e.message);
   }

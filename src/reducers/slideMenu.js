@@ -6,7 +6,9 @@ import {
   setSlideMenuItems,
   setSlideMenuExpandableItems,
   toggleExpanded,
-  toggleIsOpen
+  toggleIsOpen,
+  setScrollTop,
+  setIsReady
 } from '../actions/slideMenu';
 
 const initialState = {
@@ -15,7 +17,9 @@ const initialState = {
   selectedId: null,
   items: [],
   expandableItems: [],
-  isOpen: false
+  isOpen: false,
+  scrollTop: 0,
+  isReady: false
 };
 
 Object.freeze(initialState);
@@ -72,6 +76,18 @@ export default handleActions(
       return {
         ...state,
         isOpen: action.payload
+      };
+    },
+    [setScrollTop]: (state, action) => {
+      return {
+        ...state,
+        scrollTop: action.payload
+      };
+    },
+    [setIsReady]: (state, action) => {
+      return {
+        ...state,
+        isReady: action.payload
       };
     }
   },

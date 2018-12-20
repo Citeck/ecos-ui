@@ -8,7 +8,8 @@ import { fetchSmallLogoSrc, fetchLargeLogoSrc, fetchSlideMenuItems, toggleIsOpen
 import { t } from '../../helpers/util';
 
 const mapStateToProps = state => ({
-  isOpen: state.slideMenu.isOpen
+  isOpen: state.slideMenu.isOpen,
+  isReady: state.slideMenu.isReady
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -73,7 +74,12 @@ class SlideMenu extends React.Component {
   };
 
   render() {
-    const { isOpen } = this.props;
+    const { isOpen, isReady } = this.props;
+
+    if (!isReady) {
+      return null;
+    }
+
     const toggleHandleTitle = isOpen ? '' : t('slide_menu_click_to_open.label');
 
     return ReactDOM.createPortal(
