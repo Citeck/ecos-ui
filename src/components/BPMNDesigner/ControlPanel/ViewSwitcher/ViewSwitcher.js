@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { UncontrolledTooltip } from 'reactstrap';
 import { ViewTypeList, ViewTypeCards } from '../../../../constants/bpmn';
 import { setViewType } from '../../../../actions/bpmn';
+import { t } from '../../../../helpers/util';
 import cn from 'classnames';
 import styles from './ViewSwitcher.module.scss';
 
@@ -25,7 +26,7 @@ const ViewSwitcher = ({ viewType, setCardViewType, setListViewType, isMobile }) 
       innerClassName="tooltip-inner-custom"
       arrowClassName="arrow-custom"
     >
-      Плитка
+      {t('bpmn-designer.view-mode.cards')}
     </UncontrolledTooltip>
   );
 
@@ -37,7 +38,7 @@ const ViewSwitcher = ({ viewType, setCardViewType, setListViewType, isMobile }) 
       innerClassName="tooltip-inner-custom"
       arrowClassName="arrow-custom"
     >
-      Список
+      {t('bpmn-designer.view-mode.list')}
     </UncontrolledTooltip>
   );
 

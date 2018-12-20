@@ -60,6 +60,12 @@
   top: 75px;
 
   a {
+    display: inline-block;
+    max-width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
     color: $color-white !important;
     border: 2px solid $color-white;
     border-radius: $border-radius-large;
@@ -81,6 +87,10 @@
   color: $color-black;
   font-weight: $font-weight-bold;
   padding-right: 15px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .author,

@@ -20,7 +20,7 @@ const ModelCard = ({ label, author, datetime, viewLink, editLink }) => {
 
         <div className={styles.actions}>
           <a href={viewLink} className={styles.viewCard}>
-            {t('bpmn.viewButton')}
+            {t('bpmn-designer.view-button')}
           </a>
           <a href={editLink} className={styles.editActionIcon}>
             <span className={'icon-edit'} />

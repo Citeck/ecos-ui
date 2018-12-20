@@ -4,6 +4,7 @@ import { Button, Badge, Container, Row, Col } from 'reactstrap';
 import Categories from './Categories';
 import ControlPanel from './ControlPanel';
 import RightMenu from './RightMenu';
+import { t } from '../../helpers/util';
 import styles from './BPMNDesigner.module.scss';
 import './BPMNDesigner.scss';
 
@@ -16,12 +17,12 @@ function BPMNDesigner() {
         <Col xl={9} lg={8} md={12}>
           <div className={styles.header}>
             <p className={styles.counter}>
-              Всего
+              {t('bpmn-designer.total')}
               <Badge color="primary" pill>
                 10
               </Badge>
             </p>
-            <h2 className={styles.h2}>Модели бизнес процессов</h2>
+            <h2 className={styles.h2}>{t('bpmn-designer.process-models.header')}</h2>
           </div>
         </Col>
       </Row>
@@ -33,16 +34,16 @@ function BPMNDesigner() {
         <Col xl={9} lg={8} md={12}>
           <div className={styles.whiteBlock}>
             <Button color="primary" size="lg" className={styles.headerBtn}>
-              Создать модель
+              {t('bpmn-designer.create-model')}
             </Button>
             <Button color="secondary" size="lg" className={styles.headerBtn}>
-              Импортировать
+              {t('bpmn-designer.import-model')}
             </Button>
           </div>
           <ControlPanel />
           <Categories items={categories} />
           <div className={styles.addCategoryBlock}>
-            <a href="/share/page/bpmn-designer">Добавить категорию</a>
+            <a href="/share/page/bpmn-designer">{t('bpmn-designer.add-category')}</a>
           </div>
         </Col>
       </Row>

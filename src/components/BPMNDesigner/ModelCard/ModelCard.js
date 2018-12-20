@@ -23,12 +23,14 @@ const ModelCard = ({ label, author, datetime, viewLink, editLink, image }) => {
               <span className={'icon-edit'} />
             </a>
             <div className={styles.cardTopButton}>
-              <a href={viewLink}>{t('bpmn.viewButton')}</a>
+              <a href={viewLink}>{t('bpmn-designer.view-button')}</a>
             </div>
           </div>
         </div>
         <div className={styles.cardBottom}>
-          <p className={styles.label}>{label}</p>
+          <p className={styles.label} title={label}>
+            {label}
+          </p>
           <p className={styles.author}>{author}</p>
           <p className={styles.datetime}>{datetime}</p>
           <span className={dragNDropIconClasses} />
