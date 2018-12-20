@@ -7,80 +7,7 @@ import RightMenu from './RightMenu';
 import styles from './BPMNDesigner.module.scss';
 import './BPMNDesigner.scss';
 
-const categories = [
-  {
-    label: 'Департамент дизайна',
-    level: 0,
-    models: 4,
-    categories: [
-      {
-        label: 'Отдел ландшафтного дизайна',
-        level: 1,
-        models: 4,
-        categories: [
-          {
-            label: 'Заголовок третьего уровня',
-            level: 2,
-            models: 4
-          },
-          {
-            label: 'Заголовок третьего уровня 2',
-            level: 2,
-            isEditable: true
-          }
-        ]
-      },
-      {
-        label: 'Отдел ландшафтного дизайна 2',
-        level: 1,
-        isEditable: true
-      }
-    ]
-  },
-  {
-    label: 'Департамент дизайна 2',
-    level: 0,
-    models: 4,
-    categories: [
-      {
-        label: 'Отдел ландшафтного дизайна',
-        level: 1,
-        models: 4,
-        categories: [
-          {
-            label: 'Заголовок третьего уровня',
-            level: 2,
-            models: 4
-          }
-        ]
-      }
-    ]
-  },
-  {
-    label: 'Департамент дизайна 3',
-    level: 0,
-    models: 0,
-    categories: [
-      {
-        label: 'Отдел ландшафтного дизайна',
-        level: 1,
-        models: 0,
-        categories: [
-          {
-            label: 'Заголовок третьего уровня',
-            level: 2,
-            models: 0
-          }
-        ]
-      }
-    ]
-  },
-  {
-    label: 'Департамент чего-то там',
-    level: 0,
-    isEditable: true
-  }
-];
+import { categories } from './tempData';
 
 function BPMNDesigner() {
   return (
@@ -89,7 +16,7 @@ function BPMNDesigner() {
         <Col xl={9} lg={8} md={12}>
           <div className={styles.header}>
             <p className={styles.counter}>
-              Всего{' '}
+              Всего
               <Badge color="primary" pill>
                 10
               </Badge>

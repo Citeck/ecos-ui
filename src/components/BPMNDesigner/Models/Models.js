@@ -13,8 +13,12 @@ const Models = ({ viewType, items }) => {
   const ModelComponent = viewType === ViewTypeList ? ModelList : ModelCard;
 
   const models = [];
-  for (let i = 0; i < items; i++) {
-    models.push(<ModelComponent key={i} />);
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const itemId = item.id || i;
+      models.push(<ModelComponent key={itemId} label={item.label} author={item.author} datetime={item.datetime} image={item.image} />);
+    }
   }
 
   return <Row noGutters>{models}</Row>;

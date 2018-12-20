@@ -21,8 +21,6 @@
 .cardTop {
   height: 150px;
   position: relative;
-
-  background: url(https://bpm.citeck.ru/flowable-modeler/app/rest/models/60a3f338-ee03-11e8-9d4e-001dd8b75f64/thumbnail?version=1544627716371);
   background-repeat: no-repeat;
   background-position: center 20px;
   background-size: auto;
@@ -50,7 +48,7 @@
   line-height: 30px;
   cursor: pointer;
 
-  &:before {
+  span:before {
     color: $color-white;
     font-size: 15px;
   }

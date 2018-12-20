@@ -1,26 +1,36 @@
 import React from 'react';
 import { Col } from 'reactstrap';
 import cn from 'classnames';
+import { t } from '../../../helpers/util';
 import styles from './ModelCard.module.scss';
 
-const ModelCard = () => {
+const ModelCard = ({ label, author, datetime, viewLink, editLink, image }) => {
   const dragNDropIconClasses = cn('icon-drag', styles.dndActionIcon);
+
+  let cardTopBgStyle = null;
+  if (image) {
+    cardTopBgStyle = {
+      background: `url(${image})`
+    };
+  }
 
   return (
     <Col xl={3} lg={4} md={4} sm={6}>
       <div className={styles.card}>
-        <div className={styles.cardTop}>
+        <div className={styles.cardTop} style={cardTopBgStyle}>
           <div className={styles.cardTopHover}>
-            <div className={cn(styles.cardEditButton, 'icon-edit')} />
+            <a href={editLink} className={styles.cardEditButton}>
+              <span className={'icon-edit'} />
+            </a>
             <div className={styles.cardTopButton}>
-              <a href="#">Просмотр</a>
+              <a href={viewLink}>{t('bpmn.viewButton')}</a>
             </div>
           </div>
         </div>
         <div className={styles.cardBottom}>
-          <p className={styles.label}>Формирование справок</p>
-          <p className={styles.author}>admin</p>
-          <p className={styles.datetime}>Today at 2:10 PM</p>
+          <p className={styles.label}>{label}</p>
+          <p className={styles.author}>{author}</p>
+          <p className={styles.datetime}>{datetime}</p>
           <span className={dragNDropIconClasses} />
         </div>
       </div>
