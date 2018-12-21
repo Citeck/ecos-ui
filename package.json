@@ -41,7 +41,9 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --single-quote --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}' 'server/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
-    "start:prod": "yarn build && NODE_ENV=production node server"
+    "start:prod": "yarn build && NODE_ENV=production node server",
+    "storybook": "start-storybook -p 9009 -s public",
+    "build-storybook": "build-storybook -s public"
   },
   "husky": {
     "hooks": {
@@ -65,9 +67,16 @@
   ],
   "proxy": "http://localhost:8080",
   "devDependencies": {
+    "@storybook/cli": "^4.1.3",
     "husky": "^1.1.3",
     "lint-staged": "^8.0.4",
     "node-sass": "^4.10.0",
-    "prettier": "^1.15.1"
+    "prettier": "^1.15.1",
+    "@storybook/react": "^4.1.3",
+    "@storybook/addon-actions": "^4.1.3",
+    "@storybook/addon-links": "^4.1.3",
+    "@storybook/addons": "^4.1.3",
+    "@babel/core": "^7.2.2",
+    "babel-loader": "^8.0.4"
   }
 }
