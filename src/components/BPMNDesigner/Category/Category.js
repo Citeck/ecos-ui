@@ -31,7 +31,7 @@ class Category extends React.Component {
   };
 
   render() {
-    const { label, level, isEditable, viewType } = this.props;
+    const { label, level, isEditable, viewType, actions } = this.props;
 
     const dropdownActionsIconClasses = cn(styles.categoryActionIcon, styles.categoryActionIcon2, {
       [styles.categoryActionIconPressed]: this.state.dropdownOpen,
@@ -70,10 +70,13 @@ class Category extends React.Component {
           </DropdownToggle>
           <DropdownMenu className={styles.dropdownMenu}>
             <ul>
-              <li>Добавить подкатегорию</li>
-              <li>Переименовать</li>
-              <li>Доступ</li>
-              <li>Удалить</li>
+              {actions.map(action => {
+                return (
+                  <li key={action.label} onClick={action.onClick}>
+                    {action.label}
+                  </li>
+                );
+              })}
             </ul>
           </DropdownMenu>
         </Dropdown>
