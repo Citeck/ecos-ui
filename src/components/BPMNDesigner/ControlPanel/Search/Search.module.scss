@@ -5,6 +5,7 @@
   padding: 9px 12px 9px 10px;
   display: inline-block;
   background-color: $color-gray-3;
+  width: calc(100% - 10px);
 
   label {
     margin: 0;
@@ -26,5 +27,11 @@
     font-weight: bold !important;
     font-size: $font-size-standard !important;
     margin-left: 2px;
+  }
+}
+
+@media (max-width: 992px) {
+  .search {
+    width: 100%;
   }
 }

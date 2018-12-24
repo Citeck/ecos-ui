@@ -1,8 +1,38 @@
 import React from 'react';
-import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
-// import { t } from '../../../../helpers/util';
-import styles from './SortFilter.module.scss';
+import { connect } from 'react-redux';
 import cn from 'classnames';
+import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
+import { SortFilterLastModified, SortFilterOld, SortFilterAZ, SortFilterZA } from '../../../../constants/bpmn';
+import { setActiveSortFilter } from '../../../../actions/bpmn';
+import { t } from '../../../../helpers/util';
+import styles from './SortFilter.module.scss';
+
+const sortVariants = [
+  {
+    type: SortFilterLastModified,
+    label: t('bpmn-designer.sort-filter.latest')
+  },
+  {
+    type: SortFilterOld,
+    label: t('bpmn-designer.sort-filter.old')
+  },
+  {
+    type: SortFilterAZ,
+    label: t('bpmn-designer.sort-filter.a-z')
+  },
+  {
+    type: SortFilterZA,
+    label: t('bpmn-designer.sort-filter.z-a')
+  }
+];
+
+const mapStateToProps = state => ({
+  activeSortFilter: state.bpmn.sortFilter
+});
+
+const mapDispatchToProps = dispatch => ({
+  setActiveSortFilter: value => dispatch(setActiveSortFilter(value))
+});
 
 class SortFilter extends React.Component {
   state = {
@@ -16,20 +46,32 @@ class SortFilter extends React.Component {
   };
 
   render() {
-    // TODO use t() !!!
+    const { activeSortFilter, setActiveSortFilter } = this.props;
+    const activeItem = sortVariants.find(item => item.type === activeSortFilter) || sortVariants[0];
+    const selectableItems = sortVariants
+      .filter(item => item.type !== activeItem.type)
+      .map(item => {
+        return (
+          <li
+            key={item.type}
+            onClick={() => {
+              setActiveSortFilter(item.type);
+              this.toggle();
+            }}
+          >
+            {item.label}
+          </li>
+        );
+      });
+
     return (
       <div className={styles.wrapper}>
         <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
           <DropdownToggle tag="div" className={cn(styles.toggle, { [styles.toggleIsOpen]: this.state.dropdownOpen })}>
-            !Последние измененные
+            {activeItem.label}
           </DropdownToggle>
           <DropdownMenu className={styles.dropdownMenu}>
-            <ul>
-              <li>!Сначала старые</li>
-              <li>!По алфавиту A-Z</li>
-              <li>!По алфавиту Z-A</li>
-              <li>!Мой порядок</li>
-            </ul>
+            <ul>{selectableItems}</ul>
           </DropdownMenu>
         </Dropdown>
       </div>
@@ -37,4 +79,7 @@ class SortFilter extends React.Component {
   }
 }
 
-export default SortFilter;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SortFilter);
