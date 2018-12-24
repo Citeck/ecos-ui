@@ -1,9 +1,18 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import cn from 'classnames';
+import { getCategoriesByParentId } from '../../../selectors/bpmn';
 import Category from '../Category';
 import Models from '../Models';
 
-const Categories = ({ items, isParentHasNotModels }) => {
+const mapStateToProps = (state, props) => {
+  return {
+    items: getCategoriesByParentId(state, props),
+    isParentHasNotModels: -1 === state.bpmn.models.findIndex(item => item.categoryId === props.parentId) // TODO use reselect
+  };
+};
+
+const Categories = ({ items, isParentHasNotModels, level = 0 }) => {
   if (!items) {
     return null;
   }
@@ -12,9 +21,9 @@ const Categories = ({ items, isParentHasNotModels }) => {
     const keyId = item.id || idx;
 
     return (
-      <Category key={keyId} itemId={item.id} label={item.label} level={item.level} isEditable={item.isEditable}>
-        <Models items={item.models} />
-        <Categories items={item.categories} isParentHasNotModels={!item.models || item.models.length < 1} />
+      <Category key={keyId} itemId={item.id} label={item.label} level={level} isEditable={item.isEditable}>
+        <Models categoryId={item.id} />
+        <ConnectedCategories parentId={item.id} level={level + 1} />
       </Category>
     );
   });
@@ -22,7 +31,7 @@ const Categories = ({ items, isParentHasNotModels }) => {
   return (
     <div
       className={cn({
-        isParentHasNotModels
+        isParentHasNotModels: level !== 0 && isParentHasNotModels
       })}
     >
       {categoryList}
@@ -30,4 +39,5 @@ const Categories = ({ items, isParentHasNotModels }) => {
   );
 };
 
-export default Categories;
+const ConnectedCategories = connect(mapStateToProps)(Categories);
+export default ConnectedCategories;

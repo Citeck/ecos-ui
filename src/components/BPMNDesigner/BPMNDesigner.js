@@ -8,9 +8,16 @@ import { t } from '../../helpers/util';
 import styles from './BPMNDesigner.module.scss';
 import './BPMNDesigner.scss';
 
-import { categories } from './tempData';
+const mapStateToProps = state => ({
+  isReady: state.bpmn.isReady,
+  totalModels: state.bpmn.models.length
+});
 
-function BPMNDesigner() {
+const BPMNDesigner = ({ isReady, totalModels }) => {
+  if (!isReady) {
+    return null;
+  }
+
   return (
     <Container>
       <Row>
@@ -19,7 +26,7 @@ function BPMNDesigner() {
             <p className={styles.counter}>
               {t('bpmn-designer.total')}
               <Badge color="primary" pill>
-                10
+                {totalModels}
               </Badge>
             </p>
             <h2 className={styles.h2}>{t('bpmn-designer.process-models.header')}</h2>
@@ -41,7 +48,7 @@ function BPMNDesigner() {
             </Button>
           </div>
           <ControlPanel />
-          <Categories items={categories} />
+          <Categories />
           <div className={styles.addCategoryBlock}>
             <a href="/share/page/bpmn-designer">{t('bpmn-designer.add-category')}</a>
           </div>
@@ -49,6 +56,6 @@ function BPMNDesigner() {
       </Row>
     </Container>
   );
-}
+};
 
-export default connect()(BPMNDesigner);
+export default connect(mapStateToProps)(BPMNDesigner);

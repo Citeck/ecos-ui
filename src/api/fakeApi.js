@@ -1,4 +1,100 @@
 export const fakeApi = {
+  getBpmnCategories: () => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve([
+          {
+            id: 1,
+            label: 'Департамент дизайна'
+          },
+          {
+            id: 2,
+            label: 'Отдел ландшафтного дизайна',
+            parentId: 1
+          },
+          {
+            id: 3,
+            label: 'Заголовок третьего уровня',
+            parentId: 2
+          },
+          {
+            id: 4,
+            label: 'Заголовок третьего уровня 2',
+            parentId: 2,
+            isEditable: true
+          },
+          {
+            id: 5,
+            label: 'Отдел ландшафтного дизайна 2',
+            parentId: 1,
+            isEditable: true
+          },
+          {
+            id: 6,
+            label: 'Департамент дизайна 2'
+          },
+          {
+            id: 7,
+            label: 'Заголовок',
+            parentId: 1
+          },
+          {
+            id: 8,
+            label: 'Заголовок третьего уровня 3',
+            parentId: 7
+          }
+        ]);
+      }, 0);
+    });
+  },
+
+  getBpmnModels: () => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve([
+          {
+            label: 'Формирование справок',
+            author: 'author1',
+            datetime: 'Today at 2:10 PM',
+            viewLink: null,
+            editLink: null,
+            image:
+              'https://bpm.citeck.ru/flowable-modeler/app/rest/models/60a3f338-ee03-11e8-9d4e-001dd8b75f64/thumbnail?version=1544627716371',
+            categoryId: 1
+          },
+          {
+            label: 'Формирование справок 2',
+            author: 'author2',
+            datetime: 'Today at 2:10 PM',
+            viewLink: null,
+            editLink: null,
+            categoryId: 2
+          },
+          {
+            label: 'Формирование справок 3',
+            author: 'author3',
+            datetime: 'Today at 2:10 PM',
+            viewLink: null,
+            editLink: null,
+            image:
+              'https://bpm.citeck.ru/flowable-modeler/app/rest/models/360453ae-ff4c-11e7-85d6-001dd8b75f64/thumbnail?version=1544627716371',
+            categoryId: 3
+          },
+          {
+            label: 'Формирование справок 4',
+            author: 'author4',
+            datetime: 'Today at 2:10 PM',
+            viewLink: null,
+            editLink: null,
+            image:
+              'https://bpm.citeck.ru/flowable-modeler/app/rest/models/ca44c70d-e7d7-11e8-9d4e-001dd8b75f64/thumbnail?version=1544627716371',
+            categoryId: 1
+          }
+        ]);
+      }, 0);
+    });
+  },
+
   getUserData: () => {
     return new Promise(resolve => {
       setTimeout(() => {

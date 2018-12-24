@@ -5,8 +5,9 @@ import { ViewTypeList } from '../../../constants/bpmn';
 import ModelCard from '../ModelCard';
 import ModelList from '../ModelList';
 
-const mapStateToProps = state => ({
-  viewType: state.bpmn.viewType
+const mapStateToProps = (state, props) => ({
+  viewType: state.bpmn.viewType,
+  items: state.bpmn.models.filter(item => item.categoryId === props.categoryId) // TODO use reselect
 });
 
 const Models = ({ viewType, items }) => {
