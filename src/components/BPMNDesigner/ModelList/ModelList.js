@@ -5,7 +5,7 @@ import { t } from '../../../helpers/util';
 import styles from './ModelList.module.scss';
 
 const ModelCard = ({ label, author, datetime, viewLink, editLink }) => {
-  const dragNDropIconClasses = cn('icon-drag', styles.dndActionIcon);
+  const dragNDropIconClasses = cn('icon-drag', styles.dndActionIcon, styles.hiddenIcon);
 
   return (
     <Col xs={12} className={styles.itemWrapper}>

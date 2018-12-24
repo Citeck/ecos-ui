@@ -77,7 +77,7 @@ class Category extends React.Component {
       'icon-menu-small-press': level !== 0 && this.state.dropdownOpen
     });
 
-    const dragNDropIconClasses = cn('icon-drag', styles.categoryActionIcon);
+    const dragNDropIconClasses = cn('icon-drag', styles.categoryActionIcon, styles.hiddenIcon);
     const saveIconClasses = cn('icon-check', styles.categoryActionIcon);
     const cancelIconClasses = cn('icon-close', styles.categoryActionIcon);
 

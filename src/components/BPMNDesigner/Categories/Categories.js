@@ -14,7 +14,7 @@ const Categories = ({ items, isParentHasNotModels }) => {
     return (
       <Category key={keyId} itemId={item.id} label={item.label} level={item.level} isEditable={item.isEditable}>
         <Models items={item.models} />
-        <Categories items={item.categories} isParentHasNotModels={!item.models} />
+        <Categories items={item.categories} isParentHasNotModels={!item.models || item.models.length < 1} />
       </Category>
     );
   });

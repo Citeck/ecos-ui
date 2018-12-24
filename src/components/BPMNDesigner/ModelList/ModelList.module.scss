@@ -2,7 +2,7 @@
 
 .item {
   margin: 10px 0 0 0;
-  padding: 0 5px;
+  padding: 0 10px 0 5px;
   background-color: $color-white;
   border-radius: $border-radius-large;
   overflow: hidden;
@@ -86,6 +86,10 @@
   &:hover {
     color: $color-blue-light;
   }
+}
+
+.hiddenIcon {
+  display: none;
 }
 
 .editActionIcon {
