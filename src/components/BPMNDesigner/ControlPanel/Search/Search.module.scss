@@ -11,6 +11,8 @@
     margin: 0;
     padding: 0 !important;
     cursor: text;
+    display: flex;
+    width: 100%;
 
     &:before {
       color: $color-gray-5;
@@ -27,6 +29,7 @@
     font-weight: bold !important;
     font-size: $font-size-standard !important;
     margin-left: 2px;
+    width: 100% !important;
   }
 }
 

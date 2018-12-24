@@ -1,10 +1,11 @@
 import { handleActions } from 'redux-actions';
-import { setViewType, setActiveSortFilter } from '../actions/bpmn';
+import { setViewType, setActiveSortFilter, setSearchText } from '../actions/bpmn';
 import { ViewTypeCards, SortFilterLastModified } from '../constants/bpmn';
 
 const initialState = {
   viewType: ViewTypeCards,
-  sortFilter: SortFilterLastModified
+  sortFilter: SortFilterLastModified,
+  searchText: ''
 };
 
 Object.freeze(initialState);
@@ -21,6 +22,12 @@ export default handleActions(
       return {
         ...state,
         sortFilter: action.payload
+      };
+    },
+    [setSearchText]: (state, action) => {
+      return {
+        ...state,
+        searchText: action.payload
       };
     }
   },
