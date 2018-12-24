@@ -3,11 +3,35 @@ import { connect } from 'react-redux';
 import { Collapse, Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import cn from 'classnames';
 import { ViewTypeCards, ViewTypeList } from '../../../constants/bpmn';
+import { t } from '../../../helpers/util';
 import styles from './Category.module.scss';
 import './Category.scss';
 
 const mapStateToProps = state => ({
   viewType: state.bpmn.viewType
+  // TODO isEditable
+  // TODO level
+});
+
+const mapDispatchToProps = dispatch => ({
+  doRenameCategoryAction: () => {
+    console.log('rename'); // TODO
+  },
+  doAccessCategoryAction: () => {
+    console.log('access'); // TODO
+  },
+  doDeleteCategoryAction: () => {
+    console.log('delete'); // TODO
+  },
+  doAddSubcategoryAction: () => {
+    console.log('add subcategory'); // TODO
+  },
+  saveEditableCategory: text => {
+    console.log('save category', text); // TODO
+  },
+  cancelEditCategory: text => {
+    console.log('cancel edit category'); // TODO
+  }
 });
 
 class Category extends React.Component {
@@ -31,8 +55,20 @@ class Category extends React.Component {
   };
 
   render() {
-    const { label, level, isEditable, viewType, actions } = this.props;
+    const {
+      label,
+      level,
+      isEditable,
+      viewType,
+      doRenameCategoryAction,
+      doAccessCategoryAction,
+      doDeleteCategoryAction,
+      doAddSubcategoryAction,
+      saveEditableCategory,
+      cancelEditCategory
+    } = this.props;
 
+    // classes
     const dropdownActionsIconClasses = cn(styles.categoryActionIcon, styles.categoryActionIcon2, {
       [styles.categoryActionIconPressed]: this.state.dropdownOpen,
       'icon-menu-normal': level === 0 && !this.state.dropdownOpen,
@@ -61,7 +97,34 @@ class Category extends React.Component {
       [styles.labelForCollapsed]: this.state.collapseIsOpen
     });
 
+    const labelTextClasses = cn(styles.labelText, {
+      [styles.labelTextEditable]: isEditable
+    });
+
+    // action buttons
     let onClickLabel = this.toggleCollapse;
+    const actions = [
+      {
+        label: t('bpmn-designer.category-action.rename'),
+        onClick: doRenameCategoryAction
+      },
+      {
+        label: t('bpmn-designer.category-action.access'),
+        onClick: doAccessCategoryAction
+      },
+      {
+        label: t('bpmn-designer.category-action.delete'),
+        onClick: doDeleteCategoryAction
+      }
+    ];
+
+    if (level < 2) {
+      actions.unshift({
+        label: t('bpmn-designer.category-action.add-subcategory'),
+        onClick: doAddSubcategoryAction
+      });
+    }
+
     let actionButtons = (
       <Fragment>
         <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown}>
@@ -98,12 +161,12 @@ class Category extends React.Component {
       onKeyPressLabel = e => {
         if (e.key === 'Enter') {
           e.preventDefault();
-          // TODO save action
+          saveEditableCategory(this.labelRef.innerText);
         }
 
         if (e.key === 'Escape') {
           e.preventDefault();
-          // TODO cancel action
+          cancelEditCategory();
         }
       };
       actionButtons = (
@@ -112,24 +175,19 @@ class Category extends React.Component {
             className={cancelIconClasses}
             onClick={e => {
               e.stopPropagation();
-              // TODO cancel action
+              cancelEditCategory();
             }}
           />
           <span
             className={saveIconClasses}
             onClick={e => {
               e.stopPropagation();
-              // TODO save action
-              // console.log(this.labelRef.innerText);
+              saveEditableCategory(this.labelRef.innerText);
             }}
           />
         </Fragment>
       );
     }
-
-    const labelTextClasses = cn(styles.labelText, {
-      [styles.labelTextEditable]: isEditable
-    });
 
     return (
       <div className={mainContainerClasses}>
@@ -166,4 +224,7 @@ class Category extends React.Component {
   }
 }
 
-export default connect(mapStateToProps)(Category);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Category);

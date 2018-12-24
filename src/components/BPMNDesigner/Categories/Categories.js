@@ -1,7 +1,7 @@
 import React from 'react';
+import cn from 'classnames';
 import Category from '../Category';
 import Models from '../Models';
-import cn from 'classnames';
 
 const Categories = ({ items, isParentHasNotModels }) => {
   if (!items) {
@@ -9,40 +9,10 @@ const Categories = ({ items, isParentHasNotModels }) => {
   }
 
   const categoryList = items.map((item, idx) => {
-    const itemId = item.id || idx;
-
-    const actions = [
-      {
-        label: 'Переименовать',
-        onClick: () => {
-          console.log('rename');
-        }
-      },
-      {
-        label: 'Доступ',
-        onClick: () => {
-          console.log('access');
-        }
-      },
-      {
-        label: 'Удалить',
-        onClick: () => {
-          console.log('delete');
-        }
-      }
-    ];
-
-    if (item.level < 2) {
-      actions.unshift({
-        label: 'Добавить подкатегорию',
-        onClick: () => {
-          console.log('add subcategory');
-        }
-      });
-    }
+    const keyId = item.id || idx;
 
     return (
-      <Category key={itemId} label={item.label} level={item.level} isEditable={item.isEditable} actions={actions}>
+      <Category key={keyId} itemId={item.id} label={item.label} level={item.level} isEditable={item.isEditable}>
         <Models items={item.models} />
         <Categories items={item.categories} isParentHasNotModels={!item.models} />
       </Category>
