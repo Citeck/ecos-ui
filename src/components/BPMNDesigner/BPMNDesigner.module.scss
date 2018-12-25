@@ -35,18 +35,15 @@
   border-radius: $border-radius-extra-large;
   margin-top: 10px;
   margin-bottom: 30px;
+  cursor: pointer;
+  padding: 20px;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: $font-weight-bold;
+  color: $text-color-gray !important;
 
   &:hover {
     background-color: $color-gray-2;
-  }
-
-  a {
-    padding: 20px;
-    text-align: center;
-    text-transform: uppercase;
-    display: block;
-    font-weight: $font-weight-bold;
-    color: $text-color-gray !important;
   }
 }
 

@@ -16,32 +16,6 @@ export const fakeApi = {
             id: 3,
             label: 'Заголовок третьего уровня',
             parentId: 2
-          },
-          {
-            id: 4,
-            label: 'Заголовок третьего уровня 2',
-            parentId: 2,
-            isEditable: true
-          },
-          {
-            id: 5,
-            label: 'Отдел ландшафтного дизайна 2',
-            parentId: 1,
-            isEditable: true
-          },
-          {
-            id: 6,
-            label: 'Департамент дизайна 2'
-          },
-          {
-            id: 7,
-            label: 'Заголовок',
-            parentId: 1
-          },
-          {
-            id: 8,
-            label: 'Заголовок третьего уровня 3',
-            parentId: 7
           }
         ]);
       }, 0);

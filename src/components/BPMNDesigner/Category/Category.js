@@ -1,21 +1,21 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
+import ContentEditable from 'react-contenteditable';
 import { Collapse, Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import cn from 'classnames';
 import { ViewTypeCards, ViewTypeList } from '../../../constants/bpmn';
-import { t } from '../../../helpers/util';
+import { createCategory, cancelEditCategory, setIsEditable, saveCategory } from '../../../actions/bpmn';
+import { t, placeCaretAtEnd } from '../../../helpers/util';
 import styles from './Category.module.scss';
 import './Category.scss';
 
 const mapStateToProps = state => ({
   viewType: state.bpmn.viewType
-  // TODO isEditable
-  // TODO level
 });
 
-const mapDispatchToProps = dispatch => ({
-  doRenameCategoryAction: () => {
-    console.log('rename'); // TODO
+const mapDispatchToProps = (dispatch, props) => ({
+  setIsEditable: () => {
+    dispatch(setIsEditable(props.itemId));
   },
   doAccessCategoryAction: () => {
     console.log('access'); // TODO
@@ -23,14 +23,14 @@ const mapDispatchToProps = dispatch => ({
   doDeleteCategoryAction: () => {
     console.log('delete'); // TODO
   },
-  doAddSubcategoryAction: () => {
-    console.log('add subcategory'); // TODO
+  createCategory: () => {
+    dispatch(createCategory({ parentId: props.itemId }));
   },
   saveEditableCategory: text => {
-    console.log('save category', text); // TODO
+    dispatch(saveCategory({ id: props.itemId, label: text }));
   },
   cancelEditCategory: text => {
-    console.log('cancel edit category'); // TODO
+    dispatch(cancelEditCategory(props.itemId));
   }
 });
 
@@ -39,6 +39,11 @@ class Category extends React.Component {
     collapseIsOpen: false,
     dropdownOpen: false
   };
+
+  constructor() {
+    super();
+    this.labelRef = React.createRef();
+  }
 
   toggleDropdown = e => {
     e.stopPropagation();
@@ -54,16 +59,50 @@ class Category extends React.Component {
     }));
   };
 
+  doAddSubcategoryAction = () => {
+    this.setState(
+      {
+        collapseIsOpen: true,
+        dropdownOpen: false
+      },
+      () => {
+        this.props.createCategory();
+      }
+    );
+  };
+
+  doRenameCategoryAction = () => {
+    this.setState(
+      {
+        collapseIsOpen: false,
+        dropdownOpen: false
+      },
+      () => {
+        this.props.setIsEditable();
+      }
+    );
+  };
+
+  componentDidMount() {
+    if (this.props.isEditable) {
+      this.labelRef.current.focus();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!prevProps.isEditable && this.props.isEditable) {
+      this.labelRef.current.focus();
+    }
+  }
+
   render() {
     const {
       label,
       level,
       isEditable,
       viewType,
-      doRenameCategoryAction,
       doAccessCategoryAction,
       doDeleteCategoryAction,
-      doAddSubcategoryAction,
       saveEditableCategory,
       cancelEditCategory
     } = this.props;
@@ -106,7 +145,7 @@ class Category extends React.Component {
     const actions = [
       {
         label: t('bpmn-designer.category-action.rename'),
-        onClick: doRenameCategoryAction
+        onClick: this.doRenameCategoryAction
       },
       {
         label: t('bpmn-designer.category-action.access'),
@@ -121,7 +160,7 @@ class Category extends React.Component {
     if (level < 2) {
       actions.unshift({
         label: t('bpmn-designer.category-action.add-subcategory'),
-        onClick: doAddSubcategoryAction
+        onClick: this.doAddSubcategoryAction
       });
     }
 
@@ -156,12 +195,12 @@ class Category extends React.Component {
     let onKeyPressLabel = null;
     if (isEditable) {
       onClickLabel = () => {
-        this.labelRef.focus();
+        this.labelRef.current.focus();
       };
       onKeyPressLabel = e => {
         if (e.key === 'Enter') {
           e.preventDefault();
-          saveEditableCategory(this.labelRef.innerText);
+          saveEditableCategory(this.labelRef.current.innerText);
         }
 
         if (e.key === 'Escape') {
@@ -182,7 +221,7 @@ class Category extends React.Component {
             className={saveIconClasses}
             onClick={e => {
               e.stopPropagation();
-              saveEditableCategory(this.labelRef.innerText);
+              saveEditableCategory(this.labelRef.current.innerText);
             }}
           />
         </Fragment>
@@ -194,15 +233,17 @@ class Category extends React.Component {
         <div className={whiteContainerClasses}>
           <div className={styles.categoryHeader}>
             <h3 className={labelClasses} onClick={onClickLabel}>
-              <span
+              <ContentEditable
                 onKeyDown={onKeyPressLabel}
                 className={labelTextClasses}
-                suppressContentEditableWarning
-                contentEditable={isEditable}
-                ref={el => (this.labelRef = el)}
-              >
-                {label}
-              </span>
+                innerRef={this.labelRef}
+                html={label}
+                disabled={!isEditable}
+                tagName="span"
+                onFocus={() => {
+                  placeCaretAtEnd(this.labelRef.current);
+                }}
+              />
             </h3>
 
             <div className={styles.categoryActions}>{actionButtons}</div>

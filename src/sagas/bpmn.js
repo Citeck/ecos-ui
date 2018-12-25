@@ -1,5 +1,5 @@
 import { put, takeLatest, call } from 'redux-saga/effects';
-import { initRequest, setCategories, setModels, setIsReady } from '../actions/bpmn';
+import { initRequest, setCategories, setModels, setIsReady, saveCategory, setCategoryData } from '../actions/bpmn';
 
 function* doInitRequest({ api, fakeApi, logger }) {
   try {
@@ -13,8 +13,24 @@ function* doInitRequest({ api, fakeApi, logger }) {
   }
 }
 
+function* doSaveCategoryRequest({ api, fakeApi, logger }, action) {
+  try {
+    // TODO save category use api
+    // const category = yield call(fakeApi.saveCategory);
+    yield put(
+      setCategoryData({
+        id: action.payload.id,
+        label: action.payload.label
+      })
+    );
+  } catch (e) {
+    logger.error('[bpmn doSaveCategoryRequest saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initRequest().type, doInitRequest, ea);
+  yield takeLatest(saveCategory().type, doSaveCategoryRequest, ea);
 }
 
 export default saga;

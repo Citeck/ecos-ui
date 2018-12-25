@@ -22,6 +22,7 @@
     "query-string": "^6.2.0",
     "react": "^16.6.0",
     "react-app-polyfill": "^0.1.3",
+    "react-contenteditable": "^3.2.3",
     "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.6.0",
     "react-redux": "^5.1.0",

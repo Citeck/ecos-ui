@@ -4,6 +4,7 @@ import { Button, Badge, Container, Row, Col } from 'reactstrap';
 import Categories from './Categories';
 import ControlPanel from './ControlPanel';
 import RightMenu from './RightMenu';
+import { createCategory } from '../../actions/bpmn';
 import { t } from '../../helpers/util';
 import styles from './BPMNDesigner.module.scss';
 import './BPMNDesigner.scss';
@@ -13,7 +14,11 @@ const mapStateToProps = state => ({
   totalModels: state.bpmn.models.length
 });
 
-const BPMNDesigner = ({ isReady, totalModels }) => {
+const mapDispatchToProps = dispatch => ({
+  createCategory: () => dispatch(createCategory())
+});
+
+const BPMNDesigner = ({ isReady, totalModels, createCategory }) => {
   if (!isReady) {
     return null;
   }
@@ -49,8 +54,8 @@ const BPMNDesigner = ({ isReady, totalModels }) => {
           </div>
           <ControlPanel />
           <Categories />
-          <div className={styles.addCategoryBlock}>
-            <a href="/share/page/bpmn-designer">{t('bpmn-designer.add-category')}</a>
+          <div className={styles.addCategoryBlock} onClick={createCategory}>
+            {t('bpmn-designer.add-category')}
           </div>
         </Col>
       </Row>
@@ -58,4 +63,7 @@ const BPMNDesigner = ({ isReady, totalModels }) => {
   );
 };
 
-export default connect(mapStateToProps)(BPMNDesigner);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(BPMNDesigner);
