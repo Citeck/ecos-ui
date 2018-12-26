@@ -11,14 +11,14 @@ import {
   setIsEditable,
   setCategoryData
 } from '../actions/bpmn';
-import { ViewTypeCards, SortFilterLastModified } from '../constants/bpmn';
+import { VIEW_TYPE_CARDS, SORT_FILTER_LAST_MODIFIED } from '../constants/bpmn';
 
 const initialState = {
   isReady: false,
   categories: [],
   models: [],
-  viewType: ViewTypeCards,
-  sortFilter: SortFilterLastModified,
+  viewType: VIEW_TYPE_CARDS,
+  sortFilter: SORT_FILTER_LAST_MODIFIED,
   searchText: ''
 };
 
@@ -130,6 +130,10 @@ export default handleActions(
 
       if (action.payload.label) {
         currentCategory.label = action.payload.label;
+      }
+
+      if (action.payload.newId) {
+        currentCategory.id = action.payload.newId;
       }
 
       const newCategoryList = [...state.categories];

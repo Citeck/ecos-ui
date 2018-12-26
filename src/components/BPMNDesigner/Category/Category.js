@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import ContentEditable from 'react-contenteditable';
 import { Collapse, Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import cn from 'classnames';
-import { ViewTypeCards, ViewTypeList } from '../../../constants/bpmn';
+import { VIEW_TYPE_CARDS, VIEW_TYPE_LIST } from '../../../constants/bpmn';
 import { createCategory, cancelEditCategory, setIsEditable, saveCategory } from '../../../actions/bpmn';
 import { t, placeCaretAtEnd } from '../../../helpers/util';
 import styles from './Category.module.scss';
@@ -124,7 +124,7 @@ class Category extends React.Component {
       [styles.bpmnCategoryLevel1]: level === 1,
       [styles.bpmnCategoryLevel2]: level === 2,
       bpmnCategoryLevelOpen: this.state.collapseIsOpen,
-      bpmnCategoryListViewType: viewType === ViewTypeList && level !== 0
+      bpmnCategoryListViewType: viewType === VIEW_TYPE_LIST && level !== 0
     });
 
     const whiteContainerClasses = cn(styles.category, {
@@ -248,14 +248,14 @@ class Category extends React.Component {
 
             <div className={styles.categoryActions}>{actionButtons}</div>
           </div>
-          {viewType === ViewTypeCards ? (
+          {viewType === VIEW_TYPE_CARDS ? (
             <Collapse isOpen={this.state.collapseIsOpen}>
               <div className={styles.content}>{this.props.children}</div>
             </Collapse>
           ) : null}
         </div>
 
-        {viewType === ViewTypeList ? (
+        {viewType === VIEW_TYPE_LIST ? (
           <Collapse isOpen={this.state.collapseIsOpen}>
             <div className={styles.contentNested}>{this.props.children}</div>
           </Collapse>

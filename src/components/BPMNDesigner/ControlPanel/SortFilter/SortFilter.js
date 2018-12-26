@@ -2,26 +2,26 @@ import React from 'react';
 import { connect } from 'react-redux';
 import cn from 'classnames';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
-import { SortFilterLastModified, SortFilterOld, SortFilterAZ, SortFilterZA } from '../../../../constants/bpmn';
+import { SORT_FILTER_LAST_MODIFIED, SORT_FILTER_OLD, SORT_FILTER_AZ, SORT_FILTER_ZA } from '../../../../constants/bpmn';
 import { setActiveSortFilter } from '../../../../actions/bpmn';
 import { t } from '../../../../helpers/util';
 import styles from './SortFilter.module.scss';
 
 const sortVariants = [
   {
-    type: SortFilterLastModified,
+    type: SORT_FILTER_LAST_MODIFIED,
     label: t('bpmn-designer.sort-filter.latest')
   },
   {
-    type: SortFilterOld,
+    type: SORT_FILTER_OLD,
     label: t('bpmn-designer.sort-filter.old')
   },
   {
-    type: SortFilterAZ,
+    type: SORT_FILTER_AZ,
     label: t('bpmn-designer.sort-filter.a-z')
   },
   {
-    type: SortFilterZA,
+    type: SORT_FILTER_ZA,
     label: t('bpmn-designer.sort-filter.z-a')
   }
 ];

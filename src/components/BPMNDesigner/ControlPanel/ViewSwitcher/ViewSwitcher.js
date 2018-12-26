@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { UncontrolledTooltip } from 'reactstrap';
-import { ViewTypeList, ViewTypeCards } from '../../../../constants/bpmn';
+import { VIEW_TYPE_LIST, VIEW_TYPE_CARDS } from '../../../../constants/bpmn';
 import { setViewType } from '../../../../actions/bpmn';
 import { t } from '../../../../helpers/util';
 import cn from 'classnames';
@@ -13,8 +13,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  setCardViewType: () => dispatch(setViewType(ViewTypeCards)),
-  setListViewType: () => dispatch(setViewType(ViewTypeList))
+  setCardViewType: () => dispatch(setViewType(VIEW_TYPE_CARDS)),
+  setListViewType: () => dispatch(setViewType(VIEW_TYPE_LIST))
 });
 
 const ViewSwitcher = ({ viewType, setCardViewType, setListViewType, isMobile }) => {
@@ -46,14 +46,14 @@ const ViewSwitcher = ({ viewType, setCardViewType, setListViewType, isMobile }) 
     <div className={styles.wrapper}>
       <div
         id="bpmn-view-switcher-cards"
-        className={cn('icon-tiles', styles.item, { [styles.itemActive]: viewType === ViewTypeCards })}
+        className={cn('icon-tiles', styles.item, { [styles.itemActive]: viewType === VIEW_TYPE_CARDS })}
         onClick={setCardViewType}
       />
       {tooltipCards}
 
       <div
         id="bpmn-view-switcher-list"
-        className={cn('icon-list', styles.item, { [styles.itemActive]: viewType === ViewTypeList })}
+        className={cn('icon-list', styles.item, { [styles.itemActive]: viewType === VIEW_TYPE_LIST })}
         onClick={setListViewType}
       />
       {tooltipList}

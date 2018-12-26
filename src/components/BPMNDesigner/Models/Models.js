@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Row } from 'reactstrap';
-import { ViewTypeList } from '../../../constants/bpmn';
+import { VIEW_TYPE_LIST } from '../../../constants/bpmn';
 import ModelCard from '../ModelCard';
 import ModelList from '../ModelList';
 
@@ -11,7 +11,7 @@ const mapStateToProps = (state, props) => ({
 });
 
 const Models = ({ viewType, items }) => {
-  const ModelComponent = viewType === ViewTypeList ? ModelList : ModelCard;
+  const ModelComponent = viewType === VIEW_TYPE_LIST ? ModelList : ModelCard;
 
   const models = [];
   if (items) {

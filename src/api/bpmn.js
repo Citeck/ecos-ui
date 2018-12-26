@@ -1,20 +1,32 @@
 import { RecordService } from './recordService';
-
-const rootCategoryNodeRef = 'workspace://SpacesStore/ecos-bpm-category-root';
+import { ROOT_CATEGORY_NODE_REF } from '../constants/bpmn';
 
 export class BpmnApi extends RecordService {
   fetchCategories = () => {
     return this.query({
       query: {
-        query: '/cm:categoryRoot/cm:generalclassifiable/cm:Ecos_x0020_BPM_x0020_Category_x0020_root//*',
-        language: 'xpath',
-        sortBy: [{ attribute: 'ecosbpm:index', ascending: true }]
+        query: {
+          parent: ROOT_CATEGORY_NODE_REF,
+          assocName: 'cm:subcategories',
+          recursive: true
+        },
+        language: 'children'
       },
-      attributes: ['attr:parent?id', 'cm:title'] // TODO id
+      attributes: {
+        label: 'cm:title',
+        parentId: 'attr:parent?id'
+      }
+    }).then(resp => {
+      return resp.records.map(item => {
+        return {
+          id: item.id,
+          ...item.attributes
+        };
+      });
     });
   };
 
-  createCategory = (title, parent = rootCategoryNodeRef) => {
+  createCategory = (title, parent = ROOT_CATEGORY_NODE_REF) => {
     return this.mutate({
       record: {
         parent: parent,
@@ -22,6 +34,21 @@ export class BpmnApi extends RecordService {
         attributes: {
           'cm:title': title
         }
+      }
+    });
+  };
+
+  updateCategory = (id, { title }) => {
+    const attributes = {};
+
+    if (title) {
+      attributes['cm:title'] = title;
+    }
+
+    return this.mutate({
+      record: {
+        id,
+        attributes
       }
     });
   };

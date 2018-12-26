@@ -4,6 +4,7 @@ import { Button, Badge, Container, Row, Col } from 'reactstrap';
 import Categories from './Categories';
 import ControlPanel from './ControlPanel';
 import RightMenu from './RightMenu';
+import { ROOT_CATEGORY_NODE_REF } from '../../constants/bpmn';
 import { createCategory } from '../../actions/bpmn';
 import { t } from '../../helpers/util';
 import styles from './BPMNDesigner.module.scss';
@@ -15,7 +16,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  createCategory: () => dispatch(createCategory())
+  createCategory: () => dispatch(createCategory({ parentId: ROOT_CATEGORY_NODE_REF }))
 });
 
 const BPMNDesigner = ({ isReady, totalModels, createCategory }) => {
@@ -53,7 +54,7 @@ const BPMNDesigner = ({ isReady, totalModels, createCategory }) => {
             </Button>
           </div>
           <ControlPanel />
-          <Categories />
+          <Categories parentId={ROOT_CATEGORY_NODE_REF} />
           <div className={styles.addCategoryBlock} onClick={createCategory}>
             {t('bpmn-designer.add-category')}
           </div>

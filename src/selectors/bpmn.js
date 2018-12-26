@@ -1,9 +1,9 @@
 import { createSelector } from 'reselect';
 
-const allCategoriesSelector = state => state.bpmn.categories;
-const parentIdSelector = (_, props) => props.parentId;
+export const selectAllCategories = state => state.bpmn.categories;
+const selectParentId = (_, props) => props.parentId;
 
-export const getCategoriesByParentId = createSelector(allCategoriesSelector, parentIdSelector, (allCategories, parentId) => {
+export const selectCategoriesByParentId = createSelector(selectAllCategories, selectParentId, (allCategories, parentId) => {
   // console.log('parentId', parentId);
   return allCategories.filter(item => {
     if (!parentId) {
