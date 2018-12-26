@@ -1,6 +1,17 @@
+import { delay } from 'redux-saga';
 import { select, put, takeLatest, call } from 'redux-saga/effects';
-import { initRequest, setCategories, setModels, setIsReady, saveCategory, setCategoryData } from '../actions/bpmn';
-import { selectAllCategories } from '../selectors/bpmn';
+import {
+  initRequest,
+  setCategories,
+  setModels,
+  setIsReady,
+  saveCategoryRequest,
+  setCategoryData,
+  deleteCategoryRequest,
+  deleteCategory
+} from '../actions/bpmn';
+import { showModal } from '../actions/modal';
+import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
 
 function* doInitRequest({ api, fakeApi, logger }) {
   try {
@@ -43,9 +54,46 @@ function* doSaveCategoryRequest({ api, fakeApi, logger }, action) {
   }
 }
 
+function* doDeleteCategoryRequest({ api, fakeApi, logger }, action) {
+  try {
+    const categoryId = action.payload;
+
+    const allCategories = yield select(selectAllCategories);
+    const allModels = yield select(selectAllModels);
+
+    const isCategoryHasChildren =
+      allCategories.findIndex(item => item.parentId === categoryId) !== -1 ||
+      allModels.findIndex(item => item.categoryId === categoryId) !== -1;
+
+    if (isCategoryHasChildren) {
+      yield delay(100);
+      yield put(
+        showModal({
+          // TODO translation messages
+          title: 'Ошибка удаления категории',
+          content: 'Категория не пуста',
+          buttons: [
+            {
+              label: 'OK',
+              isCloseButton: true
+            }
+          ]
+        })
+      );
+      return;
+    }
+
+    yield call(api.bpmn.deleteCategory, categoryId);
+    yield put(deleteCategory(categoryId));
+  } catch (e) {
+    logger.error('[bpmn doDeleteCategoryRequest saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initRequest().type, doInitRequest, ea);
-  yield takeLatest(saveCategory().type, doSaveCategoryRequest, ea);
+  yield takeLatest(saveCategoryRequest().type, doSaveCategoryRequest, ea);
+  yield takeLatest(deleteCategoryRequest().type, doDeleteCategoryRequest, ea);
 }
 
 export default saga;

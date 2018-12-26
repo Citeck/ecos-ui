@@ -9,7 +9,8 @@ import {
   createCategory,
   cancelEditCategory,
   setIsEditable,
-  setCategoryData
+  setCategoryData,
+  deleteCategory
 } from '../actions/bpmn';
 import { VIEW_TYPE_CARDS, SORT_FILTER_LAST_MODIFIED } from '../constants/bpmn';
 
@@ -138,6 +139,15 @@ export default handleActions(
 
       const newCategoryList = [...state.categories];
       newCategoryList.splice(index, 1, currentCategory);
+
+      return {
+        ...state,
+        categories: newCategoryList
+      };
+    },
+    [deleteCategory]: (state, action) => {
+      const categoryId = action.payload;
+      const newCategoryList = state.categories.filter(item => item.id !== categoryId);
 
       return {
         ...state,

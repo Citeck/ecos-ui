@@ -4,7 +4,8 @@ import ContentEditable from 'react-contenteditable';
 import { Collapse, Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import cn from 'classnames';
 import { VIEW_TYPE_CARDS, VIEW_TYPE_LIST } from '../../../constants/bpmn';
-import { createCategory, cancelEditCategory, setIsEditable, saveCategory } from '../../../actions/bpmn';
+import { createCategory, cancelEditCategory, setIsEditable, saveCategoryRequest, deleteCategoryRequest } from '../../../actions/bpmn';
+import { hideModal, showModal } from '../../../actions/modal';
 import { t, placeCaretAtEnd } from '../../../helpers/util';
 import styles from './Category.module.scss';
 import './Category.scss';
@@ -17,17 +18,34 @@ const mapDispatchToProps = (dispatch, props) => ({
   setIsEditable: () => {
     dispatch(setIsEditable(props.itemId));
   },
-  doAccessCategoryAction: () => {
-    console.log('access'); // TODO
-  },
-  doDeleteCategoryAction: () => {
-    console.log('delete'); // TODO
+  showDeleteCategoryModal: () => {
+    dispatch(
+      // TODO translation messages
+      showModal({
+        title: 'Удаление категории',
+        content: 'Удалить категорию?',
+        buttons: [
+          {
+            label: 'Отмена',
+            isCloseButton: true
+          },
+          {
+            label: 'Удалить',
+            onClick: () => {
+              dispatch(deleteCategoryRequest(props.itemId));
+              dispatch(hideModal());
+            },
+            bsStyle: 'danger'
+          }
+        ]
+      })
+    );
   },
   createCategory: () => {
     dispatch(createCategory({ parentId: props.itemId }));
   },
   saveEditableCategory: text => {
-    dispatch(saveCategory({ id: props.itemId, label: text }));
+    dispatch(saveCategoryRequest({ id: props.itemId, label: text }));
   },
   cancelEditCategory: text => {
     dispatch(cancelEditCategory(props.itemId));
@@ -83,6 +101,17 @@ class Category extends React.Component {
     );
   };
 
+  doDeleteCategoryAction = () => {
+    this.setState(
+      {
+        dropdownOpen: false
+      },
+      () => {
+        this.props.showDeleteCategoryModal();
+      }
+    );
+  };
+
   componentDidMount() {
     if (this.props.isEditable) {
       this.labelRef.current.focus();
@@ -96,16 +125,7 @@ class Category extends React.Component {
   }
 
   render() {
-    const {
-      label,
-      level,
-      isEditable,
-      viewType,
-      doAccessCategoryAction,
-      doDeleteCategoryAction,
-      saveEditableCategory,
-      cancelEditCategory
-    } = this.props;
+    const { label, level, isEditable, viewType, saveEditableCategory, cancelEditCategory } = this.props;
 
     // classes
     const dropdownActionsIconClasses = cn(styles.categoryActionIcon, styles.categoryActionIcon2, {
@@ -148,12 +168,8 @@ class Category extends React.Component {
         onClick: this.doRenameCategoryAction
       },
       {
-        label: t('bpmn-designer.category-action.access'),
-        onClick: doAccessCategoryAction
-      },
-      {
         label: t('bpmn-designer.category-action.delete'),
-        onClick: doDeleteCategoryAction
+        onClick: this.doDeleteCategoryAction
       }
     ];
 
@@ -170,7 +186,7 @@ class Category extends React.Component {
           <DropdownToggle tag="div">
             <span className={dropdownActionsIconClasses} />
           </DropdownToggle>
-          <DropdownMenu className={styles.dropdownMenu}>
+          <DropdownMenu className={styles.dropdownMenu} right>
             <ul>
               {actions.map(action => {
                 return (

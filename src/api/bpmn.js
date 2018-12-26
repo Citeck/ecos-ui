@@ -52,4 +52,10 @@ export class BpmnApi extends RecordService {
       }
     });
   };
+
+  deleteCategory = id => {
+    return this.delete({
+      record: id
+    });
+  };
 }
