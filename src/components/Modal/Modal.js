@@ -1,8 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { hideModal } from '../../actions/modal';
+import Button from '../common/form/Button/Button';
+
+import './Modal.scss';
 
 const mapStateToProps = state => ({
   ...state.modal
@@ -41,7 +44,13 @@ class CustomModal extends React.Component {
       return null;
     }
 
-    const header = title ? <ModalHeader toggle={onHideCallback}>{title}</ModalHeader> : null;
+    const closeBtn = <button className="modal__close-button">&times;</button>;
+
+    const header = title ? (
+      <ModalHeader toggle={onHideCallback} close={closeBtn}>
+        {title}
+      </ModalHeader>
+    ) : null;
 
     let footer = null;
     if (Array.isArray(buttons) && buttons.length > 0) {
@@ -51,7 +60,7 @@ class CustomModal extends React.Component {
           onButtonClick = onHideCallback;
         }
         return (
-          <Button key={idx} onClick={onButtonClick} color={button.bsStyle}>
+          <Button key={idx} onClick={onButtonClick} color={button.bsStyle} className={button.className}>
             {button.label}
           </Button>
         );

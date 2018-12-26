@@ -4,6 +4,7 @@ import { Button, Badge, Container, Row, Col } from 'reactstrap';
 import Categories from './Categories';
 import ControlPanel from './ControlPanel';
 import RightMenu from './RightMenu';
+import { showModelCreationForm } from '../../actions/modelCreationForm';
 import styles from './BPMNDesigner.module.scss';
 import './BPMNDesigner.scss';
 
@@ -82,7 +83,7 @@ const categories = [
   }
 ];
 
-function BPMNDesigner() {
+function BPMNDesigner({ showModelCreationForm }) {
   return (
     <Container>
       <Row>
@@ -105,7 +106,7 @@ function BPMNDesigner() {
 
         <Col xl={9} lg={8} md={12}>
           <div className={styles.whiteBlock}>
-            <Button color="primary" size="lg" className={styles.headerBtn}>
+            <Button onClick={showModelCreationForm} color="primary" size="lg" className={styles.headerBtn}>
               Создать модель
             </Button>
             <Button color="secondary" size="lg" className={styles.headerBtn}>
@@ -123,4 +124,9 @@ function BPMNDesigner() {
   );
 }
 
-export default connect()(BPMNDesigner);
+export default connect(
+  null,
+  dispatch => ({
+    showModelCreationForm: () => dispatch(showModelCreationForm())
+  })
+)(BPMNDesigner);

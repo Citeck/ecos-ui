@@ -1,0 +1,21 @@
+@import '../../../../constants';
+
+.input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: $form-input-height;
+  padding-left: 15px;
+  background: $color-white;
+  border: $border-width-standard solid $color-gray-6;
+  border-radius: $border-radius-standard;
+  font-family: $font-family;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-standard;
+  color: $color-gray-5;
+}
+
+input[type='text'].input:focus,
+input[type='text'].input:hover {
+  border-color: $color-gray-6;
+}
