@@ -7,6 +7,7 @@ import RightMenu from './RightMenu';
 import { ROOT_CATEGORY_NODE_REF } from '../../constants/bpmn';
 import { createCategory } from '../../actions/bpmn';
 import { t } from '../../helpers/util';
+import { showModelCreationForm } from '../../actions/modelCreationForm';
 import styles from './BPMNDesigner.module.scss';
 import './BPMNDesigner.scss';
 
@@ -16,10 +17,11 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  createCategory: () => dispatch(createCategory({ parentId: ROOT_CATEGORY_NODE_REF }))
+  createCategory: () => dispatch(createCategory({ parentId: ROOT_CATEGORY_NODE_REF })),
+  showModelCreationForm: () => dispatch(showModelCreationForm())
 });
 
-const BPMNDesigner = ({ isReady, totalModels, createCategory }) => {
+const BPMNDesigner = ({ isReady, totalModels, createCategory, showModelCreationForm }) => {
   if (!isReady) {
     return null;
   }
@@ -46,7 +48,7 @@ const BPMNDesigner = ({ isReady, totalModels, createCategory }) => {
 
         <Col xl={9} lg={8} md={12}>
           <div className={styles.whiteBlock}>
-            <Button color="primary" size="lg" className={styles.headerBtn}>
+            <Button onClick={showModelCreationForm} color="primary" size="lg" className={styles.headerBtn}>
               {t('bpmn-designer.create-model')}
             </Button>
             <Button color="secondary" size="lg" className={styles.headerBtn}>

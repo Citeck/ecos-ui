@@ -1,0 +1,42 @@
+@import '../../../../constants';
+
+.button {
+  cursor: pointer;
+  display: inline-block;
+  white-space: nowrap;
+  vertical-align: middle;
+  margin: 0;
+  padding: 9px 40px;
+  text-align: center;
+  letter-spacing: 0.2pt;
+  font-family: $font-family;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-standard;
+  color: $color-white;
+  background: $color-blue-dark;
+  border-radius: $border-radius-large;
+  border: 1px solid transparent;
+  width: 200px;
+  height: 40px;
+
+  &:hover {
+    background: $color-blue-light;
+  }
+}
+
+.button_light {
+  color: $text-color-dark;
+  background: $color-gray-4;
+
+  &:hover {
+    background: $color-gray-1;
+  }
+}
+
+.button_float_left {
+  float: left;
+}
+
+.button_float_right {
+  float: right;
+}
