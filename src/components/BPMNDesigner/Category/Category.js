@@ -5,6 +5,7 @@ import { Collapse, Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import cn from 'classnames';
 import { VIEW_TYPE_CARDS, VIEW_TYPE_LIST } from '../../../constants/bpmn';
 import { createCategory, cancelEditCategory, setIsEditable, saveCategoryRequest, deleteCategoryRequest } from '../../../actions/bpmn';
+import { showModelCreationForm } from '../../../actions/modelCreationForm';
 import { hideModal, showModal } from '../../../actions/modal';
 import { t, placeCaretAtEnd } from '../../../helpers/util';
 import styles from './Category.module.scss';
@@ -43,6 +44,9 @@ const mapDispatchToProps = (dispatch, props) => ({
   },
   createCategory: () => {
     dispatch(createCategory({ parentId: props.itemId }));
+  },
+  createModel: () => {
+    dispatch(showModelCreationForm(props.itemId));
   },
   saveEditableCategory: text => {
     dispatch(saveCategoryRequest({ id: props.itemId, label: text }));
@@ -85,6 +89,18 @@ class Category extends React.Component {
       },
       () => {
         this.props.createCategory();
+      }
+    );
+  };
+
+  doAddModelAction = () => {
+    this.setState(
+      {
+        collapseIsOpen: true,
+        dropdownOpen: false
+      },
+      () => {
+        this.props.createModel();
       }
     );
   };
@@ -140,7 +156,7 @@ class Category extends React.Component {
     const saveIconClasses = cn('icon-check', styles.categoryActionIcon);
     const cancelIconClasses = cn('icon-close', styles.categoryActionIcon);
 
-    const mainContainerClasses = cn({
+    const mainContainerClasses = cn(`bpmn-category`, `bpmn-category_level${level}`, {
       [styles.bpmnCategoryLevel1]: level === 1,
       [styles.bpmnCategoryLevel2]: level === 2,
       bpmnCategoryLevelOpen: this.state.collapseIsOpen,
@@ -166,6 +182,11 @@ class Category extends React.Component {
       {
         label: t('bpmn-designer.category-action.rename'),
         onClick: this.doRenameCategoryAction
+      },
+      {
+        // label: t('bpmn-designer.category-action.add-model'), // TODO
+        label: 'Создать модель',
+        onClick: this.doAddModelAction
       },
       {
         label: t('bpmn-designer.category-action.delete'),

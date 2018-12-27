@@ -8,18 +8,16 @@ import {
   saveCategoryRequest,
   setCategoryData,
   deleteCategoryRequest,
-  deleteCategory
+  deleteCategory,
+  saveProcessModelRequest
 } from '../actions/bpmn';
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
 
-function* doInitRequest({ api, fakeApi, logger }) {
+function* doInitRequest({ api, logger }) {
   try {
     const categories = yield call(api.bpmn.fetchCategories);
-    const models2 = yield call(api.bpmn.fetchProcessModels);
-    console.log('models2', models2);
-
-    const models = yield call(fakeApi.getBpmnModels);
+    const models = yield call(api.bpmn.fetchProcessModels);
     yield put(setCategories(categories));
     yield put(setModels(models));
     yield put(setIsReady(true));
@@ -28,7 +26,7 @@ function* doInitRequest({ api, fakeApi, logger }) {
   }
 }
 
-function* doSaveCategoryRequest({ api, fakeApi, logger }, action) {
+function* doSaveCategoryRequest({ api, logger }, action) {
   try {
     const categories = yield select(selectAllCategories);
     const currentCategory = categories.find(item => item.id === action.payload.id);
@@ -57,7 +55,7 @@ function* doSaveCategoryRequest({ api, fakeApi, logger }, action) {
   }
 }
 
-function* doDeleteCategoryRequest({ api, fakeApi, logger }, action) {
+function* doDeleteCategoryRequest({ api, logger }, action) {
   try {
     const categoryId = action.payload;
 
@@ -93,10 +91,24 @@ function* doDeleteCategoryRequest({ api, fakeApi, logger }, action) {
   }
 }
 
+function* doSaveProcessModelRequest({ api, logger }, action) {
+  try {
+    yield call(api.bpmn.createProcessModel, action.payload);
+
+    yield delay(100);
+
+    const models = yield call(api.bpmn.fetchProcessModels);
+    yield put(setModels(models));
+  } catch (e) {
+    logger.error('[bpmn doSaveProcessModelRequest saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initRequest().type, doInitRequest, ea);
   yield takeLatest(saveCategoryRequest().type, doSaveCategoryRequest, ea);
   yield takeLatest(deleteCategoryRequest().type, doDeleteCategoryRequest, ea);
+  yield takeLatest(saveProcessModelRequest().type, doSaveProcessModelRequest, ea);
 }
 
 export default saga;

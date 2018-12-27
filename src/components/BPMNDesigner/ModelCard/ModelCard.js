@@ -10,7 +10,7 @@ const ModelCard = ({ label, author, datetime, viewLink, editLink, image }) => {
   let cardTopBgStyle = null;
   if (image) {
     cardTopBgStyle = {
-      background: `url(${image})`
+      backgroundImage: `url(${image})`
     };
   }
 

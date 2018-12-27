@@ -16,8 +16,6 @@
   background: $color-blue-dark;
   border-radius: $border-radius-large;
   border: 1px solid transparent;
-  width: 200px;
-  height: 40px;
 
   &:hover {
     background: $color-blue-light;
@@ -39,4 +37,9 @@
 
 .button_float_right {
   float: right;
+}
+
+.button_full_width {
+  margin-top: 10px;
+  width: 100%;
 }

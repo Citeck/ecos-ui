@@ -17,3 +17,4 @@ export const deleteCategory = createAction(prefix + 'DELETE_CATEGORY');
 export const initRequest = createAction(prefix + 'INIT_REQUEST');
 export const saveCategoryRequest = createAction(prefix + 'SAVE_CATEGORY_REQUEST');
 export const deleteCategoryRequest = createAction(prefix + 'DELETE_CATEGORY_REQUEST');
+export const saveProcessModelRequest = createAction(prefix + 'SAVE_PROCESS_MODEL_REQUEST');

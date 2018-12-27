@@ -81,14 +81,14 @@ export class BpmnApi extends RecordService {
     });
   };
 
-  createProcessModel = (title, description, categoryNodeRef) => {
+  createProcessModel = ({ title, description, categoryId }) => {
     return this.mutate({
       record: {
         type: 'ecosbpm:processModel',
         attributes: {
           'cm:title': title,
           'cm:description': description,
-          'ecosbpm:category': categoryNodeRef
+          'ecosbpm:category': categoryId
         }
       }
     });

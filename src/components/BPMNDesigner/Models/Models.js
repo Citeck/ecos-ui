@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Row } from 'reactstrap';
-import { VIEW_TYPE_LIST } from '../../../constants/bpmn';
+import { VIEW_TYPE_LIST, VIEW_TYPE_CARDS } from '../../../constants/bpmn';
+import CreateModelCard from '../CreateModelCard';
 import ModelCard from '../ModelCard';
 import ModelList from '../ModelList';
 
@@ -10,7 +11,7 @@ const mapStateToProps = (state, props) => ({
   items: state.bpmn.models.filter(item => item.categoryId === props.categoryId) // TODO use reselect
 });
 
-const Models = ({ viewType, items }) => {
+const Models = ({ viewType, items, categoryId }) => {
   const ModelComponent = viewType === VIEW_TYPE_LIST ? ModelList : ModelCard;
 
   const models = [];
@@ -22,7 +23,17 @@ const Models = ({ viewType, items }) => {
     }
   }
 
-  return <Row noGutters>{models}</Row>;
+  let createModelComponent = null;
+  if (viewType === VIEW_TYPE_CARDS && !items.length) {
+    createModelComponent = <CreateModelCard categoryId={categoryId} />;
+  }
+
+  return (
+    <Row noGutters>
+      {models}
+      {createModelComponent}
+    </Row>
+  );
 };
 
 export default connect(mapStateToProps)(Models);
