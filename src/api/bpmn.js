@@ -58,4 +58,45 @@ export class BpmnApi extends RecordService {
       record: id
     });
   };
+
+  fetchProcessModels = () => {
+    return this.query({
+      query: {
+        query: 'TYPE:"ecosbpm:processModel"',
+        language: 'fts-alfresco',
+        sortBy: [{ attribute: 'ecosbpm:index', ascending: true }]
+      },
+      attributes: {
+        label: 'cm:title',
+        description: 'cm:description',
+        categoryId: 'ecosbpm:category?id'
+      }
+    }).then(resp => {
+      return resp.records.map(item => {
+        return {
+          id: item.id,
+          ...item.attributes
+        };
+      });
+    });
+  };
+
+  createProcessModel = (title, description, categoryNodeRef) => {
+    return this.mutate({
+      record: {
+        type: 'ecosbpm:processModel',
+        attributes: {
+          'cm:title': title,
+          'cm:description': description,
+          'ecosbpm:category': categoryNodeRef
+        }
+      }
+    });
+  };
+
+  deleteProcessModel = id => {
+    return this.delete({
+      record: id
+    });
+  };
 }

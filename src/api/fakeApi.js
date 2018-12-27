@@ -14,6 +14,16 @@ export const fakeApi = {
             categoryId: 'workspace://SpacesStore/5b92027b-7a29-4109-b16a-2f2038c155ad'
           },
           {
+            label: 'Что-то другое',
+            author: 'author3',
+            datetime: 'Today at 2:10 PM',
+            viewLink: null,
+            editLink: null,
+            image:
+              'https://bpm.citeck.ru/flowable-modeler/app/rest/models/60a3f338-ee03-11e8-9d4e-001dd8b75f64/thumbnail?version=1544627716371',
+            categoryId: 'workspace://SpacesStore/5b92027b-7a29-4109-b16a-2f2038c155ad'
+          },
+          {
             label: 'Формирование справок 2',
             author: 'author2',
             datetime: 'Today at 2:10 PM',
@@ -29,17 +39,37 @@ export const fakeApi = {
             editLink: null,
             image:
               'https://bpm.citeck.ru/flowable-modeler/app/rest/models/360453ae-ff4c-11e7-85d6-001dd8b75f64/thumbnail?version=1544627716371',
-            categoryId: 'workspace://SpacesStore/e1f23114-fe2f-42bc-b9d6-1272a5233df3'
+            categoryId: 'workspace://SpacesStore/e0a307a4-2e62-4ec9-a9b3-071b60bc2586'
           },
           {
-            label: 'Формирование справок 4',
+            label: 'Ещё один процесс',
             author: 'author4',
             datetime: 'Today at 2:10 PM',
             viewLink: null,
             editLink: null,
             image:
               'https://bpm.citeck.ru/flowable-modeler/app/rest/models/ca44c70d-e7d7-11e8-9d4e-001dd8b75f64/thumbnail?version=1544627716371',
-            categoryId: 'workspace://SpacesStore/5b92027b-7a29-4109-b16a-2f2038c155ad'
+            categoryId: 'workspace://SpacesStore/99136071-687e-4d86-9576-3d47979a53f3'
+          },
+          {
+            label: 'Ещё один процесс',
+            author: 'author4',
+            datetime: 'Today at 2:10 PM',
+            viewLink: null,
+            editLink: null,
+            image:
+              'https://bpm.citeck.ru/flowable-modeler/app/rest/models/ca44c70d-e7d7-11e8-9d4e-001dd8b75f64/thumbnail?version=1544627716371',
+            categoryId: 'workspace://SpacesStore/99136071-687e-4d86-9576-3d47979a53f3'
+          },
+          {
+            label: 'Ещё один процесс',
+            author: 'author4',
+            datetime: 'Today at 2:10 PM',
+            viewLink: null,
+            editLink: null,
+            image:
+              'https://bpm.citeck.ru/flowable-modeler/app/rest/models/ca44c70d-e7d7-11e8-9d4e-001dd8b75f64/thumbnail?version=1544627716371',
+            categoryId: 'workspace://SpacesStore/99136071-687e-4d86-9576-3d47979a53f3'
           }
         ]);
       }, 0);

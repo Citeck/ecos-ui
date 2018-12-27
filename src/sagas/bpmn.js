@@ -16,6 +16,9 @@ import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
 function* doInitRequest({ api, fakeApi, logger }) {
   try {
     const categories = yield call(api.bpmn.fetchCategories);
+    const models2 = yield call(api.bpmn.fetchProcessModels);
+    console.log('models2', models2);
+
     const models = yield call(fakeApi.getBpmnModels);
     yield put(setCategories(categories));
     yield put(setModels(models));

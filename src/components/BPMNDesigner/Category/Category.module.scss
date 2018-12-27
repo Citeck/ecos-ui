@@ -11,7 +11,6 @@
   padding-left: 46px;
   padding-right: 5px;
   margin: 0;
-  text-transform: uppercase;
   display: block;
   font-weight: $font-weight-bold;
   font-size: $font-size-standard;
@@ -42,10 +41,13 @@
   display: inline-block;
   line-height: 1.4em;
   white-space: nowrap;
+  text-transform: uppercase;
 }
 
 .labelTextEditable {
   background-color: rgba(0, 102, 255, 0.3);
+  text-transform: none;
+
   &:before {
     content: '.';
     width: 0;
@@ -134,12 +136,15 @@
     line-height: 40px;
     padding-left: 36px;
     padding-right: 0;
-    text-transform: none;
 
     &:before {
       top: 16px;
       left: 15px;
     }
+  }
+
+  .labelText {
+    text-transform: none;
   }
 
   .labelForCollapsed {
