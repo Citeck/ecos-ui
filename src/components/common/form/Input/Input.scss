@@ -12,10 +12,16 @@
   font-family: $font-family;
   font-weight: $font-weight-bold;
   font-size: $font-size-standard;
-  color: $color-gray-5;
+  color: $text-color-dark;
+
+  &::placeholder {
+    color: $color-gray-5;
+  }
 }
 
-input[type='text'].input:focus,
+input[type='text'].input:focus {
+  border-color: $color-blue-dark;
+}
 input[type='text'].input:hover {
-  border-color: $color-gray-6;
+  border-color: $color-blue-light;
 }

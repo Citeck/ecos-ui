@@ -4,6 +4,7 @@ import Textarea from '../../common/form/Textarea/Textarea';
 import Label from '../../common/form/Label/Label';
 import Input from '../../common/form/Input/Input';
 import { Form, FormGroup } from 'reactstrap';
+import Button from '../../common/form/Button/Button';
 
 const options = [
   { value: 'chocolate', label: 'Chocolate' },
@@ -33,6 +34,8 @@ const ModelCreationForm = () => {
         <Label>{'Описание (не обязательно)'}</Label>
         <Textarea />
       </FormGroup>
+      <Button className={'button_light button_float_left'}>{'Отмена'}</Button>
+      <Button className={'button_float_right'}>{'Создать модель'}</Button>
     </Form>
   );
 };

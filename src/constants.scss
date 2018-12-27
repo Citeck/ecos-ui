@@ -14,7 +14,7 @@ $color-gray-5: #b7b7b7;
 $color-gray-6: #d0d0d0;
 $color-gray-dark: #141414;
 
-$font-weight-bold: 600;
+$font-weight-bold: 400;
 $font-size-large: 18px;
 $font-size-standard: 14px;
 $font-size-small: 12px;
@@ -33,6 +33,8 @@ $box-shadow-tooltip-arrow-top: -3px 3px 5px rgba(0, 0, 0, 0.2);
 $page-background-color: $color-gray-4;
 
 $form-input-height: 40px;
+
+$select-option-line-height: 22px;
 
 /* override bootstrap constants */
 $primary: $color-blue-dark;

@@ -2,7 +2,7 @@
 
 .select {
   .select__indicator-separator {
-    background-color: $color-white;
+    width: 0;
   }
 
   .select__control {
@@ -11,26 +11,60 @@
     background: $color-white;
     border: $border-width-standard solid $color-gray-6;
     border-radius: $border-radius-standard;
+    font-family: $font-family;
+    font-weight: $font-weight-bold;
+    font-size: $font-size-standard;
   }
 
-  .select__control,
-  .select__placeholder {
-    font-family: $font-family;
-    //font-weight: $font-weight-bold;
-    font-size: $font-size-standard;
+  .select__single-value {
     color: $text-color-dark;
   }
 
+  .select__placeholder,
   .select__dropdown-indicator {
     color: $color-gray-6;
   }
 
-  .select__control--is-focused,
   .select__control:hover,
-  .select__control:focus,
-  .select__input input[type='text']:focus,
   .select__input input[type='text']:hover {
-    border-color: $color-gray-6 !important;
+    border-color: $color-blue-light;
     box-shadow: none;
+
+    .select__dropdown-indicator {
+      color: $color-blue-light;
+    }
+  }
+
+  .select__control.select__control--is-focused,
+  .select__input input[type='text']:focus {
+    border-color: $color-blue-dark;
+    background: $color-blue-dark;
+    box-shadow: none;
+
+    .select__single-value,
+    .select__placeholder,
+    .select__dropdown-indicator {
+      color: $color-white;
+    }
+  }
+
+  .select__menu {
+    background: $color-white;
+    box-shadow: $box-shadow-default;
+    border-radius: $border-radius-standard;
+    margin-top: 5px;
+  }
+
+  .select__option {
+    font-family: $font-family;
+    font-weight: $font-weight-bold;
+    font-size: $font-size-standard;
+    color: $text-color-dark;
+    background: $color-white;
+    line-height: $select-option-line-height;
+
+    &:hover {
+      background: $color-gray-4;
+    }
   }
 }

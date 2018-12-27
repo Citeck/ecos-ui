@@ -4,8 +4,6 @@
   .modal-content {
     border-radius: $border-radius-extra-large;
     padding: 24px 21px 26px 21px;
-    width: 468px;
-    height: 523px;
   }
 
   .modal-header,
@@ -37,13 +35,17 @@
   }
 
   /*Костыль чтобы затереть старые стили, после полного перехода, нужно будет удалить*/
-  input[type='text'].input:focus,
+
   input[type='text'].input:hover,
-  select:not(:disabled).select:focus,
   select:not(:disabled).select:hover,
-  textarea:not(:disabled).textarea:focus,
   textarea:not(:disabled).textarea:hover {
-    border-color: $color-gray-6 !important;
+    border-color: $color-blue-light !important;
+  }
+
+  input[type='text'].input:focus,
+  select:not(:disabled).select:focus,
+  textarea:not(:disabled).textarea:focus {
+    border-color: $color-blue-dark !important;
   }
   /**********************************************************************************/
 }

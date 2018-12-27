@@ -44,13 +44,16 @@ class CustomModal extends React.Component {
       return null;
     }
 
-    const closeBtn = <button className="modal__close-button">&times;</button>;
+    //todo Стилизовать кнопку в соответствии с макетом
+    // const closeBtn = <button className="modal__close-button">&times;</button>;
+    //
+    // const header = title ? (
+    //   <ModalHeader toggle={onHideCallback} close={closeBtn}>
+    //     {title}
+    //   </ModalHeader>
+    // ) : null;
 
-    const header = title ? (
-      <ModalHeader toggle={onHideCallback} close={closeBtn}>
-        {title}
-      </ModalHeader>
-    ) : null;
+    const header = title ? <ModalHeader toggle={onHideCallback}>{title}</ModalHeader> : null;
 
     let footer = null;
     if (Array.isArray(buttons) && buttons.length > 0) {
