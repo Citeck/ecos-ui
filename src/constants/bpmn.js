@@ -7,3 +7,5 @@ export const SORT_FILTER_AZ = 2;
 export const SORT_FILTER_ZA = 3;
 
 export const ROOT_CATEGORY_NODE_REF = 'workspace://SpacesStore/ecos-bpm-category-root';
+
+export const EDITOR_PAGE_CONTEXT = '/bpmn-editor/';

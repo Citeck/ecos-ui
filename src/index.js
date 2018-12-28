@@ -7,6 +7,11 @@ import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import * as serviceWorker from './serviceWorker';
 
+import moment from 'moment';
+import 'moment/locale/ru';
+import 'moment/locale/en-gb';
+import { getCurrentLocale } from './helpers/util';
+
 import configureStore, { getHistory } from './store';
 import { requireShareAssets } from './share';
 import { initAppRequest } from './actions/app';
@@ -17,6 +22,8 @@ import './index.scss';
 
 const logger = Logger.create('EcoS');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);
+
+moment.locale(getCurrentLocale());
 
 const store = configureStore({
   api: {

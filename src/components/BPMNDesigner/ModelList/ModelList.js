@@ -1,10 +1,11 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import { Col } from 'reactstrap';
 import cn from 'classnames';
 import { t } from '../../../helpers/util';
 import styles from './ModelList.module.scss';
 
-const ModelCard = ({ label, author, datetime, viewLink, editLink }) => {
+const ModelList = ({ label, author, datetime, viewLink, editLink }) => {
   const dragNDropIconClasses = cn('icon-drag', styles.dndActionIcon, styles.hiddenIcon);
 
   return (
@@ -19,9 +20,9 @@ const ModelCard = ({ label, author, datetime, viewLink, editLink }) => {
         </div>
 
         <div className={styles.actions}>
-          <a href={viewLink} className={styles.viewCard}>
+          <NavLink to={viewLink} className={styles.viewCard}>
             {t('bpmn-designer.view-button')}
-          </a>
+          </NavLink>
           <a href={editLink} className={styles.editActionIcon}>
             <span className={'icon-edit'} />
           </a>
@@ -32,4 +33,4 @@ const ModelCard = ({ label, author, datetime, viewLink, editLink }) => {
   );
 };
 
-export default ModelCard;
+export default ModelList;

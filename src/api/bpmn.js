@@ -69,6 +69,8 @@ export class BpmnApi extends RecordService {
       attributes: {
         label: 'cm:title',
         description: 'cm:description',
+        created: 'cm:created',
+        creator: 'cm:creator',
         categoryId: 'ecosbpm:category?id'
       }
     }).then(resp => {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import { Route, Switch } from 'react-router';
 import classNames from 'classnames';
 
@@ -60,4 +61,4 @@ const mapStateToProps = state => ({
   isAuthenticated: state.user.isAuthenticated
 });
 
-export default connect(mapStateToProps)(App);
+export default withRouter(connect(mapStateToProps)(App));
