@@ -69,16 +69,16 @@ export default function handleControl(type, payload, dispatch) {
           content: t('message.leave-site-prompt', { '0': payload.siteTitle }),
           buttons: [
             {
+              label: t('button.leave-site.cancel-label'),
+              isCloseButton: true
+            },
+            {
               label: t('button.leave-site.confirm-label'),
               onClick: () => {
                 dispatch(leaveSiteRequest(payload));
                 dispatch(hideModal());
               },
-              bsStyle: 'primary'
-            },
-            {
-              label: t('button.leave-site.cancel-label'),
-              isCloseButton: true
+              className: 'button_blue'
             }
           ]
         })

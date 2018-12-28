@@ -25,6 +25,7 @@ const ModelCard = ({ label, author, datetime, viewLink, editLink, image }) => {
             </a>
             <div className={styles.cardTopButton}>
               <NavLink to={viewLink}>{t('bpmn-designer.view-button')}</NavLink>
+              {/*<a href={viewLink}>{t('bpmn-designer.view-button')}</a>*/}
             </div>
           </div>
         </div>

@@ -11,6 +11,7 @@ export function leaveSiteRequest({ site, siteTitle, user, userFullName }) {
         if (resp.status !== 200) {
           return dispatch(
             showModal({
+              title: 'Failure',
               content: t('message.leave-failure', { '0': userFullName, '1': siteTitle }),
               buttons: [
                 {

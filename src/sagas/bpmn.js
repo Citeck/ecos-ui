@@ -9,10 +9,13 @@ import {
   setCategoryData,
   deleteCategoryRequest,
   deleteCategory,
-  saveProcessModelRequest
+  saveProcessModelRequest,
+  showModelCreationForm
 } from '../actions/bpmn';
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
+import ModelCreationForm from '../components/BPMNDesigner/ModelCreationForm';
+import React from 'react';
 
 function* doInitRequest({ api, logger }) {
   try {
@@ -104,11 +107,44 @@ function* doSaveProcessModelRequest({ api, logger }, action) {
   }
 }
 
+function* doShowModelCreationForm({ api, logger }, action) {
+  try {
+    const allCategories = yield select(selectAllCategories);
+
+    if (!allCategories.length) {
+      yield put(
+        showModal({
+          title: 'Создание модели бизнес процесса',
+          content: 'Чтобы создать модель, необходимо добавить хотя бы одну категорию',
+          buttons: [
+            {
+              label: 'OK',
+              isCloseButton: true
+            }
+          ]
+        })
+      );
+
+      return;
+    }
+
+    yield put(
+      showModal({
+        title: 'Создание модели бизнес процесса',
+        content: <ModelCreationForm categoryId={action.payload} />
+      })
+    );
+  } catch (e) {
+    logger.error('[bpmn doSaveProcessModelRequest saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initRequest().type, doInitRequest, ea);
   yield takeLatest(saveCategoryRequest().type, doSaveCategoryRequest, ea);
   yield takeLatest(deleteCategoryRequest().type, doDeleteCategoryRequest, ea);
   yield takeLatest(saveProcessModelRequest().type, doSaveProcessModelRequest, ea);
+  yield takeLatest(showModelCreationForm().type, doShowModelCreationForm, ea);
 }
 
 export default saga;

@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import cn from 'classnames';
+import { Modal, ModalHeader, ModalBody, ModalFooter, Row, Col, Container } from 'reactstrap';
 import { hideModal } from '../../actions/modal';
 import Button from '../common/form/Button/Button';
 
@@ -57,19 +58,32 @@ class CustomModal extends React.Component {
 
     let footer = null;
     if (Array.isArray(buttons) && buttons.length > 0) {
+      let mdSize = 12 / buttons.length;
+      if (buttons.length === 1) {
+        mdSize = { size: 6, offset: 6 };
+      }
       const buttonList = buttons.map((button, idx) => {
         let onButtonClick = button.onClick;
         if (button.isCloseButton) {
           onButtonClick = onHideCallback;
         }
+        const buttonClassNames = cn('button_full_width', button.className);
         return (
-          <Button key={idx} onClick={onButtonClick} color={button.bsStyle} className={button.className}>
-            {button.label}
-          </Button>
+          <Col md={mdSize} sm={12}>
+            <Button key={idx} onClick={onButtonClick} color={button.bsStyle} className={buttonClassNames}>
+              {button.label}
+            </Button>
+          </Col>
         );
       });
 
-      footer = <ModalFooter>{buttonList}</ModalFooter>;
+      footer = (
+        <ModalFooter>
+          <div className="modal__full-width-block">
+            <Row>{buttonList}</Row>
+          </div>
+        </ModalFooter>
+      );
     }
 
     return ReactDOM.createPortal(

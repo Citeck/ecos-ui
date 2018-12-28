@@ -5,7 +5,7 @@ import { Collapse, Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import cn from 'classnames';
 import { VIEW_TYPE_CARDS, VIEW_TYPE_LIST } from '../../../constants/bpmn';
 import { createCategory, cancelEditCategory, setIsEditable, saveCategoryRequest, deleteCategoryRequest } from '../../../actions/bpmn';
-import { showModelCreationForm } from '../../../actions/modelCreationForm';
+import { showModelCreationForm } from '../../../actions/bpmn';
 import { hideModal, showModal } from '../../../actions/modal';
 import { t, placeCaretAtEnd } from '../../../helpers/util';
 import styles from './Category.module.scss';
@@ -36,7 +36,7 @@ const mapDispatchToProps = (dispatch, props) => ({
               dispatch(deleteCategoryRequest(props.itemId));
               dispatch(hideModal());
             },
-            bsStyle: 'danger'
+            className: 'button_red'
           }
         ]
       })

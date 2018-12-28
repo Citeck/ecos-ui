@@ -10,7 +10,11 @@
   .modal-body,
   .modal-footer {
     padding: 0;
-    border: 0;
+    border: none;
+  }
+
+  .modal-footer {
+    margin-top: 20px;
   }
 
   .modal-header {
@@ -28,7 +32,7 @@
   }
 
   .modal-footer > :not(:last-child) {
-    margin-right: 26px;
+    margin-right: 10px;
   }
   .modal-footer > :not(:first-child) {
     margin-left: 0;
@@ -60,4 +64,8 @@
   color: $color-gray-dark;
   border: 0;
   background: $color-white;
+}
+
+.modal__full-width-block {
+  width: 100%;
 }

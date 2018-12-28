@@ -23,6 +23,7 @@ const ModelList = ({ label, author, datetime, viewLink, editLink }) => {
           <NavLink to={viewLink} className={styles.viewCard}>
             {t('bpmn-designer.view-button')}
           </NavLink>
+          {/*<a href={viewLink} className={styles.viewCard}>{t('bpmn-designer.view-button')}</a>*/}
           <a href={editLink} className={styles.editActionIcon}>
             <span className={'icon-edit'} />
           </a>

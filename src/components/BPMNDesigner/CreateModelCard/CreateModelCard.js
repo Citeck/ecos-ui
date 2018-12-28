@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Col } from 'reactstrap';
 import { Button } from 'reactstrap';
 // import { t } from '../../../helpers/util';
-import { showModelCreationForm } from '../../../actions/modelCreationForm';
+import { showModelCreationForm } from '../../../actions/bpmn';
 import './CreateModelCard.scss';
 
 const mapDispatchToProps = (dispatch, props) => ({

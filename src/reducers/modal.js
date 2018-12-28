@@ -9,7 +9,7 @@ buttons: [
         onClick: () => {
             ...some actions
         },
-        bsStyle: "primary", // TODO use color
+        className: "button_blue",
         isCloseButton: false
     },
     ...other buttons

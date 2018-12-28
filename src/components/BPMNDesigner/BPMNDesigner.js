@@ -7,7 +7,7 @@ import RightMenu from './RightMenu';
 import { ROOT_CATEGORY_NODE_REF } from '../../constants/bpmn';
 import { createCategory } from '../../actions/bpmn';
 import { t } from '../../helpers/util';
-import { showModelCreationForm } from '../../actions/modelCreationForm';
+import { showModelCreationForm } from '../../actions/bpmn';
 import styles from './BPMNDesigner.module.scss';
 import './BPMNDesigner.scss';
 

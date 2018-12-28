@@ -98,12 +98,12 @@ class ModelCreationForm extends React.Component {
 
         <Row>
           <Col md={6} sm={12}>
-            <Button type="button" onClick={hideModal} className="button_light button_full_width">
+            <Button type="button" onClick={hideModal} className="button_full_width">
               Отмена
             </Button>
           </Col>
           <Col md={6} sm={12}>
-            <Button className="button_full_width">Создать модель</Button>
+            <Button className="button_full_width button_blue">Создать модель</Button>
           </Col>
         </Row>
       </Form>
