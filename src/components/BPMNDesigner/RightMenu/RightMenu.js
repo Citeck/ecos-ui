@@ -2,6 +2,7 @@ import React from 'react';
 import mainStyles from '../BPMNDesigner.module.scss';
 import styles from './RightMenu.module.scss';
 import cn from 'classnames';
+import { t } from '../../../helpers/util';
 
 function RightMenu() {
   return (
@@ -11,7 +12,7 @@ function RightMenu() {
           <ul>
             <li className={cn(styles.item, { [styles.itemActive]: true })}>
               <a href="/share/page/bpmn-designer" className="icon-models">
-                Модели процессов
+                {t('bpmn-designer.right-menu.process-models')}
               </a>
             </li>
             <li className={styles.item}>

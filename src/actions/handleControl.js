@@ -57,7 +57,6 @@ export function joinSiteRequest({ site, siteTitle, user, userFullName }) {
     })
       .then(resp => {
         if (resp.status !== 200) {
-          // TODO
           console.log('joinSiteRequest err', resp);
           return;
         }
@@ -96,7 +95,6 @@ export function becomeSiteManagerRequest({ site, siteTitle, user, userFullName }
     })
       .then(resp => {
         if (resp.status !== 200) {
-          // TODO
           console.log('becomeSiteManagerRequest err', resp);
           return;
         }

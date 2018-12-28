@@ -53,8 +53,6 @@ export class CommonApi {
   //     body: prepareUrlEncodedFormData(data)
   //   });
   // };
-
-  // TODO implement uploadFile
 }
 
 export function checkStatus(response) {

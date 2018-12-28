@@ -8,6 +8,7 @@ import Input from '../../common/form/Input/Input';
 import Button from '../../common/form/Button/Button';
 import { hideModal } from '../../../actions/modal';
 import { saveProcessModelRequest } from '../../../actions/bpmn';
+import { t } from '../../../helpers/util';
 
 const mapStateToProps = state => ({
   categories: state.bpmn.categories.map(item => {
@@ -77,12 +78,17 @@ class ModelCreationForm extends React.Component {
     return (
       <Form onSubmit={this.handleSubmit}>
         <FormGroup>
-          <Label>Название модели</Label>
-          <Input value={this.state.title} onChange={this.handleChangeTitle} type="text" placeholder='Например "Запрос справки"' />
+          <Label>{t('bpmn-designer.create-bpm-form.title')}</Label>
+          <Input
+            value={this.state.title}
+            onChange={this.handleChangeTitle}
+            type="text"
+            placeholder={t('bpmn-designer.create-bpm-form.title-placeholder')}
+          />
         </FormGroup>
 
         <FormGroup>
-          <Label>Выберите категорию</Label>
+          <Label>{t('bpmn-designer.create-bpm-form.category')}</Label>
           <Select value={this.state.category} onChange={this.handleChangeCategory} options={categories} />
         </FormGroup>
 
@@ -92,18 +98,18 @@ class ModelCreationForm extends React.Component {
         {/*</FormGroup>*/}
 
         <FormGroup>
-          <Label>Описание (не обязательно)</Label>
+          <Label>{t('bpmn-designer.create-bpm-form.description')}</Label>
           <Textarea value={this.state.description} onChange={this.handleChangeDescription} />
         </FormGroup>
 
         <Row>
           <Col md={6} sm={12}>
             <Button type="button" onClick={hideModal} className="button_full_width">
-              Отмена
+              {t('bpmn-designer.create-bpm-form.cancel-btn')}
             </Button>
           </Col>
           <Col md={6} sm={12}>
-            <Button className="button_full_width button_blue">Создать модель</Button>
+            <Button className="button_full_width button_blue">{t('bpmn-designer.create-bpm-form.submit-btn')}</Button>
           </Col>
         </Row>
       </Form>

@@ -21,17 +21,16 @@ const mapDispatchToProps = (dispatch, props) => ({
   },
   showDeleteCategoryModal: () => {
     dispatch(
-      // TODO translation messages
       showModal({
-        title: 'Удаление категории',
-        content: 'Удалить категорию?',
+        title: t('bpmn-designer.delete-category-dialog.title'),
+        content: t('bpmn-designer.delete-category-dialog.text'),
         buttons: [
           {
-            label: 'Отмена',
+            label: t('bpmn-designer.delete-category-dialog.cancel-btn'),
             isCloseButton: true
           },
           {
-            label: 'Удалить',
+            label: t('bpmn-designer.delete-category-dialog.delete-btn'),
             onClick: () => {
               dispatch(deleteCategoryRequest(props.itemId));
               dispatch(hideModal());
@@ -184,8 +183,7 @@ class Category extends React.Component {
         onClick: this.doRenameCategoryAction
       },
       {
-        // label: t('bpmn-designer.category-action.add-model'), // TODO
-        label: 'Создать модель',
+        label: t('bpmn-designer.category-action.create-model'),
         onClick: this.doAddModelAction
       },
       {

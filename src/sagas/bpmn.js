@@ -1,3 +1,6 @@
+import React from 'react';
+import ModelCreationForm from '../components/BPMNDesigner/ModelCreationForm';
+
 import { delay } from 'redux-saga';
 import { select, put, takeLatest, call } from 'redux-saga/effects';
 import {
@@ -14,8 +17,7 @@ import {
 } from '../actions/bpmn';
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
-import ModelCreationForm from '../components/BPMNDesigner/ModelCreationForm';
-import React from 'react';
+import { t } from '../helpers/util';
 
 function* doInitRequest({ api, logger }) {
   try {
@@ -73,12 +75,11 @@ function* doDeleteCategoryRequest({ api, logger }, action) {
       yield delay(100);
       yield put(
         showModal({
-          // TODO translation messages
-          title: 'Ошибка удаления категории',
-          content: 'Категория не пуста',
+          title: t('bpmn-designer.delete-category-dialog.failure-title'),
+          content: t('bpmn-designer.delete-category-dialog.failure-text'),
           buttons: [
             {
-              label: 'OK',
+              label: t('bpmn-designer.delete-category-dialog.close-btn'),
               isCloseButton: true
             }
           ]
@@ -114,11 +115,11 @@ function* doShowModelCreationForm({ api, logger }, action) {
     if (!allCategories.length) {
       yield put(
         showModal({
-          title: 'Создание модели бизнес процесса',
-          content: 'Чтобы создать модель, необходимо добавить хотя бы одну категорию',
+          title: t('bpmn-designer.create-bpm-dialog.failure-title'),
+          content: t('bpmn-designer.create-bpm-dialog.failure-text'),
           buttons: [
             {
-              label: 'OK',
+              label: t('bpmn-designer.create-bpm-dialog.close-btn'),
               isCloseButton: true
             }
           ]
@@ -130,7 +131,7 @@ function* doShowModelCreationForm({ api, logger }, action) {
 
     yield put(
       showModal({
-        title: 'Создание модели бизнес процесса',
+        title: t('bpmn-designer.create-bpm-dialog.title'),
         content: <ModelCreationForm categoryId={action.payload} />
       })
     );

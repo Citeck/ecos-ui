@@ -53,11 +53,17 @@ export function t(messageId, multipleValues, scope = 'global') {
   const Alfresco = window.Alfresco;
 
   if (!Alfresco || !Alfresco.util || !Alfresco.util.message) {
+    // console.warn('[t]: Alfresco.util.message is not available');
     return messageId;
   }
 
-  return Alfresco.util.message(messageId, scope, multipleValues);
-  // return messageId;
+  const translatedMessage = Alfresco.util.message(messageId, scope, multipleValues);
+
+  if (translatedMessage === messageId) {
+    // console.warn(`[t]: looks like message '${messageId}' has not translation`);
+  }
+
+  return translatedMessage;
 }
 
 const BYTES_KB = 1024;

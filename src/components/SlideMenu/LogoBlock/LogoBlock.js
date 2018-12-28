@@ -6,18 +6,17 @@ const logoLinkHref = '/share/page';
 const mapStateToProps = state => ({
   smallLogoSrc: state.slideMenu.smallLogo,
   largeLogoSrc: state.slideMenu.largeLogo
-  // TODO logo alt
 });
 
 const LogoBlock = ({ smallLogoSrc, largeLogoSrc }) => {
   let smallLogo = null;
   if (smallLogoSrc) {
-    smallLogo = <img className="slide-menu-logo__small" src={smallLogoSrc} alt="EcoS" />;
+    smallLogo = <img className="slide-menu-logo__small" src={smallLogoSrc} alt="" />;
   }
 
   let largeLogo = null;
   if (largeLogoSrc) {
-    largeLogo = <img src={largeLogoSrc} alt="EcoS" />;
+    largeLogo = <img src={largeLogoSrc} alt="" />;
   }
 
   return (

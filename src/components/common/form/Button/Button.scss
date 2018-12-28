@@ -6,7 +6,7 @@
   white-space: nowrap;
   vertical-align: middle;
   margin: 0;
-  padding: 9px 40px;
+  padding: 9px 15px;
   text-align: center;
   letter-spacing: 0.2pt;
   font-family: $font-family;
@@ -16,6 +16,9 @@
   background: $color-gray-4;
   border-radius: $border-radius-large;
   border: 1px solid transparent;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:hover {
     background: $color-gray-1;
