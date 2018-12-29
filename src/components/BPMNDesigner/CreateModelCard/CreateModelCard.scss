@@ -6,7 +6,7 @@
   border-radius: $border-radius-large;
   overflow: hidden;
   height: 230px;
-  border: 2px dashed #d8dee1;
+  border: 2px dashed $color-gray-1;
   box-shadow: none;
   display: flex;
   align-items: center;
@@ -22,30 +22,34 @@
 
 .bpmn-category_level1 {
   .process-model-card {
-    border-color: #e4d9b8;
+    border-color: $color-brown-2;
   }
   .process-model-card__button {
-    border-color: #e4d9b8;
-    background-color: #e4d9b8;
+    background-color: $color-brown-2;
 
     &:hover {
-      border-color: #bdb497;
-      background-color: #bdb497;
+      background-color: $color-brown-1;
+    }
+
+    &:active {
+      background-color: $color-brown-2;
     }
   }
 }
 
 .bpmn-category_level2 {
   .process-model-card {
-    border-color: #bdb497;
+    border-color: $color-brown-1;
   }
   .process-model-card__button {
-    border-color: #bdb497;
-    background-color: #bdb497;
+    background-color: $color-brown-1;
 
     &:hover {
-      border-color: #ada690;
-      background-color: #ada690;
+      background-color: $color-brown-3;
+    }
+
+    &:active {
+      background-color: $color-brown-1;
     }
   }
 }

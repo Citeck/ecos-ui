@@ -13,7 +13,7 @@
   font-weight: $font-weight-bold;
   font-size: $font-size-standard;
   color: $text-color-dark;
-  background: $color-gray-4;
+  background-color: $color-gray-4;
   border-radius: $border-radius-large;
   border: 1px solid transparent;
 
@@ -21,25 +21,37 @@
   text-overflow: ellipsis;
 
   &:hover {
-    background: $color-gray-1;
+    background-color: $color-gray-1;
+  }
+
+  &:active {
+    background-color: $color-gray-4;
   }
 }
 
 .button_blue {
   color: $color-white;
-  background: $color-blue-dark;
+  background-color: $color-blue-dark;
 
   &:hover {
-    background: $color-blue-light;
+    background-color: $color-blue-light;
+  }
+
+  &:active {
+    background-color: $color-blue-dark;
   }
 }
 
 .button_red {
   color: $color-white;
-  background: $color-red-1;
+  background-color: $color-red-1;
 
   &:hover {
-    background: $color-red-2;
+    background-color: $color-red-2;
+  }
+
+  &:active {
+    background-color: $color-red-1;
   }
 }
 

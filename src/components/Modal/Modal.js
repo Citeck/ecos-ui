@@ -69,8 +69,8 @@ class CustomModal extends React.Component {
         }
         const buttonClassNames = cn('button_full_width', button.className);
         return (
-          <Col md={mdSize} sm={12}>
-            <Button key={idx} onClick={onButtonClick} color={button.bsStyle} className={buttonClassNames}>
+          <Col md={mdSize} sm={12} key={idx}>
+            <Button key={idx} onClick={onButtonClick} className={buttonClassNames}>
               {button.label}
             </Button>
           </Col>

@@ -128,8 +128,8 @@
 
 .categoryLevel2,
 .categoryLevel1 {
-  background-color: #fff6d9;
-  border: 2px solid #bdb497;
+  background-color: $color-yellow-1;
+  border: 2px solid $color-brown-1;
   border-radius: $border-radius-standard;
 
   .label {
@@ -159,16 +159,16 @@
 
   .categoryActionIcon {
     font-size: 24px;
-    color: #e4d9b8;
+    color: $color-brown-2;
     line-height: 38px;
 
     &:hover {
-      color: #bdb497;
+      color: $color-brown-1;
     }
   }
 
   .categoryActionIconPressed {
-    color: #bdb497;
+    color: $color-brown-1;
   }
 
   .categoryHeader {
@@ -177,12 +177,12 @@
 }
 
 .categoryLevel2 {
-  background-color: #e4d9b8;
-  border: 2px solid #bdb497;
+  background-color: $color-brown-2;
+  border: 2px solid $color-brown-1;
   border-radius: 0;
 
   .categoryActionIcon {
-    color: #bdb497;
+    color: $color-brown-1;
   }
 }
 
