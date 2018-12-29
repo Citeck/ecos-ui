@@ -71,13 +71,17 @@ export class BpmnApi extends RecordService {
         description: 'cm:description',
         created: 'cm:created',
         creator: 'cm:creator',
-        categoryId: 'ecosbpm:category?id'
+        categoryId: 'ecosbpm:category?id',
+        modifier: 'cm:modifier',
+        modified: 'cm:modified'
       }
     }).then(resp => {
       return resp.records.map(item => {
+        // const created = (new Date(item.attributes.created)).getTime();
         return {
           id: item.id,
           ...item.attributes
+          // created,
         };
       });
     });

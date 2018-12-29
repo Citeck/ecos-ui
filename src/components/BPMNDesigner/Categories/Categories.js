@@ -1,14 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import cn from 'classnames';
-import { selectCategoriesByParentId } from '../../../selectors/bpmn';
+import { selectCategoriesByParentId, selectIsParentHasNotModels } from '../../../selectors/bpmn';
 import Category from '../Category';
 import Models from '../Models';
 
 const mapStateToProps = (state, props) => {
   return {
     items: selectCategoriesByParentId(state, props),
-    isParentHasNotModels: -1 === state.bpmn.models.findIndex(item => item.categoryId === props.parentId) // TODO use reselect
+    isParentHasNotModels: selectIsParentHasNotModels(state, props)
   };
 };
 
@@ -23,7 +23,7 @@ const Categories = ({ items, isParentHasNotModels, level = 0 }) => {
     return (
       <Category key={keyId} itemId={item.id} label={item.label} level={level} isEditable={item.isEditable}>
         <Models categoryId={item.id} />
-        <ConnectedCategories parentId={item.id} level={level + 1} />
+        <ConnectedCategories categoryId={item.id} level={level + 1} />
       </Category>
     );
   });

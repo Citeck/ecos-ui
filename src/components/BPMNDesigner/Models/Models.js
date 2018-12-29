@@ -4,16 +4,18 @@ import { Row } from 'reactstrap';
 import moment from 'moment';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import { VIEW_TYPE_LIST, VIEW_TYPE_CARDS, EDITOR_PAGE_CONTEXT } from '../../../constants/bpmn';
+import { selectModelsByCategoryId } from '../../../selectors/bpmn';
 import CreateModelCard from '../CreateModelCard';
 import ModelCard from '../ModelCard';
 import ModelList from '../ModelList';
 
 const mapStateToProps = (state, props) => ({
   viewType: state.bpmn.viewType,
-  items: state.bpmn.models.filter(item => item.categoryId === props.categoryId) // TODO use reselect
+  searchText: state.bpmn.searchText,
+  items: selectModelsByCategoryId(state, props)
 });
 
-const Models = ({ viewType, items, categoryId }) => {
+const Models = ({ viewType, items, categoryId, searchText }) => {
   const ModelComponent = viewType === VIEW_TYPE_LIST ? ModelList : ModelCard;
 
   const models = [];
@@ -40,7 +42,7 @@ const Models = ({ viewType, items, categoryId }) => {
   }
 
   let createModelComponent = null;
-  if (viewType === VIEW_TYPE_CARDS && !items.length) {
+  if (viewType === VIEW_TYPE_CARDS && !items.length && !searchText) {
     createModelComponent = <CreateModelCard categoryId={categoryId} />;
   }
 

@@ -12,7 +12,8 @@ import styles from './Category.module.scss';
 import './Category.scss';
 
 const mapStateToProps = state => ({
-  viewType: state.bpmn.viewType
+  viewType: state.bpmn.viewType,
+  searchText: state.bpmn.searchText
 });
 
 const mapDispatchToProps = (dispatch, props) => ({
@@ -60,6 +61,16 @@ class Category extends React.Component {
     collapseIsOpen: false,
     dropdownOpen: false
   };
+
+  static getDerivedStateFromProps(props, state) {
+    if (props.searchText && !state.collapseIsOpen) {
+      return {
+        collapseIsOpen: true
+      };
+    }
+
+    return null;
+  }
 
   constructor() {
     super();
@@ -140,7 +151,7 @@ class Category extends React.Component {
   }
 
   render() {
-    const { label, level, isEditable, viewType, saveEditableCategory, cancelEditCategory } = this.props;
+    const { label, level, isEditable, viewType, saveEditableCategory, cancelEditCategory, searchText } = this.props;
 
     // classes
     const dropdownActionsIconClasses = cn(styles.categoryActionIcon, styles.categoryActionIcon2, {
@@ -261,6 +272,10 @@ class Category extends React.Component {
           />
         </Fragment>
       );
+    }
+
+    if (searchText) {
+      actionButtons = null;
     }
 
     return (

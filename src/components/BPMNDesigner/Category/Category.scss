@@ -41,7 +41,7 @@
 }
 
 .isParentHasNotModels {
-  .bpmnCategoryListViewType:first-child {
+  & > .bpmnCategoryListViewType:first-child {
     &:before {
       height: 27px;
       top: -5px;

@@ -56,7 +56,7 @@ const BPMNDesigner = ({ isReady, totalModels, createCategory, showModelCreationF
             <Button className={styles.headerBtn}>{t('bpmn-designer.import-model')}</Button>
           </div>
           <ControlPanel />
-          <Categories parentId={ROOT_CATEGORY_NODE_REF} />
+          <Categories categoryId={ROOT_CATEGORY_NODE_REF} />
           <div className={styles.addCategoryBlock} onClick={createCategory}>
             {t('bpmn-designer.add-category')}
           </div>
