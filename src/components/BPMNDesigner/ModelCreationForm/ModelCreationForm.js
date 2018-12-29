@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Form, FormGroup, Col, Row } from 'reactstrap';
-import Select from '../../common/form/Select/Select';
-import Textarea from '../../common/form/Textarea/Textarea';
-import Label from '../../common/form/Label/Label';
-import Input from '../../common/form/Input/Input';
-import Button from '../../common/form/Button/Button';
+import Select from '../../common/form/Select';
+import Textarea from '../../common/form/Textarea';
+import Label from '../../common/form/Label';
+import Input from '../../common/form/Input';
+import Button from '../../common/form/Button';
 import { hideModal } from '../../../actions/modal';
 import { saveProcessModelRequest } from '../../../actions/bpmn';
 import { t } from '../../../helpers/util';

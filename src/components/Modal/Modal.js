@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import cn from 'classnames';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Row, Col } from 'reactstrap';
 import { hideModal } from '../../actions/modal';
-import Button from '../common/form/Button/Button';
+import Button from '../common/form/Button';
 
 import './Modal.scss';
 
