@@ -23,8 +23,33 @@ export const selectModelsBySearchText = createSelector([selectAllModels, selectS
 
 export const selectCategoriesByParentId = createSelector(
   [selectAllCategories, selectCategoryId, selectSortFilter, selectSearchText, selectModelsBySearchText],
-  (allCategories, parentId, sortFilter, searchText, searchedModels) => {
-    return allCategories.filter(item => {
+  (allCategories, parentId, currentSortFilter, searchText, searchedModels) => {
+    let categories = [...allCategories];
+
+    let compareFunction = compareLastModified;
+    switch (currentSortFilter) {
+      case SORT_FILTER_AZ:
+        compareFunction = compareAZ;
+        break;
+      case SORT_FILTER_ZA:
+        compareFunction = compareZA;
+        break;
+      case SORT_FILTER_OLD:
+        // TODO
+        // compareFunction = compareOld;
+        break;
+      case SORT_FILTER_LAST_MODIFIED:
+      default:
+        // TODO
+        // compareFunction = compareLastModified;
+        break;
+    }
+
+    if (compareFunction) {
+      categories.sort(compareFunction);
+    }
+
+    return categories.filter(item => {
       if (!parentId) {
         return !item.parentId;
       }
@@ -47,7 +72,7 @@ export const selectModelsByCategoryId = createSelector(
   (allModels, categoryId, currentSortFilter) => {
     let models = [...allModels];
 
-    let compareFunction = compareLastModified;
+    let compareFunction = null;
     switch (currentSortFilter) {
       case SORT_FILTER_AZ:
         compareFunction = compareAZ;
@@ -64,7 +89,9 @@ export const selectModelsByCategoryId = createSelector(
         break;
     }
 
-    models.sort(compareFunction);
+    if (compareFunction) {
+      models.sort(compareFunction);
+    }
 
     return models.filter(item => {
       return item.categoryId === categoryId;

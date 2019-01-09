@@ -33,6 +33,10 @@ export function compareLastModified(a, b) {
 }
 
 export function compareAZ(a, b) {
+  if (a.label.localeCompare) {
+    return a.label.localeCompare(b.label);
+  }
+
   if (a.label > b.label) {
     return 1;
   }
@@ -45,6 +49,10 @@ export function compareAZ(a, b) {
 }
 
 export function compareZA(a, b) {
+  if (b.label.localeCompare) {
+    return b.label.localeCompare(a.label);
+  }
+
   if (a.label < b.label) {
     return 1;
   }

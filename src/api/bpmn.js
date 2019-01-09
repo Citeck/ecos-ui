@@ -14,7 +14,8 @@ export class BpmnApi extends RecordService {
       },
       attributes: {
         label: 'cm:title',
-        parentId: 'attr:parent?id'
+        parentId: 'attr:parent?id',
+        modified: 'cm:modified'
       }
     }).then(resp => {
       return resp.records.map(item => {
