@@ -67,6 +67,7 @@ export class BpmnApi extends RecordService {
         sortBy: [{ attribute: 'ecosbpm:index', ascending: true }]
       },
       attributes: {
+        index: 'ecosbpm:index',
         label: 'cm:title',
         description: 'cm:description',
         created: 'cm:created',
