@@ -20,6 +20,8 @@ const mapDispatchToProps = dispatch => ({
   importProcessModelRequest: payload => dispatch(importProcessModelRequest(payload))
 });
 
+const allowedExtensions = /(\.bpmn|\.bpmn20.xml)$/i;
+
 class ImportModelForm extends React.Component {
   state = {
     category: '',
@@ -73,7 +75,11 @@ class ImportModelForm extends React.Component {
     // console.log('acceptedFiles', acceptedFiles);
     // console.log('rejectedFiles', rejectedFiles);
 
-    this.setState({ acceptedFiles });
+    this.setState({
+      acceptedFiles: acceptedFiles.filter(item => {
+        return !!allowedExtensions.exec(item.name);
+      })
+    });
   };
 
   renderDropZone = ({ getRootProps, getInputProps, isDragActive }) => {
