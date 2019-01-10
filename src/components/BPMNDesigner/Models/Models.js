@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Row } from 'reactstrap';
 import moment from 'moment';
-import { URL_PAGECONTEXT } from '../../../constants/alfresco';
+import { URL_PAGECONTEXT, PROXY_URI } from '../../../constants/alfresco';
 import { VIEW_TYPE_LIST, VIEW_TYPE_CARDS, EDITOR_PAGE_CONTEXT } from '../../../constants/bpmn';
 import { selectModelsByCategoryId } from '../../../selectors/bpmn';
 import CreateModelCard from '../CreateModelCard';
@@ -26,6 +26,11 @@ const Models = ({ viewType, items, categoryId, searchText }) => {
       const recordId = item.id.replace('workspace://SpacesStore/', '');
       const editLink = `${EDITOR_PAGE_CONTEXT}#/editor/${recordId}`;
       const viewLink = `${URL_PAGECONTEXT}card-details?nodeRef=${item.id}`;
+      let image = null;
+      if (item.hasThumbnail) {
+        // prettier-ignore
+        image = `${PROXY_URI}/citeck/ecos/image/thumbnail?nodeRef=${item.id}&property=ecosbpm:thumbnail&cached=true&modified=${item.modified}`;
+      }
 
       models.push(
         <ModelComponent
@@ -35,7 +40,7 @@ const Models = ({ viewType, items, categoryId, searchText }) => {
           label={item.label}
           author={item.creator}
           datetime={dt}
-          image={item.image}
+          image={image}
         />
       );
     }
