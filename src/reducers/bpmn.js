@@ -126,7 +126,8 @@ export default handleActions(
         ...state.categories[index],
         isEditable: false,
         isTemporary: false,
-        oldLabel: ''
+        oldLabel: '',
+        modified: new Date().getTime()
       };
 
       if (action.payload.label) {

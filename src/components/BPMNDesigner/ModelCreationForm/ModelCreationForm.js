@@ -70,7 +70,6 @@ class ModelCreationForm extends React.Component {
   render() {
     const { hideModal, categories } = this.props;
 
-    // TODO use t()
     return (
       <Form onSubmit={this.handleSubmit}>
         <FormGroup>

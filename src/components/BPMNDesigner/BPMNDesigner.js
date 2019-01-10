@@ -9,7 +9,7 @@ import RightMenu from './RightMenu';
 import { ROOT_CATEGORY_NODE_REF } from '../../constants/bpmn';
 import { createCategory } from '../../actions/bpmn';
 import { t } from '../../helpers/util';
-import { showModelCreationForm } from '../../actions/bpmn';
+import { showModelCreationForm, showImportModelForm } from '../../actions/bpmn';
 import styles from './BPMNDesigner.module.scss';
 import './BPMNDesigner.scss';
 
@@ -20,10 +20,11 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   createCategory: () => dispatch(createCategory({ parentId: ROOT_CATEGORY_NODE_REF })),
-  showModelCreationForm: () => dispatch(showModelCreationForm())
+  showModelCreationForm: () => dispatch(showModelCreationForm()),
+  showImportModelForm: () => dispatch(showImportModelForm())
 });
 
-const BPMNDesigner = ({ isReady, totalModels, createCategory, showModelCreationForm }) => {
+const BPMNDesigner = ({ isReady, totalModels, createCategory, showModelCreationForm, showImportModelForm }) => {
   if (!isReady) {
     return null;
   }
@@ -53,7 +54,9 @@ const BPMNDesigner = ({ isReady, totalModels, createCategory, showModelCreationF
             <Button onClick={showModelCreationForm} className={cn('button_blue', styles.headerBtn)}>
               {t('bpmn-designer.create-model')}
             </Button>
-            <Button className={styles.headerBtn}>{t('bpmn-designer.import-model')}</Button>
+            <Button onClick={showImportModelForm} className={styles.headerBtn}>
+              {t('bpmn-designer.import-model')}
+            </Button>
           </div>
           <ControlPanel />
           <Categories categoryId={ROOT_CATEGORY_NODE_REF} />

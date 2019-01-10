@@ -35,13 +35,11 @@ export const selectCategoriesByParentId = createSelector(
         compareFunction = compareZA;
         break;
       case SORT_FILTER_OLD:
-        // TODO
-        // compareFunction = compareOld;
+        compareFunction = compareOld;
         break;
       case SORT_FILTER_LAST_MODIFIED:
       default:
-        // TODO
-        // compareFunction = compareLastModified;
+        compareFunction = compareLastModified;
         break;
     }
 

@@ -1,0 +1,28 @@
+@import '../../../constants';
+
+.dropzone {
+  background: $color-gray-4;
+  border: 4px dashed $color-gray-6;
+  color: $text-color-gray;
+  text-align: center;
+  padding: 35px;
+  margin: 20px auto;
+  cursor: pointer;
+
+  p {
+    margin: 0;
+  }
+
+  &_active {
+    border-color: $color-blue-dark;
+    color: $color-blue-dark;
+  }
+
+  &__accepted-files {
+    margin-bottom: 20px;
+
+    span {
+      cursor: pointer;
+    }
+  }
+}

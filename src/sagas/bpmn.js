@@ -1,5 +1,6 @@
 import React from 'react';
 import ModelCreationForm from '../components/BPMNDesigner/ModelCreationForm';
+import ImportModelForm from '../components/BPMNDesigner/ImportModelForm';
 
 import { delay } from 'redux-saga';
 import { select, put, takeLatest, call } from 'redux-saga/effects';
@@ -13,7 +14,9 @@ import {
   deleteCategoryRequest,
   deleteCategory,
   saveProcessModelRequest,
-  showModelCreationForm
+  showModelCreationForm,
+  showImportModelForm,
+  importProcessModelRequest
 } from '../actions/bpmn';
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
@@ -108,6 +111,19 @@ function* doSaveProcessModelRequest({ api, logger }, action) {
   }
 }
 
+function* doImportProcessModelRequest({ api, logger }, action) {
+  try {
+    yield call(api.bpmn.importProcessModel, action.payload);
+
+    yield delay(100);
+
+    const models = yield call(api.bpmn.fetchProcessModels);
+    yield put(setModels(models));
+  } catch (e) {
+    logger.error('[bpmn doImportProcessModelRequest saga] error', e.message);
+  }
+}
+
 function* doShowModelCreationForm({ api, logger }, action) {
   try {
     const allCategories = yield select(selectAllCategories);
@@ -136,7 +152,39 @@ function* doShowModelCreationForm({ api, logger }, action) {
       })
     );
   } catch (e) {
-    logger.error('[bpmn doSaveProcessModelRequest saga] error', e.message);
+    logger.error('[bpmn doShowModelCreationForm saga] error', e.message);
+  }
+}
+
+function* doShowImportModelForm({ api, logger }, action) {
+  try {
+    const allCategories = yield select(selectAllCategories);
+
+    if (!allCategories.length) {
+      yield put(
+        showModal({
+          title: t('bpmn-designer.import-bpm-dialog.failure-title'),
+          content: t('bpmn-designer.import-bpm-dialog.failure-text'),
+          buttons: [
+            {
+              label: t('bpmn-designer.import-bpm-dialog.close-btn'),
+              isCloseButton: true
+            }
+          ]
+        })
+      );
+
+      return;
+    }
+
+    yield put(
+      showModal({
+        title: t('bpmn-designer.import-bpm-dialog.title'),
+        content: <ImportModelForm />
+      })
+    );
+  } catch (e) {
+    logger.error('[bpmn doShowImportModelForm saga] error', e.message);
   }
 }
 
@@ -145,7 +193,9 @@ function* saga(ea) {
   yield takeLatest(saveCategoryRequest().type, doSaveCategoryRequest, ea);
   yield takeLatest(deleteCategoryRequest().type, doDeleteCategoryRequest, ea);
   yield takeLatest(saveProcessModelRequest().type, doSaveProcessModelRequest, ea);
+  yield takeLatest(importProcessModelRequest().type, doImportProcessModelRequest, ea);
   yield takeLatest(showModelCreationForm().type, doShowModelCreationForm, ea);
+  yield takeLatest(showImportModelForm().type, doShowImportModelForm, ea);
 }
 
 export default saga;

@@ -18,5 +18,7 @@ export const initRequest = createAction(prefix + 'INIT_REQUEST');
 export const saveCategoryRequest = createAction(prefix + 'SAVE_CATEGORY_REQUEST');
 export const deleteCategoryRequest = createAction(prefix + 'DELETE_CATEGORY_REQUEST');
 export const saveProcessModelRequest = createAction(prefix + 'SAVE_PROCESS_MODEL_REQUEST');
+export const importProcessModelRequest = createAction(prefix + 'IMPORT_PROCESS_MODEL_REQUEST');
 
 export const showModelCreationForm = createAction(prefix + 'SHOW_MODEL_CREATION_FROM');
+export const showImportModelForm = createAction(prefix + 'SHOW_IMPORT_MODEL_FROM');

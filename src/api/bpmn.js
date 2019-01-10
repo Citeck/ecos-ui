@@ -21,7 +21,8 @@ export class BpmnApi extends RecordService {
       return resp.records.map(item => {
         return {
           id: item.id,
-          ...item.attributes
+          ...item.attributes,
+          modified: new Date(item.attributes.modified).getTime()
         };
       });
     });
@@ -75,14 +76,16 @@ export class BpmnApi extends RecordService {
         creator: 'cm:creator',
         categoryId: 'ecosbpm:category?id',
         modifier: 'cm:modifier',
-        modified: 'cm:modified'
+        modified: 'cm:modified',
+        hasThumbnail: 'has(n:"ecosbpm:thumbnail")'
       }
     }).then(resp => {
       return resp.records.map(item => {
         // const created = (new Date(item.attributes.created)).getTime();
         return {
           id: item.id,
-          ...item.attributes
+          ...item.attributes,
+          label: item.attributes.label || ''
           // created,
         };
       });
@@ -96,6 +99,18 @@ export class BpmnApi extends RecordService {
         attributes: {
           'cm:title': title,
           'cm:description': description,
+          'ecosbpm:category': categoryId
+        }
+      }
+    });
+  };
+
+  importProcessModel = ({ content, categoryId }) => {
+    return this.mutate({
+      record: {
+        type: 'ecosbpm:processModel',
+        attributes: {
+          'cm:content': content,
           'ecosbpm:category': categoryId
         }
       }
