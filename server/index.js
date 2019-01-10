@@ -44,6 +44,7 @@ const proxyOptions = {
 };
 const shareProxy = proxy(proxyOptions);
 app.use('/share', shareProxy);
+app.use('/flowable-modeler/app/rest', shareProxy);
 
 // Run app
 const PORT = process.env.PORT || 3000;
