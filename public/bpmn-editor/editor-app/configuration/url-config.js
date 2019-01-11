@@ -13,6 +13,8 @@
 var FLOWABLE = FLOWABLE || {};
 
 FLOWABLE.URL = {
+    recordServiceQuery: '/share/proxy/alfresco/citeck/ecos/records/query',
+    recordServiceMutate: '/share/proxy/alfresco/citeck/ecos/records/mutate',
 
     getModel: function(modelId) {
         return FLOWABLE.CONFIG.contextRoot + '/app/rest/models/' + modelId + '/editor/json?version=' + Date.now();

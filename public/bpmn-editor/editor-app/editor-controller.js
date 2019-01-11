@@ -395,32 +395,49 @@ angular.module('flowableModeler')
     var modelId = $routeParams.modelId;
 	editorManager.setModelId(modelId);
 	//we first initialize the stencilset used by the editor. The editorId is always the modelId.
-	$http.get(FLOWABLE.URL.getModel(modelId)).then(function (response) {
-	    editorManager.setModelData(response);
-	    return response;
-	}).then(function (modelData) {
-	    if(modelData.data.model.stencilset.namespace == 'http://b3mn.org/stencilset/cmmn1.1#') {
-	       return $http.get(FLOWABLE.URL.getCmmnStencilSet());
-	    } else {
-	       return $http.get(FLOWABLE.URL.getStencilSet());
-	    }
-    }).then(function (response) {
- 		var baseUrl = "http://b3mn.org/stencilset/";
-		editorManager.setStencilData(response.data);
-		//the stencilset alters the data ref!
-		var stencilSet = new ORYX.Core.StencilSet.StencilSet(baseUrl, response.data);
-		ORYX.Core.StencilSet.loadStencilSet(baseUrl, stencilSet, modelId);
-		//after the stencilset is loaded we make sure the plugins.xml is loaded.
-		return $http.get(ORYX.CONFIG.PLUGINS_CONFIG);
-	}).then(function (response) {
-		ORYX._loadPlugins(response.data);
-		return response;
-	}).then(function (response) {
-		editorManager.bootEditor();
-	}).catch(function (error) {
-		console.log(error);
-	});
- 
+  $http.post(FLOWABLE.URL.recordServiceQuery, {
+    record: 'workspace://SpacesStore/' + modelId,
+    attributes: {
+      name: 'cm:title',
+      description: 'cm:description',
+      model: 'ecosbpm:jsonModel?json',
+      lastUpdated: 'cm:modified',
+      lastUpdatedBy: 'cm:modifier',
+    }
+  }).then(function (response) {
+    console.log(response);
+    const modelData = {
+      data: {
+        ...response.data.attributes,
+        modelId,
+        model: response.data.attributes.model || {},
+      }
+    };
+    editorManager.setModelData(modelData);
+    return modelData;
+  }).then(function (modelData) {
+    if(modelData.data.model.stencilset.namespace === 'http://b3mn.org/stencilset/cmmn1.1#') {
+      return $http.get(FLOWABLE.URL.getCmmnStencilSet());
+    } else {
+      return $http.get(FLOWABLE.URL.getStencilSet());
+    }
+  }).then(function (response) {
+    var baseUrl = "http://b3mn.org/stencilset/";
+    editorManager.setStencilData(response.data);
+    //the stencilset alters the data ref!
+    var stencilSet = new ORYX.Core.StencilSet.StencilSet(baseUrl, response.data);
+    ORYX.Core.StencilSet.loadStencilSet(baseUrl, stencilSet, modelId);
+    //after the stencilset is loaded we make sure the plugins.xml is loaded.
+    return $http.get(ORYX.CONFIG.PLUGINS_CONFIG);
+  }).then(function (response) {
+    ORYX._loadPlugins(response.data);
+    return response;
+  }).then(function (response) {
+    editorManager.bootEditor();
+  }).catch(function (error) {
+    console.log(error);
+  });
+
  	//minihack to make sure mousebind events are processed if the modeler is used in an iframe.
 	//selecting an element and pressing "del" could sometimes not trigger an event.
 	jQuery(window).focus();

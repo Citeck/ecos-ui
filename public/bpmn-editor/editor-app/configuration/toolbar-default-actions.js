@@ -17,13 +17,29 @@ FLOWABLE.TOOLBAR = {
     ACTIONS: {
     	
         saveModel: function (services) {
+          var $http = services.$http;
+          var modelData = services.editorManager.getModel();
 
-            _internalCreateModal({
-                backdrop: true,
-                keyboard: true,
-                template: 'editor-app/popups/save-model.html?version=' + Date.now(),
-                scope: services.$scope
-            }, services.$modal, services.$scope);
+          $http.post(FLOWABLE.URL.recordServiceMutate, {
+            record: {
+              id: 'workspace://SpacesStore/' + modelData.modelId,
+              attributes: {
+                'ecosbpm:jsonModel': {
+                  mimetype: 'application/json',
+                  encoding: 'UTF-8',
+                  content: JSON.stringify(modelData)
+                },
+              }
+            }
+          }).then(function (response) {
+            console.log(response);
+            services.editorManager.handleEvents({
+              type: ORYX.CONFIG.EVENT_SAVED
+            });
+            window.location.href = '/share/page/bpmn-designer';
+          }).catch(function (error) {
+            console.log(error);
+          });
         },
         
         validate: function(services) {
