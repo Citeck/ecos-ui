@@ -1,8 +1,8 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { setSearchText } from '../../../../actions/bpmn';
 import { t } from '../../../../helpers/util';
 import styles from './Search.module.scss';
-import connect from 'react-redux/es/connect/connect';
 
 const mapStateToProps = state => ({
   searchText: state.bpmn.searchText

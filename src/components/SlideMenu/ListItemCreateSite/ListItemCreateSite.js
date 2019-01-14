@@ -1,8 +1,8 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { t } from '../../../helpers/util';
 import ListItemIcon from '../ListItemIcon';
 import handleControl from '../../../helpers/handleControl';
-import connect from 'react-redux/es/connect/connect';
 
 const mapDispatchToProps = dispatch => ({
   dispatch
