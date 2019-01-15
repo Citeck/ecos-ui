@@ -19,11 +19,20 @@ app.use(express.static(path.resolve(__dirname, '..', 'build')));
 
 // React app routes
 const mainRoute = createMainRoute();
+const bpmnEditorRoute = createBpmnEditorRoute();
+
 router.get(['/', '/share/page/(**/)?card-details', '/share/page/bpmn-designer(/**)?'], mainRoute);
+router.get(['/share/page/bpmn-editor'], bpmnEditorRoute);
+
 app.use('/', router);
 
 // Proxy to /share
-const SHARE_PROXY_URL = process.env.PROXY_URL || 'http://localhost:8080';
+const SHARE_PROXY_URL = process.env.SHARE_PROXY_URL;
+if (!SHARE_PROXY_URL) {
+  console.error('Environment variable SHARE_PROXY_URL is not set');
+  process.exit(1);
+}
+
 const proxyOptions = {
   target: SHARE_PROXY_URL,
   changeOrigin: true,
@@ -63,7 +72,24 @@ function createMainRoute() {
   const indexHtmlData = fs.readFileSync(filePath, 'utf8');
 
   return (req, res) => {
-    let htmlData = replaceAll(indexHtmlData, '{{ASSETS_CACHE}}', assetsCacheHash);
+    let htmlData = replaceAll(indexHtmlData, '{ASSETS_CACHE}', assetsCacheHash);
+    // TODO inject locale to /share/service/messages.js and html lang
+    // TODO detect mobile device and inject classes
+    // TODO inject theme class
+
+    res.send(htmlData);
+  };
+}
+
+// TODO combine with createMainRoute and rid of duplicate code
+function createBpmnEditorRoute() {
+  const assetsCacheHash = generateAssetsCacheHash();
+
+  const filePath = path.resolve(__dirname, '..', 'build', 'bpmn-editor', 'index.html');
+  const indexHtmlData = fs.readFileSync(filePath, 'utf8');
+
+  return (req, res) => {
+    let htmlData = replaceAll(indexHtmlData, '{ASSETS_CACHE}', assetsCacheHash);
     // TODO inject locale to /share/service/messages.js and html lang
     // TODO detect mobile device and inject classes
     // TODO inject theme class

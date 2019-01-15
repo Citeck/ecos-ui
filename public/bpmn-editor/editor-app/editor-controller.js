@@ -252,10 +252,12 @@ angular.module('flowableModeler')
         	}
         	
         	var totalAvailable = jQuery(window).height() - offset.top - mainHeader.height() - 21;
-			canvas.height(totalAvailable - propSectionHeight);
+
+      var headerHeight = jQuery('#alf-hd').height() + 1; // with bottom border
+			canvas.height(totalAvailable - propSectionHeight - headerHeight);
 			var footerHeight = jQuery('#paletteSectionFooter').height();
 			var treeViewHeight = jQuery('#process-treeview-wrapper').height();
-			jQuery('#paletteSection').height(totalAvailable - treeViewHeight - footerHeight);
+			jQuery('#paletteSection').height(totalAvailable - treeViewHeight - footerHeight - headerHeight);
       
             // Update positions of the resize-markers, according to the canvas
 

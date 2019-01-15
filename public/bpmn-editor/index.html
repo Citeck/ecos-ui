@@ -10,16 +10,17 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Flowable Modeler</title>
+    <title>Citeck ECOS &raquo; BPMN Editor</title>
     <link rel="icon" type="image/ico" href="favicon.ico">
     <meta name="description" content="">
     <meta name="viewport"
           content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, width=device-width">
     <meta name="theme-color" content="#ffffff">
 
-    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png?v=Om5N75Y123">
-    <link rel="icon" type="image/png" href="images/favicon-32x32.png?v=Om5N75Y123" sizes="32x32">
-    <link rel="icon" type="image/png" href="images/favicon-16x16.png?v=Om5N75Y123" sizes="16x16">
+    <base href="/bpmn-editor/">
+    <!--<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png?v=Om5N75Y123">-->
+    <!--<link rel="icon" type="image/png" href="images/favicon-32x32.png?v=Om5N75Y123" sizes="32x32">-->
+    <!--<link rel="icon" type="image/png" href="images/favicon-16x16.png?v=Om5N75Y123" sizes="16x16">-->
     <link rel="manifest" href="manifest.json">
     <link rel="mask-icon" href="images/safari-pinned-tab.svg?v=Om5N75Y123" color="#506d75">
     <link rel="shortcut icon" href="favicon.ico?v=Om5N75Y123">
@@ -42,80 +43,61 @@
     <!-- endbuild -->
 
 </head>
-<body ng-app="flowableModeler" ng-cloak>
-
-    <div class="navbar navbar-fixed-top navbar-inverse" role="navigation" id="main-header">
-        <div class="fixed-container">
-            <div class="navbar-header">
-                <a ng-click="backToLanding()" class="landing-logo" ng-if="account != null && account != undefined" title="{{'GENERAL.MAIN-TITLE' | translate}}">
-                    <img ng-src="{{appResourceRoot}}images/flowable-logo.png" ng-srcset="{{appResourceRoot}}images/flowable-logo.png 1x, {{appResourceRoot}}images/flowable-logo@2x.png 2x">
-                </a>
-                <ul class="nav navbar-nav" id="main-nav" ng-show="authenticated">
-                    <li ng-class="{'active' : item.id == mainPage.id}" ng-repeat="item in mainNavigation">
-                        <a ng-click="setMainPage(item)">{{item.title | translate}}</a>
-                    </li>
-                </ul>
-            </div>
-            <div class="pull-right {{currentAppDefinition.definition.theme}}"
-                 ng-class="{'app-indicator': currentAppDefinition}" ng-if="authenticated" ng-cloack>
-                <span ng-if="currentAppDefinition.definition.theme">
-                    {{currentAppDefinition.name}}
-                </span>
-                <i class="glyphicon {{currentAppDefinition.definition.icon}}"></i>
-
-                <div class="dropdown btn-group btn-group-sm" activiti-fix-dropdown-bug>
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    	{{account.firstName && account.firstName != 'null' ? account.firstName : ''}} {{account.lastName && account.lastName != 'null' ? account.lastName : ''}}
-                        <span class="glyphicon glyphicon-chevron-down" style="font-size: 10px" aria-hidden="true"></span>
-                    </button>
-                    <ul class="dropdown-menu pull-right">
-                        <li><a href="" ng-click="logout()" translate>GENERAL.ACTION.LOGOUT</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+<body ng-app="flowableModeler" ng-cloak id="Share" class="yui-skin-citeckTheme alfresco-share claro js ">
+<div id="page-content-root">
+  <div class="sticky-wrapper" >
+    <div id="alf-hd">
+      <div id="share-header"></div>
+      <div id="slide-menu"></div>
     </div>
-
-    <!--[if lt IE 9]>
-    <div class="unsupported-browser">
+    <div>
+      <!--[if lt IE 9]>
+      <div class="unsupported-browser">
         <p class="alert error">You are using an unsupported browser. Please upgrade your browser in order to use the
-            editor.</p>
-    </div>
-    <![endif]-->
-    <!--[if IE 9]>
-    <div id="no-flash-message" class="unsupported-browser" style="display: none">
+          editor.</p>
+      </div>
+      <![endif]-->
+      <!--[if IE 9]>
+      <div id="no-flash-message" class="unsupported-browser" style="display: none">
         <p class="alert error">No Adobe Flash installed. Please install Adobe Flash in order to use the file upload capabilities on this version of Internet Explorer.</p>
-    </div>
-    <script>
+      </div>
+      <script>
         var hasFlash = false;
         try {
-            hasFlash = Boolean(new ActiveXObject('ShockwaveFlash.ShockwaveFlash'));
+          hasFlash = Boolean(new ActiveXObject('ShockwaveFlash.ShockwaveFlash'));
         } catch(exception) {
-            hasFlash = ('undefined' != typeof navigator.mimeTypes['application/x-shockwave-flash']);
+          hasFlash = ('undefined' != typeof navigator.mimeTypes['application/x-shockwave-flash']);
         }
         if (!hasFlash) {
-            var showNoFlashMessage = function () {
-                var element = document.getElementById('no-flash-message');
-                element.style.display="block";
-            };
-            showNoFlashMessage();
+          var showNoFlashMessage = function () {
+            var element = document.getElementById('no-flash-message');
+            element.style.display="block";
+          };
+          showNoFlashMessage();
         }
-    </script>
-    <![endif]-->
-    <div class="alert-wrapper" ng-cloak>
+      </script>
+      <![endif]-->
+
+      <div class="alert-wrapper" ng-cloak>
         <div class="alert fadein {{alerts.current.type}}" ng-show="alerts.current" ng-click="dismissAlert()">
-            <i class="glyphicon"
-               ng-class="{'glyphicon-ok': alerts.current.type == 'info', 'glyphicon-remove': alerts.current.type == 'error'}"></i>
-            <span>{{alerts.current.message}}</span>
+          <i class="glyphicon"
+             ng-class="{'glyphicon-ok': alerts.current.type == 'info', 'glyphicon-remove': alerts.current.type == 'error'}"></i>
+          <span>{{alerts.current.message}}</span>
 
-            <div class="pull-right" ng-show="alerts.queue.length > 0">
-                <span class="badge">{{alerts.queue.length + 1}}</span>
-            </div>
+          <div class="pull-right" ng-show="alerts.queue.length > 0">
+            <span class="badge">{{alerts.queue.length + 1}}</span>
+          </div>
         </div>
+      </div>
+
+      <div id="main" class="wrapper full clearfix" ng-view="" ng-cloak ng-style="{height: (window.height - 42) + 'px'}"></div>
     </div>
 
-    <div id="main" class="wrapper full clearfix" ng-view="" ng-cloak ng-style="{height: window.height + 'px'}">
-    </div>
+    <!--<div class="sticky-push"></div>-->
+  </div>
+
+
+<div id="alf-ft-container"></div>
 
 <!--[if lt IE 9]>
 <script src="libs/es5-shim-15.3.4.5/es5-shim.js"></script>
@@ -270,5 +252,88 @@
 <!-- Integration extensions -->
 <script src="scripts/resource-loader.js?v=2" app="editor"></script>
 
+<!-- Share header and slide menu -->
+<script type="text/javascript" src="/share/service/surf/dojo/bootstrap.js?{ASSETS_CACHE}"></script>
+<script type="text/javascript">
+  if (window.dojoConfig) {
+    window.dojoConfig.cacheBust = "{ASSETS_CACHE}";
+  }
+</script>
+<script type="text/javascript" src="/share/res/js/lib/dojo-1.10.4/dojo/dojo.js?{ASSETS_CACHE}"></script>
+<script type="text/javascript" src="/share/res/js/yui-common.js?{ASSETS_CACHE}"></script>
+<script type="text/javascript" src="/share/service/messages.js?locale=ru&v={ASSETS_CACHE}"></script>
+<script type="text/javascript" src="/share/res/js/alfresco.js?{ASSETS_CACHE}"></script>
+<script type="text/javascript" src="/share/res/lib/underscore.js?{ASSETS_CACHE}"></script>
+
+
+<script type="text/javascript">
+
+  window.Alfresco.constants.PROXY_URI = '/share/proxy/alfresco/';
+  window.Alfresco.constants.URL_SERVICECONTEXT = '/share/service/';
+  window.Alfresco.constants.URL_CONTEXT = '/share/';
+
+  fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user').then((response) => {
+    if (response.status >= 200 && response.status < 300) {
+      return response;
+    }
+    const error = new Error(response.statusText);
+    error.response = response;
+    throw error;
+  }).catch(err => {
+    window.location.href = '/share/page/bpmn-designer';
+  });
+
+  require([
+    'xstyle!/share/res/css/yui-fonts-grids.css',
+    'xstyle!/share/res/yui/columnbrowser/assets/columnbrowser.css',
+    'xstyle!/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin.css',
+    'xstyle!/share/res/themes/citeckTheme/yui/assets/skin.css',
+    'xstyle!/share/res/css/base.css',
+    'xstyle!/share/res/js/citeck/modules/utils/citeck.css',
+    'xstyle!/share/res/css/yui-layout.css',
+    'xstyle!/share/res/themes/citeckTheme/presentation.css',
+    'xstyle!/share/res/modules/create-site.css',
+    'xstyle!/share/res/components/form/form.css',
+    'xstyle!/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro.css'
+  ]);
+
+  require([
+    'js/citeck/modules/header/index'
+  ], function(ShareHeader) {
+    ShareHeader.render('share-header', {
+      userName: "admin",
+      userFullname: "Administrator",
+      userNodeRef: "workspace:\/\/SpacesStore\/7c198bef-df13-454b-9bc0-99e517d1e8a0",
+      userIsAvailable: "",
+      userIsMutable: "true",
+      isExternalAuthentication: "false",
+      siteMenuItems: [],
+      isCascadeCreateMenu: "false" // TODO
+    });
+  });
+
+  require([
+    'js/citeck/modules/slide-menu/slide-menu'
+  ], function(SlideMenu) {
+    SlideMenu.render('slide-menu', {
+      slideMenuConfig: {
+        id: "HEADER_SLIDE_MENU",
+        logoSrc: '',
+        logoSrcMobile: ''
+      },
+    });
+  });
+
+  // require([
+  //   'react',
+  //   'react-dom',
+  //   'js/citeck/modules/footer/share-footer',
+  // ], function(React, ReactDOM, ShareFooter) {
+  //   ReactDOM.render(React.createElement(ShareFooter.default, {}), document.getElementById('alf-ft-container'));
+  // });
+
+</script>
+
+</div>
 </body>
 </html>
