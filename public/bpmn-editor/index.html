@@ -271,6 +271,7 @@
   window.Alfresco.constants.PROXY_URI = '/share/proxy/alfresco/';
   window.Alfresco.constants.URL_SERVICECONTEXT = '/share/service/';
   window.Alfresco.constants.URL_CONTEXT = '/share/';
+  window.BPMN_DESIGNER_CONTEXT = '/share/page/bpmn-designer';
 
   fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user').then((response) => {
     if (response.status >= 200 && response.status < 300) {
@@ -280,7 +281,7 @@
     error.response = response;
     throw error;
   }).catch(err => {
-    window.location.href = '/share/page/bpmn-designer';
+    window.location.href = window.BPMN_DESIGNER_CONTEXT;
   });
 
   require([

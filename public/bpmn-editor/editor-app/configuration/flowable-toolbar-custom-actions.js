@@ -13,7 +13,7 @@
 
 // Create custom functions for the FLOWABLE-editor
 FLOWABLE.TOOLBAR.ACTIONS.closeEditor =  function(services) {
-	window.location.href = "/share/page/bpmn-designer";
+	window.location.href = window.BPMN_DESIGNER_CONTEXT;
 };
 
 FLOWABLE.TOOLBAR.ACTIONS.navigateToProcess = function(processId) {

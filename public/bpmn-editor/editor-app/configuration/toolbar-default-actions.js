@@ -36,7 +36,7 @@ FLOWABLE.TOOLBAR = {
             services.editorManager.handleEvents({
               type: ORYX.CONFIG.EVENT_SAVED
             });
-            window.location.href = '/share/page/bpmn-designer';
+            window.location.href = window.BPMN_DESIGNER_CONTEXT;
           }).catch(function (error) {
             console.log(error);
           });

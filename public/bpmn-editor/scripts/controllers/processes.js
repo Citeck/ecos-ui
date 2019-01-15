@@ -14,7 +14,7 @@
 
 angular.module('flowableModeler')
   .controller('ProcessesCtrl', ['$rootScope', '$scope', '$translate', '$http', '$timeout','$location', '$modal', function ($rootScope, $scope, $translate, $http, $timeout, $location, $modal) {
-      return window.location.href = '/share/page/bpmn-designer';
+      return window.location.href = window.BPMN_DESIGNER_CONTEXT;
 
       // Main page (needed for visual indicator of current page)
       $rootScope.setMainPageById('processes');
