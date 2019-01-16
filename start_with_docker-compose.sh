@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
+
+ECOS=${1:-enterprise}
+VERSION=${2:-3.8.0-snapshot}
+
+echo "start with ecos image $ECOS:$VERSION"
+
 yarn
 yarn build
-docker-compose build
+# Меняем образ в первом сервисе, попавшем под шаблон
+sed -i '0,/image: nexus.citeck.ru\/ecos-.*/s/image: nexus.citeck.ru\/ecos-.*/image: nexus.citeck.ru\/ecos-'${ECOS}':'${VERSION}'/' docker-compose.yaml
 docker-compose pull
-docker-compose up -d
+docker-compose up --build -d
