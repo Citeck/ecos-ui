@@ -1,0 +1,41 @@
+@import '../../../constants';
+
+.search {
+  border-radius: $border-radius-standard;
+  padding: 6px 12px 6px 10px;
+  display: inline-block;
+  border: 2px solid $color-gray-1;
+
+  label {
+    margin: 0;
+    padding: 0 !important;
+    cursor: text;
+    display: flex;
+    width: 100%;
+
+    &:before {
+      color: $color-gray-5;
+      font-size: 20px;
+      position: relative;
+      top: 1px;
+      right: 3px;
+    }
+  }
+
+  input {
+    outline: none !important;
+    border: none !important;
+    font-weight: bold !important;
+    font-size: $font-size-standard !important;
+    width: 100% !important;
+    background: $color-white;
+
+    &::placeholder {
+      color: $color-gray-5;
+    }
+  }
+}
+
+.search__icon-search::before {
+  line-height: normal !important;
+}

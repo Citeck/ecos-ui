@@ -1,0 +1,49 @@
+@import '../../constants';
+
+.journal {
+}
+
+.journal__toolbar {
+  padding: 20px 21px;
+  margin-bottom: 37px;
+}
+
+.journal__create-button {
+  margin-right: 10px;
+}
+
+.journal__export {
+  float: right;
+}
+
+.journal__grid-toolbar {
+  margin-bottom: 12px;
+}
+
+.journal__toggle-settings {
+  margin-right: 10px;
+}
+
+.journal__button-list {
+  float: right;
+}
+
+.journal__button-pie {
+  float: right;
+}
+
+.journal__grid-settings {
+  padding: 20px 0;
+  margin-bottom: 12px;
+}
+
+.journal__select {
+  background: $color-white;
+  padding: 15px;
+  margin-bottom: 10px;
+}
+
+.journal__presets {
+  padding: 15px;
+  background: $color-white;
+}

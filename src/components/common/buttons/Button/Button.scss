@@ -4,14 +4,14 @@
   cursor: pointer;
   display: inline-block;
   white-space: nowrap;
-  vertical-align: middle;
+  height: 40px;
   margin: 0;
   padding: 9px 15px;
   text-align: center;
   letter-spacing: 0.2pt;
-  font-family: $font-family;
-  font-weight: $font-weight-bold;
-  font-size: $font-size-standard;
+  font-family: $font-family !important;
+  font-weight: $font-weight-bold !important;
+  font-size: $font-size-standard !important;
   color: $text-color-dark;
   background-color: $color-gray-4;
   border-radius: $border-radius-large;
@@ -29,6 +29,7 @@
   }
 }
 
+/*colors*/
 .button_blue {
   color: $color-white;
   background-color: $color-blue-dark;
@@ -39,6 +40,15 @@
 
   &:active {
     background-color: $color-blue-dark;
+  }
+}
+
+.button_light-blue {
+  color: $color-white;
+  background: $color-blue-light;
+
+  &:hover {
+    background: $color-blue-dark;
   }
 }
 
@@ -55,15 +65,23 @@
   }
 }
 
-.button_float_left {
-  float: left;
+.button_text-grey {
+  color: $text-color-gray;
 }
 
-.button_float_right {
-  float: right;
+/*sizes*/
+.button_narrow {
+  height: 26px;
+  padding: 0 15px;
+  border-radius: $border-radius-standard;
+  font-size: $font-size-small !important;
 }
 
 .button_full_width {
   margin-top: 10px;
+  width: 100%;
+}
+
+.button_full {
   width: 100%;
 }

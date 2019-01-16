@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import SurfRegion from '../SurfRegion/SurfRegion';
 import CardletsBody from './CardletsBody';
+import TopPanel from './TopPanel';
 import './card-details.css';
 
 let createUploaderRegion = function(id) {
@@ -35,6 +36,7 @@ function CardDetails({ anyCardModeLoaded }) {
     <div id="card-details-container">
       <div id="doc3">
         <div id="bd">
+          <TopPanel />
           <CardletsBody />
         </div>
         <div id="card-details-uploaders" style={{ display: 'none' }}>

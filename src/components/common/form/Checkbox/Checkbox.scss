@@ -1,0 +1,10 @@
+@import '../../../../constants';
+
+.checkbox {
+  width: 22px;
+  height: 22px;
+  border: 2px solid $color-gray-6;
+  box-sizing: border-box;
+  border-radius: $border-radius-standard;
+  display: inline-block;
+}

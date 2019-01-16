@@ -1,0 +1,17 @@
+@import '../../../../constants';
+
+.icon {
+  display: inline-block;
+  font-size: 20px;
+  line-height: 20px;
+
+  &::before {
+    margin: 1px !important;
+    width: auto !important;
+  }
+}
+
+.icon_small {
+  font-size: 14px;
+  line-height: 14px;
+}
