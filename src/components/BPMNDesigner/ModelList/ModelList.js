@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+// import { NavLink } from 'react-router-dom';
 import { Col } from 'reactstrap';
 import cn from 'classnames';
 import { t } from '../../../helpers/util';
@@ -20,10 +20,12 @@ const ModelList = ({ label, author, datetime, viewLink, editLink }) => {
         </div>
 
         <div className={styles.actions}>
-          <NavLink to={viewLink} className={styles.viewCard}>
+          {/*<NavLink to={viewLink} className={styles.viewCard}>*/}
+          {/*{t('bpmn-designer.view-button')}*/}
+          {/*</NavLink>*/}
+          <a href={viewLink} className={styles.viewCard}>
             {t('bpmn-designer.view-button')}
-          </NavLink>
-          {/*<a href={viewLink} className={styles.viewCard}>{t('bpmn-designer.view-button')}</a>*/}
+          </a>
           <a href={editLink} className={styles.editActionIcon}>
             <span className={'icon-edit'} />
           </a>
