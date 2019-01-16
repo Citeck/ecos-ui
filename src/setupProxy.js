@@ -34,7 +34,7 @@ const bpmnEditorProxyOptions = {
 
 module.exports = function(app) {
   app.use(
-    proxy(['/share/**', '!**/card-details', '!**/bpmn-designer', '!**/bpmn-designer/**', '!**/bpmn-editor/**'], {
+    proxy(['/share/**', '!**/card-details', '!**/bpmn-designer', '!**/bpmn-designer/**', '!**/bpmn-editor/**', '!**/journals'], {
       ...shareProxyOptions
     })
   );

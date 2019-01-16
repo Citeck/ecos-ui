@@ -1,0 +1,67 @@
+@import '../../../constants';
+
+.panel-bar {
+  background: $color-white;
+  border-radius: $border-radius-extra-large;
+}
+
+.panel-bar__header {
+  display: flex;
+  justify-content: space-between;
+  background: $color-yellow;
+  height: 35px;
+  margin: 0 21px 0 21px;
+}
+
+.panel-bar__header_full {
+  margin: 0;
+}
+
+.panel-bar__header_narrow {
+  height: 26px;
+}
+
+.panel-bar__header-label {
+  line-height: 36px;
+  padding-left: 37px;
+  padding-right: 5px;
+  margin: 0;
+  display: block;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-standard;
+  color: $text-color-dark !important;
+
+  cursor: pointer;
+  position: relative;
+  width: 100%;
+
+  &:before {
+    content: '';
+    border-top: 2px solid $color-gray-dark;
+    border-left: 2px solid $color-gray-dark;
+    box-sizing: content-box;
+    display: block;
+    width: 6px;
+    height: 6px;
+    margin: auto;
+    position: absolute;
+    transform: rotate(225deg);
+    top: 13px;
+    left: 16px;
+    transition: transform 0.1s, right 0.1s;
+  }
+}
+
+.panel-bar__header-label_narrow {
+  line-height: 25px;
+  padding-left: 23px;
+
+  &:before {
+    top: 8px;
+    left: 8px;
+  }
+}
+
+.panel-bar__actions {
+  display: flex;
+}

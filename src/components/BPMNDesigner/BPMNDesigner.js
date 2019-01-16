@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import cn from 'classnames';
 import { Badge, Container, Row, Col } from 'reactstrap';
-import Button from '../common/form/Button';
+import Button from '../common/buttons/Button/Button';
 import Categories from './Categories';
 import ControlPanel from './ControlPanel';
 import RightMenu from './RightMenu';

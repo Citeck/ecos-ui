@@ -1,0 +1,42 @@
+@import '../../constants';
+
+.columns-setup__toolbar {
+  margin: 10px 21px 8px 21px;
+}
+
+.columns-setup__toolbar-button_next {
+  margin-left: 10px;
+}
+
+.columns-setup__content {
+  margin-bottom: 21px;
+
+  .list-group {
+    .list-group-item {
+      padding: 8px 1.25rem;
+      border-radius: 0;
+      border-left: 0;
+      border-right: 0;
+    }
+  }
+}
+
+.columns-setup__column_align {
+  display: flex;
+  align-items: center;
+}
+
+.columns-setup__icon-drag {
+  position: relative;
+  font-size: 20px;
+  color: $color-gray-6;
+
+  &::before {
+    margin: 0 !important;
+    width: 7px !important;
+  }
+}
+
+.columns-setup__next {
+  margin-left: 16px !important;
+}

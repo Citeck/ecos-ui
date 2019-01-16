@@ -5,6 +5,7 @@ import { Route, Switch } from 'react-router';
 import classNames from 'classnames';
 
 import BPMNDesignerPage from '../../pages/BPMNDesignerPage';
+import JournalsPage from '../../pages/JournalsPage';
 import CardDetailsPage from '../../pages/CardDetailsPage';
 import Header from '../Header';
 import Notification from '../Notification';
@@ -42,6 +43,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile }) => {
 
         <Switch>
           {/*<Route path="/share/page" exact component={DashboardPage} />*/}
+          <Route path="/share/page/journals" component={JournalsPage} />
           <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
           <Route path="/share/page/(.*/)?card-details" component={CardDetailsPage} />
           {/*<Route component={NotFoundPage} />*/}

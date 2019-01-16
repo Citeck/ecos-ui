@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Form, FormGroup, Col, Row } from 'reactstrap';
-import { Button, Input, Label, Select, Textarea } from '../../common/form';
+import Button from '../../common/buttons/Button/Button';
+import { Input, Label, Select, Textarea } from '../../common/form';
 import { hideModal } from '../../../actions/modal';
 import { saveProcessModelRequest } from '../../../actions/bpmn';
 import { t } from '../../../helpers/util';
