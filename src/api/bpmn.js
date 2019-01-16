@@ -31,9 +31,9 @@ export class BpmnApi extends RecordService {
   createCategory = (title, parent = ROOT_CATEGORY_NODE_REF) => {
     return this.mutate({
       record: {
-        parent: parent,
-        type: 'cm:category',
         attributes: {
+          _parent: parent,
+          _type: 'cm:category',
           'cm:title': title
         }
       }
@@ -77,7 +77,7 @@ export class BpmnApi extends RecordService {
         categoryId: 'ecosbpm:category?id',
         modifier: 'cm:modifier',
         modified: 'cm:modified',
-        hasThumbnail: 'has(n:"ecosbpm:thumbnail")'
+        hasThumbnail: '.has(n:"ecosbpm:thumbnail")'
       }
     }).then(resp => {
       return resp.records.map(item => {
@@ -92,11 +92,12 @@ export class BpmnApi extends RecordService {
     });
   };
 
-  createProcessModel = ({ title, description, categoryId }) => {
+  createProcessModel = ({ title, processKey, description, categoryId }) => {
     return this.mutate({
       record: {
-        type: 'ecosbpm:processModel',
         attributes: {
+          _type: 'ecosbpm:processModel',
+          'ecosbpm:processId': processKey,
           'cm:title': title,
           'cm:description': description,
           'ecosbpm:category': categoryId
@@ -108,8 +109,8 @@ export class BpmnApi extends RecordService {
   importProcessModel = ({ content, categoryId }) => {
     return this.mutate({
       record: {
-        type: 'ecosbpm:processModel',
         attributes: {
+          _type: 'ecosbpm:processModel',
           'cm:content': content,
           'ecosbpm:category': categoryId
         }

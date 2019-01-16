@@ -20,6 +20,7 @@ const mapDispatchToProps = dispatch => ({
 class ModelCreationForm extends React.Component {
   state = {
     title: '',
+    processKey: '',
     category: '',
     description: ''
   };
@@ -40,6 +41,10 @@ class ModelCreationForm extends React.Component {
     this.setState({ title: e.target.value });
   };
 
+  handleChangeProcessKey = e => {
+    this.setState({ processKey: e.target.value });
+  };
+
   handleChangeCategory = selectedOption => {
     this.setState({ category: selectedOption });
   };
@@ -53,12 +58,14 @@ class ModelCreationForm extends React.Component {
 
     const { hideModal, saveProcessModelRequest } = this.props;
     const title = this.state.title;
+    const processKey = this.state.processKey;
     const category = this.state.category.value;
     const description = this.state.description;
 
-    if (title && category) {
+    if (title && processKey && category) {
       saveProcessModelRequest({
         title,
+        processKey,
         categoryId: category,
         description
       });
@@ -83,14 +90,19 @@ class ModelCreationForm extends React.Component {
         </FormGroup>
 
         <FormGroup>
+          <Label>{t('bpmn-designer.create-bpm-form.process-key')}</Label>
+          <Input
+            value={this.state.processKey}
+            onChange={this.handleChangeProcessKey}
+            type="text"
+            placeholder={t('bpmn-designer.create-bpm-form.process-key-placeholder')}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <Label>{t('bpmn-designer.create-bpm-form.category')}</Label>
           <Select value={this.state.category} onChange={this.handleChangeCategory} options={categories} />
         </FormGroup>
-
-        {/*<FormGroup>*/}
-        {/*<Label>{'Доступ'}</Label>*/}
-        {/*<Select options={options} placeholder={'Всем'} />*/}
-        {/*</FormGroup>*/}
 
         <FormGroup>
           <Label>{t('bpmn-designer.create-bpm-form.description')}</Label>
