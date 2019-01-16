@@ -6,7 +6,13 @@ import './Button.scss';
 export default class Button extends Component {
   render() {
     const props = this.props;
-    const cssClasses = classNames('button', props.className);
+    const cssClasses = classNames(
+      'button',
+      {
+        button_disabled: props.disabled
+      },
+      props.className
+    );
 
     return (
       <button {...props} className={cssClasses}>

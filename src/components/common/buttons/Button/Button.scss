@@ -29,6 +29,10 @@
   }
 }
 
+.button_disabled {
+  cursor: default;
+}
+
 /*colors*/
 .button_blue {
   color: $color-white;
@@ -40,6 +44,11 @@
 
   &:active {
     background-color: $color-blue-dark;
+  }
+
+  /* TODO */
+  &.button_disabled {
+    background-color: #c6d6f0;
   }
 }
 
