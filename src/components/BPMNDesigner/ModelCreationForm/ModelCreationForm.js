@@ -76,6 +76,8 @@ class ModelCreationForm extends React.Component {
 
   render() {
     const { hideModal, categories } = this.props;
+    const { title, processKey } = this.state;
+    const isSubmitButtonDisabled = !title || !processKey;
 
     return (
       <Form onSubmit={this.handleSubmit}>
@@ -116,7 +118,9 @@ class ModelCreationForm extends React.Component {
             </Button>
           </Col>
           <Col md={6} sm={12}>
-            <Button className="button_full_width button_blue">{t('bpmn-designer.create-bpm-form.submit-btn')}</Button>
+            <Button disabled={isSubmitButtonDisabled} className="button_full_width button_blue">
+              {t('bpmn-designer.create-bpm-form.submit-btn')}
+            </Button>
           </Col>
         </Row>
       </Form>
