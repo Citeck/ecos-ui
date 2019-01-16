@@ -1,0 +1,29 @@
+@import '../../../../constants';
+
+.toggle-settings {
+  display: inline-block;
+}
+
+.toggle-settings__button {
+  color: $color-gray-5;
+  border-radius: $border-radius-standard;
+  padding: 5px 0;
+  background: $color-white;
+
+  &:hover {
+    color: $color-blue-dark;
+    background: $color-white;
+  }
+}
+
+.toggle-settings__icon-settings {
+  position: relative;
+  font-size: 20px;
+  left: 6px;
+}
+
+.toggle-settings__icon-down {
+  position: relative;
+  font-size: 20px;
+  right: 1px;
+}

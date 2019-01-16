@@ -6,3 +6,13 @@
   font-weight: $font-weight-bold;
   color: $text-color-dark;
 }
+
+.label_clear {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.label_middle-grey {
+  color: $text-color-gray !important;
+  font-size: $font-size-standard;
+}

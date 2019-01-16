@@ -1,0 +1,52 @@
+@import '../../constants';
+
+.grouping__toolbar {
+  margin: 10px 21px 8px 21px;
+}
+
+.grouping__toolbar-button_next {
+  margin-left: 10px;
+}
+
+.grouping__content {
+  margin: 0 20px 21px 20px;
+
+  .list-group {
+    .list-group-item {
+      padding: 4px 0;
+
+      &:hover {
+        background: inherit;
+        color: inherit;
+        border-radius: inherit;
+      }
+    }
+  }
+}
+
+.grouping__list,
+.grouping__target {
+  width: 100%;
+  height: 167px;
+  border: 2px solid $color-gray-6;
+  box-sizing: border-box;
+  border-radius: $border-radius-standard;
+  padding: 16px;
+}
+
+.grouping__target {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.grouping__target-note {
+  width: 50%;
+  height: 64px;
+  background: $color-gray-7;
+  border-radius: $border-radius-small;
+  color: $color-white;
+  font-size: $font-size-small;
+  font-weight: $font-weight-bold;
+  padding: 14px;
+}

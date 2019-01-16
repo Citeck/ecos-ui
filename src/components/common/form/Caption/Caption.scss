@@ -1,0 +1,18 @@
+@import '../../../../constants';
+
+.caption {
+  color: $text-color-dark !important;
+  margin: 0;
+  line-height: normal;
+  font-family: $font-family;
+}
+
+.caption_large {
+  font-size: 24px !important;
+  font-weight: $font-weight-bold !important;
+}
+
+.caption_middle {
+  font-size: 14px !important;
+  font-weight: $font-weight-bold !important;
+}

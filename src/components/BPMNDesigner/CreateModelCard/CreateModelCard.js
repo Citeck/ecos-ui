@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Col } from 'reactstrap';
-import Button from '../../common/form/Button';
+import Button from '../../common/buttons/Button/Button';
 import { t } from '../../../helpers/util';
 import { showModelCreationForm } from '../../../actions/bpmn';
 import './CreateModelCard.scss';
