@@ -1,18 +1,29 @@
 pipeline {
-  node {
+  agent any
+  parameters {
+    string(name: 'ECOS', defaultValue: 'community')
+    string(name: 'VERSION', defaultValue: '3.8.0-snapshot')
+  }
+  stages{
     stage('build static files') {
-      sh "npm install -g yarn"
-      sh "yarn"
-      sh "yarn build"
+      steps {
+        sh "npm install -g yarn"
+        sh "yarn"
+        sh "yarn build"
       }
-      stage('build and publish docker image') {
-        sh "docker build -t nexus.cinteck.ru/ecos-${ECOS}-web:${VERSION} -t nexus.cinteck.ru/ecos-${ECOS}-web:latest  ./"
-        sh "docker push nexus.cinteck.ru/ecos-${ECOS}-web"
+    }
+    stage('build and publish docker image') {
+      steps {
+        sh "docker build -t nexus.cinteck.ru/ecos-${params.ECOS}-web:${params.VERSION} -t nexus.cinteck.ru/ecos-${params.ECOS}-web:latest  ./"
+        sh "docker push nexus.cinteck.ru/ecos-${params.ECOS}-web"
       }
-      stage('build compose file') {
-        sh "sed '0,/image: nexus.citeck.ru\\/ecos-.*/s/image: nexus.citeck.ru\\/ecos-.*/image: nexus.citeck.ru\\/ecos-'${ECOS}':'${VERSION}'/' docker-compose.yaml > target/docker-compose.yaml"
-        sh "sed -i 's/image: nexus.citeck.ru\\/ecos-.*-ui-.*/image: nexus.citeck.ru\\/ecos-'${ECOS}'-ui:'${VERSION}'/' target/docker-compose.yaml > target/docker-compose.yaml"
+    }
+    stage('build compose file') {
+      steps {
+        sh "sed '0,/image: nexus.citeck.ru\\/ecos-.*/s/image: nexus.citeck.ru\\/ecos-.*/image: nexus.citeck.ru\\/ecos-'${params.ECOS}':'${params.VERSION}'/' docker-compose.yaml > target/docker-compose.yaml"
+        sh "sed -i 's/image: nexus.citeck.ru\\/ecos-.*-ui-.*/image: nexus.citeck.ru\\/ecos-'${params.ECOS}'-ui:'${params.VERSION}'/' target/docker-compose.yaml > target/docker-compose.yaml"
         readFile("target/docker-compose.yaml")
       }
     }
   }
+}
