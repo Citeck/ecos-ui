@@ -12,8 +12,8 @@ pipeline {
       }
     }
     stage('build and publish docker image') {
-      withCredentials([usernamePassword(credentialsId: '3400f5ec-0ef3-4944-b59a-97e67680777a', passwordVariable: 'pass', usernameVariable: 'user')]) {
-        steps {
+      steps {
+        withCredentials([usernamePassword(credentialsId: '3400f5ec-0ef3-4944-b59a-97e67680777a', passwordVariable: 'pass', usernameVariable: 'user')]) {
           sh "docker login -u $user -p $pass nexus.citeck.ru"
           sh "docker build -t nexus.citeck.ru/ecos-${params.ECOS}-web:${params.VERSION} -t nexus.citeck.ru/ecos-${params.ECOS}-web:latest  ./"
           sh "docker push nexus.citeck.ru/ecos-${params.ECOS}-web"
