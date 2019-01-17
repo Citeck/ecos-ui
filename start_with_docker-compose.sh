@@ -9,5 +9,5 @@ yarn
 yarn build
 # Меняем образ в первом сервисе, попавшем под шаблон
 sed -i '0,/image: nexus.citeck.ru\/ecos-.*/s/image: nexus.citeck.ru\/ecos-.*/image: nexus.citeck.ru\/ecos-'${ECOS}':'${VERSION}'/' docker-compose.yaml
-docker-compose pull
-docker-compose up --build -d
+docker-compose pull -f ./docker-compose-dev.yaml
+docker-compose up -f ./docker-compose-dev.yaml --build -d
