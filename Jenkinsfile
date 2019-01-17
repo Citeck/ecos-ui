@@ -23,7 +23,7 @@ pipeline {
     stage('build compose file') {
       steps {
         sh "sed '0,/image: nexus.citeck.ru\\/ecos-.*/s/image: nexus.citeck.ru\\/ecos-.*/image: nexus.citeck.ru\\/ecos-'${params.ECOS}':'${params.VERSION}'/' docker-compose.yaml > build/docker-compose.yaml"
-        sh "sed -i 's/image: nexus.citeck.ru\\/ecos-.*-ui-.*/image: nexus.citeck.ru\\/ecos-'${params.ECOS}'-ui:'${params.VERSION}'/' build/docker-compose.yaml > build/docker-compose.yaml"
+        sh "sed -i 's/image: nexus.citeck.ru\\/ecos-.*-web:.*/image: nexus.citeck.ru\\/ecos-'${params.ECOS}'-web:'${params.VERSION}'/' build/docker-compose.yaml > build/docker-compose.yaml"
         readFile("build/docker-compose.yaml")
       }
     }

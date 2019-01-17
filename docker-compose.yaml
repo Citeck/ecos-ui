@@ -52,4 +52,4 @@ services:
     - 8081:8081/tcp
     links:
     - community
-    image: nexus.citeck.ru/ecos-community-ui:3.8.0-snapshot
+    image: nexus.citeck.ru/ecos-community-web
