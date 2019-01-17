@@ -13,8 +13,8 @@ pipeline {
     }
     stage('build and publish docker image') {
       steps {
-        sh "docker build -t nexus.cinteck.ru/ecos-${params.ECOS}-web:${params.VERSION} -t nexus.cinteck.ru/ecos-${params.ECOS}-web:latest  ./"
-        sh "docker push nexus.cinteck.ru/ecos-${params.ECOS}-web"
+        sh "docker build -t nexus.citeck.ru/ecos-${params.ECOS}-web:${params.VERSION} -t nexus.citeck.ru/ecos-${params.ECOS}-web:latest  ./"
+        sh "docker push nexus.citeck.ru/ecos-${params.ECOS}-web"
       }
     }
     stage('build compose file') {
