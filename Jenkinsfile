@@ -12,6 +12,7 @@ pipeline {
       stage('build compose file') {
         sh "sed '0,/image: nexus.citeck.ru\\/ecos-.*/s/image: nexus.citeck.ru\\/ecos-.*/image: nexus.citeck.ru\\/ecos-'${ECOS}':'${VERSION}'/' docker-compose.yaml > target/docker-compose.yaml"
         sh "sed -i 's/image: nexus.citeck.ru\\/ecos-.*-ui-.*/image: nexus.citeck.ru\\/ecos-'${ECOS}'-ui:'${VERSION}'/' target/docker-compose.yaml > target/docker-compose.yaml"
+        readFile("target/docker-compose.yaml")
       }
     }
   }
