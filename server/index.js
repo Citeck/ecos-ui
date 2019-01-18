@@ -44,7 +44,7 @@ const proxyOptions = {
       let redirectLocation = proxyRes.headers.location;
       console.log('Received code ' + proxyRes.statusCode + ' from API Server for URL - ' + redirectLocation);
 
-      redirectLocation = redirectLocation.replace(SHARE_PROXY_URL, '');
+      redirectLocation = redirectLocation.replace(new RegExp(SHARE_PROXY_URL, 'g'), '');
       console.log('Redirect location changed to ' + redirectLocation);
 
       proxyRes.headers.location = redirectLocation;
@@ -53,7 +53,8 @@ const proxyOptions = {
 };
 const shareProxy = proxy(proxyOptions);
 app.use('/share', shareProxy);
-app.use('/flowable-modeler/app/rest', shareProxy);
+app.use('/flowable-modeler', shareProxy);
+app.use('/flowable-idm', shareProxy);
 
 // Run app
 const PORT = process.env.PORT || 3000;
