@@ -1,3 +1,5 @@
+import { setIsAuthenticated } from '../actions/user';
+
 const getOptions = {
   credentials: 'include',
   method: 'get'
@@ -26,15 +28,33 @@ const postOptions = {
 // };
 
 export class CommonApi {
+  constructor(store) {
+    this.store = store;
+  }
+
+  checkStatus = response => {
+    if (response.status >= 200 && response.status < 300) {
+      return response;
+    }
+
+    if (response.status === 401) {
+      this.store.dispatch(setIsAuthenticated(false));
+    }
+
+    const error = new Error(response.statusText);
+    error.response = response;
+    throw error;
+  };
+
   getJson = url => {
     return fetch(url, getOptions)
-      .then(checkStatus)
+      .then(this.checkStatus)
       .then(parseJSON);
   };
 
   getHtml = url => {
     return fetch(url, getOptions)
-      .then(checkStatus)
+      .then(this.checkStatus)
       .then(parseHtml);
   };
 
@@ -43,7 +63,7 @@ export class CommonApi {
       ...postOptions,
       body: JSON.stringify(data)
     })
-      .then(checkStatus)
+      .then(this.checkStatus)
       .then(parseJSON);
   };
 

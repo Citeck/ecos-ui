@@ -25,16 +25,17 @@ Logger.setLogLevel(Logger.LogLevels.DEBUG);
 
 moment.locale(getCurrentLocale());
 
+const api = {};
 const store = configureStore({
-  api: {
-    app: new AppApi(),
-    bpmn: new BpmnApi(),
-    menu: new MenuApi(),
-    user: new UserApi()
-  },
+  api,
   fakeApi,
   logger
 });
+
+api.app = new AppApi(store);
+api.bpmn = new BpmnApi(store);
+api.menu = new MenuApi(store);
+api.user = new UserApi(store);
 
 const history = getHistory();
 
