@@ -340,12 +340,27 @@ flowableModeler
                 }
             };
 
-            $http.get(FLOWABLE.APP_URL.getAccountUrl())
-	        	.success(function (data, status, headers, config) {
-	              	$rootScope.account = data;
-	               	$rootScope.invalidCredentials = false;
-	 				$rootScope.authenticated = true;
-	          	});
+            fetch(FLOWABLE.APP_URL.getAccountUrl(), {redirect: 'error'}).then(function(response) {
+              if (response.status >= 200 && response.status < 300) {
+                return response.json();
+              }
+              const error = new Error(response.statusText);
+              error.response = response;
+              throw error;
+            }).then(function (data) {
+              $rootScope.account = data;
+              $rootScope.invalidCredentials = false;
+              $rootScope.authenticated = true;
+            }).catch(function (err) {
+              window.location.href = '/flowable-idm/#/login?redirectOnAuthSuccess=true&redirectUrl=' + encodeURIComponent($location.$$absUrl)
+            });
+
+          //   $http.get(FLOWABLE.APP_URL.getAccountUrl())
+	        // 	.success(function (data, status, headers, config) {
+	        //       	$rootScope.account = data;
+	        //        	$rootScope.invalidCredentials = false;
+	 				// $rootScope.authenticated = true;
+	        //   	});
 
 	        $rootScope.logout = function () {
                 $rootScope.authenticated = false;

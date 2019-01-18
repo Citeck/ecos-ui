@@ -306,14 +306,14 @@
   window.Alfresco.constants.URL_CONTEXT = '/share/';
   window.BPMN_DESIGNER_CONTEXT = '/share/page/bpmn-designer';
 
-  fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user').then((response) => {
+  fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user').then(function(response) {
     if (response.status >= 200 && response.status < 300) {
       return response;
     }
     const error = new Error(response.statusText);
     error.response = response;
     throw error;
-  }).catch(err => {
+  }).catch(function (err) {
     window.location.href = window.BPMN_DESIGNER_CONTEXT;
   });
 

@@ -13,7 +13,7 @@ const shareProxyOptions = {
       let redirectLocation = proxyRes.headers.location;
       console.log('Received code ' + proxyRes.statusCode + ' from API Server for URL - ' + redirectLocation);
 
-      redirectLocation = redirectLocation.replace(SHARE_PROXY_URL, '');
+      redirectLocation = redirectLocation.replace(new RegExp(SHARE_PROXY_URL, 'g'), '');
       console.log('Redirect location changed to ' + redirectLocation);
 
       proxyRes.headers.location = redirectLocation;
@@ -34,9 +34,26 @@ const bpmnEditorProxyOptions = {
 
 module.exports = function(app) {
   app.use(
-    proxy(['/share/**', '!**/card-details', '!**/bpmn-designer', '!**/bpmn-designer/**', '!**/bpmn-editor/**', '!**/journals'], {
+    proxy(['/flowable-modeler', '/flowable-idm'], {
       ...shareProxyOptions
     })
+  );
+
+  app.use(
+    proxy(
+      [
+        '/share/**',
+        '!**/card-details',
+        '!**/bpmn-designer',
+        '!**/bpmn-designer/**',
+        '!**/bpmn-editor',
+        '!**/bpmn-editor/**',
+        '!**/journals'
+      ],
+      {
+        ...shareProxyOptions
+      }
+    )
   );
 
   app.use(
