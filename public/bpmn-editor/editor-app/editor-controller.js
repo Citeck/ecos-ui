@@ -397,6 +397,8 @@ angular.module('flowableModeler')
     var modelId = $routeParams.modelId;
 	editorManager.setModelId(modelId);
 	//we first initialize the stencilset used by the editor. The editorId is always the modelId.
+
+  // first try fetch the process model use record service api
   $http.post(FLOWABLE.URL.recordServiceQuery, {
     record: 'workspace://SpacesStore/' + modelId,
     attributes: {
@@ -407,7 +409,16 @@ angular.module('flowableModeler')
       lastUpdatedBy: 'cm:modifier',
     }
   }).then(function (response) {
-    console.log(response);
+    // console.log(response);
+
+    // if failure then fetch the case model use flowable api
+    if (!response.data.attributes.model) {
+      return $http.get(FLOWABLE.URL.getModel(modelId)).then(function (response) {
+        editorManager.setModelData(response);
+        return response;
+      })
+    }
+
     const modelData = {
       data: {
         ...response.data.attributes,

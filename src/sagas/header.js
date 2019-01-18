@@ -9,7 +9,7 @@ import {
   setSiteMenuItems
 } from '../actions/header';
 import { setUserThumbnail } from '../actions/user';
-import { processCreateVariantsItems, makeUserMenuItems, processMenuItemsFromOldMenu } from '../helpers/menu';
+import { processCreateVariantsItems, makeUserMenuItems } from '../helpers/menu'; // processMenuItemsFromOldMenu
 import { PROXY_URI } from '../constants/alfresco';
 
 function* fetchCreateCaseWidget({ api, logger }) {
@@ -54,10 +54,11 @@ function* fetchUserMenu({ api, fakeApi, logger }) {
 function* fetchSiteMenu({ api, fakeApi, logger }) {
   try {
     // TODO use real api
-    const oldSiteMenuItems = yield call(fakeApi.getSiteMenuItems);
-
-    const menuItems = processMenuItemsFromOldMenu(oldSiteMenuItems);
-    yield put(setSiteMenuItems(menuItems));
+    // const oldSiteMenuItems = yield call(fakeApi.getSiteMenuItems);
+    //
+    // const menuItems = processMenuItemsFromOldMenu(oldSiteMenuItems);
+    // yield put(setSiteMenuItems(menuItems));
+    yield put(setSiteMenuItems([]));
   } catch (e) {
     logger.error('[fetchSiteMenu saga] error', e.message);
   }
