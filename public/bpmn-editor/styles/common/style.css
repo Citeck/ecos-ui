@@ -3290,8 +3290,17 @@ ul#strength > li:last-child {
   color: #000 !important;
 }
 
+body:not(.mobile).yui-skin-citeckTheme .subheader,
 body:not(.mobile).yui-skin-citeckTheme #paletteSectionFooter,
 body:not(.mobile).yui-skin-citeckTheme #process-treeview-wrapper,
 body:not(.mobile).yui-skin-citeckTheme .editor-toolbar {
   box-shadow: inset 15px -1px 10px -15px grey;
+}
+
+.filter-wrapper input[type="text"] {
+  width: 100% !important;
+}
+
+.navbar {
+  margin-bottom: 0;
 }

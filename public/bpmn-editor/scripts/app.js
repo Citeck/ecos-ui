@@ -180,6 +180,15 @@ flowableModeler
                 $rootScope.window.height  = $window.innerHeight;
             };
 
+            $rootScope.showNav = true;
+            var updateShowNav = function() {
+              $rootScope.showNav = $location.$$path.indexOf('/editor') !== 0;
+            };
+
+            window.onpopstate = function(event) {
+              updateShowNav();
+            };
+
             // Window resize hook
             angular.element($window).bind('resize', function() {
                 $rootScope.safeApply(updateWindowSize());
@@ -195,13 +204,14 @@ flowableModeler
             });
 
             updateWindowSize();
+            updateShowNav();
 
             // Main navigation
             $rootScope.mainNavigation = [
                 {
                     'id': 'processes',
                     'title': 'GENERAL.NAVIGATION.PROCESSES',
-                    'path': '/processes'
+                    'location': '/share/page/bpmn-designer'
                 },
                 {
                     'id': 'casemodels',
@@ -245,6 +255,10 @@ flowableModeler
              */
             $rootScope.setMainPage = function(mainPage) {
                 $rootScope.mainPage = mainPage;
+                if ($rootScope.mainPage.location) {
+                  return window.location.href = $rootScope.mainPage.location;
+                }
+
                 $location.path($rootScope.mainPage.path);
             };
 

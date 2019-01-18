@@ -17,6 +17,21 @@ FLOWABLE.TOOLBAR = {
     ACTIONS: {
     	
         saveModel: function (services) {
+          // case model
+          if (services.editorManager && services.editorManager.getStencilData()) {
+            var stencilNameSpace = services.editorManager.getStencilData().namespace;
+            if (stencilNameSpace !== undefined && stencilNameSpace !== null && stencilNameSpace.indexOf('cmmn1.1') !== -1) {
+              _internalCreateModal({
+                backdrop: true,
+                keyboard: true,
+                template: 'editor-app/popups/save-model.html?version=' + Date.now(),
+                scope: services.$scope
+              }, services.$modal, services.$scope);
+              return;
+            }
+          }
+
+          // process model
           var $http = services.$http;
           var modelData = services.editorManager.getModel();
 
