@@ -77,8 +77,8 @@ class ModelCreationForm extends React.Component {
 
   render() {
     const { hideModal, categories } = this.props;
-    const { title, processKey } = this.state;
-    const isSubmitButtonDisabled = !title || !processKey;
+    const { title, processKey, category } = this.state;
+    const isSubmitButtonDisabled = !title || !processKey || !category;
 
     return (
       <Form onSubmit={this.handleSubmit}>

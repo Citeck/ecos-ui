@@ -107,7 +107,8 @@ class ImportModelForm extends React.Component {
 
   render() {
     const { hideModal, categories } = this.props;
-    const { acceptedFiles } = this.state;
+    const { acceptedFiles, category } = this.state;
+    const isSubmitButtonDisabled = !category || !acceptedFiles.length;
 
     let uploadFileZone = (
       <Dropzone
@@ -156,7 +157,9 @@ class ImportModelForm extends React.Component {
             </Button>
           </Col>
           <Col md={6} sm={12}>
-            <Button className="button_full_width button_blue">{t('bpmn-designer.import-bpm-form.submit-btn')}</Button>
+            <Button disabled={isSubmitButtonDisabled} className="button_full_width button_blue">
+              {t('bpmn-designer.import-bpm-form.submit-btn')}
+            </Button>
           </Col>
         </Row>
       </Form>
