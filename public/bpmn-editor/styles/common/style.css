@@ -3304,3 +3304,7 @@ body:not(.mobile).yui-skin-citeckTheme .editor-toolbar {
 .navbar {
   margin-bottom: 0;
 }
+
+.selected-item-body .property-row.clear {
+  height: auto;
+}
