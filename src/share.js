@@ -1,3 +1,5 @@
+import { getCurrentLocale, dynamicallyLoadScript } from './helpers/util';
+
 export function fillConstants() {
   return new Promise(resolve => {
     const Alfresco = window.Alfresco;
@@ -150,8 +152,21 @@ export function requireStyles() {
   });
 }
 
+export function loadMessagesAndAlfrescoScript() {
+  return new Promise(resolve => {
+    dynamicallyLoadScript('/share/service/messages.js?locale=' + getCurrentLocale() + '&v=' + window.dojoConfig.cacheBust, () => {
+      dynamicallyLoadScript('/share/res/js/alfresco.js?' + window.dojoConfig.cacheBust, () => {
+        resolve();
+      });
+    });
+  });
+}
+
 export function requireShareAssets() {
-  return requireStyles()
+  return loadMessagesAndAlfrescoScript()
+    .then(() => {
+      return requireStyles();
+    })
     .then(() => {
       return fillConstants();
     })

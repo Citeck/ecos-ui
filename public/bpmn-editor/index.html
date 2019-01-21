@@ -294,77 +294,91 @@
 </script>
 <script type="text/javascript" src="/share/res/js/lib/dojo-1.10.4/dojo/dojo.js?{ASSETS_CACHE}"></script>
 <script type="text/javascript" src="/share/res/js/yui-common.js?{ASSETS_CACHE}"></script>
-<script type="text/javascript" src="/share/service/messages.js?locale=ru&v={ASSETS_CACHE}"></script>
-<script type="text/javascript" src="/share/res/js/alfresco.js?{ASSETS_CACHE}"></script>
-<script type="text/javascript" src="/share/res/lib/underscore.js?{ASSETS_CACHE}"></script>
 
 
 <script type="text/javascript">
-
-  window.Alfresco.constants.PROXY_URI = '/share/proxy/alfresco/';
-  window.Alfresco.constants.URL_SERVICECONTEXT = '/share/service/';
-  window.Alfresco.constants.URL_CONTEXT = '/share/';
-  window.BPMN_DESIGNER_CONTEXT = '/share/page/bpmn-designer';
-
-  fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user').then(function(response) {
-    if (response.status >= 200 && response.status < 300) {
-      return response;
+  function getCurrentLocale() {
+    if (!window.navigator) {
+      return 'en';
     }
-    const error = new Error(response.statusText);
-    error.response = response;
-    throw error;
-  }).catch(function (err) {
-    window.location.href = window.BPMN_DESIGNER_CONTEXT;
-  });
 
-  require([
-    'xstyle!/share/res/css/yui-fonts-grids.css',
-    'xstyle!/share/res/yui/columnbrowser/assets/columnbrowser.css',
-    'xstyle!/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin.css',
-    'xstyle!/share/res/themes/citeckTheme/yui/assets/skin.css',
-    'xstyle!/share/res/css/base.css',
-    'xstyle!/share/res/js/citeck/modules/utils/citeck.css',
-    'xstyle!/share/res/css/yui-layout.css',
-    'xstyle!/share/res/themes/citeckTheme/presentation.css',
-    'xstyle!/share/res/modules/create-site.css',
-    'xstyle!/share/res/components/form/form.css',
-    'xstyle!/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro.css'
-  ]);
+    var language = navigator.languages ? navigator.languages[0] : navigator.language || navigator.systemLanguage || navigator.userLanguage;
 
-  require([
-    'js/citeck/modules/header/index'
-  ], function(ShareHeader) {
-    ShareHeader.render('share-header', {
-      userName: "admin",
-      userFullname: "Administrator",
-      userNodeRef: "workspace:\/\/SpacesStore\/7c198bef-df13-454b-9bc0-99e517d1e8a0",
-      userIsAvailable: "",
-      userIsMutable: "true",
-      isExternalAuthentication: "false",
-      siteMenuItems: [],
-      isCascadeCreateMenu: "false" // TODO
+    return language.substr(0, 2).toLowerCase();
+  }
+
+  function dynamicallyLoadScript(url, callback) {
+    var script = document.createElement("script");
+    script.src = url;
+
+    document.body.appendChild(script);
+    if (typeof callback === 'function') {
+      script.onload = callback;
+    }
+  }
+
+  dynamicallyLoadScript('/share/service/messages.js?locale=' + getCurrentLocale() + '&v=' + window.dojoConfig.cacheBust, function() {
+    dynamicallyLoadScript('/share/res/js/alfresco.js?' + window.dojoConfig.cacheBust, function() {
+      window.Alfresco.constants.PROXY_URI = '/share/proxy/alfresco/';
+      window.Alfresco.constants.URL_SERVICECONTEXT = '/share/service/';
+      window.Alfresco.constants.URL_CONTEXT = '/share/';
+      window.BPMN_DESIGNER_CONTEXT = '/share/page/bpmn-designer';
+
+      dynamicallyLoadScript('/share/res/lib/underscore.js?' + window.dojoConfig.cacheBust, function() {
+        fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user').then(function(response) {
+          if (response.status >= 200 && response.status < 300) {
+            return response;
+          }
+          const error = new Error(response.statusText);
+          error.response = response;
+          throw error;
+        }).catch(function (err) {
+          window.location.href = window.BPMN_DESIGNER_CONTEXT;
+        });
+
+        require([
+          'xstyle!/share/res/css/yui-fonts-grids.css',
+          'xstyle!/share/res/yui/columnbrowser/assets/columnbrowser.css',
+          'xstyle!/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin.css',
+          'xstyle!/share/res/themes/citeckTheme/yui/assets/skin.css',
+          'xstyle!/share/res/css/base.css',
+          'xstyle!/share/res/js/citeck/modules/utils/citeck.css',
+          'xstyle!/share/res/css/yui-layout.css',
+          'xstyle!/share/res/themes/citeckTheme/presentation.css',
+          'xstyle!/share/res/modules/create-site.css',
+          'xstyle!/share/res/components/form/form.css',
+          'xstyle!/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro.css'
+        ]);
+
+        require([
+          'js/citeck/modules/header/index'
+        ], function(ShareHeader) {
+          ShareHeader.render('share-header', {
+            userName: "admin",
+            userFullname: "Administrator",
+            userNodeRef: "workspace:\/\/SpacesStore\/7c198bef-df13-454b-9bc0-99e517d1e8a0",
+            userIsAvailable: "",
+            userIsMutable: "true",
+            isExternalAuthentication: "false",
+            siteMenuItems: [],
+            isCascadeCreateMenu: "false" // TODO
+          });
+        });
+
+        require([
+          'js/citeck/modules/slide-menu/slide-menu'
+        ], function(SlideMenu) {
+          SlideMenu.render('slide-menu', {
+            slideMenuConfig: {
+              id: "HEADER_SLIDE_MENU",
+              logoSrc: '',
+              logoSrcMobile: ''
+            },
+          });
+        });
+      });
     });
   });
-
-  require([
-    'js/citeck/modules/slide-menu/slide-menu'
-  ], function(SlideMenu) {
-    SlideMenu.render('slide-menu', {
-      slideMenuConfig: {
-        id: "HEADER_SLIDE_MENU",
-        logoSrc: '',
-        logoSrcMobile: ''
-      },
-    });
-  });
-
-  // require([
-  //   'react',
-  //   'react-dom',
-  //   'js/citeck/modules/footer/share-footer',
-  // ], function(React, ReactDOM, ShareFooter) {
-  //   ReactDOM.render(React.createElement(ShareFooter.default, {}), document.getElementById('alf-ft-container'));
-  // });
 
 </script>
 

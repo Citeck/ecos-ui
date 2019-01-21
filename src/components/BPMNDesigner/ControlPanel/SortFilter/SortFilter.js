@@ -7,25 +7,6 @@ import { setActiveSortFilter } from '../../../../actions/bpmn';
 import { t } from '../../../../helpers/util';
 import styles from './SortFilter.module.scss';
 
-const sortVariants = [
-  {
-    type: SORT_FILTER_LAST_MODIFIED,
-    label: t('bpmn-designer.sort-filter.latest')
-  },
-  {
-    type: SORT_FILTER_OLD,
-    label: t('bpmn-designer.sort-filter.old')
-  },
-  {
-    type: SORT_FILTER_AZ,
-    label: t('bpmn-designer.sort-filter.a-z')
-  },
-  {
-    type: SORT_FILTER_ZA,
-    label: t('bpmn-designer.sort-filter.z-a')
-  }
-];
-
 const mapStateToProps = state => ({
   activeSortFilter: state.bpmn.sortFilter
 });
@@ -39,6 +20,25 @@ class SortFilter extends React.Component {
     dropdownOpen: false
   };
 
+  sortVariants = [
+    {
+      type: SORT_FILTER_LAST_MODIFIED,
+      label: t('bpmn-designer.sort-filter.latest')
+    },
+    {
+      type: SORT_FILTER_OLD,
+      label: t('bpmn-designer.sort-filter.old')
+    },
+    {
+      type: SORT_FILTER_AZ,
+      label: t('bpmn-designer.sort-filter.a-z')
+    },
+    {
+      type: SORT_FILTER_ZA,
+      label: t('bpmn-designer.sort-filter.z-a')
+    }
+  ];
+
   toggle = () => {
     this.setState(prevState => ({
       dropdownOpen: !prevState.dropdownOpen
@@ -47,8 +47,8 @@ class SortFilter extends React.Component {
 
   render() {
     const { activeSortFilter, setActiveSortFilter } = this.props;
-    const activeItem = sortVariants.find(item => item.type === activeSortFilter) || sortVariants[0];
-    const selectableItems = sortVariants
+    const activeItem = this.sortVariants.find(item => item.type === activeSortFilter) || this.sortVariants[0];
+    const selectableItems = this.sortVariants
       .filter(item => item.type !== activeItem.type)
       .map(item => {
         return (

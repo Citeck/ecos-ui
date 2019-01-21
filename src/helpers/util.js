@@ -43,6 +43,17 @@ export function getCurrentLocale() {
   return language.substr(0, 2).toLowerCase();
 }
 
+export function dynamicallyLoadScript(url, callback) {
+  const script = document.createElement('script');
+  script.src = url;
+
+  document.body.appendChild(script);
+
+  if (typeof callback === 'function') {
+    script.onload = callback;
+  }
+}
+
 // TODO
 export function t(messageId, multipleValues, scope = 'global') {
   // https://dev.alfresco.com/resource/docs/aikau-jsdoc/Core.js.html
