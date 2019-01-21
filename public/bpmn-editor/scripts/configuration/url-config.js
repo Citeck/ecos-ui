@@ -226,6 +226,10 @@ FLOWABLE.APP_URL = {
         return FLOWABLE.CONFIG.contextRoot + '/app/rest/image/' + imageId;
     },
 
+    getProcessModelThumbnailUrl: function (modelId, version = null) {
+      return '/share/proxy/alfresco/citeck/ecos/image/thumbnail?nodeRef=workspace://SpacesStore/' + modelId + '&property=ecosbpm:thumbnail&cached=true'  + (version ? "&version=" + version : "");
+    },
+
     getModelThumbnailUrl: function (modelId, version = null) {
         return FLOWABLE.CONFIG.contextRoot + '/app/rest/models/' + modelId + '/thumbnail' + (version ? "?version=" + version : "");
     },

@@ -241,6 +241,7 @@ flowableModeler
 
             // Add url helpers to root scope:
             $rootScope.getModelThumbnailUrl = FLOWABLE.APP_URL.getModelThumbnailUrl;
+            $rootScope.getProcessModelThumbnailUrl = FLOWABLE.APP_URL.getProcessModelThumbnailUrl;
             $rootScope.getImageUrl = FLOWABLE.APP_URL.getImageUrl;
 
             /*

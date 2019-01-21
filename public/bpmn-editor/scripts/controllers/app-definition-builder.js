@@ -219,16 +219,59 @@ angular.module('flowableModeler')
     
     $scope.loadModels = function() {
         $scope.popup.loading = true;
-        
-        $http({method: 'GET', url: FLOWABLE.APP_URL.getModelsForAppDefinitionUrl()}).
-          success(function(data, status, headers, config) {
-              $scope.popup.models = data;
-              $scope.popup.loading = false;
-          }).
-          error(function(data, status, headers, config) {
-             $scope.popup.loading = false;
-          });
-          
+
+        $http.post(FLOWABLE.URL.recordServiceQuery, {
+          query: {
+            query: 'TYPE:"ecosbpm:processModel"',
+            language: 'fts-alfresco',
+            sortBy: [{ attribute: 'ecosbpm:index', ascending: true }]
+          },
+          attributes: {
+            key: 'ecosbpm:processId',
+            name: 'cm:title',
+            description: 'cm:description',
+            createdBy: 'cm:creator',
+            lastUpdatedBy: 'cm:modifier',
+            lastUpdated: 'cm:modified',
+            hasThumbnail: '.has(n:"ecosbpm:thumbnail")'
+          }
+        }).success(function(data, status, headers, config) {
+          var recordsLength = data.records.length;
+          var data2 = {
+            size: recordsLength,
+            start: 0,
+            total: data.totalCount,
+            data: [],
+          };
+
+          for (var i = 0; i < recordsLength; i++) {
+            var item = data.records[i];
+            var itemId = item.id.replace('workspace://SpacesStore/', '');
+            var itemData = {
+              // comment: null
+              // latestVersion: true
+              // modelType: 0
+              // tenantId: null
+              // version: 1
+              id: itemId,
+            };
+            for (var k in item.attributes) {
+              if (!item.attributes.hasOwnProperty(k)) {
+                continue;
+              }
+              itemData[k] = item.attributes[k];
+            }
+            data2.data.push(itemData);
+          }
+
+          // console.log('data2', data2);
+
+          $scope.popup.models = data2;
+          $scope.popup.loading = false;
+        }).error(function(data, status, headers, config) {
+          $scope.popup.loading = false;
+        });
+
         $http({method: 'GET', url: FLOWABLE.APP_URL.getCmmnModelsForAppDefinitionUrl()}).
           success(function(data, status, headers, config) {
               $scope.popup.cmmnModels = data;

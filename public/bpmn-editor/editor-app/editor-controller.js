@@ -419,13 +419,22 @@ angular.module('flowableModeler')
       })
     }
 
-    const modelData = {
-      data: {
-        ...response.data.attributes,
-        modelId,
-        model: response.data.attributes.model || {},
-      }
+    var mData = {
+      modelId: modelId,
+      model: response.data.attributes.model || {},
     };
+
+    for (var k in response.data.attributes) {
+      if (!response.data.attributes.hasOwnProperty(k)) {
+        continue;
+      }
+      mData[k] = response.data.attributes[k];
+    }
+
+    const modelData = {
+      data: mData
+    };
+
     editorManager.setModelData(modelData);
     return modelData;
   }).then(function (modelData) {
