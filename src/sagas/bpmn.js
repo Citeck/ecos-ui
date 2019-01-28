@@ -21,6 +21,7 @@ import {
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
 import { t } from '../helpers/util';
+import { EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
 
 function* doInitRequest({ api, logger }) {
   try {
@@ -100,12 +101,15 @@ function* doDeleteCategoryRequest({ api, logger }, action) {
 
 function* doSaveProcessModelRequest({ api, logger }, action) {
   try {
-    yield call(api.bpmn.createProcessModel, action.payload);
+    const model = yield call(api.bpmn.createProcessModel, action.payload);
+    const recordId = model.id.replace('workspace://SpacesStore/', '');
 
-    yield delay(100);
+    window.location.href = `${EDITOR_PAGE_CONTEXT}#/editor/${recordId}`;
 
-    const models = yield call(api.bpmn.fetchProcessModels);
-    yield put(setModels(models));
+    // yield delay(100);
+    //
+    // const models = yield call(api.bpmn.fetchProcessModels);
+    // yield put(setModels(models));
   } catch (e) {
     logger.error('[bpmn doSaveProcessModelRequest saga] error', e.message);
   }
@@ -113,12 +117,15 @@ function* doSaveProcessModelRequest({ api, logger }, action) {
 
 function* doImportProcessModelRequest({ api, logger }, action) {
   try {
-    yield call(api.bpmn.importProcessModel, action.payload);
+    const model = yield call(api.bpmn.importProcessModel, action.payload);
+    const recordId = model.id.replace('workspace://SpacesStore/', '');
 
-    yield delay(100);
+    window.location.href = `${EDITOR_PAGE_CONTEXT}#/editor/${recordId}`;
 
-    const models = yield call(api.bpmn.fetchProcessModels);
-    yield put(setModels(models));
+    // yield delay(100);
+    //
+    // const models = yield call(api.bpmn.fetchProcessModels);
+    // yield put(setModels(models));
   } catch (e) {
     logger.error('[bpmn doImportProcessModelRequest saga] error', e.message);
   }
