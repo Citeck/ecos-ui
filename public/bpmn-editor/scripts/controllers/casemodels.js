@@ -39,6 +39,12 @@ angular.module('flowableModeler')
       $scope.model.activeFilter = $scope.model.filters[0];
       $scope.model.activeSort = $scope.model.sorts[0];
 
+    $rootScope.modelFilter = {
+      filter: $scope.model.activeFilter,
+      sort: $scope.model.activeSort,
+      filterText: ''
+    };
+
 	  $scope.activateFilter = function(filter) {
 		  $scope.model.activeFilter = filter;
 		  $rootScope.modelFilter.filter = filter;
