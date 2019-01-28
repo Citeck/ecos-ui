@@ -428,7 +428,7 @@ angular.module('flowableModeler').controller('SaveModelCtrl', [ '$rootScope', '$
             data: params,
             ignoreErrors: true,
             headers: {'Accept': 'application/json',
-                      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+                      'Content-Type': 'plain/text'},
             transformRequest: function (obj) {
                 var str = [];
                 for (var p in obj) {
@@ -436,7 +436,7 @@ angular.module('flowableModeler').controller('SaveModelCtrl', [ '$rootScope', '$
                 }
                 return str.join("&");
             },
-            url: FLOWABLE.URL.putModel(modelMetaData.modelId)})
+            url: FLOWABLE.URL.putModel(modelMetaData.modelId) + FLOWABLE.URL.proxyPostContentType })
 
             .success(function (data, status, headers, config) {
                 editorManager.handleEvents({

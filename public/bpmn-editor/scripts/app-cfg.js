@@ -19,7 +19,7 @@ var FLOWABLE = FLOWABLE || {};
 
 FLOWABLE.CONFIG = {
 	'onPremise' : true,
-	'contextRoot' : '/flowable-modeler',
+	'contextRoot' : '/share/proxy/alfresco/citeck/flowable/proxy/flowable-modeler',
 	'webContextRoot' : '/bpmn-editor',
 	'datesLocalization' : false
 };

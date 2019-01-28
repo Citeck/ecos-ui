@@ -16,6 +16,8 @@ FLOWABLE.URL = {
     recordServiceQuery: '/share/proxy/alfresco/citeck/ecos/records/query',
     recordServiceMutate: '/share/proxy/alfresco/citeck/ecos/records/mutate',
 
+    proxyPostContentType: "?_proxy_content_type=" + encodeURIComponent('application/x-www-form-urlencoded; charset=UTF-8'),
+
     getModel: function(modelId) {
         return FLOWABLE.CONFIG.contextRoot + '/app/rest/models/' + modelId + '/editor/json?version=' + Date.now();
     },
