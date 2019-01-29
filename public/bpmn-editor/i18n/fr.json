@@ -351,6 +351,7 @@
             "EDIT": "Modifier les propriétés du modèle",
             "DELETE": "Supprimer le formulaire",
             "CREATE-CONFIRM": "Créer un nouveau formulaire",
+            "DUPLICATE": "Dupliquer ce formulaire",
             "DUPLICATE-CONFIRM": "Dupliquer le formulaire",
             "OPEN-IN-EDITOR": "Editeur de formulaire",
             "EDIT-CONFIRM": "Sauvegarder",

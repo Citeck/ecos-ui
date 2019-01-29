@@ -30,7 +30,7 @@ FLOWABLE.APP_URL = {
 
     /* MODEL URLS */
 
-    getModelsUrl: function (query = null) {
+    getModelsUrl: function (query) {
         return FLOWABLE.CONFIG.contextRoot + '/app/rest/models' + (query || "");
     },
 
