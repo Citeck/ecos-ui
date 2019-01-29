@@ -66,7 +66,7 @@ FLOWABLE.APP_URL = {
         return FLOWABLE.CONFIG.contextRoot + '/app/rest/models/' + modelId + '/history/' + modelHistoryId + '/bpmn20?version=' + Date.now();
     },
 
-    getCmmnModelDownloadUrl: function (modelId, modelHistoryId = null) {
+    getCmmnModelDownloadUrl: function (modelId, modelHistoryId) {
         return FLOWABLE.CONFIG.contextRoot + '/app/rest/models/' + modelId + (modelHistoryId ? '/history/' + modelHistoryId : '') + '/cmmn?version=' + Date.now();
     },
 
@@ -196,7 +196,7 @@ FLOWABLE.APP_URL = {
 
     /* CASE MODEL URLS */
 
-    getCaseModelsUrl: function (query = null) {
+    getCaseModelsUrl: function (query) {
         return FLOWABLE.CONFIG.contextRoot + '/app/rest/case-models' + (query || "");
     },
 
@@ -230,7 +230,7 @@ FLOWABLE.APP_URL = {
       return '/share/proxy/alfresco/citeck/ecos/image/thumbnail?nodeRef=workspace://SpacesStore/' + modelId + '&property=ecosbpm:thumbnail&cached=true'  + (version ? "&version=" + version : "");
     },
 
-    getModelThumbnailUrl: function (modelId, version = null) {
+    getModelThumbnailUrl: function (modelId, version) {
         return FLOWABLE.CONFIG.contextRoot + '/app/rest/models/' + modelId + '/thumbnail' + (version ? "?version=" + version : "");
     },
 

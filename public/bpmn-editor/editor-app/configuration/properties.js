@@ -126,6 +126,18 @@ FLOWABLE.PROPERTY_CONFIG =
         "readModeTemplateUrl": "editor-app/configuration/properties/process-reference-display-template.html",
         "writeModeTemplateUrl": "editor-app/configuration/properties/process-reference-write-template.html"
     },
+    "oryx-processtaskinparameters-complex": {
+        "readModeTemplateUrl": "editor-app/configuration/properties/in-parameters-display-template.html",
+        "writeModeTemplateUrl": "editor-app/configuration/properties/in-parameters-write-template.html"
+    },
+    "oryx-processtaskoutparameters-complex": {
+        "readModeTemplateUrl": "editor-app/configuration/properties/out-parameters-display-template.html",
+        "writeModeTemplateUrl": "editor-app/configuration/properties/out-parameters-write-template.html"
+    },
+    "oryx-planitemlifecyclelisteners-multiplecomplex": {
+            "readModeTemplateUrl": "editor-app/configuration/properties/plan-item-lifecycle-listeners-display-template.html",
+            "writeModeTemplateUrl": "editor-app/configuration/properties/plan-item-lifecycle-listeners-write-template.html"
+     },
     "flowable-transitionevent" : {
         "readModeTemplateUrl": "editor-app/configuration/properties/default-value-display-template.html",
         "writeModeTemplateUrl": "editor-app/configuration/properties/transition-event-write-template.html"
@@ -137,5 +149,9 @@ FLOWABLE.PROPERTY_CONFIG =
     "flowable-http-request-method" : {
         "readModeTemplateUrl": "editor-app/configuration/properties/http-request-method-display-template.html",
         "writeModeTemplateUrl": "editor-app/configuration/properties/http-request-method-property-write-template.html"
-    }
+    },
+    "flowable-triggermode" : {
+            "readModeTemplateUrl": "editor-app/configuration/properties/trigger-mode-read-template.html",
+            "writeModeTemplateUrl": "editor-app/configuration/properties/trigger-mode-write-template.html"
+    },
 };
