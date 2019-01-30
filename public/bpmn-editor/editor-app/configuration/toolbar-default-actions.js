@@ -51,7 +51,8 @@ FLOWABLE.TOOLBAR = {
             services.editorManager.handleEvents({
               type: ORYX.CONFIG.EVENT_SAVED
             });
-            window.location.href = window.BPMN_DESIGNER_CONTEXT;
+            // window.location.href = window.BPMN_DESIGNER_CONTEXT;
+            window.history.back();
           }).catch(function (error) {
             console.log(error);
           });

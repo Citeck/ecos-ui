@@ -3,8 +3,16 @@
   padding: 15px;
   margin: 0;
   border-bottom: 1px solid #ccc;
+
+  .button {
+    margin-right: 10px;
+  }
 }
 
 .back-to-list-button {
+  color: #fff !important;
+}
+
+.open-editor-button {
   color: #fff !important;
 }

@@ -23,7 +23,8 @@ FLOWABLE.TOOLBAR.ACTIONS.closeEditor =  function(services) {
   }
 
   // process model
-	window.location.href = window.BPMN_DESIGNER_CONTEXT;
+	// window.location.href = window.BPMN_DESIGNER_CONTEXT;
+  window.history.back();
 };
 
 FLOWABLE.TOOLBAR.ACTIONS.navigateToProcess = function(processId) {

@@ -1,32 +1,48 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { PROCESS_MODEL_NODE_TYPE, DESIGNER_PAGE_CONTEXT } from '../../../constants/bpmn';
+import { PROCESS_MODEL_NODE_TYPE, DESIGNER_PAGE_CONTEXT, EDITOR_PAGE_CONTEXT } from '../../../constants/bpmn';
 import { t } from '../../../helpers/util';
 import './TopPanel.scss';
 
 class TopPanel extends React.Component {
   render() {
-    const { nodeInfo } = this.props;
+    const { nodeInfo, nodeRef } = this.props;
     const nodeType = nodeInfo.nodeType;
 
-    let goBackButtonUrl = null;
+    const buttons = [];
     switch (nodeType) {
       case PROCESS_MODEL_NODE_TYPE:
-        goBackButtonUrl = DESIGNER_PAGE_CONTEXT;
+        const recordId = nodeRef.replace('workspace://SpacesStore/', '');
+        buttons.push(
+          {
+            className: 'button button_blue back-to-list-button',
+            href: DESIGNER_PAGE_CONTEXT,
+            text: t('bpmn-card.go-back-to-list-button.text')
+          },
+          {
+            className: 'button button_blue open-editor-button',
+            href: `${EDITOR_PAGE_CONTEXT}#/editor/${recordId}`,
+            text: t('bpmn-card.open-editor-button.text')
+          }
+        );
         break;
       default:
         break;
     }
 
-    if (!goBackButtonUrl) {
+    if (buttons.length < 1) {
       return null;
     }
 
     return (
       <div className={'card-details-top-panel'}>
-        <a className={'button button_blue back-to-list-button'} href={goBackButtonUrl}>
-          {t('bpmn-card.go-back-to-list-button.text')}
-        </a>
+        {buttons.map((button, idx) => {
+          return (
+            <a key={idx} className={button.className} href={button.href}>
+              {button.text}
+            </a>
+          );
+        })}
       </div>
     );
   }
