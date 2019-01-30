@@ -1,0 +1,7 @@
+{
+  "entryPoints": {
+    "header": "./export/src/examples/header/index.js",
+    "right-menu": "./export/src/examples/right-menu/index.js",
+    "simple": "./export/src/examples/simple/index.js"
+  }
+}
