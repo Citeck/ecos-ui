@@ -1,4 +1,4 @@
-export function loadOrgStructUsers(searchText = '') {
+export function loadOrgStructUsers(searchText) {
   return (dispatch, getState, { api }) => {
     return api.orgStruct.getUsers(searchText).then(json => {
       return json.map(item => {

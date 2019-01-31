@@ -18,7 +18,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   hideModal: () => dispatch(hideModal()),
   saveProcessModelRequest: payload => dispatch(saveProcessModelRequest(payload)),
-  loadOrgStructUsers: payload => dispatch(loadOrgStructUsers(payload))
+  loadOrgStructUsers: searchText => dispatch(loadOrgStructUsers(searchText))
 });
 
 // TODO: Valid form, Valid to
@@ -45,7 +45,7 @@ class ModelCreationForm extends React.Component {
         selectedOption = categories.find(item => item.value === categoryId);
       }
 
-      const currentUserOption = { value: currentUser.nodeRef, label: currentUser.fullNames };
+      const currentUserOption = { value: currentUser.nodeRef, label: currentUser.fullName };
 
       this.setState({
         author: currentUserOption,
