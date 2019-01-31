@@ -5,36 +5,59 @@ import Button from '../../common/buttons/Button/Button';
 import { Input, Label, Select, Textarea } from '../../common/form';
 import { hideModal } from '../../../actions/modal';
 import { saveProcessModelRequest } from '../../../actions/bpmn';
+import { loadOrgStructUsers } from '../../../actions/misc';
 import { t } from '../../../helpers/util';
 
 const mapStateToProps = state => ({
   categories: state.bpmn.categories.map(item => {
     return { value: item.id, label: item.label };
-  })
+  }),
+  currentUser: state.user
 });
 
 const mapDispatchToProps = dispatch => ({
   hideModal: () => dispatch(hideModal()),
-  saveProcessModelRequest: payload => dispatch(saveProcessModelRequest(payload))
+  saveProcessModelRequest: payload => dispatch(saveProcessModelRequest(payload)),
+  loadOrgStructUsers: payload => dispatch(loadOrgStructUsers(payload))
 });
+
+// TODO: Valid form, Valid to
+// TODO: add translation messages
+// TODO: refactoring
 
 class ModelCreationForm extends React.Component {
   state = {
+    author: null,
+    processOwner: null,
+    reviewers: [],
     title: '',
     processKey: '',
     category: '',
-    description: ''
+    description: '',
+    defaultOrgStructOptions: []
   };
 
   componentDidMount() {
-    const { categoryId, categories } = this.props;
+    const { categoryId, categories, currentUser, loadOrgStructUsers } = this.props;
     if (categories && categories.length > 0) {
       let selectedOption = categories[0];
       if (categoryId) {
         selectedOption = categories.find(item => item.value === categoryId);
       }
 
-      this.setState({ category: selectedOption });
+      const currentUserOption = { value: currentUser.nodeRef, label: currentUser.fullNames };
+
+      this.setState({
+        author: currentUserOption,
+        processOwner: currentUserOption,
+        category: selectedOption
+      });
+
+      loadOrgStructUsers().then(result => {
+        this.setState({
+          defaultOrgStructOptions: result
+        });
+      });
     }
   }
 
@@ -48,6 +71,18 @@ class ModelCreationForm extends React.Component {
 
   handleChangeCategory = selectedOption => {
     this.setState({ category: selectedOption });
+  };
+
+  handleChangeAuthor = selectedOption => {
+    this.setState({ author: selectedOption });
+  };
+
+  handleProcessOwner = selectedOption => {
+    this.setState({ processOwner: selectedOption });
+  };
+
+  handleChangeReviewers = selectedOption => {
+    this.setState({ reviewers: selectedOption });
   };
 
   handleChangeDescription = e => {
@@ -76,7 +111,7 @@ class ModelCreationForm extends React.Component {
   };
 
   render() {
-    const { hideModal, categories } = this.props;
+    const { hideModal, categories, loadOrgStructUsers } = this.props;
     const { title, processKey, category } = this.state;
     const isSubmitButtonDisabled = !title || !processKey || !category;
 
@@ -110,6 +145,42 @@ class ModelCreationForm extends React.Component {
         <FormGroup>
           <Label>{t('bpmn-designer.create-bpm-form.description')}</Label>
           <Textarea value={this.state.description} onChange={this.handleChangeDescription} />
+        </FormGroup>
+
+        <Row>
+          <Col md={6} sm={12}>
+            <FormGroup>
+              <Label>{t('Author')}</Label>
+              <Select
+                loadOptions={loadOrgStructUsers}
+                defaultOptions={this.state.defaultOrgStructOptions}
+                value={this.state.author}
+                onChange={this.handleChangeAuthor}
+              />
+            </FormGroup>
+          </Col>
+          <Col md={6} sm={12}>
+            <FormGroup>
+              <Label>{t('Process owner')}</Label>
+              <Select
+                loadOptions={loadOrgStructUsers}
+                defaultOptions={this.state.defaultOrgStructOptions}
+                value={this.state.processOwner}
+                onChange={this.handleProcessOwner}
+              />
+            </FormGroup>
+          </Col>
+        </Row>
+
+        <FormGroup>
+          <Label>{t('Reviewers')}</Label>
+          <Select
+            loadOptions={loadOrgStructUsers}
+            defaultOptions={this.state.defaultOrgStructOptions}
+            isMulti
+            value={this.state.reviewers}
+            onChange={this.handleChangeReviewers}
+          />
         </FormGroup>
 
         <Row>

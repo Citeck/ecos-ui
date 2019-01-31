@@ -15,7 +15,7 @@ import { getCurrentLocale } from './helpers/util';
 import configureStore, { getHistory } from './store';
 import { requireShareAssets } from './share';
 import { initAppRequest } from './actions/app';
-import { AppApi, BpmnApi, MenuApi, UserApi } from './api';
+import { AppApi, BpmnApi, MenuApi, OrgStructApi, UserApi } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
 import './index.scss';
@@ -35,6 +35,7 @@ const store = configureStore({
 api.app = new AppApi(store);
 api.bpmn = new BpmnApi(store);
 api.menu = new MenuApi(store);
+api.orgStruct = new OrgStructApi(store);
 api.user = new UserApi(store);
 
 const history = getHistory();
