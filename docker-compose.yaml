@@ -49,7 +49,7 @@ services:
     image: mailhog/mailhog
   ui:
     ports:
-    - 8081:8081/tcp
+    - 80:80/tcp
     links:
     - community
     image: nexus.citeck.ru/ecos-community-web
