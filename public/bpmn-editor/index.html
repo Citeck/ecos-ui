@@ -317,6 +317,19 @@
     }
   }
 
+  function checkStatus(response) {
+    if (response.status >= 200 && response.status < 300) {
+      return response;
+    }
+    const error = new Error(response.statusText);
+    error.response = response;
+    throw error;
+  }
+
+  function parseJSON(response) {
+    return response.json();
+  }
+
   dynamicallyLoadScript('/share/service/messages.js?locale=' + getCurrentLocale() + '&v=' + window.dojoConfig.cacheBust, function() {
     dynamicallyLoadScript('/share/res/js/alfresco.js?' + window.dojoConfig.cacheBust, function() {
       window.Alfresco.constants.PROXY_URI = '/share/proxy/alfresco/';
@@ -325,14 +338,7 @@
       window.BPMN_DESIGNER_CONTEXT = '/share/page/bpmn-designer';
 
       dynamicallyLoadScript('/share/res/lib/underscore.js?' + window.dojoConfig.cacheBust, function() {
-        fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user').then(function(response) {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          }
-          const error = new Error(response.statusText);
-          error.response = response;
-          throw error;
-        }).catch(function (err) {
+        fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user').then(checkStatus).catch(function (err) {
           window.location.href = window.BPMN_DESIGNER_CONTEXT;
         });
 
@@ -353,15 +359,46 @@
         require([
           'js/citeck/modules/header/index'
         ], function(ShareHeader) {
-          ShareHeader.render('share-header', {
-            userName: "admin",
-            userFullname: "Administrator",
-            userNodeRef: "workspace:\/\/SpacesStore\/7c198bef-df13-454b-9bc0-99e517d1e8a0",
-            userIsAvailable: "",
-            userIsMutable: "true",
-            isExternalAuthentication: "false",
-            siteMenuItems: [],
-            isCascadeCreateMenu: "false" // TODO
+          const fetchUserPromise = fetch('/share/proxy/alfresco/citeck/ecos/records/query', {
+            method: 'post',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              query: { sourceId: 'people' },
+              attributes: {
+                userName: 'userName',
+                isAvailable: 'isAvailable',
+                isMutable: 'isMutable',
+                firstName: 'cm:firstName',
+                lastName: 'cm:lastName',
+                middleName: 'cm:middleName',
+                isAdmin: 'isAdmin',
+                fullName: 'fullName',
+                uid: 'cm:name',
+              }
+            })
+          }).then(checkStatus).then(parseJSON).then(json => json.records[0].attributes);
+
+          const fetchIsCascadeMenuPromise = fetch('/share/proxy/alfresco/citeck/ecosConfig/ecos-config-value?configName=default-ui-create-menu')
+            .then(checkStatus)
+            .then(parseJSON)
+            .then(json => json.value === "cascad");
+
+          Promise.all([
+            fetchUserPromise,
+            fetchIsCascadeMenuPromise,
+          ]).then(([ user, isCascadeMenu ]) => {
+            ShareHeader.render('share-header', {
+              userName: user.userName,
+              userFullname: user.fullName,
+              userNodeRef: "workspace://SpacesStore/" + user.uid,
+              userIsAvailable: user.isAvailable,
+              userIsMutable: user.isMutable,
+              isExternalAuthentication: "false", // TODO
+              siteMenuItems: [],
+              isCascadeCreateMenu: isCascadeMenu ? "true" : "false"
+            });
           });
         });
 

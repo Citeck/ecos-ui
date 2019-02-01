@@ -3312,3 +3312,7 @@ body:not(.mobile).yui-skin-citeckTheme .editor-toolbar {
 .selected-item-body .property-row.clear {
   height: auto;
 }
+
+.custom-dropdown-menu-cascad__label {
+  margin-bottom: 0;
+}

@@ -2,13 +2,17 @@ import { handleActions } from 'redux-actions';
 import { validateUserSuccess, validateUserFailure, setUserThumbnail, setIsAuthenticated } from '../actions/user';
 
 const initialState = {
-  name: '',
+  firstName: '',
+  lastName: '',
+  middleName: '',
+  userName: '',
   fullName: '',
   nodeRef: '',
   thumbnail: null,
   isAvailable: false,
   isMutable: false,
-  isAuthenticated: false
+  isAuthenticated: false,
+  isAdmin: false
 };
 
 Object.freeze(initialState);
@@ -18,11 +22,12 @@ export default handleActions(
     [validateUserSuccess]: (state, action) => {
       return {
         ...state,
-        name: action.payload.name,
-        fullName: action.payload.fullName,
-        nodeRef: action.payload.nodeRef,
-        isAvailable: action.payload.isAvailable,
-        isMutable: action.payload.isMutable,
+        ...action.payload,
+        isAvailable: action.payload.isAvailable === 'true',
+        isMutable: action.payload.isMutable === 'true',
+        isAdmin: action.payload.isAdmin === 'true',
+        fullName: action.payload.fullName.trim(),
+        nodeRef: `workspace://SpacesStore/${action.payload.uid}`,
         isAuthenticated: true
       };
     },

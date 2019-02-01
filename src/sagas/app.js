@@ -11,8 +11,7 @@ export function* initApp({ api, fakeApi, logger }) {
     // --- Validate user ---
     const checkAuthResp = yield call(api.user.checkIsAuthenticated);
     if (checkAuthResp.success) {
-      const resp = yield call(fakeApi.getUserData);
-      // const resp = yield call(api.auth.getUserData);
+      const resp = yield call(api.user.getUserData);
       if (!resp.success) {
         yield put(validateUserFailure());
       } else {

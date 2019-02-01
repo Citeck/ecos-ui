@@ -1,21 +1,4 @@
 export const fakeApi = {
-  getUserData: () => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          payload: {
-            name: 'admin',
-            fullName: 'Administrator',
-            nodeRef: 'workspace://SpacesStore/a6ce05f5-bd4b-4196-a12f-a5601a2fa0cd',
-            isAvailable: true,
-            isMutable: true
-          }
-        });
-      }, 0);
-    });
-  },
-
   getIsExternalAuthentication: () => {
     return new Promise(resolve => {
       setTimeout(() => {
