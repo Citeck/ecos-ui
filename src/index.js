@@ -10,6 +10,9 @@ import * as serviceWorker from './serviceWorker';
 import moment from 'moment';
 import 'moment/locale/ru';
 import 'moment/locale/en-gb';
+import { registerLocale, setDefaultLocale } from 'react-datepicker';
+import datePickerLocaleEn from 'date-fns/locale/en-GB';
+import datePickerLocaleRu from 'date-fns/locale/ru';
 import { getCurrentLocale } from './helpers/util';
 
 import configureStore, { getHistory } from './store';
@@ -23,7 +26,14 @@ import './index.scss';
 const logger = Logger.create('EcoS');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);
 
-moment.locale(getCurrentLocale());
+/* set moment locale */
+const currentLocale = getCurrentLocale();
+moment.locale(currentLocale);
+
+/* set DatePicker locale */
+registerLocale('en', datePickerLocaleEn);
+registerLocale('ru', datePickerLocaleRu);
+setDefaultLocale(currentLocale);
 
 const api = {};
 const store = configureStore({

@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Form, FormGroup, Col, Row } from 'reactstrap';
 import Button from '../../common/buttons/Button/Button';
-import { Input, Label, Select, Textarea } from '../../common/form';
+import { DatePicker, Input, Label, Select, Textarea } from '../../common/form';
 import { hideModal } from '../../../actions/modal';
 import { saveProcessModelRequest } from '../../../actions/bpmn';
 import { loadOrgStructUsers } from '../../../actions/misc';
@@ -21,20 +21,20 @@ const mapDispatchToProps = dispatch => ({
   loadOrgStructUsers: searchText => dispatch(loadOrgStructUsers(searchText))
 });
 
-// TODO: Valid form, Valid to
-// TODO: add translation messages
 // TODO: refactoring
 
 class ModelCreationForm extends React.Component {
   state = {
     author: null,
-    processOwner: null,
+    owner: null,
     reviewers: [],
     title: '',
     processKey: '',
     category: '',
     description: '',
-    defaultOrgStructOptions: []
+    defaultOrgStructOptions: [],
+    validFrom: new Date(),
+    validTo: null
   };
 
   componentDidMount() {
@@ -49,7 +49,7 @@ class ModelCreationForm extends React.Component {
 
       this.setState({
         author: currentUserOption,
-        processOwner: currentUserOption,
+        owner: currentUserOption,
         category: selectedOption
       });
 
@@ -77,8 +77,8 @@ class ModelCreationForm extends React.Component {
     this.setState({ author: selectedOption });
   };
 
-  handleProcessOwner = selectedOption => {
-    this.setState({ processOwner: selectedOption });
+  handleChangeOwner = selectedOption => {
+    this.setState({ owner: selectedOption });
   };
 
   handleChangeReviewers = selectedOption => {
@@ -89,21 +89,41 @@ class ModelCreationForm extends React.Component {
     this.setState({ description: e.target.value });
   };
 
+  handleChangeValidFrom = selectedOption => {
+    this.setState({ validFrom: selectedOption });
+  };
+
+  handleChangeValidTo = selectedOption => {
+    this.setState({ validTo: selectedOption });
+  };
+
   handleSubmit = e => {
     e.preventDefault();
 
     const { hideModal, saveProcessModelRequest } = this.props;
     const title = this.state.title;
     const processKey = this.state.processKey;
-    const category = this.state.category.value;
+    const category = this.state.category;
     const description = this.state.description;
 
-    if (title && processKey && category) {
+    const author = this.state.author;
+    const owner = this.state.owner;
+    const reviewers = this.state.reviewers;
+    const validFrom = this.state.validFrom;
+    const validTo = this.state.validTo;
+
+    if (title && processKey && category && author && owner) {
+      // console.log('this.state', this.state);
       saveProcessModelRequest({
         title,
         processKey,
-        categoryId: category,
-        description
+        categoryId: category.value,
+        description,
+        author: author.value,
+        owner: owner.value,
+        reviewers: reviewers.map(item => item.value).join(','),
+        validFrom: validFrom,
+        validTo: validTo
       });
 
       hideModal();
@@ -142,15 +162,10 @@ class ModelCreationForm extends React.Component {
           <Select value={this.state.category} onChange={this.handleChangeCategory} options={categories} />
         </FormGroup>
 
-        <FormGroup>
-          <Label>{t('bpmn-designer.create-bpm-form.description')}</Label>
-          <Textarea value={this.state.description} onChange={this.handleChangeDescription} />
-        </FormGroup>
-
         <Row>
           <Col md={6} sm={12}>
             <FormGroup>
-              <Label>{t('Author')}</Label>
+              <Label>{t('bpmn-designer.create-bpm-form.author')}</Label>
               <Select
                 loadOptions={loadOrgStructUsers}
                 defaultOptions={this.state.defaultOrgStructOptions}
@@ -161,19 +176,19 @@ class ModelCreationForm extends React.Component {
           </Col>
           <Col md={6} sm={12}>
             <FormGroup>
-              <Label>{t('Process owner')}</Label>
+              <Label>{t('bpmn-designer.create-bpm-form.owner')}</Label>
               <Select
                 loadOptions={loadOrgStructUsers}
                 defaultOptions={this.state.defaultOrgStructOptions}
-                value={this.state.processOwner}
-                onChange={this.handleProcessOwner}
+                value={this.state.owner}
+                onChange={this.handleChangeOwner}
               />
             </FormGroup>
           </Col>
         </Row>
 
         <FormGroup>
-          <Label>{t('Reviewers')}</Label>
+          <Label>{t('bpmn-designer.create-bpm-form.reviewers')}</Label>
           <Select
             loadOptions={loadOrgStructUsers}
             defaultOptions={this.state.defaultOrgStructOptions}
@@ -181,6 +196,26 @@ class ModelCreationForm extends React.Component {
             value={this.state.reviewers}
             onChange={this.handleChangeReviewers}
           />
+        </FormGroup>
+
+        <Row>
+          <Col md={6} sm={12}>
+            <FormGroup>
+              <Label>{t('bpmn-designer.create-bpm-form.valid-from')}</Label>
+              <DatePicker selected={this.state.validFrom} onChange={this.handleChangeValidFrom} />
+            </FormGroup>
+          </Col>
+          <Col md={6} sm={12}>
+            <FormGroup>
+              <Label>{t('bpmn-designer.create-bpm-form.valid-to')}</Label>
+              <DatePicker selected={this.state.validTo} onChange={this.handleChangeValidTo} />
+            </FormGroup>
+          </Col>
+        </Row>
+
+        <FormGroup>
+          <Label>{t('bpmn-designer.create-bpm-form.description')}</Label>
+          <Textarea value={this.state.description} onChange={this.handleChangeDescription} />
         </FormGroup>
 
         <Row>

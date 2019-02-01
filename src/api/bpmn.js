@@ -92,16 +92,34 @@ export class BpmnApi extends RecordService {
     });
   };
 
-  createProcessModel = ({ title, processKey, description, categoryId }) => {
+  createProcessModel = data => {
+    const { title, processKey, description, categoryId, author, owner, reviewers, validFrom, validTo } = data;
+    // console.log(data);
+    const attributes = {
+      _type: 'ecosbpm:processModel',
+      'ecosbpm:processId': processKey,
+      'cm:title': title,
+      'cm:description': description,
+      'ecosbpm:category': categoryId,
+      'ecosbpm:processAuthorAssoc': author,
+      'ecosbpm:processOwnerAssoc': owner
+    };
+
+    if (reviewers) {
+      attributes['ecosbpm:processReviewerAssoc'] = reviewers;
+    }
+
+    if (validFrom) {
+      attributes['ecosbpm:validFrom'] = validFrom;
+    }
+
+    if (validTo) {
+      attributes['ecosbpm:validTo'] = validTo;
+    }
+
     return this.mutate({
       record: {
-        attributes: {
-          _type: 'ecosbpm:processModel',
-          'ecosbpm:processId': processKey,
-          'cm:title': title,
-          'cm:description': description,
-          'ecosbpm:category': categoryId
-        }
+        attributes
       }
     });
   };

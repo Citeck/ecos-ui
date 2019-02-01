@@ -1,0 +1,13 @@
+@import '~react-datepicker/dist/react-datepicker.css';
+
+.react-datepicker-wrapper {
+  display: block;
+}
+
+.react-datepicker__input-container {
+  display: block;
+}
+
+.react-datepicker__current-month {
+  text-transform: capitalize;
+}
