@@ -147,7 +147,7 @@ class ImportModelForm extends React.Component {
   };
 
   render() {
-    const { hideModal, categories } = this.props;
+    const { hideModal, categories, loadOrgStructUsers } = this.props;
     const { acceptedFiles, category } = this.state;
     const isSubmitButtonDisabled = !category || !acceptedFiles.length;
 
