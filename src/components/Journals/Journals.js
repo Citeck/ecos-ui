@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
 import { Container } from 'reactstrap';
+import { connect } from 'react-redux';
 
 import ColumnsWithHeader from '../common/templates/ColumnsWithHeader/ColumnsWithHeader';
 import Well from '../common/form/Well/Well';
 import Caption from '../common/form/Caption/Caption';
-import Button from '../common/buttons/Button/Button';
+import Btn from '../common/btns/Btn/Btn';
 import IcoButton from '../common/buttons/IcoButton/IcoButton';
 import DropdownButton from '../common/buttons/DropdownButton/DropdownButton';
 import Search from '../common/Search/Search';
-import Grid from '../common/Grid/Grid';
+import Grid from '../common/grid/Grid/Grid';
 import Pagination from '../common/Pagination/Pagination';
 import PanelBar from '../common/PanelBar/PanelBar';
 import ToggleButton from '../common/buttons/ToggleButton/ToggleButton';
@@ -18,12 +18,12 @@ import FilterList from '../FilterList/FilterList';
 import ColumnsSetup from '../ColumnsSetup/ColumnsSetup';
 import Grouping from '../Grouping/Grouping';
 
-import './Journal.scss';
+import './Journals.scss';
 
 const mapStateToProps = state => ({ isReady: true });
 const mapDispatchToProps = dispatch => ({});
 
-class Journal extends Component {
+class Journals extends Component {
   constructor(props) {
     super(props);
 
@@ -38,8 +38,8 @@ class Journal extends Component {
 
   render() {
     return (
-      <div className={'journal'}>
-        <Container>
+      <Container>
+        <div className={'journal'}>
           <ColumnsWithHeader
             cols={[
               <Fragment>
@@ -77,9 +77,9 @@ class Journal extends Component {
                       <Grouping />
                     </PanelBar>
 
-                    <Button>Сохранить в шаблон</Button>
-                    <Button>Сборсить</Button>
-                    <Button>Применить</Button>
+                    <Btn>Сохранить в шаблон</Btn>
+                    <Btn>Сборсить</Btn>
+                    <Btn>Применить</Btn>
                   </Well>
                 )}
 
@@ -101,8 +101,8 @@ class Journal extends Component {
           >
             <Caption large>{'Журналы'}</Caption>
           </ColumnsWithHeader>
-        </Container>
-      </div>
+        </div>
+      </Container>
     );
   }
 }
@@ -110,4 +110,4 @@ class Journal extends Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Journal);
+)(Journals);

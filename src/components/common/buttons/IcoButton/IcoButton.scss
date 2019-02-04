@@ -23,6 +23,14 @@
   }
 }
 
+.ico-button_default {
+  background: $color-white;
+
+  &:hover {
+    background: $color-white;
+  }
+}
+
 .ico-button_text {
   padding: 0 14px 0 7px;
 }

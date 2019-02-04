@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { initRequest } from '../../actions/journal';
-import Journal from '../../components/Journal';
+import { Journals } from '../../components/Journals';
 
 const mapDispatchToProps = dispatch => ({
   initRequest: () => dispatch(initRequest())
@@ -13,7 +13,7 @@ class JournalsPage extends React.Component {
   }
 
   render() {
-    return <Journal {...this.props} />;
+    return <Journals {...this.props} />;
   }
 }
 

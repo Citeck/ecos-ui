@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
 import Button from '../Button/Button';
 import Icon from '../../icons/Icon/Icon';
@@ -11,10 +11,22 @@ export default class IcoButton extends Component {
     const cssClasses = classNames('ico-button', props.children && 'ico-button_text', props.className);
     const cssIconClasses = classNames('ico-button__icon', props.icon);
 
+    const ico = <Icon className={cssIconClasses} />;
+    const text = props.children;
+
     return (
-      <Button className={cssClasses}>
-        <Icon className={cssIconClasses} />
-        {props.children}
+      <Button {...props} className={cssClasses}>
+        {props.invert ? (
+          <Fragment>
+            {text}
+            {ico}
+          </Fragment>
+        ) : (
+          <Fragment>
+            {ico}
+            {text}
+          </Fragment>
+        )}
       </Button>
     );
   }

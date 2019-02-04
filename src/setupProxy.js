@@ -48,7 +48,8 @@ module.exports = function(app) {
         '!**/bpmn-designer/**',
         '!**/bpmn-editor',
         '!**/bpmn-editor/**',
-        '!**/journals'
+        '!**/journals',
+        '!**/journalsDashboard'
       ],
       {
         ...shareProxyOptions

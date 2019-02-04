@@ -1,0 +1,46 @@
+@import '../../constants';
+
+.dashlet {
+  .dashlet__header {
+    height: 100%;
+    position: relative;
+  }
+
+  .dashlet__caption {
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    border: 1px solid transparent;
+    text-decoration: none;
+
+    background: inherit;
+    color: $color-white !important;
+    font-family: $font-family;
+    font-size: $font-size-standard;
+    font-weight: $font-weight-bold;
+    font-style: normal;
+    letter-spacing: $letter-spacing;
+    line-height: normal;
+    padding: 6px 12px;
+    height: 34px;
+  }
+
+  .dashlet__actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .dashlet__btn {
+    border-radius: 0;
+    padding: 6px 17px;
+    height: 34px;
+  }
+
+  .dashlet__btn_i {
+    width: 34px;
+    padding: 2px 0;
+    margin-right: 6px;
+  }
+}

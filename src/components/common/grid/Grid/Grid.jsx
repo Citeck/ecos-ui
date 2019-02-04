@@ -75,10 +75,6 @@ export default class Grid extends Component {
 
     const columns = [
       {
-        dataField: 'id',
-        text: ''
-      },
-      {
         dataField: 'date',
         text: 'Дата создания'
       },
@@ -197,6 +193,6 @@ export default class Grid extends Component {
       }
     ];
 
-    return <BootstrapTable keyField="id" data={products} columns={columns} />;
+    return <BootstrapTable selectRow={{ mode: 'checkbox' }} keyField="id" data={products} columns={columns} />;
   }
 }

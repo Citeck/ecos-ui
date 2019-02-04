@@ -11,7 +11,7 @@ export default class Columns extends Component {
     const cfgs = props.cfgs || [];
 
     return (
-      <Row noGutters className={'columns'}>
+      <Row noGutters className={classNames('columns', props.className)}>
         {cols.map((col, index) => {
           const cfg = cfgs[index] || {};
 

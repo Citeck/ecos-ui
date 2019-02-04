@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import Button from '../buttons/Button/Button';
+import { IcoBtn } from '../../common/btns';
 
 import './Pagination.scss';
 
@@ -13,15 +13,10 @@ export default class Pagination extends Component {
       <div {...props} className={cssClasses}>
         <span className={'pagination__text'}>1-10</span>
         <span className={'pagination__text'}> из </span>
-        <span className={'pagination__text'}>28</span>
+        <span className={'pagination__text pagination__step'}>28</span>
 
-        <Button className="pagination__button">
-          <i className="icon-left pagination__button-icon-left" />
-        </Button>
-
-        <Button className="pagination__button">
-          <i className="icon-right pagination__button-icon-right" />
-        </Button>
+        <IcoBtn icon={'icon-left'} className={'pagination__btn-step btn_grey3 btn_width_auto btn_hover_t-light-blue'} />
+        <IcoBtn icon={'icon-right'} className={'btn_grey3 btn_width_auto btn_hover_t-light-blue'} />
       </div>
     );
   }
