@@ -4,50 +4,66 @@ import { Form, FormGroup, Col, Row } from 'reactstrap';
 import Dropzone from 'react-dropzone';
 import cn from 'classnames';
 import Button from '../../common/buttons/Button/Button';
-import { Label, Select } from '../../common/form';
+import { DatePicker, Label, Select } from '../../common/form';
 import { hideModal } from '../../../actions/modal';
 import { t } from '../../../helpers/util';
 import { importProcessModelRequest } from '../../../actions/bpmn';
+import { loadOrgStructUsers } from '../../../actions/misc';
 import './ImportModelForm.scss';
 
 const mapStateToProps = state => ({
   categories: state.bpmn.categories.map(item => {
     return { value: item.id, label: item.label };
-  })
+  }),
+  currentUser: state.user
 });
 
 const mapDispatchToProps = dispatch => ({
   hideModal: () => dispatch(hideModal()),
-  importProcessModelRequest: payload => dispatch(importProcessModelRequest(payload))
+  importProcessModelRequest: payload => dispatch(importProcessModelRequest(payload)),
+  loadOrgStructUsers: searchText => dispatch(loadOrgStructUsers(searchText))
 });
 
 const allowedExtensions = /(\.bpmn|\.bpmn20.xml)$/i;
 
 class ImportModelForm extends React.Component {
   state = {
+    author: null,
+    owner: null,
+    reviewers: [],
     category: '',
-    acceptedFiles: []
+    acceptedFiles: [],
+    validFrom: new Date(),
+    validTo: null
   };
 
   componentDidMount() {
-    const { categoryId, categories } = this.props;
+    const { categoryId, categories, currentUser, loadOrgStructUsers } = this.props;
     if (categories && categories.length > 0) {
       let selectedOption = categories[0];
       if (categoryId) {
         selectedOption = categories.find(item => item.value === categoryId);
       }
 
-      this.setState({ category: selectedOption });
+      const currentUserOption = { value: currentUser.nodeRef, label: currentUser.fullName };
+
+      loadOrgStructUsers().then(result => {
+        this.setState({
+          author: currentUserOption,
+          owner: currentUserOption,
+          category: selectedOption,
+          defaultOrgStructOptions: result
+        });
+      });
     }
   }
 
   handleSubmit = e => {
     e.preventDefault();
     const { hideModal, importProcessModelRequest } = this.props;
-    const { acceptedFiles } = this.state;
-    const category = this.state.category.value;
+    const { acceptedFiles, category, author, owner, reviewers, validFrom, validTo } = this.state;
 
-    if (!category || acceptedFiles.length !== 1) {
+    if (!category.value || acceptedFiles.length !== 1 || !author || !owner) {
       // TODO
       return null;
     }
@@ -60,7 +76,12 @@ class ImportModelForm extends React.Component {
 
         importProcessModelRequest({
           content: fileAsBinaryString,
-          categoryId: category
+          categoryId: category.value,
+          author: author.value,
+          owner: owner.value,
+          reviewers: reviewers.map(item => item.value).join(','),
+          validFrom: validFrom,
+          validTo: validTo
         });
 
         hideModal();
@@ -94,6 +115,26 @@ class ImportModelForm extends React.Component {
 
   handleChangeCategory = selectedOption => {
     this.setState({ category: selectedOption });
+  };
+
+  handleChangeAuthor = selectedOption => {
+    this.setState({ author: selectedOption });
+  };
+
+  handleChangeOwner = selectedOption => {
+    this.setState({ owner: selectedOption });
+  };
+
+  handleChangeReviewers = selectedOption => {
+    this.setState({ reviewers: selectedOption });
+  };
+
+  handleChangeValidFrom = selectedOption => {
+    this.setState({ validFrom: selectedOption });
+  };
+
+  handleChangeValidTo = selectedOption => {
+    this.setState({ validTo: selectedOption });
   };
 
   deleteAcceptedFile = idx => {
@@ -143,6 +184,57 @@ class ImportModelForm extends React.Component {
           <Label>{t('bpmn-designer.create-bpm-form.category')}</Label>
           <Select value={this.state.category} onChange={this.handleChangeCategory} options={categories} name="att_ecosbpm:category" />
         </FormGroup>
+
+        <Row>
+          <Col md={6} sm={12}>
+            <FormGroup>
+              <Label>{t('bpmn-designer.create-bpm-form.author')}</Label>
+              <Select
+                loadOptions={loadOrgStructUsers}
+                defaultOptions={this.state.defaultOrgStructOptions}
+                value={this.state.author}
+                onChange={this.handleChangeAuthor}
+              />
+            </FormGroup>
+          </Col>
+          <Col md={6} sm={12}>
+            <FormGroup>
+              <Label>{t('bpmn-designer.create-bpm-form.owner')}</Label>
+              <Select
+                loadOptions={loadOrgStructUsers}
+                defaultOptions={this.state.defaultOrgStructOptions}
+                value={this.state.owner}
+                onChange={this.handleChangeOwner}
+              />
+            </FormGroup>
+          </Col>
+        </Row>
+
+        <FormGroup>
+          <Label>{t('bpmn-designer.create-bpm-form.reviewers')}</Label>
+          <Select
+            loadOptions={loadOrgStructUsers}
+            defaultOptions={this.state.defaultOrgStructOptions}
+            isMulti
+            value={this.state.reviewers}
+            onChange={this.handleChangeReviewers}
+          />
+        </FormGroup>
+
+        <Row>
+          <Col md={6} sm={12}>
+            <FormGroup>
+              <Label>{t('bpmn-designer.create-bpm-form.valid-from')}</Label>
+              <DatePicker selected={this.state.validFrom} onChange={this.handleChangeValidFrom} />
+            </FormGroup>
+          </Col>
+          <Col md={6} sm={12}>
+            <FormGroup>
+              <Label>{t('bpmn-designer.create-bpm-form.valid-to')}</Label>
+              <DatePicker selected={this.state.validTo} onChange={this.handleChangeValidTo} />
+            </FormGroup>
+          </Col>
+        </Row>
 
         <Row>
           <Col md={12} sm={12}>

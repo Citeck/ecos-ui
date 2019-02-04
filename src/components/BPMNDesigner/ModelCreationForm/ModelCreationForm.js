@@ -47,14 +47,11 @@ class ModelCreationForm extends React.Component {
 
       const currentUserOption = { value: currentUser.nodeRef, label: currentUser.fullName };
 
-      this.setState({
-        author: currentUserOption,
-        owner: currentUserOption,
-        category: selectedOption
-      });
-
       loadOrgStructUsers().then(result => {
         this.setState({
+          author: currentUserOption,
+          owner: currentUserOption,
+          category: selectedOption,
           defaultOrgStructOptions: result
         });
       });
@@ -101,16 +98,7 @@ class ModelCreationForm extends React.Component {
     e.preventDefault();
 
     const { hideModal, saveProcessModelRequest } = this.props;
-    const title = this.state.title;
-    const processKey = this.state.processKey;
-    const category = this.state.category;
-    const description = this.state.description;
-
-    const author = this.state.author;
-    const owner = this.state.owner;
-    const reviewers = this.state.reviewers;
-    const validFrom = this.state.validFrom;
-    const validTo = this.state.validTo;
+    const { title, processKey, category, description, author, owner, reviewers, validFrom, validTo } = this.state;
 
     if (title && processKey && category && author && owner) {
       // console.log('this.state', this.state);
