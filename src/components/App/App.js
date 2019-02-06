@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import BPMNDesignerPage from '../../pages/BPMNDesignerPage';
 import JournalsPage from '../../pages/JournalsPage';
 import CardDetailsPage from '../../pages/CardDetailsPage';
+import FormIOPage from '../../pages/FormIOPage';
 import Header from '../Header';
 import Notification from '../Notification';
 import SlideMenu from '../SlideMenu';
@@ -43,6 +44,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile }) => {
 
         <Switch>
           {/*<Route path="/share/page" exact component={DashboardPage} />*/}
+          <Route path="/formio-develop" component={FormIOPage} />
           <Route path="/share/page/journals" component={JournalsPage} />
           <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
           <Route path="/share/page/(.*/)?card-details" component={CardDetailsPage} />
