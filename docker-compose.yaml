@@ -3,6 +3,7 @@ services:
   community:
     ports:
     - 8443:8443/tcp
+    - 8080:8080/tcp
     environment:
     - DB_HOST=postgres
     - ALFRESCO_HOSTNAME=localhost
