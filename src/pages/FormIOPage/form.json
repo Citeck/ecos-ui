@@ -12,14 +12,71 @@
   "components": [
     {
       "input": false,
-      "html": "<h1><a href=\"https://form.io\">Form.io</a> Example Form</h1>\n\n<p>This is a dynamically rendered JSON form&nbsp;built with <a href=\"https://form.io\">Form.io</a>. Using a simple&nbsp;drag-and-drop form builder, you can create any form that includes e-signatures, wysiwyg editors, date fields, layout components, data grids, surveys, etc.</p>\n",
-      "type": "content",
+      "html": "<br>",
+      "type": "content"
+    },
+
+    {
+      "tags": [],
+      "clearOnHide": true,
+      "hidden": false,
+      "input": true,
+      "tableView": true,
+      "label": "Some document list",
+      "key": "docListCustomKey",
+      "documents": [
+        {
+          "value": "someDocument",
+          "label": "Some document"
+        },
+        {
+          "value": "anotherDocument",
+          "label": "Another document"
+        },
+        {
+          "value": "thirdDocument",
+          "label": "Third document"
+        }
+      ],
+      "values": [
+        {
+          "value": "excellent",
+          "label": "Excellent"
+        }
+      ],
+      "defaultValue": {
+        "someDocument": [
+          {
+            "name": "defaultValue.ext"
+          }
+        ]
+      },
+      "protected": false,
+      "persistent": true,
+      "validate": {
+        "required": false,
+        "custom": "",
+        "customPrivate": false
+      },
+      "type": "documentList",
       "conditional": {
         "show": "",
         "when": null,
         "eq": ""
+      },
+
+      "options": {
+        "viewAsHtml": true,
+        "readOnly": true
       }
     },
+
+    {
+      "input": false,
+      "html": "<br>",
+      "type": "content"
+    },
+
     {
       "input": false,
       "columns": [
@@ -162,141 +219,118 @@
         "eq": ""
       }
     },
-    {
-      "tabindex": "5",
-      "tags": [],
-      "clearOnHide": true,
-      "hidden": false,
-      "input": true,
-      "tableView": true,
-      "label": "Survey",
-      "key": "survey",
-      "questions": [
-        {
-          "value": "howWouldYouRateTheFormIoPlatform",
-          "label": "How would you rate the Form.io platform?"
-        },
-        {
-          "value": "howWasCustomerSupport",
-          "label": "How was Customer Support?"
-        },
-        {
-          "value": "overallExperience",
-          "label": "Overall Experience?"
-        }
-      ],
-      "values": [
-        {
-          "value": "excellent",
-          "label": "Excellent"
-        },
-        {
-          "value": "great",
-          "label": "Great"
-        },
-        {
-          "value": "good",
-          "label": "Good"
-        },
-        {
-          "value": "average",
-          "label": "Average"
-        },
-        {
-          "value": "poor",
-          "label": "Poor"
-        }
-      ],
-      "defaultValue": "",
-      "protected": false,
-      "persistent": true,
-      "validate": {
-        "required": false,
-        "custom": "",
-        "customPrivate": false
-      },
-      "type": "survey",
-      "conditional": {
-        "show": "",
-        "when": null,
-        "eq": ""
-      }
-    },
-    {
-      "tags": [],
-      "clearOnHide": true,
-      "hidden": false,
-      "input": true,
-      "tableView": true,
-      "label": "Signature",
-      "key": "signature",
-      "placeholder": "",
-      "footer": "Sign above",
-      "width": "100%",
-      "height": "150px",
-      "penColor": "black",
-      "backgroundColor": "rgb(245,245,235)",
-      "minWidth": "0.5",
-      "maxWidth": "2.5",
-      "protected": false,
-      "persistent": true,
-      "validate": {
-        "required": false
-      },
-      "type": "signature",
-      "hideLabel": true,
-      "conditional": {
-        "show": "",
-        "when": null,
-        "eq": ""
-      }
-    },
 
     {
       "input": true,
-      "inputType": "text",
       "label": "Txt component",
       "key": "txtFieldKey",
       "placeholder": "Enter your txt value",
       "type": "txt"
     },
     {
-      "input": true,
-      "inputType": "text",
-      "label": "Custom component",
-      "key": "customFieldKey",
-      "placeholder": "Enter your custom value",
       "type": "custom"
     },
 
     {
-      "autofocus": false,
-      "input": true,
-      "tableView": true,
-      "label": "File upload",
-      "key": "",
-      "image": false,
-      "imageSize": "200",
-      "placeholder": "",
+      "label": "CheckList",
       "multiple": true,
-      "defaultValue": "",
-      "protected": false,
-      "persistent": true,
-      "hidden": false,
-      "clearOnHide": true,
-      "filePattern": "*",
-      "fileMinSize": "0KB",
-      "fileMaxSize": "1GB",
+      "mask": false,
+      "tableView": true,
+      "alwaysEnabled": false,
+      "type": "checklist",
+      "input": true,
+      "key": "upload",
+      "defaultValue": [
+        {
+          "storage": "base64",
+          "name": "babel-9e461767-1ff3-484f-b248-850fdbfd5ded.js",
+          "url": "data:application/javascript;base64,bW9kdWxlLmV4cG9ydHMgPSB7CiAgcGx1Z2luczogW1snQGJhYmVsL3Byb3Bvc2FsLWNsYXNzLXByb3BlcnRpZXMnLCB7IGxvb3NlOiB0cnVlIH1dXSwKICBwcmVzZXRzOiBbWydAYmFiZWwvZW52JywgeyBsb29zZTogdHJ1ZSB9XSwgJ0BiYWJlbC9yZWFjdCddLAp9CgppZiAocHJvY2Vzcy5lbnYuTk9ERV9FTlYgPT09ICdjanMnKSB7CiAgbW9kdWxlLmV4cG9ydHMucGx1Z2lucy5wdXNoKCdAYmFiZWwvdHJhbnNmb3JtLXJ1bnRpbWUnKQp9Cg==",
+          "size": 250,
+          "type": "application/javascript",
+          "originalName": "babel.config.js"
+        },
+        {
+          "storage": "base64",
+          "name": "changelog-771401bf-f5b3-4bd1-bf41-9a607efbc42d.md",
+          "url": "data:text/markdown;base64,V2UgYXJlIHVzaW5nIHRoZSBbR2l0aHViIFJlbGVhc2VzIHBhZ2VdKGh0dHBzOi8vZ2l0aHViLmNvbS9hY2RsaXRlL3JlY29tcG9zZS9yZWxlYXNlcykgYXMgb3VyIENIQU5HRUxPRy4K",
+          "size": 105,
+          "type": "text/markdown",
+          "originalName": "CHANGELOG.md"
+        },
+        {
+          "storage": "base64",
+          "name": "license-f97e3d4e-0e6e-4b64-b223-c49a194019a6.md",
+          "url": "data:text/markdown;base64,VGhlIE1JVCBMaWNlbnNlIChNSVQpCgpDb3B5cmlnaHQgKGMpIDIwMTUtMjAxOCBBbmRyZXcgQ2xhcmsKClBlcm1pc3Npb24gaXMgaGVyZWJ5IGdyYW50ZWQsIGZyZWUgb2YgY2hhcmdlLCB0byBhbnkgcGVyc29uIG9idGFpbmluZyBhIGNvcHkKb2YgdGhpcyBzb2Z0d2FyZSBhbmQgYXNzb2NpYXRlZCBkb2N1bWVudGF0aW9uIGZpbGVzICh0aGUgIlNvZnR3YXJlIiksIHRvIGRlYWwKaW4gdGhlIFNvZnR3YXJlIHdpdGhvdXQgcmVzdHJpY3Rpb24sIGluY2x1ZGluZyB3aXRob3V0IGxpbWl0YXRpb24gdGhlIHJpZ2h0cwp0byB1c2UsIGNvcHksIG1vZGlmeSwgbWVyZ2UsIHB1Ymxpc2gsIGRpc3RyaWJ1dGUsIHN1YmxpY2Vuc2UsIGFuZC9vciBzZWxsCmNvcGllcyBvZiB0aGUgU29mdHdhcmUsIGFuZCB0byBwZXJtaXQgcGVyc29ucyB0byB3aG9tIHRoZSBTb2Z0d2FyZSBpcwpmdXJuaXNoZWQgdG8gZG8gc28sIHN1YmplY3QgdG8gdGhlIGZvbGxvd2luZyBjb25kaXRpb25zOgoKVGhlIGFib3ZlIGNvcHlyaWdodCBub3RpY2UgYW5kIHRoaXMgcGVybWlzc2lvbiBub3RpY2Ugc2hhbGwgYmUgaW5jbHVkZWQgaW4gYWxsCmNvcGllcyBvciBzdWJzdGFudGlhbCBwb3J0aW9ucyBvZiB0aGUgU29mdHdhcmUuCgpUSEUgU09GVFdBUkUgSVMgUFJPVklERUQgIkFTIElTIiwgV0lUSE9VVCBXQVJSQU5UWSBPRiBBTlkgS0lORCwgRVhQUkVTUyBPUgpJTVBMSUVELCBJTkNMVURJTkcgQlVUIE5PVCBMSU1JVEVEIFRPIFRIRSBXQVJSQU5USUVTIE9GIE1FUkNIQU5UQUJJTElUWSwKRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UgQU5EIE5PTklORlJJTkdFTUVOVC4gSU4gTk8gRVZFTlQgU0hBTEwgVEhFCkFVVEhPUlMgT1IgQ09QWVJJR0hUIEhPTERFUlMgQkUgTElBQkxFIEZPUiBBTlkgQ0xBSU0sIERBTUFHRVMgT1IgT1RIRVIKTElBQklMSVRZLCBXSEVUSEVSIElOIEFOIEFDVElPTiBPRiBDT05UUkFDVCwgVE9SVCBPUiBPVEhFUldJU0UsIEFSSVNJTkcgRlJPTSwKT1VUIE9GIE9SIElOIENPTk5FQ1RJT04gV0lUSCBUSEUgU09GVFdBUkUgT1IgVEhFIFVTRSBPUiBPVEhFUiBERUFMSU5HUyBJTiBUSEUKU09GVFdBUkUuCg==",
+          "size": 1084,
+          "type": "text/markdown",
+          "originalName": "LICENSE.md"
+        }
+      ],
+      "encrypted": false,
+      "storage": "base64",
+      "dir": "",
+      "webcam": false,
+      "fileTypes": [
+        {
+          "label": "",
+          "value": ""
+        }
+      ],
+      "validate": {
+        "customMessage": "",
+        "json": ""
+      }
+    },
+
+    {
+      "label": "Upload",
+      "multiple": true,
+      "mask": false,
+      "tableView": true,
+      "alwaysEnabled": false,
       "type": "file",
-      "$$hashKey": "object:386",
-      "labelPosition": "top",
-      "-tags": [],
-      "-conditional": {
-        "show": "",
-        "when": null,
-        "eq": ""
-      },
-      "-properties": {}
+      "input": true,
+      "key": "upload",
+      "defaultValue": [
+        {
+          "storage": "base64",
+          "name": "babel-9e461767-1ff3-484f-b248-850fdbfd5ded.js",
+          "url": "data:application/javascript;base64,bW9kdWxlLmV4cG9ydHMgPSB7CiAgcGx1Z2luczogW1snQGJhYmVsL3Byb3Bvc2FsLWNsYXNzLXByb3BlcnRpZXMnLCB7IGxvb3NlOiB0cnVlIH1dXSwKICBwcmVzZXRzOiBbWydAYmFiZWwvZW52JywgeyBsb29zZTogdHJ1ZSB9XSwgJ0BiYWJlbC9yZWFjdCddLAp9CgppZiAocHJvY2Vzcy5lbnYuTk9ERV9FTlYgPT09ICdjanMnKSB7CiAgbW9kdWxlLmV4cG9ydHMucGx1Z2lucy5wdXNoKCdAYmFiZWwvdHJhbnNmb3JtLXJ1bnRpbWUnKQp9Cg==",
+          "size": 250,
+          "type": "application/javascript",
+          "originalName": "babel.config.js"
+        },
+        {
+          "storage": "base64",
+          "name": "changelog-771401bf-f5b3-4bd1-bf41-9a607efbc42d.md",
+          "url": "data:text/markdown;base64,V2UgYXJlIHVzaW5nIHRoZSBbR2l0aHViIFJlbGVhc2VzIHBhZ2VdKGh0dHBzOi8vZ2l0aHViLmNvbS9hY2RsaXRlL3JlY29tcG9zZS9yZWxlYXNlcykgYXMgb3VyIENIQU5HRUxPRy4K",
+          "size": 105,
+          "type": "text/markdown",
+          "originalName": "CHANGELOG.md"
+        },
+        {
+          "storage": "base64",
+          "name": "license-f97e3d4e-0e6e-4b64-b223-c49a194019a6.md",
+          "url": "data:text/markdown;base64,VGhlIE1JVCBMaWNlbnNlIChNSVQpCgpDb3B5cmlnaHQgKGMpIDIwMTUtMjAxOCBBbmRyZXcgQ2xhcmsKClBlcm1pc3Npb24gaXMgaGVyZWJ5IGdyYW50ZWQsIGZyZWUgb2YgY2hhcmdlLCB0byBhbnkgcGVyc29uIG9idGFpbmluZyBhIGNvcHkKb2YgdGhpcyBzb2Z0d2FyZSBhbmQgYXNzb2NpYXRlZCBkb2N1bWVudGF0aW9uIGZpbGVzICh0aGUgIlNvZnR3YXJlIiksIHRvIGRlYWwKaW4gdGhlIFNvZnR3YXJlIHdpdGhvdXQgcmVzdHJpY3Rpb24sIGluY2x1ZGluZyB3aXRob3V0IGxpbWl0YXRpb24gdGhlIHJpZ2h0cwp0byB1c2UsIGNvcHksIG1vZGlmeSwgbWVyZ2UsIHB1Ymxpc2gsIGRpc3RyaWJ1dGUsIHN1YmxpY2Vuc2UsIGFuZC9vciBzZWxsCmNvcGllcyBvZiB0aGUgU29mdHdhcmUsIGFuZCB0byBwZXJtaXQgcGVyc29ucyB0byB3aG9tIHRoZSBTb2Z0d2FyZSBpcwpmdXJuaXNoZWQgdG8gZG8gc28sIHN1YmplY3QgdG8gdGhlIGZvbGxvd2luZyBjb25kaXRpb25zOgoKVGhlIGFib3ZlIGNvcHlyaWdodCBub3RpY2UgYW5kIHRoaXMgcGVybWlzc2lvbiBub3RpY2Ugc2hhbGwgYmUgaW5jbHVkZWQgaW4gYWxsCmNvcGllcyBvciBzdWJzdGFudGlhbCBwb3J0aW9ucyBvZiB0aGUgU29mdHdhcmUuCgpUSEUgU09GVFdBUkUgSVMgUFJPVklERUQgIkFTIElTIiwgV0lUSE9VVCBXQVJSQU5UWSBPRiBBTlkgS0lORCwgRVhQUkVTUyBPUgpJTVBMSUVELCBJTkNMVURJTkcgQlVUIE5PVCBMSU1JVEVEIFRPIFRIRSBXQVJSQU5USUVTIE9GIE1FUkNIQU5UQUJJTElUWSwKRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UgQU5EIE5PTklORlJJTkdFTUVOVC4gSU4gTk8gRVZFTlQgU0hBTEwgVEhFCkFVVEhPUlMgT1IgQ09QWVJJR0hUIEhPTERFUlMgQkUgTElBQkxFIEZPUiBBTlkgQ0xBSU0sIERBTUFHRVMgT1IgT1RIRVIKTElBQklMSVRZLCBXSEVUSEVSIElOIEFOIEFDVElPTiBPRiBDT05UUkFDVCwgVE9SVCBPUiBPVEhFUldJU0UsIEFSSVNJTkcgRlJPTSwKT1VUIE9GIE9SIElOIENPTk5FQ1RJT04gV0lUSCBUSEUgU09GVFdBUkUgT1IgVEhFIFVTRSBPUiBPVEhFUiBERUFMSU5HUyBJTiBUSEUKU09GVFdBUkUuCg==",
+          "size": 1084,
+          "type": "text/markdown",
+          "originalName": "LICENSE.md"
+        }
+      ],
+      "encrypted": false,
+      "storage": "base64",
+      "dir": "",
+      "webcam": false,
+      "fileTypes": [
+        {
+          "label": "",
+          "value": ""
+        }
+      ],
+      "validate": {
+        "customMessage": "",
+        "json": ""
+      }
     },
 
     {

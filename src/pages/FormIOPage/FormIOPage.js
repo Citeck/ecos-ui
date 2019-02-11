@@ -4,25 +4,36 @@ import Form from 'formiojs/Form';
 import FormBuilder from 'formiojs/FormBuilder';
 import schema from './form.json';
 import './formio.full.min.css';
+import './temporary.hack.styles.css';
 
 // TODO move to /src/index.js
 import DefaultComponents from 'formiojs/components';
-import CustomComponents from '../../forms/components';
 import Components from 'formiojs/components/Components';
-
-console.log(DefaultComponents);
-console.log(CustomComponents);
+import CustomComponents from '../../forms/components';
+import '../../forms/components/builder';
+// console.log(DefaultComponents);
+// console.log(CustomComponents);
 Components.setComponents({ ...DefaultComponents, ...CustomComponents });
 
 class FormIOPage extends React.Component {
   componentDidMount() {
-    console.log(schema);
+    let options = {
+      // inputsOnly: true
+    };
 
-    const form = new Form(document.getElementById('formio'), schema);
-    console.log(form);
+    // form in view mode
+    if (0) {
+      options = {
+        readOnly: true,
+        viewAsHtml: true
+      };
+    }
+
+    const form = new Form(document.getElementById('formio'), schema, options);
+    // console.log(form);
 
     form.render().then(form => {
-      console.log(form);
+      // console.log(form);
 
       form.submission = {
         data: {
@@ -41,12 +52,16 @@ class FormIOPage extends React.Component {
       form.on('change', function(changed) {
         console.log('Form was changed', changed);
       });
+
+      form.on('error', function(error) {
+        console.log('Form error', error);
+      });
     });
 
     const formBuilder = new FormBuilder(document.getElementById('builder'));
-    console.log(formBuilder);
+    // console.log(formBuilder);
     formBuilder.render().then(form => {
-      console.log(form);
+      // console.log(form);
 
       // Everytime the form changes, this will fire.
       form.on('change', function(changed) {
