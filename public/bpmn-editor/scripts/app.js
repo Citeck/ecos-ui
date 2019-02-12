@@ -207,33 +207,42 @@ flowableModeler
             updateShowNav();
 
             // Main navigation
-            $rootScope.mainNavigation = [
-                {
-                    'id': 'processes',
-                    'title': 'GENERAL.NAVIGATION.PROCESSES',
-                    'location': '/share/page/bpmn-designer'
-                },
-                {
-                    'id': 'casemodels',
-                    'title': 'GENERAL.NAVIGATION.CASEMODELS',
-                    'path': '/casemodels'
-                },
-                {
-                    'id': 'forms',
-                    'title': 'GENERAL.NAVIGATION.FORMS',
-                    'path': '/forms'
-                },
-                {
-                    'id': 'decision-tables',
-                    'title': 'GENERAL.NAVIGATION.DECISION-TABLES',
-                    'path': '/decision-tables'
-                },
-                {
-                    'id': 'apps',
-                    'title': 'GENERAL.NAVIGATION.APPS',
-                    'path': '/apps'
+            $rootScope.mainNavigation = [];
+            fetch('/share/proxy/alfresco/citeck/ecos/records/query', {
+              method: 'post',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                query: { sourceId: 'people' },
+                attributes: {
+                  isAdmin: 'isAdmin',
+                  isBpmAdmin: '.att(n:"authorities"){has(n:"GROUP_BPM_APP_ADMIN")}'
                 }
-            ];
+              })
+            }).then(window.checkStatus).then(window.parseJSON).then(json => json.records[0].attributes).then(user => {
+              const isUserAdmin = user.isAdmin === 'true';
+              const isUserBPMNAdmin = user.isBpmAdmin;
+              const mainNavigation = [
+                { 'id': 'processes', 'title': 'GENERAL.NAVIGATION.PROCESSES', 'location': '/share/page/bpmn-designer' }
+              ];
+              if (isUserAdmin || isUserBPMNAdmin) {
+                mainNavigation.push(
+                  { 'id': 'casemodels', 'title': 'GENERAL.NAVIGATION.CASEMODELS', 'path': '/casemodels' }
+                );
+              }
+              mainNavigation.push(
+                { 'id': 'forms', 'title': 'GENERAL.NAVIGATION.FORMS', 'path': '/forms' }
+              );
+              if (isUserAdmin || isUserBPMNAdmin) {
+                mainNavigation.push(
+                  { 'id': 'decision-tables', 'title': 'GENERAL.NAVIGATION.DECISION-TABLES', 'path': '/decision-tables' },
+                  { 'id': 'apps', 'title': 'GENERAL.NAVIGATION.APPS', 'path': '/apps' }
+                );
+              }
+              $rootScope.mainNavigation = mainNavigation;
+              $rootScope.$apply();
+            });
 
             $rootScope.config = FLOWABLE.CONFIG;
 

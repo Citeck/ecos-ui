@@ -1,41 +1,71 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import mainStyles from '../BPMNDesigner.module.scss';
 import styles from './RightMenu.module.scss';
 import cn from 'classnames';
 import { EDITOR_PAGE_CONTEXT, DESIGNER_PAGE_CONTEXT } from '../../../constants/bpmn';
 import { t } from '../../../helpers/util';
 
-function RightMenu() {
+const mapStateToProps = state => ({
+  isAdmin: state.user.isAdmin,
+  isBpmAdmin: state.user.isBpmAdmin
+});
+
+function RightMenu({ isAdmin, isBpmAdmin }) {
+  const menuItems = [
+    {
+      className: cn(styles.item, { [styles.itemActive]: true }),
+      href: DESIGNER_PAGE_CONTEXT,
+      iconClassName: 'icon-models',
+      label: t('bpmn-designer.right-menu.process-models')
+    }
+  ];
+
+  if (isAdmin || isBpmAdmin) {
+    menuItems.push({
+      className: styles.item,
+      href: `${EDITOR_PAGE_CONTEXT}#/casemodels`,
+      iconClassName: 'icon-case-models',
+      label: t('bpmn-designer.right-menu.case-models')
+    });
+  }
+
+  menuItems.push({
+    className: styles.item,
+    href: `${EDITOR_PAGE_CONTEXT}#/forms`,
+    iconClassName: 'icon-forms',
+    label: t('bpmn-designer.right-menu.forms')
+  });
+
+  if (isAdmin || isBpmAdmin) {
+    menuItems.push(
+      {
+        className: styles.item,
+        href: `${EDITOR_PAGE_CONTEXT}#/decision-tables`,
+        iconClassName: 'icon-decision-tables',
+        label: t('bpmn-designer.right-menu.decision-tables')
+      },
+      {
+        className: styles.item,
+        href: `${EDITOR_PAGE_CONTEXT}#/apps`,
+        iconClassName: 'icon-apps',
+        label: t('bpmn-designer.right-menu.apps')
+      }
+    );
+  }
+
   return (
     <div className={styles.wrapper}>
       <div className={mainStyles.whiteBlock}>
         <nav>
           <ul>
-            <li className={cn(styles.item, { [styles.itemActive]: true })}>
-              <a href={DESIGNER_PAGE_CONTEXT} className="icon-models">
-                {t('bpmn-designer.right-menu.process-models')}
-              </a>
-            </li>
-            <li className={styles.item}>
-              <a href={`${EDITOR_PAGE_CONTEXT}#/casemodels`} className="icon-case-models">
-                {t('bpmn-designer.right-menu.case-models')}
-              </a>
-            </li>
-            <li className={styles.item}>
-              <a href={`${EDITOR_PAGE_CONTEXT}#/forms`} className="icon-forms">
-                {t('bpmn-designer.right-menu.forms')}
-              </a>
-            </li>
-            <li className={styles.item}>
-              <a href={`${EDITOR_PAGE_CONTEXT}#/decision-tables`} className="icon-decision-tables">
-                {t('bpmn-designer.right-menu.decision-tables')}
-              </a>
-            </li>
-            <li className={styles.item}>
-              <a href={`${EDITOR_PAGE_CONTEXT}#/apps`} className="icon-apps">
-                {t('bpmn-designer.right-menu.apps')}
-              </a>
-            </li>
+            {menuItems.map(item => (
+              <li className={item.className} key={item.label}>
+                <a href={item.href} className={item.iconClassName}>
+                  {item.label}
+                </a>
+              </li>
+            ))}
           </ul>
         </nav>
       </div>
@@ -43,4 +73,4 @@ function RightMenu() {
   );
 }
 
-export default RightMenu;
+export default connect(mapStateToProps)(RightMenu);

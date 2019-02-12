@@ -59,7 +59,7 @@
               <!--<img ng-src="{{appResourceRoot}}images/flowable-logo.png" ng-srcset="{{appResourceRoot}}images/flowable-logo.png 1x, {{appResourceRoot}}images/flowable-logo@2x.png 2x">-->
             <!--</a>-->
             <ul class="nav navbar-nav" id="main-nav">
-              <li ng-class="{'active' : item.id == mainPage.id}" ng-repeat="item in mainNavigation">
+              <li ng-class="{'active' : item.id == mainPage.id}" ng-repeat="item in $root.mainNavigation">
                 <a ng-click="setMainPage(item)">{{item.title | translate}}</a>
               </li>
             </ul>
@@ -370,10 +370,6 @@
                 userName: 'userName',
                 isAvailable: 'isAvailable',
                 isMutable: 'isMutable',
-                firstName: 'cm:firstName',
-                lastName: 'cm:lastName',
-                middleName: 'cm:middleName',
-                isAdmin: 'isAdmin',
                 fullName: 'fullName',
                 uid: 'cm:name',
               }
