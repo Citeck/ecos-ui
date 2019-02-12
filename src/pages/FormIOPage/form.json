@@ -26,22 +26,19 @@
       "key": "docListCustomKey",
       "documents": [
         {
+          "inputName": "someDocument",
           "value": "someDocument",
           "label": "Some document"
         },
         {
+          "inputName": "anotherDocument",
           "value": "anotherDocument",
           "label": "Another document"
         },
         {
+          "inputName": "thirdDocument",
           "value": "thirdDocument",
           "label": "Third document"
-        }
-      ],
-      "values": [
-        {
-          "value": "excellent",
-          "label": "Excellent"
         }
       ],
       "defaultValue": {

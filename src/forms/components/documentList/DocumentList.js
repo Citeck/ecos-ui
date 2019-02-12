@@ -114,6 +114,7 @@ export default class DocumentList extends BaseComponent {
     tr.appendChild(td);
 
     if (that.dataValue[doc.value]) {
+      // TODO doc.inputName
       const infoText = this.ce('span', {}, that.dataValue[doc.value][0].name);
       const cancelFileButton = this.buildCancelFile(doc.value);
 
@@ -167,8 +168,7 @@ export default class DocumentList extends BaseComponent {
         href: '#',
         onClick: event => {
           event.preventDefault();
-          // There is no direct way to trigger a file dialog. To work around this, create an input of type file and trigger
-          // a click event on it.
+
           delete this.dataValue[docValue];
           this.triggerChange();
           this.refreshDOM();
@@ -186,8 +186,7 @@ export default class DocumentList extends BaseComponent {
         href: '#',
         onClick: event => {
           event.preventDefault();
-          // There is no direct way to trigger a file dialog. To work around this, create an input of type file and trigger
-          // a click event on it.
+
           if (typeof input.trigger === 'function') {
             input.trigger('click');
           } else {
@@ -201,6 +200,7 @@ export default class DocumentList extends BaseComponent {
   }
 
   upload(files, doc) {
+    // TODO
     this.dataValue[doc.value] = files;
     this.triggerChange();
     this.refreshDOM();
