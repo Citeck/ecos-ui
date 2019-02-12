@@ -5,7 +5,7 @@ import cn from 'classnames';
 import { t } from '../../../helpers/util';
 import styles from './ModelCard.module.scss';
 
-const ModelCard = ({ label, author, datetime, viewLink, editLink, image }) => {
+const ModelCard = ({ label, author, datetime, viewLink, editLink, image, canWrite }) => {
   const dragNDropIconClasses = cn('icon-drag', styles.dndActionIcon, styles.hiddenIcon);
 
   let cardTopBgStyle = null;
@@ -15,14 +15,21 @@ const ModelCard = ({ label, author, datetime, viewLink, editLink, image }) => {
     };
   }
 
+  let editButton = null;
+  if (canWrite) {
+    editButton = (
+      <a href={editLink} className={styles.cardEditButton}>
+        <span className={'icon-edit'} />
+      </a>
+    );
+  }
+
   return (
     <Col xl={3} lg={4} md={4} sm={6}>
       <div className={styles.card}>
         <div className={styles.cardTop} style={cardTopBgStyle}>
           <div className={styles.cardTopHover}>
-            <a href={editLink} className={styles.cardEditButton}>
-              <span className={'icon-edit'} />
-            </a>
+            {editButton}
             <div className={styles.cardTopButton}>
               {/*<NavLink to={viewLink}>{t('bpmn-designer.view-button')}</NavLink>*/}
               <a href={viewLink}>{t('bpmn-designer.view-button')}</a>

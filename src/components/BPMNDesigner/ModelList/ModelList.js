@@ -5,8 +5,17 @@ import cn from 'classnames';
 import { t } from '../../../helpers/util';
 import styles from './ModelList.module.scss';
 
-const ModelList = ({ label, author, datetime, viewLink, editLink }) => {
+const ModelList = ({ label, author, datetime, viewLink, editLink, canWrite }) => {
   const dragNDropIconClasses = cn('icon-drag', styles.dndActionIcon, styles.hiddenIcon);
+
+  let editButton = <div className={styles.emptyActionIcon} />;
+  if (canWrite) {
+    editButton = (
+      <a href={editLink} className={styles.editActionIcon}>
+        <span className={'icon-edit'} />
+      </a>
+    );
+  }
 
   return (
     <Col xs={12} className={styles.itemWrapper}>
@@ -26,9 +35,7 @@ const ModelList = ({ label, author, datetime, viewLink, editLink }) => {
           <a href={viewLink} className={styles.viewCard}>
             {t('bpmn-designer.view-button')}
           </a>
-          <a href={editLink} className={styles.editActionIcon}>
-            <span className={'icon-edit'} />
-          </a>
+          {editButton}
           <span className={dragNDropIconClasses} />
         </div>
       </div>

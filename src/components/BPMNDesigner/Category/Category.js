@@ -151,7 +151,7 @@ class Category extends React.Component {
   }
 
   render() {
-    const { label, level, isEditable, viewType, saveEditableCategory, cancelEditCategory, searchText } = this.props;
+    const { label, level, isEditable, viewType, saveEditableCategory, cancelEditCategory, searchText, canWrite } = this.props;
 
     // classes
     const dropdownActionsIconClasses = cn(styles.categoryActionIcon, styles.categoryActionIcon2, {
@@ -188,21 +188,23 @@ class Category extends React.Component {
 
     // action buttons
     let onClickLabel = this.toggleCollapse;
+
     const actions = [
-      {
-        label: t('bpmn-designer.category-action.rename'),
-        onClick: this.doRenameCategoryAction
-      },
       {
         label: t('bpmn-designer.category-action.create-model'),
         onClick: this.doAddModelAction
-      },
-      {
-        label: t('bpmn-designer.category-action.delete'),
-        onClick: this.doDeleteCategoryAction
       }
     ];
-
+    if (canWrite) {
+      actions.unshift({
+        label: t('bpmn-designer.category-action.rename'),
+        onClick: this.doRenameCategoryAction
+      });
+      actions.push({
+        label: t('bpmn-designer.category-action.delete'),
+        onClick: this.doDeleteCategoryAction
+      });
+    }
     if (level < 2) {
       actions.unshift({
         label: t('bpmn-designer.category-action.add-subcategory'),

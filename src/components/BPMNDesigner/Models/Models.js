@@ -34,6 +34,7 @@ const Models = ({ viewType, items, categoryId, searchText }) => {
 
       models.push(
         <ModelComponent
+          canWrite={item.canWrite}
           key={item.id}
           viewLink={viewLink}
           editLink={editLink}

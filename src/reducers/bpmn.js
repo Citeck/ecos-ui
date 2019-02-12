@@ -68,7 +68,8 @@ export default handleActions(
         id: `temp-${new Date().getTime()}`,
         label: '',
         isEditable: true,
-        isTemporary: true
+        isTemporary: true,
+        canWrite: true
       };
 
       if (action.payload && action.payload.parentId) {
