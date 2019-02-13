@@ -38,13 +38,13 @@ class FormIOPage extends React.Component {
     form.render().then(form => {
       // console.log(form);
 
-      form.submission = {
-        data: {
-          firstName: 'Joe',
-          lastName: 'Smith',
-          customFieldKey: 'Custom field value'
-        }
-      };
+      // form.submission = {
+      //   data: {
+      //     firstName: 'Joe',
+      //     lastName: 'Smith',
+      //     customFieldKey: 'Custom field value'
+      //   }
+      // };
 
       // Register for the submit event to get the completed submission.
       form.on('submit', function(submission) {

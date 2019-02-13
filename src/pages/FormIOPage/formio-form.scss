@@ -1,11 +1,17 @@
 @import '../../constants';
 
+$input-padding: 10px;
+
 .formio-form {
   .formio-component {
     &.formio-component_transparent-label {
       .control-label {
         visibility: hidden;
       }
+    }
+
+    &:focus {
+      outline: none;
     }
   }
 
@@ -14,7 +20,8 @@
     box-sizing: border-box;
     width: 100%;
     height: $form-input-height;
-    padding-left: 15px;
+    padding-left: $input-padding;
+    padding-right: $input-padding;
     background: $color-white;
     border: $border-width-standard solid $color-gray-6;
     border-radius: $border-radius-standard;
@@ -70,14 +77,13 @@
     }
 
     &.formio-component-datetime_only-time {
-      .glyphicon-calendar {
-        &:before {
-          content: none;
-        }
+      .input-group-addon {
+        display: none;
       }
     }
   }
 
+  /* error message TODO */
   .invalid-feedback {
     color: $color-red-1;
     font-family: $font-family-open-sans;
@@ -96,8 +102,12 @@
     .card-header {
       background-color: transparent;
       border-bottom: none;
-      padding-top: 0;
-      padding-bottom: 0;
+      padding: 0;
+    }
+
+    .card-body {
+      padding-right: 0;
+      padding-left: 0;
     }
 
     .card-title {
@@ -116,16 +126,174 @@
 
   /* checkbox */
   .formio-component-checkbox {
+    padding-left: 0;
+
     .form-check-label {
       line-height: 24px;
       font-size: 14px;
+      cursor: pointer;
+
+      .form-check-input:first-child {
+        display: none;
+
+        + span {
+          &:before {
+            font-family: $font-family-citeck;
+            content: $citeck-icon-checkbox;
+            color: $color-gray-6;
+            margin-right: 10px;
+            font-size: 22px;
+            font-weight: normal;
+            position: relative;
+            top: 2px;
+          }
+        }
+
+        &:checked {
+          + span {
+            &:before {
+              content: $citeck-icon-checkbox-checked;
+              color: $color-blue-dark;
+            }
+          }
+        }
+
+        &:disabled {
+          + span {
+            color: $color-gray-5;
+
+            &:before {
+              content: $citeck-icon-checkbox-dark;
+              color: $color-gray-4;
+            }
+          }
+
+          &:checked {
+            + span {
+              &:before {
+                content: $citeck-icon-checkbox-checked;
+              }
+            }
+          }
+        }
+      }
     }
   }
 
+  /* select */
   .formio-component-select {
     .choices__input {
       background-color: $color-white;
       margin-bottom: 0;
+    }
+
+    .choices__list--dropdown {
+      margin-top: 5px;
+      border-radius: $border-radius-standard;
+      box-shadow: $box-shadow-default;
+      border: none;
+      font-weight: $font-weight-bold;
+      color: $text-color-dark;
+
+      .choices__input {
+        font-weight: $font-weight-bold;
+        border: 2px solid $color-gray-6;
+        margin: $input-padding $input-padding 10px $input-padding;
+        width: calc(100% - #{$input-padding * 2});
+        border-radius: $border-radius-standard;
+
+        &::placeholder {
+          color: $color-gray-5;
+        }
+      }
+
+      .choices__item {
+        padding-left: $input-padding;
+        padding-right: $input-padding;
+      }
+    }
+
+    .choices__list--multiple {
+      .choices__item {
+        margin-bottom: 0;
+        line-height: 26px;
+        background-color: #4b75b7;
+        border: none;
+        border-radius: 100px;
+        padding: 0 $input-padding;
+        font-size: 12px;
+        font-weight: 600;
+
+        .choices__button {
+          border-left: none;
+          background-size: 12px;
+        }
+      }
+    }
+
+    &.formio-component-multiple {
+      .form-control {
+        padding: 0 10px;
+        line-height: 32px;
+      }
+    }
+  }
+
+  /* button */
+  .formio-component-button {
+    .btn:not(.btn-xxs) {
+      cursor: pointer;
+      display: inline-block;
+      white-space: nowrap;
+      height: 40px;
+      margin: 0;
+      padding: 9px 15px;
+      text-align: center;
+      letter-spacing: 0.2pt;
+      font-family: $font-family !important;
+      font-weight: $font-weight-bold !important;
+      font-size: $font-size-standard !important;
+      color: $text-color-dark;
+      background-color: $color-gray-4;
+      border-radius: $border-radius-large;
+      border: none;
+
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      &:hover {
+        background-color: $color-gray-1;
+      }
+
+      &:active {
+        background-color: $color-gray-4;
+      }
+
+      &:active:focus,
+      &:focus {
+        box-shadow: none !important;
+      }
+
+      &.btn-primary {
+        color: $color-white;
+        background-color: $color-blue-dark;
+
+        &:hover {
+          background-color: $color-blue-light;
+        }
+
+        &:active {
+          background-color: $color-blue-dark;
+        }
+
+        &:disabled {
+          background-color: #c6d6f0;
+        }
+      }
+
+      &.button_full_width {
+        width: 100%;
+      }
     }
   }
 }

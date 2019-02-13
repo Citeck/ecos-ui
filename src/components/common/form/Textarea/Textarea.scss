@@ -14,6 +14,7 @@
   font-weight: $font-weight-bold;
   font-size: $font-size-standard;
   color: $text-color-dark;
+  outline: none;
 
   &::placeholder {
     color: $color-gray-5;
