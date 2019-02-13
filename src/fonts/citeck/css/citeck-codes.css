@@ -1,93 +1,138 @@
-.icon-apps:before {
-  content: '\e800';
-} /* '' */
-.icon-case-models:before {
-  content: '\e801';
-} /* '' */
-.icon-check:before {
-  content: '\e802';
-} /* '' */
-.icon-close:before {
-  content: '\e803';
-} /* '' */
-.icon-decision-tables:before {
-  content: '\e804';
-} /* '' */
-.icon-delete:before {
-  content: '\e805';
-} /* '' */
-.icon-down:before {
-  content: '\e806';
-} /* '' */
-.icon-download:before {
-  content: '\e807';
-} /* '' */
-.icon-drag:before {
-  content: '\e808';
-} /* '' */
-.icon-edit:before {
-  content: '\e809';
-} /* '' */
-.icon-forms:before {
-  content: '\e80a';
-} /* '' */
-.icon-left:before {
-  content: '\e80b';
-} /* '' */
-.icon-list:before {
-  content: '\e80c';
-} /* '' */
-.icon-menu-normal-press:before {
-  content: '\e80d';
-} /* '' */
-.icon-menu-normal:before {
-  content: '\e80e';
-} /* '' */
-.icon-menu-small-press:before {
-  content: '\e80f';
-} /* '' */
-.icon-menu-small:before {
-  content: '\e810';
-} /* '' */
-.icon-minus:before {
-  content: '\e811';
-} /* '' */
-.icon-models:before {
-  content: '\e812';
-} /* '' */
-.icon-pie:before {
-  content: '\e813';
-} /* '' */
+.icon-big-arrow:before {
+  content: '\41';
+} /* 'A' */
+.icon-big-plus:before {
+  content: '\44';
+} /* 'D' */
 .icon-plus:before {
-  content: '\e814';
-} /* '' */
-.icon-preview:before {
-  content: '\e815';
-} /* '' */
-.icon-reload:before {
-  content: '\e816';
-} /* '' */
-.icon-right:before {
-  content: '\e817';
-} /* '' */
-.icon-search:before {
-  content: '\e818';
-} /* '' */
-.icon-settings:before {
-  content: '\e819';
-} /* '' */
-.icon-tiles:before {
-  content: '\e81a';
-} /* '' */
-.icon-up:before {
-  content: '\e81b';
-} /* '' */
-.icon-warning:before {
-  content: '\e81c';
-} /* '' */
-.icon-off:before {
-  content: '\e81d';
-} /* '' */
+  content: '\45';
+} /* 'E' */
+.icon-calendar:before {
+  content: '\46';
+} /* 'F' */
+.icon-load:before {
+  content: '\47';
+} /* 'G' */
 .icon-on:before {
-  content: '\e81e';
-} /* '' */
+  content: '\49';
+} /* 'I' */
+.icon-copy:before {
+  content: '\4f';
+} /* 'O' */
+.icon-group:before {
+  content: '\50';
+} /* 'P' */
+.icon-left:before {
+  content: '\51';
+} /* 'Q' */
+.icon-right:before {
+  content: '\52';
+} /* 'R' */
+.icon-big-filter:before {
+  content: '\53';
+} /* 'S' */
+.icon-up:before {
+  content: '\54';
+} /* 'T' */
+.icon-off:before {
+  content: '\55';
+} /* 'U' */
+.icon-minus:before {
+  content: '\57';
+} /* 'W' */
+.icon-warning:before {
+  content: '\59';
+} /* 'Y' */
+.icon-forms:before {
+  content: '\61';
+} /* 'a' */
+.icon-close:before {
+  content: '\62';
+} /* 'b' */
+.icon-settings:before {
+  content: '\63';
+} /* 'c' */
+.icon-menu-normal-press:before {
+  content: '\64';
+} /* 'd' */
+.icon-decision-tables:before {
+  content: '\65';
+} /* 'e' */
+.icon-menu-normal:before {
+  content: '\66';
+} /* 'f' */
+.icon-menu-small-press:before {
+  content: '\67';
+} /* 'g' */
+.icon-menu-small:before {
+  content: '\68';
+} /* 'h' */
+.icon-download:before {
+  content: '\69';
+} /* 'i' */
+.icon-models:before {
+  content: '\6a';
+} /* 'j' */
+.icon-pie:before {
+  content: '\6b';
+} /* 'k' */
+.icon-preview:before {
+  content: '\6c';
+} /* 'l' */
+.icon-filter:before {
+  content: '\6d';
+} /* 'm' */
+.icon-down:before {
+  content: '\6e';
+} /* 'n' */
+.icon-drag:before {
+  content: '\6f';
+} /* 'o' */
+.icon-edit:before {
+  content: '\70';
+} /* 'p' */
+.icon-apps:before {
+  content: '\71';
+} /* 'q' */
+.icon-question:before {
+  content: '\72';
+} /* 'r' */
+.icon-list:before {
+  content: '\73';
+} /* 's' */
+.icon-arrow:before {
+  content: '\74';
+} /* 't' */
+.icon-delete:before {
+  content: '\75';
+} /* 'u' */
+.icon-tiles:before {
+  content: '\76';
+} /* 'v' */
+.icon-case-models:before {
+  content: '\77';
+} /* 'w' */
+.icon-search:before {
+  content: '\78';
+} /* 'x' */
+.icon-check:before {
+  content: '\79';
+} /* 'y' */
+.icon-reload:before {
+  content: '\7a';
+} /* 'z' */
+.icon-unchecked:before {
+  content: '\e82b';
+} /* '' */
+.icon-checkbox-dark:before {
+  content: '\e82c';
+} /* '' */
+.icon-checkbox-minus-icon:before {
+  content: '\e82d';
+} /* '' */
+.icon-checkbox-check-icon:before {
+  content: '\e82e';
+} /* '' */
+.icon-checkbox-check:before {
+  content: '\e82f';
+} /* '' */
