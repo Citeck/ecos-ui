@@ -2,9 +2,12 @@ import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
 import Form from 'formiojs/Form';
 import FormBuilder from 'formiojs/FormBuilder';
-import schema from './form.json';
+// import schema from './form.json';
+import schema from './calendarForm.json';
 import './formio.full.min.css';
-import './temporary.hack.styles.css';
+import './formio-form.scss';
+import './temp.scss';
+import './glyphicon-to-fa.scss';
 
 // TODO move to /src/index.js
 import DefaultComponents from 'formiojs/components';
@@ -75,8 +78,12 @@ class FormIOPage extends React.Component {
       <Container>
         <Row>
           <Col md={12}>
-            <div id="formio" />
-            <div id="builder" />
+            <div className={'white-container'}>
+              <div id="formio" />
+              <br />
+              <br />
+              <div id="builder" />
+            </div>
           </Col>
         </Row>
       </Container>

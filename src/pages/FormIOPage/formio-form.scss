@@ -1,0 +1,131 @@
+@import '../../constants';
+
+.formio-form {
+  .formio-component {
+    &.formio-component_transparent-label {
+      .control-label {
+        visibility: hidden;
+      }
+    }
+  }
+
+  .form-control {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: $form-input-height;
+    padding-left: 15px;
+    background: $color-white;
+    border: $border-width-standard solid $color-gray-6;
+    border-radius: $border-radius-standard;
+    font-family: $font-family;
+    font-weight: $font-weight-bold;
+    font-size: $font-size-standard;
+    color: $text-color-dark;
+    outline: none;
+
+    &::placeholder {
+      color: $color-gray-5;
+    }
+
+    &:focus {
+      border-color: $color-blue-dark;
+      box-shadow: none;
+    }
+    &:hover {
+      border-color: $color-blue-light;
+    }
+
+    &.is-invalid {
+      border-color: $color-red-1;
+
+      &:focus {
+        box-shadow: none;
+        border-color: $color-red-1;
+      }
+    }
+  }
+
+  textarea.form-control {
+    height: auto;
+  }
+
+  .control-label {
+    font-family: $font-family-open-sans;
+    font-size: $font-size-small;
+    font-weight: $font-weight-bold;
+    color: $text-color-dark;
+  }
+
+  .formio-component-datetime {
+    .form-control.flatpickr-input {
+      border-radius: $border-radius-standard;
+    }
+
+    .glyphicon-calendar {
+      line-height: $form-input-height;
+      color: $color-gray-7;
+      font-size: 18px;
+      margin-left: 10px;
+    }
+
+    &.formio-component-datetime_only-time {
+      .glyphicon-calendar {
+        &:before {
+          content: none;
+        }
+      }
+    }
+  }
+
+  .invalid-feedback {
+    color: $color-red-1;
+    font-family: $font-family-open-sans;
+    font-size: $font-size-small;
+    margin-top: 0.5rem;
+  }
+
+  /* panel */
+  .card {
+    background-color: transparent;
+
+    &.border {
+      border: none !important;
+    }
+
+    .card-header {
+      background-color: transparent;
+      border-bottom: none;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    .card-title {
+      background: $color-yellow-1;
+      border-radius: 6px;
+
+      font-family: $font-family-open-sans;
+      font-weight: $font-weight-bold;
+      font-size: $font-size-large;
+      color: $text-color-gray;
+      line-height: 22px;
+
+      padding: 5px 12px;
+    }
+  }
+
+  /* checkbox */
+  .formio-component-checkbox {
+    .form-check-label {
+      line-height: 24px;
+      font-size: 14px;
+    }
+  }
+
+  .formio-component-select {
+    .choices__input {
+      background-color: $color-white;
+      margin-bottom: 0;
+    }
+  }
+}

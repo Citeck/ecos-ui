@@ -1,6 +1,6 @@
 @import '../../../../constants';
 
-.input {
+.ecos-input {
   display: block;
   box-sizing: border-box;
   width: 100%;
@@ -13,15 +13,16 @@
   font-weight: $font-weight-bold;
   font-size: $font-size-standard;
   color: $text-color-dark;
+  outline: none;
 
   &::placeholder {
     color: $color-gray-5;
   }
 }
 
-input[type='text'].input:focus {
+input[type='text'].ecos-input:focus {
   border-color: $color-blue-dark;
 }
-input[type='text'].input:hover {
+input[type='text'].ecos-input:hover {
   border-color: $color-blue-light;
 }
