@@ -1,4 +1,4 @@
-import BaseFormatter from '../baseFormatter';
+import BaseFormatter from '../BaseFormatter';
 
 export default class DefaultGqlFormatter extends BaseFormatter {
   static getQueryString(dataField) {

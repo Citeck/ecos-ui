@@ -114,7 +114,7 @@ class JournalsDashlet extends Component {
                 </div>
 
                 <div className={'journal-dashlet__grid'}>
-                  <Grid {...props.gridData} hasInlineTools hasCheckboxes />
+                  <Grid {...props.gridData} hasCheckboxes />
                 </div>
 
                 <div className={'journal-dashlet__footer'}>

@@ -30,11 +30,13 @@
       padding: 8px 0;
       vertical-align: middle;
       white-space: nowrap;
+      border-bottom: 0;
     }
   }
 }
 
 .grid__th {
+  border-right: 2px solid $color-gray-4;
   display: flex;
   align-items: center;
   padding: 7px 10px;
@@ -85,7 +87,6 @@
 .grid__th_checkbox {
   padding: 5px 15px;
   background: $color-white;
-  border-right: 2px solid $color-gray-4;
 }
 
 .grid__td_checkbox {

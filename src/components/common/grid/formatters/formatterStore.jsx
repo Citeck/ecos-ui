@@ -1,13 +1,15 @@
-import UserNameLinkFormatter from './gql/userNameLinkFormatter';
-import FunctionFormatter from './gql/functionFormatter';
+import UserNameLinkFormatter from './gql/UserNameLinkFormatter';
+import FunctionFormatter from './gql/FunctionFormatter';
 import DateTimeFormatter from './gql/DateTimeFormatter';
-import DefaultGqlFormatter from './gql/defaultGqlFormatter';
+import DefaultGqlFormatter from './gql/DefaultGqlFormatter';
+import CardDetailsLinkFormatter from './gql/CardDetailsLinkFormatter';
 
 const formatterStore = {
   UserNameLinkFormatter,
   FunctionFormatter,
   DateTimeFormatter,
-  DefaultGqlFormatter
+  DefaultGqlFormatter,
+  CardDetailsLinkFormatter
 };
 
 export default formatterStore;

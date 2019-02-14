@@ -1,5 +1,5 @@
 import React from 'react';
-import DefaultGqlFormatter from './defaultGqlFormatter';
+import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class UserNameLinkFormatter extends DefaultGqlFormatter {
   static getQueryString(dataField) {

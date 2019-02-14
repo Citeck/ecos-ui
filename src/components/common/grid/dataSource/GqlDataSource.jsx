@@ -1,7 +1,7 @@
 import React from 'react';
 import BaseDataSource from './BaseDataSource';
 import formatterStore from '../formatters/formatterStore';
-import javaClassToFormatterMap from '../formatters/javaClassToFormatterMap';
+import Mapper from '../mapping/Mapper';
 
 const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
 
@@ -29,8 +29,12 @@ export default class GqlDataSource extends BaseDataSource {
         let data = [];
 
         for (let i = 0; i < recordsData.length; i++) {
-          let attribute = recordsData[i].attributes;
-          attribute.id = attribute.id || i;
+          let recordData = recordsData[i];
+          let attribute = recordData.attributes;
+
+          attribute._gid = i; //Служебный ключ. Нужен чтобы работал Grid
+          attribute._recordId = recordData.id || i;
+
           data.push(attribute);
         }
 
@@ -44,7 +48,9 @@ export default class GqlDataSource extends BaseDataSource {
       column.text = column.text || column.dataField;
       column.hidden = !column.default;
 
-      let { formatter, params } = this._getFormatter(column.formatter, column.javaClass);
+      column.formatter = column.formatter || Mapper.getFormatterOptions(column, idx);
+
+      let { formatter, params } = this._getFormatter(column.formatter);
       column.formatter = (cell, row) => {
         let Formatter = formatter;
         return <Formatter row={row} cell={cell} params={params} />;
@@ -69,8 +75,10 @@ export default class GqlDataSource extends BaseDataSource {
   _getAttributes(columns) {
     let attributes = {};
 
-    columns.forEach(column => {
-      let { formatter } = this._getFormatter(column.formatter, column.javaClass);
+    columns.forEach((column, idx) => {
+      column.formatter = column.formatter || Mapper.getFormatterOptions(column, idx);
+
+      let { formatter } = this._getFormatter(column.formatter);
       let dataField = column.dataField || '';
       attributes[dataField || column.attribute] = column.attribute || formatter.getQueryString(dataField) || dataField;
     });
@@ -78,7 +86,7 @@ export default class GqlDataSource extends BaseDataSource {
     return attributes;
   }
 
-  _getFormatter(options, javaClass) {
+  _getFormatter(options) {
     let name;
     let params;
 
@@ -86,7 +94,7 @@ export default class GqlDataSource extends BaseDataSource {
       ({ name, params } = options);
     }
 
-    let formatter = formatterStore[name || options || javaClassToFormatterMap[javaClass] || DEFAULT_FORMATTER];
+    let formatter = formatterStore[name || options || DEFAULT_FORMATTER];
 
     params = params || {};
 

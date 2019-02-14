@@ -1,15 +1,11 @@
 import React, { Fragment } from 'react';
-import DefaultGqlFormatter from './defaultGqlFormatter';
+import moment from 'moment';
+import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class DateTimeFormatter extends DefaultGqlFormatter {
   _format(value, params) {
-    const date = window.Alfresco.util.fromISO8601(value);
-
-    const format = params.format || 'dd.MM.yyyy HH:mm:ss';
-
-    console.log(date.toString(format));
-
-    return value;
+    const format = params.format || 'DD.MM.YYYY HH:mm:ss';
+    return value ? moment(value).format(format) : '';
   }
 
   render() {

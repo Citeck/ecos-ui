@@ -50,7 +50,7 @@ export default class Checkbox extends Component {
     const cssClasses = classNames('checkbox', props.className);
 
     return (
-      <a className={cssClasses} onClick={this.toggle}>
+      <span className={cssClasses} onClick={this.toggle}>
         <i className="checkbox__i checkbox__i_hover_blue icon-unchecked" />
         {state.indeterminate ? (
           <Fragment>
@@ -63,7 +63,7 @@ export default class Checkbox extends Component {
             <i className="checkbox__i checkbox__i_white  icon-checkbox-check-icon" />
           </Fragment>
         ) : null}
-      </a>
+      </span>
     );
   }
 }

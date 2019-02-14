@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import DefaultGqlFormatter from './defaultGqlFormatter';
+import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class FunctionFormatter extends DefaultGqlFormatter {
   static getFilterValue(cell, row, params) {

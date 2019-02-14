@@ -137,7 +137,7 @@ export default class Grid extends Component {
       ...this.props,
       bootstrap4: true,
       bordered: false,
-      keyField: 'id',
+      keyField: '_gid',
       headerClasses: 'grid__header',
       noDataIndication: () => 'Нет элементов в списке'
     };
@@ -165,7 +165,6 @@ export default class Grid extends Component {
           ) : null}
 
           <div className={'grid__body'}>
-            <div id={'test-test'}>{'asdfasdf'}</div>
             <BootstrapTable {...props} />
           </div>
 
