@@ -361,55 +361,78 @@
           "input": true,
           "key": "participants",
           "data": {
-            "values": [
+            "url": "http://localhost:3000/share/proxy/alfresco//api/orgstruct/v2/group/_orgstruct_home_/children?branch=false&role=false&group=false&user=true&recurse=true&excludeAuthorities=all_users&filter=s",
+            "headers": [
               {
-                "label": "Administrator",
-                "value": "1"
-              },
-              {
-                "label": "User 1",
-                "value": "2"
-              },
-              {
-                "label": "User 2",
-                "value": "3"
-              },
-              {
-                "label": "User 3",
-                "value": "4"
-              },
-              {
-                "label": "Петров С",
-                "value": "5"
-              },
-              {
-                "label": "Александров Г",
-                "value": "6"
-              },
-              {
-                "label": "Сидоров Ф",
-                "value": "7"
-              },
-              {
-                "label": "Калинин Д",
-                "value": "8"
-              },
-              {
-                "label": "Градусов А",
-                "value": "9"
-              },
-              {
-                "label": "Смирнов П",
-                "value": "10"
+                "key": "",
+                "value": ""
               }
-            ]
+            ],
+            "values": [],
+            "json": "",
+            "resource": "",
+            "custom": ""
           },
           "defaultValue": [],
           "selectThreshold": 0.3,
           "encrypted": false,
           "properties": {},
           "tags": [],
-          "valueProperty": "value"
+          "validate": {
+            "customMessage": "",
+            "json": "",
+            "required": false,
+            "custom": "",
+            "customPrivate": false
+          },
+          "dataSrc": "url",
+          "template": "<span>{{ item.displayName }}</span>",
+          "lazyLoad": false,
+          "selectValues": "",
+          "disableLimit": false,
+          "placeholder": "",
+          "prefix": "",
+          "customClass": "",
+          "suffix": "",
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "hidden": false,
+          "clearOnHide": true,
+          "dataGridLabel": false,
+          "labelPosition": "top",
+          "labelWidth": 30,
+          "labelMargin": 3,
+          "description": "",
+          "errorLabel": "",
+          "tooltip": "",
+          "hideLabel": false,
+          "tabindex": "",
+          "disabled": false,
+          "autofocus": false,
+          "dbIndex": false,
+          "customDefaultValue": "",
+          "calculateValue": "",
+          "allowCalculateOverride": false,
+          "widget": null,
+          "refreshOn": "",
+          "clearOnRefresh": false,
+          "validateOn": "change",
+          "conditional": {
+            "show": null,
+            "when": null,
+            "eq": ""
+          },
+          "valueProperty": "",
+          "filter": "",
+          "searchEnabled": true,
+          "searchField": "",
+          "minSearch": 0,
+          "readOnlyValue": false,
+          "authenticate": false,
+          "selectFields": "",
+          "customOptions": {},
+          "id": "e75qapc"
         }
       ]
     },

@@ -123,7 +123,7 @@ $input-padding: 10px;
       border-radius: 6px;
 
       font-family: $font-family-open-sans;
-      font-weight: $font-weight-bold;
+      font-weight: $font-weight-bold !important;
       font-size: $font-size-large;
       color: $text-color-gray;
       line-height: 22px;
@@ -248,6 +248,7 @@ $input-padding: 10px;
         line-height: 28px;
         .choices__input {
           padding: 0;
+          border: none;
         }
       }
     }
