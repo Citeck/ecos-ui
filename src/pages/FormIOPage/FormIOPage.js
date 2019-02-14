@@ -5,7 +5,7 @@ import FormBuilder from 'formiojs/FormBuilder';
 // import schema from './form.json';
 import schema from './calendarForm.json';
 import './formio.full.min.css';
-import './formio-form.scss';
+import '../../forms/style.scss';
 import './temp.scss';
 import './glyphicon-to-fa.scss';
 
@@ -61,7 +61,7 @@ class FormIOPage extends React.Component {
       });
     });
 
-    const formBuilder = new FormBuilder(document.getElementById('builder'));
+    const formBuilder = new FormBuilder(document.getElementById('builder'), schema);
     // console.log(formBuilder);
     formBuilder.render().then(form => {
       // console.log(form);

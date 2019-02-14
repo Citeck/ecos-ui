@@ -1,4 +1,4 @@
-@import '../../constants';
+@import '../constants';
 
 $input-padding: 10px;
 
@@ -19,7 +19,9 @@ $input-padding: 10px;
     display: block;
     box-sizing: border-box;
     width: 100%;
-    height: $form-input-height;
+    padding: 6px 12px;
+    height: auto;
+    line-height: 24px;
     padding-left: $input-padding;
     padding-right: $input-padding;
     background: $color-white;
@@ -69,11 +71,17 @@ $input-padding: 10px;
       border-radius: $border-radius-standard;
     }
 
-    .glyphicon-calendar {
-      line-height: $form-input-height;
-      color: $color-gray-7;
-      font-size: 18px;
-      margin-left: 10px;
+    .input-group-addon {
+      border: none;
+      background: none;
+      padding: 0;
+
+      .glyphicon-calendar {
+        line-height: $form-input-height;
+        color: $color-gray-7;
+        font-size: 18px;
+        margin-left: 10px;
+      }
     }
 
     &.formio-component-datetime_only-time {
@@ -132,6 +140,7 @@ $input-padding: 10px;
       line-height: 24px;
       font-size: 14px;
       cursor: pointer;
+      padding-left: 0;
 
       .form-check-input:first-child {
         display: none;
@@ -201,6 +210,8 @@ $input-padding: 10px;
         margin: $input-padding $input-padding 10px $input-padding;
         width: calc(100% - #{$input-padding * 2});
         border-radius: $border-radius-standard;
+        padding: 6px 12px;
+        line-height: 24px;
 
         &::placeholder {
           color: $color-gray-5;
@@ -233,8 +244,11 @@ $input-padding: 10px;
 
     &.formio-component-multiple {
       .form-control {
-        padding: 0 10px;
-        line-height: 32px;
+        padding: 4px 12px;
+        line-height: 28px;
+        .choices__input {
+          padding: 0;
+        }
       }
     }
   }
