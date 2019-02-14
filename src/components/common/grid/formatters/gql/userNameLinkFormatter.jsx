@@ -2,20 +2,19 @@ import React from 'react';
 import DefaultGqlFormatter from './defaultGqlFormatter';
 
 export default class UserNameLinkFormatter extends DefaultGqlFormatter {
-  static getQueryString() {
-    return 'str, userName: edge(n: "cm:userName"){vals{str}}';
+  static getQueryString(dataField) {
+    return `.att(n:"${dataField}"){displayName:str,userName:att(n:"cm:userName"){str}}`;
   }
 
-  getUrl(cell) {
-    const val = cell.vals || [];
-    const userName = val[0] ? (val[0].userName.val[0] ? val[0].userName.val[0].str : null) : null;
-    return userName ? `/share/page/user/${userName}/profile` : null;
+  value(cell) {
+    return cell.displayName || '';
   }
 
   render() {
-    const cell = this.props.cell;
-    const url = this.getUrl(cell || {});
+    let props = this.props;
+    let cell = props.cell || {};
+    let userName = cell.userName || '';
 
-    return <a href={url}>{this.value(cell)}</a>;
+    return <a href={`/share/page/user/${userName}/profile`}>{this.value(cell)}</a>;
   }
 }

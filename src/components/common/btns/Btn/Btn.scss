@@ -94,9 +94,40 @@ a {
     .icon-down {
       float: right;
     }
+
+    .btn__text {
+      display: inline-block;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      width: 85%;
+    }
   }
 
-  /*colors*/
+  /*Sizes*/
+  &.btn_i_sm {
+    font-size: $font-size-extra-large;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: $border-radius-standard;
+  }
+
+  /*Radius*/
+  &.btn_r_0 {
+    border-radius: 0;
+  }
+
+  &.btn_r_6 {
+    border-radius: $border-radius-standard;
+  }
+
+  /*Steps*/
+  &.btn_x-step_10 {
+    margin-right: 10px;
+  }
+
+  /*Colors*/
   &.btn_blue {
     background: $color-blue-dark;
     color: $color-white !important;
@@ -127,6 +158,16 @@ a {
     color: $text-color-gray !important;
   }
 
+  &.btn_grey4 {
+    background: $color-white;
+    color: $color-gray-6 !important;
+  }
+
+  &.btn_brown {
+    background: $color-white;
+    color: $color-brown-2 !important;
+  }
+
   /*hovers*/
   &.btn_hover_light-blue {
     &:hover {
@@ -147,19 +188,10 @@ a {
     }
   }
 
-  /*sizes*/
-
-  /*radius*/
-  &.btn_r_0 {
-    border-radius: 0;
-  }
-
-  &.btn_r_6 {
-    border-radius: $border-radius-standard;
-  }
-
-  /*steps*/
-  &.btn_x-step_10 {
-    margin-right: 10px;
+  &.btn_hover_t-dark-brown {
+    &:hover {
+      color: $color-brown-3 !important;
+      background: $color-white !important;
+    }
   }
 }

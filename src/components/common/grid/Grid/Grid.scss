@@ -1,13 +1,149 @@
-.tr_overlay-container {
-  position: relative;
+@import '../../../../constants';
+
+#test-test {
+  position: absolute;
+  height: 42px;
+  width: 100%;
+  background: red;
+  z-index: 10;
 }
 
-.tr_overlay {
+.grid {
+  position: relative;
+
+  .table {
+    border-top: 2px solid $color-gray-4;
+    border-bottom: 2px solid $color-gray-4;
+
+    td {
+      border-top: 2px solid $color-gray-4;
+      padding-top: 14px;
+      padding-bottom: 14px;
+      vertical-align: middle;
+      color: $text-color-dark;
+      line-height: 1;
+      font-size: $font-size-small;
+      font-weight: $font-weight-normal !important;
+    }
+
+    th {
+      padding: 8px 0;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+  }
+}
+
+.grid__th {
+  display: flex;
+  align-items: center;
+  padding: 7px 10px;
+  width: 100%;
+  height: 100%;
+  color: $text-color-dark;
+  font-size: $font-size-standard;
+  font-weight: $font-weight-bold !important;
+}
+
+.grid__filter {
+  color: $color-gray-5;
+  margin-left: 6px;
+  font-size: 15px !important;
+}
+
+.grid__body {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/*Grid__tools*/
+.grid__tools {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  left: 45px;
+  background: $color-white;
+  padding: 9px 0 9px 7px;
+}
+
+.grid__tools-item {
+  padding: 1px 9px 1px 0;
+  display: inline-block;
+}
+
+.grid__tools-item_first {
+  padding-left: 9px;
+}
+
+/*Checkable*/
+.grid_checkable {
+  tbody > tr > td:nth-child(1) {
+    padding: 0;
+  }
+}
+
+.grid__th_checkbox {
+  padding: 5px 15px;
+  background: $color-white;
+  border-right: 2px solid $color-gray-4;
+}
+
+.grid__td_checkbox {
+  background: $color-white;
+  padding: 3px 15px;
+  width: 100%;
+  height: 100%;
+  line-height: 0;
+}
+
+.grid__tr_selected {
+  background: $color-yellow-1;
+
+  .grid__td_checkbox {
+    background: $color-yellow-1;
+  }
+}
+
+.grid__freeze {
+  visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  .grid__tr_selected {
+    background: none;
+  }
+
+  & > tbody > tr > td:nth-child(1),
+  & > thead > tr > th:nth-child(1) {
+    visibility: visible;
+  }
+}
+
+/*Inline-tools*/
+.grid__inline-tools-container {
+  position: relative;
+  width: 1110px;
+  border: 2px solid $color-brown-2 !important;
+}
+
+.grid__inline-tools {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 0;
+  left: 967px;
   right: 0;
   text-align: right;
-  border: 2px solid #e4d9b8;
+  width: 142px;
+  background: $color-white;
+  border-top: 1px solid $color-brown-2;
+  border-bottom: 1px solid $color-brown-2;
+  border-right: 2px solid $color-brown-2;
+}
+
+.grid__inline-tools-btn {
+  position: relative;
+  top: 5px;
+  height: auto !important;
+  padding: 0 !important;
 }

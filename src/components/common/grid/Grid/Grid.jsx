@@ -1,198 +1,179 @@
-import React, { Component } from 'react';
+import $ from 'jquery';
+import React, { Component, Fragment } from 'react';
+import ReactDOM from 'react-dom';
 import BootstrapTable from 'react-bootstrap-table-next';
-//import filterFactory, { textFilter, dateFilter } from 'react-bootstrap-table2-filter';
+import classNames from 'classnames';
+import Icon from '../../icons/Icon/Icon';
+import Checkbox from '../../form/Checkbox/Checkbox';
+import { IcoBtn } from '../../btns';
 
-// import 'xstyle!js/citeck/lib/react-bootstrap-table-next/react-bootstrap-table.css';
-// import 'xstyle!js/citeck/lib/react-bootstrap-table-next/react-bootstrap-table2-filter.css';
 import './Grid.scss';
 
-export default class Grid extends Component {
-  // _setFilter(column){
-  //     if(!column.filter){
-  //         switch (column.type) {
-  //             case 'date':
-  //                 column.filter = dateFilter({
-  //                     placeholder: ' '
-  //                 });
-  //                 break;
-  //             default:
-  //                 column.filter = textFilter({
-  //                     placeholder: ' '
-  //                 });
-  //                 break;
-  //         }
-  //     }
-  //
-  //     return column;
-  // }
+class HeaderFormatter extends Component {
+  render() {
+    return (
+      <div className={'grid__th'}>
+        <span>{this.props.column.text}</span>
+        <Icon className={'grid__filter icon-filter'} />
+      </div>
+    );
+  }
+}
 
-  _setWidth(column) {
+export default class Grid extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      toolsHeaderVisible: false,
+      selected: []
+    };
+  }
+
+  _setWidth = column => {
     column.style = {
       ...column.style,
       width: column.width
     };
 
     return column;
-  }
+  };
+
+  _setHeaderFormatter = column => {
+    column.headerFormatter = (column, colIndex) => {
+      return <HeaderFormatter column={column} colIndex={colIndex} />;
+    };
+
+    return column;
+  };
 
   _setAdditionalOptions(props) {
     props.columns = props.columns.map(column => {
-      if (props.filter) {
-        column = this._setFilter(column);
-      }
-
       if (column.width) {
         column = this._setWidth(column);
       }
 
+      column = this._setHeaderFormatter(column);
+
       return column;
     });
+
+    if (props.hasInlineTools) {
+      props.rowEvents = {
+        onMouseEnter: e => this.createInlineTools($(e.target).closest('tr'))
+      };
+    }
+
+    if (props.hasCheckboxes) {
+      props.selectRow = this.createCheckboxs();
+    }
 
     return props;
   }
 
+  createInlineTools($tr) {
+    const inlineToolsClass = 'grid__inline-tools';
+    const inlineToolsClassContainerClass = 'grid__inline-tools-container';
+    const inlineToolsBtnClass = 'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10';
+
+    const $currentTr = $tr.addClass(inlineToolsClassContainerClass).mouseleave(function() {
+      // $(this).removeClass(inlineToolsClassContainerClass);
+      // $(this).find(`div.${inlineToolsClass}`).remove();
+    });
+    const $inlineTools = $(`<div class='${inlineToolsClass}'></div>`).appendTo($currentTr)[0];
+
+    let pos = $currentTr.position();
+
+    $('#test-test').css('top', pos.top + 'px');
+
+    ReactDOM.render(
+      <Fragment>
+        <IcoBtn icon={'icon-download'} className={inlineToolsBtnClass} />
+        <IcoBtn icon={'icon-on'} className={inlineToolsBtnClass} />
+        <IcoBtn icon={'icon-edit'} className={inlineToolsBtnClass} />
+        <IcoBtn icon={'icon-delete'} className={inlineToolsBtnClass} />
+      </Fragment>,
+      $inlineTools
+    );
+  }
+
+  createCheckboxs() {
+    return {
+      mode: 'checkbox',
+      classes: 'grid__tr_selected',
+      selected: this.state.selected,
+      onSelect: (row, isSelect, rowIndex) => {
+        let selected = this.state.selected;
+
+        this.setState({
+          selected: isSelect ? [...selected, rowIndex] : selected.filter(x => x !== rowIndex)
+        });
+      },
+      onSelectAll: (isSelect, rows) => {
+        this.setState({
+          selected: isSelect ? [...Array(rows.length).keys()] : []
+        });
+      },
+      selectionHeaderRenderer: ({ indeterminate, ...rest }) => {
+        const checked = rest.checked;
+
+        return (
+          <div className={'grid__th grid__th_checkbox'}>
+            <Checkbox indeterminate={indeterminate} checked={checked} />
+          </div>
+        );
+      },
+      selectionRenderer: ({ mode, ...rest }) => {
+        return (
+          <div className={'grid__td_checkbox'}>
+            <Checkbox checked={rest.checked} />
+          </div>
+        );
+      }
+    };
+  }
+
   render() {
-    // let props = {
-    //     ...this.props,
-    //     noDataIndication: () => 'Нет элементов в списке',
-    //     classes: 'table_table-layout_auto table_header-nowrap',
-    //     bootstrap4: true,
-    //     bordered: false,
-    //     filter: filterFactory(),
-    //     rowEvents: {
-    //         onMouseEnter: e => {
-    //             //let $currentTr = $(e.target).closest('tr').addClass('tr_overlay-container');
-    //
-    //             // $('<div class="tr_overlay">test</div>').appendTo($currentTr).mouseleave(function() {
-    //             //     $currentTr.removeClass('tr_overlay-container');
-    //             //     $(this).remove();
-    //             // });
-    //         }
-    //     }
-    // };
+    let props = {
+      ...this.props,
+      bootstrap4: true,
+      bordered: false,
+      keyField: 'id',
+      headerClasses: 'grid__header',
+      noDataIndication: () => 'Нет элементов в списке'
+    };
 
-    //props = this._setAdditionalOptions(props);
+    props = this._setAdditionalOptions(props);
 
-    const columns = [
-      {
-        dataField: 'date',
-        text: 'Дата создания'
-      },
-      {
-        dataField: 'title',
-        text: 'Заголовок'
-      },
-      {
-        dataField: 'status',
-        text: 'Статус'
-      },
-      {
-        dataField: 'ure',
-        text: 'Юридическое лицо'
-      }
-    ];
+    if (props.columns.length) {
+      return (
+        <div className={classNames('grid', props.hasCheckboxes && 'grid_checkable', this.props.className)}>
+          {this.state.selected.length ? (
+            <div className={'grid__tools'}>
+              <div className={'grid__tools-item grid__tools-item_first'}>
+                <IcoBtn icon={'icon-download'} className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'} />
+              </div>
+              <div className={'grid__tools-item'}>
+                <IcoBtn icon={'icon-copy'} className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'} />
+              </div>
+              <div className={'grid__tools-item'}>
+                <IcoBtn icon={'icon-big-arrow'} className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'} />
+              </div>
+              <div className={'grid__tools-item'}>
+                <IcoBtn icon={'icon-delete'} className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'} />
+              </div>
+            </div>
+          ) : null}
 
-    const products = [
-      {
-        id: 1,
-        date: '12.12.2019 6:03',
-        title: 'Договор №806',
-        status: 'Действует',
-        ure: 'ООО "ФИНТЕКС"'
-      },
-      {
-        id: 2,
-        date: '12.12.2019 6:03',
-        title: 'Договор №806',
-        status: 'Действует',
-        ure: 'ООО "ФИНТЕКС"'
-      },
-      {
-        id: 3,
-        date: '12.12.2019 6:03',
-        title: 'Договор №806',
-        status: 'Действует',
-        ure: 'ООО "ФИНТЕКС"'
-      },
-      {
-        id: 4,
-        date: '12.12.2019 6:03',
-        title: 'Договор №806',
-        status: 'Действует',
-        ure: 'ООО "ФИНТЕКС"'
-      },
-      {
-        id: 5,
-        date: '12.12.2019 6:03',
-        title: 'Договор №806',
-        status: 'Действует',
-        ure: 'ООО "ФИНТЕКС"'
-      },
-      {
-        id: 6,
-        date: '12.12.2019 6:03',
-        title: 'Договор №806',
-        status: 'Действует',
-        ure: 'ООО "ФИНТЕКС"'
-      },
-      {
-        id: 7,
-        date: '12.12.2019 6:03',
-        title: 'Договор №806',
-        status: 'Действует',
-        ure: 'ООО "ФИНТЕКС"'
-      },
-      {
-        id: 8,
-        date: '12.12.2019 6:03',
-        title: 'Договор №806',
-        status: 'Действует',
-        ure: 'ООО "ФИНТЕКС"'
-      },
-      {
-        id: 9,
-        date: '12.12.2019 6:03',
-        title: 'Договор №806',
-        status: 'Действует',
-        ure: 'ООО "ФИНТЕКС"'
-      },
-      {
-        id: 10,
-        date: '12.12.2019 6:03',
-        title: 'Договор №806',
-        status: 'Действует',
-        ure: 'ООО "ФИНТЕКС"'
-      },
-      {
-        id: 11,
-        date: '12.12.2019 6:03',
-        title: 'Договор №806',
-        status: 'Действует',
-        ure: 'ООО "ФИНТЕКС"'
-      },
-      {
-        id: 12,
-        date: '12.12.2019 6:03',
-        title: 'Договор №806',
-        status: 'Действует',
-        ure: 'ООО "ФИНТЕКС"'
-      },
-      {
-        id: 13,
-        date: '12.12.2019 6:03',
-        title: 'Договор №806',
-        status: 'Действует',
-        ure: 'ООО "ФИНТЕКС"'
-      },
-      {
-        id: 14,
-        date: '12.12.2019 6:03',
-        title: 'Договор №806',
-        status: 'Действует',
-        ure: 'ООО "ФИНТЕКС"'
-      }
-    ];
+          <div className={'grid__body'}>
+            <div id={'test-test'}>{'asdfasdf'}</div>
+            <BootstrapTable {...props} />
+          </div>
 
-    return <BootstrapTable selectRow={{ mode: 'checkbox' }} keyField="id" data={products} columns={columns} />;
+          {props.hasCheckboxes && <BootstrapTable {...props} classes={'grid__freeze'} />}
+        </div>
+      );
+    }
+
+    return null;
   }
 }

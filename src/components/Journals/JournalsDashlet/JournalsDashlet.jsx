@@ -1,164 +1,135 @@
 import React, { Component, Fragment } from 'react';
+import connect from 'react-redux/es/connect/connect';
 import { Container } from 'reactstrap';
 import classNames from 'classnames';
-
 import JournalsDashletEditor from '../JournalsDashletEditor';
 import Dashlet from '../../Dashlet/Dashlet';
-
-import TreeGrid from '../../common/grid/TreeGrid/TreeGrid';
+import Grid from '../../common/grid/Grid/Grid';
 import Pagination from '../../common/Pagination/Pagination';
+import Export from '../../Export/Export';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
+import { Dropdown } from '../../common/form';
+import { PROXY_URI } from '../../../constants/alfresco';
+import { getDashletConfig, setDashletEditorVisible, reloadGrid, setJournalsItem } from '../../../actions/journals';
 
 import './JournalsDashlet.scss';
 
-const products = [
-  {
-    id: 1,
-    date: '12.12.2019 6:03',
-    title: 'Договор №806',
-    status: 'Действует',
-    ure: 'ООО "ФИНТЕКС"'
-  },
-  {
-    id: 2,
-    date: '12.12.2019 6:03',
-    title: 'Договор №806',
-    status: 'Действует',
-    ure: 'ООО "ФИНТЕКС"'
-  },
-  {
-    id: 3,
-    date: '12.12.2019 6:03',
-    title: 'Договор №806',
-    status: 'Действует',
-    ure: 'ООО "ФИНТЕКС"'
-  },
-  {
-    id: 4,
-    date: '12.12.2019 6:03',
-    title: 'Договор №806',
-    status: 'Действует',
-    ure: 'ООО "ФИНТЕКС"'
-  },
-  {
-    id: 5,
-    date: '12.12.2019 6:03',
-    title: 'Договор №806',
-    status: 'Действует',
-    ure: 'ООО "ФИНТЕКС"'
-  },
-  {
-    id: 6,
-    date: '12.12.2019 6:03',
-    title: 'Договор №806',
-    status: 'Действует',
-    ure: 'ООО "ФИНТЕКС"'
-  },
-  {
-    id: 7,
-    date: '12.12.2019 6:03',
-    title: 'Договор №806',
-    status: 'Действует',
-    ure: 'ООО "ФИНТЕКС"'
-  },
-  {
-    id: 8,
-    date: '12.12.2019 6:03',
-    title: 'Договор №806',
-    status: 'Действует',
-    ure: 'ООО "ФИНТЕКС"'
-  },
-  {
-    id: 9,
-    date: '12.12.2019 6:03',
-    title: 'Договор №806',
-    status: 'Действует',
-    ure: 'ООО "ФИНТЕКС"'
-  },
-  {
-    id: 10,
-    date: '12.12.2019 6:03',
-    title: 'Договор №806',
-    status: 'Действует',
-    ure: 'ООО "ФИНТЕКС"'
-  },
-  {
-    id: 11,
-    date: '12.12.2019 6:03',
-    title: 'Договор №806',
-    status: 'Действует',
-    ure: 'ООО "ФИНТЕКС"'
-  },
-  {
-    id: 12,
-    date: '12.12.2019 6:03',
-    title: 'Договор №806',
-    status: 'Действует',
-    ure: 'ООО "ФИНТЕКС"'
-  },
-  {
-    id: 13,
-    date: '12.12.2019 6:03',
-    title: 'Договор №806',
-    status: 'Действует',
-    ure: 'ООО "ФИНТЕКС"'
-  },
-  {
-    id: 14,
-    date: '12.12.2019 6:03',
-    title: 'Договор №806',
-    status: 'Действует',
-    ure: 'ООО "ФИНТЕКС"'
-  }
-];
+const mapStateToProps = state => ({
+  dashletIsReady: state.journals.dashletIsReady,
+  editorVisible: state.journals.editorVisible,
+  journals: state.journals.journals,
+  gridData: state.journals.gridData,
+  config: state.journals.config,
+  page: state.journals.page,
+  journalConfig: state.journals.journalConfig
+});
 
-export default class JournalsDashlet extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { visibleJournal: false };
+const mapDispatchToProps = dispatch => ({
+  getDashletConfig: id => dispatch(getDashletConfig(id)),
+  setDashletEditorVisible: visible => dispatch(setDashletEditorVisible(visible)),
+  reloadGrid: ({ journalId, page }) => dispatch(reloadGrid({ journalId: journalId, page: page })),
+  setJournalsItem: item => dispatch(setJournalsItem(item))
+});
+
+class JournalsDashlet extends Component {
+  componentDidMount() {
+    this.props.getDashletConfig(this.props.id);
   }
 
-  showJournal = () => {
-    this.setState({ visibleJournal: !this.state.visibleJournal });
+  showEditor = () => {
+    this.props.setDashletEditorVisible(true);
+  };
+
+  reloadGrid = ({ journalId, page }) => {
+    const props = this.props;
+    const config = props.config || {};
+
+    props.reloadGrid({
+      journalId: journalId || config.journalId,
+      page: page
+    });
+  };
+
+  goToJournalsPage = () => {
+    window.location = `${PROXY_URI}journals`;
+  };
+
+  addRecord = () => {
+    const config = this.props.config || {};
+    window.open(`${PROXY_URI}node-create-page?type=${'contracts:agreement'}&destination=${config.journalId}&viewId=`, '_blank');
+  };
+
+  onChangeJournal = journal => {
+    this.props.setJournalsItem(journal);
+
+    this.reloadGrid({
+      journalId: journal.nodeRef
+    });
   };
 
   render() {
     const props = this.props;
+    const config = props.config || {};
     const cssClasses = classNames('journal-dashlet', props.className);
 
     return (
       <Container>
-        <Dashlet {...props} className={cssClasses} onEdit={this.showJournal}>
-          {this.state.visibleJournal ? (
-            <Fragment>
-              <div className={'journal-dashlet__toolbar'}>
-                <IcoBtn icon={'icon-big-plus'} className={'btn_i btn_i-big-plus btn_blue btn_hover_light-blue btn_x-step_10'} />
+        {props.dashletIsReady ? (
+          <Dashlet {...props} className={cssClasses} onEdit={this.showEditor} onReload={this.reloadGrid} onGoTo={this.goToJournalsPage}>
+            {props.editorVisible ? (
+              <JournalsDashletEditor id={props.id} />
+            ) : (
+              <Fragment>
+                <div className={'journal-dashlet__toolbar'}>
+                  <IcoBtn
+                    icon={'icon-big-plus'}
+                    className={'btn_i btn_i-big-plus btn_blue btn_hover_light-blue btn_x-step_10'}
+                    onClick={this.addRecord}
+                  />
 
-                <IcoBtn invert={'true'} icon={'icon-down'} className={'btn_drop-down btn_r_6 btn_x-step_10'}>
-                  Договоры
-                </IcoBtn>
-                <TwoIcoBtn icons={['icon-settings', 'icon-down']} className={'btn_grey btn_settings-down btn_x-step_10'} />
-                <IcoBtn icon={'icon-download'} className={'btn_i btn_grey'} />
+                  <Dropdown
+                    source={props.journals}
+                    value={config.journalId}
+                    valueField={'nodeRef'}
+                    titleField={'title'}
+                    onClick={this.onChangeJournal}
+                  >
+                    <IcoBtn invert={'true'} icon={'icon-down'} className={'btn_drop-down btn_r_6 btn_x-step_10'}>
+                      Договоры
+                    </IcoBtn>
+                  </Dropdown>
 
-                <div className={'dashlet__actions'}>
-                  <Pagination className={'dashlet__pagination'} />
+                  <Dropdown source={[{ title: 'Мои настройки', id: 0 }]} value={0} valueField={'id'} titleField={'title'} isButton={true}>
+                    <TwoIcoBtn icons={['icon-settings', 'icon-down']} className={'btn_grey btn_settings-down btn_x-step_10'} />
+                  </Dropdown>
 
-                  <IcoBtn icon={'icon-list'} className={'btn_i btn_blue2 btn_width_auto btn_hover_t-light-blue btn_x-step_10'} />
-                  <IcoBtn icon={'icon-pie'} className={'btn_i btn_grey2 btn_width_auto btn_hover_t-light-blue'} />
+                  <Export config={props.journalConfig} />
+
+                  <div className={'dashlet__actions'}>
+                    <Pagination className={'dashlet__pagination'} total={props.gridData.total} onChange={this.reloadGrid} />
+
+                    <IcoBtn icon={'icon-list'} className={'btn_i btn_blue2 btn_width_auto btn_hover_t-light-blue btn_x-step_10'} />
+                    <IcoBtn icon={'icon-pie'} className={'btn_i btn_grey2 btn_width_auto btn_hover_t-light-blue'} />
+                  </div>
                 </div>
-              </div>
 
-              <TreeGrid data={products} />
+                <div className={'journal-dashlet__grid'}>
+                  <Grid {...props.gridData} hasInlineTools hasCheckboxes />
+                </div>
 
-              <div className={'journal-dashlet__toolbar'}>
-                <Pagination />
-              </div>
-            </Fragment>
-          ) : (
-            <JournalsDashletEditor />
-          )}
-        </Dashlet>
+                <div className={'journal-dashlet__footer'}>
+                  <Pagination className={'dashlet__pagination'} total={props.gridData.total} onChange={this.reloadGrid} />
+                </div>
+              </Fragment>
+            )}
+          </Dashlet>
+        ) : null}
       </Container>
     );
   }
 }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(JournalsDashlet);

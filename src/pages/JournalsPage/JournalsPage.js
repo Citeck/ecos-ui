@@ -1,15 +1,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { initRequest } from '../../actions/journal';
+//import { initRequest } from '../../actions/journals';
 import { Journals } from '../../components/Journals';
 
 const mapDispatchToProps = dispatch => ({
-  initRequest: () => dispatch(initRequest())
+  //initRequest: () => dispatch(initRequest())
 });
 
 class JournalsPage extends React.Component {
   componentDidMount() {
-    this.props.initRequest();
+    //this.props.initRequest();
   }
 
   render() {

@@ -9,6 +9,6 @@ export default class Select extends Component {
     const props = this.props;
     const cssClasses = classNames('select', props.className);
 
-    return <ReactSelect {...props} className={cssClasses} classNamePrefix="select" />;
+    return <ReactSelect blurInputOnSelect={true} {...props} className={cssClasses} classNamePrefix="select" />;
   }
 }

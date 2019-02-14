@@ -1,6 +1,7 @@
 import React from 'react';
 import BaseDataSource from './BaseDataSource';
 import formatterStore from '../formatters/formatterStore';
+import javaClassToFormatterMap from '../formatters/javaClassToFormatterMap';
 
 const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
 
@@ -18,16 +19,32 @@ export default class GqlDataSource extends BaseDataSource {
 
   load() {
     let options = this.options;
-    return fetch(options.url, options.ajax).then(response => {
-      return response.json();
-    });
+    return fetch(options.url, options.ajax)
+      .then(response => {
+        return response.json();
+      })
+      .then(resp => {
+        let recordsData = resp.records || [];
+        let total = resp.totalCount || 0;
+        let data = [];
+
+        for (let i = 0; i < recordsData.length; i++) {
+          let attribute = recordsData[i].attributes;
+          attribute.id = attribute.id || i;
+          data.push(attribute);
+        }
+
+        return { data, total };
+      });
   }
 
   _getColumns(columns) {
     columns = columns.map((column, idx) => {
-      column.dataField = column.id || this._getIdByIdx(idx);
+      column.dataField = column.dataField || column.attribute;
+      column.text = column.text || column.dataField;
+      column.hidden = !column.default;
 
-      let { formatter, params } = this._getFormatter(column.formatter);
+      let { formatter, params } = this._getFormatter(column.formatter, column.javaClass);
       column.formatter = (cell, row) => {
         let Formatter = formatter;
         return <Formatter row={row} cell={cell} params={params} />;
@@ -43,24 +60,25 @@ export default class GqlDataSource extends BaseDataSource {
 
   _getBodyJson(body, columns) {
     let defaultBody = {
-      schema: this._getSchema(columns)
+      attributes: this._getAttributes(columns)
     };
 
     return JSON.stringify({ ...defaultBody, ...body });
   }
 
-  _getSchema(columns) {
-    let gqlSchemes = columns.map((column, idx) => {
-      let { formatter } = this._getFormatter(column.formatter);
-      let str = formatter.getQueryString();
+  _getAttributes(columns) {
+    let attributes = {};
 
-      return `id, ${this._getIdByIdx(idx)}: edge(n: "${column.field}") {name, val:vals {${str}}}`;
+    columns.forEach(column => {
+      let { formatter } = this._getFormatter(column.formatter, column.javaClass);
+      let dataField = column.dataField || '';
+      attributes[dataField || column.attribute] = column.attribute || formatter.getQueryString(dataField) || dataField;
     });
 
-    return gqlSchemes.join(',');
+    return attributes;
   }
 
-  _getFormatter(options) {
+  _getFormatter(options, javaClass) {
     let name;
     let params;
 
@@ -68,7 +86,7 @@ export default class GqlDataSource extends BaseDataSource {
       ({ name, params } = options);
     }
 
-    let formatter = formatterStore[name || options || DEFAULT_FORMATTER];
+    let formatter = formatterStore[name || options || javaClassToFormatterMap[javaClass] || DEFAULT_FORMATTER];
 
     params = params || {};
 
@@ -76,10 +94,6 @@ export default class GqlDataSource extends BaseDataSource {
       formatter,
       params
     };
-  }
-
-  _getIdByIdx(idx) {
-    return `a${idx}`;
   }
 
   _getDefaultOptions() {

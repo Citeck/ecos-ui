@@ -10,6 +10,9 @@
 .icon-calendar:before {
   content: '\46';
 } /* 'F' */
+.icon-load:before {
+  content: '\47';
+} /* 'G' */
 .icon-on:before {
   content: '\49';
 } /* 'I' */
@@ -118,3 +121,15 @@
 .icon-reload:before {
   content: '\7a';
 } /* 'z' */
+.icon-unchecked:before {
+  content: '\e82b';
+} /* '' */
+.icon-checkbox-dark:before {
+  content: '\e82c';
+} /* '' */
+.icon-checkbox-minus-icon:before {
+  content: '\e82d';
+} /* '' */
+.icon-checkbox-check-icon:before {
+  content: '\e82e';
+} /* '' */

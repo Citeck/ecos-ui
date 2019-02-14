@@ -6,13 +6,13 @@ import ColumnsWithHeader from '../common/templates/ColumnsWithHeader/ColumnsWith
 import Well from '../common/form/Well/Well';
 import Caption from '../common/form/Caption/Caption';
 import Btn from '../common/btns/Btn/Btn';
-import IcoButton from '../common/buttons/IcoButton/IcoButton';
-import DropdownButton from '../common/buttons/DropdownButton/DropdownButton';
+//import IcoButton from '../common/buttons/IcoButton/IcoButton';
+//import DropdownButton from '../common/buttons/DropdownButton/DropdownButton';
 import Search from '../common/Search/Search';
-import Grid from '../common/grid/Grid/Grid';
+//import Grid from '../common/grid/Grid/Grid';
 import Pagination from '../common/Pagination/Pagination';
 import PanelBar from '../common/PanelBar/PanelBar';
-import ToggleButton from '../common/buttons/ToggleButton/ToggleButton';
+//import ToggleBtn from '../common/btns/ToggleBtn/ToggleBtn';
 import CollapsableList from '../common/CollapsableList/CollapsableList';
 import FilterList from '../FilterList/FilterList';
 import ColumnsSetup from '../ColumnsSetup/ColumnsSetup';
@@ -44,21 +44,21 @@ class Journals extends Component {
             cols={[
               <Fragment>
                 <Well className={'journal__toolbar'}>
-                  <IcoButton icon={'icon-plus'} className={'ico-button_blue journal__create-button'}>
-                    Создать
-                  </IcoButton>
+                  {/*<IcoButton icon={'icon-plus'} className={'ico-button_blue journal__create-button'}>*/}
+                  {/*Создать*/}
+                  {/*</IcoButton>*/}
 
                   <Search />
 
-                  <DropdownButton className={'journal__export'} />
+                  {/*<DropdownButton className={'journal__export'} />*/}
                 </Well>
 
                 <div className={'journal__grid-toolbar'}>
-                  <ToggleButton onClick={this.showGridSettings} className={'journal__toggle-settings'} />
+                  {/*<ToggleBtn onClick={this.showGridSettings} className={'journal__toggle-settings'} />*/}
 
-                  <IcoButton icon={'icon-reload'} />
-                  <IcoButton icon={'icon-pie'} className={'journal__button-pie'} />
-                  <IcoButton icon={'icon-list'} className={'journal__button-list'} />
+                  {/*<IcoButton icon={'icon-reload'} />*/}
+                  {/*<IcoButton icon={'icon-pie'} className={'journal__button-pie'} />*/}
+                  {/*<IcoButton icon={'icon-list'} className={'journal__button-list'} />*/}
 
                   <Pagination />
                 </div>
@@ -83,9 +83,7 @@ class Journals extends Component {
                   </Well>
                 )}
 
-                <Well className={'journal__grid'}>
-                  <Grid />
-                </Well>
+                <Well className={'journal__grid'}>{/*<Grid />*/}</Well>
               </Fragment>,
 
               <Fragment>
