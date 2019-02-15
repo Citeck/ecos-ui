@@ -338,8 +338,12 @@
       window.BPMN_DESIGNER_CONTEXT = '/share/page/bpmn-designer';
 
       dynamicallyLoadScript('/share/res/lib/underscore.js?' + window.dojoConfig.cacheBust, function() {
-        fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user').then(checkStatus).catch(function (err) {
-          window.location.href = window.BPMN_DESIGNER_CONTEXT;
+        fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user', {
+          credentials: 'include'
+        }).then(function (response) {
+          if (response.status !== 200) {
+            window.location.href = window.BPMN_DESIGNER_CONTEXT;
+          }
         });
 
         require([
@@ -360,6 +364,7 @@
           'js/citeck/modules/header/index'
         ], function(ShareHeader) {
           const fetchUserPromise = fetch('/share/proxy/alfresco/citeck/ecos/records/query', {
+            credentials: 'include',
             method: 'post',
             headers: {
               'Content-Type': 'application/json'
@@ -376,7 +381,9 @@
             })
           }).then(checkStatus).then(parseJSON).then(json => json.records[0].attributes);
 
-          const fetchIsCascadeMenuPromise = fetch('/share/proxy/alfresco/citeck/ecosConfig/ecos-config-value?configName=default-ui-create-menu')
+          const fetchIsCascadeMenuPromise = fetch('/share/proxy/alfresco/citeck/ecosConfig/ecos-config-value?configName=default-ui-create-menu', {
+            credentials: 'include'
+          })
             .then(checkStatus)
             .then(parseJSON)
             .then(json => json.value === "cascad");
