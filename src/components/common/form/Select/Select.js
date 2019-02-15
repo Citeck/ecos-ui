@@ -11,7 +11,7 @@ export default class Select extends Component {
 
   render() {
     const props = this.props;
-    const cssClasses = classNames('select', props.className);
+    const cssClasses = classNames('ecos-select', props.className);
     const SelectComponent = !props.loadOptions ? ReactSelect : AsyncSelect;
 
     return (

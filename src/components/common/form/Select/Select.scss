@@ -1,13 +1,12 @@
 @import '../../../../constants';
 
-.loading-indicator,
-.select__loading-indicator {
-  display: none;
-}
-
-.select {
+.ecos-select {
   .select__indicator-separator {
     width: 0;
+  }
+
+  .select__loading-indicator {
+    display: none;
   }
 
   .select__control {
