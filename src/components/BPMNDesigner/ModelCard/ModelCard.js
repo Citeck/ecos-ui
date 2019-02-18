@@ -2,6 +2,7 @@ import React from 'react';
 // import { NavLink } from 'react-router-dom';
 import { Col } from 'reactstrap';
 import cn from 'classnames';
+import { saveRefererPageLocation } from '../../../helpers/bpmn';
 import { t } from '../../../helpers/util';
 import styles from './ModelCard.module.scss';
 
@@ -18,7 +19,7 @@ const ModelCard = ({ label, author, datetime, viewLink, editLink, image, canWrit
   let editButton = null;
   if (canWrite) {
     editButton = (
-      <a href={editLink} className={styles.cardEditButton}>
+      <a href={editLink} className={styles.cardEditButton} onClick={saveRefererPageLocation}>
         <span className={'icon-edit'} />
       </a>
     );

@@ -51,8 +51,15 @@ FLOWABLE.TOOLBAR = {
             services.editorManager.handleEvents({
               type: ORYX.CONFIG.EVENT_SAVED
             });
-            // window.location.href = window.BPMN_DESIGNER_CONTEXT;
-            window.history.back();
+
+            // window.history.back();
+            var refererPagePathName = localStorage.getItem('BpmnRefererPagePathName');
+            localStorage.removeItem('BpmnRefererPagePathName');
+            if (refererPagePathName === window.BPMN_DESIGNER_CONTEXT) {
+              window.location.href = window.BPMN_DESIGNER_CONTEXT;
+            } else {
+              window.location.href = window.CARD_DETAILS_CONTEXT + modelData.modelId;
+            }
           }).catch(function (error) {
             console.log(error);
           });

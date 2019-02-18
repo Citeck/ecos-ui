@@ -336,6 +336,7 @@
       window.Alfresco.constants.URL_SERVICECONTEXT = '/share/service/';
       window.Alfresco.constants.URL_CONTEXT = '/share/';
       window.BPMN_DESIGNER_CONTEXT = '/share/page/bpmn-designer';
+      window.CARD_DETAILS_CONTEXT = '/share/page/card-details?nodeRef=workspace://SpacesStore/';
 
       dynamicallyLoadScript('/share/res/lib/underscore.js?' + window.dojoConfig.cacheBust, function() {
         fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user', {

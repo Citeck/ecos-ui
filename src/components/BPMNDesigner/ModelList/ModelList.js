@@ -2,6 +2,7 @@ import React from 'react';
 // import { NavLink } from 'react-router-dom';
 import { Col } from 'reactstrap';
 import cn from 'classnames';
+import { saveRefererPageLocation } from '../../../helpers/bpmn';
 import { t } from '../../../helpers/util';
 import styles from './ModelList.module.scss';
 
@@ -11,7 +12,7 @@ const ModelList = ({ label, author, datetime, viewLink, editLink, canWrite }) =>
   let editButton = <div className={styles.emptyActionIcon} />;
   if (canWrite) {
     editButton = (
-      <a href={editLink} className={styles.editActionIcon}>
+      <a href={editLink} className={styles.editActionIcon} onClick={saveRefererPageLocation}>
         <span className={'icon-edit'} />
       </a>
     );
