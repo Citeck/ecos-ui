@@ -18,6 +18,7 @@ export default class Select extends Component {
       <SelectComponent
         loadingMessage={this.selectLoadingMessage}
         noOptionsMessage={this.selectNoOptionsMessage}
+        blurInputOnSelect={true}
         {...props}
         className={cssClasses}
         classNamePrefix="select"
