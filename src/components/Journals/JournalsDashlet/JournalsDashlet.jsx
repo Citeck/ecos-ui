@@ -10,25 +10,27 @@ import Export from '../../Export/Export';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { PROXY_URI } from '../../../constants/alfresco';
-import { getDashletConfig, setDashletEditorVisible, reloadGrid, setJournalsItem } from '../../../actions/journals';
+import { getDashletConfig, setDashletEditorVisible, reloadGrid, setJournalsItem, setPage } from '../../../actions/journals';
 
 import './JournalsDashlet.scss';
 
 const mapStateToProps = state => ({
   dashletIsReady: state.journals.dashletIsReady,
   editorVisible: state.journals.editorVisible,
+  journalsList: state.journals.journalsList,
   journals: state.journals.journals,
   gridData: state.journals.gridData,
   config: state.journals.config,
-  page: state.journals.page,
+  pagination: state.journals.pagination,
   journalConfig: state.journals.journalConfig
 });
 
 const mapDispatchToProps = dispatch => ({
   getDashletConfig: id => dispatch(getDashletConfig(id)),
   setDashletEditorVisible: visible => dispatch(setDashletEditorVisible(visible)),
-  reloadGrid: ({ journalId, page }) => dispatch(reloadGrid({ journalId: journalId, page: page })),
-  setJournalsItem: item => dispatch(setJournalsItem(item))
+  reloadGrid: ({ journalId, pagination }) => dispatch(reloadGrid({ journalId: journalId, pagination: pagination })),
+  setJournalsItem: item => dispatch(setJournalsItem(item)),
+  setPage: page => dispatch(setPage(page))
 });
 
 class JournalsDashlet extends Component {
@@ -40,31 +42,57 @@ class JournalsDashlet extends Component {
     this.props.setDashletEditorVisible(true);
   };
 
-  reloadGrid = ({ journalId, page }) => {
-    const props = this.props;
-    const config = props.config || {};
-
-    props.reloadGrid({
-      journalId: journalId || config.journalId,
-      page: page
-    });
-  };
-
   goToJournalsPage = () => {
     window.location = `${PROXY_URI}journals`;
   };
 
   addRecord = () => {
-    const config = this.props.config || {};
-    window.open(`${PROXY_URI}node-create-page?type=${'contracts:agreement'}&destination=${config.journalId}&viewId=`, '_blank');
+    const journalConfig = this.props.journalConfig;
+
+    if (journalConfig) {
+      const createVariants = ((journalConfig.meta || {}).createVariants || [])[0] || {};
+      createVariants.canCreate &&
+        window.open(`node-create-page?type=${createVariants.type}&destination=${createVariants.destination}&viewId=`, '_blank');
+    }
   };
 
   onChangeJournal = journal => {
-    this.props.setJournalsItem(journal);
+    const props = this.props;
 
-    this.reloadGrid({
+    props.setJournalsItem(journal);
+    props.setPage(1);
+    props.reloadGrid({
       journalId: journal.nodeRef
     });
+  };
+
+  onChangePage = pagination => {
+    const props = this.props;
+
+    props.setPage(pagination.page);
+    props.reloadGrid({
+      journalId: props.config.journalId,
+      pagination: pagination
+    });
+  };
+
+  onReloadDashlet = () => {
+    const props = this.props;
+
+    props.setPage(1);
+    props.reloadGrid({
+      journalId: props.config.journalId
+    });
+  };
+
+  getJournalsListName = () => {
+    const props = this.props;
+    const config = props.config || {};
+    const journalsList = props.journalsList || [];
+
+    let journalList = journalsList.filter(journalList => journalList.id === config.journalsListId)[0] || {};
+
+    return journalList.title || 'Журналы';
   };
 
   render() {
@@ -72,10 +100,21 @@ class JournalsDashlet extends Component {
     const config = props.config || {};
     const cssClasses = classNames('journal-dashlet', props.className);
 
+    const pagination = props.gridData.total ? (
+      <Pagination className={'dashlet__pagination'} total={props.gridData.total} {...props.pagination} onChange={this.onChangePage} />
+    ) : null;
+
     return (
       <Container>
         {props.dashletIsReady ? (
-          <Dashlet {...props} className={cssClasses} onEdit={this.showEditor} onReload={this.reloadGrid} onGoTo={this.goToJournalsPage}>
+          <Dashlet
+            {...props}
+            title={this.getJournalsListName()}
+            className={cssClasses}
+            onEdit={this.showEditor}
+            onReload={this.onReloadDashlet}
+            onGoTo={this.goToJournalsPage}
+          >
             {props.editorVisible ? (
               <JournalsDashletEditor id={props.id} />
             ) : (
@@ -94,9 +133,7 @@ class JournalsDashlet extends Component {
                     titleField={'title'}
                     onClick={this.onChangeJournal}
                   >
-                    <IcoBtn invert={'true'} icon={'icon-down'} className={'btn_drop-down btn_r_6 btn_x-step_10'}>
-                      Договоры
-                    </IcoBtn>
+                    <IcoBtn invert={'true'} icon={'icon-down'} className={'btn_drop-down btn_r_6 btn_x-step_10'} />
                   </Dropdown>
 
                   <Dropdown source={[{ title: 'Мои настройки', id: 0 }]} value={0} valueField={'id'} titleField={'title'} isButton={true}>
@@ -106,8 +143,7 @@ class JournalsDashlet extends Component {
                   <Export config={props.journalConfig} />
 
                   <div className={'dashlet__actions'}>
-                    <Pagination className={'dashlet__pagination'} total={props.gridData.total} onChange={this.reloadGrid} />
-
+                    {pagination}
                     <IcoBtn icon={'icon-list'} className={'btn_i btn_blue2 btn_width_auto btn_hover_t-light-blue btn_x-step_10'} />
                     <IcoBtn icon={'icon-pie'} className={'btn_i btn_grey2 btn_width_auto btn_hover_t-light-blue'} />
                   </div>
@@ -117,9 +153,7 @@ class JournalsDashlet extends Component {
                   <Grid {...props.gridData} hasCheckboxes />
                 </div>
 
-                <div className={'journal-dashlet__footer'}>
-                  <Pagination className={'dashlet__pagination'} total={props.gridData.total} onChange={this.reloadGrid} />
-                </div>
+                <div className={'journal-dashlet__footer'}>{pagination}</div>
               </Fragment>
             )}
           </Dashlet>

@@ -16,6 +16,7 @@ export const setSettingItem = createAction(prefix + 'SET_SETTING_ITEM');
 export const setJournalsList = createAction(prefix + 'SET_JOURNALS_LIST');
 export const setJournals = createAction(prefix + 'SET_JOURNALS');
 
+export const setPage = createAction(prefix + 'SET_PAGE');
 export const setJournalConfig = createAction(prefix + 'SET_JOURNAL_CONFIG');
 export const setGrid = createAction(prefix + 'SET_GRID');
 export const reloadGrid = createAction(prefix + 'RELOAD_GRID');

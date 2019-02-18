@@ -40,12 +40,12 @@ function* putDashlet({ api, logger }, action) {
 function* loadGrid({ api, logger }, action) {
   try {
     const journalId = action.payload.journalId;
-    const page = action.payload.page;
+    const pagination = action.payload.pagination;
 
     if (journalId) {
       const journalConfig = yield call(api.journals.getJournalConfig, journalId);
       yield put(setJournalConfig(journalConfig));
-      const gridData = yield call(api.journals.getGridData, { ...journalConfig, page });
+      const gridData = yield call(api.journals.getGridData, { ...journalConfig, pagination });
       yield put(setGrid(gridData));
     }
   } catch (e) {
@@ -71,6 +71,7 @@ function* fetchDashletConfig({ api, logger }, action) {
     const config = yield call(api.journals.getDashletConfig, id);
 
     if (config) {
+      yield getJournalsList(api);
       yield getJournals(api, config.journalsListId);
       yield put(reloadGrid({ journalId: config.journalId }));
       yield put(setDashletConfig(config));

@@ -3,13 +3,25 @@ import FunctionFormatter from './gql/FunctionFormatter';
 import DateTimeFormatter from './gql/DateTimeFormatter';
 import DefaultGqlFormatter from './gql/DefaultGqlFormatter';
 import CardDetailsLinkFormatter from './gql/CardDetailsLinkFormatter';
+import WorkflowPriorityFormatter from './gql/WorkflowPriorityFormatter/WorkflowPriorityFormatter';
+import TaskTitleFormatter from './gql/TaskTitleFormatter';
+import DocumentLinkFormatter from './gql/DocumentLinkFormatter';
+import DateOrDateTimeFormatter from './gql/DateOrDateTimeFormatter';
+import PercentFormatter from './gql/PercentFormatter';
+import BooleanFormatter from './gql/BooleanFormatter';
 
 const formatterStore = {
   UserNameLinkFormatter,
   FunctionFormatter,
   DateTimeFormatter,
   DefaultGqlFormatter,
-  CardDetailsLinkFormatter
+  CardDetailsLinkFormatter,
+  WorkflowPriorityFormatter,
+  TaskTitleFormatter,
+  DocumentLinkFormatter,
+  DateOrDateTimeFormatter,
+  PercentFormatter,
+  BooleanFormatter
 };
 
 export default formatterStore;

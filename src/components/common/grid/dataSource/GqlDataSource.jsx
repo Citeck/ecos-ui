@@ -45,7 +45,7 @@ export default class GqlDataSource extends BaseDataSource {
   _getColumns(columns) {
     columns = columns.map((column, idx) => {
       column.dataField = column.dataField || column.attribute;
-      column.text = column.text || column.dataField;
+      column.text = window.Alfresco.util.message(column.text || column.dataField);
       column.hidden = !column.default;
 
       column.formatter = column.formatter || Mapper.getFormatterOptions(column, idx);
@@ -79,8 +79,9 @@ export default class GqlDataSource extends BaseDataSource {
       column.formatter = column.formatter || Mapper.getFormatterOptions(column, idx);
 
       let { formatter } = this._getFormatter(column.formatter);
-      let dataField = column.dataField || '';
-      attributes[dataField || column.attribute] = column.attribute || formatter.getQueryString(dataField) || dataField;
+
+      attributes[column.dataField || column.attribute] =
+        column.attributeScheme || formatter.getQueryString(column.attribute || column.dataField);
     });
 
     return attributes;
@@ -89,12 +90,13 @@ export default class GqlDataSource extends BaseDataSource {
   _getFormatter(options) {
     let name;
     let params;
+    let defaultFormatter = formatterStore[DEFAULT_FORMATTER];
 
     if (options) {
       ({ name, params } = options);
     }
 
-    let formatter = formatterStore[name || options || DEFAULT_FORMATTER];
+    let formatter = formatterStore[name || options] || defaultFormatter;
 
     params = params || {};
 

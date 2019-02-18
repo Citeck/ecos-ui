@@ -1,6 +1,8 @@
 @import '../../constants';
 
 .dashlet {
+  min-height: auto !important;
+
   .dashlet__header {
     height: 100%;
     position: relative;

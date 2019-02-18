@@ -14,6 +14,7 @@
   .table {
     border-top: 2px solid $color-gray-4;
     border-bottom: 2px solid $color-gray-4;
+    margin-bottom: 13px;
 
     td {
       border-top: 2px solid $color-gray-4;
@@ -66,6 +67,7 @@
   left: 45px;
   background: $color-white;
   padding: 9px 0 9px 7px;
+  z-index: 1;
 }
 
 .grid__tools-item {
@@ -81,6 +83,15 @@
 .grid_checkable {
   tbody > tr > td:nth-child(1) {
     padding: 0;
+  }
+
+  thead > tr > th:nth-child(1) {
+    width: 54px;
+  }
+
+  .react-bs-table-no-data {
+    padding: 14px 0.75rem !important;
+    visibility: hidden !important;
   }
 }
 
@@ -118,6 +129,11 @@
   & > tbody > tr > td:nth-child(1),
   & > thead > tr > th:nth-child(1) {
     visibility: visible;
+  }
+
+  .react-bs-table-no-data {
+    padding: 14px 0.75rem !important;
+    visibility: visible !important;
   }
 }
 

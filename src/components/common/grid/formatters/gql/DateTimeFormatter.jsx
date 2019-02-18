@@ -4,7 +4,7 @@ import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class DateTimeFormatter extends DefaultGqlFormatter {
   _format(value, params) {
-    const format = params.format || 'DD.MM.YYYY HH:mm:ss';
+    const format = params.format || 'DD.MM.YYYY HH:mm';
     return value ? moment(value).format(format) : '';
   }
 

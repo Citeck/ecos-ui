@@ -2,8 +2,8 @@ import React from 'react';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class UserNameLinkFormatter extends DefaultGqlFormatter {
-  static getQueryString(dataField) {
-    return `.att(n:"${dataField}"){displayName:str,userName:att(n:"cm:userName"){str}}`;
+  static getQueryString(attribute) {
+    return `.att(n:"${attribute}"){displayName:str,userName:att(n:"cm:userName"){str}}`;
   }
 
   value(cell) {

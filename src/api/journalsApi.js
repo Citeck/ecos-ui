@@ -24,7 +24,7 @@ export class JournalsApi extends RecordService {
           query: {
             query: query(options.meta.criteria),
             language: 'criteria',
-            page: options.page || {
+            page: options.pagination || {
               skipCount: 0,
               maxItems: 10
             }

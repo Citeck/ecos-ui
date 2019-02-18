@@ -6,7 +6,9 @@ import classNames from 'classnames';
 import Icon from '../../icons/Icon/Icon';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import { IcoBtn } from '../../btns';
+import PerfectScrollbar from 'react-perfect-scrollbar';
 
+import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
 
 class HeaderFormatter extends Component {
@@ -164,9 +166,9 @@ export default class Grid extends Component {
             </div>
           ) : null}
 
-          <div className={'grid__body'}>
+          <PerfectScrollbar>
             <BootstrapTable {...props} />
-          </div>
+          </PerfectScrollbar>
 
           {props.hasCheckboxes && <BootstrapTable {...props} classes={'grid__freeze'} />}
         </div>

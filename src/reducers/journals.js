@@ -9,7 +9,8 @@ import {
   setJournalsListItem,
   setJournalsItem,
   setSettingItem,
-  setJournalConfig
+  setJournalConfig,
+  setPage
 } from '../actions/journals';
 
 const initialState = {
@@ -25,9 +26,10 @@ const initialState = {
   },
   config: null,
   initConfig: null,
-  page: {
-    skipCount: 10,
-    maxItems: 10
+  pagination: {
+    skipCount: 0,
+    maxItems: 10,
+    page: 1
   },
   journalConfig: null
 };
@@ -91,9 +93,19 @@ export default handleActions(
       };
     },
     [setGrid]: (state, action) => {
+      console.log(state);
       return {
         ...state,
         gridData: action.payload
+      };
+    },
+    [setPage]: (state, action) => {
+      return {
+        ...state,
+        pagination: {
+          ...state.pagination,
+          page: action.payload
+        }
       };
     },
     [setDashletConfig]: (state, action) => {

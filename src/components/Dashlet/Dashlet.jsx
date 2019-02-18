@@ -37,7 +37,7 @@ export default class Dashlet extends Component {
         className={cssClasses}
         header={
           <div className={'dashlet__header'}>
-            <span className={'dashlet__caption'}>{'Договоры'}</span>
+            <span className={'dashlet__caption'}>{props.title}</span>
 
             <IcoBtn
               invert={'true'}
