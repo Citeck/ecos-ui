@@ -52,7 +52,7 @@ class JournalsDashlet extends Component {
     if (journalConfig) {
       const createVariants = ((journalConfig.meta || {}).createVariants || [])[0] || {};
       createVariants.canCreate &&
-        window.open(`node-create-page?type=${createVariants.type}&destination=${createVariants.destination}&viewId=`, '_blank');
+        window.open(`node-create?type=${createVariants.type}&destination=${createVariants.destination}&viewId=`, '_blank');
     }
   };
 
