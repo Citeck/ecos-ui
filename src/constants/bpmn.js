@@ -12,3 +12,6 @@ export const EDITOR_PAGE_CONTEXT = '/share/page/bpmn-editor/';
 export const DESIGNER_PAGE_CONTEXT = '/share/page/bpmn-designer';
 
 export const PROCESS_MODEL_NODE_TYPE = 'ecosbpm:processModel';
+
+export const LOCAL_STORAGE_KEY_PAGE_POSITION = 'BpmnPagePosition';
+export const LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME = 'BpmnRefererPagePathName';

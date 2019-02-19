@@ -2,17 +2,16 @@ import React from 'react';
 // import { NavLink } from 'react-router-dom';
 import { Col } from 'reactstrap';
 import cn from 'classnames';
-import { saveRefererPageLocation } from '../../../helpers/bpmn';
 import { t } from '../../../helpers/util';
 import styles from './ModelList.module.scss';
 
-const ModelList = ({ label, author, datetime, viewLink, editLink, canWrite }) => {
+const ModelList = ({ label, author, datetime, viewLink, editLink, onViewLinkClick, onEditLinkClick, canWrite }) => {
   const dragNDropIconClasses = cn('icon-drag', styles.dndActionIcon, styles.hiddenIcon);
 
   let editButton = <div className={styles.emptyActionIcon} />;
   if (canWrite) {
     editButton = (
-      <a href={editLink} className={styles.editActionIcon} onClick={saveRefererPageLocation}>
+      <a href={editLink} className={styles.editActionIcon} onClick={onEditLinkClick}>
         <span className={'icon-edit'} />
       </a>
     );
@@ -33,7 +32,7 @@ const ModelList = ({ label, author, datetime, viewLink, editLink, canWrite }) =>
           {/*<NavLink to={viewLink} className={styles.viewCard}>*/}
           {/*{t('bpmn-designer.view-button')}*/}
           {/*</NavLink>*/}
-          <a href={viewLink} className={styles.viewCard}>
+          <a href={viewLink} onClick={onViewLinkClick} className={styles.viewCard}>
             {t('bpmn-designer.view-button')}
           </a>
           {editButton}

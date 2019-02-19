@@ -16,12 +16,15 @@ import {
   saveProcessModelRequest,
   showModelCreationForm,
   showImportModelForm,
-  importProcessModelRequest
+  importProcessModelRequest,
+  savePagePosition,
+  setCategoryCollapseState,
+  setViewType
 } from '../actions/bpmn';
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
 import { t } from '../helpers/util';
-import { EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
+import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_PAGE_POSITION } from '../constants/bpmn';
 
 function* doInitRequest({ api, logger }) {
   try {
@@ -29,7 +32,29 @@ function* doInitRequest({ api, logger }) {
     const models = yield call(api.bpmn.fetchProcessModels);
     yield put(setCategories(categories));
     yield put(setModels(models));
+
+    let pagePosition = localStorage.getItem(LOCAL_STORAGE_KEY_PAGE_POSITION);
+    if (pagePosition) {
+      localStorage.removeItem(LOCAL_STORAGE_KEY_PAGE_POSITION);
+      pagePosition = JSON.parse(pagePosition);
+
+      // TODO: optimization
+      if (pagePosition.openedCategories) {
+        for (let categoryId of pagePosition.openedCategories) {
+          yield put(setCategoryCollapseState({ id: categoryId, isOpen: true }));
+        }
+      }
+
+      if (pagePosition.viewType) {
+        yield put(setViewType(pagePosition.viewType));
+      }
+    }
+
     yield put(setIsReady(true));
+
+    if (pagePosition && pagePosition.scrollTop) {
+      document.body.scrollTo(0, pagePosition.scrollTop);
+    }
   } catch (e) {
     logger.error('[bpmn doInitRequest saga] error', e.message);
   }
@@ -195,6 +220,33 @@ function* doShowImportModelForm({ api, logger }, action) {
   }
 }
 
+function* doSavePagePosition({ api, logger }, action) {
+  try {
+    const allCategories = yield select(selectAllCategories);
+    const viewType = yield select(state => state.bpmn.viewType);
+
+    const openedCategories = [];
+    allCategories.forEach(item => {
+      if (item.isOpen) {
+        openedCategories.push(item.id);
+      }
+    });
+
+    localStorage.setItem(
+      LOCAL_STORAGE_KEY_PAGE_POSITION,
+      JSON.stringify({
+        scrollTop: document.body.scrollTop,
+        openedCategories,
+        viewType
+      })
+    );
+
+    typeof action.payload.callback === 'function' && action.payload.callback();
+  } catch (e) {
+    logger.error('[bpmn doShowImportModelForm saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initRequest().type, doInitRequest, ea);
   yield takeLatest(saveCategoryRequest().type, doSaveCategoryRequest, ea);
@@ -203,6 +255,7 @@ function* saga(ea) {
   yield takeLatest(importProcessModelRequest().type, doImportProcessModelRequest, ea);
   yield takeLatest(showModelCreationForm().type, doShowModelCreationForm, ea);
   yield takeLatest(showImportModelForm().type, doShowImportModelForm, ea);
+  yield takeLatest(savePagePosition().type, doSavePagePosition, ea);
 }
 
 export default saga;

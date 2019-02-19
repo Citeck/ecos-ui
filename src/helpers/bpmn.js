@@ -1,9 +1,3 @@
-export function saveRefererPageLocation(e) {
-  e.preventDefault();
-  localStorage.setItem('BpmnRefererPagePathName', window.location.pathname);
-  window.location.href = e.currentTarget.href;
-}
-
 export function isCategoryHasChildren(categoryId, categories, models) {
   const hasModels = models.findIndex(item => item.categoryId === categoryId) !== -1;
   const hasNotEmptySubcategories =

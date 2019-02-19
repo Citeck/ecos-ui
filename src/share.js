@@ -144,6 +144,7 @@ export function requireStyles() {
         'xstyle!/share/res/modules/create-site.css',
         'xstyle!/share/res/components/form/form.css',
         'xstyle!/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro.css'
+        // 'xstyle!https://fonts.googleapis.com/css?family=Open+Sans:300,400,600'
       ],
       function() {
         resolve();
