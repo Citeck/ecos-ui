@@ -48,6 +48,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile }) => {
           <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
           <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
           <Route path="/share/page/(.*/)?card-details" component={CardDetailsPage} />
+          <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
           {/*<Route component={NotFoundPage} />*/}
         </Switch>
 
