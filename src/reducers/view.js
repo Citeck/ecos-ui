@@ -1,8 +1,9 @@
 import { handleActions } from 'redux-actions';
-import { setIsMobile } from '../actions/view';
+import { setIsMobile, setTheme } from '../actions/view';
 
 const initialState = {
-  isMobile: false
+  isMobile: false,
+  theme: null
 };
 
 Object.freeze(initialState);
@@ -13,6 +14,12 @@ export default handleActions(
       return {
         ...state,
         isMobile: action.payload
+      };
+    },
+    [setTheme]: (state, action) => {
+      return {
+        ...state,
+        theme: action.payload
       };
     }
   },

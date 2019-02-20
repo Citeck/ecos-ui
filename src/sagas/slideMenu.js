@@ -1,4 +1,4 @@
-import { put, takeLatest, call } from 'redux-saga/effects';
+import { put, takeLatest, call, select } from 'redux-saga/effects';
 import {
   fetchSmallLogoSrc,
   fetchLargeLogoSrc,
@@ -14,7 +14,8 @@ import { selectedMenuItemIdKey, fetchExpandableItems } from '../helpers/slideMen
 
 function* fetchSmallLogo({ api, fakeApi, logger }) {
   try {
-    const logoSrc = yield call(fakeApi.getSmallLogoSrc);
+    const themeName = yield select(state => state.view.theme);
+    const logoSrc = yield call(fakeApi.getSmallLogoSrc, themeName);
     yield put(setSmallLogo(logoSrc));
   } catch (e) {
     logger.error('[fetchSmallLogo saga] error', e.message);
@@ -23,7 +24,8 @@ function* fetchSmallLogo({ api, fakeApi, logger }) {
 
 function* fetchLargeLogo({ api, fakeApi, logger }) {
   try {
-    const logoSrc = yield call(fakeApi.getLargeLogoSrc);
+    const themeName = yield select(state => state.view.theme);
+    const logoSrc = yield call(fakeApi.getLargeLogoSrc, themeName);
     yield put(setLargeLogo(logoSrc));
   } catch (e) {
     logger.error('[fetchLargeLogo saga] error', e.message);

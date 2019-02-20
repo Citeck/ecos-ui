@@ -15,7 +15,7 @@ import Modal from '../Modal';
 import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 
-const App = ({ isInit, isInitFailure, isAuthenticated, isMobile }) => {
+const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
   if (!isInit) {
     // TODO: Loading component
     return null;
@@ -54,7 +54,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile }) => {
 
         <div className="sticky-push" />
       </div>
-      <Footer key="card-details-footer" className="sticky-footer" theme="citeckTheme" />
+      <Footer key="card-details-footer" className="sticky-footer" theme={theme} />
     </div>
   );
 };
@@ -63,6 +63,7 @@ const mapStateToProps = state => ({
   isInit: state.app.isInit,
   isInitFailure: state.app.isInitFailure,
   isMobile: state.view.isMobile,
+  theme: state.view.theme,
   isAuthenticated: state.user.isAuthenticated
 });
 

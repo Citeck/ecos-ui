@@ -129,18 +129,23 @@ export function requireScripts() {
   });
 }
 
-export function requireStyles() {
+export function requireStyles(themeName) {
+  let skinCss = `/share/res/themes/${themeName}/yui/assets/skin.css`;
+  if (themeName === 'default') {
+    skinCss = `/share/res/yui/assets/skins/default/skin.css`;
+  }
+
   return new Promise(resolve => {
     window.require(
       [
         'xstyle!/share/res/css/yui-fonts-grids.css',
         'xstyle!/share/res/yui/columnbrowser/assets/columnbrowser.css',
         'xstyle!/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin.css',
-        'xstyle!/share/res/themes/citeckTheme/yui/assets/skin.css',
+        `xstyle!${skinCss}`,
         'xstyle!/share/res/css/base.css',
         'xstyle!/share/res/js/citeck/modules/utils/citeck.css',
         'xstyle!/share/res/css/yui-layout.css',
-        'xstyle!/share/res/themes/citeckTheme/presentation.css',
+        `xstyle!/share/res/themes/${themeName}/presentation.css`,
         'xstyle!/share/res/modules/create-site.css',
         'xstyle!/share/res/components/form/form.css',
         'xstyle!/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro.css'
@@ -163,10 +168,10 @@ export function loadMessagesAndAlfrescoScript() {
   });
 }
 
-export function requireShareAssets() {
+export function requireShareAssets(themeName) {
   return loadMessagesAndAlfrescoScript()
     .then(() => {
-      return requireStyles();
+      return requireStyles(themeName);
     })
     .then(() => {
       return fillConstants();
