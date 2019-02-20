@@ -9,12 +9,11 @@ import { hideModal } from '../../../actions/modal';
 import { t } from '../../../helpers/util';
 import { importProcessModelRequest } from '../../../actions/bpmn';
 import { loadOrgStructUsers } from '../../../actions/misc';
+import { selectCaseSensitiveCategories } from '../../../selectors/bpmn';
 import './ImportModelForm.scss';
 
 const mapStateToProps = state => ({
-  categories: state.bpmn.categories.map(item => {
-    return { value: item.id, label: item.label };
-  }),
+  categories: selectCaseSensitiveCategories(state),
   currentUser: state.user
 });
 

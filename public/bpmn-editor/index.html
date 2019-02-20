@@ -59,7 +59,7 @@
               <!--<img ng-src="{{appResourceRoot}}images/flowable-logo.png" ng-srcset="{{appResourceRoot}}images/flowable-logo.png 1x, {{appResourceRoot}}images/flowable-logo@2x.png 2x">-->
             <!--</a>-->
             <ul class="nav navbar-nav" id="main-nav">
-              <li ng-class="{'active' : item.id == mainPage.id}" ng-repeat="item in mainNavigation">
+              <li ng-class="{'active' : item.id == mainPage.id}" ng-repeat="item in $root.mainNavigation">
                 <a ng-click="setMainPage(item)">{{item.title | translate}}</a>
               </li>
             </ul>
@@ -336,10 +336,15 @@
       window.Alfresco.constants.URL_SERVICECONTEXT = '/share/service/';
       window.Alfresco.constants.URL_CONTEXT = '/share/';
       window.BPMN_DESIGNER_CONTEXT = '/share/page/bpmn-designer';
+      window.CARD_DETAILS_CONTEXT = '/share/page/card-details?nodeRef=workspace://SpacesStore/';
 
       dynamicallyLoadScript('/share/res/lib/underscore.js?' + window.dojoConfig.cacheBust, function() {
-        fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user').then(checkStatus).catch(function (err) {
-          window.location.href = window.BPMN_DESIGNER_CONTEXT;
+        fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user', {
+          credentials: 'include'
+        }).then(function (response) {
+          if (response.status !== 200) {
+            window.location.href = window.BPMN_DESIGNER_CONTEXT;
+          }
         });
 
         require([
@@ -360,6 +365,7 @@
           'js/citeck/modules/header/index'
         ], function(ShareHeader) {
           const fetchUserPromise = fetch('/share/proxy/alfresco/citeck/ecos/records/query', {
+            credentials: 'include',
             method: 'post',
             headers: {
               'Content-Type': 'application/json'
@@ -370,17 +376,15 @@
                 userName: 'userName',
                 isAvailable: 'isAvailable',
                 isMutable: 'isMutable',
-                firstName: 'cm:firstName',
-                lastName: 'cm:lastName',
-                middleName: 'cm:middleName',
-                isAdmin: 'isAdmin',
                 fullName: 'fullName',
                 uid: 'cm:name',
               }
             })
           }).then(checkStatus).then(parseJSON).then(json => json.records[0].attributes);
 
-          const fetchIsCascadeMenuPromise = fetch('/share/proxy/alfresco/citeck/ecosConfig/ecos-config-value?configName=default-ui-create-menu')
+          const fetchIsCascadeMenuPromise = fetch('/share/proxy/alfresco/citeck/ecosConfig/ecos-config-value?configName=default-ui-create-menu', {
+            credentials: 'include'
+          })
             .then(checkStatus)
             .then(parseJSON)
             .then(json => json.value === "cascad");

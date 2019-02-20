@@ -1,10 +1,39 @@
 @import '../../../../constants';
 
 .checkbox {
+  display: inline-block;
+  text-decoration: none;
+  position: relative;
+  font-size: 22px;
   width: 22px;
   height: 22px;
-  border: 2px solid $color-gray-6;
-  box-sizing: border-box;
-  border-radius: $border-radius-standard;
-  display: inline-block;
+  padding: 0;
+  color: $color-gray-6 !important;
+}
+
+.checkbox__i {
+  display: block;
+  position: absolute;
+  left: 0;
+  height: 22px;
+  line-height: 0 !important;
+
+  &:before {
+    margin: 0 !important;
+    line-height: 1 !important;
+  }
+}
+
+.checkbox__i_blue {
+  color: $color-blue-dark;
+}
+
+.checkbox__i_white {
+  color: $color-white;
+}
+
+.checkbox__i_hover_blue {
+  &:hover {
+    color: $color-blue-dark;
+  }
 }

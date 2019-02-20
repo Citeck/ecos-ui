@@ -2,30 +2,33 @@
 
 .pagination {
   display: inline-block !important;
-  float: right;
 }
 
 .pagination__text {
+  display: inline-block !important;
   font-family: $font-family !important;
   font-weight: $font-weight-bold !important;
   font-size: $font-size-standard !important;
   color: $text-color-gray;
+
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  border: 1px solid transparent;
+  text-decoration: none;
+
+  background: inherit;
+
+  letter-spacing: $letter-spacing;
+  line-height: normal;
+  padding: 6px 1px;
+  height: 34px;
 }
 
-.pagination__button {
-  color: $text-color-gray;
-  padding: 0;
-
-  &:hover {
-    color: $color-blue-dark;
-    background: $color-gray-4;
-  }
+.pagination__btn-step {
+  margin-right: 14px;
 }
 
-.pagination__button-icon-left {
-  font-size: 20px;
-}
-
-.pagination__button-icon-right {
-  font-size: 20px;
+.pagination__step {
+  margin-right: 17px;
 }

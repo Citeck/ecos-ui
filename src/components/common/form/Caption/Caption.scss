@@ -5,6 +5,7 @@
   margin: 0;
   line-height: normal;
   font-family: $font-family;
+  letter-spacing: $letter-spacing;
 }
 
 .caption_large {
@@ -13,6 +14,11 @@
 }
 
 .caption_middle {
+  font-size: 18px !important;
+  font-weight: $font-weight-bold !important;
+}
+
+.caption_small {
   font-size: 14px !important;
   font-weight: $font-weight-bold !important;
 }

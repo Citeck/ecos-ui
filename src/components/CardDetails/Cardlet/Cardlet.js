@@ -33,24 +33,22 @@ const mapStateToProps = (state, ownProps) => {
   let controlProps = {};
 
   for (let prop in rawProps) {
-    if (!rawProps.hasOwnProperty(prop)) {
-      continue;
+    if (rawProps.hasOwnProperty(prop)) {
+      controlProps[prop] = rawProps[prop].replace(evalExpRegexp, (match, expr) => {
+        if (expr === 'nodeRef') {
+          return nodeRef;
+        } else if (expr === 'theme') {
+          return theme;
+        }
+        try {
+          // eslint-disable-next-line
+          return eval(expr);
+        } catch (e) {
+          console.error(e);
+          return expr;
+        }
+      });
     }
-
-    controlProps[prop] = rawProps[prop].replace(evalExpRegexp, (match, expr) => {
-      if (expr === 'nodeRef') {
-        return nodeRef;
-      } else if (expr === 'theme') {
-        return theme;
-      }
-      try {
-        // eslint-disable-next-line
-        return eval(expr);
-      } catch (e) {
-        console.error(e);
-        return expr;
-      }
-    });
   }
   let modesLoadingState = state.cardDetails.modesLoadingState || {};
   let cardletState = (state.cardDetails.cardletsState || {})[ownProps.id] || {};

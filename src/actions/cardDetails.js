@@ -1,4 +1,4 @@
-import { URL_RESCONTEXT, PROXY_URI } from '../constants/alfresco';
+import { PROXY_URI } from '../constants/alfresco';
 import { setNotificationMessage } from './notification';
 import { checkStatus, parseJSON } from '../api/common';
 
@@ -108,8 +108,7 @@ export function fetchCardletData(cardletProps) {
         control: cardletProps.control
       });
 
-      const controlUrl = `${URL_RESCONTEXT}${cardletProps.control.url}.js`;
-      window.require([controlUrl], function(data) {
+      window.require([cardletProps.control.url], function(data) {
         let controlClass = data.default;
         dispatch({
           type: RECEIVE_CONTROL,
@@ -160,8 +159,7 @@ export function fetchCardletData(cardletProps) {
     };
 
     if (control.isFetching) {
-      const controlUrl = `${URL_RESCONTEXT}${cardletProps.control.url}.js`;
-      window.require([controlUrl], function(data) {
+      window.require([cardletProps.control.url], function(data) {
         fetchData(data.default);
       });
     } else {

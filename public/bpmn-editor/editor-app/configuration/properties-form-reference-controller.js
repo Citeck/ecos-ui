@@ -193,39 +193,72 @@ angular.module('flowableModeler').controller('FlowableFormReferencePopupCtrl',
                 };
 
                 // Update
-                $http({ method: 'POST',
+                var onSuccessCallback = function() {
+                  editorManager.handleEvents({
+                    type: ORYX.CONFIG.EVENT_SAVED
+                  });
+
+                  $scope.model.loading = false;
+                  $scope.$hide();
+
+                  var allSteps = EDITOR.UTIL.collectSortedElementsFromPrecedingElements($scope.selectedShape);
+
+                  $rootScope.addHistoryItem($scope.selectedShape.resourceId);
+                  $location.path('form-editor/' + newFormId);
+                };
+
+                var onErrorCallback = function() {
+                  $scope.model.loading = false;
+                  $scope.$hide();
+                };
+
+                var isCaseModel = false;
+                if (editorManager && editorManager.getStencilData()) {
+                  var stencilNameSpace = editorManager.getStencilData().namespace;
+                  if (stencilNameSpace !== undefined && stencilNameSpace !== null && stencilNameSpace.indexOf('cmmn1.1') !== -1) {
+                    isCaseModel = true;
+                  }
+                }
+
+                if (isCaseModel) {
+                  $http({ method: 'POST',
                     data: params,
                     ignoreErrors: true,
                     headers: {'Accept': 'application/json',
-                              'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+                      'Content-Type': 'plain/text'},
                     transformRequest: function (obj) {
-                        var str = [];
-                        for (var p in obj) {
-                            str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-                        }
-                        return str.join("&");
+                      var str = [];
+                      for (var p in obj) {
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                      }
+                      return str.join("&");
                     },
-                    url: FLOWABLE.URL.putModel(modelMetaData.modelId)})
-
+                    url: FLOWABLE.URL.putModel(modelMetaData.modelId) + FLOWABLE.URL.proxyPostContentType })
                     .success(function (data, status, headers, config) {
-                        editorManager.handleEvents({
-                            type: ORYX.CONFIG.EVENT_SAVED
-                        });
-                        
-                        $scope.model.loading = false;
-                        $scope.$hide();
-
-                        var allSteps = EDITOR.UTIL.collectSortedElementsFromPrecedingElements($scope.selectedShape);
-
-                        $rootScope.addHistoryItem($scope.selectedShape.resourceId);
-                        $location.path('form-editor/' + newFormId);
-
+                      onSuccessCallback();
                     })
                     .error(function (data, status, headers, config) {
-                        $scope.model.loading = false;
-                        $scope.$hide();
+                      onErrorCallback();
                     });
-                
+                } else {
+                  $http.post(FLOWABLE.URL.recordServiceMutate, {
+                    record: {
+                      id: 'workspace://SpacesStore/' + modelMetaData.modelId,
+                      attributes: {
+                        'ecosbpm:jsonModel': {
+                          mimetype: 'application/json',
+                          encoding: 'UTF-8',
+                          content: json
+                        }
+                      }
+                    }
+                  }).then(function () {
+                    onSuccessCallback();
+                  }).catch(function () {
+                    onErrorCallback();
+                  });
+                }
+                // END Update
             }).
             error(function(data, status, headers, config) {
                 $scope.model.loading = false;

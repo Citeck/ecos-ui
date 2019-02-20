@@ -1,0 +1,70 @@
+@import '../../../../constants';
+
+.tree-grid {
+  &.table {
+    td {
+      padding-top: 9px;
+      padding-bottom: 9px;
+      vertical-align: middle;
+      color: $text-color-dark;
+      font-size: $font-size-small;
+      font-weight: 400 !important;
+      border-top: 2px solid $color-gray-4;
+    }
+
+    thead th {
+      border-bottom: 2px solid $color-gray-4;
+      border-top: 2px solid $color-gray-4;
+      padding: 7px 0;
+      vertical-align: middle;
+    }
+
+    .tree-grid__expander-td {
+      padding-right: 0;
+    }
+
+    .expanding-row {
+      & > td {
+        padding: 0;
+      }
+    }
+  }
+}
+.tree-grid__child_hide-header {
+  thead {
+    display: none;
+  }
+}
+
+.tree-grid__expander {
+  color: $color-gray-5;
+  cursor: pointer;
+}
+
+.tree-grid__th {
+  display: flex;
+  align-items: center;
+  border-left: 2px solid $color-gray-4;
+  padding: 6px 10px;
+  width: 100%;
+  height: 100%;
+  color: $text-color-dark;
+  font-size: $font-size-standard;
+  font-weight: $font-weight-bold !important;
+}
+
+.tree-grid__filter {
+  color: $color-gray-5;
+  margin-left: 6px;
+  font-size: 15px;
+}
+
+.tree-grid__child {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  margin: 0 !important;
+
+  tr:first-child td {
+    border-top: 0;
+  }
+}

@@ -22,7 +22,6 @@ const CardletsBody = ({ modes, cardlets }) => (
   </div>
 );
 
-// TODO optimize
 const mapStateToProps = state => {
   let cardlets = {
     all: { top: [] }

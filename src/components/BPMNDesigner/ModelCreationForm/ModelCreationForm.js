@@ -6,12 +6,11 @@ import { DatePicker, Input, Label, Select, Textarea } from '../../common/form';
 import { hideModal } from '../../../actions/modal';
 import { saveProcessModelRequest } from '../../../actions/bpmn';
 import { loadOrgStructUsers } from '../../../actions/misc';
+import { selectCaseSensitiveCategories } from '../../../selectors/bpmn';
 import { t } from '../../../helpers/util';
 
 const mapStateToProps = state => ({
-  categories: state.bpmn.categories.map(item => {
-    return { value: item.id, label: item.label };
-  }),
+  categories: selectCaseSensitiveCategories(state),
   currentUser: state.user
 });
 

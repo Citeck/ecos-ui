@@ -23,8 +23,14 @@ FLOWABLE.TOOLBAR.ACTIONS.closeEditor =  function(services) {
   }
 
   // process model
-	// window.location.href = window.BPMN_DESIGNER_CONTEXT;
-  window.history.back();
+  // window.history.back();
+  var refererPagePathName = localStorage.getItem('BpmnRefererPagePathName');
+  localStorage.removeItem('BpmnRefererPagePathName');
+  if (refererPagePathName === window.BPMN_DESIGNER_CONTEXT) {
+    window.location.href = window.BPMN_DESIGNER_CONTEXT;
+  } else {
+    window.location.href = window.CARD_DETAILS_CONTEXT + services.editorManager.modelId;
+  }
 };
 
 FLOWABLE.TOOLBAR.ACTIONS.navigateToProcess = function(processId) {
