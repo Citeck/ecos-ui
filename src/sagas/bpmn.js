@@ -1,9 +1,8 @@
 import React from 'react';
-import ModelCreationForm from '../components/BPMNDesigner/ModelCreationForm';
-import ImportModelForm from '../components/BPMNDesigner/ImportModelForm';
-
 import { delay } from 'redux-saga';
 import { select, put, takeLatest, call } from 'redux-saga/effects';
+import ModelCreationForm from '../components/BPMNDesigner/ModelCreationForm';
+import ImportModelForm from '../components/BPMNDesigner/ImportModelForm';
 import {
   initRequest,
   setCategories,
@@ -23,8 +22,9 @@ import {
 } from '../actions/bpmn';
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
+import { getPagePositionState, savePagePositionState, removePagePositionState } from '../helpers/bpmn';
 import { t } from '../helpers/util';
-import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_PAGE_POSITION } from '../constants/bpmn';
+import { EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
 
 function* doInitRequest({ api, logger }) {
   try {
@@ -33,10 +33,9 @@ function* doInitRequest({ api, logger }) {
     yield put(setCategories(categories));
     yield put(setModels(models));
 
-    let pagePosition = localStorage.getItem(LOCAL_STORAGE_KEY_PAGE_POSITION);
+    let pagePosition = yield call(getPagePositionState);
     if (pagePosition) {
-      localStorage.removeItem(LOCAL_STORAGE_KEY_PAGE_POSITION);
-      pagePosition = JSON.parse(pagePosition);
+      yield call(removePagePositionState);
 
       // TODO: optimization
       if (pagePosition.openedCategories) {
@@ -232,14 +231,11 @@ function* doSavePagePosition({ api, logger }, action) {
       }
     });
 
-    localStorage.setItem(
-      LOCAL_STORAGE_KEY_PAGE_POSITION,
-      JSON.stringify({
-        scrollTop: document.body.scrollTop,
-        openedCategories,
-        viewType
-      })
-    );
+    yield call(savePagePositionState, {
+      scrollTop: document.body.scrollTop,
+      openedCategories,
+      viewType
+    });
 
     typeof action.payload.callback === 'function' && action.payload.callback();
   } catch (e) {
