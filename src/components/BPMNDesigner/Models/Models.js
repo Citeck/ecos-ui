@@ -8,6 +8,8 @@ import { selectModelsByCategoryId } from '../../../selectors/bpmn';
 import CreateModelCard from '../CreateModelCard';
 import ModelCard from '../ModelCard';
 import ModelList from '../ModelList';
+import { savePagePosition } from '../../../actions/bpmn';
+import { LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME } from '../../../constants/bpmn';
 
 const mapStateToProps = (state, props) => ({
   viewType: state.bpmn.viewType,
@@ -15,7 +17,33 @@ const mapStateToProps = (state, props) => ({
   items: selectModelsByCategoryId(state, props)
 });
 
-const Models = ({ viewType, items, categoryId, searchText }) => {
+const mapDispatchToProps = dispatch => ({
+  onViewLinkClick: e => {
+    e.preventDefault();
+
+    dispatch(
+      savePagePosition({
+        callback: () => {
+          window.location.href = e.currentTarget.href;
+        }
+      })
+    );
+  },
+  onEditLinkClick: e => {
+    e.preventDefault();
+
+    dispatch(
+      savePagePosition({
+        callback: () => {
+          localStorage.setItem(LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME, window.location.pathname);
+          window.location.href = e.currentTarget.href;
+        }
+      })
+    );
+  }
+});
+
+const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEditLinkClick }) => {
   const ModelComponent = viewType === VIEW_TYPE_LIST ? ModelList : ModelCard;
 
   const models = [];
@@ -34,9 +62,12 @@ const Models = ({ viewType, items, categoryId, searchText }) => {
 
       models.push(
         <ModelComponent
+          canWrite={item.canWrite}
           key={item.id}
           viewLink={viewLink}
           editLink={editLink}
+          onViewLinkClick={onViewLinkClick}
+          onEditLinkClick={onEditLinkClick}
           label={item.label}
           author={item.creator}
           datetime={dt}
@@ -59,4 +90,7 @@ const Models = ({ viewType, items, categoryId, searchText }) => {
   );
 };
 
-export default connect(mapStateToProps)(Models);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Models);

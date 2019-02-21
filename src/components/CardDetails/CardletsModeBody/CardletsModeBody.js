@@ -1,45 +1,49 @@
 import React from 'react';
-import classNames from 'classnames';
 import { renderCardletList } from '../Cardlet';
 
-function CardletsModeBody({ visited, cardlets, loaded, id, isActive }) {
-  let cardletList = {
-    top: [],
-    left: [],
-    right: [],
-    bottom: []
-  };
-
-  if (visited) {
-    cardletList = cardlets || {};
+function CardletsModeBody(props) {
+  let className = 'card-mode-body';
+  if (!props.isActive) {
+    className += ' hidden';
   }
 
-  const cardClassNames = classNames('card-mode-body', { hidden: !isActive });
+  let cardlets = props.visited
+    ? props.cardlets || {}
+    : {
+        top: [],
+        left: [],
+        right: [],
+        bottom: []
+      };
 
-  const contentClassNames = classNames('card-details-mode-body', {
-    active: loaded,
-    'not-active': !loaded
-  });
+  let isCardletsEmpty = function(cardlets) {
+    for (let space in cardlets) {
+      if (cardlets.hasOwnProperty(space) && cardlets[space].length) {
+        return false;
+      }
+    }
+    return true;
+  };
 
-  const loadingClassNames = classNames('card-details-mode-body', 'loading-overlay', {
-    active: !loaded,
-    'not-active': loaded
-  });
+  let loaded = isCardletsEmpty(cardlets) || props.loaded;
+
+  let contentClass = loaded ? 'active' : 'not-active';
+  let loadingClass = loaded ? 'not-active' : 'active';
 
   return (
-    <div id={`card-mode-${id}`} className={cardClassNames}>
-      <div className={loadingClassNames}>
+    <div id={`card-mode-${props.id}`} className={className}>
+      <div className={`card-details-mode-body ${loadingClass} loading-overlay`}>
         <div className="loading-container">
           <div className="loading-indicator" />
         </div>
       </div>
-      <div className={contentClassNames}>
-        {renderCardletList(cardletList['top'])}
+      <div className={`card-details-mode-body ${contentClass}`}>
+        {renderCardletList(cardlets['top'])}
         <div className="yui-gc">
-          <div className="yui-u first">{renderCardletList(cardletList['left'])}</div>
-          <div className="yui-u">{renderCardletList(cardletList['right'])}</div>
+          <div className="yui-u first">{renderCardletList(cardlets['left'])}</div>
+          <div className="yui-u">{renderCardletList(cardlets['right'])}</div>
         </div>
-        {renderCardletList(cardletList['bottom'])}
+        {renderCardletList(cardlets['bottom'])}
       </div>
     </div>
   );

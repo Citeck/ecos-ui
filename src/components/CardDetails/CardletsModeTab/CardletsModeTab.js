@@ -3,28 +3,35 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { push } from 'connected-react-router';
 import queryString from 'query-string';
-import classNames from 'classnames';
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  onClick: () => {
-    const pathName = ownProps.location.pathname;
-    const searchParams = queryString.parse(ownProps.location.search);
-    const newSearchString = queryString.stringify({ ...searchParams, mode: ownProps.id }, { sort: false });
+function CardletsModeTab(props) {
+  let className = 'header-tab';
 
-    dispatch(push(`${pathName}?${newSearchString}`));
+  if (props.isActive) {
+    className += ' current';
   }
-});
 
-const CardletsModeTab = ({ isActive, title, onClick }) => (
-  <span className={classNames('header-tab', { current: isActive })}>
-    {/* eslint-disable-next-line */}
-    <a onClick={onClick}>{title}</a>
-  </span>
-);
+  return (
+    <span className={className}>
+      {/* eslint-disable-next-line */}
+      <a onClick={props.onClick}>{props.title}</a>
+    </span>
+  );
+}
 
 export default withRouter(
   connect(
-    null,
-    mapDispatchToProps
+    (state, ownProps) => ownProps,
+    (dispatch, ownProps) => {
+      return {
+        onClick: () => {
+          const pathName = ownProps.location.pathname;
+          const searchParams = queryString.parse(ownProps.location.search);
+          const newSearchString = queryString.stringify({ ...searchParams, mode: ownProps.id }, { sort: false });
+
+          dispatch(push(`${pathName}?${newSearchString}`));
+        }
+      };
+    }
   )(CardletsModeTab)
 );

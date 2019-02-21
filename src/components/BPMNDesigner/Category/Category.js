@@ -5,7 +5,7 @@ import { Collapse, Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import cn from 'classnames';
 import { VIEW_TYPE_CARDS, VIEW_TYPE_LIST } from '../../../constants/bpmn';
 import { createCategory, cancelEditCategory, setIsEditable, saveCategoryRequest, deleteCategoryRequest } from '../../../actions/bpmn';
-import { showModelCreationForm } from '../../../actions/bpmn';
+import { showModelCreationForm, setCategoryCollapseState } from '../../../actions/bpmn';
 import { hideModal, showModal } from '../../../actions/modal';
 import { t, placeCaretAtEnd } from '../../../helpers/util';
 import styles from './Category.module.scss';
@@ -19,6 +19,12 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = (dispatch, props) => ({
   setIsEditable: () => {
     dispatch(setIsEditable(props.itemId));
+  },
+  toggleCollapse: () => {
+    dispatch(setCategoryCollapseState({ id: props.itemId, isOpen: !props.isOpen }));
+  },
+  setCollapse: isOpen => {
+    dispatch(setCategoryCollapseState({ id: props.itemId, isOpen }));
   },
   showDeleteCategoryModal: () => {
     dispatch(
@@ -58,15 +64,12 @@ const mapDispatchToProps = (dispatch, props) => ({
 
 class Category extends React.Component {
   state = {
-    collapseIsOpen: false,
     dropdownOpen: false
   };
 
   static getDerivedStateFromProps(props, state) {
-    if (props.searchText && !state.collapseIsOpen) {
-      return {
-        collapseIsOpen: true
-      };
+    if (props.searchText && !props.isOpen) {
+      props.setCollapse(true);
     }
 
     return null;
@@ -85,19 +88,13 @@ class Category extends React.Component {
     }));
   };
 
-  toggleCollapse = () => {
-    this.setState(prevState => ({
-      collapseIsOpen: !prevState.collapseIsOpen
-    }));
-  };
-
   doAddSubcategoryAction = () => {
     this.setState(
       {
-        collapseIsOpen: true,
         dropdownOpen: false
       },
       () => {
+        this.props.setCollapse(true);
         this.props.createCategory();
       }
     );
@@ -106,10 +103,10 @@ class Category extends React.Component {
   doAddModelAction = () => {
     this.setState(
       {
-        collapseIsOpen: true,
         dropdownOpen: false
       },
       () => {
+        this.props.setCollapse(true);
         this.props.createModel();
       }
     );
@@ -118,10 +115,10 @@ class Category extends React.Component {
   doRenameCategoryAction = () => {
     this.setState(
       {
-        collapseIsOpen: false,
         dropdownOpen: false
       },
       () => {
+        this.props.setCollapse(false);
         this.props.setIsEditable();
       }
     );
@@ -151,7 +148,18 @@ class Category extends React.Component {
   }
 
   render() {
-    const { label, level, isEditable, viewType, saveEditableCategory, cancelEditCategory, searchText } = this.props;
+    const {
+      label,
+      level,
+      isEditable,
+      viewType,
+      saveEditableCategory,
+      cancelEditCategory,
+      searchText,
+      canWrite,
+      isOpen,
+      toggleCollapse
+    } = this.props;
 
     // classes
     const dropdownActionsIconClasses = cn(styles.categoryActionIcon, styles.categoryActionIcon2, {
@@ -169,7 +177,7 @@ class Category extends React.Component {
     const mainContainerClasses = cn(`bpmn-category`, `bpmn-category_level${level}`, {
       [styles.bpmnCategoryLevel1]: level === 1,
       [styles.bpmnCategoryLevel2]: level === 2,
-      bpmnCategoryLevelOpen: this.state.collapseIsOpen,
+      bpmnCategoryLevelOpen: isOpen,
       bpmnCategoryListViewType: viewType === VIEW_TYPE_LIST && level !== 0
     });
 
@@ -179,7 +187,7 @@ class Category extends React.Component {
     });
 
     const labelClasses = cn(styles.label, {
-      [styles.labelForCollapsed]: this.state.collapseIsOpen
+      [styles.labelForCollapsed]: isOpen
     });
 
     const labelTextClasses = cn(styles.labelText, {
@@ -187,22 +195,24 @@ class Category extends React.Component {
     });
 
     // action buttons
-    let onClickLabel = this.toggleCollapse;
+    let onClickLabel = toggleCollapse;
+
     const actions = [
-      {
-        label: t('bpmn-designer.category-action.rename'),
-        onClick: this.doRenameCategoryAction
-      },
       {
         label: t('bpmn-designer.category-action.create-model'),
         onClick: this.doAddModelAction
-      },
-      {
-        label: t('bpmn-designer.category-action.delete'),
-        onClick: this.doDeleteCategoryAction
       }
     ];
-
+    if (canWrite) {
+      actions.unshift({
+        label: t('bpmn-designer.category-action.rename'),
+        onClick: this.doRenameCategoryAction
+      });
+      actions.push({
+        label: t('bpmn-designer.category-action.delete'),
+        onClick: this.doDeleteCategoryAction
+      });
+    }
     if (level < 2) {
       actions.unshift({
         label: t('bpmn-designer.category-action.add-subcategory'),
@@ -299,14 +309,14 @@ class Category extends React.Component {
             <div className={styles.categoryActions}>{actionButtons}</div>
           </div>
           {viewType === VIEW_TYPE_CARDS ? (
-            <Collapse isOpen={this.state.collapseIsOpen}>
+            <Collapse isOpen={isOpen}>
               <div className={styles.content}>{this.props.children}</div>
             </Collapse>
           ) : null}
         </div>
 
         {viewType === VIEW_TYPE_LIST ? (
-          <Collapse isOpen={this.state.collapseIsOpen}>
+          <Collapse isOpen={isOpen}>
             <div className={styles.contentNested}>{this.props.children}</div>
           </Collapse>
         ) : null}

@@ -4,7 +4,15 @@ import bpmn from './bpmn';
 import header from './header';
 import slideMenu from './slideMenu';
 import user from './user';
+import journals from './journals';
 
 export default function* rootSaga(extraArguments) {
-  yield all([app(extraArguments), bpmn(extraArguments), header(extraArguments), slideMenu(extraArguments), user(extraArguments)]);
+  yield all([
+    app(extraArguments),
+    bpmn(extraArguments),
+    header(extraArguments),
+    slideMenu(extraArguments),
+    user(extraArguments),
+    journals(extraArguments)
+  ]);
 }

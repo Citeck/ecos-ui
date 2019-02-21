@@ -9,6 +9,7 @@ import notification from './notification';
 import slideMenu from './slideMenu';
 import user from './user';
 import view from './view';
+import journals from './journals';
 import { rootReducer as cardDetails } from './cardDetails';
 
 const reducers = {
@@ -20,7 +21,8 @@ const reducers = {
   notification,
   slideMenu,
   user,
-  view
+  view,
+  journals
 };
 
 export default history =>

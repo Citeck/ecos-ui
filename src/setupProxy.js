@@ -44,11 +44,13 @@ module.exports = function(app) {
       [
         '/share/**',
         '!**/card-details',
+        '!**/card-details-new',
         '!**/bpmn-designer',
         '!**/bpmn-designer/**',
         '!**/bpmn-editor',
         '!**/bpmn-editor/**',
-        '!**/journals'
+        '!**/journals',
+        '!**/journalsDashboard'
       ],
       {
         ...shareProxyOptions

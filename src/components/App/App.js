@@ -6,6 +6,7 @@ import classNames from 'classnames';
 
 import BPMNDesignerPage from '../../pages/BPMNDesignerPage';
 import JournalsPage from '../../pages/JournalsPage';
+import JournalsDashboardPage from '../../pages/JournalsDashboardPage';
 import CardDetailsPage from '../../pages/CardDetailsPage';
 import FormIOPage from '../../pages/FormIOPage';
 import Header from '../Header';
@@ -15,7 +16,7 @@ import Modal from '../Modal';
 import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 
-const App = ({ isInit, isInitFailure, isAuthenticated, isMobile }) => {
+const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
   if (!isInit) {
     // TODO: Loading component
     return null;
@@ -46,14 +47,16 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile }) => {
           {/*<Route path="/share/page" exact component={DashboardPage} />*/}
           <Route path="/formio-develop" component={FormIOPage} />
           <Route path="/share/page/journals" component={JournalsPage} />
+          <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
           <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
           <Route path="/share/page/(.*/)?card-details" component={CardDetailsPage} />
+          <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
           {/*<Route component={NotFoundPage} />*/}
         </Switch>
 
         <div className="sticky-push" />
       </div>
-      <Footer key="card-details-footer" className="sticky-footer" theme="citeckTheme" />
+      <Footer key="card-details-footer" className="sticky-footer" theme={theme} />
     </div>
   );
 };
@@ -62,6 +65,7 @@ const mapStateToProps = state => ({
   isInit: state.app.isInit,
   isInitFailure: state.app.isInitFailure,
   isMobile: state.view.isMobile,
+  theme: state.view.theme,
   isAuthenticated: state.user.isAuthenticated
 });
 

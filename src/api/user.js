@@ -32,7 +32,8 @@ export class UserApi extends RecordService {
         middleName: 'cm:middleName',
         isAdmin: 'isAdmin',
         fullName: 'fullName',
-        uid: 'cm:name'
+        uid: 'cm:name',
+        isBpmAdmin: '.att(n:"authorities"){has(n:"GROUP_BPM_APP_ADMIN")}'
       }
     }).then(resp => {
       if (resp.records.length < 1) {

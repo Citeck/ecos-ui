@@ -1,9 +1,8 @@
 import React from 'react';
-import ModelCreationForm from '../components/BPMNDesigner/ModelCreationForm';
-import ImportModelForm from '../components/BPMNDesigner/ImportModelForm';
-
 import { delay } from 'redux-saga';
 import { select, put, takeLatest, call } from 'redux-saga/effects';
+import ModelCreationForm from '../components/BPMNDesigner/ModelCreationForm';
+import ImportModelForm from '../components/BPMNDesigner/ImportModelForm';
 import {
   initRequest,
   setCategories,
@@ -16,10 +15,14 @@ import {
   saveProcessModelRequest,
   showModelCreationForm,
   showImportModelForm,
-  importProcessModelRequest
+  importProcessModelRequest,
+  savePagePosition,
+  setCategoryCollapseState,
+  setViewType
 } from '../actions/bpmn';
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
+import { getPagePositionState, savePagePositionState, removePagePositionState } from '../helpers/bpmn';
 import { t } from '../helpers/util';
 import { EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
 
@@ -29,7 +32,28 @@ function* doInitRequest({ api, logger }) {
     const models = yield call(api.bpmn.fetchProcessModels);
     yield put(setCategories(categories));
     yield put(setModels(models));
+
+    let pagePosition = yield call(getPagePositionState);
+    if (pagePosition) {
+      yield call(removePagePositionState);
+
+      // TODO: optimization
+      if (pagePosition.openedCategories) {
+        for (let categoryId of pagePosition.openedCategories) {
+          yield put(setCategoryCollapseState({ id: categoryId, isOpen: true }));
+        }
+      }
+
+      if (pagePosition.viewType) {
+        yield put(setViewType(pagePosition.viewType));
+      }
+    }
+
     yield put(setIsReady(true));
+
+    if (pagePosition && pagePosition.scrollTop) {
+      document.body.scrollTo(0, pagePosition.scrollTop);
+    }
   } catch (e) {
     logger.error('[bpmn doInitRequest saga] error', e.message);
   }
@@ -195,6 +219,30 @@ function* doShowImportModelForm({ api, logger }, action) {
   }
 }
 
+function* doSavePagePosition({ api, logger }, action) {
+  try {
+    const allCategories = yield select(selectAllCategories);
+    const viewType = yield select(state => state.bpmn.viewType);
+
+    const openedCategories = [];
+    allCategories.forEach(item => {
+      if (item.isOpen) {
+        openedCategories.push(item.id);
+      }
+    });
+
+    yield call(savePagePositionState, {
+      scrollTop: document.body.scrollTop,
+      openedCategories,
+      viewType
+    });
+
+    typeof action.payload.callback === 'function' && action.payload.callback();
+  } catch (e) {
+    logger.error('[bpmn doShowImportModelForm saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initRequest().type, doInitRequest, ea);
   yield takeLatest(saveCategoryRequest().type, doSaveCategoryRequest, ea);
@@ -203,6 +251,7 @@ function* saga(ea) {
   yield takeLatest(importProcessModelRequest().type, doImportProcessModelRequest, ea);
   yield takeLatest(showModelCreationForm().type, doShowModelCreationForm, ea);
   yield takeLatest(showImportModelForm().type, doShowImportModelForm, ea);
+  yield takeLatest(savePagePosition().type, doSavePagePosition, ea);
 }
 
 export default saga;

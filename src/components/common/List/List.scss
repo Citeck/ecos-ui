@@ -22,3 +22,9 @@
     margin-bottom: 1px;
   }
 }
+
+.list-group_no-margin {
+  .list-group-item {
+    padding: 11px 0;
+  }
+}

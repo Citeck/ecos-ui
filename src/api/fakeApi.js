@@ -114,18 +114,26 @@ export const fakeApi = {
     });
   },
 
-  getSmallLogoSrc: () => {
+  getSmallLogoSrc: themeName => {
     return new Promise(resolve => {
       setTimeout(() => {
-        resolve('/share/res/themes/citeckTheme/images/app-logo-mobile.png');
+        resolve(`/share/res/themes/${themeName}/images/app-logo-mobile.png`);
       }, 0);
     });
   },
 
-  getLargeLogoSrc: () => {
+  getLargeLogoSrc: themeName => {
     return new Promise(resolve => {
       setTimeout(() => {
-        resolve('/share/res/themes/citeckTheme/images/app-logo-48.png');
+        resolve(`/share/res/themes/${themeName}/images/app-logo-48.png`);
+      }, 0);
+    });
+  },
+
+  getCurrentThemeName() {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve('citeckTheme');
       }, 0);
     });
   }

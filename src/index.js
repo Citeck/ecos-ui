@@ -17,8 +17,8 @@ import { getCurrentLocale } from './helpers/util';
 
 import configureStore, { getHistory } from './store';
 import { requireShareAssets } from './share';
-import { initAppRequest } from './actions/app';
-import { AppApi, BpmnApi, MenuApi, OrgStructApi, UserApi } from './api';
+import { initAppRequest, loadThemeRequest } from './actions/app';
+import { AppApi, BpmnApi, JournalsApi, MenuApi, OrgStructApi, UserApi } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
 import './index.scss';
@@ -47,21 +47,27 @@ api.bpmn = new BpmnApi(store);
 api.menu = new MenuApi(store);
 api.orgStruct = new OrgStructApi(store);
 api.user = new UserApi(store);
+api.journals = new JournalsApi(store);
 
 const history = getHistory();
 
 store.dispatch(initAppRequest());
-
-requireShareAssets().then(() => {
-  ReactDOM.render(
-    <Provider store={store}>
-      <ConnectedRouter history={history}>
-        <App />
-      </ConnectedRouter>
-    </Provider>,
-    document.getElementById('root')
-  );
-});
+store.dispatch(
+  loadThemeRequest({
+    onSuccess: themeName => {
+      requireShareAssets(themeName).then(() => {
+        ReactDOM.render(
+          <Provider store={store}>
+            <ConnectedRouter history={history}>
+              <App />
+            </ConnectedRouter>
+          </Provider>,
+          document.getElementById('root')
+        );
+      });
+    }
+  })
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

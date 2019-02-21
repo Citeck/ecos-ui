@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 import { isCategoryHasChildren, compareLastModified, compareOld, compareAZ, compareZA } from '../helpers/bpmn';
-import { SORT_FILTER_LAST_MODIFIED, SORT_FILTER_OLD, SORT_FILTER_AZ, SORT_FILTER_ZA } from '../constants/bpmn';
+import { SORT_FILTER_LAST_MODIFIED, SORT_FILTER_OLD, SORT_FILTER_AZ, SORT_FILTER_ZA, ROOT_CATEGORY_NODE_REF } from '../constants/bpmn';
 
 export const selectSortFilter = state => state.bpmn.sortFilter;
 export const selectSearchText = state => state.bpmn.searchText;
@@ -9,17 +9,20 @@ export const selectAllCategories = state => state.bpmn.categories;
 
 const selectCategoryId = (_, props) => props.categoryId;
 
-export const selectModelsBySearchText = createSelector([selectAllModels, selectSearchText], (allModels, searchText) => {
-  let models = [...allModels];
+export const selectModelsBySearchText = createSelector(
+  [selectAllModels, selectSearchText],
+  (allModels, searchText) => {
+    let models = [...allModels];
 
-  if (searchText !== '') {
-    models = models.filter(item => {
-      return item.label.toLowerCase().includes(searchText.toLowerCase().trim());
-    });
+    if (searchText !== '') {
+      models = models.filter(item => {
+        return item.label.toLowerCase().includes(searchText.toLowerCase().trim());
+      });
+    }
+
+    return models;
   }
-
-  return models;
-});
+);
 
 export const selectCategoriesByParentId = createSelector(
   [selectAllCategories, selectCategoryId, selectSortFilter, selectSearchText, selectModelsBySearchText],
@@ -97,6 +100,20 @@ export const selectModelsByCategoryId = createSelector(
   }
 );
 
-export const selectIsParentHasNotModels = createSelector([selectModelsBySearchText, selectCategoryId], (allModels, categoryId) => {
-  return allModels.findIndex(item => item.categoryId === categoryId) === -1;
-});
+export const selectIsParentHasNotModels = createSelector(
+  [selectModelsBySearchText, selectCategoryId],
+  (allModels, categoryId) => {
+    return allModels.findIndex(item => item.categoryId === categoryId) === -1;
+  }
+);
+
+export const selectCaseSensitiveCategories = state => {
+  return state.bpmn.categories.map(item => {
+    let label = item.label;
+    if (item.parentId === ROOT_CATEGORY_NODE_REF) {
+      label = label.toUpperCase();
+    }
+
+    return { value: item.id, label: label };
+  });
+};

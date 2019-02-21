@@ -9,18 +9,14 @@ export default class ColumnsWithHeader extends Component {
     const props = this.props;
     const cfgs = [
       {
-        content: '',
         xl: 9,
         lg: 8,
-        md: 12,
-        ...props.left
+        md: 12
       },
       {
-        content: '',
         xl: 3,
         lg: { size: 4, order: 2 },
-        md: 12,
-        ...props.right
+        md: 12
       }
     ];
 

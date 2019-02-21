@@ -3316,3 +3316,8 @@ body:not(.mobile).yui-skin-citeckTheme .editor-toolbar {
 .custom-dropdown-menu-cascad__label {
   margin-bottom: 0;
 }
+
+.ng-scope .slide-menu-logo__small {
+  width: 59px;
+  padding: 8px 17px;
+}
