@@ -1,4 +1,4 @@
-import { put, takeLatest, call } from 'redux-saga/effects';
+import { put, takeLatest, call, select } from 'redux-saga/effects';
 import {
   getDashletEditorData,
   getDashletConfig,
@@ -10,7 +10,9 @@ import {
   setJournals,
   setDashletConfig,
   reloadGrid,
-  setJournalConfig
+  setJournalConfig,
+  deleteRecords,
+  setSelectedRecords
 } from '../actions/journals';
 
 function* getJournalsList(api) {
@@ -23,6 +25,11 @@ function* getJournals(api, journalsListId) {
     ? yield call(api.journals.getJournalsByJournalsList, journalsListId)
     : yield call(api.journals.getJournals);
   yield put(setJournals(journals));
+}
+
+function* getGridData(api, journalConfig, pagination) {
+  const gridData = yield call(api.journals.getGridData, { ...journalConfig, pagination });
+  yield put(setGrid(gridData));
 }
 
 function* putDashlet({ api, logger }, action) {
@@ -45,8 +52,8 @@ function* loadGrid({ api, logger }, action) {
     if (journalId) {
       const journalConfig = yield call(api.journals.getJournalConfig, journalId);
       yield put(setJournalConfig(journalConfig));
-      const gridData = yield call(api.journals.getGridData, { ...journalConfig, pagination });
-      yield put(setGrid(gridData));
+
+      yield getGridData(api, journalConfig, pagination);
     }
   } catch (e) {
     logger.error('[journals loadGrid saga error', e.message);
@@ -85,11 +92,26 @@ function* fetchDashletConfig({ api, logger }, action) {
   }
 }
 
+function* removeRecords({ api, logger }, action) {
+  try {
+    const records = action.payload;
+
+    yield call(api.journals.deleteRecords, records);
+
+    let journalConfig = yield select(state => state.journals.journalConfig);
+    yield getGridData(api, journalConfig);
+    yield put(setSelectedRecords([]));
+  } catch (e) {
+    logger.error('[journals removeRecords saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getDashletConfig().type, fetchDashletConfig, ea);
   yield takeLatest(getDashletEditorData().type, fetchDashletEditorData, ea);
   yield takeLatest(saveDashlet().type, putDashlet, ea);
   yield takeLatest(reloadGrid().type, loadGrid, ea);
+  yield takeLatest(deleteRecords().type, removeRecords, ea);
 }
 
 export default saga;

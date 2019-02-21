@@ -20,3 +20,7 @@ export const setPage = createAction(prefix + 'SET_PAGE');
 export const setJournalConfig = createAction(prefix + 'SET_JOURNAL_CONFIG');
 export const setGrid = createAction(prefix + 'SET_GRID');
 export const reloadGrid = createAction(prefix + 'RELOAD_GRID');
+export const deleteRecords = createAction(prefix + 'DELETE_RECORDS');
+export const setSelectedRecords = createAction(prefix + 'SET_SELECTED_RECORDS');
+export const setSelectAllRecords = createAction(prefix + 'SET_SELECT_ALL_RECORDS');
+export const setSelectAllRecordsVisible = createAction(prefix + 'SET_SELECT_ALL_RECORDS_VISIBLE');

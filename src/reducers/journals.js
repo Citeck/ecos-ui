@@ -10,7 +10,10 @@ import {
   setJournalsItem,
   setSettingItem,
   setJournalConfig,
-  setPage
+  setPage,
+  setSelectedRecords,
+  setSelectAllRecords,
+  setSelectAllRecordsVisible
 } from '../actions/journals';
 
 const initialState = {
@@ -31,7 +34,10 @@ const initialState = {
     maxItems: 10,
     page: 1
   },
-  journalConfig: null
+  journalConfig: null,
+  selectedRecords: [],
+  selectAllRecords: false,
+  selectAllRecordsVisible: false
 };
 
 Object.freeze(initialState);
@@ -93,7 +99,6 @@ export default handleActions(
       };
     },
     [setGrid]: (state, action) => {
-      console.log(state);
       return {
         ...state,
         gridData: action.payload
@@ -119,6 +124,24 @@ export default handleActions(
       return {
         ...state,
         journalConfig: action.payload
+      };
+    },
+    [setSelectedRecords]: (state, action) => {
+      return {
+        ...state,
+        selectedRecords: action.payload
+      };
+    },
+    [setSelectAllRecords]: (state, action) => {
+      return {
+        ...state,
+        selectAllRecords: action.payload
+      };
+    },
+    [setSelectAllRecordsVisible]: (state, action) => {
+      return {
+        ...state,
+        selectAllRecordsVisible: action.payload
       };
     }
   },

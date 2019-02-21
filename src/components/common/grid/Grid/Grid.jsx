@@ -1,11 +1,11 @@
 import $ from 'jquery';
 import React, { Component, Fragment } from 'react';
 import ReactDOM from 'react-dom';
-import BootstrapTable from 'react-bootstrap-table-next';
 import classNames from 'classnames';
+import BootstrapTable from 'react-bootstrap-table-next';
 import Icon from '../../icons/Icon/Icon';
 import Checkbox from '../../form/Checkbox/Checkbox';
-import { IcoBtn } from '../../btns';
+import { IcoBtn, Btn } from '../../btns';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 
 import 'react-perfect-scrollbar/dist/css/styles.css';
@@ -22,15 +22,9 @@ class HeaderFormatter extends Component {
   }
 }
 
-export default class Grid extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      toolsHeaderVisible: false,
-      selected: []
-    };
-  }
+const KEY_FIELD = 'id';
 
+export default class Grid extends Component {
   _setWidth = column => {
     column.style = {
       ...column.style,
@@ -66,13 +60,13 @@ export default class Grid extends Component {
     }
 
     if (props.hasCheckboxes) {
-      props.selectRow = this.createCheckboxs();
+      props.selectRow = this.createCheckboxs(props);
     }
 
     return props;
   }
 
-  createInlineTools($tr) {
+  createInlineTools = $tr => {
     const inlineToolsClass = 'grid__inline-tools';
     const inlineToolsClassContainerClass = 'grid__inline-tools-container';
     const inlineToolsBtnClass = 'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10';
@@ -96,31 +90,40 @@ export default class Grid extends Component {
       </Fragment>,
       $inlineTools
     );
-  }
+  };
 
-  createCheckboxs() {
+  createCheckboxs(props) {
+    this._selected = props.selectAllRecords ? props.data.map(row => row[props.keyField || KEY_FIELD]) : props.selected || [];
+
     return {
       mode: 'checkbox',
       classes: 'grid__tr_selected',
-      selected: this.state.selected,
-      onSelect: (row, isSelect, rowIndex) => {
-        let selected = this.state.selected;
+      selected: this._selected,
+      onSelect: (row, isSelect) => {
+        const selected = this._selected;
+        const keyField = row[props.keyField || KEY_FIELD];
 
-        this.setState({
-          selected: isSelect ? [...selected, rowIndex] : selected.filter(x => x !== rowIndex)
+        this._selected = isSelect ? [...selected, keyField] : selected.filter(x => x !== keyField);
+
+        this.triggerEvent('onSelect', {
+          selected: this._selected,
+          all: false
         });
       },
       onSelectAll: (isSelect, rows) => {
-        this.setState({
-          selected: isSelect ? [...Array(rows.length).keys()] : []
+        const keyField = props.keyField || KEY_FIELD;
+
+        this._selected = isSelect ? [...this._selected, ...rows.map(row => row[keyField])] : this.getSelectedByPage(this.props.data, false);
+
+        this.triggerEvent('onSelect', {
+          selected: this._selected,
+          all: true
         });
       },
       selectionHeaderRenderer: ({ indeterminate, ...rest }) => {
-        const checked = rest.checked;
-
         return (
           <div className={'grid__th grid__th_checkbox'}>
-            <Checkbox indeterminate={indeterminate} checked={checked} />
+            <Checkbox indeterminate={indeterminate} checked={rest.checked} />
           </div>
         );
       },
@@ -134,14 +137,43 @@ export default class Grid extends Component {
     };
   }
 
+  onDelete = () => {
+    this.triggerEvent('onDelete', this._selected);
+  };
+
+  triggerEvent = (name, data) => {
+    const callback = this.props[name];
+
+    if (typeof callback === 'function') {
+      callback.call(this, data);
+    }
+  };
+
+  toolsVisible = () => {
+    return this._selected.length && this.getSelectedByPage(this.props.data, true).length;
+  };
+
+  getSelectedByPage = (records, onPage) => {
+    const keyField = this.props.keyField || KEY_FIELD;
+
+    return this._selected.filter(id => {
+      const length = records.filter(record => record[keyField] === id).length;
+      return onPage ? length : !length;
+    });
+  };
+
+  selectAll = () => {
+    this.triggerEvent('onSelectAll');
+  };
+
   render() {
     let props = {
-      ...this.props,
+      keyField: KEY_FIELD,
       bootstrap4: true,
       bordered: false,
-      keyField: '_gid',
       headerClasses: 'grid__header',
-      noDataIndication: () => 'Нет элементов в списке'
+      noDataIndication: () => 'Нет элементов в списке',
+      ...this.props
     };
 
     props = this._setAdditionalOptions(props);
@@ -149,10 +181,26 @@ export default class Grid extends Component {
     if (props.columns.length) {
       return (
         <div className={classNames('grid', props.hasCheckboxes && 'grid_checkable', this.props.className)}>
-          {this.state.selected.length ? (
+          {this.toolsVisible() ? (
             <div className={'grid__tools'}>
+              {props.selectAllRecordsVisible ? (
+                <div className={'grid__tools-item grid__tools-item_first'}>
+                  <Btn
+                    className={`btn_extra-narrow ${props.selectAllRecords ? 'btn_blue' : 'btn_grey5'} btn_hover_light-blue2`}
+                    title={'Выбрать все'}
+                    onClick={this.selectAll}
+                  >
+                    Выбрать все {props.total}
+                  </Btn>
+                </div>
+              ) : null}
               <div className={'grid__tools-item grid__tools-item_first'}>
-                <IcoBtn icon={'icon-download'} className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'} />
+                <IcoBtn
+                  icon={'icon-download'}
+                  className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'}
+                  title={'Скачать как Zip'}
+                  onClick={this.zipDownload}
+                />
               </div>
               <div className={'grid__tools-item'}>
                 <IcoBtn icon={'icon-copy'} className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'} />
@@ -161,7 +209,12 @@ export default class Grid extends Component {
                 <IcoBtn icon={'icon-big-arrow'} className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'} />
               </div>
               <div className={'grid__tools-item'}>
-                <IcoBtn icon={'icon-delete'} className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'} />
+                <IcoBtn
+                  icon={'icon-delete'}
+                  className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'}
+                  title={'Удалить'}
+                  onClick={this.onDelete}
+                />
               </div>
             </div>
           ) : null}

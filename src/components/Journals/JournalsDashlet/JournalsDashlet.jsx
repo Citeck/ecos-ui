@@ -10,7 +10,17 @@ import Export from '../../Export/Export';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { PROXY_URI } from '../../../constants/alfresco';
-import { getDashletConfig, setDashletEditorVisible, reloadGrid, setJournalsItem, setPage } from '../../../actions/journals';
+import {
+  getDashletConfig,
+  setDashletEditorVisible,
+  reloadGrid,
+  setJournalsItem,
+  setPage,
+  deleteRecords,
+  setSelectedRecords,
+  setSelectAllRecords,
+  setSelectAllRecordsVisible
+} from '../../../actions/journals';
 
 import './JournalsDashlet.scss';
 
@@ -22,7 +32,10 @@ const mapStateToProps = state => ({
   gridData: state.journals.gridData,
   config: state.journals.config,
   pagination: state.journals.pagination,
-  journalConfig: state.journals.journalConfig
+  journalConfig: state.journals.journalConfig,
+  selectedRecords: state.journals.selectedRecords,
+  selectAllRecords: state.journals.selectAllRecords,
+  selectAllRecordsVisible: state.journals.selectAllRecordsVisible
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -30,7 +43,11 @@ const mapDispatchToProps = dispatch => ({
   setDashletEditorVisible: visible => dispatch(setDashletEditorVisible(visible)),
   reloadGrid: ({ journalId, pagination }) => dispatch(reloadGrid({ journalId: journalId, pagination: pagination })),
   setJournalsItem: item => dispatch(setJournalsItem(item)),
-  setPage: page => dispatch(setPage(page))
+  setPage: page => dispatch(setPage(page)),
+  deleteRecords: records => dispatch(deleteRecords(records)),
+  setSelectedRecords: records => dispatch(setSelectedRecords(records)),
+  setSelectAllRecords: need => dispatch(setSelectAllRecords(need)),
+  setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(visible))
 });
 
 class JournalsDashlet extends Component {
@@ -95,6 +112,25 @@ class JournalsDashlet extends Component {
     return journalList.title || 'Журналы';
   };
 
+  setSelectedRecords = e => {
+    const props = this.props;
+    props.setSelectedRecords(e.selected);
+    props.setSelectAllRecordsVisible(e.all);
+
+    if (e.all) {
+      props.setSelectAllRecords(false);
+    }
+  };
+
+  setSelectAllRecords = () => {
+    const props = this.props;
+    props.setSelectAllRecords(!props.selectAllRecords);
+
+    if (!props.selectAllRecords) {
+      props.setSelectedRecords([]);
+    }
+  };
+
   render() {
     const props = this.props;
     const config = props.config || {};
@@ -150,7 +186,16 @@ class JournalsDashlet extends Component {
                 </div>
 
                 <div className={'journal-dashlet__grid'}>
-                  <Grid {...props.gridData} hasCheckboxes />
+                  <Grid
+                    {...props.gridData}
+                    hasCheckboxes
+                    onDelete={props.deleteRecords}
+                    onSelectAll={this.setSelectAllRecords}
+                    onSelect={this.setSelectedRecords}
+                    selected={props.selectedRecords}
+                    selectAllRecords={props.selectAllRecords}
+                    selectAllRecordsVisible={props.selectAllRecordsVisible}
+                  />
                 </div>
 
                 <div className={'journal-dashlet__footer'}>{pagination}</div>
