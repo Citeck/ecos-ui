@@ -6,7 +6,9 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import Icon from '../../icons/Icon/Icon';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import { IcoBtn, Btn } from '../../btns';
+import { Input } from '../../form';
 import PerfectScrollbar from 'react-perfect-scrollbar';
+import { Tooltip } from 'reactstrap';
 
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
@@ -117,7 +119,7 @@ export default class Grid extends Component {
 
         this.triggerEvent('onSelect', {
           selected: this._selected,
-          all: true
+          all: isSelect
         });
       },
       selectionHeaderRenderer: ({ indeterminate, ...rest }) => {

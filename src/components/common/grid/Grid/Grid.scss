@@ -38,20 +38,14 @@
 
 .grid__th {
   border-right: 2px solid $color-gray-4;
-  display: flex;
-  align-items: center;
+  display: inline-block;
   padding: 7px 10px;
   width: 100%;
   height: 100%;
   color: $text-color-dark;
   font-size: $font-size-standard;
   font-weight: $font-weight-bold !important;
-}
-
-.grid__filter {
-  color: $color-gray-5;
-  margin-left: 6px;
-  font-size: 15px !important;
+  line-height: normal;
 }
 
 .grid__body {
@@ -98,6 +92,7 @@
 .grid__th_checkbox {
   padding: 5px 15px;
   background: $color-white;
+  line-height: 0;
 }
 
 .grid__td_checkbox {
@@ -163,4 +158,60 @@
   top: 5px;
   height: auto !important;
   padding: 0 !important;
+}
+
+/* Filter */
+.grid__filter {
+  color: $color-gray-5;
+  margin-left: 6px;
+  font-size: 15px !important;
+  cursor: pointer;
+}
+
+.grid__filter-tooltip {
+  position: absolute;
+  display: inline-block;
+  margin-left: -14px;
+  margin-top: -7px;
+}
+
+.grid__filter-tooltip-body {
+  background-color: $color-white;
+  color: $color-gray-6;
+  text-align: center;
+  padding: 9px 10px;
+  border-radius: $border-radius-large;
+  position: absolute;
+  z-index: 1;
+  width: 215px;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -107px;
+  box-shadow: $box-shadow-tooltip;
+
+  input[type='text'].grid__filter-tooltip-input:hover {
+    border-color: $color-blue-light !important;
+  }
+
+  input[type='text'].grid__filter-tooltip-input:focus {
+    border-color: $color-blue-dark !important;
+  }
+}
+
+.grid__filter-tooltip-input {
+  height: 26px;
+  border: 2px solid $color-gray-4 !important;
+  padding-left: 10px !important;
+  width: 100% !important;
+}
+
+.grid__filter-tooltip-marker {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: $color-white;
+  transform: rotate(-45deg);
+  box-shadow: $box-shadow-tooltip-arrow-top;
+  margin-top: -6px;
+  z-index: 2;
 }

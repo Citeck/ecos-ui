@@ -117,7 +117,7 @@ class JournalsDashlet extends Component {
     props.setSelectedRecords(e.selected);
     props.setSelectAllRecordsVisible(e.all);
 
-    if (e.all) {
+    if (!e.all) {
       props.setSelectAllRecords(false);
     }
   };
