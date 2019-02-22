@@ -28,7 +28,7 @@ $input-padding: 10px;
     border: $border-width-standard solid $color-gray-6;
     border-radius: $border-radius-standard;
     font-family: $font-family;
-    font-weight: $font-weight-bold;
+    font-weight: $font-weight-semi-bold;
     font-size: $font-size-standard;
     color: $text-color-dark;
     outline: none;
@@ -62,7 +62,7 @@ $input-padding: 10px;
   .control-label {
     font-family: $font-family-open-sans;
     font-size: $font-size-small;
-    font-weight: $font-weight-bold;
+    font-weight: $font-weight-semi-bold;
     color: $text-color-dark;
   }
 
@@ -123,7 +123,7 @@ $input-padding: 10px;
       border-radius: 6px;
 
       font-family: $font-family-open-sans;
-      font-weight: $font-weight-bold !important;
+      font-weight: $font-weight-semi-bold !important;
       font-size: $font-size-large;
       color: $text-color-gray;
       line-height: 22px;
@@ -201,11 +201,11 @@ $input-padding: 10px;
       border-radius: $border-radius-standard;
       box-shadow: $box-shadow-default;
       border: none;
-      font-weight: $font-weight-bold;
+      font-weight: $font-weight-semi-bold;
       color: $text-color-dark;
 
       .choices__input {
-        font-weight: $font-weight-bold;
+        font-weight: $font-weight-semi-bold;
         border: 2px solid $color-gray-6;
         margin: $input-padding $input-padding 10px $input-padding;
         width: calc(100% - #{$input-padding * 2});
@@ -266,7 +266,7 @@ $input-padding: 10px;
       text-align: center;
       letter-spacing: 0.2pt;
       font-family: $font-family !important;
-      font-weight: $font-weight-bold !important;
+      font-weight: $font-weight-semi-bold !important;
       font-size: $font-size-standard !important;
       color: $text-color-dark;
       background-color: $color-gray-4;

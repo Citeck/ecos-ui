@@ -6,8 +6,8 @@
 }
 
 .h2 {
-  font-size: 24px !important;
-  font-weight: $font-weight-bold !important;
+  font-size: 24px;
+  font-weight: $font-weight-bold;
   color: $text-color-dark;
 }
 
@@ -39,8 +39,8 @@
   padding: 20px;
   text-align: center;
   text-transform: uppercase;
-  font-weight: $font-weight-bold;
-  color: $text-color-gray !important;
+  font-weight: $font-weight-semi-bold;
+  color: $text-color-gray;
 
   &:hover {
     background-color: $color-gray-2;
@@ -49,7 +49,7 @@
 
 .headerBtn {
   margin-right: 10px;
-  font-weight: $font-weight-bold !important;
-  font-size: $font-size-standard !important;
-  border-radius: $border-radius-large !important;
+  font-weight: $font-weight-semi-bold;
+  font-size: $font-size-standard;
+  border-radius: $border-radius-large;
 }

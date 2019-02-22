@@ -1,13 +1,17 @@
+* {
+  box-sizing: border-box;
+}
+
 html {
   overflow-y: scroll;
 }
 body {
-  font-family: Open Sans, Arial, Helvetica, sans-serif;
+  font-family: 'Open Sans', sans-serif !important;
   color: #333333;
   margin: 0;
 }
 .alfresco-share {
-  font: 13px/1.231 Open Sans, arial, helvetica, clean, sans-serif;
+  font: 13px/1.231 'Open Sans', sans-serif !important;
 }
 .clear-both {
   clear: both;
@@ -60,10 +64,13 @@ input::-ms-clear {
   padding: 3px 10px;
   margin: 0 2px;
 }
+.header-tab {
+  cursor: pointer;
+}
 
 .header-tab.current {
   background-color: lightgray;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .header-tab:hover {
@@ -93,4 +100,13 @@ input::-ms-clear {
   position: relative;
   left: -50%;
   top: 100px;
+}
+
+.kinds-filter {
+  box-sizing: content-box;
+}
+
+.ecos-sticky-wrapper h2 {
+  font-size: 123.1%;
+  font-weight: 400;
 }

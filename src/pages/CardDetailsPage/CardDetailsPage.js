@@ -69,9 +69,16 @@ class CardDetailsPage extends React.Component {
 
       this.setState({ isReady: true });
     });
+
+    this.stickyWrapper = document.getElementById('sticky-wrapper');
+    this.stickyWrapper.classList.add('ecos-sticky-wrapper_background-white');
+
+    window.require(['xstyle!/share/res/css/base.css', 'xstyle!/share/res/css/yui-fonts-grids.css']);
   }
 
   componentWillUnmount() {
+    this.stickyWrapper.classList.remove('ecos-sticky-wrapper_background-white');
+
     if (typeof this.removeHistoryListener === 'function') {
       this.removeHistoryListener();
     }

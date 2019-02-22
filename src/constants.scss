@@ -27,16 +27,21 @@ $color-brown-3: #ada690;
 $color-pink: #ffbcb3;
 $color-green: #cbf8cd;
 
-$font-weight-bold: 600;
+$font-weight-bold: 700;
+$font-weight-semi-bold: 600;
 $font-weight-normal: 400;
+
 $font-size-extra-large: 20px;
 $font-size-large: 18px;
 $font-size-standard: 14px;
 $font-size-small: 12px;
 $font-size-extra-small: 11px;
-$font-family: Open Sans, serif;
 
-$letter-spacing: 0.6px;
+$font-family-open-sans: 'Open Sans', sans-serif;
+$font-family-citeck: 'citeck';
+$font-family: $font-family-open-sans;
+
+$letter-spacing: 0;
 
 $border-width-standard: 2px;
 
@@ -58,9 +63,6 @@ $select-option-line-height: 22px;
 /* override bootstrap constants */
 $primary: $color-blue-dark;
 $secondary: $color-gray-4;
-
-$font-family-open-sans: Open Sans, serif;
-$font-family-citeck: 'citeck';
 
 $citeck-icon-checkbox: '\e82b';
 $citeck-icon-checkbox-checked: '\e82f';

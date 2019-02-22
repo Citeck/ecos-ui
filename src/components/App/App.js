@@ -16,6 +16,8 @@ import Modal from '../Modal';
 import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 
+import './App.scss';
+
 const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
   if (!isInit) {
     // TODO: Loading component
@@ -37,7 +39,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
     <div className={appClassNames}>
       <Modal />
       <SlideMenu />
-      <div className="sticky-wrapper">
+      <div className="ecos-sticky-wrapper" id="sticky-wrapper">
         <div id="alf-hd">
           <Header />
           <Notification />
@@ -56,7 +58,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
 
         <div className="sticky-push" />
       </div>
-      <Footer key="card-details-footer" className="sticky-footer" theme={theme} />
+      <Footer key="card-details-footer" theme={theme} />
     </div>
   );
 };

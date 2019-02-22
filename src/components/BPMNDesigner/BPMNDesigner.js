@@ -11,7 +11,6 @@ import { createCategory } from '../../actions/bpmn';
 import { t } from '../../helpers/util';
 import { showModelCreationForm, showImportModelForm } from '../../actions/bpmn';
 import styles from './BPMNDesigner.module.scss';
-import './BPMNDesigner.scss';
 
 const mapStateToProps = state => ({
   isReady: state.bpmn.isReady,

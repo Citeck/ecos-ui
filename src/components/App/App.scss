@@ -1,0 +1,23 @@
+@import '../../constants';
+
+.app-container,
+.page-content-root {
+  height: 100%;
+  min-height: 100%;
+}
+
+/* Sticky footer */
+.ecos-sticky-wrapper {
+  margin: 0 auto -52px;
+  min-height: 100%;
+  background-color: $page-background-color;
+}
+
+.ecos-sticky-wrapper_background-white {
+  background-color: $color-white;
+}
+
+.sticky-footer,
+.sticky-push {
+  height: 50px;
+}

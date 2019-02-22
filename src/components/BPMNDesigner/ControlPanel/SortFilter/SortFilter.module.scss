@@ -16,7 +16,7 @@
   line-height: 38px;
   border-radius: $border-radius-standard;
   font-size: $font-size-standard;
-  font-weight: $font-weight-bold;
+  font-weight: $font-weight-semi-bold;
   color: $text-color-dark;
   padding: 0 35px 0 15px;
   cursor: pointer;
@@ -80,7 +80,7 @@
     padding: 10px 15px;
     cursor: pointer;
     font-size: $font-size-standard;
-    font-weight: $font-weight-bold;
+    font-weight: $font-weight-semi-bold;
     color: $text-color-dark;
 
     &:hover {
