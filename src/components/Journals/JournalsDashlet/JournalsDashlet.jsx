@@ -41,7 +41,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   getDashletConfig: id => dispatch(getDashletConfig(id)),
   setDashletEditorVisible: visible => dispatch(setDashletEditorVisible(visible)),
-  reloadGrid: ({ journalId, pagination }) => dispatch(reloadGrid({ journalId: journalId, pagination: pagination })),
+  reloadGrid: ({ journalId, pagination, columns, criteria }) => dispatch(reloadGrid({ journalId, pagination, columns, criteria })),
   setJournalsItem: item => dispatch(setJournalsItem(item)),
   setPage: page => dispatch(setPage(page)),
   deleteRecords: records => dispatch(deleteRecords(records)),
@@ -131,6 +131,15 @@ class JournalsDashlet extends Component {
     }
   };
 
+  onFilter = filter => {
+    const props = this.props;
+    const {
+      columns,
+      meta: { criteria }
+    } = props.journalConfig;
+    props.reloadGrid({ columns, criteria: [...filter, ...criteria] });
+  };
+
   render() {
     const props = this.props;
     const config = props.config || {};
@@ -189,6 +198,7 @@ class JournalsDashlet extends Component {
                   <Grid
                     {...props.gridData}
                     hasCheckboxes
+                    onFilter={this.onFilter}
                     onDelete={props.deleteRecords}
                     onSelectAll={this.setSelectAllRecords}
                     onSelect={this.setSelectedRecords}

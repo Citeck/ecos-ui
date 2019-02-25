@@ -1,32 +1,126 @@
 import $ from 'jquery';
-import React, { Component, Fragment } from 'react';
 import ReactDOM from 'react-dom';
+import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
 import BootstrapTable from 'react-bootstrap-table-next';
 import Icon from '../../icons/Icon/Icon';
 import Checkbox from '../../form/Checkbox/Checkbox';
+import PerfectScrollbar from 'react-perfect-scrollbar';
 import { IcoBtn, Btn } from '../../btns';
 import { Input } from '../../form';
-import PerfectScrollbar from 'react-perfect-scrollbar';
 import { Tooltip } from 'reactstrap';
 
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
 
+const KEY_FIELD = 'id';
+const CLOSE_FILTER_EVENT = 'closeFilterEvent';
+
+function triggerEvent(name, data) {
+  const callback = this.props[name];
+
+  if (typeof callback === 'function') {
+    callback.call(this, data);
+  }
+}
+
 class HeaderFormatter extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: false,
+      text: ''
+    };
+
+    this.id = `filter-${props.column.dataField.replace(':', '_')}`;
+    this.tooltipId = `tooltip-${this.id}`;
+
+    this.onCloseFilter = this.onCloseFilter.bind(this);
+  }
+
+  toggle = () => {
+    const open = !this.state.open;
+
+    open
+      ? document.addEventListener(CLOSE_FILTER_EVENT, this.onCloseFilter)
+      : document.removeEventListener(CLOSE_FILTER_EVENT, this.onCloseFilter);
+
+    this.setState({ open });
+  };
+
+  onChange = e => {
+    let text = e.target.value;
+    this.setState({ text });
+    this.triggerPendingChange(text, this.props.column.dataField);
+  };
+
+  triggerPendingChange = debounce((text, dataField) => {
+    triggerEvent.call(this, 'onFilter', {
+      field: dataField,
+      predicate: 'string-contains',
+      value: text
+    });
+  }, 500);
+
+  onCloseFilter(e) {
+    const tooltip = document.getElementById(this.tooltipId);
+    const filter = document.getElementById(this.id);
+
+    if (filter.contains(e.target) || tooltip.contains(e.target)) {
+      return;
+    }
+
+    this.toggle();
+  }
+
+  clear = () => {
+    this.setState({ text: '' });
+    this.triggerPendingChange('', this.props.column.dataField);
+  };
+
   render() {
+    const state = this.state;
+
     return (
-      <div className={'grid__th'}>
-        <span>{this.props.column.text}</span>
-        <Icon className={'grid__filter icon-filter'} />
+      <div className={classNames('grid__th', state.text && 'grid__th_filtered')}>
+        <div className={state.text && 'grid__filter'}>
+          {this.props.column.text}
+
+          <Icon id={this.id} className={'grid__filter-icon icon-filter'} onClick={this.toggle} />
+
+          <Tooltip
+            id={this.tooltipId}
+            target={this.id}
+            isOpen={state.open}
+            trigger={'click'}
+            placement="top"
+            className={'grid__filter-tooltip'}
+            innerClassName={'grid__filter-tooltip-body'}
+            arrowClassName={'grid__filter-tooltip-marker'}
+          >
+            <Input
+              type="text"
+              placeholder={'Фильтровать'}
+              className={'grid__filter-tooltip-input'}
+              onChange={this.onChange}
+              value={state.text}
+            />
+
+            <Icon className={'grid__filter-tooltip-close icon-close icon_small'} onClick={this.clear} />
+          </Tooltip>
+        </div>
       </div>
     );
   }
 }
 
-const KEY_FIELD = 'id';
-
 export default class Grid extends Component {
+  constructor(props) {
+    super(props);
+    this.createCloseFilterEvent();
+  }
+
   _setWidth = column => {
     column.style = {
       ...column.style,
@@ -38,7 +132,7 @@ export default class Grid extends Component {
 
   _setHeaderFormatter = column => {
     column.headerFormatter = (column, colIndex) => {
-      return <HeaderFormatter column={column} colIndex={colIndex} />;
+      return <HeaderFormatter column={column} colIndex={colIndex} onFilter={this.onFilter} />;
     };
 
     return column;
@@ -107,7 +201,7 @@ export default class Grid extends Component {
 
         this._selected = isSelect ? [...selected, keyField] : selected.filter(x => x !== keyField);
 
-        this.triggerEvent('onSelect', {
+        triggerEvent.call(this, 'onSelect', {
           selected: this._selected,
           all: false
         });
@@ -117,7 +211,7 @@ export default class Grid extends Component {
 
         this._selected = isSelect ? [...this._selected, ...rows.map(row => row[keyField])] : this.getSelectedByPage(this.props.data, false);
 
-        this.triggerEvent('onSelect', {
+        triggerEvent.call(this, 'onSelect', {
           selected: this._selected,
           all: isSelect
         });
@@ -140,15 +234,7 @@ export default class Grid extends Component {
   }
 
   onDelete = () => {
-    this.triggerEvent('onDelete', this._selected);
-  };
-
-  triggerEvent = (name, data) => {
-    const callback = this.props[name];
-
-    if (typeof callback === 'function') {
-      callback.call(this, data);
-    }
+    triggerEvent.call(this, 'onDelete', this._selected);
   };
 
   toolsVisible = () => {
@@ -165,7 +251,21 @@ export default class Grid extends Component {
   };
 
   selectAll = () => {
-    this.triggerEvent('onSelectAll');
+    triggerEvent.call(this, 'onSelectAll');
+  };
+
+  onFilter = criteria => {
+    triggerEvent.call(this, 'onFilter', [criteria]);
+  };
+
+  createCloseFilterEvent = () => {
+    this.closeFilterEvent = document.createEvent('Event');
+    this.closeFilterEvent.initEvent(CLOSE_FILTER_EVENT, true, true);
+    document.addEventListener('mousedown', this.triggerCloseFilterEvent, false);
+  };
+
+  triggerCloseFilterEvent = e => {
+    (e.target || e).dispatchEvent(this.closeFilterEvent);
   };
 
   render() {
@@ -221,7 +321,7 @@ export default class Grid extends Component {
             </div>
           ) : null}
 
-          <PerfectScrollbar>
+          <PerfectScrollbar onScrollX={this.triggerCloseFilterEvent} onScrollY={this.triggerCloseFilterEvent}>
             <BootstrapTable {...props} />
           </PerfectScrollbar>
 

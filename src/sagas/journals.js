@@ -27,15 +27,9 @@ function* getJournals(api, journalsListId) {
   yield put(setJournals(journals));
 }
 
-function* getGridData(api, journalConfig, pagination) {
-  const gridData = yield call(api.journals.getGridData, { ...journalConfig, pagination });
-  yield put(setGrid(gridData));
-}
-
 function* putDashlet({ api, logger }, action) {
   try {
-    const id = action.payload.id;
-    const config = action.payload.config;
+    const { id, config } = action.payload;
 
     yield call(api.journals.saveDashletConfig, config, id);
     yield put(getDashletConfig(id));
@@ -46,15 +40,19 @@ function* putDashlet({ api, logger }, action) {
 
 function* loadGrid({ api, logger }, action) {
   try {
-    const journalId = action.payload.journalId;
-    const pagination = action.payload.pagination;
+    let { journalId, pagination = yield select(state => state.journals.pagination), columns, criteria } = action.payload;
 
     if (journalId) {
       const journalConfig = yield call(api.journals.getJournalConfig, journalId);
       yield put(setJournalConfig(journalConfig));
 
-      yield getGridData(api, journalConfig, pagination);
+      columns = journalConfig.columns;
+      criteria = journalConfig.meta.criteria;
     }
+
+    const gridData = yield call(api.journals.getGridData, { columns, criteria, pagination });
+
+    yield put(setGrid(gridData));
   } catch (e) {
     logger.error('[journals loadGrid saga error', e.message);
   }
@@ -73,14 +71,15 @@ function* fetchDashletEditorData({ api, logger }, action) {
 function* fetchDashletConfig({ api, logger }, action) {
   try {
     yield put(setDashletIsReady(false));
-
-    const id = action.payload;
-    const config = yield call(api.journals.getDashletConfig, id);
+    const config = yield call(api.journals.getDashletConfig, action.payload);
 
     if (config) {
+      const { journalsListId, journalId } = config;
+
       yield getJournalsList(api);
-      yield getJournals(api, config.journalsListId);
-      yield put(reloadGrid({ journalId: config.journalId }));
+      yield getJournals(api, journalsListId);
+
+      yield put(reloadGrid({ journalId }));
       yield put(setDashletConfig(config));
       yield put(setDashletEditorVisible(false));
     }
@@ -94,12 +93,14 @@ function* fetchDashletConfig({ api, logger }, action) {
 
 function* removeRecords({ api, logger }, action) {
   try {
-    const records = action.payload;
+    yield call(api.journals.deleteRecords, action.payload);
 
-    yield call(api.journals.deleteRecords, records);
+    const {
+      columns,
+      meta: { criteria }
+    } = yield select(state => state.journals.journalConfig);
+    yield put(reloadGrid({ columns, criteria }));
 
-    let journalConfig = yield select(state => state.journals.journalConfig);
-    yield getGridData(api, journalConfig);
     yield put(setSelectedRecords([]));
   } catch (e) {
     logger.error('[journals removeRecords saga error', e.message);
