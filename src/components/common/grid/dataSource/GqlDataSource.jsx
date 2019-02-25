@@ -60,6 +60,7 @@ export default class GqlDataSource extends BaseDataSource {
       };
 
       newColumn.filterValue = (cell, row) => formatter.getFilterValue(cell, row, params);
+      newColumn.editorRenderer = formatter.getEditor;
 
       return newColumn;
     });

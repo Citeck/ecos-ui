@@ -33,6 +33,14 @@
       white-space: nowrap;
       border-bottom: 0;
     }
+
+    input[type='text'].input:hover {
+      border-color: $color-blue-light !important;
+    }
+
+    input[type='text'].input:focus {
+      border-color: $color-blue-dark !important;
+    }
   }
 }
 
@@ -232,4 +240,9 @@
 
 .grid__th_filtered {
   padding: 1px 4px;
+}
+
+/*Editor*/
+.react-bootstrap-table-editing-cell {
+  padding: 3px 8px !important;
 }

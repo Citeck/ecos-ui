@@ -7,7 +7,7 @@
   height: $form-input-height;
   padding-left: 15px;
   background: $color-white;
-  border: $border-width-standard solid $color-gray-6;
+  border: $border-width-standard solid $color-gray-6 !important;
   border-radius: $border-radius-standard;
   font-family: $font-family;
   font-weight: $font-weight-bold;
@@ -24,4 +24,12 @@ input[type='text'].input:focus {
 }
 input[type='text'].input:hover {
   border-color: $color-blue-light;
+}
+
+.input_narrow {
+  height: 22px;
+}
+
+.input_width_full {
+  width: 100% !important;
 }

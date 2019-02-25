@@ -11080,6 +11080,11 @@ react-bootstrap-table-next@^2.0.1:
     classnames "2.2.5"
     underscore "1.9.1"
 
+react-bootstrap-table2-editor@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/react-bootstrap-table2-editor/-/react-bootstrap-table2-editor-1.2.2.tgz#6231f53314292864558c757ac39ad2147f2e6ef6"
+  integrity sha512-wCBENTzqQ3b+zpLeB7eifZYWKIouqt8WZTQ0WIZQqelfzmdrikS4u7Kd8pS7yucEJD2RaTnnVtNCQNMoGj0eag==
+
 react-bootstrap-table2-filter@^1.1.1:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/react-bootstrap-table2-filter/-/react-bootstrap-table2-filter-1.1.4.tgz#4f968aabfd2a3b19150567fa7bc435635cc86543"

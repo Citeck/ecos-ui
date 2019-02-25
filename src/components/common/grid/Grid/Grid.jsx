@@ -4,6 +4,7 @@ import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import BootstrapTable from 'react-bootstrap-table-next';
+import cellEditFactory from 'react-bootstrap-table2-editor';
 import Icon from '../../icons/Icon/Icon';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import PerfectScrollbar from 'react-perfect-scrollbar';
@@ -275,6 +276,7 @@ export default class Grid extends Component {
       bordered: false,
       headerClasses: 'grid__header',
       noDataIndication: () => 'Нет элементов в списке',
+      cellEdit: cellEditFactory({ mode: 'click', blurToSave: true }),
       ...this.props
     };
 
