@@ -5,6 +5,10 @@ import CardDetails from '../../components/CardDetails';
 import { fetchCardlets, fetchNodeInfo, setCardMode, setPageArgs, fetchStartMessage } from '../../actions/cardDetails';
 import { registerReducers } from '../../reducers/cardDetails';
 
+const mapStateToProps = state => ({
+  theme: state.view.theme
+});
+
 const mapDispatchToProps = dispatch => ({
   setPageArgs: pageArgs => dispatch(setPageArgs(pageArgs)),
   fetchNodeInfo: nodeRef => dispatch(fetchNodeInfo(nodeRef)),
@@ -24,7 +28,7 @@ class CardDetailsPage extends React.Component {
   removeHistoryListener = null;
 
   componentDidMount() {
-    const { setPageArgs, fetchNodeInfo, fetchCardlets, setCardMode, fetchStartMessage } = this.props;
+    const { setPageArgs, fetchNodeInfo, fetchCardlets, setCardMode, fetchStartMessage, theme } = this.props;
     const searchParams = queryString.parse(this.props.location.search);
     const nodeRef = searchParams.nodeRef;
     if (!nodeRef) {
@@ -33,7 +37,7 @@ class CardDetailsPage extends React.Component {
 
     setPageArgs({
       nodeRef,
-      theme: 'citeckTheme' // TODO get from store
+      theme
     });
 
     let promises = [];
@@ -65,9 +69,16 @@ class CardDetailsPage extends React.Component {
 
       this.setState({ isReady: true });
     });
+
+    this.stickyWrapper = document.getElementById('sticky-wrapper');
+    this.stickyWrapper.classList.add('ecos-sticky-wrapper_background-white');
+
+    window.require(['xstyle!/share/res/css/base.css', 'xstyle!/share/res/css/yui-fonts-grids.css']);
   }
 
   componentWillUnmount() {
+    this.stickyWrapper.classList.remove('ecos-sticky-wrapper_background-white');
+
     if (typeof this.removeHistoryListener === 'function') {
       this.removeHistoryListener();
     }
@@ -85,6 +96,6 @@ class CardDetailsPage extends React.Component {
 }
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(CardDetailsPage);

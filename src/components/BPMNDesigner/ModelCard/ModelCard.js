@@ -2,11 +2,10 @@ import React from 'react';
 // import { NavLink } from 'react-router-dom';
 import { Col } from 'reactstrap';
 import cn from 'classnames';
-import { saveRefererPageLocation } from '../../../helpers/bpmn';
 import { t } from '../../../helpers/util';
 import styles from './ModelCard.module.scss';
 
-const ModelCard = ({ label, author, datetime, viewLink, editLink, image, canWrite }) => {
+const ModelCard = ({ label, author, datetime, viewLink, editLink, onViewLinkClick, onEditLinkClick, image, canWrite }) => {
   const dragNDropIconClasses = cn('icon-drag', styles.dndActionIcon, styles.hiddenIcon);
 
   let cardTopBgStyle = null;
@@ -19,7 +18,7 @@ const ModelCard = ({ label, author, datetime, viewLink, editLink, image, canWrit
   let editButton = null;
   if (canWrite) {
     editButton = (
-      <a href={editLink} className={styles.cardEditButton} onClick={saveRefererPageLocation}>
+      <a href={editLink} className={styles.cardEditButton} onClick={onEditLinkClick}>
         <span className={'icon-edit'} />
       </a>
     );
@@ -33,7 +32,9 @@ const ModelCard = ({ label, author, datetime, viewLink, editLink, image, canWrit
             {editButton}
             <div className={styles.cardTopButton}>
               {/*<NavLink to={viewLink}>{t('bpmn-designer.view-button')}</NavLink>*/}
-              <a href={viewLink}>{t('bpmn-designer.view-button')}</a>
+              <a href={viewLink} onClick={onViewLinkClick}>
+                {t('bpmn-designer.view-button')}
+              </a>
             </div>
           </div>
         </div>

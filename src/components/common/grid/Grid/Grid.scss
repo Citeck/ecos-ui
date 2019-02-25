@@ -52,8 +52,14 @@
   height: 100%;
   color: $text-color-dark;
   font-size: $font-size-standard;
-  font-weight: $font-weight-bold !important;
+  font-weight: $font-weight-semi-bold;
   line-height: normal;
+}
+
+.grid__filter {
+  color: $color-gray-5;
+  margin-left: 6px;
+  font-size: 15px !important;
 }
 
 .grid__body {

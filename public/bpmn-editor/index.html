@@ -43,7 +43,7 @@
     <!-- endbuild -->
 
 </head>
-<body ng-app="flowableModeler" ng-cloak id="Share" class="yui-skin-citeckTheme alfresco-share claro js ">
+<body ng-app="flowableModeler" ng-cloak id="Share" class="alfresco-share claro">
 <div id="page-content-root">
   <div class="sticky-wrapper" >
     <div id="alf-hd">
@@ -295,50 +295,19 @@
 <script type="text/javascript" src="/share/res/js/lib/dojo-1.10.4/dojo/dojo.js?{ASSETS_CACHE}"></script>
 <script type="text/javascript" src="/share/res/js/yui-common.js?{ASSETS_CACHE}"></script>
 
+<script src="scripts/helpers.js?{ASSETS_CACHE}"></script>
+
 
 <script type="text/javascript">
-  function getCurrentLocale() {
-    if (!window.navigator) {
-      return 'en';
-    }
-
-    var language = navigator.languages ? navigator.languages[0] : navigator.language || navigator.systemLanguage || navigator.userLanguage;
-
-    return language.substr(0, 2).toLowerCase();
-  }
-
-  function dynamicallyLoadScript(url, callback) {
-    var script = document.createElement("script");
-    script.src = url;
-
-    document.body.appendChild(script);
-    if (typeof callback === 'function') {
-      script.onload = callback;
-    }
-  }
-
-  function checkStatus(response) {
-    if (response.status >= 200 && response.status < 300) {
-      return response;
-    }
-    const error = new Error(response.statusText);
-    error.response = response;
-    throw error;
-  }
-
-  function parseJSON(response) {
-    return response.json();
-  }
-
-  dynamicallyLoadScript('/share/service/messages.js?locale=' + getCurrentLocale() + '&v=' + window.dojoConfig.cacheBust, function() {
-    dynamicallyLoadScript('/share/res/js/alfresco.js?' + window.dojoConfig.cacheBust, function() {
+  Citeck.helpers.dynamicallyLoadScript('/share/service/messages.js?locale=' + Citeck.helpers.getCurrentLocale() + '&v=' + window.dojoConfig.cacheBust, function() {
+    Citeck.helpers.dynamicallyLoadScript('/share/res/js/alfresco.js?' + window.dojoConfig.cacheBust, function() {
       window.Alfresco.constants.PROXY_URI = '/share/proxy/alfresco/';
       window.Alfresco.constants.URL_SERVICECONTEXT = '/share/service/';
       window.Alfresco.constants.URL_CONTEXT = '/share/';
       window.BPMN_DESIGNER_CONTEXT = '/share/page/bpmn-designer';
       window.CARD_DETAILS_CONTEXT = '/share/page/card-details?nodeRef=workspace://SpacesStore/';
 
-      dynamicallyLoadScript('/share/res/lib/underscore.js?' + window.dojoConfig.cacheBust, function() {
+      Citeck.helpers.dynamicallyLoadScript('/share/res/lib/underscore.js?' + window.dojoConfig.cacheBust, function() {
         fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user', {
           credentials: 'include'
         }).then(function (response) {
@@ -347,76 +316,89 @@
           }
         });
 
-        require([
-          'xstyle!/share/res/css/yui-fonts-grids.css',
-          'xstyle!/share/res/yui/columnbrowser/assets/columnbrowser.css',
-          'xstyle!/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin.css',
-          'xstyle!/share/res/themes/citeckTheme/yui/assets/skin.css',
-          'xstyle!/share/res/css/base.css',
-          'xstyle!/share/res/js/citeck/modules/utils/citeck.css',
-          'xstyle!/share/res/css/yui-layout.css',
-          'xstyle!/share/res/themes/citeckTheme/presentation.css',
-          'xstyle!/share/res/modules/create-site.css',
-          'xstyle!/share/res/components/form/form.css',
-          'xstyle!/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro.css'
-        ]);
+        window.Citeck.helpers.getCurrentThemeName().then(themeName => {
+          document.body.classList.add(`yui-skin-${themeName}`);
 
-        require([
-          'js/citeck/modules/header/index'
-        ], function(ShareHeader) {
-          const fetchUserPromise = fetch('/share/proxy/alfresco/citeck/ecos/records/query', {
-            credentials: 'include',
-            method: 'post',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              query: { sourceId: 'people' },
-              attributes: {
-                userName: 'userName',
-                isAvailable: 'isAvailable',
-                isMutable: 'isMutable',
-                fullName: 'fullName',
-                uid: 'cm:name',
-              }
+          let skinCss = `/share/res/themes/${themeName}/yui/assets/skin.css`;
+          if (themeName === 'default') {
+            skinCss = `/share/res/yui/assets/skins/default/skin.css`;
+          }
+
+          window.require([
+            `xstyle!${skinCss}`,
+            `xstyle!/share/res/themes/${themeName}/presentation.css`,
+            'xstyle!/share/res/css/yui-fonts-grids.css',
+            'xstyle!/share/res/yui/columnbrowser/assets/columnbrowser.css',
+            'xstyle!/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin.css',
+            'xstyle!/share/res/css/base.css',
+            'xstyle!/share/res/js/citeck/modules/utils/citeck.css',
+            'xstyle!/share/res/css/yui-layout.css',
+            'xstyle!/share/res/modules/create-site.css',
+            'xstyle!/share/res/components/form/form.css',
+            'xstyle!/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro.css'
+          ]);
+
+          require([
+            'js/citeck/modules/header/index'
+          ], function(ShareHeader) {
+            const fetchUserPromise = fetch('/share/proxy/alfresco/citeck/ecos/records/query', {
+              credentials: 'include',
+              method: 'post',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                query: { sourceId: 'people' },
+                attributes: {
+                  userName: 'userName',
+                  isAvailable: 'isAvailable',
+                  isMutable: 'isMutable',
+                  fullName: 'fullName',
+                  uid: 'cm:name',
+                }
+              })
+            }).then(Citeck.helpers.checkStatus).then(Citeck.helpers.parseJSON).then(json => json.records[0].attributes);
+
+            const fetchIsCascadeMenuPromise = fetch('/share/proxy/alfresco/citeck/ecosConfig/ecos-config-value?configName=default-ui-create-menu', {
+              credentials: 'include'
             })
-          }).then(checkStatus).then(parseJSON).then(json => json.records[0].attributes);
+              .then(Citeck.helpers.checkStatus)
+              .then(Citeck.helpers.parseJSON)
+              .then(json => json.value === "cascad");
 
-          const fetchIsCascadeMenuPromise = fetch('/share/proxy/alfresco/citeck/ecosConfig/ecos-config-value?configName=default-ui-create-menu', {
-            credentials: 'include'
-          })
-            .then(checkStatus)
-            .then(parseJSON)
-            .then(json => json.value === "cascad");
-
-          Promise.all([
-            fetchUserPromise,
-            fetchIsCascadeMenuPromise,
-          ]).then(([ user, isCascadeMenu ]) => {
-            ShareHeader.render('share-header', {
-              userName: user.userName,
-              userFullname: user.fullName,
-              userNodeRef: "workspace://SpacesStore/" + user.uid,
-              userIsAvailable: user.isAvailable,
-              userIsMutable: user.isMutable,
-              isExternalAuthentication: "false", // TODO
-              siteMenuItems: [],
-              isCascadeCreateMenu: isCascadeMenu ? "true" : "false"
+            Promise.all([
+              fetchUserPromise,
+              fetchIsCascadeMenuPromise,
+            ]).then(([ user, isCascadeMenu ]) => {
+              ShareHeader.render('share-header', {
+                userName: user.userName,
+                userFullname: user.fullName,
+                userNodeRef: "workspace://SpacesStore/" + user.uid,
+                userIsAvailable: user.isAvailable,
+                userIsMutable: user.isMutable,
+                isExternalAuthentication: "false", // TODO
+                siteMenuItems: [],
+                isCascadeCreateMenu: isCascadeMenu ? "true" : "false"
+              });
             });
           });
+
+          require([
+            'js/citeck/modules/slide-menu/slide-menu'
+          ], function(SlideMenu) {
+            SlideMenu.render('slide-menu', {
+              slideMenuConfig: {
+                id: "HEADER_SLIDE_MENU",
+                logoSrc: '/share/res/themes/' + themeName + '/images/app-logo-48.png',
+                logoSrcMobile: '/share/res/themes/' + themeName + '/images/app-logo-mobile.png'
+              },
+            });
+          });
+
+        }).catch(e => {
+          console.log('getCurrentThemeName error: ', e);
         });
 
-        require([
-          'js/citeck/modules/slide-menu/slide-menu'
-        ], function(SlideMenu) {
-          SlideMenu.render('slide-menu', {
-            slideMenuConfig: {
-              id: "HEADER_SLIDE_MENU",
-              logoSrc: '',
-              logoSrcMobile: ''
-            },
-          });
-        });
       });
     });
   });

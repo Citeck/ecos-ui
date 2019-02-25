@@ -1,7 +1,15 @@
-export function saveRefererPageLocation(e) {
-  e.preventDefault();
-  localStorage.setItem('BpmnRefererPagePathName', window.location.pathname);
-  window.location.href = e.currentTarget.href;
+import { LOCAL_STORAGE_KEY_PAGE_POSITION } from '../constants/bpmn';
+
+export function getPagePositionState() {
+  return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_PAGE_POSITION));
+}
+
+export function savePagePositionState(value) {
+  localStorage.setItem(LOCAL_STORAGE_KEY_PAGE_POSITION, JSON.stringify(value));
+}
+
+export function removePagePositionState() {
+  localStorage.removeItem(LOCAL_STORAGE_KEY_PAGE_POSITION);
 }
 
 export function isCategoryHasChildren(categoryId, categories, models) {

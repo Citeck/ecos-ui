@@ -10,7 +10,8 @@ import {
   cancelEditCategory,
   setIsEditable,
   setCategoryData,
-  deleteCategory
+  deleteCategory,
+  setCategoryCollapseState
 } from '../actions/bpmn';
 import { VIEW_TYPE_CARDS, SORT_FILTER_LAST_MODIFIED } from '../constants/bpmn';
 
@@ -138,6 +139,23 @@ export default handleActions(
       if (action.payload.newId) {
         currentCategory.id = action.payload.newId;
       }
+
+      const newCategoryList = [...state.categories];
+      newCategoryList.splice(index, 1, currentCategory);
+
+      return {
+        ...state,
+        categories: newCategoryList
+      };
+    },
+    [setCategoryCollapseState]: (state, action) => {
+      const categoryId = action.payload.id;
+      const index = state.categories.findIndex(item => item.id === categoryId);
+
+      const currentCategory = {
+        ...state.categories[index],
+        isOpen: action.payload.isOpen
+      };
 
       const newCategoryList = [...state.categories];
       newCategoryList.splice(index, 1, currentCategory);

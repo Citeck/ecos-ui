@@ -221,7 +221,7 @@ flowableModeler
                   isBpmAdmin: '.att(n:"authorities"){has(n:"GROUP_BPM_APP_ADMIN")}'
                 }
               })
-            }).then(window.checkStatus).then(window.parseJSON).then(json => json.records[0].attributes).then(user => {
+            }).then(window.Citeck.helpers.checkStatus).then(window.Citeck.helpers.parseJSON).then(json => json.records[0].attributes).then(user => {
               const isUserAdmin = user.isAdmin === 'true';
               const isUserBPMNAdmin = user.isBpmAdmin;
               const mainNavigation = [

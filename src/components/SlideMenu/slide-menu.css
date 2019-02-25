@@ -384,14 +384,6 @@
   padding: 10px 0 10px 10px;
 }
 
-.yui-skin-citeckTheme .fa.HEADER_APPLICATION:before {
-  content: '\f108';
-}
-
-.yui-skin-citeckTheme .fa.HEADER_TYPES:before {
-  content: '\f2a1';
-}
-
 /* mobile styles */
 @media screen and (min-width: 320px) {
   html,

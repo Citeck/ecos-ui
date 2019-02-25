@@ -6,7 +6,7 @@ import './DatePicker.scss';
 export default class extends Component {
   render() {
     const props = this.props;
-    const cssClasses = classNames('input', props.className);
+    const cssClasses = classNames('ecos-input', props.className);
 
     return (
       <DatePicker

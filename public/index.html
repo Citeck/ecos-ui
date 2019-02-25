@@ -10,10 +10,6 @@
       homescreen on Android. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
-
-    <!--<link rel="preload" href="/share/res/js/aikau/1.0.63/alfresco/core/css/opensans.woff" as="font" type="font/woff2" />-->
-    <!--<link rel="preload" href="/share/res/js/aikau/1.0.63/alfresco/core/css/opensansbold.woff" as="font" type="font/woff2" />-->
-    <!--<link rel="preload" href="/share/res/js/aikau/1.0.63/alfresco/core/css/opensanscondensed.woff" as="font" type="font/woff2" />-->
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
@@ -25,7 +21,7 @@
     -->
     <title>Citeck ECOS</title>
   </head>
-  <body id="Share" class="yui-skin-citeckTheme alfresco-share claro js ">
+  <body id="Share" class="claro">
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
@@ -37,6 +33,44 @@
     <script type="text/javascript">
       if (window.dojoConfig) {
         window.dojoConfig.cacheBust = "{ASSETS_CACHE}";
+        var ignorePackages = [
+          'dojo',
+          'dijit',
+          'svg4everybody',
+          'jquerymmenu',
+          'jqueryscrollbar',
+          'react-bootstrap',
+          'react-custom-scrollbars',
+          'citeckLogo',
+          'citeckMenuGroup',
+          'citeckMenuBarItem',
+          'citeckHeaderItem',
+          'citeckMenuBarPopup',
+          'citeckMenuItem',
+          'showdown',
+          'cmm',
+          'share',
+          'service',
+          'share-components',
+          'cm',
+          'surf',
+          'webscripts',
+          'dojox',
+          'alfresco',
+
+          // 'xstyle',
+          // 'react-dom',
+          // 'react-redux',
+          // 'redux',
+          // 'react',
+          // 'jquery',
+          // 'jqueryui',
+          // 'underscore',
+        ];
+
+        window.dojoConfig.packages = window.dojoConfig.packages.filter(function(item) {
+          return ignorePackages.indexOf(item.name) === -1
+        });
       }
     </script>
     <script type="text/javascript" src="/share/res/js/lib/dojo-1.10.4/dojo/dojo.js?{ASSETS_CACHE}"></script>

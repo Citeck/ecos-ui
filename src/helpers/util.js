@@ -1,3 +1,7 @@
+export function applyTheme(themeName, callback) {
+  document.body.classList.add(`yui-skin-${themeName}`);
+}
+
 export function placeCaretAtEnd(el) {
   // el.focus();
   if (typeof window.getSelection !== 'undefined' && typeof document.createRange !== 'undefined') {

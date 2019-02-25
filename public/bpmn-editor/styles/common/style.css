@@ -3294,13 +3294,6 @@ ul#strength > li:last-child {
   color: #000 !important;
 }
 
-body:not(.mobile).yui-skin-citeckTheme .subheader,
-body:not(.mobile).yui-skin-citeckTheme #paletteSectionFooter,
-body:not(.mobile).yui-skin-citeckTheme #process-treeview-wrapper,
-body:not(.mobile).yui-skin-citeckTheme .editor-toolbar {
-  box-shadow: inset 15px -1px 10px -15px grey;
-}
-
 .filter-wrapper input[type="text"] {
   width: 100% !important;
 }
@@ -3315,4 +3308,9 @@ body:not(.mobile).yui-skin-citeckTheme .editor-toolbar {
 
 .custom-dropdown-menu-cascad__label {
   margin-bottom: 0;
+}
+
+.ng-scope .slide-menu-logo__small {
+  width: 59px;
+  padding: 8px 17px;
 }
