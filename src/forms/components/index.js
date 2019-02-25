@@ -1,11 +1,9 @@
-import CheckList from './checklist/CheckList';
-import Custom from './custom/Custom';
-import DocumentList from './documentList/DocumentList';
-import Txt from './txt/Txt';
+import CheckList from './custom/checklist/CheckList';
+import DocumentList from './custom/documentList/DocumentList';
+import Txt from './custom/txt/Txt';
 
 export default {
   checklist: CheckList,
-  custom: Custom,
   documentList: DocumentList,
   txt: Txt
 };

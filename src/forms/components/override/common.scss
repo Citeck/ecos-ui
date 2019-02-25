@@ -1,0 +1,71 @@
+@import '../../constants';
+
+.formio-form {
+  .formio-component {
+    &.formio-component_transparent-label {
+      .control-label {
+        visibility: hidden;
+      }
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .form-control {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 6px 12px;
+    height: auto;
+    line-height: 24px;
+    padding-left: $input-padding;
+    padding-right: $input-padding;
+    background: $color-white;
+    border: $border-width-standard solid $color-gray-6;
+    border-radius: $border-radius-standard;
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-standard;
+    color: $text-color-dark;
+    outline: none;
+
+    &::placeholder {
+      color: $color-gray-5;
+    }
+
+    &:focus {
+      border-color: $color-blue-dark;
+      box-shadow: none;
+    }
+    &:hover {
+      border-color: $color-blue-light;
+    }
+
+    &.is-invalid {
+      border-color: $color-red-1;
+
+      &:focus {
+        box-shadow: none;
+        border-color: $color-red-1;
+      }
+    }
+  }
+
+  .field-required:after {
+    content: '';
+  }
+
+  .control-label {
+    font-size: $font-size-small;
+    font-weight: $font-weight-semi-bold;
+    color: $text-color-dark;
+  }
+
+  /* error message TODO */
+  .invalid-feedback {
+    color: $color-red-1;
+    font-size: $font-size-small;
+    margin-top: 0.5rem;
+  }
+}

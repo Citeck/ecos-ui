@@ -1,0 +1,35 @@
+@import '../../../constants';
+
+.formio-form {
+  .card {
+    background-color: transparent;
+
+    &.border {
+      border: none !important;
+    }
+
+    .card-header {
+      background-color: transparent;
+      border-bottom: none;
+      padding: 0;
+    }
+
+    .card-body {
+      padding-right: 0;
+      padding-left: 0;
+    }
+
+    .card-title {
+      background: $color-yellow-1;
+      border-radius: 6px;
+
+      font-family: $font-family-open-sans;
+      font-weight: $font-weight-semi-bold !important;
+      font-size: $font-size-large;
+      color: $text-color-gray;
+      line-height: 22px;
+
+      padding: 5px 12px;
+    }
+  }
+}

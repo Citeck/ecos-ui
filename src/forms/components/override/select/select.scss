@@ -1,0 +1,127 @@
+@import '../../../constants';
+
+.formio-form {
+  .formio-component-select {
+    .choices__input {
+      background-color: $color-white;
+      margin-bottom: 0;
+    }
+
+    .choices__list--dropdown {
+      margin-top: 5px;
+      border-radius: $border-radius-standard;
+      box-shadow: $box-shadow-default;
+      border: none;
+      font-weight: $font-weight-semi-bold;
+      color: $text-color-dark;
+
+      .choices__input {
+        font-weight: $font-weight-semi-bold;
+        border: 2px solid $color-gray-6;
+        margin: $input-padding $input-padding 10px $input-padding;
+        width: calc(100% - #{$input-padding * 2});
+        border-radius: $border-radius-standard;
+        padding: 6px 12px;
+        line-height: 24px;
+
+        &::placeholder {
+          color: $color-gray-5;
+        }
+      }
+
+      .choices__item {
+        padding-left: $input-padding;
+        padding-right: $input-padding;
+      }
+    }
+
+    .choices__list--multiple {
+      .choices__item {
+        margin-bottom: 0;
+        line-height: 26px;
+        background-color: #4b75b7;
+        border: none;
+        border-radius: 100px;
+        padding: 0 $input-padding;
+        font-size: 12px;
+        font-weight: 600;
+
+        .choices__button {
+          border-left: none;
+          background-size: 12px;
+        }
+      }
+    }
+
+    &.formio-component-multiple {
+      .form-control {
+        padding: 4px 12px;
+        line-height: 28px;
+        .choices__input {
+          padding: 0;
+          border: none;
+        }
+      }
+    }
+
+    .choices {
+      &.is-focused {
+        .form-control {
+          border-color: $color-blue-dark;
+
+          &:after {
+            content: '\54';
+            color: $color-white;
+          }
+        }
+      }
+
+      &[data-type*='select-one'] {
+        &:after {
+          display: none;
+        }
+
+        .choices__button {
+          display: none;
+        }
+
+        .form-control {
+          &:after {
+            font-family: $font-family-citeck;
+            font-size: 16px;
+            font-weight: normal;
+            content: '\6e';
+            position: absolute;
+            top: 0;
+            right: $input-padding;
+            line-height: $form-input-height;
+            pointer-events: none;
+            color: $color-gray-6;
+            transition: color 0.15s ease-in-out;
+          }
+
+          &:focus:after {
+            color: $color-blue-dark;
+          }
+
+          &:hover:after {
+            color: $color-blue-light;
+          }
+        }
+
+        &.is-open {
+          .form-control {
+            border-color: $color-blue-dark;
+            background-color: $color-blue-dark;
+            color: $color-white;
+
+            &:after {
+              content: '\54';
+              color: $color-white;
+            }
+          }
+        }
+      }
+    }
+  }
+}
