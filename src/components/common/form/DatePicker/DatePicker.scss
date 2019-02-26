@@ -49,16 +49,6 @@
     }
   }
 
-  .react-datepicker__day--selected {
-    border-radius: 50%;
-    background: $color-blue-dark;
-
-    &:hover {
-      border-radius: 50%;
-      background: $color-blue-light;
-    }
-  }
-
   .react-datepicker__day--today {
     border-radius: 50%;
     background: $color-blue-light2;
@@ -69,6 +59,17 @@
       border-radius: 50%;
       background: $color-blue-light;
       color: $color-white;
+    }
+  }
+
+  .react-datepicker__day--selected {
+    border-radius: 50%;
+    background: $color-blue-dark;
+    color: $color-white;
+
+    &:hover {
+      border-radius: 50%;
+      background: $color-blue-light;
     }
   }
 
