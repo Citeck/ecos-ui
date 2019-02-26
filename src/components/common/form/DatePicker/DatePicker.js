@@ -5,19 +5,25 @@ import './DatePicker.scss';
 
 export default class extends Component {
   render() {
-    const props = this.props;
-    const cssClasses = classNames('ecos-input', props.className);
+    const { className, showIcon, ...otherProps } = this.props;
+    const cssClasses = classNames('ecos-input', className);
+    const wrapperCssClasses = classNames('ecos-datepicker', {
+      'ecos-datepicker_show-icon': showIcon
+    });
 
     return (
-      <DatePicker
-        dateFormat="P"
-        // showMonthDropdown
-        // showYearDropdown
-        // dropdownMode="select"
-        popperPlacement="top-end"
-        {...this.props}
-        className={cssClasses}
-      />
+      <div className={wrapperCssClasses}>
+        <DatePicker
+          dateFormat="P"
+          // showMonthDropdown
+          // showYearDropdown
+          // dropdownMode="select"
+          popperPlacement="top-end"
+          {...otherProps}
+          className={cssClasses}
+          calendarClassName={'ecos-datepicker__calendar'}
+        />
+      </div>
     );
   }
 }

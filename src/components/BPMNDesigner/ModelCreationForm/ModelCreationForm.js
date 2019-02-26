@@ -189,13 +189,13 @@ class ModelCreationForm extends React.Component {
           <Col md={6} sm={12}>
             <FormGroup>
               <Label>{t('bpmn-designer.create-bpm-form.valid-from')}</Label>
-              <DatePicker selected={this.state.validFrom} onChange={this.handleChangeValidFrom} />
+              <DatePicker showIcon selected={this.state.validFrom} onChange={this.handleChangeValidFrom} />
             </FormGroup>
           </Col>
           <Col md={6} sm={12}>
             <FormGroup>
               <Label>{t('bpmn-designer.create-bpm-form.valid-to')}</Label>
-              <DatePicker selected={this.state.validTo} onChange={this.handleChangeValidTo} />
+              <DatePicker showIcon selected={this.state.validTo} onChange={this.handleChangeValidTo} />
             </FormGroup>
           </Col>
         </Row>
