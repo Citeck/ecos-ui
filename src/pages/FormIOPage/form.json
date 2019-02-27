@@ -224,9 +224,6 @@
       "placeholder": "Enter your txt value",
       "type": "txt"
     },
-    {
-      "type": "custom"
-    },
 
     {
       "label": "CheckList",

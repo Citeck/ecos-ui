@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import Formio from 'formiojs/Formio';
 
 import DefaultComponents from 'formiojs/components';
@@ -183,3 +184,13 @@ export default class EcosForm extends React.Component {
     });
   }
 }
+
+EcosForm.propTypes = {
+  record: PropTypes.string.isRequired,
+  attributes: PropTypes.object,
+  options: PropTypes.object,
+  formKey: PropTypes.string,
+  onSubmit: PropTypes.func,
+  onReady: PropTypes.func
+  // onForm[Event]: PropTypes.func (for example, onFormCancel)
+};
