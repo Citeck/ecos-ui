@@ -17,6 +17,14 @@
     },
 
     {
+      "input": true,
+      "label": "React DateTime component",
+      "key": "txtFieldKey",
+      "placeholder": "Enter your txt value",
+      "type": "reactDatetime"
+    },
+
+    {
       "tags": [],
       "clearOnHide": true,
       "hidden": false,
@@ -215,14 +223,6 @@
         "when": null,
         "eq": ""
       }
-    },
-
-    {
-      "input": true,
-      "label": "Txt component",
-      "key": "txtFieldKey",
-      "placeholder": "Enter your txt value",
-      "type": "txt"
     },
 
     {

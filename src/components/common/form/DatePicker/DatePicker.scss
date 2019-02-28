@@ -19,6 +19,14 @@
   }
 }
 
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker-popper {
+  z-index: 1001;
+}
+
 .ecos-datepicker__calendar {
   font-family: $font-family-open-sans;
   font-size: $font-size-standard;
@@ -28,21 +36,20 @@
   border-radius: $border-radius-large;
   padding: 15px;
 
-  .react-datepicker-wrapper {
-    display: block;
-  }
-
-  .react-datepicker__input-container {
-    display: block;
-  }
-
   .react-datepicker__current-month {
     text-transform: capitalize;
+  }
+
+  .react-datepicker__day-name {
+    width: 28px;
+    line-height: 28px;
   }
 
   .react-datepicker__day {
     font-size: $font-size-small;
     font-weight: $font-weight-semi-bold;
+    width: 28px;
+    line-height: 28px;
 
     &:hover {
       border-radius: 50%;
@@ -119,6 +126,7 @@
   .react-datepicker__current-month,
   .react-datepicker-time__header {
     margin-bottom: 5px;
+    font-size: 16px;
   }
 
   .react-datepicker__header {
