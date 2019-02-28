@@ -100,13 +100,7 @@ class HeaderFormatter extends Component {
             innerClassName={'grid__filter-tooltip-body'}
             arrowClassName={'grid__filter-tooltip-marker'}
           >
-            <Input
-              type="text"
-              placeholder={'Фильтровать'}
-              className={'grid__filter-tooltip-input'}
-              onChange={this.onChange}
-              value={state.text}
-            />
+            <Input type="text" className={'grid__filter-tooltip-input'} onChange={this.onChange} value={state.text} />
 
             <Icon className={'grid__filter-tooltip-close icon-close icon_small'} onClick={this.clear} />
           </Tooltip>
@@ -119,8 +113,47 @@ class HeaderFormatter extends Component {
 export default class Grid extends Component {
   constructor(props) {
     super(props);
+    this._selected = [];
+    this._inlineToolsRef = React.createRef();
     this.createCloseFilterEvent();
   }
+
+  _setAdditionalOptions(props) {
+    props.columns = props.columns.map(column => {
+      if (column.width) {
+        column = this._setWidth(column);
+      }
+
+      column = this._setHeaderFormatter(column);
+
+      column.formatter = this._initFormatter();
+
+      return column;
+    });
+
+    if (props.hasInlineTools) {
+      props.rowEvents = {
+        onMouseEnter: e => this._createInlineTools($(e.target).closest('tr'))
+      };
+    }
+
+    if (props.hasCheckboxes) {
+      props.selectRow = this.createCheckboxs(props);
+    }
+
+    return props;
+  }
+
+  _initFormatter = () => {
+    return (cell, row, rowIndex, formatExtraData) => {
+      const Formatter = formatExtraData.formatter;
+      return (
+        <div className={'grid__td grid__td_editable'}>
+          <Formatter row={row} cell={cell} params={formatExtraData.params} />
+        </div>
+      );
+    };
+  };
 
   _setWidth = column => {
     column.style = {
@@ -139,54 +172,17 @@ export default class Grid extends Component {
     return column;
   };
 
-  _setAdditionalOptions(props) {
-    props.columns = props.columns.map(column => {
-      if (column.width) {
-        column = this._setWidth(column);
-      }
+  _createInlineTools = $tr => {
+    const $inlineTools = $(this._inlineToolsRef.current);
+    const $currentTr = $tr.mouseleave(() => $inlineTools.hide());
+    const top = $currentTr.position().top + 'px';
+    const height = $currentTr.height() - 2 + 'px';
 
-      column = this._setHeaderFormatter(column);
-
-      return column;
-    });
-
-    if (props.hasInlineTools) {
-      props.rowEvents = {
-        onMouseEnter: e => this.createInlineTools($(e.target).closest('tr'))
-      };
-    }
-
-    if (props.hasCheckboxes) {
-      props.selectRow = this.createCheckboxs(props);
-    }
-
-    return props;
-  }
-
-  createInlineTools = $tr => {
-    const inlineToolsClass = 'grid__inline-tools';
-    const inlineToolsClassContainerClass = 'grid__inline-tools-container';
-    const inlineToolsBtnClass = 'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10';
-
-    const $currentTr = $tr.addClass(inlineToolsClassContainerClass).mouseleave(function() {
-      // $(this).removeClass(inlineToolsClassContainerClass);
-      // $(this).find(`div.${inlineToolsClass}`).remove();
-    });
-    const $inlineTools = $(`<div class='${inlineToolsClass}'></div>`).appendTo($currentTr)[0];
-
-    let pos = $currentTr.position();
-
-    $('#test-test').css('top', pos.top + 'px');
-
-    ReactDOM.render(
-      <Fragment>
-        <IcoBtn icon={'icon-download'} className={inlineToolsBtnClass} />
-        <IcoBtn icon={'icon-on'} className={inlineToolsBtnClass} />
-        <IcoBtn icon={'icon-edit'} className={inlineToolsBtnClass} />
-        <IcoBtn icon={'icon-delete'} className={inlineToolsBtnClass} />
-      </Fragment>,
-      $inlineTools
-    );
+    $inlineTools
+      .show()
+      .css('top', top)
+      .children()
+      .each((idx, child) => (idx < 2 ? $(child).css('height', height) : null));
   };
 
   createCheckboxs(props) {
@@ -238,6 +234,17 @@ export default class Grid extends Component {
     triggerEvent.call(this, 'onDelete', this._selected);
   };
 
+  onEdit = (oldValue, newValue, row, column) => {
+    if (oldValue !== newValue) {
+      triggerEvent.call(this, 'onEdit', {
+        id: row[KEY_FIELD],
+        attributes: {
+          [column.attribute]: newValue
+        }
+      });
+    }
+  };
+
   toolsVisible = () => {
     return this._selected.length && this.getSelectedByPage(this.props.data, true).length;
   };
@@ -275,8 +282,12 @@ export default class Grid extends Component {
       bootstrap4: true,
       bordered: false,
       headerClasses: 'grid__header',
+      cellEdit: cellEditFactory({
+        mode: 'dbclick',
+        blurToSave: true,
+        afterSaveCell: this.onEdit
+      }),
       noDataIndication: () => 'Нет элементов в списке',
-      cellEdit: cellEditFactory({ mode: 'click', blurToSave: true }),
       ...this.props
     };
 
@@ -321,7 +332,30 @@ export default class Grid extends Component {
                 />
               </div>
             </div>
-          ) : null}
+          ) : (
+            <div ref={this._inlineToolsRef} className={'grid__inline-tools'}>
+              <div className="grid__inline-tools-border-left" />
+              <div className="grid__inline-tools-actions">
+                <IcoBtn
+                  icon={'icon-download'}
+                  className={'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10'}
+                />
+                <IcoBtn
+                  icon={'icon-on'}
+                  className={'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10'}
+                />
+                <IcoBtn
+                  icon={'icon-edit'}
+                  className={'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10'}
+                />
+                <IcoBtn
+                  icon={'icon-delete'}
+                  className={'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10'}
+                />
+              </div>
+              <div className="grid__inline-tools-border-bottom" />
+            </div>
+          )}
 
           <PerfectScrollbar onScrollX={this.triggerCloseFilterEvent} onScrollY={this.triggerCloseFilterEvent}>
             <BootstrapTable {...props} />

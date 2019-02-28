@@ -1,13 +1,5 @@
 @import '../../../../constants';
 
-#test-test {
-  position: absolute;
-  height: 42px;
-  width: 100%;
-  background: red;
-  z-index: 10;
-}
-
 .grid {
   position: relative;
 
@@ -18,13 +10,11 @@
 
     td {
       border-top: 2px solid $color-gray-4;
-      padding-top: 14px;
-      padding-bottom: 14px;
+      padding: 8px 5px;
       vertical-align: middle;
       color: $text-color-dark;
-      line-height: 1;
       font-size: $font-size-small;
-      font-weight: $font-weight-normal !important;
+      font-weight: $font-weight-normal;
     }
 
     th {
@@ -34,12 +24,9 @@
       border-bottom: 0;
     }
 
-    input[type='text'].input:hover {
-      border-color: $color-blue-light !important;
-    }
-
-    input[type='text'].input:focus {
-      border-color: $color-blue-dark !important;
+    td,
+    th {
+      line-height: 1;
     }
   }
 }
@@ -53,13 +40,14 @@
   color: $text-color-dark;
   font-size: $font-size-standard;
   font-weight: $font-weight-semi-bold;
-  line-height: normal;
 }
 
-.grid__filter {
-  color: $color-gray-5;
-  margin-left: 6px;
-  font-size: 15px !important;
+.grid__td {
+  display: inline-block;
+  width: 100%;
+  min-height: 22px;
+  padding: 5px 5px;
+  border-radius: $border-radius-standard;
 }
 
 .grid__body {
@@ -141,35 +129,43 @@
   }
 
   .react-bs-table-no-data {
-    padding: 14px 0.75rem !important;
+    padding: 14px 10px !important;
     visibility: visible !important;
   }
 }
 
 /*Inline-tools*/
-.grid__inline-tools-container {
-  position: relative;
-  width: 1110px;
-  border: 2px solid $color-brown-2 !important;
+.grid__inline-tools {
+  display: none;
+  border-top: 2px solid $color-brown-2;
+  position: absolute;
+  height: 0;
+  width: 100%;
+  z-index: 10;
 }
 
-.grid__inline-tools {
+.grid__inline-tools-border-left {
+  border-left: 2px solid $color-brown-2;
+  width: 0;
+  position: relative;
+}
+
+.grid__inline-tools-border-bottom {
+  border-top: 2px solid $color-brown-2;
+  position: relative;
+}
+
+.grid__inline-tools-actions {
+  background: $color-white;
+  border-right: 2px solid $color-brown-2;
+  display: flex;
+  align-items: center;
   position: absolute;
   top: 0;
-  bottom: 0;
-  left: 967px;
   right: 0;
-  text-align: right;
-  width: 142px;
-  background: $color-white;
-  border-top: 1px solid $color-brown-2;
-  border-bottom: 1px solid $color-brown-2;
-  border-right: 2px solid $color-brown-2;
 }
 
 .grid__inline-tools-btn {
-  position: relative;
-  top: 5px;
   height: auto !important;
   padding: 0 !important;
 }
@@ -197,14 +193,6 @@
     border-radius: $border-radius-large;
     text-align: center;
     padding: 9px 10px;
-
-    input[type='text'].grid__filter-tooltip-input:hover {
-      border-color: $color-blue-light !important;
-    }
-
-    input[type='text'].grid__filter-tooltip-input:focus {
-      border-color: $color-blue-dark !important;
-    }
   }
 
   span.grid__filter-tooltip-marker {
@@ -239,9 +227,11 @@
 
 .grid__filter-tooltip-input {
   height: 26px;
-  border: 2px solid $color-gray-4 !important;
-  padding-left: 10px !important;
-  width: 100% !important;
+  border: 2px solid $color-gray-4;
+  padding-left: 5px;
+  width: 100%;
+  font-size: $font-size-small;
+  color: $color-gray-6;
 }
 
 .grid__th_filtered {
@@ -250,5 +240,11 @@
 
 /*Editor*/
 .react-bootstrap-table-editing-cell {
-  padding: 3px 8px !important;
+}
+
+.grid__td_editable {
+  &:hover {
+    background: $color-gray-4;
+    cursor: pointer;
+  }
 }

@@ -54,11 +54,6 @@ export default class GqlDataSource extends BaseDataSource {
 
       newColumn.formatExtraData = { formatter, params };
 
-      newColumn.formatter = (cell, row, rowIndex, formatExtraData) => {
-        let Formatter = formatExtraData.formatter;
-        return <Formatter row={row} cell={cell} params={formatExtraData.params} />;
-      };
-
       newColumn.filterValue = (cell, row) => formatter.getFilterValue(cell, row, params);
       newColumn.editorRenderer = formatter.getEditor;
 

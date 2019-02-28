@@ -17,6 +17,7 @@ import {
   setJournalsItem,
   setPage,
   deleteRecords,
+  saveRecords,
   setSelectedRecords,
   setSelectAllRecords,
   setSelectAllRecordsVisible
@@ -45,6 +46,7 @@ const mapDispatchToProps = dispatch => ({
   setJournalsItem: item => dispatch(setJournalsItem(item)),
   setPage: page => dispatch(setPage(page)),
   deleteRecords: records => dispatch(deleteRecords(records)),
+  saveRecords: ({ id, attributes }) => dispatch(saveRecords({ id, attributes })),
   setSelectedRecords: records => dispatch(setSelectedRecords(records)),
   setSelectAllRecords: need => dispatch(setSelectAllRecords(need)),
   setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(visible))
@@ -198,10 +200,12 @@ class JournalsDashlet extends Component {
                   <Grid
                     {...props.gridData}
                     hasCheckboxes
+                    hasInlineTools
                     onFilter={this.onFilter}
-                    onDelete={props.deleteRecords}
                     onSelectAll={this.setSelectAllRecords}
                     onSelect={this.setSelectedRecords}
+                    onDelete={props.deleteRecords}
+                    onEdit={props.saveRecords}
                     selected={props.selectedRecords}
                     selectAllRecords={props.selectAllRecords}
                     selectAllRecordsVisible={props.selectAllRecordsVisible}

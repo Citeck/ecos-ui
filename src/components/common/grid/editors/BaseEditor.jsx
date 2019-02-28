@@ -1,28 +1,23 @@
-import React, { Fragment, Component } from 'react';
+import React from 'react';
 import { Input } from '../../form';
 
-export default class QualityRanger extends React.Component {
-  static propTypes = {
-    value: PropTypes.number,
-    onUpdate: PropTypes.func.isRequired
-  };
-
-  static defaultProps = {
-    value: 0
-  };
+export default class BaseEditor extends React.Component {
+  constructor(props) {
+    super(props);
+    this._value = this.props.value;
+  }
 
   getValue() {
-    return parseInt(this.range.value, 10);
+    return this._value;
   }
+
+  onChange = e => {
+    this._value = e.target.value;
+  };
 
   render() {
     const { value, onUpdate, ...rest } = this.props;
 
-    return [
-      <input {...rest} key="range" ref={node => (this.range = node)} type="range" min="0" max="100" />,
-      <button key="submit" className="btn btn-default" onClick={() => onUpdate(this.getValue())}>
-        done
-      </button>
-    ];
+    return <Input type={'text'} {...rest} className={'ecos-input_grid-editor'} onChange={this.onChange} autoFocus />;
   }
 }

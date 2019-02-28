@@ -3,6 +3,10 @@ import { PROXY_URI } from '../constants/alfresco';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 
 export class JournalsApi extends RecordService {
+  saveRecords = ({ id, attributes }) => {
+    return this.mutate({ record: { id, attributes } });
+  };
+
   deleteRecords = records => {
     return this.delete({ records: records });
   };
