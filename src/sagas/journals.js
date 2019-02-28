@@ -12,6 +12,7 @@ import {
   reloadGrid,
   setJournalConfig,
   deleteRecords,
+  saveRecords,
   setSelectedRecords
 } from '../actions/journals';
 
@@ -107,12 +108,27 @@ function* removeRecords({ api, logger }, action) {
   }
 }
 
+function* updateRecords({ api, logger }, action) {
+  try {
+    yield call(api.journals.saveRecords, action.payload);
+
+    const {
+      columns,
+      meta: { criteria }
+    } = yield select(state => state.journals.journalConfig);
+    yield put(reloadGrid({ columns, criteria }));
+  } catch (e) {
+    logger.error('[journals updateRecords saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getDashletConfig().type, fetchDashletConfig, ea);
   yield takeLatest(getDashletEditorData().type, fetchDashletEditorData, ea);
   yield takeLatest(saveDashlet().type, putDashlet, ea);
   yield takeLatest(reloadGrid().type, loadGrid, ea);
   yield takeLatest(deleteRecords().type, removeRecords, ea);
+  yield takeLatest(saveRecords().type, updateRecords, ea);
 }
 
 export default saga;

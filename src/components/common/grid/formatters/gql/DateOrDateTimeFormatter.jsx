@@ -1,12 +1,21 @@
 import React, { Fragment } from 'react';
 import moment from 'moment';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
+import { DateEditor } from '../../editors';
+
+const DATE_FORMAT = 'DD.MM.YYYY';
+const DATE_TIME_FORMAT = 'DD.MM.YYYY HH:mm';
+const EDITOR_DATE_TIME__FORMAT = 'dd.MM.YYYY HH:mm';
 
 export default class DateTimeFormatter extends DefaultGqlFormatter {
+  static getEditor(editorProps, value) {
+    return <DateEditor {...editorProps} value={value} dateFormat={EDITOR_DATE_TIME__FORMAT} />;
+  }
+
   render() {
     const { cell, params } = this.props;
-    const patternDate = params.patternDate || 'DD.MM.YYYY';
-    const patternDateTime = params.patternDateTime || 'DD.MM.YYYY HH:mm';
+    const patternDate = params.patternDate || DATE_FORMAT;
+    const patternDateTime = params.patternDateTime || DATE_TIME_FORMAT;
 
     let date = '';
 
