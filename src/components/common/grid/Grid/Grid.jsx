@@ -1,6 +1,5 @@
 import $ from 'jquery';
-import ReactDOM from 'react-dom';
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import BootstrapTable from 'react-bootstrap-table-next';
@@ -293,10 +292,12 @@ export default class Grid extends Component {
 
     props = this._setAdditionalOptions(props);
 
+    const toolsVisible = this.toolsVisible();
+
     if (props.columns.length) {
       return (
         <div className={classNames('grid', props.hasCheckboxes && 'grid_checkable', this.props.className)}>
-          {this.toolsVisible() ? (
+          {toolsVisible ? (
             <div className={'grid__tools'}>
               {props.selectAllRecordsVisible ? (
                 <div className={'grid__tools-item grid__tools-item_first'}>
@@ -332,7 +333,8 @@ export default class Grid extends Component {
                 />
               </div>
             </div>
-          ) : (
+          ) : null}
+          {toolsVisible ? null : (
             <div ref={this._inlineToolsRef} className={'grid__inline-tools'}>
               <div className="grid__inline-tools-border-left" />
               <div className="grid__inline-tools-actions">

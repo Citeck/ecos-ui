@@ -14,6 +14,7 @@ import {
   setDashletEditorVisible,
   setDashletConfig
 } from '../../../actions/journals';
+import { t } from '../../../helpers/util';
 
 import './JournalsDashletEditor.scss';
 
@@ -79,9 +80,9 @@ class JournalsDashletEditor extends Component {
           <Caption middle className={'journal-dashlet-editor__caption'}>
             Редактирование дашлета
           </Caption>
-          <Field label={'Список журналов'}>
+          <Field label={t('journals.list.name')}>
             <Select
-              placeholder={'Выберите список журналов'}
+              placeholder={t('journals.action.select-journal-list')}
               options={props.journalsList}
               getOptionLabel={option => option.title}
               getOptionValue={option => option.id}
@@ -90,9 +91,9 @@ class JournalsDashletEditor extends Component {
             />
           </Field>
 
-          <Field label={'Журнал'}>
+          <Field label={t('journals.name')}>
             <Select
-              placeholder={'Выберите журнал'}
+              placeholder={t('journals.action.select-journal')}
               options={props.journals}
               getOptionLabel={option => option.title}
               getOptionValue={option => option.nodeRef}
@@ -101,8 +102,8 @@ class JournalsDashletEditor extends Component {
             />
           </Field>
 
-          <Field label={'Настройки'}>
-            <Select placeholder={'По умолчанию'} options={props.setting} onChange={props.setSettingItem} />
+          <Field label={t('journals.settings')}>
+            <Select placeholder={t('journals.default')} options={props.setting} onChange={props.setSettingItem} />
           </Field>
         </div>
 

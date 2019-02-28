@@ -22,6 +22,7 @@ import {
   setSelectAllRecords,
   setSelectAllRecordsVisible
 } from '../../../actions/journals';
+import { t } from '../../../helpers/util';
 
 import './JournalsDashlet.scss';
 
@@ -111,7 +112,7 @@ class JournalsDashlet extends Component {
 
     let journalList = journalsList.filter(journalList => journalList.id === config.journalsListId)[0] || {};
 
-    return journalList.title || 'Журналы';
+    return journalList.title || t('journals.name');
   };
 
   setSelectedRecords = e => {
@@ -183,7 +184,7 @@ class JournalsDashlet extends Component {
                     <IcoBtn invert={'true'} icon={'icon-down'} className={'btn_drop-down btn_r_6 btn_x-step_10'} />
                   </Dropdown>
 
-                  <Dropdown source={[{ title: 'Мои настройки', id: 0 }]} value={0} valueField={'id'} titleField={'title'} isButton={true}>
+                  <Dropdown source={[{ title: '...', id: 0 }]} value={0} valueField={'id'} titleField={'title'} isButton={true}>
                     <TwoIcoBtn icons={['icon-settings', 'icon-down']} className={'btn_grey btn_settings-down btn_x-step_10'} />
                   </Dropdown>
 
