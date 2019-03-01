@@ -100,7 +100,7 @@ class HeaderFormatter extends Component {
             innerClassName={'grid__filter-tooltip-body'}
             arrowClassName={'grid__filter-tooltip-marker'}
           >
-            <Input type="text" className={'grid__filter-tooltip-input'} onChange={this.onChange} value={state.text} />
+            <Input autoFocus type="text" className={'grid__filter-tooltip-input'} onChange={this.onChange} value={state.text} />
 
             <Icon className={'grid__filter-tooltip-close icon-close icon_small'} onClick={this.clear} />
           </Tooltip>
