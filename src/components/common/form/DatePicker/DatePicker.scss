@@ -2,23 +2,19 @@
 @import '../../../../constants';
 
 .ecos-datepicker_show-icon {
-  .react-datepicker__input-container {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 
-    &:after {
-      font-family: $font-family-citeck;
-      content: '\46';
-      display: inline-block;
-      line-height: $form-input-height;
-      color: $color-gray-7;
-      font-size: $font-size-extra-large;
-      margin-left: 10px;
-      cursor: pointer;
-    }
+  .ecos-datepicker__icon {
+    line-height: $form-input-height;
+    color: $color-gray-7;
+    font-size: $font-size-extra-large;
+    margin-left: 10px;
+    cursor: pointer;
   }
 }
 
+.react-datepicker__input-container,
 .react-datepicker-wrapper {
   width: 100%;
 }
