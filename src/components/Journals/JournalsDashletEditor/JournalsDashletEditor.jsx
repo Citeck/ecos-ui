@@ -78,7 +78,7 @@ class JournalsDashletEditor extends Component {
       <div className={cssClasses}>
         <div className={'journal-dashlet-editor__body'}>
           <Caption middle className={'journal-dashlet-editor__caption'}>
-            Редактирование дашлета
+            {t('journals.action.edit-dashlet')}
           </Caption>
           <Field label={t('journals.list.name')}>
             <Select
@@ -110,14 +110,14 @@ class JournalsDashletEditor extends Component {
         <Columns
           className={'journal-dashlet-editor__actions'}
           cols={[
-            <Btn onClick={this.clear}>Сбросить настройки</Btn>,
+            <Btn onClick={this.clear}>{t('journals.action.reset-settings')}</Btn>,
 
             <Fragment>
               <Btn className={'btn_x-step_10'} onClick={this.cancel}>
-                Отмена
+                {t('journals.action.cancel')}
               </Btn>
               <Btn className={'btn_blue btn_hover_light-blue'} onClick={this.save}>
-                Сохранить
+                {t('journals.action.save')}
               </Btn>
             </Fragment>
           ]}

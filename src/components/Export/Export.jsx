@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { PROXY_URI } from '../../constants/alfresco';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
+import { t } from '../../helpers/util';
 
 import './Export.scss';
 
@@ -67,8 +68,8 @@ export default class ColumnsSetup extends Component {
       <div {...props} className={cssClasses}>
         <Dropdown
           source={[
-            { id: 0, title: 'HTML (просмотр)', type: 'html', download: false, target: '_blank' },
-            { id: 1, title: 'HTML (скачивание)', type: 'html', download: true, target: '_self' },
+            { id: 0, title: t('export.list.html-read'), type: 'html', download: false, target: '_blank' },
+            { id: 1, title: t('export.list.html-load'), type: 'html', download: true, target: '_self' },
             { id: 2, title: 'Excel', type: 'xlsx', download: true, target: '_self' },
             { id: 3, title: 'CSV', type: 'csv', download: true, target: '_self' }
           ]}
@@ -82,7 +83,7 @@ export default class ColumnsSetup extends Component {
         </Dropdown>
 
         <form ref={this.form} id="export-form" action="" method="post" encType="multipart/form-data" target="">
-          <input ref={this.textInput} type="hidden" name="jsondata" value="dd" />
+          <input ref={this.textInput} type="hidden" name="jsondata" value="" />
         </form>
       </div>
     );

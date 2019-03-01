@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { IcoBtn } from '../../common/btns';
+import { t } from '../../../helpers/util';
 
 import './Pagination.scss';
 
@@ -55,7 +56,7 @@ export default class Pagination extends Component {
         <span className={'pagination__text'}>
           {this.min}-{this.max}
         </span>
-        <span className={'pagination__text'}> из </span>
+        <span className={'pagination__text'}> {t('pagination.from')} </span>
         <span className={'pagination__text pagination__step'}>{total}</span>
 
         <IcoBtn icon={'icon-left'} className={'pagination__btn-step btn_grey3 btn_width_auto btn_hover_t-light-blue'} onClick={this.prev} />

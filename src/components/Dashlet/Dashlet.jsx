@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import Panel from '../common/panels/Panel/Panel';
 import { IcoBtn } from '../common/btns';
+import { t } from '../../helpers/util';
 
 import './Dashlet.scss';
 
@@ -45,7 +46,7 @@ export default class Dashlet extends Component {
               className={'dashlet__btn btn_blue btn_light-blue btn_hover_dark-blue2'}
               onClick={this.onGoTo}
             >
-              Перейти в раздел
+              {t('dashlet.goto')}
             </IcoBtn>
 
             <div className={'dashlet__actions'}>
@@ -62,7 +63,7 @@ export default class Dashlet extends Component {
               <IcoBtn
                 icon={'icon-question'}
                 className={'btn_i dashlet__btn dashlet__btn_i btn_blue btn_hover_light-blue'}
-                title={'Показать справку по этому дашлету'}
+                title={t('dashlet.help.title')}
               />
             </div>
           </div>

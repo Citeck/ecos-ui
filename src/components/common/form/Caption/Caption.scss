@@ -1,23 +1,23 @@
 @import '../../../../constants';
 
 .caption {
-  color: $text-color-dark !important;
+  color: $text-color-dark;
   margin: 0;
   line-height: normal;
   font-family: $font-family;
 }
 
 .caption_large {
-  font-size: 24px !important;
-  font-weight: $font-weight-semi-bold !important;
+  font-size: 24px;
+  font-weight: $font-weight-semi-bold;
 }
 
 .caption_middle {
-  font-size: 18px !important;
-  font-weight: $font-weight-semi-bold !important;
+  font-size: 18px;
+  font-weight: $font-weight-semi-bold;
 }
 
 .caption_small {
-  font-size: 14px !important;
-  font-weight: $font-weight-semi-bold !important;
+  font-size: 14px;
+  font-weight: $font-weight-semi-bold;
 }

@@ -10,6 +10,7 @@ import PerfectScrollbar from 'react-perfect-scrollbar';
 import { IcoBtn, Btn } from '../../btns';
 import { Input } from '../../form';
 import { Tooltip } from 'reactstrap';
+import { t } from '../../../../helpers/util';
 
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
@@ -286,7 +287,7 @@ export default class Grid extends Component {
         blurToSave: true,
         afterSaveCell: this.onEdit
       }),
-      noDataIndication: () => 'Нет элементов в списке',
+      noDataIndication: () => t('grid.no-data-indication'),
       ...this.props
     };
 
@@ -303,10 +304,10 @@ export default class Grid extends Component {
                 <div className={'grid__tools-item grid__tools-item_first'}>
                   <Btn
                     className={`btn_extra-narrow ${props.selectAllRecords ? 'btn_blue' : 'btn_grey5'} btn_hover_light-blue2`}
-                    title={'Выбрать все'}
+                    title={t('grid.tools.select-all')}
                     onClick={this.selectAll}
                   >
-                    Выбрать все {props.total}
+                    {t('grid.tools.select-all')} {props.total}
                   </Btn>
                 </div>
               ) : null}
@@ -314,7 +315,7 @@ export default class Grid extends Component {
                 <IcoBtn
                   icon={'icon-download'}
                   className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'}
-                  title={'Скачать как Zip'}
+                  title={t('grid.tools.zip')}
                   onClick={this.zipDownload}
                 />
               </div>
@@ -328,7 +329,7 @@ export default class Grid extends Component {
                 <IcoBtn
                   icon={'icon-delete'}
                   className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'}
-                  title={'Удалить'}
+                  title={t('grid.tools.delete')}
                   onClick={this.onDelete}
                 />
               </div>

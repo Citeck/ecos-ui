@@ -4,6 +4,7 @@ import Button from '../common/buttons/Button/Button';
 import Label from '../common/form/Label/Label';
 import List from '../common/List/List';
 import Columns from '../common/templates/Columns/Columns';
+import { t } from '../../helpers/util';
 
 import './Grouping.scss';
 
@@ -17,9 +18,9 @@ export default class ColumnsSetup extends Component {
         <div className={'grouping__toolbar'}>
           <Columns
             cols={[
-              <Button className={'button_narrow button_text-grey button_full'}>Что группировать</Button>,
+              <Button className={'button_narrow button_text-grey button_full'}>{t('grouping.what')}</Button>,
 
-              <Button className={'button_narrow button_text-grey button_full'}>Как группировать</Button>
+              <Button className={'button_narrow button_text-grey button_full'}>{t('grouping.how')}</Button>
             ]}
           />
         </div>
@@ -50,7 +51,7 @@ export default class ColumnsSetup extends Component {
               </div>,
 
               <div className={'grouping__target'}>
-                <div className={'grouping__target-note'}>{'Посмотреть принцип действия группировки'}</div>
+                <div className={'grouping__target-note'}>{t('grouping.show')}</div>
               </div>
             ]}
           />
