@@ -1,10 +1,21 @@
-import components from '.';
 import CheckListForm from './custom/checklist/CheckList.form';
 import DocumentListForm from './custom/documentList/DocumentList.form';
 import DateTime from './custom/datetime/DateTime.form';
 
-components.checklist.editForm = CheckListForm;
-components.documentList.editForm = DocumentListForm;
-components.reactDatetime.editForm = DateTime;
+const componentsFormMap = {
+  checklist: CheckListForm,
+  documentList: DocumentListForm,
+  reactDatetime: DateTime
+};
 
-export default components;
+export function linkEditForms(componentList) {
+  for (let componentName in componentList) {
+    if (!componentList.hasOwnProperty(componentName)) {
+      continue;
+    }
+
+    if (componentsFormMap.hasOwnProperty(componentName)) {
+      componentList[componentName].editForm = componentsFormMap[componentName];
+    }
+  }
+}

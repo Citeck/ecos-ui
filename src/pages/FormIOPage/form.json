@@ -19,9 +19,11 @@
     {
       "input": true,
       "label": "React DateTime component",
-      "key": "txtFieldKey",
-      "placeholder": "Enter your txt value",
-      "type": "reactDatetime"
+      "key": "react-datetime-input-key",
+      "placeholder": "ДД. ММ.ГГГГ",
+      "type": "reactDatetime",
+      "disabled": false,
+      "defaultValue": "2019-03-05T18:12:58.126Z"
     },
 
     {

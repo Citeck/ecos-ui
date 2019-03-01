@@ -140,6 +140,7 @@ module.exports = {
         .relative(paths.appSrc, info.absoluteResourcePath)
         .replace(/\\/g, '/'),
   },
+  externals: exportConfig.externals,
   optimization: {
     minimizer: [
       new TerserPlugin({
