@@ -11,7 +11,7 @@ import {
   setJournalsItem,
   setSettingItem,
   saveDashlet,
-  setDashletEditorVisible,
+  setEditorMode,
   setDashletConfig
 } from '../../../actions/journals';
 import { t } from '../../../helpers/util';
@@ -27,7 +27,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  setDashletEditorVisible: visible => dispatch(setDashletEditorVisible(visible)),
+  setEditorMode: visible => dispatch(setEditorMode(visible)),
   getDashletEditorData: config => dispatch(getDashletEditorData(config)),
   setJournalsListItem: item => dispatch(setJournalsListItem(item)),
   setJournalsItem: item => dispatch(setJournalsItem(item)),
@@ -37,9 +37,13 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class JournalsDashletEditor extends Component {
+  componentDidMount() {
+    this.props.getDashletEditorData(this.props.config);
+  }
+
   cancel = () => {
     if (this.props.config) {
-      this.props.setDashletEditorVisible(false);
+      this.props.setEditorMode(false);
     }
   };
 
@@ -55,10 +59,6 @@ class JournalsDashletEditor extends Component {
   setSelectValue = (source, field, value) => {
     return source.filter(option => option[field] === value);
   };
-
-  componentDidMount() {
-    this.props.getDashletEditorData(this.props.config);
-  }
 
   componentDidUpdate(prevProps) {
     const prevConfig = prevProps.config || {};

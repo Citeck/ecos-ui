@@ -115,10 +115,17 @@ export default class Grid extends Component {
     super(props);
     this._selected = [];
     this._inlineToolsRef = React.createRef();
+    this._id = Math.random()
+      .toString(36)
+      .substr(2, 9);
     this.createCloseFilterEvent();
   }
 
   _setAdditionalOptions(props) {
+    if (props.emptyRowsCount && !props.data.length) {
+      this._setEmptyGrid(props);
+    }
+
     props.columns = props.columns.map(column => {
       if (column.width) {
         column = this._setWidth(column);
@@ -146,10 +153,10 @@ export default class Grid extends Component {
 
   _initFormatter = () => {
     return (cell, row, rowIndex, formatExtraData) => {
-      const Formatter = formatExtraData.formatter;
+      const Formatter = (formatExtraData || {}).formatter;
       return (
         <div className={'grid__td grid__td_editable'}>
-          <Formatter row={row} cell={cell} params={formatExtraData.params} />
+          {Formatter ? <Formatter row={row} cell={cell} params={formatExtraData.params} /> : null}
         </div>
       );
     };
@@ -166,11 +173,25 @@ export default class Grid extends Component {
 
   _setHeaderFormatter = column => {
     column.headerFormatter = (column, colIndex) => {
+      this._getEmptyHeight(column);
+
       return <HeaderFormatter column={column} colIndex={colIndex} onFilter={this.onFilter} />;
     };
 
     return column;
   };
+
+  _getEmptyHeight(column) {
+    if (column._isEmpty) {
+      const height = $(`#${this._id}`).outerHeight();
+      height && triggerEvent.call(this, 'onEmptyHeight', { height });
+    }
+  }
+
+  _setEmptyGrid(props) {
+    props.data = Array.from(Array(props.emptyRowsCount), (e, i) => ({ [props.keyField]: i }));
+    props.columns = [{ dataField: '_', text: ' ', _isEmpty: true }];
+  }
 
   _createInlineTools = $tr => {
     const $inlineTools = $(this._inlineToolsRef.current);
@@ -278,6 +299,7 @@ export default class Grid extends Component {
 
   render() {
     let props = {
+      id: this._id,
       keyField: KEY_FIELD,
       bootstrap4: true,
       bordered: false,
@@ -287,6 +309,12 @@ export default class Grid extends Component {
         blurToSave: true,
         afterSaveCell: this.onEdit
       }),
+      defaultSorted: [
+        {
+          dataField: KEY_FIELD,
+          order: 'desc'
+        }
+      ],
       noDataIndication: () => t('grid.no-data-indication'),
       ...this.props
     };
@@ -297,7 +325,10 @@ export default class Grid extends Component {
 
     if (props.columns.length) {
       return (
-        <div className={classNames('grid', props.hasCheckboxes && 'grid_checkable', this.props.className)}>
+        <div
+          style={{ minHeight: props.minHeight }}
+          className={classNames('grid', props.hasCheckboxes && 'grid_checkable', this.props.className)}
+        >
           {toolsVisible ? (
             <div className={'grid__tools'}>
               {props.selectAllRecordsVisible ? (
@@ -360,7 +391,11 @@ export default class Grid extends Component {
             </div>
           )}
 
-          <PerfectScrollbar onScrollX={this.triggerCloseFilterEvent} onScrollY={this.triggerCloseFilterEvent}>
+          <PerfectScrollbar
+            style={{ minHeight: props.minHeight }}
+            onScrollX={this.triggerCloseFilterEvent}
+            onScrollY={this.triggerCloseFilterEvent}
+          >
             <BootstrapTable {...props} />
           </PerfectScrollbar>
 

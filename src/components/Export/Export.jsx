@@ -77,7 +77,7 @@ export default class ColumnsSetup extends Component {
           valueField={'id'}
           titleField={'title'}
           isButton={true}
-          onClick={this.export}
+          onChange={this.export}
         >
           <TwoIcoBtn icons={['icon-load', 'icon-down']} className={'btn_grey btn_settings-down btn_x-step_10'} />
         </Dropdown>
