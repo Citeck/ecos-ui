@@ -1,0 +1,28 @@
+@import '../../../../constants';
+
+.select-journal-select-modal__buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+
+  button {
+    margin-left: 10px;
+  }
+}
+
+.select-journal-collapse-panel {
+  padding: 15px;
+  background: $color-gray-4;
+  border-radius: $border-radius-large;
+}
+
+.select-journal-collapse-panel__controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+.select-journal-collapse-panel__controls-left {
+  button {
+    margin-right: 10px;
+  }
+}

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Modal, ModalHeader, ModalBody, ModalFooter, Row, Col } from 'reactstrap';
+import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import './SimpleModal.scss';
 
 export default class SimpleModal extends Component {
