@@ -31,6 +31,7 @@
     "react-datepicker": "^2.0.0",
     "react-dom": "^16.8.2",
     "react-dropzone": "^8.0.3",
+    "react-loader-spinner": "^2.3.0",
     "react-perfect-scrollbar": "^1.4.4",
     "react-redux": "^5.1.0",
     "react-router": "^4.3.1",

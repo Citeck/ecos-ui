@@ -10,6 +10,7 @@ import PerfectScrollbar from 'react-perfect-scrollbar';
 import { IcoBtn, Btn } from '../../btns';
 import { Input } from '../../form';
 import { Tooltip } from 'reactstrap';
+import { t } from '../../../../helpers/util';
 
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
@@ -99,7 +100,7 @@ class HeaderFormatter extends Component {
             innerClassName={'grid__filter-tooltip-body'}
             arrowClassName={'grid__filter-tooltip-marker'}
           >
-            <Input type="text" className={'grid__filter-tooltip-input'} onChange={this.onChange} value={state.text} />
+            <Input autoFocus type="text" className={'grid__filter-tooltip-input'} onChange={this.onChange} value={state.text} />
 
             <Icon className={'grid__filter-tooltip-close icon-close icon_small'} onClick={this.clear} />
           </Tooltip>
@@ -114,10 +115,17 @@ export default class Grid extends Component {
     super(props);
     this._selected = [];
     this._inlineToolsRef = React.createRef();
+    this._id = Math.random()
+      .toString(36)
+      .substr(2, 9);
     this.createCloseFilterEvent();
   }
 
   _setAdditionalOptions(props) {
+    if (props.emptyRowsCount && !props.data.length) {
+      this._setEmptyGrid(props);
+    }
+
     props.columns = props.columns.map(column => {
       if (column.width) {
         column = this._setWidth(column);
@@ -145,10 +153,10 @@ export default class Grid extends Component {
 
   _initFormatter = () => {
     return (cell, row, rowIndex, formatExtraData) => {
-      const Formatter = formatExtraData.formatter;
+      const Formatter = (formatExtraData || {}).formatter;
       return (
         <div className={'grid__td grid__td_editable'}>
-          <Formatter row={row} cell={cell} params={formatExtraData.params} />
+          {Formatter ? <Formatter row={row} cell={cell} params={formatExtraData.params} /> : null}
         </div>
       );
     };
@@ -165,11 +173,25 @@ export default class Grid extends Component {
 
   _setHeaderFormatter = column => {
     column.headerFormatter = (column, colIndex) => {
+      this._getEmptyHeight(column);
+
       return <HeaderFormatter column={column} colIndex={colIndex} onFilter={this.onFilter} />;
     };
 
     return column;
   };
+
+  _getEmptyHeight(column) {
+    if (column._isEmpty) {
+      const height = $(`#${this._id}`).outerHeight();
+      height && triggerEvent.call(this, 'onEmptyHeight', { height });
+    }
+  }
+
+  _setEmptyGrid(props) {
+    props.data = Array.from(Array(props.emptyRowsCount), (e, i) => ({ [props.keyField]: i }));
+    props.columns = [{ dataField: '_', text: ' ', _isEmpty: true }];
+  }
 
   _createInlineTools = $tr => {
     const $inlineTools = $(this._inlineToolsRef.current);
@@ -277,6 +299,7 @@ export default class Grid extends Component {
 
   render() {
     let props = {
+      id: this._id,
       keyField: KEY_FIELD,
       bootstrap4: true,
       bordered: false,
@@ -286,7 +309,13 @@ export default class Grid extends Component {
         blurToSave: true,
         afterSaveCell: this.onEdit
       }),
-      noDataIndication: () => 'Нет элементов в списке',
+      defaultSorted: [
+        {
+          dataField: KEY_FIELD,
+          order: 'desc'
+        }
+      ],
+      noDataIndication: () => t('grid.no-data-indication'),
       ...this.props
     };
 
@@ -296,17 +325,20 @@ export default class Grid extends Component {
 
     if (props.columns.length) {
       return (
-        <div className={classNames('grid', props.hasCheckboxes && 'grid_checkable', this.props.className)}>
+        <div
+          style={{ minHeight: props.minHeight }}
+          className={classNames('grid', props.hasCheckboxes && 'grid_checkable', this.props.className)}
+        >
           {toolsVisible ? (
             <div className={'grid__tools'}>
               {props.selectAllRecordsVisible ? (
                 <div className={'grid__tools-item grid__tools-item_first'}>
                   <Btn
                     className={`btn_extra-narrow ${props.selectAllRecords ? 'btn_blue' : 'btn_grey5'} btn_hover_light-blue2`}
-                    title={'Выбрать все'}
+                    title={t('grid.tools.select-all')}
                     onClick={this.selectAll}
                   >
-                    Выбрать все {props.total}
+                    {t('grid.tools.select-all')} {props.total}
                   </Btn>
                 </div>
               ) : null}
@@ -314,7 +346,7 @@ export default class Grid extends Component {
                 <IcoBtn
                   icon={'icon-download'}
                   className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'}
-                  title={'Скачать как Zip'}
+                  title={t('grid.tools.zip')}
                   onClick={this.zipDownload}
                 />
               </div>
@@ -328,7 +360,7 @@ export default class Grid extends Component {
                 <IcoBtn
                   icon={'icon-delete'}
                   className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'}
-                  title={'Удалить'}
+                  title={t('grid.tools.delete')}
                   onClick={this.onDelete}
                 />
               </div>
@@ -359,7 +391,11 @@ export default class Grid extends Component {
             </div>
           )}
 
-          <PerfectScrollbar onScrollX={this.triggerCloseFilterEvent} onScrollY={this.triggerCloseFilterEvent}>
+          <PerfectScrollbar
+            style={{ minHeight: props.minHeight }}
+            onScrollX={this.triggerCloseFilterEvent}
+            onScrollY={this.triggerCloseFilterEvent}
+          >
             <BootstrapTable {...props} />
           </PerfectScrollbar>
 

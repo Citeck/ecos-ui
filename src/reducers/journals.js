@@ -1,7 +1,6 @@
 import { handleActions } from 'redux-actions';
 import {
-  setDashletIsReady,
-  setDashletEditorVisible,
+  setEditorMode,
   setJournalsList,
   setJournals,
   setGrid,
@@ -13,12 +12,18 @@ import {
   setPage,
   setSelectedRecords,
   setSelectAllRecords,
-  setSelectAllRecordsVisible
+  setSelectAllRecordsVisible,
+  setJournalsListName,
+  setGridEmptyHeight
 } from '../actions/journals';
+import { setLoading } from '../actions/loader';
+
+const MAX_ITEMS = 10;
 
 const initialState = {
+  loading: true,
   dashletIsReady: false,
-  editorVisible: true,
+  editorMode: false,
   journalsList: [],
   journals: [],
   settings: [],
@@ -31,19 +36,34 @@ const initialState = {
   initConfig: null,
   pagination: {
     skipCount: 0,
-    maxItems: 10,
+    maxItems: MAX_ITEMS,
     page: 1
   },
   journalConfig: null,
   selectedRecords: [],
   selectAllRecords: false,
-  selectAllRecordsVisible: false
+  selectAllRecordsVisible: false,
+  journalsListName: '',
+  emptyRowsCount: MAX_ITEMS,
+  emptyGridHeight: null
 };
 
 Object.freeze(initialState);
 
 export default handleActions(
   {
+    [setGridEmptyHeight]: (state, action) => {
+      return {
+        ...state,
+        emptyGridHeight: action.payload
+      };
+    },
+    [setJournalsListName]: (state, action) => {
+      return {
+        ...state,
+        journalsListName: action.payload
+      };
+    },
     [setJournalsListItem]: (state, action) => {
       return {
         ...state,
@@ -74,16 +94,10 @@ export default handleActions(
         ]
       };
     },
-    [setDashletIsReady]: (state, action) => {
+    [setEditorMode]: (state, action) => {
       return {
         ...state,
-        dashletIsReady: action.payload
-      };
-    },
-    [setDashletEditorVisible]: (state, action) => {
-      return {
-        ...state,
-        editorVisible: action.payload
+        editorMode: action.payload
       };
     },
     [setJournalsList]: (state, action) => {
@@ -142,6 +156,12 @@ export default handleActions(
       return {
         ...state,
         selectAllRecordsVisible: action.payload
+      };
+    },
+    [setLoading]: (state, action) => {
+      return {
+        ...state,
+        loading: action.payload
       };
     }
   },

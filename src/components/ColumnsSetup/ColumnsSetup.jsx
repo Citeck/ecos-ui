@@ -6,6 +6,7 @@ import Select from '../common/form/Select/Select';
 import Label from '../common/form/Label/Label';
 import List from '../common/List/List';
 import Columns from '../common/templates/Columns/Columns';
+import { t } from '../../helpers/util';
 
 import './ColumnsSetup.scss';
 
@@ -19,9 +20,9 @@ export default class ColumnsSetup extends Component {
         <div className={'columns-setup__toolbar'}>
           <Columns
             cols={[
-              <Button className={'button_narrow button_text-grey button_full'}>Порядок и отображение колонк</Button>,
+              <Button className={'button_narrow button_text-grey button_full'}>{t('columns-setup.order')}</Button>,
 
-              <Button className={'button_narrow button_text-grey button_full'}>Сортировка в колонке</Button>
+              <Button className={'button_narrow button_text-grey button_full'}>{t('columns-setup.sort')}</Button>
             ]}
           />
         </div>

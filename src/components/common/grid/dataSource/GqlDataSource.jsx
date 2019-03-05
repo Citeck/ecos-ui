@@ -1,4 +1,3 @@
-import React from 'react';
 import BaseDataSource from './BaseDataSource';
 import formatterStore from '../formatters/formatterStore';
 import Mapper from '../mapping/Mapper';
