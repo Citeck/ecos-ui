@@ -2,7 +2,6 @@
 
 .dashlet {
   min-height: auto !important;
-
   .dashlet__header {
     height: 100%;
     position: relative;
@@ -25,6 +24,10 @@
     line-height: normal;
     padding: 6px 12px;
     height: 34px;
+  }
+
+  .dashlet__body_relative {
+    position: relative;
   }
 
   .dashlet__actions {

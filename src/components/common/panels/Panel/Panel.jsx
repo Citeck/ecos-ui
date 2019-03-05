@@ -12,8 +12,8 @@ export default class Panel extends Component {
 
     return (
       <Well className={cssClasses}>
-        <div className="ecos-panel__heading">{props.header}</div>
-        <div className="ecos-panel__body">{props.children}</div>
+        <div className={classNames('ecos-panel__head', props.headClassName)}>{props.header}</div>
+        <div className={classNames('ecos-panel__body', props.bodyClassName)}>{props.children}</div>
       </Well>
     );
   }

@@ -17,11 +17,7 @@ class MenuItem extends React.PureComponent {
 export default class Dropdown extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      dropdownOpen: false,
-      selected: props.value
-    };
+    this.state = { dropdownOpen: false };
   }
 
   toggle = () => {
@@ -39,25 +35,23 @@ export default class Dropdown extends Component {
     });
   };
 
-  onClick = selected => {
+  onChange = selected => {
     const props = this.props;
     this.toggle();
-    this.setState({ selected: selected[props.valueField] });
-
-    if (typeof props.onClick === 'function') {
-      props.onClick(selected);
+    if (typeof props.onChange === 'function') {
+      props.onChange(selected);
     }
   };
 
   render() {
     const cssClasses = classNames('dropdown', this.props.className);
-    const { valueField, titleField, source } = this.props;
+    const { valueField, titleField, source, value } = this.props;
 
-    const selected = this.props.source.find(item => item[valueField] === this.state.selected) || source[0] || {};
+    const selected = source.find(item => item[valueField] === value) || source[0] || {};
 
     const items = source.map(item => {
       return (
-        <MenuItem key={item[valueField]} onClick={this.onClick} item={item}>
+        <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
           {item[titleField]}
         </MenuItem>
       );

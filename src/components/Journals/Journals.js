@@ -95,7 +95,9 @@ class Journals extends Component {
                 </Well>
 
                 <Well className={'journal__presets'}>
-                  <CollapsableList list={['По умолчанию', 'Мой шаблон 1', 'Мой шаблон 2']}>{'ШАБЛОНЫ НАСТРОЕК'}</CollapsableList>
+                  <CollapsableList list={[t('journals.default'), 'Мой шаблон 1', 'Мой шаблон 2']}>
+                    {t('journals.tpl.defaults')}
+                  </CollapsableList>
                 </Well>
               </Fragment>
             ]}
