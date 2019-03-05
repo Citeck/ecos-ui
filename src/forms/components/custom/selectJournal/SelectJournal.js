@@ -69,7 +69,9 @@ export default class DateTimeComponent extends BaseComponent {
   }
 
   renderReactComponent(config = {}) {
-    ReactDOM.render(<SelectJournal />, this.reactContainer);
+    const onChange = this.onValueChange.bind(this);
+
+    ReactDOM.render(<SelectJournal onChange={onChange} />, this.reactContainer);
   }
 
   refreshDOM() {

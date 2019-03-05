@@ -17,6 +17,38 @@
     },
 
     {
+      "input": false,
+      "columns": [
+        {
+          "components": [
+            {
+              "input": true,
+              "label": "Юридическое лицо",
+              "key": "org",
+              "type": "selectJournal",
+              "defaultValue": null
+            }
+          ]
+        },
+        {
+          "components": []
+        }
+      ],
+      "type": "columns",
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      }
+    },
+
+    {
+      "input": false,
+      "html": "<br><br><br><br><br><br><br><br>",
+      "type": "content"
+    },
+
+    {
       "input": true,
       "label": "React DateTime component",
       "key": "react-datetime-input-key",

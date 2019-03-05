@@ -156,7 +156,7 @@ export default class Grid extends Component {
       const Formatter = (formatExtraData || {}).formatter;
       return (
         <div className={'grid__td grid__td_editable'}>
-          {Formatter ? <Formatter row={row} cell={cell} params={formatExtraData.params} /> : null}
+          {Formatter ? <Formatter row={row} cell={cell} params={formatExtraData.params} /> : cell}
         </div>
       );
     };

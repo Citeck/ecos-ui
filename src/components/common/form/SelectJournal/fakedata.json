@@ -1,141 +1,92 @@
 {
   "data": [
     {
-      "cm:title": "Ожидаемое время выполнения задачи (по умолчанию)",
-      "config:key": "actual-default-sla-duration",
-      "config:value": "8",
-      "cm:description": "Ожидаемое время выполнения задачи (по умолчанию)",
-      "id": "workspace://SpacesStore/34fe53ec-02d2-4bdb-9f66-1810565a5ff5"
+      "cm:name": "ООО “Финтех”",
+      "cm:inn": "67656346",
+      "cm:kpp": "6576576575",
+      "cm:director": "Сергей Петрович",
+      "id": "workspace://SpacesStore/journal-meta-j-journals"
     },
     {
-      "cm:title": "Максимально возможный размер файла выгрузки, МБ",
-      "config:key": "maxSizeUnloadFileTaxReporting",
-      "config:value": "500",
-      "cm:description": "Максимально возможный размер файла выгрузки, МБ (Модуль Налоговая отчетность)",
-      "id": "workspace://SpacesStore/7c6884f6-db5d-428e-8fe5-1720bfe500c1"
+      "cm:name": "ООО “Техкомплект”",
+      "cm:inn": "12398324",
+      "cm:kpp": "4354543534",
+      "cm:director": "Владимир Владимирович",
+      "id": "workspace://SpacesStore/36320d01-37f3-4078-8ff1-8bc8f275641f"
     },
     {
-      "cm:title": "Тип контрагента по умолчанию для интеграции",
-      "config:key": "integrationCounterPartyType",
-      "config:value": "idocs:contractor",
-      "cm:description": "Тип контрагента по умолчанию для интеграции [idocs:contractor]",
-      "id": "workspace://SpacesStore/ac0b4875-2ede-42e8-8f8d-0dcc33371563"
-    },
-    {
-      "cm:title": "Тип свойства DiadocBox",
-      "config:key": "diaDocBoxIdType",
-      "config:value": "idocs:diadocBoxId",
-      "cm:description": "Тип ящика Диадок [idocs:diadocBoxId]",
-      "id": "workspace://SpacesStore/3f35ab8c-2c72-4543-8bba-9f8514097a64"
-    },
-    {
-      "cm:title": "CRON-строка конфигурации расписания запуска выгрузки",
-      "config:key": "cronExpressionForUnloadingTaxReporting",
-      "config:value": "0 0 1 * * *",
-      "cm:description": "CRON-строка конфигурации расписания запуска выгрузки (Модуль Налоговая отчетность)",
-      "id": "workspace://SpacesStore/130c0389-a86b-4ff1-a7c8-9c4d773fec4d"
-    },
-    {
-      "cm:title": "Идентификатор последнего обработанного события из EDI для второго ящика",
-      "config:key": "lastProcessedEdiEventIdAdd",
-      "config:value": "",
-      "cm:description": "Позволяет получать из EDI только свежие обновления",
-      "id": "workspace://SpacesStore/02597dc4-b3a8-46d9-9682-5edc8cf1b203"
-    },
-    {
-      "cm:title": "Какие входящие пакеты обрабатывать",
-      "config:key": "inboundPackagesProcessing",
-      "config:value": "BOX_ID",
-      "cm:description": "Позволяет получать либо все пакеты (ALL), либо только если для контрагента указан BOX_ID в справочнике контрагентов",
-      "id": "workspace://SpacesStore/2c795ae1-393a-4248-bce2-10fe0d9fb394"
-    },
-    {
-      "cm:title": "Срок напоминания об оплате",
-      "config:key": "default-payment-notification",
-      "config:value": "3",
-      "cm:description": "Срок напоминания об оплате (в днях)",
-      "id": "workspace://SpacesStore/a6f9807e-ffd6-4d46-b2d2-d50727e89e65"
-    },
-    {
-      "cm:title": "Тип ассоциации контрагента по умолчанию для интеграции",
-      "config:key": "integrationCounterPartyAssociation",
-      "config:value": "contracts:contractor",
-      "cm:description": "Тип ассоциации контрагента по умолчанию для интеграции [contracts:contractor]",
-      "id": "workspace://SpacesStore/73c6a969-ea85-4ee2-af04-cea620bf4845"
-    },
-    {
-      "cm:title": "Отображение нового бокового меню по умолчанию",
-      "config:key": "default-ui-left-menu-access-groups",
-      "config:value": "",
-      "cm:description": "Группы, для которых по умолчанию отображается новое боковое меню",
-      "id": "workspace://SpacesStore/a1074604-46cd-4803-8523-eefcdbab52e9"
+      "cm:name": "ООО “Фирма”",
+      "cm:inn": "98546345",
+      "cm:kpp": "8956464545",
+      "cm:director": "Николай Сергеевич",
+      "id": "workspace://SpacesStore/5610ece5-04a8-4a1c-aaab-428909bc39f0"
     }
   ],
-  "total": 37,
+  "total": 28,
   "columns": [
     {
-      "text": "Заголовок",
-      "type": null,
-      "javaClass": "org.alfresco.service.cmr.repository.MLText",
-      "attribute": "cm:title",
-      "params": {},
-      "searchable": true,
-      "groupable": false,
-      "sortable": true,
-      "visible": true,
-      "default": true,
-      "dataField": "cm:title",
-      "hidden": false,
-      "formatExtraData": {
-        "params": {}
-      }
-    },
-    {
-      "text": "Key",
+      "text": "Полное название организации",
       "type": null,
       "javaClass": "java.lang.String",
-      "attribute": "config:key",
+      "attribute": "cm:name",
       "params": {},
       "searchable": true,
       "groupable": false,
       "sortable": true,
       "visible": true,
       "default": true,
-      "dataField": "config:key",
+      "dataField": "cm:name",
       "hidden": false,
       "formatExtraData": {
         "params": {}
       }
     },
     {
-      "text": "Value",
+      "text": "ИНН",
       "type": null,
-      "javaClass": "java.lang.Object",
-      "attribute": "config:value",
+      "javaClass": "java.lang.String",
+      "attribute": "cm:inn",
       "params": {},
       "searchable": true,
       "groupable": false,
       "sortable": true,
       "visible": true,
       "default": true,
-      "dataField": "config:value",
+      "dataField": "cm:inn",
       "hidden": false,
       "formatExtraData": {
         "params": {}
       }
     },
     {
-      "text": "Описание",
+      "text": "КПП",
       "type": null,
-      "javaClass": "org.alfresco.service.cmr.repository.MLText",
-      "attribute": "cm:description",
+      "javaClass": "java.lang.String",
+      "attribute": "cm:kpp",
       "params": {},
       "searchable": true,
       "groupable": false,
       "sortable": true,
       "visible": true,
       "default": true,
-      "dataField": "cm:description",
+      "dataField": "cm:kpp",
+      "hidden": false,
+      "formatExtraData": {
+        "params": {}
+      }
+    },
+    {
+      "text": "Генеральный директор",
+      "type": null,
+      "javaClass": "java.lang.String",
+      "attribute": "cm:director",
+      "params": {},
+      "searchable": true,
+      "groupable": false,
+      "sortable": true,
+      "visible": true,
+      "default": false,
+      "dataField": "cm:director",
       "hidden": false,
       "formatExtraData": {
         "params": {}

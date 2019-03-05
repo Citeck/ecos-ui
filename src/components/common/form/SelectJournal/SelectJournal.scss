@@ -6,7 +6,7 @@
   justify-content: flex-end;
 
   button {
-    margin-left: 10px;
+    margin-left: 15px;
   }
 }
 
@@ -23,6 +23,27 @@
 
 .select-journal-collapse-panel__controls-left {
   button {
-    margin-right: 10px;
+    margin-right: 15px;
+  }
+}
+
+.select-journal-grid {
+  margin-top: 15px;
+}
+
+.select-journal__value-not-selected {
+  line-height: $form-input-height;
+  border: solid $color-gray-4;
+  border-width: 2px 0 2px 0;
+  margin-bottom: 15px;
+}
+
+.select-journal__values-list {
+  border-top: 2px solid $color-gray-4;
+  margin-bottom: 15px;
+
+  li {
+    line-height: $form-input-height;
+    border-bottom: 2px solid $color-gray-4;
   }
 }

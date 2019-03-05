@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import Button from '../../buttons/Button/Button';
 import Input from '../../form/Input';
@@ -9,11 +10,16 @@ import './SelectJournal.scss';
 
 import fakeData from './fakedata.json';
 
-export default class extends Component {
+export default class SelectJournal extends Component {
   state = {
     isSelectModalOpen: false,
     isCreateModalOpen: false,
-    isCollapsePanelOpen: false
+    isCollapsePanelOpen: false,
+    gridData: {
+      ...fakeData,
+      selected: []
+    },
+    value: []
   };
 
   toggleSelectModal = () => {
@@ -35,24 +41,69 @@ export default class extends Component {
   };
 
   onSelect = () => {
-    console.log('onSelect');
+    const { onChange } = this.props;
+    this.setState(
+      prevState => {
+        return {
+          value: prevState.gridData.selected,
+          isSelectModalOpen: false
+        };
+      },
+      () => {
+        typeof onChange === 'function' && onChange(this.state.value);
+      }
+    );
+  };
+
+  onCancelSelect = () => {
+    this.setState(prevState => {
+      return {
+        gridData: {
+          ...prevState.gridData,
+          selected: prevState.value
+        },
+        isSelectModalOpen: false
+      };
+    });
+  };
+
+  onSelectGridItem = value => {
+    this.setState(prevState => {
+      return {
+        gridData: {
+          ...prevState.gridData,
+          selected: value.selected
+        }
+      };
+    });
   };
 
   render() {
     // TODO translation !!!!!!!!
     // todo вынести переводы, formKey и т.д. наружу
-
-    console.log('fakeData', fakeData);
+    const { value, isSelectModalOpen, isCreateModalOpen, isCollapsePanelOpen, gridData } = this.state;
 
     return (
       <div className="select-journal">
+        <div>
+          {value.length > 0 ? (
+            <ul className={'select-journal__values-list'}>
+              {value.map(item => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          ) : (
+            <p className={'select-journal__value-not-selected'}>Нет</p>
+          )}
+        </div>
+
         <Button className={'button_blue'} onClick={this.toggleSelectModal}>
           Выбрать
         </Button>
 
         <SimpleModal
           title={'Выбрать юридическое лицо'}
-          isOpen={this.state.isSelectModalOpen}
+          isOpen={isSelectModalOpen}
           hideModal={this.toggleSelectModal}
           zIndex={10002}
           className={'select-journal-select-modal simple-modal_level-1'}
@@ -72,27 +123,33 @@ export default class extends Component {
               </div>
             </div>
 
-            <Collapse isOpen={this.state.isCollapsePanelOpen}>
+            <Collapse isOpen={isCollapsePanelOpen}>
               <p style={{ marginTop: 20 }}>TODO</p>
             </Collapse>
           </div>
 
-          {/*<Grid*/}
-          {/*{...fakeData}*/}
-          {/*disableFormatters*/}
-          {/*hasCheckboxes*/}
-          {/*onFilter={() => console.log('onFilter')}*/}
-          {/*onSelectAll={() => console.log('onSelectAll')}*/}
-          {/*onSelect={() => console.log('onSelect')}*/}
-          {/*onDelete={() => console.log('onDelete')}*/}
-          {/*onEdit={() => console.log('onEdit')}*/}
-          {/*selected={[]}*/}
-          {/*selectAllRecords={null}*/}
-          {/*selectAllRecordsVisible={null}*/}
-          {/*/>*/}
+          <div className={'select-journal-grid'}>
+            <Grid
+              {...gridData}
+              disableFormatters
+              hasCheckboxes
+              // hasInlineTools
+              onFilter={() => console.log('onFilter')}
+              onSelectAll={() => console.log('onSelectAll')}
+              onSelect={this.onSelectGridItem}
+              onDelete={() => console.log('onDelete')}
+              onEdit={() => console.log('onEdit')}
+              selectAllRecords={null}
+              selectAllRecordsVisible={null}
+              // className={props.loading ? 'grid_transparent' : ''}
+              onEmptyHeight={() => console.log('onEmptyHeight')}
+              // minHeight={100}
+              // emptyRowsCount={3}
+            />
+          </div>
 
           <div className="select-journal-select-modal__buttons">
-            <Button onClick={this.toggleSelectModal}>Отмена</Button>
+            <Button onClick={this.onCancelSelect}>Отмена</Button>
             <Button className={'button_blue'} onClick={this.onSelect}>
               ОK
             </Button>
@@ -101,7 +158,7 @@ export default class extends Component {
 
         <SimpleModal
           title={'Создать юридическое лицо'}
-          isOpen={this.state.isCreateModalOpen}
+          isOpen={isCreateModalOpen}
           hideModal={this.toggleCreateModal}
           zIndex={10003}
           className={'simple-modal_level-2'}
@@ -122,3 +179,7 @@ export default class extends Component {
     );
   }
 }
+
+SelectJournal.propTypes = {
+  onChange: PropTypes.func
+};
