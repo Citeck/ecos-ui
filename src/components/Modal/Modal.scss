@@ -3,13 +3,13 @@
 .modal {
   .modal-content {
     border-radius: $border-radius-extra-large;
-    padding: 24px 21px 26px 21px;
+    //padding: 24px 21px 26px 21px;
   }
 
   .modal-header,
   .modal-body,
   .modal-footer {
-    padding: 0;
+    //padding: 0;
     border: none;
   }
 
@@ -18,7 +18,7 @@
   }
 
   .modal-header {
-    margin-bottom: 28px;
+    //margin-bottom: 28px;
   }
 
   .modal-title {
@@ -37,21 +37,6 @@
   .modal-footer > :not(:first-child) {
     margin-left: 0;
   }
-
-  /*Костыль чтобы затереть старые стили, после полного перехода, нужно будет удалить*/
-
-  input[type='text'].input:hover,
-  select:not(:disabled).select:hover,
-  textarea:not(:disabled).textarea:hover {
-    border-color: $color-blue-light !important;
-  }
-
-  input[type='text'].input:focus,
-  select:not(:disabled).select:focus,
-  textarea:not(:disabled).textarea:focus {
-    border-color: $color-blue-dark !important;
-  }
-  /**********************************************************************************/
 }
 
 .modal__close-button {

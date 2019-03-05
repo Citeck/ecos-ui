@@ -1,0 +1,38 @@
+@import '../../../constants';
+
+.formio-dialog-content .preview-panel,
+.formio-form {
+  .formio-component-tabs {
+    .nav-tabs {
+      border-bottom: none;
+      margin-bottom: 20px;
+    }
+
+    .nav-item {
+      font-size: $font-size-standard;
+
+      &:first-child {
+        .nav-link {
+          border-radius: $border-radius-standard 0 0 $border-radius-standard;
+        }
+      }
+
+      &:last-child {
+        .nav-link {
+          border-radius: 0 $border-radius-standard $border-radius-standard 0;
+        }
+      }
+    }
+
+    .nav-link {
+      background: $color-gray-4;
+      color: $text-color-gray;
+      font-weight: $font-weight-semi-bold;
+
+      &.active {
+        color: $color-white;
+        background-color: $color-blue-dark;
+      }
+    }
+  }
+}

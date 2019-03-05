@@ -9,6 +9,8 @@ import '../../components/EcosForm/glyphicon-to-fa.scss';
 import '../../forms/style.scss';
 import './temp.scss';
 
+import SelectJournal from '../../components/common/form/SelectJournal';
+
 import DefaultComponents from 'formiojs/components';
 import Components from 'formiojs/components/Components';
 import CustomComponents from '../../forms/components';
@@ -79,6 +81,8 @@ class FormIOPage extends React.Component {
         <Row>
           <Col md={12}>
             <div className={'white-container'}>
+              <SelectJournal />
+
               <div id="formio" />
               <br />
               <hr />
