@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
+import PropTypes from 'prop-types';
 import './SimpleModal.scss';
 
 export default class SimpleModal extends Component {
@@ -16,3 +17,12 @@ export default class SimpleModal extends Component {
     );
   }
 }
+
+SimpleModal.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+  isOpen: PropTypes.bool,
+  hideModal: PropTypes.func,
+  title: PropTypes.string,
+  zIndex: PropTypes.number
+};
