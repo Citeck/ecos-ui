@@ -15,8 +15,6 @@
       color: $text-color-dark;
       font-size: $font-size-small;
       font-weight: $font-weight-normal;
-
-      min-width: 120px;
     }
 
     th {
@@ -33,8 +31,19 @@
   }
 }
 
+.grid__header-devider {
+  position: absolute;
+  width: 2px;
+  background: $color-gray-4;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  cursor: col-resize;
+}
+
 .grid__th {
-  border-right: 2px solid $color-gray-4;
+  min-width: 120px;
+  position: relative;
   display: inline-block;
   padding: 7px 10px;
   width: 100%;
@@ -81,7 +90,6 @@
 .grid_checkable {
   tbody > tr > td:nth-child(1) {
     padding: 0;
-    min-width: 0;
   }
 
   thead > tr > th:nth-child(1) {
@@ -98,6 +106,7 @@
   padding: 5px 15px;
   background: $color-white;
   line-height: 0;
+  min-width: 0;
 }
 
 .grid__td_checkbox {
