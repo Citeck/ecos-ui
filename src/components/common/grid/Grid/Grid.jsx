@@ -29,11 +29,8 @@ function triggerEvent(name, data) {
 class HeaderFormatter extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      open: false,
-      text: ''
-    };
-
+    this.thRef = React.createRef();
+    this.state = { open: false, text: '' };
     this.id = `filter-${props.column.dataField.replace(':', '_')}`;
     this.tooltipId = `tooltip-${this.id}`;
 
@@ -80,11 +77,18 @@ class HeaderFormatter extends Component {
     this.triggerPendingChange('', this.props.column.dataField);
   };
 
+  onDeviderMouseDown = e => {
+    triggerEvent.call(this, 'onDeviderMouseDown', {
+      element: e,
+      column: this.thRef.current
+    });
+  };
+
   render() {
     const state = this.state;
 
     return (
-      <div className={classNames('grid__th', state.text && 'grid__th_filtered')}>
+      <div ref={this.thRef} className={classNames('grid__th', state.text && 'grid__th_filtered')}>
         <div className={state.text && 'grid__filter'}>
           {this.props.column.text}
 
@@ -105,6 +109,8 @@ class HeaderFormatter extends Component {
             <Icon className={'grid__filter-tooltip-close icon-close icon_small'} onClick={this.clear} />
           </Tooltip>
         </div>
+
+        <div className={'grid__header-devider'} onMouseDown={this.onDeviderMouseDown} />
       </div>
     );
   }
@@ -113,34 +119,44 @@ class HeaderFormatter extends Component {
 export default class Grid extends Component {
   constructor(props) {
     super(props);
+    this.inlineToolsRef = React.createRef();
     this._selected = [];
-    this._inlineToolsRef = React.createRef();
-    this._id = Math.random()
-      .toString(36)
-      .substr(2, 9);
-    this.createCloseFilterEvent();
+    this._id = this.getId();
+    this._resizingColumn = null;
+    this._startResizingColumnOffset = 0;
+    this._minWidthResizingColumn = 0;
   }
 
-  _setAdditionalOptions(props) {
+  componentDidMount() {
+    this.createCloseFilterEvent();
+    this.createColumnResizeEvents();
+  }
+
+  componentWillUnmount() {
+    this.removeCloseFilterEvent();
+    this.removeColumnResizeEvents();
+  }
+
+  setAdditionalOptions(props) {
     if (props.emptyRowsCount && !props.data.length) {
-      this._setEmptyGrid(props);
+      this.setEmptyGrid(props);
     }
 
     props.columns = props.columns.map(column => {
       if (column.width) {
-        column = this._setWidth(column);
+        column = this.setWidth(column);
       }
 
-      column = this._setHeaderFormatter(column);
+      column = this.setHeaderFormatter(column);
 
-      column.formatter = this._initFormatter();
+      column.formatter = this.initFormatter();
 
       return column;
     });
 
     if (props.hasInlineTools) {
       props.rowEvents = {
-        onMouseEnter: e => this._createInlineTools($(e.target).closest('tr'))
+        onMouseEnter: e => this.createInlineTools($(e.target).closest('tr'))
       };
     }
 
@@ -151,7 +167,7 @@ export default class Grid extends Component {
     return props;
   }
 
-  _initFormatter = () => {
+  initFormatter = () => {
     return (cell, row, rowIndex, formatExtraData) => {
       const Formatter = (formatExtraData || {}).formatter;
       return (
@@ -162,7 +178,7 @@ export default class Grid extends Component {
     };
   };
 
-  _setWidth = column => {
+  setWidth = column => {
     column.style = {
       ...column.style,
       width: column.width
@@ -171,30 +187,32 @@ export default class Grid extends Component {
     return column;
   };
 
-  _setHeaderFormatter = column => {
+  setHeaderFormatter = column => {
     column.headerFormatter = (column, colIndex) => {
-      this._getEmptyHeight(column);
+      this.getEmptyHeight(column);
 
-      return <HeaderFormatter column={column} colIndex={colIndex} onFilter={this.onFilter} />;
+      return (
+        <HeaderFormatter column={column} colIndex={colIndex} onFilter={this.onFilter} onDeviderMouseDown={this.getStartDeviderPosition} />
+      );
     };
 
     return column;
   };
 
-  _getEmptyHeight(column) {
+  getEmptyHeight(column) {
     if (column._isEmpty) {
       const height = $(`#${this._id}`).outerHeight();
       height && triggerEvent.call(this, 'onEmptyHeight', { height });
     }
   }
 
-  _setEmptyGrid(props) {
+  setEmptyGrid(props) {
     props.data = Array.from(Array(props.emptyRowsCount), (e, i) => ({ [props.keyField]: i }));
     props.columns = [{ dataField: '_', text: ' ', _isEmpty: true }];
   }
 
-  _createInlineTools = $tr => {
-    const $inlineTools = $(this._inlineToolsRef.current);
+  createInlineTools = $tr => {
+    const $inlineTools = $(this.inlineToolsRef.current);
     const $currentTr = $tr.mouseleave(() => $inlineTools.hide());
     const top = $currentTr.position().top + 'px';
     const height = $currentTr.height() - 2 + 'px';
@@ -204,6 +222,12 @@ export default class Grid extends Component {
       .css('top', top)
       .children()
       .each((idx, child) => (idx < 2 ? $(child).css('height', height) : null));
+  };
+
+  getId = () => {
+    return Math.random()
+      .toString(36)
+      .substr(2, 9);
   };
 
   createCheckboxs(props) {
@@ -238,6 +262,7 @@ export default class Grid extends Component {
         return (
           <div className={'grid__th grid__th_checkbox'}>
             <Checkbox indeterminate={indeterminate} checked={rest.checked} />
+            <div className={'grid__header-devider'} />
           </div>
         );
       },
@@ -293,6 +318,45 @@ export default class Grid extends Component {
     document.addEventListener('mousedown', this.triggerCloseFilterEvent, false);
   };
 
+  removeCloseFilterEvent = () => {
+    document.removeEventListener('mousedown', this.triggerCloseFilterEvent, false);
+  };
+
+  createColumnResizeEvents = () => {
+    document.addEventListener('mousemove', this.resizeColumn);
+    document.addEventListener('mouseup', this.clearResizingColumn);
+  };
+
+  removeColumnResizeEvents = () => {
+    document.removeEventListener('mousemove', this.resizeColumn);
+    document.removeEventListener('mouseup', this.clearResizingColumn);
+  };
+
+  resizeColumn = e => {
+    let column = this._resizingColumn;
+    if (column) {
+      const width = this._startResizingColumnOffset + e.pageX;
+      if (width > this._minWidthResizingColumn) {
+        column.style.width = width + 'px';
+      }
+    }
+  };
+
+  clearResizingColumn = () => {
+    this._resizingColumn = null;
+  };
+
+  getStartDeviderPosition = e => {
+    this._resizingColumn = e.column;
+    this._minWidthResizingColumn = Number(
+      window
+        .getComputedStyle(this._resizingColumn, null)
+        .getPropertyValue('min-width')
+        .replace('px', '')
+    );
+    this._startResizingColumnOffset = this._resizingColumn.offsetWidth - e.element.pageX;
+  };
+
   triggerCloseFilterEvent = e => {
     (e.target || e).dispatchEvent(this.closeFilterEvent);
   };
@@ -319,7 +383,7 @@ export default class Grid extends Component {
       ...this.props
     };
 
-    props = this._setAdditionalOptions(props);
+    props = this.setAdditionalOptions(props);
 
     const toolsVisible = this.toolsVisible();
 
@@ -367,7 +431,7 @@ export default class Grid extends Component {
             </div>
           ) : null}
           {toolsVisible ? null : (
-            <div ref={this._inlineToolsRef} className={'grid__inline-tools'}>
+            <div ref={this.inlineToolsRef} className={'grid__inline-tools'}>
               <div className="grid__inline-tools-border-left" />
               <div className="grid__inline-tools-actions">
                 <IcoBtn
