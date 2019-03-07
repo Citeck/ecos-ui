@@ -15,7 +15,6 @@ import { t } from '../../../../helpers/util';
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
 
-const KEY_FIELD = 'id';
 const CLOSE_FILTER_EVENT = 'closeFilterEvent';
 
 function triggerEvent(name, data) {
@@ -125,6 +124,7 @@ export default class Grid extends Component {
     this._resizingColumn = null;
     this._startResizingColumnOffset = 0;
     this._minWidthResizingColumn = 0;
+    this._keyField = props.keyField || 'id';
   }
 
   componentDidMount() {
@@ -138,10 +138,6 @@ export default class Grid extends Component {
   }
 
   setAdditionalOptions(props) {
-    if (props.emptyRowsCount && !props.data.length) {
-      this.setEmptyGrid(props);
-    }
-
     props.columns = props.columns.map(column => {
       if (column.width) {
         column = this.setWidth(column);
@@ -189,7 +185,7 @@ export default class Grid extends Component {
 
   setHeaderFormatter = column => {
     column.headerFormatter = (column, colIndex) => {
-      this.getEmptyHeight(column);
+      this.getMinHeight(column);
 
       return (
         <HeaderFormatter column={column} colIndex={colIndex} onFilter={this.onFilter} onDeviderMouseDown={this.getStartDeviderPosition} />
@@ -199,16 +195,11 @@ export default class Grid extends Component {
     return column;
   };
 
-  getEmptyHeight(column) {
+  getMinHeight(column) {
     if (column._isEmpty) {
       const height = $(`#${this._id}`).outerHeight();
-      height && triggerEvent.call(this, 'onEmptyHeight', { height });
+      height && triggerEvent.call(this, 'onMinHeight', { height });
     }
-  }
-
-  setEmptyGrid(props) {
-    props.data = Array.from(Array(props.emptyRowsCount), (e, i) => ({ [props.keyField]: i }));
-    props.columns = [{ dataField: '_', text: ' ', _isEmpty: true }];
   }
 
   createInlineTools = $tr => {
@@ -231,7 +222,7 @@ export default class Grid extends Component {
   };
 
   createCheckboxs(props) {
-    this._selected = props.selectAllRecords ? props.data.map(row => row[props.keyField || KEY_FIELD]) : props.selected || [];
+    this._selected = props.selectAllRecords ? props.data.map(row => row[this._keyField]) : props.selected || [];
 
     return {
       mode: 'checkbox',
@@ -239,7 +230,7 @@ export default class Grid extends Component {
       selected: this._selected,
       onSelect: (row, isSelect) => {
         const selected = this._selected;
-        const keyField = row[props.keyField || KEY_FIELD];
+        const keyField = row[this._keyField];
 
         this._selected = isSelect ? [...selected, keyField] : selected.filter(x => x !== keyField);
 
@@ -249,9 +240,9 @@ export default class Grid extends Component {
         });
       },
       onSelectAll: (isSelect, rows) => {
-        const keyField = props.keyField || KEY_FIELD;
-
-        this._selected = isSelect ? [...this._selected, ...rows.map(row => row[keyField])] : this.getSelectedByPage(this.props.data, false);
+        this._selected = isSelect
+          ? [...this._selected, ...rows.map(row => row[this._keyField])]
+          : this.getSelectedByPage(this.props.data, false);
 
         triggerEvent.call(this, 'onSelect', {
           selected: this._selected,
@@ -283,7 +274,7 @@ export default class Grid extends Component {
   onEdit = (oldValue, newValue, row, column) => {
     if (oldValue !== newValue) {
       triggerEvent.call(this, 'onEdit', {
-        id: row[KEY_FIELD],
+        id: row[this._keyField],
         attributes: {
           [column.attribute]: newValue
         }
@@ -296,10 +287,8 @@ export default class Grid extends Component {
   };
 
   getSelectedByPage = (records, onPage) => {
-    const keyField = this.props.keyField || KEY_FIELD;
-
     return this._selected.filter(id => {
-      const length = records.filter(record => record[keyField] === id).length;
+      const length = records.filter(record => record[this._keyField] === id).length;
       return onPage ? length : !length;
     });
   };
@@ -364,7 +353,7 @@ export default class Grid extends Component {
   render() {
     let props = {
       id: this._id,
-      keyField: KEY_FIELD,
+      keyField: this._keyField,
       bootstrap4: true,
       bordered: false,
       headerClasses: 'grid__header',
@@ -375,7 +364,7 @@ export default class Grid extends Component {
       }),
       defaultSorted: [
         {
-          dataField: KEY_FIELD,
+          dataField: this._keyField,
           order: 'desc'
         }
       ],

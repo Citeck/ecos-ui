@@ -14,7 +14,7 @@ import {
   setSelectAllRecords,
   setSelectAllRecordsVisible,
   setJournalsListName,
-  setGridEmptyHeight
+  setGridMinHeight
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 
@@ -28,8 +28,8 @@ const initialState = {
   journals: [],
   settings: [],
   gridData: {
-    data: [],
-    columns: [],
+    data: Array.from(Array(MAX_ITEMS), (e, i) => ({ id: i })),
+    columns: [{ dataField: '_', text: ' ', _isEmpty: true }],
     total: 0
   },
   config: null,
@@ -44,18 +44,17 @@ const initialState = {
   selectAllRecords: false,
   selectAllRecordsVisible: false,
   journalsListName: '',
-  emptyRowsCount: MAX_ITEMS,
-  emptyGridHeight: null
+  gridMinHeight: null
 };
 
 Object.freeze(initialState);
 
 export default handleActions(
   {
-    [setGridEmptyHeight]: (state, action) => {
+    [setGridMinHeight]: (state, action) => {
       return {
         ...state,
-        emptyGridHeight: action.payload
+        gridMinHeight: action.payload
       };
     },
     [setJournalsListName]: (state, action) => {

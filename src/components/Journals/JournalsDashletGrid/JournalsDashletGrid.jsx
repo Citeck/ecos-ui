@@ -9,18 +9,17 @@ import {
   setSelectedRecords,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setGridEmptyHeight
+  setGridMinHeight
 } from '../../../actions/journals';
 
 const mapStateToProps = state => ({
   loading: state.journals.loading,
   gridData: state.journals.gridData,
-  emptyRowsCount: state.journals.emptyRowsCount,
   journalConfig: state.journals.journalConfig,
   selectedRecords: state.journals.selectedRecords,
   selectAllRecords: state.journals.selectAllRecords,
   selectAllRecordsVisible: state.journals.selectAllRecordsVisible,
-  emptyGridHeight: state.journals.emptyGridHeight
+  gridMinHeight: state.journals.gridMinHeight
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -30,7 +29,7 @@ const mapDispatchToProps = dispatch => ({
   setSelectedRecords: records => dispatch(setSelectedRecords(records)),
   setSelectAllRecords: need => dispatch(setSelectAllRecords(need)),
   setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(visible)),
-  setGridEmptyHeight: ({ height }) => dispatch(setGridEmptyHeight(height))
+  setGridMinHeight: ({ height }) => dispatch(setGridMinHeight(height))
 });
 
 class JournalsDashletGrid extends Component {
@@ -79,12 +78,11 @@ class JournalsDashletGrid extends Component {
           onSelect={this.setSelectedRecords}
           onDelete={props.deleteRecords}
           onEdit={props.saveRecords}
-          onEmptyHeight={props.setGridEmptyHeight}
-          minHeight={props.emptyGridHeight}
+          onMinHeight={props.setGridMinHeight}
+          minHeight={props.gridMinHeight}
           selected={props.selectedRecords}
           selectAllRecords={props.selectAllRecords}
           selectAllRecordsVisible={props.selectAllRecordsVisible}
-          emptyRowsCount={props.emptyRowsCount}
         />
       </div>
     );

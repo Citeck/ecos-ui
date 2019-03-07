@@ -41,7 +41,7 @@ export default class DateEditor extends BaseEditor {
         className={'ecos-input_grid-editor'}
         onChange={this.onChange}
         autoFocus
-        selected={moment(value).toDate()}
+        selected={moment(value || undefined).toDate()}
         dateFormat={dateFormat}
         popperPlacement={'top'}
         popperContainer={({ children }) => ReactDOM.createPortal(children, this.portal)}
