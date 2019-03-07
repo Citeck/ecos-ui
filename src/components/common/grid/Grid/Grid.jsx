@@ -83,33 +83,38 @@ class HeaderFormatter extends Component {
   };
 
   render() {
+    const { column, filterable } = this.props;
     const state = this.state;
 
-    this.id = `filter-${this.props.column.dataField.replace(':', '_')}`;
+    this.id = `filter-${column.dataField.replace(':', '_')}`;
     this.tooltipId = `tooltip-${this.id}`;
 
     return (
       <div ref={this.thRef} className={classNames('grid__th', state.text && 'grid__th_filtered')}>
-        <div className={state.text && 'grid__filter'}>
-          {this.props.column.text}
+        {filterable ? (
+          <div className={state.text && 'grid__filter'}>
+            {column.text}
 
-          <Icon id={this.id} className={'grid__filter-icon icon-filter'} onClick={this.toggle} />
+            <Icon id={this.id} className={'grid__filter-icon icon-filter'} onClick={this.toggle} />
 
-          <Tooltip
-            id={this.tooltipId}
-            target={this.id}
-            isOpen={state.open}
-            trigger={'click'}
-            placement="top"
-            className={'grid__filter-tooltip'}
-            innerClassName={'grid__filter-tooltip-body'}
-            arrowClassName={'grid__filter-tooltip-marker'}
-          >
-            <Input autoFocus type="text" className={'grid__filter-tooltip-input'} onChange={this.onChange} value={state.text} />
+            <Tooltip
+              id={this.tooltipId}
+              target={this.id}
+              isOpen={state.open}
+              trigger={'click'}
+              placement="top"
+              className={'grid__filter-tooltip'}
+              innerClassName={'grid__filter-tooltip-body'}
+              arrowClassName={'grid__filter-tooltip-marker'}
+            >
+              <Input autoFocus type="text" className={'grid__filter-tooltip-input'} onChange={this.onChange} value={state.text} />
 
-            <Icon className={'grid__filter-tooltip-close icon-close icon_small'} onClick={this.clear} />
-          </Tooltip>
-        </div>
+              <Icon className={'grid__filter-tooltip-close icon-close icon_small'} onClick={this.clear} />
+            </Tooltip>
+          </div>
+        ) : (
+          column.text
+        )}
 
         <div className={'grid__header-devider'} onMouseDown={this.onDeviderMouseDown} />
       </div>
@@ -149,12 +154,16 @@ export default class Grid extends Component {
         column.hidden = !column.default;
       }
 
-      column = this.setHeaderFormatter(column);
+      column = this.setHeaderFormatter(column, props.filterable);
 
-      column.formatter = this.initFormatter();
+      column.formatter = this.initFormatter(props.editable);
 
       return column;
     });
+
+    if (props.editable) {
+      props.cellEdit = this.setEditable(props.editable);
+    }
 
     if (props.defaultSortBy) {
       props.data = this.sortByDefault(props);
@@ -173,6 +182,14 @@ export default class Grid extends Component {
     return props;
   }
 
+  setEditable = () => {
+    return cellEditFactory({
+      mode: 'dbclick',
+      blurToSave: true,
+      afterSaveCell: this.onEdit
+    });
+  };
+
   sortByDefault = props => {
     const defaultSortBy = props.defaultSortBy;
     const data = props.data.slice();
@@ -188,11 +205,11 @@ export default class Grid extends Component {
     return data;
   };
 
-  initFormatter = () => {
+  initFormatter = editable => {
     return (cell, row, rowIndex, formatExtraData) => {
       const Formatter = (formatExtraData || {}).formatter;
       return (
-        <div className={'grid__td grid__td_editable'}>
+        <div className={`grid__td ${editable ? 'grid__td_editable' : ''}`}>
           {Formatter ? <Formatter row={row} cell={cell} params={formatExtraData.params} /> : null}
         </div>
       );
@@ -208,10 +225,16 @@ export default class Grid extends Component {
     return column;
   };
 
-  setHeaderFormatter = column => {
+  setHeaderFormatter = (column, filterable) => {
     column.headerFormatter = (column, colIndex) => {
       return (
-        <HeaderFormatter column={column} colIndex={colIndex} onFilter={this.onFilter} onDeviderMouseDown={this.getStartDeviderPosition} />
+        <HeaderFormatter
+          filterable={filterable}
+          column={column}
+          colIndex={colIndex}
+          onFilter={this.onFilter}
+          onDeviderMouseDown={this.getStartDeviderPosition}
+        />
       );
     };
 
@@ -347,7 +370,7 @@ export default class Grid extends Component {
     let th = this._resizingTh;
     if (th) {
       th.style.width = this._startResizingThOffset + e.pageX + 'px';
-      this._resizingThBody.style.width = this._startResizingThOffset + e.pageX + 'px';
+      this._resizingThBody.style.width = th.style.width;
     }
   };
 
@@ -366,11 +389,6 @@ export default class Grid extends Component {
       bootstrap4: true,
       bordered: false,
       headerClasses: 'grid__header',
-      cellEdit: cellEditFactory({
-        mode: 'dbclick',
-        blurToSave: true,
-        afterSaveCell: this.onEdit
-      }),
       noDataIndication: () => t('grid.no-data-indication'),
       ...this.props
     };
