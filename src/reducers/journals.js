@@ -28,8 +28,8 @@ const initialState = {
   journals: [],
   settings: [],
   gridData: {
-    data: Array.from(Array(MAX_ITEMS), (e, i) => ({ id: i })),
-    columns: [{ dataField: '_', text: ' ', _isEmpty: true }],
+    data: [],
+    columns: [],
     total: 0
   },
   config: null,
@@ -44,7 +44,8 @@ const initialState = {
   selectAllRecords: false,
   selectAllRecordsVisible: false,
   journalsListName: '',
-  gridMinHeight: null
+  gridMinHeight: null,
+  maxGridItems: MAX_ITEMS
 };
 
 Object.freeze(initialState);

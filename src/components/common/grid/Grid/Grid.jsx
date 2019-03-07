@@ -30,9 +30,6 @@ class HeaderFormatter extends Component {
     super(props);
     this.thRef = React.createRef();
     this.state = { open: false, text: '' };
-    this.id = `filter-${props.column.dataField.replace(':', '_')}`;
-    this.tooltipId = `tooltip-${this.id}`;
-
     this.onCloseFilter = this.onCloseFilter.bind(this);
   }
 
@@ -85,6 +82,9 @@ class HeaderFormatter extends Component {
 
   render() {
     const state = this.state;
+
+    this.id = `filter-${this.props.column.dataField.replace(':', '_')}`;
+    this.tooltipId = `tooltip-${this.id}`;
 
     return (
       <div ref={this.thRef} className={classNames('grid__th', state.text && 'grid__th_filtered')}>
@@ -150,6 +150,10 @@ export default class Grid extends Component {
       return column;
     });
 
+    if (props.defaultSortBy) {
+      props.data = this.sortByDefault(props);
+    }
+
     if (props.hasInlineTools) {
       props.rowEvents = {
         onMouseEnter: e => this.createInlineTools($(e.target).closest('tr'))
@@ -162,6 +166,21 @@ export default class Grid extends Component {
 
     return props;
   }
+
+  sortByDefault = props => {
+    const defaultSortBy = props.defaultSortBy;
+    const data = props.data.slice();
+
+    defaultSortBy.forEach(item => {
+      const { id, order } = item;
+
+      data.sort(function(a, b) {
+        return order ? a[id] < b[id] : a[id] > b[id];
+      });
+    });
+
+    return data;
+  };
 
   initFormatter = () => {
     return (cell, row, rowIndex, formatExtraData) => {
@@ -185,8 +204,6 @@ export default class Grid extends Component {
 
   setHeaderFormatter = column => {
     column.headerFormatter = (column, colIndex) => {
-      this.getMinHeight(column);
-
       return (
         <HeaderFormatter column={column} colIndex={colIndex} onFilter={this.onFilter} onDeviderMouseDown={this.getStartDeviderPosition} />
       );
@@ -194,13 +211,6 @@ export default class Grid extends Component {
 
     return column;
   };
-
-  getMinHeight(column) {
-    if (column._isEmpty) {
-      const height = $(`#${this._id}`).outerHeight();
-      height && triggerEvent.call(this, 'onMinHeight', { height });
-    }
-  }
 
   createInlineTools = $tr => {
     const $inlineTools = $(this.inlineToolsRef.current);
@@ -362,12 +372,6 @@ export default class Grid extends Component {
         blurToSave: true,
         afterSaveCell: this.onEdit
       }),
-      defaultSorted: [
-        {
-          dataField: this._keyField,
-          order: 'desc'
-        }
-      ],
       noDataIndication: () => t('grid.no-data-indication'),
       ...this.props
     };
