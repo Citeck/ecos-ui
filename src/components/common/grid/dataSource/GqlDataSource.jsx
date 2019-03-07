@@ -46,7 +46,6 @@ export default class GqlDataSource extends BaseDataSource {
 
       newColumn.dataField = newColumn.dataField || newColumn.attribute;
       newColumn.text = window.Alfresco.util.message(newColumn.text || newColumn.dataField);
-      newColumn.hidden = !newColumn.default;
 
       let formatterOptions = newColumn.formatter || Mapper.getFormatterOptions(newColumn, idx);
       let { formatter, params } = this._getFormatter(formatterOptions);

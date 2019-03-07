@@ -11,23 +11,19 @@
     td {
       border-top: 2px solid $color-gray-4;
       padding: 8px 5px;
-      vertical-align: middle;
-      color: $text-color-dark;
-      font-size: $font-size-small;
-      font-weight: $font-weight-normal;
     }
 
     th {
       padding: 8px 0;
-      vertical-align: middle;
+      border-bottom: 0;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
-      border-bottom: 0;
     }
 
     td,
     th {
+      vertical-align: middle;
       line-height: 1;
     }
   }
@@ -61,6 +57,9 @@
   min-height: 22px;
   padding: 5px 5px;
   border-radius: $border-radius-standard;
+  color: $text-color-dark;
+  font-size: $font-size-small;
+  font-weight: $font-weight-normal;
 }
 
 .grid__body {

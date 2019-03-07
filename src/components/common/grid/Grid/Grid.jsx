@@ -74,9 +74,11 @@ class HeaderFormatter extends Component {
   };
 
   onDeviderMouseDown = e => {
+    const current = this.thRef.current;
     triggerEvent.call(this, 'onDeviderMouseDown', {
-      element: e,
-      column: this.thRef.current
+      e: e,
+      th: current.parentElement,
+      thBody: current
     });
   };
 
@@ -121,9 +123,9 @@ export default class Grid extends Component {
     this.inlineToolsRef = React.createRef();
     this._selected = [];
     this._id = this.getId();
-    this._resizingColumn = null;
-    this._startResizingColumnOffset = 0;
-    this._minWidthResizingColumn = 0;
+    this._resizingTh = null;
+    this._resizingThBody = null;
+    this._startResizingThOffset = 0;
     this._keyField = props.keyField || 'id';
   }
 
@@ -141,6 +143,10 @@ export default class Grid extends Component {
     props.columns = props.columns.map(column => {
       if (column.width) {
         column = this.setWidth(column);
+      }
+
+      if (column.default !== undefined) {
+        column.hidden = !column.default;
       }
 
       column = this.setHeaderFormatter(column);
@@ -331,29 +337,22 @@ export default class Grid extends Component {
     document.removeEventListener('mouseup', this.clearResizingColumn);
   };
 
+  getStartDeviderPosition = options => {
+    this._resizingTh = options.th;
+    this._resizingThBody = options.thBody;
+    this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
+  };
+
   resizeColumn = e => {
-    let column = this._resizingColumn;
-    if (column) {
-      const width = this._startResizingColumnOffset + e.pageX;
-      if (width > this._minWidthResizingColumn) {
-        column.style.width = width + 'px';
-      }
+    let th = this._resizingTh;
+    if (th) {
+      th.style.width = this._startResizingThOffset + e.pageX + 'px';
+      this._resizingThBody.style.width = this._startResizingThOffset + e.pageX + 'px';
     }
   };
 
   clearResizingColumn = () => {
-    this._resizingColumn = null;
-  };
-
-  getStartDeviderPosition = e => {
-    this._resizingColumn = e.column;
-    this._minWidthResizingColumn = Number(
-      window
-        .getComputedStyle(this._resizingColumn, null)
-        .getPropertyValue('min-width')
-        .replace('px', '')
-    );
-    this._startResizingColumnOffset = this._resizingColumn.offsetWidth - e.element.pageX;
+    this._resizingTh = null;
   };
 
   triggerCloseFilterEvent = e => {
