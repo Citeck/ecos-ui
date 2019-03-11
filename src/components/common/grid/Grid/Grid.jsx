@@ -175,8 +175,12 @@ export default class Grid extends Component {
       };
     }
 
-    if (props.hasCheckboxes) {
-      props.selectRow = this.createCheckboxs(props);
+    if (props.multiSelectable) {
+      props.selectRow = this.createMultiSelectioCheckboxs(props);
+    }
+
+    if (props.singleSelectable) {
+      props.selectRow = this.createSingleSelectionCheckboxs(props);
     }
 
     return props;
@@ -260,7 +264,35 @@ export default class Grid extends Component {
       .substr(2, 9);
   };
 
-  createCheckboxs(props) {
+  createSingleSelectionCheckboxs(props) {
+    this._selected = props.selectAllRecords ? props.data.map(row => row[this._keyField]) : props.selected || [];
+
+    return {
+      mode: 'radio',
+      classes: 'grid__tr_selected',
+      selected: this._selected,
+      onSelect: row => {
+        const selected = this._selected[0];
+        const keyValue = row[this._keyField];
+
+        this._selected = selected !== keyValue ? [keyValue] : [];
+
+        triggerEvent.call(this, 'onSelect', {
+          selected: this._selected,
+          all: false
+        });
+      },
+      selectionRenderer: ({ mode, ...rest }) => {
+        return (
+          <div className={'grid__td_checkbox'}>
+            <Checkbox checked={rest.checked} />
+          </div>
+        );
+      }
+    };
+  }
+
+  createMultiSelectioCheckboxs(props) {
     this._selected = props.selectAllRecords ? props.data.map(row => row[this._keyField]) : props.selected || [];
 
     return {
@@ -269,9 +301,9 @@ export default class Grid extends Component {
       selected: this._selected,
       onSelect: (row, isSelect) => {
         const selected = this._selected;
-        const keyField = row[this._keyField];
+        const keyValue = row[this._keyField];
 
-        this._selected = isSelect ? [...selected, keyField] : selected.filter(x => x !== keyField);
+        this._selected = isSelect ? [...selected, keyValue] : selected.filter(x => x !== keyValue);
 
         triggerEvent.call(this, 'onSelect', {
           selected: this._selected,
@@ -401,7 +433,7 @@ export default class Grid extends Component {
       return (
         <div
           style={{ minHeight: props.minHeight }}
-          className={classNames('grid', props.hasCheckboxes && 'grid_checkable', this.props.className)}
+          className={classNames('grid', (props.singleSelectable || props.multiSelectable) && 'grid_checkable', this.props.className)}
         >
           {toolsVisible ? (
             <div className={'grid__tools'}>
@@ -473,7 +505,7 @@ export default class Grid extends Component {
             <BootstrapTable {...props} />
           </PerfectScrollbar>
 
-          {props.hasCheckboxes && <BootstrapTable {...props} classes={'grid__freeze'} />}
+          {props.freezeCheckboxes && <BootstrapTable {...props} classes={'grid__freeze'} />}
         </div>
       );
     }

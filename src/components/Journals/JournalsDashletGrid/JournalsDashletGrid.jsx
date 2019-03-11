@@ -101,10 +101,11 @@ class JournalsDashletGrid extends Component {
           <Grid
             {...props.gridData}
             className={props.loading ? 'grid_transparent' : ''}
-            hasCheckboxes
             hasInlineTools
+            freezeCheckboxes
             filterable
             editable
+            multiSelectable
             defaultSortBy={defaultSortBy}
             onFilter={this.onFilter}
             onSelectAll={this.setSelectAllRecords}
