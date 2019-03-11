@@ -14,13 +14,13 @@ import '../../forms/style.scss';
 
 Components.setComponents({ ...DefaultComponents, ...CustomComponents });
 
-let formCounter = 10000;
+let formCounter = 0;
 
 export default class EcosForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      containerId: 'form-' + formCounter++
+      containerId: 'ecos-ui-form-' + formCounter++
     };
   }
 

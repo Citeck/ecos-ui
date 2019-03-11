@@ -71,7 +71,14 @@ export default class DateTimeComponent extends BaseComponent {
   renderReactComponent(config = {}) {
     const onChange = this.onValueChange.bind(this);
 
-    ReactDOM.render(<SelectJournal onChange={onChange} />, this.reactContainer);
+    ReactDOM.render(
+      <SelectJournal
+        onChange={onChange}
+        journalId={'legal-entities'} // TODO config
+        createFormRecord={'dict@idocs:legalEntity'} // TODO config
+      />,
+      this.reactContainer
+    );
   }
 
   refreshDOM() {

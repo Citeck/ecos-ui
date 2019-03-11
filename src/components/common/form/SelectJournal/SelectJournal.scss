@@ -45,5 +45,34 @@
   li {
     line-height: $form-input-height;
     border-bottom: 2px solid $color-gray-4;
+    display: flex;
+    justify-content: space-between;
   }
+}
+
+.select-journal__values-list-actions {
+  flex-shrink: 0;
+
+  .icon {
+    line-height: 40px;
+    cursor: pointer;
+    color: #d0d0d0;
+    margin-left: 5px;
+
+    &:hover {
+      color: $color-blue-light;
+    }
+
+    &.icon-delete:hover {
+      color: $color-red-1;
+    }
+  }
+}
+
+.select-journal__values-list-disp {
+  white-space: nowrap;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 5px;
 }

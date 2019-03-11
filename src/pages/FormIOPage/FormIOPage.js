@@ -63,7 +63,7 @@ class FormIOPage extends React.Component {
       });
     });
 
-    const formBuilder = new FormBuilder(document.getElementById('builder'), schema);
+    const formBuilder = new FormBuilder(document.getElementById('builder'), {});
     // console.log(formBuilder);
     formBuilder.render().then(form => {
       // console.log(form);

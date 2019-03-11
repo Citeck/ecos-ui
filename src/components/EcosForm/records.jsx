@@ -1,3 +1,4 @@
+/* eslint-disable */
 class Records {
   constructor() {
     this._records = {};

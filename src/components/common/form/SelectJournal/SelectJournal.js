@@ -4,22 +4,90 @@ import { Collapse } from 'reactstrap';
 import Button from '../../buttons/Button/Button';
 import Input from '../../form/Input';
 import Grid from '../../../common/grid/Grid/Grid';
+import Loader from '../../../common/Loader/Loader';
 import EcosForm from '../../../EcosForm';
 import SimpleModal from '../../SimpleModal';
+import { JournalsApi } from '../../../../api/journalsApi';
 import './SelectJournal.scss';
-
-import fakeData from './fakedata.json';
 
 export default class SelectJournal extends Component {
   state = {
+    isCollapsePanelOpen: false,
     isSelectModalOpen: false,
     isCreateModalOpen: false,
-    isCollapsePanelOpen: false,
+    isEditModalOpen: false,
+    editRecordId: null,
+    isJournalConfigFetched: false,
+    isGridDataReady: false,
     gridData: {
-      ...fakeData,
+      total: 0,
+      data: [],
+      columns: [],
       selected: []
     },
     value: []
+  };
+
+  constructor() {
+    super();
+    this.api = new JournalsApi();
+    this.journalConfig = {
+      pagination: {
+        skipCount: 0,
+        maxItems: 10, // TODO from config
+        page: 1
+      }
+    };
+  }
+
+  getJournalConfig = () => {
+    const { journalId } = this.props;
+
+    return this.api
+      .getJournalConfig(journalId)
+      .then(journalConfig => {
+        // console.log('journalConfig', journalConfig);
+
+        const columns = journalConfig.columns;
+        const criteria = journalConfig.meta.criteria;
+        this.journalConfig = { ...this.journalConfig, columns, criteria };
+
+        return journalConfig;
+      })
+      .then(() => {
+        this.setState({
+          isJournalConfigFetched: true
+        });
+      });
+  };
+
+  refreshGridData = () => {
+    return new Promise(resolve => {
+      this.setState(
+        {
+          isGridDataReady: false
+        },
+        () => {
+          return this.api.getGridData(this.journalConfig).then(gridData => {
+            // console.log('gridData', gridData);
+
+            // setTimeout(() => {
+            this.setState(prevState => {
+              return {
+                gridData: {
+                  ...prevState.gridData,
+                  ...gridData
+                },
+                isGridDataReady: true
+              };
+            });
+            // }, 3000);
+
+            resolve(gridData);
+          });
+        }
+      );
+    });
   };
 
   toggleSelectModal = () => {
@@ -34,6 +102,12 @@ export default class SelectJournal extends Component {
     });
   };
 
+  toggleEditModal = () => {
+    this.setState({
+      isEditModalOpen: !this.state.isEditModalOpen
+    });
+  };
+
   toggleCollapsePanel = () => {
     this.setState({
       isCollapsePanelOpen: !this.state.isCollapsePanelOpen
@@ -41,18 +115,47 @@ export default class SelectJournal extends Component {
   };
 
   onSelect = () => {
+    const selectedRows = this.state.gridData.selected;
+
+    this.api
+      .getRecordsDisplayName(selectedRows)
+      .then(result =>
+        result.records.map(item => {
+          return {
+            id: item.id,
+            disp: item.attributes.name
+          };
+        })
+      )
+      .then(value => {
+        this.setValue(value).then(() => {
+          this.setState({
+            isSelectModalOpen: false
+          });
+        });
+      });
+  };
+
+  setValue = value => {
     const { onChange } = this.props;
-    this.setState(
-      prevState => {
-        return {
-          value: prevState.gridData.selected,
-          isSelectModalOpen: false
-        };
-      },
-      () => {
-        typeof onChange === 'function' && onChange(this.state.value);
-      }
-    );
+
+    return new Promise(resolve => {
+      this.setState(
+        prevState => {
+          return {
+            gridData: {
+              ...prevState.gridData,
+              selected: value.map(item => item.id)
+            },
+            value
+          };
+        },
+        () => {
+          typeof onChange === 'function' && onChange(this.state.value);
+          resolve();
+        }
+      );
+    });
   };
 
   onCancelSelect = () => {
@@ -78,10 +181,72 @@ export default class SelectJournal extends Component {
     });
   };
 
+  openSelectModal = () => {
+    const { isJournalConfigFetched, isGridDataReady } = this.state;
+
+    this.setState({
+      isSelectModalOpen: true
+    });
+
+    if (!isJournalConfigFetched) {
+      this.getJournalConfig().then(this.refreshGridData);
+    } else if (!isGridDataReady) {
+      this.refreshGridData();
+    }
+  };
+
+  onCreateFormSubmit = form => {
+    console.log('Form submitted', form);
+
+    this.setState({
+      isCreateModalOpen: false
+    });
+
+    this.refreshGridData();
+  };
+
+  onEditFormSubmit = form => {
+    console.log('Form submitted', form);
+
+    this.setState({
+      isEditModalOpen: false
+    });
+
+    this.refreshGridData();
+  };
+
+  onValueEdit = e => {
+    console.log('e.target.dataset.id', e.target.dataset.id);
+
+    this.setState({
+      isEditModalOpen: true,
+      editRecordId: e.target.dataset.id
+    });
+  };
+
+  onValueDelete = e => {
+    console.log('e.target.dataset.id', e.target.dataset.id);
+
+    const newValue = this.state.value.filter(item => item.id !== e.target.dataset.id);
+
+    this.setValue(newValue);
+  };
+
   render() {
     // TODO translation !!!!!!!!
-    // todo вынести переводы, formKey и т.д. наружу
-    const { value, isSelectModalOpen, isCreateModalOpen, isCollapsePanelOpen, gridData } = this.state;
+    // todo вынести переводы, настройки и т.д. наружу
+
+    const { createFormRecord } = this.props;
+    const {
+      isGridDataReady,
+      value,
+      isSelectModalOpen,
+      isEditModalOpen,
+      isCreateModalOpen,
+      isCollapsePanelOpen,
+      gridData,
+      editRecordId
+    } = this.state;
 
     return (
       <div className="select-journal">
@@ -89,7 +254,13 @@ export default class SelectJournal extends Component {
           {value.length > 0 ? (
             <ul className={'select-journal__values-list'}>
               {value.map(item => (
-                <li key={item}>{item}</li>
+                <li key={item.id}>
+                  <span className="select-journal__values-list-disp">{item.disp}</span>
+                  <div className="select-journal__values-list-actions">
+                    <span data-id={item.id} className={'icon icon-edit'} onClick={this.onValueEdit} />
+                    <span data-id={item.id} className={'icon icon-delete'} onClick={this.onValueDelete} />
+                  </div>
+                </li>
               ))}
             </ul>
           ) : (
@@ -97,7 +268,7 @@ export default class SelectJournal extends Component {
           )}
         </div>
 
-        <Button className={'button_blue'} onClick={this.toggleSelectModal}>
+        <Button className={'button_blue'} onClick={this.openSelectModal}>
           Выбрать
         </Button>
 
@@ -129,22 +300,20 @@ export default class SelectJournal extends Component {
           </div>
 
           <div className={'select-journal-grid'}>
+            {!isGridDataReady ? <Loader /> : null}
             <Grid
               {...gridData}
-              disableFormatters
               hasCheckboxes
-              // hasInlineTools
-              onFilter={() => console.log('onFilter')}
-              onSelectAll={() => console.log('onSelectAll')}
               onSelect={this.onSelectGridItem}
-              onDelete={() => console.log('onDelete')}
-              onEdit={() => console.log('onEdit')}
               selectAllRecords={null}
               selectAllRecordsVisible={null}
-              // className={props.loading ? 'grid_transparent' : ''}
+              onFilter={() => console.log('onFilter')}
+              onSelectAll={() => console.log('onSelectAll')}
+              onDelete={() => console.log('onDelete')}
+              onEdit={() => console.log('onEdit')}
+              className={!isGridDataReady ? 'grid_transparent' : ''}
               onEmptyHeight={() => console.log('onEmptyHeight')}
-              // minHeight={100}
-              // emptyRowsCount={3}
+              emptyRowsCount={5}
             />
           </div>
 
@@ -163,17 +332,17 @@ export default class SelectJournal extends Component {
           zIndex={10003}
           className={'simple-modal_level-2'}
         >
-          <EcosForm
-            record={'CREATE_JOURNAL@'}
-            formKey={'CREATE_JOURNAL'}
-            onSubmit={e => {
-              console.log('Form submitted', e);
-            }}
-            onFormCancel={this.toggleCreateModal}
-            // onReady={form => {
-            //   console.log('Form is ready', form);
-            // }}
-          />
+          <EcosForm record={createFormRecord} onSubmit={this.onCreateFormSubmit} onFormCancel={this.toggleCreateModal} />
+        </SimpleModal>
+
+        <SimpleModal
+          title={'Изменить свойства'}
+          isOpen={isEditModalOpen}
+          hideModal={this.toggleEditModal}
+          zIndex={10002}
+          className={'simple-modal_level-1'}
+        >
+          <EcosForm record={editRecordId} onSubmit={this.onEditFormSubmit} onFormCancel={this.toggleEditModal} />
         </SimpleModal>
       </div>
     );
@@ -181,5 +350,7 @@ export default class SelectJournal extends Component {
 }
 
 SelectJournal.propTypes = {
+  journalId: PropTypes.string.isRequired,
+  createFormRecord: PropTypes.string.isRequired,
   onChange: PropTypes.func
 };
