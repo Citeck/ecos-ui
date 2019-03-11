@@ -7,7 +7,7 @@ import cellEditFactory from 'react-bootstrap-table2-editor';
 import Icon from '../../icons/Icon/Icon';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import PerfectScrollbar from 'react-perfect-scrollbar';
-import { IcoBtn, Btn } from '../../btns';
+import { Btn } from '../../btns';
 import { Input } from '../../form';
 import { Tooltip } from 'reactstrap';
 import { t } from '../../../../helpers/util';
@@ -169,7 +169,7 @@ export default class Grid extends Component {
       props.data = this.sortByDefault(props);
     }
 
-    if (props.hasInlineTools) {
+    if (props.inlineTools) {
       props.rowEvents = {
         onMouseEnter: e => this.createInlineTools($(e.target).closest('tr'))
       };
@@ -258,6 +258,18 @@ export default class Grid extends Component {
       .each((idx, child) => (idx < 2 ? $(child).css('height', height) : null));
   };
 
+  inlineTools = () => {
+    return (
+      <div ref={this.inlineToolsRef} className={'grid__inline-tools'}>
+        <div className="grid__inline-tools-border-left" />
+        <div className="grid__inline-tools-actions">
+          {this.props.inlineTools.map((action, idx) => React.cloneElement(action, { key: idx }))}
+        </div>
+        <div className="grid__inline-tools-border-bottom" />
+      </div>
+    );
+  };
+
   getId = () => {
     return Math.random()
       .toString(36)
@@ -338,10 +350,6 @@ export default class Grid extends Component {
     };
   }
 
-  onDelete = () => {
-    triggerEvent.call(this, 'onDelete', this._selected);
-  };
-
   onEdit = (oldValue, newValue, row, column) => {
     if (oldValue !== newValue) {
       triggerEvent.call(this, 'onEdit', {
@@ -414,6 +422,36 @@ export default class Grid extends Component {
     (e.target || e).dispatchEvent(this.closeFilterEvent);
   };
 
+  createToolsActions = () => {
+    return this.props.tools.map((action, idx) => (
+      <div key={idx} className={`grid__tools-item ${idx ? 'grid__tools-item_first' : ''}`}>
+        {React.cloneElement(action)}
+      </div>
+    ));
+  };
+
+  tools = () => {
+    const props = this.props;
+
+    return (
+      <div className={'grid__tools'}>
+        {props.selectAllRecordsVisible ? (
+          <div className={'grid__tools-item grid__tools-item_first'}>
+            <Btn
+              className={`btn_extra-narrow ${props.selectAllRecords ? 'btn_blue' : 'btn_grey5'} btn_hover_light-blue2`}
+              title={t('grid.tools.select-all')}
+              onClick={this.selectAll}
+            >
+              {t('grid.tools.select-all')} {props.total}
+            </Btn>
+          </div>
+        ) : null}
+
+        {props.tools ? this.createToolsActions() : null}
+      </div>
+    );
+  };
+
   render() {
     let props = {
       id: this._id,
@@ -435,67 +473,8 @@ export default class Grid extends Component {
           style={{ minHeight: props.minHeight }}
           className={classNames('grid', (props.singleSelectable || props.multiSelectable) && 'grid_checkable', this.props.className)}
         >
-          {toolsVisible ? (
-            <div className={'grid__tools'}>
-              {props.selectAllRecordsVisible ? (
-                <div className={'grid__tools-item grid__tools-item_first'}>
-                  <Btn
-                    className={`btn_extra-narrow ${props.selectAllRecords ? 'btn_blue' : 'btn_grey5'} btn_hover_light-blue2`}
-                    title={t('grid.tools.select-all')}
-                    onClick={this.selectAll}
-                  >
-                    {t('grid.tools.select-all')} {props.total}
-                  </Btn>
-                </div>
-              ) : null}
-              <div className={'grid__tools-item grid__tools-item_first'}>
-                <IcoBtn
-                  icon={'icon-download'}
-                  className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'}
-                  title={t('grid.tools.zip')}
-                  onClick={this.zipDownload}
-                />
-              </div>
-              <div className={'grid__tools-item'}>
-                <IcoBtn icon={'icon-copy'} className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'} />
-              </div>
-              <div className={'grid__tools-item'}>
-                <IcoBtn icon={'icon-big-arrow'} className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'} />
-              </div>
-              <div className={'grid__tools-item'}>
-                <IcoBtn
-                  icon={'icon-delete'}
-                  className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'}
-                  title={t('grid.tools.delete')}
-                  onClick={this.onDelete}
-                />
-              </div>
-            </div>
-          ) : null}
-          {toolsVisible ? null : (
-            <div ref={this.inlineToolsRef} className={'grid__inline-tools'}>
-              <div className="grid__inline-tools-border-left" />
-              <div className="grid__inline-tools-actions">
-                <IcoBtn
-                  icon={'icon-download'}
-                  className={'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10'}
-                />
-                <IcoBtn
-                  icon={'icon-on'}
-                  className={'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10'}
-                />
-                <IcoBtn
-                  icon={'icon-edit'}
-                  className={'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10'}
-                />
-                <IcoBtn
-                  icon={'icon-delete'}
-                  className={'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10'}
-                />
-              </div>
-              <div className="grid__inline-tools-border-bottom" />
-            </div>
-          )}
+          {toolsVisible ? this.tools() : null}
+          {props.inlineTools && !toolsVisible ? this.inlineTools() : null}
 
           <PerfectScrollbar
             style={{ minHeight: props.minHeight }}
@@ -505,7 +484,7 @@ export default class Grid extends Component {
             <BootstrapTable {...props} />
           </PerfectScrollbar>
 
-          {props.freezeCheckboxes && <BootstrapTable {...props} classes={'grid__freeze'} />}
+          {props.freezeCheckboxes ? <BootstrapTable {...props} classes={'grid__freeze'} /> : null}
         </div>
       );
     }
