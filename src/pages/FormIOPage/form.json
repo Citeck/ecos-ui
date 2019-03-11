@@ -26,7 +26,8 @@
               "label": "Юридическое лицо",
               "key": "org",
               "type": "selectJournal",
-              "defaultValue": null
+              "defaultValue": null,
+              "multiple": true
             }
           ]
         },

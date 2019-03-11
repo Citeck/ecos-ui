@@ -9,9 +9,7 @@ export default class DateTimeComponent extends BaseComponent {
       {
         label: 'SelectJournal',
         key: 'selectJournal',
-        type: 'selectJournal',
-        mask: false
-        // inputType: 'text'
+        type: 'selectJournal'
       },
       ...extend
     );
@@ -20,8 +18,8 @@ export default class DateTimeComponent extends BaseComponent {
   static get builderInfo() {
     return {
       title: 'Select Journal',
-      icon: 'fa fa-calendar',
-      group: 'basic',
+      icon: 'fa fa-th-list',
+      group: 'advanced',
       weight: 0,
       schema: DateTimeComponent.schema()
     };
@@ -73,6 +71,7 @@ export default class DateTimeComponent extends BaseComponent {
 
     ReactDOM.render(
       <SelectJournal
+        multiple={this.component.multiple}
         onChange={onChange}
         journalId={'legal-entities'} // TODO config
         createFormRecord={'dict@idocs:legalEntity'} // TODO config
@@ -88,13 +87,23 @@ export default class DateTimeComponent extends BaseComponent {
   }
 
   onValueChange(value) {
-    this.dataValue = value;
+    let newValue = value;
+
+    if (!this.component.multiple) {
+      if (Array.isArray(value) && value.length > 0) {
+        newValue = value[0];
+      } else {
+        newValue = null;
+      }
+    }
+
+    this.dataValue = newValue;
     this.triggerChange();
     this.refreshDOM();
   }
 
   get emptyValue() {
-    return null;
+    return this.component.multiple ? [] : null;
   }
 
   getValue() {
@@ -102,7 +111,7 @@ export default class DateTimeComponent extends BaseComponent {
   }
 
   setValue(value) {
-    this.dataValue = value || null;
+    this.dataValue = value || this.emptyValue;
     this.refreshDOM();
   }
 }

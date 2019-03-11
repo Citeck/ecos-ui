@@ -4,11 +4,18 @@ import { Collapse } from 'reactstrap';
 import Button from '../../buttons/Button/Button';
 import Input from '../../form/Input';
 import Grid from '../../../common/grid/Grid/Grid';
+import Pagination from '../../../common/Pagination/Pagination';
 import Loader from '../../../common/Loader/Loader';
 import EcosForm from '../../../EcosForm';
 import SimpleModal from '../../SimpleModal';
 import { JournalsApi } from '../../../../api/journalsApi';
 import './SelectJournal.scss';
+
+const paginationInitState = {
+  skipCount: 0,
+  maxItems: 10,
+  page: 1
+};
 
 export default class SelectJournal extends Component {
   state = {
@@ -25,19 +32,15 @@ export default class SelectJournal extends Component {
       columns: [],
       selected: []
     },
+    journalConfig: {
+      pagination: paginationInitState
+    },
     value: []
   };
 
   constructor() {
     super();
     this.api = new JournalsApi();
-    this.journalConfig = {
-      pagination: {
-        skipCount: 0,
-        maxItems: 10, // TODO from config
-        page: 1
-      }
-    };
   }
 
   getJournalConfig = () => {
@@ -50,7 +53,15 @@ export default class SelectJournal extends Component {
 
         const columns = journalConfig.columns;
         const criteria = journalConfig.meta.criteria;
-        this.journalConfig = { ...this.journalConfig, columns, criteria };
+        this.setState(prevState => {
+          return {
+            journalConfig: {
+              ...prevState.journalConfig,
+              columns,
+              criteria
+            }
+          };
+        });
 
         return journalConfig;
       })
@@ -68,7 +79,7 @@ export default class SelectJournal extends Component {
           isGridDataReady: false
         },
         () => {
-          return this.api.getGridData(this.journalConfig).then(gridData => {
+          return this.api.getGridData(this.state.journalConfig).then(gridData => {
             // console.log('gridData', gridData);
 
             // setTimeout(() => {
@@ -151,7 +162,7 @@ export default class SelectJournal extends Component {
           };
         },
         () => {
-          typeof onChange === 'function' && onChange(this.state.value);
+          typeof onChange === 'function' && onChange(this.state.value.map(item => item.id));
           resolve();
         }
       );
@@ -196,8 +207,6 @@ export default class SelectJournal extends Component {
   };
 
   onCreateFormSubmit = form => {
-    console.log('Form submitted', form);
-
     this.setState({
       isCreateModalOpen: false
     });
@@ -206,8 +215,6 @@ export default class SelectJournal extends Component {
   };
 
   onEditFormSubmit = form => {
-    console.log('Form submitted', form);
-
     this.setState({
       isEditModalOpen: false
     });
@@ -216,8 +223,6 @@ export default class SelectJournal extends Component {
   };
 
   onValueEdit = e => {
-    console.log('e.target.dataset.id', e.target.dataset.id);
-
     this.setState({
       isEditModalOpen: true,
       editRecordId: e.target.dataset.id
@@ -225,18 +230,27 @@ export default class SelectJournal extends Component {
   };
 
   onValueDelete = e => {
-    console.log('e.target.dataset.id', e.target.dataset.id);
-
     const newValue = this.state.value.filter(item => item.id !== e.target.dataset.id);
 
     this.setValue(newValue);
+  };
+
+  onChangePage = pagination => {
+    this.setState(prevState => {
+      return {
+        journalConfig: {
+          ...prevState.journalConfig,
+          pagination
+        }
+      };
+    }, this.refreshGridData);
   };
 
   render() {
     // TODO translation !!!!!!!!
     // todo вынести переводы, настройки и т.д. наружу
 
-    const { createFormRecord } = this.props;
+    const { createFormRecord, multiple } = this.props;
     const {
       isGridDataReady,
       value,
@@ -245,7 +259,8 @@ export default class SelectJournal extends Component {
       isCreateModalOpen,
       isCollapsePanelOpen,
       gridData,
-      editRecordId
+      editRecordId,
+      journalConfig
     } = this.state;
 
     return (
@@ -269,7 +284,7 @@ export default class SelectJournal extends Component {
         </div>
 
         <Button className={'button_blue'} onClick={this.openSelectModal}>
-          Выбрать
+          {value.length > 0 ? (multiple ? 'Добавить' : 'Изменить') : 'Выбрать'}
         </Button>
 
         <SimpleModal
@@ -303,7 +318,8 @@ export default class SelectJournal extends Component {
             {!isGridDataReady ? <Loader /> : null}
             <Grid
               {...gridData}
-              hasCheckboxes
+              singleSelectable={!multiple}
+              multiSelectable={multiple}
               onSelect={this.onSelectGridItem}
               selectAllRecords={null}
               selectAllRecordsVisible={null}
@@ -314,6 +330,13 @@ export default class SelectJournal extends Component {
               className={!isGridDataReady ? 'grid_transparent' : ''}
               onEmptyHeight={() => console.log('onEmptyHeight')}
               emptyRowsCount={5}
+            />
+
+            <Pagination
+              className={'dashlet__pagination'}
+              total={gridData.total}
+              {...journalConfig.pagination}
+              onChange={this.onChangePage}
             />
           </div>
 
@@ -352,5 +375,6 @@ export default class SelectJournal extends Component {
 SelectJournal.propTypes = {
   journalId: PropTypes.string.isRequired,
   createFormRecord: PropTypes.string.isRequired,
-  onChange: PropTypes.func
+  onChange: PropTypes.func,
+  multiple: PropTypes.bool
 };
