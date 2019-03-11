@@ -24,4 +24,4 @@ export const saveRecords = createAction(prefix + 'SAVE_RECORDS');
 export const setSelectedRecords = createAction(prefix + 'SET_SELECTED_RECORDS');
 export const setSelectAllRecords = createAction(prefix + 'SET_SELECT_ALL_RECORDS');
 export const setSelectAllRecordsVisible = createAction(prefix + 'SET_SELECT_ALL_RECORDS_VISIBLE');
-export const setGridEmptyHeight = createAction(prefix + 'SET_GRID_EMPTY_HEIGHT');
+export const setGridMinHeight = createAction(prefix + 'SET_GRID_MIN_HEIGHT');

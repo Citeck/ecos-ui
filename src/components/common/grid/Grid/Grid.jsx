@@ -7,7 +7,7 @@ import cellEditFactory from 'react-bootstrap-table2-editor';
 import Icon from '../../icons/Icon/Icon';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import PerfectScrollbar from 'react-perfect-scrollbar';
-import { IcoBtn, Btn } from '../../btns';
+import { Btn } from '../../btns';
 import { Input } from '../../form';
 import { Tooltip } from 'reactstrap';
 import { t } from '../../../../helpers/util';
@@ -15,7 +15,6 @@ import { t } from '../../../../helpers/util';
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
 
-const KEY_FIELD = 'id';
 const CLOSE_FILTER_EVENT = 'closeFilterEvent';
 
 function triggerEvent(name, data) {
@@ -31,9 +30,6 @@ class HeaderFormatter extends Component {
     super(props);
     this.thRef = React.createRef();
     this.state = { open: false, text: '' };
-    this.id = `filter-${props.column.dataField.replace(':', '_')}`;
-    this.tooltipId = `tooltip-${this.id}`;
-
     this.onCloseFilter = this.onCloseFilter.bind(this);
   }
 
@@ -78,37 +74,47 @@ class HeaderFormatter extends Component {
   };
 
   onDeviderMouseDown = e => {
+    const current = this.thRef.current;
     triggerEvent.call(this, 'onDeviderMouseDown', {
-      element: e,
-      column: this.thRef.current
+      e: e,
+      th: current.parentElement,
+      thBody: current
     });
   };
 
   render() {
+    const { column, filterable } = this.props;
     const state = this.state;
+
+    this.id = `filter-${column.dataField.replace(':', '_')}`;
+    this.tooltipId = `tooltip-${this.id}`;
 
     return (
       <div ref={this.thRef} className={classNames('grid__th', state.text && 'grid__th_filtered')}>
-        <div className={state.text && 'grid__filter'}>
-          {this.props.column.text}
+        {filterable ? (
+          <div className={state.text && 'grid__filter'}>
+            {column.text}
 
-          <Icon id={this.id} className={'grid__filter-icon icon-filter'} onClick={this.toggle} />
+            <Icon id={this.id} className={'grid__filter-icon icon-filter'} onClick={this.toggle} />
 
-          <Tooltip
-            id={this.tooltipId}
-            target={this.id}
-            isOpen={state.open}
-            trigger={'click'}
-            placement="top"
-            className={'grid__filter-tooltip'}
-            innerClassName={'grid__filter-tooltip-body'}
-            arrowClassName={'grid__filter-tooltip-marker'}
-          >
-            <Input autoFocus type="text" className={'grid__filter-tooltip-input'} onChange={this.onChange} value={state.text} />
+            <Tooltip
+              id={this.tooltipId}
+              target={this.id}
+              isOpen={state.open}
+              trigger={'click'}
+              placement="top"
+              className={'grid__filter-tooltip'}
+              innerClassName={'grid__filter-tooltip-body'}
+              arrowClassName={'grid__filter-tooltip-marker'}
+            >
+              <Input autoFocus type="text" className={'grid__filter-tooltip-input'} onChange={this.onChange} value={state.text} />
 
-            <Icon className={'grid__filter-tooltip-close icon-close icon_small'} onClick={this.clear} />
-          </Tooltip>
-        </div>
+              <Icon className={'grid__filter-tooltip-close icon-close icon_small'} onClick={this.clear} />
+            </Tooltip>
+          </div>
+        ) : (
+          column.text
+        )}
 
         <div className={'grid__header-devider'} onMouseDown={this.onDeviderMouseDown} />
       </div>
@@ -122,9 +128,10 @@ export default class Grid extends Component {
     this.inlineToolsRef = React.createRef();
     this._selected = [];
     this._id = this.getId();
-    this._resizingColumn = null;
-    this._startResizingColumnOffset = 0;
-    this._minWidthResizingColumn = 0;
+    this._resizingTh = null;
+    this._resizingThBody = null;
+    this._startResizingThOffset = 0;
+    this._keyField = props.keyField || 'id';
   }
 
   componentDidMount() {
@@ -138,40 +145,75 @@ export default class Grid extends Component {
   }
 
   setAdditionalOptions(props) {
-    if (props.emptyRowsCount && !props.data.length) {
-      this.setEmptyGrid(props);
-    }
-
     props.columns = props.columns.map(column => {
       if (column.width) {
         column = this.setWidth(column);
       }
 
-      column = this.setHeaderFormatter(column);
+      if (column.default !== undefined) {
+        column.hidden = !column.default;
+      }
 
-      column.formatter = this.initFormatter();
+      column = this.setHeaderFormatter(column, props.filterable);
+
+      column.formatter = this.initFormatter(props.editable);
 
       return column;
     });
 
-    if (props.hasInlineTools) {
+    if (props.editable) {
+      props.cellEdit = this.setEditable(props.editable);
+    }
+
+    if (props.defaultSortBy) {
+      props.data = this.sortByDefault(props);
+    }
+
+    if (props.inlineTools) {
       props.rowEvents = {
         onMouseEnter: e => this.createInlineTools($(e.target).closest('tr'))
       };
     }
 
-    if (props.hasCheckboxes) {
-      props.selectRow = this.createCheckboxs(props);
+    if (props.multiSelectable) {
+      props.selectRow = this.createMultiSelectioCheckboxs(props);
+    }
+
+    if (props.singleSelectable) {
+      props.selectRow = this.createSingleSelectionCheckboxs(props);
     }
 
     return props;
   }
 
-  initFormatter = () => {
+  setEditable = () => {
+    return cellEditFactory({
+      mode: 'dbclick',
+      blurToSave: true,
+      afterSaveCell: this.onEdit
+    });
+  };
+
+  sortByDefault = props => {
+    const defaultSortBy = props.defaultSortBy;
+    const data = props.data.slice();
+
+    defaultSortBy.forEach(item => {
+      const { id, order } = item;
+
+      data.sort(function(a, b) {
+        return order ? a[id] < b[id] : a[id] > b[id];
+      });
+    });
+
+    return data;
+  };
+
+  initFormatter = editable => {
     return (cell, row, rowIndex, formatExtraData) => {
       const Formatter = (formatExtraData || {}).formatter;
       return (
-        <div className={'grid__td grid__td_editable'}>
+        <div className={`grid__td ${editable ? 'grid__td_editable' : ''}`}>
           {Formatter ? <Formatter row={row} cell={cell} params={formatExtraData.params} /> : null}
         </div>
       );
@@ -187,29 +229,21 @@ export default class Grid extends Component {
     return column;
   };
 
-  setHeaderFormatter = column => {
+  setHeaderFormatter = (column, filterable) => {
     column.headerFormatter = (column, colIndex) => {
-      this.getEmptyHeight(column);
-
       return (
-        <HeaderFormatter column={column} colIndex={colIndex} onFilter={this.onFilter} onDeviderMouseDown={this.getStartDeviderPosition} />
+        <HeaderFormatter
+          filterable={filterable}
+          column={column}
+          colIndex={colIndex}
+          onFilter={this.onFilter}
+          onDeviderMouseDown={this.getStartDeviderPosition}
+        />
       );
     };
 
     return column;
   };
-
-  getEmptyHeight(column) {
-    if (column._isEmpty) {
-      const height = $(`#${this._id}`).outerHeight();
-      height && triggerEvent.call(this, 'onEmptyHeight', { height });
-    }
-  }
-
-  setEmptyGrid(props) {
-    props.data = Array.from(Array(props.emptyRowsCount), (e, i) => ({ [props.keyField]: i }));
-    props.columns = [{ dataField: '_', text: ' ', _isEmpty: true }];
-  }
 
   createInlineTools = $tr => {
     const $inlineTools = $(this.inlineToolsRef.current);
@@ -224,14 +258,54 @@ export default class Grid extends Component {
       .each((idx, child) => (idx < 2 ? $(child).css('height', height) : null));
   };
 
+  inlineTools = () => {
+    return (
+      <div ref={this.inlineToolsRef} className={'grid__inline-tools'}>
+        <div className="grid__inline-tools-border-left" />
+        <div className="grid__inline-tools-actions">
+          {this.props.inlineTools.map((action, idx) => React.cloneElement(action, { key: idx }))}
+        </div>
+        <div className="grid__inline-tools-border-bottom" />
+      </div>
+    );
+  };
+
   getId = () => {
     return Math.random()
       .toString(36)
       .substr(2, 9);
   };
 
-  createCheckboxs(props) {
-    this._selected = props.selectAllRecords ? props.data.map(row => row[props.keyField || KEY_FIELD]) : props.selected || [];
+  createSingleSelectionCheckboxs(props) {
+    this._selected = props.selectAllRecords ? props.data.map(row => row[this._keyField]) : props.selected || [];
+
+    return {
+      mode: 'radio',
+      classes: 'grid__tr_selected',
+      selected: this._selected,
+      onSelect: row => {
+        const selected = this._selected[0];
+        const keyValue = row[this._keyField];
+
+        this._selected = selected !== keyValue ? [keyValue] : [];
+
+        triggerEvent.call(this, 'onSelect', {
+          selected: this._selected,
+          all: false
+        });
+      },
+      selectionRenderer: ({ mode, ...rest }) => {
+        return (
+          <div className={'grid__td_checkbox'}>
+            <Checkbox checked={rest.checked} />
+          </div>
+        );
+      }
+    };
+  }
+
+  createMultiSelectioCheckboxs(props) {
+    this._selected = props.selectAllRecords ? props.data.map(row => row[this._keyField]) : props.selected || [];
 
     return {
       mode: 'checkbox',
@@ -239,9 +313,9 @@ export default class Grid extends Component {
       selected: this._selected,
       onSelect: (row, isSelect) => {
         const selected = this._selected;
-        const keyField = row[props.keyField || KEY_FIELD];
+        const keyValue = row[this._keyField];
 
-        this._selected = isSelect ? [...selected, keyField] : selected.filter(x => x !== keyField);
+        this._selected = isSelect ? [...selected, keyValue] : selected.filter(x => x !== keyValue);
 
         triggerEvent.call(this, 'onSelect', {
           selected: this._selected,
@@ -249,9 +323,9 @@ export default class Grid extends Component {
         });
       },
       onSelectAll: (isSelect, rows) => {
-        const keyField = props.keyField || KEY_FIELD;
-
-        this._selected = isSelect ? [...this._selected, ...rows.map(row => row[keyField])] : this.getSelectedByPage(this.props.data, false);
+        this._selected = isSelect
+          ? [...this._selected, ...rows.map(row => row[this._keyField])]
+          : this.getSelectedByPage(this.props.data, false);
 
         triggerEvent.call(this, 'onSelect', {
           selected: this._selected,
@@ -276,14 +350,10 @@ export default class Grid extends Component {
     };
   }
 
-  onDelete = () => {
-    triggerEvent.call(this, 'onDelete', this._selected);
-  };
-
   onEdit = (oldValue, newValue, row, column) => {
     if (oldValue !== newValue) {
       triggerEvent.call(this, 'onEdit', {
-        id: row[KEY_FIELD],
+        id: row[this._keyField],
         attributes: {
           [column.attribute]: newValue
         }
@@ -296,10 +366,8 @@ export default class Grid extends Component {
   };
 
   getSelectedByPage = (records, onPage) => {
-    const keyField = this.props.keyField || KEY_FIELD;
-
     return this._selected.filter(id => {
-      const length = records.filter(record => record[keyField] === id).length;
+      const length = records.filter(record => record[this._keyField] === id).length;
       return onPage ? length : !length;
     });
   };
@@ -332,53 +400,65 @@ export default class Grid extends Component {
     document.removeEventListener('mouseup', this.clearResizingColumn);
   };
 
+  getStartDeviderPosition = options => {
+    this._resizingTh = options.th;
+    this._resizingThBody = options.thBody;
+    this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
+  };
+
   resizeColumn = e => {
-    let column = this._resizingColumn;
-    if (column) {
-      const width = this._startResizingColumnOffset + e.pageX;
-      if (width > this._minWidthResizingColumn) {
-        column.style.width = width + 'px';
-      }
+    let th = this._resizingTh;
+    if (th) {
+      th.style.width = this._startResizingThOffset + e.pageX + 'px';
+      this._resizingThBody.style.width = th.style.width;
     }
   };
 
   clearResizingColumn = () => {
-    this._resizingColumn = null;
-  };
-
-  getStartDeviderPosition = e => {
-    this._resizingColumn = e.column;
-    this._minWidthResizingColumn = Number(
-      window
-        .getComputedStyle(this._resizingColumn, null)
-        .getPropertyValue('min-width')
-        .replace('px', '')
-    );
-    this._startResizingColumnOffset = this._resizingColumn.offsetWidth - e.element.pageX;
+    this._resizingTh = null;
   };
 
   triggerCloseFilterEvent = e => {
     (e.target || e).dispatchEvent(this.closeFilterEvent);
   };
 
+  createToolsActions = () => {
+    return this.props.tools.map((action, idx) => (
+      <div key={idx} className={`grid__tools-item ${idx ? 'grid__tools-item_first' : ''}`}>
+        {React.cloneElement(action)}
+      </div>
+    ));
+  };
+
+  tools = () => {
+    const props = this.props;
+
+    return (
+      <div className={'grid__tools'}>
+        {props.selectAllRecordsVisible ? (
+          <div className={'grid__tools-item grid__tools-item_first'}>
+            <Btn
+              className={`btn_extra-narrow ${props.selectAllRecords ? 'btn_blue' : 'btn_grey5'} btn_hover_light-blue2`}
+              title={t('grid.tools.select-all')}
+              onClick={this.selectAll}
+            >
+              {t('grid.tools.select-all')} {props.total}
+            </Btn>
+          </div>
+        ) : null}
+
+        {props.tools ? this.createToolsActions() : null}
+      </div>
+    );
+  };
+
   render() {
     let props = {
       id: this._id,
-      keyField: KEY_FIELD,
+      keyField: this._keyField,
       bootstrap4: true,
       bordered: false,
       headerClasses: 'grid__header',
-      cellEdit: cellEditFactory({
-        mode: 'dbclick',
-        blurToSave: true,
-        afterSaveCell: this.onEdit
-      }),
-      defaultSorted: [
-        {
-          dataField: KEY_FIELD,
-          order: 'desc'
-        }
-      ],
       noDataIndication: () => t('grid.no-data-indication'),
       ...this.props
     };
@@ -391,69 +471,10 @@ export default class Grid extends Component {
       return (
         <div
           style={{ minHeight: props.minHeight }}
-          className={classNames('grid', props.hasCheckboxes && 'grid_checkable', this.props.className)}
+          className={classNames('grid', (props.singleSelectable || props.multiSelectable) && 'grid_checkable', this.props.className)}
         >
-          {toolsVisible ? (
-            <div className={'grid__tools'}>
-              {props.selectAllRecordsVisible ? (
-                <div className={'grid__tools-item grid__tools-item_first'}>
-                  <Btn
-                    className={`btn_extra-narrow ${props.selectAllRecords ? 'btn_blue' : 'btn_grey5'} btn_hover_light-blue2`}
-                    title={t('grid.tools.select-all')}
-                    onClick={this.selectAll}
-                  >
-                    {t('grid.tools.select-all')} {props.total}
-                  </Btn>
-                </div>
-              ) : null}
-              <div className={'grid__tools-item grid__tools-item_first'}>
-                <IcoBtn
-                  icon={'icon-download'}
-                  className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'}
-                  title={t('grid.tools.zip')}
-                  onClick={this.zipDownload}
-                />
-              </div>
-              <div className={'grid__tools-item'}>
-                <IcoBtn icon={'icon-copy'} className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'} />
-              </div>
-              <div className={'grid__tools-item'}>
-                <IcoBtn icon={'icon-big-arrow'} className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'} />
-              </div>
-              <div className={'grid__tools-item'}>
-                <IcoBtn
-                  icon={'icon-delete'}
-                  className={'btn_i_sm btn_grey4 btn_hover_t-dark-brown'}
-                  title={t('grid.tools.delete')}
-                  onClick={this.onDelete}
-                />
-              </div>
-            </div>
-          ) : null}
-          {toolsVisible ? null : (
-            <div ref={this.inlineToolsRef} className={'grid__inline-tools'}>
-              <div className="grid__inline-tools-border-left" />
-              <div className="grid__inline-tools-actions">
-                <IcoBtn
-                  icon={'icon-download'}
-                  className={'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10'}
-                />
-                <IcoBtn
-                  icon={'icon-on'}
-                  className={'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10'}
-                />
-                <IcoBtn
-                  icon={'icon-edit'}
-                  className={'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10'}
-                />
-                <IcoBtn
-                  icon={'icon-delete'}
-                  className={'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10'}
-                />
-              </div>
-              <div className="grid__inline-tools-border-bottom" />
-            </div>
-          )}
+          {toolsVisible ? this.tools() : null}
+          {props.inlineTools && !toolsVisible ? this.inlineTools() : null}
 
           <PerfectScrollbar
             style={{ minHeight: props.minHeight }}
@@ -463,7 +484,7 @@ export default class Grid extends Component {
             <BootstrapTable {...props} />
           </PerfectScrollbar>
 
-          {props.hasCheckboxes && <BootstrapTable {...props} classes={'grid__freeze'} />}
+          {props.freezeCheckboxes ? <BootstrapTable {...props} classes={'grid__freeze'} /> : null}
         </div>
       );
     }
