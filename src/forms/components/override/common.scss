@@ -1,5 +1,9 @@
 @import '../../constants';
 
+.formio-dialog.formio-dialog-theme-default .formio-dialog-content {
+  background-color: $color-white;
+}
+
 .formio-dialog-content .preview-panel,
 .formio-form {
   .formio-component {
@@ -75,5 +79,9 @@
     color: $color-red-1;
     font-size: $font-size-small;
     margin-top: 0.5rem;
+  }
+
+  .tooltip {
+    opacity: 1;
   }
 }

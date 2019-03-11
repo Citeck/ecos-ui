@@ -35,7 +35,8 @@ export default class SelectJournal extends Component {
     journalConfig: {
       pagination: paginationInitState
     },
-    value: []
+    value: [],
+    error: null
   };
 
   constructor() {
@@ -43,33 +44,63 @@ export default class SelectJournal extends Component {
     this.api = new JournalsApi();
   }
 
+  componentDidMount() {
+    const { value, multiple, journalId, onError } = this.props;
+
+    if (!journalId) {
+      const err = new Error('The "journalId" config is required!');
+      typeof onError === 'function' && onError(err);
+      this.setState({ error: err });
+    }
+
+    let initValue = value;
+    if (!multiple && value.length > 1) {
+      initValue = [];
+    }
+
+    if (initValue.length > 0) {
+      this.fetchDisplayNames(initValue).then(value => {
+        this.setValue(value);
+      });
+    }
+  }
+
   getJournalConfig = () => {
     const { journalId } = this.props;
 
-    return this.api
-      .getJournalConfig(journalId)
-      .then(journalConfig => {
-        // console.log('journalConfig', journalConfig);
+    return new Promise((resolve, reject) => {
+      if (!journalId) {
+        reject();
+      }
 
-        const columns = journalConfig.columns;
-        const criteria = journalConfig.meta.criteria;
-        this.setState(prevState => {
-          return {
-            journalConfig: {
-              ...prevState.journalConfig,
-              columns,
-              criteria
-            }
-          };
-        });
+      this.api
+        .getJournalConfig(journalId)
+        .then(journalConfig => {
+          // console.log('journalConfig', journalConfig);
 
-        return journalConfig;
-      })
-      .then(() => {
-        this.setState({
-          isJournalConfigFetched: true
+          const columns = journalConfig.columns;
+          const criteria = journalConfig.meta.criteria;
+          this.setState(prevState => {
+            return {
+              journalConfig: {
+                ...prevState.journalConfig,
+                columns,
+                criteria
+              }
+            };
+          });
+
+          return journalConfig;
+        })
+        .then(() => {
+          this.setState(
+            {
+              isJournalConfigFetched: true
+            },
+            resolve
+          );
         });
-      });
+    });
   };
 
   refreshGridData = () => {
@@ -127,24 +158,24 @@ export default class SelectJournal extends Component {
 
   onSelect = () => {
     const selectedRows = this.state.gridData.selected;
-
-    this.api
-      .getRecordsDisplayName(selectedRows)
-      .then(result =>
-        result.records.map(item => {
-          return {
-            id: item.id,
-            disp: item.attributes.name
-          };
-        })
-      )
-      .then(value => {
-        this.setValue(value).then(() => {
-          this.setState({
-            isSelectModalOpen: false
-          });
+    this.fetchDisplayNames(selectedRows).then(value => {
+      this.setValue(value).then(() => {
+        this.setState({
+          isSelectModalOpen: false
         });
       });
+    });
+  };
+
+  fetchDisplayNames = selectedRows => {
+    return this.api.getRecordsDisplayName(selectedRows).then(result =>
+      result.records.map(item => {
+        return {
+          id: item.id,
+          disp: item.attributes.name
+        };
+      })
+    );
   };
 
   setValue = value => {
@@ -250,7 +281,7 @@ export default class SelectJournal extends Component {
     // TODO translation !!!!!!!!
     // todo вынести переводы, настройки и т.д. наружу
 
-    const { createFormRecord, multiple } = this.props;
+    const { createFormRecord, multiple, placeholder, disabled } = this.props;
     const {
       isGridDataReady,
       value,
@@ -260,8 +291,15 @@ export default class SelectJournal extends Component {
       isCollapsePanelOpen,
       gridData,
       editRecordId,
-      journalConfig
+      journalConfig,
+      error
     } = this.state;
+
+    const createButton = createFormRecord ? (
+      <Button className={'button_blue'} onClick={this.toggleCreateModal}>
+        Создать
+      </Button>
+    ) : null;
 
     return (
       <div className="select-journal">
@@ -279,13 +317,17 @@ export default class SelectJournal extends Component {
               ))}
             </ul>
           ) : (
-            <p className={'select-journal__value-not-selected'}>Нет</p>
+            <p className={'select-journal__value-not-selected'}>{placeholder ? placeholder : 'Нет'}</p>
           )}
         </div>
 
-        <Button className={'button_blue'} onClick={this.openSelectModal}>
-          {value.length > 0 ? (multiple ? 'Добавить' : 'Изменить') : 'Выбрать'}
-        </Button>
+        {error ? (
+          <p className={'select-journal__error'}>{error.message}</p>
+        ) : (
+          <Button className={'button_blue'} onClick={this.openSelectModal} disabled={disabled}>
+            {value.length > 0 ? (multiple ? 'Добавить' : 'Изменить') : 'Выбрать'}
+          </Button>
+        )}
 
         <SimpleModal
           title={'Выбрать юридическое лицо'}
@@ -300,9 +342,7 @@ export default class SelectJournal extends Component {
                 <Button className={'button_blue'} onClick={this.toggleCollapsePanel}>
                   Фильтр
                 </Button>
-                <Button className={'button_blue'} onClick={this.toggleCreateModal}>
-                  Создать
-                </Button>
+                {createButton}
               </div>
               <div className={'select-journal-collapse-panel__controls-right'}>
                 <Input />
@@ -314,7 +354,7 @@ export default class SelectJournal extends Component {
             </Collapse>
           </div>
 
-          <div className={'select-journal-grid'}>
+          <div className={'select-journal__grid'}>
             {!isGridDataReady ? <Loader /> : null}
             <Grid
               {...gridData}
@@ -330,10 +370,11 @@ export default class SelectJournal extends Component {
               className={!isGridDataReady ? 'grid_transparent' : ''}
               onEmptyHeight={() => console.log('onEmptyHeight')}
               emptyRowsCount={5}
+              minHeight={200}
             />
 
             <Pagination
-              className={'dashlet__pagination'}
+              className={'select-journal__pagination'}
               total={gridData.total}
               {...journalConfig.pagination}
               onChange={this.onChangePage}
@@ -374,7 +415,8 @@ export default class SelectJournal extends Component {
 
 SelectJournal.propTypes = {
   journalId: PropTypes.string.isRequired,
-  createFormRecord: PropTypes.string.isRequired,
+  createFormRecord: PropTypes.string,
   onChange: PropTypes.func,
+  onError: PropTypes.func,
   multiple: PropTypes.bool
 };

@@ -46,14 +46,10 @@ export default class DateTimeComponent extends BaseComponent {
       this.disabled = true;
     }
 
-    this.reactComponentInitConfig = {
-      disabled: this.disabled
-    };
-
-    this.renderReactComponent();
-
     this.errorContainer = this.element;
     this.createErrorElement();
+
+    this.renderReactComponent();
 
     // this.setInputStyles(this.inputsContainer);
 
@@ -71,10 +67,16 @@ export default class DateTimeComponent extends BaseComponent {
 
     ReactDOM.render(
       <SelectJournal
+        value={this.dataValue}
         multiple={this.component.multiple}
+        placeholder={this.component.placeholder}
+        disabled={this.component.disabled}
+        journalId={this.component.journalId}
+        createFormRecord={this.component.createFormRecord}
         onChange={onChange}
-        journalId={'legal-entities'} // TODO config
-        createFormRecord={'dict@idocs:legalEntity'} // TODO config
+        onError={err => {
+          // this.setCustomValidity(err, false);
+        }}
       />,
       this.reactContainer
     );
@@ -87,23 +89,13 @@ export default class DateTimeComponent extends BaseComponent {
   }
 
   onValueChange(value) {
-    let newValue = value;
-
-    if (!this.component.multiple) {
-      if (Array.isArray(value) && value.length > 0) {
-        newValue = value[0];
-      } else {
-        newValue = null;
-      }
-    }
-
-    this.dataValue = newValue;
+    this.dataValue = value;
     this.triggerChange();
     this.refreshDOM();
   }
 
   get emptyValue() {
-    return this.component.multiple ? [] : null;
+    return [];
   }
 
   getValue() {

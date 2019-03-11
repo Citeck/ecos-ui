@@ -1,5 +1,9 @@
 @import '../../../../constants';
 
+.select-journal {
+  margin-bottom: 10px;
+}
+
 .select-journal-select-modal__buttons {
   margin-top: 15px;
   display: flex;
@@ -27,8 +31,10 @@
   }
 }
 
-.select-journal-grid {
+.select-journal__grid {
   margin-top: 15px;
+  min-height: 150px;
+  position: relative;
 }
 
 .select-journal__value-not-selected {
@@ -41,6 +47,7 @@
 .select-journal__values-list {
   border-top: 2px solid $color-gray-4;
   margin-bottom: 15px;
+  padding: 0;
 
   li {
     line-height: $form-input-height;
@@ -75,4 +82,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   padding-right: 5px;
+}
+
+.select-journal__pagination {
+  position: absolute;
+  bottom: -40px;
+}
+
+.select-journal__error {
+  color: $color-red-1;
 }

@@ -23,16 +23,32 @@
           "components": [
             {
               "input": true,
-              "label": "Юридическое лицо",
-              "key": "org",
               "type": "selectJournal",
-              "defaultValue": null,
-              "multiple": true
+              "label": "Юридическое лицо",
+              "key": "legalEntities",
+              "multiple": true,
+              "journalId": "legal-entities",
+              "createFormRecord": "dict@idocs:legalEntity"
             }
           ]
         },
         {
-          "components": []
+          "components": [
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Контрагент",
+              "key": "idocsContractor",
+              "journalId": "idocs-contractor"
+            },
+
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "С ошибкой",
+              "key": "idocsContractor2"
+            }
+          ]
         }
       ],
       "type": "columns",
