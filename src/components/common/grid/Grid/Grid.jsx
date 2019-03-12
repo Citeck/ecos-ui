@@ -273,6 +273,13 @@ export default class Grid extends Component {
           all: false
         });
       },
+      selectionHeaderRenderer: ({ indeterminate, ...rest }) => {
+        return (
+          <div className={'grid__th grid__th_checkbox'}>
+            <div className={'grid__header-devider'} />
+          </div>
+        );
+      },
       selectionRenderer: ({ mode, ...rest }) => {
         return (
           <div className={'grid__td_checkbox'}>
@@ -403,7 +410,7 @@ export default class Grid extends Component {
 
   createToolsActions = () => {
     return this.props.tools.map((action, idx) => (
-      <div key={idx} className={`grid__tools-item ${idx ? 'grid__tools-item_first' : ''}`}>
+      <div key={idx} className={`grid__tools-item`}>
         {React.cloneElement(action)}
       </div>
     ));
@@ -412,23 +419,27 @@ export default class Grid extends Component {
   tools = () => {
     const props = this.props;
 
-    return (
-      <div className={'grid__tools'}>
-        {props.selectAllRecordsVisible ? (
-          <div className={'grid__tools-item grid__tools-item_first'}>
-            <Btn
-              className={`btn_extra-narrow ${props.selectAllRecords ? 'btn_blue' : 'btn_grey5'} btn_hover_light-blue2`}
-              title={t('grid.tools.select-all')}
-              onClick={this.selectAll}
-            >
-              {t('grid.tools.select-all')} {props.total}
-            </Btn>
-          </div>
-        ) : null}
+    if (props.tools) {
+      return (
+        <div className={'grid__tools'}>
+          {props.selectAllRecordsVisible ? (
+            <div className={'grid__tools-item grid__tools-item_select-all-btn'}>
+              <Btn
+                className={`btn_extra-narrow ${props.selectAllRecords ? 'btn_blue' : 'btn_grey5'} btn_hover_light-blue2`}
+                title={t('grid.tools.select-all')}
+                onClick={this.selectAll}
+              >
+                {t('grid.tools.select-all')} {props.total}
+              </Btn>
+            </div>
+          ) : null}
 
-        {props.tools ? this.createToolsActions() : null}
-      </div>
-    );
+          {this.createToolsActions()}
+        </div>
+      );
+    }
+
+    return null;
   };
 
   render() {
@@ -462,7 +473,9 @@ export default class Grid extends Component {
             <BootstrapTable {...props} />
           </PerfectScrollbar>
 
-          {props.freezeCheckboxes ? <BootstrapTable {...props} classes={'grid__freeze'} /> : null}
+          {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
+            <BootstrapTable {...props} classes={'grid__freeze'} />
+          ) : null}
         </div>
       );
     }

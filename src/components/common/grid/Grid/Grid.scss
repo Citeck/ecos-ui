@@ -45,7 +45,7 @@
   display: inline-block;
   padding: 7px 10px;
   width: 100%;
-  height: 100%;
+  height: 34px;
   color: $text-color-dark;
   font-size: $font-size-standard;
   font-weight: $font-weight-semi-bold;
@@ -69,13 +69,16 @@
 
 /*Grid__tools*/
 .grid__tools {
+  display: flex;
+  align-items: center;
   position: absolute;
   top: 2px;
   right: 0;
-  left: 45px;
-  background: $color-white;
-  padding: 9px 0 9px 7px;
+  left: 54px;
   z-index: 1;
+  height: 50px;
+  padding-left: 15px;
+  background: $color-white;
 }
 
 .grid__tools-item {
@@ -85,6 +88,10 @@
 
 .grid__tools-item_first {
   padding-left: 9px;
+}
+
+.grid__tools-item_select-all-btn {
+  padding-right: 15px;
 }
 
 /*Checkable*/
