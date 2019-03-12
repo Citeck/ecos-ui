@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import Grid from '../../common/grid/Grid/Grid';
-import GridInlineTools from '../../common/grid/GridsInlineTools/GridInlineTools';
+import GridInlineTools from '../../common/grid/GridInlineTools/GridInlineTools';
 import Loader from '../../common/Loader/Loader';
 import { IcoBtn } from '../../common/btns';
 import { t } from '../../../helpers/util';
