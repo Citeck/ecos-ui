@@ -40,13 +40,6 @@
               "label": "Контрагент",
               "key": "idocsContractor",
               "journalId": "idocs-contractor"
-            },
-
-            {
-              "input": true,
-              "type": "selectJournal",
-              "label": "С ошибкой",
-              "key": "idocsContractor2"
             }
           ]
         }

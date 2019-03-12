@@ -20,6 +20,7 @@ a {
     line-height: normal;
     padding: 9px 21px;
     height: 40px;
+    cursor: pointer;
 
     &:hover {
       background-color: $color-gray-1;
@@ -88,8 +89,9 @@ a {
 
   &.btn_drop-down {
     padding: 9px 11px 9px 15px;
-    width: 165px;
+    //width: 165px;
     text-align: left;
+    display: flex;
 
     .icon-down {
       float: right;
@@ -100,7 +102,7 @@ a {
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
-      width: 85%;
+      //width: 85%;
     }
   }
 
@@ -125,6 +127,10 @@ a {
 
   &.btn_r_6 {
     border-radius: $border-radius-standard;
+  }
+
+  &.btn_r_8 {
+    border-radius: $border-radius-large;
   }
 
   /*Steps*/
@@ -171,6 +177,11 @@ a {
   &.btn_grey5 {
     background: $color-gray-4;
     color: $text-color-gray !important;
+  }
+
+  &.btn_grey6 {
+    background: $color-white;
+    color: $text-color-dark;
   }
 
   &.btn_brown {

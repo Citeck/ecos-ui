@@ -8,7 +8,10 @@ import Pagination from '../../../common/Pagination/Pagination';
 import Loader from '../../../common/Loader/Loader';
 import EcosForm from '../../../EcosForm';
 import SimpleModal from '../../SimpleModal';
+import Filters from './Filters';
+import FiltersProvider from './Filters/FiltersProvider';
 import { JournalsApi } from '../../../../api/journalsApi';
+// import { t } from "../../../../helpers/util";
 import './SelectJournal.scss';
 
 const paginationInitState = {
@@ -25,6 +28,7 @@ export default class SelectJournal extends Component {
     isEditModalOpen: false,
     editRecordId: null,
     isJournalConfigFetched: false,
+    journalConfig: {},
     isGridDataReady: false,
     gridData: {
       total: 0,
@@ -32,7 +36,7 @@ export default class SelectJournal extends Component {
       columns: [],
       selected: []
     },
-    journalConfig: {
+    requestParams: {
       pagination: paginationInitState
     },
     value: [],
@@ -73,33 +77,23 @@ export default class SelectJournal extends Component {
         reject();
       }
 
-      this.api
-        .getJournalConfig(journalId)
-        .then(journalConfig => {
-          // console.log('journalConfig', journalConfig);
+      this.api.getJournalConfig(journalId).then(journalConfig => {
+        // console.log('journalConfig', journalConfig);
 
-          const columns = journalConfig.columns;
-          const criteria = journalConfig.meta.criteria;
-          this.setState(prevState => {
-            return {
-              journalConfig: {
-                ...prevState.journalConfig,
-                columns,
-                criteria
-              }
-            };
-          });
-
-          return journalConfig;
-        })
-        .then(() => {
-          this.setState(
-            {
-              isJournalConfigFetched: true
+        const columns = journalConfig.columns;
+        const criteria = journalConfig.meta.criteria;
+        this.setState(prevState => {
+          return {
+            requestParams: {
+              ...prevState.requestParams,
+              columns,
+              criteria
             },
-            resolve
-          );
-        });
+            journalConfig,
+            isJournalConfigFetched: true
+          };
+        }, resolve);
+      });
     });
   };
 
@@ -110,7 +104,7 @@ export default class SelectJournal extends Component {
           isGridDataReady: false
         },
         () => {
-          return this.api.getGridData(this.state.journalConfig).then(gridData => {
+          return this.api.getGridData(this.state.requestParams).then(gridData => {
             // console.log('gridData', gridData);
 
             // setTimeout(() => {
@@ -269,8 +263,8 @@ export default class SelectJournal extends Component {
   onChangePage = pagination => {
     this.setState(prevState => {
       return {
-        journalConfig: {
-          ...prevState.journalConfig,
+        requestParams: {
+          ...prevState.requestParams,
           pagination
         }
       };
@@ -291,9 +285,13 @@ export default class SelectJournal extends Component {
       isCollapsePanelOpen,
       gridData,
       editRecordId,
+      requestParams,
       journalConfig,
       error
     } = this.state;
+
+    // console.log('requestParams', requestParams);
+    // console.log('journalConfig', journalConfig);
 
     const createButton = createFormRecord ? (
       <Button className={'button_blue'} onClick={this.toggleCreateModal}>
@@ -329,65 +327,65 @@ export default class SelectJournal extends Component {
           </Button>
         )}
 
-        <SimpleModal
-          title={'Выбрать юридическое лицо'}
-          isOpen={isSelectModalOpen}
-          hideModal={this.toggleSelectModal}
-          zIndex={10002}
-          className={'select-journal-select-modal simple-modal_level-1'}
-        >
-          <div className={'select-journal-collapse-panel'}>
-            <div className={'select-journal-collapse-panel__controls'}>
-              <div className={'select-journal-collapse-panel__controls-left'}>
-                <Button className={'button_blue'} onClick={this.toggleCollapsePanel}>
-                  Фильтр
-                </Button>
-                {createButton}
+        <FiltersProvider columns={journalConfig.columns}>
+          <SimpleModal
+            title={'Выбрать юридическое лицо'}
+            isOpen={isSelectModalOpen}
+            hideModal={this.toggleSelectModal}
+            zIndex={10002}
+            className={'select-journal-select-modal simple-modal_level-1'}
+          >
+            <div className={'select-journal-collapse-panel'}>
+              <div className={'select-journal-collapse-panel__controls'}>
+                <div className={'select-journal-collapse-panel__controls-left'}>
+                  <Button className={'button_blue'} onClick={this.toggleCollapsePanel}>
+                    Фильтр
+                  </Button>
+                  {createButton}
+                </div>
+                <div className={'select-journal-collapse-panel__controls-right'}>
+                  <Input />
+                </div>
               </div>
-              <div className={'select-journal-collapse-panel__controls-right'}>
-                <Input />
-              </div>
+
+              <Collapse isOpen={isCollapsePanelOpen}>{journalConfig.columns ? <Filters columns={journalConfig.columns} /> : null}</Collapse>
             </div>
 
-            <Collapse isOpen={isCollapsePanelOpen}>
-              <p style={{ marginTop: 20 }}>TODO</p>
-            </Collapse>
-          </div>
+            <div className={'select-journal__grid'}>
+              {!isGridDataReady ? <Loader /> : null}
+              <Grid
+                {...gridData}
+                singleSelectable={!multiple}
+                multiSelectable={multiple}
+                onSelect={this.onSelectGridItem}
+                selectAllRecords={null}
+                selectAllRecordsVisible={null}
+                onFilter={() => console.log('onFilter')}
+                onSelectAll={() => console.log('onSelectAll')}
+                onDelete={() => console.log('onDelete')}
+                onEdit={() => console.log('onEdit')}
+                className={!isGridDataReady ? 'grid_transparent' : ''}
+                onEmptyHeight={() => console.log('onEmptyHeight')}
+                emptyRowsCount={5}
+                minHeight={200}
+              />
 
-          <div className={'select-journal__grid'}>
-            {!isGridDataReady ? <Loader /> : null}
-            <Grid
-              {...gridData}
-              singleSelectable={!multiple}
-              multiSelectable={multiple}
-              onSelect={this.onSelectGridItem}
-              selectAllRecords={null}
-              selectAllRecordsVisible={null}
-              onFilter={() => console.log('onFilter')}
-              onSelectAll={() => console.log('onSelectAll')}
-              onDelete={() => console.log('onDelete')}
-              onEdit={() => console.log('onEdit')}
-              className={!isGridDataReady ? 'grid_transparent' : ''}
-              onEmptyHeight={() => console.log('onEmptyHeight')}
-              emptyRowsCount={5}
-              minHeight={200}
-            />
+              <Pagination
+                className={'select-journal__pagination'}
+                total={gridData.total}
+                {...requestParams.pagination}
+                onChange={this.onChangePage}
+              />
+            </div>
 
-            <Pagination
-              className={'select-journal__pagination'}
-              total={gridData.total}
-              {...journalConfig.pagination}
-              onChange={this.onChangePage}
-            />
-          </div>
-
-          <div className="select-journal-select-modal__buttons">
-            <Button onClick={this.onCancelSelect}>Отмена</Button>
-            <Button className={'button_blue'} onClick={this.onSelect}>
-              ОK
-            </Button>
-          </div>
-        </SimpleModal>
+            <div className="select-journal-select-modal__buttons">
+              <Button onClick={this.onCancelSelect}>Отмена</Button>
+              <Button className={'button_blue'} onClick={this.onSelect}>
+                ОK
+              </Button>
+            </div>
+          </SimpleModal>
+        </FiltersProvider>
 
         <SimpleModal
           title={'Создать юридическое лицо'}

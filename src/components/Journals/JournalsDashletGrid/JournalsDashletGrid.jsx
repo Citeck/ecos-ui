@@ -98,6 +98,7 @@ class JournalsDashletGrid extends Component {
     const toolsActionClassName = 'btn_i_sm btn_grey4 btn_hover_t-dark-brown';
     let defaultSortBy = params.defaultSortBy;
 
+    // eslint-disable-next-line
     defaultSortBy = defaultSortBy ? eval('(' + defaultSortBy + ')') : [];
 
     return (

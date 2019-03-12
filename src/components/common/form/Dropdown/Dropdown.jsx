@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 
 import './Dropdown.scss';
 
@@ -45,7 +46,7 @@ export default class Dropdown extends Component {
 
   render() {
     const cssClasses = classNames('dropdown', this.props.className);
-    const { valueField, titleField, source, value } = this.props;
+    const { valueField, titleField, source, value, isStatic } = this.props;
 
     const selected = source.find(item => item[valueField] === value) || source[0] || {};
 
@@ -60,7 +61,7 @@ export default class Dropdown extends Component {
     return (
       <Drd className={cssClasses} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
         <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={this.state.dropdownOpen} tag="span">
-          {this.getControl(selected[titleField])}
+          {isStatic ? this.props.children : this.getControl(selected[titleField])}
         </DropdownToggle>
 
         <DropdownMenu className={'dropdown__menu'}>
@@ -70,3 +71,7 @@ export default class Dropdown extends Component {
     );
   }
 }
+
+Dropdown.propTypes = {
+  isStatic: PropTypes.bool
+};
