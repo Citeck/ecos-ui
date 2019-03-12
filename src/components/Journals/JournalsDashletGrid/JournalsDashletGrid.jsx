@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import Grid from '../../common/grid/Grid/Grid';
+import GridInlineTools from '../../common/grid/GridsInlineTools/GridInlineTools';
 import Loader from '../../common/Loader/Loader';
 import { IcoBtn } from '../../common/btns';
 import { t } from '../../../helpers/util';
@@ -11,7 +12,8 @@ import {
   setSelectedRecords,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setGridMinHeight
+  setGridMinHeight,
+  setGridInlineToolSettings
 } from '../../../actions/journals';
 
 const mapStateToProps = state => ({
@@ -32,7 +34,8 @@ const mapDispatchToProps = dispatch => ({
   setSelectedRecords: records => dispatch(setSelectedRecords(records)),
   setSelectAllRecords: need => dispatch(setSelectAllRecords(need)),
   setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(visible)),
-  setGridMinHeight: ({ height }) => dispatch(setGridMinHeight(height))
+  setGridMinHeight: ({ height }) => dispatch(setGridMinHeight(height)),
+  setGridInlineToolSettings: ({ top, height }) => dispatch(setGridInlineToolSettings({ top, height }))
 });
 
 function triggerEvent(name, data) {
@@ -47,6 +50,7 @@ class JournalsDashletGrid extends Component {
   constructor(props) {
     super(props);
     this.emptyGridRef = React.createRef();
+    this.gridWrapperRef = React.createRef();
   }
 
   setSelectedRecords = e => {
@@ -89,7 +93,35 @@ class JournalsDashletGrid extends Component {
     if (height && !props.gridMinHeight) {
       props.setGridMinHeight({ height });
     }
+
+    this.createMouseLeaveEvent();
   }
+
+  componentWillUnmount() {
+    this.removeMouseLeaveEvent();
+  }
+
+  setGridInlineToolSettings = (e, offsets) => {
+    this.props.setGridInlineToolSettings(offsets);
+  };
+
+  hideGridInlineToolSettings = () => {
+    this.props.setGridInlineToolSettings({ height: 0 });
+  };
+
+  createMouseLeaveEvent = () => {
+    const grid = this.gridWrapperRef.current;
+    if (grid) {
+      grid.addEventListener('mouseleave', this.hideGridInlineToolSettings, false);
+    }
+  };
+
+  removeMouseLeaveEvent = () => {
+    const grid = this.gridWrapperRef.current;
+    if (grid) {
+      grid.removeEventListener('mouseleave', this.hideGridInlineToolSettings, false);
+    }
+  };
 
   render() {
     const props = this.props;
@@ -101,7 +133,7 @@ class JournalsDashletGrid extends Component {
     defaultSortBy = defaultSortBy ? eval('(' + defaultSortBy + ')') : [];
 
     return (
-      <div className={'journal-dashlet__grid'}>
+      <div ref={this.gridWrapperRef} className={'journal-dashlet__grid'}>
         {props.loading ? (
           <Fragment>
             <Loader />
@@ -114,36 +146,42 @@ class JournalsDashletGrid extends Component {
             </div>
           </Fragment>
         ) : (
-          <Grid
-            {...props.gridData}
-            className={props.loading ? 'grid_transparent' : ''}
-            freezeCheckboxes
-            filterable
-            editable
-            multiSelectable
-            defaultSortBy={defaultSortBy}
-            onFilter={this.onFilter}
-            onSelectAll={this.setSelectAllRecords}
-            onSelect={this.setSelectedRecords}
-            onDelete={props.deleteRecords}
-            onEdit={props.saveRecords}
-            minHeight={props.gridMinHeight}
-            selected={props.selectedRecords}
-            selectAllRecords={props.selectAllRecords}
-            selectAllRecordsVisible={props.selectAllRecordsVisible}
-            tools={[
-              <IcoBtn icon={'icon-download'} className={toolsActionClassName} title={t('grid.tools.zip')} />,
-              <IcoBtn icon={'icon-copy'} className={toolsActionClassName} />,
-              <IcoBtn icon={'icon-big-arrow'} className={toolsActionClassName} />,
-              <IcoBtn icon={'icon-delete'} className={toolsActionClassName} title={t('grid.tools.delete')} onClick={this.onDelete} />
-            ]}
-            inlineTools={[
-              <IcoBtn icon={'icon-download'} className={inlineToolsActionClassName} />,
-              <IcoBtn icon={'icon-on'} className={inlineToolsActionClassName} />,
-              <IcoBtn icon={'icon-edit'} className={inlineToolsActionClassName} />,
-              <IcoBtn icon={'icon-delete'} className={inlineToolsActionClassName} />
-            ]}
-          />
+          <Fragment>
+            <Grid
+              {...props.gridData}
+              className={props.loading ? 'grid_transparent' : ''}
+              freezeCheckboxes
+              filterable
+              editable
+              multiSelectable
+              defaultSortBy={defaultSortBy}
+              onFilter={this.onFilter}
+              onSelectAll={this.setSelectAllRecords}
+              onSelect={this.setSelectedRecords}
+              onMouseEnter={this.setGridInlineToolSettings}
+              onDelete={props.deleteRecords}
+              onEdit={props.saveRecords}
+              minHeight={props.gridMinHeight}
+              selected={props.selectedRecords}
+              selectAllRecords={props.selectAllRecords}
+              selectAllRecordsVisible={props.selectAllRecordsVisible}
+              tools={[
+                <IcoBtn icon={'icon-download'} className={toolsActionClassName} title={t('grid.tools.zip')} />,
+                <IcoBtn icon={'icon-copy'} className={toolsActionClassName} />,
+                <IcoBtn icon={'icon-big-arrow'} className={toolsActionClassName} />,
+                <IcoBtn icon={'icon-delete'} className={toolsActionClassName} title={t('grid.tools.delete')} onClick={this.onDelete} />
+              ]}
+            />
+
+            <GridInlineTools
+              tools={[
+                <IcoBtn icon={'icon-download'} className={inlineToolsActionClassName} />,
+                <IcoBtn icon={'icon-on'} className={inlineToolsActionClassName} />,
+                <IcoBtn icon={'icon-edit'} className={inlineToolsActionClassName} />,
+                <IcoBtn icon={'icon-delete'} className={inlineToolsActionClassName} />
+              ]}
+            />
+          </Fragment>
         )}
       </div>
     );

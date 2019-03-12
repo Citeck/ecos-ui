@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
@@ -125,7 +124,6 @@ class HeaderFormatter extends Component {
 export default class Grid extends Component {
   constructor(props) {
     super(props);
-    this.inlineToolsRef = React.createRef();
     this._selected = [];
     this._id = this.getId();
     this._resizingTh = null;
@@ -169,10 +167,8 @@ export default class Grid extends Component {
       props.data = this.sortByDefault(props);
     }
 
-    if (props.inlineTools) {
-      props.rowEvents = {
-        onMouseEnter: e => this.createInlineTools($(e.target).closest('tr'))
-      };
+    if (typeof props.onMouseEnter === 'function') {
+      props.rowEvents = { onMouseEnter: e => props.onMouseEnter.call(this, e, this.getTrOffsets(e)) };
     }
 
     if (props.multiSelectable) {
@@ -185,6 +181,14 @@ export default class Grid extends Component {
 
     return props;
   }
+
+  getTrOffsets = e => {
+    const tr = e.currentTarget;
+    const height = tr.offsetHeight - 2;
+    const top = tr.offsetTop - 1;
+
+    return { height, top };
+  };
 
   setEditable = () => {
     return cellEditFactory({
@@ -243,31 +247,6 @@ export default class Grid extends Component {
     };
 
     return column;
-  };
-
-  createInlineTools = $tr => {
-    const $inlineTools = $(this.inlineToolsRef.current);
-    const $currentTr = $tr.mouseleave(() => $inlineTools.hide());
-    const top = $currentTr.position().top + 'px';
-    const height = $currentTr.height() - 2 + 'px';
-
-    $inlineTools
-      .show()
-      .css('top', top)
-      .children()
-      .each((idx, child) => (idx < 2 ? $(child).css('height', height) : null));
-  };
-
-  inlineTools = () => {
-    return (
-      <div ref={this.inlineToolsRef} className={'grid__inline-tools'}>
-        <div className="grid__inline-tools-border-left" />
-        <div className="grid__inline-tools-actions">
-          {this.props.inlineTools.map((action, idx) => React.cloneElement(action, { key: idx }))}
-        </div>
-        <div className="grid__inline-tools-border-bottom" />
-      </div>
-    );
   };
 
   getId = () => {
@@ -474,7 +453,6 @@ export default class Grid extends Component {
           className={classNames('grid', (props.singleSelectable || props.multiSelectable) && 'grid_checkable', this.props.className)}
         >
           {toolsVisible ? this.tools() : null}
-          {props.inlineTools && !toolsVisible ? this.inlineTools() : null}
 
           <PerfectScrollbar
             style={{ minHeight: props.minHeight }}
