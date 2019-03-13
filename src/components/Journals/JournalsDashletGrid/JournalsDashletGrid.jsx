@@ -42,6 +42,7 @@ class JournalsDashletGrid extends Component {
     super(props);
     this.emptyGridRef = React.createRef();
     this.gridWrapperRef = React.createRef();
+    this.filters = [];
   }
 
   setSelectedRecords = e => {
@@ -69,6 +70,9 @@ class JournalsDashletGrid extends Component {
       columns,
       meta: { criteria }
     } = props.journalConfig;
+
+    this.filters = filter;
+
     props.reloadGrid({ columns, criteria: [...filter, ...criteria] });
   };
 
@@ -182,6 +186,7 @@ class JournalsDashletGrid extends Component {
               editable
               multiSelectable
               defaultSortBy={defaultSortBy}
+              filters={this.filters}
               inlineTools={this.inlineTools}
               tools={this.tools}
               onFilter={this.onFilter}

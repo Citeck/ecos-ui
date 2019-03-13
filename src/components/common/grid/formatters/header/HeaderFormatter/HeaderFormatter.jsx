@@ -19,7 +19,7 @@ export default class HeaderFormatter extends Component {
   constructor(props) {
     super(props);
     this.thRef = React.createRef();
-    this.state = { open: false, text: '' };
+    this.state = { open: false, text: props.filterValue };
     this.onCloseFilter = this.onCloseFilter.bind(this);
   }
 
@@ -39,7 +39,13 @@ export default class HeaderFormatter extends Component {
     this.triggerPendingChange(text, this.props.column.dataField);
   };
 
+  clear = () => {
+    this.setState({ text: '' });
+    this.triggerPendingChange('', this.props.column.dataField);
+  };
+
   triggerPendingChange = debounce((text, dataField) => {
+    this.toggle();
     triggerEvent.call(this, 'onFilter', {
       field: dataField,
       predicate: 'string-contains',
@@ -58,18 +64,11 @@ export default class HeaderFormatter extends Component {
     this.toggle();
   }
 
-  clear = () => {
-    this.setState({ text: '' });
-    this.toggle();
-    this.triggerPendingChange('', this.props.column.dataField);
-  };
-
   onDeviderMouseDown = e => {
     const current = this.thRef.current;
     triggerEvent.call(this, 'onDeviderMouseDown', {
       e: e,
-      th: current.parentElement,
-      thBody: current
+      th: current.parentElement
     });
   };
 

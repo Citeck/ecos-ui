@@ -41,7 +41,6 @@ export default class Grid extends Component {
     this._selected = [];
     this._id = this.getId();
     this._resizingTh = null;
-    this._resizingThBody = null;
     this._startResizingThOffset = 0;
     this._keyField = props.keyField || 'id';
   }
@@ -153,6 +152,7 @@ export default class Grid extends Component {
         <HeaderFormatter
           closeFilterEvent={CLOSE_FILTER_EVENT}
           filterable={filterable}
+          filterValue={((this.props.filters || []).filter(filter => filter.field === column.dataField)[0] || {}).value || ''}
           column={column}
           colIndex={colIndex}
           onFilter={this.onFilter}
@@ -274,7 +274,6 @@ export default class Grid extends Component {
 
   getStartDeviderPosition = options => {
     this._resizingTh = options.th;
-    this._resizingThBody = options.thBody;
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
   };
 
@@ -282,7 +281,6 @@ export default class Grid extends Component {
     let th = this._resizingTh;
     if (th) {
       th.style.width = this._startResizingThOffset + e.pageX + 'px';
-      this._resizingThBody.style.width = th.style.width;
     }
   };
 
