@@ -9,57 +9,49 @@
     margin-bottom: 13px;
 
     td {
+      height: 42px;
       border-top: 2px solid $color-gray-4;
       padding: 8px 5px;
+      vertical-align: middle;
     }
 
     th {
+      height: 52px;
       padding: 8px 0;
       border-bottom: 0;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
+      vertical-align: middle;
     }
 
-    td,
-    th {
-      vertical-align: middle;
-      line-height: 1;
+    .react-bs-table-no-data {
+      padding: 0 14px;
     }
   }
 }
 
-.grid__header-devider {
-  position: absolute;
-  width: 2px;
-  background: $color-gray-4;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  cursor: col-resize;
-}
-
-.grid__th {
-  min-width: 120px;
-  position: relative;
-  display: inline-block;
-  padding: 7px 10px;
-  width: 100%;
-  height: 34px;
-  color: $text-color-dark;
-  font-size: $font-size-standard;
-  font-weight: $font-weight-semi-bold;
-}
-
 .grid__td {
-  display: inline-block;
+  display: flex;
+  align-items: center;
   width: 100%;
   min-height: 22px;
-  padding: 5px 5px;
+  max-width: 300px;
+  padding: 0 5px;
   border-radius: $border-radius-standard;
   color: $text-color-dark;
   font-size: $font-size-small;
   font-weight: $font-weight-normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.grid__td_editable {
+  &:hover {
+    background: $color-gray-4;
+    cursor: pointer;
+  }
 }
 
 .grid__body {
@@ -67,68 +59,42 @@
   overflow-x: auto;
 }
 
-/*Grid__tools*/
-.grid__tools {
-  display: flex;
-  align-items: center;
-  position: absolute;
-  top: 2px;
-  right: 0;
-  left: 54px;
-  z-index: 1;
-  height: 50px;
-  padding-left: 15px;
-  background: $color-white;
-}
-
-.grid__tools-item {
-  padding: 1px 9px 1px 0;
-  display: inline-block;
-}
-
-.grid__tools-item_first {
-  padding-left: 9px;
-}
-
-.grid__tools-item_select-all-btn {
-  padding-right: 15px;
+.grid_transparent {
+  opacity: 0;
 }
 
 /*Checkable*/
 .grid_checkable {
-  tbody > tr > td:nth-child(1) {
-    padding: 0;
-  }
-
+  tbody > tr > td:nth-child(1),
   thead > tr > th:nth-child(1) {
+    padding: 0;
     width: 54px;
   }
-
-  .react-bs-table-no-data {
-    padding: 14px 0.75rem !important;
-    visibility: hidden !important;
-  }
 }
 
-.grid__th_checkbox {
-  padding: 5px 15px;
+.grid__checkbox {
+  position: relative;
+  width: 54px;
+  height: 22px;
   background: $color-white;
-  line-height: 0;
-  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.grid__td_checkbox {
-  background: $color-white;
-  padding: 3px 15px;
-  width: 100%;
-  height: 100%;
-  line-height: 0;
+.grid__checkbox-devider {
+  position: absolute;
+  width: 2px;
+  height: 34px;
+  top: -6px;
+  right: 0;
+  background: $color-gray-4;
 }
 
 .grid__tr_selected {
   background: $color-yellow-1;
 
-  .grid__td_checkbox {
+  .grid__checkbox {
     background: $color-yellow-1;
   }
 }
@@ -147,127 +113,4 @@
   & > thead > tr > th:nth-child(1) {
     visibility: visible;
   }
-
-  .react-bs-table-no-data {
-    padding: 14px 10px !important;
-    visibility: visible !important;
-  }
-}
-
-/*Inline-tools*/
-.grid__inline-tools {
-  border-top: 2px solid $color-brown-2;
-  position: absolute;
-  height: 0;
-  width: 100%;
-  z-index: 10;
-}
-
-.grid__inline-tools-border-left {
-  border-left: 2px solid $color-brown-2;
-  width: 0;
-  position: relative;
-}
-
-.grid__inline-tools-border-bottom {
-  border-top: 2px solid $color-brown-2;
-  position: relative;
-}
-
-.grid__inline-tools-actions {
-  background: $color-white;
-  border-right: 2px solid $color-brown-2;
-  display: flex;
-  align-items: center;
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-.grid__inline-tools-btn {
-  height: auto !important;
-  padding: 0 !important;
-}
-
-/* Filter */
-.grid__filter {
-  background: $color-gray-4;
-  padding: 6px 6px;
-  border-radius: 6px;
-  color: $color-blue-dark;
-}
-
-.grid__filter-icon {
-  color: $color-gray-5;
-  margin-left: 6px;
-  font-size: 15px !important;
-  cursor: pointer;
-}
-
-.grid__filter-tooltip {
-  .grid__filter-tooltip-body {
-    background-color: $color-white;
-    color: $color-gray-6;
-    box-shadow: $box-shadow-tooltip;
-    border-radius: $border-radius-large;
-    text-align: center;
-    padding: 9px 10px;
-  }
-
-  span.grid__filter-tooltip-marker {
-    display: block;
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    bottom: 1px;
-    background-color: $color-white;
-    transform: rotate(-45deg);
-    box-shadow: $box-shadow-tooltip-arrow-top;
-    z-index: 2;
-
-    &::before {
-      border-top-color: $color-white;
-    }
-  }
-
-  .grid__filter-tooltip-close {
-    position: absolute;
-    top: (50% - 14);
-    right: 0;
-    margin-right: 14px;
-    cursor: pointer;
-    color: $color-gray-4;
-
-    &:hover {
-      color: $color-blue-dark;
-    }
-  }
-}
-
-.grid__filter-tooltip-input {
-  height: 26px;
-  border: 2px solid $color-gray-4;
-  padding-left: 5px;
-  width: 100%;
-  font-size: $font-size-small;
-  color: $color-gray-6;
-}
-
-.grid__th_filtered {
-  padding: 1px 4px;
-}
-
-/*Editor*/
-.react-bootstrap-table-editing-cell {
-}
-
-.grid__td_editable {
-  &:hover {
-    background: $color-gray-4;
-    cursor: pointer;
-  }
-}
-
-.grid_transparent {
-  opacity: 0;
 }

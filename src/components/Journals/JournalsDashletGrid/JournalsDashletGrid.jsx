@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import Grid from '../../common/grid/Grid/Grid';
-import GridInlineTools from '../../common/grid/GridInlineTools/GridInlineTools';
+import { Grid, InlineTools, Tools } from '../../common/grid';
 import Loader from '../../common/Loader/Loader';
 import { IcoBtn } from '../../common/btns';
 import { t } from '../../../helpers/util';
@@ -38,14 +37,6 @@ const mapDispatchToProps = dispatch => ({
   setGridInlineToolSettings: ({ top, height }) => dispatch(setGridInlineToolSettings({ top, height }))
 });
 
-function triggerEvent(name, data) {
-  const callback = this.props[name];
-
-  if (typeof callback === 'function') {
-    callback.call(this, data);
-  }
-}
-
 class JournalsDashletGrid extends Component {
   constructor(props) {
     super(props);
@@ -79,10 +70,6 @@ class JournalsDashletGrid extends Component {
       meta: { criteria }
     } = props.journalConfig;
     props.reloadGrid({ columns, criteria: [...filter, ...criteria] });
-  };
-
-  onDelete = () => {
-    triggerEvent.call(this, 'onDelete', this.props.selectedRecords);
   };
 
   componentDidMount() {
@@ -123,14 +110,54 @@ class JournalsDashletGrid extends Component {
     }
   };
 
+  inlineTools = () => {
+    const inlineToolsActionClassName = 'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10';
+
+    if (this.props.selectedRecords.length) {
+      return null;
+    }
+
+    return (
+      <InlineTools
+        tools={[
+          <IcoBtn icon={'icon-download'} className={inlineToolsActionClassName} />,
+          <IcoBtn icon={'icon-on'} className={inlineToolsActionClassName} />,
+          <IcoBtn icon={'icon-edit'} className={inlineToolsActionClassName} />,
+          <IcoBtn icon={'icon-delete'} className={inlineToolsActionClassName} />
+        ]}
+      />
+    );
+  };
+
+  tools = () => {
+    const toolsActionClassName = 'btn_i_sm btn_grey4 btn_hover_t-dark-brown';
+    const {
+      selectAllRecordsVisible,
+      selectAllRecords,
+      gridData: { total },
+      deleteRecords
+    } = this.props;
+
+    return (
+      <Tools
+        onSelectAll={this.setSelectAllRecords}
+        selectAllVisible={selectAllRecordsVisible}
+        selectAll={selectAllRecords}
+        total={total}
+        tools={[
+          <IcoBtn icon={'icon-download'} className={toolsActionClassName} title={t('grid.tools.zip')} />,
+          <IcoBtn icon={'icon-copy'} className={toolsActionClassName} />,
+          <IcoBtn icon={'icon-big-arrow'} className={toolsActionClassName} />,
+          <IcoBtn icon={'icon-delete'} className={toolsActionClassName} title={t('grid.tools.delete')} onClick={deleteRecords} />
+        ]}
+      />
+    );
+  };
+
   render() {
     const props = this.props;
     const params = (props.journalConfig || {}).params || {};
-    const inlineToolsActionClassName = 'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10';
-    const toolsActionClassName = 'btn_i_sm btn_grey4 btn_hover_t-dark-brown';
-    let defaultSortBy = params.defaultSortBy;
-
-    defaultSortBy = defaultSortBy ? eval('(' + defaultSortBy + ')') : [];
+    const defaultSortBy = params.defaultSortBy ? eval('(' + params.defaultSortBy + ')') : [];
 
     return (
       <div ref={this.gridWrapperRef} className={'journal-dashlet__grid'}>
@@ -155,31 +182,15 @@ class JournalsDashletGrid extends Component {
               editable
               multiSelectable
               defaultSortBy={defaultSortBy}
+              inlineTools={this.inlineTools}
+              tools={this.tools}
               onFilter={this.onFilter}
-              onSelectAll={this.setSelectAllRecords}
               onSelect={this.setSelectedRecords}
               onMouseEnter={this.setGridInlineToolSettings}
-              onDelete={props.deleteRecords}
               onEdit={props.saveRecords}
               minHeight={props.gridMinHeight}
               selected={props.selectedRecords}
-              selectAllRecords={props.selectAllRecords}
-              selectAllRecordsVisible={props.selectAllRecordsVisible}
-              tools={[
-                <IcoBtn icon={'icon-download'} className={toolsActionClassName} title={t('grid.tools.zip')} />,
-                <IcoBtn icon={'icon-copy'} className={toolsActionClassName} />,
-                <IcoBtn icon={'icon-big-arrow'} className={toolsActionClassName} />,
-                <IcoBtn icon={'icon-delete'} className={toolsActionClassName} title={t('grid.tools.delete')} onClick={this.onDelete} />
-              ]}
-            />
-
-            <GridInlineTools
-              tools={[
-                <IcoBtn icon={'icon-download'} className={inlineToolsActionClassName} />,
-                <IcoBtn icon={'icon-on'} className={inlineToolsActionClassName} />,
-                <IcoBtn icon={'icon-edit'} className={inlineToolsActionClassName} />,
-                <IcoBtn icon={'icon-delete'} className={inlineToolsActionClassName} />
-              ]}
+              selectAll={props.selectAllRecords}
             />
           </Fragment>
         )}

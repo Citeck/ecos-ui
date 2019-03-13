@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 
+import './InlineTools.scss';
+
 const mapStateToProps = state => ({ inlineToolSettings: state.journals.inlineToolSettings });
 
-class GridInlineTools extends Component {
+class InlineTools extends Component {
   tools = () => {
     return (this.props.tools || []).map((action, idx) => React.cloneElement(action, { key: idx }));
   };
@@ -13,12 +15,12 @@ class GridInlineTools extends Component {
 
     if (height) {
       return (
-        <div style={{ top }} className={'grid__inline-tools'}>
-          <div style={{ height }} className="grid__inline-tools-border-left" />
-          <div style={{ height }} className="grid__inline-tools-actions">
+        <div style={{ top }} className={'ecos-inline-tools'}>
+          <div style={{ height }} className="ecos-inline-tools-border-left" />
+          <div style={{ height }} className="ecos-inline-tools-actions">
             {this.tools()}
           </div>
-          <div className="grid__inline-tools-border-bottom" />
+          <div className="ecos-inline-tools-border-bottom" />
         </div>
       );
     }
@@ -27,4 +29,4 @@ class GridInlineTools extends Component {
   }
 }
 
-export default connect(mapStateToProps)(GridInlineTools);
+export default connect(mapStateToProps)(InlineTools);

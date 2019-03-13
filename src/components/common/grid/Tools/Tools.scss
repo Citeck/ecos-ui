@@ -1,0 +1,23 @@
+@import '../../../../constants';
+
+.grid-tools {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 2px;
+  right: 0;
+  left: 54px;
+  z-index: 1;
+  height: 50px;
+  padding-left: 15px;
+  background: $color-white;
+}
+
+.grid-tools__item {
+  padding: 1px 9px 1px 0;
+  display: inline-block;
+}
+
+.grid-tools__item_select-all-btn {
+  padding-right: 15px;
+}
