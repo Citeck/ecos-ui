@@ -60,6 +60,7 @@ export default class HeaderFormatter extends Component {
 
   clear = () => {
     this.setState({ text: '' });
+    this.toggle();
     this.triggerPendingChange('', this.props.column.dataField);
   };
 
