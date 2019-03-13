@@ -43,7 +43,7 @@ export default class HeaderFormatter extends Component {
     triggerEvent.call(this, 'onFilter', {
       field: dataField,
       predicate: 'string-contains',
-      value: text
+      value: text.trim()
     });
   }, 500);
 
