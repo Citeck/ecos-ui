@@ -91,7 +91,7 @@ a {
     padding: 9px 11px 9px 15px;
     //width: 165px;
     text-align: left;
-    display: flex;
+    display: inline-flex;
 
     .icon-down {
       float: right;
@@ -190,6 +190,10 @@ a {
   }
 
   /*hovers*/
+  &.btn_blue:hover {
+    background: $color-blue-light;
+  }
+
   &.btn_hover_light-blue {
     &:hover {
       background-color: $color-blue-light;

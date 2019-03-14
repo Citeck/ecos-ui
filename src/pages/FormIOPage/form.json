@@ -27,8 +27,15 @@
               "label": "Юридическое лицо",
               "key": "legalEntities",
               "multiple": true,
-              "journalId": "legal-entities",
-              "createFormRecord": "dict@idocs:legalEntity"
+              "journalId": "legal-entities"
+            },
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Контрагент",
+              "key": "idocsContractor",
+              "multiple": false,
+              "journalId": "idocs-contractor"
             }
           ]
         },
@@ -37,9 +44,9 @@
             {
               "input": true,
               "type": "selectJournal",
-              "label": "Контрагент",
-              "key": "idocsContractor",
-              "journalId": "idocs-contractor"
+              "label": "Предмет договора",
+              "key": "contractSubjects",
+              "journalId": "contract-subjects"
             }
           ]
         }

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import Button from '../../buttons/Button/Button';
+import { IcoBtn } from '../../../common/btns';
 import Input from '../../form/Input';
 import Grid from '../../../common/grid/Grid/Grid';
 import Pagination from '../../../common/Pagination/Pagination';
@@ -11,7 +12,7 @@ import SimpleModal from '../../SimpleModal';
 import Filters from './Filters';
 import FiltersProvider from './Filters/FiltersProvider';
 import { JournalsApi } from '../../../../api/journalsApi';
-// import { t } from "../../../../helpers/util";
+import { t } from '../../../../helpers/util';
 import './SelectJournal.scss';
 
 const paginationInitState = {
@@ -271,9 +272,14 @@ export default class SelectJournal extends Component {
     }, this.refreshGridData);
   };
 
+  onApplyFilters = value => {
+    console.log('onApplyFilters', value);
+  };
+
   render() {
     // TODO translation !!!!!!!!
-    // todo вынести переводы, настройки и т.д. наружу
+    // TODO настройки наружу
+    // TODO zIndex
 
     const { createFormRecord, multiple, placeholder, disabled } = this.props;
     const {
@@ -290,12 +296,9 @@ export default class SelectJournal extends Component {
       error
     } = this.state;
 
-    // console.log('requestParams', requestParams);
-    // console.log('journalConfig', journalConfig);
-
     const createButton = createFormRecord ? (
       <Button className={'button_blue'} onClick={this.toggleCreateModal}>
-        Создать
+        {t('select-journal.select-modal.create-button')}
       </Button>
     ) : null;
 
@@ -315,7 +318,7 @@ export default class SelectJournal extends Component {
               ))}
             </ul>
           ) : (
-            <p className={'select-journal__value-not-selected'}>{placeholder ? placeholder : 'Нет'}</p>
+            <p className={'select-journal__value-not-selected'}>{placeholder ? placeholder : t('select-journal.placeholder')}</p>
           )}
         </div>
 
@@ -323,13 +326,17 @@ export default class SelectJournal extends Component {
           <p className={'select-journal__error'}>{error.message}</p>
         ) : (
           <Button className={'button_blue'} onClick={this.openSelectModal} disabled={disabled}>
-            {value.length > 0 ? (multiple ? 'Добавить' : 'Изменить') : 'Выбрать'}
+            {value.length > 0
+              ? multiple
+                ? t('select-journal.button.add')
+                : t('select-journal.button.change')
+              : t('select-journal.button.select')}
           </Button>
         )}
 
-        <FiltersProvider columns={journalConfig.columns}>
+        <FiltersProvider columns={journalConfig.columns} api={this.api}>
           <SimpleModal
-            title={'Выбрать юридическое лицо'}
+            title={t('select-journal.select-modal.title')}
             isOpen={isSelectModalOpen}
             hideModal={this.toggleSelectModal}
             zIndex={10002}
@@ -338,17 +345,24 @@ export default class SelectJournal extends Component {
             <div className={'select-journal-collapse-panel'}>
               <div className={'select-journal-collapse-panel__controls'}>
                 <div className={'select-journal-collapse-panel__controls-left'}>
-                  <Button className={'button_blue'} onClick={this.toggleCollapsePanel}>
-                    Фильтр
-                  </Button>
+                  <IcoBtn
+                    invert={'true'}
+                    icon={isCollapsePanelOpen ? 'icon-up' : 'icon-down'}
+                    className="btn_drop-down btn_r_8 btn_blue btn_x-step_10"
+                    onClick={this.toggleCollapsePanel}
+                  >
+                    {t('select-journal.select-modal.filter-button')}
+                  </IcoBtn>
                   {createButton}
                 </div>
                 <div className={'select-journal-collapse-panel__controls-right'}>
-                  <Input />
+                  <Input placeholder={t('select-journal.search.placeholder')} />
                 </div>
               </div>
 
-              <Collapse isOpen={isCollapsePanelOpen}>{journalConfig.columns ? <Filters columns={journalConfig.columns} /> : null}</Collapse>
+              <Collapse isOpen={isCollapsePanelOpen}>
+                {journalConfig.columns ? <Filters columns={journalConfig.columns} onApply={this.onApplyFilters} /> : null}
+              </Collapse>
             </div>
 
             <div className={'select-journal__grid'}>
@@ -360,14 +374,7 @@ export default class SelectJournal extends Component {
                 onSelect={this.onSelectGridItem}
                 selectAllRecords={null}
                 selectAllRecordsVisible={null}
-                onFilter={() => console.log('onFilter')}
-                onSelectAll={() => console.log('onSelectAll')}
-                onDelete={() => console.log('onDelete')}
-                onEdit={() => console.log('onEdit')}
                 className={!isGridDataReady ? 'grid_transparent' : ''}
-                onEmptyHeight={() => console.log('onEmptyHeight')}
-                emptyRowsCount={5}
-                minHeight={200}
               />
 
               <Pagination
@@ -379,16 +386,16 @@ export default class SelectJournal extends Component {
             </div>
 
             <div className="select-journal-select-modal__buttons">
-              <Button onClick={this.onCancelSelect}>Отмена</Button>
+              <Button onClick={this.onCancelSelect}>{t('select-journal.select-modal.cancel-button')}</Button>
               <Button className={'button_blue'} onClick={this.onSelect}>
-                ОK
+                {t('select-journal.select-modal.ok-button')}
               </Button>
             </div>
           </SimpleModal>
         </FiltersProvider>
 
         <SimpleModal
-          title={'Создать юридическое лицо'}
+          title={t('select-journal.create-modal.title')}
           isOpen={isCreateModalOpen}
           hideModal={this.toggleCreateModal}
           zIndex={10003}
@@ -398,7 +405,7 @@ export default class SelectJournal extends Component {
         </SimpleModal>
 
         <SimpleModal
-          title={'Изменить свойства'}
+          title={t('select-journal.edit-modal.title')}
           isOpen={isEditModalOpen}
           hideModal={this.toggleEditModal}
           zIndex={10002}

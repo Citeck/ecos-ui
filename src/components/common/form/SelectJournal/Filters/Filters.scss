@@ -14,21 +14,3 @@
   padding: 0;
   list-style: none;
 }
-
-.select-journal-filters__list-item {
-  border-bottom: 2px solid $color-gray-6;
-  line-height: $form-input-height;
-
-  /* TODO delete */
-  .icon {
-    float: right;
-    line-height: 40px;
-    cursor: pointer;
-    color: $color-gray-6;
-    margin-left: 5px;
-
-    &.icon-delete:hover {
-      color: $color-red-1;
-    }
-  }
-}
