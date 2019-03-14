@@ -20,18 +20,21 @@ const PREDICATE_NOT_EMPTY = 'not-empty';
 const PREDICATE_GE = 'ge';
 const PREDICATE_LT = 'lt';
 
-const allPredicates = [
-  { value: PREDICATE_CONTAINS, label: t('predicate.contains'), needValue: true },
-  { value: PREDICATE_NOT_CONTAINS, label: t('predicate.not-contains'), needValue: true },
-  { value: PREDICATE_EQ, label: t('predicate.eq'), needValue: true },
-  { value: PREDICATE_NOT_EQ, label: t('predicate.not-eq'), needValue: true },
-  { value: PREDICATE_STARTS, label: t('predicate.starts'), needValue: true },
-  { value: PREDICATE_ENDS, label: t('predicate.ends'), needValue: true },
-  { value: PREDICATE_EMPTY, label: t('predicate.empty'), needValue: false },
-  { value: PREDICATE_NOT_EMPTY, label: t('predicate.not-empty'), needValue: false },
-  { value: PREDICATE_GE, label: t('predicate.ge'), needValue: true },
-  { value: PREDICATE_LT, label: t('predicate.lt'), needValue: true }
-];
+// Hack: Currently t('') works correctly only after execution loadMessagesAndAlfrescoScript function in share.js, so we should use function instead of array:
+const getAllPredicates = function() {
+  return [
+    { value: PREDICATE_CONTAINS, label: t('predicate.contains'), needValue: true },
+    { value: PREDICATE_NOT_CONTAINS, label: t('predicate.not-contains'), needValue: true },
+    { value: PREDICATE_EQ, label: t('predicate.eq'), needValue: true },
+    { value: PREDICATE_NOT_EQ, label: t('predicate.not-eq'), needValue: true },
+    { value: PREDICATE_STARTS, label: t('predicate.starts'), needValue: true },
+    { value: PREDICATE_ENDS, label: t('predicate.ends'), needValue: true },
+    { value: PREDICATE_EMPTY, label: t('predicate.empty'), needValue: false },
+    { value: PREDICATE_NOT_EMPTY, label: t('predicate.not-empty'), needValue: false },
+    { value: PREDICATE_GE, label: t('predicate.ge'), needValue: true },
+    { value: PREDICATE_LT, label: t('predicate.lt'), needValue: true }
+  ];
+};
 
 // TODO configure
 const PREDICATE_LIST_TYPE_STRING = [
@@ -46,7 +49,12 @@ const PREDICATE_LIST_TYPE_STRING = [
 const PREDICATE_LIST_TYPE_DATE = [PREDICATE_GE, PREDICATE_LT, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_NODE_REF = [PREDICATE_CONTAINS, PREDICATE_NOT_CONTAINS, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 
+let allPredicates = [];
 function filterPredicates(filterArr) {
+  if (!allPredicates.length) {
+    allPredicates = getAllPredicates();
+  }
+
   return filterArr.map(arrItem => allPredicates.find(item => item.value === arrItem));
 }
 
