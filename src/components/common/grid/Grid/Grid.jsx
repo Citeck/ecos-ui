@@ -1,15 +1,10 @@
-import $ from 'jquery';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
-import debounce from 'lodash/debounce';
 import BootstrapTable from 'react-bootstrap-table-next';
 import cellEditFactory from 'react-bootstrap-table2-editor';
-import Icon from '../../icons/Icon/Icon';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import PerfectScrollbar from 'react-perfect-scrollbar';
-import { Btn } from '../../btns';
-import { Input } from '../../form';
-import { Tooltip } from 'reactstrap';
+import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { t } from '../../../../helpers/util';
 
 import 'react-perfect-scrollbar/dist/css/styles.css';
@@ -25,111 +20,27 @@ function triggerEvent(name, data) {
   }
 }
 
-class HeaderFormatter extends Component {
-  constructor(props) {
-    super(props);
-    this.thRef = React.createRef();
-    this.state = { open: false, text: '' };
-    this.onCloseFilter = this.onCloseFilter.bind(this);
-  }
+const Selector = ({ mode, ...rest }) => (
+  <div className={'grid__checkbox'}>
+    <Checkbox checked={rest.checked} />
+  </div>
+);
 
-  toggle = () => {
-    const open = !this.state.open;
-
-    open
-      ? document.addEventListener(CLOSE_FILTER_EVENT, this.onCloseFilter)
-      : document.removeEventListener(CLOSE_FILTER_EVENT, this.onCloseFilter);
-
-    this.setState({ open });
-  };
-
-  onChange = e => {
-    let text = e.target.value;
-    this.setState({ text });
-    this.triggerPendingChange(text, this.props.column.dataField);
-  };
-
-  triggerPendingChange = debounce((text, dataField) => {
-    triggerEvent.call(this, 'onFilter', {
-      field: dataField,
-      predicate: 'string-contains',
-      value: text
-    });
-  }, 500);
-
-  onCloseFilter(e) {
-    const tooltip = document.getElementById(this.tooltipId);
-    const filter = document.getElementById(this.id);
-
-    if (filter.contains(e.target) || tooltip.contains(e.target)) {
-      return;
-    }
-
-    this.toggle();
-  }
-
-  clear = () => {
-    this.setState({ text: '' });
-    this.triggerPendingChange('', this.props.column.dataField);
-  };
-
-  onDeviderMouseDown = e => {
-    const current = this.thRef.current;
-    triggerEvent.call(this, 'onDeviderMouseDown', {
-      e: e,
-      th: current.parentElement,
-      thBody: current
-    });
-  };
-
-  render() {
-    const { column, filterable } = this.props;
-    const state = this.state;
-
-    this.id = `filter-${column.dataField.replace(':', '_')}`;
-    this.tooltipId = `tooltip-${this.id}`;
-
-    return (
-      <div ref={this.thRef} className={classNames('grid__th', state.text && 'grid__th_filtered')}>
-        {filterable ? (
-          <div className={state.text && 'grid__filter'}>
-            {column.text}
-
-            <Icon id={this.id} className={'grid__filter-icon icon-filter'} onClick={this.toggle} />
-
-            <Tooltip
-              id={this.tooltipId}
-              target={this.id}
-              isOpen={state.open}
-              trigger={'click'}
-              placement="top"
-              className={'grid__filter-tooltip'}
-              innerClassName={'grid__filter-tooltip-body'}
-              arrowClassName={'grid__filter-tooltip-marker'}
-            >
-              <Input autoFocus type="text" className={'grid__filter-tooltip-input'} onChange={this.onChange} value={state.text} />
-
-              <Icon className={'grid__filter-tooltip-close icon-close icon_small'} onClick={this.clear} />
-            </Tooltip>
-          </div>
-        ) : (
-          column.text
-        )}
-
-        <div className={'grid__header-devider'} onMouseDown={this.onDeviderMouseDown} />
-      </div>
-    );
-  }
-}
+const SelectorHeader = ({ indeterminate, ...rest }) => (
+  <Fragment>
+    <div className={'grid__checkbox'}>
+      {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
+      <div className={'grid__checkbox-devider'} />
+    </div>
+  </Fragment>
+);
 
 export default class Grid extends Component {
   constructor(props) {
     super(props);
-    this.inlineToolsRef = React.createRef();
     this._selected = [];
     this._id = this.getId();
     this._resizingTh = null;
-    this._resizingThBody = null;
     this._startResizingThOffset = 0;
     this._keyField = props.keyField || 'id';
   }
@@ -169,10 +80,8 @@ export default class Grid extends Component {
       props.data = this.sortByDefault(props);
     }
 
-    if (props.inlineTools) {
-      props.rowEvents = {
-        onMouseEnter: e => this.createInlineTools($(e.target).closest('tr'))
-      };
+    if (typeof props.onMouseEnter === 'function') {
+      props.rowEvents = { onMouseEnter: e => props.onMouseEnter.call(this, e, this.getTrOffsets(e)) };
     }
 
     if (props.multiSelectable) {
@@ -185,6 +94,14 @@ export default class Grid extends Component {
 
     return props;
   }
+
+  getTrOffsets = e => {
+    const tr = e.currentTarget;
+    const height = tr.offsetHeight - 2;
+    const top = tr.offsetTop - 1;
+
+    return { height, top };
+  };
 
   setEditable = () => {
     return cellEditFactory({
@@ -233,7 +150,9 @@ export default class Grid extends Component {
     column.headerFormatter = (column, colIndex) => {
       return (
         <HeaderFormatter
+          closeFilterEvent={CLOSE_FILTER_EVENT}
           filterable={filterable}
+          filterValue={((this.props.filters || []).filter(filter => filter.field === column.dataField)[0] || {}).value || ''}
           column={column}
           colIndex={colIndex}
           onFilter={this.onFilter}
@@ -245,31 +164,6 @@ export default class Grid extends Component {
     return column;
   };
 
-  createInlineTools = $tr => {
-    const $inlineTools = $(this.inlineToolsRef.current);
-    const $currentTr = $tr.mouseleave(() => $inlineTools.hide());
-    const top = $currentTr.position().top + 'px';
-    const height = $currentTr.height() - 2 + 'px';
-
-    $inlineTools
-      .show()
-      .css('top', top)
-      .children()
-      .each((idx, child) => (idx < 2 ? $(child).css('height', height) : null));
-  };
-
-  inlineTools = () => {
-    return (
-      <div ref={this.inlineToolsRef} className={'grid__inline-tools'}>
-        <div className="grid__inline-tools-border-left" />
-        <div className="grid__inline-tools-actions">
-          {this.props.inlineTools.map((action, idx) => React.cloneElement(action, { key: idx }))}
-        </div>
-        <div className="grid__inline-tools-border-bottom" />
-      </div>
-    );
-  };
-
   getId = () => {
     return Math.random()
       .toString(36)
@@ -277,7 +171,7 @@ export default class Grid extends Component {
   };
 
   createSingleSelectionCheckboxs(props) {
-    this._selected = props.selectAllRecords ? props.data.map(row => row[this._keyField]) : props.selected || [];
+    this._selected = props.selected || [];
 
     return {
       mode: 'radio',
@@ -294,18 +188,13 @@ export default class Grid extends Component {
           all: false
         });
       },
-      selectionRenderer: ({ mode, ...rest }) => {
-        return (
-          <div className={'grid__td_checkbox'}>
-            <Checkbox checked={rest.checked} />
-          </div>
-        );
-      }
+      selectionHeaderRenderer: ({ indeterminate, ...rest }) => SelectorHeader({ indeterminate, ...rest }),
+      selectionRenderer: ({ mode, ...rest }) => Selector({ mode, ...rest })
     };
   }
 
   createMultiSelectioCheckboxs(props) {
-    this._selected = props.selectAllRecords ? props.data.map(row => row[this._keyField]) : props.selected || [];
+    this._selected = props.selectAll ? props.data.map(row => row[this._keyField]) : props.selected || [];
 
     return {
       mode: 'checkbox',
@@ -332,21 +221,8 @@ export default class Grid extends Component {
           all: isSelect
         });
       },
-      selectionHeaderRenderer: ({ indeterminate, ...rest }) => {
-        return (
-          <div className={'grid__th grid__th_checkbox'}>
-            <Checkbox indeterminate={indeterminate} checked={rest.checked} />
-            <div className={'grid__header-devider'} />
-          </div>
-        );
-      },
-      selectionRenderer: ({ mode, ...rest }) => {
-        return (
-          <div className={'grid__td_checkbox'}>
-            <Checkbox checked={rest.checked} />
-          </div>
-        );
-      }
+      selectionHeaderRenderer: ({ indeterminate, ...rest }) => SelectorHeader({ indeterminate, ...rest }),
+      selectionRenderer: ({ mode, ...rest }) => Selector({ mode, ...rest })
     };
   }
 
@@ -370,10 +246,6 @@ export default class Grid extends Component {
       const length = records.filter(record => record[this._keyField] === id).length;
       return onPage ? length : !length;
     });
-  };
-
-  selectAll = () => {
-    triggerEvent.call(this, 'onSelectAll');
   };
 
   onFilter = criteria => {
@@ -402,7 +274,6 @@ export default class Grid extends Component {
 
   getStartDeviderPosition = options => {
     this._resizingTh = options.th;
-    this._resizingThBody = options.thBody;
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
   };
 
@@ -410,7 +281,6 @@ export default class Grid extends Component {
     let th = this._resizingTh;
     if (th) {
       th.style.width = this._startResizingThOffset + e.pageX + 'px';
-      this._resizingThBody.style.width = th.style.width;
     }
   };
 
@@ -422,34 +292,20 @@ export default class Grid extends Component {
     (e.target || e).dispatchEvent(this.closeFilterEvent);
   };
 
-  createToolsActions = () => {
-    return this.props.tools.map((action, idx) => (
-      <div key={idx} className={`grid__tools-item ${idx ? 'grid__tools-item_first' : ''}`}>
-        {React.cloneElement(action)}
-      </div>
-    ));
+  inlineTools = () => {
+    const inlineTools = this.props.inlineTools;
+    if (typeof inlineTools === 'function') {
+      return inlineTools();
+    }
+    return null;
   };
 
   tools = () => {
-    const props = this.props;
-
-    return (
-      <div className={'grid__tools'}>
-        {props.selectAllRecordsVisible ? (
-          <div className={'grid__tools-item grid__tools-item_first'}>
-            <Btn
-              className={`btn_extra-narrow ${props.selectAllRecords ? 'btn_blue' : 'btn_grey5'} btn_hover_light-blue2`}
-              title={t('grid.tools.select-all')}
-              onClick={this.selectAll}
-            >
-              {t('grid.tools.select-all')} {props.total}
-            </Btn>
-          </div>
-        ) : null}
-
-        {props.tools ? this.createToolsActions() : null}
-      </div>
-    );
+    const tools = this.props.tools;
+    if (typeof tools === 'function') {
+      return tools();
+    }
+    return null;
   };
 
   render() {
@@ -474,7 +330,6 @@ export default class Grid extends Component {
           className={classNames('grid', (props.singleSelectable || props.multiSelectable) && 'grid_checkable', this.props.className)}
         >
           {toolsVisible ? this.tools() : null}
-          {props.inlineTools && !toolsVisible ? this.inlineTools() : null}
 
           <PerfectScrollbar
             style={{ minHeight: props.minHeight }}
@@ -484,7 +339,11 @@ export default class Grid extends Component {
             <BootstrapTable {...props} />
           </PerfectScrollbar>
 
-          {props.freezeCheckboxes ? <BootstrapTable {...props} classes={'grid__freeze'} /> : null}
+          {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
+            <BootstrapTable {...props} classes={'grid__freeze'} />
+          ) : null}
+
+          {this.inlineTools()}
         </div>
       );
     }

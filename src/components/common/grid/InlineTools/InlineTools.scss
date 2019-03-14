@@ -1,0 +1,35 @@
+@import '../../../../constants';
+
+.ecos-inline-tools {
+  border-top: 2px solid $color-brown-2;
+  position: absolute;
+  height: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.ecos-inline-tools-border-left {
+  border-left: 2px solid $color-brown-2;
+  width: 0;
+  position: relative;
+}
+
+.ecos-inline-tools-border-bottom {
+  border-top: 2px solid $color-brown-2;
+  position: relative;
+}
+
+.ecos-inline-tools-actions {
+  background: $color-white;
+  border-right: 2px solid $color-brown-2;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.ecos-inline-tools-btn {
+  height: auto !important;
+  padding: 0 !important;
+}

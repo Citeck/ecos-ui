@@ -14,7 +14,8 @@ import {
   setSelectAllRecords,
   setSelectAllRecordsVisible,
   setJournalsListName,
-  setGridMinHeight
+  setGridMinHeight,
+  setGridInlineToolSettings
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 
@@ -45,13 +46,23 @@ const initialState = {
   selectAllRecordsVisible: false,
   journalsListName: '',
   gridMinHeight: null,
-  maxGridItems: MAX_ITEMS
+  maxGridItems: MAX_ITEMS,
+  inlineToolSettings: {
+    height: 0,
+    top: 0
+  }
 };
 
 Object.freeze(initialState);
 
 export default handleActions(
   {
+    [setGridInlineToolSettings]: (state, action) => {
+      return {
+        ...state,
+        inlineToolSettings: action.payload
+      };
+    },
     [setGridMinHeight]: (state, action) => {
       return {
         ...state,
