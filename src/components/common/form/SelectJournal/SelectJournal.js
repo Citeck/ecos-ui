@@ -80,15 +80,16 @@ export default class SelectJournal extends Component {
 
       this.api.getJournalConfig(journalId).then(journalConfig => {
         // console.log('journalConfig', journalConfig);
-
         const columns = journalConfig.columns;
-        const criteria = journalConfig.meta.criteria;
+        const predicate = journalConfig.meta.predicate;
+
         this.setState(prevState => {
           return {
             requestParams: {
               ...prevState.requestParams,
               columns,
-              criteria
+              journalConfigPredicate: predicate,
+              predicates: []
             },
             journalConfig,
             isJournalConfigFetched: true
@@ -105,7 +106,7 @@ export default class SelectJournal extends Component {
           isGridDataReady: false
         },
         () => {
-          return this.api.getGridData(this.state.requestParams).then(gridData => {
+          return this.api.getGridDataUsePredicates(this.state.requestParams).then(gridData => {
             // console.log('gridData', gridData);
 
             // setTimeout(() => {
@@ -272,8 +273,16 @@ export default class SelectJournal extends Component {
     }, this.refreshGridData);
   };
 
-  onApplyFilters = value => {
-    console.log('onApplyFilters', value);
+  onApplyFilters = predicates => {
+    this.setState(prevState => {
+      return {
+        requestParams: {
+          ...prevState.requestParams,
+          predicates: predicates
+        },
+        isJournalConfigFetched: true
+      };
+    }, this.refreshGridData);
   };
 
   render() {
