@@ -142,15 +142,14 @@ export function getPredicateInput(field) {
       // };
       return {
         component: SelectJournal,
-        defaultValue: [],
+        defaultValue: null,
         getProps: ({ predicateValue, changePredicateValue }) => ({
           isCompact: true,
-          // journalId: field.editorKey,
-          journalId: 'currency',
+          journalId: field.editorKey,
+          // journalId: 'currency',
           value: predicateValue,
           onChange: function(value) {
             changePredicateValue(value);
-            // changePredicateValue(value.length ? value[0] : null);
           }
         })
       };

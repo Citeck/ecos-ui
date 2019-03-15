@@ -6,7 +6,7 @@ import './Btn.scss';
 export default class Btn extends Component {
   render() {
     const props = this.props;
-    const cssClasses = classNames('btn', props.className);
+    const cssClasses = classNames('ecos-btn', props.className);
 
     return (
       <a {...props} className={cssClasses}>

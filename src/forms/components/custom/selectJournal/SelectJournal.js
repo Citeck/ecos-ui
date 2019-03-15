@@ -67,7 +67,7 @@ export default class DateTimeComponent extends BaseComponent {
 
     ReactDOM.render(
       <SelectJournal
-        value={this.dataValue}
+        defaultValue={this.component.defaultValue}
         isCompact={this.component.isCompact}
         multiple={this.component.multiple}
         placeholder={this.component.placeholder}
@@ -96,7 +96,7 @@ export default class DateTimeComponent extends BaseComponent {
   }
 
   get emptyValue() {
-    return [];
+    return this.component.multiple ? [] : null;
   }
 
   getValue() {

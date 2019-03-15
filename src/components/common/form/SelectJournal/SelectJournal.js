@@ -42,9 +42,19 @@ export default class SelectJournal extends Component {
     requestParams: {
       pagination: paginationInitState
     },
-    value: [],
+    selectedRows: [],
     error: null
   };
+
+  static getDerivedStateFromProps(props, state) {
+    if (state.value === undefined) {
+      return {
+        value: props.multiple ? [] : null
+      };
+    }
+
+    return null;
+  }
 
   constructor() {
     super();
@@ -52,7 +62,7 @@ export default class SelectJournal extends Component {
   }
 
   componentDidMount() {
-    const { value, multiple, journalId, onError } = this.props;
+    const { defaultValue, multiple, journalId, onError } = this.props;
 
     if (!journalId) {
       const err = new Error('The "journalId" config is required!');
@@ -60,12 +70,14 @@ export default class SelectJournal extends Component {
       this.setState({ error: err });
     }
 
-    let initValue = value;
-    if (!multiple && value.length > 1) {
-      initValue = [];
+    let initValue;
+    if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
+      initValue = defaultValue.map(item => ({ id: item }));
+    } else if (!multiple && !!defaultValue) {
+      initValue = [{ id: defaultValue }];
     }
 
-    if (initValue.length > 0) {
+    if (initValue) {
       this.fetchDisplayNames(initValue).then(value => {
         this.setValue(value);
       });
@@ -176,22 +188,30 @@ export default class SelectJournal extends Component {
     );
   };
 
-  setValue = value => {
-    const { onChange } = this.props;
+  setValue = selected => {
+    const { onChange, multiple } = this.props;
+
+    let newValue;
+    if (multiple) {
+      newValue = selected.map(item => item.id);
+    } else {
+      newValue = selected.length > 0 ? selected[0]['id'] : null;
+    }
 
     return new Promise(resolve => {
       this.setState(
         prevState => {
           return {
+            value: newValue,
+            selectedRows: selected,
             gridData: {
               ...prevState.gridData,
-              selected: value.map(item => item.id)
-            },
-            value
+              selected: selected.map(item => item.id)
+            }
           };
         },
         () => {
-          typeof onChange === 'function' && onChange(this.state.value.map(item => item.id));
+          typeof onChange === 'function' && onChange(newValue);
           resolve();
         }
       );
@@ -259,7 +279,7 @@ export default class SelectJournal extends Component {
   };
 
   onValueDelete = e => {
-    const newValue = this.state.value.filter(item => item.id !== e.target.dataset.id);
+    const newValue = this.state.selectedRows.filter(item => item.id !== e.target.dataset.id);
 
     this.setValue(newValue);
   };
@@ -288,14 +308,13 @@ export default class SelectJournal extends Component {
   };
 
   render() {
-    // TODO translation !!!!!!!!
     // TODO настройки наружу
     // TODO zIndex
 
     const { createFormRecord, multiple, placeholder, disabled, isCompact } = this.props;
     const {
       isGridDataReady,
-      value,
+      selectedRows,
       isSelectModalOpen,
       isEditModalOpen,
       isCreateModalOpen,
@@ -325,7 +344,7 @@ export default class SelectJournal extends Component {
           multiple={multiple}
           placeholder={placeholder}
           error={error}
-          value={value}
+          selectedRows={selectedRows}
           editValue={this.onValueEdit}
           deleteValue={this.onValueDelete}
           openSelectModal={this.openSelectModal}
@@ -418,6 +437,7 @@ export default class SelectJournal extends Component {
 SelectJournal.propTypes = {
   journalId: PropTypes.string.isRequired,
   createFormRecord: PropTypes.string,
+  defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
   onChange: PropTypes.func,
   onError: PropTypes.func,
   multiple: PropTypes.bool,

@@ -7,7 +7,7 @@ import './InputView.scss';
 
 class InputView extends Component {
   render() {
-    const { value, placeholder, error, disabled, multiple, isCompact, editValue, deleteValue, openSelectModal } = this.props;
+    const { selectedRows, placeholder, error, disabled, multiple, isCompact, editValue, deleteValue, openSelectModal } = this.props;
 
     const wrapperClasses = classNames('select-journal__input-view', {
       'select-journal__input-view_compact': isCompact
@@ -22,13 +22,15 @@ class InputView extends Component {
 
     const valuesList = isCompact ? (
       <Fragment>
-        {value.length > 0 ? <div className={'select-journal__values-list_compact'}>{value.map(item => item.disp).join(',')}</div> : null}
+        {selectedRows.length > 0 ? (
+          <div className={'select-journal__values-list_compact'}>{selectedRows.map(item => item.disp).join(', ')}</div>
+        ) : null}
       </Fragment>
     ) : (
       <Fragment>
-        {value.length > 0 ? (
+        {selectedRows.length > 0 ? (
           <ul className={'select-journal__values-list'}>
-            {value.map(item => (
+            {selectedRows.map(item => (
               <li key={item.id}>
                 <span className="select-journal__values-list-disp">{item.disp}</span>
                 <div className="select-journal__values-list-actions">
@@ -52,7 +54,7 @@ class InputView extends Component {
           <p className={'select-journal__error'}>{error.message}</p>
         ) : (
           <Button className={buttonClasses} onClick={openSelectModal} disabled={disabled}>
-            {value.length > 0
+            {selectedRows.length > 0
               ? multiple
                 ? t('select-journal.button.add')
                 : t('select-journal.button.change')
@@ -67,7 +69,7 @@ class InputView extends Component {
 }
 
 InputView.propTypes = {
-  value: PropTypes.array,
+  selectedRows: PropTypes.array,
   placeholder: PropTypes.string,
   error: PropTypes.instanceOf(Error),
   disabled: PropTypes.bool,
