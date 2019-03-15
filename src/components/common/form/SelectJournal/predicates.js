@@ -1,13 +1,32 @@
 import Input from '../../../common/form/Input';
 import DatePicker from '../../../common/form/DatePicker';
 // import Select from '../../../common/form/Select';
-// import SelectJournal from '../../../common/form/SelectJournal';
+import SelectJournal from '../../../common/form/SelectJournal';
 import { t } from '../../../../helpers/util';
 
-const COLUMN_DATA_TYPE_STRING = 'java.lang.String';
-const COLUMN_DATA_TYPE_DATE = 'java.util.Date';
-const COLUMN_DATA_TYPE_NODE_REF = 'org.alfresco.service.cmr.repository.NodeRef';
-// TODO COLUMN_DATA_TYPE_CATEGORY
+const COLUMN_DATA_TYPE_TEXT = 'text'; // +
+const COLUMN_DATA_TYPE_MLTEXT = 'mltext'; // +
+const COLUMN_DATA_TYPE_DATE = 'date'; // +
+const COLUMN_DATA_TYPE_DATETIME = 'datetime'; // +- !!!
+const COLUMN_DATA_TYPE_ASSOC = 'assoc';
+const COLUMN_DATA_TYPE_CATEGORY = 'category';
+
+/*
+content
+int
+long
+float
+double
+boolean
+qname
+category
+noderef
+options
+assoc
+person
+authorityGroup
+authority
+*/
 
 const PREDICATE_CONTAINS = 'contains';
 const PREDICATE_NOT_CONTAINS = 'not-contains';
@@ -58,21 +77,25 @@ function filterPredicates(filterArr) {
   return filterArr.map(arrItem => allPredicates.find(item => item.value === arrItem));
 }
 
-export function getPredicates(fields) {
-  switch (fields.javaClass) {
-    case COLUMN_DATA_TYPE_NODE_REF:
+export function getPredicates(field) {
+  switch (field.type) {
+    case COLUMN_DATA_TYPE_ASSOC:
       return filterPredicates(PREDICATE_LIST_TYPE_NODE_REF);
     case COLUMN_DATA_TYPE_DATE:
+    case COLUMN_DATA_TYPE_DATETIME:
       return filterPredicates(PREDICATE_LIST_TYPE_DATE);
-    case COLUMN_DATA_TYPE_STRING:
+    case COLUMN_DATA_TYPE_MLTEXT:
+    case COLUMN_DATA_TYPE_TEXT:
+    case COLUMN_DATA_TYPE_CATEGORY:
     default:
       return filterPredicates(PREDICATE_LIST_TYPE_STRING);
   }
 }
 
-export function getPredicateInput(fields) {
-  switch (fields.javaClass) {
+export function getPredicateInput(field) {
+  switch (field.type) {
     case COLUMN_DATA_TYPE_DATE:
+    case COLUMN_DATA_TYPE_DATETIME:
       return {
         component: DatePicker,
         defaultValue: null, // new Date(),
@@ -85,7 +108,9 @@ export function getPredicateInput(fields) {
           }
         })
       };
-    case COLUMN_DATA_TYPE_STRING:
+    case COLUMN_DATA_TYPE_MLTEXT:
+    case COLUMN_DATA_TYPE_TEXT:
+    case COLUMN_DATA_TYPE_CATEGORY:
       return {
         component: Input,
         defaultValue: '',
@@ -102,31 +127,33 @@ export function getPredicateInput(fields) {
           }
         })
       };
-    case COLUMN_DATA_TYPE_NODE_REF: // TODO
-    // return {
-    //   component: Select,
-    //   defaultValue: null,
-    //   getProps: ({ predicateValue, changePredicateValue }) => ({
-    //     className: 'select_narrow',
-    //     loadOptions: () => {console.log('loadOptions')}
-    //     // value: predicateValue,
-    //     // onChange: function(e) {
-    //     //   changePredicateValue(e.target.value)
-    //     // },
-    //   }),
-    // };
-    // return {
-    //   component: SelectJournal,
-    //   defaultValue: [],
-    //   getProps: ({ predicateValue, changePredicateValue }) => ({
-    //     isCompact: true,
-    //     journalId: 'legal-entities',
-    //     value: predicateValue,
-    //     onChange: function(value) {
-    //       changePredicateValue(value);
-    //     }
-    //   })
-    // };
+    case COLUMN_DATA_TYPE_ASSOC: // TODO
+      // return {
+      //   component: Select,
+      //   defaultValue: null,
+      //   getProps: ({ predicateValue, changePredicateValue }) => ({
+      //     className: 'select_narrow',
+      //     loadOptions: () => {console.log('loadOptions')}
+      //     // value: predicateValue,
+      //     // onChange: function(e) {
+      //     //   changePredicateValue(e.target.value)
+      //     // },
+      //   }),
+      // };
+      return {
+        component: SelectJournal,
+        defaultValue: [],
+        getProps: ({ predicateValue, changePredicateValue }) => ({
+          isCompact: true,
+          // journalId: field.editorKey,
+          journalId: 'currency',
+          value: predicateValue,
+          onChange: function(value) {
+            changePredicateValue(value);
+            // changePredicateValue(value.length ? value[0] : null);
+          }
+        })
+      };
     /* eslint-disable-next-line */
     default:
       return null;

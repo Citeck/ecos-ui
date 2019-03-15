@@ -48,6 +48,13 @@
               "label": "Предмет договора",
               "key": "contractSubjects",
               "journalId": "contract-subjects"
+            },
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Документ-основание",
+              "key": "contract-agreements",
+              "journalId": "contract-agreements"
             }
           ]
         }

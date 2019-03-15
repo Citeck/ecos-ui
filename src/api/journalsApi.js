@@ -48,7 +48,12 @@ export class JournalsApi extends RecordService {
   getGridDataUsePredicates = ({ columns, pagination, journalConfigPredicate, predicates }) => {
     const query = {
       t: 'and',
-      val: [journalConfigPredicate, ...predicates]
+      val: [
+        journalConfigPredicate,
+        ...predicates.filter(item => {
+          return item.val !== '' && item.val !== null;
+        })
+      ]
     };
 
     const dataSource = new dataSourceStore['GqlDataSource']({
