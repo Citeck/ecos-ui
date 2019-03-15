@@ -47,7 +47,7 @@ const PREDICATE_LIST_TYPE_STRING = [
   PREDICATE_NOT_EMPTY
 ];
 const PREDICATE_LIST_TYPE_DATE = [PREDICATE_GE, PREDICATE_LT, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
-const PREDICATE_LIST_TYPE_NODE_REF = [PREDICATE_CONTAINS, PREDICATE_NOT_CONTAINS, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
+const PREDICATE_LIST_TYPE_NODE_REF = [/*PREDICATE_CONTAINS, PREDICATE_NOT_CONTAINS,*/ PREDICATE_EMPTY, PREDICATE_NOT_EMPTY]; // TODO
 
 let allPredicates = [];
 function filterPredicates(filterArr) {
@@ -60,8 +60,8 @@ function filterPredicates(filterArr) {
 
 export function getPredicates(type) {
   switch (type) {
-    case PREDICATE_LIST_TYPE_NODE_REF:
-      return filterPredicates(PREDICATE_LIST_TYPE_DATE);
+    case COLUMN_DATA_TYPE_NODE_REF:
+      return filterPredicates(PREDICATE_LIST_TYPE_NODE_REF);
     case COLUMN_DATA_TYPE_DATE:
       return filterPredicates(PREDICATE_LIST_TYPE_DATE);
     case COLUMN_DATA_TYPE_STRING:
@@ -89,11 +89,16 @@ export function getPredicateInput(type) {
       return {
         component: Input,
         defaultValue: '',
-        getProps: ({ predicateValue, changePredicateValue }) => ({
+        getProps: ({ predicateValue, changePredicateValue, applyFilters }) => ({
           className: 'ecos-input_narrow',
           value: predicateValue,
           onChange: function(e) {
             changePredicateValue(e.target.value);
+          },
+          onKeyDown: function(e) {
+            if (e.key === 'Enter') {
+              applyFilters();
+            }
           }
         })
       };

@@ -3,7 +3,18 @@ import PropTypes from 'prop-types';
 import Select from '../../../../common/form/Select';
 import './Filter.scss';
 
-const Filter = ({ idx, text, predicates, selectedPredicate, onRemove, changePredicate, predicateValue, changePredicateValue, input }) => (
+const Filter = ({
+  idx,
+  text,
+  predicates,
+  selectedPredicate,
+  onRemove,
+  changePredicate,
+  predicateValue,
+  changePredicateValue,
+  input,
+  applyFilters
+}) => (
   <li className="select-journal-filter">
     <div className="select-journal-filter__left" title={text}>
       {text}
@@ -22,7 +33,8 @@ const Filter = ({ idx, text, predicates, selectedPredicate, onRemove, changePred
           <input.component
             {...input.getProps({
               predicateValue,
-              changePredicateValue
+              changePredicateValue,
+              applyFilters
             })}
           />
         ) : null}

@@ -58,6 +58,7 @@ class Filters extends Component {
                   onRemove={removeField}
                   changePredicate={onChangePredicate}
                   predicateValue={item.predicateValue}
+                  applyFilters={this.onApply}
                   input={item.input}
                   changePredicateValue={onChangePredicateValue}
                 />

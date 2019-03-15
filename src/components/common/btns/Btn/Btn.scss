@@ -1,6 +1,6 @@
 @import '../../../../constants';
 
-a {
+button {
   &.btn {
     display: inline-block;
     text-align: center;
@@ -28,6 +28,11 @@ a {
 
     &:active {
       background-color: $color-gray-4;
+    }
+
+    &:focus {
+      background-color: $color-gray-1;
+      box-shadow: none;
     }
   }
 
@@ -190,8 +195,11 @@ a {
   }
 
   /*hovers*/
-  &.btn_blue:hover {
-    background: $color-blue-light;
+  &.btn_blue {
+    &:focus,
+    &:hover {
+      background: $color-blue-light;
+    }
   }
 
   &.btn_hover_light-blue {
