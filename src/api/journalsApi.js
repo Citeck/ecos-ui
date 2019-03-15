@@ -59,7 +59,8 @@ export class JournalsApi extends RecordService {
           query: {
             query,
             language: 'predicate',
-            page: pagination
+            page: pagination,
+            consistency: 'EVENTUAL'
           }
         }
       },

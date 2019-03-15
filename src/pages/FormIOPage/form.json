@@ -27,7 +27,8 @@
               "label": "Юридическое лицо",
               "key": "legalEntities",
               "multiple": true,
-              "journalId": "legal-entities"
+              "journalId": "legal-entities",
+              "isCompact": true
             },
             {
               "input": true,

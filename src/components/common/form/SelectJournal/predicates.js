@@ -47,7 +47,7 @@ const PREDICATE_LIST_TYPE_STRING = [
   PREDICATE_NOT_EMPTY
 ];
 const PREDICATE_LIST_TYPE_DATE = [PREDICATE_GE, PREDICATE_LT, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
-const PREDICATE_LIST_TYPE_NODE_REF = [/*PREDICATE_CONTAINS, PREDICATE_NOT_CONTAINS,*/ PREDICATE_EMPTY, PREDICATE_NOT_EMPTY]; // TODO
+const PREDICATE_LIST_TYPE_NODE_REF = [PREDICATE_CONTAINS, PREDICATE_NOT_CONTAINS, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 
 let allPredicates = [];
 function filterPredicates(filterArr) {
@@ -58,8 +58,8 @@ function filterPredicates(filterArr) {
   return filterArr.map(arrItem => allPredicates.find(item => item.value === arrItem));
 }
 
-export function getPredicates(type) {
-  switch (type) {
+export function getPredicates(fields) {
+  switch (fields.javaClass) {
     case COLUMN_DATA_TYPE_NODE_REF:
       return filterPredicates(PREDICATE_LIST_TYPE_NODE_REF);
     case COLUMN_DATA_TYPE_DATE:
@@ -70,8 +70,8 @@ export function getPredicates(type) {
   }
 }
 
-export function getPredicateInput(type) {
-  switch (type) {
+export function getPredicateInput(fields) {
+  switch (fields.javaClass) {
     case COLUMN_DATA_TYPE_DATE:
       return {
         component: DatePicker,
@@ -119,13 +119,13 @@ export function getPredicateInput(type) {
     //   component: SelectJournal,
     //   defaultValue: [],
     //   getProps: ({ predicateValue, changePredicateValue }) => ({
-    //     // className: 'select_narrow',
+    //     isCompact: true,
     //     journalId: 'legal-entities',
     //     value: predicateValue,
     //     onChange: function(value) {
-    //       changePredicateValue(value)
-    //     },
-    //   }),
+    //       changePredicateValue(value);
+    //     }
+    //   })
     // };
     /* eslint-disable-next-line */
     default:

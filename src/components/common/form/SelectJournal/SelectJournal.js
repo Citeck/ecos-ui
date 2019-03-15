@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
+import classNames from 'classnames';
 import Button from '../../buttons/Button/Button';
 import { IcoBtn } from '../../../common/btns';
 import Input from '../../form/Input';
@@ -9,6 +10,7 @@ import Pagination from '../../../common/Pagination/Pagination';
 import Loader from '../../../common/Loader/Loader';
 import EcosForm from '../../../EcosForm';
 import SimpleModal from '../../SimpleModal';
+import InputView from './InputView';
 import Filters from './Filters';
 import FiltersProvider from './Filters/FiltersProvider';
 import { JournalsApi } from '../../../../api/journalsApi';
@@ -290,7 +292,7 @@ export default class SelectJournal extends Component {
     // TODO настройки наружу
     // TODO zIndex
 
-    const { createFormRecord, multiple, placeholder, disabled } = this.props;
+    const { createFormRecord, multiple, placeholder, disabled, isCompact } = this.props;
     const {
       isGridDataReady,
       value,
@@ -311,37 +313,23 @@ export default class SelectJournal extends Component {
       </Button>
     ) : null;
 
-    return (
-      <div className="select-journal">
-        <div>
-          {value.length > 0 ? (
-            <ul className={'select-journal__values-list'}>
-              {value.map(item => (
-                <li key={item.id}>
-                  <span className="select-journal__values-list-disp">{item.disp}</span>
-                  <div className="select-journal__values-list-actions">
-                    <span data-id={item.id} className={'icon icon-edit'} onClick={this.onValueEdit} />
-                    <span data-id={item.id} className={'icon icon-delete'} onClick={this.onValueDelete} />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className={'select-journal__value-not-selected'}>{placeholder ? placeholder : t('select-journal.placeholder')}</p>
-          )}
-        </div>
+    const wrapperClasses = classNames('select-journal', {
+      'select-journal_compact': isCompact
+    });
 
-        {error ? (
-          <p className={'select-journal__error'}>{error.message}</p>
-        ) : (
-          <Button className={'button_blue'} onClick={this.openSelectModal} disabled={disabled}>
-            {value.length > 0
-              ? multiple
-                ? t('select-journal.button.add')
-                : t('select-journal.button.change')
-              : t('select-journal.button.select')}
-          </Button>
-        )}
+    return (
+      <div className={wrapperClasses}>
+        <InputView
+          disabled={disabled}
+          isCompact={isCompact}
+          multiple={multiple}
+          placeholder={placeholder}
+          error={error}
+          value={value}
+          editValue={this.onValueEdit}
+          deleteValue={this.onValueDelete}
+          openSelectModal={this.openSelectModal}
+        />
 
         <FiltersProvider columns={journalConfig.columns} api={this.api}>
           <SimpleModal
@@ -432,5 +420,6 @@ SelectJournal.propTypes = {
   createFormRecord: PropTypes.string,
   onChange: PropTypes.func,
   onError: PropTypes.func,
-  multiple: PropTypes.bool
+  multiple: PropTypes.bool,
+  isCompact: PropTypes.bool
 };

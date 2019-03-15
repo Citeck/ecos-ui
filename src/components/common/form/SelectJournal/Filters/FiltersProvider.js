@@ -27,8 +27,8 @@ export default class FiltersProvider extends Component {
   setFields = fields => {
     this.setState({
       fields: fields.map(item => {
-        const predicates = getPredicates(item.javaClass);
-        const input = getPredicateInput(item.javaClass);
+        const predicates = getPredicates(item);
+        const input = getPredicateInput(item);
         return {
           ...item,
           predicates,
@@ -43,8 +43,8 @@ export default class FiltersProvider extends Component {
 
   addField = field => {
     this.setState(prevState => {
-      const predicates = getPredicates(field.javaClass);
-      const input = getPredicateInput(field.javaClass);
+      const predicates = getPredicates(field);
+      const input = getPredicateInput(field);
       return {
         fields: [
           ...prevState.fields,
