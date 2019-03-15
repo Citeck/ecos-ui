@@ -12,6 +12,10 @@ const MAP = [
     enable: column => column.attribute === 'cm:name' || column.attribute === 'cm:title'
   },
   {
+    options: () => 'SelectFormatter',
+    enable: column => column.attribute === 'payments:paymentFor'
+  },
+  {
     options: column => {
       let formatter = column.params.formatter;
 

@@ -8,6 +8,7 @@ export default class GqlDataSource extends BaseDataSource {
   constructor(options) {
     super(options);
 
+    this._createVariants = this.options.createVariants;
     this.options.ajax.body = this._getBodyJson(this.options.ajax.body, this.options.columns);
     this._columns = this._getColumns(this.options.columns);
   }
@@ -50,7 +51,7 @@ export default class GqlDataSource extends BaseDataSource {
       let formatterOptions = newColumn.formatter || Mapper.getFormatterOptions(newColumn, idx);
       let { formatter, params } = this._getFormatter(formatterOptions);
 
-      newColumn.formatExtraData = { formatter, params };
+      newColumn.formatExtraData = { formatter, params, createVariants: this._createVariants };
 
       newColumn.filterValue = (cell, row) => formatter.getFilterValue(cell, row, params);
       newColumn.editorRenderer = formatter.getEditor;

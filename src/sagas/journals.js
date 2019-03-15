@@ -80,22 +80,28 @@ function* loadGrid({ api, logger }, action) {
 
     /*get config from arguments or from state*/
     let journalConfig = yield select(state => state.journals.journalConfig || {});
+    let meta = journalConfig.meta || {};
     let {
       journalId,
       pagination = yield select(state => state.journals.pagination),
       columns = journalConfig.columns,
-      criteria = (journalConfig.meta || {}).criteria
+      criteria = meta.criteria,
+      createVariants = meta.createVariants
     } = action.payload;
 
     /*or load from server*/
     if (journalId) {
       journalConfig = yield call(api.journals.getJournalConfig, journalId);
+      meta = journalConfig.meta;
       columns = journalConfig.columns;
-      criteria = journalConfig.meta.criteria;
+      criteria = meta.criteria;
+      createVariants = meta.createVariants;
       yield put(setJournalConfig(journalConfig));
     }
 
-    const gridData = yield call(api.journals.getGridData, { columns, criteria, pagination });
+    //const gridTreeData = yield call(api.journals.getTreeGridData);
+
+    const gridData = yield call(api.journals.getGridData, { columns, criteria, pagination, createVariants });
     yield put(setGrid(gridData));
 
     yield put(setLoading(false));

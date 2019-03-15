@@ -11,7 +11,7 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, criteria, pagination }) => {
+  getGridData = ({ columns, criteria, pagination, createVariants }) => {
     const query = criteria => {
       let query = {};
 
@@ -36,12 +36,35 @@ export class JournalsApi extends RecordService {
           }
         }
       },
-      columns: columns || []
+      columns: columns || [],
+      createVariants: createVariants || []
     });
 
     return dataSource.load().then(function({ data, total }) {
       const columns = dataSource.getColumns();
       return { data, total, columns };
+    });
+  };
+
+  getTreeGridData = () => {
+    return this.query({
+      query: {
+        query: JSON.stringify({
+          field_0: 'type',
+          predicate_0: 'type-equals',
+          value_0: '{http://www.citeck.ru/model/contracts/1.0}agreement'
+        }),
+        language: 'criteria',
+        groupBy: ['contracts:contractWith']
+      },
+      attributes: {
+        sum: 'sum(contracts:agreementAmount)',
+        value: '.att(n:"predicate"){val:att(n:"value"){str}, att: att(n:"attribute"){str}}',
+        children: '.att(n:"values"){atts(n:"records"){att(n:"cm:title"){str}}}'
+      }
+    }).then(resp => {
+      console.log(resp);
+      return resp;
     });
   };
 
