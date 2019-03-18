@@ -22,7 +22,6 @@ qname
 category
 noderef
 options
-assoc
 person
 authorityGroup
 authority
@@ -37,6 +36,8 @@ const PREDICATE_ENDS = 'ends';
 const PREDICATE_EMPTY = 'empty';
 const PREDICATE_NOT_EMPTY = 'not-empty';
 const PREDICATE_GE = 'ge';
+const PREDICATE_GT = 'gt';
+const PREDICATE_LE = 'le';
 const PREDICATE_LT = 'lt';
 
 // Hack: Currently t('') works correctly only after execution loadMessagesAndAlfrescoScript function in share.js, so we should use function instead of array:
@@ -51,6 +52,8 @@ const getAllPredicates = function() {
     { value: PREDICATE_EMPTY, label: t('predicate.empty'), needValue: false },
     { value: PREDICATE_NOT_EMPTY, label: t('predicate.not-empty'), needValue: false },
     { value: PREDICATE_GE, label: t('predicate.ge'), needValue: true },
+    { value: PREDICATE_GT, label: t('predicate.gt'), needValue: true },
+    { value: PREDICATE_LE, label: t('predicate.le'), needValue: true },
     { value: PREDICATE_LT, label: t('predicate.lt'), needValue: true }
   ];
 };
