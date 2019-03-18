@@ -4,7 +4,6 @@ import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import Button from '../../buttons/Button/Button';
 import { IcoBtn } from '../../../common/btns';
-import Input from '../../form/Input';
 import Grid from '../../../common/grid/Grid/Grid';
 import Pagination from '../../../common/Pagination/Pagination';
 import Loader from '../../../common/Loader/Loader';
@@ -12,6 +11,7 @@ import EcosForm from '../../../EcosForm';
 import SimpleModal from '../../SimpleModal';
 import InputView from './InputView';
 import Filters from './Filters';
+import Search from './Search';
 import CreateVariants from './CreateVariants';
 import FiltersProvider from './Filters/FiltersProvider';
 import { JournalsApi } from '../../../../api/journalsApi';
@@ -375,7 +375,7 @@ export default class SelectJournal extends Component {
                   />
                 </div>
                 <div className={'select-journal-collapse-panel__controls-right'}>
-                  <Input placeholder={t('select-journal.search.placeholder')} />
+                  <Search onApply={this.onApplyFilters} />
                 </div>
               </div>
 

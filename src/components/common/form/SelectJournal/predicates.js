@@ -27,18 +27,18 @@ authorityGroup
 authority
 */
 
-const PREDICATE_CONTAINS = 'contains';
-const PREDICATE_NOT_CONTAINS = 'not-contains';
-const PREDICATE_EQ = 'eq';
-const PREDICATE_NOT_EQ = 'not-eq';
-const PREDICATE_STARTS = 'starts';
-const PREDICATE_ENDS = 'ends';
-const PREDICATE_EMPTY = 'empty';
-const PREDICATE_NOT_EMPTY = 'not-empty';
-const PREDICATE_GE = 'ge';
-const PREDICATE_GT = 'gt';
-const PREDICATE_LE = 'le';
-const PREDICATE_LT = 'lt';
+export const PREDICATE_CONTAINS = 'contains';
+export const PREDICATE_NOT_CONTAINS = 'not-contains';
+export const PREDICATE_EQ = 'eq';
+export const PREDICATE_NOT_EQ = 'not-eq';
+export const PREDICATE_STARTS = 'starts';
+export const PREDICATE_ENDS = 'ends';
+export const PREDICATE_EMPTY = 'empty';
+export const PREDICATE_NOT_EMPTY = 'not-empty';
+export const PREDICATE_GE = 'ge';
+export const PREDICATE_GT = 'gt';
+export const PREDICATE_LE = 'le';
+export const PREDICATE_LT = 'lt';
 
 // Hack: Currently t('') works correctly only after execution loadMessagesAndAlfrescoScript function in share.js, so we should use function instead of array:
 const getAllPredicates = function() {
