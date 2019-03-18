@@ -3,6 +3,9 @@ module.exports = {
     "ecos-form-custom": "./export/src/forms/index.js",
     "glyphicon-to-fa": "./export/src/glyphicon-to-fa/index.js",
 
+    // TODO move from examples
+    "journalsDashlet": "./export/src/examples/journalsDashlet/index.js",
+
     // Examples
     // "header": "./export/src/examples/header/index.js",
     // "right-menu": "./export/src/examples/right-menu/index.js",
