@@ -1,29 +1,15 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import BootstrapTable from 'react-bootstrap-table-next';
-import Icon from '../../icons/Icon/Icon';
-//import DataSourceStore from '../dataSource/DataSourceStore';
+import { Grid } from '../';
+import ExpanderFormatter from '../formatters/ExpanderFormatter/ExpanderFormatter';
 
 import './TreeGrid.scss';
 
-class ExpanderFormatter extends Component {
-  _onClick = () => {
-    this.props.onClick(this.props.rowIndex);
-  };
+function triggerEvent(name, data) {
+  const callback = this.props[name];
 
-  render() {
-    return <i className={classNames('tree-grid__expander', this.props.expand ? 'icon-down' : 'icon-right')} onClick={this._onClick} />;
-  }
-}
-
-class HeaderFormatter extends Component {
-  render() {
-    return (
-      <div className={'tree-grid__th'}>
-        <span>{this.props.column.text}</span>
-        <Icon className={'tree-grid__filter icon-filter'} />
-      </div>
-    );
+  if (typeof callback === 'function') {
+    callback.call(this, data);
   }
 }
 
@@ -31,43 +17,12 @@ export default class TreeGrid extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      expanded: []
-    };
+    this.state = { expanded: [] };
 
-    this.index = 1;
+    this.fakeColumnIndex = 1;
     this.level = props.level || 0;
-    this.columns = props.columns || [
-      {
-        dataField: 'date',
-        text: 'Дата создания',
-        headerFormatter: (column, colIndex) => {
-          return <HeaderFormatter column={column} colIndex={colIndex} />;
-        }
-      },
-      {
-        dataField: 'title',
-        text: 'Заголовок',
-        headerFormatter: (column, colIndex) => {
-          return <HeaderFormatter column={column} colIndex={colIndex} />;
-        }
-      },
-      {
-        dataField: 'status',
-        text: 'Статус',
-        headerFormatter: (column, colIndex) => {
-          return <HeaderFormatter column={column} colIndex={colIndex} />;
-        }
-      },
-      {
-        dataField: 'ure',
-        text: 'Юридическое лицо',
-        headerFormatter: (column, colIndex) => {
-          return <HeaderFormatter column={column} colIndex={colIndex} />;
-        }
-      }
-    ];
-    this._columns = props._columns || Array.from(this.columns);
+
+    this._columns = props._columns || Array.from(props.columns);
     this.expanderStates = [];
   }
 
@@ -95,17 +50,19 @@ export default class TreeGrid extends Component {
 
     fakeColumns.unshift({
       isDummyField: true,
-      dataField: '__' + this.index++,
+      dataField: '__' + this.fakeColumnIndex++,
       text: '',
       classes: 'tree-grid__expander-td',
-      formatter: (cell, row, rowIndex) => {
-        return <ExpanderFormatter onClick={that.expand} rowIndex={rowIndex} expand={that.expanderStates[rowIndex]} />;
+      formatExtraData: {
+        formatter: ExpanderFormatter,
+        onClick: that.expand,
+        expanderStates: that.expanderStates
       }
     });
 
     for (let i = 0; i < this.level; i++) {
       fakeColumns.unshift({
-        dataField: '_' + this.index++,
+        dataField: '_' + this.fakeColumnIndex++,
         text: '',
         classes: 'tree-grid__empty-td'
       });
@@ -114,46 +71,69 @@ export default class TreeGrid extends Component {
     return fakeColumns;
   }
 
-  getExpandRow() {
-    let products = this.props.data.slice(0, 3);
-    let expanded = this.state.expanded;
+  onExpand = e => {
+    triggerEvent.call(this, 'onExpand', e);
+  };
+
+  getExpandRow(children) {
     let level = this.level + 1;
-    let _columns = this._columns;
+    let columns = this._columns;
 
     return {
-      renderer: () => {
+      renderer: row => {
+        let data = [];
+        const rowsChildren = row.children || [];
+        const first = rowsChildren[0] || {};
+
+        if (first.children) {
+          data = rowsChildren;
+        }
+
+        // console.log(level);
+        // console.log(row);
+
         return (
           <div className={'tree-grid__child-wrapper'}>
-            <TreeGrid classes="tree-grid__child tree-grid__child_hide-header" _columns={_columns} data={products} level={level} />
+            <TreeGrid
+              classes="tree-grid__child tree-grid__child_hide-header"
+              _columns={columns}
+              data={data}
+              level={level}
+              children={children}
+            />
           </div>
         );
       },
-      expandByColumnOnly: true,
-      expanded: expanded
+      onExpand: this.onExpand,
+      expanded: this.getExpanded(children, level)
+      // expandByColumnOnly: true,
     };
   }
 
-  // componentDidMount() {
-  //   let url = 'http://localhost:3000/share/proxy/alfresco/citeck/ecos/records';
-  //   let ajax = eval('(' + '{body: {query: {\'query\': \'{"nodeRef": "${nodeRef}", "events":"node.created,node.updated,assoc.updated,task.complete,user.action,status.changed,esign.signed,approval.cancelled,role.changed"}\', \'sourceId\': \'history\', \'language\': \'document\' } } }' + ')');
-  //
-  //   const dataSource = new DataSourceStore['GqlDataSource']({
-  //     url: url,
-  //     ajax: ajax,
-  //     columns: []
-  //   });
-  //
-  //   dataSource.load().then(function (data) {
-  //     console.log(data);
-  //   }).catch(function(){
-  //   });
-  // }
+  getExpanded = (children, level) => {
+    children = children || [];
+    let expanded = [];
+
+    (children || []).forEach(child => {
+      const path = child.path || [];
+      const rowIdx = child.path[level - 1];
+
+      if (rowIdx !== undefined) {
+        expanded.push(rowIdx);
+      }
+    });
+
+    console.log(expanded);
+
+    return expanded;
+  };
 
   render() {
-    let props = this.props;
-    let expandRow = this.getExpandRow();
-    let columns = this.addFakeColumns(this._columns);
+    const props = this.props;
+    const expandRow = this.getExpandRow(props.children);
+    const columns = this.addFakeColumns(this._columns);
+    const classes = classNames('tree-grid', props.classes);
 
-    return <BootstrapTable keyField="id" bordered={false} classes={'tree-grid'} columns={columns} expandRow={expandRow} {...props} />;
+    return <Grid {...props} classes={classes} columns={columns} expandRow={expandRow} />;
   }
 }

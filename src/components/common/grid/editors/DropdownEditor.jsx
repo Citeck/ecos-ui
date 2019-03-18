@@ -21,9 +21,7 @@ export default class DropdownEditor extends BaseEditor {
             options: `#${(this.props.column || {}).attribute}?options`
           }
         })
-        .then(resp => {
-          this.setState({ options: resp.attributes.options });
-        });
+        .then(resp => this.setState({ options: resp.attributes.options }));
     }
   }
 
@@ -47,7 +45,7 @@ export default class DropdownEditor extends BaseEditor {
         styles={{
           menu: css => ({
             ...css,
-            zIndex: 2,
+            zIndex: 11,
             width: 'auto'
           }),
           dropdownIndicator: css => ({

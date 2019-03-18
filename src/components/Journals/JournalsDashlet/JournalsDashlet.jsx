@@ -6,6 +6,7 @@ import Dashlet from '../../Dashlet/Dashlet';
 import JournalsDashletToolbar from '../JournalsDashletToolbar';
 import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletGrid from '../JournalsDashletGrid';
+import JournalsDashletTreeGrid from '../JournalsDashletTreeGrid';
 import JournalsDashletFooter from '../JournalsDashletFooter';
 import { getDashletConfig, setEditorMode, reloadGrid, setPage } from '../../../actions/journals';
 
@@ -61,7 +62,7 @@ class JournalsDashlet extends Component {
           <Fragment>
             <JournalsDashletToolbar />
 
-            <JournalsDashletGrid />
+            <JournalsDashletTreeGrid />
 
             <JournalsDashletFooter />
           </Fragment>

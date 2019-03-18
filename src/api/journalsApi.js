@@ -26,7 +26,6 @@ export class JournalsApi extends RecordService {
 
     const dataSource = new dataSourceStore['GqlDataSource']({
       url: `${PROXY_URI}citeck/ecos/records`,
-      dataSourceName: 'GqlDataSource',
       ajax: {
         body: {
           query: {
@@ -47,24 +46,11 @@ export class JournalsApi extends RecordService {
   };
 
   getTreeGridData = () => {
-    return this.query({
-      query: {
-        query: JSON.stringify({
-          field_0: 'type',
-          predicate_0: 'type-equals',
-          value_0: '{http://www.citeck.ru/model/contracts/1.0}agreement'
-        }),
-        language: 'criteria',
-        groupBy: ['contracts:contractWith']
-      },
-      attributes: {
-        sum: 'sum(contracts:agreementAmount)',
-        value: '.att(n:"predicate"){val:att(n:"value"){str}, att: att(n:"attribute"){str}}',
-        children: '.att(n:"values"){atts(n:"records"){att(n:"cm:title"){str}}}'
-      }
-    }).then(resp => {
-      console.log(resp);
-      return resp;
+    const dataSource = new dataSourceStore['TreeDataSource']();
+
+    return dataSource.load().then(function({ data, total }) {
+      const columns = dataSource.getColumns();
+      return { data, total, columns };
     });
   };
 

@@ -30,15 +30,11 @@
     }
   }
 }
+
 .tree-grid__child_hide-header {
   thead {
     display: none;
   }
-}
-
-.tree-grid__expander {
-  color: $color-gray-5;
-  cursor: pointer;
 }
 
 .tree-grid__th {
@@ -51,12 +47,6 @@
   color: $text-color-dark;
   font-size: $font-size-standard;
   font-weight: $font-weight-semi-bold !important;
-}
-
-.tree-grid__filter {
-  color: $color-gray-5;
-  margin-left: 6px;
-  font-size: 15px;
 }
 
 .tree-grid__child {
