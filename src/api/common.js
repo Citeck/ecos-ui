@@ -29,7 +29,9 @@ const postOptions = {
 
 export class CommonApi {
   constructor(store) {
-    this.store = store;
+    if (store) {
+      this.store = store;
+    }
   }
 
   checkStatus = response => {
@@ -38,7 +40,9 @@ export class CommonApi {
     }
 
     if (response.status === 401) {
-      this.store.dispatch(setIsAuthenticated(false));
+      if (this.store && typeof this.store.dispatch === 'function') {
+        this.store.dispatch(setIsAuthenticated(false));
+      }
     }
 
     const error = new Error(response.statusText);

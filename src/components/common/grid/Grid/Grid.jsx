@@ -128,11 +128,10 @@ export default class Grid extends Component {
 
   initFormatter = editable => {
     return (cell, row, rowIndex, formatExtraData) => {
-      formatExtraData = formatExtraData || {};
-      const Formatter = formatExtraData.formatter;
+      const Formatter = (formatExtraData || {}).formatter;
       return (
         <div className={`grid__td ${editable ? 'grid__td_editable' : ''}`}>
-          {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : null}
+          {Formatter ? <Formatter row={row} cell={cell} params={formatExtraData.params} /> : cell}
         </div>
       );
     };

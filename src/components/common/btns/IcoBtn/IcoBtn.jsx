@@ -11,10 +11,10 @@ export default class IcoBtn extends Component {
     const second = props.invert ? <i className={classNames('btn__i', props.children && 'btn__i_right', props.icon)} /> : text;
 
     return (
-      <a {...props} className={cssClasses}>
+      <button {...props} className={cssClasses}>
         {first}
         {second}
-      </a>
+      </button>
     );
   }
 }

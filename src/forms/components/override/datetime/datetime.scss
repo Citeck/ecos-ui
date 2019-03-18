@@ -1,0 +1,35 @@
+@import '../../../constants';
+
+.formio-dialog-content .preview-panel,
+.formio-form {
+  .formio-component-datetime {
+    .form-control.flatpickr-input {
+      border-radius: $border-radius-standard;
+    }
+
+    .input-group-addon {
+      border: none;
+      background: none;
+      padding: 0;
+
+      .glyphicon-calendar {
+        color: $color-gray-7;
+        font-size: $font-size-extra-large;
+        margin-left: 10px;
+
+        &:before {
+          font-family: $font-family-citeck;
+          content: '\46';
+          display: inline-block;
+          line-height: $form-input-height;
+        }
+      }
+    }
+
+    &.formio-component-datetime_only-time {
+      .input-group-addon {
+        display: none;
+      }
+    }
+  }
+}

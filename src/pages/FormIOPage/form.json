@@ -17,6 +17,65 @@
     },
 
     {
+      "input": false,
+      "columns": [
+        {
+          "components": [
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Юридическое лицо",
+              "key": "legalEntities",
+              "multiple": true,
+              "journalId": "legal-entities"
+            },
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Контрагент",
+              "key": "idocsContractor",
+              "multiple": false,
+              "journalId": "idocs-contractor"
+            }
+          ]
+        },
+        {
+          "components": [
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Предмет договора",
+              "key": "contractSubjects",
+              "journalId": "contract-subjects"
+            }
+          ]
+        }
+      ],
+      "type": "columns",
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      }
+    },
+
+    {
+      "input": false,
+      "html": "<br><br><br><br><br><br><br><br>",
+      "type": "content"
+    },
+
+    {
+      "input": true,
+      "label": "React DateTime component",
+      "key": "react-datetime-input-key",
+      "placeholder": "ДД. ММ.ГГГГ",
+      "type": "reactDatetime",
+      "disabled": false,
+      "defaultValue": "2019-03-05T18:12:58.126Z"
+    },
+
+    {
       "tags": [],
       "clearOnHide": true,
       "hidden": false,
@@ -215,17 +274,6 @@
         "when": null,
         "eq": ""
       }
-    },
-
-    {
-      "input": true,
-      "label": "Txt component",
-      "key": "txtFieldKey",
-      "placeholder": "Enter your txt value",
-      "type": "txt"
-    },
-    {
-      "type": "custom"
     },
 
     {

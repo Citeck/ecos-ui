@@ -1,0 +1,47 @@
+@import '../../../../../constants';
+
+.select-journal-filter {
+  border-bottom: 2px solid $color-gray-6;
+  line-height: $form-input-height;
+  display: flex;
+  justify-content: space-between;
+}
+
+.select-journal-filter__remove-btn {
+  float: right;
+  line-height: 40px;
+  cursor: pointer;
+  color: $color-gray-6;
+  margin-left: 5px;
+
+  &:hover {
+    color: $color-red-1;
+  }
+}
+
+.select-journal-filter__left {
+  display: block;
+  color: $text-color-gray;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 40%;
+}
+
+.select-journal-filter__right {
+  display: flex;
+  align-items: center;
+  width: 60%;
+}
+
+.select-journal-filter__predicate-select {
+  width: 48%;
+  margin-right: 2%;
+  flex-shrink: 0;
+}
+
+.select-journal-filter__predicate {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}

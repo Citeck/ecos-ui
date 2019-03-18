@@ -11,7 +11,7 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, criteria, pagination, createVariants }) => {
+  getGridData = ({ columns, criteria, pagination }) => {
     const query = criteria => {
       let query = {};
 
@@ -26,6 +26,7 @@ export class JournalsApi extends RecordService {
 
     const dataSource = new dataSourceStore['GqlDataSource']({
       url: `${PROXY_URI}citeck/ecos/records`,
+      dataSourceName: 'GqlDataSource',
       ajax: {
         body: {
           query: {
@@ -35,8 +36,7 @@ export class JournalsApi extends RecordService {
           }
         }
       },
-      columns: columns || [],
-      createVariants: createVariants || []
+      columns: columns || []
     });
 
     return dataSource.load().then(function({ data, total }) {
@@ -45,8 +45,26 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getTreeGridData = () => {
-    const dataSource = new dataSourceStore['TreeDataSource']();
+  getGridDataUsePredicates = ({ columns, pagination, journalConfigPredicate, predicates }) => {
+    const query = {
+      t: 'and',
+      val: [journalConfigPredicate, ...predicates]
+    };
+
+    const dataSource = new dataSourceStore['GqlDataSource']({
+      url: `${PROXY_URI}citeck/ecos/records`,
+      dataSourceName: 'GqlDataSource',
+      ajax: {
+        body: {
+          query: {
+            query,
+            language: 'predicate',
+            page: pagination
+          }
+        }
+      },
+      columns: columns || []
+    });
 
     return dataSource.load().then(function({ data, total }) {
       const columns = dataSource.getColumns();

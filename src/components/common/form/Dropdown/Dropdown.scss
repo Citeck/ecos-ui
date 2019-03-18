@@ -5,7 +5,6 @@
 }
 
 .dropdown__menu {
-  width: 100%;
   border-radius: $border-radius-standard !important;
   box-shadow: $box-shadow-default;
   border: none !important;
@@ -16,6 +15,11 @@
   transform: none !important;
   top: 100% !important;
   width: auto;
+
+  ul {
+    padding: 0;
+    list-style: none;
+  }
 
   li {
     padding: 10px 15px;

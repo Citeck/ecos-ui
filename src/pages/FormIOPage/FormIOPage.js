@@ -2,20 +2,23 @@ import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
 import Form from 'formiojs/Form';
 import FormBuilder from 'formiojs/FormBuilder';
-// import schema from './form.json';
-import schema from './calendarForm.json';
-import './formio.full.min.css';
+import schema from './form.json';
+// import schema from './calendarForm.json';
+import '../../components/EcosForm/formio.full.min.css';
+import '../../components/EcosForm/glyphicon-to-fa.scss';
 import '../../forms/style.scss';
 import './temp.scss';
-import './glyphicon-to-fa.scss';
 
-// TODO move to /src/index.js
+// import SelectJournal from '../../components/common/form/SelectJournal';
+
 import DefaultComponents from 'formiojs/components';
 import Components from 'formiojs/components/Components';
 import CustomComponents from '../../forms/components';
-import '../../forms/components/builder';
+import { linkEditForms } from '../../forms/components/builder';
 // console.log(DefaultComponents);
 // console.log(CustomComponents);
+
+linkEditForms(CustomComponents);
 Components.setComponents({ ...DefaultComponents, ...CustomComponents });
 
 class FormIOPage extends React.Component {
@@ -42,7 +45,6 @@ class FormIOPage extends React.Component {
       //   data: {
       //     firstName: 'Joe',
       //     lastName: 'Smith',
-      //     customFieldKey: 'Custom field value'
       //   }
       // };
 
@@ -61,7 +63,7 @@ class FormIOPage extends React.Component {
       });
     });
 
-    const formBuilder = new FormBuilder(document.getElementById('builder'), schema);
+    const formBuilder = new FormBuilder(document.getElementById('builder'), {});
     // console.log(formBuilder);
     formBuilder.render().then(form => {
       // console.log(form);
@@ -79,8 +81,11 @@ class FormIOPage extends React.Component {
         <Row>
           <Col md={12}>
             <div className={'white-container'}>
+              {/*<SelectJournal />*/}
+
               <div id="formio" />
               <br />
+              <hr />
               <br />
               <div id="builder" />
             </div>

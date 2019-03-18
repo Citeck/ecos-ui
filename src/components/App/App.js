@@ -9,6 +9,7 @@ import JournalsPage from '../../pages/JournalsPage';
 import JournalsDashboardPage from '../../pages/JournalsDashboardPage';
 import CardDetailsPage from '../../pages/CardDetailsPage';
 import FormIOPage from '../../pages/FormIOPage';
+import EcosFormPage from '../../pages/EcosFormPage';
 import Header from '../Header';
 import Notification from '../Notification';
 import SlideMenu from '../SlideMenu';
@@ -48,6 +49,8 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
         <Switch>
           {/*<Route path="/share/page" exact component={DashboardPage} />*/}
           <Route path="/formio-develop" component={FormIOPage} />
+          <Route path="/ecos-form-example" component={EcosFormPage} />
+
           <Route path="/share/page/journals" component={JournalsPage} />
           <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
           <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />

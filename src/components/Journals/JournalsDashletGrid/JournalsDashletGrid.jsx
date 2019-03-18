@@ -161,6 +161,7 @@ class JournalsDashletGrid extends Component {
   render() {
     const props = this.props;
     const params = (props.journalConfig || {}).params || {};
+    // eslint-disable-next-line
     const defaultSortBy = params.defaultSortBy ? eval('(' + params.defaultSortBy + ')') : [];
 
     return (

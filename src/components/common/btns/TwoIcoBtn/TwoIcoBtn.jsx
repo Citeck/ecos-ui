@@ -8,11 +8,11 @@ export default class TwoIcoBtn extends Component {
     const [first, second] = props.icons;
 
     return (
-      <a {...props} className={cssClasses}>
+      <button {...props} className={cssClasses}>
         <i className={classNames('btn__i', first)} />
         {props.children}
         <i className={classNames('btn__i', second)} />
-      </a>
+      </button>
     );
   }
 }

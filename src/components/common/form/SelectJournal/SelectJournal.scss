@@ -1,0 +1,95 @@
+@import '../../../../constants';
+
+.select-journal {
+  margin-bottom: 10px;
+}
+
+.select-journal-select-modal__buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+
+  button {
+    margin-left: 15px;
+  }
+}
+
+.select-journal-collapse-panel {
+  padding: 15px;
+  background: $color-gray-4;
+  border-radius: $border-radius-large;
+}
+
+.select-journal-collapse-panel__controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+.select-journal-collapse-panel__controls-left {
+  display: flex;
+  button {
+    margin-right: 15px;
+  }
+}
+
+.select-journal__grid {
+  margin-top: 15px;
+  min-height: 150px;
+  position: relative;
+}
+
+.select-journal__value-not-selected {
+  line-height: $form-input-height;
+  border: solid $color-gray-4;
+  border-width: 2px 0 2px 0;
+  margin-bottom: 15px;
+}
+
+.select-journal__values-list {
+  border-top: 2px solid $color-gray-4;
+  margin-bottom: 15px;
+  padding: 0;
+
+  li {
+    line-height: $form-input-height;
+    border-bottom: 2px solid $color-gray-4;
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.select-journal__values-list-actions {
+  flex-shrink: 0;
+
+  .icon {
+    line-height: 40px;
+    cursor: pointer;
+    color: $color-gray-6;
+    margin-left: 5px;
+
+    &:hover {
+      color: $color-blue-light;
+    }
+
+    &.icon-delete:hover {
+      color: $color-red-1;
+    }
+  }
+}
+
+.select-journal__values-list-disp {
+  white-space: nowrap;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 5px;
+}
+
+.select-journal__pagination {
+  position: absolute;
+  bottom: -40px;
+}
+
+.select-journal__error {
+  color: $color-red-1;
+}
