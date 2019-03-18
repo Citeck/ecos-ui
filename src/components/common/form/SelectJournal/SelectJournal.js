@@ -12,6 +12,7 @@ import EcosForm from '../../../EcosForm';
 import SimpleModal from '../../SimpleModal';
 import InputView from './InputView';
 import Filters from './Filters';
+import CreateVariants from './CreateVariants';
 import FiltersProvider from './Filters/FiltersProvider';
 import { JournalsApi } from '../../../../api/journalsApi';
 import { t } from '../../../../helpers/util';
@@ -31,7 +32,9 @@ export default class SelectJournal extends Component {
     isEditModalOpen: false,
     editRecordId: null,
     isJournalConfigFetched: false,
-    journalConfig: {},
+    journalConfig: {
+      meta: []
+    },
     isGridDataReady: false,
     gridData: {
       total: 0,
@@ -311,7 +314,7 @@ export default class SelectJournal extends Component {
     // TODO настройки наружу
     // TODO zIndex
 
-    const { createFormRecord, multiple, placeholder, disabled, isCompact } = this.props;
+    const { multiple, placeholder, disabled, isCompact } = this.props;
     const {
       isGridDataReady,
       selectedRows,
@@ -325,12 +328,6 @@ export default class SelectJournal extends Component {
       journalConfig,
       error
     } = this.state;
-
-    const createButton = createFormRecord ? (
-      <Button className={'button_blue'} onClick={this.toggleCreateModal}>
-        {t('select-journal.select-modal.create-button')}
-      </Button>
-    ) : null;
 
     const wrapperClasses = classNames('select-journal', {
       'select-journal_compact': isCompact
@@ -369,7 +366,13 @@ export default class SelectJournal extends Component {
                   >
                     {t('select-journal.select-modal.filter-button')}
                   </IcoBtn>
-                  {createButton}
+
+                  <CreateVariants
+                    items={journalConfig.meta.createVariants}
+                    toggleCreateModal={this.toggleCreateModal}
+                    isCreateModalOpen={isCreateModalOpen}
+                    onCreateFormSubmit={this.onCreateFormSubmit}
+                  />
                 </div>
                 <div className={'select-journal-collapse-panel__controls-right'}>
                   <Input placeholder={t('select-journal.search.placeholder')} />
@@ -411,16 +414,6 @@ export default class SelectJournal extends Component {
         </FiltersProvider>
 
         <SimpleModal
-          title={t('select-journal.create-modal.title')}
-          isOpen={isCreateModalOpen}
-          hideModal={this.toggleCreateModal}
-          zIndex={10003}
-          className={'simple-modal_level-2'}
-        >
-          <EcosForm record={createFormRecord} onSubmit={this.onCreateFormSubmit} onFormCancel={this.toggleCreateModal} />
-        </SimpleModal>
-
-        <SimpleModal
           title={t('select-journal.edit-modal.title')}
           isOpen={isEditModalOpen}
           hideModal={this.toggleEditModal}
@@ -436,7 +429,6 @@ export default class SelectJournal extends Component {
 
 SelectJournal.propTypes = {
   journalId: PropTypes.string.isRequired,
-  createFormRecord: PropTypes.string,
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
   onChange: PropTypes.func,
   onError: PropTypes.func,

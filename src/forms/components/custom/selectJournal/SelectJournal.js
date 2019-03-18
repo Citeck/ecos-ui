@@ -73,7 +73,6 @@ export default class DateTimeComponent extends BaseComponent {
         placeholder={this.component.placeholder}
         disabled={this.component.disabled}
         journalId={this.component.journalId}
-        createFormRecord={this.component.createFormRecord}
         onChange={onChange}
         onError={err => {
           // this.setCustomValidity(err, false);

@@ -10,14 +10,5 @@ export default [
     },
     weight: 20
     // defaultValue: 'legal-entities'
-  },
-  {
-    type: 'textfield',
-    input: true,
-    key: 'createFormRecord',
-    label: 'Create form record',
-    placeholder: 'Example: dict@idocs:legalEntity',
-    weight: 20
-    // defaultValue: 'dict@idocs:legalEntity'
   }
 ];
