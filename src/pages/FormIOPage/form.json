@@ -61,6 +61,13 @@
               "key": "contract-agreements",
               "journalId": "contract-agreements",
               "multiple": true
+            },
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Счёт",
+              "key": "payments",
+              "journalId": "payments"
             }
           ]
         }
