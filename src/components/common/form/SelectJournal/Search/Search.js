@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Input from '../../Input/Input';
 import FiltersContext from '../Filters/FiltersContext';
 import { t } from '../../../../../helpers/util';
-import { PREDICATE_CONTAINS } from '../predicates';
+import { PREDICATE_CONTAINS, COLUMN_DATA_TYPE_TEXT, COLUMN_DATA_TYPE_MLTEXT } from '../predicates';
 import './Search.scss';
 
 class Search extends Component {
@@ -25,7 +25,9 @@ class Search extends Component {
         } else {
           const { fields } = this.context;
           const fieldsPredicates = fields
-            .filter(item => item.default)
+            .filter(item => {
+              return item.default && (item.type === COLUMN_DATA_TYPE_TEXT || item.type === COLUMN_DATA_TYPE_MLTEXT);
+            })
             .map(item => {
               return {
                 att: item.attribute,

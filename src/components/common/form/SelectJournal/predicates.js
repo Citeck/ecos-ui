@@ -4,28 +4,24 @@ import DatePicker from '../../../common/form/DatePicker';
 import SelectJournal from '../../../common/form/SelectJournal';
 import { t } from '../../../../helpers/util';
 
-const COLUMN_DATA_TYPE_TEXT = 'text'; // +
-const COLUMN_DATA_TYPE_MLTEXT = 'mltext'; // +
-const COLUMN_DATA_TYPE_DATE = 'date'; // +
-const COLUMN_DATA_TYPE_DATETIME = 'datetime'; // +- !!!
-const COLUMN_DATA_TYPE_ASSOC = 'assoc';
-const COLUMN_DATA_TYPE_CATEGORY = 'category';
-
-/*
-content
-int
-long
-float
-double
-boolean
-qname
-category
-noderef
-options
-person
-authorityGroup
-authority
-*/
+export const COLUMN_DATA_TYPE_TEXT = 'text'; // +
+export const COLUMN_DATA_TYPE_MLTEXT = 'mltext'; // +
+export const COLUMN_DATA_TYPE_DATE = 'date'; // +
+export const COLUMN_DATA_TYPE_DATETIME = 'datetime'; // +- !!!
+export const COLUMN_DATA_TYPE_ASSOC = 'assoc'; // +
+export const COLUMN_DATA_TYPE_CATEGORY = 'category'; // +
+export const COLUMN_DATA_TYPE_CONTENT = 'content';
+export const COLUMN_DATA_TYPE_INT = 'int';
+export const COLUMN_DATA_TYPE_LONG = 'long';
+export const COLUMN_DATA_TYPE_FLOAT = 'float';
+export const COLUMN_DATA_TYPE_DOUBLE = 'double';
+export const COLUMN_DATA_TYPE_BOOLEAN = 'boolean';
+export const COLUMN_DATA_TYPE_QNAME = 'qname';
+export const COLUMN_DATA_TYPE_NODEREF = 'noderef';
+export const COLUMN_DATA_TYPE_OPTIONS = 'options';
+export const COLUMN_DATA_TYPE_PERSON = 'person';
+export const COLUMN_DATA_TYPE_AUTHORITY_GROUP = 'authorityGroup';
+export const COLUMN_DATA_TYPE_AUTHORITY = 'authority';
 
 export const PREDICATE_CONTAINS = 'contains';
 export const PREDICATE_NOT_CONTAINS = 'not-contains';
