@@ -37,6 +37,11 @@ module.exports = {
       commonjs: 'react-custom-scrollbars',
       commonjs2: 'react-custom-scrollbars',
       amd: 'react-custom-scrollbars',
+    },
+    moment : {
+      commonjs: 'moment',
+      commonjs2: 'moment',
+      amd: 'lib/moment',
     }
   }
 };

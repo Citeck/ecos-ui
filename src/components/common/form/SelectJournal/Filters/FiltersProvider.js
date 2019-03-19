@@ -5,6 +5,7 @@ import { getPredicates, getPredicateInput } from '../predicates';
 export default class FiltersProvider extends Component {
   state = {
     fields: [],
+    searchText: '',
     isReady: false
   };
 
@@ -65,6 +66,12 @@ export default class FiltersProvider extends Component {
       <FiltersContext.Provider
         value={{
           fields: this.state.fields,
+          searchText: this.state.searchText,
+          updateSearchText: e => {
+            this.setState({
+              searchText: e.target.value
+            });
+          },
           addField: field => {
             this.addField(field);
           },
@@ -92,7 +99,6 @@ export default class FiltersProvider extends Component {
               };
             });
           },
-
           changePredicateValue: (indexToChange, predicateValue) => {
             this.setState(prevState => {
               const changedElement = prevState.fields.splice(indexToChange, 1);

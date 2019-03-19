@@ -53,6 +53,8 @@ class Search extends Component {
   };
 
   render() {
+    const { searchText, updateSearchText } = this.context;
+
     return (
       <div className="select-journal__search">
         <span className="icon icon-search select-journal__search-icon" onClick={this.onSearchIconClick} />
@@ -61,6 +63,8 @@ class Search extends Component {
           placeholder={t('select-journal.search.placeholder')}
           onKeyDown={this.onKeyDown}
           className={'select-journal__search-input'}
+          value={searchText}
+          onChange={updateSearchText}
         />
       </div>
     );

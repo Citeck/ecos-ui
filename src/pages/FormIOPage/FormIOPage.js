@@ -14,11 +14,11 @@ import './temp.scss';
 import DefaultComponents from 'formiojs/components';
 import Components from 'formiojs/components/Components';
 import CustomComponents from '../../forms/components';
-import { linkEditForms } from '../../forms/components/builder';
+import { linkBuilderEditForms } from '../../forms/components/builder';
 // console.log(DefaultComponents);
 // console.log(CustomComponents);
 
-linkEditForms(CustomComponents);
+linkBuilderEditForms(CustomComponents);
 Components.setComponents({ ...DefaultComponents, ...CustomComponents });
 
 class FormIOPage extends React.Component {
