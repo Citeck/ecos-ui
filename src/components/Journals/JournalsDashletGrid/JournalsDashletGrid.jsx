@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import { Grid, InlineTools, Tools } from '../../common/grid';
+import { Grid, InlineTools, Tools, TreeGrid, AsyncTreeGrid } from '../../common/grid';
 import Loader from '../../common/Loader/Loader';
 import { IcoBtn } from '../../common/btns';
 import { t } from '../../../helpers/util';
+import { JournalsApi } from '../../../api';
 import {
   reloadGrid,
   deleteRecords,
@@ -14,6 +15,384 @@ import {
   setGridMinHeight,
   setGridInlineToolSettings
 } from '../../../actions/journals';
+
+const data = [
+  {
+    children: [
+      {
+        children: ['Договор №45'],
+        sum: '1.2',
+        value: '17.12.2018 04:00',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: '17.12.2018 04:00',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: '17.12.2018 04:00',
+        id: 2
+      }
+    ],
+    sum: '1.2',
+    value: 'Договор №420',
+    id: 0
+  },
+  {
+    children: [
+      {
+        children: ['Договор №420'],
+        sum: '1.2',
+        value: '17.12.2018 04:00',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: '17.12.2018 04:00',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: '17.12.2018 04:00',
+        id: 2
+      }
+    ],
+    sum: '1.3',
+    value: 'Договор №31',
+    id: 1
+  },
+  {
+    children: [
+      {
+        children: ['Договор №420'],
+        sum: '1.2',
+        value: '17.12.2018 04:00',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: '17.12.2018 04:00',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: '17.12.2018 04:00',
+        id: 2
+      }
+    ],
+    sum: '1.0',
+    value: 'Договор №41',
+    id: 2
+  },
+  {
+    children: [
+      {
+        children: ['Договор №420'],
+        sum: '1.2',
+        value: '17.12.2018 04:00',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: '17.12.2018 04:00',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: '17.12.2018 04:00',
+        id: 2
+      }
+    ],
+    sum: '10.0',
+    value: 'Договор №1',
+    id: 3
+  },
+  {
+    children: [
+      {
+        children: ['Договор №420'],
+        sum: '1.2',
+        value: '17.12.2018 04:00',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: '17.12.2018 04:00',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: '17.12.2018 04:00',
+        id: 2
+      }
+    ],
+    sum: '1000.0',
+    value: 'Договор №уыкцй',
+    id: 4
+  },
+  {
+    children: [
+      {
+        children: ['Договор №420'],
+        sum: '1.2',
+        value: '17.12.2018 04:00',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: '17.12.2018 04:00',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: '17.12.2018 04:00',
+        id: 2
+      }
+    ],
+    sum: '5.0',
+    value: 'Договор №35',
+    id: 5
+  },
+  {
+    children: [
+      {
+        children: ['Договор №420'],
+        sum: '1.2',
+        value: 'Договор №420',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: 'Договор №31',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: 'Договор №41',
+        id: 2
+      }
+    ],
+    sum: '1.0',
+    value: 'Договор №46',
+    id: 6
+  },
+  {
+    children: [
+      {
+        children: ['Договор №420'],
+        sum: '1.2',
+        value: 'Договор №420',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: 'Договор №31',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: 'Договор №41',
+        id: 2
+      }
+    ],
+    sum: '7.0',
+    value: 'Договор №23',
+    id: 7
+  },
+  {
+    children: [
+      {
+        children: ['Договор №420', 'Договор №420', 'Договор №420', 'Договор №420'],
+        sum: '1.2',
+        value: 'Договор №420',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: 'Договор №31',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: 'Договор №41',
+        id: 2
+      }
+    ],
+    sum: '60.0',
+    value: 'Договор №45',
+    id: 8
+  },
+  {
+    children: [
+      {
+        children: ['Договор №420'],
+        sum: '1.2',
+        value: 'Договор №420',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: 'Договор №31',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: 'Договор №41',
+        id: 2
+      }
+    ],
+    sum: '2.0',
+    value: 'Договор №33',
+    id: 9
+  },
+  {
+    children: [
+      {
+        children: ['Договор №420'],
+        sum: '1.2',
+        value: 'Договор №420',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: 'Договор №31',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: 'Договор №41',
+        id: 2
+      }
+    ],
+    sum: '9999.0',
+    value: 'Договор №44',
+    id: 10
+  },
+  {
+    children: [
+      {
+        children: ['Договор №420'],
+        sum: '1.2',
+        value: 'Договор №420',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: 'Договор №31',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: 'Договор №41',
+        id: 2
+      }
+    ],
+    sum: '1.2',
+    value: 'Договор №43',
+    id: 11
+  },
+  {
+    children: [
+      {
+        children: ['Договор №420'],
+        sum: '1.2',
+        value: 'Договор №420',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: 'Договор №31',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: 'Договор №41',
+        id: 2
+      }
+    ],
+    sum: '1.4',
+    value: 'Договор №39',
+    id: 12
+  },
+  {
+    children: [
+      {
+        children: ['Договор №420'],
+        sum: '1.2',
+        value: 'Договор №420',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: 'Договор №31',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: 'Договор №41',
+        id: 2
+      }
+    ],
+    sum: '2.0',
+    value: 'Договор №38',
+    id: 13
+  },
+  {
+    children: [
+      {
+        children: ['Договор №420'],
+        sum: '1.2',
+        value: 'Договор №420',
+        id: 0
+      },
+      {
+        children: ['Договор №31'],
+        sum: '1.3',
+        value: 'Договор №31',
+        id: 1
+      },
+      {
+        children: ['Договор №41'],
+        sum: '1.0',
+        value: 'Договор №41',
+        id: 2
+      }
+    ],
+    sum: '0.1',
+    value: 'Договор №14',
+    id: 14
+  }
+];
 
 const mapStateToProps = state => ({
   loading: state.journals.loading,
@@ -158,9 +537,12 @@ class JournalsDashletGrid extends Component {
     );
   };
 
+  loadChild = e => {};
+
   render() {
     const props = this.props;
     const params = (props.journalConfig || {}).params || {};
+
     // eslint-disable-next-line
     const defaultSortBy = params.defaultSortBy ? eval('(' + params.defaultSortBy + ')') : [];
 
@@ -177,28 +559,51 @@ class JournalsDashletGrid extends Component {
               />
             </div>
           </Fragment>
+        ) : props.gridData.isTree ? (
+          <TreeGrid
+            {...props.gridData}
+            data={data}
+            minHeight={props.gridMinHeight}
+            onExpand={this.loadChild}
+            lastLevelContent={(row, level) => {
+              const api = new JournalsApi();
+              const props = this.props;
+              const {
+                columns,
+                meta: { criteria }
+              } = props.journalConfig;
+
+              let filter = [
+                {
+                  field: 'cm:title',
+                  predicate: 'string-contains',
+                  value: row.children[0]
+                }
+              ];
+
+              return <AsyncTreeGrid columns={columns} criteria={[...filter, ...criteria]} api={api.getGridData} level={level} />;
+            }}
+          />
         ) : (
-          <Fragment>
-            <Grid
-              {...props.gridData}
-              className={props.loading ? 'grid_transparent' : ''}
-              freezeCheckboxes
-              filterable
-              editable
-              multiSelectable
-              defaultSortBy={defaultSortBy}
-              filters={this.filters}
-              inlineTools={this.inlineTools}
-              tools={this.tools}
-              onFilter={this.onFilter}
-              onSelect={this.setSelectedRecords}
-              onMouseEnter={this.setGridInlineToolSettings}
-              onEdit={props.saveRecords}
-              minHeight={props.gridMinHeight}
-              selected={props.selectedRecords}
-              selectAll={props.selectAllRecords}
-            />
-          </Fragment>
+          <Grid
+            {...props.gridData}
+            className={props.loading ? 'grid_transparent' : ''}
+            freezeCheckboxes
+            filterable
+            editable
+            multiSelectable
+            defaultSortBy={defaultSortBy}
+            filters={this.filters}
+            inlineTools={this.inlineTools}
+            tools={this.tools}
+            onFilter={this.onFilter}
+            onSelect={this.setSelectedRecords}
+            onMouseEnter={this.setGridInlineToolSettings}
+            onEdit={props.saveRecords}
+            minHeight={props.gridMinHeight}
+            selected={props.selectedRecords}
+            selectAll={props.selectAllRecords}
+          />
         )}
       </div>
     );

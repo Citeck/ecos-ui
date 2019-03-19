@@ -28,7 +28,7 @@ export default class TreeDataSource extends BaseDataSource {
             value_0: '{http://www.citeck.ru/model/contracts/1.0}agreement'
           }),
           language: 'criteria',
-          groupBy: ['cm:title']
+          groupBy: ['cm:title', 'cm:create']
         },
         attributes: {
           sum: 'sum(contracts:agreementAmount)',
@@ -37,8 +37,6 @@ export default class TreeDataSource extends BaseDataSource {
         }
       })
       .then(resp => {
-        console.log(resp);
-
         let recordsData = resp.records || [];
         let total = resp.totalCount || 0;
         let data = [];
@@ -48,7 +46,7 @@ export default class TreeDataSource extends BaseDataSource {
 
           data.push({
             ...recordData.attributes,
-            id: recordData.id || i
+            id: i //recordData.id || i
           });
         }
 
@@ -60,7 +58,7 @@ export default class TreeDataSource extends BaseDataSource {
     columns = [
       {
         dataField: 'value',
-        text: 'Поле'
+        text: 'Заголовок'
       },
       {
         dataField: 'sum',

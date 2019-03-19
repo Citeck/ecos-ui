@@ -45,6 +45,15 @@ export class JournalsApi extends RecordService {
     });
   };
 
+  getTreeGridData = () => {
+    const dataSource = new dataSourceStore['TreeDataSource']();
+
+    return dataSource.load().then(function({ data, total }) {
+      const columns = dataSource.getColumns();
+      return { data, total, columns, isTree: true };
+    });
+  };
+
   getGridDataUsePredicates = ({ columns, pagination, journalConfigPredicate, predicates }) => {
     const query = {
       t: 'and',

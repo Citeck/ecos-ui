@@ -19,8 +19,10 @@
       vertical-align: middle;
     }
 
+    .tree-grid__empty-td,
     .tree-grid__expander-td {
-      padding-right: 0;
+      padding: 0;
+      width: 22px;
     }
 
     .expanding-row {

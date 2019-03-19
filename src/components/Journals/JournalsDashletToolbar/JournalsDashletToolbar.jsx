@@ -4,7 +4,7 @@ import Export from '../../Export/Export';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
-import { reloadGrid, setPage, setJournalsItem } from '../../../actions/journals';
+import { reloadGrid, reloadTreeGrid, setPage, setJournalsItem } from '../../../actions/journals';
 
 const mapStateToProps = state => ({
   journals: state.journals.journals,
@@ -15,7 +15,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   reloadGrid: ({ journalId, pagination, columns, criteria }) => dispatch(reloadGrid({ journalId, pagination, columns, criteria })),
   setPage: page => dispatch(setPage(page)),
-  setJournalsItem: journal => dispatch(setJournalsItem(journal))
+  setJournalsItem: journal => dispatch(setJournalsItem(journal)),
+  reloadTreeGrid: journal => dispatch(reloadTreeGrid())
 });
 
 class JournalsDashletToolbar extends Component {
@@ -34,6 +35,10 @@ class JournalsDashletToolbar extends Component {
     props.setPage(1);
     props.reloadGrid({ journalId: journal.nodeRef });
     props.setJournalsItem(journal);
+  };
+
+  onChangeSettings = () => {
+    this.props.reloadTreeGrid();
   };
 
   render() {
@@ -58,7 +63,14 @@ class JournalsDashletToolbar extends Component {
           <IcoBtn invert={'true'} icon={'icon-down'} className={'btn_drop-down btn_r_6 btn_x-step_10'} />
         </Dropdown>
 
-        <Dropdown source={[{ title: '...', id: 0 }]} value={0} valueField={'id'} titleField={'title'} isButton={true}>
+        <Dropdown
+          source={[{ title: 'Группировка', id: 0 }]}
+          value={0}
+          valueField={'id'}
+          titleField={'title'}
+          isButton={true}
+          onChange={this.onChangeSettings}
+        >
           <TwoIcoBtn icons={['icon-settings', 'icon-down']} className={'btn_grey btn_settings-down btn_x-step_10'} />
         </Dropdown>
 

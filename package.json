@@ -50,6 +50,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "export": "cross-env NODE_ENV=production webpack --config webpack.config.export.js",
+    "export-win": "set NODE_ENV=production&& webpack --config webpack.config.export.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --single-quote --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}' 'server/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
