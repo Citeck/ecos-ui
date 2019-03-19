@@ -1,7 +1,9 @@
 module.exports = {
   entryPoints: {
     "ecos-form-custom": "./export/src/forms/index.js",
-    "glyphicon-to-fa": "./export/src/glyphicon-to-fa/index.js",
+    // "glyphicon-to-fa": "./export/src/glyphicon-to-fa/index.js",
+
+    // TODO move from examples
     "journalsDashlet": "./export/src/examples/journalsDashlet/index.js",
 
     // Examples
