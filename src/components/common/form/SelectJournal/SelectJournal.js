@@ -347,7 +347,7 @@ export default class SelectJournal extends Component {
           openSelectModal={this.openSelectModal}
         />
 
-        <FiltersProvider columns={journalConfig.columns} api={this.api}>
+        <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} api={this.api}>
           <SimpleModal
             title={t('select-journal.select-modal.title')}
             isOpen={isSelectModalOpen}
