@@ -15,7 +15,6 @@ export default class ExpanderFormatter extends Component {
   };
 
   render() {
-    const {} = this.props;
     return <i className={classNames('grid-expander', this.state.expanded ? 'icon-down' : 'icon-right')} onClick={this._onClick} />;
   }
 }

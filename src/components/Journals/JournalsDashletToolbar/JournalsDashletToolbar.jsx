@@ -46,10 +46,10 @@ class JournalsDashletToolbar extends Component {
     const config = props.config || {};
 
     return (
-      <div className={'journal-dashlet__toolbar'}>
+      <div className={'ecos-journal-dashlet__toolbar'}>
         <IcoBtn
           icon={'icon-big-plus'}
-          className={'btn_i btn_i-big-plus btn_blue btn_hover_light-blue btn_x-step_10'}
+          className={'ecos-btn_i ecos-btn_i-big-plus ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10'}
           onClick={this.addRecord}
         />
 
@@ -60,7 +60,7 @@ class JournalsDashletToolbar extends Component {
           titleField={'title'}
           onChange={this.onChangeJournal}
         >
-          <IcoBtn invert={'true'} icon={'icon-down'} className={'btn_drop-down btn_r_6 btn_x-step_10'} />
+          <IcoBtn invert={'true'} icon={'icon-down'} className={'ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10'} />
         </Dropdown>
 
         <Dropdown
@@ -71,15 +71,18 @@ class JournalsDashletToolbar extends Component {
           isButton={true}
           onChange={this.onChangeSettings}
         >
-          <TwoIcoBtn icons={['icon-settings', 'icon-down']} className={'btn_grey btn_settings-down btn_x-step_10'} />
+          <TwoIcoBtn icons={['icon-settings', 'icon-down']} className={'ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10'} />
         </Dropdown>
 
         <Export config={props.journalConfig} />
 
         <div className={'dashlet__actions'}>
           <JournalsDashletPagination />
-          <IcoBtn icon={'icon-list'} className={'btn_i btn_blue2 btn_width_auto btn_hover_t-light-blue btn_x-step_10'} />
-          <IcoBtn icon={'icon-pie'} className={'btn_i btn_grey2 btn_width_auto btn_hover_t-light-blue'} />
+          <IcoBtn
+            icon={'icon-list'}
+            className={'ecos-btn_i ecos-btn_blue2 ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_10'}
+          />
+          <IcoBtn icon={'icon-pie'} className={'ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue'} />
         </div>
       </div>
     );

@@ -357,7 +357,7 @@ export default class SelectJournal extends Component {
                   <IcoBtn
                     invert={'true'}
                     icon={isCollapsePanelOpen ? 'icon-up' : 'icon-down'}
-                    className="btn_drop-down btn_r_8 btn_blue btn_x-step_10"
+                    className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_blue ecos-btn_x-step_10"
                     onClick={this.toggleCollapsePanel}
                   >
                     {t('select-journal.select-modal.filter-button')}

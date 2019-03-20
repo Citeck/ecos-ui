@@ -44,7 +44,7 @@ export default class Dashlet extends Component {
             <IcoBtn
               invert={'true'}
               icon={'icon-big-arrow'}
-              className={'dashlet__btn btn_blue btn_light-blue btn_hover_dark-blue2'}
+              className={'dashlet__btn ecos-btn_blue ecos-btn_light-blue ecos-btn_hover_dark-blue2'}
               onClick={this.onGoTo}
             >
               {t('dashlet.goto')}
@@ -53,17 +53,17 @@ export default class Dashlet extends Component {
             <div className={'dashlet__actions'}>
               <IcoBtn
                 icon={'icon-reload'}
-                className={'btn_i dashlet__btn dashlet__btn_i btn_blue btn_hover_light-blue'}
+                className={'ecos-btn_i dashlet__btn dashlet__btn_i ecos-btn_blue ecos-btn_hover_light-blue'}
                 onClick={this.onReload}
               />
               <IcoBtn
                 icon={'icon-edit'}
-                className={'btn_i dashlet__btn dashlet__btn_i btn_blue btn_hover_light-blue'}
+                className={'ecos-btn_i dashlet__btn dashlet__btn_i ecos-btn_blue ecos-btn_hover_light-blue'}
                 onClick={this.onEdit}
               />
               <IcoBtn
                 icon={'icon-question'}
-                className={'btn_i dashlet__btn dashlet__btn_i btn_blue btn_hover_light-blue'}
+                className={'ecos-btn_i dashlet__btn dashlet__btn_i ecos-btn_blue ecos-btn_hover_light-blue'}
                 title={t('dashlet.help.title')}
               />
             </div>

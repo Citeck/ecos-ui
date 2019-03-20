@@ -494,7 +494,7 @@ class JournalsDashletGrid extends Component {
   };
 
   inlineTools = () => {
-    const inlineToolsActionClassName = 'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10';
+    const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
 
     if (this.props.selectedRecords.length) {
       return null;
@@ -513,7 +513,7 @@ class JournalsDashletGrid extends Component {
   };
 
   tools = () => {
-    const toolsActionClassName = 'btn_i_sm btn_grey4 btn_hover_t-dark-brown';
+    const toolsActionClassName = 'ecos-btn_i_sm ecos-btn_grey4 ecos-btn_hover_t-dark-brown';
     const {
       selectAllRecordsVisible,
       selectAllRecords,
@@ -542,20 +542,21 @@ class JournalsDashletGrid extends Component {
   render() {
     const props = this.props;
     const params = (props.journalConfig || {}).params || {};
+    const loading = props.loading;
 
     // eslint-disable-next-line
     const defaultSortBy = params.defaultSortBy ? eval('(' + params.defaultSortBy + ')') : [];
 
     return (
-      <div ref={this.gridWrapperRef} className={'journal-dashlet__grid'}>
-        {props.loading ? (
+      <div ref={this.gridWrapperRef} className={'ecos-journal-dashlet__grid'}>
+        {loading ? (
           <Fragment>
             <Loader />
             <div ref={this.emptyGridRef}>
               <Grid
                 data={Array.from(Array(props.maxGridItems), (e, i) => ({ id: i }))}
                 columns={[{ dataField: '_', text: ' ' }]}
-                className={props.loading ? 'grid_transparent' : ''}
+                className={loading ? 'ecos-grid_transparent' : ''}
               />
             </div>
           </Fragment>
@@ -587,7 +588,7 @@ class JournalsDashletGrid extends Component {
         ) : (
           <Grid
             {...props.gridData}
-            className={props.loading ? 'grid_transparent' : ''}
+            className={loading ? 'ecos-grid_transparent' : ''}
             freezeCheckboxes
             filterable
             editable

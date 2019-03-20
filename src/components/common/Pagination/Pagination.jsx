@@ -59,8 +59,12 @@ export default class Pagination extends Component {
         <span className={'pagination__text'}> {t('pagination.from')} </span>
         <span className={'pagination__text pagination__step'}>{total}</span>
 
-        <IcoBtn icon={'icon-left'} className={'pagination__btn-step btn_grey3 btn_width_auto btn_hover_t-light-blue'} onClick={this.prev} />
-        <IcoBtn icon={'icon-right'} className={'btn_grey3 btn_width_auto btn_hover_t-light-blue'} onClick={this.next} />
+        <IcoBtn
+          icon={'icon-left'}
+          className={'pagination__btn-step ecos-btn_grey3 ecos-btn_width_auto ecos-btn_hover_t-light-blue'}
+          onClick={this.prev}
+        />
+        <IcoBtn icon={'icon-right'} className={'ecos-btn_grey3 ecos-btn_width_auto ecos-btn_hover_t-light-blue'} onClick={this.next} />
       </div>
     );
   }

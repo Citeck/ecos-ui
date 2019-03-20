@@ -21,16 +21,16 @@ function triggerEvent(name, data) {
 }
 
 const Selector = ({ mode, ...rest }) => (
-  <div className={'grid__checkbox'}>
+  <div className={'ecos-grid__checkbox'}>
     <Checkbox checked={rest.checked} />
   </div>
 );
 
 const SelectorHeader = ({ indeterminate, ...rest }) => (
   <Fragment>
-    <div className={'grid__checkbox'}>
+    <div className={'ecos-grid__checkbox'}>
       {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
-      <div className={'grid__checkbox-devider'} />
+      <div className={'ecos-grid__checkbox-devider'} />
     </div>
   </Fragment>
 );
@@ -131,7 +131,7 @@ export default class Grid extends Component {
       formatExtraData = formatExtraData || {};
       const Formatter = formatExtraData.formatter;
       return (
-        <div className={`grid__td ${editable ? 'grid__td_editable' : ''}`}>
+        <div className={`ecos-grid__td ${editable ? 'ecos-grid__td_editable' : ''}`}>
           {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
         </div>
       );
@@ -176,7 +176,7 @@ export default class Grid extends Component {
 
     return {
       mode: 'radio',
-      classes: 'grid__tr_selected',
+      classes: 'ecos-grid__tr_selected',
       selected: this._selected,
       onSelect: row => {
         const selected = this._selected[0];
@@ -199,7 +199,7 @@ export default class Grid extends Component {
 
     return {
       mode: 'checkbox',
-      classes: 'grid__tr_selected',
+      classes: 'ecos-grid__tr_selected',
       selected: this._selected,
       onSelect: (row, isSelect) => {
         const selected = this._selected;
@@ -315,7 +315,7 @@ export default class Grid extends Component {
       keyField: this._keyField,
       bootstrap4: true,
       bordered: false,
-      headerClasses: 'grid__header',
+      headerClasses: 'ecos-grid__header',
       noDataIndication: () => t('grid.no-data-indication'),
       ...this.props
     };
@@ -328,7 +328,11 @@ export default class Grid extends Component {
       return (
         <div
           style={{ minHeight: props.minHeight }}
-          className={classNames('grid', (props.singleSelectable || props.multiSelectable) && 'grid_checkable', this.props.className)}
+          className={classNames(
+            'ecos-grid',
+            (props.singleSelectable || props.multiSelectable) && 'ecos-grid_checkable',
+            this.props.className
+          )}
         >
           {toolsVisible ? this.tools() : null}
 
@@ -341,7 +345,7 @@ export default class Grid extends Component {
           </PerfectScrollbar>
 
           {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
-            <BootstrapTable {...props} classes={'grid__freeze'} />
+            <BootstrapTable {...props} classes={'ecos-grid__freeze'} />
           ) : null}
 
           {this.inlineTools()}
