@@ -46,9 +46,11 @@
     font-weight: $font-weight-semi-bold;
     width: 28px;
     line-height: 28px;
+    color: $text-color-dark;
 
     &:hover {
       border-radius: 50%;
+      background-color: $color-gray-4;
     }
   }
 
@@ -74,6 +76,12 @@
       border-radius: 50%;
       background: $color-blue-light;
     }
+  }
+
+  .react-datepicker__day--keyboard-selected {
+    border-radius: 50%;
+    background-color: $color-gray-4;
+    color: $text-color-dark;
   }
 
   .react-datepicker__day--outside-month {

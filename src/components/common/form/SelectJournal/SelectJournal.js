@@ -311,9 +311,6 @@ export default class SelectJournal extends Component {
   };
 
   render() {
-    // TODO настройки наружу
-    // TODO zIndex
-
     const { multiple, placeholder, disabled, isCompact } = this.props;
     const {
       isGridDataReady,
@@ -352,8 +349,7 @@ export default class SelectJournal extends Component {
             title={t('select-journal.select-modal.title')}
             isOpen={isSelectModalOpen}
             hideModal={this.toggleSelectModal}
-            zIndex={10002}
-            className={'select-journal-select-modal simple-modal_level-1'}
+            className={'select-journal-select-modal'}
           >
             <div className={'select-journal-collapse-panel'}>
               <div className={'select-journal-collapse-panel__controls'}>
@@ -413,13 +409,7 @@ export default class SelectJournal extends Component {
           </SimpleModal>
         </FiltersProvider>
 
-        <SimpleModal
-          title={t('select-journal.edit-modal.title')}
-          isOpen={isEditModalOpen}
-          hideModal={this.toggleEditModal}
-          zIndex={10002}
-          className={'simple-modal_level-1'}
-        >
+        <SimpleModal title={t('select-journal.edit-modal.title')} isOpen={isEditModalOpen} hideModal={this.toggleEditModal}>
           <EcosForm record={editRecordId} onSubmit={this.onEditFormSubmit} onFormCancel={this.toggleEditModal} />
         </SimpleModal>
       </div>

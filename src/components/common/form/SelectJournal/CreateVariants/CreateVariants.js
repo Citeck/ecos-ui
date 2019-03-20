@@ -42,13 +42,7 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
   }
 
   const modal = record ? (
-    <SimpleModal
-      title={t('select-journal.create-modal.title')}
-      isOpen={isCreateModalOpen}
-      hideModal={toggleCreateModal}
-      zIndex={10003}
-      className={'simple-modal_level-2'}
-    >
+    <SimpleModal title={t('select-journal.create-modal.title')} isOpen={isCreateModalOpen} hideModal={toggleCreateModal}>
       <EcosForm record={record} onSubmit={onCreateFormSubmit} onFormCancel={toggleCreateModal} />
     </SimpleModal>
   ) : null;
