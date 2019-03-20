@@ -28,16 +28,17 @@ const Filter = ({
           data-idx={idx}
           onChange={changePredicate}
         />
-
-        {selectedPredicate.needValue && input ? (
-          <input.component
-            {...input.getProps({
-              predicateValue,
-              changePredicateValue,
-              applyFilters
-            })}
-          />
-        ) : null}
+        <div className="select-journal-filter__predicate-control">
+          {selectedPredicate.needValue && input ? (
+            <input.component
+              {...input.getProps({
+                predicateValue,
+                changePredicateValue,
+                applyFilters
+              })}
+            />
+          ) : null}
+        </div>
       </div>
       <span data-idx={idx} className={'icon icon-delete select-journal-filter__remove-btn'} onClick={onRemove} />
     </div>

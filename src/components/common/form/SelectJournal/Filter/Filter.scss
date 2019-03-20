@@ -35,9 +35,13 @@
 }
 
 .select-journal-filter__predicate-select {
-  width: 48%;
-  margin-right: 2%;
+  width: 50%;
   flex-shrink: 0;
+}
+
+.select-journal-filter__predicate-control {
+  width: 48%;
+  margin-left: 2%;
 }
 
 .select-journal-filter__predicate {
