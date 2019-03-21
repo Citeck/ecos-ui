@@ -45,7 +45,7 @@ export default class Dropdown extends Component {
   };
 
   render() {
-    const cssClasses = classNames('dropdown', this.props.className);
+    const cssClasses = classNames('ecos-dropdown', this.props.className);
     const { valueField, titleField, source, value, isStatic } = this.props;
 
     const selected = source.find(item => item[valueField] === value) || source[0] || {};
@@ -64,7 +64,7 @@ export default class Dropdown extends Component {
           {isStatic ? this.props.children : this.getControl(selected[titleField])}
         </DropdownToggle>
 
-        <DropdownMenu className={'dropdown__menu'}>
+        <DropdownMenu className={'ecos-dropdown__menu'}>
           <ul>{items}</ul>
         </DropdownMenu>
       </Drd>

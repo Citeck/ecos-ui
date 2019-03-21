@@ -11,7 +11,7 @@ button {
     text-decoration: none;
 
     background: $color-gray-4;
-    color: $text-color-dark !important;
+    color: $text-color-dark;
     font-family: $font-family;
     font-size: $font-size-standard;
     font-weight: $font-weight-semi-bold;
@@ -38,7 +38,7 @@ button {
 
   /*Elements*/
   .ecos-btn__i::before {
-    margin: 0 !important;
+    margin: 0;
   }
 
   .ecos-btn__i_right {
@@ -145,42 +145,42 @@ button {
   /*Colors*/
   &.ecos-btn_blue {
     background: $color-blue-dark;
-    color: $color-white !important;
+    color: $color-white;
   }
 
   &.ecos-btn_blue2 {
     background: $color-white;
-    color: $color-blue-light !important;
+    color: $color-blue-light;
   }
 
   &.ecos-btn_light-blue {
     background: $color-blue-light;
-    color: $color-white !important;
+    color: $color-white;
   }
 
   &.ecos-btn_grey {
     background: $color-gray-4;
-    color: $color-gray-5 !important;
+    color: $color-gray-5;
   }
 
   &.ecos-btn_grey2 {
     background: $color-white;
-    color: $color-gray-5 !important;
+    color: $color-gray-5;
   }
 
   &.ecos-btn_grey3 {
     background: $color-white;
-    color: $text-color-gray !important;
+    color: $text-color-gray;
   }
 
   &.ecos-btn_grey4 {
     background: $color-white;
-    color: $color-gray-6 !important;
+    color: $color-gray-6;
   }
 
   &.ecos-btn_grey5 {
     background: $color-gray-4;
-    color: $text-color-gray !important;
+    color: $text-color-gray;
   }
 
   &.ecos-btn_grey6 {
@@ -190,7 +190,7 @@ button {
 
   &.ecos-btn_brown {
     background: $color-white;
-    color: $color-brown-2 !important;
+    color: $color-brown-2;
   }
 
   /*hovers*/
@@ -210,13 +210,13 @@ button {
   &.ecos-btn_hover_light-blue2 {
     &:hover {
       background-color: $color-blue-light;
-      color: $color-white !important;
+      color: $color-white;
     }
   }
 
   &.ecos-btn_hover_t-light-blue {
     &:hover {
-      color: $color-blue-light !important;
+      color: $color-blue-light;
       background: inherit;
     }
   }
@@ -229,8 +229,8 @@ button {
 
   &.ecos-btn_hover_t-dark-brown {
     &:hover {
-      color: $color-brown-3 !important;
-      background: $color-white !important;
+      color: $color-brown-3;
+      background: $color-white;
     }
   }
 }

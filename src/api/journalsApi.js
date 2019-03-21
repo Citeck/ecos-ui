@@ -11,11 +11,11 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, criteria, pagination }) => {
+  getGridData = ({ columns, criteria, pagination, predicate, groupBy }) => {
     const query = criteria => {
       let query = {};
 
-      (criteria || []).forEach((criterion, idx) => {
+      criteria.forEach((criterion, idx) => {
         query['field_' + idx] = criterion.field;
         query['predicate_' + idx] = criterion.predicate;
         query['value_' + idx] = criterion.value;
@@ -30,9 +30,10 @@ export class JournalsApi extends RecordService {
       ajax: {
         body: {
           query: {
-            query: query(criteria),
-            language: 'criteria',
-            page: pagination
+            query: criteria.length ? query(criteria) : predicate,
+            language: criteria.length ? 'criteria' : 'predicate',
+            page: pagination,
+            groupBy
           }
         }
       },

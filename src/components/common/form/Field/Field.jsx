@@ -7,14 +7,14 @@ import './Field.scss';
 export default class Field extends Component {
   render() {
     const props = this.props;
-    const cssClasses = classNames('field', props.className);
+    const cssClasses = classNames('ecos-field', props.className);
 
     return (
       <FormGroup row className={cssClasses}>
-        <Label sm={4} md={2} className={'field__label'}>
+        <Label sm={4} md={2} className={'ecos-field__label'}>
           {props.label}
         </Label>
-        <Col sm={7} md={4} className={'field__control'}>
+        <Col sm={7} md={4} className={'ecos-field__control'}>
           {props.children}
         </Col>
       </FormGroup>

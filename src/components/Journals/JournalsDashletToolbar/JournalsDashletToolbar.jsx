@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
+import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import Export from '../../Export/Export';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
@@ -26,7 +27,10 @@ class JournalsDashletToolbar extends Component {
     if (journalConfig) {
       const createVariants = ((journalConfig.meta || {}).createVariants || [])[0] || {};
       createVariants.canCreate &&
-        window.open(`node-create?type=${createVariants.type}&destination=${createVariants.destination}&viewId=`, '_blank');
+        window.open(
+          `${URL_PAGECONTEXT}node-create?type=${createVariants.type}&destination=${createVariants.destination}&viewId=`,
+          '_blank'
+        );
     }
   };
 
@@ -64,7 +68,7 @@ class JournalsDashletToolbar extends Component {
         </Dropdown>
 
         <Dropdown
-          source={[{ title: 'Группировка', id: 0 }]}
+          source={[{ title: 'Test grouping', id: 0 }]}
           value={0}
           valueField={'id'}
           titleField={'title'}

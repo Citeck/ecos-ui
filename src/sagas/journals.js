@@ -87,7 +87,9 @@ function* loadGrid({ api, logger }, action) {
       pagination = yield select(state => state.journals.pagination),
       columns = journalConfig.columns,
       criteria = meta.criteria,
-      createVariants = meta.createVariants
+      createVariants = meta.createVariants,
+      predicate = meta.predicate,
+      groupBy = meta.groupBy
     } = action.payload;
 
     /*or load from server*/
@@ -97,10 +99,12 @@ function* loadGrid({ api, logger }, action) {
       columns = journalConfig.columns;
       criteria = meta.criteria;
       createVariants = meta.createVariants;
+      predicate = meta.predicate;
+      groupBy = meta.groupBy;
       yield put(setJournalConfig(journalConfig));
     }
 
-    const gridData = yield call(api.journals.getGridData, { columns, criteria, pagination, createVariants });
+    const gridData = yield call(api.journals.getGridData, { columns, criteria, pagination, createVariants, predicate, groupBy });
     yield put(setGrid(gridData));
 
     yield put(setLoading(false));
