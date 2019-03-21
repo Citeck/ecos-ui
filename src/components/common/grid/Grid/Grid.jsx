@@ -282,6 +282,7 @@ export default class Grid extends Component {
     let th = this._resizingTh;
     if (th) {
       th.style.width = this._startResizingThOffset + e.pageX + 'px';
+      th.firstChild.style.width = this._startResizingThOffset + e.pageX + 'px';
     }
   };
 
