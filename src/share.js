@@ -138,18 +138,17 @@ export function requireStyles(themeName) {
   return new Promise(resolve => {
     window.require(
       [
-        'xstyle!/share/res/css/yui-fonts-grids.css',
-        'xstyle!/share/res/yui/columnbrowser/assets/columnbrowser.css',
-        'xstyle!/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin.css',
+        // 'xstyle!/share/res/css/yui-fonts-grids.css',
+        // 'xstyle!/share/res/yui/columnbrowser/assets/columnbrowser.css',
+        // 'xstyle!/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin.css',
+        // 'xstyle!/share/res/css/base.css',
+        // 'xstyle!/share/res/js/citeck/modules/utils/citeck.css',
+        // 'xstyle!/share/res/css/yui-layout.css',
+        // 'xstyle!/share/res/modules/create-site.css',
+        // 'xstyle!/share/res/components/form/form.css',
+        // 'xstyle!/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro.css'
         `xstyle!${skinCss}`,
-        'xstyle!/share/res/css/base.css',
-        'xstyle!/share/res/js/citeck/modules/utils/citeck.css',
-        'xstyle!/share/res/css/yui-layout.css',
-        `xstyle!/share/res/themes/${themeName}/presentation.css`,
-        'xstyle!/share/res/modules/create-site.css',
-        'xstyle!/share/res/components/form/form.css',
-        'xstyle!/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro.css'
-        // 'xstyle!https://fonts.googleapis.com/css?family=Open+Sans:300,400,600'
+        `xstyle!/share/res/themes/${themeName}/presentation.css`
       ],
       function() {
         resolve();

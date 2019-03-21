@@ -1,7 +1,6 @@
 import { handleActions } from 'redux-actions';
 import {
-  setDashletIsReady,
-  setDashletEditorVisible,
+  setEditorMode,
   setJournalsList,
   setJournals,
   setGrid,
@@ -10,12 +9,22 @@ import {
   setJournalsItem,
   setSettingItem,
   setJournalConfig,
-  setPage
+  setPage,
+  setSelectedRecords,
+  setSelectAllRecords,
+  setSelectAllRecordsVisible,
+  setJournalsListName,
+  setGridMinHeight,
+  setGridInlineToolSettings
 } from '../actions/journals';
+import { setLoading } from '../actions/loader';
+
+const MAX_ITEMS = 10;
 
 const initialState = {
+  loading: true,
   dashletIsReady: false,
-  editorVisible: true,
+  editorMode: false,
   journalsList: [],
   journals: [],
   settings: [],
@@ -28,16 +37,44 @@ const initialState = {
   initConfig: null,
   pagination: {
     skipCount: 0,
-    maxItems: 10,
+    maxItems: MAX_ITEMS,
     page: 1
   },
-  journalConfig: null
+  journalConfig: null,
+  selectedRecords: [],
+  selectAllRecords: false,
+  selectAllRecordsVisible: false,
+  journalsListName: '',
+  gridMinHeight: null,
+  maxGridItems: MAX_ITEMS,
+  inlineToolSettings: {
+    height: 0,
+    top: 0
+  }
 };
 
 Object.freeze(initialState);
 
 export default handleActions(
   {
+    [setGridInlineToolSettings]: (state, action) => {
+      return {
+        ...state,
+        inlineToolSettings: action.payload
+      };
+    },
+    [setGridMinHeight]: (state, action) => {
+      return {
+        ...state,
+        gridMinHeight: action.payload
+      };
+    },
+    [setJournalsListName]: (state, action) => {
+      return {
+        ...state,
+        journalsListName: action.payload
+      };
+    },
     [setJournalsListItem]: (state, action) => {
       return {
         ...state,
@@ -68,16 +105,10 @@ export default handleActions(
         ]
       };
     },
-    [setDashletIsReady]: (state, action) => {
+    [setEditorMode]: (state, action) => {
       return {
         ...state,
-        dashletIsReady: action.payload
-      };
-    },
-    [setDashletEditorVisible]: (state, action) => {
-      return {
-        ...state,
-        editorVisible: action.payload
+        editorMode: action.payload
       };
     },
     [setJournalsList]: (state, action) => {
@@ -93,7 +124,6 @@ export default handleActions(
       };
     },
     [setGrid]: (state, action) => {
-      console.log(state);
       return {
         ...state,
         gridData: action.payload
@@ -119,6 +149,30 @@ export default handleActions(
       return {
         ...state,
         journalConfig: action.payload
+      };
+    },
+    [setSelectedRecords]: (state, action) => {
+      return {
+        ...state,
+        selectedRecords: action.payload
+      };
+    },
+    [setSelectAllRecords]: (state, action) => {
+      return {
+        ...state,
+        selectAllRecords: action.payload
+      };
+    },
+    [setSelectAllRecordsVisible]: (state, action) => {
+      return {
+        ...state,
+        selectAllRecordsVisible: action.payload
+      };
+    },
+    [setLoading]: (state, action) => {
+      return {
+        ...state,
+        loading: action.payload
       };
     }
   },

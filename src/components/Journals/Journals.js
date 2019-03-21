@@ -17,6 +17,7 @@ import CollapsableList from '../common/CollapsableList/CollapsableList';
 import FilterList from '../FilterList/FilterList';
 import ColumnsSetup from '../ColumnsSetup/ColumnsSetup';
 import Grouping from '../Grouping/Grouping';
+import { t } from '../../helpers/util';
 
 import './Journals.scss';
 
@@ -65,21 +66,21 @@ class Journals extends Component {
 
                 {!this.state.gridSettingsVisible && (
                   <Well className={'journal__grid-settings'}>
-                    <PanelBar header={'ФИЛЬТРАЦИЯ'}>
+                    <PanelBar header={t('journals.filter-list.header')}>
                       <FilterList />
                     </PanelBar>
 
-                    <PanelBar header={'НАСТРОЙКА КОЛОНОК'}>
+                    <PanelBar header={t('journals.columns-setup.header')}>
                       <ColumnsSetup />
                     </PanelBar>
 
-                    <PanelBar header={'ГРУППИРОВКА'}>
+                    <PanelBar header={t('journals.grouping.header')}>
                       <Grouping />
                     </PanelBar>
 
-                    <Btn>Сохранить в шаблон</Btn>
-                    <Btn>Сборсить</Btn>
-                    <Btn>Применить</Btn>
+                    <Btn>{t('journals.action.apply-template')}</Btn>
+                    <Btn>{t('journals.action.reset')}</Btn>
+                    <Btn>{t('journals.action.apply')}</Btn>
                   </Well>
                 )}
 
@@ -88,16 +89,20 @@ class Journals extends Component {
 
               <Fragment>
                 <Well className={'journal__select'}>
-                  <CollapsableList list={['Первичные документы', 'Договоры', 'Доп. соглашения', 'Счета']}>{'ЖУРНАЛЫ'}</CollapsableList>
+                  <CollapsableList list={['Первичные документы', 'Договоры', 'Доп. соглашения', 'Счета']}>
+                    {t('journals.name')}
+                  </CollapsableList>
                 </Well>
 
                 <Well className={'journal__presets'}>
-                  <CollapsableList list={['По умолчанию', 'Мой шаблон 1', 'Мой шаблон 2']}>{'ШАБЛОНЫ НАСТРОЕК'}</CollapsableList>
+                  <CollapsableList list={[t('journals.default'), 'Мой шаблон 1', 'Мой шаблон 2']}>
+                    {t('journals.tpl.defaults')}
+                  </CollapsableList>
                 </Well>
               </Fragment>
             ]}
           >
-            <Caption large>{'Журналы'}</Caption>
+            <Caption large>{t('journals.name')}</Caption>
           </ColumnsWithHeader>
         </div>
       </Container>

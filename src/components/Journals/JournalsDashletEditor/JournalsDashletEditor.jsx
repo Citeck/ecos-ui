@@ -11,9 +11,10 @@ import {
   setJournalsItem,
   setSettingItem,
   saveDashlet,
-  setDashletEditorVisible,
+  setEditorMode,
   setDashletConfig
 } from '../../../actions/journals';
+import { t } from '../../../helpers/util';
 
 import './JournalsDashletEditor.scss';
 
@@ -26,7 +27,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  setDashletEditorVisible: visible => dispatch(setDashletEditorVisible(visible)),
+  setEditorMode: visible => dispatch(setEditorMode(visible)),
   getDashletEditorData: config => dispatch(getDashletEditorData(config)),
   setJournalsListItem: item => dispatch(setJournalsListItem(item)),
   setJournalsItem: item => dispatch(setJournalsItem(item)),
@@ -36,9 +37,13 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class JournalsDashletEditor extends Component {
+  componentDidMount() {
+    this.props.getDashletEditorData(this.props.config);
+  }
+
   cancel = () => {
     if (this.props.config) {
-      this.props.setDashletEditorVisible(false);
+      this.props.setEditorMode(false);
     }
   };
 
@@ -54,10 +59,6 @@ class JournalsDashletEditor extends Component {
   setSelectValue = (source, field, value) => {
     return source.filter(option => option[field] === value);
   };
-
-  componentDidMount() {
-    this.props.getDashletEditorData(this.props.config);
-  }
 
   componentDidUpdate(prevProps) {
     const prevConfig = prevProps.config || {};
@@ -77,11 +78,11 @@ class JournalsDashletEditor extends Component {
       <div className={cssClasses}>
         <div className={'journal-dashlet-editor__body'}>
           <Caption middle className={'journal-dashlet-editor__caption'}>
-            Редактирование дашлета
+            {t('journals.action.edit-dashlet')}
           </Caption>
-          <Field label={'Список журналов'}>
+          <Field label={t('journals.list.name')}>
             <Select
-              placeholder={'Выберите список журналов'}
+              placeholder={t('journals.action.select-journal-list')}
               options={props.journalsList}
               getOptionLabel={option => option.title}
               getOptionValue={option => option.id}
@@ -90,9 +91,9 @@ class JournalsDashletEditor extends Component {
             />
           </Field>
 
-          <Field label={'Журнал'}>
+          <Field label={t('journals.name')}>
             <Select
-              placeholder={'Выберите журнал'}
+              placeholder={t('journals.action.select-journal')}
               options={props.journals}
               getOptionLabel={option => option.title}
               getOptionValue={option => option.nodeRef}
@@ -101,22 +102,22 @@ class JournalsDashletEditor extends Component {
             />
           </Field>
 
-          <Field label={'Настройки'}>
-            <Select placeholder={'По умолчанию'} options={props.setting} onChange={props.setSettingItem} />
+          <Field label={t('journals.settings')}>
+            <Select placeholder={t('journals.default')} options={props.setting} onChange={props.setSettingItem} />
           </Field>
         </div>
 
         <Columns
           className={'journal-dashlet-editor__actions'}
           cols={[
-            <Btn onClick={this.clear}>Сбросить настройки</Btn>,
+            <Btn onClick={this.clear}>{t('journals.action.reset-settings')}</Btn>,
 
             <Fragment>
               <Btn className={'btn_x-step_10'} onClick={this.cancel}>
-                Отмена
+                {t('journals.action.cancel')}
               </Btn>
               <Btn className={'btn_blue btn_hover_light-blue'} onClick={this.save}>
-                Сохранить
+                {t('journals.action.save')}
               </Btn>
             </Fragment>
           ]}

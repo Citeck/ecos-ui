@@ -1,6 +1,6 @@
 @import '../../../../constants';
 
-.input {
+.ecos-input {
   display: block;
   box-sizing: border-box;
   width: 100%;
@@ -10,18 +10,32 @@
   border: $border-width-standard solid $color-gray-6;
   border-radius: $border-radius-standard;
   font-family: $font-family;
-  font-weight: $font-weight-bold;
+  font-weight: $font-weight-semi-bold;
   font-size: $font-size-standard;
   color: $text-color-dark;
+  outline: none;
 
   &::placeholder {
     color: $color-gray-5;
   }
 }
 
-input[type='text'].input:focus {
-  border-color: $color-blue-dark;
+input[type='text'].ecos-input:not(:disabled):hover {
+  border-color: $color-blue-light !important;
 }
-input[type='text'].input:hover {
-  border-color: $color-blue-light;
+
+input[type='text'].ecos-input:not(:disabled):focus {
+  border-color: $color-blue-dark !important;
+}
+
+.ecos-input_narrow {
+  height: 22px;
+}
+
+.ecos-input_grid-editor {
+  width: 100%;
+  height: 22px;
+  font-size: $font-size-small;
+  font-weight: $font-weight-normal;
+  padding-left: 5px;
 }

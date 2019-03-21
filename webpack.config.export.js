@@ -43,7 +43,7 @@ const publicUrl = publicPath.slice(0, -1);
 // Get environment variables to inject into our app.
 const env = getClientEnvironment(publicUrl);
 
-const exportConfig = require('./export.json');
+const exportConfig = require('./export.config.js');
 
 // Assert this just to be safe.
 // Development builds of React are slow and not intended for production.
@@ -140,6 +140,7 @@ module.exports = {
         .relative(paths.appSrc, info.absoluteResourcePath)
         .replace(/\\/g, '/'),
   },
+  externals: exportConfig.externals,
   optimization: {
     minimizer: [
       new TerserPlugin({
@@ -509,7 +510,7 @@ module.exports = {
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
-      filename: 'static/css/[name].css',
+      filename: 'static/css/[name].min.css',
       chunkFilename: 'static/css/[name].chunk.css',
     }),
     // Generate a manifest file which contains a mapping of all asset filenames

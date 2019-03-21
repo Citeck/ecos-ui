@@ -133,3 +133,6 @@
 .icon-checkbox-check-icon {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82e;&nbsp;');
 }
+.icon-checkbox-check {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82f;&nbsp;');
+}

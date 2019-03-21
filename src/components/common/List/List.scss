@@ -1,10 +1,10 @@
 @import '../../../constants';
 
-.list-group {
+.ecos-list-group {
   .list-group-item {
     font-family: $font-family;
     font-size: $font-size-standard;
-    font-weight: $font-weight-bold;
+    font-weight: $font-weight-semi-bold;
     color: $text-color-dark;
     padding: 11px 1.25rem;
 

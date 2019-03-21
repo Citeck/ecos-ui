@@ -1,0 +1,90 @@
+@import '../../../../../../constants';
+
+.ecos-th {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  color: $text-color-dark;
+  font-size: $font-size-standard;
+  font-weight: $font-weight-semi-bold;
+}
+
+.ecos-th_filtered {
+  padding: 1px 4px;
+}
+
+.ecos-th__devider {
+  position: absolute;
+  width: 2px;
+  background: $color-gray-4;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  cursor: col-resize;
+}
+
+.ecos-th__filter {
+  background: $color-gray-4;
+  padding: 6px 6px;
+  border-radius: 6px;
+  color: $color-blue-dark;
+}
+
+.ecos-th__filter-icon {
+  color: $color-gray-5;
+  margin-left: 6px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.ecos-th__filter-tooltip {
+  .ecos-th__filter-tooltip-body {
+    background-color: $color-white;
+    color: $color-gray-6;
+    box-shadow: $box-shadow-tooltip;
+    border-radius: $border-radius-large;
+    text-align: center;
+    padding: 9px 10px;
+  }
+
+  span.ecos-th__filter-tooltip-marker {
+    display: block;
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    bottom: 1px;
+    background-color: $color-white;
+    transform: rotate(-45deg);
+    box-shadow: $box-shadow-tooltip-arrow-top;
+    z-index: 2;
+
+    &::before {
+      border-top-color: $color-white;
+    }
+  }
+
+  .ecos-th__filter-tooltip-close {
+    position: absolute;
+    top: (50% - 14);
+    right: 0;
+    margin-right: 14px;
+    cursor: pointer;
+    color: $color-gray-4;
+
+    &:hover {
+      color: $color-blue-dark;
+    }
+  }
+}
+
+.ecos-th__filter-tooltip-input {
+  height: 26px;
+  border: 2px solid $color-gray-4;
+  padding-left: 5px;
+  width: 100%;
+  font-size: $font-size-small;
+  color: $color-gray-6;
+}

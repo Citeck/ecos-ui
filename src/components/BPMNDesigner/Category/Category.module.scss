@@ -12,9 +12,9 @@
   padding-right: 5px;
   margin: 0;
   display: block;
-  font-weight: $font-weight-bold;
+  font-weight: $font-weight-semi-bold;
   font-size: $font-size-standard;
-  color: $text-color-dark !important;
+  color: $text-color-dark;
 
   cursor: pointer;
   position: relative;
@@ -116,7 +116,7 @@
     padding: 10px 15px;
     cursor: pointer;
     font-size: $font-size-standard;
-    font-weight: $font-weight-bold;
+    font-weight: $font-weight-semi-bold;
     color: $text-color-dark;
     white-space: nowrap;
 

@@ -1,13 +1,5 @@
 @import '../../../../constants';
 
-#test-test {
-  position: absolute;
-  height: 42px;
-  width: 100%;
-  background: red;
-  z-index: 10;
-}
-
 .grid {
   position: relative;
 
@@ -17,41 +9,49 @@
     margin-bottom: 13px;
 
     td {
+      height: 42px;
       border-top: 2px solid $color-gray-4;
-      padding-top: 14px;
-      padding-bottom: 14px;
+      padding: 8px 5px;
       vertical-align: middle;
-      color: $text-color-dark;
-      line-height: 1;
-      font-size: $font-size-small;
-      font-weight: $font-weight-normal !important;
     }
 
     th {
+      height: 52px;
       padding: 8px 0;
-      vertical-align: middle;
-      white-space: nowrap;
       border-bottom: 0;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      vertical-align: middle;
+    }
+
+    .react-bs-table-no-data {
+      padding: 0 14px;
     }
   }
 }
 
-.grid__th {
-  border-right: 2px solid $color-gray-4;
+.grid__td {
   display: flex;
   align-items: center;
-  padding: 7px 10px;
   width: 100%;
-  height: 100%;
+  min-height: 22px;
+  max-width: 300px;
+  padding: 0 5px;
+  border-radius: $border-radius-standard;
   color: $text-color-dark;
-  font-size: $font-size-standard;
-  font-weight: $font-weight-bold !important;
+  font-size: $font-size-small;
+  font-weight: $font-weight-normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.grid__filter {
-  color: $color-gray-5;
-  margin-left: 6px;
-  font-size: 15px !important;
+.grid__td_editable {
+  &:hover {
+    background: $color-gray-4;
+    cursor: pointer;
+  }
 }
 
 .grid__body {
@@ -59,59 +59,42 @@
   overflow-x: auto;
 }
 
-/*Grid__tools*/
-.grid__tools {
-  position: absolute;
-  top: 2px;
-  right: 0;
-  left: 45px;
-  background: $color-white;
-  padding: 9px 0 9px 7px;
-  z-index: 1;
-}
-
-.grid__tools-item {
-  padding: 1px 9px 1px 0;
-  display: inline-block;
-}
-
-.grid__tools-item_first {
-  padding-left: 9px;
+.grid_transparent {
+  opacity: 0;
 }
 
 /*Checkable*/
 .grid_checkable {
-  tbody > tr > td:nth-child(1) {
-    padding: 0;
-  }
-
+  tbody > tr > td:nth-child(1),
   thead > tr > th:nth-child(1) {
+    padding: 0;
     width: 54px;
   }
-
-  .react-bs-table-no-data {
-    padding: 14px 0.75rem !important;
-    visibility: hidden !important;
-  }
 }
 
-.grid__th_checkbox {
-  padding: 5px 15px;
+.grid__checkbox {
+  position: relative;
+  width: 54px;
+  height: 22px;
   background: $color-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.grid__td_checkbox {
-  background: $color-white;
-  padding: 3px 15px;
-  width: 100%;
-  height: 100%;
-  line-height: 0;
+.grid__checkbox-devider {
+  position: absolute;
+  width: 2px;
+  height: 34px;
+  top: -6px;
+  right: 0;
+  background: $color-gray-4;
 }
 
 .grid__tr_selected {
   background: $color-yellow-1;
 
-  .grid__td_checkbox {
+  .grid__checkbox {
     background: $color-yellow-1;
   }
 }
@@ -130,37 +113,4 @@
   & > thead > tr > th:nth-child(1) {
     visibility: visible;
   }
-
-  .react-bs-table-no-data {
-    padding: 14px 0.75rem !important;
-    visibility: visible !important;
-  }
-}
-
-/*Inline-tools*/
-.grid__inline-tools-container {
-  position: relative;
-  width: 1110px;
-  border: 2px solid $color-brown-2 !important;
-}
-
-.grid__inline-tools {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 967px;
-  right: 0;
-  text-align: right;
-  width: 142px;
-  background: $color-white;
-  border-top: 1px solid $color-brown-2;
-  border-bottom: 1px solid $color-brown-2;
-  border-right: 2px solid $color-brown-2;
-}
-
-.grid__inline-tools-btn {
-  position: relative;
-  top: 5px;
-  height: auto !important;
-  padding: 0 !important;
 }

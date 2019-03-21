@@ -133,3 +133,6 @@
 .icon-checkbox-check-icon:before {
   content: '\e82e';
 } /* '' */
+.icon-checkbox-check:before {
+  content: '\e82f';
+} /* '' */

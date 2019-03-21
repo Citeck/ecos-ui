@@ -8,12 +8,16 @@ import BPMNDesignerPage from '../../pages/BPMNDesignerPage';
 import JournalsPage from '../../pages/JournalsPage';
 import JournalsDashboardPage from '../../pages/JournalsDashboardPage';
 import CardDetailsPage from '../../pages/CardDetailsPage';
+import FormIOPage from '../../pages/FormIOPage';
+import EcosFormPage from '../../pages/EcosFormPage';
 import Header from '../Header';
 import Notification from '../Notification';
 import SlideMenu from '../SlideMenu';
 import Modal from '../Modal';
 import Footer from '../Footer';
 import LoginForm from '../LoginForm';
+
+import './App.scss';
 
 const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
   if (!isInit) {
@@ -36,7 +40,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
     <div className={appClassNames}>
       <Modal />
       <SlideMenu />
-      <div className="sticky-wrapper">
+      <div className="ecos-sticky-wrapper" id="sticky-wrapper">
         <div id="alf-hd">
           <Header />
           <Notification />
@@ -44,6 +48,9 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
 
         <Switch>
           {/*<Route path="/share/page" exact component={DashboardPage} />*/}
+          <Route path="/formio-develop" component={FormIOPage} />
+          <Route path="/ecos-form-example" component={EcosFormPage} />
+
           <Route path="/share/page/journals" component={JournalsPage} />
           <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
           <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
@@ -54,7 +61,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
 
         <div className="sticky-push" />
       </div>
-      <Footer key="card-details-footer" className="sticky-footer" theme={theme} />
+      <Footer key="card-details-footer" theme={theme} />
     </div>
   );
 };

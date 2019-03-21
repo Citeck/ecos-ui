@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import SurfRegion from '../SurfRegion/SurfRegion';
 import CardletsBody from './CardletsBody';
 import TopPanel from './TopPanel';
-import './card-details.css';
 
 let createUploaderRegion = function(id) {
   return (
@@ -26,25 +25,33 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-function CardDetails({ anyCardModeLoaded }) {
-  let uploadersComponents = [];
-  if (anyCardModeLoaded) {
-    uploadersComponents = [createUploaderRegion('dnd-upload'), createUploaderRegion('file-upload')];
+class CardDetails extends React.Component {
+  componentDidMount() {
+    import('./card-details.css');
   }
 
-  return (
-    <div id="card-details-container">
-      <div id="doc3">
-        <div id="bd">
-          <TopPanel />
-          <CardletsBody />
-        </div>
-        <div id="card-details-uploaders" style={{ display: 'none' }}>
-          {uploadersComponents}
+  render() {
+    const { anyCardModeLoaded } = this.props;
+
+    let uploadersComponents = [];
+    if (anyCardModeLoaded) {
+      uploadersComponents = [createUploaderRegion('dnd-upload'), createUploaderRegion('file-upload')];
+    }
+
+    return (
+      <div id="card-details-container">
+        <div id="doc3">
+          <div id="bd">
+            <TopPanel />
+            <CardletsBody />
+          </div>
+          <div id="card-details-uploaders" style={{ display: 'none' }}>
+            {uploadersComponents}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
 
 export default connect(mapStateToProps)(CardDetails);

@@ -1,14 +1,5 @@
 export function applyTheme(themeName, callback) {
   document.body.classList.add(`yui-skin-${themeName}`);
-
-  // let skinCss = `/share/res/themes/${themeName}/yui/assets/skin.css`;
-  // if (themeName === 'default') {
-  //   skinCss = `/share/res/yui/assets/skins/default/skin.css`;
-  // }
-  //
-  // window.require([`xstyle!${skinCss}`, `xstyle!/share/res/themes/${themeName}/presentation.css`], function() {
-  //   typeof callback === 'function' && callback();
-  // });
 }
 
 export function placeCaretAtEnd(el) {

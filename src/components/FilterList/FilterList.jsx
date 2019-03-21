@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import { ListGroup, ListGroupItem } from 'reactstrap';
 import Button from '../common/buttons/Button/Button';
+import { t } from '../../helpers/util';
 
 import './FilterList.scss';
 
@@ -13,9 +14,9 @@ export default class FilterList extends Component {
     return (
       <div {...props} className={cssClasses}>
         <div className={'filter-list__toolbar'}>
-          <Button className={'button_narrow button_light-blue filter-list__toolbar-button'}>Добавить критерий</Button>
+          <Button className={'button_narrow button_light-blue filter-list__toolbar-button'}>{t('filter-list.add-criterion')}</Button>
           <Button className={'button_narrow button_light-blue filter-list__toolbar-button filter-list__toolbar-button_next'}>
-            Добавить оператор
+            {t('filter-list.add-operator')}
           </Button>
         </div>
 

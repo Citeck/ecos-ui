@@ -3,7 +3,15 @@ import { PROXY_URI } from '../constants/alfresco';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 
 export class JournalsApi extends RecordService {
-  getGridData = options => {
+  saveRecords = ({ id, attributes }) => {
+    return this.mutate({ record: { id, attributes } });
+  };
+
+  deleteRecords = records => {
+    return this.delete({ records: records });
+  };
+
+  getGridData = ({ columns, criteria, pagination }) => {
     const query = criteria => {
       let query = {};
 
@@ -22,21 +30,17 @@ export class JournalsApi extends RecordService {
       ajax: {
         body: {
           query: {
-            query: query(options.meta.criteria),
+            query: query(criteria),
             language: 'criteria',
-            page: options.pagination || {
-              skipCount: 0,
-              maxItems: 10
-            }
+            page: pagination
           }
         }
       },
-      columns: options.columns
+      columns: columns || []
     });
 
-    const columns = dataSource.getColumns();
-
     return dataSource.load().then(function({ data, total }) {
+      const columns = dataSource.getColumns();
       return { data, total, columns };
     });
   };

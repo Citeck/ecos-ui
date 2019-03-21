@@ -581,13 +581,3 @@
 .mobile .share-header-search__clear-button {
   margin: 0 6px;
 }
-
-.yui-skin-citeckTheme.mobile #HEADER_SEARCHBOX_FORM_FIELD {
-  max-width: 50px !important;
-}
-
-@media screen and (min-width: 360px) and (max-width: 400px) {
-  .yui-skin-citeckTheme.mobile #alf-hd .alfresco-header-Header #HEADER_SEARCHBOX_FORM_FIELD {
-    max-width: 105px !important;
-  }
-}

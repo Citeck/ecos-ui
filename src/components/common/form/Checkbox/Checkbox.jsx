@@ -47,7 +47,7 @@ export default class Checkbox extends Component {
   render() {
     const state = this.state;
     const props = this.props;
-    const cssClasses = classNames('checkbox', props.className);
+    const cssClasses = classNames('ecos-checkbox', props.className);
 
     return (
       <span className={cssClasses} onClick={this.toggle}>

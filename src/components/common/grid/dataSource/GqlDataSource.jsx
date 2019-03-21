@@ -1,4 +1,3 @@
-import React from 'react';
 import BaseDataSource from './BaseDataSource';
 import formatterStore from '../formatters/formatterStore';
 import Mapper from '../mapping/Mapper';
@@ -30,12 +29,11 @@ export default class GqlDataSource extends BaseDataSource {
 
         for (let i = 0; i < recordsData.length; i++) {
           let recordData = recordsData[i];
-          let attribute = recordData.attributes;
 
-          attribute._gid = i; //Служебный ключ. Нужен чтобы работал Grid
-          attribute._recordId = recordData.id || i;
-
-          data.push(attribute);
+          data.push({
+            ...recordData.attributes,
+            id: recordData.id || i
+          });
         }
 
         return { data, total };
@@ -43,25 +41,22 @@ export default class GqlDataSource extends BaseDataSource {
   }
 
   _getColumns(columns) {
-    columns = columns.map((column, idx) => {
-      column.dataField = column.dataField || column.attribute;
-      column.text = window.Alfresco.util.message(column.text || column.dataField);
-      column.hidden = !column.default;
+    return columns.map((column, idx) => {
+      let newColumn = { ...column };
 
-      column.formatter = column.formatter || Mapper.getFormatterOptions(column, idx);
+      newColumn.dataField = newColumn.dataField || newColumn.attribute;
+      newColumn.text = window.Alfresco.util.message(newColumn.text || newColumn.dataField);
 
-      let { formatter, params } = this._getFormatter(column.formatter);
-      column.formatter = (cell, row) => {
-        let Formatter = formatter;
-        return <Formatter row={row} cell={cell} params={params} />;
-      };
+      let formatterOptions = newColumn.formatter || Mapper.getFormatterOptions(newColumn, idx);
+      let { formatter, params } = this._getFormatter(formatterOptions);
 
-      column.filterValue = (cell, row) => formatter.getFilterValue(cell, row, params);
+      newColumn.formatExtraData = { formatter, params };
 
-      return column;
+      newColumn.filterValue = (cell, row) => formatter.getFilterValue(cell, row, params);
+      newColumn.editorRenderer = formatter.getEditor;
+
+      return newColumn;
     });
-
-    return columns;
   }
 
   _getBodyJson(body, columns) {
@@ -76,9 +71,8 @@ export default class GqlDataSource extends BaseDataSource {
     let attributes = {};
 
     columns.forEach((column, idx) => {
-      column.formatter = column.formatter || Mapper.getFormatterOptions(column, idx);
-
-      let { formatter } = this._getFormatter(column.formatter);
+      let formatterOptions = column.formatter || Mapper.getFormatterOptions(column, idx);
+      let { formatter } = this._getFormatter(formatterOptions);
 
       attributes[column.dataField || column.attribute] =
         column.attributeScheme || formatter.getQueryString(column.attribute || column.dataField);

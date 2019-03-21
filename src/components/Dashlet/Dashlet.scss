@@ -2,7 +2,6 @@
 
 .dashlet {
   min-height: auto !important;
-
   .dashlet__header {
     height: 100%;
     position: relative;
@@ -20,12 +19,15 @@
     color: $color-white !important;
     font-family: $font-family;
     font-size: $font-size-standard;
-    font-weight: $font-weight-bold;
+    font-weight: $font-weight-semi-bold;
     font-style: normal;
-    letter-spacing: $letter-spacing;
     line-height: normal;
     padding: 6px 12px;
     height: 34px;
+  }
+
+  .dashlet__body_relative {
+    position: relative;
   }
 
   .dashlet__actions {
