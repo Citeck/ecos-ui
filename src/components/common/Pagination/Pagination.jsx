@@ -61,10 +61,14 @@ export default class Pagination extends Component {
 
         <IcoBtn
           icon={'icon-left'}
-          className={'pagination__btn-step ecos-btn_grey3 ecos-btn_width_auto ecos-btn_hover_t-light-blue'}
+          className={'pagination__btn-step ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue'}
           onClick={this.prev}
         />
-        <IcoBtn icon={'icon-right'} className={'ecos-btn_grey3 ecos-btn_width_auto ecos-btn_hover_t-light-blue'} onClick={this.next} />
+        <IcoBtn
+          icon={'icon-right'}
+          className={'ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue'}
+          onClick={this.next}
+        />
       </div>
     );
   }

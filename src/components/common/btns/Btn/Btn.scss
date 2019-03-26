@@ -50,6 +50,10 @@ button {
   }
 
   /*Modifiers*/
+  &.ecos-btn_tight {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
   &.ecos-btn_i {
     font-size: $font-size-extra-large;
     width: 40px;
@@ -124,6 +128,12 @@ button {
     height: 22px;
   }
 
+  &.ecos-btn_narrow {
+    padding-top: 0;
+    padding-bottom: 0;
+    height: 26px;
+  }
+
   /*Radius*/
   &.ecos-btn_r_0 {
     border-radius: 0;
@@ -137,9 +147,17 @@ button {
     border-radius: $border-radius-large;
   }
 
+  &.ecos-btn_r_biggest {
+    border-radius: $border-radius-biggest;
+  }
+
   /*Steps*/
   &.ecos-btn_x-step_10 {
     margin-right: 10px;
+  }
+
+  &.ecos-btn_x-step_15 {
+    margin-right: 15px;
   }
 
   /*Colors*/
@@ -156,6 +174,11 @@ button {
   &.ecos-btn_light-blue {
     background: $color-blue-light;
     color: $color-white;
+  }
+
+  &.ecos-btn_white {
+    background: $color-white;
+    color: $color-gray-5;
   }
 
   &.ecos-btn_grey {
@@ -193,6 +216,10 @@ button {
     color: $color-brown-2;
   }
 
+  &.ecos-btn_bgr-inherit {
+    background: inherit;
+  }
+
   /*hovers*/
   &.ecos-btn_blue {
     &:focus,
@@ -221,9 +248,22 @@ button {
     }
   }
 
+  &.ecos-btn_hover_t-blue {
+    &:hover {
+      color: $color-blue-dark;
+      background: $color-white;
+    }
+  }
+
   &.ecos-btn_hover_dark-blue2 {
     &:hover {
       background-color: $color-blue-dark2;
+    }
+  }
+
+  &.ecos-btn_hover_dark-blue {
+    &:hover {
+      background-color: $color-blue-dark;
     }
   }
 

@@ -5,49 +5,39 @@ import Export from '../../Export/Export';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
-import { reloadGrid, reloadTreeGrid, setPage, setJournalsItem } from '../../../actions/journals';
+import { initGrid } from '../../../actions/journals';
 
 const mapStateToProps = state => ({
   journals: state.journals.journals,
-  config: state.journals.config,
   journalConfig: state.journals.journalConfig
 });
 
 const mapDispatchToProps = dispatch => ({
-  reloadGrid: ({ journalId, pagination, columns, criteria }) => dispatch(reloadGrid({ journalId, pagination, columns, criteria })),
-  setPage: page => dispatch(setPage(page)),
-  setJournalsItem: journal => dispatch(setJournalsItem(journal)),
-  reloadTreeGrid: journal => dispatch(reloadTreeGrid())
+  initGrid: journalId => dispatch(initGrid(journalId))
 });
 
 class JournalsDashletToolbar extends Component {
   addRecord = () => {
-    const journalConfig = this.props.journalConfig;
-
-    if (journalConfig) {
-      const createVariants = ((journalConfig.meta || {}).createVariants || [])[0] || {};
-      createVariants.canCreate &&
-        window.open(
-          `${URL_PAGECONTEXT}node-create?type=${createVariants.type}&destination=${createVariants.destination}&viewId=`,
-          '_blank'
-        );
-    }
+    let {
+      journalConfig: {
+        meta: { createVariants = [{}] }
+      }
+    } = this.props;
+    createVariants = createVariants[0];
+    createVariants.canCreate &&
+      window.open(`${URL_PAGECONTEXT}node-create?type=${createVariants.type}&destination=${createVariants.destination}&viewId=`, '_blank');
   };
 
-  onChangeJournal = journal => {
-    const props = this.props;
-    props.setPage(1);
-    props.reloadGrid({ journalId: journal.nodeRef });
-    props.setJournalsItem(journal);
-  };
-
-  onChangeSettings = () => {
-    this.props.reloadTreeGrid();
-  };
+  onChangeJournal = journal => this.props.initGrid(journal.nodeRef);
 
   render() {
-    const props = this.props;
-    const config = props.config || {};
+    const {
+      journals,
+      journalConfig,
+      journalConfig: {
+        meta: { nodeRef = '' }
+      }
+    } = this.props;
 
     return (
       <div className={'ecos-journal-dashlet__toolbar'}>
@@ -57,28 +47,15 @@ class JournalsDashletToolbar extends Component {
           onClick={this.addRecord}
         />
 
-        <Dropdown
-          source={props.journals}
-          value={config.journalId}
-          valueField={'nodeRef'}
-          titleField={'title'}
-          onChange={this.onChangeJournal}
-        >
+        <Dropdown hasEmpty source={journals} value={nodeRef} valueField={'nodeRef'} titleField={'title'} onChange={this.onChangeJournal}>
           <IcoBtn invert={'true'} icon={'icon-down'} className={'ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10'} />
         </Dropdown>
 
-        <Dropdown
-          source={[{ title: 'Test grouping', id: 0 }]}
-          value={0}
-          valueField={'id'}
-          titleField={'title'}
-          isButton={true}
-          onChange={this.onChangeSettings}
-        >
+        <Dropdown source={[]} value={0} valueField={'id'} titleField={'title'} isButton={true}>
           <TwoIcoBtn icons={['icon-settings', 'icon-down']} className={'ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10'} />
         </Dropdown>
 
-        <Export config={props.journalConfig} />
+        <Export config={journalConfig} />
 
         <div className={'dashlet__actions'}>
           <JournalsDashletPagination />

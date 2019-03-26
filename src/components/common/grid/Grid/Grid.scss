@@ -3,6 +3,16 @@
 .ecos-grid {
   position: relative;
 
+  &.ecos-grid_no-top-border {
+    .table {
+      border-top: 0;
+
+      th {
+        border-top: 0;
+      }
+    }
+  }
+
   .table {
     border-top: 2px solid $color-gray-4;
     border-bottom: 2px solid $color-gray-4;
