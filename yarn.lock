@@ -6269,10 +6269,10 @@ form-data@~2.3.2:
     combined-stream "^1.0.6"
     mime-types "^2.1.12"
 
-formiojs@^3.18.0:
-  version "3.18.0"
-  resolved "https://registry.yarnpkg.com/formiojs/-/formiojs-3.18.0.tgz#316dc53ab4377171c0d14d79b57d8ddcc5a546e4"
-  integrity sha512-9/4Mlf93IXUZqwiNnJd8Gri/3YSdF4/j2jlpqUjA2JAFrWIIP6+blzLvdhw+wBIMDkBDJQ4heiT4cDoJ4ksKZg==
+formiojs@^3.18.1:
+  version "3.18.1"
+  resolved "https://registry.yarnpkg.com/formiojs/-/formiojs-3.18.1.tgz#166f977ac305863001fde2e06326e80050b661f2"
+  integrity sha512-ApEKPQ30D6anzRfmPSnTyYyosF3aTDXrHEFOryJO5jr3/mVCYGPlOm7bCwPrjps/LgghMMY8eFrmsLW+IpX5UQ==
   dependencies:
     browser-cookies "^1.2.0"
     choices.js "^6.0.3"

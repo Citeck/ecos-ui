@@ -1,6 +1,5 @@
 import '../../../src/forms/style.scss';
-import customFormComponents from '../../../src/forms/components';
-import { linkBuilderEditForms } from '../../../src/forms/components/builder';
+import '../../../src/forms/components';
 
 import { registerLocale, setDefaultLocale } from 'react-datepicker';
 import datePickerLocaleEn from 'date-fns/locale/en-GB';
@@ -17,6 +16,6 @@ const currentLocale = getCurrentLocale();
 setDefaultLocale(currentLocale);
 
 // TODO export linkEditForms
-linkBuilderEditForms(customFormComponents);
+//linkBuilderEditForms(customFormComponents);
 
 export default EcosForm;

@@ -4,17 +4,11 @@ import Formio from 'formiojs/Formio';
 import FormBuilder from 'formiojs/FormBuilder';
 import Records from '../Records';
 
-import DefaultComponents from 'formiojs/components';
-import Components from 'formiojs/components/Components';
-import CustomComponents from '../../forms/components';
-
 import '../../forms/components/builder';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
 import '../../forms/style.scss';
-
-Components.setComponents({ ...DefaultComponents, ...CustomComponents });
 
 let formCounter = 0;
 
