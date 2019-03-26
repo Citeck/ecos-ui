@@ -1,11 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Formio from 'formiojs/Formio';
-import Records from './records';
+import FormBuilder from 'formiojs/FormBuilder';
+import Records from '../Records';
 
 import DefaultComponents from 'formiojs/components';
 import Components from 'formiojs/components/Components';
 import CustomComponents from '../../forms/components';
+
 import '../../forms/components/builder';
 
 import './formio.full.min.css';
@@ -16,7 +18,7 @@ Components.setComponents({ ...DefaultComponents, ...CustomComponents });
 
 let formCounter = 0;
 
-export default class EcosForm extends React.Component {
+class EcosForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -28,13 +30,17 @@ export default class EcosForm extends React.Component {
     let self = this;
 
     this.getForm().then(data => {
-      var formAtts = data.records[0].attributes,
+      let formAtts = data.records[0].attributes,
         options = self.props.options || {};
 
+      let proxyUri = ((window.Alfresco || {}).constants || {}).PROXY_URI || '/';
+      proxyUri = proxyUri.substring(0, proxyUri.length - 1);
+      Formio.setProjectUrl(proxyUri);
+
       Formio.createForm(document.getElementById(this.state.containerId), formAtts.formDef, options).then(form => {
-        let record = Records.get(self.props.record);
+        let recordId = self.props.record;
         form.ecos = {
-          record: record
+          recordId: recordId
         };
 
         let customModule = new Promise(function(resolve, reject) {
@@ -43,7 +49,7 @@ export default class EcosForm extends React.Component {
               resolve(
                 new Module.default({
                   form: form,
-                  record: record
+                  recordId: recordId
                 })
               );
             });
@@ -52,7 +58,7 @@ export default class EcosForm extends React.Component {
           }
         });
 
-        Promise.all([customModule, EcosForm.getData(record, form)]).then(data => {
+        Promise.all([customModule, EcosForm.getData(recordId, form)]).then(data => {
           form.ecos.custom = data[0];
 
           form.submission = {
@@ -107,7 +113,7 @@ export default class EcosForm extends React.Component {
       keysMapping[inputs[i].component.key] = inputs[i].attribute;
     }
 
-    let record = form.ecos.record;
+    let record = Records.get(form.ecos.recordId);
 
     for (let key in submission.data) {
       if (submission.data.hasOwnProperty(key)) {
@@ -115,7 +121,7 @@ export default class EcosForm extends React.Component {
       }
     }
 
-    form.ecos.record.save().then(record => {
+    record.save().then(record => {
       if (self.props.onSubmit) {
         self.props.onSubmit(record);
       }
@@ -144,8 +150,8 @@ export default class EcosForm extends React.Component {
     return inputs;
   }
 
-  static getData(record, form) {
-    if (!record) {
+  static getData(recordId, form) {
+    if (!recordId) {
       return new Promise(success => {
         success({});
       });
@@ -160,7 +166,7 @@ export default class EcosForm extends React.Component {
       }
     }
 
-    return record.load(attributes);
+    return Records.get(recordId).load(attributes);
   }
 
   render() {
@@ -193,3 +199,6 @@ EcosForm.propTypes = {
   onReady: PropTypes.func
   // onForm[Event]: PropTypes.func (for example, onFormCancel)
 };
+
+export default EcosForm;
+export { FormBuilder, EcosForm };

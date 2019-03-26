@@ -1,11 +1,13 @@
-/* eslint-disable */
+const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
+const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
+
 class Records {
   constructor() {
     this._records = {};
   }
 
   get(id) {
-    if (id.indexOf('@') == id.length - 1) {
+    if (id.indexOf('@') === id.length - 1) {
       return new Record(id);
     }
     let rec = this._records[id];
@@ -28,7 +30,7 @@ class Records {
     }
 
     return new Promise(function(resolve, reject) {
-      fetch('/share/proxy/alfresco/citeck/ecos/records/query', {
+      fetch(QUERY_URL, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -87,10 +89,6 @@ class Attribute {
     }
   }
 
-  updatePersisted() {
-    this._persisted = this.value;
-  }
-
   isPersisted() {
     return this._value === this.persisted;
   }
@@ -107,7 +105,7 @@ class Record {
   }
 
   set id(v) {
-    throw 'id is a constant field!';
+    throw new Error('id is a constant field!');
   }
 
   load(attributes, force) {
@@ -136,7 +134,7 @@ class Record {
 
     return new Promise(function(resolve, reject) {
       if (toLoad.length > 0) {
-        fetch('/share/proxy/alfresco/citeck/ecos/records/query', {
+        fetch(QUERY_URL, {
           method: 'POST',
           credentials: 'include',
           headers: {
@@ -182,7 +180,7 @@ class Record {
 
     return new Promise(function(resolve, reject) {
       if (sumbitRequired) {
-        fetch('/share/proxy/alfresco/citeck/ecos/records/mutate', {
+        fetch(MUTATE_URL, {
           method: 'POST',
           credentials: 'include',
           headers: {
@@ -199,11 +197,15 @@ class Record {
             return response.json();
           })
           .then(response => {
-            for (let attName in self._attributes) {
-              self._attributes[attName].updatePersisted();
+            var attributesToLoad = {};
+
+            for (let att in attributesToPersist) {
+              attributesToLoad[att] = att;
             }
 
-            resolve(self);
+            self.load(attributesToLoad, true).then(() => {
+              resolve(self);
+            });
           });
       } else {
         resolve(self);
@@ -233,8 +235,8 @@ if (!window.Citeck) {
   window.Citeck = {};
 }
 
-let records = new Records();
-
+window.Citeck = window.Citeck || {};
+let records = window.Citeck.Records || new Records();
 window.Citeck.Records = records;
 
 export default records;

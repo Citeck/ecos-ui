@@ -125,13 +125,12 @@ module.exports = {
   output: {
     // The build folder.
     path: resolveApp('export/build'),
-    library: 'ecos-ui',
-    libraryTarget: 'umd',
+    libraryTarget: 'amd',
     // Generated JS file names (with nested folders).
     // There will be one main bundle, and one file per asynchronous chunk.
     // We don't currently advertise code splitting but Webpack supports it.
-    filename: 'static/[name]/js/[name].min.js',
-    chunkFilename: 'static/[name]/js/[name].chunk.js',
+    filename: 'share/res/static/ecos/[name]/js/[name].min.js',
+    chunkFilename: 'share/res/static/ecos/[name]/js/[name].chunk.js',
     // We inferred the "public path" (such as / or /my-project) from homepage.
     publicPath: publicPath,
     // Point sourcemap entries to original disk location (format as URL on Windows)
@@ -301,7 +300,7 @@ module.exports = {
             loader: require.resolve('url-loader'),
             options: {
               limit: 10000,
-              name: 'static/[name]/media/[name].[hash:8].[ext]',
+              name: 'share/res/static/ecos/[name]/media/[name].[hash:8].[ext]',
             },
           },
           // Process application JS with Babel.
@@ -462,7 +461,7 @@ module.exports = {
             // by webpacks internal loaders.
             exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
             options: {
-              name: 'static/[name]/media/[name].[hash:8].[ext]',
+              name: 'share/res/static/ecos/[name]/media/[name].[hash:8].[ext]',
             },
           },
           // ** STOP ** Are you adding a new loader?
@@ -510,8 +509,8 @@ module.exports = {
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
-      filename: 'static/[name]/css/[name].min.css',
-      chunkFilename: 'static/[name]/css/[name].chunk.css',
+      filename: 'share/res/static/ecos/[name]/css/[name].min.css',
+      chunkFilename: 'share/res/static/ecos/[name]/css/[name].chunk.css',
     }),
     // Generate a manifest file which contains a mapping of all asset filenames
     // to their corresponding output file so that tools can pick it up without

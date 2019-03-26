@@ -1,6 +1,8 @@
 module.exports = {
   entryPoints: {
-    "ecos-form-custom": "./export/src/forms/index.js",
+    "ecos-form": "./export/src/forms/index.js",
+    "records": "./export/src/records/index.js",
+
     // "glyphicon-to-fa": "./export/src/glyphicon-to-fa/index.js",
 
     // TODO move from examples
