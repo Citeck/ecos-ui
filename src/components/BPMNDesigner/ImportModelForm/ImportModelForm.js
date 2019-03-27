@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Form, FormGroup, Col, Row } from 'reactstrap';
 import Dropzone from 'react-dropzone';
 import cn from 'classnames';
-import Button from '../../common/buttons/Button/Button';
+import { Btn } from '../../common/btns';
 import { DatePicker, Label, Select } from '../../common/form';
 import { hideModal } from '../../../actions/modal';
 import { t } from '../../../helpers/util';
@@ -243,14 +243,14 @@ class ImportModelForm extends React.Component {
 
         <Row>
           <Col md={6} sm={12}>
-            <Button type="button" onClick={hideModal} className="button_full_width">
+            <Btn type="button" onClick={hideModal} className="ecos-btn_full-width">
               {t('bpmn-designer.import-bpm-form.cancel-btn')}
-            </Button>
+            </Btn>
           </Col>
           <Col md={6} sm={12}>
-            <Button disabled={isSubmitButtonDisabled} className="button_full_width button_blue">
+            <Btn disabled={isSubmitButtonDisabled} className="ecos-btn_full-width ecos-btn_blue">
               {t('bpmn-designer.import-bpm-form.submit-btn')}
-            </Button>
+            </Btn>
           </Col>
         </Row>
       </Form>

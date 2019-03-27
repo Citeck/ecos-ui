@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Form, FormGroup, Col, Row } from 'reactstrap';
-import Button from '../../common/buttons/Button/Button';
+import { Btn } from '../../common/btns';
 import { DatePicker, Input, Label, Select, Textarea } from '../../common/form';
 import { hideModal } from '../../../actions/modal';
 import { saveProcessModelRequest } from '../../../actions/bpmn';
@@ -207,14 +207,14 @@ class ModelCreationForm extends React.Component {
 
         <Row>
           <Col md={6} sm={12}>
-            <Button type="button" onClick={hideModal} className="button_full_width">
+            <Btn type="button" onClick={hideModal} className="ecos-btn_full-width">
               {t('bpmn-designer.create-bpm-form.cancel-btn')}
-            </Button>
+            </Btn>
           </Col>
           <Col md={6} sm={12}>
-            <Button disabled={isSubmitButtonDisabled} className="button_full_width button_blue">
+            <Btn disabled={isSubmitButtonDisabled} className="ecos-btn_full-width ecos-btn_blue">
               {t('bpmn-designer.create-bpm-form.submit-btn')}
-            </Button>
+            </Btn>
           </Col>
         </Row>
       </Form>

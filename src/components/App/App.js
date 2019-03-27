@@ -13,7 +13,7 @@ import EcosFormPage from '../../pages/EcosFormPage';
 import Header from '../Header';
 import Notification from '../Notification';
 import SlideMenu from '../SlideMenu';
-import Modal from '../Modal';
+import ReduxModal from '../ReduxModal';
 import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 
@@ -38,7 +38,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
 
   return (
     <div className={appClassNames}>
-      <Modal />
+      <ReduxModal />
       <SlideMenu />
       <div className="ecos-sticky-wrapper" id="sticky-wrapper">
         <div id="alf-hd">

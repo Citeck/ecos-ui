@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import Button from '../../../buttons/Button/Button';
+import { Btn } from '../../../../common/btns';
 import EcosForm from '../../../../EcosForm/EcosForm';
 import SimpleModal from '../../../SimpleModal/SimpleModal';
 import Dropdown from '../../Dropdown/Dropdown';
@@ -22,9 +22,9 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
     };
 
     createButton = (
-      <Button className={'button_blue'} onClick={onClick}>
+      <Btn className={'ecos-btn_blue'} onClick={onClick}>
         {t('select-journal.select-modal.create-button')}
-      </Button>
+      </Btn>
     );
   } else {
     const onSelect = selected => {

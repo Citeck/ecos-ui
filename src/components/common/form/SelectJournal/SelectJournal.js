@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
-import Button from '../../buttons/Button/Button';
-import { IcoBtn } from '../../../common/btns';
+import { IcoBtn, Btn } from '../../../common/btns';
 import Grid from '../../../common/grid/Grid/Grid';
 import Pagination from '../../../common/Pagination/Pagination';
 import Loader from '../../../common/Loader/Loader';
@@ -401,10 +400,10 @@ export default class SelectJournal extends Component {
             </div>
 
             <div className="select-journal-select-modal__buttons">
-              <Button onClick={this.onCancelSelect}>{t('select-journal.select-modal.cancel-button')}</Button>
-              <Button className={'button_blue'} onClick={this.onSelect}>
+              <Btn onClick={this.onCancelSelect}>{t('select-journal.select-modal.cancel-button')}</Btn>
+              <Btn className={'ecos-btn_blue'} onClick={this.onSelect}>
                 {t('select-journal.select-modal.ok-button')}
-              </Button>
+              </Btn>
             </div>
           </SimpleModal>
         </FiltersProvider>

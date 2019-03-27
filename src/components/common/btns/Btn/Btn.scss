@@ -16,11 +16,11 @@ button {
     font-size: $font-size-standard;
     font-weight: $font-weight-semi-bold;
     font-style: normal;
-    letter-spacing: 0.6px;
     line-height: 1;
     padding: 9px 21px;
     height: 40px;
     cursor: pointer;
+    user-select: none;
 
     &:hover {
       background-color: $color-gray-1;
@@ -109,6 +109,11 @@ button {
     }
   }
 
+  &.ecos-btn_disabled {
+    cursor: default;
+    pointer-events: none;
+  }
+
   /*Sizes*/
   &.ecos-btn_i_sm {
     font-size: $font-size-extra-large;
@@ -116,6 +121,13 @@ button {
     height: 30px;
     padding: 0;
     border-radius: $border-radius-standard;
+  }
+
+  &.ecos-btn_narrow {
+    height: 26px;
+    padding: 0 15px;
+    border-radius: $border-radius-standard;
+    font-size: $font-size-small;
   }
 
   &.ecos-btn_extra-narrow {
@@ -146,6 +158,10 @@ button {
   &.ecos-btn_blue {
     background: $color-blue-dark;
     color: $color-white;
+
+    &:disabled {
+      background-color: $color-blue-light2;
+    }
   }
 
   &.ecos-btn_blue2 {
@@ -232,5 +248,11 @@ button {
       color: $color-brown-3;
       background: $color-white;
     }
+  }
+
+  /* Width */
+  &.ecos-btn_full-width {
+    margin-top: 10px;
+    width: 100%;
   }
 }

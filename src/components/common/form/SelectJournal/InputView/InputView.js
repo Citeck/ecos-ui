@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import Button from '../../../buttons/Button/Button';
+import { Btn } from '../../../../common/btns';
 import { t } from '../../../../../helpers/util';
 import './InputView.scss';
 
@@ -13,8 +13,8 @@ class InputView extends Component {
       'select-journal__input-view_compact': isCompact
     });
 
-    const buttonClasses = classNames('button_blue', {
-      button_narrow: isCompact,
+    const buttonClasses = classNames('ecos-btn_blue', {
+      'ecos-btn_narrow': isCompact,
       'select-journal__input-view-button_compact': isCompact
     });
 
@@ -53,13 +53,13 @@ class InputView extends Component {
         {error ? (
           <p className={'select-journal__error'}>{error.message}</p>
         ) : (
-          <Button className={buttonClasses} onClick={openSelectModal} disabled={disabled}>
+          <Btn className={buttonClasses} onClick={openSelectModal} disabled={disabled}>
             {selectedRows.length > 0
               ? multiple
                 ? t('select-journal.button.add')
                 : t('select-journal.button.change')
               : t('select-journal.button.select')}
-          </Button>
+          </Btn>
         )}
 
         {isCompact ? valuesList : null}

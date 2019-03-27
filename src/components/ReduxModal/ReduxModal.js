@@ -6,7 +6,7 @@ import { Modal, ModalHeader, ModalBody, ModalFooter, Row, Col } from 'reactstrap
 import { hideModal } from '../../actions/modal';
 import Button from '../common/buttons/Button/Button';
 
-import './Modal.scss';
+import './ReduxModal.scss';
 
 const mapStateToProps = state => ({
   ...state.modal
@@ -16,7 +16,7 @@ const mapDispatchToProps = dispatch => ({
   hideModal: () => dispatch(hideModal())
 });
 
-class CustomModal extends React.Component {
+class ReduxModal extends React.Component {
   constructor(props) {
     super(props);
     this.el = document.createElement('div');
@@ -100,4 +100,4 @@ class CustomModal extends React.Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(CustomModal);
+)(ReduxModal);
