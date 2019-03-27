@@ -21,8 +21,6 @@
 
   .select__single-value {
     color: $text-color-dark;
-    transform: none;
-    top: 0;
   }
 
   .select__placeholder,
@@ -85,6 +83,11 @@
     height: 26px;
     min-height: 26px;
     line-height: 24px;
+
+    .select__single-value {
+      transform: none;
+      top: 0;
+    }
 
     .select__single-value ~ * {
       margin: 0 2px;
