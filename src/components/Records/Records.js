@@ -1,6 +1,8 @@
 const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
 
+let records;
+
 class Records {
   constructor() {
     this._records = {};
@@ -68,7 +70,9 @@ class Records {
 }
 
 class Attribute {
-  constructor(persisted) {
+  constructor(owner, name, persisted) {
+    this._owner = owner;
+    this._name = name;
     this._persisted = persisted;
     this._value = persisted;
   }
@@ -87,6 +91,18 @@ class Attribute {
     } else {
       return this.persisted;
     }
+  }
+
+  getValue() {
+    return this.value;
+  }
+
+  setValue(value) {
+    this.value = value;
+  }
+
+  getName() {
+    return this._name;
   }
 
   isPersisted() {
@@ -151,8 +167,11 @@ class Record {
           .then(response => {
             let atts = response.attributes || {};
             for (let att in atts) {
+              if (!atts.hasOwnProperty(att)) {
+                continue;
+              }
               loaded[toLoadNames[att]] = atts[att];
-              self._attributes[att] = new Attribute(atts[att]);
+              self._attributes[att] = new Attribute(self, att, atts[att]);
             }
 
             resolve(loaded);
@@ -236,7 +255,7 @@ if (!window.Citeck) {
 }
 
 window.Citeck = window.Citeck || {};
-let records = window.Citeck.Records || new Records();
+records = window.Citeck.Records || new Records();
 window.Citeck.Records = records;
 
 export default records;

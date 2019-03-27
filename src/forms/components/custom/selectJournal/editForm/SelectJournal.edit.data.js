@@ -6,7 +6,7 @@ export default [
     label: 'Journal ID',
     placeholder: 'Example: legal-entities',
     validate: {
-      required: true
+      required: false
     },
     weight: 20
     // defaultValue: 'legal-entities'

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
-import Form from 'formiojs/Form';
-import FormBuilder from 'formiojs/FormBuilder';
-import schema from './form.json';
+//import Form from 'formiojs/Form';
+//import FormBuilder from 'formiojs/FormBuilder';
+//import schema from './form.json';
 // import schema from './calendarForm.json';
 import '../../components/EcosForm/formio.full.min.css';
 import '../../components/EcosForm/glyphicon-to-fa.scss';
@@ -11,19 +11,23 @@ import './temp.scss';
 
 // import SelectJournal from '../../components/common/form/SelectJournal';
 
-import DefaultComponents from 'formiojs/components';
-import Components from 'formiojs/components/Components';
-import CustomComponents from '../../forms/components';
-import { linkBuilderEditForms } from '../../forms/components/builder';
+import EcosForm from '../../components/EcosForm';
+import '../../forms/components';
+
 // console.log(DefaultComponents);
 // console.log(CustomComponents);
 
-linkBuilderEditForms(CustomComponents);
-Components.setComponents({ ...DefaultComponents, ...CustomComponents });
-
 class FormIOPage extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isBuilderOpen: false
+    };
+  }
+
   componentDidMount() {
-    let options = {
+    /*let options = {
       // inputsOnly: true
     };
 
@@ -72,7 +76,7 @@ class FormIOPage extends React.Component {
       form.on('change', function(changed) {
         console.log('Builder form was changed', changed);
       });
-    });
+    });*/
   }
 
   render() {
@@ -83,11 +87,16 @@ class FormIOPage extends React.Component {
             <div className={'white-container'}>
               {/*<SelectJournal />*/}
 
-              <div id="formio" />
+              {/*<div id="formio" />
               <br />
               <hr />
               <br />
               <div id="builder" />
+              <br />
+              <br />
+              <br />*/}
+              <EcosForm record="eform@ECOS_FORM" />
+              {/*<EcosForm record="workspace://SpacesStore/6fc2dfed-fee1-4f8e-a909-c8834e6e39b1" />*/}
             </div>
           </Col>
         </Row>
