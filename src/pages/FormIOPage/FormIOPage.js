@@ -4,22 +4,9 @@ import Form from 'formiojs/Form';
 import FormBuilder from 'formiojs/FormBuilder';
 import schema from './form.json';
 // import schema from './calendarForm.json';
-import '../../components/EcosForm/formio.full.min.css';
-import '../../components/EcosForm/glyphicon-to-fa.scss';
-import '../../forms/style.scss';
-import './temp.scss';
+import '../../forms/components';
 
 // import SelectJournal from '../../components/common/form/SelectJournal';
-
-import DefaultComponents from 'formiojs/components';
-import Components from 'formiojs/components/Components';
-import CustomComponents from '../../forms/components';
-import { linkBuilderEditForms } from '../../forms/components/builder';
-// console.log(DefaultComponents);
-// console.log(CustomComponents);
-
-linkBuilderEditForms(CustomComponents);
-Components.setComponents({ ...DefaultComponents, ...CustomComponents });
 
 class FormIOPage extends React.Component {
   componentDidMount() {
