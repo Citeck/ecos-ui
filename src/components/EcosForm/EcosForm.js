@@ -4,8 +4,6 @@ import Formio from 'formiojs/Formio';
 import FormBuilder from 'formiojs/FormBuilder';
 import Records from '../Records';
 
-import '../../forms/components/builder';
-
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
 import '../../forms/style.scss';
@@ -31,8 +29,10 @@ class EcosForm extends React.Component {
       proxyUri = proxyUri.substring(0, proxyUri.length - 1);
       Formio.setProjectUrl(proxyUri);
 
+      let recordId = self.props.record;
+      options.recordId = recordId;
+
       Formio.createForm(document.getElementById(this.state.containerId), formAtts.formDef, options).then(form => {
-        let recordId = self.props.record;
         form.ecos = {
           recordId: recordId
         };
@@ -133,8 +133,12 @@ class EcosForm extends React.Component {
       let component = components[i];
       let config = component.component;
       if (config.input === true && config.type !== 'button') {
+        let attribute = (config.properties || {}).attribute || config.key;
+        if (attribute.indexOf('?') === -1 && attribute[0] !== '.') {
+          attribute = attribute + '?str';
+        }
         inputs.push({
-          attribute: (config.properties || {}).attribute || config.key,
+          attribute: attribute,
           component: component
         });
       }

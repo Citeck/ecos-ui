@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import BaseComponent from 'formiojs/components/base/Base';
 import SelectJournal from '../../../../components/common/form/SelectJournal';
+import Records from '../../../../components/Records';
 
 export default class DateTimeComponent extends BaseComponent {
   static schema(...extend) {
@@ -63,23 +64,56 @@ export default class DateTimeComponent extends BaseComponent {
   }
 
   renderReactComponent(config = {}) {
+    let self = this;
+    let component = this.component;
+
     const onChange = this.onValueChange.bind(this);
 
-    ReactDOM.render(
-      <SelectJournal
-        defaultValue={this.component.defaultValue}
-        isCompact={this.component.isCompact}
-        multiple={this.component.multiple}
-        placeholder={this.component.placeholder}
-        disabled={this.component.disabled}
-        journalId={this.component.journalId}
-        onChange={onChange}
-        onError={err => {
-          // this.setCustomValidity(err, false);
-        }}
-      />,
-      this.reactContainer
-    );
+    let renderControl = function(journalId) {
+      ReactDOM.render(
+        <SelectJournal
+          defaultValue={component.defaultValue}
+          isCompact={component.isCompact}
+          multiple={component.multiple}
+          placeholder={component.placeholder}
+          disabled={component.disabled}
+          journalId={journalId}
+          onChange={onChange}
+          onError={err => {
+            // this.setCustomValidity(err, false);
+          }}
+        />,
+        self.reactContainer
+      );
+    };
+
+    let journalId = this.component.journalId;
+    if (!journalId) {
+      let recordId = this.root.options.recordId;
+      if (!recordId) {
+        recordId = '@';
+      }
+      let attribute = (this.component.properties || {}).attribute;
+
+      if (attribute && attribute[0] !== '.') {
+        let record = Records.get(recordId);
+        record
+          .load({
+            editorKey: '#' + attribute + '?editorKey'
+          })
+          .then(atts => {
+            renderControl(atts.editorKey);
+          })
+          .catch(e => {
+            console.error(e);
+            renderControl(null);
+          });
+      } else {
+        renderControl(null);
+      }
+    } else {
+      renderControl(journalId);
+    }
   }
 
   refreshDOM() {
