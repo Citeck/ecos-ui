@@ -191,7 +191,7 @@ export function getPredicateInput(field, sourceId) {
             .then(opt =>
               opt.map(item => {
                 return {
-                  label: item.title,
+                  label: item.label || item.title,
                   value: item.value
                 };
               })
