@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "choices.js": "^6.0.3",
     "body-parser": "^1.18.3",
     "bootstrap": "4",
     "classnames": "^2.2.6",

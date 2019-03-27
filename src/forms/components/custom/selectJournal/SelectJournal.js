@@ -90,9 +90,12 @@ export default class DateTimeComponent extends BaseComponent {
     let journalId = this.component.journalId;
     if (!journalId) {
       let recordId = this.root.options.recordId;
+      if (!recordId) {
+        recordId = '@';
+      }
       let attribute = (this.component.properties || {}).attribute;
 
-      if (recordId && attribute && attribute[0] !== '.') {
+      if (attribute && attribute[0] !== '.') {
         let record = Records.get(recordId);
         record
           .load({

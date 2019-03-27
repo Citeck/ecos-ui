@@ -1,7 +1,7 @@
 import Choices from 'choices.js/public/assets/scripts/choices.js';
 import _ from 'lodash';
-import BaseComponent from '../base/Base';
-import Formio from '../../Formio';
+import BaseComponent from 'formiojs/components/base/Base';
+import Formio from 'formiojs/Formio';
 
 export default class SelectComponent extends BaseComponent {
   static schema(...extend) {
@@ -407,7 +407,27 @@ export default class SelectComponent extends BaseComponent {
 
     // Add filter capability
     if (this.component.filter) {
-      url += (!url.includes('?') ? '?' : '&') + this.interpolate(this.component.filter);
+      //customization: add filter encoding
+
+      let filterValue = this.interpolate(this.component.filter);
+      let encodedFilter = '';
+      let args = filterValue.split('&');
+
+      for (let i = 0; i < args.length; i++) {
+        let argument = args[i];
+        let j = i;
+        while (++j < args.length && argument[argument.length - 1] === '\\') {
+          argument += args[j];
+          i = j;
+        }
+        if (encodedFilter.length > 0) {
+          encodedFilter += '&';
+        }
+        let keyValue = argument.split('=');
+        encodedFilter += keyValue[0] + '=' + encodeURIComponent(keyValue[1]);
+      }
+
+      url += (!url.includes('?') ? '?' : '&') + encodedFilter;
     }
 
     // Make the request.
@@ -541,6 +561,8 @@ export default class SelectComponent extends BaseComponent {
         this.loadItems(url, searchInput, this.requestHeaders, options, method, body);
         break;
       }
+      default:
+        console.warn('unknown src', this.component.dataSrc);
     }
   }
   /* eslint-enable max-statements */
@@ -803,6 +825,7 @@ export default class SelectComponent extends BaseComponent {
       } else {
         notFoundValuesToAdd.map(notFoundValue => {
           this.addOption(notFoundValue.value, notFoundValue.label);
+          return notFoundValue;
         });
       }
     }
