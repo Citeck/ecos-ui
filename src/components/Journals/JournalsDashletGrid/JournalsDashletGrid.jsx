@@ -180,7 +180,7 @@ class JournalsDashletGrid extends Component {
 
     return (
       <div ref={this.wrapperRef} className={'ecos-journal-dashlet__grid'}>
-        <EmptyGrid maxItems={10}>
+        <EmptyGrid maxItems={maxItems}>
           {loading ? (
             <Loader />
           ) : (

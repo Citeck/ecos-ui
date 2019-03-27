@@ -1,7 +1,6 @@
 @import '../../../constants';
 
 .ecos-journal-dashlet {
-  //width: 618px;
 }
 
 .ecos-journal-dashlet__toolbar {
@@ -19,4 +18,8 @@
 
 .ecos-journal-dashlet__grid {
   position: relative;
+}
+
+.ecos-journal-dashlet__body {
+  min-height: 115px;
 }

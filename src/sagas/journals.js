@@ -117,11 +117,12 @@ function* sagaInitGrid({ api, logger }, action) {
       columns,
       meta: { criteria, createVariants, predicate, groupBy }
     } = config;
+    let pagination = yield select(state => state.journals.grid.pagination);
 
     const params = {
       columns,
       criteria,
-      pagination: yield select(state => state.journals.grid.pagination),
+      pagination: groupBy ? { ...pagination, maxItems: undefined } : pagination,
       createVariants,
       predicate,
       groupBy,

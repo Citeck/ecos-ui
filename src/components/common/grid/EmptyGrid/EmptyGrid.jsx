@@ -26,7 +26,7 @@ export default class EmptyGrid extends Component {
     const { maxItems } = this.props;
     const { height } = this.state;
 
-    return (
+    return maxItems ? (
       <div ref={this._ref} style={{ height: height || 'auto' }}>
         {height ? (
           this.getChild(height)
@@ -38,6 +38,8 @@ export default class EmptyGrid extends Component {
           />
         )}
       </div>
+    ) : (
+      this.getChild(height)
     );
   }
 }

@@ -46,6 +46,7 @@ class JournalsDashlet extends Component {
       <Dashlet
         {...this.props}
         className={classNames('ecos-journal-dashlet', className)}
+        bodyClassName={'ecos-journal-dashlet__body'}
         title={title}
         onReload={reloadGrid}
         onEdit={this.showEditor}

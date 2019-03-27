@@ -19,6 +19,10 @@ class JournalsDashletPagination extends Component {
       grid: { total, pagination }
     } = this.props;
 
+    if (!pagination.maxItems) {
+      return null;
+    }
+
     return <Pagination className={'ecos-journal-dashlet__pagination'} total={total} {...pagination} onChange={this.onChangePage} />;
   }
 }
