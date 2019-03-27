@@ -26,7 +26,14 @@ class JournalsDashletPagination extends Component {
   render() {
     const props = this.props;
 
-    return <Pagination className={'dashlet__pagination'} total={props.gridData.total} {...props.pagination} onChange={this.onChangePage} />;
+    return (
+      <Pagination
+        className={'ecos-journal-dashlet__pagination'}
+        total={props.gridData.total}
+        {...props.pagination}
+        onChange={this.onChangePage}
+      />
+    );
   }
 }
 

@@ -1,10 +1,10 @@
 @import '../../../../constants';
 
-.dropdown {
-  display: inline-block;
+.ecos-dropdown {
+  display: inline-block !important;
 }
 
-.dropdown__menu {
+.ecos-dropdown__menu {
   border-radius: $border-radius-standard !important;
   box-shadow: $box-shadow-default;
   border: none !important;
@@ -33,10 +33,5 @@
     &:hover {
       background-color: $color-gray-4;
     }
-  }
-}
-
-.dropdown__toggle {
-  &:hover {
   }
 }

@@ -9,6 +9,7 @@ import {
   setJournals,
   setDashletConfig,
   reloadGrid,
+  reloadTreeGrid,
   setJournalConfig,
   deleteRecords,
   saveRecords,
@@ -80,22 +81,43 @@ function* loadGrid({ api, logger }, action) {
 
     /*get config from arguments or from state*/
     let journalConfig = yield select(state => state.journals.journalConfig || {});
+    let meta = journalConfig.meta || {};
     let {
       journalId,
       pagination = yield select(state => state.journals.pagination),
       columns = journalConfig.columns,
-      criteria = (journalConfig.meta || {}).criteria
+      criteria = meta.criteria,
+      createVariants = meta.createVariants,
+      predicate = meta.predicate,
+      groupBy = meta.groupBy
     } = action.payload;
 
     /*or load from server*/
     if (journalId) {
       journalConfig = yield call(api.journals.getJournalConfig, journalId);
+      meta = journalConfig.meta;
       columns = journalConfig.columns;
-      criteria = journalConfig.meta.criteria;
+      criteria = meta.criteria;
+      createVariants = meta.createVariants;
+      predicate = meta.predicate;
+      groupBy = meta.groupBy;
       yield put(setJournalConfig(journalConfig));
     }
 
-    const gridData = yield call(api.journals.getGridData, { columns, criteria, pagination });
+    const gridData = yield call(api.journals.getGridData, { columns, criteria, pagination, createVariants, predicate, groupBy });
+    yield put(setGrid(gridData));
+
+    yield put(setLoading(false));
+  } catch (e) {
+    logger.error('[journals loadGrid saga error', e.message);
+  }
+}
+
+function* loadTreeGrid({ api, logger }, action) {
+  try {
+    yield put(setLoading(true));
+
+    const gridData = yield call(api.journals.getTreeGridData);
     yield put(setGrid(gridData));
 
     yield put(setLoading(false));
@@ -143,6 +165,7 @@ function* saga(ea) {
   yield takeLatest(getDashletEditorData().type, fetchDashletEditorData, ea);
   yield takeLatest(saveDashlet().type, putDashlet, ea);
   yield takeLatest(reloadGrid().type, loadGrid, ea);
+  yield takeLatest(reloadTreeGrid().type, loadTreeGrid, ea);
   yield takeLatest(deleteRecords().type, removeRecords, ea);
   yield takeLatest(saveRecords().type, updateRecords, ea);
 }

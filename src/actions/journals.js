@@ -19,6 +19,7 @@ export const setPage = createAction(prefix + 'SET_PAGE');
 export const setJournalConfig = createAction(prefix + 'SET_JOURNAL_CONFIG');
 export const setGrid = createAction(prefix + 'SET_GRID');
 export const reloadGrid = createAction(prefix + 'RELOAD_GRID');
+export const reloadTreeGrid = createAction(prefix + 'RELOAD_TREE_GRID');
 export const deleteRecords = createAction(prefix + 'DELETE_RECORDS');
 export const saveRecords = createAction(prefix + 'SAVE_RECORDS');
 export const setSelectedRecords = createAction(prefix + 'SET_SELECTED_RECORDS');

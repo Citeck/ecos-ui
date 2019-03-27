@@ -9,9 +9,9 @@ export default class Btn extends Component {
     const cssClasses = classNames('ecos-btn', props.className);
 
     return (
-      <a {...props} className={cssClasses}>
+      <button {...props} className={cssClasses}>
         {props.children}
-      </a>
+      </button>
     );
   }
 }

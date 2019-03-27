@@ -9,6 +9,7 @@ import DocumentLinkFormatter from './gql/DocumentLinkFormatter';
 import DateOrDateTimeFormatter from './gql/DateOrDateTimeFormatter';
 import PercentFormatter from './gql/PercentFormatter';
 import BooleanFormatter from './gql/BooleanFormatter';
+import SelectFormatter from './gql/SelectFormatter';
 
 const formatterStore = {
   UserNameLinkFormatter,
@@ -21,7 +22,8 @@ const formatterStore = {
   DocumentLinkFormatter,
   DateOrDateTimeFormatter,
   PercentFormatter,
-  BooleanFormatter
+  BooleanFormatter,
+  SelectFormatter
 };
 
 export default formatterStore;

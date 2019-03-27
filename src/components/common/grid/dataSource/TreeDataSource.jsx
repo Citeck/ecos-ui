@@ -1,15 +1,16 @@
 import BaseDataSource from './BaseDataSource';
 import formatterStore from '../formatters/formatterStore';
 import Mapper from '../mapping/Mapper';
+import { RecordService } from '../../../../api/recordService';
 
 const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
 
-export default class GqlDataSource extends BaseDataSource {
+export default class TreeDataSource extends BaseDataSource {
   constructor(options) {
     super(options);
 
+    this._api = new RecordService({});
     this._createVariants = this.options.createVariants;
-    this.options.ajax.body = this._getBodyJson(this.options.ajax.body, this.options.columns);
     this._columns = this._getColumns(this.options.columns);
   }
 
@@ -18,10 +19,22 @@ export default class GqlDataSource extends BaseDataSource {
   }
 
   load() {
-    let options = this.options;
-    return fetch(options.url, options.ajax)
-      .then(response => {
-        return response.json();
+    return this._api
+      .query({
+        query: {
+          query: JSON.stringify({
+            field_0: 'type',
+            predicate_0: 'type-equals',
+            value_0: '{http://www.citeck.ru/model/contracts/1.0}agreement'
+          }),
+          language: 'criteria',
+          groupBy: ['cm:title', 'cm:create']
+        },
+        attributes: {
+          sum: 'sum(contracts:agreementAmount)',
+          value: '.att(n:"predicate"){val:att(n:"value"){str}}',
+          children: '.att(n:"values"){atts(n:"records"){att(n:"cm:title"){str}}}'
+        }
       })
       .then(resp => {
         let recordsData = resp.records || [];
@@ -29,12 +42,11 @@ export default class GqlDataSource extends BaseDataSource {
         let data = [];
 
         for (let i = 0; i < recordsData.length; i++) {
-          const recordData = recordsData[i];
-          const recordDataId = recordData.id;
+          let recordData = recordsData[i];
 
           data.push({
             ...recordData.attributes,
-            id: data.filter(item => item.id === recordDataId).length ? recordDataId + i : recordDataId
+            id: i //recordData.id || i
           });
         }
 
@@ -43,6 +55,17 @@ export default class GqlDataSource extends BaseDataSource {
   }
 
   _getColumns(columns) {
+    columns = [
+      {
+        dataField: 'value',
+        text: 'Заголовок'
+      },
+      {
+        dataField: 'sum',
+        text: 'Сумма'
+      }
+    ];
+
     return columns.map((column, idx) => {
       let newColumn = { ...column };
 
@@ -59,27 +82,6 @@ export default class GqlDataSource extends BaseDataSource {
 
       return newColumn;
     });
-  }
-
-  _getBodyJson(body, columns) {
-    let defaultBody = {
-      attributes: this._getAttributes(columns)
-    };
-
-    return JSON.stringify({ ...defaultBody, ...body });
-  }
-
-  _getAttributes(columns) {
-    let attributes = {};
-
-    columns.forEach((column, idx) => {
-      let formatterOptions = column.formatter || Mapper.getFormatterOptions(column, idx);
-      let { formatter } = this._getFormatter(formatterOptions);
-
-      attributes[column.dataField || column.attribute] = column.schema || formatter.getQueryString(column.attribute || column.dataField);
-    });
-
-    return attributes;
   }
 
   _getFormatter(options) {

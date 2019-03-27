@@ -72,12 +72,12 @@ class JournalsDashletEditor extends Component {
   render() {
     const props = this.props;
     const config = props.config || {};
-    const cssClasses = classNames('journal-dashlet-editor', props.className);
+    const cssClasses = classNames('ecos-journal-dashlet-editor', props.className);
 
     return (
       <div className={cssClasses}>
-        <div className={'journal-dashlet-editor__body'}>
-          <Caption middle className={'journal-dashlet-editor__caption'}>
+        <div className={'ecos-journal-dashlet-editor__body'}>
+          <Caption middle className={'ecos-journal-dashlet-editor__caption'}>
             {t('journals.action.edit-dashlet')}
           </Caption>
           <Field label={t('journals.list.name')}>
@@ -108,15 +108,15 @@ class JournalsDashletEditor extends Component {
         </div>
 
         <Columns
-          className={'journal-dashlet-editor__actions'}
+          className={'ecos-journal-dashlet-editor__actions'}
           cols={[
             <Btn onClick={this.clear}>{t('journals.action.reset-settings')}</Btn>,
 
             <Fragment>
-              <Btn className={'btn_x-step_10'} onClick={this.cancel}>
+              <Btn className={'ecos-btn_x-step_10'} onClick={this.cancel}>
                 {t('journals.action.cancel')}
               </Btn>
-              <Btn className={'btn_blue btn_hover_light-blue'} onClick={this.save}>
+              <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.save}>
                 {t('journals.action.save')}
               </Btn>
             </Fragment>

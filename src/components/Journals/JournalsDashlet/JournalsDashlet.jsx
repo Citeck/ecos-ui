@@ -44,7 +44,7 @@ class JournalsDashlet extends Component {
 
   render() {
     const props = this.props;
-    const cssClasses = classNames('journal-dashlet', props.className);
+    const cssClasses = classNames('ecos-journal-dashlet', props.className);
 
     return (
       <Dashlet
