@@ -1,6 +1,90 @@
 @import '../../constants';
 
-.journal {
+.ecos-journal {
+  position: relative;
+  height: 100%;
+  background: $color-gray;
+}
+
+.ecos-journal__body {
+  position: absolute;
+  left: 26px;
+  top: 15px;
+  bottom: 0;
+  right: 26px;
+}
+
+.ecos-journal__body_with-menu {
+  right: 273px;
+  margin-right: 15px;
+}
+
+.ecos-journal__menu {
+  position: absolute;
+  width: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: palevioletred;
+}
+
+.ecos-journal__menu_open {
+  width: 273px;
+}
+
+.ecos-journal__visibility-menu-btn {
+  width: 100%;
+  height: 24px;
+  text-align: right;
+}
+
+.ecos-journal__caption {
+  width: 100%;
+  margin-bottom: 13px;
+}
+
+/*Tools*/
+.ecos-journal__tools {
+  width: 100%;
+  height: 80px;
+  margin-bottom: 37px;
+}
+
+.ecos-journal__tools-well {
+  display: flex;
+  padding: 20px;
+}
+
+.ecos-journal__tools-well_step {
+  margin-right: 10px;
+}
+
+/*Settings*/
+.ecos-journal__settings {
+  position: relative;
+  width: 100%;
+  height: 40px;
+  margin-bottom: 12px;
+}
+
+.ecos-journal__settings_right {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+/*Grid*/
+.ecos-journal__grid {
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.ecos-journal__footer {
+  width: 100%;
+}
+
+.ecos-journal_right {
+  margin-left: auto;
 }
 
 .journal__toolbar {

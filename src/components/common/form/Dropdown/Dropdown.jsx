@@ -46,9 +46,9 @@ export default class Dropdown extends Component {
 
   render() {
     const cssClasses = classNames('ecos-dropdown', this.props.className);
-    const { valueField, titleField, source, value, isStatic } = this.props;
+    const { valueField, titleField, source, value, isStatic, hasEmpty } = this.props;
 
-    const selected = source.find(item => item[valueField] === value) || source[0] || {};
+    const selected = source.find(item => item[valueField] === value) || (!hasEmpty && source[0]) || {};
 
     const items = source.map(item => {
       return (

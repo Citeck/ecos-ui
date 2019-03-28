@@ -11,7 +11,7 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, criteria, pagination, predicate, groupBy }) => {
+  getGridData = ({ columns, criteria, pagination, predicate, groupBy, sortBy }) => {
     const query = criteria => {
       let query = {};
 
@@ -33,7 +33,8 @@ export class JournalsApi extends RecordService {
             query: criteria.length ? query(criteria) : predicate,
             language: criteria.length ? 'criteria' : 'predicate',
             page: pagination,
-            groupBy
+            groupBy,
+            sortBy
           }
         }
       },

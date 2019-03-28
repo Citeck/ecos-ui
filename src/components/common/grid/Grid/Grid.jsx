@@ -65,7 +65,7 @@ export default class Grid extends Component {
         column.hidden = !column.default;
       }
 
-      column = this.setHeaderFormatter(column, props.filterable);
+      column = this.setHeaderFormatter(column, props.filterable, column.sortable);
 
       column.formatter = this.initFormatter(props.editable);
 
@@ -74,10 +74,6 @@ export default class Grid extends Component {
 
     if (props.editable) {
       props.cellEdit = this.setEditable(props.editable);
-    }
-
-    if (props.defaultSortBy) {
-      props.data = this.sortByDefault(props);
     }
 
     if (typeof props.onMouseEnter === 'function') {
@@ -111,19 +107,8 @@ export default class Grid extends Component {
     });
   };
 
-  sortByDefault = props => {
-    const defaultSortBy = props.defaultSortBy;
-    const data = props.data.slice();
-
-    defaultSortBy.forEach(item => {
-      const { id, order } = item;
-
-      data.sort(function(a, b) {
-        return order ? a[id] < b[id] : a[id] > b[id];
-      });
-    });
-
-    return data;
+  sort = e => {
+    triggerEvent.call(this, 'onSort', e);
   };
 
   initFormatter = editable => {
@@ -147,17 +132,21 @@ export default class Grid extends Component {
     return column;
   };
 
-  setHeaderFormatter = (column, filterable) => {
+  setHeaderFormatter = (column, filterable, sortable) => {
+    const { filters, sortBy } = this.props;
+
     column.headerFormatter = (column, colIndex) => {
       return (
         <HeaderFormatter
           closeFilterEvent={CLOSE_FILTER_EVENT}
           filterable={filterable}
-          filterValue={((this.props.filters || []).filter(filter => filter.field === column.dataField)[0] || {}).value || ''}
+          filterValue={((filters || []).filter(filter => filter.field === column.dataField)[0] || {}).value || ''}
+          ascending={((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending}
           column={column}
           colIndex={colIndex}
           onFilter={this.onFilter}
           onDeviderMouseDown={this.getStartDeviderPosition}
+          onTextClick={sortable && this.sort}
         />
       );
     };
@@ -312,7 +301,6 @@ export default class Grid extends Component {
 
   render() {
     let props = {
-      id: this._id,
       keyField: this._keyField,
       bootstrap4: true,
       bordered: false,
@@ -328,6 +316,7 @@ export default class Grid extends Component {
     if (props.columns.length) {
       return (
         <div
+          key={this._id}
           style={{ minHeight: props.minHeight }}
           className={classNames(
             'ecos-grid',

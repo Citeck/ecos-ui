@@ -9,44 +9,49 @@ import {
   setJournalsItem,
   setSettingItem,
   setJournalConfig,
-  setPage,
   setSelectedRecords,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setJournalsListName,
-  setGridMinHeight,
   setGridInlineToolSettings
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 
-const MAX_ITEMS = 10;
-
 const initialState = {
+  grid: {
+    data: [],
+    columns: [],
+    total: 0,
+    criteria: [],
+    createVariants: [],
+    predicate: {},
+    groupBy: null,
+    sortBy: [],
+    pagination: {
+      skipCount: 0,
+      maxItems: 10,
+      page: 1
+    },
+    minHeight: null
+  },
+
   loading: true,
-  dashletIsReady: false,
   editorMode: false,
+
   journalsList: [],
   journals: [],
   settings: [],
-  gridData: {
-    data: [],
-    columns: [],
-    total: 0
-  },
+
   config: null,
   initConfig: null,
-  pagination: {
-    skipCount: 0,
-    maxItems: MAX_ITEMS,
-    page: 1
+  journalConfig: {
+    meta: {},
+    createVariants: []
   },
-  journalConfig: null,
+
   selectedRecords: [],
   selectAllRecords: false,
   selectAllRecordsVisible: false,
-  journalsListName: '',
-  gridMinHeight: null,
-  maxGridItems: MAX_ITEMS,
+
   inlineToolSettings: {
     height: 0,
     top: 0
@@ -61,18 +66,6 @@ export default handleActions(
       return {
         ...state,
         inlineToolSettings: action.payload
-      };
-    },
-    [setGridMinHeight]: (state, action) => {
-      return {
-        ...state,
-        gridMinHeight: action.payload
-      };
-    },
-    [setJournalsListName]: (state, action) => {
-      return {
-        ...state,
-        journalsListName: action.payload
       };
     },
     [setJournalsListItem]: (state, action) => {
@@ -126,15 +119,9 @@ export default handleActions(
     [setGrid]: (state, action) => {
       return {
         ...state,
-        gridData: action.payload
-      };
-    },
-    [setPage]: (state, action) => {
-      return {
-        ...state,
-        pagination: {
-          ...state.pagination,
-          page: action.payload
+        grid: {
+          ...state.grid,
+          ...action.payload
         }
       };
     },
@@ -151,6 +138,7 @@ export default handleActions(
         journalConfig: action.payload
       };
     },
+
     [setSelectedRecords]: (state, action) => {
       return {
         ...state,

@@ -36,7 +36,7 @@ export default class Dashlet extends Component {
       <Panel
         {...props}
         className={cssClasses}
-        bodyClassName={'dashlet__body'}
+        bodyClassName={classNames('dashlet__body', props.bodyClassName)}
         header={
           <div className={'dashlet__header'}>
             <span className={'dashlet__caption'}>{props.title}</span>

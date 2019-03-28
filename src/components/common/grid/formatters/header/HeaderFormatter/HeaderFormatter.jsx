@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import { Tooltip } from 'reactstrap';
-import Icon from '../../../../icons/Icon/Icon';
 import { Input } from '../../../../form';
+import Icon from '../../../../icons/Icon/Icon';
 
 import './HeaderFormatter.scss';
 
@@ -36,7 +36,16 @@ export default class HeaderFormatter extends Component {
   onChange = e => {
     let text = e.target.value;
     this.setState({ text });
-    this.triggerPendingChange(text, this.props.column.dataField);
+  };
+
+  onKeyDown = e => {
+    switch (e.key) {
+      case 'Enter':
+        this.triggerPendingChange(this.state.text, this.props.column.dataField);
+        break;
+      default:
+        break;
+    }
   };
 
   clear = () => {
@@ -51,7 +60,7 @@ export default class HeaderFormatter extends Component {
       predicate: 'string-contains',
       value: text.trim()
     });
-  }, 500);
+  }, 0);
 
   onCloseFilter(e) {
     const tooltip = document.getElementById(this.tooltipId);
@@ -70,6 +79,11 @@ export default class HeaderFormatter extends Component {
       e: e,
       th: current.parentElement
     });
+  };
+
+  onTextClick = () => {
+    const { ascending, column } = this.props;
+    triggerEvent.call(this, 'onTextClick', { ascending, column });
   };
 
   filter = columnText => {
@@ -91,7 +105,14 @@ export default class HeaderFormatter extends Component {
           innerClassName={'ecos-th__filter-tooltip-body'}
           arrowClassName={'ecos-th__filter-tooltip-marker'}
         >
-          <Input autoFocus type="text" className={'ecos-th__filter-tooltip-input'} onChange={this.onChange} value={state.text} />
+          <Input
+            autoFocus
+            type="text"
+            className={'ecos-th__filter-tooltip-input'}
+            onChange={this.onChange}
+            onKeyDown={this.onKeyDown}
+            value={state.text}
+          />
 
           <Icon className={'ecos-th__filter-tooltip-close icon-close icon_small'} onClick={this.clear} />
         </Tooltip>
@@ -100,15 +121,22 @@ export default class HeaderFormatter extends Component {
   };
 
   render() {
-    const { column, filterable } = this.props;
+    const { column, filterable, ascending } = this.props;
     const state = this.state;
 
     this.id = `filter-${column.dataField.replace(':', '_')}`;
     this.tooltipId = `tooltip-${this.id}`;
 
+    const text = (
+      <span onClick={this.onTextClick}>
+        {column.text}
+        {ascending !== undefined ? <Icon className={`ecos-th__order ${ascending ? 'icon-up' : 'icon-down'}`} /> : null}
+      </span>
+    );
+
     return (
       <div ref={this.thRef} className={classNames('ecos-th', state.text && 'ecos-th_filtered')}>
-        {filterable ? this.filter(column.text) : column.text}
+        {filterable ? this.filter(text) : text}
 
         <div className={'ecos-th__devider'} onMouseDown={this.onDeviderMouseDown} />
       </div>
