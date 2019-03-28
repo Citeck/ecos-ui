@@ -5,7 +5,7 @@ import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import './SimpleModal.scss';
 
 const zIndex = 10000;
-const maxLevel = 3;
+const maxLevel = 4;
 let openModalsCounter = 0;
 
 export default class SimpleModal extends Component {
@@ -36,7 +36,7 @@ export default class SimpleModal extends Component {
       const modalLevel = level > maxLevel ? maxLevel : level;
       levelClassName = `simple-modal_level-${modalLevel}`;
     }
-    const modalClassName = classNames(className, levelClassName);
+    const modalClassName = classNames('simple-modal', className, levelClassName);
 
     const header = title ? <ModalHeader toggle={hideModal}>{title}</ModalHeader> : null;
 

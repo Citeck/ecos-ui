@@ -2,6 +2,7 @@ module.exports = {
   entryPoints: {
     "ecos-form": "./export/src/forms/index.js",
     "records": "./export/src/records/index.js",
+    "modal": "./export/src/modal/index.js",
 
     // "glyphicon-to-fa": "./export/src/glyphicon-to-fa/index.js",
 

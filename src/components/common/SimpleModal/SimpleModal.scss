@@ -1,11 +1,50 @@
-.simple-modal_level-1 {
-  top: 50px;
+@import '../../../constants';
+
+.simple-modal {
+  .modal-content {
+    border-radius: $border-radius-extra-large;
+  }
+
+  .modal-header {
+    border-bottom: none;
+  }
+
+  .modal-title {
+    font-size: $font-size-large;
+    font-weight: $font-weight-semi-bold;
+    line-height: 22px;
+    color: $text-color-dark;
+  }
+}
+
+.simple-modal_empty-header {
+  .modal-header {
+    padding-bottom: 0;
+  }
+
+  .modal-body {
+    padding-top: 0;
+  }
 }
 
 .simple-modal_level-2 {
-  top: 100px;
+  top: 50px;
 }
 
 .simple-modal_level-3 {
+  top: 100px;
+}
+
+.simple-modal_level-4 {
   top: 150px;
+}
+
+.simple-modal.simple-modal_width-extra-lg {
+  max-width: 1000px;
+}
+
+@media (max-width: 1024px) {
+  .simple-modal.simple-modal_width-extra-lg {
+    margin: 0.5rem;
+  }
 }
