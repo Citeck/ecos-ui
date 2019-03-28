@@ -36,6 +36,11 @@ module.exports = {
       commonjs2: 'react-redux',
       amd: 'react-redux',
     },
+    reactstrap: {
+      commonjs: 'reactstrap',
+      commonjs2: 'reactstrap',
+      amd: 'reactstrap',
+    },
     'react-custom-scrollbars' : {
       commonjs: 'react-custom-scrollbars',
       commonjs2: 'react-custom-scrollbars',
