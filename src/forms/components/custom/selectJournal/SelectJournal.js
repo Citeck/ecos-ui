@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import BaseComponent from 'formiojs/components/base/Base';
+import BaseComponent from '../base/BaseComponent';
 import SelectJournal from '../../../../components/common/form/SelectJournal';
-import Records from '../../../../components/Records';
 
 export default class DateTimeComponent extends BaseComponent {
   static schema(...extend) {
@@ -88,29 +87,17 @@ export default class DateTimeComponent extends BaseComponent {
     };
 
     let journalId = this.component.journalId;
-    if (!journalId) {
-      let recordId = this.root.options.recordId;
-      if (!recordId) {
-        recordId = '@';
-      }
-      let attribute = (this.component.properties || {}).attribute;
 
-      if (attribute && attribute[0] !== '.') {
-        let record = Records.get(recordId);
-        record
-          .load({
-            editorKey: '#' + attribute + '?editorKey'
-          })
-          .then(atts => {
-            renderControl(atts.editorKey);
-          })
-          .catch(e => {
-            console.error(e);
-            renderControl(null);
-          });
-      } else {
-        renderControl(null);
-      }
+    if (!journalId) {
+      let attribute = this.getAttributeToEdit();
+      this.getRecord()
+        .loadEditorKey(attribute)
+        .then(editorKey => {
+          renderControl(editorKey);
+        })
+        .catch(() => {
+          renderControl(null);
+        });
     } else {
       renderControl(journalId);
     }

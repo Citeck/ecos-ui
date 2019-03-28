@@ -1,6 +1,6 @@
 import Choices from 'choices.js/public/assets/scripts/choices.js';
 import _ from 'lodash';
-import BaseComponent from 'formiojs/components/base/Base';
+import BaseComponent from '../../custom/base/BaseComponent';
 import Formio from 'formiojs/Formio';
 
 export default class SelectComponent extends BaseComponent {
@@ -18,7 +18,7 @@ export default class SelectComponent extends BaseComponent {
           custom: ''
         },
         limit: 100,
-        dataSrc: 'values',
+        dataSrc: 'url',
         valueProperty: '',
         filter: '',
         searchEnabled: true,
@@ -405,11 +405,16 @@ export default class SelectComponent extends BaseComponent {
       url += (!url.includes('?') ? '?' : '&') + Formio.serialize(query, item => this.interpolate(item));
     }
 
+    let filter = this.component.filter;
+    if (this.component.data.url === '/citeck/ecos/records/query' && !filter) {
+      filter = 'rec=' + this.getRecordId() + '&att=#' + this.getAttributeToEdit() + '?options';
+    }
+
     // Add filter capability
-    if (this.component.filter) {
+    if (filter) {
       //customization: add filter encoding
 
-      let filterValue = this.interpolate(this.component.filter);
+      let filterValue = this.interpolate(filter);
       let encodedFilter = '';
       let args = filterValue.split('&');
 

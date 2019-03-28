@@ -182,6 +182,38 @@ class Record {
     });
   }
 
+  loadAttribute(attribute) {
+    let self = this;
+
+    return new Promise(function(resolve, reject) {
+      self
+        .load({
+          a: attribute
+        })
+        .then(atts => {
+          resolve(atts.a);
+        })
+        .catch(e => {
+          console.error(e);
+          reject(e);
+        });
+    });
+  }
+
+  loadEditorKey(attribute) {
+    if (!attribute) {
+      return Promise.resolve(null);
+    }
+    return this.loadAttribute('#' + attribute + '?editorKey');
+  }
+
+  loadOptions(attribute) {
+    if (!attribute) {
+      return Promise.resolve(null);
+    }
+    return this.loadAttribute('#' + attribute + '?options');
+  }
+
   save() {
     let self = this;
 
