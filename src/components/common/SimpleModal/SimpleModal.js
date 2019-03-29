@@ -6,7 +6,7 @@ import './SimpleModal.scss';
 
 const zIndex = 10000;
 const maxLevel = 4;
-let openModalsCounter = 0;
+const COMPONENT_CLASS_NAME = 'simple-modal';
 
 export default class SimpleModal extends Component {
   state = {
@@ -16,7 +16,11 @@ export default class SimpleModal extends Component {
 
   static getDerivedStateFromProps(props, state) {
     if (props.isOpen !== state.isOpen) {
+      let openModalsCounter = document.querySelectorAll(`.${COMPONENT_CLASS_NAME}`).length;
       openModalsCounter += props.isOpen ? 1 : -1;
+      if (openModalsCounter < 0) {
+        openModalsCounter = 0;
+      }
 
       return {
         isOpen: props.isOpen,
@@ -28,20 +32,22 @@ export default class SimpleModal extends Component {
   }
 
   render() {
-    const { hideModal, children, title, className } = this.props;
+    const { hideModal, children, title, className, reactstrapProps } = this.props;
     const { isOpen, level } = this.state;
+
+    const modalZIndex = this.props.zIndex ? this.props.zIndex + level : zIndex + level;
 
     let levelClassName = null;
     if (level > 0) {
       const modalLevel = level > maxLevel ? maxLevel : level;
       levelClassName = `simple-modal_level-${modalLevel}`;
     }
-    const modalClassName = classNames('simple-modal', className, levelClassName);
+    const modalClassName = classNames(COMPONENT_CLASS_NAME, className, levelClassName);
 
     const header = title ? <ModalHeader toggle={hideModal}>{title}</ModalHeader> : null;
 
     return (
-      <Modal isOpen={isOpen} toggle={hideModal} zIndex={zIndex + level} size={'lg'} className={modalClassName}>
+      <Modal isOpen={isOpen} toggle={hideModal} zIndex={modalZIndex} size={'lg'} className={modalClassName} {...reactstrapProps}>
         {header}
         <ModalBody>{children}</ModalBody>
       </Modal>
@@ -54,5 +60,6 @@ SimpleModal.propTypes = {
   className: PropTypes.string,
   isOpen: PropTypes.bool,
   hideModal: PropTypes.func,
+  reactstrapProps: PropTypes.object,
   title: PropTypes.string
 };

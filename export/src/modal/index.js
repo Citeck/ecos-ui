@@ -16,12 +16,15 @@ class ModalWrapper extends React.Component {
     }
   }
 
-  close = () => {
+  close = (callback) => {
     this.setState({
       isOpen: false
     }, () => {
       if (typeof this.props.onHideModal === 'function') {
         this.props.onHideModal();
+      }
+      if (typeof callback === 'function') {
+        callback();
       }
     });
   };
@@ -41,6 +44,8 @@ class ModalWrapper extends React.Component {
         hideModal={this.close}
         title={this.props.title}
         className={classNames.join(' ')}
+        zIndex={9000}
+        reactstrapProps={this.props.reactstrapProps}
       >
         {this.props.children}
       </SimpleModal>
@@ -54,10 +59,11 @@ ModalWrapper.propTypes = {
   title: PropTypes.string,
   onHideModal: PropTypes.func,
   getInstance: PropTypes.func,
+  reactstrapProps: PropTypes.object,
 };
 
 class Modal {
-  open = (node, config = {}) => {
+  open = (node, config = {}, callback) => {
     this.el = document.createElement('div');
     document.body.appendChild(this.el);
 
@@ -71,15 +77,17 @@ class Modal {
         className={config.class}
         onHideModal={this.destroy}
         getInstance={el => this.modal = el}
+        reactstrapProps={config.reactstrapProps}
       >
         {node}
       </ModalWrapper>,
-      this.el
+      this.el,
+      callback
     );
   };
 
-  close = () => {
-    this.modal.close();
+  close = (callback) => {
+    this.modal.close(callback);
   };
 
   destroy = () => {
