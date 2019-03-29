@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import { Grid, InlineTools, Tools, TreeGrid, EmptyGrid } from '../../common/grid';
+import { Grid, InlineTools, Tools, EmptyGrid } from '../../common/grid';
 import Loader from '../../common/Loader/Loader';
 import { IcoBtn } from '../../common/btns';
 import { t } from '../../../helpers/util';

@@ -100,11 +100,11 @@ class EcosForm extends React.Component {
   submitForm(form, submission) {
     var self = this;
 
-    let inputs = EcosForm.getFormInputs(form);
+    let inputs = EcosForm.getFormInputs(form.component);
     let keysMapping = {};
 
     for (let i = 0; i < inputs.length; i++) {
-      keysMapping[inputs[i].component.key] = inputs[i].attribute;
+      keysMapping[inputs[i].component.key] = inputs[i].schema;
     }
 
     let record = Records.get(form.ecos.recordId);
@@ -131,15 +131,37 @@ class EcosForm extends React.Component {
 
     for (let i = 0; i < components.length; i++) {
       let component = components[i];
-      let config = component.component;
-      if (config.input === true && config.type !== 'button') {
-        let attribute = (config.properties || {}).attribute || config.key;
-        if (attribute.indexOf('?') === -1 && attribute[0] !== '.') {
-          attribute = attribute + '?str';
+
+      if (component.input === true && component.type !== 'button') {
+        let attribute = (component.properties || {}).attribute || component.key;
+        let questionIdx = attribute.indexOf('?');
+
+        if (questionIdx !== -1) {
+          attribute = attribute.substring(0, questionIdx);
         }
+
+        let attributeSchema;
+        if (component.getAttributeSchema) {
+          attributeSchema = component.getAttributeSchema();
+        }
+
+        if (!attributeSchema) {
+          switch (component.type) {
+            case 'checkbox':
+              attributeSchema = 'bool';
+              break;
+            default:
+              attributeSchema = 'str';
+          }
+        }
+
+        let multiplePostfix = component.multiple ? 's' : '';
+        let schema = '.att' + multiplePostfix + '(n:"' + attribute + '"){' + attributeSchema + '}';
+
         inputs.push({
           attribute: attribute,
-          component: component
+          component: component,
+          schema: schema
         });
       }
       EcosForm.getFormInputs(component, inputs);
@@ -150,17 +172,15 @@ class EcosForm extends React.Component {
 
   static getData(recordId, form) {
     if (!recordId) {
-      return new Promise(success => {
-        success({});
-      });
+      return Promise.resolve({});
     }
 
-    let inputs = EcosForm.getFormInputs(form);
+    let inputs = EcosForm.getFormInputs(form.component);
     let attributes = {};
     for (let input of inputs) {
-      let key = input.component.component.key;
+      let key = input.component.key;
       if (key) {
-        attributes[key] = input.attribute;
+        attributes[key] = input.schema;
       }
     }
 
