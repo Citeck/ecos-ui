@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 
 import JournalsDashletGrid from './JournalsDashletGrid/JournalsDashletGrid';

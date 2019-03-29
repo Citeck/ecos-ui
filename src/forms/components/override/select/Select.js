@@ -19,7 +19,7 @@ export default class SelectComponent extends BaseComponent {
         },
         limit: 100,
         dataSrc: 'url',
-        valueProperty: '',
+        valueProperty: 'value',
         filter: '',
         searchEnabled: true,
         searchField: '',
