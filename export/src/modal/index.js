@@ -61,6 +61,10 @@ class Modal {
     this.el = document.createElement('div');
     document.body.appendChild(this.el);
 
+    if (config.rawHtml) {
+      node = <div dangerouslySetInnerHTML={{__html: node}} />
+    }
+
     ReactDOM.render(
       <ModalWrapper
         title={config.title || config.header || EMPTY_HEADER_TITLE}
