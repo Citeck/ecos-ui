@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import SimpleModal from '../../../src/components/common/SimpleModal';
+import EcosModal from '../../../src/components/common/EcosModal';
 
 const EMPTY_HEADER_TITLE = ' ';
 
@@ -35,11 +35,11 @@ class ModalWrapper extends React.Component {
       classNames.push(this.props.className);
     }
     if (this.props.title === EMPTY_HEADER_TITLE) {
-      classNames.push('simple-modal_empty-header');
+      classNames.push('ecos-modal_empty-header');
     }
 
     return (
-      <SimpleModal
+      <EcosModal
         isOpen={this.state.isOpen}
         hideModal={this.close}
         title={this.props.title}
@@ -48,7 +48,7 @@ class ModalWrapper extends React.Component {
         reactstrapProps={this.props.reactstrapProps}
       >
         {this.props.children}
-      </SimpleModal>
+      </EcosModal>
     );
   }
 }

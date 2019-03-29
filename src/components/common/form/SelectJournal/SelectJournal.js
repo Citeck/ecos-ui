@@ -7,7 +7,7 @@ import Grid from '../../../common/grid/Grid/Grid';
 import Pagination from '../../../common/Pagination/Pagination';
 import Loader from '../../../common/Loader/Loader';
 import EcosForm from '../../../EcosForm';
-import SimpleModal from '../../SimpleModal';
+import EcosModal from '../../EcosModal';
 import InputView from './InputView';
 import Filters from './Filters';
 import Search from './Search';
@@ -344,7 +344,7 @@ export default class SelectJournal extends Component {
         />
 
         <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} api={this.api}>
-          <SimpleModal
+          <EcosModal
             title={t('select-journal.select-modal.title')}
             isOpen={isSelectModalOpen}
             hideModal={this.toggleSelectModal}
@@ -405,12 +405,12 @@ export default class SelectJournal extends Component {
                 {t('select-journal.select-modal.ok-button')}
               </Btn>
             </div>
-          </SimpleModal>
+          </EcosModal>
         </FiltersProvider>
 
-        <SimpleModal title={t('select-journal.edit-modal.title')} isOpen={isEditModalOpen} hideModal={this.toggleEditModal}>
+        <EcosModal title={t('select-journal.edit-modal.title')} isOpen={isEditModalOpen} hideModal={this.toggleEditModal}>
           <EcosForm record={editRecordId} onSubmit={this.onEditFormSubmit} onFormCancel={this.toggleEditModal} />
-        </SimpleModal>
+        </EcosModal>
       </div>
     );
   }

@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
-import './SimpleModal.scss';
+import './EcosModal.scss';
 
 const zIndex = 10000;
 const maxLevel = 4;
-const COMPONENT_CLASS_NAME = 'simple-modal';
+const COMPONENT_CLASS_NAME = 'ecos-modal';
 
-export default class SimpleModal extends Component {
+export default class EcosModal extends Component {
   state = {
     isOpen: false,
     level: 0
@@ -40,7 +40,7 @@ export default class SimpleModal extends Component {
     let levelClassName = null;
     if (level > 0) {
       const modalLevel = level > maxLevel ? maxLevel : level;
-      levelClassName = `simple-modal_level-${modalLevel}`;
+      levelClassName = `ecos-modal_level-${modalLevel}`;
     }
     const modalClassName = classNames(COMPONENT_CLASS_NAME, className, levelClassName);
 
@@ -55,7 +55,7 @@ export default class SimpleModal extends Component {
   }
 }
 
-SimpleModal.propTypes = {
+EcosModal.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
   isOpen: PropTypes.bool,

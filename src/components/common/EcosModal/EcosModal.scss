@@ -1,6 +1,6 @@
 @import '../../../constants';
 
-.simple-modal {
+.ecos-modal {
   .modal-content {
     border-radius: $border-radius-extra-large;
   }
@@ -17,7 +17,7 @@
   }
 }
 
-.simple-modal_empty-header {
+.ecos-modal_empty-header {
   .modal-header {
     padding-bottom: 0;
   }
@@ -27,28 +27,34 @@
   }
 }
 
-.simple-modal_level-2 {
+.ecos-modal_level-2 {
   top: 50px;
 }
 
-.simple-modal_level-3 {
+.ecos-modal_level-3 {
   top: 100px;
 }
 
-.simple-modal_level-4 {
+.ecos-modal_level-4 {
   top: 150px;
 }
 
-.simple-modal.simple-modal_width-extra-lg {
+.ecos-modal.ecos-modal_width-lg {
   max-width: 1000px;
 }
 
-.simple-modal.simple-modal_width-extra-lg2 {
+.ecos-modal.ecos-modal_width-extra-lg {
   max-width: 1200px;
 }
 
 @media (max-width: 1024px) {
-  .simple-modal.simple-modal_width-extra-lg {
+  .ecos-modal.ecos-modal_width-lg {
+    margin: 0.5rem;
+  }
+}
+
+@media (max-width: 1280px) {
+  .ecos-modal.ecos-modal_width-extra-lg {
     margin: 0.5rem;
   }
 }

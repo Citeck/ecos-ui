@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Btn } from '../../../../common/btns';
 import EcosForm from '../../../../EcosForm/EcosForm';
-import SimpleModal from '../../../SimpleModal/SimpleModal';
+import EcosModal from '../../../EcosModal';
 import Dropdown from '../../Dropdown/Dropdown';
 import { IcoBtn } from '../../../btns';
 import { t } from '../../../../../helpers/util';
@@ -42,9 +42,9 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
   }
 
   const modal = record ? (
-    <SimpleModal title={t('select-journal.create-modal.title')} isOpen={isCreateModalOpen} hideModal={toggleCreateModal}>
+    <EcosModal title={t('select-journal.create-modal.title')} isOpen={isCreateModalOpen} hideModal={toggleCreateModal}>
       <EcosForm record={record} onSubmit={onCreateFormSubmit} onFormCancel={toggleCreateModal} />
-    </SimpleModal>
+    </EcosModal>
   ) : null;
 
   return (
