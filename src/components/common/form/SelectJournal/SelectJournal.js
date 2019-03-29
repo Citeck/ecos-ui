@@ -42,7 +42,8 @@ export default class SelectJournal extends Component {
       selected: []
     },
     requestParams: {
-      pagination: paginationInitState
+      pagination: paginationInitState,
+      predicates: []
     },
     selectedRows: [],
     error: null
@@ -268,6 +269,11 @@ export default class SelectJournal extends Component {
   onEditFormSubmit = form => {
     this.setState({
       isEditModalOpen: false
+    });
+
+    const selectedRows = this.state.gridData.selected;
+    this.fetchDisplayNames(selectedRows).then(value => {
+      this.setValue(value);
     });
 
     this.refreshGridData();

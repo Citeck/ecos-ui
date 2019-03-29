@@ -40,7 +40,6 @@
               "label": "Контрагент",
               "key": "idocsContractor",
               "multiple": false,
-              "disabled": true,
               "journalId": "idocs-contractor",
               "defaultValue": "workspace://SpacesStore/eea14b3b-6243-4b61-b15e-e8d5c34a9586"
             }
@@ -50,6 +49,7 @@
           "components": [
             {
               "input": true,
+              "disabled": true,
               "type": "selectJournal",
               "label": "Предмет договора",
               "key": "contractSubjects",
