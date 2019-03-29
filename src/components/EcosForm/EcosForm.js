@@ -127,7 +127,13 @@ class EcosForm extends React.Component {
       inputs = [];
     }
 
-    let components = root.components || [];
+    let components;
+
+    if (root.type === 'columns') {
+      components = root.columns || [];
+    } else {
+      components = root.components || [];
+    }
 
     for (let i = 0; i < components.length; i++) {
       let component = components[i];
