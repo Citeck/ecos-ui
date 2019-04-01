@@ -19,23 +19,10 @@
   margin-right: 15px;
 }
 
-.ecos-journal__menu {
-  position: absolute;
-  width: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  background: palevioletred;
-}
-
-.ecos-journal__menu_open {
-  width: 273px;
-}
-
 .ecos-journal__visibility-menu-btn {
   width: 100%;
-  height: 24px;
   text-align: right;
+  height: 26px;
 }
 
 .ecos-journal__caption {
@@ -46,7 +33,6 @@
 /*Tools*/
 .ecos-journal__tools {
   width: 100%;
-  height: 80px;
   margin-bottom: 37px;
 }
 
@@ -61,13 +47,17 @@
 
 /*Settings*/
 .ecos-journal__settings {
-  position: relative;
-  width: 100%;
-  height: 40px;
+  padding: 21px 0;
   margin-bottom: 12px;
 }
 
-.ecos-journal__settings_right {
+.ecos-journal__settings-bar {
+  position: relative;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.ecos-journal__settings-bar_right {
   position: absolute;
   right: 0;
   top: 0;
@@ -119,15 +109,4 @@
 .journal__grid-settings {
   padding: 20px 0;
   margin-bottom: 12px;
-}
-
-.journal__select {
-  background: $color-white;
-  padding: 15px;
-  margin-bottom: 10px;
-}
-
-.journal__presets {
-  padding: 15px;
-  background: $color-white;
 }

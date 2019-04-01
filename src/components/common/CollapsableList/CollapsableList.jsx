@@ -11,16 +11,17 @@ export default class CollapsableList extends Component {
     const cssClasses = classNames('collapsable-list', props.className);
 
     return (
-      <div {...props} className={cssClasses}>
+      <div className={cssClasses}>
         <PanelBar
+          open={!props.close}
           header={props.children}
           css={{
             headerClassName: 'panel-bar__header_full panel-bar__header_narrow ',
-            headerLabelClassName: 'panel-bar__header-label_narrow',
+            headerLabelClassName: 'panel-bar__header-label_narrow panel-bar__header-label_bold',
             contentClassName: 'collapsable-list_panel-bar-header'
           }}
         >
-          <List list={props.list} className={'list-group_no-border'} />
+          <List list={props.list} selected={props.selected} className={classNames('list-group_no-border', props.classNameList)} />
         </PanelBar>
       </div>
     );

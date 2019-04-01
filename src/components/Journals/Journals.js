@@ -1,16 +1,17 @@
 import React, { Component, Fragment } from 'react';
+import { Container } from 'reactstrap';
 import connect from 'react-redux/es/connect/connect';
 
-import JournalsDashletGrid from './JournalsDashletGrid/JournalsDashletGrid';
-import JournalsDashletPagination from './JournalsDashletPagination/JournalsDashletPagination';
-
-import { getDashletConfig, setEditorMode, reloadGrid } from '../../actions/journals';
-
-import { Container } from 'reactstrap';
-import { IcoBtn, TwoIcoBtn } from '../common/btns';
-import { Caption, Dropdown, Well } from '../common/form';
+import JournalsDashletGrid from './JournalsDashletGrid';
+import JournalsDashletPagination from './JournalsDashletPagination';
+import JournalsGrouping from './JournalsGrouping';
+import JournalsColumnsSetup from './JournalsColumnsSetup';
+import JournalsMenu from './JournalsMenu';
 import Search from '../common/Search/Search';
 
+import { getDashletConfig } from '../../actions/journals';
+import { IcoBtn, TwoIcoBtn } from '../common/btns';
+import { Caption, Dropdown, Well } from '../common/form';
 import { t } from '../../helpers/util';
 
 import './Journals.scss';
@@ -18,31 +19,43 @@ import './Journals.scss';
 const mapStateToProps = state => ({});
 
 const mapDispatchToProps = dispatch => ({
-  getDashletConfig: id => dispatch(getDashletConfig(id)),
-  setEditorMode: visible => dispatch(setEditorMode(visible)),
-  reloadGrid: ({ journalId, pagination, columns, criteria }) => dispatch(reloadGrid({ journalId, pagination, columns, criteria }))
+  getDashletConfig: id => dispatch(getDashletConfig(id))
 });
 
 class Journals extends Component {
   constructor(props) {
     super(props);
-    this.state = { menuOpen: true };
+    this.state = { menuOpen: false, settingsVisible: false };
   }
 
   componentDidMount() {
     this.props.getDashletConfig(this.props.id);
   }
 
+  showSettings = () => {
+    this.setState({ settingsVisible: !this.state.settingsVisible });
+  };
+
+  toggleMenu = () => {
+    this.setState({ menuOpen: !this.state.menuOpen });
+  };
+
   render() {
-    const { menuOpen } = this.state;
+    const { menuOpen, settingsVisible } = this.state;
     return (
-      <Container style={{ width: 932, height: 800 }}>
+      <Container style={{ width: 932, height: 1000 }}>
         <div className={'ecos-journal'}>
           <div className={`ecos-journal__body ${menuOpen ? 'ecos-journal__body_with-menu' : ''}`}>
             <div className={'ecos-journal__visibility-menu-btn'}>
-              <IcoBtn icon={'icon-big-arrow'} className={'ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow ecos-btn_r_biggest'}>
-                {'Показать меню'}
-              </IcoBtn>
+              {menuOpen ? null : (
+                <IcoBtn
+                  onClick={this.toggleMenu}
+                  icon={'icon-arrow-left'}
+                  className={'ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standart ecos-btn_r_biggest'}
+                >
+                  {'Показать меню'}
+                </IcoBtn>
+              )}
             </div>
 
             <div className={'ecos-journal__caption'}>
@@ -69,13 +82,12 @@ class Journals extends Component {
               </Well>
             </div>
 
-            <div className={'ecos-journal__settings'}>
-              <Dropdown source={[{ title: '', id: 0 }]} value={0} valueField={'id'} titleField={'title'} isButton={true}>
-                <TwoIcoBtn
-                  icons={['icon-settings', 'icon-down']}
-                  className={'ecos-btn_white ecos-btn_hover_t-blue ecos-btn_settings-down ecos-btn_x-step_15'}
-                />
-              </Dropdown>
+            <div className={'ecos-journal__settings-bar'}>
+              <TwoIcoBtn
+                icons={['icon-settings', 'icon-down']}
+                className={'ecos-btn_white ecos-btn_hover_t-blue ecos-btn_settings-down ecos-btn_x-step_15'}
+                onClick={this.showSettings}
+              />
 
               <IcoBtn
                 icon={'icon-reload'}
@@ -84,7 +96,7 @@ class Journals extends Component {
                 }
               />
 
-              <div className={'ecos-journal__settings_right '}>
+              <div className={'ecos-journal__settings-bar_right '}>
                 <JournalsDashletPagination />
 
                 <IcoBtn
@@ -95,7 +107,7 @@ class Journals extends Component {
                 />
 
                 <IcoBtn
-                  icon={'icon-tiles'}
+                  icon={'icon-columns'}
                   className={
                     'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_15'
                   }
@@ -108,6 +120,13 @@ class Journals extends Component {
               </div>
             </div>
 
+            {settingsVisible ? (
+              <Well className={'ecos-journal__settings'}>
+                <JournalsColumnsSetup />
+                <JournalsGrouping />
+              </Well>
+            ) : null}
+
             <Well className={'ecos-journal__grid'}>
               <JournalsDashletGrid className={'ecos-grid_no-top-border'} />
             </Well>
@@ -117,7 +136,7 @@ class Journals extends Component {
             </div>
           </div>
 
-          <div className={`ecos-journal__menu ${menuOpen ? 'ecos-journal__menu_open' : ''}`} />
+          <JournalsMenu open={menuOpen} onClose={this.toggleMenu} />
         </div>
       </Container>
     );

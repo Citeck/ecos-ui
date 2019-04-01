@@ -12,7 +12,8 @@ import {
   setSelectedRecords,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setGridInlineToolSettings
+  setGridInlineToolSettings,
+  setGrouping
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 
@@ -33,6 +34,8 @@ const initialState = {
     },
     minHeight: null
   },
+
+  grouping: [],
 
   loading: true,
   editorMode: false,
@@ -62,6 +65,12 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [setGrouping]: (state, action) => {
+      return {
+        ...state,
+        grouping: Array.from(action.payload)
+      };
+    },
     [setGridInlineToolSettings]: (state, action) => {
       return {
         ...state,

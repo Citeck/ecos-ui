@@ -65,3 +65,7 @@
 .panel-bar__actions {
   display: flex;
 }
+
+.panel-bar__header-label_bold {
+  font-weight: $font-weight-bold;
+}

@@ -136,3 +136,9 @@
 .icon-checkbox-check:before {
   content: '\e82f';
 } /* '' */
+.icon-arrow-left:before {
+  content: '\e830';
+} /* '' */
+.icon-columns:before {
+  content: '\e831';
+} /* '' */

@@ -7,11 +7,42 @@
     font-weight: $font-weight-semi-bold;
     color: $text-color-dark;
     padding: 11px 1.25rem;
+    border: 1px solid $color-gray-4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     &:hover {
       background: $color-blue-light;
       color: $color-white;
       border-radius: $border-radius-standard;
+    }
+  }
+
+  .list-group-item_selected {
+    background: $color-blue-light;
+    color: $color-white;
+    border-radius: $border-radius-standard;
+  }
+}
+
+.ecos-list-group_hover_off {
+  .list-group-item {
+    &:hover {
+      background: inherit;
+      color: inherit;
+    }
+  }
+}
+
+.ecos-list-group_mode_journal {
+  .list-group-item {
+    padding: 13px 15px;
+    line-height: 1;
+    font-weight: $font-weight-bold;
+
+    &:hover {
+      cursor: pointer;
     }
   }
 }

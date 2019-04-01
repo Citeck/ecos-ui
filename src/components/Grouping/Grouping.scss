@@ -1,7 +1,7 @@
 @import '../../constants';
 
 .grouping__toolbar {
-  margin: 10px 21px 8px 21px;
+  margin-bottom: 10px;
 }
 
 .grouping__toolbar-button_next {
@@ -9,8 +9,6 @@
 }
 
 .grouping__content {
-  margin: 0 20px 21px 20px;
-
   .list-group {
     .list-group-item {
       padding: 4px 0;
@@ -34,12 +32,6 @@
   padding: 16px;
 }
 
-.grouping__target {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .grouping__target-note {
   width: 50%;
   height: 64px;
@@ -49,4 +41,5 @@
   font-size: $font-size-small;
   font-weight: $font-weight-semi-bold;
   padding: 14px;
+  margin: 34px auto;
 }

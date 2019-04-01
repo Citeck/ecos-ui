@@ -1,0 +1,32 @@
+@import '../../../constants';
+
+.ecos-journal-menu {
+  position: absolute;
+  width: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: $color-gray-3;
+  padding: 15px 26px 0 15px;
+}
+
+.ecos-journal-menu_open {
+  width: 273px;
+}
+
+.ecos-journal-menu__hide-menu-btn {
+  width: 100%;
+  text-align: right;
+  margin-bottom: 42px;
+}
+
+.ecos-journal-menu__journals {
+  background: $color-white;
+  padding: 15px;
+  margin-bottom: 10px;
+}
+
+.ecos-journal-menu__presets {
+  padding: 15px;
+  background: $color-white;
+}

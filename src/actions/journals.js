@@ -26,3 +26,5 @@ export const setSelectedRecords = createAction(prefix + 'SET_SELECTED_RECORDS');
 export const setSelectAllRecords = createAction(prefix + 'SET_SELECT_ALL_RECORDS');
 export const setSelectAllRecordsVisible = createAction(prefix + 'SET_SELECT_ALL_RECORDS_VISIBLE');
 export const setGridInlineToolSettings = createAction(prefix + 'SET_GRID_INLINE_TOOL_SETTINGS');
+
+export const setGrouping = createAction(prefix + 'SET_GROUPING');

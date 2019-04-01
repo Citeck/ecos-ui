@@ -6,13 +6,18 @@ import './List.scss';
 
 export default class List extends Component {
   render() {
-    const props = this.props;
+    const { selected, ...props } = this.props;
     const cssClasses = classNames('ecos-list-group', props.className);
 
     return (
       <ListGroup {...props} className={cssClasses}>
         {(props.list || []).map((item, index) => {
-          return <ListGroupItem key={index}>{item}</ListGroupItem>;
+          const selectedClass = index === selected ? 'list-group-item_selected' : '';
+          return (
+            <ListGroupItem key={index} className={selectedClass}>
+              {item}
+            </ListGroupItem>
+          );
         })}
       </ListGroup>
     );

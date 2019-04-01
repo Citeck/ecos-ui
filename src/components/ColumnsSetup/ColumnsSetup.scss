@@ -1,7 +1,7 @@
 @import '../../constants';
 
 .columns-setup__toolbar {
-  margin: 10px 21px 8px 21px;
+  margin-bottom: 10px;
 }
 
 .columns-setup__toolbar-button_next {
@@ -9,11 +9,11 @@
 }
 
 .columns-setup__content {
-  margin-bottom: 21px;
+  height: 160px;
 
   .list-group {
     .list-group-item {
-      padding: 8px 1.25rem;
+      padding: 4px 21px;
       border-radius: 0;
       border-left: 0;
       border-right: 0;
