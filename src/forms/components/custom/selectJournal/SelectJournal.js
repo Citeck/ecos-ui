@@ -71,7 +71,7 @@ export default class DateTimeComponent extends BaseComponent {
     let renderControl = function(journalId) {
       ReactDOM.render(
         <SelectJournal
-          defaultValue={component.defaultValue}
+          defaultValue={self.dataValue}
           isCompact={component.isCompact}
           multiple={component.multiple}
           placeholder={component.placeholder}
@@ -124,7 +124,11 @@ export default class DateTimeComponent extends BaseComponent {
   }
 
   setValue(value) {
-    this.dataValue = value || this.emptyValue;
+    if (this.reactContainer && value !== this.dataValue) {
+      ReactDOM.unmountComponentAtNode(this.reactContainer);
+    }
+
+    this.dataValue = value || this.component.defaultValue || this.emptyValue;
     this.refreshDOM();
   }
 }
