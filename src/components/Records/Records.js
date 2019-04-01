@@ -319,15 +319,17 @@ class Record {
       return;
     }
 
+    let localName = convertAttributePath(name);
+
     if (arguments.length > 1) {
-      let attribute = this._attributes[name];
+      let attribute = this._attributes[localName];
       if (!attribute) {
         attribute = new Attribute(null);
-        this._attributes[name] = attribute;
+        this._attributes[localName] = attribute;
       }
       attribute.value = value;
     } else {
-      return (this._attributes[name] || {}).value;
+      return (this._attributes[localName] || {}).value;
     }
   }
 }
