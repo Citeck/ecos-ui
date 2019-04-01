@@ -222,11 +222,13 @@ export default class SelectJournal extends Component {
   };
 
   onCancelSelect = () => {
+    const { multiple } = this.props;
+
     this.setState(prevState => {
       return {
         gridData: {
           ...prevState.gridData,
-          selected: prevState.value
+          selected: multiple ? prevState.value : [prevState.value]
         },
         isSelectModalOpen: false
       };
