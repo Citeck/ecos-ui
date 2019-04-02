@@ -55,6 +55,10 @@ class JournalsGrouping extends Component {
       grouping
     } = this.props;
 
+    if (!columns.length) {
+      return null;
+    }
+
     return (
       <PanelBar
         header={t('journals.grouping.header')}

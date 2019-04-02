@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 import connect from 'react-redux/es/connect/connect';
 
@@ -12,11 +12,12 @@ import Search from '../common/Search/Search';
 import { getDashletConfig } from '../../actions/journals';
 import { IcoBtn, TwoIcoBtn } from '../common/btns';
 import { Caption, Dropdown, Well } from '../common/form';
-import { t } from '../../helpers/util';
 
 import './Journals.scss';
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  journalConfig: state.journals.journalConfig
+});
 
 const mapDispatchToProps = dispatch => ({
   getDashletConfig: id => dispatch(getDashletConfig(id))
@@ -42,6 +43,12 @@ class Journals extends Component {
 
   render() {
     const { menuOpen, settingsVisible } = this.state;
+    const {
+      journalConfig: {
+        meta: { title = '' }
+      }
+    } = this.props;
+
     return (
       <Container style={{ width: 932, height: 1000 }}>
         <div className={'ecos-journal'}>
@@ -59,7 +66,7 @@ class Journals extends Component {
             </div>
 
             <div className={'ecos-journal__caption'}>
-              <Caption large>{t('journals.name')}</Caption>
+              <Caption large>{title}</Caption>
             </div>
 
             <div className={'ecos-journal__tools'}>
