@@ -1,0 +1,47 @@
+@import '../../../constants';
+
+.formio-dialog-content .preview-panel,
+.formio-form {
+  .formio-component-radio {
+    .form-check {
+      margin-bottom: 10px;
+      padding-left: 0;
+    }
+
+    @extend .formio-component-checkbox;
+
+    .form-check-label {
+      .form-check-input:first-child {
+        + span {
+          &:before {
+            content: $citeck-icon-radio;
+          }
+        }
+
+        &:checked {
+          + span {
+            &:before {
+              content: $citeck-icon-radio-checked;
+            }
+          }
+        }
+
+        &:disabled {
+          + span {
+            &:before {
+              content: $citeck-icon-radio-dark;
+            }
+          }
+
+          &:checked {
+            + span {
+              &:before {
+                content: $citeck-icon-radio-checked;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
