@@ -8,6 +8,8 @@ import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
 import '../../forms/style.scss';
 
+const EDGE_PREFIX = 'edge__';
+
 let formCounter = 0;
 
 class EcosForm extends React.Component {
@@ -19,46 +21,70 @@ class EcosForm extends React.Component {
   }
 
   componentDidMount() {
+    let recordId = this.props.record;
+    let formLoadingPromise = this.getForm();
+
+    let options = this.props.options || {};
+    options.recordId = recordId;
+
+    let proxyUri = ((window.Alfresco || {}).constants || {}).PROXY_URI || '/';
+    proxyUri = proxyUri.substring(0, proxyUri.length - 1);
+    Formio.setProjectUrl(proxyUri);
+
     let self = this;
 
-    this.getForm().then(data => {
-      let formAtts = data.records[0].attributes,
-        options = self.props.options || {};
+    formLoadingPromise.then(formData => {
+      let customModulePromise = new Promise(function(resolve, reject) {
+        if (formData.customModule) {
+          window.require([formData.customModule], function(Module) {
+            resolve(
+              new Module.default({
+                recordId: recordId
+              })
+            );
+          });
+        } else {
+          resolve({});
+        }
+      });
 
-      let proxyUri = ((window.Alfresco || {}).constants || {}).PROXY_URI || '/';
-      proxyUri = proxyUri.substring(0, proxyUri.length - 1);
-      Formio.setProjectUrl(proxyUri);
+      let inputs = EcosForm.getFormInputs(formData.definition);
+      let recordDataPromise = EcosForm.getData(recordId, inputs);
 
-      let recordId = self.props.record;
-      options.recordId = recordId;
+      recordDataPromise.then(recordData => {
+        let edgesData = {};
+        let submissionData = {};
 
-      Formio.createForm(document.getElementById(this.state.containerId), formAtts.formDef, options).then(form => {
-        form.ecos = {
-          recordId: recordId
-        };
+        for (let att in recordData) {
+          if (recordData.hasOwnProperty(att)) {
+            if (att.indexOf(EDGE_PREFIX) === 0) {
+              edgesData[att.substring(EDGE_PREFIX.length)] = recordData[att];
+            } else {
+              submissionData[att] = recordData[att];
+            }
+          }
+        }
 
-        let customModule = new Promise(function(resolve, reject) {
-          if (formAtts.customModule) {
-            window.require([formAtts.customModule], function(Module) {
-              resolve(
-                new Module.default({
-                  form: form,
-                  recordId: recordId
-                })
-              );
-            });
-          } else {
-            resolve({});
+        let formDefinition = JSON.parse(JSON.stringify(formData.definition));
+
+        EcosForm.forEachComponent(formDefinition, component => {
+          if (component.key && (edgesData[component.key] || {}).protected) {
+            component.disabled = true;
           }
         });
 
-        Promise.all([customModule, EcosForm.getData(recordId, form)]).then(data => {
-          form.ecos.custom = data[0];
+        let formPromise = Formio.createForm(document.getElementById(this.state.containerId), formDefinition, options);
+
+        Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
+          let form = formAndCustom[0];
+          form.ecos = {
+            custom: formAndCustom[1]
+          };
 
           form.submission = {
             data: {
               ...(self.props.attributes || {}),
-              ...data[1]
+              ...submissionData
             }
           };
 
@@ -107,7 +133,7 @@ class EcosForm extends React.Component {
       keysMapping[inputs[i].component.key] = inputs[i].schema;
     }
 
-    let record = Records.get(form.ecos.recordId);
+    let record = Records.get(this.props.record);
 
     for (let key in submission.data) {
       if (submission.data.hasOwnProperty(key)) {
@@ -122,12 +148,8 @@ class EcosForm extends React.Component {
     });
   }
 
-  static getFormInputs(root, inputs) {
-    if (!inputs) {
-      inputs = [];
-    }
-
-    let components;
+  static forEachComponent(root, action) {
+    let components = [];
 
     if (root.type === 'columns') {
       components = root.columns || [];
@@ -137,9 +159,24 @@ class EcosForm extends React.Component {
 
     for (let i = 0; i < components.length; i++) {
       let component = components[i];
+      action(component);
+      this.forEachComponent(component, action);
+    }
+  }
 
-      if (component.input === true && component.type !== 'button') {
-        let attribute = (component.properties || {}).attribute || component.key;
+  static getComponentAttribute(component) {
+    return (component.properties || {}).attribute || component.key;
+  }
+
+  static getFormInputs(root, inputs) {
+    if (!inputs) {
+      inputs = [];
+    }
+
+    this.forEachComponent(root, component => {
+      let attribute = EcosForm.getComponentAttribute(component);
+
+      if (attribute && component.input === true && component.type !== 'button') {
         let questionIdx = attribute.indexOf('?');
 
         if (questionIdx !== -1) {
@@ -147,46 +184,42 @@ class EcosForm extends React.Component {
         }
 
         let attributeSchema;
-        if (component.getAttributeSchema) {
-          attributeSchema = component.getAttributeSchema();
-        }
 
-        if (!attributeSchema) {
-          switch (component.type) {
-            case 'checkbox':
-              attributeSchema = 'bool';
-              break;
-            default:
-              attributeSchema = 'str';
-          }
+        switch (component.type) {
+          case 'checkbox':
+            attributeSchema = 'bool';
+            break;
+          default:
+            attributeSchema = 'str';
         }
 
         let multiplePostfix = component.multiple ? 's' : '';
         let schema = '.att' + multiplePostfix + '(n:"' + attribute + '"){' + attributeSchema + '}';
+        let edgeSchema = '.edge(n:"' + attribute + '"){protected,type}';
 
         inputs.push({
           attribute: attribute,
           component: component,
-          schema: schema
+          schema: schema,
+          edgeSchema: edgeSchema
         });
       }
-      EcosForm.getFormInputs(component, inputs);
-    }
+    });
 
     return inputs;
   }
 
-  static getData(recordId, form) {
+  static getData(recordId, inputs) {
     if (!recordId) {
       return Promise.resolve({});
     }
 
-    let inputs = EcosForm.getFormInputs(form.component);
     let attributes = {};
     for (let input of inputs) {
       let key = input.component.key;
       if (key) {
         attributes[key] = input.schema;
+        attributes[EDGE_PREFIX + key] = input.edgeSchema;
       }
     }
 
@@ -210,6 +243,13 @@ class EcosForm extends React.Component {
         formDef: 'definition?json',
         customModule: 'customModule'
       }
+    }).then(data => {
+      let formAtts = data.records[0].attributes;
+
+      return Promise.resolve({
+        definition: formAtts.formDef,
+        customModule: formAtts.customModule
+      });
     });
   }
 }
