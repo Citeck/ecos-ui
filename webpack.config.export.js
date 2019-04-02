@@ -124,7 +124,7 @@ module.exports = {
   entry: exportConfig.entryPoints,
   output: {
     // The build folder.
-    path: resolveApp('export/build'),
+    path: resolveApp('public/static/export'),
     libraryTarget: 'amd',
     // Generated JS file names (with nested folders).
     // There will be one main bundle, and one file per asynchronous chunk.
