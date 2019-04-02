@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import Button from '../common/buttons/Button/Button';
-import Label from '../common/form/Label/Label';
+import { Label } from '../common/form';
 import List from '../common/List/List';
 import Columns from '../common/templates/Columns/Columns';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -69,8 +68,8 @@ export default class Grouping extends Component {
         <div className={'grouping__toolbar'}>
           <Columns
             cols={[
-              <Button className={'button_narrow button_text-grey button_full'}>{t('grouping.what')}</Button>,
-              <Button className={'button_narrow button_text-grey button_full'}>{t('grouping.how')}</Button>
+              <span className={'grouping__desc'}>{t('grouping.what')}</span>,
+              <span className={'grouping__desc'}>{t('grouping.how')}</span>
             ]}
           />
         </div>

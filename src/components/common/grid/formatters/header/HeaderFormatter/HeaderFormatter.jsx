@@ -4,16 +4,9 @@ import debounce from 'lodash/debounce';
 import { Tooltip } from 'reactstrap';
 import { Input } from '../../../../form';
 import Icon from '../../../../icons/Icon/Icon';
+import { trigger } from '../../../../../../helpers/util';
 
 import './HeaderFormatter.scss';
-
-function triggerEvent(name, data) {
-  const callback = this.props[name];
-
-  if (typeof callback === 'function') {
-    callback.call(this, data);
-  }
-}
 
 export default class HeaderFormatter extends Component {
   constructor(props) {
@@ -55,7 +48,7 @@ export default class HeaderFormatter extends Component {
 
   triggerPendingChange = debounce((text, dataField) => {
     this.toggle();
-    triggerEvent.call(this, 'onFilter', {
+    trigger.call(this, 'onFilter', {
       field: dataField,
       predicate: 'string-contains',
       value: text.trim()
@@ -75,7 +68,7 @@ export default class HeaderFormatter extends Component {
 
   onDeviderMouseDown = e => {
     const current = this.thRef.current;
-    triggerEvent.call(this, 'onDeviderMouseDown', {
+    trigger.call(this, 'onDeviderMouseDown', {
       e: e,
       th: current.parentElement
     });
@@ -83,7 +76,7 @@ export default class HeaderFormatter extends Component {
 
   onTextClick = () => {
     const { ascending, column } = this.props;
-    triggerEvent.call(this, 'onTextClick', { ascending, column });
+    trigger.call(this, 'onTextClick', { ascending, column });
   };
 
   filter = columnText => {

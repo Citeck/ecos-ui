@@ -1,11 +1,32 @@
+/*
+text
+mltext
+content
+int
+long
+float
+double
+date
+datetime
+boolean
+qname
+category
+noderef
+options
+assoc
+person
+authorityGroup
+authority
+*/
+
 const MAP = [
   {
     options: () => 'DateTimeFormatter',
-    enable: column => column.javaClass === 'java.util.Date'
+    enable: column => column.type === 'datetime' || column.type === 'date'
   },
   {
     options: () => 'BooleanFormatter',
-    enable: column => column.javaClass === 'java.lang.Boolean'
+    enable: column => column.type === 'boolean'
   },
   {
     options: () => 'CardDetailsLinkFormatter',

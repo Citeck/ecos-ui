@@ -40,3 +40,26 @@
 .columns-setup__next {
   margin-left: 16px !important;
 }
+
+.columns-setup__desc {
+  background: $color-gray-4;
+  color: $text-color-gray;
+  width: 100%;
+  padding: 0 21px;
+  height: 26px;
+  display: inline-block;
+  white-space: nowrap;
+  vertical-align: middle;
+  border: 1px solid transparent;
+  border-radius: $border-radius-small;
+  line-height: 2;
+  font-family: $font-family;
+  font-size: $font-size-small;
+  font-weight: $font-weight-semi-bold;
+  font-style: normal;
+  text-align: left;
+}
+
+.columns-setup__item {
+  padding: 4px 21px;
+}

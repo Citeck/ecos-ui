@@ -1,3 +1,16 @@
+export function trigger(name, data) {
+  const callback = this.props[name];
+
+  if (typeof callback === 'function') {
+    callback.call(this, data);
+  }
+}
+
+export const getId = () =>
+  Math.random()
+    .toString(36)
+    .substr(2, 9);
+
 export function applyTheme(themeName, callback) {
   document.body.classList.add(`yui-skin-${themeName}`);
 }
