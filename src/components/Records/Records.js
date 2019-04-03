@@ -1,4 +1,5 @@
 const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
+const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
 const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
 
 let records;
@@ -50,6 +51,30 @@ class Records {
       this._records[id] = rec;
     }
     return rec;
+  }
+
+  remove(records) {
+    return new Promise(function(resolve, reject) {
+      fetch(DELETE_URL, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-type': 'application/json;charset=UTF-8'
+        },
+        body: JSON.stringify({
+          records: records
+        })
+      })
+        .then(response => {
+          return response.json();
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(e => {
+          reject(e);
+        });
+    });
   }
 
   query(body) {
