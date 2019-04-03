@@ -73,13 +73,52 @@ class EcosForm extends React.Component {
           }
         });
 
+        let i18n = options.i18n || {};
+        let existingI18NRu = i18n.ru || {};
+
+        i18n.ru = {
+          complete: 'Сохранение прошло успешно',
+          error: 'Пожалуйста, исправьте следующие ошибки перед отправкой:',
+          invalid_date: '{{field}} некорректная дата.',
+          invalid_email: '{{field}} некорректный email.',
+          invalid_regex: '{{field}} не соответствует паттерну {{regex}}.',
+          mask: '{{field}} не совпадает с маской.',
+          max: '{{field}} не может быть больше чем {{max}}.',
+          maxLength: '{{field}} должен быть короче чем {{length}} символов.',
+          min: '{{field}} не может быть меньше чем {{min}}.',
+          minLength: '{{field}} должен быть длиннее чем {{length}} символов.',
+          next: 'Далее',
+          pattern: '{{field}} не совпадает с паттерном {{pattern}}',
+          previous: 'Назад',
+          required: 'Поле {{field}} не может быть пустым',
+          ...existingI18NRu
+        };
+
+        options.i18n = i18n;
+
+        if (!options.language) {
+          let lang = navigator.language || navigator.userLanguage || 'ru';
+          if (lang.indexOf('ru') === 0) {
+            options.language = 'ru';
+          } else if (lang.indexOf('en') === 0) {
+            options.language = 'en';
+          }
+        }
+
         let formPromise = Formio.createForm(document.getElementById(this.state.containerId), formDefinition, options);
 
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
           let form = formAndCustom[0];
+          let customModule = formAndCustom[1];
           form.ecos = {
-            custom: formAndCustom[1]
+            custom: customModule
           };
+
+          if (customModule.init) {
+            customModule.init({
+              form: form
+            });
+          }
 
           form.submission = {
             data: {
