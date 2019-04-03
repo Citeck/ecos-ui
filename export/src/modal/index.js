@@ -43,6 +43,7 @@ class ModalWrapper extends React.Component {
         isOpen={this.state.isOpen}
         hideModal={this.close}
         title={this.props.title}
+        isBigHeader={this.props.isBigHeader}
         className={classNames.join(' ')}
         zIndex={9000}
         reactstrapProps={this.props.reactstrapProps}
@@ -74,6 +75,7 @@ class Modal {
     ReactDOM.render(
       <ModalWrapper
         title={config.title || config.header || EMPTY_HEADER_TITLE}
+        isBigHeader={config.isBigHeader}
         className={config.class}
         onHideModal={this.destroy}
         getInstance={el => this.modal = el}
