@@ -16,7 +16,7 @@ import {
 
 function noop() {}
 
-const FadePropTypes = PropTypes.shape(Fade.propTypes);
+const FadePropTypes = PropTypes.shape(Fade.propTypes); // eslint-disable-line
 
 const propTypes = {
   isOpen: PropTypes.bool,
