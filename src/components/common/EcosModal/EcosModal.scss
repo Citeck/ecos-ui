@@ -1,5 +1,11 @@
 @import '../../../constants';
 
+.ecos-modal_draggable {
+  .modal-header {
+    cursor: move;
+  }
+}
+
 .ecos-modal {
   .modal-content {
     border-radius: $border-radius-extra-large;

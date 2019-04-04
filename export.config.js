@@ -46,6 +46,11 @@ module.exports = {
       commonjs2: 'react-custom-scrollbars',
       amd: 'react-custom-scrollbars',
     },
+    'react-draggable' : {
+      commonjs: 'react-draggable',
+      commonjs2: 'react-draggable',
+      amd: 'react-draggable',
+    },
     moment : {
       commonjs: 'moment',
       commonjs2: 'moment',

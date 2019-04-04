@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { ModalHeader, ModalBody } from 'reactstrap';
+import Modal from './ModalDraggable';
 import { t } from '../../../helpers/util';
-import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import './EcosModal.scss';
 
 const zIndex = 10000;
@@ -12,7 +13,8 @@ const COMPONENT_CLASS_NAME = 'ecos-modal';
 export default class EcosModal extends Component {
   state = {
     isOpen: false,
-    level: 0
+    level: 0,
+    draggableState: null
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -32,9 +34,33 @@ export default class EcosModal extends Component {
     return null;
   }
 
+  componentDidMount() {
+    this._calculateOffsets();
+  }
+
+  componentDidUpdate() {
+    this._calculateOffsets();
+  }
+
+  _calculateOffsets = () => {
+    if (this._dialog) {
+      const offsetLeft = this._dialog.offsetLeft;
+      const offsetTop = this._dialog.offsetTop;
+      const draggableState = this.state.draggableState;
+      if (draggableState === null || offsetLeft !== draggableState.offsetLeft || offsetLeft !== draggableState.offsetLeft) {
+        this.setState({
+          draggableState: {
+            offsetTop,
+            offsetLeft
+          }
+        });
+      }
+    }
+  };
+
   render() {
     const { hideModal, children, title, isBigHeader, className, reactstrapProps } = this.props;
-    const { isOpen, level } = this.state;
+    const { isOpen, level, draggableState } = this.state;
 
     const modalZIndex = this.props.zIndex ? this.props.zIndex + level : zIndex + level;
 
@@ -44,7 +70,8 @@ export default class EcosModal extends Component {
       levelClassName = `ecos-modal_level-${modalLevel}`;
     }
     const modalClassName = classNames(COMPONENT_CLASS_NAME, className, levelClassName, {
-      'ecos-modal_big-header': isBigHeader
+      'ecos-modal_big-header': isBigHeader,
+      'ecos-modal_draggable': draggableState !== null
     });
 
     let closeBtn = (
@@ -67,13 +94,36 @@ export default class EcosModal extends Component {
     }
 
     const header = title ? (
-      <ModalHeader toggle={hideModal} close={closeBtn}>
+      <ModalHeader toggle={hideModal} close={closeBtn} className={`modal-header_level-${level}`}>
         {title}
       </ModalHeader>
     ) : null;
 
+    const draggableProps = {
+      disabled: true
+    };
+    if (draggableState) {
+      const { offsetTop, offsetLeft } = draggableState;
+      draggableProps.disabled = false;
+      draggableProps.handle = `.modal-header_level-${level}`;
+      draggableProps.bounds = {
+        top: -offsetTop,
+        left: -offsetLeft,
+        right: offsetLeft
+      };
+    }
+
     return (
-      <Modal isOpen={isOpen} toggle={hideModal} zIndex={modalZIndex} size={'lg'} className={modalClassName} {...reactstrapProps}>
+      <Modal
+        isOpen={isOpen}
+        toggle={hideModal}
+        zIndex={modalZIndex}
+        size={'lg'}
+        className={modalClassName}
+        {...reactstrapProps}
+        getDialogRef={el => (this._dialog = el)}
+        draggableProps={draggableProps}
+      >
         {header}
         <ModalBody>{children}</ModalBody>
       </Modal>
