@@ -14,7 +14,8 @@ import {
   setJournalConfig,
   deleteRecords,
   saveRecords,
-  setSelectedRecords
+  setSelectedRecords,
+  saveJournalSettings
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 
@@ -177,6 +178,14 @@ function* sagaSaveRecords({ api, logger }, action) {
   }
 }
 
+function* sagaSaveJournalSettings({ api, logger }, action) {
+  try {
+    yield call(api.journals.saveJournalSettings, action.payload);
+  } catch (e) {
+    logger.error('[journals sagaSaveJournalSettings saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getDashletConfig().type, sagaGetDashletConfig, ea);
   yield takeLatest(getDashletEditorData().type, sagaGetDashletEditorData, ea);
@@ -186,6 +195,7 @@ function* saga(ea) {
   yield takeLatest(reloadTreeGrid().type, sagaReloadTreeGrid, ea);
   yield takeLatest(deleteRecords().type, sagaDeleteRecords, ea);
   yield takeLatest(saveRecords().type, sagaSaveRecords, ea);
+  yield takeLatest(saveJournalSettings().type, sagaSaveJournalSettings, ea);
 }
 
 export default saga;

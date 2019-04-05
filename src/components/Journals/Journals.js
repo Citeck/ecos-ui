@@ -5,11 +5,12 @@ import connect from 'react-redux/es/connect/connect';
 import JournalsDashletGrid from './JournalsDashletGrid';
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
+import JournalsFilters from './JournalsFilters';
 import JournalsColumnsSetup from './JournalsColumnsSetup';
 import JournalsMenu from './JournalsMenu';
 import Search from '../common/Search/Search';
 
-import { getDashletConfig } from '../../actions/journals';
+import { getDashletConfig, saveJournalSettings } from '../../actions/journals';
 import { IcoBtn, TwoIcoBtn } from '../common/btns';
 import { Caption, Dropdown, Well } from '../common/form';
 
@@ -20,13 +21,14 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  getDashletConfig: id => dispatch(getDashletConfig(id))
+  getDashletConfig: id => dispatch(getDashletConfig(id)),
+  saveJournalSettings: settings => dispatch(saveJournalSettings(settings))
 });
 
 class Journals extends Component {
   constructor(props) {
     super(props);
-    this.state = { menuOpen: false, settingsVisible: false };
+    this.state = { menuOpen: false, settingsVisible: true };
   }
 
   componentDidMount() {
@@ -41,6 +43,42 @@ class Journals extends Component {
     this.setState({ menuOpen: !this.state.menuOpen });
   };
 
+  reload = () => {
+    this.props.saveJournalSettings({
+      id: 'contract-agreements',
+      journalId: 'contract-agreements',
+      title: 'ысфывафы',
+      sortBy: [
+        {
+          attribute: 'cm:created',
+          ascending: false
+        },
+        {
+          attribute: 'cm:title',
+          ascending: true
+        }
+      ],
+      groupBy: ['contracts:contractor'],
+      columns: [
+        {
+          attr: 'cm:created'
+        },
+        {
+          attr: 'cm:title'
+        },
+        {
+          attr: 'contracts:contractor'
+        }
+      ],
+      predicate: null,
+      maxItems: 10,
+      permissions: {
+        Write: true,
+        Delete: true
+      }
+    });
+  };
+
   render() {
     const { menuOpen, settingsVisible } = this.state;
     const {
@@ -50,7 +88,7 @@ class Journals extends Component {
     } = this.props;
 
     return (
-      <Container style={{ width: 932, height: 1000 }}>
+      <Container style={{ height: 1200 /*max-height: 1200px*/ }}>
         <div className={'ecos-journal'}>
           <div className={`ecos-journal__body ${menuOpen ? 'ecos-journal__body_with-menu' : ''}`}>
             <div className={'ecos-journal__visibility-menu-btn'}>
@@ -101,6 +139,7 @@ class Journals extends Component {
                 className={
                   'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_15'
                 }
+                onClick={this.reload}
               />
 
               <div className={'ecos-journal__settings-bar_right '}>
@@ -129,6 +168,7 @@ class Journals extends Component {
 
             {settingsVisible ? (
               <Well className={'ecos-journal__settings'}>
+                <JournalsFilters />
                 <JournalsColumnsSetup />
                 <JournalsGrouping />
               </Well>

@@ -13,6 +13,14 @@ const postOptions = {
   }
 };
 
+const putOptions = {
+  ...getOptions,
+  method: 'put',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+};
+
 // const postUrlEncodedFormOptions = {
 //   ...getOptions,
 //   method: 'post',
@@ -60,6 +68,15 @@ export class CommonApi {
     return fetch(url, getOptions)
       .then(this.checkStatus)
       .then(parseHtml);
+  };
+
+  putJson = (url, data) => {
+    return fetch(url, {
+      ...putOptions,
+      body: JSON.stringify(data)
+    })
+      .then(this.checkStatus)
+      .then(parseJSON);
   };
 
   postJson = (url, data) => {

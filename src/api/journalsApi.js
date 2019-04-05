@@ -124,4 +124,13 @@ export class JournalsApi extends RecordService {
       return resp;
     });
   };
+
+  saveJournalSettings = settings => {
+    return this.putJson(
+      `${PROXY_URI}116.203.142.178:8085/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`,
+      settings
+    ).then(resp => {
+      return resp;
+    });
+  };
 }

@@ -1,0 +1,13 @@
+@import '../../../constants';
+
+.ecos-filter {
+  position: relative;
+  padding: 6px 12px 6px 24px;
+  border-top: 1px solid $color-gray-4;
+  border-bottom: 1px solid $color-gray-4;
+  margin-bottom: -1px;
+}
+
+.ecos-filter_step {
+  margin-right: 10px;
+}

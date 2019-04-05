@@ -39,7 +39,11 @@ class JournalsColumnsSetup extends Component {
     }
 
     return (
-      <PanelBar header={t('journals.columns-setup.header')}>
+      <PanelBar
+        header={t('journals.columns-setup.header')}
+        className={'ecos-journals-columns-setup__panel-bar'}
+        css={{ headerClassName: 'panel-bar__header_upper' }}
+      >
         <ColumnsSetup
           classNameToolbar={'ecos-journals-columns-setup__toolbar'}
           valueField={'attribute'}
