@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { ModalHeader, ModalBody } from 'reactstrap';
+import throttle from 'lodash/throttle';
 import Modal from './ModalDraggable';
 import { t } from '../../../helpers/util';
 import './EcosModal.scss';
@@ -35,23 +36,35 @@ export default class EcosModal extends Component {
   }
 
   componentDidMount() {
-    this._calculateOffsets();
+    this._calculateBounds();
+
+    this._onResizeHandlerThrottled = throttle(this._calculateBounds, 300, {
+      leading: false,
+      trailing: true
+    });
+
+    window.addEventListener('resize', this._onResizeHandlerThrottled);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this._onResizeHandlerThrottled);
+    this._onResizeHandlerThrottled.cancel();
   }
 
   componentDidUpdate() {
-    this._calculateOffsets();
+    this._calculateBounds();
   }
 
-  _calculateOffsets = () => {
+  _calculateBounds = () => {
     if (this._dialog) {
-      const offsetLeft = this._dialog.offsetLeft;
-      const offsetTop = this._dialog.offsetTop;
+      const boundX = this._dialog.offsetLeft;
+      const boundY = this._dialog.offsetTop;
       const draggableState = this.state.draggableState;
-      if (draggableState === null || offsetLeft !== draggableState.offsetLeft || offsetLeft !== draggableState.offsetLeft) {
+      if (draggableState === null || boundX !== draggableState.boundX || boundY !== draggableState.boundY) {
         this.setState({
           draggableState: {
-            offsetTop,
-            offsetLeft
+            boundX,
+            boundY
           }
         });
       }
@@ -103,13 +116,13 @@ export default class EcosModal extends Component {
       disabled: true
     };
     if (draggableState) {
-      const { offsetTop, offsetLeft } = draggableState;
+      const { boundX, boundY } = draggableState;
       draggableProps.disabled = false;
       draggableProps.handle = `.modal-header_level-${level}`;
       draggableProps.bounds = {
-        top: -offsetTop,
-        left: -offsetLeft,
-        right: offsetLeft
+        top: -boundY,
+        left: -boundX,
+        right: boundX
       };
     }
 
