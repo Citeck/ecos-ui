@@ -2,56 +2,51 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import { Well, Label, Select } from '../../common/form/index';
 import { Filter, FiltersCondition } from '../';
+import { ParserPredicate } from '../predicates';
 import { t, trigger, getId } from '../../../helpers/util';
 
 import './FiltersGroup.scss';
 
 const CONDITIONS = [{ text: 'И', value: 'and' }, { text: 'ИЛИ', value: 'or' }];
 
-const CONDITIONS_MAP = {
-  or: 'или',
-  and: 'и'
-};
+const CONDITIONS_MAP = { or: 'или', and: 'и' };
 
 export default class FiltersGroup extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      filters: this.getFilters(props.group.predicate)
-    };
+    const filters = props.group.filters;
+
+    this.state = { filters: filters };
+    this._filters = Array.from(filters);
   }
 
-  getFilters = predicates => {
-    const { val, t } = predicates;
-    let filters = [];
-
-    for (let i = 0, length = val.length; i < length; i++) {
-      const current = val[i];
-
-      if (current.att) {
-        filters.push({
-          condition: t,
-          predicate: current
-        });
-        continue;
-      }
-
-      if (current.val) {
-        filters = [...filters, ...this.getFilters(current)];
-      }
-    }
-
-    return filters;
-  };
-
   addFilter = criterion => {
-    const filters = Array.from(this.state.filters);
-    filters.push({ ...criterion });
-    this.setState({ filters });
+    const filters = this._filters;
+    const filter = ParserPredicate.createFilter(criterion.text);
+
+    filters.push(filter);
+    this.setState({ filters: Array.from(filters) });
+    this.triggerChange(filters);
   };
 
-  onChangeCondition = condition => {
-    trigger.call(this, 'onChangeCondition', condition);
+  changeFilter = ({ predicate, index }) => {
+    const filters = this._filters;
+    const filter = filters[index];
+    filter.update(predicate);
+    this.triggerChange(filters);
+  };
+
+  deleteFilter = ({ predicate, index }) => {
+    const filters = this._filters;
+    this.triggerChange(filters);
+  };
+
+  addGroup = condition => {
+    trigger.call(this, 'onAddGroup', condition);
+  };
+
+  triggerChange = filters => {
+    trigger.call(this, 'onChangeFilters', { filters: Array.from(filters), index: this.props.index });
   };
 
   render() {
@@ -80,7 +75,7 @@ export default class FiltersGroup extends Component {
                 options={CONDITIONS}
                 getOptionLabel={option => option.text}
                 getOptionValue={option => option.value}
-                onChange={this.onChangeCondition}
+                onChange={this.addGroup}
               />
             )}
           </div>
@@ -89,7 +84,7 @@ export default class FiltersGroup extends Component {
         {this.state.filters.map((filter, idx) => {
           const predicate = filter.predicate;
           return (
-            <Filter key={getId()} label={predicate.att}>
+            <Filter key={getId()} predicate={predicate} index={idx} onChange={this.changeFilter} onDelete={this.deleteFilter}>
               {idx > 0 && <FiltersCondition cross title={CONDITIONS_MAP[filter.condition]} />}
             </Filter>
           );
