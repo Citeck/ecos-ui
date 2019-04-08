@@ -1,11 +1,51 @@
 @import '../../../constants';
 
 .ecos-tabs {
+  display: inline-flex;
+}
+
+.ecos-tabs_mt-10 {
+  margin-top: 10px;
+}
+
+.ecos-tabs_width-full {
+  display: flex;
+
+  .ecos-tab {
+    flex-grow: 1;
+  }
 }
 
 .ecos-tab {
+  font-size: $font-size-standard;
+  background: $color-white;
+  color: $text-color-gray;
+  font-weight: $font-weight-semi-bold;
+  border-radius: 0;
+  border-color: $color-gray-4;
+  padding: 0 15px;
+  line-height: 40px;
+  cursor: pointer;
+  margin-right: 2px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+
+  &:first-child {
+    border-top-left-radius: $border-radius-standard;
+    border-bottom-left-radius: $border-radius-standard;
+  }
+
+  &:last-child {
+    border-top-right-radius: $border-radius-standard;
+    border-bottom-right-radius: $border-radius-standard;
+    margin-right: 0;
+  }
 }
 
-.ecos-tab_selected {
-  color: red;
+.ecos-tab_active {
+  color: $color-white;
+  background-color: $color-blue-dark;
+  border-color: $color-blue-dark;
 }

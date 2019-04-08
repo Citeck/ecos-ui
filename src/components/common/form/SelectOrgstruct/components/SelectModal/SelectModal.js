@@ -20,7 +20,7 @@ const SelectModal = () => {
     >
       <div className={'select-orgstruct-control-panel'}>
         <Search />
-        <Tabs items={tabs} />
+        <Tabs items={tabs} className={'ecos-tabs_mt-10 ecos-tabs_width-full'} />
       </div>
       <div className="select-orgstruct-select-modal__buttons">
         <Btn onClick={onCancelSelect}>{t('select-orgstruct.select-modal.cancel-button')}</Btn>

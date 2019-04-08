@@ -6,7 +6,7 @@ import './Tabs.scss';
 const Tab = props => {
   const { label, isActive, onClick } = props;
   const tabClassNames = classNames('ecos-tab', {
-    'ecos-tab_selected': isActive
+    'ecos-tab_active': isActive
   });
 
   return (
