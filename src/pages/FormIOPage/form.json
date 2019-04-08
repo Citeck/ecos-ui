@@ -23,6 +23,12 @@
           "components": [
             {
               "input": true,
+              "type": "selectOrgstruct",
+              "label": "Инициатор",
+              "key": "idocs_initiator"
+            },
+            {
+              "input": true,
               "type": "selectJournal",
               "label": "Юридическое лицо",
               "key": "legalEntities",

@@ -1,15 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import BaseComponent from '../base/BaseComponent';
-import SelectJournal from '../../../../components/common/form/SelectJournal';
+import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
 
-export default class SelectJournalComponent extends BaseComponent {
+export default class SelectOrgstructComponent extends BaseComponent {
   static schema(...extend) {
     return BaseComponent.schema(
       {
-        label: 'SelectJournal',
-        key: 'selectJournal',
-        type: 'selectJournal'
+        label: 'SelectOrgstruct',
+        key: 'selectOrgstruct',
+        type: 'selectOrgstruct'
       },
       ...extend
     );
@@ -17,16 +17,16 @@ export default class SelectJournalComponent extends BaseComponent {
 
   static get builderInfo() {
     return {
-      title: 'Select Journal',
+      title: 'Select Orgstruct',
       icon: 'fa fa-th-list',
       group: 'advanced',
       weight: 0,
-      schema: SelectJournalComponent.schema()
+      schema: SelectOrgstructComponent.schema()
     };
   }
 
   get defaultSchema() {
-    return SelectJournalComponent.schema();
+    return SelectOrgstructComponent.schema();
   }
 
   build() {
@@ -68,15 +68,14 @@ export default class SelectJournalComponent extends BaseComponent {
 
     const onChange = this.onValueChange.bind(this);
 
-    let renderControl = function(journalId) {
+    let renderControl = function() {
       ReactDOM.render(
-        <SelectJournal
+        <SelectOrgstruct
           defaultValue={self.dataValue}
           isCompact={component.isCompact}
           multiple={component.multiple}
           placeholder={component.placeholder}
           disabled={component.disabled}
-          journalId={journalId}
           onChange={onChange}
           onError={err => {
             // this.setCustomValidity(err, false);
@@ -86,21 +85,7 @@ export default class SelectJournalComponent extends BaseComponent {
       );
     };
 
-    let journalId = this.component.journalId;
-
-    if (!journalId) {
-      let attribute = this.getAttributeToEdit();
-      this.getRecord()
-        .loadEditorKey(attribute)
-        .then(editorKey => {
-          renderControl(editorKey);
-        })
-        .catch(() => {
-          renderControl(null);
-        });
-    } else {
-      renderControl(journalId);
-    }
+    renderControl();
   }
 
   refreshDOM() {
