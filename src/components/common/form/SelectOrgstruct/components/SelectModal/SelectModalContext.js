@@ -1,50 +1,24 @@
-import React, { useState, useMemo } from 'react';
-import { t } from '../../../../../../helpers/util';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import { OrgStructApi } from '../../../../../../api/orgStruct';
+import { TAB_BY_LEVELS } from './constants';
 
 export const SelectModalContext = React.createContext();
 
-const TAB_BY_LEVELS = 'TAB_BY_LEVELS';
-const TAB_ALL_USERS = 'TAB_ALL_USERS';
-const TAB_ONLY_SELECTED = 'TAB_ONLY_SELECTED';
-
-function getTabItems() {
-  return [
-    {
-      id: TAB_BY_LEVELS,
-      label: t('select-orgstruct.tab.by-levels')
-    },
-    {
-      id: TAB_ALL_USERS,
-      label: t('select-orgstruct.tab.all-users')
-    },
-    {
-      id: TAB_ONLY_SELECTED,
-      label: t('select-orgstruct.tab.only-selected')
-    }
-  ];
-}
-
 export const SelectModalProvider = props => {
+  const { orgStructApi } = props;
+
   const [isSelectModalOpen, toggleSelectModal] = useState(false);
   const [searchText, updateSearchText] = useState('');
   const [currentTab, setCurrentTab] = useState(TAB_BY_LEVELS);
 
-  const tabs = useMemo(() => getTabItems(), []);
-
   return (
     <SelectModalContext.Provider
       value={{
+        orgStructApi,
         isSelectModalOpen,
         searchText,
-        tabs: tabs.map(item => {
-          return {
-            ...item,
-            isActive: item.id === currentTab,
-            onClick: () => {
-              setCurrentTab(item.id);
-            }
-          };
-        }),
+        currentTab,
 
         toggleSelectModal: () => {
           toggleSelectModal(!isSelectModalOpen);
@@ -59,6 +33,9 @@ export const SelectModalProvider = props => {
         onSubmitSearchForm: () => {
           // TODO:
           console.log('searchText', searchText);
+        },
+        setCurrentTab: tabId => {
+          setCurrentTab(tabId);
         }
       }}
     >
@@ -69,4 +46,6 @@ export const SelectModalProvider = props => {
 
 SelectModalProvider.displayName = 'SelectOrgstruct.SelectModalProvider';
 
-SelectModalProvider.propTypes = {};
+SelectModalProvider.propTypes = {
+  orgStructApi: PropTypes.instanceOf(OrgStructApi)
+};

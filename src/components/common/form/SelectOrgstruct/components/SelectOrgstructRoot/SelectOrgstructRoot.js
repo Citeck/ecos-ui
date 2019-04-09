@@ -6,7 +6,8 @@ import { RootContext } from '../../RootContext';
 
 const SelectOrgstructRoot = () => {
   const context = useContext(RootContext);
-  const { isCompact } = context.controlProps;
+  const { orgStructApi, controlProps } = context;
+  const { isCompact } = controlProps;
 
   const wrapperClasses = classNames('select-orgstruct', {
     'select-orgstruct_compact': isCompact
@@ -14,7 +15,7 @@ const SelectOrgstructRoot = () => {
 
   return (
     <div className={wrapperClasses}>
-      <SelectModalProvider>
+      <SelectModalProvider orgStructApi={orgStructApi}>
         <InputView />
         <SelectModal />
       </SelectModalProvider>

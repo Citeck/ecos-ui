@@ -1,15 +1,15 @@
 import React, { useContext } from 'react';
 import { Btn } from '../../../../btns';
 import EcosModal from '../../../../EcosModal';
-import Tabs from '../../../../Tabs';
 import Search from './Search';
+import Tabs from './Tabs';
 import { SelectModalContext } from './SelectModalContext';
 import { t } from '../../../../../../helpers/util';
 import './SelectModal.scss';
 
 const SelectModal = () => {
   const context = useContext(SelectModalContext);
-  const { isSelectModalOpen, toggleSelectModal, onCancelSelect, tabs } = context;
+  const { isSelectModalOpen, toggleSelectModal, onCancelSelect } = context;
 
   return (
     <EcosModal
@@ -20,7 +20,7 @@ const SelectModal = () => {
     >
       <div className={'select-orgstruct-control-panel'}>
         <Search />
-        <Tabs items={tabs} className={'ecos-tabs_mt-10 ecos-tabs_width-full'} />
+        <Tabs />
       </div>
       <div className="select-orgstruct-select-modal__buttons">
         <Btn onClick={onCancelSelect}>{t('select-orgstruct.select-modal.cancel-button')}</Btn>

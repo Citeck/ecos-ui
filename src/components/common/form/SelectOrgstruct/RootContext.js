@@ -1,14 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { OrgStructApi } from '../../../../api/orgStruct';
 
 export const RootContext = React.createContext();
 
 export const RootProvider = props => {
-  const { controlProps } = props;
+  const { controlProps, orgStructApi } = props;
 
   return (
     <RootContext.Provider
       value={{
+        orgStructApi,
         controlProps: {
           ...controlProps
         },
@@ -25,6 +27,7 @@ export const RootProvider = props => {
 RootProvider.displayName = 'SelectOrgstruct.RootProvider';
 
 RootProvider.propTypes = {
+  orgStructApi: PropTypes.instanceOf(OrgStructApi),
   controlProps: PropTypes.shape({
     defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
     onChange: PropTypes.func,
