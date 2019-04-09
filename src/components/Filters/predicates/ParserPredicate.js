@@ -1,8 +1,5 @@
 import { Predicate, GroupPredicate, FilterPredicate } from './';
-
-const EQ = 'eq';
-const OR = 'or';
-const AND = 'and';
+import { filterPredicates, PREDICATE_AND, PREDICATE_OR, PREDICATE_EQ } from '../../common/form/SelectJournal/predicates';
 
 const test = {
   t: 'or',
@@ -17,21 +14,21 @@ const test = {
               t: 'and',
               val: [
                 {
-                  att: 'Дата создания 1',
+                  att: 'cm:created',
                   t: 'ge',
-                  val: ''
+                  val: '10.11.12'
                 },
                 {
-                  att: 'Заголовок 1',
+                  att: 'cm:title',
                   t: 'contains',
-                  val: ''
+                  val: 'те'
                 }
               ]
             },
             {
-              att: 'Заголовок 2',
+              att: 'cm:title',
               t: 'contains',
-              val: ''
+              val: 'тес'
             }
           ]
         },
@@ -42,19 +39,19 @@ const test = {
               t: 'and',
               val: [
                 {
-                  att: 'Дата создания 2',
+                  att: 'cm:created',
                   t: 'ge',
                   val: ''
                 },
                 {
-                  att: 'Заголовок 3',
+                  att: 'cm:title',
                   t: 'contains',
                   val: ''
                 }
               ]
             },
             {
-              att: 'Заголовок 4',
+              att: 'cm:title',
               t: 'contains',
               val: ''
             }
@@ -69,19 +66,19 @@ const test = {
           t: 'and',
           val: [
             {
-              att: 'Дата создания 3',
+              att: 'cm:created',
               t: 'ge',
               val: ''
             },
             {
-              att: 'Заголовок 5',
+              att: 'cm:title',
               t: 'contains',
               val: ''
             }
           ]
         },
         {
-          att: 'Заголовок 6',
+          att: 'cm:title',
           t: 'contains',
           val: ''
         }
@@ -104,7 +101,7 @@ export default class ParserPredicate {
     return isGroup;
   }
 
-  static getGroups(predicates) {
+  static getGroups(predicates, columns) {
     const { val, t } = predicates || test;
     let groups = [];
 
@@ -112,19 +109,25 @@ export default class ParserPredicate {
       const current = val[i];
 
       if (this.isGroup(current)) {
-        groups.push(new GroupPredicate(t, new Predicate({ ...current }), this.getFilters(current)));
+        groups.push(
+          new GroupPredicate({
+            condition: filterPredicates([t])[0],
+            predicate: new Predicate({ ...current }),
+            filters: this.getFilters(current, columns)
+          })
+        );
         continue;
       }
 
       if (current.val) {
-        groups = [...groups, ...this.getGroups(current)];
+        groups = [...groups, ...this.getGroups(current, columns)];
       }
     }
 
     return groups;
   }
 
-  static getFilters(predicates) {
+  static getFilters(predicates, columns) {
     const { val, t } = predicates;
     let filters = [];
 
@@ -132,50 +135,51 @@ export default class ParserPredicate {
       const current = val[i];
 
       if (current.att) {
-        filters.push(new FilterPredicate(t, current));
+        filters.push(new FilterPredicate({ condition: filterPredicates([t])[0], predicate: current, columns }));
         continue;
       }
 
       if (current.val) {
-        filters = [...filters, ...this.getFilters(current)];
+        filters = [...filters, ...this.getFilters(current, columns)];
       }
     }
 
     return filters;
   }
 
-  static createFilter(att, t, val) {
-    return new FilterPredicate(
-      AND,
-      new Predicate({
+  static createFilter({ att, t, val, columns }) {
+    return new FilterPredicate({
+      condition: filterPredicates([PREDICATE_AND])[0],
+      predicate: new Predicate({
         att: att,
-        t: t || EQ,
+        t: t || '',
         val: val || ''
-      })
-    );
+      }),
+      columns
+    });
   }
 
   static createGroup(gt, t, val) {
-    return new GroupPredicate(
-      gt,
-      new Predicate({
-        t: t || OR,
+    return new GroupPredicate({
+      condition: filterPredicates([gt])[0],
+      predicate: new Predicate({
+        t: t || '',
         val: val || []
       })
-    );
+    });
   }
 
   static getPredicates(ors) {
-    let predicates = new Predicate({ t: OR, val: [] });
+    let predicates = new Predicate({ t: PREDICATE_OR, val: [] });
 
     for (let i = 0, length = ors.length; i < length; i++) {
       const or = ors[i];
       const orCount = or.length;
 
       if (orCount === 1) {
-        predicates.val.push(or[0]);
+        predicates.add(or[0]);
       } else {
-        predicates.val.push(new Predicate({ t: AND, val: or }));
+        predicates.add(new Predicate({ t: PREDICATE_AND, val: or }));
       }
     }
 
@@ -190,16 +194,16 @@ export default class ParserPredicate {
       const group = groups[i];
       const next = groups[i + 1];
 
-      if (group.condition === AND) {
-        ands.push(group.predicate);
+      if (group.getCondition() === PREDICATE_AND) {
+        ands.push(group.getPredicate());
       } else {
         ors.push(ands);
         ands = [];
 
-        if (next && next.condition === AND) {
-          ands.push(group.predicate);
+        if (next && next.getCondition() === PREDICATE_AND) {
+          ands.push(group.getPredicate());
         } else {
-          ors.push([group.predicate]);
+          ors.push([group.getPredicate()]);
         }
       }
     }
@@ -212,7 +216,13 @@ export default class ParserPredicate {
   }
 
   static getData(groups) {
-    groups = groups.map(group => ({ ...group, predicate: this.getPredicates(this.getOrs(group.filters)) }));
+    // console.log(groups);
+    // console.log(test);
+    groups = groups.map(group => {
+      group.predicate = this.getPredicates(this.getOrs(group.getFilters()));
+      return group;
+    });
+
     return this.getPredicates(this.getOrs(groups));
   }
 }

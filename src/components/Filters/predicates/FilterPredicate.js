@@ -1,8 +1,8 @@
 import WrapperPredicate from './WrapperPredicate';
 
 export default class FilterPredicate extends WrapperPredicate {
-  constructor(condition, predicate) {
-    super(condition, predicate);
+  constructor({ condition, predicate, columns = [] }) {
+    super({ condition, predicate, columns });
   }
 
   update(predicate) {

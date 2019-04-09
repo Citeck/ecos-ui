@@ -26,7 +26,7 @@ class JournalsFilters extends Component {
         className={'ecos-journals-filters__panel-bar'}
         css={{ headerClassName: 'panel-bar__header_full panel-bar__header_upper' }}
       >
-        <Filters criterions={columns} className={'ecos-journals-filters'} />
+        <Filters columns={columns} className={'ecos-journals-filters'} />
       </PanelBar>
     );
   }

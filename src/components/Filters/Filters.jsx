@@ -9,7 +9,7 @@ import './Filters.scss';
 export default class Filters extends Component {
   constructor(props) {
     super(props);
-    this.state = { groups: ParserPredicate.getGroups() };
+    this.state = { groups: ParserPredicate.getGroups(null, props.columns) };
     this._groups = Array.from(this.state.groups);
   }
 
@@ -32,7 +32,7 @@ export default class Filters extends Component {
         key={getId()}
         first={first}
         group={group}
-        criterions={this.props.criterions || []}
+        columns={this.props.columns}
         onAddGroup={this.addGroup}
         onChangeFilters={this.onChangeFilters}
       />
@@ -52,12 +52,11 @@ export default class Filters extends Component {
   };
 
   render() {
-    const { className } = this.props;
     const groups = this.state.groups;
     const lastIdx = groups.length - 1;
 
     return (
-      <div className={classNames('ecos-filters', className)}>
+      <div className={classNames('ecos-filters', this.props.className)}>
         {groups.map((group, idx) => (idx > 0 ? this.createSubGroup(group, lastIdx !== idx, idx) : this.createGroup(group, true, idx)))}
       </div>
     );

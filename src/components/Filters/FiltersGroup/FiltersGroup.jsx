@@ -1,15 +1,12 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import { Well, Label, Select } from '../../common/form/index';
+import { Well, Label, Select } from '../../common/form';
+import { getPredicates } from '../../common/form/SelectJournal/predicates';
 import { Filter, FiltersCondition } from '../';
 import { ParserPredicate } from '../predicates';
 import { t, trigger, getId } from '../../../helpers/util';
 
 import './FiltersGroup.scss';
-
-const CONDITIONS = [{ text: 'И', value: 'and' }, { text: 'ИЛИ', value: 'or' }];
-
-const CONDITIONS_MAP = { or: 'или', and: 'и' };
 
 export default class FiltersGroup extends Component {
   constructor(props) {
@@ -20,9 +17,9 @@ export default class FiltersGroup extends Component {
     this._filters = Array.from(filters);
   }
 
-  addFilter = criterion => {
+  addFilter = column => {
     const filters = this._filters;
-    const filter = ParserPredicate.createFilter(criterion.text);
+    const filter = ParserPredicate.createFilter({ att: column.attribute, columns: this.props.columns });
 
     filters.push(filter);
     this.setState({ filters: Array.from(filters) });
@@ -50,19 +47,19 @@ export default class FiltersGroup extends Component {
   };
 
   render() {
-    const { className, criterions = [], first, group } = this.props;
+    const { className, columns, first, group } = this.props;
 
     return (
       <Well className={`ecos-well_full ecos-well_shadow ecos-well_radius_6 ${classNames('ecos-filters-group', className)}`}>
         <div className={'ecos-filters-group__head'}>
-          {!first && <FiltersCondition title={CONDITIONS_MAP[group.condition]} />}
+          {!first && <FiltersCondition title={group.getConditionLabel()} />}
           <div className={'ecos-filters-group__tools'}>
             <Label className={'ecos-filters-group__tools_step label_clear label_nowrap label_middle-grey'}>{'Добавить'}</Label>
 
             <Select
               className={'ecos-filters-group__select ecos-filters-group__tools_step select_narrow'}
               placeholder={t('journals.default')}
-              options={criterions}
+              options={columns}
               getOptionLabel={option => option.text}
               getOptionValue={option => option.attribute}
               onChange={this.addFilter}
@@ -72,8 +69,8 @@ export default class FiltersGroup extends Component {
               <Select
                 className={'ecos-filters-group__select select_narrow'}
                 placeholder={t('journals.default')}
-                options={CONDITIONS}
-                getOptionLabel={option => option.text}
+                options={getPredicates({ type: 'filterGroup' })}
+                getOptionLabel={option => option.label}
                 getOptionValue={option => option.value}
                 onChange={this.addGroup}
               />
@@ -82,10 +79,10 @@ export default class FiltersGroup extends Component {
         </div>
 
         {this.state.filters.map((filter, idx) => {
-          const predicate = filter.predicate;
+          const { predicate, meta } = filter;
           return (
-            <Filter key={getId()} predicate={predicate} index={idx} onChange={this.changeFilter} onDelete={this.deleteFilter}>
-              {idx > 0 && <FiltersCondition cross title={CONDITIONS_MAP[filter.condition]} />}
+            <Filter key={getId()} meta={meta} predicate={predicate} index={idx} onChange={this.changeFilter} onDelete={this.deleteFilter}>
+              {idx > 0 && <FiltersCondition cross title={filter.getConditionLabel()} />}
             </Filter>
           );
         })}

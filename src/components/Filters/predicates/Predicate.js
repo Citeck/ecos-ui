@@ -4,4 +4,8 @@ export default class Predicate {
     this.t = t;
     this.val = val;
   }
+
+  add(item) {
+    this.val.push(item);
+  }
 }

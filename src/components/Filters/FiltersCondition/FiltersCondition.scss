@@ -1,6 +1,7 @@
 @import '../../../constants';
 
 .ecos-filters-condition {
+  text-transform: lowercase;
   position: absolute;
   top: 50%;
   transform: translateX(-50%) translateY(-50%);
