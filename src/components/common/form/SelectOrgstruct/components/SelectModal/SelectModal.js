@@ -3,6 +3,7 @@ import { Btn } from '../../../../btns';
 import EcosModal from '../../../../EcosModal';
 import Search from './Search';
 import Tabs from './Tabs';
+import Body from './Body';
 import { SelectModalContext } from './SelectModalContext';
 import { t } from '../../../../../../helpers/util';
 import './SelectModal.scss';
@@ -22,6 +23,9 @@ const SelectModal = () => {
         <Search />
         <Tabs />
       </div>
+
+      <Body />
+
       <div className="select-orgstruct-select-modal__buttons">
         <Btn onClick={onCancelSelect}>{t('select-orgstruct.select-modal.cancel-button')}</Btn>
         <Btn

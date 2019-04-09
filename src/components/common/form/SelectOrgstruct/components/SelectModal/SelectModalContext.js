@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { OrgStructApi } from '../../../../../../api/orgStruct';
 import { TAB_BY_LEVELS } from './constants';
+import { itemsByLevels, itemsAllUsers, itemsSelected } from './temp';
 
 export const SelectModalContext = React.createContext();
 
@@ -19,6 +20,10 @@ export const SelectModalProvider = props => {
         isSelectModalOpen,
         searchText,
         currentTab,
+
+        itemsByLevels,
+        itemsAllUsers,
+        itemsSelected,
 
         toggleSelectModal: () => {
           toggleSelectModal(!isSelectModalOpen);
