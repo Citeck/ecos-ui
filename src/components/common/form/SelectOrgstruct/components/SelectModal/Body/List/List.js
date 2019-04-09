@@ -1,17 +1,23 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import ListItem, { itemPropType } from '../ListItem';
+import { SelectModalContext } from '../../SelectModalContext';
 
 const List = ({ items, nestingLevel = 0 }) => {
+  const context = useContext(SelectModalContext);
+
   return (
     <ul className={'select-orgstruct__list'}>
       {items.map(item => {
         let nestedList = null;
-        if (item.isGroup) {
+        if (item.hasChildren) {
+          const { currentTab, tabItems } = context;
+          const children = tabItems[currentTab].filter(i => i.parentId === item.id);
+
           nestedList = (
             <Collapse isOpen={item.isOpen}>
-              <List items={item.items} nestingLevel={nestingLevel + 1} />
+              <List items={children} nestingLevel={nestingLevel + 1} />
             </Collapse>
           );
         }

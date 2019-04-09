@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { OrgStructApi } from '../../../../../../api/orgStruct';
-import { TAB_BY_LEVELS } from './constants';
+import { TAB_BY_LEVELS, TAB_ALL_USERS, TAB_ONLY_SELECTED } from './constants';
 import { itemsByLevels, itemsAllUsers, itemsSelected } from './temp';
 
 export const SelectModalContext = React.createContext();
@@ -12,6 +12,11 @@ export const SelectModalProvider = props => {
   const [isSelectModalOpen, toggleSelectModal] = useState(false);
   const [searchText, updateSearchText] = useState('');
   const [currentTab, setCurrentTab] = useState(TAB_BY_LEVELS);
+  const [tabItems, setTabItems] = useState({
+    [TAB_BY_LEVELS]: itemsByLevels,
+    [TAB_ALL_USERS]: itemsAllUsers,
+    [TAB_ONLY_SELECTED]: itemsSelected
+  });
 
   return (
     <SelectModalContext.Provider
@@ -20,10 +25,7 @@ export const SelectModalProvider = props => {
         isSelectModalOpen,
         searchText,
         currentTab,
-
-        itemsByLevels,
-        itemsAllUsers,
-        itemsSelected,
+        tabItems,
 
         toggleSelectModal: () => {
           toggleSelectModal(!isSelectModalOpen);
@@ -41,6 +43,12 @@ export const SelectModalProvider = props => {
         },
         setCurrentTab: tabId => {
           setCurrentTab(tabId);
+        },
+        addTabItems: (tabId, items) => {
+          setTabItems({
+            ...tabItems,
+            [tabId]: [...tabItems[tabId], ...items]
+          });
         }
       }}
     >

@@ -31,6 +31,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  user-select: none;
 
   &:first-child {
     border-top-left-radius: $border-radius-standard;

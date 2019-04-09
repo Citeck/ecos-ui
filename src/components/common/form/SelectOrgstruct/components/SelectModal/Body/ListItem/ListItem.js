@@ -6,7 +6,7 @@ import './ListItem.scss';
 const ListItem = ({ item, nestingLevel, nestedList }) => {
   let collapseHandler = null;
   let onClickLabel = null;
-  if (item.isGroup) {
+  if (item.hasChildren) {
     const collapseHandlerClassNames = classNames('icon', 'select-orgstruct__collapse-handler', {
       'icon-right': !item.isOpen,
       'icon-down': item.isOpen
@@ -38,8 +38,8 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
   });
 
   const listItemLabelClassNames = classNames('select-orgstruct__list-item-label', {
-    'select-orgstruct__list-item-label_clickable': item.isGroup,
-    'select-orgstruct__list-item-label_margin-left': nestingLevel > 0 && !item.isGroup
+    'select-orgstruct__list-item-label_clickable': item.hasChildren,
+    'select-orgstruct__list-item-label_margin-left': nestingLevel > 0 && !item.hasChildren
   });
 
   return (
@@ -59,11 +59,11 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
 export const itemPropType = PropTypes.shape({
   id: PropTypes.string,
   label: PropTypes.string,
-  isGroup: PropTypes.bool,
+  hasChildren: PropTypes.bool,
   isOpen: PropTypes.bool,
   isSelected: PropTypes.bool,
   isStrong: PropTypes.bool,
-  items: PropTypes.array
+  parentId: PropTypes.string
 });
 
 ListItem.propTypes = {

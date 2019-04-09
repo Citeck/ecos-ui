@@ -8,45 +8,46 @@ export const itemsByLevels = [
     id: '2',
     label: 'Бухгалтерия',
     isOpen: true,
-    isGroup: true,
+    hasChildren: true,
+    isLoaded: true
+  },
+  {
+    id: '6',
+    label: 'Бухгалтер',
+    isOpen: true,
+    hasChildren: true,
     isLoaded: true,
-    items: [
-      {
-        id: '6',
-        label: 'Бухгалтер',
-        isOpen: true,
-        isGroup: true,
-        isLoaded: true,
-        items: [
-          {
-            id: '7',
-            label: 'Константин Константинопольский',
-            isSelected: true
-          }
-        ]
-      }
-    ]
+    parentId: '2'
+  },
+  {
+    id: '7',
+    label: 'Константин Константинопольский',
+    isSelected: true,
+    parentId: '6'
+  },
+  {
+    id: '8',
+    label: 'Василий Васильевич',
+    isSelected: true,
+    parentId: '6'
   },
   {
     id: '3',
     label: 'Директор',
     isOpen: false,
-    isGroup: true,
-    items: []
+    hasChildren: true
   },
   {
     id: '4',
     label: 'Маркетологи',
     isOpen: false,
-    isGroup: true,
-    items: []
+    hasChildren: true
   },
   {
     id: '5',
     label: 'Логистика',
     isOpen: false,
-    isGroup: true,
-    items: []
+    hasChildren: true
   }
 ];
 
@@ -91,8 +92,9 @@ export const itemsAllUsers = [
 export const itemsSelected = [
   // {
   //   id: '1',
-  //   label: 'Выбрать всех',
+  //   label: 'Очистить',
   //   isStrong: true,
+  //   isSelected: true
   // },
   {
     id: '2',
