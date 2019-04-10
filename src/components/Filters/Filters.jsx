@@ -9,20 +9,20 @@ import './Filters.scss';
 export default class Filters extends Component {
   constructor(props) {
     super(props);
-    this.state = { groups: ParserPredicate.getGroups(null, props.columns) };
-    this._groups = Array.from(this.state.groups);
+    const groups = ParserPredicate.parse(null, props.columns);
+    this.state = { groups };
+    this.store = Array.from(groups);
   }
 
-  addGroup = t => {
-    const groups = this._groups;
-    groups.push(ParserPredicate.createGroup(t.value));
+  addGroup = condition => {
+    const groups = this.store;
+    groups.push(ParserPredicate.createGroup(condition.value));
     this.setState({ groups: Array.from(groups) });
   };
 
   onChangeFilters = ({ filters, index }) => {
-    this._groups[index].filters = filters;
-
-    ParserPredicate.getData(this._groups);
+    this.store[index].filters = filters;
+    ParserPredicate.reverse(this.store);
   };
 
   createGroup = (group, first, idx) => {

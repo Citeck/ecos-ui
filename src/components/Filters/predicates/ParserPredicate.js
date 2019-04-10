@@ -88,45 +88,6 @@ const test = {
 };
 
 export default class ParserPredicate {
-  static isGroup(val) {
-    const subVal = val.val;
-    let isGroup = false;
-
-    if (val.att) {
-      isGroup = false;
-    } else if (subVal && subVal.filter(val => val.att)[0]) {
-      isGroup = true;
-    }
-
-    return isGroup;
-  }
-
-  static getGroups(predicates, columns) {
-    const { val, t } = predicates || test;
-    let groups = [];
-
-    for (let i = 0, length = val.length; i < length; i++) {
-      const current = val[i];
-
-      if (this.isGroup(current)) {
-        groups.push(
-          new GroupPredicate({
-            condition: filterPredicates([t])[0],
-            predicate: new Predicate({ ...current }),
-            filters: this.getFilters(current, columns)
-          })
-        );
-        continue;
-      }
-
-      if (current.val) {
-        groups = [...groups, ...this.getGroups(current, columns)];
-      }
-    }
-
-    return groups;
-  }
-
   static getFilters(predicates, columns) {
     const { val, t } = predicates;
     let filters = [];
@@ -167,6 +128,10 @@ export default class ParserPredicate {
         val: val || []
       })
     });
+  }
+
+  static createPredicate({ att, t, val }) {
+    return new Predicate({ att, t, val });
   }
 
   static getPredicates(ors) {
@@ -215,7 +180,7 @@ export default class ParserPredicate {
     return ors;
   }
 
-  static getData(groups) {
+  static reverse(groups) {
     // console.log(groups);
     // console.log(test);
     groups = groups.map(group => {
@@ -224,5 +189,44 @@ export default class ParserPredicate {
     });
 
     return this.getPredicates(this.getOrs(groups));
+  }
+
+  static isGroup(val) {
+    const subVal = val.val;
+    let isGroup = false;
+
+    if (val.att) {
+      isGroup = false;
+    } else if (subVal && subVal.filter(val => val.att)[0]) {
+      isGroup = true;
+    }
+
+    return isGroup;
+  }
+
+  static parse(predicates, columns) {
+    const { val, t } = predicates || test;
+    let groups = [];
+
+    for (let i = 0, length = val.length; i < length; i++) {
+      const current = val[i];
+
+      if (this.isGroup(current)) {
+        groups.push(
+          new GroupPredicate({
+            condition: filterPredicates([t])[0],
+            predicate: new Predicate({ ...current }),
+            filters: this.getFilters(current, columns)
+          })
+        );
+        continue;
+      }
+
+      if (current.val) {
+        groups = [...groups, ...this.parse(current, columns)];
+      }
+    }
+
+    return groups;
   }
 }

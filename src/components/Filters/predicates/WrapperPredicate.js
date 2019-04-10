@@ -11,6 +11,10 @@ export default class WrapperPredicate {
     return this.meta.condition.value;
   }
 
+  setCondition(condition) {
+    this.meta.condition = { ...this.meta.condition, value: condition };
+  }
+
   getConditionLabel() {
     return this.meta.condition.label;
   }

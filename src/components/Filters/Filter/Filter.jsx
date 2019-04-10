@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import Columns from '../../common/templates/Columns/Columns';
 import { IcoBtn } from '../../common/btns/index';
 import { Label, Select, Input } from '../../common/form';
-import { Predicate } from '../predicates';
+import { ParserPredicate } from '../predicates';
 import { t, trigger } from '../../../helpers/util';
 
 import './Filter.scss';
@@ -13,32 +13,44 @@ export default class Filter extends Component {
   constructor(props) {
     super(props);
 
-    const conditions = getPredicates(props.meta.column);
+    const {
+      filter: {
+        meta: { column },
+        predicate
+      }
+    } = this.props;
+    const conditions = getPredicates(column);
 
     this.state = {
       conditions,
-      val: props.predicate.val,
-      selectedCondition: this.getSelectedCondition(conditions, props.predicate)
+      val: predicate.val,
+      selectedCondition: this.getSelectedCondition(conditions, predicate)
     };
   }
 
   changeValue = e => {
     const val = e.target.value;
-    let { index, predicate } = this.props;
+    let {
+      index,
+      filter: { predicate }
+    } = this.props;
     this.setState({ val });
 
     trigger.call(this, 'onChange', {
-      predicate: new Predicate({ att: predicate.att, t: this.state.selectedCondition.value, val }),
+      predicate: ParserPredicate.createPredicate({ att: predicate.att, t: this.state.selectedCondition.value, val }),
       index
     });
   };
 
   changeCondition = selectedCondition => {
-    let { index, predicate } = this.props;
+    let {
+      index,
+      filter: { predicate }
+    } = this.props;
     this.setState({ selectedCondition });
 
     trigger.call(this, 'onChange', {
-      predicate: new Predicate({ att: predicate.att, t: selectedCondition.value, val: this.state.val }),
+      predicate: ParserPredicate.createPredicate({ att: predicate.att, t: selectedCondition.value, val: this.state.val }),
       index
     });
   };
@@ -56,7 +68,9 @@ export default class Filter extends Component {
     const {
       className,
       children,
-      meta: { column }
+      filter: {
+        meta: { column }
+      }
     } = this.props;
     const btnClasses =
       'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height ecos-btn_hover_t-light-blue';

@@ -13,37 +13,44 @@ export default class FiltersGroup extends Component {
     super(props);
     const filters = props.group.filters;
 
-    this.state = { filters: filters };
-    this._filters = Array.from(filters);
+    this.state = { filters };
+    this.store = Array.from(filters);
+    this.conditions = getPredicates({ type: 'filterGroup' });
   }
 
   addFilter = column => {
-    const filters = this._filters;
+    const store = this.store;
     const filter = ParserPredicate.createFilter({ att: column.attribute, columns: this.props.columns });
 
-    filters.push(filter);
-    this.setState({ filters: Array.from(filters) });
-    this.triggerChange(filters);
+    store.push(filter);
+    this.setState({ filters: Array.from(store) });
+    this.triggerChangeFilters(store);
   };
 
   changeFilter = ({ predicate, index }) => {
-    const filters = this._filters;
-    const filter = filters[index];
+    const store = this.store;
+    const filter = store[index];
     filter.update(predicate);
-    this.triggerChange(filters);
+    this.triggerChangeFilters(store);
   };
 
-  deleteFilter = ({ predicate, index }) => {
-    const filters = this._filters;
-    this.triggerChange(filters);
+  deleteFilter = () => {
+    this.triggerChangeFilters(this.store);
   };
 
   addGroup = condition => {
     trigger.call(this, 'onAddGroup', condition);
   };
 
-  triggerChange = filters => {
+  triggerChangeFilters = filters => {
     trigger.call(this, 'onChangeFilters', { filters: Array.from(filters), index: this.props.index });
+  };
+
+  changeFilterCondition = ({ condition, index }) => {
+    const store = this.store;
+    const filter = store[index];
+    filter.setCondition(condition);
+    this.triggerChangeFilters(store);
   };
 
   render() {
@@ -52,7 +59,9 @@ export default class FiltersGroup extends Component {
     return (
       <Well className={`ecos-well_full ecos-well_shadow ecos-well_radius_6 ${classNames('ecos-filters-group', className)}`}>
         <div className={'ecos-filters-group__head'}>
-          {!first && <FiltersCondition title={group.getConditionLabel()} />}
+          {!first && (
+            <FiltersCondition onClick={this.changeFilterCondition} condition={group.getCondition()} conditions={this.conditions} />
+          )}
           <div className={'ecos-filters-group__tools'}>
             <Label className={'ecos-filters-group__tools_step label_clear label_nowrap label_middle-grey'}>{'Добавить'}</Label>
 
@@ -69,7 +78,7 @@ export default class FiltersGroup extends Component {
               <Select
                 className={'ecos-filters-group__select select_narrow'}
                 placeholder={t('journals.default')}
-                options={getPredicates({ type: 'filterGroup' })}
+                options={this.conditions}
                 getOptionLabel={option => option.label}
                 getOptionValue={option => option.value}
                 onChange={this.addGroup}
@@ -79,10 +88,17 @@ export default class FiltersGroup extends Component {
         </div>
 
         {this.state.filters.map((filter, idx) => {
-          const { predicate, meta } = filter;
           return (
-            <Filter key={getId()} meta={meta} predicate={predicate} index={idx} onChange={this.changeFilter} onDelete={this.deleteFilter}>
-              {idx > 0 && <FiltersCondition cross title={filter.getConditionLabel()} />}
+            <Filter key={getId()} filter={filter} index={idx} onChange={this.changeFilter} onDelete={this.deleteFilter}>
+              {idx > 0 && (
+                <FiltersCondition
+                  index={idx}
+                  cross
+                  onClick={this.changeFilterCondition}
+                  condition={filter.getCondition()}
+                  conditions={this.conditions}
+                />
+              )}
             </Filter>
           );
         })}
