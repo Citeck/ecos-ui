@@ -17,7 +17,7 @@ const SelectModal = () => {
       title={t('select-orgstruct.select-modal.title')}
       isOpen={isSelectModalOpen}
       hideModal={toggleSelectModal}
-      className={'select-orgstruct-select-modal'}
+      className={'select-orgstruct-select-modal ecos-modal_width-sm'}
     >
       <div className={'select-orgstruct-control-panel'}>
         <Search />

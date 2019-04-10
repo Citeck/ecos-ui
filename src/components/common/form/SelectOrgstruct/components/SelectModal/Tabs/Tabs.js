@@ -2,17 +2,13 @@ import React, { useContext, useMemo } from 'react';
 import { default as EcosTabs } from '../../../../../Tabs';
 import { SelectModalContext } from '../SelectModalContext';
 import { t } from '../../../../../../../helpers/util';
-import { TAB_BY_LEVELS, TAB_ALL_USERS, TAB_ONLY_SELECTED } from '../constants';
+import { TAB_BY_LEVELS, TAB_ONLY_SELECTED } from '../constants';
 
 function getTabItems() {
   return [
     {
       id: TAB_BY_LEVELS,
       label: t('select-orgstruct.tab.by-levels')
-    },
-    {
-      id: TAB_ALL_USERS,
-      label: t('select-orgstruct.tab.all-users')
     },
     {
       id: TAB_ONLY_SELECTED,

@@ -28,12 +28,11 @@ export class OrgStructApi extends RecordService {
 
     let url = `${PROXY_URI}/api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true&user=true&excludeAuthorities=all_users`;
     if (searchText) {
-      url += `&filter=${searchText}`;
+      url += `&filter=${encodeURIComponent(searchText)}&recurse=true`;
     }
     return this.getJson(url)
       .then(result => {
         this._loaded[queryStr] = result;
-        console.log('this._loaded', this._loaded);
         return result;
       })
       .catch(() => []);

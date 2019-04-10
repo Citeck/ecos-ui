@@ -103,12 +103,32 @@
   top: 240px;
 }
 
+.ecos-modal.ecos-modal_width-sm {
+  max-width: 600px;
+}
+
+.ecos-modal.ecos-modal_width-m {
+  max-width: 800px;
+}
+
 .ecos-modal.ecos-modal_width-lg {
   max-width: 1000px;
 }
 
 .ecos-modal.ecos-modal_width-extra-lg {
   max-width: 1200px;
+}
+
+@media (max-width: 600px) {
+  .ecos-modal.ecos-modal_width-sm {
+    margin: 0.5rem;
+  }
+}
+
+@media (max-width: 800px) {
+  .ecos-modal.ecos-modal_width-m {
+    margin: 0.5rem;
+  }
 }
 
 @media (max-width: 1024px) {

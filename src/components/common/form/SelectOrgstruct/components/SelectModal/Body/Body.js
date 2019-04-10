@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import List from './List';
 import { SelectModalContext } from '../SelectModalContext';
+import './Body.scss';
 
 const Body = () => {
   const context = useContext(SelectModalContext);

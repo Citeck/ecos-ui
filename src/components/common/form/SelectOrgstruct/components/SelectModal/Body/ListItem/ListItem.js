@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { SelectModalContext } from '../../SelectModalContext';
 import './ListItem.scss';
 
 const ListItem = ({ item, nestingLevel, nestedList }) => {
+  const context = useContext(SelectModalContext);
+
   let collapseHandler = null;
   let onClickLabel = null;
   if (item.hasChildren) {
@@ -13,7 +16,7 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
     });
     collapseHandler = <span className={collapseHandlerClassNames} />;
     onClickLabel = () => {
-      console.log('click collapseHandler', item.id);
+      context.onToggleCollapse(item);
     };
   }
 
@@ -28,7 +31,7 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
     <span
       className={selectHandlerClassNames}
       onClick={() => {
-        console.log('click selectHandler', item.id);
+        context.onToggleSelectItem(item);
       }}
     />
   );
