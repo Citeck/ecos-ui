@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import InputView from '../InputView';
-import SelectModal, { SelectModalProvider } from '../SelectModal';
-import { RootContext } from '../../RootContext';
+import SelectModal from '../SelectModal';
+import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 
 const SelectOrgstructRoot = () => {
-  const context = useContext(RootContext);
-  const { orgStructApi, controlProps } = context;
+  const context = useContext(SelectOrgstructContext);
+  const { controlProps } = context;
   const { isCompact } = controlProps;
 
   const wrapperClasses = classNames('select-orgstruct', {
@@ -15,10 +15,8 @@ const SelectOrgstructRoot = () => {
 
   return (
     <div className={wrapperClasses}>
-      <SelectModalProvider orgStructApi={orgStructApi}>
-        <InputView />
-        <SelectModal />
-      </SelectModalProvider>
+      <InputView />
+      <SelectModal />
     </div>
   );
 };

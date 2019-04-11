@@ -4,13 +4,13 @@ import EcosModal from '../../../../EcosModal';
 import Search from './Search';
 import Tabs from './Tabs';
 import Body from './Body';
-import { SelectModalContext } from './SelectModalContext';
+import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 import { t } from '../../../../../../helpers/util';
 import './SelectModal.scss';
 
 const SelectModal = () => {
-  const context = useContext(SelectModalContext);
-  const { isSelectModalOpen, toggleSelectModal, onCancelSelect } = context;
+  const context = useContext(SelectOrgstructContext);
+  const { isSelectModalOpen, toggleSelectModal, onCancelSelect, onSelect } = context;
 
   return (
     <EcosModal
@@ -28,12 +28,7 @@ const SelectModal = () => {
 
       <div className="select-orgstruct-select-modal__buttons">
         <Btn onClick={onCancelSelect}>{t('select-orgstruct.select-modal.cancel-button')}</Btn>
-        <Btn
-          className={'ecos-btn_blue'}
-          onClick={() => {
-            console.log('onSelect');
-          }}
-        >
+        <Btn onClick={onSelect} className={'ecos-btn_blue'}>
           {t('select-orgstruct.select-modal.ok-button')}
         </Btn>
       </div>

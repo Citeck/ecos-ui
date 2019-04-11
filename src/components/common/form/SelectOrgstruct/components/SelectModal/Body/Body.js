@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import List from './List';
-import { SelectModalContext } from '../SelectModalContext';
+import { SelectOrgstructContext } from '../../../SelectOrgstructContext';
 import './Body.scss';
 
 const Body = () => {
-  const context = useContext(SelectModalContext);
+  const context = useContext(SelectOrgstructContext);
   const { currentTab, tabItems } = context;
 
   const children = tabItems[currentTab].filter(i => !i.parentId);

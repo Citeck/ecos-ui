@@ -1,11 +1,11 @@
 import React, { useContext, useRef } from 'react';
 import Input from '../../../../Input/Input';
-import { SelectModalContext } from '../SelectModalContext';
+import { SelectOrgstructContext } from '../../../SelectOrgstructContext';
 import { t } from '../../../../../../../helpers/util';
 import './Search.scss';
 
 const Search = () => {
-  const context = useContext(SelectModalContext);
+  const context = useContext(SelectOrgstructContext);
 
   const { searchText, updateSearchText, onSubmitSearchForm } = context;
 

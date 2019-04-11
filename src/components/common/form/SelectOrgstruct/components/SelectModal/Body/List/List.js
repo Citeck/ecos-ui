@@ -2,10 +2,10 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import ListItem, { itemPropType } from '../ListItem';
-import { SelectModalContext } from '../../SelectModalContext';
+import { SelectOrgstructContext } from '../../../../SelectOrgstructContext';
 
 const List = ({ items, nestingLevel = 0 }) => {
-  const context = useContext(SelectModalContext);
+  const context = useContext(SelectOrgstructContext);
 
   return (
     <ul className={'select-orgstruct__list'}>

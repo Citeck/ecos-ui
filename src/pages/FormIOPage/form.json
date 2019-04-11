@@ -25,7 +25,8 @@
               "input": true,
               "type": "selectOrgstruct",
               "label": "Инициатор",
-              "key": "idocs_initiator"
+              "key": "idocs_initiator",
+              "multiple": true
             },
             {
               "input": true,

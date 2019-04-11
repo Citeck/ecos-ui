@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { SelectModalContext } from '../../SelectModalContext';
+import { SelectOrgstructContext } from '../../../../SelectOrgstructContext';
 import './ListItem.scss';
 
 const ListItem = ({ item, nestingLevel, nestedList }) => {
-  const context = useContext(SelectModalContext);
+  const context = useContext(SelectOrgstructContext);
 
   let collapseHandler = null;
   let onClickLabel = null;

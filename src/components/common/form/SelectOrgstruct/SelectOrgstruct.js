@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import SelectOrgstructRoot from './components/SelectOrgstructRoot';
-import { RootProvider } from './RootContext';
+import { SelectOrgstructProvider } from './SelectOrgstructContext';
 import { OrgStructApi } from '../../../../api/orgStruct';
 import './SelectOrgstruct.scss';
 
@@ -9,9 +9,9 @@ const orgStructApi = new OrgStructApi();
 
 const SelectOrgstruct = props => {
   return (
-    <RootProvider controlProps={props} orgStructApi={orgStructApi}>
+    <SelectOrgstructProvider controlProps={props} orgStructApi={orgStructApi}>
       <SelectOrgstructRoot />
-    </RootProvider>
+    </SelectOrgstructProvider>
   );
 };
 

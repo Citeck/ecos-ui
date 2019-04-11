@@ -34,6 +34,11 @@ class FormIOPage extends React.Component {
             'workspace://SpacesStore/99ce5ecc-a501-404c-a1ed-5507afed6282',
             'workspace://SpacesStore/50a4ace5-925a-4267-905f-abeff3960d1c'
           ],
+          // 'idocs_initiator': "workspace://SpacesStore/2d2cc237-6d4c-4904-b60d-0e2d64a67877",
+          idocs_initiator: [
+            'workspace://SpacesStore/2d2cc237-6d4c-4904-b60d-0e2d64a67877',
+            'workspace://SpacesStore/c04050a9-2f30-417e-a099-5b2753a5efb4'
+          ],
           lastName: 'Smith'
         }
       };

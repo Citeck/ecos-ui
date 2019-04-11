@@ -1,18 +1,15 @@
 import React, { useContext, Fragment } from 'react';
 import classNames from 'classnames';
 import { Btn } from '../../../../../common/btns';
-import { RootContext } from '../../RootContext';
-import { SelectModalContext } from '../SelectModal';
+import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 import { t } from '../../../../../../helpers/util';
 import './InputView.scss';
 
 const InputView = () => {
-  const context = useContext(RootContext);
-  const selectModalContext = useContext(SelectModalContext);
+  const context = useContext(SelectOrgstructContext);
 
   const { isCompact, disabled, multiple, placeholder } = context.controlProps;
-  const { selectedRows, error } = context;
-  const { toggleSelectModal } = selectModalContext;
+  const { selectedRows, error, toggleSelectModal, deleteSelectedItem } = context;
 
   const wrapperClasses = classNames('select-orgstruct__input-view', {
     'select-orgstruct__input-view_compact': isCompact
@@ -25,10 +22,14 @@ const InputView = () => {
 
   const placeholderText = placeholder ? placeholder : t('select-orgstruct.placeholder');
 
+  const onClickDelete = e => {
+    deleteSelectedItem(e.target.dataset.id);
+  };
+
   const valuesList = isCompact ? (
     <Fragment>
       {selectedRows.length > 0 ? (
-        <div className={'select-orgstruct__values-list_compact'}>{selectedRows.map(item => item.disp).join(', ')}</div>
+        <div className={'select-orgstruct__values-list_compact'}>{selectedRows.map(item => item.label).join(', ')}</div>
       ) : null}
     </Fragment>
   ) : (
@@ -37,10 +38,10 @@ const InputView = () => {
         <ul className={'select-orgstruct__values-list'}>
           {selectedRows.map(item => (
             <li key={item.id}>
-              <span className="select-orgstruct__values-list-disp">{item.disp}</span>
+              <span className="select-orgstruct__values-list-disp">{item.label}</span>
               <div className="select-orgstruct__values-list-actions">
-                <span data-id={item.id} className={'icon icon-edit'} onClick={() => {}} />
-                <span data-id={item.id} className={'icon icon-delete'} onClick={() => {}} />
+                {/*<span data-id={item.id} className={'icon icon-edit'} onClick={() => {}} />*/}
+                <span data-id={item.id} className={'icon icon-delete'} onClick={onClickDelete} />
               </div>
             </li>
           ))}

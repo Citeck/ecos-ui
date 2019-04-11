@@ -1,8 +1,8 @@
 import React, { useContext, useMemo } from 'react';
 import { default as EcosTabs } from '../../../../../Tabs';
-import { SelectModalContext } from '../SelectModalContext';
+import { SelectOrgstructContext } from '../../../SelectOrgstructContext';
 import { t } from '../../../../../../../helpers/util';
-import { TAB_BY_LEVELS, TAB_ONLY_SELECTED } from '../constants';
+import { TAB_BY_LEVELS, TAB_ONLY_SELECTED } from '../../../constants';
 
 function getTabItems() {
   return [
@@ -18,7 +18,7 @@ function getTabItems() {
 }
 
 const Tabs = () => {
-  const context = useContext(SelectModalContext);
+  const context = useContext(SelectOrgstructContext);
   const { currentTab, setCurrentTab } = context;
 
   const tabs = useMemo(() => getTabItems(), []);
