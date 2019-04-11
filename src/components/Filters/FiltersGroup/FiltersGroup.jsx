@@ -34,8 +34,12 @@ export default class FiltersGroup extends Component {
     this.triggerChangeFilters(store);
   };
 
-  deleteFilter = () => {
-    this.triggerChangeFilters(this.store);
+  deleteFilter = ({ index }) => {
+    const store = this.store;
+
+    store.splice(index, 1);
+    this.setState({ filters: Array.from(store) });
+    this.triggerChangeFilters(store);
   };
 
   addGroup = condition => {
@@ -53,6 +57,10 @@ export default class FiltersGroup extends Component {
     this.triggerChangeFilters(store);
   };
 
+  changeGroupFilterCondition = ({ condition }) => {
+    this.props.group.setCondition(condition);
+  };
+
   render() {
     const { className, columns, first, group } = this.props;
 
@@ -60,7 +68,7 @@ export default class FiltersGroup extends Component {
       <Well className={`ecos-well_full ecos-well_shadow ecos-well_radius_6 ${classNames('ecos-filters-group', className)}`}>
         <div className={'ecos-filters-group__head'}>
           {!first && (
-            <FiltersCondition onClick={this.changeFilterCondition} condition={group.getCondition()} conditions={this.conditions} />
+            <FiltersCondition onClick={this.changeGroupFilterCondition} condition={group.getCondition()} conditions={this.conditions} />
           )}
           <div className={'ecos-filters-group__tools'}>
             <Label className={'ecos-filters-group__tools_step label_clear label_nowrap label_middle-grey'}>{'Добавить'}</Label>

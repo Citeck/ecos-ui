@@ -87,7 +87,7 @@ export default class Filter extends Component {
 
             <Fragment>
               <Select
-                className={'ecos-filter_step select_narrow select_width_full'}
+                className={'ecos-filter_step ecos-filter_font_12 select_narrow select_width_full'}
                 placeholder={t('journals.default')}
                 options={conditions}
                 getOptionLabel={option => option.label}
@@ -95,7 +95,7 @@ export default class Filter extends Component {
                 value={selectedCondition}
                 onChange={this.changeCondition}
               />
-              <Input className={'ecos-input_narrow'} value={this.state.val} onChange={this.changeValue} />
+              <Input className={'ecos-input_narrow ecos-filter_font_12'} value={this.state.val} onChange={this.changeValue} />
             </Fragment>,
 
             <Fragment>

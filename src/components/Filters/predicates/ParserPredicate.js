@@ -1,5 +1,5 @@
 import { Predicate, GroupPredicate, FilterPredicate } from './';
-import { filterPredicates, PREDICATE_AND, PREDICATE_OR, PREDICATE_EQ } from '../../common/form/SelectJournal/predicates';
+import { filterPredicates, PREDICATE_AND, PREDICATE_OR } from '../../common/form/SelectJournal/predicates';
 
 const test = {
   t: 'or',

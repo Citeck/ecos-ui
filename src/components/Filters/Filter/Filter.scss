@@ -11,3 +11,11 @@
 .ecos-filter_step {
   margin-right: 10px;
 }
+
+.ecos-filter_font_12 {
+  font-size: $font-size-small;
+
+  .select__single-value {
+    font-size: $font-size-small;
+  }
+}
