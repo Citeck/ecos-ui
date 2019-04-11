@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { OrgStructApi } from '../../../../api/orgStruct';
-import { TAB_BY_LEVELS, TAB_ONLY_SELECTED } from './constants';
+import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
+import { TAB_BY_LEVELS, TAB_ALL_USERS, TAB_ONLY_SELECTED, ALL_USERS_GROUP_SHORT_NAME } from './constants';
 import { handleResponse, prepareSelected } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
@@ -17,9 +17,15 @@ export const SelectOrgstructProvider = props => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [tabItems, setTabItems] = useState({
     [TAB_BY_LEVELS]: [],
+    [TAB_ALL_USERS]: [],
     [TAB_ONLY_SELECTED]: []
   });
 
+  const [isAllUsersGroupsExists, setIsAllUsersGroupsExists] = useState(false);
+  const [isAllUsersGroupsFetched, setIsAllUsersGroupFetched] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
+
+  // fetch root group list
   useEffect(() => {
     if (!isRootGroupsFetched && isSelectModalOpen) {
       orgStructApi
@@ -28,22 +34,66 @@ export const SelectOrgstructProvider = props => {
         .then(items => {
           setTabItems({
             ...tabItems,
-            [TAB_BY_LEVELS]: items.map(newItem => {
-              return {
-                ...newItem,
-                isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
-              };
-            })
+            [TAB_BY_LEVELS]: items
+              .filter(item => item.attributes.shortName !== ALL_USERS_GROUP_SHORT_NAME)
+              .map(newItem => {
+                return {
+                  ...newItem,
+                  isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
+                };
+              })
           });
+
+          const allUsersGroupIdx = items.findIndex(item => item.attributes.shortName === ALL_USERS_GROUP_SHORT_NAME);
+
+          setIsAllUsersGroupsExists(allUsersGroupIdx !== -1);
+          setIsRootGroupsFetched(true);
         });
-      setIsRootGroupsFetched(true);
     }
   }, [isRootGroupsFetched, isSelectModalOpen]);
 
+  // fetch "all" group list (all users)
+  useEffect(() => {
+    if (!isAllUsersGroupsFetched && currentTab === TAB_ALL_USERS) {
+      orgStructApi
+        .fetchGroup({
+          groupName: ALL_USERS_GROUP_SHORT_NAME
+        })
+        .then(handleResponse)
+        .then(items => {
+          const allUsersList = items.map(newItem => {
+            return {
+              ...newItem,
+              isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
+            };
+          });
+
+          let allUsersListFiltered = [...allUsersList];
+          const trimSearchText = searchText.trim();
+          if (trimSearchText) {
+            allUsersListFiltered = allUsersList.filter(item => {
+              return item.label.toUpperCase().indexOf(trimSearchText.toUpperCase()) !== -1;
+            });
+          }
+
+          setTabItems({
+            ...tabItems,
+            [TAB_ALL_USERS]: allUsersListFiltered
+          });
+
+          setAllUsers(allUsersList);
+          setIsAllUsersGroupFetched(true);
+        });
+    }
+  }, [isAllUsersGroupsFetched, currentTab, searchText]);
+
+  // set default value
   useEffect(() => {
     let initValue;
     if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
       initValue = [...defaultValue];
+    } else if (!multiple && Array.isArray(defaultValue)) {
+      initValue = defaultValue.length > 0 ? [defaultValue[0]] : [];
     } else if (!multiple && !!defaultValue) {
       initValue = [defaultValue];
     }
@@ -60,8 +110,6 @@ export const SelectOrgstructProvider = props => {
           return items.map(item => prepareSelected(item));
         })
         .then(selectedItems => {
-          // console.log('selectedItems', selectedItems);
-
           setTabItems({
             ...tabItems,
             [TAB_ONLY_SELECTED]: [...selectedItems],
@@ -92,6 +140,7 @@ export const SelectOrgstructProvider = props => {
         searchText,
         currentTab,
         tabItems,
+        isAllUsersGroupsExists,
 
         toggleSelectModal: () => {
           toggleSelectModal(!isSelectModalOpen);
@@ -102,6 +151,12 @@ export const SelectOrgstructProvider = props => {
             ...tabItems,
             [TAB_ONLY_SELECTED]: [...selectedRows],
             [TAB_BY_LEVELS]: tabItems[TAB_BY_LEVELS].map(newItem => {
+              return {
+                ...newItem,
+                isSelected: selectedRows.findIndex(item => item.id === newItem.id) !== -1
+              };
+            }),
+            [TAB_ALL_USERS]: tabItems[TAB_ALL_USERS].map(newItem => {
               return {
                 ...newItem,
                 isSelected: selectedRows.findIndex(item => item.id === newItem.id) !== -1
@@ -118,6 +173,16 @@ export const SelectOrgstructProvider = props => {
             ...tabItems,
             [TAB_ONLY_SELECTED]: selectedFiltered,
             [TAB_BY_LEVELS]: tabItems[TAB_BY_LEVELS].map(item => {
+              if (item.id !== targetId) {
+                return item;
+              }
+
+              return {
+                ...item,
+                isSelected: false
+              };
+            }),
+            [TAB_ALL_USERS]: tabItems[TAB_ALL_USERS].map(item => {
               if (item.id !== targetId) {
                 return item;
               }
@@ -167,22 +232,37 @@ export const SelectOrgstructProvider = props => {
 
         onSubmitSearchForm: () => {
           // TODO: https://citeck.atlassian.net/browse/ECOSCOM-2129
+          const trimSearchText = searchText.trim();
+
           orgStructApi
             .fetchGroup({
-              groupName: '_orgstruct_home_',
-              searchText
+              groupName: ROOT_ORGSTRUCT_GROUP,
+              searchText: trimSearchText
             })
             .then(handleResponse)
             .then(items => {
-              console.log('searchResult', items);
+              const allUsersFiltered = trimSearchText
+                ? allUsers.filter(item => {
+                    return item.label.toUpperCase().indexOf(trimSearchText.toUpperCase()) !== -1;
+                  })
+                : allUsers.map(newItem => {
+                    return {
+                      ...newItem,
+                      isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
+                    };
+                  });
+
               setTabItems({
                 ...tabItems,
-                [TAB_BY_LEVELS]: items.map(newItem => {
-                  return {
-                    ...newItem,
-                    isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
-                  };
-                })
+                [TAB_BY_LEVELS]: items
+                  .filter(item => item.attributes.shortName !== ALL_USERS_GROUP_SHORT_NAME)
+                  .map(newItem => {
+                    return {
+                      ...newItem,
+                      isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
+                    };
+                  }),
+                [TAB_ALL_USERS]: allUsersFiltered
               });
             });
         },
@@ -214,6 +294,23 @@ export const SelectOrgstructProvider = props => {
                 }
 
                 return item;
+              }),
+              [TAB_ALL_USERS]: tabItems[TAB_ALL_USERS].map(item => {
+                if (item.id === targetItem.id) {
+                  return {
+                    ...item,
+                    isSelected: true
+                  };
+                }
+
+                if (!multiple) {
+                  return {
+                    ...item,
+                    isSelected: false
+                  };
+                }
+
+                return item;
               })
             });
           } else {
@@ -221,6 +318,16 @@ export const SelectOrgstructProvider = props => {
               ...tabItems,
               [TAB_ONLY_SELECTED]: tabItems[TAB_ONLY_SELECTED].slice(0, itemIdx).concat(tabItems[TAB_ONLY_SELECTED].slice(itemIdx + 1)),
               [TAB_BY_LEVELS]: tabItems[TAB_BY_LEVELS].map(item => {
+                if (item.id === targetItem.id) {
+                  return {
+                    ...item,
+                    isSelected: !item.isSelected
+                  };
+                }
+
+                return item;
+              }),
+              [TAB_ALL_USERS]: tabItems[TAB_ALL_USERS].map(item => {
                 if (item.id === targetItem.id) {
                   return {
                     ...item,

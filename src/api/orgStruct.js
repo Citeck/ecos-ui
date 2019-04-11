@@ -1,9 +1,11 @@
 import { RecordService } from './recordService';
 import { PROXY_URI } from '../constants/alfresco';
 
+export const ROOT_ORGSTRUCT_GROUP = '_orgstruct_home_';
+
 export class OrgStructApi extends RecordService {
   _defaultQuery = {
-    groupName: '_orgstruct_home_',
+    groupName: ROOT_ORGSTRUCT_GROUP,
     searchText: ''
   };
 

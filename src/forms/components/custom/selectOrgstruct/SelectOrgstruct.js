@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import BaseComponent from '../base/BaseComponent';
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
+import isEqual from 'lodash/isEqual';
 
 export default class SelectOrgstructComponent extends BaseComponent {
   static schema(...extend) {
@@ -109,6 +110,10 @@ export default class SelectOrgstructComponent extends BaseComponent {
   }
 
   setValue(value) {
+    if (isEqual(value, this.dataValue)) {
+      return null;
+    }
+
     if (this.reactContainer && value !== this.dataValue) {
       ReactDOM.unmountComponentAtNode(this.reactContainer);
     }
