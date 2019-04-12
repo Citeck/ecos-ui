@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
-import { TAB_BY_LEVELS, TAB_ALL_USERS, TAB_ONLY_SELECTED, ALL_USERS_GROUP_SHORT_NAME } from './constants';
+import { TAB_BY_LEVELS, TAB_ALL_USERS, TAB_ONLY_SELECTED, ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER } from './constants';
 import { handleResponse, prepareSelected } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
 
 export const SelectOrgstructProvider = props => {
   const { orgStructApi, controlProps } = props;
-  const { multiple, defaultValue, allUsersGroup } = controlProps;
+  const { multiple, defaultValue, allUsersGroup, allowedAuthorityTypes } = controlProps;
   const allUsersGroupShortName = allUsersGroup || ALL_USERS_GROUP_SHORT_NAME;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(false);
@@ -47,7 +47,8 @@ export const SelectOrgstructProvider = props => {
 
           const allUsersGroupIdx = items.findIndex(item => item.attributes.shortName === allUsersGroupShortName);
 
-          setIsAllUsersGroupsExists(allUsersGroupIdx !== -1);
+          const allowedUsers = allowedAuthorityTypes.indexOf(AUTHORITY_TYPE_USER) !== -1;
+          setIsAllUsersGroupsExists(allowedUsers && allUsersGroupIdx !== -1);
           setIsRootGroupsFetched(true);
         });
     }

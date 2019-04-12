@@ -26,7 +26,9 @@
               "type": "selectOrgstruct",
               "label": "Инициатор",
               "key": "idocs_initiator",
-              "multiple": true
+              "multiple": true,
+              "allowedAuthorityType": "USER, GROUP",
+              "allowedGroupType": "ROLE, BRANCH"
             },
             {
               "input": true,

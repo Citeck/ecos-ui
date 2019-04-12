@@ -67,6 +67,10 @@ export default class SelectOrgstructComponent extends BaseComponent {
     let self = this;
     let component = this.component;
     let allUsersGroup = this.component.allUsersGroup;
+    let allowedAuthorityType = this.component.allowedAuthorityType || '';
+    let allowedGroupType = this.component.allowedGroupType || '';
+    const allowedAuthorityTypes = allowedAuthorityType.split(',').map(item => item.trim());
+    const allowedGroupTypes = allowedGroupType.split(',').map(item => item.trim());
 
     const onChange = this.onValueChange.bind(this);
 
@@ -79,6 +83,8 @@ export default class SelectOrgstructComponent extends BaseComponent {
           placeholder={component.placeholder}
           disabled={component.disabled}
           allUsersGroup={allUsersGroup}
+          allowedAuthorityTypes={allowedAuthorityTypes}
+          allowedGroupTypes={allowedGroupTypes}
           onChange={onChange}
           onError={err => {
             // this.setCustomValidity(err, false);

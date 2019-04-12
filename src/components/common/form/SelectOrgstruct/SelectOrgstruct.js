@@ -21,7 +21,9 @@ SelectOrgstruct.propTypes = {
   onError: PropTypes.func,
   multiple: PropTypes.bool,
   isCompact: PropTypes.bool,
-  allUsersGroup: PropTypes.string
+  allUsersGroup: PropTypes.string,
+  allowedAuthorityTypes: PropTypes.array,
+  allowedGroupTypes: PropTypes.array
 };
 
 export default SelectOrgstruct;

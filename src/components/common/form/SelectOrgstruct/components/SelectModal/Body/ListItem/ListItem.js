@@ -2,10 +2,15 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { SelectOrgstructContext } from '../../../../SelectOrgstructContext';
+import { AUTHORITY_TYPE_GROUP } from '../../../../constants';
 import './ListItem.scss';
 
 const ListItem = ({ item, nestingLevel, nestedList }) => {
   const context = useContext(SelectOrgstructContext);
+  const { controlProps } = context;
+  const { allowedAuthorityTypes, allowedGroupTypes } = controlProps;
+  const itemAuthorityType = item.attributes.authorityType;
+  const itemGroupType = (item.attributes.groupType || '').toUpperCase();
 
   let collapseHandler = null;
   let onClickLabel = null;
@@ -20,21 +25,26 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
     };
   }
 
-  const selectHandlerClassNames = classNames('icon', 'select-orgstruct__select-handler', {
-    'icon-plus': !item.isSelected,
-    'select-orgstruct__select-handler_not-selected': !item.isSelected,
-    'icon-close': item.isSelected,
-    'select-orgstruct__select-handler_selected': item.isSelected
-  });
+  let selectHandler = null;
+  if (allowedAuthorityTypes.indexOf(itemAuthorityType) !== -1) {
+    if (itemAuthorityType !== AUTHORITY_TYPE_GROUP || allowedGroupTypes.indexOf(itemGroupType) !== -1) {
+      const selectHandlerClassNames = classNames('icon', 'select-orgstruct__select-handler', {
+        'icon-plus': !item.isSelected,
+        'select-orgstruct__select-handler_not-selected': !item.isSelected,
+        'icon-close': item.isSelected,
+        'select-orgstruct__select-handler_selected': item.isSelected
+      });
 
-  const selectHandler = (
-    <span
-      className={selectHandlerClassNames}
-      onClick={() => {
-        context.onToggleSelectItem(item);
-      }}
-    />
-  );
+      selectHandler = (
+        <span
+          className={selectHandlerClassNames}
+          onClick={() => {
+            context.onToggleSelectItem(item);
+          }}
+        />
+      );
+    }
+  }
 
   const listItemClassNames = classNames('select-orgstruct__list-item', `select-orgstruct__list-item_level-${nestingLevel}`, {
     'select-orgstruct__list-item_strong': item.isStrong
