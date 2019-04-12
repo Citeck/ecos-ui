@@ -2,6 +2,8 @@ import Input from '../../../common/form/Input';
 import DatePicker from '../../../common/form/DatePicker';
 import Select from '../../../common/form/Select';
 import SelectJournal from '../../../common/form/SelectJournal';
+import SelectOrgstruct from '../../../common/form/SelectOrgstruct';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../../common/form/SelectOrgstruct/constants';
 import { RecordService } from '../../../../api/recordService';
 import { t } from '../../../../helpers/util';
 
@@ -71,6 +73,7 @@ const PREDICATE_LIST_TYPE_NUMBER = [PREDICATE_EQ, PREDICATE_NOT_EQ, PREDICATE_LT
 const PREDICATE_LIST_TYPE_BOOLEAN = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_NODEREF = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_QNAME = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
+const PREDICATE_LIST_TYPE_AUTHORITY = [PREDICATE_CONTAINS, PREDICATE_NOT_CONTAINS, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_NO_CONTROL_YET = [PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 
 let allPredicates = [];
@@ -113,6 +116,11 @@ export function getPredicates(field) {
 
     case COLUMN_DATA_TYPE_QNAME:
       return filterPredicates(PREDICATE_LIST_TYPE_QNAME);
+
+    case COLUMN_DATA_TYPE_PERSON:
+    case COLUMN_DATA_TYPE_AUTHORITY:
+    case COLUMN_DATA_TYPE_AUTHORITY_GROUP:
+      return filterPredicates(PREDICATE_LIST_TYPE_AUTHORITY);
 
     case COLUMN_DATA_TYPE_CONTENT:
     default:
@@ -238,8 +246,29 @@ export function getPredicateInput(field, sourceId) {
         getProps: ({ predicateValue, changePredicateValue }) => ({
           isCompact: true,
           journalId: field.editorKey,
-          // journalId: 'currency',
-          value: predicateValue,
+          defaultValue: predicateValue,
+          onChange: function(value) {
+            changePredicateValue(value);
+          }
+        })
+      };
+    case COLUMN_DATA_TYPE_PERSON:
+    case COLUMN_DATA_TYPE_AUTHORITY:
+    case COLUMN_DATA_TYPE_AUTHORITY_GROUP:
+      let allowedAuthorityTypes = [AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER];
+      if (field.type === COLUMN_DATA_TYPE_PERSON) {
+        allowedAuthorityTypes = [AUTHORITY_TYPE_USER];
+      } else if (field.type === COLUMN_DATA_TYPE_AUTHORITY_GROUP) {
+        allowedAuthorityTypes = [AUTHORITY_TYPE_GROUP];
+      }
+
+      return {
+        component: SelectOrgstruct,
+        defaultValue: null,
+        getProps: ({ predicateValue, changePredicateValue }) => ({
+          isCompact: true,
+          allowedAuthorityTypes,
+          defaultValue: predicateValue,
           onChange: function(value) {
             changePredicateValue(value);
           }

@@ -6,3 +6,6 @@ export const ALL_USERS_GROUP_SHORT_NAME = 'all';
 
 export const AUTHORITY_TYPE_GROUP = 'GROUP';
 export const AUTHORITY_TYPE_USER = 'USER';
+
+export const GROUP_TYPE_ROLE = 'ROLE';
+export const GROUP_TYPE_BRANCH = 'BRANCH';

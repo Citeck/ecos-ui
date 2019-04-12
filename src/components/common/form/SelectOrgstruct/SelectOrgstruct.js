@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import SelectOrgstructRoot from './components/SelectOrgstructRoot';
 import { SelectOrgstructProvider } from './SelectOrgstructContext';
 import { OrgStructApi } from '../../../../api/orgStruct';
+import { GROUP_TYPE_BRANCH, GROUP_TYPE_ROLE, AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP } from './constants';
 import './SelectOrgstruct.scss';
 
 const orgStructApi = new OrgStructApi();
@@ -13,6 +14,11 @@ const SelectOrgstruct = props => {
       <SelectOrgstructRoot />
     </SelectOrgstructProvider>
   );
+};
+
+SelectOrgstruct.defaultProps = {
+  allowedAuthorityTypes: [AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER],
+  allowedGroupTypes: [GROUP_TYPE_BRANCH, GROUP_TYPE_ROLE]
 };
 
 SelectOrgstruct.propTypes = {
