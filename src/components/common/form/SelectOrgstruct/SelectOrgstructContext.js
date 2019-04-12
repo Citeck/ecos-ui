@@ -8,7 +8,8 @@ export const SelectOrgstructContext = React.createContext();
 
 export const SelectOrgstructProvider = props => {
   const { orgStructApi, controlProps } = props;
-  const { multiple, defaultValue } = controlProps;
+  const { multiple, defaultValue, allUsersGroup } = controlProps;
+  const allUsersGroupShortName = allUsersGroup || ALL_USERS_GROUP_SHORT_NAME;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(false);
   const [currentTab, setCurrentTab] = useState(TAB_BY_LEVELS);
@@ -35,7 +36,7 @@ export const SelectOrgstructProvider = props => {
           setTabItems({
             ...tabItems,
             [TAB_BY_LEVELS]: items
-              .filter(item => item.attributes.shortName !== ALL_USERS_GROUP_SHORT_NAME)
+              .filter(item => item.attributes.shortName !== allUsersGroupShortName)
               .map(newItem => {
                 return {
                   ...newItem,
@@ -44,7 +45,7 @@ export const SelectOrgstructProvider = props => {
               })
           });
 
-          const allUsersGroupIdx = items.findIndex(item => item.attributes.shortName === ALL_USERS_GROUP_SHORT_NAME);
+          const allUsersGroupIdx = items.findIndex(item => item.attributes.shortName === allUsersGroupShortName);
 
           setIsAllUsersGroupsExists(allUsersGroupIdx !== -1);
           setIsRootGroupsFetched(true);
@@ -57,7 +58,7 @@ export const SelectOrgstructProvider = props => {
     if (!isAllUsersGroupsFetched && currentTab === TAB_ALL_USERS) {
       orgStructApi
         .fetchGroup({
-          groupName: ALL_USERS_GROUP_SHORT_NAME
+          groupName: allUsersGroupShortName
         })
         .then(handleResponse)
         .then(items => {
@@ -255,7 +256,7 @@ export const SelectOrgstructProvider = props => {
               setTabItems({
                 ...tabItems,
                 [TAB_BY_LEVELS]: items
-                  .filter(item => item.attributes.shortName !== ALL_USERS_GROUP_SHORT_NAME)
+                  .filter(item => item.attributes.shortName !== allUsersGroupShortName)
                   .map(newItem => {
                     return {
                       ...newItem,

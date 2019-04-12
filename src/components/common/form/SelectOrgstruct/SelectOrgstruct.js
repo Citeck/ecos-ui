@@ -20,7 +20,8 @@ SelectOrgstruct.propTypes = {
   onChange: PropTypes.func,
   onError: PropTypes.func,
   multiple: PropTypes.bool,
-  isCompact: PropTypes.bool
+  isCompact: PropTypes.bool,
+  allUsersGroup: PropTypes.string
 };
 
 export default SelectOrgstruct;

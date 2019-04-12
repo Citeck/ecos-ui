@@ -66,6 +66,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
   renderReactComponent(config = {}) {
     let self = this;
     let component = this.component;
+    let allUsersGroup = this.component.allUsersGroup;
 
     const onChange = this.onValueChange.bind(this);
 
@@ -77,6 +78,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           multiple={component.multiple}
           placeholder={component.placeholder}
           disabled={component.disabled}
+          allUsersGroup={allUsersGroup}
           onChange={onChange}
           onError={err => {
             // this.setCustomValidity(err, false);
