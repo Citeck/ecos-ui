@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Container } from 'reactstrap';
 import connect from 'react-redux/es/connect/connect';
 
@@ -9,10 +9,13 @@ import JournalsFilters from './JournalsFilters';
 import JournalsColumnsSetup from './JournalsColumnsSetup';
 import JournalsMenu from './JournalsMenu';
 import Search from '../common/Search/Search';
+import Columns from '../common/templates/Columns/Columns';
 
-import { getDashletConfig, saveJournalSettings } from '../../actions/journals';
+import { getDashletConfig, reloadGrid, saveJournalSettings } from '../../actions/journals';
 import { IcoBtn, TwoIcoBtn } from '../common/btns';
 import { Caption, Dropdown, Well } from '../common/form';
+import { Btn } from '../common/btns';
+import { t } from '../../helpers/util';
 
 import './Journals.scss';
 
@@ -22,13 +25,15 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   getDashletConfig: id => dispatch(getDashletConfig(id)),
-  saveJournalSettings: settings => dispatch(saveJournalSettings(settings))
+  saveJournalSettings: settings => dispatch(saveJournalSettings(settings)),
+  reloadGrid: options => dispatch(reloadGrid(options))
 });
 
 class Journals extends Component {
   constructor(props) {
     super(props);
     this.state = { menuOpen: false, settingsVisible: true };
+    this.settings = null;
   }
 
   componentDidMount() {
@@ -77,6 +82,25 @@ class Journals extends Component {
         Delete: true
       }
     });
+  };
+
+  getSettings = settings => {
+    this.settings = settings;
+  };
+
+  apply = () => {
+    console.log(this.settings);
+
+    let settings = {};
+
+    if (this.settings) {
+      const { columns, sortBy } = this.settings;
+
+      columns && (settings.columns = columns);
+      sortBy && (settings.sortBy = sortBy);
+
+      this.props.reloadGrid({ ...settings });
+    }
   };
 
   render() {
@@ -168,9 +192,26 @@ class Journals extends Component {
 
             {settingsVisible ? (
               <Well className={'ecos-journal__settings'}>
-                <JournalsFilters />
-                <JournalsColumnsSetup />
-                <JournalsGrouping />
+                <JournalsFilters onChange={this.getSettings} />
+                <JournalsColumnsSetup onChange={this.getSettings} />
+                <JournalsGrouping onChange={this.getSettings} />
+
+                <Columns
+                  className={'ecos-journal__settings-footer'}
+                  cols={[
+                    <Btn onClick={this.clear}>{t('journals.action.apply-template')}</Btn>,
+
+                    <Fragment>
+                      <Btn className={'ecos-btn_x-step_10'} onClick={this.cancel}>
+                        {t('journals.action.reset')}
+                      </Btn>
+                      <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.apply}>
+                        {t('journals.action.apply')}
+                      </Btn>
+                    </Fragment>
+                  ]}
+                  cfgs={[{}, { className: 'columns_right' }]}
+                />
               </Well>
             ) : null}
 

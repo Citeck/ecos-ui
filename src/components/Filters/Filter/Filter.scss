@@ -19,3 +19,18 @@
     font-size: $font-size-small;
   }
 }
+
+.ecos-filter__value-wrapper {
+  height: 26px;
+  width: 100%;
+  display: flex;
+
+  input,
+  .select__single-value {
+    font-size: $font-size-small;
+  }
+}
+
+.ecos-filter_width_full {
+  width: 100%;
+}

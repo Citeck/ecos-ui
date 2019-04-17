@@ -3,6 +3,7 @@ import DatePicker from '../../../common/form/DatePicker';
 import Select from '../../../common/form/Select';
 import SelectJournal from '../../../common/form/SelectJournal';
 import { RecordService } from '../../../../api/recordService';
+import moment from 'moment';
 import { t } from '../../../../helpers/util';
 
 export const COLUMN_DATA_TYPE_TEXT = 'text';
@@ -149,10 +150,11 @@ export function getPredicateInput(field, sourceId) {
       return {
         component: DatePicker,
         defaultValue: null, // new Date(),
-        getProps: ({ predicateValue, changePredicateValue }) => ({
+        getProps: ({ predicateValue, changePredicateValue, wrapperClasses }) => ({
           className: 'ecos-input_narrow',
+          wrapperClasses: wrapperClasses,
           showIcon: true,
-          selected: predicateValue,
+          selected: moment(predicateValue || undefined).toDate(),
           onChange: function(value) {
             changePredicateValue(value);
           },

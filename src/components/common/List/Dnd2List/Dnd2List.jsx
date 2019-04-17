@@ -40,6 +40,7 @@ const Dnd = ({ data, cssClasses, cssItemClasses, id, portal }) => {
                   }}
                 </Draggable>
               ))}
+              {provided.placeholder}
             </ul>
           )}
         </Droppable>

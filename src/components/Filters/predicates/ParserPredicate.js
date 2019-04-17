@@ -16,7 +16,7 @@ const test = {
                 {
                   att: 'cm:created',
                   t: 'ge',
-                  val: '10.11.12'
+                  val: '2018-11-20T09:55:33Z'
                 },
                 {
                   att: 'cm:title',
@@ -41,7 +41,7 @@ const test = {
                 {
                   att: 'cm:created',
                   t: 'ge',
-                  val: ''
+                  val: '2018-11-20T09:55:33Z'
                 },
                 {
                   att: 'cm:title',
@@ -68,7 +68,7 @@ const test = {
             {
               att: 'cm:created',
               t: 'ge',
-              val: ''
+              val: '2018-11-20T09:55:33Z'
             },
             {
               att: 'cm:title',

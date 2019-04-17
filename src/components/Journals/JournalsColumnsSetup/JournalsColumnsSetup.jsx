@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import ColumnsSetup from '../../ColumnsSetup/ColumnsSetup';
 import PanelBar from '../../common/PanelBar/PanelBar';
-import { reloadGrid } from '../../../actions/journals';
-import { t } from '../../../helpers/util';
+import { t, trigger } from '../../../helpers/util';
 
 import './JournalsColumnsSetup.scss';
 
@@ -11,22 +10,24 @@ const mapStateToProps = state => ({
   journalConfig: state.journals.journalConfig
 });
 
-const mapDispatchToProps = dispatch => ({
-  reloadGrid: options => dispatch(reloadGrid(options))
-});
+const mapDispatchToProps = dispatch => ({});
 
 class JournalsColumnsSetup extends Component {
   onOrder = columns => {
-    this.props.reloadGrid({ columns });
+    this.onChange({ columns });
   };
 
   onChangeVisible = columns => {
-    this.props.reloadGrid({ columns });
+    this.onChange({ columns });
   };
 
   onChangeSortBy = sortBy => {
     sortBy = [sortBy];
-    this.props.reloadGrid({ sortBy });
+    this.onChange({ sortBy });
+  };
+
+  onChange = ({ columns, sortBy }) => {
+    trigger.call(this, 'onChange', { columns, sortBy });
   };
 
   render() {

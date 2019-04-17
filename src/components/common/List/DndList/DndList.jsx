@@ -98,6 +98,7 @@ export default class DndList extends Component {
                     }}
                   </Draggable>
                 ))}
+                {provided.placeholder}
               </ul>
             )}
           </Droppable>
