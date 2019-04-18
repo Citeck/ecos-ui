@@ -12,7 +12,7 @@
     "date-fns": "^2.0.0-alpha.27",
     "express": "^4.16.4",
     "font-awesome": "^4.7.0",
-    "formiojs": "^3.18.3",
+    "formiojs": "3.19.9",
     "history": "^4.7.2",
     "http-proxy-middleware": "^0.19.1",
     "jquery": "^3.3.1",
