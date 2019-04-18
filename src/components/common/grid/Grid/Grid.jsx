@@ -132,7 +132,7 @@ export default class Grid extends Component {
         <HeaderFormatter
           closeFilterEvent={CLOSE_FILTER_EVENT}
           filterable={filterable}
-          filterValue={((filters || []).filter(filter => filter.field === column.dataField)[0] || {}).value || ''}
+          filterValue={((filters || []).filter(filter => filter.att === column.dataField)[0] || {}).val || ''}
           ascending={((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending}
           column={column}
           colIndex={colIndex}
@@ -224,8 +224,8 @@ export default class Grid extends Component {
     });
   };
 
-  onFilter = criteria => {
-    trigger.call(this, 'onFilter', [criteria]);
+  onFilter = predicates => {
+    trigger.call(this, 'onFilter', predicates);
   };
 
   createCloseFilterEvent = () => {

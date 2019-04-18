@@ -22,7 +22,6 @@ const initialState = {
     data: [],
     columns: [],
     total: 0,
-    criteria: [],
     createVariants: [],
     predicate: {},
     groupBy: null,

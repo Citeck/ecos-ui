@@ -48,11 +48,13 @@ export default class HeaderFormatter extends Component {
 
   triggerPendingChange = debounce((text, dataField) => {
     this.toggle();
-    trigger.call(this, 'onFilter', {
-      field: dataField,
-      predicate: 'string-contains',
-      value: text.trim()
-    });
+    trigger.call(this, 'onFilter', [
+      {
+        att: dataField,
+        t: 'contains',
+        val: text.trim()
+      }
+    ]);
   }, 0);
 
   onCloseFilter(e) {

@@ -11,17 +11,15 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, criteria, pagination, predicate, groupBy, sortBy }) => {
-    const query = criteria => {
-      let query = {};
-
-      criteria.forEach((criterion, idx) => {
-        query['field_' + idx] = criterion.field;
-        query['predicate_' + idx] = criterion.predicate;
-        query['value_' + idx] = criterion.value;
-      });
-
-      return JSON.stringify(query);
+  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [] }) => {
+    const query = {
+      t: 'and',
+      val: [
+        predicate,
+        ...predicates.filter(item => {
+          return item.val !== '' && item.val !== null;
+        })
+      ]
     };
 
     const dataSource = new dataSourceStore['GqlDataSource']({
@@ -30,8 +28,8 @@ export class JournalsApi extends RecordService {
       ajax: {
         body: {
           query: {
-            query: criteria.length ? query(criteria) : predicate,
-            language: criteria.length ? 'criteria' : 'predicate',
+            query: query,
+            language: 'predicate',
             page: pagination,
             groupBy,
             sortBy

@@ -23,29 +23,10 @@ class JournalsGrouping extends Component {
 
     if (grouping.length) {
       let columns = Array.from(grouping);
-      const attributes = columns.map(col => col['attribute']);
-      columns.push({
-        attribute: 'someSumField',
-        schema: 'sum(contracts:agreementAmount)',
-        text: 'Сумма'
-      });
-
-      this.props.reloadGrid({
-        columns,
-        predicate: {
-          t: 'eq',
-          att: '_type',
-          val: 'contracts:agreement'
-        },
-        groupBy: [attributes.join('&')],
-        criteria: []
-      });
+      this.props.reloadGrid({ columns, groupBy: [columns.map(col => col['attribute']).join('&')] });
     } else {
-      const {
-        columns,
-        meta: { criteria }
-      } = this.props.journalConfig;
-      this.props.reloadGrid({ columns, predicate: [], groupBy: null, criteria });
+      const { columns } = this.props.journalConfig;
+      this.props.reloadGrid({ columns, groupBy: null });
     }
   };
 
