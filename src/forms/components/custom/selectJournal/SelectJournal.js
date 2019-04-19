@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import BaseComponent from '../base/BaseComponent';
 import SelectJournal from '../../../../components/common/form/SelectJournal';
 
-export default class DateTimeComponent extends BaseComponent {
+export default class SelectJournalComponent extends BaseComponent {
   static schema(...extend) {
     return BaseComponent.schema(
       {
@@ -21,12 +21,12 @@ export default class DateTimeComponent extends BaseComponent {
       icon: 'fa fa-th-list',
       group: 'advanced',
       weight: 0,
-      schema: DateTimeComponent.schema()
+      schema: SelectJournalComponent.schema()
     };
   }
 
   get defaultSchema() {
-    return DateTimeComponent.schema();
+    return SelectJournalComponent.schema();
   }
 
   build() {
@@ -71,7 +71,7 @@ export default class DateTimeComponent extends BaseComponent {
     let renderControl = function(journalId) {
       ReactDOM.render(
         <SelectJournal
-          defaultValue={component.defaultValue}
+          defaultValue={self.dataValue}
           isCompact={component.isCompact}
           multiple={component.multiple}
           placeholder={component.placeholder}
@@ -124,7 +124,11 @@ export default class DateTimeComponent extends BaseComponent {
   }
 
   setValue(value) {
-    this.dataValue = value || this.emptyValue;
+    if (this.reactContainer && value !== this.dataValue) {
+      ReactDOM.unmountComponentAtNode(this.reactContainer);
+    }
+
+    this.dataValue = value || this.component.defaultValue || this.emptyValue;
     this.refreshDOM();
   }
 }

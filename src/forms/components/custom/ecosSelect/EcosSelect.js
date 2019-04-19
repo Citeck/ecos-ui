@@ -1,15 +1,15 @@
 import Choices from 'choices.js/public/assets/scripts/choices.js';
 import _ from 'lodash';
-import BaseComponent from '../../custom/base/BaseComponent';
+import BaseComponent from '../base/BaseComponent';
 import Formio from 'formiojs/Formio';
 
 export default class SelectComponent extends BaseComponent {
   static schema(...extend) {
     return BaseComponent.schema(
       {
-        type: 'select',
+        type: 'ecosSelect',
         label: 'Select',
-        key: 'select',
+        key: 'ecosSelect',
         data: {
           values: [],
           json: '',
@@ -19,7 +19,7 @@ export default class SelectComponent extends BaseComponent {
         },
         limit: 100,
         dataSrc: 'url',
-        valueProperty: '',
+        valueProperty: 'value',
         filter: '',
         searchEnabled: true,
         searchField: '',
@@ -38,7 +38,7 @@ export default class SelectComponent extends BaseComponent {
 
   static get builderInfo() {
     return {
-      title: 'Select',
+      title: 'ECOS Select',
       group: 'basic',
       icon: 'fa fa-th-list',
       weight: 70,
@@ -288,6 +288,7 @@ export default class SelectComponent extends BaseComponent {
         _.isEqual(this.currentItems[1], items[1])
       ) {
         this.stopInfiniteScroll();
+        this.loading = false;
         return;
       }
 
@@ -440,9 +441,10 @@ export default class SelectComponent extends BaseComponent {
     this.loading = true;
     Formio.makeRequest(this.options.formio, 'select', url, method, body, options)
       .then(response => {
+        this.loading = false;
         const scrollTop = !this.scrollLoading && this.currentItems.length === 0;
         this.setItems(response, !!search);
-        if (scrollTop) {
+        if (scrollTop && this.choices) {
           this.choices.choiceList.scrollToTop();
         }
       })
@@ -784,7 +786,7 @@ export default class SelectComponent extends BaseComponent {
    * @param {*} value
    * @param {Array} items
    */
-  addCurrentChoices(values, items) {
+  addCurrentChoices(values, items, keyValue) {
     if (!values) {
       return false;
     }
@@ -808,7 +810,8 @@ export default class SelectComponent extends BaseComponent {
             found = true;
             return false;
           }
-          found |= _.isEqual(this.itemValue(choice, isSelectOptions), value);
+          const itemValue = keyValue ? choice.value : this.itemValue(choice, isSelectOptions);
+          found |= _.isEqual(itemValue, value);
           return found ? false : true;
         });
       }
@@ -826,7 +829,7 @@ export default class SelectComponent extends BaseComponent {
 
     if (notFoundValuesToAdd.length) {
       if (this.choices) {
-        this.choices.setChoices(notFoundValuesToAdd, 'value', 'label', true);
+        this.choices.setChoices(notFoundValuesToAdd, 'value', 'label');
       } else {
         notFoundValuesToAdd.map(notFoundValue => {
           this.addOption(notFoundValue.value, notFoundValue.label);
@@ -914,8 +917,10 @@ export default class SelectComponent extends BaseComponent {
         this.choices.removeActiveItems();
         // Add the currently selected choices if they don't already exist.
         const currentChoices = Array.isArray(this.dataValue) ? this.dataValue : [this.dataValue];
-        this.addCurrentChoices(currentChoices, this.selectOptions);
-        this.choices.setChoices(this.selectOptions, 'value', 'label', true).setChoiceByValue(value);
+        if (!this.addCurrentChoices(currentChoices, this.selectOptions, true)) {
+          this.choices.setChoices(this.selectOptions, 'value', 'label', true);
+        }
+        this.choices.setChoiceByValue(value);
       } else if (hasPreviousValue) {
         this.choices.removeActiveItems();
       }

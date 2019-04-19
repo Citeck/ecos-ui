@@ -1,7 +1,40 @@
 const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
+const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
 const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
 
 let records;
+
+function convertAttributePath(path) {
+  if (path[0] === '.') {
+    return path;
+  }
+  if (!path) {
+    return null;
+  }
+
+  let attName;
+  let attSchema;
+  let attPath = path;
+
+  let isEdge = path[0] === '#';
+  if (isEdge) {
+    attPath = attPath.substring(1);
+  }
+
+  let qIdx = attPath.indexOf('?');
+  if (qIdx >= 0) {
+    attName = attPath.substring(0, qIdx);
+    attSchema = attPath.substring(qIdx + 1);
+  } else {
+    if (isEdge) {
+      throw new Error("Incorrect attribute: '" + path + "'. Missing ?...");
+    }
+    attName = attPath;
+    attSchema = 'disp';
+  }
+
+  return '.' + (isEdge ? 'edge' : 'att') + '(n:"' + attName + '"){' + attSchema + '}';
+}
 
 class Records {
   constructor() {
@@ -20,6 +53,30 @@ class Records {
     return rec;
   }
 
+  remove(records) {
+    return new Promise(function(resolve, reject) {
+      fetch(DELETE_URL, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-type': 'application/json;charset=UTF-8'
+        },
+        body: JSON.stringify({
+          records: records
+        })
+      })
+        .then(response => {
+          return response.json();
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(e => {
+          reject(e);
+        });
+    });
+  }
+
   query(body) {
     let self = this;
 
@@ -27,7 +84,9 @@ class Records {
 
     if (body.attributes) {
       for (let att in body.attributes) {
-        attributesMapping[att] = body.attributes[att];
+        if (body.attributes.hasOwnProperty(att)) {
+          attributesMapping[att] = body.attributes[att];
+        }
       }
     }
 
@@ -46,13 +105,19 @@ class Records {
         .then(response => {
           let records = [];
           for (let idx in response.records) {
+            if (!response.records.hasOwnProperty(idx)) {
+              continue;
+            }
+
             let recordMeta = response.records[idx];
 
             if (recordMeta.id) {
               let record = self.get(recordMeta.id);
 
               for (let att in recordMeta.attributes) {
-                record.att(attributesMapping[att], recordMeta.attributes[att]);
+                if (recordMeta.attributes.hasOwnProperty(att)) {
+                  record.att(attributesMapping[att], recordMeta.attributes[att]);
+                }
               }
             }
 
@@ -120,7 +185,7 @@ class Record {
     return this._id;
   }
 
-  set id(v) {
+  static set id(v) {
     throw new Error('id is a constant field!');
   }
 
@@ -132,53 +197,57 @@ class Record {
     let loaded = {};
 
     for (let att in attributes) {
-      let attName = attributes[att];
+      if (!attributes.hasOwnProperty(att)) {
+        continue;
+      }
+
+      let attPath = convertAttributePath(attributes[att]);
 
       if (!force) {
-        let existingValue = self._attributes[attName];
+        let existingValue = self._attributes[attPath];
         if (existingValue) {
           loaded[att] = existingValue.value;
         } else {
-          toLoad.push(attName);
-          toLoadNames[attName] = att;
+          toLoad.push(attPath);
+          toLoadNames[attPath] = att;
         }
       } else {
-        toLoad.push(attName);
-        toLoadNames[attName] = att;
+        toLoad.push(attPath);
+        toLoadNames[attPath] = att;
       }
     }
 
-    return new Promise(function(resolve, reject) {
-      if (toLoad.length > 0) {
-        fetch(QUERY_URL, {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-type': 'application/json;charset=UTF-8'
-          },
-          body: JSON.stringify({
-            record: self.id,
-            attributes: toLoad
-          })
-        })
-          .then(response => {
-            return response.json();
-          })
-          .then(response => {
-            let atts = response.attributes || {};
-            for (let att in atts) {
-              if (!atts.hasOwnProperty(att)) {
-                continue;
-              }
-              loaded[toLoadNames[att]] = atts[att];
-              self._attributes[att] = new Attribute(self, att, atts[att]);
-            }
+    if (toLoad.length === 0) {
+      return Promise.resolve(loaded);
+    }
 
-            resolve(loaded);
-          });
-      } else {
-        resolve(loaded);
-      }
+    return new Promise(function(resolve, reject) {
+      fetch(QUERY_URL, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-type': 'application/json;charset=UTF-8'
+        },
+        body: JSON.stringify({
+          record: self.id,
+          attributes: toLoad
+        })
+      })
+        .then(response => {
+          return response.json();
+        })
+        .then(response => {
+          let atts = response.attributes || {};
+          for (let att in atts) {
+            if (!atts.hasOwnProperty(att)) {
+              continue;
+            }
+            loaded[toLoadNames[att]] = atts[att];
+            self._attributes[att] = new Attribute(self, att, atts[att]);
+          }
+
+          resolve(loaded);
+        });
     });
   }
 
@@ -221,6 +290,10 @@ class Record {
 
     let sumbitRequired = false;
     for (let attName in self._attributes) {
+      if (!self._attributes.hasOwnProperty(attName)) {
+        continue;
+      }
+
       let attribute = self._attributes[attName];
 
       if (!attribute.isPersisted()) {
@@ -248,10 +321,12 @@ class Record {
             return response.json();
           })
           .then(response => {
-            var attributesToLoad = {};
+            let attributesToLoad = {};
 
             for (let att in attributesToPersist) {
-              attributesToLoad[att] = att;
+              if (attributesToPersist.hasOwnProperty(att)) {
+                attributesToLoad[att] = att;
+              }
             }
 
             self.load(attributesToLoad, true).then(() => {
@@ -269,15 +344,17 @@ class Record {
       return;
     }
 
+    let localName = convertAttributePath(name);
+
     if (arguments.length > 1) {
-      let attribute = this._attributes[name];
+      let attribute = this._attributes[localName];
       if (!attribute) {
         attribute = new Attribute(null);
-        this._attributes[name] = attribute;
+        this._attributes[localName] = attribute;
       }
       attribute.value = value;
     } else {
-      return (this._attributes[name] || {}).value;
+      return (this._attributes[localName] || {}).value;
     }
   }
 }

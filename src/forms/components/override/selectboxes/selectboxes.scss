@@ -1,0 +1,13 @@
+@import '../../../constants';
+
+.formio-dialog-content .preview-panel,
+.formio-form {
+  .formio-component-selectboxes {
+    .form-check {
+      margin-bottom: 10px;
+      padding-left: 0;
+    }
+
+    @extend .formio-component-checkbox;
+  }
+}

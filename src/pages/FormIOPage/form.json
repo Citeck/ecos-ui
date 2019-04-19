@@ -23,16 +23,20 @@
           "components": [
             {
               "input": true,
+              "type": "selectOrgstruct",
+              "label": "Инициатор",
+              "key": "idocs_initiator",
+              "multiple": true,
+              "allowedAuthorityType": "USER, GROUP",
+              "allowedGroupType": "ROLE, BRANCH"
+            },
+            {
+              "input": true,
               "type": "selectJournal",
               "label": "Юридическое лицо",
               "key": "legalEntities",
               "multiple": true,
-              "journalId": "legal-entities",
-              "isCompact": true,
-              "defaultValue": [
-                "workspace://SpacesStore/99ce5ecc-a501-404c-a1ed-5507afed6282",
-                "workspace://SpacesStore/50a4ace5-925a-4267-905f-abeff3960d1c"
-              ]
+              "journalId": "legal-entities"
             },
             {
               "input": true,
@@ -40,7 +44,6 @@
               "label": "Контрагент",
               "key": "idocsContractor",
               "multiple": false,
-              "disabled": true,
               "journalId": "idocs-contractor",
               "defaultValue": "workspace://SpacesStore/eea14b3b-6243-4b61-b15e-e8d5c34a9586"
             }
@@ -50,6 +53,7 @@
           "components": [
             {
               "input": true,
+              "disabled": true,
               "type": "selectJournal",
               "label": "Предмет договора",
               "key": "contractSubjects",
@@ -61,7 +65,8 @@
               "label": "Документ-основание",
               "key": "contract-agreements",
               "journalId": "contract-agreements",
-              "multiple": true
+              "multiple": true,
+              "isCompact": true
             },
             {
               "input": true,

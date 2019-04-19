@@ -2,6 +2,7 @@ module.exports = {
   entryPoints: {
     "ecos-form": "./export/src/forms/index.js",
     "records": "./export/src/records/index.js",
+    "modal": "./export/src/modal/index.js",
 
     // "glyphicon-to-fa": "./export/src/glyphicon-to-fa/index.js",
 
@@ -35,10 +36,20 @@ module.exports = {
       commonjs2: 'react-redux',
       amd: 'react-redux',
     },
+    reactstrap: {
+      commonjs: 'reactstrap',
+      commonjs2: 'reactstrap',
+      amd: 'reactstrap',
+    },
     'react-custom-scrollbars' : {
       commonjs: 'react-custom-scrollbars',
       commonjs2: 'react-custom-scrollbars',
       amd: 'react-custom-scrollbars',
+    },
+    'react-draggable' : {
+      commonjs: 'react-draggable',
+      commonjs2: 'react-draggable',
+      amd: 'react-draggable',
     },
     moment : {
       commonjs: 'moment',

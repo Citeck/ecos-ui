@@ -39,6 +39,8 @@
 
 .select-journal__grid {
   margin-top: 15px;
+  margin-left: -21px;
+  margin-right: -21px;
   min-height: 150px;
   position: relative;
 }
@@ -46,4 +48,5 @@
 .select-journal__pagination {
   position: absolute;
   bottom: -40px;
+  left: 15px;
 }

@@ -1,0 +1,144 @@
+@import '../../../constants';
+
+.ecos-modal_draggable {
+  .modal-header {
+    cursor: move;
+  }
+}
+
+.ecos-modal {
+  .modal-content {
+    border-radius: $border-radius-extra-large;
+  }
+
+  .modal-header {
+    border-bottom: none;
+    color: $text-color-dark;
+    padding: 24px 21px 1px 21px;
+
+    .close {
+      margin: 0;
+      padding: 0;
+
+      position: absolute;
+      right: 15px;
+      top: 6px;
+
+      color: $color-gray-dark;
+      opacity: 1;
+      z-index: 1;
+
+      .icon {
+        font-size: 14px;
+      }
+    }
+  }
+
+  .modal-body {
+    padding: 21px;
+  }
+
+  .modal-title {
+    font-size: $font-size-large;
+    font-weight: $font-weight-bold;
+    line-height: 22px;
+    color: $text-color-dark;
+  }
+}
+
+.ecos-modal_empty-header {
+  .modal-header {
+    padding-bottom: 0;
+  }
+
+  .modal-body {
+    padding-top: 0;
+  }
+}
+
+.ecos-modal.ecos-modal_big-header {
+  .modal-header {
+    padding-top: 28px;
+    padding-bottom: 7px;
+  }
+
+  .modal-title {
+    font-size: 24px;
+  }
+
+  .close {
+    position: static;
+
+    > span {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+    }
+
+    .icon {
+      margin-left: 5px;
+    }
+  }
+}
+
+.ecos-modal-close {
+  font-weight: $font-weight-semi-bold;
+  font-size: 14px;
+  color: $text-color-dark;
+}
+
+.ecos-modal_level-1 {
+  top: 40px;
+}
+
+.ecos-modal_level-2 {
+  top: 120px;
+}
+
+.ecos-modal_level-3 {
+  top: 180px;
+}
+
+.ecos-modal_level-4 {
+  top: 240px;
+}
+
+.ecos-modal.ecos-modal_width-sm {
+  max-width: 600px;
+}
+
+.ecos-modal.ecos-modal_width-m {
+  max-width: 800px;
+}
+
+.ecos-modal.ecos-modal_width-lg {
+  max-width: 1000px;
+}
+
+.ecos-modal.ecos-modal_width-extra-lg {
+  max-width: 1200px;
+}
+
+@media (max-width: 600px) {
+  .ecos-modal.ecos-modal_width-sm {
+    margin: 0.5rem;
+  }
+}
+
+@media (max-width: 800px) {
+  .ecos-modal.ecos-modal_width-m {
+    margin: 0.5rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .ecos-modal.ecos-modal_width-lg {
+    margin: 0.5rem;
+  }
+}
+
+@media (max-width: 1280px) {
+  .ecos-modal.ecos-modal_width-extra-lg {
+    margin: 0.5rem;
+  }
+}
