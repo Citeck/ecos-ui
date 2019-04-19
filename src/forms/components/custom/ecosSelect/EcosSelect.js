@@ -833,6 +833,7 @@ export default class SelectComponent extends BaseComponent {
       } else {
         notFoundValuesToAdd.map(notFoundValue => {
           this.addOption(notFoundValue.value, notFoundValue.label);
+          return notFoundValue;
         });
       }
     }
