@@ -29,7 +29,11 @@ class JournalsDashlet extends Component {
 
   showEditor = () => this.props.setEditorMode(true);
 
-  goToJournalsPage = () => window.open(`${URL_PAGECONTEXT}journals`, '_blank');
+  goToJournalsPage = () =>
+    window.open(
+      `${URL_PAGECONTEXT}journals2/list/tasks#journal=${this.props.journalConfig.meta.nodeRef}&filter=&settings=&skipCount=0&maxItems=10`,
+      '_blank'
+    );
 
   render() {
     const {
