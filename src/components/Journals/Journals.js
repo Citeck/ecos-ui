@@ -32,7 +32,7 @@ const mapDispatchToProps = dispatch => ({
 class Journals extends Component {
   constructor(props) {
     super(props);
-    this.state = { menuOpen: false, settingsVisible: true };
+    this.state = { menuOpen: false, settingsVisible: false };
     this.settings = null;
   }
 
@@ -112,7 +112,13 @@ class Journals extends Component {
     } = this.props;
 
     return (
-      <Container style={{ height: 1200 /*max-height: 1200px*/ }}>
+      <Container
+        style={
+          {
+            /*max-height: 1200px*/
+          }
+        }
+      >
         <div className={'ecos-journal'}>
           <div className={`ecos-journal__body ${menuOpen ? 'ecos-journal__body_with-menu' : ''}`}>
             <div className={'ecos-journal__visibility-menu-btn'}>
@@ -224,7 +230,9 @@ class Journals extends Component {
             </div>
           </div>
 
-          <JournalsMenu open={menuOpen} onClose={this.toggleMenu} />
+          <div className={'ecos-journal__menu'}>
+            <JournalsMenu open={menuOpen} onClose={this.toggleMenu} />
+          </div>
         </div>
       </Container>
     );

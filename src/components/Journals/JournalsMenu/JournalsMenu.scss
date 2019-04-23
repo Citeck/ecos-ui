@@ -1,17 +1,12 @@
 @import '../../../constants';
 
 .ecos-journal-menu {
-  position: absolute;
-  width: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
   background: $color-gray-3;
   padding: 15px 26px 0 15px;
 }
 
 .ecos-journal-menu_open {
-  width: 273px;
+  width: 100%;
 }
 
 .ecos-journal-menu__hide-menu-btn {

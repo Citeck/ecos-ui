@@ -2,6 +2,8 @@
 
 .grouping__toolbar {
   margin-bottom: 10px;
+  margin-left: 21px;
+  margin-right: 21px;
 }
 
 .grouping__toolbar-button_next {
@@ -9,6 +11,9 @@
 }
 
 .grouping__content {
+  margin-left: 21px;
+  margin-right: 21px;
+
   .list-group {
     .list-group-item {
       padding: 4px 0;
@@ -51,4 +56,28 @@
   font-weight: $font-weight-semi-bold;
   font-style: normal;
   text-align: left;
+}
+
+.grouping__toolbar_aggregation {
+  margin-top: 14px;
+}
+
+.grouping__content_aggregation {
+  height: 160px;
+  margin-left: 0;
+  margin-right: 0;
+
+  .list-group {
+    .list-group-item {
+      border-right: 0;
+      border-left: 0;
+      padding: 6px 21px;
+
+      &:hover {
+        background: inherit;
+        color: inherit;
+        border-radius: inherit;
+      }
+    }
+  }
 }

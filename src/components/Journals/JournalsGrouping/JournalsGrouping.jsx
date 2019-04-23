@@ -44,7 +44,7 @@ class JournalsGrouping extends Component {
       <PanelBar
         header={t('journals.grouping.header')}
         className={'journals-grouping__panel-bar'}
-        css={{ headerClassName: 'panel-bar__header_full panel-bar__header_upper' }}
+        css={{ headerClassName: 'panel-bar__header_upper' }}
       >
         <Grouping
           className={'journals-grouping'}

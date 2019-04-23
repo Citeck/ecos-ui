@@ -5,19 +5,39 @@
   height: 100%;
   max-width: 1200px;
   background: $color-gray;
+  overflow: hidden;
+
+  &:after {
+    content: '';
+    display: table;
+    clear: both;
+  }
 }
 
 .ecos-journal__body {
-  position: absolute;
-  left: 26px;
-  top: 15px;
-  bottom: 0;
-  right: 26px;
+  padding-top: 15px;
+  padding-right: 26px;
+  padding-left: 26px;
 }
 
 .ecos-journal__body_with-menu {
-  right: 273px;
-  margin-right: 15px;
+  float: left;
+  width: calc(100% - 273px);
+  padding-right: 15px;
+}
+
+.ecos-journal__menu {
+  float: right;
+  width: 273px;
+  background: $color-gray-3;
+
+  &:after {
+    width: 273px;
+    background: $color-gray-3;
+    content: '';
+    position: absolute;
+    height: 100%;
+  }
 }
 
 .ecos-journal__visibility-menu-btn {
