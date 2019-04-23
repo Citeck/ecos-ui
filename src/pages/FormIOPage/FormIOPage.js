@@ -5,11 +5,16 @@ import FormBuilder from 'formiojs/FormBuilder';
 //import schema from './form.json';
 // import schema from './calendarForm.json';
 import '../../forms/components';
+import Formio from 'formiojs/Formio';
 
 // import SelectJournal from '../../components/common/form/SelectJournal';
 
 class FormIOPage extends React.Component {
   componentDidMount() {
+    let proxyUri = ((window.Alfresco || {}).constants || {}).PROXY_URI || '/';
+    proxyUri = proxyUri.substring(0, proxyUri.length - 1);
+    Formio.setProjectUrl(proxyUri);
+
     /*let options = {
       // inputsOnly: true
     };

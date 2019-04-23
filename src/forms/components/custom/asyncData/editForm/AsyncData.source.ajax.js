@@ -3,6 +3,16 @@ const RES_MAPPING_PROP = 'source.ajax.mapping';
 
 export default [
   {
+    weight: 0,
+    type: 'textfield',
+    input: true,
+    key: 'source.ajax.url',
+    label: 'URL',
+    validate: {
+      required: true
+    }
+  },
+  {
     type: 'select',
     input: true,
     label: 'Method:',

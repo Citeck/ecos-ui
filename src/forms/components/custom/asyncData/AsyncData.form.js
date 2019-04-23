@@ -1,4 +1,4 @@
-import RecordsQuerySource from './editForm/AsyncData.source.records';
+import RecordsQuerySource from './editForm/AsyncData.source.recordsQuery';
 import RecordSource from './editForm/AsyncData.source.record';
 import AjaxSource from './editForm/AsyncData.source.ajax';
 import AdvancedTab from './editForm/AsyncData.tab.advanced';
@@ -35,7 +35,11 @@ export default function(...extend) {
                 dataSrc: 'values',
                 defaultValue: 'record',
                 data: {
-                  values: [{ label: 'Record', value: 'record' }, { label: 'Records', value: 'records' }, { label: 'Ajax', value: 'ajax' }]
+                  values: [
+                    { label: 'Record', value: 'record' },
+                    { label: 'Records Query', value: 'recordsQuery' },
+                    { label: 'Ajax', value: 'ajax' }
+                  ]
                 }
               },
               {
@@ -45,7 +49,7 @@ export default function(...extend) {
                 components: RecordsQuerySource,
                 conditional: {
                   json: {
-                    and: [{ '==': [{ var: 'data.source.type' }, 'records'] }]
+                    and: [{ '==': [{ var: 'data.source.type' }, 'recordsQuery'] }]
                   }
                 }
               },

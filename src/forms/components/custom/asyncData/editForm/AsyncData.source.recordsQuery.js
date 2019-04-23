@@ -1,9 +1,9 @@
-const QUERY_PROP = 'source.records.query';
+const QUERY_PROP = 'source.recordsQuery.query';
 
 export default [
   {
     type: 'panel',
-    title: 'Records query',
+    title: 'Query',
     collapsible: true,
     collapsed: false,
     style: {
@@ -34,25 +34,25 @@ export default [
     type: 'datamap',
     label: 'Attributes',
     tooltip: 'Attributes to load',
-    key: 'source.records.attributes',
+    key: 'source.recordsQuery.attributes',
+    clearOnHide: false,
     valueComponent: {
       type: 'textfield',
       key: 'value',
       label: 'Attribute',
       defaultValue: '',
       input: true
-    },
-    validate: {
-      required: true
     }
+  },
+  {
+    label: 'Single record',
+    labelPosition: 'left-left',
+    shortcut: '',
+    tableView: true,
+    alwaysEnabled: false,
+    type: 'checkbox',
+    input: true,
+    key: 'source.recordsQuery.isSingle',
+    defaultValue: false
   }
-
-  /*_.extend(
-    EditFormUtils.javaScriptValue('Query', 'records.query.js', 'records.query.json', 110,
-      '<p>You must assign the <strong>query</strong> variable.</p>' +
-      '<h5>Example</h5><pre>query = {<br>' +
-      '"query":{ asddsd}' +
-      '};</pre>',
-      '<p><a href="http://formio.github.io/formio.js/app/examples/conditions.html" target="_blank">Click here for an example</a></p>'
-    ))*/
 ];

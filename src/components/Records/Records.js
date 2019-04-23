@@ -77,6 +77,23 @@ class Records {
     });
   }
 
+  queryOne(query, attributes) {
+    let page = query.page || {};
+    page.maxItems = 1;
+
+    query.page = page;
+
+    return this.query({
+      query: query,
+      attributes: attributes || {}
+    }).then(resp => {
+      if (resp.records.length === 0) {
+        return null;
+      }
+      return resp.records[0];
+    });
+  }
+
   query(body) {
     let self = this;
 
@@ -121,7 +138,14 @@ class Records {
               }
             }
 
-            records.push(recordMeta);
+            records.push(
+              Object.assign(
+                {
+                  id: recordMeta.id
+                },
+                recordMeta.attributes
+              )
+            );
           }
 
           resolve({

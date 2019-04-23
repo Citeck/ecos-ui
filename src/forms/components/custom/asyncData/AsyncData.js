@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import BaseComponent from '../base/BaseComponent';
+import Formio from 'formiojs/Formio';
 
 import Records from '../../../../components/Records';
 
@@ -14,14 +15,20 @@ export default class AsyncDataComponent extends BaseComponent {
         inputType: 'asyncData',
         source: {
           type: '',
-          ajax: '',
+          ajax: {
+            method: '',
+            url: '',
+            data: '',
+            mapping: ''
+          },
           record: {
             id: '',
             attributes: {}
           },
-          records: {
+          recordsQuery: {
             query: '',
-            attributes: {}
+            attributes: {},
+            isSingle: false
           }
         },
         update: {
@@ -58,12 +65,22 @@ export default class AsyncDataComponent extends BaseComponent {
 
   checkConditions(data) {
     let result = super.checkConditions(data);
+
     let comp = this.component;
+
+    this.currentData = data;
 
     if (_.get(comp, 'update.type', '') !== 'any-change') {
       return result;
     }
 
+    this._updateValue(false);
+
+    return result;
+  }
+
+  _updateValue(forceUpdate) {
+    let comp = this.component;
     let type = _.get(comp, 'source.type', '');
     let self = this;
 
@@ -71,7 +88,7 @@ export default class AsyncDataComponent extends BaseComponent {
       case 'record':
         let recordId = _.get(comp, 'source.record.id', '');
         if (recordId) {
-          recordId = this.interpolate(recordId, { item: data });
+          recordId = this.interpolate(recordId, { item: this.currentData });
         }
 
         this._evalAsyncValue(
@@ -80,50 +97,102 @@ export default class AsyncDataComponent extends BaseComponent {
           id => {
             return Records.get(id).load(comp.source.record.attributes);
           },
-          {}
+          {},
+          forceUpdate
         );
 
         break;
-      case 'records':
-        let queryFunc = _.get(comp, 'source.records.query', '');
-        let query = this.evaluate(queryFunc, {}, 'value', true);
+      case 'recordsQuery':
+        let recQueryConfig = _.get(comp, 'source.recordsQuery', {});
+
+        let query = this.evaluate(recQueryConfig.query, {}, 'value', true);
 
         this._evalAsyncValue(
           'evaluatedRecordsQuery',
           query,
           query => {
-            return Records.query({
-              query: query,
-              attributes: comp.source.records.attributes
-            });
+            let attributes = recQueryConfig.attributes || {};
+
+            if (recQueryConfig.isSingle) {
+              return Records.queryOne(query, attributes);
+            } else {
+              return Records.query({
+                query: query,
+                attributes: attributes
+              });
+            }
           },
-          {}
+          {},
+          forceUpdate
         );
 
         break;
       case 'ajax':
-        let method = _.get(comp, 'source.ajax.method', 'GET');
+        let ajaxConfig = _.get(comp, 'source.ajax', {});
+        let reqData = this.evaluate(ajaxConfig.data, {}, 'value', true);
 
-        let reqDataFunc = _.get(comp, 'source.ajax.method', '');
-        let reqData = this.evaluate(reqDataFunc, {}, 'value', true);
+        this._evalAsyncValue(
+          'computedAjaxData',
+          reqData,
+          data => {
+            let url = ajaxConfig.url;
+            let body = null;
+            if (ajaxConfig.method === 'GET') {
+              url += '?' + Formio.serialize(data);
+            } else {
+              body = JSON.stringify(data);
+            }
 
-        console.log('Ajax');
+            if (url.substr(0, 1) === '/') {
+              let baseUrl = Formio.getProjectUrl();
+              if (!baseUrl) {
+                baseUrl = Formio.getBaseUrl();
+              }
+              url = baseUrl + url;
+            }
+
+            return fetch(url, {
+              method: ajaxConfig.method,
+              credentials: 'include',
+              headers: {
+                'Content-type': 'application/json;charset=UTF-8'
+              },
+              body: body
+            })
+              .then(response => {
+                return response.json();
+              })
+              .then(response => {
+                if (ajaxConfig.mapping) {
+                  return self.evaluate(ajaxConfig.mapping, { data: response }, 'value', true);
+                } else {
+                  return response;
+                }
+              });
+          },
+          null,
+          forceUpdate
+        );
+
         break;
       default:
         console.error('Unknown source type: ' + type);
     }
-    return result;
   }
 
-  _evalAsyncValue(dataField, data, action, defaultValue) {
+  _evalAsyncValue(dataField, data, action, defaultValue, forceUpdate) {
     let self = this;
     let comp = this.component;
 
+    if (data === null) {
+      return;
+    }
+
     let currentValue = this[dataField];
-    if (!_.isEqual(currentValue, data)) {
+    if (forceUpdate || !_.isEqual(currentValue, data)) {
       this[dataField] = data;
 
-      setTimeout(() => {
+      let actionImpl = () => {
         if (data === self[dataField]) {
           let result = action.call(self, data);
           if (result) {
@@ -136,15 +205,32 @@ export default class AsyncDataComponent extends BaseComponent {
               });
           }
         }
-      }, comp.update.rate);
+      };
+
+      if (forceUpdate) {
+        actionImpl.call(this);
+      } else {
+        setTimeout(actionImpl, comp.update.rate);
+      }
     }
   }
 
   build() {
     super.build();
+
     if (this.options.builder) {
       // We need to see it in builder mode.
-      this.append(this.text(this.name));
+      this.append(this.text(this.name + ' (' + this.key + ')'));
+    }
+
+    if (_.get(this.component, 'update.type', '') === 'event') {
+      this.on(
+        this.component.update.event,
+        () => {
+          this._updateValue(false);
+        },
+        true
+      );
     }
   }
 

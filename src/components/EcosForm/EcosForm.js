@@ -283,7 +283,7 @@ class EcosForm extends React.Component {
         customModule: 'customModule'
       }
     }).then(data => {
-      let formAtts = data.records[0].attributes;
+      let formAtts = data.records[0];
 
       return Promise.resolve({
         definition: formAtts.formDef,
