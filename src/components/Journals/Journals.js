@@ -8,6 +8,7 @@ import JournalsGrouping from './JournalsGrouping';
 import JournalsFilters from './JournalsFilters';
 import JournalsColumnsSetup from './JournalsColumnsSetup';
 import JournalsMenu from './JournalsMenu';
+import JournalSetting from './JournalSetting';
 import Search from '../common/Search/Search';
 import Columns from '../common/templates/Columns/Columns';
 
@@ -20,7 +21,8 @@ import { t } from '../../helpers/util';
 import './Journals.scss';
 
 const mapStateToProps = state => ({
-  journalConfig: state.journals.journalConfig
+  journalConfig: state.journals.journalConfig,
+  grid: state.journals.grid
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -32,8 +34,13 @@ const mapDispatchToProps = dispatch => ({
 class Journals extends Component {
   constructor(props) {
     super(props);
-    this.state = { menuOpen: false, settingsVisible: false };
-    this.settings = null;
+
+    this.state = {
+      menuOpen: false,
+      settingsVisible: true
+    };
+
+    this.journalSetting = new JournalSetting();
   }
 
   componentDidMount() {
@@ -49,58 +56,26 @@ class Journals extends Component {
   };
 
   reload = () => {
-    this.props.saveJournalSettings({
-      id: 'contract-agreements',
-      journalId: 'contract-agreements',
-      title: 'ысфывафы',
-      sortBy: [
-        {
-          attribute: 'cm:created',
-          ascending: false
-        },
-        {
-          attribute: 'cm:title',
-          ascending: true
-        }
-      ],
-      groupBy: ['contracts:contractor'],
-      columns: [
-        {
-          attr: 'cm:created'
-        },
-        {
-          attr: 'cm:title'
-        },
-        {
-          attr: 'contracts:contractor'
-        }
-      ],
-      predicate: null,
-      maxItems: 10,
-      permissions: {
-        Write: true,
-        Delete: true
-      }
-    });
+    this.props.saveJournalSettings(this.journalSetting.example);
   };
 
-  getSettings = settings => {
-    this.settings = settings;
+  onChangeFilters = predicate => {
+    this.journalSetting.setPredicate(predicate);
+  };
+
+  onChangeColumnsSetup = columnsSetup => {
+    this.journalSetting.setColumnsSetup(columnsSetup);
+  };
+
+  onChangeGrouping = grouping => {
+    this.journalSetting.setGrouping(grouping);
   };
 
   apply = () => {
-    console.log(this.settings);
+    console.log(this.props.grid);
 
-    let settings = {};
-
-    if (this.settings) {
-      const { columns, sortBy } = this.settings;
-
-      columns && (settings.columns = columns);
-      sortBy && (settings.sortBy = sortBy);
-
-      this.props.reloadGrid({ ...settings });
-    }
+    const setting = this.journalSetting.getSetting();
+    setting && this.props.reloadGrid({ ...setting });
   };
 
   render() {
@@ -112,13 +87,7 @@ class Journals extends Component {
     } = this.props;
 
     return (
-      <Container
-        style={
-          {
-            /*max-height: 1200px*/
-          }
-        }
-      >
+      <Container>
         <div className={'ecos-journal'}>
           <div className={`ecos-journal__body ${menuOpen ? 'ecos-journal__body_with-menu' : ''}`}>
             <div className={'ecos-journal__visibility-menu-btn'}>
@@ -198,9 +167,9 @@ class Journals extends Component {
 
             {settingsVisible ? (
               <Well className={'ecos-journal__settings'}>
-                <JournalsFilters onChange={this.getSettings} />
-                <JournalsColumnsSetup onChange={this.getSettings} />
-                <JournalsGrouping onChange={this.getSettings} />
+                <JournalsFilters onChange={this.onChangeFilters} />
+                <JournalsColumnsSetup onChange={this.onChangeColumnsSetup} />
+                <JournalsGrouping onChange={this.onChangeGrouping} />
 
                 <Columns
                   className={'ecos-journal__settings-footer'}

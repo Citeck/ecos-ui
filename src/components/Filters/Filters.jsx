@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import { FiltersGroup } from './';
 import { ParserPredicate } from './predicates';
-import { getId } from '../../helpers/util';
+import { getId, trigger } from '../../helpers/util';
 
 import './Filters.scss';
 
@@ -22,7 +22,9 @@ export default class Filters extends Component {
 
   onChangeFilters = ({ filters, index }) => {
     this.store[index].filters = filters;
-    ParserPredicate.reverse(this.store);
+    const predicate = ParserPredicate.reverse(this.store);
+
+    trigger.call(this, 'onChange', predicate);
   };
 
   createGroup = (group, first, idx) => {

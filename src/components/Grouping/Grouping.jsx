@@ -23,35 +23,34 @@ class ListItem extends Component {
 }
 
 class AggregationListItem extends Component {
-  changeVisible = e => {
-    this.props.column.default = e.checked;
-    trigger.call(this, 'onChangeVisible', e);
-  };
-
-  changeSortBy = e => {
-    trigger.call(this, 'onChangeSortBy', {
-      ascending: e.value,
-      attribute: this.props.column.attribute
-    });
+  onChangeAggregationType = e => {
+    trigger.call(this, 'onChangeAggregation', e);
   };
 
   render() {
     const { column, titleField } = this.props;
+    const aggregationTypes = [
+      {
+        attribute: `_${column.attribute}`,
+        schema: `sum(${column.attribute})`,
+        text: 'Сумма'
+      }
+    ];
 
     return (
       <Columns
         classNamesColumn={'columns_height_full columns-setup__column_align'}
         cols={[
           <div className={'two-columns__left columns-setup__column_align '}>
-            <Checkbox checked={column.default} onChange={this.changeVisible} />
+            <Checkbox />
             <Label className={'label_clear label_middle-grey columns-setup__next'}>{column[titleField]}</Label>
           </div>,
 
           <Select
-            options={[{ title: 'По возрастанию', value: true }, { title: 'По убыванию', value: false }]}
-            getOptionLabel={option => option.title}
-            getOptionValue={option => option.value}
-            onChange={this.changeSortBy}
+            options={aggregationTypes}
+            getOptionLabel={option => option.text}
+            getOptionValue={option => option.schema}
+            onChange={this.onChangeAggregationType}
             className={'select_narrow select_width_full'}
             placeholder={t('journals.default')}
           />
@@ -62,8 +61,33 @@ class AggregationListItem extends Component {
 }
 
 export default class Grouping extends Component {
+  grouping = {
+    columns: [],
+    groupBy: []
+  };
+
+  aggregations = [];
+
   onGrouping = state => {
-    trigger.call(this, 'onGrouping', state.second);
+    const { valueField } = this.props;
+    const columns = state.second;
+
+    this.grouping.columns = columns;
+    this.grouping.groupBy = [columns.map(col => col[valueField]).join('&')];
+
+    trigger.call(this, 'onGrouping', {
+      columns: [...this.grouping.columns, ...this.aggregations],
+      groupBy: this.grouping.groupBy
+    });
+  };
+
+  onChangeAggregation = aggregation => {
+    this.aggregations = [aggregation];
+
+    trigger.call(this, 'onGrouping', {
+      columns: [...this.grouping.columns, ...this.aggregations],
+      groupBy: this.grouping.groupBy
+    });
   };
 
   getList = list => {
@@ -78,12 +102,7 @@ export default class Grouping extends Component {
 
   getAggregationList = () => {
     return this.props.list.map(column => (
-      <AggregationListItem
-        column={column}
-        titleField={this.props.titleField}
-        onChangeVisible={this.onChangeVisible}
-        onChangeSortBy={this.onChangeSortBy}
-      />
+      <AggregationListItem column={column} titleField={this.props.titleField} onChangeAggregation={this.onChangeAggregation} />
     ));
   };
 
@@ -116,7 +135,7 @@ export default class Grouping extends Component {
 
         <div className={'grouping__content grouping__content_aggregation'}>
           <Scrollbars style={{ height: '100%' }}>
-            <List list={this.getAggregationList()} />
+            <List className={'ecos-list-group_overflow_visible'} list={this.getAggregationList()} />
           </Scrollbars>
         </div>
       </div>

@@ -35,6 +35,12 @@
   }
 }
 
+.ecos-list-group_overflow_visible {
+  .list-group-item {
+    overflow: visible;
+  }
+}
+
 .ecos-list-group_mode_journal {
   .list-group-item {
     padding: 13px 15px;

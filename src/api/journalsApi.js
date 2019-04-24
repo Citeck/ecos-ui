@@ -124,10 +124,10 @@ export class JournalsApi extends RecordService {
   };
 
   saveJournalSettings = settings => {
-    return this.putJson(`/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`, settings).then(resp => {
+    return this.putJson(`/micro/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`, settings).then(resp => {
       return resp;
     });
-    // return this.getJson('http://localhost/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default').then(resp => {
+    // return this.putJson('http://localhost/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default').then(resp => {
     //   return resp;
     // });
   };

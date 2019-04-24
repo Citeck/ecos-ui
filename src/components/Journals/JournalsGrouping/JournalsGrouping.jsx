@@ -3,7 +3,7 @@ import connect from 'react-redux/es/connect/connect';
 import Grouping from '../../Grouping/Grouping';
 import PanelBar from '../../common/PanelBar/PanelBar';
 import { reloadGrid, setGrouping } from '../../../actions/journals';
-import { t } from '../../../helpers/util';
+import { t, trigger } from '../../../helpers/util';
 
 import './JournalsGrouping.scss';
 
@@ -21,13 +21,15 @@ class JournalsGrouping extends Component {
   onGrouping = grouping => {
     this.props.setGrouping(grouping);
 
-    if (grouping.length) {
-      let columns = Array.from(grouping);
-      this.props.reloadGrid({ columns, groupBy: [columns.map(col => col['attribute']).join('&')] });
+    if (grouping.columns.length) {
+      let columns = Array.from(grouping.columns);
+      this.props.reloadGrid({ columns, groupBy: grouping.groupBy });
     } else {
       const { columns } = this.props.journalConfig;
       this.props.reloadGrid({ columns, groupBy: null });
     }
+
+    trigger.call(this, 'onChange', grouping);
   };
 
   render() {
