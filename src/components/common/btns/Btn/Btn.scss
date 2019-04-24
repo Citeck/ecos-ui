@@ -233,6 +233,11 @@ button {
   &.ecos-btn_grey2 {
     background: $color-white;
     color: $color-gray-5;
+
+    &:focus {
+      background: $color-white;
+      color: $color-gray-5;
+    }
   }
 
   &.ecos-btn_grey3 {
@@ -300,6 +305,10 @@ button {
       color: $color-blue-light;
       background: inherit;
     }
+    &:active {
+      color: $color-blue-dark;
+      background: inherit;
+    }
   }
 
   &.ecos-btn_hover_t-blue {
@@ -332,6 +341,13 @@ button {
     &:hover {
       color: inherit;
       background: $color-gray-2;
+    }
+  }
+
+  &.ecos-btn_hover_grey2 {
+    &:hover {
+      background: $color-white;
+      color: $color-gray-5;
     }
   }
 
