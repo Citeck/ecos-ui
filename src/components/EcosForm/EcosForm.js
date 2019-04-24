@@ -27,9 +27,15 @@ class EcosForm extends React.Component {
     let options = this.props.options || {};
     options.recordId = recordId;
 
-    let proxyUri = ((window.Alfresco || {}).constants || {}).PROXY_URI || '/';
+    let alfConstants = (window.Alfresco || {}).constants || {};
+
+    let proxyUri = alfConstants.PROXY_URI || '/';
     proxyUri = proxyUri.substring(0, proxyUri.length - 1);
     Formio.setProjectUrl(proxyUri);
+
+    if (alfConstants.USERNAME) {
+      Formio.setUser(alfConstants.USERNAME);
+    }
 
     let self = this;
 
