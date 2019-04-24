@@ -13,4 +13,16 @@ export default class BaseComponent extends FormIOBase {
   getAttributeToEdit() {
     return (this.component.properties || {}).attribute;
   }
+
+  /**
+   * Create an evaluation context for all script executions and interpolations.
+   *
+   * @param additional
+   * @return {*}
+   */
+  evalContext(additional) {
+    return Object.assign(super.evalContext(additional), {
+      recordId: this.getRecordId()
+    });
+  }
 }

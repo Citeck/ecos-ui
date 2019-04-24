@@ -29,6 +29,10 @@ export default class AsyncDataComponent extends BaseComponent {
             query: '',
             attributes: {},
             isSingle: false
+          },
+          custom: {
+            syncData: {},
+            asyncData: {}
           }
         },
         update: {
@@ -68,8 +72,6 @@ export default class AsyncDataComponent extends BaseComponent {
 
     let comp = this.component;
 
-    this.currentData = data;
-
     if (_.get(comp, 'update.type', '') !== 'any-change') {
       return result;
     }
@@ -88,7 +90,7 @@ export default class AsyncDataComponent extends BaseComponent {
       case 'record':
         let recordId = _.get(comp, 'source.record.id', '');
         if (recordId) {
-          recordId = this.interpolate(recordId, { item: this.currentData });
+          recordId = this.interpolate(recordId, { item: this.rootValue });
         }
 
         this._evalAsyncValue(
@@ -175,6 +177,22 @@ export default class AsyncDataComponent extends BaseComponent {
         );
 
         break;
+
+      case 'custom':
+        let customConfig = _.get(comp, 'source.custom', {});
+        let syncData = this.evaluate(customConfig.syncData, {}, 'value', true);
+
+        this._evalAsyncValue(
+          'computedCustomData',
+          syncData,
+          data => {
+            return this.evaluate(customConfig.asyncData, { data: data }, 'value', true);
+          },
+          null,
+          forceUpdate
+        );
+
+        break;
       default:
         console.error('Unknown source type: ' + type);
     }
@@ -196,13 +214,18 @@ export default class AsyncDataComponent extends BaseComponent {
         if (data === self[dataField]) {
           let result = action.call(self, data);
           if (result) {
-            result
-              .then(data => {
-                self.setValue(data);
-              })
-              .catch(() => {
-                self.setValue(defaultValue);
-              });
+            if (result.then) {
+              result
+                .then(data => {
+                  self.setValue(data);
+                })
+                .catch(e => {
+                  console.warn(e);
+                  self.setValue(defaultValue);
+                });
+            } else {
+              self.setValue(result);
+            }
           }
         }
       };
@@ -253,9 +276,5 @@ export default class AsyncDataComponent extends BaseComponent {
 
   getValue() {
     return this.dataValue;
-  }
-
-  isEmpty(value) {
-    return _.isEqual(value, {});
   }
 }
