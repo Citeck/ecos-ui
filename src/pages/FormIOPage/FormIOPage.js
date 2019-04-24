@@ -1,28 +1,33 @@
 import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
-import Form from 'formiojs/Form';
+//import Form from 'formiojs/Form';
 import FormBuilder from 'formiojs/FormBuilder';
-import schema from './form.json';
+//import schema from './form.json';
 // import schema from './calendarForm.json';
 import '../../forms/components';
+import Formio from 'formiojs/Formio';
 
 // import SelectJournal from '../../components/common/form/SelectJournal';
 
 class FormIOPage extends React.Component {
   componentDidMount() {
-    let options = {
+    let proxyUri = ((window.Alfresco || {}).constants || {}).PROXY_URI || '/';
+    proxyUri = proxyUri.substring(0, proxyUri.length - 1);
+    Formio.setProjectUrl(proxyUri);
+
+    /*let options = {
       // inputsOnly: true
     };
-
+*/
     // form in view mode
-    if (0) {
+    /*if (0) {
       options = {
         readOnly: true,
         viewAsHtml: true
       };
-    }
+    }*/
 
-    const form = new Form(document.getElementById('formio'), schema, options);
+    /*const form = new Form(document.getElementById('formio'), schema, options);
     // console.log(form);
 
     form.render().then(form => {
@@ -56,7 +61,7 @@ class FormIOPage extends React.Component {
       form.on('error', function(error) {
         console.log('Form error', error);
       });
-    });
+    });*/
 
     const formBuilder = new FormBuilder(document.getElementById('builder'), {});
     // console.log(formBuilder);
