@@ -1,0 +1,74 @@
+@import '../../constants';
+
+.ecos {
+  &-tab {
+    height: 30px;
+    background-color: $color-gray-6;
+    display: flex;
+
+    &__nav-btn {
+      background-color: $color-white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      cursor: pointer;
+      margin: auto 7px auto 14px;
+      color: $color-gray-5;
+
+      &:hover {
+        background-color: $text-color-gray;
+        color: $color-white;
+      }
+
+      &-icon {
+        &:before {
+          margin: auto auto auto -0.1em !important;
+          line-height: inherit !important;
+        }
+      }
+
+      &_disable {
+        background-color: $color-gray-5;
+        color: $color-gray-6;
+        cursor: not-allowed;
+
+        &:hover {
+          background-color: $color-gray-5;
+          color: $color-gray-6;
+        }
+      }
+    }
+
+    &__tabs {
+      height: 95%;
+      align-self: flex-end;
+      display: flex;
+
+      &-item {
+        position: relative;
+        background: $color-gray-4;
+        min-width: 10px;
+        width: 100%;
+        max-width: 300px;
+        padding: 3px 10px 7px;
+        border-radius: 6px 6px 0 0;
+
+        &:before {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          transform: rotate(0deg);
+          border-bottom-right-radius: 20px;
+          border-right: 10px $color-gray-4 solid;
+          border-bottom: 10px $color-gray-4 solid;
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+  }
+}

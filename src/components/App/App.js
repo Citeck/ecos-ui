@@ -16,6 +16,7 @@ import SlideMenu from '../SlideMenu';
 import Modal from '../Modal';
 import Footer from '../Footer';
 import LoginForm from '../LoginForm';
+import PageTabs from '../PageTabs';
 
 import './App.scss';
 
@@ -46,18 +47,20 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
           <Notification />
         </div>
 
-        <Switch>
-          {/*<Route path="/share/page" exact component={DashboardPage} />*/}
-          <Route path="/formio-develop" component={FormIOPage} />
-          <Route path="/ecos-form-example" component={EcosFormPage} />
+        <PageTabs>
+          <Switch>
+            {/*<Route path="/share/page" exact component={DashboardPage} />*/}
+            <Route path="/formio-develop" component={FormIOPage} />
+            <Route path="/ecos-form-example" component={EcosFormPage} />
 
-          <Route path="/share/page/journals" component={JournalsPage} />
-          <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
-          <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
-          <Route path="/share/page/(.*/)?card-details" component={CardDetailsPage} />
-          <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
-          {/*<Route component={NotFoundPage} />*/}
-        </Switch>
+            <Route path="/share/page/journals" component={JournalsPage} />
+            <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
+            <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
+            <Route path="/share/page/(.*/)?card-details" component={CardDetailsPage} />
+            <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
+            {/*<Route component={NotFoundPage} />*/}
+          </Switch>
+        </PageTabs>
 
         <div className="sticky-push" />
       </div>
