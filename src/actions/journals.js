@@ -13,16 +13,16 @@ export const setJournalsItem = createAction(prefix + 'SET_JOURNALS_ITEM');
 export const setSettingItem = createAction(prefix + 'SET_SETTING_ITEM');
 export const setJournalsList = createAction(prefix + 'SET_JOURNALS_LIST');
 export const setJournals = createAction(prefix + 'SET_JOURNALS');
-export const setJournalsListName = createAction(prefix + 'SET_JOURNALS_LIST_NAME');
 
-export const setPage = createAction(prefix + 'SET_PAGE');
 export const setJournalConfig = createAction(prefix + 'SET_JOURNAL_CONFIG');
 export const setGrid = createAction(prefix + 'SET_GRID');
+export const initGrid = createAction(prefix + 'INIT_GRID');
 export const reloadGrid = createAction(prefix + 'RELOAD_GRID');
+export const reloadTreeGrid = createAction(prefix + 'RELOAD_TREE_GRID');
+
 export const deleteRecords = createAction(prefix + 'DELETE_RECORDS');
 export const saveRecords = createAction(prefix + 'SAVE_RECORDS');
 export const setSelectedRecords = createAction(prefix + 'SET_SELECTED_RECORDS');
 export const setSelectAllRecords = createAction(prefix + 'SET_SELECT_ALL_RECORDS');
 export const setSelectAllRecordsVisible = createAction(prefix + 'SET_SELECT_ALL_RECORDS_VISIBLE');
-export const setGridMinHeight = createAction(prefix + 'SET_GRID_MIN_HEIGHT');
 export const setGridInlineToolSettings = createAction(prefix + 'SET_GRID_INLINE_TOOL_SETTINGS');

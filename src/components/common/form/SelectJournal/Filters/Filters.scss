@@ -1,0 +1,16 @@
+@import '../../../../../constants';
+
+.select-journal-filters__apply-button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.select-journal-filters__list-wrapper {
+  margin: 15px 0;
+}
+
+.select-journal-filters__list {
+  border-top: 2px solid $color-gray-6;
+  padding: 0;
+  list-style: none;
+}

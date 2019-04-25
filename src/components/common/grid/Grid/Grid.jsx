@@ -21,16 +21,16 @@ function triggerEvent(name, data) {
 }
 
 const Selector = ({ mode, ...rest }) => (
-  <div className={'grid__checkbox'}>
+  <div className={'ecos-grid__checkbox'}>
     <Checkbox checked={rest.checked} />
   </div>
 );
 
 const SelectorHeader = ({ indeterminate, ...rest }) => (
   <Fragment>
-    <div className={'grid__checkbox'}>
+    <div className={'ecos-grid__checkbox'}>
       {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
-      <div className={'grid__checkbox-devider'} />
+      <div className={'ecos-grid__checkbox-devider'} />
     </div>
   </Fragment>
 );
@@ -65,7 +65,7 @@ export default class Grid extends Component {
         column.hidden = !column.default;
       }
 
-      column = this.setHeaderFormatter(column, props.filterable);
+      column = this.setHeaderFormatter(column, props.filterable, column.sortable);
 
       column.formatter = this.initFormatter(props.editable);
 
@@ -74,10 +74,6 @@ export default class Grid extends Component {
 
     if (props.editable) {
       props.cellEdit = this.setEditable(props.editable);
-    }
-
-    if (props.defaultSortBy) {
-      props.data = this.sortByDefault(props);
     }
 
     if (typeof props.onMouseEnter === 'function') {
@@ -111,27 +107,17 @@ export default class Grid extends Component {
     });
   };
 
-  sortByDefault = props => {
-    const defaultSortBy = props.defaultSortBy;
-    const data = props.data.slice();
-
-    defaultSortBy.forEach(item => {
-      const { id, order } = item;
-
-      data.sort(function(a, b) {
-        return order ? a[id] < b[id] : a[id] > b[id];
-      });
-    });
-
-    return data;
+  sort = e => {
+    triggerEvent.call(this, 'onSort', e);
   };
 
   initFormatter = editable => {
     return (cell, row, rowIndex, formatExtraData) => {
-      const Formatter = (formatExtraData || {}).formatter;
+      formatExtraData = formatExtraData || {};
+      const Formatter = formatExtraData.formatter;
       return (
-        <div className={`grid__td ${editable ? 'grid__td_editable' : ''}`}>
-          {Formatter ? <Formatter row={row} cell={cell} params={formatExtraData.params} /> : null}
+        <div className={`ecos-grid__td ${editable ? 'ecos-grid__td_editable' : ''}`}>
+          {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
         </div>
       );
     };
@@ -146,17 +132,21 @@ export default class Grid extends Component {
     return column;
   };
 
-  setHeaderFormatter = (column, filterable) => {
+  setHeaderFormatter = (column, filterable, sortable) => {
+    const { filters, sortBy } = this.props;
+
     column.headerFormatter = (column, colIndex) => {
       return (
         <HeaderFormatter
           closeFilterEvent={CLOSE_FILTER_EVENT}
           filterable={filterable}
-          filterValue={((this.props.filters || []).filter(filter => filter.field === column.dataField)[0] || {}).value || ''}
+          filterValue={((filters || []).filter(filter => filter.field === column.dataField)[0] || {}).value || ''}
+          ascending={((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending}
           column={column}
           colIndex={colIndex}
           onFilter={this.onFilter}
           onDeviderMouseDown={this.getStartDeviderPosition}
+          onTextClick={sortable && this.sort}
         />
       );
     };
@@ -175,7 +165,7 @@ export default class Grid extends Component {
 
     return {
       mode: 'radio',
-      classes: 'grid__tr_selected',
+      classes: 'ecos-grid__tr_selected',
       selected: this._selected,
       onSelect: row => {
         const selected = this._selected[0];
@@ -198,7 +188,7 @@ export default class Grid extends Component {
 
     return {
       mode: 'checkbox',
-      classes: 'grid__tr_selected',
+      classes: 'ecos-grid__tr_selected',
       selected: this._selected,
       onSelect: (row, isSelect) => {
         const selected = this._selected;
@@ -281,6 +271,7 @@ export default class Grid extends Component {
     let th = this._resizingTh;
     if (th) {
       th.style.width = this._startResizingThOffset + e.pageX + 'px';
+      th.firstChild.style.width = this._startResizingThOffset + e.pageX + 'px';
     }
   };
 
@@ -310,11 +301,10 @@ export default class Grid extends Component {
 
   render() {
     let props = {
-      id: this._id,
       keyField: this._keyField,
       bootstrap4: true,
       bordered: false,
-      headerClasses: 'grid__header',
+      headerClasses: 'ecos-grid__header',
       noDataIndication: () => t('grid.no-data-indication'),
       ...this.props
     };
@@ -326,8 +316,13 @@ export default class Grid extends Component {
     if (props.columns.length) {
       return (
         <div
+          key={this._id}
           style={{ minHeight: props.minHeight }}
-          className={classNames('grid', (props.singleSelectable || props.multiSelectable) && 'grid_checkable', this.props.className)}
+          className={classNames(
+            'ecos-grid',
+            (props.singleSelectable || props.multiSelectable) && 'ecos-grid_checkable',
+            this.props.className
+          )}
         >
           {toolsVisible ? this.tools() : null}
 
@@ -340,7 +335,7 @@ export default class Grid extends Component {
           </PerfectScrollbar>
 
           {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
-            <BootstrapTable {...props} classes={'grid__freeze'} />
+            <BootstrapTable {...props} classes={'ecos-grid__freeze'} />
           ) : null}
 
           {this.inlineTools()}

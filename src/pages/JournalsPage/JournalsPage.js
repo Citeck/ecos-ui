@@ -1,23 +1,8 @@
 import React from 'react';
-import { connect } from 'react-redux';
-//import { initRequest } from '../../actions/journals';
 import { Journals } from '../../components/Journals';
 
-const mapDispatchToProps = dispatch => ({
-  //initRequest: () => dispatch(initRequest())
-});
-
-class JournalsPage extends React.Component {
-  componentDidMount() {
-    //this.props.initRequest();
-  }
-
+export default class JournalsPage extends React.Component {
   render() {
-    return <Journals {...this.props} />;
+    return <Journals id={'dashletId-1-0-0'} />;
   }
 }
-
-export default connect(
-  null,
-  mapDispatchToProps
-)(JournalsPage);

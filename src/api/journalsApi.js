@@ -11,11 +11,11 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, criteria, pagination }) => {
+  getGridData = ({ columns, criteria, pagination, predicate, groupBy, sortBy }) => {
     const query = criteria => {
       let query = {};
 
-      (criteria || []).forEach((criterion, idx) => {
+      criteria.forEach((criterion, idx) => {
         query['field_' + idx] = criterion.field;
         query['predicate_' + idx] = criterion.predicate;
         query['value_' + idx] = criterion.value;
@@ -30,9 +30,53 @@ export class JournalsApi extends RecordService {
       ajax: {
         body: {
           query: {
-            query: query(criteria),
-            language: 'criteria',
-            page: pagination
+            query: criteria.length ? query(criteria) : predicate,
+            language: criteria.length ? 'criteria' : 'predicate',
+            page: pagination,
+            groupBy,
+            sortBy
+          }
+        }
+      },
+      columns: columns || []
+    });
+
+    return dataSource.load().then(function({ data, total }) {
+      const columns = dataSource.getColumns();
+      return { data, total, columns };
+    });
+  };
+
+  getTreeGridData = () => {
+    const dataSource = new dataSourceStore['TreeDataSource']();
+
+    return dataSource.load().then(function({ data, total }) {
+      const columns = dataSource.getColumns();
+      return { data, total, columns, isTree: true };
+    });
+  };
+
+  getGridDataUsePredicates = ({ columns, pagination, journalConfigPredicate, predicates }) => {
+    const query = {
+      t: 'and',
+      val: [
+        journalConfigPredicate,
+        ...predicates.filter(item => {
+          return item.val !== '' && item.val !== null;
+        })
+      ]
+    };
+
+    const dataSource = new dataSourceStore['GqlDataSource']({
+      url: `${PROXY_URI}citeck/ecos/records`,
+      dataSourceName: 'GqlDataSource',
+      ajax: {
+        body: {
+          query: {
+            query,
+            language: 'predicate',
+            page: pagination,
+            consistency: 'EVENTUAL'
           }
         }
       },

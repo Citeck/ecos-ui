@@ -40,7 +40,7 @@ export const requireInOrder = function(dependencies, callback) {
         }
         resolve(modules);
       } else {
-        const controlUrl = `/share/res/${dependencies[idx]}.js?3.5.0.18.11.12.11.59`;
+        const controlUrl = `/share/res/${dependencies[idx]}.js`;
         window.require([controlUrl], function(module) {
           modules.push(module);
           orderedRequire(dependencies, idx + 1, modules);

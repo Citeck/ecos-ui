@@ -16,4 +16,13 @@ export class RecordService extends CommonApi {
     const url = `${PROXY_URI}citeck/ecos/records/delete`;
     return this.postJson(url, dataObj);
   };
+
+  getRecordsDisplayName = (records = []) => {
+    return this.query({
+      records: records,
+      attributes: {
+        name: '.disp'
+      }
+    });
+  };
 }

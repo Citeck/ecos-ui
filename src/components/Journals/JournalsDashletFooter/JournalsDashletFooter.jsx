@@ -8,7 +8,7 @@ const mapDispatchToProps = dispatch => ({});
 class JournalsDashletFooter extends Component {
   render() {
     return (
-      <div className={'journal-dashlet__footer'}>
+      <div className={'ecos-journal-dashlet__footer'}>
         <JournalsDashletPagination />
       </div>
     );

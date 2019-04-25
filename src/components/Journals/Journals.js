@@ -1,109 +1,123 @@
-import React, { Component, Fragment } from 'react';
-import { Container } from 'reactstrap';
-import { connect } from 'react-redux';
+import React, { Component } from 'react';
+import connect from 'react-redux/es/connect/connect';
 
-import ColumnsWithHeader from '../common/templates/ColumnsWithHeader/ColumnsWithHeader';
-import Well from '../common/form/Well/Well';
-import Caption from '../common/form/Caption/Caption';
-import Btn from '../common/btns/Btn/Btn';
-//import IcoButton from '../common/buttons/IcoButton/IcoButton';
-//import DropdownButton from '../common/buttons/DropdownButton/DropdownButton';
+import JournalsDashletGrid from './JournalsDashletGrid/JournalsDashletGrid';
+import JournalsDashletPagination from './JournalsDashletPagination/JournalsDashletPagination';
+
+import { getDashletConfig, setEditorMode, reloadGrid } from '../../actions/journals';
+
+import { Container } from 'reactstrap';
+import { IcoBtn, TwoIcoBtn } from '../common/btns';
+import { Caption, Dropdown, Well } from '../common/form';
 import Search from '../common/Search/Search';
-//import Grid from '../common/grid/Grid/Grid';
-import Pagination from '../common/Pagination/Pagination';
-import PanelBar from '../common/PanelBar/PanelBar';
-//import ToggleBtn from '../common/btns/ToggleBtn/ToggleBtn';
-import CollapsableList from '../common/CollapsableList/CollapsableList';
-import FilterList from '../FilterList/FilterList';
-import ColumnsSetup from '../ColumnsSetup/ColumnsSetup';
-import Grouping from '../Grouping/Grouping';
+
 import { t } from '../../helpers/util';
 
 import './Journals.scss';
 
-const mapStateToProps = state => ({ isReady: true });
-const mapDispatchToProps = dispatch => ({});
+const mapStateToProps = state => ({});
+
+const mapDispatchToProps = dispatch => ({
+  getDashletConfig: id => dispatch(getDashletConfig(id)),
+  setEditorMode: visible => dispatch(setEditorMode(visible)),
+  reloadGrid: ({ journalId, pagination, columns, criteria }) => dispatch(reloadGrid({ journalId, pagination, columns, criteria }))
+});
 
 class Journals extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      gridSettingsVisible: false
-    };
+    this.state = { menuOpen: true };
   }
 
-  showGridSettings = () => {
-    this.setState({ gridSettingsVisible: !this.state.gridSettingsVisible });
-  };
+  componentDidMount() {
+    this.props.getDashletConfig(this.props.id);
+  }
 
   render() {
+    const { menuOpen } = this.state;
     return (
-      <Container>
-        <div className={'journal'}>
-          <ColumnsWithHeader
-            cols={[
-              <Fragment>
-                <Well className={'journal__toolbar'}>
-                  {/*<IcoButton icon={'icon-plus'} className={'ico-button_blue journal__create-button'}>*/}
-                  {/*Создать*/}
-                  {/*</IcoButton>*/}
+      <Container style={{ width: 932, height: 800 }}>
+        <div className={'ecos-journal'}>
+          <div className={`ecos-journal__body ${menuOpen ? 'ecos-journal__body_with-menu' : ''}`}>
+            <div className={'ecos-journal__visibility-menu-btn'}>
+              <IcoBtn icon={'icon-big-arrow'} className={'ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow ecos-btn_r_biggest'}>
+                {'Показать меню'}
+              </IcoBtn>
+            </div>
 
-                  <Search />
+            <div className={'ecos-journal__caption'}>
+              <Caption large>{t('journals.name')}</Caption>
+            </div>
 
-                  {/*<DropdownButton className={'journal__export'} />*/}
-                </Well>
+            <div className={'ecos-journal__tools'}>
+              <Well className={'ecos-well_full ecos-journal__tools-well'}>
+                <IcoBtn icon={'icon-plus'} className={'ecos-btn_blue ecos-btn_tight ecos-journal__tools-well_step'}>
+                  {'Создать'}
+                </IcoBtn>
 
-                <div className={'journal__grid-toolbar'}>
-                  {/*<ToggleBtn onClick={this.showGridSettings} className={'journal__toggle-settings'} />*/}
+                <Search />
 
-                  {/*<IcoButton icon={'icon-reload'} />*/}
-                  {/*<IcoButton icon={'icon-pie'} className={'journal__button-pie'} />*/}
-                  {/*<IcoButton icon={'icon-list'} className={'journal__button-list'} />*/}
+                <Dropdown
+                  className={'ecos-journal_right'}
+                  source={[{ id: 0, title: 'Экспорт' }]}
+                  value={0}
+                  valueField={'id'}
+                  titleField={'title'}
+                >
+                  <IcoBtn invert={'true'} icon={'icon-down'} className={'ecos-btn_drop-down ecos-btn_r_6'} />
+                </Dropdown>
+              </Well>
+            </div>
 
-                  <Pagination />
-                </div>
+            <div className={'ecos-journal__settings'}>
+              <Dropdown source={[{ title: '', id: 0 }]} value={0} valueField={'id'} titleField={'title'} isButton={true}>
+                <TwoIcoBtn
+                  icons={['icon-settings', 'icon-down']}
+                  className={'ecos-btn_white ecos-btn_hover_t-blue ecos-btn_settings-down ecos-btn_x-step_15'}
+                />
+              </Dropdown>
 
-                {!this.state.gridSettingsVisible && (
-                  <Well className={'journal__grid-settings'}>
-                    <PanelBar header={t('journals.filter-list.header')}>
-                      <FilterList />
-                    </PanelBar>
+              <IcoBtn
+                icon={'icon-reload'}
+                className={
+                  'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_15'
+                }
+              />
 
-                    <PanelBar header={t('journals.columns-setup.header')}>
-                      <ColumnsSetup />
-                    </PanelBar>
+              <div className={'ecos-journal__settings_right '}>
+                <JournalsDashletPagination />
 
-                    <PanelBar header={t('journals.grouping.header')}>
-                      <Grouping />
-                    </PanelBar>
+                <IcoBtn
+                  icon={'icon-list'}
+                  className={
+                    'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_15'
+                  }
+                />
 
-                    <Btn>{t('journals.action.apply-template')}</Btn>
-                    <Btn>{t('journals.action.reset')}</Btn>
-                    <Btn>{t('journals.action.apply')}</Btn>
-                  </Well>
-                )}
+                <IcoBtn
+                  icon={'icon-tiles'}
+                  className={
+                    'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_15'
+                  }
+                />
 
-                <Well className={'journal__grid'}>{/*<Grid />*/}</Well>
-              </Fragment>,
+                <IcoBtn
+                  icon={'icon-pie'}
+                  className={'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue'}
+                />
+              </div>
+            </div>
 
-              <Fragment>
-                <Well className={'journal__select'}>
-                  <CollapsableList list={['Первичные документы', 'Договоры', 'Доп. соглашения', 'Счета']}>
-                    {t('journals.name')}
-                  </CollapsableList>
-                </Well>
+            <Well className={'ecos-journal__grid'}>
+              <JournalsDashletGrid className={'ecos-grid_no-top-border'} />
+            </Well>
 
-                <Well className={'journal__presets'}>
-                  <CollapsableList list={[t('journals.default'), 'Мой шаблон 1', 'Мой шаблон 2']}>
-                    {t('journals.tpl.defaults')}
-                  </CollapsableList>
-                </Well>
-              </Fragment>
-            ]}
-          >
-            <Caption large>{t('journals.name')}</Caption>
-          </ColumnsWithHeader>
+            <div className={'ecos-journal__footer'}>
+              <JournalsDashletPagination />
+            </div>
+          </div>
+
+          <div className={`ecos-journal__menu ${menuOpen ? 'ecos-journal__menu_open' : ''}`} />
         </div>
       </Container>
     );

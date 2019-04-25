@@ -17,6 +17,82 @@
     },
 
     {
+      "input": false,
+      "columns": [
+        {
+          "components": [
+            {
+              "input": true,
+              "type": "selectOrgstruct",
+              "label": "Инициатор",
+              "key": "idocs_initiator",
+              "multiple": true,
+              "allowedAuthorityType": "USER, GROUP",
+              "allowedGroupType": "ROLE, BRANCH"
+            },
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Юридическое лицо",
+              "key": "legalEntities",
+              "multiple": true,
+              "journalId": "legal-entities"
+            },
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Контрагент",
+              "key": "idocsContractor",
+              "multiple": false,
+              "journalId": "idocs-contractor",
+              "defaultValue": "workspace://SpacesStore/eea14b3b-6243-4b61-b15e-e8d5c34a9586"
+            }
+          ]
+        },
+        {
+          "components": [
+            {
+              "input": true,
+              "disabled": true,
+              "type": "selectJournal",
+              "label": "Предмет договора",
+              "key": "contractSubjects",
+              "journalId": "contract-subjects"
+            },
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Документ-основание",
+              "key": "contract-agreements",
+              "journalId": "contract-agreements",
+              "multiple": true,
+              "isCompact": true
+            },
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Счёт",
+              "key": "payments",
+              "journalId": "payments"
+            }
+          ]
+        }
+      ],
+      "type": "columns",
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      }
+    },
+
+    {
+      "input": false,
+      "html": "<br><br><br><br><br><br><br><br>",
+      "type": "content"
+    },
+
+    {
       "input": true,
       "label": "React DateTime component",
       "key": "react-datetime-input-key",

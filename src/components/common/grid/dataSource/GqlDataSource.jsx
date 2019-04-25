@@ -8,6 +8,7 @@ export default class GqlDataSource extends BaseDataSource {
   constructor(options) {
     super(options);
 
+    this._createVariants = this.options.createVariants;
     this.options.ajax.body = this._getBodyJson(this.options.ajax.body, this.options.columns);
     this._columns = this._getColumns(this.options.columns);
   }
@@ -28,11 +29,12 @@ export default class GqlDataSource extends BaseDataSource {
         let data = [];
 
         for (let i = 0; i < recordsData.length; i++) {
-          let recordData = recordsData[i];
+          const recordData = recordsData[i];
+          const recordDataId = recordData.id;
 
           data.push({
             ...recordData.attributes,
-            id: recordData.id || i
+            id: data.filter(item => item.id === recordDataId).length ? recordDataId + i : recordDataId
           });
         }
 
@@ -50,7 +52,7 @@ export default class GqlDataSource extends BaseDataSource {
       let formatterOptions = newColumn.formatter || Mapper.getFormatterOptions(newColumn, idx);
       let { formatter, params } = this._getFormatter(formatterOptions);
 
-      newColumn.formatExtraData = { formatter, params };
+      newColumn.formatExtraData = { formatter, params, createVariants: this._createVariants };
 
       newColumn.filterValue = (cell, row) => formatter.getFilterValue(cell, row, params);
       newColumn.editorRenderer = formatter.getEditor;
@@ -74,8 +76,7 @@ export default class GqlDataSource extends BaseDataSource {
       let formatterOptions = column.formatter || Mapper.getFormatterOptions(column, idx);
       let { formatter } = this._getFormatter(formatterOptions);
 
-      attributes[column.dataField || column.attribute] =
-        column.attributeScheme || formatter.getQueryString(column.attribute || column.dataField);
+      attributes[column.dataField || column.attribute] = column.schema || formatter.getQueryString(column.attribute || column.dataField);
     });
 
     return attributes;

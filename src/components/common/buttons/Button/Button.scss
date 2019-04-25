@@ -41,6 +41,10 @@
     background-color: $color-blue-light;
   }
 
+  &:focus {
+    background-color: $color-blue-light;
+  }
+
   &:active {
     background-color: $color-blue-dark;
   }

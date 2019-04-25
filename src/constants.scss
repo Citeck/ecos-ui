@@ -7,6 +7,7 @@ $color-blue-dark: #4b75b7;
 $color-blue-dark2: #2a446c;
 $color-blue-light: #7396cd;
 $color-blue-light2: #c6d6f0;
+$color-gray: #e5e5e5;
 $color-gray-1: #d8dee1;
 $color-gray-2: #cdd3d6;
 $color-gray-3: #d5dcde;
@@ -27,6 +28,7 @@ $color-brown-3: #ada690;
 
 $color-pink: #ffbcb3;
 $color-green: #cbf8cd;
+$color-green1: #00c308;
 
 $font-weight-bold: 700;
 $font-weight-semi-bold: 600;
@@ -48,6 +50,7 @@ $border-radius-small: 4px;
 $border-radius-standard: 6px;
 $border-radius-large: 8px;
 $border-radius-extra-large: 12px;
+$border-radius-biggest: 100px;
 
 $box-shadow-default: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
 $box-shadow-tooltip: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
@@ -66,3 +69,7 @@ $secondary: $color-gray-4;
 $citeck-icon-checkbox: '\e82b';
 $citeck-icon-checkbox-checked: '\e82f';
 $citeck-icon-checkbox-dark: '\e82c';
+
+$citeck-icon-radio: '\e832';
+$citeck-icon-radio-checked: '\e835';
+$citeck-icon-radio-dark: '\e834';

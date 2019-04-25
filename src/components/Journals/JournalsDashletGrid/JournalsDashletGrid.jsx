@@ -1,6 +1,6 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import { Grid, InlineTools, Tools } from '../../common/grid';
+import { Grid, InlineTools, Tools, EmptyGrid } from '../../common/grid';
 import Loader from '../../common/Loader/Loader';
 import { IcoBtn } from '../../common/btns';
 import { t } from '../../../helpers/util';
@@ -11,29 +11,25 @@ import {
   setSelectedRecords,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setGridMinHeight,
   setGridInlineToolSettings
 } from '../../../actions/journals';
 
 const mapStateToProps = state => ({
   loading: state.journals.loading,
-  gridData: state.journals.gridData,
+  grid: state.journals.grid,
   journalConfig: state.journals.journalConfig,
   selectedRecords: state.journals.selectedRecords,
   selectAllRecords: state.journals.selectAllRecords,
-  selectAllRecordsVisible: state.journals.selectAllRecordsVisible,
-  gridMinHeight: state.journals.gridMinHeight,
-  maxGridItems: state.journals.maxGridItems
+  selectAllRecordsVisible: state.journals.selectAllRecordsVisible
 });
 
 const mapDispatchToProps = dispatch => ({
-  reloadGrid: ({ journalId, pagination, columns, criteria }) => dispatch(reloadGrid({ journalId, pagination, columns, criteria })),
+  reloadGrid: options => dispatch(reloadGrid(options)),
   deleteRecords: records => dispatch(deleteRecords(records)),
   saveRecords: ({ id, attributes }) => dispatch(saveRecords({ id, attributes })),
   setSelectedRecords: records => dispatch(setSelectedRecords(records)),
   setSelectAllRecords: need => dispatch(setSelectAllRecords(need)),
   setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(visible)),
-  setGridMinHeight: ({ height }) => dispatch(setGridMinHeight(height)),
   setGridInlineToolSettings: ({ top, height }) => dispatch(setGridInlineToolSettings({ top, height }))
 });
 
@@ -41,7 +37,7 @@ class JournalsDashletGrid extends Component {
   constructor(props) {
     super(props);
     this.emptyGridRef = React.createRef();
-    this.gridWrapperRef = React.createRef();
+    this.wrapperRef = React.createRef();
     this.filters = [];
   }
 
@@ -76,15 +72,18 @@ class JournalsDashletGrid extends Component {
     props.reloadGrid({ columns, criteria: [...filter, ...criteria] });
   };
 
+  sort = e => {
+    this.props.reloadGrid({
+      sortBy: [
+        {
+          attribute: e.column.attribute,
+          ascending: !e.ascending
+        }
+      ]
+    });
+  };
+
   componentDidMount() {
-    const props = this.props;
-    const grid = this.emptyGridRef.current || {};
-    const height = grid.offsetHeight;
-
-    if (height && !props.gridMinHeight) {
-      props.setGridMinHeight({ height });
-    }
-
     this.createMouseLeaveEvent();
   }
 
@@ -101,21 +100,21 @@ class JournalsDashletGrid extends Component {
   };
 
   createMouseLeaveEvent = () => {
-    const grid = this.gridWrapperRef.current;
+    const grid = this.wrapperRef.current;
     if (grid) {
       grid.addEventListener('mouseleave', this.hideGridInlineToolSettings, false);
     }
   };
 
   removeMouseLeaveEvent = () => {
-    const grid = this.gridWrapperRef.current;
+    const grid = this.wrapperRef.current;
     if (grid) {
       grid.removeEventListener('mouseleave', this.hideGridInlineToolSettings, false);
     }
   };
 
   inlineTools = () => {
-    const inlineToolsActionClassName = 'grid__inline-tools-btn btn_i btn_brown btn_width_auto btn_hover_t-dark-brown btn_x-step_10';
+    const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
 
     if (this.props.selectedRecords.length) {
       return null;
@@ -133,13 +132,17 @@ class JournalsDashletGrid extends Component {
     );
   };
 
+  deleteRecords = () => {
+    const { selectedRecords, deleteRecords } = this.props;
+    deleteRecords(selectedRecords);
+  };
+
   tools = () => {
-    const toolsActionClassName = 'btn_i_sm btn_grey4 btn_hover_t-dark-brown';
+    const toolsActionClassName = 'ecos-btn_i_sm ecos-btn_grey4 ecos-btn_hover_t-dark-brown';
     const {
       selectAllRecordsVisible,
       selectAllRecords,
-      gridData: { total },
-      deleteRecords
+      grid: { total }
     } = this.props;
 
     return (
@@ -152,53 +155,57 @@ class JournalsDashletGrid extends Component {
           <IcoBtn icon={'icon-download'} className={toolsActionClassName} title={t('grid.tools.zip')} />,
           <IcoBtn icon={'icon-copy'} className={toolsActionClassName} />,
           <IcoBtn icon={'icon-big-arrow'} className={toolsActionClassName} />,
-          <IcoBtn icon={'icon-delete'} className={toolsActionClassName} title={t('grid.tools.delete')} onClick={deleteRecords} />
+          <IcoBtn icon={'icon-delete'} className={toolsActionClassName} title={t('grid.tools.delete')} onClick={this.deleteRecords} />
         ]}
       />
     );
   };
 
+  loadChild = e => {};
+
   render() {
-    const props = this.props;
-    const params = (props.journalConfig || {}).params || {};
-    const defaultSortBy = params.defaultSortBy ? eval('(' + params.defaultSortBy + ')') : [];
+    const {
+      selectedRecords,
+      selectAllRecords,
+      saveRecords,
+      className,
+      loading,
+      grid: {
+        data,
+        columns,
+        sortBy,
+        pagination: { maxItems }
+      }
+    } = this.props;
 
     return (
-      <div ref={this.gridWrapperRef} className={'journal-dashlet__grid'}>
-        {props.loading ? (
-          <Fragment>
+      <div ref={this.wrapperRef} className={'ecos-journal-dashlet__grid'}>
+        <EmptyGrid maxItems={maxItems}>
+          {loading ? (
             <Loader />
-            <div ref={this.emptyGridRef}>
-              <Grid
-                data={Array.from(Array(props.maxGridItems), (e, i) => ({ id: i }))}
-                columns={[{ dataField: '_', text: ' ' }]}
-                className={props.loading ? 'grid_transparent' : ''}
-              />
-            </div>
-          </Fragment>
-        ) : (
-          <Fragment>
+          ) : (
             <Grid
-              {...props.gridData}
-              className={props.loading ? 'grid_transparent' : ''}
+              data={data}
+              columns={columns}
+              className={className}
               freezeCheckboxes
               filterable
               editable
               multiSelectable
-              defaultSortBy={defaultSortBy}
+              sortBy={sortBy}
               filters={this.filters}
               inlineTools={this.inlineTools}
               tools={this.tools}
+              onSort={this.sort}
               onFilter={this.onFilter}
               onSelect={this.setSelectedRecords}
               onMouseEnter={this.setGridInlineToolSettings}
-              onEdit={props.saveRecords}
-              minHeight={props.gridMinHeight}
-              selected={props.selectedRecords}
-              selectAll={props.selectAllRecords}
+              onEdit={saveRecords}
+              selected={selectedRecords}
+              selectAll={selectAllRecords}
             />
-          </Fragment>
-        )}
+          )}
+        </EmptyGrid>
       </div>
     );
   }

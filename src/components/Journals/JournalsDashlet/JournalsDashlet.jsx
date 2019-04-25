@@ -1,26 +1,25 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import classNames from 'classnames';
-import { PROXY_URI } from '../../../constants/alfresco';
-import Dashlet from '../../Dashlet/Dashlet';
+import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsDashletToolbar from '../JournalsDashletToolbar';
 import JournalsDashletEditor from '../JournalsDashletEditor';
-import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsDashletFooter from '../JournalsDashletFooter';
-import { getDashletConfig, setEditorMode, reloadGrid, setPage } from '../../../actions/journals';
+import { getDashletConfig, setEditorMode, reloadGrid } from '../../../actions/journals';
+import { URL_PAGECONTEXT } from '../../../constants/alfresco';
+import Dashlet from '../../Dashlet/Dashlet';
+import classNames from 'classnames';
 
 import './JournalsDashlet.scss';
 
 const mapStateToProps = state => ({
   editorMode: state.journals.editorMode,
-  journalsListName: state.journals.journalsListName
+  journalConfig: state.journals.journalConfig
 });
 
 const mapDispatchToProps = dispatch => ({
   getDashletConfig: id => dispatch(getDashletConfig(id)),
   setEditorMode: visible => dispatch(setEditorMode(visible)),
-  reloadGrid: ({ journalId, pagination, columns, criteria }) => dispatch(reloadGrid({ journalId, pagination, columns, criteria })),
-  setPage: page => dispatch(setPage(page))
+  reloadGrid: options => dispatch(reloadGrid(options))
 });
 
 class JournalsDashlet extends Component {
@@ -28,35 +27,33 @@ class JournalsDashlet extends Component {
     this.props.getDashletConfig(this.props.id);
   }
 
-  showEditor = () => {
-    this.props.setEditorMode(true);
-  };
+  showEditor = () => this.props.setEditorMode(true);
 
-  goToJournalsPage = () => {
-    window.location = `${PROXY_URI}journals`;
-  };
-
-  onReloadDashlet = () => {
-    const props = this.props;
-    props.setPage(1);
-    props.reloadGrid({});
-  };
+  goToJournalsPage = () => window.open(`${URL_PAGECONTEXT}journals`, '_blank');
 
   render() {
-    const props = this.props;
-    const cssClasses = classNames('journal-dashlet', props.className);
+    const {
+      journalConfig: {
+        meta: { title = '' }
+      },
+      className,
+      id,
+      editorMode,
+      reloadGrid
+    } = this.props;
 
     return (
       <Dashlet
-        {...props}
-        className={cssClasses}
-        title={props.journalsListName}
+        {...this.props}
+        className={classNames('ecos-journal-dashlet', className)}
+        bodyClassName={'ecos-journal-dashlet__body'}
+        title={title}
+        onReload={reloadGrid}
         onEdit={this.showEditor}
-        onReload={this.onReloadDashlet}
         onGoTo={this.goToJournalsPage}
       >
-        {props.editorMode ? (
-          <JournalsDashletEditor id={props.id} />
+        {editorMode ? (
+          <JournalsDashletEditor id={id} />
         ) : (
           <Fragment>
             <JournalsDashletToolbar />

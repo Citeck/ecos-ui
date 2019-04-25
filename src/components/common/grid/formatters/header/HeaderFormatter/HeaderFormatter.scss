@@ -10,6 +10,7 @@
   color: $text-color-dark;
   font-size: $font-size-standard;
   font-weight: $font-weight-semi-bold;
+  box-sizing: border-box;
 }
 
 .ecos-th_filtered {
@@ -41,6 +42,8 @@
 }
 
 .ecos-th__filter-tooltip {
+  padding: 0.7rem 0;
+
   .ecos-th__filter-tooltip-body {
     background-color: $color-white;
     color: $color-gray-6;
@@ -87,4 +90,9 @@
   width: 100%;
   font-size: $font-size-small;
   color: $color-gray-6;
+}
+
+.ecos-th__order {
+  font-size: $font-size-small;
+  color: $color-gray-5;
 }

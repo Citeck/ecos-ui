@@ -1,32 +1,29 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import Pagination from '../../common/Pagination/Pagination';
-import { reloadGrid, setPage } from '../../../actions/journals';
+import { reloadGrid } from '../../../actions/journals';
 
 const mapStateToProps = state => ({
-  gridData: state.journals.gridData,
-  pagination: state.journals.pagination
+  grid: state.journals.grid
 });
 
 const mapDispatchToProps = dispatch => ({
-  reloadGrid: ({ journalId, pagination, columns, criteria }) => dispatch(reloadGrid({ journalId, pagination, columns, criteria })),
-  setPage: page => dispatch(setPage(page))
+  reloadGrid: options => dispatch(reloadGrid(options))
 });
 
 class JournalsDashletPagination extends Component {
-  onChangePage = pagination => {
-    const props = this.props;
-
-    props.setPage(pagination.page);
-    props.reloadGrid({
-      pagination: pagination
-    });
-  };
+  onChangePage = pagination => this.props.reloadGrid({ pagination });
 
   render() {
-    const props = this.props;
+    const {
+      grid: { total, pagination }
+    } = this.props;
 
-    return <Pagination className={'dashlet__pagination'} total={props.gridData.total} {...props.pagination} onChange={this.onChangePage} />;
+    if (!pagination.maxItems) {
+      return null;
+    }
+
+    return <Pagination className={'ecos-journal-dashlet__pagination'} total={total} {...pagination} onChange={this.onChangePage} />;
   }
 }
 

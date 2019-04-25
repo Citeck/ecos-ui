@@ -1,50 +1,52 @@
 import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
-import Form from 'formiojs/Form';
+//import Form from 'formiojs/Form';
 import FormBuilder from 'formiojs/FormBuilder';
-import schema from './form.json';
+//import schema from './form.json';
 // import schema from './calendarForm.json';
-import '../../components/EcosForm/formio.full.min.css';
-import '../../components/EcosForm/glyphicon-to-fa.scss';
-import '../../forms/style.scss';
-import './temp.scss';
+import '../../forms/components';
+import Formio from 'formiojs/Formio';
 
-import DefaultComponents from 'formiojs/components';
-import Components from 'formiojs/components/Components';
-import CustomComponents from '../../forms/components';
-import { linkEditForms } from '../../forms/components/builder';
-// console.log(DefaultComponents);
-// console.log(CustomComponents);
-
-linkEditForms(CustomComponents);
-Components.setComponents({ ...DefaultComponents, ...CustomComponents });
+// import SelectJournal from '../../components/common/form/SelectJournal';
 
 class FormIOPage extends React.Component {
   componentDidMount() {
-    let options = {
+    let proxyUri = ((window.Alfresco || {}).constants || {}).PROXY_URI || '/';
+    proxyUri = proxyUri.substring(0, proxyUri.length - 1);
+    Formio.setProjectUrl(proxyUri);
+
+    /*let options = {
       // inputsOnly: true
     };
-
+*/
     // form in view mode
-    if (0) {
+    /*if (0) {
       options = {
         readOnly: true,
         viewAsHtml: true
       };
-    }
+    }*/
 
-    const form = new Form(document.getElementById('formio'), schema, options);
+    /*const form = new Form(document.getElementById('formio'), schema, options);
     // console.log(form);
 
     form.render().then(form => {
       // console.log(form);
 
-      // form.submission = {
-      //   data: {
-      //     firstName: 'Joe',
-      //     lastName: 'Smith',
-      //   }
-      // };
+      form.submission = {
+        data: {
+          legalEntities: [
+            'workspace://SpacesStore/99ce5ecc-a501-404c-a1ed-5507afed6282',
+            'workspace://SpacesStore/50a4ace5-925a-4267-905f-abeff3960d1c'
+          ],
+          // 'idocs_initiator': "workspace://SpacesStore/2d2cc237-6d4c-4904-b60d-0e2d64a67877",
+          idocs_initiator: [
+            'workspace://SpacesStore/0e496fc3-1fbd-4d15-ab9b-b3bc011af0c6',
+            'workspace://SpacesStore/c04050a9-2f30-417e-a099-5b2753a5efb4'
+          ],
+          lastName: 'Smith'
+        }
+      };
 
       // Register for the submit event to get the completed submission.
       form.on('submit', function(submission) {
@@ -59,9 +61,9 @@ class FormIOPage extends React.Component {
       form.on('error', function(error) {
         console.log('Form error', error);
       });
-    });
+    });*/
 
-    const formBuilder = new FormBuilder(document.getElementById('builder'), schema);
+    const formBuilder = new FormBuilder(document.getElementById('builder'), {});
     // console.log(formBuilder);
     formBuilder.render().then(form => {
       // console.log(form);
@@ -79,6 +81,8 @@ class FormIOPage extends React.Component {
         <Row>
           <Col md={12}>
             <div className={'white-container'}>
+              {/*<SelectJournal />*/}
+
               <div id="formio" />
               <br />
               <hr />

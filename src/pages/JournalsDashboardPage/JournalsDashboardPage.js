@@ -1,7 +1,7 @@
 import React from 'react';
-import JournalsDashlet from '../../components/Journals/JournalsDashlet/JournalsDashlet';
+import { JournalsDashlet } from '../../components/Journals';
 
-export default class JournalsPage extends React.Component {
+export default class JournalsDashboardPage extends React.Component {
   render() {
     return <JournalsDashlet id={'dashletId-1-0-0'} />;
   }

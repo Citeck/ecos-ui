@@ -1,0 +1,62 @@
+@import '../../../constants';
+
+.formio-dialog-content .preview-panel,
+.formio-form {
+  .formio-component-tabs {
+    .nav-tabs {
+      border-bottom: none;
+      margin-bottom: 22px;
+    }
+
+    .nav-item {
+      font-size: $font-size-standard;
+
+      .nav-link {
+        background: $color-gray-4;
+        color: $text-color-gray;
+        font-weight: $font-weight-semi-bold;
+        border-radius: 0;
+        border-color: $color-gray-4;
+        padding: 0 15px;
+        line-height: 40px;
+
+        &.active {
+          color: $color-white;
+          background-color: $color-blue-dark;
+          border-color: $color-blue-dark;
+        }
+      }
+
+      &:first-child {
+        .nav-link {
+          border-top-left-radius: $border-radius-standard;
+          border-bottom-left-radius: $border-radius-standard;
+        }
+      }
+
+      &:last-child {
+        .nav-link {
+          border-top-right-radius: $border-radius-standard;
+          border-bottom-right-radius: $border-radius-standard;
+        }
+      }
+    }
+  }
+}
+
+/* Tabs styles hack for form builder */
+.formio-dialog.formio-dialog-theme-default.component-settings .formio-component-tabs .nav-item {
+  font-size: 12px;
+}
+.formio-dialog.formio-dialog-theme-default.component-settings .formio-component-tabs .nav-link {
+  line-height: 26px;
+  padding: 0 7px;
+}
+
+.formio-dialog.formio-dialog-theme-default.component-settings .component-preview .formio-component-tabs .nav-item {
+  font-size: 14px;
+}
+.formio-dialog.formio-dialog-theme-default.component-settings .component-preview .formio-component-tabs .nav-link {
+  line-height: 40px;
+  padding: 0 15px;
+}
