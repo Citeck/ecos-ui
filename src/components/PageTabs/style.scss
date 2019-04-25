@@ -1,74 +1,142 @@
 @import '../../constants';
 
-.ecos {
-  &-tab {
-    height: 30px;
-    background-color: $color-gray-6;
+.page-tab {
+  height: 30px;
+  background-color: $color-gray-6;
+  display: flex;
+
+  &__nav-btn {
+    background-color: $color-white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
     display: flex;
+    justify-content: space-around;
+    align-items: center;
+    cursor: pointer;
+    margin: auto 7px auto 14px;
+    color: $color-gray-5;
 
-    &__nav-btn {
-      background-color: $color-white;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      cursor: pointer;
-      margin: auto 7px auto 14px;
-      color: $color-gray-5;
+    &:hover {
+      background-color: $text-color-gray;
+      color: $color-white;
+    }
 
-      &:hover {
-        background-color: $text-color-gray;
-        color: $color-white;
-      }
-
-      &-icon {
-        &:before {
-          margin: auto auto auto -0.1em !important;
-          line-height: inherit !important;
-        }
-      }
-
-      &_disable {
-        background-color: $color-gray-5;
-        color: $color-gray-6;
-        cursor: not-allowed;
-
-        &:hover {
-          background-color: $color-gray-5;
-          color: $color-gray-6;
-        }
+    &-icon {
+      &:before {
+        margin: auto auto auto -0.1em !important;
+        line-height: inherit !important;
       }
     }
 
-    &__tabs {
-      height: 95%;
-      align-self: flex-end;
-      display: flex;
+    &_disable {
+      background-color: $color-gray-5;
+      color: $color-gray-6;
+      cursor: not-allowed;
 
-      &-item {
-        position: relative;
-        background: $color-gray-4;
-        min-width: 10px;
-        width: 100%;
-        max-width: 300px;
-        padding: 3px 10px 7px;
-        border-radius: 6px 6px 0 0;
+      &:hover {
+        background-color: $color-gray-5;
+        color: $color-gray-6;
+      }
+    }
+  }
+
+  &__tabs {
+    height: 95%;
+    width: 100%;
+    align-self: flex-end;
+    display: flex;
+
+    &-add {
+      font-size: 16px;
+      padding: 0 5px;
+      cursor: pointer;
+    }
+
+    &-item {
+      position: relative;
+      min-width: 10px;
+      width: auto;
+      max-width: 300px;
+      padding: 3px 5px 7px 10px;
+      border-radius: 6px 6px 0 0;
+      background-color: $color-gray-6;
+      z-index: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-end;
+      margin: 0 2px;
+
+      &:after {
+        $height: 70%;
+        content: '';
+        height: $height;
+        width: 2px;
+        background-color: $color-gray-5;
+        position: absolute;
+        top: calc(50% - (#{$height} / 2));
+        right: -4px;
+      }
+
+      &:hover {
+        background-color: $color-gray-4;
+      }
+
+      &_active {
+        background-color: $color-gray-4;
+        z-index: 3;
+        margin: 0;
 
         &:before {
           content: '';
           position: absolute;
-          bottom: 0;
-          left: 0;
+          bottom: -6px;
+          left: -14px;
           transform: rotate(0deg);
-          border-bottom-right-radius: 20px;
-          border-right: 10px $color-gray-4 solid;
-          border-bottom: 10px $color-gray-4 solid;
+          border-bottom-right-radius: 12px;
+          border-right: 6px $color-gray-4 solid;
+          border-bottom: 6px $color-gray-4 solid;
+          width: 20px;
+          height: 20px;
+        }
+
+        &:after {
+          background-color: unset;
+          top: unset;
+
+          content: '';
+          position: absolute;
+          bottom: -6px;
+          right: -14px;
+          transform: rotate(0deg);
+          border-bottom-left-radius: 12px;
+          border-left: 6px $color-gray-4 solid;
+          border-bottom: 6px $color-gray-4 solid;
           width: 20px;
           height: 20px;
         }
       }
+
+      &-title {
+        font-style: normal;
+        font-weight: 600;
+        font-size: 12px;
+        color: $text-color-dark;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        line-height: 16px;
+        margin-right: 5px;
+      }
+
+      &-close {
+        align-self: end;
+      }
     }
+  }
+
+  &__body {
+    background-color: $color-gray-4;
+    padding: 10px;
   }
 }
