@@ -65,7 +65,7 @@ class EcosForm extends React.Component {
           if (recordData.hasOwnProperty(att)) {
             if (att.indexOf(EDGE_PREFIX) === 0) {
               edgesData[att.substring(EDGE_PREFIX.length)] = recordData[att];
-            } else {
+            } else if (recordData[att] !== null) {
               submissionData[att] = recordData[att];
             }
           }
@@ -188,7 +188,7 @@ class EcosForm extends React.Component {
 
     record.save().then(record => {
       if (self.props.onSubmit) {
-        self.props.onSubmit(record);
+        self.props.onSubmit(record, form);
       }
     });
   }

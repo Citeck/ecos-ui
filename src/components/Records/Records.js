@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash/cloneDeep';
+
 const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
 const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
@@ -78,6 +80,8 @@ class Records {
   }
 
   queryOne(query, attributes) {
+    query = cloneDeep(query);
+
     let page = query.page || {};
     page.maxItems = 1;
 
@@ -353,8 +357,10 @@ class Record {
               }
             }
 
-            self.load(attributesToLoad, true).then(() => {
-              resolve(self);
+            let record = response.id ? records.get(response.id) : self.id;
+
+            record.load(attributesToLoad, true).then(() => {
+              resolve(record);
             });
           });
       } else {

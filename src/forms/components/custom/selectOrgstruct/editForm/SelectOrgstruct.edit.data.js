@@ -34,5 +34,18 @@ export default [
       required: false
     },
     weight: 20
+  },
+  {
+    label: 'Current user by default',
+    labelPosition: 'left-left',
+    tooltip: 'Set current user by default when form is in create mode',
+    shortcut: '',
+    tableView: true,
+    alwaysEnabled: false,
+    type: 'checkbox',
+    input: true,
+    key: 'currentUserByDefault',
+    defaultValue: false,
+    weight: 21
   }
 ];
