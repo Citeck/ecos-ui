@@ -72,7 +72,7 @@ export default class Dashlet extends Component {
               />
               <IcoBtn
                 icon={'icon-drag'}
-                className={'ecos-btn_i dashlet__btn_next ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_grey2'}
+                className={'ecos-btn_i dashlet__btn_next dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1'}
                 title={t('dashlet.move.title')}
               />
             </div>
@@ -81,9 +81,11 @@ export default class Dashlet extends Component {
       >
         {props.children}
 
-        <div className={'dashlet__resizer'}>
-          <i className={'icon-resize ecos-btn__i'} title={t('dashlet.resize.title')} />
-        </div>
+        {props.resizable ? (
+          <div className={'dashlet__resizer'}>
+            <i className={'icon-resize ecos-btn__i'} title={t('dashlet.resize.title')} />
+          </div>
+        ) : null}
       </Panel>
     );
   }

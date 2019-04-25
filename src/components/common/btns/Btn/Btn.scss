@@ -83,6 +83,11 @@ button {
     width: auto;
     padding-right: 0;
     padding-left: 0;
+
+    i:before {
+      width: auto;
+      margin: 0;
+    }
   }
 
   &.ecos-btn_i-big-plus {
@@ -225,6 +230,16 @@ button {
     color: $color-gray-5;
   }
 
+  &.ecos-btn_grey1 {
+    background: $color-white;
+    color: $color-gray-1;
+
+    &:focus {
+      background: $color-white;
+      color: $color-gray-1;
+    }
+  }
+
   &.ecos-btn_grey {
     background: $color-gray-4;
     color: $color-gray-5;
@@ -348,6 +363,13 @@ button {
     &:hover {
       background: $color-white;
       color: $color-gray-5;
+    }
+  }
+
+  &.ecos-btn_hover_grey1 {
+    &:hover {
+      background: $color-white;
+      color: $color-gray-1;
     }
   }
 

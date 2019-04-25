@@ -30,7 +30,7 @@
     font-weight: $font-weight-bold;
     font-style: normal;
     line-height: 1;
-    padding: 6px 12px;
+    padding: 6px 18px 6px 20px;
     height: 34px;
     box-sizing: border-box;
   }
@@ -46,7 +46,7 @@
   }
 
   .dashlet__actions_header {
-    padding: 12px 0;
+    padding: 10px 0;
   }
 
   .dashlet__btn {
@@ -66,5 +66,9 @@
     text-align: center;
     color: $color-gray-6;
     font-size: $font-size-extra-small;
+  }
+
+  .dashlet__btn_move {
+    font-size: 28px;
   }
 }
