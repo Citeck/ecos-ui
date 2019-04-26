@@ -54,20 +54,42 @@ export default class JournalSetting {
 
   setPredicate(predicate) {
     this.model.predicate = { ...predicate };
-    console.log('setPredicate:', this.model.predicate);
+  }
+
+  setGroupBy(groupBy) {
+    this.model.groupBy = Array.from(groupBy);
+  }
+
+  setSortBy(sortBy) {
+    this.model.sortBy = Array.from(sortBy);
+  }
+
+  setColumns(columns) {
+    this.model.columns = Array.from(columns);
   }
 
   setColumnsSetup(columnsSetup) {
     this.columnsSetup = { ...columnsSetup };
-    console.log('columnsSetup:', this.columnsSetup);
+    this.setSortBy(this.columnsSetup.sortBy || []);
   }
 
   setGrouping(grouping) {
     this.grouping = { ...grouping };
-    console.log('grouping:', this.grouping);
+    this.setGroupBy(this.grouping.groupBy || []);
   }
 
   getSetting() {
-    return null;
+    const groupingColumns = this.grouping.columns;
+    const columnsSetupColumns = this.columnsSetup.columns;
+
+    if (groupingColumns.length) {
+      this.setColumns(groupingColumns);
+    } else {
+      this.setColumns(columnsSetupColumns);
+    }
+
+    console.log(this.model);
+
+    return null; //this.model.predicate;
   }
 }

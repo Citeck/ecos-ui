@@ -72,10 +72,9 @@ class Journals extends Component {
   };
 
   apply = () => {
-    console.log(this.props.grid);
-
     const setting = this.journalSetting.getSetting();
-    setting && this.props.reloadGrid({ ...setting });
+
+    setting && this.props.reloadGrid({ predicates: [setting] });
   };
 
   render() {

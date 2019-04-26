@@ -123,15 +123,17 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  saveJournalSettings = settings => {
-    return this.putJson(
-      `/share/proxy/alfresco/citeck/micro/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`,
-      settings
-    ).then(resp => {
+  getournalSettings = () => {
+    return this.getJson(`${PROXY_URI}citeck/micro/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`).then(resp => {
       return resp;
     });
-    // return this.putJson('http://localhost/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default').then(resp => {
-    //   return resp;
-    // });
+  };
+
+  saveJournalSettings = settings => {
+    return this.putJson(`${PROXY_URI}citeck/micro/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`, settings).then(
+      resp => {
+        return resp;
+      }
+    );
   };
 }

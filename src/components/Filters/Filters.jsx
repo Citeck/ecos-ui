@@ -55,7 +55,8 @@ export default class Filters extends Component {
 
   render() {
     const groups = this.state.groups;
-    const lastIdx = groups.length - 1;
+    const length = groups.length;
+    const lastIdx = length ? length - 1 : 0;
 
     return (
       <div className={classNames('ecos-filters', this.props.className)}>

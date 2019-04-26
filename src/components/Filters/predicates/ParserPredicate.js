@@ -205,26 +205,31 @@ export default class ParserPredicate {
   }
 
   static parse(predicates, columns) {
-    const { val, t } = predicates || test;
+    const { val = [], t } = predicates || {}; //|| test;
+    const length = val.length;
     let groups = [];
 
-    for (let i = 0, length = val.length; i < length; i++) {
-      const current = val[i];
+    if (length) {
+      for (let i = 0; i < length; i++) {
+        const current = val[i];
 
-      if (this.isGroup(current)) {
-        groups.push(
-          new GroupPredicate({
-            condition: filterPredicates([t])[0],
-            predicate: new Predicate({ ...current }),
-            filters: this.getFilters(current, columns)
-          })
-        );
-        continue;
-      }
+        if (this.isGroup(current)) {
+          groups.push(
+            new GroupPredicate({
+              condition: filterPredicates([t])[0],
+              predicate: new Predicate({ ...current }),
+              filters: this.getFilters(current, columns)
+            })
+          );
+          continue;
+        }
 
-      if (current.val) {
-        groups = [...groups, ...this.parse(current, columns)];
+        if (current.val) {
+          groups = [...groups, ...this.parse(current, columns)];
+        }
       }
+    } else {
+      groups.push(ParserPredicate.createGroup(PREDICATE_AND));
     }
 
     return groups;
