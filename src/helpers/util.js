@@ -188,3 +188,18 @@ export function getRelativeTime(from, to) {
   const years_ago = Math.round(minutes_ago / 525960);
   return fnTime('relative.years', years_ago);
 }
+
+export function getScrollbarWidth() {
+  const scrollDiv = document.createElement('div');
+
+  scrollDiv.className = 'scrollbar-measure';
+  document.body.appendChild(scrollDiv);
+
+  // Get the scrollbar width
+  const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+
+  // Delete the DIV
+  document.body.removeChild(scrollDiv);
+
+  return scrollbarWidth;
+}

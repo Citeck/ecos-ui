@@ -1,7 +1,10 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
+import { getScrollbarWidth } from '../../helpers/util';
 import './style.scss';
+
+const SCROLL_STEP = 150;
 
 class PageTabs extends React.Component {
   static propTypes = {
@@ -56,8 +59,46 @@ class PageTabs extends React.Component {
         link: '/share/page/journalsDashboard',
         title: '/share/page/journalsDashboard'
       }
-    ]
+    ],
+    isActiveLeftArrow: false,
+    isActiveRightArrow: false,
+    needArrow: false
   };
+
+  constructor() {
+    super();
+
+    this.$tabWrapper = React.createRef();
+  }
+
+  generateNewTab(countTabs) {
+    return {
+      id: Math.random()
+        .toString(36)
+        .substring(6),
+      position: countTabs + 1,
+      isActive: true,
+      link: '/share/page/journalsDashboard',
+      title: Math.random()
+        .toString(36)
+        .substring(2)
+    };
+  }
+
+  checkNeedArrow() {
+    if (this.$tabWrapper.current) {
+      const { scrollWidth, offsetWidth, clientWidth } = this.$tabWrapper.current;
+      const needArrow = scrollWidth > offsetWidth + getScrollbarWidth();
+
+      this.$tabWrapper.current.scrollLeft = needArrow ? scrollWidth - clientWidth : 0;
+
+      this.setState({
+        needArrow,
+        isActiveRightArrow: false,
+        isActiveLeftArrow: true
+      });
+    }
+  }
 
   handleCloseTab(tabId, event) {
     event.stopPropagation();
@@ -71,11 +112,27 @@ class PageTabs extends React.Component {
 
     let newTabs = [...tabs];
 
+    if (newTabs[index].isActive) {
+      switch (index) {
+        case newTabs.length - 1:
+          newTabs[index - 1].isActive = true;
+          break;
+        case 0:
+          newTabs[index + 1].isActive = true;
+          break;
+        default:
+          newTabs[index + 1].isActive = true;
+      }
+    }
+
     newTabs.splice(index, 1);
 
-    this.setState({
-      tabs: newTabs
-    });
+    this.setState(
+      {
+        tabs: newTabs
+      },
+      this.checkNeedArrow.bind(this)
+    );
   }
 
   handleSetActiveTab(tab) {
@@ -93,24 +150,124 @@ class PageTabs extends React.Component {
     });
   }
 
+  handleAddTab = () => {
+    this.setState(state => {
+      const tabs = [...state.tabs];
+
+      tabs.map(tab => {
+        tab.isActive = false;
+
+        return tabs;
+      });
+      tabs.push(this.generateNewTab(tabs.length));
+
+      return { tabs };
+    }, this.checkNeedArrow.bind(this));
+  };
+
+  handleScrollLeft = () => {
+    const { isActiveLeftArrow } = this.state;
+
+    if (!isActiveLeftArrow) {
+      return false;
+    }
+
+    if (this.$tabWrapper.current) {
+      let { scrollLeft } = this.$tabWrapper.current;
+
+      scrollLeft -= SCROLL_STEP;
+
+      if (scrollLeft < 0) {
+        scrollLeft = 0;
+      }
+
+      if (scrollLeft === 0) {
+        this.setState({
+          isActiveLeftArrow: false
+        });
+      }
+
+      this.setState({
+        isActiveRightArrow: true
+      });
+
+      this.$tabWrapper.current.scrollLeft = scrollLeft;
+    }
+  };
+
+  handleScrollRight = () => {
+    const { isActiveRightArrow } = this.state;
+
+    if (!isActiveRightArrow) {
+      return false;
+    }
+
+    if (this.$tabWrapper.current) {
+      let { scrollLeft, scrollWidth, clientWidth } = this.$tabWrapper.current;
+
+      scrollLeft += SCROLL_STEP;
+
+      if (clientWidth + scrollLeft >= scrollWidth) {
+        scrollLeft -= clientWidth + scrollLeft - scrollWidth;
+
+        this.setState({
+          isActiveRightArrow: false
+        });
+      }
+
+      this.setState({
+        isActiveLeftArrow: true
+      });
+
+      this.$tabWrapper.current.scrollLeft = scrollLeft;
+    }
+  };
+
   renderLeftButton() {
+    const { isActiveLeftArrow, needArrow } = this.state;
+
+    if (!needArrow) {
+      return <div className="page-tab__nav-btn-placeholder" />;
+    }
+
+    const arrowClassName = ['page-tab__nav-btn'];
+
+    if (!isActiveLeftArrow) {
+      arrowClassName.push('page-tab__nav-btn_disable');
+    }
+
     return (
-      <div className="page-tab__nav-btn">
-        <div className="page-tab__nav-btn-icon icon-left" />
+      <div className="page-tab__nav-btn-placeholder">
+        <div className={arrowClassName.join(' ')} onClick={this.handleScrollLeft}>
+          <div className="page-tab__nav-btn-icon icon-left" />
+        </div>
       </div>
     );
   }
 
   renderRightButton() {
+    const { isActiveRightArrow, needArrow } = this.state;
+
+    if (!needArrow) {
+      return <div className="page-tab__nav-btn-placeholder" />;
+    }
+
+    const arrowClassName = ['page-tab__nav-btn'];
+
+    if (!isActiveRightArrow) {
+      arrowClassName.push('page-tab__nav-btn_disable');
+    }
+
     return (
-      <div className="page-tab__nav-btn page-tab__nav-btn_disable">
-        <div className="page-tab__nav-btn-icon icon-right" />
+      <div className="page-tab__nav-btn-placeholder">
+        <div className={arrowClassName.join(' ')} onClick={this.handleScrollRight}>
+          <div className="page-tab__nav-btn-icon icon-right" />
+        </div>
       </div>
     );
   }
 
   renderTabItem = item => {
-    const { history } = this.props;
     const { tabs } = this.state;
     const className = ['page-tab__tabs-item'];
     const closeButton =
@@ -132,22 +289,30 @@ class PageTabs extends React.Component {
     const { tabs } = this.state;
 
     return (
-      <div className="page-tab__tabs">
+      <div className="page-tab__tabs" ref={this.$tabWrapper}>
         {tabs.map(this.renderTabItem)}
-        <div className="page-tab__tabs-add icon-plus" />
       </div>
     );
   }
 
   renderTabWrapper() {
-    if (!this.state.tabs.length) {
+    const { tabs, isActiveRightArrow } = this.state;
+
+    if (!tabs.length) {
       return null;
     }
 
+    const className = ['page-tab'];
+
+    if (isActiveRightArrow) {
+      className.push('page-tab_with-scroll');
+    }
+
     return (
-      <div className="page-tab">
+      <div className={className.join(' ')}>
         {this.renderLeftButton()}
         {this.renderTabs()}
+        <div className="page-tab__tabs-add icon-plus" onClick={this.handleAddTab} />
         {this.renderRightButton()}
       </div>
     );

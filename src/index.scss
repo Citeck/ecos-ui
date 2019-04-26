@@ -33,3 +33,12 @@ ul {
   margin: 0;
   padding: 0;
 }
+
+// for check scrollbar width in your browser
+.scrollbar-measure {
+  width: 100px;
+  height: 100px;
+  overflow: scroll;
+  position: absolute;
+  top: -9999px;
+}
