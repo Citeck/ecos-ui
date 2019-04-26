@@ -15,7 +15,8 @@ import {
   deleteRecords,
   saveRecords,
   setSelectedRecords,
-  saveJournalSettings
+  saveJournalSettings,
+  setJournalSetting
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 
@@ -112,7 +113,9 @@ function* sagaInitGrid({ api, logger }, action) {
     yield put(setLoading(true));
 
     let config = yield call(api.journals.getJournalConfig, action.payload);
+    let journalSetting = yield call(api.journals.getJournalSetting, action.payload);
     yield put(setJournalConfig(config));
+    //yield put(setJournalSetting(journalSetting));
 
     const {
       columns,

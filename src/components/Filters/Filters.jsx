@@ -9,7 +9,7 @@ import './Filters.scss';
 export default class Filters extends Component {
   constructor(props) {
     super(props);
-    const groups = ParserPredicate.parse(null, props.columns);
+    const groups = ParserPredicate.parse(props.predicate, props.columns);
     this.state = { groups };
     this.store = Array.from(groups);
   }

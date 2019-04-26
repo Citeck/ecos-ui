@@ -6,7 +6,9 @@ import { trigger } from '../../../helpers/util';
 
 import './JournalsFilters.scss';
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  journalSetting: state.journals.journalSetting
+});
 const mapDispatchToProps = dispatch => ({});
 
 class JournalsFilters extends Component {
@@ -15,7 +17,10 @@ class JournalsFilters extends Component {
   };
 
   render() {
-    const { columns } = this.props;
+    const {
+      columns,
+      journalSetting: { predicate }
+    } = this.props;
 
     return (
       <PanelBar
@@ -23,7 +28,7 @@ class JournalsFilters extends Component {
         className={'ecos-journals-filters__panel-bar'}
         css={{ headerClassName: 'panel-bar__header_full panel-bar__header_upper' }}
       >
-        <Filters columns={columns} className={'ecos-journals-filters'} onChange={this.onChangeFilters} />
+        <Filters predicate={predicate} columns={columns} className={'ecos-journals-filters'} onChange={this.onChangeFilters} />
       </PanelBar>
     );
   }

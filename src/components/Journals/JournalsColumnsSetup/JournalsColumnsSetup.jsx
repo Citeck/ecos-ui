@@ -6,23 +6,23 @@ import { t, trigger } from '../../../helpers/util';
 
 import './JournalsColumnsSetup.scss';
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  journalSetting: state.journals.journalSetting
+});
 
 class JournalsColumnsSetup extends Component {
-  constructor(props) {
-    super(props);
-
-    this.columns = props.columns.map(col => ({ ...col }));
-    this.sortBy = props.sortBy.map(sort => ({ ...sort }));
-  }
-
   onChange = ({ columns, sortBy }) => {
     trigger.call(this, 'onChange', { columns, sortBy });
   };
 
   render() {
-    const columns = this.columns;
-    const sortBy = this.sortBy;
+    let { columns, sortBy, journalSetting } = this.props;
+
+    columns = journalSetting.columns.length ? journalSetting.columns : columns;
+    sortBy = journalSetting.sortBy.length ? journalSetting.sortBy : sortBy;
+
+    columns = columns.map(col => ({ ...col }));
+    sortBy = sortBy.map(sort => ({ ...sort }));
 
     this.onChange({ columns, sortBy });
 

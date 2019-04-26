@@ -6,7 +6,9 @@ import { t, trigger } from '../../../helpers/util';
 
 import './JournalsGrouping.scss';
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  journalSetting: state.journals.journalSetting
+});
 
 class JournalsGrouping extends Component {
   onGrouping = grouping => {

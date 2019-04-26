@@ -29,3 +29,4 @@ export const setGridInlineToolSettings = createAction(prefix + 'SET_GRID_INLINE_
 
 export const setGrouping = createAction(prefix + 'SET_GROUPING');
 export const saveJournalSettings = createAction(prefix + 'SAVE_JOURNAL_SETTINGS');
+export const setJournalSetting = createAction(prefix + 'SET_JOURNAL_SETTING');

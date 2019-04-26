@@ -55,8 +55,8 @@ class Journals extends Component {
     this.setState({ menuOpen: !this.state.menuOpen });
   };
 
-  reload = () => {
-    this.props.saveJournalSettings(this.journalSetting.example);
+  save = () => {
+    this.props.saveJournalSettings(this.journalSetting.getSetting());
   };
 
   onChangeFilters = predicate => {
@@ -72,9 +72,12 @@ class Journals extends Component {
   };
 
   apply = () => {
-    const { columns, groupBy, sortBy, predicate } = this.journalSetting.getSetting();
+    const model = this.journalSetting.getModel();
+    const { columns, groupBy, sortBy, predicate } = model;
 
-    this.props.reloadGrid({ columns, groupBy, sortBy, predicates: predicate });
+    console.log(model);
+
+    this.props.reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
   };
 
   render() {
@@ -145,7 +148,6 @@ class Journals extends Component {
                 className={
                   'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_15'
                 }
-                onClick={this.reload}
               />
 
               <div className={'ecos-journal__settings-bar_right '}>
@@ -181,7 +183,7 @@ class Journals extends Component {
                 <Columns
                   className={'ecos-journal__settings-footer'}
                   cols={[
-                    <Btn onClick={this.clear}>{t('journals.action.apply-template')}</Btn>,
+                    <Btn onClick={this.save}>{t('journals.action.apply-template')}</Btn>,
 
                     <Fragment>
                       <Btn className={'ecos-btn_x-step_10'} onClick={this.cancel}>

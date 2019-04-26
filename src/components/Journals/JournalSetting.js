@@ -1,41 +1,8 @@
 export default class JournalSetting {
   constructor() {
-    this.example = {
-      id: 'contract-agreements',
-      journalId: 'contract-agreements',
-      title: 'ысфывафы',
-      sortBy: [
-        {
-          attribute: 'cm:created',
-          ascending: false
-        },
-        {
-          attribute: 'cm:title',
-          ascending: true
-        }
-      ],
-      groupBy: ['contracts:contractor'],
-      columns: [
-        {
-          attr: 'cm:created'
-        },
-        {
-          attr: 'cm:title'
-        },
-        {
-          attr: 'contracts:contractor'
-        }
-      ],
-      predicate: null,
-      maxItems: 10,
-      permissions: {
-        Write: true,
-        Delete: true
-      }
-    };
-
     this.columnsSetup = {};
     this.grouping = {};
+
     this.model = {
       id: '',
       journalId: '',
@@ -43,7 +10,7 @@ export default class JournalSetting {
       sortBy: [],
       groupBy: [],
       columns: [],
-      predicate: [],
+      predicate: null,
       maxItems: 10,
       permissions: {
         Write: true,
@@ -53,7 +20,7 @@ export default class JournalSetting {
   }
 
   setPredicate(predicate) {
-    this.model.predicate = predicate ? [{ ...predicate }] : [];
+    this.model.predicate = predicate;
   }
 
   setGroupBy(groupBy) {
@@ -78,7 +45,7 @@ export default class JournalSetting {
     this.setGroupBy(this.grouping.groupBy || []);
   }
 
-  getSetting() {
+  getModel() {
     const groupingColumns = this.grouping.columns || [];
     const columnsSetupColumns = this.columnsSetup.columns;
 
@@ -89,8 +56,14 @@ export default class JournalSetting {
       this.setColumns(columnsSetupColumns);
     }
 
-    console.log(this.model);
-
     return this.model;
+  }
+
+  getSetting() {
+    let model = this.getModel();
+    model.columns = model.columns.filter(col => col.default);
+    model.columns = model.columns.map(col => ({ attr: col.attribute }));
+
+    return model;
   }
 }

@@ -123,7 +123,7 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getournalSettings = () => {
+  getJournalSetting = () => {
     return this.getJson(`${PROXY_URI}citeck/micro/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`).then(resp => {
       return resp;
     });

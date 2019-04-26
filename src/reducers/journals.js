@@ -13,7 +13,8 @@ import {
   setSelectAllRecords,
   setSelectAllRecordsVisible,
   setGridInlineToolSettings,
-  setGrouping
+  setGrouping,
+  setJournalSetting
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 
@@ -50,6 +51,21 @@ const initialState = {
     createVariants: []
   },
 
+  journalSetting: {
+    id: '',
+    journalId: '',
+    title: '',
+    sortBy: [],
+    groupBy: [],
+    columns: [],
+    predicate: {},
+    maxItems: 10,
+    permissions: {
+      Write: true,
+      Delete: true
+    }
+  },
+
   selectedRecords: [],
   selectAllRecords: false,
   selectAllRecordsVisible: false,
@@ -64,6 +80,12 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [setJournalSetting]: (state, action) => {
+      return {
+        ...state,
+        journalSetting: { ...action.payload }
+      };
+    },
     [setGrouping]: (state, action) => {
       return {
         ...state,
