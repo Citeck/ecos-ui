@@ -45,12 +45,12 @@ export default class DndList extends Component {
     this.removeDraggableContainer();
   }
 
-  view = data => {
+  view = (data, props) => {
     const tpl = this.props.tpl || (() => <span />);
 
     return data.map(item => ({
       id: getId(),
-      content: tpl.call(this, item)
+      content: tpl.call(this, item, props)
     }));
   };
 
@@ -75,11 +75,11 @@ export default class DndList extends Component {
   };
 
   render() {
-    const { className, classNameItem } = this.props;
+    const { className, classNameItem, ...props } = this.props;
     const cssClasses = classNames('ecos-dnd-list', className);
     const cssItemClasses = classNames('ecos-dnd-list__item', classNameItem);
 
-    const list = this.view(this.state.data);
+    const list = this.view(this.state.data, props);
 
     return (
       <Scrollbars style={{ height: '100%' }}>

@@ -23,36 +23,55 @@ class ListItem extends Component {
 }
 
 class AggregationListItem extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { types: [], selected: null };
+
+    this.aggregationTypes = [
+      {
+        attribute: `_${props.column.attribute}`,
+        schema: `sum(${props.column.attribute})`,
+        text: 'Сумма'
+      }
+    ];
+  }
+
   onChangeAggregationType = e => {
+    this.setState({ selected: e });
     trigger.call(this, 'onChangeAggregation', e);
+  };
+
+  onCheckColumn = e => {
+    if (e.checked) {
+      this.setState({ types: this.aggregationTypes });
+    } else {
+      this.setState({ types: [] });
+      this.setState({ selected: null });
+      trigger.call(this, 'onChangeAggregation', null);
+    }
   };
 
   render() {
     const { column, titleField } = this.props;
-    const aggregationTypes = [
-      {
-        attribute: `_${column.attribute}`,
-        schema: `sum(${column.attribute})`,
-        text: 'Сумма'
-      }
-    ];
 
     return (
       <Columns
         classNamesColumn={'columns_height_full columns-setup__column_align'}
         cols={[
           <div className={'two-columns__left columns-setup__column_align '}>
-            <Checkbox />
+            <Checkbox onChange={this.onCheckColumn} />
             <Label className={'label_clear label_middle-grey columns-setup__next'}>{column[titleField]}</Label>
           </div>,
 
           <Select
-            options={aggregationTypes}
+            options={this.state.types}
             getOptionLabel={option => option.text}
             getOptionValue={option => option.schema}
             onChange={this.onChangeAggregationType}
             className={'select_narrow select_width_full'}
             placeholder={t('journals.default')}
+            value={this.state.selected}
           />
         ]}
       />
@@ -82,7 +101,7 @@ export default class Grouping extends Component {
   };
 
   onChangeAggregation = aggregation => {
-    this.aggregations = [aggregation];
+    this.aggregations = aggregation ? [aggregation] : [];
 
     trigger.call(this, 'onGrouping', {
       columns: [...this.grouping.columns, ...this.aggregations],

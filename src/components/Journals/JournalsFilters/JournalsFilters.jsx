@@ -6,9 +6,7 @@ import { trigger } from '../../../helpers/util';
 
 import './JournalsFilters.scss';
 
-const mapStateToProps = state => ({
-  journalConfig: state.journals.journalConfig
-});
+const mapStateToProps = state => ({});
 const mapDispatchToProps = dispatch => ({});
 
 class JournalsFilters extends Component {
@@ -17,13 +15,7 @@ class JournalsFilters extends Component {
   };
 
   render() {
-    const {
-      journalConfig: { columns = [] }
-    } = this.props;
-
-    if (!columns.length) {
-      return null;
-    }
+    const { columns } = this.props;
 
     return (
       <PanelBar

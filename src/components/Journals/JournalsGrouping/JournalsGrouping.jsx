@@ -2,19 +2,11 @@ import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import Grouping from '../../Grouping/Grouping';
 import PanelBar from '../../common/PanelBar/PanelBar';
-import { setGrouping } from '../../../actions/journals';
 import { t, trigger } from '../../../helpers/util';
 
 import './JournalsGrouping.scss';
 
-const mapStateToProps = state => ({
-  journalConfig: state.journals.journalConfig,
-  grouping: state.journals.grouping
-});
-
-const mapDispatchToProps = dispatch => ({
-  setGrouping: grouping => dispatch(setGrouping(grouping))
-});
+const mapStateToProps = state => ({});
 
 class JournalsGrouping extends Component {
   onGrouping = grouping => {
@@ -22,14 +14,7 @@ class JournalsGrouping extends Component {
   };
 
   render() {
-    const {
-      journalConfig: { columns = [] },
-      grouping
-    } = this.props;
-
-    if (!columns.length) {
-      return null;
-    }
+    const { columns, groupBy } = this.props;
 
     return (
       <PanelBar
@@ -39,8 +24,9 @@ class JournalsGrouping extends Component {
       >
         <Grouping
           className={'journals-grouping'}
+          groupBy={groupBy}
           list={columns}
-          grouping={grouping}
+          grouping={[]}
           valueField={'attribute'}
           titleField={'text'}
           onGrouping={this.onGrouping}
@@ -50,7 +36,4 @@ class JournalsGrouping extends Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsGrouping);
+export default connect(mapStateToProps)(JournalsGrouping);

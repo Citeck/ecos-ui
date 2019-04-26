@@ -8,18 +8,36 @@ import { DndList } from '../common/List';
 import { t, trigger } from '../../helpers/util';
 
 import './ColumnsSetup.scss';
+import JournalSetting from '../Journals/JournalSetting';
 
 class ListItem extends Component {
+  constructor(props) {
+    super(props);
+    const { column, sortBy } = props;
+    this.state = { selected: this.getSelected(column, sortBy) };
+  }
+
+  options = [{ title: 'По возрастанию', value: true }, { title: 'По убыванию', value: false }];
+
   changeVisible = e => {
     this.props.column.default = e.checked;
     trigger.call(this, 'onChangeVisible', e);
   };
 
   changeSortBy = e => {
-    trigger.call(this, 'onChangeSortBy', {
+    this.props.sortBy[0] = {
       ascending: e.value,
       attribute: this.props.column.attribute
-    });
+    };
+
+    this.setState({ selected: e });
+
+    trigger.call(this, 'onChangeSortBy', e);
+  };
+
+  getSelected = (column, sortBy) => {
+    const sort = sortBy.filter(s => s.attribute === column.attribute)[0];
+    return sort ? this.options.filter(o => o.value === sort.ascending)[0] : null;
   };
 
   render() {
@@ -36,12 +54,13 @@ class ListItem extends Component {
           </div>,
 
           <Select
-            options={[{ title: 'По возрастанию', value: true }, { title: 'По убыванию', value: false }]}
+            options={this.options}
             getOptionLabel={option => option.title}
             getOptionValue={option => option.value}
             onChange={this.changeSortBy}
             className={'select_narrow select_width_full'}
             placeholder={t('journals.default')}
+            value={this.state.selected}
           />
         ]}
       />
@@ -50,10 +69,11 @@ class ListItem extends Component {
 }
 
 export default class ColumnsSetup extends Component {
-  getListItem = column => {
+  getListItem = (column, props) => {
     return (
       <ListItem
         column={column}
+        sortBy={props.sortBy}
         titleField={this.props.titleField}
         onChangeVisible={this.onChangeVisible}
         onChangeSortBy={this.onChangeSortBy}
@@ -62,19 +82,29 @@ export default class ColumnsSetup extends Component {
   };
 
   onOrder = orderedColumns => {
-    trigger.call(this, 'onOrder', orderedColumns);
+    for (let i = 0, length = this.props.columns.length; i < length; i++) {
+      this.props.columns[i] = orderedColumns[i];
+    }
+    const { columns, sortBy } = this.props;
+    this.onChange(columns, sortBy);
   };
 
   onChangeVisible = () => {
-    trigger.call(this, 'onChangeVisible', this.props.columns);
+    const { columns, sortBy } = this.props;
+    this.onChange(columns, sortBy);
   };
 
-  onChangeSortBy = sortBy => {
-    trigger.call(this, 'onChangeSortBy', sortBy);
+  onChangeSortBy = () => {
+    const { columns, sortBy } = this.props;
+    this.onChange(columns, sortBy);
+  };
+
+  onChange = (columns, sortBy) => {
+    trigger.call(this, 'onChange', { columns, sortBy });
   };
 
   render() {
-    const { columns, className, classNameToolbar } = this.props;
+    const { columns, className, classNameToolbar, sortBy } = this.props;
     const cssClasses = classNames('columns-setup', className);
     const cssToolbarClasses = classNames('columns-setup__toolbar', classNameToolbar);
 
@@ -90,7 +120,7 @@ export default class ColumnsSetup extends Component {
         </div>
 
         <div className={'columns-setup__content'}>
-          <DndList classNameItem={'columns-setup__item'} data={columns} tpl={this.getListItem} onOrder={this.onOrder} />
+          <DndList classNameItem={'columns-setup__item'} sortBy={sortBy} data={columns} tpl={this.getListItem} onOrder={this.onOrder} />
         </div>
       </div>
     );

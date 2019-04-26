@@ -72,18 +72,26 @@ class Journals extends Component {
   };
 
   apply = () => {
-    const setting = this.journalSetting.getSetting();
+    const { columns, groupBy, sortBy, predicate } = this.journalSetting.getSetting();
 
-    setting && this.props.reloadGrid({ predicates: [setting] });
+    this.props.reloadGrid({ columns, groupBy, sortBy, predicates: predicate });
   };
 
   render() {
     const { menuOpen, settingsVisible } = this.state;
     const {
       journalConfig: {
-        meta: { title = '' }
+        meta: { title = '' },
+        columns
       }
     } = this.props;
+    const {
+      grid: { sortBy, groupBy = [] }
+    } = this.props;
+
+    if (!columns || !sortBy.length) {
+      return null;
+    }
 
     return (
       <Container>
@@ -166,9 +174,9 @@ class Journals extends Component {
 
             {settingsVisible ? (
               <Well className={'ecos-journal__settings'}>
-                <JournalsFilters onChange={this.onChangeFilters} />
-                <JournalsColumnsSetup onChange={this.onChangeColumnsSetup} />
-                <JournalsGrouping onChange={this.onChangeGrouping} />
+                <JournalsFilters columns={columns} onChange={this.onChangeFilters} />
+                <JournalsColumnsSetup sortBy={sortBy} columns={columns} onChange={this.onChangeColumnsSetup} />
+                <JournalsGrouping groupBy={groupBy} columns={columns} onChange={this.onChangeGrouping} />
 
                 <Columns
                   className={'ecos-journal__settings-footer'}

@@ -43,7 +43,7 @@ export default class JournalSetting {
       sortBy: [],
       groupBy: [],
       columns: [],
-      predicate: null,
+      predicate: [],
       maxItems: 10,
       permissions: {
         Write: true,
@@ -53,7 +53,7 @@ export default class JournalSetting {
   }
 
   setPredicate(predicate) {
-    this.model.predicate = { ...predicate };
+    this.model.predicate = predicate ? [{ ...predicate }] : [];
   }
 
   setGroupBy(groupBy) {
@@ -79,17 +79,18 @@ export default class JournalSetting {
   }
 
   getSetting() {
-    const groupingColumns = this.grouping.columns;
+    const groupingColumns = this.grouping.columns || [];
     const columnsSetupColumns = this.columnsSetup.columns;
 
     if (groupingColumns.length) {
       this.setColumns(groupingColumns);
     } else {
+      this.setGroupBy([]);
       this.setColumns(columnsSetupColumns);
     }
 
     console.log(this.model);
 
-    return null; //this.model.predicate;
+    return this.model;
   }
 }

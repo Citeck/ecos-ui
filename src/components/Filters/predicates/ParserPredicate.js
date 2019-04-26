@@ -181,14 +181,14 @@ export default class ParserPredicate {
   }
 
   static reverse(groups) {
-    // console.log(groups);
-    // console.log(test);
+    groups = groups.filter(f => f.filters && f.filters.length);
+
     groups = groups.map(group => {
       group.predicate = this.getPredicates(this.getOrs(group.getFilters()));
       return group;
     });
 
-    return this.getPredicates(this.getOrs(groups));
+    return groups.length ? this.getPredicates(this.getOrs(groups)) : null;
   }
 
   static isGroup(val) {

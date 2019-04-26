@@ -6,38 +6,25 @@ import { t, trigger } from '../../../helpers/util';
 
 import './JournalsColumnsSetup.scss';
 
-const mapStateToProps = state => ({
-  journalConfig: state.journals.journalConfig
-});
-
-const mapDispatchToProps = dispatch => ({});
+const mapStateToProps = state => ({});
 
 class JournalsColumnsSetup extends Component {
-  onOrder = columns => {
-    this.onChange({ columns });
-  };
+  constructor(props) {
+    super(props);
 
-  onChangeVisible = columns => {
-    this.onChange({ columns });
-  };
-
-  onChangeSortBy = sortBy => {
-    sortBy = [sortBy];
-    this.onChange({ sortBy });
-  };
+    this.columns = props.columns.map(col => ({ ...col }));
+    this.sortBy = props.sortBy.map(sort => ({ ...sort }));
+  }
 
   onChange = ({ columns, sortBy }) => {
     trigger.call(this, 'onChange', { columns, sortBy });
   };
 
   render() {
-    const {
-      journalConfig: { columns = [] }
-    } = this.props;
+    const columns = this.columns;
+    const sortBy = this.sortBy;
 
-    if (!columns.length) {
-      return null;
-    }
+    this.onChange({ columns, sortBy });
 
     return (
       <PanelBar
@@ -50,16 +37,12 @@ class JournalsColumnsSetup extends Component {
           valueField={'attribute'}
           titleField={'text'}
           columns={columns}
-          onOrder={this.onOrder}
-          onChangeVisible={this.onChangeVisible}
-          onChangeSortBy={this.onChangeSortBy}
+          sortBy={sortBy}
+          onChange={this.onChange}
         />
       </PanelBar>
     );
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsColumnsSetup);
+export default connect(mapStateToProps)(JournalsColumnsSetup);
