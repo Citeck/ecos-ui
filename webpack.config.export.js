@@ -124,13 +124,13 @@ module.exports = {
   entry: exportConfig.entryPoints,
   output: {
     // The build folder.
-    path: resolveApp('public/static/export'),
+    path: resolveApp('public'),
     libraryTarget: 'amd',
     // Generated JS file names (with nested folders).
     // There will be one main bundle, and one file per asynchronous chunk.
     // We don't currently advertise code splitting but Webpack supports it.
-    filename: 'share/res/static/ecos/[name]/js/[name].min.js',
-    chunkFilename: 'share/res/static/ecos/[name]/js/[name].chunk.js',
+    filename: 'static/export/ecos/[name]/js/[name].min.js',
+    chunkFilename: 'static/export/ecos/[name]/js/[name].chunk.js',
     // We inferred the "public path" (such as / or /my-project) from homepage.
     publicPath: publicPath,
     // Point sourcemap entries to original disk location (format as URL on Windows)
@@ -300,7 +300,7 @@ module.exports = {
             loader: require.resolve('url-loader'),
             options: {
               limit: 10000,
-              name: 'share/res/static/ecos/[name]/media/[name].[hash:8].[ext]',
+              name: 'static/export/ecos/[name]/media/[name].[hash:8].[ext]',
             },
           },
           // Process application JS with Babel.
@@ -461,7 +461,7 @@ module.exports = {
             // by webpacks internal loaders.
             exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
             options: {
-              name: 'share/res/static/ecos/[name]/media/[name].[hash:8].[ext]',
+              name: 'static/export/ecos/[name]/media/[name].[hash:8].[ext]',
             },
           },
           // ** STOP ** Are you adding a new loader?
@@ -509,8 +509,8 @@ module.exports = {
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
-      filename: 'share/res/static/ecos/[name]/css/[name].min.css',
-      chunkFilename: 'share/res/static/ecos/[name]/css/[name].chunk.css',
+      filename: 'static/export/ecos/[name]/css/[name].min.css',
+      chunkFilename: 'static/export/ecos/[name]/css/[name].chunk.css',
     }),
     // Generate a manifest file which contains a mapping of all asset filenames
     // to their corresponding output file so that tools can pick it up without

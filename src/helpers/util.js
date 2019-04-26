@@ -19,6 +19,19 @@ export function placeCaretAtEnd(el) {
   }
 }
 
+export function registerCiteckComponent(name, component) {
+  let Citeck = window.Citeck || {};
+  Citeck[name] = component;
+  window.Citeck = Citeck;
+}
+
+export function registerCiteckLibComponent(name, component) {
+  let Citeck = window.Citeck || {};
+  Citeck.lib = Citeck.lib || {};
+  Citeck.lib[name] = component;
+  window.Citeck = Citeck;
+}
+
 export function generateSearchTerm(terms, hiddenSearchTerms) {
   let searchTerm = hiddenSearchTerms ? '(' + terms + ') ' + hiddenSearchTerms : terms;
 

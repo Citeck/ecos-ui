@@ -1,7 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import EcosModal from '../../../src/components/common/EcosModal';
+import EcosModal from './EcosModal';
+
+import { registerCiteckComponent } from '../../../helpers/util';
 
 const EMPTY_HEADER_TITLE = ' ';
 
@@ -16,17 +18,20 @@ class ModalWrapper extends React.Component {
     }
   }
 
-  close = (callback) => {
-    this.setState({
-      isOpen: false
-    }, () => {
-      if (typeof this.props.onHideModal === 'function') {
-        this.props.onHideModal();
+  close = callback => {
+    this.setState(
+      {
+        isOpen: false
+      },
+      () => {
+        if (typeof this.props.onHideModal === 'function') {
+          this.props.onHideModal();
+        }
+        if (typeof callback === 'function') {
+          callback();
+        }
       }
-      if (typeof callback === 'function') {
-        callback();
-      }
-    });
+    );
   };
 
   render() {
@@ -60,7 +65,7 @@ ModalWrapper.propTypes = {
   title: PropTypes.string,
   onHideModal: PropTypes.func,
   getInstance: PropTypes.func,
-  reactstrapProps: PropTypes.object,
+  reactstrapProps: PropTypes.object
 };
 
 class Modal {
@@ -69,7 +74,7 @@ class Modal {
     document.body.appendChild(this.el);
 
     if (config.rawHtml) {
-      node = <div dangerouslySetInnerHTML={{__html: node}} />
+      node = <div dangerouslySetInnerHTML={{ __html: node }} />;
     }
 
     ReactDOM.render(
@@ -78,7 +83,7 @@ class Modal {
         isBigHeader={config.isBigHeader}
         className={config.class}
         onHideModal={this.destroy}
-        getInstance={el => this.modal = el}
+        getInstance={el => (this.modal = el)}
         reactstrapProps={config.reactstrapProps}
       >
         {node}
@@ -88,7 +93,7 @@ class Modal {
     );
   };
 
-  close = (callback) => {
+  close = callback => {
     this.modal.close(callback);
   };
 
@@ -98,4 +103,4 @@ class Modal {
   };
 }
 
-export default Modal;
+registerCiteckComponent('Modal', Modal);

@@ -35,7 +35,35 @@ function convertAttributePath(path) {
     attSchema = 'disp';
   }
 
-  return '.' + (isEdge ? 'edge' : 'att') + '(n:"' + attName + '"){' + attSchema + '}';
+  let result = '.';
+
+  if (isEdge) {
+    result += 'edge(n:"' + attName + '"){' + attSchema + '}';
+  } else {
+    let attPath = attName.split(/(?<!\\)\./);
+    for (let i = 0; i < attPath.length; i++) {
+      if (i > 0) {
+        result += '{';
+      }
+      result += 'att';
+
+      let pathElem = attPath[i];
+      if (pathElem.indexOf('[]') === pathElem.length - 2) {
+        result += 's';
+        pathElem = pathElem.substring(0, pathElem.length - 2);
+      }
+      pathElem = pathElem.replace(/\\./g, '.');
+
+      result += '(n:"' + pathElem + '")';
+    }
+
+    result += '{' + attSchema + '}';
+    for (let i = 1; i < attPath.length; i++) {
+      result += '}';
+    }
+  }
+
+  return result;
 }
 
 class Records {
