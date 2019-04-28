@@ -1,5 +1,5 @@
 module.exports = {
   entryPoints: {
-    "modules": "./export/src/modules"
+    "exports": "./export/src/exports"
   }
 };

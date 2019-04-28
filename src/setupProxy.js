@@ -43,7 +43,7 @@ module.exports = function(app) {
     proxy(
       [
         '/share/**',
-        '!**/card-details',
+        /*'!**!/card-details',*/
         '!**/card-details-new',
         '!**/bpmn-designer',
         '!**/bpmn-designer/**',

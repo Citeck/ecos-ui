@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import Formio from 'formiojs/Formio';
 import FormBuilder from 'formiojs/FormBuilder';
 import Records from '../Records';
-import { registerCiteckComponent } from '../../helpers/util';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -309,8 +308,6 @@ EcosForm.propTypes = {
   onReady: PropTypes.func
   // onForm[Event]: PropTypes.func (for example, onFormCancel)
 };
-
-registerCiteckComponent('EcosForm', EcosForm);
 
 export default EcosForm;
 export { FormBuilder, EcosForm };

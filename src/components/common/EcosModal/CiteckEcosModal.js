@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import EcosModal from './EcosModal';
 
-import { registerCiteckComponent } from '../../../helpers/util';
-
 const EMPTY_HEADER_TITLE = ' ';
 
 class ModalWrapper extends React.Component {
@@ -103,4 +101,4 @@ class Modal {
   };
 }
 
-registerCiteckComponent('Modal', Modal);
+export default Modal;
