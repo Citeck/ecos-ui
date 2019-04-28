@@ -47,9 +47,9 @@ const exportConfig = require('./export.config.js');
 
 // Assert this just to be safe.
 // Development builds of React are slow and not intended for production.
-if (env.stringified['process.env'].NODE_ENV !== '"production"') {
-  throw new Error('Production builds must have NODE_ENV=production.');
-}
+//if (env.stringified['process.env'].NODE_ENV !== '"production"') {
+  //throw new Error('Production builds must have NODE_ENV=production.');
+//}
 
 // Check if TypeScript is setup
 const useTypeScript = fs.existsSync(paths.appTsConfig);
@@ -114,7 +114,7 @@ const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
 module.exports = {
-  mode: 'production',
+  mode: process.env.NODE_ENV,
   // Don't attempt to continue if there are any errors.
   bail: true,
   // We generate sourcemaps in production. This is slow but gives good results.
