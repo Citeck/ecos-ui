@@ -5,6 +5,7 @@
   background-color: $color-gray-6;
   display: flex;
   position: relative;
+  user-select: none;
 
   &_with-scroll {
     &:after {

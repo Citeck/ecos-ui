@@ -1,10 +1,19 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
+import { sortableContainer, sortableElement } from 'react-sortable-hoc';
 import { getScrollbarWidth } from '../../helpers/util';
 import './style.scss';
 
 const SCROLL_STEP = 150;
+
+const TabContainer = sortableContainer(({ children }) => {
+  return children;
+});
+
+const SortableTabItem = sortableElement(({ children }) => {
+  return children;
+});
 
 class PageTabs extends React.Component {
   static propTypes = {
@@ -76,7 +85,7 @@ class PageTabs extends React.Component {
       id: Math.random()
         .toString(36)
         .substring(6),
-      position: countTabs + 1,
+      position: countTabs,
       isActive: true,
       link: '/share/page/journalsDashboard',
       title: Math.random()
@@ -123,6 +132,10 @@ class PageTabs extends React.Component {
         default:
           newTabs[index + 1].isActive = true;
       }
+    }
+
+    for (let i = index; i < newTabs.length; i++) {
+      newTabs[i].position -= 1;
     }
 
     newTabs.splice(index, 1);
@@ -223,6 +236,32 @@ class PageTabs extends React.Component {
     }
   };
 
+  handleSortEnd = ({ oldIndex, newIndex }, event) => {
+    event.stopPropagation();
+
+    this.setState(state => {
+      const tabs = JSON.parse(JSON.stringify(state.tabs));
+      const draggableTab = tabs[oldIndex];
+
+      tabs.splice(oldIndex, 1);
+      tabs.splice(newIndex, 0, draggableTab);
+      tabs.map((tab, index) => {
+        tab.position = index;
+        return tab;
+      });
+
+      return { tabs };
+    });
+  };
+
+  get sortableTabs() {
+    const { tabs } = this.state;
+
+    return tabs.sort((first, second) => {
+      return first.position > second.position ? 1 : -1;
+    });
+  }
+
   renderLeftButton() {
     const { isActiveLeftArrow, needArrow } = this.state;
 
@@ -278,19 +317,19 @@ class PageTabs extends React.Component {
     }
 
     return (
-      <div key={item.id} className={className.join(' ')} title={item.title} onClick={this.handleSetActiveTab.bind(this, item)}>
-        <span className="page-tab__tabs-item-title">{item.title}</span>
-        {closeButton}
-      </div>
+      <SortableTabItem key={item.id} index={item.position} onSortEnd={this.handleSortEnd}>
+        <div key={item.id} className={className.join(' ')} title={item.title} onClick={this.handleSetActiveTab.bind(this, item)}>
+          <span className="page-tab__tabs-item-title">{item.title}</span>
+          {closeButton}
+        </div>
+      </SortableTabItem>
     );
   };
 
   renderTabs() {
-    const { tabs } = this.state;
-
     return (
       <div className="page-tab__tabs" ref={this.$tabWrapper}>
-        {tabs.map(this.renderTabItem)}
+        {this.sortableTabs.map(tab => this.renderTabItem(tab))}
       </div>
     );
   }
@@ -311,7 +350,9 @@ class PageTabs extends React.Component {
     return (
       <div className={className.join(' ')}>
         {this.renderLeftButton()}
-        {this.renderTabs()}
+        <TabContainer axis={'x'} lockAxis={'x'} distance={3} onSortEnd={this.handleSortEnd}>
+          {this.renderTabs()}
+        </TabContainer>
         <div className="page-tab__tabs-add icon-plus" onClick={this.handleAddTab} />
         {this.renderRightButton()}
       </div>
