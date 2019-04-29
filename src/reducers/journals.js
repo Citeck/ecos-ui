@@ -13,12 +13,15 @@ import {
   setSelectAllRecords,
   setSelectAllRecordsVisible,
   setGridInlineToolSettings,
-  setGrouping,
-  setJournalSetting
+  setJournalSetting,
+  setJournalSettings
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 
 const initialState = {
+  loading: true,
+  editorMode: false,
+
   grid: {
     data: [],
     columns: [],
@@ -35,14 +38,9 @@ const initialState = {
     minHeight: null
   },
 
-  grouping: [],
-
-  loading: true,
-  editorMode: false,
-
   journalsList: [],
   journals: [],
-  settings: [],
+  journalSettings: [],
 
   config: null,
   initConfig: null,
@@ -80,16 +78,19 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [setJournalSettings]: (state, action) => {
+      return {
+        ...state,
+        journalSettings: Array.from(action.payload)
+      };
+    },
     [setJournalSetting]: (state, action) => {
       return {
         ...state,
-        journalSetting: { ...action.payload }
-      };
-    },
-    [setGrouping]: (state, action) => {
-      return {
-        ...state,
-        grouping: Array.from(action.payload)
+        journalSetting: {
+          ...state.journalSetting,
+          ...action.payload
+        }
       };
     },
     [setGridInlineToolSettings]: (state, action) => {
@@ -120,12 +121,10 @@ export default handleActions(
     [setSettingItem]: (state, action) => {
       return {
         ...state,
-        config: [
+        config: {
           ...state.config,
-          {
-            settingsId: action.payload.id
-          }
-        ]
+          journalSettingId: action.payload.id
+        }
       };
     },
     [setEditorMode]: (state, action) => {

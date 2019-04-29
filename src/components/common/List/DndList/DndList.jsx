@@ -31,6 +31,13 @@ export default class DndList extends Component {
     this.portal = this.createDraggableContainer();
   }
 
+  componentDidUpdate(prevProps) {
+    const props = this.props;
+    if (props.data !== prevProps.data) {
+      this.setState({ data: props.data });
+    }
+  }
+
   createDraggableContainer = () => {
     let div = document.createElement('div');
     document.body.appendChild(div);

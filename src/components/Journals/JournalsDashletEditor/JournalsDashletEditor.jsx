@@ -21,7 +21,7 @@ import './JournalsDashletEditor.scss';
 const mapStateToProps = state => ({
   journalsList: state.journals.journalsList,
   journals: state.journals.journals,
-  settings: state.journals.settings,
+  journalSettings: state.journals.journalSettings,
   config: state.journals.config,
   initConfig: state.journals.initConfig
 });
@@ -103,7 +103,14 @@ class JournalsDashletEditor extends Component {
           </Field>
 
           <Field label={t('journals.settings')}>
-            <Select placeholder={t('journals.default')} options={props.setting} onChange={props.setSettingItem} />
+            <Select
+              placeholder={t('journals.default')}
+              options={props.journalSettings}
+              getOptionLabel={option => option.title}
+              getOptionValue={option => option.id}
+              onChange={props.setSettingItem}
+              value={this.setSelectValue(props.journalSettings, 'id', config.journalSettingId)}
+            />
           </Field>
         </div>
 

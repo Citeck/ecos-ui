@@ -15,8 +15,9 @@ import {
   deleteRecords,
   saveRecords,
   setSelectedRecords,
-  saveJournalSettings,
-  setJournalSetting
+  saveJournalSetting,
+  setJournalSetting,
+  setJournalSettings
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 
@@ -36,6 +37,7 @@ function* sagaGetDashletEditorData({ api, logger }, action) {
     const config = action.payload || {};
     yield getJournalsList(api);
     yield getJournals(api, config.journalsListId);
+    yield getJournalSettings(api, config.journalId);
   } catch (e) {
     logger.error('[journals sagaGetDashletEditorData saga error', e.message);
   }
@@ -49,10 +51,10 @@ function* sagaGetDashletConfig({ api, logger }, action) {
       yield put(setEditorMode(false));
       yield put(setDashletConfig(config));
 
-      const { journalsListId, journalId } = config;
+      const { journalsListId, journalId, journalSettingId = '' } = config;
       yield getJournals(api, journalsListId);
 
-      yield put(initGrid(journalId));
+      yield put(initGrid({ journalId, journalSettingId }));
     } else {
       yield put(setEditorMode(true));
     }
@@ -65,6 +67,11 @@ function* getJournalsList(api) {
   const journalsList = yield call(api.journals.getJournalsList);
   yield put(setJournalsList(journalsList));
   return journalsList;
+}
+
+function* getJournalSettings(api, journalId) {
+  const settings = yield call(api.journals.getJournalSettings, journalId);
+  yield put(setJournalSettings(settings));
 }
 
 function* getJournals(api, journalsListId) {
@@ -112,25 +119,52 @@ function* sagaInitGrid({ api, logger }, action) {
   try {
     yield put(setLoading(true));
 
-    let config = yield call(api.journals.getJournalConfig, action.payload);
-    let journalSetting = yield call(api.journals.getJournalSetting, action.payload);
-    yield put(setJournalConfig(config));
-    //yield put(setJournalSetting(journalSetting));
+    const { journalId, journalSettingId } = action.payload;
 
-    const {
+    yield getJournalSettings(api, journalId);
+
+    let config = yield call(api.journals.getJournalConfig, journalId);
+    yield put(setJournalConfig(config));
+
+    let {
       columns,
       meta: { createVariants, predicate, groupBy }
     } = config;
+
     let pagination = yield select(state => state.journals.grid.pagination);
 
-    const params = {
+    let params = {
       columns,
       pagination: groupBy ? { ...pagination, maxItems: undefined } : pagination,
       createVariants,
       predicate,
       groupBy,
-      sortBy: getDefaultSortBy(config)
+      sortBy: getDefaultSortBy(config),
+      predicates: []
     };
+
+    let journalSetting = journalSettingId ? yield call(api.journals.getJournalSetting, journalSettingId) : null;
+
+    console.log(journalSetting);
+
+    if (journalSetting) {
+      params.sortBy = journalSetting.sortBy.map(sort => ({ ...sort })) || params.sortBy;
+      params.groupBy = Array.from(journalSetting.groupBy) || params.groupBy;
+      params.columns = journalSetting.columns.map(col => ({ ...col })) || params.columns;
+      params.predicates = [{ ...journalSetting.predicate }] || params.predicates;
+      params.pagination = params.groupBy && params.groupBy.length ? { ...pagination, maxItems: undefined } : pagination;
+    } else {
+      journalSetting = {
+        journalId: config.id,
+        title: config.meta.title,
+        sortBy: params.sortBy.map(sort => ({ ...sort })),
+        groupBy: params.groupBy ? Array.from(params.groupBy) : [],
+        columns: params.columns.map(col => ({ ...col })),
+        predicate: {}
+      };
+    }
+
+    yield put(setJournalSetting(journalSetting));
 
     const gridData = yield call(api.journals.getGridData, params);
 
@@ -180,11 +214,11 @@ function* sagaSaveRecords({ api, logger }, action) {
   }
 }
 
-function* sagaSaveJournalSettings({ api, logger }, action) {
+function* sagaSaveJournalSetting({ api, logger }, action) {
   try {
-    yield call(api.journals.saveJournalSettings, action.payload);
+    yield call(api.journals.saveJournalSetting, action.payload);
   } catch (e) {
-    logger.error('[journals sagaSaveJournalSettings saga error', e.message);
+    logger.error('[journals sagaSaveJournalSetting saga error', e.message);
   }
 }
 
@@ -197,7 +231,7 @@ function* saga(ea) {
   yield takeLatest(reloadTreeGrid().type, sagaReloadTreeGrid, ea);
   yield takeLatest(deleteRecords().type, sagaDeleteRecords, ea);
   yield takeLatest(saveRecords().type, sagaSaveRecords, ea);
-  yield takeLatest(saveJournalSettings().type, sagaSaveJournalSettings, ea);
+  yield takeLatest(saveJournalSetting().type, sagaSaveJournalSetting, ea);
 }
 
 export default saga;

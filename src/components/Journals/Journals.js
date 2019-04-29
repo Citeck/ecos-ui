@@ -11,23 +11,23 @@ import JournalsMenu from './JournalsMenu';
 import JournalSetting from './JournalSetting';
 import Search from '../common/Search/Search';
 import Columns from '../common/templates/Columns/Columns';
+import EcosModal from '../../../src/components/common/EcosModal';
 
-import { getDashletConfig, reloadGrid, saveJournalSettings } from '../../actions/journals';
+import { getDashletConfig, reloadGrid, saveJournalSetting } from '../../actions/journals';
 import { IcoBtn, TwoIcoBtn } from '../common/btns';
-import { Caption, Dropdown, Well } from '../common/form';
+import { Caption, Dropdown, Well, Input } from '../common/form';
 import { Btn } from '../common/btns';
 import { t } from '../../helpers/util';
 
 import './Journals.scss';
 
 const mapStateToProps = state => ({
-  journalConfig: state.journals.journalConfig,
-  grid: state.journals.grid
+  journalConfig: state.journals.journalConfig
 });
 
 const mapDispatchToProps = dispatch => ({
   getDashletConfig: id => dispatch(getDashletConfig(id)),
-  saveJournalSettings: settings => dispatch(saveJournalSettings(settings)),
+  saveJournalSetting: settings => dispatch(saveJournalSetting(settings)),
   reloadGrid: options => dispatch(reloadGrid(options))
 });
 
@@ -56,7 +56,7 @@ class Journals extends Component {
   };
 
   save = () => {
-    this.props.saveJournalSettings(this.journalSetting.getSetting());
+    this.props.saveJournalSetting(this.journalSetting.getSetting());
   };
 
   onChangeFilters = predicate => {
@@ -72,10 +72,8 @@ class Journals extends Component {
   };
 
   apply = () => {
-    const model = this.journalSetting.getModel();
-    const { columns, groupBy, sortBy, predicate } = model;
-
-    console.log(model);
+    const setting = this.journalSetting.getSetting();
+    const { columns, groupBy, sortBy, predicate } = setting;
 
     this.props.reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
   };
@@ -84,17 +82,9 @@ class Journals extends Component {
     const { menuOpen, settingsVisible } = this.state;
     const {
       journalConfig: {
-        meta: { title = '' },
-        columns
+        meta: { title = '' }
       }
     } = this.props;
-    const {
-      grid: { sortBy, groupBy = [] }
-    } = this.props;
-
-    if (!columns || !sortBy.length) {
-      return null;
-    }
 
     return (
       <Container>
@@ -176,9 +166,9 @@ class Journals extends Component {
 
             {settingsVisible ? (
               <Well className={'ecos-journal__settings'}>
-                <JournalsFilters columns={columns} onChange={this.onChangeFilters} />
-                <JournalsColumnsSetup sortBy={sortBy} columns={columns} onChange={this.onChangeColumnsSetup} />
-                <JournalsGrouping groupBy={groupBy} columns={columns} onChange={this.onChangeGrouping} />
+                <JournalsFilters onChange={this.onChangeFilters} />
+                <JournalsColumnsSetup onChange={this.onChangeColumnsSetup} />
+                <JournalsGrouping onChange={this.onChangeGrouping} />
 
                 <Columns
                   className={'ecos-journal__settings-footer'}
@@ -212,6 +202,24 @@ class Journals extends Component {
             <JournalsMenu open={menuOpen} onClose={this.toggleMenu} />
           </div>
         </div>
+
+        {/*<EcosModal*/}
+        {/*title={t('Введите название шаблона')}*/}
+        {/*isOpen={true}*/}
+
+        {/*className={'select-orgstruct-select-modal ecos-modal_width-sm'}*/}
+        {/*>*/}
+        {/*<div className={'select-orgstruct-control-panel'}>*/}
+        {/*<Input type='text' />*/}
+        {/*</div>*/}
+
+        {/*<div className="select-orgstruct-select-modal__buttons">*/}
+        {/*<Btn onClick={()=>{}}>{t('select-orgstruct.select-modal.cancel-button')}</Btn>*/}
+        {/*<Btn onClick={()=>{}} className={'ecos-btn_blue'}>*/}
+        {/*{t('select-orgstruct.select-modal.ok-button')}*/}
+        {/*</Btn>*/}
+        {/*</div>*/}
+        {/*</EcosModal>*/}
       </Container>
     );
   }

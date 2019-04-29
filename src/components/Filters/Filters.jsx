@@ -14,6 +14,14 @@ export default class Filters extends Component {
     this.store = Array.from(groups);
   }
 
+  componentDidUpdate(prevProps) {
+    const props = this.props;
+    if (props.predicate !== prevProps.predicate) {
+      const groups = ParserPredicate.parse(props.predicate, props.columns);
+      this.setState({ groups });
+    }
+  }
+
   addGroup = condition => {
     const groups = this.store;
     groups.push(ParserPredicate.createGroup(condition.value));

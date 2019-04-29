@@ -7,7 +7,8 @@ import { t, trigger } from '../../../helpers/util';
 import './JournalsGrouping.scss';
 
 const mapStateToProps = state => ({
-  journalSetting: state.journals.journalSetting
+  journalSetting: state.journals.journalSetting,
+  journalConfig: state.journals.journalConfig
 });
 
 class JournalsGrouping extends Component {
@@ -16,7 +17,12 @@ class JournalsGrouping extends Component {
   };
 
   render() {
-    const { columns, groupBy } = this.props;
+    const { groupBy } = this.props.journalSetting;
+    const { columns = [] } = this.props.journalConfig;
+
+    if (!columns.length) {
+      return null;
+    }
 
     return (
       <PanelBar

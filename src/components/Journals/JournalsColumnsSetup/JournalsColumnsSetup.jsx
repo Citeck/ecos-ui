@@ -7,7 +7,8 @@ import { t, trigger } from '../../../helpers/util';
 import './JournalsColumnsSetup.scss';
 
 const mapStateToProps = state => ({
-  journalSetting: state.journals.journalSetting
+  journalSetting: state.journals.journalSetting,
+  journalConfig: state.journals.journalConfig
 });
 
 class JournalsColumnsSetup extends Component {
@@ -16,15 +17,18 @@ class JournalsColumnsSetup extends Component {
   };
 
   render() {
-    let { columns, sortBy, journalSetting } = this.props;
+    let { columns, sortBy, groupBy } = this.props.journalSetting;
 
-    columns = journalSetting.columns.length ? journalSetting.columns : columns;
-    sortBy = journalSetting.sortBy.length ? journalSetting.sortBy : sortBy;
+    columns = groupBy.length ? this.props.journalConfig.columns : columns;
 
     columns = columns.map(col => ({ ...col }));
     sortBy = sortBy.map(sort => ({ ...sort }));
 
     this.onChange({ columns, sortBy });
+
+    if (!columns.length) {
+      return null;
+    }
 
     return (
       <PanelBar

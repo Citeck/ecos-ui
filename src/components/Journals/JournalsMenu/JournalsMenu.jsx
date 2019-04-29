@@ -10,6 +10,8 @@ import './JournalsMenu.scss';
 
 const mapStateToProps = state => ({
   journals: state.journals.journals,
+  journalSettings: state.journals.journalSettings,
+  journalSetting: state.journals.journalSetting,
   journalConfig: state.journals.journalConfig
 });
 
@@ -19,13 +21,13 @@ const mapDispatchToProps = dispatch => ({
 
 class ListItem extends Component {
   onClick = () => {
-    const { onClick, journal } = this.props;
-    onClick(journal);
+    const { onClick, item } = this.props;
+    onClick(item);
   };
 
   render() {
-    const { journal, titleField } = this.props;
-    return <span onClick={this.onClick}>{journal[titleField]}</span>;
+    const { item, titleField } = this.props;
+    return <span onClick={this.onClick}>{item[titleField]}</span>;
   }
 }
 
@@ -38,32 +40,45 @@ class JournalsMenu extends Component {
   };
 
   onJornalSelect = journal => {
-    this.props.initGrid(journal.nodeRef);
+    this.props.initGrid({ journalId: journal.nodeRef, journalSettingId: this.props.journalSetting.id });
   };
 
-  getMenuJornals = journals => {
-    return journals.map(journal => <ListItem onClick={this.onJornalSelect} journal={journal} titleField={'title'} />);
-  };
-
-  getSelectedIndex = () => {
+  onJournalSettingsSelect = setting => {
     const {
-      journals,
       journalConfig: {
         meta: { nodeRef }
       }
     } = this.props;
 
-    for (let i = 0, count = journals.length; i < count; i++) {
-      if (journals[i].nodeRef === nodeRef) {
+    this.props.initGrid({ journalId: nodeRef, journalSettingId: setting.id });
+  };
+
+  getMenuJornals = journals => {
+    return journals.map(journal => <ListItem onClick={this.onJornalSelect} item={journal} titleField={'title'} />);
+  };
+
+  getMenuJournalSettings = settings => {
+    return settings.map(setting => <ListItem onClick={this.onJournalSettingsSelect} item={setting} titleField={'title'} />);
+  };
+
+  getSelectedIndex = (source, value, field) => {
+    for (let i = 0, count = source.length; i < count; i++) {
+      if (source[i][field] === value) {
         return i;
       }
     }
-
     return undefined;
   };
 
   render() {
-    const { journals, open } = this.props;
+    const {
+      journalSetting,
+      journals,
+      open,
+      journalConfig: {
+        meta: { nodeRef }
+      }
+    } = this.props;
 
     if (!open) {
       return null;
@@ -86,14 +101,18 @@ class JournalsMenu extends Component {
           <CollapsableList
             classNameList={'ecos-list-group_mode_journal'}
             list={this.getMenuJornals(journals)}
-            selected={this.getSelectedIndex()}
+            selected={this.getSelectedIndex(journals, nodeRef, 'nodeRef')}
           >
             {t('journals.name')}
           </CollapsableList>
         </Well>
 
         <Well className={'ecos-journal-menu__presets'}>
-          <CollapsableList classNameList={'ecos-list-group_mode_journal'} list={[]} close>
+          <CollapsableList
+            classNameList={'ecos-list-group_mode_journal'}
+            list={this.getMenuJournalSettings(journalSettings)}
+            selected={this.getSelectedIndex(journalSettings, journalSetting.id, 'id')}
+          >
             {t('journals.tpl.defaults')}
           </CollapsableList>
         </Well>

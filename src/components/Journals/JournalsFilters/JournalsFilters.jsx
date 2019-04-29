@@ -7,9 +7,9 @@ import { trigger } from '../../../helpers/util';
 import './JournalsFilters.scss';
 
 const mapStateToProps = state => ({
-  journalSetting: state.journals.journalSetting
+  journalSetting: state.journals.journalSetting,
+  journalConfig: state.journals.journalConfig
 });
-const mapDispatchToProps = dispatch => ({});
 
 class JournalsFilters extends Component {
   onChangeFilters = predicate => {
@@ -17,10 +17,12 @@ class JournalsFilters extends Component {
   };
 
   render() {
-    const {
-      columns,
-      journalSetting: { predicate }
-    } = this.props;
+    const { predicate } = this.props.journalSetting;
+    const { columns = [] } = this.props.journalConfig;
+
+    if (!columns.length) {
+      return null;
+    }
 
     return (
       <PanelBar
@@ -34,7 +36,4 @@ class JournalsFilters extends Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsFilters);
+export default connect(mapStateToProps)(JournalsFilters);

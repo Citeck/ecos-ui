@@ -74,9 +74,7 @@ export class CommonApi {
     return fetch(url, {
       ...putOptions,
       body: JSON.stringify(data)
-    })
-      .then(this.checkStatus)
-      .then(parseJSON);
+    }).then(this.checkStatus);
   };
 
   postJson = (url, data) => {

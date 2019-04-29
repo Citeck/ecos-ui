@@ -2,6 +2,334 @@ import { RecordService } from './recordService';
 import { PROXY_URI } from '../constants/alfresco';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 
+const testData = [
+  {
+    id: 'id1',
+    journalId: 'journalId1',
+    title: 'Без группировки',
+    sortBy: [{ ascending: true, attribute: 'cm:name' }],
+    groupBy: [],
+    columns: [
+      {
+        text: 'Дата создания',
+        type: 'datetime',
+        editorKey: null,
+        javaClass: 'java.util.Date',
+        attribute: 'cm:created',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: true,
+        sortable: true,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Имя',
+        type: 'text',
+        editorKey: null,
+        javaClass: 'java.lang.String',
+        attribute: 'cm:name',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: true,
+        sortable: true,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Заголовок',
+        type: 'mltext',
+        editorKey: null,
+        javaClass: 'org.alfresco.service.cmr.repository.MLText',
+        attribute: 'cm:title',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: true,
+        sortable: true,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Номер договора',
+        type: 'text',
+        editorKey: null,
+        javaClass: 'java.lang.String',
+        attribute: 'contracts:agreementNumber',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: false,
+        sortable: true,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Статус',
+        type: 'assoc',
+        editorKey: 'alf_icase:caseStatus',
+        javaClass: 'org.alfresco.service.cmr.repository.NodeRef',
+        attribute: 'icase:caseStatusAssoc',
+        schema: null,
+        formatter: null,
+        params: { searchCriteria: '[{ attribute: "cm:title", predicate: "string-contains" }]' },
+        default: true,
+        sortable: false,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Юридическое лицо',
+        type: 'assoc',
+        editorKey: 'alf_idocs:legalEntity',
+        javaClass: 'org.alfresco.service.cmr.repository.NodeRef',
+        attribute: 'contracts:agreementLegalEntity',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: true,
+        sortable: false,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Контрагент',
+        type: 'assoc',
+        editorKey: 'alf_idocs:contractor',
+        javaClass: 'org.alfresco.service.cmr.repository.NodeRef',
+        attribute: 'contracts:contractor',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: true,
+        sortable: false,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Предмет договора',
+        type: 'assoc',
+        editorKey: 'alf_contracts:subject',
+        javaClass: 'org.alfresco.service.cmr.repository.NodeRef',
+        attribute: 'contracts:agreementSubject',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: true,
+        sortable: false,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Сумма договора',
+        type: 'double',
+        editorKey: null,
+        javaClass: 'java.lang.Double',
+        attribute: 'contracts:agreementAmount',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: true,
+        sortable: true,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Валюта',
+        type: 'assoc',
+        editorKey: 'alf_idocs:currency',
+        javaClass: 'org.alfresco.service.cmr.repository.NodeRef',
+        attribute: 'contracts:agreementCurrency',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: true,
+        sortable: false,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Краткое содержание',
+        type: 'text',
+        editorKey: null,
+        javaClass: 'java.lang.String',
+        attribute: 'idocs:summary',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: false,
+        sortable: true,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Дата договора',
+        type: 'date',
+        editorKey: null,
+        javaClass: 'java.util.Date',
+        attribute: 'contracts:agreementDate',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: true,
+        sortable: true,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Количество листов',
+        type: 'int',
+        editorKey: null,
+        javaClass: 'java.lang.Integer',
+        attribute: 'idocs:pagesNumber',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: false,
+        sortable: true,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Количество листов приложений',
+        type: 'int',
+        editorKey: null,
+        javaClass: 'java.lang.Integer',
+        attribute: 'idocs:appendixPagesNumber',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: false,
+        sortable: true,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Срок действия',
+        type: 'date',
+        editorKey: null,
+        javaClass: 'java.util.Date',
+        attribute: 'contracts:duration',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: true,
+        sortable: true,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Подписант',
+        type: 'person',
+        editorKey: 'alf_cm:person',
+        javaClass: 'org.alfresco.service.cmr.repository.NodeRef',
+        attribute: 'idocs:signatory',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: false,
+        sortable: false,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Исполнитель',
+        type: 'person',
+        editorKey: 'alf_cm:person',
+        javaClass: 'org.alfresco.service.cmr.repository.NodeRef',
+        attribute: 'idocs:performer',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: false,
+        sortable: false,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Примечание',
+        type: 'text',
+        editorKey: null,
+        javaClass: 'java.lang.String',
+        attribute: 'idocs:note',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: false,
+        sortable: true,
+        groupable: false,
+        searchable: true,
+        visible: true
+      }
+    ],
+    predicate: { t: 'or', val: [{ t: 'or', val: [{ att: 'cm:title', t: 'contains', val: '3' }] }] },
+    maxItems: 10,
+    permissions: { Write: true, Delete: true }
+  },
+  {
+    id: 'id2',
+    journalId: 'journalId2',
+    title: 'С группировкой',
+    sortBy: [{ ascending: true, attribute: 'cm:name' }],
+    groupBy: ['icase:caseStatusAssoc&contracts:contractor'],
+    columns: [
+      {
+        text: 'Статус',
+        type: 'assoc',
+        editorKey: 'alf_icase:caseStatus',
+        javaClass: 'org.alfresco.service.cmr.repository.NodeRef',
+        attribute: 'icase:caseStatusAssoc',
+        schema: null,
+        formatter: null,
+        params: { searchCriteria: '[{ attribute: "cm:title", predicate: "string-contains" }]' },
+        default: true,
+        sortable: false,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      {
+        text: 'Контрагент',
+        type: 'assoc',
+        editorKey: 'alf_idocs:contractor',
+        javaClass: 'org.alfresco.service.cmr.repository.NodeRef',
+        attribute: 'contracts:contractor',
+        schema: null,
+        formatter: null,
+        params: {},
+        default: true,
+        sortable: false,
+        groupable: false,
+        searchable: true,
+        visible: true
+      },
+      { attribute: '_contracts:agreementAmount', schema: 'sum(contracts:agreementAmount)', text: 'Сумма' }
+    ],
+    predicate: { t: 'or', val: [{ t: 'or', val: [{ att: 'cm:title', t: 'contains', val: '4' }] }] },
+    maxItems: 10,
+    permissions: { Write: true, Delete: true }
+  }
+];
+
 export class JournalsApi extends RecordService {
   saveRecords = ({ id, attributes }) => {
     return this.mutate({ record: { id, attributes } });
@@ -123,13 +451,19 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getJournalSetting = () => {
+  getJournalSettings = () => {
     return this.getJson(`${PROXY_URI}citeck/micro/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`).then(resp => {
-      return resp;
+      return testData;
     });
   };
 
-  saveJournalSettings = settings => {
+  getJournalSetting = id => {
+    return this.getJson(`${PROXY_URI}citeck/micro/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`).then(resp => {
+      return testData.filter(t => t.id === id)[0];
+    });
+  };
+
+  saveJournalSetting = settings => {
     return this.putJson(`${PROXY_URI}citeck/micro/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`, settings).then(
       resp => {
         return resp;

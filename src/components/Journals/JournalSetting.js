@@ -45,7 +45,7 @@ export default class JournalSetting {
     this.setGroupBy(this.grouping.groupBy || []);
   }
 
-  getModel() {
+  getSetting() {
     const groupingColumns = this.grouping.columns || [];
     const columnsSetupColumns = this.columnsSetup.columns;
 
@@ -57,13 +57,5 @@ export default class JournalSetting {
     }
 
     return this.model;
-  }
-
-  getSetting() {
-    let model = this.getModel();
-    model.columns = model.columns.filter(col => col.default);
-    model.columns = model.columns.map(col => ({ attr: col.attribute }));
-
-    return model;
   }
 }
