@@ -3,9 +3,11 @@ import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { sortableContainer, sortableElement } from 'react-sortable-hoc';
 import { getScrollbarWidth } from '../../helpers/util';
+import * as ls from '../../helpers/ls';
 import './style.scss';
 
 const SCROLL_STEP = 150;
+const lsKey = ls.generateKey('page-tabs', true);
 
 const TabContainer = sortableContainer(({ children }) => {
   return children;
@@ -46,38 +48,66 @@ class PageTabs extends React.Component {
 
   state = {
     // ToDO: use tabs from props or from store
-    tabs: [
-      {
-        id: 'firsttab',
-        position: 0,
-        isActive: true,
-        link: '/share/page/journals',
-        title: 'Домашняя страница'
-      },
-      {
-        id: 'secondtab',
-        position: 1,
-        isActive: false,
-        link: '/formio-develop',
-        title: 'Вторая страница с очень длинным названием, прям вот таким'
-      },
-      {
-        id: '123',
-        position: 2,
-        isActive: false,
-        link: '/share/page/journalsDashboard',
-        title: '/share/page/journalsDashboard'
-      }
-    ],
+    tabs: [],
     isActiveLeftArrow: false,
     isActiveRightArrow: false,
-    needArrow: false
+    needArrow: false,
+    isShow: false
   };
 
   constructor() {
     super();
 
+    let tabs = ls.hasData(lsKey, 'array') ? ls.getData(lsKey) : [this.generateNewTab(0)];
+
+    this.state.tabs = tabs;
+    this.saveOnLS(tabs);
+
     this.$tabWrapper = React.createRef();
+  }
+
+  componentDidMount() {
+    // ToDo: get config of tabs visibility
+    window.Citeck.Records.queryOne(
+      {
+        query: {
+          key: 'tabs-enabled'
+        },
+        sourceId: 'uiserv/config'
+      },
+      '.bool',
+      true
+    ).then(isShow => {
+      this.setState({
+        isShow
+      });
+    });
+
+    this.checkArrowID = window.setInterval(() => {
+      const { current } = this.$tabWrapper;
+
+      if (current) {
+        this.checkNeedArrow();
+
+        const wrapperPosition = current.getBoundingClientRect();
+        const activeTabPosition = current.querySelector('.page-tab__tabs-item_active').getBoundingClientRect();
+
+        current.scrollLeft = activeTabPosition.left / 2 - activeTabPosition.width / 2 - getScrollbarWidth();
+
+        this.setState({
+          isActiveRightArrow: current.scrollWidth - current.scrollLeft - current.offsetWidth > 0,
+          isActiveLeftArrow: activeTabPosition.left !== wrapperPosition.left
+        });
+
+        window.clearInterval(this.checkArrowID);
+        this.checkArrowID = null;
+      }
+    }, 300);
+  }
+
+  componentWillUnmount() {
+    window.clearInterval(this.checkArrowID);
+    this.checkArrowID = null;
   }
 
   generateNewTab(countTabs) {
@@ -99,21 +129,25 @@ class PageTabs extends React.Component {
       const { scrollWidth, offsetWidth, clientWidth } = this.$tabWrapper.current;
       const needArrow = scrollWidth > offsetWidth + getScrollbarWidth();
 
-      this.$tabWrapper.current.scrollLeft = needArrow ? scrollWidth - clientWidth : 0;
+      // this.$tabWrapper.current.scrollLeft = needArrow ? scrollWidth - clientWidth : 0;
 
       this.setState({
         needArrow,
-        isActiveRightArrow: false,
-        isActiveLeftArrow: true
+        isActiveRightArrow: true,
+        isActiveLeftArrow: false
       });
     }
   }
 
-  handleCloseTab(tabId, event) {
-    event.stopPropagation();
+  saveOnLS(tabs = this.state.tabs) {
+    ls.setData(lsKey, tabs);
+  }
 
+  handleCloseTab(tabId, event) {
     const { tabs } = this.state;
     const index = tabs.findIndex(tab => tab.id === tabId);
+
+    event.stopPropagation();
 
     if (index === -1) {
       return false;
@@ -140,6 +174,8 @@ class PageTabs extends React.Component {
 
     newTabs.splice(index, 1);
 
+    this.saveOnLS(newTabs);
+
     this.setState(
       {
         tabs: newTabs
@@ -158,24 +194,36 @@ class PageTabs extends React.Component {
       return item;
     });
 
+    this.saveOnLS(tabs);
+
     this.setState({ tabs }, () => {
       history.push(tab.link);
     });
   }
 
   handleAddTab = () => {
-    this.setState(state => {
-      const tabs = [...state.tabs];
+    this.setState(
+      state => {
+        const tabs = [...state.tabs];
 
-      tabs.map(tab => {
-        tab.isActive = false;
+        tabs.map(tab => {
+          tab.isActive = false;
 
-        return tabs;
-      });
-      tabs.push(this.generateNewTab(tabs.length));
+          return tabs;
+        });
+        tabs.push(this.generateNewTab(tabs.length));
+        this.saveOnLS(tabs);
 
-      return { tabs };
-    }, this.checkNeedArrow.bind(this));
+        return { tabs };
+      },
+      () => {
+        if (this.$tabWrapper.current) {
+          this.$tabWrapper.current.scrollLeft = this.$tabWrapper.current.scrollWidth;
+        }
+
+        this.checkNeedArrow();
+      }
+    );
   };
 
   handleScrollLeft = () => {
@@ -249,6 +297,8 @@ class PageTabs extends React.Component {
         tab.position = index;
         return tab;
       });
+
+      this.saveOnLS(tabs);
 
       return { tabs };
     });
@@ -335,9 +385,9 @@ class PageTabs extends React.Component {
   }
 
   renderTabWrapper() {
-    const { tabs, isActiveRightArrow } = this.state;
+    const { tabs, isActiveRightArrow, isShow } = this.state;
 
-    if (!tabs.length) {
+    if (!tabs.length || !isShow) {
       return null;
     }
 
@@ -359,13 +409,22 @@ class PageTabs extends React.Component {
     );
   }
 
-  render() {
+  renderChildren() {
     const { children } = this.props;
+    const { isShow } = this.state;
 
+    if (isShow) {
+      return <div className="page-tab__body">{children}</div>;
+    }
+
+    return children;
+  }
+
+  render() {
     return (
       <React.Fragment>
         {this.renderTabWrapper()}
-        <div className="page-tab__body">{children}</div>
+        {this.renderChildren()}
       </React.Fragment>
     );
   }
