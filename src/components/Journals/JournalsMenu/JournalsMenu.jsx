@@ -73,6 +73,7 @@ class JournalsMenu extends Component {
   render() {
     const {
       journalSetting,
+      journalSettings,
       journals,
       open,
       journalConfig: {

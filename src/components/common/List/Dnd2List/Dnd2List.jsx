@@ -69,6 +69,18 @@ export default class Dnd2List extends Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    const props = this.props;
+
+    if (props.first !== prevProps.first) {
+      this.setState({ first: props.first });
+    }
+
+    if (props.second !== prevProps.second) {
+      this.setState({ second: props.second });
+    }
+  }
+
   createDraggableContainer = () => {
     let div = document.createElement('div');
     document.body.appendChild(div);

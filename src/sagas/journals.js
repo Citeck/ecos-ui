@@ -145,8 +145,6 @@ function* sagaInitGrid({ api, logger }, action) {
 
     let journalSetting = journalSettingId ? yield call(api.journals.getJournalSetting, journalSettingId) : null;
 
-    console.log(journalSetting);
-
     if (journalSetting) {
       params.sortBy = journalSetting.sortBy.map(sort => ({ ...sort })) || params.sortBy;
       params.groupBy = Array.from(journalSetting.groupBy) || params.groupBy;

@@ -17,12 +17,23 @@ class JournalsGrouping extends Component {
   };
 
   render() {
-    const { groupBy } = this.props.journalSetting;
-    const { columns = [] } = this.props.journalConfig;
+    const { journalSetting, journalConfig } = this.props;
+    const groupingColumns = journalSetting.columns;
+    const { groupBy } = journalSetting;
+    const { columns = [] } = journalConfig;
+
+    let grouping = [];
+    let aggregation = [];
 
     if (!columns.length) {
       return null;
     }
+
+    groupBy.length &&
+      groupingColumns.forEach(groupingColumn => {
+        const match = columns.filter(column => column.attribute === groupingColumn.attribute)[0];
+        match ? grouping.push(groupingColumn) : aggregation.push(groupingColumn);
+      });
 
     return (
       <PanelBar
@@ -34,7 +45,8 @@ class JournalsGrouping extends Component {
           className={'journals-grouping'}
           groupBy={groupBy}
           list={columns}
-          grouping={[]}
+          grouping={grouping}
+          aggregation={aggregation}
           valueField={'attribute'}
           titleField={'text'}
           onGrouping={this.onGrouping}

@@ -26,7 +26,7 @@ class AggregationListItem extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { types: [], selected: null };
+    this.state = { types: [], selected: props.selected };
 
     this.aggregationTypes = [
       {
@@ -35,6 +35,13 @@ class AggregationListItem extends Component {
         text: 'Сумма'
       }
     ];
+  }
+
+  componentDidUpdate(prevProps) {
+    const props = this.props;
+    if (props.selected !== prevProps.selected) {
+      this.setState({ selected: props.selected });
+    }
   }
 
   onChangeAggregationType = e => {
@@ -60,7 +67,7 @@ class AggregationListItem extends Component {
         classNamesColumn={'columns_height_full columns-setup__column_align'}
         cols={[
           <div className={'two-columns__left columns-setup__column_align '}>
-            <Checkbox onChange={this.onCheckColumn} />
+            <Checkbox checked={Boolean(this.state.selected)} onChange={this.onCheckColumn} />
             <Label className={'label_clear label_middle-grey columns-setup__next'}>{column[titleField]}</Label>
           </div>,
 
@@ -120,9 +127,24 @@ export default class Grouping extends Component {
   };
 
   getAggregationList = () => {
-    return this.props.list.map(column => (
-      <AggregationListItem column={column} titleField={this.props.titleField} onChangeAggregation={this.onChangeAggregation} />
-    ));
+    const { list, titleField, aggregation } = this.props;
+
+    return list.map(column => {
+      const selected =
+        aggregation.filter(a => {
+          return a.attribute.substr(1) === column.attribute;
+        })[0] || null;
+
+      return (
+        <AggregationListItem
+          column={column}
+          titleField={titleField}
+          aggregation={aggregation}
+          selected={selected}
+          onChangeAggregation={this.onChangeAggregation}
+        />
+      );
+    });
   };
 
   render() {

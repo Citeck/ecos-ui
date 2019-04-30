@@ -452,13 +452,15 @@ export class JournalsApi extends RecordService {
   };
 
   getJournalSettings = () => {
-    return this.getJson(`${PROXY_URI}citeck/micro/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`).then(resp => {
+    return this.getJson(`${PROXY_URI}api/journals/lists`).then(resp => {
+      //return this.getJson(`${PROXY_URI}citeck/micro/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`).then(resp => {
       return testData;
     });
   };
 
   getJournalSetting = id => {
-    return this.getJson(`${PROXY_URI}citeck/micro/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`).then(resp => {
+    return this.getJson(`${PROXY_URI}api/journals/lists`).then(resp => {
+      //return this.getJson(`${PROXY_URI}citeck/micro/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`).then(resp => {
       return testData.filter(t => t.id === id)[0];
     });
   };

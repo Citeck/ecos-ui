@@ -8,7 +8,6 @@ import { DndList } from '../common/List';
 import { t, trigger } from '../../helpers/util';
 
 import './ColumnsSetup.scss';
-import JournalSetting from '../Journals/JournalSetting';
 
 class ListItem extends Component {
   constructor(props) {
