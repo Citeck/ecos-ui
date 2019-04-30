@@ -19,4 +19,5 @@ export default {
   'ecos-records': () => Records,
   'journals-dashlet': () => import('../../src/components/Journals/JournalsDashlet/export'),
   'ecos-form': () => import('../../src/components/EcosForm/export'),
+  'idle-timer': () => import('../../src/components/IdleTimer'),
 };
