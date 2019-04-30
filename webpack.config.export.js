@@ -130,7 +130,7 @@ module.exports = {
     // There will be one main bundle, and one file per asynchronous chunk.
     // We don't currently advertise code splitting but Webpack supports it.
     filename: 'ecosui/export/ecos/[name]/js/[name].min.js',
-    chunkFilename: 'ecosui/export/ecos/[name]/js/[name].chunk.js',
+    chunkFilename: 'ecosui/export/ecos/[name]/js/[name].chunk.[contenthash].js',
     // We inferred the "public path" (such as / or /my-project) from homepage.
     publicPath: publicPath,
     // Point sourcemap entries to original disk location (format as URL on Windows)
@@ -510,7 +510,7 @@ module.exports = {
       // Options similar to the same options in webpackOptions.output
       // both options are optional
       filename: 'ecosui/export/ecos/[name]/css/[name].min.css',
-      chunkFilename: 'ecosui/export/ecos/[name]/css/[name].chunk.css',
+      chunkFilename: 'ecosui/export/ecos/[name]/css/[name].chunk.[contenthash].css',
     }),
     // Generate a manifest file which contains a mapping of all asset filenames
     // to their corresponding output file so that tools can pick it up without

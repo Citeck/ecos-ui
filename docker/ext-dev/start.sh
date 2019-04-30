@@ -8,4 +8,3 @@ fi
 echo "Start nginx. URL: http://localhost/share";
 
 nginx -g "daemon off;";
-
