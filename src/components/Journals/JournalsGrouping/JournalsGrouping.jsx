@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import Grouping from '../../Grouping/Grouping';
 import PanelBar from '../../common/PanelBar/PanelBar';
-import { t, trigger } from '../../../helpers/util';
+import { setGrouping } from '../../../actions/journals';
+import { t } from '../../../helpers/util';
 
 import './JournalsGrouping.scss';
 
@@ -11,9 +12,13 @@ const mapStateToProps = state => ({
   journalConfig: state.journals.journalConfig
 });
 
+const mapDispatchToProps = dispatch => ({
+  setGrouping: grouping => dispatch(setGrouping(grouping))
+});
+
 class JournalsGrouping extends Component {
   onGrouping = grouping => {
-    trigger.call(this, 'onChange', grouping);
+    this.props.setGrouping(grouping);
   };
 
   render() {
@@ -56,4 +61,7 @@ class JournalsGrouping extends Component {
   }
 }
 
-export default connect(mapStateToProps)(JournalsGrouping);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(JournalsGrouping);

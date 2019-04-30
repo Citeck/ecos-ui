@@ -127,15 +127,13 @@ function* sagaInitGrid({ api, logger }, action) {
     yield put(setJournalConfig(config));
 
     let {
+      id,
       columns,
-      meta: { createVariants, predicate, groupBy }
+      meta: { createVariants, predicate, groupBy, title }
     } = config;
-
-    let pagination = yield select(state => state.journals.grid.pagination);
 
     let params = {
       columns,
-      pagination: groupBy ? { ...pagination, maxItems: undefined } : pagination,
       createVariants,
       predicate,
       groupBy,
@@ -146,23 +144,29 @@ function* sagaInitGrid({ api, logger }, action) {
     let journalSetting = journalSettingId ? yield call(api.journals.getJournalSetting, journalSettingId) : null;
 
     if (journalSetting) {
-      params.sortBy = journalSetting.sortBy.map(sort => ({ ...sort })) || params.sortBy;
-      params.groupBy = Array.from(journalSetting.groupBy) || params.groupBy;
-      params.columns = journalSetting.columns.map(col => ({ ...col })) || params.columns;
-      params.predicates = [{ ...journalSetting.predicate }] || params.predicates;
-      params.pagination = params.groupBy && params.groupBy.length ? { ...pagination, maxItems: undefined } : pagination;
+      const { sortBy, groupBy, columns, predicate } = journalSetting;
+
+      params.sortBy = sortBy.map(sort => ({ ...sort }));
+      params.columns = columns.map(col => ({ ...col }));
+      params.groupBy = Array.from(groupBy);
+      params.predicates = predicate ? [{ ...predicate }] : [];
     } else {
+      const { sortBy, groupBy, columns } = params;
+
       journalSetting = {
-        journalId: config.id,
-        title: config.meta.title,
-        sortBy: params.sortBy.map(sort => ({ ...sort })),
-        groupBy: params.groupBy ? Array.from(params.groupBy) : [],
-        columns: params.columns.map(col => ({ ...col })),
-        predicate: {}
+        journalId: id,
+        title: title,
+        sortBy: sortBy.map(sort => ({ ...sort })),
+        groupBy: groupBy ? Array.from(groupBy) : [],
+        columns: columns.map(col => ({ ...col })),
+        predicate: null
       };
     }
 
     yield put(setJournalSetting(journalSetting));
+
+    let pagination = yield select(state => state.journals.grid.pagination);
+    params.pagination = params.groupBy && params.groupBy.length ? { ...pagination, maxItems: undefined } : pagination;
 
     const gridData = yield call(api.journals.getGridData, params);
 

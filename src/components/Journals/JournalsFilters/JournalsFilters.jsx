@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import Filters from '../../Filters/Filters';
 import PanelBar from '../../common/PanelBar/PanelBar';
-import { trigger } from '../../../helpers/util';
+import { setPredicate } from '../../../actions/journals';
 
 import './JournalsFilters.scss';
 
@@ -11,9 +11,13 @@ const mapStateToProps = state => ({
   journalConfig: state.journals.journalConfig
 });
 
+const mapDispatchToProps = dispatch => ({
+  setPredicate: predicate => dispatch(setPredicate(predicate))
+});
+
 class JournalsFilters extends Component {
   onChangeFilters = predicate => {
-    trigger.call(this, 'onChange', predicate);
+    this.props.setPredicate(predicate);
   };
 
   render() {
@@ -36,4 +40,7 @@ class JournalsFilters extends Component {
   }
 }
 
-export default connect(mapStateToProps)(JournalsFilters);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(JournalsFilters);

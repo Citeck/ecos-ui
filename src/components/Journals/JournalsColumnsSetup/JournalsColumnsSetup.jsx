@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import ColumnsSetup from '../../ColumnsSetup/ColumnsSetup';
 import PanelBar from '../../common/PanelBar/PanelBar';
-import { t, trigger } from '../../../helpers/util';
+import { setColumnsSetup } from '../../../actions/journals';
+import { t } from '../../../helpers/util';
 
 import './JournalsColumnsSetup.scss';
 
@@ -11,9 +12,13 @@ const mapStateToProps = state => ({
   journalConfig: state.journals.journalConfig
 });
 
+const mapDispatchToProps = dispatch => ({
+  setColumnsSetup: (columns, sortBy) => dispatch(setColumnsSetup({ columns, sortBy }))
+});
+
 class JournalsColumnsSetup extends Component {
   onChange = ({ columns, sortBy }) => {
-    trigger.call(this, 'onChange', { columns, sortBy });
+    this.props.setColumnsSetup(columns, sortBy);
   };
 
   render() {
@@ -49,4 +54,7 @@ class JournalsColumnsSetup extends Component {
   }
 }
 
-export default connect(mapStateToProps)(JournalsColumnsSetup);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(JournalsColumnsSetup);

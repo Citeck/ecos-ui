@@ -97,9 +97,10 @@ export default class Grouping extends Component {
   onGrouping = state => {
     const { valueField } = this.props;
     const columns = state.second;
+    const groupBy = columns.map(col => col[valueField]).join('&');
 
     this.grouping.columns = columns;
-    this.grouping.groupBy = [columns.map(col => col[valueField]).join('&')];
+    this.grouping.groupBy = groupBy ? [columns.map(col => col[valueField]).join('&')] : [];
 
     trigger.call(this, 'onGrouping', {
       columns: [...this.grouping.columns, ...this.aggregations],

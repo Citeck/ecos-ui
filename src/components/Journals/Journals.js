@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 import connect from 'react-redux/es/connect/connect';
 
@@ -7,16 +7,14 @@ import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
 import JournalsFilters from './JournalsFilters';
 import JournalsColumnsSetup from './JournalsColumnsSetup';
+import JournalsSettingsFooter from './JournalsSettingsFooter';
 import JournalsMenu from './JournalsMenu';
-import JournalSetting from './JournalSetting';
 import Search from '../common/Search/Search';
-import Columns from '../common/templates/Columns/Columns';
-import EcosModal from '../../../src/components/common/EcosModal';
 
 import { getDashletConfig, reloadGrid, saveJournalSetting } from '../../actions/journals';
 import { IcoBtn, TwoIcoBtn } from '../common/btns';
-import { Caption, Dropdown, Well, Input } from '../common/form';
-import { Btn } from '../common/btns';
+import { Caption, Dropdown, Well } from '../common/form';
+
 import { t } from '../../helpers/util';
 
 import './Journals.scss';
@@ -34,15 +32,7 @@ const mapDispatchToProps = dispatch => ({
 class Journals extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      menuOpen: false,
-      settingsVisible: true,
-      dialogOpen: false
-    };
-
-    this.journalSetting = new JournalSetting();
-    this.settingName = '';
+    this.state = { menuOpen: false, settingsVisible: true };
   }
 
   componentDidMount() {
@@ -57,47 +47,20 @@ class Journals extends Component {
     this.setState({ menuOpen: !this.state.menuOpen });
   };
 
-  save = () => {
-    this.setState({ dialogOpen: true });
-  };
+  // onChangeFilters = predicate => {
+  //   console.log(predicate);
+  //   this.journalSetting.setPredicate(predicate);
+  // };
 
-  closeDialog = () => {
-    this.setState({ dialogOpen: false });
-    this.clearSettingName();
-  };
+  // onChangeColumnsSetup = columnsSetup => {
+  //   console.log(columnsSetup);
+  //   this.journalSetting.setColumnsSetup(columnsSetup);
+  // };
 
-  onApplyDialog = () => {
-    this.props.saveJournalSetting(this.props.journalConfig.id, this.journalSetting.getSetting(this.settingName));
-  };
-
-  clearSettingName = () => {
-    this.settingName = '';
-  };
-
-  onChangeSettingName = e => {
-    this.settingName = e.target.value;
-  };
-
-  onChangeFilters = predicate => {
-    this.journalSetting.setPredicate(predicate);
-  };
-
-  onChangeColumnsSetup = columnsSetup => {
-    this.journalSetting.setColumnsSetup(columnsSetup);
-  };
-
-  onChangeGrouping = grouping => {
-    this.journalSetting.setGrouping(grouping);
-  };
-
-  apply = () => {
-    const setting = this.journalSetting.getSetting();
-    const { columns, groupBy, sortBy, predicate } = setting;
-
-    this.props.reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
-  };
-
-  cancel = () => {};
+  // onChangeGrouping = grouping => {
+  //   console.log(grouping);
+  //   this.journalSetting.setGrouping(grouping);
+  // };
 
   render() {
     const { menuOpen, settingsVisible } = this.state;
@@ -187,26 +150,10 @@ class Journals extends Component {
 
             {settingsVisible ? (
               <Well className={'ecos-journal__settings'}>
-                <JournalsFilters onChange={this.onChangeFilters} />
-                <JournalsColumnsSetup onChange={this.onChangeColumnsSetup} />
-                <JournalsGrouping onChange={this.onChangeGrouping} />
-
-                <Columns
-                  className={'ecos-journal__settings-footer'}
-                  cols={[
-                    <Btn onClick={this.save}>{t('journals.action.apply-template')}</Btn>,
-
-                    <Fragment>
-                      <Btn className={'ecos-btn_x-step_10'} onClick={this.cancel}>
-                        {t('journals.action.reset')}
-                      </Btn>
-                      <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.apply}>
-                        {t('journals.action.apply')}
-                      </Btn>
-                    </Fragment>
-                  ]}
-                  cfgs={[{}, { className: 'columns_right' }]}
-                />
+                <JournalsFilters />
+                <JournalsColumnsSetup />
+                <JournalsGrouping />
+                <JournalsSettingsFooter />
               </Well>
             ) : null}
 
@@ -223,24 +170,6 @@ class Journals extends Component {
             <JournalsMenu open={menuOpen} onClose={this.toggleMenu} />
           </div>
         </div>
-
-        <EcosModal
-          title={t('journals.action.dialog-msg')}
-          isOpen={this.state.dialogOpen}
-          hideModal={this.closeDialog}
-          className={'journal__dialog ecos-modal_width-sm'}
-        >
-          <div className={'journal__dialog-panel'}>
-            <Input type="text" onChange={this.onChangeSettingName} />
-          </div>
-
-          <div className="journal__dialog-buttons">
-            <Btn onClick={this.closeDialog}>{t('journals.action.cancel')}</Btn>
-            <Btn onClick={this.onApplyDialog} className={'ecos-btn_blue'}>
-              {t('journals.action.save')}
-            </Btn>
-          </div>
-        </EcosModal>
       </Container>
     );
   }
