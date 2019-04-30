@@ -94,7 +94,7 @@ class JournalsMenu extends Component {
             invert={'true'}
             className={'ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest'}
           >
-            {'Скрыть меню'}
+            {t('journals.action.hide-menu')}
           </IcoBtn>
         </div>
 

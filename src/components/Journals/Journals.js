@@ -27,7 +27,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   getDashletConfig: id => dispatch(getDashletConfig(id)),
-  saveJournalSetting: settings => dispatch(saveJournalSetting(settings)),
+  saveJournalSetting: (id, settings) => dispatch(saveJournalSetting({ id, settings })),
   reloadGrid: options => dispatch(reloadGrid(options))
 });
 
@@ -37,10 +37,12 @@ class Journals extends Component {
 
     this.state = {
       menuOpen: false,
-      settingsVisible: true
+      settingsVisible: true,
+      dialogOpen: false
     };
 
     this.journalSetting = new JournalSetting();
+    this.settingName = '';
   }
 
   componentDidMount() {
@@ -56,7 +58,24 @@ class Journals extends Component {
   };
 
   save = () => {
-    this.props.saveJournalSetting(this.journalSetting.getSetting());
+    this.setState({ dialogOpen: true });
+  };
+
+  closeDialog = () => {
+    this.setState({ dialogOpen: false });
+    this.clearSettingName();
+  };
+
+  onApplyDialog = () => {
+    this.props.saveJournalSetting(this.props.journalConfig.id, this.journalSetting.getSetting(this.settingName));
+  };
+
+  clearSettingName = () => {
+    this.settingName = '';
+  };
+
+  onChangeSettingName = e => {
+    this.settingName = e.target.value;
   };
 
   onChangeFilters = predicate => {
@@ -78,6 +97,8 @@ class Journals extends Component {
     this.props.reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
   };
 
+  cancel = () => {};
+
   render() {
     const { menuOpen, settingsVisible } = this.state;
     const {
@@ -97,7 +118,7 @@ class Journals extends Component {
                   icon={'icon-arrow-left'}
                   className={'ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standart ecos-btn_r_biggest'}
                 >
-                  {'Показать меню'}
+                  {t('journals.action.show-menu')}
                 </IcoBtn>
               )}
             </div>
@@ -109,14 +130,14 @@ class Journals extends Component {
             <div className={'ecos-journal__tools'}>
               <Well className={'ecos-well_full ecos-journal__tools-well'}>
                 <IcoBtn icon={'icon-plus'} className={'ecos-btn_blue ecos-btn_tight ecos-journal__tools-well_step'}>
-                  {'Создать'}
+                  {t('button.send')}
                 </IcoBtn>
 
                 <Search />
 
                 <Dropdown
                   className={'ecos-journal_right'}
-                  source={[{ id: 0, title: 'Экспорт' }]}
+                  source={[{ id: 0, title: t('button.export') }]}
                   value={0}
                   valueField={'id'}
                   titleField={'title'}
@@ -203,23 +224,23 @@ class Journals extends Component {
           </div>
         </div>
 
-        {/*<EcosModal*/}
-        {/*title={t('Введите название шаблона')}*/}
-        {/*isOpen={true}*/}
+        <EcosModal
+          title={t('journals.action.dialog-msg')}
+          isOpen={this.state.dialogOpen}
+          hideModal={this.closeDialog}
+          className={'journal__dialog ecos-modal_width-sm'}
+        >
+          <div className={'journal__dialog-panel'}>
+            <Input type="text" onChange={this.onChangeSettingName} />
+          </div>
 
-        {/*className={'select-orgstruct-select-modal ecos-modal_width-sm'}*/}
-        {/*>*/}
-        {/*<div className={'select-orgstruct-control-panel'}>*/}
-        {/*<Input type='text' />*/}
-        {/*</div>*/}
-
-        {/*<div className="select-orgstruct-select-modal__buttons">*/}
-        {/*<Btn onClick={()=>{}}>{t('select-orgstruct.select-modal.cancel-button')}</Btn>*/}
-        {/*<Btn onClick={()=>{}} className={'ecos-btn_blue'}>*/}
-        {/*{t('select-orgstruct.select-modal.ok-button')}*/}
-        {/*</Btn>*/}
-        {/*</div>*/}
-        {/*</EcosModal>*/}
+          <div className="journal__dialog-buttons">
+            <Btn onClick={this.closeDialog}>{t('journals.action.cancel')}</Btn>
+            <Btn onClick={this.onApplyDialog} className={'ecos-btn_blue'}>
+              {t('journals.action.save')}
+            </Btn>
+          </div>
+        </EcosModal>
       </Container>
     );
   }

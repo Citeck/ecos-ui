@@ -45,7 +45,7 @@ export default class JournalSetting {
     this.setGroupBy(this.grouping.groupBy || []);
   }
 
-  getSetting() {
+  getSetting(title) {
     const groupingColumns = this.grouping.columns || [];
     const columnsSetupColumns = this.columnsSetup.columns;
 
@@ -55,6 +55,8 @@ export default class JournalSetting {
       this.setGroupBy([]);
       this.setColumns(columnsSetupColumns);
     }
+
+    this.model.title = title;
 
     return this.model;
   }
