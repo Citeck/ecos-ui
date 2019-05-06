@@ -89,14 +89,14 @@ class PageTabs extends React.Component {
       if (current) {
         this.checkNeedArrow();
 
-        const wrapperPosition = current.getBoundingClientRect();
-        const activeTabPosition = current.querySelector('.page-tab__tabs-item_active').getBoundingClientRect();
+        const { left: wrapLeft, width: wrapWidth } = current.getBoundingClientRect();
+        const { left: activeLeft, width: activeWidth } = current.querySelector('.page-tab__tabs-item_active').getBoundingClientRect();
 
-        current.scrollLeft = activeTabPosition.left / 2 - activeTabPosition.width / 2 - getScrollbarWidth();
+        current.scrollLeft = activeLeft - activeWidth / 2 - getScrollbarWidth() - wrapWidth / 2;
 
         this.setState({
           isActiveRightArrow: current.scrollWidth - current.scrollLeft - current.offsetWidth > 0,
-          isActiveLeftArrow: activeTabPosition.left !== wrapperPosition.left
+          isActiveLeftArrow: activeLeft !== wrapLeft
         });
 
         window.clearInterval(this.checkArrowID);
@@ -126,10 +126,8 @@ class PageTabs extends React.Component {
 
   checkNeedArrow() {
     if (this.$tabWrapper.current) {
-      const { scrollWidth, offsetWidth, clientWidth } = this.$tabWrapper.current;
+      const { scrollWidth, offsetWidth } = this.$tabWrapper.current;
       const needArrow = scrollWidth > offsetWidth + getScrollbarWidth();
-
-      // this.$tabWrapper.current.scrollLeft = needArrow ? scrollWidth - clientWidth : 0;
 
       this.setState({
         needArrow,
