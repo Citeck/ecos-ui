@@ -128,7 +128,7 @@ class Records {
   }
 
   query(query, attributes) {
-    if (query.attributes) {
+    if (query.attributes || (query.query && query.query.query)) {
       attributes = query.attributes;
       query = query.query;
     }
@@ -371,6 +371,10 @@ class Record {
       return Promise.resolve(null);
     }
     return this.loadAttribute('#' + attribute + '?options');
+  }
+
+  reset() {
+    this._attributes = {};
   }
 
   save() {
