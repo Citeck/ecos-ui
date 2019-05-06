@@ -41,7 +41,7 @@ function convertAttributePath(path) {
   if (isEdge) {
     result += 'edge(n:"' + attName + '"){' + attSchema + '}';
   } else {
-    let attPath = attName.split(/(?<!\\)\./);
+    let attPath = attName.split('.');
     for (let i = 0; i < attPath.length; i++) {
       if (i > 0) {
         result += '{';
