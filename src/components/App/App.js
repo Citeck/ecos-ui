@@ -47,7 +47,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
           <Notification />
         </div>
 
-        <PageTabs>
+        <PageTabs homepageLink={'/'}>
           <Switch>
             {/*<Route path="/share/page" exact component={DashboardPage} />*/}
             <Route path="/formio-develop" component={FormIOPage} />
