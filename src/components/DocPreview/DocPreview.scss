@@ -1,0 +1,50 @@
+@import '../../constants';
+$border-toolbar: #c1c1c1;
+$background-toolbar: #f9f9f9;
+
+.ecos-doc-preview-dashlet {
+  &__toolbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: $background-toolbar;
+    //height: 30px;
+
+    & > * {
+      margin: 5px 0;
+      padding: 0 10px;
+    }
+
+    & > *:not(:last-child) {
+      border-right: 1px solid $border-toolbar;
+    }
+
+    &__pager {
+      &__input {
+        display: inline-block;
+        width: 30px;
+        padding: 5px;
+        text-align: center;
+      }
+
+      &__prev {
+        margin-right: 10px;
+      }
+
+      &__next {
+        margin-left: 10px;
+      }
+    }
+
+    &__zoom {
+    }
+
+    &__download {
+    }
+
+    &__search {
+      &__input {
+      }
+    }
+  }
+}
