@@ -18,6 +18,7 @@ import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 
 import './App.scss';
+import DocPreview from '../DocPreview';
 
 const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
   if (!isInit) {
@@ -50,6 +51,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
           {/*<Route path="/share/page" exact component={DashboardPage} />*/}
           <Route path="/formio-develop" component={FormIOPage} />
           <Route path="/ecos-form-example" component={EcosFormPage} />
+          <Route path="/doc-preview" render={() => <DocPreview link={'pftest.pdf'} />} />
 
           <Route path="/share/page/journals" component={JournalsPage} />
           <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
