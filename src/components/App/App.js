@@ -18,9 +18,13 @@ import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 
+import { getShowTabsStatus } from '../../actions/pageTabs';
+
 import './App.scss';
 
-const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
+const App = props => {
+  const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, getShowTabsStatus } = props;
+
   if (!isInit) {
     // TODO: Loading component
     return null;
@@ -37,6 +41,8 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
 
   const appClassNames = classNames('app-container', { mobile: isMobile });
 
+  getShowTabsStatus();
+
   return (
     <div className={appClassNames}>
       <ReduxModal />
@@ -47,7 +53,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
           <Notification />
         </div>
 
-        <PageTabs homepageLink={'/'}>
+        <PageTabs homepageLink={'/'} isShow={isShow}>
           <Switch>
             {/*<Route path="/share/page" exact component={DashboardPage} />*/}
             <Route path="/formio-develop" component={FormIOPage} />
@@ -73,7 +79,17 @@ const mapStateToProps = state => ({
   isInitFailure: state.app.isInitFailure,
   isMobile: state.view.isMobile,
   theme: state.view.theme,
-  isAuthenticated: state.user.isAuthenticated
+  isAuthenticated: state.user.isAuthenticated,
+  isShow: state.pageTabs.isShow
 });
 
-export default withRouter(connect(mapStateToProps)(App));
+const mapDispatchToProps = dispatch => ({
+  getShowTabsStatus: () => dispatch(getShowTabsStatus())
+});
+
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(App)
+);

@@ -15,30 +15,15 @@ class PageTabs extends React.Component {
     history: PropTypes.shape({
       push: PropTypes.func.isRequired
     }),
-    tabs: PropTypes.array,
     homepageLink: PropTypes.string.isRequired,
-    homepageName: PropTypes.string
+    homepageName: PropTypes.string,
+    isShow: PropTypes.bool
   };
 
   static defaultProps = {
     children: null,
     homepageName: 'Домашняя страница',
-    tabs: [
-      {
-        id: 'firsttab',
-        position: 0,
-        isActive: true,
-        link: '/',
-        title: 'Домашняя страница'
-      },
-      {
-        id: 'secondtab',
-        position: 1,
-        isActive: false,
-        link: '/share/page/journals',
-        title: 'Вторая страница с очень длинным названием, прям вот таким'
-      }
-    ]
+    isShow: false
   };
 
   state = {
@@ -46,8 +31,8 @@ class PageTabs extends React.Component {
     tabs: [],
     isActiveLeftArrow: false,
     isActiveRightArrow: false,
-    needArrow: false,
-    isShow: false
+    needArrow: false
+    // isShow: false
   };
 
   constructor(props) {
@@ -63,18 +48,6 @@ class PageTabs extends React.Component {
 
   componentDidMount() {
     // ToDo: get config of tabs visibility
-    window.Citeck.Records.queryOne(
-      {
-        query: {
-          key: 'tabs-enabled'
-        },
-        sourceId: 'uiserv/config'
-      },
-      '.bool',
-      true
-    ).then(isShow => {
-      this.setState({ isShow });
-    });
 
     this.checkArrowID = window.setInterval(() => {
       const { current } = this.$tabWrapper;
@@ -138,7 +111,7 @@ class PageTabs extends React.Component {
   }
 
   handleClickLink = event => {
-    const { isShow } = this.state;
+    const { isShow } = this.props;
     const elem = event.target;
 
     if (!isShow || elem.tagName !== 'A') {
@@ -424,7 +397,8 @@ class PageTabs extends React.Component {
   }
 
   renderTabWrapper() {
-    const { tabs, isActiveRightArrow, isShow, needArrow } = this.state;
+    const { isShow } = this.props;
+    const { tabs, isActiveRightArrow, needArrow } = this.state;
 
     if (!tabs.length || !isShow) {
       return null;
@@ -449,8 +423,7 @@ class PageTabs extends React.Component {
   }
 
   renderChildren() {
-    const { children } = this.props;
-    const { isShow } = this.state;
+    const { children, isShow } = this.props;
 
     if (isShow) {
       return <div className="page-tab__body">{children}</div>;
