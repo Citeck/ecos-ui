@@ -424,7 +424,7 @@ class PageTabs extends React.Component {
   }
 
   renderTabWrapper() {
-    const { tabs, isActiveRightArrow, isShow } = this.state;
+    const { tabs, isActiveRightArrow, isShow, needArrow } = this.state;
 
     if (!tabs.length || !isShow) {
       return null;
@@ -432,7 +432,7 @@ class PageTabs extends React.Component {
 
     const className = ['page-tab'];
 
-    if (isActiveRightArrow) {
+    if (isActiveRightArrow && needArrow) {
       className.push('page-tab_with-scroll');
     }
 
@@ -465,6 +465,7 @@ class PageTabs extends React.Component {
         {this.renderTabWrapper()}
         {this.renderChildren()}
         <a href="/share/page/journals">On this tab</a>
+        <br />
         <a href="/share/page/journalsDashboard" target="_blank">
           On new tab
         </a>
