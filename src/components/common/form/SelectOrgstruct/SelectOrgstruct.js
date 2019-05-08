@@ -29,7 +29,8 @@ SelectOrgstruct.propTypes = {
   isCompact: PropTypes.bool,
   allUsersGroup: PropTypes.string,
   allowedAuthorityTypes: PropTypes.array,
-  allowedGroupTypes: PropTypes.array
+  allowedGroupTypes: PropTypes.array,
+  viewOnly: PropTypes.bool
 };
 
 export default SelectOrgstruct;

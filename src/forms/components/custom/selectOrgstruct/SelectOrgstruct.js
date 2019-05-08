@@ -35,7 +35,17 @@ export default class SelectOrgstructComponent extends BaseComponent {
     return SelectOrgstructComponent.schema();
   }
 
+  createViewOnlyValue(container) {
+    this.reactContainer = this.ce('dd');
+    container.appendChild(this.reactContainer);
+    this.renderReactComponent();
+  }
+
   build() {
+    if (this.viewOnly) {
+      return this.viewOnlyBuild();
+    }
+
     this.restoreValue();
 
     this.createElement();
@@ -91,6 +101,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           allowedAuthorityTypes={allowedAuthorityTypes}
           allowedGroupTypes={allowedGroupTypes}
           onChange={onChange}
+          viewOnly={self.viewOnly}
           onError={err => {
             // this.setCustomValidity(err, false);
           }}
@@ -172,7 +183,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
   }
 
   setValue(value) {
-    if (value === null && this.component.currentUserByDefault && this.options.formMode === 'CREATE') {
+    if (value === null && this.component.currentUserByDefault && !this.viewOnly && this.options.formMode === 'CREATE') {
       value = Formio.getUser();
     }
 
@@ -182,6 +193,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     let self = this;
 
+    // TODO fix bug for multiple defaultValue
     this._getAuthorityRef(value, value => {
       if (self.reactContainer && value !== self.dataValue) {
         ReactDOM.unmountComponentAtNode(self.reactContainer);
