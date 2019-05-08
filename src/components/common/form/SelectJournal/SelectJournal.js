@@ -9,6 +9,7 @@ import Loader from '../../../common/Loader/Loader';
 import EcosForm from '../../../EcosForm';
 import EcosModal from '../../EcosModal';
 import InputView from './InputView';
+import ViewMode from './ViewMode';
 import Filters from './Filters';
 import Search from './Search';
 import CreateVariants from './CreateVariants';
@@ -318,7 +319,7 @@ export default class SelectJournal extends Component {
   };
 
   render() {
-    const { multiple, placeholder, disabled, isCompact } = this.props;
+    const { multiple, placeholder, disabled, isCompact, viewOnly } = this.props;
     const {
       isGridDataReady,
       selectedRows,
@@ -337,19 +338,21 @@ export default class SelectJournal extends Component {
       'select-journal_compact': isCompact
     });
 
+    const inputViewProps = {
+      disabled,
+      isCompact,
+      multiple,
+      placeholder,
+      error,
+      selectedRows,
+      editValue: this.onValueEdit,
+      deleteValue: this.onValueDelete,
+      openSelectModal: this.openSelectModal
+    };
+
     return (
       <div className={wrapperClasses}>
-        <InputView
-          disabled={disabled}
-          isCompact={isCompact}
-          multiple={multiple}
-          placeholder={placeholder}
-          error={error}
-          selectedRows={selectedRows}
-          editValue={this.onValueEdit}
-          deleteValue={this.onValueDelete}
-          openSelectModal={this.openSelectModal}
-        />
+        {viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />}
 
         <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} api={this.api}>
           <EcosModal
@@ -430,5 +433,6 @@ SelectJournal.propTypes = {
   onChange: PropTypes.func,
   onError: PropTypes.func,
   multiple: PropTypes.bool,
-  isCompact: PropTypes.bool
+  isCompact: PropTypes.bool,
+  viewOnly: PropTypes.bool
 };
