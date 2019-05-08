@@ -78,10 +78,25 @@ class DocPreview extends Component {
     ];
   }
 
-  onChangeZoom = e => {
+  onChangeZoomOption = e => {
     let selectedZoom = e.id;
 
+    this.setScale();
     this.setState({ selectedZoom });
+  };
+
+  handleZoomOut = e => {
+    this.setScale();
+  };
+
+  handleZoomIn = e => {
+    this.setScale();
+  };
+
+  setScale = val => {
+    let scale = 1.5;
+
+    this.setState({ scale });
   };
 
   render() {
@@ -106,9 +121,15 @@ class DocPreview extends Component {
             <IcoBtn icon={'icon-right'} className={`${_commonBtn} ecos-btn_tight ${_toolbar}__pager__next`} onClick={this.handleNext} />
           </div>
           <div className={classNames(`${_toolbar}__zoom`)}>
-            <IcoBtn icon={'icon-minus'} className={_commonBtn} onClick={this.handleNext} />
-            <IcoBtn icon={'icon-plus'} className={_commonBtn} onClick={this.handleNext} />
-            <Dropdown source={this.zoomOptions} value={selectedZoom} valueField={'id'} titleField={'title'} onChange={this.onChangeZoom}>
+            <IcoBtn icon={'icon-minus'} className={_commonBtn} onClick={this.handleZoomOut} />
+            <IcoBtn icon={'icon-plus'} className={_commonBtn} onClick={this.handleZoomIn} />
+            <Dropdown
+              source={this.zoomOptions}
+              value={selectedZoom}
+              valueField={'id'}
+              titleField={'title'}
+              onChange={this.onChangeZoomOption}
+            >
               <IcoBtn invert icon={'icon-down'} className={`${_commonBtn} ecos-btn_drop-down`} />
             </Dropdown>
           </div>
