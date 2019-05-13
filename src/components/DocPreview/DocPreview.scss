@@ -1,13 +1,18 @@
 @import '../../constants';
+
 $border-toolbar: #c1c1c1;
 $background-toolbar: #f9f9f9;
+$border-base: #c1c1c1;
 
 .ecos-doc-preview-dashlet {
+  border: 2px solid $border-base;
+
   &__toolbar {
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: $background-toolbar;
+    border-bottom: 2px solid $border-base;
     //height: 30px;
 
     & > * {
@@ -44,6 +49,21 @@ $background-toolbar: #f9f9f9;
 
     &__search {
       &__input {
+      }
+    }
+  }
+
+  &__viewer {
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+
+    &__pages {
+    }
+
+    &__msg {
+      &_error {
+        color: red;
       }
     }
   }
