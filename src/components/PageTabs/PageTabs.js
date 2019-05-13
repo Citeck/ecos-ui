@@ -1,13 +1,11 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
-import { getScrollbarWidth } from '../../helpers/util';
-import * as ls from '../../helpers/ls';
+import { getScrollbarWidth, deepClone } from '../../helpers/util';
 import { SortableContainer, SortableElement } from './sortable';
 import './style.scss';
 
 const SCROLL_STEP = 150;
-const lsKey = ls.generateKey('page-tabs', true);
 
 class PageTabs extends React.Component {
   static propTypes = {
@@ -17,52 +15,52 @@ class PageTabs extends React.Component {
     }),
     homepageLink: PropTypes.string.isRequired,
     homepageName: PropTypes.string,
-    isShow: PropTypes.bool
+    isShow: PropTypes.bool,
+    tabs: PropTypes.array,
+
+    saveTabs: PropTypes.func
   };
 
   static defaultProps = {
     children: null,
     homepageName: 'Домашняя страница',
-    isShow: false
+    isShow: false,
+    tabs: [],
+
+    saveTabs: () => {}
   };
 
   state = {
-    // ToDO: use tabs from props or from store
     tabs: [],
     isActiveLeftArrow: false,
     isActiveRightArrow: false,
     needArrow: false
-    // isShow: false
   };
 
   constructor(props) {
     super(props);
 
-    let tabs = ls.hasData(lsKey, 'array') ? ls.getData(lsKey) : [this.generateNewTab(0, props)];
-
-    this.state.tabs = tabs;
-    this.saveOnLS(tabs);
+    this.state.tabs = props.tabs;
 
     this.$tabWrapper = React.createRef();
   }
 
   componentDidMount() {
-    // ToDo: get config of tabs visibility
-
     this.checkArrowID = window.setInterval(() => {
       const { current } = this.$tabWrapper;
 
       if (current) {
         this.checkNeedArrow();
 
-        const { left: wrapLeft, width: wrapWidth } = current.getBoundingClientRect();
         const { left: activeLeft, width: activeWidth } = current.querySelector('.page-tab__tabs-item_active').getBoundingClientRect();
+        let scrollValue = activeLeft - activeWidth / 2 - getScrollbarWidth() - current.offsetWidth / 2;
 
-        current.scrollLeft = activeLeft - activeWidth / 2 - getScrollbarWidth() - wrapWidth / 2;
+        scrollValue = scrollValue < 0 ? 0 : scrollValue;
+        current.scrollLeft = scrollValue;
 
         this.setState({
           isActiveRightArrow: current.scrollWidth - current.scrollLeft - current.offsetWidth > 0,
-          isActiveLeftArrow: activeLeft !== wrapLeft
+          isActiveLeftArrow: scrollValue > 0
         });
 
         window.clearInterval(this.checkArrowID);
@@ -71,6 +69,24 @@ class PageTabs extends React.Component {
     }, 300);
 
     document.addEventListener('click', this.handleClickLink);
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    if (nextProps.isShow) {
+      if (nextProps.isShow !== this.props.isShow && !nextProps.tabs.length) {
+        const tabs = [this.generateNewTab(0, nextProps)];
+
+        nextProps.saveTabs(tabs);
+
+        this.setState({ tabs });
+      }
+
+      if (JSON.stringify(nextProps.tabs) !== JSON.stringify(nextState.tabs)) {
+        this.setState({ tabs: nextProps.tabs });
+      }
+    }
+
+    return true;
   }
 
   componentWillUnmount() {
@@ -106,10 +122,6 @@ class PageTabs extends React.Component {
     }
   }
 
-  saveOnLS(tabs = this.state.tabs) {
-    ls.setData(lsKey, tabs);
-  }
-
   handleClickLink = event => {
     const { isShow } = this.props;
     const elem = event.target;
@@ -118,6 +130,7 @@ class PageTabs extends React.Component {
       return;
     }
 
+    const { saveTabs, history } = this.props;
     const { tabs } = this.state;
     const link = elem.getAttribute('href');
     const isNewTab = elem.getAttribute('target') === '_blank';
@@ -135,10 +148,10 @@ class PageTabs extends React.Component {
 
     tabs.find(tab => tab.isActive).link = link;
 
+    saveTabs(tabs);
+
     this.setState({ tabs }, () => {
       const { current } = this.$tabWrapper;
-
-      this.saveOnLS();
 
       if (current) {
         if (current.scrollWidth > current.offsetWidth + getScrollbarWidth()) {
@@ -148,10 +161,12 @@ class PageTabs extends React.Component {
         this.checkNeedArrow();
       }
     });
-    this.props.history.push(link);
+
+    history.push(link);
   };
 
   handleCloseTab(tabId, event) {
+    const { saveTabs } = this.props;
     const { tabs } = this.state;
     const index = tabs.findIndex(tab => tab.id === tabId);
 
@@ -161,7 +176,7 @@ class PageTabs extends React.Component {
       return false;
     }
 
-    let newTabs = [...tabs];
+    let newTabs = deepClone(tabs);
 
     if (newTabs[index].isActive) {
       switch (index) {
@@ -181,19 +196,13 @@ class PageTabs extends React.Component {
     }
 
     newTabs.splice(index, 1);
+    saveTabs(newTabs);
 
-    this.saveOnLS(newTabs);
-
-    this.setState(
-      {
-        tabs: newTabs
-      },
-      this.checkNeedArrow.bind(this)
-    );
+    this.setState({ tabs: newTabs }, this.checkNeedArrow.bind(this));
   }
 
   handleSetActiveTab(tab) {
-    const { history } = this.props;
+    const { history, saveTabs } = this.props;
     const { tabs } = this.state;
 
     tabs.map(item => {
@@ -202,7 +211,7 @@ class PageTabs extends React.Component {
       return item;
     });
 
-    this.saveOnLS(tabs);
+    saveTabs(tabs);
 
     this.setState({ tabs }, () => {
       history.push(tab.link);
@@ -220,7 +229,8 @@ class PageTabs extends React.Component {
           return tabs;
         });
         tabs.push(this.generateNewTab(tabs.length));
-        this.saveOnLS(tabs);
+
+        this.props.saveTabs(tabs);
 
         return { tabs };
       },
@@ -300,7 +310,7 @@ class PageTabs extends React.Component {
     event.stopPropagation();
 
     this.setState(state => {
-      const tabs = JSON.parse(JSON.stringify(state.tabs));
+      const tabs = deepClone(state.tabs);
       const draggableTab = tabs[oldIndex];
 
       tabs.splice(oldIndex, 1);
@@ -310,7 +320,7 @@ class PageTabs extends React.Component {
         return tab;
       });
 
-      this.saveOnLS(tabs);
+      this.props.saveTabs(tabs);
 
       return { tabs };
     });
@@ -437,11 +447,6 @@ class PageTabs extends React.Component {
       <React.Fragment>
         {this.renderTabWrapper()}
         {this.renderChildren()}
-        <a href="/share/page/journals">On this tab</a>
-        <br />
-        <a href="/share/page/journalsDashboard" target="_blank">
-          On new tab
-        </a>
       </React.Fragment>
     );
   }

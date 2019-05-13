@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Route, Switch } from 'react-router';
@@ -18,61 +18,68 @@ import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 
-import { getShowTabsStatus } from '../../actions/pageTabs';
+import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 
 import './App.scss';
 
-const App = props => {
-  const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, getShowTabsStatus } = props;
+class App extends Component {
+  componentDidMount() {
+    const { getShowTabsStatus, getTabs } = this.props;
 
-  if (!isInit) {
-    // TODO: Loading component
-    return null;
+    getShowTabsStatus();
+    getTabs();
   }
 
-  if (isInitFailure) {
-    // TODO: Crash app component
-    return null;
-  }
+  render() {
+    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs } = this.props;
 
-  if (!isAuthenticated) {
-    return <LoginForm />;
-  }
+    if (!isInit) {
+      // TODO: Loading component
+      return null;
+    }
 
-  const appClassNames = classNames('app-container', { mobile: isMobile });
+    if (isInitFailure) {
+      // TODO: Crash app component
+      return null;
+    }
 
-  getShowTabsStatus();
+    if (!isAuthenticated) {
+      return <LoginForm />;
+    }
 
-  return (
-    <div className={appClassNames}>
-      <ReduxModal />
-      <SlideMenu />
-      <div className="ecos-sticky-wrapper" id="sticky-wrapper">
-        <div id="alf-hd">
-          <Header />
-          <Notification />
+    const appClassNames = classNames('app-container', { mobile: isMobile });
+
+    return (
+      <div className={appClassNames}>
+        <ReduxModal />
+        <SlideMenu />
+        <div className="ecos-sticky-wrapper" id="sticky-wrapper">
+          <div id="alf-hd">
+            <Header />
+            <Notification />
+          </div>
+
+          <PageTabs homepageLink={'/'} isShow={isShow} tabs={tabs} saveTabs={setTabs}>
+            <Switch>
+              {/*<Route path="/share/page" exact component={DashboardPage} />*/}
+              <Route path="/formio-develop" component={FormIOPage} />
+              <Route path="/ecos-form-example" component={EcosFormPage} />
+
+              <Route path="/share/page/journals" component={JournalsPage} />
+              <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
+              <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
+              <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
+              {/*<Route component={NotFoundPage} />*/}
+            </Switch>
+          </PageTabs>
+
+          <div className="sticky-push" />
         </div>
-
-        <PageTabs homepageLink={'/'} isShow={isShow}>
-          <Switch>
-            {/*<Route path="/share/page" exact component={DashboardPage} />*/}
-            <Route path="/formio-develop" component={FormIOPage} />
-            <Route path="/ecos-form-example" component={EcosFormPage} />
-
-            <Route path="/share/page/journals" component={JournalsPage} />
-            <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
-            <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
-            <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
-            {/*<Route component={NotFoundPage} />*/}
-          </Switch>
-        </PageTabs>
-
-        <div className="sticky-push" />
+        <Footer key="card-details-footer" theme={theme} />
       </div>
-      <Footer key="card-details-footer" theme={theme} />
-    </div>
-  );
-};
+    );
+  }
+}
 
 const mapStateToProps = state => ({
   isInit: state.app.isInit,
@@ -80,11 +87,14 @@ const mapStateToProps = state => ({
   isMobile: state.view.isMobile,
   theme: state.view.theme,
   isAuthenticated: state.user.isAuthenticated,
-  isShow: state.pageTabs.isShow
+  isShow: state.pageTabs.isShow,
+  tabs: state.pageTabs.tabs
 });
 
 const mapDispatchToProps = dispatch => ({
-  getShowTabsStatus: () => dispatch(getShowTabsStatus())
+  getShowTabsStatus: () => dispatch(getShowTabsStatus()),
+  getTabs: () => dispatch(getTabs()),
+  setTabs: tabs => dispatch(setTabs(tabs))
 });
 
 export default withRouter(
