@@ -70,20 +70,22 @@ export class CommonApi {
       .then(parseHtml);
   };
 
-  putJson = (url, data) => {
-    return fetch(url, {
+  putJson = (url, data, notJsonResp) => {
+    const prms = fetch(url, {
       ...putOptions,
       body: JSON.stringify(data)
     }).then(this.checkStatus);
+
+    return notJsonResp ? prms : prms.then(parseJSON);
   };
 
-  postJson = (url, data) => {
-    return fetch(url, {
+  postJson = (url, data, notJsonResp) => {
+    const prms = fetch(url, {
       ...postOptions,
       body: JSON.stringify(data)
-    })
-      .then(this.checkStatus)
-      .then(parseJSON);
+    }).then(this.checkStatus);
+
+    return notJsonResp ? prms : prms.then(parseJSON);
   };
 
   // postUrlEncodedForm = (url, data) => {

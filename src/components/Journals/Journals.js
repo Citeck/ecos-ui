@@ -11,7 +11,7 @@ import JournalsSettingsFooter from './JournalsSettingsFooter';
 import JournalsMenu from './JournalsMenu';
 import Search from '../common/Search/Search';
 
-import { getDashletConfig, reloadGrid, saveJournalSetting } from '../../actions/journals';
+import { getDashletConfig, reloadGrid } from '../../actions/journals';
 import { IcoBtn, TwoIcoBtn } from '../common/btns';
 import { Caption, Dropdown, Well } from '../common/form';
 
@@ -25,7 +25,6 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   getDashletConfig: id => dispatch(getDashletConfig(id)),
-  saveJournalSetting: (id, settings) => dispatch(saveJournalSetting({ id, settings })),
   reloadGrid: options => dispatch(reloadGrid(options))
 });
 
@@ -46,21 +45,6 @@ class Journals extends Component {
   toggleMenu = () => {
     this.setState({ menuOpen: !this.state.menuOpen });
   };
-
-  // onChangeFilters = predicate => {
-  //   console.log(predicate);
-  //   this.journalSetting.setPredicate(predicate);
-  // };
-
-  // onChangeColumnsSetup = columnsSetup => {
-  //   console.log(columnsSetup);
-  //   this.journalSetting.setColumnsSetup(columnsSetup);
-  // };
-
-  // onChangeGrouping = grouping => {
-  //   console.log(grouping);
-  //   this.journalSetting.setGrouping(grouping);
-  // };
 
   render() {
     const { menuOpen, settingsVisible } = this.state;

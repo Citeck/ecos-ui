@@ -1,5 +1,5 @@
 import { RecordService } from './recordService';
-import { PROXY_URI } from '../constants/alfresco';
+import { PROXY_URI, MICRO_URI } from '../constants/alfresco';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 
 const testData = [
@@ -453,20 +453,21 @@ export class JournalsApi extends RecordService {
 
   getJournalSettings = () => {
     return this.getJson(`${PROXY_URI}api/journals/lists`).then(resp => {
-      //return this.getJson(`${PROXY_URI}citeck/micro/uiserv/api/journalprefs/list?journalId=contract-agreements&includeUserLocal=true`).then(resp => {
+      //return this.getJson(`${MICRO_URI}api/journalprefs/list?journalId=contract-agreements&includeUserLocal=false`).then(resp => {
       return testData;
     });
   };
-
+  //
   getJournalSetting = id => {
-    return this.getJson(`${PROXY_URI}api/journals/lists`).then(resp => {
-      //return this.getJson(`${PROXY_URI}citeck/micro/uiserv/api/journalprefs?journalViewPrefsId=contract-agreements-default`).then(resp => {
-      return testData.filter(t => t.id === id)[0];
+    //return this.getJson(`${PROXY_URI}api/journals/lists`).then(resp => {
+    return this.getJson(`${MICRO_URI}api/journalprefs?id=facaac6d-b8b9-4275-9fe1-da098c66a426`).then(resp => {
+      //return testData.filter(t => t.id === id)[0];
+      return resp;
     });
   };
 
   saveJournalSetting = ({ id, settings }) => {
-    return this.postJson(`${PROXY_URI}citeck/micro/uiserv/api/journalprefs?journalId=${id}`, settings).then(resp => {
+    return this.postJson(`${MICRO_URI}api/journalprefs?journalId=${id}`, settings, true).then(resp => {
       return resp;
     });
   };

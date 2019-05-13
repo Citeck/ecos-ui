@@ -4,7 +4,7 @@ import Columns from '../../common/templates/Columns/Columns';
 import EcosModal from '../../../../src/components/common/EcosModal';
 import { Btn } from '../../common/btns';
 import { Input } from '../../common/form';
-import { reloadGrid } from '../../../actions/journals';
+import { reloadGrid, saveJournalSetting } from '../../../actions/journals';
 import { t } from '../../../helpers/util';
 
 import './JournalsSettingsFooter.scss';
@@ -13,11 +13,13 @@ const mapStateToProps = state => ({
   predicate: state.journals.predicate,
   columnsSetup: state.journals.columnsSetup,
   grouping: state.journals.grouping,
-  journalSetting: state.journals.journalSetting
+  journalSetting: state.journals.journalSetting,
+  journalConfig: state.journals.journalConfig
 });
 
 const mapDispatchToProps = dispatch => ({
-  reloadGrid: options => dispatch(reloadGrid(options))
+  reloadGrid: options => dispatch(reloadGrid(options)),
+  saveJournalSetting: (id, settings) => dispatch(saveJournalSetting({ id, settings }))
 });
 
 class JournalsSettingsFooter extends Component {
@@ -58,7 +60,8 @@ class JournalsSettingsFooter extends Component {
   };
 
   onApplyDialog = () => {
-    this.props.saveJournalSetting(this.props.journalConfig.id, this.journalSetting.getSetting(this.settingName));
+    //console.log(this.getSetting());
+    this.props.saveJournalSetting(this.props.journalConfig.id, this.getSetting());
   };
 
   clearSettingName = () => {
