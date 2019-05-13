@@ -134,6 +134,12 @@ export default class SelectOrgstructComponent extends BaseComponent {
   }
 
   _getAuthorityRef(authority, callback) {
+    // TODO adapt for multiple value
+    if (Array.isArray(authority)) {
+      callback(authority);
+      return;
+    }
+
     this._requestedAuthority = authority;
     let self = this;
 
@@ -193,7 +199,6 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     let self = this;
 
-    // TODO fix bug for multiple defaultValue
     this._getAuthorityRef(value, value => {
       if (self.reactContainer && value !== self.dataValue) {
         ReactDOM.unmountComponentAtNode(self.reactContainer);
