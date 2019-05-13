@@ -2,19 +2,21 @@ import FormioJsTabs from 'formiojs/components/tabs/Tabs';
 import Base from 'formiojs/components/base/Base';
 import _ from 'lodash';
 
+//Override formio tabs to fix inner
+//validation errors which are not displayed on submit
+//see https://github.com/formio/formio.js/issues/1249
 export default class Tabs extends FormioJsTabs {
   getAllComponents() {
-    // If the validity tabs are set, then this usually means we are getting the components that have
-    // triggered errors and need to iterate through these to display them.
-    if (this.validityTabs && this.validityTabs.length) {
-      const comps = this.validityTabs.reduce((components, component) => {
-        if (component && component.getAllComponents) {
-          component = component.getAllComponents();
+    // If the tabs errors are set, then this usually means we are getting the components that have
+    // triggered errors and need to display them.
+    if (this.tabsErrors && this.tabsErrors.length) {
+      const comp = [
+        {
+          errors: this.tabsErrors
         }
-        return components.concat(component);
-      }, []);
-      this.validityTabs = [];
-      return comps;
+      ];
+      this.tabsErrors = [];
+      return comp;
     }
     return super.getAllComponents();
   }
@@ -28,15 +30,18 @@ export default class Tabs extends FormioJsTabs {
       this.setCustomValidity('');
       return true;
     }
+
     const isValid = Base.prototype.checkValidity.call(this, data, dirty);
-    this.validityTabs = [];
+
+    this.tabsErrors = [];
     return this.component.components.reduce((check, comp) => {
       const tabComp = _.clone(comp);
       tabComp.type = 'panel';
       tabComp.internal = true;
       const component = this.createComponent(tabComp);
-      this.validityTabs.push(component);
+
       const valid = component.checkValidity(data, dirty) && check;
+      this.tabsErrors = this.tabsErrors.concat(component.errors || []);
       component.destroy();
       return valid;
     }, isValid);
