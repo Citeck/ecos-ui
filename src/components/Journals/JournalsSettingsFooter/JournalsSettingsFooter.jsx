@@ -60,7 +60,6 @@ class JournalsSettingsFooter extends Component {
   };
 
   onApplyDialog = () => {
-    //console.log(this.getSetting());
     this.props.saveJournalSetting(this.props.journalConfig.id, this.getSetting());
   };
 

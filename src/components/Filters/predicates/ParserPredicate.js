@@ -162,7 +162,6 @@ export default class ParserPredicate {
       if (group.getCondition() === PREDICATE_AND) {
         ands.push(group.getPredicate());
       } else {
-        ors.push(ands);
         ands = [];
 
         if (next && next.getCondition() === PREDICATE_AND) {

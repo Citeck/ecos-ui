@@ -39,6 +39,11 @@ export default class Filter extends Component {
       predicate: ParserPredicate.createPredicate({ att: predicate.att, t: this.state.selectedCondition.value, val }),
       index
     });
+
+    trigger.call(this, 'onChangeValue', {
+      value: val,
+      index
+    });
   };
 
   changeCondition = selectedCondition => {
@@ -50,6 +55,11 @@ export default class Filter extends Component {
 
     trigger.call(this, 'onChange', {
       predicate: ParserPredicate.createPredicate({ att: predicate.att, t: selectedCondition.value, val: this.state.val }),
+      index
+    });
+
+    trigger.call(this, 'onChangeCondition', {
+      condition: selectedCondition.value,
       index
     });
   };

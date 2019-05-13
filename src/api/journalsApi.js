@@ -460,7 +460,7 @@ export class JournalsApi extends RecordService {
   //
   getJournalSetting = id => {
     //return this.getJson(`${PROXY_URI}api/journals/lists`).then(resp => {
-    return this.getJson(`${MICRO_URI}api/journalprefs?id=facaac6d-b8b9-4275-9fe1-da098c66a426`).then(resp => {
+    return this.getJson(`${MICRO_URI}api/journalprefs?id=7aa7ae39-7f70-4fe8-ad38-b3b379752a06`).then(resp => {
       //return testData.filter(t => t.id === id)[0];
       return resp;
     });

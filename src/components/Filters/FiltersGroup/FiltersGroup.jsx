@@ -61,6 +61,14 @@ export default class FiltersGroup extends Component {
     this.props.group.setCondition(condition);
   };
 
+  onChangeFilterValue = e => {
+    console.log(e);
+  };
+
+  onChangeFilterCondition = e => {
+    console.log(e);
+  };
+
   render() {
     const { className, columns, first, group } = this.props;
 
@@ -97,7 +105,15 @@ export default class FiltersGroup extends Component {
 
         {this.state.filters.map((filter, idx) => {
           return (
-            <Filter key={getId()} filter={filter} index={idx} onChange={this.changeFilter} onDelete={this.deleteFilter}>
+            <Filter
+              key={getId()}
+              filter={filter}
+              index={idx}
+              onChange={this.changeFilter}
+              onChangeValue={this.onChangeFilterValue}
+              onChangeCondition={this.onChangeFilterCondition}
+              onDelete={this.deleteFilter}
+            >
               {idx > 0 && (
                 <FiltersCondition
                   index={idx}
