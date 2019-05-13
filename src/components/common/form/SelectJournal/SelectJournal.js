@@ -419,7 +419,16 @@ export default class SelectJournal extends Component {
           </EcosModal>
         </FiltersProvider>
 
-        <EcosModal title={t('select-journal.edit-modal.title')} isOpen={isEditModalOpen} hideModal={this.toggleEditModal}>
+        <EcosModal
+          reactstrapProps={{
+            backdrop: 'static'
+          }}
+          className="ecos-modal_width-lg"
+          isBigHeader={true}
+          title={t('select-journal.edit-modal.title')}
+          isOpen={isEditModalOpen}
+          hideModal={this.toggleEditModal}
+        >
           <EcosForm record={editRecordId} onSubmit={this.onEditFormSubmit} onFormCancel={this.toggleEditModal} />
         </EcosModal>
       </div>
