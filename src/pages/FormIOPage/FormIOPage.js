@@ -1,9 +1,9 @@
 import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
-//import Form from 'formiojs/Form';
+import Form from 'formiojs/Form';
 import FormBuilder from 'formiojs/FormBuilder';
 //import schema from './form.json';
-// import schema from './calendarForm.json';
+import schema from './calendarForm.json';
 import '../../forms/components';
 import Formio from 'formiojs/Formio';
 
@@ -15,10 +15,9 @@ class FormIOPage extends React.Component {
     proxyUri = proxyUri.substring(0, proxyUri.length - 1);
     Formio.setProjectUrl(proxyUri);
 
-    /*let options = {
+    let options = {
       // inputsOnly: true
     };
-*/
     // form in view mode
     /*if (0) {
       options = {
@@ -27,7 +26,7 @@ class FormIOPage extends React.Component {
       };
     }*/
 
-    /*const form = new Form(document.getElementById('formio'), schema, options);
+    const form = new Form(document.getElementById('formio'), schema, options);
     // console.log(form);
 
     form.render().then(form => {
@@ -61,7 +60,7 @@ class FormIOPage extends React.Component {
       form.on('error', function(error) {
         console.log('Form error', error);
       });
-    });*/
+    });
 
     const formBuilder = new FormBuilder(document.getElementById('builder'), {});
     // console.log(formBuilder);

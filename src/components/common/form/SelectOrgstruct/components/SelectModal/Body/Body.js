@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
 import List from './List';
 import { SelectOrgstructContext } from '../../../SelectOrgstructContext';
 import './Body.scss';
@@ -11,7 +12,11 @@ const Body = () => {
 
   return (
     <div className="select-orgstruct__body">
-      <List items={children} />
+      <Scrollbars className="slide-menu-list" autoHide autoHeight autoHeightMin={0} autoHeightMax={400}>
+        <div className="select-orgstruct__list-wrapper">
+          <List items={children} />
+        </div>
+      </Scrollbars>
     </div>
   );
 };

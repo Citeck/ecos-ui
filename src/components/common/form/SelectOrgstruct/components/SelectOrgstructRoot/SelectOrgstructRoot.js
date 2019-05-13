@@ -1,13 +1,14 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import InputView from '../InputView';
+import ViewMode from '../ViewMode';
 import SelectModal from '../SelectModal';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 
 const SelectOrgstructRoot = () => {
   const context = useContext(SelectOrgstructContext);
   const { controlProps } = context;
-  const { isCompact } = controlProps;
+  const { isCompact, viewOnly } = controlProps;
 
   const wrapperClasses = classNames('select-orgstruct', {
     'select-orgstruct_compact': isCompact
@@ -15,8 +16,8 @@ const SelectOrgstructRoot = () => {
 
   return (
     <div className={wrapperClasses}>
-      <InputView />
-      <SelectModal />
+      {viewOnly ? <ViewMode /> : <InputView />}
+      {viewOnly ? null : <SelectModal />}
     </div>
   );
 };

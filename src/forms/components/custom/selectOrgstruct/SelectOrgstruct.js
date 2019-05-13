@@ -3,6 +3,11 @@ import ReactDOM from 'react-dom';
 import BaseComponent from '../base/BaseComponent';
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
 import isEqual from 'lodash/isEqual';
+import Formio from 'formiojs/Formio';
+
+import Records from '../../../../components/Records';
+
+let authorityRefsByName = {};
 
 export default class SelectOrgstructComponent extends BaseComponent {
   static schema(...extend) {
@@ -30,7 +35,17 @@ export default class SelectOrgstructComponent extends BaseComponent {
     return SelectOrgstructComponent.schema();
   }
 
+  createViewOnlyValue(container) {
+    this.reactContainer = this.ce('dd');
+    container.appendChild(this.reactContainer);
+    this.renderReactComponent();
+  }
+
   build() {
+    if (this.viewOnly) {
+      return this.viewOnlyBuild();
+    }
+
     this.restoreValue();
 
     this.createElement();
@@ -86,6 +101,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           allowedAuthorityTypes={allowedAuthorityTypes}
           allowedGroupTypes={allowedGroupTypes}
           onChange={onChange}
+          viewOnly={self.viewOnly}
           onError={err => {
             // this.setCustomValidity(err, false);
           }}
@@ -117,16 +133,74 @@ export default class SelectOrgstructComponent extends BaseComponent {
     return this.dataValue;
   }
 
+  _getAuthorityRef(authority, callback) {
+    this._requestedAuthority = authority;
+    let self = this;
+
+    if (!authority) {
+      callback(authority);
+      return;
+    }
+
+    let isNodeRef = r => r != null && r.indexOf('workspace://SpacesStore/') === 0;
+
+    if (isNodeRef(authority)) {
+      callback(authority);
+      return;
+    }
+
+    let cacheValue = authorityRefsByName[authority];
+    if (cacheValue) {
+      if (cacheValue.then) {
+        cacheValue.then(record => {
+          if (record && isNodeRef(record.id)) {
+            authorityRefsByName[authority] = record.id;
+            if (self._requestedAuthority === authority) {
+              callback(record.id);
+            }
+          } else {
+            authorityRefsByName[authority] = null;
+          }
+        });
+      } else {
+        callback(cacheValue);
+      }
+      return;
+    }
+
+    let query = {
+      language: 'fts-alfresco'
+    };
+    if (authority.indexOf('GROUP_') === 0) {
+      query.query = '=cm:authorityName:"' + authority + '"';
+    } else {
+      query.query = '=cm:userName:"' + authority + '"';
+    }
+
+    authorityRefsByName[authority] = Records.queryOne(query);
+
+    this._getAuthorityRef(authority, callback);
+  }
+
   setValue(value) {
+    if (value === null && this.component.currentUserByDefault && !this.viewOnly && this.options.formMode === 'CREATE') {
+      value = Formio.getUser();
+    }
+
     if (isEqual(value, this.dataValue)) {
       return null;
     }
 
-    if (this.reactContainer && value !== this.dataValue) {
-      ReactDOM.unmountComponentAtNode(this.reactContainer);
-    }
+    let self = this;
 
-    this.dataValue = value || this.component.defaultValue || this.emptyValue;
-    this.refreshDOM();
+    // TODO fix bug for multiple defaultValue
+    this._getAuthorityRef(value, value => {
+      if (self.reactContainer && value !== self.dataValue) {
+        ReactDOM.unmountComponentAtNode(self.reactContainer);
+      }
+
+      self.dataValue = value || self.component.defaultValue || self.emptyValue;
+      self.refreshDOM();
+    });
   }
 }

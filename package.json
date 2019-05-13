@@ -1,6 +1,6 @@
 {
   "name": "ecos-ui",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "private": true,
   "dependencies": {
     "body-parser": "^1.18.3",
@@ -50,11 +50,13 @@
     "reselect": "^4.0.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "npm-run-all export:dev start:react",
+    "start:react": "react-scripts start",
     "build": "npm-run-all export build:src",
     "build-win": "npm-run-all export-win build:src",
     "build:src": "react-scripts build",
     "export": "cross-env NODE_ENV=production webpack --config webpack.config.export.js",
+    "export:dev": "cross-env NODE_ENV=development webpack --config webpack.config.export.js",
     "export-win": "set NODE_ENV=production&& webpack --config webpack.config.export.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

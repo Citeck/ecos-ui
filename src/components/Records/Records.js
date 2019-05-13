@@ -1,3 +1,6 @@
+import cloneDeep from 'lodash/cloneDeep';
+import isString from 'lodash/isString';
+
 const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
 const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
@@ -33,7 +36,35 @@ function convertAttributePath(path) {
     attSchema = 'disp';
   }
 
-  return '.' + (isEdge ? 'edge' : 'att') + '(n:"' + attName + '"){' + attSchema + '}';
+  let result = '.';
+
+  if (isEdge) {
+    result += 'edge(n:"' + attName + '"){' + attSchema + '}';
+  } else {
+    let attPath = attName.split('.');
+    for (let i = 0; i < attPath.length; i++) {
+      if (i > 0) {
+        result += '{';
+      }
+      result += 'att';
+
+      let pathElem = attPath[i];
+      if (pathElem.indexOf('[]') === pathElem.length - 2) {
+        result += 's';
+        pathElem = pathElem.substring(0, pathElem.length - 2);
+      }
+      pathElem = pathElem.replace(/\\./g, '.');
+
+      result += '(n:"' + pathElem + '")';
+    }
+
+    result += '{' + attSchema + '}';
+    for (let i = 1; i < attPath.length; i++) {
+      result += '}';
+    }
+  }
+
+  return result;
 }
 
 class Records {
@@ -77,32 +108,48 @@ class Records {
     });
   }
 
-  queryOne(query, attributes) {
+  queryOne(query, attributes, defaultResult = null) {
+    query = cloneDeep(query);
+
     let page = query.page || {};
     page.maxItems = 1;
 
     query.page = page;
 
-    return this.query({
-      query: query,
-      attributes: attributes || {}
-    }).then(resp => {
+    return this.query(query, attributes).then(resp => {
       if (resp.records.length === 0) {
-        return null;
+        return defaultResult;
+      }
+      if (attributes && isString(attributes)) {
+        return resp.records[0][attributes];
       }
       return resp.records[0];
     });
   }
 
-  query(body) {
+  query(query, attributes) {
+    if (query.attributes || (query.query && query.query.query)) {
+      attributes = query.attributes;
+      query = query.query;
+    }
+
     let self = this;
 
     let attributesMapping = {};
 
-    if (body.attributes) {
-      for (let att in body.attributes) {
-        if (body.attributes.hasOwnProperty(att)) {
-          attributesMapping[att] = body.attributes[att];
+    let isSingleAttribute = attributes && isString(attributes);
+    let queryAttributes = isSingleAttribute ? [attributes] : attributes || {};
+
+    if (attributes) {
+      if (Array.isArray(queryAttributes)) {
+        for (let att of queryAttributes) {
+          attributesMapping[att] = att;
+        }
+      } else {
+        for (let att in queryAttributes) {
+          if (queryAttributes.hasOwnProperty(att)) {
+            attributesMapping[att] = queryAttributes[att];
+          }
         }
       }
     }
@@ -114,7 +161,10 @@ class Records {
         headers: {
           'Content-type': 'application/json;charset=UTF-8'
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify({
+          query: query,
+          attributes: queryAttributes
+        })
       })
         .then(response => {
           return response.json();
@@ -137,15 +187,18 @@ class Records {
                 }
               }
             }
-
-            records.push(
-              Object.assign(
-                {
-                  id: recordMeta.id
-                },
-                recordMeta.attributes
-              )
-            );
+            if (attributes) {
+              records.push(
+                Object.assign(
+                  {
+                    id: recordMeta.id
+                  },
+                  recordMeta.attributes
+                )
+              );
+            } else {
+              records.push(recordMeta.id);
+            }
           }
 
           resolve({
@@ -153,6 +206,10 @@ class Records {
             hasMore: response.hasMore,
             totalCount: response.totalCount
           });
+        })
+        .catch(e => {
+          console.error(e);
+          reject(e);
         });
     });
   }
@@ -220,12 +277,24 @@ class Record {
     let toLoadNames = {};
     let loaded = {};
 
-    for (let att in attributes) {
-      if (!attributes.hasOwnProperty(att)) {
+    let isSingleAttribute = isString(attributes);
+    let attributesObj = attributes;
+
+    if (isSingleAttribute) {
+      attributesObj = { a: attributes };
+    } else if (Array.isArray(attributes)) {
+      attributesObj = {};
+      for (let v of attributes) {
+        attributesObj[v] = v;
+      }
+    }
+
+    for (let att in attributesObj) {
+      if (!attributesObj.hasOwnProperty(att)) {
         continue;
       }
 
-      let attPath = convertAttributePath(attributes[att]);
+      let attPath = convertAttributePath(attributesObj[att]);
 
       if (!force) {
         let existingValue = self._attributes[attPath];
@@ -241,8 +310,16 @@ class Record {
       }
     }
 
+    let formatResult = result => {
+      if (isSingleAttribute) {
+        return result.a;
+      } else {
+        return result;
+      }
+    };
+
     if (toLoad.length === 0) {
-      return Promise.resolve(loaded);
+      return Promise.resolve(formatResult(loaded));
     }
 
     return new Promise(function(resolve, reject) {
@@ -269,28 +346,17 @@ class Record {
             loaded[toLoadNames[att]] = atts[att];
             self._attributes[att] = new Attribute(self, att, atts[att]);
           }
-
-          resolve(loaded);
-        });
-    });
-  }
-
-  loadAttribute(attribute) {
-    let self = this;
-
-    return new Promise(function(resolve, reject) {
-      self
-        .load({
-          a: attribute
-        })
-        .then(atts => {
-          resolve(atts.a);
+          resolve(formatResult(loaded));
         })
         .catch(e => {
           console.error(e);
           reject(e);
         });
     });
+  }
+
+  loadAttribute(attribute) {
+    return this.load(attribute);
   }
 
   loadEditorKey(attribute) {
@@ -305,6 +371,10 @@ class Record {
       return Promise.resolve(null);
     }
     return this.loadAttribute('#' + attribute + '?options');
+  }
+
+  reset() {
+    this._attributes = {};
   }
 
   save() {
@@ -353,8 +423,10 @@ class Record {
               }
             }
 
-            self.load(attributesToLoad, true).then(() => {
-              resolve(self);
+            let record = response.id ? records.get(response.id) : self.id;
+
+            record.load(attributesToLoad, true).then(() => {
+              resolve(record);
             });
           });
       } else {
