@@ -42,7 +42,16 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
   }
 
   const modal = record ? (
-    <EcosModal title={t('select-journal.create-modal.title')} isOpen={isCreateModalOpen} hideModal={toggleCreateModal}>
+    <EcosModal
+      reactstrapProps={{
+        backdrop: 'static'
+      }}
+      className="ecos-modal_width-lg"
+      isBigHeader={true}
+      title={t('select-journal.create-modal.title')}
+      isOpen={isCreateModalOpen}
+      hideModal={toggleCreateModal}
+    >
       <EcosForm record={record} onSubmit={onCreateFormSubmit} onFormCancel={toggleCreateModal} />
     </EcosModal>
   ) : null;
