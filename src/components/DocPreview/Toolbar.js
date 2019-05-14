@@ -39,6 +39,28 @@ class Toolbar extends Component {
   }
 
   componentDidMount() {
+    /*if (document.exitFullscreen) {
+      let exitFullscreen = document.exitFullscreen();
+
+      exitFullscreen.then(
+        res => {
+          console.log(` this.setFullScreen(false);`, res);
+          this.setFullScreen(false);
+        },
+        err => {
+          console.error(`Error : ${err}`);
+        }
+      );
+
+    }*/
+
+    /*document.addEventListener("fullscreenchange", function (event, uuu) {
+      console.log("---");
+      console.log(document.fullscreenEnabled);
+      console.log(event);
+      console.log(uuu);
+    }, false);*/
+
     this.onChangeZoomOption(this.zoomOptions[0]);
   }
 
@@ -124,8 +146,11 @@ class Toolbar extends Component {
     this.onChangeSettings(newState);
   };
 
-  setFullScreen = () => {
-    this.setState({ isFullscreen: true });
+  setFullScreen = (flag = true) => {
+    let newState = { ...this.state, isFullscreen: flag };
+
+    this.setState(newState);
+    this.onChangeSettings(newState);
   };
 
   onChangeSettings = newState => {

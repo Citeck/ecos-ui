@@ -9,18 +9,29 @@ class ImgViewer extends Component {
       paramsZoom: PropTypes.shape({
         height: PropTypes.string,
         width: PropTypes.string
-      })
+      }),
+      isFullscreen: PropTypes.bool
     })
   };
 
   static defaultProps = {
     settings: {
-      paramsZoom: {}
+      paramsZoom: {},
+      isFullscreen: false
     }
   };
 
+  refImg = React.createRef();
+
   componentWillReceiveProps(nextProps) {
-    // console.log('nextProps', nextProps)
+    console.log('nextProps', nextProps);
+    if (nextProps.settings.isFullscreen) {
+      let elem = this.refImg.current;
+
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      }
+    }
   }
 
   render() {
@@ -31,7 +42,7 @@ class ImgViewer extends Component {
 
     return (
       <div className={_pageCtr} style={paramsZoom}>
-        <img src={`${urlImg}`} alt="image" height="100%" className={`${_pageCtr}__content`} />
+        <img src={`${urlImg}`} alt="" height="100%" className={`${_pageCtr}__content`} ref={this.refImg} />
       </div>
     );
   }

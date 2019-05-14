@@ -9,6 +9,7 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
     constructor(props) {
       super(props);
 
+      //todo maybe don't need
       this.refScrollbar = React.createRef();
       this.refViewer = React.createRef();
     }
