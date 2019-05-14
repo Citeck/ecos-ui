@@ -207,16 +207,17 @@ export default class SelectOrgstructComponent extends BaseComponent {
     };
 
     if (Array.isArray(value)) {
-      let computed = new Array(value.length).fill(null);
-      let computedCount = 0;
-      for (let i = 0; i < value.length; i++) {
-        this._getAuthorityRef(value, value => {
-          computed[i] = value;
-          if (++computedCount === computed.length) {
-            setValueImpl(computed);
-          }
-        });
+      let promises = [];
+      for (let auth of value) {
+        promises.push(
+          new Promise(resolve => {
+            this._getAuthorityRef(auth, resolve);
+          })
+        );
       }
+      Promise.all(promises).then(values => {
+        setValueImpl(values);
+      });
     } else {
       this._getAuthorityRef(value, setValueImpl);
     }
