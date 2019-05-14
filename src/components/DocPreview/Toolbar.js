@@ -38,30 +38,15 @@ class Toolbar extends Component {
     };
   }
 
+  fullscreenchange = false;
+
   componentDidMount() {
-    /*if (document.exitFullscreen) {
-      let exitFullscreen = document.exitFullscreen();
-
-      exitFullscreen.then(
-        res => {
-          console.log(` this.setFullScreen(false);`, res);
-          this.setFullScreen(false);
-        },
-        err => {
-          console.error(`Error : ${err}`);
-        }
-      );
-
-    }*/
-
-    /*document.addEventListener("fullscreenchange", function (event, uuu) {
-      console.log("---");
-      console.log(document.fullscreenEnabled);
-      console.log(event);
-      console.log(uuu);
-    }, false);*/
-
+    document.addEventListener('fullscreenchange', this.onFullscreenchange, false);
     this.onChangeZoomOption(this.zoomOptions[0]);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('fullscreenchange', this.onFullscreenchange, false);
   }
 
   get zoomOptions() {
@@ -146,7 +131,16 @@ class Toolbar extends Component {
     this.onChangeSettings(newState);
   };
 
-  setFullScreen = (flag = true) => {
+  onFullscreenchange = e => {
+    this.fullscreenchange = !this.fullscreenchange;
+
+    if (!this.fullscreenchange) {
+      this.setFullScreen(false);
+      document.exitFullscreen();
+    }
+  };
+
+  setFullScreen = flag => {
     let newState = { ...this.state, isFullscreen: flag };
 
     this.setState(newState);
@@ -189,7 +183,7 @@ class Toolbar extends Component {
           >
             <IcoBtn invert={'true'} icon={'icon-down'} className={`${_commonBtn} ecos-btn_drop-down`} />
           </Dropdown>
-          <IcoBtn icon={'glyphicon glyphicon-fullscreen'} className={_commonBtn} onClick={this.setFullScreen} />
+          <IcoBtn icon={'glyphicon glyphicon-fullscreen'} className={_commonBtn} onClick={e => this.setFullScreen(true)} />
         </div>
         <div className={classNames(`${_toolbar}__download`)}>
           <IcoBtn icon={'icon-download'} className={_commonBtn} onClick={this.props.onDownload}>

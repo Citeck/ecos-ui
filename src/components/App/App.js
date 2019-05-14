@@ -51,7 +51,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
           {/*<Route path="/share/page" exact component={DashboardPage} />*/}
           <Route path="/formio-develop" component={FormIOPage} />
           <Route path="/ecos-form-example" component={EcosFormPage} />
-          <Route path="/doc-preview" render={() => <DocPreview link={'testImg.jpg'} />} />
+          <Route path="/doc-preview" render={() => <DocPreview link={'testPdf.pdf'} />} />
 
           <Route path="/share/page/journals" component={JournalsPage} />
           <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />

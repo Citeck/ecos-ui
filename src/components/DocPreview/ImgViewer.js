@@ -24,7 +24,6 @@ class ImgViewer extends Component {
   refImg = React.createRef();
 
   componentWillReceiveProps(nextProps) {
-    console.log('nextProps', nextProps);
     if (nextProps.settings.isFullscreen) {
       let elem = this.refImg.current;
 
