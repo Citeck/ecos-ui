@@ -79,17 +79,19 @@ class Toolbar extends Component {
 
   goToPage = (e, page) => {
     let currentPage = e.target.value || page;
+    let newState = { ...this.state, currentPage };
 
-    this.setState({ currentPage });
-    this.onChangeSettings();
+    this.setState({ ...newState });
+    this.onChangeSettings(newState);
   };
 
   onChangeZoomOption = e => {
     let { height, width } = e;
     let selectedZoom = e.id;
+    let newState = { ...this.state, selectedZoom, paramsZoom: { height, width } };
 
-    this.setState({ selectedZoom, paramsZoom: { height, width } });
-    this.onChangeSettings();
+    this.setState(newState);
+    this.onChangeSettings(newState);
   };
 
   handleZoomOut = e => {
@@ -116,16 +118,18 @@ class Toolbar extends Component {
       currentHeight -= 5;
     }
 
-    this.setState({ paramsZoom: { height: currentHeight + '%', width: AUTO_SIZE }, selectedZoom });
-    this.onChangeSettings();
+    let newState = { ...this.state, selectedZoom, paramsZoom: { height: currentHeight + '%', width: AUTO_SIZE } };
+
+    this.setState(newState);
+    this.onChangeSettings(newState);
   };
 
   setFullScreen = () => {
     this.setState({ isFullscreen: true });
   };
 
-  onChangeSettings = () => {
-    let { selectedZoom, isCustom, ...output } = this.state;
+  onChangeSettings = newState => {
+    let { selectedZoom, isCustom, ...output } = newState;
 
     this.props.onChangeSettings(output);
   };
