@@ -134,12 +134,6 @@ export default class SelectOrgstructComponent extends BaseComponent {
   }
 
   _getAuthorityRef(authority, callback) {
-    // TODO adapt for multiple value
-    if (Array.isArray(authority)) {
-      callback(authority);
-      return;
-    }
-
     this._requestedAuthority = authority;
     let self = this;
 
@@ -159,10 +153,10 @@ export default class SelectOrgstructComponent extends BaseComponent {
     if (cacheValue) {
       if (cacheValue.then) {
         cacheValue.then(record => {
-          if (record && isNodeRef(record.id)) {
-            authorityRefsByName[authority] = record.id;
+          if (isNodeRef(record)) {
+            authorityRefsByName[authority] = record;
             if (self._requestedAuthority === authority) {
-              callback(record.id);
+              callback(record);
             }
           } else {
             authorityRefsByName[authority] = null;
@@ -189,8 +183,12 @@ export default class SelectOrgstructComponent extends BaseComponent {
   }
 
   setValue(value) {
-    if (value === null && this.component.currentUserByDefault && !this.viewOnly && this.options.formMode === 'CREATE') {
-      value = Formio.getUser();
+    if (isEqual(value, this.emptyValue) && this.component.currentUserByDefault && !this.viewOnly && this.options.formMode === 'CREATE') {
+      if (Array.isArray(value)) {
+        value = [Formio.getUser()];
+      } else {
+        value = Formio.getUser();
+      }
     }
 
     if (isEqual(value, this.dataValue)) {
@@ -199,13 +197,28 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     let self = this;
 
-    this._getAuthorityRef(value, value => {
+    let setValueImpl = function(value) {
       if (self.reactContainer && value !== self.dataValue) {
         ReactDOM.unmountComponentAtNode(self.reactContainer);
       }
 
       self.dataValue = value || self.component.defaultValue || self.emptyValue;
       self.refreshDOM();
-    });
+    };
+
+    if (Array.isArray(value)) {
+      let computed = new Array(value.length).fill(null);
+      let computedCount = 0;
+      for (let i = 0; i < value.length; i++) {
+        this._getAuthorityRef(value, value => {
+          computed[i] = value;
+          if (++computedCount === computed.length) {
+            setValueImpl(computed);
+          }
+        });
+      }
+    } else {
+      this._getAuthorityRef(value, setValueImpl);
+    }
   }
 }

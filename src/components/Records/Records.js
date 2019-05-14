@@ -423,7 +423,7 @@ class Record {
               }
             }
 
-            let record = response.id ? records.get(response.id) : self.id;
+            let record = response.id ? records.get(response.id) : self;
 
             record.load(attributesToLoad, true).then(() => {
               resolve(record);
