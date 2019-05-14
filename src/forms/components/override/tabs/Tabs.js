@@ -1,49 +1,197 @@
-import FormioJsTabs from 'formiojs/components/tabs/Tabs';
-import Base from 'formiojs/components/base/Base';
-import _ from 'lodash';
+import NestedComponent from 'formiojs/components/nested/NestedComponent';
+import FormioTabsComponent from 'formiojs/components/tabs/Tabs';
 
-//Override formio tabs to fix inner
-//validation errors which are not displayed on submit
-//see https://github.com/formio/formio.js/issues/1249
-export default class Tabs extends FormioJsTabs {
-  getAllComponents() {
-    // If the tabs errors are set, then this usually means we are getting the components that have
-    // triggered errors and need to display them.
-    if (this.tabsErrors && this.tabsErrors.length) {
-      const comp = [
-        {
-          errors: this.tabsErrors
-        }
-      ];
-      this.tabsErrors = [];
-      return comp;
-    }
-    return super.getAllComponents();
+//Override default tabs component to fix validation in inner fields
+export default class TabsComponent extends NestedComponent {
+  static schema(...extend) {
+    return NestedComponent.schema(
+      {
+        label: 'Tabs',
+        type: 'tabs',
+        input: false,
+        key: 'tabs',
+        persistent: false,
+        components: [
+          {
+            label: 'Tab 1',
+            key: 'tab1',
+            components: []
+          }
+        ]
+      },
+      ...extend
+    );
   }
 
-  checkValidity(data, dirty) {
-    if (!dirty) {
-      return super.checkValidity(data, dirty);
+  static get builderInfo() {
+    return {
+      title: 'Tabs',
+      group: 'layout',
+      icon: 'fa fa-folder-o',
+      weight: 50,
+      documentation: 'http://help.form.io/userguide/#tabs',
+      schema: TabsComponent.schema()
+    };
+  }
+
+  constructor(component, options, data) {
+    super(component, options, data);
+    this.currentTab = 0;
+    this.validityTabs = [];
+  }
+
+  get defaultSchema() {
+    return TabsComponent.schema();
+  }
+
+  get schema() {
+    const schema = super.schema;
+
+    schema.components = this.component.components.map((tab, index) => {
+      if (index === this.currentTab) {
+        tab.components = this.getComponents().map(component => component.schema);
+      }
+
+      return tab;
+    });
+
+    return schema;
+  }
+
+  createElement() {
+    this.tabsBar = this.ce('ul', {
+      class: 'nav nav-tabs'
+    });
+    this.tabsContent = this.ce('div', {
+      class: 'tab-content'
+    });
+
+    this.tabLinks = [];
+    this.tabs = [];
+    this.component.components.forEach((tab, index) => {
+      const tabLink = this.ce(
+        'a',
+        {
+          class: 'nav-link',
+          href: `#${tab.key}`
+        },
+        tab.label
+      );
+      this.addEventListener(tabLink, 'click', event => {
+        event.preventDefault();
+        this.setTab(index);
+      });
+      const tabElement = this.ce(
+        'li',
+        {
+          class: 'nav-item',
+          role: 'presentation'
+        },
+        tabLink
+      );
+      tabElement.tabLink = tabLink;
+      this.tabsBar.appendChild(tabElement);
+      this.tabLinks.push(tabElement);
+
+      const tabPanel = this.ce('div', {
+        role: 'tabpanel',
+        class: 'tab-pane',
+        id: tab.key
+      });
+      this.tabsContent.appendChild(tabPanel);
+      this.tabs.push(tabPanel);
+    });
+
+    if (this.element) {
+      this.appendChild(this.element, [this.tabsBar, this.tabsContent]);
+      this.element.className = this.className;
+      return this.element;
     }
 
-    if (!this.checkCondition(null, data)) {
-      this.setCustomValidity('');
-      return true;
+    this.element = this.ce(
+      'div',
+      {
+        id: this.id,
+        class: this.className
+      },
+      [this.tabsBar, this.tabsContent]
+    );
+    this.element.component = this;
+
+    return this.element;
+  }
+
+  /**
+   * Set the current tab.
+   *
+   * @param index
+   */
+  setTab(index, state) {
+    if (this.options.builder) {
+      FormioTabsComponent.prototype.setTab.call(this, index, state);
+      return;
     }
 
-    const isValid = Base.prototype.checkValidity.call(this, data, dirty);
+    if (!this.tabs || !this.component.components || !this.component.components[this.currentTab] || this.currentTab >= this.tabs.length) {
+      return;
+    }
 
-    this.tabsErrors = [];
-    return this.component.components.reduce((check, comp) => {
-      const tabComp = _.clone(comp);
-      tabComp.type = 'panel';
-      tabComp.internal = true;
-      const component = this.createComponent(tabComp);
+    this.currentTab = index;
 
-      const valid = component.checkValidity(data, dirty) && check;
-      this.tabsErrors = this.tabsErrors.concat(component.errors || []);
-      component.destroy();
-      return valid;
-    }, isValid);
+    if (this.tabLinks.length <= index) {
+      return;
+    }
+
+    this.tabLinks.forEach(tabLink => this.removeClass(tabLink, 'active').removeClass(tabLink.tabLink, 'active'));
+    this.tabs.forEach(tab => this.removeClass(tab, 'active'));
+    this.addClass(this.tabLinks[index], 'active')
+      .addClass(this.tabLinks[index].tabLink, 'active')
+      .addClass(this.tabs[index], 'active');
+  }
+
+  destroy() {
+    const state = super.destroy() || {};
+    state.currentTab = this.currentTab;
+    return state;
+  }
+
+  /**
+   * Make sure to include the tab on the component as it is added.
+   *
+   * @param component
+   * @param element
+   * @param data
+   * @param before
+   * @return {BaseComponent}
+   */
+  addComponent(component, element, data, before, noAdd, state) {
+    component.tab = this.currentTab;
+    return super.addComponent(component, element, data, before, noAdd, state);
+  }
+
+  addComponents(element, data, options, state) {
+    if (this.options.builder) {
+      FormioTabsComponent.prototype.addComponents.call(this, element, data, options, state);
+      return;
+    }
+
+    const { currentTab } = state && state.currentTab ? state : this;
+    this.setTab(currentTab, state);
+
+    this.components.forEach(c => c.destroy());
+    this.components = [];
+
+    for (let i = 0; i < this.tabs.length; i++) {
+      this.empty(this.tabs[i]);
+
+      let tab = this.component.components[i];
+      if (!tab || !tab.components) {
+        continue;
+      }
+
+      const tabComponents = tab.components;
+
+      tabComponents.forEach(component => this.addComponent(component, this.tabs[i], this.data, null, null, state));
+    }
   }
 }
