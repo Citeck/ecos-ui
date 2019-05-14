@@ -22,7 +22,7 @@ class DocPreview extends Component {
 
     this.state = {
       pdf: undefined,
-      settings: {}
+      settings: undefined
     };
   }
 
@@ -42,10 +42,6 @@ class DocPreview extends Component {
     );
   }
 
-  componentDidUpdate(nextProps) {
-    console.log('>>>', nextProps);
-  }
-
   get isPDF() {
     const { link } = this.props;
     const pdf = 'pdf';
@@ -59,17 +55,29 @@ class DocPreview extends Component {
     this.setState({ settings });
   };
 
+  onDownload = () => {
+    const { link } = this.props;
+    //todo think...
+    window.open(link, 'Download');
+  };
+
   render() {
     let { link } = this.props;
     let { pdf = {}, settings } = this.state;
     let { _pdfInfo = {} } = pdf;
-    let { numPages } = _pdfInfo;
+    let { numPages = 0 } = _pdfInfo;
     let PDF = getViewer(PdfViewer, _docPreview);
     let IMG = getViewer(ImgViewer, _docPreview);
 
     return (
       <div className={classNames(_docPreview)}>
-        <Toolbar totalPages={numPages} onChangeSettings={this.onChangeSettings} ctrClass={_docPreview} isPDF={this.isPDF} />
+        <Toolbar
+          totalPages={numPages}
+          ctrClass={_docPreview}
+          isPDF={this.isPDF}
+          onChangeSettings={this.onChangeSettings}
+          onDownload={this.onDownload}
+        />
         {this.isPDF ? <PDF pdf={pdf} settings={settings} /> : <IMG urlImg={link} settings={settings} />}
       </div>
     );

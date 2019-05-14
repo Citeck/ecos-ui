@@ -5,15 +5,26 @@ import classNames from 'classnames';
 class ImgViewer extends Component {
   static propTypes = {
     ctrClass: PropTypes.string.isRequired,
-    urlImg: PropTypes.string.isRequired
+    urlImg: PropTypes.string.isRequired,
+    settings: PropTypes.shape({
+      paramsZoom: PropTypes.shape({
+        height: PropTypes.string,
+        width: PropTypes.string
+      })
+    })
   };
 
   static defaultProps = {};
 
   render() {
-    let { ctrClass: _viewer, urlImg } = this.props;
+    let { ctrClass, urlImg } = this.props;
+    let _pageCtr = `${ctrClass}__page-container`;
 
-    return <img src={`${urlImg}`} alt="Image" width="100%" />;
+    return (
+      <div className={_pageCtr}>
+        <img src={`${urlImg}`} alt="image" height="100%" className={`${_pageCtr}__content`} />
+      </div>
+    );
   }
 }
 
