@@ -13,7 +13,6 @@ Components.setComponents({
   ...DefaultComponents,
   checkbox: Checkbox,
   tabs: Tabs,
-
   selectJournal: SelectJournal,
   selectOrgstruct: SelectOrgstruct,
   ecosSelect: EcosSelect,
