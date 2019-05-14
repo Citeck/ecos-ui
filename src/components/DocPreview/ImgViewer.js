@@ -20,6 +20,10 @@ class ImgViewer extends Component {
     }
   };
 
+  componentWillReceiveProps(nextProps) {
+    // console.log('nextProps', nextProps)
+  }
+
   render() {
     let { ctrClass, urlImg, settings } = this.props;
     let { paramsZoom } = settings;

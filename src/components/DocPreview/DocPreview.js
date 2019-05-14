@@ -9,6 +9,8 @@ import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
 
 let _docPreview = 'ecos-doc-preview-dashlet';
+let PDF = getViewer(PdfViewer, _docPreview);
+let IMG = getViewer(ImgViewer, _docPreview);
 
 class DocPreview extends Component {
   static propTypes = {
@@ -21,8 +23,8 @@ class DocPreview extends Component {
     super(props);
 
     this.state = {
-      pdf: undefined,
-      settings: undefined
+      pdf: {},
+      settings: {}
     };
   }
 
@@ -63,11 +65,9 @@ class DocPreview extends Component {
 
   render() {
     let { link } = this.props;
-    let { pdf = {}, settings } = this.state;
+    let { pdf, settings } = this.state;
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
-    let PDF = getViewer(PdfViewer, _docPreview);
-    let IMG = getViewer(ImgViewer, _docPreview);
 
     return (
       <div className={classNames(_docPreview)}>

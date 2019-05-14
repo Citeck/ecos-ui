@@ -31,6 +31,7 @@ class Toolbar extends Component {
       searchText: '',
       currentPage: '',
       paramsZoom: {},
+      isFullscreen: false,
       /*only current scope*/
       selectedZoom: '',
       isCustom: false
@@ -119,7 +120,9 @@ class Toolbar extends Component {
     this.onChangeSettings();
   };
 
-  setFullScreen = () => {};
+  setFullScreen = () => {
+    this.setState({ isFullscreen: true });
+  };
 
   onChangeSettings = () => {
     let { selectedZoom, isCustom, ...output } = this.state;
