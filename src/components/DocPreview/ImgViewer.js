@@ -14,14 +14,20 @@ class ImgViewer extends Component {
     })
   };
 
-  static defaultProps = {};
+  static defaultProps = {
+    settings: {
+      paramsZoom: {}
+    }
+  };
 
   render() {
-    let { ctrClass, urlImg } = this.props;
+    let { ctrClass, urlImg, settings } = this.props;
+    let { paramsZoom } = settings;
+
     let _pageCtr = `${ctrClass}__page-container`;
 
     return (
-      <div className={_pageCtr}>
+      <div className={_pageCtr} style={paramsZoom}>
         <img src={`${urlImg}`} alt="image" height="100%" className={`${_pageCtr}__content`} />
       </div>
     );

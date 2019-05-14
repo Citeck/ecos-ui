@@ -62,7 +62,7 @@ class Toolbar extends Component {
     ];
 
     if (selectedZoom === CUSTOM) {
-      zooms.push({ id: CUSTOM, title: t(`Custom: ${height}%`), height, width: customWidth });
+      zooms.push({ id: CUSTOM, title: t(`Custom: ${height}`), height, width: customWidth });
     }
 
     return zooms;
@@ -105,8 +105,6 @@ class Toolbar extends Component {
     const selectedZoom = CUSTOM;
     let currentHeight = parseInt(paramsZoom.height);
 
-    paramsZoom.width = AUTO_SIZE;
-
     if (!currentHeight) {
       currentHeight = 75; //fixme
     }
@@ -117,9 +115,7 @@ class Toolbar extends Component {
       currentHeight -= 5;
     }
 
-    paramsZoom.height = currentHeight + '%';
-
-    this.setState({ paramsZoom, selectedZoom });
+    this.setState({ paramsZoom: { height: currentHeight + '%', width: AUTO_SIZE }, selectedZoom });
     this.onChangeSettings();
   };
 
