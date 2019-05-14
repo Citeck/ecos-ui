@@ -5,6 +5,8 @@ import pdfjs from 'pdfjs-dist';
 import './DocPreview.scss';
 import Toolbar from './Toolbar';
 import PdfViewer from './PdfViewer';
+import ImgViewer from './ImgViewer';
+import getViewer from './Viewer';
 
 let _docPreview = 'ecos-doc-preview-dashlet';
 
@@ -19,7 +21,8 @@ class DocPreview extends Component {
     super(props);
 
     this.state = {
-      pdf: undefined
+      pdf: undefined,
+      settings: {}
     };
   }
 
@@ -39,18 +42,35 @@ class DocPreview extends Component {
     );
   }
 
-  onChangeSettings = () => {};
+  componentDidUpdate(nextProps) {
+    console.log('>>>', nextProps);
+  }
+
+  get isPDF() {
+    const { link } = this.props;
+    const pdf = 'pdf';
+    const pointIdx = link.lastIndexOf(pdf);
+    const format = link.substr(pointIdx);
+
+    return format.toLowerCase() === pdf;
+  }
+
+  onChangeSettings = settings => {
+    this.setState({ settings });
+  };
 
   render() {
-    let { pdf = {} } = this.state;
+    let { link } = this.props;
+    let { pdf = {}, settings } = this.state;
     let { _pdfInfo = {} } = pdf;
     let { numPages } = _pdfInfo;
+    let PDF = getViewer(PdfViewer, _docPreview);
+    let IMG = getViewer(ImgViewer, _docPreview);
 
     return (
       <div className={classNames(_docPreview)}>
-        <Toolbar totalPages={numPages} onChangeSettings={this.onChangeSettings} />
-
-        <PdfViewer pdf={pdf} />
+        <Toolbar totalPages={numPages} onChangeSettings={this.onChangeSettings} ctrClass={_docPreview} isPDF={this.isPDF} />
+        {this.isPDF ? <PDF pdf={pdf} settings={settings} /> : <IMG urlImg={link} settings={settings} />}
       </div>
     );
   }

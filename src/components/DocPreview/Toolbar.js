@@ -6,20 +6,17 @@ import { IcoBtn } from '../common/btns';
 import { Dropdown, Input } from '../common/form';
 import { t } from '../../helpers/util';
 
-let _toolbar = `ecos-doc-preview-dashlet__toolbar`;
-let _commonBtn = `ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-blue ecos-btn_tight`;
-
 class Toolbar extends Component {
   static propTypes = {
+    isPDF: PropTypes.bool.isRequired,
+    ctrClass: PropTypes.string.isRequired,
     scale: PropTypes.number,
     totalPages: PropTypes.number.isRequired,
     onChangeSettings: PropTypes.func.isRequired
   };
 
   static defaultProps = {
-    scale: 1.5,
-    totalPages: 0,
-    onChangeSettings: () => {}
+    scale: 1.5
   };
 
   constructor(props) {
@@ -97,17 +94,22 @@ class Toolbar extends Component {
 
   render() {
     let { scale, searchText, currentPage, selectedZoom } = this.state;
-    let { totalPages, totalPages: numPages } = this.props;
+    let { totalPages, totalPages: numPages, ctrClass, isPDF } = this.props;
+
+    let _toolbar = `${ctrClass}__toolbar`;
+    let _commonBtn = `ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-blue ecos-btn_tight`;
 
     return (
       <div className={classNames(_toolbar)}>
-        <div className={classNames(`${_toolbar}__pager`)}>
-          <IcoBtn icon={'icon-left'} className={`${_commonBtn} ${_toolbar}__pager__prev`} onClick={this.handlePrev} />
-          <Input type="text" onChange={this.goToPage} value={currentPage} className={classNames(`${_toolbar}__pager__input`)} />
-          <span className={`${_toolbar}__pager_text`}> {t('pagination.from')} </span>
-          <span className={`${_toolbar}__pager_text`}>{totalPages}</span>
-          <IcoBtn icon={'icon-right'} className={`${_commonBtn} ecos-btn_tight ${_toolbar}__pager__next`} onClick={this.handleNext} />
-        </div>
+        {isPDF && (
+          <div className={classNames(`${_toolbar}__pager`)}>
+            <IcoBtn icon={'icon-left'} className={`${_commonBtn} ${_toolbar}__pager__prev`} onClick={this.handlePrev} />
+            <Input type="text" onChange={this.goToPage} value={currentPage} className={classNames(`${_toolbar}__pager__input`)} />
+            <span className={`${_toolbar}__pager_text`}> {t('pagination.from')} </span>
+            <span className={`${_toolbar}__pager_text`}>{totalPages}</span>
+            <IcoBtn icon={'icon-right'} className={`${_commonBtn} ecos-btn_tight ${_toolbar}__pager__next`} onClick={this.handleNext} />
+          </div>
+        )}
         <div className={classNames(`${_toolbar}__zoom`)}>
           <IcoBtn icon={'icon-minus'} className={_commonBtn} onClick={this.handleZoomOut} />
           <IcoBtn icon={'icon-plus'} className={_commonBtn} onClick={this.handleZoomIn} />
@@ -127,9 +129,11 @@ class Toolbar extends Component {
             {t('Скачать')}
           </IcoBtn>
         </div>
-        <div className={classNames(`${_toolbar}__search`)}>
-          <Search className={classNames(`${_toolbar}__search__input`)} />
-        </div>
+        {isPDF && (
+          <div className={classNames(`${_toolbar}__search`)}>
+            <Search className={classNames(`${_toolbar}__search__input`)} />
+          </div>
+        )}
       </div>
     );
   }

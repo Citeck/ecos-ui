@@ -1,16 +1,14 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { t } from '../../helpers/util';
-
-let _viewer = `ecos-doc-preview-dashlet__viewer`;
 
 class PdfViewer extends Component {
   static propTypes = {
+    ctrClass: PropTypes.string.isRequired,
     pdf: PropTypes.object.isRequired
   };
 
   static defaultProps = {
+    ctrClass: '',
     pdf: {}
   };
 
@@ -18,31 +16,37 @@ class PdfViewer extends Component {
     super(props);
 
     this.state = {};
+    this.refScrollbar = React.createRef();
   }
 
+  componentDidUpdate(prevProps) {}
+
   render() {
-    let { pdf = {} } = this.state;
+    let { pdf, ctrClass } = this.props;
+
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
     let arrayPages = [];
 
+    let _pageCtr = `${ctrClass}__page-container`;
+
+    numPages = 20; //todo del
     while (numPages) {
       arrayPages.push(numPages--);
     }
     arrayPages.reverse();
 
     return (
-      <div className={_viewer}>
-        {numPages ? (
-          <div className={classNames(`${_viewer}__pages`)}>
-            {arrayPages.map(pageN => {
-              /*<DocPage config={this.state} page={pageN}/>*/
-            })}
+      <Fragment>
+        {arrayPages.map(pageN => (
+          <div className={`${_pageCtr}`} data-page-number={pageN}>
+            <div className={`${_pageCtr}__number`}>{pageN}</div>
+            <p style={{ width: 200 }} className={`${_pageCtr}__content`} key={pageN}>
+              {'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt'}
+            </p>
           </div>
-        ) : (
-          <div className={classNames(`${_viewer}__msg ${_viewer}__msg_error`)}>{t('Нет документа для отображения')}</div>
-        )}
-      </div>
+        ))}
+      </Fragment>
     );
   }
 }
