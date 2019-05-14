@@ -21,7 +21,7 @@ function* sagaGetShowTabsStatus({ api, logger }, action) {
 
     yield put(setShowTabsStatus(result));
   } catch (e) {
-    logger.error(e);
+    logger.error('[pageTabs sagaGetShowTabsStatus saga error', e.message);
   }
 }
 
@@ -36,7 +36,7 @@ function* sagaGetTabs({ api, logger }, action) {
 
     yield put(setTabs(tabs));
   } catch (e) {
-    logger.error(e);
+    logger.error('[pageTabs sagaGetTabs saga error', e.message);
   }
 }
 
@@ -44,7 +44,7 @@ function* sagaSetTabs({ api, logger }, action) {
   try {
     yield ls.setData(lsKey, action.payload);
   } catch (e) {
-    logger.error(e);
+    logger.error('[pageTabs sagaSetTabs saga error', e.message);
   }
 }
 

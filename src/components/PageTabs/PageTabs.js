@@ -3,9 +3,8 @@ import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { getScrollbarWidth, deepClone } from '../../helpers/util';
 import { SortableContainer, SortableElement } from './sortable';
+import { SCROLL_STEP, TITLE } from '../../constants/pageTabs';
 import './style.scss';
-
-const SCROLL_STEP = 150;
 
 class PageTabs extends React.Component {
   static propTypes = {
@@ -55,7 +54,7 @@ class PageTabs extends React.Component {
         const { left: activeLeft, width: activeWidth } = current.querySelector('.page-tab__tabs-item_active').getBoundingClientRect();
         let scrollValue = activeLeft - activeWidth / 2 - getScrollbarWidth() - current.offsetWidth / 2;
 
-        scrollValue = scrollValue < 0 ? 0 : scrollValue;
+        scrollValue = current.scrollWidth > current.offsetWidth + getScrollbarWidth() ? scrollValue : 0;
         current.scrollLeft = scrollValue;
 
         this.setState({
@@ -105,7 +104,7 @@ class PageTabs extends React.Component {
       position: countTabs,
       isActive: true,
       link: link || homepageLink,
-      title: homepageName
+      title: TITLE[link || homepageLink] || homepageName
     };
   }
 
@@ -113,6 +112,10 @@ class PageTabs extends React.Component {
     if (this.$tabWrapper.current) {
       const { scrollWidth, offsetWidth, scrollLeft } = this.$tabWrapper.current;
       const needArrow = scrollWidth > offsetWidth + getScrollbarWidth();
+
+      if (!needArrow) {
+        this.$tabWrapper.current.scrollLeft = 0;
+      }
 
       this.setState({
         needArrow,
@@ -130,7 +133,7 @@ class PageTabs extends React.Component {
       return;
     }
 
-    const { saveTabs, history } = this.props;
+    const { saveTabs, history, homepageName } = this.props;
     const { tabs } = this.state;
     const link = elem.getAttribute('href');
     const isNewTab = elem.getAttribute('target') === '_blank';
@@ -144,9 +147,12 @@ class PageTabs extends React.Component {
       });
 
       tabs.push(this.generateNewTab(tabs.length, this.props, link));
-    }
+    } else {
+      const tab = tabs.find(tab => tab.isActive);
 
-    tabs.find(tab => tab.isActive).link = link;
+      tab.link = link;
+      tab.title = TITLE[link] || homepageName;
+    }
 
     saveTabs(tabs);
 
@@ -447,6 +453,11 @@ class PageTabs extends React.Component {
       <React.Fragment>
         {this.renderTabWrapper()}
         {this.renderChildren()}
+        <a href="/share/page/journals">Журнал на этой странице</a>
+        <br />
+        <a href="/share/page/journalsDashboard" target="_blank">
+          Журнал дашборд на новой странице
+        </a>
       </React.Fragment>
     );
   }

@@ -19,7 +19,7 @@ import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
-
+import { URL } from '../../constants';
 import './App.scss';
 
 class App extends Component {
@@ -59,7 +59,7 @@ class App extends Component {
             <Notification />
           </div>
 
-          <PageTabs homepageLink={'/'} isShow={isShow} tabs={tabs} saveTabs={setTabs}>
+          <PageTabs homepageLink={URL.HOME} isShow={isShow} tabs={tabs} saveTabs={setTabs}>
             <Switch>
               {/*<Route path="/share/page" exact component={DashboardPage} />*/}
               <Route path="/formio-develop" component={FormIOPage} />
