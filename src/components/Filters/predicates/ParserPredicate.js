@@ -1,93 +1,11 @@
 import { Predicate, GroupPredicate, FilterPredicate } from './';
-import { filterPredicates, PREDICATE_AND, PREDICATE_OR } from '../../common/form/SelectJournal/predicates';
-
-const test = {
-  t: 'or',
-  val: [
-    {
-      t: 'and',
-      val: [
-        {
-          t: 'or',
-          val: [
-            {
-              t: 'and',
-              val: [
-                {
-                  att: 'cm:created',
-                  t: 'ge',
-                  val: '2018-11-20T09:55:33Z'
-                },
-                {
-                  att: 'cm:title',
-                  t: 'contains',
-                  val: 'те'
-                }
-              ]
-            },
-            {
-              att: 'cm:title',
-              t: 'contains',
-              val: 'тес'
-            }
-          ]
-        },
-        {
-          t: 'or',
-          val: [
-            {
-              t: 'and',
-              val: [
-                {
-                  att: 'cm:created',
-                  t: 'ge',
-                  val: '2018-11-20T09:55:33Z'
-                },
-                {
-                  att: 'cm:title',
-                  t: 'contains',
-                  val: ''
-                }
-              ]
-            },
-            {
-              att: 'cm:title',
-              t: 'contains',
-              val: ''
-            }
-          ]
-        }
-      ]
-    },
-    {
-      t: 'or',
-      val: [
-        {
-          t: 'and',
-          val: [
-            {
-              att: 'cm:created',
-              t: 'ge',
-              val: '2018-11-20T09:55:33Z'
-            },
-            {
-              att: 'cm:title',
-              t: 'contains',
-              val: ''
-            }
-          ]
-        },
-        {
-          att: 'cm:title',
-          t: 'contains',
-          val: ''
-        }
-      ]
-    }
-  ]
-};
+import { filterPredicates, getPredicates, PREDICATE_AND, PREDICATE_OR } from '../../common/form/SelectJournal/predicates';
 
 export default class ParserPredicate {
+  static getGroupConditions() {
+    return getPredicates({ type: 'filterGroup' });
+  }
+
   static getFilters(predicates, columns) {
     const { val, t } = predicates;
     let filters = [];
@@ -96,7 +14,7 @@ export default class ParserPredicate {
       const current = val[i];
 
       if (current.att) {
-        filters.push(new FilterPredicate({ condition: filterPredicates([t])[0], predicate: current, columns }));
+        filters.push(new FilterPredicate({ condition: filterPredicates([t])[0], predicate: new Predicate({ ...current }), columns }));
         continue;
       }
 
@@ -108,12 +26,12 @@ export default class ParserPredicate {
     return filters;
   }
 
-  static createFilter({ att, t, val, columns }) {
+  static createFilter({ att, t, val, columns, column }) {
     return new FilterPredicate({
       condition: filterPredicates([PREDICATE_AND])[0],
       predicate: new Predicate({
         att: att,
-        t: t || '',
+        t: t || column ? (getPredicates(column)[0] || {}).value : '',
         val: val || ''
       }),
       columns
@@ -162,6 +80,10 @@ export default class ParserPredicate {
       if (group.getCondition() === PREDICATE_AND) {
         ands.push(group.getPredicate());
       } else {
+        if (ands.length) {
+          ors.push(ands);
+        }
+
         ands = [];
 
         if (next && next.getCondition() === PREDICATE_AND) {
@@ -180,9 +102,7 @@ export default class ParserPredicate {
   }
 
   static reverse(groups) {
-    groups = groups.filter(f => f.filters && f.filters.length);
-
-    groups = groups.map(group => {
+    groups = (groups || []).map(group => {
       group.predicate = this.getPredicates(this.getOrs(group.getFilters()));
       return group;
     });

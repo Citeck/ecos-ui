@@ -37,7 +37,7 @@ function* sagaGetDashletEditorData({ api, logger }, action) {
     const config = action.payload || {};
     yield getJournalsList(api);
     yield getJournals(api, config.journalsListId);
-    yield getJournalSettings(api, config.journalId);
+    yield getJournalSettings(api, config.journalType);
   } catch (e) {
     logger.error('[journals sagaGetDashletEditorData saga error', e.message);
   }
@@ -121,13 +121,12 @@ function* sagaInitGrid({ api, logger }, action) {
 
     const { journalId, journalSettingId } = action.payload;
 
-    yield getJournalSettings(api, journalId);
-
     let config = yield call(api.journals.getJournalConfig, journalId);
     yield put(setJournalConfig(config));
 
+    yield getJournalSettings(api, config.id);
+
     let {
-      id,
       columns,
       meta: { createVariants, predicate, groupBy, title }
     } = config;
@@ -144,6 +143,8 @@ function* sagaInitGrid({ api, logger }, action) {
     let journalSetting = journalSettingId ? yield call(api.journals.getJournalSetting, journalSettingId) : null;
 
     if (journalSetting) {
+      journalSetting.id = journalSettingId;
+
       const { sortBy, groupBy, columns, predicate } = journalSetting;
 
       params.sortBy = sortBy.map(sort => ({ ...sort }));
@@ -154,7 +155,6 @@ function* sagaInitGrid({ api, logger }, action) {
       const { sortBy, groupBy, columns } = params;
 
       journalSetting = {
-        journalId: id,
         title: title,
         sortBy: sortBy.map(sort => ({ ...sort })),
         groupBy: groupBy ? Array.from(groupBy) : [],

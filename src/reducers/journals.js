@@ -63,7 +63,6 @@ const initialState = {
   },
 
   journalSetting: {
-    journalId: '',
     title: '',
     sortBy: [],
     groupBy: [],

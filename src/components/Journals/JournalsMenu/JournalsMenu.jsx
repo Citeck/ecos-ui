@@ -4,7 +4,7 @@ import { IcoBtn } from '../../common/btns';
 import { initGrid } from '../../../actions/journals';
 import { Well } from '../../common/form';
 import CollapsableList from '../../common/CollapsableList/CollapsableList';
-import { t } from '../../../helpers/util';
+import { t, getPropByStringKey } from '../../../helpers/util';
 
 import './JournalsMenu.scss';
 
@@ -27,7 +27,7 @@ class ListItem extends Component {
 
   render() {
     const { item, titleField } = this.props;
-    return <span onClick={this.onClick}>{item[titleField]}</span>;
+    return <span onClick={this.onClick}>{getPropByStringKey(item, titleField)}</span>;
   }
 }
 
@@ -58,7 +58,7 @@ class JournalsMenu extends Component {
   };
 
   getMenuJournalSettings = settings => {
-    return settings.map(setting => <ListItem onClick={this.onJournalSettingsSelect} item={setting} titleField={'title'} />);
+    return settings.map(setting => <ListItem onClick={this.onJournalSettingsSelect} item={setting} titleField={'preferences.title'} />);
   };
 
   getSelectedIndex = (source, value, field) => {

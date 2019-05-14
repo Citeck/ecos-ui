@@ -7,31 +7,44 @@ import { getId, trigger } from '../../helpers/util';
 import './Filters.scss';
 
 export default class Filters extends Component {
-  constructor(props) {
-    super(props);
-    const groups = ParserPredicate.parse(props.predicate, props.columns);
-    this.state = { groups };
-    this.store = Array.from(groups);
-  }
-
-  componentDidUpdate(prevProps) {
-    const props = this.props;
-    if (props.predicate !== prevProps.predicate) {
-      const groups = ParserPredicate.parse(props.predicate, props.columns);
-      this.setState({ groups });
-    }
-  }
-
-  addGroup = condition => {
-    const groups = this.store;
-    groups.push(ParserPredicate.createGroup(condition.value));
-    this.setState({ groups: Array.from(groups) });
+  onChangeFilter = ({ filter, index, groupIndex }) => {
+    this.groups[groupIndex].filters[index] = filter;
+    this.triggerChange(this.groups);
   };
 
-  onChangeFilters = ({ filters, index }) => {
-    this.store[index].filters = filters;
-    const predicate = ParserPredicate.reverse(this.store);
+  onDeleteFilter = ({ index, groupIndex }) => {
+    let filters = this.groups[groupIndex].filters;
+    filters.splice(index, 1);
 
+    if (groupIndex > 0 && !filters.length) {
+      this.groups.splice(groupIndex, 1);
+    }
+
+    this.triggerChange(this.groups.length === 1 && !this.groups[0].filters.length ? [] : this.groups);
+  };
+
+  onAddFilter = ({ filter, groupIndex }) => {
+    this.groups[groupIndex].filters.push(filter);
+    this.triggerChange(this.groups);
+  };
+
+  onChangeFilterCondition = ({ condition, index, groupIndex }) => {
+    this.groups[groupIndex].filters[index].setCondition(condition);
+    this.triggerChange(this.groups);
+  };
+
+  onChangeGroupFilterCondition = ({ condition, groupIndex }) => {
+    this.groups[groupIndex].setCondition(condition);
+    this.triggerChange(this.groups);
+  };
+
+  addGroup = condition => {
+    this.groups.push(ParserPredicate.createGroup(condition.value));
+    this.triggerChange(this.groups);
+  };
+
+  triggerChange = groups => {
+    const predicate = ParserPredicate.reverse(groups);
     trigger.call(this, 'onChange', predicate);
   };
 
@@ -44,7 +57,11 @@ export default class Filters extends Component {
         group={group}
         columns={this.props.columns}
         onAddGroup={this.addGroup}
-        onChangeFilters={this.onChangeFilters}
+        onChangeFilter={this.onChangeFilter}
+        onDeleteFilter={this.onDeleteFilter}
+        onAddFilter={this.onAddFilter}
+        onChangeGroupFilterCondition={this.onChangeGroupFilterCondition}
+        onChangeFilterCondition={this.onChangeFilterCondition}
       />
     );
   };
@@ -62,7 +79,8 @@ export default class Filters extends Component {
   };
 
   render() {
-    const groups = this.state.groups;
+    const props = this.props;
+    const groups = (this.groups = ParserPredicate.parse(props.predicate, props.columns));
     const length = groups.length;
     const lastIdx = length ? length - 1 : 0;
 

@@ -8,7 +8,8 @@ import './JournalsFilters.scss';
 
 const mapStateToProps = state => ({
   journalSetting: state.journals.journalSetting,
-  journalConfig: state.journals.journalConfig
+  journalConfig: state.journals.journalConfig,
+  predicate: state.journals.predicate
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -21,7 +22,7 @@ class JournalsFilters extends Component {
   };
 
   render() {
-    const { predicate } = this.props.journalSetting;
+    const predicate = this.props.predicate || this.props.journalSetting.predicate;
     const { columns = [] } = this.props.journalConfig;
 
     if (!columns.length) {

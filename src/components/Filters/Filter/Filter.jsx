@@ -3,90 +3,44 @@ import classNames from 'classnames';
 import Columns from '../../common/templates/Columns/Columns';
 import { IcoBtn } from '../../common/btns/index';
 import { Label, Select } from '../../common/form';
-import { ParserPredicate } from '../predicates';
 import { t, trigger } from '../../../helpers/util';
-
-import './Filter.scss';
 import { getPredicates, getPredicateInput } from '../../common/form/SelectJournal/predicates';
 
+import './Filter.scss';
+
 export default class Filter extends Component {
-  constructor(props) {
-    super(props);
-
-    const {
-      filter: {
-        meta: { column },
-        predicate
-      }
-    } = this.props;
-    const conditions = getPredicates(column);
-
-    this.state = {
-      conditions,
-      val: predicate.val,
-      selectedCondition: this.getSelectedCondition(conditions, predicate)
-    };
-  }
-
   changeValue = val => {
-    let {
-      index,
-      filter: { predicate }
-    } = this.props;
-    this.setState({ val });
-
-    trigger.call(this, 'onChange', {
-      predicate: ParserPredicate.createPredicate({ att: predicate.att, t: this.state.selectedCondition.value, val }),
-      index
-    });
-
-    trigger.call(this, 'onChangeValue', {
-      value: val,
-      index
-    });
+    trigger.call(this, 'onChangeValue', { val: val, index: this.props.index });
   };
 
-  changeCondition = selectedCondition => {
-    let {
-      index,
-      filter: { predicate }
-    } = this.props;
-    this.setState({ selectedCondition });
-
-    trigger.call(this, 'onChange', {
-      predicate: ParserPredicate.createPredicate({ att: predicate.att, t: selectedCondition.value, val: this.state.val }),
-      index
-    });
-
-    trigger.call(this, 'onChangeCondition', {
-      condition: selectedCondition.value,
-      index
-    });
+  changePredicate = predicate => {
+    trigger.call(this, 'onChangePredicate', { predicate: predicate.value, index: this.props.index });
   };
 
   delete = () => {
     trigger.call(this, 'onDelete', this.props.index);
   };
 
-  getSelectedCondition = (conditions, predicate) => {
-    return conditions.filter(condition => condition.value === predicate.t)[0] || conditions[0];
+  getSelectedPredicate = (predicates, predicate) => {
+    return predicates.filter(p => p.value === predicate.t)[0] || predicates[0];
   };
 
   render() {
-    const { conditions, selectedCondition } = this.state;
+    const btnClasses =
+      'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height ecos-btn_hover_t-light-blue';
     const {
       className,
       children,
       filter: {
-        meta: { column }
+        meta: { column },
+        predicate
       }
     } = this.props;
-    const btnClasses =
-      'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height ecos-btn_hover_t-light-blue';
-
+    const predicates = getPredicates(column);
+    const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
     const predicateInput = getPredicateInput(column);
     const predicateProps = predicateInput.getProps({
-      predicateValue: this.state.val,
+      predicateValue: predicate.val,
       changePredicateValue: this.changeValue,
       wrapperClasses: 'ecos-filter_width_full'
     });
@@ -105,11 +59,11 @@ export default class Filter extends Component {
             <Select
               className={'ecos-filter_step ecos-filter_font_12 select_narrow select_width_full'}
               placeholder={t('journals.default')}
-              options={conditions}
+              options={predicates}
               getOptionLabel={option => option.label}
               getOptionValue={option => option.value}
-              value={selectedCondition}
-              onChange={this.changeCondition}
+              value={selectedPredicate}
+              onChange={this.changePredicate}
             />,
 
             <div className={'ecos-filter__value-wrapper'}>

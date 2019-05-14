@@ -19,7 +19,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   reloadGrid: options => dispatch(reloadGrid(options)),
-  saveJournalSetting: (id, settings) => dispatch(saveJournalSetting({ id, settings }))
+  saveJournalSetting: (journalId, settings) => dispatch(saveJournalSetting({ journalId, settings }))
 });
 
 class JournalsSettingsFooter extends Component {
@@ -37,10 +37,11 @@ class JournalsSettingsFooter extends Component {
   apply = () => {
     let setting = this.getSetting();
     const { columns, groupBy, sortBy, predicate } = setting;
+
     this.props.reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
   };
 
-  getSetting = () => {
+  getSetting = title => {
     let { journalSetting, grouping, columnsSetup, predicate } = this.props;
 
     return {
@@ -48,7 +49,8 @@ class JournalsSettingsFooter extends Component {
       sortBy: columnsSetup.sortBy,
       groupBy: grouping.groupBy,
       columns: grouping.groupBy.length ? grouping.columns : columnsSetup.columns,
-      predicate: predicate
+      predicate: predicate,
+      title: title
     };
   };
 
@@ -60,7 +62,7 @@ class JournalsSettingsFooter extends Component {
   };
 
   onApplyDialog = () => {
-    this.props.saveJournalSetting(this.props.journalConfig.id, this.getSetting());
+    this.props.saveJournalSetting(this.props.journalConfig.id, this.getSetting(this.settingName));
   };
 
   clearSettingName = () => {

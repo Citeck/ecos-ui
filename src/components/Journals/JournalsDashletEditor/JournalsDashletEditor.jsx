@@ -14,7 +14,8 @@ import {
   setEditorMode,
   setDashletConfig
 } from '../../../actions/journals';
-import { t } from '../../../helpers/util';
+
+import { t, getSelectedValue } from '../../../helpers/util';
 
 import './JournalsDashletEditor.scss';
 
@@ -56,10 +57,6 @@ class JournalsDashletEditor extends Component {
     this.props.setDashletConfig(this.props.initConfig);
   };
 
-  setSelectValue = (source, field, value) => {
-    return source.filter(option => option[field] === value);
-  };
-
   componentDidUpdate(prevProps) {
     const prevConfig = prevProps.config || {};
     const config = this.props.config || {};
@@ -87,7 +84,7 @@ class JournalsDashletEditor extends Component {
               getOptionLabel={option => option.title}
               getOptionValue={option => option.id}
               onChange={props.setJournalsListItem}
-              value={this.setSelectValue(props.journalsList, 'id', config.journalsListId)}
+              value={getSelectedValue(props.journalsList, 'id', config.journalsListId)}
             />
           </Field>
 
@@ -98,7 +95,7 @@ class JournalsDashletEditor extends Component {
               getOptionLabel={option => option.title}
               getOptionValue={option => option.nodeRef}
               onChange={props.setJournalsItem}
-              value={this.setSelectValue(props.journals, 'nodeRef', config.journalId)}
+              value={getSelectedValue(props.journals, 'nodeRef', config.journalId)}
             />
           </Field>
 
@@ -106,10 +103,10 @@ class JournalsDashletEditor extends Component {
             <Select
               placeholder={t('journals.default')}
               options={props.journalSettings}
-              getOptionLabel={option => option.title}
+              getOptionLabel={option => option.preferences.title}
               getOptionValue={option => option.id}
               onChange={props.setSettingItem}
-              value={this.setSelectValue(props.journalSettings, 'id', config.journalSettingId)}
+              value={getSelectedValue(props.journalSettings, 'id', config.journalSettingId)}
             />
           </Field>
         </div>

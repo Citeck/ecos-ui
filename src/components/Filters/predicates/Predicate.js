@@ -8,4 +8,12 @@ export default class Predicate {
   add(item) {
     this.val.push(item);
   }
+
+  setVal(value) {
+    this.val = value;
+  }
+
+  setT(t) {
+    this.t = t;
+  }
 }

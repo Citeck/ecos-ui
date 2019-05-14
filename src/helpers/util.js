@@ -1,3 +1,19 @@
+export function getPropByStringKey(obj, strKey) {
+  const keys = strKey.split('.');
+  let res;
+
+  for (let i = 0, count = keys.length; i < count; i++) {
+    const key = keys[i];
+    res = res ? res[key] : obj[key];
+  }
+
+  return res;
+}
+
+export function getSelectedValue(source, field, value) {
+  return source.filter(option => option[field] === value);
+}
+
 export function trigger(name, data) {
   const callback = this.props[name];
 
