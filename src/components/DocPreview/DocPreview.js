@@ -12,6 +12,9 @@ let _docPreview = 'ecos-doc-preview-dashlet';
 let PDF = getViewer(PdfViewer, _docPreview);
 let IMG = getViewer(ImgViewer, _docPreview);
 
+// fix for pdfjs worker loading
+pdfjs.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
+
 class DocPreview extends Component {
   static propTypes = {
     link: PropTypes.string.isRequired
