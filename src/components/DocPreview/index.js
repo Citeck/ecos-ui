@@ -1,1 +1,1 @@
-export { default } from './DocPreview';
+export { default } from './DocPreviewDashlet';

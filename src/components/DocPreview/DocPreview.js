@@ -2,13 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import pdfjs from 'pdfjs-dist';
-import './DocPreview.scss';
 import Toolbar from './Toolbar';
 import PdfViewer from './PdfViewer';
 import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
 
-let _docPreview = 'ecos-doc-preview-dashlet';
+let _docPreview = 'ecos-doc-preview';
 let PDF = getViewer(PdfViewer, _docPreview);
 let IMG = getViewer(ImgViewer, _docPreview);
 

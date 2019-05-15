@@ -9,8 +9,12 @@ $border-base: #c1c1c1;
   box-shadow: $box-shadow-default;
 }
 
-.ecos-doc-preview-dashlet {
+.ecos-doc-preview {
   border: 2px solid $border-base;
+
+  &-dashlet__body {
+    margin: 18px;
+  }
 
   &__toolbar {
     display: flex;
