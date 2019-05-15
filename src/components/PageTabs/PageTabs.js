@@ -45,6 +45,9 @@ class PageTabs extends React.Component {
   }
 
   componentDidMount() {
+    const { tabs, history } = this.props;
+    const activeTab = tabs.find(tab => tab.isActive);
+
     this.checkArrowID = window.setInterval(() => {
       const { current } = this.$tabWrapper;
 
@@ -69,10 +72,8 @@ class PageTabs extends React.Component {
 
     document.addEventListener('click', this.handleClickLink);
 
-    const activeTab = this.props.tabs.find(tab => tab.isActive);
-
     if (activeTab) {
-      this.props.history.replace(activeTab.link);
+      history.replace(activeTab.link);
     }
   }
 
@@ -231,16 +232,16 @@ class PageTabs extends React.Component {
     });
 
     saveTabs(tabs);
+    history.push(tab.link);
 
-    this.setState({ tabs }, () => {
-      history.push(tab.link);
-    });
+    this.setState({ tabs });
   }
 
   handleAddTab = () => {
     this.setState(
       state => {
-        const tabs = [...state.tabs];
+        const { history, saveTabs } = this.props;
+        const tabs = deepClone(state.tabs);
         const newTab = this.generateNewTab(tabs.length);
 
         tabs.map(tab => {
@@ -249,9 +250,8 @@ class PageTabs extends React.Component {
           return tabs;
         });
         tabs.push(newTab);
-        this.props.history.push(newTab.link);
-
-        this.props.saveTabs(tabs);
+        history.push(newTab.link);
+        saveTabs(tabs);
 
         return { tabs };
       },
@@ -277,7 +277,8 @@ class PageTabs extends React.Component {
     }
 
     if (this.$tabWrapper.current) {
-      let { scrollLeft } = this.$tabWrapper.current;
+      const { current } = this.$tabWrapper;
+      let { scrollLeft } = current;
 
       scrollLeft -= SCROLL_STEP;
 
@@ -295,7 +296,7 @@ class PageTabs extends React.Component {
         isActiveRightArrow: true
       });
 
-      this.$tabWrapper.current.scrollLeft = scrollLeft;
+      current.scrollLeft = scrollLeft;
     }
   };
 
@@ -307,7 +308,8 @@ class PageTabs extends React.Component {
     }
 
     if (this.$tabWrapper.current) {
-      let { scrollLeft, scrollWidth, clientWidth } = this.$tabWrapper.current;
+      const { current } = this.$tabWrapper;
+      let { scrollLeft, scrollWidth, clientWidth } = current;
 
       scrollLeft += SCROLL_STEP;
 
@@ -323,7 +325,7 @@ class PageTabs extends React.Component {
         isActiveLeftArrow: true
       });
 
-      this.$tabWrapper.current.scrollLeft = scrollLeft;
+      current.scrollLeft = scrollLeft;
     }
   };
 
@@ -350,9 +352,7 @@ class PageTabs extends React.Component {
   get sortableTabs() {
     const { tabs } = this.state;
 
-    return tabs.sort((first, second) => {
-      return first.position > second.position ? 1 : -1;
-    });
+    return tabs.sort((first, second) => (first.position > second.position ? 1 : -1));
   }
 
   renderLeftButton() {
@@ -444,7 +444,7 @@ class PageTabs extends React.Component {
     return (
       <div className={className.join(' ')}>
         {this.renderLeftButton()}
-        <SortableContainer axis={'x'} lockAxis={'x'} distance={3} onSortEnd={this.handleSortEnd}>
+        <SortableContainer axis="x" lockAxis="x" distance={3} onSortEnd={this.handleSortEnd}>
           {this.renderTabs()}
         </SortableContainer>
         <div className="page-tab__tabs-add icon-plus" onClick={this.handleAddTab} />

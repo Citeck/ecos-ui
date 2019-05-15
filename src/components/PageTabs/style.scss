@@ -79,8 +79,10 @@
     }
 
     &-item {
+      $min-width: 150px;
+
       position: relative;
-      min-width: 150px;
+      min-width: #{$min-width};
       width: auto;
       max-width: 300px;
       padding: 3px 5px 7px 10px;
@@ -104,8 +106,42 @@
         right: -4px;
       }
 
-      &:hover {
-        background-color: $color-gray-4;
+      &:not(&_active):hover {
+        background-color: $color-gray-1;
+        margin-left: 0;
+        //margin-right: 0;
+        padding-left: 12px;
+        padding-right: 5px;
+        min-width: calc(#{$min-width} + 2px);
+
+        &:before {
+          content: '';
+          position: absolute;
+          bottom: -6px;
+          left: -14px;
+          transform: rotate(0deg);
+          border-bottom-right-radius: 12px;
+          border-right: 6px $color-gray-1 solid;
+          border-bottom: 6px $color-gray-1 solid;
+          width: 20px;
+          height: 20px;
+        }
+
+        &:after {
+          background-color: unset;
+          top: unset;
+
+          content: '';
+          position: absolute;
+          bottom: -6px;
+          right: -14px;
+          transform: rotate(0deg);
+          border-bottom-left-radius: 12px;
+          border-left: 6px $color-gray-1 solid;
+          border-bottom: 6px $color-gray-1 solid;
+          width: 20px;
+          height: 20px;
+        }
       }
 
       &_active {

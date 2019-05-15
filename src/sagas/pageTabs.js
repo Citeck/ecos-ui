@@ -25,7 +25,7 @@ function* sagaGetShowTabsStatus({ api, logger }, action) {
   }
 }
 
-function* sagaGetTabs({ api, logger }, action) {
+function* sagaGetTabs({ api, logger }) {
   try {
     const hasData = yield ls.hasData(lsKey, 'array');
     let tabs = [];

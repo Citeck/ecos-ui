@@ -1,4 +1,4 @@
-import * as packageInfo from '../../package.json';
+import * as projectInfo from '../../package.json';
 
 export function getData(key = '') {
   if (!key) {
@@ -47,12 +47,12 @@ export function hasData(key = '', type = '') {
   return data !== null && typeMatches;
 }
 
-export function generateKey(firstPart = 'app', complicate = false) {
-  const base = packageInfo.name;
-  const name = `${base}-${firstPart}`;
+export function generateKey(extName = 'app', complicate = false) {
+  const base = projectInfo.name;
+  const name = `${base}-${extName}`;
 
   if (!complicate) {
-    return `${base}-${firstPart}`;
+    return name;
   }
 
   const complicatingPart = name
@@ -70,5 +70,5 @@ export function generateKey(firstPart = 'app', complicate = false) {
     .match(/.{1,5}/g)
     .join('-');
 
-  return `${base}-${firstPart}-${complicatingPart}`;
+  return `${name}-${complicatingPart}`;
 }
