@@ -20,11 +20,17 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
 
       if (pdf === undefined && urlImg === undefined) {
         return t('Не указан документ для просмтора');
-      } else if (pdf && !pdf._pdfInfo) {
+      }
+
+      if (pdf && !Object.keys(pdf).length) {
+        return t('Идет загрузка...');
+      }
+
+      if (pdf && Object.keys(pdf).length && !pdf._pdfInfo) {
         return t('Возникла проблема при загрузке документа. Попробуйте скачать документ');
       }
 
-      return false;
+      return '';
     }
 
     render() {

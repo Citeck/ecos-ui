@@ -10,10 +10,12 @@ import { isPDFbyStr, fileDownload } from '../../helpers/util';
 
 let _docPreview = 'ecos-doc-preview';
 let PDF = getViewer(PdfViewer, _docPreview);
+
 let IMG = getViewer(ImgViewer, _docPreview);
 
-// fix for pdfjs worker loading
-pdfjs.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
+// 2.1.266 version of worker for 2.1.266 version of pdfjs-dist:
+// pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = '//unpkg.com/pdfjs-dist@2.1.266/build/pdf.worker.min.js';
 
 class DocPreview extends Component {
   static propTypes = {
@@ -34,7 +36,6 @@ class DocPreview extends Component {
   componentDidMount() {
     if (this.isPDF) {
       let { link } = this.props;
-
       let loadingTask = pdfjs.getDocument(link);
 
       loadingTask.promise.then(
