@@ -1,6 +1,7 @@
 import DefaultComponents from 'formiojs/components';
 import Components from 'formiojs/components/Components';
 
+import { Column, Columns } from './override/columns';
 import Checkbox from './override/checkbox';
 import Tabs from './override/tabs';
 
@@ -11,6 +12,8 @@ import AsyncData from './custom/asyncData';
 
 Components.setComponents({
   ...DefaultComponents,
+  column: Column,
+  columns: Columns,
   checkbox: Checkbox,
   tabs: Tabs,
   selectJournal: SelectJournal,
