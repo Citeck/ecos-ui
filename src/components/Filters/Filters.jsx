@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import { FiltersGroup } from './';
 import { ParserPredicate } from './predicates';
-import { getId, trigger } from '../../helpers/util';
+import { trigger } from '../../helpers/util';
 
 import './Filters.scss';
 
@@ -51,8 +51,8 @@ export default class Filters extends Component {
   createGroup = (group, first, idx) => {
     return (
       <FiltersGroup
+        key={idx}
         index={idx}
-        key={getId()}
         first={first}
         group={group}
         columns={this.props.columns}
@@ -68,7 +68,7 @@ export default class Filters extends Component {
 
   createSubGroup = (group, notLast, idx) => {
     return (
-      <div key={getId()} className={'ecos-filters__shift'}>
+      <div key={idx} className={'ecos-filters__shift'}>
         <div className={'ecos-filters__bend'} />
 
         {notLast && <div className={'ecos-filters__v-line'} />}

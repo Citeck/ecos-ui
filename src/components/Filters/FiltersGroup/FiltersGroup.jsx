@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { Well, Label, Select } from '../../common/form';
 import { Filter, FiltersCondition } from '../';
 import { ParserPredicate } from '../predicates';
-import { t, trigger, getId } from '../../../helpers/util';
+import { t, trigger } from '../../../helpers/util';
 
 import './FiltersGroup.scss';
 
@@ -79,9 +79,9 @@ export default class FiltersGroup extends Component {
         {group.filters.map((filter, idx) => {
           return (
             <Filter
-              key={getId()}
-              filter={filter}
+              key={idx}
               index={idx}
+              filter={filter}
               onChangeValue={this.onChangeFilterValue}
               onChangePredicate={this.onChangeFilterPredicate}
               onDelete={this.deleteFilter}
