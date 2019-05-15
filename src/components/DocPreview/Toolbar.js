@@ -6,7 +6,6 @@ import { IcoBtn } from '../common/btns';
 import { Dropdown, Input } from '../common/form';
 import { t } from '../../helpers/util';
 
-const AUTO_SIZE = 'auto';
 const CUSTOM = 'custom';
 
 class Toolbar extends Component {
@@ -30,15 +29,14 @@ class Toolbar extends Component {
       scale: props.scale,
       searchText: '',
       currentPage: '',
-      paramsZoom: {},
       isFullscreen: false,
       /*only current scope*/
       selectedZoom: '',
       isCustom: false
     };
-  }
 
-  fullscreenchange = false;
+    this.fullscreenchange = false;
+  }
 
   componentDidMount() {
     document.addEventListener('fullscreenchange', this.onFullscreenchange, false);
@@ -50,27 +48,24 @@ class Toolbar extends Component {
   }
 
   get zoomOptions() {
-    const width = AUTO_SIZE;
-    const {
-      paramsZoom: { height, width: customWidth = width },
-      selectedZoom
-    } = this.state;
+    const { selectedZoom, scale } = this.state;
     const zooms = [
-      { id: 'auto', title: t('Automatic Zoom'), height: '70%', width },
-      { id: 'pageFitOption', title: t('Page Fit'), height: '100%', width },
-      { id: 'pageWidthOption', title: t('Page Width'), height: AUTO_SIZE, width: '100%' },
-      { id: '50', title: '50%', height: '50%', width },
-      { id: '75', title: '75%', height: '75%', width },
-      { id: '100', title: '100%', height: '100%', width },
-      { id: '125', title: '125%', height: '125%', width },
-      { id: '150', title: '150%', height: '150%', width },
-      { id: '200', title: '200%', height: '200%', width },
-      { id: '300', title: '300%', height: '300%', width },
-      { id: '400', title: '400%', height: '400%', width }
+      { id: 'auto', title: t('Automatic Zoom'), scale: 'auto' },
+      { id: 'pageFit', title: t('Page Fit'), scale: 'page-fit' },
+      { id: 'pageHeight', title: t('Page Height'), scale: 'page-height' },
+      { id: 'pageWidth', title: t('Page Width'), scale: 'page-width' },
+      { id: '50', title: '50%', scale: 0.5 },
+      { id: '75', title: '75%', scale: 0.75 },
+      { id: '100', title: '100%', scale: 1 },
+      { id: '125', title: '125%', scale: 1.25 },
+      { id: '150', title: '150%', scale: 1.5 },
+      { id: '200', title: '200%', scale: 2 },
+      { id: '300', title: '300%', scale: 3 },
+      { id: '400', title: '400%', scale: 4 }
     ];
 
     if (selectedZoom === CUSTOM) {
-      zooms.push({ id: CUSTOM, title: t(`Custom: ${height}`), height, width: customWidth });
+      zooms.push({ id: CUSTOM, title: t(`Custom: ${Math.round(scale * 10000) / 100}%`), scale });
     }
 
     return zooms;
@@ -92,40 +87,26 @@ class Toolbar extends Component {
     this.onChangeSettings(newState);
   };
 
-  onChangeZoomOption = e => {
-    let { height, width } = e;
-    let selectedZoom = e.id;
-    let newState = { ...this.state, selectedZoom, paramsZoom: { height, width } };
+  onChangeZoomOption = ({ id, scale }) => {
+    let newState = { ...this.state, selectedZoom: id, scale };
 
     this.setState(newState);
     this.onChangeSettings(newState);
   };
 
-  handleZoomOut = e => {
-    this.setScale(false);
-  };
-
-  handleZoomIn = e => {
-    this.setScale(true);
-  };
-
-  setScale = flag => {
-    //let scale = 1.5;
-    const { paramsZoom } = this.state;
+  setScale = direction => {
+    const { scale } = this.state;
     const selectedZoom = CUSTOM;
-    let currentHeight = parseInt(paramsZoom.height);
+    let currentScale = parseFloat(scale);
 
-    if (!currentHeight) {
-      currentHeight = 75; //fixme
-    }
-
-    if (flag) {
-      currentHeight += 5;
+    if (Number.isNaN(currentScale)) {
+      currentScale = 1.5; //fixme
     } else {
-      currentHeight -= 5;
     }
 
-    let newState = { ...this.state, selectedZoom, paramsZoom: { height: currentHeight + '%', width: AUTO_SIZE } };
+    currentScale += direction * 0.3;
+
+    let newState = { ...this.state, selectedZoom, scale: currentScale };
 
     this.setState(newState);
     this.onChangeSettings(newState);
@@ -172,8 +153,8 @@ class Toolbar extends Component {
           </div>
         )}
         <div className={classNames(`${_toolbar}__zoom`)}>
-          <IcoBtn icon={'icon-minus'} className={_commonBtn} onClick={this.handleZoomOut} />
-          <IcoBtn icon={'icon-plus'} className={_commonBtn} onClick={this.handleZoomIn} />
+          <IcoBtn icon={'icon-minus'} className={_commonBtn} onClick={e => this.setScale(-1)} />
+          <IcoBtn icon={'icon-plus'} className={_commonBtn} onClick={e => this.setScale(1)} />
           <Dropdown
             source={this.zoomOptions}
             value={selectedZoom}
