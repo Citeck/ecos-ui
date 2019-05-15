@@ -50,9 +50,14 @@ class Journals extends Component {
     const { menuOpen, settingsVisible } = this.state;
     const {
       journalConfig: {
+        columns = [],
         meta: { title = '' }
       }
     } = this.props;
+
+    if (!columns.length) {
+      return null;
+    }
 
     return (
       <Container>
@@ -134,7 +139,7 @@ class Journals extends Component {
 
             {settingsVisible ? (
               <Well className={'ecos-journal__settings'}>
-                <JournalsFilters />
+                <JournalsFilters columns={columns} />
                 <JournalsColumnsSetup />
                 <JournalsGrouping />
                 <JournalsSettingsFooter />

@@ -7,8 +7,6 @@ import { setPredicate } from '../../../actions/journals';
 import './JournalsFilters.scss';
 
 const mapStateToProps = state => ({
-  journalSetting: state.journals.journalSetting,
-  journalConfig: state.journals.journalConfig,
   predicate: state.journals.predicate
 });
 
@@ -22,12 +20,7 @@ class JournalsFilters extends Component {
   };
 
   render() {
-    const predicate = this.props.predicate || this.props.journalSetting.predicate;
-    const { columns = [] } = this.props.journalConfig;
-
-    if (!columns.length) {
-      return null;
-    }
+    const { predicate, columns } = this.props;
 
     return (
       <PanelBar

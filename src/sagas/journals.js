@@ -17,7 +17,8 @@ import {
   setSelectedRecords,
   saveJournalSetting,
   setJournalSetting,
-  setJournalSettings
+  setJournalSettings,
+  setPredicate
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 
@@ -164,6 +165,7 @@ function* sagaInitGrid({ api, logger }, action) {
     }
 
     yield put(setJournalSetting(journalSetting));
+    yield put(setPredicate(journalSetting.predicate));
 
     let pagination = yield select(state => state.journals.grid.pagination);
     params.pagination = params.groupBy && params.groupBy.length ? { ...pagination, maxItems: undefined } : pagination;
