@@ -64,7 +64,7 @@ $border-base: #c1c1c1;
   &__viewer {
     display: flex;
     justify-content: center;
-    padding: 15px 2px 15px 15px;
+    margin: 15px 2px 15px 15px;
     box-sizing: border-box;
 
     &__doc {
@@ -77,7 +77,6 @@ $border-base: #c1c1c1;
         display: flex;
         flex-direction: column;
         align-items: center;
-        transition: height 0.5s cubic-bezier(0.65, 0.05, 0.36, 1);
 
         &__number {
           position: absolute;
@@ -95,6 +94,7 @@ $border-base: #c1c1c1;
 
         &__content {
           @extend %preview-content;
+          transition: height 0.3s cubic-bezier(0.65, 0.05, 0.36, 1);
         }
       }
     }

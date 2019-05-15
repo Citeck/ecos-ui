@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
 import Search from '../common/Search/Search';
 import { IcoBtn } from '../common/btns';
 import { Dropdown, Input } from '../common/form';
@@ -100,17 +101,20 @@ class Toolbar extends Component {
     let currentScale = parseFloat(scale);
 
     if (Number.isNaN(currentScale)) {
-      currentScale = 1.5; //fixme
-    } else {
+      currentScale = 1; //fixme
     }
 
-    currentScale += direction * 0.3;
+    currentScale += direction * 0.1;
 
     let newState = { ...this.state, selectedZoom, scale: currentScale };
 
     this.setState(newState);
-    this.onChangeSettings(newState);
+    this.triggerScaleChange(newState);
   };
+
+  triggerScaleChange = debounce(newState => {
+    this.onChangeSettings(newState);
+  }, 300);
 
   onFullscreenchange = e => {
     this.fullscreenchange = !this.fullscreenchange;
@@ -153,7 +157,11 @@ class Toolbar extends Component {
           </div>
         )}
         <div className={classNames(`${_toolbar}__zoom`)}>
-          <IcoBtn icon={'icon-minus'} className={_commonBtn} onClick={e => this.setScale(-1)} />
+          <IcoBtn
+            icon={'icon-minus'}
+            className={classNames(_commonBtn, { 'ecos-btn_disabled': scale <= 0 })}
+            onClick={e => this.setScale(-1)}
+          />
           <IcoBtn icon={'icon-plus'} className={_commonBtn} onClick={e => this.setScale(1)} />
           <Dropdown
             source={this.zoomOptions}

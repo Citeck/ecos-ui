@@ -70,8 +70,9 @@ class ImgViewer extends Component {
         }
         break;
       default:
-        console.error('unknown zoom value.');
-        return;
+        if (!Number.isNaN(parseFloat(scale))) {
+          newW = ctrW * scale;
+        }
     }
 
     return { height: newH, width: newW };
