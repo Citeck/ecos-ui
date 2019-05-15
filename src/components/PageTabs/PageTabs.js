@@ -68,6 +68,12 @@ class PageTabs extends React.Component {
     }, 300);
 
     document.addEventListener('click', this.handleClickLink);
+
+    const activeTab = this.props.tabs.find(tab => tab.isActive);
+
+    if (activeTab) {
+      this.props.history.replace(activeTab.link);
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -172,7 +178,7 @@ class PageTabs extends React.Component {
   };
 
   handleCloseTab(tabId, event) {
-    const { saveTabs } = this.props;
+    const { saveTabs, history } = this.props;
     const { tabs } = this.state;
     const index = tabs.findIndex(tab => tab.id === tabId);
 
@@ -185,16 +191,23 @@ class PageTabs extends React.Component {
     let newTabs = deepClone(tabs);
 
     if (newTabs[index].isActive) {
+      let link = '/';
+
       switch (index) {
         case newTabs.length - 1:
           newTabs[index - 1].isActive = true;
+          link = newTabs[index - 1].link;
           break;
         case 0:
           newTabs[index + 1].isActive = true;
+          link = newTabs[index + 1].link;
           break;
         default:
           newTabs[index + 1].isActive = true;
+          link = newTabs[index + 1].link;
       }
+
+      history.push(link);
     }
 
     for (let i = index; i < newTabs.length; i++) {
@@ -228,13 +241,15 @@ class PageTabs extends React.Component {
     this.setState(
       state => {
         const tabs = [...state.tabs];
+        const newTab = this.generateNewTab(tabs.length);
 
         tabs.map(tab => {
           tab.isActive = false;
 
           return tabs;
         });
-        tabs.push(this.generateNewTab(tabs.length));
+        tabs.push(newTab);
+        this.props.history.push(newTab.link);
 
         this.props.saveTabs(tabs);
 
