@@ -35,7 +35,7 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
 
     render() {
       let _doc = `${_viewer}__doc`;
-      let newProps = { ...this.props, ctrClass: _doc };
+      let newProps = { ...this.props, ctrClass: _doc, refViewer: this.refViewer };
       let warnMsg = this.checkMsgDoc;
       const renderView = props => <div {...props} className={classNames(`${_doc}__scroll-area`)} />;
 
