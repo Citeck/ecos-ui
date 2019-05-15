@@ -210,3 +210,33 @@ export function fileDownload(link) {
   elLink.click();
   document.body.removeChild(elLink);
 }
+
+export function openFullscreen(elem) {
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.mozRequestFullScreen) {
+    /* Firefox */
+    elem.mozRequestFullScreen();
+  } else if (elem.webkitRequestFullscreen) {
+    /* Chrome, Safari and Opera */
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) {
+    /* IE/Edge */
+    elem.msRequestFullscreen();
+  }
+}
+
+export function closeFullscreen() {
+  if (window.exitFullscreen) {
+    window.exitFullscreen();
+  } else if (window.mozCancelFullScreen) {
+    /* Firefox */
+    window.mozCancelFullScreen();
+  } else if (window.webkitExitFullscreen) {
+    /* Chrome, Safari and Opera */
+    window.webkitExitFullscreen();
+  } else if (window.msExitFullscreen) {
+    /* IE/Edge */
+    window.msExitFullscreen();
+  }
+}

@@ -5,7 +5,7 @@ import debounce from 'lodash/debounce';
 import Search from '../common/Search/Search';
 import { IcoBtn } from '../common/btns';
 import { Dropdown, Input } from '../common/form';
-import { t } from '../../helpers/util';
+import { t, closeFullscreen } from '../../helpers/util';
 
 const CUSTOM = 'custom';
 
@@ -40,12 +40,12 @@ class Toolbar extends Component {
   }
 
   componentDidMount() {
-    document.addEventListener('fullscreenchange', this.onFullscreenchange, false);
+    window.addEventListener('fullscreenchange', this.onFullscreenchange, false);
     this.onChangeZoomOption(this.zoomOptions[0]);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('fullscreenchange', this.onFullscreenchange, false);
+    window.removeEventListener('fullscreenchange', this.onFullscreenchange, false);
   }
 
   get zoomOptions() {
@@ -121,7 +121,7 @@ class Toolbar extends Component {
 
     if (!this.fullscreenchange) {
       this.setFullScreen(false);
-      document.exitFullscreen();
+      closeFullscreen();
     }
   };
 

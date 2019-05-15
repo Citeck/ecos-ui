@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { openFullscreen } from '../../helpers/util';
 
 class ImgViewer extends Component {
   static propTypes = {
@@ -23,11 +24,7 @@ class ImgViewer extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.settings.isFullscreen) {
-      let elem = this.elImage;
-
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      }
+      openFullscreen(this.elImage);
     }
   }
 
