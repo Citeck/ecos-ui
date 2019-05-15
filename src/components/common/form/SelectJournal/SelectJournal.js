@@ -89,7 +89,7 @@ export default class SelectJournal extends Component {
   }
 
   getJournalConfig = () => {
-    const { journalId } = this.props;
+    const { journalId, displayColumns } = this.props;
 
     return new Promise((resolve, reject) => {
       if (!journalId) {
@@ -98,8 +98,17 @@ export default class SelectJournal extends Component {
 
       this.api.getJournalConfig(journalId).then(journalConfig => {
         // console.log('journalConfig', journalConfig);
-        const columns = journalConfig.columns;
+        let columns = journalConfig.columns;
         const predicate = journalConfig.meta.predicate;
+
+        if (Array.isArray(displayColumns) && displayColumns.length > 0) {
+          columns = columns.map(item => {
+            return {
+              ...item,
+              default: displayColumns.indexOf(item.attribute) !== -1
+            };
+          });
+        }
 
         this.setState(prevState => {
           return {
@@ -319,7 +328,7 @@ export default class SelectJournal extends Component {
   };
 
   render() {
-    const { multiple, placeholder, disabled, isCompact, viewOnly } = this.props;
+    const { multiple, placeholder, disabled, isCompact, viewOnly, hideCreateButton } = this.props;
     const {
       isGridDataReady,
       selectedRows,
@@ -373,12 +382,14 @@ export default class SelectJournal extends Component {
                     {t('select-journal.select-modal.filter-button')}
                   </IcoBtn>
 
-                  <CreateVariants
-                    items={journalConfig.meta.createVariants}
-                    toggleCreateModal={this.toggleCreateModal}
-                    isCreateModalOpen={isCreateModalOpen}
-                    onCreateFormSubmit={this.onCreateFormSubmit}
-                  />
+                  {hideCreateButton ? null : (
+                    <CreateVariants
+                      items={journalConfig.meta.createVariants}
+                      toggleCreateModal={this.toggleCreateModal}
+                      isCreateModalOpen={isCreateModalOpen}
+                      onCreateFormSubmit={this.onCreateFormSubmit}
+                    />
+                  )}
                 </div>
                 <div className={'select-journal-collapse-panel__controls-right'}>
                   <Search onApply={this.onApplyFilters} />
@@ -437,11 +448,13 @@ export default class SelectJournal extends Component {
 }
 
 SelectJournal.propTypes = {
-  journalId: PropTypes.string.isRequired,
+  journalId: PropTypes.string,
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
   onChange: PropTypes.func,
   onError: PropTypes.func,
   multiple: PropTypes.bool,
   isCompact: PropTypes.bool,
+  hideCreateButton: PropTypes.bool,
+  displayColumns: PropTypes.array,
   viewOnly: PropTypes.bool
 };
