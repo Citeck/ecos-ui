@@ -6,7 +6,7 @@ import Toolbar from './Toolbar';
 import PdfViewer from './PdfViewer';
 import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
-import { isPDFbyStr } from '../../helpers/util';
+import { isPDFbyStr, fileDownload } from '../../helpers/util';
 
 let _docPreview = 'ecos-doc-preview';
 let PDF = getViewer(PdfViewer, _docPreview);
@@ -61,8 +61,8 @@ class DocPreview extends Component {
 
   onDownload = () => {
     const { link } = this.props;
-    //todo think...
-    window.open(link, 'Download');
+
+    fileDownload(link);
   };
 
   render() {

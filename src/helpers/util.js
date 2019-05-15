@@ -198,3 +198,15 @@ export function isPDFbyStr(str) {
 
   return format.toLowerCase() === pdf;
 }
+
+export function fileDownload(link) {
+  let elLink = document.createElement('a');
+
+  elLink.href = link;
+  elLink.download = link;
+  elLink.style.display = 'none';
+
+  document.body.appendChild(elLink);
+  elLink.click();
+  document.body.removeChild(elLink);
+}

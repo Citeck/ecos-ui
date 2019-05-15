@@ -21,7 +21,7 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
       if (pdf === undefined && urlImg === undefined) {
         return t('Не указан документ для просмтора');
       } else if (pdf && !pdf._pdfInfo) {
-        return t('Возникла проблема при загрузке документа');
+        return t('Возникла проблема при загрузке документа. Попробуйте скачать документ');
       }
 
       return false;
