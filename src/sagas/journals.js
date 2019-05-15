@@ -16,6 +16,7 @@ import {
   saveRecords,
   setSelectedRecords,
   saveJournalSetting,
+  createJournalSetting,
   setJournalSetting,
   setJournalSettings,
   setPredicate
@@ -226,6 +227,14 @@ function* sagaSaveJournalSetting({ api, logger }, action) {
   }
 }
 
+function* sagaCreateJournalSetting({ api, logger }, action) {
+  try {
+    yield call(api.journals.createJournalSetting, action.payload);
+  } catch (e) {
+    logger.error('[journals sagaCreateJournalSetting saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getDashletConfig().type, sagaGetDashletConfig, ea);
   yield takeLatest(getDashletEditorData().type, sagaGetDashletEditorData, ea);
@@ -236,6 +245,7 @@ function* saga(ea) {
   yield takeLatest(deleteRecords().type, sagaDeleteRecords, ea);
   yield takeLatest(saveRecords().type, sagaSaveRecords, ea);
   yield takeLatest(saveJournalSetting().type, sagaSaveJournalSetting, ea);
+  yield takeLatest(createJournalSetting().type, sagaCreateJournalSetting, ea);
 }
 
 export default saga;

@@ -4,7 +4,7 @@ import Columns from '../../common/templates/Columns/Columns';
 import EcosModal from '../../../../src/components/common/EcosModal';
 import { Btn } from '../../common/btns';
 import { Input } from '../../common/form';
-import { reloadGrid, saveJournalSetting } from '../../../actions/journals';
+import { reloadGrid, saveJournalSetting, createJournalSetting } from '../../../actions/journals';
 import { t } from '../../../helpers/util';
 
 import './JournalsSettingsFooter.scss';
@@ -19,7 +19,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   reloadGrid: options => dispatch(reloadGrid(options)),
-  saveJournalSetting: (journalId, settings) => dispatch(saveJournalSetting({ journalId, settings }))
+  saveJournalSetting: (id, settings) => dispatch(saveJournalSetting({ id, settings })),
+  createJournalSetting: (journalId, settings) => dispatch(createJournalSetting({ journalId, settings }))
 });
 
 class JournalsSettingsFooter extends Component {
@@ -30,8 +31,13 @@ class JournalsSettingsFooter extends Component {
     this.settingName = '';
   }
 
-  save = () => {
+  create = () => {
     this.setState({ dialogOpen: true });
+  };
+
+  save = () => {
+    const setting = this.getSetting();
+    this.props.saveJournalSetting(setting.id, this.getSetting());
   };
 
   apply = () => {
@@ -50,7 +56,7 @@ class JournalsSettingsFooter extends Component {
       groupBy: grouping.groupBy,
       columns: grouping.groupBy.length ? grouping.columns : columnsSetup.columns,
       predicate: predicate,
-      title: title
+      title: title || journalSetting.title
     };
   };
 
@@ -62,7 +68,10 @@ class JournalsSettingsFooter extends Component {
   };
 
   onApplyDialog = () => {
-    this.props.saveJournalSetting(this.props.journalConfig.id, this.getSetting(this.settingName));
+    if (this.settingName) {
+      this.props.createJournalSetting(this.props.journalConfig.id, this.getSetting(this.settingName));
+      this.closeDialog();
+    }
   };
 
   clearSettingName = () => {
@@ -79,7 +88,12 @@ class JournalsSettingsFooter extends Component {
         <Columns
           className={'ecos-journal__settings-footer'}
           cols={[
-            <Btn onClick={this.save}>{t('journals.action.apply-template')}</Btn>,
+            <Fragment>
+              <Btn className={'ecos-btn_x-step_10'} onClick={this.create}>
+                {t('journals.action.create-template')}
+              </Btn>
+              <Btn onClick={this.save}>{t('journals.action.apply-template')}</Btn>
+            </Fragment>,
 
             <Fragment>
               <Btn className={'ecos-btn_x-step_10'} onClick={this.cancel}>

@@ -135,7 +135,13 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  saveJournalSetting = ({ journalId, settings }) => {
+  saveJournalSetting = ({ id, settings }) => {
+    return this.putJson(`${MICRO_URI}api/journalprefs?id=${id}`, settings, true).then(resp => {
+      return resp;
+    });
+  };
+
+  createJournalSetting = ({ journalId, settings }) => {
     return this.postJson(`${MICRO_URI}api/journalprefs?journalId=${journalId}`, settings, true).then(resp => {
       return resp;
     });
