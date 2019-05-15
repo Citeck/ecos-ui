@@ -10,11 +10,11 @@ $border-base: #c1c1c1;
 }
 
 .ecos-doc-preview {
-  border: 2px solid $border-base;
-
   &-dashlet__body {
     margin: 18px;
   }
+
+  border: 2px solid $border-base;
 
   &__toolbar {
     display: flex;

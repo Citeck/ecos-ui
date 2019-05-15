@@ -6,6 +6,7 @@ import Toolbar from './Toolbar';
 import PdfViewer from './PdfViewer';
 import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
+import { isPDFbyStr } from '../../helpers/util';
 
 let _docPreview = 'ecos-doc-preview';
 let PDF = getViewer(PdfViewer, _docPreview);
@@ -31,28 +32,27 @@ class DocPreview extends Component {
   }
 
   componentDidMount() {
-    let { link } = this.props;
+    if (this.isPDF) {
+      let { link } = this.props;
 
-    let loadingTask = pdfjs.getDocument(link);
+      let loadingTask = pdfjs.getDocument(link);
 
-    loadingTask.promise.then(
-      res => {
-        console.log(`Document loaded: ${res.numPages} page(s)`, res);
-        this.setState({ pdf: res });
-      },
-      err => {
-        console.error(`Error during loading document: ${err}`);
-      }
-    );
+      loadingTask.promise.then(
+        res => {
+          console.log(`Document loaded: ${res.numPages} page(s)`, res);
+          this.setState({ pdf: res });
+        },
+        err => {
+          console.error(`Error during loading document: ${err}`);
+        }
+      );
+    }
   }
 
   get isPDF() {
     const { link } = this.props;
-    const pdf = 'pdf';
-    const pointIdx = link.lastIndexOf(pdf);
-    const format = link.substr(pointIdx);
 
-    return format.toLowerCase() === pdf;
+    return isPDFbyStr(link);
   }
 
   onChangeSettings = settings => {

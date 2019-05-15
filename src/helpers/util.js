@@ -188,3 +188,13 @@ export function getRelativeTime(from, to) {
   const years_ago = Math.round(minutes_ago / 525960);
   return fnTime('relative.years', years_ago);
 }
+
+export function isPDFbyStr(str) {
+  if (!str) return false;
+
+  const pdf = 'pdf';
+  const pointIdx = str.lastIndexOf(pdf);
+  const format = str.substr(pointIdx);
+
+  return format.toLowerCase() === pdf;
+}

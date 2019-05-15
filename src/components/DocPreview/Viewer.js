@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import { t } from '../../helpers/util';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 export default function getViewer(WrappedComponent, ctrClass = '') {
@@ -14,17 +15,33 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
       this.refViewer = React.createRef();
     }
 
+    get checkMsgDoc() {
+      let { pdf, urlImg } = this.props;
+
+      if (pdf === undefined && urlImg === undefined) {
+        return t('Не указан документ для просмтора');
+      } else if (pdf && !pdf._pdfInfo) {
+        return t('Возникла проблема при загрузке документа');
+      }
+
+      return false;
+    }
+
     render() {
       let _doc = `${_viewer}__doc`;
-      let newProps = { ...this.props, ctrClass: _doc, refViewer: this.refViewer };
+      let newProps = { ...this.props, ctrClass: _doc };
+      let warnMsg = this.checkMsgDoc;
       const renderView = props => <div {...props} className={classNames(`${_doc}__scroll-area`)} />;
 
       return (
         <div className={_viewer} ref={this.refViewer}>
-          <Scrollbars className={classNames()} style={{ height: 500 }} renderView={renderView} ref={this.refScrollbar}>
-            <WrappedComponent {...newProps} />
-          </Scrollbars>
-          {/*<div className={classNames(`${_viewer}__msg ${_viewer}__msg_error`)}>{t('Нет документа для отображения')}</div>*/}
+          {!warnMsg ? (
+            <Scrollbars className={classNames()} style={{ height: 500 }} renderView={renderView} ref={this.refScrollbar}>
+              <WrappedComponent {...newProps} />
+            </Scrollbars>
+          ) : (
+            <div className={classNames(`${_viewer}__msg ${_viewer}__msg_error`)}>{warnMsg}</div>
+          )}
         </div>
       );
     }
