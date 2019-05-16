@@ -72,7 +72,8 @@ class ImgViewer extends Component {
         }
     }
 
-    return { height: newH, width: newW };
+    return scale ? { transform: `scale(${scale})` } : {};
+    // return { height: newH, width: newW };
   }
 
   render() {
