@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 
 class PdfPage extends Component {
   static propTypes = {
     pdf: PropTypes.object.isRequired,
+    pageNumber: PropTypes.number.isRequired,
     settings: PropTypes.shape({
       scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       isFullscreen: PropTypes.bool
@@ -21,19 +21,35 @@ class PdfPage extends Component {
   refContainer = React.createRef();
 
   componentDidMount() {
-    let { page } = this.props;
-
-    this.renderPage(page);
+    this.renderPage();
   }
 
-  renderPage(num) {
+  componentDidUpdate() {
+    this.renderPage();
+  }
+
+  shouldComponentUpdate(nextProps) {
+    let {
+      settings: { scale: newScale }
+    } = nextProps;
+    let {
+      settings: { scale: oldScale }
+    } = this.props;
+
+    if (newScale !== oldScale) {
+      return true;
+    }
+  }
+
+  renderPage() {
     let {
       pdf,
+      pageNumber,
       settings: { scale, isFullscreen }
     } = this.props;
     let canvas = this.refContainer.current;
 
-    pdf.getPage(num).then(function(page) {
+    pdf.getPage(pageNumber).then(function(page) {
       let viewport = page.getViewport(scale);
 
       let context = canvas.getContext('2d');

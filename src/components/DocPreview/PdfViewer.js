@@ -5,11 +5,11 @@ import PdfPage from './PdfPage';
 class PdfViewer extends Component {
   static propTypes = {
     ctrClass: PropTypes.string.isRequired,
-    pdf: PropTypes.object.isRequired
+    pdf: PropTypes.object.isRequired,
+    settings: PropTypes.object.isRequired
   };
 
   static defaultProps = {
-    ctrClass: '',
     pdf: {}
   };
 
@@ -23,7 +23,7 @@ class PdfViewer extends Component {
   componentDidUpdate(prevProps) {}
 
   render() {
-    let { pdf, ctrClass } = this.props;
+    let { pdf, ctrClass, settings } = this.props;
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
     let arrayPages = [];
@@ -43,7 +43,7 @@ class PdfViewer extends Component {
             <div className={`${_pageCtr}`} data-page-number={pageN} key={key}>
               <div className={`${_pageCtr}__number`}>{pageN}</div>
               <div className={`${_pageCtr}__content`} key={pageN}>
-                <PdfPage pdf={pdf} page={pageN} />
+                <PdfPage pdf={pdf} settings={settings} pageNumber={pageN} />
               </div>
             </div>
           );

@@ -78,7 +78,9 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
               <WrappedComponent {...newProps} />
             </Scrollbars>
           ) : (
-            <div className={classNames(`${_viewer}__msg ${_viewer}__msg_${checkDoc.type}`)}>{checkDoc.msg}</div>
+            <div style={{ height }} className={classNames(`${_viewer}__msg ${_viewer}__msg_${checkDoc.type}`)}>
+              {checkDoc.msg}
+            </div>
           )}
         </div>
       );
