@@ -13,7 +13,7 @@ class PdfPage extends Component {
 
   static defaultProps = {
     settings: {
-      scale: 0,
+      scale: 1,
       isFullscreen: false
     }
   };
@@ -51,7 +51,7 @@ class PdfPage extends Component {
   }
 
   render() {
-    return <canvas ref={this.refContainer} height={'100px'} width={'100px'} />;
+    return <canvas ref={this.refContainer} />;
   }
 }
 

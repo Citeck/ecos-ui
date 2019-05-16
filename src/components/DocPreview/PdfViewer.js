@@ -36,14 +36,18 @@ class PdfViewer extends Component {
 
     return (
       <Fragment>
-        {arrayPages.map(pageN => (
-          <div className={`${_pageCtr}`} data-page-number={pageN}>
-            <div className={`${_pageCtr}__number`}>{pageN}</div>
-            <div style={{ width: 500 }} className={`${_pageCtr}__content`} key={pageN}>
-              <PdfPage pdf={pdf} page={pageN} />
+        {arrayPages.map((pageN, idx) => {
+          let key = `${_pageCtr}-${pageN}-${idx}`;
+
+          return (
+            <div className={`${_pageCtr}`} data-page-number={pageN} key={key}>
+              <div className={`${_pageCtr}__number`}>{pageN}</div>
+              <div style={{ width: 500 }} className={`${_pageCtr}__content`} key={pageN}>
+                <PdfPage pdf={pdf} page={pageN} />
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </Fragment>
     );
   }
