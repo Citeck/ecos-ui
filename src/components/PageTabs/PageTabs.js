@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { getScrollbarWidth } from '../../helpers/util';
 import { SortableContainer, SortableElement } from './sortable';
-import { SCROLL_STEP, getTitle } from '../../constants/pageTabs';
+import { SCROLL_STEP, TITLE, LINK_TAG } from '../../constants/pageTabs';
 import './style.scss';
 
 class PageTabs extends React.Component {
@@ -22,7 +22,7 @@ class PageTabs extends React.Component {
 
   static defaultProps = {
     children: null,
-    homepageName: 'Домашняя страница',
+    homepageName: TITLE.HOMEPAGE,
     isShow: false,
     tabs: [],
 
@@ -139,7 +139,7 @@ class PageTabs extends React.Component {
       position: countTabs,
       isActive: true,
       link: link || homepageLink,
-      title: getTitle(link || homepageLink) || homepageName
+      title: this.getTitle(link || homepageLink) || homepageName
     };
   }
 
@@ -164,7 +164,7 @@ class PageTabs extends React.Component {
     const { isShow } = this.props;
     const elem = event.target;
 
-    if (!isShow || elem.tagName !== 'A') {
+    if (!isShow || elem.tagName !== LINK_TAG) {
       return;
     }
 
@@ -186,7 +186,7 @@ class PageTabs extends React.Component {
       const tab = tabs.find(tab => tab.isActive);
 
       tab.link = link;
-      tab.title = getTitle(link) || homepageName;
+      tab.title = this.getTitle(link) || homepageName;
     }
 
     saveTabs(tabs);
@@ -378,6 +378,14 @@ class PageTabs extends React.Component {
     return tabs.sort((first, second) => (first.position > second.position ? 1 : -1));
   }
 
+  getTitle(url) {
+    let cleanUrl = url.replace(/\?.*/i, '');
+
+    cleanUrl = cleanUrl.replace(/#.*/i, '');
+
+    return TITLE[cleanUrl];
+  }
+
   renderLeftButton() {
     const { isActiveLeftArrow, needArrow } = this.state;
 
@@ -442,14 +450,6 @@ class PageTabs extends React.Component {
     );
   };
 
-  renderTabs() {
-    return (
-      <div className="page-tab__tabs" ref={this.$tabWrapper}>
-        {this.sortableTabs.map(tab => this.renderTabItem(tab))}
-      </div>
-    );
-  }
-
   renderTabWrapper() {
     const { isShow } = this.props;
     const { tabs, isActiveRightArrow, needArrow } = this.state;
@@ -468,7 +468,9 @@ class PageTabs extends React.Component {
       <div className={className.join(' ')}>
         {this.renderLeftButton()}
         <SortableContainer axis="x" lockAxis="x" distance={3} onSortEnd={this.handleSortEnd}>
-          {this.renderTabs()}
+          <div className="page-tab__tabs" ref={this.$tabWrapper}>
+            {this.sortableTabs.map(this.renderTabItem)}
+          </div>
         </SortableContainer>
         <div className="page-tab__tabs-add icon-plus" onClick={this.handleAddTab} />
         {this.renderRightButton()}

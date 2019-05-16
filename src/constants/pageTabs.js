@@ -1,17 +1,11 @@
+import { t } from '../helpers/util';
 import { URL } from './';
 
 export const SCROLL_STEP = 150;
-
-export function getTitle(url) {
-  let cleanUrl = url.replace(/\?.*/i, '');
-
-  cleanUrl = cleanUrl.replace(/#.*/i, '');
-
-  return TITLE[cleanUrl];
-}
-
+export const LINK_TAG = 'A';
 export const TITLE = {
-  [URL.HOME]: 'Домашняя страница',
-  [URL.JOURNAL]: 'Журнал',
-  [URL.JOURNAL_DASHBOARD]: 'Журнал дашборд'
+  HOMEPAGE: t('Домашняя страница'),
+  [URL.HOME]: t('Домашняя страница'),
+  [URL.JOURNAL]: t('Журнал'),
+  [URL.JOURNAL_DASHBOARD]: t('Журнал дашборд')
 };
