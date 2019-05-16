@@ -22,6 +22,12 @@ class PdfViewer extends Component {
 
   componentDidUpdate(prevProps) {}
 
+  get pageProps() {
+    let { ctrClass, ...props } = this.props;
+
+    return props;
+  }
+
   render() {
     let { pdf, ctrClass, settings } = this.props;
     let { _pdfInfo = {} } = pdf;
@@ -43,7 +49,7 @@ class PdfViewer extends Component {
             <div className={`${_pageCtr}`} data-page-number={pageN} key={key}>
               <div className={`${_pageCtr}__number`}>{pageN}</div>
               <div className={`${_pageCtr}__content`} key={pageN}>
-                <PdfPage pdf={pdf} settings={settings} pageNumber={pageN} />
+                <PdfPage {...this.pageProps} pageNumber={pageN} />
               </div>
             </div>
           );

@@ -240,3 +240,37 @@ export function closeFullscreen() {
     window.msExitFullscreen();
   }
 }
+
+export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, ratioAuto = 50, paddingContainer = 0) {
+  let { width: soW, height: soH } = paramsScaleObject || {};
+  let { width: cW, height: cH } = paramsContainer || {};
+
+  let calcScale = (c, so) => {
+    return +Number((c - paddingContainer) / so).toFixed(1);
+  };
+
+  let fit = ratio => {
+    if (Math.min(cH, cW) === cH) {
+      return calcScale(cH + ratio, soH);
+    }
+    return calcScale(cW + ratio, soW);
+  };
+
+  switch (scale) {
+    case 'page-height':
+      return calcScale(cH, soH);
+    case 'page-width':
+      return calcScale(cW, soW);
+    case 'page-fit':
+      return fit(0);
+    case 'auto':
+      return fit(ratioAuto);
+    default:
+      if (scale && !Number.isNaN(parseFloat(scale))) {
+        return scale;
+      } else {
+        console.error('Неверное значение коэффициента шасштабирования');
+        return 1;
+      }
+  }
+}

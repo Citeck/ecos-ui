@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { openFullscreen } from '../../helpers/util';
+import { openFullscreen, getScale } from '../../helpers/util';
 
 class ImgViewer extends Component {
   static propTypes = {
@@ -9,7 +9,8 @@ class ImgViewer extends Component {
     settings: PropTypes.shape({
       scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       isFullscreen: PropTypes.bool
-    })
+    }),
+    refViewer: PropTypes.object
   };
 
   static defaultProps = {
@@ -40,39 +41,13 @@ class ImgViewer extends Component {
     let {
       settings: { scale }
     } = this.props;
-    let newW = 'auto',
-      newH = 'auto';
-    let ctrW = this.elContainer.clientWidth;
-    let ctrH = this.elContainer.clientHeight;
 
-    switch (scale) {
-      case 'page-height':
-        newH = ctrH;
-        break;
-      case 'page-width':
-        newW = ctrW;
-        break;
-      case 'page-fit':
-        if (Math.min(ctrH, ctrW) === ctrH) {
-          newH = ctrH;
-        } else {
-          newW = ctrW;
-        }
-        break;
-      case 'auto':
-        if (Math.min(ctrH, ctrW) === ctrH) {
-          newH = ctrH - 50;
-        } else {
-          newW = ctrW - 50;
-        }
-        break;
-      default:
-        if (!Number.isNaN(parseFloat(scale))) {
-          return scale ? { transform: `scale(${scale})` } : {};
-        }
-    }
+    let { clientWidth: cW, clientHeight: cH } = this.elContainer;
+    let { clientWidth: iW, clientHeight: iH } = this.elImage;
 
-    return { height: newH, width: newW };
+    scale = getScale(scale, { width: cW, height: cH }, { width: iW, height: iH });
+
+    return scale ? { transform: `scale(${scale})` } : {};
   }
 
   render() {
