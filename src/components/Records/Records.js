@@ -73,8 +73,8 @@ class Records {
   }
 
   get(id) {
-    if (id.indexOf('@') === id.length - 1) {
-      return new Record(id);
+    if (!id) {
+      return new Record('');
     }
     let rec = this._records[id];
     if (!rec) {
