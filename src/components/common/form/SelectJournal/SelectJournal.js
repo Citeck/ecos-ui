@@ -83,7 +83,7 @@ export default class SelectJournal extends Component {
 
     if (initValue) {
       this.fetchDisplayNames(initValue).then(value => {
-        this.setValue(value);
+        this.setValue(value, false);
       });
     }
   }
@@ -201,7 +201,7 @@ export default class SelectJournal extends Component {
     );
   };
 
-  setValue = selected => {
+  setValue = (selected, shouldTriggerOnChange = true) => {
     const { onChange, multiple } = this.props;
 
     let newValue;
@@ -224,7 +224,9 @@ export default class SelectJournal extends Component {
           };
         },
         () => {
-          typeof onChange === 'function' && onChange(newValue);
+          if (shouldTriggerOnChange && typeof onChange === 'function') {
+            onChange(newValue);
+          }
           resolve();
         }
       );
