@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { getScrollbarWidth, deepClone } from '../../helpers/util';
 import { SortableContainer, SortableElement } from './sortable';
-import { SCROLL_STEP, TITLE } from '../../constants/pageTabs';
+import { SCROLL_STEP, getTitle } from '../../constants/pageTabs';
 import './style.scss';
 
 class PageTabs extends React.Component {
@@ -45,9 +45,37 @@ class PageTabs extends React.Component {
   }
 
   componentDidMount() {
-    const { tabs, history } = this.props;
-    const activeTab = tabs.find(tab => tab.isActive);
+    this.checkUrls();
+    this.initArrows();
 
+    document.addEventListener('click', this.handleClickLink);
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    if (nextProps.isShow) {
+      if (nextProps.isShow !== this.props.isShow && !nextProps.tabs.length) {
+        const tabs = [this.generateNewTab(0, nextProps)];
+
+        nextProps.saveTabs(tabs);
+
+        this.setState({ tabs });
+      }
+
+      if (JSON.stringify(nextProps.tabs) !== JSON.stringify(nextState.tabs)) {
+        this.setState({ tabs: nextProps.tabs }, () => this.checkUrls());
+      }
+    }
+
+    return true;
+  }
+
+  componentWillUnmount() {
+    window.clearInterval(this.checkArrowID);
+    this.checkArrowID = null;
+    document.removeEventListener('click', this.handleClickLink);
+  }
+
+  initArrows() {
     this.checkArrowID = window.setInterval(() => {
       const { current } = this.$tabWrapper;
 
@@ -69,36 +97,35 @@ class PageTabs extends React.Component {
         this.checkArrowID = null;
       }
     }, 300);
+  }
 
-    document.addEventListener('click', this.handleClickLink);
+  checkUrls() {
+    const {
+      tabs: propsTabs,
+      saveTabs,
+      history: {
+        location: { pathname, search, hash }
+      }
+    } = this.props;
+    let tabs = deepClone(propsTabs);
+    const activeTab = tabs.find(tab => tab.isActive === true);
+    const linkFromUrl = [pathname, search, hash].join('');
 
     if (activeTab) {
-      history.replace(activeTab.link);
-    }
-  }
+      if (activeTab.link !== linkFromUrl) {
+        const newActiveTab = tabs.find(tab => tab.link === linkFromUrl);
 
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
-    if (nextProps.isShow) {
-      if (nextProps.isShow !== this.props.isShow && !nextProps.tabs.length) {
-        const tabs = [this.generateNewTab(0, nextProps)];
+        if (newActiveTab) {
+          this.handleSetActiveTab(newActiveTab);
+        } else {
+          tabs = tabs.map(item => ({ ...item, isActive: false }));
+          tabs.push(this.generateNewTab(tabs.length, this.props, linkFromUrl));
+          saveTabs(tabs);
 
-        nextProps.saveTabs(tabs);
-
-        this.setState({ tabs });
-      }
-
-      if (JSON.stringify(nextProps.tabs) !== JSON.stringify(nextState.tabs)) {
-        this.setState({ tabs: nextProps.tabs });
+          this.setState({ tabs });
+        }
       }
     }
-
-    return true;
-  }
-
-  componentWillUnmount() {
-    window.clearInterval(this.checkArrowID);
-    this.checkArrowID = null;
-    document.removeEventListener('click', this.handleClickLink);
   }
 
   generateNewTab(countTabs, props = this.props, link = '') {
@@ -111,7 +138,7 @@ class PageTabs extends React.Component {
       position: countTabs,
       isActive: true,
       link: link || homepageLink,
-      title: TITLE[link || homepageLink] || homepageName
+      title: getTitle(link || homepageLink) || homepageName
     };
   }
 
@@ -158,7 +185,7 @@ class PageTabs extends React.Component {
       const tab = tabs.find(tab => tab.isActive);
 
       tab.link = link;
-      tab.title = TITLE[link] || homepageName;
+      tab.title = getTitle(link) || homepageName;
     }
 
     saveTabs(tabs);
