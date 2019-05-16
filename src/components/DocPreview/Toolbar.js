@@ -29,7 +29,7 @@ class Toolbar extends Component {
     this.state = {
       scale: props.scale,
       searchText: '',
-      currentPage: props.totalPages ? 1 : '',
+      currentPage: 1,
       isFullscreen: false,
       /*only current scope*/
       selectedZoom: '',
@@ -43,6 +43,19 @@ class Toolbar extends Component {
     window.addEventListener('fullscreenchange', this.onFullscreenchange, false);
     this.onChangeZoomOption(this.zoomOptions[0]);
   }
+
+  /*componentWillReceiveProps(nextProps) {
+    let newState = { ...this.state };
+    let isChanged = false;
+    if (nextProps.totalPages !== this.props.totalPages) {
+      isChanged = true;
+      newState.currentPage = this.props.totalPages ? 1 : '';
+    }
+
+    if (isChanged) {
+      this.setState({ ...newState })
+    }
+  }*/
 
   componentWillUnmount() {
     window.removeEventListener('fullscreenchange', this.onFullscreenchange, false);
@@ -73,15 +86,19 @@ class Toolbar extends Component {
   }
 
   handlePrev = e => {
-    this.onChangeSettings();
+    let { currentPage } = this.state;
+
+    this.goToPage(null, --currentPage);
   };
 
   handleNext = e => {
-    this.onChangeSettings();
+    let { currentPage } = this.state;
+
+    this.goToPage(null, ++currentPage);
   };
 
   goToPage = (e, page) => {
-    let currentPage = e.target.value || page;
+    let currentPage = e ? e.target.value : page || 1;
     let newState = { ...this.state, currentPage };
 
     this.setState({ ...newState });
@@ -149,11 +166,19 @@ class Toolbar extends Component {
       <div className={classNames(_toolbar)}>
         {isPDF && (
           <div className={classNames(`${_toolbar}__pager`)}>
-            <IcoBtn icon={'icon-left'} className={`${_commonBtn} ${_toolbar}__pager__prev`} onClick={this.handlePrev} />
+            <IcoBtn
+              icon={'icon-left'}
+              className={classNames(_commonBtn, `${_toolbar}__pager__prev`, { 'ecos-btn_disabled': currentPage === 1 })}
+              onClick={this.handlePrev}
+            />
             <Input type="text" onChange={this.goToPage} value={currentPage} className={classNames(`${_toolbar}__pager__input`)} />
             <span className={`${_toolbar}__pager_text`}> {t('pagination.from')} </span>
             <span className={`${_toolbar}__pager_text`}>{totalPages}</span>
-            <IcoBtn icon={'icon-right'} className={`${_commonBtn} ecos-btn_tight ${_toolbar}__pager__next`} onClick={this.handleNext} />
+            <IcoBtn
+              icon={'icon-right'}
+              className={classNames(_commonBtn, `${_toolbar}__pager__next`, { 'ecos-btn_disabled': currentPage === totalPages })}
+              onClick={this.handleNext}
+            />
           </div>
         )}
         <div className={classNames(`${_toolbar}__zoom`)}>

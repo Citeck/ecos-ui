@@ -40,6 +40,8 @@ class PdfPage extends Component {
     if (newScale !== oldScale) {
       return true;
     }
+
+    return false;
   }
 
   get elCanvas() {

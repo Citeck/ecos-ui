@@ -10,7 +10,8 @@ class PdfViewer extends Component {
   };
 
   static defaultProps = {
-    pdf: {}
+    pdf: {},
+    settings: {}
   };
 
   constructor(props) {
@@ -19,8 +20,6 @@ class PdfViewer extends Component {
     this.state = {};
     this.refScrollbar = React.createRef();
   }
-
-  componentDidUpdate(prevProps) {}
 
   get pageProps() {
     let { ctrClass, ...props } = this.props;
@@ -46,9 +45,9 @@ class PdfViewer extends Component {
           let key = `${_pageCtr}-${pageN}-${idx}`;
 
           return (
-            <div className={`${_pageCtr}`} data-page-number={pageN} key={key}>
+            <div className={`${_pageCtr}`} key={key}>
               <div className={`${_pageCtr}__number`}>{pageN}</div>
-              <div className={`${_pageCtr}__content`} key={pageN}>
+              <div className={`${_pageCtr}__content`}>
                 <PdfPage {...this.pageProps} pageNumber={pageN} />
               </div>
             </div>

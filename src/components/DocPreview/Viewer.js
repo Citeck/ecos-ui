@@ -20,15 +20,22 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
     constructor(props) {
       super(props);
 
-      //todo maybe don't need
       this.refScrollbar = React.createRef();
       this.refViewer = React.createRef();
     }
 
     componentWillReceiveProps(nextProps) {
-      if (nextProps.settings.currentPage) {
-        this.scrollbar.scrollTop(nextProps.settings.currentPage);
+      let { isLoading } = this.props;
+
+      if (this.elScrollbar && !isLoading && nextProps.settings.currentPage !== this.props.settings.currentPage) {
+        let scrollPage = this.elScrollbar.view.querySelector(`*:nth-child(${nextProps.settings.currentPage || 1})`).offsetTop;
+        console.info('scrollPage', scrollPage);
+        //this.refScrollbar.scrollTop(scrollPage);
       }
+    }
+
+    get elScrollbar() {
+      return this.refScrollbar.current;
     }
 
     get checkDoc() {
