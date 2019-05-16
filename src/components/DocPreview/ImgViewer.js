@@ -68,12 +68,11 @@ class ImgViewer extends Component {
         break;
       default:
         if (!Number.isNaN(parseFloat(scale))) {
-          newW = ctrW * scale;
+          return scale ? { transform: `scale(${scale})` } : {};
         }
     }
 
-    return scale ? { transform: `scale(${scale})` } : {};
-    // return { height: newH, width: newW };
+    return { height: newH, width: newW };
   }
 
   render() {

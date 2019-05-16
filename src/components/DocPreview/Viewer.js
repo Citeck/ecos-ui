@@ -2,11 +2,21 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import { t } from '../../helpers/util';
 import { Scrollbars } from 'react-custom-scrollbars';
+import PropTypes from 'prop-types';
 
 export default function getViewer(WrappedComponent, ctrClass = '') {
   let _viewer = `${ctrClass}__viewer`;
 
   return class extends Component {
+    static propTypes = {
+      pdf: PropTypes.object,
+      urlImg: PropTypes.string,
+      isLoading: PropTypes.bool,
+      height: PropTypes.number
+    };
+
+    static defaultProps = {};
+
     constructor(props) {
       super(props);
 
@@ -21,22 +31,22 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
       }
     }
 
-    get checkMsgDoc() {
+    get checkDoc() {
       let { pdf, urlImg, isLoading } = this.props;
 
       if (pdf === undefined && urlImg === undefined) {
-        return t('Не указан документ для просмтора');
+        return { type: 'error', msg: t('Не указан документ для просмтора') };
       }
 
       if (isLoading) {
-        return t('Идет загрузка...');
+        return { type: 'info', msg: t('Идет загрузка...') };
       }
 
       if (pdf && Object.keys(pdf).length && !pdf._pdfInfo) {
-        return t('Возникла проблема при загрузке документа. Попробуйте скачать документ');
+        return { type: 'warn', msg: t('Возникла проблема при загрузке документа. Попробуйте скачать документ') };
       }
 
-      return '';
+      return null;
     }
 
     onScroll = e => {
@@ -50,15 +60,16 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
     render() {
       let _doc = `${_viewer}__doc`;
       let newProps = { ...this.props, ctrClass: _doc, refViewer: this.refViewer };
-      let warnMsg = this.checkMsgDoc;
+      let checkDoc = this.checkDoc;
+      let { height } = this.props;
       const renderView = props => <div {...props} className={classNames(`${_doc}__scroll-area`)} />;
 
       return (
         <div className={_viewer} ref={this.refViewer}>
-          {!warnMsg ? (
+          {!checkDoc ? (
             <Scrollbars
               className={classNames()}
-              style={{ height: 500 }}
+              style={{ height }}
               renderView={renderView}
               ref={this.refScrollbar}
               onScroll={this.onScroll}
@@ -67,7 +78,7 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
               <WrappedComponent {...newProps} />
             </Scrollbars>
           ) : (
-            <div className={classNames(`${_viewer}__msg ${_viewer}__msg_error`)}>{warnMsg}</div>
+            <div className={classNames(`${_viewer}__msg ${_viewer}__msg_${checkDoc.type}`)}>{checkDoc.msg}</div>
           )}
         </div>
       );

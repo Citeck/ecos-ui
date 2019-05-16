@@ -55,8 +55,8 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
             path="/doc-preview"
             render={() => (
               <React.Fragment>
-                <DocPreviewDashlet id={'dashletId-1-1-2'} config={{ link: 'testImg.jpg' }} />
                 <DocPreviewDashlet id={'dashletId-1-1-1'} config={{ link: 'testPdf.pdf' }} />
+                <DocPreviewDashlet id={'dashletId-1-1-2'} config={{ link: 'testImg.jpg', height: 100 }} />
               </React.Fragment>
             )}
           />

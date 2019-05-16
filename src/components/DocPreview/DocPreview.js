@@ -10,7 +10,6 @@ import { isPDFbyStr, fileDownload } from '../../helpers/util';
 
 let _docPreview = 'ecos-doc-preview';
 let PDF = getViewer(PdfViewer, _docPreview);
-
 let IMG = getViewer(ImgViewer, _docPreview);
 
 // 2.1.266 version of worker for 2.1.266 version of pdfjs-dist:
@@ -19,10 +18,13 @@ pdfjs.GlobalWorkerOptions.workerSrc = '//unpkg.com/pdfjs-dist@2.1.266/build/pdf.
 
 class DocPreview extends Component {
   static propTypes = {
-    link: PropTypes.string.isRequired
+    link: PropTypes.string.isRequired,
+    height: PropTypes.number
   };
 
-  static defaultProps = {};
+  static defaultProps = {
+    height: 500
+  };
 
   constructor(props) {
     super(props);
@@ -69,7 +71,7 @@ class DocPreview extends Component {
   };
 
   render() {
-    let { link } = this.props;
+    let { link, height } = this.props;
     let { pdf, settings, isLoading } = this.state;
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
@@ -83,7 +85,11 @@ class DocPreview extends Component {
           onChangeSettings={this.onChangeSettings}
           onDownload={this.onDownload}
         />
-        {this.isPDF ? <PDF pdf={pdf} settings={settings} isLoading={isLoading} /> : <IMG urlImg={link} settings={settings} />}
+        {this.isPDF ? (
+          <PDF pdf={pdf} settings={{ ...settings }} isLoading={isLoading} height={height} />
+        ) : (
+          <IMG urlImg={link} settings={settings} height={height} />
+        )}
       </div>
     );
   }

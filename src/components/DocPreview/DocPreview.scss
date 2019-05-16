@@ -106,8 +106,18 @@ $border-base: #c1c1c1;
     }
 
     &__msg {
+      font-weight: bold;
+
       &_error {
         color: red;
+      }
+
+      &_info {
+        color: #3eacff;
+      }
+
+      &_warn {
+        color: #ff792d;
       }
     }
   }

@@ -42,7 +42,7 @@ class PdfViewer extends Component {
           return (
             <div className={`${_pageCtr}`} data-page-number={pageN} key={key}>
               <div className={`${_pageCtr}__number`}>{pageN}</div>
-              <div style={{ width: 500 }} className={`${_pageCtr}__content`} key={pageN}>
+              <div className={`${_pageCtr}__content`} key={pageN}>
                 <PdfPage pdf={pdf} page={pageN} />
               </div>
             </div>
