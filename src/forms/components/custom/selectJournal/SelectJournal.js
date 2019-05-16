@@ -89,6 +89,8 @@ export default class SelectJournalComponent extends BaseComponent {
           journalId={journalId}
           onChange={onChange}
           viewOnly={self.viewOnly}
+          displayColumns={component.displayColumns}
+          hideCreateButton={component.hideCreateButton}
           onError={err => {
             // this.setCustomValidity(err, false);
           }}
@@ -104,6 +106,7 @@ export default class SelectJournalComponent extends BaseComponent {
       this.getRecord()
         .loadEditorKey(attribute)
         .then(editorKey => {
+          this.component._journalId = editorKey;
           renderControl(editorKey);
         })
         .catch(() => {
