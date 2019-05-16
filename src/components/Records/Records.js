@@ -73,8 +73,8 @@ class Records {
   }
 
   get(id) {
-    if (id.indexOf('@') === id.length - 1) {
-      return new Record(id);
+    if (!id) {
+      return new Record('');
     }
     let rec = this._records[id];
     if (!rec) {
@@ -423,7 +423,7 @@ class Record {
               }
             }
 
-            let record = response.id ? records.get(response.id) : self.id;
+            let record = response.id ? records.get(response.id) : self;
 
             record.load(attributesToLoad, true).then(() => {
               resolve(record);

@@ -29,7 +29,17 @@ export default class SelectJournalComponent extends BaseComponent {
     return SelectJournalComponent.schema();
   }
 
+  createViewOnlyValue(container) {
+    this.reactContainer = this.ce('dd');
+    container.appendChild(this.reactContainer);
+    this.renderReactComponent();
+  }
+
   build() {
+    if (this.viewOnly) {
+      return this.viewOnlyBuild();
+    }
+
     this.restoreValue();
 
     this.createElement();
@@ -78,6 +88,9 @@ export default class SelectJournalComponent extends BaseComponent {
           disabled={component.disabled}
           journalId={journalId}
           onChange={onChange}
+          viewOnly={self.viewOnly}
+          displayColumns={component.displayColumns}
+          hideCreateButton={component.hideCreateButton}
           onError={err => {
             // this.setCustomValidity(err, false);
           }}
@@ -93,6 +106,7 @@ export default class SelectJournalComponent extends BaseComponent {
       this.getRecord()
         .loadEditorKey(attribute)
         .then(editorKey => {
+          this.component._journalId = editorKey;
           renderControl(editorKey);
         })
         .catch(() => {

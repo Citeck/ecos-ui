@@ -35,7 +35,17 @@ export default class SelectOrgstructComponent extends BaseComponent {
     return SelectOrgstructComponent.schema();
   }
 
+  createViewOnlyValue(container) {
+    this.reactContainer = this.ce('dd');
+    container.appendChild(this.reactContainer);
+    this.renderReactComponent();
+  }
+
   build() {
+    if (this.viewOnly) {
+      return this.viewOnlyBuild();
+    }
+
     this.restoreValue();
 
     this.createElement();
@@ -91,6 +101,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           allowedAuthorityTypes={allowedAuthorityTypes}
           allowedGroupTypes={allowedGroupTypes}
           onChange={onChange}
+          viewOnly={self.viewOnly}
           onError={err => {
             // this.setCustomValidity(err, false);
           }}
@@ -142,10 +153,10 @@ export default class SelectOrgstructComponent extends BaseComponent {
     if (cacheValue) {
       if (cacheValue.then) {
         cacheValue.then(record => {
-          if (record && isNodeRef(record.id)) {
-            authorityRefsByName[authority] = record.id;
+          if (isNodeRef(record)) {
+            authorityRefsByName[authority] = record;
             if (self._requestedAuthority === authority) {
-              callback(record.id);
+              callback(record);
             }
           } else {
             authorityRefsByName[authority] = null;
@@ -172,8 +183,12 @@ export default class SelectOrgstructComponent extends BaseComponent {
   }
 
   setValue(value) {
-    if (value === null && this.component.currentUserByDefault && this.options.formMode === 'CREATE') {
-      value = Formio.getUser();
+    if (isEqual(value, this.emptyValue) && this.component.currentUserByDefault && !this.viewOnly && this.options.formMode === 'CREATE') {
+      if (Array.isArray(value)) {
+        value = [Formio.getUser()];
+      } else {
+        value = Formio.getUser();
+      }
     }
 
     if (isEqual(value, this.dataValue)) {
@@ -182,13 +197,29 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     let self = this;
 
-    this._getAuthorityRef(value, value => {
+    let setValueImpl = function(value) {
       if (self.reactContainer && value !== self.dataValue) {
         ReactDOM.unmountComponentAtNode(self.reactContainer);
       }
 
       self.dataValue = value || self.component.defaultValue || self.emptyValue;
       self.refreshDOM();
-    });
+    };
+
+    if (Array.isArray(value)) {
+      let promises = [];
+      for (let auth of value) {
+        promises.push(
+          new Promise(resolve => {
+            this._getAuthorityRef(auth, resolve);
+          })
+        );
+      }
+      Promise.all(promises).then(values => {
+        setValueImpl(values);
+      });
+    } else {
+      this._getAuthorityRef(value, setValueImpl);
+    }
   }
 }
