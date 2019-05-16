@@ -15,14 +15,20 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
       this.refViewer = React.createRef();
     }
 
+    componentWillReceiveProps(nextProps) {
+      if (nextProps.settings.currentPage) {
+        this.scrollbar.scrollTop(nextProps.settings.currentPage);
+      }
+    }
+
     get checkMsgDoc() {
-      let { pdf, urlImg } = this.props;
+      let { pdf, urlImg, isLoading } = this.props;
 
       if (pdf === undefined && urlImg === undefined) {
         return t('Не указан документ для просмтора');
       }
 
-      if (pdf && !Object.keys(pdf).length) {
+      if (isLoading) {
         return t('Идет загрузка...');
       }
 
@@ -33,6 +39,14 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
       return '';
     }
 
+    onScroll = e => {
+      console.log(e);
+    };
+
+    onScrollFrame = e => {
+      console.log(e);
+    };
+
     render() {
       let _doc = `${_viewer}__doc`;
       let newProps = { ...this.props, ctrClass: _doc, refViewer: this.refViewer };
@@ -42,7 +56,14 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
       return (
         <div className={_viewer} ref={this.refViewer}>
           {!warnMsg ? (
-            <Scrollbars className={classNames()} style={{ height: 500 }} renderView={renderView} ref={this.refScrollbar}>
+            <Scrollbars
+              className={classNames()}
+              style={{ height: 500 }}
+              renderView={renderView}
+              ref={this.refScrollbar}
+              onScroll={this.onScroll}
+              onScrollFrame={this.onScrollFrame}
+            >
               <WrappedComponent {...newProps} />
             </Scrollbars>
           ) : (

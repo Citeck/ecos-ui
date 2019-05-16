@@ -29,7 +29,8 @@ class DocPreview extends Component {
 
     this.state = {
       pdf: {},
-      settings: {}
+      settings: {},
+      isLoading: this.isPDF
     };
   }
 
@@ -41,10 +42,11 @@ class DocPreview extends Component {
       loadingTask.promise.then(
         res => {
           console.log(`Document loaded: ${res.numPages} page(s)`, res);
-          this.setState({ pdf: res });
+          this.setState({ pdf: res, isLoading: false });
         },
         err => {
           console.error(`Error during loading document: ${err}`);
+          this.setState({ isLoading: false });
         }
       );
     }
@@ -68,7 +70,7 @@ class DocPreview extends Component {
 
   render() {
     let { link } = this.props;
-    let { pdf, settings } = this.state;
+    let { pdf, settings, isLoading } = this.state;
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
 
@@ -81,7 +83,7 @@ class DocPreview extends Component {
           onChangeSettings={this.onChangeSettings}
           onDownload={this.onDownload}
         />
-        {this.isPDF ? <PDF pdf={pdf} settings={settings} /> : <IMG urlImg={link} settings={settings} />}
+        {this.isPDF ? <PDF pdf={pdf} settings={settings} isLoading={isLoading} /> : <IMG urlImg={link} settings={settings} />}
       </div>
     );
   }

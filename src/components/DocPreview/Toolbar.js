@@ -29,7 +29,7 @@ class Toolbar extends Component {
     this.state = {
       scale: props.scale,
       searchText: '',
-      currentPage: '',
+      currentPage: props.totalPages ? 1 : '',
       isFullscreen: false,
       /*only current scope*/
       selectedZoom: '',
@@ -179,7 +179,7 @@ class Toolbar extends Component {
             {t('Скачать')}
           </IcoBtn>
         </div>
-        {isPDF && (
+        {false && isPDF && (
           <div className={classNames(`${_toolbar}__search`)}>
             <Search className={classNames(`${_toolbar}__search__input`)} />
           </div>
