@@ -1,7 +1,7 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
-import { getScrollbarWidth, deepClone } from '../../helpers/util';
+import { getScrollbarWidth } from '../../helpers/util';
 import { SortableContainer, SortableElement } from './sortable';
 import { SCROLL_STEP, getTitle } from '../../constants/pageTabs';
 import './style.scss';
@@ -40,7 +40,6 @@ class PageTabs extends React.Component {
     super(props);
 
     this.state.tabs = props.tabs;
-
     this.$tabWrapper = React.createRef();
   }
 
@@ -54,10 +53,9 @@ class PageTabs extends React.Component {
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     if (nextProps.isShow) {
       if (nextProps.isShow !== this.props.isShow && !nextProps.tabs.length) {
-        const tabs = [this.generateNewTab(0, nextProps)];
+        const tabs = [this.generateNewTab({ tabsCount: 0, props: nextProps })];
 
         nextProps.saveTabs(tabs);
-
         this.setState({ tabs });
       }
 
@@ -101,13 +99,12 @@ class PageTabs extends React.Component {
 
   checkUrls() {
     const {
-      tabs: propsTabs,
       saveTabs,
       history: {
         location: { pathname, search, hash }
       }
     } = this.props;
-    let tabs = deepClone(propsTabs);
+    const { tabs } = this.state;
     const activeTab = tabs.find(tab => tab.isActive === true);
     const linkFromUrl = [pathname, search, hash].join('');
 
@@ -118,8 +115,11 @@ class PageTabs extends React.Component {
         if (newActiveTab) {
           this.handleSetActiveTab(newActiveTab);
         } else {
-          tabs = tabs.map(item => ({ ...item, isActive: false }));
-          tabs.push(this.generateNewTab(tabs.length, this.props, linkFromUrl));
+          tabs.map(item => {
+            item.isActive = false;
+            return item;
+          });
+          tabs.push(this.generateNewTab({ link: linkFromUrl }));
           saveTabs(tabs);
 
           this.setState({ tabs });
@@ -128,7 +128,8 @@ class PageTabs extends React.Component {
     }
   }
 
-  generateNewTab(countTabs, props = this.props, link = '') {
+  generateNewTab(params = {}) {
+    const { countTabs = this.props.tabs.length, props = this.props, link = '' } = params;
     const { homepageLink, homepageName } = props;
 
     return {
@@ -180,7 +181,7 @@ class PageTabs extends React.Component {
         return tab;
       });
 
-      tabs.push(this.generateNewTab(tabs.length, this.props, link));
+      tabs.push(this.generateNewTab({ link }));
     } else {
       const tab = tabs.find(tab => tab.isActive);
 
@@ -189,6 +190,7 @@ class PageTabs extends React.Component {
     }
 
     saveTabs(tabs);
+    history.push(link);
 
     this.setState({ tabs }, () => {
       const { current } = this.$tabWrapper;
@@ -201,13 +203,11 @@ class PageTabs extends React.Component {
         this.checkNeedArrow();
       }
     });
-
-    history.push(link);
   };
 
   handleCloseTab(tabId, event) {
     const { saveTabs, history } = this.props;
-    const { tabs } = this.state;
+    let { tabs } = this.state;
     const index = tabs.findIndex(tab => tab.id === tabId);
 
     event.stopPropagation();
@@ -216,36 +216,34 @@ class PageTabs extends React.Component {
       return false;
     }
 
-    let newTabs = deepClone(tabs);
-
-    if (newTabs[index].isActive) {
+    if (tabs[index].isActive) {
       let link = '/';
 
       switch (index) {
-        case newTabs.length - 1:
-          newTabs[index - 1].isActive = true;
-          link = newTabs[index - 1].link;
+        case tabs.length - 1:
+          tabs[index - 1].isActive = true;
+          link = tabs[index - 1].link;
           break;
         case 0:
-          newTabs[index + 1].isActive = true;
-          link = newTabs[index + 1].link;
+          tabs[index + 1].isActive = true;
+          link = tabs[index + 1].link;
           break;
         default:
-          newTabs[index + 1].isActive = true;
-          link = newTabs[index + 1].link;
+          tabs[index + 1].isActive = true;
+          link = tabs[index + 1].link;
       }
 
       history.push(link);
     }
 
-    for (let i = index; i < newTabs.length; i++) {
-      newTabs[i].position -= 1;
+    for (let i = index; i < tabs.length; i++) {
+      tabs[i].position -= 1;
     }
 
-    newTabs.splice(index, 1);
-    saveTabs(newTabs);
+    tabs.splice(index, 1);
+    saveTabs(tabs);
 
-    this.setState({ tabs: newTabs }, this.checkNeedArrow.bind(this));
+    this.setState({ tabs }, this.checkNeedArrow.bind(this));
   }
 
   handleSetActiveTab(tab) {
@@ -254,7 +252,6 @@ class PageTabs extends React.Component {
 
     tabs.map(item => {
       item.isActive = item.id === tab.id;
-
       return item;
     });
 
@@ -268,12 +265,11 @@ class PageTabs extends React.Component {
     this.setState(
       state => {
         const { history, saveTabs } = this.props;
-        const tabs = deepClone(state.tabs);
-        const newTab = this.generateNewTab(tabs.length);
+        const { tabs } = state;
+        const newTab = this.generateNewTab.call(this);
 
         tabs.map(tab => {
           tab.isActive = false;
-
           return tabs;
         });
         tabs.push(newTab);
@@ -360,7 +356,7 @@ class PageTabs extends React.Component {
     event.stopPropagation();
 
     this.setState(state => {
-      const tabs = deepClone(state.tabs);
+      const { tabs } = state;
       const draggableTab = tabs[oldIndex];
 
       tabs.splice(oldIndex, 1);
