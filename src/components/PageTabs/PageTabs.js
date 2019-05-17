@@ -113,7 +113,7 @@ class PageTabs extends React.Component {
         const newActiveTab = tabs.find(tab => tab.link === linkFromUrl);
 
         if (newActiveTab) {
-          this.handleSetActiveTab(newActiveTab);
+          this.activeTab = newActiveTab;
         } else {
           tabs.map(item => {
             item.isActive = false;
@@ -246,19 +246,8 @@ class PageTabs extends React.Component {
     this.setState({ tabs }, this.checkNeedArrow.bind(this));
   }
 
-  handleSetActiveTab(tab) {
-    const { history, saveTabs } = this.props;
-    const { tabs } = this.state;
-
-    tabs.map(item => {
-      item.isActive = item.id === tab.id;
-      return item;
-    });
-
-    saveTabs(tabs);
-    history.push(tab.link);
-
-    this.setState({ tabs });
+  handleClickTab(tab) {
+    this.activeTab = tab;
   }
 
   handleAddTab = () => {
@@ -378,6 +367,25 @@ class PageTabs extends React.Component {
     return tabs.sort((first, second) => (first.position > second.position ? 1 : -1));
   }
 
+  set activeTab(tab) {
+    const { history, saveTabs } = this.props;
+    const { tabs } = this.state;
+
+    if (tab.isActive) {
+      return;
+    }
+
+    tabs.map(item => {
+      item.isActive = item.id === tab.id;
+      return item;
+    });
+
+    saveTabs(tabs);
+    history.push(tab.link);
+
+    this.setState({ tabs });
+  }
+
   getTitle(url) {
     let cleanUrl = url.replace(/\?.*/i, '');
 
@@ -442,7 +450,7 @@ class PageTabs extends React.Component {
 
     return (
       <SortableElement key={item.id} index={item.position} onSortEnd={this.handleSortEnd}>
-        <div key={item.id} className={className.join(' ')} title={item.title} onClick={this.handleSetActiveTab.bind(this, item)}>
+        <div key={item.id} className={className.join(' ')} title={item.title} onClick={this.handleClickTab.bind(this, item)}>
           <span className="page-tab__tabs-item-title">{item.title}</span>
           {closeButton}
         </div>
