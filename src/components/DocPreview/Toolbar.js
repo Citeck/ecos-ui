@@ -21,7 +21,7 @@ class Toolbar extends Component {
   };
 
   static defaultProps = {
-    scale: 1.5
+    scale: 'auto'
   };
 
   constructor(props) {
@@ -41,8 +41,10 @@ class Toolbar extends Component {
   }
 
   componentDidMount() {
+    const { scale } = this.state;
+
     window.addEventListener('fullscreenchange', this.onFullscreenchange, false);
-    this.onChangeZoomOption(this.zoomOptions[0]);
+    this.onChangeZoomOption(this.zoomOptions.find(el => el.scale === scale));
   }
 
   /*componentWillReceiveProps(nextProps) {

@@ -20,14 +20,11 @@ class DocPreviewDashlet extends Component {
   static defaultProps = {};
 
   render() {
-    let {
-      id,
-      config: { link, height }
-    } = this.props;
+    let { id, config } = this.props;
 
     return (
       <Dashlet title={'Предпросмотр'} bodyClassName={'ecos-doc-preview-dashlet__body'}>
-        <DocPreview link={link} height={height} />
+        <DocPreview {...config} />
       </Dashlet>
     );
   }

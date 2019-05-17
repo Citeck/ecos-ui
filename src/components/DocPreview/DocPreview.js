@@ -19,7 +19,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = '//unpkg.com/pdfjs-dist@2.1.266/build/pdf.
 class DocPreview extends Component {
   static propTypes = {
     link: PropTypes.string.isRequired,
-    height: PropTypes.number
+    height: PropTypes.number,
+    scale: PropTypes.number
   };
 
   static defaultProps = {
@@ -71,7 +72,7 @@ class DocPreview extends Component {
   };
 
   render() {
-    let { link, height } = this.props;
+    let { link, height, scale } = this.props;
     let { pdf, settings, isLoading } = this.state;
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
@@ -84,6 +85,7 @@ class DocPreview extends Component {
           isPDF={this.isPDF}
           onChangeSettings={this.onChangeSettings}
           onDownload={this.onDownload}
+          scale={scale}
         />
         {this.isPDF ? (
           <PDF pdf={pdf} settings={{ ...settings }} isLoading={isLoading} height={height} />
