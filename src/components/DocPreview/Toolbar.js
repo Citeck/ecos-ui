@@ -103,9 +103,13 @@ class Toolbar extends Component {
   goToPage = (e, page) => {
     let currentPage = e ? e.target.value : page || 1;
     let newState = { ...this.state, currentPage };
+    let { totalPages } = this.props;
 
     this.setState({ ...newState });
-    this.onChangeSettings(newState);
+
+    if (currentPage > 0 && currentPage <= totalPages) {
+      this.onChangeSettings(newState);
+    }
   };
 
   onChangeZoomOption = ({ id, scale }) => {

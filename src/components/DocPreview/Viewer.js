@@ -25,9 +25,14 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
 
     componentWillReceiveProps(nextProps) {
       let { isLoading } = this.props;
-      let { currentPage = 1 } = nextProps.settings;
+      let { currentPage } = nextProps.settings;
 
       if (this.elScrollbar && !isLoading && currentPage !== this.props.settings.currentPage) {
+        let children = this.elScrollbar.view.children;
+        let childrenLen = children.length;
+
+        currentPage = currentPage > 0 && currentPage <= childrenLen ? currentPage : 1;
+
         let scrollPage = this.elScrollbar.view.children[currentPage - 1].offsetTop - 10;
 
         this.elScrollbar.scrollTop(scrollPage);
