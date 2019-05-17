@@ -14,13 +14,6 @@ class PdfViewer extends Component {
     settings: {}
   };
 
-  constructor(props) {
-    super(props);
-
-    this.state = {};
-    this.refScrollbar = React.createRef();
-  }
-
   get pageProps() {
     let { ctrClass, ...props } = this.props;
 
@@ -28,7 +21,7 @@ class PdfViewer extends Component {
   }
 
   render() {
-    let { pdf, ctrClass, settings } = this.props;
+    let { pdf, ctrClass } = this.props;
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
     let arrayPages = [];

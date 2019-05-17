@@ -1,6 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { openFullscreen, getScale } from '../../helpers/util';
+import { getScale } from '../../helpers/util';
+import { TextLayerBuilder } from 'pdfjs-dist/lib/web/text_layer_builder.js';
+import 'pdfjs-dist/web/pdf_viewer.css';
 
 class PdfPage extends Component {
   static propTypes = {
@@ -22,6 +24,7 @@ class PdfPage extends Component {
   };
 
   refContainer = React.createRef();
+  refTextLayout = React.createRef();
 
   componentDidMount() {
     this.renderPage();
@@ -54,6 +57,10 @@ class PdfPage extends Component {
     return this.props.refViewer.current || {};
   }
 
+  get elTextLayout() {
+    return this.refTextLayout.current || {};
+  }
+
   renderPage() {
     let { pdf, pageNumber } = this.props;
 
@@ -75,12 +82,28 @@ class PdfPage extends Component {
     canvas.height = viewport.height;
     canvas.width = viewport.width;
 
+    let $textLayer = this.elTextLayout;
+    $textLayer.style.height = viewport.height + 'px';
+    $textLayer.style.width = viewport.width + 'px';
+    $textLayer.style.top = canvas.offsetTop + 'px';
+    $textLayer.style.left = canvas.offsetLeft + 'px';
+
     let renderContext = {
       canvasContext: canvas.getContext('2d'),
       viewport: viewport
     };
 
     page.render(renderContext);
+    page.getTextContent().then(function(textContent) {
+      let textLayer = new TextLayerBuilder({
+        textLayerDiv: $textLayer,
+        pageIndex: page.pageIndex,
+        viewport: viewport
+      });
+
+      textLayer.setTextContent(textContent);
+      textLayer.render();
+    });
 
     if (Number.isNaN(parseFloat(scale))) {
       this.props.calcScale(calcScale);
@@ -88,7 +111,12 @@ class PdfPage extends Component {
   };
 
   render() {
-    return <canvas ref={this.refContainer} />;
+    return (
+      <Fragment>
+        <canvas ref={this.refContainer} />
+        <div ref={this.refTextLayout} className={'textLayer'} />
+      </Fragment>
+    );
   }
 }
 

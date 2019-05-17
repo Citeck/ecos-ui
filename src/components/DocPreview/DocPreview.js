@@ -6,7 +6,7 @@ import Toolbar from './Toolbar';
 import PdfViewer from './PdfViewer';
 import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
-import { isPDFbyStr, fileDownload } from '../../helpers/util';
+import { fileDownload, isPDFbyStr } from '../../helpers/util';
 
 let _docPreview = 'ecos-doc-preview';
 let PDF = getViewer(PdfViewer, _docPreview, true);
@@ -84,6 +84,7 @@ class DocPreview extends Component {
     let { pdf, settings, isLoading, scrollPage, calcScale } = this.state;
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
+    let commonProps = { settings, height, calcScale: this.setCalcScale };
 
     return (
       <div className={classNames(_docPreview)}>
@@ -98,16 +99,9 @@ class DocPreview extends Component {
           calcScale={calcScale}
         />
         {this.isPDF ? (
-          <PDF
-            pdf={pdf}
-            settings={{ ...settings }}
-            isLoading={isLoading}
-            height={height}
-            scrollPage={this.setScrollPage}
-            calcScale={this.setCalcScale}
-          />
+          <PDF pdf={pdf} isLoading={isLoading} scrollPage={this.setScrollPage} {...commonProps} />
         ) : (
-          <IMG urlImg={link} settings={settings} height={height} />
+          <IMG urlImg={link} {...commonProps} />
         )}
       </div>
     );

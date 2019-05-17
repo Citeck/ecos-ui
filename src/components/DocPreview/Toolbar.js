@@ -2,10 +2,9 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
-import Search from '../common/Search/Search';
 import { IcoBtn } from '../common/btns';
 import { Dropdown, Input } from '../common/form';
-import { t, closeFullscreen } from '../../helpers/util';
+import { closeFullscreen, t } from '../../helpers/util';
 
 const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;
@@ -215,11 +214,6 @@ class Toolbar extends Component {
             {t('Скачать')}
           </IcoBtn>
         </div>
-        {false && isPDF && (
-          <div className={classNames(`${_toolbar}__search`)}>
-            <Search className={classNames(`${_toolbar}__search__input`)} />
-          </div>
-        )}
       </div>
     );
   }

@@ -53,12 +53,11 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
           <Route path="/ecos-form-example" component={EcosFormPage} />
           <Route
             path="/doc-preview"
-            render={() => (
-              <React.Fragment>
-                <DocPreviewDashlet id={'dashletId-1-1-1'} config={{ link: 'testPdf.pdf' }} />
-                <DocPreviewDashlet id={'dashletId-1-1-2'} config={{ link: 'testImg.jpg', height: 400, scale: 1 }} />
-              </React.Fragment>
-            )}
+            render={() => <DocPreviewDashlet id={'dashletId-1-1-1'} config={{ link: 'testPdf.pdf', height: 700 }} />}
+          />
+          <Route
+            path="/img-preview"
+            render={() => <DocPreviewDashlet id={'dashletId-1-1-2'} config={{ link: 'testImg.jpg', scale: 1 }} />}
           />
 
           <Route path="/share/page/journals" component={JournalsPage} />

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import { t } from '../../helpers/util';
+import { openFullscreen, t } from '../../helpers/util';
 import { Scrollbars } from 'react-custom-scrollbars';
 import PropTypes from 'prop-types';
 
@@ -43,6 +43,10 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
 
           this.elScrollbar.scrollTop(scrollPage);
           this.setState({ scrollPage: currentPage });
+        }
+
+        if (nextProps.settings.isFullscreen) {
+          openFullscreen(this.refViewer.current);
         }
       }
     }
@@ -93,7 +97,10 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     };
 
     render() {
-      let { height } = this.props;
+      let {
+        height,
+        settings: { isFullscreen }
+      } = this.props;
       let _doc = `${_viewer}__doc`;
       let newProps = { ...this.props, ctrClass: _doc, refViewer: this.refViewer };
       let checkDoc = this.checkDoc;
@@ -104,7 +111,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
           {!checkDoc ? (
             <Scrollbars
               className={classNames()}
-              style={{ height }}
+              style={{ height: isPdf && isFullscreen ? window.screen.height : height }}
               renderView={renderView}
               ref="refScrollbar"
               onScroll={this.onScroll}
