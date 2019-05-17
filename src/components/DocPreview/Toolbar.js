@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
@@ -8,6 +8,7 @@ import { Dropdown, Input } from '../common/form';
 import { t, closeFullscreen } from '../../helpers/util';
 
 const CUSTOM = 'custom';
+const ZOOM_STEP = 0.1;
 
 class Toolbar extends Component {
   static propTypes = {
@@ -121,7 +122,8 @@ class Toolbar extends Component {
       currentScale = 1; //fixme
     }
 
-    currentScale += direction * 0.1;
+    currentScale += direction * ZOOM_STEP;
+    currentScale = +Number(currentScale).toFixed(1);
 
     let newState = { ...this.state, selectedZoom, scale: currentScale };
 
@@ -171,8 +173,12 @@ class Toolbar extends Component {
               className={classNames(_commonBtn, `${_toolbar}__pager__prev`, { 'ecos-btn_disabled': currentPage === 1 })}
               onClick={this.handlePrev}
             />
-            <Input type="text" onChange={this.goToPage} value={currentPage} className={classNames(`${_toolbar}__pager__input`)} />
-            <span className={`${_toolbar}__pager_text`}> {t('pagination.from')} </span>
+            {!!totalPages && (
+              <Fragment>
+                <Input type="text" onChange={this.goToPage} value={currentPage} className={classNames(`${_toolbar}__pager__input`)} />
+                <span className={`${_toolbar}__pager_text`}> {t('pagination.from')} </span>
+              </Fragment>
+            )}
             <span className={`${_toolbar}__pager_text`}>{totalPages}</span>
             <IcoBtn
               icon={'icon-right'}
@@ -184,7 +190,7 @@ class Toolbar extends Component {
         <div className={classNames(`${_toolbar}__zoom`)}>
           <IcoBtn
             icon={'icon-minus'}
-            className={classNames(_commonBtn, { 'ecos-btn_disabled': scale <= 0 })}
+            className={classNames(_commonBtn, { 'ecos-btn_disabled': scale <= ZOOM_STEP })}
             onClick={e => this.setScale(-1)}
           />
           <IcoBtn icon={'icon-plus'} className={_commonBtn} onClick={e => this.setScale(1)} />

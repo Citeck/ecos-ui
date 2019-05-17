@@ -32,6 +32,11 @@ $border-base: #c1c1c1;
       border-right: 1px solid $border-toolbar;
     }
 
+    & .ecos-btn_disabled {
+      cursor: not-allowed;
+      color: $color-gray-2;
+    }
+
     &__pager {
       &__input {
         display: inline-block;
