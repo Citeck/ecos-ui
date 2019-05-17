@@ -5,6 +5,7 @@ import SelectJournal from '../../../common/form/SelectJournal';
 import SelectOrgstruct from '../../../common/form/SelectOrgstruct';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../../common/form/SelectOrgstruct/constants';
 import { RecordService } from '../../../../api/recordService';
+import moment from 'moment';
 import { t } from '../../../../helpers/util';
 
 export const COLUMN_DATA_TYPE_TEXT = 'text';
@@ -25,6 +26,7 @@ export const COLUMN_DATA_TYPE_OPTIONS = 'options';
 export const COLUMN_DATA_TYPE_PERSON = 'person';
 export const COLUMN_DATA_TYPE_AUTHORITY_GROUP = 'authorityGroup';
 export const COLUMN_DATA_TYPE_AUTHORITY = 'authority';
+export const COLUMN_DATA_TYPE_FILTER_GROUP = 'filterGroup';
 
 export const PREDICATE_CONTAINS = 'contains';
 export const PREDICATE_NOT_CONTAINS = 'not-contains';
@@ -38,6 +40,8 @@ export const PREDICATE_GE = 'ge';
 export const PREDICATE_GT = 'gt';
 export const PREDICATE_LE = 'le';
 export const PREDICATE_LT = 'lt';
+export const PREDICATE_AND = 'and';
+export const PREDICATE_OR = 'or';
 
 // Hack: Currently t('') works correctly only after execution loadMessagesAndAlfrescoScript function in share.js, so we should use function instead of array:
 const getAllPredicates = function() {
@@ -53,7 +57,9 @@ const getAllPredicates = function() {
     { value: PREDICATE_GE, label: t('predicate.ge'), needValue: true },
     { value: PREDICATE_GT, label: t('predicate.gt'), needValue: true },
     { value: PREDICATE_LE, label: t('predicate.le'), needValue: true },
-    { value: PREDICATE_LT, label: t('predicate.lt'), needValue: true }
+    { value: PREDICATE_LT, label: t('predicate.lt'), needValue: true },
+    { value: PREDICATE_AND, label: t('predicate.and'), needValue: true },
+    { value: PREDICATE_OR, label: t('predicate.or'), needValue: true }
   ];
 };
 
@@ -75,9 +81,10 @@ const PREDICATE_LIST_TYPE_NODEREF = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NO
 const PREDICATE_LIST_TYPE_QNAME = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_AUTHORITY = [PREDICATE_CONTAINS, PREDICATE_NOT_CONTAINS, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_NO_CONTROL_YET = [PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
+const PREDICATE_LIST_TYPE_FILTER_GROUP = [PREDICATE_AND, PREDICATE_OR];
 
 let allPredicates = [];
-function filterPredicates(filterArr) {
+export function filterPredicates(filterArr) {
   if (!allPredicates.length) {
     allPredicates = getAllPredicates();
   }
@@ -87,6 +94,9 @@ function filterPredicates(filterArr) {
 
 export function getPredicates(field) {
   switch (field.type) {
+    case COLUMN_DATA_TYPE_FILTER_GROUP:
+      return filterPredicates(PREDICATE_LIST_TYPE_FILTER_GROUP);
+
     case COLUMN_DATA_TYPE_BOOLEAN:
       return filterPredicates(PREDICATE_LIST_TYPE_BOOLEAN);
 
@@ -148,10 +158,11 @@ export function getPredicateInput(field, sourceId) {
       return {
         component: DatePicker,
         defaultValue: null, // new Date(),
-        getProps: ({ predicateValue, changePredicateValue }) => ({
+        getProps: ({ predicateValue, changePredicateValue, wrapperClasses }) => ({
           className: 'ecos-input_narrow',
+          wrapperClasses: wrapperClasses,
           showIcon: true,
-          selected: predicateValue,
+          selected: moment(predicateValue || undefined).toDate(),
           onChange: function(value) {
             changePredicateValue(value);
           },

@@ -1,0 +1,36 @@
+@import '../../../constants';
+
+.ecos-filters-condition {
+  cursor: pointer;
+  text-transform: lowercase;
+  position: absolute;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+
+  background: $color-gray-4;
+  color: $text-color-gray;
+  width: auto;
+  padding: 0 6px;
+  height: 20px;
+  display: inline-block;
+  white-space: nowrap;
+  vertical-align: middle;
+  border-left: 4px solid $color-white;
+  border-right: 4px solid $color-white;
+  border-radius: 35%;
+  line-height: 1.4;
+  font-family: $font-family;
+  font-size: $font-size-small;
+  font-weight: $font-weight-semi-bold;
+  font-style: normal;
+  text-align: left;
+  box-sizing: content-box;
+}
+
+.ecos-filters-condition_cross {
+  top: 0;
+  left: 0;
+  border: 0;
+  border-radius: $border-radius-biggest;
+  transform: translateX(-50%) translateY(-50%);
+}

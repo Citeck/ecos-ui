@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
-import connect from 'react-redux/es/connect/connect';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 
-const mapStateToProps = state => ({});
-const mapDispatchToProps = dispatch => ({});
-
-class JournalsDashletFooter extends Component {
+export default class JournalsDashletFooter extends Component {
   render() {
     return (
       <div className={'ecos-journal-dashlet__footer'}>
@@ -14,8 +10,3 @@ class JournalsDashletFooter extends Component {
     );
   }
 }
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsDashletFooter);

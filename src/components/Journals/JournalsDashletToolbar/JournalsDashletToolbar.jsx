@@ -28,7 +28,7 @@ class JournalsDashletToolbar extends Component {
       window.open(`${URL_PAGECONTEXT}node-create?type=${createVariants.type}&destination=${createVariants.destination}&viewId=`, '_blank');
   };
 
-  onChangeJournal = journal => this.props.initGrid(journal.nodeRef);
+  onChangeJournal = journal => this.props.initGrid({ journalId: journal.nodeRef });
 
   render() {
     const {

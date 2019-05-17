@@ -26,3 +26,13 @@ export const setSelectedRecords = createAction(prefix + 'SET_SELECTED_RECORDS');
 export const setSelectAllRecords = createAction(prefix + 'SET_SELECT_ALL_RECORDS');
 export const setSelectAllRecordsVisible = createAction(prefix + 'SET_SELECT_ALL_RECORDS_VISIBLE');
 export const setGridInlineToolSettings = createAction(prefix + 'SET_GRID_INLINE_TOOL_SETTINGS');
+
+export const saveJournalSetting = createAction(prefix + 'SAVE_JOURNAL_SETTING');
+export const createJournalSetting = createAction(prefix + 'CREATE_JOURNAL_SETTING');
+export const deleteJournalSetting = createAction(prefix + 'DELETE_JOURNAL_SETTING');
+export const setJournalSetting = createAction(prefix + 'SET_JOURNAL_SETTING');
+export const setJournalSettings = createAction(prefix + 'SET_JOURNAL_SETTINGS');
+
+export const setPredicate = createAction(prefix + 'SET_PREDICATE');
+export const setColumnsSetup = createAction(prefix + 'SET_COLUMNS_SETUP');
+export const setGrouping = createAction(prefix + 'SET_GROUPING');

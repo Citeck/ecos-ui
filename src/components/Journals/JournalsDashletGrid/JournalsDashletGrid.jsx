@@ -60,16 +60,13 @@ class JournalsDashletGrid extends Component {
     }
   };
 
-  onFilter = filter => {
+  onFilter = predicates => {
     const props = this.props;
-    const {
-      columns,
-      meta: { criteria }
-    } = props.journalConfig;
+    const { columns } = props.journalConfig;
 
-    this.filters = filter;
+    this.filters = predicates;
 
-    props.reloadGrid({ columns, criteria: [...filter, ...criteria] });
+    props.reloadGrid({ columns, predicates });
   };
 
   sort = e => {

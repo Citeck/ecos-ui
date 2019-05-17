@@ -1,0 +1,22 @@
+@import '../../../constants';
+
+.ecos-filters-group {
+}
+
+.ecos-filters-group__head {
+  position: relative;
+}
+
+.ecos-filters-group__tools {
+  display: flex;
+  align-items: center;
+  padding: 13px 20px 10px 20px;
+}
+
+.ecos-filters-group__tools_step {
+  margin-right: 10px;
+}
+
+.ecos-filters-group__select {
+  width: 160px;
+}

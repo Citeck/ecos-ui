@@ -1,5 +1,5 @@
 import { RecordService } from './recordService';
-import { PROXY_URI } from '../constants/alfresco';
+import { PROXY_URI, MICRO_URI } from '../constants/alfresco';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 
 export class JournalsApi extends RecordService {
@@ -11,17 +11,15 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, criteria, pagination, predicate, groupBy, sortBy }) => {
-    const query = criteria => {
-      let query = {};
-
-      criteria.forEach((criterion, idx) => {
-        query['field_' + idx] = criterion.field;
-        query['predicate_' + idx] = criterion.predicate;
-        query['value_' + idx] = criterion.value;
-      });
-
-      return JSON.stringify(query);
+  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [] }) => {
+    const query = {
+      t: 'and',
+      val: [
+        predicate,
+        ...predicates.filter(item => {
+          return item.val !== '' && item.val !== null;
+        })
+      ]
     };
 
     const dataSource = new dataSourceStore['GqlDataSource']({
@@ -30,8 +28,8 @@ export class JournalsApi extends RecordService {
       ajax: {
         body: {
           query: {
-            query: criteria.length ? query(criteria) : predicate,
-            language: criteria.length ? 'criteria' : 'predicate',
+            query: query,
+            language: 'predicate',
             page: pagination,
             groupBy,
             sortBy
@@ -121,6 +119,40 @@ export class JournalsApi extends RecordService {
 
   saveDashletConfig = (config, id) => {
     return this.postJson(`${PROXY_URI}citeck/dashlet/config?key=${id}`, config).then(resp => {
+      return resp;
+    });
+  };
+
+  getJournalSettings = journalType => {
+    return this.getJson(`${MICRO_URI}api/journalprefs/list?journalId=${journalType}`).then(resp => {
+      return resp;
+    });
+  };
+
+  getJournalSetting = id => {
+    return this.getJson(`${MICRO_URI}api/journalprefs?id=${id}`)
+      .then(resp => {
+        return resp;
+      })
+      .catch(() => {
+        return null;
+      });
+  };
+
+  saveJournalSetting = ({ id, settings }) => {
+    return this.putJson(`${MICRO_URI}api/journalprefs?id=${id}`, settings, true).then(resp => {
+      return resp;
+    });
+  };
+
+  createJournalSetting = ({ journalId, settings }) => {
+    return this.postJson(`${MICRO_URI}api/journalprefs?journalId=${journalId}`, settings, true).then(resp => {
+      return resp;
+    });
+  };
+
+  deleteJournalSetting = id => {
+    return this.deleteJson(`${MICRO_URI}api/journalprefs/id/${id}`, true).then(resp => {
       return resp;
     });
   };
