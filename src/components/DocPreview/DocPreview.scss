@@ -112,11 +112,11 @@ $border-base: #c1c1c1;
       padding: 10px;
 
       &_error {
-        color: red;
+        color: $color-red-2;
       }
 
       &_info {
-        color: #3eacff;
+        color: $color-blue-light;
       }
 
       &_warn {

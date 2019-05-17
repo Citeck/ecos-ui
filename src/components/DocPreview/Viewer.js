@@ -20,22 +20,24 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
     constructor(props) {
       super(props);
 
-      this.refScrollbar = React.createRef();
       this.refViewer = React.createRef();
     }
 
     componentWillReceiveProps(nextProps) {
       let { isLoading } = this.props;
+      let { currentPage = 1 } = nextProps.settings;
 
-      if (this.elScrollbar && !isLoading && nextProps.settings.currentPage !== this.props.settings.currentPage) {
-        let scrollPage = this.elScrollbar.view.querySelector(`*:nth-child(${nextProps.settings.currentPage || 1})`).offsetTop;
-        console.info('scrollPage', scrollPage);
-        //this.refScrollbar.scrollTop(scrollPage);
+      if (this.elScrollbar && !isLoading && currentPage !== this.props.settings.currentPage) {
+        let scrollPage = this.elScrollbar.view.children[currentPage - 1].offsetTop - 10;
+
+        this.elScrollbar.scrollTop(scrollPage);
       }
     }
 
     get elScrollbar() {
-      return this.refScrollbar.current;
+      const { refScrollbar } = this.refs;
+
+      return refScrollbar;
     }
 
     get checkDoc() {
@@ -78,7 +80,7 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
               className={classNames()}
               style={{ height }}
               renderView={renderView}
-              ref={this.refScrollbar}
+              ref="refScrollbar"
               onScroll={this.onScroll}
               onScrollFrame={this.onScrollFrame}
             >

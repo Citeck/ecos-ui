@@ -14,7 +14,7 @@ class Toolbar extends Component {
   static propTypes = {
     isPDF: PropTypes.bool.isRequired,
     ctrClass: PropTypes.string.isRequired,
-    scale: PropTypes.number,
+    scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     totalPages: PropTypes.number.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
     onDownload: PropTypes.func.isRequired
@@ -179,9 +179,9 @@ class Toolbar extends Component {
               <Fragment>
                 <Input type="text" onChange={this.goToPage} value={currentPage} className={classNames(`${_toolbar}__pager__input`)} />
                 <span className={`${_toolbar}__pager_text`}> {t('pagination.from')} </span>
+                <span className={`${_toolbar}__pager_text`}>{totalPages}</span>
               </Fragment>
             )}
-            <span className={`${_toolbar}__pager_text`}>{totalPages}</span>
             <IcoBtn
               icon={'icon-right'}
               className={classNames(_commonBtn, `${_toolbar}__pager__next`, { 'ecos-btn_disabled': currentPage === totalPages })}
