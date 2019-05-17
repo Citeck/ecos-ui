@@ -31,7 +31,7 @@ const mapDispatchToProps = dispatch => ({
 class Journals extends Component {
   constructor(props) {
     super(props);
-    this.state = { menuOpen: false, settingsVisible: true };
+    this.state = { menuOpen: true, settingsVisible: true };
   }
 
   componentDidMount() {

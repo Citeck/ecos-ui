@@ -130,9 +130,13 @@ export class JournalsApi extends RecordService {
   };
 
   getJournalSetting = id => {
-    return this.getJson(`${MICRO_URI}api/journalprefs?id=${id}`).then(resp => {
-      return resp;
-    });
+    return this.getJson(`${MICRO_URI}api/journalprefs?id=${id}`)
+      .then(resp => {
+        return resp;
+      })
+      .catch(() => {
+        return null;
+      });
   };
 
   saveJournalSetting = ({ id, settings }) => {
@@ -143,6 +147,12 @@ export class JournalsApi extends RecordService {
 
   createJournalSetting = ({ journalId, settings }) => {
     return this.postJson(`${MICRO_URI}api/journalprefs?journalId=${journalId}`, settings, true).then(resp => {
+      return resp;
+    });
+  };
+
+  deleteJournalSetting = id => {
+    return this.deleteJson(`${MICRO_URI}api/journalprefs/id/${id}`, true).then(resp => {
       return resp;
     });
   };

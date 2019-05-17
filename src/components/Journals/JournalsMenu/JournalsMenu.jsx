@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import { IcoBtn } from '../../common/btns';
-import { initGrid } from '../../../actions/journals';
+import { initGrid, saveJournalSetting, deleteJournalSetting } from '../../../actions/journals';
 import { Well } from '../../common/form';
 import CollapsableList from '../../common/CollapsableList/CollapsableList';
-import { t, getPropByStringKey } from '../../../helpers/util';
+import { getPropByStringKey, t } from '../../../helpers/util';
 
 import './JournalsMenu.scss';
 
@@ -16,7 +16,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  initGrid: options => dispatch(initGrid(options))
+  initGrid: options => dispatch(initGrid(options)),
+  deleteJournalSetting: id => dispatch(deleteJournalSetting(id))
 });
 
 class ListItem extends Component {
@@ -25,9 +26,29 @@ class ListItem extends Component {
     onClick(item);
   };
 
+  delete = () => {
+    const { onDelete, item } = this.props;
+    onDelete(item);
+  };
+
   render() {
-    const { item, titleField } = this.props;
-    return <span onClick={this.onClick}>{getPropByStringKey(item, titleField)}</span>;
+    const { item, titleField, removable } = this.props;
+
+    return (
+      <Fragment>
+        <span onClick={this.onClick} className={'ecos-journal-menu__list-item'}>
+          {getPropByStringKey(item, titleField)}
+        </span>
+
+        {removable ? (
+          <IcoBtn
+            icon={'icon-close'}
+            className={`ecos-btn ecos-btn_i_12 ecos-btn_r_0 ecos-btn_color-inherit ecos-btn_transparent ecos-journal-menu__close-list-item`}
+            onClick={this.delete}
+          />
+        ) : null}
+      </Fragment>
+    );
   }
 }
 
@@ -53,12 +74,24 @@ class JournalsMenu extends Component {
     this.props.initGrid({ journalId: nodeRef, journalSettingId: setting.id });
   };
 
+  deleteJournalSettings = item => {
+    this.props.deleteJournalSetting(item.id);
+  };
+
   getMenuJornals = journals => {
     return journals.map(journal => <ListItem onClick={this.onJornalSelect} item={journal} titleField={'title'} />);
   };
 
   getMenuJournalSettings = settings => {
-    return settings.map(setting => <ListItem onClick={this.onJournalSettingsSelect} item={setting} titleField={'preferences.title'} />);
+    return settings.map(setting => (
+      <ListItem
+        onClick={this.onJournalSettingsSelect}
+        onDelete={this.deleteJournalSettings}
+        removable
+        item={setting}
+        titleField={'preferences.title'}
+      />
+    ));
   };
 
   getSelectedIndex = (source, value, field) => {

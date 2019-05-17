@@ -17,12 +17,12 @@
       color: $color-white;
       border-radius: $border-radius-standard;
     }
-  }
 
-  .list-group-item_selected {
-    background: $color-blue-light;
-    color: $color-white;
-    border-radius: $border-radius-standard;
+    &.list-group-item_selected {
+      background: $color-blue-light;
+      color: $color-white;
+      border-radius: $border-radius-standard;
+    }
   }
 }
 

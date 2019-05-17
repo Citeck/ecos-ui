@@ -17,6 +17,7 @@ import {
   setSelectedRecords,
   saveJournalSetting,
   createJournalSetting,
+  deleteJournalSetting,
   setJournalSetting,
   setJournalSettings,
   setPredicate
@@ -39,7 +40,7 @@ function* sagaGetDashletEditorData({ api, logger }, action) {
     const config = action.payload || {};
     yield getJournalsList(api);
     yield getJournals(api, config.journalsListId);
-    yield getJournalSettings(api, config.journalType);
+    //yield getJournalSettings(api, config.journalType);
   } catch (e) {
     logger.error('[journals sagaGetDashletEditorData saga error', e.message);
   }
@@ -142,31 +143,31 @@ function* sagaInitGrid({ api, logger }, action) {
       predicates: []
     };
 
-    let journalSetting = journalSettingId ? yield call(api.journals.getJournalSetting, journalSettingId) : null;
+    // let journalSetting = journalSettingId ? yield call(api.journals.getJournalSetting, journalSettingId) : null;
+    //
+    // if (journalSetting) {
+    //   journalSetting.id = journalSettingId;
+    //
+    //   const { sortBy, groupBy, columns, predicate } = journalSetting;
+    //
+    //   params.sortBy = sortBy.map(sort => ({ ...sort }));
+    //   params.columns = columns.map(col => ({ ...col }));
+    //   params.groupBy = Array.from(groupBy);
+    //   params.predicates = predicate ? [{ ...predicate }] : [];
+    // } else {
+    //   const { sortBy, groupBy, columns } = params;
+    //
+    //   journalSetting = {
+    //     title: title,
+    //     sortBy: sortBy.map(sort => ({ ...sort })),
+    //     groupBy: groupBy ? Array.from(groupBy) : [],
+    //     columns: columns.map(col => ({ ...col })),
+    //     predicate: null
+    //   };
+    // }
 
-    if (journalSetting) {
-      journalSetting.id = journalSettingId;
-
-      const { sortBy, groupBy, columns, predicate } = journalSetting;
-
-      params.sortBy = sortBy.map(sort => ({ ...sort }));
-      params.columns = columns.map(col => ({ ...col }));
-      params.groupBy = Array.from(groupBy);
-      params.predicates = predicate ? [{ ...predicate }] : [];
-    } else {
-      const { sortBy, groupBy, columns } = params;
-
-      journalSetting = {
-        title: title,
-        sortBy: sortBy.map(sort => ({ ...sort })),
-        groupBy: groupBy ? Array.from(groupBy) : [],
-        columns: columns.map(col => ({ ...col })),
-        predicate: null
-      };
-    }
-
-    yield put(setJournalSetting(journalSetting));
-    yield put(setPredicate(journalSetting.predicate));
+    //yield put(setJournalSetting(journalSetting));
+    //yield put(setPredicate(journalSetting.predicate));
 
     let pagination = yield select(state => state.journals.grid.pagination);
     params.pagination = params.groupBy && params.groupBy.length ? { ...pagination, maxItems: undefined } : pagination;
@@ -235,6 +236,14 @@ function* sagaCreateJournalSetting({ api, logger }, action) {
   }
 }
 
+function* sagaDeleteJournalSetting({ api, logger }, action) {
+  try {
+    yield call(api.journals.deleteJournalSetting, action.payload);
+  } catch (e) {
+    logger.error('[journals sagaCreateJournalSetting saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getDashletConfig().type, sagaGetDashletConfig, ea);
   yield takeLatest(getDashletEditorData().type, sagaGetDashletEditorData, ea);
@@ -246,6 +255,7 @@ function* saga(ea) {
   yield takeLatest(saveRecords().type, sagaSaveRecords, ea);
   yield takeLatest(saveJournalSetting().type, sagaSaveJournalSetting, ea);
   yield takeLatest(createJournalSetting().type, sagaCreateJournalSetting, ea);
+  yield takeLatest(deleteJournalSetting().type, sagaDeleteJournalSetting, ea);
 }
 
 export default saga;

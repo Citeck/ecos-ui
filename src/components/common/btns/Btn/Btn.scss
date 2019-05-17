@@ -65,6 +65,15 @@ button {
     padding-right: 14px;
     padding-left: 14px;
   }
+
+  &.ecos-btn_transparent {
+    background-color: rgba(0, 0, 0, 0);
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0);
+    }
+  }
+
   &.ecos-btn_i {
     font-size: $font-size-extra-large;
     width: 40px;
@@ -141,6 +150,13 @@ button {
     height: 30px;
     padding: 0;
     border-radius: $border-radius-standard;
+  }
+
+  &.ecos-btn_i_12 {
+    font-size: $font-size-small;
+    width: 12px;
+    height: 12px;
+    padding: 0;
   }
 
   &.ecos-btn_narrow {
@@ -225,6 +241,10 @@ button {
     }
   }
 
+  &.ecos-btn_color_white {
+    color: $color-white;
+  }
+
   &.ecos-btn_white {
     background: $color-white;
     color: $color-gray-5;
@@ -292,6 +312,10 @@ button {
 
   &.ecos-btn_bgr-inherit {
     background: inherit;
+  }
+
+  &.ecos-btn_color-inherit {
+    color: inherit;
   }
 
   /*hovers*/

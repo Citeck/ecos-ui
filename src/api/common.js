@@ -21,6 +21,11 @@ const putOptions = {
   }
 };
 
+const deleteOptions = {
+  ...getOptions,
+  method: 'delete'
+};
+
 // const postUrlEncodedFormOptions = {
 //   ...getOptions,
 //   method: 'post',
@@ -68,6 +73,14 @@ export class CommonApi {
     return fetch(url, getOptions)
       .then(this.checkStatus)
       .then(parseHtml);
+  };
+
+  deleteJson = (url, notJsonResp) => {
+    const prms = fetch(url, {
+      ...deleteOptions
+    }).then(this.checkStatus);
+
+    return notJsonResp ? prms : prms.then(parseJSON);
   };
 
   putJson = (url, data, notJsonResp) => {
