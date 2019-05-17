@@ -11,7 +11,7 @@ import JournalsSettingsFooter from './JournalsSettingsFooter';
 import JournalsMenu from './JournalsMenu';
 import Search from '../common/Search/Search';
 
-import { getDashletConfig, reloadGrid } from '../../actions/journals';
+import { getJournalsData, reloadGrid } from '../../actions/journals';
 import { IcoBtn, TwoIcoBtn } from '../common/btns';
 import { Caption, Dropdown, Well } from '../common/form';
 
@@ -24,7 +24,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  getDashletConfig: id => dispatch(getDashletConfig(id)),
+  getJournalsData: ({ journalsListId, journalId, journalSettingId }) =>
+    dispatch(getJournalsData({ journalsListId, journalId, journalSettingId })),
   reloadGrid: options => dispatch(reloadGrid(options))
 });
 
@@ -35,7 +36,9 @@ class Journals extends Component {
   }
 
   componentDidMount() {
-    this.props.getDashletConfig(this.props.id);
+    const props = this.props;
+    const { journalsListId = '', journalId = '', journalSettingId = '' } = props;
+    props.getJournalsData({ journalsListId, journalId, journalSettingId });
   }
 
   showSettings = () => {

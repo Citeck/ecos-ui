@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import { IcoBtn } from '../../common/btns';
-import { initGrid, saveJournalSetting, deleteJournalSetting } from '../../../actions/journals';
+import { initGrid, deleteJournalSetting } from '../../../actions/journals';
 import { Well } from '../../common/form';
 import CollapsableList from '../../common/CollapsableList/CollapsableList';
 import { getPropByStringKey, t } from '../../../helpers/util';
@@ -145,7 +145,7 @@ class JournalsMenu extends Component {
           <CollapsableList
             classNameList={'ecos-list-group_mode_journal'}
             list={this.getMenuJournalSettings(journalSettings)}
-            selected={this.getSelectedIndex(journalSettings, journalSetting.id, 'id')}
+            selected={this.getSelectedIndex(journalSettings, journalSetting.id, 'id') || 0}
           >
             {t('journals.tpl.defaults')}
           </CollapsableList>
