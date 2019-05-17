@@ -8,7 +8,7 @@ import { Dropdown, Input } from '../common/form';
 import { t, closeFullscreen } from '../../helpers/util';
 
 const CUSTOM = 'custom';
-const ZOOM_STEP = 0.1;
+const ZOOM_STEP = 0.15;
 
 class Toolbar extends Component {
   static propTypes = {
@@ -47,18 +47,17 @@ class Toolbar extends Component {
     this.onChangeZoomOption(this.zoomOptions.find(el => el.scale === scale));
   }
 
-  /*componentWillReceiveProps(nextProps) {
-    let newState = { ...this.state };
-    let isChanged = false;
-    if (nextProps.totalPages !== this.props.totalPages) {
-      isChanged = true;
-      newState.currentPage = this.props.totalPages ? 1 : '';
+  componentWillReceiveProps(nextProps) {
+    let { scrollPage: currentPage, calcScale: scale } = nextProps;
+
+    if (currentPage !== this.props.scrollPage) {
+      this.setState({ currentPage });
     }
 
-    if (isChanged) {
-      this.setState({ ...newState })
+    if (scale !== this.props.calcScale) {
+      this.setState({ scale });
     }
-  }*/
+  }
 
   componentWillUnmount() {
     window.removeEventListener('fullscreenchange', this.onFullscreenchange, false);
@@ -125,11 +124,11 @@ class Toolbar extends Component {
     let currentScale = parseFloat(scale);
 
     if (Number.isNaN(currentScale)) {
-      currentScale = 1; //fixme
+      currentScale = 1;
     }
 
     currentScale += direction * ZOOM_STEP;
-    currentScale = +Number(currentScale).toFixed(1);
+    currentScale = +Number(currentScale).toFixed(2);
 
     let newState = { ...this.state, selectedZoom, scale: currentScale };
 

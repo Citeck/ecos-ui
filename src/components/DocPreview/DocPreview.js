@@ -9,7 +9,7 @@ import getViewer from './Viewer';
 import { isPDFbyStr, fileDownload } from '../../helpers/util';
 
 let _docPreview = 'ecos-doc-preview';
-let PDF = getViewer(PdfViewer, _docPreview);
+let PDF = getViewer(PdfViewer, _docPreview, true);
 let IMG = getViewer(ImgViewer, _docPreview);
 
 // 2.1.266 version of worker for 2.1.266 version of pdfjs-dist:
@@ -71,9 +71,17 @@ class DocPreview extends Component {
     fileDownload(link);
   };
 
+  setScrollPage = scrollPage => {
+    this.setState({ scrollPage });
+  };
+
+  setCalcScale = calcScale => {
+    this.setState({ calcScale });
+  };
+
   render() {
     let { link, height, scale } = this.props;
-    let { pdf, settings, isLoading } = this.state;
+    let { pdf, settings, isLoading, scrollPage, calcScale } = this.state;
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
 
@@ -86,9 +94,18 @@ class DocPreview extends Component {
           onChangeSettings={this.onChangeSettings}
           onDownload={this.onDownload}
           scale={scale}
+          scrollPage={scrollPage}
+          calcScale={calcScale}
         />
         {this.isPDF ? (
-          <PDF pdf={pdf} settings={{ ...settings }} isLoading={isLoading} height={height} />
+          <PDF
+            pdf={pdf}
+            settings={{ ...settings }}
+            isLoading={isLoading}
+            height={height}
+            scrollPage={this.setScrollPage}
+            calcScale={this.setCalcScale}
+          />
         ) : (
           <IMG urlImg={link} settings={settings} height={height} />
         )}

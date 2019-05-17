@@ -246,7 +246,7 @@ export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, rat
   let { width: cW, height: cH } = paramsContainer || {};
 
   let calcScale = (c, so) => {
-    return +Number((c - paddingContainer) / so).toFixed(1);
+    return +Number((c - paddingContainer) / so).toFixed(2);
   };
 
   let fit = ratio => {

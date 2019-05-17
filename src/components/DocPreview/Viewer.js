@@ -4,7 +4,7 @@ import { t } from '../../helpers/util';
 import { Scrollbars } from 'react-custom-scrollbars';
 import PropTypes from 'prop-types';
 
-export default function getViewer(WrappedComponent, ctrClass = '') {
+export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
   let _viewer = `${ctrClass}__viewer`;
 
   return class extends Component {
@@ -12,30 +12,38 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
       pdf: PropTypes.object,
       urlImg: PropTypes.string,
       isLoading: PropTypes.bool,
-      height: PropTypes.number
+      height: PropTypes.number,
+      scrollPage: PropTypes.func
     };
 
-    static defaultProps = {};
+    static defaultProps = {
+      scrollPage: () => {}
+    };
 
     constructor(props) {
       super(props);
-
+      this.state = {
+        scrollPage: 1
+      };
       this.refViewer = React.createRef();
     }
 
     componentWillReceiveProps(nextProps) {
-      let { isLoading } = this.props;
-      let { currentPage } = nextProps.settings;
+      if (isPdf) {
+        let { isLoading } = this.props;
+        let { currentPage } = nextProps.settings;
 
-      if (this.elScrollbar && !isLoading && currentPage !== this.props.settings.currentPage) {
-        let children = this.elScrollbar.view.children;
-        let childrenLen = children.length;
+        if (this.elScrollbar && !isLoading && currentPage !== this.props.settings.currentPage) {
+          let children = this.childrenScroll;
+          let childrenLen = children.length;
 
-        currentPage = currentPage > 0 && currentPage <= childrenLen ? currentPage : 1;
+          currentPage = currentPage > 0 && currentPage <= childrenLen ? currentPage : 1;
 
-        let scrollPage = this.elScrollbar.view.children[currentPage - 1].offsetTop - 10;
+          let scrollPage = children[currentPage - 1].offsetTop - 10;
 
-        this.elScrollbar.scrollTop(scrollPage);
+          this.elScrollbar.scrollTop(scrollPage);
+          this.setState({ scrollPage: currentPage });
+        }
       }
     }
 
@@ -43,6 +51,14 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
       const { refScrollbar } = this.refs;
 
       return refScrollbar;
+    }
+
+    get childrenScroll() {
+      if (this.elScrollbar) {
+        return this.elScrollbar.view.children || [];
+      }
+
+      return [];
     }
 
     get checkDoc() {
@@ -63,19 +79,24 @@ export default function getViewer(WrappedComponent, ctrClass = '') {
       return null;
     }
 
-    onScroll = e => {
-      console.log(e);
-    };
-
     onScrollFrame = e => {
-      console.log(e);
+      if (isPdf) {
+        let children = this.childrenScroll;
+        let coords = Array.from(children).map(el => el.offsetTop);
+        let found = coords.reverse().find(val => e.scrollTop + children[0].offsetHeight / 5 >= val);
+        let foundIdx = coords.reverse().findIndex(val => found === val);
+        let scrollPage = foundIdx + 1;
+
+        this.setState({ scrollPage });
+        this.props.scrollPage(scrollPage);
+      }
     };
 
     render() {
+      let { height } = this.props;
       let _doc = `${_viewer}__doc`;
       let newProps = { ...this.props, ctrClass: _doc, refViewer: this.refViewer };
       let checkDoc = this.checkDoc;
-      let { height } = this.props;
       const renderView = props => <div {...props} className={classNames(`${_doc}__scroll-area`)} />;
 
       return (

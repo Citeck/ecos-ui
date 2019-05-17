@@ -9,14 +9,16 @@ class PdfPage extends Component {
     settings: PropTypes.shape({
       scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       isFullscreen: PropTypes.bool
-    })
+    }),
+    calcScale: PropTypes.func
   };
 
   static defaultProps = {
     settings: {
       scale: 1,
       isFullscreen: false
-    }
+    },
+    calcScale: () => {}
   };
 
   refContainer = React.createRef();
@@ -66,10 +68,9 @@ class PdfPage extends Component {
     let elContainer = this.elContainer;
     let [x1, y1, width, height] = page.getViewport().viewBox;
     let { clientWidth: cW, clientHeight: cH } = elContainer;
+    let calcScale = getScale(scale, { width: cW, height: cH }, { width, height }, cW / 3);
 
-    scale = getScale(scale, { width: cW, height: cH }, { width, height }, cW / 3);
-
-    let viewport = page.getViewport(scale);
+    let viewport = page.getViewport(calcScale);
 
     canvas.height = viewport.height;
     canvas.width = viewport.width;
@@ -80,7 +81,10 @@ class PdfPage extends Component {
     };
 
     page.render(renderContext);
-    this.setState({ scale });
+
+    if (Number.isNaN(parseFloat(scale))) {
+      this.props.calcScale(calcScale);
+    }
   };
 
   render() {
