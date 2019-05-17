@@ -247,6 +247,10 @@ class PageTabs extends React.Component {
   }
 
   handleClickTab(tab) {
+    if (tab.isActive) {
+      return;
+    }
+
     this.activeTab = tab;
   }
 
@@ -370,10 +374,6 @@ class PageTabs extends React.Component {
   set activeTab(tab) {
     const { history, saveTabs } = this.props;
     const { tabs } = this.state;
-
-    if (tab.isActive) {
-      return;
-    }
 
     tabs.map(item => {
       item.isActive = item.id === tab.id;
