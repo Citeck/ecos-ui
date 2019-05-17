@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import Formio from 'formiojs/Formio';
 import FormBuilder from 'formiojs/FormBuilder';
 import Records from '../Records';
+import lodashGet from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -73,43 +75,31 @@ class EcosForm extends React.Component {
 
         let formDefinition = JSON.parse(JSON.stringify(formData.definition));
 
+        let attributesTitles = {};
         EcosForm.forEachComponent(formDefinition, component => {
-          if (component.key && (edgesData[component.key] || {}).protected) {
-            component.disabled = true;
+          let edgeData = edgesData[component.key] || {};
+
+          if (component.key) {
+            if (edgeData.protected) {
+              component.disabled = true;
+            }
+            if (edgeData.title) {
+              attributesTitles[component.label] = edgeData.title;
+            }
           }
         });
 
         let i18n = options.i18n || {};
-        let existingI18NRu = i18n.ru || {};
 
-        i18n.ru = {
-          complete: 'Сохранение прошло успешно',
-          error: 'Пожалуйста, исправьте следующие ошибки перед отправкой:',
-          invalid_date: '{{field}} некорректная дата.',
-          invalid_email: '{{field}} некорректный email.',
-          invalid_regex: '{{field}} не соответствует паттерну {{regex}}.',
-          mask: '{{field}} не совпадает с маской.',
-          max: '{{field}} не может быть больше чем {{max}}.',
-          maxLength: '{{field}} должен быть короче чем {{length}} символов.',
-          min: '{{field}} не может быть меньше чем {{min}}.',
-          minLength: '{{field}} должен быть длиннее чем {{length}} символов.',
-          next: 'Далее',
-          pattern: '{{field}} не совпадает с паттерном {{pattern}}',
-          previous: 'Назад',
-          required: 'Поле {{field}} не может быть пустым',
-          ...existingI18NRu
-        };
+        let language = options.language || EcosForm.getCurrentLanguage();
+        options.language = language;
+
+        let defaultI18N = i18n[language] || {};
+        let formI18N = (formData.i18n || {})[language] || {};
+
+        i18n[language] = EcosForm.getI18n(defaultI18N, attributesTitles, formI18N);
 
         options.i18n = i18n;
-
-        if (!options.language) {
-          let lang = navigator.language || navigator.userLanguage || 'ru';
-          if (lang.indexOf('ru') === 0) {
-            options.language = 'ru';
-          } else if (lang.indexOf('en') === 0) {
-            options.language = 'en';
-          }
-        }
 
         let formPromise = Formio.createForm(document.getElementById(this.state.containerId), formDefinition, options);
 
@@ -159,6 +149,11 @@ class EcosForm extends React.Component {
         });
       });
     });
+  }
+
+  static getCurrentLanguage() {
+    let lang = navigator.language || navigator.userLanguage || 'en';
+    return lang.split('_')[0];
   }
 
   fireEvent(event, data) {
@@ -240,7 +235,14 @@ class EcosForm extends React.Component {
 
         let multiplePostfix = component.multiple ? 's' : '';
         let schema = '.att' + multiplePostfix + '(n:"' + attribute + '"){' + attributeSchema + '}';
-        let edgeSchema = '.edge(n:"' + attribute + '"){protected,type}';
+        let edgeSchema = '.edge(n:"' + attribute + '"){protected,';
+        if (component.label === attribute) {
+          edgeSchema += 'title}';
+        } else {
+          // Type is not used. Just to add more than 1 field in result to avoid simplifying
+          // result: {protected:true} -> result: true
+          edgeSchema += 'type}';
+        }
 
         inputs.push({
           attribute: attribute,
@@ -252,6 +254,21 @@ class EcosForm extends React.Component {
     });
 
     return inputs;
+  }
+
+  static getI18n(defaultI18n, attributes, formI18n) {
+    let global = lodashGet(window, 'Alfresco.messages.global', {});
+
+    let result = cloneDeep(defaultI18n);
+
+    const globalPrefix = 'ecos.forms.';
+    for (let key in global) {
+      if (global.hasOwnProperty(key) && key.indexOf(globalPrefix) === 0) {
+        result[key.substring(globalPrefix.length)] = global[key];
+      }
+    }
+
+    return Object.assign(result, attributes, formI18n);
   }
 
   static getData(recordId, inputs) {
@@ -268,7 +285,7 @@ class EcosForm extends React.Component {
       }
     }
 
-    return Records.get(recordId).load(attributes);
+    return Records.get(recordId).load(attributes, true);
   }
 
   render() {
@@ -276,26 +293,20 @@ class EcosForm extends React.Component {
   }
 
   getForm() {
-    return Records.query({
-      query: {
+    return Records.queryOne(
+      {
         sourceId: 'eform',
         query: {
           record: this.props.record,
           formKey: this.props.formKey
         }
       },
-      attributes: {
-        formDef: 'definition?json',
-        customModule: 'customModule'
+      {
+        definition: 'definition?json',
+        customModule: 'customModule',
+        i18n: 'i18n?json'
       }
-    }).then(data => {
-      let formAtts = data.records[0];
-
-      return Promise.resolve({
-        definition: formAtts.formDef,
-        customModule: formAtts.customModule
-      });
-    });
+    );
   }
 }
 
