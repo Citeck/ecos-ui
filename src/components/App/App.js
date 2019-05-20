@@ -56,10 +56,10 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
             render={() => (
               <div style={{ display: 'flex', flex: 1 }}>
                 <div style={{ width: '100%', margin: '10px' }}>
-                  <DocPreviewDashlet id={'dashletId-1-1-2'} config={{ link: 'testPdf.pdf', height: 700 }} />
+                  <DocPreviewDashlet id={'dashletId-1-1-2'} config={{ link: 'testPdf.pdf', height: 500 }} />
                 </div>
                 <div style={{ width: '100%', margin: '10px' }}>
-                  <DocPreviewDashlet id={'dashletId-1-1-2'} config={{ link: 'testImg.jpg', height: 400, scale: 1 }} />
+                  <DocPreviewDashlet id={'dashletId-1-1-2'} config={{ link: 'testImg.jpg', height: 800, scale: 1 }} />
                 </div>
               </div>
             )}
