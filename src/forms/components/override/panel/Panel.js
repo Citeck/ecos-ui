@@ -10,7 +10,6 @@ export default class PanelComponent extends FormIOPanelComponent {
 
     super.build(state);
 
-    console.log('this.element', this.element);
     this.element.classList.remove('mb-2');
 
     if (hidePanels) {

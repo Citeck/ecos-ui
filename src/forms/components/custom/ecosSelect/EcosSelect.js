@@ -47,6 +47,18 @@ export default class SelectComponent extends BaseComponent {
     };
   }
 
+  createViewOnlyValue(container) {
+    if (this.component.dataSrc === 'url') {
+      this.updateItems('', !this.active, () => {
+        super.createViewOnlyValue(container);
+      });
+
+      return;
+    }
+
+    super.createViewOnlyValue(container);
+  }
+
   constructor(component, options, data) {
     super(component, options, data);
 
@@ -242,7 +254,9 @@ export default class SelectComponent extends BaseComponent {
   stopInfiniteScroll() {
     // Remove the infinite scroll listener.
     this.scrollLoading = false;
-    this.scrollList.removeEventListener('scroll', this.onScroll);
+    if (this.scrollList) {
+      this.scrollList.removeEventListener('scroll', this.onScroll);
+    }
   }
 
   /* eslint-disable max-statements */
@@ -347,13 +361,15 @@ export default class SelectComponent extends BaseComponent {
   }
   /* eslint-enable max-statements */
 
-  loadItems(url, search, headers, options, method, body) {
+  loadItems(url, search, headers, options, method, body, callback) {
     options = options || {};
 
     // See if they have not met the minimum search requirements.
     const minSearch = parseInt(this.component.minSearch, 10);
     if (this.component.searchField && minSearch > 0 && (!search || search.length < minSearch)) {
       // Set empty items.
+      typeof callback === 'function' && callback();
+
       return this.setItems([]);
     }
 
@@ -444,6 +460,9 @@ export default class SelectComponent extends BaseComponent {
         this.loading = false;
         const scrollTop = !this.scrollLoading && this.currentItems.length === 0;
         this.setItems(response, !!search);
+
+        typeof callback === 'function' && callback();
+
         if (scrollTop && this.choices) {
           this.choices.choiceList.scrollToTop();
         }
@@ -452,6 +471,9 @@ export default class SelectComponent extends BaseComponent {
         this.stopInfiniteScroll();
         this.loading = false;
         this.itemsLoadedResolve();
+
+        typeof callback === 'function' && callback();
+
         this.emit('componentError', {
           component: this.component,
           message: err.toString()
@@ -498,7 +520,7 @@ export default class SelectComponent extends BaseComponent {
   }
 
   /* eslint-disable max-statements */
-  updateItems(searchInput, forceUpdate) {
+  updateItems(searchInput, forceUpdate, callback) {
     if (!this.component.data) {
       console.warn(`Select component ${this.key} does not have data configuration.`);
       this.itemsLoadedResolve();
@@ -565,7 +587,7 @@ export default class SelectComponent extends BaseComponent {
           }
         }
         const options = this.component.authenticate ? {} : { noToken: true };
-        this.loadItems(url, searchInput, this.requestHeaders, options, method, body);
+        this.loadItems(url, searchInput, this.requestHeaders, options, method, body, callback);
         break;
       }
       default:
@@ -974,6 +996,20 @@ export default class SelectComponent extends BaseComponent {
    */
   asString(value) {
     value = value || this.getValue();
+
+    if (this.component.dataSrc === 'url') {
+      const selectedItems = this.currentItems
+        .filter(item => {
+          if (Array.isArray(value)) {
+            return value.indexOf(item.value) !== -1;
+          }
+
+          return item.value === value;
+        })
+        .map(item => item.label);
+
+      return selectedItems.length > 0 ? selectedItems.join('<br />') : '-';
+    }
 
     if (['values', 'custom'].includes(this.component.dataSrc)) {
       const { items, valueProperty } =

@@ -346,7 +346,8 @@ export default class SelectJournal extends Component {
     } = this.state;
 
     const wrapperClasses = classNames('select-journal', {
-      'select-journal_compact': isCompact
+      'select-journal_compact': isCompact,
+      'select-journal_view-only': viewOnly
     });
 
     const inputViewProps = {
