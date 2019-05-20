@@ -16,6 +16,7 @@ class PageTabs extends React.Component {
     homepageName: PropTypes.string,
     isShow: PropTypes.bool,
     tabs: PropTypes.array,
+    linkIgnoreAttr: PropTypes.string,
 
     saveTabs: PropTypes.func
   };
@@ -25,6 +26,7 @@ class PageTabs extends React.Component {
     homepageName: TITLE.HOMEPAGE,
     isShow: false,
     tabs: [],
+    linkIgnoreAttr: 'data-external',
 
     saveTabs: () => {}
   };
@@ -184,10 +186,10 @@ class PageTabs extends React.Component {
   };
 
   handleClickLink = event => {
-    const { isShow } = this.props;
+    const { isShow, linkIgnoreAttr } = this.props;
     const elem = event.target;
 
-    if (!isShow || elem.tagName !== LINK_TAG) {
+    if (!isShow || elem.tagName !== LINK_TAG || !!elem.getAttribute(linkIgnoreAttr)) {
       return;
     }
 
@@ -549,8 +551,16 @@ class PageTabs extends React.Component {
         {this.renderChildren()}
         <a href="/share/page/journals">Журнал на этой странице</a>
         <br />
+        <a href="/share/page/journals" data-external="true">
+          Журнал на этой странице с перехагрузкой
+        </a>
+        <br />
         <a href="/share/page/journalsDashboard" target="_blank">
           Журнал дашборд на новой странице
+        </a>
+        <br />
+        <a href="/share/page/journalsDashboard" data-external target="_blank">
+          Журнал дашборд в новой вкладке
         </a>
       </React.Fragment>
     );
