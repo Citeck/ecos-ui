@@ -13,7 +13,8 @@ import './JournalsDashlet.scss';
 
 const mapStateToProps = state => ({
   editorMode: state.journals.editorMode,
-  journalConfig: state.journals.journalConfig
+  journalConfig: state.journals.journalConfig,
+  config: state.journals.config
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -30,31 +31,26 @@ class JournalsDashlet extends Component {
   showEditor = () => this.props.setEditorMode(true);
 
   goToJournalsPage = () => {
-    //window.open(`${URL_PAGECONTEXT}journals?dashletId=${this.props.id}`, '_blank');
-
+    const { journalsListId = '', journalId = '', journalSettingId = '' } = this.props.config;
     window.open(
-      `${URL_PAGECONTEXT}journals2/list/tasks#journal=${this.props.journalConfig.meta.nodeRef}&filter=&settings=&skipCount=0&maxItems=10`,
+      `${URL_PAGECONTEXT}journals?journalsListId=${journalsListId}&journalId=${journalId}&journalSettingId=${journalSettingId}`,
       '_blank'
     );
   };
 
   render() {
-    const {
-      journalConfig: {
-        meta: { title = '' }
-      },
-      className,
-      id,
-      editorMode,
-      reloadGrid
-    } = this.props;
+    const { journalConfig, className, id, editorMode, reloadGrid } = this.props;
+
+    if (!journalConfig.id) {
+      return null;
+    }
 
     return (
       <Dashlet
         {...this.props}
         className={classNames('ecos-journal-dashlet', className)}
         bodyClassName={'ecos-journal-dashlet__body'}
-        title={title}
+        title={journalConfig.meta.title || ''}
         onReload={reloadGrid}
         onEdit={this.showEditor}
         onGoTo={this.goToJournalsPage}

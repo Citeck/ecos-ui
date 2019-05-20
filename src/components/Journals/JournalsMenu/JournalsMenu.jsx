@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import { IcoBtn } from '../../common/btns';
-import { initGrid, saveJournalSetting, deleteJournalSetting } from '../../../actions/journals';
-import { Well } from '../../common/form';
 import CollapsableList from '../../common/CollapsableList/CollapsableList';
+import { IcoBtn } from '../../common/btns';
+import { Well } from '../../common/form';
+import { deleteJournalSetting, onJournalSettingsSelect, onJournalSelect } from '../../../actions/journals';
 import { getPropByStringKey, t } from '../../../helpers/util';
 
 import './JournalsMenu.scss';
@@ -16,8 +16,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  initGrid: options => dispatch(initGrid(options)),
-  deleteJournalSetting: id => dispatch(deleteJournalSetting(id))
+  deleteJournalSetting: id => dispatch(deleteJournalSetting(id)),
+  onJournalSettingsSelect: journalSettingId => dispatch(onJournalSettingsSelect(journalSettingId)),
+  onJournalSelect: journalId => dispatch(onJournalSelect(journalId))
 });
 
 class ListItem extends Component {
@@ -40,7 +41,7 @@ class ListItem extends Component {
           {getPropByStringKey(item, titleField)}
         </span>
 
-        {removable ? (
+        {removable && !item.notRemovable ? (
           <IcoBtn
             icon={'icon-close'}
             className={`ecos-btn ecos-btn_i_12 ecos-btn_r_0 ecos-btn_color-inherit ecos-btn_transparent ecos-journal-menu__close-list-item`}
@@ -61,17 +62,11 @@ class JournalsMenu extends Component {
   };
 
   onJornalSelect = journal => {
-    this.props.initGrid({ journalId: journal.nodeRef, journalSettingId: this.props.journalSetting.id });
+    this.props.onJournalSelect(journal.nodeRef);
   };
 
   onJournalSettingsSelect = setting => {
-    const {
-      journalConfig: {
-        meta: { nodeRef }
-      }
-    } = this.props;
-
-    this.props.initGrid({ journalId: nodeRef, journalSettingId: setting.id });
+    this.props.onJournalSettingsSelect(setting.id);
   };
 
   deleteJournalSettings = item => {
@@ -145,7 +140,7 @@ class JournalsMenu extends Component {
           <CollapsableList
             classNameList={'ecos-list-group_mode_journal'}
             list={this.getMenuJournalSettings(journalSettings)}
-            selected={this.getSelectedIndex(journalSettings, journalSetting.id, 'id')}
+            selected={this.getSelectedIndex(journalSettings, journalSetting.id, 'id') || 0}
           >
             {t('journals.tpl.defaults')}
           </CollapsableList>
