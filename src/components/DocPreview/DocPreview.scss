@@ -23,7 +23,7 @@ $border-base: #c1c1c1;
     align-items: center;
     background-color: $background-toolbar;
     border-bottom: 1px solid $border-base;
-    height: 45px;
+    min-height: 45px;
 
     & > * {
       padding: 0 20px;
