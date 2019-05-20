@@ -1,7 +1,7 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
-import { getScrollbarWidth } from '../../helpers/util';
+import { getScrollbarWidth, deepClone } from '../../helpers/util';
 import { SortableContainer, SortableElement } from './sortable';
 import { SCROLL_STEP, TITLE, LINK_TAG } from '../../constants/pageTabs';
 import './style.scss';
@@ -33,7 +33,8 @@ class PageTabs extends React.Component {
     tabs: [],
     isActiveLeftArrow: false,
     isActiveRightArrow: false,
-    needArrow: false
+    needArrow: false,
+    draggableNode: null
   };
 
   constructor(props) {
@@ -48,6 +49,7 @@ class PageTabs extends React.Component {
     this.initArrows();
 
     document.addEventListener('click', this.handleClickLink);
+    window.addEventListener('popstate', this.handlePopState);
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -71,6 +73,7 @@ class PageTabs extends React.Component {
     window.clearInterval(this.checkArrowID);
     this.checkArrowID = null;
     document.removeEventListener('click', this.handleClickLink);
+    window.removeEventListener('popstate', this.handlePopState);
   }
 
   initArrows() {
@@ -159,6 +162,26 @@ class PageTabs extends React.Component {
       });
     }
   }
+
+  handlePopState = () => {
+    const {
+      tabs,
+      saveTabs,
+      homepageName,
+      history: {
+        location: { pathname, search, hash }
+      }
+    } = this.props;
+    const newTabs = deepClone(tabs);
+    const tab = newTabs.find(tab => tab.isActive);
+    const linkFromUrl = [pathname, search, hash].join('');
+
+    tab.link = linkFromUrl;
+    tab.title = this.getTitle(linkFromUrl) || homepageName;
+
+    saveTabs(newTabs);
+    this.setState({ tabs: newTabs });
+  };
 
   handleClickLink = event => {
     const { isShow } = this.props;
@@ -345,8 +368,19 @@ class PageTabs extends React.Component {
     }
   };
 
+  handleBeforeSortStart = ({ node }) => {
+    node.classList.toggle('page-tab__tabs-item_sorting');
+
+    this.setState({
+      draggableNode: node
+    });
+  };
+
   handleSortEnd = ({ oldIndex, newIndex }, event) => {
+    const { draggableNode } = this.state;
+
     event.stopPropagation();
+    draggableNode.classList.toggle('page-tab__tabs-item_sorting');
 
     this.setState(state => {
       const { tabs } = state;
@@ -361,7 +395,7 @@ class PageTabs extends React.Component {
 
       this.props.saveTabs(tabs);
 
-      return { tabs };
+      return { tabs, draggableNode: null };
     });
   };
 
@@ -460,7 +494,7 @@ class PageTabs extends React.Component {
 
   renderTabWrapper() {
     const { isShow } = this.props;
-    const { tabs, isActiveRightArrow, needArrow } = this.state;
+    const { tabs, isActiveRightArrow, isActiveLeftArrow, needArrow } = this.state;
 
     if (!tabs.length || !isShow) {
       return null;
@@ -468,14 +502,26 @@ class PageTabs extends React.Component {
 
     const className = ['page-tab'];
 
-    if (isActiveRightArrow && needArrow) {
-      className.push('page-tab_with-scroll');
+    if (needArrow) {
+      if (isActiveRightArrow) {
+        className.push('page-tab_gradient-right');
+      }
+
+      if (isActiveLeftArrow) {
+        className.push('page-tab_gradient-left');
+      }
     }
 
     return (
       <div className={className.join(' ')}>
         {this.renderLeftButton()}
-        <SortableContainer axis="x" lockAxis="x" distance={3} onSortEnd={this.handleSortEnd}>
+        <SortableContainer
+          axis="x"
+          lockAxis="x"
+          distance={3}
+          updateBeforeSortStart={this.handleBeforeSortStart}
+          onSortEnd={this.handleSortEnd}
+        >
           <div className="page-tab__tabs" ref={this.$tabWrapper}>
             {this.sortableTabs.map(this.renderTabItem)}
           </div>
