@@ -10,37 +10,31 @@ import { t, trigger } from '../../helpers/util';
 import './ColumnsSetup.scss';
 
 class ListItem extends Component {
-  constructor(props) {
-    super(props);
-    const { column, sortBy } = props;
-    this.state = { selected: this.getSelected(column, sortBy) };
-  }
-
-  options = [{ title: 'По возрастанию', value: true }, { title: 'По убыванию', value: false }];
+  sortTypes = [{ title: t('columns-setup.ascending'), value: true }, { title: t('columns-setup.descending'), value: false }];
 
   changeVisible = e => {
-    this.props.column.default = e.checked;
-    trigger.call(this, 'onChangeVisible', e);
+    trigger.call(this, 'onChangeVisible', { column: this.props.column, checked: e.checked });
   };
 
   changeSortBy = e => {
-    this.props.sortBy[0] = {
-      ascending: e.value,
-      attribute: this.props.column.attribute
-    };
-
-    this.setState({ selected: e });
-
-    trigger.call(this, 'onChangeSortBy', e);
+    trigger.call(this, 'onChangeSortBy', {
+      column: this.props.column,
+      sort: e
+        ? {
+            ascending: e.value,
+            attribute: this.props.column.attribute
+          }
+        : null
+    });
   };
 
   getSelected = (column, sortBy) => {
     const sort = sortBy.filter(s => s.attribute === column.attribute)[0];
-    return sort ? this.options.filter(o => o.value === sort.ascending)[0] : null;
+    return sort ? this.sortTypes.filter(o => o.value === sort.ascending)[0] : null;
   };
 
   render() {
-    const { column, titleField } = this.props;
+    const { column, titleField, sortBy } = this.props;
 
     return (
       <Columns
@@ -53,13 +47,14 @@ class ListItem extends Component {
           </div>,
 
           <Select
-            options={this.options}
+            isClearable={true}
+            options={this.sortTypes}
             getOptionLabel={option => option.title}
             getOptionValue={option => option.value}
             onChange={this.changeSortBy}
             className={'select_narrow select_width_full'}
             placeholder={t('journals.default')}
-            value={this.state.selected}
+            value={this.getSelected(column, sortBy)}
           />
         ]}
       />
@@ -80,26 +75,53 @@ export default class ColumnsSetup extends Component {
     );
   };
 
-  onOrder = orderedColumns => {
-    for (let i = 0, length = this.props.columns.length; i < length; i++) {
-      this.props.columns[i] = orderedColumns[i];
-    }
-    const { columns, sortBy } = this.props;
+  onChangeOrder = columns => {
+    this.onChange(columns, this.props.sortBy);
+  };
+
+  onChangeVisible = ({ column, checked }) => {
+    const columns = this.setColumnVisible(column, checked);
+
+    const sortBy = checked ? this.props.sortBy : this.setSortBy(column, null);
+
     this.onChange(columns, sortBy);
   };
 
-  onChangeVisible = () => {
-    const { columns, sortBy } = this.props;
-    this.onChange(columns, sortBy);
-  };
-
-  onChangeSortBy = () => {
-    const { columns, sortBy } = this.props;
+  onChangeSortBy = ({ sort, column }) => {
+    const sortBy = this.setSortBy(column, sort);
+    const columns = sort ? this.setColumnVisible(column, true) : this.props.columns;
     this.onChange(columns, sortBy);
   };
 
   onChange = (columns, sortBy) => {
     trigger.call(this, 'onChange', { columns, sortBy });
+  };
+
+  setSortBy = (column, sort) => {
+    let sortBy = this.props.sortBy;
+
+    if (sort) {
+      const match = sortBy.filter(s => s.attribute === sort.attribute)[0];
+
+      if (match) {
+        sortBy = sortBy.map(s => (s.attribute === sort.attribute ? sort : s));
+      } else {
+        sortBy.push(sort);
+      }
+    } else {
+      sortBy = sortBy.filter(s => s.attribute !== column.attribute);
+    }
+
+    return sortBy;
+  };
+
+  setColumnVisible = (column, checked) => {
+    return this.props.columns.map(c => {
+      if (c.attribute === column.attribute) {
+        c.default = checked;
+      }
+      return c;
+    });
   };
 
   render() {
@@ -119,7 +141,13 @@ export default class ColumnsSetup extends Component {
         </div>
 
         <div className={'columns-setup__content'}>
-          <DndList classNameItem={'columns-setup__item'} sortBy={sortBy} data={columns} tpl={this.getListItem} onOrder={this.onOrder} />
+          <DndList
+            classNameItem={'columns-setup__item'}
+            sortBy={sortBy}
+            data={columns}
+            tpl={this.getListItem}
+            onOrder={this.onChangeOrder}
+          />
         </div>
       </div>
     );

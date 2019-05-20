@@ -109,7 +109,11 @@
     }
 
     .select__dropdown-indicator {
-      padding: 0 8px;
+      padding: 0 8px 0 0;
+    }
+
+    .select__clear-indicator {
+      padding: 0;
     }
 
     .select__input {
@@ -130,7 +134,12 @@
     }
 
     .select__dropdown-indicator {
-      padding: 0 8px;
+      padding: 0 8px 0 0;
+      margin-top: -4px;
+    }
+
+    .select__clear-indicator {
+      padding: 0;
       margin-top: -4px;
     }
 
