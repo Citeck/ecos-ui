@@ -166,12 +166,13 @@ class Toolbar extends Component {
     let { totalPages, totalPages: numPages, ctrClass, isPDF } = this.props;
 
     let _toolbar = `${ctrClass}__toolbar`;
-    let _commonBtn = `ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-blue ecos-btn_tight`;
+    let _group = `${_toolbar}__group`;
+    let _commonBtn = `ecos-btn_narrow ecos-btn_tight`;
 
     return (
       <div className={classNames(_toolbar)}>
         {isPDF && (
-          <div className={classNames(`${_toolbar}__pager`)}>
+          <div className={classNames(`${_group} ${_toolbar}__pager`)}>
             <IcoBtn
               icon={'icon-left'}
               className={classNames(_commonBtn, `${_toolbar}__pager__prev`, { 'ecos-btn_disabled': currentPage === 1 })}
@@ -180,8 +181,7 @@ class Toolbar extends Component {
             {!!totalPages && (
               <Fragment>
                 <Input type="text" onChange={this.goToPage} value={currentPage} className={classNames(`${_toolbar}__pager__input`)} />
-                <span className={`${_toolbar}__pager_text`}> {t('pagination.from')} </span>
-                <span className={`${_toolbar}__pager_text`}>{totalPages}</span>
+                <span className={`${_toolbar}__pager_text`}> {`${t('pagination.from')} ${totalPages}`} </span>
               </Fragment>
             )}
             <IcoBtn
@@ -191,7 +191,7 @@ class Toolbar extends Component {
             />
           </div>
         )}
-        <div className={classNames(`${_toolbar}__zoom`)}>
+        <div className={classNames(`${_group} ${_toolbar}__zoom`)}>
           <IcoBtn
             icon={'icon-minus'}
             className={classNames(_commonBtn, { 'ecos-btn_disabled': scale <= ZOOM_STEP })}
@@ -209,7 +209,7 @@ class Toolbar extends Component {
           </Dropdown>
           <IcoBtn icon={'glyphicon glyphicon-fullscreen'} className={_commonBtn} onClick={e => this.setFullScreen(true)} />
         </div>
-        <div className={classNames(`${_toolbar}__download`)}>
+        <div className={classNames(`${_group} ${_toolbar}__download`)}>
           <IcoBtn icon={'icon-download'} className={_commonBtn} onClick={this.props.onDownload}>
             {t('Скачать')}
           </IcoBtn>
