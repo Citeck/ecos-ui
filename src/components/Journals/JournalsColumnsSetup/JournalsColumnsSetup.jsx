@@ -8,8 +8,7 @@ import { t } from '../../../helpers/util';
 import './JournalsColumnsSetup.scss';
 
 const mapStateToProps = state => ({
-  journalSetting: state.journals.journalSetting,
-  journalConfig: state.journals.journalConfig
+  columnsSetup: state.journals.columnsSetup
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -22,18 +21,7 @@ class JournalsColumnsSetup extends Component {
   };
 
   render() {
-    let { columns, sortBy, groupBy } = this.props.journalSetting;
-
-    columns = groupBy.length ? this.props.journalConfig.columns : columns;
-
-    columns = columns.map(col => ({ ...col }));
-    sortBy = sortBy.map(sort => ({ ...sort }));
-
-    this.onChange({ columns, sortBy });
-
-    if (!columns.length) {
-      return null;
-    }
+    let { columns, sortBy } = this.props.columnsSetup;
 
     return (
       <PanelBar

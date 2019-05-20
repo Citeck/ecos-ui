@@ -1,0 +1,87 @@
+@import '../../../constants';
+
+.formio-dialog-content .preview-panel,
+.formio-form {
+  .formio-component {
+    .col-view-mode {
+      ul {
+        margin-bottom: 0;
+      }
+
+      dl {
+        margin-bottom: 0;
+        padding: 12px 0;
+        border-bottom: 2px solid $color-gray-4;
+
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+
+        &:empty {
+          display: none;
+        }
+      }
+
+      dt {
+        font-weight: $font-weight-bold;
+
+        padding-right: 45px;
+        display: inline-block;
+        width: 45%;
+      }
+
+      dd {
+        font-weight: $font-weight-normal;
+        margin-bottom: 0;
+        font-size: $font-size-small;
+        color: $text-color-gray;
+
+        display: inline-block;
+        width: 55%;
+      }
+
+      &_wrap {
+        dl {
+          display: block;
+        }
+
+        dt {
+          padding-right: 0;
+          display: block;
+          width: 100%;
+        }
+
+        dd {
+          display: block;
+          width: 100%;
+          margin-top: 5px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 1000px) {
+  .formio-dialog-content .preview-panel,
+  .formio-form {
+    .formio-component {
+      .col-view-mode {
+        dl {
+          display: block;
+        }
+
+        dt {
+          padding-right: 0;
+          display: block;
+          width: 100%;
+        }
+
+        dd {
+          display: block;
+          width: 100%;
+          margin-top: 5px;
+        }
+      }
+    }
+  }
+}

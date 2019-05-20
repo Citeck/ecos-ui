@@ -98,7 +98,7 @@ export class CommonApi {
       body: JSON.stringify(data)
     }).then(this.checkStatus);
 
-    return notJsonResp ? prms : prms.then(parseJSON);
+    return notJsonResp ? prms.then(resp => resp.text()) : prms.then(parseJSON);
   };
 
   // postUrlEncodedForm = (url, data) => {

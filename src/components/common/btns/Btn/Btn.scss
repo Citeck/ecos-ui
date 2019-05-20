@@ -312,6 +312,10 @@ button {
 
   &.ecos-btn_bgr-inherit {
     background: inherit;
+    &:active,
+    &:focus {
+      background: inherit;
+    }
   }
 
   &.ecos-btn_color-inherit {
