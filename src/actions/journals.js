@@ -7,6 +7,7 @@ export const setDashletConfig = createAction(prefix + 'SET_DASHLET_CONFIG');
 export const saveDashlet = createAction(prefix + 'SAVE_DASHLET');
 export const getDashletEditorData = createAction(prefix + 'GET_DASHLET_EDITOR_DATA');
 export const setEditorMode = createAction(prefix + 'SET_EDITOR_MODE');
+export const initJournal = createAction(prefix + 'INIT_JOURNAL');
 
 export const setJournalsListItem = createAction(prefix + 'SET_JOURNALS_LIST_ITEM');
 export const setJournalsItem = createAction(prefix + 'SET_JOURNALS_ITEM');
@@ -16,7 +17,6 @@ export const setJournals = createAction(prefix + 'SET_JOURNALS');
 
 export const setJournalConfig = createAction(prefix + 'SET_JOURNAL_CONFIG');
 export const setGrid = createAction(prefix + 'SET_GRID');
-export const initGrid = createAction(prefix + 'INIT_GRID');
 export const reloadGrid = createAction(prefix + 'RELOAD_GRID');
 export const reloadTreeGrid = createAction(prefix + 'RELOAD_TREE_GRID');
 
@@ -37,3 +37,6 @@ export const setJournalSettings = createAction(prefix + 'SET_JOURNAL_SETTINGS');
 export const setPredicate = createAction(prefix + 'SET_PREDICATE');
 export const setColumnsSetup = createAction(prefix + 'SET_COLUMNS_SETUP');
 export const setGrouping = createAction(prefix + 'SET_GROUPING');
+
+export const onJournalSettingsSelect = createAction(prefix + 'ON_JOURNAL_SETTINGS_SELECT');
+export const onJournalSelect = createAction(prefix + 'ON_JOURNAL_SELECT');

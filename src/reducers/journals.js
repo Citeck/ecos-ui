@@ -20,6 +20,7 @@ import {
   setGrouping
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
+import { t } from '../helpers/util';
 
 const initialState = {
   loading: true,
@@ -110,7 +111,14 @@ export default handleActions(
     [setJournalSettings]: (state, action) => {
       return {
         ...state,
-        journalSettings: Array.from(action.payload)
+        journalSettings: [
+          {
+            id: '',
+            preferences: { title: t('journals.default') },
+            notRemovable: true
+          },
+          ...Array.from(action.payload)
+        ]
       };
     },
     [setJournalSetting]: (state, action) => {

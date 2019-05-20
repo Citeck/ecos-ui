@@ -32,16 +32,10 @@ class JournalsDashlet extends Component {
 
   goToJournalsPage = () => {
     const { journalsListId = '', journalId = '', journalSettingId = '' } = this.props.config;
-
     window.open(
       `${URL_PAGECONTEXT}journals?journalsListId=${journalsListId}&journalId=${journalId}&journalSettingId=${journalSettingId}`,
       '_blank'
     );
-
-    // window.open(
-    //   `${URL_PAGECONTEXT}journals2/list/tasks#journal=${this.props.journalConfig.meta.nodeRef}&filter=&settings=&skipCount=0&maxItems=10`,
-    //   '_blank'
-    // );
   };
 
   render() {
