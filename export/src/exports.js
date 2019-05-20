@@ -20,4 +20,6 @@ export default {
   'journals-dashlet': () => import('../../src/components/Journals/JournalsDashlet/export'),
   'ecos-form': () => import('../../src/components/EcosForm/export'),
   'idle-timer': () => import('../../src/components/IdleTimer'),
+  'eform-locale-editor': () => import('../../src/components/EcosForm/locale/FormLocaleEditorModal'),
+  'eform-builder': () => import('../../src/components/EcosForm/builder/EcosFormBuilderModal')
 };

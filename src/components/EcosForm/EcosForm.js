@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Formio from 'formiojs/Formio';
-import FormBuilder from 'formiojs/FormBuilder';
 import Records from '../Records';
 import lodashGet from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import EcosFormBuilder from './builder/EcosFormBuilder';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -321,4 +321,4 @@ EcosForm.propTypes = {
 };
 
 export default EcosForm;
-export { FormBuilder, EcosForm };
+export { EcosForm, EcosFormBuilder };
