@@ -5,6 +5,16 @@ export default class ColumnComponent extends FormIOColumnComponent {
     const comp = this.component;
     const classList = [];
 
+    if (this.options.viewAsHtmlConfig && this.options.viewAsHtmlConfig.fullWidthColumns) {
+      classList.push('col-12', 'col-view-mode');
+
+      if (this.options.viewAsHtmlConfig.alwaysWrap) {
+        classList.push('col-view-mode_wrap');
+      }
+
+      return classList.join(' ');
+    }
+
     // TODO check it
     if (!comp.xs && !comp.sm) {
       classList.push('col', `col-sm-${comp.width ? comp.width : 6}`);

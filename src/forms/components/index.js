@@ -3,6 +3,7 @@ import Components from 'formiojs/components/Components';
 
 import { Column, Columns } from './override/columns';
 import Checkbox from './override/checkbox';
+import Panel from './override/panel';
 import Tabs from './override/tabs';
 
 import SelectJournal from './custom/selectJournal';
@@ -15,6 +16,7 @@ Components.setComponents({
   column: Column,
   columns: Columns,
   checkbox: Checkbox,
+  panel: Panel,
   tabs: Tabs,
   selectJournal: SelectJournal,
   selectOrgstruct: SelectOrgstruct,
