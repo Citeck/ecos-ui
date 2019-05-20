@@ -11,9 +11,11 @@ import JournalsSettingsFooter from './JournalsSettingsFooter';
 import JournalsMenu from './JournalsMenu';
 import Search from '../common/Search/Search';
 
-import { getDashletConfig, reloadGrid } from '../../actions/journals';
+import { getJournalsData, reloadGrid } from '../../actions/journals';
 import { IcoBtn, TwoIcoBtn } from '../common/btns';
-import { Caption, Dropdown, Well } from '../common/form';
+import { Caption, Well } from '../common/form';
+import { URL_PAGECONTEXT } from '../../constants/alfresco';
+import Export from '../Export/Export';
 
 import { t } from '../../helpers/util';
 
@@ -24,19 +26,39 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  getDashletConfig: id => dispatch(getDashletConfig(id)),
+  getJournalsData: ({ journalsListId, journalId, journalSettingId }) =>
+    dispatch(getJournalsData({ journalsListId, journalId, journalSettingId })),
   reloadGrid: options => dispatch(reloadGrid(options))
 });
 
 class Journals extends Component {
   constructor(props) {
     super(props);
-    this.state = { menuOpen: true, settingsVisible: true };
+    this.state = { menuOpen: false, settingsVisible: true };
   }
 
   componentDidMount() {
-    this.props.getDashletConfig(this.props.id);
+    const props = this.props;
+    const { journalsListId = '', journalId = '', journalSettingId = '' } = props;
+    props.getJournalsData({ journalsListId, journalId, journalSettingId });
   }
+
+  refresh = () => {
+    const props = this.props;
+    const { journalsListId = '', journalId = '', journalSettingId = '' } = props;
+    props.getJournalsData({ journalsListId, journalId, journalSettingId });
+  };
+
+  addRecord = () => {
+    let {
+      journalConfig: {
+        meta: { createVariants = [{}] }
+      }
+    } = this.props;
+    createVariants = createVariants[0];
+    createVariants.canCreate &&
+      window.open(`${URL_PAGECONTEXT}node-create?type=${createVariants.type}&destination=${createVariants.destination}&viewId=`, '_blank');
+  };
 
   showSettings = () => {
     this.setState({ settingsVisible: !this.state.settingsVisible });
@@ -49,6 +71,7 @@ class Journals extends Component {
   render() {
     const { menuOpen, settingsVisible } = this.state;
     const {
+      journalConfig,
       journalConfig: {
         columns = [],
         meta: { title = '' }
@@ -81,21 +104,21 @@ class Journals extends Component {
 
             <div className={'ecos-journal__tools'}>
               <Well className={'ecos-well_full ecos-journal__tools-well'}>
-                <IcoBtn icon={'icon-plus'} className={'ecos-btn_blue ecos-btn_tight ecos-journal__tools-well_step'}>
+                <IcoBtn
+                  icon={'icon-plus'}
+                  className={'ecos-btn_blue ecos-btn_tight ecos-journal__tools-well_step'}
+                  onClick={this.addRecord}
+                >
                   {t('button.send')}
                 </IcoBtn>
 
                 <Search />
 
-                <Dropdown
-                  className={'ecos-journal_right'}
-                  source={[{ id: 0, title: t('button.export') }]}
-                  value={0}
-                  valueField={'id'}
-                  titleField={'title'}
-                >
-                  <IcoBtn invert={'true'} icon={'icon-down'} className={'ecos-btn_drop-down ecos-btn_r_6'} />
-                </Dropdown>
+                <Export config={journalConfig} className={'ecos-journal_right'}>
+                  <IcoBtn icon={'icon-down'} className={'ecos-btn_drop-down ecos-btn_r_6'}>
+                    {t('button.export')}
+                  </IcoBtn>
+                </Export>
               </Well>
             </div>
 
@@ -111,6 +134,7 @@ class Journals extends Component {
                 className={
                   'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_15'
                 }
+                onClick={this.refresh}
               />
 
               <div className={'ecos-journal__settings-bar_right '}>
@@ -140,7 +164,7 @@ class Journals extends Component {
             {settingsVisible ? (
               <Well className={'ecos-journal__settings'}>
                 <JournalsFilters columns={columns} />
-                <JournalsColumnsSetup />
+                <JournalsColumnsSetup columns={columns} />
                 <JournalsGrouping />
                 <JournalsSettingsFooter />
               </Well>

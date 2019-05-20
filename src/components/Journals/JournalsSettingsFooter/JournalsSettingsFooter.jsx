@@ -31,16 +31,19 @@ class JournalsSettingsFooter extends Component {
     this.settingName = '';
   }
 
-  create = () => {
-    this.setState({ dialogOpen: true });
+  createSetting = () => {
+    if (this.settingName) {
+      this.props.createJournalSetting(this.props.journalConfig.id, this.getSetting(this.settingName));
+      this.closeDialog();
+    }
   };
 
-  save = () => {
+  saveSetting = () => {
     const setting = this.getSetting();
     this.props.saveJournalSetting(setting.id, this.getSetting());
   };
 
-  apply = () => {
+  applySetting = () => {
     let setting = this.getSetting();
     const { columns, groupBy, sortBy, predicate } = setting;
 
@@ -67,11 +70,8 @@ class JournalsSettingsFooter extends Component {
     this.clearSettingName();
   };
 
-  onApplyDialog = () => {
-    if (this.settingName) {
-      this.props.createJournalSetting(this.props.journalConfig.id, this.getSetting(this.settingName));
-      this.closeDialog();
-    }
+  openDialog = () => {
+    this.setState({ dialogOpen: true });
   };
 
   clearSettingName = () => {
@@ -83,23 +83,25 @@ class JournalsSettingsFooter extends Component {
   };
 
   render() {
+    const { journalSetting } = this.props;
+
     return (
       <Fragment>
         <Columns
           className={'ecos-journal__settings-footer'}
           cols={[
             <Fragment>
-              <Btn className={'ecos-btn_x-step_10'} onClick={this.create}>
+              <Btn className={'ecos-btn_x-step_10'} onClick={this.openDialog}>
                 {t('journals.action.create-template')}
               </Btn>
-              <Btn onClick={this.save}>{t('journals.action.apply-template')}</Btn>
+              {journalSetting.id && <Btn onClick={this.saveSetting}>{t('journals.action.apply-template')}</Btn>}
             </Fragment>,
 
             <Fragment>
               <Btn className={'ecos-btn_x-step_10'} onClick={this.cancel}>
                 {t('journals.action.reset')}
               </Btn>
-              <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.apply}>
+              <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.applySetting}>
                 {t('journals.action.apply')}
               </Btn>
             </Fragment>
@@ -119,7 +121,7 @@ class JournalsSettingsFooter extends Component {
 
           <div className="journal__dialog-buttons">
             <Btn onClick={this.closeDialog}>{t('journals.action.cancel')}</Btn>
-            <Btn onClick={this.onApplyDialog} className={'ecos-btn_blue'}>
+            <Btn onClick={this.createSetting} className={'ecos-btn_blue'}>
               {t('journals.action.save')}
             </Btn>
           </div>
