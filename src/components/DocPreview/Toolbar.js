@@ -100,13 +100,16 @@ class Toolbar extends Component {
 
   goToPage = (e, page) => {
     let currentPage = e ? e.target.value : page || 1;
+    let numInt = parseInt(currentPage);
     let newState = { ...this.state, currentPage };
     let { totalPages } = this.props;
 
-    this.setState({ ...newState });
+    if (!Number.isNaN(numInt) || currentPage === '') {
+      this.setState({ ...newState });
 
-    if (currentPage > 0 && currentPage <= totalPages) {
-      this.onChangeSettings(newState);
+      if (+currentPage > 0 && +currentPage <= totalPages) {
+        this.onChangeSettings(newState);
+      }
     }
   };
 
