@@ -14,14 +14,14 @@ $border-base: #c1c1c1;
     margin: 18px;
   }
 
-  border: 2px solid $border-base;
+  border: 1px solid $border-base;
 
   &__toolbar {
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: $background-toolbar;
-    border-bottom: 2px solid $border-base;
+    border-bottom: 1px solid $border-base;
 
     & > * {
       margin: 5px 0;
