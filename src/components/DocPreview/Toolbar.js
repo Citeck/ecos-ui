@@ -31,7 +31,7 @@ class Toolbar extends Component {
       searchText: '',
       currentPage: 1,
       isFullscreen: false,
-      /*only current scope*/
+
       selectedZoom: '',
       isCustom: false
     };
