@@ -88,8 +88,7 @@
     padding: 0 10px;
 
     &-add {
-      font-size: 18px;
-      padding: 0 2px;
+      font-size: 21px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -181,6 +180,10 @@
         padding-left: 14px;
         min-width: calc(#{$min-width} + 4px);
 
+        #{$item}-title {
+          color: $text-color-dark;
+        }
+
         &:before {
           content: '';
           position: absolute;
@@ -223,7 +226,7 @@
         font-style: normal;
         font-weight: 600;
         font-size: 12px;
-        color: $text-color-dark;
+        color: $text-color-gray;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
