@@ -1,1 +1,1 @@
-export { default, EcosForm, FormBuilder } from './EcosForm';
+export { default, EcosForm, EcosFormBuilder } from './EcosForm';
