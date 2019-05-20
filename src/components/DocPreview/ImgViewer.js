@@ -15,17 +15,41 @@ class ImgViewer extends Component {
 
   static defaultProps = {
     settings: {
-      scale: 0,
+      scale: 1,
       isFullscreen: false
     }
   };
 
-  refImg = React.createRef();
-  refImgCtr = React.createRef();
+  constructor(props) {
+    super(props);
+
+    this.refImg = React.createRef();
+    this.refImgCtr = React.createRef();
+    this.state = {
+      calcScale: 1
+    };
+  }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.settings.isFullscreen) {
       openFullscreen(this.elImage);
+    }
+
+    let {
+      settings: { scale: newScale }
+    } = nextProps;
+    let {
+      settings: { scale: oldScale }
+    } = this.props;
+
+    if (newScale !== oldScale) {
+      let calcScale = this.getCalcScale(nextProps);
+
+      this.setState({ calcScale });
+
+      if (Number.isNaN(parseFloat(newScale))) {
+        this.props.calcScale(calcScale);
+      }
     }
   }
 
@@ -37,17 +61,21 @@ class ImgViewer extends Component {
     return this.props.refViewer.current || {};
   }
 
-  get zoom() {
+  getCalcScale = props => {
     let {
       settings: { scale }
-    } = this.props;
+    } = props;
 
     let { clientWidth: cW, clientHeight: cH } = this.elContainer;
     let { clientWidth: iW, clientHeight: iH } = this.elImage;
 
-    scale = getScale(scale, { width: cW, height: cH }, { width: iW, height: iH });
+    return getScale(scale, { width: cW, height: cH }, { width: iW, height: iH });
+  };
 
-    return scale ? { transform: `scale(${scale})` } : {};
+  get styleZoom() {
+    let { calcScale = {} } = this.state;
+
+    return calcScale ? { transform: `scale(${calcScale})` } : {};
   }
 
   render() {
@@ -56,7 +84,7 @@ class ImgViewer extends Component {
 
     return (
       <div className={_pageCtr} ref={this.refImgCtr}>
-        <img src={urlImg} alt={urlImg} style={this.zoom} className={`${_pageCtr}__content`} ref={this.refImg} />
+        <img src={urlImg} alt={urlImg} style={this.styleZoom} className={`${_pageCtr}__content`} ref={this.refImg} />
       </div>
     );
   }
