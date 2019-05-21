@@ -44,7 +44,7 @@ class DocPreview extends Component {
 
       loadingTask.promise.then(
         res => {
-          console.log(`Document loaded: ${res.numPages} page(s)`, res);
+          // console.log(`Document loaded: ${res.numPages} page(s)`, res);
           this.setState({ pdf: res, isLoading: false });
         },
         err => {

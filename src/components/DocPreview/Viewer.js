@@ -68,15 +68,11 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     }
 
     get checkMessage() {
-      let { pdf, urlImg, isLoading } = this.props;
+      let { pdf, urlImg } = this.props;
 
-      if (pdf === undefined && urlImg === undefined) {
+      if (pdf === undefined && !urlImg) {
         return { type: 'error', msg: t('Не указан документ для просмтора') };
       }
-
-      // if (isLoading) {
-      //   return { type: 'info', msg: t('Идет загрузка...') };
-      // }
 
       if (pdf && Object.keys(pdf).length && !pdf._pdfInfo) {
         return { type: 'warn', msg: t('Возникла проблема при загрузке документа. Попробуйте скачать документ') };
