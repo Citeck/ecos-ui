@@ -5,7 +5,7 @@ import Export from '../../Export/Export';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
-import { initGrid } from '../../../actions/journals';
+import { onJournalSelect } from '../../../actions/journals';
 
 const mapStateToProps = state => ({
   journals: state.journals.journals,
@@ -13,7 +13,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  initGrid: journalId => dispatch(initGrid(journalId))
+  onJournalSelect: journalId => dispatch(onJournalSelect(journalId))
 });
 
 class JournalsDashletToolbar extends Component {
@@ -28,7 +28,7 @@ class JournalsDashletToolbar extends Component {
       window.open(`${URL_PAGECONTEXT}node-create?type=${createVariants.type}&destination=${createVariants.destination}&viewId=`, '_blank');
   };
 
-  onChangeJournal = journal => this.props.initGrid(journal.nodeRef);
+  onChangeJournal = journal => this.props.onJournalSelect(journal.nodeRef);
 
   render() {
     const {

@@ -13,6 +13,19 @@ const postOptions = {
   }
 };
 
+const putOptions = {
+  ...getOptions,
+  method: 'put',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+};
+
+const deleteOptions = {
+  ...getOptions,
+  method: 'delete'
+};
+
 // const postUrlEncodedFormOptions = {
 //   ...getOptions,
 //   method: 'post',
@@ -62,13 +75,30 @@ export class CommonApi {
       .then(parseHtml);
   };
 
-  postJson = (url, data) => {
-    return fetch(url, {
+  deleteJson = (url, notJsonResp) => {
+    const prms = fetch(url, {
+      ...deleteOptions
+    }).then(this.checkStatus);
+
+    return notJsonResp ? prms : prms.then(parseJSON);
+  };
+
+  putJson = (url, data, notJsonResp) => {
+    const prms = fetch(url, {
+      ...putOptions,
+      body: JSON.stringify(data)
+    }).then(this.checkStatus);
+
+    return notJsonResp ? prms : prms.then(parseJSON);
+  };
+
+  postJson = (url, data, notJsonResp) => {
+    const prms = fetch(url, {
       ...postOptions,
       body: JSON.stringify(data)
-    })
-      .then(this.checkStatus)
-      .then(parseJSON);
+    }).then(this.checkStatus);
+
+    return notJsonResp ? prms.then(resp => resp.text()) : prms.then(parseJSON);
   };
 
   // postUrlEncodedForm = (url, data) => {

@@ -56,7 +56,14 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
             render={() => (
               <div style={{ display: 'flex', flex: 1 }}>
                 <div style={{ width: '100%', margin: '10px' }}>
-                  <DocPreviewDashlet id={'dashletId-1-1-2'} config={{ link: 'testPdf.pdf', height: 500 }} />
+                  <DocPreviewDashlet
+                    id={'dashletId-1-1-2'}
+                    config={{
+                      link:
+                        'http://localhost:3000/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/2557e4b7-725f-40f3-95da-6175a67d3b3f/sample.pdf',
+                      height: 500
+                    }}
+                  />
                 </div>
                 <div style={{ width: '100%', margin: '10px' }}>
                   <DocPreviewDashlet id={'dashletId-1-1-2'} config={{ link: 'testImg.jpg', height: 800, scale: 1 }} />

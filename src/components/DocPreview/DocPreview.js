@@ -72,7 +72,13 @@ class DocPreview extends Component {
   };
 
   setScrollPage = scrollPage => {
-    this.setState({ scrollPage });
+    this.setState(state => ({
+      scrollPage,
+      settings: {
+        ...state.settings,
+        currentPage: scrollPage
+      }
+    }));
   };
 
   setCalcScale = calcScale => {

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import cn from 'classnames';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Row, Col } from 'reactstrap';
 import { hideModal } from '../../actions/modal';
-import Button from '../common/buttons/Button/Button';
+import { Btn } from '../common/btns';
 
 import './ReduxModal.scss';
 
@@ -70,9 +70,9 @@ class ReduxModal extends React.Component {
         const buttonClassNames = cn('button_full_width', button.className);
         return (
           <Col md={mdSize} sm={12} key={idx}>
-            <Button key={idx} onClick={onButtonClick} className={buttonClassNames}>
+            <Btn key={idx} onClick={onButtonClick} className={buttonClassNames}>
               {button.label}
-            </Button>
+            </Btn>
           </Col>
         );
       });

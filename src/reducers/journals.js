@@ -12,16 +12,24 @@ import {
   setSelectedRecords,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setGridInlineToolSettings
+  setGridInlineToolSettings,
+  setJournalSetting,
+  setJournalSettings,
+  setPredicate,
+  setColumnsSetup,
+  setGrouping
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
+import { t } from '../helpers/util';
 
 const initialState = {
+  loading: true,
+  editorMode: false,
+
   grid: {
     data: [],
     columns: [],
     total: 0,
-    criteria: [],
     createVariants: [],
     predicate: {},
     groupBy: null,
@@ -34,18 +42,38 @@ const initialState = {
     minHeight: null
   },
 
-  loading: true,
-  editorMode: false,
-
   journalsList: [],
   journals: [],
-  settings: [],
+  journalSettings: [],
 
   config: null,
   initConfig: null,
   journalConfig: {
     meta: {},
     createVariants: []
+  },
+
+  predicate: null,
+  columnsSetup: {
+    columns: [],
+    sortBy: []
+  },
+  grouping: {
+    columns: [],
+    groupBy: []
+  },
+
+  journalSetting: {
+    title: '',
+    sortBy: [],
+    groupBy: [],
+    columns: [],
+    predicate: null,
+    maxItems: 10,
+    permissions: {
+      Write: true,
+      Delete: true
+    }
   },
 
   selectedRecords: [],
@@ -62,6 +90,46 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [setPredicate]: (state, action) => {
+      return {
+        ...state,
+        predicate: action.payload
+      };
+    },
+    [setColumnsSetup]: (state, action) => {
+      return {
+        ...state,
+        columnsSetup: action.payload
+      };
+    },
+    [setGrouping]: (state, action) => {
+      return {
+        ...state,
+        grouping: action.payload
+      };
+    },
+    [setJournalSettings]: (state, action) => {
+      return {
+        ...state,
+        journalSettings: [
+          {
+            id: '',
+            preferences: { title: t('journals.default') },
+            notRemovable: true
+          },
+          ...Array.from(action.payload)
+        ]
+      };
+    },
+    [setJournalSetting]: (state, action) => {
+      return {
+        ...state,
+        journalSetting: {
+          ...state.journalSetting,
+          ...action.payload
+        }
+      };
+    },
     [setGridInlineToolSettings]: (state, action) => {
       return {
         ...state,
@@ -90,12 +158,10 @@ export default handleActions(
     [setSettingItem]: (state, action) => {
       return {
         ...state,
-        config: [
+        config: {
           ...state.config,
-          {
-            settingsId: action.payload.id
-          }
-        ]
+          journalSettingId: action.payload.id
+        }
       };
     },
     [setEditorMode]: (state, action) => {

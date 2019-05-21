@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'citeck';
-  src: url('../font/citeck.eot?47511385');
-  src: url('../font/citeck.eot?47511385#iefix') format('embedded-opentype'), url('../font/citeck.woff2?47511385') format('woff2'),
-    url('../font/citeck.woff?47511385') format('woff'), url('../font/citeck.ttf?47511385') format('truetype'),
-    url('../font/citeck.svg?47511385#citeck') format('svg');
+  src: url('../font/citeck.eot?80000845');
+  src: url('../font/citeck.eot?80000845#iefix') format('embedded-opentype'), url('../font/citeck.woff2?80000845') format('woff2'),
+    url('../font/citeck.woff?80000845') format('woff'), url('../font/citeck.ttf?80000845') format('truetype'),
+    url('../font/citeck.svg?80000845#citeck') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -13,7 +13,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'citeck';
-    src: url('../font/citeck.svg?47511385#citeck') format('svg');
+    src: url('../font/citeck.svg?80000845#citeck') format('svg');
   }
 }
 */
@@ -210,3 +210,6 @@
 .icon-radiobutton-select:before {
   content: '\e835';
 } /* '' */
+.icon-resize:before {
+  content: '\e837';
+} /* '' */

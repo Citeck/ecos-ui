@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { openFullscreen, t } from '../../helpers/util';
 import { Scrollbars } from 'react-custom-scrollbars';
 import PropTypes from 'prop-types';
+import Loader from '../common/Loader/Loader';
 
 export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
   let _viewer = `${ctrClass}__viewer`;
@@ -65,16 +66,16 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
       return [];
     }
 
-    get checkDoc() {
+    get checkMessage() {
       let { pdf, urlImg, isLoading } = this.props;
 
       if (pdf === undefined && urlImg === undefined) {
         return { type: 'error', msg: t('Не указан документ для просмтора') };
       }
 
-      if (isLoading) {
-        return { type: 'info', msg: t('Идет загрузка...') };
-      }
+      // if (isLoading) {
+      //   return { type: 'info', msg: t('Идет загрузка...') };
+      // }
 
       if (pdf && Object.keys(pdf).length && !pdf._pdfInfo) {
         return { type: 'warn', msg: t('Возникла проблема при загрузке документа. Попробуйте скачать документ') };
@@ -96,34 +97,68 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
       }
     };
 
-    render() {
+    renderDocument() {
       let {
         height,
         settings: { isFullscreen }
       } = this.props;
       let _doc = `${_viewer}__doc`;
       let newProps = { ...this.props, ctrClass: _doc, refViewer: this.refViewer };
-      let checkDoc = this.checkDoc;
       const renderView = props => <div {...props} className={classNames(`${_doc}__scroll-area`)} />;
 
+      if (this.checkMessage) {
+        return null;
+      }
+
+      return (
+        <Scrollbars
+          className={classNames()}
+          style={{ height: isPdf && isFullscreen ? window.screen.height : height }}
+          renderView={renderView}
+          ref="refScrollbar"
+          onScroll={this.onScroll}
+          onScrollFrame={this.onScrollFrame}
+        >
+          <WrappedComponent {...newProps} />
+        </Scrollbars>
+      );
+    }
+
+    renderMessage() {
+      let { height } = this.props;
+      const message = this.checkMessage;
+
+      if (!message) {
+        return null;
+      }
+
+      return (
+        <div style={{ height }} className={classNames(`${_viewer}__msg ${_viewer}__msg_${message.type}`)}>
+          {message.msg}
+        </div>
+      );
+    }
+
+    renderLoader() {
+      let { isLoading } = this.props;
+
+      if (!isLoading) {
+        return null;
+      }
+
+      return (
+        <div className={`${_viewer}-loader-wrapper`}>
+          <Loader />
+        </div>
+      );
+    }
+
+    render() {
       return (
         <div className={_viewer} ref={this.refViewer}>
-          {!checkDoc ? (
-            <Scrollbars
-              className={classNames()}
-              style={{ height: isPdf && isFullscreen ? window.screen.height : height }}
-              renderView={renderView}
-              ref="refScrollbar"
-              onScroll={this.onScroll}
-              onScrollFrame={this.onScrollFrame}
-            >
-              <WrappedComponent {...newProps} />
-            </Scrollbars>
-          ) : (
-            <div style={{ height }} className={classNames(`${_viewer}__msg ${_viewer}__msg_${checkDoc.type}`)}>
-              {checkDoc.msg}
-            </div>
-          )}
+          {this.renderDocument()}
+          {this.renderMessage()}
+          {this.renderLoader()}
         </div>
       );
     }

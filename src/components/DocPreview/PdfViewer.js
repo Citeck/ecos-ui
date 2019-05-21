@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import PdfPage from './PdfPage';
 
-class PdfViewer extends Component {
+class PdfViewer extends React.PureComponent {
   static propTypes = {
     ctrClass: PropTypes.string.isRequired,
     pdf: PropTypes.object.isRequired,

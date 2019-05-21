@@ -39,7 +39,7 @@ export default class DropdownEditor extends BaseEditor {
         onChange={this.onChange}
         className={'select_extra-narrow'}
         placeholder={''}
-        getOptionLabel={options => options.title}
+        getOptionLabel={options => options.label}
         getOptionValue={options => options.value}
         options={this.state.options}
         styles={{

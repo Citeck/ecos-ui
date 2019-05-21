@@ -68,6 +68,11 @@ $border-base: #c1c1c1;
     margin-right: 2px;
     box-sizing: border-box;
     background-color: $background-viewer;
+    position: relative;
+
+    &-loader-wrapper {
+      height: 150px;
+    }
 
     &__doc {
       &__scroll-area {

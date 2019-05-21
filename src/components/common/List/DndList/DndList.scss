@@ -1,0 +1,13 @@
+@import '../../../../constants';
+
+.ecos-dnd-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.ecos-dnd-list__item {
+  border-top: 1px solid $color-gray-4;
+  border-bottom: 1px solid $color-gray-4;
+  margin-bottom: -1px;
+  list-style-type: none;
+}

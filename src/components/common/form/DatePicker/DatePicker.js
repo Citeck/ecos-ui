@@ -15,11 +15,15 @@ class CustomInput extends Component {
 
 export default class extends Component {
   render() {
-    const { className, showIcon, dateFormat = 'P', ...otherProps } = this.props;
+    const { className, showIcon, dateFormat = 'P', wrapperClasses, ...otherProps } = this.props;
     const cssClasses = classNames('ecos-input', className);
-    const wrapperCssClasses = classNames('ecos-datepicker', {
-      'ecos-datepicker_show-icon': showIcon
-    });
+    const wrapperCssClasses = classNames(
+      'ecos-datepicker',
+      {
+        'ecos-datepicker_show-icon': showIcon
+      },
+      wrapperClasses
+    );
 
     const calendarIcon = showIcon ? (
       <span

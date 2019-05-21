@@ -154,3 +154,6 @@
 .icon-radiobutton-select:before {
   content: '\e835';
 } /* '' */
+.icon-resize:before {
+  content: '\e837';
+} /* '' */

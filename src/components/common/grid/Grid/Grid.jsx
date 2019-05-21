@@ -5,20 +5,12 @@ import cellEditFactory from 'react-bootstrap-table2-editor';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
-import { t } from '../../../../helpers/util';
+import { t, getId, trigger } from '../../../../helpers/util';
 
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
 
 const CLOSE_FILTER_EVENT = 'closeFilterEvent';
-
-function triggerEvent(name, data) {
-  const callback = this.props[name];
-
-  if (typeof callback === 'function') {
-    callback.call(this, data);
-  }
-}
 
 const Selector = ({ mode, ...rest }) => (
   <div className={'ecos-grid__checkbox'}>
@@ -39,7 +31,7 @@ export default class Grid extends Component {
   constructor(props) {
     super(props);
     this._selected = [];
-    this._id = this.getId();
+    this._id = getId();
     this._resizingTh = null;
     this._startResizingThOffset = 0;
     this._keyField = props.keyField || 'id';
@@ -108,7 +100,7 @@ export default class Grid extends Component {
   };
 
   sort = e => {
-    triggerEvent.call(this, 'onSort', e);
+    trigger.call(this, 'onSort', e);
   };
 
   initFormatter = editable => {
@@ -140,7 +132,7 @@ export default class Grid extends Component {
         <HeaderFormatter
           closeFilterEvent={CLOSE_FILTER_EVENT}
           filterable={filterable}
-          filterValue={((filters || []).filter(filter => filter.field === column.dataField)[0] || {}).value || ''}
+          filterValue={((filters || []).filter(filter => filter.att === column.dataField)[0] || {}).val || ''}
           ascending={((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending}
           column={column}
           colIndex={colIndex}
@@ -152,12 +144,6 @@ export default class Grid extends Component {
     };
 
     return column;
-  };
-
-  getId = () => {
-    return Math.random()
-      .toString(36)
-      .substr(2, 9);
   };
 
   createSingleSelectionCheckboxs(props) {
@@ -173,7 +159,7 @@ export default class Grid extends Component {
 
         this._selected = selected !== keyValue ? [keyValue] : [];
 
-        triggerEvent.call(this, 'onSelect', {
+        trigger.call(this, 'onSelect', {
           selected: this._selected,
           all: false
         });
@@ -196,7 +182,7 @@ export default class Grid extends Component {
 
         this._selected = isSelect ? [...selected, keyValue] : selected.filter(x => x !== keyValue);
 
-        triggerEvent.call(this, 'onSelect', {
+        trigger.call(this, 'onSelect', {
           selected: this._selected,
           all: false
         });
@@ -206,7 +192,7 @@ export default class Grid extends Component {
           ? [...this._selected, ...rows.map(row => row[this._keyField])]
           : this.getSelectedByPage(this.props.data, false);
 
-        triggerEvent.call(this, 'onSelect', {
+        trigger.call(this, 'onSelect', {
           selected: this._selected,
           all: isSelect
         });
@@ -218,7 +204,7 @@ export default class Grid extends Component {
 
   onEdit = (oldValue, newValue, row, column) => {
     if (oldValue !== newValue) {
-      triggerEvent.call(this, 'onEdit', {
+      trigger.call(this, 'onEdit', {
         id: row[this._keyField],
         attributes: {
           [column.attribute]: newValue
@@ -238,8 +224,8 @@ export default class Grid extends Component {
     });
   };
 
-  onFilter = criteria => {
-    triggerEvent.call(this, 'onFilter', [criteria]);
+  onFilter = predicates => {
+    trigger.call(this, 'onFilter', predicates);
   };
 
   createCloseFilterEvent = () => {
