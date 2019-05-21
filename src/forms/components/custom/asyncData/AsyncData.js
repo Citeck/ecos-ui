@@ -257,6 +257,8 @@ export default class AsyncDataComponent extends BaseComponent {
     }
   }
 
+  viewOnlyBuild() {} // hide control for viewOnly mode
+
   createLabel() {}
 
   get emptyValue() {
