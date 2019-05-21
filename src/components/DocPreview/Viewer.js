@@ -23,6 +23,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
 
     constructor(props) {
       super(props);
+
       this.state = {
         scrollPage: 1
       };
