@@ -11,7 +11,7 @@ export default class BaseComponent extends FormIOBase {
   }
 
   getAttributeToEdit() {
-    return (this.component.properties || {}).attribute;
+    return (this.component.properties || {}).attribute || this.key;
   }
 
   /**
