@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import { IcoBtn } from '../common/btns';
 import { Dropdown, Input } from '../common/form';
-import { getScaleModes, closeFullscreen, t } from '../../helpers/util';
+import { closeFullscreen, getScaleModes, t } from '../../helpers/util';
 
 const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;

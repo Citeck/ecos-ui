@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { openFullscreen, getScale } from '../../helpers/util';
+import { getScale, openFullscreen } from '../../helpers/util';
 
 class ImgViewer extends Component {
   static propTypes = {
