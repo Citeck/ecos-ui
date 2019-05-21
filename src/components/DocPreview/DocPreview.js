@@ -20,7 +20,7 @@ class DocPreview extends Component {
   static propTypes = {
     link: PropTypes.string.isRequired,
     height: PropTypes.number,
-    scale: PropTypes.number
+    scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
   };
 
   static defaultProps = {

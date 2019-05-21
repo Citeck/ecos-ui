@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { getScale, openFullscreen } from '../../helpers/util';
 
@@ -83,7 +84,7 @@ class ImgViewer extends Component {
     let _pageCtr = `${ctrClass}__page-container`;
 
     return (
-      <div className={_pageCtr} ref={this.refImgCtr}>
+      <div className={classNames(_pageCtr, `${_pageCtr}_img`)} ref={this.refImgCtr}>
         <img src={urlImg} alt={urlImg} style={this.styleZoom} className={`${_pageCtr}__content`} ref={this.refImg} />
       </div>
     );

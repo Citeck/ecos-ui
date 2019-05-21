@@ -41,7 +41,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
 
           currentPage = currentPage > 0 && currentPage <= childrenLen ? currentPage : 1;
 
-          let scrollPage = children[currentPage - 1].offsetTop - 10;
+          let scrollPage = children[currentPage - 1].offsetTop + 12;
 
           this.elScrollbar.scrollTop(scrollPage);
           this.setState({ scrollPage: currentPage });
@@ -104,21 +104,29 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
         settings: { isFullscreen }
       } = this.props;
       let _doc = `${_viewer}__doc`;
+      let _fullscreen = `${_viewer}_fullscreen`;
+      let _scroll_area = `${_doc}__scroll-area`;
+      let style = {};
       let newProps = { ...this.props, ctrClass: _doc, refViewer: this.refViewer };
-      const renderView = props => <div {...props} className={classNames(`${_doc}__scroll-area`)} />;
+      const renderView = props => <div {...props} className={classNames(_scroll_area)} />;
 
       if (this.checkMessage) {
         return null;
       }
 
+      if (!isFullscreen) {
+        style = { ...style, height };
+      }
+
       return (
         <Scrollbars
-          className={classNames()}
-          style={{ height: isPdf && isFullscreen ? window.screen.height : height }}
+          className={classNames({ [_fullscreen]: isFullscreen && isPdf })}
+          style={style}
           renderView={renderView}
           ref="refScrollbar"
           onScroll={this.onScroll}
           onScrollFrame={this.onScrollFrame}
+          autoHide
         >
           <WrappedComponent {...newProps} />
         </Scrollbars>
@@ -128,13 +136,14 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     renderMessage() {
       let { height } = this.props;
       const message = this.checkMessage;
+      let _msg = `${_viewer}__msg`;
 
       if (!message) {
         return null;
       }
 
       return (
-        <div style={{ height }} className={classNames(`${_viewer}__msg ${_viewer}__msg_${message.type}`)}>
+        <div style={{ height }} className={classNames(_msg, `${_msg}_${message.type}`)}>
           {message.msg}
         </div>
       );

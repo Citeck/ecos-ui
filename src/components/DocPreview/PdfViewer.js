@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import PdfPage from './PdfPage';
 
@@ -38,7 +39,7 @@ class PdfViewer extends React.PureComponent {
           let key = `${_pageCtr}-${pageN}-${idx}`;
 
           return (
-            <div className={`${_pageCtr}`} key={key}>
+            <div className={classNames(_pageCtr, `${_pageCtr}_pdf`)} key={key}>
               <div className={`${_pageCtr}__number`}>{pageN}</div>
               <div className={`${_pageCtr}__content`}>
                 <PdfPage {...this.pageProps} pageNumber={pageN} />
