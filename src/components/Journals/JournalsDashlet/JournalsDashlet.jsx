@@ -8,6 +8,7 @@ import { getDashletConfig, setEditorMode, reloadGrid } from '../../../actions/jo
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import Dashlet from '../../Dashlet/Dashlet';
 import classNames from 'classnames';
+import { t } from '../../../helpers/util';
 
 import './JournalsDashlet.scss';
 
@@ -40,10 +41,6 @@ class JournalsDashlet extends Component {
 
   render() {
     const { journalConfig, className, id, editorMode, reloadGrid } = this.props;
-
-    if (!journalConfig.id) {
-      return null;
-    }
 
     return (
       <Dashlet

@@ -227,6 +227,7 @@ function* sagaInitJournal({ api, logger }, action) {
 
     yield put(setLoading(false));
   } catch (e) {
+    yield put(setLoading(false));
     logger.error('[journals sagaInitJournal saga error', e.message);
   }
 }
