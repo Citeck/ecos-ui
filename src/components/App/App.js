@@ -16,6 +16,7 @@ import SlideMenu from '../SlideMenu';
 import ReduxModal from '../ReduxModal';
 import Footer from '../Footer';
 import LoginForm from '../LoginForm';
+import LayoutSettingsPage from '../../pages/LayoutSettingsPage';
 
 import './App.scss';
 
@@ -50,6 +51,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
           {/*<Route path="/share/page" exact component={DashboardPage} />*/}
           <Route path="/formio-develop" component={FormIOPage} />
           <Route path="/ecos-form-example" component={EcosFormPage} />
+          <Route path="/(.*/)?settings" component={LayoutSettingsPage} />
 
           <Route path="/share/page/journals" component={JournalsPage} />
           <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
