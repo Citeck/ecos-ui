@@ -2,9 +2,9 @@ import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
 import Form from 'formiojs/Form';
 import FormBuilder from 'formiojs/FormBuilder';
-// import schema from './form.json';
+import schema from './form.json';
 // import schema from './calendarForm.json';
-import schema from './contractor.json';
+// import schema from './contractor.json';
 import '../../forms/components';
 import Formio from 'formiojs/Formio';
 
@@ -20,38 +20,38 @@ class FormIOPage extends React.Component {
       // inputsOnly: true
     };
     // form in view mode
-    if (1) {
-      options = {
-        readOnly: true,
-        viewAsHtml: true,
-
-        viewAsHtmlConfig: {
-          fullWidthColumns: true,
-          hidePanels: true
-          // alwaysWrap: true,
-        }
-      };
-    }
+    // if (1) {
+    //   options = {
+    //     readOnly: true,
+    //     viewAsHtml: true,
+    //
+    //     viewAsHtmlConfig: {
+    //       fullWidthColumns: true,
+    //       hidePanels: true
+    //       // alwaysWrap: true,
+    //     }
+    //   };
+    // }
 
     const form = new Form(document.getElementById('formio'), schema, options);
 
     form.render().then(form => {
       // console.log(form);
 
-      form.submission = {
-        data: {
-          legalEntities: [
-            'workspace://SpacesStore/99ce5ecc-a501-404c-a1ed-5507afed6282',
-            'workspace://SpacesStore/50a4ace5-925a-4267-905f-abeff3960d1c'
-          ],
-          // 'idocs_initiator': "workspace://SpacesStore/2d2cc237-6d4c-4904-b60d-0e2d64a67877",
-          idocs_initiator: [
-            'workspace://SpacesStore/0e496fc3-1fbd-4d15-ab9b-b3bc011af0c6',
-            'workspace://SpacesStore/c04050a9-2f30-417e-a099-5b2753a5efb4'
-          ],
-          lastName: 'Smith'
-        }
-      };
+      // form.submission = {
+      //   data: {
+      //     legalEntities: [
+      //       'workspace://SpacesStore/99ce5ecc-a501-404c-a1ed-5507afed6282',
+      //       'workspace://SpacesStore/50a4ace5-925a-4267-905f-abeff3960d1c'
+      //     ],
+      //     // 'idocs_initiator': "workspace://SpacesStore/2d2cc237-6d4c-4904-b60d-0e2d64a67877",
+      //     idocs_initiator: [
+      //       'workspace://SpacesStore/0e496fc3-1fbd-4d15-ab9b-b3bc011af0c6',
+      //       'workspace://SpacesStore/c04050a9-2f30-417e-a099-5b2753a5efb4'
+      //     ],
+      //     lastName: 'Smith'
+      //   }
+      // };
 
       // Register for the submit event to get the completed submission.
       form.on('submit', function(submission) {

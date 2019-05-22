@@ -23,6 +23,12 @@
           "components": [
             {
               "input": true,
+              "type": "tableForm",
+              "label": "График платежей",
+              "key": "payments:payments"
+            },
+            {
+              "input": true,
               "type": "selectOrgstruct",
               "label": "Инициатор",
               "key": "idocs_initiator",

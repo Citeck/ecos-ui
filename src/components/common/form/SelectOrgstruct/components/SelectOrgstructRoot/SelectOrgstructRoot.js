@@ -11,7 +11,8 @@ const SelectOrgstructRoot = () => {
   const { isCompact, viewOnly } = controlProps;
 
   const wrapperClasses = classNames('select-orgstruct', {
-    'select-orgstruct_compact': isCompact
+    'select-orgstruct_compact': isCompact,
+    'select-orgstruct_view-only': viewOnly
   });
 
   return (
