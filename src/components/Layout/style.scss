@@ -1,0 +1,66 @@
+@import '../../constants.scss';
+
+.ecos-layout {
+  $root: &;
+
+  display: flex;
+  height: 100%;
+
+  &__item {
+    width: 160px;
+    height: 100px;
+    background: $color-gray-4;
+    border: 2px solid $color-gray-8;
+    box-sizing: border-box;
+    border-radius: 6px;
+    cursor: pointer;
+    z-index: 1;
+
+    &:not(&_active):hover {
+      background: $color-gray-1;
+      border-color: $color-gray-5;
+
+      #{$root}__column {
+        border-color: $color-gray-5 !important;
+      }
+    }
+
+    &_active {
+      position: relative;
+      background: $color-blue-light2;
+      border-color: $color-blue-dark;
+      z-index: 2;
+
+      #{$root}__column {
+        border-color: $color-blue-dark !important;
+      }
+
+      &-icon {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        font-size: 24px !important;
+
+        &:before {
+          position: absolute;
+          color: $color-blue-dark;
+          top: calc(50% - 1em / 2);
+          left: calc(50% - 1em / 2);
+        }
+      }
+    }
+  }
+
+  &__column {
+    flex-grow: 1;
+    width: 100%;
+
+    &:not(:first-child) {
+      border-left: 1px $color-gray-9 solid;
+    }
+
+    &:not(:last-child) {
+      border-right: 1px $color-gray-9 solid;
+    }
+  }
+}
