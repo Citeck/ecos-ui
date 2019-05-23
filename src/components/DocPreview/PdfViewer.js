@@ -7,7 +7,11 @@ class PdfViewer extends React.PureComponent {
   static propTypes = {
     ctrClass: PropTypes.string.isRequired,
     pdf: PropTypes.object.isRequired,
-    settings: PropTypes.object.isRequired
+    settings: PropTypes.shape({
+      scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      isFullscreen: PropTypes.bool,
+      currentPage: PropTypes.number
+    })
   };
 
   static defaultProps = {

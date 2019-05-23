@@ -86,11 +86,9 @@ class ImgViewer extends Component {
   };
 
   onFullscreenchange = () => {
-    console.log('test img');
     this.fullScreenOff = !this.fullScreenOff;
 
     if (this.fullScreenOff) {
-      fscreen.exitFullscreen();
       this.props.onFullscreen(false);
     }
   };

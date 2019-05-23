@@ -29,7 +29,6 @@ class Toolbar extends Component {
 
     this.state = {
       scale: props.scale,
-      searchText: '',
       currentPage: 1,
       isFullscreen: false,
 
@@ -185,7 +184,7 @@ class Toolbar extends Component {
         />
         <IcoBtn icon={'icon-plus'} className={_commonBtn} onClick={e => this.setScale(1)} />
         <Dropdown source={this.zoomOptions} value={selectedZoom} valueField={'id'} titleField={'title'} onChange={this.onChangeZoomOption}>
-          <IcoBtn invert={'true'} icon={'icon-down'} className={`${_commonBtn} ecos-btn_drop-down`} />
+          <IcoBtn invert={'true'} icon={'icon-down'} className={`${_commonBtn} ecos-btn_drop-down ${_toolbar}__zoom__btn-select`} />
         </Dropdown>
         <IcoBtn icon={'glyphicon glyphicon-fullscreen'} className={_commonBtn} onClick={this.setFullScreen} />
       </div>

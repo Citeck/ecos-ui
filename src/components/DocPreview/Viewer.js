@@ -15,11 +15,17 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
       urlImg: PropTypes.string,
       isLoading: PropTypes.bool,
       height: PropTypes.number,
-      scrollPage: PropTypes.func
+      scrollPage: PropTypes.func,
+      settings: PropTypes.shape({
+        scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+        isFullscreen: PropTypes.bool,
+        currentPage: PropTypes.number
+      })
     };
 
     static defaultProps = {
-      scrollPage: () => {}
+      scrollPage: () => {},
+      settings: {}
     };
 
     constructor(props) {
@@ -110,11 +116,9 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     };
 
     onFullscreenchange = () => {
-      console.log('test pdf');
       this.fullScreenOff = !this.fullScreenOff;
 
       if (this.fullScreenOff) {
-        fscreen.exitFullscreen();
         this.props.onFullscreen(false);
       }
     };

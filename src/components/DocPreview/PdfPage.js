@@ -10,7 +10,8 @@ class PdfPage extends Component {
     pageNumber: PropTypes.number.isRequired,
     settings: PropTypes.shape({
       scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      isFullscreen: PropTypes.bool
+      isFullscreen: PropTypes.bool,
+      currentPage: PropTypes.number
     }),
     calcScale: PropTypes.func
   };
