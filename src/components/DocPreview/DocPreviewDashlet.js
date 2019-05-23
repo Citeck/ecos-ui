@@ -7,6 +7,8 @@ import './DocPreview.scss';
 class DocPreviewDashlet extends Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
+    classNamePreview: PropTypes.string,
+    classNameDashlet: PropTypes.string,
     config: PropTypes.shape({
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       link: PropTypes.string.isRequired
@@ -16,11 +18,11 @@ class DocPreviewDashlet extends Component {
   static defaultProps = {};
 
   render() {
-    let { config } = this.props;
+    let { config, classNamePreview, classNameDashlet } = this.props;
 
     return (
-      <Dashlet title={'Предпросмотр'} bodyClassName={'ecos-doc-preview-dashlet__body'}>
-        <DocPreview {...config} />
+      <Dashlet title={'Предпросмотр'} bodyClassName={'ecos-doc-preview-dashlet__body'} className={classNameDashlet}>
+        <DocPreview {...config} className={classNamePreview} />
       </Dashlet>
     );
   }

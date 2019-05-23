@@ -19,6 +19,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = '//unpkg.com/pdfjs-dist@2.1.266/build/pdf.
 class DocPreview extends Component {
   static propTypes = {
     link: PropTypes.string.isRequired,
+    className: PropTypes.string,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
   };
@@ -93,7 +94,7 @@ class DocPreview extends Component {
   };
 
   render() {
-    let { link, height, scale } = this.props;
+    let { link, height, scale, className } = this.props;
     let { pdf, settings, isLoading, scrollPage, calcScale } = this.state;
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
@@ -105,7 +106,7 @@ class DocPreview extends Component {
     };
 
     return (
-      <div className={classNames(_docPreview)}>
+      <div className={classNames(_docPreview, className)}>
         <Toolbar
           totalPages={numPages}
           ctrClass={_docPreview}

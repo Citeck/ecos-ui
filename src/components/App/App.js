@@ -64,6 +64,8 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
                       height: 700,
                       scale: 0.5
                     }}
+                    classNameDashlet={'classNameDashlet'}
+                    classNamePreview={'classNamePreview'}
                   />
                 </div>
                 <div style={{ width: '50%', margin: '10px' }}>
