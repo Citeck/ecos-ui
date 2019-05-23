@@ -8,6 +8,7 @@ class DocPreviewDashlet extends Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
     config: PropTypes.shape({
+      height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       link: PropTypes.string.isRequired
     })
   };

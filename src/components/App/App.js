@@ -55,7 +55,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
             path="/doc-preview"
             render={() => (
               <div style={{ display: 'flex', flex: 1 }}>
-                <div style={{ width: '100%', margin: '10px' }}>
+                <div style={{ width: '857px', margin: '10px' }}>
                   <DocPreviewDashlet
                     id={'dashletId-1-1-2'}
                     config={{

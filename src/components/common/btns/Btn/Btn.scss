@@ -166,6 +166,11 @@ button {
     font-size: $font-size-small;
   }
 
+  &.ecos-btn_sq_sm {
+    @extend .ecos-btn_narrow;
+    padding: 0 7px;
+  }
+
   &.ecos-btn_narrow-t_standart {
     height: 26px;
     padding: 0 15px;

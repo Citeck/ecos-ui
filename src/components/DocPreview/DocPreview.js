@@ -19,7 +19,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = '//unpkg.com/pdfjs-dist@2.1.266/build/pdf.
 class DocPreview extends Component {
   static propTypes = {
     link: PropTypes.string.isRequired,
-    height: PropTypes.number,
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
   };
 

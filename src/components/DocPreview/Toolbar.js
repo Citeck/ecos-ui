@@ -8,7 +8,7 @@ import { getScaleModes, t } from '../../helpers/util';
 
 const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;
-const _commonBtn = `ecos-btn_narrow ecos-btn_tight`;
+const _commonBtn = `ecos-btn_sq_sm ecos-btn_tight`;
 
 class Toolbar extends Component {
   static propTypes = {
@@ -159,7 +159,7 @@ class Toolbar extends Component {
         {!!totalPages && (
           <Fragment>
             <Input type="text" onChange={this.goToPage} value={currentPage} className={classNames(`${_toolbar}__pager__input`)} />
-            <span className={`${_toolbar}__pager_text`}> {`${t('pagination.from')} ${totalPages}`} </span>
+            <span className={`${_toolbar}__pager__text`}> {`${t('pagination.from')} ${totalPages}`} </span>
           </Fragment>
         )}
         <IcoBtn
@@ -198,9 +198,7 @@ class Toolbar extends Component {
 
     return (
       <div className={classNames(`${_group} ${_toolbar}__extra-btns`)}>
-        <IcoBtn icon={'icon-download'} className={_commonBtn} onClick={this.props.onDownload}>
-          {t('Скачать')}
-        </IcoBtn>
+        <IcoBtn icon={'icon-download'} className={_commonBtn} onClick={this.props.onDownload} title={'Скачать'} />
       </div>
     );
   }
