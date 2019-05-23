@@ -13,10 +13,11 @@ export default class FormLocaleEditorModal extends React.Component {
     };
   }
 
-  show(i18n) {
+  show(i18n, onSubmit) {
     this.setState({
       isModalOpen: true,
-      i18n: i18n
+      i18n: i18n,
+      onSubmit
     });
   }
 
@@ -33,8 +34,8 @@ export default class FormLocaleEditorModal extends React.Component {
   }
 
   onSubmit(i18n) {
-    if (this.props.onSubmit) {
-      this.props.onSubmit(i18n);
+    if (this.state.onSubmit) {
+      this.state.onSubmit(i18n);
     }
     this.hide();
   }
