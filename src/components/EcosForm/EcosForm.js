@@ -238,6 +238,7 @@ class EcosForm extends React.Component {
           case 'checkbox':
             attributeSchema = 'bool';
             break;
+          case 'tableForm':
           case 'selectJournal':
             attributeSchema = 'assoc';
             break;
@@ -328,7 +329,8 @@ EcosForm.propTypes = {
   options: PropTypes.object,
   formKey: PropTypes.string,
   onSubmit: PropTypes.func,
-  onReady: PropTypes.func
+  onReady: PropTypes.func,
+  saveOnSubmit: PropTypes.bool
   // onForm[Event]: PropTypes.func (for example, onFormCancel)
 };
 
