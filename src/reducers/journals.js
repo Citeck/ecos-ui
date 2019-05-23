@@ -17,7 +17,8 @@ import {
   setJournalSettings,
   setPredicate,
   setColumnsSetup,
-  setGrouping
+  setGrouping,
+  setNodeContent
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { t } from '../helpers/util';
@@ -83,7 +84,9 @@ const initialState = {
   inlineToolSettings: {
     height: 0,
     top: 0
-  }
+  },
+
+  nodeContent: null
 };
 
 Object.freeze(initialState);
@@ -94,6 +97,12 @@ export default handleActions(
       return {
         ...state,
         predicate: action.payload
+      };
+    },
+    [setNodeContent]: (state, action) => {
+      return {
+        ...state,
+        nodeContent: action.payload
       };
     },
     [setColumnsSetup]: (state, action) => {

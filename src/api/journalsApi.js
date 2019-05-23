@@ -156,4 +156,10 @@ export class JournalsApi extends RecordService {
       return resp;
     });
   };
+
+  getNodeContent = nodeRef => {
+    return this.getJson(`${PROXY_URI}citeck/node-content?nodeRef=${nodeRef}`).then(resp => {
+      return resp;
+    });
+  };
 }

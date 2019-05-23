@@ -3,7 +3,7 @@ import connect from 'react-redux/es/connect/connect';
 import { Grid, InlineTools, Tools, EmptyGrid } from '../../common/grid';
 import Loader from '../../common/Loader/Loader';
 import { IcoBtn } from '../../common/btns';
-import { t } from '../../../helpers/util';
+import { t, trigger } from '../../../helpers/util';
 import {
   reloadGrid,
   deleteRecords,
@@ -88,12 +88,18 @@ class JournalsDashletGrid extends Component {
     this.removeMouseLeaveEvent();
   }
 
-  setGridInlineToolSettings = (e, offsets) => {
-    this.props.setGridInlineToolSettings(offsets);
+  setGridInlineToolSettings = (e, offsets, row) => {
+    const { doInlineToolsOnRowClick, setGridInlineToolSettings } = this.props;
+
+    setGridInlineToolSettings(offsets);
+
+    if (doInlineToolsOnRowClick) {
+      trigger.call(this, 'onRowClick', row);
+    }
   };
 
   hideGridInlineToolSettings = () => {
-    this.props.setGridInlineToolSettings({ height: 0 });
+    !this.props.doInlineToolsOnRowClick && this.props.setGridInlineToolSettings({ height: 0 });
   };
 
   createMouseLeaveEvent = () => {
@@ -121,7 +127,6 @@ class JournalsDashletGrid extends Component {
       <InlineTools
         tools={[
           <IcoBtn icon={'icon-download'} className={inlineToolsActionClassName} />,
-          <IcoBtn icon={'icon-on'} className={inlineToolsActionClassName} />,
           <IcoBtn icon={'icon-edit'} className={inlineToolsActionClassName} />,
           <IcoBtn icon={'icon-delete'} className={inlineToolsActionClassName} />
         ]}
@@ -172,12 +177,13 @@ class JournalsDashletGrid extends Component {
         columns,
         sortBy,
         pagination: { maxItems }
-      }
+      },
+      doInlineToolsOnRowClick = false
     } = this.props;
 
     return (
       <div ref={this.wrapperRef} className={'ecos-journal-dashlet__grid'}>
-        <EmptyGrid maxItems={maxItems}>
+        <EmptyGrid maxItems={maxItems} diff={15}>
           {loading ? (
             <Loader />
           ) : (
@@ -196,7 +202,8 @@ class JournalsDashletGrid extends Component {
               onSort={this.sort}
               onFilter={this.onFilter}
               onSelect={this.setSelectedRecords}
-              onMouseEnter={this.setGridInlineToolSettings}
+              onRowClick={doInlineToolsOnRowClick ? this.setGridInlineToolSettings : null}
+              onMouseEnter={doInlineToolsOnRowClick ? null : this.setGridInlineToolSettings}
               onEdit={saveRecords}
               selected={selectedRecords}
               selectAll={selectAllRecords}

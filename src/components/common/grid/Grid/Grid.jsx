@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import BootstrapTable from 'react-bootstrap-table-next';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import Checkbox from '../../form/Checkbox/Checkbox';
-import PerfectScrollbar from 'react-perfect-scrollbar';
+import { Scrollbars } from 'react-custom-scrollbars';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { t, getId, trigger } from '../../../../helpers/util';
 
@@ -70,6 +70,14 @@ export default class Grid extends Component {
 
     if (typeof props.onMouseEnter === 'function') {
       props.rowEvents = { onMouseEnter: e => props.onMouseEnter.call(this, e, this.getTrOffsets(e)) };
+    }
+
+    if (typeof props.onRowClick === 'function') {
+      props.rowEvents = {
+        onClick: e => {
+          props.onRowClick.call(this, e, this.getTrOffsets(e), props.data[e.currentTarget.rowIndex - 1]);
+        }
+      };
     }
 
     if (props.multiSelectable) {
@@ -290,6 +298,7 @@ export default class Grid extends Component {
       keyField: this._keyField,
       bootstrap4: true,
       bordered: false,
+      scrollable: true,
       headerClasses: 'ecos-grid__header',
       noDataIndication: () => t('grid.no-data-indication'),
       ...this.props
@@ -298,6 +307,14 @@ export default class Grid extends Component {
     props = this.setAdditionalOptions(props);
 
     const toolsVisible = this.toolsVisible();
+    const Scroll = ({ scrollable, children }) =>
+      scrollable ? (
+        <Scrollbars style={{ height: props.minHeight }} hideTracksWhenNotNeeded={true}>
+          {children}
+        </Scrollbars>
+      ) : (
+        <Fragment>{children}</Fragment>
+      );
 
     if (props.columns.length) {
       return (
@@ -312,13 +329,9 @@ export default class Grid extends Component {
         >
           {toolsVisible ? this.tools() : null}
 
-          <PerfectScrollbar
-            style={{ minHeight: props.minHeight }}
-            onScrollX={this.triggerCloseFilterEvent}
-            onScrollY={this.triggerCloseFilterEvent}
-          >
+          <Scroll scrollable={props.scrollable}>
             <BootstrapTable {...props} />
-          </PerfectScrollbar>
+          </Scroll>
 
           {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
             <BootstrapTable {...props} classes={'ecos-grid__freeze'} />
