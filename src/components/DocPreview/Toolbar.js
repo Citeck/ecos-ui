@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import { IcoBtn } from '../common/btns';
 import { Dropdown, Input } from '../common/form';
-import { closeFullscreen, getScaleModes, t } from '../../helpers/util';
+import { getScaleModes, t } from '../../helpers/util';
 
 const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;
@@ -36,14 +36,11 @@ class Toolbar extends Component {
       selectedZoom: '',
       isCustom: false
     };
-
-    this.fullscreenchange = false;
   }
 
   componentDidMount() {
     const { scale } = this.state;
 
-    window.addEventListener('fullscreenchange', this.onFullscreenchange, false);
     this.onChangeZoomOption(this.zoomOptions.find(el => el.scale === scale));
   }
 
@@ -57,10 +54,6 @@ class Toolbar extends Component {
     if (scale !== this.props.calcScale) {
       this.setState({ scale });
     }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('fullscreenchange', this.onFullscreenchange, false);
   }
 
   get _toolbar() {
@@ -140,20 +133,8 @@ class Toolbar extends Component {
     this.onChangeSettings(newState);
   }, 300);
 
-  onFullscreenchange = e => {
-    this.fullscreenchange = !this.fullscreenchange;
-
-    if (!this.fullscreenchange) {
-      this.setFullScreen(false);
-      closeFullscreen();
-    }
-  };
-
-  setFullScreen = flag => {
-    let newState = { ...this.state, isFullscreen: flag };
-
-    this.setState(newState);
-    this.onChangeSettings(newState);
+  setFullScreen = () => {
+    this.props.onFullscreen(true);
   };
 
   onChangeSettings = newState => {
@@ -206,7 +187,7 @@ class Toolbar extends Component {
         <Dropdown source={this.zoomOptions} value={selectedZoom} valueField={'id'} titleField={'title'} onChange={this.onChangeZoomOption}>
           <IcoBtn invert={'true'} icon={'icon-down'} className={`${_commonBtn} ecos-btn_drop-down`} />
         </Dropdown>
-        <IcoBtn icon={'glyphicon glyphicon-fullscreen'} className={_commonBtn} onClick={e => this.setFullScreen(true)} />
+        <IcoBtn icon={'glyphicon glyphicon-fullscreen'} className={_commonBtn} onClick={this.setFullScreen} />
       </div>
     );
   }

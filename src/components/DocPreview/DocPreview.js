@@ -71,6 +71,15 @@ class DocPreview extends Component {
     fileDownload(link);
   };
 
+  onFullscreen = isFullscreen => {
+    this.setState(state => ({
+      settings: {
+        ...state.settings,
+        isFullscreen
+      }
+    }));
+  };
+
   setScrollPage = scrollPage => {
     this.setState(state => ({
       scrollPage,
@@ -90,7 +99,12 @@ class DocPreview extends Component {
     let { pdf, settings, isLoading, scrollPage, calcScale } = this.state;
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
-    let commonProps = { settings, height, calcScale: this.setCalcScale };
+    let commonProps = {
+      settings,
+      height,
+      calcScale: this.setCalcScale,
+      onFullscreen: this.onFullscreen
+    };
 
     return (
       <div className={classNames(_docPreview)}>
@@ -100,6 +114,7 @@ class DocPreview extends Component {
           isPDF={this.isPDF}
           onChangeSettings={this.onChangeSettings}
           onDownload={this.onDownload}
+          onFullscreen={this.onFullscreen}
           scale={scale}
           scrollPage={scrollPage}
           calcScale={calcScale}

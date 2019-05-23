@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import { openFullscreen, t } from '../../helpers/util';
+import fscreen from 'fscreen';
+import { t } from '../../helpers/util';
 import { Scrollbars } from 'react-custom-scrollbars';
 import PropTypes from 'prop-types';
 import Loader from '../common/Loader/Loader';
@@ -28,14 +29,22 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
         scrollPage: 1
       };
       this.refViewer = React.createRef();
+      this.fullScreenOff = true;
+    }
+
+    componentDidMount() {
+      if (isPdf) {
+        this.elViewer.addEventListener('fullscreenchange', this.onFullscreenchange, false);
+      }
     }
 
     componentWillReceiveProps(nextProps) {
-      if (isPdf) {
-        let { isLoading } = this.props;
-        let { currentPage } = nextProps.settings;
+      let oldSet = this.props.settings;
+      let { isLoading } = this.props;
+      let { currentPage, isFullscreen } = nextProps.settings;
 
-        if (this.elScrollbar && !isLoading && currentPage !== this.props.settings.currentPage) {
+      if (isPdf) {
+        if (this.elScrollbar && !isLoading && currentPage !== oldSet.currentPage) {
           let children = this.childrenScroll;
           let childrenLen = children.length;
 
@@ -47,8 +56,10 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
           this.setState({ scrollPage: currentPage });
         }
 
-        if (nextProps.settings.isFullscreen) {
-          openFullscreen(this.refViewer.current);
+        if (!!isFullscreen !== !!oldSet.isFullscreen) {
+          if (isFullscreen) {
+            fscreen.requestFullscreen(this.elViewer);
+          }
         }
       }
     }
@@ -57,6 +68,10 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
       const { refScrollbar } = this.refs;
 
       return refScrollbar;
+    }
+
+    get elViewer() {
+      return this.refViewer.current || {};
     }
 
     get childrenScroll() {
@@ -91,6 +106,16 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
 
         this.setState({ scrollPage });
         this.props.scrollPage(scrollPage);
+      }
+    };
+
+    onFullscreenchange = () => {
+      console.log('test pdf');
+      this.fullScreenOff = !this.fullScreenOff;
+
+      if (this.fullScreenOff) {
+        fscreen.exitFullscreen();
+        this.props.onFullscreen(false);
       }
     };
 

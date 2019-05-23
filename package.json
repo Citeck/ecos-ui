@@ -13,6 +13,7 @@
     "express": "^4.16.4",
     "font-awesome": "^4.7.0",
     "formiojs": "3.19.9",
+    "fscreen": "^1.0.2",
     "history": "^4.7.2",
     "http-proxy-middleware": "^0.19.1",
     "jquery": "^3.3.1",

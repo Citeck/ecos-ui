@@ -59,8 +59,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
                   <DocPreviewDashlet
                     id={'dashletId-1-1-2'}
                     config={{
-                      link:
-                        'http://localhost:3000/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/2557e4b7-725f-40f3-95da-6175a67d3b3f/sample.pdf',
+                      link: 'testPdf.pdf',
                       height: 500
                     }}
                   />
