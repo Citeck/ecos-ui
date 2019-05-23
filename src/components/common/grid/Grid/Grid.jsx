@@ -293,6 +293,14 @@ export default class Grid extends Component {
     return null;
   };
 
+  onMouseLeave = e => {
+    trigger.call(this, 'onMouseLeave', e);
+  };
+
+  onScrollStart = () => {
+    this.triggerCloseFilterEvent(document.body);
+  };
+
   render() {
     let props = {
       keyField: this._keyField,
@@ -309,7 +317,7 @@ export default class Grid extends Component {
     const toolsVisible = this.toolsVisible();
     const Scroll = ({ scrollable, children }) =>
       scrollable ? (
-        <Scrollbars style={{ height: props.minHeight }} hideTracksWhenNotNeeded={true}>
+        <Scrollbars onScrollStart={this.onScrollStart} style={{ height: props.minHeight }} hideTracksWhenNotNeeded={true}>
           {children}
         </Scrollbars>
       ) : (
@@ -326,6 +334,7 @@ export default class Grid extends Component {
             (props.singleSelectable || props.multiSelectable) && 'ecos-grid_checkable',
             this.props.className
           )}
+          onMouseLeave={this.onMouseLeave}
         >
           {toolsVisible ? this.tools() : null}
 

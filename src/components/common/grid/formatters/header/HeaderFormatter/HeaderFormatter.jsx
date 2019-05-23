@@ -96,6 +96,7 @@ export default class HeaderFormatter extends Component {
           isOpen={state.open}
           trigger={'click'}
           placement="top"
+          boundariesElement={'window'}
           className={'ecos-th__filter-tooltip'}
           innerClassName={'ecos-th__filter-tooltip-body'}
           arrowClassName={'ecos-th__filter-tooltip-marker'}
