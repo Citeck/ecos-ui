@@ -19,6 +19,7 @@ import LoginForm from '../LoginForm';
 
 import './App.scss';
 import DocPreviewDashlet from '../DocPreview';
+import DocPreview from '../DocPreview/DocPreview';
 
 const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
   if (!isInit) {
@@ -60,12 +61,16 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
                     id={'dashletId-1-1-2'}
                     config={{
                       link: 'testPdf.pdf',
-                      height: 500
+                      height: 700,
+                      scale: 0.5
                     }}
                   />
                 </div>
-                <div style={{ width: '100%', margin: '10px' }}>
-                  <DocPreviewDashlet id={'dashletId-1-1-2'} config={{ link: 'testImg.jpg', height: 800, scale: 1 }} />
+                <div style={{ width: '50%', margin: '10px' }}>
+                  <DocPreviewDashlet id={'dashletId-1-1-2'} config={{ link: 'testImg.jpg', scale: 1, height: 500 }} />
+                </div>
+                <div style={{ width: '30%', margin: '10px' }}>
+                  <DocPreview link={'testImg.jpg'} />
                 </div>
               </div>
             )}

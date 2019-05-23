@@ -16,6 +16,7 @@ $border-base: #c1c1c1;
   }
 
   border: 1px solid $border-base;
+  height: 100%;
 
   &__toolbar {
     display: flex;
@@ -88,6 +89,7 @@ $border-base: #c1c1c1;
     box-sizing: border-box;
     background-color: $background-viewer;
     position: relative;
+    height: calc(100% - 45px);
 
     &-loader-wrapper {
       height: 150px;

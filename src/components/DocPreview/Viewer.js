@@ -135,7 +135,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
         return null;
       }
 
-      if (!isFullscreen) {
+      if (!isFullscreen && height) {
         style = { ...style, height };
       }
 

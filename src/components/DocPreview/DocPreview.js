@@ -23,9 +23,7 @@ class DocPreview extends Component {
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
   };
 
-  static defaultProps = {
-    height: 500
-  };
+  static defaultProps = {};
 
   constructor(props) {
     super(props);
