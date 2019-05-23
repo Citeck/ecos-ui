@@ -18,6 +18,7 @@ import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 
 import './App.scss';
+import DocPreviewDashlet from '../DocPreview';
 
 const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
   if (!isInit) {
@@ -50,6 +51,26 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
           {/*<Route path="/share/page" exact component={DashboardPage} />*/}
           <Route path="/formio-develop" component={FormIOPage} />
           <Route path="/ecos-form-example" component={EcosFormPage} />
+          <Route
+            path="/doc-preview"
+            render={() => (
+              <div style={{ display: 'flex', flex: 1 }}>
+                <div style={{ width: '100%', margin: '10px' }}>
+                  <DocPreviewDashlet
+                    id={'dashletId-1-1-2'}
+                    config={{
+                      link:
+                        'http://localhost:3000/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/2557e4b7-725f-40f3-95da-6175a67d3b3f/sample.pdf',
+                      height: 500
+                    }}
+                  />
+                </div>
+                <div style={{ width: '100%', margin: '10px' }}>
+                  <DocPreviewDashlet id={'dashletId-1-1-2'} config={{ link: 'testImg.jpg', height: 800, scale: 1 }} />
+                </div>
+              </div>
+            )}
+          />
 
           <Route path="/share/page/journals" component={JournalsPage} />
           <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
