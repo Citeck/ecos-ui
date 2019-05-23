@@ -182,7 +182,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
     this._getAuthorityRef(authority, callback);
   }
 
-  setValue(value) {
+  setValue(value, flags) {
     if (isEqual(value, this.emptyValue) && this.component.currentUserByDefault && !this.viewOnly && this.options.formMode === 'CREATE') {
       if (Array.isArray(value)) {
         value = [Formio.getUser()];
@@ -204,6 +204,8 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
       self.dataValue = value || self.component.defaultValue || self.emptyValue;
       self.refreshDOM();
+
+      return self.updateValue(flags);
     };
 
     if (Array.isArray(value)) {

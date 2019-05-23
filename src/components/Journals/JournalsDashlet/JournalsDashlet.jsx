@@ -41,10 +41,6 @@ class JournalsDashlet extends Component {
   render() {
     const { journalConfig, className, id, editorMode, reloadGrid } = this.props;
 
-    if (!journalConfig.id) {
-      return null;
-    }
-
     return (
       <Dashlet
         {...this.props}

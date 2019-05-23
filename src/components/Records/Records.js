@@ -1,11 +1,14 @@
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
+import isEmpty from 'lodash/isEmpty';
 
 const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
 const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
 
-let records;
+let Records;
+
+let tmpRecordsCounter = 0;
 
 function convertAttributePath(path) {
   if (path[0] === '.') {
@@ -39,6 +42,9 @@ function convertAttributePath(path) {
   let result = '.';
 
   if (isEdge) {
+    if (attSchema === 'options') {
+      attSchema = 'options{label:disp,value:str}';
+    }
     result += 'edge(n:"' + attName + '"){' + attSchema + '}';
   } else {
     let attPath = attName.split('.');
@@ -67,7 +73,7 @@ function convertAttributePath(path) {
   return result;
 }
 
-class Records {
+class RecordsComponent {
   constructor() {
     this._records = {};
   }
@@ -82,6 +88,17 @@ class Records {
       this._records[id] = rec;
     }
     return rec;
+  }
+
+  getRecordToEdit(id) {
+    let record = this.get(id);
+    if (!record.isBaseRecord()) {
+      return record;
+    }
+    let tmpId = id + '-alias-' + tmpRecordsCounter++;
+    let result = new Record(tmpId, record);
+    this._records[tmpId] = result;
+    return result;
   }
 
   remove(records) {
@@ -257,17 +274,36 @@ class Attribute {
 }
 
 class Record {
-  constructor(id) {
+  constructor(id, baseRecord) {
     this._id = id;
     this._attributes = {};
+    if (baseRecord) {
+      this._baseRecord = baseRecord;
+      this.att('_alias', id);
+    } else {
+      this._baseRecord = null;
+    }
+  }
+
+  isBaseRecord() {
+    return !this._baseRecord;
+  }
+
+  getBaseRecord() {
+    return this._baseRecord || this;
   }
 
   get id() {
     return this._id;
   }
 
-  static set id(v) {
-    throw new Error('id is a constant field!');
+  isPersisted() {
+    for (let att in this._attributes) {
+      if (!this._attributes[att].isPersisted()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   load(attributes, force) {
@@ -322,8 +358,11 @@ class Record {
       return Promise.resolve(formatResult(loaded));
     }
 
-    return new Promise(function(resolve, reject) {
-      fetch(QUERY_URL, {
+    let result;
+    if (this._baseRecord) {
+      result = this._baseRecord.load(toLoad, force);
+    } else {
+      result = fetch(QUERY_URL, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -337,21 +376,18 @@ class Record {
         .then(response => {
           return response.json();
         })
-        .then(response => {
-          let atts = response.attributes || {};
-          for (let att in atts) {
-            if (!atts.hasOwnProperty(att)) {
-              continue;
-            }
-            loaded[toLoadNames[att]] = atts[att];
-            self._attributes[att] = new Attribute(self, att, atts[att]);
-          }
-          resolve(formatResult(loaded));
-        })
-        .catch(e => {
-          console.error(e);
-          reject(e);
-        });
+        .then(resp => resp.attributes || {});
+    }
+
+    return result.then(atts => {
+      for (let att in atts) {
+        if (!atts.hasOwnProperty(att)) {
+          continue;
+        }
+        loaded[toLoadNames[att]] = atts[att];
+        self._attributes[att] = new Attribute(self, att, atts[att]);
+      }
+      return formatResult(loaded);
     });
   }
 
@@ -377,62 +413,106 @@ class Record {
     this._attributes = {};
   }
 
-  save() {
-    let self = this;
-
+  getAttributesToPersist() {
     let attributesToPersist = {};
 
-    let sumbitRequired = false;
-    for (let attName in self._attributes) {
-      if (!self._attributes.hasOwnProperty(attName)) {
+    for (let attName in this._attributes) {
+      if (!this._attributes.hasOwnProperty(attName)) {
         continue;
       }
 
-      let attribute = self._attributes[attName];
+      let attribute = this._attributes[attName];
 
       if (!attribute.isPersisted()) {
         attributesToPersist[attName] = attribute.value;
-        sumbitRequired = true;
       }
     }
 
-    return new Promise(function(resolve, reject) {
-      if (sumbitRequired) {
-        fetch(MUTATE_URL, {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-type': 'application/json;charset=UTF-8'
-          },
-          body: JSON.stringify({
-            record: {
-              id: self.id,
-              attributes: attributesToPersist
-            }
-          })
-        })
-          .then(response => {
-            return response.json();
-          })
-          .then(response => {
-            let attributesToLoad = {};
+    return attributesToPersist;
+  }
 
-            for (let att in attributesToPersist) {
-              if (attributesToPersist.hasOwnProperty(att)) {
-                attributesToLoad[att] = att;
-              }
-            }
-
-            let record = response.id ? records.get(response.id) : self;
-
-            record.load(attributesToLoad, true).then(() => {
-              resolve(record);
-            });
-          });
-      } else {
-        resolve(self);
+  getAssocAttributes() {
+    let attributes = [];
+    for (let attName in this._attributes) {
+      if (!this._attributes.hasOwnProperty(attName)) {
+        continue;
       }
-    });
+      if (attName.startsWith('.att') && attName.endsWith('{assoc}')) {
+        attributes.push(attName);
+      }
+    }
+    return attributes;
+  }
+
+  _getLinkedRecordsToSave() {
+    let self = this;
+
+    let result = this.getAssocAttributes().reduce((acc, att) => {
+      let value = self.att(att);
+      value = Array.isArray(value) ? value : [value];
+      return acc.concat(value.map(id => Records.get(id)).filter(r => !r.isPersisted()));
+    }, []);
+
+    return result.map(r => r._getLinkedRecordsToSave()).reduce((acc, recs) => acc.concat(recs), result);
+  }
+
+  save() {
+    let self = this;
+
+    let recordsToSave = [this, ...this._getLinkedRecordsToSave()];
+    let requestRecords = [];
+
+    for (let record of recordsToSave) {
+      let attributesToPersist = record.getAttributesToPersist();
+      if (!isEmpty(attributesToPersist)) {
+        let baseId = record.getBaseRecord().id;
+
+        requestRecords.push({
+          id: baseId,
+          attributes: attributesToPersist
+        });
+      }
+    }
+
+    if (!requestRecords.length) {
+      return Promise.resolve(this);
+    }
+
+    return fetch(MUTATE_URL, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-type': 'application/json;charset=UTF-8'
+      },
+      body: JSON.stringify({ records: requestRecords })
+    })
+      .then(response => {
+        return response.json();
+      })
+      .then(response => {
+        let attributesToLoad = {};
+
+        for (let record of requestRecords) {
+          let recAtts = attributesToLoad[record.id] || {};
+
+          for (let att in record.attributes) {
+            if (record.attributes.hasOwnProperty(att)) {
+              recAtts[att] = att;
+            }
+          }
+
+          attributesToLoad[record.id] = recAtts;
+        }
+
+        for (let recordId in attributesToLoad) {
+          if (attributesToLoad.hasOwnProperty(recordId)) {
+            Records.get(recordId).load(attributesToLoad[recordId], true);
+          }
+        }
+
+        let resultId = ((response.records || [])[0] || {}).id;
+        return resultId ? Records.get(resultId) : self;
+      });
   }
 
   att(name, value) {
@@ -460,7 +540,7 @@ if (!window.Citeck) {
 }
 
 window.Citeck = window.Citeck || {};
-records = window.Citeck.Records || new Records();
-window.Citeck.Records = records;
+Records = window.Citeck.Records || new RecordsComponent();
+window.Citeck.Records = Records;
 
-export default records;
+export default Records;

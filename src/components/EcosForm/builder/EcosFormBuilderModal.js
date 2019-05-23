@@ -14,10 +14,11 @@ export default class EcosFormBuilderModal extends React.Component {
     };
   }
 
-  show(formDefinition) {
+  show(formDefinition, onSubmit) {
     this.setState({
       isModalOpen: true,
-      formDefinition: cloneDeep(formDefinition)
+      formDefinition: cloneDeep(formDefinition),
+      onSubmit
     });
   }
 
@@ -34,8 +35,8 @@ export default class EcosFormBuilderModal extends React.Component {
   }
 
   onSubmit(formDefinition) {
-    if (this.props.onSubmit) {
-      this.props.onSubmit(formDefinition);
+    if (this.state.onSubmit) {
+      this.state.onSubmit(formDefinition);
     }
     this.hide();
   }
