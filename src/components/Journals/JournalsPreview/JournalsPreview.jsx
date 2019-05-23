@@ -2,7 +2,11 @@ import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
 import { Well } from '../../common/form';
+import { PROXY_URI } from '../../../constants/alfresco';
+import DocPreview from '../../DocPreview/DocPreview';
+import { t } from '../../../helpers/util';
 
+import '../../DocPreview/DocPreview.scss';
 import './JournalsPreview.scss';
 
 const mapStateToProps = state => ({
@@ -13,11 +17,21 @@ const mapDispatchToProps = dispatch => ({});
 
 class JournalsPreview extends Component {
   render() {
-    console.log(this.props.nodeContent);
+    const { nodeContent } = this.props;
+    let link = '';
+
+    if (nodeContent && nodeContent.content) {
+      const nodeRef = `${nodeContent['store-protocol']}/${nodeContent['store-identifier']}/${nodeContent['node-uuid']}`;
+      link = `${PROXY_URI}api/node/${nodeRef}/content/${nodeContent.name}`;
+    }
 
     return (
       <div className={classNames('ecos-journals-preview', this.props.className)}>
-        <Well className={'ecos-journals-preview__caption-well ecos-well_grey4 ecos-well_radius_6'}>{'Предпросмотр'}</Well>
+        <Well className={'ecos-journals-preview__caption-well ecos-well_grey4 ecos-well_radius_6'}>{t('journals.action.preview')}</Well>
+
+        <div className={'ecos-journals-preview__container'}>
+          <DocPreview link={link} height={345} scale={1} />
+        </div>
       </div>
     );
   }

@@ -3,7 +3,7 @@ import connect from 'react-redux/es/connect/connect';
 import { Well } from '../../common/form';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsPreview from '../JournalsPreview';
-import JournalsTasks from '../JournalsTasks';
+//import JournalsTasks from '../JournalsTasks';
 import Columns from '../../common/templates/Columns/Columns';
 import { initPreview } from '../../../actions/journals';
 
@@ -23,7 +23,7 @@ const Grid = ({ showPreview, onRowClick }) => (
 
 const Preview = () => (
   <Well className={'ecos-well_full ecos-journals-content__preview-well'}>
-    <JournalsTasks className={'ecos-journals-content__preview-y-step'} />
+    {/*<JournalsTasks className={'ecos-journals-content__preview-y-step'} />*/}
     <JournalsPreview />
   </Well>
 );

@@ -35,7 +35,7 @@ class Journals extends Component {
     this.state = {
       menuOpen: false,
       settingsVisible: false,
-      showPreview: true,
+      showPreview: false,
       showPie: false
     };
   }

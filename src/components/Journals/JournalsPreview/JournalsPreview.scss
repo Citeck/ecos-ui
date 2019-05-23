@@ -1,8 +1,21 @@
 @import '../../../constants';
 
+.ecos-journals-preview {
+  position: relative;
+  height: 100%;
+}
+
 .ecos-journals-preview__caption-well {
   font-size: $font-size-large;
   font-weight: $font-weight-bold;
   padding: 18px 12px;
   line-height: 1;
+}
+
+.ecos-journals-preview__container {
+  position: absolute;
+  top: 63px;
+  bottom: 0;
+  right: 0;
+  left: 0;
 }
