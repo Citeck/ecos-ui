@@ -1,15 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { LAYOUT_TYPE, MENU_POSITION } from '../../constants/dashboard';
 import './style.scss';
-
-const TYPE = ['template', 'menu'];
 
 export default class Layout extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     active: PropTypes.bool,
     config: PropTypes.object,
-    type: PropTypes.oneOf(TYPE),
+    type: PropTypes.oneOf(Object.keys(LAYOUT_TYPE).map(key => LAYOUT_TYPE[key])),
+    description: PropTypes.string,
     onClick: PropTypes.func
   };
 
@@ -17,9 +17,11 @@ export default class Layout extends React.Component {
     className: '',
     active: false,
     config: {
-      columns: [{}, { width: '25%' }]
+      columns: [{}, { width: '25%' }],
+      menu: null
     },
-    type: TYPE[0],
+    type: LAYOUT_TYPE.TEMPLATE,
+    description: '',
     onClick: () => null
   };
 
@@ -74,7 +76,51 @@ export default class Layout extends React.Component {
       return null;
     }
 
-    return <div className="ecos-layout">{columns.map(this.renderColumn)}</div>;
+    return columns.map(this.renderColumn);
+  }
+
+  renderMenu() {
+    const {
+      config: { menu }
+    } = this.props;
+    let block = null;
+
+    if (!menu) {
+      return null;
+    }
+
+    if (menu.type === MENU_POSITION.LEFT) {
+      block = (
+        <div className="ecos-layout__menu">
+          <div className="ecos-layout__menu-left" />
+        </div>
+      );
+    }
+
+    if (menu.type === MENU_POSITION.TOP) {
+      block = (
+        <div className="ecos-layout__menu ecos-layout__menu_top">
+          <div className="ecos-layout__menu-item" />
+          <div className="ecos-layout__menu-item" />
+          <div className="ecos-layout__menu-item" />
+          <div className="ecos-layout__menu-item" />
+          <div className="ecos-layout__menu-item" />
+          <div className="ecos-layout__menu-item" />
+        </div>
+      );
+    }
+
+    return block;
+  }
+
+  renderDescription() {
+    const { description } = this.props;
+
+    if (!description) {
+      return null;
+    }
+
+    return <div className="ecos-layout__item-description">{description}</div>;
   }
 
   render() {
@@ -82,8 +128,13 @@ export default class Layout extends React.Component {
 
     return (
       <div onClick={onClick} className={this.className}>
-        {this.renderActiveIcon()}
-        {this.renderColumns()}
+        <div className="ecos-layout__item-template">
+          {this.renderColumns()}
+          {this.renderMenu()}
+          {this.renderActiveIcon()}
+        </div>
+
+        {this.renderDescription()}
       </div>
     );
   }
