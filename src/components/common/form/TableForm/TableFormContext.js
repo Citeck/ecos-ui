@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import isEqual from 'lodash/isEqual';
+import { JournalsApi } from '../../../../api/journalsApi';
 
 export const TableFormContext = React.createContext();
 
 export const FORM_MODE_CREATE = 0;
 export const FORM_MODE_EDIT = 1;
+
+const journalId = 'idocs-contractor'; // TODO
+const initRecord = 'dict@idocs:contractor'; // TODO
 
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
@@ -14,6 +19,38 @@ export const TableFormContextProvider = props => {
   const [isModalFormOpen, setIsModalFormOpen] = useState(false);
   const [record, setRecord] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [columns, setColumns] = useState([]);
+
+  const [inlineToolsOffsets, setInlineToolsOffsets] = useState({
+    height: 0,
+    top: 0
+  });
+
+  useEffect(() => {
+    const journalsApi = new JournalsApi();
+
+    journalsApi.getJournalConfig(journalId).then(journalConfig => {
+      // console.log('journalConfig', journalConfig);
+
+      setColumns(
+        journalConfig.columns.map(item => {
+          return {
+            ...item,
+            dataField: item.dataField || item.attribute
+          };
+        }) || []
+      );
+
+      // if (Array.isArray(displayColumns) && displayColumns.length > 0) {
+      //   columns = columns.map(item => {
+      //     return {
+      //       ...item,
+      //       default: displayColumns.indexOf(item.attribute) !== -1
+      //     };
+      //   });
+      // }
+    });
+  }, []);
 
   return (
     <TableFormContext.Provider
@@ -26,13 +63,15 @@ export const TableFormContextProvider = props => {
         record,
         isModalFormOpen,
         selectedRows,
+        columns,
+        inlineToolsOffsets,
 
         toggleModal: () => {
           setIsModalFormOpen(!isModalFormOpen);
         },
 
         showCreateForm: () => {
-          setRecord('dict@idocs:contractor'); // TODO
+          setRecord(initRecord);
           setFormMode(FORM_MODE_CREATE);
           setIsModalFormOpen(true);
         },
@@ -44,19 +83,32 @@ export const TableFormContextProvider = props => {
         },
 
         onCreateFormSubmit: (record, form) => {
-          console.log('onCreateFormSubmit', record, form);
           setIsModalFormOpen(false);
 
-          const newSelectedRows = [...selectedRows, record];
+          const newSelectedRows = [
+            ...selectedRows,
+            {
+              id: record.id,
+              ...record.getAttributesToPersist(true)
+            }
+          ];
 
           setSelectedRows(newSelectedRows);
 
-          // TODO
           typeof onChange === 'function' && onChange(newSelectedRows.map(item => item.id));
         },
 
         onEditFormSubmit: (record, form) => {
-          console.log('onEditFormSubmit', record, form);
+          const editRecordId = record.id;
+          const editRecordIndex = selectedRows.findIndex(item => item.id === editRecordId);
+
+          const newSelectedRows = [
+            ...selectedRows.slice(0, editRecordIndex),
+            { id: record.id, ...record.getAttributesToPersist(true) },
+            ...selectedRows.slice(editRecordIndex + 1)
+          ];
+
+          setSelectedRows(newSelectedRows);
           setIsModalFormOpen(false);
         },
 
@@ -64,8 +116,13 @@ export const TableFormContextProvider = props => {
           const newSelectedRows = selectedRows.filter(item => item.id !== id);
           setSelectedRows([...newSelectedRows]);
 
-          // TODO
           typeof onChange === 'function' && onChange(newSelectedRows.map(item => item.id));
+        },
+
+        setInlineToolsOffsets: (e, offsets) => {
+          if (!isEqual(offsets, inlineToolsOffsets)) {
+            setInlineToolsOffsets(offsets);
+          }
         }
       }}
     >

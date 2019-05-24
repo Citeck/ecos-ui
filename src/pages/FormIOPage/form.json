@@ -15,18 +15,17 @@
       "html": "<br>",
       "type": "content"
     },
-
+    {
+      "input": true,
+      "type": "tableForm",
+      "label": "График платежей",
+      "key": "payments:payments"
+    },
     {
       "input": false,
       "columns": [
         {
           "components": [
-            {
-              "input": true,
-              "type": "tableForm",
-              "label": "График платежей",
-              "key": "payments:payments"
-            },
             {
               "input": true,
               "type": "selectOrgstruct",
