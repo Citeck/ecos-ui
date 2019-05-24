@@ -241,6 +241,9 @@ class EcosForm extends React.Component {
           case 'selectJournal':
             attributeSchema = 'assoc';
             break;
+          case 'file':
+            attributeSchema = 'json';
+            break;
           default:
             attributeSchema = 'str';
         }
@@ -305,11 +308,12 @@ class EcosForm extends React.Component {
   }
 
   getForm() {
+    let record = Records.get(this.props.record).getBaseRecord();
     return Records.queryOne(
       {
         sourceId: 'eform',
         query: {
-          record: this.props.record,
+          record: record.id,
           formKey: this.props.formKey
         }
       },
