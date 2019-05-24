@@ -52,7 +52,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
           <Route path="/formio-develop" component={FormIOPage} />
           <Route path="/ecos-form-example" component={EcosFormPage} />
 
-          <Route path="/dashboard/settings" component={DashboardSettingsPage} />
+          <Route path="/(.*/)?settings" component={DashboardSettingsPage} />
 
           <Route path="/share/page/journals" component={JournalsPage} />
           <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />

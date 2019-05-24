@@ -3,6 +3,7 @@ import { Container, Row, Col } from 'reactstrap';
 import { cloneDeep } from 'lodash';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { MENU_POSITION } from '../../constants/dashboard';
+import SelectWidgets from '../../components/SelectWidgets';
 import './style.scss';
 
 export default class DashboardSettings extends React.Component {
@@ -151,12 +152,16 @@ export default class DashboardSettings extends React.Component {
     );
   }
 
+  renderSelectWidgets() {
+    return <SelectWidgets />;
+  }
+
   renderWidgetsBlock() {
     return (
       <React.Fragment>
         <h5 className="ecos-ds__container-title">Виджеты</h5>
         <h6 className="ecos-ds__container-subtitle">Выберите где и какие виджеты отображать.</h6>
-        <div className="ecos-ds__container-group" />
+        <div className="ecos-ds__container-group">{this.renderSelectWidgets()}</div>
       </React.Fragment>
     );
   }
