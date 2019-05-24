@@ -1,7 +1,6 @@
 import React from 'react';
-import { Container, Row, Col } from 'reactstrap';
+import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import SelectWidgets from '../../components/SelectWidgets';
 import { MENU_POSITION } from '../../constants/dashboard';
@@ -165,10 +164,26 @@ export default class DashboardSettings extends React.Component {
 
   renderSelectWidgets() {
     //todo connect true data
-    const arr = new Array(50);
-    arr.fill({ title: 'this is really a very very very long string', selected: true, canRemove: true });
+    const arr = new Array(1);
 
-    return <SelectWidgets items={arr} />;
+    for (let i = 0; i < arr.length; i++) {
+      let key = `item-${i}`;
+      arr[i] = {
+        title: i + 'this is really a very very very long string',
+        id: key
+      };
+    }
+
+    return (
+      <DragDropContext
+        onDragEnd={data => {
+          console.warn(data);
+        }}
+      >
+        <SelectWidgets items={arr} />
+        <Droppable id="selected-widgets-store" className="ecos-ds__drag-container" placeholder="Перетащите виджеты сюда" />
+      </DragDropContext>
+    );
   }
 
   renderWidgetsBlock() {

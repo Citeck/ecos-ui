@@ -30,9 +30,7 @@ class SelectWidgets extends React.Component {
     }
 
     return items.map((item, index) => {
-      const { title } = item;
-
-      return <DragItem title={title} />;
+      return <DragItem {...item} index={index} />;
     });
   }
 

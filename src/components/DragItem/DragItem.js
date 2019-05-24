@@ -1,6 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import { Draggable } from 'react-beautiful-dnd';
 import './style.scss';
 import { IcoBtn } from '../common/btns';
 
@@ -9,17 +10,30 @@ class DragItem extends React.Component {
     className: PropTypes.string,
     title: PropTypes.string,
     selected: PropTypes.bool,
-    canRemove: PropTypes.bool
+    canRemove: PropTypes.bool,
+    removeItem: PropTypes.func
   };
 
   static defaultProps = {
     className: '',
     title: '',
     selected: false,
-    canRemove: false
+    canRemove: false,
+    removeItem: () => {}
   };
 
   _className = 'ecos-drag-item';
+
+  getDragItemStyle = (isDragging, draggableStyle) => {
+    const { className, selected } = this.props;
+
+    return classNames(this._className, className, { [`${this._className}_selected`]: selected }, { test: isDragging }, draggableStyle);
+  };
+
+  removeItem = () => {
+    this.props.removeItem(this.props);
+    console.log({ ...this.props });
+  };
 
   renderActions() {
     const { selected, canRemove } = this.props;
@@ -29,24 +43,67 @@ class DragItem extends React.Component {
     return (
       <div className={_actions}>
         {canRemove && (
-          <IcoBtn icon={'icon-close'} className={classNames(_btn, `${_actions}__btn-remove`, { 'ecos-btn_grey5': selected })} />
+          <IcoBtn
+            icon={'icon-close'}
+            className={classNames(_btn, `${_actions}__btn-remove`, { 'ecos-btn_grey5': selected })}
+            onClick={this.removeItem}
+          />
         )}
-        <IcoBtn icon={'icon-drag'} className={classNames(_btn, `${_actions}__btn-move`, { 'ecos-btn_grey': selected })} />
+        <IcoBtn
+          icon={'icon-drag'}
+          className={classNames(
+            _btn,
+            `${_actions}__btn-move`,
+            'ecos-btn_focus_no',
+            { 'ecos-btn_grey': selected },
+            { 'ecos-btn_grey4': !selected }
+          )}
+        />
       </div>
+    );
+  }
+
+  renderItem() {
+    const { title } = this.props;
+
+    return (
+      <React.Fragment>
+        <span className={`${this._className}__title`}>{title}</span>
+        {this.renderActions()}
+      </React.Fragment>
     );
   }
 
   render() {
-    const { className, title, selected } = this.props;
-    const _containerClass = classNames(this._className, className, { [`${this._className}_selected`]: selected });
+    const { id, index } = this.props;
 
     return (
-      <div className={_containerClass}>
-        <span className={`${this._className}__title`}>{title}</span>
-        {this.renderActions()}
-      </div>
+      <Draggable key={id} draggableId={id} index={index}>
+        {(provided, snapshot) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            className={this.getDragItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+          >
+            {this.renderItem()}
+          </div>
+        )}
+      </Draggable>
     );
   }
+
+  /*render() {
+    const { id, index } = this.props;
+    console.log(id, index);
+    return (
+
+          <div
+            className={this.getDragItemStyle(false, {})}>
+            {this.renderItem()}
+          </div>
+    );
+  }*/
 }
 
 export default DragItem;

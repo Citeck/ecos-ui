@@ -46,6 +46,7 @@ $ecos_btn_grey5: ecos-btn_grey5;
     &__btn-move.#{$ecos_btn} {
       @extend %common-btn;
       font-size: $font-size-extra-large;
+      cursor: grab;
     }
 
     &__btn-remove.#{$ecos_btn} {
