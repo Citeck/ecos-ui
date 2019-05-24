@@ -6,8 +6,14 @@ import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import SelectWidgets from '../../components/SelectWidgets';
 import { MENU_POSITION } from '../../constants/dashboard';
 import { DragDropContext, Droppable } from '../../components/Drag-n-Drop';
+import { Draggable } from 'react-beautiful-dnd';
 
 import './style.scss';
+
+const DROPPABLE_ZONE = {
+  MENU_FROM: 'items',
+  MENU_TO: 'selected'
+};
 
 export default class DashboardSettings extends React.Component {
   state = {
@@ -51,7 +57,9 @@ export default class DashboardSettings extends React.Component {
         type: MENU_POSITION.TOP,
         description: 'Меню в виде кнопок перед виджетами'
       }
-    ]
+    ],
+    items: [{ id: 1, name: 'first' }, { id: 2, name: 'second' }],
+    selected: []
   };
 
   handleClickColumn(column) {
@@ -137,7 +145,59 @@ export default class DashboardSettings extends React.Component {
     );
   }
 
+  handleDropEnd = result => {
+    const { source, destination } = result;
+
+    // dropped outside the list
+    if (!destination) {
+      return;
+    }
+
+    if (source.droppableId === destination.droppableId) {
+      const items = this.reorder(this.state[source.droppableId], source.index, destination.index);
+
+      let state = { items };
+
+      if (source.droppableId === DROPPABLE_ZONE.MENU_TO) {
+        state = { selected: items };
+      }
+
+      this.setState(state);
+    } else {
+      const result = this.move(this.state[source.droppableId], this.state[destination.droppableId], source, destination);
+
+      this.setState({
+        items: result[DROPPABLE_ZONE.MENU_FROM],
+        selected: result[DROPPABLE_ZONE.MENU_TO]
+      });
+    }
+  };
+
+  reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+
+    result.splice(endIndex, 0, removed);
+
+    return result;
+  };
+
+  move = (source, destination, droppableSource, droppableDestination) => {
+    const sourceClone = Array.from(source);
+    const destClone = Array.from(destination);
+    const [removed] = sourceClone.splice(droppableSource.index, 1);
+    const result = {};
+
+    destClone.splice(droppableDestination.index, 0, removed);
+    result[droppableSource.droppableId] = sourceClone;
+    result[droppableDestination.droppableId] = destClone;
+
+    return result;
+  };
+
   renderMenuBlock() {
+    const { items, selected } = this.state;
+
     return (
       <React.Fragment>
         <h5 className="ecos-ds__container-title">Меню</h5>
@@ -146,17 +206,40 @@ export default class DashboardSettings extends React.Component {
 
         <h6 className="ecos-ds__container-subtitle">Какие пункты меню следует отображать</h6>
         <div className="ecos-ds__drag">
-          <DragDropContext
-            onDragEnd={data => {
-              console.warn(data);
-            }}
-          >
-            <Droppable id="menu" className="ecos-ds__drag-container" placeholder="Нет доступных пунктов меню" />
+          <DragDropContext onDragEnd={this.handleDropEnd}>
             <Droppable
-              id="menu-items-store"
+              id={DROPPABLE_ZONE.MENU_FROM}
+              className="ecos-ds__drag-container"
+              placeholder="Нет доступных пунктов меню"
+              style={{ width: '100%', height: '100%' }}
+            >
+              {items.map((item, index) => (
+                <Draggable key={item.id} draggableId={item.id} index={index}>
+                  {(provided, snapshot) => (
+                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="draggable-item">
+                      {item.name}
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+            </Droppable>
+            <Droppable
+              id={DROPPABLE_ZONE.MENU_TO}
               className="ecos-ds__drag-container ecos-ds__drag-container_menu-to"
               placeholder="Перетащите пункты меню сюда"
-            />
+              style={{ width: '100%', height: '100%' }}
+            >
+              {selected.length &&
+                selected.map((item, index) => (
+                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                    {(provided, snapshot) => (
+                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="draggable-item">
+                        {item.name}
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+            </Droppable>
           </DragDropContext>
         </div>
       </React.Fragment>
@@ -176,7 +259,7 @@ export default class DashboardSettings extends React.Component {
       <React.Fragment>
         <h5 className="ecos-ds__container-title">Виджеты</h5>
         <h6 className="ecos-ds__container-subtitle">Выберите где и какие виджеты отображать.</h6>
-        <div className="ecos-ds__container-group">{this.renderSelectWidgets()}</div>
+        {/*<div className="ecos-ds__container-group">{this.renderSelectWidgets()}</div>*/}
       </React.Fragment>
     );
   }

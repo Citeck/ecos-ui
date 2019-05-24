@@ -35,7 +35,7 @@ export default class Droppable extends React.Component {
     return classes.join(' ');
   }
 
-  renderChildrens() {
+  renderChildrens = () => {
     const { children, style, placeholder } = this.props;
 
     if (children) {
@@ -43,17 +43,19 @@ export default class Droppable extends React.Component {
     }
 
     return <div className="ecos-dnd__placeholder">{placeholder}</div>;
-  }
+  };
 
   render() {
     const { id } = this.props;
 
     return (
-      <DropWrapper droppable="droppable" droppableId={id}>
+      <DropWrapper droppableId={id}>
         {(provided, snapshot) => (
           <div ref={provided.innerRef} className={this.className(snapshot.isDraggingOver)}>
-            {this.renderChildrens()}
-            {provided.placeholder}
+            <React.Fragment>
+              {this.renderChildrens()}
+              {provided.placeholder}
+            </React.Fragment>
           </div>
         )}
       </DropWrapper>
