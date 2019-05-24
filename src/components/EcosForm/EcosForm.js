@@ -17,13 +17,18 @@ let formCounter = 0;
 class EcosForm extends React.Component {
   constructor(props) {
     super(props);
+
+    let record = Records.getRecordToEdit(this.props.record);
+
     this.state = {
-      containerId: 'ecos-ui-form-' + formCounter++
+      containerId: 'ecos-ui-form-' + formCounter++,
+      recordId: record.id
     };
   }
 
   componentDidMount() {
-    let recordId = this.props.record;
+    let recordId = this.state.recordId;
+
     let formLoadingPromise = this.getForm();
 
     let options = this.props.options || {};
@@ -157,14 +162,14 @@ class EcosForm extends React.Component {
   }
 
   fireEvent(event, data) {
-    var handlerName = 'on' + event.charAt(0).toUpperCase() + event.slice(1);
+    let handlerName = 'on' + event.charAt(0).toUpperCase() + event.slice(1);
     if (this.props[handlerName]) {
       this.props[handlerName](data);
     }
   }
 
   submitForm(form, submission) {
-    var self = this;
+    let self = this;
 
     let inputs = EcosForm.getFormInputs(form.component);
     let keysMapping = {};
@@ -173,7 +178,7 @@ class EcosForm extends React.Component {
       keysMapping[inputs[i].component.key] = inputs[i].schema;
     }
 
-    let record = Records.get(this.props.record);
+    let record = Records.get(this.state.recordId);
 
     for (let key in submission.data) {
       if (submission.data.hasOwnProperty(key)) {
@@ -181,11 +186,15 @@ class EcosForm extends React.Component {
       }
     }
 
-    record.save().then(record => {
-      if (self.props.onSubmit) {
-        self.props.onSubmit(record, form);
-      }
-    });
+    let onSubmit = self.props.onSubmit || (() => {});
+
+    if (this.props.saveOnSubmit !== false) {
+      record.save().then(record => {
+        onSubmit(record, form);
+      });
+    } else {
+      onSubmit(record, form);
+    }
   }
 
   static forEachComponent(root, action) {
@@ -228,6 +237,12 @@ class EcosForm extends React.Component {
         switch (component.type) {
           case 'checkbox':
             attributeSchema = 'bool';
+            break;
+          case 'selectJournal':
+            attributeSchema = 'assoc';
+            break;
+          case 'file':
+            attributeSchema = 'json';
             break;
           default:
             attributeSchema = 'str';
@@ -285,7 +300,7 @@ class EcosForm extends React.Component {
       }
     }
 
-    return Records.get(recordId).load(attributes, true);
+    return Records.get(recordId).load(attributes);
   }
 
   render() {

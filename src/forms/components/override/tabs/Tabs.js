@@ -1,5 +1,4 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
-import FormioTabsComponent from 'formiojs/components/tabs/Tabs';
 
 //Override default tabs component to fix validation in inner fields
 export default class TabsComponent extends NestedComponent {
@@ -127,16 +126,22 @@ export default class TabsComponent extends NestedComponent {
    * @param index
    */
   setTab(index, state) {
-    if (this.options.builder) {
-      FormioTabsComponent.prototype.setTab.call(this, index, state);
-      return;
-    }
-
     if (!this.tabs || !this.component.components || !this.component.components[this.currentTab] || this.currentTab >= this.tabs.length) {
       return;
     }
 
     this.currentTab = index;
+
+    if (this.options.builder) {
+      // Get the current tab.
+      const tab = this.component.components[index];
+      this.empty(this.tabs[index]);
+      this.components.map(comp => comp.destroy());
+      this.components = [];
+      const components = this.hook('addComponents', tab.components, this);
+      components.forEach(component => this.addComponent(component, this.tabs[index], this.data, null, null, state));
+      this.restoreValue();
+    }
 
     if (this.tabLinks.length <= index) {
       return;
@@ -169,29 +174,29 @@ export default class TabsComponent extends NestedComponent {
     return super.addComponent(component, element, data, before, noAdd, state);
   }
 
+  /**
+   * Only add the components for the active tab.
+   */
   addComponents(element, data, options, state) {
-    if (this.options.builder) {
-      FormioTabsComponent.prototype.addComponents.call(this, element, data, options, state);
-      return;
-    }
-
     const { currentTab } = state && state.currentTab ? state : this;
     this.setTab(currentTab, state);
 
-    this.components.forEach(c => c.destroy());
-    this.components = [];
+    if (!this.options.builder) {
+      this.components.forEach(c => c.destroy());
+      this.components = [];
 
-    for (let i = 0; i < this.tabs.length; i++) {
-      this.empty(this.tabs[i]);
+      for (let i = 0; i < this.tabs.length; i++) {
+        this.empty(this.tabs[i]);
 
-      let tab = this.component.components[i];
-      if (!tab || !tab.components) {
-        continue;
+        const tab = this.component.components[i];
+        if (!tab || !tab.components) {
+          continue;
+        }
+
+        const tabComponents = tab.components;
+
+        tabComponents.forEach(component => this.addComponent(component, this.tabs[i], this.data, null, null, state));
       }
-
-      const tabComponents = tab.components;
-
-      tabComponents.forEach(component => this.addComponent(component, this.tabs[i], this.data, null, null, state));
     }
   }
 }

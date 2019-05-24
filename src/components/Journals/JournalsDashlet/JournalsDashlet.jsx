@@ -8,7 +8,6 @@ import { getDashletConfig, setEditorMode, reloadGrid } from '../../../actions/jo
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import Dashlet from '../../Dashlet/Dashlet';
 import classNames from 'classnames';
-import { t } from '../../../helpers/util';
 
 import './JournalsDashlet.scss';
 
