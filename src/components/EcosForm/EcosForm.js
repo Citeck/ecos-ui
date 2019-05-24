@@ -241,6 +241,9 @@ class EcosForm extends React.Component {
           case 'selectJournal':
             attributeSchema = 'assoc';
             break;
+          case 'file':
+            attributeSchema = 'json';
+            break;
           default:
             attributeSchema = 'str';
         }
