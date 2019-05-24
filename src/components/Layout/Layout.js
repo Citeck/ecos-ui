@@ -127,8 +127,8 @@ export default class Layout extends React.Component {
     const { onClick } = this.props;
 
     return (
-      <div onClick={onClick} className={this.className}>
-        <div className="ecos-layout__item-template">
+      <div className={this.className}>
+        <div className="ecos-layout__item-template" onClick={onClick}>
           {this.renderColumns()}
           {this.renderMenu()}
           {this.renderActiveIcon()}
