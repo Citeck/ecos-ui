@@ -19,6 +19,7 @@ class DragItem extends React.Component {
 
   render() {
     const { title, className } = this.props;
+
     return (
       <div className={classNames(this._className, className)}>
         <span className={`${this._className}__title`}>{title}</span>

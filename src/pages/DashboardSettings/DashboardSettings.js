@@ -164,7 +164,11 @@ export default class DashboardSettings extends React.Component {
   }
 
   renderSelectWidgets() {
-    return <SelectWidgets />;
+    //todo connect true data
+    const arr = new Array(50);
+    arr.fill({ title: 'this is really a very very very long string' });
+
+    return <SelectWidgets items={arr} />;
   }
 
   renderWidgetsBlock() {
