@@ -61,11 +61,16 @@ class JournalsDashletGrid extends Component {
 
     this.filters = predicates;
 
-    props.reloadGrid({ columns, predicates });
+    this.reloadGrid({ columns, predicates });
   };
 
+  reloadGrid(options) {
+    this.hideGridInlineToolSettings();
+    this.props.reloadGrid({ ...options });
+  }
+
   sort = e => {
-    this.props.reloadGrid({
+    this.reloadGrid({
       sortBy: [
         {
           attribute: e.column.attribute,
@@ -75,18 +80,12 @@ class JournalsDashletGrid extends Component {
     });
   };
 
-  setGridInlineToolSettings = (e, offsets, row) => {
-    const { doInlineToolsOnRowClick, setGridInlineToolSettings } = this.props;
-
-    setGridInlineToolSettings(offsets);
-
-    if (doInlineToolsOnRowClick) {
-      trigger.call(this, 'onRowClick', row);
-    }
+  showGridInlineToolSettings = (e, offsets) => {
+    this.props.setGridInlineToolSettings(offsets);
   };
 
   hideGridInlineToolSettings = () => {
-    !this.props.doInlineToolsOnRowClick && this.props.setGridInlineToolSettings({ height: 0 });
+    this.props.setGridInlineToolSettings({ height: 0 });
   };
 
   inlineTools = () => {
@@ -136,6 +135,11 @@ class JournalsDashletGrid extends Component {
     );
   };
 
+  onRowClick = (e, offsets, row) => {
+    this.showGridInlineToolSettings(e, offsets);
+    trigger.call(this, 'onRowClick', row);
+  };
+
   render() {
     const {
       selectedRecords,
@@ -173,9 +177,11 @@ class JournalsDashletGrid extends Component {
               onSort={this.sort}
               onFilter={this.onFilter}
               onSelect={this.setSelectedRecords}
-              onRowClick={doInlineToolsOnRowClick ? this.setGridInlineToolSettings : null}
-              onMouseEnter={doInlineToolsOnRowClick ? null : this.setGridInlineToolSettings}
-              onMouseLeave={this.hideGridInlineToolSettings}
+              onRowClick={doInlineToolsOnRowClick ? this.onRowClick : null}
+              onNextRowSelected={doInlineToolsOnRowClick ? this.onRowClick : null}
+              onPrevRowSelected={doInlineToolsOnRowClick ? this.onRowClick : null}
+              onMouseEnter={doInlineToolsOnRowClick ? null : this.showGridInlineToolSettings}
+              onMouseLeave={doInlineToolsOnRowClick ? null : this.hideGridInlineToolSettings}
               onEdit={saveRecords}
               selected={selectedRecords}
               selectAll={selectAllRecords}

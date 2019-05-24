@@ -40,11 +40,59 @@ export default class Grid extends Component {
   componentDidMount() {
     this.createCloseFilterEvent();
     this.createColumnResizeEvents();
+    this.createKeydownEvents();
   }
 
   componentWillUnmount() {
     this.removeCloseFilterEvent();
     this.removeColumnResizeEvents();
+    this.removeKeydownEvents();
+  }
+
+  createKeydownEvents() {
+    document.addEventListener('keydown', this.onKeydown.bind(this));
+  }
+
+  removeKeydownEvents() {
+    document.removeEventListener('keydown', this.onKeydown.bind(this));
+  }
+
+  onKeydown(e) {
+    const props = this.props;
+
+    switch (e.keyCode) {
+      case 38:
+        if (this._byRowClickSelectedRow && this._byRowClickSelectedRow.previousSibling) {
+          this._byRowClickSelectedRow = this._byRowClickSelectedRow.previousSibling;
+
+          if (typeof props.onPrevRowSelected === 'function') {
+            props.onPrevRowSelected.call(
+              this,
+              e,
+              this.getTrOffsets(this._byRowClickSelectedRow),
+              props.data[this._byRowClickSelectedRow.rowIndex - 1]
+            );
+          }
+        }
+
+        break;
+      case 40:
+        if (this._byRowClickSelectedRow && this._byRowClickSelectedRow.nextSibling) {
+          this._byRowClickSelectedRow = this._byRowClickSelectedRow.nextSibling;
+
+          if (typeof props.onNextRowSelected === 'function') {
+            props.onNextRowSelected.call(
+              this,
+              e,
+              this.getTrOffsets(this._byRowClickSelectedRow),
+              props.data[this._byRowClickSelectedRow.rowIndex - 1]
+            );
+          }
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   setAdditionalOptions(props) {
@@ -68,17 +116,22 @@ export default class Grid extends Component {
       props.cellEdit = this.setEditable(props.editable);
     }
 
+    props.rowEvents = props.rowEvents || {};
+
     if (typeof props.onMouseEnter === 'function') {
-      props.rowEvents = { onMouseEnter: e => props.onMouseEnter.call(this, e, this.getTrOffsets(e)) };
+      props.rowEvents = { onMouseEnter: e => props.onMouseEnter.call(this, e, this.getTrOffsets(e.currentTarget)), ...props.rowEvents };
     }
 
-    if (typeof props.onRowClick === 'function') {
-      props.rowEvents = {
-        onClick: e => {
-          props.onRowClick.call(this, e, this.getTrOffsets(e), props.data[e.currentTarget.rowIndex - 1]);
+    this._byRowClickSelectedRow = null;
+    props.rowEvents = {
+      onClick: e => {
+        if (typeof props.onRowClick === 'function') {
+          this._byRowClickSelectedRow = e.currentTarget;
+          props.onRowClick.call(this, e, this.getTrOffsets(e.currentTarget), props.data[e.currentTarget.rowIndex - 1]);
         }
-      };
-    }
+      },
+      ...props.rowEvents
+    };
 
     if (props.multiSelectable) {
       props.selectRow = this.createMultiSelectioCheckboxs(props);
@@ -91,8 +144,7 @@ export default class Grid extends Component {
     return props;
   }
 
-  getTrOffsets = e => {
-    const tr = e.currentTarget;
+  getTrOffsets = tr => {
     const height = tr.offsetHeight - 2;
     const top = tr.offsetTop - 1;
 
