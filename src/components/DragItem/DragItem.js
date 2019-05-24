@@ -7,29 +7,43 @@ import { IcoBtn } from '../common/btns';
 class DragItem extends React.Component {
   static propTypes = {
     className: PropTypes.string,
-    title: PropTypes.string
+    title: PropTypes.string,
+    selected: PropTypes.bool,
+    canRemove: PropTypes.bool
   };
 
   static defaultProps = {
     className: '',
-    title: ''
+    title: '',
+    selected: false,
+    canRemove: false
   };
 
   _className = 'ecos-drag-item';
 
-  render() {
-    const { title, className } = this.props;
+  renderActions() {
+    const { selected, canRemove } = this.props;
+    const _actions = `${this._className}__actions`;
+    const _btn = `ecos-btn_width_auto ecos-btn_transparent`;
 
     return (
-      <div className={classNames(this._className, className)}>
-        <span className={`${this._className}__title`}>{title}</span>
+      <div className={_actions}>
+        {canRemove && (
+          <IcoBtn icon={'icon-close'} className={classNames(_btn, `${_actions}__btn-remove`, { 'ecos-btn_grey5': selected })} />
+        )}
+        <IcoBtn icon={'icon-drag'} className={classNames(_btn, `${_actions}__btn-move`, { 'ecos-btn_grey': selected })} />
+      </div>
+    );
+  }
 
-        <div className={`${this._className}__actions`}>
-          <IcoBtn
-            icon={'icon-drag'}
-            className={`ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1 ${this._className}__actions__btn-move`}
-          />
-        </div>
+  render() {
+    const { className, title, selected } = this.props;
+    const _containerClass = classNames(this._className, className, { [`${this._className}_selected`]: selected });
+
+    return (
+      <div className={_containerClass}>
+        <span className={`${this._className}__title`}>{title}</span>
+        {this.renderActions()}
       </div>
     );
   }

@@ -148,7 +148,7 @@ export default class DashboardSettings extends React.Component {
   renderSelectWidgets() {
     //todo connect true data
     const arr = new Array(50);
-    arr.fill({ title: 'this is really a very very very long string' });
+    arr.fill({ title: 'this is really a very very very long string', selected: true, canRemove: true });
 
     return <SelectWidgets items={arr} />;
   }

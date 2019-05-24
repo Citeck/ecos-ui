@@ -1,6 +1,7 @@
 @import '../../constants.scss';
 
-$base-class-btn: ecos-btn;
+$ecos_btn: ecos-btn;
+$ecos_btn_grey5: ecos-btn_grey5;
 
 .ecos-drag-item {
   $root: &;
@@ -17,6 +18,11 @@ $base-class-btn: ecos-btn;
   padding: 0 7px;
   margin: 5px;
 
+  &_selected {
+    background: $color-gray-4;
+    box-shadow: none;
+  }
+
   &__title {
     font-style: normal;
     font-weight: 600;
@@ -25,16 +31,39 @@ $base-class-btn: ecos-btn;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-right: 5px;
   }
 
   &__actions {
-    &__btn-move.#{$base-class-btn} {
+    display: inline-flex;
+    align-items: center;
+
+    %common-btn {
       padding: 0;
       height: 100%;
-      margin-top: -1px;
+      margin-left: 5px;
+    }
 
-      font-size: 15px;
+    &__btn-move.#{$ecos_btn} {
+      @extend %common-btn;
+      font-size: $font-size-extra-large;
+    }
+
+    &__btn-remove.#{$ecos_btn} {
+      @extend %common-btn;
+      font-size: $font-size-small;
+      display: none;
+
+      &.#{$ecos_btn_grey5} {
+        &:hover {
+          color: $text-color-dark;
+        }
+      }
+    }
+  }
+
+  &:hover {
+    .ecos-drag-item__actions__btn-remove {
+      display: inline-block;
     }
   }
 }
