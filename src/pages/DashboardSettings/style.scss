@@ -92,16 +92,6 @@
       &:not(:last-child) {
         margin-right: 10px;
       }
-
-      &-message {
-        font-style: normal;
-        font-weight: 600;
-        font-size: 14px;
-        line-height: 22px;
-        text-align: center;
-        color: $color-gray-6;
-        margin: auto;
-      }
     }
   }
 }

@@ -1,9 +1,12 @@
 import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
 import { cloneDeep } from 'lodash';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
-import { MENU_POSITION } from '../../constants/dashboard';
 import SelectWidgets from '../../components/SelectWidgets';
+import { MENU_POSITION } from '../../constants/dashboard';
+import { DragDropContext, Droppable } from '../../components/Drag-n-Drop';
+
 import './style.scss';
 
 export default class DashboardSettings extends React.Component {
@@ -143,10 +146,18 @@ export default class DashboardSettings extends React.Component {
 
         <h6 className="ecos-ds__container-subtitle">Какие пункты меню следует отображать</h6>
         <div className="ecos-ds__drag">
-          <div className="ecos-ds__drag-container" />
-          <div className="ecos-ds__drag-container ecos-ds__drag-container_menu-to">
-            <div className="ecos-ds__drag-container-message">Перетащите пункты меню сюда</div>
-          </div>
+          <DragDropContext
+            onDragEnd={data => {
+              console.warn(data);
+            }}
+          >
+            <Droppable id="menu" className="ecos-ds__drag-container" placeholder="Нет доступных пунктов меню" />
+            <Droppable
+              id="menu-items-store"
+              className="ecos-ds__drag-container ecos-ds__drag-container_menu-to"
+              placeholder="Перетащите пункты меню сюда"
+            />
+          </DragDropContext>
         </div>
       </React.Fragment>
     );
