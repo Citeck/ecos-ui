@@ -1,0 +1,57 @@
+@import '../../constants.scss';
+
+.ecos-ds {
+  &__header {
+    padding: 18px 0;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 24px;
+    line-height: 33px;
+
+    color: $text-color-dark;
+  }
+
+  &__container {
+    background: $color-white;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
+    border-radius: 12px;
+    padding: 26px;
+
+    &-title {
+      background: $color-yellow;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-style: normal;
+      font-weight: bold;
+      font-size: 18px;
+      line-height: 22px;
+      color: $text-color-gray;
+      margin-bottom: 30px;
+    }
+
+    &-subtitle {
+      font-style: normal;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 22px;
+      color: $text-color-dark;
+      margin-bottom: 18px;
+    }
+
+    &-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-content: space-between;
+      margin-bottom: 34px;
+
+      &-item {
+        margin-bottom: 11px;
+
+        &:not(:last-child) {
+          margin-right: 11px;
+        }
+      }
+    }
+  }
+}

@@ -424,7 +424,12 @@ export default class SelectComponent extends BaseComponent {
 
     let filter = this.component.filter;
     if (this.component.data.url === '/citeck/ecos/records/query' && !filter) {
-      filter = 'rec=' + this.getRecordId() + '&att=#' + this.getAttributeToEdit() + '?options';
+      this.getRecord()
+        .load('#' + this.getAttributeToEdit() + '?options')
+        .then(options => {
+          this.setItems(options, !!search);
+        });
+      return;
     }
 
     // Add filter capability
