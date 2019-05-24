@@ -139,6 +139,14 @@ export default class DashboardSettings extends React.Component {
         <h5 className="ecos-ds__container-title">Меню</h5>
         <h6 className="ecos-ds__container-subtitle">Выберите расположения меню.</h6>
         <div className="ecos-ds__container-group">{this.renderMenuLayouts()}</div>
+
+        <h6 className="ecos-ds__container-subtitle">Какие пункты меню следует отображать</h6>
+        <div className="ecos-ds__drag">
+          <div className="ecos-ds__drag-container" />
+          <div className="ecos-ds__drag-container ecos-ds__drag-container_menu-to">
+            <div className="ecos-ds__drag-container-message">Перетащите пункты меню сюда</div>
+          </div>
+        </div>
       </React.Fragment>
     );
   }
