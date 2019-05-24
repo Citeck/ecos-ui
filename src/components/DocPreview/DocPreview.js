@@ -26,7 +26,7 @@ class DocPreview extends Component {
     scale: 0.5
   };
 
-  className = 'ecos-doc-preview';
+  static className = 'ecos-doc-preview';
 
   constructor(props) {
     super(props);
@@ -96,7 +96,7 @@ class DocPreview extends Component {
     this.setState({ calcScale });
   };
 
-  renderPdf() {
+  pdfViewer() {
     const { height } = this.props;
     const { pdf, settings, isLoading } = this.state;
     const commonProps = {
@@ -105,12 +105,11 @@ class DocPreview extends Component {
       calcScale: this.setCalcScale,
       onFullscreen: this.onFullscreen
     };
-    const PDF = getViewer(PdfViewer, this.className, true);
 
-    return <PDF pdf={pdf} isLoading={isLoading} scrollPage={this.setScrollPage} {...commonProps} />;
+    return <Pdf pdf={pdf} isLoading={isLoading} scrollPage={this.setScrollPage} {...commonProps} />;
   }
 
-  renderImg() {
+  imgViewer() {
     const { link, height } = this.props;
     const { settings } = this.state;
     const commonProps = {
@@ -119,9 +118,8 @@ class DocPreview extends Component {
       calcScale: this.setCalcScale,
       onFullscreen: this.onFullscreen
     };
-    const IMG = getViewer(ImgViewer, this.className);
 
-    return <IMG urlImg={link} {...commonProps} />;
+    return <Img urlImg={link} {...commonProps} />;
   }
 
   render() {
@@ -131,10 +129,10 @@ class DocPreview extends Component {
     const { numPages = 0 } = _pdfInfo;
 
     return (
-      <div className={classNames(this.className, className)}>
+      <div className={classNames(DocPreview.className, className)}>
         <Toolbar
           totalPages={numPages}
-          ctrClass={this.className}
+          ctrClass={DocPreview.className}
           isPDF={this.isPDF}
           onChangeSettings={this.onChangeSettings}
           onDownload={this.onDownload}
@@ -143,10 +141,13 @@ class DocPreview extends Component {
           scrollPage={scrollPage}
           calcScale={calcScale}
         />
-        {this.isPDF ? this.renderPdf() : this.renderImg()}
+        {this.isPDF ? this.pdfViewer() : this.imgViewer()}
       </div>
     );
   }
 }
+
+const Pdf = getViewer(PdfViewer, DocPreview.className, true);
+const Img = getViewer(ImgViewer, DocPreview.className);
 
 export default DocPreview;
