@@ -1,0 +1,33 @@
+@import '../../constants.scss';
+
+$base-class-btn: ecos-btn;
+
+.ecos-drag-item {
+  $root: &;
+
+  display: inline-flex;
+  height: 32px;
+  max-width: 250px;
+  background: $color-white;
+  mix-blend-mode: normal;
+  box-shadow: $box-shadow-default;
+  border-radius: 6px;
+  box-sizing: border-box;
+  padding: 7px 7px 9px 9px;
+  margin: 10px;
+
+  &__title {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  &__actions {
+    &__btn-move.#{$base-class-btn} {
+      padding: 0;
+      height: 100%;
+      margin-left: 7px;
+
+      font-size: 15px;
+    }
+  }
+}
