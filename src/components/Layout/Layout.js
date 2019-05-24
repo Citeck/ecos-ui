@@ -25,10 +25,6 @@ export default class Layout extends React.Component {
     onClick: () => null
   };
 
-  constructor(props) {
-    super(props);
-  }
-
   get className() {
     const { className, active } = this.props;
     const classes = ['ecos-layout__item'];

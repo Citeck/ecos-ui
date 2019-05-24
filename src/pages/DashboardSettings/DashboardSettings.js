@@ -1,8 +1,8 @@
 import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
 import { cloneDeep } from 'lodash';
-import Layout from '../../components/Layout';
-import { MENU_POSITION, LAYOUT_TYPE } from '../../constants/dashboard';
+import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
+import { MENU_POSITION } from '../../constants/dashboard';
 import './style.scss';
 
 export default class DashboardSettings extends React.Component {
@@ -98,7 +98,7 @@ export default class DashboardSettings extends React.Component {
     const { columns } = this.state;
 
     return columns.map(layout => (
-      <Layout
+      <ColumnsLayoutItem
         key={layout.position}
         onClick={this.handleClickColumn.bind(this, layout)}
         active={layout.isActive}
@@ -112,9 +112,8 @@ export default class DashboardSettings extends React.Component {
     const { menus } = this.state;
 
     return menus.map(menu => (
-      <Layout
+      <MenuLayoutItem
         key={menu.position}
-        type={LAYOUT_TYPE.MENU}
         onClick={this.handleClickMenu.bind(this, menu)}
         active={menu.isActive}
         config={{ menu }}
