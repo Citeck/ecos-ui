@@ -36,18 +36,14 @@ class PdfPage extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    let {
+    const {
       settings: { scale: newScale }
     } = nextProps;
-    let {
+    const {
       settings: { scale: oldScale }
     } = this.props;
 
-    if (newScale !== oldScale) {
-      return true;
-    }
-
-    return false;
+    return newScale !== oldScale;
   }
 
   get elCanvas() {
@@ -63,33 +59,33 @@ class PdfPage extends Component {
   }
 
   renderPage() {
-    let { pdf, pageNumber } = this.props;
+    const { pdf, pageNumber } = this.props;
 
     pdf.getPage(pageNumber).then(this.setPageParams);
   }
 
   setPageParams = page => {
-    let {
+    const {
       settings: { scale }
     } = this.props;
-    let canvas = this.elCanvas;
-    let elContainer = this.elContainer;
-    let [, , width, height] = page.getViewport().viewBox;
-    let { clientWidth: cW, clientHeight: cH } = elContainer;
-    let calcScale = getScale(scale, { width: cW, height: cH }, { width, height }, cW / 3);
+    const canvas = this.elCanvas;
+    const elContainer = this.elContainer;
+    const [, , width, height] = page.getViewport().viewBox;
+    const { clientWidth: cW, clientHeight: cH } = elContainer;
+    const calcScale = getScale(scale, { width: cW, height: cH }, { width, height }, cW / 3);
 
-    let viewport = page.getViewport(calcScale);
+    const viewport = page.getViewport(calcScale);
 
     canvas.height = viewport.height;
     canvas.width = viewport.width;
 
-    let $textLayer = this.elTextLayout;
+    const $textLayer = this.elTextLayout;
     $textLayer.style.height = viewport.height + 'px';
     $textLayer.style.width = viewport.width + 'px';
     $textLayer.style.top = canvas.offsetTop + 'px';
     $textLayer.style.left = canvas.offsetLeft + 'px';
 
-    let renderContext = {
+    const renderContext = {
       canvasContext: canvas.getContext('2d'),
       viewport: viewport
     };

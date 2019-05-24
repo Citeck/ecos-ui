@@ -20,7 +20,7 @@ class PdfViewer extends React.PureComponent {
   };
 
   get pageProps() {
-    let { ctrClass, ...props } = this.props;
+    const { ...props } = this.props;
 
     return props;
   }

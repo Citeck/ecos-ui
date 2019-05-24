@@ -94,8 +94,8 @@ class ImgViewer extends Component {
   };
 
   render() {
-    let { ctrClass, urlImg } = this.props;
-    let _pageCtr = `${ctrClass}__page-container`;
+    const { ctrClass, urlImg } = this.props;
+    const _pageCtr = `${ctrClass}__page-container`;
 
     return (
       <div className={classNames(_pageCtr, `${_pageCtr}_img`)} ref={this.refImgCtr}>

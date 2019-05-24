@@ -14,7 +14,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
       pdf: PropTypes.object,
       urlImg: PropTypes.string,
       isLoading: PropTypes.bool,
-      height: PropTypes.number,
+      height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       scrollPage: PropTypes.func,
       settings: PropTypes.shape({
         scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
