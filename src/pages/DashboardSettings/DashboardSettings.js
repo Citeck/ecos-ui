@@ -162,7 +162,7 @@ export default class DashboardSettings extends React.Component {
     );
   }
 
-  renderSelectWidgets() {
+  renderDragDropWidgets() {
     //todo connect true data
     const arr = new Array(1);
 
@@ -191,7 +191,7 @@ export default class DashboardSettings extends React.Component {
       <React.Fragment>
         <h5 className="ecos-ds__container-title">Виджеты</h5>
         <h6 className="ecos-ds__container-subtitle">Выберите где и какие виджеты отображать.</h6>
-        <div className="ecos-ds__container-group">{this.renderSelectWidgets()}</div>
+        <div className="ecos-ds__container-group">{this.renderDragDropWidgets()}</div>
       </React.Fragment>
     );
   }
