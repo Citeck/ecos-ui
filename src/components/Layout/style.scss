@@ -33,7 +33,7 @@
         }
 
         #{$root}__menu {
-          &-item,
+          &-item-template,
           &-left {
             background: $color-gray-5 !important;
           }
@@ -56,7 +56,7 @@
       }
 
       #{$root}__menu {
-        &-item,
+        &-item-template,
         &-left {
           background: $color-blue-dark !important;
         }
@@ -122,6 +122,8 @@
     width: 100%;
     height: 100%;
     padding: 5px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
 
     &_top {
       display: flex;
@@ -132,10 +134,70 @@
     }
 
     &-item {
+      display: flex;
+      min-width: 0;
+      padding: 13px 20px;
       flex-basis: 30%;
-      height: 10px;
-      background: $color-gray-9;
-      margin-bottom: 5px;
+      max-width: 30%;
+      height: 60px;
+      background: $color-white;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0px 3px 4px rgba(0, 0, 0, 0.12), 0px 2px 4px rgba(0, 0, 0, 0.14);
+      border-radius: 12px;
+      position: relative;
+      margin-bottom: 15px;
+
+      &:not(:last-child) {
+        margin-right: 15px;
+      }
+
+      &-i {
+        &-next {
+          position: relative;
+
+          &:before {
+            content: '\f0a9';
+            font-family: FontAwesome;
+            font-style: normal;
+            font-size: 26px;
+            position: absolute;
+            top: 0;
+            left: 0;
+          }
+        }
+
+        &-drag {
+          font-size: 28px;
+
+          &:before {
+            position: absolute;
+            right: 0;
+            top: calc(50% - 1em / 2);
+          }
+        }
+      }
+
+      &-title {
+        font-style: normal;
+        font-weight: bold;
+        font-size: 18px;
+        line-height: 22px;
+        align-items: center;
+        color: $color-blue-light;
+        white-space: nowrap;
+        overflow: hidden;
+        display: block;
+        text-overflow: ellipsis;
+        margin: auto 0;
+        max-width: calc(100% - 40px);
+        padding-right: 10px;
+      }
+
+      &-template {
+        flex-basis: 30%;
+        height: 10px;
+        background: $color-gray-9;
+        margin-bottom: 5px;
+      }
     }
 
     &-left {

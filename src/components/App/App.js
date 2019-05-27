@@ -11,6 +11,7 @@ import CardDetailsPage from '../../pages/CardDetailsPage';
 import FormIOPage from '../../pages/FormIOPage';
 import EcosFormPage from '../../pages/EcosFormPage';
 import DashboardSettingsPage from '../../pages/DashboardSettings';
+import DashboardPage from '../../pages/Dashboard';
 import Header from '../Header';
 import Notification from '../Notification';
 import SlideMenu from '../SlideMenu';
@@ -52,7 +53,8 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
           <Route path="/formio-develop" component={FormIOPage} />
           <Route path="/ecos-form-example" component={EcosFormPage} />
 
-          <Route path="/(.*/)?settings" component={DashboardSettingsPage} />
+          <Route path="/dashboard/(.*/)?settings" component={DashboardSettingsPage} />
+          <Route path="/dashboard" exact component={DashboardPage} />
 
           <Route path="/share/page/journals" component={JournalsPage} />
           <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />

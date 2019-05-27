@@ -1,72 +1,63 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { LAYOUT_TYPE, MENU_POSITION } from '../../constants/dashboard';
+import { Link } from 'react-router-dom';
 import './style.scss';
+import classNames from 'classnames';
+import { IcoBtn } from '../common/btns';
 
-export default class Layout extends React.Component {
+class Layout extends Component {
   static propTypes = {
-    className: PropTypes.string,
-    active: PropTypes.bool,
-    config: PropTypes.object,
-    type: PropTypes.oneOf(Object.keys(LAYOUT_TYPE).map(key => LAYOUT_TYPE[key])),
-    description: PropTypes.string,
-    onClick: PropTypes.func
+    columns: PropTypes.arrayOf(
+      PropTypes.shape({
+        width: PropTypes.string,
+        widgets: PropTypes.array
+      })
+    ).isRequired,
+    menu: PropTypes.shape({
+      type: PropTypes.oneOf(Object.keys(MENU_POSITION).map(key => MENU_POSITION[key])),
+      links: PropTypes.arrayOf(PropTypes.object)
+    }).isRequired
   };
 
-  static defaultProps = {
-    className: '',
-    active: false,
-    config: {
-      columns: [{}, { width: '25%' }],
-      menu: null
-    },
-    type: LAYOUT_TYPE.TEMPLATE,
-    description: '',
-    onClick: () => null
+  static defaultProps = {};
+
+  renderMenuItem = link => {
+    return (
+      <Link className="ecos-layout__menu-item" to={link.link} title={link.title} key={link.position}>
+        <div className="ecos-layout__menu-item-title">{link.title}</div>
+        <i className="ecos-btn__i ecos-layout__menu-item-i-next" />
+        <i className="ecos-btn__i icon-drag ecos-layout__menu-item-i-drag" />
+      </Link>
+    );
   };
 
-  get className() {
-    const { className, active } = this.props;
-    const classes = ['ecos-layout__item'];
+  renderMenu() {
+    const {
+      menu: { type, links }
+    } = this.props;
 
-    if (className) {
-      classes.push(className);
-    }
-
-    if (active) {
-      classes.push('ecos-layout__item_active');
-    }
-
-    return classes.join(' ');
-  }
-
-  renderActiveIcon() {
-    const { active } = this.props;
-
-    if (!active) {
+    if (type === MENU_POSITION.LEFT) {
       return null;
     }
 
-    return <i className="ecos-layout__item_active-icon fa fa-check-circle" />;
+    return <div className="ecos-layout__menu">{links.map(this.renderMenuItem)}</div>;
   }
 
-  renderColumn = (params, index) => {
+  renderColumn = (column, index) => {
     return (
       <div
         key={index}
-        className="ecos-layout__column"
         style={{
-          flexBasis: params.width,
-          minWidth: params.width
+          flexBasis: column.width,
+          minWidth: column.width
         }}
       />
     );
   };
 
   renderColumns() {
-    const {
-      config: { columns }
-    } = this.props;
+    const { columns } = this.props;
 
     if (!columns) {
       return null;
@@ -75,63 +66,14 @@ export default class Layout extends React.Component {
     return columns.map(this.renderColumn);
   }
 
-  renderMenu() {
-    const {
-      config: { menu }
-    } = this.props;
-    let block = null;
-
-    if (!menu) {
-      return null;
-    }
-
-    if (menu.type === MENU_POSITION.LEFT) {
-      block = (
-        <div className="ecos-layout__menu">
-          <div className="ecos-layout__menu-left" />
-        </div>
-      );
-    }
-
-    if (menu.type === MENU_POSITION.TOP) {
-      block = (
-        <div className="ecos-layout__menu ecos-layout__menu_top">
-          <div className="ecos-layout__menu-item" />
-          <div className="ecos-layout__menu-item" />
-          <div className="ecos-layout__menu-item" />
-          <div className="ecos-layout__menu-item" />
-          <div className="ecos-layout__menu-item" />
-          <div className="ecos-layout__menu-item" />
-        </div>
-      );
-    }
-
-    return block;
-  }
-
-  renderDescription() {
-    const { description } = this.props;
-
-    if (!description) {
-      return null;
-    }
-
-    return <div className="ecos-layout__item-description">{description}</div>;
-  }
-
   render() {
-    const { onClick } = this.props;
-
     return (
-      <div className={this.className}>
-        <div className="ecos-layout__item-template" onClick={onClick}>
-          {this.renderColumns()}
-          {this.renderMenu()}
-          {this.renderActiveIcon()}
-        </div>
-
-        {this.renderDescription()}
+      <div>
+        {this.renderMenu()}
+        {this.renderColumns()}
       </div>
     );
   }
 }
+
+export default Layout;

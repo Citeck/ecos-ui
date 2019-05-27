@@ -32,12 +32,12 @@ export default class MenuLayoutItem extends BaseLayoutItem {
     if (menu.type === MENU_POSITION.TOP) {
       block = (
         <div className="ecos-layout__menu ecos-layout__menu_top">
-          <div className="ecos-layout__menu-item" />
-          <div className="ecos-layout__menu-item" />
-          <div className="ecos-layout__menu-item" />
-          <div className="ecos-layout__menu-item" />
-          <div className="ecos-layout__menu-item" />
-          <div className="ecos-layout__menu-item" />
+          <div className="ecos-layout__menu-item-template" />
+          <div className="ecos-layout__menu-item-template" />
+          <div className="ecos-layout__menu-item-template" />
+          <div className="ecos-layout__menu-item-template" />
+          <div className="ecos-layout__menu-item-template" />
+          <div className="ecos-layout__menu-item-template" />
         </div>
       );
     }
