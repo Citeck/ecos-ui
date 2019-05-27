@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import TableFormPropTypes from './TableFormPropTypes';
 import { JournalsApi } from '../../../../api/journalsApi';
 
 export const TableFormContext = React.createContext();
@@ -7,11 +8,9 @@ export const TableFormContext = React.createContext();
 export const FORM_MODE_CREATE = 0;
 export const FORM_MODE_EDIT = 1;
 
-const journalId = 'idocs-contractor'; // TODO
-
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
-  const { onChange } = controlProps;
+  const { onChange, onError, journalId, displayColumns } = controlProps;
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
   const [isModalFormOpen, setIsModalFormOpen] = useState(false);
@@ -20,6 +19,15 @@ export const TableFormContextProvider = props => {
   const [columns, setColumns] = useState([]);
   const [createVariants, setCreateVariants] = useState([]);
 
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    if (!journalId) {
+      const err = new Error('The "journalId" config is required!');
+      typeof onError === 'function' && onError(err);
+      setError(err);
+    }
+  }, [journalId]);
+
   const [inlineToolsOffsets, setInlineToolsOffsets] = useState({
     height: 0,
     top: 0,
@@ -27,29 +35,34 @@ export const TableFormContextProvider = props => {
   });
 
   useEffect(() => {
+    if (!journalId) {
+      return;
+    }
+
     const journalsApi = new JournalsApi();
 
     journalsApi.getJournalConfig(journalId).then(journalConfig => {
       // console.log('journalConfig', journalConfig);
       setCreateVariants(journalConfig.meta.createVariants || []);
 
+      let columns = journalConfig.columns;
+      if (Array.isArray(displayColumns) && displayColumns.length > 0) {
+        columns = columns.map(item => {
+          return {
+            ...item,
+            default: displayColumns.indexOf(item.attribute) !== -1
+          };
+        });
+      }
+
       setColumns(
-        journalConfig.columns.map(item => {
+        columns.map(item => {
           return {
             ...item,
             dataField: item.dataField || item.attribute
           };
         }) || []
       );
-
-      // if (Array.isArray(displayColumns) && displayColumns.length > 0) {
-      //   columns = columns.map(item => {
-      //     return {
-      //       ...item,
-      //       default: displayColumns.indexOf(item.attribute) !== -1
-      //     };
-      //   });
-      // }
     });
   }, []);
 
@@ -59,7 +72,7 @@ export const TableFormContextProvider = props => {
         controlProps: {
           ...controlProps
         },
-        error: null,
+        error,
         formMode,
         record,
         isModalFormOpen,
@@ -138,11 +151,5 @@ export const TableFormContextProvider = props => {
 };
 
 TableFormContextProvider.propTypes = {
-  controlProps: PropTypes.shape({
-    defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
-    onChange: PropTypes.func,
-    onError: PropTypes.func,
-    isCompact: PropTypes.bool,
-    viewOnly: PropTypes.bool
-  })
+  controlProps: PropTypes.shape(TableFormPropTypes)
 };

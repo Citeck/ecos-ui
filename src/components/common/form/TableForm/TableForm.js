@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import TableFormPropTypes from './TableFormPropTypes';
 import TableFormRoot from './components/TableFormRoot';
 import { TableFormContextProvider } from './TableFormContext';
 import './TableForm.scss';
@@ -14,12 +14,6 @@ const TableForm = props => {
 
 TableForm.defaultProps = {};
 
-TableForm.propTypes = {
-  defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
-  onChange: PropTypes.func,
-  onError: PropTypes.func,
-  isCompact: PropTypes.bool,
-  viewOnly: PropTypes.bool
-};
+TableForm.propTypes = TableFormPropTypes;
 
 export default TableForm;

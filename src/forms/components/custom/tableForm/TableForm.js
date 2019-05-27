@@ -70,30 +70,45 @@ export default class SelectOrgstructComponent extends BaseComponent {
   }
 
   renderReactComponent(config = {}) {
-    let self = this;
-    let component = this.component;
-
+    const component = this.component;
     const onChange = this.onValueChange.bind(this);
 
-    let renderControl = function() {
+    const renderControl = journalId => {
       ReactDOM.render(
         <TableForm
-          defaultValue={self.dataValue}
+          defaultValue={this.dataValue}
           isCompact={component.isCompact}
           multiple={component.multiple}
           placeholder={component.placeholder}
           disabled={component.disabled}
+          journalId={journalId}
           onChange={onChange}
-          viewOnly={self.viewOnly}
+          viewOnly={this.viewOnly}
+          displayColumns={component.displayColumns}
           onError={err => {
             // this.setCustomValidity(err, false);
           }}
         />,
-        self.reactContainer
+        this.reactContainer
       );
     };
 
-    renderControl();
+    let journalId = this.component.journalId;
+
+    if (!journalId) {
+      let attribute = this.getAttributeToEdit();
+      this.getRecord()
+        .loadEditorKey(attribute)
+        .then(editorKey => {
+          this.component._journalId = editorKey;
+          renderControl(editorKey);
+        })
+        .catch(() => {
+          renderControl(null);
+        });
+    } else {
+      renderControl(journalId);
+    }
   }
 
   refreshDOM() {

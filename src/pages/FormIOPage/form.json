@@ -19,7 +19,8 @@
       "input": true,
       "type": "tableForm",
       "label": "График платежей",
-      "key": "payments:payments"
+      "key": "payments:payments",
+      "journalId": "idocs-contractor"
     },
     {
       "input": false,
