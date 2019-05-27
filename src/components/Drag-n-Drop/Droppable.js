@@ -36,7 +36,7 @@ export class Droppable extends React.Component {
     return classes.join(' ');
   }
 
-  renderChildrens = () => {
+  renderChildren = () => {
     const { children, style, placeholder } = this.props;
     const renderView = props => <div {...props} className={classNames(`${this._className}__scrollbar`)} />;
     const renderTrackHorizontal = props => <div {...props} hidden />;
@@ -60,7 +60,7 @@ export class Droppable extends React.Component {
         {(provided, snapshot) => (
           <div ref={provided.innerRef} className={this.className(snapshot.isDraggingOver, snapshot.draggingFromThisWith)}>
             <React.Fragment>
-              {this.renderChildrens()}
+              {this.renderChildren()}
               {provided.placeholder}
             </React.Fragment>
           </div>

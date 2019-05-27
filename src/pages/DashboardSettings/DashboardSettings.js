@@ -208,57 +208,16 @@ export default class DashboardSettings extends React.Component {
               id={DROPPABLE_ZONE.MENU_FROM}
               className="ecos-ds__drag-container"
               placeholder="Нет доступных пунктов меню"
-              style={{ width: '100%', height: '100%' }}
+              style={{ width: '100%', height: '100%', marginRight: '10px' }}
             >
-              {items.length &&
-                items.map((item, index) => (
-                  <Draggable key={item.id} draggableId={item.id} index={index}>
-                    {(provided, snapshot) => {
-                      const { scrollTop } = document.querySelector('body');
-                      const {
-                        draggableProps: { style }
-                      } = provided;
-
-                      if (style.top) {
-                        provided.draggableProps.style.top = scrollTop ? style.top + scrollTop : style.top;
-                      }
-
-                      return (
-                        <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="draggable-item">
-                          {item.name}
-                        </div>
-                      );
-                    }}
-                  </Draggable>
-                ))}
+              {items.length && items.map((item, index) => <DragItem title={item.name} key={item.id} {...item} index={index} />)}
             </Droppable>
             <Droppable
               id={DROPPABLE_ZONE.MENU_TO}
               className="ecos-ds__drag-container ecos-ds__drag-container_menu-to"
               placeholder="Перетащите пункты меню сюда"
-              style={{ width: '100%', height: '100%' }}
             >
-              {selected.length &&
-                selected.map((item, index) => (
-                  <Draggable key={item.id} draggableId={item.id} index={index}>
-                    {(provided, snapshot) => {
-                      const { scrollTop } = document.querySelector('body');
-                      const {
-                        draggableProps: { style }
-                      } = provided;
-
-                      if (style.top) {
-                        provided.draggableProps.style.top = scrollTop ? style.top + scrollTop : style.top;
-                      }
-
-                      return (
-                        <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="draggable-item">
-                          {item.name}
-                        </div>
-                      );
-                    }}
-                  </Draggable>
-                ))}
+              {selected.length && selected.map((item, index) => <DragItem title={item.name} key={item.id} {...item} index={index} />)}
             </Droppable>
           </DragDropContext>
         </div>
