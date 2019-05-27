@@ -1,26 +1,18 @@
 import React, { useContext, useRef, useEffect } from 'react';
 import classNames from 'classnames';
-import { Btn, IcoBtn } from '../../../../../common/btns';
+import { IcoBtn } from '../../../../../common/btns';
 import Grid from '../../../../grid/Grid';
 import InlineToolsDisconnected from '../../../../grid/InlineTools/InlineToolsDisconnected';
 import { TableFormContext } from '../../TableFormContext';
+import CreateVariants from '../CreateVariants';
 import { t } from '../../../../../../helpers/util';
 import './InputView.scss';
 
 const InputView = () => {
   const context = useContext(TableFormContext);
 
-  const { isCompact, disabled, placeholder } = context.controlProps;
-  const {
-    selectedRows,
-    columns,
-    error,
-    deleteSelectedItem,
-    showCreateForm,
-    showEditForm,
-    inlineToolsOffsets,
-    setInlineToolsOffsets
-  } = context;
+  const { placeholder } = context.controlProps;
+  const { selectedRows, columns, error, deleteSelectedItem, showEditForm, inlineToolsOffsets, setInlineToolsOffsets } = context;
 
   const wrapperRef = useRef(null);
 
@@ -41,10 +33,6 @@ const InputView = () => {
   }, [wrapperRef.current, setInlineToolsOffsets]);
 
   const wrapperClasses = classNames('ecos-table-form__input-view');
-
-  const buttonClasses = classNames('ecos-btn_blue', {
-    'ecos-btn_narrow': isCompact
-  });
 
   const placeholderText = placeholder ? placeholder : t('select-orgstruct.placeholder');
 
@@ -93,13 +81,7 @@ const InputView = () => {
     <div className={wrapperClasses}>
       {valuesList}
 
-      {error ? (
-        <p className={'ecos-table-form__error'}>{error.message}</p>
-      ) : (
-        <Btn className={buttonClasses} onClick={showCreateForm} disabled={disabled}>
-          {t('select-journal.select-modal.create-button')}
-        </Btn>
-      )}
+      {error ? <p className={'ecos-table-form__error'}>{error.message}</p> : <CreateVariants />}
     </div>
   );
 };

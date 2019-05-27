@@ -8,7 +8,6 @@ export const FORM_MODE_CREATE = 0;
 export const FORM_MODE_EDIT = 1;
 
 const journalId = 'idocs-contractor'; // TODO
-const initRecord = 'dict@idocs:contractor'; // TODO
 
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
@@ -19,6 +18,7 @@ export const TableFormContextProvider = props => {
   const [record, setRecord] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [columns, setColumns] = useState([]);
+  const [createVariants, setCreateVariants] = useState([]);
 
   const [inlineToolsOffsets, setInlineToolsOffsets] = useState({
     height: 0,
@@ -31,6 +31,7 @@ export const TableFormContextProvider = props => {
 
     journalsApi.getJournalConfig(journalId).then(journalConfig => {
       // console.log('journalConfig', journalConfig);
+      setCreateVariants(journalConfig.meta.createVariants || []);
 
       setColumns(
         journalConfig.columns.map(item => {
@@ -65,13 +66,14 @@ export const TableFormContextProvider = props => {
         selectedRows,
         columns,
         inlineToolsOffsets,
+        createVariants,
 
         toggleModal: () => {
           setIsModalFormOpen(!isModalFormOpen);
         },
 
-        showCreateForm: () => {
-          setRecord(initRecord);
+        showCreateForm: record => {
+          setRecord(record);
           setFormMode(FORM_MODE_CREATE);
           setIsModalFormOpen(true);
         },
