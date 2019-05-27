@@ -33,21 +33,20 @@ export default class DashboardSettings extends React.Component {
     super(props);
 
     //fixme tes data
-    const allWidgets = getTestWidgets({}, 'all', 20);
-    const selectedWidgets_1 = getTestWidgets({ selected: true, canRemove: true }, 'selected', 10);
-    const selectedWidgets_2 = getTestWidgets({ selected: true, canRemove: true }, 'selected', 5);
+    const widgets = getTestWidgets({}, 'all', 20);
 
     this.state = {
+      widgets,
       columns: [
         {
           position: 0,
           isActive: true,
-          columns: [{}, { width: '25%' }]
+          columns: [{ widgets: [] }, { width: '25%', widgets: [] }]
         },
         {
           position: 1,
           isActive: false,
-          columns: [{ width: '25%' }, {}]
+          columns: [{ width: '25%', widgets: [] }, { widgets: [] }]
         },
         {
           position: 2,
@@ -57,12 +56,12 @@ export default class DashboardSettings extends React.Component {
         {
           position: 3,
           isActive: false,
-          columns: [{}, {}, {}, {}]
+          columns: [{ widgets: [] }, { widgets: [] }, { widgets: [] }, { widgets: [] }]
         },
         {
           position: 4,
           isActive: false,
-          columns: []
+          columns: [{ widgets: [] }]
         }
       ],
       menus: [
@@ -98,9 +97,7 @@ export default class DashboardSettings extends React.Component {
         { id: 225, name: 'Социальные сети' },
         { id: 226, name: 'Открытие источники' }
       ],
-      menuSelected: [],
-      allWidgets,
-      selectedWidgets: [selectedWidgets_1, selectedWidgets_2]
+      menuSelected: []
     };
   }
 
@@ -197,7 +194,7 @@ export default class DashboardSettings extends React.Component {
     );
   }
 
-  handleDropEnd = result => {
+  handleDropEndMenu = result => {
     const { source, destination } = result;
 
     if (!destination) {
@@ -221,6 +218,23 @@ export default class DashboardSettings extends React.Component {
         menuItems: result[DROPPABLE_ZONE.MENU_FROM],
         menuSelected: result[DROPPABLE_ZONE.MENU_TO]
       });
+    }
+  };
+
+  handleDropEndWidget = result => {
+    //console.log(result);
+    const { source, destination } = result;
+
+    if (!destination) {
+      return;
+    }
+
+    if (source.droppableId !== destination.droppableId) {
+      //const result = this.move(this.state[source.droppableId], this.state[destination.droppableId], source, destination);
+      /*this.setState({
+        menuItems: result[DROPPABLE_ZONE.MENU_FROM],
+        menuSelected: result[DROPPABLE_ZONE.MENU_TO]
+      });*/
     }
   };
 
@@ -257,7 +271,7 @@ export default class DashboardSettings extends React.Component {
 
         <h6 className="ecos-ds__container-subtitle">{t('Какие пункты меню следует отображать')}</h6>
         <div className="ecos-ds__drag">
-          <DragDropContext onDragEnd={this.handleDropEnd}>
+          <DragDropContext onDragEnd={this.handleDropEndMenu}>
             <Droppable
               id={DROPPABLE_ZONE.MENU_FROM}
               className="ecos-ds__drag-container"
@@ -287,7 +301,7 @@ export default class DashboardSettings extends React.Component {
   }
 
   renderWidgetColumns() {
-    const { columns, selectedWidgets } = this.state;
+    const { columns } = this.state;
     const choice = columns.filter(item => item.isActive)[0];
 
     return (
@@ -303,7 +317,7 @@ export default class DashboardSettings extends React.Component {
                 className="ecos-ds__drag-container ecos-ds__column-widgets__items"
                 placeholder={t('Перетащите сюда виджеты')}
               >
-                {this.renderDragItems(selectedWidgets[index])}
+                {this.renderDragItems(item.widgets)}
               </Droppable>
             </div>
           );
@@ -313,24 +327,20 @@ export default class DashboardSettings extends React.Component {
   }
 
   renderWidgetsBlock() {
-    const { allWidgets } = this.state;
+    const { widgets } = this.state;
 
     return (
       <React.Fragment>
         <h5 className="ecos-ds__container-title">{t('Виджеты')}</h5>
         <h6 className="ecos-ds__container-subtitle">{t('Выберите где и какие виджеты отображать.')}</h6>
         <div className="ecos-ds__container-group">
-          <DragDropContext
-            onDragEnd={data => {
-              console.warn(data);
-            }}
-          >
+          <DragDropContext onDragEnd={this.handleDropEndWidget}>
             <Droppable
               id="widgets-store"
               className="ecos-ds__drag-container ecos-ds__drag-container_col"
               placeholder={t('Нет доступных виджетов')}
             >
-              {this.renderDragItems(allWidgets)}
+              {this.renderDragItems(widgets)}
             </Droppable>
             {this.renderWidgetColumns()}
           </DragDropContext>
