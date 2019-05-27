@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
+import './style.scss';
 import { Droppable as DropWrapper } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
-import './style.scss';
 
-export default class Droppable extends React.Component {
+export class Droppable extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     style: PropTypes.object,
@@ -35,11 +36,17 @@ export default class Droppable extends React.Component {
     return classes.join(' ');
   }
 
-  renderChildrens() {
+  renderChildren() {
     const { children, style, placeholder } = this.props;
+    const renderView = props => <div {...props} className={classNames(`${this._className}__scrollbar`)} />;
+    const renderTrackHorizontal = props => <div {...props} hidden />;
 
     if (children) {
-      return <Scrollbars style={style}>{children}</Scrollbars>;
+      return (
+        <Scrollbars renderView={renderView} renderTrackHorizontal={renderTrackHorizontal} style={style}>
+          {children}
+        </Scrollbars>
+      );
     }
 
     return <div className="ecos-dnd__placeholder">{placeholder}</div>;
@@ -52,7 +59,7 @@ export default class Droppable extends React.Component {
       <DropWrapper droppable="droppable" droppableId={id}>
         {(provided, snapshot) => (
           <div ref={provided.innerRef} className={this.className(snapshot.isDraggingOver)}>
-            {this.renderChildrens()}
+            {this.renderChildren()}
             {provided.placeholder}
           </div>
         )}

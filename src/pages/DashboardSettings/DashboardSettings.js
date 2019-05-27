@@ -2,9 +2,8 @@ import React from 'react';
 import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
-import SelectWidgets from '../../components/SelectWidgets';
 import { MENU_POSITION } from '../../constants/dashboard';
-import { DragDropContext, Droppable } from '../../components/Drag-n-Drop';
+import { DragDropContext, Droppable, DragItem } from '../../components/Drag-n-Drop';
 
 import './style.scss';
 
@@ -141,7 +140,7 @@ export default class DashboardSettings extends React.Component {
       <React.Fragment>
         <h5 className="ecos-ds__container-title">Меню</h5>
         <h6 className="ecos-ds__container-subtitle">Выберите расположения меню.</h6>
-        <div className="ecos-ds__container-group">{this.renderMenuLayouts()}</div>
+        <div className="ecos-ds__container-group ecos-ds__container-group_row">{this.renderMenuLayouts()}</div>
 
         <h6 className="ecos-ds__container-subtitle">Какие пункты меню следует отображать</h6>
         <div className="ecos-ds__drag">
@@ -150,7 +149,7 @@ export default class DashboardSettings extends React.Component {
               console.warn(data);
             }}
           >
-            <Droppable id="menu" className="ecos-ds__drag-container" placeholder="Нет доступных пунктов меню" />
+            <Droppable id="menu" className="ecos-ds__drag-container ecos-ds__drag-container_row" placeholder="Нет доступных пунктов меню" />
             <Droppable
               id="menu-items-store"
               className="ecos-ds__drag-container ecos-ds__drag-container_menu-to"
@@ -162,7 +161,17 @@ export default class DashboardSettings extends React.Component {
     );
   }
 
-  renderDragDropWidgets() {
+  renderDragItem(items) {
+    if (!items || (items && !items.length)) {
+      return null;
+    }
+
+    return items.map((item, index) => {
+      return <DragItem {...item} index={index} />;
+    });
+  }
+
+  renderWidgetsBlock() {
     //todo connect true data
     const arr = new Array(1);
 
@@ -175,23 +184,21 @@ export default class DashboardSettings extends React.Component {
     }
 
     return (
-      <DragDropContext
-        onDragEnd={data => {
-          console.warn(data);
-        }}
-      >
-        <SelectWidgets items={arr} />
-        <Droppable id="selected-widgets-store" className="ecos-ds__drag-container" placeholder="Перетащите виджеты сюда" />
-      </DragDropContext>
-    );
-  }
-
-  renderWidgetsBlock() {
-    return (
       <React.Fragment>
         <h5 className="ecos-ds__container-title">Виджеты</h5>
         <h6 className="ecos-ds__container-subtitle">Выберите где и какие виджеты отображать.</h6>
-        <div className="ecos-ds__container-group">{this.renderDragDropWidgets()}</div>
+        <div className="ecos-ds__container-group">
+          <DragDropContext
+            onDragEnd={data => {
+              console.warn(data);
+            }}
+          >
+            <Droppable id="widgets" className="ecos-ds__drag-container  ecos-ds__drag-container_col" placeholder="Нет доступных виджетов">
+              {this.renderDragItem(arr)}
+            </Droppable>
+            <Droppable id="selected-widgets-store" className="ecos-ds__drag-container" placeholder="Перетащите виджеты сюда" />
+          </DragDropContext>
+        </div>
       </React.Fragment>
     );
   }

@@ -2,10 +2,10 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
-import './style.scss';
+import './drag-item.scss';
 import { IcoBtn } from '../common/btns';
 
-class DragItem extends React.Component {
+export class DragItem extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     title: PropTypes.string,
@@ -92,18 +92,4 @@ class DragItem extends React.Component {
       </Draggable>
     );
   }
-
-  /*render() {
-    const { id, index } = this.props;
-    console.log(id, index);
-    return (
-
-          <div
-            className={this.getDragItemStyle(false, {})}>
-            {this.renderItem()}
-          </div>
-    );
-  }*/
 }
-
-export default DragItem;

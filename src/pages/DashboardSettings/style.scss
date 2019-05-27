@@ -89,8 +89,16 @@
         height: 200px;
       }
 
-      &:not(:last-child) {
-        margin-right: 10px;
+      &_row {
+        &:not(:last-child) {
+          margin-right: 10px;
+        }
+      }
+
+      &_col {
+        &:not(:last-child) {
+          margin-bottom: 10px;
+        }
       }
     }
   }
