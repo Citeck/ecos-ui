@@ -20,7 +20,7 @@ export default class Droppable extends React.Component {
     placeholder: ''
   };
 
-  className(isDraggingOver = false) {
+  className(isDraggingOver = false, draggingFromThisWith = false) {
     const { className } = this.props;
     const classes = ['ecos-dnd__droppable'];
 
@@ -28,7 +28,7 @@ export default class Droppable extends React.Component {
       classes.push(className);
     }
 
-    if (isDraggingOver) {
+    if (isDraggingOver && !draggingFromThisWith) {
       classes.push('ecos-dnd__droppable_over');
     }
 
@@ -51,7 +51,7 @@ export default class Droppable extends React.Component {
     return (
       <DropWrapper droppableId={id}>
         {(provided, snapshot) => (
-          <div ref={provided.innerRef} className={this.className(snapshot.isDraggingOver)}>
+          <div ref={provided.innerRef} className={this.className(snapshot.isDraggingOver, snapshot.draggingFromThisWith)}>
             <React.Fragment>
               {this.renderChildrens()}
               {provided.placeholder}

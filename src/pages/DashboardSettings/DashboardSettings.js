@@ -148,7 +148,6 @@ export default class DashboardSettings extends React.Component {
   handleDropEnd = result => {
     const { source, destination } = result;
 
-    // dropped outside the list
     if (!destination) {
       return;
     }
@@ -213,15 +212,27 @@ export default class DashboardSettings extends React.Component {
               placeholder="Нет доступных пунктов меню"
               style={{ width: '100%', height: '100%' }}
             >
-              {items.map((item, index) => (
-                <Draggable key={item.id} draggableId={item.id} index={index}>
-                  {(provided, snapshot) => (
-                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="draggable-item">
-                      {item.name}
-                    </div>
-                  )}
-                </Draggable>
-              ))}
+              {items.length &&
+                items.map((item, index) => (
+                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                    {(provided, snapshot) => {
+                      const { scrollTop } = document.querySelector('body');
+                      const {
+                        draggableProps: { style }
+                      } = provided;
+
+                      if (style.top) {
+                        provided.draggableProps.style.top = scrollTop ? style.top + scrollTop : style.top;
+                      }
+
+                      return (
+                        <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="draggable-item">
+                          {item.name}
+                        </div>
+                      );
+                    }}
+                  </Draggable>
+                ))}
             </Droppable>
             <Droppable
               id={DROPPABLE_ZONE.MENU_TO}
@@ -232,11 +243,22 @@ export default class DashboardSettings extends React.Component {
               {selected.length &&
                 selected.map((item, index) => (
                   <Draggable key={item.id} draggableId={item.id} index={index}>
-                    {(provided, snapshot) => (
-                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="draggable-item">
-                        {item.name}
-                      </div>
-                    )}
+                    {(provided, snapshot) => {
+                      const { scrollTop } = document.querySelector('body');
+                      const {
+                        draggableProps: { style }
+                      } = provided;
+
+                      if (style.top) {
+                        provided.draggableProps.style.top = scrollTop ? style.top + scrollTop : style.top;
+                      }
+
+                      return (
+                        <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="draggable-item">
+                          {item.name}
+                        </div>
+                      );
+                    }}
                   </Draggable>
                 ))}
             </Droppable>
@@ -259,7 +281,7 @@ export default class DashboardSettings extends React.Component {
       <React.Fragment>
         <h5 className="ecos-ds__container-title">Виджеты</h5>
         <h6 className="ecos-ds__container-subtitle">Выберите где и какие виджеты отображать.</h6>
-        {/*<div className="ecos-ds__container-group">{this.renderSelectWidgets()}</div>*/}
+        <div className="ecos-ds__container-group">{this.renderSelectWidgets()}</div>
       </React.Fragment>
     );
   }
