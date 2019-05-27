@@ -1,11 +1,10 @@
 import React from 'react';
-import { Container, Row, Col } from 'reactstrap';
+import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
 import { MENU_POSITION } from '../../constants/dashboard';
 import { t } from '../../helpers/util';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
-import { Draggable } from 'react-beautiful-dnd';
 
 import './style.scss';
 
@@ -25,8 +24,8 @@ function getTestWidgets(props, prefix, size) {
 }
 
 const DROPPABLE_ZONE = {
-  MENU_FROM: 'items',
-  MENU_TO: 'selected'
+  MENU_FROM: 'menuItems',
+  MENU_TO: 'menuSelected'
 };
 
 export default class DashboardSettings extends React.Component {
@@ -80,7 +79,7 @@ export default class DashboardSettings extends React.Component {
           description: 'Меню в виде кнопок перед виджетами'
         }
       ],
-      items: [
+      menuItems: [
         { id: 1, name: 'Главная' },
         { id: 2, name: 'Домашняя' },
         { id: 22, name: 'Дашборд' },
@@ -99,7 +98,7 @@ export default class DashboardSettings extends React.Component {
         { id: 225, name: 'Социальные сети' },
         { id: 226, name: 'Открытие источники' }
       ],
-      selected: [],
+      menuSelected: [],
       allWidgets,
       selectedWidgets: [selectedWidgets_1, selectedWidgets_2]
     };
@@ -206,12 +205,12 @@ export default class DashboardSettings extends React.Component {
     }
 
     if (source.droppableId === destination.droppableId) {
-      const items = this.reorder(this.state[source.droppableId], source.index, destination.index);
+      const menuItems = this.reorder(this.state[source.droppableId], source.index, destination.index);
 
-      let state = { items };
+      let state = { menuItems };
 
       if (source.droppableId === DROPPABLE_ZONE.MENU_TO) {
-        state = { selected: items };
+        state = { menuSelected: menuItems };
       }
 
       this.setState(state);
@@ -219,8 +218,8 @@ export default class DashboardSettings extends React.Component {
       const result = this.move(this.state[source.droppableId], this.state[destination.droppableId], source, destination);
 
       this.setState({
-        items: result[DROPPABLE_ZONE.MENU_FROM],
-        selected: result[DROPPABLE_ZONE.MENU_TO]
+        menuItems: result[DROPPABLE_ZONE.MENU_FROM],
+        menuSelected: result[DROPPABLE_ZONE.MENU_TO]
       });
     }
   };
@@ -248,7 +247,7 @@ export default class DashboardSettings extends React.Component {
   };
 
   renderMenuBlock() {
-    const { items, selected } = this.state;
+    const { menuItems, menuSelected } = this.state;
 
     return (
       <React.Fragment>
@@ -266,7 +265,7 @@ export default class DashboardSettings extends React.Component {
               style={{ marginRight: '10px' }}
               direction="horizontal"
             >
-              {items.length && items.map((item, index) => <DragItem title={item.name} key={item.id} {...item} index={index} />)}
+              {menuItems.length && menuItems.map((item, index) => <DragItem title={item.name} key={item.id} {...item} index={index} />)}
             </Droppable>
             <Droppable
               id={DROPPABLE_ZONE.MENU_TO}
@@ -274,7 +273,12 @@ export default class DashboardSettings extends React.Component {
               placeholder={t('Перетащите пункты меню сюда')}
               direction="horizontal"
             >
-              {selected.length && selected.map((item, index) => <DragItem title={item.name} key={item.id} {...item} index={index} />)}
+              {menuSelected.length &&
+                menuSelected.map((item, index) => {
+                  const val = { ...item, selected: true, canRemove: true };
+
+                  return <DragItem title={item.name} key={item.id} {...val} index={index} />;
+                })}
             </Droppable>
           </DragDropContext>
         </div>
