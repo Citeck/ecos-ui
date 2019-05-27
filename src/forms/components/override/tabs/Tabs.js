@@ -77,7 +77,7 @@ export default class TabsComponent extends NestedComponent {
         if (self.tabsVisibilityUpdateSync === visibilityUpdateSync) {
           self.updateTabsVisibility();
         }
-      }, 200);
+      }, 100);
     }
 
     return result;
@@ -123,10 +123,18 @@ export default class TabsComponent extends NestedComponent {
       }
     });
 
-    this._updateFirstOrLastTabClass('currentFirstVisibleTabIdx', firstVisibleIdx, 'first-visible-tab');
-    this._updateFirstOrLastTabClass('currentLastVisibleTabIdx', lastVisibleIdx, 'last-visible-tab');
+    this._updateFirstVisibleTabClass(firstVisibleIdx);
+    this._updateLastVisibleTabClass(lastVisibleIdx);
 
     this._visibleTabs = tabsVisibility;
+  }
+
+  _updateFirstVisibleTabClass(idx) {
+    this._updateFirstOrLastTabClass('currentFirstVisibleTabIdx', idx, 'first-visible-tab');
+  }
+
+  _updateLastVisibleTabClass(idx) {
+    this._updateFirstOrLastTabClass('currentLastVisibleTabIdx', idx, 'last-visible-tab');
   }
 
   _updateFirstOrLastTabClass(currentIdxField, newIdx, className) {
@@ -224,6 +232,11 @@ export default class TabsComponent extends NestedComponent {
       this.tabsContent.appendChild(tabPanel);
       this.tabs.push(tabPanel);
     });
+
+    if (this.tabLinks.length > 0) {
+      this._updateFirstVisibleTabClass(0);
+      this._updateLastVisibleTabClass(this.tabLinks.length - 1);
+    }
 
     if (this.element) {
       this.appendChild(this.element, [this.tabsBar, this.tabsContent]);
