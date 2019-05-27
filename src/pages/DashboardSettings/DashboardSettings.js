@@ -104,6 +104,7 @@ export default class DashboardSettings extends React.Component {
     };
   }
 
+  /*--------- start Layouts ----------*/
   handleClickColumn(column) {
     let columns = cloneDeep(this.state.columns);
 
@@ -151,25 +152,6 @@ export default class DashboardSettings extends React.Component {
     this.setState({ menus, isShowMenuConstructor });
   }
 
-  renderDragItems(items, onRemoveItem, className = '') {
-    if (!items || (items && !items.length)) {
-      return null;
-    }
-
-    return items.map((item, index) => {
-      return (
-        <DragItem
-          key={item.id}
-          {...item}
-          index={index}
-          className={className}
-          getPositionAdjusment={this.draggablePositionAdjusment}
-          removeItem={onRemoveItem}
-        />
-      );
-    });
-  }
-
   renderColumnLayouts() {
     const { columns } = this.state;
 
@@ -209,6 +191,15 @@ export default class DashboardSettings extends React.Component {
     );
   }
 
+  get selectedLayout() {
+    const { columns } = this.state;
+    const result = columns.filter(item => item.isActive);
+
+    return result && result.length ? result[0] : {};
+  }
+
+  /*--------- start Menu ----------*/
+
   handleDropEndMenu = result => {
     const { source, destination } = result;
 
@@ -232,25 +223,6 @@ export default class DashboardSettings extends React.Component {
       this.setState({
         menuItems: result[DROPPABLE_ZONE.MENU_FROM],
         menuSelected: result[DROPPABLE_ZONE.MENU_TO]
-      });
-    }
-  };
-
-  handleDropEndWidget = result => {
-    console.log(result);
-    const { source, destination } = result;
-    const { widgets, columns } = this.state;
-
-    if (!destination || destination.droppableId === DROPPABLE_ZONE.WIDGETS_FROM) {
-      return;
-    }
-
-    if (source.droppableId !== destination.droppableId) {
-      const indexWidget = destination.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[0];
-      const selectedWidgets = columns[indexWidget].widgets;
-
-      this.setState({
-        columns
       });
     }
   };
@@ -382,12 +354,25 @@ export default class DashboardSettings extends React.Component {
     );
   }
 
-  get selectedLayout() {
-    const { columns } = this.state;
-    const result = columns.filter(item => item.isActive);
+  /*--------- start Widgets ----------*/
+  handleDropEndWidget = result => {
+    console.log(result);
+    const { source, destination } = result;
+    const { widgets, columns } = this.state;
 
-    return result && result.length ? result[0] : {};
-  }
+    if (!destination || destination.droppableId === DROPPABLE_ZONE.WIDGETS_FROM) {
+      return;
+    }
+
+    if (source.droppableId !== destination.droppableId) {
+      const indexWidget = destination.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[0];
+      const selectedWidgets = columns[indexWidget].widgets;
+
+      this.setState({
+        columns
+      });
+    }
+  };
 
   onRemoveWidget = (item, colIndex) => {
     const { columns } = this.state;
@@ -399,6 +384,25 @@ export default class DashboardSettings extends React.Component {
       this.setState({ columns });
     }
   };
+
+  renderDragItems(items, onRemoveItem, className = '') {
+    if (!items || (items && !items.length)) {
+      return null;
+    }
+
+    return items.map((item, index) => {
+      return (
+        <DragItem
+          key={item.id}
+          {...item}
+          index={index}
+          className={className}
+          getPositionAdjusment={this.draggablePositionAdjusment}
+          removeItem={onRemoveItem}
+        />
+      );
+    });
+  }
 
   renderWidgetColumns() {
     return (
