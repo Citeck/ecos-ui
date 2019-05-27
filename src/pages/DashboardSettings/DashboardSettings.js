@@ -56,7 +56,25 @@ export default class DashboardSettings extends React.Component {
         description: 'Меню в виде кнопок перед виджетами'
       }
     ],
-    items: [{ id: 1, name: 'first' }, { id: 2, name: 'second' }],
+    items: [
+      { id: 1, name: 'Главная' },
+      { id: 2, name: 'Домашняя' },
+      { id: 22, name: 'Дашборд' },
+      { id: 23, name: 'Настройки' },
+      { id: 24, name: 'Заказы' },
+      { id: 25, name: 'Клиенты' },
+      { id: 26, name: 'Отчеты' },
+      { id: 27, name: 'Банкеты' },
+      { id: 28, name: 'Парковки' },
+      { id: 29, name: 'ГСМ' },
+      { id: 21, name: 'Договоры' },
+      { id: 222, name: 'Встречи' },
+      { id: 221, name: 'Календарь событий' },
+      { id: 223, name: 'График отпусков' },
+      { id: 224, name: 'Основные ссылки' },
+      { id: 225, name: 'Социальные сети' },
+      { id: 226, name: 'Открытие источники' }
+    ],
     selected: []
   };
 
@@ -208,7 +226,8 @@ export default class DashboardSettings extends React.Component {
               id={DROPPABLE_ZONE.MENU_FROM}
               className="ecos-ds__drag-container"
               placeholder="Нет доступных пунктов меню"
-              style={{ width: '100%', height: '100%', marginRight: '10px' }}
+              style={{ marginRight: '10px' }}
+              direction="horizontal"
             >
               {items.length && items.map((item, index) => <DragItem title={item.name} key={item.id} {...item} index={index} />)}
             </Droppable>
@@ -216,6 +235,7 @@ export default class DashboardSettings extends React.Component {
               id={DROPPABLE_ZONE.MENU_TO}
               className="ecos-ds__drag-container ecos-ds__drag-container_menu-to"
               placeholder="Перетащите пункты меню сюда"
+              direction="horizontal"
             >
               {selected.length && selected.map((item, index) => <DragItem title={item.name} key={item.id} {...item} index={index} />)}
             </Droppable>

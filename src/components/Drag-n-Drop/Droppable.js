@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { Droppable as DropWrapper } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
 import './style.scss';
@@ -11,14 +10,16 @@ export class Droppable extends React.Component {
     style: PropTypes.object,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
     id: PropTypes.string.isRequired,
-    placeholder: PropTypes.string
+    placeholder: PropTypes.string,
+    direction: PropTypes.string
   };
 
   static defaultProps = {
     className: '',
     children: null,
     style: {},
-    placeholder: ''
+    placeholder: '',
+    direction: 'vertical'
   };
 
   className(isDraggingOver = false, draggingFromThisWith = false) {
@@ -37,31 +38,26 @@ export class Droppable extends React.Component {
   }
 
   renderChildren = () => {
-    const { children, style, placeholder } = this.props;
-    const renderView = props => <div {...props} className={classNames(`${this._className}__scrollbar`)} />;
+    const { children, placeholder } = this.props;
     const renderTrackHorizontal = props => <div {...props} hidden />;
 
     if (children) {
-      return (
-        <Scrollbars renderView={renderView} renderTrackHorizontal={renderTrackHorizontal} style={style}>
-          {children}
-        </Scrollbars>
-      );
+      return <Scrollbars renderTrackHorizontal={renderTrackHorizontal}>{children}</Scrollbars>;
     }
 
     return <div className="ecos-dnd__placeholder">{placeholder}</div>;
   };
 
   render() {
-    const { id } = this.props;
+    const { id, style, direction } = this.props;
 
     return (
-      <DropWrapper droppableId={id}>
+      <DropWrapper droppableId={id} direction={direction}>
         {(provided, snapshot) => (
-          <div ref={provided.innerRef} className={this.className(snapshot.isDraggingOver, snapshot.draggingFromThisWith)}>
+          <div ref={provided.innerRef} className={this.className(snapshot.isDraggingOver, snapshot.draggingFromThisWith)} style={style}>
             <React.Fragment>
               {this.renderChildren()}
-              {provided.placeholder}
+              {/*{provided.placeholder}*/}
             </React.Fragment>
           </div>
         )}
