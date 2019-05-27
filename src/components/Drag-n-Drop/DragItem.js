@@ -2,8 +2,8 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
-import './drag-item.scss';
 import { IcoBtn } from '../common/btns';
+import './drag-item.scss';
 
 export class DragItem extends React.Component {
   static propTypes = {
@@ -11,7 +11,9 @@ export class DragItem extends React.Component {
     title: PropTypes.string,
     selected: PropTypes.bool,
     canRemove: PropTypes.bool,
-    removeItem: PropTypes.func
+    removeItem: PropTypes.func,
+    // In order to get the adjustment of the position of the draggable element
+    getPositionAdjusment: PropTypes.func
   };
 
   static defaultProps = {
@@ -19,7 +21,8 @@ export class DragItem extends React.Component {
     title: '',
     selected: false,
     canRemove: false,
-    removeItem: () => {}
+    removeItem: () => {},
+    getPositionAdjusment: () => ({ top: 0, left: 0 })
   };
 
   _className = 'ecos-drag-item';
@@ -74,32 +77,42 @@ export class DragItem extends React.Component {
     );
   }
 
+  renderBody = (provided, snapshot) => {
+    const positionAdjusment = this.props.getPositionAdjusment();
+
+    if (positionAdjusment) {
+      const {
+        draggableProps: { style }
+      } = provided;
+      const { top, left } = positionAdjusment;
+
+      if (top && style.top) {
+        provided.draggableProps.style.top = style.top + top;
+      }
+
+      if (left && style.left) {
+        provided.draggableProps.style.left = style.left + left;
+      }
+    }
+
+    return (
+      <div
+        ref={provided.innerRef}
+        {...provided.draggableProps}
+        {...provided.dragHandleProps}
+        className={this.getDragItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+      >
+        {this.renderItem()}
+      </div>
+    );
+  };
+
   render() {
     const { id, index } = this.props;
 
     return (
       <Draggable draggableId={id} index={index}>
-        {(provided, snapshot) => {
-          const { scrollTop } = document.querySelector('body');
-          const {
-            draggableProps: { style }
-          } = provided;
-
-          if (style.top) {
-            provided.draggableProps.style.top = scrollTop ? style.top + scrollTop : style.top;
-          }
-
-          return (
-            <div
-              ref={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-              className={this.getDragItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-            >
-              {this.renderItem()}
-            </div>
-          );
-        }}
+        {this.renderBody}
       </Draggable>
     );
   }

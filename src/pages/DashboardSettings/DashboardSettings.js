@@ -151,7 +151,7 @@ export default class DashboardSettings extends React.Component {
     }
 
     return items.map((item, index) => {
-      return <DragItem key={item.id} {...item} index={index} />;
+      return <DragItem key={item.id} {...item} index={index} getPositionAdjusment={this.draggablePositionAdjusment} />;
     });
   }
 
@@ -260,6 +260,31 @@ export default class DashboardSettings extends React.Component {
     return result;
   };
 
+  get menuWidth() {
+    const menu = document.querySelector('.slide-menu');
+
+    if (!menu) {
+      return 0;
+    }
+
+    return -menu.clientWidth;
+  }
+
+  get bodyScrollTop() {
+    const body = document.querySelector('body');
+
+    if (!body) {
+      return 0;
+    }
+
+    return body.scrollTop;
+  }
+
+  draggablePositionAdjusment = () => ({
+    top: this.bodyScrollTop,
+    left: this.menuWidth
+  });
+
   renderMenuBlock() {
     const { menuItems, menuSelected } = this.state;
 
@@ -279,7 +304,16 @@ export default class DashboardSettings extends React.Component {
               style={{ marginRight: '10px' }}
               direction="horizontal"
             >
-              {menuItems.length && menuItems.map((item, index) => <DragItem title={item.name} key={item.id} {...item} index={index} />)}
+              {menuItems.length &&
+                menuItems.map((item, index) => (
+                  <DragItem
+                    title={item.name}
+                    key={item.id}
+                    index={index}
+                    getPositionAdjusment={this.draggablePositionAdjusment}
+                    {...item}
+                  />
+                ))}
             </Droppable>
             <Droppable
               id={DROPPABLE_ZONE.MENU_TO}
@@ -291,7 +325,15 @@ export default class DashboardSettings extends React.Component {
                 menuSelected.map((item, index) => {
                   const val = { ...item, selected: true, canRemove: true };
 
-                  return <DragItem title={item.name} key={item.id} {...val} index={index} />;
+                  return (
+                    <DragItem
+                      title={item.name}
+                      key={item.id}
+                      index={index}
+                      getPositionAdjusment={this.draggablePositionAdjusment}
+                      {...val}
+                    />
+                  );
                 })}
             </Droppable>
           </DragDropContext>
