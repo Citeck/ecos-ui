@@ -8,6 +8,7 @@ $ecos_btn_grey5: ecos-btn_grey5;
 
   display: inline-flex;
   align-items: center;
+  justify-content: space-between;
   height: 32px;
   max-width: 250px;
   background: $color-white;
@@ -36,6 +37,8 @@ $ecos_btn_grey5: ecos-btn_grey5;
   &__actions {
     display: inline-flex;
     align-items: center;
+    position: relative;
+    right: 0;
 
     %common-btn {
       padding: 0;
