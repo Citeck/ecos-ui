@@ -5,7 +5,7 @@ import { Droppable as DropWrapper } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
 import './style.scss';
 
-export default class Droppable extends React.Component {
+export class Droppable extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     style: PropTypes.object,
