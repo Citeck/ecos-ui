@@ -12,10 +12,9 @@ function getTestWidgets(props, prefix, size) {
   const arr = new Array(size);
 
   for (let i = 0; i < arr.length; i++) {
-    let key = `item-${i}-${prefix}`;
     arr[i] = {
-      title: i + 'this is really a very very very long string',
-      id: key,
+      title: (i + 'this is really a very very very long string').substr(-1 * i),
+      id: `widget-${i}`,
       ...props
     };
   }
@@ -105,6 +104,7 @@ export default class DashboardSettings extends React.Component {
     };
   }
 
+  /*--------- start Layouts ----------*/
   handleClickColumn(column) {
     let columns = cloneDeep(this.state.columns);
 
@@ -152,18 +152,6 @@ export default class DashboardSettings extends React.Component {
     this.setState({ menus, isShowMenuConstructor });
   }
 
-  renderDragItems(items, className = '') {
-    if (!items || (items && !items.length)) {
-      return null;
-    }
-
-    return items.map((item, index) => {
-      return (
-        <DragItem key={item.id} {...item} index={index} getPositionAdjusment={this.draggablePositionAdjusment} className={className} />
-      );
-    });
-  }
-
   renderColumnLayouts() {
     const { columns } = this.state;
 
@@ -203,6 +191,15 @@ export default class DashboardSettings extends React.Component {
     );
   }
 
+  get selectedLayout() {
+    const { columns } = this.state;
+    const result = columns.filter(item => item.isActive);
+
+    return result && result.length ? result[0] : {};
+  }
+
+  /*--------- start Menu ----------*/
+
   handleDropEndMenu = result => {
     const { source, destination } = result;
 
@@ -227,27 +224,6 @@ export default class DashboardSettings extends React.Component {
         menuItems: result[DROPPABLE_ZONE.MENU_FROM],
         menuSelected: result[DROPPABLE_ZONE.MENU_TO]
       });
-    }
-  };
-
-  handleDropEndWidget = result => {
-    console.log(result);
-    const { source, destination } = result;
-    const { widgets, columns } = this.state;
-
-    if (!destination) {
-      return;
-    }
-
-    if (source.droppableId !== destination.droppableId) {
-      const indexWidget = destination.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[0];
-      const selectedWidgets = columns[indexWidget].widgets;
-      const result = this.move(widgets, selectedWidgets, source, destination);
-      console.log(result);
-      /*this.setState({
-        menuItems: result[DROPPABLE_ZONE.MENU_FROM],
-        menuSelected: result[DROPPABLE_ZONE.MENU_TO]
-      });*/
     }
   };
 
@@ -298,6 +274,14 @@ export default class DashboardSettings extends React.Component {
     left: this.menuWidth
   });
 
+  onRemoveMenuItem = (item, index) => {
+    const { menuSelected } = this.state;
+
+    menuSelected.splice(index, 1);
+
+    this.setState(menuSelected);
+  };
+
   renderMenuConstructor() {
     const { menuItems, menuSelected, isShowMenuConstructor } = this.state;
 
@@ -344,6 +328,9 @@ export default class DashboardSettings extends React.Component {
                       key={item.id}
                       index={index}
                       getPositionAdjusment={this.draggablePositionAdjusment}
+                      removeItem={item => {
+                        this.onRemoveMenuItem(item, index);
+                      }}
                       {...val}
                     />
                   );
@@ -367,13 +354,60 @@ export default class DashboardSettings extends React.Component {
     );
   }
 
-  renderWidgetColumns() {
-    const { columns } = this.state;
-    const choice = columns.filter(item => item.isActive)[0];
+  /*--------- start Widgets ----------*/
+  handleDropEndWidget = result => {
+    console.log(result);
+    const { source, destination } = result;
+    const { widgets, columns } = this.state;
 
+    if (!destination || destination.droppableId === DROPPABLE_ZONE.WIDGETS_FROM) {
+      return;
+    }
+
+    if (source.droppableId !== destination.droppableId) {
+      const indexWidget = destination.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[0];
+      const selectedWidgets = columns[indexWidget].widgets;
+
+      this.setState({
+        columns
+      });
+    }
+  };
+
+  onRemoveWidget = (item, colIndex) => {
+    const { columns } = this.state;
+    const foundIndex = columns.findIndex(item => item.isActive);
+
+    if (foundIndex >= 0) {
+      columns[foundIndex].columns[colIndex].widgets.splice(item.index, 1);
+
+      this.setState({ columns });
+    }
+  };
+
+  renderDragItems(items, onRemoveItem, className = '') {
+    if (!items || (items && !items.length)) {
+      return null;
+    }
+
+    return items.map((item, index) => {
+      return (
+        <DragItem
+          key={item.id}
+          {...item}
+          index={index}
+          className={className}
+          getPositionAdjusment={this.draggablePositionAdjusment}
+          removeItem={onRemoveItem}
+        />
+      );
+    });
+  }
+
+  renderWidgetColumns() {
     return (
       <div className={'ecos-ds__drag-container_widgets-to'}>
-        {choice.columns.map((item, index) => {
+        {this.selectedLayout.columns.map((item, index) => {
           const key_id = `column-widgets-${index}`;
 
           return (
@@ -384,7 +418,13 @@ export default class DashboardSettings extends React.Component {
                 className="ecos-ds__drag-container ecos-ds__column-widgets__items"
                 placeholder={t('Перетащите сюда виджеты')}
               >
-                {this.renderDragItems(item.widgets, 'ecos-ds__column-widgets__items__cell')}
+                {this.renderDragItems(
+                  item.widgets,
+                  item => {
+                    this.onRemoveWidget(item, index);
+                  },
+                  'ecos-ds__column-widgets__items__cell'
+                )}
               </Droppable>
             </div>
           );
