@@ -78,6 +78,7 @@ export default class DashboardSettings extends React.Component {
           description: 'Меню в виде кнопок перед виджетами'
         }
       ],
+      isShowMenuConstructor: false,
       menuItems: [
         { id: 1, name: 'Главная' },
         { id: 2, name: 'Домашняя' },
@@ -125,6 +126,7 @@ export default class DashboardSettings extends React.Component {
 
   handleClickMenu(menu) {
     let menus = cloneDeep(this.state.menus);
+    let isShowMenuConstructor = false;
 
     if (menu.isActive) {
       return;
@@ -137,12 +139,14 @@ export default class DashboardSettings extends React.Component {
 
       if (item.position === menu.position) {
         item.isActive = true;
+
+        isShowMenuConstructor = item.type === MENU_POSITION.TOP;
       }
 
       return item;
     });
 
-    this.setState({ menus });
+    this.setState({ menus, isShowMenuConstructor });
   }
 
   renderDragItems(items) {
@@ -285,15 +289,15 @@ export default class DashboardSettings extends React.Component {
     left: this.menuWidth
   });
 
-  renderMenuBlock() {
-    const { menuItems, menuSelected } = this.state;
+  renderMenuConstructor() {
+    const { menuItems, menuSelected, isShowMenuConstructor } = this.state;
+
+    if (!isShowMenuConstructor) {
+      return null;
+    }
 
     return (
       <React.Fragment>
-        <h5 className="ecos-ds__container-title">{t('Меню')}</h5>
-        <h6 className="ecos-ds__container-subtitle">{t('Выберите расположения меню.')}</h6>
-        <div className="ecos-ds__container-group ecos-ds__container-group_row">{this.renderMenuLayouts()}</div>
-
         <h6 className="ecos-ds__container-subtitle">{t('Какие пункты меню следует отображать')}</h6>
         <div className="ecos-ds__drag">
           <DragDropContext onDragEnd={this.handleDropEndMenu}>
@@ -338,6 +342,18 @@ export default class DashboardSettings extends React.Component {
             </Droppable>
           </DragDropContext>
         </div>
+      </React.Fragment>
+    );
+  }
+
+  renderMenuBlock() {
+    return (
+      <React.Fragment>
+        <h5 className="ecos-ds__container-title">{t('Меню')}</h5>
+        <h6 className="ecos-ds__container-subtitle">{t('Выберите расположения меню.')}</h6>
+        <div className="ecos-ds__container-group ecos-ds__container-group_row">{this.renderMenuLayouts()}</div>
+
+        {this.renderMenuConstructor()}
       </React.Fragment>
     );
   }
