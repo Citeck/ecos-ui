@@ -66,11 +66,11 @@ class JournalsMenu extends Component {
   };
 
   onJournalSettingsSelect = setting => {
-    this.props.onJournalSettingsSelect(setting.id);
+    this.props.onJournalSettingsSelect(setting.fileId);
   };
 
   deleteJournalSettings = item => {
-    this.props.deleteJournalSetting(item.id);
+    this.props.deleteJournalSetting(item.fileId);
   };
 
   getMenuJornals = journals => {
@@ -84,7 +84,7 @@ class JournalsMenu extends Component {
         onDelete={this.deleteJournalSettings}
         removable
         item={setting}
-        titleField={'preferences.title'}
+        titleField={'data.title'}
       />
     ));
   };
@@ -140,7 +140,7 @@ class JournalsMenu extends Component {
           <CollapsableList
             classNameList={'ecos-list-group_mode_journal'}
             list={this.getMenuJournalSettings(journalSettings)}
-            selected={this.getSelectedIndex(journalSettings, journalSetting.id, 'id') || 0}
+            selected={this.getSelectedIndex(journalSettings, journalSetting.fileId, 'fileId') || 0}
           >
             {t('journals.tpl.defaults')}
           </CollapsableList>

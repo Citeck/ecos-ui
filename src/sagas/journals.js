@@ -150,7 +150,7 @@ function* getJournalSetting(api, journalSettingId, journalConfig) {
     ? yield call(api.journals.getJournalSetting, journalSettingId)
     : getDefaultJournalSetting(journalConfig);
 
-  yield put(setJournalSetting({ ...journalSetting, id: journalSettingId }));
+  yield put(setJournalSetting({ ...journalSetting, fileId: journalSettingId }));
 
   yield put(setPredicate(journalSetting.predicate));
   yield put(

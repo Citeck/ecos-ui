@@ -122,8 +122,8 @@ export default handleActions(
         ...state,
         journalSettings: [
           {
-            id: '',
-            preferences: { title: t('journals.default') },
+            fileId: '',
+            data: { title: t('journals.default') },
             notRemovable: true
           },
           ...Array.from(action.payload)
@@ -169,7 +169,7 @@ export default handleActions(
         ...state,
         config: {
           ...state.config,
-          journalSettingId: action.payload.id
+          journalSettingId: action.payload
         }
       };
     },
