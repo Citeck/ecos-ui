@@ -40,9 +40,14 @@ export class Droppable extends React.Component {
   renderChildren = () => {
     const { children, placeholder } = this.props;
     const renderTrackHorizontal = props => <div {...props} hidden />;
+    const renderView = props => <div {...props} className={'ecos-dnd__droppable__scrollbar'} />;
 
     if (children) {
-      return <Scrollbars renderTrackHorizontal={renderTrackHorizontal}>{children}</Scrollbars>;
+      return (
+        <Scrollbars renderView={renderView} renderTrackHorizontal={renderTrackHorizontal}>
+          {children}
+        </Scrollbars>
+      );
     }
 
     return <div className="ecos-dnd__placeholder">{placeholder}</div>;

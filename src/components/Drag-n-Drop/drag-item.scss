@@ -52,7 +52,7 @@ $ecos_btn_grey5: ecos-btn_grey5;
     &__btn-remove.#{$ecos_btn} {
       @extend %common-btn;
       font-size: $font-size-small;
-      display: none;
+      visibility: hidden;
 
       &.#{$ecos_btn_grey5} {
         &:hover {
@@ -64,7 +64,7 @@ $ecos_btn_grey5: ecos-btn_grey5;
 
   &:hover {
     .ecos-drag-item__actions__btn-remove {
-      display: inline-block;
+      visibility: visible;
     }
   }
 }
