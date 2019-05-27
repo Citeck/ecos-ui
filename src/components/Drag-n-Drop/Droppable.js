@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { Droppable as DropWrapper } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
 import './style.scss';
@@ -37,9 +38,15 @@ export default class Droppable extends React.Component {
 
   renderChildrens = () => {
     const { children, style, placeholder } = this.props;
+    const renderView = props => <div {...props} className={classNames(`${this._className}__scrollbar`)} />;
+    const renderTrackHorizontal = props => <div {...props} hidden />;
 
     if (children) {
-      return <Scrollbars style={style}>{children}</Scrollbars>;
+      return (
+        <Scrollbars renderView={renderView} renderTrackHorizontal={renderTrackHorizontal} style={style}>
+          {children}
+        </Scrollbars>
+      );
     }
 
     return <div className="ecos-dnd__placeholder">{placeholder}</div>;
