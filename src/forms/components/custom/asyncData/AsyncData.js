@@ -81,6 +81,10 @@ export default class AsyncDataComponent extends BaseComponent {
     return result;
   }
 
+  get visible() {
+    return false;
+  }
+
   _updateValue(forceUpdate) {
     let comp = this.component;
     let type = _.get(comp, 'source.type', '');

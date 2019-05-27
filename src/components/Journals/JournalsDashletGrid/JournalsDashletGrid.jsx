@@ -30,7 +30,7 @@ const mapDispatchToProps = dispatch => ({
   setSelectedRecords: records => dispatch(setSelectedRecords(records)),
   setSelectAllRecords: need => dispatch(setSelectAllRecords(need)),
   setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(visible)),
-  setGridInlineToolSettings: ({ top, height }) => dispatch(setGridInlineToolSettings({ top, height }))
+  setGridInlineToolSettings: ({ top, height, row }) => dispatch(setGridInlineToolSettings({ top, height, row }))
 });
 
 class JournalsDashletGrid extends Component {
@@ -88,12 +88,12 @@ class JournalsDashletGrid extends Component {
     this.removeMouseLeaveEvent();
   }
 
-  setGridInlineToolSettings = (e, offsets) => {
-    this.props.setGridInlineToolSettings(offsets);
+  setGridInlineToolSettings = (e, settings) => {
+    this.props.setGridInlineToolSettings(settings);
   };
 
   hideGridInlineToolSettings = () => {
-    this.props.setGridInlineToolSettings({ height: 0 });
+    this.props.setGridInlineToolSettings({ height: 0, top: 0, row: {} });
   };
 
   createMouseLeaveEvent = () => {

@@ -87,8 +87,9 @@ export default class Grid extends Component {
     const tr = e.currentTarget;
     const height = tr.offsetHeight - 2;
     const top = tr.offsetTop - 1;
+    const row = this.props.data[tr.rowIndex - 1];
 
-    return { height, top };
+    return { height, top, row };
   };
 
   setEditable = () => {

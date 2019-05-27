@@ -82,7 +82,8 @@ const initialState = {
 
   inlineToolSettings: {
     height: 0,
-    top: 0
+    top: 0,
+    row: {}
   }
 };
 
