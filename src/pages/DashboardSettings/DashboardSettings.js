@@ -1,9 +1,9 @@
 import React from 'react';
 import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
-import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { MENU_POSITION } from '../../constants/dashboard';
-import { DragDropContext, Droppable, DragItem } from '../../components/Drag-n-Drop';
+import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
+import { DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 
 import './style.scss';
 
@@ -167,7 +167,7 @@ export default class DashboardSettings extends React.Component {
     }
 
     return items.map((item, index) => {
-      return <DragItem {...item} index={index} />;
+      return <DragItem key={item.id} {...item} index={index} />;
     });
   }
 
@@ -183,6 +183,11 @@ export default class DashboardSettings extends React.Component {
       };
     }
 
+    //-------
+
+    const { columns } = this.state;
+    const choice = columns.filter(item => item.isActive)[0];
+
     return (
       <React.Fragment>
         <h5 className="ecos-ds__container-title">Виджеты</h5>
@@ -193,10 +198,27 @@ export default class DashboardSettings extends React.Component {
               console.warn(data);
             }}
           >
-            <Droppable id="widgets" className="ecos-ds__drag-container  ecos-ds__drag-container_col" placeholder="Нет доступных виджетов">
+            <Droppable
+              id="widgets-store"
+              className="ecos-ds__drag-container  ecos-ds__drag-container_col"
+              placeholder="Нет доступных виджетов"
+            >
               {this.renderDragItem(arr)}
             </Droppable>
-            <Droppable id="selected-widgets-store" className="ecos-ds__drag-container" placeholder="Перетащите виджеты сюда" />
+            <div className={'ecos-ds__container-columns'}>
+              {choice.columns.map((item, index) => {
+                const key_id = `selected-widgets-${index}`;
+
+                return (
+                  <Droppable
+                    id={key_id}
+                    key={key_id}
+                    className="ecos-ds__drag-container ecos-ds__drag-container_row"
+                    placeholder="Перетащите виджеты сюда"
+                  />
+                );
+              })}
+            </div>
           </DragDropContext>
         </div>
       </React.Fragment>

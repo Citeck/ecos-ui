@@ -78,7 +78,7 @@ export class DragItem extends React.Component {
     const { id, index } = this.props;
 
     return (
-      <Draggable key={id} draggableId={id} index={index}>
+      <Draggable draggableId={id} index={index}>
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}

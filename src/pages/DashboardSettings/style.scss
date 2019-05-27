@@ -1,6 +1,8 @@
 @import '../../constants.scss';
 
 .ecos-ds {
+  $ecos-ds: &;
+
   &__header {
     padding: 18px 0;
     font-style: normal;
@@ -51,6 +53,15 @@
         &:not(:last-child) {
           margin-right: 11px;
         }
+      }
+    }
+
+    &-columns {
+      display: flex;
+
+      #{$ecos-ds}__drag-container {
+        width: 199px;
+        height: 200px;
       }
     }
   }
