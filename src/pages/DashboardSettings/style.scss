@@ -6,7 +6,7 @@
   &__header {
     padding: 18px 0;
     font-style: normal;
-    font-weight: bold;
+    font-weight: $font-weight-bold;
     font-size: 24px;
     line-height: 33px;
 
@@ -24,8 +24,8 @@
       border-radius: 6px;
       padding: 5px 12px;
       font-style: normal;
-      font-weight: bold;
-      font-size: 18px;
+      font-weight: $font-weight-bold;
+      font-size: $font-size-large;
       line-height: 22px;
       color: $text-color-gray;
       margin-bottom: 30px;
@@ -34,7 +34,7 @@
     &-subtitle {
       font-style: normal;
       font-weight: 600;
-      font-size: 14px;
+      font-size: $font-size-standard;
       line-height: 22px;
       color: $text-color-dark;
       margin-bottom: 18px;
@@ -53,15 +53,6 @@
         &:not(:last-child) {
           margin-right: 11px;
         }
-      }
-    }
-
-    &-columns {
-      display: flex;
-
-      #{$ecos-ds}__drag-container {
-        width: 199px;
-        height: 200px;
       }
     }
   }
@@ -95,6 +86,7 @@
       }
 
       &_widget-to {
+        display: flex;
         flex-basis: 25%;
         max-width: 199px;
         height: 200px;
@@ -108,9 +100,38 @@
 
       &_col {
         &:not(:last-child) {
-          margin-bottom: 10px;
+          margin-bottom: 27px;
         }
       }
+    }
+  }
+
+  &__column-widgets {
+    display: flex;
+    flex-direction: column;
+
+    &:not(:last-of-type) {
+      margin-right: 16px;
+    }
+
+    &__title {
+      background: $color-gray-4;
+      border-radius: $border-radius-small;
+      vertical-align: middle;
+      padding: 5px 11px 0;
+      height: 26px;
+      font-style: normal;
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-small;
+      line-height: 16px;
+      color: $text-color-gray;
+      margin-bottom: 9px;
+      box-sizing: content-box;
+    }
+
+    &__items {
+      width: 199px;
+      height: 200px;
     }
   }
 }
