@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import isEqual from 'lodash/isEqual';
 import { JournalsApi } from '../../../../api/journalsApi';
 
 export const TableFormContext = React.createContext();
@@ -23,7 +22,8 @@ export const TableFormContextProvider = props => {
 
   const [inlineToolsOffsets, setInlineToolsOffsets] = useState({
     height: 0,
-    top: 0
+    top: 0,
+    rowId: null
   });
 
   useEffect(() => {
@@ -120,8 +120,12 @@ export const TableFormContextProvider = props => {
         },
 
         setInlineToolsOffsets: (e, offsets) => {
-          if (!isEqual(offsets, inlineToolsOffsets)) {
-            setInlineToolsOffsets(offsets);
+          if (offsets.height !== inlineToolsOffsets.height || offsets.top !== inlineToolsOffsets.top) {
+            setInlineToolsOffsets({
+              height: offsets.height,
+              top: offsets.top,
+              rowId: offsets.row.id || null
+            });
           }
         }
       }}

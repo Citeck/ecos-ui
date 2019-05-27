@@ -1,4 +1,4 @@
-import React, { useContext, Fragment } from 'react';
+import React, { useContext, useRef, useEffect } from 'react';
 import classNames from 'classnames';
 import { Btn, IcoBtn } from '../../../../../common/btns';
 import Grid from '../../../../grid/Grid';
@@ -22,6 +22,24 @@ const InputView = () => {
     setInlineToolsOffsets
   } = context;
 
+  const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    const resetInlineToolsOffsets = () => {
+      setInlineToolsOffsets(null, { height: 0, top: 0, row: {} });
+    };
+
+    const gridWrapper = wrapperRef.current;
+    if (gridWrapper) {
+      gridWrapper.addEventListener('mouseleave', resetInlineToolsOffsets);
+    }
+    return () => {
+      if (gridWrapper) {
+        gridWrapper.removeEventListener('mouseleave', resetInlineToolsOffsets);
+      }
+    };
+  }, [wrapperRef.current, setInlineToolsOffsets]);
+
   const wrapperClasses = classNames('ecos-table-form__input-view');
 
   const buttonClasses = classNames('ecos-btn_blue', {
@@ -30,12 +48,13 @@ const InputView = () => {
 
   const placeholderText = placeholder ? placeholder : t('select-orgstruct.placeholder');
 
-  const onClickDelete = e => {
-    deleteSelectedItem(e.target.dataset.id);
+  const onClickDelete = () => {
+    setInlineToolsOffsets(null, { height: 0, top: 0, row: {} });
+    deleteSelectedItem(inlineToolsOffsets.rowId);
   };
 
-  const onClickEdit = e => {
-    showEditForm(e.target.dataset.id);
+  const onClickEdit = () => {
+    showEditForm(inlineToolsOffsets.rowId);
   };
 
   let valuesList = <p className={'ecos-table-form__value-not-selected'}>{placeholderText}</p>;
@@ -55,7 +74,7 @@ const InputView = () => {
     };
 
     valuesList = (
-      <Fragment>
+      <div ref={wrapperRef} className={'ecos-table-form__grid-wrapper'}>
         <Grid
           data={selectedRows}
           columns={columns}
@@ -64,9 +83,9 @@ const InputView = () => {
           multiSelectable={false}
           inlineTools={inlineTools}
           onMouseEnter={setInlineToolsOffsets}
-          // className={!isGridDataReady ? 'grid_transparent' : ''}
+          className={'ecos-table-form__grid'}
         />
-      </Fragment>
+      </div>
     );
   }
 
