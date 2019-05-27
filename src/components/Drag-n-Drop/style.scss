@@ -2,6 +2,7 @@
 
 .ecos-dnd {
   &__droppable {
+    position: relative;
     background: $color-white;
     mix-blend-mode: normal;
     border: 2px solid $color-gray-6;
@@ -10,19 +11,24 @@
     display: flex;
     width: 100%;
     height: 136px;
+    padding: 10px 6px;
 
     &_over {
-      border-style: dashed;
+      border-style: dashed !important;
     }
   }
 
   &__placeholder {
+    position: absolute;
+    pointer-events: none;
     font-style: normal;
     font-weight: 600;
     font-size: 14px;
     line-height: 22px;
     text-align: center;
     color: $color-gray-6;
-    margin: auto;
+    width: 100%;
+    top: calc(50% - 1em / 2);
+    left: 0;
   }
 }

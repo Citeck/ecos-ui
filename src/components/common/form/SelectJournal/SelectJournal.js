@@ -77,9 +77,9 @@ export default class SelectJournal extends Component {
 
     let initValue;
     if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
-      initValue = defaultValue.map(item => ({ id: item }));
+      initValue = [...defaultValue];
     } else if (!multiple && !!defaultValue) {
-      initValue = [{ id: defaultValue }];
+      initValue = [defaultValue];
     }
 
     if (initValue) {

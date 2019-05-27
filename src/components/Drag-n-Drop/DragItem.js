@@ -79,16 +79,27 @@ export class DragItem extends React.Component {
 
     return (
       <Draggable draggableId={id} index={index}>
-        {(provided, snapshot) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            className={this.getDragItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-          >
-            {this.renderItem()}
-          </div>
-        )}
+        {(provided, snapshot) => {
+          const { scrollTop } = document.querySelector('body');
+          const {
+            draggableProps: { style }
+          } = provided;
+
+          if (style.top) {
+            provided.draggableProps.style.top = scrollTop ? style.top + scrollTop : style.top;
+          }
+
+          return (
+            <div
+              ref={provided.innerRef}
+              {...provided.draggableProps}
+              {...provided.dragHandleProps}
+              className={this.getDragItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+            >
+              {this.renderItem()}
+            </div>
+          );
+        }}
       </Draggable>
     );
   }

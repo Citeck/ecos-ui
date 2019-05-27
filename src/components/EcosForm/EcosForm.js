@@ -242,7 +242,7 @@ class EcosForm extends React.Component {
             attributeSchema = 'assoc';
             break;
           case 'file':
-            attributeSchema = 'json';
+            attributeSchema = 'as(n:"content-data"){json}';
             break;
           default:
             attributeSchema = 'str';

@@ -1,5 +1,14 @@
 @import '../../constants.scss';
 
+.draggable-item {
+  padding: 10px;
+  border: 2px gray solid;
+  border-radius: 5px;
+  background: #b7b7b7;
+  width: 100px;
+  display: flex;
+}
+
 .ecos-ds {
   $ecos-ds: &;
 
@@ -68,7 +77,6 @@
 
     &-container {
       background: $color-white;
-      mix-blend-mode: normal;
       border: 2px solid $color-gray-6;
       box-sizing: border-box;
       border-radius: 6px;
