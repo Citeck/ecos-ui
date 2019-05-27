@@ -23,6 +23,7 @@ import {
   setJournalSettings,
   setPredicate,
   setColumnsSetup,
+  setGrouping,
   onJournalSettingsSelect,
   onJournalSelect,
   initPreview,
@@ -150,11 +151,18 @@ function* getJournalSetting(api, journalSettingId, journalConfig) {
     : getDefaultJournalSetting(journalConfig);
 
   yield put(setJournalSetting({ ...journalSetting, id: journalSettingId }));
+
   yield put(setPredicate(journalSetting.predicate));
   yield put(
     setColumnsSetup({
       columns: journalSetting.groupBy.length ? journalConfig.columns : journalSetting.columns,
       sortBy: journalSetting.sortBy
+    })
+  );
+  yield put(
+    setGrouping({
+      columns: journalSetting.groupBy.length ? journalSetting.columns : [],
+      groupBy: journalSetting.groupBy
     })
   );
 

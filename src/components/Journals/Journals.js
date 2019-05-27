@@ -34,7 +34,7 @@ class Journals extends Component {
     super(props);
     this.state = {
       menuOpen: false,
-      settingsVisible: false,
+      settingsVisible: true,
       showPreview: false,
       showPie: false
     };
@@ -128,7 +128,7 @@ class Journals extends Component {
               <Well className={'ecos-journal__settings'}>
                 <JournalsFilters columns={columns} />
                 <JournalsColumnsSetup columns={columns} />
-                <JournalsGrouping />
+                <JournalsGrouping columns={columns} />
                 <JournalsSettingsFooter />
               </Well>
             ) : null}
