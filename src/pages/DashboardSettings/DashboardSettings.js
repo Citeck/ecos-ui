@@ -13,8 +13,8 @@ function getTestWidgets(size) {
 
   for (let i = 0; i < arr.length; i++) {
     arr[i] = {
-      title: i + 'string'.repeat(i + 1),
-      id: `widget-${i}`
+      title: i + ' string'.repeat(i + 1),
+      id: `widget-${size}-${i}`
     };
   }
 
@@ -145,6 +145,7 @@ export default class DashboardSettings extends React.Component {
 
   handleClickColumn(column) {
     let columns = cloneDeep(this.state.columns);
+    let { widgetsSelected } = this.state;
 
     if (column.isActive) {
       return;
@@ -156,13 +157,21 @@ export default class DashboardSettings extends React.Component {
       }
 
       if (item.position === column.position) {
+        let newWidgets = new Array(item.columns);
+
+        newWidgets.fill([]);
+        newWidgets.forEach((value, index) => {
+          newWidgets[index] = widgetsSelected[index];
+        });
+
+        widgetsSelected = newWidgets;
         item.isActive = true;
       }
 
       return item;
     });
 
-    this.setState({ columns });
+    this.setState({ columns, widgetsSelected });
   }
 
   handleClickMenu(menu) {
