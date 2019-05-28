@@ -7,9 +7,11 @@ import { IcoBtn } from '../../common/btns';
 import { Well } from '../../common/form';
 import { deleteJournalSetting, onJournalSettingsSelect, onJournalSelect } from '../../../actions/journals';
 import { getPropByStringKey, t } from '../../../helpers/util';
-import { setJournalSettingId } from '../urlManager';
+import { setJournalSettingId, setJournalId } from '../urlManager';
 
 import './JournalsMenu.scss';
+
+const JOURNAL_SETTING_ID_FIELD = 'fileId';
 
 const mapStateToProps = state => ({
   journals: state.journals.journals,
@@ -70,11 +72,11 @@ class JournalsMenu extends Component {
   };
 
   onJournalSettingsSelect = setting => {
-    this.props.onJournalSettingsSelect(setting.fileId);
+    this.props.onJournalSettingsSelect(setting[JOURNAL_SETTING_ID_FIELD]);
   };
 
   deleteJournalSettings = item => {
-    this.props.deleteJournalSetting(item.fileId);
+    this.props.deleteJournalSetting(item[JOURNAL_SETTING_ID_FIELD]);
   };
 
   getMenuJornals = journals => {
@@ -104,6 +106,8 @@ class JournalsMenu extends Component {
 
   render() {
     const {
+      push,
+      history,
       journalSetting,
       journalSettings,
       journals,
@@ -112,8 +116,10 @@ class JournalsMenu extends Component {
         meta: { nodeRef }
       }
     } = this.props;
+    const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
 
-    this.props.push(setJournalSettingId(this.props.history.location, journalSetting.fileId));
+    push(setJournalSettingId(history.location, journalSettingId));
+    push(setJournalId(history.location, nodeRef));
 
     if (!open) {
       return null;
@@ -146,7 +152,7 @@ class JournalsMenu extends Component {
           <CollapsableList
             classNameList={'ecos-list-group_mode_journal'}
             list={this.getMenuJournalSettings(journalSettings)}
-            selected={this.getSelectedIndex(journalSettings, journalSetting.fileId, 'fileId') || 0}
+            selected={this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD) || 0}
           >
             {t('journals.tpl.defaults')}
           </CollapsableList>
