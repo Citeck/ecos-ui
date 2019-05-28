@@ -217,3 +217,76 @@ export function getRelativeTime(from, to) {
   const years_ago = Math.round(minutes_ago / 525960);
   return fnTime('relative.years', years_ago);
 }
+
+export function isPDFbyStr(str) {
+  if (!str) return false;
+
+  const pdf = 'pdf';
+  const pointIdx = str.lastIndexOf(pdf);
+  const format = str.substr(pointIdx);
+
+  return format.toLowerCase() === pdf;
+}
+
+export function fileDownload(link) {
+  let elLink = document.createElement('a');
+
+  elLink.href = link;
+  elLink.download = link;
+  elLink.style.display = 'none';
+
+  document.body.appendChild(elLink);
+  elLink.click();
+  document.body.removeChild(elLink);
+}
+
+export function getScaleModes() {
+  return [
+    { id: 'auto', title: t('Automatic Zoom'), scale: 'auto' },
+    { id: 'pageFit', title: t('Page Fit'), scale: 'page-fit' },
+    { id: 'pageHeight', title: t('Page Height'), scale: 'page-height' },
+    { id: 'pageWidth', title: t('Page Width'), scale: 'page-width' },
+    { id: '50', title: '50%', scale: 0.5 },
+    { id: '75', title: '75%', scale: 0.75 },
+    { id: '100', title: '100%', scale: 1 },
+    { id: '125', title: '125%', scale: 1.25 },
+    { id: '150', title: '150%', scale: 1.5 },
+    { id: '200', title: '200%', scale: 2 },
+    { id: '300', title: '300%', scale: 3 },
+    { id: '400', title: '400%', scale: 4 }
+  ];
+}
+
+export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, ratioAuto = 50, paddingContainer = 0) {
+  let { width: soW, height: soH } = paramsScaleObject || {};
+  let { width: cW, height: cH } = paramsContainer || {};
+
+  let calcScale = (c, so) => {
+    return +Number((c - paddingContainer) / so).toFixed(2);
+  };
+
+  let fit = ratio => {
+    if (Math.min(cH, cW) === cH) {
+      return calcScale(cH + ratio, soH);
+    }
+    return calcScale(cW + ratio, soW);
+  };
+
+  switch (scale) {
+    case 'page-height':
+      return calcScale(cH, soH);
+    case 'page-width':
+      return calcScale(cW, soW);
+    case 'page-fit':
+      return fit(0);
+    case 'auto':
+      return fit(ratioAuto);
+    default:
+      if (scale && !Number.isNaN(parseFloat(scale))) {
+        return scale;
+      } else {
+        console.error('Неверное значение коэффициента шасштабирования');
+        return 1;
+      }
+  }
+}
