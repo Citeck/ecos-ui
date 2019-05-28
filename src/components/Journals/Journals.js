@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Container } from 'reactstrap';
 import connect from 'react-redux/es/connect/connect';
+import { Container } from 'reactstrap';
+import { withRouter } from 'react-router';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
@@ -15,7 +16,7 @@ import JournalsContent from './JournalsContent';
 
 import { getJournalsData, reloadGrid } from '../../actions/journals';
 import { Well } from '../common/form';
-import { URL_PAGECONTEXT } from '../../constants/alfresco';
+import { getPreview, getCreateRecord } from './urlManager';
 
 import './Journals.scss';
 
@@ -34,8 +35,8 @@ class Journals extends Component {
     super(props);
     this.state = {
       menuOpen: false,
-      settingsVisible: true,
-      showPreview: false,
+      settingsVisible: false,
+      showPreview: getPreview(this.props.history.location),
       showPie: false
     };
   }
@@ -59,8 +60,7 @@ class Journals extends Component {
       }
     } = this.props;
     createVariants = createVariants[0];
-    createVariants.canCreate &&
-      window.open(`${URL_PAGECONTEXT}node-create?type=${createVariants.type}&destination=${createVariants.destination}&viewId=`, '_blank');
+    createVariants.canCreate && window.open(getCreateRecord({ ...createVariants }), '_blank');
   };
 
   toggleSettings = () => {
@@ -152,4 +152,4 @@ class Journals extends Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Journals);
+)(withRouter(Journals));

@@ -49,7 +49,7 @@ module.exports = function(app) {
         '!**/bpmn-designer/**',
         '!**/bpmn-editor',
         '!**/bpmn-editor/**',
-        '!**/journals',
+        '!**/ui/journals',
         '!**/journalsDashboard'
       ],
       {

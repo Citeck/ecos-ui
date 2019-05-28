@@ -1,10 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
+import { push } from 'connected-react-router';
+import { withRouter } from 'react-router';
 import CollapsableList from '../../common/CollapsableList/CollapsableList';
 import { IcoBtn } from '../../common/btns';
 import { Well } from '../../common/form';
 import { deleteJournalSetting, onJournalSettingsSelect, onJournalSelect } from '../../../actions/journals';
 import { getPropByStringKey, t } from '../../../helpers/util';
+import { setJournalSettingId } from '../urlManager';
 
 import './JournalsMenu.scss';
 
@@ -18,7 +21,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   deleteJournalSetting: id => dispatch(deleteJournalSetting(id)),
   onJournalSettingsSelect: journalSettingId => dispatch(onJournalSettingsSelect(journalSettingId)),
-  onJournalSelect: journalId => dispatch(onJournalSelect(journalId))
+  onJournalSelect: journalId => dispatch(onJournalSelect(journalId)),
+  push: url => dispatch(push(url))
 });
 
 class ListItem extends Component {
@@ -109,6 +113,8 @@ class JournalsMenu extends Component {
       }
     } = this.props;
 
+    this.props.push(setJournalSettingId(this.props.history.location, journalSetting.fileId));
+
     if (!open) {
       return null;
     }
@@ -153,4 +159,4 @@ class JournalsMenu extends Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(JournalsMenu);
+)(withRouter(JournalsMenu));

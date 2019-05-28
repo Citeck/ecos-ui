@@ -144,11 +144,18 @@ function getDefaultJournalSetting(journalConfig) {
 }
 
 function* getJournalSetting(api, journalSettingId, journalConfig) {
+  let journalSetting;
+
   journalSettingId = journalSettingId || journalConfig.journalSettingId;
 
-  let journalSetting = journalSettingId
-    ? yield call(api.journals.getJournalSetting, journalSettingId)
-    : getDefaultJournalSetting(journalConfig);
+  if (journalSettingId) {
+    journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
+  }
+
+  if (!journalSetting) {
+    journalSettingId = '';
+    journalSetting = getDefaultJournalSetting(journalConfig);
+  }
 
   yield put(setJournalSetting({ ...journalSetting, fileId: journalSettingId }));
 

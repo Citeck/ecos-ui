@@ -72,7 +72,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
             )}
           />
 
-          <Route path="/share/page/journals" component={JournalsPage} />
+          <Route path="/share/page/ui/journals" component={JournalsPage} />
           <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
           <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
           <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />

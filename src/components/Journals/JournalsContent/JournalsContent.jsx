@@ -1,18 +1,22 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
+import { push } from 'connected-react-router';
+import { withRouter } from 'react-router';
 import { Well } from '../../common/form';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsPreview from '../JournalsPreview';
 //import JournalsTasks from '../JournalsTasks';
 import Columns from '../../common/templates/Columns/Columns';
 import { initPreview } from '../../../actions/journals';
+import { setPreview } from '../urlManager';
 
 import './JournalsContent.scss';
 
 const mapStateToProps = state => ({});
 
 const mapDispatchToProps = dispatch => ({
-  initPreview: id => dispatch(initPreview(id))
+  initPreview: id => dispatch(initPreview(id)),
+  push: url => dispatch(push(url))
 });
 
 const Grid = ({ showPreview, onRowClick }) => (
@@ -42,6 +46,8 @@ class JournalsContent extends Component {
   render() {
     let { showPreview, showPie } = this.props;
 
+    this.props.push(setPreview(this.props.history.location, showPreview));
+
     showPie = false; //delete when you need a pie
 
     let cols = [<Grid showPreview={showPreview} onRowClick={this.onRowClick} />];
@@ -61,4 +67,4 @@ class JournalsContent extends Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(JournalsContent);
+)(withRouter(JournalsContent));
