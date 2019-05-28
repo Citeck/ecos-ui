@@ -96,6 +96,7 @@ export class JournalsApi extends RecordService {
   };
 
   getJournalsList = () => {
+    //return this.getJson(`${MICRO_URI}api/journallist/list`).then(resp => {
     return this.getJson(`${PROXY_URI}api/journals/lists`).then(resp => {
       return resp.journalsLists || [];
     });

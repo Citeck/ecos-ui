@@ -367,9 +367,13 @@ export default class Grid extends Component {
     props = this.setAdditionalOptions(props);
 
     const toolsVisible = this.toolsVisible();
-    const Scroll = ({ scrollable, children }) =>
+
+    const gridStyle = props.minHeight ? { minHeight: props.minHeight } : { height: '100%' };
+    const scrollStyle = props.minHeight ? { height: props.minHeight } : { autoHeight: true };
+
+    const Scroll = ({ scrollable, children, style }) =>
       scrollable ? (
-        <Scrollbars onScrollStart={this.onScrollStart} style={{ height: props.minHeight }} hideTracksWhenNotNeeded={true}>
+        <Scrollbars onScrollStart={this.onScrollStart} style={style} hideTracksWhenNotNeeded={true}>
           {children}
         </Scrollbars>
       ) : (
@@ -380,7 +384,7 @@ export default class Grid extends Component {
       return (
         <div
           key={this._id}
-          style={{ minHeight: props.minHeight }}
+          style={gridStyle}
           className={classNames(
             'ecos-grid',
             (props.singleSelectable || props.multiSelectable) && 'ecos-grid_checkable',
@@ -390,7 +394,7 @@ export default class Grid extends Component {
         >
           {toolsVisible ? this.tools() : null}
 
-          <Scroll scrollable={props.scrollable}>
+          <Scroll scrollable={props.scrollable} style={scrollStyle}>
             <BootstrapTable {...props} />
           </Scroll>
 
