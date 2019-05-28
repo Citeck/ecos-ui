@@ -141,13 +141,20 @@ function getDefaultJournalSetting(journalConfig) {
 }
 
 function* getJournalSetting(api, journalSettingId, journalConfig) {
+  let journalSetting;
+
   journalSettingId = journalSettingId || journalConfig.journalSettingId;
 
-  let journalSetting = journalSettingId
-    ? yield call(api.journals.getJournalSetting, journalSettingId)
-    : getDefaultJournalSetting(journalConfig);
+  if (journalSettingId) {
+    journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
+  }
 
-  yield put(setJournalSetting({ ...journalSetting, id: journalSettingId }));
+  if (!journalSetting) {
+    journalSetting = getDefaultJournalSetting(journalConfig);
+  }
+
+  yield put(setJournalSetting({ ...journalSetting, fileId: journalSettingId }));
+
   yield put(setPredicate(journalSetting.predicate));
   yield put(
     setColumnsSetup({

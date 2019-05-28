@@ -33,7 +33,7 @@ class JournalsDashlet extends Component {
   goToJournalsPage = () => {
     const { journalsListId = '', journalId = '', journalSettingId = '' } = this.props.config;
     window.open(
-      `${URL_PAGECONTEXT}journals?journalsListId=${journalsListId}&journalId=${journalId}&journalSettingId=${journalSettingId}`,
+      `${URL_PAGECONTEXT}ui/journals?journalsListId=${journalsListId}&journalId=${journalId}&journalSettingId=${journalSettingId}`,
       '_blank'
     );
   };
