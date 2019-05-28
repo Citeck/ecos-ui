@@ -10,6 +10,7 @@ import SelectJournal from './custom/selectJournal';
 import SelectOrgstruct from './custom/selectOrgstruct';
 import EcosSelect from './custom/ecosSelect';
 import AsyncData from './custom/asyncData';
+import TableForm from './custom/tableForm';
 
 Components.setComponents({
   ...DefaultComponents,
@@ -21,5 +22,6 @@ Components.setComponents({
   selectJournal: SelectJournal,
   selectOrgstruct: SelectOrgstruct,
   ecosSelect: EcosSelect,
-  asyncData: AsyncData
+  asyncData: AsyncData,
+  tableForm: TableForm
 });

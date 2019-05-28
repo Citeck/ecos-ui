@@ -1,0 +1,155 @@
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import TableFormPropTypes from './TableFormPropTypes';
+import { JournalsApi } from '../../../../api/journalsApi';
+
+export const TableFormContext = React.createContext();
+
+export const FORM_MODE_CREATE = 0;
+export const FORM_MODE_EDIT = 1;
+
+export const TableFormContextProvider = props => {
+  const { controlProps } = props;
+  const { onChange, onError, journalId, displayColumns } = controlProps;
+
+  const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
+  const [isModalFormOpen, setIsModalFormOpen] = useState(false);
+  const [record, setRecord] = useState(null);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [columns, setColumns] = useState([]);
+  const [createVariants, setCreateVariants] = useState([]);
+
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    if (!journalId) {
+      const err = new Error('The "journalId" config is required!');
+      typeof onError === 'function' && onError(err);
+      setError(err);
+    }
+  }, [journalId]);
+
+  const [inlineToolsOffsets, setInlineToolsOffsets] = useState({
+    height: 0,
+    top: 0,
+    rowId: null
+  });
+
+  useEffect(() => {
+    if (!journalId) {
+      return;
+    }
+
+    const journalsApi = new JournalsApi();
+
+    journalsApi.getJournalConfig(journalId).then(journalConfig => {
+      // console.log('journalConfig', journalConfig);
+      setCreateVariants(journalConfig.meta.createVariants || []);
+
+      let columns = journalConfig.columns;
+      if (Array.isArray(displayColumns) && displayColumns.length > 0) {
+        columns = columns.map(item => {
+          return {
+            ...item,
+            default: displayColumns.indexOf(item.attribute) !== -1
+          };
+        });
+      }
+
+      setColumns(
+        columns.map(item => {
+          return {
+            ...item,
+            dataField: item.dataField || item.attribute
+          };
+        }) || []
+      );
+    });
+  }, []);
+
+  return (
+    <TableFormContext.Provider
+      value={{
+        controlProps: {
+          ...controlProps
+        },
+        error,
+        formMode,
+        record,
+        isModalFormOpen,
+        selectedRows,
+        columns,
+        inlineToolsOffsets,
+        createVariants,
+
+        toggleModal: () => {
+          setIsModalFormOpen(!isModalFormOpen);
+        },
+
+        showCreateForm: record => {
+          setRecord(record);
+          setFormMode(FORM_MODE_CREATE);
+          setIsModalFormOpen(true);
+        },
+
+        showEditForm: record => {
+          setRecord(record);
+          setFormMode(FORM_MODE_EDIT);
+          setIsModalFormOpen(true);
+        },
+
+        onCreateFormSubmit: (record, form) => {
+          setIsModalFormOpen(false);
+
+          const newSelectedRows = [
+            ...selectedRows,
+            {
+              id: record.id,
+              ...record.getAttributesToPersist(true)
+            }
+          ];
+
+          setSelectedRows(newSelectedRows);
+
+          typeof onChange === 'function' && onChange(newSelectedRows.map(item => item.id));
+        },
+
+        onEditFormSubmit: (record, form) => {
+          const editRecordId = record.id;
+          const editRecordIndex = selectedRows.findIndex(item => item.id === editRecordId);
+
+          const newSelectedRows = [
+            ...selectedRows.slice(0, editRecordIndex),
+            { id: record.id, ...record.getAttributesToPersist(true) },
+            ...selectedRows.slice(editRecordIndex + 1)
+          ];
+
+          setSelectedRows(newSelectedRows);
+          setIsModalFormOpen(false);
+        },
+
+        deleteSelectedItem: id => {
+          const newSelectedRows = selectedRows.filter(item => item.id !== id);
+          setSelectedRows([...newSelectedRows]);
+
+          typeof onChange === 'function' && onChange(newSelectedRows.map(item => item.id));
+        },
+
+        setInlineToolsOffsets: (e, offsets) => {
+          if (offsets.height !== inlineToolsOffsets.height || offsets.top !== inlineToolsOffsets.top) {
+            setInlineToolsOffsets({
+              height: offsets.height,
+              top: offsets.top,
+              rowId: offsets.row.id || null
+            });
+          }
+        }
+      }}
+    >
+      {props.children}
+    </TableFormContext.Provider>
+  );
+};
+
+TableFormContextProvider.propTypes = {
+  controlProps: PropTypes.shape(TableFormPropTypes)
+};

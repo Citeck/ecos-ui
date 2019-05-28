@@ -32,6 +32,7 @@ export default class SelectJournal extends Component {
     isCreateModalOpen: false,
     isEditModalOpen: false,
     editRecordId: null,
+    editRecordName: null,
     isJournalConfigFetched: false,
     journalConfig: {
       meta: []
@@ -297,10 +298,16 @@ export default class SelectJournal extends Component {
   };
 
   onValueEdit = e => {
-    this.setState({
-      isEditModalOpen: true,
-      editRecordId: e.target.dataset.id
-    });
+    const editRecordId = e.target.dataset.id;
+    Records.get(editRecordId)
+      .load('.disp')
+      .then(disp => {
+        this.setState({
+          isEditModalOpen: true,
+          editRecordId: editRecordId,
+          editRecordName: disp
+        });
+      });
   };
 
   onValueDelete = e => {
@@ -343,6 +350,7 @@ export default class SelectJournal extends Component {
       isCollapsePanelOpen,
       gridData,
       editRecordId,
+      editRecordName,
       requestParams,
       journalConfig,
       error
@@ -365,13 +373,23 @@ export default class SelectJournal extends Component {
       openSelectModal: this.openSelectModal
     };
 
+    let selectModalTitle = t('select-journal.select-modal.title');
+    let editModalTitle = t('select-journal.edit-modal.title');
+    if (journalConfig.meta.title) {
+      selectModalTitle += `: ${journalConfig.meta.title}`;
+    }
+
+    if (editRecordName) {
+      editModalTitle += `: ${editRecordName}`;
+    }
+
     return (
       <div className={wrapperClasses}>
         {viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />}
 
         <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} api={this.api}>
           <EcosModal
-            title={t('select-journal.select-modal.title')}
+            title={selectModalTitle}
             isOpen={isSelectModalOpen}
             hideModal={this.toggleSelectModal}
             className={'select-journal-select-modal'}
@@ -442,7 +460,7 @@ export default class SelectJournal extends Component {
           }}
           className="ecos-modal_width-lg"
           isBigHeader={true}
-          title={t('select-journal.edit-modal.title')}
+          title={editModalTitle}
           isOpen={isEditModalOpen}
           hideModal={this.toggleEditModal}
         >
