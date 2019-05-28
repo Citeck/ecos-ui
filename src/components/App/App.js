@@ -5,11 +5,13 @@ import { Route, Switch } from 'react-router';
 import classNames from 'classnames';
 
 import BPMNDesignerPage from '../../pages/BPMNDesignerPage';
-import JournalsPage from '../../pages/JournalsPage';
-import JournalsDashboardPage from '../../pages/JournalsDashboardPage';
 import CardDetailsPage from '../../pages/CardDetailsPage';
-import FormIOPage from '../../pages/FormIOPage';
-import EcosFormPage from '../../pages/EcosFormPage';
+import JournalsPage from '../../pages/JournalsPage';
+import DocPreviewPage from '../../pages/debug/DocPreview';
+import EcosFormPage from '../../pages/debug/EcosFormPage';
+import FormIOPage from '../../pages/debug/FormIOPage';
+import JournalsDashboardPage from '../../pages/debug/JournalsDashboardPage';
+
 import Header from '../Header';
 import Notification from '../Notification';
 import SlideMenu from '../SlideMenu';
@@ -21,8 +23,6 @@ import PageTabs from '../PageTabs';
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { URL } from '../../constants';
 import './App.scss';
-import DocPreviewDashlet from '../DocPreview';
-import DocPreview from '../DocPreview/DocPreview';
 
 class App extends Component {
   componentDidMount() {
@@ -66,35 +66,11 @@ class App extends Component {
               {/*<Route path="/share/page" exact component={DashboardPage} />*/}
               <Route path="/formio-develop" component={FormIOPage} />
               <Route path="/ecos-form-example" component={EcosFormPage} />
-              <Route
-                path="/doc-preview"
-                render={() => (
-                  <div style={{ display: 'flex', flex: 1 }}>
-                    <div style={{ width: '857px', margin: '10px' }}>
-                      <DocPreviewDashlet
-                        id={'dashletId-1-1-2'}
-                        config={{
-                          link: 'testPdf.pdf',
-                          height: 700,
-                          scale: 0.5
-                        }}
-                        classNameDashlet={'classNameDashlet'}
-                        classNamePreview={'classNamePreview'}
-                      />
-                    </div>
-                    <div style={{ width: '50%', margin: '10px' }}>
-                      <DocPreviewDashlet id={'dashletId-1-1-2'} config={{ link: 'testImg.jpg', scale: 1, height: 500 }} />
-                    </div>
-                    <div style={{ width: '30%', margin: '10px' }}>
-                      <DocPreview link={'testImg.jpg'} />
-                    </div>
-                  </div>
-                )}
-              />
-
-              <Route path="/share/page/ui/journals" component={JournalsPage} />
+              <Route path="/doc-preview" component={DocPreviewPage} />
               <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
+
               <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
+              <Route path="/share/page/ui/journals" component={JournalsPage} />
               <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
               {/*<Route component={NotFoundPage} />*/}
             </Switch>

@@ -549,22 +549,29 @@ class PageTabs extends React.Component {
       <React.Fragment>
         {this.renderTabWrapper()}
         {this.renderChildren()}
-        <a href="/share/page/journals">Журнал на этой странице</a>
-        <br />
-        <a href="/share/page/journals" data-external="true">
-          Журнал на этой странице с перехагрузкой
-        </a>
-        <br />
-        <a href="/share/page/journalsDashboard" target="_blank">
-          Журнал дашборд на новой странице
-        </a>
-        <br />
-        <a href="/share/page/journalsDashboard" data-external target="_blank">
-          Журнал дашборд в новой вкладке
-        </a>
       </React.Fragment>
     );
   }
 }
 
 export default withRouter(PageTabs);
+
+/**
+ <a href="/share/page/journals">Журнал на этой странице</a>
+ <br />
+
+ <a href="/share/page/journals" data-external="true">
+ Журнал на этой странице с перехагрузкой
+ </a>
+ <br />
+
+ <a href="/share/page/journalsDashboard" target="_blank">
+ Журнал дашборд на новой странице
+ </a>
+ <br />
+
+ <a href="/share/page/journalsDashboard" data-external target="_blank">
+ Журнал дашборд в новой вкладке
+ </a>
+
+ */
