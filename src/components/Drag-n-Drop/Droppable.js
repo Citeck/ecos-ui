@@ -2,7 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Droppable as DropWrapper } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
+// import PerfectScrollbar from 'react-perfect-scrollbar'
+// import SimpleBar from 'simplebar-react';
+
 import './style.scss';
+// import 'react-perfect-scrollbar/dist/css/styles.css';
+// import 'simplebar/dist/simplebar.min.css';
 
 export class Droppable extends React.Component {
   static propTypes = {
@@ -41,15 +46,16 @@ export class Droppable extends React.Component {
     return classes.join(' ');
   }
 
-  renderChildren = () => {
+  renderChildren = provided => {
     const { children, placeholder } = this.props;
     const renderTrackHorizontal = props => <div {...props} hidden />;
-    const renderView = props => <div {...props} className={'ecos-dnd__droppable__scrollbar'} />;
+    const renderView = props => <div {...props} className={'ecos-dnd__droppable-scrollbar'} />;
 
     if (children) {
       return (
         <Scrollbars renderView={renderView} renderTrackHorizontal={renderTrackHorizontal}>
-          {children}
+          <div className="ecos-dnd__droppable-children-wrapper">{children}</div>
+          <div className="ecos-dnd__droppable-placeholder">{provided.placeholder}</div>
         </Scrollbars>
       );
     }
@@ -63,11 +69,14 @@ export class Droppable extends React.Component {
     return (
       <DropWrapper droppableId={droppableId} direction={direction} isDropDisabled={isDropDisabled} index={droppableIndex}>
         {(provided, snapshot) => (
-          <div ref={provided.innerRef} className={this.className(snapshot.isDraggingOver, snapshot.draggingFromThisWith)} style={style}>
-            <React.Fragment>
-              {this.renderChildren()}
-              {/*{provided.placeholder}*/}
-            </React.Fragment>
+          <div
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            ref={provided.innerRef}
+            className={this.className(snapshot.isDraggingOver, snapshot.draggingFromThisWith)}
+            style={style}
+          >
+            {this.renderChildren(provided)}
           </div>
         )}
       </DropWrapper>

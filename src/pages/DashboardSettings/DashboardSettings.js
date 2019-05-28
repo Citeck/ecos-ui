@@ -138,7 +138,10 @@ export default class DashboardSettings extends React.Component {
         { id: 223, name: t('График отпусков') },
         { id: 224, name: t('Основные ссылки') },
         { id: 225, name: t('Социальные сети') },
-        { id: 226, name: t('Открытие источники') }
+        { id: 232, name: t('Социальные сети') },
+        { id: 234, name: t('Социальные сети') },
+        { id: 228, name: t('Открытие источники (они больше закрытые, чем открытые)') },
+        { id: 226, name: t('Открытие источники (они больше закрытые, чем открытые)') }
       ],
       menuSelected: []
     };
@@ -363,7 +366,6 @@ export default class DashboardSettings extends React.Component {
               droppableId={DROPPABLE_ZONE.MENU_TO}
               className="ecos-ds__drag-container ecos-ds__drag-container_menu-to"
               placeholder={t('Перетащите пункты меню сюда')}
-              direction="horizontal"
             >
               {menuSelected.length &&
                 menuSelected.map((item, index) => {
@@ -371,6 +373,7 @@ export default class DashboardSettings extends React.Component {
 
                   return (
                     <DragItem
+                      className="ecos-ds__column-widgets__items__cell"
                       title={item.name}
                       key={item.id}
                       draggableId={item.id}
@@ -517,7 +520,7 @@ export default class DashboardSettings extends React.Component {
               droppableId={DROPPABLE_ZONE.WIDGETS_FROM}
               className="ecos-ds__drag-container ecos-ds__drag-container_col"
               placeholder={t('Нет доступных виджетов')}
-              isDropDisabled={true}
+              isDropDisabled
             >
               {this.renderDragItems(widgets)}
             </Droppable>

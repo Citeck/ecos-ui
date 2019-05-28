@@ -110,6 +110,13 @@
         }
       }
     }
+
+    &-item {
+      &_menu {
+        width: calc(100% / 3 - 10px);
+        flex-basis: calc(100% / 3 - 10px);
+      }
+    }
   }
 
   &__column-widgets {
@@ -141,8 +148,12 @@
       box-sizing: border-box;
 
       &__cell {
-        width: calc(100% - 20px);
-        margin-bottom: 0;
+        width: 100%;
+        margin: 0;
+
+        &:not(:last-child) {
+          margin-bottom: 5px;
+        }
       }
     }
   }
