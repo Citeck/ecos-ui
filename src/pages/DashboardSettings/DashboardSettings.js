@@ -176,7 +176,7 @@ export default class DashboardSettings extends React.Component {
 
         newWidgets.fill([]);
         newWidgets.forEach((value, index) => {
-          newWidgets[index] = widgetsSelected[index];
+          newWidgets[index] = widgetsSelected[index] || [];
         });
 
         widgetsSelected = newWidgets;
@@ -416,7 +416,7 @@ export default class DashboardSettings extends React.Component {
       return;
     }
 
-    const colIndex = destination.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[1];
+    const colIndex = destination.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[1]; //todo тут
     const colSelected = widgetsSelected[colIndex];
 
     switch (source.droppableId) {
