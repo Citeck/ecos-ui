@@ -34,7 +34,7 @@ const InputView = () => {
 
   const wrapperClasses = classNames('ecos-table-form__input-view');
 
-  const placeholderText = placeholder ? placeholder : t('select-orgstruct.placeholder');
+  const placeholderText = placeholder ? placeholder : t('ecos-table-form.placeholder');
 
   const onClickDelete = () => {
     setInlineToolsOffsets(null, { height: 0, top: 0, row: {} });

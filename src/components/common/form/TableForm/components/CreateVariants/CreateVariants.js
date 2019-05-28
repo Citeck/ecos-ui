@@ -24,7 +24,7 @@ const CreateVariants = () => {
 
       createButton = (
         <Btn className={buttonClasses} onClick={onClick} disabled={disabled}>
-          {t('select-journal.select-modal.create-button')}
+          {t('ecos-table-form.create-button')}
         </Btn>
       );
     } else {
@@ -40,7 +40,7 @@ const CreateVariants = () => {
             className={classNames('btn_drop-down btn_r_8 btn_blue', buttonClasses)}
             disabled={disabled}
           >
-            {t('select-journal.select-modal.create-button')}
+            {t('ecos-table-form.create-button')}
           </IcoBtn>
         </Dropdown>
       );

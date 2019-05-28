@@ -1,12 +1,25 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TableFormContext, FORM_MODE_CREATE } from '../../TableFormContext';
 import EcosForm from '../../../../../EcosForm/EcosForm';
 import EcosModal from '../../../../EcosModal';
 import { t } from '../../../../../../helpers/util';
+import Records from '../../../../../Records';
 
 const ModalForm = () => {
   const context = useContext(TableFormContext);
   const { record, formMode, isModalFormOpen, toggleModal, onCreateFormSubmit, onEditFormSubmit } = context;
+
+  const [displayName, setDisplayName] = useState();
+  useEffect(() => {
+    Records.get(record)
+      .load('.disp')
+      .then(disp => setDisplayName(disp));
+  }, [record, setDisplayName]);
+
+  let title = formMode === FORM_MODE_CREATE ? t('ecos-table-form.create-modal.title') : t('ecos-table-form.edit-modal.title');
+  if (displayName) {
+    title = `${title}: ${displayName}`;
+  }
 
   return (
     <div>
@@ -17,7 +30,7 @@ const ModalForm = () => {
           }}
           className="ecos-modal_width-lg"
           isBigHeader={true}
-          title={t('select-journal.create-modal.title')}
+          title={title}
           isOpen={isModalFormOpen}
           hideModal={toggleModal}
         >
