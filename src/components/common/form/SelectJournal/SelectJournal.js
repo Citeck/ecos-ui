@@ -17,6 +17,7 @@ import FiltersProvider from './Filters/FiltersProvider';
 import { JournalsApi } from '../../../../api/journalsApi';
 import { t } from '../../../../helpers/util';
 import './SelectJournal.scss';
+import Records from '../../../Records';
 
 const paginationInitState = {
   skipCount: 0,
@@ -76,9 +77,9 @@ export default class SelectJournal extends Component {
 
     let initValue;
     if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
-      initValue = defaultValue.map(item => ({ id: item }));
+      initValue = [...defaultValue];
     } else if (!multiple && !!defaultValue) {
-      initValue = [{ id: defaultValue }];
+      initValue = [defaultValue];
     }
 
     if (initValue) {
@@ -191,14 +192,16 @@ export default class SelectJournal extends Component {
   };
 
   fetchDisplayNames = selectedRows => {
-    return this.api.getRecordsDisplayName(selectedRows).then(result =>
-      result.records.map(item => {
-        return {
-          id: item.id,
-          disp: item.attributes.name
-        };
-      })
-    );
+    return Promise.all(selectedRows.map(r => Records.get(r).load('.disp'))).then(dispNames => {
+      let result = [];
+      for (let i = 0; i < selectedRows.length; i++) {
+        result.push({
+          id: selectedRows[i],
+          disp: dispNames[i] || selectedRows[i]
+        });
+      }
+      return result;
+    });
   };
 
   setValue = (selected, shouldTriggerOnChange = true) => {
@@ -346,7 +349,8 @@ export default class SelectJournal extends Component {
     } = this.state;
 
     const wrapperClasses = classNames('select-journal', {
-      'select-journal_compact': isCompact
+      'select-journal_compact': isCompact,
+      'select-journal_view-only': viewOnly
     });
 
     const inputViewProps = {

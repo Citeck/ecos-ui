@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
 import Columns from '../common/templates/Columns/Columns';
 import { Label } from '../common/form';
@@ -25,60 +25,45 @@ class ListItem extends Component {
 class AggregationListItem extends Component {
   constructor(props) {
     super(props);
-
-    this.state = { types: [], selected: props.selected };
-
     this.aggregationTypes = [
       {
         attribute: `_${props.column.attribute}`,
         schema: `sum(${props.column.attribute})`,
-        text: 'Сумма'
+        text: 'Сумма',
+        column: props.column.attribute
       }
     ];
   }
 
-  componentDidUpdate(prevProps) {
-    const props = this.props;
-    if (props.selected !== prevProps.selected) {
-      this.setState({ selected: props.selected });
-    }
-  }
-
   onChangeAggregationType = e => {
-    this.setState({ selected: e });
-    trigger.call(this, 'onChangeAggregation', e);
+    trigger.call(this, 'onChangeAggregation', { aggregation: e, column: this.props.column });
   };
 
   onCheckColumn = e => {
-    if (e.checked) {
-      this.setState({ types: this.aggregationTypes });
-    } else {
-      this.setState({ types: [] });
-      this.setState({ selected: null });
-      trigger.call(this, 'onChangeAggregation', null);
-    }
+    !e.checked && trigger.call(this, 'onChangeAggregation', { aggregation: null, column: this.props.column });
   };
 
   render() {
-    const { column, titleField } = this.props;
+    const { column, titleField, selected } = this.props;
 
     return (
       <Columns
         classNamesColumn={'columns_height_full columns-setup__column_align'}
         cols={[
           <div className={'two-columns__left columns-setup__column_align '}>
-            <Checkbox checked={Boolean(this.state.selected)} onChange={this.onCheckColumn} />
+            <Checkbox checked={Boolean(selected)} onChange={this.onCheckColumn} />
             <Label className={'label_clear label_middle-grey columns-setup__next'}>{column[titleField]}</Label>
           </div>,
 
           <Select
-            options={this.state.types}
+            isClearable={true}
+            options={this.aggregationTypes}
             getOptionLabel={option => option.text}
             getOptionValue={option => option.schema}
             onChange={this.onChangeAggregationType}
             className={'select_narrow select_width_full'}
             placeholder={t('journals.default')}
-            value={this.state.selected}
+            value={selected}
           />
         ]}
       />
@@ -87,42 +72,44 @@ class AggregationListItem extends Component {
 }
 
 export default class Grouping extends Component {
-  grouping = {
-    columns: [],
-    groupBy: []
-  };
-
-  aggregations = [];
-
   onGrouping = state => {
-    const { valueField } = this.props;
+    const { valueField, aggregation } = this.props;
     const columns = state.second;
     const groupBy = columns.map(col => col[valueField]).join('&');
 
-    this.grouping.columns = columns;
-    this.grouping.groupBy = groupBy ? [columns.map(col => col[valueField]).join('&')] : [];
-
     trigger.call(this, 'onGrouping', {
-      columns: [...this.grouping.columns, ...this.aggregations],
-      groupBy: this.grouping.groupBy
+      columns: [...columns, ...aggregation],
+      groupBy: groupBy ? [columns.map(col => col[valueField]).join('&')] : []
     });
   };
 
-  onChangeAggregation = aggregation => {
-    this.aggregations = aggregation ? [aggregation] : [];
+  onChangeAggregation = ({ aggregation, column }) => {
+    let { groupBy, grouping, aggregation: aggregations } = this.props;
+
+    if (aggregation) {
+      const match = aggregations.filter(a => a.column === column.attribute)[0];
+
+      if (match) {
+        aggregations = aggregations.map(a => (a.attribute === column.attribute ? aggregation : a));
+      } else {
+        aggregations.push(aggregation);
+      }
+    } else {
+      aggregations = aggregations.filter(a => a.column !== column.attribute);
+    }
 
     trigger.call(this, 'onGrouping', {
-      columns: [...this.grouping.columns, ...this.aggregations],
-      groupBy: this.grouping.groupBy
+      columns: [...grouping, ...aggregations],
+      groupBy
     });
   };
 
-  getList = list => {
+  getFirst = columns => {
     const { grouping, valueField } = this.props;
-    return list.filter(item => !grouping.filter(groupingItem => groupingItem[valueField] === item[valueField])[0]);
+    return columns.filter(column => !grouping.filter(g => g[valueField] === column[valueField])[0]);
   };
 
-  getListItem = item => {
+  getGroupingList = item => {
     const { titleField } = this.props;
     return <ListItem item={item} titleField={titleField} />;
   };
@@ -149,7 +136,7 @@ export default class Grouping extends Component {
   };
 
   render() {
-    const { list, className, grouping } = this.props;
+    const { list, className, grouping, showAggregation } = this.props;
 
     return (
       <div className={classNames('grouping', className)}>
@@ -163,23 +150,27 @@ export default class Grouping extends Component {
         </div>
 
         <div className={'grouping__content'}>
-          <Dnd2List first={this.getList(list)} second={grouping} tpl={this.getListItem} onMove={this.onGrouping} />
+          <Dnd2List first={this.getFirst(list)} second={grouping} tpl={this.getGroupingList} onMove={this.onGrouping} />
         </div>
 
-        <div className={'grouping__toolbar grouping__toolbar_aggregation'}>
-          <Columns
-            cols={[
-              <span className={'grouping__desc'}>{t('aggregation.columns')}</span>,
-              <span className={'grouping__desc'}>{t('aggregation.type')}</span>
-            ]}
-          />
-        </div>
+        {showAggregation ? (
+          <Fragment>
+            <div className={'grouping__toolbar grouping__toolbar_aggregation'}>
+              <Columns
+                cols={[
+                  <span className={'grouping__desc'}>{t('aggregation.columns')}</span>,
+                  <span className={'grouping__desc'}>{t('aggregation.type')}</span>
+                ]}
+              />
+            </div>
 
-        <div className={'grouping__content grouping__content_aggregation'}>
-          <Scrollbars style={{ height: '100%' }}>
-            <List className={'ecos-list-group_overflow_visible'} list={this.getAggregationList()} />
-          </Scrollbars>
-        </div>
+            <div className={'grouping__content grouping__content_aggregation'}>
+              <Scrollbars style={{ height: '100%' }}>
+                <List className={'ecos-list-group_overflow_visible'} list={this.getAggregationList()} />
+              </Scrollbars>
+            </div>
+          </Fragment>
+        ) : null}
       </div>
     );
   }

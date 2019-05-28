@@ -32,7 +32,7 @@ const mapDispatchToProps = dispatch => ({
   getDashletEditorData: config => dispatch(getDashletEditorData(config)),
   setJournalsListItem: item => dispatch(setJournalsListItem(item)),
   setJournalsItem: item => dispatch(setJournalsItem(item)),
-  setSettingItem: item => dispatch(setSettingItem(item)),
+  setSettingItem: id => dispatch(setSettingItem(id)),
   setDashletConfig: config => dispatch(setDashletConfig(config)),
   saveDashlet: (config, id) => dispatch(saveDashlet({ config: config, id: id }))
 });
@@ -55,6 +55,10 @@ class JournalsDashletEditor extends Component {
 
   clear = () => {
     this.props.setDashletConfig(this.props.initConfig);
+  };
+
+  setSettingItem = item => {
+    this.props.setSettingItem(item.fileId);
   };
 
   componentDidUpdate(prevProps) {
@@ -103,10 +107,10 @@ class JournalsDashletEditor extends Component {
             <Select
               placeholder={t('journals.default')}
               options={props.journalSettings}
-              getOptionLabel={option => option.preferences.title}
-              getOptionValue={option => option.id}
-              onChange={props.setSettingItem}
-              value={getSelectedValue(props.journalSettings, 'id', config.journalSettingId)}
+              getOptionLabel={option => option.data.title}
+              getOptionValue={option => option.fileId}
+              onChange={this.setSettingItem}
+              value={getSelectedValue(props.journalSettings, 'fileId', config.journalSettingId)}
             />
           </Field>
         </div>

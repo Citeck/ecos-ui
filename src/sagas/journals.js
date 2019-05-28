@@ -23,8 +23,11 @@ import {
   setJournalSettings,
   setPredicate,
   setColumnsSetup,
+  setGrouping,
   onJournalSettingsSelect,
-  onJournalSelect
+  onJournalSelect,
+  initPreview,
+  setNodeContent
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 
@@ -141,18 +144,32 @@ function getDefaultJournalSetting(journalConfig) {
 }
 
 function* getJournalSetting(api, journalSettingId, journalConfig) {
+  let journalSetting;
+
   journalSettingId = journalSettingId || journalConfig.journalSettingId;
 
-  let journalSetting = journalSettingId
-    ? yield call(api.journals.getJournalSetting, journalSettingId)
-    : getDefaultJournalSetting(journalConfig);
+  if (journalSettingId) {
+    journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
+  }
 
-  yield put(setJournalSetting({ ...journalSetting, id: journalSettingId }));
+  if (!journalSetting) {
+    journalSettingId = '';
+    journalSetting = getDefaultJournalSetting(journalConfig);
+  }
+
+  yield put(setJournalSetting({ ...journalSetting, fileId: journalSettingId }));
+
   yield put(setPredicate(journalSetting.predicate));
   yield put(
     setColumnsSetup({
       columns: journalSetting.groupBy.length ? journalConfig.columns : journalSetting.columns,
       sortBy: journalSetting.sortBy
+    })
+  );
+  yield put(
+    setGrouping({
+      columns: journalSetting.groupBy.length ? journalSetting.columns : [],
+      groupBy: journalSetting.groupBy
     })
   );
 
@@ -227,6 +244,7 @@ function* sagaInitJournal({ api, logger }, action) {
 
     yield put(setLoading(false));
   } catch (e) {
+    yield put(setLoading(false));
     logger.error('[journals sagaInitJournal saga error', e.message);
   }
 }
@@ -315,6 +333,15 @@ function* sagaDeleteJournalSetting({ api, logger }, action) {
   }
 }
 
+function* sagaInitPreview({ api, logger }, action) {
+  try {
+    const nodeContent = yield call(api.journals.getNodeContent, action.payload);
+    yield put(setNodeContent(nodeContent));
+  } catch (e) {
+    logger.error('[journals sagaInitPreview saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getDashletConfig().type, sagaGetDashletConfig, ea);
   yield takeLatest(getDashletEditorData().type, sagaGetDashletEditorData, ea);
@@ -334,6 +361,8 @@ function* saga(ea) {
 
   yield takeLatest(onJournalSettingsSelect().type, sagaOnJournalSettingsSelect, ea);
   yield takeLatest(onJournalSelect().type, sagaOnJournalSelect, ea);
+
+  yield takeLatest(initPreview().type, sagaInitPreview, ea);
 }
 
 export default saga;
