@@ -176,7 +176,9 @@ export default class DashboardSettings extends React.Component {
 
         newWidgets.fill([]);
         newWidgets.forEach((value, index) => {
-          newWidgets[index] = widgetsSelected[index] || [];
+          if (index < widgetsSelected.length) {
+            newWidgets[index] = widgetsSelected[index] || [];
+          }
         });
 
         widgetsSelected = newWidgets;
@@ -429,7 +431,7 @@ export default class DashboardSettings extends React.Component {
         widgetsSelected[colIndex] = reorder(colSelected, source.index, destination.index);
         break;
       default:
-        const colSourceIndex = source.index;
+        const colSourceIndex = source.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[1]; //todo тут
         const colSource = widgetsSelected[colSourceIndex];
         const resultMove = move(colSource, colSelected, source, destination);
 
