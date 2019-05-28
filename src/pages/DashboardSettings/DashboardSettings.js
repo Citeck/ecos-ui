@@ -29,6 +29,46 @@ const DROPPABLE_ZONE = {
   WIDGETS_TO: 'widgetsSelected'
 };
 
+const reorder = (list, startIndex, endIndex) => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+
+  result.splice(endIndex, 0, removed);
+
+  return result;
+};
+
+const move = (source, destination, droppableSource, droppableDestination) => {
+  const sourceClone = Array.from(source);
+  const destClone = Array.from(destination);
+  const [removed] = sourceClone.splice(droppableSource.index, 1);
+  const result = {};
+
+  destClone.splice(droppableDestination.index, 0, removed);
+  result[droppableSource.droppableId] = sourceClone;
+  result[droppableDestination.droppableId] = destClone;
+
+  return result;
+};
+
+const copy = (source, destination, droppableSource, droppableDestination) => {
+  const sourceClone = Array.from(source);
+  const destClone = Array.from(destination);
+  const item = sourceClone[droppableSource.index];
+
+  destClone.splice(droppableDestination.index, 0, { ...item, dndId: uuidV4() });
+
+  return destClone;
+};
+
+const setSelected = items => {
+  let arr = Array.from(items || []);
+
+  return arr.map(widget => {
+    return { ...widget, selected: true, canRemove: true };
+  });
+};
+
 export default class DashboardSettings extends React.Component {
   constructor(props) {
     super(props);
@@ -108,40 +148,10 @@ export default class DashboardSettings extends React.Component {
 
   initWidgets() {
     this.state.widgetsSelected = this.selectedLayout.columns.map(item => {
-      return this.setSelected(item.widgets);
+      return setSelected(item.widgets);
     });
     this.state.widgets.forEach(value => (value.dndId = uuidV4()));
   }
-
-  setSelected = items => {
-    items = items || [];
-
-    return items.map(widget => {
-      return { ...widget, selected: true, canRemove: true };
-    });
-  };
-
-  reorder = (list, startIndex, endIndex) => {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-
-    result.splice(endIndex, 0, removed);
-
-    return result;
-  };
-
-  move = (source, destination, droppableSource, droppableDestination) => {
-    const sourceClone = Array.from(source);
-    const destClone = Array.from(destination);
-    const [removed] = sourceClone.splice(droppableSource.index, 1);
-    const result = {};
-
-    destClone.splice(droppableDestination.index, 0, removed);
-    result[droppableSource.droppableId] = sourceClone;
-    result[droppableDestination.droppableId] = destClone;
-
-    return result;
-  };
 
   /*--------- start Layouts ----------*/
 
@@ -263,7 +273,7 @@ export default class DashboardSettings extends React.Component {
     }
 
     if (source.droppableId === destination.droppableId) {
-      const menuItems = this.reorder(this.state[source.droppableId], source.index, destination.index);
+      const menuItems = reorder(this.state[source.droppableId], source.index, destination.index);
 
       let state = { menuItems };
 
@@ -273,7 +283,7 @@ export default class DashboardSettings extends React.Component {
 
       this.setState(state);
     } else {
-      const result = this.move(this.state[source.droppableId], this.state[destination.droppableId], source, destination);
+      const result = move(this.state[source.droppableId], this.state[destination.droppableId], source, destination);
 
       this.setState({
         menuItems: result[DROPPABLE_ZONE.MENU_FROM],
@@ -405,12 +415,19 @@ export default class DashboardSettings extends React.Component {
     const colIndex = destination.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[1];
     const colSelected = widgetsSelected[colIndex];
 
-    if (source.droppableId === destination.droppableId) {
-      widgetsSelected[colIndex] = this.reorder(colSelected, source.index, destination.index);
-    } else {
-      const result = this.move(widgets, colSelected, source, destination);
-
-      widgetsSelected[colIndex] = this.setSelected(result[destination.droppableId]);
+    switch (source.droppableId) {
+      case DROPPABLE_ZONE.WIDGETS_FROM:
+        const resultCopy = copy(widgets, widgetsSelected[colIndex], source, destination);
+        widgetsSelected[colIndex] = setSelected(resultCopy);
+        console.log(widgetsSelected[colIndex]);
+        break;
+      case destination.droppableId:
+        widgetsSelected[colIndex] = reorder(colSelected, source.index, destination.index);
+        break;
+      default:
+        const resultMove = move(widgets, colSelected, source, destination);
+        widgetsSelected[colIndex] = setSelected(resultMove[destination.droppableId]);
+        break;
     }
 
     this.setState({
