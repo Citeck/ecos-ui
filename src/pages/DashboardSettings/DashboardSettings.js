@@ -14,7 +14,7 @@ function getTestWidgets(size) {
   for (let i = 0; i < arr.length; i++) {
     arr[i] = {
       title: i + ' string'.repeat(i + 1),
-      id: `widget-${size}-${i}`
+      id: `widget-${i}`
     };
   }
 
@@ -34,8 +34,6 @@ export default class DashboardSettings extends React.Component {
 
     //fixme test data
     const widgets = getTestWidgets(20);
-    const selected_1 = getTestWidgets(5);
-    const selected_2 = getTestWidgets(3);
 
     this.state = {
       widgets,
@@ -44,7 +42,7 @@ export default class DashboardSettings extends React.Component {
         {
           position: 0,
           isActive: true,
-          columns: [{ widgets: selected_1 }, { width: '25%', widgets: selected_2 }]
+          columns: [{ widgets: [] }, { width: '25%', widgets: [] }]
         },
         {
           position: 1,
