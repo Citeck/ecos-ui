@@ -7,7 +7,7 @@ import './drag-item.scss';
 
 export class DragItem extends React.Component {
   static propTypes = {
-    draggableId: PropTypes.string.isRequired,
+    draggableId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     className: PropTypes.string,
     title: PropTypes.string,
     selected: PropTypes.bool,

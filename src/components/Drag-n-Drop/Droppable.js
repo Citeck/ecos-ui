@@ -14,7 +14,7 @@ export class Droppable extends React.Component {
     className: PropTypes.string,
     style: PropTypes.object,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
-    droppableId: PropTypes.string.isRequired,
+    droppableId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     placeholder: PropTypes.string,
     direction: PropTypes.string,
     isDropDisabled: PropTypes.bool
