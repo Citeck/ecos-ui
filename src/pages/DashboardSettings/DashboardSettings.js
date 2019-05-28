@@ -32,7 +32,7 @@ export default class DashboardSettings extends React.Component {
   constructor(props) {
     super(props);
 
-    //fixme tes data
+    //fixme test data
     const widgets = getTestWidgets(20);
     const selected_1 = getTestWidgets(5);
     const selected_2 = getTestWidgets(3);
@@ -114,6 +114,8 @@ export default class DashboardSettings extends React.Component {
   }
 
   setSelected = items => {
+    items = items || [];
+
     return items.map(widget => {
       return { ...widget, selected: true, canRemove: true };
     });
