@@ -14,6 +14,7 @@ export class Droppable extends React.Component {
     className: PropTypes.string,
     style: PropTypes.object,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
+    droppableIndex: PropTypes.number,
     droppableId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     placeholder: PropTypes.string,
     direction: PropTypes.string,
@@ -26,7 +27,8 @@ export class Droppable extends React.Component {
     style: {},
     placeholder: '',
     direction: 'vertical',
-    isDropDisabled: false
+    isDropDisabled: false,
+    droppableIndex: 0
   };
 
   className(isDraggingOver = false, draggingFromThisWith = false) {
@@ -62,10 +64,10 @@ export class Droppable extends React.Component {
   };
 
   render() {
-    const { droppableId, style, direction, isDropDisabled } = this.props;
+    const { droppableId, style, direction, isDropDisabled, droppableIndex } = this.props;
 
     return (
-      <DropWrapper droppableId={droppableId} direction={direction} isDropDisabled={isDropDisabled}>
+      <DropWrapper droppableId={droppableId} direction={direction} isDropDisabled={isDropDisabled} index={droppableIndex}>
         {(provided, snapshot) => (
           <div
             {...provided.draggableProps}

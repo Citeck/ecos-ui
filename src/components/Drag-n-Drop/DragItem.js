@@ -7,6 +7,7 @@ import './drag-item.scss';
 
 export class DragItem extends React.Component {
   static propTypes = {
+    draggableIndex: PropTypes.number,
     draggableId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     className: PropTypes.string,
     title: PropTypes.string,
@@ -22,6 +23,7 @@ export class DragItem extends React.Component {
     title: '',
     selected: false,
     canRemove: false,
+    draggableIndex: 0,
     removeItem: () => {},
     getPositionAdjusment: () => ({ top: 0, left: 0 })
   };
@@ -109,10 +111,10 @@ export class DragItem extends React.Component {
   };
 
   render() {
-    const { draggableId, index } = this.props;
+    const { draggableId, draggableIndex } = this.props;
 
     return (
-      <Draggable draggableId={draggableId} index={index}>
+      <Draggable draggableId={draggableId} index={draggableIndex}>
         {this.renderBody}
       </Draggable>
     );
