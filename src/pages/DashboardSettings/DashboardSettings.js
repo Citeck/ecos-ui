@@ -8,14 +8,13 @@ import { DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Dr
 
 import './style.scss';
 
-function getTestWidgets(props, prefix, size) {
+function getTestWidgets(size) {
   const arr = new Array(size);
 
   for (let i = 0; i < arr.length; i++) {
     arr[i] = {
-      title: (i + 'this is really a very very very long string').substr(-1 * i),
-      id: `widget-${i}`,
-      ...props
+      title: i + 'string'.repeat(i + 1),
+      id: `widget-${i}`
     };
   }
 
@@ -34,16 +33,18 @@ export default class DashboardSettings extends React.Component {
     super(props);
 
     //fixme tes data
-    const widgets = getTestWidgets({}, 'all', 20);
-    const selected = getTestWidgets({ selected: true, canRemove: true }, 'selected', 5);
+    const widgets = getTestWidgets(20);
+    const selected_1 = getTestWidgets(5);
+    const selected_2 = getTestWidgets(3);
 
     this.state = {
       widgets,
+      widgetsSelected: [],
       columns: [
         {
           position: 0,
           isActive: true,
-          columns: [{ widgets: selected }, { width: '25%', widgets: [] }]
+          columns: [{ widgets: selected_1 }, { width: '25%', widgets: selected_2 }]
         },
         {
           position: 1,
@@ -102,9 +103,46 @@ export default class DashboardSettings extends React.Component {
       ],
       menuSelected: []
     };
+
+    this.initWidgetsSelected();
   }
 
+  initWidgetsSelected() {
+    this.state.widgetsSelected = this.selectedLayout.columns.map(item => {
+      return this.setSelected(item.widgets);
+    });
+  }
+
+  setSelected = items => {
+    return items.map(widget => {
+      return { ...widget, selected: true, canRemove: true };
+    });
+  };
+
+  reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+
+    result.splice(endIndex, 0, removed);
+
+    return result;
+  };
+
+  move = (source, destination, droppableSource, droppableDestination) => {
+    const sourceClone = Array.from(source);
+    const destClone = Array.from(destination);
+    const [removed] = sourceClone.splice(droppableSource.index, 1);
+    const result = {};
+
+    destClone.splice(droppableDestination.index, 0, removed);
+    result[droppableSource.droppableId] = sourceClone;
+    result[droppableDestination.droppableId] = destClone;
+
+    return result;
+  };
+
   /*--------- start Layouts ----------*/
+
   handleClickColumn(column) {
     let columns = cloneDeep(this.state.columns);
 
@@ -198,6 +236,12 @@ export default class DashboardSettings extends React.Component {
     return result && result.length ? result[0] : {};
   }
 
+  get selectedLayoutIndex() {
+    const { columns } = this.state;
+
+    return columns.findIndex(item => item.isActive);
+  }
+
   /*--------- start Menu ----------*/
 
   handleDropEndMenu = result => {
@@ -227,28 +271,6 @@ export default class DashboardSettings extends React.Component {
     }
   };
 
-  reorder = (list, startIndex, endIndex) => {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-
-    result.splice(endIndex, 0, removed);
-
-    return result;
-  };
-
-  move = (source, destination, droppableSource, droppableDestination) => {
-    const sourceClone = Array.from(source);
-    const destClone = Array.from(destination);
-    const [removed] = sourceClone.splice(droppableSource.index, 1);
-    const result = {};
-
-    destClone.splice(droppableDestination.index, 0, removed);
-    result[droppableSource.droppableId] = sourceClone;
-    result[droppableDestination.droppableId] = destClone;
-
-    return result;
-  };
-
   get menuWidth() {
     const menu = document.querySelector('.slide-menu');
 
@@ -275,11 +297,13 @@ export default class DashboardSettings extends React.Component {
   });
 
   onRemoveMenuItem = (item, index) => {
-    const { menuSelected } = this.state;
+    const { menuSelected, menuItems } = this.state;
+    const { selected, canRemove, ...newItem } = item;
 
+    menuItems.push(newItem);
     menuSelected.splice(index, 1);
 
-    this.setState(menuSelected);
+    this.setState({ menuSelected, menuItems });
   };
 
   renderMenuConstructor() {
@@ -355,33 +379,38 @@ export default class DashboardSettings extends React.Component {
   }
 
   /*--------- start Widgets ----------*/
+
   handleDropEndWidget = result => {
-    console.log(result);
     const { source, destination } = result;
-    const { widgets, columns } = this.state;
+    const { widgets, widgetsSelected } = this.state;
 
     if (!destination || destination.droppableId === DROPPABLE_ZONE.WIDGETS_FROM) {
       return;
     }
 
-    if (source.droppableId !== destination.droppableId) {
-      const indexWidget = destination.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[0];
-      const selectedWidgets = columns[indexWidget].widgets;
+    const colIndex = destination.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[1];
+    const colSelected = widgetsSelected[colIndex];
 
-      this.setState({
-        columns
-      });
+    if (source.droppableId === destination.droppableId) {
+      widgetsSelected[colIndex] = this.reorder(colSelected, source.index, destination.index);
+    } else {
+      const result = this.move(widgets, colSelected, source, destination);
+
+      widgetsSelected[colIndex] = this.setSelected(result[destination.droppableId]);
     }
+
+    this.setState({
+      widgetsSelected
+    });
   };
 
   onRemoveWidget = (item, colIndex) => {
-    const { columns } = this.state;
-    const foundIndex = columns.findIndex(item => item.isActive);
+    const { widgetsSelected } = this.state;
 
-    if (foundIndex >= 0) {
-      columns[foundIndex].columns[colIndex].widgets.splice(item.index, 1);
+    if (this.selectedLayoutIndex >= 0) {
+      widgetsSelected[colIndex].splice(item.index, 1);
 
-      this.setState({ columns });
+      this.setState({ widgetsSelected });
     }
   };
 
@@ -405,6 +434,8 @@ export default class DashboardSettings extends React.Component {
   }
 
   renderWidgetColumns() {
+    const { widgetsSelected } = this.state;
+
     return (
       <div className={'ecos-ds__drag-container_widgets-to'}>
         {this.selectedLayout.columns.map((item, index) => {
@@ -419,7 +450,7 @@ export default class DashboardSettings extends React.Component {
                 placeholder={t('Перетащите сюда виджеты')}
               >
                 {this.renderDragItems(
-                  item.widgets,
+                  widgetsSelected[index],
                   item => {
                     this.onRemoveWidget(item, index);
                   },
