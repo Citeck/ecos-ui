@@ -23,8 +23,11 @@ import {
   setJournalSettings,
   setPredicate,
   setColumnsSetup,
+  setGrouping,
   onJournalSettingsSelect,
-  onJournalSelect
+  onJournalSelect,
+  initPreview,
+  setNodeContent
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 
@@ -150,6 +153,7 @@ function* getJournalSetting(api, journalSettingId, journalConfig) {
   }
 
   if (!journalSetting) {
+    journalSettingId = '';
     journalSetting = getDefaultJournalSetting(journalConfig);
   }
 
@@ -160,6 +164,12 @@ function* getJournalSetting(api, journalSettingId, journalConfig) {
     setColumnsSetup({
       columns: journalSetting.groupBy.length ? journalConfig.columns : journalSetting.columns,
       sortBy: journalSetting.sortBy
+    })
+  );
+  yield put(
+    setGrouping({
+      columns: journalSetting.groupBy.length ? journalSetting.columns : [],
+      groupBy: journalSetting.groupBy
     })
   );
 
@@ -323,6 +333,15 @@ function* sagaDeleteJournalSetting({ api, logger }, action) {
   }
 }
 
+function* sagaInitPreview({ api, logger }, action) {
+  try {
+    const nodeContent = yield call(api.journals.getNodeContent, action.payload);
+    yield put(setNodeContent(nodeContent));
+  } catch (e) {
+    logger.error('[journals sagaInitPreview saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getDashletConfig().type, sagaGetDashletConfig, ea);
   yield takeLatest(getDashletEditorData().type, sagaGetDashletEditorData, ea);
@@ -342,6 +361,8 @@ function* saga(ea) {
 
   yield takeLatest(onJournalSettingsSelect().type, sagaOnJournalSettingsSelect, ea);
   yield takeLatest(onJournalSelect().type, sagaOnJournalSelect, ea);
+
+  yield takeLatest(initPreview().type, sagaInitPreview, ea);
 }
 
 export default saga;

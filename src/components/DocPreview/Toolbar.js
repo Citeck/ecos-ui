@@ -80,13 +80,13 @@ class Toolbar extends Component {
   handlePrev = () => {
     const { currentPage } = this.state;
 
-    this.goToPage(null, --currentPage);
+    this.goToPage(null, currentPage - 1);
   };
 
   handleNext = () => {
-    let { currentPage } = this.state;
+    const { currentPage } = this.state;
 
-    this.goToPage(null, ++currentPage);
+    this.goToPage(null, currentPage + 1);
   };
 
   goToPage = (e, page) => {

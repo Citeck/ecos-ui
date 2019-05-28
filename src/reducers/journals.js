@@ -17,7 +17,8 @@ import {
   setJournalSettings,
   setPredicate,
   setColumnsSetup,
-  setGrouping
+  setGrouping,
+  setNodeContent
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { t } from '../helpers/util';
@@ -84,7 +85,9 @@ const initialState = {
     height: 0,
     top: 0,
     row: {}
-  }
+  },
+
+  nodeContent: null
 };
 
 Object.freeze(initialState);
@@ -95,6 +98,12 @@ export default handleActions(
       return {
         ...state,
         predicate: action.payload
+      };
+    },
+    [setNodeContent]: (state, action) => {
+      return {
+        ...state,
+        nodeContent: action.payload
       };
     },
     [setColumnsSetup]: (state, action) => {
@@ -114,8 +123,8 @@ export default handleActions(
         ...state,
         journalSettings: [
           {
-            id: '',
-            preferences: { title: t('journals.default') },
+            fileId: '',
+            data: { title: t('journals.default') },
             notRemovable: true
           },
           ...Array.from(action.payload)
@@ -161,7 +170,7 @@ export default handleActions(
         ...state,
         config: {
           ...state.config,
-          journalSettingId: action.payload.id
+          journalSettingId: action.payload
         }
       };
     },

@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import BootstrapTable from 'react-bootstrap-table-next';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import Checkbox from '../../form/Checkbox/Checkbox';
-import PerfectScrollbar from 'react-perfect-scrollbar';
+import { Scrollbars } from 'react-custom-scrollbars';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { t, getId, trigger } from '../../../../helpers/util';
 
@@ -40,11 +40,59 @@ export default class Grid extends Component {
   componentDidMount() {
     this.createCloseFilterEvent();
     this.createColumnResizeEvents();
+    this.createKeydownEvents();
   }
 
   componentWillUnmount() {
     this.removeCloseFilterEvent();
     this.removeColumnResizeEvents();
+    this.removeKeydownEvents();
+  }
+
+  createKeydownEvents() {
+    document.addEventListener('keydown', this.onKeydown.bind(this));
+  }
+
+  removeKeydownEvents() {
+    document.removeEventListener('keydown', this.onKeydown.bind(this));
+  }
+
+  onKeydown(e) {
+    const props = this.props;
+
+    switch (e.keyCode) {
+      case 38:
+        if (this._byRowClickSelectedRow && this._byRowClickSelectedRow.previousSibling) {
+          this._byRowClickSelectedRow = this._byRowClickSelectedRow.previousSibling;
+
+          if (typeof props.onPrevRowSelected === 'function') {
+            props.onPrevRowSelected.call(
+              this,
+              e,
+              this.getTrOffsets(this._byRowClickSelectedRow),
+              props.data[this._byRowClickSelectedRow.rowIndex - 1]
+            );
+          }
+        }
+
+        break;
+      case 40:
+        if (this._byRowClickSelectedRow && this._byRowClickSelectedRow.nextSibling) {
+          this._byRowClickSelectedRow = this._byRowClickSelectedRow.nextSibling;
+
+          if (typeof props.onNextRowSelected === 'function') {
+            props.onNextRowSelected.call(
+              this,
+              e,
+              this.getTrOffsets(this._byRowClickSelectedRow),
+              props.data[this._byRowClickSelectedRow.rowIndex - 1]
+            );
+          }
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   setAdditionalOptions(props) {
@@ -68,9 +116,22 @@ export default class Grid extends Component {
       props.cellEdit = this.setEditable(props.editable);
     }
 
+    props.rowEvents = props.rowEvents || {};
+
     if (typeof props.onMouseEnter === 'function') {
-      props.rowEvents = { onMouseEnter: e => props.onMouseEnter.call(this, e, this.getTrOffsets(e)) };
+      props.rowEvents = { onMouseEnter: e => props.onMouseEnter.call(this, e, this.getTrOffsets(e.currentTarget)), ...props.rowEvents };
     }
+
+    this._byRowClickSelectedRow = null;
+    props.rowEvents = {
+      onClick: e => {
+        if (typeof props.onRowClick === 'function') {
+          this._byRowClickSelectedRow = e.currentTarget;
+          props.onRowClick.call(this, e, this.getTrOffsets(e.currentTarget), props.data[e.currentTarget.rowIndex - 1]);
+        }
+      },
+      ...props.rowEvents
+    };
 
     if (props.multiSelectable) {
       props.selectRow = this.createMultiSelectioCheckboxs(props);
@@ -83,8 +144,7 @@ export default class Grid extends Component {
     return props;
   }
 
-  getTrOffsets = e => {
-    const tr = e.currentTarget;
+  getTrOffsets = tr => {
     const height = tr.offsetHeight - 2;
     const top = tr.offsetTop - 1;
     const row = this.props.data[tr.rowIndex - 1];
@@ -286,11 +346,20 @@ export default class Grid extends Component {
     return null;
   };
 
+  onMouseLeave = e => {
+    trigger.call(this, 'onMouseLeave', e);
+  };
+
+  onScrollStart = () => {
+    this.triggerCloseFilterEvent(document.body);
+  };
+
   render() {
     let props = {
       keyField: this._keyField,
       bootstrap4: true,
       bordered: false,
+      scrollable: true,
       headerClasses: 'ecos-grid__header',
       noDataIndication: () => t('grid.no-data-indication'),
       ...this.props
@@ -300,26 +369,35 @@ export default class Grid extends Component {
 
     const toolsVisible = this.toolsVisible();
 
+    const gridStyle = props.minHeight ? { minHeight: props.minHeight } : { height: '100%' };
+    const scrollStyle = props.minHeight ? { height: props.minHeight } : { autoHeight: true };
+
+    const Scroll = ({ scrollable, children, style }) =>
+      scrollable ? (
+        <Scrollbars onScrollStart={this.onScrollStart} style={style} hideTracksWhenNotNeeded={true}>
+          {children}
+        </Scrollbars>
+      ) : (
+        <Fragment>{children}</Fragment>
+      );
+
     if (props.columns.length) {
       return (
         <div
           key={this._id}
-          style={{ minHeight: props.minHeight }}
+          style={gridStyle}
           className={classNames(
             'ecos-grid',
             (props.singleSelectable || props.multiSelectable) && 'ecos-grid_checkable',
             this.props.className
           )}
+          onMouseLeave={this.onMouseLeave}
         >
           {toolsVisible ? this.tools() : null}
 
-          <PerfectScrollbar
-            style={{ minHeight: props.minHeight }}
-            onScrollX={this.triggerCloseFilterEvent}
-            onScrollY={this.triggerCloseFilterEvent}
-          >
+          <Scroll scrollable={props.scrollable} style={scrollStyle}>
             <BootstrapTable {...props} />
-          </PerfectScrollbar>
+          </Scroll>
 
           {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
             <BootstrapTable {...props} classes={'ecos-grid__freeze'} />

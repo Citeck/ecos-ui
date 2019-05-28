@@ -1,12 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
+import { push } from 'connected-react-router';
+import { withRouter } from 'react-router';
 import CollapsableList from '../../common/CollapsableList/CollapsableList';
 import { IcoBtn } from '../../common/btns';
 import { Well } from '../../common/form';
 import { deleteJournalSetting, onJournalSettingsSelect, onJournalSelect } from '../../../actions/journals';
 import { getPropByStringKey, t } from '../../../helpers/util';
+import { setJournalSettingId, setJournalId } from '../urlManager';
 
 import './JournalsMenu.scss';
+
+const JOURNAL_SETTING_ID_FIELD = 'fileId';
 
 const mapStateToProps = state => ({
   journals: state.journals.journals,
@@ -18,7 +23,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   deleteJournalSetting: id => dispatch(deleteJournalSetting(id)),
   onJournalSettingsSelect: journalSettingId => dispatch(onJournalSettingsSelect(journalSettingId)),
-  onJournalSelect: journalId => dispatch(onJournalSelect(journalId))
+  onJournalSelect: journalId => dispatch(onJournalSelect(journalId)),
+  push: url => dispatch(push(url))
 });
 
 class ListItem extends Component {
@@ -66,11 +72,11 @@ class JournalsMenu extends Component {
   };
 
   onJournalSettingsSelect = setting => {
-    this.props.onJournalSettingsSelect(setting.id);
+    this.props.onJournalSettingsSelect(setting[JOURNAL_SETTING_ID_FIELD]);
   };
 
   deleteJournalSettings = item => {
-    this.props.deleteJournalSetting(item.id);
+    this.props.deleteJournalSetting(item[JOURNAL_SETTING_ID_FIELD]);
   };
 
   getMenuJornals = journals => {
@@ -84,7 +90,7 @@ class JournalsMenu extends Component {
         onDelete={this.deleteJournalSettings}
         removable
         item={setting}
-        titleField={'preferences.title'}
+        titleField={'data.title'}
       />
     ));
   };
@@ -100,6 +106,8 @@ class JournalsMenu extends Component {
 
   render() {
     const {
+      push,
+      history,
       journalSetting,
       journalSettings,
       journals,
@@ -108,6 +116,10 @@ class JournalsMenu extends Component {
         meta: { nodeRef }
       }
     } = this.props;
+    const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
+
+    push(setJournalSettingId(history.location, journalSettingId));
+    push(setJournalId(history.location, nodeRef));
 
     if (!open) {
       return null;
@@ -140,7 +152,7 @@ class JournalsMenu extends Component {
           <CollapsableList
             classNameList={'ecos-list-group_mode_journal'}
             list={this.getMenuJournalSettings(journalSettings)}
-            selected={this.getSelectedIndex(journalSettings, journalSetting.id, 'id') || 0}
+            selected={this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD) || 0}
           >
             {t('journals.tpl.defaults')}
           </CollapsableList>
@@ -153,4 +165,4 @@ class JournalsMenu extends Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(JournalsMenu);
+)(withRouter(JournalsMenu));
