@@ -218,6 +218,25 @@ export function getRelativeTime(from, to) {
   return fnTime('relative.years', years_ago);
 }
 
+export function getScrollbarWidth() {
+  const scrollDiv = document.createElement('div');
+
+  scrollDiv.className = 'scrollbar-measure';
+  document.body.appendChild(scrollDiv);
+
+  // Get the scrollbar width
+  const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+
+  // Delete the DIV
+  document.body.removeChild(scrollDiv);
+
+  return scrollbarWidth;
+}
+
+export function deepClone(data) {
+  return JSON.parse(JSON.stringify(data));
+}
+
 export function isPDFbyStr(str) {
   if (!str) return false;
 

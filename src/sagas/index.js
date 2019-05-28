@@ -5,6 +5,7 @@ import header from './header';
 import slideMenu from './slideMenu';
 import user from './user';
 import journals from './journals';
+import pageTabs from './pageTabs';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -13,6 +14,7 @@ export default function* rootSaga(extraArguments) {
     header(extraArguments),
     slideMenu(extraArguments),
     user(extraArguments),
-    journals(extraArguments)
+    journals(extraArguments),
+    pageTabs(extraArguments)
   ]);
 }
