@@ -353,7 +353,7 @@ export default class DashboardSettings extends React.Component {
                     title={item.name}
                     key={item.id}
                     draggableId={item.id}
-                    index={index}
+                    draggableIndex={index}
                     getPositionAdjusment={this.draggablePositionAdjusment}
                     {...item}
                   />
@@ -374,7 +374,7 @@ export default class DashboardSettings extends React.Component {
                       title={item.name}
                       key={item.id}
                       draggableId={item.id}
-                      index={index}
+                      draggableIndex={index}
                       getPositionAdjusment={this.draggablePositionAdjusment}
                       removeItem={item => {
                         this.onRemoveMenuItem(item, index);
@@ -406,6 +406,7 @@ export default class DashboardSettings extends React.Component {
 
   handleDropEndWidget = result => {
     const { source, destination } = result;
+    console.log(result);
     const { widgets, widgetsSelected } = this.state;
 
     if (!destination || destination.droppableId === DROPPABLE_ZONE.WIDGETS_FROM) {
@@ -418,14 +419,18 @@ export default class DashboardSettings extends React.Component {
     switch (source.droppableId) {
       case DROPPABLE_ZONE.WIDGETS_FROM:
         const resultCopy = copy(widgets, widgetsSelected[colIndex], source, destination);
+
         widgetsSelected[colIndex] = setSelected(resultCopy);
-        console.log(widgetsSelected[colIndex]);
         break;
       case destination.droppableId:
         widgetsSelected[colIndex] = reorder(colSelected, source.index, destination.index);
         break;
       default:
-        const resultMove = move(widgets, colSelected, source, destination);
+        const colSourceIndex = source.index;
+        const colSource = widgetsSelected[colSourceIndex];
+        const resultMove = move(colSource, colSelected, source, destination);
+
+        widgetsSelected[colSourceIndex] = resultMove[source.droppableId];
         widgetsSelected[colIndex] = setSelected(resultMove[destination.droppableId]);
         break;
     }
@@ -453,13 +458,15 @@ export default class DashboardSettings extends React.Component {
     return items.map((item, index) => {
       return (
         <DragItem
-          key={item.id}
+          key={item.dndId}
           draggableId={item.dndId}
-          {...item}
-          index={index}
+          draggableIndex={index}
           className={className}
-          getPositionAdjusment={this.draggablePositionAdjusment}
+          title={item.title}
+          selected={item.selected}
+          canRemove={item.canRemove}
           removeItem={onRemoveItem}
+          getPositionAdjusment={this.draggablePositionAdjusment}
         />
       );
     });
@@ -478,6 +485,7 @@ export default class DashboardSettings extends React.Component {
               <div className={'ecos-ds__column-widgets__title'}>{`${t('Колонка')} ${index + 1}`}</div>
               <Droppable
                 droppableId={DROPPABLE_ZONE.WIDGETS_TO + index}
+                droppableIndex={index}
                 className="ecos-ds__drag-container ecos-ds__column-widgets__items"
                 placeholder={t('Перетащите сюда виджеты')}
               >
