@@ -11,7 +11,8 @@ export class Droppable extends React.Component {
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
     id: PropTypes.string.isRequired,
     placeholder: PropTypes.string,
-    direction: PropTypes.string
+    direction: PropTypes.string,
+    isDropDisabled: PropTypes.bool
   };
 
   static defaultProps = {
@@ -19,7 +20,8 @@ export class Droppable extends React.Component {
     children: null,
     style: {},
     placeholder: '',
-    direction: 'vertical'
+    direction: 'vertical',
+    isDropDisabled: false
   };
 
   className(isDraggingOver = false, draggingFromThisWith = false) {
@@ -54,10 +56,10 @@ export class Droppable extends React.Component {
   };
 
   render() {
-    const { id, style, direction } = this.props;
+    const { id, style, direction, isDropDisabled } = this.props;
 
     return (
-      <DropWrapper droppableId={id} direction={direction}>
+      <DropWrapper droppableId={id} direction={direction} isDropDisabled={isDropDisabled}>
         {(provided, snapshot) => (
           <div ref={provided.innerRef} className={this.className(snapshot.isDraggingOver, snapshot.draggingFromThisWith)} style={style}>
             <React.Fragment>

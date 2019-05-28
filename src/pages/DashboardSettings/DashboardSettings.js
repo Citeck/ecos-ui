@@ -335,6 +335,7 @@ export default class DashboardSettings extends React.Component {
               placeholder={t('Нет доступных пунктов меню')}
               style={{ marginRight: '10px' }}
               direction="horizontal"
+              isDropDisabled={true}
             >
               {menuItems.length &&
                 menuItems.map((item, index) => (
@@ -488,6 +489,7 @@ export default class DashboardSettings extends React.Component {
               id={DROPPABLE_ZONE.WIDGETS_FROM}
               className="ecos-ds__drag-container ecos-ds__drag-container_col"
               placeholder={t('Нет доступных виджетов')}
+              isDropDisabled={true}
             >
               {this.renderDragItems(widgets)}
             </Droppable>
