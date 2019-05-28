@@ -7,6 +7,7 @@ import './drag-item.scss';
 
 export class DragItem extends React.Component {
   static propTypes = {
+    draggableId: PropTypes.string.isRequired,
     className: PropTypes.string,
     title: PropTypes.string,
     selected: PropTypes.bool,
@@ -108,10 +109,10 @@ export class DragItem extends React.Component {
   };
 
   render() {
-    const { id, index } = this.props;
+    const { draggableId, index } = this.props;
 
     return (
-      <Draggable draggableId={id} index={index}>
+      <Draggable draggableId={draggableId} index={index}>
         {this.renderBody}
       </Draggable>
     );
