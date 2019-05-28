@@ -9,7 +9,7 @@ export class Droppable extends React.Component {
     className: PropTypes.string,
     style: PropTypes.object,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
-    id: PropTypes.string.isRequired,
+    droppableId: PropTypes.string.isRequired,
     placeholder: PropTypes.string,
     direction: PropTypes.string,
     isDropDisabled: PropTypes.bool
@@ -56,10 +56,10 @@ export class Droppable extends React.Component {
   };
 
   render() {
-    const { id, style, direction, isDropDisabled } = this.props;
+    const { droppableId, style, direction, isDropDisabled } = this.props;
 
     return (
-      <DropWrapper droppableId={id} direction={direction} isDropDisabled={isDropDisabled}>
+      <DropWrapper droppableId={droppableId} direction={direction} isDropDisabled={isDropDisabled}>
         {(provided, snapshot) => (
           <div ref={provided.innerRef} className={this.className(snapshot.isDraggingOver, snapshot.draggingFromThisWith)} style={style}>
             <React.Fragment>

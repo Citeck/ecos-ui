@@ -1,6 +1,7 @@
 import React from 'react';
 import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
+import uuidV4 from 'uuid/v4';
 import { MENU_POSITION } from '../../constants/dashboard';
 import { t } from '../../helpers/util';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
@@ -102,13 +103,14 @@ export default class DashboardSettings extends React.Component {
       menuSelected: []
     };
 
-    this.initWidgetsSelected();
+    this.initWidgets();
   }
 
-  initWidgetsSelected() {
+  initWidgets() {
     this.state.widgetsSelected = this.selectedLayout.columns.map(item => {
       return this.setSelected(item.widgets);
     });
+    this.state.widgets.forEach(value => (value.dndId = uuidV4()));
   }
 
   setSelected = items => {
@@ -328,7 +330,7 @@ export default class DashboardSettings extends React.Component {
         <div className="ecos-ds__drag">
           <DragDropContext onDragEnd={this.handleDropEndMenu}>
             <Droppable
-              id={DROPPABLE_ZONE.MENU_FROM}
+              droppableId={DROPPABLE_ZONE.MENU_FROM}
               className="ecos-ds__drag-container"
               placeholder={t('Нет доступных пунктов меню')}
               style={{ marginRight: '10px' }}
@@ -340,6 +342,7 @@ export default class DashboardSettings extends React.Component {
                   <DragItem
                     title={item.name}
                     key={item.id}
+                    draggableId={item.id}
                     index={index}
                     getPositionAdjusment={this.draggablePositionAdjusment}
                     {...item}
@@ -347,7 +350,7 @@ export default class DashboardSettings extends React.Component {
                 ))}
             </Droppable>
             <Droppable
-              id={DROPPABLE_ZONE.MENU_TO}
+              droppableId={DROPPABLE_ZONE.MENU_TO}
               className="ecos-ds__drag-container ecos-ds__drag-container_menu-to"
               placeholder={t('Перетащите пункты меню сюда')}
               direction="horizontal"
@@ -360,6 +363,7 @@ export default class DashboardSettings extends React.Component {
                     <DragItem
                       title={item.name}
                       key={item.id}
+                      draggableId={item.id}
                       index={index}
                       getPositionAdjusment={this.draggablePositionAdjusment}
                       removeItem={item => {
@@ -433,6 +437,7 @@ export default class DashboardSettings extends React.Component {
       return (
         <DragItem
           key={item.id}
+          draggableId={item.dndId}
           {...item}
           index={index}
           className={className}
@@ -455,7 +460,7 @@ export default class DashboardSettings extends React.Component {
             <div className={'ecos-ds__column-widgets'} key={key_id}>
               <div className={'ecos-ds__column-widgets__title'}>{`${t('Колонка')} ${index + 1}`}</div>
               <Droppable
-                id={DROPPABLE_ZONE.WIDGETS_TO + index}
+                droppableId={DROPPABLE_ZONE.WIDGETS_TO + index}
                 className="ecos-ds__drag-container ecos-ds__column-widgets__items"
                 placeholder={t('Перетащите сюда виджеты')}
               >
@@ -484,7 +489,7 @@ export default class DashboardSettings extends React.Component {
         <div className="ecos-ds__container-group">
           <DragDropContext onDragEnd={this.handleDropEndWidget}>
             <Droppable
-              id={DROPPABLE_ZONE.WIDGETS_FROM}
+              droppableId={DROPPABLE_ZONE.WIDGETS_FROM}
               className="ecos-ds__drag-container ecos-ds__drag-container_col"
               placeholder={t('Нет доступных виджетов')}
               isDropDisabled={true}
