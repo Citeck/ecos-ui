@@ -5,23 +5,36 @@ $ecos_btn_grey5: ecos-btn_grey5;
 
 .ecos-drag-item {
   $root: &;
+  $width: 100%;
+  $max-width: 250px;
 
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
   height: 32px;
-  max-width: 250px;
+  //max-width: 250px;
   background: $color-white;
   mix-blend-mode: normal;
   box-shadow: $box-shadow-default;
   border-radius: 6px;
   box-sizing: border-box;
   padding: 0 7px;
-  margin: 5px;
+  margin: 0 10px 10px 0;
+  flex-basis: 250px;
+  max-width: 100%;
+
+  &:last-child {
+    margin-bottom: 0;
+    margin-right: 0;
+  }
 
   &_selected {
     background: $color-gray-4;
     box-shadow: none;
+  }
+
+  &_full {
+    width: 100%;
   }
 
   &__title {
