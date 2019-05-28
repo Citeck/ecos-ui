@@ -159,7 +159,7 @@ export default class DashboardSettings extends React.Component {
       }
 
       if (item.position === column.position) {
-        let newWidgets = new Array(item.columns);
+        let newWidgets = new Array(item.columns.length);
 
         newWidgets.fill([]);
         newWidgets.forEach((value, index) => {
