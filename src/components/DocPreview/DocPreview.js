@@ -17,13 +17,17 @@ class DocPreview extends Component {
     link: PropTypes.string.isRequired,
     className: PropTypes.string,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+    scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    isSync: PropTypes.bool,
+    errMsg: PropTypes.string
   };
 
   static defaultProps = {
     className: '',
     height: 'inherit',
-    scale: 0.5
+    scale: 0.5,
+    isSync: false,
+    errMsg: ''
   };
 
   static className = 'ecos-doc-preview';
@@ -34,7 +38,7 @@ class DocPreview extends Component {
     this.state = {
       pdf: {},
       settings: {},
-      isLoading: this.isPDF,
+      isLoading: !props.isSync || this.isPDF,
       scrollPage: 0,
       isFullscreen: false
     };
@@ -43,17 +47,19 @@ class DocPreview extends Component {
   componentDidMount() {
     if (this.isPDF) {
       const { link } = this.props;
-      const loadingTask = pdfjs.getDocument(link);
 
-      loadingTask.promise.then(
-        pdf => {
-          this.setState({ pdf, isLoading: false });
-        },
-        err => {
-          console.error(`Error during loading document: ${err}`);
-          this.setState({ isLoading: false });
-        }
-      );
+      if (link) {
+        this.loadPDF(link);
+      }
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    let oldProps = this.props;
+    let { link } = nextProps;
+
+    if (oldProps.link !== link) {
+      this.loadPDF(link);
     }
   }
 
@@ -62,6 +68,34 @@ class DocPreview extends Component {
 
     return isPDFbyStr(link);
   }
+
+  get commonProps() {
+    const { height, errMsg } = this.props;
+    const { settings, isLoading } = this.state;
+
+    return {
+      settings,
+      height,
+      isLoading,
+      errMsg,
+      calcScale: this.setCalcScale,
+      onFullscreen: this.onFullscreen
+    };
+  }
+
+  loadPDF = link => {
+    const loadingTask = pdfjs.getDocument(link);
+
+    loadingTask.promise.then(
+      pdf => {
+        this.setState({ pdf, isLoading: false });
+      },
+      err => {
+        console.error(`Error during loading document: ${err}`);
+        this.setState({ isLoading: false });
+      }
+    );
+  };
 
   onChangeSettings = settings => {
     this.setState({ settings });
@@ -97,29 +131,15 @@ class DocPreview extends Component {
   };
 
   pdfViewer() {
-    const { height } = this.props;
-    const { pdf, settings, isLoading } = this.state;
-    const commonProps = {
-      settings,
-      height,
-      calcScale: this.setCalcScale,
-      onFullscreen: this.onFullscreen
-    };
+    const { pdf } = this.state;
 
-    return <Pdf pdf={pdf} isLoading={isLoading} scrollPage={this.setScrollPage} {...commonProps} />;
+    return <Pdf pdf={pdf} scrollPage={this.setScrollPage} {...this.commonProps} />;
   }
 
   imgViewer() {
-    const { link, height } = this.props;
-    const { settings } = this.state;
-    const commonProps = {
-      settings,
-      height,
-      calcScale: this.setCalcScale,
-      onFullscreen: this.onFullscreen
-    };
+    const { link } = this.props;
 
-    return <Img urlImg={link} {...commonProps} />;
+    return <Img urlImg={link} {...this.commonProps} />;
   }
 
   render() {
