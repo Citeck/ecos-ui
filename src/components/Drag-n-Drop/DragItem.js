@@ -17,7 +17,8 @@ export class DragItem extends React.Component {
     // In order to get the adjustment of the position of the draggable element
     getPositionAdjusment: PropTypes.func,
     isDragDisabled: PropTypes.bool,
-    isCloning: PropTypes.bool
+    isCloning: PropTypes.bool,
+    item: PropTypes.object
   };
 
   static defaultProps = {
@@ -28,6 +29,7 @@ export class DragItem extends React.Component {
     isDragDisabled: false,
     isCloning: false,
     draggableIndex: 0,
+    item: null,
     removeItem: () => {},
     getPositionAdjusment: () => ({ top: 0, left: 0 })
   };
@@ -43,8 +45,9 @@ export class DragItem extends React.Component {
   };
 
   removeItem = () => {
-    this.props.removeItem(this.props);
-    console.log({ ...this.props });
+    const { item, draggableId, draggableIndex } = this.props;
+
+    this.props.removeItem({ item, draggable: { draggableId, draggableIndex } });
   };
 
   renderActions() {

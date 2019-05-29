@@ -101,7 +101,7 @@ export default class DashboardSettings extends React.Component {
   initData() {
     const layouts = mock.getLayouts();
     const widgets = setDndId(mock.getWidgets(20));
-    const menuItems = mock.getMenuItems();
+    const menuItems = setDndId(mock.getMenuItems());
 
     const selectedLayout = layouts.filter(item => item.isActive)[0] || {};
     const widgetsSelected = (selectedLayout.columns || []).map(item => {
@@ -214,9 +214,9 @@ export default class DashboardSettings extends React.Component {
 
   get selectedLayout() {
     const { layouts } = this.state;
-    const result = layouts.filter(item => item.isActive);
+    const result = layouts.find(item => item.isActive);
 
-    return result && result.length ? result[0] : {};
+    return result && result.length ? result : {};
   }
 
   get selectedLayoutIndex() {
@@ -281,12 +281,12 @@ export default class DashboardSettings extends React.Component {
     left: this.menuWidth
   });
 
-  onRemoveMenuItem = (item, index) => {
+  onRemoveMenuItem = ({ item }) => {
     const { menuSelected, menuItems } = this.state;
-    const { id, name } = item;
+    const delIndex = menuSelected.findIndex(val => val.id === item.id);
 
-    menuItems.push({ id, name });
-    menuSelected.splice(index, 1);
+    menuItems.push(item);
+    menuSelected.splice(delIndex, 1);
 
     this.setState({ menuSelected, menuItems });
   };
@@ -315,8 +315,8 @@ export default class DashboardSettings extends React.Component {
                 menuItems.map((item, index) => (
                   <DragItem
                     title={item.name}
-                    key={item.id}
-                    draggableId={item.id}
+                    key={`all-${item.id}-${index}`}
+                    draggableId={item.dndId}
                     draggableIndex={index}
                     getPositionAdjusment={this.draggablePositionAdjusment}
                   />
@@ -334,15 +334,14 @@ export default class DashboardSettings extends React.Component {
                   <DragItem
                     className="ecos-ds__column-widgets__items__cell ecos-drag-item_full"
                     title={item.name}
-                    key={item.id}
-                    draggableId={item.id}
+                    key={`selected-${item.id}-${index}`}
+                    draggableId={item.dndId}
                     draggableIndex={index}
                     getPositionAdjusment={this.draggablePositionAdjusment}
-                    removeItem={item => {
-                      this.onRemoveMenuItem(item, index);
-                    }}
+                    removeItem={this.onRemoveMenuItem}
                     selected={true}
                     canRemove={true}
+                    item={item}
                   />
                 ))}
             </Droppable>
@@ -461,6 +460,7 @@ export default class DashboardSettings extends React.Component {
                         this.onRemoveWidget(item, index);
                       }}
                       getPositionAdjusment={this.draggablePositionAdjusment}
+                      item={item}
                     />
                   ))}
               </Droppable>
