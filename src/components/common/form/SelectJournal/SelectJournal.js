@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { IcoBtn, Btn } from '../../../common/btns';
 import Grid from '../../../common/grid/Grid/Grid';
 import Pagination from '../../../common/Pagination/Pagination';
@@ -457,15 +458,19 @@ export default class SelectJournal extends Component {
 
             <div className={'select-journal__grid'}>
               {!isGridDataReady ? <Loader /> : null}
-              <Grid
-                {...gridData}
-                singleSelectable={!multiple}
-                multiSelectable={multiple}
-                onSelect={this.onSelectGridItem}
-                selectAllRecords={null}
-                selectAllRecordsVisible={null}
-                className={!isGridDataReady ? 'grid_transparent' : ''}
-              />
+
+              <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={500}>
+                <Grid
+                  {...gridData}
+                  singleSelectable={!multiple}
+                  multiSelectable={multiple}
+                  onSelect={this.onSelectGridItem}
+                  selectAllRecords={null}
+                  selectAllRecordsVisible={null}
+                  className={!isGridDataReady ? 'grid_transparent' : ''}
+                  scrollable={false}
+                />
+              </Scrollbars>
 
               <Pagination
                 className={'select-journal__pagination'}
