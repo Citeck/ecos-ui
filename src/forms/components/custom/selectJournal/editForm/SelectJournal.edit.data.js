@@ -1,3 +1,5 @@
+const CUSTOM_PREDICATE_FIELD = 'customPredicateJs';
+
 export default [
   {
     type: 'textfield',
@@ -31,6 +33,32 @@ export default [
     refreshOn: 'displayColumnsAsyncData',
     clearOnRefresh: true,
     dataSrc: 'custom'
+  },
+  {
+    weight: 25,
+    type: 'panel',
+    title: 'Custom Predicate',
+    collapsible: true,
+    collapsed: true,
+    style: {
+      'margin-bottom': '20px'
+    },
+    key: ''.concat(CUSTOM_PREDICATE_FIELD, '-js'),
+    components: [
+      {
+        type: 'textarea',
+        key: CUSTOM_PREDICATE_FIELD,
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+      }
+    ]
   },
   {
     type: 'asyncData',
