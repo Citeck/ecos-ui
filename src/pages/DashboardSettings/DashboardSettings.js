@@ -9,19 +9,6 @@ import { DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Dr
 
 import './style.scss';
 
-function getTestWidgets(size) {
-  const arr = new Array(size);
-
-  for (let i = 0; i < arr.length; i++) {
-    arr[i] = {
-      title: i + ' string'.repeat(i + 1),
-      id: `widget-${i}`
-    };
-  }
-
-  return arr;
-}
-
 const DROPPABLE_ZONE = {
   MENU_FROM: 'menuItems',
   MENU_TO: 'menuSelected',
@@ -56,56 +43,35 @@ const copy = (source, destination, droppableSource, droppableDestination) => {
   const destClone = Array.from(destination);
   const item = sourceClone[droppableSource.index];
 
-  destClone.splice(droppableDestination.index, 0, { ...item, dndId: uuidV4() });
+  destClone.splice(droppableDestination.index, 0, { ...item });
 
-  return destClone;
+  return setDndId(destClone);
 };
 
 const setSelected = items => {
-  let arr = Array.from(items || []);
+  const arr = Array.from(items || []);
 
   return arr.map(widget => {
     return { ...widget, selected: true, canRemove: true };
   });
 };
 
+const setDndId = items => {
+  const arr = Array.from(items || []);
+
+  arr.forEach(value => (value.dndId = uuidV4()));
+
+  return arr;
+};
+
 export default class DashboardSettings extends React.Component {
   constructor(props) {
     super(props);
 
-    //fixme test data
-    const widgets = getTestWidgets(20);
-
     this.state = {
-      widgets,
+      layouts: [],
+      widgets: [],
       widgetsSelected: [],
-      columns: [
-        {
-          position: 0,
-          isActive: true,
-          columns: [{ widgets: [] }, { width: '25%', widgets: [] }]
-        },
-        {
-          position: 1,
-          isActive: false,
-          columns: [{ width: '25%', widgets: [] }, { widgets: [] }]
-        },
-        {
-          position: 2,
-          isActive: false,
-          columns: [{ width: '25%' }, {}, { width: '25%' }]
-        },
-        {
-          position: 3,
-          isActive: false,
-          columns: [{ widgets: [] }, { widgets: [] }, { widgets: [] }, { widgets: [] }]
-        },
-        {
-          position: 4,
-          isActive: false,
-          columns: [{ widgets: [] }]
-        }
-      ],
       menus: [
         {
           position: 0,
@@ -121,52 +87,39 @@ export default class DashboardSettings extends React.Component {
         }
       ],
       isShowMenuConstructor: false,
-      menuItems: [
-        { id: 1, name: t('Главная') },
-        { id: 2, name: t('Домашняя') },
-        { id: 22, name: t('Дашборд') },
-        { id: 23, name: t('Настройки') },
-        { id: 24, name: t('Заказы') },
-        { id: 25, name: t('Клиенты') },
-        { id: 26, name: t('Отчеты') },
-        { id: 27, name: t('Банкеты') },
-        { id: 28, name: t('Парковки') },
-        { id: 29, name: t('ГСМ') },
-        { id: 21, name: t('Договоры') },
-        { id: 222, name: t('Встречи') },
-        { id: 221, name: t('Календарь событий') },
-        { id: 223, name: t('График отпусков') },
-        { id: 224, name: t('Основные ссылки') },
-        { id: 225, name: t('Социальные сети') },
-        { id: 232, name: t('Социальные сети') },
-        { id: 234, name: t('Социальные сети') },
-        { id: 228, name: t('Открытие источники (они больше закрытые, чем открытые)') },
-        { id: 226, name: t('Открытие источники (они больше закрытые, чем открытые)') }
-      ],
+      menuItems: [],
       menuSelected: []
     };
 
-    this.initWidgets();
+    this.initData();
   }
 
-  initWidgets() {
-    this.state.widgetsSelected = this.selectedLayout.columns.map(item => {
-      return setSelected(item.widgets);
+  initData() {
+    const layouts = getLayouts();
+    const widgets = setDndId(getTestWidgets(20));
+    const menuItems = getMenuItems();
+
+    const selectedLayout = layouts.filter(item => item.isActive)[0] || {};
+    const widgetsSelected = (selectedLayout.columns || []).map(item => {
+      return setDndId(setSelected(item.widgets));
     });
-    this.state.widgets.forEach(value => (value.dndId = uuidV4()));
+
+    this.state = { ...this.state, layouts, widgets, menuItems, widgetsSelected };
+
+    //this.setState({layouts, widgets, menuItems, widgetsSelected});
   }
 
   /*--------- start Layouts ----------*/
 
   handleClickColumn(column) {
-    let columns = cloneDeep(this.state.columns);
+    let layouts = cloneDeep(this.state.layouts);
     let { widgetsSelected } = this.state;
 
     if (column.isActive) {
       return;
     }
 
-    columns = columns.map(item => {
+    layouts = layouts.map(item => {
       if (item.isActive) {
         item.isActive = false;
       }
@@ -188,7 +141,7 @@ export default class DashboardSettings extends React.Component {
       return item;
     });
 
-    this.setState({ columns, widgetsSelected });
+    this.setState({ layouts, widgetsSelected });
   }
 
   handleClickMenu(menu) {
@@ -217,14 +170,14 @@ export default class DashboardSettings extends React.Component {
   }
 
   renderColumnLayouts() {
-    const { columns } = this.state;
+    const { layouts } = this.state;
 
-    return columns.map(layout => (
+    return layouts.map(layout => (
       <ColumnsLayoutItem
         key={layout.position}
         onClick={this.handleClickColumn.bind(this, layout)}
         active={layout.isActive}
-        config={{ columns: layout.columns }}
+        config={{ columns: layout.columns || [] }}
         className="ecos-ds__container-group-item"
       />
     ));
@@ -256,16 +209,16 @@ export default class DashboardSettings extends React.Component {
   }
 
   get selectedLayout() {
-    const { columns } = this.state;
-    const result = columns.filter(item => item.isActive);
+    const { layouts } = this.state;
+    const result = layouts.filter(item => item.isActive);
 
     return result && result.length ? result[0] : {};
   }
 
   get selectedLayoutIndex() {
-    const { columns } = this.state;
+    const { layouts } = this.state;
 
-    return columns.findIndex(item => item.isActive);
+    return layouts.findIndex(item => item.isActive);
   }
 
   /*--------- start Menu ----------*/
@@ -360,7 +313,6 @@ export default class DashboardSettings extends React.Component {
                     draggableId={item.id}
                     draggableIndex={index}
                     getPositionAdjusment={this.draggablePositionAdjusment}
-                    {...item}
                   />
                 ))}
             </Droppable>
@@ -370,24 +322,21 @@ export default class DashboardSettings extends React.Component {
               placeholder={t('Перетащите пункты меню сюда')}
             >
               {menuSelected.length &&
-                menuSelected.map((item, index) => {
-                  const val = { ...item, selected: true, canRemove: true };
-
-                  return (
-                    <DragItem
-                      className="ecos-ds__column-widgets__items__cell ecos-drag-item_full"
-                      title={item.name}
-                      key={item.id}
-                      draggableId={item.id}
-                      draggableIndex={index}
-                      getPositionAdjusment={this.draggablePositionAdjusment}
-                      removeItem={item => {
-                        this.onRemoveMenuItem(item, index);
-                      }}
-                      {...val}
-                    />
-                  );
-                })}
+                menuSelected.map((item, index) => (
+                  <DragItem
+                    className="ecos-ds__column-widgets__items__cell ecos-drag-item_full"
+                    title={item.name}
+                    key={item.id}
+                    draggableId={item.id}
+                    draggableIndex={index}
+                    getPositionAdjusment={this.draggablePositionAdjusment}
+                    removeItem={item => {
+                      this.onRemoveMenuItem(item, index);
+                    }}
+                    selected={true}
+                    canRemove={true}
+                  />
+                ))}
             </Droppable>
           </DragDropContext>
         </div>
@@ -411,7 +360,7 @@ export default class DashboardSettings extends React.Component {
 
   handleDropEndWidget = result => {
     const { source, destination } = result;
-    console.log(result);
+
     const { widgets, widgetsSelected } = this.state;
 
     if (!destination || destination.droppableId === DROPPABLE_ZONE.WIDGETS_FROM) {
@@ -455,34 +404,13 @@ export default class DashboardSettings extends React.Component {
     }
   };
 
-  renderDragItems(items, onRemoveItem, className = '') {
-    if (!items || (items && !items.length)) {
-      return null;
-    }
-
-    return items.map((item, index) => {
-      return (
-        <DragItem
-          key={item.dndId}
-          draggableId={item.dndId}
-          draggableIndex={index}
-          className={className}
-          title={item.title}
-          selected={item.selected}
-          canRemove={item.canRemove}
-          removeItem={onRemoveItem}
-          getPositionAdjusment={this.draggablePositionAdjusment}
-        />
-      );
-    });
-  }
-
   renderWidgetColumns() {
     const { widgetsSelected } = this.state;
+    const columns = this.selectedLayout.columns || [];
 
     return (
       <div className={'ecos-ds__drag-container_widgets-to'}>
-        {this.selectedLayout.columns.map((item, index) => {
+        {columns.map((item, index) => {
           const key_id = `column-widgets-${index}`;
 
           return (
@@ -495,13 +423,22 @@ export default class DashboardSettings extends React.Component {
                 className="ecos-ds__drag-container ecos-ds__column-widgets__items"
                 placeholder={t('Перетащите сюда виджеты')}
               >
-                {this.renderDragItems(
-                  widgetsSelected[index],
-                  item => {
-                    this.onRemoveWidget(item, index);
-                  },
-                  'ecos-ds__column-widgets__items__cell'
-                )}
+                {widgetsSelected[index] &&
+                  widgetsSelected[index].map((item, index) => (
+                    <DragItem
+                      key={item.dndId}
+                      draggableId={item.dndId}
+                      draggableIndex={index}
+                      className={'ecos-ds__column-widgets__items__cell'}
+                      title={item.title}
+                      selected={true}
+                      canRemove={true}
+                      removeItem={item => {
+                        this.onRemoveWidget(item, index);
+                      }}
+                      getPositionAdjusment={this.draggablePositionAdjusment}
+                    />
+                  ))}
               </Droppable>
             </div>
           );
@@ -525,7 +462,16 @@ export default class DashboardSettings extends React.Component {
               placeholder={t('Нет доступных виджетов')}
               isDropDisabled
             >
-              {this.renderDragItems(widgets)}
+              {widgets.length &&
+                widgets.map((item, index) => (
+                  <DragItem
+                    key={item.dndId}
+                    draggableId={item.dndId}
+                    draggableIndex={index}
+                    title={item.title}
+                    getPositionAdjusment={this.draggablePositionAdjusment}
+                  />
+                ))}
             </Droppable>
             {this.renderWidgetColumns()}
           </DragDropContext>
@@ -551,4 +497,74 @@ export default class DashboardSettings extends React.Component {
       </Container>
     );
   }
+}
+
+//fixme test data
+
+function getTestWidgets(size) {
+  const arr = new Array(size);
+
+  for (let i = 0; i < arr.length; i++) {
+    arr[i] = {
+      title: i + ' string'.repeat(i + 1),
+      id: `widget-${i}`
+    };
+  }
+
+  return arr;
+}
+
+function getLayouts() {
+  return [
+    {
+      position: 0,
+      isActive: true,
+      columns: [{ widgets: [] }, { width: '25%', widgets: [] }]
+    },
+    {
+      position: 1,
+      isActive: false,
+      columns: [{ width: '25%', widgets: [] }, { widgets: [] }]
+    },
+    {
+      position: 2,
+      isActive: false,
+      columns: [{ width: '25%' }, {}, { width: '25%' }]
+    },
+    {
+      position: 3,
+      isActive: false,
+      columns: [{ widgets: [] }, { widgets: [] }, { widgets: [] }, { widgets: [] }]
+    },
+    {
+      position: 4,
+      isActive: false,
+      columns: [{ widgets: [] }]
+    }
+  ];
+}
+
+function getMenuItems() {
+  return [
+    { id: 1, name: t('Главная') },
+    { id: 2, name: t('Домашняя') },
+    { id: 22, name: t('Дашборд') },
+    { id: 23, name: t('Настройки') },
+    { id: 24, name: t('Заказы') },
+    { id: 25, name: t('Клиенты') },
+    { id: 26, name: t('Отчеты') },
+    { id: 27, name: t('Банкеты') },
+    { id: 28, name: t('Парковки') },
+    { id: 29, name: t('ГСМ') },
+    { id: 21, name: t('Договоры') },
+    { id: 222, name: t('Встречи') },
+    { id: 221, name: t('Календарь событий') },
+    { id: 223, name: t('График отпусков') },
+    { id: 224, name: t('Основные ссылки') },
+    { id: 225, name: t('Социальные сети') },
+    { id: 232, name: t('Социальные сети') },
+    { id: 234, name: t('Социальные сети') },
+    { id: 228, name: t('Открытие источники (они больше закрытые, чем открытые)') },
+    { id: 226, name: t('Открытие источники (они больше закрытые, чем открытые)') }
+  ];
 }
