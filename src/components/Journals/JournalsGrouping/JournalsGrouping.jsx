@@ -36,6 +36,7 @@ class JournalsGrouping extends Component {
         header={t('journals.grouping.header')}
         className={'journals-grouping__panel-bar'}
         css={{ headerClassName: 'panel-bar__header_upper' }}
+        open={false}
       >
         <Grouping
           className={'journals-grouping'}

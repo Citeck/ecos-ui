@@ -80,7 +80,7 @@ const PREDICATE_LIST_TYPE_BOOLEAN = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NO
 const PREDICATE_LIST_TYPE_NODEREF = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_QNAME = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_AUTHORITY = [PREDICATE_CONTAINS, PREDICATE_NOT_CONTAINS, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
-const PREDICATE_LIST_TYPE_NO_CONTROL_YET = [PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
+const PREDICATE_LIST_TYPE_NO_CONTROL_YET = [PREDICATE_NOT_EMPTY, PREDICATE_EMPTY];
 const PREDICATE_LIST_TYPE_FILTER_GROUP = [PREDICATE_AND, PREDICATE_OR];
 
 let allPredicates = [];
@@ -152,6 +152,23 @@ export function getPredicateInput(field, sourceId) {
     { label: t('react-select.value-false.label'), value: false }
   ];
 
+  const input = {
+    component: Input,
+    defaultValue: '',
+    getProps: ({ predicateValue, changePredicateValue, applyFilters }) => ({
+      className: 'ecos-input_narrow',
+      value: predicateValue,
+      onChange: function(e) {
+        changePredicateValue(e.target.value);
+      },
+      onKeyDown: function(e) {
+        if (e.key === 'Enter') {
+          applyFilters();
+        }
+      }
+    })
+  };
+
   switch (field.type) {
     case COLUMN_DATA_TYPE_DATE:
     case COLUMN_DATA_TYPE_DATETIME:
@@ -180,22 +197,7 @@ export function getPredicateInput(field, sourceId) {
     case COLUMN_DATA_TYPE_CATEGORY:
     case COLUMN_DATA_TYPE_NODEREF:
     case COLUMN_DATA_TYPE_QNAME:
-      return {
-        component: Input,
-        defaultValue: '',
-        getProps: ({ predicateValue, changePredicateValue, applyFilters }) => ({
-          className: 'ecos-input_narrow',
-          value: predicateValue,
-          onChange: function(e) {
-            changePredicateValue(e.target.value);
-          },
-          onKeyDown: function(e) {
-            if (e.key === 'Enter') {
-              applyFilters();
-            }
-          }
-        })
-      };
+      return input;
     case COLUMN_DATA_TYPE_OPTIONS:
       const loadOptions = () => {
         return new Promise(resolve => {
@@ -287,6 +289,6 @@ export function getPredicateInput(field, sourceId) {
       };
     /* eslint-disable-next-line */
     default:
-      return null;
+      return input;
   }
 }

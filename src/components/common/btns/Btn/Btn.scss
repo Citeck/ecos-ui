@@ -216,6 +216,10 @@ button {
     margin-right: 15px;
   }
 
+  &.ecos-btn_x-step_10 {
+    margin-right: 10px;
+  }
+
   /*Colors*/
   &.ecos-btn_blue {
     background: $color-blue-dark;
@@ -253,6 +257,12 @@ button {
   &.ecos-btn_white {
     background: $color-white;
     color: $color-gray-5;
+
+    &:focus,
+    &:active {
+      background: $color-white;
+      color: $color-gray-5;
+    }
   }
 
   &.ecos-btn_grey1 {
@@ -288,6 +298,12 @@ button {
   &.ecos-btn_grey4 {
     background: $color-white;
     color: $color-gray-6;
+
+    &:active,
+    &:focus {
+      background: $color-white;
+      color: $color-gray-6;
+    }
   }
 
   &.ecos-btn_grey5 {
@@ -332,6 +348,13 @@ button {
     &:focus,
     &:hover {
       background: $color-blue-light;
+    }
+  }
+
+  &.ecos-btn_hover_blue2 {
+    &:hover {
+      background-color: $color-blue-dark;
+      color: $color-white;
     }
   }
 

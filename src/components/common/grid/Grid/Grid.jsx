@@ -35,6 +35,7 @@ export default class Grid extends Component {
     this._resizingTh = null;
     this._startResizingThOffset = 0;
     this._keyField = props.keyField || 'id';
+    this.scrollValues = {};
   }
 
   componentDidMount() {
@@ -145,11 +146,12 @@ export default class Grid extends Component {
   }
 
   getTrOffsets = tr => {
+    const { scrollLeft = 0 } = this.scrollValues;
     const height = tr.offsetHeight - 2;
     const top = tr.offsetTop - 1;
     const row = this.props.data[tr.rowIndex - 1];
 
-    return { height, top, row };
+    return { height, top, row, left: scrollLeft };
   };
 
   setEditable = () => {
@@ -350,8 +352,13 @@ export default class Grid extends Component {
     trigger.call(this, 'onMouseLeave', e);
   };
 
-  onScrollStart = () => {
+  onScrollStart = e => {
     this.triggerCloseFilterEvent(document.body);
+    trigger.call(this, 'onScrollStart', e);
+  };
+
+  onScrollFrame = e => {
+    this.scrollValues = e;
   };
 
   render() {
@@ -374,7 +381,13 @@ export default class Grid extends Component {
 
     const Scroll = ({ scrollable, children, style }) =>
       scrollable ? (
-        <Scrollbars onScrollStart={this.onScrollStart} style={style} hideTracksWhenNotNeeded={true}>
+        <Scrollbars
+          onScrollStart={this.onScrollStart}
+          onScrollFrame={this.onScrollFrame}
+          style={style}
+          hideTracksWhenNotNeeded={true}
+          renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+        >
           {children}
         </Scrollbars>
       ) : (
@@ -397,13 +410,13 @@ export default class Grid extends Component {
 
           <Scroll scrollable={props.scrollable} style={scrollStyle}>
             <BootstrapTable {...props} />
+
+            {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
+              <BootstrapTable {...props} classes={'ecos-grid__freeze'} />
+            ) : null}
+
+            {this.inlineTools()}
           </Scroll>
-
-          {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
-            <BootstrapTable {...props} classes={'ecos-grid__freeze'} />
-          ) : null}
-
-          {this.inlineTools()}
         </div>
       );
     }

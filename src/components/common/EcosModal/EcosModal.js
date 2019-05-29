@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { ModalHeader, ModalBody } from 'reactstrap';
 import throttle from 'lodash/throttle';
 import Modal from './ModalDraggable';
-import { t } from '../../../helpers/util';
+import { t, trigger } from '../../../helpers/util';
 import './EcosModal.scss';
 
 const zIndex = 10000;
@@ -69,6 +69,8 @@ export default class EcosModal extends Component {
         });
       }
     }
+
+    trigger.call(this, 'onCalculateBounds');
   };
 
   render() {

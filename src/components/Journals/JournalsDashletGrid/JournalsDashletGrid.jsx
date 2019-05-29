@@ -30,7 +30,7 @@ const mapDispatchToProps = dispatch => ({
   setSelectedRecords: records => dispatch(setSelectedRecords(records)),
   setSelectAllRecords: need => dispatch(setSelectAllRecords(need)),
   setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(visible)),
-  setGridInlineToolSettings: ({ top, height, row }) => dispatch(setGridInlineToolSettings({ top, height, row }))
+  setGridInlineToolSettings: settings => dispatch(setGridInlineToolSettings(settings))
 });
 
 class JournalsDashletGrid extends Component {
@@ -182,6 +182,7 @@ class JournalsDashletGrid extends Component {
               onPrevRowSelected={doInlineToolsOnRowClick ? this.onRowClick : null}
               onMouseEnter={doInlineToolsOnRowClick ? null : this.showGridInlineToolSettings}
               onMouseLeave={doInlineToolsOnRowClick ? null : this.hideGridInlineToolSettings}
+              onScrollStart={doInlineToolsOnRowClick ? null : this.hideGridInlineToolSettings}
               onEdit={saveRecords}
               selected={selectedRecords}
               selectAll={selectAllRecords}

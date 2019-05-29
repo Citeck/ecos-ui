@@ -52,7 +52,7 @@ export default class Filter extends Component {
 
         <Columns
           classNamesColumn={'columns_height_full columns-setup__column_align'}
-          cfgs={[{ xl: 2 }, { xl: 4 }, { xl: 5 }, { xl: 1 }]}
+          cfgs={[{ xl: 3 }, { xl: 4 }, { xl: 4 }, { xl: 1 }]}
           cols={[
             <Label className={'ecos-filter_step label_clear label_nowrap label_bold label_middle-grey'}>{column.text}</Label>,
 
@@ -71,7 +71,7 @@ export default class Filter extends Component {
             </div>,
 
             <Fragment>
-              <IcoBtn icon={'icon-delete'} className={btnClasses} onClick={this.delete} />
+              <IcoBtn icon={'icon-delete'} className={classNames(btnClasses, 'ecos-btn_x-step_10')} onClick={this.delete} />
               <IcoBtn icon={'icon-drag'} className={btnClasses} />
             </Fragment>
           ]}

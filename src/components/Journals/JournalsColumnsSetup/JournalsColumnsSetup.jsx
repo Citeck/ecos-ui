@@ -28,6 +28,7 @@ class JournalsColumnsSetup extends Component {
         header={t('journals.columns-setup.header')}
         className={'ecos-journals-columns-setup__panel-bar'}
         css={{ headerClassName: 'panel-bar__header_upper' }}
+        open={false}
       >
         <ColumnsSetup
           classNameToolbar={'ecos-journals-columns-setup__toolbar'}

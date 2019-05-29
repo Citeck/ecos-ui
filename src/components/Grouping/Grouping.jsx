@@ -40,7 +40,7 @@ class AggregationListItem extends Component {
   };
 
   onCheckColumn = e => {
-    !e.checked && trigger.call(this, 'onChangeAggregation', { aggregation: null, column: this.props.column });
+    trigger.call(this, 'onChangeAggregation', { aggregation: e.checked ? this.aggregationTypes[0] : null, column: this.props.column });
   };
 
   render() {
@@ -150,7 +150,13 @@ export default class Grouping extends Component {
         </div>
 
         <div className={'grouping__content'}>
-          <Dnd2List first={this.getFirst(list)} second={grouping} tpl={this.getGroupingList} onMove={this.onGrouping} />
+          <Dnd2List
+            first={this.getFirst(list)}
+            second={grouping}
+            tpl={this.getGroupingList}
+            onMove={this.onGrouping}
+            draggableClassName={'ecos-dnd-list__item_draggable'}
+          />
         </div>
 
         {showAggregation ? (

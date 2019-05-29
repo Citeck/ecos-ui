@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import { Container } from 'reactstrap';
 import { withRouter } from 'react-router';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
@@ -14,9 +13,11 @@ import JournalsSettingBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
 
+import EcosModal from '../common/EcosModal/EcosModal';
 import { getJournalsData, reloadGrid } from '../../actions/journals';
-import { Well } from '../common/form';
 import { getPreview, getCreateRecord } from './urlManager';
+import { Well } from '../common/form';
+import { t } from '../../helpers/util';
 
 import './Journals.scss';
 
@@ -97,6 +98,7 @@ class Journals extends Component {
     const {
       journalConfig,
       journalConfig: {
+        id: journalId,
         columns = [],
         meta: { title = '' }
       }
@@ -106,45 +108,53 @@ class Journals extends Component {
       return null;
     }
 
+    const visibleColumns = columns.filter(c => c.visible);
+
     return (
-      <Container>
-        <div className={'ecos-journal'}>
-          <div className={`ecos-journal__body ${menuOpen ? 'ecos-journal__body_with-menu' : ''}`}>
-            <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} />
+      <div className={'ecos-journal'}>
+        <div className={`ecos-journal__body ${menuOpen ? 'ecos-journal__body_with-menu' : ''}`}>
+          <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} />
 
-            <JournalsTools journalConfig={journalConfig} addRecord={this.addRecord} />
+          <JournalsTools journalConfig={journalConfig} addRecord={this.addRecord} />
 
-            <JournalsSettingBar
-              showPreview={showPreview}
-              showPie={showPie}
-              toggleSettings={this.toggleSettings}
-              togglePreview={this.togglePreview}
-              togglePie={this.togglePie}
-              showGrid={this.showGrid}
-              refresh={this.refresh}
-            />
+          <JournalsSettingBar
+            showPreview={showPreview}
+            showPie={showPie}
+            toggleSettings={this.toggleSettings}
+            togglePreview={this.togglePreview}
+            togglePie={this.togglePie}
+            showGrid={this.showGrid}
+            refresh={this.refresh}
+          />
 
-            {settingsVisible ? (
+          {settingsVisible ? (
+            <EcosModal
+              title={t('journals.action.setting-dialog-msg')}
+              isOpen={settingsVisible}
+              hideModal={this.toggleSettings}
+              isBigHeader
+              className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
+            >
               <Well className={'ecos-journal__settings'}>
-                <JournalsFilters columns={columns} />
+                <JournalsFilters columns={visibleColumns} />
                 <JournalsColumnsSetup columns={columns} />
-                <JournalsGrouping columns={columns} />
-                <JournalsSettingsFooter />
+                <JournalsGrouping columns={visibleColumns} />
+                <JournalsSettingsFooter journalId={journalId} />
               </Well>
-            ) : null}
+            </EcosModal>
+          ) : null}
 
-            <JournalsContent showPreview={showPreview} showPie={showPie} />
+          <JournalsContent showPreview={showPreview} showPie={showPie} />
 
-            <div className={'ecos-journal__footer'}>
-              <JournalsDashletPagination />
-            </div>
-          </div>
-
-          <div className={'ecos-journal__menu'}>
-            <JournalsMenu open={menuOpen} onClose={this.toggleMenu} />
+          <div className={'ecos-journal__footer'}>
+            <JournalsDashletPagination />
           </div>
         </div>
-      </Container>
+
+        <div className={'ecos-journal__menu'}>
+          <JournalsMenu open={menuOpen} onClose={this.toggleMenu} />
+        </div>
+      </div>
     );
   }
 }
