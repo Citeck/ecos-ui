@@ -143,7 +143,8 @@ export default class DashboardSettings extends React.Component {
         { id: 228, name: t('Открытие источники (они больше закрытые, чем открытые)') },
         { id: 226, name: t('Открытие источники (они больше закрытые, чем открытые)') }
       ],
-      menuSelected: []
+      menuSelected: [],
+      draggableDestination: ''
     };
 
     this.initWidgets();
@@ -273,6 +274,8 @@ export default class DashboardSettings extends React.Component {
   handleDropEndMenu = result => {
     const { source, destination } = result;
 
+    this.setState({ draggableDestination: '' });
+
     if (!destination) {
       return;
     }
@@ -333,7 +336,7 @@ export default class DashboardSettings extends React.Component {
   };
 
   renderMenuConstructor() {
-    const { menuItems, menuSelected, isShowMenuConstructor } = this.state;
+    const { menuItems, menuSelected, isShowMenuConstructor, draggableDestination } = this.state;
 
     if (!isShowMenuConstructor) {
       return null;
@@ -342,15 +345,15 @@ export default class DashboardSettings extends React.Component {
     return (
       <React.Fragment>
         <h6 className="ecos-ds__container-subtitle">{t('Какие пункты меню следует отображать')}</h6>
-        <div className="ecos-ds__drag">
-          <DragDropContext onDragEnd={this.handleDropEndMenu}>
+        <div className="ecos-ds__drag ecos-ds__drag_menu">
+          <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDropEndMenu}>
             <Droppable
               droppableId={DROPPABLE_ZONE.MENU_FROM}
-              className="ecos-ds__drag-container"
+              className="ecos-ds__drag-container ecos-ds__drag-container_menu-from"
               placeholder={t('Нет доступных пунктов меню')}
               style={{ marginRight: '10px' }}
               direction="horizontal"
-              isDropDisabled={true}
+              isDropDisabled
             >
               {menuItems.length &&
                 menuItems.map((item, index) => (
@@ -368,6 +371,8 @@ export default class DashboardSettings extends React.Component {
               droppableId={DROPPABLE_ZONE.MENU_TO}
               className="ecos-ds__drag-container ecos-ds__drag-container_menu-to"
               placeholder={t('Перетащите пункты меню сюда')}
+              childPosition="column"
+              isDragingOver={draggableDestination === DROPPABLE_ZONE.MENU_TO}
             >
               {menuSelected.length &&
                 menuSelected.map((item, index) => {
@@ -409,10 +414,25 @@ export default class DashboardSettings extends React.Component {
 
   /*--------- start Widgets ----------*/
 
+  handleDragUpdate = provided => {
+    const { destination, source } = provided;
+
+    if (!destination || !source) {
+      this.setState({ draggableDestination: '' });
+      return;
+    }
+
+    this.setState({
+      draggableDestination: source.droppableId !== destination.droppableId ? destination.droppableId : ''
+    });
+  };
+
   handleDropEndWidget = result => {
     const { source, destination } = result;
     console.log(result);
     const { widgets, widgetsSelected } = this.state;
+
+    this.setState({ draggableDestination: '' });
 
     if (!destination || destination.droppableId === DROPPABLE_ZONE.WIDGETS_FROM) {
       return;
@@ -455,7 +475,7 @@ export default class DashboardSettings extends React.Component {
     }
   };
 
-  renderDragItems(items, onRemoveItem, className = '') {
+  renderDragItems(items, isCloning = false, onRemoveItem, className = '') {
     if (!items || (items && !items.length)) {
       return null;
     }
@@ -463,6 +483,7 @@ export default class DashboardSettings extends React.Component {
     return items.map((item, index) => {
       return (
         <DragItem
+          isCloning={isCloning}
           key={item.dndId}
           draggableId={item.dndId}
           draggableIndex={index}
@@ -478,7 +499,7 @@ export default class DashboardSettings extends React.Component {
   }
 
   renderWidgetColumns() {
-    const { widgetsSelected } = this.state;
+    const { widgetsSelected, draggableDestination } = this.state;
 
     return (
       <div className={'ecos-ds__drag-container_widgets-to'}>
@@ -494,9 +515,11 @@ export default class DashboardSettings extends React.Component {
                 childPosition="column"
                 className="ecos-ds__drag-container ecos-ds__column-widgets__items"
                 placeholder={t('Перетащите сюда виджеты')}
+                isDragingOver={draggableDestination === DROPPABLE_ZONE.WIDGETS_TO + index}
               >
                 {this.renderDragItems(
                   widgetsSelected[index],
+                  false,
                   item => {
                     this.onRemoveWidget(item, index);
                   },
@@ -518,14 +541,14 @@ export default class DashboardSettings extends React.Component {
         <h5 className="ecos-ds__container-title">{t('Виджеты')}</h5>
         <h6 className="ecos-ds__container-subtitle">{t('Выберите где и какие виджеты отображать.')}</h6>
         <div className="ecos-ds__container-group">
-          <DragDropContext onDragEnd={this.handleDropEndWidget}>
+          <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDropEndWidget}>
             <Droppable
               droppableId={DROPPABLE_ZONE.WIDGETS_FROM}
               className="ecos-ds__drag-container ecos-ds__drag-container_col"
               placeholder={t('Нет доступных виджетов')}
-              isDropDisabled
+              isDropDisabled={true}
             >
-              {this.renderDragItems(widgets)}
+              {this.renderDragItems(widgets, true)}
             </Droppable>
             {this.renderWidgetColumns()}
           </DragDropContext>

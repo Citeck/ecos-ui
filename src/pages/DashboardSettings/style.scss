@@ -71,6 +71,10 @@
     width: 100%;
     justify-content: flex-start;
 
+    &_menu {
+      height: 270px;
+    }
+
     &_multiline {
       flex-wrap: wrap;
     }
@@ -85,9 +89,17 @@
         min-width: 100%;
       }
 
-      &_menu-to {
-        flex-basis: 40%;
-        max-width: 298px;
+      &_menu {
+        &-to {
+          flex-basis: 40%;
+          max-width: 298px;
+          height: 100%;
+        }
+
+        &-from {
+          margin-right: 10px;
+          height: 100%;
+        }
       }
 
       &_widgets-to {

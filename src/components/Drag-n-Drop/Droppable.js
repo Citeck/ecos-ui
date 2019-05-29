@@ -2,12 +2,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Droppable as DropWrapper } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
-// import PerfectScrollbar from 'react-perfect-scrollbar'
-// import SimpleBar from 'simplebar-react';
-
 import './style.scss';
-// import 'react-perfect-scrollbar/dist/css/styles.css';
-// import 'simplebar/dist/simplebar.min.css';
 
 export class Droppable extends React.Component {
   static propTypes = {
@@ -19,6 +14,7 @@ export class Droppable extends React.Component {
     placeholder: PropTypes.string,
     direction: PropTypes.string,
     isDropDisabled: PropTypes.bool,
+    isDragingOver: PropTypes.bool,
     childPosition: PropTypes.oneOf(['column', 'row'])
   };
 
@@ -30,12 +26,8 @@ export class Droppable extends React.Component {
     direction: 'vertical',
     isDropDisabled: false,
     droppableIndex: 0,
+    isDragingOver: false,
     childPosition: 'row'
-  };
-
-  state = {
-    isDraggingOver: false,
-    draggingFromThisWith: true
   };
 
   className() {
@@ -54,15 +46,14 @@ export class Droppable extends React.Component {
   }
 
   get wrapperClassName() {
-    const { className } = this.props;
-    const { isDraggingOver, draggingFromThisWith } = this.state;
+    const { className, isDragingOver } = this.props;
     const classes = ['ecos-dnd__droppable-wrapper'];
 
     if (className) {
       classes.push(className);
     }
 
-    if (isDraggingOver && !draggingFromThisWith) {
+    if (isDragingOver) {
       classes.push('ecos-dnd__droppable-wrapper_over');
     }
 
@@ -72,11 +63,6 @@ export class Droppable extends React.Component {
   renderChildren = (provided, snapshot) => {
     const { children, placeholder, style } = this.props;
     let body = <div className="ecos-dnd__placeholder">{placeholder}</div>;
-
-    this.setState({
-      isDraggingOver: snapshot.isDraggingOver,
-      draggingFromThisWith: snapshot.draggingFromThisWith
-    });
 
     if (children) {
       body = (
@@ -106,7 +92,13 @@ export class Droppable extends React.Component {
     return (
       <div className={this.wrapperClassName}>
         <Scrollbars style={{ height: '100%' }} autoHide renderTrackHorizontal={props => <div {...props} hidden />}>
-          <DropWrapper droppableId={droppableId} direction={direction} isDropDisabled={isDropDisabled} index={droppableIndex}>
+          <DropWrapper
+            ignoreContainerClipping
+            droppableId={droppableId}
+            direction={direction}
+            isDropDisabled={isDropDisabled}
+            index={droppableIndex}
+          >
             {this.renderChildren}
           </DropWrapper>
         </Scrollbars>

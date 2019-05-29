@@ -32,9 +32,21 @@ $ecos_btn_grey5: ecos-btn_grey5;
     box-shadow: none;
   }
 
+  &_disabled {
+    background: $color-gray-4;
+    cursor: not-allowed !important;
+  }
+
+  &_clone {
+    user-select: none;
+    pointer-events: none;
+    //display: none !important;
+  }
+
   &_full {
     width: 100%;
     max-width: 100%;
+    margin-right: 0;
   }
 
   &__title {

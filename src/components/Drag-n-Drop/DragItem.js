@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
@@ -15,7 +15,9 @@ export class DragItem extends React.Component {
     canRemove: PropTypes.bool,
     removeItem: PropTypes.func,
     // In order to get the adjustment of the position of the draggable element
-    getPositionAdjusment: PropTypes.func
+    getPositionAdjusment: PropTypes.func,
+    isDragDisabled: PropTypes.bool,
+    isCloning: PropTypes.bool
   };
 
   static defaultProps = {
@@ -23,6 +25,8 @@ export class DragItem extends React.Component {
     title: '',
     selected: false,
     canRemove: false,
+    isDragDisabled: false,
+    isCloning: false,
     draggableIndex: 0,
     removeItem: () => {},
     getPositionAdjusment: () => ({ top: 0, left: 0 })
@@ -31,9 +35,11 @@ export class DragItem extends React.Component {
   _className = 'ecos-drag-item';
 
   getDragItemStyle = (isDragging, draggableStyle) => {
-    const { className, selected } = this.props;
+    const { className, selected, isDragDisabled } = this.props;
 
-    return classNames(this._className, className, { [`${this._className}_selected`]: selected }, { test: isDragging }, draggableStyle);
+    return classNames(this._className, className, { [`${this._className}_selected`]: selected }, { test: isDragging }, draggableStyle, {
+      [`${this._className}_disabled`]: isDragDisabled
+    });
   };
 
   removeItem = () => {
@@ -80,6 +86,16 @@ export class DragItem extends React.Component {
     );
   }
 
+  renderDoppelganger(isDragging) {
+    const { isCloning } = this.props;
+
+    if (!isDragging || !isCloning) {
+      return null;
+    }
+
+    return <div className={`${this.props.className} ${this._className} ${this._className}_clone`}>{this.renderItem()}</div>;
+  }
+
   renderBody = (provided, snapshot) => {
     const positionAdjusment = this.props.getPositionAdjusment();
 
@@ -99,22 +115,27 @@ export class DragItem extends React.Component {
     }
 
     return (
-      <div
-        ref={provided.innerRef}
-        {...provided.draggableProps}
-        {...provided.dragHandleProps}
-        className={this.getDragItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-      >
-        {this.renderItem()}
-      </div>
+      <Fragment>
+        {this.renderDoppelganger(snapshot.isDragging)}
+
+        <div
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          className={this.getDragItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+          style={provided.draggableProps.style}
+        >
+          {this.renderItem()}
+        </div>
+      </Fragment>
     );
   };
 
   render() {
-    const { draggableId, draggableIndex } = this.props;
+    const { draggableId, draggableIndex, isDragDisabled } = this.props;
 
     return (
-      <Draggable draggableId={draggableId} index={draggableIndex}>
+      <Draggable draggableId={draggableId} index={draggableIndex} isDragDisabled={isDragDisabled}>
         {this.renderBody}
       </Draggable>
     );
