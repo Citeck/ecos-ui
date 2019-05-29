@@ -61,8 +61,8 @@ export default class SelectJournal extends Component {
     return null;
   }
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.api = new JournalsApi();
   }
 
@@ -83,9 +83,7 @@ export default class SelectJournal extends Component {
     }
 
     if (initValue) {
-      this.fetchDisplayNames(initValue).then(value => {
-        this.setValue(value, false);
-      });
+      this.setValue(initValue, false);
     }
   }
 
@@ -100,7 +98,6 @@ export default class SelectJournal extends Component {
       this.api.getJournalConfig(journalId).then(journalConfig => {
         // console.log('journalConfig', journalConfig);
         let columns = journalConfig.columns;
-        const predicate = journalConfig.meta.predicate;
 
         if (Array.isArray(displayColumns) && displayColumns.length > 0) {
           columns = columns.map(item => {
@@ -111,12 +108,14 @@ export default class SelectJournal extends Component {
           });
         }
 
+        const predicate = journalConfig.meta.predicate;
+
         this.setState(prevState => {
           return {
             requestParams: {
               ...prevState.requestParams,
               columns,
-              journalConfigPredicate: predicate,
+              journalPredicate: predicate,
               predicates: []
             },
             journalConfig,
@@ -134,7 +133,18 @@ export default class SelectJournal extends Component {
           isGridDataReady: false
         },
         () => {
-          return this.api.getGridDataUsePredicates(this.state.requestParams).then(gridData => {
+          let requestParams = this.state.requestParams;
+          if (this.props.customPredicate) {
+            requestParams = {
+              ...requestParams,
+              journalPredicate: {
+                t: 'and',
+                val: [requestParams.journalPredicate, this.props.customPredicate]
+              }
+            };
+          }
+
+          return this.api.getGridDataUsePredicates(requestParams).then(gridData => {
             // console.log('gridData', gridData);
 
             // setTimeout(() => {
@@ -181,22 +191,23 @@ export default class SelectJournal extends Component {
   };
 
   onSelect = () => {
-    const selectedRows = this.state.gridData.selected;
-    this.fetchDisplayNames(selectedRows).then(value => {
-      this.setValue(value).then(() => {
-        this.setState({
-          isSelectModalOpen: false
-        });
+    this.setValue(this.state.gridData.selected).then(() => {
+      this.setState({
+        isSelectModalOpen: false
       });
     });
   };
 
   fetchDisplayNames = selectedRows => {
-    return Promise.all(selectedRows.map(r => Records.get(r).load('.disp'))).then(dispNames => {
+    return Promise.all(
+      selectedRows.map(r => {
+        return r.disp || Records.get(r).load('.disp');
+      })
+    ).then(dispNames => {
       let result = [];
       for (let i = 0; i < selectedRows.length; i++) {
         result.push({
-          id: selectedRows[i],
+          id: selectedRows[i].id || selectedRows[i],
           disp: dispNames[i] || selectedRows[i]
         });
       }
@@ -207,32 +218,40 @@ export default class SelectJournal extends Component {
   setValue = (selected, shouldTriggerOnChange = true) => {
     const { onChange, multiple } = this.props;
 
-    let newValue;
-    if (multiple) {
-      newValue = selected.map(item => item.id);
-    } else {
-      newValue = selected.length > 0 ? selected[0]['id'] : null;
+    if (!selected) {
+      selected = [];
+    } else if (!Array.isArray(selected)) {
+      selected = [selected];
     }
 
-    return new Promise(resolve => {
-      this.setState(
-        prevState => {
-          return {
-            value: newValue,
-            selectedRows: selected,
-            gridData: {
-              ...prevState.gridData,
-              selected: selected.map(item => item.id)
+    return this.fetchDisplayNames(selected).then(selected => {
+      let newValue;
+      if (multiple) {
+        newValue = selected.map(item => item.id);
+      } else {
+        newValue = selected.length > 0 ? selected[0]['id'] : null;
+      }
+
+      return new Promise(resolve => {
+        this.setState(
+          prevState => {
+            return {
+              value: newValue,
+              selectedRows: selected,
+              gridData: {
+                ...prevState.gridData,
+                selected: selected.map(item => item.id)
+              }
+            };
+          },
+          () => {
+            if (shouldTriggerOnChange && typeof onChange === 'function') {
+              onChange(newValue);
             }
-          };
-        },
-        () => {
-          if (shouldTriggerOnChange && typeof onChange === 'function') {
-            onChange(newValue);
+            resolve();
           }
-          resolve();
-        }
-      );
+        );
+      });
     });
   };
 
@@ -288,10 +307,7 @@ export default class SelectJournal extends Component {
       isEditModalOpen: false
     });
 
-    const selectedRows = this.state.gridData.selected;
-    this.fetchDisplayNames(selectedRows).then(value => {
-      this.setValue(value);
-    });
+    this.setValue(this.state.gridData.selected);
 
     this.refreshGridData();
   };

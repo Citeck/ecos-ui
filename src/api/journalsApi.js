@@ -54,11 +54,11 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getGridDataUsePredicates = ({ columns, pagination, journalConfigPredicate, predicates }) => {
+  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates }) => {
     const query = {
       t: 'and',
       val: [
-        journalConfigPredicate,
+        journalPredicate,
         ...predicates.filter(item => {
           return item.val !== '' && item.val !== null;
         })
