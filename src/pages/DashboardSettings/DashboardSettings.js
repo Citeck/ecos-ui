@@ -6,6 +6,7 @@ import { MENU_POSITION } from '../../constants/dashboard';
 import { t } from '../../helpers/util';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
+import { Btn } from '../../components/common/btns';
 
 import './style.scss';
 
@@ -480,6 +481,23 @@ export default class DashboardSettings extends React.Component {
     );
   }
 
+  handleCancel = () => {};
+
+  handleAccept = () => {};
+
+  renderButtons() {
+    return (
+      <div className={'ecos-ds__actions'}>
+        <Btn className={'ecos-btn_x-step_10'} onClick={this.handleCancel()}>
+          {t('Отмена')}
+        </Btn>
+        <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.handleAccept()}>
+          {t('Применить')}
+        </Btn>
+      </div>
+    );
+  }
+
   render() {
     return (
       <Container>
@@ -493,6 +511,7 @@ export default class DashboardSettings extends React.Component {
           {this.renderColumnsBlock()}
           {this.renderWidgetsBlock()}
           {this.renderMenuBlock()}
+          {this.renderButtons()}
         </div>
       </Container>
     );
