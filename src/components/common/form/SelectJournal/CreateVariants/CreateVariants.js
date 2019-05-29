@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Btn } from '../../../../common/btns';
 import EcosForm from '../../../../EcosForm/EcosForm';
 import EcosModal from '../../../EcosModal';
+import Records from '../../../../Records';
 import Dropdown from '../../Dropdown/Dropdown';
 import { IcoBtn } from '../../../btns';
 import { t } from '../../../../../helpers/util';
@@ -13,6 +14,17 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
   }
 
   const [record, setRecord] = useState(null);
+  const [displayName, setDisplayName] = useState();
+  useEffect(() => {
+    Records.get(record)
+      .load('.disp')
+      .then(disp => setDisplayName(disp));
+  }, [record, setDisplayName]);
+
+  let title = t('select-journal.create-modal.title');
+  if (displayName) {
+    title = `${title}: ${displayName}`;
+  }
 
   let createButton;
   if (items.length === 1) {
@@ -48,7 +60,7 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
       }}
       className="ecos-modal_width-lg"
       isBigHeader={true}
-      title={t('select-journal.create-modal.title')}
+      title={title}
       isOpen={isCreateModalOpen}
       hideModal={toggleCreateModal}
     >

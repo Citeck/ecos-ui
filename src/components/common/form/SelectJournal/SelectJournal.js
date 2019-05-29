@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { IcoBtn, Btn } from '../../../common/btns';
 import Grid from '../../../common/grid/Grid/Grid';
 import Pagination from '../../../common/Pagination/Pagination';
@@ -33,6 +34,7 @@ export default class SelectJournal extends Component {
     isCreateModalOpen: false,
     isEditModalOpen: false,
     editRecordId: null,
+    editRecordName: null,
     isJournalConfigFetched: false,
     journalConfig: {
       meta: []
@@ -327,10 +329,16 @@ export default class SelectJournal extends Component {
   };
 
   onValueEdit = e => {
-    this.setState({
-      isEditModalOpen: true,
-      editRecordId: e.target.dataset.id
-    });
+    const editRecordId = e.target.dataset.id;
+    Records.get(editRecordId)
+      .load('.disp')
+      .then(disp => {
+        this.setState({
+          isEditModalOpen: true,
+          editRecordId: editRecordId,
+          editRecordName: disp
+        });
+      });
   };
 
   onValueDelete = e => {
@@ -373,6 +381,7 @@ export default class SelectJournal extends Component {
       isCollapsePanelOpen,
       gridData,
       editRecordId,
+      editRecordName,
       requestParams,
       journalConfig,
       error
@@ -395,13 +404,23 @@ export default class SelectJournal extends Component {
       openSelectModal: this.openSelectModal
     };
 
+    let selectModalTitle = t('select-journal.select-modal.title');
+    let editModalTitle = t('select-journal.edit-modal.title');
+    if (journalConfig.meta.title) {
+      selectModalTitle += `: ${journalConfig.meta.title}`;
+    }
+
+    if (editRecordName) {
+      editModalTitle += `: ${editRecordName}`;
+    }
+
     return (
       <div className={wrapperClasses}>
         {viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />}
 
         <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} api={this.api}>
           <EcosModal
-            title={t('select-journal.select-modal.title')}
+            title={selectModalTitle}
             isOpen={isSelectModalOpen}
             hideModal={this.toggleSelectModal}
             className={'select-journal-select-modal'}
@@ -439,15 +458,19 @@ export default class SelectJournal extends Component {
 
             <div className={'select-journal__grid'}>
               {!isGridDataReady ? <Loader /> : null}
-              <Grid
-                {...gridData}
-                singleSelectable={!multiple}
-                multiSelectable={multiple}
-                onSelect={this.onSelectGridItem}
-                selectAllRecords={null}
-                selectAllRecordsVisible={null}
-                className={!isGridDataReady ? 'grid_transparent' : ''}
-              />
+
+              <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={500}>
+                <Grid
+                  {...gridData}
+                  singleSelectable={!multiple}
+                  multiSelectable={multiple}
+                  onSelect={this.onSelectGridItem}
+                  selectAllRecords={null}
+                  selectAllRecordsVisible={null}
+                  className={!isGridDataReady ? 'grid_transparent' : ''}
+                  scrollable={false}
+                />
+              </Scrollbars>
 
               <Pagination
                 className={'select-journal__pagination'}
@@ -472,7 +495,7 @@ export default class SelectJournal extends Component {
           }}
           className="ecos-modal_width-lg"
           isBigHeader={true}
-          title={t('select-journal.edit-modal.title')}
+          title={editModalTitle}
           isOpen={isEditModalOpen}
           hideModal={this.toggleEditModal}
         >

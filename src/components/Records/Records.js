@@ -413,7 +413,7 @@ class Record {
     this._attributes = {};
   }
 
-  getAttributesToPersist() {
+  getAttributesToPersist(useRawKeys = false) {
     let attributesToPersist = {};
 
     for (let attName in this._attributes) {
@@ -422,6 +422,9 @@ class Record {
       }
 
       let attribute = this._attributes[attName];
+      if (useRawKeys && attName.indexOf('"') !== 1) {
+        attName = attName.split('"')[1];
+      }
 
       if (!attribute.isPersisted()) {
         attributesToPersist[attName] = attribute.value;
