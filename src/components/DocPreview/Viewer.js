@@ -20,12 +20,15 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
         scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
         isFullscreen: PropTypes.bool,
         currentPage: PropTypes.number
-      })
+      }),
+      errMsg: PropTypes.string
     };
 
     static defaultProps = {
+      isLoading: false,
       scrollPage: () => {},
-      settings: {}
+      settings: {},
+      errMsg: ''
     };
 
     constructor(props) {
@@ -89,10 +92,14 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     }
 
     get checkMessage() {
-      let { pdf, urlImg } = this.props;
+      let { pdf, urlImg, isLoading, errMsg } = this.props;
+
+      if (isLoading) {
+        return null;
+      }
 
       if (pdf === undefined && !urlImg) {
-        return { type: 'error', msg: t('Не указан документ для просмтора') };
+        return { type: 'error', msg: t(errMsg || 'Документ не указан') };
       }
 
       if (pdf && Object.keys(pdf).length && !pdf._pdfInfo) {
