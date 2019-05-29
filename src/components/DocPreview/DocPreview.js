@@ -48,9 +48,7 @@ class DocPreview extends Component {
     if (this.isPDF) {
       const { link } = this.props;
 
-      if (link) {
-        this.loadPDF(link);
-      }
+      this.loadPDF(link);
     }
   }
 
