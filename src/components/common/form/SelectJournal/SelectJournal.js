@@ -18,6 +18,7 @@ import { JournalsApi } from '../../../../api/journalsApi';
 import { t } from '../../../../helpers/util';
 import './SelectJournal.scss';
 import Records from '../../../Records';
+import isEqual from 'lodash/isEqual';
 
 const paginationInitState = {
   skipCount: 0,
@@ -48,7 +49,8 @@ export default class SelectJournal extends Component {
       predicates: []
     },
     selectedRows: [],
-    error: null
+    error: null,
+    customPredicate: null
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -84,6 +86,17 @@ export default class SelectJournal extends Component {
 
     if (initValue) {
       this.setValue(initValue, false);
+    }
+  }
+
+  setCustomPredicate(customPredicate) {
+    if (!isEqual(this.state.customPredicate, customPredicate)) {
+      let state = { customPredicate };
+      if (this.state.wasChangedFromPopup) {
+        state.isGridDataReady = false;
+        this.setValue(null);
+      }
+      this.setState(state);
     }
   }
 
@@ -134,12 +147,12 @@ export default class SelectJournal extends Component {
         },
         () => {
           let requestParams = this.state.requestParams;
-          if (this.props.customPredicate) {
+          if (this.state.customPredicate) {
             requestParams = {
               ...requestParams,
               journalPredicate: {
                 t: 'and',
-                val: [requestParams.journalPredicate, this.props.customPredicate]
+                val: [requestParams.journalPredicate, this.state.customPredicate]
               }
             };
           }
@@ -190,10 +203,11 @@ export default class SelectJournal extends Component {
     });
   };
 
-  onSelect = () => {
+  onSelectFromJournalPopup = () => {
     this.setValue(this.state.gridData.selected).then(() => {
       this.setState({
-        isSelectModalOpen: false
+        isSelectModalOpen: false,
+        wasChangedFromPopup: true
       });
     });
   };
@@ -445,7 +459,7 @@ export default class SelectJournal extends Component {
 
             <div className="select-journal-select-modal__buttons">
               <Btn onClick={this.onCancelSelect}>{t('select-journal.select-modal.cancel-button')}</Btn>
-              <Btn className={'ecos-btn_blue'} onClick={this.onSelect}>
+              <Btn className={'ecos-btn_blue'} onClick={this.onSelectFromJournalPopup}>
                 {t('select-journal.select-modal.ok-button')}
               </Btn>
             </div>
