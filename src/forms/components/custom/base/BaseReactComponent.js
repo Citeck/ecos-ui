@@ -22,6 +22,12 @@ export default class BaseReactComponent extends BaseComponent {
       this.react.resolve = null;
       return component;
     });
+    this.react.innerPromise = new Promise(innerResolve => {
+      this.react.innerResolve = innerResolve;
+    }).then(comp => {
+      this.react.innerResolve = null;
+      return comp;
+    });
 
     this.restoreValue();
 
@@ -62,13 +68,9 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   updateReactComponent(updateFunc) {
-    if (this.react.resolve) {
-      this.react.wrapper.then(w => {
-        updateFunc(w.getComponent());
-      });
-    } else {
-      updateFunc(this.react.wrapper.getComponent());
-    }
+    this.react.innerPromise.then(comp => {
+      updateFunc(comp);
+    });
   }
 
   setReactProps(props) {
@@ -99,8 +101,29 @@ export default class BaseReactComponent extends BaseComponent {
   renderReactComponent() {
     if (this.react.resolve) {
       const render = props => {
+        this.react.isMounted = false;
+        this.react.innerComponent = null;
+
+        const updateLoadingState = () => {
+          if (this.react.isMounted && this.react.innerComponent && this.react.innerResolve) {
+            this.react.innerResolve(this.react.innerComponent);
+          }
+        };
+
         ReactDOM.render(
-          <RawHtmlWrapper component={this.getComponentToRender()} ref={this.react.resolve} props={props} />,
+          <RawHtmlWrapper
+            onMounted={() => {
+              this.react.isMounted = true;
+              updateLoadingState();
+            }}
+            onComponentLoaded={comp => {
+              this.react.innerComponent = comp;
+              updateLoadingState();
+            }}
+            component={this.getComponentToRender()}
+            ref={this.react.resolve}
+            props={props}
+          />,
           this.react.container
         );
       };
