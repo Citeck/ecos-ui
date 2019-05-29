@@ -422,13 +422,39 @@ export default class SelectComponent extends BaseComponent {
       url += (!url.includes('?') ? '?' : '&') + Formio.serialize(query, item => this.interpolate(item));
     }
 
+    this.loading = true;
+    let resolveItems = items => {
+      this.loading = false;
+      const scrollTop = !this.scrollLoading && this.currentItems.length === 0;
+      this.setItems(items, !!search);
+
+      typeof callback === 'function' && callback();
+
+      if (scrollTop && this.choices) {
+        this.choices.choiceList.scrollToTop();
+      }
+    };
+
+    let rejectItems = err => {
+      this.stopInfiniteScroll();
+      this.loading = false;
+      this.itemsLoadedResolve();
+
+      typeof callback === 'function' && callback();
+
+      this.emit('componentError', {
+        component: this.component,
+        message: err.toString()
+      });
+      console.warn(`Unable to load resources for ${this.key}`);
+    };
+
     let filter = this.component.filter;
     if (this.component.data.url === '/citeck/ecos/records/query' && !filter) {
       this.getRecord()
         .load('#' + this.getAttributeToEdit() + '?options')
-        .then(options => {
-          this.setItems(options, !!search);
-        });
+        .then(resolveItems)
+        .catch(rejectItems);
       return;
     }
 
@@ -459,32 +485,9 @@ export default class SelectComponent extends BaseComponent {
 
     // Make the request.
     options.header = headers;
-    this.loading = true;
     Formio.makeRequest(this.options.formio, 'select', url, method, body, options)
-      .then(response => {
-        this.loading = false;
-        const scrollTop = !this.scrollLoading && this.currentItems.length === 0;
-        this.setItems(response, !!search);
-
-        typeof callback === 'function' && callback();
-
-        if (scrollTop && this.choices) {
-          this.choices.choiceList.scrollToTop();
-        }
-      })
-      .catch(err => {
-        this.stopInfiniteScroll();
-        this.loading = false;
-        this.itemsLoadedResolve();
-
-        typeof callback === 'function' && callback();
-
-        this.emit('componentError', {
-          component: this.component,
-          message: err.toString()
-        });
-        console.warn(`Unable to load resources for ${this.key}`);
-      });
+      .then(resolveItems)
+      .catch(rejectItems);
   }
 
   /**

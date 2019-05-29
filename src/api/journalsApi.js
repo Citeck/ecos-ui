@@ -54,11 +54,11 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getGridDataUsePredicates = ({ columns, pagination, journalConfigPredicate, predicates }) => {
+  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates }) => {
     const query = {
       t: 'and',
       val: [
-        journalConfigPredicate,
+        journalPredicate,
         ...predicates.filter(item => {
           return item.val !== '' && item.val !== null;
         })
@@ -118,9 +118,13 @@ export class JournalsApi extends RecordService {
   };
 
   getDashletConfig = id => {
-    return this.getJson(`${PROXY_URI}citeck/dashlet/config?key=${id}`).then(resp => {
-      return resp;
-    });
+    return this.getJson(`${PROXY_URI}citeck/dashlet/config?key=${id}`)
+      .then(resp => {
+        return resp;
+      })
+      .catch(() => {
+        return null;
+      });
   };
 
   saveDashletConfig = (config, id) => {

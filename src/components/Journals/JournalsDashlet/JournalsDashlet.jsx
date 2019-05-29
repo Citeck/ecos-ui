@@ -31,8 +31,11 @@ class JournalsDashlet extends Component {
   showEditor = () => this.props.setEditorMode(true);
 
   goToJournalsPage = () => {
-    const { journalsListId = '', journalId = '', journalSettingId = '' } = this.props.config;
-    const journalPageUrl = getJournalPage({ journalsListId, journalId, journalSettingId });
+    const {
+      config: { journalsListId = '', journalSettingId = '' },
+      journalConfig: { id = '' }
+    } = this.props;
+    const journalPageUrl = getJournalPage({ journalsListId, journalId: id, journalSettingId });
     window.open(journalPageUrl, '_blank');
   };
 
