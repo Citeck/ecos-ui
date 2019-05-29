@@ -103,7 +103,7 @@ export default class DashboardSettings extends React.Component {
     const widgets = setDndId(mock.getWidgets(20));
     const menuItems = setDndId(mock.getMenuItems());
 
-    const selectedLayout = layouts.filter(item => item.isActive)[0] || {};
+    const selectedLayout = layouts.find(item => item.isActive) || {};
     const widgetsSelected = (selectedLayout.columns || []).map(item => {
       return setDndId(setSelected(item.widgets));
     });
