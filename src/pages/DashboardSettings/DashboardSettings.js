@@ -324,9 +324,9 @@ export default class DashboardSettings extends React.Component {
 
   onRemoveMenuItem = (item, index) => {
     const { menuSelected, menuItems } = this.state;
-    const { selected, canRemove, ...newItem } = item;
+    const { id, name } = item;
 
-    menuItems.push(newItem);
+    menuItems.push({ id, name });
     menuSelected.splice(index, 1);
 
     this.setState({ menuSelected, menuItems });
@@ -375,7 +375,7 @@ export default class DashboardSettings extends React.Component {
 
                   return (
                     <DragItem
-                      className="ecos-ds__column-widgets__items__cell"
+                      className="ecos-ds__column-widgets__items__cell ecos-drag-item_full"
                       title={item.name}
                       key={item.id}
                       draggableId={item.id}
@@ -491,6 +491,7 @@ export default class DashboardSettings extends React.Component {
               <Droppable
                 droppableId={DROPPABLE_ZONE.WIDGETS_TO + index}
                 droppableIndex={index}
+                childPosition="column"
                 className="ecos-ds__drag-container ecos-ds__column-widgets__items"
                 placeholder={t('Перетащите сюда виджеты')}
               >

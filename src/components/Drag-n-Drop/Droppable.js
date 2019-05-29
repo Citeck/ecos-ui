@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Droppable as DropWrapper } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -18,7 +18,8 @@ export class Droppable extends React.Component {
     droppableId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     placeholder: PropTypes.string,
     direction: PropTypes.string,
-    isDropDisabled: PropTypes.bool
+    isDropDisabled: PropTypes.bool,
+    childPosition: PropTypes.oneOf(['column', 'row'])
   };
 
   static defaultProps = {
@@ -28,58 +29,88 @@ export class Droppable extends React.Component {
     placeholder: '',
     direction: 'vertical',
     isDropDisabled: false,
-    droppableIndex: 0
+    droppableIndex: 0,
+    childPosition: 'row'
   };
 
-  className(isDraggingOver = false, draggingFromThisWith = false) {
-    const { className } = this.props;
+  state = {
+    isDraggingOver: false,
+    draggingFromThisWith: true
+  };
+
+  className() {
+    const { className, childPosition } = this.props;
     const classes = ['ecos-dnd__droppable'];
 
     if (className) {
       classes.push(className);
     }
 
-    if (isDraggingOver && !draggingFromThisWith) {
-      classes.push('ecos-dnd__droppable_over');
+    if (childPosition) {
+      classes.push(`ecos-dnd__droppable_${childPosition}`);
     }
 
     return classes.join(' ');
   }
 
-  renderChildren = provided => {
-    const { children, placeholder } = this.props;
-    const renderTrackHorizontal = props => <div {...props} hidden />;
-    const renderView = props => <div {...props} className={'ecos-dnd__droppable-scrollbar'} />;
+  get wrapperClassName() {
+    const { className } = this.props;
+    const { isDraggingOver, draggingFromThisWith } = this.state;
+    const classes = ['ecos-dnd__droppable-wrapper'];
+
+    if (className) {
+      classes.push(className);
+    }
+
+    if (isDraggingOver && !draggingFromThisWith) {
+      classes.push('ecos-dnd__droppable-wrapper_over');
+    }
+
+    return classes.join(' ');
+  }
+
+  renderChildren = (provided, snapshot) => {
+    const { children, placeholder, style } = this.props;
+    let body = <div className="ecos-dnd__placeholder">{placeholder}</div>;
+
+    this.setState({
+      isDraggingOver: snapshot.isDraggingOver,
+      draggingFromThisWith: snapshot.draggingFromThisWith
+    });
 
     if (children) {
-      return (
-        <Scrollbars renderView={renderView} renderTrackHorizontal={renderTrackHorizontal}>
-          <div className="ecos-dnd__droppable-children-wrapper">{children}</div>
-          <div className="ecos-dnd__droppable-placeholder">{provided.placeholder}</div>
-        </Scrollbars>
+      body = (
+        <Fragment>
+          {children}
+          {provided.placeholder}
+        </Fragment>
       );
     }
 
-    return <div className="ecos-dnd__placeholder">{placeholder}</div>;
+    return (
+      <div
+        {...provided.draggableProps}
+        {...provided.dragHandleProps}
+        ref={provided.innerRef}
+        className={this.className(snapshot.isDraggingOver, snapshot.draggingFromThisWith)}
+        style={style}
+      >
+        {body}
+      </div>
+    );
   };
 
   render() {
-    const { droppableId, style, direction, isDropDisabled, droppableIndex } = this.props;
+    const { droppableId, direction, isDropDisabled, droppableIndex } = this.props;
 
     return (
-      <DropWrapper droppableId={droppableId} direction={direction} isDropDisabled={isDropDisabled} index={droppableIndex}>
-        {(provided, snapshot) => (
-          <div
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            ref={provided.innerRef}
-            className={this.className(snapshot.isDraggingOver, snapshot.draggingFromThisWith)}
-            style={style}
-          >
-            {this.renderChildren(provided)}
-          </div>
-        )}
-      </DropWrapper>
+      <div className={this.wrapperClassName}>
+        <Scrollbars style={{ height: '100%' }} autoHide renderTrackHorizontal={props => <div {...props} hidden />}>
+          <DropWrapper droppableId={droppableId} direction={direction} isDropDisabled={isDropDisabled} index={droppableIndex}>
+            {this.renderChildren}
+          </DropWrapper>
+        </Scrollbars>
+      </div>
     );
   }
 }

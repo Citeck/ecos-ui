@@ -12,7 +12,7 @@ $ecos_btn_grey5: ecos-btn_grey5;
   align-items: center;
   justify-content: space-between;
   height: 32px;
-  //max-width: 250px;
+  max-width: 200px;
   background: $color-white;
   mix-blend-mode: normal;
   box-shadow: $box-shadow-default;
@@ -20,11 +20,10 @@ $ecos_btn_grey5: ecos-btn_grey5;
   box-sizing: border-box;
   padding: 0 7px;
   margin: 0 10px 10px 0;
-  flex-basis: 250px;
-  max-width: 100%;
+  min-height: 32px;
 
   &:last-child {
-    margin-bottom: 0;
+    margin-bottom: 15px;
     margin-right: 0;
   }
 
@@ -35,6 +34,7 @@ $ecos_btn_grey5: ecos-btn_grey5;
 
   &_full {
     width: 100%;
+    max-width: 100%;
   }
 
   &__title {
