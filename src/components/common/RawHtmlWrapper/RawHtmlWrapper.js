@@ -14,8 +14,10 @@ export default class RawHtmlWrapper extends Component {
     };
   }
 
-  getComponent() {
-    return this.state.component;
+  componentDidMount() {
+    if (this.props.onMounted) {
+      this.props.onMounted();
+    }
   }
 
   setProps(props) {
@@ -27,19 +29,18 @@ export default class RawHtmlWrapper extends Component {
     });
   }
 
+  resolveComponent = component => {
+    if (this.props.onComponentLoaded) {
+      this.props.onComponentLoaded(component);
+    }
+  };
+
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     return !isEqual(nextState.props, this.state.props);
   }
 
   render() {
     let self = this;
-    return (
-      <this.props.component
-        {...self.state.props}
-        ref={component => {
-          self.setState({ component });
-        }}
-      />
-    );
+    return <this.props.component {...self.state.props} ref={self.resolveComponent} />;
   }
 }

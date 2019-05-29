@@ -39,7 +39,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
     let customPredicate = this.evaluate(this.component.customPredicateJs, {}, 'value', true);
     if (!isEqual(customPredicate, this.customPredicateValue)) {
       this.customPredicateValue = customPredicate;
-      this.setReactProps({ customPredicate });
+      this.updateReactComponent(component => component.setCustomPredicate(customPredicate));
     }
 
     return result;
