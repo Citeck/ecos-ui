@@ -44,6 +44,8 @@ function convertAttributePath(path) {
   if (isEdge) {
     if (attSchema === 'options') {
       attSchema = 'options{label:disp,value:str}';
+    } else if (attSchema === 'createVariants') {
+      attSchema = 'createVariants{json}';
     }
     result += 'edge(n:"' + attName + '"){' + attSchema + '}';
   } else {
