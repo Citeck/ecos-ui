@@ -1,13 +1,10 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import BaseComponent from '../base/BaseComponent';
+import BaseReactComponent from '../base/BaseReactComponent';
 import TableForm from '../../../../components/common/form/TableForm';
-import isEqual from 'lodash/isEqual';
 import lodashGet from 'lodash/get';
 
-export default class SelectOrgstructComponent extends BaseComponent {
+export default class SelectOrgstructComponent extends BaseReactComponent {
   static schema(...extend) {
-    return BaseComponent.schema(
+    return BaseReactComponent.schema(
       {
         label: 'TableForm',
         key: 'tableForm',
@@ -44,66 +41,33 @@ export default class SelectOrgstructComponent extends BaseComponent {
     return SelectOrgstructComponent.schema();
   }
 
-  viewOnlyBuild() {} // hide control for viewOnly mode
-
-  build() {
-    if (this.viewOnly) {
-      return this.viewOnlyBuild();
-    }
-
-    this.restoreValue();
-
-    this.createElement();
-
-    const labelAtTheBottom = this.component.labelPosition === 'bottom';
-    if (!labelAtTheBottom) {
-      this.createLabel(this.element);
-    }
-
-    this.reactContainer = this.ce('div');
-    this.element.appendChild(this.reactContainer);
-
-    if (this.shouldDisable) {
-      this.disabled = true;
-    }
-
-    this.errorContainer = this.element;
-    this.createErrorElement();
-
-    this.renderReactComponent();
-
-    // this.setInputStyles(this.inputsContainer);
-
-    if (labelAtTheBottom) {
-      this.createLabel(this.element);
-    }
-
-    this.createDescription(this.element);
-
-    // this.attachLogic();
+  get emptyValue() {
+    return [];
   }
 
-  renderReactComponent(config = {}) {
-    const component = this.component;
-    const onChange = this.onValueChange.bind(this);
+  viewOnlyBuild() {} // hide control for viewOnly mode
 
-    const renderControl = source => {
-      ReactDOM.render(
-        <TableForm
-          defaultValue={this.dataValue}
-          isCompact={component.isCompact}
-          multiple={component.multiple}
-          placeholder={component.placeholder}
-          disabled={component.disabled}
-          onChange={onChange}
-          viewOnly={this.viewOnly}
-          source={source}
-          onError={err => {
-            // this.setCustomValidity(err, false);
-          }}
-        />,
-        this.reactContainer
-      );
+  getComponentToRender() {
+    return TableForm;
+  }
+
+  getInitialReactProps() {
+    let component = this.component;
+
+    let resolveProps = source => {
+      return {
+        defaultValue: component.defaultValue,
+        isCompact: component.isCompact,
+        multiple: component.multiple,
+        placeholder: component.placeholder,
+        disabled: component.disabled,
+        source: source,
+        onChange: this.onReactValueChanged,
+        viewOnly: this.viewOnly,
+        onError: err => {
+          // this.setCustomValidity(err, false);
+        }
+      };
     };
 
     const source = component.source;
@@ -114,11 +78,11 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
         if (!journalId) {
           let attribute = this.getAttributeToEdit();
-          this.getRecord()
+          return this.getRecord()
             .loadEditorKey(attribute)
             .then(editorKey => {
               this.component._journalId = editorKey;
-              renderControl({
+              return resolveProps({
                 ...source,
                 journal: {
                   ...source.journal,
@@ -127,11 +91,10 @@ export default class SelectOrgstructComponent extends BaseComponent {
               });
             });
         } else {
-          renderControl(source);
+          return resolveProps(source);
         }
-        break;
       case 'custom':
-        renderControl({
+        return resolveProps({
           ...source,
           custom: {
             ...source.custom,
@@ -140,39 +103,8 @@ export default class SelectOrgstructComponent extends BaseComponent {
             columns: source.custom.columns.map(item => item.name || item)
           }
         });
-        break;
       default:
-        console.log('TableForm empty source');
+        return resolveProps(null);
     }
-  }
-
-  refreshDOM() {
-    if (this.reactContainer) {
-      this.renderReactComponent();
-    }
-  }
-
-  onValueChange(value) {
-    this.dataValue = value;
-    this.triggerChange();
-    this.refreshDOM();
-  }
-
-  get emptyValue() {
-    // return this.component.multiple ? [] : null;
-    return [];
-  }
-
-  getValue() {
-    return this.dataValue;
-  }
-
-  setValue(value) {
-    if (this.reactContainer && !isEqual(value, this.dataValue)) {
-      ReactDOM.unmountComponentAtNode(this.reactContainer);
-    }
-
-    this.dataValue = value || this.component.defaultValue || this.emptyValue;
-    this.refreshDOM();
   }
 }
