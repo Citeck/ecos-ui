@@ -13,7 +13,7 @@ qname
 category
 noderef
 options
-assoc
++assoc
 person
 authorityGroup
 authority
@@ -35,6 +35,10 @@ const MAP = [
   {
     options: () => 'SelectFormatter',
     enable: column => column.attribute === 'payments:paymentFor'
+  },
+  {
+    options: () => 'AssocFormatter',
+    enable: column => column.type === 'assoc'
   },
   {
     options: column => {

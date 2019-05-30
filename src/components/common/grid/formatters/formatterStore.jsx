@@ -8,6 +8,7 @@ import TaskTitleFormatter from './gql/TaskTitleFormatter';
 import DocumentLinkFormatter from './gql/DocumentLinkFormatter';
 import DateOrDateTimeFormatter from './gql/DateOrDateTimeFormatter';
 import PercentFormatter from './gql/PercentFormatter';
+import AssocFormatter from './gql/AssocFormatter';
 import BooleanFormatter from './gql/BooleanFormatter';
 import SelectFormatter from './gql/SelectFormatter';
 
@@ -22,6 +23,7 @@ const formatterStore = {
   DocumentLinkFormatter,
   DateOrDateTimeFormatter,
   PercentFormatter,
+  AssocFormatter,
   BooleanFormatter,
   SelectFormatter
 };
