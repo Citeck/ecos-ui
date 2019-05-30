@@ -6,7 +6,7 @@ import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletFooter from '../JournalsDashletFooter';
 import { getDashletConfig, setEditorMode, reloadGrid } from '../../../actions/journals';
 import Dashlet from '../../Dashlet/Dashlet';
-import { URL_PAGECONTEXT } from '../../../constants/alfresco';
+import { getJournalPage } from '../urlManager';
 import classNames from 'classnames';
 
 import './JournalsDashlet.scss';
@@ -31,17 +31,12 @@ class JournalsDashlet extends Component {
   showEditor = () => this.props.setEditorMode(true);
 
   goToJournalsPage = () => {
-    // const {
-    //   config: { journalsListId = '', journalSettingId = '' },
-    //   journalConfig: { id = '' }
-    // } = this.props;
-    //const journalPageUrl = getJournalPage({ journalsListId, journalId: id, journalSettingId });
-    //window.open(journalPageUrl, '_blank');
-
-    window.open(
-      `${URL_PAGECONTEXT}journals2/list/tasks#journal=${this.props.journalConfig.meta.nodeRef}&filter=&settings=&skipCount=0&maxItems=10`,
-      '_blank'
-    );
+    const {
+      config: { journalsListId = '', journalSettingId = '' },
+      journalConfig: { id = '' }
+    } = this.props;
+    const journalPageUrl = getJournalPage({ journalsListId, journalId: id, journalSettingId });
+    window.open(journalPageUrl, '_blank');
   };
 
   render() {
