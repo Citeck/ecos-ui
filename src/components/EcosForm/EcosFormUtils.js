@@ -18,14 +18,14 @@ export default class EcosFormUtils {
       });
   }
 
-  static getForm(recordRef, formKey = null, attributes = null) {
-    console.log(EcosFormUtils);
+  static getForm(record, formKey = null, attributes = null) {
+    let recordInstance = isString(record) ? Records.get(record) : record;
+    recordInstance = recordInstance.getBaseRecord();
 
-    const record = Records.get(recordRef).getBaseRecord();
     const query = {
       sourceId: 'eform',
       query: {
-        record: record.id,
+        record: recordInstance.id,
         formKey: formKey
       }
     };
