@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import BaseComponent from '../base/BaseComponent';
 import TableForm from '../../../../components/common/form/TableForm';
 import isEqual from 'lodash/isEqual';
+import lodashGet from 'lodash/get';
 
 export default class SelectOrgstructComponent extends BaseComponent {
   static schema(...extend) {
@@ -10,7 +11,20 @@ export default class SelectOrgstructComponent extends BaseComponent {
       {
         label: 'TableForm',
         key: 'tableForm',
-        type: 'tableForm'
+        type: 'tableForm',
+        source: {
+          type: '',
+          journal: {
+            journalId: null,
+            columns: []
+          },
+          custom: {
+            createVariants: [],
+            columns: [],
+            record: null,
+            attribute: null
+          }
+        }
       },
       ...extend
     );
@@ -73,7 +87,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
     const component = this.component;
     const onChange = this.onValueChange.bind(this);
 
-    const renderControl = journalId => {
+    const renderControl = source => {
       ReactDOM.render(
         <TableForm
           defaultValue={this.dataValue}
@@ -81,10 +95,9 @@ export default class SelectOrgstructComponent extends BaseComponent {
           multiple={component.multiple}
           placeholder={component.placeholder}
           disabled={component.disabled}
-          journalId={journalId}
           onChange={onChange}
           viewOnly={this.viewOnly}
-          displayColumns={component.displayColumns}
+          source={source}
           onError={err => {
             // this.setCustomValidity(err, false);
           }}
@@ -93,21 +106,33 @@ export default class SelectOrgstructComponent extends BaseComponent {
       );
     };
 
-    let journalId = this.component.journalId;
+    const source = component.source;
 
-    if (!journalId) {
-      let attribute = this.getAttributeToEdit();
-      this.getRecord()
-        .loadEditorKey(attribute)
-        .then(editorKey => {
-          this.component._journalId = editorKey;
-          renderControl(editorKey);
-        })
-        .catch(() => {
-          renderControl(null);
-        });
-    } else {
-      renderControl(journalId);
+    switch (source.type) {
+      case 'journal':
+        let journalId = lodashGet(component, 'source.journal.journalId', null);
+
+        if (!journalId) {
+          let attribute = this.getAttributeToEdit();
+          this.getRecord()
+            .loadEditorKey(attribute)
+            .then(editorKey => {
+              this.component._journalId = editorKey;
+              source.journal.journalId = editorKey;
+              renderControl(source);
+            });
+        } else {
+          renderControl(source);
+        }
+        break;
+      case 'custom':
+        source.custom.record = this.getRecord();
+        source.custom.attribute = this.getAttributeToEdit();
+        source.custom.columns = source.custom.columns.map(item => item.name || item);
+        renderControl(source);
+        break;
+      default:
+        console.log('TableForm empty source');
     }
   }
 

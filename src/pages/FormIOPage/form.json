@@ -20,7 +20,30 @@
       "type": "tableForm",
       "label": "График платежей",
       "key": "payments:payments",
-      "journalId": "idocs-contractor"
+      "source": {
+        "type": "journal",
+        "journal": {
+          "journalId": "idocs-contractor"
+        }
+      }
+    },
+    {
+      "input": true,
+      "type": "tableForm",
+      "label": "График платежей",
+      "key": "payments:payments",
+      "source": {
+        "type": "custom",
+        "custom": {
+          "columns": [
+            "payments:typePayment",
+            "payments:plannedPaymentDate",
+            "payments:currency",
+            "payments:paymentAmount",
+            "payments:paymentVAT"
+          ]
+        }
+      }
     },
     {
       "input": false,
