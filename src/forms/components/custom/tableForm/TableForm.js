@@ -118,18 +118,28 @@ export default class SelectOrgstructComponent extends BaseComponent {
             .loadEditorKey(attribute)
             .then(editorKey => {
               this.component._journalId = editorKey;
-              source.journal.journalId = editorKey;
-              renderControl(source);
+              renderControl({
+                ...source,
+                journal: {
+                  ...source.journal,
+                  journalId: editorKey
+                }
+              });
             });
         } else {
           renderControl(source);
         }
         break;
       case 'custom':
-        source.custom.record = this.getRecord();
-        source.custom.attribute = this.getAttributeToEdit();
-        source.custom.columns = source.custom.columns.map(item => item.name || item);
-        renderControl(source);
+        renderControl({
+          ...source,
+          custom: {
+            ...source.custom,
+            record: this.getRecord(),
+            attribute: this.getAttributeToEdit(),
+            columns: source.custom.columns.map(item => item.name || item)
+          }
+        });
         break;
       default:
         console.log('TableForm empty source');
