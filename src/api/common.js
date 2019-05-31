@@ -63,6 +63,51 @@ export class CommonApi {
     throw error;
   };
 
+  getJsonWithSessionCache = config => {
+    if (!window.sessionStorage) {
+      return this.getJson(config.url);
+    }
+
+    let { timeout, onError, url } = config;
+
+    const key = `CommonApi_${url}`;
+
+    let result = sessionStorage.getItem(key);
+    if (result) {
+      let parsedResult = JSON.parse(result);
+
+      if (timeout) {
+        if (new Date().getTime() - parsedResult.time < timeout) {
+          return Promise.resolve(parsedResult.response);
+        }
+      } else {
+        return Promise.resolve(parsedResult.response);
+      }
+    }
+    const addToStorage = response => {
+      sessionStorage.setItem(
+        key,
+        JSON.stringify({
+          time: new Date().getTime(),
+          response
+        })
+      );
+      return response;
+    };
+
+    let resultPromise = this.getJson(url).then(response => {
+      return addToStorage(response);
+    });
+
+    if (onError) {
+      resultPromise = resultPromise.catch(err => {
+        return addToStorage(onError(err));
+      });
+    }
+
+    return resultPromise;
+  };
+
   getJson = url => {
     return fetch(url, getOptions)
       .then(this.checkStatus)

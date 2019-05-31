@@ -24,12 +24,17 @@ export class MenuApi extends CommonApi {
   };
 
   getSlideMenuItems = () => {
-    const url = `${PROXY_URI}citeck/menu/menu`;
-    return this.getJson(url).catch(() => []);
+    return this.getJsonWithSessionCache({
+      url: `${PROXY_URI}citeck/menu/menu`,
+      timeout: 14400000 //4h
+    }).catch(() => {});
   };
 
   getMenuItemIconUrl = iconName => {
-    const url = `${PROXY_URI}citeck/menu/icon?iconName=${iconName}`;
-    return this.getJson(url).catch(() => null);
+    return this.getJsonWithSessionCache({
+      url: `${PROXY_URI}citeck/menu/icon?iconName=${iconName}`,
+      timeout: 14400000, //4h
+      onError: () => null
+    });
   };
 }
