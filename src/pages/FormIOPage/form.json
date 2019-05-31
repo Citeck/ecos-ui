@@ -32,6 +32,7 @@
       "type": "tableForm",
       "label": "График платежей",
       "key": "payments:payments",
+      "defaultValue": ["workspace://SpacesStore/8496a917-fece-4fbf-bd53-ed49915eafa3"],
       "source": {
         "type": "custom",
         "custom": {
