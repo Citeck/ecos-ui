@@ -60,7 +60,7 @@ export class Droppable extends React.Component {
     return classes.join(' ');
   }
 
-  renderChildren = (provided, snapshot) => {
+  renderChildren(provided, snapshot) {
     const { children, placeholder, style } = this.props;
     let body = <div className="ecos-dnd__placeholder">{placeholder}</div>;
 
@@ -84,7 +84,7 @@ export class Droppable extends React.Component {
         {body}
       </div>
     );
-  };
+  }
 
   render() {
     const { droppableId, direction, isDropDisabled, droppableIndex } = this.props;
@@ -99,7 +99,7 @@ export class Droppable extends React.Component {
             isDropDisabled={isDropDisabled}
             index={droppableIndex}
           >
-            {this.renderChildren}
+            {(provided, snapshot) => this.renderChildren(provided, snapshot)}
           </DropWrapper>
         </Scrollbars>
       </div>

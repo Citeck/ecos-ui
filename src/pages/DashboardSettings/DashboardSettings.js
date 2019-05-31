@@ -283,12 +283,13 @@ export default class DashboardSettings extends React.Component {
 
   onRemoveMenuItem = ({ item }) => {
     const { menuSelected, menuItems } = this.state;
-    const delIndex = menuSelected.findIndex(val => val.id === item.id);
 
     menuItems.push(item);
-    menuSelected.splice(delIndex, 1);
 
-    this.setState({ menuSelected, menuItems });
+    this.setState({
+      menuSelected: menuSelected.filter(menu => menu.id !== item.id),
+      menuItems
+    });
   };
 
   renderMenuConstructor() {
