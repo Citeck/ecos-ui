@@ -13,7 +13,7 @@ export const FORM_MODE_EDIT = 1;
 
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
-  const { onChange, onError, source } = controlProps;
+  const { onChange, onError, source, defaultValue } = controlProps;
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
   const [isModalFormOpen, setIsModalFormOpen] = useState(false);
@@ -131,6 +131,36 @@ export const TableFormContextProvider = props => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!defaultValue || columns.length < 1) {
+      return;
+    }
+
+    let initValue;
+    if (!Array.isArray(defaultValue)) {
+      initValue = [defaultValue];
+    } else {
+      initValue = [...defaultValue];
+    }
+
+    if (initValue) {
+      let atts = ['id'];
+      columns.forEach(item => {
+        atts.push(`${item.attribute}`);
+      });
+
+      Promise.all(
+        initValue.map(r => {
+          return Records.get(r)
+            .load(atts)
+            .then(result => {
+              return { ...result, id: r };
+            });
+        })
+      ).then(setSelectedRows);
+    }
+  }, [defaultValue, columns, setSelectedRows]);
+
   return (
     <TableFormContext.Provider
       value={{
@@ -169,7 +199,7 @@ export const TableFormContextProvider = props => {
             ...selectedRows,
             {
               id: record.id,
-              ...record.getAttributesToPersist(true)
+              ...record.getRawAttributes()
             }
           ];
 
@@ -179,16 +209,30 @@ export const TableFormContextProvider = props => {
         },
 
         onEditFormSubmit: (record, form) => {
-          const editRecordId = record.id;
-          const editRecordIndex = selectedRows.findIndex(item => item.id === editRecordId);
+          let editRecordId = record.id;
+          let isNodeRef = editRecordId.indexOf('workspace://SpacesStore/') === 0;
+          let isAlias = editRecordId.indexOf('-alias') !== -1;
 
-          const newSelectedRows = [
-            ...selectedRows.slice(0, editRecordIndex),
-            { id: record.id, ...record.getAttributesToPersist(true) },
-            ...selectedRows.slice(editRecordIndex + 1)
+          let newSelectedRows = [...selectedRows];
+          if (isNodeRef && isAlias) {
+            // delete base record from values list
+            const baseRecord = record.getBaseRecord();
+            const baseRecordId = baseRecord.id;
+            newSelectedRows = newSelectedRows.filter(item => item === baseRecordId);
+          }
+
+          // add or update record alias
+          const editRecordIndex = selectedRows.findIndex(item => item.id === record.id);
+          newSelectedRows = [
+            ...newSelectedRows.slice(0, editRecordIndex),
+            { id: editRecordId, ...record.getRawAttributes() },
+            ...newSelectedRows.slice(editRecordIndex + 1)
           ];
 
           setSelectedRows(newSelectedRows);
+
+          typeof onChange === 'function' && onChange(newSelectedRows.map(item => item.id));
+
           setIsModalFormOpen(false);
         },
 
