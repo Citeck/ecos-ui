@@ -27,7 +27,7 @@ import {
   onJournalSettingsSelect,
   onJournalSelect,
   initPreview,
-  setNodeContent
+  setPreviewUrl
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 
@@ -335,8 +335,10 @@ function* sagaDeleteJournalSetting({ api, logger }, action) {
 
 function* sagaInitPreview({ api, logger }, action) {
   try {
-    const nodeContent = yield call(api.journals.getNodeContent, action.payload);
-    yield put(setNodeContent(nodeContent));
+    const nodeRef = action.payload;
+    const previewUrl = yield call(api.journals.getPreviewUrl, nodeRef);
+
+    yield put(setPreviewUrl(previewUrl));
   } catch (e) {
     logger.error('[journals sagaInitPreview saga error', e.message);
   }

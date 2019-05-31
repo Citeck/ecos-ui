@@ -1,16 +1,27 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import BaseComponent from '../base/BaseComponent';
+import BaseReactComponent from '../base/BaseReactComponent';
 import TableForm from '../../../../components/common/form/TableForm';
-import isEqual from 'lodash/isEqual';
+import lodashGet from 'lodash/get';
 
-export default class SelectOrgstructComponent extends BaseComponent {
+export default class SelectOrgstructComponent extends BaseReactComponent {
   static schema(...extend) {
-    return BaseComponent.schema(
+    return BaseReactComponent.schema(
       {
         label: 'TableForm',
         key: 'tableForm',
-        type: 'tableForm'
+        type: 'tableForm',
+        source: {
+          type: '',
+          journal: {
+            journalId: null,
+            columns: []
+          },
+          custom: {
+            createVariants: [],
+            columns: [],
+            record: null,
+            attribute: null
+          }
+        }
       },
       ...extend
     );
@@ -30,114 +41,70 @@ export default class SelectOrgstructComponent extends BaseComponent {
     return SelectOrgstructComponent.schema();
   }
 
-  viewOnlyBuild() {} // hide control for viewOnly mode
-
-  build() {
-    if (this.viewOnly) {
-      return this.viewOnlyBuild();
-    }
-
-    this.restoreValue();
-
-    this.createElement();
-
-    const labelAtTheBottom = this.component.labelPosition === 'bottom';
-    if (!labelAtTheBottom) {
-      this.createLabel(this.element);
-    }
-
-    this.reactContainer = this.ce('div');
-    this.element.appendChild(this.reactContainer);
-
-    if (this.shouldDisable) {
-      this.disabled = true;
-    }
-
-    this.errorContainer = this.element;
-    this.createErrorElement();
-
-    this.renderReactComponent();
-
-    // this.setInputStyles(this.inputsContainer);
-
-    if (labelAtTheBottom) {
-      this.createLabel(this.element);
-    }
-
-    this.createDescription(this.element);
-
-    // this.attachLogic();
-  }
-
-  renderReactComponent(config = {}) {
-    const component = this.component;
-    const onChange = this.onValueChange.bind(this);
-
-    const renderControl = journalId => {
-      ReactDOM.render(
-        <TableForm
-          defaultValue={this.dataValue}
-          isCompact={component.isCompact}
-          multiple={component.multiple}
-          placeholder={component.placeholder}
-          disabled={component.disabled}
-          journalId={journalId}
-          onChange={onChange}
-          viewOnly={this.viewOnly}
-          displayColumns={component.displayColumns}
-          onError={err => {
-            // this.setCustomValidity(err, false);
-          }}
-        />,
-        this.reactContainer
-      );
-    };
-
-    let journalId = this.component.journalId;
-
-    if (!journalId) {
-      let attribute = this.getAttributeToEdit();
-      this.getRecord()
-        .loadEditorKey(attribute)
-        .then(editorKey => {
-          this.component._journalId = editorKey;
-          renderControl(editorKey);
-        })
-        .catch(() => {
-          renderControl(null);
-        });
-    } else {
-      renderControl(journalId);
-    }
-  }
-
-  refreshDOM() {
-    if (this.reactContainer) {
-      this.renderReactComponent();
-    }
-  }
-
-  onValueChange(value) {
-    this.dataValue = value;
-    this.triggerChange();
-    this.refreshDOM();
-  }
-
   get emptyValue() {
-    // return this.component.multiple ? [] : null;
     return [];
   }
 
-  getValue() {
-    return this.dataValue;
+  viewOnlyBuild() {} // hide control for viewOnly mode
+
+  getComponentToRender() {
+    return TableForm;
   }
 
-  setValue(value) {
-    if (this.reactContainer && !isEqual(value, this.dataValue)) {
-      ReactDOM.unmountComponentAtNode(this.reactContainer);
-    }
+  getInitialReactProps() {
+    let component = this.component;
 
-    this.dataValue = value || this.component.defaultValue || this.emptyValue;
-    this.refreshDOM();
+    let resolveProps = source => {
+      return {
+        defaultValue: component.defaultValue,
+        isCompact: component.isCompact,
+        multiple: component.multiple,
+        placeholder: component.placeholder,
+        disabled: component.disabled,
+        source: source,
+        onChange: this.onReactValueChanged,
+        viewOnly: this.viewOnly,
+        onError: err => {
+          // this.setCustomValidity(err, false);
+        }
+      };
+    };
+
+    const source = component.source;
+
+    switch (source.type) {
+      case 'journal':
+        let journalId = lodashGet(component, 'source.journal.journalId', null);
+
+        if (!journalId) {
+          let attribute = this.getAttributeToEdit();
+          return this.getRecord()
+            .loadEditorKey(attribute)
+            .then(editorKey => {
+              this.component._journalId = editorKey;
+              return resolveProps({
+                ...source,
+                journal: {
+                  ...source.journal,
+                  journalId: editorKey
+                }
+              });
+            });
+        } else {
+          return resolveProps(source);
+        }
+      case 'custom':
+        return resolveProps({
+          ...source,
+          custom: {
+            ...source.custom,
+            record: this.getRecord(),
+            attribute: this.getAttributeToEdit(),
+            columns: source.custom.columns.map(item => item.name || item)
+          }
+        });
+      default:
+        return resolveProps(null);
+    }
   }
 }

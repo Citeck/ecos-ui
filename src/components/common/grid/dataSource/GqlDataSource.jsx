@@ -61,6 +61,25 @@ export default class GqlDataSource extends BaseDataSource {
     });
   }
 
+  static getColumnsStatic(columns) {
+    return columns.map((column, idx) => {
+      let newColumn = { ...column };
+
+      newColumn.dataField = newColumn.dataField || newColumn.attribute;
+      newColumn.text = window.Alfresco.util.message(newColumn.text || newColumn.dataField);
+
+      let formatterOptions = newColumn.formatter || Mapper.getFormatterOptions(newColumn, idx);
+      let { formatter, params } = GqlDataSource.getFormatterStatic(formatterOptions);
+
+      newColumn.formatExtraData = { formatter, params };
+
+      newColumn.filterValue = (cell, row) => formatter.getFilterValue(cell, row, params);
+      newColumn.editorRenderer = formatter.getEditor;
+
+      return newColumn;
+    });
+  }
+
   _getBodyJson(body, columns) {
     let defaultBody = {
       attributes: this._getAttributes(columns)
@@ -83,6 +102,25 @@ export default class GqlDataSource extends BaseDataSource {
   }
 
   _getFormatter(options) {
+    let name;
+    let params;
+    let defaultFormatter = formatterStore[DEFAULT_FORMATTER];
+
+    if (options) {
+      ({ name, params } = options);
+    }
+
+    let formatter = formatterStore[name || options] || defaultFormatter;
+
+    params = params || {};
+
+    return {
+      formatter,
+      params
+    };
+  }
+
+  static getFormatterStatic(options) {
     let name;
     let params;
     let defaultFormatter = formatterStore[DEFAULT_FORMATTER];

@@ -1,26 +1,19 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
-import { PROXY_URI } from '../../../constants/alfresco';
+import { PROXY_URI_SHORT } from '../../../constants/alfresco';
 import DocPreview from '../../DocPreview/DocPreview';
 import '../../DocPreview/DocPreview.scss';
 import './JournalsPreview.scss';
 
 const mapStateToProps = state => ({
-  nodeContent: state.journals.nodeContent
+  previewUrl: state.journals.previewUrl
 });
-
-const mapDispatchToProps = dispatch => ({});
 
 class JournalsPreview extends Component {
   render() {
-    const { nodeContent } = this.props;
-    let link = '';
-
-    if (nodeContent && nodeContent.content) {
-      const nodeRef = `${nodeContent['store-protocol']}/${nodeContent['store-identifier']}/${nodeContent['node-uuid']}`;
-      link = `${PROXY_URI}api/node/${nodeRef}/content/${nodeContent.name}`;
-    }
+    const { previewUrl } = this.props;
+    const link = previewUrl ? `${PROXY_URI_SHORT}${previewUrl}` : '';
 
     return (
       <div className={classNames('ecos-journals-preview', this.props.className)}>
@@ -34,7 +27,4 @@ class JournalsPreview extends Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsPreview);
+export default connect(mapStateToProps)(JournalsPreview);

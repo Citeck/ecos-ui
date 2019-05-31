@@ -1,6 +1,7 @@
 import { RecordService } from './recordService';
 import { PROXY_URI, MICRO_URI } from '../constants/alfresco';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
+import Records from '../components/Records';
 
 export class JournalsApi extends RecordService {
   saveRecords = ({ id, attributes }) => {
@@ -184,5 +185,15 @@ export class JournalsApi extends RecordService {
     return this.getJson(`${PROXY_URI}citeck/node-content?nodeRef=${nodeRef}`).then(resp => {
       return resp;
     });
+  };
+
+  getPreviewUrl = nodeRef => {
+    return Records.get(nodeRef)
+      .load('cm:content.previewInfo?json', true)
+      .then(resp => {
+        resp = resp || {};
+        const { url = '', ext = '' } = resp;
+        return url && ext ? `${url}.${ext}` : '';
+      });
   };
 }
