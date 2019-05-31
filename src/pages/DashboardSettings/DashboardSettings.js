@@ -101,7 +101,7 @@ class DashboardSettings extends React.Component {
 
   setStateByConfig(config) {
     const { layouts } = this.state;
-    let { layoutPosition, widgets: widgetsSelected, menu: menuSelected } = config;
+    let { layoutPosition = 0, widgets: widgetsSelected, menu: menuSelected } = config;
     let selectedLayout = {};
 
     layouts.forEach(item => {
@@ -120,7 +120,7 @@ class DashboardSettings extends React.Component {
       return setDndId(item.widgets);
     });
 
-    return { layouts, widgetsSelected, menuSelected };
+    return { layouts, selectedLayout, widgetsSelected, menuSelected };
   }
 
   get menuWidth() {
