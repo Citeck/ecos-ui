@@ -1,17 +1,29 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
 import uuidV4 from 'uuid/v4';
-import { MENU_POSITION } from '../../constants/dashboard';
+import { LAYOUTS, MENU_POSITION, MENUS } from '../../constants/dashboard';
 import { t } from '../../helpers/util';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { Btn } from '../../components/common/btns';
-
-//fixme test data
-import * as mock from '../../api/mock/dashboardSettings';
+import { getConfigPage, getMenuItems, getWidgets } from '../../actions/dashboardSettings';
 
 import './style.scss';
+
+const mapStateToProps = state => ({
+  config: state.dashboardSettings.config,
+  widgets: state.dashboardSettings.widgets,
+  menuItems: state.dashboardSettings.menuItems
+});
+
+const mapDispatchToProps = dispatch => ({
+  getConfigPage: () => dispatch(getConfigPage()),
+  getWidgets: () => dispatch(getWidgets()),
+  getMenuItems: () => dispatch(getMenuItems())
+});
 
 const DROPPABLE_ZONE = {
   MENU_FROM: 'menuItems',
@@ -20,100 +32,123 @@ const DROPPABLE_ZONE = {
   WIDGETS_TO: 'widgetsSelected'
 };
 
-const reorder = (list, startIndex, endIndex) => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
+class DashboardSettings extends React.Component {
+  static propTypes = {
+    config: PropTypes.shape({
+      layoutPosition: PropTypes.number,
+      widgets: PropTypes.arrayOf(
+        PropTypes.arrayOf(
+          PropTypes.shape({
+            id: PropTypes.string,
+            title: PropTypes.string
+          })
+        )
+      ),
+      menu: PropTypes.array
+    }).isRequired,
+    menuItems: PropTypes.array,
+    widgets: PropTypes.array
+  };
 
-  result.splice(endIndex, 0, removed);
+  static defaultProps = {
+    config: {},
+    widgets: [],
+    menuItems: []
+  };
 
-  return result;
-};
-
-const move = (source, destination, droppableSource, droppableDestination) => {
-  const sourceClone = Array.from(source);
-  const destClone = Array.from(destination);
-  const [removed] = sourceClone.splice(droppableSource.index, 1);
-  const result = {};
-
-  destClone.splice(droppableDestination.index, 0, removed);
-  result[droppableSource.droppableId] = sourceClone;
-  result[droppableDestination.droppableId] = destClone;
-
-  return result;
-};
-
-const copy = (source, destination, droppableSource, droppableDestination) => {
-  const sourceClone = Array.from(source);
-  const destClone = Array.from(destination);
-  const item = sourceClone[droppableSource.index];
-
-  destClone.splice(droppableDestination.index, 0, { ...item });
-
-  return setDndId(destClone);
-};
-
-const setSelected = items => {
-  const arr = Array.from(items || []);
-
-  return arr.map(widget => {
-    return { ...widget, selected: true, canRemove: true };
-  });
-};
-
-const setDndId = items => {
-  const arr = Array.from(items || []);
-
-  arr.forEach(value => (value.dndId = uuidV4()));
-
-  return arr;
-};
-
-export default class DashboardSettings extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      layouts: [],
-      widgets: [],
+      layouts: LAYOUTS,
+      menus: MENUS,
+      selectedLayout: {},
       widgetsSelected: [],
-      menus: [
-        {
-          position: 0,
-          isActive: true,
-          type: MENU_POSITION.LEFT,
-          description: t('Меню слева')
-        },
-        {
-          position: 1,
-          isActive: false,
-          type: MENU_POSITION.TOP,
-          description: t('Меню в виде кнопок перед виджетами')
-        }
-      ],
       isShowMenuConstructor: false,
-      menuItems: [],
-      menuSelected: []
+      menuSelected: [],
+      widgets: [],
+      menuItems: []
     };
-
-    this.initData();
   }
 
-  initData() {
-    const layouts = mock.getLayouts();
-    const widgets = setDndId(mock.getWidgets(20));
-    const menuItems = setDndId(mock.getMenuItems());
+  componentDidMount() {
+    this.initDataRequest();
+  }
 
-    const selectedLayout = layouts.find(item => item.isActive) || {};
-    const widgetsSelected = (selectedLayout.columns || []).map(item => {
-      return setDndId(setSelected(item.widgets));
+  componentWillReceiveProps(nextProps, nextContext) {
+    let { config, menuItems, widgets } = this.props;
+    let state = { ...this.state };
+
+    if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
+      state = Object.assign(state, this.setStateByConfig(nextProps.config));
+    }
+    if (JSON.stringify(menuItems) !== JSON.stringify(nextProps.menuItems)) {
+      state.menuItems = setDndId(nextProps.menuItems);
+    }
+    if (JSON.stringify(widgets) !== JSON.stringify(nextProps.widgets)) {
+      state.widgets = setDndId(nextProps.widgets);
+    }
+    this.setState(state);
+  }
+
+  initDataRequest() {
+    const { getConfigPage, getWidgets, getMenuItems } = this.props;
+
+    getConfigPage();
+    getWidgets();
+    getMenuItems();
+  }
+
+  setStateByConfig(config) {
+    const { layouts } = this.state;
+    let { layoutPosition, widgets: widgetsSelected, menu: menuSelected } = config;
+    let selectedLayout = {};
+
+    layouts.forEach(item => {
+      item.isActive = item.position === layoutPosition;
+
+      if (item.isActive) {
+        selectedLayout = item;
+      }
     });
 
-    this.state = { ...this.state, layouts, widgets, menuItems, widgetsSelected };
+    widgetsSelected = widgetsSelected.map(item => {
+      return setDndId(item.widgets);
+    });
 
-    //this.setState({layouts, widgets, menuItems, widgetsSelected});
+    menuSelected = menuSelected.map(item => {
+      return setDndId(item.widgets);
+    });
+
+    return { layouts, widgetsSelected, menuSelected };
   }
 
-  /*--------- start Layouts ----------*/
+  get menuWidth() {
+    const menu = document.querySelector('.slide-menu');
+
+    if (!menu) {
+      return 0;
+    }
+
+    return -menu.clientWidth;
+  }
+
+  get bodyScrollTop() {
+    const body = document.querySelector('body');
+
+    if (!body) {
+      return 0;
+    }
+
+    return body.scrollTop;
+  }
+
+  draggablePositionAdjusment = () => ({
+    top: this.bodyScrollTop,
+    left: this.menuWidth
+  });
+
+  /*-------- start Layouts --------*/
 
   handleClickColumn(column) {
     let layouts = cloneDeep(this.state.layouts);
@@ -133,7 +168,7 @@ export default class DashboardSettings extends React.Component {
 
         newWidgets.fill([]);
         newWidgets.forEach((value, index) => {
-          if (index < widgetsSelected.length) {
+          if (widgetsSelected && index < widgetsSelected.length) {
             newWidgets[index] = widgetsSelected[index] || [];
           }
         });
@@ -202,7 +237,7 @@ export default class DashboardSettings extends React.Component {
     ));
   }
 
-  renderColumnsBlock() {
+  renderLayoutsBlock() {
     return (
       <React.Fragment>
         <h5 className="ecos-ds__container-title">{t('Колонки')}</h5>
@@ -212,20 +247,7 @@ export default class DashboardSettings extends React.Component {
     );
   }
 
-  get selectedLayout() {
-    const { layouts } = this.state;
-    const result = layouts.find(item => item.isActive);
-
-    return result && result.length ? result : {};
-  }
-
-  get selectedLayoutIndex() {
-    const { layouts } = this.state;
-
-    return layouts.findIndex(item => item.isActive);
-  }
-
-  /*--------- start Menu ----------*/
+  /*-------- start Menu --------*/
 
   handleDropEndMenu = result => {
     const { source, destination } = result;
@@ -255,31 +277,6 @@ export default class DashboardSettings extends React.Component {
       });
     }
   };
-
-  get menuWidth() {
-    const menu = document.querySelector('.slide-menu');
-
-    if (!menu) {
-      return 0;
-    }
-
-    return -menu.clientWidth;
-  }
-
-  get bodyScrollTop() {
-    const body = document.querySelector('body');
-
-    if (!body) {
-      return 0;
-    }
-
-    return body.scrollTop;
-  }
-
-  draggablePositionAdjusment = () => ({
-    top: this.bodyScrollTop,
-    left: this.menuWidth
-  });
 
   onRemoveMenuItem = ({ item }) => {
     const { menuSelected, menuItems } = this.state;
@@ -312,7 +309,8 @@ export default class DashboardSettings extends React.Component {
               direction="horizontal"
               isDropDisabled
             >
-              {menuItems.length &&
+              {menuItems &&
+                menuItems.length &&
                 menuItems.map((item, index) => (
                   <DragItem
                     title={item.name}
@@ -330,7 +328,8 @@ export default class DashboardSettings extends React.Component {
               childPosition="column"
               isDragingOver={draggableDestination === DROPPABLE_ZONE.MENU_TO}
             >
-              {menuSelected.length &&
+              {menuSelected &&
+                menuSelected.length &&
                 menuSelected.map((item, index) => (
                   <DragItem
                     className="ecos-ds__column-widgets__items__cell ecos-drag-item_full"
@@ -358,13 +357,12 @@ export default class DashboardSettings extends React.Component {
         <h5 className="ecos-ds__container-title">{t('Меню')}</h5>
         <h6 className="ecos-ds__container-subtitle">{t('Выберите расположения меню.')}</h6>
         <div className="ecos-ds__container-group ecos-ds__container-group_row">{this.renderMenuLayouts()}</div>
-
         {this.renderMenuConstructor()}
       </React.Fragment>
     );
   }
 
-  /*--------- start Widgets ----------*/
+  /*-------- start Widgets --------*/
 
   handleDragUpdate = provided => {
     const { destination, source } = provided;
@@ -397,7 +395,7 @@ export default class DashboardSettings extends React.Component {
       case DROPPABLE_ZONE.WIDGETS_FROM:
         const resultCopy = copy(widgets, widgetsSelected[colIndex], source, destination);
 
-        widgetsSelected[colIndex] = setSelected(resultCopy);
+        widgetsSelected[colIndex] = resultCopy;
         break;
       case destination.droppableId:
         widgetsSelected[colIndex] = reorder(colSelected, source.index, destination.index);
@@ -408,7 +406,7 @@ export default class DashboardSettings extends React.Component {
         const resultMove = move(colSource, colSelected, source, destination);
 
         widgetsSelected[colSourceIndex] = resultMove[source.droppableId];
-        widgetsSelected[colIndex] = setSelected(resultMove[destination.droppableId]);
+        widgetsSelected[colIndex] = resultMove[destination.droppableId];
         break;
     }
 
@@ -417,51 +415,49 @@ export default class DashboardSettings extends React.Component {
     });
   };
 
-  onRemoveWidget = (item, colIndex) => {
+  onRemoveWidget = ({ item }, indexColumn) => {
     const { widgetsSelected } = this.state;
 
-    if (this.selectedLayoutIndex >= 0) {
-      widgetsSelected[colIndex].splice(item.index, 1);
+    widgetsSelected[indexColumn].splice(item.index, 1);
 
-      this.setState({ widgetsSelected });
-    }
+    this.setState({ widgetsSelected });
   };
 
   renderWidgetColumns() {
-    const { widgetsSelected, draggableDestination } = this.state;
-    const columns = this.selectedLayout.columns || [];
+    const { widgetsSelected, draggableDestination, selectedLayout } = this.state;
+    const columns = selectedLayout.columns || [];
 
     return (
       <div className={'ecos-ds__drag-container_widgets-to'}>
-        {columns.map((item, index) => {
-          const key_id = `column-widgets-${index}`;
+        {columns.map((column, indexColumn) => {
+          const key_id = `column-widgets-${indexColumn}`;
 
           return (
             <div className={'ecos-ds__column-widgets'} key={key_id}>
-              <div className={'ecos-ds__column-widgets__title'}>{`${t('Колонка')} ${index + 1}`}</div>
+              <div className={'ecos-ds__column-widgets__title'}>{`${t('Колонка')} ${indexColumn + 1}`}</div>
               <Droppable
-                droppableId={DROPPABLE_ZONE.WIDGETS_TO + index}
-                droppableIndex={index}
+                droppableId={DROPPABLE_ZONE.WIDGETS_TO + indexColumn}
+                droppableIndex={indexColumn}
                 childPosition="column"
                 className="ecos-ds__drag-container ecos-ds__column-widgets__items"
                 placeholder={t('Перетащите сюда виджеты')}
-                isDragingOver={draggableDestination === DROPPABLE_ZONE.WIDGETS_TO + index}
+                isDragingOver={draggableDestination === DROPPABLE_ZONE.WIDGETS_TO + indexColumn}
               >
-                {widgetsSelected[index] &&
-                  widgetsSelected[index].map((item, index) => (
+                {widgetsSelected[indexColumn] &&
+                  widgetsSelected[indexColumn].map((widget, indexWidget) => (
                     <DragItem
-                      key={item.dndId}
-                      draggableId={item.dndId}
-                      draggableIndex={index}
+                      key={widget.dndId}
+                      draggableId={widget.dndId}
+                      draggableIndex={indexWidget}
                       className={'ecos-ds__column-widgets__items__cell'}
-                      title={item.title}
+                      title={widget.title}
                       selected={true}
                       canRemove={true}
-                      removeItem={item => {
-                        this.onRemoveWidget(item, index);
+                      removeItem={(...response) => {
+                        this.onRemoveWidget(response, indexColumn);
                       }}
                       getPositionAdjusment={this.draggablePositionAdjusment}
-                      item={item}
+                      item={widget}
                     />
                   ))}
               </Droppable>
@@ -487,7 +483,8 @@ export default class DashboardSettings extends React.Component {
               placeholder={t('Нет доступных виджетов')}
               isDropDisabled={true}
             >
-              {widgets.length &&
+              {widgets &&
+                widgets.length &&
                 widgets.map((item, index) => (
                   <DragItem
                     isCloning
@@ -506,17 +503,21 @@ export default class DashboardSettings extends React.Component {
     );
   }
 
-  handleCancel = () => {};
+  /*-------- start Buttons --------*/
 
-  handleAccept = () => {};
+  handleClickCancel = () => {
+    //this.initDataRequest();
+  };
+
+  handleClickAccept = () => {};
 
   renderButtons() {
     return (
       <div className={'ecos-ds__actions'}>
-        <Btn className={'ecos-btn_x-step_10'} onClick={this.handleCancel()}>
+        <Btn className={'ecos-btn_x-step_10'} onClick={this.handleClickCancel}>
           {t('Отмена')}
         </Btn>
-        <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.handleAccept()}>
+        <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.handleClickAccept}>
           {t('Применить')}
         </Btn>
       </div>
@@ -533,7 +534,7 @@ export default class DashboardSettings extends React.Component {
         </Row>
 
         <div className="ecos-ds__container">
-          {this.renderColumnsBlock()}
+          {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
           {this.renderMenuBlock()}
           {this.renderButtons()}
@@ -542,3 +543,48 @@ export default class DashboardSettings extends React.Component {
     );
   }
 }
+
+const reorder = (list, startIndex, endIndex) => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+
+  result.splice(endIndex, 0, removed);
+
+  return result;
+};
+
+const move = (source, destination, droppableSource, droppableDestination) => {
+  const sourceClone = Array.from(source);
+  const destClone = Array.from(destination);
+  const [removed] = sourceClone.splice(droppableSource.index, 1);
+  const result = {};
+
+  destClone.splice(droppableDestination.index, 0, removed);
+  result[droppableSource.droppableId] = sourceClone;
+  result[droppableDestination.droppableId] = destClone;
+
+  return result;
+};
+
+const copy = (source, destination, droppableSource, droppableDestination) => {
+  const sourceClone = Array.from(source);
+  const destClone = Array.from(destination);
+  const item = sourceClone[droppableSource.index];
+
+  destClone.splice(droppableDestination.index, 0, { ...item });
+
+  return setDndId(destClone);
+};
+
+const setDndId = items => {
+  const arr = Array.from(items || []);
+
+  arr.forEach(value => (value.dndId = uuidV4()));
+
+  return arr;
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DashboardSettings);

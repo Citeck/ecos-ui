@@ -13,34 +13,12 @@ export function getWidgets(size) {
   return arr;
 }
 
-export function getLayouts() {
-  return [
-    {
-      position: 0,
-      isActive: true,
-      columns: [{ widgets: [] }, { width: '25%', widgets: [] }]
-    },
-    {
-      position: 1,
-      isActive: false,
-      columns: [{ width: '25%', widgets: [] }, { widgets: [] }]
-    },
-    {
-      position: 2,
-      isActive: false,
-      columns: [{ width: '25%' }, {}, { width: '25%' }]
-    },
-    {
-      position: 3,
-      isActive: false,
-      columns: [{ widgets: [] }, { widgets: [] }, { widgets: [] }, { widgets: [] }]
-    },
-    {
-      position: 4,
-      isActive: false,
-      columns: [{ widgets: [] }]
-    }
-  ];
+export function getConfigPage() {
+  return {
+    layoutPosition: 0,
+    widgets: [],
+    menu: []
+  };
 }
 
 export function getMenuItems() {
