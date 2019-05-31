@@ -37,26 +37,6 @@ class Dashboard extends Component {
     },
     columns: [
       {
-        width: '20%',
-        widgets: []
-      },
-      {
-        // width: '60%',
-        widgets: [
-          {
-            name: 'doc-preview',
-            props: {
-              id: 'doc-preview-0',
-              config: {
-                link: '/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/2557e4b7-725f-40f3-95da-6175a67d3b3f/sample.pdf',
-                height: '200px',
-                scale: 0.5
-              }
-            }
-          }
-        ]
-      },
-      {
         width: '40%',
         widgets: [
           {
@@ -72,7 +52,43 @@ class Dashboard extends Component {
             }
           }
         ]
+      },
+      {
+        // width: '60%',
+        widgets: [
+          {
+            name: 'doc-preview',
+            props: {
+              id: 'doc-preview-0',
+              config: {
+                link: '/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/2557e4b7-725f-40f3-95da-6175a67d3b3f/sample.pdf',
+                height: '200px',
+                scale: 0.5
+              }
+            }
+          },
+          {
+            name: 'journal'
+          }
+        ]
       }
+      // {
+      //   width: '40%',
+      //   widgets: [
+      //     {
+      //       name: 'doc-preview',
+      //       props: {
+      //         id: 'doc-preview-1',
+      //         config: {
+      //           link:
+      //             '/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/801da94d-c08a-472c-8cdd-0d50248adb0b/Договор%20№44.pdf',
+      //           height: '500px',
+      //           scale: 1
+      //         }
+      //       }
+      //     }
+      //   ]
+      // }
     ]
   };
 

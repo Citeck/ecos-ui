@@ -93,6 +93,7 @@ export class DragItem extends React.Component {
     const { isCloning } = this.props;
 
     if (!isDragging || !isCloning) {
+      // if (!isCloning) {
       return null;
     }
 

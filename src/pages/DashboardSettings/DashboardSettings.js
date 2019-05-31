@@ -380,7 +380,8 @@ class DashboardSettings extends React.Component {
   handleDropEndWidget = result => {
     const { source, destination } = result;
 
-    const { widgets, widgetsSelected } = this.state;
+    const { widgetsSelected } = this.state;
+    const { widgets } = this.props;
 
     this.setState({ draggableDestination: '' });
 
@@ -453,7 +454,7 @@ class DashboardSettings extends React.Component {
                       title={widget.title}
                       selected={true}
                       canRemove={true}
-                      removeItem={(...response) => {
+                      removeItem={response => {
                         this.onRemoveWidget(response, indexColumn);
                       }}
                       getPositionAdjusment={this.draggablePositionAdjusment}
@@ -566,7 +567,7 @@ const move = (source, destination, droppableSource, droppableDestination) => {
   return result;
 };
 
-const copy = (source, destination, droppableSource, droppableDestination) => {
+const copy = (source = [], destination = [], droppableSource, droppableDestination) => {
   const sourceClone = Array.from(source);
   const destClone = Array.from(destination);
   const item = sourceClone[droppableSource.index];

@@ -63,7 +63,11 @@ class Layout extends Component {
     widgets.forEach((widget, index) => {
       const Widget = Components.get(widget.name);
 
-      components.push(<Widget key={`${widget.name}-${index}`} {...widget.props} />);
+      components.push(
+        <React.Suspense fallback={<div>Loading...</div>} key={`${widget.name}-${index}`}>
+          <Widget {...widget.props} />
+        </React.Suspense>
+      );
     });
 
     return components;
@@ -75,7 +79,6 @@ class Layout extends Component {
       minWidth: column.width,
       width: column.width,
       height: '100%',
-      // border: '1px solid #5250507d',
       borderRadius: '5px'
     };
     const otherWidth = columns
