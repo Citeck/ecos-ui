@@ -56,7 +56,7 @@ class App extends Component {
     return (
       <div className={appClassNames}>
         <ReduxModal />
-        <SlideMenu />
+
         <div className="ecos-sticky-wrapper" id="sticky-wrapper">
           <div id="alf-hd">
             <Header />

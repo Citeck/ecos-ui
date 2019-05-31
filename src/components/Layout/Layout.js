@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { LAYOUT_TYPE, MENU_POSITION } from '../../constants/dashboard';
 import { Link } from 'react-router-dom';
+import SlideMenu from '../SlideMenu';
+import { LAYOUT_TYPE, MENU_POSITION } from '../../constants/dashboard';
+import Components from '../Components';
 import './style.scss';
-import classNames from 'classnames';
-import { IcoBtn } from '../common/btns';
 
 class Layout extends Component {
   static propTypes = {
@@ -22,6 +22,19 @@ class Layout extends Component {
 
   static defaultProps = {};
 
+  get className() {
+    const {
+      menu: { type }
+    } = this.props;
+    const classes = ['ecos-layout'];
+
+    if (type === MENU_POSITION.LEFT) {
+      classes.push('ecos-layout_left-menu');
+    }
+
+    return classes.join(' ');
+  }
+
   renderMenuItem = link => {
     return (
       <Link className="ecos-layout__menu-item" to={link.link} title={link.title} key={link.position}>
@@ -38,21 +51,47 @@ class Layout extends Component {
     } = this.props;
 
     if (type === MENU_POSITION.LEFT) {
-      return null;
+      return <SlideMenu />;
     }
 
     return <div className="ecos-layout__menu">{links.map(this.renderMenuItem)}</div>;
   }
 
+  renderWidgets(widgets = []) {
+    const components = [];
+
+    widgets.forEach((widget, index) => {
+      const Widget = Components.get(widget.name);
+
+      components.push(<Widget key={`${widget.name}-${index}`} {...widget.props} />);
+    });
+
+    return components;
+  }
+
   renderColumn = (column, index) => {
+    const { columns } = this.props;
+    const styles = {
+      minWidth: column.width,
+      width: column.width,
+      height: '100%',
+      // border: '1px solid #5250507d',
+      borderRadius: '5px'
+    };
+    const otherWidth = columns
+      .map(column => column.width || '')
+      .filter(item => item !== '')
+      .join(' + ');
+    const withoutSize = columns.filter(column => !column.width).length;
+
+    if (!column.width) {
+      styles.width = `calc((100% - ${otherWidth}) / ${withoutSize})`;
+    }
+
     return (
-      <div
-        key={index}
-        style={{
-          flexBasis: column.width,
-          minWidth: column.width
-        }}
-      />
+      <div className="ecos-layout__column" key={index} style={styles}>
+        {this.renderWidgets(column.widgets)}
+      </div>
     );
   };
 
@@ -63,12 +102,12 @@ class Layout extends Component {
       return null;
     }
 
-    return columns.map(this.renderColumn);
+    return <div className="ecos-layout__column-wrapper">{columns.map(this.renderColumn)}</div>;
   }
 
   render() {
     return (
-      <div>
+      <div className={this.className}>
         {this.renderMenu()}
         {this.renderColumns()}
       </div>

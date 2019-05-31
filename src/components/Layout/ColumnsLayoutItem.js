@@ -14,7 +14,7 @@ export default class ColumnsLayoutItem extends BaseLayoutItem {
     return (
       <div
         key={index}
-        className="ecos-layout__column"
+        className="ecos-layout__item-template-column"
         style={{
           flexBasis: params.width,
           minWidth: params.width
@@ -41,7 +41,7 @@ export default class ColumnsLayoutItem extends BaseLayoutItem {
     return (
       <div className={this.className}>
         <div className="ecos-layout__item-template" onClick={onClick}>
-          {this.renderColumns()}
+          <div className="ecos-layout__item-template-columns-wrapper">{this.renderColumns()}</div>
           {this.renderActiveIcon()}
         </div>
 

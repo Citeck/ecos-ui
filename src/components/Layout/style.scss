@@ -4,7 +4,18 @@
   $root: &;
 
   display: flex;
-  height: 100%;
+  //height: 100%;
+  width: 100%;
+  flex-direction: column;
+  height: 100vh;
+
+  &_left-menu {
+    -webkit-transform: translateX(60px);
+    -moz-transform: translateX(60px);
+    transform: translateX(60px);
+    transition: transform 0.3s;
+    width: calc(100% - 60px);
+  }
 
   &__item {
     $item: &;
@@ -28,7 +39,7 @@
         background: $color-gray-1;
         border-color: $color-gray-5;
 
-        #{$root}__column {
+        #{$root}__item-template-column {
           border-color: $color-gray-5 !important;
         }
 
@@ -38,6 +49,25 @@
             background: $color-gray-5 !important;
           }
         }
+      }
+
+      &-column {
+        flex-grow: 1;
+        width: 100%;
+
+        &:not(:first-child) {
+          border-left: 1px $color-gray-9 solid;
+        }
+
+        &:not(:last-child) {
+          border-right: 1px $color-gray-9 solid;
+        }
+      }
+
+      &-columns-wrapper {
+        display: flex;
+        width: 100%;
+        height: 100%;
       }
     }
 
@@ -51,7 +81,7 @@
         z-index: 2;
       }
 
-      #{$root}__column {
+      #{$root}__item-template-column {
         border-color: $color-blue-dark !important;
       }
 
@@ -105,25 +135,27 @@
   }
 
   &__column {
-    flex-grow: 1;
     width: 100%;
 
-    &:not(:first-child) {
-      border-left: 1px $color-gray-9 solid;
+    &:not(:last-child) {
+      margin-right: 10px;
     }
 
-    &:not(:last-child) {
-      border-right: 1px $color-gray-9 solid;
+    &-wrapper {
+      display: flex;
+      justify-content: space-between;
+      height: 100%;
     }
   }
 
   &__menu {
     display: flex;
     width: 100%;
-    height: 100%;
+    //height: 100%;
     padding: 5px;
     flex-wrap: wrap;
     justify-content: flex-start;
+    align-content: flex-start;
 
     &_top {
       display: flex;
@@ -203,6 +235,7 @@
     &-left {
       background: $color-gray-9;
       flex-basis: 15%;
+      height: 100%;
     }
   }
 }
