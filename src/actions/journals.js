@@ -40,3 +40,6 @@ export const setGrouping = createAction(prefix + 'SET_GROUPING');
 
 export const onJournalSettingsSelect = createAction(prefix + 'ON_JOURNAL_SETTINGS_SELECT');
 export const onJournalSelect = createAction(prefix + 'ON_JOURNAL_SELECT');
+
+export const initPreview = createAction(prefix + 'INIT_PREVIEW');
+export const setPreviewUrl = createAction(prefix + 'SET_PREVIEW_URL');

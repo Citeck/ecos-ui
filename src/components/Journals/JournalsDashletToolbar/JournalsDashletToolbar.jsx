@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import Export from '../../Export/Export';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { onJournalSelect } from '../../../actions/journals';
+import { getCreateRecord } from '../urlManager';
 
 const mapStateToProps = state => ({
   journals: state.journals.journals,
@@ -17,6 +17,11 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class JournalsDashletToolbar extends Component {
+  constructor(props) {
+    super(props);
+    this.ref = React.createRef();
+  }
+
   addRecord = () => {
     let {
       journalConfig: {
@@ -24,8 +29,7 @@ class JournalsDashletToolbar extends Component {
       }
     } = this.props;
     createVariants = createVariants[0];
-    createVariants.canCreate &&
-      window.open(`${URL_PAGECONTEXT}node-create?type=${createVariants.type}&destination=${createVariants.destination}&viewId=`, '_blank');
+    createVariants.canCreate && window.open(getCreateRecord({ ...createVariants }), '_blank');
   };
 
   onChangeJournal = journal => this.props.onJournalSelect(journal.nodeRef);
@@ -39,8 +43,10 @@ class JournalsDashletToolbar extends Component {
       }
     } = this.props;
 
+    const dom = this.ref.current;
+
     return (
-      <div className={'ecos-journal-dashlet__toolbar'}>
+      <div ref={this.ref} className={'ecos-journal-dashlet__toolbar'}>
         <IcoBtn
           icon={'icon-big-plus'}
           className={'ecos-btn_i ecos-btn_i-big-plus ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10'}
@@ -58,7 +64,7 @@ class JournalsDashletToolbar extends Component {
         <Export config={journalConfig} />
 
         <div className={'dashlet__actions'}>
-          <JournalsDashletPagination />
+          {dom && dom.offsetWidth > 550 ? <JournalsDashletPagination /> : null}
           <IcoBtn
             icon={'icon-list'}
             className={'ecos-btn_i ecos-btn_blue2 ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_10'}

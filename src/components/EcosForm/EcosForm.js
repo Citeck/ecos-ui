@@ -2,15 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Formio from 'formiojs/Formio';
 import Records from '../Records';
-import lodashGet from 'lodash/get';
-import cloneDeep from 'lodash/cloneDeep';
 import EcosFormBuilder from './builder/EcosFormBuilder';
+import EcosFormUtils from './EcosFormUtils';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
 import '../../forms/style.scss';
-
-const EDGE_PREFIX = 'edge__';
 
 let formCounter = 0;
 
@@ -27,9 +24,14 @@ class EcosForm extends React.Component {
   }
 
   componentDidMount() {
-    let recordId = this.state.recordId;
+    const recordId = this.state.recordId;
+    const props = this.props;
 
-    let formLoadingPromise = this.getForm();
+    let formLoadingPromise = EcosFormUtils.getForm(props.record, props.formKey, {
+      definition: 'definition?json',
+      customModule: 'customModule',
+      i18n: 'i18n?json'
+    });
 
     let options = this.props.options || {};
     options.recordId = recordId;
@@ -61,28 +63,15 @@ class EcosForm extends React.Component {
         }
       });
 
-      let inputs = EcosForm.getFormInputs(formData.definition);
-      let recordDataPromise = EcosForm.getData(recordId, inputs);
+      let inputs = EcosFormUtils.getFormInputs(formData.definition);
+      let recordDataPromise = EcosFormUtils.getData(recordId, inputs);
 
       recordDataPromise.then(recordData => {
-        let edgesData = {};
-        let submissionData = {};
-
-        for (let att in recordData) {
-          if (recordData.hasOwnProperty(att)) {
-            if (att.indexOf(EDGE_PREFIX) === 0) {
-              edgesData[att.substring(EDGE_PREFIX.length)] = recordData[att];
-            } else if (recordData[att] !== null) {
-              submissionData[att] = recordData[att];
-            }
-          }
-        }
-
         let formDefinition = JSON.parse(JSON.stringify(formData.definition));
 
         let attributesTitles = {};
-        EcosForm.forEachComponent(formDefinition, component => {
-          let edgeData = edgesData[component.key] || {};
+        EcosFormUtils.forEachComponent(formDefinition, component => {
+          let edgeData = recordData.edges[component.key] || {};
 
           if (component.key) {
             if (edgeData.protected) {
@@ -96,13 +85,13 @@ class EcosForm extends React.Component {
 
         let i18n = options.i18n || {};
 
-        let language = options.language || EcosForm.getCurrentLanguage();
+        let language = options.language || EcosFormUtils.getCurrentLanguage();
         options.language = language;
 
         let defaultI18N = i18n[language] || {};
         let formI18N = (formData.i18n || {})[language] || {};
 
-        i18n[language] = EcosForm.getI18n(defaultI18N, attributesTitles, formI18N);
+        i18n[language] = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formI18N);
 
         options.i18n = i18n;
 
@@ -124,7 +113,7 @@ class EcosForm extends React.Component {
           form.submission = {
             data: {
               ...(self.props.attributes || {}),
-              ...submissionData
+              ...recordData.submission
             }
           };
 
@@ -156,11 +145,6 @@ class EcosForm extends React.Component {
     });
   }
 
-  static getCurrentLanguage() {
-    let lang = navigator.language || navigator.userLanguage || 'en';
-    return lang.split('_')[0];
-  }
-
   fireEvent(event, data) {
     let handlerName = 'on' + event.charAt(0).toUpperCase() + event.slice(1);
     if (this.props[handlerName]) {
@@ -171,7 +155,7 @@ class EcosForm extends React.Component {
   submitForm(form, submission) {
     let self = this;
 
-    let inputs = EcosForm.getFormInputs(form.component);
+    let inputs = EcosFormUtils.getFormInputs(form.component);
     let keysMapping = {};
 
     for (let i = 0; i < inputs.length; i++) {
@@ -197,132 +181,8 @@ class EcosForm extends React.Component {
     }
   }
 
-  static forEachComponent(root, action) {
-    let components = [];
-
-    if (root.type === 'columns') {
-      components = root.columns || [];
-    } else {
-      components = root.components || [];
-    }
-
-    for (let i = 0; i < components.length; i++) {
-      let component = components[i];
-      action(component);
-      this.forEachComponent(component, action);
-    }
-  }
-
-  static getComponentAttribute(component) {
-    return (component.properties || {}).attribute || component.key;
-  }
-
-  static getFormInputs(root, inputs) {
-    if (!inputs) {
-      inputs = [];
-    }
-
-    this.forEachComponent(root, component => {
-      let attribute = EcosForm.getComponentAttribute(component);
-
-      if (attribute && component.input === true && component.type !== 'button') {
-        let questionIdx = attribute.indexOf('?');
-
-        if (questionIdx !== -1) {
-          attribute = attribute.substring(0, questionIdx);
-        }
-
-        let attributeSchema;
-
-        switch (component.type) {
-          case 'checkbox':
-            attributeSchema = 'bool';
-            break;
-          case 'selectJournal':
-            attributeSchema = 'assoc';
-            break;
-          case 'file':
-            attributeSchema = 'as(n:"content-data"){json}';
-            break;
-          default:
-            attributeSchema = 'str';
-        }
-
-        let multiplePostfix = component.multiple ? 's' : '';
-        let schema = '.att' + multiplePostfix + '(n:"' + attribute + '"){' + attributeSchema + '}';
-        let edgeSchema = '.edge(n:"' + attribute + '"){protected,';
-        if (component.label === attribute) {
-          edgeSchema += 'title}';
-        } else {
-          // Type is not used. Just to add more than 1 field in result to avoid simplifying
-          // result: {protected:true} -> result: true
-          edgeSchema += 'type}';
-        }
-
-        inputs.push({
-          attribute: attribute,
-          component: component,
-          schema: schema,
-          edgeSchema: edgeSchema
-        });
-      }
-    });
-
-    return inputs;
-  }
-
-  static getI18n(defaultI18n, attributes, formI18n) {
-    let global = lodashGet(window, 'Alfresco.messages.global', {});
-
-    let result = cloneDeep(defaultI18n);
-
-    const globalPrefix = 'ecos.forms.';
-    for (let key in global) {
-      if (global.hasOwnProperty(key) && key.indexOf(globalPrefix) === 0) {
-        result[key.substring(globalPrefix.length)] = global[key];
-      }
-    }
-
-    return Object.assign(result, attributes, formI18n);
-  }
-
-  static getData(recordId, inputs) {
-    if (!recordId) {
-      return Promise.resolve({});
-    }
-
-    let attributes = {};
-    for (let input of inputs) {
-      let key = input.component.key;
-      if (key) {
-        attributes[key] = input.schema;
-        attributes[EDGE_PREFIX + key] = input.edgeSchema;
-      }
-    }
-
-    return Records.get(recordId).load(attributes);
-  }
-
   render() {
     return <div id={this.state.containerId} />;
-  }
-
-  getForm() {
-    let record = Records.get(this.props.record).getBaseRecord();
-    return Records.queryOne(
-      {
-        sourceId: 'eform',
-        query: {
-          record: record.id,
-          formKey: this.props.formKey
-        }
-      },
-      {
-        definition: 'definition?json',
-        customModule: 'customModule',
-        i18n: 'i18n?json'
-      }
-    );
   }
 }
 
@@ -332,7 +192,8 @@ EcosForm.propTypes = {
   options: PropTypes.object,
   formKey: PropTypes.string,
   onSubmit: PropTypes.func,
-  onReady: PropTypes.func
+  onReady: PropTypes.func,
+  saveOnSubmit: PropTypes.bool
   // onForm[Event]: PropTypes.func (for example, onFormCancel)
 };
 

@@ -1,4 +1,5 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
+import lodashGet from 'lodash/get';
 
 //Override default tabs component to fix validation in inner fields
 export default class TabsComponent extends NestedComponent {
@@ -57,6 +58,137 @@ export default class TabsComponent extends NestedComponent {
     return schema;
   }
 
+  checkConditions(data) {
+    let result = super.checkConditions(data);
+
+    if (this.options.builder || this.options.flatten || !this.visible) {
+      return result;
+    }
+
+    let self = this;
+
+    if (!this.tabsVisibilityUpdateSync) {
+      self.updateTabsVisibility();
+      this.tabsVisibilityUpdateSync = 1;
+    } else {
+      let visibilityUpdateSync = ++this.tabsVisibilityUpdateSync;
+
+      setTimeout(() => {
+        if (self.tabsVisibilityUpdateSync === visibilityUpdateSync) {
+          self.updateTabsVisibility();
+        }
+      }, 100);
+    }
+
+    return result;
+  }
+
+  updateTabsVisibility() {
+    let tabsVisibility = new Array(this.tabs.length).fill(false);
+    for (let component of this.getComponents()) {
+      let tabIdx = lodashGet(component, 'component.tab', -1);
+      if (tabIdx >= 0 && component.visible) {
+        tabsVisibility[tabIdx] = true;
+      }
+    }
+
+    if (!tabsVisibility[this.currentTab]) {
+      for (let i = 0; i < tabsVisibility.length; i++) {
+        if (tabsVisibility[i]) {
+          this.setTab(i);
+          break;
+        }
+      }
+    }
+
+    let currentVisibility = this._visibleTabs || [];
+
+    let firstVisibleIdx = -1;
+    let lastVisibleIdx = -1;
+
+    this.tabLinks.forEach((tabLink, i) => {
+      let isVisible = tabsVisibility[i];
+      if (isVisible) {
+        if (firstVisibleIdx === -1) {
+          firstVisibleIdx = i;
+        }
+        lastVisibleIdx = i;
+      }
+      if (currentVisibility[i] !== isVisible) {
+        if (isVisible) {
+          this.removeClass(tabLink, 'hidden');
+        } else {
+          this.addClass(tabLink, 'hidden');
+        }
+      }
+    });
+
+    this._updateFirstVisibleTabClass(firstVisibleIdx);
+    this._updateLastVisibleTabClass(lastVisibleIdx);
+
+    this._visibleTabs = tabsVisibility;
+  }
+
+  _updateFirstVisibleTabClass(idx) {
+    this._updateFirstOrLastTabClass('currentFirstVisibleTabIdx', idx, 'first-visible-tab');
+  }
+
+  _updateLastVisibleTabClass(idx) {
+    this._updateFirstOrLastTabClass('currentLastVisibleTabIdx', idx, 'last-visible-tab');
+  }
+
+  _updateFirstOrLastTabClass(currentIdxField, newIdx, className) {
+    if (this[currentIdxField] !== newIdx) {
+      if (this[currentIdxField] > -1) {
+        this.removeClass(this.tabLinks[this[currentIdxField]], className);
+      }
+      if (newIdx > -1) {
+        this.addClass(this.tabLinks[newIdx], className);
+      }
+      this[currentIdxField] = newIdx;
+    }
+  }
+
+  build(state, showLabel) {
+    if (this.options.flatten) {
+      this.element = super.createElement();
+      this.component.components.forEach(tab => {
+        let body;
+        const panel = this.ce(
+          'div',
+          {
+            id: this.id,
+            class: 'mb-2 card border panel panel-default'
+          },
+          [
+            this.ce(
+              'div',
+              {
+                class: 'card-header bg-default panel-heading'
+              },
+              this.ce(
+                'h4',
+                {
+                  class: 'mb-0 card-title panel-title'
+                },
+                tab.label
+              )
+            ),
+            (body = this.ce('div', {
+              class: 'card-body panel-body'
+            }))
+          ]
+        );
+        tab.components.forEach(component =>
+          this.addComponent(component, body, this.data, null, null, this.getComponentState(component, state))
+        );
+        this.element.appendChild(panel);
+      });
+    } else {
+      return super.build(state, showLabel);
+    }
+  }
+
   createElement() {
     this.tabsBar = this.ce('ul', {
       class: 'nav nav-tabs'
@@ -100,6 +232,11 @@ export default class TabsComponent extends NestedComponent {
       this.tabsContent.appendChild(tabPanel);
       this.tabs.push(tabPanel);
     });
+
+    if (this.tabLinks.length > 0) {
+      this._updateFirstVisibleTabClass(0);
+      this._updateLastVisibleTabClass(this.tabLinks.length - 1);
+    }
 
     if (this.element) {
       this.appendChild(this.element, [this.tabsBar, this.tabsContent]);
@@ -161,27 +298,13 @@ export default class TabsComponent extends NestedComponent {
   }
 
   /**
-   * Make sure to include the tab on the component as it is added.
-   *
-   * @param component
-   * @param element
-   * @param data
-   * @param before
-   * @return {BaseComponent}
-   */
-  addComponent(component, element, data, before, noAdd, state) {
-    component.tab = this.currentTab;
-    return super.addComponent(component, element, data, before, noAdd, state);
-  }
-
-  /**
    * Only add the components for the active tab.
    */
   addComponents(element, data, options, state) {
     const { currentTab } = state && state.currentTab ? state : this;
     this.setTab(currentTab, state);
 
-    if (!this.options.builder) {
+    if (!this.options.builder && !this.options.flatten) {
       this.components.forEach(c => c.destroy());
       this.components = [];
 
@@ -195,7 +318,10 @@ export default class TabsComponent extends NestedComponent {
 
         const tabComponents = tab.components;
 
-        tabComponents.forEach(component => this.addComponent(component, this.tabs[i], this.data, null, null, state));
+        tabComponents.forEach(component => {
+          component.tab = i;
+          this.addComponent(component, this.tabs[i], this.data, null, null, state);
+        });
       }
     }
   }

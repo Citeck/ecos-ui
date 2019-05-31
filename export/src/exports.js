@@ -4,7 +4,8 @@ import reactDomDefault, * as reactDom from 'react-dom';
 import reduxThunk from 'redux-thunk';
 import * as redux from 'redux';
 import * as reactRedux from 'react-redux';
-import Records from '../../src/components/Records'
+import Records from '../../src/components/Records';
+import { MenuApi } from '../../src/api/menu';
 
 export default {
   'react': { default: reactDefault, ...react },
@@ -21,5 +22,6 @@ export default {
   'ecos-form': () => import('../../src/components/EcosForm/export'),
   'idle-timer': () => import('../../src/components/IdleTimer'),
   'eform-locale-editor': () => import('../../src/components/EcosForm/locale/FormLocaleEditorModal'),
-  'eform-builder': () => import('../../src/components/EcosForm/builder/EcosFormBuilderModal')
+  'eform-builder': () => import('../../src/components/EcosForm/builder/EcosFormBuilderModal'),
+  'menu-api': () => MenuApi
 };

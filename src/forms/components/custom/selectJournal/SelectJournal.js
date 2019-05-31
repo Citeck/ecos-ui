@@ -1,15 +1,15 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import BaseComponent from '../base/BaseComponent';
+import BaseReactComponent from '../base/BaseReactComponent';
 import SelectJournal from '../../../../components/common/form/SelectJournal';
+import isEqual from 'lodash/isEqual';
 
-export default class SelectJournalComponent extends BaseComponent {
+export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {
-    return BaseComponent.schema(
+    return BaseReactComponent.schema(
       {
         label: 'SelectJournal',
         key: 'selectJournal',
-        type: 'selectJournal'
+        type: 'selectJournal',
+        customPredicateJs: null
       },
       ...extend
     );
@@ -29,120 +29,61 @@ export default class SelectJournalComponent extends BaseComponent {
     return SelectJournalComponent.schema();
   }
 
-  createViewOnlyValue(container) {
-    this.reactContainer = this.ce('dd');
-    container.appendChild(this.reactContainer);
-    this.renderReactComponent();
+  checkConditions(data) {
+    let result = super.checkConditions(data);
+
+    if (!this.component.customPredicateJs) {
+      return result;
+    }
+
+    let customPredicate = this.evaluate(this.component.customPredicateJs, {}, 'value', true);
+    if (!isEqual(customPredicate, this.customPredicateValue)) {
+      this.customPredicateValue = customPredicate;
+      this.updateReactComponent(component => component.setCustomPredicate(customPredicate));
+    }
+
+    return result;
   }
 
-  build() {
-    if (this.viewOnly) {
-      return this.viewOnlyBuild();
-    }
-
-    this.restoreValue();
-
-    this.createElement();
-
-    const labelAtTheBottom = this.component.labelPosition === 'bottom';
-    if (!labelAtTheBottom) {
-      this.createLabel(this.element);
-    }
-
-    this.reactContainer = this.ce('div');
-    this.element.appendChild(this.reactContainer);
-
-    if (this.shouldDisable) {
-      this.disabled = true;
-    }
-
-    this.errorContainer = this.element;
-    this.createErrorElement();
-
-    this.renderReactComponent();
-
-    // this.setInputStyles(this.inputsContainer);
-
-    if (labelAtTheBottom) {
-      this.createLabel(this.element);
-    }
-
-    this.createDescription(this.element);
-
-    // this.attachLogic();
+  getComponentToRender() {
+    return SelectJournal;
   }
 
-  renderReactComponent(config = {}) {
-    let self = this;
-    let component = this.component;
+  getInitialReactProps() {
+    let resolveProps = journalId => {
+      let component = this.component;
 
-    const onChange = this.onValueChange.bind(this);
-
-    let renderControl = function(journalId) {
-      ReactDOM.render(
-        <SelectJournal
-          defaultValue={self.dataValue}
-          isCompact={component.isCompact}
-          multiple={component.multiple}
-          placeholder={component.placeholder}
-          disabled={component.disabled}
-          journalId={journalId}
-          onChange={onChange}
-          viewOnly={self.viewOnly}
-          displayColumns={component.displayColumns}
-          hideCreateButton={component.hideCreateButton}
-          onError={err => {
-            // this.setCustomValidity(err, false);
-          }}
-        />,
-        self.reactContainer
-      );
+      return {
+        defaultValue: component.defaultValue,
+        isCompact: component.isCompact,
+        multiple: component.multiple,
+        placeholder: component.placeholder,
+        disabled: component.disabled,
+        journalId: journalId,
+        onChange: this.onReactValueChanged,
+        viewOnly: this.viewOnly,
+        displayColumns: component.displayColumns,
+        hideCreateButton: component.hideCreateButton,
+        onError: err => {
+          // this.setCustomValidity(err, false);
+        }
+      };
     };
 
     let journalId = this.component.journalId;
 
     if (!journalId) {
       let attribute = this.getAttributeToEdit();
-      this.getRecord()
+      return this.getRecord()
         .loadEditorKey(attribute)
         .then(editorKey => {
-          this.component._journalId = editorKey;
-          renderControl(editorKey);
+          return resolveProps(editorKey);
         })
         .catch(() => {
-          renderControl(null);
+          return resolveProps(null);
         });
     } else {
-      renderControl(journalId);
+      return resolveProps(journalId);
     }
-  }
-
-  refreshDOM() {
-    if (this.reactContainer) {
-      this.renderReactComponent();
-    }
-  }
-
-  onValueChange(value) {
-    this.dataValue = value;
-    this.triggerChange();
-    this.refreshDOM();
-  }
-
-  get emptyValue() {
-    return this.component.multiple ? [] : null;
-  }
-
-  getValue() {
-    return this.dataValue;
-  }
-
-  setValue(value) {
-    if (this.reactContainer && value !== this.dataValue) {
-      ReactDOM.unmountComponentAtNode(this.reactContainer);
-    }
-
-    this.dataValue = value || this.component.defaultValue || this.emptyValue;
-    this.refreshDOM();
   }
 }

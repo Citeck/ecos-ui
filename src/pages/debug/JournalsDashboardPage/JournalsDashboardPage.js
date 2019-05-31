@@ -1,5 +1,5 @@
 import React from 'react';
-import { JournalsDashlet } from '../../components/Journals';
+import { JournalsDashlet } from '../../../components/Journals';
 
 export default class JournalsDashboardPage extends React.Component {
   render() {

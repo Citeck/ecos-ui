@@ -8,8 +8,7 @@ import { t } from '../../../helpers/util';
 import './JournalsGrouping.scss';
 
 const mapStateToProps = state => ({
-  journalSetting: state.journals.journalSetting,
-  journalConfig: state.journals.journalConfig
+  grouping: state.journals.grouping
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -22,23 +21,15 @@ class JournalsGrouping extends Component {
   };
 
   render() {
-    const { journalSetting, journalConfig } = this.props;
-    const groupingColumns = journalSetting.columns;
-    const { groupBy } = journalSetting;
-    const { columns = [] } = journalConfig;
+    const { columns, grouping } = this.props;
 
-    let grouping = [];
+    let groupingList = [];
     let aggregation = [];
 
-    if (!columns.length) {
-      return null;
-    }
-
-    groupBy.length &&
-      groupingColumns.forEach(groupingColumn => {
-        const match = columns.filter(column => column.attribute === groupingColumn.attribute)[0];
-        match ? grouping.push(groupingColumn) : aggregation.push(groupingColumn);
-      });
+    grouping.columns.forEach(groupingColumn => {
+      const match = columns.filter(column => column.attribute === groupingColumn.attribute)[0];
+      match ? groupingList.push(groupingColumn) : aggregation.push(groupingColumn);
+    });
 
     return (
       <PanelBar
@@ -48,12 +39,13 @@ class JournalsGrouping extends Component {
       >
         <Grouping
           className={'journals-grouping'}
-          groupBy={groupBy}
+          groupBy={grouping.groupBy}
           list={columns}
-          grouping={grouping}
+          grouping={groupingList}
           aggregation={aggregation}
           valueField={'attribute'}
           titleField={'text'}
+          showAggregation={grouping.groupBy.length}
           onGrouping={this.onGrouping}
         />
       </PanelBar>

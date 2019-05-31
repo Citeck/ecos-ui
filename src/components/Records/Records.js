@@ -44,6 +44,8 @@ function convertAttributePath(path) {
   if (isEdge) {
     if (attSchema === 'options') {
       attSchema = 'options{label:disp,value:str}';
+    } else if (attSchema === 'createVariants') {
+      attSchema = 'createVariants{json}';
     }
     result += 'edge(n:"' + attName + '"){' + attSchema + '}';
   } else {
@@ -413,7 +415,7 @@ class Record {
     this._attributes = {};
   }
 
-  getAttributesToPersist() {
+  getAttributesToPersist(useRawKeys = false) {
     let attributesToPersist = {};
 
     for (let attName in this._attributes) {
@@ -422,6 +424,9 @@ class Record {
       }
 
       let attribute = this._attributes[attName];
+      if (useRawKeys && attName.indexOf('"') !== 1) {
+        attName = attName.split('"')[1];
+      }
 
       if (!attribute.isPersisted()) {
         attributesToPersist[attName] = attribute.value;

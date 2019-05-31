@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
-import EcosForm from '../../components/EcosForm';
+import EcosForm from '../../../components/EcosForm';
 import './temp.scss';
 
 class EcosFormPage extends React.Component {
