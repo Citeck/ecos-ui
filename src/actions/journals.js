@@ -42,4 +42,4 @@ export const onJournalSettingsSelect = createAction(prefix + 'ON_JOURNAL_SETTING
 export const onJournalSelect = createAction(prefix + 'ON_JOURNAL_SELECT');
 
 export const initPreview = createAction(prefix + 'INIT_PREVIEW');
-export const setNodeContent = createAction(prefix + 'SET_NODE_CONTENT');
+export const setPreviewUrl = createAction(prefix + 'SET_PREVIEW_URL');

@@ -15,7 +15,7 @@ import './JournalsContent.scss';
 const mapStateToProps = state => ({});
 
 const mapDispatchToProps = dispatch => ({
-  initPreview: id => dispatch(initPreview(id)),
+  initPreview: nodeRef => dispatch(initPreview(nodeRef)),
   push: url => dispatch(push(url))
 });
 

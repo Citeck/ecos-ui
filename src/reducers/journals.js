@@ -18,7 +18,7 @@ import {
   setPredicate,
   setColumnsSetup,
   setGrouping,
-  setNodeContent
+  setPreviewUrl
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { t } from '../helpers/util';
@@ -87,7 +87,7 @@ const initialState = {
     row: {}
   },
 
-  nodeContent: null
+  previewUrl: ''
 };
 
 Object.freeze(initialState);
@@ -100,10 +100,10 @@ export default handleActions(
         predicate: action.payload
       };
     },
-    [setNodeContent]: (state, action) => {
+    [setPreviewUrl]: (state, action) => {
       return {
         ...state,
-        nodeContent: action.payload
+        previewUrl: action.payload
       };
     },
     [setColumnsSetup]: (state, action) => {
