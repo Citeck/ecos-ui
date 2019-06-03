@@ -541,10 +541,16 @@ class DashboardSettings extends React.Component {
   handleAcceptClick = () => {
     const { saveConfigPage } = this.props;
     const { widgetsSelected: widgets, menuSelected: menu, menus } = this.state;
-    const layoutType = this.selectedLayout.type;
+    const layout = this.selectedLayout;
     const menuType = menus.find(item => item.isActive).type;
 
-    saveConfigPage({ layoutType, menuType, widgets, menu });
+    saveConfigPage({
+      layoutType: layout.type,
+      columns: layout.columns,
+      menuType,
+      widgets,
+      menu
+    });
   };
 
   renderButtons() {
