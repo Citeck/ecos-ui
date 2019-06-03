@@ -12,7 +12,7 @@ import {
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
-import { configForWeb } from '../dto/dashboardSettings';
+import { configForWeb, configForServer } from '../dto/dashboardSettings';
 import { SAVE_STATUS } from '../constants/dashboardSettings';
 
 import * as mock from '../api/mock/dashboardSettings';
@@ -48,6 +48,7 @@ function* doGetMenuItemsRequest({ api, logger }, action) {
 function* doSaveConfigLayoutRequest({ api, logger }, { payload }) {
   try {
     yield delay(3000);
+    const serverConfig = configForServer(payload);
     yield put(setStatusSaveConfigPage({ saveStatus: SAVE_STATUS.SUCCESS }));
   } catch (e) {
     yield put(setStatusSaveConfigPage({ saveStatus: SAVE_STATUS.FAILURE }));
