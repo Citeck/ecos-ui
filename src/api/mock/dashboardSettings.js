@@ -15,9 +15,18 @@ export function getWidgets(size) {
 
 export function getConfigPage() {
   return {
-    layoutPosition: 0,
-    widgets: [],
-    menu: []
+    type: '2-columns-big-small',
+    title: 'Домашняя страница пользователя',
+    columns: [
+      {
+        width: '10%',
+        widgets: [{}, {}, {}]
+      },
+      {
+        width: '90%',
+        widgets: [{}, {}, {}]
+      }
+    ]
   };
 }
 
