@@ -14,5 +14,13 @@ export function configForWeb(source) {
 export function configForServer(source) {
   let target = {};
 
+  target.type = source.layoutType;
+  target.columns = source.widgetsSelected.map(item => {
+    return {
+      //"width": '',
+      widgets: item
+    };
+  });
+
   return target;
 }
