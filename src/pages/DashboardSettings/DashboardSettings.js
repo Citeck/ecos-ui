@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
 import uuidV4 from 'uuid/v4';
-import { LAYOUTS, MENU_POSITION, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
+import { LAYOUTS, MENU_TYPE, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
 import { t } from '../../helpers/util';
 import { getConfigPage, getMenuItems, getWidgets, saveConfigPage } from '../../actions/dashboardSettings';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
@@ -175,8 +175,8 @@ class DashboardSettings extends React.Component {
   }
 
   draggablePositionAdjusment = () => ({
-    top: this.bodyScrollTop,
-    left: this.props.config.menuType ? this.menuWidth : -60
+    // top: this.bodyScrollTop,
+    // left: this.props.config.menuType ? this.menuWidth : -60
   });
 
   /*-------- start Layouts --------*/
@@ -222,7 +222,7 @@ class DashboardSettings extends React.Component {
       if (item.type === menu.type) {
         item.isActive = true;
 
-        isShowMenuConstructor = item.type === MENU_POSITION.TOP;
+        isShowMenuConstructor = item.type === MENU_TYPE.TOP;
       }
 
       return item;
@@ -507,19 +507,18 @@ class DashboardSettings extends React.Component {
               placeholder={t('Нет доступных виджетов')}
               isDropDisabled={true}
             >
-              {/*{widgets &&*/}
-              {/*widgets.length &&*/}
-              {/*widgets.map((item, index) => (*/}
-              {/*<DragItem*/}
-              {/*isCloning*/}
-              {/*key={item.dndId}*/}
-              {/*draggableId={item.dndId}*/}
-              {/*draggableIndex={index}*/}
-              {/*title={item.title}*/}
-              {/*getPositionAdjusment={this.draggablePositionAdjusment}*/}
-              {/*/>*/}
-              {/*))}*/}
-              {[]}
+              {widgets &&
+                widgets.length &&
+                widgets.map((item, index) => (
+                  <DragItem
+                    isCloning
+                    key={item.dndId}
+                    draggableId={item.dndId}
+                    draggableIndex={index}
+                    title={item.title}
+                    getPositionAdjusment={this.draggablePositionAdjusment}
+                  />
+                ))}
             </Droppable>
             {this.renderWidgetColumns()}
           </DragDropContext>
