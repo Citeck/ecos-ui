@@ -1,4 +1,5 @@
 import { t } from '../../helpers/util';
+import { LAYOUT_TYPE, MENU_TYPE } from '../../constants/dashboardSettings';
 
 export function getWidgets(size) {
   const arr = new Array(size);
@@ -15,7 +16,8 @@ export function getWidgets(size) {
 
 export function getConfigPage() {
   return {
-    layoutPosition: 0,
+    layoutType: LAYOUT_TYPE.TWO_COLUMNS_BS,
+    menuType: MENU_TYPE.LEFT,
     widgets: [],
     menu: []
   };
