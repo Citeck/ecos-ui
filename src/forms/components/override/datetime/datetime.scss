@@ -7,6 +7,10 @@
       border-radius: $border-radius-standard;
     }
 
+    .input-group {
+      flex-wrap: nowrap;
+    }
+
     .input-group-addon {
       border: none;
       background: none;
