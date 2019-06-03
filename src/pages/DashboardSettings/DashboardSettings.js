@@ -79,7 +79,7 @@ class DashboardSettings extends React.Component {
     let state = { ...this.state };
 
     if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
-      state = Object.assign(state, this.setStateByConfig(nextProps.config));
+      state = { ...state, ...this.setStateByConfig(nextProps.config) };
     }
     if (JSON.stringify(menuItems) !== JSON.stringify(nextProps.menuItems)) {
       state.menuItems = setDndId(nextProps.menuItems);
@@ -87,6 +87,7 @@ class DashboardSettings extends React.Component {
     if (JSON.stringify(widgets) !== JSON.stringify(nextProps.widgets)) {
       state.widgets = setDndId(nextProps.widgets);
     }
+
     this.setState(state);
   }
 
