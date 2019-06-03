@@ -21,6 +21,7 @@ $ecos_btn_grey5: ecos-btn_grey5;
   padding: 0 7px;
   margin: 0 10px 10px 0;
   min-height: 32px;
+  user-select: none !important;
 
   &:last-child {
     margin-bottom: 15px;

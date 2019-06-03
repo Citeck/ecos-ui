@@ -24,9 +24,9 @@ import PageTabs from '../PageTabs';
 
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { URL } from '../../constants';
-import { t } from '../../helpers/util';
 
 import './App.scss';
+import { MENU_TYPE } from '../../constants/dashboardSettings';
 
 class App extends Component {
   componentDidMount() {
@@ -37,7 +37,7 @@ class App extends Component {
   }
 
   render() {
-    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs } = this.props;
+    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs, menuType } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -63,6 +63,7 @@ class App extends Component {
           <div id="alf-hd">
             <Header />
             <Notification />
+            {menuType === MENU_TYPE.LEFT && <SlideMenu />}
           </div>
 
           <PageTabs homepageLink={URL.HOME} isShow={isShow} tabs={tabs} saveTabs={setTabs}>
@@ -98,7 +99,8 @@ const mapStateToProps = state => ({
   theme: state.view.theme,
   isAuthenticated: state.user.isAuthenticated,
   isShow: state.pageTabs.isShow,
-  tabs: state.pageTabs.tabs
+  tabs: state.pageTabs.tabs,
+  menuType: state.dashboardSettings.config.menuType
 });
 
 const mapDispatchToProps = dispatch => ({

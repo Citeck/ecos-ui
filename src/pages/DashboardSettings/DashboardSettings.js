@@ -174,10 +174,12 @@ class DashboardSettings extends React.Component {
     return layouts.find(item => item.isActive) || {};
   }
 
-  draggablePositionAdjusment = () => ({
-    // top: this.bodyScrollTop,
-    // left: this.props.config.menuType ? this.menuWidth : -60
-  });
+  draggablePositionAdjusment = () => {
+    return {
+      top: this.props.config.menuType === MENU_TYPE.LEFT ? this.bodyScrollTop : 0,
+      left: this.props.config.menuType === MENU_TYPE.LEFT ? this.menuWidth : -60
+    };
+  };
 
   /*-------- start Layouts --------*/
 
