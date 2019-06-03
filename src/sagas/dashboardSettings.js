@@ -12,9 +12,9 @@ import {
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
-import { configForWeb, configForServer } from '../dto/dashboardSettings';
+import { configForServer, configForWeb } from '../dto/dashboardSettings';
 import { SAVE_STATUS } from '../constants/dashboardSettings';
-
+//todo test
 import * as mock from '../api/mock/dashboardSettings';
 
 function* doGetConfigPageRequest({ api, logger }, action) {
@@ -30,7 +30,7 @@ function* doGetConfigPageRequest({ api, logger }, action) {
 function* doGetWidgetsRequest({ api, logger }, action) {
   try {
     yield delay(1000);
-    yield put(setWidgets(mock.getWidgets(20)));
+    yield put(setWidgets(mock.getWidgets()));
   } catch (e) {
     logger.error('[dashboard/settings/ doGetWidgetsRequest saga] error', e.message);
   }

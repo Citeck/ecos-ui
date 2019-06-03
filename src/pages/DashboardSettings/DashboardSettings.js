@@ -125,8 +125,8 @@ class DashboardSettings extends React.Component {
     });
 
     widgetsSelected = this.setWidgetsSelected(selectedLayout, widgetsSelected);
-    widgetsSelected.forEach(item => {
-      item.widgets = setDndId(item.widgets);
+    widgetsSelected = widgetsSelected.map(item => {
+      return setDndId(item);
     });
 
     menuSelected = setDndId(menuSelected);

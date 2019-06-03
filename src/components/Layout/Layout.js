@@ -53,7 +53,7 @@ class Layout extends Component {
       return;
     }
 
-    return <div className="ecos-layout__menu">{links.map(this.renderMenuItem)}</div>;
+    return <div className="ecos-layout__menu">{links && links.map(this.renderMenuItem)}</div>;
   }
 
   renderWidgets(widgets = []) {
@@ -104,7 +104,7 @@ class Layout extends Component {
       return null;
     }
 
-    return <div className="ecos-layout__column-wrapper">{columns.map(this.renderColumn)}</div>;
+    return <div className="ecos-layout__column-wrapper">{columns && columns.map(this.renderColumn)}</div>;
   }
 
   render() {
