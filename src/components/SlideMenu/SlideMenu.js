@@ -57,6 +57,10 @@ class SlideMenu extends React.Component {
     this.props.fetchSlideMenuItems();
   }
 
+  componentDidUpdate() {
+    this.checkbox.classList.add('slide-menu-checkbox_ready');
+  }
+
   componentWillUnmount() {
     this.checkbox.removeEventListener('change', this.onCheckboxChange);
 
