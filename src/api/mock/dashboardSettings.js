@@ -16,10 +16,19 @@ export function getWidgets(size) {
 
 export function getConfigPage() {
   return {
-    layoutType: LAYOUT_TYPE.TWO_COLUMNS_BS,
+    type: LAYOUT_TYPE.TWO_COLUMNS_BS,
     menuType: MENU_TYPE.LEFT,
-    widgets: [],
-    menu: []
+    title: 'Домашняя страница пользователя',
+    columns: [
+      {
+        width: '10%',
+        widgets: []
+      },
+      {
+        width: '90%',
+        widgets: []
+      }
+    ]
   };
 }
 

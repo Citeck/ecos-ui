@@ -12,14 +12,16 @@ import {
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
+import { configForWeb } from '../dto/dashboardSettings';
 import { SAVE_STATUS } from '../constants/dashboardSettings';
 
 import * as mock from '../api/mock/dashboardSettings';
 
 function* doGetConfigPageRequest({ api, logger }, action) {
   try {
-    yield delay(1000);
-    yield put(setConfigPage(mock.getConfigPage()));
+    yield delay(2000);
+    const webConfig = configForWeb(mock.getConfigPage());
+    yield put(setConfigPage(webConfig));
   } catch (e) {
     logger.error('[dashboard/settings/ doGetConfigPageRequest saga] error', e.message);
   }

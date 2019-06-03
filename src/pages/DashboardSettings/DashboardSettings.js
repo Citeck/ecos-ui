@@ -39,8 +39,8 @@ const DROPPABLE_ZONE = {
 class DashboardSettings extends React.Component {
   static propTypes = {
     config: PropTypes.shape({
-      layoutType: PropTypes.number,
-      menuType: PropTypes.number,
+      layoutType: PropTypes.string,
+      menuType: PropTypes.string,
       widgets: PropTypes.arrayOf(
         PropTypes.arrayOf(
           PropTypes.shape({
@@ -110,7 +110,7 @@ class DashboardSettings extends React.Component {
 
   setStateByConfig(config) {
     const { layouts, menus } = this.state;
-    let { layoutType = 0, menuType = 0, widgets: widgetsSelected, menu: menuSelected } = config;
+    let { layoutType, menuType, widgets: widgetsSelected, menu: menuSelected } = config;
     let selectedLayout = {};
 
     layouts.forEach(item => {
@@ -129,15 +129,14 @@ class DashboardSettings extends React.Component {
       item.widgets = setDndId(item.widgets);
     });
 
-    menuSelected = menuSelected.map(item => {
-      return setDndId(item.widgets);
-    });
+    menuSelected = setDndId(menuSelected);
 
     return { layouts, widgetsSelected, menuSelected };
   }
 
   setWidgetsSelected(item, widgets) {
-    let newWidgets = new Array(item.columns.length);
+    const columns = item ? item.columns || [] : [];
+    let newWidgets = new Array(columns.length);
 
     newWidgets.fill([]);
     newWidgets.forEach((value, index) => {
