@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { MENU_POSITION } from '../../constants/dashboard';
 import Layout from '../../components/Layout';
 
 class Dashboard extends Component {

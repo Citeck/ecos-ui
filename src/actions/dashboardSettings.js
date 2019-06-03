@@ -1,6 +1,6 @@
 import { createAction } from 'redux-actions';
 
-const prefix = 'dashboard/settings';
+const prefix = 'dashboard/settings/';
 
 export const setWidgets = createAction(prefix + 'SET_WIDGETS');
 export const setMenuItems = createAction(prefix + 'SET_MENU_ITEMS');

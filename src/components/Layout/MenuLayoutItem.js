@@ -1,5 +1,5 @@
 import React from 'react';
-import { MENU_POSITION } from '../../constants/dashboard';
+import { MENU_POSITION } from '../../constants/dashboardSettings';
 import './style.scss';
 import BaseLayoutItem from './BaseLayoutItem';
 

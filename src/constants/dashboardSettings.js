@@ -57,3 +57,8 @@ export const MENUS = [
     description: t('Меню в виде кнопок перед виджетами')
   }
 ];
+
+export const SAVE_STATUS = {
+  SUCCESS: 'SUCCESS',
+  FAILURE: 'FAILURE'
+};
