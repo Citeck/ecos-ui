@@ -56,16 +56,18 @@ class DocPreview extends Component {
     const oldProps = this.props;
     const { link, isLoading } = nextProps;
     const isPdf = isPDFbyStr(link);
+    let state = {};
 
-    if (oldProps.isLoading !== isLoading) {
-      if (isLoading || (!isLoading && !isPdf)) {
-        this.setState({ isLoading });
-      }
+    if (oldProps.isLoading !== isLoading && !isPdf) {
+      state = { isLoading };
     }
 
     if (oldProps.link !== link && isPdf) {
+      state = { isLoading: true, pdf: {} };
       this.loadPDF(link);
     }
+
+    this.setState({ ...state });
   }
 
   get isPDF() {
