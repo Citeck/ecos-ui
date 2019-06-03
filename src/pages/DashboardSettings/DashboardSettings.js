@@ -39,7 +39,8 @@ const DROPPABLE_ZONE = {
 class DashboardSettings extends React.Component {
   static propTypes = {
     config: PropTypes.shape({
-      layoutPosition: PropTypes.number,
+      layoutType: PropTypes.number,
+      menuType: PropTypes.number,
       widgets: PropTypes.arrayOf(
         PropTypes.arrayOf(
           PropTypes.shape({
@@ -109,18 +110,18 @@ class DashboardSettings extends React.Component {
 
   setStateByConfig(config) {
     const { layouts, menus } = this.state;
-    let { layoutPosition = 0, menuType = 0, widgets: widgetsSelected, menu: menuSelected } = config;
+    let { layoutType = 0, menuType = 0, widgets: widgetsSelected, menu: menuSelected } = config;
     let selectedLayout = {};
 
     layouts.forEach(item => {
-      item.isActive = item.position === layoutPosition;
+      item.isActive = item.type === layoutType;
 
       if (item.isActive) {
         selectedLayout = item;
       }
     });
     menus.forEach(item => {
-      item.isActive = item.position === menuType;
+      item.isActive = item.type === menuType;
     });
 
     widgetsSelected = this.setWidgetsSelected(selectedLayout, widgetsSelected);
@@ -176,17 +177,17 @@ class DashboardSettings extends React.Component {
 
   draggablePositionAdjusment = () => ({
     top: this.bodyScrollTop,
-    left: this.props.config.menuPosition ? this.menuWidth : -60
+    left: this.props.config.menuType ? this.menuWidth : -60
   });
 
   /*-------- start Layouts --------*/
 
-  handleClickColumn(column) {
+  handleClickColumn(layout) {
     let { widgetsSelected = [], layouts } = this.state;
 
     layouts = cloneDeep(layouts);
 
-    if (column.isActive) {
+    if (layout.isActive) {
       return;
     }
 
@@ -195,7 +196,7 @@ class DashboardSettings extends React.Component {
         item.isActive = false;
       }
 
-      if (item.position === column.position) {
+      if (item.type === layout.type) {
         widgetsSelected = this.setWidgetsSelected(item, widgetsSelected);
         item.isActive = true;
       }
@@ -219,7 +220,7 @@ class DashboardSettings extends React.Component {
         item.isActive = false;
       }
 
-      if (item.position === menu.position) {
+      if (item.type === menu.type) {
         item.isActive = true;
 
         isShowMenuConstructor = item.type === MENU_POSITION.TOP;
@@ -236,7 +237,7 @@ class DashboardSettings extends React.Component {
 
     return layouts.map(layout => (
       <ColumnsLayoutItem
-        key={layout.position}
+        key={`${layout.position}-${layout.type}`}
         onClick={this.handleClickColumn.bind(this, layout)}
         active={layout.isActive}
         config={{ columns: layout.columns || [] }}
@@ -250,7 +251,7 @@ class DashboardSettings extends React.Component {
 
     return menus.map(menu => (
       <MenuLayoutItem
-        key={menu.position}
+        key={`${menu.position}-${menu.type}`}
         onClick={this.handleClickMenu.bind(this, menu)}
         active={menu.isActive}
         config={{ menu }}
@@ -540,10 +541,10 @@ class DashboardSettings extends React.Component {
   handleAcceptClick = () => {
     const { saveConfigPage } = this.props;
     const { widgetsSelected: widgets, menuSelected: menu, menus } = this.state;
-    const layoutPosition = this.selectedLayout.position;
-    const menuType = menus.find(item => item.isActive).position;
+    const layoutType = this.selectedLayout.type;
+    const menuType = menus.find(item => item.isActive).type;
 
-    saveConfigPage({ layoutPosition, menuType, widgets, menu });
+    saveConfigPage({ layoutType, menuType, widgets, menu });
   };
 
   renderButtons() {
