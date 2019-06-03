@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import SlideMenu from '../SlideMenu';
-import { LAYOUT_TYPE, MENU_POSITION } from '../../constants/dashboard';
+import { MENU_POSITION } from '../../constants/dashboardSettings';
 import Components from '../Components';
 import './style.scss';
 

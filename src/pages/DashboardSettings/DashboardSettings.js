@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
 import uuidV4 from 'uuid/v4';
-import { LAYOUTS, MENU_POSITION, MENUS } from '../../constants/dashboard';
+import { LAYOUTS, MENU_POSITION, MENUS } from '../../constants/dashboardSettings';
 import { t } from '../../helpers/util';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
@@ -518,19 +518,22 @@ class DashboardSettings extends React.Component {
 
   /*-------- start Buttons --------*/
 
-  handleClickCancel = () => {
-    this.initDataRequest();
+  handleCancelClick = () => {
+    const url = window.location.href;
+    const endIndex = url.lastIndexOf('/settings');
+
+    window.location.href = url.substring(0, endIndex);
   };
 
-  handleClickAccept = () => {};
+  handleAcceptClick = () => {};
 
   renderButtons() {
     return (
       <div className={'ecos-ds__actions'}>
-        <Btn className={'ecos-btn_x-step_10'} onClick={this.handleClickCancel}>
+        <Btn className={'ecos-btn_x-step_10'} onClick={this.handleCancelClick}>
           {t('Отмена')}
         </Btn>
-        <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.handleClickAccept}>
+        <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.handleAcceptClick}>
           {t('Применить')}
         </Btn>
       </div>
