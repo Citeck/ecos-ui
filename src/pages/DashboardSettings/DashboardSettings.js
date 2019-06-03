@@ -62,7 +62,6 @@ class DashboardSettings extends React.Component {
     this.state = {
       layouts: LAYOUTS,
       menus: MENUS,
-      selectedLayout: {},
       widgetsSelected: [],
       isShowMenuConstructor: false,
       menuSelected: [],
@@ -112,6 +111,7 @@ class DashboardSettings extends React.Component {
       }
     });
 
+    widgetsSelected = this.setWidgetsSelected(selectedLayout, widgetsSelected);
     widgetsSelected = widgetsSelected.map(item => {
       return setDndId(item.widgets);
     });
@@ -120,7 +120,20 @@ class DashboardSettings extends React.Component {
       return setDndId(item.widgets);
     });
 
-    return { layouts, selectedLayout, widgetsSelected, menuSelected };
+    return { layouts, widgetsSelected, menuSelected };
+  }
+
+  setWidgetsSelected(item, widgets) {
+    let newWidgets = new Array(item.columns.length);
+
+    newWidgets.fill([]);
+    newWidgets.forEach((value, index) => {
+      if (widgets && index < widgets.length) {
+        newWidgets[index] = widgets[index] || [];
+      }
+    });
+
+    return newWidgets;
   }
 
   get menuWidth() {
@@ -143,6 +156,12 @@ class DashboardSettings extends React.Component {
     return body.scrollTop;
   }
 
+  get selectedLayout() {
+    const { layouts = [] } = this.state;
+
+    return layouts.find(item => item.isActive) || {};
+  }
+
   draggablePositionAdjusment = () => ({
     top: this.bodyScrollTop,
     left: this.menuWidth
@@ -151,8 +170,9 @@ class DashboardSettings extends React.Component {
   /*-------- start Layouts --------*/
 
   handleClickColumn(column) {
-    let layouts = cloneDeep(this.state.layouts);
-    let { widgetsSelected } = this.state;
+    let { widgetsSelected = [], layouts } = this.state;
+
+    layouts = cloneDeep(layouts);
 
     if (column.isActive) {
       return;
@@ -164,16 +184,7 @@ class DashboardSettings extends React.Component {
       }
 
       if (item.position === column.position) {
-        let newWidgets = new Array(item.columns.length);
-
-        newWidgets.fill([]);
-        newWidgets.forEach((value, index) => {
-          if (widgetsSelected && index < widgetsSelected.length) {
-            newWidgets[index] = widgetsSelected[index] || [];
-          }
-        });
-
-        widgetsSelected = newWidgets;
+        widgetsSelected = this.setWidgetsSelected(item, widgetsSelected);
         item.isActive = true;
       }
 
@@ -425,8 +436,8 @@ class DashboardSettings extends React.Component {
   };
 
   renderWidgetColumns() {
-    const { widgetsSelected, draggableDestination, selectedLayout } = this.state;
-    const columns = selectedLayout.columns || [];
+    const { widgetsSelected, draggableDestination } = this.state;
+    const columns = this.selectedLayout.columns || [];
 
     return (
       <div className={'ecos-ds__drag-container_widgets-to'}>
@@ -507,7 +518,7 @@ class DashboardSettings extends React.Component {
   /*-------- start Buttons --------*/
 
   handleClickCancel = () => {
-    //this.initDataRequest();
+    this.initDataRequest();
   };
 
   handleClickAccept = () => {};
@@ -555,6 +566,9 @@ const reorder = (list, startIndex, endIndex) => {
 };
 
 const move = (source, destination, droppableSource, droppableDestination) => {
+  source = source || [];
+  destination = destination || [];
+
   const sourceClone = Array.from(source);
   const destClone = Array.from(destination);
   const [removed] = sourceClone.splice(droppableSource.index, 1);
@@ -567,7 +581,10 @@ const move = (source, destination, droppableSource, droppableDestination) => {
   return result;
 };
 
-const copy = (source = [], destination = [], droppableSource, droppableDestination) => {
+const copy = (source, destination, droppableSource, droppableDestination) => {
+  source = source || [];
+  destination = destination || [];
+
   const sourceClone = Array.from(source);
   const destClone = Array.from(destination);
   const item = sourceClone[droppableSource.index];
