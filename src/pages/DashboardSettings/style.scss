@@ -169,4 +169,8 @@
   &__actions {
     margin-top: 26px;
   }
+
+  &__loader-wrapper {
+    background-color: rgba($color-gray-5, 0.3);
+  }
 }

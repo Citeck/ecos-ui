@@ -10,6 +10,9 @@ import {
   setStatusSaveConfigPage,
   setWidgets
 } from '../actions/dashboardSettings';
+import { setNotificationMessage } from '../actions/notification';
+import { t } from '../helpers/util';
+import { SAVE_STATUS } from '../constants/dashboardSettings';
 
 import * as mock from '../api/mock/dashboardSettings';
 
@@ -18,7 +21,7 @@ function* doGetConfigPageRequest({ api, logger }, action) {
     yield delay(1000);
     yield put(setConfigPage(mock.getConfigPage()));
   } catch (e) {
-    logger.error('[dashboard/settings doGetConfigPageRequest saga] error', e.message);
+    logger.error('[dashboard/settings/ doGetConfigPageRequest saga] error', e.message);
   }
 }
 
@@ -27,7 +30,7 @@ function* doGetWidgetsRequest({ api, logger }, action) {
     yield delay(1000);
     yield put(setWidgets(mock.getWidgets(20)));
   } catch (e) {
-    logger.error('[dashboard/settings doGetWidgetsRequest saga] error', e.message);
+    logger.error('[dashboard/settings/ doGetWidgetsRequest saga] error', e.message);
   }
 }
 
@@ -36,16 +39,18 @@ function* doGetMenuItemsRequest({ api, logger }, action) {
     yield delay(1000);
     yield put(setMenuItems(mock.getMenuItems()));
   } catch (e) {
-    logger.error('[dashboard/settings doGetMenuItemsRequest saga] error', e.message);
+    logger.error('[dashboard/settings/ doGetMenuItemsRequest saga] error', e.message);
   }
 }
 
-function* doSaveConfigLayoutRequest({ api, logger }, action) {
+function* doSaveConfigLayoutRequest({ api, logger }, { payload }) {
   try {
-    yield delay(1000);
-    yield put(setStatusSaveConfigPage({}));
+    yield delay(3000);
+    yield put(setStatusSaveConfigPage({ saveStatus: SAVE_STATUS.SUCCESS }));
   } catch (e) {
-    logger.error('[dashboard/settings doSaveConfigLayoutRequest saga] error', e.message);
+    yield put(setStatusSaveConfigPage({ saveStatus: SAVE_STATUS.FAILURE }));
+    yield put(setNotificationMessage(t('Ошибка. Данные не сохранены')));
+    logger.error('[dashboard/settings/ doSaveConfigLayoutRequest saga] error', e.message);
   }
 }
 

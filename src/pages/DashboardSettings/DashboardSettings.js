@@ -4,25 +4,29 @@ import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
 import uuidV4 from 'uuid/v4';
-import { LAYOUTS, MENU_POSITION, MENUS } from '../../constants/dashboardSettings';
+import { LAYOUTS, MENU_POSITION, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
 import { t } from '../../helpers/util';
+import { getConfigPage, getMenuItems, getWidgets, saveConfigPage } from '../../actions/dashboardSettings';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { Btn } from '../../components/common/btns';
-import { getConfigPage, getMenuItems, getWidgets } from '../../actions/dashboardSettings';
+import Loader from '../../components/common/Loader/Loader';
 
 import './style.scss';
 
 const mapStateToProps = state => ({
   config: state.dashboardSettings.config,
   widgets: state.dashboardSettings.widgets,
-  menuItems: state.dashboardSettings.menuItems
+  menuItems: state.dashboardSettings.menuItems,
+  isLoading: state.dashboardSettings.isLoading,
+  saveStatus: state.dashboardSettings.saveStatus
 });
 
 const mapDispatchToProps = dispatch => ({
   getConfigPage: () => dispatch(getConfigPage()),
   getWidgets: () => dispatch(getWidgets()),
-  getMenuItems: () => dispatch(getMenuItems())
+  getMenuItems: () => dispatch(getMenuItems()),
+  saveConfigPage: payload => dispatch(saveConfigPage(payload))
 });
 
 const DROPPABLE_ZONE = {
@@ -75,7 +79,7 @@ class DashboardSettings extends React.Component {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    let { config, menuItems, widgets } = this.props;
+    let { config, menuItems, widgets, saveStatus } = this.props;
     let state = { ...this.state };
 
     if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
@@ -89,6 +93,10 @@ class DashboardSettings extends React.Component {
     }
 
     this.setState(state);
+
+    if (saveStatus !== nextProps.saveStatus && nextProps.saveStatus !== SAVE_STATUS.FAILURE) {
+      this.handleCloseClick();
+    }
   }
 
   initDataRequest() {
@@ -100,8 +108,8 @@ class DashboardSettings extends React.Component {
   }
 
   setStateByConfig(config) {
-    const { layouts } = this.state;
-    let { layoutPosition = 0, widgets: widgetsSelected, menu: menuSelected } = config;
+    const { layouts, menus } = this.state;
+    let { layoutPosition = 0, menuType = 0, widgets: widgetsSelected, menu: menuSelected } = config;
     let selectedLayout = {};
 
     layouts.forEach(item => {
@@ -111,10 +119,13 @@ class DashboardSettings extends React.Component {
         selectedLayout = item;
       }
     });
+    menus.forEach(item => {
+      item.isActive = item.position === menuType;
+    });
 
     widgetsSelected = this.setWidgetsSelected(selectedLayout, widgetsSelected);
-    widgetsSelected = widgetsSelected.map(item => {
-      return setDndId(item.widgets);
+    widgetsSelected.forEach(item => {
+      item.widgets = setDndId(item.widgets);
     });
 
     menuSelected = menuSelected.map(item => {
@@ -518,19 +529,26 @@ class DashboardSettings extends React.Component {
 
   /*-------- start Buttons --------*/
 
-  handleCancelClick = () => {
+  handleCloseClick = () => {
     const url = window.location.href;
     const endIndex = url.lastIndexOf('/settings');
 
     window.location.href = url.substring(0, endIndex);
   };
 
-  handleAcceptClick = () => {};
+  handleAcceptClick = () => {
+    const { saveConfigPage } = this.props;
+    const { widgetsSelected: widgets, menuSelected: menu, menus } = this.state;
+    const layoutPosition = this.selectedLayout.position;
+    const menuType = menus.find(item => item.isActive).position;
+
+    saveConfigPage({ layoutPosition, menuType, widgets, menu });
+  };
 
   renderButtons() {
     return (
       <div className={'ecos-ds__actions'}>
-        <Btn className={'ecos-btn_x-step_10'} onClick={this.handleCancelClick}>
+        <Btn className={'ecos-btn_x-step_10'} onClick={this.handleCloseClick}>
           {t('Отмена')}
         </Btn>
         <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.handleAcceptClick}>
@@ -538,6 +556,16 @@ class DashboardSettings extends React.Component {
         </Btn>
       </div>
     );
+  }
+
+  renderLoader() {
+    let { isLoading } = this.props;
+
+    if (!isLoading) {
+      return null;
+    }
+
+    return <Loader className={`ecos-ds__loader-wrapper`} />;
   }
 
   render() {
@@ -550,6 +578,7 @@ class DashboardSettings extends React.Component {
         </Row>
 
         <div className="ecos-ds__container">
+          {this.renderLoader()}
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
           {this.renderMenuBlock()}
