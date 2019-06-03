@@ -60,11 +60,21 @@ export class Droppable extends React.Component {
     return classes.join(' ');
   }
 
+  get hasChildren() {
+    const { children } = this.props;
+
+    if (Array.isArray(children) && !children.length) {
+      return false;
+    }
+
+    return children;
+  }
+
   renderChildren(provided, snapshot) {
     const { children, placeholder, style } = this.props;
     let body = <div className="ecos-dnd__placeholder">{placeholder}</div>;
 
-    if (children) {
+    if (this.hasChildren) {
       body = (
         <Fragment>
           {children}
