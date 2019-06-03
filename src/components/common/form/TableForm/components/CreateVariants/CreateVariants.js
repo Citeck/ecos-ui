@@ -8,14 +8,18 @@ import { t } from '../../../../../../helpers/util';
 const CreateVariants = () => {
   const context = useContext(TableFormContext);
 
-  const { isCompact, disabled } = context.controlProps;
-  const { showCreateForm, createVariants } = context;
+  const { isCompact, disabled, multiple } = context.controlProps;
+  const { showCreateForm, createVariants, selectedRows } = context;
 
   const buttonClasses = classNames('ecos-btn_blue', {
     'ecos-btn_narrow': isCompact
   });
 
   let createButton = null;
+  let isButtonDisabled = disabled;
+  if (!multiple && selectedRows.length > 0) {
+    isButtonDisabled = true;
+  }
   if (Array.isArray(createVariants) && createVariants.length > 0) {
     if (createVariants.length === 1) {
       const onClick = () => {
@@ -23,7 +27,7 @@ const CreateVariants = () => {
       };
 
       createButton = (
-        <Btn className={buttonClasses} onClick={onClick} disabled={disabled}>
+        <Btn className={buttonClasses} onClick={onClick} disabled={isButtonDisabled}>
           {t('ecos-table-form.create-button')}
         </Btn>
       );
@@ -38,7 +42,7 @@ const CreateVariants = () => {
             invert={'true'}
             icon="icon-down"
             className={classNames('btn_drop-down btn_r_8 btn_blue', buttonClasses)}
-            disabled={disabled}
+            disabled={isButtonDisabled}
           >
             {t('ecos-table-form.create-button')}
           </IcoBtn>

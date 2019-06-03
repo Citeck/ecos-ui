@@ -2,7 +2,7 @@ import BaseReactComponent from '../base/BaseReactComponent';
 import TableForm from '../../../../components/common/form/TableForm';
 import lodashGet from 'lodash/get';
 
-export default class SelectOrgstructComponent extends BaseReactComponent {
+export default class TableFormComponent extends BaseReactComponent {
   static schema(...extend) {
     return BaseReactComponent.schema(
       {
@@ -33,12 +33,12 @@ export default class SelectOrgstructComponent extends BaseReactComponent {
       icon: 'fa fa-th-list',
       group: 'advanced',
       weight: 0,
-      schema: SelectOrgstructComponent.schema()
+      schema: TableFormComponent.schema()
     };
   }
 
   get defaultSchema() {
-    return SelectOrgstructComponent.schema();
+    return TableFormComponent.schema();
   }
 
   get emptyValue() {
@@ -49,6 +49,12 @@ export default class SelectOrgstructComponent extends BaseReactComponent {
 
   getComponentToRender() {
     return TableForm;
+  }
+
+  setReactValue(component, value) {
+    this.setReactProps({
+      defaultValue: value
+    });
   }
 
   getInitialReactProps() {

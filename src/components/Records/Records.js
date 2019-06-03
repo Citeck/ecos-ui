@@ -415,7 +415,25 @@ class Record {
     this._attributes = {};
   }
 
-  getAttributesToPersist(useRawKeys = false) {
+  getRawAttributes() {
+    let attributes = {};
+
+    for (let attName in this._attributes) {
+      if (!this._attributes.hasOwnProperty(attName)) {
+        continue;
+      }
+
+      let attribute = this._attributes[attName];
+      if (attName.startsWith('.att') && attName.indexOf('"') !== 1) {
+        attName = attName.split('"')[1];
+        attributes[attName] = attribute.value;
+      }
+    }
+
+    return attributes;
+  }
+
+  getAttributesToPersist() {
     let attributesToPersist = {};
 
     for (let attName in this._attributes) {
@@ -424,9 +442,6 @@ class Record {
       }
 
       let attribute = this._attributes[attName];
-      if (useRawKeys && attName.indexOf('"') !== 1) {
-        attName = attName.split('"')[1];
-      }
 
       if (!attribute.isPersisted()) {
         attributesToPersist[attName] = attribute.value;
