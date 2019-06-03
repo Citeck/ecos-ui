@@ -19,7 +19,7 @@ const CreateVariants = () => {
   if (Array.isArray(createVariants) && createVariants.length > 0) {
     if (createVariants.length === 1) {
       const onClick = () => {
-        showCreateForm(`dict@${createVariants[0]['type']}`);
+        showCreateForm(createVariants[0]['type']);
       };
 
       createButton = (
@@ -29,7 +29,7 @@ const CreateVariants = () => {
       );
     } else {
       const onSelect = selected => {
-        showCreateForm(`dict@${selected.type}`);
+        showCreateForm(selected.type);
       };
 
       createButton = (
