@@ -13,26 +13,31 @@ export const MENU_POSITION = {
 export const LAYOUTS = [
   {
     position: 0,
+    type: '2-columns-big-small',
     isActive: true,
     columns: [{}, { width: '25%' }]
   },
   {
     position: 1,
+    type: '2-columns-small-big',
     isActive: false,
     columns: [{ width: '25%' }, {}]
   },
   {
     position: 2,
+    type: '3-columns-center-big',
     isActive: false,
     columns: [{ width: '25%' }, {}, { width: '25%' }]
   },
   {
     position: 3,
+    type: '4-columns',
     isActive: false,
     columns: [{}, {}, {}, {}]
   },
   {
     position: 4,
+    type: '1-column',
     isActive: false,
     columns: [{}]
   }

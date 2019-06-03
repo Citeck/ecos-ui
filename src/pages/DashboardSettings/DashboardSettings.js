@@ -165,7 +165,7 @@ class DashboardSettings extends React.Component {
 
   draggablePositionAdjusment = () => ({
     top: this.bodyScrollTop,
-    left: this.menuWidth
+    left: this.props.config.menuPosition ? this.menuWidth : -60
   });
 
   /*-------- start Layouts --------*/
@@ -496,18 +496,19 @@ class DashboardSettings extends React.Component {
               placeholder={t('Нет доступных виджетов')}
               isDropDisabled={true}
             >
-              {widgets &&
-                widgets.length &&
-                widgets.map((item, index) => (
-                  <DragItem
-                    isCloning
-                    key={item.dndId}
-                    draggableId={item.dndId}
-                    draggableIndex={index}
-                    title={item.title}
-                    getPositionAdjusment={this.draggablePositionAdjusment}
-                  />
-                ))}
+              {/*{widgets &&*/}
+              {/*widgets.length &&*/}
+              {/*widgets.map((item, index) => (*/}
+              {/*<DragItem*/}
+              {/*isCloning*/}
+              {/*key={item.dndId}*/}
+              {/*draggableId={item.dndId}*/}
+              {/*draggableIndex={index}*/}
+              {/*title={item.title}*/}
+              {/*getPositionAdjusment={this.draggablePositionAdjusment}*/}
+              {/*/>*/}
+              {/*))}*/}
+              {[]}
             </Droppable>
             {this.renderWidgetColumns()}
           </DragDropContext>

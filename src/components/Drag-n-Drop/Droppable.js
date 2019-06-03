@@ -72,7 +72,11 @@ export class Droppable extends React.Component {
 
   renderChildren(provided, snapshot) {
     const { children, placeholder, style } = this.props;
-    let body = <div className="ecos-dnd__placeholder">{placeholder}</div>;
+    let body = (
+      <div className="ecos-dnd__placeholder-wrapper">
+        <div className="ecos-dnd__placeholder">{placeholder}</div>
+      </div>
+    );
 
     if (this.hasChildren) {
       body = (

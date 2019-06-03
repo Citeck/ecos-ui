@@ -24,6 +24,8 @@ import PageTabs from '../PageTabs';
 
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { URL } from '../../constants';
+import { t } from '../../helpers/util';
+
 import './App.scss';
 
 class App extends Component {
