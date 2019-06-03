@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import SlideMenu from '../SlideMenu';
-import { MENU_POSITION } from '../../constants/dashboardSettings';
+import { MENU_TYPE } from '../../constants/dashboardSettings';
 import Components from '../Components';
 import './style.scss';
 
@@ -15,7 +15,7 @@ class Layout extends Component {
       })
     ).isRequired,
     menu: PropTypes.shape({
-      type: PropTypes.oneOf(Object.keys(MENU_POSITION).map(key => MENU_POSITION[key])),
+      type: PropTypes.oneOf(Object.keys(MENU_TYPE).map(key => MENU_TYPE[key])),
       links: PropTypes.arrayOf(PropTypes.object)
     }).isRequired
   };
@@ -28,7 +28,7 @@ class Layout extends Component {
     } = this.props;
     const classes = ['ecos-layout'];
 
-    if (type === MENU_POSITION.LEFT) {
+    if (type === MENU_TYPE.LEFT) {
       classes.push('ecos-layout_left-menu');
     }
 
@@ -50,7 +50,7 @@ class Layout extends Component {
       menu: { type, links }
     } = this.props;
 
-    if (type === MENU_POSITION.LEFT) {
+    if (type === MENU_TYPE.LEFT) {
       return <SlideMenu />;
     }
 

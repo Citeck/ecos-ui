@@ -1,5 +1,5 @@
 import React from 'react';
-import { MENU_POSITION } from '../../constants/dashboardSettings';
+import { MENU_TYPE } from '../../constants/dashboardSettings';
 import './style.scss';
 import BaseLayoutItem from './BaseLayoutItem';
 
@@ -21,7 +21,7 @@ export default class MenuLayoutItem extends BaseLayoutItem {
       return null;
     }
 
-    if (menu.type === MENU_POSITION.LEFT) {
+    if (menu.type === MENU_TYPE.LEFT) {
       block = (
         <div className="ecos-layout__menu">
           <div className="ecos-layout__menu-left" />
@@ -29,7 +29,7 @@ export default class MenuLayoutItem extends BaseLayoutItem {
       );
     }
 
-    if (menu.type === MENU_POSITION.TOP) {
+    if (menu.type === MENU_TYPE.TOP) {
       block = (
         <div className="ecos-layout__menu ecos-layout__menu_top">
           <div className="ecos-layout__menu-item-template" />
