@@ -1,5 +1,13 @@
 import { handleActions } from 'redux-actions';
-import { setConfigPage, setMenuItems, setWidgets, setStatusSaveConfigPage, saveConfigPage } from '../actions/dashboardSettings';
+import {
+  setConfigPage,
+  setMenuItems,
+  setWidgets,
+  setStatusSaveConfigPage,
+  saveConfigPage,
+  initSettings,
+  stopLoading
+} from '../actions/dashboardSettings';
 import { LAYOUT_TYPE, MENU_TYPE } from '../constants/dashboardSettings';
 
 const initialState = {
@@ -19,6 +27,12 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [initSettings]: state => {
+      return {
+        ...state,
+        isLoading: true
+      };
+    },
     [setConfigPage]: (state, action) => {
       return {
         ...state,
@@ -50,6 +64,12 @@ export default handleActions(
         ...state,
         isLoading: false,
         saveStatus
+      };
+    },
+    [stopLoading]: state => {
+      return {
+        ...state,
+        isLoading: false
       };
     }
   },

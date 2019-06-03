@@ -16,7 +16,7 @@ export function configForServer(source) {
 
   target.type = source.layoutType;
   target.menuType = source.menuType;
-  target.columns = source.widgets.map((widget, index) => {
+  target.columns = source.columns.map((column, index) => {
     const data = {
       widgets: source.widgets[index]
     };

@@ -4,11 +4,13 @@ import {
   getConfigPage,
   getMenuItems,
   getWidgets,
+  initSettings,
   saveConfigPage,
   setConfigPage,
   setMenuItems,
   setStatusSaveConfigPage,
-  setWidgets
+  setWidgets,
+  stopLoading
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
@@ -16,6 +18,17 @@ import { configForServer, configForWeb } from '../dto/dashboardSettings';
 import { SAVE_STATUS } from '../constants/dashboardSettings';
 //todo test
 import * as mock from '../api/mock/dashboardSettings';
+
+function* doInitSettingsRequest({ api, logger }, action) {
+  try {
+    yield put(getWidgets());
+    yield put(getMenuItems());
+    yield put(getConfigPage());
+    yield put(stopLoading());
+  } catch (e) {
+    logger.error('[dashboard/settings/ doInitSettingsRequest saga] error', e.message);
+  }
+}
 
 function* doGetConfigPageRequest({ api, logger }, action) {
   try {
@@ -58,6 +71,7 @@ function* doSaveConfigLayoutRequest({ api, logger }, { payload }) {
 }
 
 function* saga(ea) {
+  yield takeLatest(initSettings().type, doInitSettingsRequest, ea);
   yield takeLatest(getConfigPage().type, doGetConfigPageRequest, ea);
   yield takeLatest(getWidgets().type, doGetWidgetsRequest, ea);
   yield takeLatest(getMenuItems().type, doGetMenuItemsRequest, ea);
