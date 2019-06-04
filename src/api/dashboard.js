@@ -1,0 +1,41 @@
+import { RecordService } from './recordService';
+import Records from '../components/Records';
+
+export class DashboardApi extends RecordService {
+  getAllWidgets = () => {
+    return this.query({
+      query: {},
+      attributes: {}
+    }).then(resp => {
+      return resp || {};
+    });
+  };
+
+  getDashboardConfig = ({ recordId, key }) => {
+    const params = {
+      query: {
+        query: {
+          record: `workspace://SpacesStore/${recordId}`
+        },
+        sourceId: 'uiserv/dashboard'
+      },
+      attributes: {
+        key: key,
+        config: 'config?json'
+      }
+    };
+
+    return Records.queryOne(params.query, params.attributes).then(resp => {
+      return resp || {};
+    });
+  };
+
+  saveDashboardConfig = ({ key, config }) => {
+    const record = Records.get(`uiserv/dashboard@${key}`);
+
+    record.att('config?json', config);
+    record.save();
+
+    return record;
+  };
+}

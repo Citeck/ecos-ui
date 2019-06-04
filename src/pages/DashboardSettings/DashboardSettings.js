@@ -176,9 +176,8 @@ class DashboardSettings extends React.Component {
   /*-------- start Layouts --------*/
 
   handleClickColumn(layout) {
-    let { widgetsSelected = [], layouts } = this.state;
-
-    layouts = cloneDeep(layouts);
+    let { widgetsSelected = [], layouts: oldLayouts } = this.state;
+    let layouts = cloneDeep(oldLayouts);
 
     if (layout.isActive) {
       return;
@@ -330,7 +329,7 @@ class DashboardSettings extends React.Component {
                 menuItems.length &&
                 menuItems.map((item, index) => (
                   <DragItem
-                    title={item.name}
+                    title={item.label}
                     key={`all-${item.id}-${index}`}
                     draggableId={item.dndId}
                     draggableIndex={index}
@@ -350,7 +349,7 @@ class DashboardSettings extends React.Component {
                 menuSelected.map((item, index) => (
                   <DragItem
                     className="ecos-ds__column-widgets__items__cell ecos-drag-item_full"
-                    title={item.name}
+                    title={item.label}
                     key={`selected-${item.id}-${index}`}
                     draggableId={item.dndId}
                     draggableIndex={index}
@@ -590,7 +589,7 @@ class DashboardSettings extends React.Component {
 }
 
 const reorder = (list, startIndex, endIndex) => {
-  const result = Array.from(list);
+  const result = cloneDeep(list);
   const [removed] = result.splice(startIndex, 1);
 
   result.splice(endIndex, 0, removed);
@@ -602,8 +601,8 @@ const move = (source, destination, droppableSource, droppableDestination) => {
   source = source || [];
   destination = destination || [];
 
-  const sourceClone = Array.from(source);
-  const destClone = Array.from(destination);
+  const sourceClone = cloneDeep(source);
+  const destClone = cloneDeep(destination);
   const [removed] = sourceClone.splice(droppableSource.index, 1);
   const result = {};
 
@@ -618,8 +617,8 @@ const copy = (source, destination, droppableSource, droppableDestination) => {
   source = source || [];
   destination = destination || [];
 
-  const sourceClone = Array.from(source);
-  const destClone = Array.from(destination);
+  const sourceClone = cloneDeep(source);
+  const destClone = cloneDeep(destination);
   const item = sourceClone[droppableSource.index];
 
   destClone.splice(droppableDestination.index, 0, { ...item });
@@ -628,7 +627,7 @@ const copy = (source, destination, droppableSource, droppableDestination) => {
 };
 
 const setDndId = items => {
-  const arr = Array.from(items || []);
+  const arr = cloneDeep(items || []);
 
   arr.forEach(value => (value.dndId = uuidV4()));
 
