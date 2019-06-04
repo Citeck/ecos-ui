@@ -1,0 +1,10 @@
+@import '../../../constants';
+
+.formio-dialog-content .preview-panel,
+.formio-form {
+  .formio-component-number {
+    .input-group {
+      flex-wrap: nowrap;
+    }
+  }
+}

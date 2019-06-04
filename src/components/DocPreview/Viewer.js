@@ -73,6 +73,10 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
       }
     }
 
+    componentWillUnmount() {
+      document.removeEventListener('fullscreenchange', this.onFullscreenchange, false);
+    }
+
     get elScrollbar() {
       const { refScrollbar } = this.refs;
 
