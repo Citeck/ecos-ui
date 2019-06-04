@@ -5,8 +5,8 @@ export function configForWeb(source) {
   target.layoutType = source.type || 0;
   target.menuType = source.menuType || ''; //todo what field
 
-  target.widgetsSelected = columns ? columns.map(item => item.widgets) : [];
-  target.menuSelected = [];
+  target.widgets = columns ? columns.map(item => item.widgets) : [];
+  target.menu = [];
 
   return target;
 }

@@ -7,6 +7,7 @@ import user from './user';
 import journals from './journals';
 import pageTabs from './pageTabs';
 import dashboardSettings from './dashboardSettings';
+import dashboard from './dashboard';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -17,6 +18,7 @@ export default function* rootSaga(extraArguments) {
     user(extraArguments),
     journals(extraArguments),
     pageTabs(extraArguments),
-    dashboardSettings(extraArguments)
+    dashboardSettings(extraArguments),
+    dashboard(extraArguments)
   ]);
 }

@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash';
 import uuidV4 from 'uuid/v4';
 import { LAYOUTS, MENU_TYPE, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
 import { t } from '../../helpers/util';
-import { getConfigPage, getMenuItems, getWidgets, saveConfigPage } from '../../actions/dashboardSettings';
+import { initSettings, saveConfigPage } from '../../actions/dashboardSettings';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { Btn } from '../../components/common/btns';
@@ -23,9 +23,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  getConfigPage: () => dispatch(getConfigPage()),
-  getWidgets: () => dispatch(getWidgets()),
-  getMenuItems: () => dispatch(getMenuItems()),
+  initSettings: () => dispatch(initSettings()),
   saveConfigPage: payload => dispatch(saveConfigPage(payload))
 });
 
@@ -76,7 +74,9 @@ class DashboardSettings extends React.Component {
   }
 
   componentDidMount() {
-    this.initDataRequest();
+    const { initSettings } = this.props;
+
+    initSettings();
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -100,14 +100,6 @@ class DashboardSettings extends React.Component {
     }
   }
 
-  initDataRequest() {
-    const { getConfigPage, getWidgets, getMenuItems } = this.props;
-
-    getConfigPage();
-    getWidgets();
-    getMenuItems();
-  }
-
   setStateByConfig(config) {
     const { layouts, menus } = this.state;
     let { layoutType, menuType, widgets: widgetsSelected, menu: menuSelected } = config;
@@ -125,8 +117,8 @@ class DashboardSettings extends React.Component {
     });
 
     widgetsSelected = this.setWidgetsSelected(selectedLayout, widgetsSelected);
-    widgetsSelected.forEach(item => {
-      item.widgets = setDndId(item.widgets);
+    widgetsSelected = widgetsSelected.map(item => {
+      return setDndId(item);
     });
 
     menuSelected = setDndId(menuSelected);

@@ -1,17 +1,17 @@
 import { t } from '../../helpers/util';
 import { LAYOUT_TYPE, MENU_TYPE } from '../../constants/dashboardSettings';
 
-export function getWidgets(size) {
-  const arr = new Array(size);
-
-  for (let i = 0; i < arr.length; i++) {
-    arr[i] = {
-      title: i + ' string'.repeat(i + 1),
-      id: `widget-${i}`
-    };
-  }
-
-  return arr;
+export function getWidgets() {
+  return [
+    {
+      title: 'Предпросмотр',
+      name: 'doc-preview'
+    },
+    {
+      title: 'Журнал',
+      name: 'journal'
+    }
+  ];
 }
 
 export function getConfigPage() {
@@ -19,15 +19,94 @@ export function getConfigPage() {
     type: LAYOUT_TYPE.TWO_COLUMNS_BS,
     menuType: MENU_TYPE.LEFT,
     title: 'Домашняя страница пользователя',
+    menu: {
+      type: 'TOP',
+      links: [
+        {
+          title: 'Журнал',
+          position: 0,
+          link: '/share/page/journals'
+        },
+        {
+          title: 'Журнал дашборд и ещё много-много текста в этой ссылке',
+          position: 1,
+          link: '/share/page/journalsDashboard'
+        },
+        {
+          title: 'Настройка дашборда',
+          position: 2,
+          link: '/dashboard/settings'
+        },
+        {
+          title: 'Настройка дашборда',
+          position: 3,
+          link: '/dashboard/settings'
+        },
+        {
+          title: 'Настройка дашборда',
+          position: 4,
+          link: '/dashboard/settings'
+        }
+      ]
+    },
     columns: [
       {
-        width: '10%',
-        widgets: []
+        width: '40%',
+        widgets: [
+          {
+            title: 'Предпросмотр',
+            name: 'doc-preview',
+            props: {
+              id: 'doc-preview-1',
+              config: {
+                link:
+                  '/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/801da94d-c08a-472c-8cdd-0d50248adb0b/Договор%20№44.pdf',
+                height: '500px',
+                scale: 1
+              }
+            }
+          }
+        ]
       },
       {
-        width: '90%',
-        widgets: []
+        // width: '60%',
+        widgets: [
+          {
+            title: 'Предпросмотр',
+            name: 'doc-preview',
+            props: {
+              id: 'doc-preview-0',
+              config: {
+                link: '/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/2557e4b7-725f-40f3-95da-6175a67d3b3f/sample.pdf',
+                height: '200px',
+                scale: 0.5
+              }
+            }
+          },
+          {
+            title: 'Журнал',
+            name: 'journal'
+          }
+        ]
       }
+      // {
+      //   width: '40%',
+      //   widgets: [
+      //     {
+      //      title: 'Предпросмотр',
+      //       name: 'doc-preview',
+      //       props: {
+      //         id: 'doc-preview-1',
+      //         config: {
+      //           link:
+      //             '/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/801da94d-c08a-472c-8cdd-0d50248adb0b/Договор%20№44.pdf',
+      //           height: '500px',
+      //           scale: 1
+      //         }
+      //       }
+      //     }
+      //   ]
+      // }
     ]
   };
 }

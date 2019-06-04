@@ -13,6 +13,7 @@ import journals from './journals';
 import { rootReducer as cardDetails } from './cardDetails';
 import pageTabs from './pageTabs';
 import dashboardSettings from './dashboardSettings';
+import dashboard from './dashboard';
 
 const reducers = {
   app,
@@ -26,7 +27,8 @@ const reducers = {
   view,
   journals,
   pageTabs,
-  dashboardSettings
+  dashboardSettings,
+  dashboard
 };
 
 export default history =>
