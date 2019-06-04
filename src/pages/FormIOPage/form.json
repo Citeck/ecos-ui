@@ -16,6 +16,19 @@
       "type": "content"
     },
     {
+      "label": "Tabs",
+      "components": [
+        { "label": "Очень широкая вкладка", "key": "tab0", "components": [] },
+        { "label": "Ещё одна очень широкая вкладка", "key": "tab1" },
+        { "label": "Вкладка номер 3", "key": "tab2" },
+        { "label": "Вкладка 4", "key": "tab3" },
+        { "label": "Вкладка 5", "key": "tab4" }
+      ],
+      "key": "tabs2",
+      "type": "tabs",
+      "input": false
+    },
+    {
       "input": true,
       "type": "tableForm",
       "label": "График платежей",
