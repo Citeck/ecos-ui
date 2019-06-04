@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { getDashboardConfig, setDashboardConfig } from '../actions/dashboard';
+import { getDashboardConfig, setDashboardConfig, saveDashboardConfig } from '../actions/dashboard';
 import { MENU_TYPE } from '../constants/dashboardSettings';
 
 const initialState = {
@@ -25,6 +25,13 @@ export default handleActions(
       };
     },
     [setDashboardConfig]: (state, { payload }) => {
+      return {
+        ...state,
+        config: payload || state.config,
+        isLoading: false
+      };
+    },
+    [saveDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
         config: payload || state.config,

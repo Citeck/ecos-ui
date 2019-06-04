@@ -46,6 +46,22 @@ class Layout extends Component {
     });
   };
 
+  handleDragEnd = result => {
+    const config = {};
+
+    if (!result.destination || !result.source) {
+      return;
+    }
+
+    const columnFrom = result.source.droppableId.split('-').slice(-1);
+    const columnTo = result.destination.droppableId.split('-').slice(-1);
+
+    console.warn(result, columnFrom, columnTo);
+    this.setState({ draggableDestination: '' });
+
+    // this.props.saveDashboardConfig(config);
+  };
+
   renderMenuItem = link => {
     return (
       <Link className="ecos-layout__menu-item" to={link.link} title={link.title} key={link.position}>
@@ -112,6 +128,7 @@ class Layout extends Component {
         style={styles}
         key={index}
         isWrapper
+        withoutScroll
         isDragingOver={draggableDestination && draggableDestination === `column-${index}`}
       >
         {this.renderWidgets(column.widgets, `column-${index}`)}
@@ -131,12 +148,7 @@ class Layout extends Component {
 
   render() {
     return (
-      <DragDropContext
-        onDragUpdate={this.handleDragUpdate}
-        onDragEnd={data => {
-          console.warn(data);
-        }}
-      >
+      <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDragEnd}>
         <div className={this.className}>
           {this.renderMenu()}
           {this.renderColumns()}

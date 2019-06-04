@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { getDashboardConfig } from '../../actions/dashboard';
+import { getDashboardConfig, saveDashboardConfig } from '../../actions/dashboard';
 import Layout from '../../components/Layout';
 
 const mapStateToProps = state => ({
@@ -10,7 +10,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  getDashboardConfig: () => dispatch(getDashboardConfig())
+  getDashboardConfig: () => dispatch(getDashboardConfig()),
+  saveDashboardConfig: config => dispatch(saveDashboardConfig(config))
 });
 
 class Dashboard extends Component {
@@ -22,10 +23,11 @@ class Dashboard extends Component {
 
   render() {
     const {
+      saveDashboardConfig,
       config: { columns, menu }
     } = this.props;
 
-    return <Layout columns={columns} menu={menu} />;
+    return <Layout columns={columns} menu={menu} saveDashboardConfig={saveDashboardConfig} />;
   }
 }
 
