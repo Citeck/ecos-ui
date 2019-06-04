@@ -26,7 +26,7 @@
       width: 100%;
 
       &_over {
-        border-style: dashed !important;
+        border: 2px dashed $color-gray-6 !important;
       }
     }
 

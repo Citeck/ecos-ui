@@ -238,4 +238,9 @@
       height: 100%;
     }
   }
+
+  &__droppable {
+    display: flex;
+    width: 100%;
+  }
 }

@@ -1,3 +1,3 @@
 export { DragDropContext } from 'react-beautiful-dnd';
-export { Droppable } from './Droppable';
-export { DragItem } from './DragItem';
+export { default as Droppable } from './Droppable';
+export { default as DragItem } from './DragItem';

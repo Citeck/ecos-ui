@@ -4,7 +4,7 @@ import { Droppable as DropWrapper } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
 import './style.scss';
 
-export class Droppable extends React.Component {
+class Droppable extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     style: PropTypes.object,
@@ -15,6 +15,7 @@ export class Droppable extends React.Component {
     direction: PropTypes.string,
     isDropDisabled: PropTypes.bool,
     isDragingOver: PropTypes.bool,
+    isWrapper: PropTypes.bool,
     childPosition: PropTypes.oneOf(['column', 'row'])
   };
 
@@ -27,6 +28,7 @@ export class Droppable extends React.Component {
     isDropDisabled: false,
     droppableIndex: 0,
     isDragingOver: false,
+    isWrapper: false,
     childPosition: 'row'
   };
 
@@ -119,4 +121,59 @@ export class Droppable extends React.Component {
       </div>
     );
   }
+}
+
+class Wrapper extends Droppable {
+  get wrapperClassName() {
+    const { className, isDragingOver } = this.props;
+    const classes = [];
+
+    if (className) {
+      classes.push(className);
+    }
+
+    if (isDragingOver) {
+      classes.push('ecos-dnd__droppable-wrapper_over');
+    }
+
+    return classes.join(' ');
+  }
+
+  renderChildren(provided, snapshot) {
+    const { children } = this.props;
+
+    return (
+      <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
+        {children}
+      </div>
+    );
+  }
+
+  render() {
+    const { droppableId, direction, isDropDisabled, droppableIndex, style } = this.props;
+
+    return (
+      <div className={this.wrapperClassName} style={style}>
+        <Scrollbars style={{ height: '100%' }} autoHide renderTrackHorizontal={props => <div {...props} hidden />}>
+          <DropWrapper
+            ignoreContainerClipping
+            droppableId={droppableId}
+            direction={direction}
+            isDropDisabled={isDropDisabled}
+            index={droppableIndex}
+          >
+            {(provided, snapshot) => this.renderChildren(provided, snapshot)}
+          </DropWrapper>
+        </Scrollbars>
+      </div>
+    );
+  }
+}
+
+export default function(props) {
+  if (props.isWrapper) {
+    return <Wrapper {...props} />;
+  }
+
+  return <Droppable {...props} />;
 }

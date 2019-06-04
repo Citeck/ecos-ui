@@ -93,12 +93,7 @@ class Dashboard extends Component {
   render() {
     const { menu, columns } = this.state;
 
-    return (
-      <div>
-        Dashboard
-        <Layout columns={columns} menu={menu} />
-      </div>
-    );
+    return <Layout columns={columns} menu={menu} />;
   }
 }
 

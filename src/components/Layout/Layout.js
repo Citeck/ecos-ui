@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { MENU_TYPE } from '../../constants/dashboardSettings';
 import Components from '../Components';
 import './style.scss';
+import { DragDropContext } from 'react-beautiful-dnd';
+import { DragItem, Droppable } from '../Drag-n-Drop';
 
 class Layout extends Component {
   static propTypes = {
@@ -21,18 +23,28 @@ class Layout extends Component {
 
   static defaultProps = {};
 
-  get className() {
-    const {
-      menu: { type }
-    } = this.props;
-    const classes = ['ecos-layout'];
+  state = {
+    draggableDestination: ''
+  };
 
-    // if (type === MENU_TYPE.LEFT) {
-    //   classes.push('ecos-layout_left-menu');
-    // }
+  get className() {
+    const classes = ['ecos-layout'];
 
     return classes.join(' ');
   }
+
+  handleDragUpdate = provided => {
+    const { destination, source } = provided;
+
+    if (!destination || !source) {
+      this.setState({ draggableDestination: '' });
+      return;
+    }
+
+    this.setState({
+      draggableDestination: source.droppableId !== destination.droppableId ? destination.droppableId : ''
+    });
+  };
 
   renderMenuItem = link => {
     return (
@@ -56,7 +68,7 @@ class Layout extends Component {
     return <div className="ecos-layout__menu">{links.map(this.renderMenuItem)}</div>;
   }
 
-  renderWidgets(widgets = []) {
+  renderWidgets(widgets = [], columnName) {
     const components = [];
 
     widgets.forEach((widget, index) => {
@@ -64,7 +76,9 @@ class Layout extends Component {
 
       components.push(
         <React.Suspense fallback={<div>Loading...</div>} key={`${widget.name}-${index}`}>
-          <Widget {...widget.props} />
+          <DragItem draggableId={`${columnName}-${widget.name}-${index}`} isWrapper>
+            <Widget {...widget.props} />
+          </DragItem>
         </React.Suspense>
       );
     });
@@ -74,6 +88,7 @@ class Layout extends Component {
 
   renderColumn = (column, index) => {
     const { columns } = this.props;
+    const { draggableDestination } = this.state;
     const styles = {
       minWidth: column.width,
       width: column.width,
@@ -91,9 +106,16 @@ class Layout extends Component {
     }
 
     return (
-      <div className="ecos-layout__column" key={index} style={styles}>
-        {this.renderWidgets(column.widgets)}
-      </div>
+      <Droppable
+        droppableId={`column-${index}`}
+        className="ecos-layout__droppable ecos-layout__column"
+        style={styles}
+        key={index}
+        isWrapper
+        isDragingOver={draggableDestination && draggableDestination === `column-${index}`}
+      >
+        {this.renderWidgets(column.widgets, `column-${index}`)}
+      </Droppable>
     );
   };
 
@@ -109,10 +131,17 @@ class Layout extends Component {
 
   render() {
     return (
-      <div className={this.className}>
-        {this.renderMenu()}
-        {this.renderColumns()}
-      </div>
+      <DragDropContext
+        onDragUpdate={this.handleDragUpdate}
+        onDragEnd={data => {
+          console.warn(data);
+        }}
+      >
+        <div className={this.className}>
+          {this.renderMenu()}
+          {this.renderColumns()}
+        </div>
+      </DragDropContext>
     );
   }
 }

@@ -5,7 +5,7 @@ import { Draggable } from 'react-beautiful-dnd';
 import { IcoBtn } from '../common/btns';
 import './drag-item.scss';
 
-export class DragItem extends React.Component {
+class DragItem extends React.Component {
   static propTypes = {
     draggableIndex: PropTypes.number,
     draggableId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
@@ -18,6 +18,7 @@ export class DragItem extends React.Component {
     getPositionAdjusment: PropTypes.func,
     isDragDisabled: PropTypes.bool,
     isCloning: PropTypes.bool,
+    isWrapper: PropTypes.bool,
     item: PropTypes.object
   };
 
@@ -31,7 +32,9 @@ export class DragItem extends React.Component {
     draggableIndex: 0,
     item: null,
     removeItem: () => {},
-    getPositionAdjusment: () => ({ top: 0, left: 0 })
+    getPositionAdjusment: () => ({ top: 0, left: 0 }),
+    children: null,
+    isWrapper: false
   };
 
   _className = 'ecos-drag-item';
@@ -144,4 +147,43 @@ export class DragItem extends React.Component {
       </Draggable>
     );
   }
+}
+
+class Wrapper extends DragItem {
+  renderBody = (provided, snapshot) => {
+    const positionAdjusment = this.props.getPositionAdjusment();
+
+    if (positionAdjusment) {
+      const {
+        draggableProps: { style }
+      } = provided;
+      const { top, left } = positionAdjusment;
+
+      if (top && style.top) {
+        provided.draggableProps.style.top = style.top + top;
+      }
+
+      if (left && style.left) {
+        provided.draggableProps.style.left = style.left + left;
+      }
+    }
+
+    return (
+      <Fragment>
+        {this.renderDoppelganger(snapshot.isDragging)}
+
+        <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} style={provided.draggableProps.style}>
+          {this.props.children}
+        </div>
+      </Fragment>
+    );
+  };
+}
+
+export default function(props) {
+  if (props.isWrapper) {
+    return <Wrapper {...props} />;
+  }
+
+  return <DragItem {...props} />;
 }
