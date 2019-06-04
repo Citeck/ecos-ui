@@ -10,6 +10,7 @@ import {
   setMenuItems,
   setStatusSaveConfigPage,
   setWidgets,
+  startLoading,
   stopLoading
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
@@ -21,6 +22,7 @@ import * as mock from '../api/mock/dashboardSettings';
 
 function* doInitSettingsRequest({ api, logger }, action) {
   try {
+    yield put(startLoading());
     yield put(getWidgets());
     yield put(getMenuItems());
     yield put(getConfigPage());
