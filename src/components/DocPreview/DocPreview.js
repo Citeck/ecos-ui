@@ -18,7 +18,7 @@ class DocPreview extends Component {
     className: PropTypes.string,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    isSync: PropTypes.bool,
+    isLoading: PropTypes.bool,
     errMsg: PropTypes.string
   };
 
@@ -26,7 +26,7 @@ class DocPreview extends Component {
     className: '',
     height: 'inherit',
     scale: 0.5,
-    isSync: false,
+    isLoading: false,
     errMsg: ''
   };
 
@@ -38,7 +38,7 @@ class DocPreview extends Component {
     this.state = {
       pdf: {},
       settings: {},
-      isLoading: !props.isSync || this.isPDF,
+      isLoading: props.isLoading || this.isPDF,
       scrollPage: 0,
       isFullscreen: false
     };
@@ -53,12 +53,21 @@ class DocPreview extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let oldProps = this.props;
-    let { link } = nextProps;
+    const oldProps = this.props;
+    const { link, isLoading } = nextProps;
+    const isPdf = isPDFbyStr(link);
+    let state = {};
 
-    if (oldProps.link !== link) {
+    if (oldProps.isLoading !== isLoading && !isPdf) {
+      state = { isLoading };
+    }
+
+    if (oldProps.link !== link && isPdf) {
+      state = { isLoading: true, pdf: {} };
       this.loadPDF(link);
     }
+
+    this.setState({ ...state });
   }
 
   get isPDF() {

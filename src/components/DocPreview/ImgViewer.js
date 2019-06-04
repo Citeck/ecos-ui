@@ -60,6 +60,10 @@ class ImgViewer extends Component {
     }
   }
 
+  componentWillUnmount() {
+    document.removeEventListener('fullscreenchange', this.onFullscreenchange, false);
+  }
+
   get elImage() {
     return this.refImg.current || {};
   }
