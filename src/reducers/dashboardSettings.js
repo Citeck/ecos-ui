@@ -1,5 +1,11 @@
 import { handleActions } from 'redux-actions';
-import { saveConfigPage, setConfigPage, setMenuItems, setStatusSaveConfigPage, setWidgets } from '../actions/dashboardSettings';
+import {
+  saveDashboardConfig,
+  setDashboardConfig,
+  setAllMenuItems,
+  setStatusSaveConfigPage,
+  setAllWidgets
+} from '../actions/dashboardSettings';
 import { setLoading } from '../actions/loader';
 import { LAYOUT_TYPE, MENU_TYPE } from '../constants/dashboardSettings';
 
@@ -20,25 +26,25 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
-    [setConfigPage]: (state, action) => {
+    [setDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
-        config: action.payload
+        config: payload
       };
     },
-    [setWidgets]: (state, action) => {
+    [setAllWidgets]: (state, action) => {
       return {
         ...state,
         widgets: action.payload
       };
     },
-    [setMenuItems]: (state, action) => {
+    [setAllMenuItems]: (state, action) => {
       return {
         ...state,
         menuItems: action.payload
       };
     },
-    [saveConfigPage]: (state, action) => {
+    [saveDashboardConfig]: (state, action) => {
       return {
         ...state
       };

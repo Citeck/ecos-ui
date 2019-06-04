@@ -1,6 +1,7 @@
 import { handleActions } from 'redux-actions';
-import { getDashboardConfig, setDashboardConfig, saveDashboardConfig } from '../actions/dashboard';
+import { setDashboardConfig, saveDashboardConfig } from '../actions/dashboard';
 import { MENU_TYPE } from '../constants/dashboardSettings';
+import { setLoading } from '../actions/loader';
 
 const initialState = {
   config: {
@@ -18,17 +19,16 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
-    [getDashboardConfig]: (state, action) => {
-      return {
-        ...state,
-        isLoading: true
-      };
-    },
     [setDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
-        config: payload || state.config,
-        isLoading: false
+        config: payload
+      };
+    },
+    [setLoading]: (state, { payload = false }) => {
+      return {
+        ...state,
+        isLoading: payload
       };
     },
     [saveDashboardConfig]: (state, { payload }) => {

@@ -1,27 +1,31 @@
-import { delay } from 'redux-saga';
-import { put, takeLatest } from 'redux-saga/effects';
-import { getDashboardConfig, saveDashboardConfig, setDashboardConfig } from '../actions/dashboard';
+import { call, put, takeLatest } from 'redux-saga/effects';
+import { getDashboardConfig, setDashboardConfig, saveDashboardConfig } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
+import { setLoading } from '../actions/loader';
 import { t } from '../helpers/util';
 //todo test
 import * as mock from '../api/mock/dashboardSettings';
 
 function* doGetDashboardConfigRequest({ api, logger }, action) {
   try {
-    yield delay(2000);
+    yield put(setLoading(true));
+    const apiData = yield call(api.dashboard.getDashboardConfig);
+    console.log('doGetDashboardConfigRequest', apiData);
     const webConfig = mock.getConfigPage();
     yield put(setDashboardConfig(webConfig));
+    yield put(setLoading(false));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка')));
+    yield put(setNotificationMessage(t('Ошибка получения данных по дашборду')));
     logger.error('[dashboard/ doGetDashboardConfigRequest saga] error', e.message);
   }
 }
 
 function* doSaveDashboardConfigRequest({ api, logger }, action) {
   try {
-    yield delay(2000);
+    yield put(setLoading(true));
     // const webConfig = mock.getConfigPage();
     // yield put(setDashboardConfig(webConfig));
+    yield put(setLoading(false));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка')));
     logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e.message);
