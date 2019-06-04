@@ -1,5 +1,5 @@
 import { CommonApi } from './common';
-import { generateSearchTerm } from '../helpers/util';
+import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { PROXY_URI } from '../constants/alfresco';
 
 export class MenuApi extends CommonApi {
@@ -24,8 +24,9 @@ export class MenuApi extends CommonApi {
   };
 
   getSlideMenuItems = () => {
+    const username = getCurrentUserName();
     return this.getJsonWithSessionCache({
-      url: `${PROXY_URI}citeck/menu/menu`,
+      url: `${PROXY_URI}citeck/menu/menu?${username}`,
       timeout: 14400000 //4h
     }).catch(() => {});
   };
