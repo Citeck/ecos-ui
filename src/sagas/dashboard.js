@@ -1,5 +1,4 @@
-import { delay } from 'redux-saga';
-import { put, takeLatest } from 'redux-saga/effects';
+import { call, put, takeLatest } from 'redux-saga/effects';
 import { getDashboardConfig, setDashboardConfig } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
 import { setLoading } from '../actions/loader';
@@ -10,12 +9,13 @@ import * as mock from '../api/mock/dashboardSettings';
 function* doGetDashboardConfigRequest({ api, logger }, action) {
   try {
     yield put(setLoading(true));
-    yield delay(2000);
+    const apiData = yield call(api.dashboard.getDashboardConfig);
+    console.log('doGetDashboardConfigRequest', apiData);
     const webConfig = mock.getConfigPage();
     yield put(setDashboardConfig(webConfig));
     yield put(setLoading(false));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка')));
+    yield put(setNotificationMessage(t('Ошибка получения данных по дашборду')));
     logger.error('[dashboard/ doGetDashboardConfigRequest saga] error', e.message);
   }
 }
