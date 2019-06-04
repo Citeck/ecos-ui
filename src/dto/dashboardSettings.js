@@ -1,4 +1,4 @@
-export function configForWeb(source) {
+export function settingsConfigForWeb(source) {
   let target = {};
   const { columns = [] } = source;
 
@@ -11,7 +11,7 @@ export function configForWeb(source) {
   return target;
 }
 
-export function configForServer(source) {
+export function settingsConfigForServer(source) {
   let target = {};
 
   target.type = source.layoutType;

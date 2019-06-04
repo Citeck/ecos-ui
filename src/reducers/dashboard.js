@@ -22,7 +22,7 @@ export default handleActions(
     [setDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
-        config: payload || state.config
+        config: payload
       };
     },
     [setLoading]: (state, { payload = false }) => {

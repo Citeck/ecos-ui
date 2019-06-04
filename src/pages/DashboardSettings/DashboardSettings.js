@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash';
 import uuidV4 from 'uuid/v4';
 import { LAYOUTS, MENU_TYPE, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
 import { t } from '../../helpers/util';
-import { initSettings, saveConfigPage } from '../../actions/dashboardSettings';
+import { initSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { Btn } from '../../components/common/btns';
@@ -24,7 +24,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   initSettings: () => dispatch(initSettings()),
-  saveConfigPage: payload => dispatch(saveConfigPage(payload))
+  saveConfigPage: payload => dispatch(saveDashboardConfig(payload))
 });
 
 const DROPPABLE_ZONE = {
