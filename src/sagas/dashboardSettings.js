@@ -9,11 +9,10 @@ import {
   setConfigPage,
   setMenuItems,
   setStatusSaveConfigPage,
-  setWidgets,
-  startLoading,
-  stopLoading
+  setWidgets
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
+import { setLoading } from '../actions/loader';
 import { t } from '../helpers/util';
 import { configForServer, configForWeb } from '../dto/dashboardSettings';
 import { SAVE_STATUS } from '../constants/dashboardSettings';
@@ -22,11 +21,11 @@ import * as mock from '../api/mock/dashboardSettings';
 
 function* doInitSettingsRequest({ api, logger }, action) {
   try {
-    yield put(startLoading());
-    yield put(getWidgets());
-    yield put(getMenuItems());
-    yield put(getConfigPage());
-    yield put(stopLoading());
+    yield put(setLoading(true));
+    yield doGetWidgetsRequest({ api, logger }, action);
+    yield doGetMenuItemsRequest({ api, logger }, action);
+    yield doGetConfigPageRequest({ api, logger }, action);
+    yield put(setLoading(false));
   } catch (e) {
     logger.error('[dashboard/settings/ doInitSettingsRequest saga] error', e.message);
   }
@@ -62,12 +61,15 @@ function* doGetMenuItemsRequest({ api, logger }, action) {
 
 function* doSaveConfigLayoutRequest({ api, logger }, { payload }) {
   try {
+    yield put(setLoading(true));
     yield delay(3000);
     const serverConfig = configForServer(payload);
     yield put(setStatusSaveConfigPage({ saveStatus: SAVE_STATUS.SUCCESS }));
+    yield put(setLoading(false));
   } catch (e) {
     yield put(setStatusSaveConfigPage({ saveStatus: SAVE_STATUS.FAILURE }));
     yield put(setNotificationMessage(t('Ошибка. Данные не сохранены')));
+    yield put(setLoading(false));
     logger.error('[dashboard/settings/ doSaveConfigLayoutRequest saga] error', e.message);
   }
 }

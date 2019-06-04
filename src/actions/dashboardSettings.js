@@ -2,8 +2,6 @@ import { createAction } from 'redux-actions';
 
 const prefix = 'dashboard/settings/';
 
-export const startLoading = createAction(prefix + 'START_LOADING');
-export const stopLoading = createAction(prefix + 'STOP_LOADING');
 export const initSettings = createAction(prefix + 'INIT_SETTINGS');
 export const setWidgets = createAction(prefix + 'SET_WIDGETS');
 export const setMenuItems = createAction(prefix + 'SET_MENU_ITEMS');
