@@ -1,3 +1,5 @@
+import lodashGet from 'lodash/get';
+
 export function getPropByStringKey(obj, strKey) {
   const keys = strKey.split('.');
   let res;
@@ -289,4 +291,8 @@ export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, rat
         return 1;
       }
   }
+}
+
+export function getCurrentUserName() {
+  return lodashGet(window, 'Alfresco.constants.USERNAME', '');
 }
