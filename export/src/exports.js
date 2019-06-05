@@ -6,6 +6,7 @@ import * as redux from 'redux';
 import * as reactRedux from 'react-redux';
 import Records from '../../src/components/Records';
 import { MenuApi } from '../../src/api/menu';
+import lodash from 'lodash';
 
 export default {
   'react': { default: reactDefault, ...react },
@@ -23,5 +24,6 @@ export default {
   'idle-timer': () => import('../../src/components/IdleTimer'),
   'eform-locale-editor': () => import('../../src/components/EcosForm/locale/FormLocaleEditorModal'),
   'eform-builder': () => import('../../src/components/EcosForm/builder/EcosFormBuilderModal'),
-  'menu-api': () => MenuApi
+  'menu-api': () => MenuApi,
+  'lodash': () => lodash
 };

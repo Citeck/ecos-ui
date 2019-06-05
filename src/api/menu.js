@@ -38,4 +38,19 @@ export class MenuApi extends CommonApi {
       onError: () => null
     });
   };
+
+  getJournalTotalCount = journalId => {
+    //TODO: move this to a menu config
+    if (journalId === 'active-tasks' || journalId === 'subordinate-tasks') {
+      const url = `${PROXY_URI}api/journals/records/count?journal=${journalId}`;
+      return this.getJson(url)
+        .then(resp => resp.recordsCount)
+        .catch(err => {
+          console.error(err);
+          return 0;
+        });
+    } else {
+      return Promise.resolve(0);
+    }
+  };
 }
