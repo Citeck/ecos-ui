@@ -7,6 +7,7 @@ import * as reactRedux from 'react-redux';
 import Records from '../../src/components/Records';
 import { MenuApi } from '../../src/api/menu';
 import lodash from 'lodash';
+import '../../src/build-info';
 
 export default {
   'react': { default: reactDefault, ...react },
