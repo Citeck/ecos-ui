@@ -90,10 +90,12 @@ class DashboardSettings extends React.Component {
 
   componentWillReceiveProps(nextProps, nextContext) {
     let { config, menuItems, widgets, saveStatus } = this.props;
-    let state = { ...this.state };
+    let state = {};
 
     if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
-      state = { ...state, ...this.setStateByConfig(nextProps.config) };
+      const result = this.setStateByConfig(nextProps.config);
+
+      state = { ...state, ...result };
     }
     if (JSON.stringify(menuItems) !== JSON.stringify(nextProps.menuItems)) {
       state.menuItems = setDndId(nextProps.menuItems);
@@ -102,7 +104,7 @@ class DashboardSettings extends React.Component {
       state.widgets = setDndId(nextProps.widgets);
     }
 
-    this.setState(state);
+    this.setState({ ...state });
 
     if (saveStatus !== nextProps.saveStatus && nextProps.saveStatus !== SAVE_STATUS.FAILURE) {
       this.handleCloseClick();
@@ -612,8 +614,8 @@ const move = (source, destination, droppableSource, droppableDestination) => {
   source = source || [];
   destination = destination || [];
 
-  const sourceClone = cloneDeep(source);
-  const destClone = cloneDeep(destination);
+  const sourceClone = Array.from(source);
+  const destClone = Array.from(destination);
   const [removed] = sourceClone.splice(droppableSource.index, 1);
   const result = {};
 
@@ -628,8 +630,8 @@ const copy = (source, destination, droppableSource, droppableDestination) => {
   source = source || [];
   destination = destination || [];
 
-  const sourceClone = cloneDeep(source);
-  const destClone = cloneDeep(destination);
+  const sourceClone = Array.from(source);
+  const destClone = Array.from(destination);
   const item = sourceClone[droppableSource.index];
 
   destClone.splice(droppableDestination.index, 0, { ...item });
@@ -638,8 +640,9 @@ const copy = (source, destination, droppableSource, droppableDestination) => {
 };
 
 const setDndId = items => {
-  const arr = cloneDeep(items || []);
-
+  const arr = Array.from(items || []);
+  //console.log(items)
+  //console.log(arr)
   arr.forEach(value => (value.dndId = uuidV4()));
 
   return arr;
