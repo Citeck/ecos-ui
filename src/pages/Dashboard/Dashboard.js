@@ -35,13 +35,29 @@ class Dashboard extends Component {
     getDashboardConfig({ recordId, key });
   }
 
-  renderLayout() {
+  prepareWidgetsConfig = dataWidget => {
     const {
       saveDashboardConfig,
+      config,
+      config: { columns, menu }
+    } = this.props;
+    let widgetsFrom = columns[dataWidget.columnFrom].widgets || [];
+    let widgetIndex = widgetsFrom.findIndex(item => item.id === dataWidget.id);
+    let widget = widgetsFrom.splice(widgetIndex, 1);
+    let newConfig = { ...config };
+
+    newConfig.columns[dataWidget.columnFrom].widgets = widgetsFrom;
+    newConfig.columns[dataWidget.columnTo].widgets.push(widget[0]); //fixme order
+
+    saveDashboardConfig(newConfig);
+  };
+
+  renderLayout() {
+    const {
       config: { columns, menu }
     } = this.props;
 
-    return <Layout columns={columns} menu={menu} saveDashboardConfig={saveDashboardConfig} />;
+    return <Layout columns={columns} menu={menu} saveDashboardConfig={this.prepareWidgetsConfig} />;
   }
 
   renderLoader() {

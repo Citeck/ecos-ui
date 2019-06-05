@@ -8,6 +8,13 @@ import './style.scss';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { DragItem, Droppable } from '../Drag-n-Drop';
 
+const _DATA = '@data@';
+const _DIV = '@';
+const WIDGET_INDEX = `${_DATA}index${_DIV}`;
+const WIDGET_NAME = `${_DATA}name${_DIV}`;
+const WIDGET_ID = `${_DATA}id${_DIV}`;
+const COLUMN_INDEX = `${_DATA}columnFrom${_DIV}`;
+
 class Layout extends Component {
   static propTypes = {
     columns: PropTypes.arrayOf(
@@ -48,19 +55,17 @@ class Layout extends Component {
   };
 
   handleDragEnd = result => {
-    const config = {};
-
     if (!result.destination || !result.source) {
       return;
     }
+    console.warn('result', result);
+    const widgetInfoStr = result.draggableId;
+    const data = getWidgetInfo(widgetInfoStr);
 
-    const columnFrom = result.source.droppableId.split('-').slice(-1);
-    const columnTo = result.destination.droppableId.split('-').slice(-1);
+    data.columnTo = result.destination.droppableId.split(COLUMN_INDEX).slice(-1);
 
-    console.warn(result, columnFrom, columnTo);
     this.setState({ draggableDestination: '' });
-
-    // this.props.saveDashboardConfig(config);
+    this.props.saveDashboardConfig(data);
   };
 
   renderMenuItem = link => {
@@ -90,10 +95,11 @@ class Layout extends Component {
 
     widgets.forEach((widget, index) => {
       const Widget = Components.get(widget.name);
+      const id = `${columnName}${WIDGET_NAME}${widget.name}${WIDGET_ID}${widget.id}${WIDGET_INDEX}${index}`;
 
       components.push(
-        <React.Suspense fallback={<div>Loading...</div>} key={`${widget.name}-${index}`}>
-          <DragItem draggableId={`${columnName}-${widget.name}-${index}`} isWrapper>
+        <React.Suspense fallback={<div>Loading...</div>} key={id}>
+          <DragItem draggableId={id} isWrapper>
             <Widget {...widget.props} />
           </DragItem>
         </React.Suspense>
@@ -122,17 +128,20 @@ class Layout extends Component {
       styles.width = `calc((100% - ${otherWidth}) / ${withoutSize})`;
     }
 
+    const id = `column${COLUMN_INDEX}${index}`;
+
     return (
       <Droppable
-        droppableId={`column-${index}`}
+        droppableId={id}
+        droppableIndex={index}
         className="ecos-layout__droppable ecos-layout__column"
         style={styles}
-        key={index}
+        key={id}
         isWrapper
         withoutScroll
-        isDragingOver={draggableDestination && draggableDestination === `column-${index}`}
+        isDragingOver={draggableDestination && draggableDestination === id}
       >
-        {this.renderWidgets(column.widgets, `column-${index}`)}
+        {this.renderWidgets(column.widgets, id)}
       </Droppable>
     );
   };
@@ -160,3 +169,19 @@ class Layout extends Component {
 }
 
 export default Layout;
+
+function getWidgetInfo(infoStr) {
+  const attrs = infoStr.split(_DATA);
+  const data = {};
+
+  attrs.forEach(item => {
+    if (item) {
+      const param = item.split(_DIV);
+      if (param.length === 2) {
+        data[param[0]] = param[1];
+      }
+    }
+  });
+
+  return data;
+}

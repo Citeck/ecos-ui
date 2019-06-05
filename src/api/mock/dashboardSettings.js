@@ -55,6 +55,7 @@ export function getConfigPage() {
         widgets: [
           {
             label: 'Предпросмотр',
+            id: 'doc-preview-1',
             name: 'doc-preview',
             props: {
               id: 'doc-preview-1',
@@ -73,6 +74,7 @@ export function getConfigPage() {
         widgets: [
           {
             label: 'Предпросмотр',
+            id: 'doc-preview-0',
             name: 'doc-preview',
             props: {
               id: 'doc-preview-0',
@@ -85,7 +87,8 @@ export function getConfigPage() {
           },
           {
             label: 'Журнал',
-            name: 'journal'
+            name: 'journal',
+            id: 'journal-0'
           }
         ]
       }
@@ -94,9 +97,9 @@ export function getConfigPage() {
       //   widgets: [
       //     {
       //      label: 'Предпросмотр',
+      //         id: 'doc-preview-2',
       //       name: 'doc-preview',
       //       props: {
-      //         id: 'doc-preview-1',
       //         config: {
       //           link:
       //             '/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/801da94d-c08a-472c-8cdd-0d50248adb0b/Договор%20№44.pdf',
