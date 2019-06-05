@@ -4,11 +4,11 @@ import { LAYOUT_TYPE, MENU_TYPE } from '../../constants/dashboardSettings';
 export function getWidgets() {
   return [
     {
-      title: 'Предпросмотр',
+      label: 'Предпросмотр',
       name: 'doc-preview'
     },
     {
-      title: 'Журнал',
+      label: 'Журнал',
       name: 'journal'
     }
   ];
@@ -23,27 +23,27 @@ export function getConfigPage() {
       type: 'TOP',
       links: [
         {
-          title: 'Журнал',
+          label: 'Журнал',
           position: 0,
           link: '/share/page/journals'
         },
         {
-          title: 'Журнал дашборд и ещё много-много текста в этой ссылке',
+          label: 'Журнал дашборд и ещё много-много текста в этой ссылке',
           position: 1,
           link: '/share/page/journalsDashboard'
         },
         {
-          title: 'Настройка дашборда',
+          label: 'Настройка дашборда',
           position: 2,
           link: '/dashboard/settings'
         },
         {
-          title: 'Настройка дашборда',
+          label: 'Настройка дашборда',
           position: 3,
           link: '/dashboard/settings'
         },
         {
-          title: 'Настройка дашборда',
+          label: 'Настройка дашборда',
           position: 4,
           link: '/dashboard/settings'
         }
@@ -54,7 +54,7 @@ export function getConfigPage() {
         width: '40%',
         widgets: [
           {
-            title: 'Предпросмотр',
+            label: 'Предпросмотр',
             name: 'doc-preview',
             props: {
               id: 'doc-preview-1',
@@ -72,7 +72,7 @@ export function getConfigPage() {
         // width: '60%',
         widgets: [
           {
-            title: 'Предпросмотр',
+            label: 'Предпросмотр',
             name: 'doc-preview',
             props: {
               id: 'doc-preview-0',
@@ -84,7 +84,7 @@ export function getConfigPage() {
             }
           },
           {
-            title: 'Журнал',
+            label: 'Журнал',
             name: 'journal'
           }
         ]
@@ -93,7 +93,7 @@ export function getConfigPage() {
       //   width: '40%',
       //   widgets: [
       //     {
-      //      title: 'Предпросмотр',
+      //      label: 'Предпросмотр',
       //       name: 'doc-preview',
       //       props: {
       //         id: 'doc-preview-1',

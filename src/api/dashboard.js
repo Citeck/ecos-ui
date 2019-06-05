@@ -1,14 +1,10 @@
 import { RecordService } from './recordService';
 import Records from '../components/Records';
+import Components from '../components/Components';
 
 export class DashboardApi extends RecordService {
   getAllWidgets = () => {
-    return this.query({
-      query: {},
-      attributes: {}
-    }).then(resp => {
-      return resp || {};
-    });
+    return Components.getComponentsFullData();
   };
 
   getDashboardConfig = ({ recordId, key }) => {

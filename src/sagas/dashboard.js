@@ -6,10 +6,10 @@ import { t } from '../helpers/util';
 //todo test
 import * as mock from '../api/mock/dashboardSettings';
 
-function* doGetDashboardConfigRequest({ api, logger }, action) {
+function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
     yield put(setLoading(true));
-    const apiData = yield call(api.dashboard.getDashboardConfig);
+    const apiData = yield call(api.dashboard.getDashboardConfig, payload);
     console.log('doGetDashboardConfigRequest', apiData);
     const webConfig = mock.getConfigPage();
     yield put(setDashboardConfig(webConfig));

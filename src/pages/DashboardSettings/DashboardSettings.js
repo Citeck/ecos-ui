@@ -23,7 +23,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  initSettings: () => dispatch(initSettings()),
+  initSettings: ({ recordId, key }) => dispatch(initSettings({ recordId, key })),
   saveConfigPage: payload => dispatch(saveDashboardConfig(payload))
 });
 
@@ -39,14 +39,7 @@ class DashboardSettings extends React.Component {
     config: PropTypes.shape({
       layoutType: PropTypes.string,
       menuType: PropTypes.string,
-      widgets: PropTypes.arrayOf(
-        PropTypes.arrayOf(
-          PropTypes.shape({
-            id: PropTypes.string,
-            title: PropTypes.string
-          })
-        )
-      ),
+      widgets: PropTypes.array,
       menu: PropTypes.array
     }).isRequired,
     menuItems: PropTypes.array,
@@ -58,6 +51,21 @@ class DashboardSettings extends React.Component {
     widgets: [],
     menuItems: []
   };
+
+  static get pathInfo() {
+    const path = window.location.href;
+    const indexSet = path.lastIndexOf('/settings');
+    const pathDashboard = path.substring(0, indexSet);
+    const recordId = 123,
+      key = '232f6349-9a07-49a9-baf0-9468d41e078e'; //fixme from url?
+
+    return {
+      path,
+      pathDashboard,
+      recordId,
+      key
+    };
+  }
 
   constructor(props) {
     super(props);
@@ -75,8 +83,9 @@ class DashboardSettings extends React.Component {
 
   componentDidMount() {
     const { initSettings } = this.props;
+    const { recordId, key } = DashboardSettings.pathInfo;
 
-    initSettings();
+    initSettings({ recordId, key });
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -467,7 +476,7 @@ class DashboardSettings extends React.Component {
                       draggableId={widget.dndId}
                       draggableIndex={indexWidget}
                       className={'ecos-ds__column-widgets__items__cell'}
-                      title={widget.title}
+                      title={widget.label}
                       selected={true}
                       canRemove={true}
                       removeItem={response => {
@@ -508,7 +517,7 @@ class DashboardSettings extends React.Component {
                     key={item.dndId}
                     draggableId={item.dndId}
                     draggableIndex={index}
-                    title={item.title}
+                    title={item.label}
                     getPositionAdjusment={this.draggablePositionAdjusment}
                   />
                 ))}
@@ -523,10 +532,7 @@ class DashboardSettings extends React.Component {
   /*-------- start Buttons --------*/
 
   handleCloseClick = () => {
-    const url = window.location.href;
-    const endIndex = url.lastIndexOf('/settings');
-
-    window.location.href = url.substring(0, endIndex);
+    window.location.href = DashboardSettings.pathInfo.pathDashboard;
   };
 
   handleAcceptClick = () => {
