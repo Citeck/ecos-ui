@@ -185,6 +185,7 @@
       &-i {
         &-next {
           position: relative;
+          color: $color-blue-light;
 
           &:before {
             content: '\f0a9';
@@ -199,6 +200,7 @@
 
         &-drag {
           font-size: 28px;
+          color: $color-gray-1;
 
           &:before {
             position: absolute;
