@@ -29,6 +29,10 @@
       "input": false
     },
     {
+      "input": false,
+      "type": "horizontalLine"
+    },
+    {
       "input": true,
       "type": "tableForm",
       "label": "График платежей",
@@ -39,6 +43,10 @@
           "journalId": "idocs-contractor"
         }
       }
+    },
+    {
+      "input": false,
+      "type": "horizontalLine"
     },
     {
       "input": true,

@@ -14,7 +14,7 @@ class InputView extends Component {
     });
 
     const buttonClasses = classNames('ecos-btn_blue', {
-      'ecos-btn_narrow': isCompact,
+      'ecos-btn_narrow': true, //isCompact,
       'select-journal__input-view-button_compact': isCompact
     });
 

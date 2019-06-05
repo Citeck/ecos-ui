@@ -1,5 +1,8 @@
 @import '../../../constants';
 
+$large-size: 40px;
+$small-size: 28px;
+
 .formio-dialog-content .preview-panel,
 .formio-form {
   .formio-component-tabs {
@@ -13,7 +16,7 @@
     }
 
     .formio-component-tabs-scroll-wrapper {
-      height: 41px;
+      height: $large-size;
       overflow: hidden;
       box-sizing: content-box;
     }
@@ -41,7 +44,7 @@
         border-radius: 0;
         border-color: $color-gray-4;
         padding: 0 15px;
-        line-height: 40px;
+        line-height: 38px;
 
         &.active {
           color: $color-white;
@@ -85,7 +88,7 @@
 
         &:before {
           content: '';
-          left: 41px;
+          left: $large-size;
           top: 0;
           position: absolute;
           width: 20px;
@@ -97,7 +100,7 @@
 
         &:after {
           content: '';
-          right: 41px;
+          right: $large-size;
           top: 0;
           position: absolute;
           width: 20px;
@@ -109,8 +112,8 @@
       }
 
       .formio-component-tabs-scroll-wrapper {
-        max-width: calc(100% - 82px);
-        height: 41px;
+        max-width: calc(100% - 80px);
+        height: $large-size;
         overflow: hidden;
       }
 
@@ -119,8 +122,8 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 41px;
-        height: 41px;
+        width: $large-size;
+        height: $large-size;
         background-color: $color-gray-4;
         color: $text-color-gray;
         cursor: pointer;
@@ -158,15 +161,15 @@
     padding: 0 7px;
   }
   .formio-component-tabs-wrapper {
-    margin-bottom: 0px;
+    margin-bottom: 0;
   }
   .formio-component-tabs-scroll-wrapper {
-    height: 28px;
+    height: $small-size;
   }
   .formio-component-tabs-right-button,
   .formio-component-tabs-left-button {
-    width: 28px;
-    height: 28px;
+    width: $small-size;
+    height: $small-size;
   }
   &_scrollable {
     .nav-item {
@@ -181,18 +184,18 @@
 
     .formio-component-tabs-wrapper {
       &:before {
-        left: 28px;
+        left: $small-size;
         width: 10px;
       }
 
       &:after {
-        right: 28px;
+        right: $small-size;
         width: 10px;
       }
     }
 
     .formio-component-tabs-scroll-wrapper {
-      max-width: calc(100% - 60px);
+      max-width: calc(100% - 56px);
     }
   }
 }
@@ -202,16 +205,16 @@
     font-size: 14px;
   }
   .nav-link {
-    line-height: 40px;
+    line-height: $large-size;
     padding: 0 15px;
   }
   .formio-component-tabs-scroll-wrapper {
-    height: 41px;
+    height: $large-size;
   }
   .formio-component-tabs-right-button,
   .formio-component-tabs-left-button {
-    width: 41px;
-    height: 41px;
+    width: $large-size;
+    height: $large-size;
   }
   &_scrollable {
     .nav-item {
@@ -226,18 +229,18 @@
 
     .formio-component-tabs-wrapper {
       &:before {
-        left: 41px;
+        left: $large-size;
         width: 20px;
       }
 
       &:after {
-        right: 41px;
+        right: $large-size;
         width: 20px;
       }
     }
 
     .formio-component-tabs-scroll-wrapper {
-      max-width: calc(100% - 82px);
+      max-width: calc(100% - 80px);
     }
   }
 }

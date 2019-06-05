@@ -16,7 +16,7 @@ const InputView = () => {
   });
 
   const buttonClasses = classNames('ecos-btn_blue', {
-    'ecos-btn_narrow': isCompact,
+    'ecos-btn_narrow': true, //isCompact,
     'select-orgstruct__input-view-button_compact': isCompact
   });
 
