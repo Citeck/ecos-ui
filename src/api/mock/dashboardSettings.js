@@ -51,7 +51,7 @@ export function getConfigPage() {
     },
     columns: [
       {
-        width: '40%',
+        width: '30%',
         widgets: [
           {
             label: 'Предпросмотр',

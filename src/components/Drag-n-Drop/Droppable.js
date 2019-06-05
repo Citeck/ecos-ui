@@ -16,7 +16,9 @@ class Droppable extends React.Component {
     isDropDisabled: PropTypes.bool,
     isDragingOver: PropTypes.bool,
     isWrapper: PropTypes.bool,
-    childPosition: PropTypes.oneOf(['column', 'row'])
+    withoutScroll: PropTypes.bool,
+    childPosition: PropTypes.oneOf(['column', 'row']),
+    scrollHeight: PropTypes.number
   };
 
   static defaultProps = {
@@ -29,7 +31,9 @@ class Droppable extends React.Component {
     droppableIndex: 0,
     isDragingOver: false,
     isWrapper: false,
-    childPosition: 'row'
+    withoutScroll: false,
+    childPosition: 'row',
+    scrollHeight: 200
   };
 
   className() {
@@ -72,6 +76,28 @@ class Droppable extends React.Component {
     return children;
   }
 
+  renderScroll(children) {
+    const { withoutScroll, scrollHeight } = this.props;
+
+    if (withoutScroll) {
+      return children;
+    }
+
+    return (
+      <Scrollbars
+        style={{ height: `${scrollHeight}px` }}
+        autoHide
+        autoHeightMax={scrollHeight}
+        autoHeight
+        hideTracksWhenNotNeeded
+        renderTrackHorizontal={props => <div {...props} hidden />}
+        renderThumbHorizontal={props => <div {...props} hidden />}
+      >
+        {children}
+      </Scrollbars>
+    );
+  }
+
   renderChildren(provided, snapshot) {
     const { children, placeholder, style } = this.props;
     let body = (
@@ -107,7 +133,7 @@ class Droppable extends React.Component {
 
     return (
       <div className={this.wrapperClassName}>
-        <Scrollbars style={{ height: '100%' }} autoHide renderTrackHorizontal={props => <div {...props} hidden />}>
+        {this.renderScroll(
           <DropWrapper
             ignoreContainerClipping
             droppableId={droppableId}
@@ -117,7 +143,7 @@ class Droppable extends React.Component {
           >
             {(provided, snapshot) => this.renderChildren(provided, snapshot)}
           </DropWrapper>
-        </Scrollbars>
+        )}
       </div>
     );
   }
@@ -143,7 +169,12 @@ class Wrapper extends Droppable {
     const { children } = this.props;
 
     return (
-      <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
+      <div
+        {...provided.draggableProps}
+        {...provided.dragHandleProps}
+        ref={provided.innerRef}
+        className="ecos-dnd__droppable-children-wrapper"
+      >
         {children}
       </div>
     );
@@ -154,7 +185,7 @@ class Wrapper extends Droppable {
 
     return (
       <div className={this.wrapperClassName} style={style}>
-        <Scrollbars style={{ height: '100%' }} autoHide renderTrackHorizontal={props => <div {...props} hidden />}>
+        {this.renderScroll(
           <DropWrapper
             ignoreContainerClipping
             droppableId={droppableId}
@@ -164,7 +195,7 @@ class Wrapper extends Droppable {
           >
             {(provided, snapshot) => this.renderChildren(provided, snapshot)}
           </DropWrapper>
-        </Scrollbars>
+        )}
       </div>
     );
   }

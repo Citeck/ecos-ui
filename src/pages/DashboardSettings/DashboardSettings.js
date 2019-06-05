@@ -333,6 +333,7 @@ class DashboardSettings extends React.Component {
               style={{ marginRight: '10px' }}
               direction="horizontal"
               isDropDisabled
+              scrollHeight={270}
             >
               {menuItems &&
                 menuItems.length &&
@@ -348,10 +349,12 @@ class DashboardSettings extends React.Component {
             </Droppable>
             <Droppable
               droppableId={DROPPABLE_ZONE.MENU_TO}
-              className="ecos-ds__drag-container ecos-ds__drag-container_menu-to"
               placeholder={t('Перетащите пункты меню сюда')}
+              className="ecos-ds__drag-container ecos-ds__drag-container_menu-to"
               childPosition="column"
               isDragingOver={draggableDestination === DROPPABLE_ZONE.MENU_TO}
+              scrollHeight={270}
+              // style={{ height: '270px' }}
             >
               {menuSelected &&
                 menuSelected.length &&
@@ -468,6 +471,7 @@ class DashboardSettings extends React.Component {
                 className="ecos-ds__drag-container ecos-ds__column-widgets__items"
                 placeholder={t('Перетащите сюда виджеты')}
                 isDragingOver={draggableDestination === DROPPABLE_ZONE.WIDGETS_TO + indexColumn}
+                scrollHeight={320}
               >
                 {widgetsSelected[indexColumn] &&
                   widgetsSelected[indexColumn].map((widget, indexWidget) => (
@@ -508,6 +512,7 @@ class DashboardSettings extends React.Component {
               className="ecos-ds__drag-container ecos-ds__drag-container_col"
               placeholder={t('Нет доступных виджетов')}
               isDropDisabled={true}
+              scrollHeight={136}
             >
               {widgets &&
                 widgets.length &&
