@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { t } from '../../helpers/util';
 import { MENU_TYPE } from '../../constants/dashboardSettings';
 import Components from '../Components';
 import './style.scss';
@@ -64,8 +65,8 @@ class Layout extends Component {
 
   renderMenuItem = link => {
     return (
-      <Link className="ecos-layout__menu-item" to={link.link} title={link.title} key={link.position}>
-        <div className="ecos-layout__menu-item-title">{link.title}</div>
+      <Link className="ecos-layout__menu-item" to={link.link} title={t(link.label)} key={link.position}>
+        <div className="ecos-layout__menu-item-title">{t(link.label)}</div>
         <i className="ecos-btn__i ecos-layout__menu-item-i-next" />
         <i className="ecos-btn__i icon-drag ecos-layout__menu-item-i-drag" />
       </Link>

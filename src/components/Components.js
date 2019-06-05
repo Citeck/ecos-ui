@@ -19,8 +19,7 @@ export default class Components {
     for (let name in Components.components) {
       arrComponents.push({
         name,
-        label: t(name),
-        isForArmin: false
+        label: t(name)
       });
     }
 

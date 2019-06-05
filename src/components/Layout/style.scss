@@ -29,9 +29,9 @@
       display: flex;
       height: 100px;
       background: $color-gray-4;
-      border: 2px solid $color-gray-8;
+      border: $border-width-standard solid $color-gray-8;
       box-sizing: border-box;
-      border-radius: 6px;
+      border-radius: $border-radius-standard;
       cursor: pointer;
       z-index: 1;
 
@@ -127,8 +127,8 @@
     &-description {
       margin-top: 9px;
       font-style: normal;
-      font-weight: 600;
-      font-size: 14px;
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-standard;
       line-height: 18px;
       color: $text-color-gray;
     }
@@ -173,7 +173,7 @@
       max-width: 30%;
       height: 60px;
       background: $color-white;
-      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0px 3px 4px rgba(0, 0, 0, 0.12), 0px 2px 4px rgba(0, 0, 0, 0.14);
+      box-shadow: $box-shadow-default;
       border-radius: 12px;
       position: relative;
       margin-bottom: 15px;
@@ -210,8 +210,8 @@
 
       &-title {
         font-style: normal;
-        font-weight: bold;
-        font-size: 18px;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-large;
         line-height: 22px;
         align-items: center;
         color: $color-blue-light;

@@ -4,8 +4,8 @@ import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
 import uuidV4 from 'uuid/v4';
-import { LAYOUTS, MENU_TYPE, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
 import { t } from '../../helpers/util';
+import { LAYOUTS, MENU_TYPE, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
 import { initSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
@@ -93,9 +93,9 @@ class DashboardSettings extends React.Component {
     let state = {};
 
     if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
-      const result = this.setStateByConfig(nextProps.config);
+      const resultConfig = this.setStateByConfig(nextProps.config);
 
-      state = { ...state, ...result };
+      state = { ...state, ...resultConfig };
     }
     if (JSON.stringify(menuItems) !== JSON.stringify(nextProps.menuItems)) {
       state.menuItems = setDndId(nextProps.menuItems);
@@ -614,8 +614,8 @@ const move = (source, destination, droppableSource, droppableDestination) => {
   source = source || [];
   destination = destination || [];
 
-  const sourceClone = Array.from(source);
-  const destClone = Array.from(destination);
+  const sourceClone = cloneDeep(source);
+  const destClone = cloneDeep(destination);
   const [removed] = sourceClone.splice(droppableSource.index, 1);
   const result = {};
 
@@ -630,8 +630,8 @@ const copy = (source, destination, droppableSource, droppableDestination) => {
   source = source || [];
   destination = destination || [];
 
-  const sourceClone = Array.from(source);
-  const destClone = Array.from(destination);
+  const sourceClone = cloneDeep(source);
+  const destClone = cloneDeep(destination);
   const item = sourceClone[droppableSource.index];
 
   destClone.splice(droppableDestination.index, 0, { ...item });
@@ -640,9 +640,8 @@ const copy = (source, destination, droppableSource, droppableDestination) => {
 };
 
 const setDndId = items => {
-  const arr = Array.from(items || []);
-  //console.log(items)
-  //console.log(arr)
+  const arr = Array.from(items || []); //fixme cloneDeep
+
   arr.forEach(value => (value.dndId = uuidV4()));
 
   return arr;
