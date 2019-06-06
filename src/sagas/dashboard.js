@@ -5,6 +5,7 @@ import { setLoading } from '../actions/loader';
 import { t } from '../helpers/util';
 //todo test
 import * as mock from '../api/mock/dashboardSettings';
+import { delay } from 'redux-saga';
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
@@ -20,11 +21,13 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   }
 }
 
-function* doSaveDashboardConfigRequest({ api, logger }, action) {
+function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   try {
     yield put(setLoading(true));
+    yield delay(2000);
     // const webConfig = mock.getConfigPage();
     // yield put(setDashboardConfig(webConfig));
+    yield put(setDashboardConfig(payload));
     yield put(setLoading(false));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка')));
