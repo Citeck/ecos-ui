@@ -11,8 +11,8 @@ const mapStateToProps = state => ({
     menu: path(['app', 'menu'], state),
     ...path(['dashboard', 'config'], state)
   },
-  isLoading: state.dashboard.isLoading,
-  saveStatus: state.dashboard.saveStatus
+  isLoading: path(['dashboard', 'isLoading'], state),
+  saveStatus: path(['dashboard', 'saveStatus'], state)
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -42,7 +42,6 @@ class Dashboard extends Component {
 
   prepareWidgetsConfig = (data, dnd) => {
     const {
-      saveDashboardConfig,
       config,
       config: { columns, menu }
     } = this.props;
@@ -67,7 +66,11 @@ class Dashboard extends Component {
       newConfig.columns[columnTo].widgets = widgetsTo;
     }
 
-    saveDashboardConfig(newConfig);
+    this.saveDashboardConfig(newConfig);
+  };
+
+  saveDashboardConfig = config => {
+    this.props.saveDashboardConfig(config);
   };
 
   renderLayout() {
@@ -75,7 +78,7 @@ class Dashboard extends Component {
       config: { columns, menu }
     } = this.props;
 
-    return <Layout columns={columns} menu={menu} saveDashboardConfig={this.prepareWidgetsConfig} />;
+    return <Layout columns={columns} menu={menu} onSaveMenu={this.saveDashboardConfig} onSaveWidget={this.prepareWidgetsConfig} />;
   }
 
   renderLoader() {

@@ -27,7 +27,7 @@ import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { URL } from '../../constants';
 
 import './App.scss';
-import { MENU_TYPE } from '../../constants/dashboardSettings';
+import { MENU_TYPE } from '../../constants';
 
 class App extends Component {
   componentDidMount() {

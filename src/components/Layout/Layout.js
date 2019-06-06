@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { t } from '../../helpers/util';
-import { MENU_TYPE } from '../../constants/dashboardSettings';
-import Components from '../Components';
-import './style.scss';
+import { cloneDeep } from 'lodash';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { DragItem, Droppable } from '../Drag-n-Drop';
+import { t } from '../../helpers/util';
+import { MENU_TYPE } from '../../constants';
+import Components from '../Components';
+import { DragItem, Droppable, SortableContainer, SortableElement } from '../Drag-n-Drop';
+import './style.scss';
 
 const _DATA = '@data@';
 const _DIV = '@';
@@ -26,10 +27,15 @@ class Layout extends Component {
     menu: PropTypes.shape({
       type: PropTypes.oneOf(Object.keys(MENU_TYPE).map(key => MENU_TYPE[key])),
       links: PropTypes.arrayOf(PropTypes.object)
-    }).isRequired
+    }).isRequired,
+    onSaveMenu: PropTypes.func,
+    onSaveWidget: PropTypes.func
   };
 
-  static defaultProps = {};
+  static defaultProps = {
+    onSaveMenu: () => {},
+    onSaveWidget: () => {}
+  };
 
   state = {
     draggableDestination: ''
@@ -70,16 +76,40 @@ class Layout extends Component {
     data.isWidget = dndInfoStr.indexOf(WIDGET_NAME) >= 0;
 
     this.setState({ draggableDestination: '' });
-    this.props.saveDashboardConfig(data, { source, destination });
+    this.props.onSaveWidget(data, { source, destination });
+  };
+
+  handleSortEndMenu = ({ oldIndex, newIndex }, event) => {
+    let links = cloneDeep(this.props.menu.links);
+    const draggableLink = links[oldIndex];
+    const { columns, menu } = this.props;
+
+    event.stopPropagation();
+
+    links.splice(oldIndex, 1);
+    links.splice(newIndex, 0, draggableLink);
+    links.forEach((link, index) => {
+      link.position = index;
+    });
+
+    this.props.onSaveMenu({
+      columns,
+      menu: {
+        ...menu,
+        links
+      }
+    });
   };
 
   renderMenuItem = link => {
     return (
-      <Link className="ecos-layout__menu-item" to={link.link} title={t(link.label)} key={link.position}>
-        <div className="ecos-layout__menu-item-title">{t(link.label)}</div>
-        <i className="ecos-btn__i ecos-layout__menu-item-i-next" />
-        <i className="ecos-btn__i icon-drag ecos-layout__menu-item-i-drag" />
-      </Link>
+      <SortableElement key={link.position} index={link.position}>
+        <Link className="ecos-layout__menu-item" to={link.link} title={t(link.label)}>
+          <div className="ecos-layout__menu-item-title">{t(link.label)}</div>
+          <i className="ecos-btn__i ecos-layout__menu-item-i-next" />
+          <i className="ecos-btn__i icon-drag ecos-layout__menu-item-i-drag" />
+        </Link>
+      </SortableElement>
     );
   };
 
@@ -92,7 +122,11 @@ class Layout extends Component {
       return;
     }
 
-    return <div className="ecos-layout__menu">{links && links.map(this.renderMenuItem)}</div>;
+    return (
+      <SortableContainer axis="xy" onSortEnd={this.handleSortEndMenu}>
+        <div className="ecos-layout__menu">{links && links.map(this.renderMenuItem)}</div>
+      </SortableContainer>
+    );
   }
 
   renderWidgets(widgets = [], columnName) {

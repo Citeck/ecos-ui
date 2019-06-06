@@ -1,6 +1,6 @@
 import { handleActions } from 'redux-actions';
 import { initAppSuccess, initAppFailure, setMenuConfig } from '../actions/app';
-import { MENU_TYPE } from '../constants/dashboardSettings';
+import { MENU_TYPE } from '../constants';
 
 const initialState = {
   isInit: false,

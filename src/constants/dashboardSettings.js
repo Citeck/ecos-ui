@@ -1,4 +1,5 @@
 import { t } from '../helpers/util';
+import { MENU_TYPE } from './';
 
 export const LAYOUT_TYPE = {
   TWO_COLUMNS_BS: '2-columns-big-small',
@@ -7,11 +8,6 @@ export const LAYOUT_TYPE = {
   FOUR_COLUMNS: '4-columns',
   ONE_COLUMN: '1-column',
   CUSTOM: 'custom'
-};
-
-export const MENU_TYPE = {
-  LEFT: 'LEFT',
-  TOP: 'TOP'
 };
 
 export const LAYOUTS = [
