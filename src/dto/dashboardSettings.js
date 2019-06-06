@@ -1,5 +1,5 @@
-export function settingsConfigForWeb(source) {
-  const { layout, menu } = source;
+export function settingsConfigForWeb(source = {}) {
+  const { layout = {}, menu = {} } = source;
   let target = {};
 
   target.layoutType = layout.type || 0;
@@ -17,11 +17,29 @@ export function settingsConfigForServer(source) {
     menu: {}
   };
 
-  target.layout.type = source.layoutType;
   target.menu.type = source.menuType;
-  target.layout.columns = source.columns.map((column, index) => {
+  target.menu.links = menuItemsForServer(source.menu);
+
+  target.layout.type = source.layoutType;
+  target.layout.columns = widgetsForServer(source.columns, source.widgets);
+
+  return target;
+}
+
+function menuItemsForServer(items = []) {
+  return items.map((item, index) => {
+    return {
+      label: item.label,
+      position: index,
+      link: item.link || ''
+    };
+  });
+}
+
+function widgetsForServer(columns = [], widgets = []) {
+  return columns.map((column, index) => {
     const data = {
-      widgets: source.widgets[index]
+      widgets: widgets[index] || []
     };
 
     if (column.width) {
@@ -30,6 +48,4 @@ export function settingsConfigForServer(source) {
 
     return data;
   });
-
-  return target;
 }

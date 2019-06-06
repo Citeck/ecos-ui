@@ -60,7 +60,7 @@ class DashboardSettings extends React.Component {
     const { url, params } = this.props.match;
     const indexSet = url.lastIndexOf('/settings');
     const pathDashboard = url.substring(0, indexSet);
-    const recordId = params.id;
+    const recordId = params.id || '';
 
     return {
       url,
@@ -91,7 +91,7 @@ class DashboardSettings extends React.Component {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    let { config, menuItems, widgets, saveStatus } = this.props;
+    let { config, menuItems, widgets, saveInfo = {} } = this.props;
     let state = {};
 
     if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
@@ -114,8 +114,8 @@ class DashboardSettings extends React.Component {
 
     this.setState({ ...state });
 
-    if (saveStatus !== nextProps.saveStatus && nextProps.saveStatus !== SAVE_STATUS.FAILURE) {
-      this.handleCloseClick();
+    if (nextProps.saveInfo && saveInfo.status !== nextProps.saveInfo.status && nextProps.saveInfo.status !== SAVE_STATUS.FAILURE) {
+      this.handleCloseClick(nextProps.saveInfo.recordId);
     }
   }
 
@@ -546,8 +546,14 @@ class DashboardSettings extends React.Component {
 
   /*-------- start Buttons --------*/
 
-  handleCloseClick = () => {
-    window.location.href = this.pathInfo.pathDashboard;
+  handleCloseClick = recordId => {
+    let path = this.pathInfo.pathDashboard;
+
+    if (recordId && !this.pathInfo.recordId) {
+      path += recordId;
+    }
+
+    window.location.href = path;
   };
 
   handleAcceptClick = () => {
@@ -561,7 +567,8 @@ class DashboardSettings extends React.Component {
       columns: layout.columns,
       menuType,
       widgets,
-      menu
+      menu,
+      recordId: this.pathInfo.recordId
     });
   };
 
