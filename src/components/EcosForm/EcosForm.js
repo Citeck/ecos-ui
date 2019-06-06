@@ -4,6 +4,7 @@ import Formio from 'formiojs/Formio';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormUtils from './EcosFormUtils';
+import { t } from '../../helpers/util';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -19,7 +20,8 @@ class EcosForm extends React.Component {
 
     this.state = {
       containerId: 'ecos-ui-form-' + formCounter++,
-      recordId: record.id
+      recordId: record.id,
+      error: null
     };
   }
 
@@ -49,6 +51,13 @@ class EcosForm extends React.Component {
     let self = this;
 
     formLoadingPromise.then(formData => {
+      if (!formData) {
+        self.setState({
+          error: new Error(t('ecos-form.empty-form-data'))
+        });
+        return null;
+      }
+
       let customModulePromise = new Promise(function(resolve, reject) {
         if (formData.customModule) {
           window.require([formData.customModule], function(Module) {
@@ -182,6 +191,10 @@ class EcosForm extends React.Component {
   }
 
   render() {
+    if (this.state.error) {
+      return <div className={'ecos-ui-form__error'}>{this.state.error.message}</div>;
+    }
+
     return <div id={this.state.containerId} />;
   }
 }
