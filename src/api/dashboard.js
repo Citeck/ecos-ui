@@ -18,17 +18,16 @@ export class DashboardApi extends RecordService {
   };
 
   saveDashboardConfig = ({ recordId, config }) => {
-    if (recordId) {
-    } else {
-      return this.mutate({
-        records: {
-          id: 'uiserv/dashboard@',
-          attributes: {
-            key: 'dashboard-' + uuidV3('dashboard', uuidV3.URL),
-            config: config
-          }
+    recordId = recordId || '';
+
+    return this.mutate({
+      records: {
+        id: `uiserv/dashboard@${recordId}`,
+        attributes: {
+          key: 'dashboard-' + uuidV3('dashboard', uuidV3.URL), //todo ???
+          config: config
         }
-      }).then(resp => resp);
-    }
+      }
+    }).then(resp => resp);
   };
 }
