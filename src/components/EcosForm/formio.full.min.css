@@ -4782,10 +4782,10 @@ html.formio-dialog-open {
   font-size: 1.1em;
   line-height: 1.5em;
   margin: 0 auto;
-  max-width: 100%;
+  max-width: 1200px;
   padding: 1em;
   position: relative;
-  width: 65%;
+  /*width: 65%;*/
 }
 
 .formio-dialog.formio-dialog-theme-default .formio-dialog-close {
