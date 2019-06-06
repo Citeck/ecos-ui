@@ -11,3 +11,8 @@
   margin-bottom: -1px;
   list-style-type: none;
 }
+
+.ecos-dnd-list__item_draggable {
+  background: $color-white !important;
+  z-index: 20000 !important;
+}

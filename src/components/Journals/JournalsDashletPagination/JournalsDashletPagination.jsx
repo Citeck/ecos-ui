@@ -16,10 +16,10 @@ class JournalsDashletPagination extends Component {
 
   render() {
     const {
-      grid: { total, pagination }
+      grid: { total, pagination, groupBy }
     } = this.props;
 
-    if (!pagination.maxItems) {
+    if (groupBy && groupBy.length) {
       return null;
     }
 

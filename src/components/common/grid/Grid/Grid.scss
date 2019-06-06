@@ -44,6 +44,17 @@
   }
 }
 
+.ecos-grid__v-scroll {
+  position: absolute;
+  width: 6px;
+  right: 4px;
+  bottom: 2px;
+  top: 52px;
+  border-radius: 3px;
+  visibility: visible;
+  z-index: 11;
+}
+
 .ecos-grid__td {
   display: flex;
   align-items: center;

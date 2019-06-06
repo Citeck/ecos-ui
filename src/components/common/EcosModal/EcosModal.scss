@@ -46,6 +46,18 @@
   }
 }
 
+.ecos-modal_zero-padding {
+  .modal-body {
+    padding: 0;
+  }
+}
+
+.ecos-modal_shadow {
+  .modal-content {
+    box-shadow: $box-shadow-default;
+  }
+}
+
 .ecos-modal_empty-header {
   .modal-header {
     padding-bottom: 0;

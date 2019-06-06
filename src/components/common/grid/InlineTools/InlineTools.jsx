@@ -11,11 +11,11 @@ class InlineTools extends Component {
   };
 
   render() {
-    const { top, height } = this.props.inlineToolSettings;
+    const { top, height, left } = this.props.inlineToolSettings;
 
     if (height) {
       return (
-        <div style={{ top }} className={'ecos-inline-tools'}>
+        <div style={{ top, left }} className={'ecos-inline-tools'}>
           <div style={{ height }} className="ecos-inline-tools-border-left" />
           <div style={{ height }} className="ecos-inline-tools-actions">
             {this.tools()}

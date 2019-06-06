@@ -423,7 +423,7 @@ export default class SelectJournal extends Component {
             title={selectModalTitle}
             isOpen={isSelectModalOpen}
             hideModal={this.toggleSelectModal}
-            className={'select-journal-select-modal'}
+            className={'select-journal-select-modal ecos-modal_width-m'}
           >
             <div className={'select-journal-collapse-panel'}>
               <div className={'select-journal-collapse-panel__controls'}>

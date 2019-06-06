@@ -76,7 +76,7 @@ export default class ColumnsSetup extends Component {
   };
 
   onChangeOrder = columns => {
-    this.onChange(columns, this.props.sortBy);
+    this.onChange([...columns, ...this.invisible], this.props.sortBy);
   };
 
   onChangeVisible = ({ column, checked }) => {
@@ -124,10 +124,22 @@ export default class ColumnsSetup extends Component {
     });
   };
 
+  splitByVisiblle(columns) {
+    const visible = [];
+    const invisible = [];
+
+    columns.forEach(c => (c.visible ? visible.push(c) : invisible.push(c)));
+
+    return { visible, invisible };
+  }
+
   render() {
     const { columns, className, classNameToolbar, sortBy } = this.props;
     const cssClasses = classNames('columns-setup', className);
     const cssToolbarClasses = classNames('columns-setup__toolbar', classNameToolbar);
+
+    const { visible, invisible } = this.splitByVisiblle(columns);
+    this.invisible = invisible;
 
     return (
       <div className={cssClasses}>
@@ -144,9 +156,10 @@ export default class ColumnsSetup extends Component {
           <DndList
             classNameItem={'columns-setup__item'}
             sortBy={sortBy}
-            data={columns}
+            data={visible}
             tpl={this.getListItem}
             onOrder={this.onChangeOrder}
+            draggableClassName={'ecos-dnd-list__item_draggable'}
           />
         </div>
       </div>

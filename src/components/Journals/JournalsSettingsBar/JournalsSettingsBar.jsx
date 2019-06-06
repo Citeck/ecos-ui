@@ -1,5 +1,5 @@
 import React from 'react';
-import { IcoBtn, TwoIcoBtn } from '../../common/btns';
+import { IcoBtn } from '../../common/btns';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 
 import './JournalsSettingsBar.scss';
@@ -11,11 +11,7 @@ const JournalsSettingsBar = ({ showPreview, showPie, toggleSettings, togglePrevi
 
   return (
     <div className={'ecos-journal__settings-bar'}>
-      <TwoIcoBtn
-        icons={['icon-settings', 'icon-down']}
-        className={`ecos-btn_white ecos-btn_hover_t-blue ecos-btn_settings-down ${step}`}
-        onClick={toggleSettings}
-      />
+      <IcoBtn icon={'icon-settings'} className={`ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`} onClick={toggleSettings} />
 
       <IcoBtn icon={'icon-reload'} className={`${grey} ${step}`} onClick={refresh} />
 

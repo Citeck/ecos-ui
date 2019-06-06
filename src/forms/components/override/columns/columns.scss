@@ -2,6 +2,10 @@
 
 .formio-dialog-content .preview-panel,
 .formio-form {
+  .row:hover {
+    background-color: initial;
+  }
+
   .formio-component {
     .col-view-mode {
       ul {

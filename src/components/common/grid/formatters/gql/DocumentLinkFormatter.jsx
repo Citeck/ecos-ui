@@ -3,7 +3,7 @@ import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class DocumentLinkFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {
-    return `.att(n:"${attribute}"){displayName:str, id}`;
+    return `.att(n:"${attribute}"){displayName:disp, id}`;
   }
 
   value(cell) {

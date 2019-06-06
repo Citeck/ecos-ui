@@ -22,6 +22,7 @@ import {
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { t } from '../helpers/util';
+import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../components/Journals/constants';
 
 const initialState = {
   loading: true,
@@ -70,7 +71,6 @@ const initialState = {
     groupBy: [],
     columns: [],
     predicate: null,
-    maxItems: 10,
     permissions: {
       Write: true,
       Delete: true
@@ -84,6 +84,7 @@ const initialState = {
   inlineToolSettings: {
     height: 0,
     top: 0,
+    left: 0,
     row: {}
   },
 
@@ -123,8 +124,8 @@ export default handleActions(
         ...state,
         journalSettings: [
           {
-            fileId: '',
-            data: { title: t('journals.default') },
+            [JOURNAL_SETTING_ID_FIELD]: '',
+            [JOURNAL_SETTING_DATA_FIELD]: { title: t('journals.default') },
             notRemovable: true
           },
           ...Array.from(action.payload)

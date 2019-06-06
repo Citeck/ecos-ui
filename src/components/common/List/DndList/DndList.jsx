@@ -82,7 +82,7 @@ export default class DndList extends Component {
   };
 
   render() {
-    const { className, classNameItem, ...props } = this.props;
+    const { className, classNameItem, draggableClassName = '', ...props } = this.props;
     const cssClasses = classNames('ecos-dnd-list', className);
     const cssItemClasses = classNames('ecos-dnd-list__item', classNameItem);
 
@@ -98,7 +98,14 @@ export default class DndList extends Component {
                   <Draggable key={item.id} draggableId={item.id} index={index}>
                     {(provided, snapshot) => {
                       return snapshot.isDragging ? (
-                        ReactDOM.createPortal(<ListItem cssItemClasses={cssItemClasses} provided={provided} item={item} />, this.portal)
+                        ReactDOM.createPortal(
+                          <ListItem
+                            cssItemClasses={snapshot.isDragging ? `${cssItemClasses} ${draggableClassName}` : cssItemClasses}
+                            provided={provided}
+                            item={item}
+                          />,
+                          this.portal
+                        )
                       ) : (
                         <ListItem cssItemClasses={cssItemClasses} provided={provided} item={item} />
                       );

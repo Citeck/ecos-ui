@@ -18,7 +18,7 @@ class DocPreviewDashlet extends Component {
   };
 
   static defaultProps = {
-    title: t('Предпросмотр'),
+    title: t('doc-preview.preview'),
     classNamePreview: '',
     classNameDashlet: ''
   };

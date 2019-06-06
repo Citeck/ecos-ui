@@ -1,5 +1,13 @@
 @import '../../../../../../constants';
 
+.ecos-grid__header {
+  th:last-child {
+    .ecos-th__devider {
+      display: none;
+    }
+  }
+}
+
 .ecos-th {
   display: flex;
   align-items: center;
