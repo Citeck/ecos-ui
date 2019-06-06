@@ -62,3 +62,22 @@ export const SAVE_STATUS = {
   SUCCESS: 'SUCCESS',
   FAILURE: 'FAILURE'
 };
+
+export const getDefaultDashboardConfig = {
+  menu: {
+    type: MENU_TYPE.TOP,
+    links: []
+  },
+  layout: {
+    type: LAYOUT_TYPE.TWO_COLUMNS_BS,
+    columns: [
+      {
+        width: '30%',
+        widgets: []
+      },
+      {
+        widgets: []
+      }
+    ]
+  }
+};

@@ -3,7 +3,7 @@ import {
   saveDashboardConfig,
   setDashboardConfig,
   setAllMenuItems,
-  setStatusSaveConfigPage,
+  setResultSaveConfigDashboard,
   setAllWidgets
 } from '../actions/dashboardSettings';
 import { setLoading } from '../actions/loader';
@@ -17,7 +17,7 @@ const initialState = {
   widgets: [],
   menuItems: [],
   isLoading: false,
-  saveStatus: ''
+  saveInfo: ''
 };
 
 Object.freeze(initialState);
@@ -47,12 +47,15 @@ export default handleActions(
         ...state
       };
     },
-    [setStatusSaveConfigPage]: (state, { payload = {} }) => {
-      const { saveStatus } = payload;
+    [setResultSaveConfigDashboard]: (state, { payload = {} }) => {
+      const { status, recordId } = payload;
 
       return {
         ...state,
-        saveStatus
+        saveInfo: {
+          status,
+          recordId
+        }
       };
     },
     [setLoading]: (state, { payload = false }) => {
