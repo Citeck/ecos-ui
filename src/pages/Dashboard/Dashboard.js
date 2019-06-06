@@ -16,28 +16,26 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  getDashboardConfig: ({ recordId, key }) => dispatch(getDashboardConfig({ recordId, key })),
+  getDashboardConfig: ({ recordId }) => dispatch(getDashboardConfig({ recordId })),
   saveDashboardConfig: config => dispatch(saveDashboardConfig(config))
 });
 
 class Dashboard extends Component {
-  static get pathInfo() {
-    const path = window.location.href;
-    const recordId = 123,
-      key = '232f6349-9a07-49a9-baf0-9468d41e078e'; //fixme from url?
+  get pathInfo() {
+    const { url, params } = this.props.match;
+    const recordId = params.id;
 
     return {
-      path,
-      recordId,
-      key
+      url,
+      recordId
     };
   }
 
   componentDidMount() {
     const { getDashboardConfig } = this.props;
-    const { recordId, key } = Dashboard.pathInfo;
+    const { recordId } = this.pathInfo;
 
-    getDashboardConfig({ recordId, key });
+    getDashboardConfig({ recordId });
   }
 
   prepareWidgetsConfig = (data, dnd) => {

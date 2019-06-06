@@ -75,8 +75,8 @@ class App extends Component {
               <Route path="/doc-preview" component={DocPreviewPage} />
               <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
 
-              <Route path="/dashboard/(.*/)?settings" component={DashboardSettingsPage} />
-              <Route path="/dashboard" exact component={DashboardPage} />
+              <Route path="/dashboard@:id/(.*/)?settings" component={DashboardSettingsPage} />
+              <Route path="/dashboard@:id" exact component={DashboardPage} />
 
               <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
               <Route path="/share/page/ui/journals" component={JournalsPage} />

@@ -27,7 +27,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  initSettings: ({ recordId, key }) => dispatch(initSettings({ recordId, key })),
+  initSettings: ({ recordId }) => dispatch(initSettings({ recordId })),
   saveConfigPage: payload => dispatch(saveDashboardConfig(payload))
 });
 
@@ -56,18 +56,16 @@ class DashboardSettings extends React.Component {
     menuItems: []
   };
 
-  static get pathInfo() {
-    const path = window.location.href;
-    const indexSet = path.lastIndexOf('/settings');
-    const pathDashboard = path.substring(0, indexSet);
-    const recordId = 123;
-    const key = '232f6349-9a07-49a9-baf0-9468d41e078e'; //fixme from url?
+  get pathInfo() {
+    const { url, params } = this.props.match;
+    const indexSet = url.lastIndexOf('/settings');
+    const pathDashboard = url.substring(0, indexSet);
+    const recordId = params.id;
 
     return {
-      path,
+      url,
       pathDashboard,
-      recordId,
-      key
+      recordId
     };
   }
 
@@ -87,9 +85,9 @@ class DashboardSettings extends React.Component {
 
   componentDidMount() {
     const { initSettings } = this.props;
-    const { recordId, key } = DashboardSettings.pathInfo;
+    const { recordId } = this.pathInfo;
 
-    initSettings({ recordId, key });
+    initSettings({ recordId });
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -549,7 +547,7 @@ class DashboardSettings extends React.Component {
   /*-------- start Buttons --------*/
 
   handleCloseClick = () => {
-    window.location.href = DashboardSettings.pathInfo.pathDashboard;
+    window.location.href = this.pathInfo.pathDashboard;
   };
 
   handleAcceptClick = () => {
