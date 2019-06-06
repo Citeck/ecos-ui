@@ -12,9 +12,7 @@ import { LAYOUT_TYPE, MENU_TYPE } from '../constants/dashboardSettings';
 const initialState = {
   config: {
     layoutType: LAYOUT_TYPE.TWO_COLUMNS_BS,
-    menuType: MENU_TYPE.LEFT,
-    widgets: [],
-    menu: []
+    widgets: []
   },
   widgets: [],
   menuItems: [],

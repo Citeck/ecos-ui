@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { path } from 'ramda';
 import { getDashboardConfig, saveDashboardConfig } from '../../actions/dashboard';
 import Layout from '../../components/Layout';
 import Loader from '../../components/common/Loader/Loader';
 
 const mapStateToProps = state => ({
-  config: state.dashboard.config,
+  config: {
+    menu: path(['app', 'menu'], state),
+    ...path(['dashboard', 'config'], state)
+  },
   isLoading: state.dashboard.isLoading,
   saveStatus: state.dashboard.saveStatus
 });

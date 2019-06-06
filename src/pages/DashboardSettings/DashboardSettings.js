@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
-import uuidV4 from 'uuid/v4';
 import { path } from 'ramda';
 import { t } from '../../helpers/util';
 import { LAYOUTS, MENU_TYPE, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
@@ -16,7 +15,11 @@ import Loader from '../../components/common/Loader/Loader';
 import './style.scss';
 
 const mapStateToProps = state => ({
-  config: state.dashboardSettings.config,
+  config: {
+    menuType: path(['app', 'menu', 'type'], state),
+    menu: path(['app', 'menu'], state),
+    ...path(['dashboardSettings', 'config'], state)
+  },
   widgets: state.dashboardSettings.widgets,
   menuItems: state.dashboardSettings.menuItems,
   isLoading: state.dashboardSettings.isLoading,

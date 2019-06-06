@@ -5,10 +5,6 @@ import { setLoading } from '../actions/loader';
 
 const initialState = {
   config: {
-    menu: {
-      type: MENU_TYPE.LEFT,
-      links: []
-    },
     columns: []
   },
   isLoading: false,
