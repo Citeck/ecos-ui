@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Route, Switch } from 'react-router';
 import classNames from 'classnames';
+import { path } from 'ramda';
 
 import BPMNDesignerPage from '../../pages/BPMNDesignerPage';
 import CardDetailsPage from '../../pages/CardDetailsPage';
@@ -93,14 +94,14 @@ class App extends Component {
 }
 
 const mapStateToProps = state => ({
-  isInit: state.app.isInit,
-  isInitFailure: state.app.isInitFailure,
-  isMobile: state.view.isMobile,
-  theme: state.view.theme,
-  isAuthenticated: state.user.isAuthenticated,
-  isShow: state.pageTabs.isShow,
-  tabs: state.pageTabs.tabs,
-  menuType: state.dashboardSettings.config.menuType
+  isInit: path(['app', 'isInit'], state),
+  isInitFailure: path(['app', 'isInitFailure'], state),
+  isMobile: path(['view', 'isMobile'], state),
+  theme: path(['view', 'theme'], state),
+  isAuthenticated: path(['user', 'isAuthenticated'], state),
+  isShow: path(['pageTabs', 'isShow'], state),
+  tabs: path(['pageTabs', 'tabs'], state),
+  menuType: path(['app', 'menu', 'type'], state)
 });
 
 const mapDispatchToProps = dispatch => ({

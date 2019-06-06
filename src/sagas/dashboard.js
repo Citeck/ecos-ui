@@ -6,13 +6,23 @@ import { t } from '../helpers/util';
 //todo test
 import * as mock from '../api/mock/dashboardSettings';
 import { delay } from 'redux-saga';
+import { settingsConfigForWeb } from '../dto/dashboardSettings';
+import { dashboardForWeb } from '../dto/dashboard';
+import { setMenuConfig } from '../actions/app';
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
     yield put(setLoading(true));
     const apiData = yield call(api.dashboard.getDashboardConfig, payload);
+
+    // TODO: use real query for menu & layout
+    const menu = yield call(mock.getMenuConfig);
+    const layout = yield call(mock.getLayoutConfig);
+    const webConfig = dashboardForWeb({ menu, layout });
+
     console.log('doGetDashboardConfigRequest', apiData);
-    const webConfig = mock.getConfigPage();
+
+    yield put(setMenuConfig(menu));
     yield put(setDashboardConfig(webConfig));
     yield put(setLoading(false));
   } catch (e) {

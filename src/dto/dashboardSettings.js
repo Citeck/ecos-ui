@@ -1,22 +1,25 @@
 export function settingsConfigForWeb(source) {
+  const { layout, menu } = source;
   let target = {};
-  const { columns = [] } = source;
 
-  target.layoutType = source.type || 0;
-  target.menuType = source.menuType || ''; //todo what field
+  target.layoutType = layout.type || 0;
+  target.menuType = menu.type || ''; //todo what field
 
-  target.widgets = columns ? columns.map(item => item.widgets) : [];
+  target.widgets = layout.columns ? layout.columns.map(item => item.widgets) : [];
   target.menu = [];
 
   return target;
 }
 
 export function settingsConfigForServer(source) {
-  let target = {};
+  let target = {
+    layout: {},
+    menu: {}
+  };
 
-  target.type = source.layoutType;
-  target.menuType = source.menuType;
-  target.columns = source.columns.map((column, index) => {
+  target.layout.type = source.layoutType;
+  target.menu.type = source.menuType;
+  target.layout.columns = source.columns.map((column, index) => {
     const data = {
       widgets: source.widgets[index]
     };

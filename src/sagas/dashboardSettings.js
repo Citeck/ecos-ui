@@ -17,6 +17,7 @@ import { settingsConfigForServer, settingsConfigForWeb } from '../dto/dashboardS
 import { SAVE_STATUS } from '../constants/dashboardSettings';
 //todo test
 import * as mock from '../api/mock/dashboardSettings';
+import { setMenuConfig } from '../actions/app';
 
 function* doInitSettingsRequest({ api, logger }, action) {
   try {
@@ -33,8 +34,15 @@ function* doInitSettingsRequest({ api, logger }, action) {
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
     const apiData = yield call(api.dashboard.getDashboardConfig, payload);
+
+    // TODO: use real query for menu & layout
+    const menu = yield call(mock.getMenuConfig);
+    const layout = yield call(mock.getLayoutConfig);
+    const webConfig = settingsConfigForWeb({ menu, layout });
+
     console.log('doGetDashboardConfigRequest', apiData);
-    const webConfig = settingsConfigForWeb(mock.getConfigPage());
+
+    yield put(setMenuConfig(menu));
     yield put(setDashboardConfig(webConfig));
   } catch (e) {
     logger.error('[dashboard/settings/ doGetDashboardConfigRequest saga] error', e.message);

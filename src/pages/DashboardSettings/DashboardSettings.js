@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
 import uuidV4 from 'uuid/v4';
+import { path } from 'ramda';
 import { t } from '../../helpers/util';
 import { LAYOUTS, MENU_TYPE, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
 import { initSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
@@ -74,7 +75,7 @@ class DashboardSettings extends React.Component {
       layouts: LAYOUTS,
       menus: MENUS,
       widgetsSelected: [],
-      isShowMenuConstructor: false,
+      isShowMenuConstructor: path(['config', 'menuType'], props),
       menuSelected: [],
       widgets: [],
       menuItems: []
@@ -104,6 +105,10 @@ class DashboardSettings extends React.Component {
 
     if (JSON.stringify(widgets) !== JSON.stringify(nextProps.widgets) || !arrayCompare(nextProps.widgets, this.state.widgets, 'name')) {
       state.widgets = setDndId(nextProps.widgets);
+    }
+
+    if (config.menuType !== nextProps.config.menuType) {
+      state.isShowMenuConstructor = nextProps.config.menuType === MENU_TYPE.TOP;
     }
 
     this.setState({ ...state });

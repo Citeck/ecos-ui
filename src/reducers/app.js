@@ -1,9 +1,14 @@
 import { handleActions } from 'redux-actions';
-import { initAppSuccess, initAppFailure } from '../actions/app';
+import { initAppSuccess, initAppFailure, setMenuConfig } from '../actions/app';
+import { MENU_TYPE } from '../constants/dashboardSettings';
 
 const initialState = {
   isInit: false,
-  isInitFailure: false
+  isInitFailure: false,
+  menu: {
+    type: MENU_TYPE.LEFT,
+    links: []
+  }
 };
 
 Object.freeze(initialState);
@@ -21,6 +26,12 @@ export default handleActions(
         ...state,
         isInit: true,
         isInitFailure: true
+      };
+    },
+    [setMenuConfig]: (state, action) => {
+      return {
+        ...state,
+        menu: action.payload
       };
     }
   },

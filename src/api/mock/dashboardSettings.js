@@ -1,3 +1,4 @@
+import uuidV4 from 'uuid/v4';
 import { t } from '../../helpers/util';
 import { LAYOUT_TYPE, MENU_TYPE } from '../../constants/dashboardSettings';
 
@@ -14,48 +15,49 @@ export function getWidgets() {
   ];
 }
 
-export function getConfigPage() {
+export function getMenuConfig() {
+  return {
+    type: MENU_TYPE.TOP,
+    links: [
+      {
+        label: 'Журнал',
+        position: 0,
+        link: '/share/page/journals'
+      },
+      {
+        label: 'Журнал дашборд и ещё много-много текста в этой ссылке',
+        position: 1,
+        link: '/share/page/journalsDashboard'
+      },
+      {
+        label: 'Настройка дашборда',
+        position: 2,
+        link: '/dashboard/settings'
+      },
+      {
+        label: 'Настройка дашборда',
+        position: 3,
+        link: '/dashboard/settings'
+      },
+      {
+        label: 'Настройка дашборда',
+        position: 4,
+        link: '/dashboard/settings'
+      }
+    ]
+  };
+}
+
+export function getLayoutConfig() {
   return {
     type: LAYOUT_TYPE.TWO_COLUMNS_BS,
-    menuType: MENU_TYPE.LEFT,
-    title: 'Домашняя страница пользователя',
-    menu: {
-      type: 'TOP',
-      links: [
-        {
-          label: 'Журнал',
-          position: 0,
-          link: '/share/page/journals'
-        },
-        {
-          label: 'Журнал дашборд и ещё много-много текста в этой ссылке',
-          position: 1,
-          link: '/share/page/journalsDashboard'
-        },
-        {
-          label: 'Настройка дашборда',
-          position: 2,
-          link: '/dashboard/settings'
-        },
-        {
-          label: 'Настройка дашборда',
-          position: 3,
-          link: '/dashboard/settings'
-        },
-        {
-          label: 'Настройка дашборда',
-          position: 4,
-          link: '/dashboard/settings'
-        }
-      ]
-    },
     columns: [
       {
         width: '30%',
         widgets: [
           {
             label: 'Предпросмотр',
-            id: 'doc-preview-1',
+            id: uuidV4(),
             name: 'doc-preview',
             props: {
               id: 'doc-preview-1',
@@ -74,7 +76,7 @@ export function getConfigPage() {
         widgets: [
           {
             label: 'Предпросмотр',
-            id: 'doc-preview-0',
+            id: uuidV4(),
             name: 'doc-preview',
             props: {
               id: 'doc-preview-0',
@@ -88,7 +90,7 @@ export function getConfigPage() {
           {
             label: 'Журнал',
             name: 'journal',
-            id: 'journal-0'
+            id: uuidV4()
           }
         ]
       }
