@@ -3,6 +3,7 @@ import connect from 'react-redux/es/connect/connect';
 import { Grid, InlineTools, Tools, EmptyGrid } from '../../common/grid';
 import Loader from '../../common/Loader/Loader';
 import { IcoBtn } from '../../common/btns';
+import { goToJournalsPage, getFilter } from '../urlManager';
 import { t, trigger } from '../../../helpers/util';
 import {
   reloadGrid,
@@ -35,6 +36,7 @@ const mapDispatchToProps = dispatch => ({
 
 class JournalsDashletGrid extends Component {
   filters = [];
+  selectedRow = {};
 
   setSelectedRecords = e => {
     const props = this.props;
@@ -80,12 +82,46 @@ class JournalsDashletGrid extends Component {
     });
   };
 
-  showGridInlineToolSettings = (e, offsets) => {
-    this.props.setGridInlineToolSettings(offsets);
+  setSelectedRow(row) {
+    this.selectedRow = row;
+  }
+
+  getSelectedRow() {
+    return this.selectedRow;
+  }
+
+  clearSelectedRow() {
+    this.selectedRow = {};
+  }
+
+  showGridInlineToolSettings = (e, options) => {
+    this.setSelectedRow(options.row);
+    this.props.setGridInlineToolSettings(options);
   };
 
   hideGridInlineToolSettings = () => {
+    this.clearSelectedRow();
     this.props.setGridInlineToolSettings({ height: 0, top: 0, row: {} });
+  };
+
+  goToJournalPageWithFilter = () => {
+    const {
+      config: { journalsListId = '', journalSettingId = '' },
+      journalConfig: {
+        id = '',
+        meta: { nodeRef = '' }
+      },
+      grid: { columns }
+    } = this.props;
+    const selectedRow = this.getSelectedRow();
+
+    goToJournalsPage({
+      journalsListId,
+      journalId: id,
+      journalSettingId,
+      nodeRef,
+      filter: getFilter(selectedRow, columns)
+    });
   };
 
   inlineTools = () => {
@@ -100,7 +136,8 @@ class JournalsDashletGrid extends Component {
         tools={[
           <IcoBtn icon={'icon-download'} className={inlineToolsActionClassName} />,
           <IcoBtn icon={'icon-edit'} className={inlineToolsActionClassName} />,
-          <IcoBtn icon={'icon-delete'} className={inlineToolsActionClassName} />
+          <IcoBtn icon={'icon-delete'} className={inlineToolsActionClassName} />,
+          <IcoBtn onClick={this.goToJournalPageWithFilter} icon={'icon-big-arrow'} className={inlineToolsActionClassName} />
         ]}
       />
     );
@@ -135,8 +172,8 @@ class JournalsDashletGrid extends Component {
     );
   };
 
-  onRowClick = (e, offsets, row) => {
-    this.showGridInlineToolSettings(e, offsets);
+  onRowClick = (e, options, row) => {
+    this.showGridInlineToolSettings(e, options);
     trigger.call(this, 'onRowClick', row);
   };
 

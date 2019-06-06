@@ -5,7 +5,7 @@ import JournalsDashletPagination from '../JournalsDashletPagination';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { onJournalSelect } from '../../../actions/journals';
-import { getCreateRecord } from '../urlManager';
+import { goToCreateRecordPage } from '../urlManager';
 
 const mapStateToProps = state => ({
   journals: state.journals.journals,
@@ -29,7 +29,7 @@ class JournalsDashletToolbar extends Component {
       }
     } = this.props;
     createVariants = createVariants[0];
-    createVariants.canCreate && window.open(getCreateRecord({ ...createVariants }), '_blank');
+    createVariants.canCreate && goToCreateRecordPage(createVariants);
   };
 
   onChangeJournal = journal => this.props.onJournalSelect(journal.nodeRef);

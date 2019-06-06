@@ -15,7 +15,7 @@ import JournalsContent from './JournalsContent';
 
 import EcosModal from '../common/EcosModal/EcosModal';
 import { getJournalsData, reloadGrid } from '../../actions/journals';
-import { getPreview, getCreateRecord } from './urlManager';
+import { getPreview, goToCreateRecordPage } from './urlManager';
 import { Well } from '../common/form';
 import { t } from '../../helpers/util';
 
@@ -61,7 +61,7 @@ class Journals extends Component {
       }
     } = this.props;
     createVariants = createVariants[0];
-    createVariants.canCreate && window.open(getCreateRecord({ ...createVariants }), '_blank');
+    createVariants.canCreate && goToCreateRecordPage(createVariants);
   };
 
   toggleSettings = () => {
