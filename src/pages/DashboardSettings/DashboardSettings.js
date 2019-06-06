@@ -56,8 +56,8 @@ class DashboardSettings extends React.Component {
     const path = window.location.href;
     const indexSet = path.lastIndexOf('/settings');
     const pathDashboard = path.substring(0, indexSet);
-    const recordId = 123,
-      key = '232f6349-9a07-49a9-baf0-9468d41e078e'; //fixme from url?
+    const recordId = 123;
+    const key = '232f6349-9a07-49a9-baf0-9468d41e078e'; //fixme from url?
 
     return {
       path,
@@ -97,10 +97,12 @@ class DashboardSettings extends React.Component {
 
       state = { ...state, ...resultConfig };
     }
+
     if (JSON.stringify(menuItems) !== JSON.stringify(nextProps.menuItems)) {
       state.menuItems = setDndId(nextProps.menuItems);
     }
-    if (JSON.stringify(widgets) !== JSON.stringify(nextProps.widgets)) {
+
+    if (JSON.stringify(widgets) !== JSON.stringify(nextProps.widgets) || !arrayCompare(nextProps.widgets, this.state.widgets, 'name')) {
       state.widgets = setDndId(nextProps.widgets);
     }
 
@@ -639,12 +641,24 @@ const copy = (source, destination, droppableSource, droppableDestination) => {
   return setDndId(destClone);
 };
 
-const setDndId = items => {
-  const arr = Array.from(items || []); //fixme cloneDeep
+const setDndId = (items = []) => {
+  const arr = cloneDeep(items);
 
-  arr.forEach(value => (value.dndId = uuidV4()));
+  arr.forEach(value => {
+    if (!value.dndId) {
+      value.dndId = uuidV4();
+    }
+  });
 
   return arr;
+};
+
+const arrayCompare = (arr1 = [], arr2 = [], byField = '') => {
+  if (!byField) {
+    return JSON.parse(JSON.stringify(arr1)) === JSON.parse(JSON.stringify(arr2));
+  }
+
+  return JSON.parse(JSON.stringify(arr1.map(item => item[byField]))) === JSON.parse(JSON.stringify(arr2.map(item => item[byField])));
 };
 
 export default connect(
