@@ -70,7 +70,7 @@ export default class Grid extends Component {
             props.onPrevRowSelected.call(
               this,
               e,
-              this.getTrOffsets(this._byRowClickSelectedRow),
+              this.getTrOptions(this._byRowClickSelectedRow),
               props.data[this._byRowClickSelectedRow.rowIndex - 1]
             );
           }
@@ -85,7 +85,7 @@ export default class Grid extends Component {
             props.onNextRowSelected.call(
               this,
               e,
-              this.getTrOffsets(this._byRowClickSelectedRow),
+              this.getTrOptions(this._byRowClickSelectedRow),
               props.data[this._byRowClickSelectedRow.rowIndex - 1]
             );
           }
@@ -120,7 +120,7 @@ export default class Grid extends Component {
     props.rowEvents = props.rowEvents || {};
 
     if (typeof props.onMouseEnter === 'function') {
-      props.rowEvents = { onMouseEnter: e => props.onMouseEnter.call(this, e, this.getTrOffsets(e.currentTarget)), ...props.rowEvents };
+      props.rowEvents = { onMouseEnter: e => props.onMouseEnter.call(this, e, this.getTrOptions(e.currentTarget)), ...props.rowEvents };
     }
 
     this._byRowClickSelectedRow = null;
@@ -128,7 +128,7 @@ export default class Grid extends Component {
       onClick: e => {
         if (typeof props.onRowClick === 'function') {
           this._byRowClickSelectedRow = e.currentTarget;
-          props.onRowClick.call(this, e, this.getTrOffsets(e.currentTarget), props.data[e.currentTarget.rowIndex - 1]);
+          props.onRowClick.call(this, e, this.getTrOptions(e.currentTarget), props.data[e.currentTarget.rowIndex - 1]);
         }
       },
       ...props.rowEvents
@@ -145,7 +145,7 @@ export default class Grid extends Component {
     return props;
   }
 
-  getTrOffsets = tr => {
+  getTrOptions = tr => {
     const { scrollLeft = 0 } = this.scrollValues;
     const height = tr.offsetHeight - 2;
     const top = tr.offsetTop - 1;
