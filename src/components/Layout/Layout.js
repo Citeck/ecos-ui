@@ -55,17 +55,22 @@ class Layout extends Component {
   };
 
   handleDragEnd = result => {
-    if (!result.destination || !result.source) {
+    const { source, destination } = result;
+
+    if (!destination || !source) {
       return;
     }
-    console.warn('result', result);
-    const widgetInfoStr = result.draggableId;
-    const data = getWidgetInfo(widgetInfoStr);
+
+    const dndInfoStr = result.draggableId;
+    const data = getDndInfo(dndInfoStr);
 
     data.columnTo = result.destination.droppableId.split(COLUMN_INDEX).slice(-1);
+    data.positionFrom = source.index;
+    data.positionTo = destination.index;
+    data.isWidget = dndInfoStr.indexOf(WIDGET_NAME) >= 0;
 
     this.setState({ draggableDestination: '' });
-    this.props.saveDashboardConfig(data);
+    this.props.saveDashboardConfig(data, { source, destination });
   };
 
   renderMenuItem = link => {
@@ -170,7 +175,7 @@ class Layout extends Component {
 
 export default Layout;
 
-function getWidgetInfo(infoStr) {
+function getDndInfo(infoStr) {
   const attrs = infoStr.split(_DATA);
   const data = {};
 

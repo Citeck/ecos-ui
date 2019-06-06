@@ -293,7 +293,7 @@ class DashboardSettings extends React.Component {
     }
 
     if (source.droppableId === destination.droppableId) {
-      const menuItems = DndUtils.reorder(this.state[source.droppableId], source.index, destination.index);
+      const menuItems = DndUtils.reorder(this.state[source.droppableId], source, destination);
 
       let state = { menuItems };
 
@@ -422,7 +422,7 @@ class DashboardSettings extends React.Component {
 
     this.setState({ draggableDestination: '' });
 
-    if (!destination || destination.droppableId === DROPPABLE_ZONE.WIDGETS_FROM) {
+    if (!source || !destination || destination.droppableId === DROPPABLE_ZONE.WIDGETS_FROM) {
       return;
     }
 
@@ -436,7 +436,7 @@ class DashboardSettings extends React.Component {
         widgetsSelected[colIndex] = resultCopy;
         break;
       case destination.droppableId:
-        widgetsSelected[colIndex] = DndUtils.reorder(colSelected, source.index, destination.index);
+        widgetsSelected[colIndex] = DndUtils.reorder(colSelected, source, destination);
         break;
       default:
         const colSourceIndex = source.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[1]; //todo тут

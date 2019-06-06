@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { getDashboardConfig, saveDashboardConfig } from '../../actions/dashboard';
 import Layout from '../../components/Layout';
 import Loader from '../../components/common/Loader/Loader';
+import { DndUtils } from '../../components/Drag-n-Drop';
 
 const mapStateToProps = state => ({
   config: state.dashboard.config,
@@ -35,19 +36,32 @@ class Dashboard extends Component {
     getDashboardConfig({ recordId, key });
   }
 
-  prepareWidgetsConfig = dataWidget => {
+  prepareWidgetsConfig = (data, dnd) => {
     const {
       saveDashboardConfig,
       config,
       config: { columns, menu }
     } = this.props;
-    let widgetsFrom = columns[dataWidget.columnFrom].widgets || [];
-    let widgetIndex = widgetsFrom.findIndex(item => item.id === dataWidget.id);
-    let widget = widgetsFrom.splice(widgetIndex, 1);
+    const { isWidget, columnFrom, columnTo, id } = data;
+    const { source, destination } = dnd;
     let newConfig = { ...config };
 
-    newConfig.columns[dataWidget.columnFrom].widgets = widgetsFrom;
-    newConfig.columns[dataWidget.columnTo].widgets.push(widget[0]); //fixme order
+    if (isWidget) {
+      let widgetsFrom = columns[columnFrom].widgets || [];
+      let widgetsTo = columns[columnTo].widgets || [];
+      let result = [];
+
+      if (+columnFrom !== +columnTo) {
+        result = DndUtils.move(widgetsFrom, widgetsTo, source, destination);
+        widgetsFrom = result[source.droppableId];
+        widgetsTo = result[destination.droppableId];
+      } else {
+        widgetsFrom = DndUtils.reorder(widgetsFrom, source, destination);
+      }
+
+      newConfig.columns[columnFrom].widgets = widgetsFrom;
+      newConfig.columns[columnTo].widgets = widgetsTo;
+    }
 
     saveDashboardConfig(newConfig);
   };
