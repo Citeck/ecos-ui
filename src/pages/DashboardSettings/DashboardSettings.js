@@ -187,9 +187,11 @@ class DashboardSettings extends React.Component {
   }
 
   draggablePositionAdjusment = () => {
+    const menuType = path(['config', 'menuType'], this.props);
+
     return {
-      top: this.props.config.menuType === MENU_TYPE.LEFT ? this.bodyScrollTop : 0,
-      left: this.props.config.menuType === MENU_TYPE.LEFT ? this.menuWidth : -60
+      top: menuType === MENU_TYPE.LEFT ? this.bodyScrollTop : 0,
+      left: menuType === MENU_TYPE.LEFT ? this.menuWidth : 0
     };
   };
 

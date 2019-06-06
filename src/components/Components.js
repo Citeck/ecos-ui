@@ -1,16 +1,35 @@
 import loadable from '@loadable/component';
+import { path } from 'ramda';
 import { t } from '../helpers/util';
 
 export default class Components {
   static components = {
-    login: './LoginForm',
-    pagination: './common/Pagination/Pagination',
-    'doc-preview': './DocPreview',
-    journal: './Journals/JournalsDashlet/JournalsDashlet'
+    login: {
+      path: './LoginForm',
+      label: 'Форма авторизации'
+    },
+    pagination: {
+      path: './common/Pagination/Pagination',
+      label: 'Пагинация'
+    },
+    'doc-preview': {
+      path: './DocPreview',
+      label: 'Предпросмотр'
+    },
+    journal: {
+      path: './Journals/JournalsDashlet/JournalsDashlet',
+      label: 'Журнал'
+    }
   };
 
   static get(component) {
-    return loadable(() => import(`${Components.components[component]}`));
+    const link = path([component, 'path'], Components.components);
+
+    if (!link) {
+      return () => null;
+    }
+
+    return loadable(() => import(`${link}`));
   }
 
   static getComponentsFullData() {
@@ -19,7 +38,7 @@ export default class Components {
     for (let name in Components.components) {
       arrComponents.push({
         name,
-        label: t(name)
+        label: t(Components.components[name].label)
       });
     }
 
