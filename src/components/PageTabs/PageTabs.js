@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { getScrollbarWidth, deepClone } from '../../helpers/util';
 import { SortableContainer, SortableElement } from './sortable';
-import { SCROLL_STEP, TITLE, LINK_TAG } from '../../constants/pageTabs';
+import { SCROLL_STEP, TITLE, LINK_TAG, getTitleByUrl } from '../../constants/pageTabs';
 import './style.scss';
 
 class PageTabs extends React.Component {
@@ -427,7 +427,7 @@ class PageTabs extends React.Component {
 
     cleanUrl = cleanUrl.replace(/#.*/i, '');
 
-    return TITLE[cleanUrl];
+    return getTitleByUrl(cleanUrl);
   }
 
   renderLeftButton() {
@@ -555,23 +555,3 @@ class PageTabs extends React.Component {
 }
 
 export default withRouter(PageTabs);
-
-/**
- <a href="/share/page/journals">Журнал на этой странице</a>
- <br />
-
- <a href="/share/page/journals" data-external="true">
- Журнал на этой странице с перехагрузкой
- </a>
- <br />
-
- <a href="/share/page/journalsDashboard" target="_blank">
- Журнал дашборд на новой странице
- </a>
- <br />
-
- <a href="/share/page/journalsDashboard" data-external target="_blank">
- Журнал дашборд в новой вкладке
- </a>
-
- */

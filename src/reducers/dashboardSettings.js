@@ -7,7 +7,7 @@ import {
   setAllWidgets
 } from '../actions/dashboardSettings';
 import { setLoading } from '../actions/loader';
-import { LAYOUT_TYPE, MENU_TYPE } from '../constants/dashboardSettings';
+import { LAYOUT_TYPE } from '../constants/dashboardSettings';
 
 const initialState = {
   config: {

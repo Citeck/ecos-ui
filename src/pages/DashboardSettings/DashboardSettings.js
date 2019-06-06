@@ -5,7 +5,8 @@ import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
 import { path } from 'ramda';
 import { t } from '../../helpers/util';
-import { LAYOUTS, MENU_TYPE, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
+import { LAYOUTS, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
+import { MENU_TYPE } from '../../constants';
 import { initSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
@@ -20,10 +21,10 @@ const mapStateToProps = state => ({
     menu: path(['app', 'menu'], state),
     ...path(['dashboardSettings', 'config'], state)
   },
-  widgets: state.dashboardSettings.widgets,
-  menuItems: state.dashboardSettings.menuItems,
-  isLoading: state.dashboardSettings.isLoading,
-  saveStatus: state.dashboardSettings.saveStatus
+  widgets: path(['dashboardSettings', 'widgets'], state),
+  menuItems: path(['dashboardSettings', 'menuItems'], state),
+  isLoading: path(['dashboardSettings', 'isLoading'], state),
+  saveStatus: path(['dashboardSettings', 'saveStatus'], state)
 });
 
 const mapDispatchToProps = dispatch => ({

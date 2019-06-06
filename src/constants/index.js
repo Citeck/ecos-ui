@@ -5,3 +5,8 @@ export const URL = {
   DASHBOARD: '/dashboard',
   DASHBOARD_SETTINGS: '/dashboard/settings'
 };
+
+export const MENU_TYPE = {
+  LEFT: 'LEFT',
+  TOP: 'TOP'
+};

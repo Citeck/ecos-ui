@@ -1,6 +1,5 @@
 import { handleActions } from 'redux-actions';
 import { setDashboardConfig, saveDashboardConfig } from '../actions/dashboard';
-import { MENU_TYPE } from '../constants/dashboardSettings';
 import { setLoading } from '../actions/loader';
 
 const initialState = {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MENU_TYPE } from '../../constants/dashboardSettings';
+import { MENU_TYPE } from '../../constants';
 import './style.scss';
 import BaseLayoutItem from './BaseLayoutItem';
 
