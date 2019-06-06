@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
-import uuidV4 from 'uuid/v4';
 import { t } from '../../helpers/util';
 import { LAYOUTS, MENU_TYPE, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
 import { initSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
-import { DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
+import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { Btn } from '../../components/common/btns';
 import Loader from '../../components/common/Loader/Loader';
 
@@ -98,10 +97,10 @@ class DashboardSettings extends React.Component {
       state = { ...state, ...resultConfig };
     }
     if (JSON.stringify(menuItems) !== JSON.stringify(nextProps.menuItems)) {
-      state.menuItems = setDndId(nextProps.menuItems);
+      state.menuItems = DndUtils.setDndId(nextProps.menuItems);
     }
     if (JSON.stringify(widgets) !== JSON.stringify(nextProps.widgets)) {
-      state.widgets = setDndId(nextProps.widgets);
+      state.widgets = DndUtils.setDndId(nextProps.widgets);
     }
 
     this.setState({ ...state });
@@ -129,10 +128,10 @@ class DashboardSettings extends React.Component {
 
     widgetsSelected = this.setWidgetsSelected(selectedLayout, widgetsSelected);
     widgetsSelected = widgetsSelected.map(item => {
-      return setDndId(item);
+      return DndUtils.setDndId(item);
     });
 
-    menuSelected = setDndId(menuSelected);
+    menuSelected = DndUtils.setDndId(menuSelected);
 
     return { layouts, widgetsSelected, menuSelected };
   }
@@ -286,7 +285,7 @@ class DashboardSettings extends React.Component {
     }
 
     if (source.droppableId === destination.droppableId) {
-      const menuItems = reorder(this.state[source.droppableId], source.index, destination.index);
+      const menuItems = DndUtils.reorder(this.state[source.droppableId], source.index, destination.index);
 
       let state = { menuItems };
 
@@ -296,7 +295,7 @@ class DashboardSettings extends React.Component {
 
       this.setState(state);
     } else {
-      const result = move(this.state[source.droppableId], this.state[destination.droppableId], source, destination);
+      const result = DndUtils.move(this.state[source.droppableId], this.state[destination.droppableId], source, destination);
 
       this.setState({
         menuItems: result[DROPPABLE_ZONE.MENU_FROM],
@@ -424,17 +423,17 @@ class DashboardSettings extends React.Component {
 
     switch (source.droppableId) {
       case DROPPABLE_ZONE.WIDGETS_FROM:
-        const resultCopy = copy(widgets, widgetsSelected[colIndex], source, destination);
+        const resultCopy = DndUtils.copy(widgets, widgetsSelected[colIndex], source, destination);
 
         widgetsSelected[colIndex] = resultCopy;
         break;
       case destination.droppableId:
-        widgetsSelected[colIndex] = reorder(colSelected, source.index, destination.index);
+        widgetsSelected[colIndex] = DndUtils.reorder(colSelected, source.index, destination.index);
         break;
       default:
         const colSourceIndex = source.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[1]; //todo тут
         const colSource = widgetsSelected[colSourceIndex];
-        const resultMove = move(colSource, colSelected, source, destination);
+        const resultMove = DndUtils.move(colSource, colSelected, source, destination);
 
         widgetsSelected[colSourceIndex] = resultMove[source.droppableId];
         widgetsSelected[colIndex] = resultMove[destination.droppableId];
@@ -600,52 +599,6 @@ class DashboardSettings extends React.Component {
     );
   }
 }
-
-const reorder = (list, startIndex, endIndex) => {
-  const result = cloneDeep(list);
-  const [removed] = result.splice(startIndex, 1);
-
-  result.splice(endIndex, 0, removed);
-
-  return result;
-};
-
-const move = (source, destination, droppableSource, droppableDestination) => {
-  source = source || [];
-  destination = destination || [];
-
-  const sourceClone = cloneDeep(source);
-  const destClone = cloneDeep(destination);
-  const [removed] = sourceClone.splice(droppableSource.index, 1);
-  const result = {};
-
-  destClone.splice(droppableDestination.index, 0, removed);
-  result[droppableSource.droppableId] = sourceClone;
-  result[droppableDestination.droppableId] = destClone;
-
-  return result;
-};
-
-const copy = (source, destination, droppableSource, droppableDestination) => {
-  source = source || [];
-  destination = destination || [];
-
-  const sourceClone = cloneDeep(source);
-  const destClone = cloneDeep(destination);
-  const item = sourceClone[droppableSource.index];
-
-  destClone.splice(droppableDestination.index, 0, { ...item });
-
-  return setDndId(destClone);
-};
-
-const setDndId = items => {
-  const arr = Array.from(items || []); //fixme cloneDeep
-
-  arr.forEach(value => (value.dndId = uuidV4()));
-
-  return arr;
-};
 
 export default connect(
   mapStateToProps,
