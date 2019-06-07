@@ -3,10 +3,12 @@ import PropTypes from 'prop-types';
 import Dashlet from '../Dashlet/Dashlet';
 import DocPreview from './DocPreview';
 import './DocPreview.scss';
+import { t } from '../../helpers/util';
 
 class DocPreviewDashlet extends Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
+    title: PropTypes.string,
     classNamePreview: PropTypes.string,
     classNameDashlet: PropTypes.string,
     config: PropTypes.shape({
@@ -16,15 +18,16 @@ class DocPreviewDashlet extends Component {
   };
 
   static defaultProps = {
+    title: t('doc-preview.preview'),
     classNamePreview: '',
     classNameDashlet: ''
   };
 
   render() {
-    const { config, classNamePreview, classNameDashlet } = this.props;
+    const { title, config, classNamePreview, classNameDashlet } = this.props;
 
     return (
-      <Dashlet title={'Предпросмотр'} bodyClassName={'ecos-doc-preview-dashlet__body'} className={classNameDashlet}>
+      <Dashlet title={title} bodyClassName={'ecos-doc-preview-dashlet__body'} className={classNameDashlet}>
         <DocPreview {...config} className={classNamePreview} />
       </Dashlet>
     );

@@ -39,7 +39,7 @@ export function* initApp({ api, fakeApi, logger }) {
 
 export function* loadTheme({ api, fakeApi, logger }, { payload }) {
   try {
-    const themeName = yield call(fakeApi.getCurrentThemeName);
+    const themeName = yield call(api.app.getCurrentThemeName);
     yield put(setTheme(themeName));
     yield call(applyTheme, themeName);
 

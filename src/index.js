@@ -24,6 +24,8 @@ import App from './components/App';
 import IdleTimer from './components/IdleTimer';
 import './index.scss';
 
+import './build-info';
+
 const logger = Logger.create('EcoS');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);
 

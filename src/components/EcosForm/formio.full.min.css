@@ -4776,16 +4776,16 @@ html.formio-dialog-open {
 .formio-dialog.formio-dialog-theme-default .formio-dialog-content {
   -webkit-animation: formio-dialog-flyin 0.5s;
   animation: formio-dialog-flyin 0.5s;
-  background: #f0f0f0;
+  background: #ffffff;
   border-radius: 5px;
   font-family: Helvetica, sans-serif;
   font-size: 1.1em;
   line-height: 1.5em;
   margin: 0 auto;
-  max-width: 100%;
+  max-width: 1200px;
   padding: 1em;
   position: relative;
-  width: 65%;
+  /*width: 65%;*/
 }
 
 .formio-dialog.formio-dialog-theme-default .formio-dialog-close {

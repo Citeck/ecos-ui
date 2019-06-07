@@ -16,6 +16,7 @@ import {
 } from '../../../actions/journals';
 
 import { t, getSelectedValue } from '../../../helpers/util';
+import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../constants';
 
 import './JournalsDashletEditor.scss';
 
@@ -58,7 +59,7 @@ class JournalsDashletEditor extends Component {
   };
 
   setSettingItem = item => {
-    this.props.setSettingItem(item.fileId);
+    this.props.setSettingItem(item[JOURNAL_SETTING_ID_FIELD]);
   };
 
   componentDidUpdate(prevProps) {
@@ -107,10 +108,10 @@ class JournalsDashletEditor extends Component {
             <Select
               placeholder={t('journals.default')}
               options={props.journalSettings}
-              getOptionLabel={option => option.data.title}
-              getOptionValue={option => option.fileId}
+              getOptionLabel={option => option[JOURNAL_SETTING_DATA_FIELD].title}
+              getOptionValue={option => option[JOURNAL_SETTING_ID_FIELD]}
               onChange={this.setSettingItem}
-              value={getSelectedValue(props.journalSettings, 'fileId', config.journalSettingId)}
+              value={getSelectedValue(props.journalSettings, JOURNAL_SETTING_ID_FIELD, config.journalSettingId)}
             />
           </Field>
         </div>

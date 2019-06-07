@@ -22,7 +22,7 @@ const ListItem = ({ cssItemClasses, provided, item }) => {
   );
 };
 
-const Dnd = ({ data, cssClasses, cssItemClasses, id, portal }) => {
+const Dnd = ({ data, cssClasses, cssItemClasses, id, portal, draggableClassName }) => {
   return (
     <div className={'ecos-dnd-list__column'}>
       <Scrollbars style={{ height: '100%' }}>
@@ -33,7 +33,14 @@ const Dnd = ({ data, cssClasses, cssItemClasses, id, portal }) => {
                 <Draggable key={item.id} draggableId={item.id} index={index}>
                   {(provided, snapshot) => {
                     return snapshot.isDragging ? (
-                      ReactDOM.createPortal(<ListItem cssItemClasses={cssItemClasses} provided={provided} item={item} />, portal)
+                      ReactDOM.createPortal(
+                        <ListItem
+                          cssItemClasses={snapshot.isDragging ? `${cssItemClasses} ${draggableClassName}` : cssItemClasses}
+                          provided={provided}
+                          item={item}
+                        />,
+                        portal
+                      )
                     ) : (
                       <ListItem cssItemClasses={cssItemClasses} provided={provided} item={item} />
                     );
@@ -158,7 +165,7 @@ export default class Dnd2List extends Component {
   };
 
   render() {
-    const { className, classNameItem } = this.props;
+    const { className, classNameItem, draggableClassName = '' } = this.props;
     const cssClasses = classNames('ecos-dnd-list', className);
     const cssItemClasses = classNames('ecos-dnd-list__item', classNameItem);
 
@@ -169,8 +176,22 @@ export default class Dnd2List extends Component {
       <DragDropContext onDragEnd={this.onDragEnd}>
         <Columns
           cols={[
-            <Dnd data={first} cssClasses={cssClasses} cssItemClasses={cssItemClasses} id={this._firstId} portal={this.portal} />,
-            <Dnd data={second} cssClasses={cssClasses} cssItemClasses={cssItemClasses} id={this._secondId} portal={this.portal} />
+            <Dnd
+              data={first}
+              cssClasses={cssClasses}
+              cssItemClasses={cssItemClasses}
+              id={this._firstId}
+              portal={this.portal}
+              draggableClassName={draggableClassName}
+            />,
+            <Dnd
+              data={second}
+              cssClasses={cssClasses}
+              cssItemClasses={cssItemClasses}
+              id={this._secondId}
+              portal={this.portal}
+              draggableClassName={draggableClassName}
+            />
           ]}
         />
       </DragDropContext>

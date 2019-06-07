@@ -1,5 +1,9 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import lodashGet from 'lodash/get';
+import throttle from 'lodash/throttle';
+
+const SCROLL_STEP = 120;
+const SCROLLABLE_CLASS = 'formio-component-tabs_scrollable';
 
 //Override default tabs component to fix validation in inner fields
 export default class TabsComponent extends NestedComponent {
@@ -189,7 +193,25 @@ export default class TabsComponent extends NestedComponent {
     }
   }
 
+  destroyComponents() {
+    super.destroyComponents();
+    this.removeEventListeners();
+  }
+
   createElement() {
+    this.tabsBarWrapper = this.ce('div', {
+      class: 'formio-component-tabs-wrapper'
+    });
+    this.tabsBarScrollWrapper = this.ce('div', {
+      class: 'formio-component-tabs-scroll-wrapper'
+    });
+    this.tabsBarLeftButton = this.ce('div', {
+      class: 'formio-component-tabs-left-button'
+    });
+    this.tabsBarRightButton = this.ce('div', {
+      class: 'formio-component-tabs-right-button'
+    });
+
     this.tabsBar = this.ce('ul', {
       class: 'nav nav-tabs'
     });
@@ -223,6 +245,10 @@ export default class TabsComponent extends NestedComponent {
       tabElement.tabLink = tabLink;
       this.tabsBar.appendChild(tabElement);
       this.tabLinks.push(tabElement);
+      this.tabsBarScrollWrapper.appendChild(this.tabsBar);
+      this.tabsBarWrapper.appendChild(this.tabsBarLeftButton);
+      this.tabsBarWrapper.appendChild(this.tabsBarScrollWrapper);
+      this.tabsBarWrapper.appendChild(this.tabsBarRightButton);
 
       const tabPanel = this.ce('div', {
         role: 'tabpanel',
@@ -239,7 +265,7 @@ export default class TabsComponent extends NestedComponent {
     }
 
     if (this.element) {
-      this.appendChild(this.element, [this.tabsBar, this.tabsContent]);
+      this.appendChild(this.element, [this.tabsBarWrapper, this.tabsContent]);
       this.element.className = this.className;
       return this.element;
     }
@@ -250,12 +276,71 @@ export default class TabsComponent extends NestedComponent {
         id: this.id,
         class: this.className
       },
-      [this.tabsBar, this.tabsContent]
+      [this.tabsBarWrapper, this.tabsContent]
     );
     this.element.component = this;
 
+    this.addEventListeners();
+
     return this.element;
   }
+
+  addEventListeners() {
+    let checkTimes = 0;
+    this.detectScrollInterval = setInterval(() => {
+      if (checkTimes > 10 || this.element.classList.contains(SCROLLABLE_CLASS)) {
+        return clearInterval(this.detectScrollInterval);
+      }
+      this.detectScroll();
+      checkTimes++;
+    }, 500);
+
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+    window.addEventListener('resize', this.detectScrollThrottled);
+  }
+
+  removeEventListeners() {
+    clearInterval(this.detectScrollInterval);
+
+    this.tabsBarLeftButton.removeEventListener('click', this.onLeftButtonClick);
+    this.tabsBarRightButton.removeEventListener('click', this.onRightButtonClick);
+
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    window.removeEventListener('resize', this.detectScrollThrottled);
+  }
+
+  detectScroll = () => {
+    const containerWidth = this.tabsBar.getBoundingClientRect()['width'];
+    const scrollWidth = this.tabsBar.scrollWidth;
+
+    if (scrollWidth - containerWidth > 1) {
+      if (this.element.classList.contains(SCROLLABLE_CLASS)) {
+        return null;
+      }
+
+      this.element.classList.add(SCROLLABLE_CLASS);
+      this.tabsBarLeftButton.addEventListener('click', this.onLeftButtonClick);
+      this.tabsBarRightButton.addEventListener('click', this.onRightButtonClick);
+    } else {
+      this.element.classList.remove(SCROLLABLE_CLASS);
+    }
+  };
+
+  detectScrollThrottled = throttle(this.detectScroll, 300);
+
+  onLeftButtonClick = () => {
+    this.tabsBar.scrollLeft -= SCROLL_STEP;
+  };
+
+  onRightButtonClick = () => {
+    this.tabsBar.scrollLeft += SCROLL_STEP;
+  };
+
+  onVisibilityChange = () => {
+    if (!document.hidden) {
+      this.detectScroll();
+    }
+  };
 
   /**
    * Set the current tab.

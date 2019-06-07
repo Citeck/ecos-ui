@@ -21,7 +21,7 @@ export default [
     defaultValue: 'GET',
     clearOnHide: false,
     data: {
-      values: [{ label: 'GET', value: 'GET' }, { label: 'POST', value: 'GET' }]
+      values: [{ label: 'GET', value: 'GET' }, { label: 'POST', value: 'POST' }]
     },
     validate: {
       required: true

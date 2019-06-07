@@ -71,7 +71,7 @@ class Toolbar extends Component {
     const zooms = getScaleModes();
 
     if (selectedZoom === CUSTOM) {
-      zooms.push({ id: CUSTOM, title: t(`Custom: ${Math.round(scale * 10000) / 100}%`), scale });
+      zooms.push({ id: CUSTOM, title: `${Math.round(scale * 10000) / 100}%`, scale });
     }
 
     return zooms;
@@ -157,7 +157,7 @@ class Toolbar extends Component {
         {!!totalPages && (
           <Fragment>
             <Input type="text" onChange={this.goToPage} value={currentPage} className={classNames(`${this._toolbar}__pager__input`)} />
-            <span className={`${this._toolbar}__pager__text`}> {`${t('pagination.from')} ${totalPages}`} </span>
+            <span className={`${this._toolbar}__pager__text`}> {`${t('doc-preview.out-of')} ${totalPages}`} </span>
           </Fragment>
         )}
         <IcoBtn
@@ -195,7 +195,7 @@ class Toolbar extends Component {
   renderExtraBtns() {
     return (
       <div className={classNames(`${this._group} ${this._toolbar}__extra-btns`)}>
-        <IcoBtn icon={'icon-download'} className={this.className} onClick={this.props.onDownload} title={'Скачать'} />
+        <IcoBtn icon={'icon-download'} className={this.className} onClick={this.props.onDownload} title={t('doc-preview.download')} />
       </div>
     );
   }

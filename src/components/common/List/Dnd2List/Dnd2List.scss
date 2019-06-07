@@ -21,3 +21,8 @@
   border-radius: $border-radius-standard;
   padding: 16px;
 }
+
+.ecos-dnd-list__item_draggable {
+  background: $color-white !important;
+  z-index: 20000 !important;
+}

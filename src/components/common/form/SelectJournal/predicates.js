@@ -43,6 +43,27 @@ export const PREDICATE_LT = 'lt';
 export const PREDICATE_AND = 'and';
 export const PREDICATE_OR = 'or';
 
+export const ALFRESCO_EQUAL_PREDICATES_MAP = {
+  [COLUMN_DATA_TYPE_TEXT]: 'string-contains',
+  [COLUMN_DATA_TYPE_CONTENT]: 'string-contains',
+  [COLUMN_DATA_TYPE_MLTEXT]: 'string-contains',
+  [COLUMN_DATA_TYPE_INT]: 'number-equals',
+  [COLUMN_DATA_TYPE_LONG]: 'number-equals',
+  [COLUMN_DATA_TYPE_FLOAT]: 'number-equals',
+  [COLUMN_DATA_TYPE_DOUBLE]: 'number-equals',
+  [COLUMN_DATA_TYPE_DATE]: 'date-equals',
+  [COLUMN_DATA_TYPE_DATETIME]: 'date-greater-or-equal',
+  [COLUMN_DATA_TYPE_BOOLEAN]: 'boolean-true',
+  [COLUMN_DATA_TYPE_QNAME]: 'type-equals',
+  [COLUMN_DATA_TYPE_NODEREF]: 'noderef-contains',
+  [COLUMN_DATA_TYPE_CATEGORY]: 'noderef-contains',
+  [COLUMN_DATA_TYPE_ASSOC]: 'assoc-contains',
+  [COLUMN_DATA_TYPE_OPTIONS]: 'string-contains',
+  [COLUMN_DATA_TYPE_PERSON]: 'assoc-contains',
+  [COLUMN_DATA_TYPE_AUTHORITY_GROUP]: 'assoc-contains',
+  [COLUMN_DATA_TYPE_AUTHORITY]: 'assoc-contains'
+};
+
 // Hack: Currently t('') works correctly only after execution loadMessagesAndAlfrescoScript function in share.js, so we should use function instead of array:
 const getAllPredicates = function() {
   return [
@@ -80,7 +101,7 @@ const PREDICATE_LIST_TYPE_BOOLEAN = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NO
 const PREDICATE_LIST_TYPE_NODEREF = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_QNAME = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_AUTHORITY = [PREDICATE_CONTAINS, PREDICATE_NOT_CONTAINS, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
-const PREDICATE_LIST_TYPE_NO_CONTROL_YET = [PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
+const PREDICATE_LIST_TYPE_NO_CONTROL_YET = [PREDICATE_NOT_EMPTY, PREDICATE_EMPTY];
 const PREDICATE_LIST_TYPE_FILTER_GROUP = [PREDICATE_AND, PREDICATE_OR];
 
 let allPredicates = [];
@@ -152,6 +173,23 @@ export function getPredicateInput(field, sourceId) {
     { label: t('react-select.value-false.label'), value: false }
   ];
 
+  const input = {
+    component: Input,
+    defaultValue: '',
+    getProps: ({ predicateValue, changePredicateValue, applyFilters }) => ({
+      className: 'ecos-input_narrow',
+      value: predicateValue,
+      onChange: function(e) {
+        changePredicateValue(e.target.value);
+      },
+      onKeyDown: function(e) {
+        if (e.key === 'Enter') {
+          applyFilters();
+        }
+      }
+    })
+  };
+
   switch (field.type) {
     case COLUMN_DATA_TYPE_DATE:
     case COLUMN_DATA_TYPE_DATETIME:
@@ -180,22 +218,7 @@ export function getPredicateInput(field, sourceId) {
     case COLUMN_DATA_TYPE_CATEGORY:
     case COLUMN_DATA_TYPE_NODEREF:
     case COLUMN_DATA_TYPE_QNAME:
-      return {
-        component: Input,
-        defaultValue: '',
-        getProps: ({ predicateValue, changePredicateValue, applyFilters }) => ({
-          className: 'ecos-input_narrow',
-          value: predicateValue,
-          onChange: function(e) {
-            changePredicateValue(e.target.value);
-          },
-          onKeyDown: function(e) {
-            if (e.key === 'Enter') {
-              applyFilters();
-            }
-          }
-        })
-      };
+      return input;
     case COLUMN_DATA_TYPE_OPTIONS:
       const loadOptions = () => {
         return new Promise(resolve => {
@@ -287,6 +310,6 @@ export function getPredicateInput(field, sourceId) {
       };
     /* eslint-disable-next-line */
     default:
-      return null;
+      return input;
   }
 }

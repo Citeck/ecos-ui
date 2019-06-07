@@ -11,7 +11,8 @@ import {
   setSelectedRecords,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setGridInlineToolSettings
+  setGridInlineToolSettings,
+  goToJournalsPage
 } from '../../../actions/journals';
 
 const mapStateToProps = state => ({
@@ -30,11 +31,13 @@ const mapDispatchToProps = dispatch => ({
   setSelectedRecords: records => dispatch(setSelectedRecords(records)),
   setSelectAllRecords: need => dispatch(setSelectAllRecords(need)),
   setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(visible)),
-  setGridInlineToolSettings: ({ top, height, row }) => dispatch(setGridInlineToolSettings({ top, height, row }))
+  setGridInlineToolSettings: settings => dispatch(setGridInlineToolSettings(settings)),
+  goToJournalsPage: row => dispatch(goToJournalsPage(row))
 });
 
 class JournalsDashletGrid extends Component {
   filters = [];
+  selectedRow = {};
 
   setSelectedRecords = e => {
     const props = this.props;
@@ -80,12 +83,31 @@ class JournalsDashletGrid extends Component {
     });
   };
 
-  showGridInlineToolSettings = (e, offsets) => {
-    this.props.setGridInlineToolSettings(offsets);
+  setSelectedRow(row) {
+    this.selectedRow = row;
+  }
+
+  getSelectedRow() {
+    return this.selectedRow;
+  }
+
+  clearSelectedRow() {
+    this.selectedRow = {};
+  }
+
+  showGridInlineToolSettings = (e, options) => {
+    this.setSelectedRow(options.row);
+    this.props.setGridInlineToolSettings(options);
   };
 
   hideGridInlineToolSettings = () => {
+    this.clearSelectedRow();
     this.props.setGridInlineToolSettings({ height: 0, top: 0, row: {} });
+  };
+
+  goToJournalPageWithFilter = () => {
+    const selectedRow = this.getSelectedRow();
+    this.props.goToJournalsPage(selectedRow);
   };
 
   inlineTools = () => {
@@ -100,7 +122,8 @@ class JournalsDashletGrid extends Component {
         tools={[
           <IcoBtn icon={'icon-download'} className={inlineToolsActionClassName} />,
           <IcoBtn icon={'icon-edit'} className={inlineToolsActionClassName} />,
-          <IcoBtn icon={'icon-delete'} className={inlineToolsActionClassName} />
+          <IcoBtn icon={'icon-delete'} className={inlineToolsActionClassName} />,
+          <IcoBtn onClick={this.goToJournalPageWithFilter} icon={'icon-big-arrow'} className={inlineToolsActionClassName} />
         ]}
       />
     );
@@ -135,8 +158,8 @@ class JournalsDashletGrid extends Component {
     );
   };
 
-  onRowClick = (e, offsets, row) => {
-    this.showGridInlineToolSettings(e, offsets);
+  onRowClick = (e, options, row) => {
+    this.showGridInlineToolSettings(e, options);
     trigger.call(this, 'onRowClick', row);
   };
 
@@ -182,6 +205,7 @@ class JournalsDashletGrid extends Component {
               onPrevRowSelected={doInlineToolsOnRowClick ? this.onRowClick : null}
               onMouseEnter={doInlineToolsOnRowClick ? null : this.showGridInlineToolSettings}
               onMouseLeave={doInlineToolsOnRowClick ? null : this.hideGridInlineToolSettings}
+              onScrollStart={doInlineToolsOnRowClick ? null : this.hideGridInlineToolSettings}
               onEdit={saveRecords}
               selected={selectedRecords}
               selectAll={selectAllRecords}

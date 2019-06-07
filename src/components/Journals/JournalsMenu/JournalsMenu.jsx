@@ -8,10 +8,9 @@ import { Well } from '../../common/form';
 import { deleteJournalSetting, onJournalSettingsSelect, onJournalSelect } from '../../../actions/journals';
 import { getPropByStringKey, t } from '../../../helpers/util';
 import { setJournalSettingId, setJournalId } from '../urlManager';
+import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../constants';
 
 import './JournalsMenu.scss';
-
-const JOURNAL_SETTING_ID_FIELD = 'fileId';
 
 const mapStateToProps = state => ({
   journals: state.journals.journals,
@@ -90,7 +89,7 @@ class JournalsMenu extends Component {
         onDelete={this.deleteJournalSettings}
         removable
         item={setting}
-        titleField={'data.title'}
+        titleField={`${JOURNAL_SETTING_DATA_FIELD}.title`}
       />
     ));
   };

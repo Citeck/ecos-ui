@@ -3,8 +3,7 @@
 .ecos-journal {
   position: relative;
   height: 100%;
-  max-width: 1200px;
-  background: $color-gray;
+  width: 100%;
   overflow: hidden;
 
   &:after {
@@ -69,7 +68,6 @@
 /*Settings*/
 .ecos-journal__settings {
   padding: 21px 0;
-  margin-bottom: 12px;
 }
 
 .ecos-journal__settings-bar {

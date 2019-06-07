@@ -1,3 +1,5 @@
+import lodashGet from 'lodash/get';
+
 export function getPropByStringKey(obj, strKey) {
   const keys = strKey.split('.');
   let res;
@@ -261,10 +263,10 @@ export function fileDownload(link) {
 
 export function getScaleModes() {
   return [
-    { id: 'auto', title: t('Automatic Zoom'), scale: 'auto' },
-    { id: 'pageFit', title: t('Page Fit'), scale: 'page-fit' },
-    { id: 'pageHeight', title: t('Page Height'), scale: 'page-height' },
-    { id: 'pageWidth', title: t('Page Width'), scale: 'page-width' },
+    { id: 'auto', title: t('doc-preview.scale.auto'), scale: 'auto' },
+    { id: 'pageFit', title: t('doc-preview.scale.page-fit'), scale: 'page-fit' },
+    { id: 'pageHeight', title: t('doc-preview.scale.page-height'), scale: 'page-height' },
+    { id: 'pageWidth', title: t('doc-preview.scale.page-width'), scale: 'page-width' },
     { id: '50', title: '50%', scale: 0.5 },
     { id: '75', title: '75%', scale: 0.75 },
     { id: '100', title: '100%', scale: 1 },
@@ -304,8 +306,12 @@ export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, rat
       if (scale && !Number.isNaN(parseFloat(scale))) {
         return scale;
       } else {
-        console.error('Неверное значение коэффициента шасштабирования');
+        console.error('Wrong zoom coefficient value');
         return 1;
       }
   }
+}
+
+export function getCurrentUserName() {
+  return lodashGet(window, 'Alfresco.constants.USERNAME', '');
 }

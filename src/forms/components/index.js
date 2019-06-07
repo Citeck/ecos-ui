@@ -11,6 +11,9 @@ import SelectOrgstruct from './custom/selectOrgstruct';
 import EcosSelect from './custom/ecosSelect';
 import AsyncData from './custom/asyncData';
 import TableForm from './custom/tableForm';
+import HorizontalLine from './custom/horizontalLine';
+
+import './prototypeMutation';
 
 Components.setComponents({
   ...DefaultComponents,
@@ -23,5 +26,6 @@ Components.setComponents({
   selectOrgstruct: SelectOrgstruct,
   ecosSelect: EcosSelect,
   asyncData: AsyncData,
-  tableForm: TableForm
+  tableForm: TableForm,
+  horizontalLine: HorizontalLine
 });

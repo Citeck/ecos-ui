@@ -73,6 +73,10 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
       }
     }
 
+    componentWillUnmount() {
+      document.removeEventListener('fullscreenchange', this.onFullscreenchange, false);
+    }
+
     get elScrollbar() {
       const { refScrollbar } = this.refs;
 
@@ -99,11 +103,11 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
       }
 
       if (pdf === undefined && !urlImg) {
-        return { type: 'error', msg: t(errMsg || 'Документ не указан') };
+        return { type: 'error', msg: t(errMsg || 'doc-preview.error.not-specified') };
       }
 
       if (pdf && Object.keys(pdf).length && !pdf._pdfInfo) {
-        return { type: 'warn', msg: t('Возникла проблема при загрузке документа. Попробуйте скачать документ') };
+        return { type: 'warn', msg: t('doc-preview.error.loading-failure') };
       }
 
       return null;

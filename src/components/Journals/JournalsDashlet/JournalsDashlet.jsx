@@ -6,7 +6,7 @@ import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletFooter from '../JournalsDashletFooter';
 import { getDashletConfig, setEditorMode, reloadGrid } from '../../../actions/journals';
 import Dashlet from '../../Dashlet/Dashlet';
-import { getJournalPage } from '../urlManager';
+import { goToJournalsPage } from '../urlManager';
 import classNames from 'classnames';
 
 import './JournalsDashlet.scss';
@@ -33,10 +33,13 @@ class JournalsDashlet extends Component {
   goToJournalsPage = () => {
     const {
       config: { journalsListId = '', journalSettingId = '' },
-      journalConfig: { id = '' }
+      journalConfig: {
+        id = '',
+        meta: { nodeRef = '' }
+      }
     } = this.props;
-    const journalPageUrl = getJournalPage({ journalsListId, journalId: id, journalSettingId });
-    window.open(journalPageUrl, '_blank');
+
+    goToJournalsPage({ journalsListId, journalId: id, journalSettingId, nodeRef });
   };
 
   render() {

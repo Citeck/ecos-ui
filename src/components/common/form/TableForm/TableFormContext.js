@@ -52,7 +52,18 @@ export const TableFormContextProvider = props => {
 
       journalsApi.getJournalConfig(journalId).then(journalConfig => {
         // console.log('journalConfig', journalConfig);
-        setCreateVariants(journalConfig.meta.createVariants || []);
+        setCreateVariants(
+          journalConfig.meta.createVariants.map(item => {
+            let itemType = item.type;
+            if (itemType.indexOf('@') === -1) {
+              itemType = `dict@${itemType}`;
+            }
+            return {
+              ...item,
+              type: itemType
+            };
+          }) || []
+        );
 
         let columns = journalConfig.columns;
         if (Array.isArray(displayColumns) && displayColumns.length > 0) {

@@ -55,8 +55,10 @@ export default class FiltersGroup extends Component {
             <Label className={'ecos-filters-group__tools_step label_clear label_nowrap label_middle-grey'}>{'Добавить'}</Label>
 
             <Select
-              className={'ecos-filters-group__select ecos-filters-group__tools_step select_narrow'}
-              placeholder={t('journals.default')}
+              className={`ecos-filters-group__select ecos-filters-group__tools_step select_narrow ${
+                first ? 'ecos-select_blue' : 'ecos-select_grey'
+              }`}
+              placeholder={t('filter-list.criterion')}
               options={columns}
               getOptionLabel={option => option.text}
               getOptionValue={option => option.attribute}
@@ -65,8 +67,8 @@ export default class FiltersGroup extends Component {
 
             {first && (
               <Select
-                className={'ecos-filters-group__select select_narrow'}
-                placeholder={t('journals.default')}
+                className={'ecos-filters-group__select select_narrow ecos-select_blue'}
+                placeholder={t('filter-list.condition-group')}
                 options={groupConditions}
                 getOptionLabel={option => option.label}
                 getOptionValue={option => option.value}
