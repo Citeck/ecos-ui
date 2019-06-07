@@ -381,7 +381,7 @@ function* sagaInitPreview({ api, logger }, action) {
 
 function* sagaGoToJournalsPage({ api, logger }, action) {
   try {
-    const row = action.payload;
+    let row = action.payload;
 
     const journalConfig = yield select(state => state.journals.journalConfig);
     const config = yield select(state => state.journals.config);
@@ -400,6 +400,12 @@ function* sagaGoToJournalsPage({ api, logger }, action) {
       let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(journalType)}`);
       nodeRef = journalConfig.meta.nodeRef;
     }
+
+    let attributes = {};
+
+    columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
+
+    row = groupBy.length ? row : yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
 
     goToJournalsPageUrl({
       journalsListId,
