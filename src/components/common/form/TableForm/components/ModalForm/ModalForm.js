@@ -7,7 +7,8 @@ import Records from '../../../../../Records';
 
 const ModalForm = () => {
   const context = useContext(TableFormContext);
-  const { record, formMode, isModalFormOpen, toggleModal, onCreateFormSubmit, onEditFormSubmit } = context;
+  const { record, formMode, isModalFormOpen, toggleModal, onCreateFormSubmit, onEditFormSubmit, controlProps } = context;
+  const { parentForm } = controlProps;
 
   const [displayName, setDisplayName] = useState();
   useEffect(() => {
@@ -39,6 +40,9 @@ const ModalForm = () => {
             onSubmit={formMode === FORM_MODE_CREATE ? onCreateFormSubmit : onEditFormSubmit}
             onFormCancel={toggleModal}
             saveOnSubmit={false}
+            options={{
+              parentForm
+            }}
           />
         </EcosModal>
       ) : null}
