@@ -1,15 +1,17 @@
 import { handleActions } from 'redux-actions';
 import {
-  saveDashboardConfig,
-  setDashboardConfig,
+  saveSettings,
   setAllMenuItems,
-  setResultSaveConfigDashboard,
-  setAllWidgets
+  setAllWidgets,
+  setDashboardKey,
+  setDashboardConfig,
+  setResultSaveSettings
 } from '../actions/dashboardSettings';
 import { setLoading } from '../actions/loader';
 import { LAYOUT_TYPE } from '../constants/dashboardSettings';
 
 const initialState = {
+  dashboardKey: null,
   config: {
     layoutType: LAYOUT_TYPE.TWO_COLUMNS_BS,
     widgets: []
@@ -17,7 +19,11 @@ const initialState = {
   widgets: [],
   menuItems: [],
   isLoading: false,
-  saveInfo: ''
+  saveInfo: {
+    dashboardStatus: '',
+    menuStatus: '',
+    recordId: ''
+  }
 };
 
 Object.freeze(initialState);
@@ -28,6 +34,12 @@ export default handleActions(
       return {
         ...state,
         config: payload
+      };
+    },
+    [setDashboardKey]: (state, { payload }) => {
+      return {
+        ...state,
+        dashboardKey: payload
       };
     },
     [setAllWidgets]: (state, action) => {
@@ -42,18 +54,19 @@ export default handleActions(
         menuItems: action.payload
       };
     },
-    [saveDashboardConfig]: (state, action) => {
+    [saveSettings]: (state, action) => {
       return {
         ...state
       };
     },
-    [setResultSaveConfigDashboard]: (state, { payload = {} }) => {
-      const { status, recordId } = payload;
+    [setResultSaveSettings]: (state, { payload = {} }) => {
+      const { dashboardStatus, menuStatus, recordId } = payload;
 
       return {
         ...state,
         saveInfo: {
-          status,
+          dashboardStatus,
+          menuStatus,
           recordId
         }
       };

@@ -1,8 +1,10 @@
 import { handleActions } from 'redux-actions';
 import { setDashboardConfig, saveDashboardConfig } from '../actions/dashboard';
 import { setLoading } from '../actions/loader';
+import { setDashboardKey } from '../actions/dashboardSettings';
 
 const initialState = {
+  dashboardKey: null,
   config: {
     columns: []
   },
@@ -18,6 +20,12 @@ export default handleActions(
       return {
         ...state,
         config: payload
+      };
+    },
+    [setDashboardKey]: (state, { payload }) => {
+      return {
+        ...state,
+        dashboardKey: payload
       };
     },
     [setLoading]: (state, { payload = false }) => {

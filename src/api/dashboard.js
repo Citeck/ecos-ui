@@ -1,6 +1,7 @@
 import { RecordService } from './recordService';
 import Components from '../components/Components';
-import uuidV3 from 'uuid/v3';
+
+const DEFAULT_KEY = 'key';
 
 export class DashboardApi extends RecordService {
   getAllWidgets = () => {
@@ -8,23 +9,25 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardConfig = ({ recordId }) => {
+    recordId = recordId || '';
+
     return this.query({
       record: `uiserv/dashboard@${recordId}`,
       attributes: {
-        key: 'key',
+        key: DEFAULT_KEY,
         config: 'config?json'
       }
     }).then(resp => resp);
   };
 
-  saveDashboardConfig = ({ recordId, config }) => {
+  saveDashboardConfig = ({ key, recordId, config }) => {
     recordId = recordId || '';
 
     return this.mutate({
       records: {
         id: `uiserv/dashboard@${recordId}`,
         attributes: {
-          key: 'dashboard-' + uuidV3('dashboard', uuidV3.URL), //todo ???
+          key: key || DEFAULT_KEY,
           config: config
         }
       }

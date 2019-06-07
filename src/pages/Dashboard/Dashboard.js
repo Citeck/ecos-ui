@@ -68,7 +68,7 @@ class Dashboard extends Component {
   };
 
   saveDashboardConfig = config => {
-    this.props.saveDashboardConfig(config);
+    this.props.saveSettings(config);
   };
 
   renderLayout() {

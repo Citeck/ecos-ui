@@ -53,4 +53,24 @@ export class MenuApi extends CommonApi {
       return Promise.resolve(0);
     }
   };
+
+  getMenuConfig = () => {
+    return this.query({
+      record: `uiserv/menu`,
+      attributes: {
+        config: 'config?json'
+      }
+    }).then(resp => resp);
+  };
+
+  saveMenuConfig = config => {
+    return this.mutate({
+      records: {
+        id: `uiserv/menu`,
+        attributes: {
+          config: config
+        }
+      }
+    }).then(resp => resp);
+  };
 }

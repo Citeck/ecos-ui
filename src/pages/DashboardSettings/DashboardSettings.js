@@ -7,7 +7,7 @@ import { path } from 'ramda';
 import { t } from '../../helpers/util';
 import { LAYOUTS, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
 import { MENU_TYPE } from '../../constants';
-import { initSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
+import { initSettings, saveSettings } from '../../actions/dashboardSettings';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { Btn } from '../../components/common/btns';
@@ -29,7 +29,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   initSettings: ({ recordId }) => dispatch(initSettings({ recordId })),
-  saveConfigPage: payload => dispatch(saveDashboardConfig(payload))
+  saveSettings: payload => dispatch(saveSettings(payload))
 });
 
 const DROPPABLE_ZONE = {
@@ -560,12 +560,12 @@ class DashboardSettings extends React.Component {
   };
 
   handleAcceptClick = () => {
-    const { saveConfigPage } = this.props;
+    const { saveSettings } = this.props;
     const { widgetsSelected: widgets, menuSelected: menu, menus } = this.state;
     const layout = this.selectedLayout;
     const menuType = menus.find(item => item.isActive).type;
 
-    saveConfigPage({
+    saveSettings({
       layoutType: layout.type,
       columns: layout.columns,
       menuType,

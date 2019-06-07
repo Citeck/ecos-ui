@@ -1,12 +1,11 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import { getDashboardConfig, setDashboardConfig, saveDashboardConfig } from '../actions/dashboard';
+import { getDashboardConfig, saveDashboardConfig, setDashboardConfig } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
 import { setLoading } from '../actions/loader';
 import { t } from '../helpers/util';
 //todo test
 import * as mock from '../api/mock/dashboardSettings';
 import { delay } from 'redux-saga';
-import { settingsConfigForWeb } from '../dto/dashboardSettings';
 import { dashboardForWeb } from '../dto/dashboard';
 import { setMenuConfig } from '../actions/app';
 
@@ -40,7 +39,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
     yield put(setDashboardConfig(payload));
     yield put(setLoading(false));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка')));
+    yield put(setNotificationMessage(t('Ошибка сохранения дашборда')));
     logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e.message);
   }
 }
