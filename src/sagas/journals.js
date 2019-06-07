@@ -391,13 +391,13 @@ function* sagaGoToJournalsPage({ api, logger }, action) {
     const { journalsListId = '', journalSettingId = '' } = config;
     let {
       id = '',
-      meta: { nodeRef = '', criteria = [] }
+      meta: { nodeRef = '', criteria = [], predicate = {} }
     } = journalConfig;
 
-    const criteriaFirstValue = (criteria[0] || {}).value;
+    const journalType = (criteria[0] || {}).value || predicate.val;
 
-    if (criteriaFirstValue) {
-      let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(criteriaFirstValue)}`);
+    if (journalType) {
+      let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(journalType)}`);
       nodeRef = journalConfig.meta.nodeRef;
     }
 
