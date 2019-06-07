@@ -29,11 +29,13 @@ import {
   onJournalSettingsSelect,
   onJournalSelect,
   initPreview,
-  setPreviewUrl
+  setPreviewUrl,
+  goToJournalsPage
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
+import { goToJournalsPage as goToJournalsPageUrl, getFilter } from '../components/Journals/urlManager';
 import { t } from '../helpers/util';
 
 const getDefaultSortBy = config => {
@@ -377,6 +379,40 @@ function* sagaInitPreview({ api, logger }, action) {
   }
 }
 
+function* sagaGoToJournalsPage({ api, logger }, action) {
+  try {
+    const row = action.payload;
+
+    const journalConfig = yield select(state => state.journals.journalConfig);
+    const config = yield select(state => state.journals.config);
+    const grid = yield select(state => state.journals.grid);
+
+    const { columns, groupBy = [] } = grid;
+    const { journalsListId = '', journalSettingId = '' } = config;
+    let {
+      id = '',
+      meta: { nodeRef = '', criteria = [] }
+    } = journalConfig;
+
+    const criteriaFirstValue = (criteria[0] || {}).value;
+
+    if (criteriaFirstValue) {
+      let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(criteriaFirstValue)}`);
+      nodeRef = journalConfig.meta.nodeRef;
+    }
+
+    goToJournalsPageUrl({
+      journalsListId,
+      journalId: id,
+      journalSettingId,
+      nodeRef,
+      filter: getFilter({ row, columns, groupBy })
+    });
+  } catch (e) {
+    logger.error('[journals sagaGoToJournalsPage saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getDashletConfig().type, sagaGetDashletConfig, ea);
   yield takeLatest(getDashletEditorData().type, sagaGetDashletEditorData, ea);
@@ -399,6 +435,7 @@ function* saga(ea) {
   yield takeLatest(initJournalSettingData().type, sagaInitJournalSettingData, ea);
 
   yield takeLatest(initPreview().type, sagaInitPreview, ea);
+  yield takeLatest(goToJournalsPage().type, sagaGoToJournalsPage, ea);
 }
 
 export default saga;

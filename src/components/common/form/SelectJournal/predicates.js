@@ -43,6 +43,27 @@ export const PREDICATE_LT = 'lt';
 export const PREDICATE_AND = 'and';
 export const PREDICATE_OR = 'or';
 
+export const ALFRESCO_EQUAL_PREDICATES_MAP = {
+  [COLUMN_DATA_TYPE_TEXT]: 'string-contains',
+  [COLUMN_DATA_TYPE_CONTENT]: 'string-contains',
+  [COLUMN_DATA_TYPE_MLTEXT]: 'string-contains',
+  [COLUMN_DATA_TYPE_INT]: 'number-equals',
+  [COLUMN_DATA_TYPE_LONG]: 'number-equals',
+  [COLUMN_DATA_TYPE_FLOAT]: 'number-equals',
+  [COLUMN_DATA_TYPE_DOUBLE]: 'number-equals',
+  [COLUMN_DATA_TYPE_DATE]: 'date-equals',
+  [COLUMN_DATA_TYPE_DATETIME]: 'date-greater-or-equal',
+  [COLUMN_DATA_TYPE_BOOLEAN]: 'boolean-true',
+  [COLUMN_DATA_TYPE_QNAME]: 'type-equals',
+  [COLUMN_DATA_TYPE_NODEREF]: 'noderef-contains',
+  [COLUMN_DATA_TYPE_CATEGORY]: 'noderef-contains',
+  [COLUMN_DATA_TYPE_ASSOC]: 'assoc-contains',
+  [COLUMN_DATA_TYPE_OPTIONS]: 'string-contains',
+  [COLUMN_DATA_TYPE_PERSON]: 'assoc-contains',
+  [COLUMN_DATA_TYPE_AUTHORITY_GROUP]: 'assoc-contains',
+  [COLUMN_DATA_TYPE_AUTHORITY]: 'assoc-contains'
+};
+
 // Hack: Currently t('') works correctly only after execution loadMessagesAndAlfrescoScript function in share.js, so we should use function instead of array:
 const getAllPredicates = function() {
   return [
