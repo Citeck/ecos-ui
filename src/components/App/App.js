@@ -25,10 +25,9 @@ import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
-import { URL } from '../../constants';
+import { URL, MENU_TYPE } from '../../constants';
 
 import './App.scss';
-import { MENU_TYPE } from '../../constants';
 
 class App extends Component {
   componentDidMount() {
