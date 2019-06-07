@@ -4,6 +4,13 @@ import dataSourceStore from '../components/common/grid/dataSource/DataSourceStor
 import Records from '../components/Records';
 
 export class JournalsApi extends RecordService {
+  getRecord = ({ id, attributes }) => {
+    return Records.get(id)
+      .load(attributes)
+      .then(resp => resp)
+      .catch(() => null);
+  };
+
   saveRecords = ({ id, attributes }) => {
     return this.mutate({ record: { id, attributes } });
   };

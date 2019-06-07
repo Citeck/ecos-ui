@@ -1,5 +1,6 @@
 import queryString from 'query-string';
 import { URL_PAGECONTEXT } from '../../constants/alfresco';
+import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../../components/common/form/SelectJournal/predicates';
 
 const PREVIEW_KEY = 'preview';
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
@@ -16,37 +17,18 @@ const getPredicateFilter = () => {
   return '';
 };
 
-const getCriteriaFilter = (row, columns) => {
+const getCriteriaFilter = ({ row, columns, groupBy }) => {
   const criteria = [];
-  const predicatesMap = {
-    text: 'string-contains',
-    mltext: 'string-contains',
-    int: 'number-equals',
-    long: 'number-equals',
-    float: 'number-equals',
-    double: 'number-equals',
-    date: 'date-equals',
-    datetime: 'date-greater-or-equal',
-    boolean: 'boolean-true',
-    qname: 'type-equals',
-    noderef: 'noderef-contains',
-    category: 'noderef-contains',
-    assoc: 'assoc-contains',
-    list: 'string-equals',
-    type: 'type-equals',
-    aspect: 'aspect-equals',
-    path: 'path-equals',
-    any: 'string-contains',
-    options: 'string-contains',
-    person: 'assoc-contains',
-    authorityGroup: 'assoc-contains',
-    authority: 'assoc-contains'
-  };
+
+  if (groupBy.length) {
+    groupBy = groupBy[0].split('&');
+    columns = columns.filter(c => groupBy.filter(g => g === c.attribute)[0]);
+  }
 
   for (const key in row) {
     const value = row[key];
-    const type = (columns.filter(c => c.attribute === key && c.visible && c.default)[0] || {}).type;
-    const predicate = predicatesMap[type];
+    const type = (columns.filter(c => c.attribute === key && c.visible && c.default && c.searchable)[0] || {}).type;
+    const predicate = ALFRESCO_EQUAL_PREDICATES_MAP[type];
 
     if (predicate) {
       criteria.push({
@@ -60,8 +42,8 @@ const getCriteriaFilter = (row, columns) => {
   return criteria.length ? JSON.stringify({ criteria }) : '';
 };
 
-export const getFilter = (row, columns) => {
-  return OLD_LINKS ? getCriteriaFilter(row, columns) : getPredicateFilter(row, columns);
+export const getFilter = options => {
+  return OLD_LINKS ? getCriteriaFilter(options) : getPredicateFilter(options);
 };
 
 export const getJournalPage = ({ journalsListId, journalId, journalSettingId, nodeRef, filter = '' }) => {

@@ -13,6 +13,8 @@ import AsyncData from './custom/asyncData';
 import TableForm from './custom/tableForm';
 import HorizontalLine from './custom/horizontalLine';
 
+import './prototypeMutation';
+
 Components.setComponents({
   ...DefaultComponents,
   column: Column,
