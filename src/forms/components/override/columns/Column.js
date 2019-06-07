@@ -42,7 +42,7 @@ export default class ColumnComponent extends FormIOColumnComponent {
     }
 
     if (comp.classes) {
-      classList.push(comp.classes.split(' '));
+      classList.push(...comp.classes.split(/[ ,]+/));
     }
 
     return classList.join(' ');
