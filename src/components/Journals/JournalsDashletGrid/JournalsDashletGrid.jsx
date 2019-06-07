@@ -3,7 +3,6 @@ import connect from 'react-redux/es/connect/connect';
 import { Grid, InlineTools, Tools, EmptyGrid } from '../../common/grid';
 import Loader from '../../common/Loader/Loader';
 import { IcoBtn } from '../../common/btns';
-import { goToJournalsPage, getFilter } from '../urlManager';
 import { t, trigger } from '../../../helpers/util';
 import {
   reloadGrid,
@@ -12,7 +11,8 @@ import {
   setSelectedRecords,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setGridInlineToolSettings
+  setGridInlineToolSettings,
+  goToJournalsPage
 } from '../../../actions/journals';
 
 const mapStateToProps = state => ({
@@ -31,7 +31,8 @@ const mapDispatchToProps = dispatch => ({
   setSelectedRecords: records => dispatch(setSelectedRecords(records)),
   setSelectAllRecords: need => dispatch(setSelectAllRecords(need)),
   setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(visible)),
-  setGridInlineToolSettings: settings => dispatch(setGridInlineToolSettings(settings))
+  setGridInlineToolSettings: settings => dispatch(setGridInlineToolSettings(settings)),
+  goToJournalsPage: row => dispatch(goToJournalsPage(row))
 });
 
 class JournalsDashletGrid extends Component {
@@ -105,23 +106,8 @@ class JournalsDashletGrid extends Component {
   };
 
   goToJournalPageWithFilter = () => {
-    const {
-      config: { journalsListId = '', journalSettingId = '' },
-      journalConfig: {
-        id = '',
-        meta: { nodeRef = '' }
-      },
-      grid: { columns }
-    } = this.props;
     const selectedRow = this.getSelectedRow();
-
-    goToJournalsPage({
-      journalsListId,
-      journalId: id,
-      journalSettingId,
-      nodeRef,
-      filter: getFilter(selectedRow, columns)
-    });
+    this.props.goToJournalsPage(selectedRow);
   };
 
   inlineTools = () => {

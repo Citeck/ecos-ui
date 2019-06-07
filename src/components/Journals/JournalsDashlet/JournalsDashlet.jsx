@@ -43,7 +43,7 @@ class JournalsDashlet extends Component {
   };
 
   render() {
-    const { journalConfig, className, id, editorMode, reloadGrid, config } = this.props;
+    const { journalConfig, className, id, editorMode, reloadGrid } = this.props;
 
     return (
       <Dashlet
@@ -61,7 +61,7 @@ class JournalsDashlet extends Component {
           <Fragment>
             <JournalsDashletToolbar />
 
-            <JournalsDashletGrid config={config} />
+            <JournalsDashletGrid />
 
             <JournalsDashletFooter />
           </Fragment>
