@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { initAppSuccess, initAppFailure, setMenuConfig } from '../actions/app';
+import { initAppSuccess, initAppFailure } from '../actions/app';
 import { MENU_TYPE } from '../constants';
 
 const initialState = {
@@ -26,12 +26,6 @@ export default handleActions(
         ...state,
         isInit: true,
         isInitFailure: true
-      };
-    },
-    [setMenuConfig]: (state, action) => {
-      return {
-        ...state,
-        menu: action.payload
       };
     }
   },

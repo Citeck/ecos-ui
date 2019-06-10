@@ -1,12 +1,9 @@
 export function settingsConfigForWeb(source = {}) {
-  const { layout = {}, menu = {} } = source;
+  const { layout = {} } = source;
   const target = {};
 
   target.layoutType = layout.type || 0;
   target.widgets = layout.columns ? layout.columns.map(item => item.widgets) : [];
-
-  target.menuType = menu.type || '';
-  target.menu = [];
 
   return target;
 }

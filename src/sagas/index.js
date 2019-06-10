@@ -8,6 +8,7 @@ import journals from './journals';
 import pageTabs from './pageTabs';
 import dashboardSettings from './dashboardSettings';
 import dashboard from './dashboard';
+import menu from './menu';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -19,6 +20,7 @@ export default function* rootSaga(extraArguments) {
     journals(extraArguments),
     pageTabs(extraArguments),
     dashboardSettings(extraArguments),
-    dashboard(extraArguments)
+    dashboard(extraArguments),
+    menu(extraArguments)
   ]);
 }

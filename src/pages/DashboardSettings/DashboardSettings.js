@@ -5,9 +5,10 @@ import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
 import { path } from 'ramda';
 import { t } from '../../helpers/util';
-import { LAYOUTS, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
-import { MENU_TYPE } from '../../constants';
+import { LAYOUTS, MENUS } from '../../constants/dashboardSettings';
+import { MENU_TYPE, SAVE_STATUS } from '../../constants';
 import { initSettings, saveSettings } from '../../actions/dashboardSettings';
+import { initMenuSettings } from '../../actions/menu';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { Btn } from '../../components/common/btns';
@@ -17,8 +18,8 @@ import './style.scss';
 
 const mapStateToProps = state => ({
   config: {
-    menuType: path(['app', 'menu', 'type'], state),
-    menu: path(['app', 'menu'], state),
+    menuType: path(['menu', 'type'], state),
+    menu: path(['menu', 'links'], state),
     ...path(['dashboardSettings', 'config'], state)
   },
   widgets: path(['dashboardSettings', 'widgets'], state),
@@ -28,6 +29,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  initMenuSettings: () => dispatch(initMenuSettings()),
   initSettings: ({ recordId }) => dispatch(initSettings({ recordId })),
   saveSettings: payload => dispatch(saveSettings(payload))
 });
@@ -85,10 +87,11 @@ class DashboardSettings extends React.Component {
   }
 
   componentDidMount() {
-    const { initSettings } = this.props;
+    const { initSettings, initMenuSettings } = this.props;
     const { recordId } = this.pathInfo;
 
     initSettings({ recordId });
+    initMenuSettings();
   }
 
   componentWillReceiveProps(nextProps, nextContext) {

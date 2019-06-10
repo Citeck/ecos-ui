@@ -1,12 +1,6 @@
 import { handleActions } from 'redux-actions';
-import {
-  saveSettings,
-  setAllMenuItems,
-  setAllWidgets,
-  setDashboardKey,
-  setDashboardConfig,
-  setResultSaveSettings
-} from '../actions/dashboardSettings';
+import { saveSettings, setAllWidgets, setDashboardConfig, setDashboardKey, setResultSaveSettings } from '../actions/dashboardSettings';
+import { setAllMenuItems } from '../actions/menu';
 import { setLoading } from '../actions/loader';
 import { LAYOUT_TYPE } from '../constants/dashboardSettings';
 

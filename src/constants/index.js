@@ -10,3 +10,8 @@ export const MENU_TYPE = {
   LEFT: 'LEFT',
   TOP: 'TOP'
 };
+
+export const SAVE_STATUS = {
+  SUCCESS: 'SUCCESS',
+  FAILURE: 'FAILURE'
+};

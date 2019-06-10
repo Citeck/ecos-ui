@@ -8,7 +8,7 @@ export class DashboardApi extends RecordService {
     return Components.getComponentsFullData();
   };
 
-  getDashboardConfig = ({ recordId }) => {
+  getDashboardConfig = recordId => {
     recordId = recordId || '';
 
     return this.query({

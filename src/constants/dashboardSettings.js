@@ -58,11 +58,6 @@ export const MENUS = [
   }
 ];
 
-export const SAVE_STATUS = {
-  SUCCESS: 'SUCCESS',
-  FAILURE: 'FAILURE'
-};
-
 export const getDefaultDashboardConfig = {
   menu: {
     type: MENU_TYPE.TOP,
