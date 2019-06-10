@@ -4,19 +4,15 @@ import { setNotificationMessage } from '../actions/notification';
 import { setLoading } from '../actions/loader';
 import { t } from '../helpers/util';
 import { dashboardForWeb } from '../dto/dashboard';
-import { SAVE_STATUS } from '../constants';
-
-import * as mock from '../api/mock/dashboardSettings';
+import { QUERY_KEYS, SAVE_STATUS } from '../constants';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
-    // todo test data
-    const layout = yield call(mock.getLayoutConfig);
     yield put(setLoading(true));
 
     const { recordId } = payload;
     const config = yield call(api.dashboard.getDashboardConfig, recordId);
-    // const layout = config.layout;
+    const layout = config && Object.keys(config) ? config[QUERY_KEYS.CONFIG_JSON].layout : {};
     const webConfig = dashboardForWeb({ layout });
 
     yield put(setDashboardKey(config.key));

@@ -1,7 +1,10 @@
 import { RecordService } from './recordService';
 import Components from '../components/Components';
+import Records from '../components/Records';
+import { QUERY_KEYS } from '../constants';
 
 const DEFAULT_KEY = 'key';
+const PREFIX = 'uiserv/dashboard@';
 
 export class DashboardApi extends RecordService {
   getAllWidgets = () => {
@@ -11,26 +14,22 @@ export class DashboardApi extends RecordService {
   getDashboardConfig = recordId => {
     recordId = recordId || '';
 
-    return this.query({
-      record: `uiserv/dashboard@${recordId}`,
-      attributes: {
-        key: DEFAULT_KEY,
-        config: 'config?json'
-      }
-    }).then(resp => resp);
+    return Records.get(`${PREFIX}${recordId}`)
+      .load([QUERY_KEYS.CONFIG_JSON, QUERY_KEYS.KEY])
+      .then(resp => resp);
   };
 
   saveDashboardConfig = ({ key, recordId, config }) => {
     recordId = recordId || '';
+    const attributes = {
+      [QUERY_KEYS.CONFIG_JSON]: config,
+      [QUERY_KEYS.KEY]: key || DEFAULT_KEY
+    };
+    const record = Records.get(`${PREFIX}${recordId}`);
 
-    return this.mutate({
-      records: {
-        id: `uiserv/dashboard@${recordId}`,
-        attributes: {
-          key: key || DEFAULT_KEY,
-          config: config
-        }
-      }
-    }).then(resp => resp);
+    record.att('config?json', config);
+    record.att('key', key || DEFAULT_KEY);
+
+    return record.save().then(resp => resp);
   };
 }

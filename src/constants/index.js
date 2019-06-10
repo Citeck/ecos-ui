@@ -15,3 +15,8 @@ export const SAVE_STATUS = {
   SUCCESS: 'SUCCESS',
   FAILURE: 'FAILURE'
 };
+
+export const QUERY_KEYS = {
+  CONFIG_JSON: 'config?json',
+  KEY: 'key'
+};

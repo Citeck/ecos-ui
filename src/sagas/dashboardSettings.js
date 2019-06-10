@@ -17,8 +17,6 @@ import { settingsConfigForServer, settingsConfigForWeb } from '../dto/dashboardS
 import { getDefaultDashboardConfig } from '../constants/dashboardSettings';
 import { SAVE_STATUS } from '../constants';
 
-import * as mock from '../api/mock/dashboardSettings';
-
 function* doInitDashboardSettingsRequest({ api, logger }, action) {
   try {
     yield put(setLoading(true));
@@ -33,11 +31,9 @@ function* doInitDashboardSettingsRequest({ api, logger }, action) {
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
-    // todo test data
-    const layout = yield call(mock.getLayoutConfig);
     const { recordId } = payload;
     const config = recordId ? yield call(api.dashboard.getDashboardConfig, recordId) : getDefaultDashboardConfig;
-    // const layout = config.layout;
+    const layout = config.layout;
     const webConfig = settingsConfigForWeb({ layout });
 
     yield put(setDashboardKey(config.key));
@@ -64,16 +60,22 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     yield put(setLoading(true));
 
     const serverConfig = settingsConfigForServer(payload);
+    const { layout, menu } = serverConfig;
+
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
-      config: serverConfig,
+      config: { layout },
       recordId: payload.recordId
     });
-    const menuResult = yield call(api.menu.saveMenuConfig, {});
+    const _id = dashboardResult._id;
+    const recordId = _id ? dashboardResult._id.split('@')[1] : null;
+
+    //const menuResult = yield call(api.menu.saveMenuConfig, { menu });//todo connect api
     //todo menuResult?
+
     yield put(
       setResultSaveDashboardConfig({
-        status: SAVE_STATUS.SUCCESS,
-        recordId: dashboardResult.records.id
+        status: _id ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
+        recordId
       })
     );
     yield put(
