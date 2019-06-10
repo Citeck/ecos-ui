@@ -1,14 +1,14 @@
 @import '../../../../constants';
 
-.field {
-  .field__label {
+.ecos-field {
+  .ecos-field__label {
     font-family: $font-family !important;
     font-size: $font-size-standard !important;
     font-weight: $font-weight-semi-bold !important;
     color: $text-color-dark !important;
   }
 
-  .field__control {
+  .ecos-field__control {
     padding: 0;
   }
 }

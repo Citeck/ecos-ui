@@ -29,7 +29,8 @@ input[type='text'].ecos-input:not(:disabled):focus {
 }
 
 .ecos-input_narrow {
-  height: 22px;
+  height: 26px;
+  padding: 0 10px;
 }
 
 .ecos-input_grid-editor {
@@ -38,4 +39,13 @@ input[type='text'].ecos-input:not(:disabled):focus {
   font-size: $font-size-small;
   font-weight: $font-weight-normal;
   padding-left: 5px;
+}
+
+.ecos-input_invisible {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
 }

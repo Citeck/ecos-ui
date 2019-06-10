@@ -1,23 +1,23 @@
 @import '../../../../constants';
 
-.caption {
+.ecos-caption {
   color: $text-color-dark;
   margin: 0;
   line-height: normal;
   font-family: $font-family;
 }
 
-.caption_large {
+.ecos-caption_large {
   font-size: 24px;
-  font-weight: $font-weight-semi-bold;
+  font-weight: $font-weight-bold;
 }
 
-.caption_middle {
+.ecos-caption_middle {
   font-size: 18px;
   font-weight: $font-weight-semi-bold;
 }
 
-.caption_small {
+.ecos-caption_small {
   font-size: 14px;
   font-weight: $font-weight-semi-bold;
 }

@@ -21,7 +21,10 @@ import { initAppRequest, loadThemeRequest } from './actions/app';
 import { AppApi, BpmnApi, JournalsApi, MenuApi, OrgStructApi, UserApi } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
+import IdleTimer from './components/IdleTimer';
 import './index.scss';
+
+import './build-info';
 
 const logger = Logger.create('EcoS');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);
@@ -68,6 +71,15 @@ store.dispatch(
     }
   })
 );
+
+const idleTimer = new IdleTimer();
+idleTimer
+  .setCheckInterval(60000)
+  .setIdleTimeout(60000 * 60 * 3)
+  .setNoIdleCallback(() => {
+    fetch('/share/proxy/alfresco/citeck/ecos/touch', { credentials: 'include' });
+  })
+  .run();
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

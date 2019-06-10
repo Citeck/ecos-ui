@@ -9,70 +9,142 @@ import {
   setJournalsItem,
   setSettingItem,
   setJournalConfig,
-  setPage,
   setSelectedRecords,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setJournalsListName,
-  setGridMinHeight,
-  setGridInlineToolSettings
+  setGridInlineToolSettings,
+  setJournalSetting,
+  setJournalSettings,
+  setPredicate,
+  setColumnsSetup,
+  setGrouping,
+  setPreviewUrl
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-
-const MAX_ITEMS = 10;
+import { t } from '../helpers/util';
+import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../components/Journals/constants';
 
 const initialState = {
   loading: true,
-  dashletIsReady: false,
   editorMode: false,
-  journalsList: [],
-  journals: [],
-  settings: [],
-  gridData: {
+
+  grid: {
     data: [],
     columns: [],
-    total: 0
+    total: 0,
+    createVariants: [],
+    predicate: {},
+    groupBy: null,
+    sortBy: [],
+    pagination: {
+      skipCount: 0,
+      maxItems: 10,
+      page: 1
+    },
+    minHeight: null
   },
+
+  journalsList: [],
+  journals: [],
+  journalSettings: [],
+
   config: null,
   initConfig: null,
-  pagination: {
-    skipCount: 0,
-    maxItems: MAX_ITEMS,
-    page: 1
+  journalConfig: {
+    meta: {},
+    createVariants: []
   },
-  journalConfig: null,
+
+  predicate: null,
+  columnsSetup: {
+    columns: [],
+    sortBy: []
+  },
+  grouping: {
+    columns: [],
+    groupBy: []
+  },
+
+  journalSetting: {
+    title: '',
+    sortBy: [],
+    groupBy: [],
+    columns: [],
+    predicate: null,
+    permissions: {
+      Write: true,
+      Delete: true
+    }
+  },
+
   selectedRecords: [],
   selectAllRecords: false,
   selectAllRecordsVisible: false,
-  journalsListName: '',
-  gridMinHeight: null,
-  maxGridItems: MAX_ITEMS,
+
   inlineToolSettings: {
     height: 0,
-    top: 0
-  }
+    top: 0,
+    left: 0,
+    row: {}
+  },
+
+  previewUrl: ''
 };
 
 Object.freeze(initialState);
 
 export default handleActions(
   {
+    [setPredicate]: (state, action) => {
+      return {
+        ...state,
+        predicate: action.payload
+      };
+    },
+    [setPreviewUrl]: (state, action) => {
+      return {
+        ...state,
+        previewUrl: action.payload
+      };
+    },
+    [setColumnsSetup]: (state, action) => {
+      return {
+        ...state,
+        columnsSetup: action.payload
+      };
+    },
+    [setGrouping]: (state, action) => {
+      return {
+        ...state,
+        grouping: action.payload
+      };
+    },
+    [setJournalSettings]: (state, action) => {
+      return {
+        ...state,
+        journalSettings: [
+          {
+            [JOURNAL_SETTING_ID_FIELD]: '',
+            [JOURNAL_SETTING_DATA_FIELD]: { title: t('journals.default') },
+            notRemovable: true
+          },
+          ...Array.from(action.payload)
+        ]
+      };
+    },
+    [setJournalSetting]: (state, action) => {
+      return {
+        ...state,
+        journalSetting: {
+          ...state.journalSetting,
+          ...action.payload
+        }
+      };
+    },
     [setGridInlineToolSettings]: (state, action) => {
       return {
         ...state,
         inlineToolSettings: action.payload
-      };
-    },
-    [setGridMinHeight]: (state, action) => {
-      return {
-        ...state,
-        gridMinHeight: action.payload
-      };
-    },
-    [setJournalsListName]: (state, action) => {
-      return {
-        ...state,
-        journalsListName: action.payload
       };
     },
     [setJournalsListItem]: (state, action) => {
@@ -97,12 +169,10 @@ export default handleActions(
     [setSettingItem]: (state, action) => {
       return {
         ...state,
-        config: [
+        config: {
           ...state.config,
-          {
-            settingsId: action.payload.id
-          }
-        ]
+          journalSettingId: action.payload
+        }
       };
     },
     [setEditorMode]: (state, action) => {
@@ -126,15 +196,9 @@ export default handleActions(
     [setGrid]: (state, action) => {
       return {
         ...state,
-        gridData: action.payload
-      };
-    },
-    [setPage]: (state, action) => {
-      return {
-        ...state,
-        pagination: {
-          ...state.pagination,
-          page: action.payload
+        grid: {
+          ...state.grid,
+          ...action.payload
         }
       };
     },
@@ -151,6 +215,7 @@ export default handleActions(
         journalConfig: action.payload
       };
     },
+
     [setSelectedRecords]: (state, action) => {
       return {
         ...state,

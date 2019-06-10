@@ -1,114 +1,177 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Formio from 'formiojs/Formio';
-
-import DefaultComponents from 'formiojs/components';
-import Components from 'formiojs/components/Components';
-import CustomComponents from '../../forms/components';
-import '../../forms/components/builder';
+import Records from '../Records';
+import EcosFormBuilder from './builder/EcosFormBuilder';
+import EcosFormUtils from './EcosFormUtils';
+import { t } from '../../helpers/util';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
 import '../../forms/style.scss';
 
-Components.setComponents({ ...DefaultComponents, ...CustomComponents });
-
 let formCounter = 0;
 
-export default class EcosForm extends React.Component {
+class EcosForm extends React.Component {
   constructor(props) {
     super(props);
+
+    let record = Records.getRecordToEdit(this.props.record);
+
     this.state = {
-      containerId: 'form-' + formCounter++
+      containerId: 'ecos-ui-form-' + formCounter++,
+      recordId: record.id,
+      error: null
     };
   }
 
   componentDidMount() {
+    const recordId = this.state.recordId;
+    const props = this.props;
+
+    let formLoadingPromise = EcosFormUtils.getForm(props.record, props.formKey, {
+      definition: 'definition?json',
+      customModule: 'customModule',
+      i18n: 'i18n?json'
+    });
+
+    let options = this.props.options || {};
+    options.recordId = recordId;
+
+    let alfConstants = (window.Alfresco || {}).constants || {};
+
+    let proxyUri = alfConstants.PROXY_URI || '/';
+    proxyUri = proxyUri.substring(0, proxyUri.length - 1);
+    Formio.setProjectUrl(proxyUri);
+
+    if (alfConstants.USERNAME) {
+      Formio.setUser(alfConstants.USERNAME);
+    }
+
     let self = this;
 
-    window.require(['js/citeck/modules/records/records'], Records => {
-      this.getForm(Records).then(data => {
-        var formAtts = data.records[0].attributes,
-          options = self.props.options || {};
+    formLoadingPromise.then(formData => {
+      if (!formData) {
+        self.setState({
+          error: new Error(t('ecos-form.empty-form-data'))
+        });
+        return null;
+      }
 
-        Formio.createForm(document.getElementById(this.state.containerId), formAtts.formDef, options).then(form => {
-          let record = Records.default.get(self.props.record);
+      let customModulePromise = new Promise(function(resolve, reject) {
+        if (formData.customModule) {
+          window.require([formData.customModule], function(Module) {
+            resolve(
+              new Module.default({
+                recordId: recordId
+              })
+            );
+          });
+        } else {
+          resolve({});
+        }
+      });
+
+      let inputs = EcosFormUtils.getFormInputs(formData.definition);
+      let recordDataPromise = EcosFormUtils.getData(recordId, inputs);
+
+      recordDataPromise.then(recordData => {
+        let formDefinition = JSON.parse(JSON.stringify(formData.definition));
+
+        let attributesTitles = {};
+        EcosFormUtils.forEachComponent(formDefinition, component => {
+          let edgeData = recordData.edges[component.key] || {};
+
+          if (component.key) {
+            if (edgeData.protected) {
+              component.disabled = true;
+            }
+            if (edgeData.title) {
+              attributesTitles[component.label] = edgeData.title;
+            }
+          }
+        });
+
+        let i18n = options.i18n || {};
+
+        let language = options.language || EcosFormUtils.getCurrentLanguage();
+        options.language = language;
+
+        let defaultI18N = i18n[language] || {};
+        let formI18N = (formData.i18n || {})[language] || {};
+
+        i18n[language] = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formI18N);
+
+        options.i18n = i18n;
+
+        let formPromise = Formio.createForm(document.getElementById(this.state.containerId), formDefinition, options);
+
+        Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
+          let form = formAndCustom[0];
+          let customModule = formAndCustom[1];
           form.ecos = {
-            record: record
+            custom: customModule
           };
 
-          let customModule = new Promise(function(resolve, reject) {
-            if (formAtts.customModule) {
-              window.require([formAtts.customModule], function(Module) {
-                resolve(
-                  new Module.default({
-                    form: form,
-                    record: record
-                  })
-                );
-              });
-            } else {
-              resolve({});
-            }
-          });
-
-          Promise.all([customModule, EcosForm.getData(record, form)]).then(data => {
-            form.ecos.custom = data[0];
-
-            form.submission = {
-              data: {
-                ...(self.props.attributes || {}),
-                ...data[1]
-              }
-            };
-
-            form.on('submit', submission => {
-              self.submitForm(form, submission);
+          if (customModule.init) {
+            customModule.init({
+              form: form
             });
+          }
 
-            let handlersPrefix = 'onForm';
+          form.submission = {
+            data: {
+              ...(self.props.attributes || {}),
+              ...recordData.submission
+            }
+          };
 
-            for (let key in self.props) {
-              if (self.props.hasOwnProperty(key) && key.startsWith(handlersPrefix)) {
-                let event = key.slice(handlersPrefix.length).toLowerCase();
+          form.on('submit', submission => {
+            self.submitForm(form, submission);
+          });
 
-                if (event !== 'submit') {
-                  form.on(event, () => {
-                    self.props[key].apply(form, arguments);
-                  });
-                } else {
-                  console.warn('Please use onSubmit handler instead of onFormSubmit');
-                }
+          let handlersPrefix = 'onForm';
+
+          for (let key in self.props) {
+            if (self.props.hasOwnProperty(key) && key.startsWith(handlersPrefix)) {
+              let event = key.slice(handlersPrefix.length).toLowerCase();
+
+              if (event !== 'submit') {
+                form.on(event, () => {
+                  self.props[key].apply(form, arguments);
+                });
+              } else {
+                console.warn('Please use onSubmit handler instead of onFormSubmit');
               }
             }
+          }
 
-            if (self.props.onReady) {
-              self.props.onReady(form);
-            }
-          });
+          if (self.props.onReady) {
+            self.props.onReady(form);
+          }
         });
       });
     });
   }
 
   fireEvent(event, data) {
-    var handlerName = 'on' + event.charAt(0).toUpperCase() + event.slice(1);
+    let handlerName = 'on' + event.charAt(0).toUpperCase() + event.slice(1);
     if (this.props[handlerName]) {
       this.props[handlerName](data);
     }
   }
 
   submitForm(form, submission) {
-    var self = this;
+    let self = this;
 
-    let inputs = EcosForm.getFormInputs(form);
+    let inputs = EcosFormUtils.getFormInputs(form.component);
     let keysMapping = {};
 
     for (let i = 0; i < inputs.length; i++) {
-      keysMapping[inputs[i].component.key] = inputs[i].attribute;
+      keysMapping[inputs[i].component.key] = inputs[i].schema;
     }
 
-    let record = form.ecos.record;
+    let record = Records.get(this.state.recordId);
 
     for (let key in submission.data) {
       if (submission.data.hasOwnProperty(key)) {
@@ -116,81 +179,36 @@ export default class EcosForm extends React.Component {
       }
     }
 
-    form.ecos.record.save().then(record => {
-      if (self.props.onSubmit) {
-        self.props.onSubmit(record);
-      }
-    });
-  }
+    let onSubmit = self.props.onSubmit || (() => {});
 
-  static getFormInputs(root, inputs) {
-    if (!inputs) {
-      inputs = [];
-    }
-
-    let components = root.components || [];
-
-    for (let i = 0; i < components.length; i++) {
-      let component = components[i];
-      let config = component.component;
-      if (config.input === true && config.type !== 'button') {
-        inputs.push({
-          attribute: (config.properties || {}).attribute || config.key,
-          component: component
-        });
-      }
-      EcosForm.getFormInputs(component, inputs);
-    }
-
-    return inputs;
-  }
-
-  static getData(record, form) {
-    if (!record) {
-      return new Promise(success => {
-        success({});
+    if (this.props.saveOnSubmit !== false) {
+      record.save().then(record => {
+        onSubmit(record, form);
       });
+    } else {
+      onSubmit(record, form);
     }
-
-    let inputs = EcosForm.getFormInputs(form);
-    let attributes = {};
-    for (let input of inputs) {
-      let key = input.component.component.key;
-      if (key) {
-        attributes[key] = input.attribute;
-      }
-    }
-
-    return record.load(attributes);
   }
 
   render() {
-    return <div id={this.state.containerId} />;
-  }
+    if (this.state.error) {
+      return <div className={'ecos-ui-form__error'}>{this.state.error.message}</div>;
+    }
 
-  getForm(Records) {
-    return Records.default.query({
-      query: {
-        sourceId: 'eform',
-        query: {
-          record: this.props.record,
-          formKey: this.props.formKey
-        }
-      },
-      attributes: {
-        formDef: 'definition?json',
-        customModule: 'customModule'
-      }
-    });
+    return <div id={this.state.containerId} />;
   }
 }
 
 EcosForm.propTypes = {
-  record: PropTypes.string.isRequired,
+  record: PropTypes.string,
   attributes: PropTypes.object,
   options: PropTypes.object,
   formKey: PropTypes.string,
   onSubmit: PropTypes.func,
-  onReady: PropTypes.func
+  onReady: PropTypes.func,
+  saveOnSubmit: PropTypes.bool
   // onForm[Event]: PropTypes.func (for example, onFormCancel)
 };
+
+export default EcosForm;
+export { EcosForm, EcosFormBuilder };

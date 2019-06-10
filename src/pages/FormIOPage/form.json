@@ -15,6 +15,133 @@
       "html": "<br>",
       "type": "content"
     },
+    {
+      "label": "Tabs",
+      "components": [
+        { "label": "Очень широкая вкладка", "key": "tab0", "components": [] },
+        { "label": "Ещё одна очень широкая вкладка", "key": "tab1" },
+        { "label": "Вкладка номер 3", "key": "tab2" },
+        { "label": "Вкладка 4", "key": "tab3" },
+        { "label": "Вкладка 5", "key": "tab4" }
+      ],
+      "key": "tabs2",
+      "type": "tabs",
+      "input": false
+    },
+    {
+      "input": false,
+      "type": "horizontalLine"
+    },
+    {
+      "input": true,
+      "type": "tableForm",
+      "label": "График платежей",
+      "key": "idocs-contractor-table-form",
+      "source": {
+        "type": "journal",
+        "journal": {
+          "journalId": "idocs-contractor"
+        }
+      }
+    },
+    {
+      "input": false,
+      "type": "horizontalLine"
+    },
+    {
+      "input": true,
+      "type": "tableForm",
+      "label": "График платежей",
+      "key": "payments:payments",
+      "defaultValue": ["workspace://SpacesStore/8496a917-fece-4fbf-bd53-ed49915eafa3"],
+      "source": {
+        "type": "custom",
+        "custom": {
+          "columns": [
+            "payments:typePayment",
+            "payments:plannedPaymentDate",
+            "payments:currency",
+            "payments:paymentAmount",
+            "payments:paymentVAT"
+          ]
+        }
+      }
+    },
+    {
+      "input": false,
+      "columns": [
+        {
+          "components": [
+            {
+              "input": true,
+              "type": "selectOrgstruct",
+              "label": "Инициатор",
+              "key": "idocs_initiator",
+              "multiple": true,
+              "allowedAuthorityType": "USER, GROUP",
+              "allowedGroupType": "ROLE, BRANCH"
+            },
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Юридическое лицо",
+              "key": "legalEntities",
+              "multiple": true,
+              "journalId": "legal-entities"
+            },
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Контрагент",
+              "key": "idocsContractor",
+              "multiple": false,
+              "journalId": "idocs-contractor",
+              "defaultValue": "workspace://SpacesStore/eea14b3b-6243-4b61-b15e-e8d5c34a9586"
+            }
+          ]
+        },
+        {
+          "components": [
+            {
+              "input": true,
+              "disabled": true,
+              "type": "selectJournal",
+              "label": "Предмет договора",
+              "key": "contractSubjects",
+              "journalId": "contract-subjects"
+            },
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Документ-основание",
+              "key": "contract-agreements",
+              "journalId": "contract-agreements",
+              "multiple": true,
+              "isCompact": true
+            },
+            {
+              "input": true,
+              "type": "selectJournal",
+              "label": "Счёт",
+              "key": "payments",
+              "journalId": "payments"
+            }
+          ]
+        }
+      ],
+      "type": "columns",
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      }
+    },
+
+    {
+      "input": false,
+      "html": "<br><br><br><br><br><br><br><br>",
+      "type": "content"
+    },
 
     {
       "input": true,

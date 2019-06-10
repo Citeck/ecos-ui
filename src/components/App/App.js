@@ -13,11 +13,12 @@ import EcosFormPage from '../../pages/EcosFormPage';
 import Header from '../Header';
 import Notification from '../Notification';
 import SlideMenu from '../SlideMenu';
-import Modal from '../Modal';
+import ReduxModal from '../ReduxModal';
 import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 
 import './App.scss';
+import DocPreviewPage from '../../pages/debug/DocPreviewPage';
 
 const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
   if (!isInit) {
@@ -38,7 +39,7 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
 
   return (
     <div className={appClassNames}>
-      <Modal />
+      <ReduxModal />
       <SlideMenu />
       <div className="ecos-sticky-wrapper" id="sticky-wrapper">
         <div id="alf-hd">
@@ -50,11 +51,11 @@ const App = ({ isInit, isInitFailure, isAuthenticated, isMobile, theme }) => {
           {/*<Route path="/share/page" exact component={DashboardPage} />*/}
           <Route path="/formio-develop" component={FormIOPage} />
           <Route path="/ecos-form-example" component={EcosFormPage} />
+          <Route path="/doc-preview" component={DocPreviewPage} />
 
-          <Route path="/share/page/journals" component={JournalsPage} />
+          <Route path="/share/page/ui/journals" component={JournalsPage} />
           <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
           <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
-          <Route path="/share/page/(.*/)?card-details" component={CardDetailsPage} />
           <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
           {/*<Route component={NotFoundPage} />*/}
         </Switch>

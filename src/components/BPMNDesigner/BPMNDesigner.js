@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import cn from 'classnames';
 import { Badge, Container, Row, Col } from 'reactstrap';
-import Button from '../common/buttons/Button/Button';
+import { Btn } from '../common/btns';
 import Categories from './Categories';
 import ControlPanel from './ControlPanel';
 import RightMenu from './RightMenu';
@@ -50,12 +50,12 @@ const BPMNDesigner = ({ isReady, totalModels, createCategory, showModelCreationF
 
         <Col xl={9} lg={8} md={12}>
           <div className={styles.whiteBlock}>
-            <Button onClick={showModelCreationForm} className={cn('button_blue', styles.headerBtn)}>
+            <Btn onClick={showModelCreationForm} className={cn('ecos-btn_blue', styles.headerBtn)}>
               {t('bpmn-designer.create-model')}
-            </Button>
-            <Button onClick={showImportModelForm} className={styles.headerBtn}>
+            </Btn>
+            <Btn onClick={showImportModelForm} className={styles.headerBtn}>
               {t('bpmn-designer.import-model')}
-            </Button>
+            </Btn>
           </div>
           <ControlPanel />
           <Categories categoryId={ROOT_CATEGORY_NODE_REF} />

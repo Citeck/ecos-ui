@@ -47,9 +47,9 @@ const exportConfig = require('./export.config.js');
 
 // Assert this just to be safe.
 // Development builds of React are slow and not intended for production.
-if (env.stringified['process.env'].NODE_ENV !== '"production"') {
-  throw new Error('Production builds must have NODE_ENV=production.');
-}
+//if (env.stringified['process.env'].NODE_ENV !== '"production"') {
+  //throw new Error('Production builds must have NODE_ENV=production.');
+//}
 
 // Check if TypeScript is setup
 const useTypeScript = fs.existsSync(paths.appTsConfig);
@@ -114,7 +114,7 @@ const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
 module.exports = {
-  mode: 'production',
+  mode: process.env.NODE_ENV,
   // Don't attempt to continue if there are any errors.
   bail: true,
   // We generate sourcemaps in production. This is slow but gives good results.
@@ -124,14 +124,13 @@ module.exports = {
   entry: exportConfig.entryPoints,
   output: {
     // The build folder.
-    path: resolveApp('export/build'),
-    library: 'ecos-ui',
-    libraryTarget: 'umd',
+    path: resolveApp('public'),
+    libraryTarget: 'amd',
     // Generated JS file names (with nested folders).
     // There will be one main bundle, and one file per asynchronous chunk.
     // We don't currently advertise code splitting but Webpack supports it.
-    filename: 'static/js/[name].min.js',
-    chunkFilename: 'static/js/[name].chunk.js',
+    filename: 'ecosui/export/ecos/[name]/js/[name].min.js',
+    chunkFilename: 'ecosui/export/ecos/[name]/js/[name].chunk.[contenthash].js',
     // We inferred the "public path" (such as / or /my-project) from homepage.
     publicPath: publicPath,
     // Point sourcemap entries to original disk location (format as URL on Windows)
@@ -200,7 +199,7 @@ module.exports = {
             : false,
         },
       }),
-    ],
+    ]
     // Automatically split vendor and commons
     // https://twitter.com/wSokra/status/969633336732905474
     // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
@@ -301,7 +300,7 @@ module.exports = {
             loader: require.resolve('url-loader'),
             options: {
               limit: 10000,
-              name: 'static/media/[name].[hash:8].[ext]',
+              name: 'ecosui/export/ecos/[name]/media/[name].[hash:8].[ext]',
             },
           },
           // Process application JS with Babel.
@@ -462,7 +461,7 @@ module.exports = {
             // by webpacks internal loaders.
             exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
             options: {
-              name: 'static/media/[name].[hash:8].[ext]',
+              name: 'ecosui/export/ecos/[name]/media/[name].[hash:8].[ext]',
             },
           },
           // ** STOP ** Are you adding a new loader?
@@ -510,8 +509,8 @@ module.exports = {
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
-      filename: 'static/css/[name].min.css',
-      chunkFilename: 'static/css/[name].chunk.css',
+      filename: 'ecosui/export/ecos/[name]/css/[name].min.css',
+      chunkFilename: 'ecosui/export/ecos/[name]/css/[name].chunk.[contenthash].css',
     }),
     // Generate a manifest file which contains a mapping of all asset filenames
     // to their corresponding output file so that tools can pick it up without

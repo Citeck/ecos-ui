@@ -1,7 +1,9 @@
 @import '../../constants';
 
 .grouping__toolbar {
-  margin: 10px 21px 8px 21px;
+  margin-bottom: 10px;
+  margin-left: 21px;
+  margin-right: 21px;
 }
 
 .grouping__toolbar-button_next {
@@ -9,7 +11,8 @@
 }
 
 .grouping__content {
-  margin: 0 20px 21px 20px;
+  margin-left: 21px;
+  margin-right: 21px;
 
   .list-group {
     .list-group-item {
@@ -24,22 +27,6 @@
   }
 }
 
-.grouping__list,
-.grouping__target {
-  width: 100%;
-  height: 167px;
-  border: 2px solid $color-gray-6;
-  box-sizing: border-box;
-  border-radius: $border-radius-standard;
-  padding: 16px;
-}
-
-.grouping__target {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .grouping__target-note {
   width: 50%;
   height: 64px;
@@ -49,4 +36,48 @@
   font-size: $font-size-small;
   font-weight: $font-weight-semi-bold;
   padding: 14px;
+  margin: 34px auto;
+}
+
+.grouping__desc {
+  background: $color-gray-4;
+  color: $text-color-gray;
+  width: 100%;
+  padding: 0 21px;
+  height: 26px;
+  display: inline-block;
+  white-space: nowrap;
+  vertical-align: middle;
+  border: 1px solid transparent;
+  border-radius: $border-radius-small;
+  line-height: 2;
+  font-family: $font-family;
+  font-size: $font-size-small;
+  font-weight: $font-weight-semi-bold;
+  font-style: normal;
+  text-align: left;
+}
+
+.grouping__toolbar_aggregation {
+  margin-top: 14px;
+}
+
+.grouping__content_aggregation {
+  height: 160px;
+  margin-left: 0;
+  margin-right: 0;
+
+  .list-group {
+    .list-group-item {
+      border-right: 0;
+      border-left: 0;
+      padding: 6px 21px;
+
+      &:hover {
+        background: inherit;
+        color: inherit;
+        border-radius: inherit;
+      }
+    }
+  }
 }

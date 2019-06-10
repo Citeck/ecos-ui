@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
+import { trigger } from '../../../../helpers/util';
 
 import './Checkbox.scss';
 
@@ -16,13 +17,9 @@ export default class Checkbox extends Component {
   toggle = () => {
     const checked = !this.state.checked;
 
-    if (typeof this.props.onClick === 'function') {
-      this.props.onClick.call(this, checked);
-    }
+    trigger.call(this, 'onClick', checked);
 
-    this.change({
-      checked: checked
-    });
+    this.change({ checked: checked });
   };
 
   componentDidUpdate(prevProps) {
@@ -38,10 +35,7 @@ export default class Checkbox extends Component {
 
   change(state) {
     this.setState(state);
-
-    if (typeof this.props.onChange === 'function') {
-      this.props.onChange.call(this, state);
-    }
+    trigger.call(this, 'onChange', state);
   }
 
   render() {

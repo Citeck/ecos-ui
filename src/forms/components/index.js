@@ -1,9 +1,31 @@
-import CheckList from './custom/checklist/CheckList';
-import DocumentList from './custom/documentList/DocumentList';
-import DateTime from './custom/datetime/DateTime';
+import DefaultComponents from 'formiojs/components';
+import Components from 'formiojs/components/Components';
 
-export default {
-  checklist: CheckList,
-  documentList: DocumentList,
-  reactDatetime: DateTime
-};
+import { Column, Columns } from './override/columns';
+import Checkbox from './override/checkbox';
+import Panel from './override/panel';
+import Tabs from './override/tabs';
+
+import SelectJournal from './custom/selectJournal';
+import SelectOrgstruct from './custom/selectOrgstruct';
+import EcosSelect from './custom/ecosSelect';
+import AsyncData from './custom/asyncData';
+import TableForm from './custom/tableForm';
+import HorizontalLine from './custom/horizontalLine';
+
+import './prototypeMutation';
+
+Components.setComponents({
+  ...DefaultComponents,
+  column: Column,
+  columns: Columns,
+  checkbox: Checkbox,
+  panel: Panel,
+  tabs: Tabs,
+  selectJournal: SelectJournal,
+  selectOrgstruct: SelectOrgstruct,
+  ecosSelect: EcosSelect,
+  asyncData: AsyncData,
+  tableForm: TableForm,
+  horizontalLine: HorizontalLine
+});

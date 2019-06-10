@@ -14,14 +14,16 @@ import {
   setEditorMode,
   setDashletConfig
 } from '../../../actions/journals';
-import { t } from '../../../helpers/util';
+
+import { t, getSelectedValue } from '../../../helpers/util';
+import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../constants';
 
 import './JournalsDashletEditor.scss';
 
 const mapStateToProps = state => ({
   journalsList: state.journals.journalsList,
   journals: state.journals.journals,
-  settings: state.journals.settings,
+  journalSettings: state.journals.journalSettings,
   config: state.journals.config,
   initConfig: state.journals.initConfig
 });
@@ -31,7 +33,7 @@ const mapDispatchToProps = dispatch => ({
   getDashletEditorData: config => dispatch(getDashletEditorData(config)),
   setJournalsListItem: item => dispatch(setJournalsListItem(item)),
   setJournalsItem: item => dispatch(setJournalsItem(item)),
-  setSettingItem: item => dispatch(setSettingItem(item)),
+  setSettingItem: id => dispatch(setSettingItem(id)),
   setDashletConfig: config => dispatch(setDashletConfig(config)),
   saveDashlet: (config, id) => dispatch(saveDashlet({ config: config, id: id }))
 });
@@ -56,8 +58,8 @@ class JournalsDashletEditor extends Component {
     this.props.setDashletConfig(this.props.initConfig);
   };
 
-  setSelectValue = (source, field, value) => {
-    return source.filter(option => option[field] === value);
+  setSettingItem = item => {
+    this.props.setSettingItem(item[JOURNAL_SETTING_ID_FIELD]);
   };
 
   componentDidUpdate(prevProps) {
@@ -72,12 +74,12 @@ class JournalsDashletEditor extends Component {
   render() {
     const props = this.props;
     const config = props.config || {};
-    const cssClasses = classNames('journal-dashlet-editor', props.className);
+    const cssClasses = classNames('ecos-journal-dashlet-editor', props.className);
 
     return (
       <div className={cssClasses}>
-        <div className={'journal-dashlet-editor__body'}>
-          <Caption middle className={'journal-dashlet-editor__caption'}>
+        <div className={'ecos-journal-dashlet-editor__body'}>
+          <Caption middle className={'ecos-journal-dashlet-editor__caption'}>
             {t('journals.action.edit-dashlet')}
           </Caption>
           <Field label={t('journals.list.name')}>
@@ -87,7 +89,7 @@ class JournalsDashletEditor extends Component {
               getOptionLabel={option => option.title}
               getOptionValue={option => option.id}
               onChange={props.setJournalsListItem}
-              value={this.setSelectValue(props.journalsList, 'id', config.journalsListId)}
+              value={getSelectedValue(props.journalsList, 'id', config.journalsListId)}
             />
           </Field>
 
@@ -98,25 +100,32 @@ class JournalsDashletEditor extends Component {
               getOptionLabel={option => option.title}
               getOptionValue={option => option.nodeRef}
               onChange={props.setJournalsItem}
-              value={this.setSelectValue(props.journals, 'nodeRef', config.journalId)}
+              value={getSelectedValue(props.journals, 'nodeRef', config.journalId)}
             />
           </Field>
 
           <Field label={t('journals.settings')}>
-            <Select placeholder={t('journals.default')} options={props.setting} onChange={props.setSettingItem} />
+            <Select
+              placeholder={t('journals.default')}
+              options={props.journalSettings}
+              getOptionLabel={option => option[JOURNAL_SETTING_DATA_FIELD].title}
+              getOptionValue={option => option[JOURNAL_SETTING_ID_FIELD]}
+              onChange={this.setSettingItem}
+              value={getSelectedValue(props.journalSettings, JOURNAL_SETTING_ID_FIELD, config.journalSettingId)}
+            />
           </Field>
         </div>
 
         <Columns
-          className={'journal-dashlet-editor__actions'}
+          className={'ecos-journal-dashlet-editor__actions'}
           cols={[
             <Btn onClick={this.clear}>{t('journals.action.reset-settings')}</Btn>,
 
             <Fragment>
-              <Btn className={'btn_x-step_10'} onClick={this.cancel}>
+              <Btn className={'ecos-btn_x-step_10'} onClick={this.cancel}>
                 {t('journals.action.cancel')}
               </Btn>
-              <Btn className={'btn_blue btn_hover_light-blue'} onClick={this.save}>
+              <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.save}>
                 {t('journals.action.save')}
               </Btn>
             </Fragment>

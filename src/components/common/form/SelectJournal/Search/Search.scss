@@ -1,0 +1,16 @@
+@import '../../../../../constants';
+
+.select-journal__search {
+  position: relative;
+}
+
+.select-journal__search-input {
+  padding-left: 40px;
+}
+
+.select-journal__search-icon {
+  position: absolute;
+  line-height: 40px;
+  left: 12px;
+  color: $color-gray-5;
+}

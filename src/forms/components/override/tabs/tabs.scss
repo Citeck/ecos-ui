@@ -1,0 +1,246 @@
+@import '../../../constants';
+
+$large-size: 40px;
+$small-size: 28px;
+
+.formio-dialog-content .preview-panel,
+.formio-form {
+  .formio-component-tabs {
+    .formio-component-tabs-right-button,
+    .formio-component-tabs-left-button {
+      display: none;
+    }
+
+    .formio-component-tabs-wrapper {
+      margin-bottom: 22px;
+    }
+
+    .formio-component-tabs-scroll-wrapper {
+      height: $large-size;
+      overflow: hidden;
+      box-sizing: content-box;
+    }
+
+    .nav-tabs {
+      border-bottom: none;
+
+      display: inline-flex;
+      white-space: nowrap;
+      flex-wrap: nowrap;
+      max-width: 100%;
+      overflow-y: hidden;
+      overflow-x: auto;
+    }
+
+    .nav-item {
+      font-size: $font-size-standard;
+      margin-right: 2px;
+      margin-bottom: 0;
+
+      .nav-link {
+        background: $color-gray-4;
+        color: $text-color-dark;
+        font-weight: $font-weight-semi-bold;
+        border-radius: 0;
+        border-color: $color-gray-4;
+        padding: 0 15px;
+        line-height: 38px;
+
+        &.active {
+          color: $color-white;
+          background-color: $color-blue-dark;
+          border-color: $color-blue-dark;
+        }
+      }
+
+      &.first-visible-tab {
+        .nav-link {
+          border-top-left-radius: $border-radius-standard;
+          border-bottom-left-radius: $border-radius-standard;
+        }
+      }
+
+      &.last-visible-tab {
+        margin-right: 0;
+        .nav-link {
+          border-top-right-radius: $border-radius-standard;
+          border-bottom-right-radius: $border-radius-standard;
+        }
+      }
+    }
+
+    &_scrollable {
+      .nav-item {
+        &:first-child {
+          border-left: 20px solid transparent;
+        }
+
+        &:last-child {
+          border-right: 20px solid transparent;
+        }
+      }
+
+      .formio-component-tabs-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+
+        &:before {
+          content: '';
+          left: $large-size;
+          top: 0;
+          position: absolute;
+          width: 20px;
+          height: 100%;
+          background: linear-gradient(90deg, #fff 41.99%, rgba(245, 245, 245, 0) 100%);
+          z-index: 4;
+          pointer-events: none;
+        }
+
+        &:after {
+          content: '';
+          right: $large-size;
+          top: 0;
+          position: absolute;
+          width: 20px;
+          height: 100%;
+          background: linear-gradient(270deg, #fff 41.99%, rgba(245, 245, 245, 0) 100%);
+          z-index: 4;
+          pointer-events: none;
+        }
+      }
+
+      .formio-component-tabs-scroll-wrapper {
+        max-width: calc(100% - 80px);
+        height: $large-size;
+        overflow: hidden;
+      }
+
+      .formio-component-tabs-right-button,
+      .formio-component-tabs-left-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: $large-size;
+        height: $large-size;
+        background-color: $color-gray-4;
+        color: $text-color-gray;
+        cursor: pointer;
+        border-radius: 50%;
+        font-size: 14px;
+        user-select: none;
+
+        &:hover {
+          background-color: $color-gray-1;
+        }
+
+        &:after {
+          font-family: $font-family-citeck;
+          content: $citeck-icon-left;
+          font-weight: normal;
+        }
+      }
+
+      .formio-component-tabs-right-button {
+        &:after {
+          content: $citeck-icon-right;
+        }
+      }
+    }
+  }
+}
+
+/* Tabs styles hack for form builder */
+.formio-dialog.formio-dialog-theme-default.component-settings .formio-component-tabs {
+  .nav-item {
+    font-size: 12px;
+  }
+  .nav-link {
+    line-height: 26px;
+    padding: 0 7px;
+  }
+  .formio-component-tabs-wrapper {
+    margin-bottom: 0;
+  }
+  .formio-component-tabs-scroll-wrapper {
+    height: $small-size;
+  }
+  .formio-component-tabs-right-button,
+  .formio-component-tabs-left-button {
+    width: $small-size;
+    height: $small-size;
+  }
+  &_scrollable {
+    .nav-item {
+      &:first-child {
+        border-left: 10px solid transparent;
+      }
+
+      &:last-child {
+        border-right: 10px solid transparent;
+      }
+    }
+
+    .formio-component-tabs-wrapper {
+      &:before {
+        left: $small-size;
+        width: 10px;
+      }
+
+      &:after {
+        right: $small-size;
+        width: 10px;
+      }
+    }
+
+    .formio-component-tabs-scroll-wrapper {
+      max-width: calc(100% - 56px);
+    }
+  }
+}
+
+.formio-dialog.formio-dialog-theme-default.component-settings .component-preview .formio-component-tabs {
+  .nav-item {
+    font-size: 14px;
+  }
+  .nav-link {
+    line-height: $large-size;
+    padding: 0 15px;
+  }
+  .formio-component-tabs-scroll-wrapper {
+    height: $large-size;
+  }
+  .formio-component-tabs-right-button,
+  .formio-component-tabs-left-button {
+    width: $large-size;
+    height: $large-size;
+  }
+  &_scrollable {
+    .nav-item {
+      &:first-child {
+        border-left: 20px solid transparent;
+      }
+
+      &:last-child {
+        border-right: 20px solid transparent;
+      }
+    }
+
+    .formio-component-tabs-wrapper {
+      &:before {
+        left: $large-size;
+        width: 20px;
+      }
+
+      &:after {
+        right: $large-size;
+        width: 20px;
+      }
+    }
+
+    .formio-component-tabs-scroll-wrapper {
+      max-width: calc(100% - 80px);
+    }
+  }
+}

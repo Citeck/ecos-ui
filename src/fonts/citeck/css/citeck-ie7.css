@@ -149,3 +149,24 @@
 .icon-checkbox-check {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82f;&nbsp;');
 }
+.icon-arrow-left {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe830;&nbsp;');
+}
+.icon-columns {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe831;&nbsp;');
+}
+.icon-r-unchecked {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe832;&nbsp;');
+}
+.icon-circle-rb {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe833;&nbsp;');
+}
+.icon-radiobutton-dark {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe834;&nbsp;');
+}
+.icon-radiobutton-select {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe835;&nbsp;');
+}
+.icon-resize {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe837;&nbsp;');
+}

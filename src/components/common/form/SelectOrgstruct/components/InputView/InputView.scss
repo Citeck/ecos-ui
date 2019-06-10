@@ -1,0 +1,69 @@
+@import '../../../../../../constants';
+
+.select-orgstruct__input-view_compact {
+  display: flex;
+  line-height: 26px;
+}
+
+.select-orgstruct__value-not-selected {
+  line-height: 36px;
+  border: solid $color-gray-4;
+  border-width: 2px 0 2px 0;
+  margin-bottom: 15px;
+}
+
+.select-orgstruct__values-list {
+  border-top: 2px solid $color-gray-4;
+  margin-bottom: 15px;
+  padding: 0;
+
+  li {
+    line-height: 36px;
+    border-bottom: 2px solid $color-gray-4;
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.select-orgstruct__values-list_compact {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-left: 10px;
+}
+
+.select-orgstruct__input-view-button_compact {
+  flex-shrink: 0;
+}
+
+.select-orgstruct__values-list-actions {
+  flex-shrink: 0;
+  display: flex;
+
+  .icon {
+    line-height: 36px;
+    cursor: pointer;
+    color: $color-gray-6;
+    margin-left: 5px;
+
+    &:hover {
+      color: $color-blue-light;
+    }
+
+    &.icon-delete:hover {
+      color: $color-red-1;
+    }
+  }
+}
+
+.select-orgstruct__values-list-disp {
+  white-space: nowrap;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 5px;
+}
+
+.select-orgstruct__error {
+  color: $color-red-1;
+}

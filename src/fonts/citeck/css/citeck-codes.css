@@ -136,3 +136,24 @@
 .icon-checkbox-check:before {
   content: '\e82f';
 } /* '' */
+.icon-arrow-left:before {
+  content: '\e830';
+} /* '' */
+.icon-columns:before {
+  content: '\e831';
+} /* '' */
+.icon-r-unchecked:before {
+  content: '\e832';
+} /* '' */
+.icon-circle-rb:before {
+  content: '\e833';
+} /* '' */
+.icon-radiobutton-dark:before {
+  content: '\e834';
+} /* '' */
+.icon-radiobutton-select:before {
+  content: '\e835';
+} /* '' */
+.icon-resize:before {
+  content: '\e837';
+} /* '' */

@@ -1,18 +1,30 @@
 @import '../../../../constants';
 
-.grid {
+.ecos-grid {
   position: relative;
+
+  &.ecos-grid_no-top-border {
+    .table {
+      border-top: 0;
+
+      th {
+        border-top: 0;
+      }
+    }
+  }
 
   .table {
     border-top: 2px solid $color-gray-4;
     border-bottom: 2px solid $color-gray-4;
     margin-bottom: 13px;
+    width: 100%;
 
     td {
       height: 42px;
       border-top: 2px solid $color-gray-4;
       padding: 8px 5px;
       vertical-align: middle;
+      box-sizing: border-box;
     }
 
     th {
@@ -23,6 +35,7 @@
       white-space: nowrap;
       overflow: hidden;
       vertical-align: middle;
+      box-sizing: border-box;
     }
 
     .react-bs-table-no-data {
@@ -31,7 +44,18 @@
   }
 }
 
-.grid__td {
+.ecos-grid__v-scroll {
+  position: absolute;
+  width: 6px;
+  right: 4px;
+  bottom: 2px;
+  top: 52px;
+  border-radius: 3px;
+  visibility: visible;
+  z-index: 11;
+}
+
+.ecos-grid__td {
   display: flex;
   align-items: center;
   width: 100%;
@@ -47,24 +71,24 @@
   overflow: hidden;
 }
 
-.grid__td_editable {
+.ecos-grid__td_editable {
   &:hover {
     background: $color-gray-4;
     cursor: pointer;
   }
 }
 
-.grid__body {
+.ecos-grid__body {
   width: 100%;
   overflow-x: auto;
 }
 
-.grid_transparent {
+.ecos-grid_transparent {
   opacity: 0;
 }
 
 /*Checkable*/
-.grid_checkable {
+.ecos-grid_checkable {
   tbody > tr > td:nth-child(1),
   thead > tr > th:nth-child(1) {
     padding: 0;
@@ -72,7 +96,7 @@
   }
 }
 
-.grid__checkbox {
+.ecos-grid__checkbox {
   position: relative;
   width: 54px;
   height: 22px;
@@ -82,7 +106,7 @@
   justify-content: center;
 }
 
-.grid__checkbox-devider {
+.ecos-grid__checkbox-devider {
   position: absolute;
   width: 2px;
   height: 34px;
@@ -91,21 +115,21 @@
   background: $color-gray-4;
 }
 
-.grid__tr_selected {
+.ecos-grid__tr_selected {
   background: $color-yellow-1;
 
-  .grid__checkbox {
+  .ecos-grid__checkbox {
     background: $color-yellow-1;
   }
 }
 
-.grid__freeze {
+.ecos-grid__freeze {
   visibility: hidden;
   position: absolute;
   top: 0;
   left: 0;
 
-  .grid__tr_selected {
+  .ecos-grid__tr_selected {
     background: none;
   }
 
