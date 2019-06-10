@@ -9,3 +9,4 @@ export const setAllMenuItems = createAction(prefix + 'SET_ALL_MENU_ITEMS');
 
 export const getUserMenuConfig = createAction(prefix + 'GET_USER_MENU_CONFIG');
 export const getAllMenuItems = createAction(prefix + 'GET_ALL_MENU_ITEMS');
+export const saveUserMenuConfig = createAction(prefix + 'SAVE_USER_MENU_CONFIG');

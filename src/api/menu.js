@@ -54,7 +54,7 @@ export class MenuApi extends CommonApi {
     }
   };
 
-  getMenuConfig = () => {
+  getUserMenuConfig = () => {
     return this.query({
       record: `uiserv/menu`,
       attributes: {
@@ -63,7 +63,7 @@ export class MenuApi extends CommonApi {
     }).then(resp => resp);
   };
 
-  saveMenuConfig = config => {
+  saveUserMenuConfig = config => {
     return this.mutate({
       records: {
         id: `uiserv/menu`,

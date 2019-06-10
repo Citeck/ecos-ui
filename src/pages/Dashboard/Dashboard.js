@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { path } from 'ramda';
 import { getDashboardConfig, saveDashboardConfig } from '../../actions/dashboard';
+import { getUserMenuConfig, saveUserMenuConfig } from '../../actions/menu';
 import Layout from '../../components/Layout';
 import Loader from '../../components/common/Loader/Loader';
 import { DndUtils } from '../../components/Drag-n-Drop';
 
 const mapStateToProps = state => ({
   config: {
-    menu: path(['app', 'menu'], state),
+    menu: path(['menu'], state),
     ...path(['dashboard', 'config'], state)
   },
   isLoading: path(['dashboard', 'isLoading'], state),
@@ -17,7 +18,9 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   getDashboardConfig: ({ recordId }) => dispatch(getDashboardConfig({ recordId })),
-  saveDashboardConfig: config => dispatch(saveDashboardConfig(config))
+  getUserMenuConfig: () => dispatch(getUserMenuConfig()),
+  saveDashboardConfig: config => dispatch(saveDashboardConfig(config)),
+  saveUserMenuConfig: config => dispatch(saveUserMenuConfig(config))
 });
 
 class Dashboard extends Component {
@@ -32,18 +35,19 @@ class Dashboard extends Component {
   }
 
   componentDidMount() {
-    const { getDashboardConfig } = this.props;
+    const { getDashboardConfig, getUserMenuConfig } = this.props;
     const { recordId } = this.pathInfo;
 
     getDashboardConfig({ recordId });
+    getUserMenuConfig();
   }
 
   prepareWidgetsConfig = (data, dnd) => {
     const {
       config,
-      config: { columns, menu }
+      config: { columns }
     } = this.props;
-    const { isWidget, columnFrom, columnTo, id } = data;
+    const { isWidget, columnFrom, columnTo } = data;
     const { source, destination } = dnd;
     let newConfig = { ...config };
 
@@ -71,12 +75,16 @@ class Dashboard extends Component {
     this.props.saveSettings(config);
   };
 
+  saveUserMenuConfig = config => {
+    this.props.saveUserMenuConfig(config.menu);
+  };
+
   renderLayout() {
     const {
       config: { columns, menu }
     } = this.props;
 
-    return <Layout columns={columns} menu={menu} onSaveMenu={this.saveDashboardConfig} onSaveWidget={this.prepareWidgetsConfig} />;
+    return <Layout columns={columns} menu={menu} onSaveMenu={this.saveUserMenuConfig} onSaveWidget={this.prepareWidgetsConfig} />;
   }
 
   renderLoader() {

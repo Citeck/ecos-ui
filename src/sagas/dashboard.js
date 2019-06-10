@@ -1,43 +1,46 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import { getDashboardConfig, saveDashboardConfig, setDashboardConfig } from '../actions/dashboard';
+import { getDashboardConfig, saveDashboardConfig, setDashboardConfig, setDashboardKey, setResultSaveDashboard } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
 import { setLoading } from '../actions/loader';
 import { t } from '../helpers/util';
-//todo test
-import * as mock from '../api/mock/dashboardSettings';
-import { delay } from 'redux-saga';
 import { dashboardForWeb } from '../dto/dashboard';
-import { setMenuConfig } from '../actions/app';
+import { SAVE_STATUS } from '../constants';
 
-function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
+import * as mock from '../api/mock/dashboardSettings';
+
+function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
-    yield put(setLoading(true));
-    const apiData = yield call(api.dashboard.getDashboardConfig, payload);
-
-    // TODO: use real query for menu & layout
-    const menu = yield call(mock.getMenuConfig);
+    // todo test data
     const layout = yield call(mock.getLayoutConfig);
-    const webConfig = dashboardForWeb({ menu, layout });
+    yield put(setLoading(true));
 
-    console.log('doGetDashboardConfigRequest', apiData);
+    const { recordId } = payload;
+    const config = yield call(api.dashboard.getDashboardConfig, recordId);
+    // const layout = config.layout;
+    const webConfig = dashboardForWeb({ layout });
 
-    yield put(setMenuConfig(menu));
+    yield put(setDashboardKey(config.key));
     yield put(setDashboardConfig(webConfig));
     yield put(setLoading(false));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения данных по дашборду')));
-    logger.error('[dashboard/ doGetDashboardConfigRequest saga] error', e.message);
+    logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
   }
 }
 
 function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   try {
     yield put(setLoading(true));
-    yield delay(2000);
-    // const webConfig = mock.getConfigPage();
-    // yield put(setDashboardConfig(webConfig));
-    yield put(setDashboardConfig(payload));
+
+    const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
+      config: payload.config,
+      recordId: payload.recordId
+    });
+
+    yield put(setResultSaveDashboard({ status: SAVE_STATUS.SUCCESS }));
     yield put(setLoading(false));
+    //todo temp dashboardResult
+    yield put(setDashboardConfig(payload));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка сохранения дашборда')));
     logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e.message);
@@ -45,7 +48,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
 }
 
 function* saga(ea) {
-  yield takeLatest(getDashboardConfig().type, doGetDashboardConfigRequest, ea);
+  yield takeLatest(getDashboardConfig().type, doGetDashboardRequest, ea);
   yield takeLatest(saveDashboardConfig().type, doSaveDashboardConfigRequest, ea);
 }
 

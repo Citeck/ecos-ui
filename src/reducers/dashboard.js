@@ -1,7 +1,7 @@
 import { handleActions } from 'redux-actions';
-import { setDashboardConfig, saveDashboardConfig } from '../actions/dashboard';
+import { saveDashboardConfig, setDashboardConfig, setDashboardKey, setResultSaveDashboard } from '../actions/dashboard';
 import { setLoading } from '../actions/loader';
-import { setDashboardKey } from '../actions/dashboardSettings';
+import { setResultSaveUserMenu } from '../actions/menu';
 
 const initialState = {
   dashboardKey: null,
@@ -9,7 +9,13 @@ const initialState = {
     columns: []
   },
   isLoading: false,
-  saveStatus: ''
+  saveDashboard: {
+    status: '',
+    recordId: ''
+  },
+  saveMenu: {
+    status: ''
+  }
 };
 
 Object.freeze(initialState);
@@ -37,8 +43,28 @@ export default handleActions(
     [saveDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
-        config: payload || state.config,
-        isLoading: false
+        config: payload || state.config
+      };
+    },
+    [setResultSaveDashboard]: (state, { payload }) => {
+      const { status, recordId } = payload;
+
+      return {
+        ...state,
+        saveDashboard: {
+          status,
+          recordId
+        }
+      };
+    },
+    [setResultSaveUserMenu]: (state, { payload }) => {
+      const { status } = payload;
+
+      return {
+        ...state,
+        saveMenu: {
+          status
+        }
       };
     }
   },
