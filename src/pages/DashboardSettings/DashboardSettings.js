@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
 import { path } from 'ramda';
-import { t } from '../../helpers/util';
+import { t, arrayCompare } from '../../helpers/util';
 import { LAYOUTS, MENUS, SAVE_STATUS } from '../../constants/dashboardSettings';
 import { MENU_TYPE } from '../../constants';
 import { initSettings, saveSettings } from '../../actions/dashboardSettings';
@@ -77,7 +77,7 @@ class DashboardSettings extends React.Component {
       layouts: LAYOUTS,
       menus: MENUS,
       widgetsSelected: [],
-      isShowMenuConstructor: path(['config', 'menuType'], props),
+      isShowMenuConstructor: path(['config', 'menuType'], props) === MENU_TYPE.TOP,
       menuSelected: [],
       widgets: [],
       menuItems: []
@@ -618,14 +618,6 @@ class DashboardSettings extends React.Component {
     );
   }
 }
-
-const arrayCompare = (arr1 = [], arr2 = [], byField = '') => {
-  if (!byField) {
-    return JSON.parse(JSON.stringify(arr1)) === JSON.parse(JSON.stringify(arr2));
-  }
-
-  return JSON.parse(JSON.stringify(arr1.map(item => item[byField]))) === JSON.parse(JSON.stringify(arr2.map(item => item[byField])));
-};
 
 export default connect(
   mapStateToProps,
