@@ -20,9 +20,9 @@ export class DashboardApi extends RecordService {
   };
 
   saveDashboardConfig = ({ key, recordId, config }) => {
+    recordId = recordId || '';
     const record = Records.get(`${PREFIX}${recordId}`);
 
-    recordId = recordId || '';
     record.att(QUERY_KEYS.CONFIG_JSON, config);
     record.att(QUERY_KEYS.KEY, key || DEFAULT_KEY);
 
