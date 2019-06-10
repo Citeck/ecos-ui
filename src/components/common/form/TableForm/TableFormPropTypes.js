@@ -7,5 +7,6 @@ export default {
   onChange: PropTypes.func,
   onError: PropTypes.func,
   isCompact: PropTypes.bool,
+  parentForm: PropTypes.object,
   viewOnly: PropTypes.bool
 };
