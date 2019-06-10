@@ -4,11 +4,7 @@ import { MENU_TYPE } from '../constants';
 
 const initialState = {
   isInit: false,
-  isInitFailure: false,
-  menu: {
-    type: MENU_TYPE.LEFT,
-    links: []
-  }
+  isInitFailure: false
 };
 
 Object.freeze(initialState);

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { path } from 'ramda';
 import { getDashboardConfig, saveDashboardConfig } from '../../actions/dashboard';
-import { getUserMenuConfig, saveUserMenuConfig } from '../../actions/menu';
 import Layout from '../../components/Layout';
 import Loader from '../../components/common/Loader/Loader';
 import { DndUtils } from '../../components/Drag-n-Drop';
@@ -11,20 +10,16 @@ import './style.scss';
 
 const mapStateToProps = state => ({
   config: {
-    menu: path(['menu', 'user'], state),
     ...path(['dashboard', 'config'], state)
   },
   isLoadingDashboard: path(['dashboard', 'isLoading'], state),
   saveResultDashboard: path(['dashboard', 'saveResult'], state),
-  isLoadingMenu: path(['menu', 'isLoading'], state),
   saveResultMenu: path(['menu', 'saveResult'], state)
 });
 
 const mapDispatchToProps = dispatch => ({
   getDashboardConfig: ({ recordId }) => dispatch(getDashboardConfig({ recordId })),
-  getUserMenuConfig: () => dispatch(getUserMenuConfig()),
-  saveDashboardConfig: config => dispatch(saveDashboardConfig(config)),
-  saveUserMenuConfig: config => dispatch(saveUserMenuConfig(config))
+  saveDashboardConfig: config => dispatch(saveDashboardConfig(config))
 });
 
 class Dashboard extends Component {
@@ -39,11 +34,10 @@ class Dashboard extends Component {
   }
 
   componentDidMount() {
-    const { getDashboardConfig, getUserMenuConfig } = this.props;
+    const { getDashboardConfig } = this.props;
     const { recordId } = this.pathInfo;
 
     getDashboardConfig({ recordId });
-    getUserMenuConfig();
   }
 
   prepareWidgetsConfig = (data, dnd) => {
@@ -79,22 +73,18 @@ class Dashboard extends Component {
     this.props.saveSettings(config);
   };
 
-  saveUserMenuConfig = config => {
-    this.props.saveUserMenuConfig(config.menu);
-  };
-
   renderLayout() {
     const {
-      config: { columns, menu }
+      config: { columns }
     } = this.props;
 
-    return <Layout columns={columns} menu={menu} onSaveMenu={this.saveUserMenuConfig} onSaveWidget={this.prepareWidgetsConfig} />;
+    return <Layout columns={columns} onSaveWidget={this.prepareWidgetsConfig} />;
   }
 
   renderLoader() {
-    let { isLoadingDashboard, isLoadingMenu } = this.props;
+    let { isLoadingDashboard } = this.props;
 
-    if (isLoadingDashboard || isLoadingMenu) {
+    if (isLoadingDashboard) {
       return <Loader className={`ecos-dashboard__loader-wrapper`} />;
     }
 

@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import { cloneDeep } from 'lodash';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { t } from '../../helpers/util';
-import { MENU_TYPE } from '../../constants';
 import Components from '../Components';
-import { DragItem, Droppable, SortableContainer, SortableElement } from '../Drag-n-Drop';
+import { DragItem, Droppable } from '../Drag-n-Drop';
 import './style.scss';
 
 const _DATA = '@data@';
@@ -24,16 +20,10 @@ class Layout extends Component {
         widgets: PropTypes.array
       })
     ).isRequired,
-    menu: PropTypes.shape({
-      type: PropTypes.oneOf(Object.keys(MENU_TYPE).map(key => MENU_TYPE[key])),
-      links: PropTypes.arrayOf(PropTypes.object)
-    }).isRequired,
-    onSaveMenu: PropTypes.func,
     onSaveWidget: PropTypes.func
   };
 
   static defaultProps = {
-    onSaveMenu: () => {},
     onSaveWidget: () => {}
   };
 
@@ -78,56 +68,6 @@ class Layout extends Component {
     this.setState({ draggableDestination: '' });
     this.props.onSaveWidget(data, { source, destination });
   };
-
-  handleSortEndMenu = ({ oldIndex, newIndex }, event) => {
-    let links = cloneDeep(this.props.menu.links);
-    const draggableLink = links[oldIndex];
-    const { columns, menu } = this.props;
-
-    event.stopPropagation();
-
-    links.splice(oldIndex, 1);
-    links.splice(newIndex, 0, draggableLink);
-    links.forEach((link, index) => {
-      link.position = index;
-    });
-
-    this.props.onSaveMenu({
-      columns,
-      menu: {
-        ...menu,
-        links
-      }
-    });
-  };
-
-  renderMenuItem = link => {
-    return (
-      <SortableElement key={link.position} index={link.position}>
-        <Link className="ecos-layout__menu-item" to={link.link} title={t(link.label)}>
-          <div className="ecos-layout__menu-item-title">{t(link.label)}</div>
-          <i className="ecos-btn__i ecos-layout__menu-item-i-next" />
-          <i className="ecos-btn__i icon-drag ecos-layout__menu-item-i-drag" />
-        </Link>
-      </SortableElement>
-    );
-  };
-
-  renderMenu() {
-    const {
-      menu: { type, links }
-    } = this.props;
-
-    if (type === MENU_TYPE.LEFT) {
-      return;
-    }
-
-    return (
-      <SortableContainer axis="xy" onSortEnd={this.handleSortEndMenu}>
-        <div className="ecos-layout__menu">{links && links.map(this.renderMenuItem)}</div>
-      </SortableContainer>
-    );
-  }
 
   renderWidgets(widgets = [], columnName) {
     const components = [];
@@ -198,10 +138,7 @@ class Layout extends Component {
   render() {
     return (
       <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDragEnd}>
-        <div className={this.className}>
-          {this.renderMenu()}
-          {this.renderColumns()}
-        </div>
+        <div className={this.className}>{this.renderColumns()}</div>
       </DragDropContext>
     );
   }
