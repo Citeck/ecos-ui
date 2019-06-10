@@ -97,10 +97,10 @@ function* sagaGetDashletConfig({ api, logger }, action) {
 
 function* sagaGetJournalsData({ api, logger }, action) {
   try {
-    const { journalsListId, journalId, journalSettingId = '' } = action.payload;
+    const { journalsListId, journalId, journalSettingId = '', predicate } = action.payload;
     yield getJournals(api, journalsListId);
 
-    yield put(initJournal({ journalId, journalSettingId }));
+    yield put(initJournal({ journalId, journalSettingId, predicate }));
   } catch (e) {
     logger.error('[journals sagaGetDashletConfig saga error', e.message);
   }
@@ -148,7 +148,7 @@ function* getGridParams(journalConfig, journalSetting) {
   };
 }
 
-function* getJournalSetting(api, journalSettingId, journalConfig) {
+function* getJournalSetting(api, journalSettingId, journalConfig, predicate) {
   let journalSetting;
 
   journalSettingId = journalSettingId || journalConfig.journalSettingId;
@@ -163,6 +163,7 @@ function* getJournalSetting(api, journalSettingId, journalConfig) {
   }
 
   journalSetting = { ...journalSetting, [JOURNAL_SETTING_ID_FIELD]: journalSettingId };
+  journalSetting.predicate = predicate || journalSetting.predicate;
 
   yield put(setJournalSetting(journalSetting));
   yield put(initJournalSettingData(journalSetting));
@@ -205,8 +206,8 @@ function* getGridData(api, params) {
   });
 }
 
-function* loadGrid(api, journalSettingId, journalConfig) {
-  let journalSetting = yield getJournalSetting(api, journalSettingId, journalConfig);
+function* loadGrid(api, journalSettingId, journalConfig, predicate) {
+  let journalSetting = yield getJournalSetting(api, journalSettingId, journalConfig, predicate);
   let params = yield getGridParams(journalConfig, journalSetting);
 
   const gridData = yield getGridData(api, params);
@@ -265,11 +266,11 @@ function* sagaInitJournal({ api, logger }, action) {
   try {
     yield put(setLoading(true));
 
-    let { journalId, journalSettingId } = action.payload;
+    let { journalId, journalSettingId, predicate } = action.payload;
 
     const journalConfig = yield getJournalConfig(api, journalId);
     yield getJournalSettings(api, journalConfig.id);
-    yield loadGrid(api, journalSettingId, journalConfig);
+    yield loadGrid(api, journalSettingId, journalConfig, predicate);
 
     yield put(setLoading(false));
   } catch (e) {
