@@ -2,15 +2,16 @@ import { call, put, takeLatest } from 'redux-saga/effects';
 import {
   getAllWidgets,
   getDashboardConfig,
-  initSettings,
-  saveSettings,
+  initDashboardSettings,
+  saveDashboardConfig,
   setAllWidgets,
   setDashboardConfig,
   setDashboardKey,
-  setResultSaveSettings
+  setResultSaveDashboardConfig
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
 import { setLoading } from '../actions/loader';
+import { setResultSaveUserMenu } from '../actions/menu';
 import { t } from '../helpers/util';
 import { settingsConfigForServer, settingsConfigForWeb } from '../dto/dashboardSettings';
 import { getDefaultDashboardConfig } from '../constants/dashboardSettings';
@@ -68,21 +69,29 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       recordId: payload.recordId
     });
     const menuResult = yield call(api.menu.saveMenuConfig, {});
-    //todo menuResult
+    //todo menuResult?
     yield put(
-      setResultSaveSettings({
-        dashboardStatus: SAVE_STATUS.SUCCESS,
-        menuStatus: SAVE_STATUS.SUCCESS,
+      setResultSaveDashboardConfig({
+        status: SAVE_STATUS.SUCCESS,
         recordId: dashboardResult.records.id
+      })
+    );
+    yield put(
+      setResultSaveUserMenu({
+        status: SAVE_STATUS.SUCCESS
       })
     );
     yield put(setLoading(false));
   } catch (e) {
     yield put(
-      setResultSaveSettings({
-        dashboardStatus: SAVE_STATUS.FAILURE,
-        menuStatus: SAVE_STATUS.FAILURE,
+      setResultSaveDashboardConfig({
+        status: SAVE_STATUS.FAILURE,
         recordId: null
+      })
+    );
+    yield put(
+      setResultSaveUserMenu({
+        status: SAVE_STATUS.SUCCESS
       })
     );
     yield put(setNotificationMessage(t('Ошибка. Данные не сохранены')));
@@ -92,10 +101,10 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
 }
 
 function* saga(ea) {
-  yield takeLatest(initSettings().type, doInitDashboardSettingsRequest, ea);
+  yield takeLatest(initDashboardSettings().type, doInitDashboardSettingsRequest, ea);
   yield takeLatest(getDashboardConfig().type, doGetDashboardConfigRequest, ea);
   yield takeLatest(getAllWidgets().type, doGetWidgetsRequest, ea);
-  yield takeLatest(saveSettings().type, doSaveSettingsRequest, ea);
+  yield takeLatest(saveDashboardConfig().type, doSaveSettingsRequest, ea);
 }
 
 export default saga;

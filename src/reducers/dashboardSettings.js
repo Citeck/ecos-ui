@@ -1,5 +1,11 @@
 import { handleActions } from 'redux-actions';
-import { saveSettings, setAllWidgets, setDashboardConfig, setDashboardKey, setResultSaveSettings } from '../actions/dashboardSettings';
+import {
+  saveDashboardConfig,
+  setAllWidgets,
+  setDashboardConfig,
+  setDashboardKey,
+  setResultSaveDashboardConfig
+} from '../actions/dashboardSettings';
 import { setAllMenuItems } from '../actions/menu';
 import { setLoading } from '../actions/loader';
 import { LAYOUT_TYPE } from '../constants/dashboardSettings';
@@ -13,9 +19,8 @@ const initialState = {
   widgets: [],
   menuItems: [],
   isLoading: false,
-  saveInfo: {
-    dashboardStatus: '',
-    menuStatus: '',
+  saveResult: {
+    status: '',
     recordId: ''
   }
 };
@@ -36,33 +41,27 @@ export default handleActions(
         dashboardKey: payload
       };
     },
-    [setAllWidgets]: (state, action) => {
+    [setAllWidgets]: (state, { payload }) => {
       return {
         ...state,
-        widgets: action.payload
+        widgets: payload
       };
     },
-    [setAllMenuItems]: (state, action) => {
+    [setAllMenuItems]: (state, { payload }) => {
       return {
         ...state,
-        menuItems: action.payload
+        menuItems: payload
       };
     },
-    [saveSettings]: (state, action) => {
+    [saveDashboardConfig]: (state, { payload }) => {
       return {
         ...state
       };
     },
-    [setResultSaveSettings]: (state, { payload = {} }) => {
-      const { dashboardStatus, menuStatus, recordId } = payload;
-
+    [setResultSaveDashboardConfig]: (state, { payload = {} }) => {
       return {
         ...state,
-        saveInfo: {
-          dashboardStatus,
-          menuStatus,
-          recordId
-        }
+        saveResult: payload
       };
     },
     [setLoading]: (state, { payload = false }) => {

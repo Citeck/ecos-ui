@@ -7,13 +7,17 @@ import Layout from '../../components/Layout';
 import Loader from '../../components/common/Loader/Loader';
 import { DndUtils } from '../../components/Drag-n-Drop';
 
+import './style.scss';
+
 const mapStateToProps = state => ({
   config: {
     menu: path(['menu'], state),
     ...path(['dashboard', 'config'], state)
   },
-  isLoading: path(['dashboard', 'isLoading'], state),
-  saveStatus: path(['dashboard', 'saveStatus'], state)
+  isLoadingDashboard: path(['dashboard', 'isLoading'], state),
+  saveResultDashboard: path(['dashboard', 'saveResult'], state),
+  isLoadingMenu: path(['menu', 'isLoading'], state),
+  saveResultMenu: path(['menu', 'saveResult'], state)
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -88,13 +92,13 @@ class Dashboard extends Component {
   }
 
   renderLoader() {
-    let { isLoading } = this.props;
+    let { isLoadingDashboard, isLoadingMenu } = this.props;
 
-    if (!isLoading) {
-      return null;
+    if (isLoadingDashboard || isLoadingMenu) {
+      return <Loader className={`ecos-dashboard__loader-wrapper`} />;
     }
 
-    return <Loader className={`ecos-dashboard__loader-wrapper`} />;
+    return null;
   }
 
   render() {

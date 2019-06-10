@@ -7,7 +7,7 @@ import { path } from 'ramda';
 import { t, arrayCompare } from '../../helpers/util';
 import { LAYOUTS, MENUS } from '../../constants/dashboardSettings';
 import { MENU_TYPE, SAVE_STATUS } from '../../constants';
-import { initSettings, saveSettings } from '../../actions/dashboardSettings';
+import { initDashboardSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
 import { initMenuSettings } from '../../actions/menu';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
@@ -22,16 +22,17 @@ const mapStateToProps = state => ({
     menu: path(['menu', 'links'], state),
     ...path(['dashboardSettings', 'config'], state)
   },
+  menuItems: path(['menu', 'menuItems'], state),
+  isLoadingMenu: path(['menu', 'isLoading'], state),
   widgets: path(['dashboardSettings', 'widgets'], state),
-  menuItems: path(['dashboardSettings', 'menuItems'], state),
   isLoading: path(['dashboardSettings', 'isLoading'], state),
-  saveStatus: path(['dashboardSettings', 'saveStatus'], state)
+  saveResult: path(['dashboardSettings', 'saveResult'], state)
 });
 
 const mapDispatchToProps = dispatch => ({
   initMenuSettings: () => dispatch(initMenuSettings()),
-  initSettings: ({ recordId }) => dispatch(initSettings({ recordId })),
-  saveSettings: payload => dispatch(saveSettings(payload))
+  initSettings: ({ recordId }) => dispatch(initDashboardSettings({ recordId })),
+  saveSettings: payload => dispatch(saveDashboardConfig(payload))
 });
 
 const DROPPABLE_ZONE = {
@@ -95,7 +96,7 @@ class DashboardSettings extends React.Component {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    let { config, menuItems, widgets, saveInfo = {} } = this.props;
+    let { config, menuItems, widgets, saveResult = {} } = this.props;
     let state = {};
 
     if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
@@ -118,8 +119,8 @@ class DashboardSettings extends React.Component {
 
     this.setState({ ...state });
 
-    if (nextProps.saveInfo && saveInfo.status !== nextProps.saveInfo.status && nextProps.saveInfo.status !== SAVE_STATUS.FAILURE) {
-      this.handleCloseClick(nextProps.saveInfo.recordId);
+    if (nextProps.saveResult && saveResult.status !== nextProps.saveResult.status && nextProps.saveResult.status !== SAVE_STATUS.FAILURE) {
+      this.handleCloseClick(nextProps.saveResult.recordId);
     }
   }
 
@@ -592,13 +593,13 @@ class DashboardSettings extends React.Component {
   }
 
   renderLoader() {
-    let { isLoading } = this.props;
+    let { isLoading, isLoadingMenu } = this.props;
 
-    if (!isLoading) {
-      return null;
+    if (isLoading || isLoadingMenu) {
+      return <Loader className={`ecos-ds__loader-wrapper`} />;
     }
 
-    return <Loader className={`ecos-ds__loader-wrapper`} />;
+    return null;
   }
 
   render() {

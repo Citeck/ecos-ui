@@ -1,0 +1,7 @@
+@import '../../constants.scss';
+
+.ecos-dashboard {
+  &__loader-wrapper {
+    background-color: $background-loader;
+  }
+}

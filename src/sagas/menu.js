@@ -5,12 +5,13 @@ import {
   getAllMenuItems,
   getUserMenuConfig,
   initMenuSettings,
-  setAllMenuItems,
-  setUserMenuConfig,
   saveUserMenuConfig,
-  setResultSaveUserMenu
+  setAllMenuItems,
+  setResultSaveUserMenu,
+  setUserMenuConfig
 } from '../actions/menu';
 import { t } from '../helpers/util';
+import { SAVE_STATUS } from '../constants';
 
 import * as mock from '../api/mock/dashboardSettings';
 
@@ -41,9 +42,11 @@ function* doGetMenuItemsRequest({ api, logger }, action) {
 function* doGetUserMenuConfigRequest({ api, logger }, { payload }) {
   try {
     yield put(setLoading(true));
+
     //const menu = yield call(api.menu.getUserMenuConfig);
     // todo test data
     const menu = yield call(mock.getMenuConfig);
+
     yield put(setUserMenuConfig(menu));
     yield put(setLoading(false));
   } catch (e) {
@@ -55,9 +58,11 @@ function* doGetUserMenuConfigRequest({ api, logger }, { payload }) {
 function* doSaveUserMenuConfigRequest({ api, logger }, { payload }) {
   try {
     yield put(setLoading(true));
+
     //const menuResult = yield call(api.menu.saveUserMenuConfig, payload);
     // todo temp
     yield put(setUserMenuConfig(payload));
+    yield put(setResultSaveUserMenu({ status: SAVE_STATUS.SUCCESS }));
     yield put(setLoading(false));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения меню')));

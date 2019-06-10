@@ -1,10 +1,15 @@
 import { handleActions } from 'redux-actions';
-import { setUserMenuConfig } from '../actions/menu';
+import { setResultSaveUserMenu, setUserMenuConfig } from '../actions/menu';
 import { MENU_TYPE } from '../constants';
+import { setLoading } from '../actions/loader';
 
 const initialState = {
   type: MENU_TYPE.LEFT,
-  links: []
+  links: [],
+  isLoading: false,
+  saveResult: {
+    status: ''
+  }
 };
 
 Object.freeze(initialState);
@@ -15,6 +20,22 @@ export default handleActions(
       return {
         ...state,
         ...action.payload
+      };
+    },
+    [setResultSaveUserMenu]: (state, { payload }) => {
+      const { status } = payload;
+
+      return {
+        ...state,
+        saveResult: {
+          status
+        }
+      };
+    },
+    [setLoading]: (state, { payload = false }) => {
+      return {
+        ...state,
+        isLoading: payload
       };
     }
   },

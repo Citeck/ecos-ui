@@ -39,7 +39,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
 
     yield put(setResultSaveDashboard({ status: SAVE_STATUS.SUCCESS }));
     yield put(setLoading(false));
-    //todo temp dashboardResult
+    //todo temp dashboardResult?
     yield put(setDashboardConfig(payload));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка сохранения дашборда')));
