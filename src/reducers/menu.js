@@ -22,7 +22,10 @@ export default handleActions(
     [setUserMenuConfig]: (state, action) => {
       return {
         ...state,
-        ...action.payload
+        user: {
+          ...state.user,
+          ...action.payload
+        }
       };
     },
     [setResultSaveUserMenu]: (state, { payload }) => {

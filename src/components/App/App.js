@@ -28,6 +28,8 @@ import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { URL, MENU_TYPE } from '../../constants';
 
 import './App.scss';
+import TopMenu from '../Layout/TopMenu';
+import { initMenuSettings, saveUserMenuConfig } from '../../actions/menu';
 
 class App extends Component {
   componentDidMount() {
@@ -35,6 +37,26 @@ class App extends Component {
 
     getShowTabsStatus();
     getTabs();
+    initMenuSettings();
+  }
+
+  handleSaveMenu = links => {
+    const { saveUserMenuConfig, menuType } = this.props;
+
+    saveUserMenuConfig({
+      type: menuType,
+      links
+    });
+  };
+
+  renderMenu() {
+    const { menuType, links } = this.props;
+
+    if (menuType === MENU_TYPE.LEFT) {
+      return <SlideMenu />;
+    }
+
+    return <TopMenu isShow={menuType === MENU_TYPE.TOP} isSortable links={links} onSave={this.handleSaveMenu} />;
   }
 
   render() {
@@ -65,10 +87,11 @@ class App extends Component {
             <div id="alf-hd">
               <Header />
               <Notification />
-              {menuType === MENU_TYPE.LEFT && <SlideMenu />}
             </div>
 
             <PageTabs homepageLink={URL.HOME} isShow={isShow} tabs={tabs} saveTabs={setTabs}>
+              {this.renderMenu()}
+
               <Switch>
                 {/*<Route path="/share/page" exact component={DashboardPage} />*/}
                 <Route path="/formio-develop" component={FormIOPage} />
@@ -103,13 +126,16 @@ const mapStateToProps = state => ({
   isAuthenticated: path(['user', 'isAuthenticated'], state),
   isShow: path(['pageTabs', 'isShow'], state),
   tabs: path(['pageTabs', 'tabs'], state),
-  menuType: path(['app', 'menu', 'type'], state)
+  menuType: path(['menu', 'user', 'type'], state),
+  links: path(['menu', 'user', 'links'], state)
 });
 
 const mapDispatchToProps = dispatch => ({
   getShowTabsStatus: () => dispatch(getShowTabsStatus()),
   getTabs: () => dispatch(getTabs()),
-  setTabs: tabs => dispatch(setTabs(tabs))
+  setTabs: tabs => dispatch(setTabs(tabs)),
+  initMenuSettings: () => dispatch(initMenuSettings()),
+  saveUserMenuConfig: config => dispatch(saveUserMenuConfig(config))
 });
 
 export default withRouter(
