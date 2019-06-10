@@ -1,14 +1,66 @@
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 import isEmpty from 'lodash/isEmpty';
+import lodashGet from 'lodash/get';
 
 const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
 const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
 
+const GATEWAY_URL_MAP = {};
+GATEWAY_URL_MAP[QUERY_URL] = '/share/api/records/query';
+GATEWAY_URL_MAP[MUTATE_URL] = '/share/api/records/mutate';
+GATEWAY_URL_MAP[DELETE_URL] = '/share/api/records/delete';
+
 let Records;
 
 let tmpRecordsCounter = 0;
+
+function isAnyWithAppName(records) {
+  for (let i = 0; i < records.length; i++) {
+    if (isRecordWithAppName(records[i])) {
+      return true;
+    }
+  }
+}
+
+function isRecordWithAppName(record) {
+  if (!record) {
+    return false;
+  }
+  if (record.id) {
+    record = record.id;
+  }
+  let sourceDelimIdx = record.indexOf('@');
+  let appDelimIdx = record.indexOf('/');
+  return appDelimIdx > 0 && appDelimIdx < sourceDelimIdx;
+}
+
+function recordsFetch(url, body) {
+  let withAppName = false;
+  if (body.query) {
+    withAppName = lodashGet(body, 'query.sourceId', '').indexOf('/') > -1;
+  } else if (body.record) {
+    withAppName = isRecordWithAppName(body.record);
+  } else if (body.records) {
+    withAppName = isAnyWithAppName(body.records);
+  }
+
+  if (withAppName) {
+    url = GATEWAY_URL_MAP[url];
+  }
+
+  return fetch(url, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-type': 'application/json;charset=UTF-8'
+    },
+    body: JSON.stringify(body)
+  }).then(response => {
+    return response.json();
+  });
+}
 
 function convertAttributePath(path) {
   if (path[0] === '.') {
@@ -104,27 +156,7 @@ class RecordsComponent {
   }
 
   remove(records) {
-    return new Promise(function(resolve, reject) {
-      fetch(DELETE_URL, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-type': 'application/json;charset=UTF-8'
-        },
-        body: JSON.stringify({
-          records: records
-        })
-      })
-        .then(response => {
-          return response.json();
-        })
-        .then(response => {
-          resolve(response);
-        })
-        .catch(e => {
-          reject(e);
-        });
-    });
+    return recordsFetch(DELETE_URL, { records });
   }
 
   queryOne(query, attributes, defaultResult = null) {
@@ -173,63 +205,46 @@ class RecordsComponent {
       }
     }
 
-    return new Promise(function(resolve, reject) {
-      fetch(QUERY_URL, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-type': 'application/json;charset=UTF-8'
-        },
-        body: JSON.stringify({
-          query: query,
-          attributes: queryAttributes
-        })
-      })
-        .then(response => {
-          return response.json();
-        })
-        .then(response => {
-          let records = [];
-          for (let idx in response.records) {
-            if (!response.records.hasOwnProperty(idx)) {
-              continue;
-            }
+    return recordsFetch(QUERY_URL, {
+      query: query,
+      attributes: queryAttributes
+    }).then(response => {
+      let records = [];
+      for (let idx in response.records) {
+        if (!response.records.hasOwnProperty(idx)) {
+          continue;
+        }
 
-            let recordMeta = response.records[idx];
+        let recordMeta = response.records[idx];
 
-            if (recordMeta.id) {
-              let record = self.get(recordMeta.id);
+        if (recordMeta.id) {
+          let record = self.get(recordMeta.id);
 
-              for (let att in recordMeta.attributes) {
-                if (recordMeta.attributes.hasOwnProperty(att)) {
-                  record.att(attributesMapping[att], recordMeta.attributes[att]);
-                }
-              }
-            }
-            if (attributes) {
-              records.push(
-                Object.assign(
-                  {
-                    id: recordMeta.id
-                  },
-                  recordMeta.attributes
-                )
-              );
-            } else {
-              records.push(recordMeta.id);
+          for (let att in recordMeta.attributes) {
+            if (recordMeta.attributes.hasOwnProperty(att)) {
+              record.att(attributesMapping[att], recordMeta.attributes[att]);
             }
           }
+        }
+        if (attributes) {
+          records.push(
+            Object.assign(
+              {
+                id: recordMeta.id
+              },
+              recordMeta.attributes
+            )
+          );
+        } else {
+          records.push(recordMeta.id);
+        }
+      }
 
-          resolve({
-            records: records,
-            hasMore: response.hasMore,
-            totalCount: response.totalCount
-          });
-        })
-        .catch(e => {
-          console.error(e);
-          reject(e);
-        });
+      return {
+        records: records,
+        hasMore: response.hasMore,
+        totalCount: response.totalCount
+      };
     });
   }
 }
@@ -364,21 +379,10 @@ class Record {
     if (this._baseRecord) {
       result = this._baseRecord.load(toLoad, force);
     } else {
-      result = fetch(QUERY_URL, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-type': 'application/json;charset=UTF-8'
-        },
-        body: JSON.stringify({
-          record: self.id,
-          attributes: toLoad
-        })
-      })
-        .then(response => {
-          return response.json();
-        })
-        .then(resp => resp.attributes || {});
+      result = recordsFetch(QUERY_URL, {
+        record: self.id,
+        attributes: toLoad
+      }).then(resp => resp.attributes || {});
     }
 
     return result.then(atts => {
@@ -498,41 +502,30 @@ class Record {
       return Promise.resolve(this);
     }
 
-    return fetch(MUTATE_URL, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-type': 'application/json;charset=UTF-8'
-      },
-      body: JSON.stringify({ records: requestRecords })
-    })
-      .then(response => {
-        return response.json();
-      })
-      .then(response => {
-        let attributesToLoad = {};
+    return recordsFetch(MUTATE_URL, { records: requestRecords }).then(response => {
+      let attributesToLoad = {};
 
-        for (let record of requestRecords) {
-          let recAtts = attributesToLoad[record.id] || {};
+      for (let record of requestRecords) {
+        let recAtts = attributesToLoad[record.id] || {};
 
-          for (let att in record.attributes) {
-            if (record.attributes.hasOwnProperty(att)) {
-              recAtts[att] = att;
-            }
-          }
-
-          attributesToLoad[record.id] = recAtts;
-        }
-
-        for (let recordId in attributesToLoad) {
-          if (attributesToLoad.hasOwnProperty(recordId)) {
-            Records.get(recordId).load(attributesToLoad[recordId], true);
+        for (let att in record.attributes) {
+          if (record.attributes.hasOwnProperty(att)) {
+            recAtts[att] = att;
           }
         }
 
-        let resultId = ((response.records || [])[0] || {}).id;
-        return resultId ? Records.get(resultId) : self;
-      });
+        attributesToLoad[record.id] = recAtts;
+      }
+
+      for (let recordId in attributesToLoad) {
+        if (attributesToLoad.hasOwnProperty(recordId)) {
+          Records.get(recordId).load(attributesToLoad[recordId], true);
+        }
+      }
+
+      let resultId = ((response.records || [])[0] || {}).id;
+      return resultId ? Records.get(resultId) : self;
+    });
   }
 
   att(name, value) {

@@ -32,7 +32,21 @@ const bpmnEditorProxyOptions = {
   }
 };
 
+const GATEWAY_RECORDS_PROXY_URL = process.env.GATEWAY_PROXY_URL || process.env.SHARE_PROXY_URL || 'http://localhost';
+const gatewayRecordsProxyOptions = {
+  target: GATEWAY_RECORDS_PROXY_URL,
+  changeOrigin: true,
+  logLevel: 'warn', // ['debug', 'info', 'warn', 'error', 'silent']
+  ws: true
+};
+
 module.exports = function(app) {
+  app.use(
+    proxy(['/share/api/records'], {
+      ...gatewayRecordsProxyOptions
+    })
+  );
+
   app.use(
     proxy(['/flowable-modeler', '/flowable-idm'], {
       ...shareProxyOptions

@@ -70,6 +70,7 @@ export default class TableFormComponent extends BaseReactComponent {
         source: source,
         onChange: this.onReactValueChanged,
         viewOnly: this.viewOnly,
+        parentForm: this.root,
         onError: err => {
           // this.setCustomValidity(err, false);
         }
