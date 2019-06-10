@@ -6,7 +6,6 @@ import {
   setDashboardKey,
   setResultSaveDashboardConfig
 } from '../actions/dashboardSettings';
-import { setAllMenuItems } from '../actions/menu';
 import { setLoading } from '../actions/loader';
 import { LAYOUT_TYPE } from '../constants/dashboardSettings';
 
@@ -45,12 +44,6 @@ export default handleActions(
       return {
         ...state,
         widgets: payload
-      };
-    },
-    [setAllMenuItems]: (state, { payload }) => {
-      return {
-        ...state,
-        menuItems: payload
       };
     },
     [saveDashboardConfig]: (state, { payload }) => {

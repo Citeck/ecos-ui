@@ -1,11 +1,14 @@
 import { handleActions } from 'redux-actions';
-import { setResultSaveUserMenu, setUserMenuConfig } from '../actions/menu';
+import { setAllMenuItems, setResultSaveUserMenu, setUserMenuConfig } from '../actions/menu';
 import { MENU_TYPE } from '../constants';
 import { setLoading } from '../actions/loader';
 
 const initialState = {
-  type: MENU_TYPE.LEFT,
-  links: [],
+  user: {
+    type: MENU_TYPE.LEFT,
+    links: []
+  },
+  menuItems: [],
   isLoading: false,
   saveResult: {
     status: ''
@@ -30,6 +33,12 @@ export default handleActions(
         saveResult: {
           status
         }
+      };
+    },
+    [setAllMenuItems]: (state, { payload }) => {
+      return {
+        ...state,
+        menuItems: payload
       };
     },
     [setLoading]: (state, { payload = false }) => {

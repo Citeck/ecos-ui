@@ -11,7 +11,7 @@ import './style.scss';
 
 const mapStateToProps = state => ({
   config: {
-    menu: path(['menu'], state),
+    menu: path(['menu', 'user'], state),
     ...path(['dashboard', 'config'], state)
   },
   isLoadingDashboard: path(['dashboard', 'isLoading'], state),
