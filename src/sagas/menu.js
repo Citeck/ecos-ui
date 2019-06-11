@@ -1,6 +1,5 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { setNotificationMessage } from '../actions/notification';
-import { setLoading } from '../actions/loader';
 import {
   getAllMenuItems,
   getUserMenuConfig,
@@ -17,10 +16,8 @@ import * as mock from '../api/mock/dashboardSettings';
 
 function* doInitMenuSettings({ api, logger }, action) {
   try {
-    yield put(setLoading(true));
-    yield doGetMenuItemsRequest({ api, logger }, action);
-    yield doGetUserMenuConfigRequest({ api, logger }, action);
-    yield put(setLoading(false));
+    yield put(getAllMenuItems());
+    yield put(getUserMenuConfig());
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения меню')));
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
@@ -41,14 +38,11 @@ function* doGetMenuItemsRequest({ api, logger }, action) {
 
 function* doGetUserMenuConfigRequest({ api, logger }, { payload }) {
   try {
-    yield put(setLoading(true));
-
     //const menu = yield call(api.menu.getUserMenuConfig);
     // todo test data
     const menu = yield call(mock.getMenuConfig);
 
     yield put(setUserMenuConfig(menu));
-    yield put(setLoading(false));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения меню')));
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
@@ -57,13 +51,10 @@ function* doGetUserMenuConfigRequest({ api, logger }, { payload }) {
 
 function* doSaveUserMenuConfigRequest({ api, logger }, { payload }) {
   try {
-    yield put(setLoading(true));
-
     //const menuResult = yield call(api.menu.saveUserMenuConfig, payload);
     // todo temp
     yield put(setUserMenuConfig(payload));
     yield put(setResultSaveUserMenu({ status: SAVE_STATUS.SUCCESS }));
-    yield put(setLoading(false));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения меню')));
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);

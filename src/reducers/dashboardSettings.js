@@ -1,12 +1,14 @@
 import { handleActions } from 'redux-actions';
 import {
-  saveDashboardConfig,
+  getAllWidgets,
+  getDashboardConfig,
+  initDashboardSettings,
   setAllWidgets,
   setDashboardConfig,
   setDashboardKey,
-  setResultSaveDashboardConfig
+  setResultSaveDashboardConfig,
+  saveDashboardConfig
 } from '../actions/dashboardSettings';
-import { setLoading } from '../actions/loader';
 import { LAYOUT_TYPE } from '../constants/dashboardSettings';
 
 const initialState = {
@@ -26,12 +28,20 @@ const initialState = {
 
 Object.freeze(initialState);
 
+const startLoading = state => ({ ...state, isLoading: true });
+
 export default handleActions(
   {
+    [initDashboardSettings]: startLoading,
+    [getDashboardConfig]: startLoading,
+    [getAllWidgets]: startLoading,
+    [saveDashboardConfig]: startLoading,
+
     [setDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
-        config: payload
+        config: payload,
+        isLoading: false
       };
     },
     [setDashboardKey]: (state, { payload }) => {
@@ -43,24 +53,15 @@ export default handleActions(
     [setAllWidgets]: (state, { payload }) => {
       return {
         ...state,
-        widgets: payload
-      };
-    },
-    [saveDashboardConfig]: (state, { payload }) => {
-      return {
-        ...state
+        widgets: payload,
+        isLoading: false
       };
     },
     [setResultSaveDashboardConfig]: (state, { payload = {} }) => {
       return {
         ...state,
-        saveResult: payload
-      };
-    },
-    [setLoading]: (state, { payload = false }) => {
-      return {
-        ...state,
-        isLoading: payload
+        saveResult: payload,
+        isLoading: false
       };
     }
   },

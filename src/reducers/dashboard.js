@@ -1,6 +1,11 @@
 import { handleActions } from 'redux-actions';
-import { saveDashboardConfig, setDashboardConfig, setDashboardKey, setResultSaveDashboard } from '../actions/dashboard';
-import { setLoading } from '../actions/loader';
+import {
+  getDashboardConfig,
+  saveDashboardConfig,
+  setDashboardConfig,
+  setDashboardKey,
+  setResultSaveDashboardConfig
+} from '../actions/dashboard';
 
 const initialState = {
   dashboardKey: null,
@@ -16,12 +21,18 @@ const initialState = {
 
 Object.freeze(initialState);
 
+const startLoading = state => ({ ...state, isLoading: true });
+
 export default handleActions(
   {
+    [getDashboardConfig]: startLoading,
+    [saveDashboardConfig]: startLoading,
+
     [setDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
-        config: payload
+        config: payload,
+        isLoading: false
       };
     },
     [setDashboardKey]: (state, { payload }) => {
@@ -30,21 +41,11 @@ export default handleActions(
         dashboardKey: payload
       };
     },
-    [saveDashboardConfig]: (state, { payload }) => {
-      return {
-        ...state
-      };
-    },
-    [setResultSaveDashboard]: (state, { payload }) => {
+    [setResultSaveDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
-        saveResult: payload
-      };
-    },
-    [setLoading]: (state, { payload = false }) => {
-      return {
-        ...state,
-        isLoading: payload
+        saveResult: payload,
+        isLoading: false
       };
     }
   },

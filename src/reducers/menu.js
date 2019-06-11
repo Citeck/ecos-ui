@@ -1,7 +1,14 @@
 import { handleActions } from 'redux-actions';
-import { setAllMenuItems, setResultSaveUserMenu, setUserMenuConfig } from '../actions/menu';
+import {
+  getAllMenuItems,
+  getUserMenuConfig,
+  initMenuSettings,
+  saveUserMenuConfig,
+  setAllMenuItems,
+  setResultSaveUserMenu,
+  setUserMenuConfig
+} from '../actions/menu';
 import { MENU_TYPE } from '../constants';
-import { setLoading } from '../actions/loader';
 
 const initialState = {
   user: {
@@ -17,15 +24,23 @@ const initialState = {
 
 Object.freeze(initialState);
 
+const startLoading = state => ({ ...state, isLoading: true });
+
 export default handleActions(
   {
+    [initMenuSettings]: startLoading,
+    [getAllMenuItems]: startLoading,
+    [getUserMenuConfig]: startLoading,
+    [saveUserMenuConfig]: startLoading,
+
     [setUserMenuConfig]: (state, action) => {
       return {
         ...state,
         user: {
           ...state.user,
           ...action.payload
-        }
+        },
+        isLoading: false
       };
     },
     [setResultSaveUserMenu]: (state, { payload }) => {
@@ -35,19 +50,15 @@ export default handleActions(
         ...state,
         saveResult: {
           status
-        }
+        },
+        isLoading: false
       };
     },
     [setAllMenuItems]: (state, { payload }) => {
       return {
         ...state,
-        menuItems: payload
-      };
-    },
-    [setLoading]: (state, { payload = false }) => {
-      return {
-        ...state,
-        isLoading: payload
+        menuItems: payload,
+        isLoading: false
       };
     }
   },
