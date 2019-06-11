@@ -1,23 +1,29 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import { getDashboardConfig, saveDashboardConfig, setDashboardConfig, setDashboardKey, setResultSaveDashboard } from '../actions/dashboard';
+import {
+  getDashboardConfig,
+  saveDashboardConfig,
+  setDashboardConfig,
+  setDashboardKey,
+  setResultSaveDashboardConfig
+} from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
-import { setLoading } from '../actions/loader';
 import { t } from '../helpers/util';
-import { dashboardForWeb } from '../dto/dashboard';
-import { QUERY_KEYS, SAVE_STATUS } from '../constants';
+import * as dto from '../dto/dashboard';
+import { SAVE_STATUS } from '../constants';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
-    yield put(setLoading(true));
-
     const { recordId } = payload;
-    const config = yield call(api.dashboard.getDashboardConfig, recordId);
-    const layout = config && Object.keys(config) ? config[QUERY_KEYS.CONFIG_JSON].layout : {};
-    const webConfig = dashboardForWeb({ layout });
+    const result = yield call(api.dashboard.getDashboardConfig, recordId);
+    const config = dto.parseGetResult(result);
 
-    yield put(setDashboardKey(config.key));
-    yield put(setDashboardConfig(webConfig));
-    yield put(setLoading(false));
+    if (config && Object.keys(config).length) {
+      const layout = config.layout || {};
+      const webConfig = dto.getDashboardForWeb({ layout });
+
+      yield put(setDashboardKey(config.key));
+      yield put(setDashboardConfig(webConfig));
+    }
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения данных по дашборду')));
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
@@ -26,15 +32,19 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 
 function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   try {
-    yield put(setLoading(true));
-    console.log(payload);
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
       config: payload.config,
       recordId: payload.recordId
     });
-    console.log(dashboardResult);
-    yield put(setResultSaveDashboard({ status: SAVE_STATUS.SUCCESS }));
-    yield put(setLoading(false));
+    const res = dto.parseSaveResult(dashboardResult);
+
+    yield put(
+      setResultSaveDashboardConfig({
+        status: res.id ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
+        recordId: res.id
+      })
+    );
+
     yield put(setDashboardConfig(payload.config));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка сохранения дашборда')));

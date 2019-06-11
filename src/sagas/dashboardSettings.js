@@ -10,19 +10,17 @@ import {
   setResultSaveDashboardConfig
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
-import { setLoading } from '../actions/loader';
 import { setResultSaveUserMenu } from '../actions/menu';
 import { t } from '../helpers/util';
-import { settingsConfigForServer, settingsConfigForWeb } from '../dto/dashboardSettings';
+import * as dtoDB from '../dto/dashboard';
+import * as dtoDBS from '../dto/dashboardSettings';
 import { getDefaultDashboardConfig } from '../constants/dashboardSettings';
 import { SAVE_STATUS } from '../constants';
 
-function* doInitDashboardSettingsRequest({ api, logger }, action) {
+function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
-    yield put(setLoading(true));
-    yield doGetWidgetsRequest({ api, logger }, action);
-    yield doGetDashboardConfigRequest({ api, logger }, action);
-    yield put(setLoading(false));
+    yield put(getAllWidgets());
+    yield put(getDashboardConfig(payload));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения данных')));
     logger.error('[dashboard/settings/ doInitDashboardSettingsRequest saga] error', e.message);
@@ -32,9 +30,16 @@ function* doInitDashboardSettingsRequest({ api, logger }, action) {
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
     const { recordId } = payload;
-    const config = recordId ? yield call(api.dashboard.getDashboardConfig, recordId) : getDefaultDashboardConfig;
+    let config = getDefaultDashboardConfig;
+
+    if (recordId) {
+      const result = yield call(api.dashboard.getDashboardConfig, recordId);
+
+      config = dtoDB.parseGetResult(result);
+    }
+
     const layout = config.layout;
-    const webConfig = settingsConfigForWeb({ layout });
+    const webConfig = dtoDBS.getSettingsConfigForWeb({ layout });
 
     yield put(setDashboardKey(config.key));
     yield put(setDashboardConfig(webConfig));
@@ -57,47 +62,32 @@ function* doGetWidgetsRequest({ api, logger }, action) {
 
 function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
-    yield put(setLoading(true));
-
-    const serverConfig = settingsConfigForServer(payload);
+    const serverConfig = dtoDBS.getSettingsConfigForServer(payload);
     const { layout, menu } = serverConfig;
 
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
       config: { layout },
       recordId: payload.recordId
     });
-    const _id = dashboardResult._id;
-    const recordId = _id ? dashboardResult._id.split('@')[1] : null;
+    const res = dtoDB.parseSaveResult(dashboardResult);
+
+    yield put(
+      setResultSaveDashboardConfig({
+        status: res && res.recordId ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
+        recordId: res ? res.recordId : null
+      })
+    );
 
     //const menuResult = yield call(api.menu.saveMenuConfig, { menu });//todo connect api
     //todo menuResult?
 
     yield put(
-      setResultSaveDashboardConfig({
-        status: _id ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
-        recordId
-      })
-    );
-    yield put(
       setResultSaveUserMenu({
         status: SAVE_STATUS.SUCCESS
       })
     );
-    yield put(setLoading(false));
   } catch (e) {
-    yield put(
-      setResultSaveDashboardConfig({
-        status: SAVE_STATUS.FAILURE,
-        recordId: null
-      })
-    );
-    yield put(
-      setResultSaveUserMenu({
-        status: SAVE_STATUS.SUCCESS
-      })
-    );
-    yield put(setNotificationMessage(t('Ошибка. Данные не сохранены')));
-    yield put(setLoading(false));
+    yield put(setNotificationMessage(t('Ошибка сохранения настроек')));
     logger.error('[dashboard/settings/ doSaveSettingsRequest saga] error', e.message);
   }
 }
