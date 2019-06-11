@@ -1,5 +1,6 @@
 import RecordsQuerySource from './editForm/AsyncData.source.recordsQuery';
 import RecordSource from './editForm/AsyncData.source.record';
+import RecordsArraySource from './editForm/AsyncData.source.recordsArray';
 import AjaxSource from './editForm/AsyncData.source.ajax';
 import CustomSource from './editForm/AsyncData.source.custom';
 import AdvancedTab from './editForm/AsyncData.tab.advanced';
@@ -38,6 +39,7 @@ export default function(...extend) {
                 data: {
                   values: [
                     { label: 'Record', value: 'record' },
+                    { label: 'Records Array', value: 'recordsArray' },
                     { label: 'Records Query', value: 'recordsQuery' },
                     { label: 'Ajax', value: 'ajax' },
                     { label: 'Custom', value: 'custom' }
@@ -63,6 +65,17 @@ export default function(...extend) {
                 conditional: {
                   json: {
                     and: [{ '==': [{ var: 'data.source.type' }, 'record'] }]
+                  }
+                }
+              },
+              {
+                type: 'panel',
+                collapsible: false,
+                key: 'source.recordsArray.config-panel',
+                components: RecordsArraySource,
+                conditional: {
+                  json: {
+                    and: [{ '==': [{ var: 'data.source.type' }, 'recordsArray'] }]
                   }
                 }
               },
