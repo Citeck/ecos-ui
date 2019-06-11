@@ -53,9 +53,24 @@ export const getJournalPage = ({ journalsListId, journalId, journalSettingId, no
     [JOURNAL_SETTING_ID_KEY]: journalSettingId
   });
 
-  return OLD_LINKS
-    ? `${URL_PAGECONTEXT}journals2/list/tasks#journal=${nodeRef}&filter=${filter}&settings=&skipCount=0&maxItems=10`
-    : `${URL_PAGECONTEXT}ui/journals?${qString}`;
+  let url;
+
+  if (OLD_LINKS) {
+    let partOfUrl;
+
+    if (journalsListId.indexOf('global-') !== -1) {
+      partOfUrl = journalsListId.replace('global-', 'journals2/list/');
+    } else {
+      partOfUrl = journalsListId.replace('site-', 'site/');
+      partOfUrl = partOfUrl.replace('-main', '/journals2/list/main');
+    }
+
+    url = `${URL_PAGECONTEXT}${partOfUrl}#journal=${nodeRef}&filter=${filter}&settings=&skipCount=0&maxItems=10`;
+  } else {
+    url = `${URL_PAGECONTEXT}ui/journals?${qString}`;
+  }
+
+  return url;
 };
 
 export const goToJournalsPage = options => {
