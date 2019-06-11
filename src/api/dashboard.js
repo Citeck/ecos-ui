@@ -28,4 +28,77 @@ export class DashboardApi extends RecordService {
 
     return record.save().then(resp => resp);
   };
+
+  getDashboardByRecord = function*(recordRef = '') {
+    if (!recordRef) {
+      return null;
+    }
+
+    const dashboardIds = Array.from(yield Records.get(recordRef).load('_dashboardKey[]'));
+    let dashboard;
+
+    dashboardIds.push('DEFAULT');
+
+    for (let key of dashboardIds) {
+      dashboard = yield Records.queryOne(
+        {
+          query: { key },
+          sourceId: 'uiserv/dashboard'
+        },
+        { config: 'config?json' }
+      );
+
+      if (dashboard !== null) {
+        break;
+      }
+    }
+
+    return dashboard;
+  };
+
+  setDefaultConfig(config = null) {
+    const defaultConfig = config || {
+      layout: {
+        type: '2-columns-big-small',
+        columns: [
+          {
+            width: '60%',
+            widgets: [
+              {
+                id: 'a857c687-9a83-4af4-83ed-58c3c9751e04',
+                label: 'Предпросмотр',
+                type: 'doc-preview',
+                props: {
+                  id: 'a857c687-9a83-4af4-83ed-58c3c9751e04',
+                  config: {
+                    height: '500px',
+                    link: '/share/proxy/alfresco/demo.pdf',
+                    scale: 1
+                  }
+                },
+                style: {
+                  height: '300px'
+                }
+              }
+            ]
+          },
+          {
+            width: '40%',
+            widgets: [
+              {
+                id: '5a155e53-1932-4177-916d-dd12d2f53a3b',
+                label: 'Журнал',
+                type: 'journal'
+              }
+            ]
+          }
+        ]
+      }
+    };
+    let record = Records.get('uiserv/dashboard@');
+
+    record.att('config?json', defaultConfig);
+    record.att('key', 'DEFAULT');
+    record.save();
+  }
 }
