@@ -16,6 +16,28 @@
       "type": "content"
     },
     {
+      "label": "Async Data",
+      "source": {
+        "type": "recordsArray",
+        "recordsArray": {
+          "id": "{{ data.idocsContractor }}",
+          "attributes": {
+            "idocs:fullOrganizationName": "idocs:fullOrganizationName",
+            "idocs:inn": "idocs:inn"
+          }
+        }
+      },
+      "update": {
+        "type": "any-change",
+        "event": "",
+        "rate": 100
+      },
+      "key": "asyncData2",
+      "type": "asyncData",
+      "input": true,
+      "inputType": "asyncData"
+    },
+    {
       "label": "Tabs",
       "components": [
         { "label": "Очень широкая вкладка", "key": "tab0", "components": [] },
@@ -94,9 +116,9 @@
               "type": "selectJournal",
               "label": "Контрагент",
               "key": "idocsContractor",
-              "multiple": false,
+              "multiple": true,
               "journalId": "idocs-contractor",
-              "defaultValue": "workspace://SpacesStore/eea14b3b-6243-4b61-b15e-e8d5c34a9586"
+              "defaultValue": ["workspace://SpacesStore/eea14b3b-6243-4b61-b15e-e8d5c34a9586"]
             }
           ]
         },

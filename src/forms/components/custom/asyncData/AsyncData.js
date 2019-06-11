@@ -25,6 +25,10 @@ export default class AsyncDataComponent extends BaseComponent {
             id: '',
             attributes: {}
           },
+          recordsArray: {
+            id: '',
+            attributes: {}
+          },
           recordsQuery: {
             query: '',
             attributes: {},
@@ -102,6 +106,27 @@ export default class AsyncDataComponent extends BaseComponent {
           recordId,
           id => {
             return Records.get(id).load(comp.source.record.attributes);
+          },
+          {},
+          forceUpdate
+        );
+
+        break;
+      case 'recordsArray':
+        let recordIds = _.get(comp, 'source.recordsArray.id', '');
+        if (recordIds) {
+          recordIds = this.interpolate(recordIds, { item: this.rootValue });
+        }
+
+        this._evalAsyncValue(
+          'evaluatedRecordIds',
+          recordIds,
+          ids => {
+            if (!ids) {
+              return [];
+            }
+
+            return Promise.all(ids.split(',').map(id => Records.get(id).load(comp.source.recordsArray.attributes)));
           },
           {},
           forceUpdate
