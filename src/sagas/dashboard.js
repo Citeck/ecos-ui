@@ -8,19 +8,22 @@ import {
 } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
-import { dashboardForWeb } from '../dto/dashboard';
-import { QUERY_KEYS, SAVE_STATUS } from '../constants';
-import { parseDashboardSaveResult } from '../helpers/dashboard';
+import * as dto from '../dto/dashboard';
+import { SAVE_STATUS } from '../constants';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
     const { recordId } = payload;
-    const config = yield call(api.dashboard.getDashboardConfig, recordId);
-    const layout = config && Object.keys(config) ? config[QUERY_KEYS.CONFIG_JSON].layout : {};
-    const webConfig = dashboardForWeb({ layout });
+    const result = yield call(api.dashboard.getDashboardConfig, recordId);
+    const config = dto.parseGetResult(result);
 
-    yield put(setDashboardKey(config.key));
-    yield put(setDashboardConfig(webConfig));
+    if (config && Object.keys(config).length) {
+      const layout = config.layout || {};
+      const webConfig = dto.getDashboardForWeb({ layout });
+
+      yield put(setDashboardKey(config.key));
+      yield put(setDashboardConfig(webConfig));
+    }
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения данных по дашборду')));
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
@@ -33,7 +36,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
       config: payload.config,
       recordId: payload.recordId
     });
-    const res = parseDashboardSaveResult(dashboardResult);
+    const res = dto.parseSaveResult(dashboardResult);
 
     yield put(
       setResultSaveDashboardConfig({

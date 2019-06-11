@@ -59,10 +59,6 @@ export const MENUS = [
 ];
 
 export const getDefaultDashboardConfig = {
-  menu: {
-    type: MENU_TYPE.TOP,
-    links: []
-  },
   layout: {
     type: LAYOUT_TYPE.TWO_COLUMNS_BS,
     columns: [
@@ -74,5 +70,12 @@ export const getDefaultDashboardConfig = {
         widgets: []
       }
     ]
+  }
+};
+
+export const getDefaultMenuConfig = {
+  menu: {
+    type: MENU_TYPE.TOP,
+    links: []
   }
 };

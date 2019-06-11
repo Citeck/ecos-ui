@@ -1,4 +1,4 @@
-export function settingsConfigForWeb(source = {}) {
+export function getSettingsConfigForWeb(source = {}) {
   const { layout = {} } = source;
   const target = {};
 
@@ -8,22 +8,22 @@ export function settingsConfigForWeb(source = {}) {
   return target;
 }
 
-export function settingsConfigForServer(source) {
+export function getSettingsConfigForServer(source) {
   const target = {
     layout: {},
     menu: {}
   };
 
   target.menu.type = source.menuType;
-  target.menu.links = menuItemsForServer(source.menu);
+  target.menu.links = getMenuItemsForServer(source.menu);
 
   target.layout.type = source.layoutType;
-  target.layout.columns = widgetsForServer(source.columns, source.widgets);
+  target.layout.columns = getWidgetsForServer(source.columns, source.widgets);
 
   return target;
 }
 
-function menuItemsForServer(items = []) {
+function getMenuItemsForServer(items = []) {
   return items.map((item, index) => {
     return {
       label: item.label,
@@ -33,7 +33,7 @@ function menuItemsForServer(items = []) {
   });
 }
 
-function widgetsForServer(columns = [], widgets = []) {
+function getWidgetsForServer(columns = [], widgets = []) {
   return columns.map((column, index) => {
     const data = {
       widgets: widgets[index] || []

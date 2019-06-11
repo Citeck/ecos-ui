@@ -12,8 +12,8 @@ import {
 import { setNotificationMessage } from '../actions/notification';
 import { setResultSaveUserMenu } from '../actions/menu';
 import { t } from '../helpers/util';
-import { parseDashboardSaveResult } from '../helpers/dashboard';
-import { settingsConfigForServer, settingsConfigForWeb } from '../dto/dashboardSettings';
+import * as dtoDB from '../dto/dashboard';
+import * as dtoDBS from '../dto/dashboardSettings';
 import { getDefaultDashboardConfig } from '../constants/dashboardSettings';
 import { SAVE_STATUS } from '../constants';
 
@@ -30,9 +30,16 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
     const { recordId } = payload;
-    const config = recordId ? yield call(api.dashboard.getDashboardConfig, recordId) : getDefaultDashboardConfig;
+    let config = getDefaultDashboardConfig;
+
+    if (recordId) {
+      const result = yield call(api.dashboard.getDashboardConfig, recordId);
+
+      config = dtoDB.parseGetResult(result);
+    }
+
     const layout = config.layout;
-    const webConfig = settingsConfigForWeb({ layout });
+    const webConfig = dtoDBS.getSettingsConfigForWeb({ layout });
 
     yield put(setDashboardKey(config.key));
     yield put(setDashboardConfig(webConfig));
@@ -55,19 +62,19 @@ function* doGetWidgetsRequest({ api, logger }, action) {
 
 function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
-    const serverConfig = settingsConfigForServer(payload);
+    const serverConfig = dtoDBS.getSettingsConfigForServer(payload);
     const { layout, menu } = serverConfig;
 
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
       config: { layout },
       recordId: payload.recordId
     });
-    const res = parseDashboardSaveResult(dashboardResult);
+    const res = dtoDB.parseSaveResult(dashboardResult);
 
     yield put(
       setResultSaveDashboardConfig({
-        status: res.id ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
-        recordId: res.id
+        status: res && res.recordId ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
+        recordId: res ? res.recordId : null
       })
     );
 
