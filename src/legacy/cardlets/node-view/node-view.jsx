@@ -2,10 +2,13 @@ import React from 'react';
 import NodeCardlet from '../node-cardlet';
 import RemoteCardlet from '../remote/remote';
 import EcosForm from '../../../components/EcosForm/export';
-// import Records from '../../../components/Records';
 import { t } from '../../../helpers/util';
 
 export default class NodeViewFormCardlet extends NodeCardlet {
+  state = {
+    isReady: true
+  };
+
   static fetchData(ownProps, onSuccess, onFailure) {
     const checkUrl = `${window.Alfresco.constants.PROXY_URI}citeck/invariants/view-check?nodeRef=${ownProps.nodeRef}&viewId=&mode=view`;
 
@@ -22,6 +25,7 @@ export default class NodeViewFormCardlet extends NodeCardlet {
             htmlId: `card-details-cardlet_${ownProps.id}`,
             eformExists: true,
             nodeRef: ownProps.nodeRef,
+            column: ownProps.column,
             hideTwister: ownProps.controlProps.hideTwister,
             header: t(ownProps.controlProps.header || 'cardlets.node-view.twister-header')
           });
@@ -45,7 +49,9 @@ export default class NodeViewFormCardlet extends NodeCardlet {
     }
   }
 
-  openEditForm = () => {
+  openEditForm = e => {
+    e.preventDefault();
+
     const { nodeRef } = this.props.data;
     window.Citeck.forms.eform(nodeRef, {
       class: 'ecos-modal_width-lg',
@@ -53,40 +59,54 @@ export default class NodeViewFormCardlet extends NodeCardlet {
       isBigHeader: true,
       params: {
         onSubmit: r => {
-          console.log('onSubmit', r);
-          // Records.forgetRecord(r.id);
-          this.forceUpdate();
+          // hack: EcosForm component force update
+          this.setState(
+            {
+              isReady: false
+            },
+            () => {
+              this.setState({ isReady: true });
+            }
+          );
         }
       }
     });
   };
 
   render() {
-    const { eformExists, nodeRef, htmlId, header } = this.props.data;
+    const { eformExists, nodeRef, htmlId, header, column } = this.props.data;
+    const { isReady } = this.state;
+
     if (eformExists) {
       return (
         <div id={`${htmlId}-panel`} className="document-children document-details-panel">
           <h2 id={`${htmlId}-heading`} className="thin dark">
             {header}
-            <span id={`${htmlId}-heading-actions`} className="alfresco-twister-actions" style={{ position: 'relative', float: 'right' }}>
-              <p onClick={this.openEditForm}>edit</p>
+            <span className="alfresco-twister-actions">
+              <a
+                href={`/share/page/node-edit?nodeRef=${nodeRef}`}
+                className={'icon icon-edit'}
+                onClick={this.openEditForm}
+                style={{ fontSize: '16px' }}
+              />
             </span>
           </h2>
 
           <div className="panel-body">
-            <EcosForm
-              record={nodeRef}
-              options={{
-                readOnly: true,
-                viewAsHtml: true,
-
-                viewAsHtmlConfig: {
-                  fullWidthColumns: true,
-                  hidePanels: true,
-                  alwaysWrap: true
-                }
-              }}
-            />
+            {isReady ? (
+              <EcosForm
+                record={nodeRef}
+                options={{
+                  readOnly: true,
+                  viewAsHtml: true,
+                  viewAsHtmlConfig: {
+                    fullWidthColumns: true,
+                    hidePanels: true,
+                    alwaysWrap: column === 'right'
+                  }
+                }}
+              />
+            ) : null}
           </div>
         </div>
       );

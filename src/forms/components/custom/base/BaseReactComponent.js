@@ -11,10 +11,6 @@ export default class BaseReactComponent extends BaseComponent {
 
     this.react = {};
 
-    if (this.viewOnly) {
-      return this.viewOnlyBuild();
-    }
-
     this.react.wrapper = new Promise(resolveComponent => {
       this.react.resolve = resolveComponent;
     }).then(component => {
@@ -28,6 +24,10 @@ export default class BaseReactComponent extends BaseComponent {
       this.react.innerResolve = null;
       return comp;
     });
+
+    if (this.viewOnly) {
+      return this.viewOnlyBuild();
+    }
 
     this.restoreValue();
 
@@ -87,8 +87,6 @@ export default class BaseReactComponent extends BaseComponent {
       this.react.wrapper.setProps(props);
     }
   }
-
-  viewOnlyBuild() {}
 
   getComponentToRender() {
     throw new Error('Component to render is not specified!');
