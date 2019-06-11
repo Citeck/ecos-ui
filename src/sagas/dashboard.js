@@ -27,16 +27,15 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   try {
     yield put(setLoading(true));
-
+    console.log(payload);
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
       config: payload.config,
       recordId: payload.recordId
     });
-
+    console.log(dashboardResult);
     yield put(setResultSaveDashboard({ status: SAVE_STATUS.SUCCESS }));
     yield put(setLoading(false));
-    //todo temp dashboardResult ?
-    yield put(setDashboardConfig(payload));
+    yield put(setDashboardConfig(payload.config));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка сохранения дашборда')));
     logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e.message);

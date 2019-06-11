@@ -19,7 +19,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   getDashboardConfig: ({ recordId }) => dispatch(getDashboardConfig({ recordId })),
-  saveDashboardConfig: config => dispatch(saveDashboardConfig(config))
+  saveDashboardConfig: payload => dispatch(saveDashboardConfig(payload))
 });
 
 class Dashboard extends Component {
@@ -42,12 +42,13 @@ class Dashboard extends Component {
 
   prepareWidgetsConfig = (data, dnd) => {
     const {
-      config,
+      config: currentConfig,
       config: { columns }
     } = this.props;
     const { isWidget, columnFrom, columnTo } = data;
     const { source, destination } = dnd;
-    let newConfig = { ...config };
+    const { recordId } = this.pathInfo;
+    const config = { ...currentConfig };
 
     if (isWidget) {
       let widgetsFrom = columns[columnFrom].widgets || [];
@@ -62,15 +63,15 @@ class Dashboard extends Component {
         widgetsFrom = DndUtils.reorder(widgetsFrom, source, destination);
       }
 
-      newConfig.columns[columnFrom].widgets = widgetsFrom;
-      newConfig.columns[columnTo].widgets = widgetsTo;
+      config.columns[columnFrom].widgets = widgetsFrom;
+      config.columns[columnTo].widgets = widgetsTo;
     }
 
-    this.saveDashboardConfig(newConfig);
+    this.saveDashboardConfig({ config, recordId });
   };
 
-  saveDashboardConfig = config => {
-    this.props.saveSettings(config);
+  saveDashboardConfig = payload => {
+    this.props.saveDashboardConfig(payload);
   };
 
   renderLayout() {
