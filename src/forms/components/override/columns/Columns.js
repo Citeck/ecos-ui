@@ -24,4 +24,14 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
       ...extend
     );
   }
+
+  get className() {
+    const classList = ['row'];
+
+    if (this.options.viewAsHtmlConfig && this.options.viewAsHtmlConfig.fullWidthColumns) {
+      classList.push('row-view-mode');
+    }
+
+    return `${classList.join(' ')} ${super.className}`;
+  }
 }

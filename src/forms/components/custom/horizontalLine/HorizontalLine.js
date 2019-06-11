@@ -30,6 +30,10 @@ export default class HorizontalLine extends BaseComponent {
   }
 
   build() {
+    if (this.viewOnly) {
+      return this.viewOnlyBuild();
+    }
+
     this.createElement();
 
     const classNames = ['formio-component-horizontalLine__line'];
