@@ -57,25 +57,3 @@ export const MENUS = [
     description: t('Меню в виде кнопок перед виджетами')
   }
 ];
-
-export const getDefaultDashboardConfig = {
-  layout: {
-    type: LAYOUT_TYPE.TWO_COLUMNS_BS,
-    columns: [
-      {
-        width: '30%',
-        widgets: []
-      },
-      {
-        widgets: []
-      }
-    ]
-  }
-};
-
-export const getDefaultMenuConfig = {
-  menu: {
-    type: MENU_TYPE.TOP,
-    links: []
-  }
-};

@@ -31,7 +31,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   initMenuSettings: () => dispatch(initMenuSettings()),
-  initSettings: ({ recordId }) => dispatch(initDashboardSettings({ recordId })),
+  initDashboardSettings: ({ recordId }) => dispatch(initDashboardSettings({ recordId })),
   saveSettings: payload => dispatch(saveDashboardConfig(payload))
 });
 
@@ -88,10 +88,10 @@ class DashboardSettings extends React.Component {
   }
 
   componentDidMount() {
-    const { initSettings, initMenuSettings } = this.props;
+    const { initDashboardSettings, initMenuSettings } = this.props;
     const { recordId } = this.pathInfo;
 
-    initSettings({ recordId });
+    initDashboardSettings({ recordId });
     initMenuSettings();
   }
 

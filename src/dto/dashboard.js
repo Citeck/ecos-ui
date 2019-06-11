@@ -1,4 +1,5 @@
 import { QUERY_KEYS } from '../constants';
+import { LAYOUT_TYPE } from '../constants/dashboardSettings';
 
 export function getDashboardForWeb(source) {
   const { layout } = source;
@@ -30,3 +31,18 @@ export function parseSaveResult(result) {
     recordId
   };
 }
+
+export const getDefaultDashboardConfig = {
+  layout: {
+    type: LAYOUT_TYPE.TWO_COLUMNS_BS,
+    columns: [
+      {
+        width: '30%',
+        widgets: []
+      },
+      {
+        widgets: []
+      }
+    ]
+  }
+};

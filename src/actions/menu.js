@@ -1,6 +1,6 @@
 import { createAction } from 'redux-actions';
 
-const prefix = 'app/menu/';
+const prefix = 'menuConfig/';
 
 export const initMenuSettings = createAction(prefix + 'INIT_MENU_SETTINGS');
 export const setUserMenuConfig = createAction(prefix + 'SET_USER_MENU_CONFIG');

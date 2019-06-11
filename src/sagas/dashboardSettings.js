@@ -14,7 +14,6 @@ import { setResultSaveUserMenu } from '../actions/menu';
 import { t } from '../helpers/util';
 import * as dtoDB from '../dto/dashboard';
 import * as dtoDBS from '../dto/dashboardSettings';
-import { getDefaultDashboardConfig } from '../constants/dashboardSettings';
 import { SAVE_STATUS } from '../constants';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
@@ -30,7 +29,7 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
     const { recordId } = payload;
-    let config = getDefaultDashboardConfig;
+    let config = dtoDB.getDefaultDashboardConfig;
 
     if (recordId) {
       const result = yield call(api.dashboard.getDashboardConfig, recordId);
@@ -69,17 +68,16 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       config: { layout },
       recordId: payload.recordId
     });
-    const res = dtoDB.parseSaveResult(dashboardResult);
+    const menuResult = yield call(api.menu.saveUserMenuConfig, { config: menu });
+
+    const parseDashboard = dtoDB.parseSaveResult(dashboardResult);
 
     yield put(
       setResultSaveDashboardConfig({
-        status: res && res.recordId ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
-        recordId: res ? res.recordId : null
+        status: parseDashboard && parseDashboard.recordId ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
+        recordId: parseDashboard ? parseDashboard.recordId : null
       })
     );
-
-    //const menuResult = yield call(api.menu.saveMenuConfig, { menu });//todo connect api
-    //todo menuResult?
 
     yield put(
       setResultSaveUserMenu({

@@ -18,5 +18,9 @@ export const SAVE_STATUS = {
 
 export const QUERY_KEYS = {
   CONFIG_JSON: 'config?json',
-  KEY: 'key'
+  VALUE_JSON: 'value?json',
+  KEY: 'key',
+  VALUE: 'value',
+  TITLE: 'title',
+  DESCRIPTION: 'description'
 };

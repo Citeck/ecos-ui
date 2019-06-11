@@ -33,7 +33,7 @@ import { initMenuSettings, saveUserMenuConfig } from '../../actions/menu';
 
 class App extends Component {
   componentDidMount() {
-    const { getShowTabsStatus, getTabs } = this.props;
+    const { getShowTabsStatus, getTabs, initMenuSettings } = this.props;
 
     getShowTabsStatus();
     getTabs();

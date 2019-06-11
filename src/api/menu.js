@@ -1,6 +1,10 @@
 import { CommonApi } from './common';
 import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { PROXY_URI } from '../constants/alfresco';
+import Records from '../components/Records';
+import { QUERY_KEYS } from '../constants';
+
+const PREFIX = 'uiserv/config@';
 
 export class MenuApi extends CommonApi {
   getCreateVariantsForAllSites = () => {
@@ -55,22 +59,18 @@ export class MenuApi extends CommonApi {
   };
 
   getUserMenuConfig = () => {
-    return this.query({
-      record: `uiserv/menu`,
-      attributes: {
-        config: 'config?json'
-      }
-    }).then(resp => resp);
+    return Records.get(`${PREFIX}menu-config`)
+      .load([QUERY_KEYS.VALUE_JSON])
+      .then(resp => resp);
   };
 
-  saveUserMenuConfig = config => {
-    return this.mutate({
-      records: {
-        id: `uiserv/menu`,
-        attributes: {
-          config: config
-        }
-      }
-    }).then(resp => resp);
+  saveUserMenuConfig = ({ config = {}, title = '', description = '' }) => {
+    const record = Records.get(`${PREFIX}menu-config`);
+
+    record.att(QUERY_KEYS.VALUE, config);
+    record.att(QUERY_KEYS.TITLE, title);
+    record.att(QUERY_KEYS.DESCRIPTION, description);
+
+    return record.save().then(resp => resp);
   };
 }

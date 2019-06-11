@@ -11,8 +11,7 @@ import {
 } from '../actions/menu';
 import { t } from '../helpers/util';
 import { SAVE_STATUS } from '../constants';
-
-import * as mock from '../api/mock/dashboardSettings';
+import * as dto from '../dto/menu';
 
 function* doInitMenuSettings({ api, logger }, action) {
   try {
@@ -38,9 +37,8 @@ function* doGetMenuItemsRequest({ api, logger }, action) {
 
 function* doGetUserMenuConfigRequest({ api, logger }, { payload }) {
   try {
-    //const menu = yield call(api.menu.getUserMenuConfig);
-    // todo test data
-    const menu = yield call(mock.getMenuConfig);
+    const result = yield call(api.menu.getUserMenuConfig);
+    const menu = dto.parseGetResult(result);
 
     yield put(setUserMenuConfig(menu));
   } catch (e) {
@@ -51,8 +49,8 @@ function* doGetUserMenuConfigRequest({ api, logger }, { payload }) {
 
 function* doSaveUserMenuConfigRequest({ api, logger }, { payload }) {
   try {
-    //const menuResult = yield call(api.menu.saveUserMenuConfig, payload);
-    // todo temp
+    const result = yield call(api.menu.saveUserMenuConfig, { config: payload });
+
     yield put(setUserMenuConfig(payload));
     yield put(setResultSaveUserMenu({ status: SAVE_STATUS.SUCCESS }));
   } catch (e) {
