@@ -24,6 +24,7 @@ import Comments from './../Comments';
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { URL } from '../../constants';
 import './App.scss';
+import moment from 'moment';
 
 class App extends Component {
   componentDidMount() {
@@ -74,7 +75,63 @@ class App extends Component {
               <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
               <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
 
-              <Route path="/comments" component={() => <Comments comments={[1, 2, 3, 4, 5]} />} />
+              <Route
+                path="/comments"
+                component={() => (
+                  <div>
+                    <Comments
+                      comments={[
+                        {
+                          avatar: '',
+                          userName: 'Константин Константинопольский',
+                          comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+                          date: moment()
+                            .subtract({ days: 12, hours: -1 })
+                            .toDate()
+                        },
+                        {
+                          avatar: '',
+                          userName: '',
+                          comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+                          date: moment()
+                            .subtract({ days: 1, hours: -1 })
+                            .toDate()
+                        },
+                        {
+                          avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
+                          userName: 'Константин Константинопольский',
+                          comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+                          date: moment()
+                            .subtract({ hours: 5 })
+                            .toDate()
+                        },
+                        {
+                          avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
+                          userName: 'Константин Константинопольский',
+                          comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+                          date: moment()
+                            .subtract({ minutes: 40 })
+                            .toDate()
+                        },
+                        {
+                          avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
+                          userName: 'Константин Константинопольский',
+                          comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+                          date: moment()
+                            .subtract({ seconds: 35 })
+                            .toDate()
+                        },
+                        {
+                          avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
+                          userName: 'Константин Константинопольский',
+                          comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+                          date: moment().toDate()
+                        }
+                      ]}
+                    />
+                  </div>
+                )}
+              />
               {/*<Route component={NotFoundPage} />*/}
             </Switch>
           </PageTabs>
