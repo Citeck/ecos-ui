@@ -1,0 +1,26 @@
+@import '../../constants';
+
+.ecos-comments {
+  padding: 22px 20px;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__count {
+    display: inline-flex;
+    padding: 0 15px;
+    height: 26px;
+    align-self: center;
+
+    border: 2px solid $color-gray-1;
+    box-sizing: border-box;
+    border-radius: 100px;
+
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 22px;
+    text-align: center;
+  }
+}

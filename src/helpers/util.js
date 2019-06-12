@@ -315,3 +315,33 @@ export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, rat
 export function getCurrentUserName() {
   return lodashGet(window, 'Alfresco.constants.USERNAME', '');
 }
+
+/**
+ * Функция склонения слов в зависимости от числительного
+ *
+ * @param n - числительное
+ * @param textForms - массив из слов в 3х формах в соответствующем порядке:
+ * именительный падеж, единственное число
+ * родительный падеж, единственное число
+ * родительный падеж, множественное число
+ *
+ * @returns string
+ */
+export function num2str(n = 0, textForms = []) {
+  const number = Math.abs(n) % 100;
+  const n1 = number % 10;
+
+  if (number > 10 && number < 20) {
+    return textForms[2];
+  }
+
+  if (n1 > 1 && n1 < 5) {
+    return textForms[1];
+  }
+
+  if (n1 === 1) {
+    return textForms[0];
+  }
+
+  return textForms[2];
+}

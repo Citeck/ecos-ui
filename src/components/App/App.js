@@ -19,6 +19,7 @@ import ReduxModal from '../ReduxModal';
 import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
+import Comments from './../Comments';
 
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { URL } from '../../constants';
@@ -72,6 +73,8 @@ class App extends Component {
               <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
               <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
               <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
+
+              <Route path="/comments" component={() => <Comments comments={[1, 2, 3, 4, 5]} />} />
               {/*<Route component={NotFoundPage} />*/}
             </Switch>
           </PageTabs>
