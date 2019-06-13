@@ -3,9 +3,12 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import moment from 'moment';
 import ReactResizeDetector from 'react-resize-detector';
+import { Editor, EditorState } from 'draft-js';
 import Dashlet from '../Dashlet/Dashlet';
 import Btn from '../common/btns/Btn/Btn';
 import { t, num2str } from '../../helpers/util';
+
+import 'draft-js/dist/Draft.css';
 import './style.scss';
 
 class Comments extends React.Component {
@@ -23,8 +26,10 @@ class Comments extends React.Component {
   };
 
   state = {
-    isEdit: false,
-    width: 291
+    isEdit: true,
+    width: 291,
+    editorHeight: 21,
+    comment: EditorState.createEmpty()
   };
 
   get countComments() {
@@ -80,6 +85,30 @@ class Comments extends React.Component {
     this.setState({ width });
   };
 
+  handleShowEditor = () => {
+    this.setState({ isEdit: true });
+  };
+
+  handleChangeComment = comment => {
+    this.setState({ comment }, this.updateEditorHeight);
+  };
+
+  updateEditorHeight = () => {
+    if (this.editor) {
+      this.setState({ editorHeight: this.editor.editor.clientHeight || 0 });
+    }
+  };
+
+  setEditor = editor => {
+    this.editor = editor;
+  };
+
+  focusEditor = () => {
+    if (this.editor) {
+      this.editor.focus();
+    }
+  };
+
   renderHeader() {
     const { isEdit } = this.state;
 
@@ -92,18 +121,61 @@ class Comments extends React.Component {
         <div className="ecos-comments__count">
           <span className="ecos-comments__count-text">{this.countComments}</span>
         </div>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__add-btn">{t('Добавить комментарий')}</Btn>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__add-btn" onClick={this.handleShowEditor}>
+          {t('Добавить комментарий')}
+        </Btn>
       </React.Fragment>
     );
   }
 
   renderEditor() {
-    return 'Editor';
+    const { comment, editorHeight } = this.state;
+    let minHeight = '1em';
+
+    if (isNaN(editorHeight)) {
+      minHeight = editorHeight;
+    } else {
+      minHeight = `${editorHeight}px`;
+    }
+
+    if (editorHeight > 88) {
+      minHeight = '88px';
+    }
+
+    console.warn(comment.getCurrentContent().getPlainText().length);
+
+    return (
+      <div className="ecos-comments__editor">
+        <div className="ecos-comments__editor-header">
+          <div>B</div>
+          <div>I</div>
+          <div>U</div>
+          <div>List</div>
+        </div>
+        <div className="ecos-comments__editor-body" onClick={this.focusEditor}>
+          <Scrollbars
+            autoHide
+            style={{
+              height: '100%',
+              minHeight
+            }}
+          >
+            <Editor
+              spellCheck
+              ref={this.setEditor}
+              editorState={comment}
+              onChange={this.handleChangeComment}
+              placeholder="Напишите комментарий не более 350 символов..."
+            />
+          </Scrollbars>
+        </div>
+      </div>
+    );
   }
 
   renderAvatar(avatarLink = '', userName = '') {
     if (avatarLink) {
-      return <img src={avatarLink} className="ecos-comments__comment-avatar" />;
+      return <img alt="avatar" src={avatarLink} className="ecos-comments__comment-avatar" />;
     }
 
     if (userName) {
@@ -148,7 +220,14 @@ class Comments extends React.Component {
     }
 
     return (
-      <Scrollbars autoHide style={{ height: '100%', minHeight: '160px' }}>
+      <Scrollbars
+        autoHide
+        style={{
+          height: '100%',
+          minHeight: '360px'
+          // minHeight: '160px'
+        }}
+      >
         <div className="ecos-comments__list">{comments.map(this.renderComment)}</div>
       </Scrollbars>
     );

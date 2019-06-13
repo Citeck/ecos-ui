@@ -10,6 +10,7 @@
     "compression": "^1.7.3",
     "connected-react-router": "^5.0.1",
     "date-fns": "^2.0.0-alpha.27",
+    "draft-js": "^0.10.5",
     "express": "^4.16.4",
     "font-awesome": "^4.7.0",
     "formiojs": "3.19.9",
