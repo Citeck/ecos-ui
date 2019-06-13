@@ -15,7 +15,7 @@ import JournalsContent from './JournalsContent';
 
 import EcosModal from '../common/EcosModal/EcosModal';
 import { getJournalsData, reloadGrid } from '../../actions/journals';
-import { getPreview, goToCreateRecordPage } from './urlManager';
+import { getPreview, getJournalsListId, getJournalId, getJournalSettingId, goToCreateRecordPage, getFilters } from './urlManager';
 import { Well } from '../common/form';
 import { t } from '../../helpers/util';
 
@@ -26,8 +26,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  getJournalsData: ({ journalsListId, journalId, journalSettingId }) =>
-    dispatch(getJournalsData({ journalsListId, journalId, journalSettingId })),
+  getJournalsData: options => dispatch(getJournalsData(options)),
   reloadGrid: options => dispatch(reloadGrid(options))
 });
 
@@ -43,16 +42,22 @@ class Journals extends Component {
   }
 
   componentDidMount() {
-    const props = this.props;
-    const { journalsListId = '', journalId = '', journalSettingId = '' } = props;
-    props.getJournalsData({ journalsListId, journalId, journalSettingId });
+    this.getJournalsData();
   }
 
   refresh = () => {
-    const props = this.props;
-    const { journalsListId = '', journalId = '', journalSettingId = '' } = props;
-    props.getJournalsData({ journalsListId, journalId, journalSettingId });
+    this.getJournalsData();
   };
+
+  getJournalsData() {
+    const location = this.props.history.location;
+    this.props.getJournalsData({
+      journalsListId: getJournalsListId(location),
+      journalId: getJournalId(location),
+      journalSettingId: getJournalSettingId(location),
+      predicate: getFilters(location)
+    });
+  }
 
   addRecord = () => {
     let {

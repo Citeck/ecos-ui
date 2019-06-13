@@ -23,7 +23,7 @@
       height: 42px;
       border-top: 2px solid $color-gray-4;
       padding: 8px 5px;
-      vertical-align: middle;
+      vertical-align: middle !important;
       box-sizing: border-box;
     }
 
@@ -34,7 +34,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
-      vertical-align: middle;
+      vertical-align: middle !important;
       box-sizing: border-box;
     }
 

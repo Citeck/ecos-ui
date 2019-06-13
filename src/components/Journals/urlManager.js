@@ -1,6 +1,7 @@
 import queryString from 'query-string';
 import { URL_PAGECONTEXT } from '../../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../../components/common/form/SelectJournal/predicates';
+import { ParserPredicate } from '../../components/Filters/predicates';
 
 const PREVIEW_KEY = 'preview';
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
@@ -8,13 +9,15 @@ const JOURNAL_ID_KEY = 'journalId';
 const JOURNAL_SETTING_ID_KEY = 'journalSettingId';
 const TYPE_KEY = 'type';
 const DESTINATION_KEY = 'destination';
+const FILTER_KEY = 'filter';
 
-export const OLD_LINKS = true;
+export const OLD_LINKS = false;
 
 const getBool = str => str === 'true';
 
-const getPredicateFilter = () => {
-  return '';
+const getPredicateFilter = options => {
+  const filter = ParserPredicate.getPredicatesByRow(options);
+  return filter ? JSON.stringify(filter) : '';
 };
 
 const getCriteriaFilter = ({ row, columns, groupBy }) => {
@@ -46,16 +49,31 @@ export const getFilter = options => {
   return OLD_LINKS ? getCriteriaFilter(options) : getPredicateFilter(options);
 };
 
-export const getJournalPage = ({ journalsListId, journalId, journalSettingId, nodeRef, filter = '' }) => {
+export const getJournalPage = ({ journalsListId, journalId, journalSettingId, nodeRef, filter }) => {
   const qString = queryString.stringify({
     [JOURNALS_LIST_ID_KEY]: journalsListId,
     [JOURNAL_ID_KEY]: journalId,
-    [JOURNAL_SETTING_ID_KEY]: journalSettingId
+    [JOURNAL_SETTING_ID_KEY]: filter ? '' : journalSettingId,
+    [FILTER_KEY]: filter
   });
+  let url;
 
-  return OLD_LINKS
-    ? `${URL_PAGECONTEXT}journals2/list/tasks#journal=${nodeRef}&filter=${filter}&settings=&skipCount=0&maxItems=10`
-    : `${URL_PAGECONTEXT}ui/journals?${qString}`;
+  if (OLD_LINKS) {
+    let partOfUrl;
+
+    if (journalsListId.indexOf('global-') !== -1) {
+      partOfUrl = journalsListId.replace('global-', 'journals2/list/');
+    } else {
+      partOfUrl = journalsListId.replace('site-', 'site/');
+      partOfUrl = partOfUrl.replace('-main', '/journals2/list/main');
+    }
+
+    url = `${URL_PAGECONTEXT}${partOfUrl}#journal=${nodeRef}&${FILTER_KEY}=${filter}&settings=&skipCount=0&maxItems=10`;
+  } else {
+    url = `${URL_PAGECONTEXT}ui/journals?${qString}`;
+  }
+
+  return url;
 };
 
 export const goToJournalsPage = options => {
@@ -81,6 +99,10 @@ export const getPreview = location => getBool(queryString.parse(location.search)
 export const getJournalsListId = location => queryString.parse(location.search)[JOURNALS_LIST_ID_KEY];
 export const getJournalId = location => queryString.parse(location.search)[JOURNAL_ID_KEY];
 export const getJournalSettingId = location => queryString.parse(location.search)[JOURNAL_SETTING_ID_KEY];
+export const getFilters = location => {
+  const filters = queryString.parse(location.search)[FILTER_KEY];
+  return filters ? JSON.parse(filters) : null;
+};
 
 export const setPreview = (location, value) => {
   const params = queryString.parse(location.search);

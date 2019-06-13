@@ -16,6 +16,28 @@
       "type": "content"
     },
     {
+      "label": "Async Data",
+      "source": {
+        "type": "recordsArray",
+        "recordsArray": {
+          "id": "{{ data.idocsContractor }}",
+          "attributes": {
+            "idocs:fullOrganizationName": "idocs:fullOrganizationName",
+            "idocs:inn": "idocs:inn"
+          }
+        }
+      },
+      "update": {
+        "type": "any-change",
+        "event": "",
+        "rate": 100
+      },
+      "key": "asyncData2",
+      "type": "asyncData",
+      "input": true,
+      "inputType": "asyncData"
+    },
+    {
       "label": "Tabs",
       "components": [
         { "label": "Очень широкая вкладка", "key": "tab0", "components": [] },
@@ -94,9 +116,9 @@
               "type": "selectJournal",
               "label": "Контрагент",
               "key": "idocsContractor",
-              "multiple": false,
+              "multiple": true,
               "journalId": "idocs-contractor",
-              "defaultValue": "workspace://SpacesStore/eea14b3b-6243-4b61-b15e-e8d5c34a9586"
+              "defaultValue": ["workspace://SpacesStore/eea14b3b-6243-4b61-b15e-e8d5c34a9586"]
             }
           ]
         },
@@ -141,68 +163,6 @@
       "input": false,
       "html": "<br><br><br><br><br><br><br><br>",
       "type": "content"
-    },
-
-    {
-      "input": true,
-      "label": "React DateTime component",
-      "key": "react-datetime-input-key",
-      "placeholder": "ДД. ММ.ГГГГ",
-      "type": "reactDatetime",
-      "disabled": false,
-      "defaultValue": "2019-03-05T18:12:58.126Z"
-    },
-
-    {
-      "tags": [],
-      "clearOnHide": true,
-      "hidden": false,
-      "input": true,
-      "tableView": true,
-      "label": "Some document list",
-      "key": "docListCustomKey",
-      "documents": [
-        {
-          "inputName": "someDocument",
-          "value": "someDocument",
-          "label": "Some document"
-        },
-        {
-          "inputName": "anotherDocument",
-          "value": "anotherDocument",
-          "label": "Another document"
-        },
-        {
-          "inputName": "thirdDocument",
-          "value": "thirdDocument",
-          "label": "Third document"
-        }
-      ],
-      "defaultValue": {
-        "someDocument": [
-          {
-            "name": "defaultValue.ext"
-          }
-        ]
-      },
-      "protected": false,
-      "persistent": true,
-      "validate": {
-        "required": false,
-        "custom": "",
-        "customPrivate": false
-      },
-      "type": "documentList",
-      "conditional": {
-        "show": "",
-        "when": null,
-        "eq": ""
-      },
-
-      "options": {
-        "viewAsHtml": true,
-        "readOnly": true
-      }
     },
 
     {

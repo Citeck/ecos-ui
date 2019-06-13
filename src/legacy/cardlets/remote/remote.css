@@ -1,0 +1,8 @@
+#cardlet-remote-document-tasks-container
+  .invariants-form
+  .template-table
+  .template-row
+  .region-select-group
+  > .form-region.template-select-journal {
+  margin: 0 0 0 10px;
+}
