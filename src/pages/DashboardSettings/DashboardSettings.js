@@ -129,7 +129,7 @@ class DashboardSettings extends React.Component {
 
   setStateByConfig(config) {
     const { layouts, typeMenu } = this.state;
-    let { layoutType, menuType, availableWidgets: selectedWidgets, links: selectedMenuItems } = config;
+    let { layoutType, menuType, widgets: selectedWidgets, links: selectedMenuItems } = config;
     let selectedLayout = {};
 
     layouts.forEach(item => {
