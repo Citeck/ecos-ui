@@ -10,7 +10,7 @@ import { fileDownload, isPDFbyStr } from '../../helpers/util';
 
 // 2.1.266 version of worker for 2.1.266 version of pdfjs-dist:
 // pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.worker.min.js';
-pdfjs.GlobalWorkerOptions.workerSrc = '//unpkg.com/pdfjs-dist@2.1.266/build/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/js/lib/pdf.worker.min.js`;
 
 class DocPreview extends Component {
   static propTypes = {
