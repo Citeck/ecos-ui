@@ -11,7 +11,7 @@ export class AppApi extends CommonApi {
   };
 
   getCurrentThemeName = siteId => {
-    return this.getHtml(`${MICRO_URI}api/themes/current?siteId=${siteId}`)
+    return this.getHtml(`${MICRO_URI}api/themes/current?siteId=${siteId || ''}`)
       .then(resp => resp)
       .catch(() => DEFAULT_THEME);
   };
