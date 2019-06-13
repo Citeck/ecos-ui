@@ -20,10 +20,11 @@
       "source": {
         "type": "recordsArray",
         "recordsArray": {
-          "id": "{{ data.idocsContractor }}",
+          "id": "{{ data.paymentsPayments }}",
           "attributes": {
-            "idocs:fullOrganizationName": "idocs:fullOrganizationName",
-            "idocs:inn": "idocs:inn"
+            "payments:typePayment": "payments:typePayment",
+            "payments:currency": "payments:currency",
+            "payments:paymentAmount": "payments:paymentAmount"
           }
         }
       },
@@ -58,7 +59,7 @@
       "input": true,
       "type": "tableForm",
       "label": "График платежей",
-      "key": "idocs-contractor-table-form",
+      "key": "idocsContractorTableForm",
       "source": {
         "type": "journal",
         "journal": {
@@ -74,7 +75,11 @@
       "input": true,
       "type": "tableForm",
       "label": "График платежей",
-      "key": "payments:payments",
+      "key": "paymentsPayments",
+      "multiple": true,
+      "properties": {
+        "attribute": "payments:payments"
+      },
       "defaultValue": ["workspace://SpacesStore/8496a917-fece-4fbf-bd53-ed49915eafa3"],
       "source": {
         "type": "custom",
