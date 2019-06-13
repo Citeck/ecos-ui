@@ -8,8 +8,8 @@ import GqlDataSource from '../../../../components/common/grid/dataSource/GqlData
 
 export const TableFormContext = React.createContext();
 
-export const FORM_MODE_CREATE = 0;
-export const FORM_MODE_EDIT = 1;
+export const FORM_MODE_CREATE = 'CREATE';
+export const FORM_MODE_EDIT = 'EDIT';
 
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
