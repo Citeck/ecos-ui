@@ -8,7 +8,7 @@ import {
 } from '../actions/dashboard';
 
 const initialState = {
-  dashboardKey: null,
+  key: null,
   config: {
     columns: []
   },
@@ -38,7 +38,7 @@ export default handleActions(
     [setDashboardKey]: (state, { payload }) => {
       return {
         ...state,
-        dashboardKey: payload
+        key: payload
       };
     },
     [setResultSaveDashboardConfig]: (state, { payload }) => {

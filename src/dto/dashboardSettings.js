@@ -1,3 +1,5 @@
+import * as dtoMenu from './menu';
+
 export function getSettingsConfigForWeb(source = {}) {
   const { layout = {} } = source;
   const target = {};
@@ -15,22 +17,12 @@ export function getSettingsConfigForServer(source) {
   };
 
   target.menu.type = source.menuType;
-  target.menu.links = getMenuItemsForServer(source.menu);
+  target.menu.links = dtoMenu.getMenuItemsForServer(source.links);
 
   target.layout.type = source.layoutType;
   target.layout.columns = getWidgetsForServer(source.columns, source.widgets);
 
   return target;
-}
-
-function getMenuItemsForServer(items = []) {
-  return items.map((item, index) => {
-    return {
-      label: item.label,
-      position: index,
-      link: item.link || ''
-    };
-  });
 }
 
 function getWidgetsForServer(columns = [], widgets = []) {

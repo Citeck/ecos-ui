@@ -14,6 +14,7 @@ const mapStateToProps = state => ({
   },
   isLoadingDashboard: path(['dashboard', 'isLoading'], state),
   saveResultDashboard: path(['dashboard', 'saveResult'], state),
+  isLoadingMenu: path(['menu', 'isLoading'], state),
   saveResultMenu: path(['menu', 'saveResult'], state)
 });
 
@@ -83,9 +84,9 @@ class Dashboard extends Component {
   }
 
   renderLoader() {
-    let { isLoadingDashboard } = this.props;
+    let { isLoadingDashboard, isLoadingMenu } = this.props;
 
-    if (isLoadingDashboard) {
+    if (isLoadingDashboard || isLoadingMenu) {
       return <Loader className={`ecos-dashboard__loader-wrapper`} />;
     }
 

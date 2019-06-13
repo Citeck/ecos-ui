@@ -18,8 +18,7 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     const config = dto.parseGetResult(result);
 
     if (config && Object.keys(config).length) {
-      const layout = config.layout || {};
-      const webConfig = dto.getDashboardForWeb({ layout });
+      const webConfig = dto.getDashboardForWeb(config);
 
       yield put(setDashboardKey(config.key));
       yield put(setDashboardConfig(webConfig));
@@ -32,10 +31,8 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 
 function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   try {
-    const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
-      config: payload.config,
-      recordId: payload.recordId
-    });
+    const serverConfig = dto.getDashboardForServer(payload);
+    const dashboardResult = yield call(api.dashboard.saveDashboardConfig, serverConfig);
     const res = dto.parseSaveResult(dashboardResult);
 
     yield put(

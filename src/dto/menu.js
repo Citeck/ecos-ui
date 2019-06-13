@@ -1,5 +1,12 @@
 import { MENU_TYPE, QUERY_KEYS } from '../constants';
 
+export const getDefaultMenuConfig = {
+  menu: {
+    type: MENU_TYPE.TOP,
+    links: []
+  }
+};
+
 export function parseGetResult(result) {
   if (!result || (result && !Object.keys(result).length)) {
     return {};
@@ -8,9 +15,23 @@ export function parseGetResult(result) {
   return result[QUERY_KEYS.VALUE_JSON] || getDefaultMenuConfig;
 }
 
-export const getDefaultMenuConfig = {
-  menu: {
-    type: MENU_TYPE.TOP,
-    links: []
-  }
-};
+export function getAvailableMenuItemsForWeb(items = []) {
+  return items.map(item => {
+    return {
+      label: item.label,
+      link: item.link || '',
+      id: item.id
+    };
+  });
+}
+
+export function getMenuItemsForServer(items = []) {
+  return items.map((item, index) => {
+    return {
+      label: item.label,
+      position: index,
+      link: item.link || '',
+      id: item.id
+    };
+  });
+}

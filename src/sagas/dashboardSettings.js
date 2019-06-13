@@ -1,16 +1,16 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import {
-  getAllWidgets,
+  getAvailableWidgets,
   getDashboardConfig,
   initDashboardSettings,
   saveDashboardConfig,
-  setAllWidgets,
+  setAvailableWidgets,
   setDashboardConfig,
   setDashboardKey,
   setResultSaveDashboardConfig
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
-import { setResultSaveUserMenu } from '../actions/menu';
+import { setResultSaveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
 import * as dtoDB from '../dto/dashboard';
 import * as dtoDBS from '../dto/dashboardSettings';
@@ -18,7 +18,7 @@ import { SAVE_STATUS } from '../constants';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
-    yield put(getAllWidgets());
+    yield put(getAvailableWidgets());
     yield put(getDashboardConfig(payload));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения данных')));
@@ -52,7 +52,7 @@ function* doGetWidgetsRequest({ api, logger }, action) {
   try {
     const apiData = yield call(api.dashboard.getAllWidgets);
 
-    yield put(setAllWidgets(apiData));
+    yield put(setAvailableWidgets(apiData));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка. Список виджетов не получен')));
     logger.error('[dashboard/settings/ doGetWidgetsRequest saga] error', e.message);
@@ -68,7 +68,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       config: { layout },
       recordId: payload.recordId
     });
-    const menuResult = yield call(api.menu.saveUserMenuConfig, { config: menu });
+    const menuResult = yield call(api.menu.saveMenuConfig, { config: menu });
 
     const parseDashboard = dtoDB.parseSaveResult(dashboardResult);
 
@@ -80,7 +80,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     );
 
     yield put(
-      setResultSaveUserMenu({
+      setResultSaveMenuConfig({
         status: SAVE_STATUS.SUCCESS
       })
     );
@@ -93,7 +93,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
 function* saga(ea) {
   yield takeLatest(initDashboardSettings().type, doInitDashboardSettingsRequest, ea);
   yield takeLatest(getDashboardConfig().type, doGetDashboardConfigRequest, ea);
-  yield takeLatest(getAllWidgets().type, doGetWidgetsRequest, ea);
+  yield takeLatest(getAvailableWidgets().type, doGetWidgetsRequest, ea);
   yield takeLatest(saveDashboardConfig().type, doSaveSettingsRequest, ea);
 }
 

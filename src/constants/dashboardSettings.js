@@ -43,7 +43,7 @@ export const LAYOUTS = [
   }
 ];
 
-export const MENUS = [
+export const TYPE_MENU = [
   {
     position: 0,
     isActive: true,

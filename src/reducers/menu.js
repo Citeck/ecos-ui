@@ -1,21 +1,19 @@
 import { handleActions } from 'redux-actions';
 import {
-  getAllMenuItems,
-  getUserMenuConfig,
+  getAvailableMenuItems,
+  getMenuConfig,
   initMenuSettings,
-  saveUserMenuConfig,
-  setAllMenuItems,
-  setResultSaveUserMenu,
-  setUserMenuConfig
+  saveMenuConfig,
+  setAvailableMenuItems,
+  setResultSaveMenuConfig,
+  setMenuConfig
 } from '../actions/menu';
 import { MENU_TYPE } from '../constants';
 
 const initialState = {
-  user: {
-    type: MENU_TYPE.LEFT,
-    links: []
-  },
-  menuItems: [],
+  type: MENU_TYPE.LEFT,
+  links: [],
+  availableMenuItems: [],
   isLoading: false,
   saveResult: {
     status: ''
@@ -29,21 +27,21 @@ const startLoading = state => ({ ...state, isLoading: true });
 export default handleActions(
   {
     [initMenuSettings]: startLoading,
-    [getAllMenuItems]: startLoading,
-    [getUserMenuConfig]: startLoading,
-    [saveUserMenuConfig]: startLoading,
+    [getAvailableMenuItems]: startLoading,
+    [getMenuConfig]: startLoading,
+    [saveMenuConfig]: startLoading,
 
-    [setUserMenuConfig]: (state, action) => {
+    [setMenuConfig]: (state, action) => {
+      const { type, links } = action.payload;
+
       return {
         ...state,
-        user: {
-          ...state.user,
-          ...action.payload
-        },
+        type,
+        links,
         isLoading: false
       };
     },
-    [setResultSaveUserMenu]: (state, { payload }) => {
+    [setResultSaveMenuConfig]: (state, { payload }) => {
       const { status } = payload;
 
       return {
@@ -54,10 +52,10 @@ export default handleActions(
         isLoading: false
       };
     },
-    [setAllMenuItems]: (state, { payload }) => {
+    [setAvailableMenuItems]: (state, { payload }) => {
       return {
         ...state,
-        menuItems: payload,
+        availableMenuItems: payload,
         isLoading: false
       };
     }

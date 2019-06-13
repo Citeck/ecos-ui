@@ -1,9 +1,9 @@
 import { handleActions } from 'redux-actions';
 import {
-  getAllWidgets,
+  getAvailableWidgets,
   getDashboardConfig,
   initDashboardSettings,
-  setAllWidgets,
+  setAvailableWidgets,
   setDashboardConfig,
   setDashboardKey,
   setResultSaveDashboardConfig,
@@ -17,8 +17,7 @@ const initialState = {
     layoutType: LAYOUT_TYPE.TWO_COLUMNS_BS,
     widgets: []
   },
-  widgets: [],
-  menuItems: [],
+  availableWidgets: [],
   isLoading: false,
   saveResult: {
     status: '',
@@ -34,7 +33,7 @@ export default handleActions(
   {
     [initDashboardSettings]: startLoading,
     [getDashboardConfig]: startLoading,
-    [getAllWidgets]: startLoading,
+    [getAvailableWidgets]: startLoading,
     [saveDashboardConfig]: startLoading,
 
     [setDashboardConfig]: (state, { payload }) => {
@@ -50,10 +49,10 @@ export default handleActions(
         dashboardKey: payload
       };
     },
-    [setAllWidgets]: (state, { payload }) => {
+    [setAvailableWidgets]: (state, { payload }) => {
       return {
         ...state,
-        widgets: payload,
+        availableWidgets: payload,
         isLoading: false
       };
     },

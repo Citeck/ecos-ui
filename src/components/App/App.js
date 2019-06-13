@@ -29,7 +29,7 @@ import { URL, MENU_TYPE } from '../../constants';
 
 import './App.scss';
 import TopMenu from '../Layout/TopMenu';
-import { initMenuSettings, saveUserMenuConfig } from '../../actions/menu';
+import { initMenuSettings, saveMenuConfig } from '../../actions/menu';
 
 class App extends Component {
   componentDidMount() {
@@ -41,9 +41,9 @@ class App extends Component {
   }
 
   handleSaveMenu = links => {
-    const { saveUserMenuConfig, menuType } = this.props;
+    const { saveMenuConfig, menuType } = this.props;
 
-    saveUserMenuConfig({
+    saveMenuConfig({
       type: menuType,
       links
     });
@@ -126,8 +126,8 @@ const mapStateToProps = state => ({
   isAuthenticated: path(['user', 'isAuthenticated'], state),
   isShow: path(['pageTabs', 'isShow'], state),
   tabs: path(['pageTabs', 'tabs'], state),
-  menuType: path(['menu', 'user', 'type'], state),
-  links: path(['menu', 'user', 'links'], state)
+  menuType: path(['menu', 'type'], state),
+  links: path(['menu', 'links'], state)
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -135,7 +135,7 @@ const mapDispatchToProps = dispatch => ({
   getTabs: () => dispatch(getTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
   initMenuSettings: () => dispatch(initMenuSettings()),
-  saveUserMenuConfig: config => dispatch(saveUserMenuConfig(config))
+  saveMenuConfig: config => dispatch(saveMenuConfig(config))
 });
 
 export default withRouter(

@@ -1,13 +1,51 @@
 import { QUERY_KEYS } from '../constants';
 import { LAYOUT_TYPE } from '../constants/dashboardSettings';
 
+export const getDefaultDashboardConfig = {
+  layout: {
+    type: LAYOUT_TYPE.TWO_COLUMNS_BS,
+    columns: [
+      {
+        width: '30%',
+        widgets: []
+      },
+      {
+        widgets: []
+      }
+    ]
+  }
+};
+
 export function getDashboardForWeb(source) {
+  if (!source || (source && !Object.keys(source).length)) {
+    return {};
+  }
+
   const { layout } = source;
-  let target = {};
+  const target = {};
 
   target.columns = layout.columns;
+  target.type = layout.type;
 
   return target;
+}
+
+export function getDashboardForServer(source) {
+  if (!source || (source && !Object.keys(source).length)) {
+    return {};
+  }
+
+  const {
+    config: { columns, type },
+    recordId
+  } = source;
+
+  return {
+    config: {
+      layout: { columns, type }
+    },
+    recordId
+  };
 }
 
 export function parseGetResult(result) {
@@ -31,18 +69,3 @@ export function parseSaveResult(result) {
     recordId
   };
 }
-
-export const getDefaultDashboardConfig = {
-  layout: {
-    type: LAYOUT_TYPE.TWO_COLUMNS_BS,
-    columns: [
-      {
-        width: '30%',
-        widgets: []
-      },
-      {
-        widgets: []
-      }
-    ]
-  }
-};

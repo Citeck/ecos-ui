@@ -1,13 +1,13 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { setNotificationMessage } from '../actions/notification';
 import {
-  getAllMenuItems,
-  getUserMenuConfig,
+  getAvailableMenuItems,
+  getMenuConfig,
   initMenuSettings,
-  saveUserMenuConfig,
-  setAllMenuItems,
-  setResultSaveUserMenu,
-  setUserMenuConfig
+  saveMenuConfig,
+  setAvailableMenuItems,
+  setMenuConfig,
+  setResultSaveMenuConfig
 } from '../actions/menu';
 import { t } from '../helpers/util';
 import { SAVE_STATUS } from '../constants';
@@ -15,55 +15,55 @@ import * as dto from '../dto/menu';
 
 function* doInitMenuSettings({ api, logger }, action) {
   try {
-    yield put(getAllMenuItems());
-    yield put(getUserMenuConfig());
+    yield put(getAvailableMenuItems());
+    yield put(getMenuConfig());
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения меню')));
-    logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
+    logger.error('[menu/ doInitMenuSettings saga] error', e.message);
   }
 }
 
-function* doGetMenuItemsRequest({ api, logger }, action) {
+function* doGetAvailableMenuItemsRequest({ api, logger }, action) {
   try {
     const apiData = yield call(api.menu.getSlideMenuItems); // todo temp
-    const menuItems = apiData.items;
+    const menuItems = dto.getAvailableMenuItemsForWeb(apiData.items);
 
-    yield put(setAllMenuItems(menuItems));
+    yield put(setAvailableMenuItems(menuItems));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка. Пункты меню не получены')));
-    logger.error('[dashboard/settings/ doGetMenuItemsRequest saga] error', e.message);
+    logger.error('[menu/ doGetAvailableMenuItemsRequest saga] error', e.message);
   }
 }
 
-function* doGetUserMenuConfigRequest({ api, logger }, { payload }) {
+function* doGetMenuConfigRequest({ api, logger }, { payload }) {
   try {
-    const result = yield call(api.menu.getUserMenuConfig);
+    const result = yield call(api.menu.getMenuConfig);
     const menu = dto.parseGetResult(result);
 
-    yield put(setUserMenuConfig(menu));
+    yield put(setMenuConfig(menu));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения меню')));
-    logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
+    logger.error('[menu/ doGetMenuConfigRequest saga] error', e.message);
   }
 }
 
-function* doSaveUserMenuConfigRequest({ api, logger }, { payload }) {
+function* doSaveMenuConfigRequest({ api, logger }, { payload }) {
   try {
-    const result = yield call(api.menu.saveUserMenuConfig, { config: payload });
+    const result = yield call(api.menu.saveMenuConfig, { config: payload });
 
-    yield put(setUserMenuConfig(payload));
-    yield put(setResultSaveUserMenu({ status: SAVE_STATUS.SUCCESS }));
+    yield put(setMenuConfig(payload));
+    yield put(setResultSaveMenuConfig({ status: SAVE_STATUS.SUCCESS }));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения меню')));
-    logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
+    logger.error('[menu/ doSaveMenuConfigRequest saga] error', e.message);
   }
 }
 
 function* saga(ea) {
-  yield takeLatest(getUserMenuConfig().type, doGetUserMenuConfigRequest, ea);
-  yield takeLatest(saveUserMenuConfig().type, doSaveUserMenuConfigRequest, ea);
+  yield takeLatest(getMenuConfig().type, doGetMenuConfigRequest, ea);
+  yield takeLatest(saveMenuConfig().type, doSaveMenuConfigRequest, ea);
   yield takeLatest(initMenuSettings().type, doInitMenuSettings, ea);
-  yield takeLatest(getAllMenuItems().type, doGetMenuItemsRequest, ea);
+  yield takeLatest(getAvailableMenuItems().type, doGetAvailableMenuItemsRequest, ea);
 }
 
 export default saga;

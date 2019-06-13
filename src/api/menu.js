@@ -58,16 +58,16 @@ export class MenuApi extends CommonApi {
     }
   };
 
-  getUserMenuConfig = () => {
+  getMenuConfig = () => {
     return Records.get(`${PREFIX}menu-config`)
       .load([QUERY_KEYS.VALUE_JSON])
       .then(resp => resp);
   };
 
-  saveUserMenuConfig = ({ config = {}, title = '', description = '' }) => {
+  saveMenuConfig = ({ config = {}, title = '', description = '' }) => {
     const record = Records.get(`${PREFIX}menu-config`);
 
-    record.att(QUERY_KEYS.VALUE, config);
+    record.att(QUERY_KEYS.VALUE_JSON, config);
     record.att(QUERY_KEYS.TITLE, title);
     record.att(QUERY_KEYS.DESCRIPTION, description);
 
