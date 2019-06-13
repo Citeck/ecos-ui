@@ -9,7 +9,7 @@ const JOURNAL_SETTING_ID_KEY = 'journalSettingId';
 const TYPE_KEY = 'type';
 const DESTINATION_KEY = 'destination';
 
-export const OLD_LINKS = true;
+export const OLD_LINKS = false;
 
 const getBool = str => str === 'true';
 
