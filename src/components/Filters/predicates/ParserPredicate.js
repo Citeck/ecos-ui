@@ -1,7 +1,50 @@
 import { Predicate, GroupPredicate, FilterPredicate } from './';
-import { filterPredicates, getPredicates, PREDICATE_AND, PREDICATE_EMPTY, PREDICATE_OR } from '../../common/form/SelectJournal/predicates';
+import {
+  filterPredicates,
+  getPredicates,
+  PREDICATE_AND,
+  PREDICATE_EMPTY,
+  PREDICATE_OR,
+  EQUAL_PREDICATES_MAP
+} from '../../common/form/SelectJournal/predicates';
 
 export default class ParserPredicate {
+  static getPredicatesByRow({ row, columns, groupBy }) {
+    const val = [];
+
+    if (groupBy.length) {
+      groupBy = groupBy[0].split('&');
+      columns = columns.filter(c => groupBy.filter(g => g === c.attribute)[0]);
+    }
+
+    for (const key in row) {
+      const value = row[key];
+      const type = (columns.filter(c => c.attribute === key && c.visible && c.default && c.searchable)[0] || {}).type;
+      const predicate = EQUAL_PREDICATES_MAP[type];
+
+      if (predicate) {
+        val.push(new Predicate({ att: key, t: predicate, val: value }));
+      }
+    }
+
+    return val.length
+      ? {
+          t: PREDICATE_OR,
+          val: [
+            {
+              t: PREDICATE_OR,
+              val: [
+                {
+                  t: PREDICATE_AND,
+                  val: val
+                }
+              ]
+            }
+          ]
+        }
+      : null;
+  }
+
   static getDefaultPredicates(columns) {
     let val = [];
 
@@ -40,7 +83,7 @@ export default class ParserPredicate {
       }
     }
 
-    return val.filter(v => (Array.isArray(v.val) ? Boolean(v.val.length) : v.t !== PREDICATE_EMPTY && v.val !== ''));
+    return val.filter(v => (Array.isArray(v.val) ? Boolean(v.val.length) : v.t !== PREDICATE_EMPTY && (Boolean(v.val) || v.val === 0)));
   }
 
   static getGroupConditions() {
