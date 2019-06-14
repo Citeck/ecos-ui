@@ -225,20 +225,28 @@ export const TableFormContextProvider = props => {
           let isAlias = editRecordId.indexOf('-alias') !== -1;
 
           let newSelectedRows = [...selectedRows];
+
+          const newRow = { ...record.getRawAttributes(), id: editRecordId };
+
           if (isNodeRef && isAlias) {
-            // delete base record from values list
+            // replace base record row by newRow in values list
             const baseRecord = record.getBaseRecord();
             const baseRecordId = baseRecord.id;
-            newSelectedRows = newSelectedRows.filter(item => item === baseRecordId);
+            const baseRecordIndex = selectedRows.findIndex(item => item.id === baseRecordId);
+            if (baseRecordIndex !== -1) {
+              newSelectedRows = [...newSelectedRows.slice(0, baseRecordIndex), newRow, ...newSelectedRows.slice(baseRecordIndex + 1)];
+            }
+
+            Records.forget(baseRecordId); // reset cache for base record
           }
 
           // add or update record alias
-          const editRecordIndex = selectedRows.findIndex(item => item.id === record.id);
-          newSelectedRows = [
-            ...newSelectedRows.slice(0, editRecordIndex),
-            { id: editRecordId, ...record.getRawAttributes() },
-            ...newSelectedRows.slice(editRecordIndex + 1)
-          ];
+          const editRecordIndex = newSelectedRows.findIndex(item => item.id === record.id);
+          if (editRecordIndex !== -1) {
+            newSelectedRows = [...newSelectedRows.slice(0, editRecordIndex), newRow, ...newSelectedRows.slice(editRecordIndex + 1)];
+          } else {
+            newSelectedRows.push(newRow);
+          }
 
           setSelectedRows(newSelectedRows);
 
@@ -255,7 +263,11 @@ export const TableFormContextProvider = props => {
         },
 
         setInlineToolsOffsets: (e, offsets) => {
-          if (offsets.height !== inlineToolsOffsets.height || offsets.top !== inlineToolsOffsets.top) {
+          if (
+            offsets.height !== inlineToolsOffsets.height ||
+            offsets.top !== inlineToolsOffsets.top ||
+            offsets.row.id !== inlineToolsOffsets.rowId
+          ) {
             setInlineToolsOffsets({
               height: offsets.height,
               top: offsets.top,

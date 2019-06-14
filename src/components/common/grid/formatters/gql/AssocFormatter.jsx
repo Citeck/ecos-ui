@@ -13,13 +13,15 @@ export default class AssocFormatter extends DefaultGqlFormatter {
 
   componentDidMount() {
     let cell = this.props.cell;
-    Records.get(cell)
-      .load('.disp')
-      .then(displayName => {
-        this.setState({
-          displayName
+    if (cell) {
+      Records.get(cell)
+        .load('.disp')
+        .then(displayName => {
+          this.setState({
+            displayName
+          });
         });
-      });
+    }
   }
 
   render() {
