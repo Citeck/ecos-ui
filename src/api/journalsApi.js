@@ -63,14 +63,14 @@ export class JournalsApi extends RecordService {
   };
 
   getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId }) => {
+    let queryPredicates = journalPredicate ? [journalPredicate] : [];
     const query = {
       t: 'and',
-      val: [
-        journalPredicate,
-        ...predicates.filter(item => {
+      val: queryPredicates.concat(
+        (predicates || []).filter(item => {
           return item.val !== '' && item.val !== null;
         })
-      ]
+      )
     };
 
     let bodyQuery = {
