@@ -151,13 +151,20 @@ export default class SelectJournal extends Component {
         () => {
           let requestParams = this.state.requestParams;
           if (this.state.customPredicate) {
-            requestParams = {
-              ...requestParams,
-              journalPredicate: {
-                t: 'and',
-                val: [requestParams.journalPredicate, this.state.customPredicate]
-              }
-            };
+            if (requestParams.journalPredicate) {
+              requestParams = {
+                ...requestParams,
+                journalPredicate: {
+                  t: 'and',
+                  val: [requestParams.journalPredicate, this.state.customPredicate]
+                }
+              };
+            } else {
+              requestParams = {
+                ...requestParams,
+                journalPredicate: this.state.customPredicate
+              };
+            }
           }
 
           let sourceId = lodashGet(this.state, 'journalConfig.sourceId', '');
