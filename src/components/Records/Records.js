@@ -7,6 +7,8 @@ const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
 const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
 
+const ATT_NAME_REGEXP = /\.atts?\(n:"(.+)"\).+/;
+
 const GATEWAY_URL_MAP = {};
 GATEWAY_URL_MAP[QUERY_URL] = '/share/api/records/query';
 GATEWAY_URL_MAP[MUTATE_URL] = '/share/api/records/mutate';
@@ -125,6 +127,26 @@ function convertAttributePath(path) {
   }
 
   return result;
+}
+
+function extractFirstAttName(path) {
+  if (path[0] === '.') {
+    let nameMatch = path.match(ATT_NAME_REGEXP) || [];
+    return nameMatch[1] || path;
+  } else {
+    let name = path;
+
+    let dotIdx = path.indexOf('.');
+    if (dotIdx >= 0) {
+      name = name.substring(0, dotIdx);
+    }
+    let qIdx = path.indexOf('?');
+    if (qIdx >= 0) {
+      name = name.substring(0, qIdx);
+    }
+
+    return name;
+  }
 }
 
 class RecordsComponent {
@@ -294,6 +316,7 @@ class Record {
   constructor(id, baseRecord) {
     this._id = id;
     this._attributes = {};
+    this._changedSimpleValues = {};
     if (baseRecord) {
       this._baseRecord = baseRecord;
       this.att('_alias', id);
@@ -312,6 +335,18 @@ class Record {
 
   get id() {
     return this._id;
+  }
+
+  toJson() {
+    let attributes = {};
+
+    for (let att in this._attributes) {
+      if (this._attributes.hasOwnProperty(att)) {
+        attributes[extractFirstAttName(att)] = this._attributes[att].value;
+      }
+    }
+
+    return { id: this.id, attributes };
   }
 
   isPersisted() {
@@ -347,15 +382,29 @@ class Record {
         continue;
       }
 
-      let attPath = convertAttributePath(attributesObj[att]);
+      let requestedAtt = attributesObj[att];
+      let attPath = convertAttributePath(requestedAtt);
 
       if (!force) {
         let existingValue = self._attributes[attPath];
+        let wasLoaded = false;
+        let loadedValue = null;
         if (existingValue) {
-          loaded[att] = existingValue.value;
-        } else {
+          loadedValue = existingValue.value;
+          wasLoaded = true;
+        }
+        if (loadedValue === null && requestedAtt[0] !== '.' && requestedAtt[0] !== '#') {
+          let changedValue = this._changedSimpleValues[extractFirstAttName(requestedAtt)];
+          if (changedValue) {
+            loadedValue = changedValue;
+            wasLoaded = true;
+          }
+        }
+        if (!wasLoaded) {
           toLoad.push(attPath);
           toLoadNames[attPath] = att;
+        } else {
+          loaded[att] = loadedValue;
         }
       } else {
         toLoad.push(attPath);
@@ -536,15 +585,21 @@ class Record {
     let localName = convertAttributePath(name);
 
     if (arguments.length > 1) {
-      let attribute = this._attributes[localName];
-      if (!attribute) {
-        attribute = new Attribute(null);
-        this._attributes[localName] = attribute;
-      }
-      attribute.value = value;
+      this._setAttributeValueImpl(localName, value);
     } else {
       return (this._attributes[localName] || {}).value;
     }
+  }
+
+  _setAttributeValueImpl(name, value) {
+    let attribute = this._attributes[name];
+    if (!attribute) {
+      attribute = new Attribute(null);
+      this._attributes[name] = attribute;
+    }
+    attribute.value = value;
+
+    this._changedSimpleValues[extractFirstAttName(name)] = value;
   }
 }
 
