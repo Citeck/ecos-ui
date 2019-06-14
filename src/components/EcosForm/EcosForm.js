@@ -166,16 +166,31 @@ class EcosForm extends React.Component {
 
     let inputs = EcosFormUtils.getFormInputs(form.component);
     let keysMapping = {};
+    let inputByKey = {};
 
     for (let i = 0; i < inputs.length; i++) {
-      keysMapping[inputs[i].component.key] = inputs[i].schema;
+      let key = inputs[i].component.key;
+      keysMapping[key] = inputs[i].schema;
+      inputByKey[key] = inputs[i];
     }
 
     let record = Records.get(this.state.recordId);
 
     for (let key in submission.data) {
       if (submission.data.hasOwnProperty(key)) {
-        record.att(keysMapping[key] || key, submission.data[key]);
+        let value = submission.data[key];
+        let input = inputByKey[key];
+
+        if (value && input && input.dataType === 'json-record') {
+          const mapping = v => JSON.stringify(Records.get(v).toJson());
+
+          if (Array.isArray(value)) {
+            value = value.map(mapping);
+          } else {
+            value = mapping(value);
+          }
+        }
+        record.att(keysMapping[key] || key, value);
       }
     }
 
@@ -194,7 +209,6 @@ class EcosForm extends React.Component {
     if (this.state.error) {
       return <div className={'ecos-ui-form__error'}>{this.state.error.message}</div>;
     }
-
     return <div id={this.state.containerId} />;
   }
 }
