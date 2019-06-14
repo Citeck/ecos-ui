@@ -166,6 +166,10 @@ class RecordsComponent {
     return rec;
   }
 
+  forget(id) {
+    delete this._records[id];
+  }
+
   getRecordToEdit(id) {
     let record = this.get(id);
     if (!record.isBaseRecord()) {
