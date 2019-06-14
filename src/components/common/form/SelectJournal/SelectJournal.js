@@ -20,6 +20,7 @@ import { t } from '../../../../helpers/util';
 import './SelectJournal.scss';
 import Records from '../../../Records';
 import isEqual from 'lodash/isEqual';
+import lodashGet from 'lodash/get';
 
 const paginationInitState = {
   skipCount: 0,
@@ -157,6 +158,11 @@ export default class SelectJournal extends Component {
                 val: [requestParams.journalPredicate, this.state.customPredicate]
               }
             };
+          }
+
+          let sourceId = lodashGet(this.state, 'journalConfig.sourceId', '');
+          if (sourceId) {
+            requestParams['sourceId'] = sourceId;
           }
 
           return this.api.getGridDataUsePredicates(requestParams).then(gridData => {

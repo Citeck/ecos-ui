@@ -1,6 +1,7 @@
 import BaseDataSource from './BaseDataSource';
 import formatterStore from '../formatters/formatterStore';
 import Mapper from '../mapping/Mapper';
+import Records from '../../../Records';
 
 const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
 
@@ -18,6 +19,22 @@ export default class GqlDataSource extends BaseDataSource {
   }
 
   load() {
+    let options = this.options;
+
+    return Records.query(JSON.parse(options.ajax.body))
+      .then(resp => {
+        return {
+          data: resp.records,
+          total: resp.totalCount
+        };
+      })
+      .catch(err => {
+        console.error(err);
+        return this._legacyLoad();
+      });
+  }
+
+  _legacyLoad() {
     let options = this.options;
     return fetch(options.url, options.ajax)
       .then(response => {
