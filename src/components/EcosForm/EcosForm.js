@@ -194,6 +194,10 @@ class EcosForm extends React.Component {
       }
     }
 
+    if (submission.state) {
+      record.att('_state', submission.state);
+    }
+
     let onSubmit = self.props.onSubmit || (() => {});
 
     if (this.props.saveOnSubmit !== false) {
@@ -206,8 +210,9 @@ class EcosForm extends React.Component {
   }
 
   render() {
+    let self = this;
     if (this.state.error) {
-      return <div className={'ecos-ui-form__error'}>{this.state.error.message}</div>;
+      return <div className={'ecos-ui-form__error'}>{self.state.error.message}</div>;
     }
     return <div id={this.state.containerId} />;
   }
