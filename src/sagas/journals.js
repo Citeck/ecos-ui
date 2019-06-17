@@ -30,7 +30,8 @@ import {
   onJournalSelect,
   initPreview,
   setPreviewUrl,
-  goToJournalsPage
+  goToJournalsPage,
+  search
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
@@ -192,7 +193,7 @@ function* sagaInitJournalSettingData({ api, logger }, action) {
       })
     );
   } catch (e) {
-    logger.error('[journals sagaReloadGrid saga error', e.message);
+    logger.error('[journals sagaInitJournalSettingData saga error', e.message);
   }
 }
 
@@ -420,6 +421,21 @@ function* sagaGoToJournalsPage({ api, logger }, action) {
   }
 }
 
+function* sagaSearch({ api, logger }, action) {
+  try {
+    let text = action.payload;
+    const journalConfig = yield select(state => state.journals.journalConfig);
+    const grid = yield select(state => state.journals.grid);
+    const { columns, groupBy = [] } = grid;
+
+    const predicates = ParserPredicate.getSearchPredicates({ text, columns, groupBy });
+
+    yield put(reloadGrid({ columns: journalConfig.columns, predicates: predicates ? [predicates] : null }));
+  } catch (e) {
+    logger.error('[journals sagaSearch saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getDashletConfig().type, sagaGetDashletConfig, ea);
   yield takeLatest(getDashletEditorData().type, sagaGetDashletEditorData, ea);
@@ -443,6 +459,7 @@ function* saga(ea) {
 
   yield takeLatest(initPreview().type, sagaInitPreview, ea);
   yield takeLatest(goToJournalsPage().type, sagaGoToJournalsPage, ea);
+  yield takeLatest(search().type, sagaSearch, ea);
 }
 
 export default saga;

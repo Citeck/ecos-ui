@@ -14,7 +14,7 @@ import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
 
 import EcosModal from '../common/EcosModal/EcosModal';
-import { getJournalsData, reloadGrid } from '../../actions/journals';
+import { getJournalsData, reloadGrid, search } from '../../actions/journals';
 import { getPreview, getJournalsListId, getJournalId, getJournalSettingId, goToCreateRecordPage, getFilters } from './urlManager';
 import { Well } from '../common/form';
 import { t } from '../../helpers/util';
@@ -27,7 +27,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   getJournalsData: options => dispatch(getJournalsData(options)),
-  reloadGrid: options => dispatch(reloadGrid(options))
+  reloadGrid: options => dispatch(reloadGrid(options)),
+  search: text => dispatch(search(text))
 });
 
 class Journals extends Component {
@@ -98,6 +99,10 @@ class Journals extends Component {
     this.setState({ menuOpen: !this.state.menuOpen });
   };
 
+  search = text => {
+    this.props.search(text);
+  };
+
   render() {
     const { menuOpen, settingsVisible, showPreview, showPie } = this.state;
     const {
@@ -120,7 +125,7 @@ class Journals extends Component {
         <div className={`ecos-journal__body ${menuOpen ? 'ecos-journal__body_with-menu' : ''}`}>
           <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} />
 
-          <JournalsTools journalConfig={journalConfig} addRecord={this.addRecord} />
+          <JournalsTools journalConfig={journalConfig} addRecord={this.addRecord} onSearch={this.search} />
 
           <JournalsSettingBar
             showPreview={showPreview}

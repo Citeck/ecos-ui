@@ -3,6 +3,7 @@ import connect from 'react-redux/es/connect/connect';
 import { Grid, InlineTools, Tools, EmptyGrid } from '../../common/grid';
 import Loader from '../../common/Loader/Loader';
 import { IcoBtn } from '../../common/btns';
+import { goToCardDetails, goToNodeEditPage } from '../urlManager';
 import { t, trigger } from '../../../helpers/util';
 import {
   reloadGrid,
@@ -95,7 +96,7 @@ class JournalsDashletGrid extends Component {
     this.selectedRow = {};
   }
 
-  showGridInlineToolSettings = (e, options) => {
+  showGridInlineToolSettings = options => {
     this.setSelectedRow(options.row);
     this.props.setGridInlineToolSettings(options);
   };
@@ -110,23 +111,41 @@ class JournalsDashletGrid extends Component {
     this.props.goToJournalsPage(selectedRow);
   };
 
+  goToCardDetails = () => {
+    const selectedRow = this.getSelectedRow();
+    goToCardDetails(selectedRow.id);
+  };
+
+  goToNodeEditPage = () => {
+    const selectedRow = this.getSelectedRow();
+    goToNodeEditPage(selectedRow.id);
+  };
+
   inlineTools = () => {
     const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
+    const tools = [
+      <IcoBtn icon={'icon-on'} onClick={this.goToCardDetails} className={inlineToolsActionClassName} />,
+      <IcoBtn icon={'icon-download'} className={inlineToolsActionClassName} />,
+      <IcoBtn icon={'icon-edit'} onClick={this.goToNodeEditPage} className={inlineToolsActionClassName} />,
+      <IcoBtn icon={'icon-delete'} onClick={this.deleteRecord} className={inlineToolsActionClassName} />
+    ];
 
     if (this.props.selectedRecords.length) {
       return null;
     }
 
-    return (
-      <InlineTools
-        tools={[
-          <IcoBtn icon={'icon-download'} className={inlineToolsActionClassName} />,
-          <IcoBtn icon={'icon-edit'} className={inlineToolsActionClassName} />,
-          <IcoBtn icon={'icon-delete'} className={inlineToolsActionClassName} />,
-          <IcoBtn onClick={this.goToJournalPageWithFilter} icon={'icon-big-arrow'} className={inlineToolsActionClassName} />
-        ]}
-      />
-    );
+    if (!this.props.notGoToJournalPageWithFilter) {
+      tools.push(<IcoBtn onClick={this.goToJournalPageWithFilter} icon={'icon-big-arrow'} className={inlineToolsActionClassName} />);
+    }
+
+    return <InlineTools tools={tools} />;
+  };
+
+  deleteRecord = () => {
+    const selectedRow = this.getSelectedRow();
+    this.props.deleteRecords([selectedRow.id]);
+    this.clearSelectedRow();
+    this.hideGridInlineToolSettings();
   };
 
   deleteRecords = () => {
@@ -158,8 +177,7 @@ class JournalsDashletGrid extends Component {
     );
   };
 
-  onRowClick = (e, options, row) => {
-    this.showGridInlineToolSettings(e, options);
+  onRowClick = row => {
     trigger.call(this, 'onRowClick', row);
   };
 
@@ -194,18 +212,17 @@ class JournalsDashletGrid extends Component {
               editable
               multiSelectable
               sortBy={sortBy}
+              changeTrOptionsByRowClick={doInlineToolsOnRowClick}
               filters={this.filters}
               inlineTools={this.inlineTools}
               tools={this.tools}
               onSort={this.sort}
               onFilter={this.onFilter}
               onSelect={this.setSelectedRecords}
-              onRowClick={doInlineToolsOnRowClick ? this.onRowClick : null}
-              onNextRowSelected={doInlineToolsOnRowClick ? this.onRowClick : null}
-              onPrevRowSelected={doInlineToolsOnRowClick ? this.onRowClick : null}
-              onMouseEnter={doInlineToolsOnRowClick ? null : this.showGridInlineToolSettings}
-              onMouseLeave={doInlineToolsOnRowClick ? null : this.hideGridInlineToolSettings}
-              onScrollStart={doInlineToolsOnRowClick ? null : this.hideGridInlineToolSettings}
+              onRowClick={doInlineToolsOnRowClick && this.onRowClick}
+              onMouseLeave={!doInlineToolsOnRowClick && this.hideGridInlineToolSettings}
+              onChangeTrOptions={this.showGridInlineToolSettings}
+              onScrolling={this.hideGridInlineToolSettings}
               onEdit={saveRecords}
               selected={selectedRecords}
               selectAll={selectAllRecords}

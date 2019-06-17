@@ -5,11 +5,43 @@ import {
   PREDICATE_AND,
   PREDICATE_EMPTY,
   PREDICATE_OR,
-  EQUAL_PREDICATES_MAP
+  EQUAL_PREDICATES_MAP,
+  SEARCH_EQUAL_PREDICATES_MAP
 } from '../../common/form/SelectJournal/predicates';
 
 export default class ParserPredicate {
-  static getPredicatesByRow({ row, columns, groupBy }) {
+  static getSearchPredicates({ text, columns, groupBy }) {
+    const val = [];
+
+    if (groupBy.length) {
+      groupBy = groupBy[0].split('&');
+      columns = columns.filter(c => groupBy.filter(g => g === c.attribute)[0]);
+    }
+
+    columns.forEach(c => {
+      if (c.visible && c.default && c.searchable) {
+        const predicate = SEARCH_EQUAL_PREDICATES_MAP[c.type];
+
+        if (predicate) {
+          val.push(new Predicate({ att: c.attribute, t: predicate, val: text }));
+        }
+      }
+    });
+
+    return val.length
+      ? {
+          t: PREDICATE_OR,
+          val: [
+            {
+              t: PREDICATE_OR,
+              val: val
+            }
+          ]
+        }
+      : null;
+  }
+
+  static getRowPredicates({ row, columns, groupBy }) {
     const val = [];
 
     if (groupBy.length) {

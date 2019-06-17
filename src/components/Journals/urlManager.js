@@ -16,7 +16,7 @@ export const OLD_LINKS = false;
 const getBool = str => str === 'true';
 
 const getPredicateFilter = options => {
-  const filter = ParserPredicate.getPredicatesByRow(options);
+  const filter = ParserPredicate.getRowPredicates(options);
   return filter ? JSON.stringify(filter) : '';
 };
 
@@ -93,6 +93,14 @@ export const getCreateRecord = ({ type, destination }) => {
 
 export const goToCreateRecordPage = createVariants => {
   window.open(getCreateRecord(createVariants), '_blank');
+};
+
+export const goToCardDetails = nodeRef => {
+  window.open(`${URL_PAGECONTEXT}card-details?nodeRef=${nodeRef}`, '_blank');
+};
+
+export const goToNodeEditPage = nodeRef => {
+  window.open(`${URL_PAGECONTEXT}node-edit-page?nodeRef=${nodeRef}`, '_blank');
 };
 
 export const getPreview = location => getBool(queryString.parse(location.search)[PREVIEW_KEY]);

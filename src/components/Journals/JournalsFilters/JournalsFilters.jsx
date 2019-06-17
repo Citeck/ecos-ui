@@ -3,6 +3,7 @@ import connect from 'react-redux/es/connect/connect';
 import Filters from '../../Filters/Filters';
 import PanelBar from '../../common/PanelBar/PanelBar';
 import { setPredicate } from '../../../actions/journals';
+import { t } from '../../../helpers/util';
 
 import './JournalsFilters.scss';
 
@@ -24,7 +25,7 @@ class JournalsFilters extends Component {
 
     return (
       <PanelBar
-        header={'Фильтрация'}
+        header={t('filter-list.panel-header')}
         className={'ecos-journals-filters__panel-bar'}
         css={{ headerClassName: 'panel-bar__header_full panel-bar__header_upper' }}
       >

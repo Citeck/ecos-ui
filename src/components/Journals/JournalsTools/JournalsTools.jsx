@@ -7,7 +7,7 @@ import { t } from '../../../helpers/util';
 
 import './JournalsTools.scss';
 
-const JournalsTools = ({ journalConfig, addRecord }) => {
+const JournalsTools = ({ journalConfig, addRecord, onSearch }) => {
   return (
     <div className={'ecos-journal__tools'}>
       <Well className={'ecos-well_full ecos-journal__tools-well'}>
@@ -15,7 +15,7 @@ const JournalsTools = ({ journalConfig, addRecord }) => {
           {t('button.send')}
         </IcoBtn>
 
-        <Search />
+        <Search onSearch={onSearch} />
 
         <Export config={journalConfig} className={'ecos-journal_right'}>
           <IcoBtn icon={'icon-down'} className={'ecos-btn_drop-down ecos-btn_r_6'}>

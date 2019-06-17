@@ -52,7 +52,9 @@ export default class FiltersGroup extends Component {
             <FiltersCondition onClick={this.changeGroupFilterCondition} condition={group.getCondition()} conditions={groupConditions} />
           )}
           <div className={'ecos-filters-group__tools'}>
-            <Label className={'ecos-filters-group__tools_step label_clear label_nowrap label_middle-grey'}>{'Добавить'}</Label>
+            <Label className={'ecos-filters-group__tools_step label_clear label_nowrap label_middle-grey'}>
+              {t('filter-list.filter-group-add')}
+            </Label>
 
             <Select
               className={`ecos-filters-group__select ecos-filters-group__tools_step select_narrow ${

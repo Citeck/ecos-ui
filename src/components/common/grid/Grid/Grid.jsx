@@ -35,7 +35,8 @@ export default class Grid extends Component {
     this._resizingTh = null;
     this._startResizingThOffset = 0;
     this._keyField = props.keyField || 'id';
-    this.scrollValues = {};
+    this._scrollValues = {};
+    this._tr = null;
   }
 
   componentDidMount() {
@@ -59,40 +60,26 @@ export default class Grid extends Component {
   }
 
   onKeydown(e) {
-    const props = this.props;
+    if (this.props.changeTrOptionsByRowClick) {
+      const tr = this._tr;
 
-    switch (e.keyCode) {
-      case 38:
-        if (this._byRowClickSelectedRow && this._byRowClickSelectedRow.previousSibling) {
-          this._byRowClickSelectedRow = this._byRowClickSelectedRow.previousSibling;
-
-          if (typeof props.onPrevRowSelected === 'function') {
-            props.onPrevRowSelected.call(
-              this,
-              e,
-              this.getTrOptions(this._byRowClickSelectedRow),
-              props.data[this._byRowClickSelectedRow.rowIndex - 1]
-            );
+      switch (e.keyCode) {
+        case 38:
+          if (tr && tr.previousSibling) {
+            this.getTrOptions(tr.previousSibling);
+            this.triggerRowClick(tr.previousSibling);
           }
-        }
 
-        break;
-      case 40:
-        if (this._byRowClickSelectedRow && this._byRowClickSelectedRow.nextSibling) {
-          this._byRowClickSelectedRow = this._byRowClickSelectedRow.nextSibling;
-
-          if (typeof props.onNextRowSelected === 'function') {
-            props.onNextRowSelected.call(
-              this,
-              e,
-              this.getTrOptions(this._byRowClickSelectedRow),
-              props.data[this._byRowClickSelectedRow.rowIndex - 1]
-            );
+          break;
+        case 40:
+          if (tr && tr.nextSibling) {
+            this.getTrOptions(tr.nextSibling);
+            this.triggerRowClick(tr.nextSibling);
           }
-        }
-        break;
-      default:
-        break;
+          break;
+        default:
+          break;
+      }
     }
   }
 
@@ -119,17 +106,18 @@ export default class Grid extends Component {
 
     props.rowEvents = props.rowEvents || {};
 
-    if (typeof props.onMouseEnter === 'function') {
-      props.rowEvents = { onMouseEnter: e => props.onMouseEnter.call(this, e, this.getTrOptions(e.currentTarget)), ...props.rowEvents };
-    }
+    props.rowEvents = {
+      onMouseEnter: e => {
+        !props.changeTrOptionsByRowClick && this.getTrOptions(e.currentTarget);
+        trigger.call(this, 'onMouseEnter', e);
+      },
+      ...props.rowEvents
+    };
 
-    this._byRowClickSelectedRow = null;
     props.rowEvents = {
       onClick: e => {
-        if (typeof props.onRowClick === 'function') {
-          this._byRowClickSelectedRow = e.currentTarget;
-          props.onRowClick.call(this, e, this.getTrOptions(e.currentTarget), props.data[e.currentTarget.rowIndex - 1]);
-        }
+        props.changeTrOptionsByRowClick && this.getTrOptions(e.currentTarget);
+        this.triggerRowClick(e.currentTarget);
       },
       ...props.rowEvents
     };
@@ -145,13 +133,19 @@ export default class Grid extends Component {
     return props;
   }
 
+  triggerRowClick = tr => {
+    trigger.call(this, 'onRowClick', this.props.data[tr.rowIndex - 1]);
+  };
+
   getTrOptions = tr => {
-    const { scrollLeft = 0 } = this.scrollValues;
+    const { scrollLeft = 0 } = this._scrollValues;
     const height = tr.offsetHeight - 2;
     const top = tr.offsetTop - 1;
     const row = this.props.data[tr.rowIndex - 1];
 
-    return { height, top, row, left: scrollLeft };
+    this._tr = tr;
+
+    trigger.call(this, 'onChangeTrOptions', { height, top, row, left: scrollLeft });
   };
 
   setEditable = () => {
@@ -358,7 +352,13 @@ export default class Grid extends Component {
   };
 
   onScrollFrame = e => {
-    this.scrollValues = e;
+    this._scrollValues = e;
+
+    if (this._tr) {
+      this.getTrOptions(this._tr);
+    }
+
+    trigger.call(this, 'onScrolling', e);
   };
 
   render() {
