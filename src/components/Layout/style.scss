@@ -248,7 +248,7 @@ $indents-of-items: 15px;
     display: flex;
     width: 100%;
 
-    .ecos-dnd__droppable-children-wrapper > :nth-child(1n):not(:last-child) {
+    .ecos-dnd__droppable-children-wrapper > :not(:last-child) {
       margin-bottom: $indents-of-items;
     }
   }
