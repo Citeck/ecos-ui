@@ -135,7 +135,9 @@ export function filterPredicates(filterArr) {
 }
 
 export function getPredicates(field) {
-  switch (field.type) {
+  let type = field.type || COLUMN_DATA_TYPE_TEXT;
+
+  switch (type) {
     case COLUMN_DATA_TYPE_FILTER_GROUP:
       return filterPredicates(PREDICATE_LIST_TYPE_FILTER_GROUP);
 

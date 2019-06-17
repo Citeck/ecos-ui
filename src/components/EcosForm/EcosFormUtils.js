@@ -100,6 +100,8 @@ export default class EcosFormUtils {
 
         let attributeSchema;
 
+        let dataType = lodashGet(component, 'ecos.dataType', '');
+
         switch (component.type) {
           case 'checkbox':
             attributeSchema = 'bool';
@@ -130,7 +132,8 @@ export default class EcosFormUtils {
           attribute: attribute,
           component: component,
           schema: schema,
-          edgeSchema: edgeSchema
+          edgeSchema: edgeSchema,
+          dataType: dataType
         });
       }
     });
@@ -158,10 +161,12 @@ export default class EcosFormUtils {
       return Promise.resolve({});
     }
 
+    let inputByKey = {};
     let attributes = {};
     for (let input of inputs) {
       let key = input.component.key;
       if (key) {
+        inputByKey[key] = input;
         attributes[key] = input.schema;
         attributes[EDGE_PREFIX + key] = input.edgeSchema;
       }
@@ -178,7 +183,12 @@ export default class EcosFormUtils {
             if (att.indexOf(EDGE_PREFIX) === 0) {
               edges[att.substring(EDGE_PREFIX.length)] = recordData[att];
             } else if (recordData[att] !== null) {
-              submission[att] = recordData[att];
+              let input = inputByKey[att];
+              if (input && input.dataType === 'json-record') {
+                submission[att] = EcosFormUtils.initJsonRecord(recordData[att]);
+              } else {
+                submission[att] = recordData[att];
+              }
             }
           }
         }
@@ -188,5 +198,55 @@ export default class EcosFormUtils {
           submission
         };
       });
+  }
+
+  static initJsonRecord(data) {
+    if (Array.isArray(data)) {
+      let result = [];
+      for (let v of data) {
+        let record = this.initJsonRecord(v);
+        if (record) {
+          result.push(record);
+        }
+      }
+      return result;
+    }
+
+    if (isString(data)) {
+      if (data[0] === '{') {
+        data = JSON.parse(data);
+      } else {
+        return null;
+      }
+    }
+
+    let id = data.nodeRef || data.id;
+
+    if (!id) {
+      return null;
+    }
+
+    let attributes = {};
+    if (data.nodeRef) {
+      let dataAttributes = data.attributes || [];
+      for (let att of dataAttributes) {
+        attributes[att.name] = att.value;
+      }
+    } else if (data.id) {
+      for (let att in data) {
+        if (att !== 'id' && data.hasOwnProperty(att)) {
+          attributes[att] = data[att];
+        }
+      }
+    }
+
+    let record = Records.get(id);
+    for (let att in attributes) {
+      if (attributes.hasOwnProperty(att)) {
+        record.att(att, attributes[att]);
+      }
+    }
+
+    return id;
   }
 }

@@ -62,28 +62,34 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates }) => {
+  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId }) => {
+    let queryPredicates = journalPredicate ? [journalPredicate] : [];
     const query = {
       t: 'and',
-      val: [
-        journalPredicate,
-        ...predicates.filter(item => {
+      val: queryPredicates.concat(
+        (predicates || []).filter(item => {
           return item.val !== '' && item.val !== null;
         })
-      ]
+      )
     };
+
+    let bodyQuery = {
+      query,
+      language: 'predicate',
+      page: pagination,
+      consistency: 'EVENTUAL'
+    };
+
+    if (sourceId) {
+      bodyQuery['sourceId'] = sourceId;
+    }
 
     const dataSource = new dataSourceStore['GqlDataSource']({
       url: `${PROXY_URI}citeck/ecos/records`,
       dataSourceName: 'GqlDataSource',
       ajax: {
         body: {
-          query: {
-            query,
-            language: 'predicate',
-            page: pagination,
-            consistency: 'EVENTUAL'
-          }
+          query: bodyQuery
         }
       },
       columns: columns || []
