@@ -155,7 +155,7 @@ export default class BaseReactComponent extends BaseComponent {
     if (component.setValue) {
       component.setValue(value);
     } else {
-      throw new Error('Your component should has setValue method or custom updateReactValue implementation');
+      throw new Error('Your component should has setValue method or custom setReactValue implementation');
     }
   }
 

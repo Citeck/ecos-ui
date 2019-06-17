@@ -41,7 +41,8 @@ const ModalForm = () => {
             onFormCancel={toggleModal}
             saveOnSubmit={false}
             options={{
-              parentForm
+              parentForm,
+              formMode
             }}
           />
         </EcosModal>
