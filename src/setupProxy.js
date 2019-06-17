@@ -32,7 +32,7 @@ const bpmnEditorProxyOptions = {
   }
 };
 
-const GATEWAY_RECORDS_PROXY_URL = process.env.GATEWAY_PROXY_URL || process.env.SHARE_PROXY_URL || 'http://localhost';
+const GATEWAY_RECORDS_PROXY_URL = process.env.GATEWAY_PROXY_URL || SHARE_PROXY_URL || 'http://localhost';
 const gatewayRecordsProxyOptions = {
   target: GATEWAY_RECORDS_PROXY_URL,
   changeOrigin: true,
