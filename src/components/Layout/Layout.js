@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
+import { t } from '../../helpers/util';
 import Components from '../Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
 import './style.scss';
@@ -69,6 +70,10 @@ class Layout extends Component {
     this.props.onSaveWidget(data, { source, destination });
   };
 
+  renderLoadingWidget() {
+    return <div>{t('Loading...')}</div>;
+  }
+
   renderWidgets(widgets = [], columnName) {
     const components = [];
 
@@ -77,7 +82,7 @@ class Layout extends Component {
       const id = `${columnName}${WIDGET_NAME}${widget.name}${WIDGET_ID}${widget.id}${WIDGET_INDEX}${index}`;
 
       components.push(
-        <React.Suspense fallback={<div>Loading...</div>} key={id}>
+        <React.Suspense fallback={this.renderLoadingWidget()} key={id}>
           <DragItem draggableId={id} isWrapper>
             <Widget {...widget.props} />
           </DragItem>

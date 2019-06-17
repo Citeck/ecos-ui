@@ -51,69 +51,72 @@ export function getMenuConfig() {
 
 export function getLayoutConfig() {
   return {
-    type: LAYOUT_TYPE.TWO_COLUMNS_BS,
-    columns: [
-      {
-        width: '30%',
-        widgets: [
-          {
-            label: 'Предпросмотр',
-            id: uuidV4(),
-            name: 'doc-preview',
-            props: {
-              id: 'doc-preview-1',
-              config: {
-                link:
-                  '/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/801da94d-c08a-472c-8cdd-0d50248adb0b/Договор%20№44.pdf',
-                height: '500px',
-                scale: 1
+    layout: {
+      type: LAYOUT_TYPE.TWO_COLUMNS_BS,
+      columns: [
+        {
+          width: '30%',
+          widgets: [
+            {
+              label: 'Предпросмотр',
+              id: uuidV4(),
+              name: 'doc-preview',
+              props: {
+                id: 'doc-preview-1',
+                config: {
+                  link:
+                    '/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/801da94d-c08a-472c-8cdd-0d50248adb0b/Договор%20№44.pdf',
+                  height: '500px',
+                  scale: 1
+                }
               }
             }
-          }
-        ]
-      },
-      {
-        // width: '60%',
-        widgets: [
-          {
-            label: 'Предпросмотр',
-            id: uuidV4(),
-            name: 'doc-preview',
-            props: {
-              id: 'doc-preview-0',
-              config: {
-                link: '/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/2557e4b7-725f-40f3-95da-6175a67d3b3f/sample.pdf',
-                height: '200px',
-                scale: 0.5
+          ]
+        },
+        {
+          // width: '60%',
+          widgets: [
+            {
+              label: 'Предпросмотр',
+              id: uuidV4(),
+              name: 'doc-preview',
+              props: {
+                id: 'doc-preview-0',
+                config: {
+                  link:
+                    '/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/2557e4b7-725f-40f3-95da-6175a67d3b3f/sample.pdf',
+                  height: '200px',
+                  scale: 0.5
+                }
               }
+            },
+            {
+              label: 'Журнал',
+              name: 'journal',
+              id: uuidV4()
             }
-          },
-          {
-            label: 'Журнал',
-            name: 'journal',
-            id: uuidV4()
-          }
-        ]
-      }
-      // {
-      //   width: '40%',
-      //   widgets: [
-      //     {
-      //      label: 'Предпросмотр',
-      //         id: 'doc-preview-2',
-      //       name: 'doc-preview',
-      //       props: {
-      //         config: {
-      //           link:
-      //             '/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/801da94d-c08a-472c-8cdd-0d50248adb0b/Договор%20№44.pdf',
-      //           height: '500px',
-      //           scale: 1
-      //         }
-      //       }
-      //     }
-      //   ]
-      // }
-    ]
+          ]
+        }
+        // {
+        //   width: '40%',
+        //   widgets: [
+        //     {
+        //      label: 'Предпросмотр',
+        //         id: 'doc-preview-2',
+        //       name: 'doc-preview',
+        //       props: {
+        //         config: {
+        //           link:
+        //             '/share/proxy/alfresco/slingshot/node/content/workspace/SpacesStore/801da94d-c08a-472c-8cdd-0d50248adb0b/Договор%20№44.pdf',
+        //           height: '500px',
+        //           scale: 1
+        //         }
+        //       }
+        //     }
+        //   ]
+        // }
+      ]
+    }
   };
 }
 

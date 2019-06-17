@@ -3,7 +3,7 @@ import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
 import { PROXY_URI_SHORT } from '../../../constants/alfresco';
 import DocPreview from '../../DocPreview/DocPreview';
-import '../../DocPreview/DocPreview.scss';
+import '../../DocPreview/style.scss';
 import './JournalsPreview.scss';
 
 const mapStateToProps = state => ({

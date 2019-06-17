@@ -1,5 +1,7 @@
 @import '../../constants.scss';
 
+$indents-of-items: 15px;
+
 .ecos-layout {
   $root: &;
 
@@ -8,6 +10,7 @@
   width: 100%;
   flex-direction: column;
   height: 100vh;
+  padding: 0 13px;
 
   &_left-menu {
     -webkit-transform: translateX(60px);
@@ -24,7 +27,7 @@
     width: 160px;
 
     &-template {
-      $this: &;
+      $template: &;
 
       display: flex;
       height: 100px;
@@ -138,7 +141,7 @@
     width: 100%;
 
     &:not(:last-child) {
-      margin-right: 13px;
+      margin-right: $indents-of-items;
     }
 
     &-wrapper {
@@ -152,7 +155,7 @@
     display: flex;
     width: 100%;
     //height: 100%;
-    padding: 5px;
+    padding: 0 13px 21px;
     flex-wrap: wrap;
     justify-content: flex-start;
     align-content: flex-start;
@@ -176,10 +179,10 @@
       box-shadow: $box-shadow-default;
       border-radius: 12px;
       position: relative;
-      margin-bottom: 15px;
+      margin-bottom: $indents-of-items;
 
       &:not(:last-child) {
-        margin-right: 15px;
+        margin-right: $indents-of-items;
       }
 
       &-i {
@@ -244,5 +247,9 @@
   &__droppable {
     display: flex;
     width: 100%;
+
+    .ecos-dnd__droppable-children-wrapper :nth-child(1n):not(:last-child) {
+      margin-bottom: $indents-of-items;
+    }
   }
 }
