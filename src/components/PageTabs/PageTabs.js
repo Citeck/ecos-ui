@@ -1,6 +1,7 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { getScrollbarWidth, deepClone } from '../../helpers/util';
 import { SortableContainer, SortableElement } from './sortable';
 import { SCROLL_STEP, TITLE, LINK_TAG, getTitleByUrl } from '../../constants/pageTabs';
@@ -538,7 +539,11 @@ class PageTabs extends React.Component {
     const { children, isShow } = this.props;
 
     if (isShow) {
-      return <div className="page-tab__body">{children}</div>;
+      return (
+        <div className="page-tab__body">
+          <Scrollbars style={{ height: '100%' }}>{children}</Scrollbars>
+        </div>
+      );
     }
 
     return children;

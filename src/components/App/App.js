@@ -4,7 +4,6 @@ import { withRouter } from 'react-router-dom';
 import { Route, Switch } from 'react-router';
 import classNames from 'classnames';
 import { path } from 'ramda';
-import { Scrollbars } from 'react-custom-scrollbars';
 
 import BPMNDesignerPage from '../../pages/BPMNDesignerPage';
 import CardDetailsPage from '../../pages/CardDetailsPage';
@@ -79,41 +78,39 @@ class App extends Component {
     const appClassNames = classNames('app-container', { mobile: isMobile });
 
     return (
-      <Scrollbars style={{ height: '100%' }}>
-        <div className={appClassNames}>
-          <ReduxModal />
+      <div className={appClassNames}>
+        <ReduxModal />
 
-          <div className="ecos-sticky-wrapper" id="sticky-wrapper">
-            <div id="alf-hd">
-              <Header />
-              <Notification />
-            </div>
-
-            <PageTabs homepageLink={URL.HOME} isShow={isShow} tabs={tabs} saveTabs={setTabs}>
-              {this.renderMenu()}
-
-              <Switch>
-                {/*<Route path="/share/page" exact component={DashboardPage} />*/}
-                <Route path="/formio-develop" component={FormIOPage} />
-                <Route path="/ecos-form-example" component={EcosFormPage} />
-                <Route path="/doc-preview" component={DocPreviewPage} />
-                <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
-
-                <Route path="/dashboard/:id?/(.*/)?settings" component={DashboardSettingsPage} />
-                <Route path="/dashboard/:id" exact component={DashboardPage} />
-
-                <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
-                <Route path="/share/page/ui/journals" component={JournalsPage} />
-                <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
-                {/*<Route component={NotFoundPage} />*/}
-              </Switch>
-            </PageTabs>
-
-            <div className="sticky-push" />
+        <div className="ecos-sticky-wrapper" id="sticky-wrapper">
+          <div id="alf-hd">
+            <Header />
+            <Notification />
           </div>
-          <Footer key="card-details-footer" theme={theme} />
+
+          <PageTabs homepageLink={URL.HOME} isShow={isShow} tabs={tabs} saveTabs={setTabs}>
+            {this.renderMenu()}
+
+            <Switch>
+              {/*<Route path="/share/page" exact component={DashboardPage} />*/}
+              <Route path="/formio-develop" component={FormIOPage} />
+              <Route path="/ecos-form-example" component={EcosFormPage} />
+              <Route path="/doc-preview" component={DocPreviewPage} />
+              <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
+
+              <Route path="/dashboard/:id?/(.*/)?settings" component={DashboardSettingsPage} />
+              <Route path="/dashboard/:id" exact component={DashboardPage} />
+
+              <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
+              <Route path="/share/page/ui/journals" component={JournalsPage} />
+              <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
+              {/*<Route component={NotFoundPage} />*/}
+            </Switch>
+          </PageTabs>
+
+          <div className="sticky-push" />
         </div>
-      </Scrollbars>
+        <Footer key="card-details-footer" theme={theme} />
+      </div>
     );
   }
 }

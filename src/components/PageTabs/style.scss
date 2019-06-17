@@ -6,6 +6,7 @@
   display: flex;
   position: relative;
   user-select: none;
+  margin-bottom: 37px;
 
   &_gradient {
     &-left {
@@ -248,7 +249,8 @@
 
   &__body {
     background-color: $color-gray-4;
-    padding: 37px 10px 10px;
+    padding: 0 10px 10px;
     position: relative;
+    height: 100%;
   }
 }
