@@ -137,22 +137,20 @@ class Journals extends Component {
             refresh={this.refresh}
           />
 
-          {settingsVisible ? (
-            <EcosModal
-              title={t('journals.action.setting-dialog-msg')}
-              isOpen={settingsVisible}
-              hideModal={this.toggleSettings}
-              isBigHeader
-              className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
-            >
-              <Well className={'ecos-journal__settings'}>
-                <JournalsFilters columns={visibleColumns} />
-                <JournalsColumnsSetup columns={columns} />
-                <JournalsGrouping columns={visibleColumns} />
-                <JournalsSettingsFooter journalId={journalId} />
-              </Well>
-            </EcosModal>
-          ) : null}
+          <EcosModal
+            title={t('journals.action.setting-dialog-msg')}
+            isOpen={settingsVisible}
+            hideModal={this.toggleSettings}
+            isBigHeader
+            className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
+          >
+            <Well className={'ecos-journal__settings'}>
+              <JournalsFilters columns={visibleColumns} />
+              <JournalsColumnsSetup columns={columns} />
+              <JournalsGrouping columns={visibleColumns} />
+              <JournalsSettingsFooter journalId={journalId} onApply={this.toggleSettings} />
+            </Well>
+          </EcosModal>
 
           <JournalsContent showPreview={showPreview} showPie={showPie} />
 

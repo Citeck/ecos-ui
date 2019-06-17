@@ -52,14 +52,14 @@ export default class Grid extends Component {
   }
 
   createKeydownEvents() {
-    document.addEventListener('keydown', this.onKeydown.bind(this));
+    document.addEventListener('keydown', this.onKeydown);
   }
 
   removeKeydownEvents() {
-    document.removeEventListener('keydown', this.onKeydown.bind(this));
+    document.removeEventListener('keydown', this.onKeydown);
   }
 
-  onKeydown(e) {
+  onKeydown = e => {
     if (this.props.changeTrOptionsByRowClick) {
       const tr = this._tr;
 
@@ -81,7 +81,7 @@ export default class Grid extends Component {
           break;
       }
     }
-  }
+  };
 
   setAdditionalOptions(props) {
     props.columns = props.columns.map(column => {

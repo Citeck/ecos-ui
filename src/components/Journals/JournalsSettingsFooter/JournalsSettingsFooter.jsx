@@ -32,6 +32,32 @@ class JournalsSettingsFooter extends Component {
     this.settingName = '';
   }
 
+  componentDidMount() {
+    this.createKeydownEvents();
+  }
+
+  componentWillUnmount() {
+    this.removeKeydownEvents();
+  }
+
+  createKeydownEvents() {
+    document.addEventListener('keydown', this.onKeydown);
+  }
+
+  removeKeydownEvents() {
+    document.removeEventListener('keydown', this.onKeydown);
+  }
+
+  onKeydown = e => {
+    switch (e.key) {
+      case 'Enter':
+        this.applySetting();
+        break;
+      default:
+        break;
+    }
+  };
+
   createSetting = () => {
     if (this.settingName) {
       this.props.createJournalSetting(this.props.journalId, this.getSetting(this.settingName));

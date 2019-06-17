@@ -227,7 +227,7 @@ export function getPredicateInput(field, sourceId) {
         changePredicateValue(e.target.value);
       },
       onKeyDown: function(e) {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && typeof applyFilters === 'function') {
           applyFilters();
         }
       }
