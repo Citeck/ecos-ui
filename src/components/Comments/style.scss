@@ -133,6 +133,39 @@
       border: 2px solid $color-gray-6;
       border-bottom-left-radius: 6px;
       border-bottom-right-radius: 6px;
+      margin-bottom: 15px;
+    }
+
+    &-footer {
+      display: flex;
+      justify-content: space-between;
+      align-content: center;
+
+      &-btn {
+        width: 141px;
+
+        &:not(:last-child) {
+          margin-right: 10px;
+        }
+      }
+    }
+  }
+
+  &__counter {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 18px;
+    line-height: 25px;
+    color: $color-gray-5;
+
+    &-separator {
+      margin: 0 5px;
+    }
+
+    &-item {
+      &_warning {
+        color: $color-red-1;
+      }
     }
   }
 }

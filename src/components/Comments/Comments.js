@@ -3,13 +3,21 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import moment from 'moment';
 import ReactResizeDetector from 'react-resize-detector';
-import { Editor, EditorState } from 'draft-js';
+import { Editor, EditorState, RichUtils } from 'draft-js';
 import Dashlet from '../Dashlet/Dashlet';
 import Btn from '../common/btns/Btn/Btn';
 import { t, num2str } from '../../helpers/util';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
+
+const BASE_HEIGHT = 21;
+const BUTTONS_TYPE = {
+  BOLD: 'BOLD',
+  ITALIC: 'ITALIC',
+  UNDERLINE: 'UNDERLINE',
+  LIST: 'unordered-list-item'
+};
 
 class Comments extends React.Component {
   static propTypes = {
@@ -18,17 +26,19 @@ class Comments extends React.Component {
       userName: PropTypes.string.isRequired,
       comment: PropTypes.string.isRequired,
       date: PropTypes.instanceOf(Date).isRequired
-    })
+    }),
+    maxLength: PropTypes.number
   };
 
   static defaultProps = {
-    comments: []
+    comments: [],
+    maxLength: 350
   };
 
   state = {
     isEdit: true,
     width: 291,
-    editorHeight: 21,
+    editorHeight: BASE_HEIGHT,
     comment: EditorState.createEmpty()
   };
 
@@ -81,6 +91,23 @@ class Comments extends React.Component {
     return 'Только что';
   }
 
+  get commentLength() {
+    const { comment } = this.state;
+
+    return comment.getCurrentContent().getPlainText().length || 0;
+  }
+
+  get counterClassName() {
+    const { maxLength } = this.props;
+    const classes = ['ecos-comments__counter-item'];
+
+    if (this.commentLength > maxLength) {
+      classes.push('ecos-comments__counter-item_warning');
+    }
+
+    return classes.join(' ');
+  }
+
   handleResize = width => {
     this.setState({ width });
   };
@@ -89,8 +116,22 @@ class Comments extends React.Component {
     this.setState({ isEdit: true });
   };
 
-  handleChangeComment = comment => {
-    this.setState({ comment }, this.updateEditorHeight);
+  handleCloseEditor = () => {
+    this.setState({
+      isEdit: false,
+      comment: EditorState.createEmpty(),
+      editorHeight: BASE_HEIGHT
+    });
+  };
+
+  handleChangeComment = (comment, setFocus = false) => {
+    this.setState({ comment }, () => {
+      this.updateEditorHeight();
+
+      if (setFocus) {
+        this.handleFocusEditor();
+      }
+    });
   };
 
   updateEditorHeight = () => {
@@ -103,10 +144,36 @@ class Comments extends React.Component {
     this.editor = editor;
   };
 
-  focusEditor = () => {
+  handleFocusEditor = () => {
     if (this.editor) {
       this.editor.focus();
     }
+  };
+
+  handleToggleStyle(type) {
+    const { comment } = this.state;
+    const newComment = RichUtils.toggleInlineStyle(comment, type);
+
+    this.handleChangeComment(newComment, true);
+  }
+
+  handleToggleBlockType(type) {
+    const { comment } = this.state;
+    const newComment = RichUtils.toggleBlockType(comment, type);
+
+    this.handleChangeComment(newComment);
+  }
+
+  handleKeyCommand = (command, editorState) => {
+    const newComment = RichUtils.handleKeyCommand(editorState, command);
+
+    if (newComment) {
+      this.handleChangeComment(newComment);
+
+      return true;
+    }
+
+    return false;
   };
 
   renderHeader() {
@@ -128,7 +195,24 @@ class Comments extends React.Component {
     );
   }
 
+  get inlineStyles() {
+    const { comment } = this.state;
+
+    return comment.getCurrentInlineStyle();
+  }
+
+  get blockType() {
+    const { comment } = this.state;
+    const selection = comment.getSelection();
+
+    return comment
+      .getCurrentContent()
+      .getBlockForKey(selection.getStartKey())
+      .getType();
+  }
+
   renderEditor() {
+    const { maxLength } = this.props;
     const { comment, editorHeight } = this.state;
     let minHeight = '1em';
 
@@ -142,17 +226,35 @@ class Comments extends React.Component {
       minHeight = '88px';
     }
 
-    console.warn(comment.getCurrentContent().getPlainText().length);
-
     return (
       <div className="ecos-comments__editor">
         <div className="ecos-comments__editor-header">
-          <div>B</div>
-          <div>I</div>
-          <div>U</div>
-          <div>List</div>
+          <div
+            style={{ padding: '5px', color: this.inlineStyles.has(BUTTONS_TYPE.BOLD) ? 'blue' : 'white', cursor: 'pointer' }}
+            onClick={this.handleToggleStyle.bind(this, BUTTONS_TYPE.BOLD)}
+          >
+            B
+          </div>
+          <div
+            style={{ padding: '5px', color: this.inlineStyles.has(BUTTONS_TYPE.ITALIC) ? 'blue' : 'white', cursor: 'pointer' }}
+            onClick={this.handleToggleStyle.bind(this, BUTTONS_TYPE.ITALIC)}
+          >
+            I
+          </div>
+          <div
+            style={{ padding: '5px', color: this.inlineStyles.has(BUTTONS_TYPE.UNDERLINE) ? 'blue' : 'white', cursor: 'pointer' }}
+            onClick={this.handleToggleStyle.bind(this, BUTTONS_TYPE.UNDERLINE)}
+          >
+            U
+          </div>
+          <div
+            style={{ padding: '5px', color: this.blockType === BUTTONS_TYPE.LIST ? 'blue' : 'white', cursor: 'pointer' }}
+            onClick={this.handleToggleBlockType.bind(this, BUTTONS_TYPE.LIST)}
+          >
+            List
+          </div>
         </div>
-        <div className="ecos-comments__editor-body" onClick={this.focusEditor}>
+        <div className="ecos-comments__editor-body" onClick={this.handleFocusEditor}>
           <Scrollbars
             autoHide
             style={{
@@ -165,10 +267,39 @@ class Comments extends React.Component {
               ref={this.setEditor}
               editorState={comment}
               onChange={this.handleChangeComment}
+              handleKeyCommand={this.handleKeyCommand}
               placeholder="Напишите комментарий не более 350 символов..."
             />
           </Scrollbars>
         </div>
+        <div className="ecos-comments__editor-footer">
+          {this.renderCount()}
+          {/*{this.renderErrorMessage()}*/}
+          <div>
+            <Btn className="ecos-btn_grey5 ecos-btn_hover_grey1 ecos-comments__editor-footer-btn" onClick={this.handleCloseEditor}>
+              {t('Отмена')}
+            </Btn>
+            <Btn
+              className="ecos-btn_blue ecos-btn_hover_light-blue ecos-commens__editor-footer-btn"
+              onClick={this.handleCloseEditor}
+              disabled={this.commentLength > maxLength}
+            >
+              {t('Отправить')}
+            </Btn>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  renderCount() {
+    const { maxLength } = this.props;
+
+    return (
+      <div className="ecos-comments__counter">
+        <span className={this.counterClassName}>{this.commentLength}</span>
+        <span className="ecos-comments__counter-separator">/</span>
+        <span className="ecos-comments__counter-item">{maxLength}</span>
       </div>
     );
   }
