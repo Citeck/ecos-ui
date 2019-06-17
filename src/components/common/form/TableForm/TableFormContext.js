@@ -13,7 +13,7 @@ export const FORM_MODE_EDIT = 'EDIT';
 
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
-  const { onChange, onError, source, defaultValue } = controlProps;
+  const { onChange, onError, source, defaultValue, triggerEventOnTableChange } = controlProps;
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
   const [isModalFormOpen, setIsModalFormOpen] = useState(false);
@@ -168,7 +168,10 @@ export const TableFormContextProvider = props => {
               return { ...result, id: r };
             });
         })
-      ).then(setSelectedRows);
+      ).then(result => {
+        setSelectedRows(result);
+        typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
+      });
     }
   }, [defaultValue, columns, setSelectedRows]);
 
@@ -210,13 +213,14 @@ export const TableFormContextProvider = props => {
             ...selectedRows,
             {
               id: record.id,
-              ...record.getRawAttributes()
+              ...record.toJson()['attributes']
             }
           ];
 
           setSelectedRows(newSelectedRows);
 
           typeof onChange === 'function' && onChange(newSelectedRows.map(item => item.id));
+          typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
         },
 
         onEditFormSubmit: (record, form) => {
@@ -226,7 +230,7 @@ export const TableFormContextProvider = props => {
 
           let newSelectedRows = [...selectedRows];
 
-          const newRow = { ...record.getRawAttributes(), id: editRecordId };
+          const newRow = { ...record.toJson()['attributes'], id: editRecordId };
 
           if (isNodeRef && isAlias) {
             // replace base record row by newRow in values list
@@ -251,6 +255,7 @@ export const TableFormContextProvider = props => {
           setSelectedRows(newSelectedRows);
 
           typeof onChange === 'function' && onChange(newSelectedRows.map(item => item.id));
+          typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
 
           setIsModalFormOpen(false);
         },
@@ -260,6 +265,7 @@ export const TableFormContextProvider = props => {
           setSelectedRows([...newSelectedRows]);
 
           typeof onChange === 'function' && onChange(newSelectedRows.map(item => item.id));
+          typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
         },
 
         setInlineToolsOffsets: (e, offsets) => {

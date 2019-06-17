@@ -8,5 +8,6 @@ export default {
   onError: PropTypes.func,
   isCompact: PropTypes.bool,
   parentForm: PropTypes.object,
+  triggerEventOnTableChange: PropTypes.func,
   viewOnly: PropTypes.bool
 };
