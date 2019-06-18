@@ -388,7 +388,7 @@ function* sagaGoToJournalsPage({ api, logger }, action) {
     const grid = yield select(state => state.journals.grid);
 
     const { columns, groupBy = [] } = grid;
-    const { journalsListId = '', journalSettingId = '' } = config;
+    let { journalsListId = '', journalSettingId = '' } = config;
     let {
       id = '',
       meta: { nodeRef = '', criteria = [], predicate = {} }
@@ -398,7 +398,12 @@ function* sagaGoToJournalsPage({ api, logger }, action) {
 
     if (journalType) {
       let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(journalType)}`);
-      nodeRef = journalConfig.meta.nodeRef;
+
+      const meta = journalConfig.meta || {};
+      const params = journalConfig.params || {};
+
+      nodeRef = meta.nodeRef || nodeRef;
+      journalsListId = params.journalsListId || journalsListId;
     }
 
     let attributes = {};
