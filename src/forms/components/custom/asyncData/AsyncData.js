@@ -279,7 +279,7 @@ export default class AsyncDataComponent extends BaseComponent {
       this.on(
         this.component.update.event,
         () => {
-          this._updateValue(false);
+          this._updateValue(true); // TODO this.component.update.force
         },
         true
       );

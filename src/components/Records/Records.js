@@ -346,7 +346,11 @@ class Record {
 
     for (let att in this._attributes) {
       if (this._attributes.hasOwnProperty(att)) {
-        attributes[extractFirstAttName(att)] = this._attributes[att].value;
+        const attName = extractFirstAttName(att);
+        if (attributes[attName] && !this._attributes[att].value) {
+          continue;
+        }
+        attributes[attName] = this._attributes[att].value;
       }
     }
 

@@ -104,9 +104,11 @@ export class JournalsApi extends RecordService {
   getJournalConfig = journalId => {
     //return this.getJson(`${MICRO_URI}api/journalcfg?journalId=contract-agreements`).then(resp => {
 
-    return this.getJson(`${PROXY_URI}api/journals/config?journalId=${journalId}`).then(resp => {
-      return resp || {};
-    });
+    return this.getJson(`${PROXY_URI}api/journals/config?journalId=${journalId}`)
+      .then(resp => {
+        return resp || {};
+      })
+      .catch(() => {});
   };
 
   getJournalsList = () => {
