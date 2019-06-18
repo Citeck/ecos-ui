@@ -1,6 +1,7 @@
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import lodashGet from 'lodash/get';
 
 const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
@@ -248,7 +249,7 @@ class RecordsComponent {
 
           for (let att in recordMeta.attributes) {
             if (recordMeta.attributes.hasOwnProperty(att)) {
-              record.att(attributesMapping[att], recordMeta.attributes[att]);
+              record._setAttributePersistedValue(attributesMapping[att], recordMeta.attributes[att]);
             }
           }
         }
@@ -280,19 +281,29 @@ class Attribute {
     this._owner = owner;
     this._name = name;
     this._persisted = persisted;
-    this._value = persisted;
+    this._value = null;
+    this._wasChanged = false;
   }
 
   get persisted() {
     return this._persisted;
   }
 
+  set persisted(value) {
+    this._persisted = value;
+    this._value = null;
+    this._wasChanged = false;
+  }
+
   set value(value) {
-    this._value = value;
+    if (!isEqual(this._persisted, value)) {
+      this._value = value;
+      this._wasChanged = true;
+    }
   }
 
   get value() {
-    if (this._value != null) {
+    if (this._wasChanged) {
       return this._value;
     } else {
       return this.persisted;
@@ -312,7 +323,7 @@ class Attribute {
   }
 
   isPersisted() {
-    return this._value === this.persisted;
+    return !this._wasChanged;
   }
 }
 
@@ -358,8 +369,13 @@ class Record {
   }
 
   isPersisted() {
-    for (let att in this._attributes) {
-      if (!this._attributes[att].isPersisted()) {
+    const atts = this._attributes;
+
+    for (let att in atts) {
+      if (!atts.hasOwnProperty(att)) {
+        continue;
+      }
+      if (att !== '_alias' && !atts[att].isPersisted()) {
         return false;
       }
     }
@@ -599,10 +615,20 @@ class Record {
     }
   }
 
+  _setAttributePersistedValue(name, value) {
+    let attribute = this._attributes[name];
+    if (!attribute) {
+      attribute = new Attribute(this, name, value);
+      this._attributes[name] = attribute;
+    } else {
+      attribute.persisted = value;
+    }
+  }
+
   _setAttributeValueImpl(name, value) {
     let attribute = this._attributes[name];
     if (!attribute) {
-      attribute = new Attribute(null);
+      attribute = new Attribute(this, name, null);
       this._attributes[name] = attribute;
     }
     attribute.value = value;
