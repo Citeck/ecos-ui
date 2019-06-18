@@ -53,7 +53,7 @@ export function parseGetResult(result) {
     return {};
   }
 
-  return result[QUERY_KEYS.CONFIG_JSON];
+  return result[QUERY_KEYS.CONFIG_JSON] || {};
 }
 
 export function parseSaveResult(result) {

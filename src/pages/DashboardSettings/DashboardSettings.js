@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 import { cloneDeep } from 'lodash';
 import { path } from 'ramda';
+import queryString from 'query-string';
 import { arrayCompare, t } from '../../helpers/util';
 import { LAYOUTS, TYPE_MENU } from '../../constants/dashboardSettings';
 import { MENU_TYPE, SAVE_STATUS } from '../../constants';
@@ -26,12 +27,13 @@ const mapStateToProps = state => ({
   isLoadingMenu: path(['menu', 'isLoading'], state),
   availableWidgets: path(['dashboardSettings', 'availableWidgets'], state),
   isLoading: path(['dashboardSettings', 'isLoading'], state),
-  saveResult: path(['dashboardSettings', 'saveResult'], state)
+  saveResult: path(['dashboardSettings', 'saveResult'], state),
+  dashboardId: path(['dashboardSettings', 'dashboardId'], state)
 });
 
 const mapDispatchToProps = dispatch => ({
   initMenuSettings: () => dispatch(initMenuSettings()),
-  initDashboardSettings: ({ recordId }) => dispatch(initDashboardSettings({ recordId })),
+  initDashboardSettings: payload => dispatch(initDashboardSettings(payload)),
   saveSettings: payload => dispatch(saveDashboardConfig(payload))
 });
 
@@ -61,15 +63,16 @@ class DashboardSettings extends React.Component {
   };
 
   get pathInfo() {
-    const { url, params } = this.props.match;
-    const indexSet = url.lastIndexOf('/settings');
-    const pathDashboard = url.substring(0, indexSet);
-    const recordId = params.id || '';
+    const {
+      location: { search }
+    } = this.props;
+    const searchParams = queryString.parse(search);
+    const { recordRef, dashboardId } = searchParams;
+    console.log(this.props);
 
     return {
-      url,
-      pathDashboard,
-      recordId
+      pathDashboard: '/dashboard' + search, //fixme
+      recordRef
     };
   }
 
@@ -89,9 +92,9 @@ class DashboardSettings extends React.Component {
 
   componentDidMount() {
     const { initDashboardSettings, initMenuSettings } = this.props;
-    const { recordId } = this.pathInfo;
+    const { recordRef } = this.pathInfo;
 
-    initDashboardSettings({ recordId });
+    initDashboardSettings({ recordRef });
     initMenuSettings();
   }
 
@@ -123,7 +126,7 @@ class DashboardSettings extends React.Component {
     this.setState({ ...state });
 
     if (nextProps.saveResult && saveResult.status !== nextProps.saveResult.status && nextProps.saveResult.status !== SAVE_STATUS.FAILURE) {
-      this.handleCloseClick(nextProps.saveResult.recordId);
+      this.handleCloseClick();
     }
   }
 
@@ -563,18 +566,21 @@ class DashboardSettings extends React.Component {
 
   /*-------- start Buttons --------*/
 
-  handleCloseClick = recordId => {
-    let path = this.pathInfo.pathDashboard;
+  handleCloseClick = () => {
+    const { dashboardId: savedId } = this.props;
+    const { dashboardId, pathDashboard } = this.pathInfo;
+    let path = pathDashboard;
 
-    if (recordId && !this.pathInfo.recordId) {
-      path += recordId;
+    if (savedId && !dashboardId) {
+      path += '&dashboardId=' + savedId;
     }
 
-    window.location.href = path;
+    //window.location.href = path;
   };
 
   handleAcceptClick = () => {
     const { saveSettings } = this.props;
+    const { dashboardId } = this.pathInfo;
     const { selectedWidgets: widgets, selectedMenuItems: links, typeMenu } = this.state;
     const layout = this.selectedLayout;
     const menuType = typeMenu.find(item => item.isActive).type;
@@ -585,7 +591,7 @@ class DashboardSettings extends React.Component {
       menuType,
       widgets,
       links,
-      recordId: this.pathInfo.recordId
+      dashboardId
     });
   };
 

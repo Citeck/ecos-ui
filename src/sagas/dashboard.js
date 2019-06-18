@@ -3,7 +3,7 @@ import {
   getDashboardConfig,
   saveDashboardConfig,
   setDashboardConfig,
-  setDashboardKey,
+  setDashboardId,
   setResultSaveDashboardConfig
 } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
@@ -14,15 +14,23 @@ import { getLayoutConfig } from '../api/mock/dashboardSettings';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
-    const { recordId } = payload;
-    const result = yield call(api.dashboard.getDashboardConfig, recordId);
-    const config = dto.parseGetResult(result);
+    const { dashboardId, recordRef } = payload;
+    const result = dashboardId
+      ? yield call(api.dashboard.getDashboardConfig, dashboardId)
+      : yield call(api.dashboard.getDashboardByRecordRef, recordRef);
+    let config;
+    console.log('>>>>>', result);
+    if (dashboardId && result) {
+      config = dto.parseGetResult(result);
+    } else {
+      config = result ? result.config : dto.getDefaultDashboardConfig;
+    }
     // const config = getLayoutConfig();
 
     if (config && Object.keys(config).length) {
       const webConfig = dto.getDashboardForWeb(config);
 
-      yield put(setDashboardKey(config.key));
+      yield put(setDashboardId(dashboardId));
       yield put(setDashboardConfig(webConfig));
     }
   } catch (e) {

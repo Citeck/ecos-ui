@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { path } from 'ramda';
+import queryString from 'query-string';
 import { getDashboardConfig, saveDashboardConfig } from '../../actions/dashboard';
 import Layout from '../../components/Layout';
 import Loader from '../../components/common/Loader/Loader';
@@ -19,26 +20,29 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  getDashboardConfig: ({ recordId }) => dispatch(getDashboardConfig({ recordId })),
+  getDashboardConfig: payload => dispatch(getDashboardConfig(payload)),
   saveDashboardConfig: payload => dispatch(saveDashboardConfig(payload))
 });
 
 class Dashboard extends Component {
   get pathInfo() {
-    const { url, params } = this.props.match;
-    const recordId = params.id;
+    const {
+      location: { search }
+    } = this.props;
+    const searchParams = queryString.parse(search);
+    const { recordRef, dashboardId } = searchParams;
 
     return {
-      url,
-      recordId
+      recordRef,
+      dashboardId
     };
   }
 
   componentDidMount() {
     const { getDashboardConfig } = this.props;
-    const { recordId } = this.pathInfo;
+    const { recordRef, dashboardId } = this.pathInfo;
 
-    getDashboardConfig({ recordId });
+    getDashboardConfig({ recordRef, dashboardId });
   }
 
   prepareWidgetsConfig = (data, dnd) => {
@@ -48,7 +52,7 @@ class Dashboard extends Component {
     } = this.props;
     const { isWidget, columnFrom, columnTo } = data;
     const { source, destination } = dnd;
-    const { recordId } = this.pathInfo;
+    const { dashboardId } = this.pathInfo;
     const config = { ...currentConfig };
 
     if (isWidget) {
@@ -68,7 +72,7 @@ class Dashboard extends Component {
       config.columns[columnTo].widgets = widgetsTo;
     }
 
-    this.saveDashboardConfig({ config, recordId });
+    this.saveDashboardConfig({ config, dashboardId });
   };
 
   saveDashboardConfig = payload => {

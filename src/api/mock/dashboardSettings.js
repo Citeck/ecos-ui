@@ -1,5 +1,5 @@
 import uuidV4 from 'uuid/v4';
-import { t } from '../../helpers/util';
+import { deepClone, t } from '../../helpers/util';
 import { MENU_TYPE } from '../../constants';
 import { LAYOUT_TYPE } from '../../constants/layout';
 
@@ -143,4 +143,35 @@ export function getMenuItems() {
     { id: 228, name: t('Открытие источники (они больше закрытые, чем открытые)') },
     { id: 226, name: t('Открытие источники (они больше закрытые, чем открытые)') }
   ];
+}
+
+export function setDataWidgets(items) {
+  return items.map(item => {
+    return item.map(source => {
+      const widget = deepClone(source);
+
+      widget.id = uuidV4();
+
+      switch (widget.name) {
+        case 'doc-preview': {
+          widget.props = {
+            id: widget.id,
+            config: {
+              height: '500px',
+              link: '/share/proxy/alfresco/demo.pdf',
+              scale: 1
+            }
+          };
+          break;
+        }
+        case 'journal': {
+          break;
+        }
+        default:
+          break;
+      }
+
+      return widget;
+    });
+  });
 }

@@ -29,12 +29,15 @@ export class DashboardApi extends RecordService {
     return record.save().then(resp => resp);
   };
 
-  getDashboardByRecord = function*(recordRef = '') {
+  getDashboardByRecordRef = function*(recordRef = '') {
+    console.log('KU', recordRef);
     if (!recordRef) {
       return null;
     }
 
-    const dashboardIds = Array.from(yield Records.get(recordRef).load('_dashboardKey[]'));
+    const result = yield Records.get(recordRef).load('_dashboardKey[]');
+    console.log('result', result);
+    const dashboardIds = Array.from(result);
     let dashboard;
 
     dashboardIds.push('DEFAULT');
@@ -47,7 +50,7 @@ export class DashboardApi extends RecordService {
         },
         { config: 'config?json' }
       );
-
+      console.log('dashboard', dashboard);
       if (dashboard !== null) {
         break;
       }

@@ -1,4 +1,5 @@
 import * as dtoMenu from './menu';
+import { setDataWidgets } from '../api/mock/dashboardSettings';
 
 export function getSettingsConfigForWeb(source = {}) {
   const { layout = {} } = source;
@@ -26,9 +27,11 @@ export function getSettingsConfigForServer(source) {
 }
 
 function getWidgetsForServer(columns = [], widgets = []) {
+  var defProps = setDataWidgets(widgets); //fixme remove set test def data
+
   return columns.map((column, index) => {
     const data = {
-      widgets: widgets[index] || []
+      widgets: defProps[index] || []
     };
 
     if (column.width) {

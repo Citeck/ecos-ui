@@ -5,7 +5,7 @@ const prefix = 'dashboard/settings/';
 export const initDashboardSettings = createAction(prefix + 'INIT_DASHBOARD_SETTINGS');
 export const setAvailableWidgets = createAction(prefix + 'SET_AVAILABLE_WIDGETS');
 export const setDashboardConfig = createAction(prefix + 'SET_DASHBOARD_CONFIG');
-export const setDashboardKey = createAction(prefix + 'SET_DASHBOARD_KEY');
+export const setDashboardId = createAction(prefix + 'SET_DASHBOARD_ID');
 export const setResultSaveDashboardConfig = createAction(prefix + 'SET_RESULT_SAVE_DASHBOARD_CONFIG');
 
 export const getAvailableWidgets = createAction(prefix + 'GET_AVAILABLE_WIDGETS');
