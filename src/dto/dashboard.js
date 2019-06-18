@@ -37,14 +37,14 @@ export function getDashboardForServer(source) {
 
   const {
     config: { columns, type },
-    recordId
+    dashboardId
   } = source;
 
   return {
     config: {
       layout: { columns, type }
     },
-    recordId
+    recordId: dashboardId
   };
 }
 
