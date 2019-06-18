@@ -340,7 +340,7 @@ class DashboardSettings extends React.Component {
   };
 
   renderMenuConstructor() {
-    const { availableMenuItems, selectedMenuItems, isShowMenuConstructor, draggableDestination } = this.state;
+    const { selectedMenuItems, isShowMenuConstructor, draggableDestination } = this.state;
     const filterMenuItems = this.filterAvailableMenuItems;
 
     if (!isShowMenuConstructor) {
@@ -470,10 +470,10 @@ class DashboardSettings extends React.Component {
     });
   };
 
-  handleRemoveWidget = ({ item }, indexColumn) => {
+  handleRemoveWidget = ({ item }, indexColumn, indexWidget) => {
     const { selectedWidgets } = this.state;
 
-    selectedWidgets[indexColumn].splice(item.index, 1);
+    selectedWidgets[indexColumn].splice(indexWidget, 1);
 
     this.setState({ selectedWidgets });
   };
@@ -499,7 +499,8 @@ class DashboardSettings extends React.Component {
                 isDragingOver={draggableDestination === DROPPABLE_ZONE.WIDGETS_TO + indexColumn}
                 scrollHeight={320}
               >
-                {selectedWidgets[indexColumn] &&
+                {selectedWidgets &&
+                  selectedWidgets[indexColumn] &&
                   selectedWidgets[indexColumn].map((widget, indexWidget) => (
                     <DragItem
                       key={widget.dndId}
@@ -510,7 +511,7 @@ class DashboardSettings extends React.Component {
                       selected={true}
                       canRemove={true}
                       removeItem={response => {
-                        this.handleRemoveWidget(response, indexColumn);
+                        this.handleRemoveWidget(response, indexColumn, indexWidget);
                       }}
                       getPositionAdjusment={this.draggablePositionAdjusment}
                       item={widget}
