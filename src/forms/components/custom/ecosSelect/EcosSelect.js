@@ -30,7 +30,8 @@ export default class SelectComponent extends BaseComponent {
         selectFields: '',
         searchThreshold: 0.3,
         fuseOptions: {},
-        customOptions: {}
+        customOptions: {},
+        refreshEventName: ''
       },
       ...extend
     );
@@ -45,6 +46,20 @@ export default class SelectComponent extends BaseComponent {
       documentation: 'http://help.form.io/userguide/#select',
       schema: SelectComponent.schema()
     };
+  }
+
+  build() {
+    super.build();
+
+    if (this.component.refreshEventName) {
+      this.on(
+        this.component.refreshEventName,
+        () => {
+          this.triggerUpdate();
+        },
+        true
+      );
+    }
   }
 
   createViewOnlyValue(container) {
@@ -950,7 +965,10 @@ export default class SelectComponent extends BaseComponent {
         if (!this.addCurrentChoices(currentChoices, this.selectOptions, true)) {
           this.choices.setChoices(this.selectOptions, 'value', 'label', true);
         }
-        this.choices.setChoiceByValue(value);
+        if (Array.isArray(this.selectOptions) && this.selectOptions.length > 0) {
+          // TODO check it
+          this.choices.setChoiceByValue(value);
+        }
       } else if (hasPreviousValue) {
         this.choices.removeActiveItems();
       }

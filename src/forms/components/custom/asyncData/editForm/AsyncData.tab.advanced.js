@@ -41,5 +41,29 @@ export default [
         and: [{ '==': [{ var: 'data.update.type' }, 'any-change'] }]
       }
     }
+  },
+  {
+    type: 'checkbox',
+    input: true,
+    key: 'triggerEventOnChange',
+    label: 'Trigger event on change value',
+    weight: 18,
+    defaultValue: false
+  },
+  {
+    type: 'textfield',
+    input: true,
+    key: 'eventName',
+    label: 'Event name',
+    placeholder: 'Some string',
+    validate: {
+      required: false
+    },
+    weight: 19,
+    conditional: {
+      json: {
+        and: [{ '==': [{ var: 'data.triggerEventOnChange' }, true] }]
+      }
+    }
   }
 ];
