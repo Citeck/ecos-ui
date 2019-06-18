@@ -249,8 +249,11 @@
 
   &__body {
     background-color: $color-gray-4;
-    padding: 0 0 10px 10px;
     position: relative;
     height: 100%;
+
+    &-content {
+      padding: 0 10px 10px;
+    }
   }
 }

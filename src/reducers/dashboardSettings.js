@@ -9,7 +9,7 @@ import {
   setResultSaveDashboardConfig,
   saveDashboardConfig
 } from '../actions/dashboardSettings';
-import { LAYOUT_TYPE } from '../constants/dashboardSettings';
+import { LAYOUT_TYPE } from '../constants/layout';
 
 const initialState = {
   dashboardKey: null,

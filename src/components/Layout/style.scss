@@ -10,7 +10,7 @@ $indents-of-items: 15px;
   width: 100%;
   flex-direction: column;
   height: 100vh;
-  padding: 0 18px 0 13px;
+  padding: 0 13px;
 
   &_left-menu {
     -webkit-transform: translateX(60px);
@@ -37,6 +37,10 @@ $indents-of-items: 15px;
       border-radius: $border-radius-standard;
       cursor: pointer;
       z-index: 1;
+
+      #{$root}__menu {
+        padding: 10px;
+      }
 
       &:hover {
         background: $color-gray-1;
@@ -140,8 +144,8 @@ $indents-of-items: 15px;
   &__column {
     width: 100%;
 
-    &:not(:last-child) {
-      margin-right: $indents-of-items;
+    &:not(:first-child) {
+      margin-left: $indents-of-items;
     }
 
     &-wrapper {
@@ -170,7 +174,7 @@ $indents-of-items: 15px;
 
     &-item {
       display: flex;
-      min-width: 0;
+      min-width: 290px;
       padding: 13px 20px;
       flex-basis: 30%;
       max-width: 30%;

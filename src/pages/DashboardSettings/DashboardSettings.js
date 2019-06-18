@@ -193,6 +193,12 @@ class DashboardSettings extends React.Component {
     return layouts.find(item => item.isActive) || {};
   }
 
+  get filterAvailableMenuItems() {
+    const { availableMenuItems, selectedMenuItems } = this.state;
+
+    return availableMenuItems.filter(item => !selectedMenuItems.find(elm => item.id === elm.id));
+  }
+
   draggablePositionAdjusment = () => {
     const menuType = path(['config', 'menuType'], this.props);
 
@@ -305,7 +311,7 @@ class DashboardSettings extends React.Component {
     }
 
     if (source.droppableId === destination.droppableId) {
-      const menuReorder = DndUtils.reorder(this.state[source.droppableId], source, destination);
+      const menuReorder = DndUtils.reorder(this.state[source.droppableId], source.index, destination.index);
 
       if (source.droppableId === DROPPABLE_ZONE.MENU_TO) {
         state.selectedMenuItems = menuReorder;
@@ -323,7 +329,9 @@ class DashboardSettings extends React.Component {
   handleRemoveMenuItem = ({ item }) => {
     const { selectedMenuItems, availableMenuItems } = this.state;
 
-    availableMenuItems.push(item);
+    if (!availableMenuItems.find(elm => elm.id === item.id)) {
+      availableMenuItems.push(item);
+    }
 
     this.setState({
       selectedMenuItems: selectedMenuItems.filter(menu => menu.id !== item.id),
@@ -333,6 +341,7 @@ class DashboardSettings extends React.Component {
 
   renderMenuConstructor() {
     const { availableMenuItems, selectedMenuItems, isShowMenuConstructor, draggableDestination } = this.state;
+    const filterMenuItems = this.filterAvailableMenuItems;
 
     if (!isShowMenuConstructor) {
       return null;
@@ -352,9 +361,9 @@ class DashboardSettings extends React.Component {
               isDropDisabled
               scrollHeight={270}
             >
-              {availableMenuItems &&
-                availableMenuItems.length &&
-                availableMenuItems.map((item, index) => (
+              {filterMenuItems &&
+                filterMenuItems.length &&
+                filterMenuItems.map((item, index) => (
                   <DragItem
                     title={item.label}
                     key={`all-${item.id}-${index}`}
@@ -434,7 +443,7 @@ class DashboardSettings extends React.Component {
       return;
     }
 
-    const colIndex = destination.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[1]; //todo тут
+    const colIndex = destination.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[1];
     const colSelected = selectedWidgets[colIndex];
 
     switch (source.droppableId) {
@@ -444,7 +453,7 @@ class DashboardSettings extends React.Component {
         selectedWidgets[colIndex] = resultCopy;
         break;
       case destination.droppableId:
-        selectedWidgets[colIndex] = DndUtils.reorder(colSelected, source, destination);
+        selectedWidgets[colIndex] = DndUtils.reorder(colSelected, source.index, destination.index);
         break;
       default:
         const colSourceIndex = source.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[1]; //todo тут

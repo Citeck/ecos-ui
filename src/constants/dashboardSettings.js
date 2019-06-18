@@ -1,14 +1,6 @@
 import { t } from '../helpers/util';
 import { MENU_TYPE } from './';
-
-export const LAYOUT_TYPE = {
-  TWO_COLUMNS_BS: '2-columns-big-small',
-  TWO_COLUMNS_SB: '2-columns-small-big',
-  THREE_COLUMNS_CB: '3-columns-center-big',
-  FOUR_COLUMNS: '4-columns',
-  ONE_COLUMN: '1-column',
-  CUSTOM: 'custom'
-};
+import { LAYOUT_TYPE } from './layout';
 
 export const LAYOUTS = [
   {

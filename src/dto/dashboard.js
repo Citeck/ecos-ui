@@ -1,5 +1,5 @@
 import { QUERY_KEYS } from '../constants';
-import { LAYOUT_TYPE } from '../constants/dashboardSettings';
+import { LAYOUT_TYPE } from '../constants/layout';
 
 export const getDefaultDashboardConfig = {
   layout: {

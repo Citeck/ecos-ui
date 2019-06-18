@@ -2,11 +2,11 @@ import { cloneDeep } from 'lodash';
 import uuidV4 from 'uuid/v4';
 
 export default class DndUtils {
-  static reorder = (list, droppableSource, droppableDestination) => {
+  static reorder = (list, startIndex, endIndex) => {
     const result = cloneDeep(list);
-    const [removed] = result.splice(droppableSource.index, 1);
+    const [removed] = result.splice(startIndex, 1);
 
-    result.splice(droppableDestination.index, 0, removed);
+    result.splice(endIndex, 0, removed);
 
     return result;
   };
@@ -41,7 +41,7 @@ export default class DndUtils {
   };
 
   static setDndId = items => {
-    const arr = Array.from(items || []); //fixme cloneDeep
+    const arr = Array.from(items || []);
 
     arr.forEach(value => (value.dndId = uuidV4()));
 

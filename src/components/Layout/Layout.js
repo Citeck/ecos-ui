@@ -2,16 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { t } from '../../helpers/util';
+import { getMinWidthColumn } from '../../helpers/layout';
 import Components from '../Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
 import './style.scss';
-
-const _DATA = '@data@';
-const _DIV = '@';
-const WIDGET_INDEX = `${_DATA}index${_DIV}`;
-const WIDGET_NAME = `${_DATA}name${_DIV}`;
-const WIDGET_ID = `${_DATA}id${_DIV}`;
-const COLUMN_INDEX = `${_DATA}columnFrom${_DIV}`;
 
 class Layout extends Component {
   static propTypes = {
@@ -58,16 +52,14 @@ class Layout extends Component {
       return;
     }
 
-    const dndInfoStr = result.draggableId;
-    const data = getDndInfo(dndInfoStr);
+    const dataDrag = JSON.parse(result.draggableId);
+    const dataDrop = JSON.parse(result.destination.droppableId);
 
-    data.columnTo = result.destination.droppableId.split(COLUMN_INDEX).slice(-1);
-    data.positionFrom = source.index;
-    data.positionTo = destination.index;
-    data.isWidget = dndInfoStr.indexOf(WIDGET_NAME) >= 0;
+    dataDrag.columnTo = dataDrop.index;
+    dataDrag.positionTo = destination.index;
 
     this.setState({ draggableDestination: '' });
-    this.props.onSaveWidget(data, { source, destination });
+    this.props.onSaveWidget(dataDrag, { source, destination });
   };
 
   renderLoadingWidget() {
@@ -79,7 +71,16 @@ class Layout extends Component {
 
     widgets.forEach((widget, index) => {
       const Widget = Components.get(widget.name);
-      const id = `${columnName}${WIDGET_NAME}${widget.name}${WIDGET_ID}${widget.id}${WIDGET_INDEX}${index}`;
+      const column = JSON.parse(columnName);
+      const dataWidget = {
+        columnFrom: column.index,
+        name: widget.name,
+        id: widget.id,
+        positionFrom: index,
+        positionTo: index,
+        isWidget: true
+      };
+      const id = JSON.stringify(dataWidget);
 
       components.push(
         <React.Suspense fallback={this.renderLoadingWidget()} key={id}>
@@ -94,10 +95,10 @@ class Layout extends Component {
   }
 
   renderColumn = (column, index) => {
-    const { columns } = this.props;
+    const { columns, type } = this.props;
     const { draggableDestination } = this.state;
     const styles = {
-      minWidth: column.width,
+      minWidth: getMinWidthColumn(type, index),
       width: column.width,
       height: '100%',
       borderRadius: '5px'
@@ -112,7 +113,10 @@ class Layout extends Component {
       styles.width = `calc((100% - ${otherWidth}) / ${withoutSize})`;
     }
 
-    const id = `column${COLUMN_INDEX}${index}`;
+    const id = JSON.stringify({
+      type: 'column',
+      index
+    });
 
     return (
       <Droppable
@@ -150,19 +154,3 @@ class Layout extends Component {
 }
 
 export default Layout;
-
-function getDndInfo(infoStr) {
-  const attrs = infoStr.split(_DATA);
-  const data = {};
-
-  attrs.forEach(item => {
-    if (item) {
-      const param = item.split(_DIV);
-      if (param.length === 2) {
-        data[param[0]] = param[1];
-      }
-    }
-  });
-
-  return data;
-}

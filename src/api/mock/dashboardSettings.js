@@ -1,7 +1,7 @@
 import uuidV4 from 'uuid/v4';
 import { t } from '../../helpers/util';
-import { LAYOUT_TYPE } from '../../constants/dashboardSettings';
 import { MENU_TYPE } from '../../constants';
+import { LAYOUT_TYPE } from '../../constants/layout';
 
 export function getWidgets() {
   return [

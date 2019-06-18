@@ -10,12 +10,14 @@ import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import * as dto from '../dto/dashboard';
 import { SAVE_STATUS } from '../constants';
+import { getLayoutConfig } from '../api/mock/dashboardSettings';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
     const { recordId } = payload;
     const result = yield call(api.dashboard.getDashboardConfig, recordId);
     const config = dto.parseGetResult(result);
+    // const config = getLayoutConfig();
 
     if (config && Object.keys(config).length) {
       const webConfig = dto.getDashboardForWeb(config);

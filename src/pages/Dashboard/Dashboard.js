@@ -61,7 +61,7 @@ class Dashboard extends Component {
         widgetsFrom = result[source.droppableId];
         widgetsTo = result[destination.droppableId];
       } else {
-        widgetsFrom = DndUtils.reorder(widgetsFrom, source, destination);
+        widgetsFrom = DndUtils.reorder(widgetsFrom, data.positionFrom, data.positionTo);
       }
 
       config.columns[columnFrom].widgets = widgetsFrom;
@@ -77,10 +77,10 @@ class Dashboard extends Component {
 
   renderLayout() {
     const {
-      config: { columns }
+      config: { columns, type }
     } = this.props;
 
-    return <Layout columns={columns} onSaveWidget={this.prepareWidgetsConfig} />;
+    return <Layout columns={columns} onSaveWidget={this.prepareWidgetsConfig} type={type} />;
   }
 
   renderLoader() {
