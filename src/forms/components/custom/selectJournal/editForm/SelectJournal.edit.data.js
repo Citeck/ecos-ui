@@ -14,6 +14,28 @@ export default [
     weight: 20
   },
   {
+    type: 'select',
+    label: 'Data type',
+    key: 'ecos.dataType',
+    weight: 30,
+    tooltip: 'Chose json-record if you with to save selected records data as json text',
+    template: '<span>{{ item.label }}</span>',
+    data: {
+      values: [
+        {
+          value: 'assoc',
+          label: 'Association'
+        },
+        {
+          value: 'json-record',
+          label: 'Json Record'
+        }
+      ]
+    },
+    defaultValue: 'assoc',
+    input: true
+  },
+  {
     type: 'checkbox',
     input: true,
     key: 'hideCreateButton',

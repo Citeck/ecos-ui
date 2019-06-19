@@ -11,6 +11,7 @@ import PercentFormatter from './gql/PercentFormatter';
 import AssocFormatter from './gql/AssocFormatter';
 import BooleanFormatter from './gql/BooleanFormatter';
 import SelectFormatter from './gql/SelectFormatter';
+import FormFieldFormatter from './gql/FormFieldFormatter';
 
 const formatterStore = {
   UserNameLinkFormatter,
@@ -25,7 +26,8 @@ const formatterStore = {
   PercentFormatter,
   AssocFormatter,
   BooleanFormatter,
-  SelectFormatter
+  SelectFormatter,
+  FormFieldFormatter
 };
 
 export default formatterStore;
