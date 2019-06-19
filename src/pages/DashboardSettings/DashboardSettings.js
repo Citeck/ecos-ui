@@ -115,7 +115,7 @@ class DashboardSettings extends React.Component {
     this.setState({ ...state });
 
     if (nextProps.saveResult && saveResult.status !== nextProps.saveResult.status && nextProps.saveResult.status !== SAVE_STATUS.FAILURE) {
-      this.handleCloseClick();
+      this.handleCloseClick(nextProps.saveResult);
     }
   }
 
@@ -576,12 +576,11 @@ class DashboardSettings extends React.Component {
 
   /*-------- start Buttons --------*/
 
-  handleCloseClick = () => {
-    const { saveResult } = this.props;
+  handleCloseClick = (saveResult = {}) => {
     const { dashboardId, pathDashboard } = this.pathInfo;
     let path = pathDashboard;
 
-    if (saveResult.dashboardId && !dashboardId) {
+    if (saveResult && saveResult.dashboardId && !dashboardId) {
       path += '&dashboardId=' + saveResult.dashboardId;
     }
 

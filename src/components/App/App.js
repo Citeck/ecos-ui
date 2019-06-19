@@ -24,7 +24,7 @@ import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
-import { URL, MENU_TYPE } from '../../constants';
+import { MENU_TYPE, URL } from '../../constants';
 
 import './App.scss';
 import TopMenu from '../Layout/TopMenu';
@@ -59,7 +59,7 @@ class App extends Component {
   }
 
   render() {
-    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs, menuType } = this.props;
+    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
