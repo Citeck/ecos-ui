@@ -3,7 +3,7 @@ import connect from 'react-redux/es/connect/connect';
 import { Grid, InlineTools, Tools, EmptyGrid } from '../../common/grid';
 import Loader from '../../common/Loader/Loader';
 import { IcoBtn } from '../../common/btns';
-import { goToCardDetails, goToNodeEditPage } from '../urlManager';
+import { goToCardDetails, goToNodeEditPage, getDownloadContentUrl } from '../urlManager';
 import { t, trigger } from '../../../helpers/util';
 import {
   reloadGrid,
@@ -35,6 +35,13 @@ const mapDispatchToProps = dispatch => ({
   setGridInlineToolSettings: settings => dispatch(setGridInlineToolSettings(settings)),
   goToJournalsPage: row => dispatch(goToJournalsPage(row))
 });
+
+class DownloadContentLink extends Component {
+  render() {
+    const { children, row } = this.props;
+    return <a href={getDownloadContentUrl(row.id)}>{children}</a>;
+  }
+}
 
 class JournalsDashletGrid extends Component {
   filters = [];
@@ -125,7 +132,9 @@ class JournalsDashletGrid extends Component {
     const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
     const tools = [
       <IcoBtn icon={'icon-on'} onClick={this.goToCardDetails} className={inlineToolsActionClassName} />,
-      <IcoBtn icon={'icon-download'} className={inlineToolsActionClassName} />,
+      <DownloadContentLink>
+        <IcoBtn icon={'icon-download'} className={inlineToolsActionClassName} />
+      </DownloadContentLink>,
       <IcoBtn icon={'icon-edit'} onClick={this.goToNodeEditPage} className={inlineToolsActionClassName} />,
       <IcoBtn icon={'icon-delete'} onClick={this.deleteRecord} className={inlineToolsActionClassName} />
     ];

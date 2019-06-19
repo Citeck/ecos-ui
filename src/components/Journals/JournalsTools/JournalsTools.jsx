@@ -12,7 +12,7 @@ const JournalsTools = ({ journalConfig, addRecord, onSearch }) => {
     <div className={'ecos-journal__tools'}>
       <Well className={'ecos-well_full ecos-journal__tools-well'}>
         <IcoBtn icon={'icon-plus'} className={'ecos-btn_blue ecos-btn_tight ecos-journal__tools-well_step'} onClick={addRecord}>
-          {t('button.send')}
+          {t('journals.create-record-btn')}
         </IcoBtn>
 
         <Search onSearch={onSearch} />

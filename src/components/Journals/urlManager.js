@@ -1,5 +1,5 @@
 import queryString from 'query-string';
-import { URL_PAGECONTEXT } from '../../constants/alfresco';
+import { URL_PAGECONTEXT, PROXY_URI } from '../../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../../components/common/form/SelectJournal/predicates';
 import { ParserPredicate } from '../../components/Filters/predicates';
 
@@ -74,6 +74,10 @@ export const getJournalPage = ({ journalsListId, journalId, journalSettingId, no
   }
 
   return url;
+};
+
+export const getDownloadContentUrl = nodeRef => {
+  return `${PROXY_URI}citeck/print/content?nodeRef=${nodeRef}`;
 };
 
 export const goToJournalsPage = options => {
