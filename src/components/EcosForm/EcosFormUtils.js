@@ -248,12 +248,8 @@ export default class EcosFormUtils {
       for (let att of dataAttributes) {
         attributes[att.name] = att.value;
       }
-    } else if (data.id) {
-      for (let att in data) {
-        if (att !== 'id' && data.hasOwnProperty(att)) {
-          attributes[att] = data[att];
-        }
-      }
+    } else if (data.id && data.attributes) {
+      attributes = data.attributes;
     }
 
     let record = Records.get(id);
