@@ -1,6 +1,9 @@
 import BaseReactComponent from '../base/BaseReactComponent';
 import SelectJournal from '../../../../components/common/form/SelectJournal';
-import isEqual from 'lodash/isEqual';
+import { evaluate as formioEvaluate } from 'formiojs//utils/utils';
+import _ from 'lodash';
+import Records from '../../../../components/Records';
+import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 
 export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -37,7 +40,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
     }
 
     let customPredicate = this.evaluate(this.component.customPredicateJs, {}, 'value', true);
-    if (!isEqual(customPredicate, this.customPredicateValue)) {
+    if (!_.isEqual(customPredicate, this.customPredicateValue)) {
       this.customPredicateValue = customPredicate;
       this.updateReactComponent(component => component.setCustomPredicate(customPredicate));
     }
@@ -64,6 +67,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
         viewOnly: this.viewOnly,
         displayColumns: component.displayColumns,
         hideCreateButton: component.hideCreateButton,
+        computed: {
+          valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
+        },
         onError: err => {
           // this.setCustomValidity(err, false);
         }
@@ -86,4 +92,25 @@ export default class SelectJournalComponent extends BaseReactComponent {
       return resolveProps(journalId);
     }
   }
+
+  static getValueDisplayName = (component, value) => {
+    let dispNameJs = _.get(component, 'computed.valueDisplayName', null);
+    let result = null;
+
+    if (dispNameJs) {
+      let model = { _ };
+
+      if (_.isString(value)) {
+        let recordId = value[0] === '{' ? EcosFormUtils.initJsonRecord(value) : value;
+        model.value = Records.get(recordId);
+      } else {
+        model.value = value;
+      }
+
+      result = formioEvaluate(dispNameJs, model, 'disp', true);
+    } else {
+      result = Records.get(value).load('.disp');
+    }
+    return result ? result : value;
+  };
 }

@@ -228,9 +228,17 @@ export default class SelectJournal extends Component {
   };
 
   fetchDisplayNames = selectedRows => {
+    let computedDispName = lodashGet(this.props, 'computed.valueDisplayName', null);
+
     return Promise.all(
       selectedRows.map(r => {
-        return r.disp || Records.get(r).load('.disp');
+        if (r.disp) {
+          return r.disp;
+        }
+        if (computedDispName) {
+          return computedDispName(r);
+        }
+        return Records.get(r).load('.disp');
       })
     ).then(dispNames => {
       let result = [];

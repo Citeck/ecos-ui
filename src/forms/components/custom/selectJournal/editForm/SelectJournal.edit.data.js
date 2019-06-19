@@ -1,4 +1,5 @@
 const CUSTOM_PREDICATE_FIELD = 'customPredicateJs';
+const VALUE_DISPLAY_NAME_FIELD = 'computed.valueDisplayName';
 
 export default [
   {
@@ -11,6 +12,28 @@ export default [
       required: false
     },
     weight: 20
+  },
+  {
+    type: 'select',
+    label: 'Data type',
+    key: 'ecos.dataType',
+    weight: 30,
+    tooltip: 'Chose json-record if you with to save selected records data as json text',
+    template: '<span>{{ item.label }}</span>',
+    data: {
+      values: [
+        {
+          value: 'assoc',
+          label: 'Association'
+        },
+        {
+          value: 'json-record',
+          label: 'Json Record'
+        }
+      ]
+    },
+    defaultValue: 'assoc',
+    input: true
   },
   {
     type: 'checkbox',
@@ -57,6 +80,32 @@ export default [
         type: 'htmlelement',
         tag: 'div',
         content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+      }
+    ]
+  },
+  {
+    weight: 25,
+    type: 'panel',
+    title: 'Value Display Name',
+    collapsible: true,
+    collapsed: true,
+    style: {
+      'margin-bottom': '20px'
+    },
+    key: ''.concat(VALUE_DISPLAY_NAME_FIELD, '-js'),
+    components: [
+      {
+        type: 'textarea',
+        key: VALUE_DISPLAY_NAME_FIELD,
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content: '<p>Enter custom javascript code. You must assign the <strong>disp</strong> variable.</p>'
       }
     ]
   },

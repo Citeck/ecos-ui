@@ -5,6 +5,7 @@ import { JournalsApi } from '../../../../api/journalsApi';
 import Records from '../../../Records/Records';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
+import _ from 'lodash';
 
 export const TableFormContext = React.createContext();
 
@@ -120,7 +121,9 @@ export const TableFormContextProvider = props => {
           atts[`.edge(n:"${item}"){title,type}`] = item;
         });
 
-        Records.get(cv[0].type)
+        let cvType = cv[0].type;
+
+        let columnsInfoPromise = Records.get(cvType)
           .load(Object.keys(atts))
           .then(loadedAtt => {
             let cols = [];
@@ -135,8 +138,32 @@ export const TableFormContextProvider = props => {
                 attribute: atts[i]
               });
             }
+            return cols;
+          });
 
-            setColumns(GqlDataSource.getColumnsStatic(cols));
+        Promise.all([columnsInfoPromise, EcosFormUtils.getRecordFormInputsMap(cvType)])
+          .then(columnsAndInputs => {
+            let [columns, inputs] = columnsAndInputs;
+
+            for (let column of columns) {
+              let input = inputs[column.attribute] || {};
+              let computedDispName = _.get(input, 'component.computed.valueDisplayName', '');
+
+              if (computedDispName) {
+                //Is this filter required?
+                column.formatter = {
+                  name: 'FormFieldFormatter',
+                  params: input
+                };
+              }
+            }
+            setColumns(GqlDataSource.getColumnsStatic(columns));
+          })
+          .catch(err => {
+            console.error(err);
+            columnsInfoPromise.then(columns => {
+              setColumns(GqlDataSource.getColumnsStatic(columns));
+            });
           });
       });
     }
