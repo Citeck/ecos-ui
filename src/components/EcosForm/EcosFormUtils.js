@@ -83,6 +83,22 @@ export default class EcosFormUtils {
     return (component.properties || {}).attribute || component.key;
   }
 
+  static getRecordFormInputsMap(record) {
+    return EcosFormUtils.getForm(record, null, 'definition?json')
+      .then(formDef => {
+        let inputs = this.getFormInputs(formDef) || [];
+        let result = {};
+        for (let input of inputs) {
+          result[input.attribute] = input;
+        }
+        return result;
+      })
+      .catch(err => {
+        console.error(err);
+        return {};
+      });
+  }
+
   static getFormInputs(root, inputs) {
     if (!inputs) {
       inputs = [];
@@ -232,18 +248,14 @@ export default class EcosFormUtils {
       for (let att of dataAttributes) {
         attributes[att.name] = att.value;
       }
-    } else if (data.id) {
-      for (let att in data) {
-        if (att !== 'id' && data.hasOwnProperty(att)) {
-          attributes[att] = data[att];
-        }
-      }
+    } else if (data.id && data.attributes) {
+      attributes = data.attributes;
     }
 
     let record = Records.get(id);
     for (let att in attributes) {
       if (attributes.hasOwnProperty(att)) {
-        record.att(att, attributes[att]);
+        record.persistedAtt(att, attributes[att]);
       }
     }
 

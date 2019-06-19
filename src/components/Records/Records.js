@@ -249,7 +249,7 @@ class RecordsComponent {
 
           for (let att in recordMeta.attributes) {
             if (recordMeta.attributes.hasOwnProperty(att)) {
-              record._setAttributePersistedValue(attributesMapping[att], recordMeta.attributes[att]);
+              record.persistedAtt(attributesMapping[att], recordMeta.attributes[att]);
             }
           }
         }
@@ -601,6 +601,20 @@ class Record {
     });
   }
 
+  persistedAtt(name, value) {
+    if (!name) {
+      return;
+    }
+
+    let localName = convertAttributePath(name);
+
+    if (arguments.length > 1) {
+      this._setAttributePersistedValueImpl(localName, value);
+    } else {
+      return (this._attributes[localName] || {}).persisted;
+    }
+  }
+
   att(name, value) {
     if (!name) {
       return;
@@ -615,7 +629,7 @@ class Record {
     }
   }
 
-  _setAttributePersistedValue(name, value) {
+  _setAttributePersistedValueImpl(name, value) {
     let attribute = this._attributes[name];
     if (!attribute) {
       attribute = new Attribute(this, name, value);
