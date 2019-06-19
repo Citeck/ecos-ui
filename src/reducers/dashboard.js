@@ -1,21 +1,14 @@
 import { handleActions } from 'redux-actions';
-import {
-  getDashboardConfig,
-  saveDashboardConfig,
-  setDashboardConfig,
-  setDashboardId,
-  setResultSaveDashboardConfig
-} from '../actions/dashboard';
+import { getDashboardConfig, saveDashboardConfig, setDashboardConfig, setResultSaveDashboardConfig } from '../actions/dashboard';
 
 const initialState = {
-  dashboardId: null,
   config: {
     columns: []
   },
   isLoading: false,
   saveResult: {
     status: '',
-    recordId: ''
+    dashboardId: ''
   }
 };
 
@@ -33,12 +26,6 @@ export default handleActions(
         ...state,
         config: payload,
         isLoading: false
-      };
-    },
-    [setDashboardId]: (state, { payload }) => {
-      return {
-        ...state,
-        dashboardId: payload
       };
     },
     [setResultSaveDashboardConfig]: (state, { payload }) => {

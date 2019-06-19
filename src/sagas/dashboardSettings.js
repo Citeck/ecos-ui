@@ -6,7 +6,6 @@ import {
   saveDashboardConfig,
   setAvailableWidgets,
   setDashboardConfig,
-  setDashboardId,
   setResultSaveDashboardConfig
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
@@ -33,18 +32,19 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
       ? yield call(api.dashboard.getDashboardConfig, dashboardId)
       : yield call(api.dashboard.getDashboardByRecordRef, recordRef);
     let config;
+    let dbId = dashboardId;
+    let dashboardKey = result.key;
 
     if (dashboardId && result) {
       config = dtoDB.parseGetResult(result);
     } else {
-      config = result ? result.config : dtoDB.getDefaultDashboardConfig;
+      config = result ? result.data.config : dtoDB.getDefaultDashboardConfig;
     }
-    if (result) {
-      yield put(setDashboardId(result.id));
+    if (config) {
+      dbId = config.id;
     }
-    console.log('>>>>>', result);
-    const layout = config.layout;
-    const webConfig = dtoDBS.getSettingsConfigForWeb({ layout });
+
+    const webConfig = dtoDBS.getSettingsConfigForWeb({ ...config, dashboardId: dbId, dashboardKey });
 
     yield put(setDashboardConfig(webConfig));
   } catch (e) {
@@ -66,23 +66,23 @@ function* doGetWidgetsRequest({ api, logger }, action) {
 
 function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
+    const { dashboardId, dashboardKey } = payload;
     const serverConfig = dtoDBS.getSettingsConfigForServer(payload);
     const { layout, menu } = serverConfig;
-
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
       config: { layout },
-      recordId: payload.recordId
+      dashboardId,
+      dashboardKey
     });
+
     const menuResult = yield call(api.menu.saveMenuConfig, { config: menu });
 
     const parseDashboard = dtoDB.parseSaveResult(dashboardResult);
-    const recordId = parseDashboard ? parseDashboard.recordId : null;
 
-    yield put(setDashboardId(recordId));
     yield put(
       setResultSaveDashboardConfig({
-        status: parseDashboard && parseDashboard.recordId ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
-        recordId
+        status: parseDashboard.dashboardId ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
+        dashboardId: parseDashboard.dashboardId
       })
     );
 

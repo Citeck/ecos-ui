@@ -1,16 +1,9 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import {
-  getDashboardConfig,
-  saveDashboardConfig,
-  setDashboardConfig,
-  setDashboardId,
-  setResultSaveDashboardConfig
-} from '../actions/dashboard';
+import { getDashboardConfig, saveDashboardConfig, setDashboardConfig, setResultSaveDashboardConfig } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import * as dto from '../dto/dashboard';
 import { SAVE_STATUS } from '../constants';
-import { getLayoutConfig } from '../api/mock/dashboardSettings';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
@@ -19,18 +12,15 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
       ? yield call(api.dashboard.getDashboardConfig, dashboardId)
       : yield call(api.dashboard.getDashboardByRecordRef, recordRef);
     let config;
-    console.log('>>>>>', result);
+
     if (dashboardId && result) {
       config = dto.parseGetResult(result);
     } else {
-      config = result ? result.config : dto.getDefaultDashboardConfig;
+      config = result && result.data ? result.data.config : dto.getDefaultDashboardConfig;
     }
-    // const config = getLayoutConfig();
-
     if (config && Object.keys(config).length) {
-      const webConfig = dto.getDashboardForWeb(config);
+      const webConfig = dto.getDashboardForWeb({ ...config, dashboardId });
 
-      yield put(setDashboardId(dashboardId));
       yield put(setDashboardConfig(webConfig));
     }
   } catch (e) {
@@ -47,8 +37,8 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
 
     yield put(
       setResultSaveDashboardConfig({
-        status: res.id ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
-        recordId: res.id
+        status: res.dashboardId ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
+        dashboardId: res.dashboardId
       })
     );
 

@@ -21,9 +21,11 @@ export function getDashboardForWeb(source) {
     return {};
   }
 
-  const { layout } = source;
+  const { layout, dashboardKey, dashboardId } = source;
   const target = {};
 
+  target.dashboardKey = dashboardKey;
+  target.dashboardId = dashboardId;
   target.columns = layout.columns;
   target.type = layout.type;
 
@@ -44,7 +46,7 @@ export function getDashboardForServer(source) {
     config: {
       layout: { columns, type }
     },
-    recordId: dashboardId
+    dashboardId
   };
 }
 
@@ -58,14 +60,15 @@ export function parseGetResult(result) {
 
 export function parseSaveResult(result) {
   if (!result || (result && !Object.keys(result).length)) {
-    return;
+    return {};
   }
 
   const DIV = '@';
   const fullId = result._id || '';
-  const recordId = fullId && fullId.indexOf(DIV) >= 0 ? fullId.split(DIV)[1] : null;
+  const dashboardId = fullId && fullId.indexOf(DIV) >= 0 ? fullId.split(DIV)[1] : null;
 
   return {
-    recordId
+    dashboardId,
+    fullId
   };
 }

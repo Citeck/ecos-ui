@@ -28,7 +28,8 @@ const mapStateToProps = state => ({
   availableWidgets: path(['dashboardSettings', 'availableWidgets'], state),
   isLoading: path(['dashboardSettings', 'isLoading'], state),
   saveResult: path(['dashboardSettings', 'saveResult'], state),
-  dashboardId: path(['dashboardSettings', 'dashboardId'], state)
+  dashboardId: path(['dashboardSettings', 'config', 'dashboardId'], state),
+  dashboardKey: path(['dashboardSettings', 'config', 'dashboardKey'], state)
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -52,6 +53,8 @@ class DashboardSettings extends React.Component {
       widgets: PropTypes.array,
       links: PropTypes.array
     }).isRequired,
+    dashboardKey: PropTypes.string,
+    dashboardId: PropTypes.string,
     availableMenuItems: PropTypes.array,
     availableWidgets: PropTypes.array
   };
@@ -61,20 +64,6 @@ class DashboardSettings extends React.Component {
     availableWidgets: [],
     availableMenuItems: []
   };
-
-  get pathInfo() {
-    const {
-      location: { search }
-    } = this.props;
-    const searchParams = queryString.parse(search);
-    const { recordRef, dashboardId } = searchParams;
-    console.log(this.props);
-
-    return {
-      pathDashboard: '/dashboard' + search, //fixme
-      recordRef
-    };
-  }
 
   constructor(props) {
     super(props);
@@ -92,9 +81,9 @@ class DashboardSettings extends React.Component {
 
   componentDidMount() {
     const { initDashboardSettings, initMenuSettings } = this.props;
-    const { recordRef } = this.pathInfo;
+    const { recordRef, dashboardId } = this.pathInfo;
 
-    initDashboardSettings({ recordRef });
+    initDashboardSettings({ recordRef, dashboardId });
     initMenuSettings();
   }
 
@@ -168,6 +157,27 @@ class DashboardSettings extends React.Component {
     });
 
     return newWidgets;
+  }
+
+  get pathInfo() {
+    const {
+      location: { search }
+    } = this.props;
+    const searchParams = queryString.parse(search);
+    const { recordRef, dashboardId } = searchParams;
+
+    return {
+      pathDashboard: '/dashboard' + search,
+      recordRef,
+      dashboardId
+    };
+  }
+
+  get dashboardId() {
+    const { dashboardId: savedId } = this.props;
+    const { dashboardId: pathId } = this.pathInfo;
+
+    return savedId || pathId || '';
   }
 
   get menuWidth() {
@@ -567,20 +577,19 @@ class DashboardSettings extends React.Component {
   /*-------- start Buttons --------*/
 
   handleCloseClick = () => {
-    const { dashboardId: savedId } = this.props;
+    const { saveResult } = this.props;
     const { dashboardId, pathDashboard } = this.pathInfo;
     let path = pathDashboard;
 
-    if (savedId && !dashboardId) {
-      path += '&dashboardId=' + savedId;
+    if (saveResult.dashboardId && !dashboardId) {
+      path += '&dashboardId=' + saveResult.dashboardId;
     }
 
-    //window.location.href = path;
+    window.location.href = path;
   };
 
   handleAcceptClick = () => {
-    const { saveSettings } = this.props;
-    const { dashboardId } = this.pathInfo;
+    const { saveSettings, dashboardKey } = this.props;
     const { selectedWidgets: widgets, selectedMenuItems: links, typeMenu } = this.state;
     const layout = this.selectedLayout;
     const menuType = typeMenu.find(item => item.isActive).type;
@@ -591,7 +600,8 @@ class DashboardSettings extends React.Component {
       menuType,
       widgets,
       links,
-      dashboardId
+      dashboardId: this.dashboardId,
+      dashboardKey
     });
   };
 

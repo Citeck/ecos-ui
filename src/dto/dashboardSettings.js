@@ -1,11 +1,18 @@
 import * as dtoMenu from './menu';
 import { setDataWidgets } from '../api/mock/dashboardSettings';
+import { LAYOUT_TYPE } from '../constants/layout';
 
 export function getSettingsConfigForWeb(source = {}) {
-  const { layout = {} } = source;
+  if (!source || (source && !Object.keys(source).length)) {
+    return {};
+  }
+
+  const { layout = {}, dashboardKey, dashboardId } = source;
   const target = {};
 
-  target.layoutType = layout.type || 0;
+  target.dashboardKey = dashboardKey;
+  target.dashboardId = dashboardId;
+  target.layoutType = layout.type || LAYOUT_TYPE.TWO_COLUMNS_BS;
   target.widgets = layout.columns ? layout.columns.map(item => item.widgets) : [];
 
   return target;
@@ -27,7 +34,7 @@ export function getSettingsConfigForServer(source) {
 }
 
 function getWidgetsForServer(columns = [], widgets = []) {
-  var defProps = setDataWidgets(widgets); //fixme remove set test def data
+  let defProps = setDataWidgets(widgets); //fixme when ECOSENT-738
 
   return columns.map((column, index) => {
     const data = {

@@ -5,14 +5,12 @@ import {
   initDashboardSettings,
   setAvailableWidgets,
   setDashboardConfig,
-  setDashboardId,
   setResultSaveDashboardConfig,
   saveDashboardConfig
 } from '../actions/dashboardSettings';
 import { LAYOUT_TYPE } from '../constants/layout';
 
 const initialState = {
-  dashboardId: null,
   config: {
     layoutType: LAYOUT_TYPE.TWO_COLUMNS_BS,
     widgets: []
@@ -21,7 +19,7 @@ const initialState = {
   isLoading: false,
   saveResult: {
     status: '',
-    recordId: ''
+    dashboardId: ''
   }
 };
 
@@ -41,12 +39,6 @@ export default handleActions(
         ...state,
         config: payload,
         isLoading: false
-      };
-    },
-    [setDashboardId]: (state, { payload }) => {
-      return {
-        ...state,
-        dashboardId: payload
       };
     },
     [setAvailableWidgets]: (state, { payload }) => {

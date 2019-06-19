@@ -15,6 +15,7 @@ const mapStateToProps = state => ({
   },
   isLoadingDashboard: path(['dashboard', 'isLoading'], state),
   saveResultDashboard: path(['dashboard', 'saveResult'], state),
+  dashboardId: path(['dashboard', 'config', 'dashboardId'], state),
   isLoadingMenu: path(['menu', 'isLoading'], state),
   saveResultMenu: path(['menu', 'saveResult'], state)
 });

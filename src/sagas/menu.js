@@ -12,7 +12,6 @@ import {
 import { t } from '../helpers/util';
 import { SAVE_STATUS } from '../constants';
 import * as dto from '../dto/menu';
-import { getMenuConfig as testMenuConfig } from '../api/mock/dashboardSettings';
 
 function* doInitMenuSettings({ api, logger }, action) {
   try {
@@ -40,7 +39,7 @@ function* doGetMenuConfigRequest({ api, logger }, { payload }) {
   try {
     const result = yield call(api.menu.getMenuConfig);
     const menu = dto.parseGetResult(result);
-    // const menu = testMenuConfig();
+
     yield put(setMenuConfig(menu));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения меню')));

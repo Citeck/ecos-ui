@@ -22,5 +22,6 @@ export const QUERY_KEYS = {
   KEY: 'key',
   VALUE: 'value',
   TITLE: 'title',
-  DESCRIPTION: 'description'
+  DESCRIPTION: 'description',
+  DEFAULT: 'DEFAULT'
 };
