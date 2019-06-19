@@ -392,6 +392,7 @@ function* sagaGoToJournalsPage({ api, logger }, action) {
     let { journalsListId = '', journalSettingId = '' } = config;
     let {
       id = '',
+      params = {},
       meta: { nodeRef = '', criteria = [], predicate = {} }
     } = journalConfig;
 
@@ -401,10 +402,7 @@ function* sagaGoToJournalsPage({ api, logger }, action) {
       let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(journalType)}`);
 
       const meta = journalConfig.meta || {};
-      const params = journalConfig.params || {};
-
       nodeRef = meta.nodeRef || nodeRef;
-      journalsListId = params.journalsListId || journalsListId;
     }
 
     let attributes = {};
@@ -414,7 +412,7 @@ function* sagaGoToJournalsPage({ api, logger }, action) {
     row = groupBy.length ? row : yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
 
     goToJournalsPageUrl({
-      journalsListId,
+      journalsListId: params.journalsListId || journalsListId,
       journalId: id,
       journalSettingId,
       nodeRef,
