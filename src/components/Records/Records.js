@@ -623,10 +623,12 @@ class Record {
   }
 
   _setAttributePersistedValue(name, value) {
-    let attribute = this._attributes[name];
+    let localName = convertAttributePath(name);
+
+    let attribute = this._attributes[localName];
     if (!attribute) {
-      attribute = new Attribute(this, name, value);
-      this._attributes[name] = attribute;
+      attribute = new Attribute(this, localName, value);
+      this._attributes[localName] = attribute;
     } else {
       attribute.persisted = value;
     }
