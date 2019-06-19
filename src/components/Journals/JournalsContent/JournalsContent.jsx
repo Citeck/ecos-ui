@@ -21,12 +21,7 @@ const mapDispatchToProps = dispatch => ({
 
 const Grid = ({ showPreview, onRowClick }) => (
   <Well>
-    <JournalsDashletGrid
-      onRowClick={onRowClick}
-      doInlineToolsOnRowClick={showPreview}
-      className={'ecos-grid_no-top-border'}
-      notGoToJournalPageWithFilter
-    />
+    <JournalsDashletGrid onRowClick={onRowClick} doInlineToolsOnRowClick={showPreview} className={'ecos-grid_no-top-border'} />
   </Well>
 );
 

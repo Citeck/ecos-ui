@@ -129,6 +129,10 @@ class JournalsDashletGrid extends Component {
   };
 
   inlineTools = () => {
+    const {
+      selectedRecords,
+      grid: { groupBy = [] }
+    } = this.props;
     const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
     const tools = [
       <IcoBtn icon={'icon-on'} onClick={this.goToCardDetails} className={inlineToolsActionClassName} />,
@@ -139,11 +143,11 @@ class JournalsDashletGrid extends Component {
       <IcoBtn icon={'icon-delete'} onClick={this.deleteRecord} className={inlineToolsActionClassName} />
     ];
 
-    if (this.props.selectedRecords.length) {
+    if (selectedRecords.length) {
       return null;
     }
 
-    if (!this.props.notGoToJournalPageWithFilter) {
+    if (groupBy.length) {
       tools.push(<IcoBtn onClick={this.goToJournalPageWithFilter} icon={'icon-big-arrow'} className={inlineToolsActionClassName} />);
     }
 

@@ -5,12 +5,14 @@ import cellEditFactory from 'react-bootstrap-table2-editor';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import { Scrollbars } from 'react-custom-scrollbars';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
-import { t, getId, trigger } from '../../../../helpers/util';
+import { t, getId, trigger, closest } from '../../../../helpers/util';
 
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
 
 const CLOSE_FILTER_EVENT = 'closeFilterEvent';
+const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
+const REACT_BOOTSTRAP_TABLE_CLASS = 'react-bootstrap-table';
 
 const Selector = ({ mode, ...rest }) => (
   <div className={'ecos-grid__checkbox'}>
@@ -108,9 +110,17 @@ export default class Grid extends Component {
 
     props.rowEvents = {
       onMouseEnter: e => {
-        !props.changeTrOptionsByRowClick && this.getTrOptions(e.currentTarget);
+        const tr = e.currentTarget;
+
+        if (props.changeTrOptionsByRowClick) {
+          this.setHover(tr, ECOS_GRID_HOVERED_CLASS, false, this._tr);
+        } else {
+          this.getTrOptions(tr);
+        }
+
         trigger.call(this, 'onMouseEnter', e);
       },
+      onMouseLeave: e => props.changeTrOptionsByRowClick && this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true),
       ...props.rowEvents
     };
 
@@ -133,7 +143,43 @@ export default class Grid extends Component {
     return props;
   }
 
+  setHover = (tr, className, needRemove, nonHoveredTr) => {
+    const trClassList = tr.classList;
+    const checkboxGridTrClassList = this.getCheckboxGridTrClassList(tr);
+
+    if (needRemove) {
+      checkboxGridTrClassList && checkboxGridTrClassList.remove(className);
+      trClassList.remove(className);
+    } else if (!nonHoveredTr || nonHoveredTr.rowIndex !== tr.rowIndex) {
+      checkboxGridTrClassList && checkboxGridTrClassList.add(className);
+      trClassList.add(className);
+    }
+  };
+
+  getCheckboxGridTrClassList = tr => {
+    const rowIndex = tr.rowIndex;
+    const parent = closest(tr, REACT_BOOTSTRAP_TABLE_CLASS);
+    let node;
+    let classList = null;
+
+    if (
+      parent &&
+      parent.nextSibling &&
+      parent.nextSibling.getElementsByTagName('tr') &&
+      parent.nextSibling.getElementsByTagName('tr').item(rowIndex) &&
+      (node = parent.nextSibling
+        .getElementsByTagName('tr')
+        .item(rowIndex)
+        .getElementsByClassName('ecos-grid__checkbox')[0])
+    ) {
+      classList = node.classList;
+    }
+
+    return classList;
+  };
+
   triggerRowClick = tr => {
+    this.setHover(tr, ECOS_GRID_HOVERED_CLASS, true);
     trigger.call(this, 'onRowClick', this.props.data[tr.rowIndex - 1]);
   };
 

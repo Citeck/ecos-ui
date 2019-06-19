@@ -1,5 +1,21 @@
 import lodashGet from 'lodash/get';
 
+export function closest(node, selector) {
+  const parent = node.parentElement;
+
+  if (parent) {
+    const className = parent.className;
+
+    if (className && className.indexOf(selector) !== -1) {
+      return parent;
+    } else {
+      return closest(parent, selector);
+    }
+  }
+
+  return null;
+}
+
 export function getPropByStringKey(obj, strKey) {
   const keys = strKey.split('.');
   let res;
