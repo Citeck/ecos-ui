@@ -106,6 +106,8 @@ export const SEARCH_EQUAL_PREDICATES_MAP = {
   [COLUMN_DATA_TYPE_AUTHORITY]: PREDICATE_CONTAINS
 };
 
+export const NUMBERS = [COLUMN_DATA_TYPE_INT, COLUMN_DATA_TYPE_DOUBLE, COLUMN_DATA_TYPE_LONG, COLUMN_DATA_TYPE_FLOAT];
+
 // Hack: Currently t('') works correctly only after execution loadMessagesAndAlfrescoScript function in share.js, so we should use function instead of array:
 const getAllPredicates = function() {
   return [
