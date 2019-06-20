@@ -34,3 +34,10 @@
 .ecos-filter_width_full {
   width: 100%;
 }
+
+.ecos-filter__drag-ico {
+  &:hover {
+    cursor: inherit;
+    background: $color-white !important;
+  }
+}
