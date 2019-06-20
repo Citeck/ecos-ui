@@ -18,7 +18,8 @@ import {
   setPredicate,
   setColumnsSetup,
   setGrouping,
-  setPreviewUrl
+  setPreviewUrl,
+  setUrl
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { t } from '../helpers/util';
@@ -27,6 +28,8 @@ import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../compone
 const initialState = {
   loading: true,
   editorMode: false,
+
+  url: {},
 
   grid: {
     data: [],
@@ -95,6 +98,15 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [setUrl]: (state, action) => {
+      return {
+        ...state,
+        url: {
+          ...state.url,
+          ...action.payload
+        }
+      };
+    },
     [setPredicate]: (state, action) => {
       return {
         ...state,

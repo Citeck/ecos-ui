@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import { withRouter } from 'react-router';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
@@ -15,7 +14,7 @@ import JournalsContent from './JournalsContent';
 
 import EcosModal from '../common/EcosModal/EcosModal';
 import { getJournalsData, reloadGrid, search } from '../../actions/journals';
-import { getPreview, getJournalsListId, getJournalId, getJournalSettingId, goToCreateRecordPage, getFilters } from './urlManager';
+import { goToCreateRecordPage } from '../../constants/urls';
 import { Well } from '../common/form';
 import { t } from '../../helpers/util';
 
@@ -34,10 +33,11 @@ const mapDispatchToProps = dispatch => ({
 class Journals extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       menuOpen: false,
       settingsVisible: false,
-      showPreview: getPreview(this.props.history.location),
+      showPreview: this.props.urlParams.showPreview,
       showPie: false
     };
   }
@@ -51,13 +51,7 @@ class Journals extends Component {
   };
 
   getJournalsData() {
-    const location = this.props.history.location;
-    this.props.getJournalsData({
-      journalsListId: getJournalsListId(location),
-      journalId: getJournalId(location),
-      journalSettingId: getJournalSettingId(location),
-      predicate: getFilters(location)
-    });
+    this.props.getJournalsData();
   }
 
   addRecord = () => {
@@ -170,4 +164,4 @@ class Journals extends Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withRouter(Journals));
+)(Journals);

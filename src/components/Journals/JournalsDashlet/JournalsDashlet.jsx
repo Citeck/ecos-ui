@@ -6,7 +6,7 @@ import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletFooter from '../JournalsDashletFooter';
 import { getDashletConfig, setEditorMode, reloadGrid } from '../../../actions/journals';
 import Dashlet from '../../Dashlet/Dashlet';
-import { goToJournalsPage } from '../urlManager';
+import { goToJournalsPage } from '../../../constants/urls';
 import classNames from 'classnames';
 
 import './JournalsDashlet.scss';

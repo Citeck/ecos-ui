@@ -36,7 +36,7 @@ import {
 import { setLoading } from '../actions/loader';
 import { JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
-import { goToJournalsPage as goToJournalsPageUrl, getFilter } from '../components/Journals/urlManager';
+import { goToJournalsPage as goToJournalsPageUrl, getFilterUrlParam } from '../constants/urls';
 import { t } from '../helpers/util';
 
 const getDefaultSortBy = config => {
@@ -96,12 +96,13 @@ function* sagaGetDashletConfig({ api, logger }, action) {
   }
 }
 
-function* sagaGetJournalsData({ api, logger }, action) {
+function* sagaGetJournalsData({ api, logger }) {
   try {
-    const { journalsListId, journalId, journalSettingId = '', predicate } = action.payload;
+    const url = yield select(state => state.journals.url);
+    const { journalsListId, journalId, journalSettingId = '' } = url;
     yield getJournals(api, journalsListId);
 
-    yield put(initJournal({ journalId, journalSettingId, predicate }));
+    yield put(initJournal({ journalId, journalSettingId }));
   } catch (e) {
     logger.error('[journals sagaGetDashletConfig saga error', e.message);
   }
@@ -149,7 +150,9 @@ function* getGridParams(journalConfig, journalSetting) {
   };
 }
 
-function* getJournalSetting(api, journalSettingId, journalConfig, predicate) {
+function* getJournalSetting(api, journalSettingId, journalConfig) {
+  const url = yield select(state => state.journals.url);
+
   let journalSetting;
 
   journalSettingId = journalSettingId || journalConfig.journalSettingId;
@@ -164,7 +167,7 @@ function* getJournalSetting(api, journalSettingId, journalConfig, predicate) {
   }
 
   journalSetting = { ...journalSetting, [JOURNAL_SETTING_ID_FIELD]: journalSettingId };
-  journalSetting.predicate = predicate || journalSetting.predicate;
+  journalSetting.predicate = url.filter ? JSON.parse(url.filter) : null || journalSetting.predicate;
 
   yield put(setJournalSetting(journalSetting));
   yield put(initJournalSettingData(journalSetting));
@@ -207,8 +210,8 @@ function* getGridData(api, params) {
   });
 }
 
-function* loadGrid(api, journalSettingId, journalConfig, predicate) {
-  let journalSetting = yield getJournalSetting(api, journalSettingId, journalConfig, predicate);
+function* loadGrid(api, journalSettingId, journalConfig) {
+  let journalSetting = yield getJournalSetting(api, journalSettingId, journalConfig);
   let params = yield getGridParams(journalConfig, journalSetting);
 
   const gridData = yield getGridData(api, params);
@@ -267,11 +270,11 @@ function* sagaInitJournal({ api, logger }, action) {
   try {
     yield put(setLoading(true));
 
-    let { journalId, journalSettingId, predicate } = action.payload;
+    let { journalId, journalSettingId } = action.payload;
 
     const journalConfig = yield getJournalConfig(api, journalId);
     yield getJournalSettings(api, journalConfig.id);
-    yield loadGrid(api, journalSettingId, journalConfig, predicate);
+    yield loadGrid(api, journalSettingId, journalConfig);
 
     yield put(setLoading(false));
   } catch (e) {
@@ -385,12 +388,13 @@ function* sagaGoToJournalsPage({ api, logger }, action) {
   try {
     let row = action.payload;
 
+    const url = yield select(state => state.journals.url);
     const journalConfig = yield select(state => state.journals.journalConfig);
     const config = yield select(state => state.journals.config);
     const grid = yield select(state => state.journals.grid);
 
     const { columns, groupBy = [] } = grid;
-    const { journalsListId = '', journalSettingId = '' } = config;
+    const { journalsListId = config.journalsListId, journalSettingId = config.journalSettingId } = url;
     let {
       id = '',
       meta: { nodeRef = '', criteria = [], predicate = {} }
@@ -414,7 +418,7 @@ function* sagaGoToJournalsPage({ api, logger }, action) {
       journalId: id,
       journalSettingId,
       nodeRef,
-      filter: getFilter({ row, columns, groupBy })
+      filter: getFilterUrlParam({ row, columns, groupBy })
     });
   } catch (e) {
     logger.error('[journals sagaGoToJournalsPage saga error', e.message);

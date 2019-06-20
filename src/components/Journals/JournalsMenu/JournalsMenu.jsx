@@ -1,13 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import { push } from 'connected-react-router';
-import { withRouter } from 'react-router';
 import CollapsableList from '../../common/CollapsableList/CollapsableList';
+import JournalsUrlManager from '../JournalsUrlManager';
 import { IcoBtn } from '../../common/btns';
 import { Well } from '../../common/form';
 import { deleteJournalSetting, onJournalSettingsSelect, onJournalSelect } from '../../../actions/journals';
 import { getPropByStringKey, t } from '../../../helpers/util';
-import { setJournalSettingId, setJournalId } from '../urlManager';
 import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../constants';
 
 import './JournalsMenu.scss';
@@ -22,8 +20,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   deleteJournalSetting: id => dispatch(deleteJournalSetting(id)),
   onJournalSettingsSelect: journalSettingId => dispatch(onJournalSettingsSelect(journalSettingId)),
-  onJournalSelect: journalId => dispatch(onJournalSelect(journalId)),
-  push: url => dispatch(push(url))
+  onJournalSelect: journalId => dispatch(onJournalSelect(journalId))
 });
 
 class ListItem extends Component {
@@ -105,8 +102,6 @@ class JournalsMenu extends Component {
 
   render() {
     const {
-      push,
-      history,
       journalSetting,
       journalSettings,
       journals,
@@ -117,46 +112,45 @@ class JournalsMenu extends Component {
     } = this.props;
     const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
 
-    push(setJournalSettingId(history.location, journalSettingId));
-    push(setJournalId(history.location, nodeRef));
-
     if (!open) {
       return null;
     }
 
     return (
-      <div className={`ecos-journal-menu ${open ? 'ecos-journal-menu_open' : ''}`}>
-        <div className={'ecos-journal-menu__hide-menu-btn'}>
-          <IcoBtn
-            onClick={this.onClose}
-            icon={'icon-close'}
-            invert={'true'}
-            className={'ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest'}
-          >
-            {t('journals.action.hide-menu')}
-          </IcoBtn>
+      <JournalsUrlManager params={{ journalId: nodeRef, journalSettingId }}>
+        <div className={`ecos-journal-menu ${open ? 'ecos-journal-menu_open' : ''}`}>
+          <div className={'ecos-journal-menu__hide-menu-btn'}>
+            <IcoBtn
+              onClick={this.onClose}
+              icon={'icon-close'}
+              invert={'true'}
+              className={'ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest'}
+            >
+              {t('journals.action.hide-menu')}
+            </IcoBtn>
+          </div>
+
+          <Well className={'ecos-journal-menu__journals'}>
+            <CollapsableList
+              classNameList={'ecos-list-group_mode_journal'}
+              list={this.getMenuJornals(journals)}
+              selected={this.getSelectedIndex(journals, nodeRef, 'nodeRef')}
+            >
+              {t('journals.name')}
+            </CollapsableList>
+          </Well>
+
+          <Well className={'ecos-journal-menu__presets'}>
+            <CollapsableList
+              classNameList={'ecos-list-group_mode_journal'}
+              list={this.getMenuJournalSettings(journalSettings)}
+              selected={this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD) || 0}
+            >
+              {t('journals.tpl.defaults')}
+            </CollapsableList>
+          </Well>
         </div>
-
-        <Well className={'ecos-journal-menu__journals'}>
-          <CollapsableList
-            classNameList={'ecos-list-group_mode_journal'}
-            list={this.getMenuJornals(journals)}
-            selected={this.getSelectedIndex(journals, nodeRef, 'nodeRef')}
-          >
-            {t('journals.name')}
-          </CollapsableList>
-        </Well>
-
-        <Well className={'ecos-journal-menu__presets'}>
-          <CollapsableList
-            classNameList={'ecos-list-group_mode_journal'}
-            list={this.getMenuJournalSettings(journalSettings)}
-            selected={this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD) || 0}
-          >
-            {t('journals.tpl.defaults')}
-          </CollapsableList>
-        </Well>
-      </div>
+      </JournalsUrlManager>
     );
   }
 }
@@ -164,4 +158,4 @@ class JournalsMenu extends Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withRouter(JournalsMenu));
+)(JournalsMenu);

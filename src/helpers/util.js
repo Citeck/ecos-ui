@@ -1,5 +1,7 @@
 import lodashGet from 'lodash/get';
 
+export const getBool = val => (val === 'false' ? false : val === 'true' ? true : val);
+
 export function closest(node, selector) {
   const parent = node.parentElement;
 

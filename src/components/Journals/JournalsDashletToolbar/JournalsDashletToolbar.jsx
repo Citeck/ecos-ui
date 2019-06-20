@@ -5,7 +5,7 @@ import JournalsDashletPagination from '../JournalsDashletPagination';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { onJournalSelect } from '../../../actions/journals';
-import { goToCreateRecordPage } from '../urlManager';
+import { goToCreateRecordPage } from '../../../constants/urls';
 
 const mapStateToProps = state => ({
   journals: state.journals.journals,
