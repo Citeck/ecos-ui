@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import classNames from 'classnames';
+import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { Well, Label, Select } from '../../common/form';
 import { Filter, FiltersCondition } from '../';
 import { ParserPredicate } from '../predicates';
@@ -7,7 +9,26 @@ import { t, trigger } from '../../../helpers/util';
 
 import './FiltersGroup.scss';
 
+const ListItem = ({ cssItemClasses, provided, item }) => {
+  return (
+    <li
+      className={cssItemClasses}
+      ref={provided.innerRef}
+      {...provided.draggableProps}
+      {...provided.dragHandleProps}
+      style={{ ...provided.draggableProps.style }}
+    >
+      {item}
+    </li>
+  );
+};
+
 export default class FiltersGroup extends Component {
+  constructor(props) {
+    super(props);
+    this.portal = this.createDraggableContainer();
+  }
+
   onChangeFilterValue = ({ val, index }) => {
     const filter = this.props.group.filters[index];
     filter.predicate.setVal(val);
@@ -41,9 +62,45 @@ export default class FiltersGroup extends Component {
     trigger.call(this, 'onAddGroup', condition);
   };
 
+  createDraggableContainer = () => {
+    let div = document.createElement('div');
+    document.body.appendChild(div);
+    return div;
+  };
+
+  removeDraggableContainer = () => {
+    document.body.removeChild(this.portal);
+  };
+
+  componentWillUnmount() {
+    this.removeDraggableContainer();
+  }
+
   render() {
-    const { className, columns, first, group } = this.props;
+    const { className, columns, first, group, index, droppableIdPrefix = '_' } = this.props;
     const groupConditions = ParserPredicate.getGroupConditions();
+    const droppableId = `${droppableIdPrefix}${index}`;
+
+    const dndFilters = group.filters.map((filter, idx) => (
+      <Filter
+        key={idx}
+        index={idx}
+        filter={filter}
+        onChangeValue={this.onChangeFilterValue}
+        onChangePredicate={this.onChangeFilterPredicate}
+        onDelete={this.deleteFilter}
+      >
+        {idx > 0 && (
+          <FiltersCondition
+            index={idx}
+            cross
+            onClick={this.changeFilterCondition}
+            condition={filter.getCondition()}
+            conditions={groupConditions}
+          />
+        )}
+      </Filter>
+    ));
 
     return (
       <Well className={`ecos-well_full ecos-well_shadow ecos-well_radius_6 ${classNames('ecos-filters-group', className)}`}>
@@ -80,28 +137,35 @@ export default class FiltersGroup extends Component {
           </div>
         </div>
 
-        {group.filters.map((filter, idx) => {
-          return (
-            <Filter
-              key={idx}
-              index={idx}
-              filter={filter}
-              onChangeValue={this.onChangeFilterValue}
-              onChangePredicate={this.onChangeFilterPredicate}
-              onDelete={this.deleteFilter}
-            >
-              {idx > 0 && (
-                <FiltersCondition
-                  index={idx}
-                  cross
-                  onClick={this.changeFilterCondition}
-                  condition={filter.getCondition()}
-                  conditions={groupConditions}
-                />
-              )}
-            </Filter>
-          );
-        })}
+        <Droppable droppableId={droppableId}>
+          {provided => (
+            <ul {...provided.droppableProps} ref={provided.innerRef}>
+              {dndFilters.map((item, index) => {
+                const draggableId = `${droppableId}_${index}`;
+
+                return (
+                  <Draggable key={index} draggableId={draggableId} index={index}>
+                    {(provided, snapshot) => {
+                      return snapshot.isDragging ? (
+                        ReactDOM.createPortal(
+                          <ListItem
+                            cssItemClasses={snapshot.isDragging && 'ecos-filters-group__draggable'}
+                            provided={provided}
+                            item={item}
+                          />,
+                          this.portal
+                        )
+                      ) : (
+                        <ListItem provided={provided} item={item} />
+                      );
+                    }}
+                  </Draggable>
+                );
+              })}
+              <div className={dndFilters.length ? '' : 'ecos-filters-group__empty'}>{provided.placeholder}</div>
+            </ul>
+          )}
+        </Droppable>
       </Well>
     );
   }
