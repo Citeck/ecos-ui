@@ -9,6 +9,7 @@ export default class TableFormComponent extends BaseReactComponent {
         label: 'TableForm',
         key: 'tableForm',
         type: 'tableForm',
+        eventName: '',
         source: {
           type: '',
           journal: {
@@ -58,9 +59,23 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   getInitialReactProps() {
-    let component = this.component;
+    const component = this.component;
 
     let resolveProps = source => {
+      let triggerEventOnTableChange = null;
+      if (component.eventName) {
+        triggerEventOnTableChange = () => {
+          this.emit(this.interpolate(component.eventName), this.data);
+          this.events.emit(this.interpolate(component.eventName), this.data);
+          this.emit('customEvent', {
+            type: this.interpolate(component.eventName),
+            component: this.component,
+            data: this.data,
+            event: null
+          });
+        };
+      }
+
       return {
         defaultValue: component.defaultValue,
         isCompact: component.isCompact,
@@ -71,6 +86,7 @@ export default class TableFormComponent extends BaseReactComponent {
         onChange: this.onReactValueChanged,
         viewOnly: this.viewOnly,
         parentForm: this.root,
+        triggerEventOnTableChange,
         onError: err => {
           // this.setCustomValidity(err, false);
         }

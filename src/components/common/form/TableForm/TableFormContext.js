@@ -5,6 +5,7 @@ import { JournalsApi } from '../../../../api/journalsApi';
 import Records from '../../../Records/Records';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
+import _ from 'lodash';
 
 export const TableFormContext = React.createContext();
 
@@ -13,7 +14,7 @@ export const FORM_MODE_EDIT = 'EDIT';
 
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
-  const { onChange, onError, source, defaultValue } = controlProps;
+  const { onChange, onError, source, defaultValue, triggerEventOnTableChange } = controlProps;
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
   const [isModalFormOpen, setIsModalFormOpen] = useState(false);
@@ -120,7 +121,9 @@ export const TableFormContextProvider = props => {
           atts[`.edge(n:"${item}"){title,type}`] = item;
         });
 
-        Records.get(cv[0].type)
+        let cvType = cv[0].type;
+
+        let columnsInfoPromise = Records.get(cvType)
           .load(Object.keys(atts))
           .then(loadedAtt => {
             let cols = [];
@@ -135,8 +138,32 @@ export const TableFormContextProvider = props => {
                 attribute: atts[i]
               });
             }
+            return cols;
+          });
 
-            setColumns(GqlDataSource.getColumnsStatic(cols));
+        Promise.all([columnsInfoPromise, EcosFormUtils.getRecordFormInputsMap(cvType)])
+          .then(columnsAndInputs => {
+            let [columns, inputs] = columnsAndInputs;
+
+            for (let column of columns) {
+              let input = inputs[column.attribute] || {};
+              let computedDispName = _.get(input, 'component.computed.valueDisplayName', '');
+
+              if (computedDispName) {
+                //Is this filter required?
+                column.formatter = {
+                  name: 'FormFieldFormatter',
+                  params: input
+                };
+              }
+            }
+            setColumns(GqlDataSource.getColumnsStatic(columns));
+          })
+          .catch(err => {
+            console.error(err);
+            columnsInfoPromise.then(columns => {
+              setColumns(GqlDataSource.getColumnsStatic(columns));
+            });
           });
       });
     }
@@ -168,7 +195,10 @@ export const TableFormContextProvider = props => {
               return { ...result, id: r };
             });
         })
-      ).then(setSelectedRows);
+      ).then(result => {
+        setSelectedRows(result);
+        typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
+      });
     }
   }, [defaultValue, columns, setSelectedRows]);
 
@@ -210,13 +240,14 @@ export const TableFormContextProvider = props => {
             ...selectedRows,
             {
               id: record.id,
-              ...record.getRawAttributes()
+              ...record.toJson()['attributes']
             }
           ];
 
           setSelectedRows(newSelectedRows);
 
           typeof onChange === 'function' && onChange(newSelectedRows.map(item => item.id));
+          typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
         },
 
         onEditFormSubmit: (record, form) => {
@@ -226,7 +257,7 @@ export const TableFormContextProvider = props => {
 
           let newSelectedRows = [...selectedRows];
 
-          const newRow = { ...record.getRawAttributes(), id: editRecordId };
+          const newRow = { ...record.toJson()['attributes'], id: editRecordId };
 
           if (isNodeRef && isAlias) {
             // replace base record row by newRow in values list
@@ -251,6 +282,7 @@ export const TableFormContextProvider = props => {
           setSelectedRows(newSelectedRows);
 
           typeof onChange === 'function' && onChange(newSelectedRows.map(item => item.id));
+          typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
 
           setIsModalFormOpen(false);
         },
@@ -260,6 +292,7 @@ export const TableFormContextProvider = props => {
           setSelectedRows([...newSelectedRows]);
 
           typeof onChange === 'function' && onChange(newSelectedRows.map(item => item.id));
+          typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
         },
 
         setInlineToolsOffsets: (e, offsets) => {

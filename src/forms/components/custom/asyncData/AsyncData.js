@@ -13,6 +13,7 @@ export default class AsyncDataComponent extends BaseComponent {
         type: 'asyncData',
         mask: false,
         inputType: 'asyncData',
+        eventName: '',
         source: {
           type: '',
           ajax: {
@@ -279,7 +280,7 @@ export default class AsyncDataComponent extends BaseComponent {
       this.on(
         this.component.update.event,
         () => {
-          this._updateValue(false);
+          this._updateValue(true); // TODO this.component.update.force
         },
         true
       );
@@ -300,6 +301,7 @@ export default class AsyncDataComponent extends BaseComponent {
       this.dataValue = value;
       this.updateValue(flags);
       this.triggerChange(flags);
+      this.triggerEventOnChange();
       return true;
     }
     return false;
@@ -308,4 +310,18 @@ export default class AsyncDataComponent extends BaseComponent {
   getValue() {
     return this.dataValue;
   }
+
+  triggerEventOnChange = () => {
+    const component = this.component;
+    if (component.eventName) {
+      this.emit(this.interpolate(component.eventName), this.data);
+      this.events.emit(this.interpolate(component.eventName), this.data);
+      this.emit('customEvent', {
+        type: this.interpolate(component.eventName),
+        component: this.component,
+        data: this.data,
+        event: null
+      });
+    }
+  };
 }

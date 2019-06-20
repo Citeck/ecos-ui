@@ -1,5 +1,29 @@
 export default [
   {
+    type: 'checkbox',
+    input: true,
+    key: 'triggerEventOnChange',
+    label: 'Trigger event on table change',
+    weight: 18,
+    defaultValue: false
+  },
+  {
+    type: 'textfield',
+    input: true,
+    key: 'eventName',
+    label: 'Event name',
+    placeholder: 'Some string',
+    validate: {
+      required: false
+    },
+    weight: 19,
+    conditional: {
+      json: {
+        and: [{ '==': [{ var: 'data.triggerEventOnChange' }, true] }]
+      }
+    }
+  },
+  {
     type: 'select',
     input: true,
     label: 'Data source:',
