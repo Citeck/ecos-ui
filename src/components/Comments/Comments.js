@@ -27,12 +27,18 @@ class Comments extends React.Component {
       comment: PropTypes.string.isRequired,
       date: PropTypes.instanceOf(Date).isRequired
     }),
-    maxLength: PropTypes.number
+    maxLength: PropTypes.number,
+    errorMessage: PropTypes.string,
+    saveIsLoading: PropTypes.bool,
+    onSave: PropTypes.func
   };
 
   static defaultProps = {
     comments: [],
-    maxLength: 350
+    maxLength: 350,
+    errorMessage: '',
+    saveIsLoading: false,
+    onSave: () => {}
   };
 
   state = {
@@ -77,15 +83,15 @@ class Comments extends React.Component {
     }
 
     if (hours > 0) {
-      return `${hours} часов назад`;
+      return `${hours} ${num2str(hours, ['час', 'часа', 'часов'])} назад`;
     }
 
     if (minutes > 0) {
-      return `${minutes} минут назад`;
+      return `${minutes} ${num2str(minutes, ['минуту', 'минуты', 'минут'])} назад`;
     }
 
     if (seconds > 0) {
-      return `${seconds} секунд назад`;
+      return `${seconds} ${num2str(seconds, ['секунду', 'секунды', 'секунд'])} назад`;
     }
 
     return 'Только что';
@@ -113,7 +119,21 @@ class Comments extends React.Component {
   };
 
   handleShowEditor = () => {
-    this.setState({ isEdit: true });
+    this.setState({
+      isEdit: true,
+      comment: EditorState.createEmpty(),
+      editorHeight: BASE_HEIGHT
+    });
+  };
+
+  handleSaveComment = () => {
+    const { saveIsLoading } = this.props;
+
+    if (saveIsLoading) {
+      return;
+    }
+
+    this.props.onSave();
   };
 
   handleCloseEditor = () => {
@@ -211,8 +231,18 @@ class Comments extends React.Component {
       .getType();
   }
 
+  renderErrorMessage() {
+    const { errorMessage } = this.props;
+
+    if (!errorMessage) {
+      return null;
+    }
+
+    return <div className="ecos-comments__editor-footer-error">{errorMessage}</div>;
+  }
+
   renderEditor() {
-    const { maxLength } = this.props;
+    const { maxLength, errorMessage, saveIsLoading } = this.props;
     const { comment, editorHeight } = this.state;
     let minHeight = '1em';
 
@@ -230,25 +260,25 @@ class Comments extends React.Component {
       <div className="ecos-comments__editor">
         <div className="ecos-comments__editor-header">
           <div
-            style={{ padding: '5px', color: this.inlineStyles.has(BUTTONS_TYPE.BOLD) ? 'blue' : 'white', cursor: 'pointer' }}
+            style={{ padding: '5px', color: this.inlineStyles.has(BUTTONS_TYPE.BOLD) ? '#7396CD' : 'white', cursor: 'pointer' }}
             onClick={this.handleToggleStyle.bind(this, BUTTONS_TYPE.BOLD)}
           >
             B
           </div>
           <div
-            style={{ padding: '5px', color: this.inlineStyles.has(BUTTONS_TYPE.ITALIC) ? 'blue' : 'white', cursor: 'pointer' }}
+            style={{ padding: '5px', color: this.inlineStyles.has(BUTTONS_TYPE.ITALIC) ? '#7396CD' : 'white', cursor: 'pointer' }}
             onClick={this.handleToggleStyle.bind(this, BUTTONS_TYPE.ITALIC)}
           >
             I
           </div>
           <div
-            style={{ padding: '5px', color: this.inlineStyles.has(BUTTONS_TYPE.UNDERLINE) ? 'blue' : 'white', cursor: 'pointer' }}
+            style={{ padding: '5px', color: this.inlineStyles.has(BUTTONS_TYPE.UNDERLINE) ? '#7396CD' : 'white', cursor: 'pointer' }}
             onClick={this.handleToggleStyle.bind(this, BUTTONS_TYPE.UNDERLINE)}
           >
             U
           </div>
           <div
-            style={{ padding: '5px', color: this.blockType === BUTTONS_TYPE.LIST ? 'blue' : 'white', cursor: 'pointer' }}
+            style={{ padding: '5px', color: this.blockType === BUTTONS_TYPE.LIST ? '#7396CD' : 'white', cursor: 'pointer' }}
             onClick={this.handleToggleBlockType.bind(this, BUTTONS_TYPE.LIST)}
           >
             List
@@ -273,16 +303,21 @@ class Comments extends React.Component {
           </Scrollbars>
         </div>
         <div className="ecos-comments__editor-footer">
-          {this.renderCount()}
-          {/*{this.renderErrorMessage()}*/}
-          <div>
-            <Btn className="ecos-btn_grey5 ecos-btn_hover_grey1 ecos-comments__editor-footer-btn" onClick={this.handleCloseEditor}>
+          {errorMessage ? this.renderErrorMessage() : this.renderCount()}
+
+          <div className="ecos-comments__editor-footer-btn-wrapper">
+            <Btn
+              className="ecos-btn_grey5 ecos-btn_hover_grey1 ecos-comments__editor-footer-btn"
+              onClick={this.handleCloseEditor}
+              disabled={saveIsLoading}
+            >
               {t('Отмена')}
             </Btn>
             <Btn
-              className="ecos-btn_blue ecos-btn_hover_light-blue ecos-commens__editor-footer-btn"
-              onClick={this.handleCloseEditor}
-              disabled={this.commentLength > maxLength}
+              className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__editor-footer-btn"
+              onClick={this.handleSaveComment}
+              disabled={this.commentLength > maxLength || saveIsLoading}
+              loading={saveIsLoading}
             >
               {t('Отправить')}
             </Btn>

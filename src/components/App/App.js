@@ -27,12 +27,84 @@ import './App.scss';
 import moment from 'moment';
 
 class App extends Component {
+  state = {
+    comments: [
+      {
+        avatar: '',
+        userName: 'Константин Константинопольский',
+        comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+        date: moment()
+          .subtract({ days: 12, hours: -1 })
+          .toDate()
+      },
+      {
+        avatar: '',
+        userName: '',
+        comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+        date: moment()
+          .subtract({ days: 1, hours: -1 })
+          .toDate()
+      },
+      {
+        avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
+        userName: 'Константин Константинопольский',
+        comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+        date: moment()
+          .subtract({ hours: 5 })
+          .toDate()
+      },
+      {
+        avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
+        userName: 'Константин Константинопольский',
+        comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+        date: moment()
+          .subtract({ minutes: 40 })
+          .toDate()
+      },
+      {
+        avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
+        userName: 'Константин Константинопольский',
+        comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+        date: moment()
+          .subtract({ seconds: 35 })
+          .toDate()
+      },
+      {
+        avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
+        userName: 'Константин Константинопольский',
+        comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+        date: moment().toDate()
+      }
+    ],
+    errorMessage: '',
+    commentSaveIsLoading: false
+  };
+
   componentDidMount() {
     const { getShowTabsStatus, getTabs } = this.props;
 
     getShowTabsStatus();
     getTabs();
   }
+
+  handleSaveComment = ({ id = null, message = '' } = {}) => {
+    this.setState({ commentSaveIsLoading: true }, () => {
+      window.setTimeout(() => {
+        this.setState({
+          errorMessage: 'Ошибка отправки! Попробуйте ещё раз.',
+          commentSaveIsLoading: false
+        });
+      }, 3000);
+    });
+  };
+
+  renderComments = () => {
+    const { comments, errorMessage, commentSaveIsLoading } = this.state;
+
+    return (
+      <Comments comments={comments} errorMessage={errorMessage} onSave={this.handleSaveComment} saveIsLoading={commentSaveIsLoading} />
+    );
+  };
 
   render() {
     const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs } = this.props;
@@ -75,63 +147,7 @@ class App extends Component {
               <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
               <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
 
-              <Route
-                path="/comments"
-                component={() => (
-                  <div>
-                    <Comments
-                      comments={[
-                        {
-                          avatar: '',
-                          userName: 'Константин Константинопольский',
-                          comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
-                          date: moment()
-                            .subtract({ days: 12, hours: -1 })
-                            .toDate()
-                        },
-                        {
-                          avatar: '',
-                          userName: '',
-                          comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
-                          date: moment()
-                            .subtract({ days: 1, hours: -1 })
-                            .toDate()
-                        },
-                        {
-                          avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
-                          userName: 'Константин Константинопольский',
-                          comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
-                          date: moment()
-                            .subtract({ hours: 5 })
-                            .toDate()
-                        },
-                        {
-                          avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
-                          userName: 'Константин Константинопольский',
-                          comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
-                          date: moment()
-                            .subtract({ minutes: 40 })
-                            .toDate()
-                        },
-                        {
-                          avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
-                          userName: 'Константин Константинопольский',
-                          comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
-                          date: moment()
-                            .subtract({ seconds: 35 })
-                            .toDate()
-                        },
-                        {
-                          avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
-                          userName: 'Константин Константинопольский',
-                          comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
-                          date: moment().toDate()
-                        }
-                      ]}
-                    />
-                  </div>
-                )}
-              />
+              <Route path="/comments" component={this.renderComments} />
               {/*<Route component={NotFoundPage} />*/}
             </Switch>
           </PageTabs>

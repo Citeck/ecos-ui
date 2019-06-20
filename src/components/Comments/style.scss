@@ -15,6 +15,22 @@
     #{$root}__add-btn {
       width: 100%;
     }
+
+    #{$root}__editor {
+      &-footer {
+        flex-direction: column;
+
+        &-btn {
+          width: 50%;
+          min-width: 141px;
+
+          &-wrapper {
+            display: flex;
+            flex-wrap: nowrap;
+          }
+        }
+      }
+    }
   }
 
   &__header {
@@ -119,6 +135,7 @@
 
   &__editor {
     width: 100%;
+    min-width: 250px;
 
     &-header {
       background: $color-gray-6;
@@ -147,6 +164,15 @@
         &:not(:last-child) {
           margin-right: 10px;
         }
+      }
+
+      &-error {
+        font-style: normal;
+        font-weight: bold;
+        font-size: 12px;
+        line-height: 16px;
+        color: $color-red-1;
+        max-width: 134px;
       }
     }
   }
