@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Route, Switch } from 'react-router';
 import classNames from 'classnames';
+import moment from 'moment';
+import uuid from 'uuidv4';
 
 import BPMNDesignerPage from '../../pages/BPMNDesignerPage';
 import CardDetailsPage from '../../pages/CardDetailsPage';
@@ -23,62 +25,90 @@ import Comments from './../Comments';
 
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { URL } from '../../constants';
+import { deepClone } from '../../helpers/util';
 import './App.scss';
-import moment from 'moment';
 
 class App extends Component {
-  state = {
-    comments: [
+  constructor() {
+    super();
+
+    const comments = [
       {
+        id: uuid(),
         avatar: '',
         userName: 'Константин Константинопольский',
-        comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+        text: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
         date: moment()
           .subtract({ days: 12, hours: -1 })
-          .toDate()
+          .toDate(),
+        canEdit: true,
+        canDelete: false
       },
       {
+        id: uuid(),
         avatar: '',
         userName: '',
-        comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+        text: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
         date: moment()
           .subtract({ days: 1, hours: -1 })
-          .toDate()
+          .toDate(),
+        canEdit: true,
+        canDelete: false
       },
       {
+        id: uuid(),
         avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
         userName: 'Константин Константинопольский',
-        comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+        text: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
         date: moment()
           .subtract({ hours: 5 })
-          .toDate()
+          .toDate(),
+        canEdit: true,
+        canDelete: true
       },
       {
+        id: uuid(),
         avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
         userName: 'Константин Константинопольский',
-        comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+        text: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
         date: moment()
           .subtract({ minutes: 40 })
-          .toDate()
+          .toDate(),
+        canEdit: false,
+        canDelete: false
       },
       {
+        id: uuid(),
         avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
         userName: 'Константин Константинопольский',
-        comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+        text: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
         date: moment()
           .subtract({ seconds: 35 })
-          .toDate()
+          .toDate(),
+        canEdit: true,
+        canDelete: true
       },
       {
+        id: uuid(),
         avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
         userName: 'Константин Константинопольский',
-        comment: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
-        date: moment().toDate()
+        text: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
+        date: moment().toDate(),
+        canEdit: false,
+        canDelete: false
       }
-    ],
-    errorMessage: '',
-    commentSaveIsLoading: false
-  };
+    ];
+
+    comments.sort((a, b) => {
+      return new Date(a.date) - new Date(b.date);
+    });
+
+    this.state = {
+      comments,
+      errorMessage: '',
+      commentSaveIsLoading: false
+    };
+  }
 
   componentDidMount() {
     const { getShowTabsStatus, getTabs } = this.props;
@@ -90,19 +120,60 @@ class App extends Component {
   handleSaveComment = ({ id = null, message = '' } = {}) => {
     this.setState({ commentSaveIsLoading: true }, () => {
       window.setTimeout(() => {
-        this.setState({
-          errorMessage: 'Ошибка отправки! Попробуйте ещё раз.',
-          commentSaveIsLoading: false
-        });
+        // this.setState({
+        //   errorMessage: 'Ошибка отправки! Попробуйте ещё раз.',
+        //   commentSaveIsLoading: false
+        // });
+
+        const comments = deepClone(this.state.comments);
+
+        if (!id) {
+          comments.push({
+            id: uuid(),
+            avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
+            userName: 'Константин Константинопольский',
+            text: message,
+            date: moment().toDate(),
+            canEdit: true,
+            canDelete: true
+          });
+        } else {
+          const comment = comments.find(comment => comment.id === id);
+
+          if (comment) {
+            comment.text = message;
+          }
+        }
+
+        this.setState({ comments, commentSaveIsLoading: false });
       }, 3000);
     });
+  };
+
+  handleDeleteComment = id => {
+    let comments = deepClone(this.state.comments);
+    const index = comments.findIndex(comment => comment.id === id);
+
+    if (index === -1) {
+      return;
+    }
+
+    comments.splice(index, 1);
+
+    this.setState({ comments });
   };
 
   renderComments = () => {
     const { comments, errorMessage, commentSaveIsLoading } = this.state;
 
     return (
-      <Comments comments={comments} errorMessage={errorMessage} onSave={this.handleSaveComment} saveIsLoading={commentSaveIsLoading} />
+      <Comments
+        comments={comments}
+        errorMessage={errorMessage}
+        onSave={this.handleSaveComment}
+        onDelete={this.handleDeleteComment}
+        saveIsLoading={commentSaveIsLoading}
+      />
     );
   };
 

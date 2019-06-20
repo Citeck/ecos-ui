@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import moment from 'moment';
 import ReactResizeDetector from 'react-resize-detector';
-import { Editor, EditorState, RichUtils } from 'draft-js';
+import { Editor, EditorState, RichUtils, ContentState, convertToRaw, convertFromRaw } from 'draft-js';
+import { stateToHTML } from 'draft-js-export-html';
+
 import Dashlet from '../Dashlet/Dashlet';
 import Btn from '../common/btns/Btn/Btn';
 import { t, num2str } from '../../helpers/util';
@@ -24,13 +26,17 @@ class Comments extends React.Component {
     comments: PropTypes.arrayOf({
       avatar: PropTypes.string,
       userName: PropTypes.string.isRequired,
-      comment: PropTypes.string.isRequired,
-      date: PropTypes.instanceOf(Date).isRequired
+      text: PropTypes.string.isRequired,
+      date: PropTypes.instanceOf(Date).isRequired,
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      canEdit: PropTypes.bool.isRequired,
+      canDelete: PropTypes.bool.isRequired
     }),
     maxLength: PropTypes.number,
     errorMessage: PropTypes.string,
     saveIsLoading: PropTypes.bool,
-    onSave: PropTypes.func
+    onSave: PropTypes.func,
+    onDelete: PropTypes.func
   };
 
   static defaultProps = {
@@ -38,15 +44,30 @@ class Comments extends React.Component {
     maxLength: 350,
     errorMessage: '',
     saveIsLoading: false,
-    onSave: () => {}
+    onSave: () => {},
+    onDelete: () => {}
   };
 
   state = {
     isEdit: true,
     width: 291,
     editorHeight: BASE_HEIGHT,
-    comment: EditorState.createEmpty()
+    comment: EditorState.createEmpty(),
+    editableComment: null,
+    commentForDeletion: null
   };
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.saveIsLoading && !nextProps.saveIsLoading) {
+      this.setState({
+        isEdit: false,
+        editorHeight: BASE_HEIGHT,
+        comment: EditorState.createEmpty(),
+        editableComment: null,
+        commentForDeletion: null
+      });
+    }
+  }
 
   get countComments() {
     const { comments } = this.props;
@@ -127,13 +148,17 @@ class Comments extends React.Component {
   };
 
   handleSaveComment = () => {
-    const { saveIsLoading } = this.props;
+    const { saveIsLoading, onSave } = this.props;
+    const { editableComment } = this.state;
 
     if (saveIsLoading) {
       return;
     }
 
-    this.props.onSave();
+    onSave({
+      id: editableComment,
+      message: JSON.stringify(convertToRaw(this.state.comment.getCurrentContent()))
+    });
   };
 
   handleCloseEditor = () => {
@@ -194,6 +219,48 @@ class Comments extends React.Component {
     }
 
     return false;
+  };
+
+  handleEditComment = id => {
+    const { comments } = this.props;
+    const comment = comments.find(comment => comment.id === id);
+    let convertedComment = ContentState.createFromText(comment.text);
+
+    if (!comment) {
+      console.warn(t('Комментарий не найден'));
+
+      return;
+    }
+
+    try {
+      convertedComment = JSON.parse(comment.text);
+
+      if (typeof convertedComment === 'object') {
+        convertedComment = convertFromRaw(convertedComment);
+      }
+    } catch (e) {}
+
+    this.setState(
+      {
+        editableComment: id,
+        isEdit: true,
+        comment: EditorState.moveFocusToEnd(EditorState.createWithContent(convertedComment))
+      },
+      this.updateEditorHeight
+    );
+  };
+
+  handleDeleteComment = commentForDeletion => {
+    this.setState({ commentForDeletion });
+  };
+
+  handleCancelDeletion = () => {
+    this.setState({ commentForDeletion: null });
+  };
+
+  handleDelete = () => {
+    this.props.onDelete(this.state.commentForDeletion);
+    this.setState({ commentForDeletion: null });
   };
 
   renderHeader() {
@@ -316,7 +383,7 @@ class Comments extends React.Component {
             <Btn
               className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__editor-footer-btn"
               onClick={this.handleSaveComment}
-              disabled={this.commentLength > maxLength || saveIsLoading}
+              disabled={!this.commentLength || this.commentLength > maxLength || saveIsLoading}
               loading={saveIsLoading}
             >
               {t('Отправить')}
@@ -361,19 +428,68 @@ class Comments extends React.Component {
     return <div className="ecos-comments__comment-avatar ecos-comments__comment-avatar_empty" />;
   }
 
-  renderComment = (data, index) => {
-    const { avatar = '', userName, comment, date = new Date() } = data;
+  renderConfirmDelete(id) {
+    const { commentForDeletion } = this.state;
+
+    if (!commentForDeletion || commentForDeletion !== id) {
+      return null;
+    }
 
     return (
-      <div className="ecos-comments__comment" key={index}>
+      <div className="ecos-comments__comment-confirm">
+        <div className="ecos-comments__comment-confirm-title">{t('Удалить этот комментарий')}?</div>
+
+        <div className="ecos-comments__comment-confirm-btns">
+          <Btn className="ecos-btn_grey5 ecos-btn_hover_grey1 ecos-comments__comment-confirm-btn" onClick={this.handleCancelDeletion}>
+            {t('Отмена')}
+          </Btn>
+          <Btn className="ecos-btn_red ecos-comments__comment-confirm-btn" onClick={this.handleDelete}>
+            {t('Удалить')}
+          </Btn>
+        </div>
+      </div>
+    );
+  }
+
+  renderComment = data => {
+    const { id, avatar = '', userName, text, date = new Date(), canEdit = false, canDelete = false } = data;
+    let convertedComment = text;
+
+    try {
+      convertedComment = convertFromRaw(JSON.parse(text));
+      convertedComment = stateToHTML(convertedComment);
+    } catch (e) {}
+
+    return (
+      <div className="ecos-comments__comment" key={id}>
         <div className="ecos-comments__comment-header">
-          {this.renderAvatar(avatar, userName)}
-          <div className="ecos-comments__comment-header-column">
-            <div className="ecos-comments__comment-name">{userName}</div>
-            <div className="ecos-comments__comment-date">{this.getFormattedDate(date)}</div>
+          <div className="ecos-comments__comment-header-cell">
+            {this.renderAvatar(avatar, userName)}
+            <div className="ecos-comments__comment-header-column">
+              <div className="ecos-comments__comment-name">{userName}</div>
+              <div className="ecos-comments__comment-date">{this.getFormattedDate(date)}</div>
+            </div>
+          </div>
+          <div className="ecos-comments__comment-header-cell">
+            {canEdit && (
+              <div
+                className="ecos-comments__comment-btn ecos-comments__comment-btn-edit icon-edit"
+                title={t('Редактировать')}
+                onClick={this.handleEditComment.bind(null, id)}
+              />
+            )}
+            {canDelete && (
+              <div
+                className="ecos-comments__comment-btn ecos-comments__comment-btn-delete icon-delete"
+                title={t('Удалить')}
+                onClick={this.handleDeleteComment.bind(null, id)}
+              />
+            )}
           </div>
         </div>
-        <div className="ecos-comments__comment-text">{comment}</div>
+        <div className="ecos-comments__comment-text" dangerouslySetInnerHTML={{ __html: convertedComment }} />
+
+        {this.renderConfirmDelete(id)}
       </div>
     );
   };

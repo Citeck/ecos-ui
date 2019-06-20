@@ -438,6 +438,20 @@ button {
   &.ecos-btn_full-height {
     height: 100%;
   }
+
+  &.ecos-btn_red {
+    background: $color-red-1;
+    color: $color-white;
+
+    &:focus {
+      background: $color-red-1;
+      color: $color-white;
+    }
+
+    &:hover {
+      background: lighten($color-red-1, 10%);
+    }
+  }
 }
 
 .ecos-btn {
