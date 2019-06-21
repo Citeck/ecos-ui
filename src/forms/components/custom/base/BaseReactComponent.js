@@ -179,7 +179,6 @@ export default class BaseReactComponent extends BaseComponent {
     /*if (!this.visible && this.component.clearOnHide) {
       newValue = this.dataValue;
     } else */
-    // TODO: здесь убрал условие "|| value === null" Нужно проверить, что ничего не поломалось
     if (value === undefined) {
       newValue = this.getValue(flags);
     }
