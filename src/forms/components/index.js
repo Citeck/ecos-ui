@@ -12,6 +12,7 @@ import EcosSelect from './custom/ecosSelect';
 import AsyncData from './custom/asyncData';
 import TableForm from './custom/tableForm';
 import HorizontalLine from './custom/horizontalLine';
+import DataGridAssoc from './custom/datagridAssoc';
 
 import './prototypeMutation';
 
@@ -27,5 +28,6 @@ Components.setComponents({
   ecosSelect: EcosSelect,
   asyncData: AsyncData,
   tableForm: TableForm,
-  horizontalLine: HorizontalLine
+  horizontalLine: HorizontalLine,
+  datagridAssoc: DataGridAssoc
 });

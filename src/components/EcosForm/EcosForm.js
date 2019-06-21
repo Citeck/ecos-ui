@@ -4,6 +4,7 @@ import Formio from 'formiojs/Formio';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormUtils from './EcosFormUtils';
+import DataGridAssocComponent from './../../forms/components/custom/datagridAssoc/DataGridAssoc';
 import { t } from '../../helpers/util';
 
 import './formio.full.min.css';
@@ -190,6 +191,11 @@ class EcosForm extends React.Component {
             value = mapping(value);
           }
         }
+
+        if (value && input && input.component.type === 'datagridAssoc') {
+          value = DataGridAssocComponent.convertToAssoc(value, input, keysMapping);
+        }
+
         record.att(keysMapping[key] || key, value);
       }
     }
