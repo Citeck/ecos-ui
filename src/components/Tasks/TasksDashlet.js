@@ -4,6 +4,8 @@ import { t } from '../../helpers/util';
 import Dashlet from '../Dashlet/Dashlet';
 import Tasks from '../Tasks/Tasks';
 
+import './style.scss';
+
 class TasksDashlet extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,

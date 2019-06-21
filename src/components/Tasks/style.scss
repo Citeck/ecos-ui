@@ -1,0 +1,36 @@
+@import '../../constants';
+
+.ecos-task-details {
+  $root: &;
+
+  &__title {
+    height: 51px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    color: $color-gray-dark;
+    background-color: $color-gray-8;
+  }
+
+  &__details {
+    padding: 16px 20px;
+  }
+
+  &__detail {
+    display: flex;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 2px solid $color-gray-4;
+
+    &-label {
+      flex-basis: 100px;
+      margin-right: 10px;
+      font-weight: $font-weight-bold;
+      color: $text-color-dark;
+    }
+
+    &-value {
+      color: $color-gray-9;
+    }
+  }
+}

@@ -1,7 +1,8 @@
 import { put, takeLatest, call, select } from 'redux-saga/effects';
-import { setDashletConfig, getDashletConfig, saveDashletConfig, setSaveTaskResult } from '../actions/tasks';
+import { setDashletTasks, getDashletTasks, changeTaskDetails, setSaveTaskResult } from '../actions/tasks';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
+import TasksDto from '../dto/tasks';
 
 function* sagaGetTasks({ api, logger }, { payload }) {
   const err = t('Ошибка получения данные');
@@ -11,7 +12,7 @@ function* sagaGetTasks({ api, logger }, { payload }) {
     const res = yield call(api.tasks.getTasks, { sourceId, recordRef });
 
     if (res && Object.keys(res)) {
-      yield put(setDashletConfig(res.records));
+      yield put(setDashletTasks(TasksDto.getTaskListForWeb(res.records)));
     } else {
       yield put(setNotificationMessage(err));
     }
@@ -45,8 +46,8 @@ function* sagaChangeAssigneeTask({ api, logger }, { payload }) {
 }
 
 function* tasksSaga(ea) {
-  yield takeLatest(getDashletConfig().type, sagaGetTasks, ea);
-  yield takeLatest(saveDashletConfig().type, sagaGetTasks, ea);
+  yield takeLatest(getDashletTasks().type, sagaGetTasks, ea);
+  yield takeLatest(changeTaskDetails().type, sagaGetTasks, ea);
 }
 
 export default tasksSaga;

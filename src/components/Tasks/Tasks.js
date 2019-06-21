@@ -1,44 +1,57 @@
 import * as React from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
-import TaskDetails from './TaskDetails';
-import { getDashletConfig } from '../../actions/tasks';
 import { connect } from 'react-redux';
+import queryString from 'query-string';
+import TaskList from './small/TaskList';
+import { getDashletTasks } from '../../actions/tasks';
 
 const mapStateToProps = state => ({
-  theme: state.view.theme
+  tasks: state.tasks.list
 });
 
 const mapDispatchToProps = dispatch => ({
-  setPageArgs: pageArgs => dispatch(setPageArgs(pageArgs)),
-  fetchNodeInfo: nodeRef => dispatch(fetchNodeInfo(nodeRef)),
-  fetchCardlets: nodeRef => dispatch(fetchCardlets(nodeRef)),
-  fetchStartMessage: nodeRef => dispatch(fetchStartMessage(nodeRef)),
-  setCardMode: (cardMode, registerReducers) => dispatch(setCardMode(cardMode, registerReducers))
+  getDashletTasks: payload => dispatch(getDashletTasks(payload))
 });
 
 class Tasks extends React.Component {
   static propTypes = {
-    className: PropTypes.string,
-    id: PropTypes.string.isRequired
+    id: PropTypes.string.isRequired,
+    className: PropTypes.string
   };
 
   static defaultProps = {
-    className: '',
-    height: 'inherit',
-    scale: 0.5,
-    isLoading: false,
-    errMsg: ''
+    id: '',
+    className: ''
   };
 
+  componentDidMount() {
+    const { getDashletTasks, id } = this.props;
+
+    getDashletTasks({ sourceId: id, recordRef: this.urlInfo.recordRef });
+  }
+
+  get urlInfo() {
+    const {
+      location: { search = '' }
+    } = this.props;
+    const searchParam = queryString.parse(search);
+    const { recordRef } = searchParam;
+
+    return {
+      recordRef
+    };
+  }
+
   render() {
-    const { tasks } = this.props;
+    const { tasks, height = '100%' } = this.props;
+    const childProps = { tasks, height };
 
     return (
-      <React.Fragment>
-        {tasks.map((item, i) => (
-          <TaskDetails details={item} key={i} />
-        ))}
-      </React.Fragment>
+      <div>
+        --Small mode--
+        <TaskList {...childProps} />
+      </div>
     );
   }
 }
@@ -46,4 +59,4 @@ class Tasks extends React.Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Tasks);
+)(withRouter(Tasks));

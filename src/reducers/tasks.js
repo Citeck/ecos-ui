@@ -1,9 +1,9 @@
 import { handleActions } from 'redux-actions';
-import { getDashletConfig, setDashletConfig, saveDashletConfig, setSaveTaskResult } from '../actions/tasks';
+import { getDashletTasks, setDashletTasks, changeTaskDetails, setSaveTaskResult } from '../actions/tasks';
 
 const initialState = {
   isLoading: false,
-  tasks: [],
+  list: [],
   saveResult: {
     status: '',
     taskId: ''
@@ -16,11 +16,11 @@ const startLoading = state => ({ ...state, isLoading: true });
 
 export default handleActions(
   {
-    [getDashletConfig]: startLoading,
-    [saveDashletConfig]: startLoading,
-    [setDashletConfig]: (state, { payload }) => ({
+    [getDashletTasks]: startLoading,
+    [changeTaskDetails]: startLoading,
+    [setDashletTasks]: (state, { payload }) => ({
       ...state,
-      tasks: payload,
+      list: payload,
       isLoading: false
     }),
     [setSaveTaskResult]: (state, { payload }) => ({
