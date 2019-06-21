@@ -57,7 +57,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       let component = this.component;
 
       return {
-        defaultValue: component.defaultValue,
+        defaultValue: this.dataValue,
         isCompact: component.isCompact,
         multiple: component.multiple,
         placeholder: component.placeholder,
