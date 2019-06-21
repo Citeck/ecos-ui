@@ -12,6 +12,7 @@ import { t, num2str } from '../../helpers/util';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
+import { CommentsApi } from '../../api/comments';
 
 const BASE_HEIGHT = 21;
 const BUTTONS_TYPE = {
@@ -23,15 +24,18 @@ const BUTTONS_TYPE = {
 
 class Comments extends React.Component {
   static propTypes = {
-    comments: PropTypes.arrayOf({
-      avatar: PropTypes.string,
-      userName: PropTypes.string.isRequired,
-      text: PropTypes.string.isRequired,
-      date: PropTypes.instanceOf(Date).isRequired,
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      canEdit: PropTypes.bool.isRequired,
-      canDelete: PropTypes.bool.isRequired
-    }),
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    comments: PropTypes.arrayOf(
+      PropTypes.shape({
+        avatar: PropTypes.string,
+        userName: PropTypes.string.isRequired,
+        text: PropTypes.string.isRequired,
+        date: PropTypes.instanceOf(Date).isRequired,
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+        canEdit: PropTypes.bool,
+        canDelete: PropTypes.bool
+      })
+    ),
     maxLength: PropTypes.number,
     errorMessage: PropTypes.string,
     saveIsLoading: PropTypes.bool,
@@ -56,6 +60,12 @@ class Comments extends React.Component {
     editableComment: null,
     commentForDeletion: null
   };
+
+  componentDidMount() {
+    const comAPi = new CommentsApi();
+
+    comAPi.getAllComments('workspace://SpacesStore/84f9fc99-ec2c-43d2-9b97-be3df2641a31');
+  }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.saveIsLoading && !nextProps.saveIsLoading) {

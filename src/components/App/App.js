@@ -100,7 +100,7 @@ class App extends Component {
     ];
 
     comments.sort((a, b) => {
-      return new Date(a.date) - new Date(b.date);
+      return new Date(b.date) - new Date(a.date);
     });
 
     this.state = {
