@@ -4,3 +4,4 @@ export { MenuApi } from './menu';
 export { OrgStructApi } from './orgStruct';
 export { UserApi } from './user';
 export { JournalsApi } from './journalsApi';
+export { CommentsApi } from './comments';

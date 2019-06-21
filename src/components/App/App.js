@@ -27,6 +27,7 @@ import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { URL } from '../../constants';
 import { deepClone } from '../../helpers/util';
 import './App.scss';
+import { createComment, deleteComment, getComments, updateComment } from '../../actions/comments';
 
 class App extends Component {
   constructor() {
@@ -111,60 +112,34 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const { getShowTabsStatus, getTabs } = this.props;
+    const { getShowTabsStatus, getTabs, getComments } = this.props;
 
     getShowTabsStatus();
     getTabs();
+    getComments('workspace://SpacesStore/84f9fc99-ec2c-43d2-9b97-be3df2641a31');
   }
 
   handleSaveComment = ({ id = null, message = '' } = {}) => {
-    this.setState({ commentSaveIsLoading: true }, () => {
-      window.setTimeout(() => {
-        // this.setState({
-        //   errorMessage: 'Ошибка отправки! Попробуйте ещё раз.',
-        //   commentSaveIsLoading: false
-        // });
-
-        const comments = deepClone(this.state.comments);
-
-        if (!id) {
-          comments.push({
-            id: uuid(),
-            avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
-            userName: 'Константин Константинопольский',
-            text: message,
-            date: moment().toDate(),
-            canEdit: true,
-            canDelete: true
-          });
-        } else {
-          const comment = comments.find(comment => comment.id === id);
-
-          if (comment) {
-            comment.text = message;
-          }
-        }
-
-        this.setState({ comments, commentSaveIsLoading: false });
-      }, 3000);
-    });
+    if (id) {
+      this.props.updateComment({
+        text: message,
+        id: 'comment@9a998523-6517-4f0e-bcc0-03a886697919'
+      });
+    } else {
+      this.props.createComment({
+        text: message,
+        record: 'workspace://SpacesStore/84f9fc99-ec2c-43d2-9b97-be3df2641a31'
+      });
+    }
   };
 
   handleDeleteComment = id => {
-    let comments = deepClone(this.state.comments);
-    const index = comments.findIndex(comment => comment.id === id);
-
-    if (index === -1) {
-      return;
-    }
-
-    comments.splice(index, 1);
-
-    this.setState({ comments });
+    this.props.deleteComment('comment@9a998523-6517-4f0e-bcc0-03a886697919');
   };
 
   renderComments = () => {
-    const { comments, errorMessage, commentSaveIsLoading } = this.state;
+    const { commentFetchIsLoading, commentSendingInProcess, comments } = this.props;
+    const { errorMessage } = this.state;
 
     return (
       <Comments
@@ -172,7 +147,7 @@ class App extends Component {
         errorMessage={errorMessage}
         onSave={this.handleSaveComment}
         onDelete={this.handleDeleteComment}
-        saveIsLoading={commentSaveIsLoading}
+        saveIsLoading={commentSendingInProcess}
       />
     );
   };
@@ -238,13 +213,20 @@ const mapStateToProps = state => ({
   theme: state.view.theme,
   isAuthenticated: state.user.isAuthenticated,
   isShow: state.pageTabs.isShow,
-  tabs: state.pageTabs.tabs
+  tabs: state.pageTabs.tabs,
+  comments: state.comments.comment,
+  commentFetchIsLoading: state.comments.fetchIsLoading,
+  commentSendingInProcess: state.comments.sendingInProcess
 });
 
 const mapDispatchToProps = dispatch => ({
   getShowTabsStatus: () => dispatch(getShowTabsStatus()),
   getTabs: () => dispatch(getTabs()),
-  setTabs: tabs => dispatch(setTabs(tabs))
+  setTabs: tabs => dispatch(setTabs(tabs)),
+  getComments: id => dispatch(getComments(id)),
+  createComment: data => dispatch(createComment(data)),
+  updateComment: data => dispatch(updateComment(data)),
+  deleteComment: id => dispatch(deleteComment(id))
 });
 
 export default withRouter(

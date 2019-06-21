@@ -61,12 +61,6 @@ class Comments extends React.Component {
     commentForDeletion: null
   };
 
-  componentDidMount() {
-    const comAPi = new CommentsApi();
-
-    comAPi.getAllComments('workspace://SpacesStore/84f9fc99-ec2c-43d2-9b97-be3df2641a31');
-  }
-
   componentWillReceiveProps(nextProps) {
     if (this.props.saveIsLoading && !nextProps.saveIsLoading) {
       this.setState({
