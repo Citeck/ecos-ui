@@ -25,9 +25,17 @@ import Comments from './../Comments';
 
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { URL } from '../../constants';
-import { deepClone } from '../../helpers/util';
+import {
+  createCommentRequest,
+  deleteComment,
+  deleteCommentRequest,
+  getComments,
+  updateComment,
+  updateCommentRequest
+} from '../../actions/comments';
+
 import './App.scss';
-import { createComment, deleteComment, getComments, updateComment } from '../../actions/comments';
+import { selectAllComments } from '../../selectors/comments';
 
 class App extends Component {
   constructor() {
@@ -116,25 +124,22 @@ class App extends Component {
 
     getShowTabsStatus();
     getTabs();
-    getComments('workspace://SpacesStore/84f9fc99-ec2c-43d2-9b97-be3df2641a31');
+    getComments('workspace://SpacesStore/291bd833-6e27-4865-8416-25d584404c3e');
   }
 
   handleSaveComment = ({ id = null, message = '' } = {}) => {
     if (id) {
-      this.props.updateComment({
-        text: message,
-        id: 'comment@9a998523-6517-4f0e-bcc0-03a886697919'
-      });
+      this.props.updateComment({ text: message, id });
     } else {
       this.props.createComment({
         text: message,
-        record: 'workspace://SpacesStore/84f9fc99-ec2c-43d2-9b97-be3df2641a31'
+        record: 'workspace://SpacesStore/291bd833-6e27-4865-8416-25d584404c3e'
       });
     }
   };
 
   handleDeleteComment = id => {
-    this.props.deleteComment('comment@9a998523-6517-4f0e-bcc0-03a886697919');
+    this.props.deleteComment(id);
   };
 
   renderComments = () => {
@@ -214,7 +219,7 @@ const mapStateToProps = state => ({
   isAuthenticated: state.user.isAuthenticated,
   isShow: state.pageTabs.isShow,
   tabs: state.pageTabs.tabs,
-  comments: state.comments.comment,
+  comments: selectAllComments(state),
   commentFetchIsLoading: state.comments.fetchIsLoading,
   commentSendingInProcess: state.comments.sendingInProcess
 });
@@ -224,9 +229,9 @@ const mapDispatchToProps = dispatch => ({
   getTabs: () => dispatch(getTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
   getComments: id => dispatch(getComments(id)),
-  createComment: data => dispatch(createComment(data)),
-  updateComment: data => dispatch(updateComment(data)),
-  deleteComment: id => dispatch(deleteComment(id))
+  createComment: data => dispatch(createCommentRequest(data)),
+  updateComment: data => dispatch(updateCommentRequest(data)),
+  deleteComment: id => dispatch(deleteCommentRequest(id))
 });
 
 export default withRouter(

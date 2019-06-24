@@ -30,7 +30,8 @@ class Comments extends React.Component {
         avatar: PropTypes.string,
         userName: PropTypes.string.isRequired,
         text: PropTypes.string.isRequired,
-        date: PropTypes.instanceOf(Date).isRequired,
+        dateCreate: PropTypes.instanceOf(Date).isRequired,
+        dateModify: PropTypes.instanceOf(Date),
         id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         canEdit: PropTypes.bool,
         canDelete: PropTypes.bool
@@ -53,7 +54,7 @@ class Comments extends React.Component {
   };
 
   state = {
-    isEdit: true,
+    isEdit: false,
     width: 291,
     editorHeight: BASE_HEIGHT,
     comment: EditorState.createEmpty(),
@@ -456,7 +457,7 @@ class Comments extends React.Component {
   }
 
   renderComment = data => {
-    const { id, avatar = '', userName, text, date = new Date(), canEdit = false, canDelete = false } = data;
+    const { id, avatar = '', userName, text, dateCreate = new Date(), canEdit = false, canDelete = false } = data;
     let convertedComment = text;
 
     try {
@@ -471,7 +472,7 @@ class Comments extends React.Component {
             {this.renderAvatar(avatar, userName)}
             <div className="ecos-comments__comment-header-column">
               <div className="ecos-comments__comment-name">{userName}</div>
-              <div className="ecos-comments__comment-date">{this.getFormattedDate(date)}</div>
+              <div className="ecos-comments__comment-date">{this.getFormattedDate(dateCreate)}</div>
             </div>
           </div>
           <div className="ecos-comments__comment-header-cell">

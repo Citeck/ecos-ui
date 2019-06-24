@@ -1,16 +1,20 @@
 import { handleActions } from 'redux-actions';
 import {
   getComments,
-  createComment,
-  deleteComment,
   setError,
-  updateComment,
   setComments,
   fetchStart,
   fetchEnd,
   sendingStart,
-  sendingEnd
+  sendingEnd,
+  createCommentSuccess,
+  updateCommentRequest,
+  updateCommentSuccess,
+  createCommentRequest,
+  deleteCommentRequest,
+  deleteCommentSuccess
 } from '../actions/comments';
+import { deepClone } from '../helpers/util';
 
 const initialState = {
   comments: [],
@@ -33,17 +37,29 @@ export default handleActions(
       hasMore: action.payload.hasMore,
       totalCount: action.payload.totalCount
     }),
-    [createComment]: (state, action) => ({
+    [createCommentRequest]: (state, action) => ({
       ...state
     }),
-    [deleteComment]: (state, action) => ({
+    [createCommentSuccess]: (state, action) => ({
+      ...state,
+      comments: [...action.payload]
+    }),
+    [deleteCommentRequest]: (state, action) => ({
       ...state
+    }),
+    [deleteCommentSuccess]: (state, action) => ({
+      ...state,
+      comments: [...action.payload]
     }),
     [setError]: (state, action) => ({
       ...state
     }),
-    [updateComment]: (state, action) => ({
+    [updateCommentRequest]: (state, action) => ({
       ...state
+    }),
+    [updateCommentSuccess]: (state, action) => ({
+      ...state,
+      comments: [...action.payload]
     }),
     [fetchStart]: (state, action) => ({
       ...state,

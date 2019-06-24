@@ -5,9 +5,16 @@ const prefix = 'comments/';
 export const getComments = createAction(prefix + 'GET_COMMENTS');
 export const setComments = createAction(prefix + 'SET_COMMENTS');
 
-export const createComment = createAction(prefix + 'CREATE_COMMENT');
-export const updateComment = createAction(prefix + 'UPDATE_COMMENT');
-export const deleteComment = createAction(prefix + 'DELETE_COMMENT');
+export const createCommentRequest = createAction(prefix + 'CREATE_COMMENT_REQUEST');
+export const createCommentSuccess = createAction(prefix + 'CREATE_COMMENT_SUCCESS');
+
+export const updateCommentRequest = createAction(prefix + 'UPDATE_COMMENT_REQUEST');
+export const updateCommentSuccess = createAction(prefix + 'UPDATE_COMMENT_SUCCESS');
+
+export const deleteCommentRequest = createAction(prefix + 'DELETE_COMMENT_REQUEST');
+export const deleteCommentSuccess = createAction(prefix + 'DELETE_COMMENT_SUCCESS');
+
+export const pushComment = createAction(prefix + 'PUSH_COMMENT');
 
 export const setError = createAction(prefix + 'SET_ERROR');
 

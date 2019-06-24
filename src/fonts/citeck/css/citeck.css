@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'citeck';
-  src: url('../font/citeck.eot?80000845');
-  src: url('../font/citeck.eot?80000845#iefix') format('embedded-opentype'), url('../font/citeck.woff2?80000845') format('woff2'),
-    url('../font/citeck.woff?80000845') format('woff'), url('../font/citeck.ttf?80000845') format('truetype'),
-    url('../font/citeck.svg?80000845#citeck') format('svg');
+  src: url('../font/citeck.eot?40262920');
+  src: url('../font/citeck.eot?40262920#iefix') format('embedded-opentype'), url('../font/citeck.woff2?40262920') format('woff2'),
+    url('../font/citeck.woff?40262920') format('woff'), url('../font/citeck.ttf?40262920') format('truetype'),
+    url('../font/citeck.svg?40262920#citeck') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -13,7 +13,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'citeck';
-    src: url('../font/citeck.svg?80000845#citeck') format('svg');
+    src: url('../font/citeck.svg?40262920#citeck') format('svg');
   }
 }
 */
@@ -153,7 +153,7 @@
 .icon-question:before {
   content: '\72';
 } /* 'r' */
-.icon-list:before {
+.icon-list-1:before {
   content: '\73';
 } /* 's' */
 .icon-arrow:before {
@@ -177,6 +177,15 @@
 .icon-reload:before {
   content: '\7a';
 } /* 'z' */
+.icon-list3:before {
+  content: '\e800';
+} /* '' */
+.icon-checked:before {
+  content: '\e829';
+} /* '' */
+.icon-checked2:before {
+  content: '\e82a';
+} /* '' */
 .icon-unchecked:before {
   content: '\e82b';
 } /* '' */
@@ -213,3 +222,12 @@
 .icon-resize:before {
   content: '\e837';
 } /* '' */
+.icon-underline:before {
+  content: '\e838';
+} /* '' */
+.icon-italic:before {
+  content: '\e839';
+} /* '' */
+.icon-bold:before {
+  content: '\e83a';
+} /* '' */

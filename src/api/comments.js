@@ -18,7 +18,7 @@ export class CommentsApi extends RecordService {
         permissions: 'permissions?json',
         edited: 'edited'
       }
-    ).then(resp => resp);
+    ).then(response => response);
   };
 
   getByPage = ({ record, skipCount = 0, maxItems = 10 }) => {
@@ -42,7 +42,21 @@ export class CommentsApi extends RecordService {
         permissions: 'permissions?json',
         edited: 'edited'
       }
-    ).then(resp => resp);
+    ).then(response => response);
+  };
+
+  getCommentById = id => {
+    return window.Citeck.Records.get(id)
+      .load({
+        text: 'text',
+        createdAt: 'createdAt',
+        modifiedAt: 'modifiedAt',
+        author: 'author?json',
+        editor: 'editor?json',
+        permissions: 'permissions?json',
+        edited: 'edited'
+      })
+      .then(response => response);
   };
 
   create = ({ text, record } = {}) => {
@@ -51,7 +65,7 @@ export class CommentsApi extends RecordService {
     comment.att('text', text);
     comment.att('record', record);
 
-    return comment.save().then(resp => resp);
+    return comment.save().then(response => response);
   };
 
   update = ({ id, text } = {}) => {
@@ -59,10 +73,10 @@ export class CommentsApi extends RecordService {
 
     comment.att('text', text);
 
-    return comment.save().then(resp => resp);
+    return comment.save().then(response => response);
   };
 
   delete = id => {
-    return window.Citeck.Records.remove([id]).then(resp => resp);
+    return window.Citeck.Records.remove([id]).then(response => response);
   };
 }
