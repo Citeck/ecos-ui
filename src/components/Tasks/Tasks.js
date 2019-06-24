@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import queryString from 'query-string';
 import TaskList_small from './small/TaskList';
 import { changeTaskDetails, getDashletTasks } from '../../actions/tasks';
+import './style.scss';
 
 const mapStateToProps = state => ({
   tasks: state.tasks.list

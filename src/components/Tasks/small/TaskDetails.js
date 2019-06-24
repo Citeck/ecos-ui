@@ -15,7 +15,7 @@ class TaskDetails extends React.Component {
     className: ''
   };
 
-  className = 'ecos-task-details';
+  className = 'ecos-task-info';
 
   renderDetails() {
     const { details } = this.props;
@@ -23,7 +23,7 @@ class TaskDetails extends React.Component {
     const classDetail = `${this.className}__detail`;
 
     return (
-      <div className={`${this.className}__details`}>
+      <div className={`${this.className}__wrapper`}>
         {columns.map(item => (
           <div className={classDetail}>
             <div className={`${classDetail}-label`}>{item.label}</div>
