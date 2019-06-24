@@ -57,7 +57,7 @@ const defaultProps = {
   centered: false,
   role: 'dialog',
   backdrop: true,
-  keyboard: true,
+  keyboard: false,
   zIndex: 1050,
   fade: true,
   onOpened: noop,
