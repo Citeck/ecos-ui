@@ -141,6 +141,8 @@ export default class BaseReactComponent extends BaseComponent {
       ReactDOM.unmountComponentAtNode(this.react.container);
       this.react.wrapper = null;
     }
+
+    super.destroy();
   }
 
   get emptyValue() {
@@ -175,7 +177,7 @@ export default class BaseReactComponent extends BaseComponent {
     /*if (!this.visible && this.component.clearOnHide) {
       newValue = this.dataValue;
     } else */
-    if (value === undefined || value === null) {
+    if (value === undefined) {
       newValue = this.getValue(flags);
     }
 
