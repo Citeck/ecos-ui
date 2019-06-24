@@ -13,7 +13,7 @@ export default class TasksDto {
     target.sender = source.sender;
     target.lastcomment = source.lastcomment;
     target.started = source.started;
-    target.state = source.state || 0;
+    target.stateAssign = source.stateAssign || 0;
 
     return target;
   }

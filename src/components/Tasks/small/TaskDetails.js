@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Caption } from '../../common/form';
-import { TasksPropTypes, displayedColumns } from '../utils';
+import { displayedColumns, TasksPropTypes } from '../utils';
 import '../style.scss';
 
 class TaskDetails extends React.Component {
@@ -20,14 +20,14 @@ class TaskDetails extends React.Component {
   renderDetails() {
     const { details } = this.props;
     const columns = displayedColumns().sort((c, n) => c.order - n.order);
-    const className = `${this.className}__detail`;
+    const classDetail = `${this.className}__detail`;
 
     return (
       <div className={`${this.className}__details`}>
         {columns.map(item => (
-          <div className={className}>
-            <div className={`${className}-label`}>{item.label}</div>
-            <div className={`${className}-value`}>{details[item.key]}</div>
+          <div className={classDetail}>
+            <div className={`${classDetail}-label`}>{item.label}</div>
+            <div className={`${classDetail}-value`}>{details[item.key]}</div>
           </div>
         ))}
       </div>

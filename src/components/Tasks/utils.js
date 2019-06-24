@@ -40,13 +40,13 @@ export const displayedColumns = () => [
   }
 ];
 
-export const stateTaskBtn = () => [
+export const stateAssignBtn = () => [
   {
-    state: 0,
+    id: 0,
     label: t('Я выполняю это')
   },
   {
-    state: 1,
+    id: 1,
     label: t('Переназначить')
   }
 ];

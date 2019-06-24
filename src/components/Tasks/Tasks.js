@@ -3,15 +3,16 @@ import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import queryString from 'query-string';
-import TaskList from './small/TaskList';
-import { getDashletTasks } from '../../actions/tasks';
+import TaskList_small from './small/TaskList';
+import { changeTaskDetails, getDashletTasks } from '../../actions/tasks';
 
 const mapStateToProps = state => ({
   tasks: state.tasks.list
 });
 
 const mapDispatchToProps = dispatch => ({
-  getDashletTasks: payload => dispatch(getDashletTasks(payload))
+  getDashletTasks: payload => dispatch(getDashletTasks(payload)),
+  changeTaskDetails: payload => dispatch(changeTaskDetails(payload))
 });
 
 class Tasks extends React.Component {
@@ -24,6 +25,14 @@ class Tasks extends React.Component {
     id: '',
     className: ''
   };
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isSmallMode: true
+    };
+  }
 
   componentDidMount() {
     const { getDashletTasks, id } = this.props;
@@ -43,14 +52,21 @@ class Tasks extends React.Component {
     };
   }
 
+  onAssignClick = taskId => {
+    const { changeTaskDetails, id } = this.props;
+
+    changeTaskDetails({ taskId, sourceId: id, recordRef: this.urlInfo.recordRef });
+  };
+
   render() {
     const { tasks, height = '100%' } = this.props;
-    const childProps = { tasks, height };
+    const { isSmallMode } = this.state;
+    const childProps = { tasks, height, onAssignClick: this.onAssignClick };
 
     return (
       <div>
         --Small mode--
-        <TaskList {...childProps} />
+        {isSmallMode && <TaskList_small {...childProps} />}
       </div>
     );
   }
