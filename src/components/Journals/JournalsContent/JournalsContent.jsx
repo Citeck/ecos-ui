@@ -6,22 +6,32 @@ import JournalsPreview from '../JournalsPreview';
 import JournalsUrlManager from '../JournalsUrlManager';
 import Columns from '../../common/templates/Columns/Columns';
 import { initPreview } from '../../../actions/journals';
+import { wrapArgs } from '../../../helpers/redux';
 
 import './JournalsContent.scss';
 
-const mapDispatchToProps = dispatch => ({
-  initPreview: nodeRef => dispatch(initPreview(nodeRef))
-});
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
 
-const Grid = ({ showPreview, onRowClick }) => (
+  return {
+    initPreview: nodeRef => dispatch(initPreview(w(nodeRef)))
+  };
+};
+
+const Grid = ({ stateId, showPreview, onRowClick }) => (
   <Well>
-    <JournalsDashletGrid onRowClick={onRowClick} doInlineToolsOnRowClick={showPreview} className={'ecos-grid_no-top-border'} />
+    <JournalsDashletGrid
+      stateId={stateId}
+      onRowClick={onRowClick}
+      doInlineToolsOnRowClick={showPreview}
+      className={'ecos-grid_no-top-border'}
+    />
   </Well>
 );
 
-const Preview = () => (
+const Preview = ({ stateId }) => (
   <Well className={'ecos-well_full ecos-journals-content__preview-well'}>
-    <JournalsPreview />
+    <JournalsPreview stateId={stateId} />
   </Well>
 );
 
@@ -37,16 +47,17 @@ class JournalsContent extends Component {
   };
 
   render() {
-    let { showPreview, showPie } = this.props;
+    let { stateId, showPreview, showPie } = this.props;
 
     showPie = false;
 
-    let cols = [<Grid showPreview={showPreview} onRowClick={this.onRowClick} />];
-    if (showPreview) cols = [<Grid showPreview={showPreview} onRowClick={this.onRowClick} />, <Preview />];
+    let cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} />];
+    if (showPreview)
+      cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} />, <Preview stateId={stateId} />];
     if (showPie) cols = [<Pie />];
 
     return (
-      <JournalsUrlManager params={{ showPreview }}>
+      <JournalsUrlManager stateId={stateId} params={{ showPreview }}>
         <Columns
           classNamesColumn={'columns_height_full columns__column_margin_0'}
           cols={cols}

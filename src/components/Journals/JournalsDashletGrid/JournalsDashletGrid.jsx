@@ -3,8 +3,9 @@ import connect from 'react-redux/es/connect/connect';
 import { Grid, InlineTools, Tools, EmptyGrid } from '../../common/grid';
 import Loader from '../../common/Loader/Loader';
 import { IcoBtn } from '../../common/btns';
-import { goToCardDetailsPage, goToNodeEditPage, getDownloadContentUrl } from '../../../constants/urls';
+import { goToCardDetailsPage, goToNodeEditPage, getDownloadContentUrl } from '../../../helpers/urls';
 import { t, trigger } from '../../../helpers/util';
+import { wrapArgs } from '../../../helpers/redux';
 import {
   reloadGrid,
   deleteRecords,
@@ -16,29 +17,42 @@ import {
   goToJournalsPage
 } from '../../../actions/journals';
 
-const mapStateToProps = state => ({
-  loading: state.journals.loading,
-  grid: state.journals.grid,
-  journalConfig: state.journals.journalConfig,
-  selectedRecords: state.journals.selectedRecords,
-  selectAllRecords: state.journals.selectAllRecords,
-  selectAllRecordsVisible: state.journals.selectAllRecordsVisible
-});
+const mapStateToProps = (state, props) => {
+  const newState = state.journals[props.stateId] || {};
 
-const mapDispatchToProps = dispatch => ({
-  reloadGrid: options => dispatch(reloadGrid(options)),
-  deleteRecords: records => dispatch(deleteRecords(records)),
-  saveRecords: ({ id, attributes }) => dispatch(saveRecords({ id, attributes })),
-  setSelectedRecords: records => dispatch(setSelectedRecords(records)),
-  setSelectAllRecords: need => dispatch(setSelectAllRecords(need)),
-  setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(visible)),
-  setGridInlineToolSettings: settings => dispatch(setGridInlineToolSettings(settings)),
-  goToJournalsPage: row => dispatch(goToJournalsPage(row))
-});
+  return {
+    loading: newState.loading,
+    grid: newState.grid,
+    journalConfig: newState.journalConfig,
+    selectedRecords: newState.selectedRecords,
+    selectAllRecords: newState.selectAllRecords,
+    selectAllRecordsVisible: newState.selectAllRecordsVisible
+  };
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
+
+  return {
+    reloadGrid: options => dispatch(reloadGrid(w(options))),
+    deleteRecords: records => dispatch(deleteRecords(w(records))),
+    saveRecords: ({ id, attributes }) => dispatch(saveRecords(w({ id, attributes }))),
+    setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
+    setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
+    setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(w(visible))),
+    setGridInlineToolSettings: settings => dispatch(setGridInlineToolSettings(w(settings))),
+    goToJournalsPage: row => dispatch(goToJournalsPage(w(row)))
+  };
+};
 
 class DownloadContentLink extends Component {
   render() {
     const { children, row } = this.props;
+
+    if (!row.hasContent) {
+      return null;
+    }
+
     return <a href={getDownloadContentUrl(row.id)}>{children}</a>;
   }
 }
@@ -130,6 +144,7 @@ class JournalsDashletGrid extends Component {
 
   inlineTools = () => {
     const {
+      stateId,
       selectedRecords,
       grid: { groupBy = [] }
     } = this.props;
@@ -151,7 +166,7 @@ class JournalsDashletGrid extends Component {
       tools.push(<IcoBtn onClick={this.goToJournalPageWithFilter} icon={'icon-big-arrow'} className={inlineToolsActionClassName} />);
     }
 
-    return <InlineTools tools={tools} />;
+    return <InlineTools tools={tools} stateId={stateId} />;
   };
 
   deleteRecord = () => {

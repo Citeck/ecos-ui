@@ -6,22 +6,31 @@ import { IcoBtn } from '../../common/btns';
 import { Well } from '../../common/form';
 import { deleteJournalSetting, onJournalSettingsSelect, onJournalSelect } from '../../../actions/journals';
 import { getPropByStringKey, t } from '../../../helpers/util';
+import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../constants';
 
 import './JournalsMenu.scss';
 
-const mapStateToProps = state => ({
-  journals: state.journals.journals,
-  journalSettings: state.journals.journalSettings,
-  journalSetting: state.journals.journalSetting,
-  journalConfig: state.journals.journalConfig
-});
+const mapStateToProps = (state, props) => {
+  const newState = state.journals[props.stateId] || {};
 
-const mapDispatchToProps = dispatch => ({
-  deleteJournalSetting: id => dispatch(deleteJournalSetting(id)),
-  onJournalSettingsSelect: journalSettingId => dispatch(onJournalSettingsSelect(journalSettingId)),
-  onJournalSelect: journalId => dispatch(onJournalSelect(journalId))
-});
+  return {
+    journals: newState.journals,
+    journalSettings: newState.journalSettings,
+    journalSetting: newState.journalSetting,
+    journalConfig: newState.journalConfig
+  };
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
+
+  return {
+    deleteJournalSetting: id => dispatch(deleteJournalSetting(w(id))),
+    onJournalSettingsSelect: journalSettingId => dispatch(onJournalSettingsSelect(w(journalSettingId))),
+    onJournalSelect: journalId => dispatch(onJournalSelect(w(journalId)))
+  };
+};
 
 class ListItem extends Component {
   onClick = () => {
@@ -102,6 +111,7 @@ class JournalsMenu extends Component {
 
   render() {
     const {
+      stateId,
       journalSetting,
       journalSettings,
       journals,
@@ -117,7 +127,7 @@ class JournalsMenu extends Component {
     }
 
     return (
-      <JournalsUrlManager params={{ journalId: nodeRef, journalSettingId }}>
+      <JournalsUrlManager stateId={stateId} params={{ journalId: nodeRef, journalSettingId }}>
         <div className={`ecos-journal-menu ${open ? 'ecos-journal-menu_open' : ''}`}>
           <div className={'ecos-journal-menu__hide-menu-btn'}>
             <IcoBtn

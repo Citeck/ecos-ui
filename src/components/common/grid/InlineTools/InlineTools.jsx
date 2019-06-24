@@ -3,7 +3,11 @@ import connect from 'react-redux/es/connect/connect';
 
 import './InlineTools.scss';
 
-const mapStateToProps = state => ({ inlineToolSettings: state.journals.inlineToolSettings });
+const mapStateToProps = (state, props) => {
+  const newState = state.journals[props.stateId] || {};
+
+  return { inlineToolSettings: newState.inlineToolSettings };
+};
 
 class InlineTools extends Component {
   tools = row => {

@@ -1,7 +1,7 @@
 import queryString from 'query-string';
-import { URL_PAGECONTEXT, PROXY_URI } from './alfresco';
+import { URL_PAGECONTEXT, PROXY_URI } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJournal/predicates';
-import { ParserPredicate } from '../components/Filters/predicates';
+import { ParserPredicate } from '../components/Filters/predicates/index';
 
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
 const JOURNAL_ID_KEY = 'journalId';

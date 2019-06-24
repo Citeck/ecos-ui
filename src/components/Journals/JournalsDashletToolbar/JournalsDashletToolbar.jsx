@@ -5,16 +5,25 @@ import JournalsDashletPagination from '../JournalsDashletPagination';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { onJournalSelect } from '../../../actions/journals';
-import { goToCreateRecordPage } from '../../../constants/urls';
+import { goToCreateRecordPage } from '../../../helpers/urls';
+import { wrapArgs } from '../../../helpers/redux';
 
-const mapStateToProps = state => ({
-  journals: state.journals.journals,
-  journalConfig: state.journals.journalConfig
-});
+const mapStateToProps = (state, props) => {
+  const newState = state.journals[props.stateId] || {};
 
-const mapDispatchToProps = dispatch => ({
-  onJournalSelect: journalId => dispatch(onJournalSelect(journalId))
-});
+  return {
+    journals: newState.journals,
+    journalConfig: newState.journalConfig
+  };
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
+
+  return {
+    onJournalSelect: journalId => dispatch(onJournalSelect(w(journalId)))
+  };
+};
 
 class JournalsDashletToolbar extends Component {
   constructor(props) {
@@ -36,6 +45,7 @@ class JournalsDashletToolbar extends Component {
 
   render() {
     const {
+      stateId,
       journals,
       journalConfig,
       journalConfig: {
@@ -64,7 +74,7 @@ class JournalsDashletToolbar extends Component {
         <Export config={journalConfig} />
 
         <div className={'dashlet__actions'}>
-          {dom && dom.offsetWidth > 550 ? <JournalsDashletPagination /> : null}
+          {dom && dom.offsetWidth > 550 ? <JournalsDashletPagination stateId={stateId} /> : null}
           <IcoBtn
             icon={'icon-list'}
             className={'ecos-btn_i ecos-btn_blue2 ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_10'}

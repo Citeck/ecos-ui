@@ -335,10 +335,12 @@ export default class Grid extends Component {
     this.closeFilterEvent = document.createEvent('Event');
     this.closeFilterEvent.initEvent(CLOSE_FILTER_EVENT, true, true);
     document.addEventListener('mousedown', this.triggerCloseFilterEvent, false);
+    window.addEventListener('DOMMouseScroll', this.triggerCloseFilterEvent, false);
   };
 
   removeCloseFilterEvent = () => {
     document.removeEventListener('mousedown', this.triggerCloseFilterEvent, false);
+    window.removeEventListener('DOMMouseScroll', this.triggerCloseFilterEvent, false);
   };
 
   createColumnResizeEvents = () => {

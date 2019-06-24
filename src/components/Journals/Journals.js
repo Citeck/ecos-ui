@@ -14,21 +14,30 @@ import JournalsContent from './JournalsContent';
 
 import EcosModal from '../common/EcosModal/EcosModal';
 import { getJournalsData, reloadGrid, search } from '../../actions/journals';
-import { goToCreateRecordPage } from '../../constants/urls';
+import { goToCreateRecordPage } from '../../helpers/urls';
 import { Well } from '../common/form';
 import { t } from '../../helpers/util';
+import { wrapArgs } from '../../helpers/redux';
 
 import './Journals.scss';
 
-const mapStateToProps = state => ({
-  journalConfig: state.journals.journalConfig
-});
+const mapStateToProps = (state, props) => {
+  const newState = state.journals[props.stateId] || {};
 
-const mapDispatchToProps = dispatch => ({
-  getJournalsData: options => dispatch(getJournalsData(options)),
-  reloadGrid: options => dispatch(reloadGrid(options)),
-  search: text => dispatch(search(text))
-});
+  return {
+    journalConfig: newState.journalConfig
+  };
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
+
+  return {
+    getJournalsData: options => dispatch(getJournalsData(w(options))),
+    reloadGrid: options => dispatch(reloadGrid(w(options))),
+    search: text => dispatch(search(w(text)))
+  };
+};
 
 class Journals extends Component {
   constructor(props) {
@@ -99,14 +108,17 @@ class Journals extends Component {
 
   render() {
     const { menuOpen, settingsVisible, showPreview, showPie } = this.state;
+    const { stateId, journalConfig } = this.props;
+
+    if (!journalConfig) {
+      return null;
+    }
+
     const {
-      journalConfig,
-      journalConfig: {
-        id: journalId,
-        columns = [],
-        meta: { title = '' }
-      }
-    } = this.props;
+      id: journalId,
+      columns = [],
+      meta: { title = '' }
+    } = journalConfig;
 
     if (!columns.length) {
       return null;
@@ -122,6 +134,7 @@ class Journals extends Component {
           <JournalsTools journalConfig={journalConfig} addRecord={this.addRecord} onSearch={this.search} />
 
           <JournalsSettingBar
+            stateId={stateId}
             showPreview={showPreview}
             showPie={showPie}
             toggleSettings={this.toggleSettings}
@@ -139,22 +152,22 @@ class Journals extends Component {
             className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
           >
             <Well className={'ecos-journal__settings'}>
-              <JournalsFilters columns={visibleColumns} />
-              <JournalsColumnsSetup columns={columns} />
-              <JournalsGrouping columns={visibleColumns} />
-              <JournalsSettingsFooter journalId={journalId} onApply={this.toggleSettings} />
+              <JournalsFilters stateId={stateId} columns={visibleColumns} />
+              <JournalsColumnsSetup stateId={stateId} columns={columns} />
+              <JournalsGrouping stateId={stateId} columns={visibleColumns} />
+              <JournalsSettingsFooter stateId={stateId} journalId={journalId} onApply={this.toggleSettings} />
             </Well>
           </EcosModal>
 
-          <JournalsContent showPreview={showPreview} showPie={showPie} />
+          <JournalsContent stateId={stateId} showPreview={showPreview} showPie={showPie} />
 
           <div className={'ecos-journal__footer'}>
-            <JournalsDashletPagination />
+            <JournalsDashletPagination stateId={stateId} />
           </div>
         </div>
 
         <div className={'ecos-journal__menu'}>
-          <JournalsMenu open={menuOpen} onClose={this.toggleMenu} />
+          <JournalsMenu stateId={stateId} open={menuOpen} onClose={this.toggleMenu} />
         </div>
       </div>
     );

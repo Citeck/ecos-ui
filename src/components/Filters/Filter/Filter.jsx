@@ -75,7 +75,8 @@ export default class Filter extends Component {
                 className={classNames(btnClasses, 'ecos-btn_hover_t-light-blue ecos-btn_x-step_10')}
                 onClick={this.delete}
               />
-              <IcoBtn icon={'icon-drag'} className={classNames(btnClasses, 'ecos-filter__drag-ico')} />
+
+              <i className={classNames('ecos-btn__i', 'ecos-btn__i_right icon-drag ecos-filter__drag-ico')} />
             </Fragment>
           ]}
         />

@@ -19,13 +19,15 @@ import {
   setColumnsSetup,
   setGrouping,
   setPreviewUrl,
-  setUrl
+  setUrl,
+  initState
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { t } from '../helpers/util';
+import { t, deepClone } from '../helpers/util';
+import { handleAction, handleState } from '../helpers/redux';
 import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../components/Journals/constants';
 
-const initialState = {
+const defaultState = {
   loading: true,
   editorMode: false,
 
@@ -94,46 +96,70 @@ const initialState = {
   previewUrl: ''
 };
 
+const initialState = {};
+
 Object.freeze(initialState);
 
 export default handleActions(
   {
-    [setUrl]: (state, action) => {
+    [initState]: (state, action) => {
       return {
         ...state,
-        url: {
-          ...state.url,
-          ...action.payload
-        }
+        [action.payload]: deepClone(defaultState)
       };
+    },
+    [setUrl]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return stateId
+        ? {
+            ...state,
+            [stateId]: {
+              ...state[stateId],
+              url: {
+                ...state[stateId].url,
+                ...action.payload
+              }
+            }
+          }
+        : {
+            ...state,
+            url: {
+              ...state.url,
+              ...action.payload
+            }
+          };
     },
     [setPredicate]: (state, action) => {
-      return {
-        ...state,
-        predicate: action.payload
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { predicate: action.payload });
     },
     [setPreviewUrl]: (state, action) => {
-      return {
-        ...state,
-        previewUrl: action.payload
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { previewUrl: action.payload });
     },
     [setColumnsSetup]: (state, action) => {
-      return {
-        ...state,
-        columnsSetup: action.payload
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { columnsSetup: action.payload });
     },
     [setGrouping]: (state, action) => {
-      return {
-        ...state,
-        grouping: action.payload
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { grouping: action.payload });
     },
     [setJournalSettings]: (state, action) => {
-      return {
-        ...state,
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
         journalSettings: [
           {
             [JOURNAL_SETTING_ID_FIELD]: '',
@@ -142,115 +168,184 @@ export default handleActions(
           },
           ...Array.from(action.payload)
         ]
-      };
+      });
     },
     [setJournalSetting]: (state, action) => {
-      return {
-        ...state,
-        journalSetting: {
-          ...state.journalSetting,
-          ...action.payload
-        }
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return stateId
+        ? {
+            ...state,
+            [stateId]: {
+              ...state[stateId],
+              journalSetting: {
+                ...state[stateId].journalSetting,
+                ...action.payload
+              }
+            }
+          }
+        : {
+            ...state,
+            journalSetting: {
+              ...state.journalSetting,
+              ...action.payload
+            }
+          };
     },
     [setGridInlineToolSettings]: (state, action) => {
-      return {
-        ...state,
-        inlineToolSettings: action.payload
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { inlineToolSettings: action.payload });
     },
     [setJournalsListItem]: (state, action) => {
-      return {
-        ...state,
-        config: {
-          ...state.config,
-          journalsListId: action.payload.id
-        }
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return stateId
+        ? {
+            ...state,
+            [stateId]: {
+              ...state[stateId],
+              config: {
+                ...state[stateId].config,
+                journalsListId: action.payload.id
+              }
+            }
+          }
+        : {
+            ...state,
+            config: {
+              ...state.config,
+              journalsListId: action.payload.id
+            }
+          };
     },
     [setJournalsItem]: (state, action) => {
-      return {
-        ...state,
-        config: {
-          ...state.config,
-          journalId: action.payload.nodeRef,
-          journalType: action.payload.type
-        }
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return stateId
+        ? {
+            ...state,
+            [stateId]: {
+              ...state[stateId],
+              config: {
+                ...state[stateId].config,
+                journalId: action.payload.nodeRef,
+                journalType: action.payload.type
+              }
+            }
+          }
+        : {
+            ...state,
+            config: {
+              ...state.config,
+              journalId: action.payload.nodeRef,
+              journalType: action.payload.type
+            }
+          };
     },
     [setSettingItem]: (state, action) => {
-      return {
-        ...state,
-        config: {
-          ...state.config,
-          journalSettingId: action.payload
-        }
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return stateId
+        ? {
+            ...state,
+            [stateId]: {
+              ...state[stateId],
+              config: {
+                ...state[stateId].config,
+                journalSettingId: action.payload
+              }
+            }
+          }
+        : {
+            ...state,
+            config: {
+              ...state.config,
+              journalSettingId: action.payload
+            }
+          };
     },
     [setEditorMode]: (state, action) => {
-      return {
-        ...state,
-        editorMode: action.payload
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { editorMode: action.payload });
     },
     [setJournalsList]: (state, action) => {
-      return {
-        ...state,
-        journalsList: action.payload
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { journalsList: action.payload });
     },
     [setJournals]: (state, action) => {
-      return {
-        ...state,
-        journals: action.payload
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { journals: action.payload });
     },
     [setGrid]: (state, action) => {
-      return {
-        ...state,
-        grid: {
-          ...state.grid,
-          ...action.payload
-        }
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return stateId
+        ? {
+            ...state,
+            [stateId]: {
+              ...state[stateId],
+              grid: {
+                ...state[stateId].grid,
+                ...action.payload
+              }
+            }
+          }
+        : {
+            ...state,
+            grid: {
+              ...state.grid,
+              ...action.payload
+            }
+          };
     },
     [setDashletConfig]: (state, action) => {
-      return {
-        ...state,
-        initConfig: action.payload,
-        config: action.payload
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { initConfig: action.payload, config: action.payload });
     },
     [setJournalConfig]: (state, action) => {
-      return {
-        ...state,
-        journalConfig: action.payload
-      };
-    },
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
 
+      return handleState(state, stateId, { journalConfig: action.payload });
+    },
     [setSelectedRecords]: (state, action) => {
-      return {
-        ...state,
-        selectedRecords: action.payload
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { selectedRecords: action.payload });
     },
     [setSelectAllRecords]: (state, action) => {
-      return {
-        ...state,
-        selectAllRecords: action.payload
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { selectAllRecords: action.payload });
     },
     [setSelectAllRecordsVisible]: (state, action) => {
-      return {
-        ...state,
-        selectAllRecordsVisible: action.payload
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { selectAllRecordsVisible: action.payload });
     },
     [setLoading]: (state, action) => {
-      return {
-        ...state,
-        loading: action.payload
-      };
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { loading: action.payload });
     }
   },
   initialState
