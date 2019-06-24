@@ -11,7 +11,7 @@ export const TasksPropTypes = {
   started: PropTypes.any
 };
 
-export const displayedColumns = () => [
+export const displayedColumns = [
   {
     key: 'started',
     label: t('Запущено'),

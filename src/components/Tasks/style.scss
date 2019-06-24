@@ -39,10 +39,16 @@
   }
 
   &__assign-btn {
-    width: 100%;
+    &._fill {
+      width: 100%;
+    }
 
     &-wrapper {
       padding: 0 20px 27px;
     }
+  }
+
+  &__grid-table {
+    height: auto !important;
   }
 }

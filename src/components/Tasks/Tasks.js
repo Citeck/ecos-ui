@@ -3,12 +3,14 @@ import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import queryString from 'query-string';
-import TaskList_small from './small/TaskList';
+import Loader from '../common/Loader/Loader';
+import TaskList from './TaskList';
 import { changeTaskDetails, getDashletTasks } from '../../actions/tasks';
 import './style.scss';
 
 const mapStateToProps = state => ({
-  tasks: state.tasks.list
+  tasks: state.tasks.list,
+  isLoading: state.tasks.isLoading
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -26,14 +28,6 @@ class Tasks extends React.Component {
     id: '',
     className: ''
   };
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isSmallMode: true
-    };
-  }
 
   componentDidMount() {
     const { getDashletTasks, id } = this.props;
@@ -60,14 +54,13 @@ class Tasks extends React.Component {
   };
 
   render() {
-    const { tasks, height = '100%' } = this.props;
-    const { isSmallMode } = this.state;
+    const { tasks, height, isLoading } = this.props;
     const childProps = { tasks, height, onAssignClick: this.onAssignClick };
 
     return (
       <div>
-        --Small mode--
-        {isSmallMode && <TaskList_small {...childProps} />}
+        {isLoading && <Loader />}
+        <TaskList {...childProps} />
       </div>
     );
   }

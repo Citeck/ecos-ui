@@ -8,22 +8,22 @@ import './style.scss';
 
 class AssignBtn extends React.Component {
   static propTypes = {
-    stateAssign: PropTypes.string.isRequired,
+    stateAssign: PropTypes.number.isRequired,
     className: PropTypes.string,
     onClick: PropTypes.func.isRequired,
-    small: PropTypes.bool
+    narrow: PropTypes.bool
   };
 
   static defaultProps = {
     className: '',
-    small: false,
+    narrow: false,
     onClick: () => {}
   };
 
   render() {
-    const { stateAssign, onClick, small, className } = this.props;
+    const { stateAssign, onClick, narrow, className } = this.props;
     const stateInfo = stateAssignBtn().find(item => item.id === stateAssign);
-    const classBtn = classNames('ecos-task__assign-btn', className, { 'ecos-btn_narrow': small });
+    const classBtn = classNames('ecos-task__assign-btn', className, { 'ecos-btn_narrow': narrow });
 
     return (
       <div className={'ecos-task__assign-btn-wrapper'}>

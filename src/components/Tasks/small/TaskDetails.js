@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Caption } from '../../common/form';
+import * as ArrayOfObjects from '../../../helpers/arrayOfObjects';
 import { displayedColumns, TasksPropTypes } from '../utils';
 import '../style.scss';
 
@@ -19,8 +20,8 @@ class TaskDetails extends React.Component {
 
   renderDetails() {
     const { details } = this.props;
-    const columns = displayedColumns().sort((c, n) => c.order - n.order);
     const classDetail = `${this.className}__detail`;
+    const columns = ArrayOfObjects.sort('order', displayedColumns);
 
     return (
       <div className={`${this.className}__wrapper`}>
