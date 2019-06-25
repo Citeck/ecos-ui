@@ -1,5 +1,6 @@
 import * as React from 'react';
 import TasksDashlet from '../../../components/Tasks/TasksDashlet';
+import '../testStyle.scss';
 
 export default class TasksDashletPage extends React.Component {
   render() {
@@ -7,10 +8,15 @@ export default class TasksDashletPage extends React.Component {
       id: 'dashlet@tasks@123456789',
       config: {
         id: 'dashlet@tasks@123456789',
-        height: '500px'
+        height: '700px'
       }
     };
 
-    return <TasksDashlet id={data.id} config={data.config} />;
+    return (
+      <div className={'ecos-debug-container'}>
+        <TasksDashlet id={data.id} config={data.config} classNameDashlet={'ecos-debug-col'} />
+        <TasksDashlet id={data.id} config={data.config} classNameDashlet={'ecos-debug-col'} />
+      </div>
+    );
   }
 }

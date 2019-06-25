@@ -3,22 +3,24 @@
 .ecos-task {
   $root: &;
 
-  &-info {
-    $info: &;
+  &-details {
+    $details: &;
 
     &__title {
       height: 51px;
       padding: 0 20px;
-      display: flex;
-      align-items: center;
       color: $color-gray-dark;
       background-color: $color-gray-8;
+      line-height: 2.5;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
 
     &__wrapper {
       padding: 16px 20px;
 
-      & #{$info}__detail {
+      #{$details}_view-enum {
         display: flex;
         align-items: center;
         padding: 5px 0;
@@ -35,20 +37,26 @@
           color: $color-gray-9;
         }
       }
+
+      #{$details}_view-table {
+        height: 110px !important;
+      }
     }
   }
 
   &__assign-btn {
+    $btn: &;
+
+    &:not(:last-of-type) {
+      margin-right: 10px;
+    }
+
     &._fill {
       width: 100%;
     }
 
-    &-wrapper {
+    &__wrapper {
       padding: 0 20px 27px;
     }
-  }
-
-  &__grid-table {
-    height: auto !important;
   }
 }

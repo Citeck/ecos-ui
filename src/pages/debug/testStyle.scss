@@ -1,0 +1,13 @@
+@import '../../constants';
+
+.ecos-debug {
+  &-container {
+    display: flex;
+    width: 100%;
+  }
+
+  &-col {
+    flex: 1;
+    margin: 10px;
+  }
+}

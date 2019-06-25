@@ -1,10 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
-import TaskDetails from './small/TaskDetails';
-import TaskDetailsGrid from './large/TaskDetailsGrid';
-import AssignBtn from './AssignBtn';
+import TaskDetails from './TaskDetails';
 import { TasksPropTypes } from './utils';
 
 class TaskList extends React.Component {
@@ -20,31 +17,13 @@ class TaskList extends React.Component {
     height: '100%'
   };
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isSmallMode: false
-    };
-  }
-
   render() {
-    const { tasks, height, onAssignClick } = this.props;
-    const { isSmallMode } = this.state;
-    const classBtn = classNames({ _fill: isSmallMode });
+    const { tasks, height, onAssignClick, className } = this.props;
 
     return (
       <Scrollbars style={{ height }}>
         {!!(tasks && tasks.length) &&
-          tasks.map((item, i) => (
-            <React.Fragment>
-              -- Large mode --
-              {!isSmallMode && <TaskDetailsGrid details={item} key={i + item.id} />}
-              -- Small mode --
-              {isSmallMode && <TaskDetails details={item} key={i + item.id} />}
-              <AssignBtn stateAssign={item.stateAssign} onClick={onAssignClick} narrow={!isSmallMode} className={classBtn} />
-            </React.Fragment>
-          ))}
+          tasks.map((item, i) => <TaskDetails key={i + item.id} details={item} onAssignClick={onAssignClick} className={className} />)}
       </Scrollbars>
     );
   }

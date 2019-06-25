@@ -2,11 +2,11 @@ import { deepClone } from './util';
 
 /**
  * Возвращает новый массив отсортированный по заданному полю
+ * @param array {Array} источник
  * @param key {String} ключ поля
- * @param array {Array|undefined} источник если не передается используется DisplayedColumns.displayedColumns
  * @returns {Array} отсортированный массив
  */
-export function sort(key, array) {
+export function sort(array, key) {
   const arr = deepClone(array);
 
   return deepClone(arr).sort((c, n) => c[key] - n[key]);
@@ -14,12 +14,11 @@ export function sort(key, array) {
 
 /**
  * Возвращает новый массив объектов с измененными ключами;
- * @param oKeys {Object} объект в котором ключ = ключу в объекте displayedColumns[i],
- * а значение новому ключу => {key: "newKey"}
- * @param array {Array|undefined} источник если не передается используется DisplayedColumns.displayedColumns
+ * @param array {Array} источник
+ * @param oKeys {Object} объект в котором ключ = ключу в объекте массива, а значение новому ключу => {key: "newKey"}
  * @returns {Array} массив с обновленными ключами объектов
  */
-export function replaceKeys(oKeys, array) {
+export function replaceKeys(array, oKeys) {
   const arr = deepClone(array);
 
   if (!oKeys || (oKeys && !Object.keys(oKeys).length)) {
@@ -42,12 +41,11 @@ export function replaceKeys(oKeys, array) {
 
 /**
  * Фильтрация ключей
+ * @param array {Array} источник
  * @param aKeys {Array} массив ключей,
- * а значение новому ключу => {key: "newKey"}
- * @param array {Array|undefined} источник если не передается используется DisplayedColumns.displayedColumns
  * @returns {Array} массив объектов с указанными ключами
  */
-export function filterKeys(aKeys, array) {
+export function filterKeys(array, aKeys) {
   const arr = deepClone(array);
 
   return arr.map(item => {
@@ -61,4 +59,15 @@ export function filterKeys(aKeys, array) {
 
     return newItem;
   });
+}
+
+/**
+ * Возврат объекта из массива по ключу и его значению
+ * @param array {Array} источник
+ * @param key {String} свойство искомого объекта
+ * @param value {any} значение ключа в объекте
+ * @returns {{}}
+ */
+export function getObjectByKV(array, key, value) {
+  return array.find(item => item[key] === value) || {};
 }

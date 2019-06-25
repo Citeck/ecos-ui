@@ -11,7 +11,14 @@ export const TasksPropTypes = {
   started: PropTypes.any
 };
 
-export const displayedColumns = [
+export const AssignOptions = {
+  UNASSIGN: 0,
+  ASSIGN_ME: 1,
+  ASSIGN_SMB: 2,
+  REASSIGN_SMB: 3
+};
+
+export const DisplayedColumns = [
   {
     key: 'started',
     label: t('Запущено'),
@@ -40,13 +47,21 @@ export const displayedColumns = [
   }
 ];
 
-export const stateAssignBtn = () => [
+export const InfoAssignButtons = [
   {
-    id: 0,
+    id: AssignOptions.ASSIGN_ME,
     label: t('Я выполняю это')
   },
   {
-    id: 1,
+    id: AssignOptions.ASSIGN_SMB,
+    label: t('Назначить')
+  },
+  {
+    id: AssignOptions.REASSIGN_SMB,
     label: t('Переназначить')
+  },
+  {
+    id: AssignOptions.UNASSIGN,
+    label: t('Вернуть на группу')
   }
 ];
