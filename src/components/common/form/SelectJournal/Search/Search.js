@@ -26,7 +26,7 @@ class Search extends Component {
           const { fields } = this.context;
           const fieldsPredicates = fields
             .filter(item => {
-              return item.default && (item.type === COLUMN_DATA_TYPE_TEXT || item.type === COLUMN_DATA_TYPE_MLTEXT);
+              return item.default && (item.type === COLUMN_DATA_TYPE_TEXT || item.type === COLUMN_DATA_TYPE_MLTEXT || !item.type);
             })
             .map(item => {
               return {
