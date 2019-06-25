@@ -1,18 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import moment from 'moment';
 import ReactResizeDetector from 'react-resize-detector';
 import { Editor, EditorState, RichUtils, ContentState, convertToRaw, convertFromRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
+import classNames from 'classnames';
 
 import Dashlet from '../Dashlet/Dashlet';
 import Btn from '../common/btns/Btn/Btn';
 import { t, num2str } from '../../helpers/util';
 
+import { selectAllComments } from '../../selectors/comments';
+import { createCommentRequest, deleteCommentRequest, getComments, updateCommentRequest } from '../../actions/comments';
+
 import 'draft-js/dist/Draft.css';
 import './style.scss';
-import { CommentsApi } from '../../api/comments';
+import Loader from '../common/Loader/Loader';
+import IcoBtn from '../common/btns/IcoBtn/IcoBtn';
 
 const BASE_HEIGHT = 21;
 const BUTTONS_TYPE = {
@@ -30,8 +36,8 @@ class Comments extends React.Component {
         avatar: PropTypes.string,
         userName: PropTypes.string.isRequired,
         text: PropTypes.string.isRequired,
-        dateCreate: PropTypes.instanceOf(Date).isRequired,
-        dateModify: PropTypes.instanceOf(Date),
+        dateCreate: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]).isRequired,
+        dateModify: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]),
         id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         canEdit: PropTypes.bool,
         canDelete: PropTypes.bool
@@ -61,6 +67,12 @@ class Comments extends React.Component {
     editableComment: null,
     commentForDeletion: null
   };
+
+  componentDidMount() {
+    const { getComments, id } = this.props;
+
+    getComments(id);
+  }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.saveIsLoading && !nextProps.saveIsLoading) {
@@ -153,17 +165,19 @@ class Comments extends React.Component {
   };
 
   handleSaveComment = () => {
-    const { saveIsLoading, onSave } = this.props;
+    const { saveIsLoading, updateComment, createComment, id } = this.props;
     const { editableComment } = this.state;
+    const text = JSON.stringify(convertToRaw(this.state.comment.getCurrentContent()));
 
     if (saveIsLoading) {
       return;
     }
 
-    onSave({
-      id: editableComment,
-      message: JSON.stringify(convertToRaw(this.state.comment.getCurrentContent()))
-    });
+    if (editableComment) {
+      updateComment({ text, id: editableComment });
+    } else {
+      createComment({ text, record: id });
+    }
   };
 
   handleCloseEditor = () => {
@@ -263,9 +277,15 @@ class Comments extends React.Component {
     this.setState({ commentForDeletion: null });
   };
 
-  handleDelete = () => {
-    this.props.onDelete(this.state.commentForDeletion);
+  handleConfirmDeletion = () => {
+    this.props.deleteComment(this.state.commentForDeletion);
     this.setState({ commentForDeletion: null });
+  };
+
+  handleReloadData = () => {
+    const { getComments, id } = this.props;
+
+    getComments(id);
   };
 
   renderHeader() {
@@ -331,30 +351,30 @@ class Comments extends React.Component {
     return (
       <div className="ecos-comments__editor">
         <div className="ecos-comments__editor-header">
-          <div
-            style={{ padding: '5px', color: this.inlineStyles.has(BUTTONS_TYPE.BOLD) ? '#7396CD' : 'white', cursor: 'pointer' }}
+          <IcoBtn
             onClick={this.handleToggleStyle.bind(this, BUTTONS_TYPE.BOLD)}
-          >
-            B
-          </div>
-          <div
-            style={{ padding: '5px', color: this.inlineStyles.has(BUTTONS_TYPE.ITALIC) ? '#7396CD' : 'white', cursor: 'pointer' }}
+            className={classNames('icon-bold', 'ecos-comments__editor-button', {
+              'ecos-comments__editor-button_active': this.inlineStyles.has(BUTTONS_TYPE.BOLD)
+            })}
+          />
+          <IcoBtn
             onClick={this.handleToggleStyle.bind(this, BUTTONS_TYPE.ITALIC)}
-          >
-            I
-          </div>
-          <div
-            style={{ padding: '5px', color: this.inlineStyles.has(BUTTONS_TYPE.UNDERLINE) ? '#7396CD' : 'white', cursor: 'pointer' }}
+            className={classNames('icon-italic', 'ecos-comments__editor-button', {
+              'ecos-comments__editor-button_active': this.inlineStyles.has(BUTTONS_TYPE.ITALIC)
+            })}
+          />
+          <IcoBtn
             onClick={this.handleToggleStyle.bind(this, BUTTONS_TYPE.UNDERLINE)}
-          >
-            U
-          </div>
-          <div
-            style={{ padding: '5px', color: this.blockType === BUTTONS_TYPE.LIST ? '#7396CD' : 'white', cursor: 'pointer' }}
+            className={classNames('icon-underline', 'ecos-comments__editor-button', {
+              'ecos-comments__editor-button_active': this.inlineStyles.has(BUTTONS_TYPE.UNDERLINE)
+            })}
+          />
+          <IcoBtn
             onClick={this.handleToggleBlockType.bind(this, BUTTONS_TYPE.LIST)}
-          >
-            List
-          </div>
+            className={classNames('icon-list3', 'ecos-comments__editor-button', 'ecos-comments__editor-button_list', {
+              'ecos-comments__editor-button_active': this.blockType === BUTTONS_TYPE.LIST
+            })}
+          />
         </div>
         <div className="ecos-comments__editor-body" onClick={this.handleFocusEditor}>
           <Scrollbars
@@ -448,7 +468,7 @@ class Comments extends React.Component {
           <Btn className="ecos-btn_grey5 ecos-btn_hover_grey1 ecos-comments__comment-confirm-btn" onClick={this.handleCancelDeletion}>
             {t('Отмена')}
           </Btn>
-          <Btn className="ecos-btn_red ecos-comments__comment-confirm-btn" onClick={this.handleDelete}>
+          <Btn className="ecos-btn_red ecos-comments__comment-confirm-btn" onClick={this.handleConfirmDeletion}>
             {t('Удалить')}
           </Btn>
         </div>
@@ -520,18 +540,45 @@ class Comments extends React.Component {
     );
   }
 
+  renderLoader() {
+    const { fetchIsLoading } = this.props;
+
+    if (!fetchIsLoading) {
+      return null;
+    }
+
+    return <Loader />;
+  }
+
   render() {
     return (
       <div className={this.className}>
-        <Dashlet title={t('Комментарии')} needGoTo={false} actionEdit={false} actionHelp={false} resizable>
+        <Dashlet title={t('Комментарии')} needGoTo={false} actionEdit={false} actionHelp={false} resizable onReload={this.handleReloadData}>
           <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
           <div className="ecos-comments__header">{this.renderHeader()}</div>
 
           {this.renderComments()}
         </Dashlet>
+        {this.renderLoader()}
       </div>
     );
   }
 }
 
-export default Comments;
+const mapStateToProps = state => ({
+  comments: selectAllComments(state),
+  fetchIsLoading: state.comments.fetchIsLoading,
+  saveIsLoading: state.comments.sendingInProcess
+});
+
+const mapDispatchToProps = dispatch => ({
+  getComments: id => dispatch(getComments(id)),
+  createComment: data => dispatch(createCommentRequest(data)),
+  updateComment: data => dispatch(updateCommentRequest(data)),
+  deleteComment: id => dispatch(deleteCommentRequest(id))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Comments);

@@ -3,13 +3,11 @@ import { put, takeLatest, call, select } from 'redux-saga/effects';
 import {
   createCommentRequest,
   createCommentSuccess,
-  deleteComment,
   deleteCommentRequest,
   deleteCommentSuccess,
   fetchEnd,
   fetchStart,
   getComments,
-  pushComment,
   sendingEnd,
   sendingStart,
   setComments,
@@ -23,12 +21,12 @@ function* sagaGetComments({ api, logger }, action) {
   try {
     yield put(fetchStart());
 
-    const { records, ...other } = yield api.comments.getAll(action.payload);
+    const { records, ...extraProps } = yield api.comments.getAll(action.payload);
 
     yield put(
       setComments({
         comments: records.map(record => getCommentForWeb(record)),
-        ...other
+        ...extraProps
       })
     );
 

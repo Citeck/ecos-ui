@@ -25,17 +25,8 @@ import Comments from './../Comments';
 
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { URL } from '../../constants';
-import {
-  createCommentRequest,
-  deleteComment,
-  deleteCommentRequest,
-  getComments,
-  updateComment,
-  updateCommentRequest
-} from '../../actions/comments';
 
 import './App.scss';
-import { selectAllComments } from '../../selectors/comments';
 
 class App extends Component {
   constructor() {
@@ -120,42 +111,13 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const { getShowTabsStatus, getTabs, getComments } = this.props;
+    const { getShowTabsStatus, getTabs } = this.props;
 
     getShowTabsStatus();
     getTabs();
-    getComments('workspace://SpacesStore/291bd833-6e27-4865-8416-25d584404c3e');
   }
 
-  handleSaveComment = ({ id = null, message = '' } = {}) => {
-    if (id) {
-      this.props.updateComment({ text: message, id });
-    } else {
-      this.props.createComment({
-        text: message,
-        record: 'workspace://SpacesStore/291bd833-6e27-4865-8416-25d584404c3e'
-      });
-    }
-  };
-
-  handleDeleteComment = id => {
-    this.props.deleteComment(id);
-  };
-
-  renderComments = () => {
-    const { commentFetchIsLoading, commentSendingInProcess, comments } = this.props;
-    const { errorMessage } = this.state;
-
-    return (
-      <Comments
-        comments={comments}
-        errorMessage={errorMessage}
-        onSave={this.handleSaveComment}
-        onDelete={this.handleDeleteComment}
-        saveIsLoading={commentSendingInProcess}
-      />
-    );
-  };
+  renderComments = () => <Comments id="workspace://SpacesStore/291bd833-6e27-4865-8416-25d584404c3e" />;
 
   render() {
     const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs } = this.props;
@@ -218,20 +180,13 @@ const mapStateToProps = state => ({
   theme: state.view.theme,
   isAuthenticated: state.user.isAuthenticated,
   isShow: state.pageTabs.isShow,
-  tabs: state.pageTabs.tabs,
-  comments: selectAllComments(state),
-  commentFetchIsLoading: state.comments.fetchIsLoading,
-  commentSendingInProcess: state.comments.sendingInProcess
+  tabs: state.pageTabs.tabs
 });
 
 const mapDispatchToProps = dispatch => ({
   getShowTabsStatus: () => dispatch(getShowTabsStatus()),
   getTabs: () => dispatch(getTabs()),
-  setTabs: tabs => dispatch(setTabs(tabs)),
-  getComments: id => dispatch(getComments(id)),
-  createComment: data => dispatch(createCommentRequest(data)),
-  updateComment: data => dispatch(updateCommentRequest(data)),
-  deleteComment: id => dispatch(deleteCommentRequest(id))
+  setTabs: tabs => dispatch(setTabs(tabs))
 });
 
 export default withRouter(
