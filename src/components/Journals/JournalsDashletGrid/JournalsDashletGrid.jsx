@@ -197,8 +197,8 @@ class JournalsDashletGrid extends Component {
         total={total}
         tools={[
           <IcoBtn icon={'icon-download'} className={toolsActionClassName} title={t('grid.tools.zip')} />,
-          <IcoBtn icon={'icon-copy'} className={toolsActionClassName} />,
-          <IcoBtn icon={'icon-big-arrow'} className={toolsActionClassName} />,
+          <IcoBtn icon={'icon-copy'} className={toolsActionClassName} title={t('grid.tools.copy-to')} />,
+          <IcoBtn icon={'icon-big-arrow'} className={toolsActionClassName} title={t('grid.tools.move-to')} />,
           <IcoBtn icon={'icon-delete'} className={toolsActionClassName} title={t('grid.tools.delete')} onClick={this.deleteRecords} />
         ]}
       />
