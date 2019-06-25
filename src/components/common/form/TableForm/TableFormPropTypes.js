@@ -6,6 +6,7 @@ export default {
   displayColumns: PropTypes.array,
   onChange: PropTypes.func,
   onError: PropTypes.func,
+  disabled: PropTypes.bool,
   isCompact: PropTypes.bool,
   parentForm: PropTypes.object,
   triggerEventOnTableChange: PropTypes.func,
