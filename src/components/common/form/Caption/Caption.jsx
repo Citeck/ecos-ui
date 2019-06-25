@@ -8,11 +8,11 @@ export default class Caption extends Component {
     const { children, className, extra, large, middle } = { ...this.props };
 
     return extra ? (
-      <h1 className={classNames('caption caption_extra', className)}>{children}</h1>
+      <h1 className={classNames('ecos-caption ecos-caption_extra', className)}>{children}</h1>
     ) : large ? (
-      <h2 className={classNames('caption caption_large', className)}>{children}</h2>
+      <h2 className={classNames('ecos-caption ecos-caption_large', className)}>{children}</h2>
     ) : middle ? (
-      <h3 className={classNames('caption caption_middle', className)}>{children}</h3>
+      <h3 className={classNames('ecos-caption ecos-caption_middle', className)}>{children}</h3>
     ) : null;
   }
 }

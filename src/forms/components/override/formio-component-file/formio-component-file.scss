@@ -1,0 +1,75 @@
+@import '../../../constants';
+
+.formio-form {
+  .formio-component-file {
+    .list-group {
+      .list-group-item {
+        height: 42px;
+        padding: 0 5px;
+        border: 0;
+        border-top: 2px solid $color-gray-4;
+        border-bottom: 2px solid $color-gray-4;
+
+        a {
+          color: $color-blue-dark;
+          text-decoration: none;
+          padding: 3px 0;
+        }
+
+        .row div {
+          color: $text-color-dark;
+          font-size: $font-size-small;
+          font-weight: $font-weight-normal;
+
+          padding: 11px 10px;
+
+          select {
+            margin-top: -3px;
+          }
+
+          .glyphicon {
+            margin-left: 50%;
+          }
+        }
+
+        select.file-type {
+          width: 100%;
+        }
+      }
+
+      .list-group-item.list-group-header {
+        height: 52px;
+        border: 0;
+        border-top: 2px solid $color-gray-4;
+        border-bottom: 2px solid $color-gray-4;
+        padding: 8px 0;
+        margin-bottom: -2px;
+        border-radius: 0;
+
+        .row div {
+          padding: 0;
+        }
+
+        strong {
+          color: $text-color-dark;
+          font-size: $font-size-standard;
+          font-weight: $font-weight-semi-bold;
+          border-left: 2px solid $color-gray-4;
+          line-height: 1;
+          padding: 9px 10px;
+          display: inline-block;
+          width: 100%;
+        }
+      }
+    }
+
+    .fileSelector {
+      border: 0;
+      border-bottom: 2px solid $color-gray-4;
+    }
+
+    .alert.alert-warning {
+      margin-top: 5px;
+    }
+  }
+}

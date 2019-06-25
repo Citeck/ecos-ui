@@ -79,7 +79,9 @@ export default class ColumnsSetup extends Component {
           isButton={true}
           onChange={this.export}
         >
-          <TwoIcoBtn icons={['icon-load', 'icon-down']} className={'btn_grey btn_settings-down btn_x-step_10'} />
+          {props.children || (
+            <TwoIcoBtn icons={['icon-load', 'icon-down']} className={'ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10'} />
+          )}
         </Dropdown>
 
         <form ref={this.form} id="export-form" action="" method="post" encType="multipart/form-data" target="">

@@ -17,7 +17,7 @@ export default class Columns extends Component {
 
           return (
             <Col key={index} {...cfg}>
-              <div className={classNames('columns__column', !index && 'columns__column_first')}>{col}</div>
+              <div className={classNames('columns__column', !index && 'columns__column_first', props.classNamesColumn)}>{col}</div>
             </Col>
           );
         })}

@@ -3,34 +3,26 @@ import classNames from 'classnames';
 import BootstrapTable from 'react-bootstrap-table-next';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import Checkbox from '../../form/Checkbox/Checkbox';
-import PerfectScrollbar from 'react-perfect-scrollbar';
+import { Scrollbars } from 'react-custom-scrollbars';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
-import { t } from '../../../../helpers/util';
+import { t, getId, trigger } from '../../../../helpers/util';
 
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
 
 const CLOSE_FILTER_EVENT = 'closeFilterEvent';
 
-function triggerEvent(name, data) {
-  const callback = this.props[name];
-
-  if (typeof callback === 'function') {
-    callback.call(this, data);
-  }
-}
-
 const Selector = ({ mode, ...rest }) => (
-  <div className={'grid__checkbox'}>
+  <div className={'ecos-grid__checkbox'}>
     <Checkbox checked={rest.checked} />
   </div>
 );
 
 const SelectorHeader = ({ indeterminate, ...rest }) => (
   <Fragment>
-    <div className={'grid__checkbox'}>
+    <div className={'ecos-grid__checkbox'}>
       {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
-      <div className={'grid__checkbox-devider'} />
+      <div className={'ecos-grid__checkbox-devider'} />
     </div>
   </Fragment>
 );
@@ -39,20 +31,69 @@ export default class Grid extends Component {
   constructor(props) {
     super(props);
     this._selected = [];
-    this._id = this.getId();
+    this._id = getId();
     this._resizingTh = null;
     this._startResizingThOffset = 0;
     this._keyField = props.keyField || 'id';
+    this.scrollValues = {};
   }
 
   componentDidMount() {
     this.createCloseFilterEvent();
     this.createColumnResizeEvents();
+    this.createKeydownEvents();
   }
 
   componentWillUnmount() {
     this.removeCloseFilterEvent();
     this.removeColumnResizeEvents();
+    this.removeKeydownEvents();
+  }
+
+  createKeydownEvents() {
+    document.addEventListener('keydown', this.onKeydown.bind(this));
+  }
+
+  removeKeydownEvents() {
+    document.removeEventListener('keydown', this.onKeydown.bind(this));
+  }
+
+  onKeydown(e) {
+    const props = this.props;
+
+    switch (e.keyCode) {
+      case 38:
+        if (this._byRowClickSelectedRow && this._byRowClickSelectedRow.previousSibling) {
+          this._byRowClickSelectedRow = this._byRowClickSelectedRow.previousSibling;
+
+          if (typeof props.onPrevRowSelected === 'function') {
+            props.onPrevRowSelected.call(
+              this,
+              e,
+              this.getTrOptions(this._byRowClickSelectedRow),
+              props.data[this._byRowClickSelectedRow.rowIndex - 1]
+            );
+          }
+        }
+
+        break;
+      case 40:
+        if (this._byRowClickSelectedRow && this._byRowClickSelectedRow.nextSibling) {
+          this._byRowClickSelectedRow = this._byRowClickSelectedRow.nextSibling;
+
+          if (typeof props.onNextRowSelected === 'function') {
+            props.onNextRowSelected.call(
+              this,
+              e,
+              this.getTrOptions(this._byRowClickSelectedRow),
+              props.data[this._byRowClickSelectedRow.rowIndex - 1]
+            );
+          }
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   setAdditionalOptions(props) {
@@ -65,7 +106,7 @@ export default class Grid extends Component {
         column.hidden = !column.default;
       }
 
-      column = this.setHeaderFormatter(column, props.filterable);
+      column = this.setHeaderFormatter(column, props.filterable, column.sortable);
 
       column.formatter = this.initFormatter(props.editable);
 
@@ -76,13 +117,22 @@ export default class Grid extends Component {
       props.cellEdit = this.setEditable(props.editable);
     }
 
-    if (props.defaultSortBy) {
-      props.data = this.sortByDefault(props);
-    }
+    props.rowEvents = props.rowEvents || {};
 
     if (typeof props.onMouseEnter === 'function') {
-      props.rowEvents = { onMouseEnter: e => props.onMouseEnter.call(this, e, this.getTrOffsets(e)) };
+      props.rowEvents = { onMouseEnter: e => props.onMouseEnter.call(this, e, this.getTrOptions(e.currentTarget)), ...props.rowEvents };
     }
+
+    this._byRowClickSelectedRow = null;
+    props.rowEvents = {
+      onClick: e => {
+        if (typeof props.onRowClick === 'function') {
+          this._byRowClickSelectedRow = e.currentTarget;
+          props.onRowClick.call(this, e, this.getTrOptions(e.currentTarget), props.data[e.currentTarget.rowIndex - 1]);
+        }
+      },
+      ...props.rowEvents
+    };
 
     if (props.multiSelectable) {
       props.selectRow = this.createMultiSelectioCheckboxs(props);
@@ -95,12 +145,13 @@ export default class Grid extends Component {
     return props;
   }
 
-  getTrOffsets = e => {
-    const tr = e.currentTarget;
+  getTrOptions = tr => {
+    const { scrollLeft = 0 } = this.scrollValues;
     const height = tr.offsetHeight - 2;
     const top = tr.offsetTop - 1;
+    const row = this.props.data[tr.rowIndex - 1];
 
-    return { height, top };
+    return { height, top, row, left: scrollLeft };
   };
 
   setEditable = () => {
@@ -111,27 +162,17 @@ export default class Grid extends Component {
     });
   };
 
-  sortByDefault = props => {
-    const defaultSortBy = props.defaultSortBy;
-    const data = props.data.slice();
-
-    defaultSortBy.forEach(item => {
-      const { id, order } = item;
-
-      data.sort(function(a, b) {
-        return order ? a[id] < b[id] : a[id] > b[id];
-      });
-    });
-
-    return data;
+  sort = e => {
+    trigger.call(this, 'onSort', e);
   };
 
   initFormatter = editable => {
     return (cell, row, rowIndex, formatExtraData) => {
-      const Formatter = (formatExtraData || {}).formatter;
+      formatExtraData = formatExtraData || {};
+      const Formatter = formatExtraData.formatter;
       return (
-        <div className={`grid__td ${editable ? 'grid__td_editable' : ''}`}>
-          {Formatter ? <Formatter row={row} cell={cell} params={formatExtraData.params} /> : null}
+        <div className={`ecos-grid__td ${editable ? 'ecos-grid__td_editable' : ''}`}>
+          {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
         </div>
       );
     };
@@ -146,17 +187,21 @@ export default class Grid extends Component {
     return column;
   };
 
-  setHeaderFormatter = (column, filterable) => {
+  setHeaderFormatter = (column, filterable, sortable) => {
+    const { filters, sortBy } = this.props;
+
     column.headerFormatter = (column, colIndex) => {
       return (
         <HeaderFormatter
           closeFilterEvent={CLOSE_FILTER_EVENT}
           filterable={filterable}
-          filterValue={((this.props.filters || []).filter(filter => filter.field === column.dataField)[0] || {}).value || ''}
+          filterValue={((filters || []).filter(filter => filter.att === column.dataField)[0] || {}).val || ''}
+          ascending={((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending}
           column={column}
           colIndex={colIndex}
           onFilter={this.onFilter}
           onDeviderMouseDown={this.getStartDeviderPosition}
+          onTextClick={sortable && this.sort}
         />
       );
     };
@@ -164,18 +209,12 @@ export default class Grid extends Component {
     return column;
   };
 
-  getId = () => {
-    return Math.random()
-      .toString(36)
-      .substr(2, 9);
-  };
-
   createSingleSelectionCheckboxs(props) {
     this._selected = props.selected || [];
 
     return {
       mode: 'radio',
-      classes: 'grid__tr_selected',
+      classes: 'ecos-grid__tr_selected',
       selected: this._selected,
       onSelect: row => {
         const selected = this._selected[0];
@@ -183,7 +222,7 @@ export default class Grid extends Component {
 
         this._selected = selected !== keyValue ? [keyValue] : [];
 
-        triggerEvent.call(this, 'onSelect', {
+        trigger.call(this, 'onSelect', {
           selected: this._selected,
           all: false
         });
@@ -198,7 +237,7 @@ export default class Grid extends Component {
 
     return {
       mode: 'checkbox',
-      classes: 'grid__tr_selected',
+      classes: 'ecos-grid__tr_selected',
       selected: this._selected,
       onSelect: (row, isSelect) => {
         const selected = this._selected;
@@ -206,7 +245,7 @@ export default class Grid extends Component {
 
         this._selected = isSelect ? [...selected, keyValue] : selected.filter(x => x !== keyValue);
 
-        triggerEvent.call(this, 'onSelect', {
+        trigger.call(this, 'onSelect', {
           selected: this._selected,
           all: false
         });
@@ -216,7 +255,7 @@ export default class Grid extends Component {
           ? [...this._selected, ...rows.map(row => row[this._keyField])]
           : this.getSelectedByPage(this.props.data, false);
 
-        triggerEvent.call(this, 'onSelect', {
+        trigger.call(this, 'onSelect', {
           selected: this._selected,
           all: isSelect
         });
@@ -228,7 +267,7 @@ export default class Grid extends Component {
 
   onEdit = (oldValue, newValue, row, column) => {
     if (oldValue !== newValue) {
-      triggerEvent.call(this, 'onEdit', {
+      trigger.call(this, 'onEdit', {
         id: row[this._keyField],
         attributes: {
           [column.attribute]: newValue
@@ -248,8 +287,8 @@ export default class Grid extends Component {
     });
   };
 
-  onFilter = criteria => {
-    triggerEvent.call(this, 'onFilter', [criteria]);
+  onFilter = predicates => {
+    trigger.call(this, 'onFilter', predicates);
   };
 
   createCloseFilterEvent = () => {
@@ -281,6 +320,7 @@ export default class Grid extends Component {
     let th = this._resizingTh;
     if (th) {
       th.style.width = this._startResizingThOffset + e.pageX + 'px';
+      th.firstChild.style.width = this._startResizingThOffset + e.pageX + 'px';
     }
   };
 
@@ -308,13 +348,26 @@ export default class Grid extends Component {
     return null;
   };
 
+  onMouseLeave = e => {
+    trigger.call(this, 'onMouseLeave', e);
+  };
+
+  onScrollStart = e => {
+    this.triggerCloseFilterEvent(document.body);
+    trigger.call(this, 'onScrollStart', e);
+  };
+
+  onScrollFrame = e => {
+    this.scrollValues = e;
+  };
+
   render() {
     let props = {
-      id: this._id,
       keyField: this._keyField,
       bootstrap4: true,
       bordered: false,
-      headerClasses: 'grid__header',
+      scrollable: true,
+      headerClasses: 'ecos-grid__header',
       noDataIndication: () => t('grid.no-data-indication'),
       ...this.props
     };
@@ -323,27 +376,47 @@ export default class Grid extends Component {
 
     const toolsVisible = this.toolsVisible();
 
+    const gridStyle = props.minHeight ? { minHeight: props.minHeight } : { height: '100%' };
+    const scrollStyle = props.minHeight ? { height: props.minHeight } : { autoHeight: true };
+
+    const Scroll = ({ scrollable, children, style }) =>
+      scrollable ? (
+        <Scrollbars
+          onScrollStart={this.onScrollStart}
+          onScrollFrame={this.onScrollFrame}
+          style={style}
+          hideTracksWhenNotNeeded={true}
+          renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+        >
+          {children}
+        </Scrollbars>
+      ) : (
+        <Fragment>{children}</Fragment>
+      );
+
     if (props.columns.length) {
       return (
         <div
-          style={{ minHeight: props.minHeight }}
-          className={classNames('grid', (props.singleSelectable || props.multiSelectable) && 'grid_checkable', this.props.className)}
+          key={this._id}
+          style={gridStyle}
+          className={classNames(
+            'ecos-grid',
+            (props.singleSelectable || props.multiSelectable) && 'ecos-grid_checkable',
+            this.props.className
+          )}
+          onMouseLeave={this.onMouseLeave}
         >
           {toolsVisible ? this.tools() : null}
 
-          <PerfectScrollbar
-            style={{ minHeight: props.minHeight }}
-            onScrollX={this.triggerCloseFilterEvent}
-            onScrollY={this.triggerCloseFilterEvent}
-          >
+          <Scroll scrollable={props.scrollable} style={scrollStyle}>
             <BootstrapTable {...props} />
-          </PerfectScrollbar>
 
-          {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
-            <BootstrapTable {...props} classes={'grid__freeze'} />
-          ) : null}
+            {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
+              <BootstrapTable {...props} classes={'ecos-grid__freeze'} />
+            ) : null}
 
-          {this.inlineTools()}
+            {this.inlineTools()}
+          </Scroll>
         </div>
       );
     }

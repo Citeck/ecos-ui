@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import DatePicker from 'react-datepicker';
 import classNames from 'classnames';
+import { t } from '../../../../helpers/util';
 import '../Input/Input.scss';
 import './DatePicker.scss';
 
@@ -14,11 +15,15 @@ class CustomInput extends Component {
 
 export default class extends Component {
   render() {
-    const { className, showIcon, dateFormat = 'P', ...otherProps } = this.props;
+    const { className, showIcon, dateFormat = 'P', wrapperClasses, ...otherProps } = this.props;
     const cssClasses = classNames('ecos-input', className);
-    const wrapperCssClasses = classNames('ecos-datepicker', {
-      'ecos-datepicker_show-icon': showIcon
-    });
+    const wrapperCssClasses = classNames(
+      'ecos-datepicker',
+      {
+        'ecos-datepicker_show-icon': showIcon
+      },
+      wrapperClasses
+    );
 
     const calendarIcon = showIcon ? (
       <span
@@ -28,6 +33,12 @@ export default class extends Component {
         }}
       />
     ) : null;
+
+    let additionalProps = {};
+    if (otherProps.showTimeInput) {
+      additionalProps.timeInputLabel = `${t('ecos-forms.datepicker.time-input-label')}:`;
+      additionalProps.dateFormat = 'P HH:mm';
+    }
 
     return (
       <div className={wrapperCssClasses}>
@@ -39,6 +50,7 @@ export default class extends Component {
           // dropdownMode="select"
           // popperPlacement="top-end"
           {...otherProps}
+          {...additionalProps}
           className={cssClasses}
           calendarClassName={'ecos-datepicker__calendar'}
         />

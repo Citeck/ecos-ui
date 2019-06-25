@@ -1,15 +1,44 @@
+/*
+text
+mltext
+content
+int
+long
+float
+double
+date
+datetime
+boolean
+qname
+category
+noderef
+options
++assoc
+person
+authorityGroup
+authority
+*/
+
 const MAP = [
   {
     options: () => 'DateTimeFormatter',
-    enable: column => column.javaClass === 'java.util.Date'
+    enable: column => column.type === 'datetime' || column.type === 'date'
   },
   {
     options: () => 'BooleanFormatter',
-    enable: column => column.javaClass === 'java.lang.Boolean'
+    enable: column => column.type === 'boolean'
   },
   {
     options: () => 'CardDetailsLinkFormatter',
     enable: column => column.attribute === 'cm:name' || column.attribute === 'cm:title'
+  },
+  {
+    options: () => 'SelectFormatter',
+    enable: column => column.attribute === 'payments:paymentFor'
+  },
+  {
+    options: () => 'AssocFormatter',
+    enable: column => column.type === 'assoc'
   },
   {
     options: column => {

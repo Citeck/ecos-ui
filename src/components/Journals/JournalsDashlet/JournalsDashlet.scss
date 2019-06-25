@@ -1,22 +1,26 @@
 @import '../../../constants';
 
-.journal-dashlet {
-  //width: 618px;
+.ecos-journal-dashlet {
+  padding-top: 0;
 }
 
-.journal-dashlet__toolbar {
+.ecos-journal-dashlet__toolbar {
   margin: 12px 15px;
   position: relative;
 }
 
-.journal-dashlet__footer {
+.ecos-journal-dashlet__footer {
   margin: -5px 15px 0 15px;
 }
 
-.dashlet__pagination {
+.ecos-journal-dashlet__pagination {
   margin-right: 25px;
 }
 
-.journal-dashlet__grid {
+.ecos-journal-dashlet__grid {
   position: relative;
+}
+
+.ecos-journal-dashlet__body {
+  min-height: 115px;
 }

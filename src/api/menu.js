@@ -1,5 +1,5 @@
 import { CommonApi } from './common';
-import { generateSearchTerm } from '../helpers/util';
+import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { PROXY_URI } from '../constants/alfresco';
 
 export class MenuApi extends CommonApi {
@@ -24,12 +24,33 @@ export class MenuApi extends CommonApi {
   };
 
   getSlideMenuItems = () => {
-    const url = `${PROXY_URI}citeck/menu/menu`;
-    return this.getJson(url).catch(() => []);
+    const username = getCurrentUserName();
+    return this.getJsonWithSessionCache({
+      url: `${PROXY_URI}citeck/menu/menu?${username}`,
+      timeout: 14400000 //4h
+    }).catch(() => {});
   };
 
   getMenuItemIconUrl = iconName => {
-    const url = `${PROXY_URI}citeck/menu/icon?iconName=${iconName}`;
-    return this.getJson(url).catch(() => null);
+    return this.getJsonWithSessionCache({
+      url: `${PROXY_URI}citeck/menu/icon?iconName=${iconName}`,
+      timeout: 14400000, //4h
+      onError: () => null
+    });
+  };
+
+  getJournalTotalCount = journalId => {
+    //TODO: move this to a menu config
+    if (journalId === 'active-tasks' || journalId === 'subordinate-tasks') {
+      const url = `${PROXY_URI}api/journals/records/count?journal=${journalId}`;
+      return this.getJson(url)
+        .then(resp => resp.recordsCount)
+        .catch(err => {
+          console.error(err);
+          return 0;
+        });
+    } else {
+      return Promise.resolve(0);
+    }
   };
 }

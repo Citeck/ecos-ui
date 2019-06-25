@@ -1,6 +1,8 @@
 @import '../../../constants';
 
+.formio-dialog-content .preview-panel,
 .formio-form {
+  .formio-component-ecosSelect,
   .formio-component-select {
     .choices__input {
       background-color: $color-white;

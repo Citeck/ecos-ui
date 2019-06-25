@@ -1,9 +1,14 @@
 @import '../../../constants';
 
+.formio-dialog-content .preview-panel,
 .formio-form {
   .formio-component-datetime {
     .form-control.flatpickr-input {
       border-radius: $border-radius-standard;
+    }
+
+    .input-group {
+      flex-wrap: nowrap;
     }
 
     .input-group-addon {

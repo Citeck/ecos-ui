@@ -7,12 +7,20 @@
   color: $text-color-dark;
 }
 
+.label_bold {
+  font-weight: $font-weight-bold;
+}
+
+.label_nowrap {
+  white-space: nowrap;
+}
+
 .label_clear {
-  margin: 0 !important;
-  padding: 0 !important;
+  margin: 0;
+  padding: 0;
 }
 
 .label_middle-grey {
-  color: $text-color-gray !important;
+  color: $text-color-gray;
   font-size: $font-size-standard;
 }

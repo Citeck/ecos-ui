@@ -1,0 +1,46 @@
+@import '../../../constants';
+
+.formio-dialog.component-settings {
+  .formio-data-grid {
+    .formio-component-xl,
+    .formio-component-lg,
+    .formio-component-md,
+    .formio-component-sm,
+    .formio-component-xs {
+      .form-control {
+        padding: 6px 3px;
+        text-align: center;
+        width: auto;
+        max-width: 40px;
+      }
+    }
+
+    .formio-component-classes {
+      .form-control {
+        width: auto;
+        position: relative;
+        z-index: 1;
+      }
+    }
+  }
+}
+
+.formio-dialog-content .preview-panel,
+.formio-form {
+  .row:hover {
+    background-color: initial;
+  }
+
+  .formio-component {
+    &.row-view-mode {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .col-view-mode {
+      ul {
+        margin-bottom: 0;
+      }
+    }
+  }
+}

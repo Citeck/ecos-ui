@@ -13,6 +13,19 @@ const postOptions = {
   }
 };
 
+const putOptions = {
+  ...getOptions,
+  method: 'put',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+};
+
+const deleteOptions = {
+  ...getOptions,
+  method: 'delete'
+};
+
 // const postUrlEncodedFormOptions = {
 //   ...getOptions,
 //   method: 'post',
@@ -29,7 +42,9 @@ const postOptions = {
 
 export class CommonApi {
   constructor(store) {
-    this.store = store;
+    if (store) {
+      this.store = store;
+    }
   }
 
   checkStatus = response => {
@@ -38,12 +53,59 @@ export class CommonApi {
     }
 
     if (response.status === 401) {
-      this.store.dispatch(setIsAuthenticated(false));
+      if (this.store && typeof this.store.dispatch === 'function') {
+        this.store.dispatch(setIsAuthenticated(false));
+      }
     }
 
     const error = new Error(response.statusText);
     error.response = response;
     throw error;
+  };
+
+  getJsonWithSessionCache = config => {
+    if (!window.sessionStorage) {
+      return this.getJson(config.url);
+    }
+
+    let { timeout, onError, url } = config;
+
+    const key = `CommonApi_${url}`;
+
+    let result = sessionStorage.getItem(key);
+    if (result) {
+      let parsedResult = JSON.parse(result);
+
+      if (timeout) {
+        if (new Date().getTime() - parsedResult.time < timeout) {
+          return Promise.resolve(parsedResult.response);
+        }
+      } else {
+        return Promise.resolve(parsedResult.response);
+      }
+    }
+    const addToStorage = response => {
+      sessionStorage.setItem(
+        key,
+        JSON.stringify({
+          time: new Date().getTime(),
+          response
+        })
+      );
+      return response;
+    };
+
+    let resultPromise = this.getJson(url).then(response => {
+      return addToStorage(response);
+    });
+
+    if (onError) {
+      resultPromise = resultPromise.catch(err => {
+        return addToStorage(onError(err));
+      });
+    }
+
+    return resultPromise;
   };
 
   getJson = url => {
@@ -58,13 +120,30 @@ export class CommonApi {
       .then(parseHtml);
   };
 
-  postJson = (url, data) => {
-    return fetch(url, {
+  deleteJson = (url, notJsonResp) => {
+    const prms = fetch(url, {
+      ...deleteOptions
+    }).then(this.checkStatus);
+
+    return notJsonResp ? prms : prms.then(parseJSON);
+  };
+
+  putJson = (url, data, notJsonResp) => {
+    const prms = fetch(url, {
+      ...putOptions,
+      body: JSON.stringify(data)
+    }).then(this.checkStatus);
+
+    return notJsonResp ? prms : prms.then(parseJSON);
+  };
+
+  postJson = (url, data, notJsonResp) => {
+    const prms = fetch(url, {
       ...postOptions,
       body: JSON.stringify(data)
-    })
-      .then(this.checkStatus)
-      .then(parseJSON);
+    }).then(this.checkStatus);
+
+    return notJsonResp ? prms.then(resp => resp.text()) : prms.then(parseJSON);
   };
 
   // postUrlEncodedForm = (url, data) => {

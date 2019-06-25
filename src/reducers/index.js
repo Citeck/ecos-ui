@@ -11,6 +11,7 @@ import user from './user';
 import view from './view';
 import journals from './journals';
 import { rootReducer as cardDetails } from './cardDetails';
+import pageTabs from './pageTabs';
 
 const reducers = {
   app,
@@ -22,7 +23,8 @@ const reducers = {
   slideMenu,
   user,
   view,
-  journals
+  journals,
+  pageTabs
 };
 
 export default history =>

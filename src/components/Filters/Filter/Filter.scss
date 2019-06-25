@@ -1,0 +1,36 @@
+@import '../../../constants';
+
+.ecos-filter {
+  position: relative;
+  padding: 6px 12px 6px 24px;
+  border-top: 1px solid $color-gray-4;
+  border-bottom: 1px solid $color-gray-4;
+  margin-bottom: -1px;
+}
+
+.ecos-filter_step {
+  margin-right: 10px;
+}
+
+.ecos-filter_font_12 {
+  font-size: $font-size-small;
+
+  .select__single-value {
+    font-size: $font-size-small;
+  }
+}
+
+.ecos-filter__value-wrapper {
+  height: 26px;
+  width: 100%;
+  display: flex;
+
+  input,
+  .select__single-value {
+    font-size: $font-size-small;
+  }
+}
+
+.ecos-filter_width_full {
+  width: 100%;
+}

@@ -1,23 +1,12 @@
 import React from 'react';
-import { connect } from 'react-redux';
-//import { initRequest } from '../../actions/journals';
 import { Journals } from '../../components/Journals';
+import queryString from 'query-string';
 
-const mapDispatchToProps = dispatch => ({
-  //initRequest: () => dispatch(initRequest())
-});
-
-class JournalsPage extends React.Component {
-  componentDidMount() {
-    //this.props.initRequest();
-  }
-
+export default class JournalsPage extends React.Component {
   render() {
-    return <Journals {...this.props} />;
+    const params = queryString.parse(this.props.location.search);
+    const { journalsListId = '', journalId = '', journalSettingId = '' } = params;
+
+    return <Journals journalsListId={journalsListId} journalId={journalId} journalSettingId={journalSettingId} />;
   }
 }
-
-export default connect(
-  null,
-  mapDispatchToProps
-)(JournalsPage);

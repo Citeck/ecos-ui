@@ -1,16 +1,8 @@
 import React, { Component } from 'react';
 import { Btn } from '../../btns';
-import { t } from '../../../../helpers/util';
+import { t, trigger } from '../../../../helpers/util';
 
 import './Tools.scss';
-
-function triggerEvent(name, data) {
-  const callback = this.props[name];
-
-  if (typeof callback === 'function') {
-    callback.call(this, data);
-  }
-}
 
 export default class Tools extends Component {
   createToolsActions = () => {
@@ -22,7 +14,7 @@ export default class Tools extends Component {
   };
 
   selectAll = () => {
-    triggerEvent.call(this, 'onSelectAll');
+    trigger.call(this, 'onSelectAll');
   };
 
   render() {
@@ -33,7 +25,7 @@ export default class Tools extends Component {
         {selectAllVisible ? (
           <div className={'grid-tools__item grid-tools__item_select-all-btn'}>
             <Btn
-              className={`btn_extra-narrow ${selectAll ? 'btn_blue' : 'btn_grey5'} btn_hover_light-blue2`}
+              className={`ecos-btn_extra-narrow ${selectAll ? 'ecos-btn_blue' : 'ecos-btn_grey5'} ecos-btn_hover_light-blue2`}
               title={t('grid.tools.select-all')}
               onClick={this.selectAll}
             >

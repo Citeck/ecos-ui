@@ -46,9 +46,11 @@
     font-weight: $font-weight-semi-bold;
     width: 28px;
     line-height: 28px;
+    color: $text-color-dark;
 
     &:hover {
       border-radius: 50%;
+      background-color: $color-gray-4;
     }
   }
 
@@ -74,6 +76,12 @@
       border-radius: 50%;
       background: $color-blue-light;
     }
+  }
+
+  .react-datepicker__day--keyboard-selected {
+    border-radius: 50%;
+    background-color: $color-gray-4;
+    color: $text-color-dark;
   }
 
   .react-datepicker__day--outside-month {
@@ -142,5 +150,41 @@
 
   .react-datepicker__month {
     margin: 0;
+  }
+}
+
+.react-datepicker__input-time-container {
+  margin: 20px 10px 0;
+  //display: flex;
+  //justify-content: center;
+}
+
+input.react-datepicker-time__input {
+  display: block;
+  box-sizing: border-box;
+  width: 100% !important;
+  padding: 0 15px;
+  height: $form-input-height;
+  background: $color-white;
+  border: $border-width-standard solid $color-gray-6;
+  border-radius: $border-radius-standard;
+  font-family: $font-family;
+  font-weight: $font-weight-semi-bold;
+  font-size: $font-size-standard;
+  color: $text-color-dark;
+  outline: none;
+  margin: 0 !important;
+  text-align: center;
+
+  &::-webkit-clear-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  &::-ms-clear {
+    display: none;
+    width: 0;
+    height: 0;
   }
 }

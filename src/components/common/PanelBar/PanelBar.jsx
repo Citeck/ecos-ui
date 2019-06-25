@@ -9,7 +9,7 @@ export default class PanelBar extends Component {
     super(props);
 
     this.state = {
-      panelVisible: true
+      panelVisible: this.props.open === undefined ? true : this.props.open
     };
   }
 

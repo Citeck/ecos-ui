@@ -1,7 +1,7 @@
 @import '../../../../constants';
 
-a {
-  &.btn {
+button {
+  &.ecos-btn {
     display: inline-block;
     text-align: center;
     white-space: nowrap;
@@ -11,15 +11,16 @@ a {
     text-decoration: none;
 
     background: $color-gray-4;
-    color: $text-color-dark !important;
+    color: $text-color-dark;
     font-family: $font-family;
     font-size: $font-size-standard;
     font-weight: $font-weight-semi-bold;
     font-style: normal;
-    letter-spacing: 0.6px;
-    line-height: normal;
+    line-height: 1;
     padding: 9px 21px;
     height: 40px;
+    cursor: pointer;
+    user-select: none;
 
     &:hover {
       background-color: $color-gray-1;
@@ -28,55 +29,87 @@ a {
     &:active {
       background-color: $color-gray-4;
     }
+
+    &:focus {
+      background-color: $color-gray-1;
+      box-shadow: none;
+    }
   }
 
   /*Elements*/
-  .btn__i::before {
-    margin: 0 !important;
+  .ecos-btn__i::before {
+    margin: 0;
   }
 
-  .btn__i_right {
+  .ecos-btn__i_right {
     margin-left: 5px;
   }
 
-  .btn__i_left {
+  .ecos-btn__i_left {
     margin-right: 5px;
   }
 
   /*Modifiers*/
-  &.btn_i {
+  &.ecos-btn_focus_no {
+    &:active {
+      background-color: inherit;
+    }
+
+    &:focus {
+      background-color: inherit;
+      box-shadow: none;
+    }
+  }
+
+  &.ecos-btn_tight {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  &.ecos-btn_transparent {
+    background-color: rgba(0, 0, 0, 0);
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0);
+    }
+  }
+
+  &.ecos-btn_i {
     font-size: $font-size-extra-large;
     width: 40px;
     padding: 5px 0;
     border-radius: $border-radius-standard;
   }
 
-  &.btn_mi {
+  &.ecos-btn_mi {
     font-size: $font-size-extra-large;
     width: auto;
     padding: 5px 13px;
     border-radius: $border-radius-standard;
   }
 
-  &.btn_width_auto {
+  &.ecos-btn_width_auto {
     width: auto;
     padding-right: 0;
     padding-left: 0;
+
+    i:before {
+      width: auto;
+      margin: 0;
+    }
   }
 
-  &.btn_i-big-plus {
+  &.ecos-btn_i-big-plus {
     font-size: 32px;
-    line-height: 34px;
     padding: 0;
 
     .icon-big-plus {
       display: inline-block;
-      height: 34px;
-      line-height: 1;
+      height: 35px;
     }
   }
 
-  &.btn_settings-down {
+  &.ecos-btn_settings-down {
     .icon-down {
       font-size: 14px;
       display: inline-block;
@@ -86,26 +119,32 @@ a {
     }
   }
 
-  &.btn_drop-down {
+  &.ecos-btn_drop-down {
     padding: 9px 11px 9px 15px;
-    width: 165px;
+    //width: 165px;
     text-align: left;
+    //display: inline-flex;
 
     .icon-down {
       float: right;
     }
 
-    .btn__text {
+    .ecos-btn__text {
       display: inline-block;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
-      width: 85%;
+      //width: 85%;
     }
   }
 
+  &.ecos-btn_disabled {
+    cursor: default;
+    pointer-events: none;
+  }
+
   /*Sizes*/
-  &.btn_i_sm {
+  &.ecos-btn_i_sm {
     font-size: $font-size-extra-large;
     width: 30px;
     height: 30px;
@@ -113,102 +152,290 @@ a {
     border-radius: $border-radius-standard;
   }
 
-  &.btn_extra-narrow {
-    padding: 0 21px;
+  &.ecos-btn_i_12 {
+    font-size: $font-size-small;
+    width: 12px;
+    height: 12px;
+    padding: 0;
+  }
+
+  &.ecos-btn_narrow {
+    height: 26px;
+    padding: 0 15px;
+    border-radius: $border-radius-standard;
+    font-size: $font-size-small;
+  }
+
+  &.ecos-btn_sq_sm {
+    @extend .ecos-btn_narrow;
+    padding: 0 7px;
+  }
+
+  &.ecos-btn_narrow-t_standart {
+    height: 26px;
+    padding: 0 15px;
+    border-radius: $border-radius-standard;
+    font-size: $font-size-standard;
+  }
+
+  &.ecos-btn_extra-narrow {
+    padding-top: 0;
+    padding-bottom: 0;
     height: 22px;
   }
 
+  &.ecos-btn_narrow {
+    padding-top: 0;
+    padding-bottom: 0;
+    height: 26px;
+  }
+
   /*Radius*/
-  &.btn_r_0 {
+  &.ecos-btn_r_0 {
     border-radius: 0;
   }
 
-  &.btn_r_6 {
+  &.ecos-btn_r_6 {
     border-radius: $border-radius-standard;
   }
 
+  &.ecos-btn_r_8 {
+    border-radius: $border-radius-large;
+  }
+
+  &.ecos-btn_r_biggest {
+    border-radius: $border-radius-biggest;
+  }
+
   /*Steps*/
-  &.btn_x-step_10 {
+  &.ecos-btn_x-step_10 {
+    margin-right: 10px;
+  }
+
+  &.ecos-btn_x-step_15 {
+    margin-right: 15px;
+  }
+
+  &.ecos-btn_x-step_10 {
     margin-right: 10px;
   }
 
   /*Colors*/
-  &.btn_blue {
+  &.ecos-btn_blue {
     background: $color-blue-dark;
-    color: $color-white !important;
+    color: $color-white;
+
+    &:disabled {
+      background-color: $color-blue-light2;
+    }
   }
 
-  &.btn_blue2 {
+  &.ecos-btn_blue2 {
     background: $color-white;
-    color: $color-blue-light !important;
+    color: $color-blue-light;
   }
 
-  &.btn_light-blue {
+  &.ecos-btn_light-blue {
     background: $color-blue-light;
-    color: $color-white !important;
-  }
+    color: $color-white;
 
-  &.btn_grey {
-    background: $color-gray-4;
-    color: $color-gray-5 !important;
-  }
+    &:active {
+      background: $color-blue-light;
+      color: $color-white;
+    }
 
-  &.btn_grey2 {
-    background: $color-white;
-    color: $color-gray-5 !important;
-  }
-
-  &.btn_grey3 {
-    background: $color-white;
-    color: $text-color-gray !important;
-  }
-
-  &.btn_grey4 {
-    background: $color-white;
-    color: $color-gray-6 !important;
-  }
-
-  &.btn_grey5 {
-    background: $color-gray-4;
-    color: $text-color-gray !important;
-  }
-
-  &.btn_brown {
-    background: $color-white;
-    color: $color-brown-2 !important;
-  }
-
-  /*hovers*/
-  &.btn_hover_light-blue {
-    &:hover {
-      background-color: $color-blue-light;
+    &:focus {
+      background: $color-blue-light;
+      color: $color-white;
     }
   }
 
-  &.btn_hover_light-blue2 {
-    &:hover {
-      background-color: $color-blue-light;
-      color: $color-white !important;
+  &.ecos-btn_color_white {
+    color: $color-white;
+  }
+
+  &.ecos-btn_white {
+    background: $color-white;
+    color: $color-gray-5;
+
+    &:focus,
+    &:active {
+      background: $color-white;
+      color: $color-gray-5;
     }
   }
 
-  &.btn_hover_t-light-blue {
-    &:hover {
-      color: $color-blue-light !important;
+  &.ecos-btn_grey1 {
+    background: $color-white;
+    color: $color-gray-1;
+
+    &:focus {
+      background: $color-white;
+      color: $color-gray-1;
+    }
+  }
+
+  &.ecos-btn_grey {
+    background: $color-gray-4;
+    color: $color-gray-5;
+  }
+
+  &.ecos-btn_grey2 {
+    background: $color-white;
+    color: $color-gray-5;
+
+    &:focus {
+      background: $color-white;
+      color: $color-gray-5;
+    }
+  }
+
+  &.ecos-btn_grey3 {
+    background: $color-white;
+    color: $text-color-gray;
+  }
+
+  &.ecos-btn_grey4 {
+    background: $color-white;
+    color: $color-gray-6;
+
+    &:active,
+    &:focus {
+      background: $color-white;
+      color: $color-gray-6;
+    }
+  }
+
+  &.ecos-btn_grey5 {
+    background: $color-gray-4;
+    color: $text-color-gray;
+
+    &:active {
+      background: $color-gray-4;
+      color: $text-color-gray;
+    }
+
+    &:focus {
+      background: $color-gray-4;
+      color: $text-color-gray;
+    }
+  }
+
+  &.ecos-btn_grey6 {
+    background: $color-white;
+    color: $text-color-dark;
+  }
+
+  &.ecos-btn_brown {
+    background: $color-white;
+    color: $color-brown-2;
+  }
+
+  &.ecos-btn_bgr-inherit {
+    background: inherit;
+    &:active,
+    &:focus {
       background: inherit;
     }
   }
 
-  &.btn_hover_dark-blue2 {
+  &.ecos-btn_color-inherit {
+    color: inherit;
+  }
+
+  /*hovers*/
+  &.ecos-btn_blue {
+    &:focus,
+    &:hover {
+      background: $color-blue-light;
+    }
+  }
+
+  &.ecos-btn_hover_blue2 {
+    &:hover {
+      background-color: $color-blue-dark;
+      color: $color-white;
+    }
+  }
+
+  &.ecos-btn_hover_light-blue {
+    &:hover {
+      background-color: $color-blue-light;
+    }
+  }
+
+  &.ecos-btn_hover_light-blue2 {
+    &:hover {
+      background-color: $color-blue-light;
+      color: $color-white;
+    }
+  }
+
+  &.ecos-btn_hover_t-light-blue {
+    &:hover {
+      color: $color-blue-light;
+      background: inherit;
+    }
+    &:active {
+      color: $color-blue-dark;
+      background: inherit;
+    }
+  }
+
+  &.ecos-btn_hover_t-blue {
+    &:hover {
+      color: $color-blue-dark;
+      background: $color-white;
+    }
+  }
+
+  &.ecos-btn_hover_dark-blue2 {
     &:hover {
       background-color: $color-blue-dark2;
     }
   }
 
-  &.btn_hover_t-dark-brown {
+  &.ecos-btn_hover_dark-blue {
     &:hover {
-      color: $color-brown-3 !important;
-      background: $color-white !important;
+      background-color: $color-blue-dark;
     }
+  }
+
+  &.ecos-btn_hover_t-dark-brown {
+    &:hover {
+      color: $color-brown-3;
+      background: $color-white;
+    }
+  }
+
+  &.ecos-btn_hover_grey {
+    &:hover {
+      color: inherit;
+      background: $color-gray-2;
+    }
+  }
+
+  &.ecos-btn_hover_grey2 {
+    &:hover {
+      background: $color-white;
+      color: $color-gray-5;
+    }
+  }
+
+  &.ecos-btn_hover_grey1 {
+    &:hover {
+      background: $color-white;
+      color: $color-gray-1;
+    }
+  }
+
+  /* Width */
+  &.ecos-btn_full-width {
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  &.ecos-btn_full-height {
+    height: 100%;
   }
 }
