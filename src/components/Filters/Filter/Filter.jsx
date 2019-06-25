@@ -26,8 +26,7 @@ export default class Filter extends Component {
   };
 
   render() {
-    const btnClasses =
-      'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height ecos-btn_hover_t-light-blue';
+    const btnClasses = 'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height';
     const {
       className,
       children,
@@ -71,8 +70,13 @@ export default class Filter extends Component {
             </div>,
 
             <Fragment>
-              <IcoBtn icon={'icon-delete'} className={classNames(btnClasses, 'ecos-btn_x-step_10')} onClick={this.delete} />
-              <IcoBtn icon={'icon-drag'} className={btnClasses} />
+              <IcoBtn
+                icon={'icon-delete'}
+                className={classNames(btnClasses, 'ecos-btn_hover_t-light-blue ecos-btn_x-step_10')}
+                onClick={this.delete}
+              />
+
+              <i className={classNames('ecos-btn__i', 'ecos-btn__i_right icon-drag ecos-filter__drag-ico')} />
             </Fragment>
           ]}
         />
