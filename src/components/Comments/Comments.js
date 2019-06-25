@@ -10,15 +10,14 @@ import classNames from 'classnames';
 
 import Dashlet from '../Dashlet/Dashlet';
 import Btn from '../common/btns/Btn/Btn';
+import Loader from '../common/Loader/Loader';
+import IcoBtn from '../common/btns/IcoBtn/IcoBtn';
 import { t, num2str } from '../../helpers/util';
-
 import { selectAllComments } from '../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, updateCommentRequest } from '../../actions/comments';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
-import Loader from '../common/Loader/Loader';
-import IcoBtn from '../common/btns/IcoBtn/IcoBtn';
 
 const BASE_HEIGHT = 21;
 const BUTTONS_TYPE = {
@@ -87,13 +86,13 @@ class Comments extends React.Component {
   }
 
   get countComments() {
-    const { comments } = this.props;
+    const { totalCount } = this.props;
 
-    if (!comments.length) {
+    if (!totalCount) {
       return t('Нет комментариев');
     }
 
-    return `${comments.length} ${t(num2str(comments.length, ['комментарий', 'комментария', 'комментариев']))}`;
+    return `${totalCount} ${t(num2str(totalCount, ['комментарий', 'комментария', 'комментариев']))}`;
   }
 
   get className() {
@@ -214,18 +213,20 @@ class Comments extends React.Component {
     }
   };
 
-  handleToggleStyle(type) {
+  handleToggleStyle(type, event) {
     const { comment } = this.state;
     const newComment = RichUtils.toggleInlineStyle(comment, type);
 
+    event.preventDefault();
     this.handleChangeComment(newComment, true);
   }
 
-  handleToggleBlockType(type) {
+  handleToggleBlockType(type, event) {
     const { comment } = this.state;
     const newComment = RichUtils.toggleBlockType(comment, type);
 
-    this.handleChangeComment(newComment);
+    event.preventDefault();
+    this.handleChangeComment(newComment, true);
   }
 
   handleKeyCommand = (command, editorState) => {
@@ -352,25 +353,25 @@ class Comments extends React.Component {
       <div className="ecos-comments__editor">
         <div className="ecos-comments__editor-header">
           <IcoBtn
-            onClick={this.handleToggleStyle.bind(this, BUTTONS_TYPE.BOLD)}
+            onMouseDown={this.handleToggleStyle.bind(this, BUTTONS_TYPE.BOLD)}
             className={classNames('icon-bold', 'ecos-comments__editor-button', {
               'ecos-comments__editor-button_active': this.inlineStyles.has(BUTTONS_TYPE.BOLD)
             })}
           />
           <IcoBtn
-            onClick={this.handleToggleStyle.bind(this, BUTTONS_TYPE.ITALIC)}
+            onMouseDown={this.handleToggleStyle.bind(this, BUTTONS_TYPE.ITALIC)}
             className={classNames('icon-italic', 'ecos-comments__editor-button', {
               'ecos-comments__editor-button_active': this.inlineStyles.has(BUTTONS_TYPE.ITALIC)
             })}
           />
           <IcoBtn
-            onClick={this.handleToggleStyle.bind(this, BUTTONS_TYPE.UNDERLINE)}
+            onMouseDown={this.handleToggleStyle.bind(this, BUTTONS_TYPE.UNDERLINE)}
             className={classNames('icon-underline', 'ecos-comments__editor-button', {
               'ecos-comments__editor-button_active': this.inlineStyles.has(BUTTONS_TYPE.UNDERLINE)
             })}
           />
           <IcoBtn
-            onClick={this.handleToggleBlockType.bind(this, BUTTONS_TYPE.LIST)}
+            onMouseDown={this.handleToggleBlockType.bind(this, BUTTONS_TYPE.LIST)}
             className={classNames('icon-list3', 'ecos-comments__editor-button', 'ecos-comments__editor-button_list', {
               'ecos-comments__editor-button_active': this.blockType === BUTTONS_TYPE.LIST
             })}
@@ -568,7 +569,9 @@ class Comments extends React.Component {
 const mapStateToProps = state => ({
   comments: selectAllComments(state),
   fetchIsLoading: state.comments.fetchIsLoading,
-  saveIsLoading: state.comments.sendingInProcess
+  saveIsLoading: state.comments.sendingInProcess,
+  hasMore: state.comments.hasMore,
+  totalCount: state.comments.totalCount
 });
 
 const mapDispatchToProps = dispatch => ({

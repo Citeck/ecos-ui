@@ -59,12 +59,20 @@ function* sagaUpdateComment({ api, logger }, action) {
     yield put(sendingStart());
     yield api.comments.update(action.payload);
 
-    const comments = yield select(selectAllComments);
+    let comments = yield select(selectAllComments);
+    const commentIndex = comments.findIndex(comment => comment.id === action.payload.id);
 
-    comments.find(comment => comment.id === action.payload.id).text = action.payload.text;
+    comments[commentIndex].text = action.payload.text;
 
     yield put(updateCommentSuccess(comments));
     yield put(sendingEnd());
+
+    //  get all data about updated comment from server
+    const updatedComment = yield api.comments.getCommentById(action.payload.id);
+
+    comments = yield select(selectAllComments);
+    comments[commentIndex] = { ...comments[commentIndex], ...updatedComment };
+    yield put(updateCommentSuccess(comments));
   } catch (e) {
     logger.error('[comments sagaUpdateComment saga error', e.message);
   }

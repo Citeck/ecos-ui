@@ -42,14 +42,16 @@ export default handleActions(
     }),
     [createCommentSuccess]: (state, action) => ({
       ...state,
-      comments: [...action.payload]
+      comments: [...action.payload],
+      totalCount: state.totalCount + 1
     }),
     [deleteCommentRequest]: (state, action) => ({
       ...state
     }),
     [deleteCommentSuccess]: (state, action) => ({
       ...state,
-      comments: [...action.payload]
+      comments: [...action.payload],
+      totalCount: state.totalCount - 1
     }),
     [setError]: (state, action) => ({
       ...state
