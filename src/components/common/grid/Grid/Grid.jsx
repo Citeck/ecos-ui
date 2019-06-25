@@ -39,6 +39,7 @@ export default class Grid extends Component {
     this._keyField = props.keyField || 'id';
     this._scrollValues = {};
     this._tr = null;
+    this._tableDom = null;
   }
 
   componentDidMount() {
@@ -355,14 +356,23 @@ export default class Grid extends Component {
 
   getStartDeviderPosition = options => {
     this._resizingTh = options.th;
+    this._tableDom = closest(options.th, 'table');
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
   };
 
   resizeColumn = e => {
     let th = this._resizingTh;
-    if (th) {
-      th.style.width = this._startResizingThOffset + e.pageX + 'px';
-      th.firstChild.style.width = this._startResizingThOffset + e.pageX + 'px';
+
+    if (th && this._tableDom) {
+      const width = this._startResizingThOffset + e.pageX + 'px';
+      const rows = this._tableDom.rows;
+
+      for (let i = 0; i < rows.length; i++) {
+        let firstCol = rows[i].cells[th.cellIndex];
+
+        firstCol.style.width = width;
+        firstCol.firstChild.style.width = width;
+      }
     }
   };
 
