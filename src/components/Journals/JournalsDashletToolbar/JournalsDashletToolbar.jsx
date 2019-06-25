@@ -28,7 +28,7 @@ class JournalsDashletToolbar extends Component {
         meta: { createVariants = [{}] }
       }
     } = this.props;
-    createVariants = createVariants[0];
+    createVariants = createVariants[0] || {};
     createVariants.canCreate && goToCreateRecordPage(createVariants);
   };
 
