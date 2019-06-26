@@ -713,6 +713,18 @@
         "width": 1000
       },
       "search": ["checked2"]
+    },
+    {
+      "uid": "fe6c89a93fdec22383105d2fbf39ecd1",
+      "css": "clock",
+      "code": 59451,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M500 1000C776.1 1000 1000 776.1 1000 500 1000 223.9 776.1 0 500 0 223.9 0 0 223.9 0 500 0 776.1 223.9 1000 500 1000ZM416.7 166.7H500V500H750V583.3H416.7V166.7Z",
+        "width": 1000
+      },
+      "search": ["clock"]
     }
   ]
 }

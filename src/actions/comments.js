@@ -14,8 +14,6 @@ export const updateCommentSuccess = createAction(prefix + 'UPDATE_COMMENT_SUCCES
 export const deleteCommentRequest = createAction(prefix + 'DELETE_COMMENT_REQUEST');
 export const deleteCommentSuccess = createAction(prefix + 'DELETE_COMMENT_SUCCESS');
 
-export const pushComment = createAction(prefix + 'PUSH_COMMENT');
-
 export const setError = createAction(prefix + 'SET_ERROR');
 
 export const fetchStart = createAction(prefix + 'FETCH_START');

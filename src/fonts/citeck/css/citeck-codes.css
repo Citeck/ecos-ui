@@ -175,3 +175,6 @@
 .icon-bold:before {
   content: '\e83a';
 } /* '' */
+.icon-clock:before {
+  content: '\e83b';
+} /* '' */

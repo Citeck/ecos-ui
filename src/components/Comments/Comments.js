@@ -14,7 +14,7 @@ import Loader from '../common/Loader/Loader';
 import IcoBtn from '../common/btns/IcoBtn/IcoBtn';
 import { t, num2str } from '../../helpers/util';
 import { selectAllComments } from '../../selectors/comments';
-import { createCommentRequest, deleteCommentRequest, getComments, updateCommentRequest } from '../../actions/comments';
+import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../actions/comments';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
@@ -45,10 +45,18 @@ class Comments extends React.Component {
       })
     ),
     maxLength: PropTypes.number,
+    totalCount: PropTypes.number,
     errorMessage: PropTypes.string,
     saveIsLoading: PropTypes.bool,
+    fetchIsLoading: PropTypes.bool,
+    hasMore: PropTypes.bool,
     onSave: PropTypes.func,
-    onDelete: PropTypes.func
+    onDelete: PropTypes.func,
+    getComments: PropTypes.func,
+    createComment: PropTypes.func,
+    updateComment: PropTypes.func,
+    deleteComment: PropTypes.func,
+    setErrorMessage: PropTypes.func
   };
 
   static defaultProps = {
@@ -56,8 +64,14 @@ class Comments extends React.Component {
     maxLength: 350,
     errorMessage: '',
     saveIsLoading: false,
+    fetchIsLoading: false,
     onSave: () => {},
-    onDelete: () => {}
+    onDelete: () => {},
+    getComments: () => {},
+    createComment: () => {},
+    updateComment: () => {},
+    deleteComment: () => {},
+    setErrorMessage: () => {}
   };
 
   state = {
@@ -76,7 +90,7 @@ class Comments extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.saveIsLoading && !nextProps.saveIsLoading) {
+    if (this.props.saveIsLoading && !nextProps.saveIsLoading && !nextProps.errorMessage) {
       this.setState({
         isEdit: false,
         editorHeight: BASE_HEIGHT,
@@ -85,27 +99,6 @@ class Comments extends React.Component {
         commentForDeletion: null
       });
     }
-  }
-
-  get countComments() {
-    const { totalCount } = this.props;
-
-    if (!totalCount) {
-      return t('Нет комментариев');
-    }
-
-    return `${totalCount} ${t(num2str(totalCount, ['комментарий', 'комментария', 'комментариев']))}`;
-  }
-
-  get className() {
-    const { width } = this.state;
-    const classes = ['ecos-comments'];
-
-    if (width <= 430) {
-      classes.push('ecos-comments_small');
-    }
-
-    return classes.join(' ');
   }
 
   getFormattedDate(date = new Date()) {
@@ -136,6 +129,27 @@ class Comments extends React.Component {
     return 'Только что';
   }
 
+  get countComments() {
+    const { totalCount } = this.props;
+
+    if (!totalCount) {
+      return t('Нет комментариев');
+    }
+
+    return `${totalCount} ${t(num2str(totalCount, ['комментарий', 'комментария', 'комментариев']))}`;
+  }
+
+  get className() {
+    const { width } = this.state;
+    const classes = ['ecos-comments'];
+
+    if (width <= 430) {
+      classes.push('ecos-comments_small');
+    }
+
+    return classes.join(' ');
+  }
+
   get commentLength() {
     const { comment } = this.state;
 
@@ -152,6 +166,32 @@ class Comments extends React.Component {
 
     return classes.join(' ');
   }
+
+  get inlineStyles() {
+    const { comment } = this.state;
+
+    return comment.getCurrentInlineStyle();
+  }
+
+  get blockType() {
+    const { comment } = this.state;
+    const selection = comment.getSelection();
+
+    return comment
+      .getCurrentContent()
+      .getBlockForKey(selection.getStartKey())
+      .getType();
+  }
+
+  updateEditorHeight = () => {
+    if (this.editor) {
+      this.setState({ editorHeight: this.editor.editor.clientHeight || 0 });
+    }
+  };
+
+  setEditor = editor => {
+    this.editor = editor;
+  };
 
   handleResize = width => {
     this.setState({ width });
@@ -196,17 +236,11 @@ class Comments extends React.Component {
       if (setFocus) {
         this.handleFocusEditor();
       }
+
+      if (this.props.errorMessage) {
+        this.props.setErrorMessage('');
+      }
     });
-  };
-
-  updateEditorHeight = () => {
-    if (this.editor) {
-      this.setState({ editorHeight: this.editor.editor.clientHeight || 0 });
-    }
-  };
-
-  setEditor = editor => {
-    this.editor = editor;
   };
 
   handleFocusEditor = () => {
@@ -308,22 +342,6 @@ class Comments extends React.Component {
         </Btn>
       </React.Fragment>
     );
-  }
-
-  get inlineStyles() {
-    const { comment } = this.state;
-
-    return comment.getCurrentInlineStyle();
-  }
-
-  get blockType() {
-    const { comment } = this.state;
-    const selection = comment.getSelection();
-
-    return comment
-      .getCurrentContent()
-      .getBlockForKey(selection.getStartKey())
-      .getType();
   }
 
   renderErrorMessage() {
@@ -576,14 +594,16 @@ const mapStateToProps = state => ({
   fetchIsLoading: state.comments.fetchIsLoading,
   saveIsLoading: state.comments.sendingInProcess,
   hasMore: state.comments.hasMore,
-  totalCount: state.comments.totalCount
+  totalCount: state.comments.totalCount,
+  errorMessage: state.comments.errorMessage
 });
 
 const mapDispatchToProps = dispatch => ({
   getComments: id => dispatch(getComments(id)),
   createComment: data => dispatch(createCommentRequest(data)),
   updateComment: data => dispatch(updateCommentRequest(data)),
-  deleteComment: id => dispatch(deleteCommentRequest(id))
+  deleteComment: id => dispatch(deleteCommentRequest(id)),
+  setErrorMessage: message => dispatch(setError(message))
 });
 
 export default connect(

@@ -1,5 +1,4 @@
-import { delay } from 'redux-saga';
-import { put, takeLatest, call, select } from 'redux-saga/effects';
+import { put, takeLatest, select } from 'redux-saga/effects';
 import {
   createCommentRequest,
   createCommentSuccess,
@@ -11,6 +10,7 @@ import {
   sendingEnd,
   sendingStart,
   setComments,
+  setError,
   updateCommentRequest,
   updateCommentSuccess
 } from '../actions/comments';
@@ -46,6 +46,8 @@ function* sagaCreateComment({ api, logger }, action) {
     const comment = yield api.comments.getCommentById(record.id);
     const comments = yield select(selectAllComments);
 
+    console.warn(comment);
+
     comment.id = record.id;
     comments.unshift(getCommentForWeb(comment));
 
@@ -53,6 +55,7 @@ function* sagaCreateComment({ api, logger }, action) {
     yield put(sendingEnd());
     yield put(setNotificationMessage(t('Комментарий успешно добавлен')));
   } catch (e) {
+    yield put(setError(t('Ошибка отправки! Попробуйте еще раз')));
     logger.error('[comments sagaCreateComment saga error', e.message);
   }
 }

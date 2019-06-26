@@ -14,14 +14,14 @@ import {
   deleteCommentRequest,
   deleteCommentSuccess
 } from '../actions/comments';
-import { deepClone } from '../helpers/util';
 
 const initialState = {
   comments: [],
   hasMore: false,
   totalCount: 0,
   fetchIsLoading: false,
-  sendingInProcess: false
+  sendingInProcess: false,
+  errorMessage: ''
 };
 
 Object.freeze(initialState);
@@ -43,7 +43,8 @@ export default handleActions(
     [createCommentSuccess]: (state, action) => ({
       ...state,
       comments: [...action.payload],
-      totalCount: state.totalCount + 1
+      totalCount: state.totalCount + 1,
+      errorMessage: ''
     }),
     [deleteCommentRequest]: (state, action) => ({
       ...state
@@ -51,17 +52,21 @@ export default handleActions(
     [deleteCommentSuccess]: (state, action) => ({
       ...state,
       comments: [...action.payload],
-      totalCount: state.totalCount - 1
+      totalCount: state.totalCount - 1,
+      errorMessage: ''
     }),
     [setError]: (state, action) => ({
-      ...state
+      ...state,
+      errorMessage: action.payload,
+      sendingInProcess: false
     }),
     [updateCommentRequest]: (state, action) => ({
       ...state
     }),
     [updateCommentSuccess]: (state, action) => ({
       ...state,
-      comments: [...action.payload]
+      comments: [...action.payload],
+      errorMessage: ''
     }),
     [fetchStart]: (state, action) => ({
       ...state,
