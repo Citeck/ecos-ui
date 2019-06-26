@@ -15,7 +15,7 @@ import {
   deleteCommentSuccess
 } from '../actions/comments';
 
-const initialState = {
+export const initialState = {
   comments: [],
   hasMore: false,
   totalCount: 0,
@@ -29,61 +29,90 @@ Object.freeze(initialState);
 export default handleActions(
   {
     [getComments]: (state, action) => ({
-      ...state
+      ...state,
+      [action.payload]: {
+        ...initialState
+      }
     }),
     [setComments]: (state, action) => ({
       ...state,
-      comments: action.payload.comments,
-      hasMore: action.payload.hasMore,
-      totalCount: action.payload.totalCount
+      [action.payload.nodeRef]: {
+        comments: action.payload.comments,
+        hasMore: action.payload.hasMore,
+        totalCount: action.payload.totalCount
+      }
     }),
     [createCommentRequest]: (state, action) => ({
       ...state
     }),
     [createCommentSuccess]: (state, action) => ({
       ...state,
-      comments: [...action.payload],
-      totalCount: state.totalCount + 1,
-      errorMessage: ''
+      [action.payload.nodeRef]: {
+        ...state[action.payload.nodeRef],
+        comments: [...action.payload.comments],
+        totalCount: state[action.payload.nodeRef].totalCount + 1,
+        errorMessage: ''
+      }
     }),
     [deleteCommentRequest]: (state, action) => ({
       ...state
     }),
     [deleteCommentSuccess]: (state, action) => ({
       ...state,
-      comments: [...action.payload],
-      totalCount: state.totalCount - 1,
-      errorMessage: ''
+      [action.payload.nodeRef]: {
+        ...state[action.payload.nodeRef],
+        comments: [...action.payload.comments],
+        totalCount: state[action.payload.nodeRef].totalCount - 1,
+        errorMessage: ''
+      }
     }),
     [setError]: (state, action) => ({
       ...state,
-      errorMessage: action.payload,
-      sendingInProcess: false
+      [action.payload.nodeRef]: {
+        ...state[action.payload.nodeRef],
+        errorMessage: action.payload.message,
+        sendingInProcess: false
+      }
     }),
     [updateCommentRequest]: (state, action) => ({
       ...state
     }),
     [updateCommentSuccess]: (state, action) => ({
       ...state,
-      comments: [...action.payload],
-      errorMessage: ''
+      [action.payload.nodeRef]: {
+        ...state[action.payload.nodeRef],
+        comments: [...action.payload.comments],
+        errorMessage: ''
+      }
     }),
     [fetchStart]: (state, action) => ({
       ...state,
-      fetchIsLoading: true
+      [action.payload]: {
+        ...state[action.payload],
+        fetchIsLoading: true
+      }
     }),
     [fetchEnd]: (state, action) => ({
       ...state,
-      fetchIsLoading: false
+      [action.payload]: {
+        ...state[action.payload],
+        fetchIsLoading: false
+      }
     }),
     [sendingStart]: (state, action) => ({
       ...state,
-      sendingInProcess: true
+      [action.payload]: {
+        ...state[action.payload],
+        sendingInProcess: true
+      }
     }),
     [sendingEnd]: (state, action) => ({
       ...state,
-      sendingInProcess: false
+      [action.payload]: {
+        ...state[action.payload],
+        sendingInProcess: false
+      }
     })
   },
-  initialState
+  {}
 );

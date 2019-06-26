@@ -13,7 +13,7 @@ import Btn from '../common/btns/Btn/Btn';
 import Loader from '../common/Loader/Loader';
 import IcoBtn from '../common/btns/IcoBtn/IcoBtn';
 import { t, num2str } from '../../helpers/util';
-import { selectAllComments } from '../../selectors/comments';
+import { selectAllComments, selectStateByNodeRef } from '../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../actions/comments';
 
 import 'draft-js/dist/Draft.css';
@@ -206,7 +206,7 @@ class Comments extends React.Component {
   };
 
   handleSaveComment = () => {
-    const { saveIsLoading, updateComment, createComment, id } = this.props;
+    const { saveIsLoading, updateComment, createComment } = this.props;
     const { editableComment } = this.state;
     const text = JSON.stringify(convertToRaw(this.state.comment.getCurrentContent()));
 
@@ -217,7 +217,7 @@ class Comments extends React.Component {
     if (editableComment) {
       updateComment({ text, id: editableComment });
     } else {
-      createComment({ text, record: id });
+      createComment(text);
     }
   };
 
@@ -589,21 +589,16 @@ class Comments extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({
-  comments: selectAllComments(state),
-  fetchIsLoading: state.comments.fetchIsLoading,
-  saveIsLoading: state.comments.sendingInProcess,
-  hasMore: state.comments.hasMore,
-  totalCount: state.comments.totalCount,
-  errorMessage: state.comments.errorMessage
+const mapStateToProps = (state, ownProps) => ({
+  ...selectStateByNodeRef(state, ownProps.id)
 });
 
-const mapDispatchToProps = dispatch => ({
-  getComments: id => dispatch(getComments(id)),
-  createComment: data => dispatch(createCommentRequest(data)),
-  updateComment: data => dispatch(updateCommentRequest(data)),
-  deleteComment: id => dispatch(deleteCommentRequest(id)),
-  setErrorMessage: message => dispatch(setError(message))
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  getComments: nodeRef => dispatch(getComments(nodeRef)),
+  createComment: comment => dispatch(createCommentRequest({ comment, nodeRef: ownProps.id })),
+  updateComment: comment => dispatch(updateCommentRequest({ comment, nodeRef: ownProps.id })),
+  deleteComment: id => dispatch(deleteCommentRequest({ id, nodeRef: ownProps.id })),
+  setErrorMessage: message => dispatch(setError({ message, nodeRef: ownProps.id }))
 });
 
 export default connect(

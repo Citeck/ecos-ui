@@ -4,6 +4,7 @@
   $root: &;
 
   width: 100%;
+  min-width: 291px;
   height: 100%;
   position: relative;
 
@@ -23,7 +24,7 @@
 
         &-btn {
           width: 50%;
-          min-width: 141px;
+          //min-width: 141px;
 
           &-wrapper {
             display: flex;
@@ -127,7 +128,10 @@
       font-size: 12px;
       line-height: 16px;
       color: $color-black;
-      max-width: 190px;
+      //max-width: 190px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     &-date {
@@ -225,6 +229,7 @@
 
       &-btn {
         width: 141px;
+        max-width: 48%;
 
         &:not(:last-child) {
           margin-right: 10px;

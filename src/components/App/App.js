@@ -31,83 +31,6 @@ import './App.scss';
 class App extends Component {
   constructor() {
     super();
-
-    const comments = [
-      {
-        id: uuid(),
-        avatar: '',
-        userName: 'Константин Константинопольский',
-        text: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
-        date: moment()
-          .subtract({ days: 12, hours: -1 })
-          .toDate(),
-        canEdit: true,
-        canDelete: false
-      },
-      {
-        id: uuid(),
-        avatar: '',
-        userName: '',
-        text: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
-        date: moment()
-          .subtract({ days: 1, hours: -1 })
-          .toDate(),
-        canEdit: true,
-        canDelete: false
-      },
-      {
-        id: uuid(),
-        avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
-        userName: 'Константин Константинопольский',
-        text: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
-        date: moment()
-          .subtract({ hours: 5 })
-          .toDate(),
-        canEdit: true,
-        canDelete: true
-      },
-      {
-        id: uuid(),
-        avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
-        userName: 'Константин Константинопольский',
-        text: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
-        date: moment()
-          .subtract({ minutes: 40 })
-          .toDate(),
-        canEdit: false,
-        canDelete: false
-      },
-      {
-        id: uuid(),
-        avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
-        userName: 'Константин Константинопольский',
-        text: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
-        date: moment()
-          .subtract({ seconds: 35 })
-          .toDate(),
-        canEdit: true,
-        canDelete: true
-      },
-      {
-        id: uuid(),
-        avatar: 'http://swiftmomentum.com/wp-content/uploads/2013/06/staff-avatar-david.png',
-        userName: 'Константин Константинопольский',
-        text: 'Текст комментария может быть довольно длинным поэтому мы это должны учитывать в разных ситуациях',
-        date: moment().toDate(),
-        canEdit: false,
-        canDelete: false
-      }
-    ];
-
-    comments.sort((a, b) => {
-      return new Date(b.date) - new Date(a.date);
-    });
-
-    this.state = {
-      comments,
-      errorMessage: '',
-      commentSaveIsLoading: false
-    };
   }
 
   componentDidMount() {
@@ -117,7 +40,22 @@ class App extends Component {
     getTabs();
   }
 
-  renderComments = () => <Comments id="workspace://SpacesStore/291bd833-6e27-4865-8416-25d584404c3e" />;
+  renderComments = () => (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-around',
+        margin: '50px 0'
+      }}
+    >
+      <div style={{ width: '500px' }}>
+        <Comments id="workspace://SpacesStore/291bd833-6e27-4865-8416-25d584404c3e" />
+      </div>
+      <div style={{ width: '30%' }}>
+        <Comments id="workspace://SpacesStore/ee6eb89a-b15c-453c-adb5-ee55ec42aec9" />
+      </div>
+    </div>
+  );
 
   render() {
     const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs } = this.props;
