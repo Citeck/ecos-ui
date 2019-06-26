@@ -3,20 +3,24 @@ import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import queryString from 'query-string';
-import Loader from '../common/Loader/Loader';
 import TaskList from './TaskList';
-import { changeTaskDetails, getDashletTasks } from '../../actions/tasks';
+import { changeTaskDetails, getTaskList } from '../../actions/tasks';
 import './style.scss';
 import { AssignOptions } from '../../constants/tasks';
+import { selectDashletTaskList } from '../../selectors/tasks';
 
-const mapStateToProps = state => ({
-  tasks: state.tasks.list,
-  isLoading: state.tasks.isLoading,
-  currentUserUid: state.user.uid
-});
+const mapStateToProps = (state, context) => {
+  const currentTaskList = selectDashletTaskList(state, context.id) || {};
+
+  return {
+    tasks: currentTaskList.list,
+    isLoading: currentTaskList.isLoading,
+    currentUserUid: state.user.uid
+  };
+};
 
 const mapDispatchToProps = dispatch => ({
-  getDashletTasks: payload => dispatch(getDashletTasks(payload)),
+  getTaskList: payload => dispatch(getTaskList(payload)),
   changeTaskDetails: payload => dispatch(changeTaskDetails(payload))
 });
 
@@ -32,9 +36,7 @@ class Tasks extends React.Component {
   };
 
   componentDidMount() {
-    const { getDashletTasks, id } = this.props;
-
-    getDashletTasks({ sourceId: id, recordRef: this.urlInfo.recordRef });
+    this.getTaskList();
   }
 
   get urlInfo() {
@@ -48,6 +50,12 @@ class Tasks extends React.Component {
       recordRef
     };
   }
+
+  getTaskList = () => {
+    const { getTaskList, id } = this.props;
+
+    getTaskList({ sourceId: id, recordRef: this.urlInfo.recordRef });
+  };
 
   onAssignClick = (taskId, stateAssign, userUid) => {
     const { changeTaskDetails, id, currentUserUid } = this.props;
@@ -66,16 +74,15 @@ class Tasks extends React.Component {
     changeTaskDetails({ taskId, sourceId: id, recordRef: this.urlInfo.recordRef, stateAssign, userUid });
   };
 
+  onSubmitForm = () => {
+    this.getTaskList();
+  };
+
   render() {
     const { tasks, height, isLoading } = this.props;
-    const childProps = { tasks, height, onAssignClick: this.onAssignClick };
+    const childProps = { tasks, height, onAssignClick: this.onAssignClick, onSubmitForm: this.onSubmitForm, isLoading };
 
-    return (
-      <div>
-        {isLoading && <Loader />}
-        <TaskList {...childProps} />
-      </div>
-    );
+    return <TaskList {...childProps} />;
   }
 }
 

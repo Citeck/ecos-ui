@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { getDashletTasks, setDashletTasks, changeTaskDetails, setSaveTaskResult } from '../actions/tasks';
+import { getTaskList, setTaskList, changeTaskDetails, setSaveTaskResult } from '../actions/tasks';
 import { deepClone } from '../helpers/util';
 import { getIndexObjectByKV } from '../helpers/arrayOfObjects';
 import { AssignOptions } from '../constants/tasks';
@@ -14,26 +14,39 @@ const initialState = {
   }
 };
 
-Object.freeze(initialState);
+const getCurrentStateTasksListId = (state, sourceId) => {
+  const currentState = state[sourceId] || {};
 
-const startLoading = state => ({ ...state, isLoading: true });
+  return { ...initialState, ...currentState };
+};
+
+const startLoading = (state, { payload: { sourceId } }) => ({
+  ...state,
+  [sourceId]: {
+    ...getCurrentStateTasksListId(state, sourceId),
+    isLoading: true
+  }
+});
 
 export default handleActions(
   {
-    [getDashletTasks]: startLoading,
+    [getTaskList]: startLoading,
     [changeTaskDetails]: startLoading,
-    [setDashletTasks]: (state, { payload }) => ({
+    [setTaskList]: (state, { payload: { sourceId, list } }) => ({
       ...state,
-      list: payload,
-      isLoading: false
+      [sourceId]: {
+        ...getCurrentStateTasksListId(state, sourceId),
+        list: list,
+        isLoading: false
+      }
     }),
-    [setSaveTaskResult]: (state, { payload }) => {
-      const list = deepClone(state.list);
-      const taskIndex = getIndexObjectByKV(list, 'id', payload.taskId);
+    [setSaveTaskResult]: (state, { payload: { sourceId, result } }) => {
+      const list = deepClone((state[sourceId] || {}).list);
+      const taskIndex = getIndexObjectByKV(list, 'id', result.taskId);
       const {
         taskData,
         taskData: { stateAssign }
-      } = payload;
+      } = result;
       if ([AssignOptions.UNASSIGN, AssignOptions.ASSIGN_ME].includes(stateAssign)) {
         list[taskIndex] = { ...list[taskIndex], ...taskData };
       } else {
@@ -42,11 +55,14 @@ export default handleActions(
 
       return {
         ...state,
-        list,
-        saveResult: payload,
-        isLoading: false
+        [sourceId]: {
+          ...getCurrentStateTasksListId(state, sourceId),
+          list,
+          saveResult: result,
+          isLoading: false
+        }
       };
     }
   },
-  initialState
+  {}
 );

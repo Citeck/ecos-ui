@@ -4,9 +4,9 @@ import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
 import { Caption } from '../common/form';
 import { Grid } from '../common/grid';
-import { EcosForm } from '../../components/EcosForm';
 import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
-import { DisplayedColumns, TasksPropTypes } from './utils';
+import { deepClone } from '../../helpers/util';
+import { DisplayedColumns, getOutputFormat, TasksPropTypes } from './utils';
 import AssignmentPanel from './AssignmentPanel';
 import './style.scss';
 
@@ -14,13 +14,15 @@ class TaskDetails extends React.Component {
   static propTypes = {
     details: PropTypes.shape(TasksPropTypes).isRequired,
     className: PropTypes.string,
-    onAssignClick: PropTypes.func.isRequired
+    onAssignClick: PropTypes.func.isRequired,
+    onSubmitForm: PropTypes.func.isRequired
   };
 
   static defaultProps = {
     details: {},
     className: '',
-    onAssignClick: () => {}
+    onAssignClick: () => {},
+    onSubmitForm: () => {}
   };
 
   constructor(props) {
@@ -37,12 +39,23 @@ class TaskDetails extends React.Component {
     this.setState({ isSmallMode: width <= 300 });
   };
 
-  onTestForm = (a, b, c) => {
-    console.log(a, b, c);
+  onSubmitForm = () => {
+    this.props.onSubmitForm();
   };
 
   renderDetailsGrid() {
-    const { details } = this.props;
+    const details = deepClone(this.props.details);
+
+    for (const key in details) {
+      if (details.hasOwnProperty(key)) {
+        const desc = ArrayOfObjects.getObjectByKV(DisplayedColumns, 'key', key);
+
+        if (Object.keys(desc).length) {
+          details[key] = getOutputFormat(desc.format, details[key]);
+        }
+      }
+    }
+
     const arr = [details];
     const updCols = ArrayOfObjects.replaceKeys(DisplayedColumns, { key: 'dataField', label: 'text' });
     const gridCols = ArrayOfObjects.filterKeys(updCols, ['dataField', 'text']);
@@ -61,7 +74,7 @@ class TaskDetails extends React.Component {
         {columns.map(item => (
           <div className={classDetail}>
             <div className={`${classDetail}-label`}>{item.label}</div>
-            <div className={`${classDetail}-value`}>{details[item.key]}</div>
+            <div className={`${classDetail}-value`}>{getOutputFormat(item.format, details[item.key])}</div>
           </div>
         ))}
       </React.Fragment>
@@ -91,8 +104,7 @@ class TaskDetails extends React.Component {
             narrow={!isSmallMode}
             className={classBtn}
           />
-          id: {details.id} stateAssign: {details.stateAssign}
-          <EcosForm record={'workspace://SpacesStore/' + details.id} onSubmit={this.onTestForm} onFormCancel={this.onTestForm} />
+          {/*<EcosForm record={details.id} formKey={'alf_ctrwf:reworkTask_mobile'} onSubmit={this.onSubmitForm}/>*/}
         </div>
       </div>
     );

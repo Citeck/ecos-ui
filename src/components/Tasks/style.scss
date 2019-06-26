@@ -3,6 +3,12 @@
 .ecos-task {
   $root: &;
 
+  &-list {
+    &__loader-wrapper {
+      height: 100%;
+    }
+  }
+
   &-details {
     $details: &;
 

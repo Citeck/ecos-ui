@@ -4,18 +4,27 @@ import '../testStyle.scss';
 
 export default class TasksDashletPage extends React.Component {
   render() {
-    const data = {
-      id: 'dashlet@tasks@123456789',
-      config: {
-        id: 'dashlet@tasks@123456789',
-        height: '700px'
+    const data = [
+      {
+        id: 'wftask1',
+        config: {
+          id: 'wftask1',
+          height: '300px'
+        }
+      },
+      {
+        id: 'wftask',
+        config: {
+          id: 'wftask',
+          height: '700px'
+        }
       }
-    };
+    ];
 
     return (
       <div className={'ecos-debug-container'}>
-        <TasksDashlet id={data.id} config={data.config} classNameDashlet={'ecos-debug-col'} />
-        <TasksDashlet id={data.id} config={data.config} classNameDashlet={'ecos-debug-col'} />
+        <TasksDashlet id={data[0].id} config={data[0].config} classNameDashlet={'ecos-debug-col'} />
+        <TasksDashlet id={data[1].id} config={data[1].config} classNameDashlet={'ecos-debug-col'} />
       </div>
     );
   }

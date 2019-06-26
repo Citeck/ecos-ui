@@ -4,10 +4,9 @@ import { TasksTestData } from './mock/tasks';
 
 export class TasksApi extends RecordService {
   getTasks = ({ sourceId, recordRef }) => {
-    // return TasksTestData.getTasks();
     return Records.query(
       {
-        sourceId: 'wftask',
+        sourceId,
         query: {
           actor: 'admin',
           active: true

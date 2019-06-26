@@ -1,5 +1,5 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
-import { changeTaskDetails, getDashletTasks, setDashletTasks, setSaveTaskResult } from '../actions/tasks';
+import { call, put, takeEvery } from 'redux-saga/effects';
+import { changeTaskDetails, getTaskList, setSaveTaskResult, setTaskList } from '../actions/tasks';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import TasksDto from '../dto/tasks';
@@ -10,9 +10,9 @@ function* sagaGetTasks({ api, logger }, { payload }) {
   try {
     const { sourceId, recordRef } = payload;
     const res = yield call(api.tasks.getTasks, { sourceId, recordRef });
-    console.log(res);
+
     if (res && Object.keys(res)) {
-      yield put(setDashletTasks(TasksDto.getTaskListForWeb(res.records)));
+      yield put(setTaskList({ sourceId, list: TasksDto.getTaskListForWeb(res.records) }));
     } else {
       yield put(setNotificationMessage(err));
     }
@@ -32,18 +32,18 @@ function* sagaSetTaskDetails({ api, logger }, { payload }) {
     const res = yield call(api.tasks.changeAssigneeTask, { taskId, sourceId, recordRef });
 
     if (res && Object.keys(res)) {
-      yield put(
-        setSaveTaskResult({
-          status: res ? 'SUCCESS' : 'FAILURE',
-          taskId: res.id,
-          taskData: res
-            ? {
-                stateAssign: payload.stateAssign,
-                assignee: payload.userUid
-              }
-            : {}
-        })
-      );
+      const result = {
+        status: res ? 'SUCCESS' : 'FAILURE',
+        taskId: res.id,
+        taskData: res
+          ? {
+              stateAssign: payload.stateAssign,
+              assignee: payload.userUid
+            }
+          : {}
+      };
+
+      yield put(setSaveTaskResult({ sourceId, result }));
     } else {
       yield put(setNotificationMessage(err));
     }
@@ -54,8 +54,8 @@ function* sagaSetTaskDetails({ api, logger }, { payload }) {
 }
 
 function* tasksSaga(ea) {
-  yield takeLatest(getDashletTasks().type, sagaGetTasks, ea);
-  yield takeLatest(changeTaskDetails().type, sagaSetTaskDetails, ea);
+  yield takeEvery(getTaskList().type, sagaGetTasks, ea);
+  yield takeEvery(changeTaskDetails().type, sagaSetTaskDetails, ea);
 }
 
 export default tasksSaga;
