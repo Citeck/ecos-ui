@@ -46,6 +46,10 @@ export const DisplayedColumns = [
 ];
 
 export function getOutputFormat(format, value) {
+  if (!format || !value) {
+    return value || '';
+  }
+
   switch (format) {
     case DataFormatTypes.DATE:
       return moment(value).format('DD.MM.YYYY');

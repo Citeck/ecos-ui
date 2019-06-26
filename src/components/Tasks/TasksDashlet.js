@@ -1,5 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { t } from '../../helpers/util';
 import Dashlet from '../Dashlet/Dashlet';
 import Tasks from '../Tasks/Tasks';
@@ -32,14 +33,29 @@ class TasksDashlet extends React.Component {
     };
   }
 
-  //todo определять Small и изменять isResizable > false
+  className = 'ecos-task-list-dashlet';
+
+  onGoTo = () => {
+    const {
+      config: { link }
+    } = this.props;
+
+    window.location.href = link;
+  };
 
   render() {
     const { title, config, classNameTasks, classNameDashlet } = this.props;
     const { isResizable } = this.state;
+    const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
-      <Dashlet title={title} bodyClassName={'ecos-tasks-dashlet__body'} className={classNameDashlet} resizable={isResizable}>
+      <Dashlet
+        title={title}
+        bodyClassName={`${this.className}__body`}
+        className={classDashlet}
+        resizable={isResizable}
+        onGoTo={this.onGoTo}
+      >
         <Tasks {...config} className={classNameTasks} />
       </Dashlet>
     );

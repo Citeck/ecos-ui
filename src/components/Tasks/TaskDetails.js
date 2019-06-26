@@ -71,8 +71,8 @@ class TaskDetails extends React.Component {
 
     return (
       <React.Fragment>
-        {columns.map(item => (
-          <div className={classDetail}>
+        {columns.map((item, i) => (
+          <div className={classDetail} key={details.id + i}>
             <div className={`${classDetail}-label`}>{item.label}</div>
             <div className={`${classDetail}-value`}>{getOutputFormat(item.format, details[item.key])}</div>
           </div>

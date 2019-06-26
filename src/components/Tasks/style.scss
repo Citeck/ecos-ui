@@ -4,6 +4,10 @@
   $root: &;
 
   &-list {
+    &-dashlet {
+      height: fit-content;
+    }
+
     &__loader-wrapper {
       height: 100%;
     }
@@ -12,25 +16,31 @@
   &-details {
     $details: &;
 
+    &:not(:first-of-type) {
+      border-top: 2px solid $color-gray-4;
+    }
+
     &__title {
       height: 51px;
       padding: 0 20px;
+      font-weight: $font-weight-bold;
       color: $color-gray-dark;
       background-color: $color-gray-8;
-      line-height: 2.5;
+      line-height: 2.7;
       white-space: nowrap;
       text-overflow: ellipsis;
       overflow: hidden;
     }
 
     &__wrapper {
-      padding: 16px 20px;
+      padding: 7px 20px 27px;
 
       #{$details}_view-enum {
         display: flex;
         align-items: center;
         padding: 5px 0;
         border-bottom: 2px solid $color-gray-4;
+        font-size: $font-size-small;
 
         &-label {
           flex-basis: 100px;
@@ -46,6 +56,22 @@
 
       #{$details}_view-table {
         height: 110px !important;
+
+        .table {
+          border-top: none;
+
+          th {
+            border-top: none;
+          }
+        }
+
+        .ecos-th {
+          font-weight: $font-weight-bold;
+        }
+
+        .ecos-grid__td {
+          font-weight: $font-weight-semi-bold;
+        }
       }
     }
   }
@@ -53,17 +79,25 @@
   &__assign-btn {
     $btn: &;
 
+    &.ecos-btn {
+      font-weight: $font-weight-bold;
+    }
+
     &:not(:last-of-type) {
       margin-right: 10px;
     }
 
     &._fill {
       width: 100%;
+      margin-right: 0;
+
+      &:not(:last-of-type) {
+        margin-bottom: 10px;
+      }
     }
 
     &__wrapper {
       padding-top: 20px;
-      padding-bottom: 27px;
     }
   }
 }

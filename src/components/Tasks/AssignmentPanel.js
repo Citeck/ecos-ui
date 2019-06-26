@@ -29,7 +29,7 @@ class AssignmentPanel extends React.Component {
 
   render() {
     const { stateAssign, onClick, narrow, className } = this.props;
-    const classBtn = classNames(this.className, className, { 'ecos-btn_narrow': narrow });
+    const classBtn = classNames(this.className, className, { 'ecos-btn_narrow-t_standart': narrow });
     const { ASSIGN_ME, ASSIGN_SMB, REASSIGN_SMB, UNASSIGN } = AssignOptions;
 
     return (

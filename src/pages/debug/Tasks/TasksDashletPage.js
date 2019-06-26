@@ -9,6 +9,7 @@ export default class TasksDashletPage extends React.Component {
         id: 'wftask1',
         config: {
           id: 'wftask1',
+          link: 'ya.ru',
           height: '300px'
         }
       },
