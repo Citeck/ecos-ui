@@ -61,20 +61,20 @@ class App extends Component {
             <Notification />
           </div>
 
-          <PageTabs homepageLink={URL.HOME} isShow={isShow} tabs={tabs} saveTabs={setTabs}>
-            <Switch>
-              {/*<Route path="/share/page" exact component={DashboardPage} />*/}
-              <Route path="/formio-develop" component={FormIOPage} />
-              <Route path="/ecos-form-example" component={EcosFormPage} />
-              <Route path="/doc-preview" component={DocPreviewPage} />
+          <PageTabs homepageLink={URL.HOME} isShow={isShow} tabs={tabs} saveTabs={setTabs} />
 
-              <Route path="/share/page/ui/journals" component={JournalsPage} />
-              <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
-              <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
-              <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
-              {/*<Route component={NotFoundPage} />*/}
-            </Switch>
-          </PageTabs>
+          <Switch>
+            {/*<Route path="/share/page" exact component={DashboardPage} />*/}
+            <Route path="/formio-develop" component={FormIOPage} />
+            <Route path="/ecos-form-example" component={EcosFormPage} />
+            <Route path="/doc-preview" component={DocPreviewPage} />
+
+            <Route path="/share/page/ui/journals" component={JournalsPage} />
+            <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
+            <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
+            <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
+            {/*<Route component={NotFoundPage} />*/}
+          </Switch>
 
           <div className="sticky-push" />
         </div>
