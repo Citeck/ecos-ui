@@ -12,7 +12,7 @@ import './InputView.scss';
 const InputView = () => {
   const context = useContext(TableFormContext);
 
-  const { placeholder } = context.controlProps;
+  const { placeholder, disabled } = context.controlProps;
   const { selectedRows, columns, error, deleteSelectedItem, showEditForm, inlineToolsOffsets, setInlineToolsOffsets } = context;
 
   const wrapperRef = useRef(null);
@@ -48,19 +48,21 @@ const InputView = () => {
 
   let valuesList = <p className={'ecos-table-form__value-not-selected'}>{placeholderText}</p>;
   if (selectedRows.length > 0) {
-    const inlineTools = () => {
-      const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
+    const inlineTools = disabled
+      ? null
+      : () => {
+          const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
 
-      return (
-        <InlineToolsDisconnected
-          {...inlineToolsOffsets}
-          tools={[
-            <IcoBtn key={'edit'} icon={'icon-edit'} className={inlineToolsActionClassName} onClick={onClickEdit} />,
-            <IcoBtn key={'delete'} icon={'icon-delete'} className={inlineToolsActionClassName} onClick={onClickDelete} />
-          ]}
-        />
-      );
-    };
+          return (
+            <InlineToolsDisconnected
+              {...inlineToolsOffsets}
+              tools={[
+                <IcoBtn key={'edit'} icon={'icon-edit'} className={inlineToolsActionClassName} onClick={onClickEdit} />,
+                <IcoBtn key={'delete'} icon={'icon-delete'} className={inlineToolsActionClassName} onClick={onClickDelete} />
+              ]}
+            />
+          );
+        };
 
     valuesList = (
       <div ref={wrapperRef} className={'ecos-table-form__grid-wrapper'}>

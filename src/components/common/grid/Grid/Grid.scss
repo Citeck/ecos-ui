@@ -22,7 +22,7 @@
     td {
       height: 42px;
       border-top: 2px solid $color-gray-4;
-      padding: 8px 5px;
+      padding: 8px 0;
       vertical-align: middle !important;
       box-sizing: border-box;
     }
@@ -60,7 +60,7 @@
   align-items: center;
   width: 100%;
   min-height: 22px;
-  max-width: 300px;
+  //max-width: 300px;
   padding: 0 5px;
   border-radius: $border-radius-standard;
   color: $text-color-dark;
@@ -137,4 +137,8 @@
   & > thead > tr > th:nth-child(1) {
     visibility: visible;
   }
+}
+
+.ecos-grid_hovered {
+  background: $color-blue-light3;
 }

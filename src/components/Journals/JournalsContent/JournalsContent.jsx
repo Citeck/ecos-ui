@@ -1,34 +1,37 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import { push } from 'connected-react-router';
-import { withRouter } from 'react-router';
 import { Well } from '../../common/form';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsPreview from '../JournalsPreview';
-//import JournalsTasks from '../JournalsTasks';
+import JournalsUrlManager from '../JournalsUrlManager';
 import Columns from '../../common/templates/Columns/Columns';
 import { initPreview } from '../../../actions/journals';
-import { setPreview } from '../urlManager';
+import { wrapArgs } from '../../../helpers/redux';
 
 import './JournalsContent.scss';
 
-const mapStateToProps = state => ({});
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
 
-const mapDispatchToProps = dispatch => ({
-  initPreview: nodeRef => dispatch(initPreview(nodeRef)),
-  push: url => dispatch(push(url))
-});
+  return {
+    initPreview: nodeRef => dispatch(initPreview(w(nodeRef)))
+  };
+};
 
-const Grid = ({ showPreview, onRowClick }) => (
+const Grid = ({ stateId, showPreview, onRowClick }) => (
   <Well>
-    <JournalsDashletGrid onRowClick={onRowClick} doInlineToolsOnRowClick={showPreview} className={'ecos-grid_no-top-border'} />
+    <JournalsDashletGrid
+      stateId={stateId}
+      onRowClick={onRowClick}
+      doInlineToolsOnRowClick={showPreview}
+      className={'ecos-grid_no-top-border'}
+    />
   </Well>
 );
 
-const Preview = () => (
+const Preview = ({ stateId }) => (
   <Well className={'ecos-well_full ecos-journals-content__preview-well'}>
-    {/*<JournalsTasks className={'ecos-journals-content__preview-y-step'} />*/}
-    <JournalsPreview />
+    <JournalsPreview stateId={stateId} />
   </Well>
 );
 
@@ -44,27 +47,28 @@ class JournalsContent extends Component {
   };
 
   render() {
-    let { showPreview, showPie } = this.props;
+    let { stateId, showPreview, showPie } = this.props;
 
-    this.props.push(setPreview(this.props.history.location, showPreview));
+    showPie = false;
 
-    showPie = false; //delete when you need a pie
-
-    let cols = [<Grid showPreview={showPreview} onRowClick={this.onRowClick} />];
-    if (showPreview) cols = [<Grid showPreview={showPreview} onRowClick={this.onRowClick} />, <Preview />];
+    let cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} />];
+    if (showPreview)
+      cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} />, <Preview stateId={stateId} />];
     if (showPie) cols = [<Pie />];
 
     return (
-      <Columns
-        classNamesColumn={'columns_height_full columns__column_margin_0'}
-        cols={cols}
-        cfgs={[{}, { className: 'ecos-journals-content_col-step' }]}
-      />
+      <JournalsUrlManager stateId={stateId} params={{ showPreview }}>
+        <Columns
+          classNamesColumn={'columns_height_full columns__column_margin_0'}
+          cols={cols}
+          cfgs={[{}, { className: 'ecos-journals-content_col-step' }]}
+        />
+      </JournalsUrlManager>
     );
   }
 }
 
 export default connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps
-)(withRouter(JournalsContent));
+)(JournalsContent);

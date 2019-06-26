@@ -67,6 +67,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         viewOnly: this.viewOnly,
         displayColumns: component.displayColumns,
         hideCreateButton: component.hideCreateButton,
+        searchField: component.searchField,
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
         },
