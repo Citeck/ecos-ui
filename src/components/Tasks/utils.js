@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { t } from '../../helpers/util';
+import { AssignOptions } from '../../constants/tasks';
 
 export const TasksPropTypes = {
   id: PropTypes.string,
@@ -9,13 +10,6 @@ export const TasksPropTypes = {
   sender: PropTypes.string,
   lastcomment: PropTypes.string,
   started: PropTypes.any
-};
-
-export const AssignOptions = {
-  UNASSIGN: 0,
-  ASSIGN_ME: 1,
-  ASSIGN_SMB: 2,
-  REASSIGN_SMB: 3
 };
 
 export const DisplayedColumns = [

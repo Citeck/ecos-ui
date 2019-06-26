@@ -7,10 +7,12 @@ import Loader from '../common/Loader/Loader';
 import TaskList from './TaskList';
 import { changeTaskDetails, getDashletTasks } from '../../actions/tasks';
 import './style.scss';
+import { AssignOptions } from '../../constants/tasks';
 
 const mapStateToProps = state => ({
   tasks: state.tasks.list,
-  isLoading: state.tasks.isLoading
+  isLoading: state.tasks.isLoading,
+  currentUserUid: state.user.uid
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -47,10 +49,21 @@ class Tasks extends React.Component {
     };
   }
 
-  onAssignClick = taskId => {
-    const { changeTaskDetails, id } = this.props;
+  onAssignClick = (taskId, stateAssign, userUid) => {
+    const { changeTaskDetails, id, currentUserUid } = this.props;
 
-    changeTaskDetails({ taskId, sourceId: id, recordRef: this.urlInfo.recordRef });
+    switch (stateAssign) {
+      case AssignOptions.ASSIGN_ME:
+        userUid = currentUserUid;
+        break;
+      case AssignOptions.UNASSIGN:
+        userUid = '';
+        break;
+      default:
+        break;
+    }
+
+    changeTaskDetails({ taskId, sourceId: id, recordRef: this.urlInfo.recordRef, stateAssign, userUid });
   };
 
   render() {

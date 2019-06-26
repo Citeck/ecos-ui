@@ -71,3 +71,6 @@ export function filterKeys(array, aKeys) {
 export function getObjectByKV(array, key, value) {
   return array.find(item => item[key] === value) || {};
 }
+export function getIndexObjectByKV(array, key, value) {
+  return array.findIndex(item => item[key] === value);
+}

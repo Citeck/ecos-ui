@@ -1,3 +1,5 @@
+import { AssignOptions } from '../constants/tasks';
+
 export default class TasksDto {
   static getTaskForWeb(source = {}) {
     const target = {};
@@ -5,16 +7,16 @@ export default class TasksDto {
     if (!source || (source && !Object.keys(source))) {
       return target;
     }
-    let test = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam congue condimentum sem vitae pretium. Ut.';
+
     target.id = source.id;
     target.formId = source.formId;
-    target.title = source.title + test;
-    target.assignee = source.assignee + test;
-    target.sender = source.sender + test;
-    target.lastcomment = source.lastcomment + test;
-    target.started = source.started + test;
-    target.deadline = source.deadline + test;
-    target.stateAssign = source.stateAssign || 1;
+    target.title = source.title;
+    target.assignee = source.assignee;
+    target.sender = source.sender;
+    target.lastcomment = source.lastcomment;
+    target.started = source.started;
+    target.deadline = source.deadline;
+    target.stateAssign = source.stateAssign || AssignOptions.UNASSIGN;
 
     return target;
   }

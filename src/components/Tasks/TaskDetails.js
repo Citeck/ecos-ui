@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
 import { Caption } from '../common/form';
 import { Grid } from '../common/grid';
+import { EcosForm } from '../../components/EcosForm';
 import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
 import { DisplayedColumns, TasksPropTypes } from './utils';
 import AssignmentPanel from './AssignmentPanel';
@@ -34,6 +35,10 @@ class TaskDetails extends React.Component {
 
   onResize = width => {
     this.setState({ isSmallMode: width <= 300 });
+  };
+
+  onTestForm = (a, b, c) => {
+    console.log(a, b, c);
   };
 
   renderDetailsGrid() {
@@ -78,9 +83,17 @@ class TaskDetails extends React.Component {
         <div className={`${this.className}__wrapper`}>
           {!isSmallMode && this.renderDetailsGrid()}
           {isSmallMode && this.renderDetailsEnum()}
+          <AssignmentPanel
+            stateAssign={details.stateAssign}
+            onClick={stateAssign => {
+              onAssignClick(details.id, stateAssign);
+            }}
+            narrow={!isSmallMode}
+            className={classBtn}
+          />
+          id: {details.id} stateAssign: {details.stateAssign}
+          <EcosForm record={'workspace://SpacesStore/' + details.id} onSubmit={this.onTestForm} onFormCancel={this.onTestForm} />
         </div>
-
-        <AssignmentPanel stateAssign={details.stateAssign} onClick={onAssignClick} narrow={!isSmallMode} className={classBtn} />
       </div>
     );
   }

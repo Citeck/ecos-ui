@@ -26,6 +26,6 @@ export class TasksApi extends RecordService {
   };
 
   changeAssigneeTask = ({ taskId, sourceId, recordRef }) => {
-    return TasksTestData.getSaveTaskResult();
+    return TasksTestData.getSaveTaskResult(taskId);
   };
 }

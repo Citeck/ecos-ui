@@ -2,8 +2,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Btn } from '../common/btns';
+import { AssignOptions } from '../../constants/tasks';
 import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
-import { AssignOptions, InfoAssignButtons } from './utils';
+import { InfoAssignButtons } from './utils';
 import './style.scss';
 
 class AssignmentPanel extends React.Component {
@@ -29,23 +30,48 @@ class AssignmentPanel extends React.Component {
   render() {
     const { stateAssign, onClick, narrow, className } = this.props;
     const classBtn = classNames(this.className, className, { 'ecos-btn_narrow': narrow });
+    const { ASSIGN_ME, ASSIGN_SMB, REASSIGN_SMB, UNASSIGN } = AssignOptions;
 
     return (
       <div className={this.className + '__wrapper'}>
-        {stateAssign === AssignOptions.UNASSIGN && [
-          <Btn onClick={onClick} className={classBtn} key={this.className + AssignOptions.ASSIGN_ME}>
-            {this.getInfoBtn(AssignOptions.ASSIGN_ME).label}
+        {stateAssign === UNASSIGN && [
+          <Btn
+            onClick={() => {
+              onClick(ASSIGN_ME);
+            }}
+            className={classBtn}
+            key={this.className + ASSIGN_ME}
+          >
+            {this.getInfoBtn(ASSIGN_ME).label}
           </Btn>,
-          <Btn onClick={onClick} className={classBtn} key={this.className + AssignOptions.ASSIGN_SMB}>
-            {this.getInfoBtn(AssignOptions.ASSIGN_SMB).label}
+          <Btn
+            onClick={() => {
+              onClick(ASSIGN_SMB);
+            }}
+            className={classBtn}
+            key={this.className + ASSIGN_SMB}
+          >
+            {this.getInfoBtn(ASSIGN_SMB).label}
           </Btn>
         ]}
-        {stateAssign === AssignOptions.ASSIGN_ME && [
-          <Btn onClick={onClick} className={classBtn} key={this.className + AssignOptions.REASSIGN_SMB}>
-            {this.getInfoBtn(AssignOptions.REASSIGN_SMB).label}
+        {stateAssign === ASSIGN_ME && [
+          <Btn
+            onClick={() => {
+              onClick(REASSIGN_SMB);
+            }}
+            className={classBtn}
+            key={this.className + REASSIGN_SMB}
+          >
+            {this.getInfoBtn(REASSIGN_SMB).label}
           </Btn>,
-          <Btn onClick={onClick} className={classBtn} key={this.className + AssignOptions.UNASSIGN}>
-            {this.getInfoBtn(AssignOptions.UNASSIGN).label}
+          <Btn
+            onClick={() => {
+              onClick(UNASSIGN);
+            }}
+            className={classBtn}
+            key={this.className + UNASSIGN}
+          >
+            {this.getInfoBtn(UNASSIGN).label}
           </Btn>
         ]}
       </div>

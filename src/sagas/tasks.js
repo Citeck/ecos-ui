@@ -24,6 +24,8 @@ function* sagaGetTasks({ api, logger }, { payload }) {
 
 function* sagaSetTaskDetails({ api, logger }, { payload }) {
   const err = t('Ошибка изменении задачи');
+  //todo todo todo
+  console.log('sagaSetTaskDetails payload', payload);
 
   try {
     const { taskId, sourceId, recordRef } = payload;
@@ -33,7 +35,13 @@ function* sagaSetTaskDetails({ api, logger }, { payload }) {
       yield put(
         setSaveTaskResult({
           status: res ? 'SUCCESS' : 'FAILURE',
-          taskId: res.id
+          taskId: res.id,
+          taskData: res
+            ? {
+                stateAssign: payload.stateAssign,
+                assignee: payload.userUid
+              }
+            : {}
         })
       );
     } else {

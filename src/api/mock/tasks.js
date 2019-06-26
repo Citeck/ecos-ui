@@ -17,10 +17,10 @@ export class TasksTestData {
     };
   };
 
-  static getSaveTaskResult = () => {
+  static getSaveTaskResult = id => {
     return {
       assignee: 'admin',
-      id: 'wftask@activeiti$1153692'
+      id: id
     };
   };
 }

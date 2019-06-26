@@ -1,12 +1,16 @@
 import { handleActions } from 'redux-actions';
 import { getDashletTasks, setDashletTasks, changeTaskDetails, setSaveTaskResult } from '../actions/tasks';
+import { deepClone } from '../helpers/util';
+import { getIndexObjectByKV } from '../helpers/arrayOfObjects';
+import { AssignOptions } from '../constants/tasks';
 
 const initialState = {
   isLoading: false,
   list: [],
   saveResult: {
     status: '',
-    taskId: ''
+    taskId: '',
+    taskData: {}
   }
 };
 
@@ -23,11 +27,26 @@ export default handleActions(
       list: payload,
       isLoading: false
     }),
-    [setSaveTaskResult]: (state, { payload }) => ({
-      ...state,
-      saveResult: payload,
-      isLoading: false
-    })
+    [setSaveTaskResult]: (state, { payload }) => {
+      const list = deepClone(state.list);
+      const taskIndex = getIndexObjectByKV(list, 'id', payload.taskId);
+      const {
+        taskData,
+        taskData: { stateAssign }
+      } = payload;
+      if ([AssignOptions.UNASSIGN, AssignOptions.ASSIGN_ME].includes(stateAssign)) {
+        list[taskIndex] = { ...list[taskIndex], ...taskData };
+      } else {
+        list.splice(taskIndex, 1);
+      }
+
+      return {
+        ...state,
+        list,
+        saveResult: payload,
+        isLoading: false
+      };
+    }
   },
   initialState
 );
