@@ -5,7 +5,9 @@ export function getCommentForWeb(source) {
 
   const target = {};
 
-  target.userName = [source.author.firstName, source.author.middleName, source.author.lastName].join(' ');
+  target.firstName = source.author.firstName;
+  target.middleName = source.author.middleName;
+  target.lastName = source.author.lastName;
   target.text = source.text;
   target.avatar = `/share/proxy/alfresco/citeck/ecos/image/thumbnail?nodeRef=${source.author.id.storeRef.protocol}://${
     source.author.id.storeRef.identifier

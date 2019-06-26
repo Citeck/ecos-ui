@@ -14,8 +14,10 @@ import {
   updateCommentRequest,
   updateCommentSuccess
 } from '../actions/comments';
+import { setNotificationMessage } from '../actions/notification';
 import { selectAllComments } from '../selectors/comments';
 import { getCommentForWeb } from '../dto/comments';
+import { t } from '../helpers/util';
 
 function* sagaGetComments({ api, logger }, action) {
   try {
@@ -49,6 +51,7 @@ function* sagaCreateComment({ api, logger }, action) {
 
     yield put(createCommentSuccess(comments));
     yield put(sendingEnd());
+    yield put(setNotificationMessage(t('Комментарий успешно добавлен')));
   } catch (e) {
     logger.error('[comments sagaCreateComment saga error', e.message);
   }
@@ -73,6 +76,7 @@ function* sagaUpdateComment({ api, logger }, action) {
     comments = yield select(selectAllComments);
     comments[commentIndex] = { ...comments[commentIndex], ...updatedComment };
     yield put(updateCommentSuccess(comments));
+    yield put(setNotificationMessage(t('Комментарий успешно отредактирован')));
   } catch (e) {
     logger.error('[comments sagaUpdateComment saga error', e.message);
   }
@@ -90,6 +94,7 @@ function* sagaDeleteComment({ api, logger }, action) {
     }
 
     yield put(deleteCommentSuccess(comments));
+    yield put(setNotificationMessage(t('Комментарий успешно удален')));
   } catch (e) {
     logger.error('[comments sagaDeleteComment saga error', e.message);
   }

@@ -33,7 +33,9 @@ class Comments extends React.Component {
     comments: PropTypes.arrayOf(
       PropTypes.shape({
         avatar: PropTypes.string,
-        userName: PropTypes.string.isRequired,
+        firstName: PropTypes.string,
+        lastName: PropTypes.string,
+        middleName: PropTypes.string,
         text: PropTypes.string.isRequired,
         dateCreate: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]).isRequired,
         dateModify: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]),
@@ -478,7 +480,7 @@ class Comments extends React.Component {
   }
 
   renderComment = data => {
-    const { id, avatar = '', userName, text, dateCreate = new Date(), canEdit = false, canDelete = false } = data;
+    const { id, avatar = '', firstName, lastName, middleName, text, dateCreate = new Date(), canEdit = false, canDelete = false } = data;
     let convertedComment = text;
 
     try {
@@ -490,9 +492,12 @@ class Comments extends React.Component {
       <div className="ecos-comments__comment" key={id}>
         <div className="ecos-comments__comment-header">
           <div className="ecos-comments__comment-header-cell">
-            {this.renderAvatar(avatar, userName)}
+            {this.renderAvatar(avatar, lastName)}
             <div className="ecos-comments__comment-header-column">
-              <div className="ecos-comments__comment-name">{userName}</div>
+              <div className="ecos-comments__comment-name">
+                {firstName} {middleName}
+              </div>
+              <div className="ecos-comments__comment-name">{lastName}</div>
               <div className="ecos-comments__comment-date">{this.getFormattedDate(dateCreate)}</div>
             </div>
           </div>
