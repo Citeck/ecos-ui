@@ -28,12 +28,18 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
-    [getComments]: (state, action) => ({
-      ...state,
-      [action.payload]: {
-        ...initialState
+    [getComments]: (state, action) => {
+      let ownState = { ...initialState };
+
+      if (state[action.payload]) {
+        ownState = { ...ownState, ...state[action.payload] };
       }
-    }),
+
+      return {
+        ...state,
+        [action.payload]: { ...ownState }
+      };
+    },
     [setComments]: (state, action) => ({
       ...state,
       [action.payload.nodeRef]: {

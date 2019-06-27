@@ -13,7 +13,7 @@ import Btn from '../common/btns/Btn/Btn';
 import Loader from '../common/Loader/Loader';
 import IcoBtn from '../common/btns/IcoBtn/IcoBtn';
 import { t, num2str } from '../../helpers/util';
-import { selectAllComments, selectStateByNodeRef } from '../../selectors/comments';
+import { selectStateByNodeRef } from '../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../actions/comments';
 
 import 'draft-js/dist/Draft.css';
@@ -214,11 +214,7 @@ class Comments extends React.Component {
       return;
     }
 
-    if (editableComment) {
-      updateComment({ text, id: editableComment });
-    } else {
-      createComment(text);
-    }
+    editableComment ? updateComment({ text, id: editableComment }) : createComment(text);
   };
 
   handleCloseEditor = () => {
@@ -571,7 +567,7 @@ class Comments extends React.Component {
       return null;
     }
 
-    return <Loader />;
+    return <Loader blur />;
   }
 
   render() {

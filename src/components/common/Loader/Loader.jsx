@@ -7,7 +7,9 @@ import './Loader.scss';
 export default class Loader extends Component {
   render() {
     const props = this.props;
-    const cssClasses = classNames('ecos-loader', props.className);
+    const cssClasses = classNames('ecos-loader', props.className, {
+      'ecos-loader_blur': props.blur
+    });
 
     return (
       <div className={cssClasses}>
