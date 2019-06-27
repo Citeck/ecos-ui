@@ -122,7 +122,6 @@ export default class EcosFormUtils {
           case 'checkbox':
             attributeSchema = 'bool';
             break;
-          case 'datagridAssoc':
           case 'tableForm':
           case 'selectJournal':
             attributeSchema = 'assoc';

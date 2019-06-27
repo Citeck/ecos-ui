@@ -4,25 +4,16 @@ import ColumnsSetup from '../../ColumnsSetup/ColumnsSetup';
 import PanelBar from '../../common/PanelBar/PanelBar';
 import { setColumnsSetup } from '../../../actions/journals';
 import { t } from '../../../helpers/util';
-import { wrapArgs } from '../../../helpers/redux';
 
 import './JournalsColumnsSetup.scss';
 
-const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+const mapStateToProps = state => ({
+  columnsSetup: state.journals.columnsSetup
+});
 
-  return {
-    columnsSetup: newState.columnsSetup
-  };
-};
-
-const mapDispatchToProps = (dispatch, props) => {
-  const w = wrapArgs(props.stateId);
-
-  return {
-    setColumnsSetup: (columns, sortBy) => dispatch(setColumnsSetup(w({ columns, sortBy })))
-  };
-};
+const mapDispatchToProps = dispatch => ({
+  setColumnsSetup: (columns, sortBy) => dispatch(setColumnsSetup({ columns, sortBy }))
+});
 
 class JournalsColumnsSetup extends Component {
   onChange = ({ columns, sortBy }) => {

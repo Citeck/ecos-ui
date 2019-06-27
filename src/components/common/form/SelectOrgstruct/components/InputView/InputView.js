@@ -39,12 +39,10 @@ const InputView = () => {
           {selectedRows.map(item => (
             <li key={item.id}>
               <span className="select-orgstruct__values-list-disp">{item.label}</span>
-              {disabled ? null : (
-                <div className="select-orgstruct__values-list-actions">
-                  {/*<span data-id={item.id} className={'icon icon-edit'} onClick={() => {}} />*/}
-                  <span data-id={item.id} className={'icon icon-delete'} onClick={onClickDelete} />
-                </div>
-              )}
+              <div className="select-orgstruct__values-list-actions">
+                {/*<span data-id={item.id} className={'icon icon-edit'} onClick={() => {}} />*/}
+                <span data-id={item.id} className={'icon icon-delete'} onClick={onClickDelete} />
+              </div>
             </li>
           ))}
         </ul>

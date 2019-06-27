@@ -4,42 +4,26 @@ import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsDashletToolbar from '../JournalsDashletToolbar';
 import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletFooter from '../JournalsDashletFooter';
-import { getDashletConfig, setEditorMode, reloadGrid, initState } from '../../../actions/journals';
+import { getDashletConfig, setEditorMode, reloadGrid } from '../../../actions/journals';
 import Dashlet from '../../Dashlet/Dashlet';
-import { goToJournalsPage } from '../../../helpers/urls';
-import { wrapArgs } from '../../../helpers/redux';
+import { goToJournalsPage } from '../urlManager';
 import classNames from 'classnames';
 
 import './JournalsDashlet.scss';
 
-const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId || props.id] || {};
+const mapStateToProps = state => ({
+  editorMode: state.journals.editorMode,
+  journalConfig: state.journals.journalConfig,
+  config: state.journals.config
+});
 
-  return {
-    editorMode: newState.editorMode,
-    journalConfig: newState.journalConfig,
-    config: newState.config
-  };
-};
-
-const mapDispatchToProps = (dispatch, props) => {
-  const w = wrapArgs(props.stateId || props.id);
-
-  return {
-    initState: stateId => dispatch(initState(stateId)),
-
-    getDashletConfig: id => dispatch(getDashletConfig(w(id))),
-    setEditorMode: visible => dispatch(setEditorMode(w(visible))),
-    reloadGrid: options => dispatch(reloadGrid(w(options)))
-  };
-};
+const mapDispatchToProps = dispatch => ({
+  getDashletConfig: id => dispatch(getDashletConfig(id)),
+  setEditorMode: visible => dispatch(setEditorMode(visible)),
+  reloadGrid: options => dispatch(reloadGrid(options))
+});
 
 class JournalsDashlet extends Component {
-  constructor(props) {
-    super(props);
-    this.props.initState(props.stateId);
-  }
-
   componentDidMount() {
     this.props.getDashletConfig(this.props.id);
   }
@@ -59,11 +43,7 @@ class JournalsDashlet extends Component {
   };
 
   render() {
-    const { journalConfig, className, id, editorMode, reloadGrid, stateId } = this.props;
-
-    if (!journalConfig) {
-      return null;
-    }
+    const { journalConfig, className, id, editorMode, reloadGrid } = this.props;
 
     return (
       <Dashlet
@@ -76,14 +56,14 @@ class JournalsDashlet extends Component {
         onGoTo={this.goToJournalsPage}
       >
         {editorMode ? (
-          <JournalsDashletEditor id={id} stateId={stateId} />
+          <JournalsDashletEditor id={id} />
         ) : (
           <Fragment>
-            <JournalsDashletToolbar stateId={stateId} />
+            <JournalsDashletToolbar />
 
-            <JournalsDashletGrid stateId={stateId} />
+            <JournalsDashletGrid />
 
-            <JournalsDashletFooter stateId={stateId} />
+            <JournalsDashletFooter />
           </Fragment>
         )}
       </Dashlet>

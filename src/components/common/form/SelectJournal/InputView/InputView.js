@@ -33,12 +33,10 @@ class InputView extends Component {
             {selectedRows.map(item => (
               <li key={item.id}>
                 <span className="select-journal__values-list-disp">{item.disp}</span>
-                {disabled ? null : (
-                  <div className="select-journal__values-list-actions">
-                    <span data-id={item.id} className={'icon icon-edit'} onClick={editValue} />
-                    <span data-id={item.id} className={'icon icon-delete'} onClick={deleteValue} />
-                  </div>
-                )}
+                <div className="select-journal__values-list-actions">
+                  <span data-id={item.id} className={'icon icon-edit'} onClick={editValue} />
+                  <span data-id={item.id} className={'icon icon-delete'} onClick={deleteValue} />
+                </div>
               </li>
             ))}
           </ul>

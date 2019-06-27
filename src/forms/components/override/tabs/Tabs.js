@@ -131,8 +131,6 @@ export default class TabsComponent extends NestedComponent {
     this._updateLastVisibleTabClass(lastVisibleIdx);
 
     this._visibleTabs = tabsVisibility;
-
-    this.detectScroll();
   }
 
   _updateFirstVisibleTabClass(idx) {

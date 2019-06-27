@@ -93,29 +93,27 @@ export default class DndList extends Component {
         <DragDropContext onDragEnd={this.onDragEnd}>
           <Droppable droppableId={this._id}>
             {provided => (
-              <div>
-                <ul className={cssClasses} {...provided.droppableProps} ref={provided.innerRef}>
-                  {list.map((item, index) => (
-                    <Draggable key={item.id} draggableId={item.id} index={index}>
-                      {(provided, snapshot) => {
-                        return snapshot.isDragging ? (
-                          ReactDOM.createPortal(
-                            <ListItem
-                              cssItemClasses={snapshot.isDragging ? `${cssItemClasses} ${draggableClassName}` : cssItemClasses}
-                              provided={provided}
-                              item={item}
-                            />,
-                            this.portal
-                          )
-                        ) : (
-                          <ListItem cssItemClasses={cssItemClasses} provided={provided} item={item} />
-                        );
-                      }}
-                    </Draggable>
-                  ))}
-                </ul>
+              <ul className={cssClasses} {...provided.droppableProps} ref={provided.innerRef}>
+                {list.map((item, index) => (
+                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                    {(provided, snapshot) => {
+                      return snapshot.isDragging ? (
+                        ReactDOM.createPortal(
+                          <ListItem
+                            cssItemClasses={snapshot.isDragging ? `${cssItemClasses} ${draggableClassName}` : cssItemClasses}
+                            provided={provided}
+                            item={item}
+                          />,
+                          this.portal
+                        )
+                      ) : (
+                        <ListItem cssItemClasses={cssItemClasses} provided={provided} item={item} />
+                      );
+                    }}
+                  </Draggable>
+                ))}
                 {provided.placeholder}
-              </div>
+              </ul>
             )}
           </Droppable>
         </DragDropContext>

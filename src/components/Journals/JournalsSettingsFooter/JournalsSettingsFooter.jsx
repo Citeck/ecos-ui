@@ -7,31 +7,22 @@ import { Input } from '../../common/form';
 import { reloadGrid, saveJournalSetting, createJournalSetting, initJournalSettingData } from '../../../actions/journals';
 import { JOURNAL_SETTING_ID_FIELD } from '../constants';
 import { t, trigger } from '../../../helpers/util';
-import { wrapArgs } from '../../../helpers/redux';
 
 import './JournalsSettingsFooter.scss';
 
-const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+const mapStateToProps = state => ({
+  predicate: state.journals.predicate,
+  columnsSetup: state.journals.columnsSetup,
+  grouping: state.journals.grouping,
+  journalSetting: state.journals.journalSetting
+});
 
-  return {
-    predicate: newState.predicate,
-    columnsSetup: newState.columnsSetup,
-    grouping: newState.grouping,
-    journalSetting: newState.journalSetting
-  };
-};
-
-const mapDispatchToProps = (dispatch, props) => {
-  const w = wrapArgs(props.stateId);
-
-  return {
-    reloadGrid: options => dispatch(reloadGrid(w(options))),
-    saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
-    createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
-    initJournalSettingData: journalSetting => dispatch(initJournalSettingData(w(journalSetting)))
-  };
-};
+const mapDispatchToProps = dispatch => ({
+  reloadGrid: options => dispatch(reloadGrid(options)),
+  saveJournalSetting: (id, settings) => dispatch(saveJournalSetting({ id, settings })),
+  createJournalSetting: (journalId, settings) => dispatch(createJournalSetting({ journalId, settings })),
+  initJournalSettingData: journalSetting => dispatch(initJournalSettingData(journalSetting))
+});
 
 class JournalsSettingsFooter extends Component {
   constructor(props) {
@@ -40,32 +31,6 @@ class JournalsSettingsFooter extends Component {
     this.state = { dialogOpen: false };
     this.settingName = '';
   }
-
-  componentDidMount() {
-    this.createKeydownEvents();
-  }
-
-  componentWillUnmount() {
-    this.removeKeydownEvents();
-  }
-
-  createKeydownEvents() {
-    document.addEventListener('keydown', this.onKeydown);
-  }
-
-  removeKeydownEvents() {
-    document.removeEventListener('keydown', this.onKeydown);
-  }
-
-  onKeydown = e => {
-    switch (e.key) {
-      case 'Enter':
-        this.applySetting();
-        break;
-      default:
-        break;
-    }
-  };
 
   createSetting = () => {
     if (this.settingName) {

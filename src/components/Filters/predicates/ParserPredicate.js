@@ -5,43 +5,11 @@ import {
   PREDICATE_AND,
   PREDICATE_EMPTY,
   PREDICATE_OR,
-  EQUAL_PREDICATES_MAP,
-  SEARCH_EQUAL_PREDICATES_MAP
+  EQUAL_PREDICATES_MAP
 } from '../../common/form/SelectJournal/predicates';
 
 export default class ParserPredicate {
-  static getSearchPredicates({ text, columns, groupBy }) {
-    const val = [];
-
-    if (groupBy.length) {
-      groupBy = groupBy[0].split('&');
-      columns = columns.filter(c => groupBy.filter(g => g === c.attribute)[0]);
-    }
-
-    columns.forEach(c => {
-      if (c.visible && c.default && c.searchable) {
-        const predicate = SEARCH_EQUAL_PREDICATES_MAP[c.type];
-
-        if (predicate) {
-          val.push(new Predicate({ att: c.attribute, t: predicate, val: text }));
-        }
-      }
-    });
-
-    return val.length
-      ? {
-          t: PREDICATE_OR,
-          val: [
-            {
-              t: PREDICATE_OR,
-              val: val
-            }
-          ]
-        }
-      : null;
-  }
-
-  static getRowPredicates({ row, columns, groupBy }) {
+  static getPredicatesByRow({ row, columns, groupBy }) {
     const val = [];
 
     if (groupBy.length) {
@@ -122,7 +90,7 @@ export default class ParserPredicate {
     return getPredicates({ type: 'filterGroup' });
   }
 
-  static getFilters(predicates, columns, condition) {
+  static getFilters(predicates, columns) {
     const { val, t } = predicates;
     let filters = [];
 
@@ -130,18 +98,12 @@ export default class ParserPredicate {
       const current = val[i];
 
       if (current.att) {
-        filters.push(
-          new FilterPredicate({
-            condition: filterPredicates([!i && condition ? condition : t])[0],
-            predicate: new Predicate({ ...current }),
-            columns
-          })
-        );
+        filters.push(new FilterPredicate({ condition: filterPredicates([t])[0], predicate: new Predicate({ ...current }), columns }));
         continue;
       }
 
       if (current.val) {
-        filters = [...filters, ...this.getFilters(current, columns, i ? t : null)];
+        filters = [...filters, ...this.getFilters(current, columns)];
       }
     }
 
@@ -160,15 +122,13 @@ export default class ParserPredicate {
     });
   }
 
-  static createGroup(t, predicate = {}, filters) {
+  static createGroup(gt, t, val) {
     return new GroupPredicate({
-      condition: filterPredicates([t])[0],
+      condition: filterPredicates([gt])[0],
       predicate: new Predicate({
-        t: predicate.t || '',
-        val: predicate.val || [],
-        att: predicate.att
-      }),
-      filters: filters
+        t: t || '',
+        val: val || []
+      })
     });
   }
 
@@ -234,19 +194,45 @@ export default class ParserPredicate {
     return groups.length ? this.getPredicates(this.getOrs(groups)) : null;
   }
 
+  static isGroup(val) {
+    const subVal = val.val;
+    let isGroup = false;
+
+    if (val.att) {
+      isGroup = false;
+    } else if (subVal && subVal.filter(val => val.att)[0]) {
+      isGroup = true;
+    }
+
+    return isGroup;
+  }
+
   static parse(predicates, columns) {
-    const { val = [], t } = predicates || {};
+    const { val = [], t } = predicates || {}; //|| test;
     const length = val.length;
     let groups = [];
 
-    for (let i = 0; i < length; i++) {
-      const current = val[i];
+    if (length) {
+      for (let i = 0; i < length; i++) {
+        const current = val[i];
 
-      if (current.t === PREDICATE_OR) {
-        groups.push(ParserPredicate.createGroup(t, current, this.getFilters(current, columns)));
-      } else {
-        groups = [...groups, ...this.parse(current, columns)];
+        if (this.isGroup(current)) {
+          groups.push(
+            new GroupPredicate({
+              condition: filterPredicates([t])[0],
+              predicate: new Predicate({ ...current }),
+              filters: this.getFilters(current, columns)
+            })
+          );
+          continue;
+        }
+
+        if (current.val) {
+          groups = [...groups, ...this.parse(current, columns)];
+        }
       }
+    } else {
+      groups.push(ParserPredicate.createGroup(PREDICATE_AND));
     }
 
     return groups;

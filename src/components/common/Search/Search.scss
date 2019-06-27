@@ -2,23 +2,34 @@
 
 .search {
   border-radius: $border-radius-standard;
-  padding: 6px 12px 6px 6px;
+  padding: 6px 12px 6px 10px;
   display: inline-block;
   border: 2px solid $color-gray-1;
   background: $color-white;
-  position: relative;
-  width: 220px;
+
+  label {
+    margin: 0;
+    padding: 0 !important;
+    cursor: text;
+    display: flex;
+    width: 100%;
+
+    &:before {
+      color: $color-gray-5;
+      font-size: 20px;
+      position: relative;
+      top: 1px;
+      right: 3px;
+    }
+  }
 
   input {
     outline: none !important;
     border: none !important;
     font-weight: bold !important;
     font-size: $font-size-standard !important;
-    width: calc(100% - 40px) !important;
+    width: 100% !important;
     background: $color-white;
-    position: absolute;
-    left: 35px;
-    color: $text-color-dark;
 
     &::placeholder {
       color: $color-gray-5;
@@ -26,13 +37,6 @@
   }
 }
 
-.search__icon-search {
-  color: $color-gray-5;
-  font-size: 20px;
-  width: 24px;
-  top: 5px;
-  cursor: pointer;
-  position: absolute;
-  line-height: normal;
-  z-index: 1;
+.search__icon-search::before {
+  line-height: normal !important;
 }

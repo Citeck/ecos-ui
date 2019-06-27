@@ -3,9 +3,7 @@ import connect from 'react-redux/es/connect/connect';
 import { Grid, InlineTools, Tools, EmptyGrid } from '../../common/grid';
 import Loader from '../../common/Loader/Loader';
 import { IcoBtn } from '../../common/btns';
-import { goToCardDetailsPage, goToNodeEditPage, getDownloadContentUrl } from '../../../helpers/urls';
 import { t, trigger } from '../../../helpers/util';
-import { wrapArgs } from '../../../helpers/redux';
 import {
   reloadGrid,
   deleteRecords,
@@ -17,45 +15,25 @@ import {
   goToJournalsPage
 } from '../../../actions/journals';
 
-const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+const mapStateToProps = state => ({
+  loading: state.journals.loading,
+  grid: state.journals.grid,
+  journalConfig: state.journals.journalConfig,
+  selectedRecords: state.journals.selectedRecords,
+  selectAllRecords: state.journals.selectAllRecords,
+  selectAllRecordsVisible: state.journals.selectAllRecordsVisible
+});
 
-  return {
-    loading: newState.loading,
-    grid: newState.grid,
-    journalConfig: newState.journalConfig,
-    selectedRecords: newState.selectedRecords,
-    selectAllRecords: newState.selectAllRecords,
-    selectAllRecordsVisible: newState.selectAllRecordsVisible
-  };
-};
-
-const mapDispatchToProps = (dispatch, props) => {
-  const w = wrapArgs(props.stateId);
-
-  return {
-    reloadGrid: options => dispatch(reloadGrid(w(options))),
-    deleteRecords: records => dispatch(deleteRecords(w(records))),
-    saveRecords: ({ id, attributes }) => dispatch(saveRecords(w({ id, attributes }))),
-    setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
-    setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
-    setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(w(visible))),
-    setGridInlineToolSettings: settings => dispatch(setGridInlineToolSettings(w(settings))),
-    goToJournalsPage: row => dispatch(goToJournalsPage(w(row)))
-  };
-};
-
-class DownloadContentLink extends Component {
-  render() {
-    const { children, row } = this.props;
-
-    if (!row.hasContent) {
-      return null;
-    }
-
-    return <a href={getDownloadContentUrl(row.id)}>{children}</a>;
-  }
-}
+const mapDispatchToProps = dispatch => ({
+  reloadGrid: options => dispatch(reloadGrid(options)),
+  deleteRecords: records => dispatch(deleteRecords(records)),
+  saveRecords: ({ id, attributes }) => dispatch(saveRecords({ id, attributes })),
+  setSelectedRecords: records => dispatch(setSelectedRecords(records)),
+  setSelectAllRecords: need => dispatch(setSelectAllRecords(need)),
+  setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(visible)),
+  setGridInlineToolSettings: settings => dispatch(setGridInlineToolSettings(settings)),
+  goToJournalsPage: row => dispatch(goToJournalsPage(row))
+});
 
 class JournalsDashletGrid extends Component {
   filters = [];
@@ -117,7 +95,7 @@ class JournalsDashletGrid extends Component {
     this.selectedRow = {};
   }
 
-  showGridInlineToolSettings = options => {
+  showGridInlineToolSettings = (e, options) => {
     this.setSelectedRow(options.row);
     this.props.setGridInlineToolSettings(options);
   };
@@ -132,48 +110,23 @@ class JournalsDashletGrid extends Component {
     this.props.goToJournalsPage(selectedRow);
   };
 
-  goToCardDetailsPage = () => {
-    const selectedRow = this.getSelectedRow();
-    goToCardDetailsPage(selectedRow.id);
-  };
-
-  goToNodeEditPage = () => {
-    const selectedRow = this.getSelectedRow();
-    goToNodeEditPage(selectedRow.id);
-  };
-
   inlineTools = () => {
-    const {
-      stateId,
-      selectedRecords,
-      grid: { groupBy = [] }
-    } = this.props;
     const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
-    const tools = [
-      <IcoBtn icon={'icon-on'} onClick={this.goToCardDetailsPage} className={inlineToolsActionClassName} />,
-      <DownloadContentLink>
-        <IcoBtn icon={'icon-download'} className={inlineToolsActionClassName} />
-      </DownloadContentLink>,
-      <IcoBtn icon={'icon-edit'} onClick={this.goToNodeEditPage} className={inlineToolsActionClassName} />,
-      <IcoBtn icon={'icon-delete'} onClick={this.deleteRecord} className={inlineToolsActionClassName} />
-    ];
 
-    if (selectedRecords.length) {
+    if (this.props.selectedRecords.length) {
       return null;
     }
 
-    if (groupBy.length) {
-      tools.push(<IcoBtn onClick={this.goToJournalPageWithFilter} icon={'icon-big-arrow'} className={inlineToolsActionClassName} />);
-    }
-
-    return <InlineTools tools={tools} stateId={stateId} />;
-  };
-
-  deleteRecord = () => {
-    const selectedRow = this.getSelectedRow();
-    this.props.deleteRecords([selectedRow.id]);
-    this.clearSelectedRow();
-    this.hideGridInlineToolSettings();
+    return (
+      <InlineTools
+        tools={[
+          <IcoBtn icon={'icon-download'} className={inlineToolsActionClassName} />,
+          <IcoBtn icon={'icon-edit'} className={inlineToolsActionClassName} />,
+          <IcoBtn icon={'icon-delete'} className={inlineToolsActionClassName} />,
+          <IcoBtn onClick={this.goToJournalPageWithFilter} icon={'icon-big-arrow'} className={inlineToolsActionClassName} />
+        ]}
+      />
+    );
   };
 
   deleteRecords = () => {
@@ -197,15 +150,16 @@ class JournalsDashletGrid extends Component {
         total={total}
         tools={[
           <IcoBtn icon={'icon-download'} className={toolsActionClassName} title={t('grid.tools.zip')} />,
-          <IcoBtn icon={'icon-copy'} className={toolsActionClassName} title={t('grid.tools.copy-to')} />,
-          <IcoBtn icon={'icon-big-arrow'} className={toolsActionClassName} title={t('grid.tools.move-to')} />,
+          <IcoBtn icon={'icon-copy'} className={toolsActionClassName} />,
+          <IcoBtn icon={'icon-big-arrow'} className={toolsActionClassName} />,
           <IcoBtn icon={'icon-delete'} className={toolsActionClassName} title={t('grid.tools.delete')} onClick={this.deleteRecords} />
         ]}
       />
     );
   };
 
-  onRowClick = row => {
+  onRowClick = (e, options, row) => {
+    this.showGridInlineToolSettings(e, options);
     trigger.call(this, 'onRowClick', row);
   };
 
@@ -240,17 +194,18 @@ class JournalsDashletGrid extends Component {
               editable
               multiSelectable
               sortBy={sortBy}
-              changeTrOptionsByRowClick={doInlineToolsOnRowClick}
               filters={this.filters}
               inlineTools={this.inlineTools}
               tools={this.tools}
               onSort={this.sort}
               onFilter={this.onFilter}
               onSelect={this.setSelectedRecords}
-              onRowClick={doInlineToolsOnRowClick && this.onRowClick}
-              onMouseLeave={!doInlineToolsOnRowClick && this.hideGridInlineToolSettings}
-              onChangeTrOptions={this.showGridInlineToolSettings}
-              onScrolling={this.hideGridInlineToolSettings}
+              onRowClick={doInlineToolsOnRowClick ? this.onRowClick : null}
+              onNextRowSelected={doInlineToolsOnRowClick ? this.onRowClick : null}
+              onPrevRowSelected={doInlineToolsOnRowClick ? this.onRowClick : null}
+              onMouseEnter={doInlineToolsOnRowClick ? null : this.showGridInlineToolSettings}
+              onMouseLeave={doInlineToolsOnRowClick ? null : this.hideGridInlineToolSettings}
+              onScrollStart={doInlineToolsOnRowClick ? null : this.hideGridInlineToolSettings}
               onEdit={saveRecords}
               selected={selectedRecords}
               selectAll={selectAllRecords}

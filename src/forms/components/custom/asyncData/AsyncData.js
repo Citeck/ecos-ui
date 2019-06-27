@@ -14,7 +14,6 @@ export default class AsyncDataComponent extends BaseComponent {
         mask: false,
         inputType: 'asyncData',
         eventName: '',
-        executionCondition: '',
         source: {
           type: '',
           ajax: {
@@ -82,14 +81,7 @@ export default class AsyncDataComponent extends BaseComponent {
       return result;
     }
 
-    let shouldUpdate = true;
-    if (comp.executionCondition) {
-      shouldUpdate = this.evaluate(comp.executionCondition, {}, 'value', true);
-    }
-
-    if (shouldUpdate) {
-      this._updateValue(false);
-    }
+    this._updateValue(false);
 
     return result;
   }

@@ -110,18 +110,6 @@ export default [
     ]
   },
   {
-    type: 'textfield',
-    input: true,
-    key: 'searchField',
-    label: 'Search field name',
-    placeholder: 'Example: name',
-    description: 'If the field is blank, the search will be performed in all text fields',
-    validate: {
-      required: false
-    },
-    weight: 26
-  },
-  {
     type: 'asyncData',
     input: true,
     key: 'displayColumnsAsyncData',

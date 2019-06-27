@@ -329,12 +329,6 @@ button {
   &.ecos-btn_brown {
     background: $color-white;
     color: $color-brown-2;
-
-    &:active,
-    &:focus {
-      background: $color-white;
-      color: $color-brown-2;
-    }
   }
 
   &.ecos-btn_bgr-inherit {

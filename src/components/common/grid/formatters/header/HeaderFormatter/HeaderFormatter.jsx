@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce';
 import { Tooltip } from 'reactstrap';
 import { Input } from '../../../../form';
 import Icon from '../../../../icons/Icon/Icon';
-import { trigger, getId } from '../../../../../../helpers/util';
+import { trigger } from '../../../../../../helpers/util';
 
 import './HeaderFormatter.scss';
 
@@ -14,7 +14,6 @@ export default class HeaderFormatter extends Component {
     this.thRef = React.createRef();
     this.state = { open: false, text: props.filterValue };
     this.onCloseFilter = this.onCloseFilter.bind(this);
-    this._id = getId();
   }
 
   toggle = () => {
@@ -60,8 +59,9 @@ export default class HeaderFormatter extends Component {
 
   onCloseFilter(e) {
     const tooltip = document.getElementById(this.tooltipId);
+    const filter = document.getElementById(this.id);
 
-    if (tooltip.contains(e.target)) {
+    if (filter.contains(e.target) || tooltip.contains(e.target)) {
       return;
     }
 
@@ -120,7 +120,7 @@ export default class HeaderFormatter extends Component {
     const { column, filterable, ascending } = this.props;
     const state = this.state;
 
-    this.id = `filter-${column.dataField.replace(':', '_')}-${this._id}`;
+    this.id = `filter-${column.dataField.replace(':', '_')}`;
     this.tooltipId = `tooltip-${this.id}`;
 
     const text = (

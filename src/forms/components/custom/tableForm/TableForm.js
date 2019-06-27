@@ -77,7 +77,7 @@ export default class TableFormComponent extends BaseReactComponent {
       }
 
       return {
-        defaultValue: this.dataValue,
+        defaultValue: component.defaultValue,
         isCompact: component.isCompact,
         multiple: component.multiple,
         placeholder: component.placeholder,

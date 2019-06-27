@@ -5,14 +5,12 @@ import cellEditFactory from 'react-bootstrap-table2-editor';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import { Scrollbars } from 'react-custom-scrollbars';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
-import { t, getId, trigger, closest } from '../../../../helpers/util';
+import { t, getId, trigger } from '../../../../helpers/util';
 
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
 
 const CLOSE_FILTER_EVENT = 'closeFilterEvent';
-const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
-const REACT_BOOTSTRAP_TABLE_CLASS = 'react-bootstrap-table';
 
 const Selector = ({ mode, ...rest }) => (
   <div className={'ecos-grid__checkbox'}>
@@ -37,9 +35,7 @@ export default class Grid extends Component {
     this._resizingTh = null;
     this._startResizingThOffset = 0;
     this._keyField = props.keyField || 'id';
-    this._scrollValues = {};
-    this._tr = null;
-    this._tableDom = null;
+    this.scrollValues = {};
   }
 
   componentDidMount() {
@@ -55,36 +51,50 @@ export default class Grid extends Component {
   }
 
   createKeydownEvents() {
-    document.addEventListener('keydown', this.onKeydown);
+    document.addEventListener('keydown', this.onKeydown.bind(this));
   }
 
   removeKeydownEvents() {
-    document.removeEventListener('keydown', this.onKeydown);
+    document.removeEventListener('keydown', this.onKeydown.bind(this));
   }
 
-  onKeydown = e => {
-    if (this.props.changeTrOptionsByRowClick) {
-      const tr = this._tr;
+  onKeydown(e) {
+    const props = this.props;
 
-      switch (e.keyCode) {
-        case 38:
-          if (tr && tr.previousSibling) {
-            this.getTrOptions(tr.previousSibling);
-            this.triggerRowClick(tr.previousSibling);
-          }
+    switch (e.keyCode) {
+      case 38:
+        if (this._byRowClickSelectedRow && this._byRowClickSelectedRow.previousSibling) {
+          this._byRowClickSelectedRow = this._byRowClickSelectedRow.previousSibling;
 
-          break;
-        case 40:
-          if (tr && tr.nextSibling) {
-            this.getTrOptions(tr.nextSibling);
-            this.triggerRowClick(tr.nextSibling);
+          if (typeof props.onPrevRowSelected === 'function') {
+            props.onPrevRowSelected.call(
+              this,
+              e,
+              this.getTrOptions(this._byRowClickSelectedRow),
+              props.data[this._byRowClickSelectedRow.rowIndex - 1]
+            );
           }
-          break;
-        default:
-          break;
-      }
+        }
+
+        break;
+      case 40:
+        if (this._byRowClickSelectedRow && this._byRowClickSelectedRow.nextSibling) {
+          this._byRowClickSelectedRow = this._byRowClickSelectedRow.nextSibling;
+
+          if (typeof props.onNextRowSelected === 'function') {
+            props.onNextRowSelected.call(
+              this,
+              e,
+              this.getTrOptions(this._byRowClickSelectedRow),
+              props.data[this._byRowClickSelectedRow.rowIndex - 1]
+            );
+          }
+        }
+        break;
+      default:
+        break;
     }
-  };
+  }
 
   setAdditionalOptions(props) {
     props.columns = props.columns.map(column => {
@@ -109,26 +119,17 @@ export default class Grid extends Component {
 
     props.rowEvents = props.rowEvents || {};
 
-    props.rowEvents = {
-      onMouseEnter: e => {
-        const tr = e.currentTarget;
+    if (typeof props.onMouseEnter === 'function') {
+      props.rowEvents = { onMouseEnter: e => props.onMouseEnter.call(this, e, this.getTrOptions(e.currentTarget)), ...props.rowEvents };
+    }
 
-        if (props.changeTrOptionsByRowClick) {
-          this.setHover(tr, ECOS_GRID_HOVERED_CLASS, false, this._tr);
-        } else {
-          this.getTrOptions(tr);
-        }
-
-        trigger.call(this, 'onMouseEnter', e);
-      },
-      onMouseLeave: e => props.changeTrOptionsByRowClick && this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true),
-      ...props.rowEvents
-    };
-
+    this._byRowClickSelectedRow = null;
     props.rowEvents = {
       onClick: e => {
-        props.changeTrOptionsByRowClick && this.getTrOptions(e.currentTarget);
-        this.triggerRowClick(e.currentTarget);
+        if (typeof props.onRowClick === 'function') {
+          this._byRowClickSelectedRow = e.currentTarget;
+          props.onRowClick.call(this, e, this.getTrOptions(e.currentTarget), props.data[e.currentTarget.rowIndex - 1]);
+        }
       },
       ...props.rowEvents
     };
@@ -144,55 +145,13 @@ export default class Grid extends Component {
     return props;
   }
 
-  setHover = (tr, className, needRemove, nonHoveredTr) => {
-    const trClassList = tr.classList;
-    const checkboxGridTrClassList = this.getCheckboxGridTrClassList(tr);
-
-    if (needRemove) {
-      checkboxGridTrClassList && checkboxGridTrClassList.remove(className);
-      trClassList.remove(className);
-    } else if (!nonHoveredTr || nonHoveredTr.rowIndex !== tr.rowIndex) {
-      checkboxGridTrClassList && checkboxGridTrClassList.add(className);
-      trClassList.add(className);
-    }
-  };
-
-  getCheckboxGridTrClassList = tr => {
-    const rowIndex = tr.rowIndex;
-    const parent = closest(tr, REACT_BOOTSTRAP_TABLE_CLASS);
-    let node;
-    let classList = null;
-
-    if (
-      parent &&
-      parent.nextSibling &&
-      parent.nextSibling.getElementsByTagName('tr') &&
-      parent.nextSibling.getElementsByTagName('tr').item(rowIndex) &&
-      (node = parent.nextSibling
-        .getElementsByTagName('tr')
-        .item(rowIndex)
-        .getElementsByClassName('ecos-grid__checkbox')[0])
-    ) {
-      classList = node.classList;
-    }
-
-    return classList;
-  };
-
-  triggerRowClick = tr => {
-    this.setHover(tr, ECOS_GRID_HOVERED_CLASS, true);
-    trigger.call(this, 'onRowClick', this.props.data[tr.rowIndex - 1]);
-  };
-
   getTrOptions = tr => {
-    const { scrollLeft = 0 } = this._scrollValues;
+    const { scrollLeft = 0 } = this.scrollValues;
     const height = tr.offsetHeight - 2;
     const top = tr.offsetTop - 1;
     const row = this.props.data[tr.rowIndex - 1];
 
-    this._tr = tr;
-
-    trigger.call(this, 'onChangeTrOptions', { height, top, row, left: scrollLeft });
+    return { height, top, row, left: scrollLeft };
   };
 
   setEditable = () => {
@@ -336,12 +295,10 @@ export default class Grid extends Component {
     this.closeFilterEvent = document.createEvent('Event');
     this.closeFilterEvent.initEvent(CLOSE_FILTER_EVENT, true, true);
     document.addEventListener('mousedown', this.triggerCloseFilterEvent, false);
-    window.addEventListener('DOMMouseScroll', this.triggerCloseFilterEvent, false);
   };
 
   removeCloseFilterEvent = () => {
     document.removeEventListener('mousedown', this.triggerCloseFilterEvent, false);
-    window.removeEventListener('DOMMouseScroll', this.triggerCloseFilterEvent, false);
   };
 
   createColumnResizeEvents = () => {
@@ -356,23 +313,14 @@ export default class Grid extends Component {
 
   getStartDeviderPosition = options => {
     this._resizingTh = options.th;
-    this._tableDom = closest(options.th, 'table');
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
   };
 
   resizeColumn = e => {
     let th = this._resizingTh;
-
-    if (th && this._tableDom) {
-      const width = this._startResizingThOffset + e.pageX + 'px';
-      const rows = this._tableDom.rows;
-
-      for (let i = 0; i < rows.length; i++) {
-        let firstCol = rows[i].cells[th.cellIndex];
-
-        firstCol.style.width = width;
-        firstCol.firstChild.style.width = width;
-      }
+    if (th) {
+      th.style.width = this._startResizingThOffset + e.pageX + 'px';
+      th.firstChild.style.width = this._startResizingThOffset + e.pageX + 'px';
     }
   };
 
@@ -410,13 +358,7 @@ export default class Grid extends Component {
   };
 
   onScrollFrame = e => {
-    this._scrollValues = e;
-
-    if (this._tr) {
-      this.getTrOptions(this._tr);
-    }
-
-    trigger.call(this, 'onScrolling', e);
+    this.scrollValues = e;
   };
 
   render() {

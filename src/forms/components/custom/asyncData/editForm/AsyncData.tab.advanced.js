@@ -65,30 +65,5 @@ export default [
         and: [{ '==': [{ var: 'data.triggerEventOnChange' }, true] }]
       }
     }
-  },
-  {
-    type: 'panel',
-    title: 'Execution condition',
-    collapsible: true,
-    collapsed: false,
-    style: {
-      'margin-bottom': '10px'
-    },
-    key: 'executionCondition-js',
-    components: [
-      {
-        type: 'textarea',
-        key: 'executionCondition',
-        rows: 5,
-        editor: 'ace',
-        hideLabel: true,
-        input: true
-      },
-      {
-        type: 'htmlelement',
-        tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
-      }
-    ]
   }
 ];

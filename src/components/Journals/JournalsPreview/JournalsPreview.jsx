@@ -6,13 +6,9 @@ import DocPreview from '../../DocPreview/DocPreview';
 import '../../DocPreview/style.scss';
 import './JournalsPreview.scss';
 
-const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
-
-  return {
-    previewUrl: newState.previewUrl
-  };
-};
+const mapStateToProps = state => ({
+  previewUrl: state.journals.previewUrl
+});
 
 class JournalsPreview extends Component {
   render() {

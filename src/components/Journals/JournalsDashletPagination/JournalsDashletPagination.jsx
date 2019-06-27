@@ -2,23 +2,14 @@ import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import Pagination from '../../common/Pagination/Pagination';
 import { reloadGrid } from '../../../actions/journals';
-import { wrapArgs } from '../../../helpers/redux';
 
-const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+const mapStateToProps = state => ({
+  grid: state.journals.grid
+});
 
-  return {
-    grid: newState.grid
-  };
-};
-
-const mapDispatchToProps = (dispatch, props) => {
-  const w = wrapArgs(props.stateId);
-
-  return {
-    reloadGrid: options => dispatch(reloadGrid(w(options)))
-  };
-};
+const mapDispatchToProps = dispatch => ({
+  reloadGrid: options => dispatch(reloadGrid(options))
+});
 
 class JournalsDashletPagination extends Component {
   onChangePage = pagination => this.props.reloadGrid({ pagination });

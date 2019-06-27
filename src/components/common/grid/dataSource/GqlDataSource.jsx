@@ -115,8 +115,6 @@ export default class GqlDataSource extends BaseDataSource {
       attributes[column.dataField || column.attribute] = column.schema || formatter.getQueryString(column.attribute || column.dataField);
     });
 
-    attributes.hasContent = '.has(n:"cm:content")';
-
     return attributes;
   }
 

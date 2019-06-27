@@ -28,29 +28,27 @@ const Dnd = ({ data, cssClasses, cssItemClasses, id, portal, draggableClassName 
       <Scrollbars style={{ height: '100%' }}>
         <Droppable droppableId={id}>
           {provided => (
-            <div>
-              <ul className={cssClasses} {...provided.droppableProps} ref={provided.innerRef}>
-                {data.map((item, index) => (
-                  <Draggable key={item.id} draggableId={item.id} index={index}>
-                    {(provided, snapshot) => {
-                      return snapshot.isDragging ? (
-                        ReactDOM.createPortal(
-                          <ListItem
-                            cssItemClasses={snapshot.isDragging ? `${cssItemClasses} ${draggableClassName}` : cssItemClasses}
-                            provided={provided}
-                            item={item}
-                          />,
-                          portal
-                        )
-                      ) : (
-                        <ListItem cssItemClasses={cssItemClasses} provided={provided} item={item} />
-                      );
-                    }}
-                  </Draggable>
-                ))}
-              </ul>
+            <ul className={cssClasses} {...provided.droppableProps} ref={provided.innerRef}>
+              {data.map((item, index) => (
+                <Draggable key={item.id} draggableId={item.id} index={index}>
+                  {(provided, snapshot) => {
+                    return snapshot.isDragging ? (
+                      ReactDOM.createPortal(
+                        <ListItem
+                          cssItemClasses={snapshot.isDragging ? `${cssItemClasses} ${draggableClassName}` : cssItemClasses}
+                          provided={provided}
+                          item={item}
+                        />,
+                        portal
+                      )
+                    ) : (
+                      <ListItem cssItemClasses={cssItemClasses} provided={provided} item={item} />
+                    );
+                  }}
+                </Draggable>
+              ))}
               {provided.placeholder}
-            </div>
+            </ul>
           )}
         </Droppable>
       </Scrollbars>

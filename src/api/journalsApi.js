@@ -36,7 +36,6 @@ export class JournalsApi extends RecordService {
       ajax: {
         body: {
           query: {
-            consistency: 'EVENTUAL',
             query: query,
             language: 'predicate',
             page: pagination,
