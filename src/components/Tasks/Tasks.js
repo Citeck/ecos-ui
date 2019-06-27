@@ -1,37 +1,36 @@
 import * as React from 'react';
-import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import queryString from 'query-string';
+import { t } from '../../helpers/util';
+import { changeTaskAssignee, getTaskList } from '../../actions/tasks';
+import { selectDataTasksByStateId } from '../../selectors/tasks';
 import TaskList from './TaskList';
-import { changeTaskDetails, getTaskList } from '../../actions/tasks';
 import './style.scss';
-import { AssignOptions } from '../../constants/tasks';
-import { selectDashletTaskList } from '../../selectors/tasks';
 
 const mapStateToProps = (state, context) => {
-  const currentTaskList = selectDashletTaskList(state, context.id) || {};
+  const currentTaskList = selectDataTasksByStateId(state, context.sourceId) || {};
 
   return {
     tasks: currentTaskList.list,
-    isLoading: currentTaskList.isLoading,
-    currentUserUid: state.user.uid
+    isLoading: currentTaskList.isLoading
   };
 };
 
 const mapDispatchToProps = dispatch => ({
   getTaskList: payload => dispatch(getTaskList(payload)),
-  changeTaskDetails: payload => dispatch(changeTaskDetails(payload))
+  changeTaskAssignee: payload => dispatch(changeTaskAssignee(payload))
 });
 
 class Tasks extends React.Component {
   static propTypes = {
-    id: PropTypes.string.isRequired,
+    sourceId: PropTypes.string.isRequired,
+    document: PropTypes.string.isRequired,
     className: PropTypes.string
   };
 
   static defaultProps = {
-    id: '',
+    sourceId: '',
+    document: '',
     className: ''
   };
 
@@ -39,39 +38,27 @@ class Tasks extends React.Component {
     this.getTaskList();
   }
 
-  get urlInfo() {
-    const {
-      location: { search = '' }
-    } = this.props;
-    const searchParam = queryString.parse(search);
-    const { recordRef } = searchParam;
-
-    return {
-      recordRef
-    };
-  }
-
   getTaskList = () => {
-    const { getTaskList, id } = this.props;
+    const { getTaskList, sourceId, document } = this.props;
 
-    getTaskList({ sourceId: id, recordRef: this.urlInfo.recordRef });
+    getTaskList({
+      stateId: sourceId,
+      sourceId,
+      document
+    });
   };
 
   onAssignClick = (taskId, stateAssign, userUid) => {
-    const { changeTaskDetails, id, currentUserUid } = this.props;
+    const { changeTaskAssignee, sourceId, document } = this.props;
 
-    switch (stateAssign) {
-      case AssignOptions.ASSIGN_ME:
-        userUid = currentUserUid;
-        break;
-      case AssignOptions.UNASSIGN:
-        userUid = '';
-        break;
-      default:
-        break;
-    }
-
-    changeTaskDetails({ taskId, sourceId: id, recordRef: this.urlInfo.recordRef, stateAssign, userUid });
+    changeTaskAssignee({
+      taskId,
+      stateAssign,
+      userUid,
+      stateId: sourceId,
+      sourceId,
+      document
+    });
   };
 
   onSubmitForm = () => {
@@ -82,11 +69,11 @@ class Tasks extends React.Component {
     const { tasks, height, isLoading } = this.props;
     const childProps = { tasks, height, onAssignClick: this.onAssignClick, onSubmitForm: this.onSubmitForm, isLoading };
 
-    return <TaskList {...childProps} />;
+    return !!(tasks && tasks.length) ? <TaskList {...childProps} /> : t('Нет задач');
   }
 }
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withRouter(Tasks));
+)(Tasks);

@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
+import EcosForm from '../EcosForm';
 import { Caption } from '../common/form';
 import { Grid } from '../common/grid';
 import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
@@ -104,7 +105,8 @@ class TaskDetails extends React.Component {
             narrow={!isSmallMode}
             className={classBtn}
           />
-          {/*<EcosForm record={details.id} formKey={'alf_ctrwf:reworkTask_mobile'} onSubmit={this.onSubmitForm}/>*/}
+          <EcosForm record={'eform'} formKey={'alf_ctrwf:reworkTask_mobile'} onSubmit={this.onSubmitForm} />
+          <EcosForm record={'eform'} formKey={details.formKey} onSubmit={this.onSubmitForm} />
         </div>
       </div>
     );

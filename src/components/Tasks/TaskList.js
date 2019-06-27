@@ -39,10 +39,9 @@ class TaskList extends React.Component {
 
     return (
       <React.Fragment>
-        {!!(tasks && tasks.length) &&
-          tasks.map((item, i) => (
-            <TaskDetails key={i + item.id} details={item} onAssignClick={onAssignClick} onSubmitForm={onSubmitForm} className={className} />
-          ))}
+        {tasks.map((item, i) => (
+          <TaskDetails key={i + item.id} details={item} onAssignClick={onAssignClick} onSubmitForm={onSubmitForm} className={className} />
+        ))}
       </React.Fragment>
     );
   }

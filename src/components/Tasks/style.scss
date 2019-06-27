@@ -4,6 +4,8 @@
   $root: &;
 
   &-list {
+    min-height: 100px;
+
     &-dashlet {
       height: fit-content;
     }

@@ -1,29 +1,25 @@
 import { handleActions } from 'redux-actions';
-import { getTaskList, setTaskList, changeTaskDetails, setSaveTaskResult } from '../actions/tasks';
-import { deepClone } from '../helpers/util';
-import { getIndexObjectByKV } from '../helpers/arrayOfObjects';
-import { AssignOptions } from '../constants/tasks';
+import { changeTaskAssignee, getTaskList, setSaveTaskResult, setTaskList } from '../actions/tasks';
 
 const initialState = {
   isLoading: false,
   list: [],
   saveResult: {
     status: '',
-    taskId: '',
-    taskData: {}
+    taskId: ''
   }
 };
 
-const getCurrentStateTasksListId = (state, sourceId) => {
-  const currentState = state[sourceId] || {};
+const getCurrentStateTasksListId = (state, stateId) => {
+  const currentState = state[stateId] || {};
 
   return { ...initialState, ...currentState };
 };
 
-const startLoading = (state, { payload: { sourceId } }) => ({
+const startLoading = (state, { payload: { stateId } }) => ({
   ...state,
-  [sourceId]: {
-    ...getCurrentStateTasksListId(state, sourceId),
+  [stateId]: {
+    ...getCurrentStateTasksListId(state, stateId),
     isLoading: true
   }
 });
@@ -31,32 +27,20 @@ const startLoading = (state, { payload: { sourceId } }) => ({
 export default handleActions(
   {
     [getTaskList]: startLoading,
-    [changeTaskDetails]: startLoading,
-    [setTaskList]: (state, { payload: { sourceId, list } }) => ({
+    [changeTaskAssignee]: startLoading,
+    [setTaskList]: (state, { payload: { stateId, list } }) => ({
       ...state,
-      [sourceId]: {
-        ...getCurrentStateTasksListId(state, sourceId),
+      [stateId]: {
+        ...getCurrentStateTasksListId(state, stateId),
         list: list,
         isLoading: false
       }
     }),
-    [setSaveTaskResult]: (state, { payload: { sourceId, result } }) => {
-      const list = deepClone((state[sourceId] || {}).list);
-      const taskIndex = getIndexObjectByKV(list, 'id', result.taskId);
-      const {
-        taskData,
-        taskData: { stateAssign }
-      } = result;
-      if ([AssignOptions.UNASSIGN, AssignOptions.ASSIGN_ME].includes(stateAssign)) {
-        list[taskIndex] = { ...list[taskIndex], ...taskData };
-      } else {
-        list.splice(taskIndex, 1);
-      }
-
+    [setSaveTaskResult]: (state, { payload: { stateId, result, list } }) => {
       return {
         ...state,
-        [sourceId]: {
-          ...getCurrentStateTasksListId(state, sourceId),
+        [stateId]: {
+          ...getCurrentStateTasksListId(state, stateId),
           list,
           saveResult: result,
           isLoading: false

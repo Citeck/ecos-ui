@@ -1,4 +1,5 @@
 import { AssignOptions } from '../constants/tasks';
+import { getFullNameStr } from '../helpers/util';
 
 export default class TasksDto {
   static getTaskForWeb(source = {}) {
@@ -8,12 +9,12 @@ export default class TasksDto {
       return target;
     }
 
-    target.id = source.id;
-    target.formId = source.formId;
-    target.title = source.title;
-    target.assignee = source.assignee;
-    target.sender = source.sender;
-    target.lastcomment = source.lastcomment;
+    target.id = source.id || '';
+    target.formKey = source.formKey || '';
+    target.title = source.title || '';
+    target.assignee = source.assignee || '';
+    target.sender = getFullNameStr(source.sender || {});
+    target.lastcomment = source.lastcomment || '';
     target.started = source.started;
     target.deadline = source.deadline;
     target.stateAssign = source.stateAssign || AssignOptions.UNASSIGN;

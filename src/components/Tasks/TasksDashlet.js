@@ -10,12 +10,13 @@ import './style.scss';
 class TasksDashlet extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
+    document: PropTypes.string.isRequired,
     title: PropTypes.string,
     classNameTasks: PropTypes.string,
     classNameDashlet: PropTypes.string,
     config: PropTypes.shape({
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      id: PropTypes.string.isRequired
+      sourceId: PropTypes.string.isRequired
     })
   };
 
@@ -44,7 +45,7 @@ class TasksDashlet extends React.Component {
   };
 
   render() {
-    const { title, config, classNameTasks, classNameDashlet } = this.props;
+    const { title, config, classNameTasks, classNameDashlet, document } = this.props;
     const { isResizable } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
@@ -56,7 +57,7 @@ class TasksDashlet extends React.Component {
         resizable={isResizable}
         onGoTo={this.onGoTo}
       >
-        <Tasks {...config} className={classNameTasks} />
+        <Tasks {...config} className={classNameTasks} document={document} />
       </Dashlet>
     );
   }

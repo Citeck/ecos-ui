@@ -1,18 +1,20 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
-import { changeTaskDetails, getTaskList, setSaveTaskResult, setTaskList } from '../actions/tasks';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
+import { changeTaskAssignee, getTaskList, setSaveTaskResult, setTaskList } from '../actions/tasks';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import TasksDto from '../dto/tasks';
+import TasksService from '../services/tasks';
+import { selectUserFullName } from '../selectors/user';
 
 function* sagaGetTasks({ api, logger }, { payload }) {
   const err = t('Ошибка получения данные');
-
+  //console.log("sagaGetTasks input", payload);
   try {
-    const { sourceId, recordRef } = payload;
-    const res = yield call(api.tasks.getTasks, { sourceId, recordRef });
+    const { sourceId, document } = payload;
+    const res = yield call(api.tasks.getTasks, { sourceId, document });
 
     if (res && Object.keys(res)) {
-      yield put(setTaskList({ sourceId, list: TasksDto.getTaskListForWeb(res.records) }));
+      yield put(setTaskList({ stateId: sourceId, list: TasksDto.getTaskListForWeb(res.records) }));
     } else {
       yield put(setNotificationMessage(err));
     }
@@ -22,28 +24,24 @@ function* sagaGetTasks({ api, logger }, { payload }) {
   }
 }
 
-function* sagaSetTaskDetails({ api, logger }, { payload }) {
+function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
   const err = t('Ошибка изменении задачи');
-  //todo todo todo
-  console.log('sagaSetTaskDetails payload', payload);
-
+  //console.log('sagaChangeTaskAssignee payload', payload);
   try {
-    const { taskId, sourceId, recordRef } = payload;
-    const res = yield call(api.tasks.changeAssigneeTask, { taskId, sourceId, recordRef });
+    const { taskId, sourceId, document, userUid, stateAssign } = payload;
+    const userAssignId = yield TasksService.defineUserByStateAssign({ stateAssign, userUid });
+    const res = yield call(api.tasks.changeAssigneeTask, { taskId, sourceId, document, userUid: userAssignId });
 
     if (res && Object.keys(res)) {
       const result = {
         status: res ? 'SUCCESS' : 'FAILURE',
         taskId: res.id,
-        taskData: res
-          ? {
-              stateAssign: payload.stateAssign,
-              assignee: payload.userUid
-            }
-          : {}
+        assignee: '', //todo temp?
+        stateAssign: stateAssign //todo temp?
       };
 
-      yield put(setSaveTaskResult({ sourceId, result }));
+      const list = yield TasksService.updateList({ sourceId, result });
+      yield put(setSaveTaskResult({ stateId: sourceId, result, list }));
     } else {
       yield put(setNotificationMessage(err));
     }
@@ -55,7 +53,7 @@ function* sagaSetTaskDetails({ api, logger }, { payload }) {
 
 function* tasksSaga(ea) {
   yield takeEvery(getTaskList().type, sagaGetTasks, ea);
-  yield takeEvery(changeTaskDetails().type, sagaSetTaskDetails, ea);
+  yield takeEvery(changeTaskAssignee().type, sagaChangeTaskAssignee, ea);
 }
 
 export default tasksSaga;

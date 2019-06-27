@@ -350,3 +350,11 @@ export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, rat
 export function getCurrentUserName() {
   return lodashGet(window, 'Alfresco.constants.USERNAME', '');
 }
+
+export function getFullNameStr(userData) {
+  return [userData.lastName || '', userData.firstName || '', userData.middleName || ''].join(' ');
+}
+
+export function isExistIndex(idx) {
+  return !(idx === null || idx === undefined || idx === -1);
+}
