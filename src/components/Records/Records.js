@@ -392,6 +392,11 @@ class Record {
     let isSingleAttribute = isString(attributes);
     let attributesObj = attributes;
 
+    const isArrayOfIds = Array.isArray(self.id);
+    if (isArrayOfIds) {
+      force = true;
+    }
+
     if (isSingleAttribute) {
       attributesObj = { a: attributes };
     } else if (Array.isArray(attributes)) {
@@ -453,20 +458,24 @@ class Record {
       result = this._baseRecord.load(toLoad, force);
     } else {
       result = recordsFetch(QUERY_URL, {
-        record: self.id,
+        [isArrayOfIds ? 'records' : 'record']: self.id,
         attributes: toLoad
-      }).then(resp => resp.attributes || {});
+      }).then(resp => (isArrayOfIds ? resp.records || [] : resp.attributes || {}));
     }
 
     return result.then(atts => {
-      for (let att in atts) {
-        if (!atts.hasOwnProperty(att)) {
-          continue;
+      const getResult = atts => {
+        for (let att in atts) {
+          if (!atts.hasOwnProperty(att)) {
+            continue;
+          }
+          loaded[toLoadNames[att]] = atts[att];
+          self._attributes[att] = new Attribute(self, att, atts[att]);
         }
-        loaded[toLoadNames[att]] = atts[att];
-        self._attributes[att] = new Attribute(self, att, atts[att]);
-      }
-      return formatResult(loaded);
+        return formatResult(loaded);
+      };
+
+      return Array.isArray(atts) ? atts.map(a => getResult(a.attributes || {})) : getResult(atts);
     });
   }
 

@@ -9,18 +9,17 @@ const mapDispatchToProps = dispatch => ({
   initState: stateId => dispatch(initState(stateId))
 });
 
-const STATE_ID = getId();
-
 class JournalsPage extends React.Component {
   constructor(props) {
     super(props);
-    this.props.initState(STATE_ID);
+    this.stateId = getId();
+    this.props.initState(this.stateId);
   }
 
   render() {
     return (
-      <JournalsUrlManager stateId={STATE_ID}>
-        <Journals stateId={STATE_ID} />
+      <JournalsUrlManager stateId={this.stateId}>
+        <Journals stateId={this.stateId} />
       </JournalsUrlManager>
     );
   }
