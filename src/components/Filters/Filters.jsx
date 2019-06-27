@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import { FiltersGroup } from './';
 import { ParserPredicate } from './predicates';
+import { DragDropContext } from 'react-beautiful-dnd';
 import { trigger } from '../../helpers/util';
 
 import './Filters.scss';
@@ -78,6 +79,69 @@ export default class Filters extends Component {
     );
   };
 
+  order = (source, startIndex, endIndex) => {
+    if (source) {
+      const result = source.filters;
+      const [removed] = result.splice(startIndex, 1);
+      result.splice(endIndex, 0, removed);
+
+      source.filters = result;
+    }
+
+    return source;
+  };
+
+  move = (source, destination, startIndex, endIndex) => {
+    let res;
+
+    if (source && destination) {
+      const from = source.filters;
+      const to = destination.filters;
+
+      const [removed] = from.splice(startIndex, 1);
+      to.splice(endIndex, 0, removed);
+
+      source.filters = from;
+      destination.filters = to;
+
+      res = { from: source, to: destination };
+    }
+
+    return res;
+  };
+
+  getIndexFromDroppableId = droppableId => {
+    return droppableId.slice('_')[1];
+  };
+
+  onDragEnd = result => {
+    const { source, destination } = result;
+    const fromGroupIndex = this.getIndexFromDroppableId(source.droppableId);
+
+    if (!destination) {
+      return;
+    }
+
+    if (source.droppableId === destination.droppableId) {
+      const group = this.order(this.groups[fromGroupIndex], source.index, destination.index);
+
+      if (group) {
+        this.groups[fromGroupIndex] = group;
+        this.triggerChange(this.groups);
+      }
+    } else {
+      const toGroupIndex = this.getIndexFromDroppableId(destination.droppableId);
+
+      const moved = this.move(this.groups[fromGroupIndex], this.groups[toGroupIndex], source.index, destination.index);
+
+      if (moved) {
+        this.groups[fromGroupIndex] = moved.from;
+        this.groups[toGroupIndex] = moved.to;
+        this.triggerChange(this.groups);
+      }
+    }
+  };
+
   render() {
     const props = this.props;
     const groups = (this.groups = ParserPredicate.parse(props.predicate, props.columns));
@@ -86,7 +150,9 @@ export default class Filters extends Component {
 
     return (
       <div className={classNames('ecos-filters', this.props.className)}>
-        {groups.map((group, idx) => (idx > 0 ? this.createSubGroup(group, lastIdx !== idx, idx) : this.createGroup(group, true, idx)))}
+        <DragDropContext onDragEnd={this.onDragEnd}>
+          {groups.map((group, idx) => (idx > 0 ? this.createSubGroup(group, lastIdx !== idx, idx) : this.createGroup(group, true, idx)))}
+        </DragDropContext>
       </div>
     );
   }

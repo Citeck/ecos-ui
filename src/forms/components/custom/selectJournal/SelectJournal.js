@@ -57,7 +57,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       let component = this.component;
 
       return {
-        defaultValue: component.defaultValue,
+        defaultValue: this.dataValue,
         isCompact: component.isCompact,
         multiple: component.multiple,
         placeholder: component.placeholder,
@@ -67,6 +67,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         viewOnly: this.viewOnly,
         displayColumns: component.displayColumns,
         hideCreateButton: component.hideCreateButton,
+        searchField: component.searchField,
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
         },

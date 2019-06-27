@@ -16,27 +16,36 @@ import {
 } from '../../../actions/journals';
 
 import { t, getSelectedValue } from '../../../helpers/util';
+import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../constants';
 
 import './JournalsDashletEditor.scss';
 
-const mapStateToProps = state => ({
-  journalsList: state.journals.journalsList,
-  journals: state.journals.journals,
-  journalSettings: state.journals.journalSettings,
-  config: state.journals.config,
-  initConfig: state.journals.initConfig
-});
+const mapStateToProps = (state, props) => {
+  const newState = state.journals[props.stateId] || {};
 
-const mapDispatchToProps = dispatch => ({
-  setEditorMode: visible => dispatch(setEditorMode(visible)),
-  getDashletEditorData: config => dispatch(getDashletEditorData(config)),
-  setJournalsListItem: item => dispatch(setJournalsListItem(item)),
-  setJournalsItem: item => dispatch(setJournalsItem(item)),
-  setSettingItem: id => dispatch(setSettingItem(id)),
-  setDashletConfig: config => dispatch(setDashletConfig(config)),
-  saveDashlet: (config, id) => dispatch(saveDashlet({ config: config, id: id }))
-});
+  return {
+    journalsList: newState.journalsList,
+    journals: newState.journals,
+    journalSettings: newState.journalSettings,
+    config: newState.config,
+    initConfig: newState.initConfig
+  };
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
+
+  return {
+    setEditorMode: visible => dispatch(setEditorMode(w(visible))),
+    getDashletEditorData: config => dispatch(getDashletEditorData(w(config))),
+    setJournalsListItem: item => dispatch(setJournalsListItem(w(item))),
+    setJournalsItem: item => dispatch(setJournalsItem(w(item))),
+    setSettingItem: id => dispatch(setSettingItem(w(id))),
+    setDashletConfig: config => dispatch(setDashletConfig(w(config))),
+    saveDashlet: (config, id) => dispatch(saveDashlet(w({ config: config, id: id })))
+  };
+};
 
 class JournalsDashletEditor extends Component {
   componentDidMount() {

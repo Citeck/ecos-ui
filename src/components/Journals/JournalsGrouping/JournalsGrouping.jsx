@@ -4,16 +4,25 @@ import Grouping from '../../Grouping/Grouping';
 import PanelBar from '../../common/PanelBar/PanelBar';
 import { setGrouping } from '../../../actions/journals';
 import { t } from '../../../helpers/util';
+import { wrapArgs } from '../../../helpers/redux';
 
 import './JournalsGrouping.scss';
 
-const mapStateToProps = state => ({
-  grouping: state.journals.grouping
-});
+const mapStateToProps = (state, props) => {
+  const newState = state.journals[props.stateId] || {};
 
-const mapDispatchToProps = dispatch => ({
-  setGrouping: grouping => dispatch(setGrouping(grouping))
-});
+  return {
+    grouping: newState.grouping
+  };
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
+
+  return {
+    setGrouping: grouping => dispatch(setGrouping(w(grouping)))
+  };
+};
 
 class JournalsGrouping extends Component {
   onGrouping = grouping => {
