@@ -6,10 +6,8 @@ $indents-of-items: 15px;
   $root: &;
 
   display: flex;
-  //height: 100%;
   width: 100%;
   flex-direction: column;
-  height: 100vh;
   padding: 0 13px;
 
   &_left-menu {
@@ -143,6 +141,7 @@ $indents-of-items: 15px;
 
   &__column {
     width: 100%;
+    height: auto !important;
 
     &:not(:first-child) {
       margin-left: $indents-of-items;
@@ -151,7 +150,6 @@ $indents-of-items: 15px;
     &-wrapper {
       display: flex;
       justify-content: space-between;
-      height: 100%;
     }
   }
 

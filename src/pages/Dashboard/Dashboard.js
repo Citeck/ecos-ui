@@ -26,22 +26,28 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class Dashboard extends Component {
-  state = {
-    dashboardId: ''
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      dashboardId: '',
+      config: props.config
+    };
+  }
 
   componentDidMount() {
-    const { getDashboardConfig } = this.props;
+    const { getDashboardConfig, config } = this.props;
     const { recordRef, dashboardId } = this.pathInfo;
 
-    this.setState({ dashboardId });
+    this.setState({ dashboardId, config });
     getDashboardConfig({ recordRef, dashboardId });
   }
 
   componentWillReceiveProps(nextProps) {
     const {
       location: { search },
-      getDashboardConfig
+      getDashboardConfig,
+      config
     } = nextProps;
     const { dashboardId, recordRef } = queryString.parse(search);
     const { dashboardId: oldDashboardId } = this.state;
@@ -49,6 +55,10 @@ class Dashboard extends Component {
     if (dashboardId !== oldDashboardId) {
       this.setState({ dashboardId });
       getDashboardConfig({ recordRef, dashboardId });
+    }
+
+    if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
+      this.setState({ config });
     }
   }
 
@@ -69,7 +79,7 @@ class Dashboard extends Component {
     const {
       config: currentConfig,
       config: { columns }
-    } = this.props;
+    } = this.state;
     const { isWidget, columnFrom, columnTo } = data;
     const { source, destination } = dnd;
     const { dashboardId } = this.pathInfo;
@@ -92,6 +102,7 @@ class Dashboard extends Component {
       }
     }
 
+    this.setState({ config });
     this.saveDashboardConfig({ config, dashboardId });
   };
 
@@ -102,7 +113,7 @@ class Dashboard extends Component {
   renderLayout() {
     const {
       config: { columns, type }
-    } = this.props;
+    } = this.state;
 
     return <Layout columns={columns} onSaveWidget={this.prepareWidgetsConfig} type={type} />;
   }
