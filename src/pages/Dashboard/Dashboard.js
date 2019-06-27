@@ -73,7 +73,7 @@ class Dashboard extends Component {
     const { isWidget, columnFrom, columnTo } = data;
     const { source, destination } = dnd;
     const { dashboardId } = this.pathInfo;
-    const config = { ...currentConfig };
+    const config = JSON.parse(JSON.stringify(currentConfig));
 
     if (isWidget) {
       let widgetsFrom = columns[columnFrom].widgets || [];
@@ -84,12 +84,12 @@ class Dashboard extends Component {
         result = DndUtils.move(widgetsFrom, widgetsTo, source, destination);
         widgetsFrom = result[source.droppableId];
         widgetsTo = result[destination.droppableId];
+        config.columns[columnTo].widgets = widgetsTo;
+        config.columns[columnFrom].widgets = widgetsFrom;
       } else {
         widgetsFrom = DndUtils.reorder(widgetsFrom, data.positionFrom, data.positionTo);
+        config.columns[columnFrom].widgets = widgetsFrom;
       }
-
-      config.columns[columnFrom].widgets = widgetsFrom;
-      config.columns[columnTo].widgets = widgetsTo;
     }
 
     this.saveDashboardConfig({ config, dashboardId });

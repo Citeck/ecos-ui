@@ -53,10 +53,13 @@ class Layout extends Component {
     }
 
     const dataDrag = JSON.parse(result.draggableId);
-    const dataDrop = JSON.parse(result.destination.droppableId);
 
+    const dataDrop = JSON.parse(result.destination.droppableId);
     dataDrag.columnTo = dataDrop.index;
+
     dataDrag.positionTo = destination.index;
+    // TODO: need another way
+    source.index = dataDrag.positionFrom;
 
     this.setState({ draggableDestination: '' });
     this.props.onSaveWidget(dataDrag, { source, destination });

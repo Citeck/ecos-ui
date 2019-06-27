@@ -176,6 +176,7 @@ class Wrapper extends Droppable {
         className="ecos-dnd__droppable-children-wrapper"
       >
         {children}
+        {provided.placeholder}
       </div>
     );
   }

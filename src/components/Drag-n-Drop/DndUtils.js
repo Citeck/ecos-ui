@@ -11,10 +11,7 @@ export default class DndUtils {
     return result;
   };
 
-  static move = (source, destination, droppableSource, droppableDestination) => {
-    source = source || [];
-    destination = destination || [];
-
+  static move = (source = [], destination = [], droppableSource, droppableDestination) => {
     const sourceClone = cloneDeep(source);
     const destClone = cloneDeep(destination);
     const [removed] = sourceClone.splice(droppableSource.index, 1);
@@ -27,10 +24,7 @@ export default class DndUtils {
     return result;
   };
 
-  static copy = (source, destination, droppableSource, droppableDestination) => {
-    source = source || [];
-    destination = destination || [];
-
+  static copy = (source = [], destination = [], droppableSource, droppableDestination) => {
     const sourceClone = cloneDeep(source);
     const destClone = cloneDeep(destination);
     const item = sourceClone[droppableSource.index];
