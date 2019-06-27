@@ -11,7 +11,7 @@ import {
 import { MENU_TYPE } from '../constants';
 
 const initialState = {
-  type: MENU_TYPE.LEFT,
+  type: '',
   links: [],
   availableMenuItems: [],
   isLoading: false,

@@ -51,11 +51,14 @@ class App extends Component {
   renderMenu() {
     const { menuType, links } = this.props;
 
-    if (menuType === MENU_TYPE.LEFT) {
-      return <SlideMenu />;
+    switch (menuType) {
+      case MENU_TYPE.LEFT:
+        return <SlideMenu />;
+      case MENU_TYPE.TOP:
+        return <TopMenu isShow={menuType === MENU_TYPE.TOP} isSortable links={links} onSave={this.handleSaveMenu} />;
+      default:
+        return null;
     }
-
-    return <TopMenu isShow={menuType === MENU_TYPE.TOP} isSortable links={links} onSave={this.handleSaveMenu} />;
   }
 
   render() {
@@ -97,7 +100,7 @@ class App extends Component {
               <Route path="/doc-preview" component={DocPreviewPage} />
               <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
 
-              <Route path="/dashboard/(.*/)?settings" component={DashboardSettingsPage} />
+              <Route path="/dashboard/settings" component={DashboardSettingsPage} />
               <Route path="/dashboard" exact component={DashboardPage} />
 
               <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />

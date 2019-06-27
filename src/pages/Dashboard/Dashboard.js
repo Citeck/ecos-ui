@@ -26,6 +26,32 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class Dashboard extends Component {
+  state = {
+    dashboardId: ''
+  };
+
+  componentDidMount() {
+    const { getDashboardConfig } = this.props;
+    const { recordRef, dashboardId } = this.pathInfo;
+
+    this.setState({ dashboardId });
+    getDashboardConfig({ recordRef, dashboardId });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const {
+      location: { search },
+      getDashboardConfig
+    } = nextProps;
+    const { dashboardId, recordRef } = queryString.parse(search);
+    const { dashboardId: oldDashboardId } = this.state;
+
+    if (dashboardId !== oldDashboardId) {
+      this.setState({ dashboardId });
+      getDashboardConfig({ recordRef, dashboardId });
+    }
+  }
+
   get pathInfo() {
     const {
       location: { search }
@@ -37,13 +63,6 @@ class Dashboard extends Component {
       recordRef,
       dashboardId
     };
-  }
-
-  componentDidMount() {
-    const { getDashboardConfig } = this.props;
-    const { recordRef, dashboardId } = this.pathInfo;
-
-    getDashboardConfig({ recordRef, dashboardId });
   }
 
   prepareWidgetsConfig = (data, dnd) => {

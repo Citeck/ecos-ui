@@ -418,7 +418,7 @@ class PageTabs extends React.Component {
     });
 
     saveTabs(tabs);
-    history.push(tab.link);
+    history.replace(tab.link);
 
     this.setState({ tabs });
   }
