@@ -6,7 +6,7 @@ import { IcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import EcosModal from '../../common/EcosModal/EcosModal';
 import { goToCardDetailsPage, goToNodeEditPage, getDownloadContentUrl } from '../../../helpers/urls';
-import { t, trigger, getId } from '../../../helpers/util';
+import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import {
   reloadGrid,

@@ -4,16 +4,18 @@ import Export from '../../Export/Export';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
-import { onJournalSelect } from '../../../actions/journals';
+import { onJournalSelect, onJournalSettingsSelect } from '../../../actions/journals';
 import { goToCreateRecordPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
+import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../constants';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
     journals: newState.journals,
-    journalConfig: newState.journalConfig
+    journalConfig: newState.journalConfig,
+    journalSettings: newState.journalSettings
   };
 };
 
@@ -21,7 +23,8 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    onJournalSelect: journalId => dispatch(onJournalSelect(w(journalId)))
+    onJournalSelect: journalId => dispatch(onJournalSelect(w(journalId))),
+    onJournalSettingsSelect: journalSettingId => dispatch(onJournalSettingsSelect(w(journalSettingId)))
   };
 };
 
@@ -43,6 +46,10 @@ class JournalsDashletToolbar extends Component {
 
   onChangeJournal = journal => this.props.onJournalSelect(journal.nodeRef);
 
+  onChangeJournalSetting = setting => {
+    this.props.onJournalSettingsSelect(setting[JOURNAL_SETTING_ID_FIELD]);
+  };
+
   render() {
     const {
       stateId,
@@ -50,7 +57,8 @@ class JournalsDashletToolbar extends Component {
       journalConfig,
       journalConfig: {
         meta: { nodeRef = '' }
-      }
+      },
+      journalSettings
     } = this.props;
 
     const dom = this.ref.current;
@@ -67,7 +75,14 @@ class JournalsDashletToolbar extends Component {
           <IcoBtn invert={'true'} icon={'icon-down'} className={'ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10'} />
         </Dropdown>
 
-        <Dropdown source={[]} value={0} valueField={'id'} titleField={'title'} isButton={true}>
+        <Dropdown
+          source={journalSettings}
+          value={0}
+          valueField={JOURNAL_SETTING_ID_FIELD}
+          titleField={`${JOURNAL_SETTING_DATA_FIELD}.title`}
+          isButton={true}
+          onChange={this.onChangeJournalSetting}
+        >
           <TwoIcoBtn icons={['icon-settings', 'icon-down']} className={'ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10'} />
         </Dropdown>
 

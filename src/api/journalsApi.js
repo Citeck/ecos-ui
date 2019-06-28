@@ -187,9 +187,11 @@ export class JournalsApi extends RecordService {
   };
 
   createJournalSetting = ({ journalId, settings }) => {
-    return this.postJson(`${MICRO_URI}api/journalprefs?journalId=${journalId}`, settings, true).then(resp => {
-      return resp;
-    });
+    return this.postJson(`${MICRO_URI}api/journalprefs?journalId=${journalId}`, settings, true)
+      .then(resp => {
+        return resp;
+      })
+      .catch(() => null);
   };
 
   deleteJournalSetting = id => {

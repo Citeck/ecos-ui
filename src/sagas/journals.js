@@ -360,9 +360,11 @@ function* sagaSaveJournalSetting({ api, logger, stateId, w }, action) {
 
 function* sagaCreateJournalSetting({ api, logger, stateId, w }, action) {
   try {
-    yield call(api.journals.createJournalSetting, action.payload);
+    const journalSettingId = yield call(api.journals.createJournalSetting, action.payload);
     let journalConfig = yield select(state => state.journals[stateId].journalConfig);
     yield getJournalSettings(api, journalConfig.id, w);
+
+    yield put(onJournalSettingsSelect(w(journalSettingId)));
   } catch (e) {
     logger.error('[journals sagaCreateJournalSetting saga error', e.message);
   }
