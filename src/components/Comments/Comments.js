@@ -83,8 +83,7 @@ class Comments extends React.Component {
     editorHeight: BASE_HEIGHT,
     comment: EditorState.createEmpty(),
     editableComment: null,
-    commentForDeletion: null,
-    commentListMaxHeight: '217px'
+    commentForDeletion: null
   };
 
   constructor() {
@@ -98,6 +97,7 @@ class Comments extends React.Component {
     const { getComments, id } = this.props;
 
     getComments(id);
+    this.recalculateScrollbarHeight();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -110,11 +110,13 @@ class Comments extends React.Component {
         commentForDeletion: null
       });
     }
-
-    this.setState({ commentListMaxHeight: this.scrollbarHeight }, this.recalculateScrollbarHeight);
   }
 
-  getFormattedDate(date = new Date()) {
+  componentDidUpdate() {
+    this.recalculateScrollbarHeight();
+  }
+
+  formatDate(date = new Date()) {
     const inMoment = moment(date);
     const now = moment();
     const duration = moment.duration(now.diff(inMoment));
@@ -567,7 +569,7 @@ class Comments extends React.Component {
                 {firstName} {middleName}
               </div>
               <div className="ecos-comments__comment-name">{lastName}</div>
-              <div className="ecos-comments__comment-date">{this.getFormattedDate(dateCreate)}</div>
+              <div className="ecos-comments__comment-date">{this.formatDate(dateCreate)}</div>
             </div>
           </div>
           <div className="ecos-comments__comment-header-cell">
