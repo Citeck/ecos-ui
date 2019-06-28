@@ -18,6 +18,22 @@
   display: inline-block;
 }
 
-.grid-tools__item_select-all-btn {
+.grid-tools__item_select-all {
   padding-right: 15px;
+}
+
+.grid-tools__item_select-all-btn {
+  padding-right: 14px !important;
+  padding-left: 14px !important;
+  border-radius: $border-radius-standard !important;
+}
+
+.grid-tools__item_select-group-actions-btn {
+  padding-right: 10px !important;
+  padding-left: 10px !important;
+  border-radius: $border-radius-standard !important;
+}
+
+.grid-tools__item_left_5 {
+  margin-left: 5px;
 }

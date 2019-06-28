@@ -49,3 +49,5 @@ export const goToJournalsPage = createAction(prefix + 'GO_TO_JOURNALS_PAGE');
 export const search = createAction(prefix + 'SEARCH');
 export const setUrl = createAction(prefix + 'SET_URL');
 export const initState = createAction(prefix + 'INIT_STATE');
+export const performGroupAction = createAction(prefix + 'PERFORM_GROUP_ACTION');
+export const setPerformGroupActionResponse = createAction(prefix + 'SET_PERFORM_GROUP_ACTION_RESPONSE');

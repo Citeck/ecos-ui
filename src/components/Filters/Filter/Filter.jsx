@@ -41,7 +41,8 @@ export default class Filter extends Component {
     const predicateProps = predicateInput.getProps({
       predicateValue: predicate.val,
       changePredicateValue: this.changeValue,
-      wrapperClasses: 'ecos-filter_width_full'
+      datePickerWrapperClasses: 'ecos-filter_width_full',
+      selectClassName: 'select_width_full'
     });
     const FilterValueComponent = predicateInput.component;
 
