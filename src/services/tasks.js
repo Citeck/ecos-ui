@@ -6,8 +6,8 @@ import { isExistIndex } from '../helpers/util';
 import { AssignOptions } from '../constants/tasks';
 
 export default class TasksService {
-  static defineUserByStateAssign = function*({ stateAssign, userUid }) {
-    switch (stateAssign) {
+  static defineUserByStateAssign = function*({ selectionAssign, userUid }) {
+    switch (selectionAssign) {
       case AssignOptions.ASSIGN_ME:
         return yield select(selectUserUid);
       case AssignOptions.UNASSIGN:
@@ -17,8 +17,8 @@ export default class TasksService {
     }
   };
 
-  static getUserFullName = function*({ stateAssign, userUid }) {
-    switch (stateAssign) {
+  static getUserFullName = function*({ selectionAssign, userUid }) {
+    switch (selectionAssign) {
       case AssignOptions.ASSIGN_ME:
         return yield select(selectUserFullName);
       case AssignOptions.UNASSIGN:
@@ -28,16 +28,16 @@ export default class TasksService {
     }
   };
 
-  static updateList = function*({ sourceId, result }) {
+  static updateList = function*({ sourceId, selectionAssign, result }) {
     const { stateAssign, taskId } = result;
     const dataTasks = yield select(selectDataTasksByStateId, sourceId);
     const list = dataTasks && Object.keys(dataTasks).length ? dataTasks.list : [];
     const taskIndex = getIndexObjectByKV(list, 'id', taskId);
-    const assignee = yield TasksService.getUserFullName({ stateAssign });
+    const candidate = yield TasksService.getUserFullName({ selectionAssign });
 
     if (isExistIndex(taskIndex)) {
-      if ([AssignOptions.UNASSIGN, AssignOptions.ASSIGN_ME].includes(stateAssign)) {
-        list[taskIndex] = { ...list[taskIndex], assignee, stateAssign };
+      if ([AssignOptions.UNASSIGN, AssignOptions.ASSIGN_ME].includes(selectionAssign)) {
+        list[taskIndex] = { ...list[taskIndex], candidate, stateAssign };
       } else {
         list.splice(taskIndex, 1);
       }

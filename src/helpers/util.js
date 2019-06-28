@@ -358,3 +358,7 @@ export function getFullNameStr(userData) {
 export function isExistIndex(idx) {
   return !(idx === null || idx === undefined || idx === -1);
 }
+
+export function isLastItem(array, idx) {
+  return idx === array.length - 1;
+}

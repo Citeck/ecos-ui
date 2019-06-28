@@ -1,10 +1,22 @@
 @import '../../constants';
 
+%h-indents {
+  padding: 0 20px;
+}
+
 .ecos-task {
   $root: &;
 
   &-list {
     min-height: 100px;
+
+    &_empty {
+      margin: 33px 0;
+      text-align: center;
+      color: $color-gray-5;
+      font-size: $font-size-standard;
+      font-weight: $font-weight-semi-bold;
+    }
 
     &-dashlet {
       height: fit-content;
@@ -15,16 +27,14 @@
     }
   }
 
-  &-details {
-    $details: &;
-
-    &:not(:first-of-type) {
-      border-top: 2px solid $color-gray-4;
-    }
+  &-ins {
+    $ins: &;
+    margin-bottom: 25px;
 
     &__title {
       height: 51px;
       padding: 0 20px;
+      margin-bottom: 7px;
       font-weight: $font-weight-bold;
       color: $color-gray-dark;
       background-color: $color-gray-8;
@@ -34,10 +44,10 @@
       overflow: hidden;
     }
 
-    &__wrapper {
-      padding: 7px 20px 27px;
+    &__info-wrap {
+      @extend %h-indents;
 
-      #{$details}_view-enum {
+      #{$ins}_view-enum {
         display: flex;
         align-items: center;
         padding: 5px 0;
@@ -45,7 +55,7 @@
         font-size: $font-size-small;
 
         &-label {
-          flex-basis: 100px;
+          min-width: 100px;
           margin-right: 45px;
           font-weight: $font-weight-bold;
           color: $text-color-dark;
@@ -56,7 +66,7 @@
         }
       }
 
-      #{$details}_view-table {
+      #{$ins}_view-table {
         height: 110px !important;
 
         .table {
@@ -76,6 +86,10 @@
         }
       }
     }
+
+    &__eform {
+      @extend %h-indents;
+    }
   }
 
   &__assign-btn {
@@ -93,13 +107,21 @@
       width: 100%;
       margin-right: 0;
 
+      &:first-of-type {
+        margin-top: 3px;
+      }
+
+      &:last-of-type {
+        margin-bottom: 2px;
+      }
+
       &:not(:last-of-type) {
         margin-bottom: 10px;
       }
     }
 
     &__wrapper {
-      padding-top: 20px;
+      margin-top: 16px;
     }
   }
 }

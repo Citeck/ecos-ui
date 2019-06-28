@@ -4,7 +4,6 @@ import { TasksTestData } from './mock/tasks';
 
 export class TasksApi extends RecordService {
   getTasks = ({ sourceId, document }) => {
-    console.log('api GetTasks input', sourceId, document);
     return Records.query(
       {
         sourceId: 'wftask', //fixme: использовтаь sourceId
@@ -20,7 +19,8 @@ export class TasksApi extends RecordService {
         title: 'title',
         started: 'started',
         dueDate: 'dueDate',
-        assignee: 'assignee',
+        assignee: 'assignee?json',
+        candidate: 'candidate?json',
         sender: 'sender?json',
         lastcomment: 'lastcomment',
         reassignable: 'reassignable?bool',

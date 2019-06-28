@@ -4,6 +4,8 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import TaskDetails from './TaskDetails';
 import { TasksPropTypes } from './utils';
 import Loader from '../common/Loader/Loader';
+import { isLastItem, t } from '../../helpers/util';
+import Separator from '../common/Separator/Separator';
 
 class TaskList extends React.Component {
   static propTypes = {
@@ -34,13 +36,28 @@ class TaskList extends React.Component {
     );
   }
 
+  renderEmptyInfo() {
+    return <div className={this.className + '_empty'}>{t('Нет задач')}</div>;
+  }
+
   renderTaskDetailsList() {
-    const { tasks, onAssignClick, onSubmitForm, className } = this.props;
+    const { tasks, onAssignClick, onSubmitForm, className, isLoading } = this.props;
+
+    if (isLoading) {
+      return null;
+    }
+
+    if (!!(tasks && tasks.length)) {
+      this.renderEmptyInfo();
+    }
 
     return (
       <React.Fragment>
         {tasks.map((item, i) => (
-          <TaskDetails key={i + item.id} details={item} onAssignClick={onAssignClick} onSubmitForm={onSubmitForm} className={className} />
+          <React.Fragment key={i + item.id}>
+            <TaskDetails details={item} onAssignClick={onAssignClick} onSubmitForm={onSubmitForm} className={className} />
+            {!isLastItem(tasks, i) && <Separator noIndents />}
+          </React.Fragment>
         ))}
       </React.Fragment>
     );
@@ -50,10 +67,14 @@ class TaskList extends React.Component {
     const { height } = this.props;
 
     return (
-      <Scrollbars style={{ height }} className={this.className}>
-        {this.renderLoader()}
-        {this.renderTaskDetailsList()}
-      </Scrollbars>
+      <React.Fragment>
+        {
+          <Scrollbars style={{ height }} className={this.className}>
+            {this.renderLoader()}
+            {this.renderTaskDetailsList()}
+          </Scrollbars>
+        }
+      </React.Fragment>
     );
   }
 }

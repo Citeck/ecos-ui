@@ -5,6 +5,7 @@ import ReactResizeDetector from 'react-resize-detector';
 import EcosForm from '../EcosForm';
 import { Caption } from '../common/form';
 import { Grid } from '../common/grid';
+import Separator from '../common/Separator/Separator';
 import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
 import { deepClone } from '../../helpers/util';
 import { DisplayedColumns, getOutputFormat, TasksPropTypes } from './utils';
@@ -34,7 +35,7 @@ class TaskDetails extends React.Component {
     };
   }
 
-  className = 'ecos-task-details';
+  className = 'ecos-task-ins';
 
   onResize = width => {
     this.setState({ isSmallMode: width <= 300 });
@@ -67,15 +68,15 @@ class TaskDetails extends React.Component {
 
   renderDetailsEnum() {
     const { details } = this.props;
-    const classDetail = `${this.className}_view-enum`;
+    const classInfo = `${this.className}_view-enum`;
     const columns = ArrayOfObjects.sort(DisplayedColumns, 'order');
 
     return (
       <React.Fragment>
         {columns.map((item, i) => (
-          <div className={classDetail} key={details.id + i}>
-            <div className={`${classDetail}-label`}>{item.label}</div>
-            <div className={`${classDetail}-value`}>{getOutputFormat(item.format, details[item.key])}</div>
+          <div className={classInfo} key={details.id + i}>
+            <div className={`${classInfo}-label`}>{item.label}</div>
+            <div className={`${classInfo}-value`}>{getOutputFormat(item.format, details[item.key])}</div>
           </div>
         ))}
       </React.Fragment>
@@ -94,17 +95,20 @@ class TaskDetails extends React.Component {
           {details.title}
         </Caption>
 
-        <div className={`${this.className}__wrapper`}>
+        <div className={`${this.className}__info-wrap`}>
           {!isSmallMode && this.renderDetailsGrid()}
           {isSmallMode && this.renderDetailsEnum()}
           <AssignmentPanel
             stateAssign={details.stateAssign}
-            onClick={stateAssign => {
-              onAssignClick(details.id, stateAssign);
+            onClick={res => {
+              onAssignClick({ taskId: details.id, ...res });
             }}
             narrow={!isSmallMode}
             className={classBtn}
           />
+        </div>
+        <Separator />
+        <div className={`${this.className}__eform`}>
           <EcosForm record={'eform'} formKey={'alf_ctrwf:reworkTask_mobile'} onSubmit={this.onSubmitForm} />
           <EcosForm record={'eform'} formKey={details.formKey} onSubmit={this.onSubmitForm} />
         </div>

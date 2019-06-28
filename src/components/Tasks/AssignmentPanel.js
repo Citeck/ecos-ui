@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Btn } from '../common/btns';
 import { AssignOptions } from '../../constants/tasks';
-import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
-import { InfoAssignButtons } from './utils';
+import { t } from '../../helpers/util';
+import { StateAssignPropTypes } from './utils';
 import './style.scss';
 
 class AssignmentPanel extends React.Component {
   static propTypes = {
-    stateAssign: PropTypes.number.isRequired,
+    stateAssign: PropTypes.shape(StateAssignPropTypes).isRequired,
     className: PropTypes.string,
     onClick: PropTypes.func.isRequired,
     narrow: PropTypes.bool
@@ -23,57 +23,54 @@ class AssignmentPanel extends React.Component {
 
   className = 'ecos-task__assign-btn';
 
-  getInfoBtn = value => {
-    return ArrayOfObjects.getObjectByKV(InfoAssignButtons, 'id', value);
-  };
+  get infoButtons() {
+    const {
+      stateAssign: { claimable, releasable, reassignable }
+    } = this.props;
+
+    const btns = [
+      {
+        isShow: claimable,
+        sentData: { selectionAssign: AssignOptions.ASSIGN_ME },
+        label: t('Я выполняю это')
+      },
+      {
+        isShow: !releasable && !reassignable,
+        sentData: { selectionAssign: AssignOptions.ASSIGN_SMB, userUid: 1 },
+        label: t('Назначить')
+      },
+      {
+        isShow: reassignable,
+        sentData: { selectionAssign: AssignOptions.REASSIGN_SMB, userUid: 1 },
+        label: t('Переназначить')
+      },
+      {
+        isShow: releasable,
+        sentData: { selectionAssign: AssignOptions.UNASSIGN },
+        label: t('Вернуть на группу')
+      }
+    ];
+
+    return btns.filter(item => item.isShow);
+  }
 
   render() {
-    const { stateAssign, onClick, narrow, className } = this.props;
+    const { onClick, narrow, className } = this.props;
     const classBtn = classNames(this.className, className, { 'ecos-btn_narrow-t_standart': narrow });
-    const { ASSIGN_ME, ASSIGN_SMB, REASSIGN_SMB, UNASSIGN } = AssignOptions;
 
     return (
       <div className={this.className + '__wrapper'}>
-        {stateAssign === UNASSIGN && [
+        {this.infoButtons.map((btn, i) => (
           <Btn
-            onClick={() => {
-              onClick(ASSIGN_ME);
-            }}
+            key={i + new Date().getTime()}
             className={classBtn}
-            key={this.className + ASSIGN_ME}
-          >
-            {this.getInfoBtn(ASSIGN_ME).label}
-          </Btn>,
-          <Btn
             onClick={() => {
-              onClick(ASSIGN_SMB);
+              onClick(btn.sentData);
             }}
-            className={classBtn}
-            key={this.className + ASSIGN_SMB}
           >
-            {this.getInfoBtn(ASSIGN_SMB).label}
+            {btn.label}
           </Btn>
-        ]}
-        {stateAssign === ASSIGN_ME && [
-          <Btn
-            onClick={() => {
-              onClick(REASSIGN_SMB);
-            }}
-            className={classBtn}
-            key={this.className + REASSIGN_SMB}
-          >
-            {this.getInfoBtn(REASSIGN_SMB).label}
-          </Btn>,
-          <Btn
-            onClick={() => {
-              onClick(UNASSIGN);
-            }}
-            className={classBtn}
-            key={this.className + UNASSIGN}
-          >
-            {this.getInfoBtn(UNASSIGN).label}
-          </Btn>
-        ]}
+        ))}
       </div>
     );
   }
