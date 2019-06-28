@@ -84,12 +84,7 @@ export default class AsyncDataComponent extends BaseComponent {
       return result;
     }
 
-    let shouldUpdate = true;
-    if (comp.executionCondition) {
-      shouldUpdate = this.evaluate(comp.executionCondition, {}, 'value', true);
-    }
-
-    if (shouldUpdate) {
+    if (this.shouldUpdate) {
       this._updateValue(false);
     }
 
@@ -100,7 +95,18 @@ export default class AsyncDataComponent extends BaseComponent {
     return false;
   }
 
+  get shouldUpdate() {
+    let comp = this.component;
+
+    if (comp.executionCondition) {
+      return this.evaluate(comp.executionCondition, {}, 'value', true);
+    }
+
+    return true;
+  }
+
   _updateValue(forceUpdate) {
+    // console.log('_updateValue', this.key)
     let comp = this.component;
     let type = _.get(comp, 'source.type', '');
     let self = this;
@@ -286,15 +292,20 @@ export default class AsyncDataComponent extends BaseComponent {
       this.append(this.text(this.name + ' (' + this.key + ')'));
     }
 
-    if (_.get(this.component, 'update.type', '') === 'event') {
+    const updateType = _.get(this.component, 'update.type', '');
+    if (updateType === 'event') {
       this.on(
         this.component.update.event,
         () => {
-          const isForceUpdate = _.get(this.component, 'update.force', false);
-          this._updateValue(isForceUpdate);
+          if (this.shouldUpdate) {
+            const isForceUpdate = _.get(this.component, 'update.force', false);
+            this._updateValue(isForceUpdate);
+          }
         },
         true
       );
+    } else if (updateType === 'once') {
+      this._updateValue(false);
     }
 
     const refreshOn = _.get(this.component, 'refreshOn', []);
@@ -302,7 +313,9 @@ export default class AsyncDataComponent extends BaseComponent {
       this.on(
         'change',
         event => {
+          // console.log('changed event', event)
           if (
+            this.shouldUpdate &&
             event.changed &&
             event.changed.component &&
             (refreshOn.findIndex(item => item.value === event.changed.component.key) !== -1) &
