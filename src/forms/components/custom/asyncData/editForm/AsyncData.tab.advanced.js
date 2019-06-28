@@ -5,9 +5,9 @@ export default [
     label: 'Update on:',
     key: 'update.type',
     dataSrc: 'values',
-    defaultValue: 'any-change',
+    defaultValue: 'disabled',
     data: {
-      values: [{ label: 'Any change', value: 'any-change' }, { label: 'Event', value: 'event' }]
+      values: [{ label: 'Any change', value: 'any-change' }, { label: 'Event', value: 'event' }, { label: 'Disabled', value: 'disabled' }]
     }
   },
   {
@@ -20,6 +20,20 @@ export default [
     validate: {
       required: true
     },
+    conditional: {
+      json: {
+        and: [{ '==': [{ var: 'data.update.type' }, 'event'] }]
+      }
+    }
+  },
+  {
+    type: 'checkbox',
+    input: true,
+    key: 'update.force',
+    label: 'Force update',
+    weight: 18,
+    defaultValue: false,
+    description: 'Should check when subscribe to event from TableForm',
     conditional: {
       json: {
         and: [{ '==': [{ var: 'data.update.type' }, 'event'] }]
@@ -40,6 +54,26 @@ export default [
       json: {
         and: [{ '==': [{ var: 'data.update.type' }, 'any-change'] }]
       }
+    }
+  },
+  {
+    type: 'select',
+    input: true,
+    label: 'Refresh on:',
+    key: 'refreshOn',
+    dataSrc: 'custom',
+    multiple: true,
+    data: {
+      custom: `
+        utils.eachComponent(instance.root.editForm.components, function(component, path) {
+          if (component.key != data.key) {
+            values.push({
+              label: component.label || component.key,
+              value: path
+            });
+          }
+        });
+      `
     }
   },
   {

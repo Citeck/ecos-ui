@@ -15,6 +15,7 @@ export default class AsyncDataComponent extends BaseComponent {
         inputType: 'asyncData',
         eventName: '',
         executionCondition: '',
+        refreshOn: [],
         source: {
           type: '',
           ajax: {
@@ -44,7 +45,8 @@ export default class AsyncDataComponent extends BaseComponent {
         update: {
           type: '',
           event: '',
-          rate: 100
+          rate: 100,
+          force: false
         }
       },
       ...extend
@@ -288,7 +290,28 @@ export default class AsyncDataComponent extends BaseComponent {
       this.on(
         this.component.update.event,
         () => {
-          this._updateValue(true); // TODO this.component.update.force
+          const isForceUpdate = _.get(this.component, 'update.force', false);
+          this._updateValue(isForceUpdate);
+        },
+        true
+      );
+    }
+
+    const refreshOn = _.get(this.component, 'refreshOn', []);
+    if (Array.isArray(refreshOn) && refreshOn.length > 0) {
+      this.on(
+        'change',
+        event => {
+          if (
+            event.changed &&
+            event.changed.component &&
+            (refreshOn.findIndex(item => item.value === event.changed.component.key) !== -1) &
+              // Make sure the changed component is not in a different "context". Solves issues where refreshOn being set
+              // in fields inside EditGrids could alter their state from other rows (which is bad).
+              this.inContext(event.changed.instance)
+          ) {
+            this.refresh(event.changed.value);
+          }
         },
         true
       );
