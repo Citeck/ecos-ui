@@ -25,7 +25,8 @@ function* sagaGetTasks({ api, logger }, { payload }) {
 }
 
 function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
-  const err = t('Ошибка изменении задачи');
+  const err = t('Ошибка назначения');
+  const suc = id => t('Успешное назначение задачи #' + id);
 
   try {
     const { taskId, sourceId, document, userUid, selectionAssign } = payload;
@@ -43,12 +44,13 @@ function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
       const result = {
         status: res ? 'SUCCESS' : 'FAILURE',
         taskId: res.id,
-        assignee: '', //todo temp?
+        actors: '', //todo temp?
         stateAssign //todo temp?
       };
 
       const list = yield TasksService.updateList({ sourceId, selectionAssign, result });
       yield put(setSaveTaskResult({ stateId: sourceId, result, list }));
+      yield put(setNotificationMessage(suc(res.id)));
     } else {
       yield put(setNotificationMessage(err));
     }

@@ -1,4 +1,5 @@
 import { select } from 'redux-saga/effects';
+import { isArray, isEmpty, isString } from 'lodash';
 import { selectDataTasksByStateId } from '../selectors/tasks';
 import { selectUserFullName, selectUserUid } from '../selectors/user';
 import { getIndexObjectByKV } from '../helpers/arrayOfObjects';
@@ -33,11 +34,11 @@ export default class TasksService {
     const dataTasks = yield select(selectDataTasksByStateId, sourceId);
     const list = dataTasks && Object.keys(dataTasks).length ? dataTasks.list : [];
     const taskIndex = getIndexObjectByKV(list, 'id', taskId);
-    const candidate = yield TasksService.getUserFullName({ selectionAssign });
+    const actors = yield TasksService.getUserFullName({ selectionAssign });
 
     if (isExistIndex(taskIndex)) {
       if ([AssignOptions.UNASSIGN, AssignOptions.ASSIGN_ME].includes(selectionAssign)) {
-        list[taskIndex] = { ...list[taskIndex], candidate, stateAssign };
+        list[taskIndex] = { ...list[taskIndex], actors, stateAssign };
       } else {
         list.splice(taskIndex, 1);
       }
@@ -45,4 +46,18 @@ export default class TasksService {
 
     return list;
   };
+
+  static getActorsDisplayNameStr(value) {
+    if (isEmpty(value)) {
+      return '';
+    }
+
+    if (isArray(value)) {
+      return value.map(item => item.displayName).join(', ');
+    } else if (isString(value)) {
+      return value;
+    } else {
+      return value.displayName;
+    }
+  }
 }

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
+import isEmpty from 'lodash/isEmpty';
 import TaskDetails from './TaskDetails';
 import { TasksPropTypes } from './utils';
 import Loader from '../common/Loader/Loader';
@@ -37,18 +38,20 @@ class TaskList extends React.Component {
   }
 
   renderEmptyInfo() {
+    const { tasks, isLoading } = this.props;
+
+    if (isLoading || !isEmpty(tasks)) {
+      return null;
+    }
+
     return <div className={this.className + '_empty'}>{t('Нет задач')}</div>;
   }
 
   renderTaskDetailsList() {
     const { tasks, onAssignClick, onSubmitForm, className, isLoading } = this.props;
 
-    if (isLoading) {
+    if (isLoading || isEmpty(tasks)) {
       return null;
-    }
-
-    if (!!(tasks && tasks.length)) {
-      this.renderEmptyInfo();
     }
 
     return (
@@ -67,14 +70,11 @@ class TaskList extends React.Component {
     const { height } = this.props;
 
     return (
-      <React.Fragment>
-        {
-          <Scrollbars style={{ height }} className={this.className}>
-            {this.renderLoader()}
-            {this.renderTaskDetailsList()}
-          </Scrollbars>
-        }
-      </React.Fragment>
+      <Scrollbars style={{ height }} className={this.className}>
+        {this.renderLoader()}
+        {this.renderEmptyInfo()}
+        {this.renderTaskDetailsList()}
+      </Scrollbars>
     );
   }
 }

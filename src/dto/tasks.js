@@ -1,45 +1,43 @@
-export default class TasksConverter {
-  static TaskWebDto = () => ({
-    id: '',
-    formKey: '',
-    title: '',
-    sender: '',
-    assignee: '',
-    candidate: '',
-    lastcomment: '',
-    started: '',
-    deadline: '',
-    stateAssign: {
-      claimable: false,
-      releasable: false,
-      reassignable: false
-    }
-  });
+import TasksService from '../services/tasks';
 
-  static TaskServerDto = () => ({
-    id: '',
-    formKey: '',
-    title: '',
-    sender: {
-      displayName: ''
-    },
-    assignee: {
-      displayName: ''
-    },
-    candidate: {
-      displayName: ''
-    },
-    lastcomment: '',
-    started: '',
-    dueDate: '',
+const TaskWebDto = () => ({
+  id: '',
+  formKey: '',
+  title: '',
+  sender: '',
+  actors: '',
+  lastcomment: '',
+  started: '',
+  deadline: '',
+  stateAssign: {
     claimable: false,
     releasable: false,
     reassignable: false
-  });
+  }
+});
 
+const TaskServerDto = () => ({
+  id: '',
+  formKey: '',
+  title: '',
+  sender: {
+    displayName: ''
+  },
+  actors: {
+    displayName: ''
+  },
+  lastcomment: '',
+  started: '',
+  dueDate: '',
+  claimable: false,
+  releasable: false,
+  reassignable: false
+});
+
+export default class TasksConverter {
   static getTaskForWeb(data = {}) {
-    const target = TasksConverter.TaskWebDto();
-    const source = { ...TasksConverter.TaskServerDto(), ...data };
+    const target = TaskWebDto();
+    const source = { ...TaskServerDto(), ...data };
 
     if (!source || (source && !Object.keys(source))) {
       return target;
@@ -48,7 +46,7 @@ export default class TasksConverter {
     target.id = source.id || '';
     target.formKey = source.formKey || '';
     target.title = source.title || '';
-    target.candidate = (source.candidate || {}).displayName || '';
+    target.actors = TasksService.getActorsDisplayNameStr(source.actors);
     target.sender = (source.sender || {}).displayName || '';
     target.lastcomment = source.lastcomment || '';
     target.started = source.started;

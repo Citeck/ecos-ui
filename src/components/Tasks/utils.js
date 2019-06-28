@@ -12,7 +12,7 @@ export const StateAssignPropTypes = {
 export const TasksPropTypes = {
   id: PropTypes.string,
   title: PropTypes.string,
-  candidate: PropTypes.string,
+  actors: PropTypes.string,
   sender: PropTypes.string,
   lastcomment: PropTypes.string,
   started: PropTypes.any,
@@ -39,7 +39,7 @@ export const DisplayedColumns = [
     order: 2
   },
   {
-    key: 'candidate',
+    key: 'actors',
     label: t('Исполнитель'),
     order: 3
   },
