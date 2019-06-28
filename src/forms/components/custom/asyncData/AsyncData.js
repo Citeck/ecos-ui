@@ -310,7 +310,7 @@ export default class AsyncDataComponent extends BaseComponent {
               // in fields inside EditGrids could alter their state from other rows (which is bad).
               this.inContext(event.changed.instance)
           ) {
-            this.refresh(event.changed.value);
+            this._updateValue(false);
           }
         },
         true
