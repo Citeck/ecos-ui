@@ -84,8 +84,7 @@ class Comments extends React.Component {
     comment: EditorState.createEmpty(),
     editableComment: null,
     commentForDeletion: null,
-    commentListMaxHeight: '217px',
-    needRecalculateHeight: false
+    commentListMaxHeight: '217px'
   };
 
   constructor() {
@@ -112,12 +111,7 @@ class Comments extends React.Component {
       });
     }
 
-    this.setState(
-      {
-        commentListMaxHeight: this.scrollbarHeight
-      },
-      this.recalculateScrollbarHeight
-    );
+    this.setState({ commentListMaxHeight: this.scrollbarHeight }, this.recalculateScrollbarHeight);
   }
 
   getFormattedDate(date = new Date()) {
