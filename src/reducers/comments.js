@@ -48,7 +48,7 @@ export default handleActions(
         totalCount: action.payload.totalCount
       }
     }),
-    [createCommentRequest]: (state, action) => ({
+    [createCommentRequest]: state => ({
       ...state
     }),
     [createCommentSuccess]: (state, action) => ({
@@ -60,7 +60,7 @@ export default handleActions(
         errorMessage: ''
       }
     }),
-    [deleteCommentRequest]: (state, action) => ({
+    [deleteCommentRequest]: state => ({
       ...state
     }),
     [deleteCommentSuccess]: (state, action) => ({
@@ -80,7 +80,7 @@ export default handleActions(
         sendingInProcess: false
       }
     }),
-    [updateCommentRequest]: (state, action) => ({
+    [updateCommentRequest]: state => ({
       ...state
     }),
     [updateCommentSuccess]: (state, action) => ({

@@ -1,8 +1,8 @@
-import { path } from 'ramda';
+import get from 'lodash/get';
 import { initialState } from '../reducers/comments';
 
 export const selectAllComments = (state, nodeRef) => {
-  return path(['comments', nodeRef, 'comments'], state) || [];
+  return get(state, ['comments', nodeRef, 'comments']) || [];
 };
 
 export const selectStateByNodeRef = (state, nodeRef) => {

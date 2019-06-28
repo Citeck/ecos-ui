@@ -36,6 +36,7 @@ class Comments extends React.Component {
         firstName: PropTypes.string,
         lastName: PropTypes.string,
         middleName: PropTypes.string,
+        displayName: PropTypes.string,
         text: PropTypes.string.isRequired,
         dateCreate: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]).isRequired,
         dateModify: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]),
@@ -50,6 +51,7 @@ class Comments extends React.Component {
     saveIsLoading: PropTypes.bool,
     fetchIsLoading: PropTypes.bool,
     hasMore: PropTypes.bool,
+    commentListMaxHeight: PropTypes.number,
     onSave: PropTypes.func,
     onDelete: PropTypes.func,
     getComments: PropTypes.func,
@@ -65,6 +67,7 @@ class Comments extends React.Component {
     errorMessage: '',
     saveIsLoading: false,
     fetchIsLoading: false,
+    commentListMaxHeight: 217,
     onSave: () => {},
     onDelete: () => {},
     getComments: () => {},
@@ -80,8 +83,17 @@ class Comments extends React.Component {
     editorHeight: BASE_HEIGHT,
     comment: EditorState.createEmpty(),
     editableComment: null,
-    commentForDeletion: null
+    commentForDeletion: null,
+    commentListMaxHeight: '217px',
+    needRecalculateHeight: false
   };
+
+  constructor() {
+    super();
+
+    this._list = React.createRef();
+    this._scroll = React.createRef();
+  }
 
   componentDidMount() {
     const { getComments, id } = this.props;
@@ -99,6 +111,13 @@ class Comments extends React.Component {
         commentForDeletion: null
       });
     }
+
+    this.setState(
+      {
+        commentListMaxHeight: this.scrollbarHeight
+      },
+      this.recalculateScrollbarHeight
+    );
   }
 
   getFormattedDate(date = new Date()) {
@@ -115,18 +134,18 @@ class Comments extends React.Component {
     }
 
     if (hours > 0) {
-      return `${hours} ${num2str(hours, ['час', 'часа', 'часов'])} назад`;
+      return t(`${hours} ${num2str(hours, ['час', 'часа', 'часов'])} назад`);
     }
 
     if (minutes > 0) {
-      return `${minutes} ${num2str(minutes, ['минуту', 'минуты', 'минут'])} назад`;
+      return t(`${minutes} ${num2str(minutes, ['минуту', 'минуты', 'минут'])} назад`);
     }
 
     if (seconds > 0) {
-      return `${seconds} ${num2str(seconds, ['секунду', 'секунды', 'секунд'])} назад`;
+      return t(`${seconds} ${num2str(seconds, ['секунду', 'секунды', 'секунд'])} назад`);
     }
 
-    return 'Только что';
+    return t('Только что');
   }
 
   get countComments() {
@@ -136,7 +155,7 @@ class Comments extends React.Component {
       return t('Нет комментариев');
     }
 
-    return `${totalCount} ${t(num2str(totalCount, ['комментарий', 'комментария', 'комментариев']))}`;
+    return t(`${totalCount} ${t(num2str(totalCount, ['комментарий', 'комментария', 'комментариев']))}`);
   }
 
   get className() {
@@ -183,6 +202,20 @@ class Comments extends React.Component {
       .getType();
   }
 
+  get scrollbarHeight() {
+    let height = this.props.commentListMaxHeight;
+
+    if (!this._list.current) {
+      return `${height}px`;
+    }
+
+    const { clientHeight } = this._list.current;
+
+    height = clientHeight > height ? height : clientHeight;
+
+    return `${height}px`;
+  }
+
   updateEditorHeight = () => {
     if (this.editor) {
       this.setState({ editorHeight: this.editor.editor.clientHeight || 0 });
@@ -194,6 +227,12 @@ class Comments extends React.Component {
 
     if (editor) {
       editor.focus();
+    }
+  };
+
+  recalculateScrollbarHeight = () => {
+    if (this._scroll.current) {
+      this._scroll.current.container.style.minHeight = this.scrollbarHeight;
     }
   };
 
@@ -275,6 +314,17 @@ class Comments extends React.Component {
     }
 
     return false;
+  };
+
+  handlePastedText = text => {
+    this.setState(
+      {
+        comment: EditorState.moveFocusToEnd(EditorState.createWithContent(ContentState.createFromText(text)))
+      },
+      this.updateEditorHeight
+    );
+
+    return true;
   };
 
   handleEditComment = id => {
@@ -398,20 +448,15 @@ class Comments extends React.Component {
           />
         </div>
         <div className="ecos-comments__editor-body" onClick={this.handleFocusEditor}>
-          <Scrollbars
-            autoHide
-            style={{
-              height: '100%',
-              minHeight
-            }}
-          >
+          <Scrollbars autoHide style={{ height: '100%', minHeight }}>
             <Editor
               spellCheck
               ref={this.setEditor}
               editorState={comment}
               onChange={this.handleChangeComment}
               handleKeyCommand={this.handleKeyCommand}
-              placeholder="Напишите комментарий не более 350 символов..."
+              handlePastedText={this.handlePastedText}
+              placeholder={t('Напишите комментарий не более 350 символов...')}
             />
           </Scrollbars>
         </div>
@@ -498,19 +543,31 @@ class Comments extends React.Component {
   }
 
   renderComment = data => {
-    const { id, avatar = '', firstName, lastName, middleName, text, dateCreate = new Date(), canEdit = false, canDelete = false } = data;
+    const {
+      id,
+      avatar = '',
+      firstName,
+      lastName,
+      middleName,
+      displayName,
+      text,
+      dateCreate = new Date(),
+      canEdit = false,
+      canDelete = false
+    } = data;
     let convertedComment = text;
 
     try {
-      convertedComment = convertFromRaw(JSON.parse(text));
-      convertedComment = stateToHTML(convertedComment);
-    } catch (e) {}
+      convertedComment = stateToHTML(convertFromRaw(JSON.parse(text)));
+    } catch (e) {
+      console.error('convert comment error: ', e.message);
+    }
 
     return (
       <div className="ecos-comments__comment" key={id}>
         <div className="ecos-comments__comment-header">
           <div className="ecos-comments__comment-header-cell">
-            {this.renderAvatar(avatar, lastName)}
+            {this.renderAvatar(avatar, displayName)}
             <div className="ecos-comments__comment-header-column">
               <div className="ecos-comments__comment-name">
                 {firstName} {middleName}
@@ -551,15 +608,10 @@ class Comments extends React.Component {
     }
 
     return (
-      <Scrollbars
-        autoHide
-        style={{
-          height: '100%',
-          minHeight: '360px'
-          // minHeight: '160px'
-        }}
-      >
-        <div className="ecos-comments__list">{comments.map(this.renderComment)}</div>
+      <Scrollbars autoHide ref={this._scroll} style={{ height: '100%' }}>
+        <div className="ecos-comments__list" ref={this._list}>
+          {comments.map(this.renderComment)}
+        </div>
       </Scrollbars>
     );
   }

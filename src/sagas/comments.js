@@ -1,4 +1,4 @@
-import { put, takeLatest, select, takeEvery } from 'redux-saga/effects';
+import { put, select, takeEvery } from 'redux-saga/effects';
 import {
   createCommentRequest,
   createCommentSuccess,

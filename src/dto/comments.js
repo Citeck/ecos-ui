@@ -8,6 +8,7 @@ export function getCommentForWeb(source) {
   target.firstName = source.author.firstName;
   target.middleName = source.author.middleName;
   target.lastName = source.author.lastName;
+  target.displayName = source.author.displayName;
   target.text = source.text;
   target.avatar = `/share/proxy/alfresco/citeck/ecos/image/thumbnail?nodeRef=${source.author.id}&property=ecos:photo&width=150&height=150`;
   target.dateCreate = source.createdAt;
