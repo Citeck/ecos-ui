@@ -20,7 +20,8 @@ import {
   setGrouping,
   setPreviewUrl,
   setUrl,
-  initState
+  initState,
+  setPerformGroupActionResponse
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { t, deepClone } from '../helpers/util';
@@ -93,7 +94,9 @@ const defaultState = {
     row: {}
   },
 
-  previewUrl: ''
+  previewUrl: '',
+
+  performGroupActionResponse: []
 };
 
 const initialState = {};
@@ -136,6 +139,12 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { predicate: action.payload });
+    },
+    [setPerformGroupActionResponse]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { performGroupActionResponse: action.payload });
     },
     [setPreviewUrl]: (state, action) => {
       const stateId = action.payload.stateId;

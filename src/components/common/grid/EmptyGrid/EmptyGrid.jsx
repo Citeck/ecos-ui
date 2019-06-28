@@ -10,7 +10,7 @@ export default class EmptyGrid extends Component {
 
   componentDidMount() {
     const grid = this._ref.current || {};
-    const height = grid.offsetHeight + (this.props.diff || 0);
+    const height = grid.offsetHeight + (this.props.diff || 15);
     this.setState({ height: height });
   }
 

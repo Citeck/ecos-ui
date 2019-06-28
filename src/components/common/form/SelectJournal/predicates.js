@@ -5,7 +5,6 @@ import SelectJournal from '../../../common/form/SelectJournal';
 import SelectOrgstruct from '../../../common/form/SelectOrgstruct';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../../common/form/SelectOrgstruct/constants';
 import { RecordService } from '../../../../api/recordService';
-import moment from 'moment';
 import { t } from '../../../../helpers/util';
 
 export const COLUMN_DATA_TYPE_TEXT = 'text';
@@ -242,11 +241,11 @@ export function getPredicateInput(field, sourceId) {
       return {
         component: DatePicker,
         defaultValue: null, // new Date(),
-        getProps: ({ predicateValue, changePredicateValue, wrapperClasses }) => ({
+        getProps: ({ predicateValue, changePredicateValue, datePickerWrapperClasses }) => ({
           className: 'ecos-input_narrow',
-          wrapperClasses: wrapperClasses,
+          wrapperClasses: datePickerWrapperClasses,
           showIcon: true,
-          selected: moment(predicateValue || undefined).toDate(),
+          selected: predicateValue,
           onChange: function(value) {
             changePredicateValue(value);
           },
@@ -273,9 +272,9 @@ export function getPredicateInput(field, sourceId) {
               attributes: {
                 opt: `#${field.attribute}?options`
               },
-              record: `${sourceId}@`
+              record: `${sourceId || ''}@`
             })
-            .then(record => record.attributes.opt)
+            .then(record => record.attributes.opt || [])
             .then(opt =>
               opt.map(item => {
                 return {
@@ -293,8 +292,8 @@ export function getPredicateInput(field, sourceId) {
       return {
         component: Select,
         defaultValue: null,
-        getProps: ({ predicateValue, changePredicateValue }) => ({
-          className: 'select_narrow',
+        getProps: ({ predicateValue, changePredicateValue, selectClassName }) => ({
+          className: `select_narrow ${selectClassName}`,
           cacheOptions: true,
           defaultOptions: true,
           isSearchable: false,

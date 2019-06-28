@@ -191,6 +191,10 @@ class Comments extends React.Component {
 
   setEditor = editor => {
     this.editor = editor;
+
+    if (editor) {
+      editor.focus();
+    }
   };
 
   handleResize = width => {

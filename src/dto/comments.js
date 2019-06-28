@@ -9,9 +9,7 @@ export function getCommentForWeb(source) {
   target.middleName = source.author.middleName;
   target.lastName = source.author.lastName;
   target.text = source.text;
-  target.avatar = `/share/proxy/alfresco/citeck/ecos/image/thumbnail?nodeRef=${source.author.id.storeRef.protocol}://${
-    source.author.id.storeRef.identifier
-  }/${source.author.id.id}&property=ecos:photo&width=150&height=150`;
+  target.avatar = `/share/proxy/alfresco/citeck/ecos/image/thumbnail?nodeRef=${source.author.id}&property=ecos:photo&width=150&height=150`;
   target.dateCreate = source.createdAt;
   target.dateModify = source.modifiedAt;
   target.id = source.id;

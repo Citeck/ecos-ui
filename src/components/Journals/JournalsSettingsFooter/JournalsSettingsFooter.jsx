@@ -60,7 +60,12 @@ class JournalsSettingsFooter extends Component {
   onKeydown = e => {
     switch (e.key) {
       case 'Enter':
-        this.applySetting();
+        const inputRef = this.settingTitleInputRef || {};
+        if (e.target === inputRef.current) {
+          this.createSetting();
+        } else {
+          this.applySetting();
+        }
         break;
       default:
         break;
@@ -126,8 +131,9 @@ class JournalsSettingsFooter extends Component {
   };
 
   onDialogCalculateBounds = () => {
-    if (this.settingTitleInputRef) {
-      this.settingTitleInputRef.current.focus();
+    const ref = this.settingTitleInputRef;
+    if (ref && ref.current) {
+      ref.current.focus();
     }
   };
 
