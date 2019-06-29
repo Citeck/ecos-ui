@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Route, Switch } from 'react-router';
 import classNames from 'classnames';
-import { path } from 'ramda';
+import get from 'lodash/get';
 
 import BPMNDesignerPage from '../../pages/BPMNDesignerPage';
 import CardDetailsPage from '../../pages/CardDetailsPage';
@@ -22,13 +22,13 @@ import ReduxModal from '../ReduxModal';
 import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
+import TopMenu from '../Layout/TopMenu';
 
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
+import { initMenuSettings, saveMenuConfig } from '../../actions/menu';
 import { MENU_TYPE, URL } from '../../constants';
 
 import './App.scss';
-import TopMenu from '../Layout/TopMenu';
-import { initMenuSettings, saveMenuConfig } from '../../actions/menu';
 
 class App extends Component {
   componentDidMount() {
@@ -119,15 +119,15 @@ class App extends Component {
 }
 
 const mapStateToProps = state => ({
-  isInit: path(['app', 'isInit'], state),
-  isInitFailure: path(['app', 'isInitFailure'], state),
-  isMobile: path(['view', 'isMobile'], state),
-  theme: path(['view', 'theme'], state),
-  isAuthenticated: path(['user', 'isAuthenticated'], state),
-  isShow: path(['pageTabs', 'isShow'], state),
-  tabs: path(['pageTabs', 'tabs'], state),
-  menuType: path(['menu', 'type'], state),
-  links: path(['menu', 'links'], state)
+  isInit: get(state, ['app', 'isInit']),
+  isInitFailure: get(state, ['app', 'isInitFailure']),
+  isMobile: get(state, ['view', 'isMobile']),
+  theme: get(state, ['view', 'theme']),
+  isAuthenticated: get(state, ['user', 'isAuthenticated']),
+  isShow: get(state, ['pageTabs', 'isShow']),
+  tabs: get(state, ['pageTabs', 'tabs']),
+  menuType: get(state, ['menu', 'type']),
+  links: get(state, ['menu', 'links'])
 });
 
 const mapDispatchToProps = dispatch => ({

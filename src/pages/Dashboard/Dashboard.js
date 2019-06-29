@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { path } from 'ramda';
-import queryString from 'query-string';
+import * as queryString from 'query-string';
+import get from 'lodash/get';
+
 import { getDashboardConfig, saveDashboardConfig } from '../../actions/dashboard';
 import Layout from '../../components/Layout';
 import Loader from '../../components/common/Loader/Loader';
@@ -11,13 +12,13 @@ import './style.scss';
 
 const mapStateToProps = state => ({
   config: {
-    ...path(['dashboard', 'config'], state)
+    ...get(state, ['dashboard', 'config'])
   },
-  isLoadingDashboard: path(['dashboard', 'isLoading'], state),
-  saveResultDashboard: path(['dashboard', 'saveResult'], state),
-  dashboardId: path(['dashboard', 'config', 'dashboardId'], state),
-  isLoadingMenu: path(['menu', 'isLoading'], state),
-  saveResultMenu: path(['menu', 'saveResult'], state)
+  isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
+  saveResultDashboard: get(state, ['dashboard', 'saveResult']),
+  dashboardId: get(state, ['dashboard', 'config', 'dashboardId']),
+  isLoadingMenu: get(state, ['menu', 'isLoading']),
+  saveResultMenu: get(state, ['menu', 'saveResult'])
 });
 
 const mapDispatchToProps = dispatch => ({

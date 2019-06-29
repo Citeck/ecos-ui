@@ -58,7 +58,7 @@ class Layout extends Component {
     dataDrag.columnTo = dataDrop.index;
 
     dataDrag.positionTo = destination.index;
-    // TODO: need another way
+    // need another way
     source.index = dataDrag.positionFrom;
 
     this.setState({ draggableDestination: '' });
@@ -130,7 +130,7 @@ class Layout extends Component {
         key={id}
         isWrapper
         withoutScroll
-        isDragingOver={draggableDestination && draggableDestination === id}
+        isDragingOver={Boolean(draggableDestination && draggableDestination === id)}
       >
         {this.renderWidgets(column.widgets, id)}
       </Droppable>

@@ -6,7 +6,8 @@ import {
   setAvailableWidgets,
   setDashboardConfig,
   setResultSaveDashboardConfig,
-  saveDashboardConfig
+  saveDashboardConfig,
+  getAwayFromPage
 } from '../actions/dashboardSettings';
 import { LAYOUT_TYPE } from '../constants/layout';
 
@@ -53,6 +54,12 @@ export default handleActions(
         ...state,
         saveResult: payload,
         isLoading: false
+      };
+    },
+    [getAwayFromPage]: (state, { payload = {} }) => {
+      return {
+        ...state,
+        ...initialState
       };
     }
   },

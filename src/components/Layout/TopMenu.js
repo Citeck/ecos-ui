@@ -21,8 +21,22 @@ class TopMenu extends Component {
     onSave: () => {}
   };
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      links: props.links
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (JSON.stringify(nextProps.links) !== JSON.stringify(this.state.links)) {
+      this.setState({ links: nextProps.links });
+    }
+  }
+
   handleSortEndMenu = ({ oldIndex, newIndex }, event) => {
-    let links = cloneDeep(this.props.links);
+    let links = cloneDeep(this.state.links);
     const draggableLink = links[oldIndex];
 
     event.stopPropagation();
@@ -33,11 +47,12 @@ class TopMenu extends Component {
       link.position = index;
     });
 
+    this.setState({ links });
     this.props.onSave(links);
   };
 
   renderSortable() {
-    const { links } = this.props;
+    const { links } = this.state;
 
     return (
       <SortableContainer axis="xy" onSortEnd={this.handleSortEndMenu}>
@@ -46,20 +61,19 @@ class TopMenu extends Component {
     );
   }
 
-  renderMenuItem = link => {
-    return (
-      <SortableElement key={link.position} index={link.position}>
-        <Link className="ecos-layout__menu-item" to={link.link} title={t(link.label)}>
-          <div className="ecos-layout__menu-item-title">{t(link.label)}</div>
-          <i className="ecos-btn__i ecos-layout__menu-item-i-next" />
-          <i className="ecos-btn__i icon-drag ecos-layout__menu-item-i-drag" />
-        </Link>
-      </SortableElement>
-    );
-  };
+  renderMenuItem = link => (
+    <SortableElement key={link.position} index={link.position}>
+      <Link className="ecos-layout__menu-item" to={link.link} title={t(link.label)}>
+        <div className="ecos-layout__menu-item-title">{t(link.label)}</div>
+        <i className="ecos-btn__i ecos-layout__menu-item-i-next" />
+        <i className="ecos-btn__i icon-drag ecos-layout__menu-item-i-drag" />
+      </Link>
+    </SortableElement>
+  );
 
   render() {
-    const { isShow, isSortable, links } = this.props;
+    const { isShow, isSortable } = this.props;
+    const { links } = this.state;
 
     if (!isShow) {
       return null;

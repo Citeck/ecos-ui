@@ -1,5 +1,5 @@
 import loadable from '@loadable/component';
-import { path } from 'ramda';
+import get from 'lodash/get';
 import { t } from '../helpers/util';
 
 export default class Components {
@@ -23,7 +23,7 @@ export default class Components {
   };
 
   static get(component) {
-    const link = path([component, 'path'], Components.components);
+    const link = get(Components.components, [component, 'path']);
 
     if (!link) {
       return () => null;

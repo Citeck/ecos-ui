@@ -45,13 +45,13 @@ $indents-of-items: 15px;
         border-color: $color-gray-5;
 
         #{$root}__item-template-column {
-          border-color: $color-gray-5 !important;
+          border-color: $color-gray-5;
         }
 
         #{$root}__menu {
           &-item-template,
           &-left {
-            background: $color-gray-5 !important;
+            background: $color-gray-5;
           }
         }
       }
@@ -86,8 +86,10 @@ $indents-of-items: 15px;
         z-index: 2;
       }
 
-      #{$root}__item-template-column {
-        border-color: $color-blue-dark !important;
+      #{$root}__item-template {
+        &-column {
+          border-color: $color-blue-dark !important;
+        }
       }
 
       #{$root}__menu {
@@ -253,5 +255,9 @@ $indents-of-items: 15px;
     .ecos-dnd__droppable-children-wrapper > :not(:last-child) {
       margin-bottom: $indents-of-items;
     }
+  }
+
+  .dashlet__btn_move {
+    pointer-events: none !important;
   }
 }

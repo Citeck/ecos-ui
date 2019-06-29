@@ -7,6 +7,15 @@ import { SortableContainer, SortableElement } from './sortable';
 import { SCROLL_STEP, TITLE, LINK_TAG, getTitleByUrl } from '../../constants/pageTabs';
 import './style.scss';
 
+const CHANGE_URL_LINK_EVENT = 'CHANGE_URL_LINK_EVENT';
+const customEvent = document.createEvent('Event');
+
+export const changeUrlLink = (link = '', params = {}) => {
+  customEvent.params = { link, ...params };
+
+  document.dispatchEvent(customEvent);
+};
+
 class PageTabs extends React.Component {
   static propTypes = {
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
@@ -48,11 +57,14 @@ class PageTabs extends React.Component {
   }
 
   componentDidMount() {
+    customEvent.initEvent(CHANGE_URL_LINK_EVENT, true, true);
+
     this.checkUrls();
     this.initArrows();
 
     document.addEventListener('click', this.handleClickLink);
     window.addEventListener('popstate', this.handlePopState);
+    document.addEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -165,6 +177,67 @@ class PageTabs extends React.Component {
       });
     }
   }
+
+  handleCustomEvent = event => {
+    /**
+     * params:
+     *    link - string,
+     *    checkUrl - bool,
+     *    openNewTab - bool,
+     *    openNewBrowserTab - bool
+     */
+    const {
+      params: { link = '', checkUrl = false, openNewTab = false, openNewBrowserTab = false }
+    } = event;
+
+    if (checkUrl) {
+      this.checkUrls();
+
+      return;
+    }
+
+    const { saveTabs, history, homepageName } = this.props;
+    const { tabs } = this.state;
+
+    event.preventDefault();
+
+    if (openNewTab) {
+      const newActiveTab = tabs.find(tab => tab.link === link);
+
+      if (newActiveTab) {
+        this.activeTab = newActiveTab;
+      } else {
+        tabs.map(item => {
+          item.isActive = false;
+          return item;
+        });
+        tabs.push(this.generateNewTab({ link }));
+        saveTabs(tabs);
+        history.push(link);
+
+        this.setState({ tabs });
+      }
+
+      return;
+    }
+
+    if (openNewBrowserTab) {
+      const tab = window.open(link, '_blank');
+
+      tab.focus();
+
+      return;
+    }
+
+    // default behavior - open on this tab with replace url
+    const tab = tabs.find(tab => tab.isActive);
+
+    tab.link = link;
+    tab.title = this.getTitle(link) || homepageName;
+
+    saveTabs(tabs);
+    history.replace(link);
+  };
 
   handlePopState = () => {
     const {

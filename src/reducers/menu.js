@@ -52,13 +52,11 @@ export default handleActions(
         isLoading: false
       };
     },
-    [setAvailableMenuItems]: (state, { payload }) => {
-      return {
-        ...state,
-        availableMenuItems: payload,
-        isLoading: false
-      };
-    }
+    [setAvailableMenuItems]: (state, { payload }) => ({
+      ...state,
+      availableMenuItems: payload,
+      isLoading: false
+    })
   },
   initialState
 );

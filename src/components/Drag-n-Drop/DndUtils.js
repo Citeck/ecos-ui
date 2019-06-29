@@ -37,7 +37,11 @@ export default class DndUtils {
   static setDndId = items => {
     const arr = Array.from(items || []);
 
-    arr.forEach(value => (value.dndId = uuidV4()));
+    arr.forEach(value => {
+      if (!value.dndId) {
+        value.dndId = uuidV4();
+      }
+    });
 
     return arr;
   };

@@ -34,7 +34,7 @@ export function getSettingsConfigForServer(source) {
 }
 
 function getWidgetsForServer(columns = [], widgets = []) {
-  let defProps = setDataWidgets(widgets); //fixme when ECOSENT-738
+  let defProps = setDataWidgets(widgets);
 
   return columns.map((column, index) => {
     const data = {
