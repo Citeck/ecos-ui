@@ -25,7 +25,8 @@ class TopMenu extends Component {
     super(props);
 
     this.state = {
-      links: props.links
+      links: props.links,
+      draggableNode: null
     };
   }
 
@@ -36,10 +37,12 @@ class TopMenu extends Component {
   }
 
   handleSortEndMenu = ({ oldIndex, newIndex }, event) => {
-    let links = cloneDeep(this.state.links);
+    const { draggableNode, links: stateLinks } = this.state;
+    let links = cloneDeep(stateLinks);
     const draggableLink = links[oldIndex];
 
     event.stopPropagation();
+    draggableNode.classList.toggle('ecos-layout__menu-item_sorting');
 
     links.splice(oldIndex, 1);
     links.splice(newIndex, 0, draggableLink);
@@ -47,15 +50,21 @@ class TopMenu extends Component {
       link.position = index;
     });
 
-    this.setState({ links });
+    this.setState({ links, draggableNode: null });
     this.props.onSave(links);
+  };
+
+  handleBeforeSortStart = ({ node }) => {
+    node.classList.toggle('ecos-layout__menu-item_sorting');
+
+    this.setState({ draggableNode: node });
   };
 
   renderSortable() {
     const { links } = this.state;
 
     return (
-      <SortableContainer axis="xy" onSortEnd={this.handleSortEndMenu}>
+      <SortableContainer axis="xy" onSortEnd={this.handleSortEndMenu} updateBeforeSortStart={this.handleBeforeSortStart}>
         <div className="ecos-layout__menu">{links && links.map(this.renderMenuItem)}</div>
       </SortableContainer>
     );

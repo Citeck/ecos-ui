@@ -159,7 +159,7 @@ $indents-of-items: 15px;
     display: flex;
     width: 100%;
     //height: 100%;
-    padding: 0 13px 21px;
+    padding: 2px 13px 21px;
     flex-wrap: wrap;
     justify-content: flex-start;
     align-content: flex-start;
@@ -187,6 +187,12 @@ $indents-of-items: 15px;
 
       &:not(:last-child) {
         margin-right: $indents-of-items;
+      }
+
+      &_sorting {
+        &:after {
+          display: none !important;
+        }
       }
 
       &-i {
