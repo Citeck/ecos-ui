@@ -24,11 +24,11 @@ const ListItem = ({ cssItemClasses, provided, item }) => {
 
 const Dnd = ({ data, cssClasses, cssItemClasses, id, portal, draggableClassName }) => {
   return (
-    <div className={'ecos-dnd-list__column'}>
-      <Scrollbars style={{ height: '100%' }}>
+    <div className={'ecos-dnd2-list__column'}>
+      <Scrollbars autoHide style={{ height: '100%' }}>
         <Droppable droppableId={id}>
           {provided => (
-            <div>
+            <div className={data.length > 3 ? '' : 'ecos-dnd2-list__placeholder_full'}>
               <ul className={cssClasses} {...provided.droppableProps} ref={provided.innerRef}>
                 {data.map((item, index) => (
                   <Draggable key={item.id} draggableId={item.id} index={index}>
@@ -168,8 +168,8 @@ export default class Dnd2List extends Component {
 
   render() {
     const { className, classNameItem, draggableClassName = '' } = this.props;
-    const cssClasses = classNames('ecos-dnd-list', className);
-    const cssItemClasses = classNames('ecos-dnd-list__item', classNameItem);
+    const cssClasses = classNames('ecos-dnd2-list', className);
+    const cssItemClasses = classNames('ecos-dnd2-list__item', classNameItem);
 
     const first = this.view(this.state.first);
     const second = this.view(this.state.second);

@@ -1,19 +1,19 @@
 @import '../../../../constants';
 
-.ecos-dnd-list {
+.ecos-dnd2-list {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-.ecos-dnd-list__item {
+.ecos-dnd2-list__item {
   border-top: 1px solid $color-gray-4;
   border-bottom: 1px solid $color-gray-4;
   margin-bottom: -1px;
   list-style-type: none;
 }
 
-.ecos-dnd-list__column {
+.ecos-dnd2-list__column {
   width: 100%;
   height: 167px;
   border: 2px solid $color-gray-6;
@@ -22,7 +22,11 @@
   padding: 16px;
 }
 
-.ecos-dnd-list__item_draggable {
+.ecos-dnd2-list__item_draggable {
   background: $color-white !important;
   z-index: 20000 !important;
+}
+
+.ecos-dnd2-list__placeholder_full {
+  height: 100%;
 }
