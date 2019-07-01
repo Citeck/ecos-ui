@@ -15,7 +15,7 @@ function* sagaGetShowTabsStatus({ api, logger }, action) {
           sourceId: 'uiserv/config'
         },
         '.bool',
-        true
+        false
       );
     }, action.payload);
 

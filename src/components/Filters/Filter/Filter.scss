@@ -34,3 +34,19 @@
 .ecos-filter_width_full {
   width: 100%;
 }
+
+.ecos-filter__drag-ico {
+  font-size: $font-size-extra-large;
+  color: $color-gray-6;
+  line-height: 1;
+
+  &:hover {
+    cursor: inherit;
+    background: $color-white !important;
+  }
+
+  &::before {
+    width: auto !important;
+    margin: 0 !important;
+  }
+}

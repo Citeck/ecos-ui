@@ -392,7 +392,7 @@ export default class SelectJournal extends Component {
   };
 
   render() {
-    const { multiple, placeholder, disabled, isCompact, viewOnly, hideCreateButton } = this.props;
+    const { multiple, placeholder, disabled, isCompact, viewOnly, hideCreateButton, searchField } = this.props;
     const {
       isGridDataReady,
       selectedRows,
@@ -468,7 +468,7 @@ export default class SelectJournal extends Component {
                   )}
                 </div>
                 <div className={'select-journal-collapse-panel__controls-right'}>
-                  <Search onApply={this.onApplyFilters} />
+                  <Search searchField={searchField} onApply={this.onApplyFilters} />
                 </div>
               </div>
 
@@ -536,5 +536,6 @@ SelectJournal.propTypes = {
   isCompact: PropTypes.bool,
   hideCreateButton: PropTypes.bool,
   displayColumns: PropTypes.array,
-  viewOnly: PropTypes.bool
+  viewOnly: PropTypes.bool,
+  searchField: PropTypes.string
 };
