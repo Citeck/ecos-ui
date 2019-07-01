@@ -15,6 +15,7 @@ export default class AsyncDataComponent extends BaseComponent {
         inputType: 'asyncData',
         eventName: '',
         executionCondition: '',
+        refreshOn: [],
         source: {
           type: '',
           ajax: {
@@ -44,7 +45,8 @@ export default class AsyncDataComponent extends BaseComponent {
         update: {
           type: '',
           event: '',
-          rate: 100
+          rate: 100,
+          force: false
         }
       },
       ...extend
@@ -82,12 +84,7 @@ export default class AsyncDataComponent extends BaseComponent {
       return result;
     }
 
-    let shouldUpdate = true;
-    if (comp.executionCondition) {
-      shouldUpdate = this.evaluate(comp.executionCondition, {}, 'value', true);
-    }
-
-    if (shouldUpdate) {
+    if (this.shouldUpdate) {
       this._updateValue(false);
     }
 
@@ -98,7 +95,18 @@ export default class AsyncDataComponent extends BaseComponent {
     return false;
   }
 
+  get shouldUpdate() {
+    let comp = this.component;
+
+    if (comp.executionCondition) {
+      return this.evaluate(comp.executionCondition, {}, 'value', true);
+    }
+
+    return true;
+  }
+
   _updateValue(forceUpdate) {
+    // console.log('_updateValue', this.key)
     let comp = this.component;
     let type = _.get(comp, 'source.type', '');
     let self = this;
@@ -284,11 +292,39 @@ export default class AsyncDataComponent extends BaseComponent {
       this.append(this.text(this.name + ' (' + this.key + ')'));
     }
 
-    if (_.get(this.component, 'update.type', '') === 'event') {
+    const updateType = _.get(this.component, 'update.type', '');
+    if (updateType === 'event') {
       this.on(
         this.component.update.event,
         () => {
-          this._updateValue(true); // TODO this.component.update.force
+          if (this.shouldUpdate) {
+            const isForceUpdate = _.get(this.component, 'update.force', false);
+            this._updateValue(isForceUpdate);
+          }
+        },
+        true
+      );
+    } else if (updateType === 'once') {
+      this._updateValue(false);
+    }
+
+    const refreshOn = _.get(this.component, 'refreshOn', []);
+    if (Array.isArray(refreshOn) && refreshOn.length > 0) {
+      this.on(
+        'change',
+        event => {
+          // console.log('changed event', event)
+          if (
+            this.shouldUpdate &&
+            event.changed &&
+            event.changed.component &&
+            (refreshOn.findIndex(item => item.value === event.changed.component.key) !== -1) &
+              // Make sure the changed component is not in a different "context". Solves issues where refreshOn being set
+              // in fields inside EditGrids could alter their state from other rows (which is bad).
+              this.inContext(event.changed.instance)
+          ) {
+            this._updateValue(false);
+          }
         },
         true
       );
