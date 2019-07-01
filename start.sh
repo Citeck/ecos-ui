@@ -10,6 +10,8 @@ if [ "${GATEWAY_TARGET}" != "<GATEWAY_TARGET" ]; then
 else
     sed -i '/#BEGIN_GATEWAY/,/#END_GATEWAY/d' /etc/nginx/conf.d/default.conf
     echo "delete gateway-app upstream"
+    sed -i '/#BEGIN_GATEWAY_LOCATIONS/,/#END_GATEWAY_LOCATIONS/d' /etc/nginx/conf.d/default.conf
+    echo "delete gateway locations"
 fi
 
 if [ "${CADVISOR_TARGET}" != "<CADVISOR_TARGET" ]; then
