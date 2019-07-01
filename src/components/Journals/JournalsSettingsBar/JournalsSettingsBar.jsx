@@ -1,6 +1,7 @@
 import React from 'react';
 import { IcoBtn } from '../../common/btns';
 import JournalsDashletPagination from '../JournalsDashletPagination';
+import { t } from '../../../helpers/util';
 
 import './JournalsSettingsBar.scss';
 
@@ -11,18 +12,33 @@ const JournalsSettingsBar = ({ stateId, showPreview, showPie, toggleSettings, to
 
   return (
     <div className={'ecos-journal__settings-bar'}>
-      <IcoBtn icon={'icon-settings'} className={`ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`} onClick={toggleSettings} />
+      <IcoBtn
+        title={t('journals.settings')}
+        icon={'icon-settings'}
+        className={`ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
+        onClick={toggleSettings}
+      />
 
-      <IcoBtn icon={'icon-reload'} className={`${grey} ${step}`} onClick={refresh} />
+      <IcoBtn title={t('dashlet.update.title')} icon={'icon-reload'} className={`${grey} ${step}`} onClick={refresh} />
 
       <div className={'ecos-journal__settings-bar_right '}>
         <JournalsDashletPagination stateId={stateId} />
 
-        <IcoBtn icon={'icon-list'} className={`${!showPie && !showPreview ? blue : grey} ${step}`} onClick={showGrid} />
+        <IcoBtn
+          title={t('journal.title')}
+          icon={'icon-list'}
+          className={`${!showPie && !showPreview ? blue : grey} ${step}`}
+          onClick={showGrid}
+        />
 
-        <IcoBtn icon={'icon-columns'} className={`${showPreview ? blue : grey} ${step}`} onClick={togglePreview} />
+        <IcoBtn
+          title={t('doc-preview.preview')}
+          icon={'icon-columns'}
+          className={`${showPreview ? blue : grey} ${step}`}
+          onClick={togglePreview}
+        />
 
-        <IcoBtn icon={'icon-pie'} className={showPie ? blue : grey} onClick={togglePie} />
+        {/*<IcoBtn icon={'icon-pie'} className={showPie ? blue : grey} onClick={togglePie} />*/}
       </div>
     </div>
   );
