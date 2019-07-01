@@ -36,7 +36,7 @@ import {
   setPerformGroupActionResponse
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
+import { JOURNAL_SETTING_ID_FIELD, DEFAULT_PAGINATION } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { goToJournalsPage as goToJournalsPageUrl, getFilterUrlParam } from '../helpers/urls';
 import { t } from '../helpers/util';
@@ -234,6 +234,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
     const grid = yield select(state => state.journals[stateId].grid);
 
     grid.columns = columns;
+    grid.pagination = DEFAULT_PAGINATION;
 
     let params = {
       ...grid,
