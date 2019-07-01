@@ -12,7 +12,8 @@ const TaskWebDto = () => ({
   stateAssign: {
     claimable: false,
     releasable: false,
-    reassignable: false
+    reassignable: false,
+    assignable: false
   }
 });
 
@@ -31,7 +32,8 @@ const TaskServerDto = () => ({
   dueDate: '',
   claimable: false,
   releasable: false,
-  reassignable: false
+  reassignable: false,
+  assignable: false
 });
 
 export default class TasksConverter {
@@ -52,8 +54,8 @@ export default class TasksConverter {
     target.started = source.started;
     target.deadline = source.dueDate;
 
-    const { claimable, releasable, reassignable } = source;
-    target.stateAssign = { claimable, releasable, reassignable };
+    const { claimable, releasable, reassignable, assignable } = source;
+    target.stateAssign = { claimable, releasable, reassignable, assignable };
 
     return target;
   }

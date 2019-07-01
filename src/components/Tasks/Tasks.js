@@ -7,7 +7,7 @@ import TaskList from './TaskList';
 import './style.scss';
 
 const mapStateToProps = (state, context) => {
-  const currentTaskList = selectDataTasksByStateId(state, context.sourceId) || {};
+  const currentTaskList = selectDataTasksByStateId(state, context.document) || {};
 
   return {
     tasks: currentTaskList.list,
@@ -24,39 +24,48 @@ class Tasks extends React.Component {
   static propTypes = {
     sourceId: PropTypes.string.isRequired,
     document: PropTypes.string.isRequired,
-    className: PropTypes.string
+    className: PropTypes.string,
+    isRunReload: PropTypes.bool,
+    setReloadDone: PropTypes.func
   };
 
   static defaultProps = {
     sourceId: '',
     document: '',
-    className: ''
+    className: '',
+    isRunReload: false,
+    setReloadDone: () => {}
   };
 
   componentDidMount() {
     this.getTaskList();
   }
 
+  componentWillReceiveProps(nextProps, nextContext) {
+    if (nextProps.isRunReload) {
+      this.getTaskList();
+      this.props.setReloadDone(true);
+    }
+  }
+
   getTaskList = () => {
     const { getTaskList, sourceId, document } = this.props;
 
     getTaskList({
-      stateId: sourceId,
+      stateId: document,
       sourceId,
       document
     });
   };
 
-  onAssignClick = ({ taskId, selectionAssign, userUid }) => {
-    const { changeTaskAssignee, sourceId, document } = this.props;
+  onAssignClick = ({ taskId, actionOfAssignment, ownerUserName }) => {
+    const { changeTaskAssignee, document } = this.props;
 
     changeTaskAssignee({
-      taskId,
-      selectionAssign,
-      userUid,
-      stateId: sourceId,
-      sourceId,
-      document
+      actionOfAssignment,
+      ownerUserName,
+      stateId: document,
+      taskId
     });
   };
 

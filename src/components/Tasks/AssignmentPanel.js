@@ -2,7 +2,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Btn } from '../common/btns';
-import { AssignOptions } from '../../constants/tasks';
+import { USER_ADMIN, USER_CURRENT } from '../../constants';
+import { AssignActions } from '../../constants/tasks';
 import { t } from '../../helpers/util';
 import { StateAssignPropTypes } from './utils';
 import './style.scss';
@@ -25,28 +26,28 @@ class AssignmentPanel extends React.Component {
 
   get infoButtons() {
     const {
-      stateAssign: { claimable, releasable, reassignable }
+      stateAssign: { claimable, releasable, reassignable, assignable }
     } = this.props;
 
     const btns = [
       {
         isShow: claimable,
-        sentData: { selectionAssign: AssignOptions.ASSIGN_ME },
+        sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: USER_CURRENT },
         label: t('Я выполняю это')
       },
       {
-        isShow: !releasable && !reassignable,
-        sentData: { selectionAssign: AssignOptions.ASSIGN_SMB, userUid: 1 },
+        isShow: assignable,
+        sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: USER_ADMIN }, //todo выбор пользователя из МО в другой доработке
         label: t('Назначить')
       },
       {
         isShow: reassignable,
-        sentData: { selectionAssign: AssignOptions.REASSIGN_SMB, userUid: 1 },
+        sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: USER_ADMIN },
         label: t('Переназначить')
       },
       {
         isShow: releasable,
-        sentData: { selectionAssign: AssignOptions.UNASSIGN },
+        sentData: { actionOfAssignment: AssignActions.UNASSIGN, ownerUserName: '' },
         label: t('Вернуть на группу')
       }
     ];

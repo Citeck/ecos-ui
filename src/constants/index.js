@@ -8,3 +8,6 @@ export const DataFormatTypes = {
   DATE: 'date',
   TEXT: 'text'
 };
+
+export const USER_CURRENT = '$CURRENT';
+export const USER_ADMIN = 'admin';

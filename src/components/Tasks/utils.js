@@ -6,11 +6,13 @@ import { DataFormatTypes } from '../../constants';
 export const StateAssignPropTypes = {
   claimable: PropTypes.bool,
   releasable: PropTypes.bool,
-  reassignable: PropTypes.bool
+  reassignable: PropTypes.bool,
+  assignable: PropTypes.bool
 };
 
 export const TasksPropTypes = {
   id: PropTypes.string,
+  formKey: PropTypes.string,
   title: PropTypes.string,
   actors: PropTypes.string,
   sender: PropTypes.string,

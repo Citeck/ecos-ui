@@ -1,44 +1,20 @@
 import { select } from 'redux-saga/effects';
 import { isArray, isEmpty, isString } from 'lodash';
 import { selectDataTasksByStateId } from '../selectors/tasks';
-import { selectUserFullName, selectUserUid } from '../selectors/user';
 import { getIndexObjectByKV } from '../helpers/arrayOfObjects';
 import { isExistIndex } from '../helpers/util';
-import { AssignOptions } from '../constants/tasks';
+import { USER_CURRENT } from '../constants';
 
 export default class TasksService {
-  static defineUserByStateAssign = function*({ selectionAssign, userUid }) {
-    switch (selectionAssign) {
-      case AssignOptions.ASSIGN_ME:
-        return yield select(selectUserUid);
-      case AssignOptions.UNASSIGN:
-        return '';
-      default:
-        return userUid;
-    }
-  };
-
-  static getUserFullName = function*({ selectionAssign, userUid }) {
-    switch (selectionAssign) {
-      case AssignOptions.ASSIGN_ME:
-        return yield select(selectUserFullName);
-      case AssignOptions.UNASSIGN:
-        return '';
-      default:
-        return userUid;
-    }
-  };
-
-  static updateList = function*({ sourceId, selectionAssign, result }) {
-    const { stateAssign, taskId } = result;
-    const dataTasks = yield select(selectDataTasksByStateId, sourceId);
+  static updateList = function*({ stateId, taskId, updatedFields, ownerUserName }) {
+    const dataTasks = yield select(selectDataTasksByStateId, stateId);
     const list = dataTasks && Object.keys(dataTasks).length ? dataTasks.list : [];
     const taskIndex = getIndexObjectByKV(list, 'id', taskId);
-    const actors = yield TasksService.getUserFullName({ selectionAssign });
+    const { actors, ...stateAssign } = updatedFields;
 
     if (isExistIndex(taskIndex)) {
-      if ([AssignOptions.UNASSIGN, AssignOptions.ASSIGN_ME].includes(selectionAssign)) {
-        list[taskIndex] = { ...list[taskIndex], actors, stateAssign };
+      if (USER_CURRENT === ownerUserName || ownerUserName === '') {
+        list[taskIndex] = { ...list[taskIndex], actors: TasksService.getActorsDisplayNameStr(actors), stateAssign };
       } else {
         list.splice(taskIndex, 1);
       }

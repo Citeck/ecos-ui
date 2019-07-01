@@ -1,8 +1,7 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { changeTaskAssignee, getTaskList, setSaveTaskResult, setTaskList } from '../actions/tasks';
+import { changeTaskAssignee, getTaskList, setTaskAssignee, setTaskList } from '../actions/tasks';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
-import { AssignOptions } from '../constants/tasks';
 import TasksConverter from '../dto/tasks';
 import TasksService from '../services/tasks';
 
@@ -10,11 +9,11 @@ function* sagaGetTasks({ api, logger }, { payload }) {
   const err = t('Ошибка получения данные');
 
   try {
-    const { sourceId, document } = payload;
+    const { sourceId, document, stateId } = payload;
     const res = yield call(api.tasks.getTasks, { sourceId, document });
 
     if (res && Object.keys(res)) {
-      yield put(setTaskList({ stateId: sourceId, list: TasksConverter.getTaskListForWeb(res.records) }));
+      yield put(setTaskList({ stateId, list: TasksConverter.getTaskListForWeb(res.records) }));
     } else {
       yield put(setNotificationMessage(err));
     }
@@ -26,30 +25,17 @@ function* sagaGetTasks({ api, logger }, { payload }) {
 
 function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
   const err = t('Ошибка назначения');
-  const suc = id => t('Успешное назначение задачи #' + id);
+  const suc = id => t('Успешное назначение задачи');
 
   try {
-    const { taskId, sourceId, document, userUid, selectionAssign } = payload;
-    const userAssignId = yield TasksService.defineUserByStateAssign({ selectionAssign, userUid });
-    const res = yield call(api.tasks.changeAssigneeTask, { taskId, sourceId, document, userUid: userAssignId });
+    const { taskId, stateId, ownerUserName, actionOfAssignment } = payload;
+    const res = yield call(api.tasks.changeAssigneeTask, { taskId, action: actionOfAssignment, owner: ownerUserName });
 
-    //todo temp
-    var stateAssign = {
-      claimable: AssignOptions.UNASSIGN === selectionAssign,
-      releasable: AssignOptions.ASSIGN_ME === selectionAssign,
-      reassignable: false
-    };
+    if (res && Object.keys(res).length) {
+      const updatedFields = yield call(api.tasks.getTaskStateAssign, { taskId });
+      const list = yield TasksService.updateList({ stateId, taskId, updatedFields, ownerUserName });
 
-    if (res && Object.keys(res)) {
-      const result = {
-        status: res ? 'SUCCESS' : 'FAILURE',
-        taskId: res.id,
-        actors: '', //todo temp?
-        stateAssign //todo temp?
-      };
-
-      const list = yield TasksService.updateList({ sourceId, selectionAssign, result });
-      yield put(setSaveTaskResult({ stateId: sourceId, result, list }));
+      yield put(setTaskAssignee({ stateId, list }));
       yield put(setNotificationMessage(suc(res.id)));
     } else {
       yield put(setNotificationMessage(err));

@@ -1,13 +1,9 @@
 import { handleActions } from 'redux-actions';
-import { changeTaskAssignee, getTaskList, setSaveTaskResult, setTaskList } from '../actions/tasks';
+import { changeTaskAssignee, getTaskList, setTaskAssignee, setTaskList } from '../actions/tasks';
 
 const initialState = {
   isLoading: false,
-  list: [],
-  saveResult: {
-    status: '',
-    taskId: ''
-  }
+  list: []
 };
 
 const getCurrentStateTasksListId = (state, stateId) => {
@@ -36,13 +32,12 @@ export default handleActions(
         isLoading: false
       }
     }),
-    [setSaveTaskResult]: (state, { payload: { stateId, result, list } }) => {
+    [setTaskAssignee]: (state, { payload: { stateId, list } }) => {
       return {
         ...state,
         [stateId]: {
           ...getCurrentStateTasksListId(state, stateId),
           list,
-          saveResult: result,
           isLoading: false
         }
       };

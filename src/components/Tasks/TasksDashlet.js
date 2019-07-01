@@ -30,23 +30,24 @@ class TasksDashlet extends React.Component {
     super(props);
 
     this.state = {
-      isResizable: true
+      isResizable: true,
+      isRunReload: false
     };
   }
 
   className = 'ecos-task-list-dashlet';
 
-  onGoTo = () => {
-    const {
-      config: { link }
-    } = this.props;
+  onReload = () => {
+    this.setReload(false);
+  };
 
-    window.location.href = link;
+  setReload = isDone => {
+    this.setState({ isRunReload: !isDone });
   };
 
   render() {
     const { title, config, classNameTasks, classNameDashlet, document } = this.props;
-    const { isResizable } = this.state;
+    const { isResizable, isRunReload } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -55,9 +56,12 @@ class TasksDashlet extends React.Component {
         bodyClassName={`${this.className}__body`}
         className={classDashlet}
         resizable={isResizable}
-        onGoTo={this.onGoTo}
+        onReload={this.onReload}
+        needGoTo={false}
+        actionEdit={false}
+        actionHelp={false}
       >
-        <Tasks {...config} className={classNameTasks} document={document} />
+        <Tasks {...config} className={classNameTasks} document={document} isRunReload={isRunReload} setReloadDone={this.setReload} />
       </Dashlet>
     );
   }
