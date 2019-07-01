@@ -8,7 +8,6 @@ import {
   setResultSaveMenuConfig,
   setMenuConfig
 } from '../actions/menu';
-import { MENU_TYPE } from '../constants';
 
 const initialState = {
   type: '',

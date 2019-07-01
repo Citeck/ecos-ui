@@ -252,6 +252,8 @@
     position: relative;
     height: 100%;
 
+    display: flex;
+
     &-content {
       padding: 0 10px 10px;
     }

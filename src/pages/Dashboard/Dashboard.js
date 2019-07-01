@@ -4,6 +4,7 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 
 import { getDashboardConfig, saveDashboardConfig } from '../../actions/dashboard';
+import { getMenuConfig, initMenuSettings } from '../../actions/menu';
 import Layout from '../../components/Layout';
 import Loader from '../../components/common/Loader/Loader';
 import { DndUtils } from '../../components/Drag-n-Drop';
@@ -23,7 +24,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   getDashboardConfig: payload => dispatch(getDashboardConfig(payload)),
-  saveDashboardConfig: payload => dispatch(saveDashboardConfig(payload))
+  saveDashboardConfig: payload => dispatch(saveDashboardConfig(payload)),
+  initMenuSettings: payload => dispatch(getMenuConfig(payload))
 });
 
 class Dashboard extends Component {
@@ -48,6 +50,7 @@ class Dashboard extends Component {
     const {
       location: { search },
       getDashboardConfig,
+      initMenuSettings,
       config
     } = nextProps;
     const { dashboardId, recordRef } = queryString.parse(search);
@@ -56,6 +59,7 @@ class Dashboard extends Component {
     if (dashboardId !== oldDashboardId) {
       this.setState({ dashboardId });
       getDashboardConfig({ recordRef, dashboardId });
+      initMenuSettings();
     }
 
     if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {

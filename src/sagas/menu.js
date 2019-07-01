@@ -49,8 +49,7 @@ function* doGetMenuConfigRequest({ api, logger }, { payload }) {
 
 function* doSaveMenuConfigRequest({ api, logger }, { payload }) {
   try {
-    const result = yield call(api.menu.saveMenuConfig, { config: payload });
-
+    yield call(api.menu.saveMenuConfig, { config: payload });
     yield put(setMenuConfig(payload));
     yield put(setResultSaveMenuConfig({ status: SAVE_STATUS.SUCCESS }));
   } catch (e) {

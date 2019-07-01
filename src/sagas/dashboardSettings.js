@@ -74,21 +74,19 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       dashboardId,
       dashboardKey
     });
-
-    const menuResult = yield call(api.menu.saveMenuConfig, { config: menu });
-
     const parseDashboard = dtoDB.parseSaveResult(dashboardResult);
+
+    yield call(api.menu.saveMenuConfig, { config: menu });
+    yield put(
+      setResultSaveMenuConfig({
+        status: SAVE_STATUS.SUCCESS
+      })
+    );
 
     yield put(
       setResultSaveDashboardConfig({
         status: parseDashboard.dashboardId ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
         dashboardId: parseDashboard.dashboardId
-      })
-    );
-
-    yield put(
-      setResultSaveMenuConfig({
-        status: SAVE_STATUS.SUCCESS
       })
     );
   } catch (e) {

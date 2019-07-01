@@ -158,7 +158,6 @@ $indents-of-items: 15px;
   &__menu {
     display: flex;
     width: 100%;
-    //height: 100%;
     padding: 2px 13px 21px;
     flex-wrap: wrap;
     justify-content: flex-start;
@@ -174,19 +173,23 @@ $indents-of-items: 15px;
 
     &-item {
       display: flex;
-      min-width: 290px;
+      //min-width: 290px;
       padding: 13px 20px;
-      flex-basis: 30%;
-      max-width: 30%;
+      width: calc((100% - #{$indents-of-items} * 2) / 3);
       height: 60px;
       background: $color-white;
       box-shadow: $box-shadow-default;
       border-radius: 12px;
       position: relative;
       margin-bottom: $indents-of-items;
+      margin-right: $indents-of-items;
 
-      &:not(:last-child) {
-        margin-right: $indents-of-items;
+      &:nth-child(3n) {
+        margin-right: 0;
+      }
+
+      &:last-child {
+        margin-right: 0;
       }
 
       &_sorting {
@@ -265,5 +268,36 @@ $indents-of-items: 15px;
 
   .dashlet__btn_move {
     pointer-events: none !important;
+  }
+}
+
+@media (max-width: 920px) {
+  .ecos-layout {
+    &__menu {
+      &-item {
+        width: calc((100% - #{$indents-of-items}) / 2);
+
+        &:nth-child(3n) {
+          margin-right: $indents-of-items;
+        }
+
+        &:nth-child(2n) {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .ecos-layout {
+    &__menu {
+      flex-direction: column;
+
+      &-item {
+        width: 100%;
+        margin-right: 0;
+      }
+    }
   }
 }
