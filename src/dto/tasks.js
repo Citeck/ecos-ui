@@ -1,45 +1,8 @@
 import TasksService from '../services/tasks';
 
-const TaskWebDto = () => ({
-  id: '',
-  formKey: '',
-  title: '',
-  sender: '',
-  actors: '',
-  lastcomment: '',
-  started: '',
-  deadline: '',
-  stateAssign: {
-    claimable: false,
-    releasable: false,
-    reassignable: false,
-    assignable: false
-  }
-});
-
-const TaskServerDto = () => ({
-  id: '',
-  formKey: '',
-  title: '',
-  sender: {
-    displayName: ''
-  },
-  actors: {
-    displayName: ''
-  },
-  lastcomment: '',
-  started: '',
-  dueDate: '',
-  claimable: false,
-  releasable: false,
-  reassignable: false,
-  assignable: false
-});
-
 export default class TasksConverter {
-  static getTaskForWeb(data = {}) {
-    const target = TaskWebDto();
-    const source = { ...TaskServerDto(), ...data };
+  static getTaskForWeb(source = {}) {
+    const target = {};
 
     if (!source || (source && !Object.keys(source))) {
       return target;
