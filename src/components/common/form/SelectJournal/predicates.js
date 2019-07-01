@@ -299,6 +299,8 @@ export function getPredicateInput(field, sourceId) {
           isSearchable: false,
           loadOptions: loadOptions,
           defaultValue: defaultValue,
+          value: predicateValue,
+          handleSetValue: (value, options) => options.filter(o => o.value === value)[0],
           onChange: function(selected) {
             changePredicateValue(selected.value);
           }

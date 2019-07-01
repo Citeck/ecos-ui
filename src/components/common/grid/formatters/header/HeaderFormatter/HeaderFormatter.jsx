@@ -117,14 +117,14 @@ export default class HeaderFormatter extends Component {
   };
 
   render() {
-    const { column, filterable, ascending } = this.props;
+    const { column, filterable, ascending, onTextClick } = this.props;
     const state = this.state;
 
     this.id = `filter-${column.dataField.replace(':', '_')}-${this._id}`;
     this.tooltipId = `tooltip-${this.id}`;
 
     const text = (
-      <span onClick={this.onTextClick}>
+      <span className={onTextClick ? 'ecos-th__pointer' : ''} onClick={this.onTextClick}>
         {column.text}
         {ascending !== undefined ? <Icon className={`ecos-th__order ${ascending ? 'icon-up' : 'icon-down'}`} /> : null}
       </span>

@@ -26,7 +26,7 @@ import {
 import { setLoading } from '../actions/loader';
 import { t, deepClone } from '../helpers/util';
 import { handleAction, handleState } from '../helpers/redux';
-import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../components/Journals/constants';
+import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD, DEFAULT_PAGINATION } from '../components/Journals/constants';
 
 const defaultState = {
   loading: true,
@@ -42,11 +42,7 @@ const defaultState = {
     predicate: {},
     groupBy: null,
     sortBy: [],
-    pagination: {
-      skipCount: 0,
-      maxItems: 10,
-      page: 1
-    },
+    pagination: DEFAULT_PAGINATION,
     minHeight: null
   },
 
