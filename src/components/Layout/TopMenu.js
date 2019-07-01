@@ -65,7 +65,7 @@ class TopMenu extends Component {
 
     return (
       <SortableContainer axis="xy" onSortEnd={this.handleSortEndMenu} updateBeforeSortStart={this.handleBeforeSortStart}>
-        <div className="ecos-layout__menu">{links && links.map(this.renderMenuItem)}</div>
+        <div className="ecos-layout__menu ecos-layout__menu_big">{links && links.map(this.renderMenuItem)}</div>
       </SortableContainer>
     );
   }

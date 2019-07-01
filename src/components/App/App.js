@@ -22,13 +22,13 @@ import ReduxModal from '../ReduxModal';
 import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
-import TopMenu from '../Layout/TopMenu';
 
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
-import { initMenuSettings, saveMenuConfig } from '../../actions/menu';
+import { initMenuSettings } from '../../actions/menu';
 import { MENU_TYPE, URL } from '../../constants';
 
 import './App.scss';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 class App extends Component {
   componentDidMount() {
@@ -39,23 +39,23 @@ class App extends Component {
     initMenuSettings();
   }
 
-  handleSaveMenu = links => {
-    const { saveMenuConfig, menuType } = this.props;
-
-    saveMenuConfig({
-      type: menuType,
-      links
-    });
-  };
+  // handleSaveMenu = links => {
+  //   const { saveMenuConfig, menuType } = this.props;
+  //
+  //   saveMenuConfig({
+  //     type: menuType,
+  //     links
+  //   });
+  // };
 
   renderMenu() {
-    const { menuType, links } = this.props;
+    const { menuType } = this.props;
 
     switch (menuType) {
       case MENU_TYPE.LEFT:
         return <SlideMenu />;
       case MENU_TYPE.TOP:
-        return <TopMenu isShow={menuType === MENU_TYPE.TOP} isSortable links={links} onSave={this.handleSaveMenu} />;
+      // return <TopMenu isShow={menuType === MENU_TYPE.TOP} isSortable links={links} onSave={this.handleSaveMenu} />;
       default:
         return null;
     }
@@ -80,6 +80,13 @@ class App extends Component {
 
     const appClassNames = classNames('app-container', { mobile: isMobile });
 
+    /**
+    <Scrollbars
+      style={{ height: '100vh' }}
+      renderTrackHorizontal={props => <div {...props} hidden />}
+      renderThumbHorizontal={props => <div {...props} hidden />}
+    >
+     */
     return (
       <div className={appClassNames}>
         <ReduxModal />
@@ -91,6 +98,8 @@ class App extends Component {
           </div>
 
           <PageTabs homepageLink={URL.HOME} isShow={isShow} tabs={tabs} saveTabs={setTabs} />
+
+          {this.renderMenu()}
 
           <Switch>
             {/*<Route path="/share/page" exact component={DashboardPage} />*/}
@@ -124,16 +133,16 @@ const mapStateToProps = state => ({
   isAuthenticated: get(state, ['user', 'isAuthenticated']),
   isShow: get(state, ['pageTabs', 'isShow']),
   tabs: get(state, ['pageTabs', 'tabs']),
-  menuType: get(state, ['menu', 'type']),
-  links: get(state, ['menu', 'links'])
+  menuType: get(state, ['menu', 'type'])
+  // links: get(state, ['menu', 'links'])
 });
 
 const mapDispatchToProps = dispatch => ({
   getShowTabsStatus: () => dispatch(getShowTabsStatus()),
   getTabs: () => dispatch(getTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
-  initMenuSettings: () => dispatch(initMenuSettings()),
-  saveMenuConfig: config => dispatch(saveMenuConfig(config))
+  initMenuSettings: () => dispatch(initMenuSettings())
+  // saveMenuConfig: config => dispatch(saveMenuConfig(config))
 });
 
 export default withRouter(

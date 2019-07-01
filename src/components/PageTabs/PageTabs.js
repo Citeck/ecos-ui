@@ -611,7 +611,7 @@ class PageTabs extends React.Component {
   renderChildren() {
     const { children, isShow } = this.props;
 
-    if (isShow) {
+    if (isShow && children) {
       return (
         <div className="page-tab__body">
           <Scrollbars className="page-tab__body-scroll" style={{ height: '100%' }}>

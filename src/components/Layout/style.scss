@@ -158,10 +158,16 @@ $indents-of-items: 15px;
   &__menu {
     display: flex;
     width: 100%;
-    padding: 2px 13px 21px;
+    padding: 2px 13px 0;
     flex-wrap: wrap;
     justify-content: flex-start;
     align-content: flex-start;
+
+    &_big {
+      //margin-top: 37px;
+      //margin: 37px 0 22px 0;
+      margin: 0 0 22px 0;
+    }
 
     &_top {
       display: flex;
