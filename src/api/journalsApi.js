@@ -2,6 +2,7 @@ import { RecordService } from './recordService';
 import { PROXY_URI, MICRO_URI } from '../constants/alfresco';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 import Records from '../components/Records';
+import { queryByCriteria, t } from '../helpers/util';
 
 export class JournalsApi extends RecordService {
   getRecord = ({ id, attributes }) => {
@@ -186,9 +187,11 @@ export class JournalsApi extends RecordService {
   };
 
   createJournalSetting = ({ journalId, settings }) => {
-    return this.postJson(`${MICRO_URI}api/journalprefs?journalId=${journalId}`, settings, true).then(resp => {
-      return resp;
-    });
+    return this.postJson(`${MICRO_URI}api/journalprefs?journalId=${journalId}`, settings, true)
+      .then(resp => {
+        return resp;
+      })
+      .catch(() => null);
   };
 
   deleteJournalSetting = id => {
@@ -210,6 +213,33 @@ export class JournalsApi extends RecordService {
         resp = resp || {};
         const { url = '', ext = '' } = resp;
         return url && ext ? `${url}.${ext}` : '';
+      });
+  };
+
+  performGroupAction = ({ groupAction, selected, criteria, journalId }) => {
+    const { id, type, params } = groupAction;
+
+    return Promise.all([
+      this.postJson(`${PROXY_URI}api/journals/group-action`, {
+        actionId: id,
+        groupType: type,
+        journalId: journalId,
+        nodes: selected,
+        params: params,
+        query: queryByCriteria(criteria)
+      }),
+      Records.get(selected).load('.disp')
+    ])
+      .then(resp => {
+        let actionResults = (resp[0] || {}).results || [];
+        let titles = resp[1] || [];
+
+        titles = Array.isArray(titles) ? titles : [titles];
+
+        return actionResults.map((a, i) => ({ ...a, title: titles[i], status: t(`batch-edit.message.${a.status}`) }));
+      })
+      .catch(() => {
+        return [];
       });
   };
 }

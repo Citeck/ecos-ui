@@ -49,8 +49,6 @@ class JournalsContent extends Component {
   render() {
     let { stateId, showPreview, showPie } = this.props;
 
-    showPie = false;
-
     let cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} />];
     if (showPreview)
       cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} />, <Preview stateId={stateId} />];

@@ -31,10 +31,12 @@ import {
   initPreview,
   setPreviewUrl,
   goToJournalsPage,
-  search
+  search,
+  performGroupAction,
+  setPerformGroupActionResponse
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
+import { JOURNAL_SETTING_ID_FIELD, DEFAULT_PAGINATION } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { goToJournalsPage as goToJournalsPageUrl, getFilterUrlParam } from '../helpers/urls';
 import { t } from '../helpers/util';
@@ -232,6 +234,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
     const grid = yield select(state => state.journals[stateId].grid);
 
     grid.columns = columns;
+    grid.pagination = DEFAULT_PAGINATION;
 
     let params = {
       ...grid,
@@ -358,9 +361,11 @@ function* sagaSaveJournalSetting({ api, logger, stateId, w }, action) {
 
 function* sagaCreateJournalSetting({ api, logger, stateId, w }, action) {
   try {
-    yield call(api.journals.createJournalSetting, action.payload);
+    const journalSettingId = yield call(api.journals.createJournalSetting, action.payload);
     let journalConfig = yield select(state => state.journals[stateId].journalConfig);
     yield getJournalSettings(api, journalConfig.id, w);
+
+    yield put(onJournalSettingsSelect(w(journalSettingId)));
   } catch (e) {
     logger.error('[journals sagaCreateJournalSetting saga error', e.message);
   }
@@ -445,6 +450,28 @@ function* sagaSearch({ api, logger, stateId, w }, action) {
   }
 }
 
+function* sagaPerformGroupAction({ api, logger, stateId, w }, action) {
+  try {
+    let { groupAction, selected } = action.payload;
+    const journalConfig = yield select(state => state.journals[stateId].journalConfig);
+
+    const performGroupActionResponse = yield call(api.journals.performGroupAction, {
+      groupAction,
+      selected,
+      criteria: journalConfig.meta.criteria,
+      journalId: journalConfig.id
+    });
+
+    if (performGroupActionResponse.length) {
+      yield put(setSelectedRecords(w([])));
+      yield put(reloadGrid(w({})));
+      yield put(setPerformGroupActionResponse(w(performGroupActionResponse)));
+    }
+  } catch (e) {
+    logger.error('[journals sagaPerformGroupAction saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(getDashletEditorData().type, wrapSaga, { ...ea, saga: sagaGetDashletEditorData });
@@ -469,6 +496,7 @@ function* saga(ea) {
   yield takeEvery(initPreview().type, wrapSaga, { ...ea, saga: sagaInitPreview });
   yield takeEvery(goToJournalsPage().type, wrapSaga, { ...ea, saga: sagaGoToJournalsPage });
   yield takeEvery(search().type, wrapSaga, { ...ea, saga: sagaSearch });
+  yield takeEvery(performGroupAction().type, wrapSaga, { ...ea, saga: sagaPerformGroupAction });
 }
 
 export default saga;

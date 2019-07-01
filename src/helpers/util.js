@@ -1,5 +1,17 @@
 import lodashGet from 'lodash/get';
 
+export const queryByCriteria = criteria => {
+  let query = {};
+
+  (criteria || []).forEach((criterion, idx) => {
+    query['field_' + idx] = criterion.field;
+    query['predicate_' + idx] = criterion.predicate;
+    query['value_' + idx] = criterion.value;
+  });
+
+  return query;
+};
+
 export const getBool = val => (val === 'false' ? false : val === 'true' ? true : val);
 
 export function closest(node, selector) {

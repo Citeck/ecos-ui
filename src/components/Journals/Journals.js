@@ -155,7 +155,12 @@ class Journals extends Component {
               <JournalsFilters stateId={stateId} columns={visibleColumns} />
               <JournalsColumnsSetup stateId={stateId} columns={columns} />
               <JournalsGrouping stateId={stateId} columns={visibleColumns} />
-              <JournalsSettingsFooter stateId={stateId} journalId={journalId} onApply={this.toggleSettings} />
+              <JournalsSettingsFooter
+                stateId={stateId}
+                journalId={journalId}
+                onApply={this.toggleSettings}
+                onCreate={this.toggleSettings}
+              />
             </Well>
           </EcosModal>
 

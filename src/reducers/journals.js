@@ -20,12 +20,13 @@ import {
   setGrouping,
   setPreviewUrl,
   setUrl,
-  initState
+  initState,
+  setPerformGroupActionResponse
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { t, deepClone } from '../helpers/util';
 import { handleAction, handleState } from '../helpers/redux';
-import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../components/Journals/constants';
+import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD, DEFAULT_PAGINATION } from '../components/Journals/constants';
 
 const defaultState = {
   loading: true,
@@ -41,11 +42,7 @@ const defaultState = {
     predicate: {},
     groupBy: null,
     sortBy: [],
-    pagination: {
-      skipCount: 0,
-      maxItems: 10,
-      page: 1
-    },
+    pagination: DEFAULT_PAGINATION,
     minHeight: null
   },
 
@@ -93,7 +90,9 @@ const defaultState = {
     row: {}
   },
 
-  previewUrl: ''
+  previewUrl: '',
+
+  performGroupActionResponse: []
 };
 
 const initialState = {};
@@ -136,6 +135,12 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { predicate: action.payload });
+    },
+    [setPerformGroupActionResponse]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { performGroupActionResponse: action.payload });
     },
     [setPreviewUrl]: (state, action) => {
       const stateId = action.payload.stateId;

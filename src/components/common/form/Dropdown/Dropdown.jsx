@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import { getPropByStringKey } from '../../../../helpers/util';
 
 import './Dropdown.scss';
 
@@ -53,7 +54,7 @@ export default class Dropdown extends Component {
     const items = source.map(item => {
       return (
         <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
-          {item[titleField]}
+          {getPropByStringKey(item, titleField)}
         </MenuItem>
       );
     });
@@ -61,7 +62,7 @@ export default class Dropdown extends Component {
     return (
       <Drd className={cssClasses} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
         <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={this.state.dropdownOpen} tag="span">
-          {isStatic ? this.props.children : this.getControl(selected[titleField])}
+          {isStatic ? this.props.children : this.getControl(getPropByStringKey(selected, titleField))}
         </DropdownToggle>
 
         <DropdownMenu className={'ecos-dropdown__menu'}>

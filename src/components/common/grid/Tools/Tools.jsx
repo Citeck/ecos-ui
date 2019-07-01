@@ -23,9 +23,11 @@ export default class Tools extends Component {
     return (
       <div className={'grid-tools'}>
         {selectAllVisible ? (
-          <div className={'grid-tools__item grid-tools__item_select-all-btn'}>
+          <div className={'grid-tools__item grid-tools__item_select-all'}>
             <Btn
-              className={`ecos-btn_extra-narrow ${selectAll ? 'ecos-btn_blue' : 'ecos-btn_grey5'} ecos-btn_hover_light-blue2`}
+              className={`ecos-btn_extra-narrow ${
+                selectAll ? 'ecos-btn_blue' : 'ecos-btn_grey5'
+              } grid-tools__item_select-all-btn ecos-btn_hover_light-blue2`}
               title={t('grid.tools.select-all')}
               onClick={this.selectAll}
             >
