@@ -392,10 +392,10 @@ export default class Grid extends Component {
     return null;
   };
 
-  tools = () => {
+  tools = selected => {
     const tools = this.props.tools;
     if (typeof tools === 'function') {
-      return tools();
+      return tools(selected);
     }
     return null;
   };
@@ -464,7 +464,7 @@ export default class Grid extends Component {
           )}
           onMouseLeave={this.onMouseLeave}
         >
-          {toolsVisible ? this.tools() : null}
+          {toolsVisible ? this.tools(props.selected) : null}
 
           <Scroll scrollable={props.scrollable} style={scrollStyle}>
             <BootstrapTable {...props} />
