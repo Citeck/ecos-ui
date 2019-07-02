@@ -60,6 +60,7 @@ class PropertiesDashlet extends React.Component {
         needGoTo={false}
         actionEdit={false}
         actionHelp={false}
+        actionReload={false}
       >
         <Properties {...config} className={classNameProps} document={document} isRunReload={isRunReload} setReloadDone={this.setReload} />
       </Dashlet>

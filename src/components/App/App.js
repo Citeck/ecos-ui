@@ -11,6 +11,7 @@ import DocPreviewPage from '../../pages/debug/DocPreview';
 import EcosFormPage from '../../pages/debug/EcosFormPage';
 import FormIOPage from '../../pages/debug/FormIOPage';
 import JournalsDashboardPage from '../../pages/debug/JournalsDashboardPage';
+import PropertiesPage from '../../pages/debug/Properties/PropertiesPage';
 
 import Header from '../Header';
 import Notification from '../Notification';
@@ -73,6 +74,7 @@ class App extends Component {
             <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
             <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
             <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
+            <Route path="/properties" component={PropertiesPage} />
             {/*<Route component={NotFoundPage} />*/}
           </Switch>
 
