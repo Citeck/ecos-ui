@@ -122,8 +122,6 @@ class DragItem extends React.Component {
 
     return (
       <Fragment>
-        {this.renderDoppelganger(snapshot.isDragging)}
-
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
@@ -133,6 +131,7 @@ class DragItem extends React.Component {
         >
           {this.renderItem()}
         </div>
+        {this.renderDoppelganger(snapshot.isDragging)}
       </Fragment>
     );
   };

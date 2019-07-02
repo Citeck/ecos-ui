@@ -24,10 +24,14 @@ export default class DndUtils {
     return result;
   };
 
-  static copy = (source = [], destination = [], droppableSource, droppableDestination) => {
+  static copy = (source = [], destination = [], droppableSource, droppableDestination, newDndId = false) => {
     const sourceClone = cloneDeep(source);
     const destClone = cloneDeep(destination);
     const item = sourceClone[droppableSource.index];
+
+    if (newDndId) {
+      item.dndId = uuidV4();
+    }
 
     destClone.splice(droppableDestination.index, 0, { ...item });
 

@@ -28,7 +28,6 @@ import { initMenuSettings } from '../../actions/menu';
 import { MENU_TYPE, URL } from '../../constants';
 
 import './App.scss';
-import { Scrollbars } from 'react-custom-scrollbars';
 
 class App extends Component {
   componentDidMount() {
@@ -39,23 +38,12 @@ class App extends Component {
     initMenuSettings();
   }
 
-  // handleSaveMenu = links => {
-  //   const { saveMenuConfig, menuType } = this.props;
-  //
-  //   saveMenuConfig({
-  //     type: menuType,
-  //     links
-  //   });
-  // };
-
   renderMenu() {
     const { menuType } = this.props;
 
     switch (menuType) {
       case MENU_TYPE.LEFT:
         return <SlideMenu />;
-      case MENU_TYPE.TOP:
-      // return <TopMenu isShow={menuType === MENU_TYPE.TOP} isSortable links={links} onSave={this.handleSaveMenu} />;
       default:
         return null;
     }
@@ -80,13 +68,6 @@ class App extends Component {
 
     const appClassNames = classNames('app-container', { mobile: isMobile });
 
-    /**
-    <Scrollbars
-      style={{ height: '100vh' }}
-      renderTrackHorizontal={props => <div {...props} hidden />}
-      renderThumbHorizontal={props => <div {...props} hidden />}
-    >
-     */
     return (
       <div className={appClassNames}>
         <ReduxModal />

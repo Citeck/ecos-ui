@@ -15,9 +15,9 @@ import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { Btn } from '../../components/common/btns';
 import Loader from '../../components/common/Loader/Loader';
+import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 
 import './style.scss';
-import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 
 const mapStateToProps = state => ({
   config: {
@@ -469,7 +469,7 @@ class DashboardSettings extends React.Component {
 
     switch (source.droppableId) {
       case DROPPABLE_ZONE.WIDGETS_FROM:
-        const resultCopy = DndUtils.copy(availableWidgets, selectedWidgets[colIndex], source, destination);
+        const resultCopy = DndUtils.copy(availableWidgets, selectedWidgets[colIndex], source, destination, true);
 
         selectedWidgets[colIndex] = resultCopy;
         break;
