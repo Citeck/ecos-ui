@@ -4,7 +4,8 @@ export const URL = {
   JOURNAL_DASHBOARD: '/share/page/journalsDashboard'
 };
 
-export const MIN_WIDTH_DASHLET = 290;
+export const MIN_WIDTH_DASHLET_SMALL = 290;
+export const MIN_WIDTH_DASHLET_LARGE = 593;
 
 export const DataFormatTypes = {
   DATE: 'date',

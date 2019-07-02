@@ -1,5 +1,5 @@
 import lodashGet from 'lodash/get';
-import { MIN_WIDTH_DASHLET } from '../constants';
+import { MIN_WIDTH_DASHLET_SMALL } from '../constants';
 
 export const debounce = (func, ms = 0) => {
   let timer = null;
@@ -383,7 +383,7 @@ export function getCurrentUserName() {
   return lodashGet(window, 'Alfresco.constants.USERNAME', '');
 }
 
-export const isSmallMode = width => width <= MIN_WIDTH_DASHLET;
+export const isSmallMode = width => width <= MIN_WIDTH_DASHLET_SMALL;
 
 export function isExistIndex(idx) {
   return !(idx === null || idx === undefined || idx === -1);
