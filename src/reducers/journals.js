@@ -21,7 +21,8 @@ import {
   setPreviewUrl,
   setUrl,
   initState,
-  setPerformGroupActionResponse
+  setPerformGroupActionResponse,
+  setZipNodeRef
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { t, deepClone } from '../helpers/util';
@@ -91,6 +92,7 @@ const defaultState = {
   },
 
   previewUrl: '',
+  zipNodeRef: null,
 
   performGroupActionResponse: []
 };
@@ -135,6 +137,12 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { predicate: action.payload });
+    },
+    [setZipNodeRef]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { zipNodeRef: action.payload });
     },
     [setPerformGroupActionResponse]: (state, action) => {
       const stateId = action.payload.stateId;
