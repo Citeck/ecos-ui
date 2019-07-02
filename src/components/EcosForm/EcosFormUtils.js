@@ -58,7 +58,7 @@ export default class EcosFormUtils {
       }
 
       return formRec.then(res => {
-        if (res && res.id) {
+        if (res) {
           return res;
         } else {
           return getFormByKeysFromRecord(keys, idx + 1);
@@ -66,7 +66,7 @@ export default class EcosFormUtils {
       });
     };
 
-    if (record && (record.id || '').indexOf('/') > 0) {
+    if (!formKey && recordInstance && (recordInstance.id || '').indexOf('/') > 0) {
       return recordInstance.load('_formKey[]').then(keys => {
         return getFormByKeysFromRecord(keys, 0);
       });
@@ -165,6 +165,9 @@ export default class EcosFormUtils {
           case 'tableForm':
           case 'selectJournal':
             attributeSchema = 'assoc';
+            break;
+          case 'container':
+            attributeSchema = 'json';
             break;
           case 'file':
             attributeSchema = 'as(n:"content-data"){json}';
