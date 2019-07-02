@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import ReactResizeDetector from 'react-resize-detector';
 import { t } from '../../helpers/util';
 import Dashlet from '../Dashlet/Dashlet';
 import Properties from './Properties';
@@ -30,24 +31,21 @@ class PropertiesDashlet extends React.Component {
     super(props);
 
     this.state = {
-      isResizable: true,
-      isRunReload: false
+      isRunReload: false,
+      isSmallMode: false
     };
   }
 
   className = 'ecos-properties-dashlet';
 
-  onReload = () => {
-    this.setReload(false);
-  };
-
-  setReload = isDone => {
-    this.setState({ isRunReload: !isDone });
+  onResize = width => {
+    console.info('width', width);
+    this.setState({ isSmallMode: width <= 300 });
   };
 
   render() {
     const { title, config, classNameProps, classNameDashlet, document } = this.props;
-    const { isResizable, isRunReload } = this.state;
+    const { isSmallMode } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -55,14 +53,14 @@ class PropertiesDashlet extends React.Component {
         title={title}
         bodyClassName={`${this.className}__body`}
         className={classDashlet}
-        resizable={isResizable}
-        onReload={this.onReload}
+        resizable={true}
         needGoTo={false}
         actionEdit={false}
         actionHelp={false}
         actionReload={false}
       >
-        <Properties {...config} className={classNameProps} document={document} isRunReload={isRunReload} setReloadDone={this.setReload} />
+        <ReactResizeDetector handleWidth onResize={this.onResize} />
+        <Properties {...config} className={classNameProps} document={document} isSmallMode={isSmallMode} />
       </Dashlet>
     );
   }

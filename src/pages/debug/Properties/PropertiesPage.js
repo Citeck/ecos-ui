@@ -16,8 +16,8 @@ export default class PropertiesPage extends React.Component {
     const taskConfigUrl = {
       id: getDocumentId(nodeRef),
       document: nodeRef,
-      // title: undefined,
-      title: 'Свойства#' + nodeRef,
+      title: undefined,
+      // title: 'Свойства#' + nodeRef,
       config: {
         sourceId: 'wftask',
         height: '500px'

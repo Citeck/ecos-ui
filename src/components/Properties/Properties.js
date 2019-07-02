@@ -11,16 +11,14 @@ class Properties extends React.Component {
     sourceId: PropTypes.string.isRequired,
     document: PropTypes.string.isRequired,
     className: PropTypes.string,
-    isRunReload: PropTypes.bool,
-    setReloadDone: PropTypes.func
+    isSmallMode: PropTypes.bool
   };
 
   static defaultProps = {
     sourceId: '',
     document: '',
     className: '',
-    isRunReload: false,
-    setReloadDone: () => {}
+    isSmallMode: false
   };
 
   className = 'ecos-properties';
@@ -40,7 +38,7 @@ class Properties extends React.Component {
   }
 
   renderForm() {
-    const { document } = this.props;
+    const { document, isSmallMode } = this.props;
 
     return (
       <EcosForm
@@ -51,7 +49,7 @@ class Properties extends React.Component {
           viewAsHtmlConfig: {
             fullWidthColumns: true,
             hidePanels: true,
-            alwaysWrap: true // это свойство следует применять только к узкому виждету
+            alwaysWrap: isSmallMode
           }
         }}
       />
@@ -62,9 +60,11 @@ class Properties extends React.Component {
     const { height } = this.props;
 
     return (
-      <Scrollbars style={{ height }} className={this.className}>
-        {this.renderLoader()}
-        {this.renderForm()}
+      <Scrollbars style={{ height }} className={`${this.className}__scroll`}>
+        <div className={`${this.className}__container`}>
+          {this.renderLoader()}
+          {this.renderForm()}
+        </div>
       </Scrollbars>
     );
   }
