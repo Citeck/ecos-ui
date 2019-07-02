@@ -2,22 +2,22 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
-import { t } from '../../helpers/util';
+import { isSmallMode, t } from '../../helpers/util';
 import Dashlet from '../Dashlet/Dashlet';
 import Properties from './Properties';
+import PropsEditModal from './PropsEditModal';
 
 import './style.scss';
 
 class PropertiesDashlet extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
-    document: PropTypes.string.isRequired,
+    record: PropTypes.string.isRequired,
     title: PropTypes.string,
     classNameProps: PropTypes.string,
     classNameDashlet: PropTypes.string,
     config: PropTypes.shape({
-      height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      sourceId: PropTypes.string.isRequired
+      height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
     })
   };
 
@@ -31,21 +31,29 @@ class PropertiesDashlet extends React.Component {
     super(props);
 
     this.state = {
-      isRunReload: false,
-      isSmallMode: false
+      isSmallMode: false,
+      isReady: true,
+      isEditDoc: false
     };
   }
 
   className = 'ecos-properties-dashlet';
 
   onResize = width => {
-    console.info('width', width);
-    this.setState({ isSmallMode: width <= 300 });
+    this.setState({ isSmallMode: isSmallMode(width) });
+  };
+
+  onEdit = e => {
+    this.setState({ isEditDoc: true });
+  };
+
+  closeEditModal = () => {
+    this.setState({ isReady: false, isEditDoc: false }, () => this.setState({ isReady: true }));
   };
 
   render() {
-    const { title, config, classNameProps, classNameDashlet, document } = this.props;
-    const { isSmallMode } = this.state;
+    const { title, config, classNameProps, classNameDashlet, record } = this.props;
+    const { isSmallMode, isReady, isEditDoc } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -55,12 +63,13 @@ class PropertiesDashlet extends React.Component {
         className={classDashlet}
         resizable={true}
         needGoTo={false}
-        actionEdit={false}
         actionHelp={false}
         actionReload={false}
+        onEdit={this.onEdit}
       >
         <ReactResizeDetector handleWidth onResize={this.onResize} />
-        <Properties {...config} className={classNameProps} document={document} isSmallMode={isSmallMode} />
+        <Properties {...config} className={classNameProps} record={record} isSmallMode={isSmallMode} isReady={isReady} />
+        <PropsEditModal record={record} isOpen={isEditDoc} closeModal={this.closeEditModal} />
       </Dashlet>
     );
   }

@@ -1,48 +1,43 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
-import Loader from '../common/Loader/Loader';
-
-import './style.scss';
 import EcosForm from '../EcosForm';
+import './style.scss';
 
 class Properties extends React.Component {
   static propTypes = {
     sourceId: PropTypes.string.isRequired,
-    document: PropTypes.string.isRequired,
+    record: PropTypes.string.isRequired,
     className: PropTypes.string,
-    isSmallMode: PropTypes.bool
+    isSmallMode: PropTypes.bool,
+    isReady: PropTypes.bool
   };
 
   static defaultProps = {
     sourceId: '',
-    document: '',
+    record: '',
     className: '',
-    isSmallMode: false
+    isSmallMode: false,
+    isReady: true
   };
 
   className = 'ecos-properties';
 
-  renderLoader() {
-    let { isLoading } = this.props;
+  state = {
+    isReadySubmit: true
+  };
 
-    if (!isLoading) {
-      return null;
-    }
-
-    return (
-      <div className={`${this.className}__loader-wrapper`}>
-        <Loader />
-      </div>
-    );
-  }
+  onSubmitForm = () => {
+    this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
+  };
 
   renderForm() {
-    const { document, isSmallMode } = this.props;
+    const { record, isSmallMode, isReady } = this.props;
+    const { isReadySubmit } = this.state;
 
-    return (
+    return isReady && isReadySubmit ? (
       <EcosForm
-        record={document}
+        record={record}
         options={{
           readOnly: true,
           viewAsHtml: true,
@@ -52,20 +47,20 @@ class Properties extends React.Component {
             alwaysWrap: isSmallMode
           }
         }}
+        onSubmit={this.onSubmitForm}
       />
-    );
+    ) : null;
   }
 
   render() {
     const { height } = this.props;
 
     return (
-      <Scrollbars style={{ height }} className={`${this.className}__scroll`}>
-        <div className={`${this.className}__container`}>
-          {this.renderLoader()}
-          {this.renderForm()}
-        </div>
-      </Scrollbars>
+      <div className={`${this.className}__wrapper`}>
+        <Scrollbars style={{ height }} className={`${this.className}__scroll`}>
+          <div className={`${this.className}__container`}>{this.renderForm()}</div>
+        </Scrollbars>
+      </div>
     );
   }
 }

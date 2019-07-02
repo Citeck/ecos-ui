@@ -17,9 +17,8 @@ export default class PropertiesPage extends React.Component {
       id: getDocumentId(nodeRef),
       document: nodeRef,
       title: undefined,
-      // title: 'Свойства#' + nodeRef,
+      // title: 'Свойства #' + nodeRef,
       config: {
-        sourceId: 'wftask',
         height: '500px'
       }
     };
@@ -35,7 +34,7 @@ export default class PropertiesPage extends React.Component {
       const id = getDocumentId(nodeRef);
 
       template.document = nodeRef;
-      template.title = 'Документ #' + id;
+      template.title = 'Свойства #' + id;
       template.id = id;
       template.config.sourceId = id;
 
@@ -58,7 +57,7 @@ export default class PropertiesPage extends React.Component {
         <div className={'ecos-debug-container'}>
           <div className={'ecos-debug-col'}>
             {configs.map((item, index) => (
-              <PropertiesDashlet id={item.id} document={item.document} config={item.config} title={item.title} key={item.id + index} />
+              <PropertiesDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
             ))}
           </div>
           <div className={'ecos-debug-col'} />

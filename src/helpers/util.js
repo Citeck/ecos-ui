@@ -1,4 +1,5 @@
 import lodashGet from 'lodash/get';
+import { MIN_WIDTH_DASHLET } from '../constants';
 
 export const queryByCriteria = criteria => {
   let query = {};
@@ -345,3 +346,5 @@ export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, rat
 export function getCurrentUserName() {
   return lodashGet(window, 'Alfresco.constants.USERNAME', '');
 }
+
+export const isSmallMode = width => width <= MIN_WIDTH_DASHLET;

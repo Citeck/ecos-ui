@@ -1,13 +1,18 @@
 .ecos-properties {
+  $root: &;
+
   &__loader-wrapper {
   }
 
-  &__scroll {
-    margin-top: 6px;
-  }
+  &__wrapper {
+    padding: 6px 3px;
 
-  &__container {
-    padding: 12px 20px;
+    #{$root}__scroll {
+    }
+
+    #{$root}__container {
+      padding: 12px 17px;
+    }
   }
 
   &-dashlet {
