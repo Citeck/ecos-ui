@@ -1,7 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import ReactResizeDetector from 'react-resize-detector';
 import EcosForm from '../EcosForm';
 import { Caption } from '../common/form';
 import { Grid } from '../common/grid';
@@ -16,6 +15,7 @@ class TaskDetails extends React.Component {
   static propTypes = {
     details: PropTypes.shape(TasksPropTypes).isRequired,
     className: PropTypes.string,
+    isSmallMode: PropTypes.bool,
     onAssignClick: PropTypes.func.isRequired,
     onSubmitForm: PropTypes.func.isRequired
   };
@@ -23,23 +23,12 @@ class TaskDetails extends React.Component {
   static defaultProps = {
     details: {},
     className: '',
+    isSmallMode: false,
     onAssignClick: () => {},
     onSubmitForm: () => {}
   };
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isSmallMode: false
-    };
-  }
-
   className = 'ecos-task-ins';
-
-  onResize = width => {
-    this.setState({ isSmallMode: width <= 300 });
-  };
 
   onSubmitForm = () => {
     this.props.onSubmitForm();
@@ -84,13 +73,11 @@ class TaskDetails extends React.Component {
   }
 
   render() {
-    const { details, onAssignClick, className } = this.props;
-    const { isSmallMode } = this.state;
+    const { details, onAssignClick, className, isSmallMode } = this.props;
     const classBtn = classNames({ _fill: isSmallMode });
 
     return (
       <div className={classNames(`${this.className}`, className)}>
-        <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
         <Caption className={`${this.className}__title`} middle>
           {details.title}
         </Caption>

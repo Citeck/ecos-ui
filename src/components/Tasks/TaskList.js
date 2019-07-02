@@ -48,7 +48,7 @@ class TaskList extends React.Component {
   }
 
   renderTaskDetailsList() {
-    const { tasks, onAssignClick, onSubmitForm, className, isLoading } = this.props;
+    const { tasks, onAssignClick, onSubmitForm, className, isLoading, isSmallMode } = this.props;
 
     if (isLoading || isEmpty(tasks)) {
       return null;
@@ -58,7 +58,13 @@ class TaskList extends React.Component {
       <React.Fragment>
         {tasks.map((item, i) => (
           <React.Fragment key={i + item.id}>
-            <TaskDetails details={item} onAssignClick={onAssignClick} onSubmitForm={onSubmitForm} className={className} />
+            <TaskDetails
+              details={item}
+              onAssignClick={onAssignClick}
+              onSubmitForm={onSubmitForm}
+              className={className}
+              isSmallMode={isSmallMode}
+            />
             {!isLastItem(tasks, i) && <Separator noIndents />}
           </React.Fragment>
         ))}

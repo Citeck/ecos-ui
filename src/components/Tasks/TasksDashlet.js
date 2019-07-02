@@ -1,7 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { t } from '../../helpers/util';
+import ReactResizeDetector from 'react-resize-detector';
+import { isSmallMode, t } from '../../helpers/util';
 import Dashlet from '../Dashlet/Dashlet';
 import Tasks from '../Tasks/Tasks';
 
@@ -29,12 +30,16 @@ class TasksDashlet extends React.Component {
     super(props);
 
     this.state = {
-      isResizable: true,
+      isSmallMode: false,
       isRunReload: false
     };
   }
 
   className = 'ecos-task-list-dashlet';
+
+  onResize = width => {
+    this.setState({ isSmallMode: isSmallMode(width) });
+  };
 
   onReload = () => {
     this.setReload(false);
@@ -46,7 +51,7 @@ class TasksDashlet extends React.Component {
 
   render() {
     const { title, config, classNameTasks, classNameDashlet, document } = this.props;
-    const { isResizable, isRunReload } = this.state;
+    const { isRunReload, isSmallMode } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -54,13 +59,21 @@ class TasksDashlet extends React.Component {
         title={title}
         bodyClassName={`${this.className}__body`}
         className={classDashlet}
-        resizable={isResizable}
+        resizable={true}
         onReload={this.onReload}
         needGoTo={false}
         actionEdit={false}
         actionHelp={false}
       >
-        <Tasks {...config} className={classNameTasks} document={document} isRunReload={isRunReload} setReloadDone={this.setReload} />
+        <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
+        <Tasks
+          {...config}
+          className={classNameTasks}
+          document={document}
+          isRunReload={isRunReload}
+          setReloadDone={this.setReload}
+          isSmallMode={isSmallMode}
+        />
       </Dashlet>
     );
   }

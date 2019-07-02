@@ -24,6 +24,7 @@ class Tasks extends React.Component {
   static propTypes = {
     document: PropTypes.string.isRequired,
     className: PropTypes.string,
+    isSmallMode: PropTypes.bool,
     isRunReload: PropTypes.bool,
     setReloadDone: PropTypes.func
   };
@@ -31,6 +32,7 @@ class Tasks extends React.Component {
   static defaultProps = {
     document: '',
     className: '',
+    isSmallMode: false,
     isRunReload: false,
     setReloadDone: () => {}
   };
@@ -71,8 +73,15 @@ class Tasks extends React.Component {
   };
 
   render() {
-    const { tasks, height, isLoading } = this.props;
-    const childProps = { tasks, height, onAssignClick: this.onAssignClick, onSubmitForm: this.onSubmitForm, isLoading };
+    const { tasks, height, isLoading, isSmallMode } = this.props;
+    const childProps = {
+      tasks,
+      height,
+      isLoading,
+      isSmallMode,
+      onAssignClick: this.onAssignClick,
+      onSubmitForm: this.onSubmitForm
+    };
 
     return <TaskList {...childProps} />;
   }
