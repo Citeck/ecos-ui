@@ -178,3 +178,6 @@
 .icon-clock:before {
   content: '\e83b';
 } /* '' */
+.icon-actual:before {
+  content: '\e83c';
+} /* '' */

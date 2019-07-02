@@ -15,6 +15,7 @@ export default class Dashlet extends Component {
     actionHelp: PropTypes.bool,
     actionDrag: PropTypes.bool,
     resizable: PropTypes.bool,
+    customButtons: PropTypes.array,
     onEdit: PropTypes.func,
     onGoTo: PropTypes.func,
     onReload: PropTypes.func
@@ -27,6 +28,7 @@ export default class Dashlet extends Component {
     actionHelp: true,
     actionDrag: true,
     resizable: false,
+    customButtons: [],
     onEdit: () => {},
     onGoTo: () => {},
     onReload: () => {}
@@ -54,13 +56,13 @@ export default class Dashlet extends Component {
   };
 
   renderHeader() {
-    const { title, needGoTo, actionReload, actionEdit, actionHelp, actionDrag } = this.props;
+    const { title, needGoTo, actionReload, actionEdit, actionHelp, actionDrag, customButtons } = this.props;
     const btnGoTo = (
       <IcoBtn invert={'true'} icon={'icon-big-arrow'} className={'dashlet__btn ecos-btn_narrow'} onClick={this.onGoTo}>
         {t('dashlet.goto')}
       </IcoBtn>
     );
-    const actions = [];
+    const actions = [...customButtons];
 
     if (actionReload) {
       actions.push(

@@ -1,0 +1,91 @@
+@import '../../constants';
+
+.ecos-vj {
+  &__title {
+    background: $color-blue-light4;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 23px;
+    padding: 16px 20px 12px;
+  }
+
+  &__version {
+    $version: &;
+
+    &:hover {
+      #{$version}-actions {
+        display: block;
+      }
+    }
+
+    &-number {
+      font-weight: bold;
+      font-size: 18px;
+      line-height: 22px;
+      margin-right: 10px;
+    }
+
+    &-title {
+      color: $text-color-gray;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 23px;
+    }
+
+    &-actions {
+      display: none;
+      right: 20px;
+      position: absolute;
+
+      &-item {
+        cursor: pointer;
+        color: $color-gray-5;
+        font-size: 20px;
+
+        &:not(:last-child) {
+          margin-right: 10px;
+        }
+
+        &:hover {
+          color: $color-blue-light;
+        }
+      }
+    }
+
+    &-header {
+      display: flex;
+      position: relative;
+      background: $color-yellow;
+      padding: 5px 20px;
+    }
+
+    &-body {
+      padding: 15px 20px;
+    }
+
+    &-author {
+      display: flex;
+      align-items: center;
+
+      &-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 10px;
+      }
+
+      &-name {
+        font-weight: bold;
+        font-size: 12px;
+        line-height: 16px;
+
+        &-item {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+  }
+}

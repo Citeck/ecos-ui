@@ -79,7 +79,7 @@ class Comments extends React.Component {
 
   state = {
     isEdit: false,
-    width: 291,
+    width: 290,
     editorHeight: BASE_HEIGHT,
     comment: EditorState.createEmpty(),
     editableComment: null,

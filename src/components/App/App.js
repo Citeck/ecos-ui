@@ -3,8 +3,6 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Route, Switch } from 'react-router';
 import classNames from 'classnames';
-import moment from 'moment';
-import uuid from 'uuidv4';
 
 import BPMNDesignerPage from '../../pages/BPMNDesignerPage';
 import CardDetailsPage from '../../pages/CardDetailsPage';
@@ -22,6 +20,7 @@ import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 import Comments from './../Comments';
+import VersionsJournal from '../VersionsJournal';
 
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { URL } from '../../constants';
@@ -49,6 +48,20 @@ class App extends Component {
       </div>
       <div style={{ width: '30%' }}>
         <Comments id="workspace://SpacesStore/ee6eb89a-b15c-453c-adb5-ee55ec42aec9" />
+      </div>
+    </div>
+  );
+
+  renderVersionsJournal = () => (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-around',
+        margin: '50px 0'
+      }}
+    >
+      <div style={{ width: '500px' }}>
+        <VersionsJournal />
       </div>
     </div>
   );
@@ -96,6 +109,7 @@ class App extends Component {
             <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
 
             <Route path="/comments" component={this.renderComments} />
+            <Route path="/versions-journal" component={this.renderVersionsJournal} />
             {/*<Route component={NotFoundPage} />*/}
           </Switch>
 
