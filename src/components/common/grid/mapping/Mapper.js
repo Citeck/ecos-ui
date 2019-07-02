@@ -64,9 +64,9 @@ const MAP = [
           formatter = 'PercentFormatter';
           break;
         default:
-          console.log('**************************************');
-          console.log('No such formatter: ', formatter);
-          console.log('**************************************');
+          // console.log('**************************************');
+          // console.log('No such formatter: ', formatter);
+          // console.log('**************************************');
           break;
       }
 

@@ -7,7 +7,12 @@ export default [
     dataSrc: 'values',
     defaultValue: 'disabled',
     data: {
-      values: [{ label: 'Any change', value: 'any-change' }, { label: 'Event', value: 'event' }, { label: 'Disabled', value: 'disabled' }]
+      values: [
+        { label: 'Any change', value: 'any-change' },
+        { label: 'Event', value: 'event' },
+        { label: 'Once', value: 'once' },
+        { label: 'Disabled', value: 'disabled' }
+      ]
     }
   },
   {
@@ -68,7 +73,7 @@ export default [
         utils.eachComponent(instance.root.editForm.components, function(component, path) {
           if (component.key != data.key) {
             values.push({
-              label: component.label || component.key,
+              label: component.key,
               value: path
             });
           }

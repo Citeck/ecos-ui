@@ -22,6 +22,7 @@ export default {
   'ecos-records': () => Records,
   'journals-dashlet': () => import('../../src/components/Journals/JournalsDashlet/export'),
   'ecos-form': () => import('../../src/components/EcosForm/export'),
+  'ecos-form-utils': () => import('../../src/components/EcosForm/EcosFormUtils'),
   'idle-timer': () => import('../../src/components/IdleTimer'),
   'eform-locale-editor': () => import('../../src/components/EcosForm/locale/FormLocaleEditorModal'),
   'eform-builder': () => import('../../src/components/EcosForm/builder/EcosFormBuilderModal'),

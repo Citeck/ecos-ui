@@ -6,14 +6,14 @@ import './Loader.scss';
 
 export default class Loader extends Component {
   render() {
-    const props = this.props;
-    const cssClasses = classNames('ecos-loader', props.className, {
-      'ecos-loader_blur': props.blur
+    const { className, blur, height = '100', width = '100' } = this.props;
+    const cssClasses = classNames('ecos-loader', className, {
+      'ecos-loader_blur': blur
     });
 
     return (
       <div className={cssClasses}>
-        <ReactLoader type="Oval" color="#7396cd" height="100" width="100" />
+        <ReactLoader type="Oval" color="#7396cd" height={height} width={width} />
       </div>
     );
   }

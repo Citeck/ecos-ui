@@ -51,6 +51,10 @@ export default class Pagination extends Component {
 
     this.calculate(page, maxItems, total);
 
+    if (!total) {
+      return null;
+    }
+
     return (
       <div className={classNames('pagination', className)}>
         <span className={'pagination__text'}>
