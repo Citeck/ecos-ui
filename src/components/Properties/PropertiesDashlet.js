@@ -5,7 +5,7 @@ import ReactResizeDetector from 'react-resize-detector';
 import { isSmallMode, t } from '../../helpers/util';
 import Dashlet from '../Dashlet/Dashlet';
 import Properties from './Properties';
-import PropsEditModal from './PropsEditModal';
+import PropertiesEditModal from './PropertiesEditModal';
 
 import './style.scss';
 
@@ -69,7 +69,7 @@ class PropertiesDashlet extends React.Component {
       >
         <ReactResizeDetector handleWidth onResize={this.onResize} />
         <Properties {...config} className={classNameProps} record={record} isSmallMode={isSmallMode} isReady={isReady} />
-        <PropsEditModal record={record} isOpen={isEditDoc} closeModal={this.closeEditModal} />
+        <PropertiesEditModal record={record} isOpen={isEditDoc} closeModal={this.closeEditModal} />
       </Dashlet>
     );
   }
