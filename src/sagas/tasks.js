@@ -9,8 +9,8 @@ function* sagaGetTasks({ api, logger }, { payload }) {
   const err = t('Ошибка получения данные');
 
   try {
-    const { sourceId, document, stateId } = payload;
-    const res = yield call(api.tasks.getTasks, { sourceId, document });
+    const { document, stateId } = payload;
+    const res = yield call(api.tasks.getCurrentTasksForUser, { document });
 
     if (res && Object.keys(res)) {
       yield put(setTaskList({ stateId, list: TasksConverter.getTaskListForWeb(res.records) }));

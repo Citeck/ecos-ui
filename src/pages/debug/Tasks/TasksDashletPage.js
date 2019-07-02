@@ -18,7 +18,6 @@ export default class TasksDashletPage extends React.Component {
       document: nodeRef,
       title: undefined,
       config: {
-        sourceId: 'wftask',
         height: '500px'
       }
     };
@@ -36,7 +35,6 @@ export default class TasksDashletPage extends React.Component {
       template.document = nodeRef;
       template.title = 'Документ #' + id;
       template.id = id;
-      template.config.sourceId = id;
 
       return template;
     };

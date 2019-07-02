@@ -15,8 +15,7 @@ class TasksDashlet extends React.Component {
     classNameTasks: PropTypes.string,
     classNameDashlet: PropTypes.string,
     config: PropTypes.shape({
-      height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      sourceId: PropTypes.string.isRequired
+      height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
     })
   };
 

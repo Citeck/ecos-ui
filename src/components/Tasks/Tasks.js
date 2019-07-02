@@ -22,7 +22,6 @@ const mapDispatchToProps = dispatch => ({
 
 class Tasks extends React.Component {
   static propTypes = {
-    sourceId: PropTypes.string.isRequired,
     document: PropTypes.string.isRequired,
     className: PropTypes.string,
     isRunReload: PropTypes.bool,
@@ -30,7 +29,6 @@ class Tasks extends React.Component {
   };
 
   static defaultProps = {
-    sourceId: '',
     document: '',
     className: '',
     isRunReload: false,
@@ -49,11 +47,10 @@ class Tasks extends React.Component {
   }
 
   getTaskList = () => {
-    const { getTaskList, sourceId, document } = this.props;
+    const { getTaskList, document } = this.props;
 
     getTaskList({
       stateId: document,
-      sourceId,
       document
     });
   };

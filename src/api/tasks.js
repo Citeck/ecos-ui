@@ -1,12 +1,13 @@
 import Records from '../components/Records';
 import { RecordService } from './recordService';
 import { USER_CURRENT } from '../constants';
+import { SOURCE_ID_CURRENT_TASKS } from '../constants/tasks';
 
 export class TasksApi extends RecordService {
-  getTasks = ({ sourceId, document }) => {
+  getCurrentTasksForUser = ({ document }) => {
     return Records.query(
       {
-        sourceId,
+        sourceId: SOURCE_ID_CURRENT_TASKS,
         query: {
           actor: USER_CURRENT,
           active: true,
