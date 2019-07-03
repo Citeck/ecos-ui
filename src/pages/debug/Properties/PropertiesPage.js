@@ -24,9 +24,7 @@ export default class PropertiesPage extends React.Component {
     };
     const configs = [taskConfigUrl];
 
-    const urlsCurrentUser = [];
-
-    const urlsAdmin = [];
+    const params = ['?nodeRef=workspace://SpacesStore/ee3a3405-1cd6-430d-8f4f-c614e020dc17'];
 
     const fillTask = item => {
       const template = deepClone(taskConfigUrl);
@@ -41,11 +39,7 @@ export default class PropertiesPage extends React.Component {
       return template;
     };
 
-    urlsCurrentUser.forEach(item => {
-      configs.push(fillTask(item));
-    });
-
-    urlsAdmin.forEach(item => {
+    params.forEach(item => {
       configs.push(fillTask(item));
     });
 
@@ -60,7 +54,11 @@ export default class PropertiesPage extends React.Component {
               <PropertiesDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
             ))}
           </div>
-          <div className={'ecos-debug-col'} />
+          <div className={'ecos-debug-col'}>
+            {col2.map((item, index) => (
+              <PropertiesDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
+            ))}
+          </div>
         </div>
       </div>
     );

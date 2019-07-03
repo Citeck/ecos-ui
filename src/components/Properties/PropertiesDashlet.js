@@ -33,7 +33,7 @@ class PropertiesDashlet extends React.Component {
     this.state = {
       isSmallMode: false,
       isReady: true,
-      isEditDoc: false
+      isEditProps: false
     };
   }
 
@@ -43,17 +43,21 @@ class PropertiesDashlet extends React.Component {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
-  onEdit = e => {
-    this.setState({ isEditDoc: true });
+  openModal = e => {
+    this.setState({ isEditProps: true });
   };
 
-  closeEditModal = () => {
-    this.setState({ isReady: false, isEditDoc: false }, () => this.setState({ isReady: true }));
+  updateProps = () => {
+    this.setState({ isReady: false, isEditProps: false }, () => this.setState({ isReady: true }));
+  };
+
+  closeModal = () => {
+    this.setState({ isEditProps: false });
   };
 
   render() {
     const { title, config, classNameProps, classNameDashlet, record } = this.props;
-    const { isSmallMode, isReady, isEditDoc } = this.state;
+    const { isSmallMode, isReady, isEditProps } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -65,11 +69,11 @@ class PropertiesDashlet extends React.Component {
         needGoTo={false}
         actionHelp={false}
         actionReload={false}
-        onEdit={this.onEdit}
+        onEdit={this.openModal}
       >
         <ReactResizeDetector handleWidth onResize={this.onResize} />
         <Properties {...config} className={classNameProps} record={record} isSmallMode={isSmallMode} isReady={isReady} />
-        <PropertiesEditModal record={record} isOpen={isEditDoc} closeModal={this.closeEditModal} />
+        <PropertiesEditModal record={record} isOpen={isEditProps} onFormCancel={this.closeModal} onFormSubmit={this.updateProps} />
       </Dashlet>
     );
   }

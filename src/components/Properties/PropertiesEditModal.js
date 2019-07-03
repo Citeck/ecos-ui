@@ -3,10 +3,9 @@ import PropTypes from 'prop-types';
 import Records from '../Records';
 import EcosForm from '../EcosForm';
 import EcosModal from '../common/EcosModal';
-import { t } from '../../helpers/util';
 
 function PropertiesEditModal(props) {
-  const { record, isOpen, closeModal } = props;
+  const { record, isOpen, onFormSubmit, onFormCancel } = props;
   const [displayName, setDisplayName] = useState('');
 
   useEffect(() => {
@@ -22,11 +21,11 @@ function PropertiesEditModal(props) {
       }}
       className="ecos-modal_width-lg"
       isBigHeader={true}
-      title={`${t('ecos-table-form.edit-modal.title')} ${displayName}`}
+      title={`${displayName}`}
       isOpen={isOpen}
-      hideModal={closeModal}
+      hideModal={onFormCancel}
     >
-      <EcosForm record={record} onSubmit={closeModal} onFormCancel={closeModal} />
+      <EcosForm record={record} onSubmit={onFormSubmit} onFormCancel={onFormCancel} />
     </EcosModal>
   );
 }
@@ -34,7 +33,8 @@ function PropertiesEditModal(props) {
 PropertiesEditModal.propTypes = {
   record: PropTypes.string.isRequired,
   isOpen: PropTypes.bool.isRequired,
-  closeModal: PropTypes.func.isRequired
+  onFormCancel: PropTypes.func.isRequired,
+  onFormSubmit: PropTypes.func.isRequired
 };
 
 PropertiesEditModal.defaultProps = {};
