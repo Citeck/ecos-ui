@@ -1,7 +1,8 @@
 import * as React from 'react';
 import queryString from 'query-string';
-//import '../testStyle.scss';
 import { deepClone } from '../../../helpers/util';
+import CurrentTasksDashlet from '../../../components/CurrentTasks';
+import '../testStyle.scss';
 
 const getNodeRef = url => queryString.parse(url).nodeRef;
 const getDocumentId = nodeRef => nodeRef.split('workspace://SpacesStore/')[1];
@@ -46,18 +47,18 @@ export default class CurrentTasksPage extends React.Component {
 
     return (
       <div>
-        <h3>Демо страница виджета Свойства ({configs.length})</h3>
+        <h3>Демо страница Текущие задачи ({configs.length})</h3>
         <div className={'ecos-debug-container'}>
           <div className={'ecos-debug-col'}>
             {configs.map((item, index) => (
-              <div id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
+              <CurrentTasksDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
             ))}
           </div>
-          <div className={'ecos-debug-col'}>
+          {/*<div className={'ecos-debug-col'}>
             {col2.map((item, index) => (
               <div id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
             ))}
-          </div>
+          </div>*/}
         </div>
       </div>
     );

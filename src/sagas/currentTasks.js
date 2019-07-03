@@ -1,25 +1,25 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { changeTaskAssignee, getTaskList, setTaskAssignee, setTaskList } from '../actions/tasks';
+import { getCurrentTaskList, setCurrentTaskList, setTaskAssignee } from '../actions/tasks';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import TasksConverter from '../dto/tasks';
 import TasksService from '../services/tasks';
 
-function* sagaGetTasks({ api, logger }, { payload }) {
+function* sagaGetCurrentTasks({ api, logger }, { payload }) {
   const err = t('Ошибка получения данные');
 
   try {
     const { document, stateId } = payload;
-    const res = yield call(api.tasks.getTasksForUser, { document });
+    const res = yield call(api.tasks.getCurrentTasksForUser, { document });
 
     if (res && Object.keys(res)) {
-      yield put(setTaskList({ stateId, list: TasksConverter.getTaskListForWeb(res.records) }));
+      yield put(setCurrentTaskList({ stateId, list: TasksConverter.getTaskListForWeb(res.records) }));
     } else {
       yield put(setNotificationMessage(err));
     }
   } catch (e) {
     yield put(setNotificationMessage(err));
-    logger.error('[tasks/sagaGetTasks saga] error', e.message);
+    logger.error('[tasks/sagaGetCurrentTasks saga] error', e.message);
   }
 }
 
@@ -47,8 +47,8 @@ function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
 }
 
 function* tasksSaga(ea) {
-  yield takeEvery(getTaskList().type, sagaGetTasks, ea);
-  yield takeEvery(changeTaskAssignee().type, sagaChangeTaskAssignee, ea);
+  yield takeEvery(getCurrentTaskList().type, sagaGetCurrentTasks, ea);
+  // yield takeEvery(changeTaskAssignee().type, sagaChangeTaskAssignee, ea);
 }
 
 export default tasksSaga;

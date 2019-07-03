@@ -13,6 +13,7 @@ import journals from './journals';
 import { rootReducer as cardDetails } from './cardDetails';
 import pageTabs from './pageTabs';
 import tasks from './tasks';
+import currentTasks from './currentTasks';
 
 const reducers = {
   app,
@@ -26,7 +27,8 @@ const reducers = {
   view,
   journals,
   pageTabs,
-  tasks
+  tasks,
+  currentTasks
 };
 
 export default history =>
