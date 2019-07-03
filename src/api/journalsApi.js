@@ -208,7 +208,7 @@ export class JournalsApi extends RecordService {
 
   getPreviewUrl = nodeRef => {
     return Records.get(nodeRef)
-      .load('cm:content.previewInfo?json', true)
+      .load('previewInfo?json', true)
       .then(resp => {
         resp = resp || {};
         const { url = '', ext = '' } = resp;
