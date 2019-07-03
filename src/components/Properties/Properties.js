@@ -6,7 +6,6 @@ import './style.scss';
 
 class Properties extends React.Component {
   static propTypes = {
-    sourceId: PropTypes.string.isRequired,
     record: PropTypes.string.isRequired,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
@@ -14,7 +13,6 @@ class Properties extends React.Component {
   };
 
   static defaultProps = {
-    sourceId: '',
     record: '',
     className: '',
     isSmallMode: false,

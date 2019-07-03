@@ -1,6 +1,6 @@
 import * as React from 'react';
 import queryString from 'query-string';
-import PropertiesDashlet from '../../../components/Properties/PropertiesDashlet';
+import PropertiesDashlet, { Properties } from '../../../components/Properties';
 import '../testStyle.scss';
 import { deepClone } from '../../../helpers/util';
 
@@ -47,16 +47,18 @@ export default class PropertiesPage extends React.Component {
 
     return (
       <div>
-        <h3>Демо страница виджета Свойства ({configs.length})</h3>
+        <h3>Демо страница Свойства ({configs.length})</h3>
         <div className={'ecos-debug-container'}>
           <div className={'ecos-debug-col'}>
+            <h5>Widget Props</h5>
             {configs.map((item, index) => (
               <PropertiesDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
             ))}
           </div>
           <div className={'ecos-debug-col'}>
+            <h5>Solo Props</h5>
             {col2.map((item, index) => (
-              <PropertiesDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
+              <Properties record={item.document} {...item.config} key={item.id + index} />
             ))}
           </div>
         </div>
