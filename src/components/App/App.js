@@ -115,7 +115,6 @@ const mapStateToProps = state => ({
   isShow: get(state, ['pageTabs', 'isShow']),
   tabs: get(state, ['pageTabs', 'tabs']),
   menuType: get(state, ['menu', 'type'])
-  // links: get(state, ['menu', 'links'])
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -123,7 +122,6 @@ const mapDispatchToProps = dispatch => ({
   getTabs: () => dispatch(getTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
   initMenuSettings: () => dispatch(initMenuSettings())
-  // saveMenuConfig: config => dispatch(saveMenuConfig(config))
 });
 
 export default withRouter(

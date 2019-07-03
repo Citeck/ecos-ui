@@ -111,9 +111,10 @@ class Layout extends Component {
       .filter(item => item !== '')
       .join(' + ');
     const withoutSize = columns.filter(column => !column.width).length;
+    const availableWidth = otherWidth ? `(100% - ${otherWidth})` : '100%';
 
     if (!column.width) {
-      styles.width = `calc((100% - ${otherWidth}) / ${withoutSize})`;
+      styles.width = `calc(${availableWidth} / ${withoutSize})`;
     }
 
     const id = JSON.stringify({

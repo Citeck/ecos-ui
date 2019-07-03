@@ -37,7 +37,7 @@ function* doGetAvailableMenuItemsRequest({ api, logger }, action) {
 
 function* doGetMenuConfigRequest({ api, logger }, { payload }) {
   try {
-    const result = yield call(api.menu.getMenuConfig);
+    const result = yield call(() => api.menu.getMenuConfig(true));
     const menu = dto.parseGetResult(result);
 
     yield put(setMenuConfig(menu));

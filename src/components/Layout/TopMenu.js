@@ -11,6 +11,7 @@ class TopMenu extends Component {
     links: PropTypes.array,
     isShow: PropTypes.bool,
     isSortable: PropTypes.bool,
+    isLoading: PropTypes.bool,
     onSave: PropTypes.func
   };
 
@@ -31,7 +32,7 @@ class TopMenu extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (JSON.stringify(nextProps.links) !== JSON.stringify(this.state.links)) {
+    if (!nextProps.isLoading && JSON.stringify(nextProps.links) !== JSON.stringify(this.state.links)) {
       this.setState({ links: nextProps.links });
     }
   }
@@ -50,8 +51,9 @@ class TopMenu extends Component {
       link.position = index;
     });
 
-    this.setState({ links, draggableNode: null });
-    this.props.onSave(links);
+    this.setState({ links, draggableNode: null }, () => {
+      this.props.onSave(links);
+    });
   };
 
   handleBeforeSortStart = ({ node }) => {

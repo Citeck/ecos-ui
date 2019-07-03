@@ -9,7 +9,7 @@ import {
   setResultSaveDashboardConfig
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
-import { setResultSaveMenuConfig } from '../actions/menu';
+import { saveMenuConfig, setResultSaveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
 import * as dtoDB from '../dto/dashboard';
 import * as dtoDBS from '../dto/dashboardSettings';
@@ -76,13 +76,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     });
     const parseDashboard = dtoDB.parseSaveResult(dashboardResult);
 
-    yield call(api.menu.saveMenuConfig, { config: menu });
-    yield put(
-      setResultSaveMenuConfig({
-        status: SAVE_STATUS.SUCCESS
-      })
-    );
-
+    yield put(saveMenuConfig(menu));
     yield put(
       setResultSaveDashboardConfig({
         status: parseDashboard.dashboardId ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,

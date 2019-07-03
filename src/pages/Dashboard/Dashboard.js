@@ -154,10 +154,7 @@ class Dashboard extends Component {
   handleSaveMenu = links => {
     const { saveMenuConfig, menuType } = this.props;
 
-    saveMenuConfig({
-      type: menuType,
-      links
-    });
+    saveMenuConfig({ type: menuType, links });
   };
 
   renderLayout() {
@@ -179,13 +176,13 @@ class Dashboard extends Component {
   }
 
   renderTopMenu() {
-    const { menuType, links } = this.props;
+    const { menuType, isLoadingMenu, links } = this.props;
 
     if (menuType !== MENU_TYPE.TOP) {
       return null;
     }
 
-    return <TopMenu isShow isSortable links={links} onSave={this.handleSaveMenu} />;
+    return <TopMenu isShow isSortable isLoading={isLoadingMenu} links={links} onSave={this.handleSaveMenu} />;
   }
 
   render() {

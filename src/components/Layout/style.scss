@@ -144,6 +144,7 @@ $indents-of-items: 15px;
   &__column {
     width: 100%;
     height: auto !important;
+    padding: 2px 0; // To fix shadow clipping in widgets
 
     &:not(:first-child) {
       margin-left: $indents-of-items;

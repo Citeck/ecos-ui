@@ -116,9 +116,9 @@ class DashboardSettings extends React.Component {
       state.availableWidgets = DndUtils.setDndId(nextProps.availableWidgets);
     }
 
-    if (config.menuType !== nextProps.config.menuType) {
-      state.isShowMenuConstructor = nextProps.config.menuType === MENU_TYPE.TOP;
-    }
+    // if (config.menuType !== nextProps.config.menuType) {
+    state.isShowMenuConstructor = nextProps.config.menuType === MENU_TYPE.TOP;
+    // }
 
     this.setState({ ...state });
 
