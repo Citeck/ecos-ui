@@ -4,11 +4,12 @@ import ReactResizeDetector from 'react-resize-detector';
 import { Tooltip } from 'reactstrap';
 
 import Dashlet from '../Dashlet/Dashlet';
+import { IcoBtn } from '../common/btns';
+import Icon from '../common/icons/Icon/Icon';
+import EcosModal from '../common/EcosModal';
 import { t } from '../../helpers/util';
 
 import './style.scss';
-import { IcoBtn } from '../common/btns';
-import Icon from '../common/icons/Icon/Icon';
 
 const TOOLTIP = {
   ADD_NEW_VERSION: 'ADD_NEW_VERSION',
@@ -36,7 +37,8 @@ class VersionsJournal extends Component {
           'https://images-na.ssl-images-amazon.com/images/M/MV5BMTEwNjE0Njg2MTReQTJeQWpwZ15BbWU3MDEyODM1ODc@._V1_UY256_CR1,0,172,256_AL_.jpg',
         isCurrent: true
       }
-    ]
+    ],
+    modalIsShow: false
   };
 
   handleResize = width => {
@@ -54,6 +56,10 @@ class VersionsJournal extends Component {
     }));
   }
 
+  handleToggleModal = () => {
+    this.setState(state => ({ modalIsShow: !state.modalIsShow }));
+  };
+
   renderAddButton() {
     return (
       <React.Fragment>
@@ -61,7 +67,7 @@ class VersionsJournal extends Component {
           id={TOOLTIP.ADD_NEW_VERSION}
           key="action-open-modal"
           icon="icon-plus"
-          onClick={this.handleClickShowModal}
+          onClick={this.handleToggleModal}
           className="ecos-btn_i dashlet__btn_hidden dashlet__btn_next dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
         />
         <Tooltip
@@ -142,6 +148,12 @@ class VersionsJournal extends Component {
     );
   }
 
+  renderModal() {
+    const { modalIsShow } = this.state;
+
+    return <EcosModal isOpen={modalIsShow} hideModal={this.handleToggleModal} title={t('Добавить новую версию')} />;
+  }
+
   render() {
     return (
       <div>
@@ -157,6 +169,7 @@ class VersionsJournal extends Component {
           <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
           {this.renderActualVersion()}
           {this.renderOldVersions()}
+          {this.renderModal()}
         </Dashlet>
       </div>
     );
