@@ -2,7 +2,7 @@ import { RecordService } from './recordService';
 import { PROXY_URI, MICRO_URI } from '../constants/alfresco';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 import Records from '../components/Records';
-import { queryByCriteria, t } from '../helpers/util';
+import { queryByCriteria, t, debounce } from '../helpers/util';
 
 export class JournalsApi extends RecordService {
   getRecord = ({ id, attributes }) => {
@@ -208,7 +208,7 @@ export class JournalsApi extends RecordService {
 
   getPreviewUrl = nodeRef => {
     return Records.get(nodeRef)
-      .load('cm:content.previewInfo?json', true)
+      .load('previewInfo?json', true)
       .then(resp => {
         resp = resp || {};
         const { url = '', ext = '' } = resp;
@@ -238,8 +238,28 @@ export class JournalsApi extends RecordService {
 
         return actionResults.map((a, i) => ({ ...a, title: titles[i], status: t(`batch-edit.message.${a.status}`) }));
       })
-      .catch(() => {
-        return [];
-      });
+      .catch(() => []);
+  };
+
+  getStatus = nodeRef => {
+    return this.getJson(`${PROXY_URI}api/internal/downloads/${nodeRef.replace(':/', '')}/status`)
+      .then(status => {
+        if (status.status !== 'DONE') {
+          return debounce(this.getStatus, 500)(nodeRef);
+        }
+
+        return nodeRef;
+      })
+      .catch(() => null);
+  };
+
+  deleteDownloadsProgress = nodeRef => {
+    return this.deleteJson(`${PROXY_URI}api/internal/downloads/${nodeRef.replace(':/', '')}`, true).then(resp => resp);
+  };
+
+  createZip = selected => {
+    return this.postJson(`${PROXY_URI}api/internal/downloads`, selected.map(s => ({ nodeRef: s })))
+      .then(resp => this.getStatus(resp.nodeRef))
+      .catch(() => null);
   };
 }

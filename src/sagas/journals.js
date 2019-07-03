@@ -33,7 +33,9 @@ import {
   goToJournalsPage,
   search,
   performGroupAction,
-  setPerformGroupActionResponse
+  setPerformGroupActionResponse,
+  createZip,
+  setZipNodeRef
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { JOURNAL_SETTING_ID_FIELD, DEFAULT_PAGINATION } from '../components/Journals/constants';
@@ -421,7 +423,21 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
 
     columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
 
-    row = groupBy.length ? row : yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
+    if (groupBy.length) {
+      for (let key in row) {
+        if (!row.hasOwnProperty(key)) {
+          continue;
+        }
+
+        const value = row[key];
+
+        if (value && value.str) {
+          row[key] = value.str;
+        }
+      }
+    } else {
+      row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
+    }
 
     goToJournalsPageUrl({
       journalsListId,
@@ -472,6 +488,21 @@ function* sagaPerformGroupAction({ api, logger, stateId, w }, action) {
   }
 }
 
+function* sagaCreateZip({ api, logger, stateId, w }, action) {
+  try {
+    let selected = action.payload;
+
+    const nodeRef = yield call(api.journals.createZip, selected);
+
+    if (nodeRef) {
+      yield call(api.journals.deleteDownloadsProgress, nodeRef);
+      yield put(setZipNodeRef(w(nodeRef)));
+    }
+  } catch (e) {
+    logger.error('[journals sagaCreateZip saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(getDashletEditorData().type, wrapSaga, { ...ea, saga: sagaGetDashletEditorData });
@@ -497,6 +528,7 @@ function* saga(ea) {
   yield takeEvery(goToJournalsPage().type, wrapSaga, { ...ea, saga: sagaGoToJournalsPage });
   yield takeEvery(search().type, wrapSaga, { ...ea, saga: sagaSearch });
   yield takeEvery(performGroupAction().type, wrapSaga, { ...ea, saga: sagaPerformGroupAction });
+  yield takeEvery(createZip().type, wrapSaga, { ...ea, saga: sagaCreateZip });
 }
 
 export default saga;

@@ -1,7 +1,6 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
-import Columns from '../../common/templates/Columns/Columns';
 import { Caption, Select, Field } from '../../common/form';
 import { Btn } from '../../common/btns';
 
@@ -84,6 +83,8 @@ class JournalsDashletEditor extends Component {
     const props = this.props;
     const config = props.config || {};
     const cssClasses = classNames('ecos-journal-dashlet-editor', props.className);
+    const measurer = props.measurer;
+    const padding = isSmall => (isSmall ? 'ecos-btn_padding_small' : '');
 
     return (
       <div className={cssClasses}>
@@ -125,22 +126,22 @@ class JournalsDashletEditor extends Component {
           </Field>
         </div>
 
-        <Columns
-          className={'ecos-journal-dashlet-editor__actions'}
-          cols={[
-            <Btn onClick={this.clear}>{t('journals.action.reset-settings')}</Btn>,
+        <div className={'ecos-journal-dashlet-editor__actions'}>
+          <Btn className={`ecos-btn_x-step_10 ${padding(measurer.xxs || measurer.xxxs)}`} onClick={this.clear}>
+            {measurer.xxs || measurer.xxxs ? t('journals.action.reset') : t('journals.action.reset-settings')}
+          </Btn>
 
-            <Fragment>
-              <Btn className={'ecos-btn_x-step_10'} onClick={this.cancel}>
-                {t('journals.action.cancel')}
-              </Btn>
-              <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.save}>
-                {t('journals.action.save')}
-              </Btn>
-            </Fragment>
-          ]}
-          cfgs={[{}, { className: 'columns_right' }]}
-        />
+          <Btn
+            className={`ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_float_right ${padding(measurer.xxs || measurer.xxxs)}`}
+            onClick={this.save}
+          >
+            {t('journals.action.save')}
+          </Btn>
+
+          <Btn className={`ecos-btn_x-step_10 ecos-btn_float_right ${padding(measurer.xxs || measurer.xxxs)}`} onClick={this.cancel}>
+            {t('journals.action.cancel')}
+          </Btn>
+        </div>
       </div>
     );
   }

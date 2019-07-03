@@ -86,6 +86,10 @@ export const getCreateRecordUrl = ({ type, destination }) => {
   return `${URL_PAGECONTEXT}node-create?${qString}&viewId=`;
 };
 
+export const getZipUrl = nodeRef => {
+  return `${PROXY_URI}api/node/content/${nodeRef.replace(':/', '')}/Archive.zip`;
+};
+
 export const goToJournalsPage = options => window.open(getJournalPageUrl(options), '_blank');
 export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_blank');
 export const goToCardDetailsPage = nodeRef => window.open(`${URL_PAGECONTEXT}card-details?nodeRef=${nodeRef}`, '_blank');

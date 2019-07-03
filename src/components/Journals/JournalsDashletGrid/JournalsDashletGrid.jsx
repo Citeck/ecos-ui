@@ -1,10 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import { Grid, InlineTools, Tools, EmptyGrid } from '../../common/grid';
 import Loader from '../../common/Loader/Loader';
+import JournalsDownloadZip from '../JournalsDownloadZip';
+import EcosModal from '../../common/EcosModal/EcosModal';
+import { Grid, InlineTools, Tools, EmptyGrid } from '../../common/grid';
 import { IcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
-import EcosModal from '../../common/EcosModal/EcosModal';
 import { goToCardDetailsPage, goToNodeEditPage, getDownloadContentUrl } from '../../../helpers/urls';
 import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
@@ -188,9 +189,10 @@ class JournalsDashletGrid extends Component {
     deleteRecords(selectedRecords);
   };
 
-  tools = () => {
+  tools = selected => {
     const toolsActionClassName = 'ecos-btn_i_sm ecos-btn_grey4 ecos-btn_hover_t-dark-brown';
     const {
+      stateId,
       selectAllRecordsVisible,
       selectAllRecords,
       grid: { total },
@@ -206,7 +208,7 @@ class JournalsDashletGrid extends Component {
         selectAll={selectAllRecords}
         total={total}
         tools={[
-          <IcoBtn icon={'icon-download'} className={toolsActionClassName} title={t('grid.tools.zip')} />,
+          <JournalsDownloadZip stateId={stateId} selected={selected} />,
           <IcoBtn icon={'icon-copy'} className={toolsActionClassName} title={t('grid.tools.copy-to')} />,
           <IcoBtn icon={'icon-big-arrow'} className={toolsActionClassName} title={t('grid.tools.move-to')} />,
           <IcoBtn icon={'icon-delete'} className={toolsActionClassName} title={t('grid.tools.delete')} onClick={this.deleteRecords} />,

@@ -29,18 +29,13 @@ const mapDispatchToProps = (dispatch, props) => {
 };
 
 class JournalsDashletToolbar extends Component {
-  constructor(props) {
-    super(props);
-    this.ref = React.createRef();
-  }
-
   addRecord = () => {
     let {
       journalConfig: {
         meta: { createVariants = [{}] }
       }
     } = this.props;
-    createVariants = createVariants[0];
+    createVariants = createVariants[0] || {};
     createVariants.canCreate && goToCreateRecordPage(createVariants);
   };
 
@@ -58,13 +53,12 @@ class JournalsDashletToolbar extends Component {
       journalConfig: {
         meta: { nodeRef = '' }
       },
-      journalSettings
+      journalSettings,
+      measurer
     } = this.props;
 
-    const dom = this.ref.current;
-
     return (
-      <div ref={this.ref} className={'ecos-journal-dashlet__toolbar'}>
+      <div className={'ecos-journal-dashlet__toolbar'}>
         <IcoBtn
           icon={'icon-big-plus'}
           className={'ecos-btn_i ecos-btn_i-big-plus ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10'}
@@ -89,7 +83,7 @@ class JournalsDashletToolbar extends Component {
         <Export config={journalConfig} />
 
         <div className={'dashlet__actions'}>
-          {dom && dom.offsetWidth > 550 ? <JournalsDashletPagination stateId={stateId} /> : null}
+          {measurer.xs || measurer.xxs || measurer.xxxs ? null : <JournalsDashletPagination stateId={stateId} />}
           <IcoBtn
             icon={'icon-list'}
             className={'ecos-btn_i ecos-btn_blue2 ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_10'}
