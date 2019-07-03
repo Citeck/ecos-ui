@@ -2,20 +2,14 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
+import { getOutputFormat, t } from '../../helpers/util';
 import Loader from '../common/Loader/Loader';
-import { isLastItem, t } from '../../helpers/util';
-import Separator from '../common/Separator/Separator';
-
-const TasksPropTypes = {
-  id: PropTypes.string,
-  title: PropTypes.string,
-  actors: PropTypes.string,
-  deadline: PropTypes.any
-};
+import { CurrentTaskPropTypes, DisplayedColumns } from './utils';
+import { Caption } from '../common/form';
 
 class CurrentTaskList extends React.Component {
   static propTypes = {
-    currentTasks: PropTypes.arrayOf(TasksPropTypes).isRequired,
+    currentTasks: PropTypes.arrayOf(CurrentTaskPropTypes).isRequired,
     className: PropTypes.string,
     height: PropTypes.string
   };
@@ -41,26 +35,32 @@ class CurrentTaskList extends React.Component {
   }
 
   renderEnum() {
-    const { currentTasks, onAssignClick, className, isLoading, isSmallMode } = this.props;
+    const { currentTasks, onAssignClick, className } = this.props;
+    const classInfo = `${className} ${this.className}_view-enum`;
 
     return (
-      <React.Fragment>
+      <div className={className}>
         {currentTasks.map((item, i) => (
-          <div key={i + item.id}>
-            {item.title}
-            {!isLastItem(currentTasks, i) && <Separator noIndents />}
+          <div className={classInfo} key={item.id + i}>
+            <Caption className={`${classInfo}__title`} middle>
+              {item[DisplayedColumns.title.key]}
+            </Caption>
+
+            <div className={`${classInfo}-label`}>{DisplayedColumns.actors.label}</div>
+            <div className={`${classInfo}-value`}>{item[DisplayedColumns.actors.key]}</div>
+
+            <div className={`${classInfo}-label`}>{DisplayedColumns.deadline.label}</div>
+            <div className={`${classInfo}-value`}>
+              {getOutputFormat(DisplayedColumns.deadline.format, item[DisplayedColumns.deadline.key])}
+            </div>
           </div>
         ))}
-      </React.Fragment>
+      </div>
     );
   }
 
   renderList() {
-    const { currentTasks, onAssignClick, className, isLoading, isSmallMode } = this.props;
-
-    if (isLoading || isEmpty(currentTasks)) {
-      return null;
-    }
+    const { currentTasks, onAssignClick, className } = this.props;
 
     return (
       <React.Fragment>
@@ -83,7 +83,8 @@ class CurrentTaskList extends React.Component {
       return this.renderEmpty();
     }
 
-    if (isSmallMode) {
+    // if (isSmallMode) {
+    if (true) {
       return this.renderEnum();
     }
 

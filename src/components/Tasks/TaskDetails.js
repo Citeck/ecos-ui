@@ -1,19 +1,20 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
+import { deepClone, getOutputFormat } from '../../helpers/util';
 import EcosForm from '../EcosForm';
 import { Caption } from '../common/form';
 import { Grid } from '../common/grid';
 import Separator from '../common/Separator/Separator';
-import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
-import { deepClone } from '../../helpers/util';
-import { DisplayedColumns, getOutputFormat, TasksPropTypes } from './utils';
 import AssignmentPanel from './AssignmentPanel';
+import { DisplayedColumns, TaskPropTypes } from './utils';
+
 import './style.scss';
 
 class TaskDetails extends React.Component {
   static propTypes = {
-    details: PropTypes.shape(TasksPropTypes).isRequired,
+    details: PropTypes.shape(TaskPropTypes).isRequired,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
     onAssignClick: PropTypes.func.isRequired,

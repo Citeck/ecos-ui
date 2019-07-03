@@ -1,11 +1,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Btn } from '../common/btns';
 import { USER_ADMIN, USER_CURRENT } from '../../constants';
 import { AssignActions } from '../../constants/tasks';
 import { t } from '../../helpers/util';
+import { Btn } from '../common/btns';
 import { StateAssignPropTypes } from './utils';
+
 import './style.scss';
 
 class AssignmentPanel extends React.Component {

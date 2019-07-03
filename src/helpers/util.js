@@ -1,5 +1,6 @@
 import lodashGet from 'lodash/get';
-import { MIN_WIDTH_DASHLET_SMALL } from '../constants';
+import moment from 'moment';
+import { DataFormatTypes, MIN_WIDTH_DASHLET_SMALL } from '../constants';
 
 export const debounce = (func, ms = 0) => {
   let timer = null;
@@ -391,4 +392,17 @@ export function isExistIndex(idx) {
 
 export function isLastItem(array, idx) {
   return idx === array.length - 1;
+}
+
+export function getOutputFormat(format, value) {
+  if (!format || !value) {
+    return value || '';
+  }
+
+  switch (format) {
+    case DataFormatTypes.DATE:
+      return moment(value).format('DD.MM.YYYY');
+    default:
+      return value;
+  }
 }

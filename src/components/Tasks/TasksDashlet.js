@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
 import { isSmallMode, t } from '../../helpers/util';
 import Dashlet from '../Dashlet/Dashlet';
-import Tasks from '../Tasks/Tasks';
+import Tasks from './Tasks';
 
 import './style.scss';
 
