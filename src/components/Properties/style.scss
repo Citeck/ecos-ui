@@ -1,18 +1,18 @@
+@import '../../constants';
+
 .ecos-properties {
   $root: &;
 
   &__loader-wrapper {
   }
 
-  &__wrapper {
-    padding: 6px 3px;
-
-    #{$root}__scroll {
+  &__scroll {
+    &_v {
+      @extend %v-scroll;
     }
+  }
 
-    #{$root}__container {
-      padding: 12px 17px;
-    }
+  &__container {
   }
 
   &-dashlet {

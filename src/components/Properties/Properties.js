@@ -56,11 +56,13 @@ class Properties extends React.Component {
     const { height } = this.props;
 
     return (
-      <div className={`${this.className}__wrapper`}>
-        <Scrollbars style={{ height }} className={`${this.className}__scroll`}>
-          <div className={`${this.className}__container`}>{this.renderForm()}</div>
-        </Scrollbars>
-      </div>
+      <Scrollbars
+        style={{ height }}
+        className={`${this.className}__scroll`}
+        renderTrackVertical={props => <div {...props} className={`${this.className}__scroll_v`} />}
+      >
+        <div className={`${this.className}__container`}>{this.renderForm()}</div>
+      </Scrollbars>
     );
   }
 }

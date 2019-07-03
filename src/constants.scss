@@ -78,3 +78,14 @@ $citeck-icon-radio-checked: '\e835';
 $citeck-icon-radio-dark: '\e834';
 $citeck-icon-left: '\51';
 $citeck-icon-right: '\52';
+
+%v-scroll {
+  position: absolute;
+  width: 6px;
+  right: 5px;
+  bottom: 2px;
+  top: 52px;
+  border-radius: 3px;
+  visibility: visible;
+  z-index: 11;
+}

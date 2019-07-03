@@ -37,8 +37,6 @@ PropertiesEditModal.propTypes = {
   closeModal: PropTypes.func.isRequired
 };
 
-PropertiesEditModal.defaultProps = {
-  closeModal: () => {}
-};
+PropertiesEditModal.defaultProps = {};
 
 export default PropertiesEditModal;
