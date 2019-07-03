@@ -61,12 +61,13 @@ export default class ColumnsSetup extends Component {
   };
 
   render() {
-    const props = this.props;
+    const { right, ...props } = this.props;
     const cssClasses = classNames('export', props.className);
 
     return (
       <div {...props} className={cssClasses}>
         <Dropdown
+          menuClassName={right ? 'ecos-dropdown__menu_right' : ''}
           source={[
             { id: 0, title: t('export.list.html-read'), type: 'html', download: false, target: '_blank' },
             { id: 1, title: t('export.list.html-load'), type: 'html', download: true, target: '_self' },
