@@ -76,7 +76,11 @@ class TaskList extends React.Component {
     const { height } = this.props;
 
     return (
-      <Scrollbars style={{ height }} className={this.className}>
+      <Scrollbars
+        style={{ height }}
+        className={this.className}
+        renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
+      >
         {this.renderLoader()}
         {this.renderEmptyInfo()}
         {this.renderTaskDetailsList()}

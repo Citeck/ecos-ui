@@ -10,6 +10,10 @@
   &-list {
     min-height: 100px;
 
+    &__v-scroll {
+      @extend %v-scroll;
+    }
+
     &_empty {
       margin: 33px 0;
       text-align: center;
