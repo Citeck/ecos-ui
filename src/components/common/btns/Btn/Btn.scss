@@ -74,6 +74,14 @@ button {
     }
   }
 
+  &.ecos-btn_float_right {
+    float: right;
+  }
+
+  &.ecos-btn_padding_small {
+    padding: 9px 10px;
+  }
+
   &.ecos-btn_i {
     font-size: $font-size-extra-large;
     width: 40px;
