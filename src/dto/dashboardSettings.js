@@ -1,5 +1,5 @@
 import * as dtoMenu from './menu';
-import { setDataWidgets } from '../api/mock/dashboardSettings';
+import DashboardService from '../services/dashboard';
 import { LAYOUT_TYPE } from '../constants/layout';
 
 export function getSettingsConfigForWeb(source = {}) {
@@ -34,7 +34,7 @@ export function getSettingsConfigForServer(source) {
 }
 
 function getWidgetsForServer(columns = [], widgets = []) {
-  let defProps = setDataWidgets(widgets);
+  let defProps = DashboardService.setDefaultPropsOfWidgets(widgets);
 
   return columns.map((column, index) => {
     const data = {
