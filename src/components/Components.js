@@ -2,21 +2,28 @@ import loadable from '@loadable/component';
 import get from 'lodash/get';
 import { t } from '../helpers/util';
 
+export const ComponentKeys = {
+  LOGIN: 'login',
+  PAGINATION: 'pagination',
+  DOC_PREVIEW: 'doc-preview',
+  JOURNAL: 'journal'
+};
+
 export default class Components {
   static components = {
-    login: {
+    [ComponentKeys.LOGIN]: {
       path: './LoginForm',
       label: 'Форма авторизации'
     },
-    pagination: {
+    [ComponentKeys.PAGINATION]: {
       path: './common/Pagination/Pagination',
       label: 'Пагинация'
     },
-    'doc-preview': {
+    [ComponentKeys.DOC_PREVIEW]: {
       path: './DocPreview',
       label: 'Предпросмотр'
     },
-    journal: {
+    [ComponentKeys.JOURNAL]: {
       path: './Journals/JournalsDashlet/JournalsDashlet',
       label: 'Журнал'
     }
