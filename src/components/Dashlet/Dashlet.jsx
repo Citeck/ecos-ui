@@ -12,7 +12,7 @@ const Header = ({ title, onGoTo, onReload, onEdit, measurer }) => {
     <div className={'dashlet__header'}>
       <span className={'dashlet__caption'}>{title}</span>
 
-      <IcoBtn invert={'true'} icon={'icon-big-arrow'} className={'dashlet__btn ecos-btn_narrow'} onClick={onGoTo}>
+      <IcoBtn title={t('dashlet.goto')} invert={'true'} icon={'icon-big-arrow'} className={'dashlet__btn ecos-btn_narrow'} onClick={onGoTo}>
         {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
       </IcoBtn>
 

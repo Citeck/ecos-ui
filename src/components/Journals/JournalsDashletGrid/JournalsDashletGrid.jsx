@@ -198,7 +198,8 @@ class JournalsDashletGrid extends Component {
       grid: { total },
       journalConfig: {
         meta: { groupActions = [] }
-      }
+      },
+      toolsClassName
     } = this.props;
 
     return (
@@ -207,6 +208,7 @@ class JournalsDashletGrid extends Component {
         selectAllVisible={selectAllRecordsVisible}
         selectAll={selectAllRecords}
         total={total}
+        className={toolsClassName}
         tools={[
           <JournalsDownloadZip stateId={stateId} selected={selected} />,
           <IcoBtn icon={'icon-copy'} className={toolsActionClassName} title={t('grid.tools.copy-to')} />,

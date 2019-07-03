@@ -65,7 +65,7 @@ export default class Dropdown extends Component {
           {isStatic ? this.props.children : this.getControl(getPropByStringKey(selected, titleField))}
         </DropdownToggle>
 
-        <DropdownMenu className={'ecos-dropdown__menu'}>
+        <DropdownMenu className={classNames('ecos-dropdown__menu', this.props.menuClassName)}>
           <ul>{items}</ul>
         </DropdownMenu>
       </Drd>

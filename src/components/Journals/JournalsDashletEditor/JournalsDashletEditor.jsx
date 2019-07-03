@@ -94,6 +94,7 @@ class JournalsDashletEditor extends Component {
           </Caption>
           <Field label={t('journals.list.name')}>
             <Select
+              className={'ecos-journal-dashlet-editor__select'}
               placeholder={t('journals.action.select-journal-list')}
               options={props.journalsList}
               getOptionLabel={option => option.title}
@@ -105,6 +106,7 @@ class JournalsDashletEditor extends Component {
 
           <Field label={t('journals.name')}>
             <Select
+              className={'ecos-journal-dashlet-editor__select'}
               placeholder={t('journals.action.select-journal')}
               options={props.journals}
               getOptionLabel={option => option.title}
@@ -116,6 +118,7 @@ class JournalsDashletEditor extends Component {
 
           <Field label={t('journals.settings')}>
             <Select
+              className={'ecos-journal-dashlet-editor__select'}
               placeholder={t('journals.default')}
               options={props.journalSettings}
               getOptionLabel={option => option[JOURNAL_SETTING_DATA_FIELD].title}
