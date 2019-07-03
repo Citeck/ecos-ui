@@ -1,14 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
+import classNames from 'classnames';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsDashletToolbar from '../JournalsDashletToolbar';
 import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletFooter from '../JournalsDashletFooter';
-import { getDashletConfig, setEditorMode, reloadGrid, initState } from '../../../actions/journals';
+import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet/Dashlet';
+import { getDashletConfig, setEditorMode, reloadGrid, initState } from '../../../actions/journals';
 import { goToJournalsPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
-import classNames from 'classnames';
 
 import './JournalsDashlet.scss';
 
@@ -76,10 +77,14 @@ class JournalsDashlet extends Component {
         onGoTo={this.goToJournalsPage}
       >
         {editorMode ? (
-          <JournalsDashletEditor id={id} stateId={stateId} />
+          <Measurer>
+            <JournalsDashletEditor id={id} stateId={stateId} />
+          </Measurer>
         ) : (
           <Fragment>
-            <JournalsDashletToolbar stateId={stateId} />
+            <Measurer>
+              <JournalsDashletToolbar stateId={stateId} />
+            </Measurer>
 
             <JournalsDashletGrid stateId={stateId} />
 

@@ -423,7 +423,21 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
 
     columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
 
-    row = groupBy.length ? row : yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
+    if (groupBy.length) {
+      for (let key in row) {
+        if (!row.hasOwnProperty(key)) {
+          continue;
+        }
+
+        const value = row[key];
+
+        if (value && value.str) {
+          row[key] = value.str;
+        }
+      }
+    } else {
+      row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
+    }
 
     goToJournalsPageUrl({
       journalsListId,
