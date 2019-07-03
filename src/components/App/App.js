@@ -11,6 +11,7 @@ import DocPreviewPage from '../../pages/debug/DocPreview';
 import EcosFormPage from '../../pages/debug/EcosFormPage';
 import FormIOPage from '../../pages/debug/FormIOPage';
 import JournalsDashboardPage from '../../pages/debug/JournalsDashboardPage';
+import TasksDashletPage from '../../pages/debug/Tasks/TasksDashletPage';
 
 import Header from '../Header';
 import Notification from '../Notification';
@@ -74,6 +75,7 @@ class App extends Component {
             <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
             <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
             {/*<Route component={NotFoundPage} />*/}
+            <Route path="/tasks" exact component={TasksDashletPage} />
           </Switch>
 
           <div className="sticky-push" />

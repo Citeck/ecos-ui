@@ -1,0 +1,131 @@
+@import '../../constants';
+
+%h-indents {
+  padding: 0 20px;
+}
+
+.ecos-task {
+  $root: &;
+
+  &-list {
+    min-height: 100px;
+
+    &__v-scroll {
+      @extend %v-scroll;
+    }
+
+    &_empty {
+      margin: 33px 0;
+      text-align: center;
+      color: $color-gray-5;
+      font-size: $font-size-standard;
+      font-weight: $font-weight-semi-bold;
+    }
+
+    &-dashlet {
+      height: fit-content;
+    }
+
+    &__loader-wrapper {
+      height: 100%;
+    }
+  }
+
+  &-ins {
+    $ins: &;
+    margin-bottom: 25px;
+
+    &__title {
+      height: 51px;
+      padding: 0 20px;
+      margin-bottom: 7px;
+      font-weight: $font-weight-bold;
+      color: $color-gray-dark;
+      background-color: $color-gray-8;
+      line-height: 2.7;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    &__info-wrap {
+      @extend %h-indents;
+
+      #{$ins}_view-enum {
+        display: flex;
+        align-items: center;
+        padding: 5px 0;
+        border-bottom: 2px solid $color-gray-4;
+        font-size: $font-size-small;
+
+        &-label {
+          min-width: 100px;
+          margin-right: 45px;
+          font-weight: $font-weight-bold;
+          color: $text-color-dark;
+        }
+
+        &-value {
+          color: $color-gray-9;
+        }
+      }
+
+      #{$ins}_view-table {
+        height: 110px !important;
+
+        .table {
+          border-top: none;
+
+          th {
+            border-top: none;
+          }
+        }
+
+        .ecos-th {
+          font-weight: $font-weight-bold;
+        }
+
+        .ecos-grid__td {
+          font-weight: $font-weight-semi-bold;
+        }
+      }
+    }
+
+    &__eform {
+      @extend %h-indents;
+    }
+  }
+
+  &__assign-btn {
+    $btn: &;
+
+    &.ecos-btn {
+      font-weight: $font-weight-bold;
+    }
+
+    &:not(:last-of-type) {
+      margin-right: 10px;
+    }
+
+    &._fill {
+      width: 100%;
+      margin-right: 0;
+
+      &:first-of-type {
+        margin-top: 3px;
+      }
+
+      &:last-of-type {
+        margin-bottom: 2px;
+      }
+
+      &:not(:last-of-type) {
+        margin-bottom: 10px;
+      }
+    }
+
+    &__wrapper {
+      margin-top: 16px;
+    }
+  }
+}
