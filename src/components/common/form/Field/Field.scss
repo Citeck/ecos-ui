@@ -1,11 +1,17 @@
 @import '../../../../constants';
 
 .ecos-field {
+  &.form-group {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
   .ecos-field__label {
     font-family: $font-family !important;
     font-size: $font-size-standard !important;
     font-weight: $font-weight-semi-bold !important;
     color: $text-color-dark !important;
+    padding-left: 0;
   }
 
   .ecos-field__control {
