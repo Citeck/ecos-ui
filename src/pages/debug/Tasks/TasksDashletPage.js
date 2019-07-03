@@ -1,6 +1,6 @@
 import * as React from 'react';
 import queryString from 'query-string';
-import TasksDashlet from '../../../components/Tasks/TasksDashlet';
+import TasksDashlet from '../../../components/Tasks';
 import '../testStyle.scss';
 import { deepClone } from '../../../helpers/util';
 
@@ -23,9 +23,7 @@ export default class TasksDashletPage extends React.Component {
     };
     const configs = [taskConfigUrl];
 
-    const urlsCurrentUser = [];
-
-    const urlsAdmin = [];
+    const urls = ['?nodeRef=workspace://SpacesStore/5409bdbc-d3bf-4661-8e1d-58ef1fd8a1fa'];
 
     const fillTask = item => {
       const template = deepClone(taskConfigUrl);
@@ -39,11 +37,7 @@ export default class TasksDashletPage extends React.Component {
       return template;
     };
 
-    urlsCurrentUser.forEach(item => {
-      configs.push(fillTask(item));
-    });
-
-    urlsAdmin.forEach(item => {
+    urls.forEach(item => {
       configs.push(fillTask(item));
     });
 
@@ -59,9 +53,9 @@ export default class TasksDashletPage extends React.Component {
             ))}
           </div>
           <div className={'ecos-debug-col'}>
-            {col2.map((item, index) => (
-              <TasksDashlet id={item.id} document={item.document} config={item.config} title={item.title} key={item.id + index} />
-            ))}
+            {/*{col2.map((item, index) => (
+              <Tasks document={item.document} {...item.config} key={item.id + index} />
+            ))}*/}
           </div>
         </div>
       </div>
