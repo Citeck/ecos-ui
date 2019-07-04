@@ -7,7 +7,7 @@ import { Grid } from '../common/grid';
 import Separator from '../common/Separator/Separator';
 import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
 import { deepClone } from '../../helpers/util';
-import { DisplayedColumns, getOutputFormat, TasksPropTypes } from './utils';
+import { getDisplayedColumns, getOutputFormat, TasksPropTypes } from './utils';
 import AssignmentPanel from './AssignmentPanel';
 import './style.scss';
 
@@ -29,6 +29,7 @@ class TaskDetails extends React.Component {
   };
 
   className = 'ecos-task-ins';
+  displayedColumns = getDisplayedColumns();
 
   onSubmitForm = () => {
     this.props.onSubmitForm();
@@ -39,7 +40,7 @@ class TaskDetails extends React.Component {
 
     for (const key in details) {
       if (details.hasOwnProperty(key)) {
-        const desc = ArrayOfObjects.getObjectByKV(DisplayedColumns, 'key', key);
+        const desc = ArrayOfObjects.getObjectByKV(this.displayedColumns, 'key', key);
 
         if (Object.keys(desc).length) {
           details[key] = getOutputFormat(desc.format, details[key]);
@@ -48,7 +49,7 @@ class TaskDetails extends React.Component {
     }
 
     const arr = [details];
-    const updCols = ArrayOfObjects.replaceKeys(DisplayedColumns, { key: 'dataField', label: 'text' });
+    const updCols = ArrayOfObjects.replaceKeys(this.displayedColumns, { key: 'dataField', label: 'text' });
     const gridCols = ArrayOfObjects.filterKeys(updCols, ['dataField', 'text']);
     const classes = `${this.className}_view-table`;
 
@@ -58,7 +59,7 @@ class TaskDetails extends React.Component {
   renderDetailsEnum() {
     const { details } = this.props;
     const classInfo = `${this.className}_view-enum`;
-    const columns = ArrayOfObjects.sort(DisplayedColumns, 'order');
+    const columns = ArrayOfObjects.sort(this.displayedColumns, 'order');
 
     return (
       <React.Fragment>

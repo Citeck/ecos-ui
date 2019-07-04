@@ -44,7 +44,7 @@ class TaskList extends React.Component {
       return null;
     }
 
-    return <div className={this.className + '_empty'}>{t('Нет задач')}</div>;
+    return <div className={this.className + '_empty'}>{t('tasks-widget.no-tasks')}</div>;
   }
 
   renderTaskDetailsList() {

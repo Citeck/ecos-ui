@@ -33,22 +33,22 @@ class AssignmentPanel extends React.Component {
       {
         isShow: claimable,
         sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: USER_CURRENT },
-        label: t('Я выполняю это')
+        label: t('tasks-widget.assign.current')
       },
       {
         isShow: assignable,
         sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: USER_ADMIN }, //todo выбор пользователя из МО в другой доработке
-        label: t('Назначить')
+        label: t('tasks-widget.assign.assign')
       },
       {
         isShow: reassignable,
         sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: USER_ADMIN },
-        label: t('Переназначить')
+        label: t('tasks-widget.assign.reassign')
       },
       {
         isShow: releasable,
         sentData: { actionOfAssignment: AssignActions.UNASSIGN, ownerUserName: '' },
-        label: t('Вернуть на группу')
+        label: t('tasks-widget.assign.return-to-group')
       }
     ];
 

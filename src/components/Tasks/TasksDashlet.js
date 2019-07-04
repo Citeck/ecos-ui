@@ -21,7 +21,6 @@ class TasksDashlet extends React.Component {
   };
 
   static defaultProps = {
-    title: t('Задачи'),
     classNameTasks: '',
     classNameDashlet: ''
   };
@@ -56,7 +55,7 @@ class TasksDashlet extends React.Component {
 
     return (
       <Dashlet
-        title={title}
+        title={title || t('tasks-widget.title')}
         bodyClassName={`${this.className}__body`}
         className={classDashlet}
         resizable={true}

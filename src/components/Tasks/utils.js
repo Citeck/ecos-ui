@@ -22,35 +22,37 @@ export const TasksPropTypes = {
   stateAssign: PropTypes.shape(StateAssignPropTypes)
 };
 
-export const DisplayedColumns = [
-  {
-    key: 'started',
-    label: t('Запущено'),
-    order: 0,
-    format: DataFormatTypes.DATE
-  },
-  {
-    key: 'deadline',
-    label: t('Срок'),
-    order: 1,
-    format: DataFormatTypes.DATE
-  },
-  {
-    key: 'sender',
-    label: t('Отправитель'),
-    order: 2
-  },
-  {
-    key: 'actors',
-    label: t('Исполнитель'),
-    order: 3
-  },
-  {
-    key: 'lastcomment',
-    label: t('Комментарий'),
-    order: 4
-  }
-];
+export const getDisplayedColumns = () => {
+  return [
+    {
+      key: 'started',
+      label: t('tasks-widget.column.started'),
+      order: 0,
+      format: DataFormatTypes.DATE
+    },
+    {
+      key: 'deadline',
+      label: t('tasks-widget.column.deadline'),
+      order: 1,
+      format: DataFormatTypes.DATE
+    },
+    {
+      key: 'sender',
+      label: t('tasks-widget.column.sender'),
+      order: 2
+    },
+    {
+      key: 'actors',
+      label: t('tasks-widget.column.actors'),
+      order: 3
+    },
+    {
+      key: 'lastcomment',
+      label: t('tasks-widget.column.lastcomment'),
+      order: 4
+    }
+  ];
+};
 
 export function getOutputFormat(format, value) {
   if (!format || !value) {
