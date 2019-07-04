@@ -130,28 +130,38 @@ class Comments extends React.Component {
     }
 
     if (hours > 0) {
-      return t(`${hours} ${num2str(hours, ['час', 'часа', 'часов'])} назад`);
+      return `${hours} ${t(num2str(hours, ['comments-widget.hour-form1', 'comments-widget.hour-form2', 'comments-widget.hour-form3']))} ${t(
+        'comments-widget.time-ago'
+      )}`;
     }
 
     if (minutes > 0) {
-      return t(`${minutes} ${num2str(minutes, ['минуту', 'минуты', 'минут'])} назад`);
+      return `${minutes} ${t(
+        num2str(minutes, ['comments-widget.minute-form1', 'comments-widget.minute-form2', 'comments-widget.minute-form3'])
+      )} ${t('comments-widget.time-ago')}`;
     }
 
     if (seconds > 0) {
-      return t(`${seconds} ${num2str(seconds, ['секунду', 'секунды', 'секунд'])} назад`);
+      return `${seconds} ${t(
+        num2str(seconds, ['comments-widget.second-form1', 'comments-widget.second-form2', 'comments-widget.second-form3'])
+      )} ${t('comments-widget.time-ago')}`;
     }
 
-    return t('Только что');
+    return t('comments-widget.now');
   }
 
   get countComments() {
     const { totalCount } = this.props;
 
     if (!totalCount) {
-      return t('Нет комментариев');
+      return t('comments-widget.no-comments');
     }
 
-    return t(`${totalCount} ${t(num2str(totalCount, ['комментарий', 'комментария', 'комментариев']))}`);
+    return t(
+      `${totalCount} ${t(
+        num2str(totalCount, ['comments-widget.comment-form1', 'comments-widget.comment-form2', 'comments-widget.comment-form3'])
+      )}`
+    );
   }
 
   get className() {
@@ -329,7 +339,7 @@ class Comments extends React.Component {
     let convertedComment = ContentState.createFromText(comment.text);
 
     if (!comment) {
-      console.warn(t('Комментарий не найден'));
+      console.warn('Comment not found');
 
       return;
     }
@@ -384,7 +394,7 @@ class Comments extends React.Component {
           <span className="ecos-comments__count-text">{this.countComments}</span>
         </div>
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__add-btn" onClick={this.handleShowEditor}>
-          {t('Добавить комментарий')}
+          {t('comments-widget.add')}
         </Btn>
       </React.Fragment>
     );
@@ -452,7 +462,7 @@ class Comments extends React.Component {
               onChange={this.handleChangeComment}
               handleKeyCommand={this.handleKeyCommand}
               handlePastedText={this.handlePastedText}
-              placeholder={t('Напишите комментарий не более 350 символов...')}
+              placeholder={t('comments-widget.editor.placeholder')}
             />
           </Scrollbars>
         </div>
@@ -465,7 +475,7 @@ class Comments extends React.Component {
               onClick={this.handleCloseEditor}
               disabled={saveIsLoading}
             >
-              {t('Отмена')}
+              {t('comments-widget.editor.cancel')}
             </Btn>
             <Btn
               className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__editor-footer-btn"
@@ -473,7 +483,7 @@ class Comments extends React.Component {
               disabled={!this.commentLength || this.commentLength > maxLength || saveIsLoading}
               loading={saveIsLoading}
             >
-              {t('Отправить')}
+              {t('comments-widget.editor.save')}
             </Btn>
           </div>
         </div>
@@ -524,14 +534,14 @@ class Comments extends React.Component {
 
     return (
       <div className="ecos-comments__comment-confirm">
-        <div className="ecos-comments__comment-confirm-title">{t('Удалить этот комментарий')}?</div>
+        <div className="ecos-comments__comment-confirm-title">{t('comments-widget.confirm.title')}?</div>
 
         <div className="ecos-comments__comment-confirm-btns">
           <Btn className="ecos-btn_grey5 ecos-btn_hover_grey1 ecos-comments__comment-confirm-btn" onClick={this.handleCancelDeletion}>
-            {t('Отмена')}
+            {t('comments-widget.confirm.cancel')}
           </Btn>
           <Btn className="ecos-btn_red ecos-comments__comment-confirm-btn" onClick={this.handleConfirmDeletion}>
-            {t('Удалить')}
+            {t('comments-widget.confirm.delete')}
           </Btn>
         </div>
       </div>
@@ -576,14 +586,14 @@ class Comments extends React.Component {
             {canEdit && (
               <div
                 className="ecos-comments__comment-btn ecos-comments__comment-btn-edit icon-edit"
-                title={t('Редактировать')}
+                title={t('comments-widget.icon.edit')}
                 onClick={this.handleEditComment.bind(null, id)}
               />
             )}
             {canDelete && (
               <div
                 className="ecos-comments__comment-btn ecos-comments__comment-btn-delete icon-delete"
-                title={t('Удалить')}
+                title={t('comments-widget.icon.delete')}
                 onClick={this.handleDeleteComment.bind(null, id)}
               />
             )}
@@ -625,7 +635,14 @@ class Comments extends React.Component {
   render() {
     return (
       <div className={this.className}>
-        <Dashlet title={t('Комментарии')} needGoTo={false} actionEdit={false} actionHelp={false} resizable onReload={this.handleReloadData}>
+        <Dashlet
+          title={t('comments-widget.title')}
+          needGoTo={false}
+          actionEdit={false}
+          actionHelp={false}
+          resizable
+          onReload={this.handleReloadData}
+        >
           <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
           <div className="ecos-comments__header">{this.renderHeader()}</div>
 
