@@ -1,10 +1,11 @@
+import { isArray, isEmpty } from 'lodash';
 import TasksService from '../services/tasks';
 
 export default class TasksConverter {
   static getTaskForWeb(source = {}) {
     const target = {};
 
-    if (!source || (source && !Object.keys(source))) {
+    if (isEmpty(source)) {
       return target;
     }
 
@@ -23,9 +24,33 @@ export default class TasksConverter {
     return target;
   }
 
+  static getCurrentTaskForWeb(source = {}) {
+    const target = {};
+
+    if (isEmpty(source)) {
+      return target;
+    }
+
+    target.id = source.id || '';
+    target.title = source.title || '';
+    target.actors = TasksService.getActorsDisplayNameStr(source.actors);
+    target.deadline = source.dueDate;
+    target.isGroup = TasksService.getIsGroup(source.actors);
+
+    return target;
+  }
+
   static getTaskListForWeb(source = []) {
-    if (Array.isArray(source)) {
+    if (isArray(source)) {
       return source.map(item => TasksConverter.getTaskForWeb(item));
+    }
+
+    return [];
+  }
+
+  static getCurrentTaskListForWeb(source = []) {
+    if (isArray(source)) {
+      return source.map(item => TasksConverter.getCurrentTaskForWeb(item));
     }
 
     return [];

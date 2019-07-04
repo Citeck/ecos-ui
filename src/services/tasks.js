@@ -32,8 +32,20 @@ export default class TasksService {
       return value.map(item => item.displayName).join(', ');
     } else if (isString(value)) {
       return value;
-    } else {
-      return value.displayName;
     }
+
+    return value.displayName;
+  }
+
+  static getIsGroup(value) {
+    if (isEmpty(value)) {
+      return false;
+    }
+
+    if (isArray(value)) {
+      return value.some(item => !!item.authorityName);
+    }
+
+    return !!value.authorityName;
   }
 }

@@ -25,7 +25,10 @@ class CurrentTaskInfo extends React.Component {
         <div className={`${this.className}__title`}>{task[Cols.title.key]}</div>
         <div className={`${this.className}__fields`}>
           {label('actors')}
-          <div className={`${this.className}-value`}>{task[Cols.actors.key]}</div>
+          <div className={`${this.className}-value`}>
+            {task[Cols.actors.key]}
+            {task.isGroup && <i className={`ecos-current-task-icon icon-usergroup`} />}
+          </div>
           <Separator noIndents className={`${this.className}__separator`} />
           {label('deadline')}
           <div className={`${this.className}-value`}>{getOutputFormat(Cols.deadline.format, task[Cols.deadline.key])}</div>

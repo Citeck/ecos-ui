@@ -13,7 +13,7 @@ function* sagaGetCurrentTasks({ api, logger }, { payload }) {
     const res = yield call(api.tasks.getCurrentTasksForUser, { document });
 
     if (res && Object.keys(res)) {
-      yield put(setCurrentTaskList({ stateId, list: TasksConverter.getTaskListForWeb(res.records) }));
+      yield put(setCurrentTaskList({ stateId, list: TasksConverter.getCurrentTaskListForWeb(res.records) }));
     } else {
       yield put(setNotificationMessage(err));
     }

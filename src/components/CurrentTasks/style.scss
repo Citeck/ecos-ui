@@ -66,7 +66,6 @@
     &__title {
       height: 51px;
       padding: 0 20px;
-      margin-bottom: 3px;
       font-size: $font-size-standard;
       font-weight: $font-weight-bold;
       color: $color-gray-dark;
@@ -84,8 +83,9 @@
       color: $text-color-dark;
 
       #{$info}-label {
+        min-height: 17px;
         font-weight: $font-weight-bold;
-        margin-bottom: 16px;
+        margin-bottom: 9px;
       }
 
       #{$info}-value {
@@ -93,5 +93,11 @@
         min-height: 20px;
       }
     }
+  }
+
+  &-icon {
+    color: $color-gray-6;
+    font-size: 17px;
+    margin-left: 5px;
   }
 }

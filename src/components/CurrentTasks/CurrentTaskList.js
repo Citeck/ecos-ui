@@ -74,8 +74,7 @@ class CurrentTaskList extends React.Component {
       return this.renderEmpty();
     }
 
-    // if (isSmallMode) {
-    if (true) {
+    if (isSmallMode) {
       return this.renderEnum();
     }
 
