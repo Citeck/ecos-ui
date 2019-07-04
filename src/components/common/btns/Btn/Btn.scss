@@ -372,6 +372,13 @@ button {
     }
   }
 
+  &.ecos-btn_hover_t_red {
+    &:hover {
+      color: $color-red-1;
+      background: $color-white;
+    }
+  }
+
   &.ecos-btn_hover_light-blue {
     &:hover {
       background-color: $color-blue-light;
