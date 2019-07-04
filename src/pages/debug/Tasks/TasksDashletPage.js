@@ -1,6 +1,6 @@
 import * as React from 'react';
 import queryString from 'query-string';
-import TasksDashlet from '../../../components/Tasks';
+import TasksDashlet, { Tasks } from '../../../components/Tasks';
 import '../testStyle.scss';
 import { deepClone } from '../../../helpers/util';
 
@@ -45,17 +45,19 @@ export default class TasksDashletPage extends React.Component {
 
     return (
       <div>
-        <h3>Демо страница виджетов Задачи ({configs.length + col2.length})</h3>
+        <h3>Демо страница Задачи ({configs.length + col2.length})</h3>
         <div className={'ecos-debug-container'}>
           <div className={'ecos-debug-col'}>
+            <h5>Widget Tasks</h5>
             {configs.map((item, index) => (
-              <TasksDashlet id={item.id} document={item.document} config={item.config} title={item.title} key={item.id + index} />
+              <TasksDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
             ))}
           </div>
           <div className={'ecos-debug-col'}>
-            {/*{col2.map((item, index) => (
-              <Tasks document={item.document} {...item.config} key={item.id + index} />
-            ))}*/}
+            <h5>Solo Tasks</h5>
+            {col2.map((item, index) => (
+              <Tasks document={item.document} {...item.config} key={item.id + index} stateId={'tasks' + index} />
+            ))}
           </div>
         </div>
       </div>

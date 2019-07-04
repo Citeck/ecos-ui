@@ -7,7 +7,7 @@ import TaskList from './TaskList';
 import './style.scss';
 
 const mapStateToProps = (state, context) => {
-  const currentTaskList = selectDataTasksByStateId(state, context.document) || {};
+  const currentTaskList = selectDataTasksByStateId(state, context.stateId) || {};
 
   return {
     tasks: currentTaskList.list,
@@ -22,7 +22,8 @@ const mapDispatchToProps = dispatch => ({
 
 class Tasks extends React.Component {
   static propTypes = {
-    document: PropTypes.string.isRequired,
+    record: PropTypes.string.isRequired,
+    stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
     isRunReload: PropTypes.bool,
@@ -30,7 +31,6 @@ class Tasks extends React.Component {
   };
 
   static defaultProps = {
-    document: '',
     className: '',
     isSmallMode: false,
     isRunReload: false,
@@ -49,21 +49,21 @@ class Tasks extends React.Component {
   }
 
   getTaskList = () => {
-    const { getTaskList, document } = this.props;
+    const { getTaskList, record, stateId } = this.props;
 
     getTaskList({
-      stateId: document,
-      document
+      stateId,
+      document: record
     });
   };
 
   onAssignClick = ({ taskId, actionOfAssignment, ownerUserName }) => {
-    const { changeTaskAssignee, document } = this.props;
+    const { changeTaskAssignee, stateId } = this.props;
 
     changeTaskAssignee({
       actionOfAssignment,
       ownerUserName,
-      stateId: document,
+      stateId,
       taskId
     });
   };
