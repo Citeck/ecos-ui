@@ -22,6 +22,7 @@ import ReduxModal from '../ReduxModal';
 import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
+import Comments from './../Comments';
 
 import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
@@ -48,6 +49,23 @@ class App extends Component {
         return null;
     }
   }
+
+  renderComments = () => (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-around',
+        margin: '50px 0'
+      }}
+    >
+      <div style={{ width: '500px' }}>
+        <Comments id="workspace://SpacesStore/291bd833-6e27-4865-8416-25d584404c3e" />
+      </div>
+      <div style={{ width: '30%' }}>
+        <Comments id="workspace://SpacesStore/ee6eb89a-b15c-453c-adb5-ee55ec42aec9" />
+      </div>
+    </div>
+  );
 
   render() {
     const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs } = this.props;
@@ -95,6 +113,8 @@ class App extends Component {
             <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
             <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
             <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
+
+            <Route path="/comments" component={this.renderComments} />
             {/*<Route component={NotFoundPage} />*/}
           </Switch>
 
