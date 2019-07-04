@@ -40,7 +40,7 @@
     }
 
     &_view-table {
-      height: 110px !important;
+      padding: 0 20px;
 
       .table {
         border-top: none;
@@ -99,5 +99,9 @@
     color: $color-gray-6;
     font-size: 17px;
     margin-left: 5px;
+  }
+
+  &_no-data {
+    color: $color-gray-5;
   }
 }

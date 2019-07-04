@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { t } from '../../helpers/util';
 import { DataFormatTypes } from '../../constants';
+import * as React from 'react';
 
 export const CurrentTaskPropTypes = {
   id: PropTypes.string,
@@ -27,3 +28,9 @@ export const DisplayedColumns = {
     format: DataFormatTypes.DATE
   }
 };
+
+export const iconGroup = isGroup => {
+  return isGroup ? <i className={`ecos-current-task-icon icon-usergroup`} /> : null;
+};
+
+export const noData = <span className={'ecos-current-task_no-data'}>{t('Нет данных')}</span>;

@@ -2,10 +2,12 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { t } from '../../helpers/util';
+import { getOutputFormat, t } from '../../helpers/util';
+import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
+import { Grid } from '../common/grid';
 import Loader from '../common/Loader/Loader';
 import Separator from '../common/Separator/Separator';
-import { CurrentTaskPropTypes } from './utils';
+import { CurrentTaskPropTypes, DisplayedColumns as DC, iconGroup, noData } from './utils';
 import CurrentTaskInfo from './CurrentTaskInfo';
 
 class CurrentTaskList extends React.Component {
@@ -52,14 +54,25 @@ class CurrentTaskList extends React.Component {
 
   renderTable() {
     const { currentTasks } = this.props;
+    const formatTasks = currentTasks.map((item, i) => {
+      return {
+        [DC.title.key]: item[DC.title.key] || noData,
+        [DC.actors.key]: (
+          <React.Fragment>
+            {item[DC.actors.key] || noData}
+            {iconGroup(item.isGroup)}
+          </React.Fragment>
+        ),
+        [DC.deadline.key]: getOutputFormat(DC.deadline.format, item[DC.deadline.key]) || noData
+      };
+    });
 
-    return (
-      <div className={`${this.className}_view-table`}>
-        {currentTasks.map((item, i) => (
-          <div key={i + item.id}>{item.title}</div>
-        ))}
-      </div>
-    );
+    const cols = [DC.title, DC.actors, DC.deadline];
+    const updCols = ArrayOfObjects.replaceKeys(cols, { key: 'dataField', label: 'text' });
+    const gridCols = ArrayOfObjects.filterKeys(updCols, ['dataField', 'text']);
+    const classes = `${this.className}_view-table`;
+
+    return <Grid data={formatTasks} columns={gridCols} scrollable={true} className={classes} />;
   }
 
   renderSwitch() {

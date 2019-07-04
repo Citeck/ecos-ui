@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import Separator from '../common/Separator/Separator';
 import { getOutputFormat } from '../../helpers/util';
-import { CurrentTaskPropTypes, DisplayedColumns } from './utils';
+import { CurrentTaskPropTypes, DisplayedColumns as DC, iconGroup, noData } from './utils';
 
 class CurrentTaskInfo extends React.Component {
   static propTypes = {
@@ -15,23 +15,22 @@ class CurrentTaskInfo extends React.Component {
 
   render() {
     const { task } = this.props;
-    const Cols = DisplayedColumns;
     const label = key => {
-      return <div className={`${this.className}-label`}>{Cols[key].label}</div>;
+      return <div className={`${this.className}-label`}>{DC[key].label}</div>;
     };
 
     return (
       <div className={this.className}>
-        <div className={`${this.className}__title`}>{task[Cols.title.key]}</div>
+        <div className={`${this.className}__title`}>{task[DC.title.key]}</div>
         <div className={`${this.className}__fields`}>
           {label('actors')}
           <div className={`${this.className}-value`}>
-            {task[Cols.actors.key]}
-            {task.isGroup && <i className={`ecos-current-task-icon icon-usergroup`} />}
+            {task[DC.actors.key] || noData}
+            {iconGroup(task.isGroup)}
           </div>
           <Separator noIndents className={`${this.className}__separator`} />
           {label('deadline')}
-          <div className={`${this.className}-value`}>{getOutputFormat(Cols.deadline.format, task[Cols.deadline.key])}</div>
+          <div className={`${this.className}-value`}>{getOutputFormat(DC.deadline.format, task[DC.deadline.key]) || noData}</div>
         </div>
       </div>
     );
