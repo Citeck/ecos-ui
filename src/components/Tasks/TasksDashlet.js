@@ -11,7 +11,7 @@ import './style.scss';
 class TasksDashlet extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
-    document: PropTypes.string.isRequired,
+    record: PropTypes.string.isRequired,
     title: PropTypes.string,
     classNameTasks: PropTypes.string,
     classNameDashlet: PropTypes.string,
@@ -50,7 +50,7 @@ class TasksDashlet extends React.Component {
   };
 
   render() {
-    const { title, config, classNameTasks, classNameDashlet, document } = this.props;
+    const { id, title, config, classNameTasks, classNameDashlet, record } = this.props;
     const { isRunReload, isSmallMode } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
@@ -69,7 +69,8 @@ class TasksDashlet extends React.Component {
         <Tasks
           {...config}
           className={classNameTasks}
-          document={document}
+          record={record}
+          stateId={id}
           isRunReload={isRunReload}
           setReloadDone={this.setReload}
           isSmallMode={isSmallMode}
