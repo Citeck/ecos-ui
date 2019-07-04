@@ -22,7 +22,6 @@ class PropertiesDashlet extends React.Component {
   };
 
   static defaultProps = {
-    title: t('Свойства'),
     classNameProps: '',
     classNameDashlet: ''
   };
@@ -62,7 +61,7 @@ class PropertiesDashlet extends React.Component {
 
     return (
       <Dashlet
-        title={title}
+        title={title || t('properties-widget.title')}
         bodyClassName={`${this.className}__body`}
         className={classDashlet}
         resizable={true}
