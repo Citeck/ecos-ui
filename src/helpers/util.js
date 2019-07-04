@@ -364,3 +364,11 @@ export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, rat
 export function getCurrentUserName() {
   return lodashGet(window, 'Alfresco.constants.USERNAME', '');
 }
+
+export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
+  if (!byField) {
+    return JSON.parse(JSON.stringify(arr1)) === JSON.parse(JSON.stringify(arr2));
+  }
+
+  return JSON.parse(JSON.stringify(arr1.map(item => item[byField]))) === JSON.parse(JSON.stringify(arr2.map(item => item[byField])));
+}
