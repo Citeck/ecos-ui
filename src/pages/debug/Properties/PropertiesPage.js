@@ -58,7 +58,7 @@ export default class PropertiesPage extends React.Component {
           <div className={'ecos-debug-col'}>
             <h5>Solo Props</h5>
             {col2.map((item, index) => (
-              <Properties record={item.document} {...item.config} key={item.id + index} />
+              <Properties record={item.document} {...item.config} key={item.id + index} stateId={'props' + index} />
             ))}
           </div>
         </div>

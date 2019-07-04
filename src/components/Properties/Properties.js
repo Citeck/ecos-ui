@@ -7,6 +7,7 @@ import './style.scss';
 class Properties extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
+    stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
     isReady: PropTypes.bool

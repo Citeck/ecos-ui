@@ -56,7 +56,7 @@ class PropertiesDashlet extends React.Component {
   };
 
   render() {
-    const { title, config, classNameProps, classNameDashlet, record } = this.props;
+    const { id, title, config, classNameProps, classNameDashlet, record } = this.props;
     const { isSmallMode, isReady, isEditProps } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
@@ -72,7 +72,7 @@ class PropertiesDashlet extends React.Component {
         onEdit={this.openModal}
       >
         <ReactResizeDetector handleWidth onResize={this.onResize} />
-        <Properties {...config} className={classNameProps} record={record} isSmallMode={isSmallMode} isReady={isReady} />
+        <Properties {...config} className={classNameProps} record={record} isSmallMode={isSmallMode} isReady={isReady} stateId={id} />
         <PropertiesEditModal record={record} isOpen={isEditProps} onFormCancel={this.closeModal} onFormSubmit={this.updateProps} />
       </Dashlet>
     );
