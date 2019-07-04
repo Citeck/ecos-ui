@@ -1,4 +1,3 @@
-import { t } from '../helpers/util';
 import { MENU_TYPE } from './';
 import { LAYOUT_TYPE } from './layout';
 
@@ -40,12 +39,12 @@ export const TYPE_MENU = [
     position: 0,
     isActive: true,
     type: MENU_TYPE.LEFT,
-    description: t('Меню слева')
+    description: 'dashboard-settings.menu-type1'
   },
   {
     position: 1,
     isActive: false,
     type: MENU_TYPE.TOP,
-    description: t('Меню в виде кнопок перед виджетами')
+    description: 'dashboard-settings.menu-type2'
   }
 ];

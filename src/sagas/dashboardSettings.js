@@ -9,7 +9,7 @@ import {
   setResultSaveDashboardConfig
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
-import { saveMenuConfig, setResultSaveMenuConfig } from '../actions/menu';
+import { saveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
 import * as dtoDB from '../dto/dashboard';
 import * as dtoDBS from '../dto/dashboardSettings';
@@ -20,7 +20,7 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
     yield put(getAvailableWidgets());
     yield put(getDashboardConfig(payload));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка получения данных')));
+    yield put(setNotificationMessage(t('dashboard-settings.error1')));
     logger.error('[dashboard/settings/ doInitDashboardSettingsRequest saga] error', e.message);
   }
 }
@@ -48,7 +48,7 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
 
     yield put(setDashboardConfig(webConfig));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка. Настройки дашборда не получены')));
+    yield put(setNotificationMessage(t('dashboard-settings.error2')));
     logger.error('[dashboard/settings/ doGetDashboardConfigRequest saga] error', e.message);
   }
 }
@@ -59,7 +59,7 @@ function* doGetWidgetsRequest({ api, logger }, action) {
 
     yield put(setAvailableWidgets(apiData));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка. Список виджетов не получен')));
+    yield put(setNotificationMessage(t('dashboard-settings.error3')));
     logger.error('[dashboard/settings/ doGetWidgetsRequest saga] error', e.message);
   }
 }
@@ -84,7 +84,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       })
     );
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка сохранения настроек')));
+    yield put(setNotificationMessage(t('dashboard-settings.error4')));
     logger.error('[dashboard/settings/ doSaveSettingsRequest saga] error', e.message);
   }
 }

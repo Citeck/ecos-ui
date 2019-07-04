@@ -303,7 +303,7 @@ class DashboardSettings extends React.Component {
         onClick={this.handleClickMenu.bind(this, menu)}
         active={menu.isActive}
         config={{ menu }}
-        description={menu.description}
+        description={t(menu.description)}
         className="ecos-ds__container-group-item"
       />
     ));
@@ -312,8 +312,8 @@ class DashboardSettings extends React.Component {
   renderLayoutsBlock() {
     return (
       <React.Fragment>
-        <h5 className="ecos-ds__container-title">{t('Колонки')}</h5>
-        <h6 className="ecos-ds__container-subtitle">{t('Выберите расположение и количество колонок.')}</h6>
+        <h5 className="ecos-ds__container-title">{t('dashboard-settings.columns.title')}</h5>
+        <h6 className="ecos-ds__container-subtitle">{t('dashboard-settings.columns.subtitle')}</h6>
         <div className="ecos-ds__container-group">{this.renderColumnLayouts()}</div>
       </React.Fragment>
     );
@@ -370,13 +370,13 @@ class DashboardSettings extends React.Component {
 
     return (
       <React.Fragment>
-        <h6 className="ecos-ds__container-subtitle">{t('Какие пункты меню следует отображать')}</h6>
+        <h6 className="ecos-ds__container-subtitle">{t('dashboard-settings.menu-constructor.subtitle')}</h6>
         <div className="ecos-ds__drag ecos-ds__drag_menu">
           <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDropEndMenu}>
             <Droppable
               droppableId={DROPPABLE_ZONE.MENU_FROM}
               className="ecos-ds__drag-container ecos-ds__drag-container_menu-from"
-              placeholder={t('Нет доступных пунктов меню')}
+              placeholder={t('dashboard-settings.menu-constructor.placeholder1')}
               style={{ marginRight: '10px' }}
               direction="horizontal"
               isDropDisabled
@@ -396,7 +396,7 @@ class DashboardSettings extends React.Component {
             </Droppable>
             <Droppable
               droppableId={DROPPABLE_ZONE.MENU_TO}
-              placeholder={t('Перетащите пункты меню сюда')}
+              placeholder={t('dashboard-settings.menu-constructor.placeholder2')}
               className="ecos-ds__drag-container ecos-ds__drag-container_menu-to"
               childPosition="column"
               isDragingOver={draggableDestination === DROPPABLE_ZONE.MENU_TO}
@@ -429,8 +429,8 @@ class DashboardSettings extends React.Component {
   renderMenuBlock() {
     return (
       <React.Fragment>
-        <h5 className="ecos-ds__container-title">{t('Меню')}</h5>
-        <h6 className="ecos-ds__container-subtitle">{t('Выберите расположения меню.')}</h6>
+        <h5 className="ecos-ds__container-title">{t('dashboard-settings.menu.title')}</h5>
+        <h6 className="ecos-ds__container-subtitle">{t('dashboard-settings.menu.subtitle')}</h6>
         <div className="ecos-ds__container-group ecos-ds__container-group_row">{this.renderMenuLayouts()}</div>
         {this.renderMenuConstructor()}
       </React.Fragment>
@@ -510,13 +510,13 @@ class DashboardSettings extends React.Component {
 
           return (
             <div className={'ecos-ds__column-widgets'} key={key_id}>
-              <div className={'ecos-ds__column-widgets__title'}>{`${t('Колонка')} ${indexColumn + 1}`}</div>
+              <div className={'ecos-ds__column-widgets__title'}>{`${t('dashboard-settings.column')} ${indexColumn + 1}`}</div>
               <Droppable
                 droppableId={DROPPABLE_ZONE.WIDGETS_TO + indexColumn}
                 droppableIndex={indexColumn}
                 childPosition="column"
                 className="ecos-ds__drag-container ecos-ds__column-widgets__items"
-                placeholder={t('Перетащите сюда виджеты')}
+                placeholder={t('dashboard-settings.column.placeholder')}
                 isDragingOver={draggableDestination === DROPPABLE_ZONE.WIDGETS_TO + indexColumn}
                 scrollHeight={320}
               >
@@ -551,14 +551,14 @@ class DashboardSettings extends React.Component {
 
     return (
       <React.Fragment>
-        <h5 className="ecos-ds__container-title">{t('Виджеты')}</h5>
-        <h6 className="ecos-ds__container-subtitle">{t('Выберите где и какие виджеты отображать.')}</h6>
+        <h5 className="ecos-ds__container-title">{t('dashboard-settings.widgets.title')}</h5>
+        <h6 className="ecos-ds__container-subtitle">{t('dashboard-settings.widgets.subtitle')}</h6>
         <div className="ecos-ds__container-group">
           <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDropEndWidget}>
             <Droppable
               droppableId={DROPPABLE_ZONE.WIDGETS_FROM}
               className="ecos-ds__drag-container ecos-ds__drag-container_col"
-              placeholder={t('Нет доступных виджетов')}
+              placeholder={t('dashboard-settings.widgets.placeholder')}
               isDropDisabled={true}
               scrollHeight={136}
             >
@@ -617,10 +617,10 @@ class DashboardSettings extends React.Component {
     return (
       <div className={'ecos-ds__actions'}>
         <Btn className={'ecos-btn_x-step_10'} onClick={this.handleCloseClick}>
-          {t('Отмена')}
+          {t('dashboard-settings.button.cancel')}
         </Btn>
         <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.handleAcceptClick}>
-          {t('Применить')}
+          {t('dashboard-settings.button.save')}
         </Btn>
       </div>
     );
@@ -641,7 +641,7 @@ class DashboardSettings extends React.Component {
       <Container>
         <Row>
           <Col md={12}>
-            <h1 className="ecos-ds__header">{t('Настройки домашней страницы')}</h1>
+            <h1 className="ecos-ds__header">{t('dashboard-settings.page-title')}</h1>
           </Col>
         </Row>
 
