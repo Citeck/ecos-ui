@@ -13,21 +13,13 @@ export const ComponentKeys = {
 
 export default class Components {
   static components = {
-    [ComponentKeys.LOGIN]: {
-      path: './LoginForm',
-      label: 'Форма авторизации'
-    },
-    [ComponentKeys.PAGINATION]: {
-      path: './common/Pagination/Pagination',
-      label: 'Пагинация'
-    },
     [ComponentKeys.DOC_PREVIEW]: {
       path: './DocPreview',
-      label: 'Предпросмотр'
+      label: 'dashboard-settings.widget.preview'
     },
     [ComponentKeys.JOURNAL]: {
       path: './Journals/JournalsDashlet/JournalsDashlet',
-      label: 'Журнал'
+      label: 'dashboard-settings.widget.journal'
     }
   };
 
