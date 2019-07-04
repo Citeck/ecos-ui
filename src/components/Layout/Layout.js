@@ -83,6 +83,7 @@ class Layout extends Component {
         isWidget: true
       };
       const id = JSON.stringify(dataWidget);
+      const key = `${widget.name}-${widget.id}`;
       let Widget = this._components[widget.name];
 
       if (!Widget) {
@@ -91,8 +92,8 @@ class Layout extends Component {
       }
 
       components.push(
-        <DragItem draggableId={id} isWrapper key={id}>
-          <Widget {...widget.props} key={id} />
+        <DragItem draggableId={id} isWrapper key={key}>
+          <Widget {...widget.props} />
         </DragItem>
       );
     });
