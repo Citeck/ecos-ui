@@ -2,14 +2,17 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactResizeDetector from 'react-resize-detector';
 import { Tooltip } from 'reactstrap';
+import Dropzone from 'react-dropzone-uploader';
 
 import Dashlet from '../Dashlet/Dashlet';
 import { IcoBtn } from '../common/btns';
 import Icon from '../common/icons/Icon/Icon';
 import EcosModal from '../common/EcosModal';
-import { t } from '../../helpers/util';
+import { t, deepClone } from '../../helpers/util';
 
+import 'react-dropzone-uploader/dist/styles.css';
 import './style.scss';
+import Radio from '../common/form/Radio';
 
 const TOOLTIP = {
   ADD_NEW_VERSION: 'ADD_NEW_VERSION',
@@ -38,7 +41,16 @@ class VersionsJournal extends Component {
         isCurrent: true
       }
     ],
-    modalIsShow: false
+    modalIsShow: false,
+    radio: [
+      {
+        name: 'Незначительные изменения (v 1.3)'
+      },
+      {
+        name: 'Существенные изменения (v 2.0)'
+      }
+    ],
+    selectedVersion: null
   };
 
   handleResize = width => {
@@ -62,7 +74,7 @@ class VersionsJournal extends Component {
 
   renderAddButton() {
     return (
-      <React.Fragment>
+      <span key="add-button">
         <IcoBtn
           id={TOOLTIP.ADD_NEW_VERSION}
           key="action-open-modal"
@@ -72,6 +84,7 @@ class VersionsJournal extends Component {
         />
         <Tooltip
           placement="top"
+          key="action-open-modal-tooltip"
           innerClassName="ecos-vj__tooltip"
           arrowClassName="ecos-vj__tooltip-arrow"
           isOpen={this.state.tooltip[TOOLTIP.ADD_NEW_VERSION]}
@@ -80,7 +93,7 @@ class VersionsJournal extends Component {
         >
           {t('Добавить версию')}
         </Tooltip>
-      </React.Fragment>
+      </span>
     );
   }
 
@@ -151,7 +164,45 @@ class VersionsJournal extends Component {
   renderModal() {
     const { modalIsShow } = this.state;
 
-    return <EcosModal isOpen={modalIsShow} hideModal={this.handleToggleModal} title={t('Добавить новую версию')} />;
+    const getUploadParams = ({ meta }) => {
+      return { url: 'https://httpbin.org/post' };
+    };
+    const handleChangeStatus = ({ meta, file }, status) => {
+      console.log(status, meta, file);
+    };
+    const handleSubmit = (files, allFiles) => {
+      console.log(files.map(f => f.meta));
+      allFiles.forEach(f => f.remove());
+    };
+
+    return (
+      <EcosModal isOpen={modalIsShow} hideModal={this.handleToggleModal} title={t('Добавить новую версию')}>
+        <Dropzone getUploadParams={getUploadParams} onChangeStatus={handleChangeStatus} onSubmit={handleSubmit} />
+      </EcosModal>
+    );
+  }
+
+  renderRadio() {
+    const { radio, selectedVersion } = this.state;
+
+    return radio.map((item, index) => (
+      <Radio
+        key={index}
+        label={item.name}
+        name="version-radio"
+        checked={item.name === selectedVersion}
+        onChange={isChecked => {
+          const { radio } = this.state;
+          const index = radio.findIndex(r => r.name === item.name);
+
+          if (isChecked) {
+            this.setState({
+              selectedVersion: radio[index].name
+            });
+          }
+        }}
+      />
+    ));
   }
 
   render() {
@@ -170,6 +221,7 @@ class VersionsJournal extends Component {
           {this.renderActualVersion()}
           {this.renderOldVersions()}
           {this.renderModal()}
+          {this.renderRadio()}
         </Dashlet>
       </div>
     );
