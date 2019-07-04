@@ -4,6 +4,12 @@
   padding: 0 20px;
 }
 
+%ellipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
 .ecos-current-task {
   $root: &;
 
@@ -31,20 +37,6 @@
     }
 
     &_view-enum {
-      padding: 5px 0;
-      border-bottom: 2px solid $color-gray-4;
-      font-size: $font-size-small;
-
-      &-label {
-        min-width: 100px;
-        margin-right: 45px;
-        font-weight: $font-weight-bold;
-        color: $text-color-dark;
-      }
-
-      &-value {
-        color: $color-gray-9;
-      }
     }
 
     &_view-table {
@@ -64,6 +56,41 @@
 
       .ecos-grid__td {
         font-weight: $font-weight-semi-bold;
+      }
+    }
+  }
+
+  &-info {
+    $info: &;
+
+    &__title {
+      height: 51px;
+      padding: 0 20px;
+      margin-bottom: 3px;
+      font-size: $font-size-standard;
+      font-weight: $font-weight-bold;
+      color: $color-gray-dark;
+      background-color: $color-gray-8;
+      line-height: 3.5;
+      @extend %ellipsis;
+    }
+
+    &__separator {
+      margin: 11px 0;
+    }
+
+    &__fields {
+      margin: 14px 16px;
+      color: $text-color-dark;
+
+      #{$info}-label {
+        font-weight: $font-weight-bold;
+        margin-bottom: 16px;
+      }
+
+      #{$info}-value {
+        font-weight: $font-weight-semi-bold;
+        min-height: 20px;
       }
     }
   }

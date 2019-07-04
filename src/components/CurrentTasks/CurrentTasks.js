@@ -7,7 +7,7 @@ import CurrentTaskList from './CurrentTaskList';
 import './style.scss';
 
 const mapStateToProps = (state, context) => {
-  const currentTasksState = selectDataCurrentTasksByStateId(state, context.record) || {};
+  const currentTasksState = selectDataCurrentTasksByStateId(state, context.stateId) || {};
 
   return {
     currentTasks: currentTasksState.list,
@@ -23,12 +23,12 @@ const mapDispatchToProps = dispatch => ({
 class CurrentTasks extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
+    stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool
   };
 
   static defaultProps = {
-    record: '',
     className: '',
     isSmallMode: false
   };
@@ -38,33 +38,22 @@ class CurrentTasks extends React.Component {
   }
 
   getCurrentTaskList = () => {
-    const { getCurrentTaskList, record } = this.props;
+    const { getCurrentTaskList, stateId, record } = this.props;
 
     getCurrentTaskList({
-      stateId: record,
+      stateId,
       document: record
     });
   };
 
-  onAssignClick = ({ taskId, actionOfAssignment, ownerUserName }) => {
-    /*const { changeTaskAssignee, record } = this.props;
-
-    changeTaskAssignee({
-      actionOfAssignment,
-      ownerUserName,
-      stateId: record,
-      taskId
-    });*/
-  };
-
   render() {
-    const { currentTasks, height, isLoading, isSmallMode } = this.props;
+    const { currentTasks, height, isLoading, isSmallMode, className } = this.props;
     const childProps = {
       currentTasks,
+      className,
       height,
       isLoading,
-      isSmallMode,
-      onAssignClick: this.onAssignClick
+      isSmallMode
     };
 
     return <CurrentTaskList {...childProps} />;

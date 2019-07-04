@@ -1,11 +1,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
-import { getOutputFormat, t } from '../../helpers/util';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { t } from '../../helpers/util';
 import Loader from '../common/Loader/Loader';
-import { CurrentTaskPropTypes, DisplayedColumns } from './utils';
-import { Caption } from '../common/form';
+import Separator from '../common/Separator/Separator';
+import { CurrentTaskPropTypes } from './utils';
+import CurrentTaskInfo from './CurrentTaskInfo';
 
 class CurrentTaskList extends React.Component {
   static propTypes = {
@@ -35,39 +36,29 @@ class CurrentTaskList extends React.Component {
   }
 
   renderEnum() {
-    const { currentTasks, onAssignClick, className } = this.props;
-    const classInfo = `${className} ${this.className}_view-enum`;
+    const { currentTasks } = this.props;
 
     return (
-      <div className={className}>
+      <div className={`${this.className}_view-enum`}>
         {currentTasks.map((item, i) => (
-          <div className={classInfo} key={item.id + i}>
-            <Caption className={`${classInfo}__title`} middle>
-              {item[DisplayedColumns.title.key]}
-            </Caption>
-
-            <div className={`${classInfo}-label`}>{DisplayedColumns.actors.label}</div>
-            <div className={`${classInfo}-value`}>{item[DisplayedColumns.actors.key]}</div>
-
-            <div className={`${classInfo}-label`}>{DisplayedColumns.deadline.label}</div>
-            <div className={`${classInfo}-value`}>
-              {getOutputFormat(DisplayedColumns.deadline.format, item[DisplayedColumns.deadline.key])}
-            </div>
-          </div>
+          <React.Fragment key={item.id + i}>
+            <CurrentTaskInfo task={item} />
+            <Separator noIndents />
+          </React.Fragment>
         ))}
       </div>
     );
   }
 
-  renderList() {
-    const { currentTasks, onAssignClick, className } = this.props;
+  renderTable() {
+    const { currentTasks } = this.props;
 
     return (
-      <React.Fragment>
+      <div className={`${this.className}_view-table`}>
         {currentTasks.map((item, i) => (
           <div key={i + item.id}>{item.title}</div>
         ))}
-      </React.Fragment>
+      </div>
     );
   }
 
@@ -88,7 +79,7 @@ class CurrentTaskList extends React.Component {
       return this.renderEnum();
     }
 
-    return this.renderList();
+    return this.renderTable();
   }
 
   render() {

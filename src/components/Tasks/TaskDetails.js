@@ -17,7 +17,6 @@ class TaskDetails extends React.Component {
     details: PropTypes.shape(TaskPropTypes).isRequired,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
-    onAssignClick: PropTypes.func.isRequired,
     onSubmitForm: PropTypes.func.isRequired
   };
 
