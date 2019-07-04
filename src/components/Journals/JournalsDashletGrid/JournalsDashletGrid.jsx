@@ -9,6 +9,7 @@ import { Dropdown } from '../../common/form';
 import { goToCardDetailsPage, goToNodeEditPage, getDownloadContentUrl } from '../../../helpers/urls';
 import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
+import classNames from 'classnames';
 import {
   reloadGrid,
   deleteRecords,
@@ -156,14 +157,33 @@ class JournalsDashletGrid extends Component {
       selectedRecords,
       grid: { groupBy = [] }
     } = this.props;
-    const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
+    const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_x-step_10';
     const tools = [
-      <IcoBtn icon={'icon-on'} onClick={this.goToCardDetailsPage} className={inlineToolsActionClassName} />,
+      <IcoBtn
+        title={t('grid.inline-tools.show')}
+        icon={'icon-on'}
+        onClick={this.goToCardDetailsPage}
+        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
+      />,
       <DownloadContentLink>
-        <IcoBtn icon={'icon-download'} className={inlineToolsActionClassName} />
+        <IcoBtn
+          title={t('grid.inline-tools.download')}
+          icon={'icon-download'}
+          className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
+        />
       </DownloadContentLink>,
-      <IcoBtn icon={'icon-edit'} onClick={this.goToNodeEditPage} className={inlineToolsActionClassName} />,
-      <IcoBtn icon={'icon-delete'} onClick={this.deleteRecord} className={inlineToolsActionClassName} />
+      <IcoBtn
+        title={t('grid.inline-tools.edit')}
+        icon={'icon-edit'}
+        onClick={this.goToNodeEditPage}
+        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
+      />,
+      <IcoBtn
+        title={t('grid.inline-tools.delete')}
+        icon={'icon-delete'}
+        onClick={this.deleteRecord}
+        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t_red')}
+      />
     ];
 
     if (selectedRecords.length) {
@@ -171,7 +191,14 @@ class JournalsDashletGrid extends Component {
     }
 
     if (groupBy.length) {
-      tools.push(<IcoBtn onClick={this.goToJournalPageWithFilter} icon={'icon-big-arrow'} className={inlineToolsActionClassName} />);
+      tools.push(
+        <IcoBtn
+          title={t('grid.inline-tools.details')}
+          onClick={this.goToJournalPageWithFilter}
+          icon={'icon-big-arrow'}
+          className={inlineToolsActionClassName}
+        />
+      );
     }
 
     return <InlineTools tools={tools} stateId={stateId} />;
@@ -190,7 +217,7 @@ class JournalsDashletGrid extends Component {
   };
 
   tools = selected => {
-    const toolsActionClassName = 'ecos-btn_i_sm ecos-btn_grey4 ecos-btn_hover_t-dark-brown';
+    const toolsActionClassName = 'ecos-btn_i_sm ecos-btn_grey4';
     const {
       stateId,
       selectAllRecordsVisible,
@@ -211,9 +238,22 @@ class JournalsDashletGrid extends Component {
         className={toolsClassName}
         tools={[
           <JournalsDownloadZip stateId={stateId} selected={selected} />,
-          <IcoBtn icon={'icon-copy'} className={toolsActionClassName} title={t('grid.tools.copy-to')} />,
-          <IcoBtn icon={'icon-big-arrow'} className={toolsActionClassName} title={t('grid.tools.move-to')} />,
-          <IcoBtn icon={'icon-delete'} className={toolsActionClassName} title={t('grid.tools.delete')} onClick={this.deleteRecords} />,
+          <IcoBtn
+            icon={'icon-copy'}
+            className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
+            title={t('grid.tools.copy-to')}
+          />,
+          <IcoBtn
+            icon={'icon-big-arrow'}
+            className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
+            title={t('grid.tools.move-to')}
+          />,
+          <IcoBtn
+            icon={'icon-delete'}
+            className={classNames(toolsActionClassName, 'ecos-btn_hover_t_red')}
+            title={t('grid.tools.delete')}
+            onClick={this.deleteRecords}
+          />,
           <Dropdown
             className={'grid-tools__item_left_5'}
             source={groupActions}
