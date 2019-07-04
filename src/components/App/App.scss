@@ -8,7 +8,7 @@
 
 /* Sticky footer */
 .ecos-sticky-wrapper {
-  height: 100%;
+  margin: 0 auto -52px;
   min-height: 100%;
   background-color: $page-background-color;
 }
@@ -20,6 +20,4 @@
 .sticky-footer,
 .sticky-push {
   height: 50px;
-  position: absolute;
-  bottom: 0;
 }
