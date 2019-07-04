@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { initAppSuccess, initAppFailure } from '../actions/app';
+import { initAppFailure, initAppSuccess } from '../actions/app';
 
 const initialState = {
   isInit: false,

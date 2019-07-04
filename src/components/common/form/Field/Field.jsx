@@ -11,10 +11,10 @@ export default class Field extends Component {
 
     return (
       <FormGroup row className={cssClasses}>
-        <Label sm={4} md={2} className={'ecos-field__label'}>
+        <Label title={props.label} xs={12} sm={3} md={3} lg={2} className={'ecos-field__label'}>
           {props.label}
         </Label>
-        <Col sm={7} md={4} className={'ecos-field__control'}>
+        <Col xs={12} sm={9} md={9} lg={9} className={'ecos-field__control'}>
           {props.children}
         </Col>
       </FormGroup>

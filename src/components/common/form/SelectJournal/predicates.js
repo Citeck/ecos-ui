@@ -294,6 +294,7 @@ export function getPredicateInput(field, sourceId) {
         defaultValue: null,
         getProps: ({ predicateValue, changePredicateValue, selectClassName }) => ({
           className: `select_narrow ${selectClassName}`,
+          placeholder: t('react-select.default-value.label'),
           cacheOptions: true,
           defaultOptions: true,
           isSearchable: false,

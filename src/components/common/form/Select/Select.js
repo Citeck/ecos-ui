@@ -10,8 +10,8 @@ import './Select.scss';
 export default class Select extends Component {
   constructor(props) {
     super(props);
-    this.state = { value: props.value };
     this._options = null;
+    this.state = { value: this.handleSetValue(props.value, props.options || this._options) };
   }
 
   selectLoadingMessage = () => t('ecos-ui.select.loading-message');
@@ -32,13 +32,13 @@ export default class Select extends Component {
   };
 
   handleSetValue = (value, options) => {
-    let { handleSetValue } = this.props;
+    let { handleSetValue, defaultValue } = this.props;
 
     if (isString(value) && isFunction(handleSetValue)) {
       value = handleSetValue(value, options || []);
     }
 
-    return value;
+    return value || defaultValue;
   };
 
   componentWillReceiveProps(nextProps) {

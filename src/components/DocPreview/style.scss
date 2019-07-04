@@ -15,8 +15,12 @@ $border-base: #c1c1c1;
 }
 
 .ecos-doc-preview {
+  &-dashlet {
+    padding-bottom: 1px;
+  }
+
   &-dashlet__body {
-    margin: 18px;
+    margin: 14px 17px 20px;
   }
 
   border: 1px solid $border-base;
