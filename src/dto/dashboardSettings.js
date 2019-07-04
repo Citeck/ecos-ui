@@ -1,6 +1,6 @@
 import * as dtoMenu from './menu';
-import DashboardService from '../services/dashboard';
 import { LAYOUT_TYPE } from '../constants/layout';
+import Components from '../components/Components';
 
 export function getSettingsConfigForWeb(source = {}) {
   if (!source || (source && !Object.keys(source).length)) {
@@ -34,7 +34,7 @@ export function getSettingsConfigForServer(source) {
 }
 
 function getWidgetsForServer(columns = [], widgets = []) {
-  let defProps = DashboardService.setDefaultPropsOfWidgets(widgets);
+  let defProps = Components.setDefaultPropsOfWidgets(widgets);
 
   return columns.map((column, index) => {
     const data = {

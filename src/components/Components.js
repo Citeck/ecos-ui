@@ -1,6 +1,8 @@
 import loadable from '@loadable/component';
 import get from 'lodash/get';
-import { t } from '../helpers/util';
+import { deepClone, t } from '../helpers/util';
+import { isArray, isEmpty } from 'lodash';
+import uuidV4 from 'uuid/v4';
 
 export const ComponentKeys = {
   LOGIN: 'login',
@@ -50,5 +52,44 @@ export default class Components {
     }
 
     return arrComponents;
+  }
+
+  static setDefaultPropsOfWidgets(items) {
+    if (!isArray(items) || isEmpty(items)) {
+      return [];
+    }
+
+    return items.map(item => {
+      return item.map(widget => {
+        const defWidget = deepClone(widget);
+        const props = widget.props || {};
+        const config = props.config || {};
+
+        defWidget.id = widget.id || uuidV4();
+        defWidget.props = {
+          ...props,
+          id: props.id || defWidget.id,
+          config: {
+            ...config,
+            height: config.height || '500px'
+          }
+        };
+
+        switch (defWidget.name) {
+          case ComponentKeys.DOC_PREVIEW: {
+            defWidget.props.config.link = config.link || '/share/proxy/alfresco/demo.pdf';
+            defWidget.props.config.scale = config.scale || 1;
+            break;
+          }
+          case ComponentKeys.JOURNAL: {
+            break;
+          }
+          default:
+            break;
+        }
+
+        return defWidget;
+      });
+    });
   }
 }
