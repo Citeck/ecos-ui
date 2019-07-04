@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { t } from '../../helpers/util';
+
 import { getMinWidthColumn } from '../../helpers/layout';
 import Components from '../Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
+
 import './style.scss';
 
 class Layout extends Component {
@@ -25,6 +26,9 @@ class Layout extends Component {
   state = {
     draggableDestination: ''
   };
+
+  // for caching loaded components
+  _components = {};
 
   get className() {
     const classes = ['ecos-layout'];
@@ -65,15 +69,10 @@ class Layout extends Component {
     this.props.onSaveWidget(dataDrag, { source, destination });
   };
 
-  renderLoadingWidget() {
-    return <div>{t('Loading...')}</div>;
-  }
-
   renderWidgets(widgets = [], columnName) {
     const components = [];
 
     widgets.forEach((widget, index) => {
-      const Widget = Components.get(widget.name);
       const column = JSON.parse(columnName);
       const dataWidget = {
         columnFrom: column.index,
@@ -84,13 +83,17 @@ class Layout extends Component {
         isWidget: true
       };
       const id = JSON.stringify(dataWidget);
+      let Widget = this._components[widget.name];
+
+      if (!Widget) {
+        Widget = Components.get(widget.name);
+        this._components[widget.name] = Widget;
+      }
 
       components.push(
-        <React.Suspense fallback={this.renderLoadingWidget()} key={id}>
-          <DragItem draggableId={id} isWrapper>
-            <Widget {...widget.props} />
-          </DragItem>
-        </React.Suspense>
+        <DragItem draggableId={id} isWrapper key={id}>
+          <Widget {...widget.props} key={id} />
+        </DragItem>
       );
     });
 

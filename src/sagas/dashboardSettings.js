@@ -9,7 +9,7 @@ import {
   setResultSaveDashboardConfig
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
-import { saveMenuConfig, setResultSaveMenuConfig } from '../actions/menu';
+import { saveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
 import * as dtoDB from '../dto/dashboard';
 import * as dtoDBS from '../dto/dashboardSettings';

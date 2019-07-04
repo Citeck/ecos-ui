@@ -3,7 +3,10 @@ import { getDashboardConfig, saveDashboardConfig, setDashboardConfig, setResultS
 
 const initialState = {
   config: {
-    columns: []
+    columns: [],
+    dashboardId: null,
+    dashboardKey: null,
+    type: ''
   },
   isLoading: false,
   saveResult: {
@@ -24,7 +27,10 @@ export default handleActions(
     [setDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
-        config: payload,
+        config: {
+          ...state.config,
+          ...payload
+        },
         isLoading: false
       };
     },
