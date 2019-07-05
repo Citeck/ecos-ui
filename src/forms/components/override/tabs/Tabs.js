@@ -1,7 +1,7 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import lodashGet from 'lodash/get';
 import throttle from 'lodash/throttle';
-import { IGNORE_ATTR_NAME } from '../../../../constants/pageTabs';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../constants/pageTabs';
 
 const SCROLL_STEP = 120;
 const SCROLLABLE_CLASS = 'formio-component-tabs_scrollable';
@@ -230,7 +230,7 @@ export default class TabsComponent extends NestedComponent {
         {
           class: 'nav-link',
           href: `#${tab.key}`,
-          [IGNORE_ATTR_NAME]: true
+          [IGNORE_TABS_HANDLER_ATTR_NAME]: true
         },
         tab.label
       );

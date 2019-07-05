@@ -1,7 +1,7 @@
 import { t } from '../helpers/util';
 import { URL } from './';
 
-export const IGNORE_ATTR_NAME = 'data-external';
+export const IGNORE_TABS_HANDLER_ATTR_NAME = 'data-external';
 
 export const SCROLL_STEP = 150;
 export const LINK_TAG = 'A';
