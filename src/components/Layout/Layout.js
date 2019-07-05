@@ -19,11 +19,13 @@ class Layout extends Component {
       })
     ).isRequired,
     menuType: PropTypes.string,
-    onSaveWidget: PropTypes.func
+    onSaveWidget: PropTypes.func,
+    onSaveWidgetProps: PropTypes.func
   };
 
   static defaultProps = {
-    onSaveWidget: () => {}
+    onSaveWidget: () => {},
+    onSaveWidgetProps: () => {}
   };
 
   state = {
@@ -126,7 +128,7 @@ class Layout extends Component {
 
       components.push(
         <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjusment}>
-          <Widget {...widget.props} record={recordRef} />
+          <Widget {...widget.props} record={recordRef} onSave={this.props.onSaveWidgetProps} />
         </DragItem>
       );
     });
