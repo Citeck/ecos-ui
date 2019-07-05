@@ -63,7 +63,7 @@ export default class IconInfo extends React.Component {
             arrowClassName={`${tooltip}-arrow`}
           >
             <div className={`${tooltip}-text`}>
-              <Scrollbars>{text}</Scrollbars>
+              <Scrollbars renderTrackVertical={props => <div {...props} className={`${tooltip}__v-scroll`} />}>{text}</Scrollbars>
             </div>
           </Tooltip>
         )}

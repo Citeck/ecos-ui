@@ -147,9 +147,13 @@
     }
 
     &-text {
-      padding: 15px 3px 15px 15px;
+      padding: 15px 0 15px 15px;
       width: 153px;
       height: 153px;
+    }
+
+    &__v-scroll {
+      @extend %v-scroll;
     }
   }
 }
