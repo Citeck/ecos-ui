@@ -1,5 +1,6 @@
 import lodashGet from 'lodash/get';
 import { MIN_WIDTH_DASHLET_SMALL } from '../constants';
+import * as queryString from 'query-string';
 
 export const debounce = (func, ms = 0) => {
   let timer = null;
@@ -429,4 +430,8 @@ export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
   }
 
   return JSON.parse(JSON.stringify(arr1.map(item => item[byField]))) === JSON.parse(JSON.stringify(arr2.map(item => item[byField])));
+}
+
+export function getSearchParams(searchString = window.location.search) {
+  return queryString.parse(searchString);
 }

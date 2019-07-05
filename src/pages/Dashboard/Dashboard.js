@@ -11,6 +11,7 @@ import Loader from '../../components/common/Loader/Loader';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
 import { MENU_TYPE } from '../../constants';
+import { deepClone } from '../../helpers/util';
 
 import './style.scss';
 
@@ -157,12 +158,40 @@ class Dashboard extends Component {
     saveMenuConfig({ type: menuType, links });
   };
 
+  handleSaveWidgetProps = (id, props = {}) => {
+    const { dashboardId } = this.pathInfo;
+    const config = deepClone(this.state.config);
+
+    config.columns.forEach(column => {
+      const index = column.widgets.findIndex(widget => widget.id === id);
+
+      if (index !== -1) {
+        column.widgets[index].props = { ...column.widgets[index].props, ...props };
+        return false;
+      }
+
+      return true;
+    });
+
+    this.setState({ config });
+    this.saveDashboardConfig({ config, dashboardId });
+  };
+
   renderLayout() {
+    const { menuType } = this.props;
     const {
       config: { columns, type }
     } = this.state;
 
-    return <Layout columns={columns} onSaveWidget={this.prepareWidgetsConfig} type={type} />;
+    return (
+      <Layout
+        columns={columns}
+        onSaveWidget={this.prepareWidgetsConfig}
+        type={type}
+        menuType={menuType}
+        onSaveWidgetProps={this.handleSaveWidgetProps}
+      />
+    );
   }
 
   renderLoader() {

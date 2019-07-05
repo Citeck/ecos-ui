@@ -15,6 +15,7 @@ import IcoBtn from '../common/btns/IcoBtn/IcoBtn';
 import { t, num2str } from '../../helpers/util';
 import { selectStateByNodeRef } from '../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../actions/comments';
+import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
@@ -79,24 +80,24 @@ class Comments extends React.Component {
 
   state = {
     isEdit: false,
-    width: 291,
+    width: MIN_WIDTH_DASHLET_SMALL,
     editorHeight: BASE_HEIGHT,
     comment: EditorState.createEmpty(),
     editableComment: null,
     commentForDeletion: null
   };
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this._list = React.createRef();
     this._scroll = React.createRef();
   }
 
   componentDidMount() {
-    const { getComments, id } = this.props;
+    const { getComments } = this.props;
 
-    getComments(id);
+    getComments();
     this.recalculateScrollbarHeight();
   }
 
@@ -168,7 +169,7 @@ class Comments extends React.Component {
     const { width } = this.state;
     const classes = ['ecos-comments'];
 
-    if (width <= 430) {
+    if (width <= MIN_WIDTH_DASHLET_SMALL) {
       classes.push('ecos-comments_small');
     }
 
@@ -376,9 +377,9 @@ class Comments extends React.Component {
   };
 
   handleReloadData = () => {
-    const { getComments, id } = this.props;
+    const { getComments } = this.props;
 
-    getComments(id);
+    getComments();
   };
 
   renderHeader() {
@@ -654,16 +655,14 @@ class Comments extends React.Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByNodeRef(state, ownProps.id)
-});
+const mapStateToProps = (state, ownProps) => ({ ...selectStateByNodeRef(state, ownProps.record) });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  getComments: nodeRef => dispatch(getComments(nodeRef)),
-  createComment: comment => dispatch(createCommentRequest({ comment, nodeRef: ownProps.id })),
-  updateComment: comment => dispatch(updateCommentRequest({ comment, nodeRef: ownProps.id })),
-  deleteComment: id => dispatch(deleteCommentRequest({ id, nodeRef: ownProps.id })),
-  setErrorMessage: message => dispatch(setError({ message, nodeRef: ownProps.id }))
+  getComments: () => dispatch(getComments(ownProps.record)),
+  createComment: comment => dispatch(createCommentRequest({ comment, nodeRef: ownProps.record })),
+  updateComment: comment => dispatch(updateCommentRequest({ comment, nodeRef: ownProps.record })),
+  deleteComment: id => dispatch(deleteCommentRequest({ id, nodeRef: ownProps.record })),
+  setErrorMessage: message => dispatch(setError({ message, nodeRef: ownProps.record }))
 });
 
 export default connect(
