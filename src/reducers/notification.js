@@ -1,6 +1,5 @@
 import { handleActions } from 'redux-actions';
-import uuid4 from 'uuidv4';
-import { setMessageId, setNotificationMessage } from '../actions/notification';
+import { setNotificationMessage } from '../actions/notification';
 
 const initialState = {
   text: ''
