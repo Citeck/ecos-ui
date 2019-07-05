@@ -364,3 +364,41 @@ export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, rat
 export function getCurrentUserName() {
   return lodashGet(window, 'Alfresco.constants.USERNAME', '');
 }
+
+/**
+ * Функция склонения слов в зависимости от числительного
+ *
+ * @param n - числительное
+ * @param textForms - массив из слов в 3х формах в соответствующем порядке:
+ * именительный падеж, единственное число (в зависимости от слова, с которым употребляется)
+ * родительный падеж, единственное число (в зависимости от слова, с которым употребляется)
+ * родительный падеж, множественное число (в зависимости от слова, с которым употребляется)
+ *
+ * @returns string
+ */
+export function num2str(n = 0, textForms = []) {
+  const number = Math.abs(n) % 100;
+  const n1 = number % 10;
+
+  if (number > 10 && number < 20) {
+    return textForms[2];
+  }
+
+  if (n1 > 1 && n1 < 5) {
+    return textForms[1];
+  }
+
+  if (n1 === 1) {
+    return textForms[0];
+  }
+
+  return textForms[2];
+}
+
+export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
+  if (!byField) {
+    return JSON.parse(JSON.stringify(arr1)) === JSON.parse(JSON.stringify(arr2));
+  }
+
+  return JSON.parse(JSON.stringify(arr1.map(item => item[byField]))) === JSON.parse(JSON.stringify(arr2.map(item => item[byField])));
+}

@@ -6,6 +6,10 @@ import slideMenu from './slideMenu';
 import user from './user';
 import journals from './journals';
 import pageTabs from './pageTabs';
+import comments from './comments';
+import dashboardSettings from './dashboardSettings';
+import dashboard from './dashboard';
+import menu from './menu';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -15,6 +19,10 @@ export default function* rootSaga(extraArguments) {
     slideMenu(extraArguments),
     user(extraArguments),
     journals(extraArguments),
-    pageTabs(extraArguments)
+    pageTabs(extraArguments),
+    comments(extraArguments),
+    dashboardSettings(extraArguments),
+    dashboard(extraArguments),
+    menu(extraArguments)
   ]);
 }

@@ -1,10 +1,20 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { getScrollbarWidth, deepClone } from '../../helpers/util';
 import { SortableContainer, SortableElement } from './sortable';
-import { SCROLL_STEP, TITLE, LINK_TAG } from '../../constants/pageTabs';
+import { SCROLL_STEP, TITLE, LINK_TAG, getTitleByUrl } from '../../constants/pageTabs';
 import './style.scss';
+
+const CHANGE_URL_LINK_EVENT = 'CHANGE_URL_LINK_EVENT';
+const customEvent = document.createEvent('Event');
+
+export const changeUrlLink = (link = '', params = {}) => {
+  customEvent.params = { link, ...params };
+
+  document.dispatchEvent(customEvent);
+};
 
 class PageTabs extends React.Component {
   static propTypes = {
@@ -47,11 +57,14 @@ class PageTabs extends React.Component {
   }
 
   componentDidMount() {
+    customEvent.initEvent(CHANGE_URL_LINK_EVENT, true, true);
+
     this.checkUrls();
     this.initArrows();
 
     document.addEventListener('click', this.handleClickLink);
     window.addEventListener('popstate', this.handlePopState);
+    document.addEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -164,6 +177,67 @@ class PageTabs extends React.Component {
       });
     }
   }
+
+  handleCustomEvent = event => {
+    /**
+     * params:
+     *    link - string,
+     *    checkUrl - bool,
+     *    openNewTab - bool,
+     *    openNewBrowserTab - bool
+     */
+    const {
+      params: { link = '', checkUrl = false, openNewTab = false, openNewBrowserTab = false }
+    } = event;
+
+    if (checkUrl) {
+      this.checkUrls();
+
+      return;
+    }
+
+    const { saveTabs, history, homepageName } = this.props;
+    const { tabs } = this.state;
+
+    event.preventDefault();
+
+    if (openNewTab) {
+      const newActiveTab = tabs.find(tab => tab.link === link);
+
+      if (newActiveTab) {
+        this.activeTab = newActiveTab;
+      } else {
+        tabs.map(item => {
+          item.isActive = false;
+          return item;
+        });
+        tabs.push(this.generateNewTab({ link }));
+        saveTabs(tabs);
+        history.push(link);
+
+        this.setState({ tabs });
+      }
+
+      return;
+    }
+
+    if (openNewBrowserTab) {
+      const tab = window.open(link, '_blank');
+
+      tab.focus();
+
+      return;
+    }
+
+    // default behavior - open on this tab with replace url
+    const tab = tabs.find(tab => tab.isActive);
+
+    tab.link = link;
+    tab.title = this.getTitle(link) || homepageName;
+
+    saveTabs(tabs);
+    history.replace(link);
+  };
 
   handlePopState = () => {
     const {
@@ -417,7 +491,7 @@ class PageTabs extends React.Component {
     });
 
     saveTabs(tabs);
-    history.push(tab.link);
+    history.replace(tab.link);
 
     this.setState({ tabs });
   }
@@ -427,7 +501,7 @@ class PageTabs extends React.Component {
 
     cleanUrl = cleanUrl.replace(/#.*/i, '');
 
-    return TITLE[cleanUrl];
+    return getTitleByUrl(cleanUrl);
   }
 
   renderLeftButton() {
@@ -537,8 +611,14 @@ class PageTabs extends React.Component {
   renderChildren() {
     const { children, isShow } = this.props;
 
-    if (isShow) {
-      return <div className="page-tab__body">{children}</div>;
+    if (isShow && children) {
+      return (
+        <div className="page-tab__body">
+          <Scrollbars className="page-tab__body-scroll" style={{ height: '100%' }}>
+            <div className="page-tab__body-content">{children}</div>
+          </Scrollbars>
+        </div>
+      );
     }
 
     return children;
@@ -555,23 +635,3 @@ class PageTabs extends React.Component {
 }
 
 export default withRouter(PageTabs);
-
-/**
- <a href="/share/page/journals">Журнал на этой странице</a>
- <br />
-
- <a href="/share/page/journals" data-external="true">
- Журнал на этой странице с перехагрузкой
- </a>
- <br />
-
- <a href="/share/page/journalsDashboard" target="_blank">
- Журнал дашборд на новой странице
- </a>
- <br />
-
- <a href="/share/page/journalsDashboard" data-external target="_blank">
- Журнал дашборд в новой вкладке
- </a>
-
- */

@@ -97,7 +97,7 @@
 .icon-question {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#x72;&nbsp;');
 }
-.icon-list {
+.icon-list-1 {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#x73;&nbsp;');
 }
 .icon-arrow {
@@ -120,6 +120,15 @@
 }
 .icon-reload {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#x7a;&nbsp;');
+}
+.icon-list3 {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe800;&nbsp;');
+}
+.icon-checked {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe829;&nbsp;');
+}
+.icon-checked2 {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82a;&nbsp;');
 }
 .icon-unchecked {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82b;&nbsp;');
@@ -156,4 +165,16 @@
 }
 .icon-resize {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe837;&nbsp;');
+}
+.icon-underline {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe838;&nbsp;');
+}
+.icon-italic {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe839;&nbsp;');
+}
+.icon-bold {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83a;&nbsp;');
+}
+.icon-clock {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83b;&nbsp;');
 }
