@@ -70,6 +70,23 @@ function getDefaultJournalSetting(journalConfig) {
   };
 }
 
+function getGridParams(journalConfig, journalSetting, stateId) {
+  const {
+    meta: { createVariants, predicate }
+  } = journalConfig;
+  const { sortBy, groupBy, columns, predicate: journalSettingPredicate } = journalSetting;
+
+  return {
+    createVariants,
+    predicate,
+    sortBy: sortBy.map(sort => ({ ...sort })),
+    columns: columns.map(col => ({ ...col })),
+    groupBy: Array.from(groupBy),
+    predicates: journalSettingPredicate ? [{ ...journalSettingPredicate }] : [],
+    pagination: DEFAULT_PAGINATION
+  };
+}
+
 function* sagaGetDashletEditorData({ api, logger, stateId, w }, action) {
   try {
     const config = action.payload || {};
@@ -138,23 +155,6 @@ function* getJournalConfig(api, journalId, w) {
   return journalConfig;
 }
 
-function* getGridParams(journalConfig, journalSetting, stateId) {
-  const {
-    meta: { createVariants, predicate }
-  } = journalConfig;
-  const { sortBy, groupBy, columns, predicate: journalSettingPredicate } = journalSetting;
-
-  return {
-    createVariants,
-    predicate,
-    sortBy: sortBy.map(sort => ({ ...sort })),
-    columns: columns.map(col => ({ ...col })),
-    groupBy: Array.from(groupBy),
-    predicates: journalSettingPredicate ? [{ ...journalSettingPredicate }] : [],
-    pagination: DEFAULT_PAGINATION
-  };
-}
-
 function* getJournalSetting(api, journalSettingId, journalConfig, stateId, w) {
   const url = yield select(state => state.journals[stateId].url);
 
@@ -221,7 +221,7 @@ function* getGridData(api, params) {
 
 function* loadGrid(api, journalSettingId, journalConfig, stateId, w) {
   let journalSetting = yield getJournalSetting(api, journalSettingId, journalConfig, stateId, w);
-  let params = yield getGridParams(journalConfig, journalSetting, stateId);
+  let params = getGridParams(journalConfig, journalSetting, stateId);
 
   const gridData = yield getGridData(api, params);
 
