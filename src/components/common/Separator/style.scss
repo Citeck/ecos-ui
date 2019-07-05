@@ -1,0 +1,12 @@
+@import '../../../constants';
+
+.ecos-separator {
+  background-color: $color-gray-4;
+  height: 2px;
+  width: 100%;
+  margin: 25px 0;
+
+  &_no-indents {
+    margin: 0;
+  }
+}

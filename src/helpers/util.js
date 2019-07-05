@@ -1,4 +1,5 @@
 import lodashGet from 'lodash/get';
+import { MIN_WIDTH_DASHLET_SMALL } from '../constants';
 
 export const debounce = (func, ms = 0) => {
   let timer = null;
@@ -298,6 +299,10 @@ export function isPDFbyStr(str) {
   return format.toLowerCase() === pdf;
 }
 
+/**
+ * Реализация скачивания файла с добавлением в dom элемента и его удалением после скрипт-нажатия
+ * @param link ссылка на файл для скачивания
+ */
 export function fileDownload(link) {
   let elLink = document.createElement('a');
 
@@ -310,6 +315,10 @@ export function fileDownload(link) {
   document.body.removeChild(elLink);
 }
 
+/**
+ * Варианты масштабирования объекта на странице
+ * @returns {Array}
+ */
 export function getScaleModes() {
   return [
     { id: 'auto', title: t('doc-preview.scale.auto'), scale: 'auto' },
@@ -327,6 +336,15 @@ export function getScaleModes() {
   ];
 }
 
+/**
+ * Вычисление масштабирования для строковых режимов
+ * @param scale {Number|String} - режим см getScaleModes
+ * @param paramsContainer {Object} - ширина и высота объекта масштабирования
+ * @param paramsScaleObject {Object} - ширина и высота контейнера
+ * @param ratioAuto
+ * @param paddingContainer
+ * @returns {Number} масштаб
+ */
 export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, ratioAuto = 50, paddingContainer = 0) {
   let { width: soW, height: soH } = paramsScaleObject || {};
   let { width: cW, height: cH } = paramsContainer || {};
@@ -363,6 +381,16 @@ export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, rat
 
 export function getCurrentUserName() {
   return lodashGet(window, 'Alfresco.constants.USERNAME', '');
+}
+
+export const isSmallMode = width => width <= MIN_WIDTH_DASHLET_SMALL;
+
+export function isExistIndex(idx) {
+  return !(idx === null || idx === undefined || idx === -1);
+}
+
+export function isLastItem(array, idx) {
+  return idx === array.length - 1;
 }
 
 /**

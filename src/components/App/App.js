@@ -12,6 +12,7 @@ import DocPreviewPage from '../../pages/debug/DocPreview';
 import EcosFormPage from '../../pages/debug/EcosFormPage';
 import FormIOPage from '../../pages/debug/FormIOPage';
 import JournalsDashboardPage from '../../pages/debug/JournalsDashboardPage';
+import TasksDashletPage from '../../pages/debug/Tasks/TasksDashletPage';
 import DashboardSettingsPage from '../../pages/DashboardSettings';
 import DashboardPage from '../../pages/Dashboard';
 
@@ -116,6 +117,7 @@ class App extends Component {
 
             <Route path="/comments" component={this.renderComments} />
             {/*<Route component={NotFoundPage} />*/}
+            <Route path="/tasks" exact component={TasksDashletPage} />
           </Switch>
 
           <div className="sticky-push" />
