@@ -22,6 +22,11 @@
   .select__single-value {
     color: $text-color-dark;
   }
+  .select__placeholder {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
 
   .select__placeholder,
   .select__clear-indicator,

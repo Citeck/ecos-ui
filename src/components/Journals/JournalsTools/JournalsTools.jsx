@@ -17,7 +17,7 @@ const JournalsTools = ({ journalConfig, addRecord, onSearch }) => {
 
         <Search onSearch={onSearch} />
 
-        <Export config={journalConfig} className={'ecos-journal_right'}>
+        <Export config={journalConfig} className={'ecos-journal_right'} right>
           <IcoBtn icon={'icon-down'} className={'ecos-btn_drop-down ecos-btn_r_6'}>
             {t('button.export')}
           </IcoBtn>
