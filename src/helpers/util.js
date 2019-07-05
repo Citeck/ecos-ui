@@ -299,6 +299,10 @@ export function isPDFbyStr(str) {
   return format.toLowerCase() === pdf;
 }
 
+/**
+ * Реализация скачивания файла с добавлением в dom элемента и его удалением после скрипт-нажатия
+ * @param link ссылка на файл для скачивания
+ */
 export function fileDownload(link) {
   let elLink = document.createElement('a');
 
@@ -311,6 +315,10 @@ export function fileDownload(link) {
   document.body.removeChild(elLink);
 }
 
+/**
+ * Варианты масштабирования объекта на странице
+ * @returns {Array}
+ */
 export function getScaleModes() {
   return [
     { id: 'auto', title: t('doc-preview.scale.auto'), scale: 'auto' },
@@ -328,6 +336,15 @@ export function getScaleModes() {
   ];
 }
 
+/**
+ * Вычисление масштабирования для строковых режимов
+ * @param scale {Number|String} - режим см getScaleModes
+ * @param paramsContainer {Object} - ширина и высота объекта масштабирования
+ * @param paramsScaleObject {Object} - ширина и высота контейнера
+ * @param ratioAuto
+ * @param paddingContainer
+ * @returns {Number} масштаб
+ */
 export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, ratioAuto = 50, paddingContainer = 0) {
   let { width: soW, height: soH } = paramsScaleObject || {};
   let { width: cW, height: cH } = paramsContainer || {};
@@ -367,3 +384,49 @@ export function getCurrentUserName() {
 }
 
 export const isSmallMode = width => width <= MIN_WIDTH_DASHLET_SMALL;
+
+export function isExistIndex(idx) {
+  return !(idx === null || idx === undefined || idx === -1);
+}
+
+export function isLastItem(array, idx) {
+  return idx === array.length - 1;
+}
+
+/**
+ * Функция склонения слов в зависимости от числительного
+ *
+ * @param n - числительное
+ * @param textForms - массив из слов в 3х формах в соответствующем порядке:
+ * именительный падеж, единственное число (в зависимости от слова, с которым употребляется)
+ * родительный падеж, единственное число (в зависимости от слова, с которым употребляется)
+ * родительный падеж, множественное число (в зависимости от слова, с которым употребляется)
+ *
+ * @returns string
+ */
+export function num2str(n = 0, textForms = []) {
+  const number = Math.abs(n) % 100;
+  const n1 = number % 10;
+
+  if (number > 10 && number < 20) {
+    return textForms[2];
+  }
+
+  if (n1 > 1 && n1 < 5) {
+    return textForms[1];
+  }
+
+  if (n1 === 1) {
+    return textForms[0];
+  }
+
+  return textForms[2];
+}
+
+export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
+  if (!byField) {
+    return JSON.parse(JSON.stringify(arr1)) === JSON.parse(JSON.stringify(arr2));
+  }
+
+  return JSON.parse(JSON.stringify(arr1.map(item => item[byField]))) === JSON.parse(JSON.stringify(arr2.map(item => item[byField])));
+}

@@ -5,8 +5,18 @@ import classNames from 'classnames';
 import './Btn.scss';
 
 export default class Btn extends Component {
+  renderLoader() {
+    return (
+      <div className="ecos-btn__loading">
+        <div className="ecos-btn__loading-child ecos-btn__loading-child-1" />
+        <div className="ecos-btn__loading-child ecos-btn__loading-child-2" />
+        <div className="ecos-btn__loading-child ecos-btn__loading-child-3" />
+      </div>
+    );
+  }
+
   render() {
-    const { children, className, disabled, ...htmlAttr } = this.props;
+    const { children, className, disabled, loading, ...htmlAttr } = this.props;
 
     const cssClasses = classNames(
       'ecos-btn',
@@ -18,7 +28,7 @@ export default class Btn extends Component {
 
     return (
       <button disabled={disabled} {...htmlAttr} className={cssClasses}>
-        {children}
+        {loading ? this.renderLoader() : children}
       </button>
     );
   }
@@ -27,5 +37,6 @@ export default class Btn extends Component {
 Btn.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
+  loading: PropTypes.bool
 };

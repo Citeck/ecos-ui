@@ -25,6 +25,7 @@ const Grid = ({ stateId, showPreview, onRowClick }) => (
       onRowClick={onRowClick}
       doInlineToolsOnRowClick={showPreview}
       className={'ecos-grid_no-top-border'}
+      toolsClassName={'grid-tools_r_12'}
     />
   </Well>
 );

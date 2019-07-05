@@ -73,7 +73,7 @@ export default class Filter extends Component {
             <Fragment>
               <IcoBtn
                 icon={'icon-delete'}
-                className={classNames(btnClasses, 'ecos-btn_hover_t-light-blue ecos-btn_x-step_10')}
+                className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
                 onClick={this.delete}
               />
 

@@ -1,0 +1,84 @@
+@import '../../constants.scss';
+
+.placeholder {
+  display: flex;
+  width: 100%;
+  height: 60px;
+
+  & > div {
+    display: flex;
+    width: 100%;
+    height: 40px;
+    border: 2px rgba(32, 112, 97, 0.46) dashed;
+  }
+}
+
+.ecos-dnd {
+  &__droppable {
+    position: relative;
+    display: flex;
+    padding: 10px;
+    min-height: 100%;
+
+    &_row {
+      flex-direction: row;
+      align-content: flex-start;
+    }
+
+    &_column {
+      flex-direction: column !important;
+      flex-wrap: nowrap !important;
+    }
+
+    &-wrapper {
+      display: flex;
+      height: 100%;
+      background: $color-white;
+      border: 2px solid $color-gray-6;
+      box-sizing: border-box;
+      border-radius: 6px;
+      width: 100%;
+
+      & > div:first-child {
+        & > div:first-child {
+          height: 100% !important;
+          overflow-x: hidden !important;
+        }
+      }
+
+      &_over {
+        border: 2px dashed $color-gray-6 !important;
+      }
+    }
+
+    &-scrollbar {
+    }
+
+    &-children-wrapper {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+  }
+
+  &__placeholder {
+    margin: auto;
+    pointer-events: none;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 22px;
+    text-align: center;
+    color: $color-gray-6;
+    width: 100%;
+
+    &-wrapper {
+      display: flex;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+    }
+  }
+}
