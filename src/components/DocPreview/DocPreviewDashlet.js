@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Dashlet from '../Dashlet/Dashlet';
 import DocPreview from './DocPreview';
-import './DocPreview.scss';
 import { t } from '../../helpers/util';
+import './style.scss';
 
 class DocPreviewDashlet extends Component {
   static propTypes = {
@@ -25,9 +25,10 @@ class DocPreviewDashlet extends Component {
 
   render() {
     const { title, config, classNamePreview, classNameDashlet } = this.props;
+    const classesDashlet = `ecos-doc-preview-dashlet ${classNameDashlet}`;
 
     return (
-      <Dashlet title={title} bodyClassName={'ecos-doc-preview-dashlet__body'} className={classNameDashlet}>
+      <Dashlet title={title} bodyClassName={'ecos-doc-preview-dashlet__body'} className={classesDashlet}>
         <DocPreview {...config} className={classNamePreview} />
       </Dashlet>
     );

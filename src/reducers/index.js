@@ -13,6 +13,10 @@ import journals from './journals';
 import { rootReducer as cardDetails } from './cardDetails';
 import pageTabs from './pageTabs';
 import tasks from './tasks';
+import comments from './comments';
+import dashboardSettings from './dashboardSettings';
+import dashboard from './dashboard';
+import menu from './menu';
 import currentTasks from './currentTasks';
 
 const reducers = {
@@ -28,6 +32,10 @@ const reducers = {
   journals,
   pageTabs,
   tasks,
+  comments,
+  dashboardSettings,
+  dashboard,
+  menu,
   currentTasks
 };
 

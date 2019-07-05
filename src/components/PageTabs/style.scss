@@ -6,6 +6,7 @@
   display: flex;
   position: relative;
   user-select: none;
+  margin-bottom: 37px;
 
   &_gradient {
     &-left {
@@ -170,6 +171,7 @@
 
         #{$item}-close {
           color: $text-color-dark;
+          height: 100%;
         }
       }
 
@@ -247,5 +249,13 @@
 
   &__body {
     background-color: $color-gray-4;
+    position: relative;
+    height: 100%;
+
+    display: flex;
+
+    &-content {
+      padding: 0 10px 10px;
+    }
   }
 }

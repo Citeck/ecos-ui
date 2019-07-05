@@ -7,6 +7,10 @@ import user from './user';
 import journals from './journals';
 import pageTabs from './pageTabs';
 import tasks from './tasks';
+import comments from './comments';
+import dashboardSettings from './dashboardSettings';
+import dashboard from './dashboard';
+import menu from './menu';
 import currentTasks from './currentTasks';
 
 export default function* rootSaga(extraArguments) {
@@ -19,6 +23,10 @@ export default function* rootSaga(extraArguments) {
     journals(extraArguments),
     pageTabs(extraArguments),
     tasks(extraArguments),
+    comments(extraArguments),
+    dashboardSettings(extraArguments),
+    dashboard(extraArguments),
+    menu(extraArguments),
     currentTasks(extraArguments)
   ]);
 }

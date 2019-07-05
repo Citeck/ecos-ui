@@ -178,6 +178,3 @@
 .icon-clock {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83b;&nbsp;');
 }
-.icon-usergroup {
-  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83c;&nbsp;');
-}

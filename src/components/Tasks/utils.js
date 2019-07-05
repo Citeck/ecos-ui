@@ -24,29 +24,29 @@ export const TaskPropTypes = {
 export const DisplayedColumns = [
   {
     key: 'started',
-    label: t('Запущено'),
+    label: t('tasks-widget.column.started'),
     order: 0,
     format: DataFormatTypes.DATE
   },
   {
     key: 'deadline',
-    label: t('Срок'),
+    label: t('tasks-widget.column.deadline'),
     order: 1,
     format: DataFormatTypes.DATE
   },
   {
     key: 'sender',
-    label: t('Отправитель'),
+    label: t('tasks-widget.column.sender'),
     order: 2
   },
   {
     key: 'actors',
-    label: t('Исполнитель'),
+    label: t('tasks-widget.column.actors'),
     order: 3
   },
   {
     key: 'lastcomment',
-    label: t('Комментарий'),
+    label: t('tasks-widget.column.lastcomment'),
     order: 4
   }
 ];

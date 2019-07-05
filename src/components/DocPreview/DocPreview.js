@@ -19,7 +19,8 @@ class DocPreview extends Component {
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     isLoading: PropTypes.bool,
-    errMsg: PropTypes.string
+    errMsg: PropTypes.string,
+    firstPageNumber: PropTypes.number
   };
 
   static defaultProps = {
@@ -27,7 +28,8 @@ class DocPreview extends Component {
     height: 'inherit',
     scale: 0.5,
     isLoading: false,
-    errMsg: ''
+    errMsg: '',
+    firstPageNumber: 1
   };
 
   static className = 'ecos-doc-preview';
@@ -39,7 +41,7 @@ class DocPreview extends Component {
       pdf: {},
       settings: {},
       isLoading: props.isLoading || this.isPDF,
-      scrollPage: 0,
+      scrollPage: props.firstPageNumber,
       isFullscreen: false
     };
   }
@@ -91,11 +93,14 @@ class DocPreview extends Component {
   }
 
   loadPDF = link => {
+    const { firstPageNumber } = this.props;
     const loadingTask = pdfjs.getDocument(link);
+
+    this.setState({ scrollPage: firstPageNumber });
 
     loadingTask.promise.then(
       pdf => {
-        this.setState({ pdf, isLoading: false });
+        this.setState({ pdf, isLoading: false, scrollPage: firstPageNumber });
       },
       err => {
         console.error(`Error during loading document: ${err}`);
@@ -123,7 +128,7 @@ class DocPreview extends Component {
     }));
   };
 
-  setScrollPage = (scrollPage = 0) => {
+  setScrollPage = (scrollPage = this.props.firstPageNumber) => {
     this.setState(state => ({
       scrollPage,
       settings: {

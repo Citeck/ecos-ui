@@ -5,3 +5,5 @@ export { OrgStructApi } from './orgStruct';
 export { UserApi } from './user';
 export { JournalsApi } from './journalsApi';
 export { TasksApi } from './tasks';
+export { CommentsApi } from './comments';
+export { DashboardApi } from './dashboard';
