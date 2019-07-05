@@ -12,6 +12,7 @@ import view from './view';
 import journals from './journals';
 import { rootReducer as cardDetails } from './cardDetails';
 import pageTabs from './pageTabs';
+import tasks from './tasks';
 import comments from './comments';
 import dashboardSettings from './dashboardSettings';
 import dashboard from './dashboard';
@@ -29,6 +30,7 @@ const reducers = {
   view,
   journals,
   pageTabs,
+  tasks,
   comments,
   dashboardSettings,
   dashboard,

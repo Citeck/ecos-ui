@@ -5,6 +5,7 @@ import { t } from '../../../helpers/util';
 import ListItemIcon from '../ListItemIcon';
 import lodashGet from 'lodash/get';
 import { MenuApi } from '../../../api/menu';
+import { IGNORE_ATTR_NAME } from '../../../constants/pageTabs';
 
 const SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
 const PAGE_PREFIX = '/share/page';
@@ -113,6 +114,7 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
         // console.log('item', item);
       }}
       className={classes.join(' ')}
+      {...{ [IGNORE_ATTR_NAME]: true }}
     >
       <ListItemIcon iconName={item.icon} />
       <span className={'slide-menu-list__link-label'}>

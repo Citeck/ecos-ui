@@ -12,6 +12,8 @@ import DocPreviewPage from '../../pages/debug/DocPreview';
 import EcosFormPage from '../../pages/debug/EcosFormPage';
 import FormIOPage from '../../pages/debug/FormIOPage';
 import JournalsDashboardPage from '../../pages/debug/JournalsDashboardPage';
+import PropertiesPage from '../../pages/debug/Properties/PropertiesPage';
+import TasksDashletPage from '../../pages/debug/Tasks/TasksDashletPage';
 import DashboardSettingsPage from '../../pages/DashboardSettings';
 import DashboardPage from '../../pages/Dashboard';
 
@@ -114,7 +116,9 @@ class App extends Component {
             <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
             <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
 
+            <Route path="/properties" component={PropertiesPage} />
             <Route path="/comments" component={this.renderComments} />
+            <Route path="/tasks" exact component={TasksDashletPage} />
             {/*<Route component={NotFoundPage} />*/}
           </Switch>
 
