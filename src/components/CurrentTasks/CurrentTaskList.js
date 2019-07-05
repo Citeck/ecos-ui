@@ -80,7 +80,7 @@ class CurrentTaskList extends React.Component {
   }
 
   renderSwitch() {
-    const { isSmallMode, isLoading, currentTasks } = this.props;
+    const { isSmallMode, isLoading, currentTasks, isMobile } = this.props;
     const isEmptyList = isEmpty(currentTasks);
 
     if (isLoading) {
@@ -91,7 +91,7 @@ class CurrentTaskList extends React.Component {
       return this.renderEmpty();
     }
 
-    if (isSmallMode) {
+    if (isSmallMode || isMobile) {
       return this.renderEnum();
     }
 

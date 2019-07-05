@@ -36,21 +36,23 @@ class CurrentTaskInfo extends React.Component {
         <div className={`${this.className}__title`}>{task[DC.title.key]}</div>
         <div className={`${this.className}__fields`}>
           {label('actors')}
-          <div className={classNames(classValue, { [`${classValue}_with-icon`]: isMobile })}>
-            {task[DC.actors.key] || noData}
-            <IconInfo
-              iconClass={'icon-usergroup'}
-              id={uniqueId(cleanTaskId(task.id))}
-              text={task.actorsGroup}
-              isShow={task.isGroup}
-              noTooltip={isMobile}
-              handleClick={res => this.setState({ isOpen: res })}
-            />
+          <div className={classNames(classValue, { [`${classValue}_mobile`]: isMobile })}>
+            <span className={classNames({ [`${classValue}_mobile-val`]: isMobile })}>{task[DC.actors.key] || noData}</span>
+            <span className={classNames({ [`${classValue}_mobile-icon`]: isMobile })}>
+              <IconInfo
+                iconClass={'icon-usergroup'}
+                id={uniqueId(cleanTaskId(task.id))}
+                text={task.actorsGroup}
+                isShow={task.isGroup}
+                noTooltip={isMobile}
+                handleClick={res => this.setState({ isOpen: res })}
+              />
+            </span>
           </div>
           {isMobile && isOpen && <div className={`${classValue}_add`}>{task.actorsGroup}</div>}
           <Separator noIndents className={`${this.className}__separator`} />
           {label('deadline')}
-          <div className={`${this.className}-value`}>{getOutputFormat(DC.deadline.format, task[DC.deadline.key]) || noData}</div>
+          <div className={classValue}>{getOutputFormat(DC.deadline.format, task[DC.deadline.key]) || noData}</div>
         </div>
       </div>
     );
