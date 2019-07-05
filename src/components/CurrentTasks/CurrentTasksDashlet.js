@@ -42,7 +42,7 @@ class CurrentTasksDashlet extends React.Component {
   };
 
   render() {
-    const { title, config, classNameTasks, classNameDashlet, record } = this.props;
+    const { id, title, config, classNameTasks, classNameDashlet, record } = this.props;
     const { isSmallMode, isUpdating } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
@@ -58,7 +58,7 @@ class CurrentTasksDashlet extends React.Component {
         actionHelp={false}
       >
         <ReactResizeDetector handleWidth onResize={this.onResize} />
-        {!isUpdating && <CurrentTasks {...config} className={classNameTasks} record={record} isSmallMode={isSmallMode} />}
+        {!isUpdating && <CurrentTasks {...config} className={classNameTasks} record={record} isSmallMode={isSmallMode} stateId={id} />}
       </Dashlet>
     );
   }

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import queryString from 'query-string';
 import { deepClone } from '../../../helpers/util';
-import CurrentTasksDashlet from '../../../components/CurrentTasks';
+import CurrentTasksDashlet, { CurrentTasks } from '../../../components/CurrentTasks';
 import '../testStyle.scss';
 
 const getNodeRef = url => queryString.parse(url).nodeRef;
@@ -19,12 +19,11 @@ export default class CurrentTasksPage extends React.Component {
       title: undefined,
       // title: 'Текущие задачи #' + nodeRef,
       config: {
-        height: '500px'
+        height: '700px'
       }
     };
     const configs = [taskConfigUrl];
-
-    const params = ['?nodeRef=workspace://SpacesStore/ee3a3405-1cd6-430d-8f4f-c614e020dc17'];
+    const urls = ['?nodeRef=workspace://SpacesStore/5409bdbc-d3bf-4661-8e1d-58ef1fd8a1fa'];
 
     const fillTask = item => {
       const template = deepClone(taskConfigUrl);
@@ -39,7 +38,7 @@ export default class CurrentTasksPage extends React.Component {
       return template;
     };
 
-    params.forEach(item => {
+    urls.forEach(item => {
       configs.push(fillTask(item));
     });
 
@@ -47,18 +46,26 @@ export default class CurrentTasksPage extends React.Component {
 
     return (
       <div>
-        <h3>Демо страница Текущие задачи ({configs.length})</h3>
+        <h3>Demo Current tasks ({configs.length})</h3>
         <div className={'ecos-debug-container'}>
           <div className={'ecos-debug-col'}>
+            <h5>Widget</h5>
             {configs.map((item, index) => (
               <CurrentTasksDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
             ))}
           </div>
-          {/*<div className={'ecos-debug-col'}>
+          <div className={'ecos-debug-col'}>
+            <h5>Solo</h5>
             {col2.map((item, index) => (
-              <div id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
+              <CurrentTasks
+                stateId={'c-task-' + index}
+                record={item.document}
+                config={item.config}
+                title={item.title}
+                key={item.id + index}
+              />
             ))}
-          </div>*/}
+          </div>
         </div>
       </div>
     );

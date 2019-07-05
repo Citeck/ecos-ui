@@ -11,13 +11,13 @@ const mapStateToProps = (state, context) => {
 
   return {
     currentTasks: currentTasksState.list,
-    isLoading: currentTasksState.isLoading
+    isLoading: currentTasksState.isLoading,
+    isMobile: state.view.isMobile
   };
 };
 
 const mapDispatchToProps = dispatch => ({
   getCurrentTaskList: payload => dispatch(getCurrentTaskList(payload))
-  //changeTaskAssignee: payload => dispatch(changeTaskAssignee(payload))
 });
 
 class CurrentTasks extends React.Component {
@@ -25,12 +25,16 @@ class CurrentTasks extends React.Component {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
-    isSmallMode: PropTypes.bool
+    isSmallMode: PropTypes.bool,
+    isMobile: PropTypes.bool,
+    isLoading: PropTypes.bool
   };
 
   static defaultProps = {
     className: '',
-    isSmallMode: false
+    isSmallMode: false,
+    isMobile: false,
+    isLoading: false
   };
 
   componentDidMount() {
@@ -47,12 +51,13 @@ class CurrentTasks extends React.Component {
   };
 
   render() {
-    const { currentTasks, height, isLoading, isSmallMode, className } = this.props;
+    const { currentTasks, height, isLoading, isMobile, isSmallMode, className } = this.props;
     const childProps = {
       currentTasks,
       className,
       height,
       isLoading,
+      isMobile,
       isSmallMode
     };
 

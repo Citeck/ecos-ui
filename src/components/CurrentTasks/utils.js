@@ -29,8 +29,6 @@ export const DisplayedColumns = {
   }
 };
 
-export const iconGroup = isGroup => {
-  return isGroup ? <i className={`ecos-current-task-icon icon-usergroup`} /> : null;
-};
-
 export const noData = <span className={'ecos-current-task_no-data'}>{t('Нет данных')}</span>;
+
+export const cleanTaskId = taskId => taskId.replace(/[$@]/g, '');

@@ -36,6 +36,7 @@ export default class TasksConverter {
     target.actors = TasksService.getActorsDisplayNameStr(source.actors);
     target.deadline = source.dueDate;
     target.isGroup = TasksService.getIsGroup(source.actors);
+    target.actorsGroup = 'Administrator ppp\nYulia Volkova\nSomebody Else\nAnd one';
 
     return target;
   }

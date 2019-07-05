@@ -90,18 +90,53 @@
 
       #{$info}-value {
         font-weight: $font-weight-semi-bold;
+        font-size: $font-size-small;
         min-height: 20px;
+
+        &_with-icon {
+          display: flex;
+        }
+
+        &_add {
+          margin-top: 23px;
+          font-weight: $font-weight-semi-bold;
+        }
       }
     }
   }
 
-  &-icon {
+  &__icon {
     color: $color-gray-6;
     font-size: 17px;
-    margin-left: 5px;
+    margin-left: 10px;
+
+    &_open {
+      color: $color-blue-light;
+    }
+
+    &_big {
+      font-size: 32px;
+      margin-top: -20px;
+    }
   }
 
   &_no-data {
     color: $color-gray-5;
+  }
+
+  &__tooltip {
+    @extend %tooltip;
+
+    &-inner {
+      @extend %tooltip-inner;
+    }
+
+    &-arrow {
+      @extend %tooltip-arrow;
+    }
+
+    &-text {
+      padding: 5px;
+    }
   }
 }
