@@ -8,7 +8,8 @@ export const ComponentKeys = {
   LOGIN: 'login',
   PAGINATION: 'pagination',
   DOC_PREVIEW: 'doc-preview',
-  JOURNAL: 'journal'
+  JOURNAL: 'journal',
+  COMMENTS: 'comments'
 };
 
 export default class Components {
@@ -20,6 +21,10 @@ export default class Components {
     [ComponentKeys.JOURNAL]: {
       path: './Journals/JournalsDashlet/JournalsDashlet',
       label: 'dashboard-settings.widget.journal'
+    },
+    [ComponentKeys.COMMENTS]: {
+      path: './Comments',
+      label: 'dashboard-settings.widget.comments'
     }
   };
 

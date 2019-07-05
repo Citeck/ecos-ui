@@ -12,7 +12,7 @@ import Dashlet from '../Dashlet/Dashlet';
 import Btn from '../common/btns/Btn/Btn';
 import Loader from '../common/Loader/Loader';
 import IcoBtn from '../common/btns/IcoBtn/IcoBtn';
-import { t, num2str } from '../../helpers/util';
+import { t, num2str, getSearchParams } from '../../helpers/util';
 import { selectStateByNodeRef } from '../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../actions/comments';
 
@@ -86,17 +86,17 @@ class Comments extends React.Component {
     commentForDeletion: null
   };
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this._list = React.createRef();
     this._scroll = React.createRef();
   }
 
   componentDidMount() {
-    const { getComments, id } = this.props;
+    const { getComments } = this.props;
 
-    getComments(id);
+    getComments();
     this.recalculateScrollbarHeight();
   }
 
@@ -376,9 +376,9 @@ class Comments extends React.Component {
   };
 
   handleReloadData = () => {
-    const { getComments, id } = this.props;
+    const { getComments } = this.props;
 
-    getComments(id);
+    getComments();
   };
 
   renderHeader() {
@@ -654,17 +654,23 @@ class Comments extends React.Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByNodeRef(state, ownProps.id)
-});
+const mapStateToProps = state => {
+  const { recordRef } = getSearchParams();
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  getComments: nodeRef => dispatch(getComments(nodeRef)),
-  createComment: comment => dispatch(createCommentRequest({ comment, nodeRef: ownProps.id })),
-  updateComment: comment => dispatch(updateCommentRequest({ comment, nodeRef: ownProps.id })),
-  deleteComment: id => dispatch(deleteCommentRequest({ id, nodeRef: ownProps.id })),
-  setErrorMessage: message => dispatch(setError({ message, nodeRef: ownProps.id }))
-});
+  return { ...selectStateByNodeRef(state, recordRef) };
+};
+
+const mapDispatchToProps = dispatch => {
+  const { recordRef } = getSearchParams();
+
+  return {
+    getComments: () => dispatch(getComments(recordRef)),
+    createComment: comment => dispatch(createCommentRequest({ comment, nodeRef: recordRef })),
+    updateComment: comment => dispatch(updateCommentRequest({ comment, nodeRef: recordRef })),
+    deleteComment: id => dispatch(deleteCommentRequest({ id, nodeRef: recordRef })),
+    setErrorMessage: message => dispatch(setError({ message, nodeRef: recordRef }))
+  };
+};
 
 export default connect(
   mapStateToProps,
