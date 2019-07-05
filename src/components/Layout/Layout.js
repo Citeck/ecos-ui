@@ -5,8 +5,10 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import { getMinWidthColumn } from '../../helpers/layout';
 import Components from '../Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
+import { MENU_TYPE } from '../../constants';
 
 import './style.scss';
+import { getSearchParams } from '../../helpers/util';
 
 class Layout extends Component {
   static propTypes = {
@@ -16,6 +18,7 @@ class Layout extends Component {
         widgets: PropTypes.array
       })
     ).isRequired,
+    menuType: PropTypes.string,
     onSaveWidget: PropTypes.func
   };
 
@@ -35,6 +38,35 @@ class Layout extends Component {
 
     return classes.join(' ');
   }
+
+  get bodyScrollTop() {
+    const body = document.querySelector('body');
+
+    if (!body) {
+      return 0;
+    }
+
+    return body.scrollTop;
+  }
+
+  get menuWidth() {
+    const menu = document.querySelector('.slide-menu');
+
+    if (!menu) {
+      return 0;
+    }
+
+    return -menu.clientWidth;
+  }
+
+  draggablePositionAdjusment = () => {
+    const { menuType } = this.props;
+
+    return {
+      top: menuType === MENU_TYPE.LEFT ? this.bodyScrollTop : 0,
+      left: menuType === MENU_TYPE.LEFT ? this.menuWidth : 0
+    };
+  };
 
   handleDragUpdate = provided => {
     const { destination, source } = provided;
@@ -70,6 +102,7 @@ class Layout extends Component {
   };
 
   renderWidgets(widgets = [], columnName) {
+    const { recordRef } = getSearchParams();
     const components = [];
 
     widgets.forEach((widget, index) => {
@@ -92,8 +125,8 @@ class Layout extends Component {
       }
 
       components.push(
-        <DragItem draggableId={id} isWrapper key={key}>
-          <Widget {...widget.props} />
+        <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjusment}>
+          <Widget {...widget.props} record={recordRef} />
         </DragItem>
       );
     });

@@ -158,11 +158,12 @@ class Dashboard extends Component {
   };
 
   renderLayout() {
+    const { menuType } = this.props;
     const {
       config: { columns, type }
     } = this.state;
 
-    return <Layout columns={columns} onSaveWidget={this.prepareWidgetsConfig} type={type} />;
+    return <Layout columns={columns} onSaveWidget={this.prepareWidgetsConfig} type={type} menuType={menuType} />;
   }
 
   renderLoader() {

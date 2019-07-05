@@ -12,9 +12,10 @@ import Dashlet from '../Dashlet/Dashlet';
 import Btn from '../common/btns/Btn/Btn';
 import Loader from '../common/Loader/Loader';
 import IcoBtn from '../common/btns/IcoBtn/IcoBtn';
-import { t, num2str, getSearchParams } from '../../helpers/util';
+import { t, num2str } from '../../helpers/util';
 import { selectStateByNodeRef } from '../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../actions/comments';
+import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
@@ -79,7 +80,7 @@ class Comments extends React.Component {
 
   state = {
     isEdit: false,
-    width: 291,
+    width: MIN_WIDTH_DASHLET_SMALL,
     editorHeight: BASE_HEIGHT,
     comment: EditorState.createEmpty(),
     editableComment: null,
@@ -168,7 +169,7 @@ class Comments extends React.Component {
     const { width } = this.state;
     const classes = ['ecos-comments'];
 
-    if (width <= 430) {
+    if (width <= MIN_WIDTH_DASHLET_SMALL) {
       classes.push('ecos-comments_small');
     }
 
@@ -654,23 +655,15 @@ class Comments extends React.Component {
   }
 }
 
-const mapStateToProps = state => {
-  const { recordRef } = getSearchParams();
+const mapStateToProps = (state, ownProps) => ({ ...selectStateByNodeRef(state, ownProps.record) });
 
-  return { ...selectStateByNodeRef(state, recordRef) };
-};
-
-const mapDispatchToProps = dispatch => {
-  const { recordRef } = getSearchParams();
-
-  return {
-    getComments: () => dispatch(getComments(recordRef)),
-    createComment: comment => dispatch(createCommentRequest({ comment, nodeRef: recordRef })),
-    updateComment: comment => dispatch(updateCommentRequest({ comment, nodeRef: recordRef })),
-    deleteComment: id => dispatch(deleteCommentRequest({ id, nodeRef: recordRef })),
-    setErrorMessage: message => dispatch(setError({ message, nodeRef: recordRef }))
-  };
-};
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  getComments: () => dispatch(getComments(ownProps.record)),
+  createComment: comment => dispatch(createCommentRequest({ comment, nodeRef: ownProps.record })),
+  updateComment: comment => dispatch(updateCommentRequest({ comment, nodeRef: ownProps.record })),
+  deleteComment: id => dispatch(deleteCommentRequest({ id, nodeRef: ownProps.record })),
+  setErrorMessage: message => dispatch(setError({ message, nodeRef: ownProps.record }))
+});
 
 export default connect(
   mapStateToProps,

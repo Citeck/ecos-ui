@@ -9,7 +9,9 @@ export const ComponentKeys = {
   PAGINATION: 'pagination',
   DOC_PREVIEW: 'doc-preview',
   JOURNAL: 'journal',
-  COMMENTS: 'comments'
+  COMMENTS: 'comments',
+  PROPERTIES: 'properties',
+  TASKS: 'tasks'
 };
 
 export default class Components {
@@ -25,6 +27,14 @@ export default class Components {
     [ComponentKeys.COMMENTS]: {
       path: './Comments',
       label: 'dashboard-settings.widget.comments'
+    },
+    [ComponentKeys.PROPERTIES]: {
+      path: './Properties',
+      label: 'dashboard-settings.widget.properties'
+    },
+    [ComponentKeys.TASKS]: {
+      path: './Tasks',
+      label: 'dashboard-settings.widget.tasks'
     }
   };
 

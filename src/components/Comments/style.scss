@@ -4,18 +4,20 @@
   $root: &;
 
   width: 100%;
-  min-width: 291px;
+  min-width: 290px;
   //height: 100%;
   position: relative;
 
   &_small {
     #{$root}__count {
       width: 100%;
+      max-width: 100%;
       margin-bottom: 15px;
     }
 
     #{$root}__add-btn {
       width: 100%;
+      max-width: 100%;
     }
 
     #{$root}__editor {
@@ -33,6 +35,10 @@
         }
       }
     }
+  }
+
+  &__add-btn {
+    max-width: 48%;
   }
 
   &__header {
@@ -58,6 +64,7 @@
     border: 2px solid $color-gray-1;
     box-sizing: border-box;
     border-radius: 100px;
+    max-width: 48%;
 
     &-text {
       font-weight: 600;
@@ -66,6 +73,8 @@
       text-align: center;
       white-space: nowrap;
       margin: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 

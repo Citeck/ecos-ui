@@ -28,7 +28,15 @@ class DocPreviewDashlet extends Component {
     const classesDashlet = `ecos-doc-preview-dashlet ${classNameDashlet}`;
 
     return (
-      <Dashlet title={title} bodyClassName={'ecos-doc-preview-dashlet__body'} className={classesDashlet}>
+      <Dashlet
+        title={title}
+        bodyClassName={'ecos-doc-preview-dashlet__body'}
+        className={classesDashlet}
+        actionReload={false}
+        actionEdit={false}
+        actionHelp={false}
+        needGoTo={false}
+      >
         <DocPreview {...config} className={classNamePreview} />
       </Dashlet>
     );
