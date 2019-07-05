@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Tooltip } from 'reactstrap';
+import { Scrollbars } from 'react-custom-scrollbars';
 import Icon from '../common/icons/Icon/Icon';
 import './style.scss';
 
@@ -61,7 +62,9 @@ export default class IconInfo extends React.Component {
             innerClassName={`${tooltip}-inner`}
             arrowClassName={`${tooltip}-arrow`}
           >
-            <div className={`${tooltip}-text`}>{text}</div>
+            <div className={`${tooltip}-text`}>
+              <Scrollbars>{text}</Scrollbars>
+            </div>
           </Tooltip>
         )}
       </React.Fragment>

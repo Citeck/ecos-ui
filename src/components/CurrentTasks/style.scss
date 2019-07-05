@@ -137,6 +137,9 @@
 
     &-inner {
       @extend %tooltip-inner;
+      text-align: left !important;
+      white-space: pre !important;
+      padding: 0 !important;
     }
 
     &-arrow {
@@ -144,7 +147,9 @@
     }
 
     &-text {
-      padding: 5px;
+      padding: 15px 3px 15px 15px;
+      width: 153px;
+      height: 153px;
     }
   }
 }
