@@ -151,7 +151,7 @@ function* getGridParams(journalConfig, journalSetting, stateId) {
     columns: columns.map(col => ({ ...col })),
     groupBy: Array.from(groupBy),
     predicates: journalSettingPredicate ? [{ ...journalSettingPredicate }] : [],
-    pagination: yield select(state => state.journals[stateId].grid.pagination)
+    pagination: DEFAULT_PAGINATION
   };
 }
 
