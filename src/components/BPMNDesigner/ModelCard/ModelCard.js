@@ -2,6 +2,7 @@ import React from 'react';
 // import { NavLink } from 'react-router-dom';
 import { Col } from 'reactstrap';
 import cn from 'classnames';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
 import { t } from '../../../helpers/util';
 import styles from './ModelCard.module.scss';
 
@@ -18,7 +19,7 @@ const ModelCard = ({ label, author, datetime, viewLink, editLink, onViewLinkClic
   let editButton = null;
   if (canWrite) {
     editButton = (
-      <a href={editLink} className={styles.cardEditButton} onClick={onEditLinkClick}>
+      <a href={editLink} className={styles.cardEditButton} onClick={onEditLinkClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
         <span className={'icon-edit'} />
       </a>
     );
@@ -32,7 +33,7 @@ const ModelCard = ({ label, author, datetime, viewLink, editLink, onViewLinkClic
             {editButton}
             <div className={styles.cardTopButton}>
               {/*<NavLink to={viewLink}>{t('bpmn-designer.view-button')}</NavLink>*/}
-              <a href={viewLink} onClick={onViewLinkClick}>
+              <a href={viewLink} onClick={onViewLinkClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
                 {t('bpmn-designer.view-button')}
               </a>
             </div>

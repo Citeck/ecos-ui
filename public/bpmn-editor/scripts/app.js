@@ -236,7 +236,7 @@ flowableModeler
               const isUserAdmin = user.isAdmin === 'true';
               const isUserBPMNAdmin = user.isBpmAdmin;
               const mainNavigation = [
-                { 'id': 'processes', 'title': 'GENERAL.NAVIGATION.PROCESSES', 'location': '/share/page/bpmn-designer' }
+                { 'id': 'processes', 'title': 'GENERAL.NAVIGATION.PROCESSES', 'location': '/v2/bpmn-designer' }
               ];
               if (isUserAdmin || isUserBPMNAdmin) {
                 mainNavigation.push(
