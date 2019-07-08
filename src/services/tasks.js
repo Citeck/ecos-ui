@@ -56,10 +56,8 @@ export default class TasksService {
 
     if (isArray(value)) {
       return value.map(item => item.displayName).join('\n');
-    } else if (isString(value)) {
-      return value;
     }
 
-    return value.displayName || '';
+    return '';
   }
 }

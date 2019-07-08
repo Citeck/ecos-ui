@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { Route, Switch, Redirect } from 'react-router';
+import { Redirect, Route, Switch } from 'react-router';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
@@ -123,7 +123,7 @@ class App extends Component {
             <Route path="/v2/debug/properties" component={PropertiesPage} />
             <Route path="/v2/debug/comments" component={this.renderComments} />
             <Route path="/v2/debug/tasks" exact component={TasksDashletPage} />
-            <Route path="/v2/debug//current-tasks" component={CurrentTasksPage} />
+            <Route path="/v2/debug/current-tasks" component={CurrentTasksPage} />
             {/*<Route component={NotFoundPage} />*/}
           </Switch>
 

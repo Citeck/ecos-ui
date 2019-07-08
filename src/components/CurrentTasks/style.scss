@@ -133,9 +133,11 @@
 
   &__tooltip {
     .ecos-base-tooltip-inner {
-      text-align: left !important;
-      white-space: pre !important;
-      padding: 0 !important;
+      text-align: left;
+      white-space: pre;
+      padding: 0;
+      font-size: $font-size-small;
+      line-height: 18px;
     }
 
     &-text {

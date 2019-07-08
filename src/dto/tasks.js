@@ -31,14 +31,14 @@ export default class TasksConverter {
       return target;
     }
 
+    const actors = source.actors || {};
+
     target.id = source.id || '';
     target.title = source.title || '';
-    target.actors = TasksService.getActorsDisplayNameStr(source.actors);
+    target.actors = TasksService.getActorsDisplayNameStr(actors);
     target.deadline = source.dueDate;
-    target.isGroup = TasksService.getIsGroup(source.actors);
-    target.usersGroup = TasksService.getUsersOfGroupStr(source.containedUsers);
-    //todo del test data
-    target.usersGroup = `Test\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTest`;
+    target.isGroup = TasksService.getIsGroup(actors);
+    target.usersGroup = TasksService.getUsersOfGroupStr(actors.containedUsers);
 
     return target;
   }
