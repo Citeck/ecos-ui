@@ -2,17 +2,16 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactResizeDetector from 'react-resize-detector';
 import { Tooltip } from 'reactstrap';
-import Dropzone from 'react-dropzone-uploader';
 
 import Dashlet from '../Dashlet/Dashlet';
 import { IcoBtn } from '../common/btns';
 import Icon from '../common/icons/Icon/Icon';
-import EcosModal from '../common/EcosModal';
 import { t, deepClone } from '../../helpers/util';
 
 import 'react-dropzone-uploader/dist/styles.css';
 import './style.scss';
 import Radio from '../common/form/Radio';
+import AddModal from './AddModal';
 
 const TOOLTIP = {
   ADD_NEW_VERSION: 'ADD_NEW_VERSION',
@@ -41,7 +40,7 @@ class VersionsJournal extends Component {
         isCurrent: true
       }
     ],
-    modalIsShow: false,
+    modalIsShow: true,
     radio: [
       {
         name: 'Незначительные изменения (v 1.3)'
@@ -164,22 +163,7 @@ class VersionsJournal extends Component {
   renderModal() {
     const { modalIsShow } = this.state;
 
-    const getUploadParams = ({ meta }) => {
-      return { url: 'https://httpbin.org/post' };
-    };
-    const handleChangeStatus = ({ meta, file }, status) => {
-      console.log(status, meta, file);
-    };
-    const handleSubmit = (files, allFiles) => {
-      console.log(files.map(f => f.meta));
-      allFiles.forEach(f => f.remove());
-    };
-
-    return (
-      <EcosModal isOpen={modalIsShow} hideModal={this.handleToggleModal} title={t('Добавить новую версию')}>
-        <Dropzone getUploadParams={getUploadParams} onChangeStatus={handleChangeStatus} onSubmit={handleSubmit} />
-      </EcosModal>
-    );
+    return <AddModal isShow={modalIsShow} onHideModal={this.handleToggleModal} title={t('Добавить новую версию')} />;
   }
 
   renderRadio() {
@@ -206,6 +190,8 @@ class VersionsJournal extends Component {
   }
 
   render() {
+    const { modalIsShow } = this.state;
+
     return (
       <div>
         <Dashlet
@@ -221,7 +207,9 @@ class VersionsJournal extends Component {
           {this.renderActualVersion()}
           {this.renderOldVersions()}
           {this.renderModal()}
-          {this.renderRadio()}
+          {/*{this.renderRadio()}*/}
+
+          <AddModal isShow={modalIsShow} onHideModal={this.handleToggleModal} title={t('Добавить новую версию')} />
         </Dashlet>
       </div>
     );
