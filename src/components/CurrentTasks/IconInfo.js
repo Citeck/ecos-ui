@@ -55,6 +55,7 @@ export default class IconInfo extends React.Component {
         {!noTooltip && (
           <Tooltip
             placement="top"
+            boundariesElement="window"
             target={domId}
             isOpen={isOpen}
             trigger={'click'}
