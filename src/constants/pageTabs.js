@@ -15,8 +15,8 @@ export const TITLE = {
 };
 
 export const URL_MASK = {
-  '^/dashboard/([0-9A-Za-z-]*)/settings$': TITLE[URL.DASHBOARD_SETTINGS],
-  '^/dashboard/([0-9A-Za-z-]*)$': TITLE[URL.DASHBOARD]
+  '^/v2/dashboard/([0-9A-Za-z-]*)/settings$': TITLE[URL.DASHBOARD_SETTINGS],
+  '^/v2/dashboard/([0-9A-Za-z-]*)$': TITLE[URL.DASHBOARD]
 };
 
 export const getTitleByUrl = url => {
