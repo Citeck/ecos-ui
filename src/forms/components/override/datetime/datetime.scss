@@ -9,9 +9,13 @@
 
     .input-group {
       flex-wrap: nowrap;
+
+      .input {
+        border-radius: $border-radius-standard;
+      }
     }
 
-    .input-group-addon {
+    .input-group-addon .input-group-text {
       border: none;
       background: none;
       padding: 0;
