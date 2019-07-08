@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { Route, Switch, Redirect } from 'react-router';
+import { Redirect, Route, Switch } from 'react-router';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
@@ -14,6 +14,7 @@ import FormIOPage from '../../pages/debug/FormIOPage';
 import JournalsDashboardPage from '../../pages/debug/JournalsDashboardPage';
 import PropertiesPage from '../../pages/debug/Properties/PropertiesPage';
 import TasksDashletPage from '../../pages/debug/Tasks/TasksDashletPage';
+import BarcodePage from '../../pages/debug/Barcode/BarcodePage';
 import DashboardSettingsPage from '../../pages/DashboardSettings';
 import DashboardPage from '../../pages/Dashboard';
 
@@ -121,6 +122,7 @@ class App extends Component {
             <Route path="/v2/debug/properties" component={PropertiesPage} />
             <Route path="/v2/debug/comments" component={this.renderComments} />
             <Route path="/v2/debug/tasks" exact component={TasksDashletPage} />
+            <Route path="/v2/debug/barcode" exact component={BarcodePage} />
             {/*<Route component={NotFoundPage} />*/}
           </Switch>
 
