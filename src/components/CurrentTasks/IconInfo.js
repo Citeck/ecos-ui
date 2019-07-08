@@ -58,9 +58,9 @@ export default class IconInfo extends React.Component {
             target={domId}
             isOpen={isOpen}
             trigger={'click'}
-            className={tooltip}
-            innerClassName={`${tooltip}-inner`}
-            arrowClassName={`${tooltip}-arrow`}
+            className={`ecos-base-tooltip ${tooltip}`}
+            innerClassName={`ecos-base-tooltip-inner`}
+            arrowClassName={`ecos-base-tooltip-arrow`}
           >
             <div className={`${tooltip}-text`}>
               <Scrollbars renderTrackVertical={props => <div {...props} className={`${tooltip}__v-scroll`} />}>{text}</Scrollbars>

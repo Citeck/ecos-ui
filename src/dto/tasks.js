@@ -37,7 +37,7 @@ export default class TasksConverter {
     target.deadline = source.dueDate;
     target.isGroup = TasksService.getIsGroup(source.actors);
     target.actorsGroup = source.actorsGroup;
-    target.actorsGroup = `Test\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTest`;
+    target.actorsGroup = `Test\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTest`;
 
     return target;
   }

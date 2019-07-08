@@ -19,7 +19,7 @@ export default class CurrentTasksPage extends React.Component {
       title: undefined,
       // title: 'Текущие задачи #' + nodeRef,
       config: {
-        height: '700px'
+        height: '300px'
       }
     };
     const configs = [taskConfigUrl];
