@@ -42,14 +42,14 @@ class CurrentTaskInfo extends React.Component {
               <IconInfo
                 iconClass={'icon-usergroup'}
                 id={uniqueId(cleanTaskId(task.id))}
-                text={task.actorsGroup}
+                text={task.usersGroup}
                 isShow={task.isGroup}
                 noTooltip={isMobile}
                 handleClick={res => this.setState({ isOpen: res })}
               />
             </span>
           </div>
-          {isMobile && isOpen && <div className={`${classValue}_add`}>{task.actorsGroup}</div>}
+          {isMobile && isOpen && <div className={`${classValue}_add`}>{task.containedUsers}</div>}
           <Separator noIndents className={`${this.className}__separator`} />
           {label('deadline')}
           <div className={classValue}>{getOutputFormat(DC.deadline.format, task[DC.deadline.key]) || noData}</div>

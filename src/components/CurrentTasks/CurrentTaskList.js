@@ -66,7 +66,7 @@ class CurrentTaskList extends React.Component {
       [DC.actors.key]: (
         <React.Fragment>
           {task[DC.actors.key] || noData}
-          <IconInfo iconClass={'icon-usergroup'} id={uniqueId(cleanTaskId(task.id))} text={task.actorsGroup} isShow={task.isGroup} />
+          <IconInfo iconClass={'icon-usergroup'} id={uniqueId(cleanTaskId(task.id))} text={task.usersGroup} isShow={task.isGroup} />
         </React.Fragment>
       ),
       [DC.deadline.key]: getOutputFormat(DC.deadline.format, task[DC.deadline.key]) || noData

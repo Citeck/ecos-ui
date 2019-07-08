@@ -34,7 +34,7 @@ export default class TasksService {
       return value;
     }
 
-    return value.displayName;
+    return value.displayName || '';
   }
 
   static getIsGroup(value) {
@@ -47,5 +47,19 @@ export default class TasksService {
     }
 
     return !!value.authorityName;
+  }
+
+  static getUsersOfGroupStr(value) {
+    if (isEmpty(value)) {
+      return '';
+    }
+
+    if (isArray(value)) {
+      return value.map(item => item.displayName).join('\n');
+    } else if (isString(value)) {
+      return value;
+    }
+
+    return value.displayName || '';
   }
 }

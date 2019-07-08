@@ -36,8 +36,9 @@ export default class TasksConverter {
     target.actors = TasksService.getActorsDisplayNameStr(source.actors);
     target.deadline = source.dueDate;
     target.isGroup = TasksService.getIsGroup(source.actors);
-    target.actorsGroup = source.actorsGroup;
-    target.actorsGroup = `Test\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTest`;
+    target.usersGroup = TasksService.getUsersOfGroupStr(source.containedUsers);
+    //todo del test data
+    target.usersGroup = `Test\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTestTest\nTest\nTest\nTest\nTest\nTest`;
 
     return target;
   }
