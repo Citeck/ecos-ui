@@ -208,8 +208,6 @@ class VersionsJournal extends Component {
           {this.renderOldVersions()}
           {this.renderModal()}
           {/*{this.renderRadio()}*/}
-
-          <AddModal isShow={modalIsShow} onHideModal={this.handleToggleModal} title={t('Добавить новую версию')} />
         </Dashlet>
       </div>
     );

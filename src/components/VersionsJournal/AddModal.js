@@ -3,7 +3,27 @@ import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone-uploader';
 
 import EcosModal from '../common/EcosModal';
-import { t } from '../../helpers/util';
+import { t, deepClone } from '../../helpers/util';
+
+const FILE_STATUS = {
+  REJECT_FILE_TYPE: 'rejected_file_type',
+  REJECT_MAX_FILES: 'rejected_max_files',
+  PREPARING: 'preparing',
+  ERROR_FILE_SIZE: 'error_file_size',
+  ERROR_VALIDATION: 'error_validation',
+  READY: 'ready',
+  STARTED: 'started',
+  GETTING_UPLOAD_PARAMS: 'getting_upload_params',
+  ERROR_UPLOAD_PARAMS: 'error_upload_params',
+  UPLOADING: 'uploading',
+  EXCEPTION_UPLOAD: 'exception_upload',
+  ABORTED: 'aborted',
+  RESTARTED: 'restarted',
+  REMOVED: 'removed',
+  ERROR_UPLOAD: 'error_upload',
+  HEADERS_RECEIVED: 'headers_received',
+  DONE: 'done'
+};
 
 class AddModal extends Component {
   static propTypes = {
@@ -18,12 +38,35 @@ class AddModal extends Component {
     title: ''
   };
 
+  state = {
+    file: null,
+    fileStatus: ''
+  };
+
   getUploadParams = ({ meta }) => {
     return { url: 'https://httpbin.org/post' };
   };
 
-  handleChangeStatus = ({ meta, file }, status) => {
-    console.log(status, meta, file);
+  get dropzoneClassName() {
+    const { fileStatus } = this.state;
+    const classes = ['vj-modal__dropzone'];
+
+    if (
+      [FILE_STATUS.PREPARING, FILE_STATUS.UPLOADING, FILE_STATUS.GETTING_UPLOAD_PARAMS, FILE_STATUS.HEADERS_RECEIVED].includes(fileStatus)
+    ) {
+      classes.push('vj-modal__dropzone_uploading');
+    }
+
+    return classes.join(' ');
+  }
+
+  handleChangeStatus = ({ meta, file, remove }, status) => {
+    this.setState({ fileStatus: status });
+
+    if (status === FILE_STATUS.DONE) {
+      this.setState({ file });
+      remove();
+    }
   };
 
   handleSubmit = (files, allFiles) => {
@@ -51,10 +94,24 @@ class AddModal extends Component {
             </React.Fragment>
           )}
           classNames={{
-            dropzone: 'vj-modal__dropzone',
+            dropzone: this.dropzoneClassName,
             inputLabel: 'vj-modal__input-label'
           }}
-          SubmitButtonComponent={null}
+          SubmitButtonComponent={props => {
+            // console.warn(props);
+            return (
+              <div
+                className="vj-modal__input-button"
+                onClick={() => {
+                  props.files[0].cancel();
+                  props.files[0].remove();
+                }}
+              >
+                {t('Отмена')}
+              </div>
+            );
+          }}
+          // SubmitButtonComponent={null}
         />
       </EcosModal>
     );

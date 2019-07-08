@@ -132,11 +132,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
 
     background: $color-gray-4;
     border: 2px dashed $color-gray-5;
     border-radius: 6px;
     height: 160px;
+
+    &_uploading {
+      flex-direction: column;
+      justify-content: center;
+    }
   }
 
   &__input {
@@ -172,7 +178,54 @@
     }
   }
 
-  .dzu-previewFileName {
-    display: none !important;
+  .dzu {
+    &-preview {
+      &FileName {
+        display: none !important;
+      }
+
+      &Container {
+        padding: 0 !important;
+        min-height: unset !important;
+      }
+
+      &StatusContainer {
+        margin: 18px auto 30px !important;
+
+        progress {
+          border: 0;
+          height: 6px;
+          border-radius: 3px;
+          background-color: $color-blue-dark !important;
+        }
+        progress::-webkit-progress-bar {
+          border: 0;
+          height: 6px;
+          border-radius: 3px;
+        }
+        progress::-webkit-progress-value {
+          border: 0;
+          height: 6px;
+          border-radius: 3px;
+        }
+        progress::-moz-progress-bar {
+          border: 0;
+          height: 6px;
+          border-radius: 3px;
+        }
+
+        progress[value]::-webkit-progress-bar {
+          background-color: $color-gray-6;
+        }
+
+        progress[value]::-webkit-progress-value {
+          background-color: $color-blue-dark;
+        }
+      }
+    }
+
+    &-submitButtonContainer {
+      margin: 0 !important;
+    }
   }
 }
