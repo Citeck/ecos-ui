@@ -1,14 +1,16 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsDashletToolbar from '../JournalsDashletToolbar';
 import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletFooter from '../JournalsDashletFooter';
-import { getDashletConfig, setEditorMode, reloadGrid, initState } from '../../../actions/journals';
+import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet/Dashlet';
+import { getDashletConfig, setEditorMode, reloadGrid, initState } from '../../../actions/journals';
 import { goToJournalsPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
-import classNames from 'classnames';
 
 import './JournalsDashlet.scss';
 
@@ -35,9 +37,16 @@ const mapDispatchToProps = (dispatch, props) => {
 };
 
 class JournalsDashlet extends Component {
+  static propTypes = {
+    id: PropTypes.string.isRequired
+  };
+
   constructor(props) {
     super(props);
-    this.props.initState(props.stateId);
+
+    this._stateId = props.stateId || props.id;
+
+    this.props.initState(this._stateId);
   }
 
   componentDidMount() {
@@ -59,7 +68,7 @@ class JournalsDashlet extends Component {
   };
 
   render() {
-    const { journalConfig, className, id, editorMode, reloadGrid, stateId } = this.props;
+    const { journalConfig, className, id, editorMode, reloadGrid } = this.props;
 
     if (!journalConfig) {
       return null;
@@ -76,14 +85,18 @@ class JournalsDashlet extends Component {
         onGoTo={this.goToJournalsPage}
       >
         {editorMode ? (
-          <JournalsDashletEditor id={id} stateId={stateId} />
+          <Measurer>
+            <JournalsDashletEditor id={id} stateId={this._stateId} />
+          </Measurer>
         ) : (
           <Fragment>
-            <JournalsDashletToolbar stateId={stateId} />
+            <Measurer>
+              <JournalsDashletToolbar stateId={this._stateId} />
+            </Measurer>
 
-            <JournalsDashletGrid stateId={stateId} />
+            <JournalsDashletGrid stateId={this._stateId} />
 
-            <JournalsDashletFooter stateId={stateId} />
+            <JournalsDashletFooter stateId={this._stateId} />
           </Fragment>
         )}
       </Dashlet>
