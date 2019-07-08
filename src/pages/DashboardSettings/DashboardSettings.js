@@ -8,7 +8,7 @@ import get from 'lodash/get';
 
 import { arrayCompare, t } from '../../helpers/util';
 import { LAYOUTS, TYPE_MENU } from '../../constants/dashboardSettings';
-import { MENU_TYPE, SAVE_STATUS } from '../../constants';
+import { MENU_TYPE, SAVE_STATUS, URL } from '../../constants';
 import { getAwayFromPage, initDashboardSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
 import { initMenuSettings } from '../../actions/menu';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
@@ -175,7 +175,7 @@ class DashboardSettings extends React.Component {
     const { recordRef, dashboardId } = searchParams;
 
     return {
-      pathDashboard: '/dashboard' + search,
+      pathDashboard: URL.DASHBOARD + search,
       recordRef,
       dashboardId
     };
