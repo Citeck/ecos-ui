@@ -45,12 +45,10 @@ class DocStatus extends React.Component {
     const { status = {} } = this.props;
     const statuses = [
       {
-        id: '7777',
-        title: '66666'
+        name: '66666'
       },
       {
-        id: status.name,
-        title: status.name
+        name: status.name
       }
     ];
 
@@ -60,7 +58,7 @@ class DocStatus extends React.Component {
 
         {!isRead && (
           <div className={`${this.className}_manual`}>
-            <Dropdown source={statuses} value={status.name} valueField={'id'} titleField={'title'} onChange={this.onChangeStatus}>
+            <Dropdown source={statuses} value={status.name} valueField={'name'} titleField={'name'} onChange={this.onChangeStatus}>
               <IcoBtn invert={'true'} icon={'icon-down'} className={`ecos-btn_drop-down ecos-btn_blue ecos-btn_full-width`} />
             </Dropdown>
           </div>
