@@ -1,21 +1,23 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { Route, Switch, Redirect } from 'react-router';
+import { Redirect, Route, Switch } from 'react-router';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
 import BPMNDesignerPage from '../../pages/BPMNDesignerPage';
 import CardDetailsPage from '../../pages/CardDetailsPage';
 import JournalsPage from '../../pages/JournalsPage';
+import DashboardSettingsPage from '../../pages/DashboardSettings';
+import DashboardPage from '../../pages/Dashboard';
+
 import DocPreviewPage from '../../pages/debug/DocPreview';
 import EcosFormPage from '../../pages/debug/EcosFormPage';
 import FormIOPage from '../../pages/debug/FormIOPage';
 import JournalsDashboardPage from '../../pages/debug/JournalsDashboardPage';
 import PropertiesPage from '../../pages/debug/Properties/PropertiesPage';
 import TasksDashletPage from '../../pages/debug/Tasks/TasksDashletPage';
-import DashboardSettingsPage from '../../pages/DashboardSettings';
-import DashboardPage from '../../pages/Dashboard';
+import DocStatusPage from '../../pages/debug/DocStatus/DocStatusPage';
 
 import Header from '../Header';
 import Notification from '../Notification';
@@ -121,6 +123,7 @@ class App extends Component {
             <Route path="/v2/debug/properties" component={PropertiesPage} />
             <Route path="/v2/debug/comments" component={this.renderComments} />
             <Route path="/v2/debug/tasks" exact component={TasksDashletPage} />
+            <Route path="/v2/debug/status" exact component={DocStatusPage} />
             {/*<Route component={NotFoundPage} />*/}
           </Switch>
 

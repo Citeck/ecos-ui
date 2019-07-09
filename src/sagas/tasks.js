@@ -6,7 +6,7 @@ import TasksConverter from '../dto/tasks';
 import TasksService from '../services/tasks';
 
 function* sagaGetTasks({ api, logger }, { payload }) {
-  const err = t('Ошибка получения данные');
+  const err = t('Ошибка получения данных');
 
   try {
     const { document, stateId } = payload;
