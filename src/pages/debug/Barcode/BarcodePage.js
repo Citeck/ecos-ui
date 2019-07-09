@@ -56,9 +56,9 @@ export default class BarcodePage extends React.Component {
             ))}
           </div>
           <div className={'ecos-debug-col'}>
-            <h5>Solo Barcode</h5>
+            <h5>Solo</h5>
             {col2.map((item, index) => (
-              <Barcode record={item.document} {...item.config} key={item.id + index} stateId={'props' + index} />
+              <Barcode record={item.document} {...item.config} key={item.id + index} stateId={'Barcode' + index} />
             ))}
           </div>
         </div>

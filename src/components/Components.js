@@ -11,7 +11,8 @@ export const ComponentKeys = {
   JOURNAL: 'journal',
   COMMENTS: 'comments',
   PROPERTIES: 'properties',
-  TASKS: 'tasks'
+  TASKS: 'tasks',
+  BARCODE: 'barcode'
 };
 
 export default class Components {
@@ -35,6 +36,10 @@ export default class Components {
     [ComponentKeys.TASKS]: {
       path: './Tasks',
       label: 'dashboard-settings.widget.tasks'
+    },
+    [ComponentKeys.BARCODE]: {
+      path: './Barcode',
+      label: 'Штрих-код документа'
     }
   };
 
@@ -88,7 +93,8 @@ export default class Components {
             defWidget.props.config.scale = config.scale || 1;
             break;
           }
-          case ComponentKeys.JOURNAL: {
+          case ComponentKeys.BARCODE: {
+            defWidget.props.config.height = '235px';
             break;
           }
           default:
