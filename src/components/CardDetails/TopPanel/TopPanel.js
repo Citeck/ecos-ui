@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { PROCESS_MODEL_NODE_TYPE, DESIGNER_PAGE_CONTEXT, EDITOR_PAGE_CONTEXT } from '../../../constants/bpmn';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
 import { t } from '../../../helpers/util';
 import './TopPanel.scss';
 
@@ -49,7 +50,7 @@ class TopPanel extends React.Component {
       <div className={'card-details-top-panel'}>
         {buttons.map((button, idx) => {
           return (
-            <a key={idx} className={button.className} href={button.href}>
+            <a key={idx} className={button.className} href={button.href} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
               {button.text}
             </a>
           );

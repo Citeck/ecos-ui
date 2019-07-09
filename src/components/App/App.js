@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { Route, Switch } from 'react-router';
+import { Route, Switch, Redirect } from 'react-router';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
@@ -119,22 +119,24 @@ class App extends Component {
 
           <Switch>
             {/*<Route path="/share/page" exact component={DashboardPage} />*/}
-            <Route path="/formio-develop" component={FormIOPage} />
-            <Route path="/ecos-form-example" component={EcosFormPage} />
-            <Route path="/doc-preview" component={DocPreviewPage} />
 
-            <Route path="/dashboard/settings" component={DashboardSettingsPage} />
-            <Route path="/dashboard" exact component={DashboardPage} />
-
+            <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
+            {/* TODO change routes prefixes from /share/page to /v2 */}
             <Route path="/share/page/ui/journals" component={JournalsPage} />
             <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
-            <Route path="/share/page/bpmn-designer" component={BPMNDesignerPage} />
-            <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
+            <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
 
-            <Route path="/properties" component={PropertiesPage} />
-            <Route path="/comments" component={this.renderComments} />
-            <Route path="/tasks" exact component={TasksDashletPage} />
-            <Route path="/versions-journal" component={this.renderVersionsJournal} />
+            <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
+            <Route path={URL.DASHBOARD} exact component={DashboardPage} />
+            <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
+
+            <Route path="/v2/debug/formio-develop" component={FormIOPage} />
+            <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
+            <Route path="/v2/debug/doc-preview" component={DocPreviewPage} />
+            <Route path="/v2/debug/properties" component={PropertiesPage} />
+            <Route path="/v2/debug/comments" component={this.renderComments} />
+            <Route path="/v2/debug/tasks" exact component={TasksDashletPage} />
+            <Route path="/v2/debug/versions-journal" component={this.renderVersionsJournal} />
             {/*<Route component={NotFoundPage} />*/}
           </Switch>
 

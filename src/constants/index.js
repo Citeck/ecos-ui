@@ -2,8 +2,9 @@ export const URL = {
   HOME: '/',
   JOURNAL: '/share/page/journals',
   JOURNAL_DASHBOARD: '/share/page/journalsDashboard',
-  DASHBOARD: '/dashboard',
-  DASHBOARD_SETTINGS: '/dashboard/settings'
+  DASHBOARD: '/v2/dashboard',
+  DASHBOARD_SETTINGS: '/v2/dashboard/settings',
+  BPMN_DESIGNER: '/v2/bpmn-designer'
 };
 
 export const MENU_TYPE = {
