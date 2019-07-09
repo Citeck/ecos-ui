@@ -40,7 +40,7 @@
     "react-dom": "^16.8.2",
     "react-draggable": "^3.2.1",
     "react-dropzone": "^8.0.3",
-    "react-dropzone-uploader": "^2.10.0",
+    "react-dropzone-uploader": "^2.10.1",
     "react-loader-spinner": "^2.3.0",
     "react-perfect-scrollbar": "^1.4.4",
     "react-redux": "^5.1.0",

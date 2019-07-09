@@ -7,11 +7,10 @@ import Dashlet from '../Dashlet/Dashlet';
 import { IcoBtn } from '../common/btns';
 import Icon from '../common/icons/Icon/Icon';
 import { t, deepClone } from '../../helpers/util';
-
-import 'react-dropzone-uploader/dist/styles.css';
-import './style.scss';
 import Radio from '../common/form/Radio';
 import AddModal from './AddModal';
+
+import './style.scss';
 
 const TOOLTIP = {
   ADD_NEW_VERSION: 'ADD_NEW_VERSION',
@@ -161,9 +160,17 @@ class VersionsJournal extends Component {
   }
 
   renderModal() {
-    const { modalIsShow } = this.state;
+    const { modalIsShow, versions } = this.state;
+    const currentVersion = versions.length ? versions[0].version : 1;
 
-    return <AddModal isShow={modalIsShow} onHideModal={this.handleToggleModal} title={t('Добавить новую версию')} />;
+    return (
+      <AddModal
+        isShow={modalIsShow}
+        onHideModal={this.handleToggleModal}
+        title={t('Добавить новую версию')}
+        currentVersion={currentVersion}
+      />
+    );
   }
 
   renderRadio() {
