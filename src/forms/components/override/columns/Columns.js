@@ -29,7 +29,7 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
     const classList = ['row'];
 
     if (this.options.viewAsHtmlConfig && this.options.viewAsHtmlConfig.fullWidthColumns) {
-      classList.push('row-view-mode');
+      classList.push('row-view-mode', 'm-0', 'p-0');
     }
 
     return `${classList.join(' ')} ${super.className}`;
