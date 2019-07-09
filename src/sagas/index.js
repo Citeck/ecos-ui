@@ -11,6 +11,7 @@ import comments from './comments';
 import dashboardSettings from './dashboardSettings';
 import dashboard from './dashboard';
 import menu from './menu';
+import barcode from './barcode';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -25,6 +26,7 @@ export default function* rootSaga(extraArguments) {
     comments(extraArguments),
     dashboardSettings(extraArguments),
     dashboard(extraArguments),
-    menu(extraArguments)
+    menu(extraArguments),
+    barcode(extraArguments)
   ]);
 }

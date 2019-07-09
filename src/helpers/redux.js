@@ -35,3 +35,9 @@ export function* wrapSaga({ api, logger, saga }, action) {
 
   yield saga({ api, logger, stateId, w }, action);
 }
+
+export function getCurrentStateById(state, stateId, initialState = {}) {
+  const currentState = state[stateId] || {};
+
+  return { ...initialState, ...currentState };
+}

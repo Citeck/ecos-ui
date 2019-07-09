@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { t } from '../../helpers/util';
+import { isMobileDevice, t } from '../../helpers/util';
 import Dashlet from '../Dashlet/Dashlet';
 import Barcode from './Barcode';
 
@@ -34,11 +34,11 @@ class BarcodeDashlet extends React.Component {
         title={title}
         bodyClassName={`${this.className}__body`}
         className={classDashlet}
-        resizable={true}
+        resizable={false}
         needGoTo={false}
         actionHelp={false}
         actionReload={false}
-        actionDrag={false}
+        actionDrag={isMobileDevice()}
         actionEdit={false}
       >
         <Barcode {...config} className={classNameBarcode} record={record} stateId={id} />

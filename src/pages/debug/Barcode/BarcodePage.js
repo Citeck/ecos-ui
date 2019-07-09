@@ -19,7 +19,7 @@ export default class BarcodePage extends React.Component {
       title: undefined,
       // title: 'Свойства #' + nodeRef,
       config: {
-        height: '500px'
+        height: '235px'
       }
     };
     const configs = [taskConfigUrl];
@@ -47,10 +47,10 @@ export default class BarcodePage extends React.Component {
 
     return (
       <div>
-        <h3>Демо страница Штрих-код ({configs.length})</h3>
+        <h3>Demo Barcode</h3>
         <div className={'ecos-debug-container'}>
-          <div className={'ecos-debug-col'}>
-            <h5>Widget Barcode</h5>
+          <div className={'ecos-debug-col ecos-debug-col_small'}>
+            <h5>Widget</h5>
             {configs.map((item, index) => (
               <BarcodeDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
             ))}
