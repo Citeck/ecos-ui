@@ -3,13 +3,12 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import ReactToPrint from 'react-to-print';
 import { getBarcode } from '../../actions/barcode';
-import { selectDataBarcodeByStateId } from '../../selectors/barcode';
 import { t } from '../../helpers/util';
 import { Btn } from '../common/btns';
 import './style.scss';
 
 const mapStateToProps = (state, context) => {
-  const stateB = selectDataBarcodeByStateId(state, context.stateId) || {};
+  const stateB = state.barcode[context.stateId] || {};
 
   return {
     barcode: stateB.barcode,
@@ -54,12 +53,12 @@ class Barcode extends React.Component {
           {barcode && <img className={`${this.className}__image`} ref={el => (this.componentRef = el)} src={barcode} alt={''} />}
         </div>
         <ReactToPrint
+          content={() => this.componentRef}
           trigger={() => (
             <Btn disabled={!barcode && !isLoading} className={comClassesBtn}>
               {t('Распечатать')}
             </Btn>
           )}
-          content={() => this.componentRef}
         />
       </React.Fragment>
     );

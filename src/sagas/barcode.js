@@ -18,12 +18,12 @@ function* sagaGetBarcode({ api, logger }, { payload }) {
     }
   } catch (e) {
     yield put(setNotificationMessage(err));
-    logger.error('[tasks/sagaGetTasks saga] error', e.message);
+    logger.error('[barcode/sagaGetBarcode saga] error', e.message);
   }
 }
 
-function* tasksSaga(ea) {
+function* barcodeSaga(ea) {
   yield takeEvery(getBarcode().type, sagaGetBarcode, ea);
 }
 
-export default tasksSaga;
+export default barcodeSaga;
