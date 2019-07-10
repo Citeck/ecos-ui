@@ -6,7 +6,7 @@ import TasksConverter from '../dto/tasks';
 import TasksService from '../services/tasks';
 
 function* sagaGetTasks({ api, logger }, { payload }) {
-  const err = t('Ошибка получения данные');
+  const err = t('tasks-widget.saga.error1');
 
   try {
     const { document, stateId } = payload;
@@ -24,8 +24,8 @@ function* sagaGetTasks({ api, logger }, { payload }) {
 }
 
 function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
-  const err = t('Ошибка назначения');
-  const suc = id => t('Успешное назначение задачи');
+  const err = t('tasks-widget.saga.error2');
+  const suc = id => t('tasks-widget.saga.change-assignee-success');
 
   try {
     const { taskId, stateId, ownerUserName, actionOfAssignment } = payload;

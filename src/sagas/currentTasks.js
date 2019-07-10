@@ -5,7 +5,7 @@ import { t } from '../helpers/util';
 import TasksConverter from '../dto/tasks';
 
 function* sagaGetCurrentTasks({ api, logger }, { payload }) {
-  const err = t('Ошибка получения данные');
+  const err = t('current-tasks-widget.saga.error1');
 
   try {
     const { document, stateId } = payload;
