@@ -6,7 +6,7 @@ export default class ColumnComponent extends FormIOColumnComponent {
     const classList = [];
 
     if (this.options.viewAsHtmlConfig && this.options.viewAsHtmlConfig.fullWidthColumns) {
-      classList.push('col-12', 'col-view-mode');
+      classList.push('col-12', 'col-view-mode', 'p-0', 'm-0');
 
       if (this.options.viewAsHtmlConfig.alwaysWrap) {
         classList.push('col-view-mode_wrap');
