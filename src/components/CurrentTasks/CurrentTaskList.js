@@ -41,7 +41,7 @@ class CurrentTaskList extends React.Component {
   }
 
   renderEmpty() {
-    return <div className={this.className + '_empty'}>{t('Текущих задач нет')}</div>;
+    return <div className={this.className + '_empty'}>{t('current-tasks-widget.no-tasks')}</div>;
   }
 
   renderEnum() {

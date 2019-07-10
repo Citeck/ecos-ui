@@ -34,7 +34,7 @@ class AssignmentPanel extends React.Component {
       {
         isShow: claimable,
         sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: USER_CURRENT },
-        label: t('tasks-widget.assign.current')
+        label: t('tasks-widget.assign.me')
       },
       {
         isShow: assignable,

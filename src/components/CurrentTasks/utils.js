@@ -13,22 +13,22 @@ export const CurrentTaskPropTypes = {
 export const DisplayedColumns = {
   title: {
     key: 'title',
-    label: t('Задача'),
+    label: t('current-tasks-widget.column.title'),
     order: 0
   },
   actors: {
     key: 'actors',
-    label: t('Исполнитель'),
+    label: t('current-tasks-widget.column.actors'),
     order: 1
   },
   deadline: {
     key: 'deadline',
-    label: t('Срок до'),
+    label: t('current-tasks-widget.column.deadline'),
     order: 2,
     format: DataFormatTypes.DATE
   }
 };
 
-export const noData = <span className={'ecos-current-task_no-data'}>{t('Нет данных')}</span>;
+export const noData = <span className={'ecos-current-task_no-data'}>{t('current-tasks-widget.no-data')}</span>;
 
 export const cleanTaskId = taskId => taskId.replace(/[$@]/g, '');

@@ -39,7 +39,7 @@ export default class Components {
     },
     [ComponentKeys.CURRENT_TASKS]: {
       path: './CurrentTasks',
-      label: 'Текущие задачи'
+      label: 'dashboard-settings.widget.current-tasks'
     }
   };
 
