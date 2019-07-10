@@ -1,49 +1,50 @@
 import { RecordService } from './recordService';
+import Records from '../components/Records';
 
 export class DocStatusApi extends RecordService {
   getDocStatus = ({ record }) => {
-    return {
-      name: 'На подписании',
-      type: 'case-status'
-    };
-    /*return {
-      "records": [
-        {
-          "attributes": {
-            "name": "На подписании",
-            "type": "case-status"
-          },
-          "id": "status@signing"
-        }
-      ],
-      "hasMore": false,
-      "totalCount": 1
-    };*/
-    /*return Records.query(
+    // return {records: []};
+    return Records.query(
       {
-        sourceId: "status",
+        sourceId: 'status',
         query: {
           record
         }
       },
       {
-        name: "name",
-        type: "type"
+        name: 'name',
+        type: 'type'
       }
-    ).then(res => res);*/
+    ).then(res => res);
+  };
+
+  setDocStatus = ({ record, ...data }) => {
+    return {};
   };
 
   getAvailableStatuses = ({ record }) => {
-    return [
-      {
-        name: 'На подписании',
-        type: 'case-status'
-      },
-      {
-        name: 'Черновик',
-        type: 'case-status'
-      }
-    ];
+    // return {records: []};
+    return {
+      records: [
+        {
+          name: 'Согласование',
+          type: 'case-status',
+          id: 'status@approval'
+        },
+        {
+          name: 'Черновик',
+          type: 'case-status',
+          id: 'status@draft'
+        },
+        {
+          name: 'На подписании',
+          type: 'case-status',
+          id: 'status@signing'
+        }
+      ],
+      hasMore: false,
+      totalCount: 3
+    };
     /*return Records.query(
       {
         sourceId: "status",

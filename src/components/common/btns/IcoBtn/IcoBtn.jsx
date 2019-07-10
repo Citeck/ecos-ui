@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import PointsLoader from '../../PointsLoader/PointsLoader';
 
 export default class IcoBtn extends Component {
   render() {
@@ -12,8 +13,9 @@ export default class IcoBtn extends Component {
 
     return (
       <button {...props} className={cssClasses}>
-        {first}
-        {second}
+        {props.loading && <PointsLoader />}
+        {!props.loading && first}
+        {!props.loading && second}
       </button>
     );
   }

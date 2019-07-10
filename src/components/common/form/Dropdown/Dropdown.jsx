@@ -47,11 +47,12 @@ export default class Dropdown extends Component {
 
   render() {
     const cssClasses = classNames('ecos-dropdown', this.props.className);
-    const { valueField, titleField, source, value, isStatic, hasEmpty } = this.props;
+    const { valueField, titleField, source, value, isStatic, hasEmpty, hideSelected } = this.props;
 
     const selected = source.find(item => item[valueField] === value) || (!hasEmpty && source[0]) || {};
+    const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
 
-    const items = source.map(item => {
+    const items = filteredSource.map(item => {
       return (
         <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
           {getPropByStringKey(item, titleField)}
@@ -74,5 +75,10 @@ export default class Dropdown extends Component {
 }
 
 Dropdown.propTypes = {
-  isStatic: PropTypes.bool
+  isStatic: PropTypes.bool,
+  hideSelected: PropTypes.bool
+};
+
+Dropdown.defaultProps = {
+  hideSelected: false
 };

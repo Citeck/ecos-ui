@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { getAvailableStatuses, getDocStatus, setAvailableStatuses, setDocStatus } from '../actions/docStatus';
+import { changeDocStatus, getAvailableStatuses, getDocStatus, setAvailableStatuses, setDocStatus } from '../actions/docStatus';
 import { getCurrentStateById } from '../helpers/redux';
 
 const initialState = {
@@ -20,6 +20,7 @@ export default handleActions(
   {
     [getDocStatus]: startLoading,
     [getAvailableStatuses]: startLoading,
+    [changeDocStatus]: startLoading,
     [setDocStatus]: (state, { payload: { stateId, status } }) => ({
       ...state,
       [stateId]: {

@@ -1,11 +1,14 @@
 import * as React from 'react';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { initDocStatus } from '../../actions/docStatus';
+import { changeDocStatus, initDocStatus } from '../../actions/docStatus';
+import { deepClone, t } from '../../helpers/util';
 import { IcoBtn } from '../common/btns';
 import Dropdown from '../common/form/Dropdown';
-import './style.scss';
 import Loader from '../common/Loader/Loader';
+import './style.scss';
 
 const mapStateToProps = (state, context) => {
   const stateDS = state.docStatus[context.stateId] || {};
@@ -18,9 +21,11 @@ const mapStateToProps = (state, context) => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  initDocStatus: payload => dispatch(initDocStatus(payload))
+  initDocStatus: payload => dispatch(initDocStatus(payload)),
+  changeDocStatus: payload => dispatch(changeDocStatus(payload))
 });
-const isRead = false;
+
+const noStatus = { id: 'no-status', name: t('Нет статуса') };
 
 class DocStatus extends React.Component {
   static propTypes = {
@@ -35,35 +40,71 @@ class DocStatus extends React.Component {
 
   className = 'ecos-doc-status';
 
+  state = {
+    wasChanged: false
+  };
+
   componentDidMount() {
     const { stateId, record, initDocStatus } = this.props;
 
     initDocStatus({ stateId, record });
   }
 
-  onChangeStatus = () => {};
+  get selectedStatus() {
+    const { status = {} } = this.props;
+
+    return isEmpty(status) ? noStatus : status;
+  }
+
+  get isNoStatus() {
+    return this.selectedStatus.id === noStatus.id;
+  }
+
+  get isReadField() {
+    const { availableStatuses } = this.props;
+
+    return isEmpty(availableStatuses);
+  }
+
+  onChangeStatus = () => {
+    const { stateId, record, changeDocStatus } = this.props;
+
+    this.setState({ wasChanged: true });
+    changeDocStatus({ stateId, record });
+  };
 
   renderLoader() {
     return (
       <div className={`${this.className}__loader-wrapper`}>
-        <Loader height={'50'} width={'50'} />
+        <Loader height={'45'} width={'45'} />
       </div>
     );
   }
 
   renderReadField() {
-    const { status = {} } = this.props;
+    const classStatus = classNames(`${this.className}_read`, { [`${this.className}_read_no-status`]: this.isNoStatus });
 
-    return <div className={`${this.className}_read`}>{status.name}</div>;
+    return <div className={classStatus}>{this.selectedStatus.name}</div>;
   }
 
   renderManualField() {
-    const { status = {}, availableStatuses = [] } = this.props;
+    const { availableStatuses = [], isLoading } = this.props;
+    const source = deepClone(availableStatuses);
+    const classStatus = classNames('ecos-btn_drop-down ecos-btn_full-width', { 'ecos-btn_blue': !this.isNoStatus });
+
+    source.push(this.selectedStatus);
 
     return (
       <div className={`${this.className}_manual`}>
-        <Dropdown source={availableStatuses} value={status.name} valueField={'name'} titleField={'name'} onChange={this.onChangeStatus}>
-          <IcoBtn invert={'true'} icon={'icon-down'} className={`ecos-btn_drop-down ecos-btn_blue ecos-btn_full-width`} />
+        <Dropdown
+          source={source}
+          value={this.selectedStatus.id}
+          valueField={'id'}
+          titleField={'name'}
+          onChange={this.onChangeStatus}
+          hideSelected
+        >
+          <IcoBtn invert={'true'} icon={'icon-down'} className={classStatus} loading={isLoading} />
         </Dropdown>
       </div>
     );
@@ -71,15 +112,16 @@ class DocStatus extends React.Component {
 
   render() {
     const { isLoading } = this.props;
+    const { wasChanged } = this.state;
 
     return (
       <div className={this.className}>
-        {isLoading ? (
+        {isLoading && !wasChanged ? (
           this.renderLoader()
         ) : (
           <React.Fragment>
-            {isRead && this.renderReadField()}
-            {!isRead && this.renderManualField()}
+            {this.isReadField && this.renderReadField()}
+            {!this.isReadField && this.renderManualField()}
           </React.Fragment>
         )}
       </div>
