@@ -271,8 +271,21 @@ class PageTabs extends React.Component {
     const { tabs } = this.state;
     const link = elem.getAttribute('href');
     const isNewTab = elem.getAttribute('target') === '_blank';
+    const withLinkTabIndex = tabs.findIndex(tab => tab.link === link);
 
     event.preventDefault();
+
+    if (withLinkTabIndex !== -1) {
+      tabs.forEach((tab, index) => {
+        tab.isActive = withLinkTabIndex === index;
+      });
+
+      saveTabs(tabs);
+      history.push(link);
+      this.setState({ tabs });
+
+      return;
+    }
 
     if (isNewTab) {
       tabs.map(tab => {
