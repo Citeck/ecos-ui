@@ -44,6 +44,7 @@ export default class IconInfo extends React.Component {
     const domId = `${this.className}-${id}`;
     const icon = `${this.className}__icon`;
     const tooltip = `${this.className}__tooltip`;
+    const renderTrackVertical = props => <div {...props} className={`${tooltip}__v-scroll`} />;
 
     return isShow ? (
       <React.Fragment>
@@ -64,7 +65,9 @@ export default class IconInfo extends React.Component {
             arrowClassName={`ecos-base-tooltip-arrow`}
           >
             <div className={`${tooltip}-text`}>
-              <Scrollbars renderTrackVertical={props => <div {...props} className={`${tooltip}__v-scroll`} />}>{text}</Scrollbars>
+              <Scrollbars autoHeight autoHeightMin={20} autoHeightMax={145} renderTrackVertical={renderTrackVertical}>
+                {text}
+              </Scrollbars>
             </div>
           </Tooltip>
         )}
