@@ -13,7 +13,7 @@ export default class PanelComponent extends FormIOPanelComponent {
     this.element.classList.remove('mb-2');
 
     if (hidePanels) {
-      this.panelBody.classList.add('pt-0', 'pb-0');
+      this.panelBody.classList.add('p-0', 'm-0');
     }
   }
 }
