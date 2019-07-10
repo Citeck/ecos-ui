@@ -21,7 +21,16 @@
       &__menu {
         width: 100%;
       }
+
+      .ecos-btn {
+        margin-top: 0;
+      }
     }
+  }
+
+  &__loader-wrapper {
+    position: relative;
+    height: 40px;
   }
 
   &-dashlet {

@@ -1,10 +1,11 @@
 import { handleActions } from 'redux-actions';
-import { getDocStatus, setDocStatus } from '../actions/docStatus';
+import { getAvailableStatuses, getDocStatus, setAvailableStatuses, setDocStatus } from '../actions/docStatus';
 import { getCurrentStateById } from '../helpers/redux';
 
 const initialState = {
   isLoading: false,
-  status: {}
+  status: {},
+  availableStatuses: []
 };
 
 const startLoading = (state, { payload: { stateId } }) => ({
@@ -18,11 +19,20 @@ const startLoading = (state, { payload: { stateId } }) => ({
 export default handleActions(
   {
     [getDocStatus]: startLoading,
+    [getAvailableStatuses]: startLoading,
     [setDocStatus]: (state, { payload: { stateId, status } }) => ({
       ...state,
       [stateId]: {
         ...getCurrentStateById(state, stateId, initialState),
         status,
+        isLoading: false
+      }
+    }),
+    [setAvailableStatuses]: (state, { payload: { stateId, availableStatuses } }) => ({
+      ...state,
+      [stateId]: {
+        ...getCurrentStateById(state, stateId, initialState),
+        availableStatuses,
         isLoading: false
       }
     })

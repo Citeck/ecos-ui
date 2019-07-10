@@ -18,9 +18,7 @@ export default class DocStatusPage extends React.Component {
       document: ref,
       title: undefined,
       // title: 'Свойства #' + ref,
-      config: {
-        height: '72px'
-      }
+      config: {}
     };
     const configs = [taskConfigUrl];
 
