@@ -17,9 +17,10 @@ export const TITLE = {
   '/v2/card-details': 'Карточка',
   [URL.JOURNAL_DASHBOARD]: 'Журнал дашборд [temp]',
   [URL.WIDGET_TASKS]: 'Задачи [temp]',
-  [URL.WIDGET_COMMENTS]: 'Комментарии [temp] ',
-  [URL.WIDGET_PROPERTIES]: 'Свойства [temp] ',
-  [URL.WIDGET_DOC_PREVIEW]: 'Предпросмотр [temp] '
+  [URL.WIDGET_COMMENTS]: 'Комментарии [temp]',
+  [URL.WIDGET_PROPERTIES]: 'Свойства [temp]',
+  [URL.WIDGET_DOC_PREVIEW]: 'Предпросмотр [temp]',
+  [URL.CURRENT_TASKS]: 'Текущие задачи [temp]'
 };
 
 export const URL_MASK = {

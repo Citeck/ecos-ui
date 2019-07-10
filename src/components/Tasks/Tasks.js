@@ -7,11 +7,11 @@ import TaskList from './TaskList';
 import './style.scss';
 
 const mapStateToProps = (state, context) => {
-  const currentTaskList = selectDataTasksByStateId(state, context.stateId) || {};
+  const tasksState = selectDataTasksByStateId(state, context.stateId) || {};
 
   return {
-    tasks: currentTaskList.list,
-    isLoading: currentTaskList.isLoading
+    tasks: tasksState.list,
+    isLoading: tasksState.isLoading
   };
 };
 

@@ -6,11 +6,11 @@ import TasksConverter from '../dto/tasks';
 import TasksService from '../services/tasks';
 
 function* sagaGetTasks({ api, logger }, { payload }) {
-  const err = t('Ошибка получения данные');
+  const err = t('tasks-widget.saga.error1');
 
   try {
     const { document, stateId } = payload;
-    const res = yield call(api.tasks.getCurrentTasksForUser, { document });
+    const res = yield call(api.tasks.getTasksForUser, { document });
 
     if (res && Object.keys(res)) {
       yield put(setTaskList({ stateId, list: TasksConverter.getTaskListForWeb(res.records) }));
@@ -24,8 +24,8 @@ function* sagaGetTasks({ api, logger }, { payload }) {
 }
 
 function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
-  const err = t('Ошибка назначения');
-  const suc = id => t('Успешное назначение задачи');
+  const err = t('tasks-widget.saga.error2');
+  const suc = id => t('tasks-widget.saga.change-assignee-success');
 
   try {
     const { taskId, stateId, ownerUserName, actionOfAssignment } = payload;
