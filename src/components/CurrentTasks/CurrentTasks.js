@@ -1,0 +1,71 @@
+import * as React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { getCurrentTaskList } from '../../actions/tasks';
+import { selectDataCurrentTasksByStateId } from '../../selectors/tasks';
+import CurrentTaskList from './CurrentTaskList';
+import './style.scss';
+
+const mapStateToProps = (state, context) => {
+  const currentTasksState = selectDataCurrentTasksByStateId(state, context.stateId) || {};
+
+  return {
+    currentTasks: currentTasksState.list,
+    isLoading: currentTasksState.isLoading,
+    isMobile: state.view.isMobile
+  };
+};
+
+const mapDispatchToProps = dispatch => ({
+  getCurrentTaskList: payload => dispatch(getCurrentTaskList(payload))
+});
+
+class CurrentTasks extends React.Component {
+  static propTypes = {
+    record: PropTypes.string.isRequired,
+    stateId: PropTypes.string.isRequired,
+    className: PropTypes.string,
+    isSmallMode: PropTypes.bool,
+    isMobile: PropTypes.bool,
+    isLoading: PropTypes.bool
+  };
+
+  static defaultProps = {
+    className: '',
+    isSmallMode: false,
+    isMobile: false,
+    isLoading: false
+  };
+
+  componentDidMount() {
+    this.getCurrentTaskList();
+  }
+
+  getCurrentTaskList = () => {
+    const { getCurrentTaskList, stateId, record } = this.props;
+
+    getCurrentTaskList({
+      stateId,
+      document: record
+    });
+  };
+
+  render() {
+    const { currentTasks, height, isLoading, isMobile, isSmallMode, className } = this.props;
+    const childProps = {
+      currentTasks,
+      className,
+      height,
+      isLoading,
+      isMobile,
+      isSmallMode
+    };
+
+    return <CurrentTaskList {...childProps} />;
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(CurrentTasks);

@@ -2,15 +2,15 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
-import TaskDetails from './TaskDetails';
-import { TasksPropTypes } from './utils';
-import Loader from '../common/Loader/Loader';
 import { isLastItem, t } from '../../helpers/util';
+import Loader from '../common/Loader/Loader';
 import Separator from '../common/Separator/Separator';
+import TaskDetails from './TaskDetails';
+import { TaskPropTypes } from './utils';
 
 class TaskList extends React.Component {
   static propTypes = {
-    tasks: PropTypes.arrayOf(TasksPropTypes).isRequired,
+    tasks: PropTypes.arrayOf(TaskPropTypes).isRequired,
     className: PropTypes.string,
     height: PropTypes.string
   };

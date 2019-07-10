@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import JournalsDashletGrid from '../JournalsDashletGrid';
@@ -8,7 +8,7 @@ import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletFooter from '../JournalsDashletFooter';
 import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet/Dashlet';
-import { getDashletConfig, setEditorMode, reloadGrid, initState } from '../../../actions/journals';
+import { getDashletConfig, initState, reloadGrid, setEditorMode } from '../../../actions/journals';
 import { goToJournalsPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
 

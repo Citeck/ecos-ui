@@ -1,5 +1,6 @@
 import lodashGet from 'lodash/get';
-import { MIN_WIDTH_DASHLET_SMALL } from '../constants';
+import moment from 'moment';
+import { DataFormatTypes, MIN_WIDTH_DASHLET_SMALL } from '../constants';
 import * as queryString from 'query-string';
 
 export const debounce = (func, ms = 0) => {
@@ -434,4 +435,17 @@ export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
 
 export function getSearchParams(searchString = window.location.search) {
   return queryString.parse(searchString);
+}
+
+export function getOutputFormat(format, value) {
+  if (!format || !value) {
+    return value || '';
+  }
+
+  switch (format) {
+    case DataFormatTypes.DATE:
+      return moment(value).format('DD.MM.YYYY');
+    default:
+      return value;
+  }
 }

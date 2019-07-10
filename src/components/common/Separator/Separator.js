@@ -5,17 +5,19 @@ import './style.scss';
 
 export default class Separator extends React.Component {
   static propTypes = {
-    noIndents: PropTypes.bool
+    noIndents: PropTypes.bool,
+    className: PropTypes.string
   };
 
   static defaultProps = {
-    noIndents: false
+    noIndents: false,
+    className: ''
   };
 
   render() {
-    const { noIndents } = this.props;
-    const className = classNames('ecos-separator', { 'ecos-separator_no-indents': noIndents });
+    const { noIndents, className } = this.props;
+    const classes = classNames(className, 'ecos-separator', { 'ecos-separator_no-indents': noIndents });
 
-    return <div className={className} />;
+    return <div className={classes} />;
   }
 }
