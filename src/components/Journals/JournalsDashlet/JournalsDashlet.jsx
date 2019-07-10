@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import JournalsDashletGrid from '../JournalsDashletGrid';
