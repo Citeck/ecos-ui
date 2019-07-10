@@ -1,7 +1,9 @@
 import queryString from 'query-string';
+import { URL } from '../constants';
 import { URL_PAGECONTEXT, PROXY_URI } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJournal/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
+import { changeUrlLink } from '../components/PageTabs/PageTabs';
 
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
 const JOURNAL_ID_KEY = 'journalId';
@@ -67,7 +69,7 @@ export const getJournalPageUrl = ({ journalsListId, journalId, journalSettingId,
 
     url = `${URL_PAGECONTEXT}${partOfUrl}#journal=${nodeRef}&${FILTER_KEY}=${filter}&settings=&skipCount=0&maxItems=10`;
   } else {
-    url = `${URL_PAGECONTEXT}ui/journals?${qString}`;
+    url = `${URL.JOURNAL}?${qString}`;
   }
 
   return url;
@@ -90,7 +92,14 @@ export const getZipUrl = nodeRef => {
   return `${PROXY_URI}api/node/content/${nodeRef.replace(':/', '')}/Archive.zip`;
 };
 
-export const goToJournalsPage = options => window.open(getJournalPageUrl(options), '_blank');
+export const goToJournalsPage = options => {
+  const journalPageUrl = getJournalPageUrl(options);
+  if (OLD_LINKS) {
+    window.open(journalPageUrl, '_blank');
+  } else {
+    changeUrlLink(journalPageUrl, { openNewTab: true });
+  }
+};
 export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_blank');
 export const goToCardDetailsPage = nodeRef => window.open(`${URL_PAGECONTEXT}card-details?nodeRef=${nodeRef}`, '_blank');
 export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page?nodeRef=${nodeRef}`, '_blank');

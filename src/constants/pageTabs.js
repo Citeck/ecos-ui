@@ -6,15 +6,24 @@ export const IGNORE_TABS_HANDLER_ATTR_NAME = 'data-external';
 export const SCROLL_STEP = 150;
 export const LINK_TAG = 'A';
 export const TITLE = {
-  HOMEPAGE: t('Домашняя страница'),
-  [URL.HOME]: t('Домашняя страница'),
-  [URL.JOURNAL]: t('Журнал'),
-  [URL.JOURNAL_DASHBOARD]: t('Журнал дашборд'),
-  [URL.DASHBOARD]: t('Домашняя страница'),
-  [URL.DASHBOARD_SETTINGS]: t('Настройки домашней страницы')
+  HOMEPAGE: 'Домашняя страница',
+  [URL.HOME]: 'Домашняя страница',
+  [URL.JOURNAL]: 'Журнал',
+  [URL.DASHBOARD]: 'Домашняя страница',
+  [URL.DASHBOARD_SETTINGS]: 'Настройки домашней страницы',
+  [URL.BPMN_DESIGNER]: 'Редактор бизнес-процессов',
+
+  // temporary pages
+  '/v2/card-details': 'Карточка',
+  [URL.JOURNAL_DASHBOARD]: 'Журнал дашборд [temp]',
+  [URL.WIDGET_TASKS]: 'Задачи [temp]',
+  [URL.WIDGET_COMMENTS]: 'Комментарии [temp] ',
+  [URL.WIDGET_PROPERTIES]: 'Свойства [temp] ',
+  [URL.WIDGET_DOC_PREVIEW]: 'Предпросмотр [temp] '
 };
 
 export const URL_MASK = {
+  '^/v2/([0-9A-Za-z-]*)/card-details$': TITLE[URL.CARD_DETAILS],
   '^/v2/dashboard/([0-9A-Za-z-]*)/settings$': TITLE[URL.DASHBOARD_SETTINGS],
   '^/v2/dashboard/([0-9A-Za-z-]*)$': TITLE[URL.DASHBOARD]
 };
@@ -23,10 +32,10 @@ export const getTitleByUrl = url => {
   const title = TITLE[url];
 
   if (title) {
-    return title;
+    return t(title);
   }
 
   const key = Object.keys(URL_MASK).find(mask => new RegExp(mask).test(url));
 
-  return URL_MASK[key];
+  return t(URL_MASK[key]);
 };

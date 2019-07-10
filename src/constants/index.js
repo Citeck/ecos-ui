@@ -1,10 +1,17 @@
 export const URL = {
   HOME: '/',
-  JOURNAL: '/share/page/journals',
-  JOURNAL_DASHBOARD: '/share/page/journalsDashboard',
+  JOURNAL: '/v2/journals',
   DASHBOARD: '/v2/dashboard',
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
-  BPMN_DESIGNER: '/v2/bpmn-designer'
+  BPMN_DESIGNER: '/v2/bpmn-designer',
+
+  // temporary pages
+  CARD_DETAILS: '/v2/(.*/)?card-details',
+  JOURNAL_DASHBOARD: '/v2/debug/journalsDashboard',
+  WIDGET_TASKS: '/v2/debug/tasks',
+  WIDGET_COMMENTS: '/v2/debug/comments',
+  WIDGET_PROPERTIES: '/v2/debug/properties',
+  WIDGET_DOC_PREVIEW: '/v2/debug/doc-preview'
 };
 
 export const MENU_TYPE = {

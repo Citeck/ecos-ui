@@ -7,7 +7,9 @@ import get from 'lodash/get';
 
 import BPMNDesignerPage from '../../pages/BPMNDesignerPage';
 import CardDetailsPage from '../../pages/CardDetailsPage';
+import DashboardPage from '../../pages/Dashboard';
 import JournalsPage from '../../pages/JournalsPage';
+
 import DocPreviewPage from '../../pages/debug/DocPreview';
 import EcosFormPage from '../../pages/debug/EcosFormPage';
 import FormIOPage from '../../pages/debug/FormIOPage';
@@ -15,7 +17,6 @@ import JournalsDashboardPage from '../../pages/debug/JournalsDashboardPage';
 import PropertiesPage from '../../pages/debug/Properties/PropertiesPage';
 import TasksDashletPage from '../../pages/debug/Tasks/TasksDashletPage';
 import DashboardSettingsPage from '../../pages/DashboardSettings';
-import DashboardPage from '../../pages/Dashboard';
 
 import Header from '../Header';
 import Notification from '../Notification';
@@ -104,23 +105,20 @@ class App extends Component {
 
           <Switch>
             {/*<Route path="/share/page" exact component={DashboardPage} />*/}
-
-            <Route path="/share/page/(.*/)?card-details-new" component={CardDetailsPage} />
-            {/* TODO change routes prefixes from /share/page to /v2 */}
-            <Route path="/share/page/ui/journals" component={JournalsPage} />
-            <Route path="/share/page/journalsDashboard" component={JournalsDashboardPage} />
-            <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
-
+            <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />{' '}
+            {/* TODO delete redirect some day */}
             <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
             <Route path={URL.DASHBOARD} exact component={DashboardPage} />
             <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
-
+            <Route path={URL.JOURNAL} component={JournalsPage} />
+            <Route path={URL.CARD_DETAILS} component={CardDetailsPage} />
+            <Route path={URL.JOURNAL_DASHBOARD} component={JournalsDashboardPage} />
+            <Route path={URL.WIDGET_DOC_PREVIEW} component={DocPreviewPage} />
+            <Route path={URL.WIDGET_PROPERTIES} component={PropertiesPage} />
+            <Route path={URL.WIDGET_COMMENTS} component={this.renderComments} />
+            <Route path={URL.WIDGET_TASKS} exact component={TasksDashletPage} />
             <Route path="/v2/debug/formio-develop" component={FormIOPage} />
             <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
-            <Route path="/v2/debug/doc-preview" component={DocPreviewPage} />
-            <Route path="/v2/debug/properties" component={PropertiesPage} />
-            <Route path="/v2/debug/comments" component={this.renderComments} />
-            <Route path="/v2/debug/tasks" exact component={TasksDashletPage} />
             {/*<Route component={NotFoundPage} />*/}
           </Switch>
 
