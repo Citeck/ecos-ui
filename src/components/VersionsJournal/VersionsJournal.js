@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactResizeDetector from 'react-resize-detector';
 import { Tooltip } from 'reactstrap';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import Dashlet from '../Dashlet/Dashlet';
 import { IcoBtn } from '../common/btns';
 import Icon from '../common/icons/Icon/Icon';
-import { t, deepClone } from '../../helpers/util';
-import Radio from '../common/form/Radio';
-import AddModal from './AddModal';
+import { t } from '../../helpers/util';
 
+import AddModal from './AddModal';
 import './style.scss';
 
 const TOOLTIP = {
@@ -31,23 +31,63 @@ class VersionsJournal extends Component {
         lastName: 'Константинопольский',
         middleName: '',
         comment: '',
-        version: '1.2',
-        isActual: true,
+        version: '1.5',
         date: '8 Сентября, 13:25',
         avatar:
-          'https://images-na.ssl-images-amazon.com/images/M/MV5BMTEwNjE0Njg2MTReQTJeQWpwZ15BbWU3MDEyODM1ODc@._V1_UY256_CR1,0,172,256_AL_.jpg',
-        isCurrent: true
+          'https://images-na.ssl-images-amazon.com/images/M/MV5BMTEwNjE0Njg2MTReQTJeQWpwZ15BbWU3MDEyODM1ODc@._V1_UY256_CR1,0,172,256_AL_.jpg'
+      },
+      {
+        firstName: 'Константин',
+        lastName: 'Константинопольский',
+        middleName: '',
+        comment: '',
+        version: '1.4',
+        date: '6 Сентября, 13:25',
+        avatar:
+          'https://images-na.ssl-images-amazon.com/images/M/MV5BMTEwNjE0Njg2MTReQTJeQWpwZ15BbWU3MDEyODM1ODc@._V1_UY256_CR1,0,172,256_AL_.jpg'
+      },
+      {
+        firstName: 'Константин',
+        lastName: 'Константинопольский',
+        middleName: '',
+        comment: '',
+        version: '1.3',
+        date: '3 Сентября, 13:25',
+        avatar:
+          'https://images-na.ssl-images-amazon.com/images/M/MV5BMTEwNjE0Njg2MTReQTJeQWpwZ15BbWU3MDEyODM1ODc@._V1_UY256_CR1,0,172,256_AL_.jpg'
+      },
+      {
+        firstName: 'Константин',
+        lastName: 'Константинопольский',
+        middleName: '',
+        comment: '',
+        version: '1.2',
+        date: '2 Сентября, 13:25',
+        avatar:
+          'https://images-na.ssl-images-amazon.com/images/M/MV5BMTEwNjE0Njg2MTReQTJeQWpwZ15BbWU3MDEyODM1ODc@._V1_UY256_CR1,0,172,256_AL_.jpg'
+      },
+      {
+        firstName: 'Константин',
+        lastName: 'Константинопольский',
+        middleName: '',
+        comment: '',
+        version: '1.1',
+        date: '1 Сентября, 13:25',
+        avatar:
+          'https://images-na.ssl-images-amazon.com/images/M/MV5BMTEwNjE0Njg2MTReQTJeQWpwZ15BbWU3MDEyODM1ODc@._V1_UY256_CR1,0,172,256_AL_.jpg'
+      },
+      {
+        firstName: 'Константин',
+        lastName: 'Константинопольский',
+        middleName: '',
+        comment: '',
+        version: '1.0',
+        date: '18 , 13:25',
+        avatar:
+          'https://images-na.ssl-images-amazon.com/images/M/MV5BMTEwNjE0Njg2MTReQTJeQWpwZ15BbWU3MDEyODM1ODc@._V1_UY256_CR1,0,172,256_AL_.jpg'
       }
     ],
     modalIsShow: true,
-    radio: [
-      {
-        name: 'Незначительные изменения (v 1.3)'
-      },
-      {
-        name: 'Существенные изменения (v 2.0)'
-      }
-    ],
     selectedVersion: null
   };
 
@@ -95,16 +135,18 @@ class VersionsJournal extends Component {
     );
   }
 
-  renderVersion = version => (
+  renderVersion = (version, showActions = true) => (
     <div className="ecos-vj__version">
       <div className="ecos-vj__version-header">
         <div className="ecos-vj__version-number">{version.version}</div>
         <div className="ecos-vj__version-title">{version.date}</div>
-        <div className="ecos-vj__version-actions">
-          <Icon onClick={this.handleClickShowModal} className="icon-on ecos-vj__version-actions-item" />
-          <Icon onClick={this.handleClickShowModal} className="icon-actual ecos-vj__version-actions-item" />
-          <Icon onClick={this.handleClickShowModal} className="icon-download ecos-vj__version-actions-item" />
-        </div>
+        {showActions && (
+          <div className="ecos-vj__version-actions">
+            <Icon onClick={this.handleClickShowModal} className="icon-on ecos-vj__version-actions-item" />
+            <Icon onClick={this.handleClickShowModal} className="icon-actual ecos-vj__version-actions-item" />
+            <Icon onClick={this.handleClickShowModal} className="icon-download ecos-vj__version-actions-item" />
+          </div>
+        )}
       </div>
       <div className="ecos-vj__version-body">
         <div className="ecos-vj__version-author">
@@ -130,12 +172,12 @@ class VersionsJournal extends Component {
       return null;
     }
 
-    const version = versions.find(item => item.isActual);
+    const version = versions[0];
 
     return (
       <React.Fragment>
         <div className="ecos-vj__title">{t('Актуальная версия')}</div>
-        {version && this.renderVersion(version)}
+        {version && this.renderVersion(version, false)}
         {!version && this.renderMessage(t('Нет актуальных версий'))}
       </React.Fragment>
     );
@@ -148,12 +190,12 @@ class VersionsJournal extends Component {
       return null;
     }
 
-    const oldVersions = versions.filter(item => !item.isActual);
+    const [, ...oldVersions] = versions;
 
     return (
       <React.Fragment>
         <div className="ecos-vj__title">{t('Старые версии')}</div>
-        {oldVersions.map(this.renderVersion)}
+        {oldVersions.map(version => this.renderVersion(version))}
         {!oldVersions.length && this.renderMessage(t('Пока нет старых версий'))}
       </React.Fragment>
     );
@@ -173,32 +215,7 @@ class VersionsJournal extends Component {
     );
   }
 
-  renderRadio() {
-    const { radio, selectedVersion } = this.state;
-
-    return radio.map((item, index) => (
-      <Radio
-        key={index}
-        label={item.name}
-        name="version-radio"
-        checked={item.name === selectedVersion}
-        onChange={isChecked => {
-          const { radio } = this.state;
-          const index = radio.findIndex(r => r.name === item.name);
-
-          if (isChecked) {
-            this.setState({
-              selectedVersion: radio[index].name
-            });
-          }
-        }}
-      />
-    ));
-  }
-
   render() {
-    const { modalIsShow } = this.state;
-
     return (
       <div>
         <Dashlet
@@ -211,10 +228,11 @@ class VersionsJournal extends Component {
           customButtons={[this.renderAddButton()]}
         >
           <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
-          {this.renderActualVersion()}
-          {this.renderOldVersions()}
+          <Scrollbars autoHide autoHeight autoHeightMin={270} autoHeightMax={430}>
+            {this.renderActualVersion()}
+            {this.renderOldVersions()}
+          </Scrollbars>
           {this.renderModal()}
-          {/*{this.renderRadio()}*/}
         </Dashlet>
       </div>
     );

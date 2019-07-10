@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import EcosModal from '../common/EcosModal';
 import { t, deepClone } from '../../helpers/util';
 import Radio from '../common/form/Radio';
+import Btn from '../common/btns/Btn/Btn';
 
 import 'react-dropzone-uploader/dist/styles.css';
 
@@ -32,6 +33,19 @@ const VERSIONS = {
   MINOR: 'minor',
   MAJOR: 'major'
 };
+const LABELS = {
+  DROPZONE_PLACEHOLDER: 'Перетяните сюда файл или выберете вручную',
+  DROPZONE_SELECT_BUTTON: 'Выбрать файл',
+
+  CANCEL: 'Отмена',
+  ADD: 'Добавить',
+
+  VERSION_MINOR: 'Незначительные изменения',
+  VERSION_MAJOR: 'Существенные изменения',
+
+  COMMENT_TITLE: 'Комментарий',
+  COMMENT_PLACEHOLDER: ['Не обязательно', 'не более', 'символов']
+};
 
 class AddModal extends Component {
   static propTypes = {
@@ -39,7 +53,8 @@ class AddModal extends Component {
     onHideModal: PropTypes.func,
     title: PropTypes.string,
     currentVersion: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    commentMaxLength: PropTypes.number
+    commentMaxLength: PropTypes.number,
+    errorMessage: PropTypes.string
   };
 
   static defaultProps = {
@@ -47,7 +62,8 @@ class AddModal extends Component {
     onHideModal: () => {},
     title: '',
     currentVersion: 1,
-    commentMaxLength: 200
+    commentMaxLength: 200,
+    errorMessage: ''
   };
 
   state = {
@@ -82,10 +98,24 @@ class AddModal extends Component {
     return classes.join(' ');
   }
 
+  get isValidComment() {
+    const { commentMaxLength } = this.props;
+    const { comment } = this.state;
+
+    return comment.length <= commentMaxLength;
+  }
+
   getVersion(number, isMajor = false) {
     const version = Number(number);
-    const step = isMajor ? 1 : 0.1;
-    const result = +version.toFixed(isMajor ? 0 : 1) + step;
+    let result = 1;
+
+    if (isMajor) {
+      result = Math.ceil(version);
+    } else {
+      let [major, minor] = version.toString().split('.');
+
+      result = Number(`${major}.${+minor + 1}`);
+    }
 
     return Number.isInteger(result) ? `${result}.0` : result;
   }
@@ -120,6 +150,8 @@ class AddModal extends Component {
     this.setState({ comment });
   };
 
+  handleSave = () => {};
+
   renderDropzone() {
     return (
       <Dropzone
@@ -133,8 +165,8 @@ class AddModal extends Component {
         onSubmit={this.handleSubmit}
         inputContent={() => (
           <React.Fragment>
-            <label className="vj-modal__input-label-in">{t('Перетяните сюда файл или выберете вручную')}</label>
-            <div className="vj-modal__input-button">{t('Выбрать файл')}</div>
+            <label className="vj-modal__input-label-in">{t(LABELS.DROPZONE_PLACEHOLDER)}</label>
+            <div className="vj-modal__input-button">{t(LABELS.DROPZONE_SELECT_BUTTON)}</div>
           </React.Fragment>
         )}
         classNames={{
@@ -142,7 +174,6 @@ class AddModal extends Component {
           inputLabel: 'vj-modal__input-label'
         }}
         SubmitButtonComponent={props => {
-          // console.warn(props);
           return (
             <div
               className="vj-modal__input-button"
@@ -151,11 +182,10 @@ class AddModal extends Component {
                 props.files[0].remove();
               }}
             >
-              {t('Отмена')}
+              {t(LABELS.CANCEL)}
             </div>
           );
         }}
-        // SubmitButtonComponent={null}
       />
     );
   }
@@ -168,7 +198,7 @@ class AddModal extends Component {
       <div className="vj-modal__radio">
         <Radio
           key={VERSIONS.MINOR}
-          label={`${t('Незначительные изменения')} (v ${this.getVersion(currentVersion)})`}
+          label={`${t(LABELS.VERSION_MINOR)} (v ${this.getVersion(currentVersion)})`}
           name="version-radio"
           checked={selectedVersion === VERSIONS.MINOR}
           onChange={isChecked => {
@@ -181,7 +211,7 @@ class AddModal extends Component {
         />
         <Radio
           key={VERSIONS.MAJOR}
-          label={`${t('Существенные изменения')} (v ${this.getVersion(currentVersion, true)})`}
+          label={`${t(LABELS.VERSION_MAJOR)} (v ${this.getVersion(currentVersion, true)})`}
           name="version-radio"
           checked={selectedVersion === VERSIONS.MAJOR}
           onChange={isChecked => {
@@ -213,7 +243,7 @@ class AddModal extends Component {
     return (
       <div className="vj-modal__comment">
         <div className="vj-modal__comment-header">
-          <div className="vj-modal__comment-title">{t('Комментарий')}</div>
+          <div className="vj-modal__comment-title">{t(LABELS.COMMENT_TITLE)}</div>
           <div className="vj-modal__comment-counter">
             <div
               className={classNames('vj-modal__comment-counter-number', {
@@ -227,7 +257,9 @@ class AddModal extends Component {
         </div>
         <div className="vj-modal__comment-body">
           <textarea
-            placeholder={`Не обязательно (не более ${commentMaxLength} символов)`}
+            placeholder={`${LABELS.COMMENT_PLACEHOLDER[0]} (${LABELS.COMMENT_PLACEHOLDER[1]} ${commentMaxLength} ${
+              LABELS.COMMENT_PLACEHOLDER[2]
+            })`}
             className="vj-modal__comment-input"
             onChange={this.handleChangeComment}
           >
@@ -238,15 +270,46 @@ class AddModal extends Component {
     );
   }
 
+  renderActionButtons() {
+    const { selectedVersion, file } = this.state;
+
+    return (
+      <div className="vj-modal__footer">
+        <Btn className="ecos-btn_grey ecos-btn_hover_grey vj-modal__btn-cancel" onClick={this.handleHideModal}>
+          {t(LABELS.CANCEL)}
+        </Btn>
+        <Btn
+          className="ecos-btn_blue ecos-btn_hover_light-blue vj-modal__btn-add"
+          onClick={this.handleSave}
+          disabled={!this.isValidComment || !selectedVersion || !file}
+        >
+          {t(LABELS.ADD)}
+        </Btn>
+      </div>
+    );
+  }
+
+  renderErrorMessage() {
+    const { errorMessage } = this.props;
+
+    if (!errorMessage) {
+      return null;
+    }
+
+    return <div className="vj-modal__error">{errorMessage}</div>;
+  }
+
   render() {
     const { isShow, title } = this.props;
 
     return (
       <EcosModal isOpen={isShow} hideModal={this.handleHideModal} title={title} className="vj-modal">
         {this.renderDropzone()}
+        {this.renderErrorMessage()}
         {this.renderFile()}
         {this.renderVersions()}
         {this.renderComment()}
+        {this.renderActionButtons()}
       </EcosModal>
     );
   }

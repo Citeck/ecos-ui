@@ -153,6 +153,7 @@
       font-size: 14px;
       line-height: 22px;
       text-align: center;
+      width: 190px;
 
       &-in {
         max-width: 167px;
@@ -162,7 +163,8 @@
 
     &-button {
       cursor: pointer;
-      width: 190px;
+      max-width: 190px;
+      width: 100%;
       height: 40px;
       background: $color-blue-dark;
       color: $color-white;
@@ -299,5 +301,29 @@
       border: 2px solid $color-gray-6;
       border-radius: 6px;
     }
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 21px;
+  }
+
+  &__btn {
+    &-cancel,
+    &-add {
+      max-width: 208px;
+      width: 50%;
+      height: 40px;
+    }
+  }
+
+  &__error {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 22px;
+    color: $color-red-1;
+    margin-top: 18px;
   }
 }
