@@ -42,12 +42,12 @@ export class DashboardApi extends RecordService {
     return {};
   };
 
-  getDashboardById = id => {
+  getDashboardById = record => {
     return Records.queryOne(
       {
         sourceId: SourcesId.DASHBOARD,
         query: {
-          id: `${SourcesId.DASHBOARD}@${id}`
+          record
         }
       },
       { ...defaultAttr }

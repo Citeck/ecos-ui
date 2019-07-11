@@ -1,4 +1,4 @@
-import { isEmpty } from 'lodash';
+import { isEmpty, last } from 'lodash';
 import { LAYOUT_TYPE } from '../constants/layout';
 
 export default class DashboardService {
@@ -32,7 +32,7 @@ export default class DashboardService {
 
     const DIV = '@';
     const fullId = result._id || '';
-    const dashboardId = fullId && fullId.indexOf(DIV) >= 0 ? fullId.split(DIV)[1] : null;
+    const dashboardId = last(fullId.split('@'));
 
     return {
       dashboardId,
