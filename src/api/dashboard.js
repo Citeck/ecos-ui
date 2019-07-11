@@ -46,15 +46,6 @@ export class DashboardApi extends RecordService {
     return Records.get(`${SourcesId.DASHBOARD}@${dashboardId}`)
       .load({ ...defaultAttr })
       .then(response => response);
-    /*return Records.queryOne(
-      {
-        sourceId: SourcesId.DASHBOARD,
-        query: {
-          record
-        }
-      },
-      { ...defaultAttr }
-    ).then(response => response);*/
   };
 
   getDashboardByRecordRef = function*(recordRef) {
