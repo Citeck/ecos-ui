@@ -97,6 +97,7 @@ class App extends Component {
               <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
               <Route path={URL.JOURNAL} component={JournalsPage} />
               {/* temporary routes */}
+              <Route path={URL.JOURNAL_OLD} component={JournalsPage} />
               <Route path={URL.CARD_DETAILS} component={CardDetailsPage} />
               <Route path={URL.JOURNAL_DASHBOARD} component={JournalsDashboardPage} />
               <Route path={URL.WIDGET_DOC_PREVIEW} component={DocPreviewPage} />
