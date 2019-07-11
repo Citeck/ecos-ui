@@ -203,7 +203,10 @@ export default class SelectComponent extends BaseComponent {
         option.element.setAttribute(key, value);
       });
     }
-    this.selectInput.appendChild(option.element);
+
+    if (this.selectInput) {
+      this.selectInput.appendChild(option.element);
+    }
   }
 
   addValueOptions(items) {
