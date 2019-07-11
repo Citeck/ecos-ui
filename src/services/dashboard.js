@@ -30,7 +30,6 @@ export default class DashboardService {
       return {};
     }
 
-    const DIV = '@';
     const fullId = result._id || '';
     const dashboardId = last(fullId.split('@'));
 
