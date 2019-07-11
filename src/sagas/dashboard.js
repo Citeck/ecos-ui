@@ -1,29 +1,17 @@
-import { isEmpty } from 'lodash';
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { getDashboardConfig, saveDashboardConfig, setDashboardConfig, setResultSaveDashboardConfig } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
-import * as dto from '../dto/dashboard';
+import DashboardConverter from '../dto/dashboard';
+import DashboardService from '../services/dashboard';
 import { SAVE_STATUS } from '../constants';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
-    const { dashboardId, recordRef } = payload;
-    const result = yield call(api.dashboard.getDashboardByOneOf, { dashboardId, recordRef });
-
-    let config;
-
-    if (dashboardId && result) {
-      config = dto.parseGetResult(result);
-    } else {
-      config = result && result.data ? result.data.config : dto.getDefaultDashboardConfig;
-    }
-
-    if (isEmpty(config)) {
-      config = {};
-    }
-
-    const webConfig = dto.getDashboardForWeb({ ...config, dashboardId });
+    const { recordRef } = payload;
+    const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
+    const data = DashboardService.checkDashboardResult(result);
+    const webConfig = DashboardConverter.getDashboardForWeb(data);
 
     yield put(setDashboardConfig(webConfig));
   } catch (e) {
@@ -34,9 +22,9 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 
 function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   try {
-    const serverConfig = dto.getDashboardForServer(payload);
+    const serverConfig = DashboardConverter.getDashboardForServer(payload);
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, serverConfig);
-    const res = dto.parseSaveResult(dashboardResult);
+    const res = DashboardService.parseSaveResult(dashboardResult);
 
     yield put(
       setResultSaveDashboardConfig({

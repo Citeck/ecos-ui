@@ -1,11 +1,14 @@
-import { isEmpty } from 'lodash';
+import { get, head, isEmpty } from 'lodash';
 import { getCurrentUserName } from '../helpers/util';
-import { QueryKeys } from '../constants';
+import { QueryKeys, SourcesId } from '../constants';
 import { RecordService } from './recordService';
 import Components from '../components/Components';
 import Records from '../components/Records';
 
-const SOURCE_ID = 'uiserv/dashboard';
+const defaultAttr = {
+  key: QueryKeys.KEY,
+  config: QueryKeys.CONFIG_JSON
+};
 
 export class DashboardApi extends RecordService {
   getAllWidgets = () => {
@@ -15,7 +18,7 @@ export class DashboardApi extends RecordService {
   saveDashboardConfig = ({ dashboardKey, dashboardId, config }) => {
     dashboardId = dashboardId || '';
     dashboardKey = dashboardKey || QueryKeys.DEFAULT;
-    const record = Records.get(`${SOURCE_ID}@${dashboardId}`);
+    const record = Records.get(`${SourcesId.DASHBOARD}@${dashboardId}`);
 
     record.att(QueryKeys.CONFIG_JSON, config);
     record.att(QueryKeys.KEY, dashboardKey);
@@ -23,23 +26,25 @@ export class DashboardApi extends RecordService {
     return record.save().then(response => response);
   };
 
-  getDashboardByOneOf = ({ dashboardId, recordRef }) => {
+  getDashboardByOneOf = ({ dashboardId, recordRef, off = {} }) => {
     if (!isEmpty(dashboardId)) {
       return this.getDashboardById(dashboardId);
     }
 
-    if (!isEmpty(recordRef)) {
+    if (!isEmpty(recordRef) && !off.ref) {
       return this.getDashboardByRecordRef(recordRef);
     }
 
-    return this.getDashboardByUser();
+    if (!off.user) {
+      return this.getDashboardByUser();
+    }
+
+    return {};
   };
 
-  getDashboardById = recordId => {
-    recordId = recordId || '';
-
-    return Records.get(`${SOURCE_ID}@${recordId}`)
-      .load([QueryKeys.CONFIG_JSON, QueryKeys.KEY])
+  getDashboardById = dashboardId => {
+    return Records.get(`${SourcesId.DASHBOARD}@${dashboardId}`)
+      .load({ ...defaultAttr })
       .then(response => response);
   };
 
@@ -52,16 +57,14 @@ export class DashboardApi extends RecordService {
     const { keys, type } = result;
     const dashboardIds = Array.from(keys || []);
     let data;
-    let key;
 
     dashboardIds.push(QueryKeys.DEFAULT);
     console.log('dashboardIds', dashboardIds);
 
     for (let value of dashboardIds) {
-      key = value;
       data = yield Records.queryOne(
         {
-          sourceId: SOURCE_ID,
+          sourceId: SourcesId.DASHBOARD,
           query: {
             [QueryKeys.KEY]: value,
             type
@@ -71,28 +74,24 @@ export class DashboardApi extends RecordService {
       );
       console.log('data', data);
 
-      if (data !== null) {
+      if (!isEmpty(data) && head(get(data, 'records'))) {
         break;
       }
     }
 
-    return { data, key };
+    return data;
   };
 
   getDashboardByUser = function() {
-    return Records.query(
+    return Records.queryOne(
       {
-        sourceId: SOURCE_ID,
+        sourceId: SourcesId.DASHBOARD,
         query: {
           type: 'user-dashboard',
           user: getCurrentUserName()
         }
       },
-      {
-        key: QueryKeys.KEY,
-        type: 'type',
-        config: QueryKeys.CONFIG_JSON
-      }
+      { ...defaultAttr, type: 'type' }
     ).then(response => response);
   };
 }

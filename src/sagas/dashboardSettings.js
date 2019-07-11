@@ -11,8 +11,8 @@ import {
 import { setNotificationMessage } from '../actions/notification';
 import { saveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
-import * as dtoDB from '../dto/dashboard';
-import * as dtoDBS from '../dto/dashboardSettings';
+import DashboardService from '../services/dashboard';
+import DashboardSettingsConverter from '../dto/dashboardSettings';
 import { SAVE_STATUS } from '../constants';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
@@ -27,23 +27,10 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
-    const { dashboardId = '', recordRef } = payload;
-    const result = yield call(api.dashboard.getDashboardByOneOf, { dashboardId, recordRef });
-
-    let config;
-    let dbId = dashboardId;
-    let dashboardKey = result.key;
-
-    if (dashboardId && result) {
-      config = dtoDB.parseGetResult(result);
-    } else {
-      config = result ? result.data.config : dtoDB.getDefaultDashboardConfig;
-    }
-    if (config) {
-      dbId = config.id;
-    }
-
-    const webConfig = dtoDBS.getSettingsConfigForWeb({ ...config, dashboardId: dbId, dashboardKey });
+    const { dashboardId } = payload;
+    const result = yield call(api.dashboard.getDashboardByOneOf, { dashboardId, off: { user: true } });
+    const data = DashboardService.checkDashboardResult(result);
+    const webConfig = DashboardSettingsConverter.getSettingsConfigForWeb(data);
 
     yield put(setDashboardConfig(webConfig));
   } catch (e) {
@@ -66,14 +53,14 @@ function* doGetWidgetsRequest({ api, logger }, action) {
 function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
     const { dashboardId, dashboardKey } = payload;
-    const serverConfig = dtoDBS.getSettingsConfigForServer(payload);
+    const serverConfig = DashboardSettingsConverter.getSettingsConfigForServer(payload);
     const { layout, menu } = serverConfig;
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
       config: { layout },
       dashboardId,
       dashboardKey
     });
-    const parseDashboard = dtoDB.parseSaveResult(dashboardResult);
+    const parseDashboard = DashboardService.parseSaveResult(dashboardResult);
 
     yield put(saveMenuConfig(menu));
     yield put(

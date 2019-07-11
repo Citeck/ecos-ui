@@ -7,7 +7,7 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 
 import { arrayCompare, t } from '../../helpers/util';
-import { LAYOUTS, TYPE_MENU } from '../../constants/dashboardSettings';
+import { LAYOUTS, TYPE_MENU } from '../../constants/dashboard';
 import { MENU_TYPE, SAVE_STATUS, URL } from '../../constants';
 import { getAwayFromPage, initDashboardSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
 import { initMenuSettings } from '../../actions/menu';
