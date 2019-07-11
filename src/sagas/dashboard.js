@@ -1,3 +1,4 @@
+import { isEmpty } from 'lodash';
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { getDashboardConfig, saveDashboardConfig, setDashboardConfig, setResultSaveDashboardConfig } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
@@ -8,9 +9,8 @@ import { SAVE_STATUS } from '../constants';
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
     const { dashboardId, recordRef } = payload;
-    const result = dashboardId
-      ? yield call(api.dashboard.getDashboardConfig, dashboardId)
-      : yield call(api.dashboard.getDashboardByRecordRef, recordRef);
+    const result = yield call(api.dashboard.getDashboardByOneOf, { dashboardId, recordRef });
+
     let config;
 
     if (dashboardId && result) {
@@ -18,11 +18,14 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     } else {
       config = result && result.data ? result.data.config : dto.getDefaultDashboardConfig;
     }
-    if (config && Object.keys(config).length) {
-      const webConfig = dto.getDashboardForWeb({ ...config, dashboardId });
 
-      yield put(setDashboardConfig(webConfig));
+    if (isEmpty(config)) {
+      config = {};
     }
+
+    const webConfig = dto.getDashboardForWeb({ ...config, dashboardId });
+
+    yield put(setDashboardConfig(webConfig));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения данных по дашборду')));
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);

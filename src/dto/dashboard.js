@@ -1,3 +1,4 @@
+import { isEmpty } from 'lodash';
 import { QueryKeys } from '../constants';
 import { LAYOUT_TYPE } from '../constants/layout';
 
@@ -17,7 +18,7 @@ export const getDefaultDashboardConfig = {
 };
 
 export function getDashboardForWeb(source) {
-  if (!source || (source && !Object.keys(source).length)) {
+  if (isEmpty(source)) {
     return {};
   }
 
@@ -33,7 +34,7 @@ export function getDashboardForWeb(source) {
 }
 
 export function getDashboardForServer(source) {
-  if (!source || (source && !Object.keys(source).length)) {
+  if (isEmpty(source)) {
     return {};
   }
 
@@ -51,7 +52,7 @@ export function getDashboardForServer(source) {
 }
 
 export function parseGetResult(result) {
-  if (!result || (result && !Object.keys(result).length)) {
+  if (isEmpty(result)) {
     return {};
   }
 
@@ -59,7 +60,7 @@ export function parseGetResult(result) {
 }
 
 export function parseSaveResult(result) {
-  if (!result || (result && !Object.keys(result).length)) {
+  if (isEmpty(result)) {
     return {};
   }
 

@@ -28,9 +28,8 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
     const { dashboardId = '', recordRef } = payload;
-    const result = dashboardId
-      ? yield call(api.dashboard.getDashboardConfig, dashboardId)
-      : yield call(api.dashboard.getDashboardByRecordRef, recordRef);
+    const result = yield call(api.dashboard.getDashboardByOneOf, { dashboardId, recordRef });
+
     let config;
     let dbId = dashboardId;
     let dashboardKey = result.key;
