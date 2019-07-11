@@ -1,5 +1,6 @@
 export const URL = {
   HOME: '/',
+  JOURNAL_OLD: '/share/page/ui/journals',
   JOURNAL: '/v2/journals',
   DASHBOARD: '/v2/dashboard',
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
