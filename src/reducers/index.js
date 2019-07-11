@@ -17,6 +17,7 @@ import comments from './comments';
 import dashboardSettings from './dashboardSettings';
 import dashboard from './dashboard';
 import menu from './menu';
+import currentTasks from './currentTasks';
 import barcode from './barcode';
 
 const reducers = {
@@ -36,6 +37,7 @@ const reducers = {
   dashboardSettings,
   dashboard,
   menu,
+  currentTasks,
   barcode
 };
 

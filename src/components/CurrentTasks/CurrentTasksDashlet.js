@@ -4,11 +4,11 @@ import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
 import { isSmallMode, t } from '../../helpers/util';
 import Dashlet from '../Dashlet/Dashlet';
-import Tasks from './Tasks';
+import CurrentTasks from './CurrentTasks';
 
 import './style.scss';
 
-class TasksDashlet extends React.Component {
+class CurrentTasksDashlet extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
     record: PropTypes.string.isRequired,
@@ -25,37 +25,29 @@ class TasksDashlet extends React.Component {
     classNameDashlet: ''
   };
 
-  constructor(props) {
-    super(props);
+  className = 'ecos-current-task-list-dashlet';
 
-    this.state = {
-      isSmallMode: false,
-      isRunReload: false
-    };
-  }
-
-  className = 'ecos-task-list-dashlet';
+  state = {
+    isSmallMode: false,
+    isUpdating: false
+  };
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
   onReload = () => {
-    this.setReload(false);
-  };
-
-  setReload = isDone => {
-    this.setState({ isRunReload: !isDone });
+    this.setState({ isUpdating: true }, () => this.setState({ isUpdating: false }));
   };
 
   render() {
     const { id, title, config, classNameTasks, classNameDashlet, record } = this.props;
-    const { isRunReload, isSmallMode } = this.state;
+    const { isSmallMode, isUpdating } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
       <Dashlet
-        title={title || t('tasks-widget.title')}
+        title={title || t('current-tasks-widget.title')}
         bodyClassName={`${this.className}__body`}
         className={classDashlet}
         resizable={true}
@@ -64,19 +56,11 @@ class TasksDashlet extends React.Component {
         actionEdit={false}
         actionHelp={false}
       >
-        <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
-        <Tasks
-          {...config}
-          className={classNameTasks}
-          record={record}
-          stateId={id}
-          isRunReload={isRunReload}
-          setReloadDone={this.setReload}
-          isSmallMode={isSmallMode}
-        />
+        <ReactResizeDetector handleWidth onResize={this.onResize} />
+        {!isUpdating && <CurrentTasks {...config} className={classNameTasks} record={record} isSmallMode={isSmallMode} stateId={id} />}
       </Dashlet>
     );
   }
 }
 
-export default TasksDashlet;
+export default CurrentTasksDashlet;
