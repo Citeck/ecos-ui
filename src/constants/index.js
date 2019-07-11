@@ -16,6 +16,10 @@ export const URL = {
   CURRENT_TASKS: '/v2/debug/current-tasks'
 };
 
+export const SourcesId = {
+  DASHBOARD: 'uiserv/dashboard'
+};
+
 export const MENU_TYPE = {
   LEFT: 'LEFT',
   TOP: 'TOP'

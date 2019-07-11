@@ -1,3 +1,4 @@
+import { isEmpty } from 'lodash';
 import { call, put, takeLatest } from 'redux-saga/effects';
 import {
   getAvailableWidgets,
@@ -11,8 +12,8 @@ import {
 import { setNotificationMessage } from '../actions/notification';
 import { saveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
-import * as dtoDB from '../dto/dashboard';
-import * as dtoDBS from '../dto/dashboardSettings';
+import DashboardService from '../services/dashboard';
+import DashboardSettingsConverter from '../dto/dashboardSettings';
 import { SAVE_STATUS } from '../constants';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
@@ -27,25 +28,14 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
-    const { dashboardId = '', recordRef } = payload;
-    const result = yield call(api.dashboard.getDashboardByOneOf, { dashboardId, recordRef });
+    const { dashboardId, recordRef } = payload;
+    if (!isEmpty(dashboardId) || !isEmpty(recordRef)) {
+      const result = yield call(api.dashboard.getDashboardByOneOf, { dashboardId, recordRef, withoutUser: true });
+      const data = DashboardService.processDashboardResult(result);
+      const webConfig = DashboardSettingsConverter.getSettingsConfigForWeb(data);
 
-    let config;
-    let dbId = dashboardId;
-    let dashboardKey = result.key;
-
-    if (dashboardId && result) {
-      config = dtoDB.parseGetResult(result);
-    } else {
-      config = result ? result.data.config : dtoDB.getDefaultDashboardConfig;
+      yield put(setDashboardConfig(webConfig));
     }
-    if (config) {
-      dbId = config.id;
-    }
-
-    const webConfig = dtoDBS.getSettingsConfigForWeb({ ...config, dashboardId: dbId, dashboardKey });
-
-    yield put(setDashboardConfig(webConfig));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error2')));
     logger.error('[dashboard/settings/ doGetDashboardConfigRequest saga] error', e.message);
@@ -66,14 +56,14 @@ function* doGetWidgetsRequest({ api, logger }, action) {
 function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
     const { dashboardId, dashboardKey } = payload;
-    const serverConfig = dtoDBS.getSettingsConfigForServer(payload);
+    const serverConfig = DashboardSettingsConverter.getSettingsConfigForServer(payload);
     const { layout, menu } = serverConfig;
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
       config: { layout },
       dashboardId,
       dashboardKey
     });
-    const parseDashboard = dtoDB.parseSaveResult(dashboardResult);
+    const parseDashboard = DashboardService.parseSaveResult(dashboardResult);
 
     yield put(saveMenuConfig(menu));
     yield put(
