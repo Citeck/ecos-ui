@@ -1,4 +1,4 @@
-import { QUERY_KEYS } from '../constants';
+import { QueryKeys } from '../constants';
 import { LAYOUT_TYPE } from '../constants/layout';
 
 export const getDefaultDashboardConfig = {
@@ -55,7 +55,7 @@ export function parseGetResult(result) {
     return {};
   }
 
-  return result[QUERY_KEYS.CONFIG_JSON] || {};
+  return result[QueryKeys.CONFIG_JSON] || {};
 }
 
 export function parseSaveResult(result) {

@@ -1,7 +1,8 @@
+import { isEmpty } from 'lodash';
 import { RecordService } from './recordService';
 import Components from '../components/Components';
 import Records from '../components/Records';
-import { QUERY_KEYS } from '../constants';
+import { QueryKeys } from '../constants';
 
 const PREFIX = 'uiserv/dashboard@';
 
@@ -14,23 +15,23 @@ export class DashboardApi extends RecordService {
     recordId = recordId || '';
 
     return Records.get(`${PREFIX}${recordId}`)
-      .load([QUERY_KEYS.CONFIG_JSON, QUERY_KEYS.KEY])
+      .load([QueryKeys.CONFIG_JSON, QueryKeys.KEY])
       .then(resp => resp);
   };
 
   saveDashboardConfig = ({ dashboardKey, dashboardId, config }) => {
     dashboardId = dashboardId || '';
-    dashboardKey = dashboardKey || QUERY_KEYS.DEFAULT;
+    dashboardKey = dashboardKey || QueryKeys.DEFAULT;
     const record = Records.get(`${PREFIX}${dashboardId}`);
 
-    record.att(QUERY_KEYS.CONFIG_JSON, config);
-    record.att(QUERY_KEYS.KEY, dashboardKey);
+    record.att(QueryKeys.CONFIG_JSON, config);
+    record.att(QueryKeys.KEY, dashboardKey);
 
     return record.save().then(resp => resp);
   };
 
   getDashboardByRecordRef = function*(recordRef = '') {
-    if (!recordRef) {
+    if (isEmpty(recordRef)) {
       return null;
     }
 
@@ -39,13 +40,13 @@ export class DashboardApi extends RecordService {
     let data;
     let key;
 
-    dashboardIds.push(QUERY_KEYS.DEFAULT);
+    dashboardIds.push(QueryKeys.DEFAULT);
 
     for (let value of dashboardIds) {
       key = value;
       data = yield Records.queryOne(
         {
-          query: { [QUERY_KEYS.KEY]: value },
+          query: { [QueryKeys.KEY]: value },
           sourceId: 'uiserv/dashboard'
         },
         { config: 'config?json' }
