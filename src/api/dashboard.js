@@ -26,24 +26,27 @@ export class DashboardApi extends RecordService {
     return record.save().then(response => response);
   };
 
-  getDashboardByOneOf = ({ dashboardId, recordRef, withoutUser }) => {
+  getDashboardByOneOf = ({ dashboardId, recordRef, off = {} }) => {
     if (!isEmpty(dashboardId)) {
       return this.getDashboardById(dashboardId);
     }
 
-    if (!isEmpty(recordRef)) {
+    if (!isEmpty(recordRef) && !off.ref) {
       return this.getDashboardByRecordRef(recordRef);
     }
 
-    if (!withoutUser) {
+    if (!off.user) {
       return this.getDashboardByUser();
     }
 
     return {};
   };
 
-  getDashboardById = record => {
-    return Records.queryOne(
+  getDashboardById = dashboardId => {
+    return Records.get(`${SourcesId.DASHBOARD}@${dashboardId}`)
+      .load({ ...defaultAttr })
+      .then(response => response);
+    /*return Records.queryOne(
       {
         sourceId: SourcesId.DASHBOARD,
         query: {
@@ -51,7 +54,7 @@ export class DashboardApi extends RecordService {
         }
       },
       { ...defaultAttr }
-    ).then(response => response);
+    ).then(response => response);*/
   };
 
   getDashboardByRecordRef = function*(recordRef) {

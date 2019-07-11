@@ -1,4 +1,3 @@
-import { isEmpty } from 'lodash';
 import { call, put, takeLatest } from 'redux-saga/effects';
 import {
   getAvailableWidgets,
@@ -28,14 +27,12 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
-    const { dashboardId, recordRef } = payload;
-    if (!isEmpty(dashboardId) || !isEmpty(recordRef)) {
-      const result = yield call(api.dashboard.getDashboardByOneOf, { dashboardId, recordRef, withoutUser: true });
-      const data = DashboardService.processDashboardResult(result);
-      const webConfig = DashboardSettingsConverter.getSettingsConfigForWeb(data);
+    const { dashboardId } = payload;
+    const result = yield call(api.dashboard.getDashboardByOneOf, { dashboardId, off: { user: true } });
+    const data = DashboardService.checkDashboardResult(result);
+    const webConfig = DashboardSettingsConverter.getSettingsConfigForWeb(data);
 
-      yield put(setDashboardConfig(webConfig));
-    }
+    yield put(setDashboardConfig(webConfig));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error2')));
     logger.error('[dashboard/settings/ doGetDashboardConfigRequest saga] error', e.message);

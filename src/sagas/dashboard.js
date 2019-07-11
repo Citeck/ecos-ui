@@ -8,9 +8,9 @@ import { SAVE_STATUS } from '../constants';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
-    const { dashboardId, recordRef } = payload;
-    const result = yield call(api.dashboard.getDashboardByOneOf, { dashboardId, recordRef });
-    const data = DashboardService.processDashboardResult(result);
+    const { recordRef } = payload;
+    const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
+    const data = DashboardService.checkDashboardResult(result);
     const webConfig = DashboardConverter.getDashboardForWeb(data);
 
     yield put(setDashboardConfig(webConfig));

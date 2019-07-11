@@ -17,7 +17,7 @@ export default class DashboardService {
     }
   };
 
-  static processDashboardResult(result) {
+  static checkDashboardResult(result) {
     if (isEmpty(result)) {
       return DashboardService.defaultDashboardConfig;
     }
