@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import ReactResizeDetector from 'react-resize-detector';
+import classNames from 'classnames';
+
 import Dashlet from '../Dashlet/Dashlet';
 import DocPreview from './DocPreview';
 import { t } from '../../helpers/util';
+import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+
 import './style.scss';
 
 class DocPreviewDashlet extends Component {
@@ -23,9 +28,22 @@ class DocPreviewDashlet extends Component {
     classNameDashlet: ''
   };
 
+  state = {
+    width: MIN_WIDTH_DASHLET_SMALL
+  };
+
+  handleResize = width => {
+    this.setState({ width });
+  };
+
   render() {
     const { title, config, classNamePreview, classNameDashlet } = this.props;
-    const classesDashlet = `ecos-doc-preview-dashlet ${classNameDashlet}`;
+    const { width } = this.state;
+    const classesDashlet = classNames('ecos-doc-preview-dashlet', classNameDashlet, {
+      'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE
+    });
+
+    console.warn(width);
 
     return (
       <Dashlet
@@ -38,6 +56,7 @@ class DocPreviewDashlet extends Component {
         needGoTo={false}
       >
         <DocPreview {...config} className={classNamePreview} />
+        <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
       </Dashlet>
     );
   }
