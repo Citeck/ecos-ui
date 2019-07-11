@@ -13,7 +13,7 @@ const TYPE_KEY = 'type';
 const DESTINATION_KEY = 'destination';
 const FILTER_KEY = 'filter';
 
-export const NEW_VERSION_PATH = '/v2/';
+export const NEW_VERSION_PREFIX = '/v2';
 
 export const OLD_LINKS = false;
 
@@ -58,10 +58,9 @@ export const getJournalPageUrl = ({ journalsListId, journalId, journalSettingId,
     [JOURNAL_SETTING_ID_KEY]: filter ? '' : journalSettingId,
     [FILTER_KEY]: filter
   });
-  const isNewVersion = hasInString(window.location.pathname, NEW_VERSION_PATH);
   let url;
 
-  if (!isNewVersion) {
+  if (!isNewVersionPage()) {
     let partOfUrl;
 
     if (journalsListId.indexOf('global-') !== -1) {
@@ -98,9 +97,8 @@ export const getZipUrl = nodeRef => {
 
 export const goToJournalsPage = options => {
   const journalPageUrl = getJournalPageUrl(options);
-  const isNewVersion = hasInString(journalPageUrl, NEW_VERSION_PATH);
 
-  if (!isNewVersion) {
+  if (!isNewVersionPage(journalPageUrl)) {
     window.open(journalPageUrl, '_blank');
   } else {
     changeUrlLink(journalPageUrl, { openNewTab: true });
@@ -109,3 +107,7 @@ export const goToJournalsPage = options => {
 export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_blank');
 export const goToCardDetailsPage = nodeRef => window.open(`${URL_PAGECONTEXT}card-details?nodeRef=${nodeRef}`, '_blank');
 export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page?nodeRef=${nodeRef}`, '_blank');
+
+export const isNewVersionPage = (link = window.location.pathname) => {
+  return hasInString(link, `${NEW_VERSION_PREFIX}/`);
+};
