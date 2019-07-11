@@ -55,7 +55,7 @@ export default class BarcodePage extends React.Component {
               <BarcodeDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
             ))}
           </div>
-          <div className={'ecos-debug-col'}>
+          <div className={'ecos-debug-col ecos-debug-col_small'}>
             <h5>Solo</h5>
             {col2.map((item, index) => (
               <Barcode record={item.document} {...item.config} key={item.id + index} stateId={'Barcode' + index} />
