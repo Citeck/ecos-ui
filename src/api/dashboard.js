@@ -44,22 +44,32 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardByRecordRef = function*(recordRef) {
-    const result = yield Records.get(recordRef).load('_dashboardKey[]');
-    const dashboardIds = Array.from(result);
+    const result = yield Records.get(recordRef).load({
+      type: '_dashboardType',
+      keys: '_dashboardKey[]'
+    });
+    console.log('result', result);
+    const { keys, type } = result;
+    const dashboardIds = Array.from(keys || []);
     let data;
     let key;
 
     dashboardIds.push(QueryKeys.DEFAULT);
+    console.log('dashboardIds', dashboardIds);
 
     for (let value of dashboardIds) {
       key = value;
       data = yield Records.queryOne(
         {
-          query: { [QueryKeys.KEY]: value },
-          sourceId: SOURCE_ID
+          sourceId: SOURCE_ID,
+          query: {
+            [QueryKeys.KEY]: value,
+            type
+          }
         },
         { config: QueryKeys.CONFIG_JSON }
       );
+      console.log('data', data);
 
       if (data !== null) {
         break;
