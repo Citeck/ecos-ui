@@ -286,8 +286,6 @@ class PageTabs extends React.Component {
       return;
     }
 
-    console.warn(elem, event);
-
     const { saveTabs, history, homepageName } = this.props;
     const { tabs } = this.state;
     const link = elem.getAttribute('href');
