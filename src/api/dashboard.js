@@ -1,4 +1,4 @@
-import { get, head, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import { getCurrentUserName } from '../helpers/util';
 import { QueryKeys, SourcesId } from '../constants';
 import { RecordService } from './recordService';
@@ -55,26 +55,24 @@ export class DashboardApi extends RecordService {
     });
     console.log('result', result);
     const { keys, type } = result;
-    const dashboardIds = Array.from(keys || []);
+    const dashboardKeys = Array.from(keys || []);
     let data;
 
-    dashboardIds.push(QueryKeys.DEFAULT);
-    console.log('dashboardIds', dashboardIds);
+    dashboardKeys.push(QueryKeys.DEFAULT);
 
-    for (let value of dashboardIds) {
+    for (let key of dashboardKeys) {
       data = yield Records.queryOne(
         {
           sourceId: SourcesId.DASHBOARD,
           query: {
-            [QueryKeys.KEY]: value,
+            [QueryKeys.KEY]: key,
             type
           }
         },
         { config: QueryKeys.CONFIG_JSON }
       );
-      console.log('data', data);
 
-      if (!isEmpty(data) && head(get(data, 'records'))) {
+      if (!isEmpty(data)) {
         break;
       }
     }
