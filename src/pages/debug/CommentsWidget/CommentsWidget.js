@@ -1,7 +1,7 @@
 import React from 'react';
 import Comments from '../../../components/Comments/Comments';
 
-class DocPreviewPage extends React.Component {
+class CommentsWidgetPage extends React.Component {
   render() {
     return (
       <div
@@ -22,4 +22,4 @@ class DocPreviewPage extends React.Component {
   }
 }
 
-export default DocPreviewPage;
+export default CommentsWidgetPage;

@@ -1,7 +1,7 @@
 import React, { Component, Suspense, lazy } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { Route, Switch, Redirect } from 'react-router';
+import { Redirect, Route, Switch } from 'react-router';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
@@ -32,6 +32,7 @@ const TasksDashletPage = lazy(() => import('../../pages/debug/Tasks/TasksDashlet
 const EcosFormPage = lazy(() => import('../../pages/debug/EcosFormPage'));
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
 const CommentsWidgetPage = lazy(() => import('../../pages/debug/CommentsWidget'));
+const CurrentTasksPage = lazy(() => import('../../pages/debug/CurrentTasks/CurrentTasksPage'));
 
 class App extends Component {
   componentDidMount() {
@@ -102,6 +103,7 @@ class App extends Component {
               <Route path={URL.WIDGET_PROPERTIES} component={PropertiesPage} />
               <Route path={URL.WIDGET_COMMENTS} component={CommentsWidgetPage} />
               <Route path={URL.WIDGET_TASKS} exact component={TasksDashletPage} />
+              <Route path={URL.CURRENT_TASKS} component={CurrentTasksPage} />
               <Route path="/v2/debug/formio-develop" component={FormIOPage} />
               <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
               {/*<Route component={NotFoundPage} />*/}

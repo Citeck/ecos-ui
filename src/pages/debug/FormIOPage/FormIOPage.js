@@ -7,6 +7,7 @@ import FormBuilder from 'formiojs/FormBuilder';
 import schema from './contractor.json';
 import '../../../forms/components';
 import Formio from 'formiojs/Formio';
+import './temp.scss';
 
 // import SelectJournal from '../../components/common/form/SelectJournal';
 
