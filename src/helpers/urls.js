@@ -14,6 +14,10 @@ const FILTER_KEY = 'filter';
 
 export const OLD_LINKS = false;
 
+export const hasInString = (originalString = '', searchedString = '') => {
+  return originalString.includes(searchedString);
+};
+
 const getPredicateFilterParam = options => {
   const filter = ParserPredicate.getRowPredicates(options);
   return filter ? JSON.stringify(filter) : '';
@@ -94,6 +98,7 @@ export const getZipUrl = nodeRef => {
 
 export const goToJournalsPage = options => {
   const journalPageUrl = getJournalPageUrl(options);
+
   if (OLD_LINKS) {
     window.open(journalPageUrl, '_blank');
   } else {
