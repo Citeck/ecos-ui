@@ -52,12 +52,10 @@ export class DashboardApi extends RecordService {
     const result = yield Records.get(recordRef).load('_dashboardKey[]');
     const dashboardIds = Array.from(result);
     let data;
-    let key;
 
     dashboardIds.push(QueryKeys.DEFAULT);
 
     for (let value of dashboardIds) {
-      key = value;
       data = yield Records.queryOne(
         {
           query: { [QueryKeys.KEY]: value },
