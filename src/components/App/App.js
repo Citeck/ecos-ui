@@ -110,6 +110,14 @@ class App extends Component {
             </Switch>
           </Suspense>
 
+          {/*<a*/}
+          {/*href="/v2/bpmn-designer"*/}
+          {/*>*/}
+          {/*<span className={'slide-menu-list__link-label'}>*/}
+          {/*перейти*/}
+          {/*</span>*/}
+          {/*</a>*/}
+
           <div className="sticky-push" />
         </div>
         <Footer key="card-details-footer" theme={theme} />

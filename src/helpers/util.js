@@ -449,3 +449,7 @@ export function getOutputFormat(format, value) {
       return value;
   }
 }
+
+export const hasInString = (originalString = '', searchedString = '') => {
+  return originalString.includes(searchedString);
+};

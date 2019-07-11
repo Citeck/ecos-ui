@@ -4,6 +4,7 @@ import { URL_PAGECONTEXT, PROXY_URI } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJournal/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
 import { changeUrlLink } from '../components/PageTabs/PageTabs';
+import { hasInString } from './util';
 
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
 const JOURNAL_ID_KEY = 'journalId';
@@ -12,11 +13,9 @@ const TYPE_KEY = 'type';
 const DESTINATION_KEY = 'destination';
 const FILTER_KEY = 'filter';
 
-export const OLD_LINKS = false;
+export const NEW_VERSION_PATH = '/v2/';
 
-export const hasInString = (originalString = '', searchedString = '') => {
-  return originalString.includes(searchedString);
-};
+export const OLD_LINKS = false;
 
 const getPredicateFilterParam = options => {
   const filter = ParserPredicate.getRowPredicates(options);
@@ -59,9 +58,10 @@ export const getJournalPageUrl = ({ journalsListId, journalId, journalSettingId,
     [JOURNAL_SETTING_ID_KEY]: filter ? '' : journalSettingId,
     [FILTER_KEY]: filter
   });
+  const isNewVersion = hasInString(window.location.pathname, NEW_VERSION_PATH);
   let url;
 
-  if (OLD_LINKS) {
+  if (!isNewVersion) {
     let partOfUrl;
 
     if (journalsListId.indexOf('global-') !== -1) {
@@ -98,8 +98,9 @@ export const getZipUrl = nodeRef => {
 
 export const goToJournalsPage = options => {
   const journalPageUrl = getJournalPageUrl(options);
+  const isNewVersion = hasInString(journalPageUrl, NEW_VERSION_PATH);
 
-  if (OLD_LINKS) {
+  if (!isNewVersion) {
     window.open(journalPageUrl, '_blank');
   } else {
     changeUrlLink(journalPageUrl, { openNewTab: true });

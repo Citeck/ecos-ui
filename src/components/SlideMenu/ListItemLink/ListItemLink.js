@@ -6,6 +6,7 @@ import ListItemIcon from '../ListItemIcon';
 import lodashGet from 'lodash/get';
 import { MenuApi } from '../../../api/menu';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
+import { NEW_VERSION_PATH } from '../../../helpers/urls';
 
 const SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
 const PAGE_PREFIX = '/share/page';
@@ -27,6 +28,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded, isNestedListExpanded, withNestedList }) => {
   const journalId = lodashGet(item, 'params.journalId', '');
   const [journalTotalCount, setJournalTotalCount] = useState(0);
+  const attributes = {};
+  let ignoreTabHandler = true;
 
   useEffect(() => {
     if (journalId) {
@@ -97,6 +100,19 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
       default:
         break;
     }
+
+    switch (item.action.params.pageId) {
+      case 'bpmn-designer':
+        let sectionPostfix = params.section ? params.section : '';
+
+        targetUrl = `${NEW_VERSION_PATH}${params.pageId}${sectionPostfix}`;
+        ignoreTabHandler = false;
+        attributes.target = '_blank';
+        attributes.rel = 'noopener noreferrer';
+        break;
+      default:
+        break;
+    }
   }
 
   let counter = null;
@@ -104,6 +120,10 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
   if (journalTotalCount > 0) {
     counter = <span className="slide-menu-list__link-badge">{journalTotalCount}</span>;
     smallCounter = <div className="slide-menu-list__link-badge-indicator" />;
+  }
+
+  if (ignoreTabHandler) {
+    attributes[IGNORE_TABS_HANDLER_ATTR_NAME] = true;
   }
 
   return (
@@ -114,7 +134,7 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
         // console.log('item', item);
       }}
       className={classes.join(' ')}
-      {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
+      {...attributes}
     >
       <ListItemIcon iconName={item.icon} />
       <span className={'slide-menu-list__link-label'}>

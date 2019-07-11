@@ -61,8 +61,12 @@ class PageTabs extends React.Component {
 
     this.checkUrls();
     this.initArrows();
+    this.initLinkHandler();
 
-    document.addEventListener('click', this.handleClickLink);
+    window.setTimeout(() => {
+      this.initLinkHandler();
+    }, 3000);
+
     window.addEventListener('popstate', this.handlePopState);
     document.addEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
   }
@@ -84,11 +88,26 @@ class PageTabs extends React.Component {
     return true;
   }
 
+  componentDidUpdate() {
+    this.initLinkHandler();
+  }
+
   componentWillUnmount() {
     window.clearInterval(this.checkArrowID);
     this.checkArrowID = null;
     document.removeEventListener('click', this.handleClickLink);
     window.removeEventListener('popstate', this.handlePopState);
+
+    this._links.forEach(link => link.removeEventListener('click', this.handleClickLink));
+  }
+
+  initLinkHandler() {
+    if (this._links) {
+      this._links.forEach(link => link.removeEventListener('click', this.handleClickLink));
+    }
+
+    this._links = document.querySelectorAll('a');
+    this._links.forEach(link => link.addEventListener('click', this.handleClickLink));
   }
 
   initArrows() {
@@ -261,11 +280,13 @@ class PageTabs extends React.Component {
 
   handleClickLink = event => {
     const { isShow, linkIgnoreAttr } = this.props;
-    const elem = event.target;
+    const elem = event.currentTarget;
 
     if (!isShow || elem.tagName !== LINK_TAG || !!elem.getAttribute(linkIgnoreAttr)) {
       return;
     }
+
+    console.warn(elem, event);
 
     const { saveTabs, history, homepageName } = this.props;
     const { tabs } = this.state;

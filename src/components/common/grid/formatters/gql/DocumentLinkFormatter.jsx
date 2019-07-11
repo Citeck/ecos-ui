@@ -1,5 +1,8 @@
 import React from 'react';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
+import { hasInString } from '../../../../../helpers/util';
+import { NEW_VERSION_PATH } from '../../../../../helpers/urls';
+import { URL } from '../../../../../constants';
 
 export default class DocumentLinkFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {
@@ -7,9 +10,7 @@ export default class DocumentLinkFormatter extends DefaultGqlFormatter {
   }
 
   get isNewVersion() {
-    const { pathname } = window.location;
-
-    return pathname.includes('/v2/');
+    return hasInString(window.location.pathname, NEW_VERSION_PATH);
   }
 
   value(cell) {
@@ -22,7 +23,7 @@ export default class DocumentLinkFormatter extends DefaultGqlFormatter {
 
     if (this.isNewVersion) {
       return (
-        <a target="_blank" href={`/v2/dashboard?recordRef=${cell.id}`}>
+        <a target="_blank" rel="noopener noreferrer" href={`${URL.DASHBOARD}recordRef=${cell.id}`}>
           {this.value(cell)}
         </a>
       );
