@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Formio from 'formiojs/Formio';
+import '../../forms/components';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormUtils from './EcosFormUtils';
