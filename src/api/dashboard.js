@@ -1,4 +1,4 @@
-import { get, head, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import { getCurrentUserName } from '../helpers/util';
 import { QueryKeys, SourcesId } from '../constants';
 import { RecordService } from './recordService';
@@ -64,7 +64,7 @@ export class DashboardApi extends RecordService {
         { ...defaultAttr }
       );
 
-      if (!isEmpty(data) && head(get(data, 'records'))) {
+      if (!isEmpty(data)) {
         break;
       }
     }
