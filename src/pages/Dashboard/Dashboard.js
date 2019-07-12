@@ -39,27 +39,26 @@ class Dashboard extends Component {
     super(props);
 
     this.state = {
-      dashboardId: '',
       config: props.config
     };
   }
 
   componentDidMount() {
     const { getDashboardConfig, config } = this.props;
-    const { recordRef, dashboardId } = this.pathInfo;
+    const { recordRef } = this.getPathInfo();
 
-    this.setState({ dashboardId, config });
-    getDashboardConfig({ recordRef, dashboardId });
+    this.setState({ config });
+    getDashboardConfig({ recordRef });
   }
 
   componentWillReceiveProps(nextProps) {
     const { getDashboardConfig, initMenuSettings, config } = nextProps;
-    const { dashboardId, recordRef } = this.pathInfo;
-    const { dashboardId: oldDashboardId } = this.state;
+    const { recordRef, search: nowUrl } = this.getPathInfo(nextProps);
+    const { search: oldTab } = this.getPathInfo();
 
-    if (dashboardId !== oldDashboardId) {
-      this.setState({ dashboardId });
-      getDashboardConfig({ recordRef, dashboardId });
+    if (nowUrl !== oldTab) {
+      this.setState({ nowUrl });
+      getDashboardConfig({ recordRef });
       initMenuSettings();
     }
 
@@ -68,16 +67,17 @@ class Dashboard extends Component {
     }
   }
 
-  get pathInfo() {
+  getPathInfo(props) {
     const {
       location: { search }
-    } = this.props;
+    } = props || this.props;
     const searchParams = queryString.parse(search);
     const { recordRef, dashboardId } = searchParams;
 
     return {
       recordRef,
-      dashboardId
+      dashboardId,
+      search
     };
   }
 
