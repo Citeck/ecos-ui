@@ -15,7 +15,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const SiteMenu = ({ items, goToPage }) => {
-  if (isEmpty(items) || isArray(items)) {
+  if (isEmpty(items) || !isArray(items)) {
     return null;
   }
 

@@ -13,6 +13,7 @@ import { setUserThumbnail } from '../actions/user';
 import { makeSiteMenu, makeUserMenuItems, processCreateVariantsItems } from '../helpers/menu';
 import { PROXY_URI } from '../constants/alfresco';
 import { changeUrlLink } from '../components/PageTabs/PageTabs';
+import MenuService from '../services/menu';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
