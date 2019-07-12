@@ -12,7 +12,6 @@ import {
 import { setUserThumbnail } from '../actions/user';
 import { makeSiteMenu, makeUserMenuItems, processCreateVariantsItems } from '../helpers/menu';
 import { PROXY_URI } from '../constants/alfresco';
-import { selectIdentificationForView } from '../selectors/dashboard';
 import { changeUrlLink } from '../components/PageTabs/PageTabs';
 
 function* fetchCreateCaseWidget({ api, logger }) {
@@ -65,12 +64,7 @@ function* fetchSiteMenu({ api, fakeApi, logger }) {
 
 function* goToPageSiteMenu({ api, fakeApi, logger }, { payload }) {
   try {
-    const data = yield select(selectIdentificationForView);
-    let link = payload.targetUrl;
-
-    if (payload.id === 'SETTINGS_HOME_PAGE') {
-      link += '?dashboardId=' + data.id;
-    }
+    const link = yield MenuService.processTransitSiteMenuItem(payload);
 
     changeUrlLink(link, { openNewTab: true });
   } catch (e) {
