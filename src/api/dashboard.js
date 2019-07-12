@@ -7,7 +7,8 @@ import Records from '../components/Records';
 
 const defaultAttr = {
   key: QueryKeys.KEY,
-  config: QueryKeys.CONFIG_JSON
+  config: QueryKeys.CONFIG_JSON,
+  type: 'type'
 };
 
 export class DashboardApi extends RecordService {
@@ -15,13 +16,12 @@ export class DashboardApi extends RecordService {
     return Components.getComponentsFullData();
   };
 
-  saveDashboardConfig = ({ dashboardKey, dashboardId, config }) => {
-    dashboardId = dashboardId || '';
-    dashboardKey = dashboardKey || QueryKeys.DEFAULT;
-    const record = Records.get(`${SourcesId.DASHBOARD}@${dashboardId}`);
+  saveDashboardConfig = ({ identification, config }) => {
+    const { key, id } = identification;
+    const record = Records.get(`${SourcesId.DASHBOARD}@${id}`);
 
     record.att(QueryKeys.CONFIG_JSON, config);
-    record.att(QueryKeys.KEY, dashboardKey);
+    record.att(QueryKeys.KEY, key || QueryKeys.DEFAULT);
 
     return record.save().then(response => response);
   };
@@ -45,7 +45,7 @@ export class DashboardApi extends RecordService {
   getDashboardById = dashboardId => {
     return Records.get(`${SourcesId.DASHBOARD}@${dashboardId}`)
       .load({ ...defaultAttr })
-      .then(response => response);
+      .then(response => ({ ...response, id: dashboardId }));
   };
 
   getDashboardByRecordRef = function*(recordRef) {
@@ -53,7 +53,7 @@ export class DashboardApi extends RecordService {
       type: '_dashboardType',
       keys: '_dashboardKey[]'
     });
-    console.log('result', result);
+
     const { keys, type } = result;
     const dashboardKeys = Array.from(keys || []);
     let data;
@@ -66,10 +66,11 @@ export class DashboardApi extends RecordService {
           sourceId: SourcesId.DASHBOARD,
           query: {
             [QueryKeys.KEY]: key,
-            type
+            type,
+            user: getCurrentUserName()
           }
         },
-        { config: QueryKeys.CONFIG_JSON }
+        { ...defaultAttr }
       );
 
       if (!isEmpty(data)) {
@@ -89,7 +90,7 @@ export class DashboardApi extends RecordService {
           user: getCurrentUserName()
         }
       },
-      { ...defaultAttr, type: 'type' }
+      { ...defaultAttr }
     ).then(response => response);
   };
 }

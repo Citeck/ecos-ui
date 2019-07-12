@@ -6,6 +6,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import { getDashboardConfig, saveDashboardConfig } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
+import { selectIdentificationForView } from '../../selectors/dashboard';
 import Layout from '../../components/Layout';
 import Loader from '../../components/common/Loader/Loader';
 import { DndUtils } from '../../components/Drag-n-Drop';
@@ -16,12 +17,12 @@ import { deepClone } from '../../helpers/util';
 import './style.scss';
 
 const mapStateToProps = state => ({
+  dashboardId: selectIdentificationForView(state),
   config: {
     ...get(state, ['dashboard', 'config'])
   },
   isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
   saveResultDashboard: get(state, ['dashboard', 'saveResult']),
-  dashboardId: get(state, ['dashboard', 'config', 'dashboardId']),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
   saveResultMenu: get(state, ['menu', 'saveResult']),
   menuType: get(state, ['menu', 'type']),
@@ -145,7 +146,7 @@ class Dashboard extends Component {
     }
 
     this.setState({ config });
-    this.saveDashboardConfig({ config, dashboardId });
+    this.saveDashboardConfig({ config });
   };
 
   saveDashboardConfig = payload => {
@@ -159,7 +160,6 @@ class Dashboard extends Component {
   };
 
   handleSaveWidgetProps = (id, props = {}) => {
-    const { dashboardId } = this.pathInfo;
     const config = deepClone(this.state.config);
 
     config.columns.forEach(column => {
@@ -174,7 +174,7 @@ class Dashboard extends Component {
     });
 
     this.setState({ config });
-    this.saveDashboardConfig({ config, dashboardId });
+    this.saveDashboardConfig({ config });
   };
 
   renderLayout() {

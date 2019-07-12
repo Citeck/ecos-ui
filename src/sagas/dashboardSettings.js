@@ -1,4 +1,4 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 import {
   getAvailableWidgets,
   getDashboardConfig,
@@ -9,6 +9,7 @@ import {
   setResultSaveDashboardConfig
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
+import { selectIdentificationForSet } from '../selectors/dashboard';
 import { saveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
 import DashboardService from '../services/dashboard';
@@ -52,13 +53,12 @@ function* doGetWidgetsRequest({ api, logger }, action) {
 
 function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
-    const { dashboardId, dashboardKey } = payload;
+    const identification = yield select(selectIdentificationForSet);
     const serverConfig = DashboardSettingsConverter.getSettingsConfigForServer(payload);
     const { layout, menu } = serverConfig;
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
       config: { layout },
-      dashboardId,
-      dashboardKey
+      identification
     });
     const parseDashboard = DashboardService.parseSaveResult(dashboardResult);
 

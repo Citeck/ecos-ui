@@ -8,9 +8,7 @@ export default class DashboardConverter {
       const { config, key, id = '', type } = source;
       const layout = get(config, ['layout']) || {};
 
-      target.dashboardKey = key;
-      target.dashboardType = type;
-      target.dashboardId = last(id.split('@'));
+      target.identification = { key, type, id: last(id.split('@')) };
       target.columns = layout.columns || [];
       target.type = layout.type;
     }
@@ -24,15 +22,9 @@ export default class DashboardConverter {
     }
 
     const {
-      config: { columns, type },
-      dashboardId
+      config: { columns, type }
     } = source;
 
-    return {
-      config: {
-        layout: { columns, type }
-      },
-      dashboardId
-    };
+    return { layout: { columns, type } };
   }
 }
