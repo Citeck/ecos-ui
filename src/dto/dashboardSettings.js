@@ -1,50 +1,58 @@
-import * as dtoMenu from './menu';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import { LAYOUT_TYPE } from '../constants/layout';
 import Components from '../components/Components';
+import DashboardConverter from './dashboard';
+import * as dtoMenu from './menu';
 
-export function getSettingsConfigForWeb(source = {}) {
-  if (!source || (source && !Object.keys(source).length)) {
-    return {};
-  }
+export default class DashboardSettingsConverter {
+  static getSettingsConfigForWeb(source = {}) {
+    let target = {};
 
-  const { layout = {}, dashboardKey, dashboardId } = source;
-  const target = {};
+    if (!isEmpty(source)) {
+      const { config } = source;
+      const layout = get(config, ['layout']) || {};
 
-  target.dashboardKey = dashboardKey;
-  target.dashboardId = dashboardId;
-  target.layoutType = layout.type || LAYOUT_TYPE.TWO_COLUMNS_BS;
-  target.widgets = layout.columns ? layout.columns.map(item => item.widgets) : [];
+      target = DashboardConverter.getDashboardForWeb(source);
 
-  return target;
-}
+      target.layoutType = target.type || LAYOUT_TYPE.TWO_COLUMNS_BS;
+      target.widgets = !isEmpty(layout.columns) ? layout.columns.map(item => item.widgets) : [];
 
-export function getSettingsConfigForServer(source) {
-  const target = {
-    layout: {},
-    menu: {}
-  };
-
-  target.menu.type = source.menuType;
-  target.menu.links = dtoMenu.getMenuItemsForServer(source.links);
-
-  target.layout.type = source.layoutType;
-  target.layout.columns = getWidgetsForServer(source.columns, source.widgets);
-
-  return target;
-}
-
-function getWidgetsForServer(columns = [], widgets = []) {
-  let defProps = Components.setDefaultPropsOfWidgets(widgets);
-
-  return columns.map((column, index) => {
-    const data = {
-      widgets: defProps[index] || []
-    };
-
-    if (column.width) {
-      data.width = column.width;
+      delete target.type;
+      delete target.columns;
     }
 
-    return data;
-  });
+    return target;
+  }
+
+  static getSettingsConfigForServer(source) {
+    const target = {
+      layout: {},
+      menu: {}
+    };
+
+    target.menu.type = source.menuType;
+    target.menu.links = dtoMenu.getMenuItemsForServer(source.links);
+
+    target.layout.type = source.layoutType;
+    target.layout.columns = DashboardSettingsConverter.getWidgetsForServer(source.columns, source.widgets);
+
+    return target;
+  }
+
+  static getWidgetsForServer(columns = [], widgets = []) {
+    let defProps = Components.setDefaultPropsOfWidgets(widgets);
+
+    return columns.map((column, index) => {
+      const data = {
+        widgets: defProps[index] || []
+      };
+
+      if (column.width) {
+        data.width = column.width;
+      }
+
+      return data;
+    });
+  }
 }

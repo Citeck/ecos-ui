@@ -16,6 +16,10 @@ export const URL = {
   CURRENT_TASKS: '/v2/debug/current-tasks'
 };
 
+export const SourcesId = {
+  DASHBOARD: 'uiserv/dashboard'
+};
+
 export const MENU_TYPE = {
   LEFT: 'LEFT',
   TOP: 'TOP'
@@ -26,7 +30,7 @@ export const SAVE_STATUS = {
   FAILURE: 'FAILURE'
 };
 
-export const QUERY_KEYS = {
+export const QueryKeys = {
   CONFIG_JSON: 'config?json',
   VALUE_JSON: 'value?json',
   KEY: 'key',

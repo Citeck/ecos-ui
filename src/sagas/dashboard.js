@@ -2,27 +2,18 @@ import { call, put, takeLatest } from 'redux-saga/effects';
 import { getDashboardConfig, saveDashboardConfig, setDashboardConfig, setResultSaveDashboardConfig } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
-import * as dto from '../dto/dashboard';
+import DashboardConverter from '../dto/dashboard';
+import DashboardService from '../services/dashboard';
 import { SAVE_STATUS } from '../constants';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
-    const { dashboardId, recordRef } = payload;
-    const result = dashboardId
-      ? yield call(api.dashboard.getDashboardConfig, dashboardId)
-      : yield call(api.dashboard.getDashboardByRecordRef, recordRef);
-    let config;
+    const { recordRef } = payload;
+    const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
+    const data = DashboardService.checkDashboardResult(result);
+    const webConfig = DashboardConverter.getDashboardForWeb(data);
 
-    if (dashboardId && result) {
-      config = dto.parseGetResult(result);
-    } else {
-      config = result && result.data ? result.data.config : dto.getDefaultDashboardConfig;
-    }
-    if (config && Object.keys(config).length) {
-      const webConfig = dto.getDashboardForWeb({ ...config, dashboardId });
-
-      yield put(setDashboardConfig(webConfig));
-    }
+    yield put(setDashboardConfig(webConfig));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения данных по дашборду')));
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
@@ -31,9 +22,9 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 
 function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   try {
-    const serverConfig = dto.getDashboardForServer(payload);
+    const serverConfig = DashboardConverter.getDashboardForServer(payload);
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, serverConfig);
-    const res = dto.parseSaveResult(dashboardResult);
+    const res = DashboardService.parseSaveResult(dashboardResult);
 
     yield put(
       setResultSaveDashboardConfig({
