@@ -12,6 +12,7 @@ import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
 import { MENU_TYPE } from '../../constants';
 import { deepClone } from '../../helpers/util';
+import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
 
@@ -39,7 +40,8 @@ class Dashboard extends Component {
     super(props);
 
     this.state = {
-      config: props.config
+      config: props.config,
+      urlParams: getSortedUrlParams()
     };
   }
 
@@ -53,11 +55,12 @@ class Dashboard extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { getDashboardConfig, initMenuSettings, config } = nextProps;
-    const { recordRef, search: nowUrl } = this.getPathInfo(nextProps);
-    const { search: oldTab } = this.getPathInfo();
+    const { recordRef } = this.getPathInfo(nextProps);
+    const { urlParams } = this.state;
+    const newUrlParams = getSortedUrlParams();
 
-    if (nowUrl !== oldTab) {
-      this.setState({ nowUrl });
+    if (urlParams !== newUrlParams) {
+      this.setState({ urlParams: newUrlParams });
       getDashboardConfig({ recordRef });
       initMenuSettings();
     }
