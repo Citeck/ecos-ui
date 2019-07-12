@@ -131,7 +131,6 @@ class PageTabs extends React.Component {
         const newActiveTab = tabs.find(tab => tab.link === linkFromUrl);
 
         if (newActiveTab) {
-          // this.activeTab = newActiveTab;
           this.activeTab(newActiveTab);
         } else {
           tabs.map(item => {
@@ -206,7 +205,6 @@ class PageTabs extends React.Component {
       const newActiveTab = tabs.find(tab => tab.link === link);
 
       if (newActiveTab) {
-        // this.activeTab = newActiveTab;
         this.activeTab(newActiveTab);
       } else {
         tabs.map(item => {
@@ -373,7 +371,6 @@ class PageTabs extends React.Component {
       return;
     }
 
-    // this.activeTab = tab;
     this.activeTab(tab);
   }
 
