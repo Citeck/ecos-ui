@@ -105,7 +105,15 @@ export const goToJournalsPage = options => {
   }
 };
 export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_blank');
-export const goToCardDetailsPage = nodeRef => window.open(`${URL_PAGECONTEXT}card-details?nodeRef=${nodeRef}`, '_blank');
+export const goToCardDetailsPage = nodeRef => {
+  if (isNewVersionPage()) {
+    changeUrlLink(`${URL.DASHBOARD}?recordRef=${nodeRef}`, { openNewTab: true });
+
+    return;
+  }
+
+  window.open(`${URL_PAGECONTEXT}card-details?nodeRef=${nodeRef}`, '_blank');
+};
 export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page?nodeRef=${nodeRef}`, '_blank');
 
 export const isNewVersionPage = (link = window.location.pathname) => {

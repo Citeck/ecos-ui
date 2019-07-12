@@ -10,6 +10,14 @@ import './style.scss';
 const CHANGE_URL_LINK_EVENT = 'CHANGE_URL_LINK_EVENT';
 const customEvent = document.createEvent('Event');
 
+/**
+ *
+ * @param link - string
+ * @param params
+ *    checkUrl - bool,
+ *    openNewTab - bool,
+ *    openNewBrowserTab - bool
+ */
 export const changeUrlLink = (link = '', params = {}) => {
   customEvent.params = { link, ...params };
 
