@@ -6,7 +6,6 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import { getDashboardConfig, saveDashboardConfig } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
-import { selectIdentificationForView } from '../../selectors/dashboard';
 import Layout from '../../components/Layout';
 import Loader from '../../components/common/Loader/Loader';
 import { DndUtils } from '../../components/Drag-n-Drop';
@@ -17,7 +16,6 @@ import { deepClone } from '../../helpers/util';
 import './style.scss';
 
 const mapStateToProps = state => ({
-  dashboardId: selectIdentificationForView(state),
   config: {
     ...get(state, ['dashboard', 'config'])
   },
@@ -61,7 +59,7 @@ class Dashboard extends Component {
       initMenuSettings,
       config
     } = nextProps;
-    const { dashboardId, recordRef } = queryString.parse(search);
+    const { dashboardId, recordRef } = this.pathInfo;
     const { dashboardId: oldDashboardId } = this.state;
 
     if (dashboardId !== oldDashboardId) {
@@ -125,7 +123,6 @@ class Dashboard extends Component {
     } = this.state;
     const { isWidget, columnFrom, columnTo } = data;
     const { source, destination } = dnd;
-    const { dashboardId } = this.pathInfo;
     const config = JSON.parse(JSON.stringify(currentConfig));
 
     if (isWidget) {
