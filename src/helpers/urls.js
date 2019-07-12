@@ -60,7 +60,7 @@ export const getJournalPageUrl = ({ journalsListId, journalId, journalSettingId,
   });
   let url;
 
-  if (!isNewVersionPage()) {
+  if (OLD_LINKS) {
     let partOfUrl;
 
     if (journalsListId.indexOf('global-') !== -1) {
@@ -98,13 +98,15 @@ export const getZipUrl = nodeRef => {
 export const goToJournalsPage = options => {
   const journalPageUrl = getJournalPageUrl(options);
 
-  if (!isNewVersionPage(journalPageUrl)) {
+  if (OLD_LINKS || !isNewVersionPage()) {
     window.open(journalPageUrl, '_blank');
   } else {
     changeUrlLink(journalPageUrl, { openNewTab: true });
   }
 };
+
 export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_blank');
+
 export const goToCardDetailsPage = nodeRef => {
   if (isNewVersionPage()) {
     changeUrlLink(`${URL.DASHBOARD}?recordRef=${nodeRef}`, { openNewTab: true });
@@ -114,6 +116,7 @@ export const goToCardDetailsPage = nodeRef => {
 
   window.open(`${URL_PAGECONTEXT}card-details?nodeRef=${nodeRef}`, '_blank');
 };
+
 export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page?nodeRef=${nodeRef}`, '_blank');
 
 export const isNewVersionPage = (link = window.location.pathname) => {
