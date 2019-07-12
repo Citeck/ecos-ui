@@ -29,11 +29,15 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
     const { dashboardId } = payload;
-    const result = yield call(api.dashboard.getDashboardByOneOf, { dashboardId, off: { user: true } });
-    const data = DashboardService.checkDashboardResult(result);
-    const webConfig = DashboardSettingsConverter.getSettingsConfigForWeb(data);
+    if (dashboardId) {
+      const result = yield call(api.dashboard.getDashboardById, dashboardId);
+      const data = DashboardService.checkDashboardResult(result);
+      const webConfig = DashboardSettingsConverter.getSettingsConfigForWeb(data);
 
-    yield put(setDashboardConfig(webConfig));
+      yield put(setDashboardConfig(webConfig));
+    } else {
+      yield put(setNotificationMessage(t('dashboard-settings.error2')));
+    }
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error2')));
     logger.error('[dashboard/settings/ doGetDashboardConfigRequest saga] error', e.message);
