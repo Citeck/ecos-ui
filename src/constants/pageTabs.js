@@ -29,8 +29,9 @@ export const URL_MASK = {
   '^/v2/dashboard/([0-9A-Za-z-]*)$': TITLE[URL.DASHBOARD]
 };
 
-export const getTitleByUrl = url => {
-  const title = TITLE[url];
+export const getTitleByUrl = (url = '') => {
+  const lastSymbolIsSlash = url.slice(-1) === '/';
+  const title = TITLE[lastSymbolIsSlash ? url.slice(0, url.length - 1) : url];
 
   if (title) {
     return t(title);

@@ -61,12 +61,8 @@ class PageTabs extends React.Component {
 
     this.checkUrls();
     this.initArrows();
-    this.initLinkHandler();
 
-    window.setTimeout(() => {
-      this.initLinkHandler();
-    }, 3000);
-
+    window.addEventListener('click', this.handleClickLink);
     window.addEventListener('popstate', this.handlePopState);
     document.addEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
   }
@@ -88,26 +84,11 @@ class PageTabs extends React.Component {
     return true;
   }
 
-  componentDidUpdate() {
-    this.initLinkHandler();
-  }
-
   componentWillUnmount() {
     window.clearInterval(this.checkArrowID);
     this.checkArrowID = null;
     document.removeEventListener('click', this.handleClickLink);
     window.removeEventListener('popstate', this.handlePopState);
-
-    this._links.forEach(link => link.removeEventListener('click', this.handleClickLink));
-  }
-
-  initLinkHandler() {
-    if (this._links) {
-      this._links.forEach(link => link.removeEventListener('click', this.handleClickLink));
-    }
-
-    this._links = document.querySelectorAll('a');
-    this._links.forEach(link => link.addEventListener('click', this.handleClickLink));
   }
 
   initArrows() {
@@ -150,7 +131,8 @@ class PageTabs extends React.Component {
         const newActiveTab = tabs.find(tab => tab.link === linkFromUrl);
 
         if (newActiveTab) {
-          this.activeTab = newActiveTab;
+          // this.activeTab = newActiveTab;
+          this.activeTab(newActiveTab);
         } else {
           tabs.map(item => {
             item.isActive = false;
@@ -224,7 +206,8 @@ class PageTabs extends React.Component {
       const newActiveTab = tabs.find(tab => tab.link === link);
 
       if (newActiveTab) {
-        this.activeTab = newActiveTab;
+        // this.activeTab = newActiveTab;
+        this.activeTab(newActiveTab);
       } else {
         tabs.map(item => {
           item.isActive = false;
@@ -232,7 +215,7 @@ class PageTabs extends React.Component {
         });
         tabs.push(this.generateNewTab({ link }));
         saveTabs(tabs);
-        history.push(link);
+        history.push.call(this, link);
 
         this.setState({ tabs });
       }
@@ -255,7 +238,7 @@ class PageTabs extends React.Component {
     tab.title = this.getTitle(link) || homepageName;
 
     saveTabs(tabs);
-    history.replace(link);
+    history.replace.call(this, link);
   };
 
   handlePopState = () => {
@@ -280,9 +263,17 @@ class PageTabs extends React.Component {
 
   handleClickLink = event => {
     const { isShow, linkIgnoreAttr } = this.props;
-    const elem = event.currentTarget;
+    let elem = event.currentTarget;
 
-    if (!isShow || elem.tagName !== LINK_TAG || !!elem.getAttribute(linkIgnoreAttr)) {
+    if (!isShow) {
+      return;
+    }
+
+    if (elem.tagName !== LINK_TAG) {
+      elem = event.target.closest('a[href]');
+    }
+
+    if (!elem || elem.tagName !== LINK_TAG || !!elem.getAttribute(linkIgnoreAttr)) {
       return;
     }
 
@@ -300,7 +291,7 @@ class PageTabs extends React.Component {
       });
 
       saveTabs(tabs);
-      history.push(link);
+      history.push.call(this, link);
       this.setState({ tabs });
 
       return;
@@ -321,7 +312,7 @@ class PageTabs extends React.Component {
     }
 
     saveTabs(tabs);
-    history.push(link);
+    history.push.call(this, link);
 
     this.setState({ tabs }, () => {
       const { current } = this.$tabWrapper;
@@ -364,7 +355,7 @@ class PageTabs extends React.Component {
           link = tabs[index + 1].link;
       }
 
-      history.push(link);
+      history.push.call(this, link);
     }
 
     for (let i = index; i < tabs.length; i++) {
@@ -382,7 +373,8 @@ class PageTabs extends React.Component {
       return;
     }
 
-    this.activeTab = tab;
+    // this.activeTab = tab;
+    this.activeTab(tab);
   }
 
   handleAddTab = () => {
@@ -397,7 +389,7 @@ class PageTabs extends React.Component {
           return tabs;
         });
         tabs.push(newTab);
-        history.push(newTab.link);
+        history.push.call(this, newTab.link);
         saveTabs(tabs);
 
         return { tabs };
@@ -513,20 +505,19 @@ class PageTabs extends React.Component {
     return tabs.sort((first, second) => (first.position > second.position ? 1 : -1));
   }
 
-  set activeTab(tab) {
+  activeTab = tab => {
     const { history, saveTabs } = this.props;
     const { tabs } = this.state;
 
-    tabs.map(item => {
+    tabs.forEach(item => {
       item.isActive = item.id === tab.id;
-      return item;
     });
 
     saveTabs(tabs);
-    history.replace(tab.link);
+    history.replace.call(this, tab.link);
 
     this.setState({ tabs });
-  }
+  };
 
   getTitle(url) {
     let cleanUrl = url.replace(/\?.*/i, '');
