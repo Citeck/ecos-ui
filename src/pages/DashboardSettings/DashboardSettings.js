@@ -171,7 +171,7 @@ class DashboardSettings extends React.Component {
     const { recordRef, dashboardId } = searchParams;
 
     return {
-      pathDashboard: URL.DASHBOARD + search,
+      pathDashboard: URL.DASHBOARD + (recordRef ? `?recordRef=${recordRef}` : ''),
       recordRef,
       dashboardId
     };
@@ -573,15 +573,10 @@ class DashboardSettings extends React.Component {
 
   /*-------- start Buttons --------*/
 
-  handleCloseClick = (saveResult = {}) => {
-    const { dashboardId, pathDashboard } = this.pathInfo;
-    let path = pathDashboard;
+  handleCloseClick = () => {
+    const { pathDashboard } = this.pathInfo;
 
-    if (saveResult && saveResult.dashboardId && !dashboardId) {
-      path += '&dashboardId=' + saveResult.dashboardId;
-    }
-
-    changeUrlLink(path, { openNewTab: true });
+    changeUrlLink(pathDashboard, { openNewTab: true });
   };
 
   handleAcceptClick = () => {

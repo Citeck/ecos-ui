@@ -53,12 +53,7 @@ class Dashboard extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const {
-      location: { search },
-      getDashboardConfig,
-      initMenuSettings,
-      config
-    } = nextProps;
+    const { getDashboardConfig, initMenuSettings, config } = nextProps;
     const { dashboardId, recordRef } = this.pathInfo;
     const { dashboardId: oldDashboardId } = this.state;
 
