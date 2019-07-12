@@ -6,9 +6,10 @@ import { getMinWidthColumn } from '../../helpers/layout';
 import Components from '../Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
 import { MENU_TYPE } from '../../constants';
+import { getSearchParams } from '../../helpers/util';
+import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
-import { getSearchParams } from '../../helpers/util';
 
 class Layout extends Component {
   static propTypes = {
@@ -117,8 +118,9 @@ class Layout extends Component {
         positionTo: index,
         isWidget: true
       };
+      const urlParams = getSortedUrlParams();
       const id = JSON.stringify(dataWidget);
-      const key = `${widget.name}-${widget.id}`;
+      const key = `${widget.name}-${widget.id}-${urlParams}`;
       let Widget = this._components[widget.name];
 
       if (!Widget) {
@@ -128,7 +130,7 @@ class Layout extends Component {
 
       components.push(
         <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjusment}>
-          <Widget {...widget.props} record={recordRef} onSave={this.props.onSaveWidgetProps} />
+          <Widget {...widget.props} id={`${widget.props.id}-${urlParams}`} record={recordRef} onSave={this.props.onSaveWidgetProps} />
         </DragItem>
       );
     });

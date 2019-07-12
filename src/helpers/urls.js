@@ -122,3 +122,36 @@ export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-e
 export const isNewVersionPage = (link = window.location.pathname) => {
   return hasInString(link, `${NEW_VERSION_PREFIX}/`);
 };
+
+/**
+ * Метод перебирает и сортирует параметры из url
+ *
+ * @param params string
+ *
+ * @returns {string}
+ */
+export const getSortedUrlParams = (params = window.location.search) => {
+  if (!params) {
+    return '';
+  }
+
+  const byObject = params
+    .slice(1, params.length)
+    .split('&')
+    .map(i => i.split('='))
+    .map(i => ({ [i[0]]: i[1] }))
+    .reduce((r = {}, n = {}) => ({ ...r, ...n }));
+  const sortedParams = Object.keys(byObject).sort((a, b) => {
+    if (a.toLowerCase() < b.toLowerCase()) {
+      return -1;
+    }
+
+    if (a.toLowerCase() < b.toLowerCase()) {
+      return 1;
+    }
+
+    return 0;
+  });
+
+  return sortedParams.map(key => `${key}=${byObject[key]}`).join('&');
+};

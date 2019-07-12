@@ -102,7 +102,9 @@ class Comments extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.saveIsLoading && !nextProps.saveIsLoading && !nextProps.errorMessage) {
+    const { saveIsLoading, id } = this.props;
+
+    if (saveIsLoading && !nextProps.saveIsLoading && !nextProps.errorMessage) {
       this.setState({
         isEdit: false,
         editorHeight: BASE_HEIGHT,
@@ -110,6 +112,10 @@ class Comments extends React.Component {
         editableComment: null,
         commentForDeletion: null
       });
+    }
+
+    if (id !== nextProps.id) {
+      getComments();
     }
   }
 
