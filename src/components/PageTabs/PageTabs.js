@@ -62,9 +62,9 @@ class PageTabs extends React.Component {
     this.checkUrls();
     this.initArrows();
 
-    window.addEventListener('click', this.handleClickLink);
-    window.addEventListener('popstate', this.handlePopState);
+    document.addEventListener('click', this.handleClickLink);
     document.addEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
+    window.addEventListener('popstate', this.handlePopState);
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -88,6 +88,7 @@ class PageTabs extends React.Component {
     window.clearInterval(this.checkArrowID);
     this.checkArrowID = null;
     document.removeEventListener('click', this.handleClickLink);
+    document.removeEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent);
     window.removeEventListener('popstate', this.handlePopState);
   }
 
