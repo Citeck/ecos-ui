@@ -18,7 +18,7 @@ export default class DocumentLinkFormatter extends DefaultGqlFormatter {
 
     if (isNewVersionPage()) {
       return (
-        <a target="_blank" rel="noopener noreferrer" href={`${URL.DASHBOARD}recordRef=${cell.id}`}>
+        <a target="_blank" rel="noopener noreferrer" href={`${URL.DASHBOARD}?recordRef=${cell.id}`}>
           {this.value(cell)}
         </a>
       );
