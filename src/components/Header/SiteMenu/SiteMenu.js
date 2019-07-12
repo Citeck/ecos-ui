@@ -1,14 +1,25 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { UncontrolledDropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
+import { isArray, isEmpty } from 'lodash';
+import { DropdownMenu, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
 import DropDownMenuItem from '../DropdownMenuItem';
+import { goToPageFromSiteMenu } from '../../../actions/header';
 
-const SiteMenu = ({ items }) => {
-  if (!Array.isArray(items) || items.length < 1) {
+const mapStateToProps = state => ({
+  items: state.header.siteMenu.items
+});
+
+const mapDispatchToProps = dispatch => ({
+  goToPage: payload => dispatch(goToPageFromSiteMenu(payload))
+});
+
+const SiteMenu = ({ items, goToPage }) => {
+  if (isEmpty(items) || isArray(items)) {
     return null;
   }
 
-  const menuListItems = items.map((item, key) => <DropDownMenuItem key={key} data={item} />);
+  const menuListItems = items.map((item, key) => <DropDownMenuItem key={key} data={item} onClick={goToPage} />);
 
   return (
     <div id="HEADER_SITE_MENU">
@@ -24,8 +35,15 @@ const SiteMenu = ({ items }) => {
   );
 };
 
-const mapStateToProps = state => ({
-  items: state.header.siteMenu.items
-});
+SiteMenu.propTypes = {
+  items: PropTypes.array.isRequired
+};
 
-export default connect(mapStateToProps)(SiteMenu);
+SiteMenu.defaultProps = {
+  items: []
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SiteMenu);

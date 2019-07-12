@@ -149,3 +149,26 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
 
   return siteMenuItems;
 }
+
+export function makeSiteMenu() {
+  return [
+    {
+      id: 'HOME_PAGE',
+      label: 'Домашняя страница',
+      targetUrl: '/v2/dashboard',
+      targetUrlType: 'FULL_PATH'
+    },
+    {
+      id: 'SETTINGS_HOME_PAGE',
+      label: 'Настроить домашнюю страницу',
+      targetUrl: '/v2/dashboard/settings',
+      targetUrlType: 'FULL_PATH'
+    },
+    {
+      id: 'GO_ADMIN_PAGE',
+      label: 'Перейти в раздел администратора',
+      targetUrl: '/v2/designer',
+      targetUrlType: 'FULL_PATH'
+    }
+  ];
+}
