@@ -1,4 +1,4 @@
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 import { getCurrentUserName } from '../helpers/util';
 import { QueryKeys, SourcesId } from '../constants';
 import { RecordService } from './recordService';

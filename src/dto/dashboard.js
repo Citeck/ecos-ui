@@ -1,4 +1,6 @@
-import { get, isEmpty, last } from 'lodash';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import last from 'lodash/last';
 
 export default class DashboardConverter {
   static getDashboardForWeb(source) {

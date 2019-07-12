@@ -1,4 +1,5 @@
-import { isEmpty, last } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+import last from 'lodash/last';
 import { LAYOUT_TYPE } from '../constants/layout';
 
 export default class DashboardService {

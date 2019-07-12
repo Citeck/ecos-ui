@@ -1,4 +1,5 @@
-import { get, isEmpty } from 'lodash';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import { LAYOUT_TYPE } from '../constants/layout';
 import Components from '../components/Components';
 import DashboardConverter from './dashboard';
