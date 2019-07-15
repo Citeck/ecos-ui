@@ -39,16 +39,14 @@ class DocPreviewDashlet extends Component {
   render() {
     const { title, config, classNamePreview, classNameDashlet } = this.props;
     const { width } = this.state;
-    const classesDashlet = classNames('ecos-doc-preview-dashlet', classNameDashlet, {
-      'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE
+    const classesDashlet = classNames('ecos-dp-dashlet', classNameDashlet, {
+      'ecos-dp-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE
     });
-
-    console.warn(width);
 
     return (
       <Dashlet
         title={title}
-        bodyClassName={'ecos-doc-preview-dashlet__body'}
+        bodyClassName={'ecos-dp-dashlet__body'}
         className={classesDashlet}
         actionReload={false}
         actionEdit={false}

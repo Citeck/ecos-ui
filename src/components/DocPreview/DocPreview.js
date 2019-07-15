@@ -33,7 +33,7 @@ class DocPreview extends Component {
     firstPageNumber: 1
   };
 
-  static className = 'ecos-doc-preview';
+  static className = 'ecos-dp';
 
   constructor(props) {
     super(props);
