@@ -1,3 +1,5 @@
+import { URL } from '../constants';
+
 export function processCreateVariantsItems(sites) {
   let menuItems = [];
 
@@ -154,20 +156,20 @@ export function makeSiteMenu() {
   return [
     {
       id: 'HOME_PAGE',
-      label: 'Домашняя страница',
-      targetUrl: '/v2/dashboard',
+      label: 'header.site-menu.home-page',
+      targetUrl: URL.DASHBOARD,
       targetUrlType: 'FULL_PATH'
     },
     {
       id: 'SETTINGS_HOME_PAGE',
-      label: 'Настроить домашнюю страницу',
-      targetUrl: '/v2/dashboard/settings',
+      label: 'header.site-menu.home-page-settings',
+      targetUrl: URL.DASHBOARD_SETTINGS,
       targetUrlType: 'FULL_PATH'
     },
     {
       id: 'GO_ADMIN_PAGE',
-      label: 'Перейти в раздел администратора',
-      targetUrl: '/v2/designer',
+      label: 'header.site-menu.admin-page',
+      targetUrl: URL.BPMN_DESIGNER,
       targetUrlType: 'FULL_PATH'
     }
   ];

@@ -7,7 +7,6 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { getDashboardConfig, saveDashboardConfig } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import Layout from '../../components/Layout';
-import Loader from '../../components/common/Loader/Loader';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
 import { MENU_TYPE } from '../../constants';
@@ -188,17 +187,6 @@ class Dashboard extends Component {
       />
     );
   }
-
-  renderLoader() {
-    let { isLoadingDashboard, isLoadingMenu } = this.props;
-
-    if (isLoadingDashboard || isLoadingMenu) {
-      return <Loader className={`ecos-dashboard__loader-wrapper`} />;
-    }
-
-    return null;
-  }
-
   renderTopMenu() {
     const { menuType, isLoadingMenu, links } = this.props;
 
@@ -218,7 +206,6 @@ class Dashboard extends Component {
           renderThumbHorizontal={props => <div {...props} hidden />}
         >
           {this.renderTopMenu()}
-          {this.renderLoader()}
           {this.renderLayout()}
         </Scrollbars>
       </div>

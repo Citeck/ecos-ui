@@ -1,16 +1,27 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import last from 'lodash/last';
+import DashboardService from '../services/dashboard';
 
 export default class DashboardConverter {
+  static getKeyInfoDashboardForWeb(source) {
+    const target = {};
+
+    if (!isEmpty(source)) {
+      const { key, id = '', type } = source;
+
+      target.identification = { key, type, id: DashboardService.parseDashboardId(id) };
+    }
+
+    return target;
+  }
+
   static getDashboardForWeb(source) {
     const target = {};
 
     if (!isEmpty(source)) {
-      const { config, key, id = '', type } = source;
+      const { config } = source;
       const layout = get(config, ['layout']) || {};
 
-      target.identification = { key, type, id: last(id.split('@')) };
       target.columns = layout.columns || [];
       target.type = layout.type;
     }

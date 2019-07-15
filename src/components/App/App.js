@@ -83,7 +83,7 @@ class App extends Component {
             <Notification />
           </div>
 
-          <PageTabs homepageLink={URL.HOME} isShow={isShow} tabs={tabs} saveTabs={setTabs} />
+          <PageTabs homepageLink={URL.DASHBOARD} isShow={isShow} tabs={tabs} saveTabs={setTabs} />
 
           {this.renderMenu()}
 
