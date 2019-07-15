@@ -181,3 +181,18 @@
 .icon-usergroup:before {
   content: '\e83c';
 } /* '' */
+.icon-big_alert:before {
+  content: '\e840';
+} /* '' */
+.icon-print:before {
+  content: '\e843';
+} /* '' */
+.icon-User_avatar_off:before {
+  content: '\e844';
+} /* '' */
+.icon-User_avatar_on:before {
+  content: '\e845';
+} /* '' */
+.icon-User_avatar:before {
+  content: '\e846';
+} /* '' */
