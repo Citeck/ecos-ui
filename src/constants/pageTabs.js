@@ -6,12 +6,12 @@ export const IGNORE_TABS_HANDLER_ATTR_NAME = 'data-external';
 export const SCROLL_STEP = 150;
 export const LINK_TAG = 'A';
 export const TITLE = {
-  HOMEPAGE: 'Домашняя страница',
-  [URL.HOME]: 'Домашняя страница',
-  [URL.JOURNAL]: 'Журнал',
-  [URL.DASHBOARD]: 'Домашняя страница',
-  [URL.DASHBOARD_SETTINGS]: 'Настройки домашней страницы',
-  [URL.BPMN_DESIGNER]: 'Редактор бизнес-процессов',
+  HOMEPAGE: 'header.site-menu.home-page',
+  [URL.HOME]: 'header.site-menu.home-page',
+  [URL.JOURNAL]: 'page-tabs.journal',
+  [URL.DASHBOARD]: 'header.site-menu.home-page',
+  [URL.DASHBOARD_SETTINGS]: 'page-tabs.dashboard-settings',
+  [URL.BPMN_DESIGNER]: 'page-tabs.bpmn-designer',
 
   // temporary pages
   '/v2/card-details': 'Карточка',
