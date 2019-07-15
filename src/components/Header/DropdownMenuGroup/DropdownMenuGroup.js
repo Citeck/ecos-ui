@@ -15,7 +15,7 @@ const DropDownMenuGroup = props => {
 
   return (
     <div id={id}>
-      {!hideLabel && <div>{t(label)}</div>}
+      {!hideLabel && <div className={'dropdown__group-label'}>{t(label)}</div>}
       {groupItems}
       {!hideSeparator && <Separator noIndents />}
     </div>

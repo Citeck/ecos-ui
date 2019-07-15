@@ -3,9 +3,11 @@ import { connect } from 'react-redux';
 import ReactResizeDetector from 'react-resize-detector';
 import { isSmallMode } from '../../helpers/util';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
-import CreateCaseBtn from './CreateCaseBtn';
+import CreateMenu from './CreateMenu';
+import UserMenu from './UserMenu';
 
 import './style.scss';
+import '../common/form/Dropdown/Dropdown.scss';
 
 const mapDispatchToProps = dispatch => ({
   fetchCreateCaseWidgetData: () => {
@@ -17,6 +19,10 @@ const mapDispatchToProps = dispatch => ({
   fetchSiteMenuData: () => {
     dispatch(fetchSiteMenuData());
   }
+});
+
+const mapStateToProps = state => ({
+  isMobile: state.view.isMobile
 });
 
 class Header extends React.Component {
@@ -38,17 +44,21 @@ class Header extends React.Component {
 
   render() {
     const { isSmallMode } = this.state;
+    const { isMobile } = this.props;
 
     return (
       <React.Fragment>
         <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
         <div className={this.className}>
           <div className={`${this.className}__side_left`}>
-            <CreateCaseBtn isSmallMode={isSmallMode} />
+            <CreateMenu isSmallMode={isSmallMode} isMobile={isMobile} />
           </div>
-          <div className={`${this.className}__side_right`}>{/*<UserMenu/>
+          <div className={`${this.className}__side_right`}>
+            <UserMenu isSmallMode={isSmallMode} isMobile={isMobile} />
+            {/*
           <SiteMenu/>
-          <Search/>*/}</div>
+          <Search/>*/}
+          </div>
         </div>
       </React.Fragment>
     );
@@ -56,6 +66,6 @@ class Header extends React.Component {
 }
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(Header);

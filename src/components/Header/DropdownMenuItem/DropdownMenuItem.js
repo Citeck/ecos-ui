@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { t } from '../../../helpers/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
 import handleControl from '../../../helpers/handleControl';
+import './icon-menu.scss';
 
 const mapDispatchToProps = dispatch => ({
   dispatch
