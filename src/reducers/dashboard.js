@@ -1,5 +1,11 @@
 import { handleActions } from 'redux-actions';
-import { getDashboardConfig, saveDashboardConfig, setDashboardConfig, setResultSaveDashboardConfig } from '../actions/dashboard';
+import {
+  getDashboardConfig,
+  saveDashboardConfig,
+  setDashboardConfig,
+  setDashboardIdentification,
+  setResultSaveDashboardConfig
+} from '../actions/dashboard';
 
 const initialState = {
   identification: {
@@ -27,13 +33,20 @@ export default handleActions(
     [getDashboardConfig]: startLoading,
     [saveDashboardConfig]: startLoading,
 
+    [setDashboardIdentification]: (state, { payload }) => {
+      const { identification } = payload;
+
+      return {
+        ...state,
+        identification
+      };
+    },
     [setDashboardConfig]: (state, { payload }) => {
-      const { identification, ...config } = payload;
+      const { ...config } = payload;
 
       return {
         ...state,
         config,
-        identification,
         isLoading: false
       };
     },

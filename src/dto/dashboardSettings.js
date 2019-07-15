@@ -1,25 +1,20 @@
-import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
+import { get, isEmpty } from 'lodash';
 import { LAYOUT_TYPE } from '../constants/layout';
 import Components from '../components/Components';
-import DashboardConverter from './dashboard';
 import * as dtoMenu from './menu';
+import DashboardService from '../services/dashboard';
 
 export default class DashboardSettingsConverter {
   static getSettingsConfigForWeb(source = {}) {
     let target = {};
 
     if (!isEmpty(source)) {
-      const { config } = source;
+      const { key, id = '', type, config } = source;
       const layout = get(config, ['layout']) || {};
 
-      target = DashboardConverter.getDashboardForWeb(source);
-
-      target.layoutType = target.type || LAYOUT_TYPE.TWO_COLUMNS_BS;
+      target.identification = { key, type, id: DashboardService.parseDashboardId(id) };
+      target.layoutType = layout.type || LAYOUT_TYPE.TWO_COLUMNS_BS;
       target.widgets = !isEmpty(layout.columns) ? layout.columns.map(item => item.widgets) : [];
-
-      delete target.type;
-      delete target.columns;
     }
 
     return target;

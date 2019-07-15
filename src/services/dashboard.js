@@ -1,5 +1,4 @@
-import isEmpty from 'lodash/isEmpty';
-import last from 'lodash/last';
+import { isEmpty, nth } from 'lodash';
 import { LAYOUT_TYPE } from '../constants/layout';
 
 export default class DashboardService {
@@ -18,6 +17,14 @@ export default class DashboardService {
     }
   };
 
+  static parseDashboardId(fullId) {
+    if (fullId.includes('@')) {
+      return nth(fullId.split('@'), 1);
+    }
+
+    return fullId;
+  }
+
   static checkDashboardResult(result) {
     if (isEmpty(result)) {
       return DashboardService.defaultDashboardConfig;
@@ -32,7 +39,7 @@ export default class DashboardService {
     }
 
     const fullId = result._id || '';
-    const dashboardId = last(fullId.split('@'));
+    const dashboardId = DashboardService.parseDashboardId(fullId);
 
     return {
       dashboardId,

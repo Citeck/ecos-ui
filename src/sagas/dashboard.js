@@ -1,5 +1,11 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
-import { getDashboardConfig, saveDashboardConfig, setDashboardConfig, setResultSaveDashboardConfig } from '../actions/dashboard';
+import {
+  getDashboardConfig,
+  saveDashboardConfig,
+  setDashboardConfig,
+  setDashboardIdentification,
+  setResultSaveDashboardConfig
+} from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
 import { selectIdentificationForView } from '../selectors/dashboard';
 import { t } from '../helpers/util';
@@ -12,8 +18,10 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     const { recordRef } = payload;
     const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
     const data = DashboardService.checkDashboardResult(result);
+    const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(data);
     const webConfig = DashboardConverter.getDashboardForWeb(data);
 
+    yield put(setDashboardIdentification(webKeyInfo));
     yield put(setDashboardConfig(webConfig));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения данных по дашборду')));
@@ -27,6 +35,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
     const config = DashboardConverter.getDashboardForServer(payload);
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification });
     const res = DashboardService.parseSaveResult(dashboardResult);
+    const newConfig = payload.config;
 
     yield put(
       setResultSaveDashboardConfig({
@@ -35,7 +44,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
       })
     );
 
-    yield put(setDashboardConfig(payload.config));
+    yield put(setDashboardConfig(newConfig));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка сохранения дашборда')));
     logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e.message);
