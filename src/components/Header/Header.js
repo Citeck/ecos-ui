@@ -1,12 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import CreateCaseWidget from './CreateCaseWidget';
-import Search from './Search';
-import SiteMenu from './SiteMenu';
-import UserMenu from './UserMenu';
-import { fetchCreateCaseWidgetData, fetchUserMenuData, fetchSiteMenuData } from '../../actions/header';
+import ReactResizeDetector from 'react-resize-detector';
+import { isSmallMode } from '../../helpers/util';
+import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
+import CreateCaseBtn from './CreateCaseBtn';
 
-import './share-header.css';
+import './style.scss';
 
 const mapDispatchToProps = dispatch => ({
   fetchCreateCaseWidgetData: () => {
@@ -27,23 +26,31 @@ class Header extends React.Component {
     this.props.fetchSiteMenuData();
   }
 
-  render() {
-    return (
-      <div id="SHARE_HEADER" className="alfresco-header-Header">
-        <div className="alfresco-layout-LeftAndRight__left">
-          {/* It is just a hack for the old slide menu hamburger rendering */}
-          <div id="HEADER_APP_MENU_BAR">
-            <label className="hamburger-icon" htmlFor="slide-menu-checkbox" />
-          </div>
+  className = 'ecos-header';
 
-          <CreateCaseWidget />
+  state = {
+    isSmallMode: false
+  };
+
+  onResize = width => {
+    this.setState({ isSmallMode: isSmallMode(width) });
+  };
+
+  render() {
+    const { isSmallMode } = this.state;
+
+    return (
+      <React.Fragment>
+        <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
+        <div className={this.className}>
+          <div className={`${this.className}__side_left`}>
+            <CreateCaseBtn isSmallMode={isSmallMode} />
+          </div>
+          <div className={`${this.className}__side_right`}>{/*<UserMenu/>
+          <SiteMenu/>
+          <Search/>*/}</div>
         </div>
-        <div className="alfresco-layout-LeftAndRight__right">
-          <UserMenu />
-          <SiteMenu />
-          <Search />
-        </div>
-      </div>
+      </React.Fragment>
     );
   }
 }

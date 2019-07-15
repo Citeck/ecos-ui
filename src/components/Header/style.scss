@@ -1,0 +1,35 @@
+@import '../../constants';
+
+.ecos-header {
+  $root: &;
+
+  background: $color-blue-light;
+  padding: 10px 26px;
+  display: flex;
+  justify-content: space-between;
+
+  &__side {
+    &_left {
+    }
+
+    &_rigft {
+      align-items: flex-end;
+    }
+  }
+
+  .ecos-create-case {
+    $root: &;
+
+    &__container {
+    }
+
+    &__btn {
+      &.ecos-btn {
+        font-size: $font-size-large;
+      }
+    }
+
+    &__menu {
+    }
+  }
+}

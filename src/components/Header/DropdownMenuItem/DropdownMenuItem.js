@@ -26,7 +26,7 @@ const DropDownMenuItem = ({ key, data, dispatch, onClick }) => {
   }
 
   return (
-    <li className="custom-dropdown-menu__item">
+    <li>
       <a
         // eventKey={key}
         href={targetUrl}

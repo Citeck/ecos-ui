@@ -33,6 +33,16 @@
     &:hover {
       background-color: $color-gray-4;
     }
+
+    a {
+      color: $text-color-dark;
+
+      &:hover,
+      &:visited,
+      &:active {
+        color: $text-color-dark;
+      }
+    }
   }
 }
 
