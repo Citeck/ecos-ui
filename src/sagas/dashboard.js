@@ -1,6 +1,7 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { getDashboardConfig, saveDashboardConfig, setDashboardConfig, setResultSaveDashboardConfig } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
+import { selectIdentificationForView } from '../selectors/dashboard';
 import { t } from '../helpers/util';
 import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
@@ -22,8 +23,9 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 
 function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   try {
-    const serverConfig = DashboardConverter.getDashboardForServer(payload);
-    const dashboardResult = yield call(api.dashboard.saveDashboardConfig, serverConfig);
+    const identification = yield select(selectIdentificationForView);
+    const config = DashboardConverter.getDashboardForServer(payload);
+    const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification });
     const res = DashboardService.parseSaveResult(dashboardResult);
 
     yield put(

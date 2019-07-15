@@ -29,9 +29,7 @@ const mapStateToProps = state => ({
   isLoadingMenu: get(state, ['menu', 'isLoading']),
   availableWidgets: get(state, ['dashboardSettings', 'availableWidgets']),
   isLoading: get(state, ['dashboardSettings', 'isLoading']),
-  saveResult: get(state, ['dashboardSettings', 'saveResult']),
-  dashboardId: get(state, ['dashboardSettings', 'config', 'dashboardId']),
-  dashboardKey: get(state, ['dashboardSettings', 'config', 'dashboardKey'])
+  saveResult: get(state, ['dashboardSettings', 'saveResult'])
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -56,8 +54,6 @@ class DashboardSettings extends React.Component {
       widgets: PropTypes.array,
       links: PropTypes.array
     }).isRequired,
-    dashboardKey: PropTypes.string,
-    dashboardId: PropTypes.string,
     availableMenuItems: PropTypes.array,
     availableWidgets: PropTypes.array
   };
@@ -175,17 +171,10 @@ class DashboardSettings extends React.Component {
     const { recordRef, dashboardId } = searchParams;
 
     return {
-      pathDashboard: URL.DASHBOARD + search,
+      pathDashboard: URL.DASHBOARD + (recordRef ? `?recordRef=${recordRef}` : ''),
       recordRef,
       dashboardId
     };
-  }
-
-  get dashboardId() {
-    const { dashboardId: savedId } = this.props;
-    const { dashboardId: pathId } = this.pathInfo;
-
-    return savedId || pathId || '';
   }
 
   get menuWidth() {
@@ -584,19 +573,14 @@ class DashboardSettings extends React.Component {
 
   /*-------- start Buttons --------*/
 
-  handleCloseClick = (saveResult = {}) => {
-    const { dashboardId, pathDashboard } = this.pathInfo;
-    let path = pathDashboard;
+  handleCloseClick = () => {
+    const { pathDashboard } = this.pathInfo;
 
-    if (saveResult && saveResult.dashboardId && !dashboardId) {
-      path += '&dashboardId=' + saveResult.dashboardId;
-    }
-
-    changeUrlLink(path, { openNewTab: true });
+    changeUrlLink(pathDashboard, { openNewTab: true });
   };
 
   handleAcceptClick = () => {
-    const { saveSettings, dashboardKey, getAwayFromPage } = this.props;
+    const { saveSettings, getAwayFromPage } = this.props;
     const { selectedWidgets: widgets, selectedMenuItems: links, typeMenu } = this.state;
     const layout = this.selectedLayout;
     const menuType = typeMenu.find(item => item.isActive).type;
@@ -606,9 +590,7 @@ class DashboardSettings extends React.Component {
       columns: layout.columns,
       menuType,
       widgets,
-      links,
-      dashboardId: this.dashboardId,
-      dashboardKey
+      links
     });
     getAwayFromPage();
   };

@@ -1,4 +1,4 @@
-import isEmpty from 'lodash/isEmpty';
+import { isEmpty } from 'lodash';
 import { getCurrentUserName } from '../helpers/util';
 import { QueryKeys, SourcesId } from '../constants';
 import { RecordService } from './recordService';
@@ -7,7 +7,8 @@ import Records from '../components/Records';
 
 const defaultAttr = {
   key: QueryKeys.KEY,
-  config: QueryKeys.CONFIG_JSON
+  config: QueryKeys.CONFIG_JSON,
+  type: 'type'
 };
 
 export class DashboardApi extends RecordService {
@@ -15,13 +16,12 @@ export class DashboardApi extends RecordService {
     return Components.getComponentsFullData();
   };
 
-  saveDashboardConfig = ({ dashboardKey, dashboardId, config }) => {
-    dashboardId = dashboardId || '';
-    dashboardKey = dashboardKey || QueryKeys.DEFAULT;
-    const record = Records.get(`${SourcesId.DASHBOARD}@${dashboardId}`);
+  saveDashboardConfig = ({ identification, config }) => {
+    const { key, id } = identification;
+    const record = Records.get(`${SourcesId.DASHBOARD}@${id}`);
 
     record.att(QueryKeys.CONFIG_JSON, config);
-    record.att(QueryKeys.KEY, dashboardKey);
+    record.att(QueryKeys.KEY, key || QueryKeys.DEFAULT);
 
     return record.save().then(response => response);
   };
@@ -45,21 +45,30 @@ export class DashboardApi extends RecordService {
   getDashboardById = dashboardId => {
     return Records.get(`${SourcesId.DASHBOARD}@${dashboardId}`)
       .load({ ...defaultAttr })
-      .then(response => response);
+      .then(response => ({ ...response, id: dashboardId }));
   };
 
   getDashboardByRecordRef = function*(recordRef) {
-    const result = yield Records.get(recordRef).load('_dashboardKey[]');
-    const dashboardIds = Array.from(result);
+    const result = yield Records.get(recordRef).load({
+      type: '_dashboardType',
+      keys: '_dashboardKey[]'
+    });
+
+    const { keys, type } = result;
+    const dashboardKeys = Array.from(keys || []);
     let data;
 
-    dashboardIds.push(QueryKeys.DEFAULT);
+    dashboardKeys.push(QueryKeys.DEFAULT);
 
-    for (let value of dashboardIds) {
+    for (let key of dashboardKeys) {
       data = yield Records.queryOne(
         {
-          query: { [QueryKeys.KEY]: value },
-          sourceId: SourcesId.DASHBOARD
+          sourceId: SourcesId.DASHBOARD,
+          query: {
+            [QueryKeys.KEY]: key,
+            type,
+            user: getCurrentUserName()
+          }
         },
         { ...defaultAttr }
       );
@@ -81,7 +90,7 @@ export class DashboardApi extends RecordService {
           user: getCurrentUserName()
         }
       },
-      { ...defaultAttr, type: 'type' }
+      { ...defaultAttr }
     ).then(response => response);
   };
 }
