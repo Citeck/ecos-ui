@@ -41,9 +41,7 @@ class Properties extends React.Component {
           readOnly: true,
           viewAsHtml: true,
           viewAsHtmlConfig: {
-            fullWidthColumns: true,
-            hidePanels: true,
-            alwaysWrap: isSmallMode
+            fullWidthColumns: isSmallMode
           }
         }}
         onSubmit={this.onSubmitForm}

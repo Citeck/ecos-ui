@@ -1,12 +1,12 @@
 @import '../../../constants';
 
 .formio-component-horizontalLine {
-  margin-bottom: 30px;
+  margin-bottom: 0;
 }
 
 .formio-component-horizontalLine__line {
   border-top: 2px solid $color-gray-4;
-  margin: 20px 0 0;
+  margin: 0;
 }
 
 .formio-component-horizontalLine__line_negative-indents {
