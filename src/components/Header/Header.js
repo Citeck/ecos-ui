@@ -7,7 +7,6 @@ import CreateMenu from './CreateMenu';
 import UserMenu from './UserMenu';
 
 import './style.scss';
-import '../common/form/Dropdown/Dropdown.scss';
 
 const mapDispatchToProps = dispatch => ({
   fetchCreateCaseWidgetData: () => {

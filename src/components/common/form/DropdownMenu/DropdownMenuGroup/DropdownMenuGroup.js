@@ -30,12 +30,12 @@ export default class DropdownMenuGroup extends React.Component {
     const { groups, showLabel, showSeparator } = this.props;
 
     return groups.map((item, i) => {
-      const key = `key-${i}-${item.id}`;
-      const { label, items } = item;
+      const { id, label, items } = item;
+      const key = `key-${i}-${id}`;
 
       return (
         <div key={key}>
-          {showLabel && <div className={'ecos-header-dropdown__group-label'}>{t(label)}</div>}
+          {showLabel && <div className={'ecos-dropdown-menu__group-label'}>{t(label)}</div>}
           {this.renderMenuItems(items)}
           {showSeparator && <Separator noIndents />}
         </div>

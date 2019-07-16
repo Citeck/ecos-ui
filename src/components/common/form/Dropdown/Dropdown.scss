@@ -1,7 +1,7 @@
 @import '../../../../constants';
 
 .ecos-dropdown {
-  display: inline-block !important;
+  display: inline-block;
 
   &__menu {
     border-radius: $border-radius-standard !important;

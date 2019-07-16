@@ -1,0 +1,42 @@
+@import '../../../../constants';
+
+.ecos-dropdown-menu {
+  $dropdown: &;
+
+  &__cascade {
+    display: block;
+
+    &.show {
+      background-color: $color-gray-12;
+    }
+  }
+
+  &__group-label {
+    padding: 10px 5px;
+    font-size: $font-size-standard;
+    background: $color-blue-light3;
+  }
+
+  &__icon[class*='icon-'] {
+    color: $color-gray-5;
+    margin-right: 9px;
+    vertical-align: baseline;
+    position: relative;
+    top: 2px;
+
+    &:before {
+      font-size: 20px;
+      margin: 0;
+    }
+
+    &.icon {
+      &_on {
+        color: $color-green1;
+      }
+
+      &_off {
+        color: $color-red-1;
+      }
+    }
+  }
+}

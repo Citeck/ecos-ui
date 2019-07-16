@@ -35,7 +35,7 @@ class DropdownMenuItem extends React.Component {
     const paramsUrl = queryString.parse(targetUrl);
     const iconSpecialClass = getSpecialClassByState(id, paramsUrl);
 
-    return `ecos-header-dropdown__icon ${getIconClassMenu(id, iconSpecialClass)}`;
+    return `ecos-dropdown-menu__icon ${getIconClassMenu(id, iconSpecialClass)}`;
   }
 
   handlerClick = () => {

@@ -19,15 +19,26 @@ class MenuItem extends React.PureComponent {
 
 export default class Dropdown extends Component {
   static propTypes = {
+    titleField: PropTypes.string,
+    valueField: PropTypes.any,
     className: PropTypes.string,
     menuClassName: PropTypes.string,
+    tag: PropTypes.string,
+    direction: PropTypes.string,
+    isItemComponent: PropTypes.bool,
+    hasEmpty: PropTypes.bool,
     isStatic: PropTypes.bool,
     right: PropTypes.bool
   };
 
   static defaultProps = {
+    titleField: '',
     className: '',
     menuClassName: '',
+    tag: 'span',
+    direction: '',
+    isItemComponent: false,
+    hasEmpty: false,
     isStatic: false,
     right: false
   };
@@ -71,12 +82,14 @@ export default class Dropdown extends Component {
   };
 
   renderMenuItems() {
-    const { valueField, titleField, source } = this.props;
+    const { valueField, titleField, source, isItemComponent } = this.props;
 
     return (
       <ul>
         {source.map(item => {
-          return (
+          return isItemComponent ? (
+            item
+          ) : (
             <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
               {getPropByStringKey(item, titleField)}
             </MenuItem>
@@ -87,13 +100,13 @@ export default class Dropdown extends Component {
   }
 
   render() {
-    const { titleField, isStatic, right, className, menuClassName, children } = this.props;
+    const { titleField, isStatic, right, className, menuClassName, children, tag, direction } = this.props;
     const { dropdownOpen } = this.state;
     const cssClasses = classNames(this.className, className);
 
     return (
-      <Drd className={cssClasses} isOpen={dropdownOpen} toggle={this.toggle}>
-        <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={dropdownOpen} tag="span">
+      <Drd className={cssClasses} isOpen={dropdownOpen} toggle={this.toggle} direction={direction}>
+        <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={dropdownOpen} tag={tag}>
           {isStatic ? children : this.getControl(getPropByStringKey(this.selected, titleField))}
         </DropdownToggle>
 
