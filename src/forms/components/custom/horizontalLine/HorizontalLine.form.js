@@ -1,3 +1,6 @@
+import BaseEditConditional from 'formiojs/components/base/editForm/Base.edit.conditional';
+import BaseEditLogic from 'formiojs/components/base/editForm/Base.edit.logic';
+
 export default function() {
   return {
     components: [
@@ -19,6 +22,18 @@ export default function() {
                 defaultValue: true
               }
             ]
+          },
+          {
+            label: 'Conditional',
+            key: 'conditional',
+            weight: 40,
+            components: BaseEditConditional
+          },
+          {
+            label: 'Logic',
+            key: 'logic',
+            weight: 50,
+            components: BaseEditLogic
           }
         ]
       }
