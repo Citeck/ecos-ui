@@ -23,18 +23,28 @@ class Properties extends React.Component {
   className = 'ecos-properties';
 
   state = {
-    isReadySubmit: true
+    isReadySubmit: true,
+    hideForm: false
   };
 
   onSubmitForm = () => {
     this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
   };
 
+  // hack for EcosForm force update on isSmallMode changing
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.isSmallMode !== this.props.isSmallMode) {
+      this.setState({ hideForm: true }, () => {
+        this.setState({ hideForm: false });
+      });
+    }
+  }
+
   renderForm() {
     const { record, isSmallMode, isReady } = this.props;
-    const { isReadySubmit } = this.state;
+    const { isReadySubmit, hideForm } = this.state;
 
-    return isReady && isReadySubmit ? (
+    return !hideForm && isReady && isReadySubmit ? (
       <EcosForm
         record={record}
         options={{
