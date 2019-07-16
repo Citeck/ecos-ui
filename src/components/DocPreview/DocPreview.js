@@ -2,12 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import pdfjs from 'pdfjs-dist';
+import * as queryString from 'query-string';
 
 import Toolbar from './Toolbar';
 import PdfViewer from './PdfViewer';
 import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
 import { fileDownload, isPDFbyStr } from '../../helpers/util';
+import { DocPreviewApi } from '../../api';
 
 // 2.1.266 version of worker for 2.1.266 version of pdfjs-dist:
 // pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.worker.min.js';
@@ -15,22 +17,27 @@ pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/js/lib/pdf.work
 
 class DocPreview extends Component {
   static propTypes = {
-    link: PropTypes.string.isRequired,
+    link: PropTypes.string,
     className: PropTypes.string,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     isLoading: PropTypes.bool,
     errMsg: PropTypes.string,
-    firstPageNumber: PropTypes.number
+    firstPageNumber: PropTypes.number,
+    recordKey: PropTypes.string,
+    byLink: PropTypes.bool
   };
 
   static defaultProps = {
+    link: null,
     className: '',
     height: 'inherit',
     scale: 0.5,
     isLoading: false,
     errMsg: '',
-    firstPageNumber: 1
+    firstPageNumber: 1,
+    recordKey: 'recordRef',
+    byLink: false
   };
 
   static className = 'ecos-dp';
@@ -43,7 +50,8 @@ class DocPreview extends Component {
       settings: {},
       isLoading: props.isLoading || this.isPDF,
       scrollPage: props.firstPageNumber,
-      isFullscreen: false
+      isFullscreen: false,
+      recordId: this.getRecordId(props)
     };
   }
 
@@ -53,11 +61,15 @@ class DocPreview extends Component {
 
       this.loadPDF(link);
     }
+
+    this.getUrlByRecord();
   }
 
   componentWillReceiveProps(nextProps) {
     const oldProps = this.props;
-    const { link, isLoading } = nextProps;
+    const { link, isLoading, byLink } = nextProps;
+    const { recordId } = this.state;
+    const newRecordId = this.getRecordId(nextProps);
     const isPdf = isPDFbyStr(link);
     let state = {};
 
@@ -65,9 +77,13 @@ class DocPreview extends Component {
       state = { isLoading };
     }
 
-    if (oldProps.link !== link && isPdf) {
+    if (byLink && oldProps.link !== link && isPdf) {
       state = { isLoading: true, pdf: {} };
       this.loadPDF(link);
+    }
+
+    if (!byLink && recordId !== newRecordId) {
+      this.setState({ recordId: newRecordId }, this.getUrlByRecord);
     }
 
     this.setState({ ...state });
@@ -92,6 +108,24 @@ class DocPreview extends Component {
       onFullscreen: this.onFullscreen
     };
   }
+
+  getRecordId(props = this.props) {
+    const { recordKey } = props;
+    const searchParams = queryString.parse(window.location.search);
+
+    return searchParams[recordKey] || '';
+  }
+
+  getUrlByRecord = () => {
+    const { recordKey, byLink } = this.props;
+    const searchParams = queryString.parse(window.location.search);
+
+    if (byLink || !searchParams[recordKey]) {
+      return;
+    }
+
+    DocPreviewApi.getLinkByRecord(searchParams[recordKey]).then(url => this.loadPDF(url));
+  };
 
   loadPDF = link => {
     const { firstPageNumber } = this.props;
