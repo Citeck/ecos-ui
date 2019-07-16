@@ -2,10 +2,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import queryString from 'query-string/index';
-import { t } from '../../../../../helpers/util';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../../constants/pageTabs';
-import handleControl from '../../../../../helpers/handleControl';
-import { getIconClassMenu, getSpecialClassByState } from '../../../../Header/utils';
+import { t } from '../../../helpers/util';
+import { getIconClassMenu, getSpecialClassByState } from '../../../helpers/menu';
+import handleControl from '../../../helpers/handleControl';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
 
 const mapDispatchToProps = dispatch => ({
   dispatch
@@ -38,7 +38,7 @@ class DropdownMenuItem extends React.Component {
     return `ecos-dropdown-menu__icon ${getIconClassMenu(id, iconSpecialClass)}`;
   }
 
-  handlerClick = () => {
+  handlerClick = event => {
     const {
       data,
       data: { control },
@@ -46,21 +46,13 @@ class DropdownMenuItem extends React.Component {
       onClick
     } = this.props;
 
-    let handler = () => {};
-
     if (control && control.type) {
-      handler = event => {
-        event.preventDefault();
-        handleControl(control.type, control.payload, dispatch);
-      };
+      event.preventDefault();
+      handleControl(control.type, control.payload, dispatch);
     } else if (onClick) {
-      handler = event => {
-        event.preventDefault();
-        onClick(data);
-      };
+      event.preventDefault();
+      onClick(data);
     }
-
-    return handler;
   };
 
   render() {

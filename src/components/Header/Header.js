@@ -5,6 +5,7 @@ import { isSmallMode } from '../../helpers/util';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
 import CreateMenu from './CreateMenu';
 import UserMenu from './UserMenu';
+import SiteMenu from './SiteMenu';
 
 import './style.scss';
 
@@ -53,10 +54,9 @@ class Header extends React.Component {
             <CreateMenu isSmallMode={isSmallMode} isMobile={isMobile} />
           </div>
           <div className={`${this.className}__side_right`}>
+            {/*<Search/>*/}
+            <SiteMenu isSmallMode={isSmallMode} isMobile={isMobile} />
             <UserMenu isSmallMode={isSmallMode} isMobile={isMobile} />
-            {/*
-          <SiteMenu/>
-          <Search/>*/}
           </div>
         </div>
       </React.Fragment>

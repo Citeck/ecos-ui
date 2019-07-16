@@ -1,8 +1,8 @@
 import React from 'react';
 import { isEmpty } from 'lodash';
-import DropdownMenuItem from '../DropdownMenuItem';
 import PropTypes from 'prop-types';
-import { Dropdown } from '../../index';
+import { Dropdown } from '../../common/form';
+import DropdownMenuItem from './DropdownMenuItem';
 
 export default class DropdownMenuCascade extends React.Component {
   static propTypes = {

@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { DropdownMenu, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
-import DropDownMenuItem from '../../../common/form/DropdownMenu/DropdownMenuItem';
+import DropDownMenuItem from '../../../common/DropdownMenu/DropdownMenuItem';
 
 const SearchDropdown = () => {
   const searchDropdownListItems = [
@@ -20,9 +20,7 @@ const SearchDropdown = () => {
         <DropdownToggle tag="span" className="search-dropdown-menu__toggle">
           <i className={'fa fa-chevron-circle-down'} />
         </DropdownToggle>
-        <DropdownMenu className="custom-dropdown-menu__body" id="HEADER_SEARCH__DROPDOWN">
-          {searchDropdownListItems}
-        </DropdownMenu>
+        <DropdownMenu id="HEADER_SEARCH__DROPDOWN">{searchDropdownListItems}</DropdownMenu>
       </UncontrolledDropdown>
     </Fragment>
   );

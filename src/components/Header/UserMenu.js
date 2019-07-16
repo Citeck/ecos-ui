@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { isArray, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
+import { t } from '../../helpers/util';
 import { DropdownMenu, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
-import { t } from '../../../helpers/util';
-import CustomDropdownMenu from '../../common/form/DropdownMenu';
-import IcoBtn from '../../common/btns/IcoBtn';
+import CustomDropdownMenu from '../common/DropdownMenu';
+import IcoBtn from '../common/btns/IcoBtn';
 
 const mapStateToProps = state => ({
   userPhotoUrl: state.user.thumbnail,
@@ -48,7 +48,7 @@ class UserMenu extends React.Component {
     return (
       <div className={`${this.className}__container`}>
         {this.renderPhoto()}
-        <UncontrolledDropdown className={`${this.className}__menu`}>
+        <UncontrolledDropdown className={`ecos-header-dropdown`}>
           <DropdownToggle tag="div">
             <IcoBtn
               invert={true}

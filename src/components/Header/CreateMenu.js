@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { isArray, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { DropdownMenu, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
-import { IcoBtn } from '../../common/btns';
-import CustomDropdownMenu from '../../common/form/DropdownMenu';
-import { t } from '../../../helpers/util';
+import { IcoBtn } from '../common/btns';
+import CustomDropdownMenu from '../common/DropdownMenu';
+import { t } from '../../helpers/util';
 
 const mapStateToProps = state => ({
   items: state.header.createCaseWidget.items,
@@ -31,13 +31,12 @@ class CreateMenu extends React.Component {
 
     return (
       <div className={`${this.className}__container`}>
-        <UncontrolledDropdown>
+        <UncontrolledDropdown className={`ecos-header-dropdown`}>
           <DropdownToggle tag="div">
             <IcoBtn
               icon={'icon-plus'}
               className={`${this.className}__btn ecos-btn_blue ecos-btn_hover_t-blue ecos-btn_tight`}
               invert={false}
-              title={t('create_case.label')}
               disabled={disabled}
             >
               {!(isSmallMode || isMobile) && t('create_case.label')}

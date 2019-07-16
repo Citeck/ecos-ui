@@ -8,28 +8,29 @@
   display: flex;
   justify-content: space-between;
 
+  & .ecos-btn {
+    display: inline-flex;
+    align-items: center;
+  }
+
   &__side {
     &_left {
+      display: flex;
     }
 
-    &_rigft {
-      align-items: flex-end;
+    &_right {
+      display: flex;
+      justify-content: flex-end;
     }
   }
 
   &-create {
     $root: &;
 
-    &__container {
-    }
-
     &__btn {
       &.ecos-btn {
         font-size: $font-size-large;
       }
-    }
-
-    &__menu {
     }
   }
 
@@ -39,7 +40,7 @@
     }
 
     &__photo {
-      margin-right: 10px;
+      margin: 0 10px;
 
       &-image {
         height: 40px;
@@ -66,6 +67,14 @@
       white-space: nowrap;
       text-overflow: ellipsis;
       overflow: hidden;
+    }
+  }
+
+  &-site {
+  }
+
+  &-dropdown {
+    .ecos-btn {
     }
   }
 }

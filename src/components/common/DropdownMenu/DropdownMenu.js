@@ -5,7 +5,7 @@ import DropdownMenuGroup from './DropdownMenuGroup';
 import { DropdownMenuItem } from './index';
 
 import './style.scss';
-import '../Dropdown/Dropdown.scss';
+import '../form/Dropdown/Dropdown.scss';
 
 export default class DropdownMenu extends React.Component {
   static propTypes = {
@@ -25,13 +25,13 @@ export default class DropdownMenu extends React.Component {
   };
 
   render() {
-    const { items, isCascade, isGroup, showLabel, showSeparator } = this.props;
+    const { items, isCascade, isGroup, showLabel, showSeparator, ...someProps } = this.props;
 
     return (
       <div className={'ecos-dropdown-menu'}>
         {isCascade && <DropdownMenuCascade groups={items} />}
         {isGroup && <DropdownMenuGroup groups={items} showLabel={showLabel} showSeparator={showSeparator} />}
-        {!(isCascade || isGroup) && items.map((item, key) => <DropdownMenuItem key={key} data={item} />)}
+        {!(isCascade || isGroup) && items.map((item, key) => <DropdownMenuItem key={key} data={item} {...someProps} />)}
       </div>
     );
   }

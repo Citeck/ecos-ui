@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
-import DropdownMenuItem from '../DropdownMenuItem';
-import { t } from '../../../../../helpers/util';
-import Separator from '../../../Separator/Separator';
+import { t } from '../../../helpers/util';
+import Separator from '../Separator/Separator';
+import DropdownMenuItem from './DropdownMenuItem';
 
 export default class DropdownMenuGroup extends React.Component {
   static propTypes = {
