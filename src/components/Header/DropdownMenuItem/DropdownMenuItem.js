@@ -1,10 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import queryString from 'query-string';
 import { t } from '../../../helpers/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
 import handleControl from '../../../helpers/handleControl';
-import './icon-menu.scss';
+import { getIconClassMenu, getSpecialClassByState } from '../utils';
 
 const mapDispatchToProps = dispatch => ({
   dispatch
@@ -25,6 +26,9 @@ const DropDownMenuItem = ({ key, data, dispatch, onClick }) => {
       onClick(data);
     };
   }
+  const paramsUrl = queryString.parse(targetUrl);
+  const iconSpecialClass = getSpecialClassByState(id, paramsUrl);
+  const iconClass = `ecos-header-dropdown__icon ${getIconClassMenu(id, iconSpecialClass)}`;
 
   return (
     <li>
@@ -36,7 +40,7 @@ const DropDownMenuItem = ({ key, data, dispatch, onClick }) => {
         onClick={clickHandler}
         {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
       >
-        <i className={'fa fa-custom fa-custom__' + id} />
+        <i className={iconClass} />
         {label && t(label)}
       </a>
     </li>
@@ -50,9 +54,9 @@ DropDownMenuItem.propTypes = {
     targetUrl: PropTypes.string,
     label: PropTypes.string,
     target: PropTypes.string,
-    control: PropTypes.string
+    control: PropTypes.object
   }).isRequired,
-  dispatch: PropTypes.string,
+  dispatch: PropTypes.func,
   onClick: PropTypes.func
 };
 

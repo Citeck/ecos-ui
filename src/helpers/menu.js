@@ -73,13 +73,13 @@ export const makeUserMenuItems = (userName, isAvailable, isMutable, isExternalAu
     }
   );
 
-  if (isMutable) {
-    userMenuItems.push({
-      id: 'HEADER_USER_MENU_PASSWORD',
-      label: 'header.change-password.label',
-      targetUrl: '/share/page/user/' + encodeURIComponent(userName) + '/change-password'
-    });
-  }
+  // if (isMutable) {
+  //   userMenuItems.push({
+  //     id: 'HEADER_USER_MENU_PASSWORD',
+  //     label: 'header.change-password.label',
+  //     targetUrl: '/share/page/user/' + encodeURIComponent(userName) + '/change-password'
+  //   });
+  // }
 
   userMenuItems.push(
     {

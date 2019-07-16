@@ -24,9 +24,9 @@
     }
 
     &__btn {
-      //&.ecos-btn {
-      //  font-size: $font-size-large;
-      //}
+      &.ecos-btn {
+        font-size: $font-size-large;
+      }
     }
 
     &__menu {
@@ -62,83 +62,46 @@
     }
 
     &__menu {
-      .ecos-btn {
-        max-width: 242px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-      }
+      right: 0 !important;
+      left: unset !important;
+    }
+
+    &__btn {
+      max-width: 242px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
   }
 
-  .dropdown {
+  &-dropdown {
+    $dropdown: &;
+
     &__group-label {
       padding: 10px 5px;
       font-size: $font-size-standard;
       background: $color-blue-light3;
     }
-  }
-}
 
-.fa-custom {
-  &:before {
-    padding: 0;
-    color: #6b6b6b;
-    font-size: 16px;
-    width: 24px;
-    display: inline-block;
-    content: none;
-    font-family: FontAwesome;
-    font-style: normal;
-  }
+    &__icon[class*='icon-'] {
+      color: #6b6b6b;
+      margin-right: 9px;
+      vertical-align: baseline;
 
-  /* User menu */
-  &__HEADER_USER_MENU_MY_PROFILE:before {
-    content: '\f007';
-  }
+      &:before {
+        font-size: 20px;
+        margin: 0;
+      }
 
-  &__HEADER_USER_MENU_AVAILABILITY:before {
-    content: '\f235';
-  }
+      &.icon {
+        &_on {
+          color: $color-green1;
+        }
 
-  &__HEADER_USER_MENU_PASSWORD:before {
-    content: '\f084';
-  }
-
-  &__HEADER_USER_MENU_FEEDBACK:before {
-    content: '\f06a';
-  }
-
-  &__HEADER_USER_MENU_REPORTISSUE:before {
-    content: '\f075';
-  }
-
-  &__HEADER_USER_MENU_LOGOUT:before {
-    content: '\f057';
-  }
-
-  /* Site menu */
-  &__HEADER_SITE_INVITE:before {
-    content: '\f234';
-  }
-
-  &__HEADER_CUSTOMIZE_SITE_DASHBOARD:before {
-    content: '\f013';
-  }
-
-  &__HEADER_EDIT_SITE_DETAILS:before {
-    content: '\f040';
-  }
-
-  &__HEADER_CUSTOMIZE_SITE:before {
-    content: '\f013';
-  }
-
-  &__HEADER_LEAVE_SITE:before {
-    content: '\f08b';
-  }
-
-  &__HEADER_SITE_JOURNALS:before {
-    content: none !important;
+        &_off {
+          color: $color-red-1;
+        }
+      }
+    }
   }
 }

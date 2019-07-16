@@ -196,3 +196,9 @@
 .icon-User_avatar:before {
   content: '\e846';
 } /* '' */
+.icon-exit:before {
+  content: '\e847';
+} /* '' */
+.icon-notify-dialogue:before {
+  content: '\e849';
+} /* '' */

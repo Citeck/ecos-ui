@@ -12,13 +12,21 @@ class TaskList extends React.Component {
   static propTypes = {
     tasks: PropTypes.arrayOf(TaskPropTypes).isRequired,
     className: PropTypes.string,
-    height: PropTypes.string
+    height: PropTypes.string,
+    isLoading: PropTypes.bool,
+    isSmallMode: PropTypes.bool,
+    onAssignClick: PropTypes.func,
+    onSubmitForm: PropTypes.func
   };
 
   static defaultProps = {
     tasks: [],
     className: '',
-    height: '100%'
+    height: '100%',
+    isLoading: false,
+    isSmallMode: false,
+    onAssignClick: () => {},
+    onSubmitForm: () => {}
   };
 
   className = 'ecos-task-list';
