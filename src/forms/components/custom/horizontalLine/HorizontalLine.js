@@ -9,7 +9,8 @@ export default class HorizontalLine extends BaseComponent {
         type: 'horizontalLine',
         mask: false,
         inputType: 'horizontalLine',
-        useNegativeIndents: true
+        useNegativeIndents: true,
+        addVerticalIndents: false
       },
       ...extend
     );
@@ -39,6 +40,11 @@ export default class HorizontalLine extends BaseComponent {
     const classNames = ['formio-component-horizontalLine__line'];
     if (this.component.useNegativeIndents) {
       classNames.push('formio-component-horizontalLine__line_negative-indents');
+    }
+
+    if (this.component.addVerticalIndents) {
+      classNames.push('formio-component-horizontalLine__line_vertical-indents');
+      this.element.classList.add('formio-component-horizontalLine_vertical-indents');
     }
 
     this.lineElement = this.ce('div', {

@@ -20,6 +20,14 @@ export default function() {
                 input: true,
                 key: 'useNegativeIndents',
                 defaultValue: true
+              },
+              {
+                label: 'Add vertical indents',
+                labelPosition: 'left-left',
+                type: 'checkbox',
+                input: true,
+                key: 'addVerticalIndents',
+                defaultValue: false
               }
             ]
           },

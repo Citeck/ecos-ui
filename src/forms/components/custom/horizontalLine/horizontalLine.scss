@@ -4,12 +4,21 @@
   margin-bottom: 0;
 }
 
+.formio-component-horizontalLine_vertical-indents {
+  margin-bottom: 30px;
+}
+
 .formio-component-horizontalLine__line {
   border-top: 2px solid $color-gray-4;
   margin: 0;
 }
 
 .formio-component-horizontalLine__line_negative-indents {
-  margin: 20px -20px 0;
+  margin-left: -20px;
+  margin-right: -20px;
   padding: 0 20px;
+}
+
+.formio-component-horizontalLine__line_vertical-indents {
+  margin-top: 20px;
 }
