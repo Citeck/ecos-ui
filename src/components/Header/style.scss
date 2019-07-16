@@ -61,11 +61,6 @@
       }
     }
 
-    &__menu {
-      right: 0 !important;
-      left: unset !important;
-    }
-
     &__btn {
       max-width: 242px;
       white-space: nowrap;
@@ -84,9 +79,11 @@
     }
 
     &__icon[class*='icon-'] {
-      color: #6b6b6b;
+      color: $color-gray-5;
       margin-right: 9px;
       vertical-align: baseline;
+      position: relative;
+      top: 2px;
 
       &:before {
         font-size: 20px;

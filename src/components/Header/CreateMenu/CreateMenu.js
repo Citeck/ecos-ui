@@ -4,8 +4,7 @@ import { isArray, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { DropdownMenu, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
 import { IcoBtn } from '../../common/btns';
-import DropDownMenuGroup from '../DropdownMenuGroup';
-import DropdownMenuCascade from '../DropdownMenuCascade';
+import CustomDropdownMenu from '../../common/form/DropdownMenu';
 import { t } from '../../../helpers/util';
 
 const mapStateToProps = state => ({
@@ -26,18 +25,6 @@ class CreateMenu extends React.Component {
 
   className = 'ecos-header-create';
 
-  renderMenuListItems() {
-    const { items, isCascade } = this.props;
-
-    return items.map((item, key) => {
-      return isCascade ? (
-        <DropdownMenuCascade key={key} label={item.label} items={item.items} id={item.id} />
-      ) : (
-        <DropDownMenuGroup key={key} label={item.label} items={item.items} id={item.id} hideLabel={true} hideSeparator={true} />
-      );
-    });
-  }
-
   render() {
     const { items, isCascade, isSmallMode, isMobile } = this.props;
     const disabled = !(!isEmpty(items) && isArray(items));
@@ -56,7 +43,9 @@ class CreateMenu extends React.Component {
               {!(isSmallMode || isMobile) && t('create_case.label')}
             </IcoBtn>
           </DropdownToggle>
-          <DropdownMenu className={`${this.className}__menu ecos-dropdown__menu`}>{!disabled && this.renderMenuListItems()}</DropdownMenu>
+          <DropdownMenu className={`${this.className}__menu ecos-dropdown__menu`}>
+            <CustomDropdownMenu items={items} isCascade={isCascade} isGroup={!isCascade} />
+          </DropdownMenu>
         </UncontrolledDropdown>
       </div>
     );

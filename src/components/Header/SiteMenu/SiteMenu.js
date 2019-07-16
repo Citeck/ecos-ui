@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { isArray, isEmpty } from 'lodash';
 import { DropdownMenu, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
-import DropDownMenuItem from '../DropdownMenuItem';
+import { DropdownMenuItem } from '../../common/form/DropdownMenu';
 import { goToPageFromSiteMenu } from '../../../actions/header';
 
 const mapStateToProps = state => ({
@@ -19,7 +19,7 @@ const SiteMenu = ({ items, goToPage }) => {
     return null;
   }
 
-  const menuListItems = items.map((item, key) => <DropDownMenuItem key={key} data={item} onClick={goToPage} />);
+  const menuListItems = items.map((item, key) => <DropdownMenuItem key={key} data={item} onClick={goToPage} />);
 
   return (
     <div id="HEADER_SITE_MENU">

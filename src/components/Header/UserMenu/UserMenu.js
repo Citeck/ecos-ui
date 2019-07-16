@@ -4,7 +4,7 @@ import { isArray, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { DropdownMenu, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
 import { t } from '../../../helpers/util';
-import DropDownMenuItem from '../DropdownMenuItem';
+import CustomDropdownMenu from '../../common/form/DropdownMenu';
 import IcoBtn from '../../common/btns/IcoBtn';
 
 const mapStateToProps = state => ({
@@ -41,12 +41,6 @@ class UserMenu extends React.Component {
     );
   }
 
-  renderMenuListItems() {
-    const { items } = this.props;
-
-    return items.map((item, key) => <DropDownMenuItem key={key} data={item} />);
-  }
-
   render() {
     const { userFullName, isMobile, isSmallMode, items } = this.props;
     const disabled = !(!isEmpty(items) && isArray(items));
@@ -66,8 +60,8 @@ class UserMenu extends React.Component {
               {!(isSmallMode || isMobile) && userFullName}
             </IcoBtn>
           </DropdownToggle>
-          <DropdownMenu right className={`${this.className}__menu ecos-dropdown__menu`}>
-            {!disabled && this.renderMenuListItems()}
+          <DropdownMenu className={`${this.className}__menu ecos-dropdown__menu ecos-dropdown__menu_right`}>
+            <CustomDropdownMenu items={items} />
           </DropdownMenu>
         </UncontrolledDropdown>
       </div>
