@@ -2,7 +2,6 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import ReactResizeDetector from 'react-resize-detector';
 
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsDashletToolbar from '../JournalsDashletToolbar';
@@ -99,6 +98,7 @@ class JournalsDashlet extends Component {
         style={{
           minWidth: `${MIN_WIDTH_DASHLET_SMALL}px`
         }}
+        onResize={this.handleResize}
       >
         {editorMode ? (
           <Measurer>
@@ -115,7 +115,6 @@ class JournalsDashlet extends Component {
             <JournalsDashletFooter stateId={this._stateId} />
           </Fragment>
         )}
-        <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
       </Dashlet>
     );
   }

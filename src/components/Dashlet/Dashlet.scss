@@ -1,21 +1,32 @@
 @import '../../constants';
 
 .dashlet {
+  $root: &;
   min-height: auto !important;
 
-  .dashlet__header {
+  &__header {
     height: 100%;
     position: relative;
     padding: 12px 0;
 
     &:hover {
-      .dashlet__btn_hidden {
-        visibility: visible;
+      #{$root} {
+        &__btn {
+          &_hidden {
+            visibility: visible;
+          }
+        }
+
+        &__actions {
+          &_header {
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.35), $color-white);
+          }
+        }
       }
     }
   }
 
-  .dashlet__caption {
+  &__caption {
     display: inline-block;
     text-align: center;
     white-space: nowrap;
@@ -35,40 +46,42 @@
     box-sizing: border-box;
   }
 
-  .dashlet__body_relative {
-    position: relative;
+  &__body {
+    &_relative {
+      position: relative;
+    }
   }
 
-  .dashlet__actions {
+  &__actions {
     position: absolute;
     top: 0;
     right: 0;
+
+    &_header {
+      padding: 10px 0;
+    }
   }
 
-  .dashlet__actions_header {
-    padding: 10px 0;
-  }
-
-  .dashlet__btn {
+  &__btn {
     font-size: $font-size-standard;
     font-weight: $font-weight-bold;
+
+    &_next {
+      margin-right: 20px;
+    }
+
+    &_hidden {
+      visibility: hidden;
+    }
+
+    &_move {
+      font-size: 28px;
+    }
   }
 
-  .dashlet__btn_next {
-    margin-right: 20px;
-  }
-
-  .dashlet__btn_hidden {
-    visibility: hidden;
-  }
-
-  .dashlet__resizer {
+  &__resizer {
     text-align: center;
     color: $color-gray-6;
     font-size: $font-size-extra-small;
-  }
-
-  .dashlet__btn_move {
-    font-size: 28px;
   }
 }

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
 
 import Dashlet from '../Dashlet/Dashlet';
@@ -52,9 +51,9 @@ class DocPreviewDashlet extends Component {
         actionEdit={false}
         actionHelp={false}
         needGoTo={false}
+        onResize={this.handleResize}
       >
         <DocPreview {...config} className={classNamePreview} />
-        <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
       </Dashlet>
     );
   }

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import moment from 'moment';
-import ReactResizeDetector from 'react-resize-detector';
 import { Editor, EditorState, RichUtils, ContentState, convertToRaw, convertFromRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import classNames from 'classnames';
@@ -649,8 +648,8 @@ class Comments extends React.Component {
           actionHelp={false}
           resizable
           onReload={this.handleReloadData}
+          onResize={this.handleResize}
         >
-          <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
           <div className="ecos-comments__header">{this.renderHeader()}</div>
 
           {this.renderComments()}
