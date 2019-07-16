@@ -139,9 +139,9 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
         height,
         settings: { isFullscreen }
       } = this.props;
-      let _doc = `${_viewer}__doc`;
+      let _doc = `${_viewer}-doc`;
       let _fullscreen = `${_viewer}_fullscreen`;
-      let _scroll_area = `${_doc}__scroll-area`;
+      let _scroll_area = `${_doc}-scroll-area`;
       let style = {};
       let newProps = { ...this.props, ctrClass: _doc, refViewer: this.refViewer };
       const renderView = props => <div {...props} className={classNames(_scroll_area)} />;
@@ -172,7 +172,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     renderMessage() {
       let { height } = this.props;
       const message = this.checkMessage;
-      let _msg = `${_viewer}__msg`;
+      let _msg = `${_viewer}-msg`;
 
       if (!message) {
         return null;

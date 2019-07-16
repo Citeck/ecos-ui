@@ -30,7 +30,7 @@ class PdfViewer extends React.PureComponent {
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
     let arrayPages = [];
-    let _pageCtr = `${ctrClass}__page-container`;
+    let _pageCtr = `${ctrClass}-page-container`;
 
     while (numPages) {
       arrayPages.push(numPages--);
@@ -44,8 +44,8 @@ class PdfViewer extends React.PureComponent {
 
           return (
             <div className={classNames(_pageCtr, `${_pageCtr}_pdf`)} key={key}>
-              <div className={`${_pageCtr}__number`}>{pageN}</div>
-              <div className={`${_pageCtr}__content`}>
+              <div className={`${_pageCtr}-number`}>{pageN}</div>
+              <div className={`${_pageCtr}-content`}>
                 <PdfPage {...this.pageProps} pageNumber={pageN} />
               </div>
             </div>

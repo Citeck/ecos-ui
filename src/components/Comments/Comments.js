@@ -15,7 +15,7 @@ import IcoBtn from '../common/btns/IcoBtn/IcoBtn';
 import { t, num2str } from '../../helpers/util';
 import { selectStateByNodeRef } from '../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../actions/comments';
-import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
@@ -175,7 +175,7 @@ class Comments extends React.Component {
     const { width } = this.state;
     const classes = ['ecos-comments'];
 
-    if (width <= MIN_WIDTH_DASHLET_SMALL) {
+    if (width < MIN_WIDTH_DASHLET_LARGE) {
       classes.push('ecos-comments_small');
     }
 

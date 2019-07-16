@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
+import classNames from 'classnames';
+
 import Export from '../../Export/Export';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
@@ -54,7 +56,8 @@ class JournalsDashletToolbar extends Component {
         meta: { nodeRef = '' }
       },
       journalSettings,
-      measurer
+      measurer,
+      isSmall
     } = this.props;
 
     return (
@@ -65,31 +68,45 @@ class JournalsDashletToolbar extends Component {
           onClick={this.addRecord}
         />
 
-        <Dropdown hasEmpty source={journals} value={nodeRef} valueField={'nodeRef'} titleField={'title'} onChange={this.onChangeJournal}>
+        <Dropdown
+          hasEmpty
+          source={journals}
+          value={nodeRef}
+          valueField={'nodeRef'}
+          titleField={'title'}
+          className={classNames({
+            'ecos-journal-dashlet__toolbar-dropdown_small': isSmall
+          })}
+          onChange={this.onChangeJournal}
+        >
           <IcoBtn invert={'true'} icon={'icon-down'} className={'ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10'} />
         </Dropdown>
 
-        <Dropdown
-          source={journalSettings}
-          value={0}
-          valueField={JOURNAL_SETTING_ID_FIELD}
-          titleField={`${JOURNAL_SETTING_DATA_FIELD}.title`}
-          isButton={true}
-          onChange={this.onChangeJournalSetting}
-        >
-          <TwoIcoBtn icons={['icon-settings', 'icon-down']} className={'ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10'} />
-        </Dropdown>
+        {!isSmall && (
+          <Dropdown
+            source={journalSettings}
+            value={0}
+            valueField={JOURNAL_SETTING_ID_FIELD}
+            titleField={`${JOURNAL_SETTING_DATA_FIELD}.title`}
+            isButton={true}
+            onChange={this.onChangeJournalSetting}
+          >
+            <TwoIcoBtn icons={['icon-settings', 'icon-down']} className={'ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10'} />
+          </Dropdown>
+        )}
 
-        <Export config={journalConfig} />
+        {!isSmall && <Export config={journalConfig} />}
 
-        <div className={'dashlet__actions'}>
-          {measurer.xs || measurer.xxs || measurer.xxxs ? null : <JournalsDashletPagination stateId={stateId} />}
-          <IcoBtn
-            icon={'icon-list'}
-            className={'ecos-btn_i ecos-btn_blue2 ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_10'}
-          />
-          <IcoBtn icon={'icon-pie'} className={'ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue'} />
-        </div>
+        {!isSmall && (
+          <div className={'dashlet__actions'}>
+            {measurer.xs || measurer.xxs || measurer.xxxs ? null : <JournalsDashletPagination stateId={stateId} />}
+            <IcoBtn
+              icon={'icon-list'}
+              className={'ecos-btn_i ecos-btn_blue2 ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_10'}
+            />
+            <IcoBtn icon={'icon-pie'} className={'ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue'} />
+          </div>
+        )}
       </div>
     );
   }
