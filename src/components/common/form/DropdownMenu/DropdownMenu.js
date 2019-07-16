@@ -8,39 +8,28 @@ export default class DropdownMenu extends React.Component {
   static propTypes = {
     isCascade: PropTypes.bool,
     isGroup: PropTypes.bool,
-    hideLabel: PropTypes.bool,
-    hideSeparator: PropTypes.bool,
+    showLabel: PropTypes.bool,
+    showSeparator: PropTypes.bool,
     items: PropTypes.array
   };
 
   static defaultProps = {
     isCascade: false,
     isGroup: false,
-    hideLabel: false,
-    hideSeparator: false,
+    showLabel: false,
+    showSeparator: false,
     items: []
   };
 
   render() {
-    const { items, isCascade, isGroup, hideLabel, hideSeparator } = this.props;
+    const { items, isCascade, isGroup, showLabel, showSeparator } = this.props;
 
-    if (isGroup || isCascade) {
-      return items.map((item, i) => {
-        const key = `key-${i}-${item.id}`;
+    if (isCascade) {
+      return <DropdownMenuCascade groups={items} />;
+    }
 
-        return isCascade ? (
-          <DropdownMenuCascade key={key} label={item.label} items={item.items} id={item.id} />
-        ) : (
-          <DropdownMenuGroup
-            key={key}
-            label={item.label}
-            items={item.items}
-            id={item.id}
-            hideLabel={hideLabel}
-            hideSeparator={hideSeparator}
-          />
-        );
-      });
+    if (isGroup) {
+      return <DropdownMenuGroup groups={items} showLabel={showLabel} showSeparator={showSeparator} />;
     }
 
     return items.map((item, key) => <DropdownMenuItem key={key} data={item} />);

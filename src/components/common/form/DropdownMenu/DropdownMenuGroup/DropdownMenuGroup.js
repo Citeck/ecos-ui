@@ -7,32 +7,39 @@ import Separator from '../../../Separator/Separator';
 
 export default class DropdownMenuGroup extends React.Component {
   static propTypes = {
-    id: PropTypes.string,
-    label: PropTypes.string,
-    items: PropTypes.array,
-    hideLabel: PropTypes.bool,
-    hideSeparator: PropTypes.bool
+    groups: PropTypes.array,
+    showLabel: PropTypes.bool,
+    showSeparator: PropTypes.bool
   };
 
   static defaultProps = {
-    hideLabel: false,
-    hideSeparator: false
+    groups: [],
+    showLabel: false,
+    showSeparator: false
   };
 
-  render() {
-    const { id, label, items, hideLabel, hideSeparator } = this.props;
-    const groupItems = isEmpty(items)
+  renderMenuItems(items) {
+    return isEmpty(items)
       ? []
       : items.map((item, key) => {
           return <DropdownMenuItem key={key} data={item} />;
         });
+  }
 
-    return (
-      <React.Fragment>
-        {!hideLabel && <div className={'ecos-header-dropdown__group-label'}>{t(label)}</div>}
-        {groupItems}
-        {!hideSeparator && <Separator noIndents />}
-      </React.Fragment>
-    );
+  render() {
+    const { groups, showLabel, showSeparator } = this.props;
+
+    return groups.map((item, i) => {
+      const key = `key-${i}-${item.id}`;
+      const { label, items } = item;
+
+      return (
+        <div key={key}>
+          {showLabel && <div className={'ecos-header-dropdown__group-label'}>{t(label)}</div>}
+          {this.renderMenuItems(items)}
+          {showSeparator && <Separator noIndents />}
+        </div>
+      );
+    });
   }
 }
