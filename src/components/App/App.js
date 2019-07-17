@@ -90,7 +90,8 @@ class App extends Component {
           <Suspense fallback={null}>
             <Switch>
               {/*<Route path="/share/page" exact component={DashboardPage} />*/}
-              <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />{' '}
+              <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
+              <Route exact path="/share" render={() => <Redirect to={URL.DASHBOARD} />} />
               {/* TODO delete redirect some day */}
               <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
               <Route path={URL.DASHBOARD} exact component={DashboardPage} />
