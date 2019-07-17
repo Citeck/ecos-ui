@@ -639,6 +639,8 @@ class Comments extends React.Component {
   }
 
   render() {
+    const { dragHandleProps } = this.props;
+
     return (
       <div className={this.className}>
         <Dashlet
@@ -649,6 +651,7 @@ class Comments extends React.Component {
           resizable
           onReload={this.handleReloadData}
           onResize={this.handleResize}
+          dragHandleProps={dragHandleProps}
         >
           <div className="ecos-comments__header">{this.renderHeader()}</div>
 

@@ -3,6 +3,7 @@
 .dashlet {
   $root: &;
   min-height: auto !important;
+  padding-top: 0 !important;
 
   &__header {
     height: 100%;
@@ -75,7 +76,11 @@
     }
 
     &_move {
-      font-size: 28px;
+      font-size: 28px !important;
+
+      &-wrapper {
+        display: inline-block;
+      }
     }
   }
 

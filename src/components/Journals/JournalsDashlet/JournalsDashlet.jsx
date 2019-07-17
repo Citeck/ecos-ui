@@ -40,7 +40,12 @@ const mapDispatchToProps = (dispatch, props) => {
 
 class JournalsDashlet extends Component {
   static propTypes = {
-    id: PropTypes.string.isRequired
+    id: PropTypes.string.isRequired,
+    dragHandleProps: PropTypes.object
+  };
+
+  static defaultProps = {
+    dragHandleProps: {}
   };
 
   state = {
@@ -78,7 +83,7 @@ class JournalsDashlet extends Component {
   };
 
   render() {
-    const { journalConfig, className, id, editorMode, reloadGrid } = this.props;
+    const { journalConfig, className, id, editorMode, reloadGrid, dragHandleProps } = this.props;
     const { width } = this.state;
 
     if (!journalConfig) {
@@ -99,6 +104,7 @@ class JournalsDashlet extends Component {
           minWidth: `${MIN_WIDTH_DASHLET_SMALL}px`
         }}
         onResize={this.handleResize}
+        dragHandleProps={dragHandleProps}
       >
         {editorMode ? (
           <Measurer>

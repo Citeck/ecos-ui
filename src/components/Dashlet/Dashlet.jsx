@@ -10,7 +10,19 @@ import { t } from '../../helpers/util';
 
 import './Dashlet.scss';
 
-const Header = ({ title, needGoTo, onGoTo, onReload, onEdit, actionReload, actionEdit, actionHelp, actionDrag, measurer }) => {
+const Header = ({
+  dragHandleProps,
+  title,
+  needGoTo,
+  onGoTo,
+  onReload,
+  onEdit,
+  actionReload,
+  actionEdit,
+  actionHelp,
+  actionDrag,
+  measurer
+}) => {
   const btnGoTo = (
     <IcoBtn title={t('dashlet.goto')} invert={'true'} icon={'icon-big-arrow'} className={'dashlet__btn ecos-btn_narrow'} onClick={onGoTo}>
       {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
@@ -56,12 +68,14 @@ const Header = ({ title, needGoTo, onGoTo, onReload, onEdit, actionReload, actio
 
   if (actionDrag) {
     actions.push(
-      <IcoBtn
-        key="action-drag"
-        icon={'icon-drag'}
-        className={'ecos-btn_i dashlet__btn_next dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1'}
-        title={t('dashlet.move.title')}
-      />
+      <span className="dashlet__btn_move-wrapper" {...dragHandleProps}>
+        <IcoBtn
+          key="action-drag"
+          icon={'icon-drag'}
+          className={'ecos-btn_i dashlet__btn_next dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1'}
+          title={t('dashlet.move.title')}
+        />
+      </span>
     );
   }
 
@@ -88,7 +102,8 @@ export default class Dashlet extends Component {
     onGoTo: PropTypes.func,
     onReload: PropTypes.func,
     onResize: PropTypes.func,
-    dragButton: PropTypes.func
+    dragButton: PropTypes.func,
+    dragHandleProps: PropTypes.object
   };
 
   static defaultProps = {
@@ -102,7 +117,8 @@ export default class Dashlet extends Component {
     onGoTo: () => {},
     onReload: () => {},
     onResize: () => {},
-    dragButton: null
+    dragButton: null,
+    dragHandleProps: {}
   };
 
   onEdit = () => {
@@ -141,7 +157,8 @@ export default class Dashlet extends Component {
       actionEdit,
       actionHelp,
       actionDrag,
-      onResize
+      onResize,
+      dragHandleProps
     } = this.props;
     const cssClasses = classNames('dashlet', className);
 
@@ -164,6 +181,7 @@ export default class Dashlet extends Component {
                 onEdit={this.onEdit}
                 actionHelp={actionHelp}
                 actionDrag={actionDrag}
+                dragHandleProps={dragHandleProps}
               />
             </Measurer>
           }
