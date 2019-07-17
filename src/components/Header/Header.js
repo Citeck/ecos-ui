@@ -6,6 +6,7 @@ import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from 
 import CreateMenu from './CreateMenu';
 import UserMenu from './UserMenu';
 import SiteMenu from './SiteMenu';
+import Search from './Search';
 
 import './style.scss';
 
@@ -26,17 +27,17 @@ const mapStateToProps = state => ({
 });
 
 class Header extends React.Component {
-  componentDidMount() {
-    this.props.fetchCreateCaseWidgetData();
-    this.props.fetchUserMenuData();
-    this.props.fetchSiteMenuData();
-  }
-
   className = 'ecos-header';
 
   state = {
     isSmallMode: false
   };
+
+  componentDidMount() {
+    this.props.fetchCreateCaseWidgetData();
+    this.props.fetchUserMenuData();
+    this.props.fetchSiteMenuData();
+  }
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
@@ -45,17 +46,18 @@ class Header extends React.Component {
   render() {
     const { isSmallMode } = this.state;
     const { isMobile } = this.props;
+    const classNameSide = `${this.className}__side`;
 
     return (
       <React.Fragment>
         <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
         <div className={this.className}>
-          <div className={`${this.className}__side_left`}>
+          <div className={`${classNameSide} ${classNameSide}_left`}>
             <CreateMenu isSmallMode={isSmallMode} isMobile={isMobile} />
           </div>
-          <div className={`${this.className}__side_right`}>
-            {/*<Search/>*/}
-            <SiteMenu isSmallMode={isSmallMode} isMobile={isMobile} />
+          <div className={`${classNameSide} ${classNameSide}_right`}>
+            <Search isSmallMode={isSmallMode} isMobile={isMobile} />
+            {!(isSmallMode || isMobile) && <SiteMenu />}
             <UserMenu isSmallMode={isSmallMode} isMobile={isMobile} />
           </div>
         </div>

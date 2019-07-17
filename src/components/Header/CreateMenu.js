@@ -4,7 +4,7 @@ import { isArray, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { DropdownMenu, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
 import { IcoBtn } from '../common/btns';
-import CustomDropdownMenu from '../common/DropdownMenu';
+import { DropdownMenu as Menu } from '../common';
 import { t } from '../../helpers/util';
 
 const mapStateToProps = state => ({
@@ -43,7 +43,7 @@ class CreateMenu extends React.Component {
             </IcoBtn>
           </DropdownToggle>
           <DropdownMenu className={`${this.className}__menu ecos-dropdown__menu`}>
-            <CustomDropdownMenu items={items} isCascade={isCascade} isGroup={!isCascade} />
+            <Menu items={items} isCascade={isCascade} isGroup={!isCascade} />
           </DropdownMenu>
         </UncontrolledDropdown>
       </div>

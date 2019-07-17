@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { t } from '../../../../helpers/util';
+import { t } from '../../../helpers/util';
 import SearchAutocompleteItem, {
   SEARCH_AUTOCOMPLETE_TYPE_DOCUMENTS,
-  SEARCH_AUTOCOMPLETE_TYPE_SITES,
-  SEARCH_AUTOCOMPLETE_TYPE_PEOPLE
-} from '../SearchAutocompleteItem';
+  SEARCH_AUTOCOMPLETE_TYPE_PEOPLE,
+  SEARCH_AUTOCOMPLETE_TYPE_SITES
+} from './SearchAutocompleteItem';
 
 const mapStateToProps = state => ({
   isVisible: state.header.search.autocomplete.isVisible,

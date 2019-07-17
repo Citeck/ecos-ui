@@ -1,16 +1,15 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { debounce } from 'lodash';
 import { connect } from 'react-redux';
-import debounce from 'lodash/debounce';
-import SearchDropdown from './SearchDropdown';
-import SearchAutocomplete from './SearchAutocomplete';
-import ClickOutside from '../../ClickOutside';
+import { generateSearchTerm } from '../../../helpers/util';
+import InputSearch from '../../common/Search/Search';
 import {
-  getSearchTextFromHistory,
-  toggleAutocompleteVisibility,
   fetchAutocompleteItems,
-  fetchMoreAutocompleteDocuments
+  fetchMoreAutocompleteDocuments,
+  getSearchTextFromHistory,
+  toggleAutocompleteVisibility
 } from '../../../actions/header';
-import { t, generateSearchTerm } from '../../../helpers/util';
 
 const mapStateToProps = state => ({
   autocompleteIsVisible: state.header.search.autocomplete.isVisible

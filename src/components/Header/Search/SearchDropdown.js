@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { DropdownMenu, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
-import DropDownMenuItem from '../../../common/DropdownMenu/DropdownMenuItem';
+import DropDownMenuItem from '../../common/DropdownMenu/DropdownMenuItem';
 
 const SearchDropdown = () => {
   const searchDropdownListItems = [

@@ -38,9 +38,14 @@ class SiteMenu extends React.Component {
     }));
   };
 
+  handelItem = data => {
+    this.toggle();
+    this.props.goToPage(data);
+  };
+
   render() {
     const { dropdownOpen } = this.state;
-    const { items, goToPage, isSmallMode, isMobile } = this.props;
+    const { items } = this.props;
     const disabled = isEmpty(items) || !isArray(items);
     const classNameIcoBtn = classNames(
       `${this.className}__btn  ecos-btn_hover_t-blue ecos-btn_tight`,
@@ -52,20 +57,12 @@ class SiteMenu extends React.Component {
       <div className={`${this.className}__container`}>
         <Dropdown className={`ecos-header-dropdown`} isOpen={dropdownOpen} toggle={this.toggle}>
           <DropdownToggle tag="div">
-            {!(isSmallMode || isMobile) && (
-              <IcoBtn invert={true} icon={'icon-down'} className={classNameIcoBtn} disabled={disabled}>
-                <Icon className={'icon-settings'} />
-              </IcoBtn>
-            )}
+            <IcoBtn invert={true} icon={'icon-down'} className={classNameIcoBtn} disabled={disabled}>
+              <Icon className={'icon-settings'} />
+            </IcoBtn>
           </DropdownToggle>
           <DropdownMenu className={`${this.className}__menu ecos-dropdown__menu ecos-dropdown__menu_right`}>
-            <CustomDropdownMenu
-              items={items}
-              onClick={data => {
-                this.toggle();
-                goToPage(data);
-              }}
-            />
+            <CustomDropdownMenu items={items} onClick={this.handelItem} />
           </DropdownMenu>
         </Dropdown>
       </div>

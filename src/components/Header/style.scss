@@ -14,12 +14,12 @@
   }
 
   &__side {
+    display: flex;
+
     &_left {
-      display: flex;
     }
 
     &_right {
-      display: flex;
       justify-content: flex-end;
     }
   }
