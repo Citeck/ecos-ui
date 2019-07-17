@@ -4,8 +4,11 @@ import {
   fetchSiteMenuData,
   fetchUserMenuData,
   goToPageFromSiteMenu,
+  resetSearchAutocompleteItems,
+  runSearchAutocompleteItems,
   setCreateCaseWidgetIsCascade,
   setCreateCaseWidgetItems,
+  setSearchAutocompleteItems,
   setSiteMenuItems,
   setUserMenuItems
 } from '../actions/header';
@@ -73,11 +76,27 @@ function* goToPageSiteMenu({ api, fakeApi, logger }, { payload }) {
   }
 }
 
+function* sagaRunSearchAutocomplete({ api, fakeApi, logger }, { payload }) {
+  try {
+    yield put(resetSearchAutocompleteItems());
+    const documents = yield api.menu.getLiveSearchDocuments(payload, 0);
+    const sites = yield api.menu.getLiveSearchSites(payload);
+    const people = yield api.menu.getLiveSearchPeople(payload);
+
+    console.log('+++++++++++++++', documents, sites, people);
+    const noResults = !(sites.totalRecords + documents.totalRecords + people.totalRecords);
+    yield put(setSearchAutocompleteItems({ documents, sites, people, noResults }));
+  } catch (e) {
+    logger.error('[fetchSiteMenu saga] error', e.message);
+  }
+}
+
 function* headerSaga(ea) {
   yield takeLatest(fetchCreateCaseWidgetData().type, fetchCreateCaseWidget, ea);
   yield takeLatest(fetchUserMenuData().type, fetchUserMenu, ea);
   yield takeLatest(fetchSiteMenuData().type, fetchSiteMenu, ea);
   yield takeLatest(goToPageFromSiteMenu().type, goToPageSiteMenu, ea);
+  yield takeLatest(runSearchAutocompleteItems().type, sagaRunSearchAutocomplete, ea);
 }
 
 export default headerSaga;

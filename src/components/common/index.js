@@ -10,4 +10,4 @@ export { default as RawHtmlWrapper } from './RawHtmlWrapper';
 export { default as Search } from './Search/Search';
 export { default as Separator } from './Separator/Separator';
 export { default as Tabs } from './Tabs';
-export { default as InputSearch } from './InputSearch/InputSearch';
+export { default as SearchSelect } from './SearchSelect/SearchSelect';

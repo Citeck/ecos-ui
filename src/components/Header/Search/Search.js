@@ -1,121 +1,109 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { debounce } from 'lodash';
+import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { generateSearchTerm } from '../../../helpers/util';
-import InputSearch from '../../common/Search/Search';
-import {
-  fetchAutocompleteItems,
-  fetchMoreAutocompleteDocuments,
-  getSearchTextFromHistory,
-  toggleAutocompleteVisibility
-} from '../../../actions/header';
+import { t } from '../../../helpers/util';
+import { SearchSelect } from '../../common';
+import { resetSearchAutocompleteItems, runSearchAutocompleteItems } from '../../../actions/header';
+import SearchService from '../../../services/search';
 
 const mapStateToProps = state => ({
-  autocompleteIsVisible: state.header.search.autocomplete.isVisible
+  documents: state.header.search.documents,
+  people: state.header.search.people,
+  sites: state.header.search.sites,
+  noResults: state.header.search.noResults
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchAutocomplete: (payload, callback) => dispatch(fetchAutocompleteItems(payload, callback)),
-  fetchMoreDocuments: payload => dispatch(fetchMoreAutocompleteDocuments(payload)),
-  showAutocomplete: payload => dispatch(toggleAutocompleteVisibility(true)),
-  hideAutocomplete: payload => dispatch(toggleAutocompleteVisibility(false)),
-  getSearchTextFromHistory: (isDesc, callback) => {
-    dispatch(getSearchTextFromHistory(isDesc, callback));
-  }
+  runSearchAutocomplete: payload => dispatch(runSearchAutocompleteItems(payload)),
+  resetSearchAutocomplete: payload => dispatch(resetSearchAutocompleteItems(payload))
 });
 
-class Search extends React.Component {
-  searchPlaceholder = t('search.label');
-  clearButtonTitle = t('search.clear');
+const setOutputParams = (array, type) => {
+  return array.map(item => SearchService.formatSearchAutocompleteResults(item, type));
+};
 
-  state = {
-    searchText: ''
+class Search extends React.Component {
+  static propTypes = {
+    isSmallMode: PropTypes.bool,
+    isMobile: PropTypes.bool
   };
 
-  onKeyDown = e => {
-    const { searchPageUrl, hiddenSearchTerms, hideAutocomplete } = this.props;
-    const { searchText } = this.state;
+  static defaultProps = {
+    isSmallMode: false,
+    isMobile: false
+  };
 
-    switch (e.key) {
-      case 'Enter':
-        let url = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
-        window.location = window.Alfresco.constants.URL_PAGECONTEXT + url;
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        this.setSearchTextFromHistory(true);
-        break;
-      case 'ArrowDown':
-        e.preventDefault();
-        this.setSearchTextFromHistory(false);
-        break;
-      case 'Escape':
-        hideAutocomplete();
-        break;
-      default:
-        break;
+  className = 'ecos-header-search';
+
+  // onKeyDown = e => {
+  //   const { searchPageUrl, hiddenSearchTerms, hideAutocomplete } = this.props;
+  //   const { searchText } = this.state;
+  //
+  //   switch (e.key) {
+  //     case 'Enter':
+  //       let url = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
+  //       window.location = window.Alfresco.constants.URL_PAGECONTEXT + url;
+  //       break;
+  //     case 'ArrowUp':
+  //       e.preventDefault();
+  //       this.setSearchTextFromHistory(true);
+  //       break;
+  //     case 'ArrowDown':
+  //       e.preventDefault();
+  //       this.setSearchTextFromHistory(false);
+  //       break;
+  //     case 'Escape':
+  //       hideAutocomplete();
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // };
+
+  onSearch = searchText => {
+    if (searchText) {
+      this.props.runSearchAutocomplete(searchText);
+    } else {
+      this.props.resetSearchAutocomplete();
     }
   };
 
-  setSearchTextFromHistory = isDesc => {
-    const { getSearchTextFromHistory } = this.props;
-    getSearchTextFromHistory(isDesc, newSearchText => {
-      this.setState({ searchText: newSearchText }, this.fetchAutocomplete);
-    });
-  };
+  get searchResult() {
+    const { documents, sites, people } = this.props;
+    const searchResult = [];
+    const Types = SearchService.SearchAutocompleteTypes;
 
-  onSearchClearClick = () => {
-    this.setState({ searchText: '' }, () => {
-      this.props.fetchAutocomplete(this.state.searchText);
-      this.inputRef.focus();
-    });
-  };
+    if (!isEmpty(documents)) {
+      searchResult.push({ groupName: t('Документы') });
+      searchResult.push(...setOutputParams(documents, Types.DOCUMENTS));
+    }
+    if (!isEmpty(sites)) {
+      searchResult.push({ groupName: t('Разделы') });
+      searchResult.push(...setOutputParams(sites, Types.SITES));
+    }
+    if (!isEmpty(people)) {
+      searchResult.push({ groupName: t('Люди') });
+      searchResult.push(...setOutputParams(people, Types.PEOPLE));
+    }
 
-  onTextChange = e => {
-    this.setState({ searchText: e.target.value }, this.fetchAutocomplete);
-  };
+    //searchResult.slice(0, 8);
 
-  fetchAutocomplete = debounce(() => {
-    this.props.fetchAutocomplete(this.state.searchText, () => {
-      const { autocompleteIsVisible, showAutocomplete } = this.props;
-      !autocompleteIsVisible && showAutocomplete();
-    });
-  }, 500);
+    return searchResult;
+  }
 
   render() {
-    const { showAutocomplete, hideAutocomplete, autocompleteIsVisible, fetchMoreDocuments } = this.props;
-    const { searchText } = this.state;
+    const { noResults } = this.props;
+
     return (
-      <div id="HEADER_SEARCH_BOX" className="alfresco-header-SearchBox share-header-search">
-        <div className="alfresco-header-SearchBox-inner share-header-search__inner">
-          <SearchDropdown />
-          <ClickOutside
-            handleClickOutside={autocompleteIsVisible && hideAutocomplete}
-            className="share-header-search__click_outside_wrapper"
-          >
-            <input
-              id="HEADER_SEARCHBOX_FORM_FIELD"
-              className="alfresco-header-SearchBox-text"
-              type="text"
-              placeholder={this.searchPlaceholder}
-              onChange={this.onTextChange}
-              value={searchText}
-              onKeyDown={this.onKeyDown}
-              onFocus={showAutocomplete}
-              ref={el => (this.inputRef = el)}
-            />
-            <SearchAutocomplete
-              fetchMoreDocuments={() => {
-                fetchMoreDocuments(searchText);
-              }}
-            />
-          </ClickOutside>
-          <div className="share-header-search__clear-button" title={this.clearButtonTitle} onClick={this.onSearchClearClick}>
-            <i className={'fa fa-times-circle'} />
-          </div>
-        </div>
-      </div>
+      <SearchSelect
+        className={`${this.className}__field`}
+        onSearch={this.onSearch}
+        theme={'dark'}
+        searchResult={this.searchResult}
+        autocomplete
+        noResults={noResults}
+      />
     );
   }
 }

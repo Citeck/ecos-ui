@@ -1,0 +1,89 @@
+@import '../../../constants';
+
+%ellipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.ecos-input-search {
+  $root: &;
+
+  position: relative;
+
+  &__icon {
+    position: absolute;
+    margin-left: 14px;
+    margin-top: 9px;
+  }
+
+  &__input {
+    padding-left: 48px;
+    padding-right: 14px;
+  }
+
+  &__results {
+    width: 100%;
+  }
+
+  &_dark {
+    #{$root}__icon {
+      color: $color-white;
+    }
+
+    #{$root}__input {
+      background: $color-blue-dark;
+      border: none;
+      color: $color-white;
+
+      &::placeholder {
+        color: $color-blue-light2;
+      }
+    }
+  }
+
+  .ecos-dropdown__menu {
+    #{$root}__no-results {
+      color: $color-gray-5;
+      font-weight: $font-weight-bold;
+      font-size: $font-size-large;
+      padding: 20px 15px;
+      text-align: center;
+    }
+
+    #{$root}-result {
+      &__group-name {
+        @extend %ellipsis;
+        background: $color-gray-10;
+        color: $color-gray-dark;
+        font-weight: $font-weight-bold;
+        font-size: $font-size-large;
+        padding: 15px;
+      }
+
+      & {
+        display: flex;
+      }
+
+      &__icon {
+        color: $color-blue-light2;
+        font-size: 33px;
+        margin-right: 12px;
+      }
+
+      &__title {
+        @extend %ellipsis;
+        color: $color-blue-dark;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-standard;
+      }
+
+      &__desc {
+        @extend %ellipsis;
+        color: $text-color-gray;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-small;
+      }
+    }
+  }
+}

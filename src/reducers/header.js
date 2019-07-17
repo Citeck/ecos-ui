@@ -1,13 +1,11 @@
 import { handleActions } from 'redux-actions';
 import {
-  setCreateCaseWidgetItems,
+  resetSearchAutocompleteItems,
   setCreateCaseWidgetIsCascade,
-  toggleAutocompleteVisibility,
-  updateAutocompleteResults,
-  updateAutocompleteDocumentsResults,
-  setLastSearchIndex,
-  setUserMenuItems,
-  setSiteMenuItems
+  setCreateCaseWidgetItems,
+  setSearchAutocompleteItems,
+  setSiteMenuItems,
+  setUserMenuItems
 } from '../actions/header';
 
 const initialState = {
@@ -16,20 +14,10 @@ const initialState = {
     items: []
   },
   search: {
-    lastSearchIndex: null,
-    autocomplete: {
-      isVisible: false,
-      documents: {
-        hasMoreRecords: false,
-        items: []
-      },
-      sites: {
-        items: []
-      },
-      people: {
-        items: []
-      }
-    }
+    documents: [],
+    sites: [],
+    people: [],
+    noResults: false
   },
   siteMenu: {
     items: []
@@ -61,65 +49,32 @@ export default handleActions(
         }
       };
     },
-    /* search */
-    [toggleAutocompleteVisibility]: (state, action) => {
+
+    [setSearchAutocompleteItems]: (state, action) => {
+      const { documents, sites, people, noResults } = action.payload || {};
+
       return {
         ...state,
         search: {
-          ...state.search,
-          autocomplete: {
-            ...state.search.autocomplete,
-            isVisible: action.payload
-          }
+          documents: documents.items || [],
+          people: people.items || [],
+          sites: sites.items || [],
+          noResults
         }
       };
     },
-    [updateAutocompleteResults]: (state, action) => {
+    [resetSearchAutocompleteItems]: (state, action) => {
       return {
         ...state,
         search: {
-          ...state.search,
-          autocomplete: {
-            ...state.search.autocomplete,
-            documents: {
-              hasMoreRecords: action.payload.documents.hasMoreRecords,
-              items: action.payload.documents.items
-            },
-            sites: {
-              items: action.payload.sites.items
-            },
-            people: {
-              items: action.payload.people.items
-            }
-          }
+          documents: [],
+          people: [],
+          sites: [],
+          noResults: false
         }
       };
     },
-    [updateAutocompleteDocumentsResults]: (state, action) => {
-      return {
-        ...state,
-        search: {
-          ...state.search,
-          autocomplete: {
-            ...state.search.autocomplete,
-            documents: {
-              hasMoreRecords: action.payload.hasMoreRecords,
-              items: state.search.autocomplete.documents.items.concat(action.payload.items)
-            }
-          }
-        }
-      };
-    },
-    [setLastSearchIndex]: (state, action) => {
-      return {
-        ...state,
-        search: {
-          ...state.search,
-          lastSearchIndex: action.payload
-        }
-      };
-    },
-    /* userMenu */
+
     [setUserMenuItems]: (state, action) => {
       return {
         ...state,
@@ -129,7 +84,7 @@ export default handleActions(
         }
       };
     },
-    /* siteMenu */
+
     [setSiteMenuItems]: (state, action) => {
       return {
         ...state,
