@@ -6,6 +6,7 @@ import {
   setDashboardIdentification,
   setResultSaveDashboardConfig
 } from '../actions/dashboard';
+import { changeActiveTab } from '../actions/pageTabs';
 
 const initialState = {
   identification: {
@@ -30,8 +31,8 @@ const startLoading = state => ({ ...state, isLoading: true });
 
 export default handleActions(
   {
-    [getDashboardConfig]: startLoading,
-    [saveDashboardConfig]: startLoading,
+    // [getDashboardConfig]: startLoading,
+    // [saveDashboardConfig]: startLoading,
 
     [setDashboardIdentification]: (state, { payload }) => {
       const { identification } = payload;
@@ -55,6 +56,13 @@ export default handleActions(
         ...state,
         saveResult: payload,
         isLoading: false
+      };
+    },
+    [changeActiveTab]: state => {
+      return {
+        ...state,
+        ...initialState,
+        isLoading: true
       };
     }
   },
