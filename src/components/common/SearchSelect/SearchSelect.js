@@ -48,6 +48,10 @@ export default class SearchSelect extends React.Component {
     this.props.onSearch(this.state.searchText);
   }, 500);
 
+  getIsLastInGroup(arr, i) {
+    return isLastItem(arr, i) || 'groupName' in arr[i + 1];
+  }
+
   onChange = e => {
     this.setState({ searchText: e.target.value }, this.runSearch);
   };
@@ -96,7 +100,7 @@ export default class SearchSelect extends React.Component {
           <DropdownMenu className={`${this.className}__results ecos-dropdown__menu`}>
             {!noResults &&
               searchResult &&
-              searchResult.map((item, i, arr) => <Item data={item} onClick={this.handelItem} isLast={isLastItem(arr, i)} />)}
+              searchResult.map((item, i, arr) => <Item data={item} onClick={this.handelItem} isLast={this.getIsLastInGroup(arr, i)} />)}
             {noResults && this.renderNoResults()}
           </DropdownMenu>
         </Dropdown>
@@ -123,7 +127,7 @@ class Item extends React.PureComponent {
     ) : (
       <React.Fragment>
         <li onClick={this.onClick} className={this.className}>
-          {!icon && <Icon className={`icon-group ${icon} ${this.className}__icon`} />}
+          {icon && <Icon className={`${icon} ${this.className}__icon`} />}
           <div>
             <div className={`${this.className}__title`}>{title}</div>
             <div className={`${this.className}__desc`}>{description}</div>

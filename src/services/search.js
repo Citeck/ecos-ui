@@ -1,4 +1,4 @@
-import { formatFileSize, getRelativeTime, t } from '../helpers/util';
+import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
 import { PROXY_URI, URL_RESCONTEXT } from '../constants/alfresco';
 
 export default class SearchService {
@@ -57,7 +57,7 @@ export default class SearchService {
         const modifiedTimeParts = getRelativeTime(item.modifiedOn);
         const fileSize = formatFileSize(item.size);
 
-        data.icon = '';
+        data.icon = getIconFileByMimetype(item.mimetype);
         data.title = item.name;
         data.url = '/share/page/' + site + link;
         data.description = `${modifiedTimeParts.relative} / ${t('Размер')}: ${fileSize}`;

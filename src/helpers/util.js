@@ -453,3 +453,12 @@ export function getOutputFormat(format, value) {
 export const hasInString = (originalString = '', searchedString = '') => {
   return originalString.includes(searchedString);
 };
+
+export function getIconFileByMimetype(mimetype) {
+  switch (mimetype) {
+    case 'application/pdf':
+      return 'icon-group';
+    default:
+      return null;
+  }
+}
