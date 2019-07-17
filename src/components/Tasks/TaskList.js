@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
 import { isLastItem, t } from '../../helpers/util';
-import Loader from '../common/Loader/Loader';
-import Separator from '../common/Separator/Separator';
+import { Loader, Separator } from '../common';
 import TaskDetails from './TaskDetails';
 import { TaskPropTypes } from './utils';
 

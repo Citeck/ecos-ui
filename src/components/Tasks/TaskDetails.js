@@ -6,7 +6,7 @@ import { deepClone, getOutputFormat } from '../../helpers/util';
 import EcosForm from '../EcosForm';
 import { Caption } from '../common/form';
 import { Grid } from '../common/grid';
-import Separator from '../common/Separator/Separator';
+import { Separator } from '../common';
 import { DisplayedColumns, TaskPropTypes } from './utils';
 import AssignmentPanel from './AssignmentPanel';
 

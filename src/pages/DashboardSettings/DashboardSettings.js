@@ -14,7 +14,7 @@ import { initMenuSettings } from '../../actions/menu';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { Btn } from '../../components/common/btns';
-import Loader from '../../components/common/Loader/Loader';
+import { Loader } from '../../components/common';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 
 import './style.scss';
