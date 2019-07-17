@@ -3,71 +3,21 @@
 .formio-form_view-mode {
   dl {
     margin-bottom: 0;
-    padding: 12px 0;
-    border-bottom: 2px solid $color-gray-4;
-
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-
-    &:empty {
-      display: none;
-    }
+    padding: 9px 0 22px 0;
   }
 
   dt {
-    font-weight: $font-weight-bold;
-
-    padding-right: 45px;
-    display: inline-block;
-    width: 45%;
+    color: $text-color-dark;
+    font-size: $font-size-small;
+    font-weight: $font-weight-normal;
+    line-height: 18px;
   }
 
   dd {
-    font-weight: $font-weight-normal;
+    color: $text-color-dark;
+    font-size: 16px;
+    font-weight: $font-weight-bold;
+    line-height: 24px;
     margin-bottom: 0;
-    font-size: $font-size-small;
-    color: $text-color-gray;
-
-    display: inline-block;
-    width: 55%;
-  }
-
-  &-wrap {
-    dl {
-      display: block;
-    }
-
-    dt {
-      padding-right: 0;
-      display: block;
-      width: 100%;
-    }
-
-    dd {
-      display: block;
-      width: 100%;
-      margin-top: 5px;
-    }
-  }
-}
-
-@media (max-width: 1000px) {
-  .formio-form_view-mode {
-    dl {
-      display: block;
-    }
-
-    dt {
-      padding-right: 0;
-      display: block;
-      width: 100%;
-    }
-
-    dd {
-      display: block;
-      width: 100%;
-      margin-top: 5px;
-    }
   }
 }
