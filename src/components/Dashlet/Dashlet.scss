@@ -4,6 +4,7 @@
   $root: &;
   min-height: auto !important;
   padding-top: 0 !important;
+  overflow: hidden;
 
   &__header {
     height: 100%;
@@ -20,7 +21,18 @@
 
         &__actions {
           &_header {
-            background: linear-gradient(to right, rgba(255, 255, 255, 0.35), $color-white);
+            background: $color-white;
+
+            &:before {
+              $size: 30px;
+              content: '';
+              width: $size;
+              position: absolute;
+              left: -$size;
+              top: 0;
+              height: 100%;
+              background: linear-gradient(to right, rgba(255, 255, 255, 0.35), $color-white);
+            }
           }
         }
       }
