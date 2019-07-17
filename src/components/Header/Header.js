@@ -9,6 +9,7 @@ import SiteMenu from './SiteMenu';
 import Search from './Search';
 
 import './style.scss';
+import { isEmpty } from 'lodash';
 
 const mapDispatchToProps = dispatch => ({
   fetchCreateCaseWidgetData: () => {
@@ -23,7 +24,8 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const mapStateToProps = state => ({
-  isMobile: state.view.isMobile
+  isMobile: state.view.isMobile,
+  userPhotoUrl: state.user.thumbnail
 });
 
 class Header extends React.Component {
@@ -43,6 +45,21 @@ class Header extends React.Component {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
+  renderUserPhoto() {
+    const { userPhotoUrl } = this.props;
+    const className = `${this.className}__user-photo`;
+
+    return (
+      <div className={className}>
+        {isEmpty(userPhotoUrl) ? (
+          <i className={`${className}-icon icon-User_avatar`} />
+        ) : (
+          <div className={`${className}-image`} style={{ backgroundImage: 'url(' + userPhotoUrl + ')' }} />
+        )}
+      </div>
+    );
+  }
+
   render() {
     const { isSmallMode } = this.state;
     const { isMobile } = this.props;
@@ -58,7 +75,8 @@ class Header extends React.Component {
           <div className={`${classNameSide} ${classNameSide}_right`}>
             <Search isSmallMode={isSmallMode} isMobile={isMobile} />
             {!(isSmallMode || isMobile) && <SiteMenu />}
-            <UserMenu isSmallMode={isSmallMode} isMobile={isMobile} />
+            {!(isSmallMode || isMobile) && this.renderUserPhoto()}
+            <UserMenu />
           </div>
         </div>
       </React.Fragment>

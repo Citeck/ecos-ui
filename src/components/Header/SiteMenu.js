@@ -54,18 +54,16 @@ class SiteMenu extends React.Component {
     );
 
     return (
-      <div className={`${this.className}__container`}>
-        <Dropdown className={`ecos-header-dropdown`} isOpen={dropdownOpen} toggle={this.toggle}>
-          <DropdownToggle tag="div">
-            <IcoBtn invert={true} icon={'icon-down'} className={classNameIcoBtn} disabled={disabled}>
-              <Icon className={'icon-settings'} />
-            </IcoBtn>
-          </DropdownToggle>
-          <DropdownMenu className={`${this.className}__menu ecos-dropdown__menu ecos-dropdown__menu_right`}>
-            <CustomDropdownMenu items={items} onClick={this.handelItem} />
-          </DropdownMenu>
-        </Dropdown>
-      </div>
+      <Dropdown className={`${this.className} ecos-header-dropdown`} isOpen={dropdownOpen} toggle={this.toggle}>
+        <DropdownToggle tag="div">
+          <IcoBtn invert={true} icon={'icon-down'} className={classNameIcoBtn} disabled={disabled}>
+            <Icon className={'icon-settings'} />
+          </IcoBtn>
+        </DropdownToggle>
+        <DropdownMenu className={`${this.className}__menu ecos-dropdown__menu ecos-dropdown__menu_right`}>
+          <CustomDropdownMenu items={items} onClick={this.handelItem} />
+        </DropdownMenu>
+      </Dropdown>
     );
   }
 }
