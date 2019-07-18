@@ -4,7 +4,6 @@ import {
   fetchSiteMenuData,
   fetchUserMenuData,
   goToPageFromSiteMenu,
-  resetSearchAutocompleteItems,
   runSearchAutocompleteItems,
   setCreateCaseWidgetIsCascade,
   setCreateCaseWidgetItems,
@@ -78,7 +77,6 @@ function* goToPageSiteMenu({ api, fakeApi, logger }, { payload }) {
 
 function* sagaRunSearchAutocomplete({ api, fakeApi, logger }, { payload }) {
   try {
-    yield put(resetSearchAutocompleteItems());
     const documents = yield api.menu.getLiveSearchDocuments(payload, 0);
     const sites = yield api.menu.getLiveSearchSites(payload);
     const people = yield api.menu.getLiveSearchPeople(payload);

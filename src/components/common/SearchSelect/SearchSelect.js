@@ -7,7 +7,7 @@ import { isLastItem, t } from '../../../helpers/util';
 import ClickOutside from '../../ClickOutside';
 import { Btn } from '../btns';
 import { Input } from '../form';
-import { Icon } from '../';
+import { Icon, Loader } from '../';
 
 import './style.scss';
 
@@ -25,6 +25,7 @@ export default class SearchSelect extends React.Component {
     noResults: PropTypes.bool,
     isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool,
+    isLoading: PropTypes.bool,
     onSearch: PropTypes.func,
     onKeyDown: PropTypes.func,
     openFullSearch: PropTypes.func
@@ -36,6 +37,7 @@ export default class SearchSelect extends React.Component {
     autocomplete: false,
     isSmallMode: false,
     isMobile: false,
+    isLoading: false,
     onSearch: () => {},
     openFullSearch: () => {},
     onKeyDown: () => {}
@@ -111,19 +113,26 @@ export default class SearchSelect extends React.Component {
     ) : null;
   }
 
+  renderLoading() {
+    const { isLoading } = this.props;
+
+    return isLoading ? (
+      <li className={`${this.className}__loader`}>
+        <Loader height="30" width="30" />
+      </li>
+    ) : null;
+  }
+
   render() {
     const { searchText } = this.state;
-    const { className, theme, autocomplete, formattedSearchResult, noResults } = this.props;
+    const { className, theme, autocomplete, formattedSearchResult, noResults, isLoading } = this.props;
     const classNameField = classNames(this.className, `${this.className}_${theme}`);
     const commonIcon = `${this.className}__icon`;
+    const isOpen = (!isEmpty(formattedSearchResult) || noResults || isLoading) && autocomplete;
 
     return (
       <ClickOutside handleClickOutside={this.resetSearch} className={`${this.className}__click_outside`}>
-        <Dropdown
-          className={`${className} ${this.className} ecos-header-dropdown`}
-          isOpen={(!isEmpty(formattedSearchResult) || noResults) && autocomplete}
-          toggle={() => {}}
-        >
+        <Dropdown className={`${className} ${this.className} ecos-header-dropdown`} isOpen={isOpen} toggle={() => {}}>
           <DropdownToggle tag="div">
             <div className={classNameField}>
               <Icon className={classNames(commonIcon, `${commonIcon}-search`, 'icon-search')} />
@@ -141,6 +150,7 @@ export default class SearchSelect extends React.Component {
             {!noResults && !isEmpty(formattedSearchResult) && formattedSearchResult}
             {this.renderNoResults()}
             {this.renderBtnShowAll()}
+            {this.renderLoading()}
           </DropdownMenu>
         </Dropdown>
       </ClickOutside>

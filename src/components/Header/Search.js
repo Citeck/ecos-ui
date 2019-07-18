@@ -16,7 +16,8 @@ const mapStateToProps = state => ({
   documents: state.header.search.documents,
   people: state.header.search.people,
   sites: state.header.search.sites,
-  noResults: state.header.search.noResults
+  noResults: state.header.search.noResults,
+  isLoading: state.header.search.isLoading
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -49,10 +50,10 @@ class Search extends React.Component {
   className = 'ecos-header-search';
 
   onSearch = searchText => {
+    this.props.resetSearchAutocomplete();
+
     if (searchText) {
       this.props.runSearchAutocomplete(searchText);
-    } else {
-      this.props.resetSearchAutocomplete();
     }
   };
 
@@ -100,7 +101,7 @@ class Search extends React.Component {
   }
 
   render() {
-    const { noResults } = this.props;
+    const { noResults, isLoading } = this.props;
 
     return (
       <SearchSelect
@@ -110,6 +111,7 @@ class Search extends React.Component {
         theme={'dark'}
         formattedSearchResult={this.formattedSearchResult}
         autocomplete
+        isLoading={isLoading}
         noResults={noResults}
       />
     );

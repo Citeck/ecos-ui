@@ -1,6 +1,7 @@
 import { handleActions } from 'redux-actions';
 import {
   resetSearchAutocompleteItems,
+  runSearchAutocompleteItems,
   setCreateCaseWidgetIsCascade,
   setCreateCaseWidgetItems,
   setSearchAutocompleteItems,
@@ -14,6 +15,7 @@ const initialState = {
     items: []
   },
   search: {
+    isLoading: false,
     documents: [],
     sites: [],
     people: [],
@@ -50,6 +52,15 @@ export default handleActions(
       };
     },
 
+    [runSearchAutocompleteItems]: (state, action) => {
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          isLoading: true
+        }
+      };
+    },
     [setSearchAutocompleteItems]: (state, action) => {
       const { documents, sites, people, noResults } = action.payload || {};
 
@@ -59,7 +70,8 @@ export default handleActions(
           documents: documents.items || [],
           people: people.items || [],
           sites: sites.items || [],
-          noResults
+          noResults,
+          isLoading: false
         }
       };
     },
@@ -70,7 +82,8 @@ export default handleActions(
           documents: [],
           people: [],
           sites: [],
-          noResults: false
+          noResults: false,
+          isLoading: false
         }
       };
     },
