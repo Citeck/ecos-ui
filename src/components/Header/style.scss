@@ -1,5 +1,11 @@
 @import '../../constants';
 
+%ellipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
 .ecos-header {
   $root: &;
 
@@ -39,41 +45,69 @@
   }
 
   &-search {
-    &__field {
-      width: 315px;
+    $search: &;
+    width: 315px;
+
+    .ecos-dropdown__menu {
+      #{$search}-result {
+        &__group-name {
+          @extend %ellipsis;
+          background: $color-gray-10;
+          color: $color-gray-dark;
+          font-weight: $font-weight-bold;
+          font-size: $font-size-large;
+          padding: 15px;
+        }
+
+        & {
+          display: flex;
+        }
+
+        &:hover {
+          background-color: $color-gray-10;
+        }
+
+        &__icon {
+          color: $color-blue-light2;
+          font-size: 33px;
+          margin-right: 12px;
+        }
+
+        &__avatar {
+          .ecos-avatar__icon {
+            color: $color-blue-light2;
+            margin-right: 10px;
+          }
+        }
+
+        &__title {
+          @extend %ellipsis;
+          color: $color-blue-dark;
+          font-weight: $font-weight-semi-bold;
+          font-size: $font-size-standard;
+        }
+
+        &__desc {
+          @extend %ellipsis;
+          color: $text-color-gray;
+          font-weight: $font-weight-semi-bold;
+          font-size: $font-size-small;
+        }
+
+        &__line {
+          padding: 0 15px;
+        }
+      }
     }
   }
 
   &-site {
   }
 
-  &__user-photo {
-    &-image {
-      height: 40px;
-      width: 40px;
-      border: 2px solid $color-white;
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-position: 50% 0;
-      border-radius: 50%;
-    }
-
-    &-icon {
-      font-size: 40px;
-      color: $color-white;
-      line-height: 0;
-      display: inline-block;
-      margin-top: -2px;
-      margin-left: -10px;
-    }
-  }
-
   &-user {
     &__btn {
       max-width: 242px;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
+      @extend %ellipsis;
     }
   }
 

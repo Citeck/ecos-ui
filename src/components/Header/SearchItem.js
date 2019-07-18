@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Icon, Separator } from '../index';
 import PropTypes from 'prop-types';
+import { Avatar, Icon, Separator } from '../common';
 
 export default class SearchItem extends React.PureComponent {
   static propTypes = {
@@ -10,13 +10,11 @@ export default class SearchItem extends React.PureComponent {
       description: PropTypes.string,
       groupName: PropTypes.string
     }),
-    isLast: PropTypes.bool,
     onClick: PropTypes.func
   };
 
   static defaultProps = {
     data: {},
-    isLast: false,
     onClick: () => {}
   };
 
@@ -26,11 +24,11 @@ export default class SearchItem extends React.PureComponent {
     onClick(data);
   };
 
-  className = 'ecos-input-search-result';
+  className = 'ecos-header-search-result';
 
   render() {
-    const { isLast, data } = this.props;
-    const { icon, title, description, groupName } = data || {};
+    const { data } = this.props;
+    const { icon, title, description, groupName, avatarUrl, isLast, isAvatar } = data || {};
 
     return groupName ? (
       <li className={`${this.className}__group-name`}>{groupName}</li>
@@ -38,6 +36,7 @@ export default class SearchItem extends React.PureComponent {
       <React.Fragment>
         <li onClick={this.onClick} className={this.className}>
           {icon && <Icon className={`${icon} ${this.className}__icon`} />}
+          {isAvatar && <Avatar url={avatarUrl} className={`${this.className}__avatar`} />}
           <div>
             <div className={`${this.className}__title`}>{title}</div>
             <div className={`${this.className}__desc`}>{description}</div>

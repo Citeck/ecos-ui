@@ -2,10 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { generateSearchTerm, t } from '../../helpers/util';
+import { generateSearchTerm, isLastItem, t } from '../../helpers/util';
 import { SearchSelect } from '../common';
 import { resetSearchAutocompleteItems, runSearchAutocompleteItems } from '../../actions/header';
 import SearchService from '../../services/search';
+import SearchItem from './SearchItem';
+import { changeUrlLink } from '../PageTabs/PageTabs';
+import { isNewVersionPage } from '../../helpers/urls';
+
+const Types = SearchService.SearchAutocompleteTypes;
 
 const mapStateToProps = state => ({
   documents: state.header.search.documents,
@@ -20,7 +25,14 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const setOutputParams = (array, type) => {
-  return array.map(item => SearchService.formatSearchAutocompleteResults(item, type));
+  return array.map((item, i) => {
+    const res = SearchService.formatSearchAutocompleteResults(item, type);
+
+    res.isLast = isLastItem(array, i);
+    res.isAvatar = type === Types.PEOPLE;
+
+    return res;
+  });
 };
 
 class Search extends React.Component {
@@ -48,17 +60,19 @@ class Search extends React.Component {
     const { searchPageUrl, hiddenSearchTerms } = this.props;
     const url = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
 
-    window.location = window.Alfresco.constants.URL_PAGECONTEXT + url;
+    changeUrlLink(window.Alfresco.constants.URL_PAGECONTEXT + url);
   };
 
   goToResult = data => {
-    console.log(data);
+    const reopenBrowserTab = !isNewVersionPage(data.url);
+    const openNewTab = [Types.DOCUMENTS, Types.SITES].includes(data.type);
+
+    changeUrlLink(data.url, { openNewTab, reopenBrowserTab });
   };
 
   get searchResult() {
     const { documents, sites, people } = this.props;
     const searchResult = [];
-    const Types = SearchService.SearchAutocompleteTypes;
 
     if (!isEmpty(documents)) {
       searchResult.push({ groupName: t('Документы') });
@@ -76,17 +90,25 @@ class Search extends React.Component {
     return searchResult;
   }
 
+  get formattedSearchResult() {
+    const { noResults } = this.props;
+    const searchResult = this.searchResult;
+
+    return !noResults && !isEmpty(searchResult)
+      ? searchResult.map((item, i, arr) => <SearchItem data={item} onClick={this.goToResult} />)
+      : null;
+  }
+
   render() {
     const { noResults } = this.props;
 
     return (
       <SearchSelect
-        className={`${this.className}__field`}
+        className={this.className}
         onSearch={this.onSearch}
         openFullSearch={this.openFullSearch}
-        goToResult={this.goToResult}
         theme={'dark'}
-        searchResult={this.searchResult}
+        formattedSearchResult={this.formattedSearchResult}
         autocomplete
         noResults={noResults}
       />

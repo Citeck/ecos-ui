@@ -456,9 +456,11 @@ export const hasInString = (originalString = '', searchedString = '') => {
 
 export function getIconFileByMimetype(mimetype) {
   switch (mimetype) {
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+    case 'application/msword':
+      return 'icon-filetype-doc';
     case 'application/pdf':
-      return 'icon-group';
     default:
-      return null;
+      return 'icon-filetype-none';
   }
 }

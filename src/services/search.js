@@ -1,6 +1,6 @@
 import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
-import { PROXY_URI, URL_RESCONTEXT } from '../constants/alfresco';
-import { getData, getSessionData, isExistLocalStorage, isExistSessionStorage, setData, setSessionData } from '../helpers/ls';
+import { PROXY_URI } from '../constants/alfresco';
+import { getData, getSessionData, isExistLocalStorage, isExistSessionStorage, setSessionData } from '../helpers/ls';
 
 export default class SearchService {
   static SearchAutocompleteTypes = {
@@ -16,6 +16,7 @@ export default class SearchService {
     let thumbnailAlt = '';
 
     const data = {
+      type,
       title: '',
       description: '',
       icon: '',
@@ -62,30 +63,24 @@ export default class SearchService {
         data.title = item.name;
         data.url = '/share/page/' + site + link;
         data.description = `${modifiedTimeParts.relative} / ${t('Размер')}: ${fileSize}`;
-
-        return data;
+        break;
       case Types.SITES:
-        thumbnailUrl = URL_RESCONTEXT + 'components/images/filetypes/generic-site-32.png';
-
         data.icon = '';
         data.title = item.title;
-        data.url = '/share/page/site/' + item.shortName + '/dashboard';
+        //data.url = '/share/page/site/' + item.shortName + '/dashboard';
+        data.url = '/v2/dashboard/' + item.shortName;
         data.description = item.description;
-
-        return data;
+        break;
       case Types.PEOPLE:
-        thumbnailUrl = PROXY_URI + 'slingshot/profile/avatar/' + encodeURIComponent(item.userName) + '/thumbnail/avatar32';
-
-        data.icon = '';
+        data.avatarUrl = '';
         data.title = `${item.firstName} ${item.lastName} (${item.userName})`;
         data.url = '/share/page/user/' + item.userName + '/profile';
         data.description = (item.jobtitle || '') + (item.location ? ', ' + item.location : '');
-
-        return data;
+        break;
       default:
         console.log('Unknown search autocomplete item type');
-        return data;
     }
+    return data;
   };
 
   static getSearchTextFromHistory(isArrowUp) {
@@ -97,7 +92,7 @@ export default class SearchService {
     let lastSearchIndex = isExistSessionStorage() ? getSessionData('LAST_SEARCH_INDEX') : null;
 
     if (!searchPhrases) {
-      return null;
+      return '';
     }
 
     if (isArrowUp) {
@@ -119,22 +114,5 @@ export default class SearchService {
     }
 
     return searchPhrases[lastSearchIndex];
-  }
-
-  static setSearchTextToHistory(text) {
-    if (!isExistLocalStorage()) {
-      return null;
-    }
-
-    let searchPhrases = getData('ALF_SEARCHBOX_HISTORY');
-
-    if (text) {
-      if (!Array.isArray(searchPhrases)) {
-        searchPhrases = [];
-      }
-
-      searchPhrases.push(text);
-      setData('ALF_SEARCHBOX_HISTORY', searchPhrases);
-    }
   }
 }

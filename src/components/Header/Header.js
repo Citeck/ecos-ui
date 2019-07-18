@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import ReactResizeDetector from 'react-resize-detector';
-import { isEmpty } from 'lodash';
 import { isSmallMode } from '../../helpers/util';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
+import { Avatar } from '../common';
 import CreateMenu from './CreateMenu';
 import UserMenu from './UserMenu';
 import SiteMenu from './SiteMenu';
@@ -45,24 +45,9 @@ class Header extends React.Component {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
-  renderUserPhoto() {
-    const { userPhotoUrl } = this.props;
-    const className = `${this.className}__user-photo`;
-
-    return (
-      <div className={className}>
-        {isEmpty(userPhotoUrl) ? (
-          <i className={`${className}-icon icon-User_avatar`} />
-        ) : (
-          <div className={`${className}-image`} style={{ backgroundImage: 'url(' + userPhotoUrl + ')' }} />
-        )}
-      </div>
-    );
-  }
-
   render() {
     const { isSmallMode } = this.state;
-    const { isMobile } = this.props;
+    const { isMobile, userPhotoUrl } = this.props;
     const classNameSide = `${this.className}__side`;
 
     return (
@@ -75,7 +60,7 @@ class Header extends React.Component {
           <div className={`${classNameSide} ${classNameSide}_right`}>
             <Search isSmallMode={isSmallMode} isMobile={isMobile} />
             {!(isSmallMode || isMobile) && <SiteMenu />}
-            {!(isSmallMode || isMobile) && this.renderUserPhoto()}
+            {!(isSmallMode || isMobile) && <Avatar url={userPhotoUrl} />}
             <UserMenu />
           </div>
         </div>
