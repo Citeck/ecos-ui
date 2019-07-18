@@ -225,6 +225,7 @@ $indents-of-items: 15px;
         &-drag {
           font-size: 28px;
           color: $color-gray-1;
+          cursor: grab;
 
           &:before {
             position: absolute;
