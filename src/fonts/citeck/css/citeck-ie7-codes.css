@@ -181,9 +181,6 @@
 .icon-usergroup {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83c;&nbsp;');
 }
-.icon-big_alert {
-  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe840;&nbsp;');
-}
 .icon-print {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe843;&nbsp;');
 }
@@ -201,4 +198,13 @@
 }
 .icon-notify-dialogue {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe849;&nbsp;');
+}
+.icon-filetype-doc {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe84a;&nbsp;');
+}
+.icon-filetype-none {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe84b;&nbsp;');
+}
+.icon-big_alert {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe84c;&nbsp;');
 }

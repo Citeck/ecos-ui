@@ -181,9 +181,6 @@
 .icon-usergroup:before {
   content: '\e83c';
 } /* '' */
-.icon-big_alert:before {
-  content: '\e840';
-} /* '' */
 .icon-print:before {
   content: '\e843';
 } /* '' */
@@ -202,3 +199,12 @@
 .icon-notify-dialogue:before {
   content: '\e849';
 } /* '' */
+.icon-filetype-doc:before {
+  content: '\e84a';
+} /* '' */
+.icon-filetype-none:before {
+  content: '\e84b';
+} /* '' */
+.icon-big_alert:before {
+  content: '\e84c';
+} /* '' */

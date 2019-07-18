@@ -1,12 +1,15 @@
 import * as React from 'react';
-import { debounce } from 'lodash';
+import { debounce, isEmpty } from 'lodash';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
+import SearchService from '../../../services/search';
 import { isLastItem, t } from '../../../helpers/util';
 import ClickOutside from '../../ClickOutside';
+import { Btn } from '../btns';
 import { Input } from '../form';
-import { Icon, Separator } from '../';
+import { Icon } from '../';
+import SearchItem from './SearchItem';
 
 import './style.scss';
 
@@ -25,7 +28,9 @@ export default class SearchSelect extends React.Component {
     isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool,
     onSearch: PropTypes.func,
-    openFullSearch: PropTypes.func
+    onKeyDown: PropTypes.func,
+    openFullSearch: PropTypes.func,
+    goToResult: PropTypes.func
   };
 
   static defaultProps = {
@@ -35,7 +40,9 @@ export default class SearchSelect extends React.Component {
     isSmallMode: false,
     isMobile: false,
     onSearch: () => {},
-    openFullSearch: () => {}
+    openFullSearch: () => {},
+    goToResult: () => {},
+    onKeyDown: () => {}
   };
 
   className = 'ecos-input-search';
@@ -59,33 +66,76 @@ export default class SearchSelect extends React.Component {
   onKeyDown = e => {
     switch (e.key) {
       case 'Enter':
-        this.props.openFullSearch(this.state.searchText);
+        this.openFullSearch();
+        break;
+      case 'Escape':
+        this.resetSearch();
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        const searchTextUp = SearchService.getSearchTextFromHistory(true);
+        this.setState({ searchText: searchTextUp }, this.runSearch);
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        const searchTextDown = SearchService.getSearchTextFromHistory(false);
+        this.setState({ searchText: searchTextDown }, this.runSearch);
         break;
       default:
         break;
     }
   };
 
-  toggle = data => {};
+  openFullSearch = () => {
+    const searchText = this.state.searchText;
+    SearchService.setSearchTextToHistory(searchText);
+    this.props.openFullSearch(searchText);
+    this.resetSearch();
+  };
 
-  handelItem = data => {};
-
-  handleClickOutside = data => {
+  resetSearch = data => {
     this.setState({ searchText: '' });
     this.props.onSearch('');
   };
 
+  renderResults() {
+    const { noResults, searchResult, goToResult } = this.props;
+
+    return !noResults && !isEmpty(searchResult)
+      ? searchResult.map((item, i, arr) => <SearchItem data={item} onClick={goToResult} isLast={this.getIsLastInGroup(arr, i)} />)
+      : null;
+  }
+
   renderNoResults() {
-    return <li className={`${this.className}__no-results`}>{t('Ничего не найдено')}</li>;
+    const { noResults } = this.props;
+
+    return noResults ? <li className={`${this.className}__no-results`}>{t('Ничего не найдено')}</li> : null;
+  }
+
+  renderBtnShowAll() {
+    const { searchResult } = this.props;
+
+    return !isEmpty(searchResult) ? (
+      <li className={`${this.className}__show-all`}>
+        <Btn className={`${this.className}__show-all-btn ecos-btn_narrow-t_standart`} onClick={this.openFullSearch}>
+          {t('Показать все результаты')}
+        </Btn>
+      </li>
+    ) : null;
   }
 
   render() {
+    const { searchText } = this.state;
     const { className, theme, autocomplete, searchResult, noResults } = this.props;
     const classNameContainer = classNames(this.className, className, `${this.className}_${theme}`);
 
     return (
-      <ClickOutside handleClickOutside={this.handleClickOutside} className={`${this.className}__click_outside`}>
-        <Dropdown className={`${this.className} ecos-header-dropdown`} isOpen={searchResult && autocomplete} toggle={this.toggle}>
+      <ClickOutside handleClickOutside={this.resetSearch} className={`${this.className}__click_outside`}>
+        <Dropdown
+          className={`${this.className} ecos-header-dropdown`}
+          isOpen={(!isEmpty(searchResult) || noResults) && autocomplete}
+          toggle={() => {}}
+        >
           <DropdownToggle tag="div">
             <div className={classNameContainer}>
               <Icon className={classNames(`${this.className}__icon`, 'icon-search')} />
@@ -94,47 +144,17 @@ export default class SearchSelect extends React.Component {
                 placeholder={t('Найти файл, человека или сайт')}
                 onChange={this.onChange}
                 onKeyDown={this.onKeyDown}
+                value={searchText || ''}
               />
             </div>
           </DropdownToggle>
           <DropdownMenu className={`${this.className}__results ecos-dropdown__menu`}>
-            {!noResults &&
-              searchResult &&
-              searchResult.map((item, i, arr) => <Item data={item} onClick={this.handelItem} isLast={this.getIsLastInGroup(arr, i)} />)}
-            {noResults && this.renderNoResults()}
+            {this.renderResults()}
+            {this.renderNoResults()}
+            {this.renderBtnShowAll()}
           </DropdownMenu>
         </Dropdown>
       </ClickOutside>
-    );
-  }
-}
-
-class Item extends React.PureComponent {
-  onClick = () => {
-    const { data, onClick } = this.props;
-
-    onClick(data);
-  };
-
-  className = 'ecos-input-search-result';
-
-  render() {
-    const { isLast, data } = this.props;
-    const { icon, title, description, groupName } = data || {};
-
-    return groupName ? (
-      <li className={`${this.className}__group-name`}>{groupName}</li>
-    ) : (
-      <React.Fragment>
-        <li onClick={this.onClick} className={this.className}>
-          {icon && <Icon className={`${icon} ${this.className}__icon`} />}
-          <div>
-            <div className={`${this.className}__title`}>{title}</div>
-            <div className={`${this.className}__desc`}>{description}</div>
-          </div>
-        </li>
-        {!isLast && <Separator noIndents />}
-      </React.Fragment>
     );
   }
 }

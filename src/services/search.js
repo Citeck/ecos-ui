@@ -1,5 +1,6 @@
 import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
 import { PROXY_URI, URL_RESCONTEXT } from '../constants/alfresco';
+import { getData, getSessionData, isExistLocalStorage, isExistSessionStorage, setData, setSessionData } from '../helpers/ls';
 
 export default class SearchService {
   static SearchAutocompleteTypes = {
@@ -86,4 +87,54 @@ export default class SearchService {
         return data;
     }
   };
+
+  static getSearchTextFromHistory(isArrowUp) {
+    if (!isExistLocalStorage()) {
+      return null;
+    }
+
+    const searchPhrases = getData('ALF_SEARCHBOX_HISTORY');
+    let lastSearchIndex = isExistSessionStorage() ? getSessionData('LAST_SEARCH_INDEX') : null;
+
+    if (!searchPhrases) {
+      return null;
+    }
+
+    if (isArrowUp) {
+      if (lastSearchIndex === 0 || lastSearchIndex === null) {
+        lastSearchIndex = searchPhrases.length - 1;
+      } else {
+        lastSearchIndex--;
+      }
+    } else {
+      if (lastSearchIndex === searchPhrases.length - 1 || lastSearchIndex === null) {
+        lastSearchIndex = 0;
+      } else {
+        lastSearchIndex++;
+      }
+    }
+
+    if (isExistSessionStorage()) {
+      setSessionData('LAST_SEARCH_INDEX', lastSearchIndex);
+    }
+
+    return searchPhrases[lastSearchIndex];
+  }
+
+  static setSearchTextToHistory(text) {
+    if (!isExistLocalStorage()) {
+      return null;
+    }
+
+    let searchPhrases = getData('ALF_SEARCHBOX_HISTORY');
+
+    if (text) {
+      if (!Array.isArray(searchPhrases)) {
+        searchPhrases = [];
+      }
+
+      searchPhrases.push(text);
+      setData('ALF_SEARCHBOX_HISTORY', searchPhrases);
+    }
+  }
 }

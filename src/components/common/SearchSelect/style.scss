@@ -22,10 +22,6 @@
     padding-right: 14px;
   }
 
-  &__results {
-    width: 100%;
-  }
-
   &_dark {
     #{$root}__icon {
       color: $color-white;
@@ -43,12 +39,29 @@
   }
 
   .ecos-dropdown__menu {
+    &#{$root}__results {
+      width: 100%;
+      padding: 7px 0 !important;
+    }
+
     #{$root}__no-results {
       color: $color-gray-5;
       font-weight: $font-weight-bold;
       font-size: $font-size-large;
-      padding: 20px 15px;
+      padding: 13px 15px;
       text-align: center;
+    }
+
+    #{$root}__show-all {
+      &:hover {
+        background-color: unset;
+      }
+
+      &-btn {
+        width: 100%;
+        margin: 0;
+        display: inline-block;
+      }
     }
 
     #{$root}-result {
@@ -83,6 +96,10 @@
         color: $text-color-gray;
         font-weight: $font-weight-semi-bold;
         font-size: $font-size-small;
+      }
+
+      &__line {
+        padding: 0 15px;
       }
     }
   }

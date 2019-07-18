@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import ReactResizeDetector from 'react-resize-detector';
+import { isEmpty } from 'lodash';
 import { isSmallMode } from '../../helpers/util';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
 import CreateMenu from './CreateMenu';
@@ -9,7 +10,6 @@ import SiteMenu from './SiteMenu';
 import Search from './Search';
 
 import './style.scss';
-import { isEmpty } from 'lodash';
 
 const mapDispatchToProps = dispatch => ({
   fetchCreateCaseWidgetData: () => {

@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { t } from '../../../helpers/util';
-import { SearchSelect } from '../../common';
-import { resetSearchAutocompleteItems, runSearchAutocompleteItems } from '../../../actions/header';
-import SearchService from '../../../services/search';
+import { generateSearchTerm, t } from '../../helpers/util';
+import { SearchSelect } from '../common';
+import { resetSearchAutocompleteItems, runSearchAutocompleteItems } from '../../actions/header';
+import SearchService from '../../services/search';
 
 const mapStateToProps = state => ({
   documents: state.header.search.documents,
@@ -36,37 +36,23 @@ class Search extends React.Component {
 
   className = 'ecos-header-search';
 
-  // onKeyDown = e => {
-  //   const { searchPageUrl, hiddenSearchTerms, hideAutocomplete } = this.props;
-  //   const { searchText } = this.state;
-  //
-  //   switch (e.key) {
-  //     case 'Enter':
-  //       let url = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
-  //       window.location = window.Alfresco.constants.URL_PAGECONTEXT + url;
-  //       break;
-  //     case 'ArrowUp':
-  //       e.preventDefault();
-  //       this.setSearchTextFromHistory(true);
-  //       break;
-  //     case 'ArrowDown':
-  //       e.preventDefault();
-  //       this.setSearchTextFromHistory(false);
-  //       break;
-  //     case 'Escape':
-  //       hideAutocomplete();
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // };
-
   onSearch = searchText => {
     if (searchText) {
       this.props.runSearchAutocomplete(searchText);
     } else {
       this.props.resetSearchAutocomplete();
     }
+  };
+
+  openFullSearch = searchText => {
+    const { searchPageUrl, hiddenSearchTerms } = this.props;
+    const url = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
+
+    window.location = window.Alfresco.constants.URL_PAGECONTEXT + url;
+  };
+
+  goToResult = data => {
+    console.log(data);
   };
 
   get searchResult() {
@@ -87,8 +73,6 @@ class Search extends React.Component {
       searchResult.push(...setOutputParams(people, Types.PEOPLE));
     }
 
-    //searchResult.slice(0, 8);
-
     return searchResult;
   }
 
@@ -99,6 +83,8 @@ class Search extends React.Component {
       <SearchSelect
         className={`${this.className}__field`}
         onSearch={this.onSearch}
+        openFullSearch={this.openFullSearch}
+        goToResult={this.goToResult}
         theme={'dark'}
         searchResult={this.searchResult}
         autocomplete
