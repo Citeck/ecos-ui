@@ -60,12 +60,12 @@ class Search extends React.Component {
     const { searchPageUrl, hiddenSearchTerms } = this.props;
     const url = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
 
-    changeUrlLink(window.Alfresco.constants.URL_PAGECONTEXT + url);
+    changeUrlLink(window.Alfresco.constants.URL_PAGECONTEXT + url, { reopenBrowserTab: true });
   };
 
   goToResult = data => {
     const reopenBrowserTab = !isNewVersionPage(data.url);
-    const openNewTab = [Types.DOCUMENTS, Types.SITES].includes(data.type);
+    const openNewTab = [Types.DOCUMENTS, Types.SITES].includes(data.type) && !reopenBrowserTab;
 
     changeUrlLink(data.url, { openNewTab, reopenBrowserTab });
   };
@@ -95,7 +95,7 @@ class Search extends React.Component {
     const searchResult = this.searchResult;
 
     return !noResults && !isEmpty(searchResult)
-      ? searchResult.map((item, i, arr) => <SearchItem data={item} onClick={this.goToResult} />)
+      ? searchResult.map((item, i, arr) => <SearchItem key={`${this.className}-${i}`} data={item} onClick={this.goToResult} />)
       : null;
   }
 

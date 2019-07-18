@@ -1,5 +1,4 @@
 import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
-import { PROXY_URI } from '../constants/alfresco';
 import { getData, getSessionData, isExistLocalStorage, isExistSessionStorage, setSessionData } from '../helpers/ls';
 
 export default class SearchService {
@@ -11,10 +10,6 @@ export default class SearchService {
 
   static formatSearchAutocompleteResults = function(item, type) {
     const Types = SearchService.SearchAutocompleteTypes;
-    let thumbnailUrl = '';
-    let thumbnailTitle = '';
-    let thumbnailAlt = '';
-
     const data = {
       type,
       title: '',
@@ -26,7 +21,11 @@ export default class SearchService {
     switch (type) {
       case Types.DOCUMENTS:
         const site = item.site ? 'site/' + item.site.shortName + '/' : '';
+        const modifiedTimeParts = getRelativeTime(item.modifiedOn);
+        const fileSize = formatFileSize(item.size);
+
         let link;
+
         switch (item.container) {
           case 'wiki':
             link = 'wiki-page?title=' + encodeURIComponent(item.name);
@@ -40,35 +39,17 @@ export default class SearchService {
             break;
         }
 
-        const lastModified = item.lastThumbnailModification || 1;
-        thumbnailUrl =
-          PROXY_URI +
-          'api/node/' +
-          item.nodeRef.replace(':/', '') +
-          '/content/thumbnails/doclib?c=queue&ph=true&lastModified=' +
-          lastModified;
-        thumbnailTitle = item.name;
-        thumbnailAlt = item.name;
-
-        let siteDocLib = null;
-        if (item.site) {
-          const siteDocLibUrl = '/share/page/' + site + 'documentlibrary';
-          const siteTitle = item.site.title;
-        }
-        const modifiedUserUrl = '/share/page/user/' + item.modifiedBy + '/profile';
-        const modifiedTimeParts = getRelativeTime(item.modifiedOn);
-        const fileSize = formatFileSize(item.size);
-
         data.icon = getIconFileByMimetype(item.mimetype);
         data.title = item.name;
-        data.url = '/share/page/' + site + link;
+        // data.url = '/share/page/' + site + link;
+        data.url = '/v2/' + site + link;
         data.description = `${modifiedTimeParts.relative} / ${t('Размер')}: ${fileSize}`;
         break;
       case Types.SITES:
         data.icon = '';
         data.title = item.title;
-        //data.url = '/share/page/site/' + item.shortName + '/dashboard';
-        data.url = '/v2/dashboard/' + item.shortName;
+        data.url = '/share/page/site/' + item.shortName + '/dashboard';
+        // data.url = '/v2/dashboard/' + item.shortName;
         data.description = item.description;
         break;
       case Types.PEOPLE:

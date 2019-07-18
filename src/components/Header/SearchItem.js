@@ -37,7 +37,7 @@ export default class SearchItem extends React.PureComponent {
         <li onClick={this.onClick} className={this.className}>
           {icon && <Icon className={`${icon} ${this.className}__icon`} />}
           {isAvatar && <Avatar url={avatarUrl} className={`${this.className}__avatar`} />}
-          <div>
+          <div className={`${this.className}__data`}>
             <div className={`${this.className}__title`}>{title}</div>
             <div className={`${this.className}__desc`}>{description}</div>
           </div>
