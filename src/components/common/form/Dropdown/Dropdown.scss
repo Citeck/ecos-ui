@@ -8,11 +8,11 @@
     box-shadow: $box-shadow-default;
     border: none !important;
     padding: 0 !important;
-    overflow: hidden;
+    //overflow: hidden;
     margin-top: 5px !important;
     margin-bottom: 5px !important;
-    transform: none !important;
-    top: 100% !important;
+    //transform: none !important;
+    //top: 100% !important;
     width: auto;
 
     ul {
@@ -49,6 +49,42 @@
     &_right {
       left: auto !important;
       right: 0 !important;
+    }
+
+    &-link {
+    }
+  }
+
+  &-menu {
+    &__cascade {
+      position: relative;
+
+      &:after {
+        content: '\0052';
+        font-size: 10px;
+        font-family: citeck;
+        position: absolute;
+        right: 5px;
+        top: calc(50% - 1em / 2);
+        color: $color-gray-5;
+      }
+
+      li {
+        padding-right: 25px;
+      }
+    }
+  }
+
+  &.show,
+  &__menu li:hover {
+    &:first-child {
+      border-top-left-radius: 6px;
+      border-top-right-radius: 6px;
+    }
+
+    &:last-child {
+      border-bottom-left-radius: 6px;
+      border-bottom-right-radius: 6px;
     }
   }
 }
