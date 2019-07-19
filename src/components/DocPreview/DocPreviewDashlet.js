@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
 
 import Dashlet from '../Dashlet/Dashlet';
@@ -19,13 +18,17 @@ class DocPreviewDashlet extends Component {
     config: PropTypes.shape({
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       link: PropTypes.string.isRequired
-    })
+    }),
+    dragHandleProps: PropTypes.object,
+    canDragging: PropTypes.bool
   };
 
   static defaultProps = {
     title: t('doc-preview.preview'),
     classNamePreview: '',
-    classNameDashlet: ''
+    classNameDashlet: '',
+    dragHandleProps: {},
+    canDragging: false
   };
 
   state = {
@@ -37,7 +40,7 @@ class DocPreviewDashlet extends Component {
   };
 
   render() {
-    const { title, config, classNamePreview, classNameDashlet } = this.props;
+    const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging } = this.props;
     const { width } = this.state;
     const classesDashlet = classNames('ecos-dp-dashlet', classNameDashlet, {
       'ecos-dp-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE
@@ -52,9 +55,11 @@ class DocPreviewDashlet extends Component {
         actionEdit={false}
         actionHelp={false}
         needGoTo={false}
+        canDragging={canDragging}
+        onResize={this.handleResize}
+        dragHandleProps={dragHandleProps}
       >
         <DocPreview {...config} className={classNamePreview} />
-        <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
       </Dashlet>
     );
   }

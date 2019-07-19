@@ -274,6 +274,12 @@ $indents-of-items: 15px;
     }
   }
 
+  &__element {
+    &:not(:last-child) {
+      margin-bottom: 15px;
+    }
+  }
+
   .dashlet__btn_move {
     pointer-events: none !important;
   }

@@ -2,7 +2,6 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import ReactResizeDetector from 'react-resize-detector';
 
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsDashletToolbar from '../JournalsDashletToolbar';
@@ -41,7 +40,12 @@ const mapDispatchToProps = (dispatch, props) => {
 
 class JournalsDashlet extends Component {
   static propTypes = {
-    id: PropTypes.string.isRequired
+    id: PropTypes.string.isRequired,
+    dragHandleProps: PropTypes.object
+  };
+
+  static defaultProps = {
+    dragHandleProps: {}
   };
 
   state = {
@@ -79,7 +83,7 @@ class JournalsDashlet extends Component {
   };
 
   render() {
-    const { journalConfig, className, id, editorMode, reloadGrid } = this.props;
+    const { journalConfig, className, id, editorMode, reloadGrid, dragHandleProps } = this.props;
     const { width } = this.state;
 
     if (!journalConfig) {
@@ -99,6 +103,8 @@ class JournalsDashlet extends Component {
         style={{
           minWidth: `${MIN_WIDTH_DASHLET_SMALL}px`
         }}
+        onResize={this.handleResize}
+        dragHandleProps={dragHandleProps}
       >
         {editorMode ? (
           <Measurer>
@@ -115,7 +121,6 @@ class JournalsDashlet extends Component {
             <JournalsDashletFooter stateId={this._stateId} />
           </Fragment>
         )}
-        <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
       </Dashlet>
     );
   }
