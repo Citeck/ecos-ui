@@ -22,7 +22,7 @@ class UserMenu extends React.Component {
       <UncontrolledDropdown className={`${this.className} ecos-header-dropdown`}>
         <DropdownToggle tag="div">
           <IcoBtn
-            invert={true}
+            invert={'true'}
             icon={'icon-down'}
             className={`${this.className}__btn ecos-btn_blue ecos-btn_hover_t-blue ecos-btn_tight`}
             title={t('create_case.label')}

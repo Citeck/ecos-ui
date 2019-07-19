@@ -1,5 +1,17 @@
+import { nth, split } from 'lodash';
 import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
 import { getData, getSessionData, isExistLocalStorage, isExistSessionStorage, setSessionData } from '../helpers/ls';
+
+const Versions = {
+  V1: '/share/page',
+  V2: '/v2'
+};
+
+const Urls = {
+  DASHBOARD: ref => Versions.V2 + '/dashboard?recordRef=' + ref,
+  USER: login => Versions.V1 + '/user/' + login + '/profile',
+  OTHER_DOC: (item, prefix) => Versions.V1 + (item.site ? 'site/' + item.site.shortName + '/' : '') + prefix + encodeURIComponent(item.name)
+};
 
 export default class SearchService {
   static SearchAutocompleteTypes = {
@@ -20,42 +32,39 @@ export default class SearchService {
 
     switch (type) {
       case Types.DOCUMENTS:
-        const site = item.site ? 'site/' + item.site.shortName + '/' : '';
         const modifiedTimeParts = getRelativeTime(item.modifiedOn);
         const fileSize = formatFileSize(item.size);
-
         let link;
 
         switch (item.container) {
           case 'wiki':
-            link = 'wiki-page?title=' + encodeURIComponent(item.name);
+            link = Urls.OTHER_DOC(item, 'wiki-page?title=');
             break;
           case 'blog':
-            link = 'blog-postview?postId=' + encodeURIComponent(item.name);
+            link = Urls.OTHER_DOC(item, 'blog-postview?postId=');
             item.name = item.title;
             break;
           default:
-            link = 'document-details?nodeRef=' + item.nodeRef;
+            link = Urls.DASHBOARD(item.nodeRef);
             break;
         }
 
         data.icon = getIconFileByMimetype(item.mimetype);
         data.title = item.name;
-        // data.url = '/share/page/' + site + link;
-        data.url = '/v2/' + site + link;
+        data.url = link;
         data.description = `${modifiedTimeParts.relative} / ${t('Размер')}: ${fileSize}`;
         break;
       case Types.SITES:
+        const siteRef = 'workspace://' + nth(split(item.node, 'node/workspace/'), 1);
         data.icon = '';
         data.title = item.title;
-        data.url = '/share/page/site/' + item.shortName + '/dashboard';
-        // data.url = '/v2/dashboard/' + item.shortName;
+        data.url = Urls.DASHBOARD(siteRef);
         data.description = item.description;
         break;
       case Types.PEOPLE:
         data.avatarUrl = '';
         data.title = `${item.firstName} ${item.lastName} (${item.userName})`;
-        data.url = '/share/page/user/' + item.userName + '/profile';
+        data.url = Urls.USER(item.userName);
         data.description = (item.jobtitle || '') + (item.location ? ', ' + item.location : '');
         break;
       default:

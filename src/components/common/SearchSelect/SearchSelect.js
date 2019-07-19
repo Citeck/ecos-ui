@@ -113,7 +113,7 @@ export default class SearchSelect extends React.Component {
     ) : null;
   }
 
-  renderLoading() {
+  renderLoader() {
     const { isLoading } = this.props;
 
     return isLoading ? (
@@ -150,7 +150,7 @@ export default class SearchSelect extends React.Component {
             {!noResults && !isEmpty(formattedSearchResult) && formattedSearchResult}
             {this.renderNoResults()}
             {this.renderBtnShowAll()}
-            {this.renderLoading()}
+            {this.renderLoader()}
           </DropdownMenu>
         </Dropdown>
       </ClickOutside>

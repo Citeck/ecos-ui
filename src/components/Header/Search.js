@@ -69,6 +69,7 @@ class Search extends React.Component {
     const openNewTab = [Types.DOCUMENTS, Types.SITES].includes(data.type) && !reopenBrowserTab;
 
     changeUrlLink(data.url, { openNewTab, reopenBrowserTab });
+    this.props.resetSearchAutocomplete();
   };
 
   get searchResult() {
