@@ -112,7 +112,6 @@ class Search extends React.Component {
         theme={'dark'}
         formattedSearchResult={this.formattedSearchResult}
         autocomplete
-        isLoading={isLoading}
         noResults={noResults}
       />
     );

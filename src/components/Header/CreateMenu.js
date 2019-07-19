@@ -35,7 +35,6 @@ class CreateMenu extends React.Component {
           <IcoBtn
             icon={'icon-plus'}
             className={`${this.className}__btn ecos-btn_blue ecos-btn_hover_t-blue ecos-btn_tight`}
-            invert={'false'}
             disabled={disabled}
           >
             {!(isSmallMode || isMobile) && t('create_case.label')}
