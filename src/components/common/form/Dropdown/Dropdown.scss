@@ -4,14 +4,21 @@
   display: inline-block;
 
   &__menu {
-    border-radius: $border-radius-standard !important;
-    box-shadow: $box-shadow-default;
-    border: none !important;
-    padding: 0 !important;
-    //overflow: hidden;
-    margin-top: 5px !important;
-    margin-bottom: 5px !important;
-    width: auto;
+    &:not(.ecos-dropdown__menu_cascade) {
+      transform: none !important;
+      top: 100% !important;
+    }
+
+    &.dropdown-menu {
+      border-radius: $border-radius-standard;
+      box-shadow: $box-shadow-default;
+      border: none;
+      padding: 0;
+      //overflow: hidden;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      width: auto;
+    }
 
     ul {
       padding: 0;
@@ -47,8 +54,6 @@
     &_right {
       left: auto !important;
       right: 0 !important;
-      transform: none !important;
-      top: 100% !important;
     }
 
     &-link {
@@ -71,6 +76,11 @@
 
       li {
         padding-right: 25px;
+      }
+
+      &.show .ecos-dropdown__menu.show {
+        margin-top: 0;
+        margin-left: 5px;
       }
     }
   }

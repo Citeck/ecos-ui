@@ -31,6 +31,7 @@ export default class DropdownMenuCascade extends React.Component {
       return (
         <Dropdown
           className={'ecos-dropdown-menu__cascade'}
+          menuClassName={'ecos-dropdown__menu_cascade'}
           key={key}
           source={this.renderMenuItems(items)}
           hasEmpty
