@@ -9,6 +9,7 @@ import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import Layout from '../../components/Layout';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
+import Loader from '../../components/common/Loader/Loader';
 import { MENU_TYPE } from '../../constants';
 import { deepClone } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
@@ -200,6 +201,14 @@ class Dashboard extends Component {
     return <TopMenu isShow isSortable isLoading={isLoadingMenu} links={links} onSave={this.handleSaveMenu} />;
   }
 
+  renderLoader() {
+    if (this.props.isLoadingDashboard) {
+      return <Loader blur />;
+    }
+
+    return null;
+  }
+
   render() {
     return (
       <div style={this.wrapperStyle}>
@@ -210,6 +219,7 @@ class Dashboard extends Component {
         >
           {this.renderTopMenu()}
           {this.renderLayout()}
+          {this.renderLoader()}
         </Scrollbars>
       </div>
     );
