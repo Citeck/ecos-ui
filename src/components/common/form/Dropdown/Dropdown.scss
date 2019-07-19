@@ -11,8 +11,6 @@
     //overflow: hidden;
     margin-top: 5px !important;
     margin-bottom: 5px !important;
-    //transform: none !important;
-    //top: 100% !important;
     width: auto;
 
     ul {
@@ -49,6 +47,8 @@
     &_right {
       left: auto !important;
       right: 0 !important;
+      transform: none !important;
+      top: 100% !important;
     }
 
     &-link {
