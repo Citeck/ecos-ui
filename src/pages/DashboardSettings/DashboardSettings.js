@@ -16,6 +16,7 @@ import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components
 import { Btn } from '../../components/common/btns';
 import { Loader } from '../../components/common';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
+import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
 
@@ -74,7 +75,8 @@ class DashboardSettings extends React.Component {
       typeMenu: TYPE_MENU,
       isShowMenuConstructor: get(props, ['config', 'menuType']),
       availableWidgets: DndUtils.setDndId(props.availableWidgets),
-      availableMenuItems: DndUtils.setDndId(props.availableMenuItems)
+      availableMenuItems: DndUtils.setDndId(props.availableMenuItems),
+      urlParams: getSortedUrlParams()
     };
 
     this.state = {
@@ -84,16 +86,19 @@ class DashboardSettings extends React.Component {
   }
 
   componentDidMount() {
-    const { initDashboardSettings, initMenuSettings } = this.props;
-    const { recordRef, dashboardId } = this.pathInfo;
-
-    initDashboardSettings({ recordRef, dashboardId });
-    initMenuSettings();
+    this.fetchData();
   }
 
   componentWillReceiveProps(nextProps) {
+    const { urlParams } = this.state;
+    const newUrlParams = getSortedUrlParams();
     let { config, availableMenuItems, availableWidgets, saveResult = {} } = this.props;
     let state = {};
+
+    if (urlParams !== newUrlParams) {
+      this.setState({ urlParams: newUrlParams });
+      this.fetchData(nextProps);
+    }
 
     if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
       const resultConfig = this.setStateByConfig(nextProps.config);
@@ -121,6 +126,14 @@ class DashboardSettings extends React.Component {
     if (nextProps.saveResult && saveResult.status !== nextProps.saveResult.status && nextProps.saveResult.status !== SAVE_STATUS.FAILURE) {
       this.handleCloseClick(nextProps.saveResult);
     }
+  }
+
+  fetchData(props = this.props) {
+    const { initDashboardSettings, initMenuSettings } = props;
+    const { recordRef, dashboardId } = this.getPathInfo(props);
+
+    initDashboardSettings({ recordRef, dashboardId });
+    initMenuSettings();
   }
 
   setStateByConfig(config, state = this.state) {
@@ -163,10 +176,10 @@ class DashboardSettings extends React.Component {
     return newWidgets;
   }
 
-  get pathInfo() {
+  getPathInfo(props = this.props) {
     const {
       location: { search }
-    } = this.props;
+    } = props;
     const searchParams = queryString.parse(search);
     const { recordRef, dashboardId } = searchParams;
 
@@ -574,7 +587,7 @@ class DashboardSettings extends React.Component {
   /*-------- start Buttons --------*/
 
   handleCloseClick = () => {
-    const { pathDashboard } = this.pathInfo;
+    const { pathDashboard } = this.getPathInfo();
 
     changeUrlLink(pathDashboard, { openNewTab: true });
   };
