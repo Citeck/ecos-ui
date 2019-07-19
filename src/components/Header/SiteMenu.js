@@ -48,7 +48,7 @@ class SiteMenu extends React.Component {
     const { items } = this.props;
     const disabled = isEmpty(items) || !isArray(items);
     const classNameIcoBtn = classNames(
-      `${this.className}__btn  ecos-btn_hover_t-blue ecos-btn_padding_small`,
+      `${this.className}__btn  ecos-btn_hover_t-blue ecos-btn_padding_small ecos-btn_r_6`,
       { 'ecos-btn_blue': !dropdownOpen },
       { 'ecos-btn_blue2': dropdownOpen }
     );

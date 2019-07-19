@@ -134,6 +134,10 @@
   }
 
   &-site {
+    &__btn.ecos-btn {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
   }
 
   &-user {

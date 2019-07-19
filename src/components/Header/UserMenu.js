@@ -24,7 +24,7 @@ class UserMenu extends React.Component {
           <IcoBtn
             invert={'true'}
             icon={'icon-down'}
-            className={`${this.className}__btn ecos-btn_blue ecos-btn_hover_t-blue ecos-btn_tight`}
+            className={`${this.className}__btn ecos-btn_blue ecos-btn_hover_t-blue ecos-btn_tight ecos-btn_r_6`}
             title={t('create_case.label')}
             disabled={disabled}
           >
