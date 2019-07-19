@@ -80,9 +80,8 @@ function* sagaRunSearchAutocomplete({ api, fakeApi, logger }, { payload }) {
     const documents = yield api.menu.getLiveSearchDocuments(payload, 0);
     const sites = yield api.menu.getLiveSearchSites(payload);
     const people = yield api.menu.getLiveSearchPeople(payload);
-
-    console.log('+++++++++++++++', documents, sites, people);
     const noResults = !(sites.totalRecords + documents.totalRecords + people.totalRecords);
+
     yield put(setSearchAutocompleteItems({ documents, sites, people, noResults }));
   } catch (e) {
     logger.error('[fetchSiteMenu saga] error', e.message);
