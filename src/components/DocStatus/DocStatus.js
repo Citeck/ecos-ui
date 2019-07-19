@@ -1,9 +1,9 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
+import { debounce, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { changeDocStatus, initDocStatus } from '../../actions/docStatus';
+import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus } from '../../actions/docStatus';
 import { deepClone, t } from '../../helpers/util';
 import { IcoBtn } from '../common/btns';
 import Dropdown from '../common/form/Dropdown';
@@ -15,6 +15,7 @@ const mapStateToProps = (state, context) => {
 
   return {
     status: stateDS.status,
+    isUpdating: stateDS.isUpdating,
     isLoading: stateDS.isLoading,
     availableStatuses: stateDS.availableStatuses
   };
@@ -22,7 +23,9 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = dispatch => ({
   initDocStatus: payload => dispatch(initDocStatus(payload)),
-  changeDocStatus: payload => dispatch(changeDocStatus(payload))
+  changeDocStatus: payload => dispatch(changeDocStatus(payload)),
+  getDocStatus: payload => dispatch(getDocStatus(payload)),
+  getCheckDocStatus: payload => dispatch(getCheckDocStatus(payload))
 });
 
 const noStatus = { id: 'no-status', name: t('Нет статуса') };
@@ -44,10 +47,26 @@ class DocStatus extends React.Component {
     wasChanged: false
   };
 
+  checkDocStatusPing = debounce(() => {
+    const { stateId, record, getCheckDocStatus } = this.props;
+
+    getCheckDocStatus({ stateId, record });
+  }, 3000);
+
   componentDidMount() {
     const { stateId, record, initDocStatus } = this.props;
 
     initDocStatus({ stateId, record });
+  }
+
+  componentWillReceiveProps(nextProps, nextContext) {
+    const { stateId, record, status, getDocStatus } = this.props;
+
+    if (nextProps.isUpdating) {
+      this.checkDocStatusPing();
+    } else if (!nextProps.isUpdating && !nextProps.isLoading && isEmpty(nextProps.status)) {
+      getDocStatus({ stateId, record });
+    }
   }
 
   get selectedStatus() {
@@ -111,12 +130,12 @@ class DocStatus extends React.Component {
   }
 
   render() {
-    const { isLoading } = this.props;
+    const { isLoading, isUpdating } = this.props;
     const { wasChanged } = this.state;
 
     return (
       <div className={this.className}>
-        {isLoading && !wasChanged ? (
+        {(isLoading || isUpdating) && !wasChanged ? (
           this.renderLoader()
         ) : (
           <React.Fragment>
