@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
-import { isSmallMode } from '../../helpers/util';
+import { isSmallMode as defineSmallMode } from '../../helpers/util';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
 import { Avatar } from '../common';
 import CreateMenu from './CreateMenu';
@@ -42,18 +43,21 @@ class Header extends React.Component {
   }
 
   onResize = width => {
-    this.setState({ isSmallMode: isSmallMode(width) });
+    const isSmallMode = defineSmallMode(width);
+
+    this.setState({ isSmallMode });
   };
 
   render() {
     const { isSmallMode } = this.state;
     const { isMobile, userPhotoUrl } = this.props;
+    const classNameContainer = classNames(this.className, { [`${this.className}_small`]: isMobile && isSmallMode });
     const classNameSide = `${this.className}__side`;
 
     return (
       <React.Fragment>
         <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
-        <div className={this.className}>
+        <div className={classNameContainer}>
           <div className={`${classNameSide} ${classNameSide}_left`}>
             <CreateMenu isSmallMode={isSmallMode} isMobile={isMobile} />
           </div>

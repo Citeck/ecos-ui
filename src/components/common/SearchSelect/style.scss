@@ -4,12 +4,14 @@
   $root: &;
 
   position: relative;
+  transition: width 0.5s ease-out 0s;
 
   &__icon {
     position: absolute;
+    cursor: pointer;
 
     &-search {
-      left: 14px;
+      left: 12px;
       top: 9px;
     }
 
@@ -17,16 +19,27 @@
       right: 13px;
       top: 11px;
       font-size: $font-size-small;
-      cursor: pointer;
     }
   }
 
   &__input {
-    padding-left: 48px;
+    padding-left: 45px;
     padding-right: 30px;
   }
 
+  &#{$root}_close {
+    height: 40px;
+    width: 40px;
+
+    #{$root}__icon-search {
+      left: 10px;
+    }
+  }
+
   &_dark {
+    background: $color-blue-dark;
+    border-radius: $border-radius-standard;
+
     #{$root}__icon {
       &-search {
         color: $color-white;
@@ -34,11 +47,15 @@
 
       &-clear {
         color: $color-blue-light2;
+
+        &:hover {
+          color: $color-white;
+        }
       }
     }
 
     #{$root}__input {
-      background: $color-blue-dark;
+      background: unset;
       border: none;
       color: $color-white;
 
@@ -71,6 +88,7 @@
         width: 100%;
         margin: 0;
         display: inline-block;
+        @extend %ellipsis;
       }
     }
 

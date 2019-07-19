@@ -1,11 +1,5 @@
 @import '../../constants';
 
-%ellipsis {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
 .ecos-header {
   $root: &;
 
@@ -19,10 +13,43 @@
     align-items: center;
   }
 
+  &_small {
+    padding: 10px 15px;
+    justify-content: unset;
+
+    #{$root}__side {
+      display: flex;
+      justify-content: space-between;
+
+      &_right {
+        flex: 1;
+      }
+
+      .ecos-input-search {
+        &_open {
+          width: 210px;
+          //width: 100%;
+          margin-right: 0;
+
+          & + .ecos-header-user {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .ecos-header-create__menu,
+    .ecos-header-user__menu,
+    .ecos-input-search__results {
+      max-width: 280px;
+    }
+  }
+
   &__side {
     display: flex;
 
     &_left {
+      margin-right: 10px;
     }
 
     &_right {
@@ -113,11 +140,6 @@
     &__btn {
       max-width: 242px;
       @extend %ellipsis;
-    }
-  }
-
-  &-dropdown {
-    .ecos-btn {
     }
   }
 }
