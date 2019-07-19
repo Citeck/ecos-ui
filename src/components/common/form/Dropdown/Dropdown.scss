@@ -35,9 +35,8 @@
 
       a {
         color: $text-color-dark;
-        display: flex;
-        align-items: center;
-        height: 20px;
+        display: block;
+        @extend %ellipsis;
 
         &:hover,
         &:visited,

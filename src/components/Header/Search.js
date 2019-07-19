@@ -102,7 +102,7 @@ class Search extends React.Component {
   }
 
   render() {
-    const { noResults, isLoading } = this.props;
+    const { noResults, isMobile, isSmallMode } = this.props;
 
     return (
       <SearchSelect
@@ -112,6 +112,7 @@ class Search extends React.Component {
         theme={'dark'}
         formattedSearchResult={this.formattedSearchResult}
         autocomplete
+        isOpenSearch={!(isMobile || isSmallMode)}
         noResults={noResults}
       />
     );

@@ -26,8 +26,8 @@ export default class SearchSelect extends React.Component {
     isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool,
     isLoading: PropTypes.bool,
+    isOpenSearch: PropTypes.bool,
     onSearch: PropTypes.func,
-    onKeyDown: PropTypes.func,
     openFullSearch: PropTypes.func
   };
 
@@ -38,16 +38,23 @@ export default class SearchSelect extends React.Component {
     isSmallMode: false,
     isMobile: false,
     isLoading: false,
+    isOpenSearch: false,
     onSearch: () => {},
-    openFullSearch: () => {},
-    onKeyDown: () => {}
+    openFullSearch: () => {}
   };
+
+  constructor(props) {
+    super(props);
+
+    const { isOpenSearch } = this.props;
+
+    this.state = {
+      searchText: '',
+      isOpenSearch
+    };
+  }
 
   className = 'ecos-input-search';
-
-  state = {
-    searchText: ''
-  };
 
   runSearch = debounce(() => {
     this.props.onSearch(this.state.searchText);
@@ -95,6 +102,12 @@ export default class SearchSelect extends React.Component {
     this.props.onSearch('');
   };
 
+  onLoupe = data => {
+    this.setState(prevState => ({
+      isOpenSearch: !prevState.isOpenSearch
+    }));
+  };
+
   renderNoResults() {
     const { noResults } = this.props;
 
@@ -124,36 +137,41 @@ export default class SearchSelect extends React.Component {
   }
 
   render() {
-    const { searchText } = this.state;
+    const { searchText, isOpenSearch } = this.state;
     const { className, theme, autocomplete, formattedSearchResult, noResults, isLoading } = this.props;
-    const classNameField = classNames(this.className, `${this.className}_${theme}`);
+    const stateSearch = isOpenSearch ? 'open' : 'close';
+    const classNameContainer = classNames(className, this.className, `${this.className}_${theme}`, `${this.className}_${stateSearch}`);
     const commonIcon = `${this.className}__icon`;
     const isOpen = (!isEmpty(formattedSearchResult) || noResults || isLoading) && autocomplete;
 
     return (
-      <ClickOutside handleClickOutside={this.resetSearch} className={`${this.className}__click_outside`}>
-        <Dropdown className={`${className} ${this.className} ecos-header-dropdown`} isOpen={isOpen} toggle={() => {}}>
-          <DropdownToggle tag="div">
-            <div className={classNameField}>
-              <Icon className={classNames(commonIcon, `${commonIcon}-search`, 'icon-search')} />
-              <Input
-                className={classNames(`${this.className}__input`)}
-                placeholder={t('Найти файл, человека или сайт')}
-                onChange={this.onChange}
-                onKeyDown={this.onKeyDown}
-                value={searchText || ''}
-              />
-              {searchText && <Icon className={classNames(commonIcon, `${commonIcon}-clear`, 'icon-close')} onClick={this.resetSearch} />}
-            </div>
-          </DropdownToggle>
-          <DropdownMenu className={`${this.className}__results ecos-dropdown__menu`}>
-            {!noResults && !isEmpty(formattedSearchResult) && formattedSearchResult}
-            {this.renderNoResults()}
-            {this.renderBtnShowAll()}
-            {this.renderLoader()}
-          </DropdownMenu>
-        </Dropdown>
-      </ClickOutside>
+      <div className={classNameContainer}>
+        <ClickOutside handleClickOutside={this.resetSearch} className={`${this.className}__click_outside`}>
+          <Dropdown isOpen={isOpen} toggle={() => {}}>
+            <DropdownToggle tag="div">
+              <Icon className={classNames(commonIcon, `${commonIcon}-search`, 'icon-search')} onClick={this.onLoupe} />
+              {isOpenSearch && (
+                <Input
+                  className={classNames(`${this.className}__input`)}
+                  placeholder={t('Найти файл, человека или сайт')}
+                  onChange={this.onChange}
+                  onKeyDown={this.onKeyDown}
+                  value={searchText || ''}
+                />
+              )}
+              {isOpenSearch && searchText && (
+                <Icon className={classNames(commonIcon, `${commonIcon}-clear`, 'icon-close')} onClick={this.resetSearch} />
+              )}
+            </DropdownToggle>
+            <DropdownMenu className={`${this.className}__results ecos-dropdown__menu`}>
+              {!noResults && !isEmpty(formattedSearchResult) && formattedSearchResult}
+              {this.renderNoResults()}
+              {this.renderBtnShowAll()}
+              {this.renderLoader()}
+            </DropdownMenu>
+          </Dropdown>
+        </ClickOutside>
+      </div>
     );
   }
 }
