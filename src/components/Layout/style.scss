@@ -225,6 +225,7 @@ $indents-of-items: 15px;
         &-drag {
           font-size: 28px;
           color: $color-gray-1;
+          cursor: grab;
 
           &:before {
             position: absolute;
@@ -271,6 +272,12 @@ $indents-of-items: 15px;
 
     .ecos-dnd__droppable-children-wrapper > :not(:last-child) {
       margin-bottom: $indents-of-items;
+    }
+  }
+
+  &__element {
+    &:not(:last-child) {
+      margin-bottom: 15px;
     }
   }
 

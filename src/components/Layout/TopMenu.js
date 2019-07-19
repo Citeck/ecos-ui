@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { cloneDeep } from 'lodash';
-import { SortableContainer, SortableElement } from '../Drag-n-Drop';
+import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { t } from '../../helpers/util';
 import './style.scss';
 
@@ -66,7 +66,7 @@ class TopMenu extends Component {
     const { links } = this.state;
 
     return (
-      <SortableContainer axis="xy" onSortEnd={this.handleSortEndMenu} updateBeforeSortStart={this.handleBeforeSortStart}>
+      <SortableContainer axis="xy" onSortEnd={this.handleSortEndMenu} updateBeforeSortStart={this.handleBeforeSortStart} useDragHandle>
         <div className="ecos-layout__menu ecos-layout__menu_big">{links && links.map(this.renderMenuItem)}</div>
       </SortableContainer>
     );
@@ -77,7 +77,10 @@ class TopMenu extends Component {
       <Link className="ecos-layout__menu-item" to={link.link} title={t(link.label)}>
         <div className="ecos-layout__menu-item-title">{t(link.label)}</div>
         <i className="ecos-btn__i ecos-layout__menu-item-i-next" />
-        <i className="ecos-btn__i icon-drag ecos-layout__menu-item-i-drag" />
+
+        <SortableHandle>
+          <i className="ecos-btn__i icon-drag ecos-layout__menu-item-i-drag" />
+        </SortableHandle>
       </Link>
     </SortableElement>
   );

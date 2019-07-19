@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import moment from 'moment';
-import ReactResizeDetector from 'react-resize-detector';
 import { Editor, EditorState, RichUtils, ContentState, convertToRaw, convertFromRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import classNames from 'classnames';
@@ -52,6 +51,7 @@ class Comments extends React.Component {
     saveIsLoading: PropTypes.bool,
     fetchIsLoading: PropTypes.bool,
     hasMore: PropTypes.bool,
+    canDragging: PropTypes.bool,
     commentListMaxHeight: PropTypes.number,
     onSave: PropTypes.func,
     onDelete: PropTypes.func,
@@ -68,6 +68,7 @@ class Comments extends React.Component {
     errorMessage: '',
     saveIsLoading: false,
     fetchIsLoading: false,
+    canDragging: false,
     commentListMaxHeight: 217,
     onSave: () => {},
     onDelete: () => {},
@@ -640,6 +641,8 @@ class Comments extends React.Component {
   }
 
   render() {
+    const { dragHandleProps, canDragging } = this.props;
+
     return (
       <div className={this.className}>
         <Dashlet
@@ -647,10 +650,12 @@ class Comments extends React.Component {
           needGoTo={false}
           actionEdit={false}
           actionHelp={false}
+          canDragging={canDragging}
           resizable
           onReload={this.handleReloadData}
+          onResize={this.handleResize}
+          dragHandleProps={dragHandleProps}
         >
-          <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
           <div className="ecos-comments__header">{this.renderHeader()}</div>
 
           {this.renderComments()}

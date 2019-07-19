@@ -36,7 +36,8 @@ class PageTabs extends React.Component {
     tabs: PropTypes.array,
     linkIgnoreAttr: PropTypes.string,
 
-    saveTabs: PropTypes.func
+    saveTabs: PropTypes.func,
+    changeActiveTab: PropTypes.func
   };
 
   static defaultProps = {
@@ -46,7 +47,8 @@ class PageTabs extends React.Component {
     tabs: [],
     linkIgnoreAttr: IGNORE_TABS_HANDLER_ATTR_NAME,
 
-    saveTabs: () => {}
+    saveTabs: () => {},
+    changeActiveTab: () => {}
   };
 
   state = {
@@ -389,6 +391,7 @@ class PageTabs extends React.Component {
       return;
     }
 
+    this.props.changeActiveTab();
     this.activeTab(tab);
   }
 

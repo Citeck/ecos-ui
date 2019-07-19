@@ -13,7 +13,7 @@ import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 
-import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
+import { getShowTabsStatus, getTabs, setTabs, changeActiveTab } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
 import { MENU_TYPE, URL } from '../../constants';
 
@@ -55,7 +55,7 @@ class App extends Component {
   }
 
   render() {
-    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs } = this.props;
+    const { changeActiveTab, isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -83,7 +83,7 @@ class App extends Component {
             <Notification />
           </div>
 
-          <PageTabs homepageLink={URL.DASHBOARD} isShow={isShow} tabs={tabs} saveTabs={setTabs} />
+          <PageTabs homepageLink={URL.DASHBOARD} isShow={isShow} tabs={tabs} saveTabs={setTabs} changeActiveTab={changeActiveTab} />
 
           {this.renderMenu()}
 
@@ -135,6 +135,7 @@ const mapDispatchToProps = dispatch => ({
   getShowTabsStatus: () => dispatch(getShowTabsStatus()),
   getTabs: () => dispatch(getTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
+  changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
   initMenuSettings: () => dispatch(initMenuSettings())
 });
 
