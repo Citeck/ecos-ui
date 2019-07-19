@@ -100,9 +100,7 @@ export default class NodeViewFormCardlet extends NodeCardlet {
                   readOnly: true,
                   viewAsHtml: true,
                   viewAsHtmlConfig: {
-                    fullWidthColumns: true,
-                    hidePanels: true,
-                    alwaysWrap: column === 'right'
+                    fullWidthColumns: column === 'right'
                   }
                 }}
               />

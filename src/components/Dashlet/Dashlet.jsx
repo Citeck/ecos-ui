@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import ReactResizeDetector from 'react-resize-detector';
+
 import Panel from '../common/panels/Panel/Panel';
 import Measurer from '../Measurer/Measurer';
 import { IcoBtn } from '../common/btns';
@@ -8,7 +10,19 @@ import { t } from '../../helpers/util';
 
 import './Dashlet.scss';
 
-const Header = ({ title, needGoTo, onGoTo, onReload, onEdit, actionReload, actionEdit, actionHelp, actionDrag, measurer }) => {
+const Header = ({
+  dragHandleProps,
+  title,
+  needGoTo,
+  onGoTo,
+  onReload,
+  onEdit,
+  actionReload,
+  actionEdit,
+  actionHelp,
+  actionDrag,
+  measurer
+}) => {
   const btnGoTo = (
     <IcoBtn title={t('dashlet.goto')} invert={'true'} icon={'icon-big-arrow'} className={'dashlet__btn ecos-btn_narrow'} onClick={onGoTo}>
       {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
@@ -54,12 +68,14 @@ const Header = ({ title, needGoTo, onGoTo, onReload, onEdit, actionReload, actio
 
   if (actionDrag) {
     actions.push(
-      <IcoBtn
-        key="action-drag"
-        icon={'icon-drag'}
-        className={'ecos-btn_i dashlet__btn_next dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1'}
-        title={t('dashlet.move.title')}
-      />
+      <span className="dashlet__btn_move-wrapper" {...dragHandleProps}>
+        <IcoBtn
+          key="action-drag"
+          icon={'icon-drag'}
+          className={'ecos-btn_i dashlet__btn_next dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1'}
+          title={t('dashlet.move.title')}
+        />
+      </span>
     );
   }
 
@@ -82,9 +98,13 @@ export default class Dashlet extends Component {
     actionHelp: PropTypes.bool,
     actionDrag: PropTypes.bool,
     resizable: PropTypes.bool,
+    canDragging: PropTypes.bool,
+    dragHandleProps: PropTypes.object,
     onEdit: PropTypes.func,
     onGoTo: PropTypes.func,
-    onReload: PropTypes.func
+    onReload: PropTypes.func,
+    onResize: PropTypes.func,
+    dragButton: PropTypes.func
   };
 
   static defaultProps = {
@@ -94,66 +114,92 @@ export default class Dashlet extends Component {
     actionHelp: true,
     actionDrag: true,
     resizable: false,
+    canDragging: false,
     onEdit: () => {},
     onGoTo: () => {},
-    onReload: () => {}
+    onReload: () => {},
+    onResize: () => {},
+    dragButton: null,
+    dragHandleProps: {}
   };
 
   onEdit = () => {
-    const onEdit = this.props.onEdit;
+    const { onEdit } = this.props;
+
     if (typeof onEdit === 'function') {
       onEdit.call(this);
     }
   };
 
   onGoTo = () => {
-    const onGoTo = this.props.onGoTo;
+    const { onGoTo } = this.props;
+
     if (typeof onGoTo === 'function') {
       onGoTo.call(this);
     }
   };
 
   onReload = () => {
-    const onReload = this.props.onReload;
+    const { onReload } = this.props;
+
     if (typeof onReload === 'function') {
       onReload.call(this);
     }
   };
 
   render() {
-    const props = this.props;
-    const cssClasses = classNames('dashlet', props.className);
+    const {
+      className,
+      bodyClassName,
+      title,
+      needGoTo,
+      actionReload,
+      resizable,
+      children,
+      actionEdit,
+      actionHelp,
+      actionDrag,
+      onResize,
+      dragHandleProps,
+      canDragging
+    } = this.props;
+    const cssClasses = classNames('dashlet', className);
 
     return (
-      <Panel
-        {...props}
-        className={cssClasses}
-        headClassName={'ecos-panel__large'}
-        bodyClassName={classNames('dashlet__body', props.bodyClassName)}
-        header={
-          <Measurer>
-            <Header
-              title={props.title}
-              needGoTo={props.needGoTo}
-              onGoTo={this.onGoTo}
-              actionReload={props.actionReload}
-              onReload={this.onReload}
-              actionEdit={props.actionEdit}
-              onEdit={this.onEdit}
-              actionHelp={props.actionHelp}
-              actionDrag={props.actionDrag}
-            />
-          </Measurer>
-        }
-      >
-        {props.children}
+      <div>
+        <Panel
+          {...this.props}
+          className={cssClasses}
+          headClassName={'ecos-panel__large'}
+          bodyClassName={classNames('dashlet__body', bodyClassName)}
+          header={
+            <Measurer>
+              <Header
+                title={title}
+                needGoTo={needGoTo}
+                onGoTo={this.onGoTo}
+                actionReload={actionReload}
+                onReload={this.onReload}
+                actionEdit={actionEdit}
+                onEdit={this.onEdit}
+                actionHelp={actionHelp}
+                actionDrag={actionDrag && canDragging}
+                dragHandleProps={dragHandleProps}
+              />
+            </Measurer>
+          }
+        >
+          {children}
 
-        {props.resizable ? (
-          <div className={'dashlet__resizer'}>
-            <i className={'icon-resize ecos-btn__i'} title={t('dashlet.resize.title')} />
-          </div>
-        ) : null}
-      </Panel>
+          {resizable ? (
+            <div className={'dashlet__resizer'}>
+              <i className={'icon-resize ecos-btn__i'} title={t('dashlet.resize.title')} />
+            </div>
+          ) : null}
+        </Panel>
+
+        <ReactResizeDetector handleWidth handleHeight onResize={onResize} />
+      </div>
     );
   }
 }

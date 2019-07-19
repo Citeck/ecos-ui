@@ -2,7 +2,9 @@ import React, { Fragment } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
+
 import { IcoBtn } from '../common/btns';
+
 import './drag-item.scss';
 
 class DragItem extends React.Component {
@@ -170,8 +172,9 @@ class Wrapper extends DragItem {
       <Fragment>
         {this.renderDoppelganger(snapshot.isDragging)}
 
-        <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} style={provided.draggableProps.style}>
-          {this.props.children}
+        <div ref={provided.innerRef} {...provided.draggableProps} style={provided.draggableProps.style}>
+          {React.cloneElement(this.props.children, { dragHandleProps: { ...provided.dragHandleProps } })}
+          <div {...provided.dragHandleProps} />
         </div>
       </Fragment>
     );

@@ -1,5 +1,6 @@
 export const URL = {
   HOME: '/',
+  JOURNAL_OLD: '/share/page/ui/journals',
   JOURNAL: '/v2/journals',
   DASHBOARD: '/v2/dashboard',
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
@@ -16,6 +17,10 @@ export const URL = {
   WIDGET_DOC_STATUS: '/v2/debug/doc-status'
 };
 
+export const SourcesId = {
+  DASHBOARD: 'uiserv/dashboard'
+};
+
 export const MENU_TYPE = {
   LEFT: 'LEFT',
   TOP: 'TOP'
@@ -26,7 +31,7 @@ export const SAVE_STATUS = {
   FAILURE: 'FAILURE'
 };
 
-export const QUERY_KEYS = {
+export const QueryKeys = {
   CONFIG_JSON: 'config?json',
   VALUE_JSON: 'value?json',
   KEY: 'key',

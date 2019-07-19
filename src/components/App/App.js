@@ -13,7 +13,7 @@ import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 
-import { getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
+import { getShowTabsStatus, getTabs, setTabs, changeActiveTab } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
 import { MENU_TYPE, URL } from '../../constants';
 
@@ -56,7 +56,7 @@ class App extends Component {
   }
 
   render() {
-    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs } = this.props;
+    const { changeActiveTab, isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -84,20 +84,22 @@ class App extends Component {
             <Notification />
           </div>
 
-          <PageTabs homepageLink={URL.HOME} isShow={isShow} tabs={tabs} saveTabs={setTabs} />
+          <PageTabs homepageLink={URL.DASHBOARD} isShow={isShow} tabs={tabs} saveTabs={setTabs} changeActiveTab={changeActiveTab} />
 
           {this.renderMenu()}
 
           <Suspense fallback={null}>
             <Switch>
               {/*<Route path="/share/page" exact component={DashboardPage} />*/}
-              <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />{' '}
+              <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
+              <Route exact path="/share" render={() => <Redirect to={URL.DASHBOARD} />} />
               {/* TODO delete redirect some day */}
               <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
               <Route path={URL.DASHBOARD} exact component={DashboardPage} />
               <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
               <Route path={URL.JOURNAL} component={JournalsPage} />
               {/* temporary routes */}
+              <Route path={URL.JOURNAL_OLD} component={JournalsPage} />
               <Route path={URL.CARD_DETAILS} component={CardDetailsPage} />
               <Route path={URL.JOURNAL_DASHBOARD} component={JournalsDashboardPage} />
               <Route path={URL.WIDGET_DOC_PREVIEW} component={DocPreviewPage} />
@@ -135,6 +137,7 @@ const mapDispatchToProps = dispatch => ({
   getShowTabsStatus: () => dispatch(getShowTabsStatus()),
   getTabs: () => dispatch(getTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
+  changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
   initMenuSettings: () => dispatch(initMenuSettings())
 });
 

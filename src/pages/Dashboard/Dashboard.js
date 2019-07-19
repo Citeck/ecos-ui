@@ -7,11 +7,12 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { getDashboardConfig, saveDashboardConfig } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import Layout from '../../components/Layout';
-import Loader from '../../components/common/Loader/Loader';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
+import Loader from '../../components/common/Loader/Loader';
 import { MENU_TYPE } from '../../constants';
 import { deepClone } from '../../helpers/util';
+import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
 
@@ -21,7 +22,6 @@ const mapStateToProps = state => ({
   },
   isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
   saveResultDashboard: get(state, ['dashboard', 'saveResult']),
-  dashboardId: get(state, ['dashboard', 'config', 'dashboardId']),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
   saveResultMenu: get(state, ['menu', 'saveResult']),
   menuType: get(state, ['menu', 'type']),
@@ -40,32 +40,29 @@ class Dashboard extends Component {
     super(props);
 
     this.state = {
-      dashboardId: '',
-      config: props.config
+      config: props.config,
+      urlParams: getSortedUrlParams(),
+      canDragging: false
     };
   }
 
   componentDidMount() {
     const { getDashboardConfig, config } = this.props;
-    const { recordRef, dashboardId } = this.pathInfo;
+    const { recordRef } = this.getPathInfo();
 
-    this.setState({ dashboardId, config });
-    getDashboardConfig({ recordRef, dashboardId });
+    this.setState({ config });
+    getDashboardConfig({ recordRef });
   }
 
   componentWillReceiveProps(nextProps) {
-    const {
-      location: { search },
-      getDashboardConfig,
-      initMenuSettings,
-      config
-    } = nextProps;
-    const { dashboardId, recordRef } = queryString.parse(search);
-    const { dashboardId: oldDashboardId } = this.state;
+    const { getDashboardConfig, initMenuSettings, config } = nextProps;
+    const { recordRef } = this.getPathInfo(nextProps);
+    const { urlParams } = this.state;
+    const newUrlParams = getSortedUrlParams();
 
-    if (dashboardId !== oldDashboardId) {
-      this.setState({ dashboardId });
-      getDashboardConfig({ recordRef, dashboardId });
+    if (urlParams !== newUrlParams) {
+      this.setState({ urlParams: newUrlParams });
+      getDashboardConfig({ recordRef });
       initMenuSettings();
     }
 
@@ -74,16 +71,17 @@ class Dashboard extends Component {
     }
   }
 
-  get pathInfo() {
+  getPathInfo(props) {
     const {
       location: { search }
-    } = this.props;
+    } = props || this.props;
     const searchParams = queryString.parse(search);
     const { recordRef, dashboardId } = searchParams;
 
     return {
       recordRef,
-      dashboardId
+      dashboardId,
+      search
     };
   }
 
@@ -124,7 +122,6 @@ class Dashboard extends Component {
     } = this.state;
     const { isWidget, columnFrom, columnTo } = data;
     const { source, destination } = dnd;
-    const { dashboardId } = this.pathInfo;
     const config = JSON.parse(JSON.stringify(currentConfig));
 
     if (isWidget) {
@@ -145,7 +142,7 @@ class Dashboard extends Component {
     }
 
     this.setState({ config });
-    this.saveDashboardConfig({ config, dashboardId });
+    this.saveDashboardConfig({ config });
   };
 
   saveDashboardConfig = payload => {
@@ -159,7 +156,6 @@ class Dashboard extends Component {
   };
 
   handleSaveWidgetProps = (id, props = {}) => {
-    const { dashboardId } = this.pathInfo;
     const config = deepClone(this.state.config);
 
     config.columns.forEach(column => {
@@ -174,13 +170,14 @@ class Dashboard extends Component {
     });
 
     this.setState({ config });
-    this.saveDashboardConfig({ config, dashboardId });
+    this.saveDashboardConfig({ config });
   };
 
   renderLayout() {
     const { menuType } = this.props;
     const {
-      config: { columns, type }
+      config: { columns, type },
+      canDragging
     } = this.state;
 
     return (
@@ -190,20 +187,10 @@ class Dashboard extends Component {
         type={type}
         menuType={menuType}
         onSaveWidgetProps={this.handleSaveWidgetProps}
+        canDragging={canDragging}
       />
     );
   }
-
-  renderLoader() {
-    let { isLoadingDashboard, isLoadingMenu } = this.props;
-
-    if (isLoadingDashboard || isLoadingMenu) {
-      return <Loader className={`ecos-dashboard__loader-wrapper`} />;
-    }
-
-    return null;
-  }
-
   renderTopMenu() {
     const { menuType, isLoadingMenu, links } = this.props;
 
@@ -212,6 +199,14 @@ class Dashboard extends Component {
     }
 
     return <TopMenu isShow isSortable isLoading={isLoadingMenu} links={links} onSave={this.handleSaveMenu} />;
+  }
+
+  renderLoader() {
+    if (this.props.isLoadingDashboard) {
+      return <Loader blur />;
+    }
+
+    return null;
   }
 
   render() {
@@ -223,8 +218,8 @@ class Dashboard extends Component {
           renderThumbHorizontal={props => <div {...props} hidden />}
         >
           {this.renderTopMenu()}
-          {this.renderLoader()}
           {this.renderLayout()}
+          {this.renderLoader()}
         </Scrollbars>
       </div>
     );

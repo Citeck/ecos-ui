@@ -2,25 +2,35 @@
 
 .ecos-journal-dashlet {
   padding-top: 0;
-}
 
-.ecos-journal-dashlet__toolbar {
-  margin: 12px 15px;
-  position: relative;
-}
+  &__toolbar {
+    margin: 12px 15px;
+    position: relative;
 
-.ecos-journal-dashlet__footer {
-  margin: -5px 15px 0 15px;
-}
+    &-dropdown {
+      &_small {
+        width: calc(100% - 50px);
 
-.ecos-journal-dashlet__pagination {
-  margin-right: 25px;
-}
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
 
-.ecos-journal-dashlet__grid {
-  position: relative;
-}
+  &__footer {
+    margin: -5px 15px 0 15px;
+  }
 
-.ecos-journal-dashlet__body {
-  min-height: 115px;
+  &__pagination {
+    margin-right: 25px;
+  }
+
+  &__grid {
+    position: relative;
+  }
+
+  &__body {
+    min-height: 115px;
+  }
 }

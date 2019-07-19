@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsDashletToolbar from '../JournalsDashletToolbar';
 import JournalsDashletEditor from '../JournalsDashletEditor';
@@ -11,6 +12,7 @@ import Dashlet from '../../Dashlet/Dashlet';
 import { getDashletConfig, initState, reloadGrid, setEditorMode } from '../../../actions/journals';
 import { goToJournalsPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
+import { MIN_WIDTH_DASHLET_SMALL, MIN_WIDTH_DASHLET_LARGE } from '../../../constants';
 
 import './JournalsDashlet.scss';
 
@@ -38,7 +40,16 @@ const mapDispatchToProps = (dispatch, props) => {
 
 class JournalsDashlet extends Component {
   static propTypes = {
-    id: PropTypes.string.isRequired
+    id: PropTypes.string.isRequired,
+    dragHandleProps: PropTypes.object
+  };
+
+  static defaultProps = {
+    dragHandleProps: {}
+  };
+
+  state = {
+    width: MIN_WIDTH_DASHLET_SMALL
   };
 
   constructor(props) {
@@ -52,6 +63,10 @@ class JournalsDashlet extends Component {
   componentDidMount() {
     this.props.getDashletConfig(this.props.id);
   }
+
+  handleResize = width => {
+    this.setState({ width });
+  };
 
   showEditor = () => this.props.setEditorMode(true);
 
@@ -68,7 +83,8 @@ class JournalsDashlet extends Component {
   };
 
   render() {
-    const { journalConfig, className, id, editorMode, reloadGrid } = this.props;
+    const { journalConfig, className, id, editorMode, reloadGrid, dragHandleProps } = this.props;
+    const { width } = this.state;
 
     if (!journalConfig) {
       return null;
@@ -83,6 +99,12 @@ class JournalsDashlet extends Component {
         onReload={reloadGrid}
         onEdit={this.showEditor}
         onGoTo={this.goToJournalsPage}
+        needGoTo={width >= MIN_WIDTH_DASHLET_LARGE}
+        style={{
+          minWidth: `${MIN_WIDTH_DASHLET_SMALL}px`
+        }}
+        onResize={this.handleResize}
+        dragHandleProps={dragHandleProps}
       >
         {editorMode ? (
           <Measurer>
@@ -91,7 +113,7 @@ class JournalsDashlet extends Component {
         ) : (
           <Fragment>
             <Measurer>
-              <JournalsDashletToolbar stateId={this._stateId} />
+              <JournalsDashletToolbar stateId={this._stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
             </Measurer>
 
             <JournalsDashletGrid stateId={this._stateId} />

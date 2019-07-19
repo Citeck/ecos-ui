@@ -1,16 +1,19 @@
-import { put, takeLatest, call, select } from 'redux-saga/effects';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 import {
   fetchCreateCaseWidgetData,
-  setCreateCaseWidgetItems,
-  setCreateCaseWidgetIsCascade,
-  fetchUserMenuData,
-  setUserMenuItems,
   fetchSiteMenuData,
-  setSiteMenuItems
+  fetchUserMenuData,
+  goToPageFromSiteMenu,
+  setCreateCaseWidgetIsCascade,
+  setCreateCaseWidgetItems,
+  setSiteMenuItems,
+  setUserMenuItems
 } from '../actions/header';
 import { setUserThumbnail } from '../actions/user';
-import { processCreateVariantsItems, makeUserMenuItems } from '../helpers/menu'; // processMenuItemsFromOldMenu
+import { makeSiteMenu, makeUserMenuItems, processCreateVariantsItems } from '../helpers/menu';
 import { PROXY_URI } from '../constants/alfresco';
+import { changeUrlLink } from '../components/PageTabs/PageTabs';
+import MenuService from '../services/menu';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
@@ -53,12 +56,18 @@ function* fetchUserMenu({ api, fakeApi, logger }) {
 
 function* fetchSiteMenu({ api, fakeApi, logger }) {
   try {
-    // TODO use real api
-    // const oldSiteMenuItems = yield call(fakeApi.getSiteMenuItems);
-    //
-    // const menuItems = processMenuItemsFromOldMenu(oldSiteMenuItems);
-    // yield put(setSiteMenuItems(menuItems));
-    yield put(setSiteMenuItems([]));
+    const menuItems = makeSiteMenu();
+    yield put(setSiteMenuItems(menuItems));
+  } catch (e) {
+    logger.error('[fetchSiteMenu saga] error', e.message);
+  }
+}
+
+function* goToPageSiteMenu({ api, fakeApi, logger }, { payload }) {
+  try {
+    const link = yield MenuService.processTransitSiteMenuItem(payload);
+
+    changeUrlLink(link, { openNewTab: true });
   } catch (e) {
     logger.error('[fetchSiteMenu saga] error', e.message);
   }
@@ -68,6 +77,7 @@ function* headerSaga(ea) {
   yield takeLatest(fetchCreateCaseWidgetData().type, fetchCreateCaseWidget, ea);
   yield takeLatest(fetchUserMenuData().type, fetchUserMenu, ea);
   yield takeLatest(fetchSiteMenuData().type, fetchSiteMenu, ea);
+  yield takeLatest(goToPageFromSiteMenu().type, goToPageSiteMenu, ea);
 }
 
 export default headerSaga;

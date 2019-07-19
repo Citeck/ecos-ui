@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Formio from 'formiojs/Formio';
+import '../../forms/components';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormUtils from './EcosFormUtils';
@@ -105,7 +106,12 @@ class EcosForm extends React.Component {
 
         options.i18n = i18n;
 
-        let formPromise = Formio.createForm(document.getElementById(this.state.containerId), formDefinition, options);
+        const containerElement = document.getElementById(this.state.containerId);
+        if (!containerElement) {
+          return;
+        }
+
+        let formPromise = Formio.createForm(containerElement, formDefinition, options);
 
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
           let form = formAndCustom[0];

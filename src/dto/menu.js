@@ -1,4 +1,4 @@
-import { MENU_TYPE, QUERY_KEYS } from '../constants';
+import { MENU_TYPE, QueryKeys } from '../constants';
 
 export const getDefaultMenuConfig = {
   menu: {
@@ -12,7 +12,7 @@ export function parseGetResult(result) {
     return {};
   }
 
-  return result[QUERY_KEYS.VALUE_JSON] || getDefaultMenuConfig;
+  return result[QueryKeys.VALUE_JSON] || getDefaultMenuConfig;
 }
 
 export function getAvailableMenuItemsForWeb(items = []) {

@@ -295,11 +295,13 @@ export const TableFormContextProvider = props => {
           typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
         },
 
-        setInlineToolsOffsets: (e, offsets) => {
+        setInlineToolsOffsets: offsets => {
           if (
-            offsets.height !== inlineToolsOffsets.height ||
-            offsets.top !== inlineToolsOffsets.top ||
-            offsets.row.id !== inlineToolsOffsets.rowId
+            offsets &&
+            inlineToolsOffsets &&
+            (offsets.height !== inlineToolsOffsets.height ||
+              offsets.top !== inlineToolsOffsets.top ||
+              offsets.row.id !== inlineToolsOffsets.rowId)
           ) {
             setInlineToolsOffsets({
               height: offsets.height,

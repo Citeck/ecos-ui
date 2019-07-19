@@ -1,74 +1,43 @@
-import { QUERY_KEYS } from '../constants';
-import { LAYOUT_TYPE } from '../constants/layout';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import DashboardService from '../services/dashboard';
 
-export const getDefaultDashboardConfig = {
-  layout: {
-    type: LAYOUT_TYPE.TWO_COLUMNS_BS,
-    columns: [
-      {
-        width: '30%',
-        widgets: []
-      },
-      {
-        widgets: []
-      }
-    ]
-  }
-};
+export default class DashboardConverter {
+  static getKeyInfoDashboardForWeb(source) {
+    const target = {};
 
-export function getDashboardForWeb(source) {
-  if (!source || (source && !Object.keys(source).length)) {
-    return {};
+    if (!isEmpty(source)) {
+      const { key, id = '', type } = source;
+
+      target.identification = { key, type, id: DashboardService.parseDashboardId(id) };
+    }
+
+    return target;
   }
 
-  const { layout, dashboardKey, dashboardId } = source;
-  const target = {};
+  static getDashboardForWeb(source) {
+    const target = {};
 
-  target.dashboardKey = dashboardKey;
-  target.dashboardId = dashboardId;
-  target.columns = layout.columns;
-  target.type = layout.type;
+    if (!isEmpty(source)) {
+      const { config } = source;
+      const layout = get(config, ['layout']) || {};
 
-  return target;
-}
+      target.columns = layout.columns || [];
+      target.type = layout.type;
+    }
 
-export function getDashboardForServer(source) {
-  if (!source || (source && !Object.keys(source).length)) {
-    return {};
+    return target;
   }
 
-  const {
-    config: { columns, type },
-    dashboardId
-  } = source;
+  static getDashboardForServer(source) {
+    if (isEmpty(source)) {
+      return {};
+    }
 
-  return {
-    config: {
-      layout: { columns, type }
-    },
-    dashboardId
-  };
-}
+    const {
+      config: { columns, type }
+    } = source;
 
-export function parseGetResult(result) {
-  if (!result || (result && !Object.keys(result).length)) {
-    return {};
+    return { layout: { columns, type } };
   }
-
-  return result[QUERY_KEYS.CONFIG_JSON] || {};
-}
-
-export function parseSaveResult(result) {
-  if (!result || (result && !Object.keys(result).length)) {
-    return {};
-  }
-
-  const DIV = '@';
-  const fullId = result._id || '';
-  const dashboardId = fullId && fullId.indexOf(DIV) >= 0 ? fullId.split(DIV)[1] : null;
-
-  return {
-    dashboardId,
-    fullId
-  };
 }
