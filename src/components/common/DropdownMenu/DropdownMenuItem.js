@@ -61,7 +61,14 @@ class DropdownMenuItem extends React.Component {
 
     return (
       <li>
-        <a href={targetUrl} target={target} id={id} onClick={this.handlerClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
+        <a
+          className="ecos-dropdown__menu-link"
+          href={targetUrl}
+          target={target}
+          id={id}
+          onClick={this.handlerClick}
+          {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
+        >
           <i className={this.iconClass} />
           {label && t(label)}
         </a>
