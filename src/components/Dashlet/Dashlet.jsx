@@ -98,12 +98,13 @@ export default class Dashlet extends Component {
     actionHelp: PropTypes.bool,
     actionDrag: PropTypes.bool,
     resizable: PropTypes.bool,
+    canDragging: PropTypes.bool,
+    dragHandleProps: PropTypes.object,
     onEdit: PropTypes.func,
     onGoTo: PropTypes.func,
     onReload: PropTypes.func,
     onResize: PropTypes.func,
-    dragButton: PropTypes.func,
-    dragHandleProps: PropTypes.object
+    dragButton: PropTypes.func
   };
 
   static defaultProps = {
@@ -113,6 +114,7 @@ export default class Dashlet extends Component {
     actionHelp: true,
     actionDrag: true,
     resizable: false,
+    canDragging: false,
     onEdit: () => {},
     onGoTo: () => {},
     onReload: () => {},
@@ -158,7 +160,8 @@ export default class Dashlet extends Component {
       actionHelp,
       actionDrag,
       onResize,
-      dragHandleProps
+      dragHandleProps,
+      canDragging
     } = this.props;
     const cssClasses = classNames('dashlet', className);
 
@@ -180,7 +183,7 @@ export default class Dashlet extends Component {
                 actionEdit={actionEdit}
                 onEdit={this.onEdit}
                 actionHelp={actionHelp}
-                actionDrag={actionDrag}
+                actionDrag={actionDrag && canDragging}
                 dragHandleProps={dragHandleProps}
               />
             </Measurer>

@@ -19,14 +19,16 @@ class DocPreviewDashlet extends Component {
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       link: PropTypes.string.isRequired
     }),
-    dragHandleProps: PropTypes.object
+    dragHandleProps: PropTypes.object,
+    canDragging: PropTypes.bool
   };
 
   static defaultProps = {
     title: t('doc-preview.preview'),
     classNamePreview: '',
     classNameDashlet: '',
-    dragHandleProps: {}
+    dragHandleProps: {},
+    canDragging: false
   };
 
   state = {
@@ -38,7 +40,7 @@ class DocPreviewDashlet extends Component {
   };
 
   render() {
-    const { title, config, classNamePreview, classNameDashlet, dragHandleProps } = this.props;
+    const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging } = this.props;
     const { width } = this.state;
     const classesDashlet = classNames('ecos-dp-dashlet', classNameDashlet, {
       'ecos-dp-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE
@@ -53,6 +55,7 @@ class DocPreviewDashlet extends Component {
         actionEdit={false}
         actionHelp={false}
         needGoTo={false}
+        canDragging={canDragging}
         onResize={this.handleResize}
         dragHandleProps={dragHandleProps}
       >

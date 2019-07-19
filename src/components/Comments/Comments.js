@@ -51,6 +51,7 @@ class Comments extends React.Component {
     saveIsLoading: PropTypes.bool,
     fetchIsLoading: PropTypes.bool,
     hasMore: PropTypes.bool,
+    canDragging: PropTypes.bool,
     commentListMaxHeight: PropTypes.number,
     onSave: PropTypes.func,
     onDelete: PropTypes.func,
@@ -67,6 +68,7 @@ class Comments extends React.Component {
     errorMessage: '',
     saveIsLoading: false,
     fetchIsLoading: false,
+    canDragging: false,
     commentListMaxHeight: 217,
     onSave: () => {},
     onDelete: () => {},
@@ -639,7 +641,7 @@ class Comments extends React.Component {
   }
 
   render() {
-    const { dragHandleProps } = this.props;
+    const { dragHandleProps, canDragging } = this.props;
 
     return (
       <div className={this.className}>
@@ -648,6 +650,7 @@ class Comments extends React.Component {
           needGoTo={false}
           actionEdit={false}
           actionHelp={false}
+          canDragging={canDragging}
           resizable
           onReload={this.handleReloadData}
           onResize={this.handleResize}

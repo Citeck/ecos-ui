@@ -21,12 +21,14 @@ class Layout extends Component {
     ).isRequired,
     menuType: PropTypes.string,
     onSaveWidget: PropTypes.func,
-    onSaveWidgetProps: PropTypes.func
+    onSaveWidgetProps: PropTypes.func,
+    canDragging: PropTypes.bool
   };
 
   static defaultProps = {
     onSaveWidget: () => {},
-    onSaveWidgetProps: () => {}
+    onSaveWidgetProps: () => {},
+    canDragging: false
   };
 
   state = {
@@ -105,6 +107,7 @@ class Layout extends Component {
   };
 
   renderWidgets(widgets = [], columnName) {
+    const { canDragging } = this.props;
     const { recordRef } = getSearchParams();
     const components = [];
 
@@ -128,18 +131,32 @@ class Layout extends Component {
         this._components[widget.name] = Widget;
       }
 
-      components.push(
-        <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjusment}>
-          <Widget {...widget.props} id={`${widget.props.id}-${urlParams}`} record={recordRef} onSave={this.props.onSaveWidgetProps} />
-        </DragItem>
-      );
+      if (canDragging) {
+        components.push(
+          <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjusment}>
+            <Widget
+              {...widget.props}
+              canDragging={canDragging}
+              id={`${widget.props.id}-${urlParams}`}
+              record={recordRef}
+              onSave={this.props.onSaveWidgetProps}
+            />
+          </DragItem>
+        );
+      } else {
+        components.push(
+          <div key={key} className="ecos-layout__element">
+            <Widget {...widget.props} canDragging={canDragging} record={recordRef} onSave={this.props.onSaveWidgetProps} />
+          </div>
+        );
+      }
     });
 
     return components;
   }
 
   renderColumn = (column, index) => {
-    const { columns, type } = this.props;
+    const { columns, type, canDragging } = this.props;
     const { draggableDestination } = this.state;
     const styles = {
       minWidth: getMinWidthColumn(type, index),
@@ -163,19 +180,27 @@ class Layout extends Component {
       index
     });
 
+    if (canDragging) {
+      return (
+        <Droppable
+          droppableId={id}
+          droppableIndex={index}
+          className="ecos-layout__droppable ecos-layout__column"
+          style={styles}
+          key={id}
+          isWrapper
+          withoutScroll
+          isDragingOver={Boolean(draggableDestination && draggableDestination === id)}
+        >
+          {this.renderWidgets(column.widgets, id)}
+        </Droppable>
+      );
+    }
+
     return (
-      <Droppable
-        droppableId={id}
-        droppableIndex={index}
-        className="ecos-layout__droppable ecos-layout__column"
-        style={styles}
-        key={id}
-        isWrapper
-        withoutScroll
-        isDragingOver={Boolean(draggableDestination && draggableDestination === id)}
-      >
+      <div className="ecos-layout__column" style={styles} key={id}>
         {this.renderWidgets(column.widgets, id)}
-      </Droppable>
+      </div>
     );
   };
 
@@ -190,11 +215,17 @@ class Layout extends Component {
   }
 
   render() {
-    return (
-      <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDragEnd}>
-        <div className={this.className}>{this.renderColumns()}</div>
-      </DragDropContext>
-    );
+    const { canDragging } = this.props;
+
+    if (canDragging) {
+      return (
+        <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDragEnd}>
+          <div className={this.className}>{this.renderColumns()}</div>
+        </DragDropContext>
+      );
+    }
+
+    return <div className={this.className}>{this.renderColumns()}</div>;
   }
 }
 

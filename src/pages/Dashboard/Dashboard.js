@@ -40,7 +40,8 @@ class Dashboard extends Component {
 
     this.state = {
       config: props.config,
-      urlParams: getSortedUrlParams()
+      urlParams: getSortedUrlParams(),
+      canDragging: false
     };
   }
 
@@ -174,7 +175,8 @@ class Dashboard extends Component {
   renderLayout() {
     const { menuType } = this.props;
     const {
-      config: { columns, type }
+      config: { columns, type },
+      canDragging
     } = this.state;
 
     return (
@@ -184,6 +186,7 @@ class Dashboard extends Component {
         type={type}
         menuType={menuType}
         onSaveWidgetProps={this.handleSaveWidgetProps}
+        canDragging={canDragging}
       />
     );
   }
