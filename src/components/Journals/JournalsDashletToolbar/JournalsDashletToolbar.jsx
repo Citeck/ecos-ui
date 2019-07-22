@@ -9,7 +9,7 @@ import { Dropdown } from '../../common/form';
 import { onJournalSelect, onJournalSettingsSelect } from '../../../actions/journals';
 import { goToCreateRecordPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
-import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../constants';
+import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -79,7 +79,7 @@ class JournalsDashletToolbar extends Component {
           })}
           onChange={this.onChangeJournal}
         >
-          <IcoBtn invert={'true'} icon={'icon-down'} className={'ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10'} />
+          <IcoBtn invert icon={'icon-down'} className={'ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10'} />
         </Dropdown>
 
         {!isSmall && (
