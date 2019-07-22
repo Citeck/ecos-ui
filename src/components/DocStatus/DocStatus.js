@@ -4,11 +4,12 @@ import PropTypes from 'prop-types';
 import { debounce, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus } from '../../actions/docStatus';
-import { deepClone, t } from '../../helpers/util';
+import { deepClone } from '../../helpers/util';
 import { IcoBtn } from '../common/btns';
 import Dropdown from '../common/form/Dropdown';
 import Loader from '../common/Loader/Loader';
 import './style.scss';
+import DocStatusService from '../../services/docStatus';
 
 const mapStateToProps = (state, context) => {
   const stateDS = state.docStatus[context.stateId] || {};
@@ -29,7 +30,6 @@ const mapDispatchToProps = dispatch => ({
   getCheckDocStatus: payload => dispatch(getCheckDocStatus(payload))
 });
 
-const noStatus = { id: 'no-status', name: t('Нет статуса') };
 const MAX_ATTEMPT = 3;
 
 class DocStatus extends React.Component {
@@ -62,23 +62,23 @@ class DocStatus extends React.Component {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    const { stateId, record, getDocStatus } = this.props;
+    const { stateId, record, getDocStatus, status } = this.props;
 
     if (nextProps.isUpdating && nextProps.countAttempt < MAX_ATTEMPT) {
       this.checkDocStatusPing();
-    } else if ((!nextProps.isUpdating || nextProps.countAttempt >= MAX_ATTEMPT) && isEmpty(nextProps.status)) {
+    } else if (
+      (!nextProps.isUpdating || nextProps.countAttempt >= MAX_ATTEMPT) &&
+      isEmpty(nextProps.status) &&
+      JSON.stringify(status) !== JSON.stringify(nextProps.status)
+    ) {
       getDocStatus({ stateId, record });
     }
   }
 
-  get selectedStatus() {
+  get isNoStatus() {
     const { status = {} } = this.props;
 
-    return isEmpty(status) ? noStatus : status;
-  }
-
-  get isNoStatus() {
-    return this.selectedStatus.id === noStatus.id;
+    return status.id === DocStatusService.NO_STATUS.id;
   }
 
   get isReadField() {
@@ -109,28 +109,22 @@ class DocStatus extends React.Component {
   }
 
   renderReadField() {
+    const { status = {} } = this.props;
     const classStatus = classNames(`${this.className}_read`, { [`${this.className}_no-status`]: this.isNoStatus });
 
-    return <div className={classStatus}>{this.selectedStatus.name}</div>;
+    return <div className={classStatus}>{status.name}</div>;
   }
 
   renderManualField() {
-    const { availableStatuses = [] } = this.props;
+    const { availableStatuses = [], status } = this.props;
     const source = deepClone(availableStatuses);
     const classStatus = classNames('ecos-btn_drop-down ecos-btn_full-width', { 'ecos-btn_blue': !this.isNoStatus || this.isShowLoader });
 
-    source.push(this.selectedStatus);
+    source.push(status);
 
     return (
       <div className={`${this.className}_manual`}>
-        <Dropdown
-          source={source}
-          value={this.selectedStatus.id}
-          valueField={'id'}
-          titleField={'name'}
-          onChange={this.onChangeStatus}
-          hideSelected
-        >
+        <Dropdown source={source} value={status.id} valueField={'id'} titleField={'name'} onChange={this.onChangeStatus} hideSelected>
           <IcoBtn invert icon={'icon-down'} className={classStatus} loading={this.isShowLoader} />
         </Dropdown>
       </div>

@@ -1,4 +1,4 @@
-import { head, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import { call, put, takeEvery } from 'redux-saga/effects';
 import {
   changeDocStatus,
@@ -13,6 +13,7 @@ import {
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import DocStatusConverter from '../dto/docStatus';
+import DocStatusService from '../services/docStatus';
 
 function* sagaInitDocStatus({ api, logger }, { payload }) {
   yield put(getCheckDocStatus(payload));
@@ -33,12 +34,13 @@ function* sagaGetDocStatus({ api, logger }, { payload }) {
 
   try {
     const res = yield call(api.docStatus.getDocStatus, { record });
+    const status = DocStatusService.processStatusFromServer(res);
 
     if (!isEmpty(res)) {
       yield put(
         setDocStatus({
           stateId,
-          status: DocStatusConverter.getStatusForWeb(head(res.records))
+          status: DocStatusConverter.getStatusForWeb(status)
         })
       );
     }
