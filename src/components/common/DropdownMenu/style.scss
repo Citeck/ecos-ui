@@ -4,10 +4,60 @@
   $dropdown: &;
 
   &__cascade {
-    display: block;
+    $cascade: &;
 
-    &.show {
-      background-color: $color-gray-12;
+    display: block;
+    position: relative;
+
+    &:after {
+      content: '\0052';
+      font-size: 10px;
+      font-family: citeck;
+      position: absolute;
+      right: 11px;
+      top: calc(50% - 1em / 1.5);
+      color: $color-gray-5;
+    }
+
+    li {
+      padding-right: 25px;
+    }
+
+    &-toggle {
+      & > li:hover {
+        &:last-child,
+        &:first-child {
+          border-radius: 0;
+        }
+      }
+
+      & + .dropdown-menu.show {
+        margin-top: 0;
+        margin-left: 5px;
+      }
+    }
+
+    &.show,
+    &:hover {
+      &:first-child {
+        #{$cascade}-toggle {
+          & > li {
+            background-color: $color-gray-4;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+          }
+        }
+      }
+
+      &:last-child {
+        #{$cascade}-toggle {
+          & > li {
+            background-color: $color-gray-4;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+          }
+        }
+      }
     }
   }
 

@@ -23,24 +23,28 @@ export default class Dropdown extends Component {
     valueField: PropTypes.any,
     className: PropTypes.string,
     menuClassName: PropTypes.string,
+    toggleClassName: PropTypes.string,
     tag: PropTypes.string,
     direction: PropTypes.string,
     isItemComponent: PropTypes.bool,
     hasEmpty: PropTypes.bool,
     isStatic: PropTypes.bool,
-    right: PropTypes.bool
+    right: PropTypes.bool,
+    cascade: PropTypes.bool
   };
 
   static defaultProps = {
     titleField: '',
     className: '',
     menuClassName: '',
+    toggleClassName: '',
     tag: 'span',
     direction: '',
     isItemComponent: false,
     hasEmpty: false,
     isStatic: false,
-    right: false
+    right: false,
+    cascade: false
   };
 
   constructor(props) {
@@ -100,19 +104,29 @@ export default class Dropdown extends Component {
   }
 
   render() {
-    const { titleField, isStatic, right, className, menuClassName, children, tag, direction } = this.props;
+    const { titleField, isStatic, right, cascade, className, menuClassName, toggleClassName, children, tag, direction } = this.props;
     const { dropdownOpen } = this.state;
     const cssClasses = classNames(this.className, className);
+    const cssDropdownMenu = classNames(
+      `${this.className}__menu`,
+      menuClassName,
+      { [`${this.className}__menu_right`]: right },
+      { [`${this.className}__menu_cascade`]: cascade }
+    );
 
     return (
       <Drd className={cssClasses} isOpen={dropdownOpen} toggle={this.toggle} direction={direction}>
-        <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={dropdownOpen} tag={tag}>
+        <DropdownToggle
+          onClick={this.toggle}
+          data-toggle="dropdown"
+          aria-expanded={dropdownOpen}
+          tag={tag}
+          className={`${this.className}__toggle ${toggleClassName}`}
+        >
           {isStatic ? children : this.getControl(getPropByStringKey(this.selected, titleField))}
         </DropdownToggle>
 
-        <DropdownMenu className={classNames(`${this.className}__menu`, { [`${this.className}__menu_right`]: right }, menuClassName)}>
-          {this.renderMenuItems()}
-        </DropdownMenu>
+        <DropdownMenu className={cssDropdownMenu}>{this.renderMenuItems()}</DropdownMenu>
       </Drd>
     );
   }

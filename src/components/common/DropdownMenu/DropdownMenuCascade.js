@@ -13,6 +13,8 @@ export default class DropdownMenuCascade extends React.Component {
     groups: []
   };
 
+  className = 'ecos-dropdown-menu__cascade';
+
   renderMenuItems(items) {
     return isEmpty(items)
       ? []
@@ -30,14 +32,15 @@ export default class DropdownMenuCascade extends React.Component {
 
       return (
         <Dropdown
-          className={'ecos-dropdown-menu__cascade'}
-          menuClassName={'ecos-dropdown__menu_cascade'}
+          className={this.className}
+          toggleClassName={`${this.className}-toggle`}
           key={key}
           source={this.renderMenuItems(items)}
           hasEmpty
           isItemComponent
-          tag="div"
+          tag="ul"
           direction="right"
+          cascade
         >
           <DropdownMenuItem data={{ id, label }} />
         </Dropdown>
