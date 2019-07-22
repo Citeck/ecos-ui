@@ -1,8 +1,6 @@
-import { put, takeLatest, call } from 'redux-saga/effects';
-import { getShowTabsStatus, setShowTabsStatus, getTabs, setTabs } from '../actions/pageTabs';
-import * as ls from '../helpers/ls';
-
-const lsKey = ls.generateKey('page-tabs', true);
+import { put, takeLatest, call, select } from 'redux-saga/effects';
+import { getShowTabsStatus, setShowTabsStatus, getTabs, setTabs, setActiveTabTitle } from '../actions/pageTabs';
+import { selectTabs } from '../selectors/pageTabs';
 
 function* sagaGetShowTabsStatus({ api, logger }, action) {
   try {
@@ -27,12 +25,7 @@ function* sagaGetShowTabsStatus({ api, logger }, action) {
 
 function* sagaGetTabs({ api, logger }) {
   try {
-    const hasData = yield ls.hasData(lsKey, 'array');
-    let tabs = [];
-
-    if (hasData) {
-      tabs = yield ls.getData(lsKey);
-    }
+    const tabs = yield api.pageTabs.getAll();
 
     yield put(setTabs(tabs));
   } catch (e) {
@@ -42,9 +35,24 @@ function* sagaGetTabs({ api, logger }) {
 
 function* sagaSetTabs({ api, logger }, action) {
   try {
-    yield ls.setData(lsKey, action.payload);
+    yield api.pageTabs.set(action.payload);
   } catch (e) {
     logger.error('[pageTabs sagaSetTabs saga error', e.message);
+  }
+}
+
+function* sagaSetActiveTabTitle({ api, logger }, action) {
+  try {
+    const tabs = yield select(selectTabs);
+    const activeIndex = tabs.findIndex(tab => tab.isActive);
+
+    if (activeIndex !== -1) {
+      tabs[activeIndex].title = action.payload;
+    }
+
+    yield put(setTabs(tabs));
+  } catch (e) {
+    logger.error('[pageTabs sagaSetActiveTabTitle saga error', e.message);
   }
 }
 
@@ -52,6 +60,7 @@ function* saga(ea) {
   yield takeLatest(getShowTabsStatus().type, sagaGetShowTabsStatus, ea);
   yield takeLatest(getTabs().type, sagaGetTabs, ea);
   yield takeLatest(setTabs().type, sagaSetTabs, ea);
+  yield takeLatest(setActiveTabTitle().type, sagaSetActiveTabTitle, ea);
 }
 
 export default saga;

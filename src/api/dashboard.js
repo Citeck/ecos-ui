@@ -4,6 +4,7 @@ import { QueryKeys, SourcesId } from '../constants';
 import { RecordService } from './recordService';
 import Components from '../components/Components';
 import Records from '../components/Records';
+import { TITLE } from '../constants/pageTabs';
 
 const defaultAttr = {
   key: QueryKeys.KEY,
@@ -92,5 +93,21 @@ export class DashboardApi extends RecordService {
       },
       { ...defaultAttr }
     ).then(response => response);
+  };
+
+  getDashboardTitle = function*(recordRef = '') {
+    if (!recordRef) {
+      return TITLE.HOMEPAGE;
+    }
+
+    const title = yield Records.get(recordRef)
+      .load('.disp')
+      .then(response => response);
+
+    if (!title) {
+      return TITLE.NONAME;
+    }
+
+    return title;
   };
 }

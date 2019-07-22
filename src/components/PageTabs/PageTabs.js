@@ -5,6 +5,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { getScrollbarWidth, deepClone } from '../../helpers/util';
 import { SortableContainer, SortableElement } from './sortable';
 import { SCROLL_STEP, TITLE, LINK_TAG, IGNORE_TABS_HANDLER_ATTR_NAME, getTitleByUrl } from '../../constants/pageTabs';
+import { t } from '../../helpers/util';
 import './style.scss';
 
 const CHANGE_URL_LINK_EVENT = 'CHANGE_URL_LINK_EVENT';
@@ -592,8 +593,8 @@ class PageTabs extends React.Component {
 
     return (
       <SortableElement key={item.id} index={item.position} onSortEnd={this.handleSortEnd}>
-        <div key={item.id} className={className.join(' ')} title={item.title} onClick={this.handleClickTab.bind(this, item)}>
-          <span className="page-tab__tabs-item-title">{item.title}</span>
+        <div key={item.id} className={className.join(' ')} title={t(item.title)} onClick={this.handleClickTab.bind(this, item)}>
+          <span className="page-tab__tabs-item-title">{t(item.title)}</span>
           {closeButton}
         </div>
       </SortableElement>
