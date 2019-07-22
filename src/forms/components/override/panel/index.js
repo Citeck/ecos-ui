@@ -1,5 +1,5 @@
 import Panel from './Panel';
-import PanelEditor from 'formiojs/components/panel/Panel.form';
+import PanelEditor from './Panel.form';
 
 Panel.editForm = PanelEditor;
 

@@ -16,6 +16,7 @@ export default class TabsComponent extends NestedComponent {
         input: false,
         key: 'tabs',
         persistent: false,
+        scrollableContent: false,
         components: [
           {
             label: 'Tab 1',
@@ -192,9 +193,36 @@ export default class TabsComponent extends NestedComponent {
         this.element.appendChild(panel);
       });
     } else {
-      return super.build(state, showLabel);
+      super.build(state, showLabel);
+    }
+
+    if (this.component.scrollableContent) {
+      setTimeout(() => {
+        this._calculateTabsContentHeight();
+      }, 0);
     }
   }
+
+  _calculateTabsContentHeight = () => {
+    this.tabsContent.style.maxHeight = null;
+
+    const clientHeight = document.documentElement.clientHeight;
+
+    const modal = this.tabsContent.closest('.ecos-modal');
+    if (modal) {
+      const modalLevel = parseInt(modal.dataset.level, 10);
+
+      let tabsContentMaxHeight = clientHeight - 280;
+      const modalLevelOffset = 60;
+      if (modalLevel > 0 && modalLevel < 5) {
+        tabsContentMaxHeight -= modalLevel * modalLevelOffset - modalLevelOffset;
+      }
+
+      if (tabsContentMaxHeight >= 200) {
+        this.tabsContent.style.maxHeight = `${tabsContentMaxHeight}px`;
+      }
+    }
+  };
 
   destroyComponents() {
     super.destroyComponents();
@@ -218,8 +246,14 @@ export default class TabsComponent extends NestedComponent {
     this.tabsBar = this.ce('ul', {
       class: 'nav nav-tabs'
     });
+
+    let classNames = ['tab-content'];
+    if (this.component.scrollableContent) {
+      classNames.push('tab-content_scrollable');
+    }
+
     this.tabsContent = this.ce('div', {
-      class: 'tab-content'
+      class: classNames.join(' ')
     });
 
     this.tabLinks = [];
@@ -301,6 +335,10 @@ export default class TabsComponent extends NestedComponent {
 
     document.addEventListener('visibilitychange', this.onVisibilityChange);
     window.addEventListener('resize', this.detectScrollThrottled);
+
+    if (this.component.scrollableContent) {
+      window.addEventListener('resize', this._calculateTabsContentHeightThrottled);
+    }
   }
 
   removeEventListeners() {
@@ -311,6 +349,10 @@ export default class TabsComponent extends NestedComponent {
 
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
     window.removeEventListener('resize', this.detectScrollThrottled);
+
+    if (this.component.scrollableContent) {
+      window.removeEventListener('resize', this._calculateTabsContentHeightThrottled);
+    }
   }
 
   detectScroll = () => {
@@ -331,6 +373,7 @@ export default class TabsComponent extends NestedComponent {
   };
 
   detectScrollThrottled = throttle(this.detectScroll, 300);
+  _calculateTabsContentHeightThrottled = throttle(this._calculateTabsContentHeight, 300);
 
   onLeftButtonClick = () => {
     this.tabsBar.scrollLeft -= SCROLL_STEP;

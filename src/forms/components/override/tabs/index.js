@@ -1,5 +1,5 @@
 import Tabs from './Tabs';
-import TabsEditor from 'formiojs/components/tabs/Tabs.form';
+import TabsEditor from './Tabs.form';
 
 Tabs.editForm = TabsEditor;
 
