@@ -1,6 +1,7 @@
 import { put, takeLatest, call, select } from 'redux-saga/effects';
 import { getShowTabsStatus, setShowTabsStatus, getTabs, setTabs, setActiveTabTitle } from '../actions/pageTabs';
 import { selectTabs } from '../selectors/pageTabs';
+import { deepClone } from '../helpers/util';
 
 function* sagaGetShowTabsStatus({ api, logger }, action) {
   try {
@@ -43,7 +44,7 @@ function* sagaSetTabs({ api, logger }, action) {
 
 function* sagaSetActiveTabTitle({ api, logger }, action) {
   try {
-    const tabs = yield select(selectTabs);
+    const tabs = deepClone(yield select(selectTabs));
     const activeIndex = tabs.findIndex(tab => tab.isActive);
 
     if (activeIndex !== -1) {

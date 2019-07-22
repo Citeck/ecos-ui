@@ -57,7 +57,8 @@ class PageTabs extends React.Component {
     isActiveLeftArrow: false,
     isActiveRightArrow: false,
     needArrow: false,
-    draggableNode: null
+    draggableNode: null,
+    isNewTab: false
   };
 
   constructor(props) {
@@ -88,7 +89,7 @@ class PageTabs extends React.Component {
       }
 
       if (JSON.stringify(nextProps.tabs) !== JSON.stringify(nextState.tabs)) {
-        this.setState({ tabs: nextProps.tabs }, () => this.checkUrls());
+        this.setState({ tabs: nextProps.tabs }, () => (nextState.isNewTab ? null : this.checkUrls()));
       }
     }
 
@@ -134,9 +135,14 @@ class PageTabs extends React.Component {
         location: { pathname, search, hash }
       }
     } = this.props;
-    const { tabs } = this.state;
+    const { tabs: oldTabs, isNewTab } = this.state;
+    const tabs = deepClone(oldTabs);
     const activeTab = tabs.find(tab => tab.isActive === true);
     const linkFromUrl = [pathname, search, hash].join('');
+
+    if (isNewTab) {
+      return;
+    }
 
     if (activeTab) {
       if (activeTab.link !== linkFromUrl) {
@@ -145,9 +151,8 @@ class PageTabs extends React.Component {
         if (newActiveTab) {
           this.activeTab(newActiveTab);
         } else {
-          tabs.map(item => {
+          tabs.forEach(item => {
             item.isActive = false;
-            return item;
           });
           tabs.push(this.generateNewTab({ link: linkFromUrl }));
           saveTabs(tabs);
@@ -209,7 +214,7 @@ class PageTabs extends React.Component {
     }
 
     const { saveTabs, history, homepageName } = this.props;
-    const { tabs } = this.state;
+    const tabs = deepClone(this.state.tabs);
 
     event.preventDefault();
 
@@ -219,15 +224,18 @@ class PageTabs extends React.Component {
       if (newActiveTab) {
         this.activeTab(newActiveTab);
       } else {
-        tabs.map(item => {
+        tabs.forEach(item => {
           item.isActive = false;
-          return item;
         });
         tabs.push(this.generateNewTab({ link }));
         saveTabs(tabs);
         history.push.call(this, link);
 
-        this.setState({ tabs });
+        this.setState({ tabs }, () => {
+          if (this.checkScrollPosition()) {
+            this.checkNeedArrow();
+          }
+        });
       }
 
       return;
@@ -288,7 +296,7 @@ class PageTabs extends React.Component {
     }
 
     const { saveTabs, history, homepageName } = this.props;
-    const { tabs } = this.state;
+    const tabs = deepClone(this.state.tabs);
     const link = elem.getAttribute('href');
     const isNewTab = elem.getAttribute('target') === '_blank';
     const withLinkTabIndex = tabs.findIndex(tab => tab.link === link);
@@ -308,9 +316,8 @@ class PageTabs extends React.Component {
     }
 
     if (isNewTab) {
-      tabs.map(tab => {
+      tabs.forEach(tab => {
         tab.isActive = false;
-        return tab;
       });
 
       tabs.push(this.generateNewTab({ link }));
@@ -325,21 +332,25 @@ class PageTabs extends React.Component {
     history.push.call(this, link);
 
     this.setState({ tabs }, () => {
-      const { current } = this.$tabWrapper;
-
-      if (current) {
-        if (current.scrollWidth > current.offsetWidth + getScrollbarWidth()) {
-          current.scrollLeft = current.scrollWidth;
-        }
-
+      if (this.checkScrollPosition()) {
         this.checkNeedArrow();
       }
+
+      // const { current } = this.$tabWrapper;
+      //
+      // if (current) {
+      //   if (current.scrollWidth > current.offsetWidth + getScrollbarWidth()) {
+      //     current.scrollLeft = current.scrollWidth;
+      //   }
+      //
+      //   this.checkNeedArrow();
+      // }
     });
   };
 
   handleCloseTab(tabId, event) {
     const { saveTabs, history } = this.props;
-    let { tabs } = this.state;
+    let tabs = deepClone(this.state.tabs);
     const index = tabs.findIndex(tab => tab.id === tabId);
 
     event.stopPropagation();
@@ -391,32 +402,56 @@ class PageTabs extends React.Component {
     this.setState(
       state => {
         const { history, saveTabs } = this.props;
-        const { tabs } = state;
+        const tabs = deepClone(state.tabs);
         const newTab = this.generateNewTab.call(this);
 
-        tabs.map(tab => {
+        tabs.forEach(tab => {
           tab.isActive = false;
-          return tabs;
         });
         tabs.push(newTab);
         history.push.call(this, newTab.link);
         saveTabs(tabs);
 
-        return { tabs };
+        return { tabs, isNewTab: true };
       },
       () => {
-        const { current } = this.$tabWrapper;
-
-        if (current) {
-          if (current.scrollWidth > current.offsetWidth + getScrollbarWidth()) {
-            current.scrollLeft = current.scrollWidth;
-          }
-
+        if (this.checkScrollPosition()) {
           this.checkNeedArrow();
+          this.setState({ isNewTab: false });
         }
+
+        // const { current } = this.$tabWrapper;
+        //
+        // if (current) {
+        //   if (current.scrollWidth > current.offsetWidth + getScrollbarWidth()) {
+        //     current.scrollLeft = current.scrollWidth;
+        //   }
+        //
+        //   this.checkNeedArrow();
+        //   this.setState({ isNewTab: false });
+        // }
       }
     );
   };
+
+  /**
+   * Checking scroll position and return true, when scrolled has happened
+   *
+   * @returns {boolean}
+   */
+  checkScrollPosition() {
+    const { current } = this.$tabWrapper;
+
+    if (current) {
+      if (current.scrollWidth > current.offsetWidth + getScrollbarWidth()) {
+        current.scrollLeft = current.scrollWidth;
+
+        return true;
+      }
+    }
+
+    return false;
+  }
 
   handleScrollLeft = () => {
     const { isActiveLeftArrow } = this.state;
@@ -481,9 +516,7 @@ class PageTabs extends React.Component {
   handleBeforeSortStart = ({ node }) => {
     node.classList.toggle('page-tab__tabs-item_sorting');
 
-    this.setState({
-      draggableNode: node
-    });
+    this.setState({ draggableNode: node });
   };
 
   handleSortEnd = ({ oldIndex, newIndex }, event) => {
@@ -493,14 +526,13 @@ class PageTabs extends React.Component {
     draggableNode.classList.toggle('page-tab__tabs-item_sorting');
 
     this.setState(state => {
-      const { tabs } = state;
+      const tabs = deepClone(state.tabs);
       const draggableTab = tabs[oldIndex];
 
       tabs.splice(oldIndex, 1);
       tabs.splice(newIndex, 0, draggableTab);
-      tabs.map((tab, index) => {
+      tabs.forEach((tab, index) => {
         tab.position = index;
-        return tab;
       });
 
       this.props.saveTabs(tabs);
@@ -517,7 +549,7 @@ class PageTabs extends React.Component {
 
   activeTab = tab => {
     const { history, saveTabs } = this.props;
-    const { tabs } = this.state;
+    const tabs = deepClone(this.state.tabs);
 
     tabs.forEach(item => {
       item.isActive = item.id === tab.id;
