@@ -4,7 +4,7 @@ import fscreen from 'fscreen';
 import { t } from '../../helpers/util';
 import { Scrollbars } from 'react-custom-scrollbars';
 import PropTypes from 'prop-types';
-import Loader from '../common/Loader/Loader';
+import { Loader } from '../common';
 
 export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
   let _viewer = `${ctrClass}__viewer`;

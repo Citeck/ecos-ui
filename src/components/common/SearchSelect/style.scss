@@ -1,0 +1,99 @@
+@import '../../../constants';
+
+.ecos-input-search {
+  $root: &;
+
+  position: relative;
+  transition: width 0.5s ease-out 0s;
+
+  &__icon {
+    position: absolute;
+    cursor: pointer;
+
+    &-search {
+      left: 12px;
+      top: 9px;
+    }
+
+    &-clear {
+      right: 13px;
+      top: 11px;
+      font-size: $font-size-small;
+    }
+  }
+
+  &__input {
+    padding-left: 45px;
+    padding-right: 30px;
+  }
+
+  &#{$root}_close {
+    height: 40px;
+    width: 40px;
+
+    #{$root}__icon-search {
+      left: 10px;
+    }
+  }
+
+  &_dark {
+    background: $color-blue-dark;
+    border-radius: $border-radius-standard;
+
+    #{$root}__icon {
+      &-search {
+        color: $color-white;
+      }
+
+      &-clear {
+        color: $color-blue-light2;
+
+        &:hover {
+          color: $color-white;
+        }
+      }
+    }
+
+    #{$root}__input {
+      background: unset;
+      border: none;
+      color: $color-white;
+
+      &::placeholder {
+        color: $color-blue-light2;
+      }
+    }
+  }
+
+  .ecos-dropdown__menu {
+    &#{$root}__results {
+      width: 100%;
+      padding: 7px 0 !important;
+    }
+
+    #{$root}__no-results {
+      color: $color-gray-5;
+      font-weight: $font-weight-bold;
+      font-size: $font-size-large;
+      padding: 13px 15px;
+      text-align: center;
+    }
+
+    #{$root}__show-all {
+      &:hover {
+        background-color: unset;
+      }
+
+      &-btn {
+        width: 100%;
+        margin: 0;
+        display: inline-block;
+        @extend %ellipsis;
+      }
+    }
+
+    #{$root}__loader {
+      padding: 15px 0;
+    }
+  }
+}

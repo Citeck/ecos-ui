@@ -1,0 +1,149 @@
+@import '../../constants';
+
+.ecos-header {
+  $root: &;
+
+  background: $color-blue-light;
+  padding: 10px 26px;
+  display: flex;
+  justify-content: space-between;
+
+  & .ecos-btn {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  &_small {
+    padding: 10px 15px;
+    justify-content: unset;
+
+    #{$root}__side {
+      display: flex;
+      justify-content: space-between;
+
+      &_right {
+        flex: 1;
+      }
+
+      .ecos-input-search {
+        &_open {
+          width: 210px;
+          //width: 100%;
+          margin-right: 0;
+
+          & + .ecos-header-user {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .ecos-header-create__menu,
+    .ecos-header-user__menu,
+    .ecos-input-search__results {
+      max-width: 280px;
+    }
+  }
+
+  &__side {
+    display: flex;
+
+    &_left {
+      margin-right: 10px;
+    }
+
+    &_right {
+      justify-content: flex-end;
+    }
+
+    & > :not(:last-child) {
+      margin-right: 10px;
+    }
+  }
+
+  &-create {
+    $root: &;
+
+    &__btn {
+      &.ecos-btn {
+        font-size: $font-size-large;
+      }
+    }
+  }
+
+  &-search {
+    $search: &;
+    width: 315px;
+
+    .ecos-dropdown__menu {
+      #{$search}-result {
+        &__group-name {
+          @extend %ellipsis;
+          background: $color-gray-10;
+          color: $color-gray-dark;
+          font-weight: $font-weight-bold;
+          font-size: $font-size-large;
+          padding: 15px;
+        }
+
+        & {
+          display: flex;
+        }
+
+        &:hover {
+          background-color: $color-gray-10;
+        }
+
+        &__icon {
+          color: $color-blue-light2;
+          font-size: 33px;
+          padding-right: 12px;
+        }
+
+        &__avatar {
+          .ecos-avatar__icon {
+            color: $color-blue-light2;
+            padding-right: 10px;
+          }
+        }
+
+        &__data {
+          width: 0;
+          flex: 1;
+        }
+
+        &__title {
+          @extend %ellipsis;
+          color: $color-blue-dark;
+          font-weight: $font-weight-semi-bold;
+          font-size: $font-size-standard;
+        }
+
+        &__desc {
+          @extend %ellipsis;
+          color: $text-color-gray;
+          font-weight: $font-weight-semi-bold;
+          font-size: $font-size-small;
+        }
+
+        &__line {
+          padding: 0 15px;
+        }
+      }
+    }
+  }
+
+  &-site {
+    &__btn.ecos-btn {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  &-user {
+    &__btn {
+      max-width: 242px;
+      @extend %ellipsis;
+    }
+  }
+}

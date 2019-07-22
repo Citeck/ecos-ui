@@ -1,12 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import CreateCaseWidget from './CreateCaseWidget';
-import Search from './Search';
-import SiteMenu from './SiteMenu';
+import classNames from 'classnames';
+import ReactResizeDetector from 'react-resize-detector';
+import { isSmallMode as defineSmallMode } from '../../helpers/util';
+import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
+import { Avatar } from '../common';
+import CreateMenu from './CreateMenu';
 import UserMenu from './UserMenu';
-import { fetchCreateCaseWidgetData, fetchUserMenuData, fetchSiteMenuData } from '../../actions/header';
+import SiteMenu from './SiteMenu';
+import Search from './Search';
 
-import './share-header.css';
+import './style.scss';
 
 const mapDispatchToProps = dispatch => ({
   fetchCreateCaseWidgetData: () => {
@@ -20,35 +24,56 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
+const mapStateToProps = state => ({
+  isMobile: state.view.isMobile,
+  userPhotoUrl: state.user.thumbnail
+});
+
 class Header extends React.Component {
+  className = 'ecos-header';
+
+  state = {
+    isSmallMode: false
+  };
+
   componentDidMount() {
     this.props.fetchCreateCaseWidgetData();
     this.props.fetchUserMenuData();
     this.props.fetchSiteMenuData();
   }
 
-  render() {
-    return (
-      <div id="SHARE_HEADER" className="alfresco-header-Header">
-        <div className="alfresco-layout-LeftAndRight__left">
-          {/* It is just a hack for the old slide menu hamburger rendering */}
-          <div id="HEADER_APP_MENU_BAR">
-            <label className="hamburger-icon" htmlFor="slide-menu-checkbox" />
-          </div>
+  onResize = width => {
+    const isSmallMode = defineSmallMode(width);
 
-          <CreateCaseWidget />
+    this.setState({ isSmallMode });
+  };
+
+  render() {
+    const { isSmallMode } = this.state;
+    const { isMobile, userPhotoUrl } = this.props;
+    const classNameContainer = classNames(this.className, { [`${this.className}_small`]: isMobile && isSmallMode });
+    const classNameSide = `${this.className}__side`;
+
+    return (
+      <React.Fragment>
+        <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
+        <div className={classNameContainer}>
+          <div className={`${classNameSide} ${classNameSide}_left`}>
+            <CreateMenu isSmallMode={isSmallMode} isMobile={isMobile} />
+          </div>
+          <div className={`${classNameSide} ${classNameSide}_right`}>
+            <Search isSmallMode={isSmallMode} isMobile={isMobile} />
+            {!(isSmallMode || isMobile) && <SiteMenu />}
+            {!(isSmallMode || isMobile) && <Avatar url={userPhotoUrl} />}
+            <UserMenu />
+          </div>
         </div>
-        <div className="alfresco-layout-LeftAndRight__right">
-          <UserMenu />
-          <SiteMenu />
-          <Search />
-        </div>
-      </div>
+      </React.Fragment>
     );
   }
 }
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(Header);
