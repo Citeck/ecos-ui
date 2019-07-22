@@ -25,7 +25,9 @@ const mapStateToProps = state => ({
   isLoadingMenu: get(state, ['menu', 'isLoading']),
   saveResultMenu: get(state, ['menu', 'saveResult']),
   menuType: get(state, ['menu', 'type']),
-  links: get(state, ['menu', 'links'])
+  links: get(state, ['menu', 'links']),
+  dashboardType: get(state, ['dashboard', 'identification', 'type']),
+  titleInfo: get(state, ['dashboard', 'titleInfo'])
 });
 
 const mapDispatchToProps = dispatch => ({
