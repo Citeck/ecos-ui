@@ -12,15 +12,18 @@ import { t } from '../helpers/util';
 import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
 import { SAVE_STATUS } from '../constants';
+import { setActiveTabTitle } from '../actions/pageTabs';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
     const { recordRef } = payload;
+    const title = yield call(api.dashboard.getDashboardTitle, recordRef);
     const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
     const data = DashboardService.checkDashboardResult(result);
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(data);
     const webConfig = DashboardConverter.getDashboardForWeb(data);
 
+    yield put(setActiveTabTitle(title));
     yield put(setDashboardIdentification(webKeyInfo));
     yield put(setDashboardConfig(webConfig));
   } catch (e) {
