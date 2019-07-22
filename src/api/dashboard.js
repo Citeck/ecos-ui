@@ -13,6 +13,8 @@ const defaultAttr = {
 };
 
 export class DashboardApi extends RecordService {
+  cache = new Map();
+
   getAllWidgets = () => {
     return Components.getComponentsFullData();
   };
@@ -50,6 +52,10 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardByRecordRef = function*(recordRef) {
+    if (this.cache.has(recordRef)) {
+      return yield Records.get(this.cache.get(recordRef)).load({ config: 'config?json' });
+    }
+
     const result = yield Records.get(recordRef).load({
       type: '_dashboardType',
       keys: '_dashboardKey[]'
@@ -79,20 +85,32 @@ export class DashboardApi extends RecordService {
       }
     }
 
+    this.cache.set(recordRef, data.id);
+
     return data;
   };
 
   getDashboardByUser = function() {
+    const user = getCurrentUserName();
+
+    if (this.cache.has(user)) {
+      return Records.get(this.cache.get(user)).load({ config: 'config?json' });
+    }
+
     return Records.queryOne(
       {
         sourceId: SourcesId.DASHBOARD,
         query: {
           type: 'user-dashboard',
-          user: getCurrentUserName()
+          user
         }
       },
       { ...defaultAttr }
-    ).then(response => response);
+    ).then(response => {
+      this.cache.set(user, response.id);
+
+      return response;
+    });
   };
 
   getDashboardTitle = function*(recordRef = '') {
