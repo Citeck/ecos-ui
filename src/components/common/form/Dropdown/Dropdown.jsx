@@ -30,6 +30,7 @@ export default class Dropdown extends Component {
     hasEmpty: PropTypes.bool,
     isStatic: PropTypes.bool,
     right: PropTypes.bool,
+    isLinks: PropTypes.bool,
     cascade: PropTypes.bool
   };
 
@@ -44,6 +45,7 @@ export default class Dropdown extends Component {
     hasEmpty: false,
     isStatic: false,
     right: false,
+    isLinks: false,
     cascade: false
   };
 
@@ -104,13 +106,26 @@ export default class Dropdown extends Component {
   }
 
   render() {
-    const { titleField, isStatic, right, cascade, className, menuClassName, toggleClassName, children, tag, direction } = this.props;
+    const {
+      titleField,
+      isStatic,
+      right,
+      isLinks,
+      cascade,
+      className,
+      menuClassName,
+      toggleClassName,
+      children,
+      tag,
+      direction
+    } = this.props;
     const { dropdownOpen } = this.state;
     const cssClasses = classNames(this.className, className);
     const cssDropdownMenu = classNames(
       `${this.className}__menu`,
       menuClassName,
       { [`${this.className}__menu_right`]: right },
+      { [`${this.className}__menu_links`]: isLinks },
       { [`${this.className}__menu_cascade`]: cascade }
     );
 

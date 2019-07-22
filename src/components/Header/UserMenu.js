@@ -48,7 +48,7 @@ class UserMenu extends React.Component {
             {userFullName}
           </IcoBtn>
         </DropdownToggle>
-        <DropdownMenu className={`${this.className}__menu ecos-dropdown__menu ecos-dropdown__menu_right`}>
+        <DropdownMenu className={`${this.className}__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links`}>
           <Menu items={items} />
         </DropdownMenu>
       </Dropdown>

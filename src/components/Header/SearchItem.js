@@ -1,7 +1,7 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { Avatar, Icon } from '../common';
+import { Avatar, Icon, Separator } from '../common';
 
 export default class SearchItem extends React.PureComponent {
   static propTypes = {
@@ -19,13 +19,13 @@ export default class SearchItem extends React.PureComponent {
     onClick: () => {}
   };
 
+  className = 'ecos-header-search-result';
+
   onClick = () => {
     const { data, onClick } = this.props;
 
     onClick(data);
   };
-
-  className = 'ecos-header-search-result';
 
   render() {
     const { data } = this.props;
@@ -35,18 +35,17 @@ export default class SearchItem extends React.PureComponent {
     return groupName ? (
       <li className={`${this.className}__group-name`}>{groupName}</li>
     ) : (
-      <React.Fragment>
-        <li onClick={this.onClick} className={this.className}>
-          <div className={classNames(cssContent)}>
-            {icon && <Icon className={`${icon} ${cssContent}-icon`} />}
-            {isAvatar && <Avatar url={avatarUrl} className={`${cssContent}-avatar`} />}
-            <div className={`${cssContent}-data`}>
-              <div className={`${cssContent}-title`}>{title}</div>
-              <div className={`${cssContent}-desc`}>{description}</div>
-            </div>
+      <li onClick={this.onClick} className={this.className}>
+        <div className={classNames(cssContent, { [`${cssContent}_last`]: isLast })}>
+          {icon && <Icon className={`${icon} ${cssContent}-icon`} />}
+          {isAvatar && <Avatar url={avatarUrl} className={`${cssContent}-avatar`} />}
+          <div className={`${cssContent}-data`}>
+            <div className={`${cssContent}-title`}>{title}</div>
+            <div className={`${cssContent}-desc`}>{description}</div>
           </div>
-        </li>
-      </React.Fragment>
+        </div>
+        {!isLast && <Separator noIndents />}
+      </li>
     );
   }
 }

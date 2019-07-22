@@ -40,7 +40,9 @@ class CreateMenu extends React.Component {
     const { dropdownOpen } = this.state;
     const { items, isCascade, isSmallMode, isMobile } = this.props;
     const disabled = !(!isEmpty(items) && isArray(items));
-    const classNameMenu = classNames(`${this.className}__menu ecos-dropdown__menu`, { 'ecos-dropdown__menu_cascade': isCascade });
+    const classNameMenu = classNames(`${this.className}__menu ecos-dropdown__menu ecos-dropdown__menu_links`, {
+      'ecos-dropdown__menu_cascade': isCascade
+    });
     const classNameIcoBtn = classNames(
       `${this.className}__btn ecos-btn_blue ecos-btn_hover_t-blue ecos-btn_padding_small ecos-btn_r_6`,
       { 'ecos-btn_active_blue': dropdownOpen },

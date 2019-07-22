@@ -129,6 +129,12 @@
           }
         }
       }
+      //
+      //#{$search}-result:not(:last-of-type) {
+      //  #{$search}-result__content {
+      //    border-bottom: 2px solid $color-gray-4;
+      //  }
+      //}
     }
   }
 
