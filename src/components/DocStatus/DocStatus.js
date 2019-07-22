@@ -16,6 +16,7 @@ const mapStateToProps = (state, context) => {
   return {
     status: stateDS.status,
     isUpdating: stateDS.isUpdating,
+    countAttempt: stateDS.countAttempt,
     isLoading: stateDS.isLoading,
     availableStatuses: stateDS.availableStatuses
   };
@@ -29,6 +30,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const noStatus = { id: 'no-status', name: t('Нет статуса') };
+const MAX_ATTEMPT = 3;
 
 class DocStatus extends React.Component {
   static propTypes = {
@@ -60,11 +62,11 @@ class DocStatus extends React.Component {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    const { stateId, record, status, getDocStatus } = this.props;
+    const { stateId, record, getDocStatus } = this.props;
 
-    if (nextProps.isUpdating) {
+    if (nextProps.isUpdating && nextProps.countAttempt < MAX_ATTEMPT) {
       this.checkDocStatusPing();
-    } else if (!nextProps.isUpdating && !nextProps.isLoading && isEmpty(nextProps.status)) {
+    } else if ((!nextProps.isUpdating || nextProps.countAttempt >= MAX_ATTEMPT) && isEmpty(nextProps.status)) {
       getDocStatus({ stateId, record });
     }
   }
@@ -85,6 +87,12 @@ class DocStatus extends React.Component {
     return isEmpty(availableStatuses);
   }
 
+  get isShowLoader() {
+    const { isLoading, isUpdating, countAttempt } = this.props;
+
+    return isLoading || (isUpdating && countAttempt < MAX_ATTEMPT);
+  }
+
   onChangeStatus = () => {
     const { stateId, record, changeDocStatus } = this.props;
 
@@ -101,15 +109,15 @@ class DocStatus extends React.Component {
   }
 
   renderReadField() {
-    const classStatus = classNames(`${this.className}_read`, { [`${this.className}_read_no-status`]: this.isNoStatus });
+    const classStatus = classNames(`${this.className}_read`, { [`${this.className}_no-status`]: this.isNoStatus });
 
     return <div className={classStatus}>{this.selectedStatus.name}</div>;
   }
 
   renderManualField() {
-    const { availableStatuses = [], isLoading } = this.props;
+    const { availableStatuses = [] } = this.props;
     const source = deepClone(availableStatuses);
-    const classStatus = classNames('ecos-btn_drop-down ecos-btn_full-width', { 'ecos-btn_blue': !this.isNoStatus });
+    const classStatus = classNames('ecos-btn_drop-down ecos-btn_full-width', { 'ecos-btn_blue': !this.isNoStatus || this.isShowLoader });
 
     source.push(this.selectedStatus);
 
@@ -123,19 +131,18 @@ class DocStatus extends React.Component {
           onChange={this.onChangeStatus}
           hideSelected
         >
-          <IcoBtn invert={'true'} icon={'icon-down'} className={classStatus} loading={isLoading} />
+          <IcoBtn invert icon={'icon-down'} className={classStatus} loading={this.isShowLoader} />
         </Dropdown>
       </div>
     );
   }
 
   render() {
-    const { isLoading, isUpdating } = this.props;
     const { wasChanged } = this.state;
 
     return (
       <div className={this.className}>
-        {(isLoading || isUpdating) && !wasChanged ? (
+        {this.isShowLoader && !wasChanged ? (
           this.renderLoader()
         ) : (
           <React.Fragment>

@@ -10,11 +10,11 @@
     text-align: center;
     font-weight: $font-weight-bold;
     font-size: $font-size-large;
+  }
 
-    &_no-status {
-      background-color: $color-gray-4;
-      color: $text-color-gray;
-    }
+  &_no-status {
+    background-color: $color-gray-4;
+    color: $text-color-gray;
   }
 
   &_manual {

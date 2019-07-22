@@ -44,7 +44,7 @@ function* sagaGetDocStatus({ api, logger }, { payload }) {
     }
   } catch (e) {
     yield put(setNotificationMessage(err));
-    logger.error('[doc-status/sagaGetDocStatus saga] error', e.message);
+    logger.error('[docStatus/sagaGetDocStatus saga] error', e.message);
   }
 }
 
@@ -65,7 +65,7 @@ function* sagaGetAvailableStatuses({ api, logger }, { payload }) {
     }
   } catch (e) {
     yield put(setNotificationMessage(err));
-    logger.error('[doc-status/sagaGetAvailableStatuses saga] error', e.message);
+    logger.error('[docStatus/sagaGetAvailableStatuses saga] error', e.message);
   }
 }
 
@@ -75,10 +75,10 @@ function* sagaChangeDocStatus({ api, logger }, { payload }) {
 
   try {
     yield call(api.docStatus.setDocStatus, { record });
-    yield put(getDocStatus(payload));
+    yield put(getCheckDocStatus(payload));
   } catch (e) {
     yield put(setNotificationMessage(err));
-    logger.error('[doc-status/sagaGetAvailableStatuses saga] error', e.message);
+    logger.error('[docStatus/sagaGetAvailableStatuses saga] error', e.message);
   }
 }
 

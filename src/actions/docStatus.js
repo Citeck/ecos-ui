@@ -1,6 +1,6 @@
 import { createAction } from 'redux-actions';
 
-const prefix = 'doc-status/';
+const prefix = 'docStatus/';
 
 export const initDocStatus = createAction(prefix + 'INIT_DOC_STATUS');
 
