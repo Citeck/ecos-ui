@@ -335,16 +335,6 @@ class PageTabs extends React.Component {
       if (this.checkScrollPosition()) {
         this.checkNeedArrow();
       }
-
-      // const { current } = this.$tabWrapper;
-      //
-      // if (current) {
-      //   if (current.scrollWidth > current.offsetWidth + getScrollbarWidth()) {
-      //     current.scrollLeft = current.scrollWidth;
-      //   }
-      //
-      //   this.checkNeedArrow();
-      // }
     });
   };
 
@@ -419,17 +409,6 @@ class PageTabs extends React.Component {
           this.checkNeedArrow();
           this.setState({ isNewTab: false });
         }
-
-        // const { current } = this.$tabWrapper;
-        //
-        // if (current) {
-        //   if (current.scrollWidth > current.offsetWidth + getScrollbarWidth()) {
-        //     current.scrollLeft = current.scrollWidth;
-        //   }
-        //
-        //   this.checkNeedArrow();
-        //   this.setState({ isNewTab: false });
-        // }
       }
     );
   };
