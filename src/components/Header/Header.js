@@ -51,7 +51,7 @@ class Header extends React.Component {
   render() {
     const { isSmallMode } = this.state;
     const { isMobile, userPhotoUrl } = this.props;
-    const classNameContainer = classNames(this.className, { [`${this.className}_small`]: isMobile && isSmallMode });
+    const classNameContainer = classNames(this.className, { [`${this.className}_small`]: isMobile || isSmallMode });
     const classNameSide = `${this.className}__side`;
 
     return (
@@ -64,8 +64,8 @@ class Header extends React.Component {
           <div className={`${classNameSide} ${classNameSide}_right`}>
             <Search isSmallMode={isSmallMode} isMobile={isMobile} />
             {!(isSmallMode || isMobile) && <SiteMenu />}
-            {!(isSmallMode || isMobile) && <Avatar url={userPhotoUrl} />}
-            <UserMenu />
+            <Avatar url={userPhotoUrl} />
+            <UserMenu isSmallMode={isSmallMode} isMobile={isMobile} />
           </div>
         </div>
       </React.Fragment>

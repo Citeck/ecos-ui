@@ -143,7 +143,7 @@ export default class SearchSelect extends React.Component {
   render() {
     const { searchText, isCollapsed, collapsible } = this.state;
     const { className, theme, autocomplete, formattedSearchResult, noResults, isLoading } = this.props;
-    const stateSearch = isCollapsed ? 'open' : 'close';
+    const stateSearch = isCollapsed && collapsible ? 'open' : 'close';
     const classNameContainer = classNames(className, this.className, `${this.className}_${theme}`, `${this.className}_${stateSearch}`);
     const commonIcon = `${this.className}__icon`;
     const isOpen = (!isEmpty(formattedSearchResult) || noResults || isLoading) && autocomplete;

@@ -358,6 +358,17 @@ button {
     color: inherit;
   }
 
+  &.ecos-btn_no-back {
+    color: $color-white;
+    background: transparent;
+
+    &:active,
+    &:focus,
+    &:hover {
+      background: transparent;
+    }
+  }
+
   /*hovers*/
   &.ecos-btn_blue {
     &:focus,

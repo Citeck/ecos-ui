@@ -19,7 +19,7 @@
 
     #{$root}__side {
       display: flex;
-      justify-content: space-between;
+      //justify-content: space-between;
 
       &_right {
         flex: 1;
@@ -42,6 +42,10 @@
     .ecos-header-user__menu,
     .ecos-input-search__results {
       max-width: 280px;
+    }
+
+    .ecos-header-create__btn .ecos-btn__i {
+      margin-right: unset;
     }
   }
 

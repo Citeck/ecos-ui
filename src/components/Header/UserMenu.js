@@ -1,11 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { isArray, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { t } from '../../helpers/util';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import { DropdownMenu as Menu } from '../common';
-import IcoBtn from '../common/btns/IcoBtn';
+import { IcoBtn } from '../common/btns';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
@@ -13,6 +14,16 @@ const mapStateToProps = state => ({
 });
 
 class UserMenu extends React.Component {
+  static propTypes = {
+    isSmallMode: PropTypes.bool,
+    isMobile: PropTypes.bool
+  };
+
+  static defaultProps = {
+    isSmallMode: false,
+    isMobile: false
+  };
+
   className = 'ecos-header-user';
 
   state = {
@@ -27,12 +38,15 @@ class UserMenu extends React.Component {
 
   render() {
     const { dropdownOpen } = this.state;
-    const { userFullName, items } = this.props;
+    const { userFullName, items, isMobile, isSmallMode } = this.props;
     const disabled = !(!isEmpty(items) && isArray(items));
+    const mob = isMobile || isSmallMode;
     const classNameIcoBtn = classNames(
-      `${this.className}__btn ecos-btn_blue ecos-btn_hover_t-blue ecos-btn_tight ecos-btn_r_6`,
-      { 'ecos-btn_active_blue': dropdownOpen },
-      { 'ecos-btn_active_blue2': !dropdownOpen }
+      `${this.className}__btn ecos-btn_tight ecos-btn_r_6`,
+      { 'ecos-btn_blue ecos-btn_hover_t-blue': !mob },
+      { 'ecos-btn_active_blue': dropdownOpen && !mob },
+      { 'ecos-btn_active_blue2': !dropdownOpen && !mob },
+      { 'ecos-btn_no-back ecos-btn_width_auto': mob }
     );
 
     return (
@@ -45,7 +59,7 @@ class UserMenu extends React.Component {
             title={t('create_case.label')}
             disabled={disabled}
           >
-            {userFullName}
+            {!(isMobile || isSmallMode) && userFullName}
           </IcoBtn>
         </DropdownToggle>
         <DropdownMenu className={`${this.className}__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links`}>
