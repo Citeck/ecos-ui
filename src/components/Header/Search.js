@@ -112,7 +112,8 @@ class Search extends React.Component {
         theme={'dark'}
         formattedSearchResult={this.formattedSearchResult}
         autocomplete
-        isOpenSearch={!(isMobile || isSmallMode)}
+        isCollapsed={!(isMobile || isSmallMode)}
+        collapsible={isMobile || isSmallMode}
         noResults={noResults}
       />
     );

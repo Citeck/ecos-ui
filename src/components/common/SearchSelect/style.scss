@@ -11,8 +11,14 @@
     cursor: pointer;
 
     &-search {
+      $isearch: &;
+
       left: 12px;
       top: 9px;
+
+      &#{$isearch}_no-collapse {
+        cursor: none;
+      }
     }
 
     &-clear {

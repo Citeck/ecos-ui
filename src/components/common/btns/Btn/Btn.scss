@@ -347,6 +347,7 @@ button {
 
   &.ecos-btn_bgr-inherit {
     background: inherit;
+
     &:active,
     &:focus {
       background: inherit;
@@ -397,6 +398,7 @@ button {
       color: $color-blue-light;
       background: inherit;
     }
+
     &:active {
       color: $color-blue-dark;
       background: inherit;
@@ -447,6 +449,23 @@ button {
     &:hover {
       background: $color-white;
       color: $color-gray-1;
+    }
+  }
+
+  /*active, focus*/
+  &.ecos-btn_active_blue {
+    &:focus,
+    &:active {
+      color: $color-blue-dark;
+      background: $color-white;
+    }
+  }
+
+  &.ecos-btn_active_blue2 {
+    &:focus,
+    &:active {
+      color: $color-white;
+      background: $color-blue-dark;
     }
   }
 

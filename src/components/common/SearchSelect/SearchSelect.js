@@ -26,7 +26,8 @@ export default class SearchSelect extends React.Component {
     isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool,
     isLoading: PropTypes.bool,
-    isOpenSearch: PropTypes.bool,
+    isCollapsed: PropTypes.bool,
+    collapsible: PropTypes.bool,
     onSearch: PropTypes.func,
     openFullSearch: PropTypes.func
   };
@@ -38,7 +39,8 @@ export default class SearchSelect extends React.Component {
     isSmallMode: false,
     isMobile: false,
     isLoading: false,
-    isOpenSearch: false,
+    isCollapsed: false,
+    collapsible: false,
     onSearch: () => {},
     openFullSearch: () => {}
   };
@@ -46,11 +48,11 @@ export default class SearchSelect extends React.Component {
   constructor(props) {
     super(props);
 
-    const { isOpenSearch } = this.props;
+    const { isCollapsed } = this.props;
 
     this.state = {
       searchText: '',
-      isOpenSearch
+      isCollapsed
     };
   }
 
@@ -103,9 +105,11 @@ export default class SearchSelect extends React.Component {
   };
 
   onLoupe = data => {
-    this.setState(prevState => ({
-      isOpenSearch: !prevState.isOpenSearch
-    }));
+    if (this.props.collapsible) {
+      this.setState(prevState => ({
+        isCollapsed: !prevState.isCollapsed
+      }));
+    }
   };
 
   renderNoResults() {
@@ -137,9 +141,9 @@ export default class SearchSelect extends React.Component {
   }
 
   render() {
-    const { searchText, isOpenSearch } = this.state;
+    const { searchText, isCollapsed, collapsible } = this.state;
     const { className, theme, autocomplete, formattedSearchResult, noResults, isLoading } = this.props;
-    const stateSearch = isOpenSearch ? 'open' : 'close';
+    const stateSearch = isCollapsed ? 'open' : 'close';
     const classNameContainer = classNames(className, this.className, `${this.className}_${theme}`, `${this.className}_${stateSearch}`);
     const commonIcon = `${this.className}__icon`;
     const isOpen = (!isEmpty(formattedSearchResult) || noResults || isLoading) && autocomplete;
@@ -149,8 +153,13 @@ export default class SearchSelect extends React.Component {
         <ClickOutside handleClickOutside={this.resetSearch} className={`${this.className}__click_outside`}>
           <Dropdown isOpen={isOpen} toggle={() => {}}>
             <DropdownToggle tag="div">
-              <Icon className={classNames(commonIcon, `${commonIcon}-search`, 'icon-search')} onClick={this.onLoupe} />
-              {isOpenSearch && (
+              <Icon
+                className={classNames(commonIcon, `${commonIcon}-search`, 'icon-search', {
+                  [`${commonIcon}-search_no-collapse`]: !collapsible
+                })}
+                onClick={this.onLoupe}
+              />
+              {isCollapsed && (
                 <Input
                   className={classNames(`${this.className}__input`)}
                   placeholder={t('Найти файл, человека или сайт')}
@@ -159,7 +168,7 @@ export default class SearchSelect extends React.Component {
                   value={searchText || ''}
                 />
               )}
-              {isOpenSearch && searchText && (
+              {isCollapsed && searchText && (
                 <Icon className={classNames(commonIcon, `${commonIcon}-clear`, 'icon-close')} onClick={this.resetSearch} />
               )}
             </DropdownToggle>
