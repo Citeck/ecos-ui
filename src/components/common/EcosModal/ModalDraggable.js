@@ -22,6 +22,7 @@ const propTypes = {
   isOpen: PropTypes.bool,
   autoFocus: PropTypes.bool,
   centered: PropTypes.bool,
+  scrollable: PropTypes.bool,
   size: PropTypes.string,
   toggle: PropTypes.func,
   keyboard: PropTypes.bool,
@@ -55,6 +56,7 @@ const defaultProps = {
   isOpen: false,
   autoFocus: true,
   centered: false,
+  scrollable: false,
   role: 'dialog',
   backdrop: true,
   keyboard: false,
@@ -280,7 +282,8 @@ class Modal extends React.Component {
         className={mapToCssModules(
           classNames(dialogBaseClass, this.props.className, {
             [`modal-${this.props.size}`]: this.props.size,
-            [`${dialogBaseClass}-centered`]: this.props.centered
+            [`${dialogBaseClass}-centered`]: this.props.centered,
+            [`${dialogBaseClass}-scrollable`]: this.props.scrollable
           }),
           this.props.cssModule
         )}
