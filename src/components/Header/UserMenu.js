@@ -16,7 +16,8 @@ const mapStateToProps = state => ({
 class UserMenu extends React.Component {
   static propTypes = {
     isSmallMode: PropTypes.bool,
-    isMobile: PropTypes.bool
+    isMobile: PropTypes.bool,
+    widthParent: PropTypes.number
   };
 
   static defaultProps = {
@@ -38,9 +39,10 @@ class UserMenu extends React.Component {
 
   render() {
     const { dropdownOpen } = this.state;
-    const { userFullName, items, isMobile, isSmallMode } = this.props;
+    const { userFullName, items, isMobile, isSmallMode, widthParent } = this.props;
+    const medium = widthParent > 600 && widthParent < 910;
     const disabled = !(!isEmpty(items) && isArray(items));
-    const mob = isMobile || isSmallMode;
+    const mob = isMobile || isSmallMode || medium;
     const classNameIcoBtn = classNames(
       `${this.className}__btn ecos-btn_tight ecos-btn_r_6`,
       { 'ecos-btn_blue ecos-btn_hover_t-blue': !mob },
@@ -59,7 +61,7 @@ class UserMenu extends React.Component {
             title={t('create_case.label')}
             disabled={disabled}
           >
-            {!(isMobile || isSmallMode) && userFullName}
+            {!mob && userFullName}
           </IcoBtn>
         </DropdownToggle>
         <DropdownMenu className={`${this.className}__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links`}>

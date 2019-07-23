@@ -33,7 +33,8 @@ class Header extends React.Component {
   className = 'ecos-header';
 
   state = {
-    isSmallMode: false
+    isSmallMode: false,
+    widthHeader: 0
   };
 
   componentDidMount() {
@@ -42,14 +43,14 @@ class Header extends React.Component {
     this.props.fetchSiteMenuData();
   }
 
-  onResize = width => {
-    const isSmallMode = defineSmallMode(width);
+  onResize = widthHeader => {
+    const isSmallMode = defineSmallMode(widthHeader);
 
-    this.setState({ isSmallMode });
+    this.setState({ isSmallMode, widthHeader });
   };
 
   render() {
-    const { isSmallMode } = this.state;
+    const { isSmallMode, widthHeader } = this.state;
     const { isMobile, userPhotoUrl } = this.props;
     const classNameContainer = classNames(this.className, { [`${this.className}_small`]: isMobile || isSmallMode });
     const classNameSide = `${this.className}__side`;
@@ -65,7 +66,7 @@ class Header extends React.Component {
             <Search isSmallMode={isSmallMode} isMobile={isMobile} />
             {!(isSmallMode || isMobile) && <SiteMenu />}
             <Avatar url={userPhotoUrl} />
-            <UserMenu isSmallMode={isSmallMode} isMobile={isMobile} />
+            <UserMenu isSmallMode={isSmallMode} isMobile={isMobile} widthParent={widthHeader} />
           </div>
         </div>
       </React.Fragment>
