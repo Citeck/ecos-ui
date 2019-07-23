@@ -15,12 +15,10 @@ const mapStateToProps = state => ({
 
 class CreateMenu extends React.Component {
   static propTypes = {
-    isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool
   };
 
   static defaultProps = {
-    isSmallMode: false,
     isMobile: false
   };
 
@@ -38,7 +36,7 @@ class CreateMenu extends React.Component {
 
   render() {
     const { dropdownOpen } = this.state;
-    const { items, isCascade, isSmallMode, isMobile } = this.props;
+    const { items, isCascade, isMobile } = this.props;
     const disabled = !(!isEmpty(items) && isArray(items));
     const classNameMenu = classNames(`${this.className}__menu ecos-dropdown__menu ecos-dropdown__menu_links`, {
       'ecos-dropdown__menu_cascade': isCascade
@@ -54,7 +52,7 @@ class CreateMenu extends React.Component {
       <Dropdown className={`${this.className} ecos-header-dropdown`} isOpen={dropdownOpen} toggle={this.toggle}>
         <DropdownToggle tag="div">
           <IcoBtn icon={'icon-big-plus'} className={classNameIcoBtn} disabled={disabled}>
-            {!(isSmallMode || isMobile) && t('create_case.label')}
+            {!isMobile && t('create_case.label')}
           </IcoBtn>
         </DropdownToggle>
         <DropdownMenu className={classNameMenu}>

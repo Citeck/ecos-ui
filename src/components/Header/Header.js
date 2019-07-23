@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
-import { isSmallMode as defineSmallMode } from '../../helpers/util';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
 import { Avatar } from '../common';
 import CreateMenu from './CreateMenu';
@@ -33,7 +32,6 @@ class Header extends React.Component {
   className = 'ecos-header';
 
   state = {
-    isSmallMode: false,
     widthHeader: 0
   };
 
@@ -44,15 +42,13 @@ class Header extends React.Component {
   }
 
   onResize = widthHeader => {
-    const isSmallMode = defineSmallMode(widthHeader);
-
-    this.setState({ isSmallMode, widthHeader });
+    this.setState({ widthHeader });
   };
 
   render() {
-    const { isSmallMode, widthHeader } = this.state;
+    const { widthHeader } = this.state;
     const { isMobile, userPhotoUrl } = this.props;
-    const classNameContainer = classNames(this.className, { [`${this.className}_small`]: isMobile || isSmallMode });
+    const classNameContainer = classNames(this.className, { [`${this.className}_small`]: isMobile });
     const classNameSide = `${this.className}__side`;
 
     return (
@@ -60,13 +56,13 @@ class Header extends React.Component {
         <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
         <div className={classNameContainer}>
           <div className={`${classNameSide} ${classNameSide}_left`}>
-            <CreateMenu isSmallMode={isSmallMode} isMobile={isMobile} />
+            <CreateMenu isMobile={isMobile} />
           </div>
           <div className={`${classNameSide} ${classNameSide}_right`}>
-            <Search isSmallMode={isSmallMode} isMobile={isMobile} />
-            {!(isSmallMode || isMobile) && <SiteMenu />}
+            <Search isMobile={isMobile} />
+            {!isMobile && <SiteMenu />}
             <Avatar url={userPhotoUrl} />
-            <UserMenu isSmallMode={isSmallMode} isMobile={isMobile} widthParent={widthHeader} />
+            <UserMenu isMobile={isMobile} widthParent={widthHeader} />
           </div>
         </div>
       </React.Fragment>
