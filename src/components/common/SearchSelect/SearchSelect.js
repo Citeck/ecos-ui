@@ -63,6 +63,10 @@ export default class SearchSelect extends React.Component {
     this.props.onSearch(this.state.searchText);
   }, 500);
 
+  setFocus = debounce(() => {
+    this.inputRef.current.focus();
+  }, 100);
+
   getIsLastInGroup(arr, i) {
     return isLastItem(arr, i) || 'groupName' in arr[i + 1];
   }
@@ -102,6 +106,9 @@ export default class SearchSelect extends React.Component {
 
   resetSearch = data => {
     this.setState({ searchText: '' });
+    if (this.props.collapsible) {
+      this.setState({ collapsed: true });
+    }
     this.props.onSearch('');
   };
 
@@ -112,7 +119,7 @@ export default class SearchSelect extends React.Component {
         hiddenPlaceholder: prevState.collapsed
       }));
 
-      React.findDOMNode(this.inputRef).focus();
+      this.setFocus();
     }
   };
 
@@ -166,7 +173,7 @@ export default class SearchSelect extends React.Component {
     return (
       <div className={classNameContainer}>
         <ClickOutside handleClickOutside={this.resetSearch} className={`${this.className}__click_outside`}>
-          <Dropdown isOpen={isOpen} toggle={() => {}}>
+          <Dropdown isOpen={isOpen} toggle={() => null}>
             <DropdownToggle tag="div">
               <Icon
                 className={classNames(commonIcon, `${commonIcon}-search`, 'icon-search', {
