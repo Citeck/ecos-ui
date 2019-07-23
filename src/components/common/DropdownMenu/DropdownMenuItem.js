@@ -22,20 +22,23 @@ class DropdownMenuItem extends React.Component {
       control: PropTypes.object
     }).isRequired,
     dispatch: PropTypes.func,
-    onClick: PropTypes.func
+    onClick: PropTypes.func,
+    iconRight: PropTypes.string
   };
 
   static defaultProps = {
-    data: {}
+    data: {},
+    iconRight: ''
   };
 
-  get iconClass() {
+  get iconLeft() {
     const { id, targetUrl } = this.props.data || {};
 
     const paramsUrl = queryString.parse(targetUrl);
     const iconSpecialClass = getSpecialClassByState(id, paramsUrl);
+    const icon = getIconClassMenu(id, iconSpecialClass);
 
-    return `ecos-dropdown-menu__icon ${getIconClassMenu(id, iconSpecialClass)}`;
+    return icon ? `ecos-dropdown-menu__icon ${icon}` : '';
   }
 
   handlerClick = event => {
@@ -56,14 +59,15 @@ class DropdownMenuItem extends React.Component {
   };
 
   render() {
-    const { data } = this.props;
+    const { data, iconRight } = this.props;
     const { id, targetUrl, label, target } = data;
 
     return (
       <li>
         <a href={targetUrl} target={target} id={id} onClick={this.handlerClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
-          <i className={this.iconClass} />
+          {this.iconLeft && <i className={this.iconLeft} />}
           {label && t(label)}
+          {iconRight && <i className={iconRight} />}
         </a>
       </li>
     );

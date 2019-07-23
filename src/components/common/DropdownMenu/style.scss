@@ -9,18 +9,16 @@
     display: block;
     position: relative;
 
-    &:after {
-      content: '\0052';
-      font-size: 10px;
-      font-family: citeck;
-      position: absolute;
-      right: 11px;
-      top: calc(50% - 1em / 1.5);
-      color: $color-gray-5;
+    & > ul li a {
+      padding-right: 50px;
     }
 
-    li {
-      padding-right: 25px;
+    &-arrow {
+      position: absolute;
+      right: 9px;
+      font-size: 12px;
+      top: 30%;
+      color: $color-gray-5;
     }
 
     &-toggle {

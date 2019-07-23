@@ -1,7 +1,8 @@
 import React from 'react';
-import { isEmpty } from 'lodash';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { Dropdown } from '../../common/form';
+import { isEmpty } from 'lodash';
+import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import DropdownMenuItem from './DropdownMenuItem';
 
 export default class DropdownMenuCascade extends React.Component {
@@ -15,6 +16,16 @@ export default class DropdownMenuCascade extends React.Component {
 
   className = 'ecos-dropdown-menu__cascade';
 
+  state = {
+    openedItem: null
+  };
+
+  toggle = index => {
+    this.setState(prevState => ({
+      openedItem: index
+    }));
+  };
+
   renderMenuItems(items) {
     return isEmpty(items)
       ? []
@@ -25,24 +36,27 @@ export default class DropdownMenuCascade extends React.Component {
 
   render() {
     const { groups } = this.props;
+    const { openedItem } = this.state;
 
     return groups.map((item, i) => {
-      const { id, label, items } = item;
+      const { id, label, items, targetUrl } = item;
       const key = `key-${i}-${id}`;
+      const iconRight = classNames({ [`icon-right ${this.className}-arrow`]: !isEmpty(items) });
 
       return (
         <Dropdown
-          className={this.className}
-          toggleClassName={`${this.className}-toggle`}
+          className={`ecos-dropdown ${this.className}`}
           key={key}
-          source={this.renderMenuItems(items)}
-          hasEmpty
-          isItemComponent
-          tag="ul"
+          isOpen={openedItem === key}
+          toggle={() => this.toggle(key)}
           direction="right"
-          cascade
         >
-          <DropdownMenuItem data={{ id, label }} />
+          <DropdownToggle tag="ul" className={`ecos-dropdown__toggle ${this.className}-toggle`}>
+            <DropdownMenuItem data={{ id, label, targetUrl }} iconRight={iconRight} />
+          </DropdownToggle>
+          <DropdownMenu className={`ecos-dropdown__menu ecos-dropdown__menu_cascade`}>
+            <ul>{this.renderMenuItems(items)}</ul>
+          </DropdownMenu>
         </Dropdown>
       );
     });

@@ -24,9 +24,7 @@ export default class Dropdown extends Component {
     className: PropTypes.string,
     menuClassName: PropTypes.string,
     toggleClassName: PropTypes.string,
-    tag: PropTypes.string,
     direction: PropTypes.string,
-    isItemComponent: PropTypes.bool,
     hasEmpty: PropTypes.bool,
     isStatic: PropTypes.bool,
     right: PropTypes.bool,
@@ -39,9 +37,7 @@ export default class Dropdown extends Component {
     className: '',
     menuClassName: '',
     toggleClassName: '',
-    tag: 'span',
     direction: '',
-    isItemComponent: false,
     hasEmpty: false,
     isStatic: false,
     right: false,
@@ -88,37 +84,21 @@ export default class Dropdown extends Component {
   };
 
   renderMenuItems() {
-    const { valueField, titleField, source, isItemComponent } = this.props;
+    const { valueField, titleField, source } = this.props;
 
     return (
       <ul>
-        {source.map(item => {
-          return isItemComponent ? (
-            item
-          ) : (
-            <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
-              {getPropByStringKey(item, titleField)}
-            </MenuItem>
-          );
-        })}
+        {source.map(item => (
+          <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
+            {getPropByStringKey(item, titleField)}
+          </MenuItem>
+        ))}
       </ul>
     );
   }
 
   render() {
-    const {
-      titleField,
-      isStatic,
-      right,
-      isLinks,
-      cascade,
-      className,
-      menuClassName,
-      toggleClassName,
-      children,
-      tag,
-      direction
-    } = this.props;
+    const { titleField, isStatic, right, isLinks, cascade, className, menuClassName, toggleClassName, children, direction } = this.props;
     const { dropdownOpen } = this.state;
     const cssClasses = classNames(this.className, className);
     const cssDropdownMenu = classNames(
@@ -135,12 +115,10 @@ export default class Dropdown extends Component {
           onClick={this.toggle}
           data-toggle="dropdown"
           aria-expanded={dropdownOpen}
-          tag={tag}
           className={`${this.className}__toggle ${toggleClassName}`}
         >
           {isStatic ? children : this.getControl(getPropByStringKey(this.selected, titleField))}
         </DropdownToggle>
-
         <DropdownMenu className={cssDropdownMenu}>{this.renderMenuItems()}</DropdownMenu>
       </Drd>
     );
