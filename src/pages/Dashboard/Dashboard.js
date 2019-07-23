@@ -223,7 +223,7 @@ class Dashboard extends Component {
             </div>
 
             <div className="ecos-dashboard__header-mod" key="subtitle">
-              {t('Изменено пользователем')}
+              {t('cardlet.node-header.modified-by-user')}
               {modifierName && (
                 <a
                   {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
@@ -237,7 +237,7 @@ class Dashboard extends Component {
               )}
               {date && (
                 <span className="ecos-dashboard__header-date">
-                  {t('в')} {t(date)}
+                  {t('cardlet.node-header.modified-on')} {t(date)}
                 </span>
               )}
             </div>
