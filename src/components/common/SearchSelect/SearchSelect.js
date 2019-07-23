@@ -141,9 +141,10 @@ export default class SearchSelect extends React.Component {
   }
 
   render() {
-    const { searchText, collapsed, collapsible } = this.state;
-    const { className, theme, autocomplete, formattedSearchResult, noResults, isLoading } = this.props;
-    const stateSearch = collapsible ? (collapsed ? 'close' : 'open') : 'open';
+    const { searchText, collapsed } = this.state;
+    const { className, theme, autocomplete, formattedSearchResult, noResults, isLoading, collapsible } = this.props;
+    const isSearchCollapsed = collapsible && collapsed;
+    const stateSearch = isSearchCollapsed ? 'close' : 'open';
     const classNameContainer = classNames(className, this.className, `${this.className}_${theme}`, `${this.className}_${stateSearch}`);
     const commonIcon = `${this.className}__icon`;
     const isOpen = (!isEmpty(formattedSearchResult) || noResults || isLoading) && autocomplete;
@@ -159,7 +160,7 @@ export default class SearchSelect extends React.Component {
                 })}
                 onClick={this.onLoupe}
               />
-              {!collapsed && (
+              {!isSearchCollapsed && (
                 <Input
                   className={classNames(`${this.className}__input`)}
                   placeholder={t('Найти файл, человека или сайт')}
@@ -168,7 +169,7 @@ export default class SearchSelect extends React.Component {
                   value={searchText || ''}
                 />
               )}
-              {!collapsed && searchText && (
+              {!isSearchCollapsed && searchText && (
                 <Icon className={classNames(commonIcon, `${commonIcon}-clear`, 'icon-close')} onClick={this.resetSearch} />
               )}
             </DropdownToggle>
