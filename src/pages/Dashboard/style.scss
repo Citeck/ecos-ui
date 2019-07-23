@@ -12,8 +12,10 @@
     margin-bottom: 29px;
 
     &-title {
-      display: flex;
-      margin-bottom: 7px;
+      display: inline-flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin-bottom: 5px;
     }
 
     &-name {
@@ -29,9 +31,9 @@
       font-style: normal;
       font-weight: bold;
       font-size: 18px;
-      line-height: 18px;
+      line-height: 26px;
       color: $color-white;
-      padding: 6px 11px;
+      padding: 0 11px;
       background: $color-gray-5;
       border-radius: 100px;
       display: inline-flex;
@@ -40,10 +42,12 @@
     }
 
     &-mod {
+      color: $color-gray-12;
     }
 
     &-user {
       margin: 0 5px;
+      font-weight: $font-weight-semi-bold;
     }
 
     &-date {
