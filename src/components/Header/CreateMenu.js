@@ -48,6 +48,7 @@ class CreateMenu extends React.Component {
       { 'ecos-btn_active_blue': dropdownOpen },
       { 'ecos-btn_active_blue2': !dropdownOpen }
     );
+    const mode = isCascade && !isMobile ? 'cascade' : 'group';
 
     return (
       <Dropdown className={`${this.className} ecos-header-dropdown`} isOpen={dropdownOpen} toggle={this.toggle}>
@@ -57,7 +58,7 @@ class CreateMenu extends React.Component {
           </IcoBtn>
         </DropdownToggle>
         <DropdownMenu className={classNameMenu}>
-          <Menu items={items} isCascade={isCascade} isGroup={!isCascade} />
+          <Menu items={items} mode={mode} />
         </DropdownMenu>
       </Dropdown>
     );
