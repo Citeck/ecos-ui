@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { setDashboardConfig, setDashboardIdentification, setResultSaveDashboardConfig } from '../actions/dashboard';
+import { setDashboardConfig, setDashboardIdentification, setDashboardTitleInfo, setResultSaveDashboardConfig } from '../actions/dashboard';
 import { changeActiveTab } from '../actions/pageTabs';
 
 const initialState = {
@@ -11,6 +11,13 @@ const initialState = {
   config: {
     columns: [],
     type: ''
+  },
+  titleInfo: {
+    modifierName: '',
+    modifierUrl: '',
+    modified: '',
+    name: '',
+    version: ''
   },
   isLoading: false,
   saveResult: {
@@ -52,6 +59,13 @@ export default handleActions(
         ...state,
         ...initialState,
         isLoading: true
+      };
+    },
+    [setDashboardTitleInfo]: (state, { payload }) => {
+      return {
+        ...state,
+        ...initialState,
+        titleInfo: payload
       };
     }
   },

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { ModalHeader, ModalBody } from 'reactstrap';
+import { ModalBody, ModalHeader } from 'reactstrap';
 import throttle from 'lodash/throttle';
 import Modal from './ModalDraggable';
 import { t, trigger } from '../../../helpers/util';
@@ -138,6 +138,7 @@ export default class EcosModal extends Component {
         {...reactstrapProps}
         getDialogRef={el => (this._dialog = el)}
         draggableProps={draggableProps}
+        data-level={level}
       >
         {header}
         <ModalBody>{children}</ModalBody>
