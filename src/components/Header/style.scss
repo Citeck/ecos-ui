@@ -139,6 +139,36 @@
       //  }
       //}
     }
+
+    &-result {
+      $result: &;
+
+      &__separator {
+      }
+
+      &:hover {
+        margin-top: -2px;
+        padding: 2px 15px 0 !important;
+
+        &[data-separator='true'] {
+          padding: 2px 15px !important;
+        }
+
+        #{$result}__separator {
+          display: none;
+        }
+      }
+    }
+
+    //&-result {
+    //  $item: &;
+    //
+    //  &:not(:last-child) {
+    //    #{$item}__content {
+    //      border-bottom: 2px solid $color-gray-4;
+    //    }
+    //  }
+    //}
   }
 
   &-site {
