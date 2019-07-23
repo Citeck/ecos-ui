@@ -8,6 +8,7 @@ import CreateMenu from './CreateMenu';
 import UserMenu from './UserMenu';
 import SiteMenu from './SiteMenu';
 import Search from './Search';
+import { MENU_TYPE } from '../../constants';
 
 import './style.scss';
 
@@ -25,7 +26,8 @@ const mapDispatchToProps = dispatch => ({
 
 const mapStateToProps = state => ({
   isMobile: state.view.isMobile,
-  userPhotoUrl: state.user.thumbnail
+  userPhotoUrl: state.user.thumbnail,
+  menuType: state.menu.type
 });
 
 class Header extends React.Component {
@@ -41,7 +43,17 @@ class Header extends React.Component {
     this.props.fetchSiteMenuData();
   }
 
-  onResize = widthHeader => {
+  get menuWidth() {
+    const { menuType } = this.props;
+    const menuSelector = document.querySelector('.slide-menu');
+    const width = (menuSelector && menuSelector.clientWidth) || 0;
+
+    return menuType === MENU_TYPE.LEFT ? width : 0;
+  }
+
+  onResize = width => {
+    const widthHeader = width >= 550 ? width + this.menuWidth : width;
+
     this.setState({ widthHeader });
   };
 
@@ -56,13 +68,13 @@ class Header extends React.Component {
         <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
         <div className={classNameContainer}>
           <div className={`${classNameSide} ${classNameSide}_left`}>
-            <CreateMenu isMobile={isMobile} />
+            <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className={`${classNameSide} ${classNameSide}_right`}>
-            <Search isMobile={isMobile} />
-            {!isMobile && <SiteMenu />}
+            <Search isMobile={widthHeader <= 600} />
+            {!isMobile || (widthHeader > 600 && <SiteMenu />)}
             <Avatar url={userPhotoUrl} />
-            <UserMenu isMobile={isMobile} widthParent={widthHeader} />
+            <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
           </div>
         </div>
       </React.Fragment>

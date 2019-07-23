@@ -72,8 +72,8 @@
         font-size: $font-size-large;
       }
 
-      .ecos-btn__i {
-        margin-right: 11px;
+      .ecos-btn__text {
+        margin-left: 6px;
       }
     }
   }
@@ -159,16 +159,6 @@
         }
       }
     }
-
-    //&-result {
-    //  $item: &;
-    //
-    //  &:not(:last-child) {
-    //    #{$item}__content {
-    //      border-bottom: 2px solid $color-gray-4;
-    //    }
-    //  }
-    //}
   }
 
   &-site {
@@ -182,6 +172,34 @@
     &__btn {
       max-width: 242px;
       @extend %ellipsis;
+    }
+  }
+
+  @media all and (max-width: 600px) {
+    .ecos-header {
+      &__side {
+        &_right {
+          //justify-content: space-between;
+          width: 100%;
+          position: relative;
+        }
+      }
+
+      &-search {
+        flex-grow: 1;
+        position: absolute;
+        max-width: 40px;
+        left: 0;
+        top: 0;
+
+        &.ecos-input-search_open {
+          $size: calc(100% + 10px);
+
+          max-width: $size !important;
+          width: $size;
+          z-index: 1;
+        }
+      }
     }
   }
 }

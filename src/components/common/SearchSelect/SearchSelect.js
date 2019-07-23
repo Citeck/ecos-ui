@@ -23,7 +23,6 @@ export default class SearchSelect extends React.Component {
     theme: PropTypes.oneOf([Themes.DARK, Themes.LIGHT]),
     autocomplete: PropTypes.bool,
     noResults: PropTypes.bool,
-    isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool,
     isLoading: PropTypes.bool,
     collapsed: PropTypes.bool,
@@ -36,7 +35,6 @@ export default class SearchSelect extends React.Component {
     className: '',
     formattedSearchResult: [],
     autocomplete: false,
-    isSmallMode: false,
     isMobile: false,
     isLoading: false,
     collapsed: false,
@@ -116,10 +114,10 @@ export default class SearchSelect extends React.Component {
 
   onLoupe = data => {
     if (this.props.collapsible) {
-      this.setState(prevState => ({
-        collapsed: !prevState.collapsed,
-        hiddenPlaceholder: prevState.collapsed
-      }));
+      this.setState({
+        collapsed: false,
+        hiddenPlaceholder: true
+      });
 
       this.setFocus();
     }

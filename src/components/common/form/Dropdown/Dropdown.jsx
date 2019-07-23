@@ -117,6 +117,7 @@ export default class Dropdown extends Component {
           data-toggle="dropdown"
           aria-expanded={dropdownOpen}
           className={`${this.className}__toggle ${toggleClassName}`}
+          tag="span"
         >
           {isStatic ? children : this.getControl(getPropByStringKey(this.selected, titleField))}
         </DropdownToggle>
