@@ -4,10 +4,56 @@
   $dropdown: &;
 
   &__cascade {
-    display: block;
+    $cascade: &;
 
-    &.show {
-      background-color: $color-gray-12;
+    display: block;
+    position: relative;
+
+    & > ul li a {
+      padding-right: 50px;
+    }
+
+    &-arrow {
+      position: absolute;
+      right: 9px;
+      font-size: 12px;
+      top: 30%;
+      color: $color-gray-5;
+    }
+
+    &-toggle {
+      & > li:hover {
+        &:last-child,
+        &:first-child {
+          border-radius: 0;
+        }
+      }
+
+      & + .dropdown-menu.show {
+        margin-top: 0;
+        margin-left: 5px;
+      }
+    }
+
+    &.show,
+    &:hover {
+      &:first-child {
+        #{$cascade}-toggle {
+          & > li {
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+          }
+        }
+      }
+
+      &:last-child {
+        #{$cascade}-toggle {
+          & > li {
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+          }
+        }
+      }
     }
   }
 

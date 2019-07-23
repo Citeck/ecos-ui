@@ -38,12 +38,10 @@ const setOutputParams = (array, type) => {
 
 class Search extends React.Component {
   static propTypes = {
-    isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool
   };
 
   static defaultProps = {
-    isSmallMode: false,
     isMobile: false
   };
 
@@ -102,7 +100,7 @@ class Search extends React.Component {
   }
 
   render() {
-    const { noResults, isMobile, isSmallMode } = this.props;
+    const { noResults, isMobile } = this.props;
 
     return (
       <SearchSelect
@@ -112,7 +110,8 @@ class Search extends React.Component {
         theme={'dark'}
         formattedSearchResult={this.formattedSearchResult}
         autocomplete
-        isOpenSearch={!(isMobile || isSmallMode)}
+        collapsed={isMobile}
+        collapsible={isMobile}
         noResults={noResults}
       />
     );

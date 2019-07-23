@@ -23,24 +23,26 @@ export default class Dropdown extends Component {
     valueField: PropTypes.any,
     className: PropTypes.string,
     menuClassName: PropTypes.string,
-    tag: PropTypes.string,
+    toggleClassName: PropTypes.string,
     direction: PropTypes.string,
-    isItemComponent: PropTypes.bool,
     hasEmpty: PropTypes.bool,
     isStatic: PropTypes.bool,
-    right: PropTypes.bool
+    right: PropTypes.bool,
+    isLinks: PropTypes.bool,
+    cascade: PropTypes.bool
   };
 
   static defaultProps = {
     titleField: '',
     className: '',
     menuClassName: '',
-    tag: 'span',
+    toggleClassName: '',
     direction: '',
-    isItemComponent: false,
     hasEmpty: false,
     isStatic: false,
-    right: false
+    right: false,
+    isLinks: false,
+    cascade: false
   };
 
   constructor(props) {
@@ -82,40 +84,43 @@ export default class Dropdown extends Component {
   };
 
   renderMenuItems() {
-    const { valueField, titleField, source, isItemComponent, value, isStatic, hasEmpty, hideSelected } = this.props;
-
-    const selected = source.find(item => item[valueField] === value) || (!hasEmpty && source[0]) || {};
+    const { valueField, titleField, source, value, hideSelected } = this.props;
     const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
 
     return (
       <ul>
-        {filteredSource.map(item => {
-          return isItemComponent ? (
-            item
-          ) : (
-            <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
-              {getPropByStringKey(item, titleField)}
-            </MenuItem>
-          );
-        })}
+        {filteredSource.map(item => (
+          <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
+            {getPropByStringKey(item, titleField)}
+          </MenuItem>
+        ))}
       </ul>
     );
   }
 
   render() {
-    const { titleField, isStatic, right, className, menuClassName, children, tag, direction } = this.props;
+    const { titleField, isStatic, right, isLinks, cascade, className, menuClassName, toggleClassName, children, direction } = this.props;
     const { dropdownOpen } = this.state;
     const cssClasses = classNames(this.className, className);
+    const cssDropdownMenu = classNames(
+      `${this.className}__menu`,
+      menuClassName,
+      { [`${this.className}__menu_right`]: right },
+      { [`${this.className}__menu_links`]: isLinks },
+      { [`${this.className}__menu_cascade`]: cascade }
+    );
 
     return (
       <Drd className={cssClasses} isOpen={dropdownOpen} toggle={this.toggle} direction={direction}>
-        <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={dropdownOpen} tag={tag}>
+        <DropdownToggle
+          onClick={this.toggle}
+          data-toggle="dropdown"
+          aria-expanded={dropdownOpen}
+          className={`${this.className}__toggle ${toggleClassName}`}
+        >
           {isStatic ? children : this.getControl(getPropByStringKey(this.selected, titleField))}
         </DropdownToggle>
-
-        <DropdownMenu className={classNames(`${this.className}__menu`, { [`${this.className}__menu_right`]: right }, menuClassName)}>
-          {this.renderMenuItems()}
-        </DropdownMenu>
+        <DropdownMenu className={cssDropdownMenu}>{this.renderMenuItems()}</DropdownMenu>
       </Drd>
     );
   }

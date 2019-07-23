@@ -19,7 +19,7 @@
 
     #{$root}__side {
       display: flex;
-      justify-content: space-between;
+      //justify-content: space-between;
 
       &_right {
         flex: 1;
@@ -29,7 +29,6 @@
         &_open {
           width: 210px;
           //width: 100%;
-          margin-right: 0;
 
           & + .ecos-header-user {
             display: none;
@@ -42,6 +41,10 @@
     .ecos-header-user__menu,
     .ecos-input-search__results {
       max-width: 280px;
+    }
+
+    .ecos-header-create__btn .ecos-btn__i {
+      margin-right: unset;
     }
   }
 
@@ -68,6 +71,10 @@
       &.ecos-btn {
         font-size: $font-size-large;
       }
+
+      .ecos-btn__i {
+        margin-right: 11px;
+      }
     }
   }
 
@@ -77,6 +84,8 @@
 
     .ecos-dropdown__menu {
       #{$search}-result {
+        padding: 0 15px;
+
         &__group-name {
           @extend %ellipsis;
           background: $color-gray-10;
@@ -86,51 +95,80 @@
           padding: 15px;
         }
 
-        & {
+        &__content {
           display: flex;
-        }
+          padding: 11px 0;
 
-        &:hover {
-          background-color: $color-gray-10;
-        }
-
-        &__icon {
-          color: $color-blue-light2;
-          font-size: 33px;
-          padding-right: 12px;
-        }
-
-        &__avatar {
-          .ecos-avatar__icon {
+          &-icon {
             color: $color-blue-light2;
-            padding-right: 10px;
+            font-size: 33px;
+            padding-right: 12px;
+          }
+
+          &-avatar {
+            .ecos-avatar__icon {
+              color: $color-blue-light2;
+              padding-right: 10px;
+            }
+          }
+
+          &-data {
+            width: 0;
+            flex: 1;
+          }
+
+          &-title {
+            @extend %ellipsis;
+            color: $color-blue-dark;
+            font-weight: $font-weight-semi-bold;
+            font-size: $font-size-standard;
+          }
+
+          &-desc {
+            @extend %ellipsis;
+            color: $text-color-gray;
+            font-weight: $font-weight-semi-bold;
+            font-size: $font-size-small;
           }
         }
+      }
+      //
+      //#{$search}-result:not(:last-of-type) {
+      //  #{$search}-result__content {
+      //    border-bottom: 2px solid $color-gray-4;
+      //  }
+      //}
+    }
 
-        &__data {
-          width: 0;
-          flex: 1;
+    &-result {
+      $result: &;
+
+      &__separator {
+      }
+
+      &:hover {
+        margin-top: -2px;
+        padding: 2px 15px 0 !important;
+
+        &[data-separator='true'] {
+          padding: 2px 15px !important;
         }
 
-        &__title {
-          @extend %ellipsis;
-          color: $color-blue-dark;
-          font-weight: $font-weight-semi-bold;
-          font-size: $font-size-standard;
-        }
-
-        &__desc {
-          @extend %ellipsis;
-          color: $text-color-gray;
-          font-weight: $font-weight-semi-bold;
-          font-size: $font-size-small;
-        }
-
-        &__line {
-          padding: 0 15px;
+        #{$result}__separator {
+          display: none;
         }
       }
     }
+
+    //&-result {
+    //  $item: &;
+    //
+    //  &:not(:last-child) {
+    //    #{$item}__content {
+    //      border-bottom: 2px solid $color-gray-4;
+    //    }
+    //  }
+    //}
   }
 
   &-site {

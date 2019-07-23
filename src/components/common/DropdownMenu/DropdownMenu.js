@@ -7,13 +7,20 @@ import { DropdownMenuItem } from './index';
 import './style.scss';
 import '../form/Dropdown/Dropdown.scss';
 
+const MenuModes = {
+  GROUP: 'group',
+  CASCADE: 'cascade',
+  LIST: 'list'
+};
+
 export default class DropdownMenu extends React.Component {
   static propTypes = {
     isCascade: PropTypes.bool,
     isGroup: PropTypes.bool,
     showLabel: PropTypes.bool,
     showSeparator: PropTypes.bool,
-    items: PropTypes.array
+    items: PropTypes.array,
+    mode: PropTypes.oneOf([MenuModes.CASCADE, MenuModes.GROUP, MenuModes.LIST])
   };
 
   static defaultProps = {
@@ -21,18 +28,25 @@ export default class DropdownMenu extends React.Component {
     isGroup: false,
     showLabel: false,
     showSeparator: false,
-    items: []
+    items: [],
+    mode: MenuModes.LIST
   };
 
-  render() {
-    const { items, isCascade, isGroup, showLabel, showSeparator, ...someProps } = this.props;
+  renderMode() {
+    const { mode, items, showLabel, showSeparator, ...someProps } = this.props;
 
-    return (
-      <div className={'ecos-dropdown-menu'}>
-        {isCascade && <DropdownMenuCascade groups={items} />}
-        {isGroup && <DropdownMenuGroup groups={items} showLabel={showLabel} showSeparator={showSeparator} />}
-        {!(isCascade || isGroup) && items.map((item, key) => <DropdownMenuItem key={key} data={item} {...someProps} />)}
-      </div>
-    );
+    switch (mode) {
+      case MenuModes.CASCADE:
+        return <DropdownMenuCascade groups={items} />;
+      case MenuModes.GROUP:
+        return <DropdownMenuGroup groups={items} showLabel={showLabel} showSeparator={showSeparator} />;
+      case MenuModes.LIST:
+      default:
+        return items.map((item, key) => <DropdownMenuItem key={key} data={item} {...someProps} />);
+    }
+  }
+
+  render() {
+    return <div className={'ecos-dropdown-menu'}>{this.renderMode()}</div>;
   }
 }

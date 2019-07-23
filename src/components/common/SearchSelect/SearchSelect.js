@@ -26,7 +26,8 @@ export default class SearchSelect extends React.Component {
     isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool,
     isLoading: PropTypes.bool,
-    isOpenSearch: PropTypes.bool,
+    collapsed: PropTypes.bool,
+    collapsible: PropTypes.bool,
     onSearch: PropTypes.func,
     openFullSearch: PropTypes.func
   };
@@ -38,7 +39,8 @@ export default class SearchSelect extends React.Component {
     isSmallMode: false,
     isMobile: false,
     isLoading: false,
-    isOpenSearch: false,
+    collapsed: false,
+    collapsible: false,
     onSearch: () => {},
     openFullSearch: () => {}
   };
@@ -46,11 +48,12 @@ export default class SearchSelect extends React.Component {
   constructor(props) {
     super(props);
 
-    const { isOpenSearch } = this.props;
+    const { collapsed } = this.props;
 
     this.state = {
       searchText: '',
-      isOpenSearch
+      collapsed,
+      hiddenPlaceholder: false
     };
   }
 
@@ -59,6 +62,12 @@ export default class SearchSelect extends React.Component {
   runSearch = debounce(() => {
     this.props.onSearch(this.state.searchText);
   }, 500);
+
+  setFocus = debounce(() => {
+    if (this.inputRef.current) {
+      this.inputRef.current.focus();
+    }
+  }, 100);
 
   getIsLastInGroup(arr, i) {
     return isLastItem(arr, i) || 'groupName' in arr[i + 1];
@@ -99,13 +108,31 @@ export default class SearchSelect extends React.Component {
 
   resetSearch = data => {
     this.setState({ searchText: '' });
+    if (this.props.collapsible) {
+      this.setState({ collapsed: true });
+    }
     this.props.onSearch('');
   };
 
   onLoupe = data => {
-    this.setState(prevState => ({
-      isOpenSearch: !prevState.isOpenSearch
-    }));
+    if (this.props.collapsible) {
+      this.setState(prevState => ({
+        collapsed: !prevState.collapsed,
+        hiddenPlaceholder: prevState.collapsed
+      }));
+
+      this.setFocus();
+    }
+  };
+
+  hidePlaceholder = flag => {
+    this.setState({
+      hiddenPlaceholder: flag
+    });
+  };
+
+  getInputRef = ref => {
+    this.inputRef = ref;
   };
 
   renderNoResults() {
@@ -137,9 +164,10 @@ export default class SearchSelect extends React.Component {
   }
 
   render() {
-    const { searchText, isOpenSearch } = this.state;
-    const { className, theme, autocomplete, formattedSearchResult, noResults, isLoading } = this.props;
-    const stateSearch = isOpenSearch ? 'open' : 'close';
+    const { searchText, collapsed, hiddenPlaceholder } = this.state;
+    const { className, theme, autocomplete, formattedSearchResult, noResults, isLoading, collapsible } = this.props;
+    const isSearchCollapsed = collapsible && collapsed;
+    const stateSearch = isSearchCollapsed ? 'close' : 'open';
     const classNameContainer = classNames(className, this.className, `${this.className}_${theme}`, `${this.className}_${stateSearch}`);
     const commonIcon = `${this.className}__icon`;
     const isOpen = (!isEmpty(formattedSearchResult) || noResults || isLoading) && autocomplete;
@@ -147,21 +175,28 @@ export default class SearchSelect extends React.Component {
     return (
       <div className={classNameContainer}>
         <ClickOutside handleClickOutside={this.resetSearch} className={`${this.className}__click_outside`}>
-          <Dropdown isOpen={isOpen} toggle={() => {}}>
+          <Dropdown isOpen={isOpen} toggle={() => null}>
             <DropdownToggle tag="div">
-              <Icon className={classNames(commonIcon, `${commonIcon}-search`, 'icon-search')} onClick={this.onLoupe} />
-              {isOpenSearch && (
-                <Input
-                  className={classNames(`${this.className}__input`)}
-                  placeholder={t('Найти файл, человека или сайт')}
-                  onChange={this.onChange}
-                  onKeyDown={this.onKeyDown}
-                  value={searchText || ''}
-                />
-              )}
-              {isOpenSearch && searchText && (
-                <Icon className={classNames(commonIcon, `${commonIcon}-clear`, 'icon-close')} onClick={this.resetSearch} />
-              )}
+              <Icon
+                className={classNames(commonIcon, `${commonIcon}-search`, 'icon-search', {
+                  [`${commonIcon}-search_no-collapse`]: !collapsible
+                })}
+                onClick={this.onLoupe}
+              />
+              <Input
+                className={classNames(`${this.className}__input`, { hide: isSearchCollapsed })}
+                placeholder={hiddenPlaceholder ? '' : t('Найти файл, человека или сайт')}
+                value={searchText || ''}
+                onChange={this.onChange}
+                onKeyDown={this.onKeyDown}
+                onFocus={() => this.hidePlaceholder(true)}
+                onBlur={() => this.hidePlaceholder(false)}
+                getInputRef={this.getInputRef}
+              />
+              <Icon
+                className={classNames(commonIcon, `${commonIcon}-clear`, 'icon-close', { hide: isSearchCollapsed || !searchText })}
+                onClick={this.resetSearch}
+              />
             </DropdownToggle>
             <DropdownMenu className={`${this.className}__results ecos-dropdown__menu`}>
               {!noResults && !isEmpty(formattedSearchResult) && formattedSearchResult}

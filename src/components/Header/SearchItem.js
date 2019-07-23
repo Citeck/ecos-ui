@@ -1,4 +1,5 @@
 import * as React from 'react';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Avatar, Icon, Separator } from '../common';
 
@@ -18,36 +19,33 @@ export default class SearchItem extends React.PureComponent {
     onClick: () => {}
   };
 
+  className = 'ecos-header-search-result';
+
   onClick = () => {
     const { data, onClick } = this.props;
 
     onClick(data);
   };
 
-  className = 'ecos-header-search-result';
-
   render() {
     const { data } = this.props;
-    const { icon, title, description, groupName, avatarUrl, isLast, isAvatar } = data || {};
+    const { icon, title, description, groupName, avatarUrl, isLast, isFirst, isAvatar } = data || {};
+    const cssContent = `${this.className}__content`;
 
     return groupName ? (
       <li className={`${this.className}__group-name`}>{groupName}</li>
     ) : (
-      <React.Fragment>
-        <li onClick={this.onClick} className={this.className}>
-          {icon && <Icon className={`${icon} ${this.className}__icon`} />}
-          {isAvatar && <Avatar url={avatarUrl} className={`${this.className}__avatar`} />}
-          <div className={`${this.className}__data`}>
-            <div className={`${this.className}__title`}>{title}</div>
-            <div className={`${this.className}__desc`}>{description}</div>
+      <li onClick={this.onClick} className={this.className} data-separator={!isLast}>
+        <div className={classNames(cssContent, { [`${cssContent}_last`]: isLast })}>
+          {icon && <Icon className={`${icon} ${cssContent}-icon`} />}
+          {isAvatar && <Avatar url={avatarUrl} className={`${cssContent}-avatar`} />}
+          <div className={`${cssContent}-data`}>
+            <div className={`${cssContent}-title`}>{title}</div>
+            <div className={`${cssContent}-desc`}>{description}</div>
           </div>
-        </li>
-        {!isLast && (
-          <div className={`${this.className}__line`}>
-            <Separator noIndents />
-          </div>
-        )}
-      </React.Fragment>
+        </div>
+        {!isLast && <Separator noIndents className={`${this.className}__separator`} />}
+      </li>
     );
   }
 }
