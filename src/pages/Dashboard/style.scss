@@ -4,4 +4,50 @@
   &__loader-wrapper {
     background-color: $background-loader;
   }
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    padding: 0 18px;
+    margin-bottom: 29px;
+
+    &-title {
+      display: flex;
+      margin-bottom: 7px;
+    }
+
+    &-name {
+      font-style: normal;
+      font-weight: bold;
+      font-size: 24px;
+      line-height: 33px;
+      color: $text-color-dark;
+      margin-right: 15px;
+    }
+
+    &-version {
+      font-style: normal;
+      font-weight: bold;
+      font-size: 18px;
+      line-height: 18px;
+      color: $color-white;
+      padding: 6px 11px;
+      background: $color-gray-5;
+      border-radius: 100px;
+      display: inline-flex;
+      align-items: center;
+      text-align: center;
+    }
+
+    &-mod {
+    }
+
+    &-user {
+      margin: 0 5px;
+    }
+
+    &-date {
+      text-transform: capitalize;
+    }
+  }
 }

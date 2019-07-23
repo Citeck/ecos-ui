@@ -13,9 +13,10 @@ const initialState = {
     type: ''
   },
   titleInfo: {
-    modifier: '',
+    modifierName: '',
+    modifierUrl: '',
     modified: '',
-    displayName: '',
+    name: '',
     version: ''
   },
   isLoading: false,

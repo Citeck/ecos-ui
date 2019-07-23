@@ -11,8 +11,10 @@ import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
 import Loader from '../../components/common/Loader/Loader';
 import { MENU_TYPE } from '../../constants';
-import { deepClone } from '../../helpers/util';
+import { DASHBOARD_TYPE } from '../../constants/dashboard';
+import { deepClone, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../constants/pageTabs';
 
 import './style.scss';
 
@@ -193,6 +195,7 @@ class Dashboard extends Component {
       />
     );
   }
+
   renderTopMenu() {
     const { menuType, isLoadingMenu, links } = this.props;
 
@@ -201,6 +204,54 @@ class Dashboard extends Component {
     }
 
     return <TopMenu isShow isSortable isLoading={isLoadingMenu} links={links} onSave={this.handleSaveMenu} />;
+  }
+
+  renderHeader() {
+    const {
+      titleInfo: { modifierName = '', modifierUrl = '', date = '', name = '', version = '' },
+      dashboardType
+    } = this.props;
+    let title = null;
+
+    switch (dashboardType) {
+      case DASHBOARD_TYPE.CASE_DETAILS:
+        title = (
+          <React.Fragment>
+            <div className="ecos-dashboard__header-title" key="title">
+              {name && <div className="ecos-dashboard__header-name">{t(name)}</div>}
+              {version && <div className="ecos-dashboard__header-version">{version}</div>}
+            </div>
+
+            <div className="ecos-dashboard__header-mod" key="subtitle">
+              {t('Изменено пользователем')}
+              {modifierName && (
+                <a
+                  {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
+                  target="_blank"
+                  className="ecos-dashboard__header-user"
+                  href={modifierUrl}
+                  title={t(`Открыть профиль ${modifierName}`)}
+                >
+                  {modifierName}
+                </a>
+              )}
+              {date && (
+                <span className="ecos-dashboard__header-date">
+                  {t('в')} {t(date)}
+                </span>
+              )}
+            </div>
+          </React.Fragment>
+        );
+        break;
+      case DASHBOARD_TYPE.USER:
+      case DASHBOARD_TYPE.SITE:
+      default:
+        title = <div className="ecos-dashboard__header-title">{name && <div className="ecos-dashboard__header-name">{t(name)}</div>}</div>;
+        break;
+    }
+
+    return <div className="ecos-dashboard__header">{title}</div>;
   }
 
   renderLoader() {
@@ -220,6 +271,7 @@ class Dashboard extends Component {
           renderThumbHorizontal={props => <div {...props} hidden />}
         >
           {this.renderTopMenu()}
+          {this.renderHeader()}
           {this.renderLayout()}
           {this.renderLoader()}
         </Scrollbars>

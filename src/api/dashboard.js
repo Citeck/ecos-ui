@@ -143,7 +143,7 @@ export class DashboardApi extends RecordService {
     const defaultInfo = Object.freeze({
       modifier: '',
       modified: '',
-      displayName: '',
+      name: '',
       version: ''
     });
     let type = yield Records.get(recordRef)

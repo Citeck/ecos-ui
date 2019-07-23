@@ -22,10 +22,10 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     const data = DashboardService.checkDashboardResult(result);
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(data);
     const webConfig = DashboardConverter.getDashboardForWeb(data);
-    const titleInfo = yield call(api.dashboard.getTitleInfo, recordRef);
+    const titleInfo = DashboardConverter.getTitleInfo(yield call(api.dashboard.getTitleInfo, recordRef));
 
     yield put(setDashboardTitleInfo(titleInfo));
-    yield put(setActiveTabTitle(titleInfo.displayName));
+    yield put(setActiveTabTitle(titleInfo.name));
     yield put(setDashboardIdentification(webKeyInfo));
     yield put(setDashboardConfig(webConfig));
   } catch (e) {
