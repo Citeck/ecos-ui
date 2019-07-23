@@ -64,7 +64,9 @@ export default class SearchSelect extends React.Component {
   }, 500);
 
   setFocus = debounce(() => {
-    this.inputRef.current.focus();
+    if (this.inputRef.current) {
+      this.inputRef.current.focus();
+    }
   }, 100);
 
   getIsLastInGroup(arr, i) {
