@@ -6,7 +6,7 @@ export default class IcoBtn extends Component {
     const props = this.props;
     const cssClasses = classNames('ecos-btn', props.className);
 
-    const text = <span className={'ecos-btn__text'}>{props.children}</span>;
+    const text = props.children ? <span className={'ecos-btn__text'}>{props.children}</span> : null;
     const first = props.invert ? text : <i className={classNames('ecos-btn__i', props.children && 'ecos-btn__i_left', props.icon)} />;
     const second = props.invert ? <i className={classNames('ecos-btn__i', props.children && 'ecos-btn__i_right', props.icon)} /> : text;
 
