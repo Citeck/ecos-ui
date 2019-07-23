@@ -45,12 +45,16 @@ class Header extends React.Component {
 
   get menuWidth() {
     const { menuType } = this.props;
+    const menuSelector = document.querySelector('.slide-menu');
+    const width = (menuSelector && menuSelector.clientWidth) || 0;
 
-    return menuType === MENU_TYPE.LEFT ? 60 : 0;
+    return menuType === MENU_TYPE.LEFT ? width : 0;
   }
 
   onResize = width => {
-    this.setState({ widthHeader: width + this.menuWidth });
+    const widthHeader = width >= 550 ? width + this.menuWidth : width;
+
+    this.setState({ widthHeader });
   };
 
   render() {
@@ -67,7 +71,7 @@ class Header extends React.Component {
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className={`${classNameSide} ${classNameSide}_right`}>
-            <Search isMobile={widthHeader < 600} />
+            <Search isMobile={widthHeader <= 600} />
             {!isMobile || (widthHeader > 600 && <SiteMenu />)}
             <Avatar url={userPhotoUrl} />
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
