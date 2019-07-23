@@ -48,3 +48,9 @@ export const TYPE_MENU = [
     description: 'dashboard-settings.menu-type2'
   }
 ];
+
+export const DASHBOARD_TYPE = {
+  CASE_DETAILS: 'case-details',
+  USER: 'user-dashboard',
+  SITE: 'site-details'
+};
