@@ -20,10 +20,8 @@ export default class DropdownMenuCascade extends React.Component {
     openedItem: null
   };
 
-  toggle = index => {
-    this.setState(prevState => ({
-      openedItem: index
-    }));
+  toggle = key => {
+    this.setState({ openedItem: key });
   };
 
   renderMenuItems(items) {
@@ -44,14 +42,8 @@ export default class DropdownMenuCascade extends React.Component {
       const iconRight = classNames({ [`icon-right ${this.className}-arrow`]: !isEmpty(items) });
 
       return (
-        <Dropdown
-          className={`ecos-dropdown ${this.className}`}
-          key={key}
-          isOpen={openedItem === key}
-          toggle={() => this.toggle(key)}
-          direction="right"
-        >
-          <DropdownToggle tag="ul" className={`ecos-dropdown__toggle ${this.className}-toggle`}>
+        <Dropdown className={`ecos-dropdown ${this.className}`} key={key} isOpen={openedItem === key} toggle={() => null} direction="right">
+          <DropdownToggle tag="ul" className={`ecos-dropdown__toggle ${this.className}-toggle`} onPointerOver={() => this.toggle(key)}>
             <DropdownMenuItem data={{ id, label, targetUrl }} iconRight={iconRight} />
           </DropdownToggle>
           <DropdownMenu className={`ecos-dropdown__menu ecos-dropdown__menu_cascade`}>
