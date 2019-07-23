@@ -29,13 +29,13 @@ export default class SearchItem extends React.PureComponent {
 
   render() {
     const { data } = this.props;
-    const { icon, title, description, groupName, avatarUrl, isLast, isAvatar } = data || {};
+    const { icon, title, description, groupName, avatarUrl, isLast, isFirst, isAvatar } = data || {};
     const cssContent = `${this.className}__content`;
 
     return groupName ? (
       <li className={`${this.className}__group-name`}>{groupName}</li>
     ) : (
-      <li onClick={this.onClick} className={this.className}>
+      <li onClick={this.onClick} className={this.className} data-separator={!isLast}>
         <div className={classNames(cssContent, { [`${cssContent}_last`]: isLast })}>
           {icon && <Icon className={`${icon} ${cssContent}-icon`} />}
           {isAvatar && <Avatar url={avatarUrl} className={`${cssContent}-avatar`} />}
@@ -44,7 +44,7 @@ export default class SearchItem extends React.PureComponent {
             <div className={`${cssContent}-desc`}>{description}</div>
           </div>
         </div>
-        {!isLast && <Separator noIndents />}
+        {!isLast && <Separator noIndents className={`${this.className}__separator`} />}
       </li>
     );
   }
