@@ -231,11 +231,15 @@ class DocPreview extends Component {
   }
 
   renderViewer() {
-    return !this.loaded ? null : this.isPDF ? this.pdfViewer() : this.imgViewer();
+    const { isLoading } = this.state;
+
+    return isLoading ? null : this.isPDF ? this.pdfViewer() : this.imgViewer();
   }
 
   renderLoader() {
-    return this.loaded ? null : (
+    const { isLoading } = this.state;
+
+    return !isLoading ? null : (
       <div className={`${DocPreview.className}-loader-wrapper`}>
         <Loader />
       </div>
