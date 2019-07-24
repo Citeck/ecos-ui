@@ -101,10 +101,6 @@ export default class Components {
           case ComponentKeys.JOURNAL: {
             break;
           }
-          case ComponentKeys.DOC_STATUS: {
-            defWidget.props.config.height = '72px';
-            break;
-          }
           default:
             break;
         }
