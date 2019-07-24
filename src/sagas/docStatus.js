@@ -2,11 +2,11 @@ import { head, isEmpty } from 'lodash';
 import { call, put, takeEvery } from 'redux-saga/effects';
 import {
   changeDocStatus,
-  getAvailableStatuses,
+  getAvailableToChangeStatuses,
   getCheckDocStatus,
   getDocStatus,
   initDocStatus,
-  setAvailableStatuses,
+  setAvailableToChangeStatuses,
   setCheckDocStatus,
   setDocStatus
 } from '../actions/docStatus';
@@ -17,7 +17,7 @@ import DocStatusService from '../services/docStatus';
 
 function* sagaInitDocStatus({ api, logger }, { payload }) {
   yield put(getCheckDocStatus(payload));
-  yield put(getAvailableStatuses(payload));
+  yield put(getAvailableToChangeStatuses(payload));
 }
 
 function* sagaCheckDocStatus({ api, logger }, { payload }) {
@@ -48,24 +48,24 @@ function* sagaGetDocStatus({ api, logger }, { payload }) {
   }
 }
 
-function* sagaGetAvailableStatuses({ api, logger }, { payload }) {
+function* sagaGetAvailableToChangeStatuses({ api, logger }, { payload }) {
   const err = t('Ошибка получения доступных статусов');
   const { record, stateId } = payload;
 
   try {
-    const res = yield call(api.docStatus.getAvailableStatuses, { record });
+    const res = yield call(api.docStatus.getAvailableToChangeStatuses, { record });
 
     if (!isEmpty(res)) {
       yield put(
-        setAvailableStatuses({
+        setAvailableToChangeStatuses({
           stateId,
-          availableStatuses: DocStatusConverter.getAvailableStatusesForWeb(res.records)
+          availableToChangeStatuses: DocStatusConverter.getAvailableToChangeStatusesForWeb(res.records)
         })
       );
     }
   } catch (e) {
     yield put(setNotificationMessage(err));
-    logger.error('[docStatus/sagaGetAvailableStatuses saga] error', e.message);
+    logger.error('[docStatus/sagaGetAvailableToChangeStatuses saga] error', e.message);
   }
 }
 
@@ -78,14 +78,14 @@ function* sagaChangeDocStatus({ api, logger }, { payload }) {
     yield put(getCheckDocStatus(payload));
   } catch (e) {
     yield put(setNotificationMessage(err));
-    logger.error('[docStatus/sagaGetAvailableStatuses saga] error', e.message);
+    logger.error('[docStatus/sagaChangeDocStatus saga] error', e.message);
   }
 }
 
 function* docStatusSaga(ea) {
   yield takeEvery(initDocStatus().type, sagaInitDocStatus, ea);
   yield takeEvery(getDocStatus().type, sagaGetDocStatus, ea);
-  yield takeEvery(getAvailableStatuses().type, sagaGetAvailableStatuses, ea);
+  yield takeEvery(getAvailableToChangeStatuses().type, sagaGetAvailableToChangeStatuses, ea);
   yield takeEvery(changeDocStatus().type, sagaChangeDocStatus, ea);
   yield takeEvery(getCheckDocStatus().type, sagaCheckDocStatus, ea);
 }

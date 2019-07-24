@@ -19,7 +19,7 @@ const mapStateToProps = (state, context) => {
     isUpdating: stateDS.isUpdating,
     countAttempt: stateDS.countAttempt,
     isLoading: stateDS.isLoading,
-    availableStatuses: stateDS.availableStatuses
+    availableToChangeStatuses: stateDS.availableToChangeStatuses
   };
 };
 
@@ -80,9 +80,9 @@ class DocStatus extends React.Component {
   }
 
   get isReadField() {
-    const { availableStatuses } = this.props;
+    const { availableToChangeStatuses } = this.props;
 
-    return isEmpty(availableStatuses);
+    return isEmpty(availableToChangeStatuses);
   }
 
   get isShowLoader() {
@@ -114,8 +114,8 @@ class DocStatus extends React.Component {
   }
 
   renderManualField() {
-    const { availableStatuses = [], status } = this.props;
-    const source = deepClone(availableStatuses);
+    const { availableToChangeStatuses = [], status } = this.props;
+    const source = deepClone(availableToChangeStatuses);
     const classStatus = classNames('ecos-btn_drop-down ecos-btn_full-width', { 'ecos-btn_blue': !this.isNoStatus || this.isShowLoader });
 
     source.push(status);

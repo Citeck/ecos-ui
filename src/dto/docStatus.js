@@ -12,7 +12,7 @@ export default class DocStatusConverter {
     return target;
   }
 
-  static getAvailableStatusesForWeb(source = []) {
+  static getAvailableToChangeStatusesForWeb(source = []) {
     if (Array.isArray(source)) {
       return source.map(item => DocStatusConverter.getStatusForWeb(item));
     }

@@ -1,10 +1,10 @@
 import { handleActions } from 'redux-actions';
 import {
   changeDocStatus,
-  getAvailableStatuses,
+  getAvailableToChangeStatuses,
   getCheckDocStatus,
   getDocStatus,
-  setAvailableStatuses,
+  setAvailableToChangeStatuses,
   setCheckDocStatus,
   setDocStatus
 } from '../actions/docStatus';
@@ -15,7 +15,7 @@ const initialState = {
   isUpdating: true,
   countAttempt: 0,
   status: {},
-  availableStatuses: []
+  availableToChangeStatuses: []
 };
 
 const startLoading = (state, { payload: { stateId } }) => ({
@@ -36,7 +36,7 @@ const increaseAttempt = (state, stateId) => {
 export default handleActions(
   {
     [getDocStatus]: startLoading,
-    [getAvailableStatuses]: startLoading,
+    [getAvailableToChangeStatuses]: startLoading,
     [getCheckDocStatus]: (state, { payload: { stateId } }) => ({
       ...state,
       [stateId]: {
@@ -63,11 +63,11 @@ export default handleActions(
         isLoading: false
       }
     }),
-    [setAvailableStatuses]: (state, { payload: { stateId, availableStatuses } }) => ({
+    [setAvailableToChangeStatuses]: (state, { payload: { stateId, availableToChangeStatuses } }) => ({
       ...state,
       [stateId]: {
         ...getCurrentStateById(state, stateId, initialState),
-        availableStatuses,
+        availableToChangeStatuses,
         isLoading: false
       }
     }),
