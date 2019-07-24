@@ -147,7 +147,7 @@ export default class SearchSelect extends React.Component {
   renderNoResults() {
     const { noResults } = this.props;
 
-    return noResults ? <li className={`${this.className}__no-results`}>{t('Ничего не найдено')}</li> : null;
+    return noResults ? <li className={`${this.className}__no-results`}>{t('search.no-results')}</li> : null;
   }
 
   renderBtnShowAll() {
@@ -156,7 +156,7 @@ export default class SearchSelect extends React.Component {
     return !isEmpty(formattedSearchResult) ? (
       <li className={`${this.className}__show-all`}>
         <Btn className={`${this.className}__show-all-btn ecos-btn_narrow-t_standart`} onClick={this.openFullSearch}>
-          {t('Показать все результаты')}
+          {t('search.show-more-results')}
         </Btn>
       </li>
     ) : null;
