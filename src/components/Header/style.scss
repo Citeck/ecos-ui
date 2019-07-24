@@ -174,30 +174,37 @@
       @extend %ellipsis;
     }
   }
+}
 
-  @media all and (max-width: 600px) {
-    .ecos-header {
-      &__side {
-        &_right {
-          //justify-content: space-between;
-          width: 100%;
-          position: relative;
-        }
+@media all and (max-width: 600px) {
+  .ecos-header {
+    padding: 10px 15px;
+
+    &__side {
+      &_right {
+        width: 100%;
+        position: relative;
       }
+    }
 
-      &-search {
-        flex-grow: 1;
-        position: absolute;
-        max-width: 40px;
-        left: 0;
-        top: 0;
+    &-search {
+      flex-grow: 1;
+      position: absolute;
+      max-width: 40px;
+      left: 0;
+      top: 0;
 
-        &.ecos-input-search_open {
-          $size: calc(100% + 10px);
+      &.ecos-input-search_open {
+        $size: 100%;
 
-          max-width: $size !important;
-          width: $size;
-          z-index: 1;
+        max-width: $size !important;
+        width: $size;
+        z-index: 1;
+
+        & ~ .ecos-avatar,
+        & ~ .ecos-header-user {
+          opacity: 0;
+          transition: opacity 0.5s ease-out 0s;
         }
       }
     }
