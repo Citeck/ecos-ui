@@ -101,5 +101,9 @@
     text-align: center;
     color: $color-gray-6;
     font-size: $font-size-extra-small;
+
+    .ecos-btn__i::before {
+      width: 4em;
+    }
   }
 }
