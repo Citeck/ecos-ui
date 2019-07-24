@@ -51,6 +51,7 @@ export default class SearchSelect extends React.Component {
     this.state = {
       searchText: '',
       collapsed,
+      focused: false,
       hiddenPlaceholder: false
     };
   }
@@ -110,23 +111,27 @@ export default class SearchSelect extends React.Component {
     this.props.onSearch('');
   };
 
-  onLoupe = data => {
+  setFocused = isFocused => {
+    this.setState({
+      focused: isFocused
+    });
+  };
+
+  onLoupe = () => {
     if (this.props.collapsible) {
       this.setState({
         collapsed: false,
         hiddenPlaceholder: true
       });
-
-      this.setFocus();
     }
+
+    this.setFocus();
   };
 
   onClickOutside = () => {
     if (this.props.collapsible) {
       this.setState({ collapsed: true });
     }
-
-    this.resetSearch();
   };
 
   hidePlaceholder = flag => {
@@ -167,14 +172,24 @@ export default class SearchSelect extends React.Component {
     ) : null;
   }
 
+  onFocus = () => {
+    this.hidePlaceholder(true);
+    this.setFocused(true);
+  };
+
+  onBlur = () => {
+    this.hidePlaceholder(false);
+    this.setFocused(false);
+  };
+
   render() {
-    const { searchText, collapsed, hiddenPlaceholder } = this.state;
-    const { className, theme, autocomplete, formattedSearchResult, noResults, isLoading, collapsible } = this.props;
+    const { searchText, collapsed, hiddenPlaceholder, focused } = this.state;
+    const { className, theme, autocomplete, formattedSearchResult, noResults, isLoading, collapsible, isMobile } = this.props;
     const isSearchCollapsed = collapsible && collapsed;
     const stateSearch = isSearchCollapsed ? 'close' : 'open';
     const classNameContainer = classNames(className, this.className, `${this.className}_${theme}`, `${this.className}_${stateSearch}`);
     const commonIcon = `${this.className}__icon`;
-    const isOpen = (!isEmpty(formattedSearchResult) || noResults || isLoading) && autocomplete && searchText;
+    const isOpen = (!isEmpty(formattedSearchResult) || noResults || isLoading) && autocomplete && searchText && focused;
 
     return (
       <div className={classNameContainer}>
@@ -189,12 +204,12 @@ export default class SearchSelect extends React.Component {
               />
               <Input
                 className={classNames(`${this.className}__input`, { hide: isSearchCollapsed })}
-                placeholder={hiddenPlaceholder ? '' : t('Найти файл, человека или сайт')}
+                placeholder={isMobile || hiddenPlaceholder ? '' : t('search.label')}
                 value={searchText || ''}
                 onChange={this.onChange}
                 onKeyDown={this.onKeyDown}
-                onFocus={() => this.hidePlaceholder(true)}
-                onBlur={() => this.hidePlaceholder(false)}
+                onFocus={this.onFocus}
+                onBlur={this.onBlur}
                 getInputRef={this.getInputRef}
               />
               <Icon

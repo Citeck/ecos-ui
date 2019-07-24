@@ -174,6 +174,14 @@
       @extend %ellipsis;
     }
   }
+
+  &-dropdown__toggle {
+    display: flex;
+
+    .ecos-avatar {
+      margin-right: 10px;
+    }
+  }
 }
 
 @media all and (max-width: 600px) {
@@ -198,13 +206,13 @@
         $size: 100%;
 
         max-width: $size !important;
-        width: $size;
+        width: $size !important;
         z-index: 1;
 
         & ~ .ecos-avatar,
         & ~ .ecos-header-user {
           opacity: 0;
-          transition: opacity 0.5s ease-out 0s;
+          transition: opacity 0.15s ease-out;
         }
       }
     }

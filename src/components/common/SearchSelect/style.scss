@@ -4,7 +4,7 @@
   $root: &;
 
   position: relative;
-  transition: 0.5s cubic-bezier(0.5, 0.5, 0.5, 0.5);
+  transition: 0.15s cubic-bezier(0.5, 0.5, 0.5, 0.5);
 
   &__icon {
     position: absolute;
@@ -17,7 +17,7 @@
       top: 9px;
 
       &#{$isearch}_no-collapse {
-        cursor: none;
+        cursor: text;
       }
     }
 

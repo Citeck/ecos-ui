@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
-import { Avatar } from '../common';
 import CreateMenu from './CreateMenu';
 import UserMenu from './UserMenu';
 import SiteMenu from './SiteMenu';
@@ -26,7 +25,6 @@ const mapDispatchToProps = dispatch => ({
 
 const mapStateToProps = state => ({
   isMobile: state.view.isMobile,
-  userPhotoUrl: state.user.thumbnail,
   menuType: state.menu.type
 });
 
@@ -59,7 +57,7 @@ class Header extends React.Component {
 
   render() {
     const { widthHeader } = this.state;
-    const { isMobile, userPhotoUrl } = this.props;
+    const { isMobile } = this.props;
     const classNameContainer = classNames(this.className, { [`${this.className}_small`]: isMobile });
     const classNameSide = `${this.className}__side`;
 
@@ -73,7 +71,6 @@ class Header extends React.Component {
           <div className={`${classNameSide} ${classNameSide}_right`}>
             <Search isMobile={widthHeader <= 600} />
             {!isMobile || (widthHeader > 600 && <SiteMenu />)}
-            <Avatar url={userPhotoUrl} />
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
           </div>
         </div>
