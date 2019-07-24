@@ -1,17 +1,22 @@
 import { handleActions } from 'redux-actions';
 import {
   getAvailableWidgets,
+  getAwayFromPage,
   getDashboardConfig,
   initDashboardSettings,
+  saveDashboardConfig,
   setAvailableWidgets,
   setDashboardConfig,
-  setResultSaveDashboardConfig,
-  saveDashboardConfig,
-  getAwayFromPage
+  setResultSaveDashboardConfig
 } from '../actions/dashboardSettings';
 import { LAYOUT_TYPE } from '../constants/layout';
 
 const initialState = {
+  identification: {
+    key: null,
+    id: null,
+    type: null
+  },
   config: {
     layoutType: LAYOUT_TYPE.TWO_COLUMNS_BS,
     widgets: []
@@ -36,9 +41,12 @@ export default handleActions(
     [saveDashboardConfig]: startLoading,
 
     [setDashboardConfig]: (state, { payload }) => {
+      const { identification, ...config } = payload;
+
       return {
         ...state,
-        config: payload,
+        config,
+        identification,
         isLoading: false
       };
     },

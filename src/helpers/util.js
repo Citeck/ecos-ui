@@ -1,6 +1,6 @@
 import lodashGet from 'lodash/get';
 import moment from 'moment';
-import { DataFormatTypes, MIN_WIDTH_DASHLET_SMALL } from '../constants';
+import { DataFormatTypes, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import * as queryString from 'query-string';
 
 export const debounce = (func, ms = 0) => {
@@ -385,7 +385,7 @@ export function getCurrentUserName() {
   return lodashGet(window, 'Alfresco.constants.USERNAME', '');
 }
 
-export const isSmallMode = width => width <= MIN_WIDTH_DASHLET_SMALL;
+export const isSmallMode = width => width <= MIN_WIDTH_DASHLET_LARGE;
 
 export function isExistIndex(idx) {
   return !(idx === null || idx === undefined || idx === -1);
@@ -449,3 +449,7 @@ export function getOutputFormat(format, value) {
       return value;
   }
 }
+
+export const hasInString = (originalString = '', searchedString = '') => {
+  return originalString.includes(searchedString);
+};

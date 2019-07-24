@@ -18,12 +18,16 @@ class PropertiesDashlet extends React.Component {
     classNameDashlet: PropTypes.string,
     config: PropTypes.shape({
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
-    })
+    }),
+    dragHandleProps: PropTypes.object,
+    canDragging: PropTypes.bool
   };
 
   static defaultProps = {
     classNameProps: '',
-    classNameDashlet: ''
+    classNameDashlet: '',
+    dragHandleProps: {},
+    canDragging: false
   };
 
   constructor(props) {
@@ -55,7 +59,7 @@ class PropertiesDashlet extends React.Component {
   };
 
   render() {
-    const { id, title, config, classNameProps, classNameDashlet, record } = this.props;
+    const { id, title, config, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isSmallMode, isReady, isEditProps } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
@@ -68,7 +72,9 @@ class PropertiesDashlet extends React.Component {
         needGoTo={false}
         actionHelp={false}
         actionReload={false}
+        canDragging={canDragging}
         onEdit={this.openModal}
+        dragHandleProps={dragHandleProps}
       >
         <ReactResizeDetector handleWidth onResize={this.onResize} />
         <Properties {...config} className={classNameProps} record={record} isSmallMode={isSmallMode} isReady={isReady} stateId={id} />

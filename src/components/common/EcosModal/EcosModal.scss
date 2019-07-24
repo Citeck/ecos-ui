@@ -7,6 +7,10 @@
 }
 
 .ecos-modal {
+  &.modal-dialog {
+    margin-bottom: 0;
+  }
+
   .modal-content {
     border-radius: $border-radius-extra-large;
   }
@@ -100,19 +104,49 @@
 }
 
 .ecos-modal_level-1 {
-  top: 40px;
+  top: 0;
 }
 
 .ecos-modal_level-2 {
-  top: 120px;
+  top: 70px;
 }
 
 .ecos-modal_level-3 {
-  top: 180px;
+  top: 130px;
 }
 
 .ecos-modal_level-4 {
-  top: 240px;
+  top: 190px;
+}
+
+.modal-dialog-scrollable {
+  &.ecos-modal_level-2 {
+    max-height: calc(100% - 1rem - 70px);
+  }
+
+  &.ecos-modal_level-3 {
+    max-height: calc(100% - 1rem - 130px);
+  }
+
+  &.ecos-modal_level-4 {
+    max-height: calc(100% - 1rem - 190px);
+  }
+}
+
+@media (min-width: 576px) {
+  .modal-dialog-scrollable {
+    &.ecos-modal_level-2 {
+      max-height: calc(100% - 3.5rem - 70px);
+    }
+
+    &.ecos-modal_level-3 {
+      max-height: calc(100% - 3.5rem - 130px);
+    }
+
+    &.ecos-modal_level-4 {
+      max-height: calc(100% - 3.5rem - 190px);
+    }
+  }
 }
 
 .ecos-modal.ecos-modal_width-sm {

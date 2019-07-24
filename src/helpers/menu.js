@@ -1,3 +1,5 @@
+import { URL } from '../constants';
+
 export function processCreateVariantsItems(sites) {
   let menuItems = [];
 
@@ -148,4 +150,27 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
   }
 
   return siteMenuItems;
+}
+
+export function makeSiteMenu() {
+  return [
+    {
+      id: 'HOME_PAGE',
+      label: 'header.site-menu.home-page',
+      targetUrl: URL.DASHBOARD,
+      targetUrlType: 'FULL_PATH'
+    },
+    {
+      id: 'SETTINGS_HOME_PAGE',
+      label: 'header.site-menu.home-page-settings',
+      targetUrl: URL.DASHBOARD_SETTINGS,
+      targetUrlType: 'FULL_PATH'
+    },
+    {
+      id: 'GO_ADMIN_PAGE',
+      label: 'header.site-menu.admin-page',
+      targetUrl: URL.BPMN_DESIGNER,
+      targetUrlType: 'FULL_PATH'
+    }
+  ];
 }

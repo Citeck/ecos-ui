@@ -14,13 +14,32 @@ $border-base: #c1c1c1;
   align-items: center;
 }
 
-.ecos-doc-preview {
+.ecos-dp {
+  $root: &;
+
   &-dashlet {
     padding-bottom: 1px;
-  }
 
-  &-dashlet__body {
-    margin: 14px 17px 20px;
+    &_small {
+      #{$root} {
+        &__toolbar {
+          &-pager {
+            &-input,
+            &-text {
+              display: none;
+            }
+          }
+
+          &-zoom {
+            display: none;
+          }
+        }
+      }
+    }
+
+    &__body {
+      margin: 14px 17px 20px;
+    }
   }
 
   border: 1px solid $border-base;
@@ -41,7 +60,7 @@ $border-base: #c1c1c1;
       border-right: 1px solid $border-toolbar;
     }
 
-    &__group {
+    &-group {
       @extend %base-flex;
 
       & > * {
@@ -49,8 +68,8 @@ $border-base: #c1c1c1;
       }
     }
 
-    &__pager {
-      &__input {
+    &-pager {
+      &-input {
         display: inline-block;
         width: 35px;
         height: 100%;
@@ -59,7 +78,7 @@ $border-base: #c1c1c1;
         text-align: center;
       }
 
-      &__text {
+      &-text {
         display: inline-block;
         white-space: nowrap;
         overflow: hidden;
@@ -67,33 +86,20 @@ $border-base: #c1c1c1;
         text-overflow: ellipsis;
       }
 
-      @media (max-width: 920px) {
-        &__input,
-        &__text {
-          display: none;
-        }
+      &-prev {
       }
 
-      &__prev {
-      }
-
-      &__next {
+      &-next {
       }
     }
 
-    &__zoom {
-      & &__btn-select {
+    &-zoom {
+      & &-btn-select {
         @extend %base-flex;
       }
     }
 
-    @media (max-width: 920px) {
-      &__zoom {
-        display: none;
-      }
-    }
-
-    &__extra-btns {
+    &-extra-btns {
     }
   }
 
@@ -115,12 +121,12 @@ $border-base: #c1c1c1;
       width: 100vw;
     }
 
-    &__doc {
-      &__scroll-area {
+    &-doc {
+      &-scroll-area {
         padding-right: 13px;
       }
 
-      &__page-container {
+      &-page-container {
         position: relative;
         display: flex;
         flex-direction: column;
@@ -141,7 +147,7 @@ $border-base: #c1c1c1;
         &_img {
         }
 
-        &__number {
+        &-number {
           position: absolute;
           background-color: rgba(44, 44, 44, 0.25);
           border-radius: 20px;
@@ -155,7 +161,7 @@ $border-base: #c1c1c1;
           left: 25px;
         }
 
-        &__content {
+        &-content {
           @extend %preview-content;
 
           transition: all 0.3s cubic-bezier(0.65, 0.05, 0.36, 1);
@@ -164,7 +170,7 @@ $border-base: #c1c1c1;
       }
     }
 
-    &__msg {
+    &-msg {
       font-weight: bold;
       padding: 10px;
 

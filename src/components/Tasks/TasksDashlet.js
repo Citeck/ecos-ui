@@ -17,12 +17,16 @@ class TasksDashlet extends React.Component {
     classNameDashlet: PropTypes.string,
     config: PropTypes.shape({
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
-    })
+    }),
+    dragHandleProps: PropTypes.object,
+    canDragging: PropTypes.bool
   };
 
   static defaultProps = {
     classNameTasks: '',
-    classNameDashlet: ''
+    classNameDashlet: '',
+    dragHandleProps: {},
+    canDragging: false
   };
 
   constructor(props) {
@@ -49,7 +53,7 @@ class TasksDashlet extends React.Component {
   };
 
   render() {
-    const { id, title, config, classNameTasks, classNameDashlet, record } = this.props;
+    const { id, title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isRunReload, isSmallMode } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
@@ -62,7 +66,9 @@ class TasksDashlet extends React.Component {
         onReload={this.onReload}
         needGoTo={false}
         actionEdit={false}
+        canDragging={canDragging}
         actionHelp={false}
+        dragHandleProps={dragHandleProps}
       >
         <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
         <Tasks

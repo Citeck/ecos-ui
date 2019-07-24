@@ -1,12 +1,23 @@
 import { handleActions } from 'redux-actions';
-import { getDashboardConfig, saveDashboardConfig, setDashboardConfig, setResultSaveDashboardConfig } from '../actions/dashboard';
+import { setDashboardConfig, setDashboardIdentification, setDashboardTitleInfo, setResultSaveDashboardConfig } from '../actions/dashboard';
+import { changeActiveTab } from '../actions/pageTabs';
 
 const initialState = {
+  identification: {
+    key: null,
+    id: null,
+    type: null
+  },
   config: {
     columns: [],
-    dashboardId: null,
-    dashboardKey: null,
     type: ''
+  },
+  titleInfo: {
+    modifierName: '',
+    modifierUrl: '',
+    modified: '',
+    name: '',
+    version: ''
   },
   isLoading: false,
   saveResult: {
@@ -17,20 +28,22 @@ const initialState = {
 
 Object.freeze(initialState);
 
-const startLoading = state => ({ ...state, isLoading: true });
-
 export default handleActions(
   {
-    [getDashboardConfig]: startLoading,
-    [saveDashboardConfig]: startLoading,
+    [setDashboardIdentification]: (state, { payload }) => {
+      const { identification } = payload;
 
-    [setDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
-        config: {
-          ...state.config,
-          ...payload
-        },
+        identification
+      };
+    },
+    [setDashboardConfig]: (state, { payload }) => {
+      const { ...config } = payload;
+
+      return {
+        ...state,
+        config,
         isLoading: false
       };
     },
@@ -39,6 +52,20 @@ export default handleActions(
         ...state,
         saveResult: payload,
         isLoading: false
+      };
+    },
+    [changeActiveTab]: state => {
+      return {
+        ...state,
+        ...initialState,
+        isLoading: true
+      };
+    },
+    [setDashboardTitleInfo]: (state, { payload }) => {
+      return {
+        ...state,
+        ...initialState,
+        titleInfo: payload
       };
     }
   },

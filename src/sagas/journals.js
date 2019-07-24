@@ -72,13 +72,15 @@ function getDefaultJournalSetting(journalConfig) {
 
 function getGridParams(journalConfig, journalSetting, stateId) {
   const {
-    meta: { createVariants, predicate }
+    meta: { createVariants, predicate },
+    sourceId
   } = journalConfig;
   const { sortBy, groupBy, columns, predicate: journalSettingPredicate } = journalSetting;
 
   return {
     createVariants,
     predicate,
+    sourceId: sourceId,
     sortBy: sortBy.map(sort => ({ ...sort })),
     columns: columns.map(col => ({ ...col })),
     groupBy: Array.from(groupBy),

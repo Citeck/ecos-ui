@@ -20,7 +20,7 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [] }) => {
+  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId }) => {
     const query = {
       t: 'and',
       val: [
@@ -31,19 +31,25 @@ export class JournalsApi extends RecordService {
       ]
     };
 
+    let bodyQery = {
+      consistency: 'EVENTUAL',
+      query: query,
+      language: 'predicate',
+      page: pagination,
+      groupBy,
+      sortBy
+    };
+
+    if (sourceId) {
+      bodyQery.sourceId = sourceId;
+    }
+
     const dataSource = new dataSourceStore['GqlDataSource']({
       url: `${PROXY_URI}citeck/ecos/records`,
       dataSourceName: 'GqlDataSource',
       ajax: {
         body: {
-          query: {
-            consistency: 'EVENTUAL',
-            query: query,
-            language: 'predicate',
-            page: pagination,
-            groupBy,
-            sortBy
-          }
+          query: bodyQery
         }
       },
       columns: columns || []

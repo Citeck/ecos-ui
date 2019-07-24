@@ -1,74 +1,69 @@
-import { QUERY_KEYS } from '../constants';
-import { LAYOUT_TYPE } from '../constants/layout';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import moment from 'moment';
 
-export const getDefaultDashboardConfig = {
-  layout: {
-    type: LAYOUT_TYPE.TWO_COLUMNS_BS,
-    columns: [
-      {
-        width: '30%',
-        widgets: []
-      },
-      {
-        widgets: []
-      }
-    ]
-  }
-};
+import DashboardService from '../services/dashboard';
 
-export function getDashboardForWeb(source) {
-  if (!source || (source && !Object.keys(source).length)) {
-    return {};
+export default class DashboardConverter {
+  static getKeyInfoDashboardForWeb(source) {
+    const target = {};
+
+    if (!isEmpty(source)) {
+      const { key, id = '', type } = source;
+
+      target.identification = { key, type, id: DashboardService.parseDashboardId(id) };
+    }
+
+    return target;
   }
 
-  const { layout, dashboardKey, dashboardId } = source;
-  const target = {};
+  static getDashboardForWeb(source) {
+    const target = {};
 
-  target.dashboardKey = dashboardKey;
-  target.dashboardId = dashboardId;
-  target.columns = layout.columns;
-  target.type = layout.type;
+    if (!isEmpty(source)) {
+      const { config } = source;
+      const layout = get(config, ['layout']) || {};
 
-  return target;
-}
+      target.columns = layout.columns || [];
+      target.type = layout.type;
+    }
 
-export function getDashboardForServer(source) {
-  if (!source || (source && !Object.keys(source).length)) {
-    return {};
+    return target;
   }
 
-  const {
-    config: { columns, type },
-    dashboardId
-  } = source;
+  static getDashboardForServer(source) {
+    if (isEmpty(source)) {
+      return {};
+    }
 
-  return {
-    config: {
-      layout: { columns, type }
-    },
-    dashboardId
-  };
-}
+    const {
+      config: { columns, type }
+    } = source;
 
-export function parseGetResult(result) {
-  if (!result || (result && !Object.keys(result).length)) {
-    return {};
+    return { layout: { columns, type } };
   }
 
-  return result[QUERY_KEYS.CONFIG_JSON] || {};
-}
+  static getTitleInfo(source = {}) {
+    const { modifier = {}, modified = '', displayName = '', version = '' } = source;
+    const target = {
+      version,
+      name: displayName,
+      date: '',
+      modifierName: '',
+      modifierUrl: ''
+    };
 
-export function parseSaveResult(result) {
-  if (!result || (result && !Object.keys(result).length)) {
-    return {};
+    if (Object.keys(modifier).length) {
+      target.modifierName = modifier.disp;
+      target.modifierUrl = `/share/page/user/${modifier.str}/profile`;
+    }
+
+    if (modified) {
+      target.date = moment(modified)
+        .utc()
+        .format('ddd D MMM YYYY H:m:s');
+    }
+
+    return target;
   }
-
-  const DIV = '@';
-  const fullId = result._id || '';
-  const dashboardId = fullId && fullId.indexOf(DIV) >= 0 ? fullId.split(DIV)[1] : null;
-
-  return {
-    dashboardId,
-    fullId
-  };
 }

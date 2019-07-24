@@ -84,4 +84,37 @@
   .tooltip {
     opacity: 1;
   }
+
+  .tooltip-inner {
+    width: max-content;
+    max-width: calc(100vw - 2rem);
+
+    padding: 0.5rem 1rem;
+    color: #444;
+    text-align: left;
+    background-color: #fff;
+    border-radius: $border-radius-large;
+    box-shadow: $box-shadow-tooltip;
+    font-weight: $font-weight-semi-bold;
+  }
+
+  .tooltip-arrow {
+    position: absolute;
+  }
+
+  .tooltip[x-placement='right'] .tooltip-arrow {
+    top: -0.25rem;
+    left: 0.25rem;
+    border-width: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: $color-white;
+    border-top-color: $color-white;
+    transform: rotate(-45deg);
+    box-shadow: -6px -3px 5px rgba(0, 0, 0, 0.2);
+
+    &:before {
+      content: none;
+    }
+  }
 }

@@ -94,7 +94,7 @@ export default class Components {
 
         switch (defWidget.name) {
           case ComponentKeys.DOC_PREVIEW: {
-            defWidget.props.config.link = config.link || '/share/proxy/alfresco/demo.pdf';
+            defWidget.props.config.link = config.link || '';
             defWidget.props.config.scale = config.scale || 1;
             break;
           }
