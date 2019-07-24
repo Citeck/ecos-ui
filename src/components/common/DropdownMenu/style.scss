@@ -16,8 +16,9 @@
     &-arrow {
       position: absolute;
       right: 9px;
-      font-size: 12px;
-      top: 30%;
+      font-size: 14px;
+      top: calc(50% - 1em / 2);
+      line-height: 18px;
       color: $color-gray-5;
     }
 

@@ -29,7 +29,7 @@ export default class SearchItem extends React.PureComponent {
 
   render() {
     const { data } = this.props;
-    const { icon, title, description, groupName, avatarUrl, isLast, isFirst, isAvatar } = data || {};
+    const { icon, title, description, groupName, avatarUrl, isLast, isAvatar } = data || {};
     const cssContent = `${this.className}__content`;
 
     return groupName ? (
