@@ -290,6 +290,8 @@ export default class AsyncDataComponent extends BaseComponent {
     if (this.options.builder) {
       // We need to see it in builder mode.
       this.append(this.text(this.name + ' (' + this.key + ')'));
+    } else if (this.element && this.element.classList) {
+      this.element.classList.remove('form-group');
     }
 
     const updateType = _.get(this.component, 'update.type', '');

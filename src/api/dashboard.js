@@ -4,6 +4,9 @@ import { QueryKeys, SourcesId } from '../constants';
 import { RecordService } from './recordService';
 import Components from '../components/Components';
 import Records from '../components/Records';
+import { TITLE } from '../constants/pageTabs';
+import { DASHBOARD_TYPE } from '../constants/dashboard';
+import { t } from '../helpers/util';
 
 const defaultAttr = {
   key: QueryKeys.KEY,
@@ -52,7 +55,11 @@ export class DashboardApi extends RecordService {
 
   getDashboardByRecordRef = function*(recordRef) {
     if (this.cache.has(recordRef)) {
-      return yield Records.get(this.cache.get(recordRef)).load({ config: 'config?json' });
+      return yield Records.get(this.cache.get(recordRef)).load({
+        key: QueryKeys.KEY,
+        config: QueryKeys.CONFIG_JSON,
+        type: 'type'
+      });
     }
 
     const result = yield Records.get(recordRef).load({
@@ -93,7 +100,11 @@ export class DashboardApi extends RecordService {
     const user = getCurrentUserName();
 
     if (this.cache.has(user)) {
-      return Records.get(this.cache.get(user)).load({ config: 'config?json' });
+      return Records.get(this.cache.get(user)).load({
+        key: QueryKeys.KEY,
+        config: QueryKeys.CONFIG_JSON,
+        type: 'type'
+      });
     }
 
     return Records.queryOne(
@@ -110,5 +121,65 @@ export class DashboardApi extends RecordService {
 
       return response;
     });
+  };
+
+  getDashboardTitle = function*(recordRef = '') {
+    if (!recordRef) {
+      return TITLE.HOMEPAGE;
+    }
+
+    const title = yield Records.get(recordRef)
+      .load('.disp')
+      .then(response => response);
+
+    if (!title) {
+      return TITLE.NONAME;
+    }
+
+    return title;
+  };
+
+  getTitleInfo = function*(recordRef = '') {
+    const defaultInfo = Object.freeze({
+      modifier: '',
+      modified: '',
+      name: '',
+      version: ''
+    });
+    let type = yield Records.get(recordRef)
+      .load('_dashboardType')
+      .then(response => response);
+
+    if (!recordRef) {
+      type = DASHBOARD_TYPE.USER;
+    }
+
+    switch (type) {
+      case DASHBOARD_TYPE.CASE_DETAILS:
+        return yield Records.get(recordRef)
+          .load({
+            modifier: '.att(n:"cm:modifier"){disp,str}',
+            modified: 'cm:modified',
+            displayName: '.disp',
+            version: 'version'
+          })
+          .then(response => response);
+      case DASHBOARD_TYPE.USER:
+        return {
+          ...defaultInfo,
+          displayName: t(TITLE.HOMEPAGE)
+        };
+      case DASHBOARD_TYPE.SITE:
+      default: {
+        const displayName = yield Records.get(recordRef)
+          .load('.disp')
+          .then(response => response);
+
+        return {
+          ...defaultInfo,
+          displayName
+        };
+      }
+    }
   };
 }

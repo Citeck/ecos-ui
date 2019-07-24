@@ -138,6 +138,7 @@ export default class EcosModal extends Component {
         {...reactstrapProps}
         getDialogRef={el => (this._dialog = el)}
         draggableProps={draggableProps}
+        data-level={level}
       >
         {header}
         <ModalBody>{children}</ModalBody>
