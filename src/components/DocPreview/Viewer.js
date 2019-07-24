@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import fscreen from 'fscreen';
+import { get } from 'lodash';
 import { t } from '../../helpers/util';
 import { Scrollbars } from 'react-custom-scrollbars';
 import PropTypes from 'prop-types';
-import Loader from '../common/Loader/Loader';
 
 export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
   let _viewer = `${ctrClass}__viewer`;
@@ -59,7 +59,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
 
           currentPage = currentPage > 0 && currentPage <= childrenLen ? currentPage : 1;
 
-          let scrollPage = children[currentPage - 1].offsetTop + 12;
+          let scrollPage = get(children, `${[currentPage - 1]}.offsetTop`, 0) + 12;
 
           this.elScrollbar.scrollTop(scrollPage);
           this.setState({ scrollPage: currentPage });
@@ -103,11 +103,11 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
       }
 
       if (pdf === undefined && !urlImg) {
-        return { type: 'error', msg: t(errMsg || 'doc-preview.error.not-specified') };
+        return { type: 'info', msg: t(errMsg || 'doc-preview.error.not-specified') };
       }
 
       if (pdf && Object.keys(pdf).length && !pdf._pdfInfo) {
-        return { type: 'warn', msg: t('doc-preview.error.loading-failure') };
+        return { type: 'info', msg: t('doc-preview.error.loading-failure') };
       }
 
       return null;
@@ -116,8 +116,8 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     onScrollFrame = e => {
       if (isPdf) {
         let children = this.childrenScroll;
-        let coords = Array.from(children).map(el => el.offsetTop);
-        let found = coords.reverse().find(val => e.scrollTop + children[0].offsetHeight / 5 >= val);
+        let coords = Array.from(children).map(el => get(el, 'offsetTop', 0));
+        let found = coords.reverse().find(val => get(e, 'scrollTop', 0) + get(children, '[0].offsetHeight', 0) / 5 >= val);
         let foundIdx = coords.reverse().findIndex(val => found === val);
         let scrollPage = foundIdx + 1;
 
@@ -170,41 +170,19 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     }
 
     renderMessage() {
-      let { height } = this.props;
       const message = this.checkMessage;
       let _msg = `${_viewer}-msg`;
 
-      if (!message) {
-        return null;
-      }
-
-      return (
-        <div style={{ height }} className={classNames(_msg, `${_msg}_${message.type}`)}>
-          {message.msg}
-        </div>
-      );
-    }
-
-    renderLoader() {
-      let { isLoading } = this.props;
-
-      if (!isLoading) {
-        return null;
-      }
-
-      return (
-        <div className={`${_viewer}-loader-wrapper`}>
-          <Loader />
-        </div>
-      );
+      return !message ? null : <div className={classNames(_msg, `${_msg}_${message.type}`)}>{message.msg}</div>;
     }
 
     render() {
+      const hasMsg = !!this.checkMessage;
+
       return (
-        <div className={_viewer} ref={this.refViewer}>
+        <div className={classNames(_viewer, { 'no-data': hasMsg })} ref={this.refViewer}>
           {this.renderDocument()}
           {this.renderMessage()}
-          {this.renderLoader()}
         </div>
       );
     }
