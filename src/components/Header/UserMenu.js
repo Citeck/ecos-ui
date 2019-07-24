@@ -53,7 +53,7 @@ class UserMenu extends React.Component {
       <Dropdown className={`${this.className} ecos-header-dropdown`} isOpen={dropdownOpen} toggle={this.toggle}>
         <DropdownToggle tag="div">
           <IcoBtn
-            invert={'true'}
+            invert
             icon={dropdownOpen ? 'icon-up' : 'icon-down'}
             className={classNameIcoBtn}
             title={t('create_case.label')}

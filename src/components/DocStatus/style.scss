@@ -39,6 +39,8 @@
   }
 
   &-dashlet {
+    overflow: unset;
+
     &__body {
       padding: 16px 0;
     }

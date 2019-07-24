@@ -62,16 +62,14 @@ class DocStatus extends React.Component {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    const { stateId, record, getDocStatus, status } = this.props;
+    const { stateId, record, getDocStatus, isLoading } = this.props;
 
-    if (nextProps.isUpdating && nextProps.countAttempt < MAX_ATTEMPT) {
-      this.checkDocStatusPing();
-    } else if (
-      (!nextProps.isUpdating || nextProps.countAttempt >= MAX_ATTEMPT) &&
-      isEmpty(nextProps.status) &&
-      JSON.stringify(status) !== JSON.stringify(nextProps.status)
-    ) {
-      getDocStatus({ stateId, record });
+    if (!isLoading) {
+      if (nextProps.isUpdating && nextProps.countAttempt < MAX_ATTEMPT) {
+        this.checkDocStatusPing();
+      } else if ((!nextProps.isUpdating || nextProps.countAttempt === MAX_ATTEMPT) && isEmpty(nextProps.status)) {
+        getDocStatus({ stateId, record });
+      }
     }
   }
 
@@ -88,9 +86,9 @@ class DocStatus extends React.Component {
   }
 
   get isShowLoader() {
-    const { isLoading, isUpdating, countAttempt } = this.props;
+    const { isLoading, isUpdating, countAttempt, status } = this.props;
 
-    return isLoading || (isUpdating && countAttempt < MAX_ATTEMPT);
+    return isLoading || (isUpdating && countAttempt < MAX_ATTEMPT) || isEmpty(status);
   }
 
   onChangeStatus = () => {

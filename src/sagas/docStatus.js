@@ -1,4 +1,4 @@
-import { isEmpty } from 'lodash';
+import { head, isEmpty } from 'lodash';
 import { call, put, takeEvery } from 'redux-saga/effects';
 import {
   changeDocStatus,
@@ -34,16 +34,14 @@ function* sagaGetDocStatus({ api, logger }, { payload }) {
 
   try {
     const res = yield call(api.docStatus.getDocStatus, { record });
-    const status = DocStatusService.processStatusFromServer(res);
+    const status = DocStatusConverter.getStatusForWeb(head(res.records));
 
-    if (!isEmpty(res)) {
-      yield put(
-        setDocStatus({
-          stateId,
-          status: DocStatusConverter.getStatusForWeb(status)
-        })
-      );
-    }
+    yield put(
+      setDocStatus({
+        stateId,
+        status: DocStatusService.processStatusFromServer(status)
+      })
+    );
   } catch (e) {
     yield put(setNotificationMessage(err));
     logger.error('[docStatus/sagaGetDocStatus saga] error', e.message);

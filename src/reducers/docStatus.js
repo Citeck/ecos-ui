@@ -12,7 +12,7 @@ import { getCurrentStateById } from '../helpers/redux';
 
 const initialState = {
   isLoading: false,
-  isUpdating: false,
+  isUpdating: true,
   countAttempt: 0,
   status: {},
   availableStatuses: []
