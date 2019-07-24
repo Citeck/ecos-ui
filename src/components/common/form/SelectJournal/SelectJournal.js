@@ -97,11 +97,78 @@ export default class SelectJournal extends Component {
       let state = { customPredicate };
       if (this.state.wasChangedFromPopup) {
         state.isGridDataReady = false;
-        this.setValue(null);
       }
-      this.setState(state);
+      this.setState(state, () => {
+        // this.setValue(null);
+        this.shouldResetValue();
+      });
     }
   }
+
+  shouldResetValue = () => {
+    console.log('this.state.selectedRows', this.state.selectedRows);
+    console.log('this.state.customPredicate', this.state.customPredicate);
+    console.log('this.state.requestParams', this.state.requestParams);
+
+    return new Promise(resolve => {
+      const selectedRows = this.state.selectedRows;
+      if (selectedRows.length < 1) {
+        resolve(false);
+      }
+
+      let requestParams = this.state.requestParams;
+      let customPredicate = this.state.customPredicate;
+      if (customPredicate) {
+        let selectedPredicate = selectedRows.map(item => {
+          const recordId = item.id.replace('workspace://SpacesStore/', '');
+          return { t: 'eq', att: 'sys:node-uuid', val: recordId };
+        });
+
+        selectedPredicate = {
+          t: 'or',
+          val: [...selectedPredicate]
+        };
+
+        if (requestParams.journalPredicate) {
+          requestParams = {
+            ...requestParams,
+            journalPredicate: {
+              t: 'and',
+              val: [requestParams.journalPredicate, customPredicate, selectedPredicate]
+            }
+          };
+        } else {
+          requestParams = {
+            ...requestParams,
+            journalPredicate: [customPredicate, selectedPredicate]
+          };
+        }
+      }
+
+      let sourceId = lodashGet(this.state, 'journalConfig.sourceId', '');
+      if (sourceId) {
+        requestParams['sourceId'] = sourceId;
+      }
+
+      return this.api.getGridDataUsePredicates(requestParams).then(gridData2 => {
+        console.log('gridData2', gridData2);
+
+        // // setTimeout(() => {
+        // this.setState(prevState => {
+        //   return {
+        //     gridData: {
+        //       ...prevState.gridData,
+        //       ...gridData
+        //     },
+        //     isGridDataReady: true
+        //   };
+        // });
+        // // }, 3000);
+
+        resolve(gridData2);
+      });
+    });
+  };
 
   getJournalConfig = () => {
     const { journalId, displayColumns } = this.props;
