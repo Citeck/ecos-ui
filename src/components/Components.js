@@ -98,10 +98,6 @@ export default class Components {
             defWidget.props.config.scale = config.scale || 1;
             break;
           }
-          case ComponentKeys.BARCODE: {
-            defWidget.props.config.height = '235px';
-            break;
-          }
           default:
             break;
         }
