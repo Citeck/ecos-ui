@@ -104,11 +104,9 @@ export default class SearchSelect extends React.Component {
     this.resetSearch();
   };
 
-  resetSearch = data => {
+  resetSearch = () => {
     this.setState({ searchText: '' });
-    if (this.props.collapsible) {
-      this.setState({ collapsed: true });
-    }
+
     this.props.onSearch('');
   };
 
@@ -121,6 +119,14 @@ export default class SearchSelect extends React.Component {
 
       this.setFocus();
     }
+  };
+
+  onClickOutside = () => {
+    if (this.props.collapsible) {
+      this.setState({ collapsed: true });
+    }
+
+    this.resetSearch();
   };
 
   hidePlaceholder = flag => {
@@ -168,11 +174,11 @@ export default class SearchSelect extends React.Component {
     const stateSearch = isSearchCollapsed ? 'close' : 'open';
     const classNameContainer = classNames(className, this.className, `${this.className}_${theme}`, `${this.className}_${stateSearch}`);
     const commonIcon = `${this.className}__icon`;
-    const isOpen = (!isEmpty(formattedSearchResult) || noResults || isLoading) && autocomplete;
+    const isOpen = (!isEmpty(formattedSearchResult) || noResults || isLoading) && autocomplete && searchText;
 
     return (
       <div className={classNameContainer}>
-        <ClickOutside handleClickOutside={this.resetSearch} className={`${this.className}__click_outside`}>
+        <ClickOutside handleClickOutside={this.onClickOutside} className={`${this.className}__click_outside`}>
           <Dropdown isOpen={isOpen} toggle={() => null}>
             <DropdownToggle tag="div">
               <Icon
