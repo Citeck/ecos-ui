@@ -132,6 +132,8 @@ export default class SearchSelect extends React.Component {
     if (this.props.collapsible) {
       this.setState({ collapsed: true });
     }
+
+    this.setFocused(false);
   };
 
   hidePlaceholder = flag => {
@@ -179,7 +181,6 @@ export default class SearchSelect extends React.Component {
 
   onBlur = () => {
     this.hidePlaceholder(false);
-    this.setFocused(false);
   };
 
   render() {
