@@ -174,6 +174,34 @@
       @extend %ellipsis;
     }
   }
+
+  &-dropdown__toggle {
+    display: flex;
+
+    .ecos-avatar {
+      margin-right: 10px;
+    }
+  }
+
+  &-hamburger {
+    &__btn {
+      position: relative;
+
+      .ecos-btn__i {
+        margin-right: 0;
+        font-size: 18px;
+      }
+    }
+
+    &__label {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      margin: 0;
+    }
+  }
 }
 
 @media all and (max-width: 600px) {
@@ -198,15 +226,21 @@
         $size: 100%;
 
         max-width: $size !important;
-        width: $size;
+        width: $size !important;
         z-index: 1;
 
         & ~ .ecos-avatar,
         & ~ .ecos-header-user {
           opacity: 0;
-          transition: opacity 0.5s ease-out 0s;
+          transition: opacity 0.15s ease-out;
         }
       }
     }
+  }
+}
+
+@media screen and (min-width: 551px) {
+  .ecos-header .ecos-header-hamburger__btn {
+    display: none !important;
   }
 }
