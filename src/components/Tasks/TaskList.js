@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
 import { isLastItem, t } from '../../helpers/util';
-import Loader from '../common/Loader/Loader';
-import Separator from '../common/Separator/Separator';
+import { Loader, Separator } from '../common';
 import TaskDetails from './TaskDetails';
 import { TaskPropTypes } from './utils';
 
@@ -12,13 +11,21 @@ class TaskList extends React.Component {
   static propTypes = {
     tasks: PropTypes.arrayOf(TaskPropTypes).isRequired,
     className: PropTypes.string,
-    height: PropTypes.string
+    height: PropTypes.string,
+    isLoading: PropTypes.bool,
+    isSmallMode: PropTypes.bool,
+    onAssignClick: PropTypes.func,
+    onSubmitForm: PropTypes.func
   };
 
   static defaultProps = {
     tasks: [],
     className: '',
-    height: '100%'
+    height: '100%',
+    isLoading: false,
+    isSmallMode: false,
+    onAssignClick: () => {},
+    onSubmitForm: () => {}
   };
 
   className = 'ecos-task-list';

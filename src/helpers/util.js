@@ -453,3 +453,14 @@ export function getOutputFormat(format, value) {
 export const hasInString = (originalString = '', searchedString = '') => {
   return originalString.includes(searchedString);
 };
+
+export function getIconFileByMimetype(mimetype) {
+  switch (mimetype) {
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+    case 'application/msword':
+      return 'icon-filetype-doc';
+    case 'application/pdf':
+    default:
+      return 'icon-filetype-none';
+  }
+}
