@@ -1,0 +1,92 @@
+@import '../../constants';
+
+.ecos-timesheet {
+  padding: 0 26px;
+
+  &__title {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 24px;
+    line-height: 33px;
+    color: $text-color-dark;
+    margin-bottom: 34px;
+  }
+
+  &__type {
+    margin-bottom: 24px;
+    display: flex;
+  }
+
+  &__header {
+    margin-bottom: 15px;
+    display: flex;
+    padding: 17px 21px;
+    background: $color-white;
+    border-radius: 12px;
+  }
+
+  &__date-settings {
+    display: flex;
+
+    &-tabs {
+      &-item {
+        width: 106px;
+      }
+    }
+  }
+}
+
+.ecos-tabs-v2 {
+  $root: &;
+
+  display: flex;
+
+  &__item {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 20px;
+    color: $text-color-gray;
+    background: $color-white;
+    cursor: pointer;
+    padding: 10px 27px;
+
+    &:not(&_active):not(&_not-available):hover {
+      color: $color-blue-dark;
+    }
+
+    &:first-child {
+      border-top-left-radius: 12px;
+      border-bottom-left-radius: 12px;
+    }
+
+    &:last-child {
+      border-top-right-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+
+    &:not(:last-child) {
+      margin-right: 2px;
+    }
+
+    &_active {
+      background: $color-blue-dark;
+      color: $color-white;
+      cursor: default;
+    }
+
+    &_not-available {
+      background: $color-gray-1;
+      color: $color-gray-5;
+      cursor: not-allowed;
+    }
+  }
+
+  &_small {
+    #{$root} {
+      &__item {
+        padding: 3px 30px;
+      }
+    }
+  }
+}
