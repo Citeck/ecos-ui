@@ -43,8 +43,9 @@ export const QueryKeys = {
 export const MIN_WIDTH_DASHLET_SMALL = 290;
 export const MIN_WIDTH_DASHLET_LARGE = 593;
 
-export const MAX_DEFAULT_HEIGHT_DASHLET = 410;
-export const MIN_DEFAULT_HEIGHT_DASHLET = 80;
+export const MAX_DEFAULT_HEIGHT_DASHLET_CONTENT = 413;
+export const MIN_DEFAULT_HEIGHT_DASHLET_CONTENT = 68;
+export const HEIGHT_RESIZER = 20;
 
 export const DataFormatTypes = {
   DATE: 'date',

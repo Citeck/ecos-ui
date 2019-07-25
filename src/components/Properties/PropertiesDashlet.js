@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
 import { isSmallMode, t } from '../../helpers/util';
-import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../constants';
+import { MAX_DEFAULT_HEIGHT_DASHLET_CONTENT } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import Properties from './Properties';
@@ -39,7 +39,7 @@ class PropertiesDashlet extends React.Component {
       isSmallMode: false,
       isReady: true,
       isEditProps: false,
-      height: UserLocalSettingsService.getDashletHeight(props.id) || MAX_DEFAULT_HEIGHT_DASHLET
+      height: UserLocalSettingsService.getDashletHeight(props.id) || MAX_DEFAULT_HEIGHT_DASHLET_CONTENT
     };
   }
 

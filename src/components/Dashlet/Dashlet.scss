@@ -61,6 +61,8 @@
   }
 
   &__body {
+    min-height: 27px;
+
     &_relative {
       position: relative;
     }
@@ -98,7 +100,10 @@
   }
 
   &__resizer {
-    text-align: center;
+    height: 20px;
+    align-items: flex-end;
+    display: flex;
+    justify-content: center;
     color: $color-gray-6;
     font-size: $font-size-extra-small;
 

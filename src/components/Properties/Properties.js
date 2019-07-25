@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import EcosForm from '../EcosForm';
 import './style.scss';
+import { MIN_DEFAULT_HEIGHT_DASHLET_CONTENT } from '../../constants';
 
 class Properties extends React.Component {
   static propTypes = {
@@ -24,12 +25,17 @@ class Properties extends React.Component {
   className = 'ecos-properties';
 
   state = {
+    loaded: false,
     isReadySubmit: true,
     hideForm: false
   };
 
   onSubmitForm = () => {
     this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
+  };
+
+  onReady = () => {
+    this.setState({ loaded: true });
   };
 
   // hack for EcosForm force update on isSmallMode changing
@@ -56,21 +62,26 @@ class Properties extends React.Component {
           }
         }}
         onSubmit={this.onSubmitForm}
+        onReady={this.onReady}
       />
     ) : null;
   }
 
   render() {
-    const { height } = this.props;
+    const { loaded } = this.state;
+    let { height } = this.props;
+
+    height = loaded ? height : MIN_DEFAULT_HEIGHT_DASHLET_CONTENT;
 
     return (
-      <Scrollbars
-        style={{ height }}
-        className={`${this.className}__scroll`}
-        renderTrackVertical={props => <div {...props} className={`${this.className}__scroll_v`} />}
-      >
-        <div className={`${this.className}__container`}>{this.renderForm()}</div>
-      </Scrollbars>
+      <div style={{ height }}>
+        <Scrollbars
+          className={`${this.className}__scroll`}
+          renderTrackVertical={props => <div {...props} className={`${this.className}__scroll_v`} />}
+        >
+          <div className={`${this.className}__container`}>{this.renderForm()}</div>
+        </Scrollbars>
+      </div>
     );
   }
 }
