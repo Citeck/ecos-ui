@@ -18,12 +18,21 @@ $border-base: #c1c1c1;
 .ecos-dp {
   $root: &;
 
-  margin: 14px 17px 8px;
-  border: 1px solid $border-base;
-  height: 100%;
+  padding-top: 14px;
+  padding-right: 17px;
+  padding-left: 17px;
 
   &.no-data {
     border: unset;
+  }
+
+  &__container {
+    border: 1px solid $border-base;
+    height: 100%;
+
+    &.has-msg {
+      border: none;
+    }
   }
 
   &__loader {
@@ -32,8 +41,6 @@ $border-base: #c1c1c1;
   }
 
   &-dashlet {
-    padding-bottom: 1px;
-
     &_small {
       #{$root} {
         &__toolbar {
@@ -122,10 +129,6 @@ $border-base: #c1c1c1;
     position: relative;
     height: calc(100% - 45px);
 
-    &.no-data {
-      background-color: unset;
-    }
-
     &_fullscreen {
       height: 100vh;
       width: 100vw;
@@ -179,24 +182,26 @@ $border-base: #c1c1c1;
         }
       }
     }
+  }
 
-    &-msg {
-      font-weight: $font-weight-semi-bold;
-      font-size: $font-size-standard;
-      line-height: 21px;
-      padding: 14px;
+  &__msg {
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-standard;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
 
-      &_error {
-        color: $color-red-2;
-      }
+    &_error {
+      color: $color-red-2;
+    }
 
-      &_info {
-        color: $color-gray-5;
-      }
+    &_info {
+      color: $color-gray-5;
+    }
 
-      &_warn {
-        color: $color-orange;
-      }
+    &_warn {
+      color: $color-orange;
     }
   }
 }

@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import Dashlet from '../Dashlet/Dashlet';
 import DocPreview from './DocPreview';
 import { t } from '../../helpers/util';
-import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import { MAX_DEFAULT_HEIGHT_DASHLET_CONTENT, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 
 import './style.scss';
@@ -36,7 +36,7 @@ class DocPreviewDashlet extends Component {
 
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
-      height: UserLocalSettingsService.getDashletHeight(props.id) || MAX_DEFAULT_HEIGHT_DASHLET
+      height: UserLocalSettingsService.getDashletHeight(props.id) || MAX_DEFAULT_HEIGHT_DASHLET_CONTENT
     };
   }
 
@@ -50,7 +50,7 @@ class DocPreviewDashlet extends Component {
   };
 
   render() {
-    const { id, title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging } = this.props;
+    const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging } = this.props;
     const { width, height } = this.state;
     const classesDashlet = classNames('ecos-dp-dashlet', classNameDashlet, {
       'ecos-dp-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE
@@ -71,7 +71,7 @@ class DocPreviewDashlet extends Component {
         dragHandleProps={dragHandleProps}
         resizable
       >
-        <DocPreview link={config.link} height={height} maxDefaultHeight={MAX_DEFAULT_HEIGHT_DASHLET} className={classNamePreview} />
+        <DocPreview link={config.link} height={height} className={classNamePreview} />
       </Dashlet>
     );
   }

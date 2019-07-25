@@ -3,15 +3,15 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import pdfjs from 'pdfjs-dist';
 import * as queryString from 'query-string';
-import { get } from 'lodash';
-
-import Loader from '../common/Loader/Loader';
+import { get, isEmpty } from 'lodash';
+import { fileDownload, isPDFbyStr, t } from '../../helpers/util';
+import { MIN_DEFAULT_HEIGHT_DASHLET_CONTENT } from '../../constants';
+import { DocPreviewApi } from '../../api';
+import { Loader } from '../common';
 import Toolbar from './Toolbar';
 import PdfViewer from './PdfViewer';
 import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
-import { fileDownload, isPDFbyStr } from '../../helpers/util';
-import { DocPreviewApi } from '../../api';
 
 // 2.1.266 version of worker for 2.1.266 version of pdfjs-dist:
 // pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.worker.min.js';
@@ -22,7 +22,6 @@ class DocPreview extends Component {
     link: PropTypes.string,
     className: PropTypes.string,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    maxDefaultHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     isLoading: PropTypes.bool,
     errMsg: PropTypes.string,
@@ -35,7 +34,6 @@ class DocPreview extends Component {
     link: null,
     className: '',
     height: 'inherit',
-    maxDefaultHeight: 'inherit',
     scale: 0.5,
     isLoading: false,
     errMsg: '',
@@ -107,12 +105,11 @@ class DocPreview extends Component {
   }
 
   get commonProps() {
-    const { errMsg, height, maxDefaultHeight } = this.props;
+    const { errMsg } = this.props;
     const { settings, isLoading } = this.state;
 
     return {
       settings,
-      height: height || maxDefaultHeight,
       isLoading,
       errMsg,
       calcScale: this.setCalcScale,
@@ -121,9 +118,30 @@ class DocPreview extends Component {
   }
 
   get loaded() {
-    const { isLoading, link } = this.state;
+    const { link, isLoading } = this.state;
 
-    return !isLoading && !!link;
+    return !isLoading && !!link && !this.message;
+  }
+
+  get message() {
+    const { pdf, link } = this.state;
+    const { isLoading, errMsg } = this.props;
+
+    let message = null;
+
+    if (isLoading) {
+      return null;
+    }
+
+    if (pdf === undefined && !link) {
+      message = { type: 'info', msg: t(errMsg || 'doc-preview.error.not-specified') };
+    }
+
+    if (!isEmpty(pdf) && !pdf._pdfInfo) {
+      message = { type: 'info', msg: t('doc-preview.error.loading-failure') };
+    }
+
+    return message;
   }
 
   getRecordId(props = this.props) {
@@ -242,13 +260,26 @@ class DocPreview extends Component {
     return !isLoading ? null : <Loader className={`${DocPreview.className}__loader`} />;
   }
 
+  renderMessage() {
+    const message = this.message;
+    const _msg = `${DocPreview.className}__msg`;
+
+    return !message ? null : <div className={classNames(_msg, `${_msg}_${message.type}`)}>{message.msg}</div>;
+  }
+
   render() {
-    const { className } = this.props;
+    const { className, height } = this.props;
 
     return (
-      <div className={classNames(DocPreview.className, className, { 'no-data': !this.loaded })}>
-        {this.renderToolbar()}
-        {this.renderViewer()}
+      <div
+        className={classNames(DocPreview.className, className)}
+        style={{ height: this.loaded ? height : MIN_DEFAULT_HEIGHT_DASHLET_CONTENT }}
+      >
+        <div className={classNames(`${DocPreview.className}__container`, { 'has-msg': !!this.message })}>
+          {this.renderToolbar()}
+          {this.renderViewer()}
+          {this.renderMessage()}
+        </div>
         {this.renderLoader()}
       </div>
     );

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import fscreen from 'fscreen';
 import { get } from 'lodash';
-import { t } from '../../helpers/util';
 import { Scrollbars } from 'react-custom-scrollbars';
 import PropTypes from 'prop-types';
 
@@ -14,7 +13,6 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
       pdf: PropTypes.object,
       urlImg: PropTypes.string,
       isLoading: PropTypes.bool,
-      height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       scrollPage: PropTypes.func,
       settings: PropTypes.shape({
         scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -95,22 +93,22 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
       return [];
     }
 
-    get checkMessage() {
-      let { pdf, urlImg, isLoading, errMsg } = this.props;
+    get failed() {
+      const { pdf, urlImg, isLoading, errMsg } = this.props;
 
       if (isLoading) {
-        return null;
+        return true;
       }
 
       if (pdf === undefined && !urlImg) {
-        return { type: 'info', msg: t(errMsg || 'doc-preview.error.not-specified') };
+        return true;
       }
 
       if (pdf && Object.keys(pdf).length && !pdf._pdfInfo) {
-        return { type: 'info', msg: t('doc-preview.error.loading-failure') };
+        return true;
       }
 
-      return null;
+      return false;
     }
 
     onScrollFrame = e => {
@@ -136,28 +134,22 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
 
     renderDocument() {
       let {
-        height,
         settings: { isFullscreen }
       } = this.props;
       let _doc = `${_viewer}-doc`;
       let _fullscreen = `${_viewer}_fullscreen`;
       let _scroll_area = `${_doc}-scroll-area`;
-      let style = {};
       let newProps = { ...this.props, ctrClass: _doc, refViewer: this.refViewer };
+
       const renderView = props => <div {...props} className={classNames(_scroll_area)} />;
 
-      if (this.checkMessage) {
+      if (this.failed) {
         return null;
-      }
-
-      if (!isFullscreen && height) {
-        style = { ...style, height };
       }
 
       return (
         <Scrollbars
           className={classNames({ [_fullscreen]: isFullscreen && isPdf })}
-          style={style}
           renderView={renderView}
           ref="refScrollbar"
           onScroll={this.onScroll}
@@ -169,20 +161,10 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
       );
     }
 
-    renderMessage() {
-      const message = this.checkMessage;
-      let _msg = `${_viewer}-msg`;
-
-      return !message ? null : <div className={classNames(_msg, `${_msg}_${message.type}`)}>{message.msg}</div>;
-    }
-
     render() {
-      const hasMsg = !!this.checkMessage;
-
-      return (
-        <div className={classNames(_viewer, { 'no-data': hasMsg })} ref={this.refViewer}>
+      return this.failed ? null : (
+        <div className={classNames(_viewer)} ref={this.refViewer}>
           {this.renderDocument()}
-          {this.renderMessage()}
         </div>
       );
     }
