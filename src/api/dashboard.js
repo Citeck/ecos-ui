@@ -6,6 +6,7 @@ import Components from '../components/Components';
 import Records from '../components/Records';
 import { TITLE } from '../constants/pageTabs';
 import { DASHBOARD_TYPE } from '../constants/dashboard';
+import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
   key: QueryKeys.KEY,
@@ -47,7 +48,9 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardById = dashboardId => {
-    return Records.get(`${SourcesId.DASHBOARD}@${dashboardId}`)
+    const id = DashboardService.parseDashboardId(dashboardId);
+
+    return Records.get(`${SourcesId.DASHBOARD}@${id}`)
       .load({ ...defaultAttr })
       .then(response => ({ ...response, id: dashboardId }));
   };
