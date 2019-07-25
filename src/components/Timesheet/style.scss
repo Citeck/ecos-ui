@@ -1,7 +1,19 @@
 @import '../../constants';
 
 .ecos-timesheet {
+  $root: &;
+
   padding: 0 26px;
+
+  &__white-block {
+    display: flex;
+    justify-content: space-between;
+    background: $color-white;
+    align-items: center;
+    border-radius: 12px;
+    padding: 17px 21px;
+    max-height: 60px;
+  }
 
   &__title {
     font-style: normal;
@@ -20,19 +32,24 @@
   &__header {
     margin-bottom: 15px;
     display: flex;
-    padding: 17px 21px;
-    background: $color-white;
-    border-radius: 12px;
+    justify-content: space-between;
   }
 
   &__date-settings {
-    display: flex;
+    @extend #{$root}__white-block;
+    width: 65%;
+    margin-right: 13px;
 
     &-tabs {
       &-item {
         width: 106px;
       }
     }
+  }
+
+  &__status {
+    @extend #{$root}__white-block;
+    width: 35%;
   }
 }
 
@@ -50,9 +67,11 @@
     background: $color-white;
     cursor: pointer;
     padding: 10px 27px;
+    max-height: 40px;
 
-    &:not(&_active):not(&_not-available):hover {
-      color: $color-blue-dark;
+    &:not(&_active):not(&_disabled):hover {
+      color: $color-white;
+      background: $color-blue-light;
     }
 
     &:first-child {
@@ -75,7 +94,7 @@
       cursor: default;
     }
 
-    &_not-available {
+    &_disabled {
       background: $color-gray-1;
       color: $color-gray-5;
       cursor: not-allowed;
@@ -86,7 +105,65 @@
     #{$root} {
       &__item {
         padding: 3px 30px;
+        max-height: 26px;
       }
+    }
+  }
+}
+
+.ecos-date-slider {
+  display: flex;
+  align-items: center;
+
+  &__label {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 24px;
+    line-height: 33px;
+    color: $text-color-dark;
+    margin: 0 10px;
+    text-transform: capitalize;
+  }
+
+  &__btn {
+    position: relative;
+    color: $color-gray-dark;
+    background: $color-gray-4;
+    width: 26px;
+    height: 26px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 6px;
+
+    &:before {
+      font-family: citeck;
+      position: absolute;
+      left: calc(50% - 1em / 2);
+      top: calc(50% - 1em / 2);
+      line-height: 1em;
+    }
+
+    &:not(&_disabled):hover {
+      background: $color-blue-light;
+      color: $color-white;
+    }
+
+    &-prev {
+      &:before {
+        content: '\0051';
+      }
+    }
+
+    &-next {
+      &:before {
+        content: '\0052';
+      }
+    }
+
+    &_disabled {
+      background: $color-gray-4;
+      color: $color-gray-6;
+      cursor: not-allowed;
     }
   }
 }

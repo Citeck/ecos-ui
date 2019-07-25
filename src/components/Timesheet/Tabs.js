@@ -39,7 +39,7 @@ class Tabs extends Component {
         key={index}
         className={classNames('ecos-tabs-v2__item', classNameItem, {
           'ecos-tabs-v2__item_active': tab.isActive,
-          'ecos-tabs-v2__item_not-available': !tab.isAvailable
+          'ecos-tabs-v2__item_disabled': !tab.isAvailable
         })}
         onClick={this.handleClickTabItem.bind(null, tab, index)}
       >

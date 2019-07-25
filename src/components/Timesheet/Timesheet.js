@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import Tabs from './Tabs';
+import DateSlider from './DateSlider';
 import { t, deepClone } from '../../helpers/util';
 import './style.scss';
 
@@ -10,6 +11,11 @@ class Timesheet extends Component {
       {
         name: 'Мой табель',
         isActive: true,
+        isAvailable: true
+      },
+      {
+        name: 'Табели подчиненных',
+        isActive: false,
         isAvailable: true
       },
       {
@@ -29,7 +35,8 @@ class Timesheet extends Component {
         isActive: false,
         isAvailable: false
       }
-    ]
+    ],
+    currentDate: new Date()
   };
 
   handleChangeActiveSheetTab = tabIndex => {
@@ -52,8 +59,12 @@ class Timesheet extends Component {
     this.setState({ dateTabs });
   };
 
+  handleChangeCurrentDate = currentDate => {
+    this.setState({ currentDate });
+  };
+
   render() {
-    const { sheetTabs, dateTabs } = this.state;
+    const { sheetTabs, dateTabs, currentDate } = this.state;
 
     return (
       <div className="ecos-timesheet">
@@ -71,7 +82,10 @@ class Timesheet extends Component {
               onClick={this.handleChangeActiveDateTab}
               classNameItem="ecos-timesheet__date-settings-tabs-item"
             />
+            <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
           </div>
+
+          <div className="ecos-timesheet__status">Статус</div>
         </div>
       </div>
     );

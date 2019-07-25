@@ -21,7 +21,8 @@ export const TITLE = {
   [URL.WIDGET_PROPERTIES]: 'Свойства [temp]',
   [URL.WIDGET_DOC_PREVIEW]: 'Предпросмотр [temp]',
   [URL.CURRENT_TASKS]: 'Текущие задачи [temp]',
-  NONAME: 'Без имени'
+  NONAME: 'Без имени',
+  [URL.TIMESHEET]: 'Табель'
 };
 
 export const URL_MASK = {
