@@ -2,10 +2,9 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { getScrollbarWidth, deepClone } from '../../helpers/util';
+import { deepClone, getScrollbarWidth, t } from '../../helpers/util';
 import { SortableContainer, SortableElement } from './sortable';
-import { SCROLL_STEP, TITLE, LINK_TAG, IGNORE_TABS_HANDLER_ATTR_NAME, getTitleByUrl } from '../../constants/pageTabs';
-import { t } from '../../helpers/util';
+import { getTitleByUrl, IGNORE_TABS_HANDLER_ATTR_NAME, LINK_TAG, SCROLL_STEP, TITLE } from '../../constants/pageTabs';
 import './style.scss';
 
 const CHANGE_URL_LINK_EVENT = 'CHANGE_URL_LINK_EVENT';
@@ -201,10 +200,11 @@ class PageTabs extends React.Component {
      *    link - string,
      *    checkUrl - bool,
      *    openNewTab - bool,
-     *    openNewBrowserTab - bool
+     *    openNewBrowserTab - bool,
+     *    reopenBrowserTab - bool
      */
     const {
-      params: { link = '', checkUrl = false, openNewTab = false, openNewBrowserTab = false }
+      params: { link = '', checkUrl = false, openNewTab = false, openNewBrowserTab = false, reopenBrowserTab = false }
     } = event;
 
     if (checkUrl) {
@@ -217,6 +217,22 @@ class PageTabs extends React.Component {
     const tabs = deepClone(this.state.tabs);
 
     event.preventDefault();
+
+    if (openNewBrowserTab) {
+      const tab = window.open(link, '_blank');
+
+      tab.focus();
+
+      return;
+    }
+
+    if (reopenBrowserTab) {
+      const tab = window.open(link, '_self');
+
+      tab.focus();
+
+      return;
+    }
 
     if (openNewTab) {
       const newActiveTab = tabs.find(tab => tab.link === link);
@@ -237,14 +253,6 @@ class PageTabs extends React.Component {
           }
         });
       }
-
-      return;
-    }
-
-    if (openNewBrowserTab) {
-      const tab = window.open(link, '_blank');
-
-      tab.focus();
 
       return;
     }

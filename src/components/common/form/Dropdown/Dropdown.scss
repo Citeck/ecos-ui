@@ -1,42 +1,79 @@
 @import '../../../../constants';
 
 .ecos-dropdown {
-  display: inline-block !important;
-}
+  display: inline-block;
 
-.ecos-dropdown__menu {
-  border-radius: $border-radius-standard !important;
-  box-shadow: $box-shadow-default;
-  border: none !important;
-  padding: 0 !important;
-  overflow: hidden;
-  margin-top: 5px !important;
-  margin-bottom: 5px !important;
-  transform: none !important;
-  top: 100% !important;
-  width: auto;
+  &__menu {
+    &:not(.ecos-dropdown__menu_cascade) {
+      transform: none !important;
+      top: 100% !important;
+    }
 
-  ul {
-    padding: 0;
-    list-style: none;
-    margin-bottom: 0;
-  }
+    &.dropdown-menu {
+      border-radius: $border-radius-standard;
+      box-shadow: $box-shadow-default;
+      border: none;
+      padding: 0;
+      //overflow: hidden;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      width: auto;
+    }
 
-  li {
-    padding: 10px 15px;
-    cursor: pointer;
-    font-size: $font-size-standard;
-    font-weight: $font-weight-semi-bold;
-    color: $text-color-dark;
-    white-space: nowrap;
+    ul {
+      padding: 0;
+      list-style: none;
+      margin-bottom: 0;
+    }
 
-    &:hover {
-      background-color: $color-gray-4;
+    li {
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: $font-size-standard;
+      font-weight: $font-weight-semi-bold;
+      color: $text-color-dark;
+      white-space: nowrap;
+
+      &:hover {
+        background-color: $color-gray-4;
+
+        &:first-child {
+          border-top-left-radius: 6px;
+          border-top-right-radius: 6px;
+        }
+
+        &:last-child {
+          border-bottom-left-radius: 6px;
+          border-bottom-right-radius: 6px;
+        }
+      }
+
+      a {
+        color: $text-color-dark;
+        display: block;
+        @extend %ellipsis;
+
+        &:hover,
+        &:visited,
+        &:active {
+          color: $text-color-dark;
+        }
+      }
+    }
+
+    &_right {
+      left: auto !important;
+      right: 0 !important;
+    }
+
+    &_links {
+      li {
+        padding: 0;
+
+        a {
+          padding: 10px 15px;
+        }
+      }
     }
   }
-}
-
-.ecos-dropdown__menu_right {
-  left: auto !important;
-  right: 0 !important;
 }

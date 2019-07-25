@@ -1,12 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import CreateCaseWidget from './CreateCaseWidget';
-import Search from './Search';
-import SiteMenu from './SiteMenu';
+import classNames from 'classnames';
+import ReactResizeDetector from 'react-resize-detector';
+import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
+import CreateMenu from './CreateMenu';
+import HamburgerIcon from './HamburgerIcon';
 import UserMenu from './UserMenu';
-import { fetchCreateCaseWidgetData, fetchUserMenuData, fetchSiteMenuData } from '../../actions/header';
+import SiteMenu from './SiteMenu';
+import Search from './Search';
+import { MENU_TYPE } from '../../constants';
 
-import './share-header.css';
+import './style.scss';
 
 const mapDispatchToProps = dispatch => ({
   fetchCreateCaseWidgetData: () => {
@@ -20,35 +24,64 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
+const mapStateToProps = state => ({
+  isMobile: state.view.isMobile,
+  menuType: state.menu.type
+});
+
 class Header extends React.Component {
+  className = 'ecos-header';
+
+  state = {
+    widthHeader: 0
+  };
+
   componentDidMount() {
     this.props.fetchCreateCaseWidgetData();
     this.props.fetchUserMenuData();
     this.props.fetchSiteMenuData();
   }
 
-  render() {
-    return (
-      <div id="SHARE_HEADER" className="alfresco-header-Header">
-        <div className="alfresco-layout-LeftAndRight__left">
-          {/* It is just a hack for the old slide menu hamburger rendering */}
-          <div id="HEADER_APP_MENU_BAR">
-            <label className="hamburger-icon" htmlFor="slide-menu-checkbox" />
-          </div>
+  get menuWidth() {
+    const { menuType } = this.props;
+    const menuSelector = document.querySelector('.slide-menu');
+    const width = (menuSelector && menuSelector.clientWidth) || 0;
 
-          <CreateCaseWidget />
+    return menuType === MENU_TYPE.LEFT ? width : 0;
+  }
+
+  onResize = width => {
+    const widthHeader = width >= 550 ? width + this.menuWidth : width;
+
+    this.setState({ widthHeader });
+  };
+
+  render() {
+    const { widthHeader } = this.state;
+    const { isMobile } = this.props;
+    const classNameContainer = classNames(this.className, { [`${this.className}_small`]: isMobile });
+    const classNameSide = `${this.className}__side`;
+
+    return (
+      <React.Fragment>
+        <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
+        <div className={classNameContainer}>
+          <div className={`${classNameSide} ${classNameSide}_left`}>
+            <HamburgerIcon />
+            <CreateMenu isMobile={widthHeader < 910} />
+          </div>
+          <div className={`${classNameSide} ${classNameSide}_right`}>
+            <Search isMobile={widthHeader <= 600} />
+            {isMobile || (widthHeader > 600 && <SiteMenu />)}
+            <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
+          </div>
         </div>
-        <div className="alfresco-layout-LeftAndRight__right">
-          <UserMenu />
-          <SiteMenu />
-          <Search />
-        </div>
-      </div>
+      </React.Fragment>
     );
   }
 }
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(Header);

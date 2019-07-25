@@ -228,6 +228,7 @@ class Dashboard extends Component {
                 <a
                   {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="ecos-dashboard__header-user"
                   href={modifierUrl}
                   title={t(`Открыть профиль ${modifierName}`)}

@@ -194,3 +194,30 @@
 .icon-usergroup {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83c;&nbsp;');
 }
+.icon-print {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe843;&nbsp;');
+}
+.icon-User_avatar_off {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe844;&nbsp;');
+}
+.icon-User_avatar_on {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe845;&nbsp;');
+}
+.icon-User_avatar {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe846;&nbsp;');
+}
+.icon-exit {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe847;&nbsp;');
+}
+.icon-notify-dialogue {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe849;&nbsp;');
+}
+.icon-filetype-doc {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe84a;&nbsp;');
+}
+.icon-filetype-none {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe84b;&nbsp;');
+}
+.icon-big_alert {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe84c;&nbsp;');
+}
