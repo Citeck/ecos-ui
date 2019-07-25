@@ -4,11 +4,13 @@
   .formio-component-file {
     .list-group {
       .list-group-item {
-        height: 42px;
         padding: 0 5px;
         border: 0;
         border-top: 2px solid $color-gray-4;
-        border-bottom: 2px solid $color-gray-4;
+
+        &:last-child {
+          border-bottom: 2px solid $color-gray-4;
+        }
 
         a {
           color: $color-blue-dark;
@@ -16,12 +18,13 @@
           padding: 3px 0;
         }
 
-        .row div {
+        .row > div {
           color: $text-color-dark;
           font-size: $font-size-small;
           font-weight: $font-weight-normal;
+          line-height: 38px;
 
-          padding: 11px 10px;
+          padding: 3px 10px;
 
           select {
             margin-top: -3px;
@@ -38,7 +41,6 @@
       }
 
       .list-group-item.list-group-header {
-        height: 52px;
         border: 0;
         border-top: 2px solid $color-gray-4;
         border-bottom: 2px solid $color-gray-4;
@@ -70,6 +72,60 @@
 
     .alert.alert-warning {
       margin-top: 5px;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .formio-form {
+    .formio-component-file {
+      .list-group {
+        .list-group-item {
+          .row {
+            padding: 10px 0;
+            width: calc(100% - 25px);
+
+            > div {
+              line-height: 12px;
+
+              &:first-child {
+                &.col-md-1 {
+                  position: absolute;
+                  z-index: 1;
+                  text-align: right;
+                  top: 5px;
+                  right: 0;
+                  width: auto;
+
+                  i {
+                    padding: 8px;
+                    margin: 0;
+                    font-size: 20px;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        .list-group-item.list-group-header {
+          display: none;
+
+          &:only-child {
+            height: 1px;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            border-bottom: 0;
+            display: block;
+          }
+
+          strong {
+            padding: 2px 10px;
+            border-left: none;
+          }
+        }
+      }
     }
   }
 }
