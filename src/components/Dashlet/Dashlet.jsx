@@ -104,6 +104,7 @@ export default class Dashlet extends Component {
     onGoTo: PropTypes.func,
     onReload: PropTypes.func,
     onResize: PropTypes.func,
+    onChangeHeight: PropTypes.func,
     dragButton: PropTypes.func
   };
 
@@ -119,6 +120,7 @@ export default class Dashlet extends Component {
     onGoTo: () => {},
     onReload: () => {},
     onResize: () => {},
+    onChangeHeight: () => {},
     dragButton: null,
     dragHandleProps: {}
   };
@@ -144,6 +146,15 @@ export default class Dashlet extends Component {
 
     if (typeof onReload === 'function') {
       onReload.call(this);
+    }
+  };
+
+  onChangeHeight = height => {
+    //todo connect when will realize dashlet__resizer
+    const { onChangeHeight } = this.props;
+
+    if (typeof onChangeHeight === 'function') {
+      onChangeHeight(height);
     }
   };
 
@@ -192,7 +203,7 @@ export default class Dashlet extends Component {
           {children}
 
           {resizable ? (
-            <div className={'dashlet__resizer'}>
+            <div className={'dashlet__resizer'} onChange={this.onChangeHeight}>
               <i className={'icon-resize ecos-btn__i'} title={t('dashlet.resize.title')} />
             </div>
           ) : null}

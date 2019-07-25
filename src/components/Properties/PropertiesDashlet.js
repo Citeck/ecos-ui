@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
 import { isSmallMode, t } from '../../helpers/util';
+import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../constants';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
@@ -36,7 +38,8 @@ class PropertiesDashlet extends React.Component {
     this.state = {
       isSmallMode: false,
       isReady: true,
-      isEditProps: false
+      isEditProps: false,
+      height: UserLocalSettingsService.getDashletHeight(props.id) || MAX_DEFAULT_HEIGHT_DASHLET
     };
   }
 
@@ -44,6 +47,11 @@ class PropertiesDashlet extends React.Component {
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
+  };
+
+  onChangeHeight = height => {
+    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    this.setState({ height });
   };
 
   openModal = e => {
@@ -59,8 +67,8 @@ class PropertiesDashlet extends React.Component {
   };
 
   render() {
-    const { id, title, config, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isReady, isEditProps } = this.state;
+    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
+    const { isSmallMode, isReady, isEditProps, height } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -75,9 +83,10 @@ class PropertiesDashlet extends React.Component {
         canDragging={canDragging}
         onEdit={this.openModal}
         dragHandleProps={dragHandleProps}
+        onChangeHeight={this.onChangeHeight}
       >
         <ReactResizeDetector handleWidth onResize={this.onResize} />
-        <Properties {...config} className={classNameProps} record={record} isSmallMode={isSmallMode} isReady={isReady} stateId={id} />
+        <Properties className={classNameProps} record={record} isSmallMode={isSmallMode} isReady={isReady} stateId={id} height={height} />
         <PropertiesEditModal record={record} isOpen={isEditProps} onFormCancel={this.closeModal} onFormSubmit={this.updateProps} />
       </Dashlet>
     );

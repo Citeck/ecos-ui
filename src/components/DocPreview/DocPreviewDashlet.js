@@ -31,21 +31,30 @@ class DocPreviewDashlet extends Component {
     canDragging: false
   };
 
-  state = {
-    width: MIN_WIDTH_DASHLET_SMALL
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      width: MIN_WIDTH_DASHLET_SMALL,
+      height: UserLocalSettingsService.getDashletHeight(props.id) || MAX_DEFAULT_HEIGHT_DASHLET
+    };
+  }
+
+  onResize = width => {
+    this.setState({ width });
   };
 
-  handleResize = width => {
-    this.setState({ width });
+  onChangeHeight = height => {
+    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    this.setState({ height });
   };
 
   render() {
     const { id, title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging } = this.props;
-    const { width } = this.state;
+    const { width, height } = this.state;
     const classesDashlet = classNames('ecos-dp-dashlet', classNameDashlet, {
       'ecos-dp-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE
     });
-    const height = UserLocalSettingsService.getDashletHeight(id) || MAX_DEFAULT_HEIGHT_DASHLET;
 
     return (
       <Dashlet
@@ -57,7 +66,8 @@ class DocPreviewDashlet extends Component {
         actionHelp={false}
         needGoTo={false}
         canDragging={canDragging}
-        onResize={this.handleResize}
+        onResize={this.onResize}
+        onChangeHeight={this.onChangeHeight}
         dragHandleProps={dragHandleProps}
         resizable
       >

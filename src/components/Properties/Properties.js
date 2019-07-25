@@ -10,7 +10,8 @@ class Properties extends React.Component {
     stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
-    isReady: PropTypes.bool
+    isReady: PropTypes.bool,
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
   };
 
   static defaultProps = {
