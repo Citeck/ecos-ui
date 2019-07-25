@@ -239,11 +239,7 @@ class DocPreview extends Component {
   renderLoader() {
     const { isLoading } = this.state;
 
-    return !isLoading ? null : (
-      <div className={`${DocPreview.className}-loader-wrapper`}>
-        <Loader />
-      </div>
-    );
+    return !isLoading ? null : <Loader className={`${DocPreview.className}__loader`} />;
   }
 
   render() {

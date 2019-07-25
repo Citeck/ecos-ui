@@ -26,8 +26,8 @@ $border-base: #c1c1c1;
     border: unset;
   }
 
-  &-loader-wrapper {
-    height: 100px;
+  &__loader {
+    height: 49px;
     position: relative;
   }
 
@@ -117,7 +117,6 @@ $border-base: #c1c1c1;
   &__viewer {
     display: flex;
     justify-content: center;
-    margin-right: 2px;
     box-sizing: border-box;
     background-color: $background-viewer;
     position: relative;
@@ -125,7 +124,6 @@ $border-base: #c1c1c1;
 
     &.no-data {
       background-color: unset;
-      margin-right: unset;
     }
 
     &_fullscreen {
@@ -185,8 +183,8 @@ $border-base: #c1c1c1;
     &-msg {
       font-weight: $font-weight-semi-bold;
       font-size: $font-size-standard;
-      line-height: 22px;
-      padding: 15px;
+      line-height: 21px;
+      padding: 14px;
 
       &_error {
         color: $color-red-2;
