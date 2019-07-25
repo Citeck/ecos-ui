@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { uniqueId } from 'lodash';
 import { getOutputFormat } from '../../helpers/util';
-import Separator from '../common/Separator/Separator';
+import { Separator } from '../common';
 import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
 import IconInfo from './IconInfo';
 
