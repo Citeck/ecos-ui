@@ -4,10 +4,10 @@ import classNames from 'classnames';
 
 import Export from '../../Export/Export';
 import JournalsDashletPagination from '../JournalsDashletPagination';
+import FormManager from '../../EcosForm/FormManager';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { onJournalSelect, onJournalSettingsSelect } from '../../../actions/journals';
-import { goToCreateRecordPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../constants';
 
@@ -37,8 +37,8 @@ class JournalsDashletToolbar extends Component {
         meta: { createVariants = [{}] }
       }
     } = this.props;
-    createVariants = createVariants[0] || {};
-    createVariants.canCreate && goToCreateRecordPage(createVariants);
+
+    FormManager.createRecordByVariant(createVariants[0]);
   };
 
   onChangeJournal = journal => this.props.onJournalSelect(journal.nodeRef);

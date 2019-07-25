@@ -12,9 +12,9 @@ import JournalsSettingBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
 
+import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
 import { getJournalsData, reloadGrid, search } from '../../actions/journals';
-import { goToCreateRecordPage } from '../../helpers/urls';
 import { Well } from '../common/form';
 import { t } from '../../helpers/util';
 import { wrapArgs } from '../../helpers/redux';
@@ -69,8 +69,7 @@ class Journals extends Component {
         meta: { createVariants = [{}] }
       }
     } = this.props;
-    createVariants = createVariants[0];
-    createVariants.canCreate && goToCreateRecordPage(createVariants);
+    FormManager.createRecordByVariant(createVariants[0]);
   };
 
   toggleSettings = () => {
