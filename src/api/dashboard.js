@@ -1,12 +1,11 @@
 import { isEmpty } from 'lodash';
-import { getCurrentUserName } from '../helpers/util';
+import { getCurrentUserName, t } from '../helpers/util';
 import { QueryKeys, SourcesId } from '../constants';
 import { RecordService } from './recordService';
 import Components from '../components/Components';
 import Records from '../components/Records';
 import { TITLE } from '../constants/pageTabs';
 import { DASHBOARD_TYPE } from '../constants/dashboard';
-import { t } from '../helpers/util';
 
 const defaultAttr = {
   key: QueryKeys.KEY,
@@ -98,13 +97,10 @@ export class DashboardApi extends RecordService {
 
   getDashboardByUser = function() {
     const user = getCurrentUserName();
+    const dashboardId = this.cache.get(user);
 
-    if (this.cache.has(user)) {
-      return Records.get(this.cache.get(user)).load({
-        key: QueryKeys.KEY,
-        config: QueryKeys.CONFIG_JSON,
-        type: 'type'
-      });
+    if (!isEmpty(dashboardId)) {
+      return this.getDashboardById(dashboardId);
     }
 
     return Records.queryOne(
