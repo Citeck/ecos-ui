@@ -26,6 +26,7 @@
 
             &:before {
               $size: 30px;
+              border-top-right-radius: $border-radius-extra-large;
               content: '';
               width: $size;
               position: absolute;
