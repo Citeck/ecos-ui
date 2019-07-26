@@ -84,11 +84,12 @@ export default class Dropdown extends Component {
   };
 
   renderMenuItems() {
-    const { valueField, titleField, source } = this.props;
+    const { valueField, titleField, source, value, hideSelected } = this.props;
+    const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
 
     return (
       <ul>
-        {source.map(item => (
+        {filteredSource.map(item => (
           <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
             {getPropByStringKey(item, titleField)}
           </MenuItem>
@@ -125,3 +126,12 @@ export default class Dropdown extends Component {
     );
   }
 }
+
+Dropdown.propTypes = {
+  isStatic: PropTypes.bool,
+  hideSelected: PropTypes.bool
+};
+
+Dropdown.defaultProps = {
+  hideSelected: false
+};

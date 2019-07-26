@@ -39,7 +39,7 @@ const CreateVariants = () => {
       createButton = (
         <Dropdown source={createVariants} valueField={'type'} titleField={'title'} isStatic onChange={onSelect}>
           <IcoBtn
-            invert={'true'}
+            invert
             icon="icon-down"
             className={classNames('btn_drop-down btn_r_8 btn_blue', buttonClasses)}
             disabled={isButtonDisabled}

@@ -1,20 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PointsLoader from '../../PointsLoader/PointsLoader';
 
 import './Btn.scss';
 
 export default class Btn extends Component {
-  renderLoader() {
-    return (
-      <div className="ecos-btn__loading">
-        <div className="ecos-btn__loading-child ecos-btn__loading-child-1" />
-        <div className="ecos-btn__loading-child ecos-btn__loading-child-2" />
-        <div className="ecos-btn__loading-child ecos-btn__loading-child-3" />
-      </div>
-    );
-  }
-
   render() {
     const { children, className, disabled, loading, ...htmlAttr } = this.props;
 
@@ -28,7 +19,7 @@ export default class Btn extends Component {
 
     return (
       <button disabled={disabled} {...htmlAttr} className={cssClasses}>
-        {loading ? this.renderLoader() : children}
+        {loading ? <PointsLoader /> : children}
       </button>
     );
   }

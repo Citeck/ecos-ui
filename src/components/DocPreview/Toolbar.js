@@ -187,7 +187,7 @@ class Toolbar extends Component {
         />
         <IcoBtn icon={'icon-plus'} className={this.className} onClick={e => this.setScale(1)} />
         <Dropdown source={this.zoomOptions} value={selectedZoom} valueField={'id'} titleField={'title'} onChange={this.onChangeZoomOption}>
-          <IcoBtn invert={'true'} icon={'icon-down'} className={`${this.className} ecos-btn_drop-down ${this._toolbar}-zoom-btn-select`} />
+          <IcoBtn invert icon={'icon-down'} className={`${this.className} ecos-btn_drop-down ${this._toolbar}-zoom-btn-select`} />
         </Dropdown>
         <IcoBtn icon={'glyphicon glyphicon-fullscreen'} className={this.className} onClick={this.setFullScreen} />
       </div>

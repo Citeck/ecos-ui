@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { IcoBtn, Btn } from '../../../common/btns';
+import { Btn, IcoBtn } from '../../../common/btns';
 import Grid from '../../../common/grid/Grid/Grid';
 import Pagination from '../../../common/Pagination/Pagination';
 import Loader from '../../../common/Loader/Loader';
@@ -514,7 +514,7 @@ export default class SelectJournal extends Component {
               <div className={'select-journal-collapse-panel__controls'}>
                 <div className={'select-journal-collapse-panel__controls-left'}>
                   <IcoBtn
-                    invert={'true'}
+                    invert
                     icon={isCollapsePanelOpen ? 'icon-up' : 'icon-down'}
                     className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_blue ecos-btn_x-step_10"
                     onClick={this.toggleCollapsePanel}

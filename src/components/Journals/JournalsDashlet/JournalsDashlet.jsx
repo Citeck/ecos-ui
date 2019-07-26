@@ -9,7 +9,7 @@ import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletFooter from '../JournalsDashletFooter';
 import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet/Dashlet';
-import { getDashletConfig, setEditorMode, reloadGrid, initState } from '../../../actions/journals';
+import { getDashletConfig, initState, reloadGrid, setEditorMode } from '../../../actions/journals';
 import { goToJournalsPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
 import { MIN_WIDTH_DASHLET_SMALL, MIN_WIDTH_DASHLET_LARGE } from '../../../constants';

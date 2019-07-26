@@ -1,4 +1,4 @@
-import React, { Component, Suspense, lazy } from 'react';
+import React, { Component, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
@@ -33,6 +33,7 @@ const EcosFormPage = lazy(() => import('../../pages/debug/EcosFormPage'));
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
 const CommentsWidgetPage = lazy(() => import('../../pages/debug/CommentsWidget'));
 const CurrentTasksPage = lazy(() => import('../../pages/debug/CurrentTasks/CurrentTasksPage'));
+const DocStatusPage = lazy(() => import('../../pages/debug/DocStatus/DocStatusPage'));
 const TimesheetPage = lazy(() => import('../../pages/Timesheet/TimesheetPage'));
 
 class App extends Component {
@@ -107,6 +108,7 @@ class App extends Component {
               <Route path={URL.WIDGET_COMMENTS} component={CommentsWidgetPage} />
               <Route path={URL.WIDGET_TASKS} exact component={TasksDashletPage} />
               <Route path={URL.CURRENT_TASKS} component={CurrentTasksPage} />
+              <Route path={URL.WIDGET_DOC_STATUS} exact component={DocStatusPage} />
               <Route path={URL.TIMESHEET} component={TimesheetPage} />
               <Route path="/v2/debug/formio-develop" component={FormIOPage} />
               <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />

@@ -20,12 +20,13 @@
         }
 
         &__actions {
-          &_header {
+          &_header:not(:empty) {
             background: $color-white;
             border-top-right-radius: $border-radius-extra-large;
 
             &:before {
               $size: 30px;
+              border-top-right-radius: $border-radius-extra-large;
               content: '';
               width: $size;
               position: absolute;

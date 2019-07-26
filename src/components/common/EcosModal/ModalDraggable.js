@@ -5,12 +5,12 @@ import Draggable from 'react-draggable';
 import Portal from 'reactstrap/lib/Portal';
 import Fade from 'reactstrap/lib/Fade';
 import {
-  getOriginalBodyPadding,
   conditionallyUpdateScrollbar,
-  setScrollbarWidth,
+  focusableElements,
+  getOriginalBodyPadding,
   mapToCssModules,
   omit,
-  focusableElements,
+  setScrollbarWidth,
   TransitionTimeouts
 } from 'reactstrap/lib/utils';
 
