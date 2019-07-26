@@ -1,21 +1,30 @@
 import { isEmpty } from 'lodash';
-import { getCurrentUserName } from '../helpers/util';
+import { getCurrentUserName, t } from '../helpers/util';
 import { QueryKeys, SourcesId } from '../constants';
 import { RecordService } from './recordService';
 import Components from '../components/Components';
 import Records from '../components/Records';
 import { TITLE } from '../constants/pageTabs';
 import { DASHBOARD_TYPE } from '../constants/dashboard';
-import { t } from '../helpers/util';
+import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
   key: QueryKeys.KEY,
   config: QueryKeys.CONFIG_JSON,
-  type: 'type'
+  type: 'type',
+  id: 'id'
 };
 
 export class DashboardApi extends RecordService {
   cache = new Map();
+
+  getDashboardIdCash = key => {
+    return this.cache.get(key + '_dId');
+  };
+
+  setDashboardIdCash = (key, id) => {
+    this.cache.set(key + '_dId', id);
+  };
 
   getAllWidgets = () => {
     return Components.getComponentsFullData();
@@ -48,18 +57,18 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardById = dashboardId => {
-    return Records.get(`${SourcesId.DASHBOARD}@${dashboardId}`)
+    const id = DashboardService.parseDashboardId(dashboardId);
+
+    return Records.get(`${SourcesId.DASHBOARD}@${id}`)
       .load({ ...defaultAttr })
-      .then(response => ({ ...response, id: dashboardId }));
+      .then(response => response);
   };
 
   getDashboardByRecordRef = function*(recordRef) {
-    if (this.cache.has(recordRef)) {
-      return yield Records.get(this.cache.get(recordRef)).load({
-        key: QueryKeys.KEY,
-        config: QueryKeys.CONFIG_JSON,
-        type: 'type'
-      });
+    const dashboardId = this.getDashboardIdCash(recordRef);
+
+    if (!isEmpty(dashboardId)) {
+      return yield this.getDashboardById(dashboardId);
     }
 
     const result = yield Records.get(recordRef).load({
@@ -91,20 +100,17 @@ export class DashboardApi extends RecordService {
       }
     }
 
-    this.cache.set(recordRef, data.id);
+    this.setDashboardIdCash(recordRef, data.id);
 
     return data;
   };
 
   getDashboardByUser = function() {
     const user = getCurrentUserName();
+    const dashboardId = this.getDashboardIdCash(user);
 
-    if (this.cache.has(user)) {
-      return Records.get(this.cache.get(user)).load({
-        key: QueryKeys.KEY,
-        config: QueryKeys.CONFIG_JSON,
-        type: 'type'
-      });
+    if (!isEmpty(dashboardId)) {
+      return this.getDashboardById(dashboardId);
     }
 
     return Records.queryOne(
@@ -117,7 +123,7 @@ export class DashboardApi extends RecordService {
       },
       { ...defaultAttr }
     ).then(response => {
-      this.cache.set(user, response.id);
+      this.setDashboardIdCash(user, response.id);
 
       return response;
     });
