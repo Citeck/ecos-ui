@@ -1,6 +1,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Scrollbars } from 'react-custom-scrollbars';
+import ReactResizeDetector from 'react-resize-detector';
+import { getOptimalHeight } from '../../helpers/layout';
 import { changeTaskAssignee, getTaskList } from '../../actions/tasks';
 import { selectDataTasksByStateId } from '../../selectors/tasks';
 import TaskList from './TaskList';
@@ -27,7 +30,10 @@ class Tasks extends React.Component {
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
     isRunReload: PropTypes.bool,
-    setReloadDone: PropTypes.func
+    setReloadDone: PropTypes.func,
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
   };
 
   static defaultProps = {
@@ -36,6 +42,12 @@ class Tasks extends React.Component {
     isRunReload: false,
     setReloadDone: () => {}
   };
+
+  state = {
+    contentHeight: 0
+  };
+
+  className = 'ecos-task-list';
 
   componentDidMount() {
     this.getTaskList();
@@ -46,6 +58,13 @@ class Tasks extends React.Component {
       this.getTaskList();
       this.props.setReloadDone(true);
     }
+  }
+
+  get height() {
+    const { contentHeight } = this.state;
+    const { isLoading, height, minHeight, maxHeight } = this.props;
+
+    return getOptimalHeight(height, contentHeight, minHeight, maxHeight, isLoading);
   }
 
   getTaskList = () => {
@@ -72,6 +91,10 @@ class Tasks extends React.Component {
     this.getTaskList();
   };
 
+  onResize = (w, contentHeight) => {
+    this.setState({ contentHeight });
+  };
+
   render() {
     const { tasks, height, isLoading, isSmallMode } = this.props;
     const childProps = {
@@ -83,7 +106,18 @@ class Tasks extends React.Component {
       onSubmitForm: this.onSubmitForm
     };
 
-    return <TaskList {...childProps} />;
+    return (
+      <Scrollbars
+        style={{ height: this.height }}
+        className={this.className}
+        renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
+      >
+        <div>
+          <ReactResizeDetector handleHeight onResize={this.onResize} />
+          <TaskList {...childProps} />
+        </div>
+      </Scrollbars>
+    );
   }
 }
 
