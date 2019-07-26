@@ -589,7 +589,7 @@ class DashboardSettings extends React.Component {
   handleCloseClick = () => {
     const { pathDashboard } = this.getPathInfo();
 
-    changeUrlLink(pathDashboard, { openNewTab: true });
+    changeUrlLink(pathDashboard, { openNewTab: true, closeActiveTab: true });
   };
 
   handleAcceptClick = () => {
