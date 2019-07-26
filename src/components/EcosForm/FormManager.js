@@ -47,16 +47,11 @@ export default class FormManager {
             attributes['_parent'] = variant.destination;
           }
 
-          let form = React.createElement(EcosFormModal, {
+          this.openFormModal({
             record: recordRef,
             formKey: variant.formKey,
             attributes: attributes
           });
-
-          let container = document.createElement('div');
-          document.body.appendChild(container);
-
-          ReactDOM.render(form, container);
         } else {
           goToCreateRecordPage(variant);
         }
@@ -65,5 +60,14 @@ export default class FormManager {
         console.error(e);
         goToCreateRecordPage(variant);
       });
+  }
+
+  static openFormModal(props) {
+    let form = React.createElement(EcosFormModal, props);
+
+    let container = document.createElement('div');
+    document.body.appendChild(container);
+
+    ReactDOM.render(form, container);
   }
 }
