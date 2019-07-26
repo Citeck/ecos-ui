@@ -97,11 +97,75 @@ export default class SelectJournal extends Component {
       let state = { customPredicate };
       if (this.state.wasChangedFromPopup) {
         state.isGridDataReady = false;
-        this.setValue(null);
       }
-      this.setState(state);
+      this.setState(state, () => {
+        this.shouldResetValue().then(shouldReset => {
+          shouldReset && this.setValue(null);
+        });
+      });
     }
   }
+
+  shouldResetValue = () => {
+    return new Promise(resolve => {
+      const selectedRows = this.state.selectedRows;
+      if (selectedRows.length < 1) {
+        return resolve(false);
+      }
+
+      const dbIDs = {};
+      const dbIDsPromises = selectedRows.map(item => {
+        return Records.get(item.id)
+          .load('sys:node-dbid')
+          .then(dbID => {
+            dbIDs[item.id] = dbID;
+          });
+      });
+
+      Promise.all(dbIDsPromises).then(() => {
+        let requestParams = this.state.requestParams;
+        let customPredicate = this.state.customPredicate;
+        if (customPredicate) {
+          let selectedRowsPredicate = selectedRows.map(item => {
+            return { t: 'eq', att: 'sys:node-dbid', val: dbIDs[item.id] };
+          });
+
+          selectedRowsPredicate = {
+            t: 'or',
+            val: [...selectedRowsPredicate]
+          };
+
+          if (requestParams.journalPredicate) {
+            requestParams = {
+              ...requestParams,
+              journalPredicate: {
+                t: 'and',
+                val: [requestParams.journalPredicate, customPredicate, selectedRowsPredicate]
+              }
+            };
+          } else {
+            requestParams = {
+              ...requestParams,
+              journalPredicate: [customPredicate, selectedRowsPredicate]
+            };
+          }
+        }
+
+        let sourceId = lodashGet(this.state, 'journalConfig.sourceId', '');
+        if (sourceId) {
+          requestParams['sourceId'] = sourceId;
+        }
+
+        return this.api.getGridDataUsePredicates(requestParams).then(gridData => {
+          if (gridData.total && gridData.total === selectedRows.length) {
+            return resolve(false);
+          }
+
+          resolve(true);
+        });
+      });
+    });
+  };
 
   getJournalConfig = () => {
     const { journalId, displayColumns } = this.props;
