@@ -64,8 +64,6 @@ export default class EcosFormModal extends React.Component {
       if (this.props.onReady) {
         this.props.onReady(record, form);
       }
-      //setTimeout(function (record, form) {
-      //}, 100);
     };
 
     let title = t('eform.header.' + recordData.formMode + '.title');
