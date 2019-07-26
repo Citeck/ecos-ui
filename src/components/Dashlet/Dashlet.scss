@@ -22,7 +22,7 @@
         &__actions {
           &_header {
             background: $color-white;
-            border-top-right-radius: 12px;
+            border-top-right-radius: $border-radius-extra-large;
 
             &:before {
               $size: 30px;
