@@ -81,8 +81,6 @@ export class JournalsApi extends RecordService {
       )
     };
 
-    console.log('query', query);
-
     let bodyQuery = {
       query,
       language: 'predicate',

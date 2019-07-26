@@ -99,73 +99,70 @@ export default class SelectJournal extends Component {
         state.isGridDataReady = false;
       }
       this.setState(state, () => {
-        // this.setValue(null);
-        this.shouldResetValue();
+        this.shouldResetValue().then(shouldReset => {
+          shouldReset && this.setValue(null);
+        });
       });
     }
   }
 
   shouldResetValue = () => {
-    console.log('this.state.selectedRows', this.state.selectedRows);
-    console.log('this.state.customPredicate', this.state.customPredicate);
-    console.log('this.state.requestParams', this.state.requestParams);
-
     return new Promise(resolve => {
       const selectedRows = this.state.selectedRows;
       if (selectedRows.length < 1) {
-        resolve(false);
+        return resolve(false);
       }
 
-      let requestParams = this.state.requestParams;
-      let customPredicate = this.state.customPredicate;
-      if (customPredicate) {
-        let selectedPredicate = selectedRows.map(item => {
-          const recordId = item.id.replace('workspace://SpacesStore/', '');
-          return { t: 'eq', att: 'sys:node-uuid', val: recordId };
-        });
+      const dbIDs = {};
+      const dbIDsPromises = selectedRows.map(item => {
+        return Records.get(item.id)
+          .load('sys:node-dbid')
+          .then(dbID => {
+            dbIDs[item.id] = dbID;
+          });
+      });
 
-        selectedPredicate = {
-          t: 'or',
-          val: [...selectedPredicate]
-        };
+      Promise.all(dbIDsPromises).then(() => {
+        let requestParams = this.state.requestParams;
+        let customPredicate = this.state.customPredicate;
+        if (customPredicate) {
+          let selectedRowsPredicate = selectedRows.map(item => {
+            return { t: 'eq', att: 'sys:node-dbid', val: dbIDs[item.id] };
+          });
 
-        if (requestParams.journalPredicate) {
-          requestParams = {
-            ...requestParams,
-            journalPredicate: {
-              t: 'and',
-              val: [requestParams.journalPredicate, customPredicate, selectedPredicate]
-            }
+          selectedRowsPredicate = {
+            t: 'or',
+            val: [...selectedRowsPredicate]
           };
-        } else {
-          requestParams = {
-            ...requestParams,
-            journalPredicate: [customPredicate, selectedPredicate]
-          };
+
+          if (requestParams.journalPredicate) {
+            requestParams = {
+              ...requestParams,
+              journalPredicate: {
+                t: 'and',
+                val: [requestParams.journalPredicate, customPredicate, selectedRowsPredicate]
+              }
+            };
+          } else {
+            requestParams = {
+              ...requestParams,
+              journalPredicate: [customPredicate, selectedRowsPredicate]
+            };
+          }
         }
-      }
 
-      let sourceId = lodashGet(this.state, 'journalConfig.sourceId', '');
-      if (sourceId) {
-        requestParams['sourceId'] = sourceId;
-      }
+        let sourceId = lodashGet(this.state, 'journalConfig.sourceId', '');
+        if (sourceId) {
+          requestParams['sourceId'] = sourceId;
+        }
 
-      return this.api.getGridDataUsePredicates(requestParams).then(gridData2 => {
-        console.log('gridData2', gridData2);
+        return this.api.getGridDataUsePredicates(requestParams).then(gridData => {
+          if (gridData.total && gridData.total === selectedRows.length) {
+            return resolve(false);
+          }
 
-        // // setTimeout(() => {
-        // this.setState(prevState => {
-        //   return {
-        //     gridData: {
-        //       ...prevState.gridData,
-        //       ...gridData
-        //     },
-        //     isGridDataReady: true
-        //   };
-        // });
-        // // }, 3000);
-
-        resolve(gridData2);
+          resolve(true);
+        });
       });
     });
   };
