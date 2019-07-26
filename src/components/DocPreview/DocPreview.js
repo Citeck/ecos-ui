@@ -269,14 +269,17 @@ class DocPreview extends Component {
 
   render() {
     const { className, height, minHeight } = this.props;
+    const { isLoading } = this.state;
 
     return (
       <div className={classNames(DocPreview.className, className)} style={{ height: this.loaded ? height : minHeight }}>
-        <div className={classNames(`${DocPreview.className}__container`, { 'has-msg': !!this.message })}>
-          {this.renderToolbar()}
-          {this.renderViewer()}
-          {this.renderMessage()}
-        </div>
+        {!isLoading && (
+          <div className={classNames(`${DocPreview.className}__container`, { 'has-msg': !!this.message })}>
+            {this.renderToolbar()}
+            {this.renderViewer()}
+            {this.renderMessage()}
+          </div>
+        )}
         {this.renderLoader()}
       </div>
     );

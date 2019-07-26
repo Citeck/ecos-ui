@@ -7,6 +7,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
+  padding: 20px;
 
   &_error {
     color: $color-red-2;
@@ -18,5 +19,9 @@
 
   &_warn {
     color: $color-orange;
+  }
+
+  &_no-indents {
+    padding: 0;
   }
 }

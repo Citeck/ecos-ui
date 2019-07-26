@@ -25,18 +25,30 @@ export function getMinWidthColumn(typeLayout, colNum) {
 }
 
 export function getOptimalHeight(fixedHeight, contentHeight, minHeight, maxHeight, isMin) {
-  const checkNumber = num => num && isNumber(toFinite(num)) && num > 0;
+  const checkNumber = num => num && isNumber(num) && num > 0;
 
-  if (isMin && checkNumber(minHeight)) {
-    return toFinite(minHeight);
+  const fH = toFinite(fixedHeight);
+  const min = toFinite(minHeight);
+  const max = toFinite(maxHeight);
+
+  let cH = toFinite(contentHeight);
+
+  if (isMin && checkNumber(min)) {
+    return min;
   }
 
-  if (checkNumber(fixedHeight)) {
-    return toFinite(fixedHeight);
+  if (checkNumber(fH)) {
+    return fH;
   }
 
-  if (checkNumber(contentHeight) && checkNumber(maxHeight)) {
-    return toFinite(contentHeight) > toFinite(maxHeight) ? toFinite(maxHeight) : toFinite(contentHeight);
+  if (checkNumber(cH)) {
+    if (checkNumber(min)) {
+      cH = cH < min ? min : cH;
+    }
+
+    if (checkNumber(max)) {
+      return cH > max ? max : cH;
+    }
   }
 
   return '100%';

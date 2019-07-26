@@ -1,11 +1,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { t } from '../../helpers/util';
 import EcosForm from '../EcosForm';
-import './style.scss';
 import { InfoText } from '../common';
 import ReactResizeDetector from 'react-resize-detector';
 import { getOptimalHeight } from '../../helpers/layout';
+
+import './style.scss';
 
 class Properties extends React.Component {
   static propTypes = {
@@ -22,8 +24,6 @@ class Properties extends React.Component {
   static defaultProps = {
     record: '',
     className: '',
-    minHeight: 'inherit',
-    maxHeight: 'inherit',
     isSmallMode: false,
     isReady: true
   };
@@ -84,16 +84,13 @@ class Properties extends React.Component {
         className={`${this.className}__formio`}
       />
     ) : (
-      <InfoText text={'Сведения не загружены'} />
+      <InfoText text={t('Сведения не загружены')} />
     );
   }
 
   render() {
     return (
       <Scrollbars
-        autoHeight
-        autoHeightMin={0}
-        autoHeightMax={this.height}
         style={{ height: this.height }}
         className={`${this.className}__scroll`}
         renderTrackVertical={props => <div {...props} className={`${this.className}__scroll_v`} />}
