@@ -4,7 +4,6 @@
   $root: &;
   min-height: auto !important;
   padding-top: 0 !important;
-  overflow: hidden;
 
   &__header {
     height: 100%;
@@ -21,11 +20,13 @@
         }
 
         &__actions {
-          &_header {
+          &_header:not(:empty) {
             background: $color-white;
+            border-top-right-radius: $border-radius-extra-large;
 
             &:before {
               $size: 30px;
+              border-top-right-radius: $border-radius-extra-large;
               content: '';
               width: $size;
               position: absolute;

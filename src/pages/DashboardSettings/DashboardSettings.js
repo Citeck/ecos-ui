@@ -124,7 +124,7 @@ class DashboardSettings extends React.Component {
     this.setState({ ...state });
 
     if (nextProps.saveResult && saveResult.status !== nextProps.saveResult.status && nextProps.saveResult.status !== SAVE_STATUS.FAILURE) {
-      this.handleCloseClick(nextProps.saveResult);
+      this.closePage(nextProps);
     }
   }
 
@@ -587,9 +587,7 @@ class DashboardSettings extends React.Component {
   /*-------- start Buttons --------*/
 
   handleCloseClick = () => {
-    const { pathDashboard } = this.getPathInfo();
-
-    changeUrlLink(pathDashboard, { openNewTab: true });
+    this.closePage();
   };
 
   handleAcceptClick = () => {
@@ -606,6 +604,12 @@ class DashboardSettings extends React.Component {
       links
     });
     getAwayFromPage();
+  };
+
+  closePage = (props = this.props) => {
+    const { pathDashboard } = this.getPathInfo(props);
+
+    changeUrlLink(pathDashboard, { openNewTab: true, closeActiveTab: true });
   };
 
   renderButtons() {

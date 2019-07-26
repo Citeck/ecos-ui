@@ -1,5 +1,11 @@
 import { handleActions } from 'redux-actions';
-import { setDashboardConfig, setDashboardIdentification, setDashboardTitleInfo, setResultSaveDashboardConfig } from '../actions/dashboard';
+import {
+  setDashboardConfig,
+  setDashboardIdentification,
+  setDashboardTitleInfo,
+  setResultSaveDashboardConfig,
+  resetDashboardConfig
+} from '../actions/dashboard';
 import { changeActiveTab } from '../actions/pageTabs';
 
 const initialState = {
@@ -66,6 +72,12 @@ export default handleActions(
         ...state,
         ...initialState,
         titleInfo: payload
+      };
+    },
+    [resetDashboardConfig]: state => {
+      return {
+        ...state,
+        ...initialState
       };
     }
   },
