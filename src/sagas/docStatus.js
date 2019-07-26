@@ -71,7 +71,7 @@ function* sagaGetAvailableToChangeStatuses({ api, logger }, { payload }) {
 
 function* sagaChangeDocStatus({ api, logger }, { payload }) {
   const err = t('doc-status-widget.saga.error3');
-  const { record, stateId } = payload;
+  const { record } = payload;
 
   try {
     yield call(api.docStatus.setDocStatus, { record });
