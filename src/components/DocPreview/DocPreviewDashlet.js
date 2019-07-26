@@ -5,7 +5,12 @@ import classNames from 'classnames';
 import Dashlet from '../Dashlet/Dashlet';
 import DocPreview from './DocPreview';
 import { t } from '../../helpers/util';
-import { MAX_DEFAULT_HEIGHT_DASHLET_CONTENT, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import {
+  MAX_DEFAULT_HEIGHT_DASHLET_CONTENT,
+  MIN_DEFAULT_HEIGHT_DASHLET_CONTENT,
+  MIN_WIDTH_DASHLET_LARGE,
+  MIN_WIDTH_DASHLET_SMALL
+} from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 
 import './style.scss';
@@ -71,7 +76,7 @@ class DocPreviewDashlet extends Component {
         dragHandleProps={dragHandleProps}
         resizable
       >
-        <DocPreview link={config.link} height={height} className={classNamePreview} />
+        <DocPreview link={config.link} height={height} className={classNamePreview} minHeight={MIN_DEFAULT_HEIGHT_DASHLET_CONTENT} />
       </Dashlet>
     );
   }

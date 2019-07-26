@@ -5,9 +5,8 @@ import pdfjs from 'pdfjs-dist';
 import * as queryString from 'query-string';
 import { get, isEmpty } from 'lodash';
 import { fileDownload, isPDFbyStr, t } from '../../helpers/util';
-import { MIN_DEFAULT_HEIGHT_DASHLET_CONTENT } from '../../constants';
 import { DocPreviewApi } from '../../api';
-import { Loader } from '../common';
+import { InfoText, Loader } from '../common';
 import Toolbar from './Toolbar';
 import PdfViewer from './PdfViewer';
 import ImgViewer from './ImgViewer';
@@ -22,6 +21,7 @@ class DocPreview extends Component {
     link: PropTypes.string,
     className: PropTypes.string,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     isLoading: PropTypes.bool,
     errMsg: PropTypes.string,
@@ -34,6 +34,7 @@ class DocPreview extends Component {
     link: null,
     className: '',
     height: 'inherit',
+    minHeight: 'inherit',
     scale: 0.5,
     isLoading: false,
     errMsg: '',
@@ -262,19 +263,15 @@ class DocPreview extends Component {
 
   renderMessage() {
     const message = this.message;
-    const _msg = `${DocPreview.className}__msg`;
 
-    return !message ? null : <div className={classNames(_msg, `${_msg}_${message.type}`)}>{message.msg}</div>;
+    return !message ? null : <InfoText type={message.type} text={message.msg} />;
   }
 
   render() {
-    const { className, height } = this.props;
+    const { className, height, minHeight } = this.props;
 
     return (
-      <div
-        className={classNames(DocPreview.className, className)}
-        style={{ height: this.loaded ? height : MIN_DEFAULT_HEIGHT_DASHLET_CONTENT }}
-      >
+      <div className={classNames(DocPreview.className, className)} style={{ height: this.loaded ? height : minHeight }}>
         <div className={classNames(`${DocPreview.className}__container`, { 'has-msg': !!this.message })}>
           {this.renderToolbar()}
           {this.renderViewer()}

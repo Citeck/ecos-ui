@@ -1,4 +1,5 @@
 import { LAYOUT_TYPE, MIN_WIDTH_COLUMN } from '../constants/layout';
+import { isNumber, toFinite } from 'lodash';
 
 /**
  * Получение минимальной ширины колонки по виду лайоута
@@ -21,4 +22,22 @@ export function getMinWidthColumn(typeLayout, colNum) {
     default:
       return MIN_WIDTH_COLUMN.ONE_QUARTER;
   }
+}
+
+export function getOptimalHeight(fixedHeight, contentHeight, minHeight, maxHeight, isMin) {
+  const checkNumber = num => num && isNumber(toFinite(num)) && num > 0;
+
+  if (isMin && checkNumber(minHeight)) {
+    return toFinite(minHeight);
+  }
+
+  if (checkNumber(fixedHeight)) {
+    return toFinite(fixedHeight);
+  }
+
+  if (checkNumber(contentHeight) && checkNumber(maxHeight)) {
+    return toFinite(contentHeight) > toFinite(maxHeight) ? toFinite(maxHeight) : toFinite(contentHeight);
+  }
+
+  return '100%';
 }

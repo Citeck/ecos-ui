@@ -96,7 +96,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     get failed() {
       const { pdf, urlImg, isLoading, errMsg } = this.props;
 
-      if (isLoading) {
+      if (isLoading || errMsg) {
         return true;
       }
 

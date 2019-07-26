@@ -1,0 +1,22 @@
+@import '../../../constants';
+
+.ecos-info-text {
+  font-weight: $font-weight-semi-bold;
+  font-size: $font-size-standard;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+  &_error {
+    color: $color-red-2;
+  }
+
+  &_info {
+    color: $color-gray-5;
+  }
+
+  &_warn {
+    color: $color-orange;
+  }
+}
