@@ -1,6 +1,6 @@
 import * as queryString from 'query-string';
 import { URL } from '../constants';
-import { URL_PAGECONTEXT, PROXY_URI } from '../constants/alfresco';
+import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJournal/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
 import { changeUrlLink } from '../components/PageTabs/PageTabs';

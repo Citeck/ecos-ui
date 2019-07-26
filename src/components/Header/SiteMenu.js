@@ -56,7 +56,7 @@ class SiteMenu extends React.Component {
     return (
       <Dropdown className={`${this.className} ecos-header-dropdown`} isOpen={dropdownOpen} toggle={this.toggle}>
         <DropdownToggle tag="div">
-          <IcoBtn invert={'true'} className={classNameIcoBtn} disabled={disabled} icon={dropdownOpen ? 'icon-up' : 'icon-down'}>
+          <IcoBtn invert className={classNameIcoBtn} disabled={disabled} icon={dropdownOpen ? 'icon-up' : 'icon-down'}>
             <Icon className={'icon-settings'} />
           </IcoBtn>
         </DropdownToggle>

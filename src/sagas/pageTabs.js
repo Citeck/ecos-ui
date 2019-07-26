@@ -1,5 +1,5 @@
-import { put, takeLatest, call, select } from 'redux-saga/effects';
-import { getShowTabsStatus, setShowTabsStatus, getTabs, setTabs, setActiveTabTitle } from '../actions/pageTabs';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
+import { getShowTabsStatus, getTabs, setActiveTabTitle, setShowTabsStatus, setTabs } from '../actions/pageTabs';
 import { selectTabs } from '../selectors/pageTabs';
 import { deepClone } from '../helpers/util';
 
