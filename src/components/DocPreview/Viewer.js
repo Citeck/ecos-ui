@@ -4,6 +4,7 @@ import fscreen from 'fscreen';
 import { get } from 'lodash';
 import { Scrollbars } from 'react-custom-scrollbars';
 import PropTypes from 'prop-types';
+import ReactResizeDetector from 'react-resize-detector';
 
 export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
   let _viewer = `${ctrClass}__viewer`;
@@ -11,22 +12,20 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
   return class extends Component {
     static propTypes = {
       pdf: PropTypes.object,
-      urlImg: PropTypes.string,
+      src: PropTypes.string,
       isLoading: PropTypes.bool,
       scrollPage: PropTypes.func,
       settings: PropTypes.shape({
         scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
         isFullscreen: PropTypes.bool,
         currentPage: PropTypes.number
-      }),
-      errMsg: PropTypes.string
+      })
     };
 
     static defaultProps = {
       isLoading: false,
-      scrollPage: () => {},
-      settings: {},
-      errMsg: ''
+      scrollPage: () => null,
+      settings: {}
     };
 
     constructor(props) {
@@ -40,7 +39,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     }
 
     componentDidMount() {
-      if (isPdf) {
+      if (isPdf && this.elViewer.addEventListener) {
         this.elViewer.addEventListener('fullscreenchange', this.onFullscreenchange, false);
       }
     }
@@ -94,13 +93,13 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     }
 
     get failed() {
-      const { pdf, urlImg, isLoading, errMsg } = this.props;
+      const { pdf, src, isLoading } = this.props;
 
-      if (isLoading || errMsg) {
+      if (isLoading) {
         return true;
       }
 
-      if (pdf === undefined && !urlImg) {
+      if (pdf === undefined && !src) {
         return true;
       }
 
@@ -134,7 +133,8 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
 
     renderDocument() {
       let {
-        settings: { isFullscreen }
+        settings: { isFullscreen },
+        onResize
       } = this.props;
       let _doc = `${_viewer}-doc`;
       let _fullscreen = `${_viewer}_fullscreen`;
@@ -156,7 +156,10 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
           onScrollFrame={this.onScrollFrame}
           autoHide
         >
-          <WrappedComponent {...newProps} />
+          <div>
+            <ReactResizeDetector handleHeight onResize={onResize} />
+            <WrappedComponent {...newProps} />
+          </div>
         </Scrollbars>
       );
     }

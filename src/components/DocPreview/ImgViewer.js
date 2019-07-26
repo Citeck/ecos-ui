@@ -7,31 +7,29 @@ import { getScale } from '../../helpers/util';
 class ImgViewer extends Component {
   static propTypes = {
     ctrClass: PropTypes.string.isRequired,
-    urlImg: PropTypes.string.isRequired,
+    src: PropTypes.string.isRequired,
     settings: PropTypes.shape({
       scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       isFullscreen: PropTypes.bool
     }),
-    refViewer: PropTypes.object
+    refViewer: PropTypes.object,
+    onError: PropTypes.func
   };
 
   static defaultProps = {
     settings: {
       scale: 1,
       isFullscreen: false
-    }
+    },
+    onError: () => null
   };
 
-  constructor(props) {
-    super(props);
-
-    this.refImg = React.createRef();
-    this.refImgCtr = React.createRef();
-    this.fullScreenOff = true;
-    this.state = {
-      calcScale: 1
-    };
-  }
+  refImg = React.createRef();
+  refImgCtr = React.createRef();
+  fullScreenOff = true;
+  state = {
+    calcScale: 1
+  };
 
   componentDidMount() {
     this.elImage.addEventListener('fullscreenchange', this.onFullscreenchange, false);
@@ -98,12 +96,16 @@ class ImgViewer extends Component {
   };
 
   render() {
-    const { ctrClass, urlImg } = this.props;
+    const { ctrClass, src, onError } = this.props;
     const _pageCtr = `${ctrClass}-page-container`;
+
+    if (this.refImg.current) {
+      this.refImg.current.onerror = onError;
+    }
 
     return (
       <div className={classNames(_pageCtr, `${_pageCtr}_img`)} ref={this.refImgCtr}>
-        <img src={urlImg} alt={urlImg} style={this.styleZoom} className={`${_pageCtr}__content`} ref={this.refImg} />
+        <img src={src} alt={src} style={this.styleZoom} className={`${_pageCtr}__content`} ref={this.refImg} />
       </div>
     );
   }

@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-
-import Dashlet from '../Dashlet/Dashlet';
-import DocPreview from './DocPreview';
 import { t } from '../../helpers/util';
 import {
   MAX_DEFAULT_HEIGHT_DASHLET_CONTENT,
@@ -12,6 +9,8 @@ import {
   MIN_WIDTH_DASHLET_SMALL
 } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
+import Dashlet from '../Dashlet/Dashlet';
+import DocPreview from './DocPreview';
 
 import './style.scss';
 
@@ -41,7 +40,7 @@ class DocPreviewDashlet extends Component {
 
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
-      height: UserLocalSettingsService.getDashletHeight(props.id) || MAX_DEFAULT_HEIGHT_DASHLET_CONTENT
+      height: UserLocalSettingsService.getDashletHeight(props.id)
     };
   }
 
@@ -76,7 +75,13 @@ class DocPreviewDashlet extends Component {
         dragHandleProps={dragHandleProps}
         resizable
       >
-        <DocPreview link={config.link} height={height} className={classNamePreview} minHeight={MIN_DEFAULT_HEIGHT_DASHLET_CONTENT} />
+        <DocPreview
+          link={config.link}
+          height={height}
+          className={classNamePreview}
+          minHeight={MIN_DEFAULT_HEIGHT_DASHLET_CONTENT}
+          maxHeight={MAX_DEFAULT_HEIGHT_DASHLET_CONTENT}
+        />
       </Dashlet>
     );
   }

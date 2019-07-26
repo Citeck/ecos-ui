@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import pdfjs from 'pdfjs-dist';
 import * as queryString from 'query-string';
 import { get, isEmpty } from 'lodash';
+import { getOptimalHeight } from '../../helpers/layout';
 import { fileDownload, isPDFbyStr, t } from '../../helpers/util';
 import { DocPreviewApi } from '../../api';
 import { InfoText, Loader } from '../common';
@@ -22,9 +23,8 @@ class DocPreview extends Component {
     className: PropTypes.string,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    isLoading: PropTypes.bool,
-    errMsg: PropTypes.string,
     firstPageNumber: PropTypes.number,
     recordKey: PropTypes.string,
     byLink: PropTypes.bool
@@ -34,10 +34,7 @@ class DocPreview extends Component {
     link: null,
     className: '',
     height: 'inherit',
-    minHeight: 'inherit',
     scale: 0.5,
-    isLoading: false,
-    errMsg: '',
     firstPageNumber: 1,
     recordKey: 'recordRef',
     byLink: false
@@ -53,11 +50,13 @@ class DocPreview extends Component {
     this.state = {
       pdf: {},
       settings: {},
-      isLoading: props.isLoading || this.isPDF,
+      isLoading: this.isPDF,
       scrollPage: props.firstPageNumber,
       isFullscreen: false,
       recordId: this.getRecordId(props),
-      link: props.link
+      link: props.link,
+      contentHeight: 0,
+      error: ''
     };
   }
 
@@ -106,15 +105,14 @@ class DocPreview extends Component {
   }
 
   get commonProps() {
-    const { errMsg } = this.props;
-    const { settings, isLoading } = this.state;
+    const { settings } = this.state;
 
     return {
       settings,
-      isLoading,
-      errMsg,
+      isLoading: !this.loaded,
       calcScale: this.setCalcScale,
-      onFullscreen: this.onFullscreen
+      onFullscreen: this.onFullscreen,
+      onResize: this.onResize
     };
   }
 
@@ -125,24 +123,33 @@ class DocPreview extends Component {
   }
 
   get message() {
-    const { pdf, link } = this.state;
-    const { isLoading, errMsg } = this.props;
-
-    let message = null;
+    const { pdf, link, error } = this.state;
+    const { isLoading } = this.props;
 
     if (isLoading) {
       return null;
     }
 
+    if (!isEmpty(error)) {
+      return error;
+    }
+
     if (pdf === undefined && !link) {
-      message = { type: 'info', msg: t(errMsg || 'doc-preview.error.not-specified') };
+      return t('doc-preview.error.not-specified');
     }
 
     if (!isEmpty(pdf) && !pdf._pdfInfo) {
-      message = { type: 'info', msg: t('doc-preview.error.loading-failure') };
+      return t('doc-preview.error.loading-failure');
     }
 
-    return message;
+    return null;
+  }
+
+  get height() {
+    const { contentHeight } = this.state;
+    const { height, minHeight, maxHeight } = this.props;
+
+    return getOptimalHeight(height, contentHeight, minHeight, maxHeight, !this.loaded);
   }
 
   getRecordId(props = this.props) {
@@ -179,7 +186,7 @@ class DocPreview extends Component {
       },
       err => {
         console.error(`Error during loading document: ${err}`);
-        this.setState({ isLoading: false });
+        this.setState({ isLoading: false, error: t('Документ не получен') });
       }
     );
   };
@@ -217,6 +224,10 @@ class DocPreview extends Component {
     this.setState({ calcScale });
   };
 
+  onResize = (w, contentHeight) => {
+    this.setState({ contentHeight });
+  };
+
   pdfViewer() {
     const { pdf } = this.state;
 
@@ -226,7 +237,15 @@ class DocPreview extends Component {
   imgViewer() {
     const { link } = this.state;
 
-    return <Img urlImg={link} {...this.commonProps} />;
+    return (
+      <Img
+        src={link}
+        {...this.commonProps}
+        onError={() => {
+          this.setState({ error: t('Документ не получен') });
+        }}
+      />
+    );
   }
 
   renderToolbar() {
@@ -250,29 +269,27 @@ class DocPreview extends Component {
   }
 
   renderViewer() {
-    const { isLoading } = this.state;
-
-    return isLoading ? null : this.isPDF ? this.pdfViewer() : this.imgViewer();
+    return this.isPDF ? this.pdfViewer() : this.imgViewer();
   }
 
   renderLoader() {
     const { isLoading } = this.state;
 
-    return !isLoading ? null : <Loader className={`${DocPreview.className}__loader`} />;
+    return isLoading && <Loader className={`${DocPreview.className}__loader`} />;
   }
 
   renderMessage() {
     const message = this.message;
 
-    return !message ? null : <InfoText type={message.type} text={message.msg} />;
+    return message && <InfoText text={message} />;
   }
 
   render() {
-    const { className, height, minHeight } = this.props;
+    const { className } = this.props;
     const { isLoading } = this.state;
 
     return (
-      <div className={classNames(DocPreview.className, className)} style={{ height: this.loaded ? height : minHeight }}>
+      <div className={classNames(DocPreview.className, className)} style={{ height: this.height }}>
         {!isLoading && (
           <div className={classNames(`${DocPreview.className}__container`, { 'has-msg': !!this.message })}>
             {this.renderToolbar()}
