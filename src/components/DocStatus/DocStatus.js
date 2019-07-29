@@ -67,8 +67,12 @@ class DocStatus extends React.Component {
     if (!isLoading) {
       if (nextProps.isUpdating && nextProps.countAttempt < MAX_ATTEMPT) {
         this.checkDocStatusPing();
-      } else if ((!nextProps.isUpdating || nextProps.countAttempt === MAX_ATTEMPT) && isEmpty(nextProps.status)) {
-        getDocStatus({ stateId, record });
+      } else if (!nextProps.isUpdating || nextProps.countAttempt === MAX_ATTEMPT) {
+        this.checkDocStatusPing.cancel();
+
+        if (isEmpty(nextProps.status)) {
+          getDocStatus({ stateId, record });
+        }
       }
     }
   }
