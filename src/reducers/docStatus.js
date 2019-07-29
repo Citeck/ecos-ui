@@ -4,6 +4,7 @@ import {
   getAvailableToChangeStatuses,
   getCheckDocStatus,
   getDocStatus,
+  initDocStatus,
   setAvailableToChangeStatuses,
   setCheckDocStatus,
   setDocStatus
@@ -35,6 +36,12 @@ const increaseAttempt = (state, stateId) => {
 
 export default handleActions(
   {
+    [initDocStatus]: (state, { payload: { stateId } }) => ({
+      ...state,
+      [stateId]: {
+        ...initialState
+      }
+    }),
     [getDocStatus]: startLoading,
     [getAvailableToChangeStatuses]: startLoading,
     [getCheckDocStatus]: (state, { payload: { stateId } }) => ({
