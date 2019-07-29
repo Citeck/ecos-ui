@@ -2,11 +2,11 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import ReactResizeDetector from 'react-resize-detector';
-import { getOptimalHeight } from '../../helpers/layout';
 import { changeTaskAssignee, getTaskList } from '../../actions/tasks';
 import { selectDataTasksByStateId } from '../../selectors/tasks';
+import { DefineHeight } from '../common';
 import TaskList from './TaskList';
+
 import './style.scss';
 
 const mapStateToProps = (state, context) => {
@@ -60,13 +60,6 @@ class Tasks extends React.Component {
     }
   }
 
-  get height() {
-    const { contentHeight } = this.state;
-    const { isLoading, height, minHeight, maxHeight } = this.props;
-
-    return getOptimalHeight(height, contentHeight, minHeight, maxHeight, isLoading);
-  }
-
   getTaskList = () => {
     const { getTaskList, record, stateId } = this.props;
 
@@ -91,12 +84,12 @@ class Tasks extends React.Component {
     this.getTaskList();
   };
 
-  onResize = (w, contentHeight) => {
+  setHeight = contentHeight => {
     this.setState({ contentHeight });
   };
 
   render() {
-    const { tasks, height, isLoading, isSmallMode } = this.props;
+    const { tasks, height, isLoading, isSmallMode, minHeight, maxHeight } = this.props;
     const childProps = {
       tasks,
       height,
@@ -105,17 +98,17 @@ class Tasks extends React.Component {
       onAssignClick: this.onAssignClick,
       onSubmitForm: this.onSubmitForm
     };
+    const { contentHeight } = this.state;
 
     return (
       <Scrollbars
-        style={{ height: this.height }}
+        style={{ height: contentHeight }}
         className={this.className}
         renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
       >
-        <div>
-          <ReactResizeDetector handleHeight onResize={this.onResize} />
+        <DefineHeight fixHeight={height} maxHeight={maxHeight} minHeight={minHeight} isMin={isLoading} getHeight={this.setHeight}>
           <TaskList {...childProps} />
-        </div>
+        </DefineHeight>
       </Scrollbars>
     );
   }

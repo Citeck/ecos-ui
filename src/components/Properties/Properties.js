@@ -3,9 +3,7 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { t } from '../../helpers/util';
 import EcosForm from '../EcosForm';
-import { InfoText } from '../common';
-import ReactResizeDetector from 'react-resize-detector';
-import { getOptimalHeight } from '../../helpers/layout';
+import { DefineHeight, InfoText } from '../common';
 
 import './style.scss';
 
@@ -46,13 +44,6 @@ class Properties extends React.Component {
     }
   }
 
-  get height() {
-    const { loaded, contentHeight } = this.state;
-    const { height, minHeight, maxHeight } = this.props;
-
-    return getOptimalHeight(height, contentHeight, minHeight, maxHeight, !loaded);
-  }
-
   onSubmitForm = () => {
     this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
   };
@@ -61,7 +52,7 @@ class Properties extends React.Component {
     this.setState({ loaded: true });
   };
 
-  onResize = (w, contentHeight) => {
+  setHeight = contentHeight => {
     this.setState({ contentHeight });
   };
 
@@ -89,16 +80,18 @@ class Properties extends React.Component {
   }
 
   render() {
+    const { loaded, contentHeight } = this.state;
+    const { height, minHeight, maxHeight } = this.props;
+
     return (
       <Scrollbars
-        style={{ height: this.height }}
+        style={{ height: contentHeight }}
         className={`${this.className}__scroll`}
         renderTrackVertical={props => <div {...props} className={`${this.className}__scroll_v`} />}
       >
-        <div className={`${this.className}__container`}>
-          <ReactResizeDetector handleHeight onResize={this.onResize} />
+        <DefineHeight fixHeight={height} maxHeight={maxHeight} minHeight={minHeight} isMin={!loaded} getHeight={this.setHeight}>
           {this.renderForm()}
-        </div>
+        </DefineHeight>
       </Scrollbars>
     );
   }
