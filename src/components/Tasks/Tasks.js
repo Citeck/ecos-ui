@@ -106,7 +106,7 @@ class Tasks extends React.Component {
         className={this.className}
         renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
       >
-        <DefineHeight fixHeight={height} maxHeight={maxHeight} minHeight={minHeight} isMin={isLoading} getHeight={this.setHeight}>
+        <DefineHeight fixHeight={height} maxHeight={maxHeight} minHeight={minHeight} isMin={isLoading} getOptimalHeight={this.setHeight}>
           <TaskList {...childProps} />
         </DefineHeight>
       </Scrollbars>

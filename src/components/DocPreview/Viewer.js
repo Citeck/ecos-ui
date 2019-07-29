@@ -4,7 +4,7 @@ import fscreen from 'fscreen';
 import { get } from 'lodash';
 import { Scrollbars } from 'react-custom-scrollbars';
 import PropTypes from 'prop-types';
-import ReactResizeDetector from 'react-resize-detector';
+import { DefineHeight } from '../common';
 
 export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
   let _viewer = `${ctrClass}__viewer`;
@@ -134,7 +134,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     renderDocument() {
       let {
         settings: { isFullscreen },
-        onResize
+        getContentHeight
       } = this.props;
       let _doc = `${_viewer}-doc`;
       let _fullscreen = `${_viewer}_fullscreen`;
@@ -156,10 +156,9 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
           onScrollFrame={this.onScrollFrame}
           autoHide
         >
-          <div>
-            <ReactResizeDetector handleHeight onResize={onResize} />
+          <DefineHeight getContentHeight={getContentHeight}>
             <WrappedComponent {...newProps} />
-          </div>
+          </DefineHeight>
         </Scrollbars>
       );
     }

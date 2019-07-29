@@ -112,7 +112,7 @@ class DocPreview extends Component {
       isLoading: !this.loaded,
       calcScale: this.setCalcScale,
       onFullscreen: this.onFullscreen,
-      onResize: this.onResize
+      getContentHeight: this.getContentHeight
     };
   }
 
@@ -224,7 +224,7 @@ class DocPreview extends Component {
     this.setState({ calcScale });
   };
 
-  onResize = (w, contentHeight) => {
+  getContentHeight = contentHeight => {
     this.setState({ contentHeight });
   };
 

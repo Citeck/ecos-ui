@@ -9,19 +9,22 @@ export default class DefineHeight extends React.Component {
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     isMin: PropTypes.bool,
-    getHeight: PropTypes.func
+    getOptimalHeight: PropTypes.func,
+    getContentHeight: PropTypes.func
   };
 
   static defaultProps = {
     isMin: false,
-    getHeight: () => null
+    getOptimalHeight: () => null,
+    getContentHeight: () => null
   };
 
   onResize = (w, contentHeight) => {
-    const { fixHeight, minHeight, maxHeight, isMin, getHeight } = this.props;
+    const { fixHeight, minHeight, maxHeight, isMin } = this.props;
     const h = getOptimalHeight(fixHeight, contentHeight, minHeight, maxHeight, isMin);
 
-    getHeight(h);
+    this.props.getOptimalHeight(h);
+    this.props.getContentHeight(contentHeight);
   };
 
   render() {

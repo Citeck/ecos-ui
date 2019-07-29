@@ -643,7 +643,7 @@ class Comments extends React.Component {
           fixHeight={userHeight - headerHeight}
           maxHeight={MAX_DEFAULT_HEIGHT_DASHLET_CONTENT - headerHeight}
           minHeight={1}
-          getHeight={this.setContentHeight}
+          getOptimalHeight={this.setContentHeight}
         >
           <div className="ecos-comments__list" ref={this._list}>
             {comments.map(this.renderComment)}

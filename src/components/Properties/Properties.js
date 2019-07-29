@@ -89,7 +89,7 @@ class Properties extends React.Component {
         className={`${this.className}__scroll`}
         renderTrackVertical={props => <div {...props} className={`${this.className}__scroll_v`} />}
       >
-        <DefineHeight fixHeight={height} maxHeight={maxHeight} minHeight={minHeight} isMin={!loaded} getHeight={this.setHeight}>
+        <DefineHeight fixHeight={height} maxHeight={maxHeight} minHeight={minHeight} isMin={!loaded} getOptimalHeight={this.setHeight}>
           {this.renderForm()}
         </DefineHeight>
       </Scrollbars>
