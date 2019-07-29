@@ -51,6 +51,7 @@ export default class SearchSelect extends React.Component {
     this.state = {
       searchText: '',
       collapsed,
+      focused: false,
       hiddenPlaceholder: false
     };
   }
@@ -110,15 +111,21 @@ export default class SearchSelect extends React.Component {
     this.props.onSearch('');
   };
 
-  onLoupe = data => {
+  setFocused = isFocused => {
+    this.setState({
+      focused: isFocused
+    });
+  };
+
+  onLoupe = () => {
     if (this.props.collapsible) {
       this.setState({
         collapsed: false,
         hiddenPlaceholder: true
       });
-
-      this.setFocus();
     }
+
+    this.setFocus();
   };
 
   onClickOutside = () => {
@@ -126,7 +133,7 @@ export default class SearchSelect extends React.Component {
       this.setState({ collapsed: true });
     }
 
-    this.resetSearch();
+    this.setFocused(false);
   };
 
   hidePlaceholder = flag => {
@@ -142,7 +149,7 @@ export default class SearchSelect extends React.Component {
   renderNoResults() {
     const { noResults } = this.props;
 
-    return noResults ? <li className={`${this.className}__no-results`}>{t('Ничего не найдено')}</li> : null;
+    return noResults ? <li className={`${this.className}__no-results`}>{t('search.no-results')}</li> : null;
   }
 
   renderBtnShowAll() {
@@ -151,7 +158,7 @@ export default class SearchSelect extends React.Component {
     return !isEmpty(formattedSearchResult) ? (
       <li className={`${this.className}__show-all`}>
         <Btn className={`${this.className}__show-all-btn ecos-btn_narrow-t_standart`} onClick={this.openFullSearch}>
-          {t('Показать все результаты')}
+          {t('search.show-more-results')}
         </Btn>
       </li>
     ) : null;
@@ -167,14 +174,23 @@ export default class SearchSelect extends React.Component {
     ) : null;
   }
 
+  onFocus = () => {
+    this.hidePlaceholder(true);
+    this.setFocused(true);
+  };
+
+  onBlur = () => {
+    this.hidePlaceholder(false);
+  };
+
   render() {
-    const { searchText, collapsed, hiddenPlaceholder } = this.state;
-    const { className, theme, autocomplete, formattedSearchResult, noResults, isLoading, collapsible } = this.props;
+    const { searchText, collapsed, hiddenPlaceholder, focused } = this.state;
+    const { className, theme, autocomplete, formattedSearchResult, noResults, isLoading, collapsible, isMobile } = this.props;
     const isSearchCollapsed = collapsible && collapsed;
     const stateSearch = isSearchCollapsed ? 'close' : 'open';
     const classNameContainer = classNames(className, this.className, `${this.className}_${theme}`, `${this.className}_${stateSearch}`);
     const commonIcon = `${this.className}__icon`;
-    const isOpen = (!isEmpty(formattedSearchResult) || noResults || isLoading) && autocomplete && searchText;
+    const isOpen = (!isEmpty(formattedSearchResult) || noResults || isLoading) && autocomplete && searchText && focused;
 
     return (
       <div className={classNameContainer}>
@@ -189,12 +205,12 @@ export default class SearchSelect extends React.Component {
               />
               <Input
                 className={classNames(`${this.className}__input`, { hide: isSearchCollapsed })}
-                placeholder={hiddenPlaceholder ? '' : t('Найти файл, человека или сайт')}
+                placeholder={isMobile || hiddenPlaceholder ? '' : t('search.label')}
                 value={searchText || ''}
                 onChange={this.onChange}
                 onKeyDown={this.onKeyDown}
-                onFocus={() => this.hidePlaceholder(true)}
-                onBlur={() => this.hidePlaceholder(false)}
+                onFocus={this.onFocus}
+                onBlur={this.onBlur}
                 getInputRef={this.getInputRef}
               />
               <Icon

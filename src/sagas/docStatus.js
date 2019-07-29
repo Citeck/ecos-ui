@@ -29,7 +29,7 @@ function* sagaCheckDocStatus({ api, logger }, { payload }) {
 }
 
 function* sagaGetDocStatus({ api, logger }, { payload }) {
-  const err = t('Ошибка получения статуса документа');
+  const err = t('doc-status-widget.saga.error1');
   const { record, stateId } = payload;
 
   try {
@@ -49,7 +49,7 @@ function* sagaGetDocStatus({ api, logger }, { payload }) {
 }
 
 function* sagaGetAvailableToChangeStatuses({ api, logger }, { payload }) {
-  const err = t('Ошибка получения доступных статусов');
+  const err = t('doc-status-widget.saga.error2');
   const { record, stateId } = payload;
 
   try {
@@ -70,8 +70,8 @@ function* sagaGetAvailableToChangeStatuses({ api, logger }, { payload }) {
 }
 
 function* sagaChangeDocStatus({ api, logger }, { payload }) {
-  const err = t('Ошибка изменения статуса');
-  const { record, stateId } = payload;
+  const err = t('doc-status-widget.saga.error3');
+  const { record } = payload;
 
   try {
     yield call(api.docStatus.setDocStatus, { record });

@@ -18,7 +18,7 @@ class DocStatusDashlet extends React.Component {
   };
 
   static defaultProps = {
-    title: t('Статус документа'),
+    title: t('doc-status-widget.title'),
     classNameStatus: '',
     classNameDashlet: ''
   };

@@ -52,7 +52,7 @@ export default class SearchService {
         data.icon = getIconFileByMimetype(item.mimetype);
         data.title = item.name;
         data.url = link;
-        data.description = `${modifiedTimeParts.relative} / ${t('Размер')}: ${fileSize}`;
+        data.description = `${modifiedTimeParts.relative} / ${t('search.size')}: ${fileSize}`;
         break;
       case Types.SITES:
         const siteRef = 'workspace://' + nth(split(item.node, 'node/workspace/'), 1);

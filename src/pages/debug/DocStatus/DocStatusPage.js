@@ -41,7 +41,7 @@ export default class DocStatusPage extends React.Component {
       configs.push(fillTask(item));
     });
 
-    const col2 = configs.splice(Math.ceil(configs.length / 2));
+    configs.splice(Math.ceil(configs.length / 2));
 
     return (
       <div>
@@ -53,12 +53,6 @@ export default class DocStatusPage extends React.Component {
               <DocStatusDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
             ))}
           </div>
-          {/*<div className={'ecos-debug-col'}>
-            <h5>Solo</h5>
-            {col2.map((item, index) => (
-              <DocStatus record={item.document} {...item.config} key={item.id + index} stateId={'Status' + index} />
-            ))}
-          </div>*/}
         </div>
       </div>
     );

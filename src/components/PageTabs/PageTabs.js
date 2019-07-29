@@ -16,7 +16,9 @@ const customEvent = document.createEvent('Event');
  * @param params
  *    checkUrl - bool,
  *    openNewTab - bool,
- *    openNewBrowserTab - bool
+ *    openNewBrowserTab - bool,
+ *    reopenBrowserTab - bool,
+ *    closeActiveTab - bool
  */
 export const changeUrlLink = (link = '', params = {}) => {
   customEvent.params = { link, ...params };
@@ -201,11 +203,34 @@ class PageTabs extends React.Component {
      *    checkUrl - bool,
      *    openNewTab - bool,
      *    openNewBrowserTab - bool,
-     *    reopenBrowserTab - bool
+     *    reopenBrowserTab - bool,
+     *    closeActiveTab - bool
      */
     const {
-      params: { link = '', checkUrl = false, openNewTab = false, openNewBrowserTab = false, reopenBrowserTab = false }
+      params: {
+        link = '',
+        checkUrl = false,
+        openNewTab = false,
+        openNewBrowserTab = false,
+        reopenBrowserTab = false,
+        closeActiveTab = false
+      }
     } = event;
+    const tabs = deepClone(this.state.tabs);
+
+    if (closeActiveTab) {
+      const activeIndex = tabs.findIndex(tab => tab.isActive);
+
+      if (activeIndex !== -1) {
+        if (!link) {
+          this.closeTab(tabs[activeIndex].id);
+
+          return;
+        }
+
+        tabs.splice(activeIndex, 1);
+      }
+    }
 
     if (checkUrl) {
       this.checkUrls();
@@ -214,7 +239,6 @@ class PageTabs extends React.Component {
     }
 
     const { saveTabs, history, homepageName } = this.props;
-    const tabs = deepClone(this.state.tabs);
 
     event.preventDefault();
 
@@ -238,7 +262,7 @@ class PageTabs extends React.Component {
       const newActiveTab = tabs.find(tab => tab.link === link);
 
       if (newActiveTab) {
-        this.activeTab(newActiveTab);
+        this.activeTab(newActiveTab, tabs);
       } else {
         tabs.forEach(item => {
           item.isActive = false;
@@ -347,44 +371,8 @@ class PageTabs extends React.Component {
   };
 
   handleCloseTab(tabId, event) {
-    const { saveTabs, history } = this.props;
-    let tabs = deepClone(this.state.tabs);
-    const index = tabs.findIndex(tab => tab.id === tabId);
-
     event.stopPropagation();
-
-    if (index === -1) {
-      return false;
-    }
-
-    if (tabs[index].isActive) {
-      let link = '/';
-
-      switch (index) {
-        case tabs.length - 1:
-          tabs[index - 1].isActive = true;
-          link = tabs[index - 1].link;
-          break;
-        case 0:
-          tabs[index + 1].isActive = true;
-          link = tabs[index + 1].link;
-          break;
-        default:
-          tabs[index + 1].isActive = true;
-          link = tabs[index + 1].link;
-      }
-
-      history.push.call(this, link);
-    }
-
-    for (let i = index; i < tabs.length; i++) {
-      tabs[i].position -= 1;
-    }
-
-    tabs.splice(index, 1);
-    saveTabs(tabs);
-
-    this.setState({ tabs }, this.checkNeedArrow.bind(this));
+    this.closeTab(tabId);
   }
 
   handleClickTab(tab) {
@@ -528,15 +516,54 @@ class PageTabs extends React.Component {
     });
   };
 
+  closeTab(tabId) {
+    const { saveTabs, history } = this.props;
+    let tabs = deepClone(this.state.tabs);
+    const index = tabs.findIndex(tab => tab.id === tabId);
+
+    if (index === -1) {
+      return false;
+    }
+
+    if (tabs[index].isActive) {
+      let link = '/';
+
+      switch (index) {
+        case tabs.length - 1:
+          tabs[index - 1].isActive = true;
+          link = tabs[index - 1].link;
+          break;
+        case 0:
+          tabs[index + 1].isActive = true;
+          link = tabs[index + 1].link;
+          break;
+        default:
+          tabs[index + 1].isActive = true;
+          link = tabs[index + 1].link;
+      }
+
+      history.push.call(this, link);
+    }
+
+    for (let i = index; i < tabs.length; i++) {
+      tabs[i].position -= 1;
+    }
+
+    tabs.splice(index, 1);
+    saveTabs(tabs);
+
+    this.setState({ tabs }, this.checkNeedArrow.bind(this));
+  }
+
   get sortableTabs() {
     const { tabs } = this.state;
 
     return tabs.sort((first, second) => (first.position > second.position ? 1 : -1));
   }
 
-  activeTab = tab => {
+  activeTab = (tab, allTabs = this.state.tabs) => {
     const { history, saveTabs } = this.props;
-    const tabs = deepClone(this.state.tabs);
+    const tabs = deepClone(allTabs);
 
     tabs.forEach(item => {
       item.isActive = item.id === tab.id;

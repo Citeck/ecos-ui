@@ -44,7 +44,7 @@ export default class Components {
     },
     [ComponentKeys.DOC_STATUS]: {
       path: './DocStatus',
-      label: 'Статус документа'
+      label: 'dashboard-settings.widget.doc-status'
     }
   };
 

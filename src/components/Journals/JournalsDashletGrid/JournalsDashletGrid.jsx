@@ -1,9 +1,11 @@
 import React, { Component, Fragment } from 'react';
+import lodash from 'lodash';
 import connect from 'react-redux/es/connect/connect';
 import Loader from '../../common/Loader/Loader';
 import JournalsDownloadZip from '../JournalsDownloadZip';
 import EcosModal from '../../common/EcosModal/EcosModal';
 import { EmptyGrid, Grid, InlineTools, Tools } from '../../common/grid';
+import FormManager from '../../EcosForm/FormManager';
 import { IcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { getDownloadContentUrl, goToCardDetailsPage, goToNodeEditPage } from '../../../helpers/urls';
@@ -286,7 +288,22 @@ class JournalsDashletGrid extends Component {
 
   changeGroupAction = groupAction => {
     const { selectedRecords, performGroupAction } = this.props;
-    performGroupAction({ groupAction, selected: selectedRecords });
+
+    if (groupAction.formKey) {
+      FormManager.openFormModal({
+        record: '@',
+        formKey: groupAction.formKey,
+        saveOnSubmit: false,
+        onSubmit: rec => {
+          let action = lodash.cloneDeep(groupAction);
+          action.params = action.params || {};
+          action.params.attributes = rec.getAttributesToPersist();
+          performGroupAction({ groupAction: action, selected: selectedRecords });
+        }
+      });
+    } else {
+      performGroupAction({ groupAction, selected: selectedRecords });
+    }
   };
 
   render() {

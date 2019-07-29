@@ -75,15 +75,15 @@ class Search extends React.Component {
     const searchResult = [];
 
     if (!isEmpty(documents)) {
-      searchResult.push({ groupName: t('Документы') });
+      searchResult.push({ groupName: t('search.documents') });
       searchResult.push(...setOutputParams(documents, Types.DOCUMENTS));
     }
     if (!isEmpty(sites)) {
-      searchResult.push({ groupName: t('Разделы') });
+      searchResult.push({ groupName: t('search.sites') });
       searchResult.push(...setOutputParams(sites, Types.SITES));
     }
     if (!isEmpty(people)) {
-      searchResult.push({ groupName: t('Люди') });
+      searchResult.push({ groupName: t('search.people') });
       searchResult.push(...setOutputParams(people, Types.PEOPLE));
     }
 
@@ -110,6 +110,7 @@ class Search extends React.Component {
         theme={'dark'}
         formattedSearchResult={this.formattedSearchResult}
         autocomplete
+        isMobile={isMobile}
         collapsed={isMobile}
         collapsible={isMobile}
         noResults={noResults}
