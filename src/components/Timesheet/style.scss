@@ -64,21 +64,26 @@
       border-bottom: 2px $color-gray-4 solid;
       border-right: 2px $color-gray-4 solid;
       height: 100%;
+      margin-top: 10px;
+      margin-bottom: 10px;
     }
 
     &-right-column {
       flex-grow: 1;
       height: 100%;
       overflow: auto;
+      align-self: baseline;
     }
 
     &-search {
       padding: 25px 17px;
       position: relative;
+      border-bottom: 2px $color-gray-4 solid;
 
       &-input {
         height: 26px;
         padding: 5px 12px;
+        font-size: 12px;
 
         &:focus {
           border-color: $color-blue-dark;
@@ -101,6 +106,71 @@
 
         &:hover {
           color: $color-blue-light;
+        }
+      }
+    }
+
+    &-events {
+      display: flex;
+      flex-direction: column;
+
+      &-item {
+        display: flex;
+        align-items: center;
+        height: 30px;
+        padding: 6px 17px;
+        position: relative;
+        background: $color-white;
+
+        &:not(:last-child) {
+          border-bottom: 2px $color-gray-4 solid;
+        }
+
+        &-dnd {
+          margin-right: 9px;
+          //cursor: grab;
+          color: $color-gray-6;
+
+          &:before {
+            content: '\006F';
+            font-family: citeck;
+            font-size: 14px;
+          }
+        }
+
+        &-filter {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          margin-right: 8px;
+        }
+
+        &-title {
+          font-style: normal;
+          font-weight: 600;
+          font-size: 12px;
+          line-height: 16px;
+          color: $text-color-dark;
+          margin-right: 8px;
+        }
+
+        &-add-btn {
+          color: $color-gray-1;
+          cursor: pointer;
+
+          &:before {
+            position: absolute;
+            top: calc(50% - 1em / 2);
+            right: 12px;
+            line-height: 1em;
+            content: '\0044';
+            font-family: citeck;
+            font-size: 14px;
+          }
+
+          &:hover {
+            color: $text-color-gray;
+          }
         }
       }
     }
@@ -206,11 +276,56 @@
           //}
         }
 
-        #{$cell}_weekend#{$cell}_current {
-          color: $color-red-1 !important;
-          background-color: $color-pink-3 !important;
-          border-color: $color-pink-3 !important;
+        //#{$cell}_weekend#{$cell}_current {
+        //  color: $color-red-1 !important;
+        //  background-color: $color-pink-3 !important;
+        //  border-color: $color-pink-3 !important;
+        //}
+      }
+    }
+
+    &-hour {
+      position: relative;
+
+      %box {
+        border-radius: 4px;
+        width: 62px;
+        height: 20px;
+      }
+
+      &-empty {
+        @extend %box;
+
+        opacity: 0;
+        background: $color-gray-4;
+        cursor: pointer;
+
+        &:before {
+          content: '\0044';
+          font-family: citeck;
+          font-size: 14px;
+
+          position: absolute;
+          top: calc(50% - 1em / 2);
+          left: calc(50% - 1em / 2);
+          line-height: 1em;
+          color: $color-gray-5;
         }
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+
+      &-item {
+        @extend %box;
+
+        color: $color-white;
+        text-align: center;
+        font-style: normal;
+        font-weight: 600;
+        font-size: 12px;
+        line-height: 20px;
       }
     }
   }

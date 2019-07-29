@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { Scrollbars } from 'react-custom-scrollbars';
 
+import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import Tabs from './Tabs';
 import DateSlider from './DateSlider';
 import { Input } from '../common/form';
@@ -10,39 +11,10 @@ import { t, deepClone } from '../../helpers/util';
 import './style.scss';
 
 class Timesheet extends Component {
-  state = {
-    sheetTabs: [
-      {
-        name: 'Мой табель',
-        isActive: true,
-        isAvailable: true
-      },
-      {
-        name: 'Табели подчиненных',
-        isActive: false,
-        isAvailable: true
-      },
-      {
-        name: 'Табели подчиненных',
-        isActive: false,
-        isAvailable: false
-      }
-    ],
-    dateTabs: [
-      {
-        name: 'Месяц',
-        isActive: true,
-        isAvailable: true
-      },
-      {
-        name: 'Год',
-        isActive: false,
-        isAvailable: false
-      }
-    ],
-    currentDate: new Date(),
-    typeFilter: '',
-    eventTypes: [
+  constructor() {
+    super();
+
+    const eventTypes = [
       {
         title: 'Работа в дневное время',
         name: 'daytime-work',
@@ -73,8 +45,44 @@ class Timesheet extends Component {
         name: 'business-trip',
         color: '#FFB4D8'
       }
-    ]
-  };
+    ];
+
+    this.state = {
+      sheetTabs: [
+        {
+          name: 'Мой табель',
+          isActive: true,
+          isAvailable: true
+        },
+        {
+          name: 'Табели подчиненных',
+          isActive: false,
+          isAvailable: true
+        },
+        {
+          name: 'Табели подчиненных',
+          isActive: false,
+          isAvailable: false
+        }
+      ],
+      dateTabs: [
+        {
+          name: 'Месяц',
+          isActive: true,
+          isAvailable: true
+        },
+        {
+          name: 'Год',
+          isActive: false,
+          isAvailable: false
+        }
+      ],
+      currentDate: new Date(),
+      typeFilter: '',
+      eventTypes,
+      filteredEventTypes: deepClone(eventTypes)
+    };
+  }
 
   get daysOfMonth() {
     const { currentDate } = this.state;
@@ -112,15 +120,38 @@ class Timesheet extends Component {
 
   handleFilterTypes = event => {
     this.filterTypes(event.target.value);
-    console.warn(event.target.value);
   };
 
   handleClearFilterTypes = () => {
     this.filterTypes('');
   };
 
+  getFiltered(eventTypes, filter) {
+    return eventTypes.filter(item => item.title.toLowerCase().includes(filter.toLowerCase()));
+  }
+
+  handleSortEnd = ({ oldIndex, newIndex }, event) => {
+    const { filteredEventTypes } = this.state;
+    const eventTypes = deepClone(filteredEventTypes);
+    const draggableEvent = eventTypes[oldIndex];
+
+    event.stopPropagation();
+
+    eventTypes.splice(oldIndex, 1);
+    eventTypes.splice(newIndex, 0, draggableEvent);
+
+    this.setState({ filteredEventTypes: eventTypes });
+  };
+
   filterTypes(typeFilter = '') {
-    this.setState({ typeFilter });
+    const { eventTypes } = this.state;
+    let filteredEventTypes = deepClone(eventTypes);
+
+    if (typeFilter) {
+      filteredEventTypes = this.getFiltered(eventTypes, typeFilter);
+    }
+
+    this.setState({ typeFilter, filteredEventTypes });
   }
 
   renderFilter() {
@@ -140,8 +171,45 @@ class Timesheet extends Component {
     );
   }
 
+  renderEventTypes() {
+    const { filteredEventTypes } = this.state;
+
+    return (
+      <SortableContainer
+        axis="y"
+        lockAxis="y"
+        onSortEnd={this.handleSortEnd}
+        // updateBeforeSortStart={this.handleBeforeSortStart}
+        useDragHandle
+      >
+        <div className="ecos-timesheet__table-events">{filteredEventTypes.map(this.renderEventType)}</div>
+      </SortableContainer>
+    );
+  }
+
+  renderEventType = (item, position) => {
+    return (
+      <SortableElement key={position} index={position}>
+        <div className="ecos-timesheet__table-events-item">
+          <SortableHandle>
+            <div className="ecos-timesheet__table-events-item-dnd" />
+          </SortableHandle>
+
+          <div
+            className="ecos-timesheet__table-events-item-filter"
+            style={{
+              backgroundColor: item.color || '#D0D0D0'
+            }}
+          />
+          <div className="ecos-timesheet__table-events-item-title">{item.title}</div>
+          <div className="ecos-timesheet__table-events-item-add-btn" />
+        </div>
+      </SortableElement>
+    );
+  };
+
   renderCalendar() {
-    const { currentDate } = this.state;
+    const { currentDate, filteredEventTypes } = this.state;
     const days = [];
     const dayInMonth = moment(currentDate).daysInMonth();
 
@@ -160,11 +228,35 @@ class Timesheet extends Component {
               <div className="ecos-timesheet__table-calendar-cell ecos-timesheet__table-calendar-cell_hours ecos-timesheet__table-calendar-cell_big">
                 <div className="ecos-timesheet__table-calendar-cell-content">10</div>
               </div>
+
+              {filteredEventTypes.map((item, index) => (
+                <div className="ecos-timesheet__table-calendar-cell" key={index}>
+                  <div className="ecos-timesheet__table-calendar-cell-content">{this.renderHourCreator(item)}</div>
+                </div>
+              ))}
             </div>
           ))}
-          {/*{days}*/}
         </div>
       </Scrollbars>
+    );
+  }
+
+  // todo Перенести в отдельный компонент по результатам изучения формата данных
+  renderHourCreator(type, count = Math.round(Math.random())) {
+    return (
+      <div className="ecos-timesheet__table-hour">
+        {!count && <div className="ecos-timesheet__table-hour-empty" />}
+        {count > 0 && (
+          <div
+            className="ecos-timesheet__table-hour-item"
+            style={{
+              backgroundColor: type.color || '#33DFD5'
+            }}
+          >
+            {count}
+          </div>
+        )}
+      </div>
     );
   }
 
@@ -178,8 +270,6 @@ class Timesheet extends Component {
 
   render() {
     const { sheetTabs, dateTabs, currentDate } = this.state;
-
-    console.warn(this.daysOfMonth);
 
     return (
       <div className="ecos-timesheet">
@@ -204,7 +294,10 @@ class Timesheet extends Component {
         </div>
 
         <div className="ecos-timesheet__table">
-          <div className="ecos-timesheet__table-left-column">{this.renderFilter()}</div>
+          <div className="ecos-timesheet__table-left-column">
+            {this.renderFilter()}
+            {this.renderEventTypes()}
+          </div>
           <div className="ecos-timesheet__table-right-column">{this.renderCalendar()}</div>
         </div>
       </div>
