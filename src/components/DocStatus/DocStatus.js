@@ -101,7 +101,7 @@ class DocStatus extends React.Component {
   renderLoader() {
     return (
       <div className={`${this.className}__loader-wrapper`}>
-        <Loader height={'45'} width={'45'} />
+        <Loader />
       </div>
     );
   }
