@@ -84,7 +84,7 @@ export default class AsyncDataComponent extends BaseComponent {
       return result;
     }
 
-    if (this.shouldUpdate) {
+    if (this.shouldExecute) {
       this._updateValue(false);
     }
 
@@ -95,7 +95,7 @@ export default class AsyncDataComponent extends BaseComponent {
     return false;
   }
 
-  get shouldUpdate() {
+  get shouldExecute() {
     let comp = this.component;
 
     if (comp.executionCondition) {
@@ -299,7 +299,7 @@ export default class AsyncDataComponent extends BaseComponent {
       this.on(
         this.component.update.event,
         () => {
-          if (this.shouldUpdate) {
+          if (this.shouldExecute) {
             const isForceUpdate = _.get(this.component, 'update.force', false);
             this._updateValue(isForceUpdate);
           }
@@ -317,13 +317,11 @@ export default class AsyncDataComponent extends BaseComponent {
         event => {
           // console.log('changed event', event)
           if (
-            this.shouldUpdate &&
             event.changed &&
             event.changed.component &&
-            (refreshOn.findIndex(item => item.value === event.changed.component.key) !== -1) &
-              // Make sure the changed component is not in a different "context". Solves issues where refreshOn being set
-              // in fields inside EditGrids could alter their state from other rows (which is bad).
-              this.inContext(event.changed.instance)
+            refreshOn.findIndex(item => item.value === event.changed.component.key) !== -1 &&
+            this.inContext(event.changed.instance) && // Make sure the changed component is not in a different "context". Solves issues where refreshOn being set in fields inside EditGrids could alter their state from other rows (which is bad).
+            this.shouldExecute // !!! это условие должно быть последним в этом "if" во избежание ненужных вызовов this.shouldExecute
           ) {
             this._updateValue(false);
           }
