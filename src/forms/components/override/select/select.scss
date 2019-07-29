@@ -84,7 +84,25 @@
         }
 
         .choices__button {
-          display: none;
+          background: none;
+          text-indent: 0;
+          font-size: 0;
+          height: 100%;
+          width: 25px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          top: 0;
+          margin-top: 0;
+          margin-right: 30px;
+
+          &:after {
+            font-family: $font-family-citeck;
+            font-size: 16px;
+            font-weight: normal;
+            content: '\62';
+            color: $color-gray-6;
+          }
         }
 
         .form-control {

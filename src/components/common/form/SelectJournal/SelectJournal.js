@@ -357,7 +357,7 @@ export default class SelectJournal extends Component {
   };
 
   onCancelSelect = () => {
-    const { multiple } = this.props;
+    const { multiple, onCancel } = this.props;
 
     this.setState(prevState => {
       return {
@@ -368,6 +368,10 @@ export default class SelectJournal extends Component {
         isSelectModalOpen: false
       };
     });
+
+    if (typeof onCancel === 'function') {
+      onCancel.call(this);
+    }
   };
 
   onSelectGridItem = value => {
@@ -456,7 +460,18 @@ export default class SelectJournal extends Component {
   };
 
   render() {
-    const { multiple, placeholder, disabled, isCompact, viewOnly, hideCreateButton, searchField } = this.props;
+    const {
+      multiple,
+      placeholder,
+      disabled,
+      isCompact,
+      viewOnly,
+      hideCreateButton,
+      searchField,
+      inputViewClass,
+      autoFocus,
+      onBlur
+    } = this.props;
     const {
       isGridDataReady,
       selectedRows,
@@ -486,7 +501,10 @@ export default class SelectJournal extends Component {
       selectedRows,
       editValue: this.onValueEdit,
       deleteValue: this.onValueDelete,
-      openSelectModal: this.openSelectModal
+      openSelectModal: this.openSelectModal,
+      className: inputViewClass,
+      autoFocus,
+      onBlur
     };
 
     let selectModalTitle = t('select-journal.select-modal.title');
