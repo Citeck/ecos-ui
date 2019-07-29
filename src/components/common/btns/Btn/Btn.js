@@ -6,6 +6,16 @@ import PointsLoader from '../../PointsLoader/PointsLoader';
 import './Btn.scss';
 
 export default class Btn extends Component {
+  _ref = React.createRef();
+
+  componentDidMount() {
+    const btn = this._ref.current;
+
+    if (this.props.autoFocus && btn) {
+      btn.focus();
+    }
+  }
+
   render() {
     const { children, className, disabled, loading, ...htmlAttr } = this.props;
 
@@ -18,7 +28,7 @@ export default class Btn extends Component {
     );
 
     return (
-      <button disabled={disabled} {...htmlAttr} className={cssClasses}>
+      <button ref={this._ref} disabled={disabled} {...htmlAttr} className={cssClasses}>
         {loading ? <PointsLoader /> : children}
       </button>
     );
