@@ -41,7 +41,39 @@ class Timesheet extends Component {
       }
     ],
     currentDate: new Date(),
-    typeFilter: ''
+    typeFilter: '',
+    eventTypes: [
+      {
+        title: 'Работа в дневное время',
+        name: 'daytime-work',
+        color: '#00C308'
+      },
+      {
+        title: 'Работа в ночное время',
+        name: 'night-work',
+        color: '#4133DF'
+      },
+      {
+        title: 'Работа в выходные и праздничные дни',
+        name: 'weekends-holidays-work',
+        color: '#33DFD5'
+      },
+      {
+        title: 'Сверхурочная работа',
+        name: 'overtime-work',
+        color: '#DF8633'
+      },
+      {
+        title: 'Ежегодный основной оплачиваемый отпуск',
+        name: 'annual-basic-paid-leave',
+        color: '#DF3386'
+      },
+      {
+        title: 'Командировка',
+        name: 'business-trip',
+        color: '#FFB4D8'
+      }
+    ]
   };
 
   get daysOfMonth() {
@@ -119,7 +151,19 @@ class Timesheet extends Component {
 
     return (
       <Scrollbars autoHeight autoHeightMin={40} autoHeightMax={'100%'} renderThumbVertical={props => <div {...props} hidden />}>
-        <div className="ecos-timesheet__table-calendar">{days}</div>
+        <div className="ecos-timesheet__table-calendar">
+          {this.daysOfMonth.map(day => (
+            <div className="ecos-timesheet__table-calendar-column" key={day}>
+              <div className="ecos-timesheet__table-calendar-cell ecos-timesheet__table-calendar-cell_big">
+                <div className="ecos-timesheet__table-calendar-cell-content">{day}</div>
+              </div>
+              <div className="ecos-timesheet__table-calendar-cell ecos-timesheet__table-calendar-cell_hours ecos-timesheet__table-calendar-cell_big">
+                <div className="ecos-timesheet__table-calendar-cell-content">10</div>
+              </div>
+            </div>
+          ))}
+          {/*{days}*/}
+        </div>
       </Scrollbars>
     );
   }
