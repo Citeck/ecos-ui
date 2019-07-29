@@ -4,12 +4,12 @@ import classNames from 'classnames';
 
 import Export from '../../Export/Export';
 import JournalsDashletPagination from '../JournalsDashletPagination';
+import FormManager from '../../EcosForm/FormManager';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { onJournalSelect, onJournalSettingsSelect } from '../../../actions/journals';
-import { goToCreateRecordPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
-import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../constants';
+import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -37,8 +37,8 @@ class JournalsDashletToolbar extends Component {
         meta: { createVariants = [{}] }
       }
     } = this.props;
-    createVariants = createVariants[0] || {};
-    createVariants.canCreate && goToCreateRecordPage(createVariants);
+
+    FormManager.createRecordByVariant(createVariants[0]);
   };
 
   onChangeJournal = journal => this.props.onJournalSelect(journal.nodeRef);
@@ -79,7 +79,7 @@ class JournalsDashletToolbar extends Component {
           })}
           onChange={this.onChangeJournal}
         >
-          <IcoBtn invert={'true'} icon={'icon-down'} className={'ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10'} />
+          <IcoBtn invert icon={'icon-down'} className={'ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10'} />
         </Dropdown>
 
         {!isSmall && (

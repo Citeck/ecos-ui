@@ -1,26 +1,28 @@
 import React, { Component, Fragment } from 'react';
+import lodash from 'lodash';
 import connect from 'react-redux/es/connect/connect';
 import Loader from '../../common/Loader/Loader';
 import JournalsDownloadZip from '../JournalsDownloadZip';
 import EcosModal from '../../common/EcosModal/EcosModal';
-import { Grid, InlineTools, Tools, EmptyGrid } from '../../common/grid';
+import { EmptyGrid, Grid, InlineTools, Tools } from '../../common/grid';
+import FormManager from '../../EcosForm/FormManager';
 import { IcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
-import { goToCardDetailsPage, goToNodeEditPage, getDownloadContentUrl } from '../../../helpers/urls';
+import { getDownloadContentUrl, goToCardDetailsPage, goToNodeEditPage } from '../../../helpers/urls';
 import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import classNames from 'classnames';
 import {
-  reloadGrid,
   deleteRecords,
-  saveRecords,
-  setSelectedRecords,
-  setSelectAllRecords,
-  setSelectAllRecordsVisible,
-  setGridInlineToolSettings,
   goToJournalsPage,
   performGroupAction,
-  setPerformGroupActionResponse
+  reloadGrid,
+  saveRecords,
+  setGridInlineToolSettings,
+  setPerformGroupActionResponse,
+  setSelectAllRecords,
+  setSelectAllRecordsVisible,
+  setSelectedRecords
 } from '../../../actions/journals';
 
 const mapStateToProps = (state, props) => {
@@ -263,7 +265,7 @@ class JournalsDashletGrid extends Component {
             onChange={this.changeGroupAction}
           >
             <IcoBtn
-              invert={'true'}
+              invert
               icon={'icon-down'}
               className={'dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn'}
               onClick={this.onGoTo}
@@ -286,7 +288,22 @@ class JournalsDashletGrid extends Component {
 
   changeGroupAction = groupAction => {
     const { selectedRecords, performGroupAction } = this.props;
-    performGroupAction({ groupAction, selected: selectedRecords });
+
+    if (groupAction.formKey) {
+      FormManager.openFormModal({
+        record: '@',
+        formKey: groupAction.formKey,
+        saveOnSubmit: false,
+        onSubmit: rec => {
+          let action = lodash.cloneDeep(groupAction);
+          action.params = action.params || {};
+          action.params.attributes = rec.getAttributesToPersist();
+          performGroupAction({ groupAction: action, selected: selectedRecords });
+        }
+      });
+    } else {
+      performGroupAction({ groupAction, selected: selectedRecords });
+    }
   };
 
   render() {

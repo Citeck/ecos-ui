@@ -1,5 +1,9 @@
 import * as projectInfo from '../../package.json';
 
+export function isExistLocalStorage() {
+  return 'localStorage' in window && window.localStorage !== null;
+}
+
 export function getData(key = '') {
   if (!key) {
     return null;
@@ -71,4 +75,24 @@ export function generateKey(extName = 'app', complicate = false) {
     .join('-');
 
   return `${name}-${complicatingPart}`;
+}
+
+export function isExistSessionStorage() {
+  return 'sessionStorage' in window && window.sessionStorage !== null;
+}
+
+export function getSessionData(key = '') {
+  if (!key) {
+    return null;
+  }
+
+  return JSON.parse(window.sessionStorage.getItem(key));
+}
+
+export function setSessionData(key = '', data = null) {
+  if (!key) {
+    return null;
+  }
+
+  window.sessionStorage.setItem(key, JSON.stringify(data));
 }

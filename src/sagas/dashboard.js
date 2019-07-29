@@ -4,8 +4,8 @@ import {
   saveDashboardConfig,
   setDashboardConfig,
   setDashboardIdentification,
-  setResultSaveDashboardConfig,
-  setDashboardTitleInfo
+  setDashboardTitleInfo,
+  setResultSaveDashboardConfig
 } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
 import { selectIdentificationForView } from '../selectors/dashboard';

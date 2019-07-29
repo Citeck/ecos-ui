@@ -18,6 +18,7 @@ import dashboardSettings from './dashboardSettings';
 import dashboard from './dashboard';
 import menu from './menu';
 import currentTasks from './currentTasks';
+import docStatus from './docStatus';
 import barcode from './barcode';
 
 const reducers = {
@@ -38,6 +39,7 @@ const reducers = {
   dashboard,
   menu,
   currentTasks,
+  docStatus,
   barcode
 };
 

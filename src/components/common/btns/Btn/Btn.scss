@@ -347,6 +347,7 @@ button {
 
   &.ecos-btn_bgr-inherit {
     background: inherit;
+
     &:active,
     &:focus {
       background: inherit;
@@ -355,6 +356,17 @@ button {
 
   &.ecos-btn_color-inherit {
     color: inherit;
+  }
+
+  &.ecos-btn_no-back {
+    color: $color-white;
+    background: transparent;
+
+    &:active,
+    &:focus,
+    &:hover {
+      background: transparent;
+    }
   }
 
   /*hovers*/
@@ -397,6 +409,7 @@ button {
       color: $color-blue-light;
       background: inherit;
     }
+
     &:active {
       color: $color-blue-dark;
       background: inherit;
@@ -450,6 +463,23 @@ button {
     }
   }
 
+  /*active, focus*/
+  &.ecos-btn_active_blue {
+    &:focus,
+    &:active {
+      color: $color-blue-dark;
+      background: $color-white;
+    }
+  }
+
+  &.ecos-btn_active_blue2 {
+    &:focus,
+    &:active {
+      color: $color-white;
+      background: $color-blue-dark;
+    }
+  }
+
   /* Width */
   &.ecos-btn_full-width {
     margin-top: 10px;
@@ -471,52 +501,6 @@ button {
 
     &:hover {
       background: lighten($color-red-1, 10%);
-    }
-  }
-}
-
-.ecos-btn {
-  &__loading {
-    $animationDuration: 1.4s;
-    $delayRange: 0.32s;
-
-    width: 40%;
-    font-size: 8px;
-    display: flex;
-    justify-content: space-around;
-    height: 100%;
-    margin: auto;
-    text-align: center;
-    align-items: center;
-
-    @keyframes loading {
-      0% {
-        opacity: 0;
-      }
-      45%,
-      55% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-      }
-    }
-
-    &-child {
-      width: 1em; // 8px;
-      height: 1em; // 8px;
-      background-color: $color-white;
-      border-radius: 50%;
-      animation: loading $animationDuration ease-in-out 0s infinite alternate;
-      opacity: 0;
-
-      &-1 {
-        animation-delay: -$delayRange;
-      }
-
-      &-2 {
-        animation-delay: (-$delayRange / 2);
-      }
     }
   }
 }

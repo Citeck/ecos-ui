@@ -12,6 +12,7 @@ import dashboardSettings from './dashboardSettings';
 import dashboard from './dashboard';
 import menu from './menu';
 import currentTasks from './currentTasks';
+import docStatus from './docStatus';
 import barcode from './barcode';
 
 export default function* rootSaga(extraArguments) {
@@ -29,6 +30,7 @@ export default function* rootSaga(extraArguments) {
     dashboard(extraArguments),
     menu(extraArguments),
     currentTasks(extraArguments),
+    docStatus(extraArguments),
     barcode(extraArguments)
   ]);
 }

@@ -13,6 +13,7 @@ export const ComponentKeys = {
   PROPERTIES: 'properties',
   TASKS: 'tasks',
   CURRENT_TASKS: 'current-tasks',
+  DOC_STATUS: 'doc-status',
   BARCODE: 'barcode'
 };
 
@@ -41,6 +42,10 @@ export default class Components {
     [ComponentKeys.CURRENT_TASKS]: {
       path: './CurrentTasks',
       label: 'dashboard-settings.widget.current-tasks'
+    },
+    [ComponentKeys.DOC_STATUS]: {
+      path: './DocStatus',
+      label: 'dashboard-settings.widget.doc-status'
     },
     [ComponentKeys.BARCODE]: {
       path: './Barcode',

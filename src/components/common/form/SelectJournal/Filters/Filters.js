@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Col, Row } from 'reactstrap';
 import PropTypes from 'prop-types';
 import Dropdown from '../../../../common/form/Dropdown';
-import { IcoBtn, Btn } from '../../../../common/btns';
+import { Btn, IcoBtn } from '../../../../common/btns';
 import FiltersContext from './FiltersContext';
 import Filter from '../Filter';
 import { t } from '../../../../../helpers/util';
@@ -69,7 +69,7 @@ class Filters extends Component {
         <Row>
           <Col md={6} xs={12}>
             <Dropdown source={columns} valueField={'attribute'} titleField={'text'} isStatic onChange={addField}>
-              <IcoBtn invert={'true'} icon="icon-down" className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_grey6">
+              <IcoBtn invert icon="icon-down" className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_grey6">
                 {t('select-journal.filters.add-criteria')}
               </IcoBtn>
             </Dropdown>

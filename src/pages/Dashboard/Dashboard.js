@@ -4,7 +4,7 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { getDashboardConfig, saveDashboardConfig } from '../../actions/dashboard';
+import { getDashboardConfig, saveDashboardConfig, resetDashboardConfig } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import Layout from '../../components/Layout';
 import { DndUtils } from '../../components/Drag-n-Drop';
@@ -35,6 +35,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   getDashboardConfig: payload => dispatch(getDashboardConfig(payload)),
   saveDashboardConfig: payload => dispatch(saveDashboardConfig(payload)),
+  resetDashboardConfig: payload => dispatch(resetDashboardConfig(payload)),
   initMenuSettings: payload => dispatch(getMenuConfig(payload)),
   saveMenuConfig: config => dispatch(saveMenuConfig(config))
 });
@@ -59,13 +60,14 @@ class Dashboard extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { getDashboardConfig, initMenuSettings, config } = nextProps;
+    const { getDashboardConfig, initMenuSettings, config, resetDashboardConfig } = nextProps;
     const { recordRef } = this.getPathInfo(nextProps);
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
 
     if (urlParams !== newUrlParams) {
       this.setState({ urlParams: newUrlParams });
+      resetDashboardConfig();
       getDashboardConfig({ recordRef });
       initMenuSettings();
     }
@@ -228,6 +230,7 @@ class Dashboard extends Component {
                 <a
                   {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="ecos-dashboard__header-user"
                   href={modifierUrl}
                   title={t(`Открыть профиль ${modifierName}`)}

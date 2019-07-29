@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col } from 'reactstrap';
+import { Col, Container, Row } from 'reactstrap';
 import Form from 'formiojs/Form';
 import FormBuilder from 'formiojs/FormBuilder';
 // import schema from './form.json';

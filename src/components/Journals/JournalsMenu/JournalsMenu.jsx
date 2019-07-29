@@ -4,10 +4,10 @@ import CollapsableList from '../../common/CollapsableList/CollapsableList';
 import JournalsUrlManager from '../JournalsUrlManager';
 import { IcoBtn } from '../../common/btns';
 import { Well } from '../../common/form';
-import { deleteJournalSetting, onJournalSettingsSelect, onJournalSelect } from '../../../actions/journals';
+import { deleteJournalSetting, onJournalSelect, onJournalSettingsSelect } from '../../../actions/journals';
 import { getPropByStringKey, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../constants';
+import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 import './JournalsMenu.scss';
 
@@ -133,7 +133,7 @@ class JournalsMenu extends Component {
             <IcoBtn
               onClick={this.onClose}
               icon={'icon-close'}
-              invert={'true'}
+              invert
               className={'ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest'}
             >
               {t('journals.action.hide-menu')}

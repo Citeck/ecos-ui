@@ -14,7 +14,7 @@ import { initMenuSettings } from '../../actions/menu';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { Btn } from '../../components/common/btns';
-import Loader from '../../components/common/Loader/Loader';
+import { Loader } from '../../components/common';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { getSortedUrlParams } from '../../helpers/urls';
 
@@ -124,7 +124,7 @@ class DashboardSettings extends React.Component {
     this.setState({ ...state });
 
     if (nextProps.saveResult && saveResult.status !== nextProps.saveResult.status && nextProps.saveResult.status !== SAVE_STATUS.FAILURE) {
-      this.handleCloseClick(nextProps.saveResult);
+      this.closePage(nextProps);
     }
   }
 
@@ -587,9 +587,7 @@ class DashboardSettings extends React.Component {
   /*-------- start Buttons --------*/
 
   handleCloseClick = () => {
-    const { pathDashboard } = this.getPathInfo();
-
-    changeUrlLink(pathDashboard, { openNewTab: true });
+    this.closePage();
   };
 
   handleAcceptClick = () => {
@@ -606,6 +604,12 @@ class DashboardSettings extends React.Component {
       links
     });
     getAwayFromPage();
+  };
+
+  closePage = (props = this.props) => {
+    const { pathDashboard } = this.getPathInfo(props);
+
+    changeUrlLink(pathDashboard, { openNewTab: true, closeActiveTab: true });
   };
 
   renderButtons() {

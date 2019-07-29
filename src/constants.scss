@@ -97,3 +97,9 @@ $background-loader: rgba($color-gray-5, 0.3);
   visibility: visible;
   z-index: 11;
 }
+
+%ellipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

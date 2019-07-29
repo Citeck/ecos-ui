@@ -24,12 +24,13 @@ import {
   BpmnApi,
   CommentsApi,
   DashboardApi,
+  DocStatusApi,
   JournalsApi,
   MenuApi,
   OrgStructApi,
+  PageTabsApi,
   TasksApi,
-  UserApi,
-  PageTabsApi
+  UserApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
@@ -67,6 +68,7 @@ api.tasks = new TasksApi(store);
 api.comments = new CommentsApi(store);
 api.dashboard = new DashboardApi(store);
 api.pageTabs = new PageTabsApi(store);
+api.docStatus = new DocStatusApi(store);
 api.barcode = new BarcodeApi(store);
 
 const history = getHistory();
