@@ -6,12 +6,35 @@ import { t } from '../../../../../helpers/util';
 import './InputView.scss';
 
 class InputView extends Component {
-  render() {
-    const { selectedRows, placeholder, error, disabled, multiple, isCompact, editValue, deleteValue, openSelectModal } = this.props;
+  stopBlur = false;
 
-    const wrapperClasses = classNames('select-journal__input-view', {
-      'select-journal__input-view_compact': isCompact
-    });
+  onBlur = () => {
+    const { onBlur } = this.props;
+
+    if (!this.stopBlur && typeof onBlur === 'function') {
+      onBlur.call(this);
+    }
+  };
+
+  onClick = () => {
+    const { openSelectModal } = this.props;
+
+    if (typeof openSelectModal === 'function') {
+      this.stopBlur = true;
+      openSelectModal.call(this);
+    }
+  };
+
+  render() {
+    const { selectedRows, placeholder, error, disabled, multiple, isCompact, editValue, deleteValue, className, autoFocus } = this.props;
+
+    const wrapperClasses = classNames(
+      'select-journal__input-view',
+      {
+        'select-journal__input-view_compact': isCompact
+      },
+      className
+    );
 
     const buttonClasses = classNames('ecos-btn_blue', {
       'ecos-btn_narrow': true, //isCompact,
@@ -55,7 +78,7 @@ class InputView extends Component {
         {error ? (
           <p className={'select-journal__error'}>{error.message}</p>
         ) : (
-          <Btn className={buttonClasses} onClick={openSelectModal} disabled={disabled}>
+          <Btn className={buttonClasses} onClick={this.onClick} disabled={disabled} autoFocus={autoFocus} onBlur={this.onBlur}>
             {selectedRows.length > 0
               ? multiple
                 ? t('select-journal.button.add')
