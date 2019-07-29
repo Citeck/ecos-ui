@@ -6,7 +6,7 @@
   &_read {
     background-color: $color-blue-light2;
     color: $color-blue-dark;
-    padding: 10px 0;
+    padding: 11px 0;
     text-align: center;
     font-weight: $font-weight-bold;
     font-size: $font-size-large;
@@ -42,7 +42,7 @@
     overflow: unset;
 
     &__body {
-      padding: 16px 0;
+      padding: 11px 0 15px;
     }
   }
 }

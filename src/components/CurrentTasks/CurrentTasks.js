@@ -75,7 +75,7 @@ class CurrentTasks extends React.Component {
   };
 
   render() {
-    const { currentTasks, height, isLoading, isMobile, isSmallMode, className } = this.props;
+    const { currentTasks, isLoading, isMobile, isSmallMode, className } = this.props;
     const childProps = {
       currentTasks,
       className,
