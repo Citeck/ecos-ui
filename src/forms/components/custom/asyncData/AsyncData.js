@@ -75,17 +75,26 @@ export default class AsyncDataComponent extends BaseComponent {
     return info;
   }
 
+  updatedOnce = false;
+
   checkConditions(data) {
     let result = super.checkConditions(data);
 
     let comp = this.component;
 
-    if (_.get(comp, 'update.type', '') !== 'any-change') {
-      return result;
-    }
+    const updateType = _.get(comp, 'update.type', '');
 
-    if (this.shouldExecute) {
-      this._updateValue(false);
+    if (updateType === 'any-change') {
+      if (this.shouldExecute) {
+        this._updateValue(false);
+      }
+      return result;
+    } else if (updateType === 'once' && !this.updatedOnce) {
+      if (this.shouldExecute) {
+        this.updatedOnce = true;
+        this._updateValue(false);
+      }
+      return result;
     }
 
     return result;
@@ -306,7 +315,8 @@ export default class AsyncDataComponent extends BaseComponent {
         },
         true
       );
-    } else if (updateType === 'once') {
+    } else if (updateType === 'once' && !this.updatedOnce && this.shouldExecute) {
+      this.updatedOnce = true;
       this._updateValue(false);
     }
 
