@@ -409,18 +409,20 @@ class Comments extends React.Component {
   renderHeader() {
     const { isEdit } = this.state;
 
-    if (isEdit) {
-      return this.renderEditor();
-    }
-
     return (
       <div className="ecos-comments__header" ref={this._header}>
-        <div className="ecos-comments__count">
-          <span className="ecos-comments__count-text">{this.countComments}</span>
-        </div>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__add-btn" onClick={this.handleShowEditor}>
-          {t('comments-widget.add')}
-        </Btn>
+        {isEdit ? (
+          this.renderEditor()
+        ) : (
+          <React.Fragment>
+            <div className="ecos-comments__count">
+              <span className="ecos-comments__count-text">{this.countComments}</span>
+            </div>
+            <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__add-btn" onClick={this.handleShowEditor}>
+              {t('comments-widget.add')}
+            </Btn>
+          </React.Fragment>
+        )}
       </div>
     );
   }
