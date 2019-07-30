@@ -32,4 +32,8 @@
 }
 
 .ecos-journal-menu__list-item {
+  padding: 13px 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
