@@ -160,7 +160,7 @@ class JournalsDashletGrid extends Component {
       grid: { groupBy = [] }
     } = this.props;
     const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_x-step_10';
-    const tools = [
+    let tools = [
       <IcoBtn
         title={t('grid.inline-tools.show')}
         icon={'icon-on'}
@@ -193,14 +193,14 @@ class JournalsDashletGrid extends Component {
     }
 
     if (groupBy.length) {
-      tools.push(
+      tools = [
         <IcoBtn
           title={t('grid.inline-tools.details')}
           onClick={this.goToJournalPageWithFilter}
           icon={'icon-big-arrow'}
           className={inlineToolsActionClassName}
         />
-      );
+      ];
     }
 
     return <InlineTools tools={tools} stateId={stateId} />;

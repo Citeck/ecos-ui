@@ -36,14 +36,6 @@ export default [
     input: true
   },
   {
-    type: 'checkbox',
-    input: true,
-    key: 'hideCreateButton',
-    label: 'Hide "Create" button',
-    weight: 21,
-    defaultValue: false
-  },
-  {
     type: 'ecosSelect',
     input: true,
     key: 'displayColumns',

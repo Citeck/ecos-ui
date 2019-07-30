@@ -162,7 +162,7 @@ function* getJournalSetting(api, journalSettingId, journalConfig, stateId, w) {
 
   let journalSetting;
 
-  journalSettingId = journalSettingId || journalConfig.journalSettingId;
+  journalSettingId = journalSettingId || journalConfig.journalSettingId || api.journals.getLsJournalSettingId(journalConfig.id);
 
   if (journalSettingId) {
     journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
@@ -301,6 +301,8 @@ function* sagaOnJournalSettingsSelect({ api, logger, stateId, w }, action) {
 
     let journalSettingId = action.payload;
     let journalConfig = yield select(state => state.journals[stateId].journalConfig);
+
+    api.journals.setLsJournalSettingId(journalConfig.id, journalSettingId);
 
     yield loadGrid(api, journalSettingId, journalConfig, stateId, w);
 

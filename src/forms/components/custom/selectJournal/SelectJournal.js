@@ -12,7 +12,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
         label: 'SelectJournal',
         key: 'selectJournal',
         type: 'selectJournal',
-        customPredicateJs: null
+        customPredicateJs: null,
+        hideCreateButton: false,
+        hideEditRowButton: false,
+        hideDeleteRowButton: false
       },
       ...extend
     );
@@ -67,6 +70,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
         viewOnly: this.viewOnly,
         displayColumns: component.displayColumns,
         hideCreateButton: component.hideCreateButton,
+        hideEditRowButton: component.hideEditRowButton,
+        hideDeleteRowButton: component.hideDeleteRowButton,
         searchField: component.searchField,
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
