@@ -15,6 +15,7 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
+    pageTabsIsShow: state.pageTabs.isShow,
     journals: newState.journals,
     journalSettings: newState.journalSettings,
     journalSetting: newState.journalSetting,
@@ -116,7 +117,8 @@ class JournalsMenu extends Component {
       open,
       journalConfig: {
         meta: { nodeRef }
-      }
+      },
+      pageTabsIsShow
     } = this.props;
     const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
 
@@ -126,7 +128,7 @@ class JournalsMenu extends Component {
 
     return (
       <JournalsUrlManager stateId={stateId} params={{ journalId: nodeRef, journalSettingId }}>
-        <div className={`ecos-journal-menu ${open ? 'ecos-journal-menu_open' : ''}`}>
+        <div className={`ecos-journal-menu ${open ? 'ecos-journal-menu_open' : ''} ${pageTabsIsShow ? 'ecos-journal-menu_tabs' : ''}`}>
           <div className={'ecos-journal-menu__hide-menu-btn'}>
             <IcoBtn
               onClick={this.onClose}

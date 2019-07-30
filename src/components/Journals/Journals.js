@@ -25,6 +25,7 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
+    pageTabsIsShow: state.pageTabs.isShow,
     journalConfig: newState.journalConfig
   };
 };
@@ -107,7 +108,7 @@ class Journals extends Component {
 
   render() {
     const { menuOpen, settingsVisible, showPreview, showPie } = this.state;
-    const { stateId, journalConfig } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow } = this.props;
 
     if (!journalConfig) {
       return null;
@@ -170,7 +171,7 @@ class Journals extends Component {
           </div>
         </div>
 
-        <div className={'ecos-journal__menu'}>
+        <div className={`ecos-journal__menu ${pageTabsIsShow ? 'ecos-journal__menu_tabs' : ''}`}>
           <JournalsMenu stateId={stateId} open={menuOpen} onClose={this.toggleMenu} />
         </div>
       </div>
