@@ -1,9 +1,11 @@
 import { getData, setData } from '../helpers/ls';
 import { get, isEmpty } from 'lodash';
 
+const prefix = 'dashletSettings_';
+
 export default class UserLocalSettingsService {
   static getDashletSettings(dashletId) {
-    let dashletData = getData(dashletId);
+    let dashletData = getData(prefix + dashletId);
 
     if (isEmpty(dashletData)) {
       dashletData = {};
@@ -12,15 +14,19 @@ export default class UserLocalSettingsService {
     return dashletData;
   }
 
+  static setDashletSettings(dashletId, data) {
+    setData(prefix + dashletId, data);
+  }
+
   static getDashletHeight(dashletId) {
-    return get(UserLocalSettingsService.getDashletSettings(dashletId), 'height');
+    return get(UserLocalSettingsService.getDashletSettings(dashletId), 'contentHeight');
   }
 
   static setDashletHeight(dashletId, height) {
     const dashletData = UserLocalSettingsService.getDashletSettings(dashletId);
 
-    dashletData.height = height;
+    dashletData.contentHeight = height;
 
-    setData(dashletId, dashletData);
+    UserLocalSettingsService.setDashletSettings(dashletId, dashletData);
   }
 }

@@ -2,12 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { t } from '../../helpers/util';
-import {
-  MAX_DEFAULT_HEIGHT_DASHLET_CONTENT,
-  MIN_DEFAULT_HEIGHT_DASHLET_CONTENT,
-  MIN_WIDTH_DASHLET_LARGE,
-  MIN_WIDTH_DASHLET_SMALL
-} from '../../constants';
+import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import DocPreview from './DocPreview';
@@ -40,7 +35,8 @@ class DocPreviewDashlet extends Component {
 
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
-      height: UserLocalSettingsService.getDashletHeight(props.id)
+      height: UserLocalSettingsService.getDashletHeight(props.id),
+      fitHeights: {}
     };
   }
 
@@ -53,9 +49,13 @@ class DocPreviewDashlet extends Component {
     this.setState({ height });
   };
 
+  setFitHeights = fitHeights => {
+    this.setState({ fitHeights });
+  };
+
   render() {
     const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging } = this.props;
-    const { width, height } = this.state;
+    const { width, height, fitHeights } = this.state;
     const classesDashlet = classNames('ecos-dp-dashlet', classNameDashlet, {
       'ecos-dp-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE
     });
@@ -74,14 +74,9 @@ class DocPreviewDashlet extends Component {
         onChangeHeight={this.onChangeHeight}
         dragHandleProps={dragHandleProps}
         resizable
+        getFitHeights={this.setFitHeights}
       >
-        <DocPreview
-          link={config.link}
-          height={height}
-          className={classNamePreview}
-          minHeight={MIN_DEFAULT_HEIGHT_DASHLET_CONTENT}
-          maxHeight={MAX_DEFAULT_HEIGHT_DASHLET_CONTENT}
-        />
+        <DocPreview link={config.link} height={height} className={classNamePreview} minHeight={fitHeights.min} maxHeight={fitHeights.max} />
       </Dashlet>
     );
   }

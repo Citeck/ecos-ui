@@ -11,7 +11,7 @@ import Dashlet from '../Dashlet/Dashlet';
 import { Btn, IcoBtn } from '../common/btns';
 import { DefineHeight, Loader } from '../common';
 import { num2str, t } from '../../helpers/util';
-import { MAX_DEFAULT_HEIGHT_DASHLET_CONTENT, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { selectStateByNodeRef } from '../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../actions/comments';
@@ -92,6 +92,7 @@ class Comments extends React.Component {
       editorHeight: BASE_HEIGHT,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       contentHeight: null,
+      fitHeights: {},
       comment: EditorState.createEmpty(),
       editableComment: null,
       commentForDeletion: null
@@ -398,7 +399,11 @@ class Comments extends React.Component {
   };
 
   setContentHeight = contentHeight => {
-    this.setState({ contentHeight: contentHeight });
+    this.setState({ contentHeight });
+  };
+
+  setFitHeights = fitHeights => {
+    this.setState({ fitHeights });
   };
 
   renderHeader() {
@@ -633,7 +638,7 @@ class Comments extends React.Component {
       return null;
     }
 
-    const { userHeight, contentHeight } = this.state;
+    const { userHeight, contentHeight, fitHeights } = this.state;
     const _commentsHeader = this._header.current || {};
     const headerHeight = _commentsHeader.offsetHeight || 0;
 
@@ -641,7 +646,7 @@ class Comments extends React.Component {
       <Scrollbars autoHide ref={this._scroll} style={{ height: contentHeight }}>
         <DefineHeight
           fixHeight={userHeight - headerHeight}
-          maxHeight={MAX_DEFAULT_HEIGHT_DASHLET_CONTENT - headerHeight}
+          maxHeight={fitHeights.max - headerHeight}
           minHeight={1}
           getOptimalHeight={this.setContentHeight}
         >
@@ -679,6 +684,7 @@ class Comments extends React.Component {
           onResize={this.handleResize}
           dragHandleProps={dragHandleProps}
           onChangeHeight={this.handleChangeHeight}
+          getFitHeights={this.setFitHeights}
         >
           {this.renderHeader()}
           {this.renderComments()}

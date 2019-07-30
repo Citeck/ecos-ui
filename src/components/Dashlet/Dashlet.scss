@@ -62,7 +62,7 @@
   }
 
   &__body {
-    min-height: 27px;
+    padding-bottom: 0;
 
     &_relative {
       position: relative;
@@ -98,6 +98,10 @@
         display: inline-block;
       }
     }
+  }
+
+  &__footer {
+    padding-bottom: 7px;
   }
 
   &__resizer {

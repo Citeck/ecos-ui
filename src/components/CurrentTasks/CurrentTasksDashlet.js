@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
 import { isSmallMode, t } from '../../helpers/util';
-import { MAX_DEFAULT_HEIGHT_DASHLET_CONTENT, MIN_DEFAULT_HEIGHT_DASHLET_CONTENT } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import CurrentTasks from './CurrentTasks';
@@ -39,7 +38,8 @@ class CurrentTasksDashlet extends React.Component {
     this.state = {
       isSmallMode: false,
       isUpdating: false,
-      height: UserLocalSettingsService.getDashletHeight(props.id)
+      height: UserLocalSettingsService.getDashletHeight(props.id),
+      fitHeights: {}
     };
   }
 
@@ -56,9 +56,13 @@ class CurrentTasksDashlet extends React.Component {
     this.setState({ isUpdating: true }, () => this.setState({ isUpdating: false }));
   };
 
+  setFitHeights = fitHeights => {
+    this.setState({ fitHeights });
+  };
+
   render() {
     const { id, title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isUpdating, height } = this.state;
+    const { isSmallMode, isUpdating, height, fitHeights } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -74,6 +78,7 @@ class CurrentTasksDashlet extends React.Component {
         actionHelp={false}
         dragHandleProps={dragHandleProps}
         onChangeHeight={this.onChangeHeight}
+        getFitHeights={this.setFitHeights}
       >
         <ReactResizeDetector handleWidth onResize={this.onResize} />
         {!isUpdating && (
@@ -84,8 +89,8 @@ class CurrentTasksDashlet extends React.Component {
             isSmallMode={isSmallMode}
             stateId={id}
             height={height}
-            minHeight={MIN_DEFAULT_HEIGHT_DASHLET_CONTENT}
-            maxHeight={MAX_DEFAULT_HEIGHT_DASHLET_CONTENT}
+            minHeight={fitHeights.min}
+            maxHeight={fitHeights.max}
           />
         )}
       </Dashlet>

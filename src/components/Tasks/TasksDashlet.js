@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
 import { isSmallMode, t } from '../../helpers/util';
-import { MAX_DEFAULT_HEIGHT_DASHLET_CONTENT, MIN_DEFAULT_HEIGHT_DASHLET_CONTENT } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import Tasks from './Tasks';
@@ -37,7 +36,8 @@ class TasksDashlet extends React.Component {
     this.state = {
       isSmallMode: false,
       isRunReload: false,
-      height: UserLocalSettingsService.getDashletHeight(props.id)
+      height: UserLocalSettingsService.getDashletHeight(props.id),
+      fitHeights: {}
     };
   }
 
@@ -52,6 +52,10 @@ class TasksDashlet extends React.Component {
     this.setState({ height });
   };
 
+  setFitHeights = fitHeights => {
+    this.setState({ fitHeights });
+  };
+
   onReload = () => {
     this.setReload(false);
   };
@@ -62,7 +66,7 @@ class TasksDashlet extends React.Component {
 
   render() {
     const { id, title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isRunReload, isSmallMode, height } = this.state;
+    const { isRunReload, isSmallMode, height, fitHeights } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -78,6 +82,7 @@ class TasksDashlet extends React.Component {
         actionHelp={false}
         dragHandleProps={dragHandleProps}
         onChangeHeight={this.onChangeHeight}
+        getFitHeights={this.setFitHeights}
       >
         <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
         <Tasks
@@ -89,8 +94,8 @@ class TasksDashlet extends React.Component {
           setReloadDone={this.setReload}
           isSmallMode={isSmallMode}
           height={height}
-          minHeight={MIN_DEFAULT_HEIGHT_DASHLET_CONTENT}
-          maxHeight={MAX_DEFAULT_HEIGHT_DASHLET_CONTENT}
+          minHeight={fitHeights.min}
+          maxHeight={fitHeights.max}
         />
       </Dashlet>
     );
