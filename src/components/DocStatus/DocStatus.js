@@ -5,11 +5,12 @@ import { debounce, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus } from '../../actions/docStatus';
 import { deepClone } from '../../helpers/util';
-import { IcoBtn } from '../common/btns';
-import Dropdown from '../common/form/Dropdown';
-import Loader from '../common/Loader/Loader';
-import './style.scss';
 import DocStatusService from '../../services/docStatus';
+import { IcoBtn } from '../common/btns';
+import { Dropdown } from '../common/form';
+import { Loader } from '../common';
+
+import './style.scss';
 
 const mapStateToProps = (state, context) => {
   const stateDS = state.docStatus[context.stateId] || {};

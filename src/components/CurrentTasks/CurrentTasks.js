@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { isEmpty } from 'lodash';
 import { getCurrentTaskList } from '../../actions/tasks';
 import { selectDataCurrentTasksByStateId } from '../../selectors/tasks';
 import { DefineHeight } from '../common';
@@ -79,11 +80,17 @@ class CurrentTasks extends React.Component {
 
     return (
       <Scrollbars
-        style={{ height: contentHeight }}
+        style={{ height: contentHeight || '100%' }}
         className={this.className}
         renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
       >
-        <DefineHeight fixHeight={height} maxHeight={maxHeight} minHeight={minHeight} isMin={isLoading} getOptimalHeight={this.setHeight}>
+        <DefineHeight
+          fixHeight={height}
+          maxHeight={maxHeight}
+          minHeight={minHeight}
+          isMin={isLoading || isEmpty(currentTasks)}
+          getOptimalHeight={this.setHeight}
+        >
           <CurrentTaskList {...childProps} />
         </DefineHeight>
       </Scrollbars>

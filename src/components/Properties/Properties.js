@@ -85,7 +85,7 @@ class Properties extends React.Component {
 
     return (
       <Scrollbars
-        style={{ height: contentHeight }}
+        style={{ height: contentHeight || '100%' }}
         className={`${this.className}__scroll`}
         renderTrackVertical={props => <div {...props} className={`${this.className}__scroll_v`} />}
       >

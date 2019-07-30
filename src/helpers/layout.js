@@ -49,7 +49,7 @@ export function getOptimalHeight(fixedHeight, contentHeight, minHeight, maxHeigh
     if (checkNumber(max)) {
       return cH > max ? max : cH;
     }
-  }
 
-  return '100%';
+    return cH;
+  }
 }
