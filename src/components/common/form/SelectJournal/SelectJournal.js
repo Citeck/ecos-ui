@@ -467,6 +467,8 @@ export default class SelectJournal extends Component {
       isCompact,
       viewOnly,
       hideCreateButton,
+      hideEditRowButton,
+      hideDeleteRowButton,
       searchField,
       inputViewClass,
       autoFocus,
@@ -504,7 +506,9 @@ export default class SelectJournal extends Component {
       openSelectModal: this.openSelectModal,
       className: inputViewClass,
       autoFocus,
-      onBlur
+      onBlur,
+      hideEditRowButton,
+      hideDeleteRowButton
     };
 
     let selectModalTitle = t('select-journal.select-modal.title');
@@ -617,6 +621,8 @@ SelectJournal.propTypes = {
   multiple: PropTypes.bool,
   isCompact: PropTypes.bool,
   hideCreateButton: PropTypes.bool,
+  hideEditRowButton: PropTypes.bool,
+  hideDeleteRowButton: PropTypes.bool,
   displayColumns: PropTypes.array,
   viewOnly: PropTypes.bool,
   searchField: PropTypes.string
