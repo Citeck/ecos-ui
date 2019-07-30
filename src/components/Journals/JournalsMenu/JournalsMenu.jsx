@@ -15,6 +15,7 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
+    pageTabsIsShow: state.pageTabs.isShow,
     journals: newState.journals,
     journalSettings: newState.journalSettings,
     journalSetting: newState.journalSetting,
@@ -47,10 +48,8 @@ class ListItem extends Component {
     const { item, titleField, removable } = this.props;
 
     return (
-      <Fragment>
-        <span onClick={this.onClick} className={'ecos-journal-menu__list-item'}>
-          {getPropByStringKey(item, titleField)}
-        </span>
+      <div className={'ecos-journal-menu__list-item'} onClick={this.onClick}>
+        <span>{getPropByStringKey(item, titleField)}</span>
 
         {removable && !item.notRemovable ? (
           <IcoBtn
@@ -59,7 +58,7 @@ class ListItem extends Component {
             onClick={this.delete}
           />
         ) : null}
-      </Fragment>
+      </div>
     );
   }
 }
@@ -118,7 +117,8 @@ class JournalsMenu extends Component {
       open,
       journalConfig: {
         meta: { nodeRef }
-      }
+      },
+      pageTabsIsShow
     } = this.props;
     const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
 
@@ -128,11 +128,11 @@ class JournalsMenu extends Component {
 
     return (
       <JournalsUrlManager stateId={stateId} params={{ journalId: nodeRef, journalSettingId }}>
-        <div className={`ecos-journal-menu ${open ? 'ecos-journal-menu_open' : ''}`}>
+        <div className={`ecos-journal-menu ${open ? 'ecos-journal-menu_open' : ''} ${pageTabsIsShow ? 'ecos-journal-menu_tabs' : ''}`}>
           <div className={'ecos-journal-menu__hide-menu-btn'}>
             <IcoBtn
               onClick={this.onClose}
-              icon={'icon-close'}
+              icon={'icon-arrow'}
               invert
               className={'ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest'}
             >
@@ -154,7 +154,7 @@ class JournalsMenu extends Component {
             <CollapsableList
               classNameList={'ecos-list-group_mode_journal'}
               list={this.getMenuJournalSettings(journalSettings)}
-              selected={this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD) || 0}
+              selected={this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD)}
             >
               {t('journals.tpl.defaults')}
             </CollapsableList>

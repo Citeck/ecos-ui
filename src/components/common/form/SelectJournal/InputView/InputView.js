@@ -26,7 +26,20 @@ class InputView extends Component {
   };
 
   render() {
-    const { selectedRows, placeholder, error, disabled, multiple, isCompact, editValue, deleteValue, className, autoFocus } = this.props;
+    const {
+      selectedRows,
+      placeholder,
+      error,
+      disabled,
+      multiple,
+      isCompact,
+      editValue,
+      deleteValue,
+      className,
+      autoFocus,
+      hideEditRowButton,
+      hideDeleteRowButton
+    } = this.props;
 
     const wrapperClasses = classNames(
       'select-journal__input-view',
@@ -58,8 +71,8 @@ class InputView extends Component {
                 <span className="select-journal__values-list-disp">{item.disp}</span>
                 {disabled ? null : (
                   <div className="select-journal__values-list-actions">
-                    <span data-id={item.id} className={'icon icon-edit'} onClick={editValue} />
-                    <span data-id={item.id} className={'icon icon-delete'} onClick={deleteValue} />
+                    {hideEditRowButton ? null : <span data-id={item.id} className={'icon icon-edit'} onClick={editValue} />}
+                    {hideDeleteRowButton ? null : <span data-id={item.id} className={'icon icon-delete'} onClick={deleteValue} />}
                   </div>
                 )}
               </li>
@@ -102,7 +115,9 @@ InputView.propTypes = {
   isCompact: PropTypes.bool,
   editValue: PropTypes.func,
   deleteValue: PropTypes.func,
-  openSelectModal: PropTypes.func
+  openSelectModal: PropTypes.func,
+  hideEditRowButton: PropTypes.bool,
+  hideDeleteRowButton: PropTypes.bool
 };
 
 export default InputView;

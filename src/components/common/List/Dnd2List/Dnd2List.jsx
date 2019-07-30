@@ -25,7 +25,7 @@ const ListItem = ({ cssItemClasses, provided, item }) => {
 const Dnd = ({ data, cssClasses, cssItemClasses, id, portal, draggableClassName }) => {
   return (
     <div className={'ecos-dnd2-list__column'}>
-      <Scrollbars autoHide style={{ height: '100%' }}>
+      <Scrollbars style={{ height: '100%' }}>
         <Droppable droppableId={id}>
           {provided => (
             <div className={data.length > 3 ? '' : 'ecos-dnd2-list__placeholder_full'}>
