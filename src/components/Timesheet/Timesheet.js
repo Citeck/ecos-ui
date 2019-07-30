@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -7,45 +8,21 @@ import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Dr
 import Tabs from './Tabs';
 import DateSlider from './DateSlider';
 import { Input } from '../common/form';
+import Hour from './Hour';
 import { t, deepClone } from '../../helpers/util';
 import './style.scss';
 
 class Timesheet extends Component {
-  constructor() {
-    super();
+  static propTypes = {
+    eventTypes: PropTypes.array
+  };
 
-    const eventTypes = [
-      {
-        title: 'Работа в дневное время',
-        name: 'daytime-work',
-        color: '#00C308'
-      },
-      {
-        title: 'Работа в ночное время',
-        name: 'night-work',
-        color: '#4133DF'
-      },
-      {
-        title: 'Работа в выходные и праздничные дни',
-        name: 'weekends-holidays-work',
-        color: '#33DFD5'
-      },
-      {
-        title: 'Сверхурочная работа',
-        name: 'overtime-work',
-        color: '#DF8633'
-      },
-      {
-        title: 'Ежегодный основной оплачиваемый отпуск',
-        name: 'annual-basic-paid-leave',
-        color: '#DF3386'
-      },
-      {
-        title: 'Командировка',
-        name: 'business-trip',
-        color: '#FFB4D8'
-      }
-    ];
+  static defaultProps = {
+    eventTypes: []
+  };
+
+  constructor(props) {
+    super(props);
 
     this.state = {
       sheetTabs: [
@@ -79,8 +56,7 @@ class Timesheet extends Component {
       ],
       currentDate: new Date(),
       typeFilter: '',
-      eventTypes,
-      filteredEventTypes: deepClone(eventTypes)
+      filteredEventTypes: deepClone(props.eventTypes)
     };
   }
 
@@ -144,7 +120,7 @@ class Timesheet extends Component {
   };
 
   filterTypes(typeFilter = '') {
-    const { eventTypes } = this.state;
+    const { eventTypes } = this.props;
     let filteredEventTypes = deepClone(eventTypes);
 
     if (typeFilter) {
@@ -195,12 +171,7 @@ class Timesheet extends Component {
             <div className="ecos-timesheet__table-events-item-dnd" />
           </SortableHandle>
 
-          <div
-            className="ecos-timesheet__table-events-item-filter"
-            style={{
-              backgroundColor: item.color || '#D0D0D0'
-            }}
-          />
+          <div className="ecos-timesheet__table-events-item-filter" style={{ backgroundColor: item.color || '#D0D0D0' }} />
           <div className="ecos-timesheet__table-events-item-title">{item.title}</div>
           <div className="ecos-timesheet__table-events-item-add-btn" />
         </div>
@@ -231,32 +202,15 @@ class Timesheet extends Component {
 
               {filteredEventTypes.map((item, index) => (
                 <div className="ecos-timesheet__table-calendar-cell" key={index}>
-                  <div className="ecos-timesheet__table-calendar-cell-content">{this.renderHourCreator(item)}</div>
+                  <div className="ecos-timesheet__table-calendar-cell-content">
+                    <Hour key={`${day}-${item.name}-${index}`} color={item.color} count={Math.round(Math.random())} />
+                  </div>
                 </div>
               ))}
             </div>
           ))}
         </div>
       </Scrollbars>
-    );
-  }
-
-  // todo Перенести в отдельный компонент по результатам изучения формата данных
-  renderHourCreator(type, count = Math.round(Math.random())) {
-    return (
-      <div className="ecos-timesheet__table-hour">
-        {!count && <div className="ecos-timesheet__table-hour-empty" />}
-        {count > 0 && (
-          <div
-            className="ecos-timesheet__table-hour-item"
-            style={{
-              backgroundColor: type.color || '#33DFD5'
-            }}
-          >
-            {count}
-          </div>
-        )}
-      </div>
     );
   }
 

@@ -12,3 +12,4 @@ export { default as Separator } from './Separator/Separator';
 export { default as Tabs } from './Tabs';
 export { default as SearchSelect } from './SearchSelect/SearchSelect';
 export { default as Avatar } from './Avatar/Avatar';
+export { default as PointsLoader } from './PointsLoader/PointsLoader';
