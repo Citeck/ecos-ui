@@ -102,14 +102,6 @@ class DocStatus extends React.Component {
     changeDocStatus({ stateId, record });
   };
 
-  renderLoader() {
-    return (
-      <div className={`${this.className}__loader-wrapper`}>
-        <Loader />
-      </div>
-    );
-  }
-
   renderReadField() {
     const { status = {} } = this.props;
     const classStatus = classNames(`${this.className}_read`, { [`${this.className}_no-status`]: this.isNoStatus });
@@ -139,7 +131,7 @@ class DocStatus extends React.Component {
     return (
       <div className={this.className}>
         {this.isShowLoader && !wasChanged ? (
-          this.renderLoader()
+          <Loader className={`${this.className}__loader`} />
         ) : (
           <React.Fragment>
             {this.isReadField && this.renderReadField()}
