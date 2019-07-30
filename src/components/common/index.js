@@ -14,3 +14,4 @@ export { default as SearchSelect } from './SearchSelect/SearchSelect';
 export { default as Avatar } from './Avatar/Avatar';
 export { default as InfoText } from './InfoText/InfoText';
 export { default as DefineHeight } from './DefineHeight/DefineHeight';
+export { default as ResizableBox } from './ResizableBox/ResizableBox';

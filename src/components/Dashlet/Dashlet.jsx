@@ -6,6 +6,7 @@ import ReactResizeDetector from 'react-resize-detector';
 import Panel from '../common/panels/Panel/Panel';
 import Measurer from '../Measurer/Measurer';
 import { IcoBtn } from '../common/btns';
+import { ResizableBox } from '../common';
 import { t } from '../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 
@@ -146,9 +147,9 @@ export default class Dashlet extends Component {
   get busyDashletHeight() {
     const elDashlet = this.refDashlet.current || {};
     const headerH = elDashlet.querySelector('.dashlet__wrap-header').offsetHeight || 0;
-    const footerH = elDashlet.querySelector('.dashlet__body .dashlet__footer').offsetHeight || 0;
+    const resizerH = elDashlet.querySelector('.dashlet__body .dashlet__resizer').offsetHeight || 0;
 
-    return headerH + footerH;
+    return headerH + resizerH;
   }
 
   onEdit = () => {
@@ -176,11 +177,10 @@ export default class Dashlet extends Component {
   };
 
   onChangeHeight = height => {
-    //todo connect when will realize dashlet__resizer
     const { onChangeHeight } = this.props;
 
     if (typeof onChangeHeight === 'function') {
-      onChangeHeight(height - this.busyDashletHeight);
+      onChangeHeight(height);
     }
   };
 
@@ -226,14 +226,9 @@ export default class Dashlet extends Component {
             </Measurer>
           }
         >
-          {children}
-          <div className={'dashlet__footer'}>
-            {resizable ? (
-              <div className={'dashlet__resizer'} onChange={this.onChangeHeight}>
-                <i className={'icon-resize ecos-btn__i'} title={t('dashlet.resize.title')} />
-              </div>
-            ) : null}
-          </div>
+          <ResizableBox resizable={resizable} className={'dashlet__resizer'} getHeight={this.onChangeHeight}>
+            {children}
+          </ResizableBox>
         </Panel>
 
         <ReactResizeDetector handleWidth handleHeight onResize={onResize} />

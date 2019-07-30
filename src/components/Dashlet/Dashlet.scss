@@ -102,19 +102,6 @@
   }
 
   &__footer {
-    padding-bottom: 7px;
-  }
-
-  &__resizer {
-    height: 20px;
-    align-items: flex-end;
-    display: flex;
-    justify-content: center;
-    color: $color-gray-6;
-    font-size: $font-size-extra-small;
-
-    .ecos-btn__i::before {
-      width: 4em;
-    }
+    padding: 2px 0 5px;
   }
 }
