@@ -173,10 +173,7 @@ export default class AsyncDataComponent extends BaseComponent {
             if (recQueryConfig.isSingle) {
               return Records.queryOne(query, attributes);
             } else {
-              return Records.query({
-                query: query,
-                attributes: attributes
-              });
+              return Records.query(query, attributes);
             }
           },
           {},
