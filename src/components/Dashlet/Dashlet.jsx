@@ -147,7 +147,7 @@ export default class Dashlet extends Component {
   get busyDashletHeight() {
     const elDashlet = this.refDashlet.current || {};
     const headerH = elDashlet.querySelector('.dashlet__wrap-header').offsetHeight || 0;
-    const resizerH = elDashlet.querySelector('.dashlet__body .dashlet__resizer').offsetHeight || 0;
+    const resizerH = elDashlet.querySelector('.dashlet__resizer').offsetHeight || 0;
 
     return headerH + resizerH;
   }
@@ -226,7 +226,7 @@ export default class Dashlet extends Component {
             </Measurer>
           }
         >
-          <ResizableBox resizable={resizable} className={'dashlet__resizer'} getHeight={this.onChangeHeight}>
+          <ResizableBox resizable={resizable} classNameResizer={'dashlet__resizer'} getHeight={this.onChangeHeight}>
             {children}
           </ResizableBox>
         </Panel>

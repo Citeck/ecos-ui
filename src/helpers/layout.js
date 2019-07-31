@@ -37,7 +37,7 @@ export function getOptimalHeight(fixedHeight, contentHeight, minHeight, maxHeigh
     return min;
   }
 
-  if (checkNumber(fH)) {
+  if (isNumber(fixedHeight)) {
     return fH;
   }
 

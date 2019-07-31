@@ -27,7 +27,8 @@ class DocPreview extends Component {
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     firstPageNumber: PropTypes.number,
     recordKey: PropTypes.string,
-    byLink: PropTypes.bool
+    byLink: PropTypes.bool,
+    noIndents: PropTypes.bool
   };
 
   static defaultProps = {
@@ -37,7 +38,8 @@ class DocPreview extends Component {
     scale: 0.5,
     firstPageNumber: 1,
     recordKey: 'recordRef',
-    byLink: false
+    byLink: false,
+    noIndents: false
   };
 
   static className = 'ecos-dp';
@@ -149,7 +151,7 @@ class DocPreview extends Component {
     const { contentHeight } = this.state;
     const { height, minHeight, maxHeight } = this.props;
 
-    return getOptimalHeight(height, contentHeight, minHeight, maxHeight, !this.loaded);
+    return getOptimalHeight(height, contentHeight, minHeight, maxHeight, !this.loaded) || '100%';
   }
 
   getRecordId(props = this.props) {
@@ -285,13 +287,14 @@ class DocPreview extends Component {
   }
 
   render() {
-    const { className } = this.props;
+    const { className, noIndents } = this.props;
     const { isLoading } = this.state;
+    const CN = DocPreview.className;
 
     return (
-      <div className={classNames(DocPreview.className, className)} style={{ height: this.height }}>
+      <div className={classNames(CN, className)} style={{ height: this.height }}>
         {!isLoading && (
-          <div className={classNames(`${DocPreview.className}__container`, { 'has-msg': !!this.message })}>
+          <div className={classNames(`${CN}__container`, { [`${CN}_indents`]: !noIndents })}>
             {this.renderToolbar()}
             {this.renderViewer()}
             {this.renderMessage()}

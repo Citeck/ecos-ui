@@ -9,13 +9,15 @@ import './style.scss';
 export default class ResizableBox extends React.Component {
   static propTypes = {
     resizable: PropTypes.bool,
-    className: PropTypes.string,
+    classNameBox: PropTypes.string,
+    classNameResizer: PropTypes.string,
     getHeight: PropTypes.func
   };
 
   static defaultProps = {
     resizable: false,
-    className: '',
+    classNameBox: '',
+    classNameResizer: '',
     getHeight: () => null
   };
 
@@ -43,7 +45,8 @@ export default class ResizableBox extends React.Component {
     if (resizing) {
       const box = this.refBox.current || {};
       const currentH = box.offsetHeight || 0;
-      const height = currentH + (event.pageY - box.getBoundingClientRect().bottom);
+      const delta = event.pageY - box.getBoundingClientRect().bottom;
+      const height = currentH + delta;
 
       getHeight(height);
     }
@@ -60,14 +63,14 @@ export default class ResizableBox extends React.Component {
   };
 
   render() {
-    const { className, children, resizable } = this.props;
+    const { classNameBox, classNameResizer, children, resizable } = this.props;
 
     return (
       <React.Fragment>
-        <div ref={this.refBox} className={classNames(`${this.className}__container`, className)}>
+        <div ref={this.refBox} className={classNames(`${this.className}__container`, classNameBox)}>
           {children}
         </div>
-        <div className={classNames(`${this.className}__bottom`)}>
+        <div className={classNames(`${this.className}__bottom`, classNameResizer)}>
           {resizable && (
             <div className={classNames(`${this.className}__control`)}>
               <Icon className={'icon-resize'} title={t('dashlet.resize.title')} onMouseDown={this.startResize} />

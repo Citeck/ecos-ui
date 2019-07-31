@@ -18,21 +18,20 @@ $border-base: #c1c1c1;
 .ecos-dp {
   $root: &;
 
-  padding-top: 14px;
-  padding-right: 17px;
-  padding-left: 17px;
+  overflow: hidden;
 
   &.no-data {
     border: unset;
   }
 
   &__container {
-    border: 1px solid $border-base;
     height: 100%;
+  }
 
-    &.has-msg {
-      border: none;
-    }
+  &_indents {
+    padding-top: 14px;
+    padding-right: 17px;
+    padding-left: 17px;
   }
 
   &__loader {
@@ -63,7 +62,7 @@ $border-base: #c1c1c1;
     @extend %base-flex;
     justify-content: center;
     background-color: $background-toolbar;
-    border-bottom: 1px solid $border-base;
+    border: 1px solid $border-base;
     min-height: 45px;
 
     &.hide {
@@ -128,6 +127,9 @@ $border-base: #c1c1c1;
     background-color: $background-viewer;
     position: relative;
     height: calc(100% - 45px);
+    border-bottom: 1px solid $border-base;
+    border-right: 1px solid $border-base;
+    border-left: 1px solid $border-base;
 
     &_fullscreen {
       height: 100vh;

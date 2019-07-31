@@ -103,7 +103,6 @@ class Comments extends React.Component {
     const { getComments } = this.props;
 
     getComments();
-    this.recalculateScrollbarHeight();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -122,10 +121,6 @@ class Comments extends React.Component {
     if (id !== nextProps.id) {
       getComments();
     }
-  }
-
-  componentDidUpdate() {
-    this.recalculateScrollbarHeight();
   }
 
   formatDate(date = new Date()) {
