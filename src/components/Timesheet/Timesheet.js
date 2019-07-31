@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
-
+import classNames from 'classnames';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { Input } from '../common/form';
 import Hour from './Hour';
@@ -127,21 +127,29 @@ class Timesheet extends Component {
   renderCalendar() {
     const { daysOfMonth } = this.props;
     const { filteredEventTypes } = this.state;
-    const days = [];
-
-    for (let i = 0; i < daysOfMonth.length; i++) {
-      days.push(this.renderDay({ key: i, title: daysOfMonth[i] }));
-    }
 
     return (
       <Scrollbars autoHeight autoHeightMin={40} autoHeightMax={'100%'} renderThumbVertical={props => <div {...props} hidden />}>
         <div className="ecos-timesheet__table-calendar">
           {daysOfMonth.map(day => (
-            <div className="ecos-timesheet__table-calendar-column" key={day}>
-              <div className="ecos-timesheet__table-calendar-cell ecos-timesheet__table-calendar-cell_big">
-                <div className="ecos-timesheet__table-calendar-cell-content">{day}</div>
+            <div className="ecos-timesheet__table-calendar-column" key={day.number}>
+              <div
+                className={classNames('ecos-timesheet__table-calendar-cell ecos-timesheet__table-calendar-cell_big', {
+                  'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay
+                })}
+              >
+                <div className="ecos-timesheet__table-calendar-cell-content">{day.title}</div>
               </div>
-              <div className="ecos-timesheet__table-calendar-cell ecos-timesheet__table-calendar-cell_hours ecos-timesheet__table-calendar-cell_big">
+              <div
+                className={classNames(
+                  'ecos-timesheet__table-calendar-cell',
+                  'ecos-timesheet__table-calendar-cell_hours',
+                  'ecos-timesheet__table-calendar-cell_big',
+                  {
+                    'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay
+                  }
+                )}
+              >
                 <div className="ecos-timesheet__table-calendar-cell-content">10</div>
               </div>
 
@@ -149,7 +157,7 @@ class Timesheet extends Component {
                 <div className="ecos-timesheet__table-calendar-cell" key={index}>
                   <div className="ecos-timesheet__table-calendar-cell-content">
                     <Hour
-                      key={`${day}-${item.name}-${index}`}
+                      key={`${day.title}-${item.name}-${index}`}
                       color={item.color}
                       count={Math.round(Math.random())}
                       canEdit={item.canEdit}
@@ -166,7 +174,7 @@ class Timesheet extends Component {
 
   renderDay = day => {
     return (
-      <div key={day.key} className="ecos-timesheet__table-calendar-item">
+      <div key={day.number} className="ecos-timesheet__table-calendar-item">
         <div className="ecos-timesheet__table-calendar-day">{day.title}</div>
       </div>
     );

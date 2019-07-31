@@ -23,6 +23,7 @@
     "lodash": "^4.17.11",
     "logplease": "^1.2.15",
     "moment": "^2.23.0",
+    "moment-business-days": "^1.1.3",
     "morgan": "^1.9.1",
     "pdfjs-dist": "2.1.266",
     "preval.macro": "3.0.0",

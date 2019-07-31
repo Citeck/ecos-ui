@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import moment from 'moment';
+import 'moment-business-days';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 
 import Timesheet, { Tabs, DateSlider } from '../../components/Timesheet';
@@ -129,7 +130,11 @@ class TimesheetPage extends Component {
       moment(currentDate)
         .startOf('month')
         .add(i, 'days')
-    ).map(day => day.format('dd, D'));
+    ).map(day => ({
+      number: day.format('D'),
+      title: day.format('dd, D'),
+      isBusinessDay: moment(day).isBusinessDay()
+    }));
   }
 
   handleChangeActiveSheetTab = tabIndex => {
