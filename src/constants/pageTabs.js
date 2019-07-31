@@ -23,7 +23,8 @@ export const TITLE = {
   [URL.CURRENT_TASKS]: 'Текущие задачи [temp]',
   [URL.WIDGET_DOC_STATUS]: 'Статус документа [temp]',
   NONAME: 'Без имени',
-  [URL.TIMESHEET]: 'Табель'
+  [URL.TIMESHEET]: 'Табель',
+  [URL.TIMESHEET_SUBORDINATES]: 'Табель подчиненных'
 };
 
 export const URL_MASK = {

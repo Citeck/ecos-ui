@@ -1,127 +1,220 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import 'moment-business-days';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
+import { Route, Switch } from 'react-router';
 
 import Timesheet, { Tabs, DateSlider } from '../../components/Timesheet';
+import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { deepClone, t } from '../../helpers/util';
+import { URL } from '../../constants';
 
 import './style.scss';
 
 class TimesheetPage extends Component {
-  state = {
-    eventTypes: [
-      {
-        title: 'Работа в дневное время',
-        name: 'daytime-work',
-        color: '#00C308',
-        canEdit: true
-      },
-      {
-        title: 'Работа в ночное время',
-        name: 'night-work',
-        color: '#4133DF',
-        canEdit: true
-      },
-      {
-        title: 'Работа в выходные и праздничные дни (отгул + оплата)',
-        name: 'weekends-holidays-work-holiday-and-compensation',
-        color: '#33DFD5',
-        canEdit: true
-      },
-      {
-        title: 'Работа в выходные и праздничные дни (двойная оплата)',
-        name: 'weekends-holidays-work-doubled-compensation',
-        color: '#3382df',
-        canEdit: true
-      },
-      {
-        title: 'Сверхурочная работа',
-        name: 'overtime-work',
-        color: '#DF8633',
-        canEdit: true
-      },
-      {
-        title: 'Ежегодный основной оплачиваемый отпуск',
-        name: 'annual-basic-paid-leave',
-        color: '#DF3386',
-        canEdit: false
-      },
-      {
-        title: 'Отпуск без сохранения заработной платы',
-        name: 'basic-unpaid-leave',
-        color: '#ff41e3',
-        canEdit: false
-      },
-      {
-        title: 'Отпуск 1 из 5',
-        name: 'one-of-five',
-        color: '#d51842',
-        canEdit: false
-      },
-      {
-        title: 'Отпуск за работу в условиях крайнего севера',
-        name: 'north-paid-leave',
-        color: '#e89972',
-        canEdit: false
-      },
-      {
-        title: 'Дополнительный отпуск за работу во вредных условиях труда',
-        name: 'harmful-paid-leave',
-        color: '#c0ac70',
-        canEdit: false
-      },
-      {
-        title: 'Отпуск за ненормированный рабочий день',
-        name: 'irregular-paid-leave',
-        color: '#ff9953',
-        canEdit: false
-      },
-      {
-        title: 'Командировка',
-        name: 'business-trip',
-        color: '#ff3ecb',
-        canEdit: false
-      },
-      {
-        title: 'Отсутствие',
-        name: 'absence',
-        color: '#af9fff',
-        canEdit: true
-      },
-      {
-        title: 'Отгул',
-        name: 'compensatory-leave',
-        color: '#29bd8d',
-        canEdit: true
-      }
-    ],
-    sheetTabs: [
-      {
-        name: 'Мой табель',
-        isActive: true,
-        isAvailable: true
-      },
-      {
-        name: 'Табели подчиненных',
-        isActive: false,
-        isAvailable: false
-      }
-    ],
-    dateTabs: [
-      {
-        name: 'Месяц',
-        isActive: true,
-        isAvailable: true
-      },
-      {
-        name: 'Год',
-        isActive: false,
-        isAvailable: false
-      }
-    ],
-    currentDate: new Date()
-  };
+  constructor(props) {
+    super(props);
+
+    const {
+      history: { location }
+    } = props;
+
+    this.state = {
+      eventTypes: [
+        {
+          title: 'Работа в дневное время',
+          name: 'daytime-work',
+          color: '#00C308',
+          canEdit: true
+        },
+        {
+          title: 'Работа в ночное время',
+          name: 'night-work',
+          color: '#4133DF',
+          canEdit: true
+        },
+        {
+          title: 'Работа в выходные и праздничные дни (отгул + оплата)',
+          name: 'weekends-holidays-work-holiday-and-compensation',
+          color: '#33DFD5',
+          canEdit: true
+        },
+        {
+          title: 'Работа в выходные и праздничные дни (двойная оплата)',
+          name: 'weekends-holidays-work-doubled-compensation',
+          color: '#3382df',
+          canEdit: true
+        },
+        {
+          title: 'Сверхурочная работа',
+          name: 'overtime-work',
+          color: '#DF8633',
+          canEdit: true
+        },
+        {
+          title: 'Ежегодный основной оплачиваемый отпуск',
+          name: 'annual-basic-paid-leave',
+          color: '#DF3386',
+          canEdit: false
+        },
+        {
+          title: 'Отпуск без сохранения заработной платы',
+          name: 'basic-unpaid-leave',
+          color: '#ff41e3',
+          canEdit: false
+        },
+        {
+          title: 'Отпуск 1 из 5',
+          name: 'one-of-five',
+          color: '#d51842',
+          canEdit: false
+        },
+        {
+          title: 'Отпуск за работу в условиях крайнего севера',
+          name: 'north-paid-leave',
+          color: '#e89972',
+          canEdit: false
+        },
+        {
+          title: 'Дополнительный отпуск за работу во вредных условиях труда',
+          name: 'harmful-paid-leave',
+          color: '#c0ac70',
+          canEdit: false
+        },
+        {
+          title: 'Отпуск за ненормированный рабочий день',
+          name: 'irregular-paid-leave',
+          color: '#ff9953',
+          canEdit: false
+        },
+        {
+          title: 'Командировка',
+          name: 'business-trip',
+          color: '#ff3ecb',
+          canEdit: false
+        },
+        {
+          title: 'Отсутствие',
+          name: 'absence',
+          color: '#af9fff',
+          canEdit: true
+        },
+        {
+          title: 'Отгул',
+          name: 'compensatory-leave',
+          color: '#29bd8d',
+          canEdit: true
+        }
+      ],
+      subordinatesEvents: [
+        {
+          user: 'Афанасьев Сергей Петрович',
+          organization: 'ООО СтройИнвест',
+          eventTypes: [
+            {
+              title: 'Работа в дневное время',
+              name: 'daytime-work',
+              color: '#00C308',
+              canEdit: true
+            },
+            {
+              title: 'Работа в ночное время',
+              name: 'night-work',
+              color: '#4133DF',
+              canEdit: true
+            },
+            {
+              title: 'Работа в выходные и праздничные дни (отгул + оплата)',
+              name: 'weekends-holidays-work-holiday-and-compensation',
+              color: '#33DFD5',
+              canEdit: true
+            }
+          ]
+        },
+        {
+          user: 'Николенко Елена Сергеевна',
+          organization: 'ООО СтройТехЦентр',
+          eventTypes: [
+            {
+              title: 'Работа в выходные и праздничные дни (отгул + оплата)',
+              name: 'weekends-holidays-work-holiday-and-compensation',
+              color: '#33DFD5',
+              canEdit: true
+            },
+            {
+              title: 'Работа в выходные и праздничные дни (двойная оплата)',
+              name: 'weekends-holidays-work-doubled-compensation',
+              color: '#3382df',
+              canEdit: true
+            },
+            {
+              title: 'Сверхурочная работа',
+              name: 'overtime-work',
+              color: '#DF8633',
+              canEdit: true
+            }
+          ]
+        },
+        {
+          user: 'Петров Андрей Андреевич',
+          organization: 'ООО СтройТехЦентр',
+          eventTypes: [
+            {
+              title: 'Работа в дневное время',
+              name: 'daytime-work',
+              color: '#00C308',
+              canEdit: true
+            },
+            {
+              title: 'Ежегодный основной оплачиваемый отпуск',
+              name: 'annual-basic-paid-leave',
+              color: '#DF3386',
+              canEdit: false
+            },
+            {
+              title: 'Отсутствие',
+              name: 'absence',
+              color: '#af9fff',
+              canEdit: true
+            },
+            {
+              title: 'Отгул',
+              name: 'compensatory-leave',
+              color: '#29bd8d',
+              canEdit: true
+            }
+          ]
+        }
+      ],
+      sheetTabs: [
+        {
+          name: 'Мой табель',
+          link: URL.TIMESHEET,
+          isActive: location.pathname === URL.TIMESHEET,
+          isAvailable: true
+        },
+        {
+          name: 'Табели подчиненных',
+          link: URL.TIMESHEET_SUBORDINATES,
+          isActive: location.pathname === URL.TIMESHEET_SUBORDINATES,
+          isAvailable: true
+        }
+      ],
+      dateTabs: [
+        {
+          name: 'Месяц',
+          isActive: true,
+          isAvailable: true
+        },
+        {
+          name: 'Год',
+          isActive: false,
+          isAvailable: false
+        }
+      ],
+      currentDate: new Date()
+    };
+  }
 
   get daysOfMonth() {
     const { currentDate } = this.state;
@@ -142,6 +235,10 @@ class TimesheetPage extends Component {
 
     sheetTabs.forEach((tab, index) => {
       tab.isActive = index === tabIndex;
+
+      if (tab.isActive) {
+        changeUrlLink(tab.link);
+      }
     });
 
     this.setState({ sheetTabs });
@@ -152,8 +249,6 @@ class TimesheetPage extends Component {
 
     dateTabs.forEach((tab, index) => {
       tab.isActive = index === tabIndex;
-
-      console.warn(tab);
     });
 
     this.setState({ dateTabs });
@@ -169,11 +264,17 @@ class TimesheetPage extends Component {
     return <Timesheet eventTypes={eventTypes} daysOfMonth={this.daysOfMonth} />;
   };
 
+  renderSubordinateTimesheet = () => {
+    const { subordinatesEvents } = this.state;
+
+    return <Timesheet groupBy={'user'} eventTypes={subordinatesEvents} daysOfMonth={this.daysOfMonth} />;
+  };
+
   render() {
     const { sheetTabs, dateTabs, currentDate } = this.state;
 
     return (
-      <Router>
+      <Switch>
         <div className="ecos-timesheet">
           <div className="ecos-timesheet__title">{t('Табели учёта времени')}</div>
 
@@ -195,11 +296,12 @@ class TimesheetPage extends Component {
             <div className="ecos-timesheet__status">Статус</div>
           </div>
 
-          <Route path="/v2/timesheet" exact component={this.renderMyTimesheet} />
+          <Route path={URL.TIMESHEET} exact component={this.renderMyTimesheet} />
+          <Route path={URL.TIMESHEET_SUBORDINATES} exact component={this.renderSubordinateTimesheet} />
         </div>
-      </Router>
+      </Switch>
     );
   }
 }
 
-export default TimesheetPage;
+export default withRouter(TimesheetPage);
