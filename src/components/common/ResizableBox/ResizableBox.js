@@ -5,7 +5,6 @@ import { t } from '../../../helpers/util';
 import { Icon } from '../';
 
 import './style.scss';
-import ClickOutside from '../../ClickOutside';
 
 export default class ResizableBox extends React.Component {
   static propTypes = {
@@ -21,8 +20,7 @@ export default class ResizableBox extends React.Component {
   };
 
   state = {
-    resizing: false,
-    initPosition: 0
+    resizing: false
   };
 
   className = 'ecos-resize';
@@ -30,65 +28,53 @@ export default class ResizableBox extends React.Component {
   refBox = React.createRef();
 
   startResize = event => {
-    this.setState({
-      resizing: true,
-      initPosition: event.clientY
-    });
+    event.preventDefault();
+
+    this.setState({ resizing: true });
+
+    window.addEventListener('mousemove', this.doResize);
+    window.addEventListener('mouseup', this.stopResize);
   };
 
   doResize = event => {
-    const { resizing, initPosition } = this.state;
+    const { resizing } = this.state;
     const { getHeight } = this.props;
 
     if (resizing) {
       const box = this.refBox.current || {};
       const currentH = box.offsetHeight || 0;
-      const resizerH = (box.querySelector(`.${this.className}__bottom`) || {}).offsetHeight || 0;
-      const height = currentH + (event.clientY - initPosition);
+      const height = currentH + (event.pageY - box.getBoundingClientRect().bottom);
 
-      this.setState({ height });
-      getHeight(height - resizerH);
+      getHeight(height);
     }
   };
 
   stopResize = event => {
     const { resizing } = this.state;
 
+    window.removeEventListener('mousemove', this.doResize);
+
     if (resizing) {
-      this.setState({
-        resizing: false,
-        height: null
-      });
+      this.setState({ resizing: false });
     }
   };
 
   render() {
     const { className, children, resizable } = this.props;
-    const { height } = this.state;
-    const style = {};
-
-    if (height) style.height = height;
 
     return (
-      <div className={classNames(`${this.className}__container`, className)} ref={this.refBox} style={style}>
-        {children}
-        <div className={classNames(`${this.className}__bottom`, className)}>
+      <React.Fragment>
+        <div ref={this.refBox} className={classNames(`${this.className}__container`, className)}>
+          {children}
+        </div>
+        <div className={classNames(`${this.className}__bottom`)}>
           {resizable && (
             <div className={classNames(`${this.className}__control`)}>
-              <ClickOutside handleClickOutside={this.stopResize}>
-                <Icon
-                  className={'icon-resize'}
-                  title={t('dashlet.resize.title')}
-                  onMouseDown={this.startResize}
-                  onMouseMove={this.doResize}
-                  onMouseLeave={this.stopResize}
-                  onMouseUp={this.stopResize}
-                />
-              </ClickOutside>
+              <Icon className={'icon-resize'} title={t('dashlet.resize.title')} onMouseDown={this.startResize} />
             </div>
           )}
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 }
