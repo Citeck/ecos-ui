@@ -206,7 +206,7 @@ class RecordsComponent {
   }
 
   query(query, attributes) {
-    if (query.attributes || (query.query && query.query.query)) {
+    if (query.attributes && arguments.length === 1) {
       attributes = query.attributes;
       query = query.query;
     }
