@@ -29,4 +29,16 @@ export default class UserLocalSettingsService {
 
     UserLocalSettingsService.setDashletSettings(dashletId, dashletData);
   }
+
+  static getDashletScale(dashletId) {
+    return get(UserLocalSettingsService.getDashletSettings(dashletId), 'contentScale');
+  }
+
+  static setDashletScale(dashletId, scale) {
+    const dashletData = UserLocalSettingsService.getDashletSettings(dashletId);
+
+    dashletData.contentScale = scale;
+
+    UserLocalSettingsService.setDashletSettings(dashletId, dashletData);
+  }
 }
