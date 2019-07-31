@@ -638,11 +638,12 @@ class Comments extends React.Component {
     const { userHeight = 0, contentHeight, fitHeights } = this.state;
     const _commentsHeader = this._header.current || {};
     const headerHeight = _commentsHeader.offsetHeight || 0;
+    const fixHeight = userHeight ? userHeight - headerHeight : null;
 
     return (
       <Scrollbars autoHide ref={this._scroll} style={{ height: contentHeight || '100%' }}>
         <DefineHeight
-          fixHeight={userHeight - headerHeight}
+          fixHeight={fixHeight}
           maxHeight={fitHeights.max - headerHeight}
           minHeight={1}
           getOptimalHeight={this.setContentHeight}
