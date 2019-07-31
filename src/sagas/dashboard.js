@@ -8,12 +8,12 @@ import {
   setResultSaveDashboardConfig
 } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
+import { setActiveTabTitle } from '../actions/pageTabs';
 import { selectIdentificationForView } from '../selectors/dashboard';
 import { t } from '../helpers/util';
 import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
 import { SAVE_STATUS } from '../constants';
-import { setActiveTabTitle } from '../actions/pageTabs';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
