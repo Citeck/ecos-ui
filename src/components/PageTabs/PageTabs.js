@@ -639,6 +639,10 @@ class PageTabs extends React.Component {
       className.push('page-tab__tabs-item_active');
     }
 
+    if (isLoadingTitle) {
+      className.push('page-tab__tabs-item_disabled');
+    }
+
     return (
       <SortableElement key={item.id} index={item.position} onSortEnd={this.handleSortEnd}>
         <div key={item.id} className={className.join(' ')} title={t(item.title)} onClick={this.handleClickTab.bind(this, item)}>
