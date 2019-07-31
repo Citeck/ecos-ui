@@ -28,18 +28,20 @@ class DocPreview extends Component {
     firstPageNumber: PropTypes.number,
     recordKey: PropTypes.string,
     byLink: PropTypes.bool,
-    noIndents: PropTypes.bool
+    noIndents: PropTypes.bool,
+    setUserScale: PropTypes.func
   };
 
   static defaultProps = {
     link: null,
     className: '',
     height: 'inherit',
-    scale: 0.5,
+    scale: 'auto',
     firstPageNumber: 1,
     recordKey: 'recordRef',
     byLink: false,
-    noIndents: false
+    noIndents: false,
+    setUserScale: () => null
   };
 
   static className = 'ecos-dp';
@@ -195,6 +197,7 @@ class DocPreview extends Component {
 
   onChangeSettings = settings => {
     this.setState({ settings });
+    this.props.setUserScale(settings.scale);
   };
 
   onDownload = () => {

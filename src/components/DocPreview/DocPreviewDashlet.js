@@ -36,6 +36,7 @@ class DocPreviewDashlet extends Component {
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
       height: UserLocalSettingsService.getDashletHeight(props.id),
+      scale: UserLocalSettingsService.getDashletScale(props.id) || 'auto',
       fitHeights: {}
     };
   }
@@ -53,9 +54,15 @@ class DocPreviewDashlet extends Component {
     this.setState({ fitHeights });
   };
 
+  setUserScale = scale => {
+    if (scale) {
+      UserLocalSettingsService.setDashletScale(this.props.id, scale);
+    }
+  };
+
   render() {
     const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging } = this.props;
-    const { width, height, fitHeights } = this.state;
+    const { width, height, fitHeights, scale } = this.state;
     const classesDashlet = classNames('ecos-dp-dashlet', classNameDashlet, {
       'ecos-dp-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE
     });
@@ -76,7 +83,15 @@ class DocPreviewDashlet extends Component {
         resizable
         getFitHeights={this.setFitHeights}
       >
-        <DocPreview link={config.link} height={height} className={classNamePreview} minHeight={fitHeights.min} maxHeight={fitHeights.max} />
+        <DocPreview
+          link={config.link}
+          height={height}
+          className={classNamePreview}
+          minHeight={fitHeights.min}
+          maxHeight={fitHeights.max}
+          scale={scale}
+          setUserScale={this.setUserScale}
+        />
       </Dashlet>
     );
   }
