@@ -16,8 +16,13 @@ class TimesheetPage extends Component {
         color: '#4133DF'
       },
       {
-        title: 'Работа в выходные и праздничные дни',
-        name: 'weekends-holidays-work',
+        title: 'Работа в выходные и праздничные дни (отгул + оплата)',
+        name: 'weekends-holidays-work-holiday-and-compensation',
+        color: '#33DFD5'
+      },
+      {
+        title: 'Работа в выходные и праздничные дни (двойная оплата)',
+        name: 'weekends-holidays-work-doubled-compensation',
         color: '#33DFD5'
       },
       {
@@ -31,10 +36,46 @@ class TimesheetPage extends Component {
         color: '#DF3386'
       },
       {
+        title: 'Отпуск без сохранения заработной платы',
+        name: 'basic-unpaid-leave',
+        color: '#DF3386'
+      },
+      {
+        title: 'Отпуск 1 из 5',
+        name: 'one-of-five',
+        color: '#DF3386'
+      },
+      {
+        title: 'Отпуск за работу в условиях крайнего севера',
+        name: 'north-paid-leave',
+        color: '#DF3386'
+      },
+      {
+        title: 'Дополнительный отпуск за работу во вредных условиях труда',
+        name: 'harmful-paid-leave',
+        color: '#DF3386'
+      },
+      {
+        title: 'Отпуск за ненормированный рабочий день',
+        name: 'irregular-paid-leave',
+        color: '#DF3386'
+      },
+      {
         title: 'Командировка',
         name: 'business-trip',
         color: '#FFB4D8'
+      },
+      {
+        title: 'Отсутствие',
+        name: 'absence',
+        color: '#FFB4D8'
+      },
+      {
+        title: 'Отгул',
+        name: 'compensatory-leave',
+        color: '#FFB4D8'
       }
+
     ]
   };
 
