@@ -477,6 +477,10 @@
         color: $color-gray-dark;
       }
     }
+
+    &_disabled {
+      cursor: not-allowed;
+    }
   }
 
   &__input {

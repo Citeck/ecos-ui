@@ -203,7 +203,12 @@ class Timesheet extends Component {
               {filteredEventTypes.map((item, index) => (
                 <div className="ecos-timesheet__table-calendar-cell" key={index}>
                   <div className="ecos-timesheet__table-calendar-cell-content">
-                    <Hour key={`${day}-${item.name}-${index}`} color={item.color} count={Math.round(Math.random())} />
+                    <Hour
+                      key={`${day}-${item.name}-${index}`}
+                      color={item.color}
+                      count={Math.round(Math.random())}
+                      canEdit={item.canEdit}
+                    />
                   </div>
                 </div>
               ))}

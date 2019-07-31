@@ -8,32 +8,38 @@ class TimesheetPage extends Component {
       {
         title: 'Работа в дневное время',
         name: 'daytime-work',
-        color: '#00C308'
+        color: '#00C308',
+        canEdit: true
       },
       {
         title: 'Работа в ночное время',
         name: 'night-work',
-        color: '#4133DF'
+        color: '#4133DF',
+        canEdit: true
       },
       {
         title: 'Работа в выходные и праздничные дни',
         name: 'weekends-holidays-work',
-        color: '#33DFD5'
+        color: '#33DFD5',
+        canEdit: true
       },
       {
         title: 'Сверхурочная работа',
         name: 'overtime-work',
-        color: '#DF8633'
+        color: '#DF8633',
+        canEdit: true
       },
       {
         title: 'Ежегодный основной оплачиваемый отпуск',
         name: 'annual-basic-paid-leave',
-        color: '#DF3386'
+        color: '#DF3386',
+        canEdit: false
       },
       {
         title: 'Командировка',
         name: 'business-trip',
-        color: '#FFB4D8'
+        color: '#FFB4D8',
+        canEdit: false
       }
     ]
   };

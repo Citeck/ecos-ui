@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 import { Input } from '../common/form';
 import { PointsLoader } from '../common';
@@ -14,12 +15,14 @@ const KEY_FOR_SAVE = [KEYS.ENTER];
 class Hour extends Component {
   static propTypes = {
     count: PropTypes.number,
-    color: PropTypes.string
+    color: PropTypes.string,
+    canEdit: PropTypes.bool
   };
 
   static defaultProps = {
     count: 0,
-    color: '#33DFD5'
+    color: '#33DFD5',
+    canEdit: true
   };
 
   constructor(props) {
@@ -42,9 +45,10 @@ class Hour extends Component {
   }
 
   get isInput() {
+    const { canEdit } = this.props;
     const { isEdit } = this.state;
 
-    return isEdit;
+    return canEdit && isEdit;
   }
 
   get isFull() {
@@ -60,9 +64,17 @@ class Hour extends Component {
   }
 
   get isEmpty() {
+    const { canEdit } = this.props;
     const { value } = this.state;
 
-    return !value && !(this.isInput || this.isLoader);
+    return canEdit && !value && !(this.isInput || this.isLoader);
+  }
+
+  get value() {
+    const { canEdit } = this.props;
+    const { value } = this.state;
+
+    return canEdit ? value : '';
   }
 
   set inputRef(ref) {
@@ -70,6 +82,12 @@ class Hour extends Component {
   }
 
   handleToggleInput = () => {
+    const { canEdit } = this.props;
+
+    if (!canEdit) {
+      return;
+    }
+
     this.setState(state => ({ isEdit: !state.isEdit }));
   };
 
@@ -135,17 +153,22 @@ class Hour extends Component {
   }
 
   renderFullTime() {
-    const { color } = this.props;
-    const { value } = this.state;
+    const { color, canEdit } = this.props;
 
     if (!this.isFull) {
       return null;
     }
 
     return (
-      <div className="ecos-ts-hour__box" style={{ backgroundColor: color }} onClick={this.handleToggleInput}>
-        <div className="ecos-ts-hour__box-delete" onClick={this.handleDelete} />
-        {value}
+      <div
+        className={classNames('ecos-ts-hour__box', {
+          'ecos-ts-hour__box_disabled': !canEdit
+        })}
+        style={{ backgroundColor: color }}
+        onClick={this.handleToggleInput}
+      >
+        {canEdit && <div className="ecos-ts-hour__box-delete" onClick={this.handleDelete} />}
+        {this.value}
       </div>
     );
   }
