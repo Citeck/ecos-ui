@@ -7,8 +7,8 @@ export const SCROLL_STEP = 150;
 export const LINK_TAG = 'A';
 export const TITLE = {
   HOMEPAGE: 'header.site-menu.home-page',
-  NEW_TAB: 'Новая вкладка',
-  NO_NAME: 'Без имени',
+  NEW_TAB: 'page-tabs.new-tab',
+  NO_NAME: 'page-tabs.no-name',
   [URL.HOME]: 'header.site-menu.home-page',
   [URL.JOURNAL]: 'page-tabs.journal',
   [URL.DASHBOARD]: 'header.site-menu.home-page',

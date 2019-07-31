@@ -215,7 +215,8 @@ class PageTabs extends React.Component {
         openNewTab = false,
         openNewBrowserTab = false,
         reopenBrowserTab = false,
-        closeActiveTab = false
+        closeActiveTab = false,
+        remoteTitle = false
       }
     } = event;
     const tabs = deepClone(this.state.tabs);
@@ -240,7 +241,7 @@ class PageTabs extends React.Component {
       return;
     }
 
-    const { saveTabs, history } = this.props;
+    const { saveTabs, history, getActiveTabTitle } = this.props;
 
     event.preventDefault();
 
@@ -269,7 +270,10 @@ class PageTabs extends React.Component {
         tabs.forEach(item => {
           item.isActive = false;
         });
-        tabs.push(this.generateNewTab({ link }));
+        if (remoteTitle) {
+          getActiveTabTitle();
+        }
+        tabs.push(this.generateNewTab({ link, remoteTitle }));
         saveTabs(tabs);
         history.push.call(this, link);
 
