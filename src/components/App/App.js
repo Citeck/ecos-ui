@@ -13,7 +13,7 @@ import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 
-import { getShowTabsStatus, getTabs, setTabs, changeActiveTab } from '../../actions/pageTabs';
+import { changeActiveTab, getActiveTabTitle, getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
 import { MENU_TYPE, URL } from '../../constants';
 
@@ -56,7 +56,19 @@ class App extends Component {
   }
 
   render() {
-    const { changeActiveTab, isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs } = this.props;
+    const {
+      changeActiveTab,
+      isInit,
+      isInitFailure,
+      isAuthenticated,
+      isMobile,
+      theme,
+      isShow,
+      tabs,
+      setTabs,
+      getActiveTabTitle,
+      isLoadingTitle
+    } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -84,7 +96,15 @@ class App extends Component {
             <Notification />
           </div>
 
-          <PageTabs homepageLink={URL.DASHBOARD} isShow={isShow} tabs={tabs} saveTabs={setTabs} changeActiveTab={changeActiveTab} />
+          <PageTabs
+            homepageLink={URL.DASHBOARD}
+            isShow={isShow}
+            tabs={tabs}
+            saveTabs={setTabs}
+            changeActiveTab={changeActiveTab}
+            getActiveTabTitle={getActiveTabTitle}
+            isLoadingTitle={isLoadingTitle}
+          />
 
           {this.renderMenu()}
 
@@ -130,6 +150,7 @@ const mapStateToProps = state => ({
   isAuthenticated: get(state, ['user', 'isAuthenticated']),
   isShow: get(state, ['pageTabs', 'isShow']),
   tabs: get(state, ['pageTabs', 'tabs']),
+  isLoadingTitle: get(state, ['pageTabs', 'isLoadingTitle']),
   menuType: get(state, ['menu', 'type'])
 });
 
@@ -138,6 +159,7 @@ const mapDispatchToProps = dispatch => ({
   getTabs: () => dispatch(getTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
   changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
+  getActiveTabTitle: tabs => dispatch(getActiveTabTitle()),
   initMenuSettings: () => dispatch(initMenuSettings())
 });
 

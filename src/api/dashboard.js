@@ -129,22 +129,6 @@ export class DashboardApi extends RecordService {
     });
   };
 
-  getDashboardTitle = function*(recordRef = '') {
-    if (!recordRef) {
-      return TITLE.HOMEPAGE;
-    }
-
-    const title = yield Records.get(recordRef)
-      .load('.disp')
-      .then(response => response);
-
-    if (!title) {
-      return TITLE.NONAME;
-    }
-
-    return title;
-  };
-
   getTitleInfo = function*(recordRef = '') {
     const defaultInfo = Object.freeze({
       modifier: '',
