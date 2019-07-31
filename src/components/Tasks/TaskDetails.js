@@ -96,7 +96,7 @@ class TaskDetails extends React.Component {
         </div>
         <Separator />
         <div className={`${this.className}__eform`}>
-          <EcosForm record={'eform'} formKey={details.formKey} onSubmit={this.onSubmitForm} />
+          <EcosForm record={details.id} formKey={details.formKey} onSubmit={this.onSubmitForm} />
         </div>
       </div>
     );
