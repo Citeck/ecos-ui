@@ -177,7 +177,7 @@ class PageTabs extends React.Component {
       position: countTabs,
       isActive: true,
       link: link || homepageLink,
-      title: remoteTitle ? TITLE.NEW_TAB : this.getTitle(link)
+      title: remoteTitle ? TITLE.NEW_TAB : this.getTitle(link || homepageLink)
     };
   }
 
