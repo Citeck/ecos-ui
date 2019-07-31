@@ -1,5 +1,10 @@
 import React, { Component } from 'react';
-import Timesheet from '../../components/Timesheet';
+import moment from 'moment';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+
+import Timesheet, { Tabs, DateSlider } from '../../components/Timesheet';
+import { deepClone, t } from '../../helpers/util';
+
 import './style.scss';
 
 class TimesheetPage extends Component {
@@ -89,16 +94,105 @@ class TimesheetPage extends Component {
         color: '#29bd8d',
         canEdit: true
       }
-    ]
+    ],
+    sheetTabs: [
+      {
+        name: 'Мой табель',
+        isActive: true,
+        isAvailable: true
+      },
+      {
+        name: 'Табели подчиненных',
+        isActive: false,
+        isAvailable: false
+      }
+    ],
+    dateTabs: [
+      {
+        name: 'Месяц',
+        isActive: true,
+        isAvailable: true
+      },
+      {
+        name: 'Год',
+        isActive: false,
+        isAvailable: false
+      }
+    ],
+    currentDate: new Date()
+  };
+
+  get daysOfMonth() {
+    const { currentDate } = this.state;
+
+    return Array.from({ length: moment(currentDate).daysInMonth() }, (x, i) =>
+      moment(currentDate)
+        .startOf('month')
+        .add(i, 'days')
+    ).map(day => day.format('dd, D'));
+  }
+
+  handleChangeActiveSheetTab = tabIndex => {
+    const sheetTabs = deepClone(this.state.sheetTabs);
+
+    sheetTabs.forEach((tab, index) => {
+      tab.isActive = index === tabIndex;
+    });
+
+    this.setState({ sheetTabs });
+  };
+
+  handleChangeActiveDateTab = tabIndex => {
+    const dateTabs = deepClone(this.state.dateTabs);
+
+    dateTabs.forEach((tab, index) => {
+      tab.isActive = index === tabIndex;
+
+      console.warn(tab);
+    });
+
+    this.setState({ dateTabs });
+  };
+
+  handleChangeCurrentDate = currentDate => {
+    this.setState({ currentDate });
+  };
+
+  renderMyTimesheet = () => {
+    const { eventTypes } = this.state;
+
+    return <Timesheet eventTypes={eventTypes} daysOfMonth={this.daysOfMonth} />;
   };
 
   render() {
-    const { eventTypes } = this.state;
+    const { sheetTabs, dateTabs, currentDate } = this.state;
 
     return (
-      <div>
-        <Timesheet eventTypes={eventTypes} />
-      </div>
+      <Router>
+        <div className="ecos-timesheet">
+          <div className="ecos-timesheet__title">{t('Табели учёта времени')}</div>
+
+          <div className="ecos-timesheet__type">
+            <Tabs tabs={sheetTabs} onClick={this.handleChangeActiveSheetTab} />
+          </div>
+
+          <div className="ecos-timesheet__header">
+            <div className="ecos-timesheet__date-settings">
+              <Tabs
+                tabs={dateTabs}
+                isSmall
+                onClick={this.handleChangeActiveDateTab}
+                classNameItem="ecos-timesheet__date-settings-tabs-item"
+              />
+              <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
+            </div>
+
+            <div className="ecos-timesheet__status">Статус</div>
+          </div>
+
+          <Route path="/v2/timesheet" exact component={this.renderMyTimesheet} />
+        </div>
+      </Router>
     );
   }
 }

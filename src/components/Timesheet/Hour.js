@@ -8,7 +8,8 @@ import { PointsLoader } from '../common';
 const KEYS = {
   ARROW_UP: 'ArrowUp',
   ARROW_DOWN: 'ArrowDown',
-  ENTER: 'Enter'
+  ENTER: 'Enter',
+  ESC: 'Escape'
 };
 const KEY_FOR_SAVE = [KEYS.ENTER];
 
@@ -102,7 +103,9 @@ class Hour extends Component {
   };
 
   handleInputKeyDown = event => {
-    if (KEY_FOR_SAVE.includes(event.key)) {
+    const { key } = event;
+
+    if (KEY_FOR_SAVE.includes(key)) {
       this.setState({ isLoading: true });
       this.handleToggleInput();
 
@@ -114,7 +117,7 @@ class Hour extends Component {
       return;
     }
 
-    if (event.key === KEYS.ARROW_UP) {
+    if (key === KEYS.ARROW_UP) {
       event.preventDefault();
       event.stopPropagation();
 
@@ -123,7 +126,7 @@ class Hour extends Component {
       return;
     }
 
-    if (event.key === KEYS.ARROW_DOWN) {
+    if (key === KEYS.ARROW_DOWN) {
       this.setState(state => {
         let { value } = state;
 
@@ -135,6 +138,15 @@ class Hour extends Component {
 
         return { value };
       });
+
+      return;
+    }
+
+    if (key === KEYS.ESC) {
+      this.setState((state, props) => ({
+        isEdit: false,
+        value: props.count
+      }));
     }
   };
 

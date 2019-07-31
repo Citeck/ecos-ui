@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import moment from 'moment';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
-import Tabs from './Tabs';
-import DateSlider from './DateSlider';
 import { Input } from '../common/form';
 import Hour from './Hour';
 import { t, deepClone } from '../../helpers/util';
@@ -14,85 +10,34 @@ import './style.scss';
 
 class Timesheet extends Component {
   static propTypes = {
-    eventTypes: PropTypes.array
+    eventTypes: PropTypes.array,
+    daysOfMonth: PropTypes.array
   };
 
   static defaultProps = {
-    eventTypes: []
+    eventTypes: [],
+    daysOfMonth: []
   };
 
   constructor(props) {
     super(props);
 
     this.state = {
-      sheetTabs: [
-        {
-          name: 'Мой табель',
-          isActive: true,
-          isAvailable: true
-        },
-        {
-          name: 'Табели подчиненных',
-          isActive: false,
-          isAvailable: true
-        },
-        {
-          name: 'Табели подчиненных',
-          isActive: false,
-          isAvailable: false
-        }
-      ],
-      dateTabs: [
-        {
-          name: 'Месяц',
-          isActive: true,
-          isAvailable: true
-        },
-        {
-          name: 'Год',
-          isActive: false,
-          isAvailable: false
-        }
-      ],
-      currentDate: new Date(),
       typeFilter: '',
       filteredEventTypes: deepClone(props.eventTypes)
     };
   }
 
-  get daysOfMonth() {
-    const { currentDate } = this.state;
+  static getDerivedStateFromProps(props, state) {
+    if (JSON.stringify(props.eventTypes) !== JSON.stringify(state.eventTypes)) {
+      return {
+        eventTypes: props.eventTypes,
+        filteredEventTypes: deepClone(props.eventTypes)
+      };
+    }
 
-    return Array.from({ length: moment(currentDate).daysInMonth() }, (x, i) =>
-      moment(currentDate)
-        .startOf('month')
-        .add(i, 'days')
-    ).map(day => day.format('dd, D'));
+    return null;
   }
-
-  handleChangeActiveSheetTab = tabIndex => {
-    const sheetTabs = deepClone(this.state.sheetTabs);
-
-    sheetTabs.forEach((tab, index) => {
-      tab.isActive = index === tabIndex;
-    });
-
-    this.setState({ sheetTabs });
-  };
-
-  handleChangeActiveDateTab = tabIndex => {
-    const dateTabs = deepClone(this.state.dateTabs);
-
-    dateTabs.forEach((tab, index) => {
-      tab.isActive = index === tabIndex;
-    });
-
-    this.setState({ dateTabs });
-  };
-
-  handleChangeCurrentDate = currentDate => {
-    this.setState({ currentDate });
-  };
 
   handleFilterTypes = event => {
     this.filterTypes(event.target.value);
@@ -180,18 +125,18 @@ class Timesheet extends Component {
   };
 
   renderCalendar() {
-    const { currentDate, filteredEventTypes } = this.state;
+    const { daysOfMonth } = this.props;
+    const { filteredEventTypes } = this.state;
     const days = [];
-    const dayInMonth = moment(currentDate).daysInMonth();
 
-    for (let i = 0; i < dayInMonth; i++) {
-      days.push(this.renderDay({ key: i, title: this.daysOfMonth[i] }));
+    for (let i = 0; i < daysOfMonth.length; i++) {
+      days.push(this.renderDay({ key: i, title: daysOfMonth[i] }));
     }
 
     return (
       <Scrollbars autoHeight autoHeightMin={40} autoHeightMax={'100%'} renderThumbVertical={props => <div {...props} hidden />}>
         <div className="ecos-timesheet__table-calendar">
-          {this.daysOfMonth.map(day => (
+          {daysOfMonth.map(day => (
             <div className="ecos-timesheet__table-calendar-column" key={day}>
               <div className="ecos-timesheet__table-calendar-cell ecos-timesheet__table-calendar-cell_big">
                 <div className="ecos-timesheet__table-calendar-cell-content">{day}</div>
@@ -228,37 +173,13 @@ class Timesheet extends Component {
   };
 
   render() {
-    const { sheetTabs, dateTabs, currentDate } = this.state;
-
     return (
-      <div className="ecos-timesheet">
-        <div className="ecos-timesheet__title">{t('Табели учёта времени')}</div>
-
-        <div className="ecos-timesheet__type">
-          <Tabs tabs={sheetTabs} onClick={this.handleChangeActiveSheetTab} />
+      <div className="ecos-timesheet__table">
+        <div className="ecos-timesheet__table-left-column">
+          {this.renderFilter()}
+          {this.renderEventTypes()}
         </div>
-
-        <div className="ecos-timesheet__header">
-          <div className="ecos-timesheet__date-settings">
-            <Tabs
-              tabs={dateTabs}
-              isSmall
-              onClick={this.handleChangeActiveDateTab}
-              classNameItem="ecos-timesheet__date-settings-tabs-item"
-            />
-            <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
-          </div>
-
-          <div className="ecos-timesheet__status">Статус</div>
-        </div>
-
-        <div className="ecos-timesheet__table">
-          <div className="ecos-timesheet__table-left-column">
-            {this.renderFilter()}
-            {this.renderEventTypes()}
-          </div>
-          <div className="ecos-timesheet__table-right-column">{this.renderCalendar()}</div>
-        </div>
+        <div className="ecos-timesheet__table-right-column">{this.renderCalendar()}</div>
       </div>
     );
   }
