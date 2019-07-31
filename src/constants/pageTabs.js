@@ -7,12 +7,13 @@ export const SCROLL_STEP = 150;
 export const LINK_TAG = 'A';
 export const TITLE = {
   HOMEPAGE: 'header.site-menu.home-page',
+  NEW_TAB: 'Новая вкладка',
+  NO_NAME: 'Без имени',
   [URL.HOME]: 'header.site-menu.home-page',
   [URL.JOURNAL]: 'page-tabs.journal',
   [URL.DASHBOARD]: 'header.site-menu.home-page',
   [URL.DASHBOARD_SETTINGS]: 'page-tabs.dashboard-settings',
   [URL.BPMN_DESIGNER]: 'page-tabs.bpmn-designer',
-
   // temporary pages
   '/v2/card-details': 'Карточка',
   [URL.JOURNAL_DASHBOARD]: 'Журнал дашборд [temp]',
@@ -21,8 +22,7 @@ export const TITLE = {
   [URL.WIDGET_PROPERTIES]: 'Свойства [temp]',
   [URL.WIDGET_DOC_PREVIEW]: 'Предпросмотр [temp]',
   [URL.CURRENT_TASKS]: 'Текущие задачи [temp]',
-  [URL.WIDGET_DOC_STATUS]: 'Статус документа [temp]',
-  NONAME: 'Без имени'
+  [URL.WIDGET_DOC_STATUS]: 'Статус документа [temp]'
 };
 
 export const URL_MASK = {

@@ -33,7 +33,6 @@ class PageTabs extends React.Component {
       push: PropTypes.func.isRequired
     }),
     homepageLink: PropTypes.string.isRequired,
-    pageName: PropTypes.string,
     isShow: PropTypes.bool,
     tabs: PropTypes.array,
     linkIgnoreAttr: PropTypes.string,
@@ -44,7 +43,6 @@ class PageTabs extends React.Component {
 
   static defaultProps = {
     children: null,
-    pageName: TITLE.HOMEPAGE,
     isShow: false,
     tabs: [],
     linkIgnoreAttr: IGNORE_TABS_HANDLER_ATTR_NAME,
@@ -166,7 +164,7 @@ class PageTabs extends React.Component {
 
   generateNewTab(params = {}) {
     const { countTabs = this.props.tabs.length, props = this.props, link = '' } = params;
-    const { homepageLink, pageName } = props;
+    const { homepageLink } = props;
 
     return {
       id: Math.random()
@@ -175,7 +173,7 @@ class PageTabs extends React.Component {
       position: countTabs,
       isActive: true,
       link: link || homepageLink,
-      title: this.getTitle(link || homepageLink) || pageName
+      title: this.getTitle(link)
     };
   }
 
@@ -238,7 +236,7 @@ class PageTabs extends React.Component {
       return;
     }
 
-    const { saveTabs, history, pageName } = this.props;
+    const { saveTabs, history } = this.props;
 
     event.preventDefault();
 
@@ -285,7 +283,7 @@ class PageTabs extends React.Component {
     const tab = tabs.find(tab => tab.isActive);
 
     tab.link = link;
-    tab.title = this.getTitle(link) || pageName;
+    tab.title = this.getTitle(link);
 
     saveTabs(tabs);
     history.replace.call(this, link);
@@ -295,7 +293,6 @@ class PageTabs extends React.Component {
     const {
       tabs,
       saveTabs,
-      pageName,
       history: {
         location: { pathname, search, hash }
       }
@@ -305,7 +302,7 @@ class PageTabs extends React.Component {
     const linkFromUrl = [pathname, search, hash].join('');
 
     tab.link = linkFromUrl;
-    tab.title = this.getTitle(linkFromUrl) || pageName;
+    tab.title = this.getTitle(linkFromUrl);
 
     saveTabs(newTabs);
     this.setState({ tabs: newTabs });
@@ -327,7 +324,7 @@ class PageTabs extends React.Component {
       return;
     }
 
-    const { saveTabs, history, pageName } = this.props;
+    const { saveTabs, history } = this.props;
     const tabs = deepClone(this.state.tabs);
     const link = elem.getAttribute('href');
     const isNewTab = elem.getAttribute('target') === '_blank';
@@ -357,7 +354,7 @@ class PageTabs extends React.Component {
       const tab = tabs.find(tab => tab.isActive);
 
       tab.link = link;
-      tab.title = this.getTitle(link) || pageName;
+      tab.title = this.getTitle(link);
     }
 
     saveTabs(tabs);
@@ -576,7 +573,7 @@ class PageTabs extends React.Component {
   };
 
   getTitle(url) {
-    let cleanUrl = url.replace(/\?.*/i, '');
+    let cleanUrl = (url || TITLE.NEW_TAB).replace(/\?.*/i, '');
 
     cleanUrl = cleanUrl.replace(/#.*/i, '');
 

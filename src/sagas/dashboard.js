@@ -19,10 +19,12 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
     const { recordRef } = payload;
     const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
+    const resTitle = yield call(api.dashboard.getTitleInfo, recordRef);
+
     const data = DashboardService.checkDashboardResult(result);
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(data);
     const webConfig = DashboardConverter.getDashboardForWeb(data);
-    const titleInfo = DashboardConverter.getTitleInfo(yield call(api.dashboard.getTitleInfo, recordRef));
+    const titleInfo = DashboardConverter.getTitleInfo(resTitle);
 
     yield put(setDashboardTitleInfo(titleInfo));
     yield put(setActiveTabTitle(titleInfo.name));
