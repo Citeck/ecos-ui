@@ -1,9 +1,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { isEmpty } from 'lodash';
 import { getCurrentTaskList } from '../../actions/tasks';
 import { selectDataCurrentTasksByStateId } from '../../selectors/tasks';
+import { DefineHeight } from '../common';
 import CurrentTaskList from './CurrentTaskList';
+
 import './style.scss';
 
 const mapStateToProps = (state, context) => {
@@ -27,7 +31,10 @@ class CurrentTasks extends React.Component {
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool,
-    isLoading: PropTypes.bool
+    isLoading: PropTypes.bool,
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
   };
 
   static defaultProps = {
@@ -36,6 +43,12 @@ class CurrentTasks extends React.Component {
     isMobile: false,
     isLoading: false
   };
+
+  state = {
+    contentHeight: 0
+  };
+
+  className = 'ecos-current-task-list';
 
   componentDidMount() {
     this.getCurrentTaskList();
@@ -50,18 +63,38 @@ class CurrentTasks extends React.Component {
     });
   };
 
+  setHeight = contentHeight => {
+    this.setState({ contentHeight });
+  };
+
   render() {
-    const { currentTasks, height, isLoading, isMobile, isSmallMode, className } = this.props;
+    const { currentTasks, isLoading, isMobile, isSmallMode, className, height, minHeight, maxHeight } = this.props;
     const childProps = {
       currentTasks,
       className,
-      height,
       isLoading,
       isMobile,
       isSmallMode
     };
+    const { contentHeight } = this.state;
 
-    return <CurrentTaskList {...childProps} />;
+    return (
+      <Scrollbars
+        style={{ height: contentHeight || '100%' }}
+        className={this.className}
+        renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
+      >
+        <DefineHeight
+          fixHeight={height}
+          maxHeight={maxHeight}
+          minHeight={minHeight}
+          isMin={isLoading || isEmpty(currentTasks)}
+          getOptimalHeight={this.setHeight}
+        >
+          <CurrentTaskList {...childProps} />
+        </DefineHeight>
+      </Scrollbars>
+    );
   }
 }
 

@@ -9,6 +9,7 @@ $border-base: #c1c1c1;
   background: $color-white;
   box-shadow: $box-shadow-default;
 }
+
 %base-flex {
   display: flex;
   align-items: center;
@@ -17,9 +18,28 @@ $border-base: #c1c1c1;
 .ecos-dp {
   $root: &;
 
-  &-dashlet {
-    padding-bottom: 1px;
+  overflow: hidden;
 
+  &.no-data {
+    border: unset;
+  }
+
+  &__container {
+    height: 100%;
+  }
+
+  &_indents {
+    padding-top: 14px;
+    padding-right: 17px;
+    padding-left: 17px;
+  }
+
+  &__loader {
+    padding: 15px;
+    position: relative;
+  }
+
+  &-dashlet {
     &_small {
       #{$root} {
         &__toolbar {
@@ -36,21 +56,18 @@ $border-base: #c1c1c1;
         }
       }
     }
-
-    &__body {
-      margin: 14px 17px 20px;
-    }
   }
-
-  border: 1px solid $border-base;
-  height: 100%;
 
   &__toolbar {
     @extend %base-flex;
     justify-content: center;
     background-color: $background-toolbar;
-    border-bottom: 1px solid $border-base;
+    border: 1px solid $border-base;
     min-height: 45px;
+
+    &.hide {
+      display: none;
+    }
 
     & > * {
       padding: 0 15px;
@@ -106,15 +123,13 @@ $border-base: #c1c1c1;
   &__viewer {
     display: flex;
     justify-content: center;
-    margin-right: 2px;
     box-sizing: border-box;
     background-color: $background-viewer;
     position: relative;
     height: calc(100% - 45px);
-
-    &-loader-wrapper {
-      height: 150px;
-    }
+    border-bottom: 1px solid $border-base;
+    border-right: 1px solid $border-base;
+    border-left: 1px solid $border-base;
 
     &_fullscreen {
       height: 100vh;
@@ -167,23 +182,6 @@ $border-base: #c1c1c1;
           transition: all 0.3s cubic-bezier(0.65, 0.05, 0.36, 1);
           transform-origin: top center;
         }
-      }
-    }
-
-    &-msg {
-      font-weight: bold;
-      padding: 10px;
-
-      &_error {
-        color: $color-red-2;
-      }
-
-      &_info {
-        color: $color-blue-light;
-      }
-
-      &_warn {
-        color: $color-orange;
       }
     }
   }

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import Loader from '../common/Loader/Loader';
 import { IcoBtn } from '../common/btns';
-import { t, getId, trigger } from '../../helpers/util';
+import { getId, t, trigger } from '../../helpers/util';
 
 export default class ColumnsSetup extends Component {
   form = React.createRef();
@@ -33,7 +33,7 @@ export default class ColumnsSetup extends Component {
     return (
       <Fragment>
         {this.state.loading ? (
-          <Loader className={'ecos-loader_pin'} width={'30'} height={'30'} />
+          <Loader className={'ecos-loader_pin'} width={30} height={30} />
         ) : (
           <IcoBtn
             onClick={this.onClick}
