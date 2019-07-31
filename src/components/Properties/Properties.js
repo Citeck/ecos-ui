@@ -1,7 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { t } from '../../helpers/util';
 import EcosForm from '../EcosForm';
+import { DefineHeight, InfoText } from '../common';
+
 import './style.scss';
 
 class Properties extends React.Component {
@@ -10,7 +13,10 @@ class Properties extends React.Component {
     stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
-    isReady: PropTypes.bool
+    isReady: PropTypes.bool,
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
   };
 
   static defaultProps = {
@@ -23,12 +29,10 @@ class Properties extends React.Component {
   className = 'ecos-properties';
 
   state = {
+    loaded: false,
     isReadySubmit: true,
-    hideForm: false
-  };
-
-  onSubmitForm = () => {
-    this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
+    hideForm: false,
+    contentHeight: 0
   };
 
   // hack for EcosForm force update on isSmallMode changing
@@ -39,6 +43,18 @@ class Properties extends React.Component {
       });
     }
   }
+
+  onSubmitForm = () => {
+    this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
+  };
+
+  onReady = () => {
+    this.setState({ loaded: true });
+  };
+
+  setHeight = contentHeight => {
+    this.setState({ contentHeight });
+  };
 
   renderForm() {
     const { record, isSmallMode, isReady } = this.props;
@@ -55,20 +71,27 @@ class Properties extends React.Component {
           }
         }}
         onSubmit={this.onSubmitForm}
+        onReady={this.onReady}
+        className={`${this.className}__formio`}
       />
-    ) : null;
+    ) : (
+      <InfoText text={t('Сведения не загружены')} />
+    );
   }
 
   render() {
-    const { height } = this.props;
+    const { loaded, contentHeight } = this.state;
+    const { height, minHeight, maxHeight } = this.props;
 
     return (
       <Scrollbars
-        style={{ height }}
+        style={{ height: contentHeight || '100%' }}
         className={`${this.className}__scroll`}
         renderTrackVertical={props => <div {...props} className={`${this.className}__scroll_v`} />}
       >
-        <div className={`${this.className}__container`}>{this.renderForm()}</div>
+        <DefineHeight fixHeight={height} maxHeight={maxHeight} minHeight={minHeight} isMin={!loaded} getOptimalHeight={this.setHeight}>
+          {this.renderForm()}
+        </DefineHeight>
       </Scrollbars>
     );
   }

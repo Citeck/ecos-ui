@@ -13,7 +13,8 @@ class PdfPage extends Component {
       isFullscreen: PropTypes.bool,
       currentPage: PropTypes.number
     }),
-    calcScale: PropTypes.func
+    calcScale: PropTypes.func,
+    refViewer: PropTypes.object
   };
 
   static defaultProps = {

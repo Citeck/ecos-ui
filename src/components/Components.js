@@ -87,8 +87,7 @@ export default class Components {
           ...props,
           id: props.id || defWidget.id,
           config: {
-            ...config,
-            height: config.height || '500px'
+            ...config
           }
         };
 

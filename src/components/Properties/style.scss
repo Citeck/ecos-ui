@@ -3,16 +3,13 @@
 .ecos-properties {
   $root: &;
 
-  &__loader-wrapper {
-  }
-
   &__scroll {
     &_v {
       @extend %v-scroll;
     }
   }
 
-  &__container {
+  &__formio {
     padding: 20px; //fixme временное решение: Отступы для read полей - требуется доработка верстки EcosForm.
   }
 

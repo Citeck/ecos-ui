@@ -18,19 +18,11 @@
       @extend %v-scroll;
     }
 
-    &_empty {
-      margin: 33px 0;
-      text-align: center;
-      color: $color-gray-5;
-      font-size: $font-size-standard;
-      font-weight: $font-weight-semi-bold;
-    }
-
     &-dashlet {
       height: fit-content;
     }
 
-    &__loader-wrapper {
+    &__loader {
       height: 100%;
     }
 
