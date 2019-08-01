@@ -3,20 +3,35 @@
 .ecos-avatar {
   $root: &;
 
+  background: $color-blue-light;
+  height: 40px;
+  width: 40px;
+  border: 3px solid $color-white;
+  border-radius: 50%;
+  position: relative;
+
   &__image {
-    height: 40px;
-    width: 40px;
-    border: 3px solid $color-white;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: 50% 0;
-    border-radius: 50%;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
   }
 
   &__icon {
-    font-size: 40px;
+    font-size: 36px;
     color: $color-white;
-    line-height: 0;
-    display: inline-block;
+    left: -2px;
+    top: -1px;
+    position: absolute;
+  }
+
+  &__name {
+    color: $color-white;
+    display: flex;
+    margin: auto;
+    font-size: 20px;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
   }
 }
