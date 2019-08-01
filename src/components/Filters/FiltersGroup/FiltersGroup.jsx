@@ -82,7 +82,7 @@ export default class FiltersGroup extends Component {
   }
 
   render() {
-    const { className, columns, first, group, index, droppableIdPrefix = '_' } = this.props;
+    const { className, columns, first, group, index, droppableIdPrefix = '_', sourceId } = this.props;
     const groupConditions = ParserPredicate.getGroupConditions();
     const droppableId = `${droppableIdPrefix}${index}`;
 
@@ -91,6 +91,7 @@ export default class FiltersGroup extends Component {
         key={idx}
         index={idx}
         filter={filter}
+        sourceId={sourceId}
         onChangeValue={this.onChangeFilterValue}
         onChangePredicate={this.onChangeFilterPredicate}
         onDelete={this.deleteFilter}
