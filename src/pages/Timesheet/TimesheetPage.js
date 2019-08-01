@@ -212,14 +212,13 @@ class TimesheetPage extends Component {
           isAvailable: false
         }
       ],
-      currentDate: new Date()
+      currentDate: new Date(),
+      daysOfMonth: this.getDaysOfMonth(new Date())
     };
   }
 
-  get daysOfMonth() {
-    const { currentDate } = this.state;
-
-    return Array.from({ length: moment(currentDate).daysInMonth() }, (x, i) =>
+  getDaysOfMonth = currentDate =>
+    Array.from({ length: moment(currentDate).daysInMonth() }, (x, i) =>
       moment(currentDate)
         .startOf('month')
         .add(i, 'days')
@@ -228,7 +227,6 @@ class TimesheetPage extends Component {
       title: day.format('dd, D'),
       isBusinessDay: moment(day).isBusinessDay()
     }));
-  }
 
   handleChangeActiveSheetTab = tabIndex => {
     const sheetTabs = deepClone(this.state.sheetTabs);
@@ -255,51 +253,51 @@ class TimesheetPage extends Component {
   };
 
   handleChangeCurrentDate = currentDate => {
-    this.setState({ currentDate });
+    this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
   };
 
   renderMyTimesheet = () => {
-    const { eventTypes } = this.state;
+    const { eventTypes, daysOfMonth } = this.state;
 
-    return <Timesheet eventTypes={eventTypes} daysOfMonth={this.daysOfMonth} />;
+    return <Timesheet eventTypes={eventTypes} daysOfMonth={daysOfMonth} />;
   };
 
   renderSubordinateTimesheet = () => {
-    const { subordinatesEvents } = this.state;
+    const { subordinatesEvents, daysOfMonth } = this.state;
 
-    return <Timesheet groupBy={'user'} eventTypes={subordinatesEvents} daysOfMonth={this.daysOfMonth} />;
+    return <Timesheet groupBy={'user'} eventTypes={subordinatesEvents} daysOfMonth={daysOfMonth} />;
   };
 
   render() {
     const { sheetTabs, dateTabs, currentDate } = this.state;
 
     return (
-      <Switch>
-        <div className="ecos-timesheet">
-          <div className="ecos-timesheet__title">{t('Табели учёта времени')}</div>
+      <div className="ecos-timesheet">
+        <div className="ecos-timesheet__title">{t('Табели учёта времени')}</div>
 
-          <div className="ecos-timesheet__type">
-            <Tabs tabs={sheetTabs} onClick={this.handleChangeActiveSheetTab} />
+        <div className="ecos-timesheet__type">
+          <Tabs tabs={sheetTabs} onClick={this.handleChangeActiveSheetTab} />
+        </div>
+
+        <div className="ecos-timesheet__header">
+          <div className="ecos-timesheet__date-settings">
+            <Tabs
+              tabs={dateTabs}
+              isSmall
+              onClick={this.handleChangeActiveDateTab}
+              classNameItem="ecos-timesheet__date-settings-tabs-item"
+            />
+            <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
           </div>
 
-          <div className="ecos-timesheet__header">
-            <div className="ecos-timesheet__date-settings">
-              <Tabs
-                tabs={dateTabs}
-                isSmall
-                onClick={this.handleChangeActiveDateTab}
-                classNameItem="ecos-timesheet__date-settings-tabs-item"
-              />
-              <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
-            </div>
+          <div className="ecos-timesheet__status">Статус</div>
+        </div>
 
-            <div className="ecos-timesheet__status">Статус</div>
-          </div>
-
+        <Switch>
           <Route path={URL.TIMESHEET} exact component={this.renderMyTimesheet} />
           <Route path={URL.TIMESHEET_SUBORDINATES} exact component={this.renderSubordinateTimesheet} />
-        </div>
-      </Switch>
+        </Switch>
+      </div>
     );
   }
 }

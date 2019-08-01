@@ -28,19 +28,27 @@ class Timesheet extends Component {
     this.state = {
       typeFilter: '',
       filteredEventTypes: deepClone(props.eventTypes),
-      groupsStatuses: {}
+      groupsStatuses: props.groupBy ? this.initGroupsStatuses(props) : {}
     };
   }
 
-  static getDerivedStateFromProps(props, state) {
-    if (JSON.stringify(props.eventTypes) !== JSON.stringify(state.eventTypes)) {
-      return {
-        eventTypes: props.eventTypes,
-        filteredEventTypes: deepClone(props.eventTypes)
-      };
+  componentWillReceiveProps(nextProps, nextContext) {
+    if (nextProps.groupBy && JSON.stringify(nextProps.eventTypes) !== JSON.stringify(this.props.eventTypes)) {
+      this.setState({
+        groupsStatuses: this.initGroupsStatuses(nextProps)
+      });
     }
 
-    return null;
+    if (JSON.stringify(nextProps.eventTypes) !== JSON.stringify(this.state.eventTypes)) {
+      this.setState({
+        eventTypes: nextProps.eventTypes,
+        filteredEventTypes: deepClone(nextProps.eventTypes)
+      });
+    }
+  }
+
+  initGroupsStatuses(props) {
+    return props.eventTypes.map(item => item[props.groupBy]).reduce((result, key, index) => ({ ...result, [key]: !index }), {});
   }
 
   getFiltered(eventTypes, filter) {
@@ -74,6 +82,20 @@ class Timesheet extends Component {
 
     eventTypes.splice(oldIndex, 1);
     eventTypes.splice(newIndex, 0, draggableEvent);
+
+    this.setState({ filteredEventTypes: eventTypes });
+  };
+
+  handleSortEndInGroup = (key, { oldIndex, newIndex }, event) => {
+    const { filteredEventTypes } = this.state;
+    const eventTypes = deepClone(filteredEventTypes);
+    const currentEvents = eventTypes[key].eventTypes;
+    const draggableEvent = currentEvents[oldIndex];
+
+    event.stopPropagation();
+
+    currentEvents.splice(oldIndex, 1);
+    currentEvents.splice(newIndex, 0, draggableEvent);
 
     this.setState({ filteredEventTypes: eventTypes });
   };
@@ -127,7 +149,28 @@ class Timesheet extends Component {
     );
   }
 
-  renderEventTypes(filteredEventTypes = this.state.filteredEventTypes) {
+  renderEventTypes(eventTypes = this.state.filteredEventTypes, key = null) {
+    return (
+      <SortableContainer
+        axis="y"
+        lockAxis="y"
+        onSortEnd={key === null ? this.handleSortEnd : this.handleSortEndInGroup.bind(this, key)}
+        // updateBeforeSortStart={this.handleBeforeSortStart}
+        useDragHandle
+      >
+        <div className="ecos-timesheet__table-events">{eventTypes.map(this.renderEventType)}</div>
+      </SortableContainer>
+    );
+  }
+
+  renderGroupedEvents() {
+    const { groupBy, eventTypes } = this.props;
+    const { filteredEventTypes } = this.state;
+
+    if (!groupBy) {
+      return null;
+    }
+
     return (
       <SortableContainer
         axis="y"
@@ -136,33 +179,30 @@ class Timesheet extends Component {
         // updateBeforeSortStart={this.handleBeforeSortStart}
         useDragHandle
       >
-        <div className="ecos-timesheet__table-events">{filteredEventTypes.map(this.renderEventType)}</div>
+        <div>
+          {filteredEventTypes.map((item, index) => (
+            <SortableElement key={`${item.user}-${index}`} index={index}>
+              <div className="ecos-timesheet__table-group">
+                <div className="ecos-timesheet__table-events-item ecos-timesheet__table-group-header">
+                  <SortableHandle>
+                    <div className="ecos-timesheet__table-events-item-dnd" />
+                  </SortableHandle>
+
+                  <div
+                    className={classNames('ecos-timesheet__table-group-collapse', {
+                      'ecos-timesheet__table-group-collapse_open': this.getGroupStatus(item.user)
+                    })}
+                    onClick={this.handleToggleGroupCollapse.bind(null, item.user)}
+                  />
+                  <div className="ecos-timesheet__table-group-header-title">{item.user}</div>
+                </div>
+                <Collapse isOpen={this.getGroupStatus(item.user)}>{this.renderEventTypes(item.eventTypes, index)}</Collapse>
+              </div>
+            </SortableElement>
+          ))}
+        </div>
       </SortableContainer>
     );
-  }
-
-  renderGroupedEvents() {
-    const { groupBy, eventTypes } = this.props;
-
-    if (!groupBy) {
-      return null;
-    }
-
-    return eventTypes.map((item, index) => (
-      <div className="ecos-timesheet__table-group" key={`${item.user}-${index}`}>
-        <div className="ecos-timesheet__table-events-item ecos-timesheet__table-group-header">
-          <div className="ecos-timesheet__table-events-item-dnd" />
-          <div
-            className={classNames('ecos-timesheet__table-group-collapse', {
-              'ecos-timesheet__table-group-collapse_open': this.getGroupStatus(item.user)
-            })}
-            onClick={this.handleToggleGroupCollapse.bind(null, item.user)}
-          />
-          <div className="ecos-timesheet__table-group-header-title">{item.user}</div>
-        </div>
-        <Collapse isOpen={this.getGroupStatus(item.user)}>{this.renderEventTypes(item.eventTypes)}</Collapse>
-      </div>
-    ));
   }
 
   renderEventType = (item, position) => {
@@ -226,14 +266,12 @@ class Timesheet extends Component {
               {!groupBy && this.renderCells(filteredEventTypes, day)}
 
               {groupBy &&
-                eventTypes.map(item => {
-                  return (
-                    <React.Fragment>
-                      {this.renderCountByDay(day)}
-                      {this.renderCells(item.eventTypes, day)}
-                    </React.Fragment>
-                  );
-                })}
+                filteredEventTypes.map((item, key) => (
+                  <div key={key}>
+                    {this.renderCountByDay(day)}
+                    <Collapse isOpen={this.getGroupStatus(item.user)}>{this.renderCells(item.eventTypes, day)}</Collapse>
+                  </div>
+                ))}
             </div>
           ))}
         </div>
