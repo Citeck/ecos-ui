@@ -173,9 +173,11 @@ class DocPreview extends Component {
 
     this.setState({ isLoading: true });
     DocPreviewApi.getLinkByRecord(searchParams[recordKey]).then(link => {
-      this.setState({ isLoading: false, link });
+      const error = link ? '' : t('Документ не получен');
 
-      if (isPDFbyStr(link)) {
+      this.setState({ isLoading: false, link, error });
+
+      if (link && isPDFbyStr(link)) {
         this.loadPDF(link);
       }
     });
