@@ -8,7 +8,8 @@ export default class DataGridComponent extends FormIODataGridComponent {
       {
         label: 'Data Grid Assoc',
         key: 'dataGridAssoc',
-        type: 'datagridAssoc'
+        type: 'datagridAssoc',
+        multiple: true
       },
       ...extend
     );
@@ -42,6 +43,10 @@ export default class DataGridComponent extends FormIODataGridComponent {
   }
 
   setValue(value, flags) {
+    if (!Array.isArray(value)) {
+      value = [value];
+    }
+
     if (DataGridComponent.hasNodeRefsInValueList(value)) {
       const inputs = EcosFormUtils.getFormInputs(this.component);
 
