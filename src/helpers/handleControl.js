@@ -1,4 +1,5 @@
 import { t } from '../helpers/util';
+import { goToCardDetailsPage } from '../helpers/urls';
 import { showModal, hideModal } from '../actions/modal';
 
 import { leaveSiteRequest, joinSiteRequest, becomeSiteManagerRequest, requestSiteMembership } from '../actions/handleControl';
@@ -99,7 +100,11 @@ export default function handleControl(type, payload, dispatch) {
       break;
 
     case 'ECOS_CREATE_VARIANT':
-      FormManager.createRecordByVariant(payload);
+      FormManager.createRecordByVariant(payload, {
+        onSubmit: record => {
+          goToCardDetailsPage(record.id);
+        }
+      });
       break;
 
     default:
