@@ -173,8 +173,13 @@ class DocPreview extends Component {
 
     this.setState({ isLoading: true });
     DocPreviewApi.getLinkByRecord(searchParams[recordKey]).then(link => {
-      this.setState({ isLoading: false, link });
-      this.loadPDF(link);
+      const error = link ? '' : t('Документ не получен');
+
+      this.setState({ isLoading: false, link, error });
+
+      if (link && isPDFbyStr(link)) {
+        this.loadPDF(link);
+      }
     });
   };
 
@@ -182,7 +187,7 @@ class DocPreview extends Component {
     const { firstPageNumber } = this.props;
     const loadingTask = pdfjs.getDocument(link);
 
-    this.setState({ scrollPage: firstPageNumber });
+    this.setState({ scrollPage: firstPageNumber, isLoading: true });
 
     loadingTask.promise.then(
       pdf => {
