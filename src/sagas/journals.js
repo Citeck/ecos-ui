@@ -35,7 +35,8 @@ import {
   performGroupAction,
   setPerformGroupActionResponse,
   createZip,
-  setZipNodeRef
+  setZipNodeRef,
+  renameJournalSetting
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { JOURNAL_SETTING_ID_FIELD, DEFAULT_PAGINATION } from '../components/Journals/constants';
@@ -389,6 +390,24 @@ function* sagaDeleteJournalSetting({ api, logger, stateId, w }, action) {
   }
 }
 
+function* sagaRenameJournalSetting({ api, logger, stateId, w }, action) {
+  try {
+    const { id: journalSettingId, title } = action.payload;
+
+    let journalConfig = yield select(state => state.journals[stateId].journalConfig);
+
+    let journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
+
+    journalSetting.title = title;
+
+    yield call(api.journals.saveJournalSetting, { id: journalSettingId, settings: journalSetting });
+
+    yield getJournalSettings(api, journalConfig.id, w);
+  } catch (e) {
+    logger.error('[journals sagaRenameJournalSetting saga error', e.message);
+  }
+}
+
 function* sagaInitPreview({ api, logger, stateId, w }, action) {
   try {
     const nodeRef = action.payload;
@@ -523,6 +542,7 @@ function* saga(ea) {
   yield takeEvery(saveJournalSetting().type, wrapSaga, { ...ea, saga: sagaSaveJournalSetting });
   yield takeEvery(createJournalSetting().type, wrapSaga, { ...ea, saga: sagaCreateJournalSetting });
   yield takeEvery(deleteJournalSetting().type, wrapSaga, { ...ea, saga: sagaDeleteJournalSetting });
+  yield takeEvery(renameJournalSetting().type, wrapSaga, { ...ea, saga: sagaRenameJournalSetting });
 
   yield takeEvery(onJournalSettingsSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSettingsSelect });
   yield takeEvery(onJournalSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSelect });

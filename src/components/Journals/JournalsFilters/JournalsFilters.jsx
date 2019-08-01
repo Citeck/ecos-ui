@@ -30,7 +30,7 @@ class JournalsFilters extends Component {
   };
 
   render() {
-    const { predicate, columns } = this.props;
+    const { predicate, columns, sourceId } = this.props;
 
     return (
       <PanelBar
@@ -38,7 +38,13 @@ class JournalsFilters extends Component {
         className={'ecos-journals-filters__panel-bar'}
         css={{ headerClassName: 'panel-bar__header_full panel-bar__header_upper' }}
       >
-        <Filters predicate={predicate} columns={columns} className={'ecos-journals-filters'} onChange={this.onChangeFilters} />
+        <Filters
+          predicate={predicate}
+          columns={columns}
+          sourceId={sourceId}
+          className={'ecos-journals-filters'}
+          onChange={this.onChangeFilters}
+        />
       </PanelBar>
     );
   }
