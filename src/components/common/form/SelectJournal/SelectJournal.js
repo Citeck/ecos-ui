@@ -347,7 +347,7 @@ export default class SelectJournal extends Component {
           },
           () => {
             if (shouldTriggerOnChange && typeof onChange === 'function') {
-              onChange(newValue);
+              onChange(newValue, selected);
             }
             resolve();
           }

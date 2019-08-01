@@ -311,7 +311,7 @@ export default class Grid extends Component {
       trigger.call(this, 'onEdit', {
         id: row[this._keyField],
         attributes: {
-          [column.attribute]: newValue
+          [column.attribute]: column.formatExtraData.formatter.getId(newValue)
         }
       });
     }

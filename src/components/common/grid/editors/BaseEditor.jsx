@@ -11,6 +11,10 @@ export default class BaseEditor extends React.Component {
     return this._value;
   }
 
+  setValue(value) {
+    return (this._value = value);
+  }
+
   onChange = e => {
     this._value = e.target.value;
   };
