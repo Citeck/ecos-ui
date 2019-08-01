@@ -15,17 +15,23 @@ const defaultAttr = {
   id: 'id'
 };
 
+class CacheDID {
+  static map = new Map();
+
+  static get = key => {
+    return CacheDID.map.get(key + '_dId');
+  };
+
+  static set = (key, id) => {
+    CacheDID.map.set(key + '_dId', id);
+  };
+
+  static check = key => {
+    return CacheDID.map.has(key + '_dId');
+  };
+}
+
 export class DashboardApi extends RecordService {
-  cache = new Map();
-
-  getDashboardIdCash = key => {
-    return this.cache.get(key + '_dId');
-  };
-
-  setDashboardIdCash = (key, id) => {
-    this.cache.set(key + '_dId', id);
-  };
-
   getAllWidgets = () => {
     return Components.getComponentsFullData();
   };
@@ -56,21 +62,29 @@ export class DashboardApi extends RecordService {
     return {};
   };
 
-  getDashboardById = dashboardId => {
+  getDashboardById = (dashboardId, force = false) => {
     const id = DashboardService.parseDashboardId(dashboardId);
 
     return Records.get(`${SourcesId.DASHBOARD}@${id}`)
-      .load({ ...defaultAttr })
+      .load({ ...defaultAttr }, force)
       .then(response => response);
   };
 
+  getDashboardByKeyType = (key, type) => {
+    return Records.queryOne(
+      {
+        sourceId: SourcesId.DASHBOARD,
+        query: {
+          key,
+          type,
+          user: getCurrentUserName()
+        }
+      },
+      { ...defaultAttr }
+    ).then(response => response);
+  };
+
   getDashboardByRecordRef = function*(recordRef) {
-    const dashboardId = this.getDashboardIdCash(recordRef);
-
-    if (!isEmpty(dashboardId)) {
-      return yield this.getDashboardById(dashboardId);
-    }
-
     const result = yield Records.get(recordRef).load({
       type: '_dashboardType',
       keys: '_dashboardKey[]'
@@ -78,36 +92,33 @@ export class DashboardApi extends RecordService {
 
     const { keys, type } = result;
     const dashboardKeys = Array.from(keys || []);
-    let data;
 
     dashboardKeys.push(QueryKeys.DEFAULT);
 
+    const cacheKey = dashboardKeys.find(key => CacheDID.check(key));
+    const dashboardId = cacheKey ? CacheDID.get(cacheKey) : null;
+
+    if (!isEmpty(dashboardId)) {
+      return yield this.getDashboardById(dashboardId);
+    }
+
+    let data;
+
     for (let key of dashboardKeys) {
-      data = yield Records.queryOne(
-        {
-          sourceId: SourcesId.DASHBOARD,
-          query: {
-            [QueryKeys.KEY]: key,
-            type,
-            user: getCurrentUserName()
-          }
-        },
-        { ...defaultAttr }
-      );
+      data = yield this.getDashboardByKeyType(key, type);
 
       if (!isEmpty(data)) {
+        CacheDID.set(key, data.id);
         break;
       }
     }
-
-    this.setDashboardIdCash(recordRef, data.id);
 
     return data;
   };
 
   getDashboardByUser = function() {
     const user = getCurrentUserName();
-    const dashboardId = this.getDashboardIdCash(user);
+    const dashboardId = CacheDID.get(user);
 
     if (!isEmpty(dashboardId)) {
       return this.getDashboardById(dashboardId);
@@ -123,7 +134,7 @@ export class DashboardApi extends RecordService {
       },
       { ...defaultAttr }
     ).then(response => {
-      this.setDashboardIdCash(user, response.id);
+      CacheDID.set(user, response.id);
 
       return response;
     });
