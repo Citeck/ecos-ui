@@ -216,6 +216,10 @@
         }
       }
 
+      &_disabled {
+        pointer-events: none;
+      }
+
       &_sorting {
         top: -1px;
 
@@ -234,6 +238,16 @@
         overflow: hidden;
         line-height: 16px;
         margin-right: 5px;
+
+        &-loader {
+          margin-right: 5px;
+          width: 40px;
+          display: inline-flex;
+
+          .ecos-points-loader-child {
+            background-color: #7396cd;
+          }
+        }
       }
 
       &-close {

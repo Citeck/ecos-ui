@@ -10,10 +10,14 @@ export default class Input extends Component {
   }
 
   componentDidMount() {
-    const { getInputRef, autoFocus } = this.props;
+    const { getInputRef, autoFocus, autoSelect } = this.props;
 
     if (autoFocus) {
       this.inputRef.current.focus();
+    }
+
+    if (autoSelect) {
+      this.inputRef.current.select();
     }
 
     if (typeof getInputRef === 'function') {

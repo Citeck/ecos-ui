@@ -87,15 +87,13 @@ export default class Components {
           ...props,
           id: props.id || defWidget.id,
           config: {
-            ...config,
-            height: config.height || '500px'
+            ...config
           }
         };
 
         switch (defWidget.name) {
           case ComponentKeys.DOC_PREVIEW: {
             defWidget.props.config.link = config.link || '';
-            defWidget.props.config.scale = config.scale || 1;
             break;
           }
           case ComponentKeys.JOURNAL: {

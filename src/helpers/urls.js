@@ -101,7 +101,7 @@ export const goToJournalsPage = options => {
   if (OLD_LINKS || !isNewVersionPage()) {
     window.open(journalPageUrl, '_blank');
   } else {
-    changeUrlLink(journalPageUrl, { openNewTab: true });
+    changeUrlLink(journalPageUrl, { openNewTab: true }); // TODO set "remoteTitle: true" when https://citeck.atlassian.net/browse/ECOSCOM-2426 done
   }
 };
 
@@ -109,7 +109,7 @@ export const goToCreateRecordPage = createVariants => window.open(getCreateRecor
 
 export const goToCardDetailsPage = nodeRef => {
   if (isNewVersionPage()) {
-    changeUrlLink(`${URL.DASHBOARD}?recordRef=${nodeRef}`, { openNewTab: true });
+    changeUrlLink(`${URL.DASHBOARD}?recordRef=${nodeRef}`, { openNewTab: true, remoteTitle: true });
 
     return;
   }

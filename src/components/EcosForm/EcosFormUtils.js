@@ -42,7 +42,7 @@ export default class EcosFormUtils {
     };
 
     let getFormByKeysFromRecord = (keys, idx) => {
-      if (idx >= keys.length) {
+      if (!keys || idx >= keys.length) {
         return null;
       }
 

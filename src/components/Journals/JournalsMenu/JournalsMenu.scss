@@ -30,9 +30,28 @@
   background: $color-white;
 }
 
-.ecos-journal-menu__close-list-item {
+.ecos-journal-menu__delete-btn {
   position: absolute;
-  right: 5px;
+  right: 13px;
+  top: 10px;
+}
+
+.ecos-journal-menu__edit-btn {
+  position: absolute;
+  right: 39px;
+  top: 10px;
+}
+
+.ecos-journal-menu__cancel-btn {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+}
+
+.ecos-journal-menu__apply-btn {
+  position: absolute;
+  right: 37px;
+  top: 10px;
 }
 
 .ecos-journal-menu__list-item {
@@ -40,4 +59,12 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.ecos-journal-menu__list-item_hover {
+  padding: 13px 60px 13px 15px;
+}
+
+.ecos-journal-menu__list-item-input {
+  padding-right: 58px;
 }

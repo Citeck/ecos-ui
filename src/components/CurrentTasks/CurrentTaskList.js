@@ -1,11 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty, uniqueId } from 'lodash';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { getOutputFormat, t } from '../../helpers/util';
 import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
 import { Grid } from '../common/grid';
-import { Loader, Separator } from '../common';
+import { InfoText, Loader, Separator } from '../common';
 import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
 import CurrentTaskInfo from './CurrentTaskInfo';
 import IconInfo from './IconInfo';
@@ -30,18 +29,6 @@ class CurrentTaskList extends React.Component {
   };
 
   className = 'ecos-current-task-list';
-
-  renderLoader() {
-    return (
-      <div className={`${this.className}__loader-wrapper`}>
-        <Loader />
-      </div>
-    );
-  }
-
-  renderEmpty() {
-    return <div className={this.className + '_empty'}>{t('current-tasks-widget.no-tasks')}</div>;
-  }
 
   renderEnum() {
     const { currentTasks, isMobile } = this.props;
@@ -78,16 +65,16 @@ class CurrentTaskList extends React.Component {
     return <Grid data={formatTasks} columns={gridCols} scrollable={true} className={`${this.className}_view-table`} />;
   }
 
-  renderSwitch() {
+  render() {
     const { isSmallMode, isLoading, currentTasks, isMobile } = this.props;
     const isEmptyList = isEmpty(currentTasks);
 
     if (isLoading) {
-      return this.renderLoader();
+      return <Loader className={`${this.className}__loader`} />;
     }
 
     if (isEmptyList) {
-      return this.renderEmpty();
+      return <InfoText text={t('current-tasks-widget.no-tasks')} />;
     }
 
     if (isSmallMode || isMobile) {
@@ -95,20 +82,6 @@ class CurrentTaskList extends React.Component {
     }
 
     return this.renderTable();
-  }
-
-  render() {
-    const { height } = this.props;
-
-    return (
-      <Scrollbars
-        style={{ height }}
-        className={this.className}
-        renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
-      >
-        {this.renderSwitch()}
-      </Scrollbars>
-    );
   }
 }
 
