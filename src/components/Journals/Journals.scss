@@ -145,14 +145,6 @@
   border-radius: $border-radius-large;
 }
 
-.ecos-journal__dialog-text_centre {
-  text-align: center;
-}
-
-.ecos-journal__dialog-text {
-  font-weight: $font-weight-semi-bold;
-}
-
 .journal__dialog-buttons {
   margin-top: 15px;
   display: flex;
@@ -160,19 +152,5 @@
 
   button {
     margin-left: 15px;
-  }
-}
-
-.journal__dialog-buttons_centre {
-  margin-top: 32px;
-  justify-content: center;
-
-  button {
-    width: 40%;
-    margin-left: 0;
-
-    &:last-child {
-      margin-left: 15px;
-    }
   }
 }

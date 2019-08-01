@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import CollapsableList from '../../common/CollapsableList/CollapsableList';
 import JournalsUrlManager from '../JournalsUrlManager';
-import EcosModal from '../../common/EcosModal/EcosModal';
-import { Btn, IcoBtn } from '../../common/btns';
+import { IcoBtn } from '../../common/btns';
+import { RemoveDialog } from '../../common/dialogs';
 import { Input, Well } from '../../common/form';
 import { deleteJournalSetting, onJournalSelect, onJournalSettingsSelect, renameJournalSetting } from '../../../actions/journals';
 import { getPropByStringKey, t, trigger } from '../../../helpers/util';
@@ -170,23 +170,14 @@ class ListItem extends Component {
           </div>
         )}
 
-        <EcosModal
-          title={t('journals.action.delete-tpl-msg')}
+        <RemoveDialog
           isOpen={isDialogShow}
-          hideModal={this.closeDialog}
-          className={'journal__dialog ecos-modal_width-sm'}
-        >
-          <div className={'ecos-journal__dialog-text ecos-journal__dialog-text_centre'}>
-            {`${t('journals.action.remove-tpl-msg')} ${String.fromCharCode(8221)}${title}${String.fromCharCode(8221)} ?`}
-          </div>
-
-          <div className="journal__dialog-buttons journal__dialog-buttons_centre">
-            <Btn onClick={this.closeDialog}>{t('journals.action.cancel')}</Btn>
-            <Btn onClick={this.delete} className={'ecos-btn_red'}>
-              {t('journals.action.delete')}
-            </Btn>
-          </div>
-        </EcosModal>
+          title={t('journals.action.delete-tpl-msg')}
+          text={`${t('journals.action.remove-tpl-msg')} ${String.fromCharCode(8221)}${title}${String.fromCharCode(8221)} ?`}
+          onCancel={this.closeDialog}
+          onDelete={this.delete}
+          onClose={this.closeDialog}
+        />
       </Fragment>
     );
   }

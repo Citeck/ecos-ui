@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
+import { IcoBtn } from '../../common/btns';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { Well, Label, Select } from '../../common/form';
 import { Filter, FiltersCondition } from '../';
@@ -43,6 +44,10 @@ export default class FiltersGroup extends Component {
 
   deleteFilter = index => {
     trigger.call(this, 'onDeleteFilter', { index, groupIndex: this.props.index });
+  };
+
+  deleteGroup = () => {
+    trigger.call(this, 'onDeleteGroup', this.props.index);
   };
 
   addFilter = column => {
@@ -132,6 +137,16 @@ export default class FiltersGroup extends Component {
                 getOptionLabel={option => option.label}
                 getOptionValue={option => option.value}
                 onChange={this.addGroup}
+              />
+            )}
+
+            {!first && (
+              <IcoBtn
+                icon={'icon-delete'}
+                className={
+                  'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height ecos-btn_hover_t_red ecos-btn_x-step_10 ecos-filters-group__delete-btn'
+                }
+                onClick={this.deleteGroup}
               />
             )}
           </div>
