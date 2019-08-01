@@ -60,6 +60,11 @@ export default class PanelComponent extends FormIOPanelComponent {
         panelContentMaxHeight -= modalLevel * modalLevelOffset - modalLevelOffset;
       }
 
+      const hasTabParent = this.panelBody.closest('.tab-content');
+      if (hasTabParent) {
+        panelContentMaxHeight -= 62;
+      }
+
       if (panelContentMaxHeight >= 200) {
         this.panelBody.style.maxHeight = `${panelContentMaxHeight}px`;
       }
