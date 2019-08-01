@@ -2,6 +2,7 @@ import { t } from '../helpers/util';
 import { showModal, hideModal } from '../actions/modal';
 
 import { leaveSiteRequest, joinSiteRequest, becomeSiteManagerRequest, requestSiteMembership } from '../actions/handleControl';
+import FormManager from '../components/EcosForm/FormManager';
 
 export default function handleControl(type, payload, dispatch) {
   switch (type) {
@@ -95,6 +96,10 @@ export default function handleControl(type, payload, dispatch) {
 
     case 'ALF_REQUEST_SITE_MEMBERSHIP':
       dispatch(requestSiteMembership(payload));
+      break;
+
+    case 'ECOS_CREATE_VARIANT':
+      FormManager.createRecordByVariant(payload);
       break;
 
     default:
