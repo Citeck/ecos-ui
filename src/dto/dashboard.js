@@ -2,6 +2,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import moment from 'moment';
 
+import { TITLE } from '../constants/pageTabs';
 import DashboardService from '../services/dashboard';
 
 export default class DashboardConverter {
@@ -44,24 +45,28 @@ export default class DashboardConverter {
   }
 
   static getTitleInfo(source = {}) {
-    const { modifier = {}, modified = '', displayName = '', version = '' } = source;
-    const target = {
-      version,
-      name: displayName,
-      date: '',
-      modifierName: '',
-      modifierUrl: ''
-    };
+    const target = {};
 
-    if (Object.keys(modifier).length) {
-      target.modifierName = modifier.disp;
-      target.modifierUrl = `/share/page/user/${modifier.str}/profile`;
-    }
+    if (!isEmpty(source)) {
+      const { modifier, modified = '', displayName = '', version = '' } = source;
 
-    if (modified) {
-      target.date = moment(modified)
-        .utc()
-        .format('ddd D MMM YYYY H:m:s');
+      target.version = version;
+      target.name = displayName || TITLE.NO_NAME;
+
+      target.date = '';
+      target.modifierName = '';
+      target.modifierUrl = '';
+
+      if (!isEmpty(modifier)) {
+        target.modifierName = modifier.disp;
+        target.modifierUrl = `/share/page/user/${modifier.str}/profile`;
+      }
+
+      if (modified) {
+        target.date = moment(modified)
+          .utc()
+          .format('ddd D MMM YYYY H:m:s');
+      }
     }
 
     return target;
