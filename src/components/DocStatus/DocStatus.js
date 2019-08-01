@@ -5,11 +5,12 @@ import { debounce, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus } from '../../actions/docStatus';
 import { deepClone } from '../../helpers/util';
-import { IcoBtn } from '../common/btns';
-import Dropdown from '../common/form/Dropdown';
-import Loader from '../common/Loader/Loader';
-import './style.scss';
 import DocStatusService from '../../services/docStatus';
+import { IcoBtn } from '../common/btns';
+import { Dropdown } from '../common/form';
+import { Loader } from '../common';
+
+import './style.scss';
 
 const mapStateToProps = (state, context) => {
   const stateDS = state.docStatus[context.stateId] || {};
@@ -102,14 +103,6 @@ class DocStatus extends React.Component {
     changeDocStatus({ stateId, record });
   };
 
-  renderLoader() {
-    return (
-      <div className={`${this.className}__loader-wrapper`}>
-        <Loader height={'45'} width={'45'} />
-      </div>
-    );
-  }
-
   renderReadField() {
     const { status = {} } = this.props;
     const classStatus = classNames(`${this.className}_read`, { [`${this.className}_no-status`]: this.isNoStatus });
@@ -139,7 +132,7 @@ class DocStatus extends React.Component {
     return (
       <div className={this.className}>
         {this.isShowLoader && !wasChanged ? (
-          this.renderLoader()
+          <Loader className={`${this.className}__loader`} />
         ) : (
           <React.Fragment>
             {this.isReadField && this.renderReadField()}

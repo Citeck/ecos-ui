@@ -62,6 +62,9 @@
   }
 
   &__body {
+    padding-bottom: 0;
+    min-height: 20px;
+
     &_relative {
       position: relative;
     }
@@ -98,9 +101,7 @@
     }
   }
 
-  &__resizer {
-    text-align: center;
-    color: $color-gray-6;
-    font-size: $font-size-extra-small;
+  &__footer {
+    padding: 2px 0 5px;
   }
 }

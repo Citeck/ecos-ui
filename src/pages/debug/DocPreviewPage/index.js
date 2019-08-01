@@ -70,14 +70,14 @@ export default class DocPreviewPage extends React.Component {
         <h4>Динамические документы</h4>
         <div style={style}>
           <div style={div}>
-            <DocPreview link={link2} isLoading={isLoading2} />
+            <DocPreview link={link2} />
           </div>
           <div style={div}>
-            <DocPreview link={link3} isLoading={isLoading3} />
+            <DocPreview link={link3} />
           </div>
           <div style={div}>
             <h5>Ошибка</h5>
-            <DocPreview link={link4} errMsg={errMsg4} />
+            <DocPreview link={link4} />
           </div>
         </div>
         <Btn onClick={this.setLink2Local}>set local file</Btn>

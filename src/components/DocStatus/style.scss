@@ -6,10 +6,11 @@
   &_read {
     background-color: $color-blue-light2;
     color: $color-blue-dark;
-    padding: 10px 0;
+    padding: 12px 0;
     text-align: center;
     font-weight: $font-weight-bold;
     font-size: $font-size-large;
+    margin-top: -11px;
   }
 
   &_no-status {
@@ -33,16 +34,18 @@
     }
   }
 
-  &__loader-wrapper {
+  &__loader {
     position: relative;
-    height: 40px;
+    height: 49px;
+    margin-bottom: -9px;
+    top: -2px;
   }
 
   &-dashlet {
     overflow: unset;
 
     &__body {
-      padding: 16px 0;
+      padding: 11px 0 8px;
     }
   }
 }

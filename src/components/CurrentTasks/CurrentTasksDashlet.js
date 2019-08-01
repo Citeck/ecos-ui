@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
 import { isSmallMode, t } from '../../helpers/util';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import CurrentTasks from './CurrentTasks';
 
@@ -31,22 +32,37 @@ class CurrentTasksDashlet extends React.Component {
 
   className = 'ecos-current-task-list-dashlet';
 
-  state = {
-    isSmallMode: false,
-    isUpdating: false
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isSmallMode: false,
+      isUpdating: false,
+      height: UserLocalSettingsService.getDashletHeight(props.id),
+      fitHeights: {}
+    };
+  }
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
+  };
+
+  onChangeHeight = height => {
+    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    this.setState({ height });
   };
 
   onReload = () => {
     this.setState({ isUpdating: true }, () => this.setState({ isUpdating: false }));
   };
 
+  setFitHeights = fitHeights => {
+    this.setState({ fitHeights });
+  };
+
   render() {
     const { id, title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isUpdating } = this.state;
+    const { isSmallMode, isUpdating, height, fitHeights } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -61,9 +77,22 @@ class CurrentTasksDashlet extends React.Component {
         canDragging={canDragging}
         actionHelp={false}
         dragHandleProps={dragHandleProps}
+        onChangeHeight={this.onChangeHeight}
+        getFitHeights={this.setFitHeights}
       >
         <ReactResizeDetector handleWidth onResize={this.onResize} />
-        {!isUpdating && <CurrentTasks {...config} className={classNameTasks} record={record} isSmallMode={isSmallMode} stateId={id} />}
+        {!isUpdating && (
+          <CurrentTasks
+            {...config}
+            className={classNameTasks}
+            record={record}
+            isSmallMode={isSmallMode}
+            stateId={id}
+            height={height}
+            minHeight={fitHeights.min}
+            maxHeight={fitHeights.max}
+          />
+        )}
       </Dashlet>
     );
   }

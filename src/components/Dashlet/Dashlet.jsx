@@ -6,7 +6,9 @@ import ReactResizeDetector from 'react-resize-detector';
 import Panel from '../common/panels/Panel/Panel';
 import Measurer from '../Measurer/Measurer';
 import { IcoBtn } from '../common/btns';
+import { ResizableBox } from '../common';
 import { t } from '../../helpers/util';
+import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 
 import './Dashlet.scss';
 
@@ -104,7 +106,9 @@ export default class Dashlet extends Component {
     onGoTo: PropTypes.func,
     onReload: PropTypes.func,
     onResize: PropTypes.func,
-    dragButton: PropTypes.func
+    dragButton: PropTypes.func,
+    onChangeHeight: PropTypes.func,
+    getFitHeights: PropTypes.func
   };
 
   static defaultProps = {
@@ -115,13 +119,38 @@ export default class Dashlet extends Component {
     actionDrag: true,
     resizable: false,
     canDragging: false,
+    dragButton: null,
+    dragHandleProps: {},
     onEdit: () => {},
     onGoTo: () => {},
     onReload: () => {},
     onResize: () => {},
-    dragButton: null,
-    dragHandleProps: {}
+    onChangeHeight: () => null,
+    getFitHeights: () => null
   };
+
+  refDashlet = React.createRef();
+
+  componentDidMount() {
+    this.props.getFitHeights(this.fitHeightChildren);
+  }
+
+  get fitHeightChildren() {
+    const busyArea = this.busyDashletHeight;
+
+    const max = MAX_DEFAULT_HEIGHT_DASHLET - busyArea;
+    const min = MIN_DEFAULT_HEIGHT_DASHLET - busyArea;
+
+    return { min, max };
+  }
+
+  get busyDashletHeight() {
+    const elDashlet = this.refDashlet.current || {};
+    const headerH = elDashlet.querySelector('.dashlet__wrap-header').offsetHeight || 0;
+    const resizerH = elDashlet.querySelector('.dashlet__resizer').offsetHeight || 0;
+
+    return headerH + resizerH;
+  }
 
   onEdit = () => {
     const { onEdit } = this.props;
@@ -147,6 +176,14 @@ export default class Dashlet extends Component {
     }
   };
 
+  onChangeHeight = height => {
+    const { onChangeHeight } = this.props;
+
+    if (typeof onChangeHeight === 'function') {
+      onChangeHeight(height);
+    }
+  };
+
   render() {
     const {
       className,
@@ -166,11 +203,11 @@ export default class Dashlet extends Component {
     const cssClasses = classNames('dashlet', className);
 
     return (
-      <div>
+      <div ref={this.refDashlet}>
         <Panel
           {...this.props}
           className={cssClasses}
-          headClassName={'ecos-panel__large'}
+          headClassName={'dashlet__wrap-header ecos-panel__large'}
           bodyClassName={classNames('dashlet__body', bodyClassName)}
           header={
             <Measurer>
@@ -189,13 +226,9 @@ export default class Dashlet extends Component {
             </Measurer>
           }
         >
-          {children}
-
-          {resizable ? (
-            <div className={'dashlet__resizer'}>
-              <i className={'icon-resize ecos-btn__i'} title={t('dashlet.resize.title')} />
-            </div>
-          ) : null}
+          <ResizableBox resizable={resizable} classNameResizer={'dashlet__resizer'} getHeight={this.onChangeHeight}>
+            {children}
+          </ResizableBox>
         </Panel>
 
         <ReactResizeDetector handleWidth handleHeight onResize={onResize} />

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
 import '../../forms/components';
 import Records from '../Records';
@@ -222,11 +223,14 @@ class EcosForm extends React.Component {
   }
 
   render() {
+    const { className } = this.props;
     let self = this;
+
     if (this.state.error) {
-      return <div className={'ecos-ui-form__error'}>{self.state.error.message}</div>;
+      return <div className={classNames('ecos-ui-form__error', className)}>{self.state.error.message}</div>;
     }
-    return <div id={this.state.containerId} />;
+
+    return <div className={classNames(className)} id={this.state.containerId} />;
   }
 }
 
@@ -237,8 +241,13 @@ EcosForm.propTypes = {
   formKey: PropTypes.string,
   onSubmit: PropTypes.func,
   onReady: PropTypes.func,
-  saveOnSubmit: PropTypes.bool
+  saveOnSubmit: PropTypes.bool,
+  className: PropTypes.string
   // onForm[Event]: PropTypes.func (for example, onFormCancel)
+};
+
+EcosForm.defaultProps = {
+  className: ''
 };
 
 export default EcosForm;
