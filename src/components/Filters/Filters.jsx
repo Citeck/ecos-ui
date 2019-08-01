@@ -73,13 +73,14 @@ export default class Filters extends Component {
     trigger.call(this, 'onChange', predicate);
   };
 
-  createGroup = (group, first, idx) => {
+  createGroup = (group, first, idx, sourceId) => {
     return (
       <FiltersGroup
         key={idx}
         index={idx}
         first={first}
         group={group}
+        sourceId={sourceId}
         columns={this.props.columns}
         onAddGroup={this.addGroup}
         onChangeFilter={this.onChangeFilter}
@@ -92,14 +93,14 @@ export default class Filters extends Component {
     );
   };
 
-  createSubGroup = (group, notLast, idx) => {
+  createSubGroup = (group, notLast, idx, sourceId) => {
     return (
       <div key={idx} className={'ecos-filters__shift'}>
         <div className={'ecos-filters__bend'} />
 
         {notLast && <div className={'ecos-filters__v-line'} />}
 
-        <div className={'ecos-filters__shift-slot'}>{this.createGroup(group, false, idx)}</div>
+        <div className={'ecos-filters__shift-slot'}>{this.createGroup(group, false, idx, sourceId)}</div>
       </div>
     );
   };
@@ -204,11 +205,18 @@ export default class Filters extends Component {
     const groups = (this.groups = ParserPredicate.parse(props.predicate, props.columns));
     const length = groups.length;
     const lastIdx = length ? length - 1 : 0;
+    const sourceId = props.sourceId;
 
     return (
       <div className={classNames('ecos-filters', this.props.className)}>
         <DragDropContext onDragEnd={this.onDragEnd}>
-          {groups.map((group, idx) => (idx > 0 ? this.createSubGroup(group, lastIdx !== idx, idx) : this.createGroup(group, true, idx)))}
+          {groups.map((group, idx) => {
+            if (idx > 0) {
+              return this.createSubGroup(group, lastIdx !== idx, idx, sourceId);
+            } else {
+              return this.createGroup(group, true, idx, sourceId);
+            }
+          })}
         </DragDropContext>
 
         <RemoveDialog
