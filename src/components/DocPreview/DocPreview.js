@@ -173,7 +173,7 @@ class DocPreview extends Component {
 
     this.setState({ isLoading: true });
     DocPreviewApi.getLinkByRecord(searchParams[recordKey]).then(link => {
-      const error = link ? '' : t('Документ не получен');
+      const error = link ? '' : t('doc-preview.error.failure-to-fetch');
 
       this.setState({ isLoading: false, link, error });
 
@@ -195,7 +195,7 @@ class DocPreview extends Component {
       },
       err => {
         console.error(`Error during loading document: ${err}`);
-        this.setState({ isLoading: false, error: t('Документ не получен') });
+        this.setState({ isLoading: false, error: t('doc-preview.error.failure-to-fetch') });
       }
     );
   };
@@ -252,7 +252,7 @@ class DocPreview extends Component {
         src={link}
         {...this.commonProps}
         onError={() => {
-          this.setState({ error: t('Документ не получен') });
+          this.setState({ error: t('doc-preview.error.failure-to-fetch') });
         }}
       />
     );
