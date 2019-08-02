@@ -33,6 +33,7 @@ class ImgViewer extends Component {
 
   componentDidMount() {
     this.elImage.addEventListener('fullscreenchange', this.onFullscreenchange, false);
+    this.elImage.onerror = this.props.onError;
   }
 
   componentWillReceiveProps(nextProps) {
@@ -96,12 +97,8 @@ class ImgViewer extends Component {
   };
 
   render() {
-    const { ctrClass, src, onError } = this.props;
+    const { ctrClass, src } = this.props;
     const _pageCtr = `${ctrClass}-page-container`;
-
-    if (this.refImg.current) {
-      this.refImg.current.onerror = onError;
-    }
 
     return (
       <div className={classNames(_pageCtr, `${_pageCtr}_img`)} ref={this.refImgCtr}>

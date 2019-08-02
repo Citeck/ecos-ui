@@ -27,6 +27,12 @@ export default class Avatar extends React.Component {
 
   refImg = React.createRef();
 
+  componentDidMount() {
+    if (this.refImg.current) {
+      this.refImg.current.onerror = this.onError;
+    }
+  }
+
   onError = error => {
     this.setState({ error: true });
   };
@@ -57,10 +63,6 @@ export default class Avatar extends React.Component {
     const { url, className, classNameEmpty } = this.props;
     const { error } = this.state;
     const empty = isEmpty(url) || error;
-
-    if (this.refImg.current) {
-      this.refImg.current.onerror = this.onError;
-    }
 
     return <div className={classNames(this.className, className, { [classNameEmpty]: empty })}>{this.renderContent()}</div>;
   }
