@@ -46,7 +46,7 @@ export class TasksApi extends RecordService {
   };
 
   getCurrentTasksForUser = ({ document }) => {
-    return TasksApi.getTasks(SOURCE_ID_CURRENT_TASKS, document, USER_CURRENT, {
+    return TasksApi.getTasks(SOURCE_ID_CURRENT_TASKS, document, undefined, {
       title: 'title',
       dueDate: 'dueDate',
       actors: 'actors?json'

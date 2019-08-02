@@ -27,9 +27,11 @@ export default class DateEditor extends BaseEditor {
   }
 
   onChange = value => {
-    this._value = moment(value)
-      .utc()
-      .format();
+    this.setValue(
+      moment(value)
+        .utc()
+        .format()
+    );
   };
 
   render() {

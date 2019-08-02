@@ -10,7 +10,15 @@ export default class BaseFormatter extends Component {
     return <BaseEditor {...editorProps} value={value} />;
   }
 
+  static getId(cell) {
+    return this.prototype.getId(cell);
+  }
+
   value(cell) {
+    return cell || '';
+  }
+
+  getId(cell) {
     return cell || '';
   }
 

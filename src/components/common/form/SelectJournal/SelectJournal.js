@@ -95,9 +95,9 @@ export default class SelectJournal extends Component {
   setCustomPredicate(customPredicate) {
     if (!isEqual(this.state.customPredicate, customPredicate)) {
       let state = { customPredicate };
-      if (this.state.wasChangedFromPopup) {
-        state.isGridDataReady = false;
-      }
+      // if (this.state.wasChangedFromPopup) {
+      state.isGridDataReady = false;
+      // }
       this.setState(state, () => {
         this.shouldResetValue().then(shouldReset => {
           shouldReset && this.setValue(null);
@@ -347,7 +347,7 @@ export default class SelectJournal extends Component {
           },
           () => {
             if (shouldTriggerOnChange && typeof onChange === 'function') {
-              onChange(newValue);
+              onChange(newValue, selected);
             }
             resolve();
           }

@@ -124,7 +124,7 @@ export default class ColumnsSetup extends Component {
     });
   };
 
-  splitByVisiblle(columns) {
+  splitByVisible(columns) {
     const visible = [];
     const invisible = [];
 
@@ -138,7 +138,7 @@ export default class ColumnsSetup extends Component {
     const cssClasses = classNames('columns-setup', className);
     const cssToolbarClasses = classNames('columns-setup__toolbar', classNameToolbar);
 
-    const { visible, invisible } = this.splitByVisiblle(columns);
+    const { visible, invisible } = this.splitByVisible(columns);
     this.invisible = invisible;
 
     return (

@@ -5,7 +5,7 @@ import EcosFormUtils from './EcosFormUtils';
 import EcosFormModal from './EcosFormModal';
 
 export default class FormManager {
-  static createRecordByVariant(variant) {
+  static createRecordByVariant(variant, options = {}) {
     if (!variant) {
       console.error("Create variant is undefined. Record creation can't be preformed");
       return;
@@ -50,7 +50,8 @@ export default class FormManager {
           this.openFormModal({
             record: recordRef,
             formKey: variant.formKey,
-            attributes: attributes
+            attributes: attributes,
+            ...options
           });
         } else {
           goToCreateRecordPage(variant);

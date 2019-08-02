@@ -3,10 +3,16 @@ import SelectJournal from '../../../common/form/SelectJournal';
 import BaseEditor from './BaseEditor';
 
 export default class DateEditor extends BaseEditor {
-  onChange = value => {
-    this._value = value;
+  onChange = (value, selected) => {
+    const oldValue = this.getValue() || {};
+    const newValue = selected[0] || {};
 
-    this.props.onUpdate(this.getValue());
+    this.props.onUpdate(
+      this.setValue({
+        assoc: newValue.id || oldValue.assoc,
+        disp: newValue.disp || oldValue.disp
+      })
+    );
   };
 
   render() {
@@ -19,7 +25,7 @@ export default class DateEditor extends BaseEditor {
         inputViewClass={'select-journal__input-view_extra-compact'}
         isCompact={true}
         journalId={column.editorKey}
-        defaultValue={value}
+        defaultValue={value.assoc}
         onChange={this.onChange}
         onCancel={rest.onBlur}
       />

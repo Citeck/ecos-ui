@@ -1,6 +1,6 @@
 import DataGridAssoc from './DataGridAssoc';
-import FormIODataGridEditor from 'formiojs/components/datagrid/DataGrid.form';
+import DataGridAssocEditor from './DataGridAssoc.form';
 
-DataGridAssoc.editForm = FormIODataGridEditor;
+DataGridAssoc.editForm = DataGridAssocEditor;
 
 export default DataGridAssoc;

@@ -26,7 +26,7 @@ export default class DropdownEditor extends BaseEditor {
   }
 
   onChange = value => {
-    this._value = value.value;
+    this.setValue(value.value);
   };
 
   render() {
