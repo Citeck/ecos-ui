@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import { Collapse } from 'reactstrap';
+import { Collapse } from 'react-collapse';
 
 import './PanelBar.scss';
 
@@ -35,7 +35,7 @@ export default class PanelBar extends Component {
           <div className={'panel-bar__actions'} />
         </div>
 
-        <Collapse isOpen={this.state.panelVisible}>
+        <Collapse isOpened={this.state.panelVisible}>
           <div className={contentClassName}>{props.children}</div>
         </Collapse>
       </div>
