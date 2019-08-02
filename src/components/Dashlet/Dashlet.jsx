@@ -24,7 +24,7 @@ const Header = ({
   actionHelp,
   actionDrag,
   measurer,
-  actionHelpTitle
+  actionEditTitle
 }) => {
   const btnGoTo = (
     <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className={'dashlet__btn ecos-btn_narrow'} onClick={onGoTo}>
@@ -53,7 +53,7 @@ const Header = ({
         icon={'icon-edit'}
         className={'ecos-btn_i dashlet__btn_hidden dashlet__btn_next ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue'}
         onClick={onEdit}
-        title={actionHelpTitle || t('dashlet.edit.title')}
+        title={actionEditTitle || t('dashlet.edit.title')}
       />
     );
   }
@@ -98,7 +98,7 @@ export default class Dashlet extends Component {
     title: PropTypes.string,
     className: PropTypes.string,
     bodyClassName: PropTypes.string,
-    actionHelpTitle: PropTypes.string,
+    actionEditTitle: PropTypes.string,
     needGoTo: PropTypes.bool,
     actionReload: PropTypes.bool,
     actionEdit: PropTypes.bool,
@@ -197,7 +197,7 @@ export default class Dashlet extends Component {
       title,
       className,
       bodyClassName,
-      actionHelpTitle,
+      actionEditTitle,
       needGoTo,
       actionReload,
       resizable,
@@ -231,7 +231,7 @@ export default class Dashlet extends Component {
                 actionHelp={actionHelp}
                 actionDrag={actionDrag && canDragging}
                 dragHandleProps={dragHandleProps}
-                actionHelpTitle={actionHelpTitle}
+                actionEditTitle={actionEditTitle}
               />
             </Measurer>
           }

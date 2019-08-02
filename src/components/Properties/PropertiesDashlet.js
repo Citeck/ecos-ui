@@ -80,7 +80,7 @@ class PropertiesDashlet extends React.Component {
         title={title || t('properties-widget.title')}
         className={classDashlet}
         bodyClassName={`${this.className}__body`}
-        actionHelpTitle={t('Редактировать')}
+        actionEditTitle={t('Редактировать')}
         resizable={true}
         needGoTo={false}
         actionHelp={false}
