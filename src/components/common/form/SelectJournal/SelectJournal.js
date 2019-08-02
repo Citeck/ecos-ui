@@ -146,7 +146,10 @@ export default class SelectJournal extends Component {
           } else {
             requestParams = {
               ...requestParams,
-              journalPredicate: [customPredicate, selectedRowsPredicate]
+              journalPredicate: {
+                t: 'and',
+                val: [customPredicate, selectedRowsPredicate]
+              }
             };
           }
         }
