@@ -245,6 +245,74 @@ class Timesheet extends Component {
       </div>
     ));
 
+  renderCalendarHeader() {
+    const { daysOfMonth, groupBy } = this.props;
+
+    return [
+      <div className="ecos-timesheet__table-calendar-row" key="date">
+        {daysOfMonth.map(day => (
+          <div
+            className={classNames(
+              'ecos-timesheet__table-calendar-cell',
+              'ecos-timesheet__table-calendar-cell_day',
+              'ecos-timesheet__table-calendar-cell_big',
+              {
+                'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay,
+                'ecos-timesheet__table-calendar-cell_by-group': groupBy
+              }
+            )}
+          >
+            <div className="ecos-timesheet__table-calendar-cell-content">{day.title}</div>
+          </div>
+        ))}
+      </div>,
+      <div className="ecos-timesheet__table-calendar-row" key="hours">
+        {!groupBy && daysOfMonth.map(this.renderCountByDay)}
+      </div>
+    ];
+  }
+
+  renderEvents() {
+    const { daysOfMonth, groupBy } = this.props;
+    const { filteredEventTypes } = this.state;
+
+    if (!groupBy) {
+      return filteredEventTypes.map(this.renderEventCalendarRow);
+    }
+
+    return filteredEventTypes.map((event, eventIndex) => {
+      return [
+        <div className="ecos-timesheet__table-calendar-row" key={`hours-${eventIndex}`}>
+          {daysOfMonth.map(this.renderCountByDay)}
+        </div>,
+        <Collapse
+          className="ecos-timesheet__table-group-collapse-wrapper"
+          isOpen={this.getGroupStatus(event[groupBy])}
+          key={`group-${eventIndex}`}
+        >
+          {event.eventTypes.map(this.renderEventCalendarRow)}
+        </Collapse>
+      ];
+    });
+  }
+
+  renderEventCalendarRow = (event, eventIndex) => (
+    <div className="ecos-timesheet__table-calendar-row" key={eventIndex}>
+      {this.props.daysOfMonth.map((day, dayIndex) => (
+        <div className="ecos-timesheet__table-calendar-cell" key={dayIndex}>
+          <div className="ecos-timesheet__table-calendar-cell-content">
+            <Hour
+              key={`${eventIndex}-${event.name}-${day.title}-${dayIndex}`}
+              color={event.color}
+              count={Math.round(Math.random())}
+              canEdit={event.canEdit}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   renderCalendar() {
     const { daysOfMonth, groupBy, eventTypes } = this.props;
     const { filteredEventTypes } = this.state;
@@ -252,28 +320,31 @@ class Timesheet extends Component {
     return (
       <Scrollbars autoHeight autoHeightMin={40} autoHeightMax={'100%'} renderThumbVertical={props => <div {...props} hidden />}>
         <div className="ecos-timesheet__table-calendar">
-          {daysOfMonth.map(day => (
-            <div className="ecos-timesheet__table-calendar-column" key={day.number}>
-              <div
-                className={classNames('ecos-timesheet__table-calendar-cell ecos-timesheet__table-calendar-cell_big', {
-                  'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay,
-                  'ecos-timesheet__table-calendar-cell_by-group': groupBy
-                })}
-              >
-                <div className="ecos-timesheet__table-calendar-cell-content">{day.title}</div>
-              </div>
-              {!groupBy && this.renderCountByDay(day)}
-              {!groupBy && this.renderCells(filteredEventTypes, day)}
+          {/*{false && daysOfMonth.map(day => (*/}
+          {/*<div className="ecos-timesheet__table-calendar-column" key={day.number}>*/}
+          {/*<div*/}
+          {/*className={classNames('ecos-timesheet__table-calendar-cell ecos-timesheet__table-calendar-cell_big', {*/}
+          {/*'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay,*/}
+          {/*'ecos-timesheet__table-calendar-cell_by-group': groupBy*/}
+          {/*})}*/}
+          {/*>*/}
+          {/*<div className="ecos-timesheet__table-calendar-cell-content">{day.title}</div>*/}
+          {/*</div>*/}
+          {/*{!groupBy && this.renderCountByDay(day)}*/}
+          {/*{!groupBy && this.renderCells(filteredEventTypes, day)}*/}
 
-              {groupBy &&
-                filteredEventTypes.map((item, key) => (
-                  <div key={key}>
-                    {this.renderCountByDay(day)}
-                    <Collapse isOpen={this.getGroupStatus(item.user)}>{this.renderCells(item.eventTypes, day)}</Collapse>
-                  </div>
-                ))}
-            </div>
-          ))}
+          {/*{groupBy &&*/}
+          {/*filteredEventTypes.map((item, key) => (*/}
+          {/*<div key={key}>*/}
+          {/*{this.renderCountByDay(day)}*/}
+          {/*<Collapse isOpen={this.getGroupStatus(item.user)}>{this.renderCells(item.eventTypes, day)}</Collapse>*/}
+          {/*</div>*/}
+          {/*))}*/}
+          {/*</div>*/}
+          {/*))}*/}
+
+          {this.renderCalendarHeader()}
+          {this.renderEvents()}
         </div>
       </Scrollbars>
     );
