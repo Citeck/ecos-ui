@@ -6,24 +6,23 @@
   background: $color-blue-light;
   height: 40px;
   width: 40px;
-  border: 3px solid $color-white;
-  border-radius: 50%;
-  position: relative;
   overflow: hidden;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &__image {
     height: 100%;
     width: 100%;
     object-fit: cover;
     object-position: center;
+    border: 3px solid $color-white;
   }
 
   &__icon {
-    font-size: 36px;
+    font-size: 38px;
     color: $color-white;
-    left: -2px;
-    top: -1px;
-    position: absolute;
   }
 
   &__name {

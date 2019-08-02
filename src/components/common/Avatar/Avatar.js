@@ -33,18 +33,23 @@ export default class Avatar extends React.Component {
     }
   }
 
+  get empty() {
+    const { url } = this.props;
+    const { error } = this.state;
+
+    return isEmpty(url) || error;
+  }
+
   onError = error => {
     this.setState({ error: true });
   };
 
   renderContent() {
     const { url, userName } = this.props;
-    const { error } = this.state;
-    const empty = isEmpty(url) || error;
 
-    if (!empty) {
+    if (!this.empty) {
       return <img alt="avatar" src={url} className={classNames(`${this.className}__image`)} ref={this.refImg} />;
-    } else if (empty && userName) {
+    } else if (this.empty && userName) {
       return (
         <div className={classNames(`${this.className}__name`)}>
           {userName
@@ -60,10 +65,8 @@ export default class Avatar extends React.Component {
   }
 
   render() {
-    const { url, className, classNameEmpty } = this.props;
-    const { error } = this.state;
-    const empty = isEmpty(url) || error;
+    const { className, classNameEmpty } = this.props;
 
-    return <div className={classNames(this.className, className, { [classNameEmpty]: empty })}>{this.renderContent()}</div>;
+    return <div className={classNames(this.className, className, { [classNameEmpty]: this.empty })}>{this.renderContent()}</div>;
   }
 }
