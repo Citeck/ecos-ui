@@ -9,6 +9,7 @@
   border: 3px solid $color-white;
   border-radius: 50%;
   position: relative;
+  overflow: hidden;
 
   &__image {
     height: 100%;
