@@ -204,7 +204,11 @@ export default class SearchSelect extends React.Component {
                 onClick={this.onLoupe}
               />
               <Input
-                className={classNames(`${this.className}__input`, { hide: isSearchCollapsed })}
+                className={classNames(
+                  `${this.className}__input`,
+                  { [`${this.className}__input_empty`]: !searchText },
+                  { hide: isSearchCollapsed }
+                )}
                 placeholder={isMobile || hiddenPlaceholder ? '' : t('search.label')}
                 value={searchText || ''}
                 onChange={this.onChange}
