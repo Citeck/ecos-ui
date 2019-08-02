@@ -31,6 +31,10 @@
   &__input {
     padding-left: 48px;
     padding-right: 30px;
+
+    &_empty {
+      padding-right: 0;
+    }
   }
 
   &_close {
