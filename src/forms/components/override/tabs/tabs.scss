@@ -44,6 +44,10 @@ $small-size: 28px;
       margin-right: 2px;
       margin-bottom: 0;
 
+      &.hidden {
+        display: none;
+      }
+
       .nav-link {
         background: $color-gray-4;
         color: $text-color-dark;
