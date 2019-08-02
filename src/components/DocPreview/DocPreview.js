@@ -173,8 +173,13 @@ class DocPreview extends Component {
 
     this.setState({ isLoading: true });
     DocPreviewApi.getLinkByRecord(searchParams[recordKey]).then(link => {
-      this.setState({ isLoading: false, link });
-      this.loadPDF(link);
+      const error = link ? '' : t('doc-preview.error.failure-to-fetch');
+
+      this.setState({ isLoading: false, link, error });
+
+      if (link && isPDFbyStr(link)) {
+        this.loadPDF(link);
+      }
     });
   };
 
@@ -182,7 +187,7 @@ class DocPreview extends Component {
     const { firstPageNumber } = this.props;
     const loadingTask = pdfjs.getDocument(link);
 
-    this.setState({ scrollPage: firstPageNumber });
+    this.setState({ scrollPage: firstPageNumber, isLoading: true });
 
     loadingTask.promise.then(
       pdf => {
@@ -190,7 +195,7 @@ class DocPreview extends Component {
       },
       err => {
         console.error(`Error during loading document: ${err}`);
-        this.setState({ isLoading: false, error: t('Документ не получен') });
+        this.setState({ isLoading: false, error: t('doc-preview.error.failure-to-fetch') });
       }
     );
   };
@@ -247,7 +252,7 @@ class DocPreview extends Component {
         src={link}
         {...this.commonProps}
         onError={() => {
-          this.setState({ error: t('Документ не получен') });
+          this.setState({ error: t('doc-preview.error.failure-to-fetch') });
         }}
       />
     );
