@@ -71,7 +71,7 @@ class Dashboard extends Component {
       resetDashboardConfig();
       getDashboardConfig({ recordRef });
       initMenuSettings();
-    } else if (urlParams === newUrlParams && isLoadingDashboard) {
+    } else if (urlParams === newUrlParams && isLoadingDashboard && config.type) {
       setLoading(false);
     }
 
