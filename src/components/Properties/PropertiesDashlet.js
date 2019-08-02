@@ -78,8 +78,9 @@ class PropertiesDashlet extends React.Component {
     return (
       <Dashlet
         title={title || t('properties-widget.title')}
-        bodyClassName={`${this.className}__body`}
         className={classDashlet}
+        bodyClassName={`${this.className}__body`}
+        actionHelpTitle={t('Редактировать')}
         resizable={true}
         needGoTo={false}
         actionHelp={false}

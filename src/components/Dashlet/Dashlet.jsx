@@ -23,7 +23,8 @@ const Header = ({
   actionEdit,
   actionHelp,
   actionDrag,
-  measurer
+  measurer,
+  actionHelpTitle
 }) => {
   const btnGoTo = (
     <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className={'dashlet__btn ecos-btn_narrow'} onClick={onGoTo}>
@@ -52,7 +53,7 @@ const Header = ({
         icon={'icon-edit'}
         className={'ecos-btn_i dashlet__btn_hidden dashlet__btn_next ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue'}
         onClick={onEdit}
-        title={t('dashlet.edit.title')}
+        title={actionHelpTitle || t('dashlet.edit.title')}
       />
     );
   }
@@ -94,6 +95,10 @@ const Header = ({
 
 export default class Dashlet extends Component {
   static propTypes = {
+    title: PropTypes.string,
+    className: PropTypes.string,
+    bodyClassName: PropTypes.string,
+    actionHelpTitle: PropTypes.string,
     needGoTo: PropTypes.bool,
     actionReload: PropTypes.bool,
     actionEdit: PropTypes.bool,
@@ -112,6 +117,9 @@ export default class Dashlet extends Component {
   };
 
   static defaultProps = {
+    title: '',
+    className: '',
+    bodyClassName: '',
     needGoTo: true,
     actionReload: true,
     actionEdit: true,
@@ -186,9 +194,10 @@ export default class Dashlet extends Component {
 
   render() {
     const {
+      title,
       className,
       bodyClassName,
-      title,
+      actionHelpTitle,
       needGoTo,
       actionReload,
       resizable,
@@ -222,6 +231,7 @@ export default class Dashlet extends Component {
                 actionHelp={actionHelp}
                 actionDrag={actionDrag && canDragging}
                 dragHandleProps={dragHandleProps}
+                actionHelpTitle={actionHelpTitle}
               />
             </Measurer>
           }
