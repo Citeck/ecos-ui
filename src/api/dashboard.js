@@ -1,5 +1,6 @@
 import { isEmpty } from 'lodash';
 import { getCurrentUserName, t } from '../helpers/util';
+import Cache from '../helpers/cache';
 import { QueryKeys, SourcesId } from '../constants';
 import { RecordService } from './recordService';
 import Components from '../components/Components';
@@ -15,21 +16,7 @@ const defaultAttr = {
   id: 'id'
 };
 
-class CacheDID {
-  static map = new Map();
-
-  static get = key => {
-    return CacheDID.map.get(key + '_dId');
-  };
-
-  static set = (key, id) => {
-    CacheDID.map.set(key + '_dId', id);
-  };
-
-  static check = key => {
-    return CacheDID.map.has(key + '_dId');
-  };
-}
+const cache = new Cache('_dashboardId');
 
 export class DashboardApi extends RecordService {
   getAllWidgets = () => {
@@ -95,8 +82,8 @@ export class DashboardApi extends RecordService {
 
     dashboardKeys.push(QueryKeys.DEFAULT);
 
-    const cacheKey = dashboardKeys.find(key => CacheDID.check(key));
-    const dashboardId = cacheKey ? CacheDID.get(cacheKey) : null;
+    const cacheKey = dashboardKeys.find(key => cache.check(key));
+    const dashboardId = cacheKey ? cache.get(cacheKey) : null;
 
     if (!isEmpty(dashboardId)) {
       return yield this.getDashboardById(dashboardId);
@@ -108,7 +95,7 @@ export class DashboardApi extends RecordService {
       data = yield this.getDashboardByKeyType(key, type);
 
       if (!isEmpty(data)) {
-        CacheDID.set(key, data.id);
+        cache.set(key, data.id);
         break;
       }
     }
@@ -118,7 +105,7 @@ export class DashboardApi extends RecordService {
 
   getDashboardByUser = function() {
     const user = getCurrentUserName();
-    const dashboardId = CacheDID.get(user);
+    const dashboardId = cache.get(user);
 
     if (!isEmpty(dashboardId)) {
       return this.getDashboardById(dashboardId);
@@ -134,7 +121,7 @@ export class DashboardApi extends RecordService {
       },
       { ...defaultAttr }
     ).then(response => {
-      CacheDID.set(user, response.id);
+      cache.set(user, response.id);
 
       return response;
     });
