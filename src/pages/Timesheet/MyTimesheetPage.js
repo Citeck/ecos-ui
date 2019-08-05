@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import 'moment-business-days';
 import { withRouter } from 'react-router-dom';
-import { Route, Switch } from 'react-router';
 
 import Timesheet, { Tabs, DateSlider } from '../../components/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
@@ -11,7 +10,7 @@ import { URL } from '../../constants';
 
 import './style.scss';
 
-class TimesheetPage extends Component {
+class MyTimesheetPage extends Component {
   constructor(props) {
     super(props);
 
@@ -232,13 +231,10 @@ class TimesheetPage extends Component {
           <div className="ecos-timesheet__status">Статус</div>
         </div>
 
-        <Switch>
-          <Route path={URL.TIMESHEET} exact component={this.renderMyTimesheet} />
-          <Route path={URL.TIMESHEET_SUBORDINATES} exact component={this.renderSubordinateTimesheet} />
-        </Switch>
+        {this.renderMyTimesheet()}
       </div>
     );
   }
 }
 
-export default withRouter(TimesheetPage);
+export default MyTimesheetPage;

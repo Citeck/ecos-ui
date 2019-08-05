@@ -1,16 +1,17 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
-import { Collapse } from 'reactstrap';
+import Collapse from 'react-css-collapse';
+
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { Input } from '../common/form';
 import Hour from './Hour';
 import BaseTimesheet from './BaseTimesheet';
+import Tabs from './Tabs';
 import { CalendarRow, CalendarCell, DayCell } from './Calendar';
 import { t, deepClone } from '../../helpers/util';
 import './style.scss';
-import { Tabs } from './index';
 
 const FILTER_BY = {
   PEOPLE: 'user',
@@ -257,7 +258,9 @@ class GrouppedTimesheet extends BaseTimesheet {
                   />
                   <div className="ecos-timesheet__table-group-header-title">{item.user}</div>
                 </div>
-                <Collapse isOpen={this.getGroupStatus(item.user)}>{this.renderEventTypes(item.eventTypes, index)}</Collapse>
+                <Collapse isOpen={this.getGroupStatus(item.user)} transition="height 250ms linear 0s">
+                  {this.renderEventTypes(item.eventTypes, index)}
+                </Collapse>
               </div>
             </SortableElement>
           ))}
@@ -302,6 +305,7 @@ class GrouppedTimesheet extends BaseTimesheet {
       <CalendarRow key="date">
         {daysOfMonth.map(day => (
           <CalendarCell
+            key={`header-date-${day.title}`}
             className={classNames(
               'ecos-timesheet__table-calendar-cell_day',
               'ecos-timesheet__table-calendar-cell_big',
@@ -330,6 +334,7 @@ class GrouppedTimesheet extends BaseTimesheet {
       return [
         <CalendarRow key={`hours-${eventIndex}`}>{daysOfMonth.map(this.renderCountByDay)}</CalendarRow>,
         <Collapse
+          transition="height 250ms linear 0s"
           className="ecos-timesheet__table-group-collapse-wrapper"
           isOpen={this.getGroupStatus(event[groupBy])}
           key={`group-${event[groupBy]}-${eventIndex}`}

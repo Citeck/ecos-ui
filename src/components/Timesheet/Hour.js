@@ -106,6 +106,9 @@ class Hour extends Component {
     const { key } = event;
 
     if (KEY_FOR_SAVE.includes(key)) {
+      event.preventDefault();
+      event.stopPropagation();
+
       this.setState({ isLoading: true });
       this.handleToggleInput();
 
@@ -127,6 +130,9 @@ class Hour extends Component {
     }
 
     if (key === KEYS.ARROW_DOWN) {
+      event.preventDefault();
+      event.stopPropagation();
+
       this.setState(state => {
         let { value } = state;
 
@@ -143,6 +149,9 @@ class Hour extends Component {
     }
 
     if (key === KEYS.ESC) {
+      event.preventDefault();
+      event.stopPropagation();
+
       this.setState((state, props) => ({
         isEdit: false,
         value: props.count

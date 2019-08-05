@@ -16,7 +16,8 @@ export const URL = {
   CURRENT_TASKS: '/v2/debug/current-tasks',
   WIDGET_DOC_STATUS: '/v2/debug/doc-status',
   TIMESHEET: '/v2/timesheet',
-  TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates'
+  TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates',
+  TIMESHEET_FOR_VERIFICATION: '/v2/timesheet/for-verification'
 };
 
 export const SourcesId = {

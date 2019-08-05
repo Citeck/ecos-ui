@@ -54,8 +54,10 @@
 
   &__table {
     @extend #{$root}__white-block;
+
     padding: 12px 0;
     max-height: unset;
+    align-items: flex-start;
 
     &-left-column {
       width: 390px;
@@ -342,7 +344,7 @@
           content: '\0052';
           font-family: citeck;
           font-size: 14px;
-          transition: 0.5s;
+          transition: 0.25s;
         }
 
         &-wrapper {

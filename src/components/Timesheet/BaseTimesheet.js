@@ -6,7 +6,6 @@ import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Dr
 import { Input } from '../common/form';
 import Hour from './Hour';
 import { CalendarRow, CalendarCell, DayCell } from './Calendar';
-// import DayCell from './DayCell';
 import { t, deepClone } from '../../helpers/util';
 import './style.scss';
 
