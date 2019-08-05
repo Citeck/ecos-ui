@@ -1,7 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import ReactResizeDetector from 'react-resize-detector';
 import { isSmallMode, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
@@ -79,8 +78,8 @@ class CurrentTasksDashlet extends React.Component {
         dragHandleProps={dragHandleProps}
         onChangeHeight={this.onChangeHeight}
         getFitHeights={this.setFitHeights}
+        onResize={this.onResize}
       >
-        <ReactResizeDetector handleWidth onResize={this.onResize} />
         {!isUpdating && (
           <CurrentTasks
             {...config}
