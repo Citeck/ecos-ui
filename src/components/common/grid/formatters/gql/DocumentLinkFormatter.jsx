@@ -2,6 +2,7 @@ import React from 'react';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 import { isNewVersionPage } from '../../../../../helpers/urls';
 import { URL } from '../../../../../constants';
+import { REMOTE_TITLE_ATTR_NAME } from '../../../../../constants/pageTabs';
 
 export default class DocumentLinkFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {
@@ -18,7 +19,7 @@ export default class DocumentLinkFormatter extends DefaultGqlFormatter {
 
     if (isNewVersionPage()) {
       return (
-        <a target="_blank" rel="noopener noreferrer" href={`${URL.DASHBOARD}?recordRef=${cell.id}`}>
+        <a target="_blank" rel="noopener noreferrer" href={`${URL.DASHBOARD}?recordRef=${cell.id}`} {...{ [REMOTE_TITLE_ATTR_NAME]: true }}>
           {this.value(cell)}
         </a>
       );

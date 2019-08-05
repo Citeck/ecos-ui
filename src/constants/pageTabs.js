@@ -2,6 +2,7 @@ import { t } from '../helpers/util';
 import { URL } from './';
 
 export const IGNORE_TABS_HANDLER_ATTR_NAME = 'data-external';
+export const REMOTE_TITLE_ATTR_NAME = 'data-remote-title';
 
 export const SCROLL_STEP = 150;
 export const LINK_TAG = 'A';
