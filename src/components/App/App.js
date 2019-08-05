@@ -36,7 +36,7 @@ const CurrentTasksPage = lazy(() => import('../../pages/debug/CurrentTasks/Curre
 const DocStatusPage = lazy(() => import('../../pages/debug/DocStatus/DocStatusPage'));
 const MyTimesheetPage = lazy(() => import('../../pages/Timesheet/MyTimesheetPage'));
 const SubordinatesTimesheetPage = lazy(() => import('../../pages/Timesheet/SubordinatesTimesheetPage'));
-// const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/VerificationTimesheetPage'));
+const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/VerificationTimesheetPage'));
 
 class App extends Component {
   componentDidMount() {
@@ -133,7 +133,7 @@ class App extends Component {
               <Route path={URL.WIDGET_DOC_STATUS} exact component={DocStatusPage} />
               <Route path={URL.TIMESHEET} exact component={MyTimesheetPage} />
               <Route path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
-              {/*<Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />*/}
+              <Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
               <Route path="/v2/debug/formio-develop" component={FormIOPage} />
               <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
               {/*<Route component={NotFoundPage} />*/}

@@ -37,7 +37,7 @@
 
   &__date-settings {
     @extend #{$root}__white-block;
-    width: 65%;
+    //width: 65%;
     margin-right: 13px;
 
     &-tabs {
@@ -49,7 +49,38 @@
 
   &__status {
     @extend #{$root}__white-block;
-    width: 35%;
+
+    &-title {
+      margin-right: 9px;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 1em;
+      color: $text-color-dark;
+    }
+
+    &-value {
+      white-space: nowrap;
+      font-style: normal;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 1em;
+      color: $color-blue-light;
+      padding: 5px 17px;
+      border: 2px solid $color-blue-light2;
+      border-radius: 100px;
+      margin-right: 17px;
+
+      &_warning {
+        color: $color-red-1;
+        border-color: $color-red-1;
+      }
+    }
+
+    &-tabs {
+      &-item {
+        padding: 3px 15px !important;
+      }
+    }
   }
 
   &__table {
@@ -78,7 +109,7 @@
     }
 
     &-search {
-      padding: 25px 17px;
+      padding: 26px 17px;
       position: relative;
       border-bottom: 2px $color-gray-4 solid;
 
@@ -207,8 +238,6 @@
       min-height: 80px;
       margin-top: 10px;
       margin-bottom: 10px;
-
-      // todo by refactoring
       flex-wrap: wrap;
 
       &-item {
@@ -242,8 +271,6 @@
       &-column {
         display: flex;
         flex-direction: column;
-        //border-left: 1px $color-gray-4 solid;
-        //border-right: 1px $color-gray-4 solid;
 
         &:first-child {
           #{$calendar}-cell {
@@ -268,20 +295,16 @@
         display: flex;
         height: 30px;
         width: 72px;
-        //border: 1px $color-gray-4 solid;
         border: 2px $color-gray-4 solid;
         border-bottom: none;
         border-right: 1px $color-gray-4 solid;
         border-left: 1px $color-gray-4 solid;
-        //border-bottom: 2px $color-gray-4 solid;
 
         &:first-child {
           border-left: none;
-          //border-top: 2px $color-gray-4 solid;
         }
 
         &:last-child {
-          //border-top: none;
           border-right-width: 2px;
         }
 
@@ -308,6 +331,14 @@
 
         &_by-group {
           height: 114px;
+        }
+      }
+
+      &_not-available {
+        cursor: not-allowed;
+
+        #{$calendar}-cell {
+          pointer-events: none;
         }
       }
     }
@@ -378,6 +409,7 @@
     padding: 10px 27px;
     max-height: 40px;
     text-align: center;
+    white-space: nowrap;
 
     &:not(&_active):not(&_disabled):hover {
       color: $color-white;
@@ -445,6 +477,7 @@
     color: $text-color-dark;
     margin: 0 10px;
     text-transform: capitalize;
+    white-space: nowrap;
   }
 
   &__btn {

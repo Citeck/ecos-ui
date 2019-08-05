@@ -95,6 +95,8 @@ class Hour extends Component {
   handleChangeValue = event => {
     let value = parseInt(event.target.value.replace(/\D/g, ''), 10);
 
+    console.warn(value);
+
     if (Number.isNaN(value)) {
       value = 0;
     }

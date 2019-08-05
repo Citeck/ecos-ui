@@ -150,6 +150,23 @@ class SubordinatesTimesheetPage extends Component {
           isAvailable: false
         }
       ],
+      statusTabs: [
+        {
+          name: 'Ожидают согласования',
+          isActive: true,
+          isAvailable: true
+        },
+        {
+          name: 'Отправлены в доработку',
+          isActive: false,
+          isAvailable: true
+        },
+        {
+          name: 'Согласованные',
+          isActive: false,
+          isAvailable: true
+        }
+      ],
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date())
     };
@@ -194,6 +211,16 @@ class SubordinatesTimesheetPage extends Component {
     this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
   };
 
+  handleChangeStatusTab = tabIndex => {
+    const statusTabs = deepClone(this.state.statusTabs);
+
+    statusTabs.forEach((tab, index) => {
+      tab.isActive = index === tabIndex;
+    });
+
+    this.setState({ statusTabs });
+  };
+
   renderSubordinateTimesheet = () => {
     const { subordinatesEvents, daysOfMonth } = this.state;
 
@@ -201,7 +228,7 @@ class SubordinatesTimesheetPage extends Component {
   };
 
   render() {
-    const { sheetTabs, dateTabs, currentDate } = this.state;
+    const { sheetTabs, dateTabs, currentDate, statusTabs } = this.state;
 
     return (
       <div className="ecos-timesheet">
@@ -213,16 +240,18 @@ class SubordinatesTimesheetPage extends Component {
 
         <div className="ecos-timesheet__header">
           <div className="ecos-timesheet__date-settings">
-            <Tabs
-              tabs={dateTabs}
-              isSmall
-              onClick={this.handleChangeActiveDateTab}
-              classNameItem="ecos-timesheet__date-settings-tabs-item"
-            />
+            {/*<Tabs*/}
+            {/*tabs={dateTabs}*/}
+            {/*isSmall*/}
+            {/*onClick={this.handleChangeActiveDateTab}*/}
+            {/*classNameItem="ecos-timesheet__date-settings-tabs-item"*/}
+            {/*/>*/}
             <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
           </div>
 
-          <div className="ecos-timesheet__status">Статус</div>
+          <div className="ecos-timesheet__white-block">
+            <Tabs tabs={statusTabs} isSmall onClick={this.handleChangeStatusTab} />
+          </div>
         </div>
 
         {this.renderSubordinateTimesheet()}

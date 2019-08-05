@@ -12,10 +12,12 @@ import './style.scss';
 class BaseTimesheet extends Component {
   static propTypes = {
     eventTypes: PropTypes.array,
-    daysOfMonth: PropTypes.array
+    daysOfMonth: PropTypes.array,
+    isAvailable: PropTypes.bool
   };
 
   static defaultProps = {
+    isAvailable: true,
     eventTypes: [],
     daysOfMonth: []
   };
@@ -27,6 +29,15 @@ class BaseTimesheet extends Component {
       typeFilter: '',
       filteredEventTypes: deepClone(props.eventTypes)
     };
+
+    this._scrollbar = React.createRef();
+    this._calendarWrapper = React.createRef();
+  }
+
+  componentDidMount() {
+    if (this._calendarWrapper.current) {
+      this._calendarWrapper.current.addEventListener('wheel', this.handleWheelCalendar, { passive: false });
+    }
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -35,6 +46,12 @@ class BaseTimesheet extends Component {
         eventTypes: nextProps.eventTypes,
         filteredEventTypes: deepClone(nextProps.eventTypes)
       });
+    }
+  }
+
+  componentWillUnmount() {
+    if (this._calendarWrapper.current) {
+      this._calendarWrapper.current.removeEventListener('wheel', this.handleWheelCalendar);
     }
   }
 
@@ -61,6 +78,23 @@ class BaseTimesheet extends Component {
     eventTypes.splice(newIndex, 0, draggableEvent);
 
     this.setState({ filteredEventTypes: eventTypes });
+  };
+
+  handleWheelCalendar = event => {
+    event.stopPropagation();
+    event.preventDefault();
+    // event.nativeEvent.stopImmediatePropagation();
+    // event.nativeEvent.preventDefault();
+
+    const { current } = this._scrollbar;
+
+    if (!current) {
+      return;
+    }
+
+    const currentScrollDelta = current.getScrollLeft();
+
+    current.scrollLeft(currentScrollDelta + event.deltaY);
   };
 
   filterTypes(typeFilter = '') {
@@ -124,9 +158,14 @@ class BaseTimesheet extends Component {
   };
 
   renderCountByDay = day => (
-    <DayCell day={day} key={day.title}>
+    <CalendarCell
+      key={day.title}
+      className={classNames('ecos-timesheet__table-calendar-cell_hours', 'ecos-timesheet__table-calendar-cell_big', {
+        'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay
+      })}
+    >
       10
-    </DayCell>
+    </CalendarCell>
   );
 
   renderCalendarHeader() {
@@ -135,7 +174,13 @@ class BaseTimesheet extends Component {
     return [
       <CalendarRow key="date">
         {daysOfMonth.map(day => (
-          <DayCell day={day} key={day.title}>
+          <DayCell
+            day={day}
+            key={day.title}
+            className={classNames('ecos-timesheet__table-calendar-cell_big', {
+              'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay
+            })}
+          >
             {day.title}
           </DayCell>
         ))}
@@ -166,9 +211,21 @@ class BaseTimesheet extends Component {
   );
 
   renderCalendar() {
+    const { isAvailable } = this.props;
+
     return (
-      <Scrollbars autoHeight autoHeightMin={40} autoHeightMax={'100%'} renderThumbVertical={props => <div {...props} hidden />}>
-        <div className="ecos-timesheet__table-calendar">
+      <Scrollbars
+        autoHeight
+        autoHeightMin={40}
+        autoHeightMax={'100%'}
+        renderThumbVertical={props => <div {...props} hidden />}
+        ref={this._scrollbar}
+      >
+        <div
+          className={classNames('ecos-timesheet__table-calendar', {
+            'ecos-timesheet__table-calendar_not-available': !isAvailable
+          })}
+        >
           {this.renderCalendarHeader()}
           {this.renderEvents()}
         </div>
@@ -183,7 +240,9 @@ class BaseTimesheet extends Component {
           {this.renderFilter()}
           {this.renderEventTypes()}
         </div>
-        <div className="ecos-timesheet__table-right-column">{this.renderCalendar()}</div>
+        <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper}>
+          {this.renderCalendar()}
+        </div>
       </div>
     );
   }

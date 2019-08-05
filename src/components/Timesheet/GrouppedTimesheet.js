@@ -286,9 +286,14 @@ class GrouppedTimesheet extends BaseTimesheet {
   };
 
   renderCountByDay = day => (
-    <DayCell day={day} key={day.title}>
+    <CalendarCell
+      key={day.title}
+      className={classNames('ecos-timesheet__table-calendar-cell_hours', 'ecos-timesheet__table-calendar-cell_big', {
+        'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay
+      })}
+    >
       10
-    </DayCell>
+    </CalendarCell>
   );
 
   renderCells = (items, day) =>
@@ -362,7 +367,13 @@ class GrouppedTimesheet extends BaseTimesheet {
 
   renderCalendar() {
     return (
-      <Scrollbars autoHeight autoHeightMin={40} autoHeightMax={'100%'} renderThumbVertical={props => <div {...props} hidden />}>
+      <Scrollbars
+        autoHeight
+        autoHeightMin={40}
+        autoHeightMax={'100%'}
+        renderThumbVertical={props => <div {...props} hidden />}
+        ref={this._scrollbar}
+      >
         <div className="ecos-timesheet__table-calendar">
           {this.renderCalendarHeader()}
           {this.renderEvents()}
@@ -378,7 +389,9 @@ class GrouppedTimesheet extends BaseTimesheet {
           {this.renderFilter()}
           {this.renderGroupedEvents()}
         </div>
-        <div className="ecos-timesheet__table-right-column">{this.renderCalendar()}</div>
+        <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper}>
+          {this.renderCalendar()}
+        </div>
       </div>
     );
   }

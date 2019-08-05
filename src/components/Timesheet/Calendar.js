@@ -13,13 +13,14 @@ export const CalendarCell = ({ children = null, className, ...props }) => (
   </div>
 );
 
-export const DayCell = ({ day, className, children = null, ...props }) => (
+export const DayCell = ({ day, className, children = null, isBig, ...props }) => (
   <CalendarCell
     key={day.title}
     className={classNames(
       'ecos-timesheet__table-calendar-cell',
-      'ecos-timesheet__table-calendar-cell_hours',
-      'ecos-timesheet__table-calendar-cell_big',
+      {
+        'ecos-timesheet__table-calendar-cell_big': isBig
+      },
       className
     )}
     {...props}
