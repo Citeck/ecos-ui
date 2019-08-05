@@ -14,7 +14,8 @@ export const URL = {
   WIDGET_PROPERTIES: '/v2/debug/properties',
   WIDGET_DOC_PREVIEW: '/v2/debug/doc-preview',
   CURRENT_TASKS: '/v2/debug/current-tasks',
-  WIDGET_DOC_STATUS: '/v2/debug/doc-status'
+  WIDGET_DOC_STATUS: '/v2/debug/doc-status',
+  WIDGET_ACTION_HISTORY: '/v2/debug/action-history'
 };
 
 export const SourcesId = {
