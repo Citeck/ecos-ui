@@ -594,7 +594,8 @@ class DashboardSettings extends React.Component {
     const { saveSettings, getAwayFromPage } = this.props;
     const { selectedWidgets: widgets, selectedMenuItems: links, typeMenu } = this.state;
     const layout = this.selectedLayout;
-    const menuType = typeMenu.find(item => item.isActive).type;
+    const activeMenuType = typeMenu.find(item => item.isActive);
+    const menuType = activeMenuType ? activeMenuType.type : typeMenu[0].type;
 
     saveSettings({
       layoutType: layout.type,

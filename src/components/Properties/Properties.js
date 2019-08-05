@@ -75,7 +75,7 @@ class Properties extends React.Component {
         className={`${this.className}__formio`}
       />
     ) : (
-      <InfoText text={t('Сведения не загружены')} />
+      <InfoText text={t('properties-widget.no-form.text')} />
     );
   }
 

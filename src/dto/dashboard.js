@@ -1,5 +1,4 @@
-import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
+import { get, isEmpty } from 'lodash';
 import moment from 'moment';
 
 import { TITLE } from '../constants/pageTabs';

@@ -9,7 +9,7 @@ import classNames from 'classnames';
 
 import Dashlet from '../Dashlet/Dashlet';
 import { Btn, IcoBtn } from '../common/btns';
-import { DefineHeight, Loader } from '../common';
+import { Avatar, DefineHeight, Loader } from '../common';
 import { num2str, t } from '../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
@@ -525,28 +525,6 @@ class Comments extends React.Component {
     );
   }
 
-  renderAvatar(avatarLink = '', userName = '') {
-    if (avatarLink) {
-      return <img alt="avatar" src={avatarLink} className="ecos-comments__comment-avatar" />;
-    }
-
-    if (userName) {
-      return (
-        <div className="ecos-comments__comment-avatar ecos-comments__comment-avatar_empty">
-          <div className="ecos-comments__comment-avatar-name">
-            {userName
-              .split(' ')
-              .map(word => word[0])
-              .join(' ')
-              .toUpperCase()}
-          </div>
-        </div>
-      );
-    }
-
-    return <div className="ecos-comments__comment-avatar ecos-comments__comment-avatar_empty" />;
-  }
-
   renderConfirmDelete(id) {
     const { commentForDeletion } = this.state;
 
@@ -595,7 +573,12 @@ class Comments extends React.Component {
       <div className="ecos-comments__comment" key={id}>
         <div className="ecos-comments__comment-header">
           <div className="ecos-comments__comment-header-cell">
-            {this.renderAvatar(avatar, displayName)}
+            <Avatar
+              url={avatar}
+              userName={displayName}
+              className={'ecos-comments__comment-avatar'}
+              classNameEmpty={'ecos-comments__comment-avatar_empty'}
+            />
             <div className="ecos-comments__comment-header-column">
               <div className="ecos-comments__comment-name">
                 {firstName} {middleName}
