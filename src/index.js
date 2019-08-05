@@ -19,6 +19,7 @@ import configureStore, { getHistory } from './store';
 import { requireShareAssets } from './share';
 import { initAppRequest, loadThemeRequest } from './actions/app';
 import {
+  ActionHistoryApi,
   AppApi,
   BpmnApi,
   CommentsApi,
@@ -68,6 +69,7 @@ api.comments = new CommentsApi(store);
 api.dashboard = new DashboardApi(store);
 api.pageTabs = new PageTabsApi(store);
 api.docStatus = new DocStatusApi(store);
+api.actionHistory = new ActionHistoryApi(store);
 
 const history = getHistory();
 

@@ -4,14 +4,24 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { isEmpty } from 'lodash';
 import { DefineHeight } from '../common';
+import { selectDataActionHistoryByStateId } from '../../selectors/actionHistory';
+import { getActionHistory } from '../../actions/actionHistory';
 
 import './style.scss';
 
 const mapStateToProps = (state, context) => {
-  return {};
+  const ahState = selectDataActionHistoryByStateId(state, context.stateId) || {};
+
+  return {
+    list: ahState.list,
+    isLoading: ahState.isLoading,
+    columns: ahState.columns
+  };
 };
 
-const mapDispatchToProps = dispatch => ({});
+const mapDispatchToProps = dispatch => ({
+  getActionHistory: payload => dispatch(getActionHistory(payload))
+});
 
 class ActionHistory extends React.Component {
   static propTypes = {
@@ -39,12 +49,25 @@ class ActionHistory extends React.Component {
 
   className = 'ecos-action-history-list';
 
+  componentDidMount() {
+    this.getActionHistory();
+  }
+
+  getActionHistory = () => {
+    const { getActionHistory, record, stateId } = this.props;
+
+    getActionHistory({
+      stateId,
+      record
+    });
+  };
+
   setHeight = contentHeight => {
     this.setState({ contentHeight });
   };
 
   render() {
-    const { isLoading, isMobile, isSmallMode, className, height, minHeight, maxHeight } = this.props;
+    const { isLoading, isMobile, isSmallMode, className, height, minHeight, maxHeight, list } = this.props;
     const childProps = {
       className,
       isLoading,
@@ -52,7 +75,7 @@ class ActionHistory extends React.Component {
       isSmallMode
     };
     const { contentHeight } = this.state;
-
+    console.log('list', list);
     return (
       <Scrollbars
         style={{ height: contentHeight || '100%' }}
@@ -63,10 +86,10 @@ class ActionHistory extends React.Component {
           fixHeight={height}
           maxHeight={maxHeight}
           minHeight={minHeight}
-          isMin={isLoading || isEmpty([])}
+          isMin={isLoading || isEmpty(list)}
           getOptimalHeight={this.setHeight}
         >
-          <div>----</div>
+          <div>***</div>
         </DefineHeight>
       </Scrollbars>
     );
