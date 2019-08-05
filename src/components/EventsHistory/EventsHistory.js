@@ -4,13 +4,13 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { isEmpty } from 'lodash';
 import { DefineHeight } from '../common';
-import { selectDataActionHistoryByStateId } from '../../selectors/actionHistory';
-import { getActionHistory } from '../../actions/actionHistory';
+import { selectDataEventsHistoryByStateId } from '../../selectors/eventsHistory';
+import { getEventsHistory } from '../../actions/eventsHistory';
 
 import './style.scss';
 
 const mapStateToProps = (state, context) => {
-  const ahState = selectDataActionHistoryByStateId(state, context.stateId) || {};
+  const ahState = selectDataEventsHistoryByStateId(state, context.stateId) || {};
 
   return {
     list: ahState.list,
@@ -20,10 +20,10 @@ const mapStateToProps = (state, context) => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  getActionHistory: payload => dispatch(getActionHistory(payload))
+  getEventsHistory: payload => dispatch(getEventsHistory(payload))
 });
 
-class ActionHistory extends React.Component {
+class EventsHistory extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
@@ -50,13 +50,13 @@ class ActionHistory extends React.Component {
   className = 'ecos-action-history-list';
 
   componentDidMount() {
-    this.getActionHistory();
+    this.getEventsHistory();
   }
 
-  getActionHistory = () => {
-    const { getActionHistory, record, stateId } = this.props;
+  getEventsHistory = () => {
+    const { getEventsHistory, record, stateId } = this.props;
 
-    getActionHistory({
+    getEventsHistory({
       stateId,
       record
     });
@@ -99,4 +99,4 @@ class ActionHistory extends React.Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ActionHistory);
+)(EventsHistory);

@@ -10,4 +10,4 @@ export { DashboardApi } from './dashboard';
 export { DocPreviewApi } from './docPreview';
 export { PageTabsApi } from './pageTabs';
 export { DocStatusApi } from './docStatus';
-export { ActionHistoryApi } from './actionHistory';
+export { EventsHistoryApi } from './eventsHistory';

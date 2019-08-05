@@ -13,7 +13,7 @@ import dashboard from './dashboard';
 import menu from './menu';
 import currentTasks from './currentTasks';
 import docStatus from './docStatus';
-import actionHistory from './actionHistory';
+import eventsHistory from './eventsHistory';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -31,6 +31,6 @@ export default function* rootSaga(extraArguments) {
     menu(extraArguments),
     currentTasks(extraArguments),
     docStatus(extraArguments),
-    actionHistory(extraArguments)
+    eventsHistory(extraArguments)
   ]);
 }

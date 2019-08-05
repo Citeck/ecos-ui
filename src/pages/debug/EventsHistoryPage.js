@@ -2,14 +2,14 @@ import * as React from 'react';
 import queryString from 'query-string';
 import { get, split } from 'lodash';
 import { deepClone } from '../../helpers/util';
-import ActionHistoryDashlet, { ActionHistory } from '../../components/ActionHistory';
+import EventsHistoryDashlet, { EventsHistory } from '../../components/EventsHistory';
 
 import './testStyle.scss';
 
 const getNodeRef = url => get(queryString.parse(url), 'recordRef', {});
 const getDocumentId = nodeRef => get(split(nodeRef, 'workspace://SpacesStore/'), '1');
 
-export default class ActionHistoryPage extends React.Component {
+export default class EventsHistoryPage extends React.Component {
   render() {
     const {
       location: { search = '' }
@@ -52,13 +52,13 @@ export default class ActionHistoryPage extends React.Component {
           <div className={'ecos-debug-col'}>
             <h5>Widget</h5>
             {configs.map((item, index) => (
-              <ActionHistoryDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
+              <EventsHistoryDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
             ))}
           </div>
           <div className={'ecos-debug-col'}>
             <h5>Solo</h5>
             {col2.map((item, index) => (
-              <ActionHistory record={item.document} {...item.config} key={item.id + index} stateId={'tasks' + index} />
+              <EventsHistory record={item.document} {...item.config} key={item.id + index} stateId={'tasks' + index} />
             ))}
           </div>
         </div>

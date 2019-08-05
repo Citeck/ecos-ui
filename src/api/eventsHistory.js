@@ -2,8 +2,8 @@ import { RecordService } from './recordService';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 import { PROXY_URI } from '../constants/alfresco';
 
-export class ActionHistoryApi extends RecordService {
-  getActionHistory = ({ record, columns = [], predicates = [], consistency = 'EVENTUAL', groupBy, sortBy }) => {
+export class EventsHistoryApi extends RecordService {
+  getEventsHistory = ({ record, columns = [], predicates = [], consistency = 'EVENTUAL', groupBy, sortBy }) => {
     const query = {
       query: {
         nodeRef: record,

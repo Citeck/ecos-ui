@@ -4,11 +4,11 @@ import classNames from 'classnames';
 import { isSmallMode, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
-import { ActionHistory } from './index';
+import { EventsHistory } from './';
 
 import './style.scss';
 
-class ActionHistoryDashlet extends React.Component {
+class EventsHistoryDashlet extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
     record: PropTypes.string.isRequired,
@@ -76,7 +76,7 @@ class ActionHistoryDashlet extends React.Component {
         onResize={this.onResize}
       >
         {!isUpdating && (
-          <ActionHistory
+          <EventsHistory
             {...config}
             className={classNameContent}
             record={record}
@@ -92,4 +92,4 @@ class ActionHistoryDashlet extends React.Component {
   }
 }
 
-export default ActionHistoryDashlet;
+export default EventsHistoryDashlet;

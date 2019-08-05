@@ -19,7 +19,7 @@ import dashboard from './dashboard';
 import menu from './menu';
 import currentTasks from './currentTasks';
 import docStatus from './docStatus';
-import actionHistory from './actionHistory';
+import eventsHistory from './eventsHistory';
 
 const reducers = {
   app,
@@ -40,7 +40,7 @@ const reducers = {
   menu,
   currentTasks,
   docStatus,
-  actionHistory
+  eventsHistory
 };
 
 export default history =>

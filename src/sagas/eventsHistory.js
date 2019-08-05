@@ -1,8 +1,8 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { getActionHistory, setActionHistory } from '../actions/actionHistory';
+import { getEventsHistory, setEventsHistory } from '../actions/eventsHistory';
 import { t } from '../helpers/util';
 
-function* sagaGetActionHistory({ api, logger }, { payload }) {
+function* sagaGetEventsHistory({ api, logger }, { payload }) {
   const { record, stateId } = payload;
 
   try {
@@ -56,17 +56,17 @@ function* sagaGetActionHistory({ api, logger }, { payload }) {
         width: 230
       }
     ];
-    const res = yield call(api.actionHistory.getActionHistory, { record, columns });
+    const res = yield call(api.eventsHistory.getEventsHistory, { record, columns });
 
-    yield put(setActionHistory({ stateId, list: res.data || [], columns: res.columns || [] }));
+    yield put(setEventsHistory({ stateId, list: res.data || [], columns: res.columns || [] }));
   } catch (e) {
-    yield put(setActionHistory({ stateId, list: [], columns: [] }));
-    logger.error('[tasks/sagaGetActionHistory saga] error', e.message);
+    yield put(setEventsHistory({ stateId, list: [], columns: [] }));
+    logger.error('[tasks/sagaGetEventsHistory saga] error', e.message);
   }
 }
 
-function* actionHistorySaga(ea) {
-  yield takeEvery(getActionHistory().type, sagaGetActionHistory, ea);
+function* eventsHistorySaga(ea) {
+  yield takeEvery(getEventsHistory().type, sagaGetEventsHistory, ea);
 }
 
-export default actionHistorySaga;
+export default eventsHistorySaga;

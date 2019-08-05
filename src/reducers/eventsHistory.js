@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { getActionHistory, setActionHistory } from '../actions/actionHistory';
+import { getEventsHistory, setEventsHistory } from '../actions/eventsHistory';
 import { getCurrentStateById } from '../helpers/redux';
 
 const initialState = {
@@ -18,8 +18,8 @@ const startLoading = (state, { payload: { stateId } }) => ({
 
 export default handleActions(
   {
-    [getActionHistory]: startLoading,
-    [setActionHistory]: (state, { payload: { stateId, list } }) => ({
+    [getEventsHistory]: startLoading,
+    [setEventsHistory]: (state, { payload: { stateId, list } }) => ({
       ...state,
       [stateId]: {
         ...getCurrentStateById(state, stateId, initialState),
