@@ -12,7 +12,8 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
-    grouping: newState.grouping
+    grouping: newState.grouping,
+    columnsSetup: newState.columnsSetup
   };
 };
 
@@ -30,10 +31,12 @@ class JournalsGrouping extends Component {
   };
 
   render() {
-    const { columns, grouping } = this.props;
+    const { grouping, columnsSetup } = this.props;
 
     let groupingList = [];
     let aggregation = [];
+
+    const columns = columnsSetup.columns.filter(c => c.default);
 
     grouping.columns.forEach(groupingColumn => {
       const match = columns.filter(column => column.attribute === groupingColumn.attribute)[0];

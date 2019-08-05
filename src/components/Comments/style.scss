@@ -112,24 +112,23 @@
     }
 
     &-avatar {
-      min-width: 50px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
+      min-width: 49px;
+      width: 49px;
+      height: 49px;
       margin-right: 10px;
-      overflow: hidden;
+      background: $color-gray-7;
+      border: none;
 
-      &_empty {
-        display: flex;
-        background: $color-gray-7;
+      & .ecos-avatar__image {
+        border: none;
       }
 
-      &-name {
-        color: $color-white;
-        display: flex;
-        margin: auto;
-        font-size: 20px;
+      &_empty {
+        border: 1px solid $color-gray-7;
+
+        & .ecos-avatar__icon {
+          font-size: 47px;
+        }
       }
     }
 

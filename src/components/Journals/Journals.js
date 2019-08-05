@@ -154,7 +154,7 @@ class Journals extends Component {
           >
             <Well className={'ecos-journal__settings'}>
               <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} />
-              <JournalsColumnsSetup stateId={stateId} columns={columns} />
+              <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
               <JournalsGrouping stateId={stateId} columns={visibleColumns} />
               <JournalsSettingsFooter
                 stateId={stateId}
