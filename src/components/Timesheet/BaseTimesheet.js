@@ -5,7 +5,8 @@ import classNames from 'classnames';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { Input } from '../common/form';
 import Hour from './Hour';
-import DayCell from './DayCell';
+import { CalendarRow, CalendarCell, DayCell } from './Calendar';
+// import DayCell from './DayCell';
 import { t, deepClone } from '../../helpers/util';
 import './style.scss';
 
@@ -79,14 +80,16 @@ class BaseTimesheet extends Component {
 
     return (
       <div className={classNames('ecos-timesheet__table-search')}>
-        <Input
-          className="ecos-timesheet__table-search-input"
-          placeholder={t('Найти событие')}
-          value={typeFilter}
-          onChange={this.handleFilterTypes}
-        />
+        <div className="ecos-timesheet__table-search-input">
+          <Input
+            className="ecos-timesheet__table-search-input-field"
+            placeholder={t('Найти событие')}
+            value={typeFilter}
+            onChange={this.handleFilterTypes}
+          />
 
-        {typeFilter && <div className="ecos-timesheet__table-search-clear" onClick={this.handleClearFilterTypes} />}
+          {typeFilter && <div className="ecos-timesheet__table-search-input-clear" onClick={this.handleClearFilterTypes} />}
+        </div>
       </div>
     );
   }
@@ -131,16 +134,14 @@ class BaseTimesheet extends Component {
     const { daysOfMonth } = this.props;
 
     return [
-      <div className="ecos-timesheet__table-calendar-row" key="date">
+      <CalendarRow key="date">
         {daysOfMonth.map(day => (
           <DayCell day={day} key={day.title}>
             {day.title}
           </DayCell>
         ))}
-      </div>,
-      <div className="ecos-timesheet__table-calendar-row" key="hours">
-        {daysOfMonth.map(this.renderCountByDay)}
-      </div>
+      </CalendarRow>,
+      <CalendarRow key="hours">{daysOfMonth.map(this.renderCountByDay)}</CalendarRow>
     ];
   }
 
@@ -151,20 +152,18 @@ class BaseTimesheet extends Component {
   }
 
   renderEventCalendarRow = (event, eventIndex) => (
-    <div className="ecos-timesheet__table-calendar-row" key={eventIndex}>
+    <CalendarRow key={eventIndex}>
       {this.props.daysOfMonth.map((day, dayIndex) => (
-        <div className="ecos-timesheet__table-calendar-cell" key={dayIndex}>
-          <div className="ecos-timesheet__table-calendar-cell-content">
-            <Hour
-              key={`${eventIndex}-${event.name}-${day.title}-${dayIndex}`}
-              color={event.color}
-              count={Math.round(Math.random())}
-              canEdit={event.canEdit}
-            />
-          </div>
-        </div>
+        <CalendarCell key={dayIndex}>
+          <Hour
+            key={`${eventIndex}-${event.name}-${day.title}-${dayIndex}`}
+            color={event.color}
+            count={Math.round(Math.random())}
+            canEdit={event.canEdit}
+          />
+        </CalendarCell>
       ))}
-    </div>
+    </CalendarRow>
   );
 
   renderCalendar() {
@@ -177,14 +176,6 @@ class BaseTimesheet extends Component {
       </Scrollbars>
     );
   }
-
-  renderDay = day => {
-    return (
-      <div key={day.number} className="ecos-timesheet__table-calendar-item">
-        <div className="ecos-timesheet__table-calendar-day">{day.title}</div>
-      </div>
-    );
-  };
 
   render() {
     return (

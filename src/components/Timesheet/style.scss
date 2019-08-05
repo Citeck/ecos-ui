@@ -81,35 +81,49 @@
       border-bottom: 2px $color-gray-4 solid;
 
       &-input {
-        height: 26px;
-        padding: 5px 12px;
-        font-size: 12px;
+        position: relative;
 
-        &:focus {
-          border-color: $color-blue-dark;
+        &-clear {
+          cursor: pointer;
+          color: $color-gray-6;
+
+          &:before {
+            content: '\0062';
+            font-family: citeck;
+            font-size: 14px;
+            line-height: 1em;
+            position: absolute;
+            top: calc(50% - 1em / 2);
+            right: 9px;
+          }
+
+          &:hover {
+            color: $color-blue-light;
+          }
+        }
+
+        &-field {
+          height: 26px;
+          padding: 5px 12px;
+          font-size: 12px;
+
+          &:focus {
+            border-color: $color-blue-dark;
+          }
         }
       }
 
-      &-clear {
-        cursor: pointer;
-        color: $color-gray-6;
-
-        &:before {
-          content: '\0062';
-          font-family: citeck;
-          font-size: 14px;
-          line-height: 1em;
-          position: absolute;
-          top: calc(50% - 1em / 2);
-          right: 26px;
-        }
-
-        &:hover {
-          color: $color-blue-light;
+      &-tabs {
+        &-item {
+          width: 100%;
         }
       }
 
       &_groups {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 21px;
         height: 114px;
       }
     }
@@ -357,10 +371,11 @@
     font-size: 14px;
     line-height: 20px;
     color: $text-color-gray;
-    background: $color-white;
+    background: $color-gray-4;
     cursor: pointer;
     padding: 10px 27px;
     max-height: 40px;
+    text-align: center;
 
     &:not(&_active):not(&_disabled):hover {
       color: $color-white;
@@ -399,6 +414,18 @@
       &__item {
         padding: 3px 30px;
         max-height: 26px;
+      }
+    }
+  }
+
+  &_bg-white {
+    #{$root}__item {
+      &:not(#{$root}__item_active):not(#{$root}__item_disabled) {
+        background: $color-white;
+
+        &:hover {
+          background: $color-blue-light;
+        }
       }
     }
   }
