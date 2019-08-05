@@ -30,12 +30,23 @@ $small-size: 28px;
       max-width: 100%;
       overflow-y: hidden;
       overflow-x: auto;
+
+      // hide scrollbar
+      -ms-overflow-style: none; // Internet Explorer 10+
+      scrollbar-width: none; // Firefox
+      &::-webkit-scrollbar {
+        display: none; // Safari and Chrome
+      }
     }
 
     .nav-item {
       font-size: $font-size-standard;
       margin-right: 2px;
       margin-bottom: 0;
+
+      &.hidden {
+        display: none;
+      }
 
       .nav-link {
         background: $color-gray-4;

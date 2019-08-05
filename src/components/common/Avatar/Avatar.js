@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { Icon } from '../';
 
 import './style.scss';
@@ -8,28 +9,64 @@ import './style.scss';
 export default class Avatar extends React.Component {
   static propTypes = {
     url: PropTypes.string,
-    className: PropTypes.string
+    className: PropTypes.string,
+    classNameEmpty: PropTypes.string,
+    userName: PropTypes.string
   };
 
   static defaultProps = {
     url: '',
-    className: ''
+    className: '',
+    classNameEmpty: '',
+    userName: ''
   };
 
   className = 'ecos-avatar';
 
-  render() {
-    const { url, className: customClasses } = this.props;
-    const className = `${customClasses} ${this.className}`;
+  state = { error: '' };
 
-    return (
-      <div className={className}>
-        {isEmpty(url) ? (
-          <Icon className={`${this.className}__icon icon-User_avatar`} />
-        ) : (
-          <div className={`${this.className}__image`} style={{ backgroundImage: 'url(' + url + ')' }} />
-        )}
-      </div>
-    );
+  refImg = React.createRef();
+
+  componentDidMount() {
+    if (this.refImg.current) {
+      this.refImg.current.onerror = this.onError;
+    }
+  }
+
+  get empty() {
+    const { url } = this.props;
+    const { error } = this.state;
+
+    return isEmpty(url) || error;
+  }
+
+  onError = error => {
+    this.setState({ error: true });
+  };
+
+  renderContent() {
+    const { url, userName } = this.props;
+
+    if (!this.empty) {
+      return <img alt="avatar" src={url} className={classNames(`${this.className}__image`)} ref={this.refImg} />;
+    } else if (this.empty && userName) {
+      return (
+        <div className={classNames(`${this.className}__name`)}>
+          {userName
+            .split(' ')
+            .map(word => word[0])
+            .join(' ')
+            .toUpperCase()}
+        </div>
+      );
+    } else {
+      return <Icon className={classNames(`${this.className}__icon`, 'icon-User_avatar')} />;
+    }
+  }
+
+  render() {
+    const { className, classNameEmpty } = this.props;
+
+    return <div className={classNames(this.className, className, { [classNameEmpty]: this.empty })}>{this.renderContent()}</div>;
   }
 }

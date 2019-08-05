@@ -36,10 +36,13 @@ import {
   setPerformGroupActionResponse,
   createZip,
   setZipNodeRef,
-  renameJournalSetting
+  renameJournalSetting,
+  setSelectAllRecords,
+  setSelectAllRecordsVisible,
+  setGridInlineToolSettings
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { JOURNAL_SETTING_ID_FIELD, DEFAULT_PAGINATION } from '../components/Journals/constants';
+import { JOURNAL_SETTING_ID_FIELD, DEFAULT_PAGINATION, DEFAULT_INLINE_TOOL_SETTINGS } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { goToJournalsPage as goToJournalsPageUrl, getFilterUrlParam } from '../helpers/urls';
 import { t } from '../helpers/util';
@@ -227,6 +230,13 @@ function* loadGrid(api, journalSettingId, journalConfig, stateId, w) {
   let params = getGridParams(journalConfig, journalSetting, stateId);
 
   const gridData = yield getGridData(api, params);
+
+  yield put(setSelectedRecords(w([])));
+  yield put(setSelectAllRecords(w(false)));
+  yield put(setSelectAllRecordsVisible(w(false)));
+  yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
+  yield put(setPerformGroupActionResponse(w([])));
+  yield put(setPreviewUrl(w('')));
 
   yield put(setGrid(w({ ...params, ...gridData })));
 }

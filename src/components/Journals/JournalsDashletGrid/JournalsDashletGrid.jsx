@@ -11,6 +11,7 @@ import { Dropdown } from '../../common/form';
 import { getDownloadContentUrl, goToCardDetailsPage, goToNodeEditPage } from '../../../helpers/urls';
 import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
+import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
 import classNames from 'classnames';
 import {
   deleteRecords,
@@ -135,7 +136,7 @@ class JournalsDashletGrid extends Component {
 
   hideGridInlineToolSettings = () => {
     this.clearSelectedRow();
-    this.props.setGridInlineToolSettings({ height: 0, top: 0, row: {} });
+    this.props.setGridInlineToolSettings(DEFAULT_INLINE_TOOL_SETTINGS);
   };
 
   goToJournalPageWithFilter = () => {

@@ -106,9 +106,11 @@
           }
 
           &-avatar {
+            margin-right: 10px;
+
             .ecos-avatar__icon {
               color: $color-blue-light2;
-              padding-right: 10px;
+              background: $color-white;
             }
           }
 
