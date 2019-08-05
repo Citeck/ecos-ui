@@ -134,13 +134,17 @@ export class DashboardApi extends RecordService {
       name: '',
       version: ''
     });
+
+    if (!recordRef) {
+      return {
+        ...defaultInfo,
+        displayName: t(TITLE.HOMEPAGE)
+      };
+    }
+
     let type = yield Records.get(recordRef)
       .load('_dashboardType')
       .then(response => response);
-
-    if (!recordRef) {
-      type = DASHBOARD_TYPE.USER;
-    }
 
     switch (type) {
       case DASHBOARD_TYPE.CASE_DETAILS:
@@ -152,11 +156,6 @@ export class DashboardApi extends RecordService {
             version: 'version'
           })
           .then(response => response);
-      case DASHBOARD_TYPE.USER:
-        return {
-          ...defaultInfo,
-          displayName: t(TITLE.HOMEPAGE)
-        };
       case DASHBOARD_TYPE.SITE:
       default: {
         const displayName = yield Records.get(recordRef)
