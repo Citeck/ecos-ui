@@ -6,11 +6,11 @@
   &-dashlet {
   }
 
-  &-list {
-    &__v-scroll {
-      @extend %v-scroll;
-    }
+  &__v-scroll {
+    @extend %v-scroll;
+  }
 
+  &-list {
     &__loader {
       height: 100%;
     }
@@ -39,61 +39,57 @@
     }
   }
 
-  &-info {
-    $info: &;
+  &-card {
+    $card: &;
 
     &__title {
-      height: 51px;
+      height: 34px;
       padding: 0 20px;
       font-size: $font-size-standard;
       font-weight: $font-weight-bold;
       color: $color-gray-dark;
       background-color: $color-yellow;
-      line-height: 3.5;
-      @extend %ellipsis;
-    }
-
-    &__separator {
-      margin: 11px 0;
+      display: flex;
+      align-items: center;
     }
 
     &__fields {
-      margin: 14px 16px;
+      margin: 10px 20px;
       color: $text-color-dark;
+    }
 
-      #{$info}-label {
-        min-height: 17px;
+    &__separator {
+      margin: 8px 0;
+    }
+
+    &-label {
+      font-size: $font-size-standard;
+      font-weight: $font-weight-bold;
+      min-height: 17px;
+      margin-bottom: 7px;
+    }
+
+    &-value {
+      font-size: $font-size-small;
+      font-weight: $font-weight-semi-bold;
+
+      &_version {
+        font-size: $font-size-large;
         font-weight: $font-weight-bold;
-        margin-bottom: 9px;
+        display: inline;
+        margin-right: 14px;
       }
 
-      #{$info}-value {
-        font-weight: $font-weight-semi-bold;
-        font-size: $font-size-small;
-        min-height: 20px;
+      &_date {
+        color: $text-color-gray;
+        font-size: $font-size-standard;
+        font-weight: $font-weight-bold;
+        display: inline;
+      }
 
-        &_mobile {
-          display: flex;
-
-          &-val {
-            flex: 1;
-          }
-
-          &-icon {
-            position: relative;
-            top: -20px;
-          }
-        }
-
-        &_add {
-          margin-top: 23px;
-          font-weight: $font-weight-semi-bold;
-        }
+      &_none {
+        color: $color-gray-5;
       }
     }
-  }
-
-  &_no-data {
-    color: $color-gray-5;
   }
 }

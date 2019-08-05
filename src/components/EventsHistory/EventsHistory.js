@@ -6,6 +6,7 @@ import { isEmpty } from 'lodash';
 import { DefineHeight } from '../common';
 import { selectDataEventsHistoryByStateId } from '../../selectors/eventsHistory';
 import { getEventsHistory } from '../../actions/eventsHistory';
+import EventsHistoryList from './EventsHistoryList';
 
 import './style.scss';
 
@@ -15,7 +16,8 @@ const mapStateToProps = (state, context) => {
   return {
     list: ahState.list,
     isLoading: ahState.isLoading,
-    columns: ahState.columns
+    columns: ahState.columns,
+    isMobile: state.view.isMobile
   };
 };
 
@@ -47,7 +49,7 @@ class EventsHistory extends React.Component {
     contentHeight: 0
   };
 
-  className = 'ecos-action-history-list';
+  className = 'ecos-action-history';
 
   componentDidMount() {
     this.getEventsHistory();
@@ -67,15 +69,9 @@ class EventsHistory extends React.Component {
   };
 
   render() {
-    const { isLoading, isMobile, isSmallMode, className, height, minHeight, maxHeight, list } = this.props;
-    const childProps = {
-      className,
-      isLoading,
-      isMobile,
-      isSmallMode
-    };
+    const { isLoading, isMobile, isSmallMode, className, height, minHeight, maxHeight, list, columns } = this.props;
     const { contentHeight } = this.state;
-    console.log('list', list);
+
     return (
       <Scrollbars
         style={{ height: contentHeight || '100%' }}
@@ -89,7 +85,14 @@ class EventsHistory extends React.Component {
           isMin={isLoading || isEmpty(list)}
           getOptimalHeight={this.setHeight}
         >
-          <div>***</div>
+          <EventsHistoryList
+            list={list}
+            columns={columns}
+            isLoading={isLoading}
+            isSmallMode={isSmallMode}
+            isMobile={isMobile}
+            className={className}
+          />
         </DefineHeight>
       </Scrollbars>
     );

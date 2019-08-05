@@ -19,11 +19,12 @@ const startLoading = (state, { payload: { stateId } }) => ({
 export default handleActions(
   {
     [getEventsHistory]: startLoading,
-    [setEventsHistory]: (state, { payload: { stateId, list } }) => ({
+    [setEventsHistory]: (state, { payload: { stateId, list, columns } }) => ({
       ...state,
       [stateId]: {
         ...getCurrentStateById(state, stateId, initialState),
-        list: list,
+        list,
+        columns,
         isLoading: false
       }
     })

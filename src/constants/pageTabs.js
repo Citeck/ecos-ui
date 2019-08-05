@@ -22,7 +22,8 @@ export const TITLE = {
   [URL.WIDGET_PROPERTIES]: 'Свойства [temp]',
   [URL.WIDGET_DOC_PREVIEW]: 'Предпросмотр [temp]',
   [URL.CURRENT_TASKS]: 'Текущие задачи [temp]',
-  [URL.WIDGET_DOC_STATUS]: 'Статус документа [temp]'
+  [URL.WIDGET_DOC_STATUS]: 'Статус документа [temp]',
+  [URL.WIDGET_EVENTS_HISTORY]: 'История событий [temp]'
 };
 
 export const URL_MASK = {

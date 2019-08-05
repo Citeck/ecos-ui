@@ -445,6 +445,8 @@ export function getOutputFormat(format, value) {
   switch (format) {
     case DataFormatTypes.DATE:
       return moment(value).format('DD.MM.YYYY');
+    case DataFormatTypes.DATETIME:
+      return moment(value).format('DD.MM.YYYY, hh:mm');
     default:
       return value;
   }

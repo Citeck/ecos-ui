@@ -50,6 +50,7 @@ export const MIN_DEFAULT_HEIGHT_DASHLET = 155;
 
 export const DataFormatTypes = {
   DATE: 'date',
+  DATETIME: 'datetime',
   TEXT: 'text'
 };
 

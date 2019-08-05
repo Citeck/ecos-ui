@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { isSmallMode, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
-import { EventsHistory } from './';
+import EventsHistory from './EventsHistory';
 
 import './style.scss';
 
