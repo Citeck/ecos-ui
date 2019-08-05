@@ -4,7 +4,7 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { getDashboardConfig, saveDashboardConfig, resetDashboardConfig } from '../../actions/dashboard';
+import { getDashboardConfig, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import Layout from '../../components/Layout';
 import { DndUtils } from '../../components/Drag-n-Drop';
@@ -37,7 +37,8 @@ const mapDispatchToProps = dispatch => ({
   saveDashboardConfig: payload => dispatch(saveDashboardConfig(payload)),
   resetDashboardConfig: payload => dispatch(resetDashboardConfig(payload)),
   initMenuSettings: payload => dispatch(getMenuConfig(payload)),
-  saveMenuConfig: config => dispatch(saveMenuConfig(config))
+  saveMenuConfig: config => dispatch(saveMenuConfig(config)),
+  setLoading: flag => dispatch(setLoading(flag))
 });
 
 class Dashboard extends Component {
@@ -60,7 +61,7 @@ class Dashboard extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { getDashboardConfig, initMenuSettings, config, resetDashboardConfig } = nextProps;
+    const { initMenuSettings, config, isLoadingDashboard, getDashboardConfig, resetDashboardConfig, setLoading } = nextProps;
     const { recordRef } = this.getPathInfo(nextProps);
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
@@ -70,6 +71,8 @@ class Dashboard extends Component {
       resetDashboardConfig();
       getDashboardConfig({ recordRef });
       initMenuSettings();
+    } else if (urlParams === newUrlParams && isLoadingDashboard && config.type) {
+      setLoading(false);
     }
 
     if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
