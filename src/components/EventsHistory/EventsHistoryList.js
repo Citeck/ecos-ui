@@ -28,12 +28,12 @@ class EventsHistoryList extends React.Component {
   className = 'ecos-action-history-list';
 
   renderEnum() {
-    const { list, columns, isMobile } = this.props;
+    const { list, columns } = this.props;
 
     return (
       <div className={`${this.className}_view-enum`}>
         {list.map((item, i) => (
-          <EventsHistoryCard key={item.id + i} columns={columns} isMobile={isMobile} event={item} />
+          <EventsHistoryCard key={item.id + i} columns={columns} event={item} />
         ))}
       </div>
     );

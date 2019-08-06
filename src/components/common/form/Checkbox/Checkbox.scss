@@ -10,6 +10,15 @@
   padding: 0;
   color: $color-gray-6 !important;
   cursor: pointer;
+
+  &__text {
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-standard;
+    color: $text-color-dark;
+    line-height: 22px;
+    position: absolute;
+    left: 30px;
+  }
 }
 
 .checkbox__i {

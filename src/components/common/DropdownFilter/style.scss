@@ -1,0 +1,12 @@
+@import '../../../constants';
+
+.ecos-dropdown-filter {
+  $root: &;
+
+  .ecos-btn {
+    margin: 0;
+  }
+
+  &-item {
+  }
+}

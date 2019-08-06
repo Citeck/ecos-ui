@@ -10,6 +10,12 @@
     @extend %v-scroll;
   }
 
+  &__filter {
+    &-wrapper {
+      padding: 16px 20px;
+    }
+  }
+
   &-list {
     &__loader {
       height: 100%;

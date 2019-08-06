@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { isEmpty } from 'lodash';
-import { DefineHeight } from '../common';
+import { DefineHeight, DropdownFilter } from '../common';
 import { selectDataEventsHistoryByStateId } from '../../selectors/eventsHistory';
 import { getEventsHistory } from '../../actions/eventsHistory';
 import EventsHistoryList from './EventsHistoryList';
@@ -51,6 +51,8 @@ class EventsHistory extends React.Component {
 
   className = 'ecos-action-history';
 
+  _filter = React.createRef();
+
   componentDidMount() {
     this.getEventsHistory();
   }
@@ -72,29 +74,38 @@ class EventsHistory extends React.Component {
     const { isLoading, isMobile, isSmallMode, className, height, minHeight, maxHeight, list, columns } = this.props;
     const { contentHeight } = this.state;
 
+    const _filter = this._filter.current || {};
+    const filterHeight = _filter.offsetHeight || 0;
+    const fixHeight = height ? height - filterHeight : null;
+
     return (
-      <Scrollbars
-        style={{ height: contentHeight || '100%' }}
-        className={this.className}
-        renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
-      >
-        <DefineHeight
-          fixHeight={height}
-          maxHeight={maxHeight}
-          minHeight={minHeight}
-          isMin={isLoading || isEmpty(list)}
-          getOptimalHeight={this.setHeight}
+      <React.Fragment>
+        <div ref={this._filter}>
+          {(isMobile || isSmallMode) && <DropdownFilter columns={columns} className={`${this.className}__filter`} />}
+        </div>
+        <Scrollbars
+          style={{ height: contentHeight || '100%' }}
+          className={this.className}
+          renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
         >
-          <EventsHistoryList
-            list={list}
-            columns={columns}
-            isLoading={isLoading}
-            isSmallMode={isSmallMode}
-            isMobile={isMobile}
-            className={className}
-          />
-        </DefineHeight>
-      </Scrollbars>
+          <DefineHeight
+            fixHeight={fixHeight}
+            maxHeight={maxHeight - filterHeight}
+            minHeight={minHeight}
+            isMin={isLoading || isEmpty(list)}
+            getOptimalHeight={this.setHeight}
+          >
+            <EventsHistoryList
+              list={list}
+              columns={columns}
+              isLoading={isLoading}
+              isSmallMode={isSmallMode}
+              isMobile={isMobile}
+              className={className}
+            />
+          </DefineHeight>
+        </Scrollbars>
+      </React.Fragment>
     );
   }
 }

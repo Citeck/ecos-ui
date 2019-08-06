@@ -120,6 +120,7 @@ button {
   }
 
   &.ecos-btn_settings-down {
+    .icon-up,
     .icon-down {
       font-size: 14px;
       display: inline-block;
@@ -135,6 +136,7 @@ button {
     text-align: left;
     //display: inline-flex;
 
+    .icon-up,
     .icon-down {
       float: right;
     }
