@@ -8,7 +8,8 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
-    grid: newState.grid
+    grid: newState.grid,
+    journalSetting: newState.journalSetting
   };
 };
 
@@ -21,7 +22,12 @@ const mapDispatchToProps = (dispatch, props) => {
 };
 
 class JournalsDashletPagination extends Component {
-  onChangePage = pagination => this.props.reloadGrid({ pagination });
+  onChangePage = pagination => {
+    const { journalSetting, reloadGrid } = this.props;
+    const { columns, groupBy, sortBy, predicate } = journalSetting;
+
+    reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [], pagination });
+  };
 
   render() {
     const {
