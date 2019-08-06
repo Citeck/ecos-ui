@@ -39,7 +39,8 @@ import {
   renameJournalSetting,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setGridInlineToolSettings
+  setGridInlineToolSettings,
+  cancelJournalSettingData
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { JOURNAL_SETTING_ID_FIELD, DEFAULT_PAGINATION, DEFAULT_INLINE_TOOL_SETTINGS } from '../components/Journals/constants';
@@ -212,6 +213,18 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
     );
   } catch (e) {
     logger.error('[journals sagaInitJournalSettingData saga error', e.message);
+  }
+}
+
+function* sagaCancelJournalSettingData({ api, logger, stateId, w }, action) {
+  try {
+    const journalSettingId = action.payload;
+    let journalConfig = yield select(state => state.journals[stateId].journalConfig);
+
+    let journalSetting = yield getJournalSetting(api, journalSettingId, journalConfig, stateId, w);
+    yield put(initJournalSettingData(w(journalSetting)));
+  } catch (e) {
+    logger.error('[journals sagaCancelJournalSettingData saga error', e.message);
   }
 }
 
@@ -553,6 +566,7 @@ function* saga(ea) {
   yield takeEvery(onJournalSettingsSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSettingsSelect });
   yield takeEvery(onJournalSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSelect });
   yield takeEvery(initJournalSettingData().type, wrapSaga, { ...ea, saga: sagaInitJournalSettingData });
+  yield takeEvery(cancelJournalSettingData().type, wrapSaga, { ...ea, saga: sagaCancelJournalSettingData });
 
   yield takeEvery(initPreview().type, wrapSaga, { ...ea, saga: sagaInitPreview });
   yield takeEvery(goToJournalsPage().type, wrapSaga, { ...ea, saga: sagaGoToJournalsPage });
