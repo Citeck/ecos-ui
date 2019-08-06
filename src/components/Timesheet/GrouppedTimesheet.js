@@ -2,14 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
-import Collapse from 'react-css-collapse';
+// import Collapse from 'react-css-collapse';
 
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { Input } from '../common/form';
 import Hour from './Hour';
 import BaseTimesheet from './BaseTimesheet';
 import Tabs from './Tabs';
-import { CalendarRow, CalendarCell, DayCell } from './Calendar';
+import { CalendarRow, CalendarCell, Collapse, Header } from './Calendar';
 import { t, deepClone } from '../../helpers/util';
 import './style.scss';
 
@@ -38,7 +38,7 @@ class GrouppedTimesheet extends BaseTimesheet {
     this.state = {
       typeFilter: '',
       filteredEventTypes: deepClone(props.eventTypes),
-      groupsStatuses: props.groupBy ? this.initGroupsStatuses(props) : {},
+      groupsStatuses: this.initGroupsStatuses(props) || {},
       eventsFilterTabs: [
         {
           name: 'По людям',
@@ -63,16 +63,12 @@ class GrouppedTimesheet extends BaseTimesheet {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    if (nextProps.groupBy && JSON.stringify(nextProps.eventTypes) !== JSON.stringify(this.props.eventTypes)) {
-      this.setState({
-        groupsStatuses: this.initGroupsStatuses(nextProps)
-      });
-    }
-
     if (JSON.stringify(nextProps.eventTypes) !== JSON.stringify(this.state.eventTypes)) {
+      console.warn('componentWillReceiveProps');
+
       this.setState({
-        eventTypes: nextProps.eventTypes,
-        filteredEventTypes: deepClone(nextProps.eventTypes)
+        filteredEventTypes: deepClone(nextProps.eventTypes),
+        groupsStatuses: this.initGroupsStatuses(nextProps)
       });
     }
   }
@@ -123,7 +119,7 @@ class GrouppedTimesheet extends BaseTimesheet {
 
   handleSortEnd = ({ oldIndex, newIndex }, event) => {
     const { filteredEventTypes } = this.state;
-    const eventTypes = deepClone(filteredEventTypes);
+    const eventTypes = [...filteredEventTypes];
     const draggableEvent = eventTypes[oldIndex];
 
     event.stopPropagation();
@@ -136,7 +132,7 @@ class GrouppedTimesheet extends BaseTimesheet {
 
   handleSortEndInGroup = (key, { oldIndex, newIndex }, event) => {
     const { filteredEventTypes } = this.state;
-    const eventTypes = deepClone(filteredEventTypes);
+    const eventTypes = [...filteredEventTypes];
     const currentEvents = eventTypes[key].eventTypes;
     const draggableEvent = currentEvents[oldIndex];
 
@@ -152,7 +148,7 @@ class GrouppedTimesheet extends BaseTimesheet {
     event.stopPropagation();
 
     this.setState(state => {
-      const groupsStatuses = deepClone(state.groupsStatuses);
+      const { groupsStatuses } = state;
 
       if (groupsStatuses[key] === undefined) {
         groupsStatuses[key] = true;
@@ -165,7 +161,7 @@ class GrouppedTimesheet extends BaseTimesheet {
   };
 
   handleChangeActiveFilterType = tabIndex => {
-    const eventsFilterTabs = deepClone(this.state.eventsFilterTabs);
+    const { eventsFilterTabs } = this.state;
 
     eventsFilterTabs.forEach((tab, index) => {
       tab.isActive = index === tabIndex;
@@ -176,7 +172,7 @@ class GrouppedTimesheet extends BaseTimesheet {
 
   filterTypes(typeFilter = '') {
     const { eventTypes } = this.props;
-    let filteredEventTypes = deepClone(eventTypes);
+    let filteredEventTypes = [...eventTypes];
 
     if (typeFilter) {
       filteredEventTypes = this.getFiltered(eventTypes, typeFilter);
@@ -229,10 +225,6 @@ class GrouppedTimesheet extends BaseTimesheet {
     const { groupBy, eventTypes } = this.props;
     const { filteredEventTypes } = this.state;
 
-    if (!groupBy) {
-      return null;
-    }
-
     return (
       <SortableContainer
         axis="y"
@@ -243,7 +235,7 @@ class GrouppedTimesheet extends BaseTimesheet {
       >
         <div>
           {filteredEventTypes.map((item, index) => (
-            <SortableElement key={`${item.user}-${index}`} index={index}>
+            <SortableElement key={`${item.user}`} index={index}>
               <div className="ecos-timesheet__table-group">
                 <div className="ecos-timesheet__table-events-item ecos-timesheet__table-group-header">
                   <SortableHandle>
@@ -254,7 +246,7 @@ class GrouppedTimesheet extends BaseTimesheet {
                     className={classNames('ecos-timesheet__table-group-collapse', {
                       'ecos-timesheet__table-group-collapse_open': this.getGroupStatus(item.user)
                     })}
-                    onClick={this.handleToggleGroupCollapse.bind(null, item.user)}
+                    onClick={event => this.handleToggleGroupCollapse(item.user, event)}
                   />
                   <div className="ecos-timesheet__table-group-header-title">{item.user}</div>
                 </div>
@@ -269,21 +261,19 @@ class GrouppedTimesheet extends BaseTimesheet {
     );
   }
 
-  renderEventType = (item, position) => {
-    return (
-      <SortableElement key={position} index={position}>
-        <div className="ecos-timesheet__table-events-item">
-          <SortableHandle>
-            <div className="ecos-timesheet__table-events-item-dnd" />
-          </SortableHandle>
+  renderEventType = (item, position) => (
+    <SortableElement key={item.title} index={position}>
+      <div className="ecos-timesheet__table-events-item">
+        <SortableHandle>
+          <div className="ecos-timesheet__table-events-item-dnd" />
+        </SortableHandle>
 
-          <div className="ecos-timesheet__table-events-item-filter" style={{ backgroundColor: item.color || '#D0D0D0' }} />
-          <div className="ecos-timesheet__table-events-item-title">{item.title}</div>
-          <div className="ecos-timesheet__table-events-item-add-btn" />
-        </div>
-      </SortableElement>
-    );
-  };
+        <div className="ecos-timesheet__table-events-item-filter" style={{ backgroundColor: item.color || '#D0D0D0' }} />
+        <div className="ecos-timesheet__table-events-item-title">{item.title}</div>
+        <div className="ecos-timesheet__table-events-item-add-btn" />
+      </div>
+    </SortableElement>
+  );
 
   renderCountByDay = day => (
     <CalendarCell
@@ -295,13 +285,6 @@ class GrouppedTimesheet extends BaseTimesheet {
       10
     </CalendarCell>
   );
-
-  renderCells = (items, day) =>
-    items.map((item, index) => (
-      <CalendarCell key={index}>
-        <Hour key={`${day.title}-${item.name}-${index}`} color={item.color} count={Math.round(Math.random())} canEdit={item.canEdit} />
-      </CalendarCell>
-    ));
 
   renderCalendarHeader() {
     const { daysOfMonth } = this.props;
@@ -332,41 +315,32 @@ class GrouppedTimesheet extends BaseTimesheet {
     const { daysOfMonth, groupBy } = this.props;
     const { filteredEventTypes } = this.state;
 
-    if (!groupBy) {
-      return filteredEventTypes.map(this.renderEventCalendarRow);
-    }
-
-    return filteredEventTypes.map((event, eventIndex) => {
-      return [
-        <CalendarRow key={`hours-${eventIndex}`}>{daysOfMonth.map(this.renderCountByDay)}</CalendarRow>,
-        <Collapse
-          transition="height 250ms linear 0s"
-          className="ecos-timesheet__table-group-collapse-wrapper"
-          isOpen={this.getGroupStatus(event[groupBy])}
-          key={`group-${event[groupBy]}-${eventIndex}`}
-        >
-          {event.eventTypes.map(this.renderEventCalendarRow)}
-        </Collapse>
-      ];
-    });
+    return filteredEventTypes.map(user => [
+      <CalendarRow key={`hours-${user.name}-${user.organization}`}>{daysOfMonth.map(this.renderCountByDay)}</CalendarRow>,
+      <Collapse
+        transition="height 250ms linear 0s"
+        className="ecos-timesheet__table-group-collapse-wrapper"
+        isOpen={this.getGroupStatus(user[groupBy])}
+        key={`group-${user[groupBy]}`}
+      >
+        {user.eventTypes.map(this.renderEventCalendarRow)}
+      </Collapse>
+    ]);
   }
 
-  renderEventCalendarRow = (event, eventIndex) => (
-    <CalendarRow key={eventIndex}>
-      {this.props.daysOfMonth.map((day, dayIndex) => (
-        <CalendarCell key={dayIndex}>
-          <Hour
-            key={`${eventIndex}-${event.name}-${day.title}-${dayIndex}`}
-            color={event.color}
-            count={Math.round(Math.random())}
-            canEdit={event.canEdit}
-          />
+  renderEventCalendarRow = eventItem => (
+    <CalendarRow key={`calendar-row-${eventItem.name}`}>
+      {this.props.daysOfMonth.map(day => (
+        <CalendarCell key={`calendar-cell-${day.number}`}>
+          <Hour color={eventItem.color} count={Math.round(Math.random())} canEdit={eventItem.canEdit} />
         </CalendarCell>
       ))}
     </CalendarRow>
   );
 
   renderCalendar() {
+    const { daysOfMonth } = this.props;
+
     return (
       <Scrollbars
         autoHeight
@@ -376,7 +350,8 @@ class GrouppedTimesheet extends BaseTimesheet {
         ref={this._scrollbar}
       >
         <div className="ecos-timesheet__table-calendar">
-          {this.renderCalendarHeader()}
+          <Header daysOfMonth={daysOfMonth} />
+          {/*{this.renderCalendarHeader()}*/}
           {this.renderEvents()}
         </div>
       </Scrollbars>

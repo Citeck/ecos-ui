@@ -110,6 +110,7 @@ class MyTimesheetPage extends Component {
       }
     ];
 
+    this.cacheDays = new Map();
     this.state = {
       eventTypes,
       subordinatesEvents: [
@@ -172,6 +173,27 @@ class MyTimesheetPage extends Component {
       isBusinessDay: moment(day).isBusinessDay(),
       isCurrentDay: moment().isSame(moment(day), 'd')
     }));
+
+  // getDaysOfMonth = currentDate => {
+  //   if (this.cacheDays.has(currentDate)) {
+  //     return this.cacheDays.get(currentDate);
+  //   }
+  //
+  //   const days = Array.from({ length: moment(currentDate).daysInMonth() }, (x, i) =>
+  //       moment(currentDate)
+  //         .startOf('month')
+  //         .add(i, 'days')
+  //     ).map(day => ({
+  //       number: day.format('D'),
+  //       title: day.format('dd, D'),
+  //       isBusinessDay: moment(day).isBusinessDay(),
+  //       isCurrentDay: moment().isSame(moment(day), 'd')
+  //     }));
+  //
+  //   this.cacheDays.set(currentDate, days);
+  //
+  //   return days;
+  // };
 
   handleChangeActiveSheetTab = tabIndex => {
     const sheetTabs = deepClone(this.state.sheetTabs);

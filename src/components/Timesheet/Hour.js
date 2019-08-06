@@ -243,4 +243,4 @@ class Hour extends Component {
   }
 }
 
-export default Hour;
+export default React.memo(Hour);
