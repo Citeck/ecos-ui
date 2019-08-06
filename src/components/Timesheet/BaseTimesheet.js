@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
+import { UncontrolledTooltip } from 'reactstrap';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { Input } from '../common/form';
 import Hour from './Hour';
@@ -27,7 +28,8 @@ class BaseTimesheet extends Component {
 
     this.state = {
       typeFilter: '',
-      filteredEventTypes: deepClone(props.eventTypes)
+      filteredEventTypes: deepClone(props.eventTypes),
+      isOpen: false
     };
 
     this._scrollbar = React.createRef();
@@ -83,8 +85,6 @@ class BaseTimesheet extends Component {
   handleWheelCalendar = event => {
     event.stopPropagation();
     event.preventDefault();
-    // event.nativeEvent.stopImmediatePropagation();
-    // event.nativeEvent.preventDefault();
 
     const { current } = this._scrollbar;
 
@@ -168,19 +168,15 @@ class BaseTimesheet extends Component {
     </CalendarCell>
   );
 
+  renderTooltip = (title, id) => <UncontrolledTooltip target={id}>{title}</UncontrolledTooltip>;
+
   renderCalendarHeader() {
     const { daysOfMonth } = this.props;
 
     return [
       <CalendarRow key="date">
         {daysOfMonth.map(day => (
-          <DayCell
-            day={day}
-            key={day.title}
-            className={classNames('ecos-timesheet__table-calendar-cell_big', {
-              'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay
-            })}
-          >
+          <DayCell day={day} key={day.title} id={`date-${day.title}`}>
             {day.title}
           </DayCell>
         ))}

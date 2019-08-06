@@ -19,7 +19,9 @@ export const DayCell = ({ day, className, children = null, isBig, ...props }) =>
     className={classNames(
       'ecos-timesheet__table-calendar-cell',
       {
-        'ecos-timesheet__table-calendar-cell_big': isBig
+        'ecos-timesheet__table-calendar-cell_big': isBig,
+        'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay,
+        'ecos-timesheet__table-calendar-cell_current': day.isCurrentDay
       },
       className
     )}

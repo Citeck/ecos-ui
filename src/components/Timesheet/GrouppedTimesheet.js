@@ -316,7 +316,8 @@ class GrouppedTimesheet extends BaseTimesheet {
               'ecos-timesheet__table-calendar-cell_big',
               'ecos-timesheet__table-calendar-cell_by-group',
               {
-                'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay
+                'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay,
+                'ecos-timesheet__table-calendar-cell_current': day.isCurrentDay
               }
             )}
           >

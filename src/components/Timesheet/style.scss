@@ -299,6 +299,11 @@
         border-bottom: none;
         border-right: 1px $color-gray-4 solid;
         border-left: 1px $color-gray-4 solid;
+        color: $text-color-dark;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 23px;
 
         &:first-child {
           border-left: none;
@@ -323,10 +328,16 @@
         &_weekend {
           border-color: $color-pink-3 !important;
           background-color: $color-pink-2;
+          color: $color-red-1;
         }
 
         &_current {
           background-color: $color-gray-4;
+
+          &#{$cell}_weekend {
+            background-color: $color-pink-3;
+            border-color: $color-pink-3;
+          }
         }
 
         &_by-group {

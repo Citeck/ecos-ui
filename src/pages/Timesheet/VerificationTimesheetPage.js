@@ -176,7 +176,8 @@ class SubordinatesTimesheetPage extends Component {
     ).map(day => ({
       number: day.format('D'),
       title: day.format('dd, D'),
-      isBusinessDay: moment(day).isBusinessDay()
+      isBusinessDay: moment(day).isBusinessDay(),
+      isCurrentDay: moment().isSame(moment(day), 'd')
     }));
 
   handleChangeActiveDateTab = tabIndex => {
