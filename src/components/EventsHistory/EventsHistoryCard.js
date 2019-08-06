@@ -2,8 +2,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Separator } from '../common';
-import { getOutputFormat, t } from '../../helpers/util';
-import { get, isEmpty, isObject } from 'lodash';
+import { t } from '../../helpers/util';
+import { isEmpty } from 'lodash';
 
 class EventsHistoryCard extends React.Component {
   static propTypes = {
@@ -18,14 +18,18 @@ class EventsHistoryCard extends React.Component {
 
   className = 'ecos-action-history-card';
 
-  renderValue(value, format, className, defaultV) {
-    const empty = isEmpty(value);
+  renderValue(column = {}, className = '', defV = '') {
+    const { event } = this.props;
+    const formatExtraData = column.formatExtraData || {};
+    const Formatter = formatExtraData.formatter;
+    let cell = event[column.dataField];
+    const empty = isEmpty(cell);
 
-    value = isObject(value) ? get(value, 'displayName') : value;
+    cell = !empty ? cell : defV || 'Нет данных';
 
     return (
       <div className={classNames(`${this.className}-value`, className, { [`${this.className}-value_none`]: empty })}>
-        {!empty ? getOutputFormat(format, value) : defaultV || t('Нет данных')}
+        {Formatter && !empty ? <Formatter cell={cell} {...formatExtraData} /> : t(cell)}
       </div>
     );
   }
@@ -35,21 +39,21 @@ class EventsHistoryCard extends React.Component {
     const exclusion = ['event:date', 'event:documentVersion', 'event:name'];
     const [date, version, status] = exclusion;
     const fColumns = columns.filter(item => !exclusion.includes(item.dataField));
+    const sItem = key => columns.find(item => item.dataField === key);
 
     return (
       <div className={this.className}>
         <div className={`${this.className}__title`}>
-          {this.renderValue(event[version], '', `${this.className}-value_version`, '—')}
-          {this.renderValue(event[date], 'datetime', `${this.className}-value_date`)}
+          {this.renderValue(sItem(version), `${this.className}-value_version`, '—')}
+          {this.renderValue(sItem(date), `${this.className}-value_date`)}
         </div>
         <div className={`${this.className}__fields`}>
-          <div className={`${this.className}-label`}>{event[status]}</div>
-          <Separator noIndents className={`${this.className}__separator`} />
+          {this.renderValue(sItem(status), `${this.className}-value_status`)}
           {fColumns.map(item => (
             <React.Fragment key={event.id + item.dataField}>
-              <div className={`${this.className}-label`}>{item.text}</div>
-              {this.renderValue(event[item.dataField], item.type)}
               <Separator noIndents className={`${this.className}__separator`} />
+              <div className={`${this.className}-label`}>{item.text}</div>
+              {this.renderValue(item)}
             </React.Fragment>
           ))}
         </div>

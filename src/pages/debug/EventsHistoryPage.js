@@ -49,9 +49,15 @@ export default class EventsHistoryPage extends React.Component {
       <div>
         <h3>Demo Action History</h3>
         <div className={'ecos-debug-container'}>
-          <div className={'ecos-debug-col'}>
-            <h5>Widget</h5>
+          <div className={'ecos-debug-col ecos-debug-col_small'}>
+            <h5>Widget Card</h5>
             {configs.map((item, index) => (
+              <EventsHistoryDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
+            ))}
+          </div>
+          <div className={'ecos-debug-col'}>
+            <h5>Widget Grid</h5>
+            {col2.map((item, index) => (
               <EventsHistoryDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
             ))}
           </div>
