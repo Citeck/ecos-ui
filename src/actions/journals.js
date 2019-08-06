@@ -39,6 +39,7 @@ export const setPredicate = createAction(prefix + 'SET_PREDICATE');
 export const setColumnsSetup = createAction(prefix + 'SET_COLUMNS_SETUP');
 export const setGrouping = createAction(prefix + 'SET_GROUPING');
 export const initJournalSettingData = createAction(prefix + 'INIT_JOURNAL_SETTING_DATA');
+export const cancelJournalSettingData = createAction(prefix + 'CANCEL_JOURNAL_SETTING_DATA');
 
 export const onJournalSettingsSelect = createAction(prefix + 'ON_JOURNAL_SETTINGS_SELECT');
 export const onJournalSelect = createAction(prefix + 'ON_JOURNAL_SELECT');
