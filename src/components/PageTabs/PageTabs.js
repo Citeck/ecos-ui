@@ -4,7 +4,14 @@ import { withRouter } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { deepClone, getScrollbarWidth, t } from '../../helpers/util';
 import { SortableContainer, SortableElement } from './sortable';
-import { getTitleByUrl, IGNORE_TABS_HANDLER_ATTR_NAME, LINK_TAG, SCROLL_STEP, TITLE } from '../../constants/pageTabs';
+import {
+  getTitleByUrl,
+  IGNORE_TABS_HANDLER_ATTR_NAME,
+  LINK_TAG,
+  REMOTE_TITLE_ATTR_NAME,
+  SCROLL_STEP,
+  TITLE
+} from '../../constants/pageTabs';
 import { PointsLoader } from '../common';
 import './style.scss';
 
@@ -356,8 +363,11 @@ class PageTabs extends React.Component {
       tabs.forEach(tab => {
         tab.isActive = false;
       });
-      getActiveTabTitle();
-      tabs.push(this.generateNewTab({ link, remoteTitle: true }));
+      let remoteTitle = !!elem.getAttribute(REMOTE_TITLE_ATTR_NAME);
+      if (remoteTitle) {
+        getActiveTabTitle();
+      }
+      tabs.push(this.generateNewTab({ link, remoteTitle }));
     } else {
       const tab = tabs.find(tab => tab.isActive);
 

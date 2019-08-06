@@ -249,7 +249,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
     const grid = yield select(state => state.journals[stateId].grid);
 
     grid.columns = columns;
-    grid.pagination = DEFAULT_PAGINATION;
+    //grid.pagination = DEFAULT_PAGINATION;
 
     let params = {
       ...grid,
@@ -354,11 +354,7 @@ function* sagaDeleteRecords({ api, logger, stateId, w }, action) {
 
 function* sagaSaveRecords({ api, logger, stateId, w }, action) {
   try {
-    //yield put(setLoading(w(true)));
     yield call(api.journals.saveRecords, action.payload);
-    //yield put(setLoading(w(false)));
-
-    //yield put(reloadGrid(w({})));
   } catch (e) {
     logger.error('[journals sagaSaveRecords saga error', e.message);
   }

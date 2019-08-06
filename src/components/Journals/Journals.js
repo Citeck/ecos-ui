@@ -57,7 +57,7 @@ class Journals extends Component {
   }
 
   refresh = () => {
-    this.getJournalsData();
+    this.props.reloadGrid({});
   };
 
   getJournalsData() {
