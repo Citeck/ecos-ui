@@ -7,7 +7,7 @@ import { Btn, IcoBtn } from '../../../common/btns';
 import Grid from '../../../common/grid/Grid/Grid';
 import Pagination from '../../../common/Pagination/Pagination';
 import Loader from '../../../common/Loader/Loader';
-import EcosForm from '../../../EcosForm';
+import EcosForm, { FORM_MODE_EDIT } from '../../../EcosForm';
 import EcosModal from '../../EcosModal';
 import InputView from './InputView';
 import ViewMode from './ViewMode';
@@ -608,6 +608,9 @@ export default class SelectJournal extends Component {
           title={editModalTitle}
           isOpen={isEditModalOpen}
           hideModal={this.toggleEditModal}
+          options={{
+            formMode: FORM_MODE_EDIT
+          }}
         >
           <EcosForm record={editRecordId} onSubmit={this.onEditFormSubmit} onFormCancel={this.toggleEditModal} />
         </EcosModal>

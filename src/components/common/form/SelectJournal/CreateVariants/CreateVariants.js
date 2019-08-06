@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Btn } from '../../../../common/btns';
-import EcosForm from '../../../../EcosForm/EcosForm';
+import EcosForm, { FORM_MODE_CREATE } from '../../../../EcosForm/EcosForm';
 import EcosModal from '../../../EcosModal';
 import Records from '../../../../Records';
 import Dropdown from '../../Dropdown/Dropdown';
@@ -63,6 +63,9 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
       title={title}
       isOpen={isCreateModalOpen}
       hideModal={toggleCreateModal}
+      options={{
+        formMode: FORM_MODE_CREATE
+      }}
     >
       <EcosForm record={record} onSubmit={onCreateFormSubmit} onFormCancel={toggleCreateModal} />
     </EcosModal>
