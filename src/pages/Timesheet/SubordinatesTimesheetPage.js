@@ -222,10 +222,14 @@ class SubordinatesTimesheetPage extends Component {
     this.setState({ statusTabs });
   };
 
+  handleChangeTimesheet = subordinatesEvents => {
+    this.setState({ subordinatesEvents });
+  };
+
   renderSubordinateTimesheet = () => {
     const { subordinatesEvents, daysOfMonth } = this.state;
 
-    return <Timesheet groupBy={'user'} eventTypes={subordinatesEvents} daysOfMonth={daysOfMonth} />;
+    return <Timesheet groupBy={'user'} eventTypes={subordinatesEvents} daysOfMonth={daysOfMonth} onChange={this.handleChangeTimesheet} />;
   };
 
   render() {

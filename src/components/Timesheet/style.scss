@@ -3,6 +3,12 @@
 .ecos-timesheet {
   $root: &;
 
+  %icon-style {
+    font-family: citeck;
+    font-size: 14px;
+    line-height: 1em;
+  }
+
   padding: 28px 26px;
 
   &__white-block {
@@ -166,6 +172,8 @@
       flex-direction: column;
 
       &-item {
+        $item: &;
+
         display: flex;
         align-items: center;
         height: 30px;
@@ -179,7 +187,7 @@
 
         &-dnd {
           margin-right: 9px;
-          //cursor: grab;
+          cursor: grab;
           color: $color-gray-6;
 
           &:before {
@@ -209,22 +217,33 @@
         }
 
         &-add-btn {
+          $size: 14px;
+
           color: $color-gray-1;
           cursor: pointer;
+          width: $size;
+          height: $size;
+          position: absolute;
+          top: calc(50% - #{$size} / 2);
+          right: 12px;
 
           &:before {
             position: absolute;
-            top: calc(50% - 1em / 2);
-            right: 12px;
+            font-size: $size;
             line-height: 1em;
             content: '\0044';
             font-family: citeck;
-            font-size: 14px;
+            top: 0;
+            right: 0;
           }
 
           &:hover {
             color: $text-color-gray;
           }
+        }
+
+        &_sorting {
+          box-shadow: 0 4px 23px -5px rgba(0, 0, 0, 0.75);
         }
       }
     }
@@ -367,6 +386,62 @@
           color: $text-color-dark;
           user-select: none;
         }
+
+        &-dnd {
+          @extend #{$root}__table-events-item-dnd;
+        }
+
+        &-action {
+          display: flex;
+          position: absolute;
+          right: 16px;
+
+          &-tooltip {
+            max-width: 128px;
+          }
+
+          %action-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+          }
+
+          &-approve {
+            @extend %action-btn;
+
+            background-color: $color-green1;
+
+            &:before {
+              @extend %icon-style;
+
+              content: '\E82E';
+              color: $color-white;
+              position: absolute;
+              top: calc(50% - 1em / 2);
+              left: calc(50% - 1em / 2);
+            }
+          }
+
+          &-disapprove {
+            @extend %action-btn;
+
+            background-color: $color-red-1;
+            margin-right: 5px;
+
+            &:before {
+              @extend %icon-style;
+
+              content: '\0074';
+              transform: rotate(180deg);
+              color: $color-white;
+              position: absolute;
+              top: calc(50% - 1em / 2);
+              left: calc(50% - 1em / 2);
+            }
+          }
+        }
       }
 
       &-collapse {
@@ -400,6 +475,12 @@
           }
         }
       }
+    }
+  }
+
+  &__tooltip {
+    &-arrow {
+      top: calc(100% - 12px);
     }
   }
 }

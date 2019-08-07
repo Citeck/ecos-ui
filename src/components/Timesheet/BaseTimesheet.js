@@ -6,7 +6,8 @@ import { UncontrolledTooltip } from 'reactstrap';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { Input } from '../common/form';
 import Hour from './Hour';
-import { CalendarRow, CalendarCell, DayCell } from './Calendar';
+import Tooltip from './Tooltip';
+import { CalendarRow, CalendarCell, Header } from './Calendar';
 import { t, deepClone } from '../../helpers/util';
 import './style.scss';
 
@@ -29,7 +30,8 @@ class BaseTimesheet extends Component {
     this.state = {
       typeFilter: '',
       filteredEventTypes: deepClone(props.eventTypes),
-      isOpen: false
+      isOpen: false,
+      draggableNode: null
     };
 
     this._scrollbar = React.createRef();
@@ -70,16 +72,17 @@ class BaseTimesheet extends Component {
   };
 
   handleSortEnd = ({ oldIndex, newIndex }, event) => {
-    const { filteredEventTypes } = this.state;
+    const { filteredEventTypes, draggableNode } = this.state;
     const eventTypes = deepClone(filteredEventTypes);
     const draggableEvent = eventTypes[oldIndex];
 
     event.stopPropagation();
+    draggableNode.classList.toggle('ecos-timesheet__table-events-item_sorting');
 
     eventTypes.splice(oldIndex, 1);
     eventTypes.splice(newIndex, 0, draggableEvent);
 
-    this.setState({ filteredEventTypes: eventTypes });
+    this.setState({ filteredEventTypes: eventTypes, draggableNode: null });
   };
 
   handleWheelCalendar = event => {
@@ -95,6 +98,12 @@ class BaseTimesheet extends Component {
     const currentScrollDelta = current.getScrollLeft();
 
     current.scrollLeft(currentScrollDelta + event.deltaY);
+  };
+
+  handleBeforeSortStart = ({ node }) => {
+    node.classList.toggle('ecos-timesheet__table-events-item_sorting');
+
+    this.setState({ draggableNode: node });
   };
 
   filterTypes(typeFilter = '') {
@@ -127,35 +136,36 @@ class BaseTimesheet extends Component {
     );
   }
 
-  renderEventTypes(eventTypes = this.state.filteredEventTypes, key = null) {
+  renderEventTypes() {
+    const { filteredEventTypes } = this.state;
+
     return (
       <SortableContainer
         axis="y"
         lockAxis="y"
-        onSortEnd={key === null ? this.handleSortEnd : this.handleSortEndInGroup.bind(this, key)}
-        // updateBeforeSortStart={this.handleBeforeSortStart}
+        onSortEnd={this.handleSortEnd}
+        updateBeforeSortStart={this.handleBeforeSortStart}
         useDragHandle
       >
-        <div className="ecos-timesheet__table-events">{eventTypes.map(this.renderEventType)}</div>
+        <div className="ecos-timesheet__table-events">{filteredEventTypes.map(this.renderEventType)}</div>
       </SortableContainer>
     );
   }
 
-  renderEventType = (item, position) => {
-    return (
-      <SortableElement key={position} index={position}>
-        <div className="ecos-timesheet__table-events-item">
-          <SortableHandle>
-            <div className="ecos-timesheet__table-events-item-dnd" />
-          </SortableHandle>
+  renderEventType = (item, position) => (
+    <SortableElement key={item.title} index={position}>
+      <div className="ecos-timesheet__table-events-item">
+        <SortableHandle>
+          <div className="ecos-timesheet__table-events-item-dnd" />
+        </SortableHandle>
 
-          <div className="ecos-timesheet__table-events-item-filter" style={{ backgroundColor: item.color || '#D0D0D0' }} />
-          <div className="ecos-timesheet__table-events-item-title">{item.title}</div>
-          <div className="ecos-timesheet__table-events-item-add-btn" />
-        </div>
-      </SortableElement>
-    );
-  };
+        <div className="ecos-timesheet__table-events-item-filter" style={{ backgroundColor: item.color || '#D0D0D0' }} />
+        <div className="ecos-timesheet__table-events-item-title">{item.title}</div>
+        <div className="ecos-timesheet__table-events-item-add-btn" id={`event-type-${position}`} />
+        <Tooltip target={`event-type-${position}`} content={t('Добавить дни')} />
+      </div>
+    </SortableElement>
+  );
 
   renderCountByDay = day => (
     <CalendarCell
@@ -173,16 +183,12 @@ class BaseTimesheet extends Component {
   renderCalendarHeader() {
     const { daysOfMonth } = this.props;
 
-    return [
-      <CalendarRow key="date">
-        {daysOfMonth.map(day => (
-          <DayCell day={day} key={day.title} id={`date-${day.title}`}>
-            {day.title}
-          </DayCell>
-        ))}
-      </CalendarRow>,
-      <CalendarRow key="hours">{daysOfMonth.map(this.renderCountByDay)}</CalendarRow>
-    ];
+    return (
+      <>
+        <Header key="header-date" daysOfMonth={daysOfMonth} />
+        <CalendarRow key="hours">{daysOfMonth.map(this.renderCountByDay)}</CalendarRow>
+      </>
+    );
   }
 
   renderEvents() {
@@ -191,16 +197,11 @@ class BaseTimesheet extends Component {
     return filteredEventTypes.map(this.renderEventCalendarRow);
   }
 
-  renderEventCalendarRow = (event, eventIndex) => (
-    <CalendarRow key={eventIndex}>
-      {this.props.daysOfMonth.map((day, dayIndex) => (
-        <CalendarCell key={dayIndex}>
-          <Hour
-            key={`${eventIndex}-${event.name}-${day.title}-${dayIndex}`}
-            color={event.color}
-            count={Math.round(Math.random())}
-            canEdit={event.canEdit}
-          />
+  renderEventCalendarRow = eventItem => (
+    <CalendarRow key={`calendar-row-${eventItem.name}`}>
+      {this.props.daysOfMonth.map(day => (
+        <CalendarCell key={`calendar-cell-${day.number}`}>
+          <Hour color={eventItem.color} count={Math.round(Math.random())} canEdit={eventItem.canEdit} />
         </CalendarCell>
       ))}
     </CalendarRow>

@@ -44,10 +44,12 @@
   }
 
   &-arrow {
+    $size: 12px;
+
     &:before {
       border: none !important;
-      width: 12px;
-      height: 12px;
+      width: $size;
+      height: $size;
       background: $color-white;
       transform: rotate(45deg);
     }
