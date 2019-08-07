@@ -59,7 +59,7 @@ export default class SelectJournal extends Component {
   static getDerivedStateFromProps(props, state) {
     if (state.value === undefined) {
       return {
-        value: props.multiple ? [] : null
+        value: props.multiple ? [] : ''
       };
     }
 
@@ -333,7 +333,7 @@ export default class SelectJournal extends Component {
       if (multiple) {
         newValue = selected.map(item => item.id);
       } else {
-        newValue = selected.length > 0 ? selected[0]['id'] : null;
+        newValue = selected.length > 0 ? selected[0]['id'] : '';
       }
 
       return new Promise(resolve => {
