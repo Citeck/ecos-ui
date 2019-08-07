@@ -30,6 +30,8 @@ class DocPreviewDashlet extends Component {
     canDragging: false
   };
 
+  className = 'ecos-doc-preview-dashlet';
+
   constructor(props) {
     super(props);
 
@@ -63,14 +65,14 @@ class DocPreviewDashlet extends Component {
   render() {
     const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging } = this.props;
     const { width, height, fitHeights, scale } = this.state;
-    const classesDashlet = classNames('ecos-dp-dashlet', classNameDashlet, {
-      'ecos-dp-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE
+    const classesDashlet = classNames(this.className, classNameDashlet, {
+      [`${this.className}_small`]: width < MIN_WIDTH_DASHLET_LARGE
     });
 
     return (
       <Dashlet
         title={title}
-        bodyClassName={'ecos-dp-dashlet__body'}
+        bodyClassName={`${this.className}__body`}
         className={classesDashlet}
         actionReload={false}
         actionEdit={false}

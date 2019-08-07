@@ -15,10 +15,8 @@ $border-base: #c1c1c1;
   align-items: center;
 }
 
-.ecos-dp {
+.ecos-doc-preview {
   $root: &;
-
-  overflow: hidden;
 
   &.no-data {
     border: unset;
@@ -32,6 +30,11 @@ $border-base: #c1c1c1;
     padding-top: 14px;
     padding-right: 17px;
     padding-left: 17px;
+  }
+
+  &_hidden {
+    visibility: hidden;
+    overflow: hidden;
   }
 
   &__loader {
@@ -111,7 +114,7 @@ $border-base: #c1c1c1;
     }
 
     &-zoom {
-      & &-btn-select {
+      &__btn-select {
         @extend %base-flex;
       }
     }
