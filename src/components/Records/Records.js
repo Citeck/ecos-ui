@@ -61,7 +61,16 @@ function recordsFetch(url, body) {
     },
     body: JSON.stringify(body)
   }).then(response => {
-    return response.json();
+    return response.json().then(body => {
+      if (response.status >= 200 && response.status < 300) {
+        return body;
+      }
+      if (body.message) {
+        throw new Error(body.message);
+      } else {
+        throw new Error(response.statusText);
+      }
+    });
   });
 }
 
