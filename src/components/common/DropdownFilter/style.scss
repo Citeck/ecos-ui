@@ -7,6 +7,32 @@
     margin: 0;
   }
 
-  &-item {
+  &__item {
+    display: flex;
+
+    &_all {
+      border-bottom: $border-width-standard solid $color-gray-4;
+    }
+  }
+
+  &-field {
+    padding: 15px;
+
+    &__input {
+      height: 26px;
+      padding: 0 25px 0 10px;
+    }
+
+    &__close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      cursor: pointer;
+      color: $color-gray-4;
+
+      &:hover {
+        color: $color-blue-dark;
+      }
+    }
   }
 }

@@ -11,21 +11,26 @@ import './style.scss';
 export default class DropdownFilter extends React.Component {
   static propTypes = {
     className: PropTypes.string,
-    columns: PropTypes.array
+    columns: PropTypes.array,
+    getFilter: PropTypes.func
   };
 
   static defaultProps = {
     className: '',
-    columns: []
+    columns: [],
+    getFilter: () => null
   };
 
   state = {
-    isOpenFilter: false
+    isOpenFilter: false,
+    arrayField: []
   };
 
   className = 'ecos-dropdown-filter';
 
-  handleFilter = () => {};
+  handleFilter = field => {
+    console.log(field);
+  };
 
   getStateOpen = isOpenFilter => {
     this.setState({ isOpenFilter });

@@ -1,16 +1,18 @@
 import React from 'react';
+import classNames from 'classnames';
 import { Checkbox, Input } from '../form';
 import Icon from '../icons/Icon/Icon';
+import { t } from '../../../helpers/util';
 
 export default class FilterItem extends React.PureComponent {
   state = {
     search: ''
   };
 
-  className = 'ecos-dropdown-filter-item';
+  className = 'ecos-dropdown-filter__item';
 
   onClick = checked => {
-    //this.props.onClick(this.props.item);
+    this.props.onClick({ item: this.props.item, ...checked });
   };
 
   onChangeSearch = e => {
@@ -38,24 +40,27 @@ export default class FilterItem extends React.PureComponent {
       item: { text, dataField }
     } = this.props;
     const { search } = this.state;
+    const isAll = 'all-fields' === dataField;
+    const _field = 'ecos-dropdown-filter-field';
 
     return (
       <React.Fragment>
-        {'all-fields' === dataField && (
-          <div>
+        {isAll && (
+          <div className={_field}>
             <Input
               autoFocus
               type="text"
-              className={'ecos-th__filter-tooltip-input'}
+              className={`${_field}__input`}
               onChange={this.onChangeSearch}
               onKeyDown={this.onKeyDown}
               value={search}
+              placeholder={t('Фильтровать')}
             />
 
-            <Icon className={'ecos-th__filter-tooltip-close icon-close icon_small'} onClick={this.onClean} />
+            <Icon className={classNames(`${_field}__close`, 'icon-close icon_small')} onClick={this.onClean} />
           </div>
         )}
-        <li>
+        <li className={classNames(this.className, { [`${this.className}_all`]: isAll })}>
           <Checkbox onChange={this.onClick}>{text}</Checkbox>
         </li>
       </React.Fragment>
