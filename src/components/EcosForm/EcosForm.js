@@ -219,8 +219,8 @@ class EcosForm extends React.Component {
     if (this.props.saveOnSubmit !== false) {
       record
         .save()
-        .then(record => {
-          onSubmit(record, form);
+        .then(persistedRecord => {
+          onSubmit(persistedRecord, form, record);
         })
         .catch(e => {
           form.showErrors(e);

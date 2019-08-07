@@ -402,12 +402,60 @@ export default class SelectJournal extends Component {
     }
   };
 
-  onCreateFormSubmit = form => {
-    this.setState({
-      isCreateModalOpen: false
-    });
+  onCreateFormSubmit = (record, form, alias) => {
+    this.setState(
+      {
+        isCreateModalOpen: false,
+        isGridDataReady: false
+      },
+      () => {
+        const rowsNumberBefore = this.state.gridData.total;
+        this.refreshGridDataWhileNotUpdated(rowsNumberBefore, 10, 1700);
+      }
+    );
 
-    this.refreshGridData();
+    // this.setState((state) => {
+    //   return {
+    //     isCreateModalOpen: false,
+    //     gridData: {
+    //       ...state.gridData,
+    //       data: [
+    //         ...state.gridData.data,
+    //         {
+    //           id: record.id,
+    //           ...alias.getRawAttributes()
+    //         }
+    //       ],
+    //       total: state.gridData.total + 1
+    //     }
+    //   };
+    // });
+  };
+
+  refreshGridDataWhileNotUpdated = (rowsNumberBefore, attemptsNumber, period = 1000) => {
+    const self = this;
+    return new Promise(function(resolve, reject) {
+      (function attempt(attemptsLeft) {
+        self
+          .refreshGridData()
+          .then(gridData => {
+            if (gridData.total !== rowsNumberBefore) {
+              return resolve();
+            }
+            if (attemptsLeft < 1) {
+              return resolve();
+            }
+
+            self.setState({
+              isGridDataReady: false
+            });
+
+            // TODO remove timeout in componentWillUnmount()
+            setTimeout(attempt.bind(null, attemptsLeft - 1), period);
+          })
+          .catch(reject);
+      })(attemptsNumber);
+    });
   };
 
   onEditFormSubmit = form => {
