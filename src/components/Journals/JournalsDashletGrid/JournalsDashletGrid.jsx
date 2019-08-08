@@ -8,6 +8,7 @@ import { EmptyGrid, Grid, InlineTools, Tools } from '../../common/grid';
 import FormManager from '../../EcosForm/FormManager';
 import { IcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
+import { RemoveDialog } from '../../common/dialogs';
 import { getDownloadContentUrl, goToCardDetailsPage, goToNodeEditPage } from '../../../helpers/urls';
 import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
@@ -72,6 +73,10 @@ class DownloadContentLink extends Component {
 class JournalsDashletGrid extends Component {
   filters = [];
   selectedRow = {};
+
+  state = {
+    isDialogShow: false
+  };
 
   setSelectedRecords = e => {
     const props = this.props;
@@ -184,7 +189,7 @@ class JournalsDashletGrid extends Component {
       <IcoBtn
         title={t('grid.inline-tools.delete')}
         icon={'icon-delete'}
-        onClick={this.deleteRecord}
+        onClick={this.showDeleteRecordDialog}
         className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t_red')}
       />
     ];
@@ -212,11 +217,13 @@ class JournalsDashletGrid extends Component {
     this.props.deleteRecords([selectedRow.id]);
     this.clearSelectedRow();
     this.hideGridInlineToolSettings();
+    this.closeDialog();
   };
 
   deleteRecords = () => {
     const { selectedRecords, deleteRecords } = this.props;
     deleteRecords(selectedRecords);
+    this.closeDialog();
   };
 
   tools = selected => {
@@ -255,7 +262,7 @@ class JournalsDashletGrid extends Component {
             icon={'icon-delete'}
             className={classNames(toolsActionClassName, 'ecos-btn_hover_t_red')}
             title={t('grid.tools.delete')}
-            onClick={this.deleteRecords}
+            onClick={this.showDeleteRecordsDialog}
           />,
           <Dropdown
             className={'grid-tools__item_left_5'}
@@ -305,6 +312,22 @@ class JournalsDashletGrid extends Component {
     } else {
       performGroupAction({ groupAction, selected: selectedRecords });
     }
+  };
+
+  delete = () => {};
+
+  closeDialog = () => {
+    this.setState({ isDialogShow: false });
+  };
+
+  showDeleteRecordDialog = () => {
+    this.setState({ isDialogShow: true });
+    this.delete = this.deleteRecord;
+  };
+
+  showDeleteRecordsDialog = () => {
+    this.setState({ isDialogShow: true });
+    this.delete = this.deleteRecords;
   };
 
   render() {
@@ -387,6 +410,15 @@ class JournalsDashletGrid extends Component {
             />
           </EmptyGrid>
         </EcosModal>
+
+        <RemoveDialog
+          isOpen={this.state.isDialogShow}
+          title={t('journals.action.delete-records-msg')}
+          text={t('journals.action.remove-records-msg')}
+          onDelete={this.delete}
+          onCancel={this.closeDialog}
+          onClose={this.closeDialog}
+        />
       </Fragment>
     );
   }
