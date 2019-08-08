@@ -14,7 +14,7 @@ import JournalsContent from './JournalsContent';
 
 import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
-import { getJournalsData, reloadGrid, search } from '../../actions/journals';
+import { getJournalsData, onJournalSelect, onJournalSettingsSelect, reloadGrid, search } from '../../actions/journals';
 import { Well } from '../common/form';
 import { t } from '../../helpers/util';
 import { wrapArgs } from '../../helpers/redux';
@@ -36,7 +36,9 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
-    search: text => dispatch(search(w(text)))
+    search: text => dispatch(search(w(text))),
+    onJournalSelect: journalId => dispatch(onJournalSelect(w(journalId))),
+    onJournalSettingsSelect: journalSettingId => dispatch(onJournalSettingsSelect(w(journalSettingId)))
   };
 };
 
@@ -54,6 +56,27 @@ class Journals extends Component {
 
   componentDidMount() {
     this.getJournalsData();
+  }
+
+  componentDidUpdate(prevProps) {
+    const {
+      onJournalSelect,
+      onJournalSettingsSelect,
+      urlParams: { showPreview, journalId, journalSettingId }
+    } = this.props;
+    const {
+      urlParams: { showPreview: prevShowPreview, journalId: prevJournalId, journalSettingId: prevJournalSettingId }
+    } = prevProps;
+
+    if (showPreview !== prevShowPreview) {
+      this.setState({ showPreview });
+    }
+
+    if (journalId !== prevJournalId) {
+      onJournalSelect(journalId);
+    } else if (journalSettingId !== prevJournalSettingId) {
+      onJournalSettingsSelect(journalSettingId);
+    }
   }
 
   refresh = () => {
