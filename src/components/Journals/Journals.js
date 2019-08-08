@@ -27,7 +27,8 @@ const mapStateToProps = (state, props) => {
 
   return {
     pageTabsIsShow: state.pageTabs.isShow,
-    journalConfig: newState.journalConfig
+    journalConfig: newState.journalConfig,
+    journalSetting: newState.journalSetting
   };
 };
 
@@ -61,7 +62,11 @@ class Journals extends Component {
   }
 
   refresh = () => {
-    this.props.reloadGrid({});
+    const {
+      journalSetting: { columns, groupBy, sortBy, predicate },
+      reloadGrid
+    } = this.props;
+    reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
   };
 
   getJournalsData() {
