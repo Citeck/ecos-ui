@@ -164,6 +164,12 @@ export function t(messageId, multipleValues, scope = 'global') {
   return translatedMessage;
 }
 
+export function cellMsg(prefix) {
+  return function(elCell, oRecord, oColumn, sData) {
+    elCell.innerHTML = t(prefix + sData);
+  };
+}
+
 const BYTES_KB = 1024;
 const BYTES_MB = 1048576;
 const BYTES_GB = 1073741824;

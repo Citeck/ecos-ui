@@ -7,6 +7,7 @@ import { DefineHeight, DropdownFilter } from '../common';
 import { selectDataEventsHistoryByStateId } from '../../selectors/eventsHistory';
 import { getEventsHistory } from '../../actions/eventsHistory';
 import EventsHistoryList from './EventsHistoryList';
+import EventsHistoryService from '../../services/eventsHistory';
 
 import './style.scss';
 
@@ -16,7 +17,7 @@ const mapStateToProps = (state, context) => {
   return {
     list: ahState.list,
     isLoading: ahState.isLoading,
-    columns: ahState.columns,
+    columns: isEmpty(ahState.columns) ? EventsHistoryService.config.columns : ahState.columns,
     isMobile: state.view.isMobile
   };
 };
@@ -58,11 +59,12 @@ class EventsHistory extends React.Component {
   }
 
   getEventsHistory = () => {
-    const { getEventsHistory, record, stateId } = this.props;
+    const { getEventsHistory, record, stateId, columns } = this.props;
 
     getEventsHistory({
       stateId,
-      record
+      record,
+      columns
     });
   };
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { t } from '../../helpers/util';
 import { Grid } from '../common/grid';
 import { InfoText, Loader } from '../common';
@@ -31,6 +31,17 @@ class EventsHistoryList extends React.Component {
     filters: []
   };
 
+  onGridFilter = (newFilters = []) => {
+    const { onFilter } = this.props;
+    const { filters } = this.state;
+    const newFilter = get(newFilters, '0', {});
+    const upFilters = filters.filter(item => item.att !== newFilter.att).concat(newFilters || []);
+
+    this.setState({ filters: upFilters }, () => {
+      onFilter(this.state.filters);
+    });
+  };
+
   renderEnum() {
     const { list, columns } = this.props;
 
@@ -44,14 +55,8 @@ class EventsHistoryList extends React.Component {
   }
 
   renderTable() {
-    const { list, columns, onFilter } = this.props;
+    const { list, columns } = this.props;
     const { filters } = this.state;
-
-    const filter = filters => {
-      this.setState({ filters }, () => {
-        onFilter(filters);
-      });
-    };
 
     return (
       <Grid
@@ -61,7 +66,7 @@ class EventsHistoryList extends React.Component {
         className={`${this.className}_view-table`}
         filterable
         filters={filters}
-        onFilter={filter}
+        onFilter={this.onGridFilter}
       />
     );
   }
