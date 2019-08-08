@@ -240,17 +240,9 @@ export default class SelectJournal extends Component {
             requestParams['sourceId'] = sourceId;
           }
 
-          return this.api.getGridDataUsePredicates(requestParams).then(gridData => {
-            // console.log('requestParams', requestParams);
-            // console.log('fetched gridData', gridData);
-            // console.log('state gridData', this.state.gridData);
+          return this.api.getGridDataUsePredicates(requestParams).then(fetchedGridData => {
+            const gridData = this.mergeFetchedDataWithInMemoryData(fetchedGridData);
 
-            // if (requestParams.predicates.length < 1) {
-            gridData = this.mergeGridData(gridData);
-            // console.log('merged gridData', gridData);
-            // }
-
-            // setTimeout(() => {
             this.setState(prevState => {
               return {
                 gridData: {
@@ -260,7 +252,6 @@ export default class SelectJournal extends Component {
                 isGridDataReady: true
               };
             });
-            // }, 3000);
 
             resolve(gridData);
           });
@@ -269,34 +260,31 @@ export default class SelectJournal extends Component {
     });
   };
 
-  mergeGridData = gd => {
+  mergeFetchedDataWithInMemoryData = fetchedGridData => {
     const { requestParams, gridData } = this.state;
     const { pagination } = requestParams;
     const { inMemoryData } = gridData;
 
     if (inMemoryData.length < 1) {
-      return gd;
+      return fetchedGridData;
     }
 
     let newInMemoryData = [...inMemoryData];
 
-    if (gd.data.length <= pagination.maxItems) {
-      for (let i = 0; i < inMemoryData.length; i++) {
-        const exists = gd.data.find(item => item.id === inMemoryData[i].id);
-        if (exists) {
-          newInMemoryData = newInMemoryData.filter(item => item.id !== inMemoryData[i].id);
-        } else {
-          if (gd.data.length < pagination.maxItems) {
-            gd.data.push(inMemoryData[i]);
-          }
-        }
+    for (let i = 0; i < inMemoryData.length; i++) {
+      const exists = fetchedGridData.data.find(item => item.id === inMemoryData[i].id);
+      // если запись успела проиндексироваться, удаляем её из inMemoryData, иначе добаляем в fetchedGridData.data временную запись
+      if (exists) {
+        newInMemoryData = newInMemoryData.filter(item => item.id !== inMemoryData[i].id);
+      } else if (fetchedGridData.data.length < pagination.maxItems) {
+        fetchedGridData.data.push(inMemoryData[i]);
       }
     }
 
     return {
-      ...gd,
+      ...fetchedGridData,
       inMemoryData: newInMemoryData,
-      total: gd.total + newInMemoryData.length
+      total: fetchedGridData.total + newInMemoryData.length
     };
   };
 
@@ -461,60 +449,6 @@ export default class SelectJournal extends Component {
         }
       };
     }, this.refreshGridData);
-
-    // this.setState(
-    //   {
-    //     isCreateModalOpen: false,
-    //     isGridDataReady: false
-    //   },
-    //   () => {
-    //     const rowsNumberBefore = this.state.gridData.total;
-    //     this.refreshGridDataWhileNotUpdated(rowsNumberBefore, 10, 1700);
-    //   }
-    // );
-
-    // this.setState((state) => {
-    //   return {
-    //     isCreateModalOpen: false,
-    //     gridData: {
-    //       ...state.gridData,
-    //       data: [
-    //         ...state.gridData.data,
-    //         {
-    //           id: record.id,
-    //           ...alias.getRawAttributes()
-    //         }
-    //       ],
-    //       total: state.gridData.total + 1
-    //     }
-    //   };
-    // });
-  };
-
-  refreshGridDataWhileNotUpdated = (rowsNumberBefore, attemptsNumber, period = 1000) => {
-    const self = this;
-    return new Promise(function(resolve, reject) {
-      (function attempt(attemptsLeft) {
-        self
-          .refreshGridData()
-          .then(gridData => {
-            if (gridData.total !== rowsNumberBefore) {
-              return resolve();
-            }
-            if (attemptsLeft < 1) {
-              return resolve();
-            }
-
-            self.setState({
-              isGridDataReady: false
-            });
-
-            // TODO remove timeout in componentWillUnmount()
-            setTimeout(attempt.bind(null, attemptsLeft - 1), period);
-          })
-          .catch(reject);
-      })(attemptsNumber);
-    });
   };
 
   onEditFormSubmit = form => {
