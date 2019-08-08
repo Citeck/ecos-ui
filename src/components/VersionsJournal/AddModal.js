@@ -123,8 +123,6 @@ class AddModal extends Component {
   handleChangeStatus = ({ meta, file, remove, xhr }, status) => {
     this.setState({ fileStatus: status });
 
-    console.warn(status);
-
     if (status === FILE_STATUS.DONE) {
       this.setState({ file });
       remove();
@@ -146,11 +144,32 @@ class AddModal extends Component {
     });
   };
 
-  handleChangeComment = comment => {
-    this.setState({ comment });
+  handleChangeComment = event => {
+    this.setState({ comment: event.target.value });
   };
 
   handleSave = () => {};
+
+  renderDropzoneInputContent = () => [
+    <label className="vj-modal__input-label-in" key={LABELS.DROPZONE_PLACEHOLDER}>
+      {t(LABELS.DROPZONE_PLACEHOLDER)}
+    </label>,
+    <div className="vj-modal__input-button" key={LABELS.DROPZONE_SELECT_BUTTON}>
+      {t(LABELS.DROPZONE_SELECT_BUTTON)}
+    </div>
+  ];
+
+  renderDropzoneSubmitButton = props => (
+    <div
+      className="vj-modal__input-button"
+      onClick={() => {
+        props.files[0].cancel();
+        props.files[0].remove();
+      }}
+    >
+      {t(LABELS.CANCEL)}
+    </div>
+  );
 
   renderDropzone() {
     return (
@@ -163,28 +182,11 @@ class AddModal extends Component {
         getUploadParams={this.getUploadParams}
         onChangeStatus={this.handleChangeStatus}
         onSubmit={this.handleSubmit}
-        inputContent={() => (
-          <React.Fragment>
-            <label className="vj-modal__input-label-in">{t(LABELS.DROPZONE_PLACEHOLDER)}</label>
-            <div className="vj-modal__input-button">{t(LABELS.DROPZONE_SELECT_BUTTON)}</div>
-          </React.Fragment>
-        )}
+        inputContent={this.renderDropzoneInputContent}
+        SubmitButtonComponent={this.renderDropzoneSubmitButton}
         classNames={{
           dropzone: this.dropzoneClassName,
           inputLabel: 'vj-modal__input-label'
-        }}
-        SubmitButtonComponent={props => {
-          return (
-            <div
-              className="vj-modal__input-button"
-              onClick={() => {
-                props.files[0].cancel();
-                props.files[0].remove();
-              }}
-            >
-              {t(LABELS.CANCEL)}
-            </div>
-          );
         }}
       />
     );
@@ -262,9 +264,8 @@ class AddModal extends Component {
             })`}
             className="vj-modal__comment-input"
             onChange={this.handleChangeComment}
-          >
-            {comment}
-          </textarea>
+            defaultValue={comment}
+          />
         </div>
       </div>
     );
