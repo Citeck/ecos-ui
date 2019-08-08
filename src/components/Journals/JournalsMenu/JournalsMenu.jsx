@@ -242,6 +242,7 @@ class JournalsMenu extends Component {
       journals,
       open,
       journalConfig: {
+        id: journalId,
         meta: { nodeRef }
       },
       pageTabsIsShow
@@ -255,7 +256,7 @@ class JournalsMenu extends Component {
     const menuJournalSettingsSelectedIndex = this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD);
 
     return (
-      <JournalsUrlManager stateId={stateId} params={{ journalId: nodeRef, journalSettingId }}>
+      <JournalsUrlManager stateId={stateId} params={{ journalId, journalSettingId }}>
         <div className={`ecos-journal-menu ${open ? 'ecos-journal-menu_open' : ''} ${pageTabsIsShow ? 'ecos-journal-menu_tabs' : ''}`}>
           <div className={'ecos-journal-menu__hide-menu-btn'}>
             <IcoBtn
