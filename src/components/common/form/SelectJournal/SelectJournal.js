@@ -44,6 +44,7 @@ export default class SelectJournal extends Component {
     gridData: {
       total: 0,
       data: [],
+      inMemoryData: [],
       columns: [],
       selected: []
     },
@@ -240,7 +241,14 @@ export default class SelectJournal extends Component {
           }
 
           return this.api.getGridDataUsePredicates(requestParams).then(gridData => {
-            // console.log('gridData', gridData);
+            // console.log('requestParams', requestParams);
+            // console.log('fetched gridData', gridData);
+            // console.log('state gridData', this.state.gridData);
+
+            // if (requestParams.predicates.length < 1) {
+            gridData = this.mergeGridData(gridData);
+            // console.log('merged gridData', gridData);
+            // }
 
             // setTimeout(() => {
             this.setState(prevState => {
@@ -259,6 +267,37 @@ export default class SelectJournal extends Component {
         }
       );
     });
+  };
+
+  mergeGridData = gd => {
+    const { requestParams, gridData } = this.state;
+    const { pagination } = requestParams;
+    const { inMemoryData } = gridData;
+
+    if (inMemoryData.length < 1) {
+      return gd;
+    }
+
+    let newInMemoryData = [...inMemoryData];
+
+    if (gd.data.length <= pagination.maxItems) {
+      for (let i = 0; i < inMemoryData.length; i++) {
+        const exists = gd.data.find(item => item.id === inMemoryData[i].id);
+        if (exists) {
+          newInMemoryData = newInMemoryData.filter(item => item.id !== inMemoryData[i].id);
+        } else {
+          if (gd.data.length < pagination.maxItems) {
+            gd.data.push(inMemoryData[i]);
+          }
+        }
+      }
+    }
+
+    return {
+      ...gd,
+      inMemoryData: newInMemoryData,
+      total: gd.total + newInMemoryData.length
+    };
   };
 
   toggleSelectModal = () => {
@@ -403,16 +442,36 @@ export default class SelectJournal extends Component {
   };
 
   onCreateFormSubmit = (record, form, alias) => {
-    this.setState(
-      {
+    this.setState(state => {
+      return {
         isCreateModalOpen: false,
-        isGridDataReady: false
-      },
-      () => {
-        const rowsNumberBefore = this.state.gridData.total;
-        this.refreshGridDataWhileNotUpdated(rowsNumberBefore, 10, 1700);
-      }
-    );
+        gridData: {
+          ...state.gridData,
+          inMemoryData: [
+            ...state.gridData.inMemoryData,
+            {
+              id: record.id,
+              ...alias.getRawAttributes()
+            }
+          ]
+        },
+        requestParams: {
+          ...state.requestParams,
+          predicates: []
+        }
+      };
+    }, this.refreshGridData);
+
+    // this.setState(
+    //   {
+    //     isCreateModalOpen: false,
+    //     isGridDataReady: false
+    //   },
+    //   () => {
+    //     const rowsNumberBefore = this.state.gridData.total;
+    //     this.refreshGridDataWhileNotUpdated(rowsNumberBefore, 10, 1700);
+    //   }
+    // );
 
     // this.setState((state) => {
     //   return {
@@ -503,7 +562,8 @@ export default class SelectJournal extends Component {
       return {
         requestParams: {
           ...prevState.requestParams,
-          predicates: predicates
+          predicates: predicates,
+          pagination: paginationInitState
         },
         isJournalConfigFetched: true
       };
