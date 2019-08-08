@@ -17,6 +17,7 @@ import comments from './comments';
 import dashboardSettings from './dashboardSettings';
 import dashboard from './dashboard';
 import menu from './menu';
+import versionsJournal from './versionsJournal';
 
 const reducers = {
   app,
@@ -34,7 +35,8 @@ const reducers = {
   comments,
   dashboardSettings,
   dashboard,
-  menu
+  menu,
+  versionsJournal
 };
 
 export default history =>

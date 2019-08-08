@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import ReactResizeDetector from 'react-resize-detector';
 import { Tooltip } from 'reactstrap';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
+import get from 'lodash/get';
 
 import Dashlet from '../Dashlet/Dashlet';
 import { IcoBtn } from '../common/btns';
@@ -10,6 +12,8 @@ import Icon from '../common/icons/Icon/Icon';
 import { t } from '../../helpers/util';
 
 import AddModal from './AddModal';
+import { getVersions } from '../../actions/versionsJournal';
+
 import './style.scss';
 
 const TOOLTIP = {
@@ -18,6 +22,14 @@ const TOOLTIP = {
   VIEW_VERSION: 'VIEW_VERSION',
   DOWNLOAD_VERSION: 'DOWNLOAD_VERSION'
 };
+
+const mapStateToProps = state => ({
+  versions: get(state, ['versionsJournal', 'versions'])
+});
+
+const mapDispatchToProps = dispatch => ({
+  getVersionsList: payload => dispatch(getVersions(payload))
+});
 
 class VersionsJournal extends Component {
   state = {
@@ -91,6 +103,10 @@ class VersionsJournal extends Component {
     selectedVersion: null
   };
 
+  componentDidMount() {
+    this.props.getVersionsList('workspace://SpacesStore/848e6c2a-7c08-4c95-b70c-0bcf9aa5bcfa');
+  }
+
   handleResize = width => {
     this.setState({ width });
   };
@@ -135,38 +151,60 @@ class VersionsJournal extends Component {
     );
   }
 
-  renderVersion = (version, showActions = true) => (
-    <div className="ecos-vj__version">
-      <div className="ecos-vj__version-header">
-        <div className="ecos-vj__version-number">{version.version}</div>
-        <div className="ecos-vj__version-title">{version.date}</div>
-        {showActions && (
-          <div className="ecos-vj__version-actions">
-            <Icon onClick={this.handleClickShowModal} className="icon-on ecos-vj__version-actions-item" />
-            <Icon onClick={this.handleClickShowModal} className="icon-actual ecos-vj__version-actions-item" />
-            <Icon onClick={this.handleClickShowModal} className="icon-download ecos-vj__version-actions-item" />
-          </div>
-        )}
-      </div>
-      <div className="ecos-vj__version-body">
-        <div className="ecos-vj__version-author">
-          <img src={version.avatar} alt="author" className="ecos-vj__version-author-avatar" />
-          <div className="ecos-vj__version-author-name">
-            <div className="ecos-vj__version-author-name-item">
-              {version.firstName} {version.middleName}
+  renderVersion = (version, showActions = true) => {
+    let avatar = <img src={version.avatar} alt="author" className="ecos-vj__version-author-avatar" />;
+
+    if (!version.avatar) {
+      const initials = version.userName
+        .split(' ')
+        .map(word => word[0])
+        .join(' ')
+        .toUpperCase();
+
+      avatar = <div className="ecos-vj__version-author-avatar ecos-vj__version-author-avatar_empty">{initials}</div>;
+    }
+
+    return (
+      <div className="ecos-vj__version" key={version.date}>
+        <div className="ecos-vj__version-header">
+          <div className="ecos-vj__version-number">{version.version}</div>
+          <div className="ecos-vj__version-title">{version.name}</div>
+          {showActions && (
+            <div className="ecos-vj__version-actions">
+              <Icon onClick={this.handleClickShowModal} className="icon-on ecos-vj__version-actions-item" />
+              <Icon onClick={this.handleClickShowModal} className="icon-actual ecos-vj__version-actions-item" />
+              <a href={version.url} download>
+                <Icon onClick={this.handleClickShowModal} className="icon-download ecos-vj__version-actions-item" />
+              </a>
             </div>
-            <div className="ecos-vj__version-author-name-item">{version.lastName}</div>
-          </div>
+          )}
         </div>
-        {version.comment && <div className="ecos-vj__version-comment">{version.comment}</div>}
+        <div className="ecos-vj__version-body">
+          <div className="ecos-vj__version-author">
+            {avatar}
+
+            <div className="ecos-vj__version-author-name">
+              <div className="ecos-vj__version-author-name-item">
+                {version.firstName} {version.middleName}
+              </div>
+              <div className="ecos-vj__version-author-name-item">{version.lastName}</div>
+
+              <div className="ecos-vj__version-date">
+                <Icon className="icon-clock ecos-vj__version-date-icon" />
+                {version.date}
+              </div>
+            </div>
+          </div>
+          {version.comment && <div className="ecos-vj__version-comment">{version.comment}</div>}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   renderMessage = (message = '') => <div className="ecos-vj__message">{message}</div>;
 
   renderActualVersion() {
-    const { versions } = this.state;
+    const { versions } = this.props;
 
     if (!versions) {
       return null;
@@ -184,7 +222,7 @@ class VersionsJournal extends Component {
   }
 
   renderOldVersions() {
-    const { versions } = this.state;
+    const { versions } = this.props;
 
     if (!versions) {
       return null;
@@ -239,4 +277,7 @@ class VersionsJournal extends Component {
   }
 }
 
-export default VersionsJournal;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(VersionsJournal);

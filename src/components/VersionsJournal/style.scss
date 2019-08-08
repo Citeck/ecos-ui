@@ -68,11 +68,22 @@
       align-items: center;
 
       &-avatar {
-        width: 35px;
-        height: 35px;
+        //width: 35px;
+        //height: 35px;
+        width: 49px;
+        height: 49px;
         border-radius: 50%;
         object-fit: cover;
         margin-right: 10px;
+
+        &_empty {
+          text-align: center;
+          background: $color-gray-7;
+          color: $color-white;
+          font-weight: bold;
+          font-size: 14px;
+          line-height: 35px;
+        }
       }
 
       &-name {
@@ -94,6 +105,21 @@
       line-height: 16px;
       color: $text-color-gray;
       margin-top: 10px;
+    }
+
+    &-date {
+      font-style: normal;
+      font-weight: normal;
+      font-size: 11px;
+      line-height: 15px;
+      color: $color-gray-5;
+      margin-left: -1px;
+
+      &-icon {
+        color: $color-gray-7;
+        font-size: 14px;
+        margin-right: 5px;
+      }
     }
   }
 

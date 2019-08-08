@@ -18,7 +18,18 @@ import { getCurrentLocale } from './helpers/util';
 import configureStore, { getHistory } from './store';
 import { requireShareAssets } from './share';
 import { initAppRequest, loadThemeRequest } from './actions/app';
-import { AppApi, BpmnApi, CommentsApi, DashboardApi, JournalsApi, MenuApi, OrgStructApi, TasksApi, UserApi } from './api';
+import {
+  AppApi,
+  BpmnApi,
+  CommentsApi,
+  DashboardApi,
+  JournalsApi,
+  MenuApi,
+  OrgStructApi,
+  TasksApi,
+  UserApi,
+  VersionsJournalApi
+} from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
@@ -54,6 +65,19 @@ api.journals = new JournalsApi(store);
 api.tasks = new TasksApi(store);
 api.comments = new CommentsApi(store);
 api.dashboard = new DashboardApi(store);
+api.versionsJournal = new VersionsJournalApi(store);
+
+/**
+ * todo: Maybe need such union all api?
+ */
+// Object
+//   .keys(API)
+//   .forEach((key => {
+//   let name = key.replace('Api', '');
+//
+//   name = name[0].toLowerCase() + name.slice(1);
+//   api[name] = new API[key](store);
+// }));
 
 const history = getHistory();
 
