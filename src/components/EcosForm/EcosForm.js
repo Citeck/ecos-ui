@@ -13,6 +13,9 @@ import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
 import '../../forms/style.scss';
 
+export const FORM_MODE_CREATE = 'CREATE';
+export const FORM_MODE_EDIT = 'EDIT';
+
 let formCounter = 0;
 
 class EcosForm extends React.Component {
@@ -214,9 +217,14 @@ class EcosForm extends React.Component {
     let onSubmit = self.props.onSubmit || (() => {});
 
     if (this.props.saveOnSubmit !== false) {
-      record.save().then(record => {
-        onSubmit(record, form);
-      });
+      record
+        .save()
+        .then(record => {
+          onSubmit(record, form);
+        })
+        .catch(e => {
+          form.showErrors(e);
+        });
     } else {
       onSubmit(record, form);
     }
