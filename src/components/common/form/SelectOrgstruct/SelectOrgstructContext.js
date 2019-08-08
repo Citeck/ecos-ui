@@ -204,7 +204,7 @@ export const SelectOrgstructProvider = props => {
             if (multiple) {
               newValue = selectedFiltered.map(item => item.id);
             } else {
-              newValue = selectedFiltered.length > 0 ? selectedFiltered[0]['id'] : null;
+              newValue = selectedFiltered.length > 0 ? selectedFiltered[0]['id'] : '';
             }
 
             onChange(newValue);
@@ -222,7 +222,7 @@ export const SelectOrgstructProvider = props => {
           if (multiple) {
             newValue = tabItems[TAB_ONLY_SELECTED].map(item => item.id);
           } else {
-            newValue = tabItems[TAB_ONLY_SELECTED].length > 0 ? tabItems[TAB_ONLY_SELECTED][0]['id'] : null;
+            newValue = tabItems[TAB_ONLY_SELECTED].length > 0 ? tabItems[TAB_ONLY_SELECTED][0]['id'] : '';
           }
 
           typeof onChange === 'function' && onChange(newValue);

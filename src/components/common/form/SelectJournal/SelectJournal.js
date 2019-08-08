@@ -7,7 +7,7 @@ import { Btn, IcoBtn } from '../../../common/btns';
 import Grid from '../../../common/grid/Grid/Grid';
 import Pagination from '../../../common/Pagination/Pagination';
 import Loader from '../../../common/Loader/Loader';
-import EcosForm from '../../../EcosForm';
+import EcosForm, { FORM_MODE_EDIT } from '../../../EcosForm';
 import EcosModal from '../../EcosModal';
 import InputView from './InputView';
 import ViewMode from './ViewMode';
@@ -59,7 +59,7 @@ export default class SelectJournal extends Component {
   static getDerivedStateFromProps(props, state) {
     if (state.value === undefined) {
       return {
-        value: props.multiple ? [] : null
+        value: props.multiple ? [] : ''
       };
     }
 
@@ -333,7 +333,7 @@ export default class SelectJournal extends Component {
       if (multiple) {
         newValue = selected.map(item => item.id);
       } else {
-        newValue = selected.length > 0 ? selected[0]['id'] : null;
+        newValue = selected.length > 0 ? selected[0]['id'] : '';
       }
 
       return new Promise(resolve => {
@@ -608,6 +608,9 @@ export default class SelectJournal extends Component {
           title={editModalTitle}
           isOpen={isEditModalOpen}
           hideModal={this.toggleEditModal}
+          options={{
+            formMode: FORM_MODE_EDIT
+          }}
         >
           <EcosForm record={editRecordId} onSubmit={this.onEditFormSubmit} onFormCancel={this.toggleEditModal} />
         </EcosModal>

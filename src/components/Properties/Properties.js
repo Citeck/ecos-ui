@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { t } from '../../helpers/util';
-import EcosForm from '../EcosForm';
+import EcosForm, { FORM_MODE_EDIT } from '../EcosForm';
 import { DefineHeight, InfoText } from '../common';
 
 import './style.scss';
@@ -68,7 +68,8 @@ class Properties extends React.Component {
           viewAsHtml: true,
           viewAsHtmlConfig: {
             fullWidthColumns: isSmallMode
-          }
+          },
+          formMode: FORM_MODE_EDIT
         }}
         onSubmit={this.onSubmitForm}
         onReady={this.onReady}
