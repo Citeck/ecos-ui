@@ -12,13 +12,13 @@ export default class DropdownFilter extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     columns: PropTypes.array,
-    getFilter: PropTypes.func
+    onFilter: PropTypes.func
   };
 
   static defaultProps = {
     className: '',
     columns: [],
-    getFilter: () => null
+    onFilter: () => null
   };
 
   state = {

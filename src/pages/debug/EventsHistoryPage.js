@@ -25,11 +25,14 @@ export default class EventsHistoryPage extends React.Component {
     };
     const configs = [taskConfigUrl];
 
-    const urls = ['?recordRef=workspace://SpacesStore/f3a03c6c-cb8a-41a5-9d06-52571d5f421c'];
+    const urls = [
+      'workspace://SpacesStore/f3a03c6c-cb8a-41a5-9d06-52571d5f421c',
+      'workspace://SpacesStore/b7df6e91-d366-4c99-a938-e96cf80dbbbe'
+    ];
 
-    const fillTask = item => {
+    const fill = ref => {
       const template = deepClone(taskConfigUrl);
-      const nodeRef = getNodeRef(item);
+      const nodeRef = ref;
       const id = getDocumentId(nodeRef);
 
       template.document = nodeRef;
@@ -39,8 +42,8 @@ export default class EventsHistoryPage extends React.Component {
       return template;
     };
 
-    urls.forEach(item => {
-      configs.push(fillTask(item));
+    urls.forEach(ref => {
+      configs.push(fill(ref));
     });
 
     const col2 = configs.splice(Math.ceil(configs.length / 2));

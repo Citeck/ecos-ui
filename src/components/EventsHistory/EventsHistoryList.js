@@ -27,6 +27,10 @@ class EventsHistoryList extends React.Component {
 
   className = 'ecos-action-history-list';
 
+  state = {
+    filters: []
+  };
+
   renderEnum() {
     const { list, columns } = this.props;
 
@@ -40,9 +44,26 @@ class EventsHistoryList extends React.Component {
   }
 
   renderTable() {
-    const { list, columns } = this.props;
+    const { list, columns, onFilter } = this.props;
+    const { filters } = this.state;
 
-    return <Grid data={list} columns={columns} scrollable={false} className={`${this.className}_view-table`} />;
+    const filter = filters => {
+      this.setState({ filters }, () => {
+        onFilter(filters);
+      });
+    };
+
+    return (
+      <Grid
+        data={list}
+        columns={columns}
+        scrollable={false}
+        className={`${this.className}_view-table`}
+        filterable
+        filters={filters}
+        onFilter={filter}
+      />
+    );
   }
 
   render() {
