@@ -113,6 +113,7 @@ class ListItem extends Component {
   render() {
     const { item, removable } = this.props;
     const { isMouseOver, isDialogShow, isRenameMode, title, _title } = this.state;
+    const quotes = String.fromCharCode(8221);
 
     return (
       <Fragment>
@@ -173,7 +174,7 @@ class ListItem extends Component {
         <RemoveDialog
           isOpen={isDialogShow}
           title={t('journals.action.delete-tpl-msg')}
-          text={`${t('journals.action.remove-tpl-msg')} ${String.fromCharCode(8221)}${title}${String.fromCharCode(8221)} ?`}
+          text={`${t('journals.action.remove-tpl-msg')} ${quotes + title + quotes} ?`}
           onCancel={this.closeDialog}
           onDelete={this.delete}
           onClose={this.closeDialog}

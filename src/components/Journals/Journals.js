@@ -15,6 +15,7 @@ import JournalsContent from './JournalsContent';
 import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
 import { getJournalsData, reloadGrid, search } from '../../actions/journals';
+import { setActiveTabTitle } from '../../actions/pageTabs';
 import { Well } from '../common/form';
 import { t } from '../../helpers/util';
 import { wrapArgs } from '../../helpers/redux';
@@ -36,7 +37,8 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
-    search: text => dispatch(search(w(text)))
+    search: text => dispatch(search(w(text))),
+    setActiveTabTitle: text => dispatch(setActiveTabTitle(text))
   };
 };
 
@@ -50,6 +52,8 @@ class Journals extends Component {
       showPreview: this.props.urlParams.showPreview,
       showPie: false
     };
+
+    this.title = '';
   }
 
   componentDidMount() {
@@ -108,7 +112,7 @@ class Journals extends Component {
 
   render() {
     const { menuOpen, settingsVisible, showPreview, showPie } = this.state;
-    const { stateId, journalConfig, pageTabsIsShow } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, setActiveTabTitle } = this.props;
 
     if (!journalConfig) {
       return null;
@@ -126,6 +130,12 @@ class Journals extends Component {
     }
 
     const visibleColumns = columns.filter(c => c.visible);
+
+    if (pageTabsIsShow && title && this.title !== title) {
+      const quotes = String.fromCharCode(8221);
+      setActiveTabTitle(`${t('page-tabs.journal')} ${quotes + title + quotes}`);
+      this.title = title;
+    }
 
     return (
       <div className={'ecos-journal'}>
