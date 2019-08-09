@@ -59,28 +59,28 @@ class EventsHistoryList extends React.Component {
     const { filters } = this.state;
 
     return (
-      <Grid
-        data={list}
-        columns={columns}
-        scrollable={false}
-        className={`${this.className}_view-table`}
-        filterable
-        filters={filters}
-        onFilter={this.onGridFilter}
-      />
+      <Grid data={list} columns={columns} scrollable={false} className={`${this.className}_view-table`} />
+      // filterable={false}
+      // filters={filters}
+      // onFilter={this.onGridFilter}
     );
   }
 
   render() {
-    const { isSmallMode, isLoading, list, columns, isMobile } = this.props;
+    const { isSmallMode, isMobile, isLoading, list, columns } = this.props;
 
     if (isLoading) {
       return <Loader className={`${this.className}__loader`} />;
     }
 
-    if (isEmpty(list) || isEmpty(columns)) {
-      return <InfoText text={t('Событий не было')} />;
+    if (isEmpty(columns)) {
+      return <InfoText text={t('Нет настроек отображения')} />;
     }
+
+    if (isEmpty(list)) {
+      return <InfoText text={t('Нет событий')} />;
+    }
+
     if (isSmallMode || isMobile) {
       return this.renderEnum();
     }

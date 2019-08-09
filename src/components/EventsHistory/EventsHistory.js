@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { get, isEmpty } from 'lodash';
-import { DefineHeight, DropdownFilter } from '../common';
+import { DefineHeight } from '../common';
 import { selectDataEventsHistoryByStateId } from '../../selectors/eventsHistory';
-import { getEventsHistory } from '../../actions/eventsHistory';
+import { filterEventsHistory, getEventsHistory } from '../../actions/eventsHistory';
 import EventsHistoryList from './EventsHistoryList';
 import EventsHistoryService from '../../services/eventsHistory';
 
@@ -23,7 +23,8 @@ const mapStateToProps = (state, context) => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  getEventsHistory: payload => dispatch(getEventsHistory(payload))
+  getEventsHistory: payload => dispatch(getEventsHistory(payload)),
+  filterEventsHistory: payload => dispatch(filterEventsHistory(payload))
 });
 
 class EventsHistory extends React.Component {
@@ -73,9 +74,14 @@ class EventsHistory extends React.Component {
   };
 
   onFilter = predicates => {
-    const { columns } = this.props;
+    const { filterEventsHistory, record, stateId, columns } = this.props;
 
-    console.log({ columns, predicates });
+    filterEventsHistory({
+      stateId,
+      record,
+      columns,
+      predicates
+    });
   };
 
   render() {
@@ -88,9 +94,9 @@ class EventsHistory extends React.Component {
     return (
       <React.Fragment>
         <div ref={this._filter}>
-          {(isMobile || isSmallMode) && (
+          {/*{(isMobile || isSmallMode) && (
             <DropdownFilter columns={columns} className={`${this.className}__filter`} onFilter={this.onFilter} />
-          )}
+          )}*/}
         </div>
         <Scrollbars
           style={{ height: contentHeight || '100%' }}
