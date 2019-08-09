@@ -5,7 +5,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { get, isEmpty } from 'lodash';
 import { DefineHeight } from '../common';
 import { selectDataEventsHistoryByStateId } from '../../selectors/eventsHistory';
-import { filterEventsHistory, getEventsHistory } from '../../actions/eventsHistory';
+import { filterEventsHistory, getEventsHistory, resetEventsHistory } from '../../actions/eventsHistory';
 import EventsHistoryList from './EventsHistoryList';
 import EventsHistoryService from '../../services/eventsHistory';
 
@@ -24,7 +24,8 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = dispatch => ({
   getEventsHistory: payload => dispatch(getEventsHistory(payload)),
-  filterEventsHistory: payload => dispatch(filterEventsHistory(payload))
+  filterEventsHistory: payload => dispatch(filterEventsHistory(payload)),
+  resetEventsHistory: payload => dispatch(resetEventsHistory(payload))
 });
 
 class EventsHistory extends React.Component {
@@ -57,6 +58,12 @@ class EventsHistory extends React.Component {
 
   componentDidMount() {
     this.getEventsHistory();
+  }
+
+  componentWillUnmount() {
+    const { resetEventsHistory, stateId } = this.props;
+
+    resetEventsHistory({ stateId });
   }
 
   getEventsHistory = () => {

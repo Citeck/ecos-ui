@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { getEventsHistory, setEventsHistory } from '../actions/eventsHistory';
+import { getEventsHistory, resetEventsHistory, setEventsHistory } from '../actions/eventsHistory';
 import { getCurrentStateById } from '../helpers/redux';
 
 const initialState = {
@@ -27,7 +27,12 @@ export default handleActions(
         columns,
         isLoading: false
       }
-    })
+    }),
+    [resetEventsHistory]: (state, { payload: { stateId } }) => {
+      delete state[stateId];
+
+      return state;
+    }
   },
   {}
 );
