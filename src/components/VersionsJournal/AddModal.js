@@ -70,13 +70,21 @@ class AddModal extends Component {
     file: null,
     fileStatus: '',
     selectedVersion: VERSIONS.MINOR,
-    comment: ''
+    comment: '',
+    isMajorVersion: false
   };
 
-  getUploadParams = ({ file }) => {
+  getUploadParams = ({ file, ...other }) => {
     const body = new FormData();
 
     body.append('fileField', file);
+
+    // console.warn(new File(file.name))
+    console.warn(
+      'getUploadParams'
+      // File.readAllBytes(file.toPath())
+      // body.get('fileField')
+    );
 
     return {
       url: 'https://httpbin.org/post',
@@ -105,14 +113,14 @@ class AddModal extends Component {
     return comment.length <= commentMaxLength;
   }
 
-  getVersion(number, isMajor = false) {
-    const version = Number(number);
+  getVersion(oldVersion, isMajor = false) {
+    const version = Number(oldVersion);
     let result = 1;
 
     if (isMajor) {
-      result = Math.ceil(version);
+      result = Math.ceil(version + 1);
     } else {
-      let [major, minor] = version.toString().split('.');
+      let [major, minor] = oldVersion.toString().split('.');
 
       result = Number(`${major}.${+minor + 1}`);
     }
@@ -120,10 +128,12 @@ class AddModal extends Component {
     return Number.isInteger(result) ? `${result}.0` : result;
   }
 
-  handleChangeStatus = ({ meta, file, remove, xhr }, status) => {
+  handleChangeStatus = ({ meta, file, remove, xhr, ...other }, status) => {
     this.setState({ fileStatus: status });
 
     if (status === FILE_STATUS.DONE) {
+      console.warn({ meta, file, remove, xhr, other });
+
       this.setState({ file });
       remove();
     }
@@ -148,7 +158,15 @@ class AddModal extends Component {
     this.setState({ comment: event.target.value });
   };
 
-  handleSave = () => {};
+  handleSave = () => {
+    const { file, comment, selectedVersion } = this.state;
+
+    this.props.onCreate({
+      file,
+      comment,
+      isMajor: selectedVersion === VERSIONS.MAJOR
+    });
+  };
 
   renderDropzoneInputContent = () => [
     <label className="vj-modal__input-label-in" key={LABELS.DROPZONE_PLACEHOLDER}>

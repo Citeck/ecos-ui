@@ -12,7 +12,7 @@ import Icon from '../common/icons/Icon/Icon';
 import { t } from '../../helpers/util';
 
 import AddModal from './AddModal';
-import { getVersions } from '../../actions/versionsJournal';
+import { addNewVersion, getVersions } from '../../actions/versionsJournal';
 
 import './style.scss';
 
@@ -28,7 +28,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  getVersionsList: payload => dispatch(getVersions(payload))
+  getVersionsList: payload => dispatch(getVersions(payload)),
+  addNewVersion: payload => dispatch(addNewVersion(payload))
 });
 
 class VersionsJournal extends Component {
@@ -36,69 +37,7 @@ class VersionsJournal extends Component {
     width: 290,
     tooltip: Object.keys(TOOLTIP)
       .map(key => ({ [TOOLTIP[key]]: false }))
-      .reduce((reducer = {}, current) => ({ ...reducer, ...current })),
-    versions: [
-      {
-        firstName: 'Константин',
-        lastName: 'Константинопольский',
-        middleName: '',
-        comment: '',
-        version: '1.5',
-        date: '8 Сентября, 13:25',
-        avatar:
-          'https://images-na.ssl-images-amazon.com/images/M/MV5BMTEwNjE0Njg2MTReQTJeQWpwZ15BbWU3MDEyODM1ODc@._V1_UY256_CR1,0,172,256_AL_.jpg'
-      },
-      {
-        firstName: 'Константин',
-        lastName: 'Константинопольский',
-        middleName: '',
-        comment: '',
-        version: '1.4',
-        date: '6 Сентября, 13:25',
-        avatar:
-          'https://images-na.ssl-images-amazon.com/images/M/MV5BMTEwNjE0Njg2MTReQTJeQWpwZ15BbWU3MDEyODM1ODc@._V1_UY256_CR1,0,172,256_AL_.jpg'
-      },
-      {
-        firstName: 'Константин',
-        lastName: 'Константинопольский',
-        middleName: '',
-        comment: '',
-        version: '1.3',
-        date: '3 Сентября, 13:25',
-        avatar:
-          'https://images-na.ssl-images-amazon.com/images/M/MV5BMTEwNjE0Njg2MTReQTJeQWpwZ15BbWU3MDEyODM1ODc@._V1_UY256_CR1,0,172,256_AL_.jpg'
-      },
-      {
-        firstName: 'Константин',
-        lastName: 'Константинопольский',
-        middleName: '',
-        comment: '',
-        version: '1.2',
-        date: '2 Сентября, 13:25',
-        avatar:
-          'https://images-na.ssl-images-amazon.com/images/M/MV5BMTEwNjE0Njg2MTReQTJeQWpwZ15BbWU3MDEyODM1ODc@._V1_UY256_CR1,0,172,256_AL_.jpg'
-      },
-      {
-        firstName: 'Константин',
-        lastName: 'Константинопольский',
-        middleName: '',
-        comment: '',
-        version: '1.1',
-        date: '1 Сентября, 13:25',
-        avatar:
-          'https://images-na.ssl-images-amazon.com/images/M/MV5BMTEwNjE0Njg2MTReQTJeQWpwZ15BbWU3MDEyODM1ODc@._V1_UY256_CR1,0,172,256_AL_.jpg'
-      },
-      {
-        firstName: 'Константин',
-        lastName: 'Константинопольский',
-        middleName: '',
-        comment: '',
-        version: '1.0',
-        date: '18 , 13:25',
-        avatar:
-          'https://images-na.ssl-images-amazon.com/images/M/MV5BMTEwNjE0Njg2MTReQTJeQWpwZ15BbWU3MDEyODM1ODc@._V1_UY256_CR1,0,172,256_AL_.jpg'
-      }
-    ],
+      .reduce((reducer, current) => ({ ...reducer, ...current }), {}),
     modalIsShow: false,
     selectedVersion: null
   };
@@ -124,6 +63,13 @@ class VersionsJournal extends Component {
 
   handleToggleModal = () => {
     this.setState(state => ({ modalIsShow: !state.modalIsShow }));
+  };
+
+  handleAddNewVersion = data => {
+    this.props.addNewVersion({
+      record: 'workspace://SpacesStore/848e6c2a-7c08-4c95-b70c-0bcf9aa5bcfa',
+      ...data
+    });
   };
 
   renderAddButton() {
@@ -165,7 +111,7 @@ class VersionsJournal extends Component {
     }
 
     return (
-      <div className="ecos-vj__version" key={version.date}>
+      <div className="ecos-vj__version" key={JSON.stringify(version)}>
         <div className="ecos-vj__version-header">
           <div className="ecos-vj__version-number">{version.version}</div>
           <div className="ecos-vj__version-title">{version.name}</div>
@@ -211,12 +157,12 @@ class VersionsJournal extends Component {
     }
 
     const version = versions[0];
+    const versionBlock = version ? this.renderVersion(version, false) : this.renderMessage(t('Нет актуальных версий'));
 
     return (
       <React.Fragment>
         <div className="ecos-vj__title">{t('Актуальная версия')}</div>
-        {version && this.renderVersion(version, false)}
-        {!version && this.renderMessage(t('Нет актуальных версий'))}
+        {versionBlock}
       </React.Fragment>
     );
   }
@@ -229,26 +175,34 @@ class VersionsJournal extends Component {
     }
 
     const [, ...oldVersions] = versions;
+    const versionsBlock = oldVersions.length
+      ? oldVersions.map(version => this.renderVersion(version))
+      : this.renderMessage(t('Пока нет старых версий'));
 
     return (
       <React.Fragment>
         <div className="ecos-vj__title">{t('Старые версии')}</div>
-        {oldVersions.map(version => this.renderVersion(version))}
-        {!oldVersions.length && this.renderMessage(t('Пока нет старых версий'))}
+        {versionsBlock}
       </React.Fragment>
     );
   }
 
   renderModal() {
-    const { modalIsShow, versions } = this.state;
+    const { versions } = this.props;
+    const { modalIsShow } = this.state;
     const currentVersion = versions.length ? versions[0].version : 1;
+
+    if (!modalIsShow) {
+      return null;
+    }
 
     return (
       <AddModal
-        isShow={modalIsShow}
-        onHideModal={this.handleToggleModal}
+        isShow
         title={t('Добавить новую версию')}
         currentVersion={currentVersion}
+        onHideModal={this.handleToggleModal}
+        onCreate={this.handleAddNewVersion}
       />
     );
   }

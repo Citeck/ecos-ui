@@ -7,6 +7,7 @@ import lodashGet from 'lodash/get';
 const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
 const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
+const FILE_URL = '/share/proxy/alfresco/api/upload';
 
 const ATT_NAME_REGEXP = /\.atts?\(n:"(.+)"\).+/;
 
@@ -14,6 +15,7 @@ const GATEWAY_URL_MAP = {};
 GATEWAY_URL_MAP[QUERY_URL] = '/share/api/records/query';
 GATEWAY_URL_MAP[MUTATE_URL] = '/share/api/records/mutate';
 GATEWAY_URL_MAP[DELETE_URL] = '/share/api/records/delete';
+GATEWAY_URL_MAP[FILE_URL] = '/share/proxy/alfresco/api/upload';
 
 let Records;
 
@@ -184,6 +186,10 @@ class RecordsComponent {
 
   remove(records) {
     return recordsFetch(DELETE_URL, { records });
+  }
+
+  file(records) {
+    return recordsFetch(FILE_URL, { records });
   }
 
   queryOne(query, attributes, defaultResult = null) {
