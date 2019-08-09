@@ -4,14 +4,17 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { getDashboardConfig, saveDashboardConfig } from '../../actions/dashboard';
+import { getDashboardConfig, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import Layout from '../../components/Layout';
-import Loader from '../../components/common/Loader/Loader';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
+import Loader from '../../components/common/Loader/Loader';
 import { MENU_TYPE } from '../../constants';
-import { deepClone } from '../../helpers/util';
+import { DASHBOARD_TYPE } from '../../constants/dashboard';
+import { deepClone, t } from '../../helpers/util';
+import { getSortedUrlParams } from '../../helpers/urls';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../constants/pageTabs';
 
 import './style.scss';
 
@@ -21,18 +24,21 @@ const mapStateToProps = state => ({
   },
   isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
   saveResultDashboard: get(state, ['dashboard', 'saveResult']),
-  dashboardId: get(state, ['dashboard', 'config', 'dashboardId']),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
   saveResultMenu: get(state, ['menu', 'saveResult']),
   menuType: get(state, ['menu', 'type']),
-  links: get(state, ['menu', 'links'])
+  links: get(state, ['menu', 'links']),
+  dashboardType: get(state, ['dashboard', 'identification', 'type']),
+  titleInfo: get(state, ['dashboard', 'titleInfo'])
 });
 
 const mapDispatchToProps = dispatch => ({
   getDashboardConfig: payload => dispatch(getDashboardConfig(payload)),
   saveDashboardConfig: payload => dispatch(saveDashboardConfig(payload)),
+  resetDashboardConfig: payload => dispatch(resetDashboardConfig(payload)),
   initMenuSettings: payload => dispatch(getMenuConfig(payload)),
-  saveMenuConfig: config => dispatch(saveMenuConfig(config))
+  saveMenuConfig: config => dispatch(saveMenuConfig(config)),
+  setLoading: flag => dispatch(setLoading(flag))
 });
 
 class Dashboard extends Component {
@@ -40,33 +46,33 @@ class Dashboard extends Component {
     super(props);
 
     this.state = {
-      dashboardId: '',
-      config: props.config
+      config: props.config,
+      urlParams: getSortedUrlParams(),
+      canDragging: false
     };
   }
 
   componentDidMount() {
     const { getDashboardConfig, config } = this.props;
-    const { recordRef, dashboardId } = this.pathInfo;
+    const { recordRef } = this.getPathInfo();
 
-    this.setState({ dashboardId, config });
-    getDashboardConfig({ recordRef, dashboardId });
+    this.setState({ config });
+    getDashboardConfig({ recordRef });
   }
 
   componentWillReceiveProps(nextProps) {
-    const {
-      location: { search },
-      getDashboardConfig,
-      initMenuSettings,
-      config
-    } = nextProps;
-    const { dashboardId, recordRef } = queryString.parse(search);
-    const { dashboardId: oldDashboardId } = this.state;
+    const { initMenuSettings, config, isLoadingDashboard, getDashboardConfig, resetDashboardConfig, setLoading } = nextProps;
+    const { recordRef } = this.getPathInfo(nextProps);
+    const { urlParams } = this.state;
+    const newUrlParams = getSortedUrlParams();
 
-    if (dashboardId !== oldDashboardId) {
-      this.setState({ dashboardId });
-      getDashboardConfig({ recordRef, dashboardId });
+    if (urlParams !== newUrlParams) {
+      this.setState({ urlParams: newUrlParams });
+      resetDashboardConfig();
+      getDashboardConfig({ recordRef });
       initMenuSettings();
+    } else if (urlParams === newUrlParams && isLoadingDashboard && config.type) {
+      setLoading(false);
     }
 
     if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
@@ -74,16 +80,17 @@ class Dashboard extends Component {
     }
   }
 
-  get pathInfo() {
+  getPathInfo(props) {
     const {
       location: { search }
-    } = this.props;
+    } = props || this.props;
     const searchParams = queryString.parse(search);
     const { recordRef, dashboardId } = searchParams;
 
     return {
       recordRef,
-      dashboardId
+      dashboardId,
+      search
     };
   }
 
@@ -124,7 +131,6 @@ class Dashboard extends Component {
     } = this.state;
     const { isWidget, columnFrom, columnTo } = data;
     const { source, destination } = dnd;
-    const { dashboardId } = this.pathInfo;
     const config = JSON.parse(JSON.stringify(currentConfig));
 
     if (isWidget) {
@@ -145,7 +151,7 @@ class Dashboard extends Component {
     }
 
     this.setState({ config });
-    this.saveDashboardConfig({ config, dashboardId });
+    this.saveDashboardConfig({ config });
   };
 
   saveDashboardConfig = payload => {
@@ -159,7 +165,6 @@ class Dashboard extends Component {
   };
 
   handleSaveWidgetProps = (id, props = {}) => {
-    const { dashboardId } = this.pathInfo;
     const config = deepClone(this.state.config);
 
     config.columns.forEach(column => {
@@ -174,13 +179,14 @@ class Dashboard extends Component {
     });
 
     this.setState({ config });
-    this.saveDashboardConfig({ config, dashboardId });
+    this.saveDashboardConfig({ config });
   };
 
   renderLayout() {
     const { menuType } = this.props;
     const {
-      config: { columns, type }
+      config: { columns, type },
+      canDragging
     } = this.state;
 
     return (
@@ -190,18 +196,9 @@ class Dashboard extends Component {
         type={type}
         menuType={menuType}
         onSaveWidgetProps={this.handleSaveWidgetProps}
+        canDragging={canDragging}
       />
     );
-  }
-
-  renderLoader() {
-    let { isLoadingDashboard, isLoadingMenu } = this.props;
-
-    if (isLoadingDashboard || isLoadingMenu) {
-      return <Loader className={`ecos-dashboard__loader-wrapper`} />;
-    }
-
-    return null;
   }
 
   renderTopMenu() {
@@ -214,6 +211,63 @@ class Dashboard extends Component {
     return <TopMenu isShow isSortable isLoading={isLoadingMenu} links={links} onSave={this.handleSaveMenu} />;
   }
 
+  renderHeader() {
+    const {
+      titleInfo: { modifierName = '', modifierUrl = '', date = '', name = '', version = '' },
+      dashboardType
+    } = this.props;
+    let title = null;
+
+    switch (dashboardType) {
+      case DASHBOARD_TYPE.CASE_DETAILS:
+        title = (
+          <React.Fragment>
+            <div className="ecos-dashboard__header-title" key="title">
+              {name && <div className="ecos-dashboard__header-name">{t(name)}</div>}
+              {version && <div className="ecos-dashboard__header-version">{version}</div>}
+            </div>
+
+            <div className="ecos-dashboard__header-mod" key="subtitle">
+              {t('cardlet.node-header.modified-by-user')}
+              {modifierName && (
+                <a
+                  {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ecos-dashboard__header-user"
+                  href={modifierUrl}
+                  title={t(`Открыть профиль ${modifierName}`)}
+                >
+                  {modifierName}
+                </a>
+              )}
+              {date && (
+                <span className="ecos-dashboard__header-date">
+                  {t('cardlet.node-header.modified-on')} {t(date)}
+                </span>
+              )}
+            </div>
+          </React.Fragment>
+        );
+        break;
+      case DASHBOARD_TYPE.USER:
+      case DASHBOARD_TYPE.SITE:
+      default:
+        title = <div className="ecos-dashboard__header-title">{name && <div className="ecos-dashboard__header-name">{t(name)}</div>}</div>;
+        break;
+    }
+
+    return <div className="ecos-dashboard__header">{title}</div>;
+  }
+
+  renderLoader() {
+    if (this.props.isLoadingDashboard) {
+      return <Loader blur height={100} width={100} />;
+    }
+
+    return null;
+  }
+
   render() {
     return (
       <div style={this.wrapperStyle}>
@@ -223,8 +277,9 @@ class Dashboard extends Component {
           renderThumbHorizontal={props => <div {...props} hidden />}
         >
           {this.renderTopMenu()}
-          {this.renderLoader()}
+          {this.renderHeader()}
           {this.renderLayout()}
+          {this.renderLoader()}
         </Scrollbars>
       </div>
     );

@@ -2,11 +2,16 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import pdfjs from 'pdfjs-dist';
+import * as queryString from 'query-string';
+import { get, isEmpty } from 'lodash';
+import { getOptimalHeight } from '../../helpers/layout';
+import { fileDownload, isPDFbyStr, t } from '../../helpers/util';
+import { DocPreviewApi } from '../../api';
+import { InfoText, Loader } from '../common';
 import Toolbar from './Toolbar';
 import PdfViewer from './PdfViewer';
 import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
-import { fileDownload, isPDFbyStr } from '../../helpers/util';
 
 // 2.1.266 version of worker for 2.1.266 version of pdfjs-dist:
 // pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.worker.min.js';
@@ -14,25 +19,34 @@ pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/js/lib/pdf.work
 
 class DocPreview extends Component {
   static propTypes = {
-    link: PropTypes.string.isRequired,
+    link: PropTypes.string,
     className: PropTypes.string,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    isLoading: PropTypes.bool,
-    errMsg: PropTypes.string,
-    firstPageNumber: PropTypes.number
+    firstPageNumber: PropTypes.number,
+    recordKey: PropTypes.string,
+    byLink: PropTypes.bool,
+    noIndents: PropTypes.bool,
+    setUserScale: PropTypes.func
   };
 
   static defaultProps = {
+    link: null,
     className: '',
     height: 'inherit',
-    scale: 0.5,
-    isLoading: false,
-    errMsg: '',
-    firstPageNumber: 1
+    scale: 'auto',
+    firstPageNumber: 1,
+    recordKey: 'recordRef',
+    byLink: false,
+    noIndents: false,
+    setUserScale: () => null
   };
 
-  static className = 'ecos-doc-preview';
+  static className = 'ecos-dp';
+
+  state = {};
 
   constructor(props) {
     super(props);
@@ -40,9 +54,13 @@ class DocPreview extends Component {
     this.state = {
       pdf: {},
       settings: {},
-      isLoading: props.isLoading || this.isPDF,
+      isLoading: this.isPDF,
       scrollPage: props.firstPageNumber,
-      isFullscreen: false
+      isFullscreen: false,
+      recordId: this.getRecordId(props),
+      link: props.link,
+      contentHeight: 0,
+      error: ''
     };
   }
 
@@ -52,11 +70,15 @@ class DocPreview extends Component {
 
       this.loadPDF(link);
     }
+
+    this.getUrlByRecord();
   }
 
   componentWillReceiveProps(nextProps) {
     const oldProps = this.props;
-    const { link, isLoading } = nextProps;
+    const { link, isLoading, byLink } = nextProps;
+    const { recordId } = this.state;
+    const newRecordId = this.getRecordId(nextProps);
     const isPdf = isPDFbyStr(link);
     let state = {};
 
@@ -64,39 +86,108 @@ class DocPreview extends Component {
       state = { isLoading };
     }
 
-    if (oldProps.link !== link && isPdf) {
+    if (byLink && oldProps.link !== link && isPdf) {
       state = { isLoading: true, pdf: {} };
       this.loadPDF(link);
+    }
+
+    if (oldProps.link !== link) {
+      state.link = link;
+    }
+
+    if (!byLink && recordId !== newRecordId) {
+      this.setState({ recordId: newRecordId }, this.getUrlByRecord);
     }
 
     this.setState({ ...state });
   }
 
   get isPDF() {
-    const { link } = this.props;
+    const { link } = this.state;
 
     return isPDFbyStr(link);
   }
 
   get commonProps() {
-    const { height, errMsg } = this.props;
-    const { settings, isLoading } = this.state;
+    const { settings } = this.state;
 
     return {
       settings,
-      height,
-      isLoading,
-      errMsg,
+      isLoading: !this.loaded,
       calcScale: this.setCalcScale,
-      onFullscreen: this.onFullscreen
+      onFullscreen: this.onFullscreen,
+      getContentHeight: this.getContentHeight
     };
   }
+
+  get loaded() {
+    const { link, isLoading } = this.state;
+
+    return !isLoading && !!link && !this.message;
+  }
+
+  get message() {
+    const { pdf, link, error } = this.state;
+    const { isLoading } = this.props;
+
+    if (isLoading) {
+      return null;
+    }
+
+    if (!isEmpty(error)) {
+      return error;
+    }
+
+    if (pdf === undefined && !link) {
+      return t('doc-preview.error.not-specified');
+    }
+
+    if (!isEmpty(pdf) && !pdf._pdfInfo) {
+      return t('doc-preview.error.loading-failure');
+    }
+
+    return null;
+  }
+
+  get height() {
+    const { contentHeight } = this.state;
+    const { height, minHeight, maxHeight } = this.props;
+
+    return getOptimalHeight(height, contentHeight, minHeight, maxHeight, !this.loaded) || '100%';
+  }
+
+  getRecordId(props = this.props) {
+    const { recordKey } = props;
+    const searchParams = queryString.parse(window.location.search);
+
+    return searchParams[recordKey] || '';
+  }
+
+  getUrlByRecord = () => {
+    const { recordKey, byLink } = this.props;
+    const searchParams = queryString.parse(window.location.search);
+
+    if (byLink || !searchParams[recordKey]) {
+      return;
+    }
+
+    this.setState({ isLoading: true });
+    DocPreviewApi.getLinkByRecord(searchParams[recordKey]).then(link => {
+      const error = link ? '' : t('doc-preview.error.failure-to-fetch');
+
+      this.setState({ isLoading: false, link, error });
+
+      if (link && isPDFbyStr(link)) {
+        this.loadPDF(link);
+      }
+    });
+  };
 
   loadPDF = link => {
     const { firstPageNumber } = this.props;
     const loadingTask = pdfjs.getDocument(link);
 
-    this.setState({ scrollPage: firstPageNumber });
+    this.setState({ scrollPage: firstPageNumber, isLoading: true });
 
     loadingTask.promise.then(
       pdf => {
@@ -104,17 +195,18 @@ class DocPreview extends Component {
       },
       err => {
         console.error(`Error during loading document: ${err}`);
-        this.setState({ isLoading: false });
+        this.setState({ isLoading: false, error: t('doc-preview.error.failure-to-fetch') });
       }
     );
   };
 
   onChangeSettings = settings => {
     this.setState({ settings });
+    this.props.setUserScale(settings.scale);
   };
 
   onDownload = () => {
-    const { link } = this.props;
+    const { link } = this.state;
 
     fileDownload(link);
   };
@@ -142,6 +234,10 @@ class DocPreview extends Component {
     this.setState({ calcScale });
   };
 
+  getContentHeight = contentHeight => {
+    this.setState({ contentHeight });
+  };
+
   pdfViewer() {
     const { pdf } = this.state;
 
@@ -149,31 +245,70 @@ class DocPreview extends Component {
   }
 
   imgViewer() {
-    const { link } = this.props;
+    const { link } = this.state;
 
-    return <Img urlImg={link} {...this.commonProps} />;
+    return (
+      <Img
+        src={link}
+        {...this.commonProps}
+        onError={() => {
+          this.setState({ error: t('doc-preview.error.failure-to-fetch') });
+        }}
+      />
+    );
+  }
+
+  renderToolbar() {
+    const { scale } = this.props;
+    const { pdf, scrollPage, calcScale } = this.state;
+    const pages = get(pdf, '_pdfInfo.numPages', 0);
+
+    return !this.loaded ? null : (
+      <Toolbar
+        totalPages={pages}
+        ctrClass={DocPreview.className}
+        isPDF={this.isPDF}
+        onChangeSettings={this.onChangeSettings}
+        onDownload={this.onDownload}
+        onFullscreen={this.onFullscreen}
+        scale={scale}
+        scrollPage={scrollPage}
+        calcScale={calcScale}
+      />
+    );
+  }
+
+  renderViewer() {
+    return this.isPDF ? this.pdfViewer() : this.imgViewer();
+  }
+
+  renderLoader() {
+    const { isLoading } = this.state;
+
+    return isLoading && <Loader className={`${DocPreview.className}__loader`} />;
+  }
+
+  renderMessage() {
+    const message = this.message;
+
+    return message && <InfoText text={message} />;
   }
 
   render() {
-    const { scale, className } = this.props;
-    const { pdf, scrollPage, calcScale } = this.state;
-    const { _pdfInfo = {} } = pdf;
-    const { numPages = 0 } = _pdfInfo;
+    const { className, noIndents } = this.props;
+    const { isLoading } = this.state;
+    const CN = DocPreview.className;
 
     return (
-      <div className={classNames(DocPreview.className, className)}>
-        <Toolbar
-          totalPages={numPages}
-          ctrClass={DocPreview.className}
-          isPDF={this.isPDF}
-          onChangeSettings={this.onChangeSettings}
-          onDownload={this.onDownload}
-          onFullscreen={this.onFullscreen}
-          scale={scale}
-          scrollPage={scrollPage}
-          calcScale={calcScale}
-        />
-        {this.isPDF ? this.pdfViewer() : this.imgViewer()}
+      <div className={classNames(CN, className)} style={{ height: this.height }}>
+        {!isLoading && (
+          <div className={classNames(`${CN}__container`, { [`${CN}_indents`]: !noIndents })}>
+            {this.renderToolbar()}
+            {this.renderViewer()}
+            {this.renderMessage()}
+          </div>
+        )}
+        {this.renderLoader()}
       </div>
     );
   }

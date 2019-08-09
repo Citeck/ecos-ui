@@ -3,6 +3,7 @@ import NodeCardlet from '../node-cardlet';
 import RemoteCardlet from '../remote/remote';
 import EcosForm from '../../../components/EcosForm/export';
 import { t } from '../../../helpers/util';
+import { FORM_MODE_EDIT } from '../../../components/EcosForm';
 
 export default class NodeViewFormCardlet extends NodeCardlet {
   state = {
@@ -100,10 +101,9 @@ export default class NodeViewFormCardlet extends NodeCardlet {
                   readOnly: true,
                   viewAsHtml: true,
                   viewAsHtmlConfig: {
-                    fullWidthColumns: true,
-                    hidePanels: true,
-                    alwaysWrap: column === 'right'
-                  }
+                    fullWidthColumns: column === 'right'
+                  },
+                  formMode: FORM_MODE_EDIT
                 }}
               />
             ) : null}

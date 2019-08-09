@@ -7,13 +7,13 @@ import './Panel.scss';
 
 export default class Panel extends Component {
   render() {
-    const props = this.props;
-    const cssClasses = classNames('ecos-panel', props.className);
+    const { className, headClassName, bodyClassName, header, children, style = {} } = this.props;
+    const cssClasses = classNames('ecos-panel', className);
 
     return (
-      <Well className={cssClasses}>
-        <div className={classNames('ecos-panel__head', props.headClassName)}>{props.header}</div>
-        <div className={classNames('ecos-panel__body', props.bodyClassName)}>{props.children}</div>
+      <Well className={cssClasses} style={style}>
+        <div className={classNames('ecos-panel__head', headClassName)}>{header}</div>
+        <div className={classNames('ecos-panel__body', bodyClassName)}>{children}</div>
       </Well>
     );
   }

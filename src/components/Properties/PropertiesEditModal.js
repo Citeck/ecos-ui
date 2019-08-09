@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import Records from '../Records';
-import EcosForm from '../EcosForm';
+import EcosForm, { FORM_MODE_EDIT } from '../EcosForm';
 import EcosModal from '../common/EcosModal';
 
 function PropertiesEditModal(props) {
@@ -25,7 +25,7 @@ function PropertiesEditModal(props) {
       isOpen={isOpen}
       hideModal={onFormCancel}
     >
-      <EcosForm record={record} onSubmit={onFormSubmit} onFormCancel={onFormCancel} />
+      <EcosForm record={record} onSubmit={onFormSubmit} onFormCancel={onFormCancel} formMode={FORM_MODE_EDIT} />
     </EcosModal>
   );
 }

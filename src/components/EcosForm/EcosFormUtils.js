@@ -6,6 +6,10 @@ import isString from 'lodash/isString';
 const EDGE_PREFIX = 'edge__';
 
 export default class EcosFormUtils {
+  static isNewFormsEnabled() {
+    return Records.get('ecos-config@ecos-forms-enable').load('.bool');
+  }
+
   static hasForm(recordRef, formKey = null) {
     if (!recordRef) {
       return Promise.resolve(false);
@@ -38,7 +42,7 @@ export default class EcosFormUtils {
     };
 
     let getFormByKeysFromRecord = (keys, idx) => {
-      if (idx >= keys.length) {
+      if (!keys || idx >= keys.length) {
         return null;
       }
 

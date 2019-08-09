@@ -3,8 +3,35 @@ import { PROXY_URI, MICRO_URI } from '../constants/alfresco';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 import Records from '../components/Records';
 import { queryByCriteria, t, debounce } from '../helpers/util';
+import * as ls from '../helpers/ls';
 
 export class JournalsApi extends RecordService {
+  lsJournalSettingIdsKey = ls.generateKey('journal-setting-ids', true);
+
+  getLsJournalSettingIds = () => {
+    let ids = [];
+
+    if (ls.hasData(this.lsJournalSettingIdsKey, 'array')) {
+      ids = ls.getData(this.lsJournalSettingIdsKey);
+    }
+
+    return ids;
+  };
+
+  setLsJournalSettingIds = ids => {
+    ls.setData(this.lsJournalSettingIdsKey, ids);
+  };
+
+  setLsJournalSettingId = (journalConfigId, journalSettingId) => {
+    const ids = this.getLsJournalSettingIds().filter(j => j.key !== journalConfigId);
+    ids.push({ key: journalConfigId, value: journalSettingId });
+    this.setLsJournalSettingIds(ids);
+  };
+
+  getLsJournalSettingId = journalConfigId => {
+    return (this.getLsJournalSettingIds().filter(j => j.key === journalConfigId)[0] || {}).value;
+  };
+
   getRecord = ({ id, attributes }) => {
     return Records.get(id)
       .load(attributes)
@@ -20,7 +47,7 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [] }) => {
+  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId }) => {
     const query = {
       t: 'and',
       val: [
@@ -31,19 +58,25 @@ export class JournalsApi extends RecordService {
       ]
     };
 
+    let bodyQery = {
+      consistency: 'EVENTUAL',
+      query: query,
+      language: 'predicate',
+      page: pagination,
+      groupBy,
+      sortBy
+    };
+
+    if (sourceId) {
+      bodyQery.sourceId = sourceId;
+    }
+
     const dataSource = new dataSourceStore['GqlDataSource']({
       url: `${PROXY_URI}citeck/ecos/records`,
       dataSourceName: 'GqlDataSource',
       ajax: {
         body: {
-          query: {
-            consistency: 'EVENTUAL',
-            query: query,
-            language: 'predicate',
-            page: pagination,
-            groupBy,
-            sortBy
-          }
+          query: bodyQery
         }
       },
       columns: columns || []

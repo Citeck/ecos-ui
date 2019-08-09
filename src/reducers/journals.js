@@ -27,7 +27,12 @@ import {
 import { setLoading } from '../actions/loader';
 import { t, deepClone } from '../helpers/util';
 import { handleAction, handleState } from '../helpers/redux';
-import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD, DEFAULT_PAGINATION } from '../components/Journals/constants';
+import {
+  JOURNAL_SETTING_ID_FIELD,
+  JOURNAL_SETTING_DATA_FIELD,
+  DEFAULT_PAGINATION,
+  DEFAULT_INLINE_TOOL_SETTINGS
+} from '../components/Journals/constants';
 
 const defaultState = {
   loading: true,
@@ -84,12 +89,7 @@ const defaultState = {
   selectAllRecords: false,
   selectAllRecordsVisible: false,
 
-  inlineToolSettings: {
-    height: 0,
-    top: 0,
-    left: 0,
-    row: {}
-  },
+  inlineToolSettings: DEFAULT_INLINE_TOOL_SETTINGS,
 
   previewUrl: '',
   zipNodeRef: null,
@@ -104,9 +104,15 @@ Object.freeze(initialState);
 export default handleActions(
   {
     [initState]: (state, action) => {
+      const id = action.payload;
+
+      if (state[id]) {
+        return { ...state };
+      }
+
       return {
         ...state,
-        [action.payload]: deepClone(defaultState)
+        [id]: deepClone(defaultState)
       };
     },
     [setUrl]: (state, action) => {

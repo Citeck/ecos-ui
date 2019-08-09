@@ -24,6 +24,10 @@ SelectEditData.push(
         and: [{ '==': [{ var: 'data.refreshOnEvent' }, true] }]
       }
     }
+  },
+  {
+    key: 'refreshOn',
+    multiple: true
   }
 );
 

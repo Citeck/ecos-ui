@@ -126,7 +126,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
   }
 
   get emptyValue() {
-    return this.component.multiple ? [] : null;
+    return this.component.multiple ? [] : '';
   }
 
   getValue() {

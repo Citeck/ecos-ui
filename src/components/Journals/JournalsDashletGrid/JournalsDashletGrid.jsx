@@ -1,26 +1,30 @@
 import React, { Component, Fragment } from 'react';
+import lodash from 'lodash';
 import connect from 'react-redux/es/connect/connect';
 import Loader from '../../common/Loader/Loader';
 import JournalsDownloadZip from '../JournalsDownloadZip';
 import EcosModal from '../../common/EcosModal/EcosModal';
-import { Grid, InlineTools, Tools, EmptyGrid } from '../../common/grid';
+import { EmptyGrid, Grid, InlineTools, Tools } from '../../common/grid';
+import FormManager from '../../EcosForm/FormManager';
 import { IcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
-import { goToCardDetailsPage, goToNodeEditPage, getDownloadContentUrl } from '../../../helpers/urls';
+import { RemoveDialog } from '../../common/dialogs';
+import { getDownloadContentUrl, goToCardDetailsPage, goToNodeEditPage } from '../../../helpers/urls';
 import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
+import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
 import classNames from 'classnames';
 import {
-  reloadGrid,
   deleteRecords,
-  saveRecords,
-  setSelectedRecords,
-  setSelectAllRecords,
-  setSelectAllRecordsVisible,
-  setGridInlineToolSettings,
   goToJournalsPage,
   performGroupAction,
-  setPerformGroupActionResponse
+  reloadGrid,
+  saveRecords,
+  setGridInlineToolSettings,
+  setPerformGroupActionResponse,
+  setSelectAllRecords,
+  setSelectAllRecordsVisible,
+  setSelectedRecords
 } from '../../../actions/journals';
 
 const mapStateToProps = (state, props) => {
@@ -69,6 +73,10 @@ class DownloadContentLink extends Component {
 class JournalsDashletGrid extends Component {
   filters = [];
   selectedRow = {};
+
+  state = {
+    isDialogShow: false
+  };
 
   setSelectedRecords = e => {
     const props = this.props;
@@ -133,7 +141,7 @@ class JournalsDashletGrid extends Component {
 
   hideGridInlineToolSettings = () => {
     this.clearSelectedRow();
-    this.props.setGridInlineToolSettings({ height: 0, top: 0, row: {} });
+    this.props.setGridInlineToolSettings(DEFAULT_INLINE_TOOL_SETTINGS);
   };
 
   goToJournalPageWithFilter = () => {
@@ -158,7 +166,7 @@ class JournalsDashletGrid extends Component {
       grid: { groupBy = [] }
     } = this.props;
     const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_x-step_10';
-    const tools = [
+    let tools = [
       <IcoBtn
         title={t('grid.inline-tools.show')}
         icon={'icon-on'}
@@ -181,7 +189,7 @@ class JournalsDashletGrid extends Component {
       <IcoBtn
         title={t('grid.inline-tools.delete')}
         icon={'icon-delete'}
-        onClick={this.deleteRecord}
+        onClick={this.showDeleteRecordDialog}
         className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t_red')}
       />
     ];
@@ -191,14 +199,14 @@ class JournalsDashletGrid extends Component {
     }
 
     if (groupBy.length) {
-      tools.push(
+      tools = [
         <IcoBtn
           title={t('grid.inline-tools.details')}
           onClick={this.goToJournalPageWithFilter}
           icon={'icon-big-arrow'}
           className={inlineToolsActionClassName}
         />
-      );
+      ];
     }
 
     return <InlineTools tools={tools} stateId={stateId} />;
@@ -209,11 +217,13 @@ class JournalsDashletGrid extends Component {
     this.props.deleteRecords([selectedRow.id]);
     this.clearSelectedRow();
     this.hideGridInlineToolSettings();
+    this.closeDialog();
   };
 
   deleteRecords = () => {
     const { selectedRecords, deleteRecords } = this.props;
     deleteRecords(selectedRecords);
+    this.closeDialog();
   };
 
   tools = selected => {
@@ -252,7 +262,7 @@ class JournalsDashletGrid extends Component {
             icon={'icon-delete'}
             className={classNames(toolsActionClassName, 'ecos-btn_hover_t_red')}
             title={t('grid.tools.delete')}
-            onClick={this.deleteRecords}
+            onClick={this.showDeleteRecordsDialog}
           />,
           <Dropdown
             className={'grid-tools__item_left_5'}
@@ -263,7 +273,7 @@ class JournalsDashletGrid extends Component {
             onChange={this.changeGroupAction}
           >
             <IcoBtn
-              invert={'true'}
+              invert
               icon={'icon-down'}
               className={'dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn'}
               onClick={this.onGoTo}
@@ -286,7 +296,38 @@ class JournalsDashletGrid extends Component {
 
   changeGroupAction = groupAction => {
     const { selectedRecords, performGroupAction } = this.props;
-    performGroupAction({ groupAction, selected: selectedRecords });
+
+    if (groupAction.formKey) {
+      FormManager.openFormModal({
+        record: '@',
+        formKey: groupAction.formKey,
+        saveOnSubmit: false,
+        onSubmit: rec => {
+          let action = lodash.cloneDeep(groupAction);
+          action.params = action.params || {};
+          action.params.attributes = rec.getAttributesToPersist();
+          performGroupAction({ groupAction: action, selected: selectedRecords });
+        }
+      });
+    } else {
+      performGroupAction({ groupAction, selected: selectedRecords });
+    }
+  };
+
+  delete = () => {};
+
+  closeDialog = () => {
+    this.setState({ isDialogShow: false });
+  };
+
+  showDeleteRecordDialog = () => {
+    this.setState({ isDialogShow: true });
+    this.delete = this.deleteRecord;
+  };
+
+  showDeleteRecordsDialog = () => {
+    this.setState({ isDialogShow: true });
+    this.delete = this.deleteRecords;
   };
 
   render() {
@@ -369,6 +410,15 @@ class JournalsDashletGrid extends Component {
             />
           </EmptyGrid>
         </EcosModal>
+
+        <RemoveDialog
+          isOpen={this.state.isDialogShow}
+          title={t('journals.action.delete-records-msg')}
+          text={t('journals.action.remove-records-msg')}
+          onDelete={this.delete}
+          onCancel={this.closeDialog}
+          onClose={this.closeDialog}
+        />
       </Fragment>
     );
   }

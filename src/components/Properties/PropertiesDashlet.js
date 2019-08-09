@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
 import { isSmallMode, t } from '../../helpers/util';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
@@ -18,12 +19,16 @@ class PropertiesDashlet extends React.Component {
     classNameDashlet: PropTypes.string,
     config: PropTypes.shape({
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
-    })
+    }),
+    dragHandleProps: PropTypes.object,
+    canDragging: PropTypes.bool
   };
 
   static defaultProps = {
     classNameProps: '',
-    classNameDashlet: ''
+    classNameDashlet: '',
+    dragHandleProps: {},
+    canDragging: false
   };
 
   constructor(props) {
@@ -32,7 +37,9 @@ class PropertiesDashlet extends React.Component {
     this.state = {
       isSmallMode: false,
       isReady: true,
-      isEditProps: false
+      isEditProps: false,
+      height: UserLocalSettingsService.getDashletHeight(props.id),
+      fitHeights: {}
     };
   }
 
@@ -40,6 +47,15 @@ class PropertiesDashlet extends React.Component {
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
+  };
+
+  onChangeHeight = height => {
+    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    this.setState({ height });
+  };
+
+  setFitHeights = fitHeights => {
+    this.setState({ fitHeights });
   };
 
   openModal = e => {
@@ -55,23 +71,37 @@ class PropertiesDashlet extends React.Component {
   };
 
   render() {
-    const { id, title, config, classNameProps, classNameDashlet, record } = this.props;
-    const { isSmallMode, isReady, isEditProps } = this.state;
+    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
+    const { isSmallMode, isReady, isEditProps, height, fitHeights } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
       <Dashlet
         title={title || t('properties-widget.title')}
-        bodyClassName={`${this.className}__body`}
         className={classDashlet}
+        bodyClassName={`${this.className}__body`}
+        actionEditTitle={t('properties-widget.action-edit.title')}
         resizable={true}
         needGoTo={false}
         actionHelp={false}
         actionReload={false}
+        canDragging={canDragging}
         onEdit={this.openModal}
+        dragHandleProps={dragHandleProps}
+        onChangeHeight={this.onChangeHeight}
+        getFitHeights={this.setFitHeights}
       >
         <ReactResizeDetector handleWidth onResize={this.onResize} />
-        <Properties {...config} className={classNameProps} record={record} isSmallMode={isSmallMode} isReady={isReady} stateId={id} />
+        <Properties
+          className={classNameProps}
+          record={record}
+          isSmallMode={isSmallMode}
+          isReady={isReady}
+          stateId={id}
+          height={height}
+          minHeight={fitHeights.min}
+          maxHeight={fitHeights.max}
+        />
         <PropertiesEditModal record={record} isOpen={isEditProps} onFormCancel={this.closeModal} onFormSubmit={this.updateProps} />
       </Dashlet>
     );

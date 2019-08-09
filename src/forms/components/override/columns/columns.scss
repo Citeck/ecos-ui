@@ -27,20 +27,11 @@
 
 .formio-dialog-content .preview-panel,
 .formio-form {
-  .row:hover {
-    background-color: initial;
-  }
+  .row {
+    padding: 0;
 
-  .formio-component {
-    &.row-view-mode {
-      padding-left: 0;
-      padding-right: 0;
-    }
-
-    .col-view-mode {
-      ul {
-        margin-bottom: 0;
-      }
+    &:hover {
+      background-color: initial;
     }
   }
 }

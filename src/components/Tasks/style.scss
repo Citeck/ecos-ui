@@ -8,32 +8,21 @@
   $root: &;
 
   &-list {
-    min-height: 100px;
-
     &__v-scroll {
       @extend %v-scroll;
-    }
-
-    &_empty {
-      margin: 33px 0;
-      text-align: center;
-      color: $color-gray-5;
-      font-size: $font-size-standard;
-      font-weight: $font-weight-semi-bold;
     }
 
     &-dashlet {
       height: fit-content;
     }
 
-    &__loader-wrapper {
-      height: 100%;
+    &__loader {
+      height: 60px;
     }
   }
 
   &-ins {
     $ins: &;
-    margin-bottom: 25px;
 
     &__title {
       height: 51px;
@@ -41,7 +30,7 @@
       margin-bottom: 7px;
       font-weight: $font-weight-bold;
       color: $color-gray-dark;
-      background-color: $color-gray-10;
+      background-color: $color-yellow;
       line-height: 2.7;
       white-space: nowrap;
       text-overflow: ellipsis;

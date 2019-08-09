@@ -3,14 +3,12 @@ import PropTypes from 'prop-types';
 import TableFormPropTypes from './TableFormPropTypes';
 import { JournalsApi } from '../../../../api/journalsApi';
 import Records from '../../../Records/Records';
+import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import _ from 'lodash';
 
 export const TableFormContext = React.createContext();
-
-export const FORM_MODE_CREATE = 'CREATE';
-export const FORM_MODE_EDIT = 'EDIT';
 
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
@@ -295,11 +293,13 @@ export const TableFormContextProvider = props => {
           typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
         },
 
-        setInlineToolsOffsets: (e, offsets) => {
+        setInlineToolsOffsets: offsets => {
           if (
-            offsets.height !== inlineToolsOffsets.height ||
-            offsets.top !== inlineToolsOffsets.top ||
-            offsets.row.id !== inlineToolsOffsets.rowId
+            offsets &&
+            inlineToolsOffsets &&
+            (offsets.height !== inlineToolsOffsets.height ||
+              offsets.top !== inlineToolsOffsets.top ||
+              offsets.row.id !== inlineToolsOffsets.rowId)
           ) {
             setInlineToolsOffsets({
               height: offsets.height,

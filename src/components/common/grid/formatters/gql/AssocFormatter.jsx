@@ -1,30 +1,28 @@
 import React, { Fragment } from 'react';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
-import Records from '../../../../../components/Records';
+import { AssocEditor } from '../../editors';
 
 export default class AssocFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {
-    return `${attribute}?assoc`;
+    return `.att(n:"${attribute}"){disp,assoc}`;
   }
 
-  state = {
-    displayName: ''
-  };
+  static getEditor(editorProps, value, row, column) {
+    return <AssocEditor {...editorProps} value={value} column={column} />;
+  }
 
-  componentDidMount() {
-    let cell = this.props.cell;
-    if (cell) {
-      Records.get(cell)
-        .load('.disp')
-        .then(displayName => {
-          this.setState({
-            displayName
-          });
-        });
-    }
+  value(cell) {
+    return cell.disp || '';
+  }
+
+  getId(cell) {
+    return cell.assoc || '';
   }
 
   render() {
-    return <Fragment>{this.state.displayName || this.props.cell}</Fragment>;
+    let props = this.props;
+    let cell = props.cell || {};
+
+    return <Fragment>{this.value(cell)}</Fragment>;
   }
 }

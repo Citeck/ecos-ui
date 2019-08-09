@@ -1,0 +1,38 @@
+@import '../../../constants';
+
+.ecos-avatar {
+  $root: &;
+
+  background: $color-blue-light;
+  height: 40px;
+  width: 40px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+
+  &__image {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+    border: 3px solid $color-white;
+    border-radius: 50%;
+  }
+
+  &__icon {
+    font-size: 38px;
+    color: $color-white;
+  }
+
+  &__name {
+    color: $color-white;
+    display: flex;
+    margin: auto;
+    font-size: 20px;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+}

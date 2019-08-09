@@ -35,10 +35,15 @@ import {
   performGroupAction,
   setPerformGroupActionResponse,
   createZip,
-  setZipNodeRef
+  setZipNodeRef,
+  renameJournalSetting,
+  setSelectAllRecords,
+  setSelectAllRecordsVisible,
+  setGridInlineToolSettings,
+  cancelJournalSettingData
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { JOURNAL_SETTING_ID_FIELD, DEFAULT_PAGINATION } from '../components/Journals/constants';
+import { JOURNAL_SETTING_ID_FIELD, DEFAULT_PAGINATION, DEFAULT_INLINE_TOOL_SETTINGS } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { goToJournalsPage as goToJournalsPageUrl, getFilterUrlParam } from '../helpers/urls';
 import { t } from '../helpers/util';
@@ -72,13 +77,15 @@ function getDefaultJournalSetting(journalConfig) {
 
 function getGridParams(journalConfig, journalSetting, stateId) {
   const {
-    meta: { createVariants, predicate }
+    meta: { createVariants, predicate },
+    sourceId
   } = journalConfig;
   const { sortBy, groupBy, columns, predicate: journalSettingPredicate } = journalSetting;
 
   return {
     createVariants,
     predicate,
+    sourceId: sourceId,
     sortBy: sortBy.map(sort => ({ ...sort })),
     columns: columns.map(col => ({ ...col })),
     groupBy: Array.from(groupBy),
@@ -160,7 +167,7 @@ function* getJournalSetting(api, journalSettingId, journalConfig, stateId, w) {
 
   let journalSetting;
 
-  journalSettingId = journalSettingId || journalConfig.journalSettingId;
+  journalSettingId = journalSettingId || journalConfig.journalSettingId || api.journals.getLsJournalSettingId(journalConfig.id);
 
   if (journalSettingId) {
     journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
@@ -209,6 +216,18 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
   }
 }
 
+function* sagaCancelJournalSettingData({ api, logger, stateId, w }, action) {
+  try {
+    const journalSettingId = action.payload;
+    let journalConfig = yield select(state => state.journals[stateId].journalConfig);
+
+    let journalSetting = yield getJournalSetting(api, journalSettingId, journalConfig, stateId, w);
+    yield put(initJournalSettingData(w(journalSetting)));
+  } catch (e) {
+    logger.error('[journals sagaCancelJournalSettingData saga error', e.message);
+  }
+}
+
 function* getGridData(api, params) {
   let { pagination, predicates, ...forRequest } = params;
 
@@ -225,6 +244,13 @@ function* loadGrid(api, journalSettingId, journalConfig, stateId, w) {
 
   const gridData = yield getGridData(api, params);
 
+  yield put(setSelectedRecords(w([])));
+  yield put(setSelectAllRecords(w(false)));
+  yield put(setSelectAllRecordsVisible(w(false)));
+  yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
+  yield put(setPerformGroupActionResponse(w([])));
+  yield put(setPreviewUrl(w('')));
+
   yield put(setGrid(w({ ...params, ...gridData })));
 }
 
@@ -236,7 +262,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
     const grid = yield select(state => state.journals[stateId].grid);
 
     grid.columns = columns;
-    grid.pagination = DEFAULT_PAGINATION;
+    //grid.pagination = DEFAULT_PAGINATION;
 
     let params = {
       ...grid,
@@ -300,6 +326,8 @@ function* sagaOnJournalSettingsSelect({ api, logger, stateId, w }, action) {
     let journalSettingId = action.payload;
     let journalConfig = yield select(state => state.journals[stateId].journalConfig);
 
+    api.journals.setLsJournalSettingId(journalConfig.id, journalSettingId);
+
     yield loadGrid(api, journalSettingId, journalConfig, stateId, w);
 
     yield put(setLoading(w(false)));
@@ -339,11 +367,7 @@ function* sagaDeleteRecords({ api, logger, stateId, w }, action) {
 
 function* sagaSaveRecords({ api, logger, stateId, w }, action) {
   try {
-    yield put(setLoading(w(true)));
     yield call(api.journals.saveRecords, action.payload);
-    yield put(setLoading(w(false)));
-
-    yield put(reloadGrid(w({})));
   } catch (e) {
     logger.error('[journals sagaSaveRecords saga error', e.message);
   }
@@ -382,6 +406,24 @@ function* sagaDeleteJournalSetting({ api, logger, stateId, w }, action) {
     yield loadGrid(api, '', journalConfig, stateId, w);
   } catch (e) {
     logger.error('[journals sagaCreateJournalSetting saga error', e.message);
+  }
+}
+
+function* sagaRenameJournalSetting({ api, logger, stateId, w }, action) {
+  try {
+    const { id: journalSettingId, title } = action.payload;
+
+    let journalConfig = yield select(state => state.journals[stateId].journalConfig);
+
+    let journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
+
+    journalSetting.title = title;
+
+    yield call(api.journals.saveJournalSetting, { id: journalSettingId, settings: journalSetting });
+
+    yield getJournalSettings(api, journalConfig.id, w);
+  } catch (e) {
+    logger.error('[journals sagaRenameJournalSetting saga error', e.message);
   }
 }
 
@@ -519,10 +561,12 @@ function* saga(ea) {
   yield takeEvery(saveJournalSetting().type, wrapSaga, { ...ea, saga: sagaSaveJournalSetting });
   yield takeEvery(createJournalSetting().type, wrapSaga, { ...ea, saga: sagaCreateJournalSetting });
   yield takeEvery(deleteJournalSetting().type, wrapSaga, { ...ea, saga: sagaDeleteJournalSetting });
+  yield takeEvery(renameJournalSetting().type, wrapSaga, { ...ea, saga: sagaRenameJournalSetting });
 
   yield takeEvery(onJournalSettingsSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSettingsSelect });
   yield takeEvery(onJournalSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSelect });
   yield takeEvery(initJournalSettingData().type, wrapSaga, { ...ea, saga: sagaInitJournalSettingData });
+  yield takeEvery(cancelJournalSettingData().type, wrapSaga, { ...ea, saga: sagaCancelJournalSettingData });
 
   yield takeEvery(initPreview().type, wrapSaga, { ...ea, saga: sagaInitPreview });
   yield takeEvery(goToJournalsPage().type, wrapSaga, { ...ea, saga: sagaGoToJournalsPage });

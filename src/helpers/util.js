@@ -1,5 +1,6 @@
 import lodashGet from 'lodash/get';
-import { MIN_WIDTH_DASHLET_SMALL } from '../constants';
+import moment from 'moment';
+import { DataFormatTypes, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import * as queryString from 'query-string';
 
 export const debounce = (func, ms = 0) => {
@@ -384,7 +385,7 @@ export function getCurrentUserName() {
   return lodashGet(window, 'Alfresco.constants.USERNAME', '');
 }
 
-export const isSmallMode = width => width <= MIN_WIDTH_DASHLET_SMALL;
+export const isSmallMode = width => width <= MIN_WIDTH_DASHLET_LARGE;
 
 export function isExistIndex(idx) {
   return !(idx === null || idx === undefined || idx === -1);
@@ -434,4 +435,32 @@ export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
 
 export function getSearchParams(searchString = window.location.search) {
   return queryString.parse(searchString);
+}
+
+export function getOutputFormat(format, value) {
+  if (!format || !value) {
+    return value || '';
+  }
+
+  switch (format) {
+    case DataFormatTypes.DATE:
+      return moment(value).format('DD.MM.YYYY');
+    default:
+      return value;
+  }
+}
+
+export const hasInString = (originalString = '', searchedString = '') => {
+  return originalString.includes(searchedString);
+};
+
+export function getIconFileByMimetype(mimetype) {
+  switch (mimetype) {
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+    case 'application/msword':
+      return 'icon-filetype-doc';
+    case 'application/pdf':
+    default:
+      return 'icon-filetype-none';
+  }
 }

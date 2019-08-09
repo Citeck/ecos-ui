@@ -1,21 +1,16 @@
 import { handleActions } from 'redux-actions';
 import { changeTaskAssignee, getTaskList, setTaskAssignee, setTaskList } from '../actions/tasks';
+import { getCurrentStateById } from '../helpers/redux';
 
 const initialState = {
   isLoading: false,
   list: []
 };
 
-const getCurrentStateTasksListId = (state, stateId) => {
-  const currentState = state[stateId] || {};
-
-  return { ...initialState, ...currentState };
-};
-
 const startLoading = (state, { payload: { stateId } }) => ({
   ...state,
   [stateId]: {
-    ...getCurrentStateTasksListId(state, stateId),
+    ...getCurrentStateById(state, stateId, initialState),
     isLoading: true
   }
 });
@@ -27,7 +22,7 @@ export default handleActions(
     [setTaskList]: (state, { payload: { stateId, list } }) => ({
       ...state,
       [stateId]: {
-        ...getCurrentStateTasksListId(state, stateId),
+        ...getCurrentStateById(state, stateId, initialState),
         list: list,
         isLoading: false
       }
@@ -36,7 +31,7 @@ export default handleActions(
       return {
         ...state,
         [stateId]: {
-          ...getCurrentStateTasksListId(state, stateId),
+          ...getCurrentStateById(state, stateId, initialState),
           list,
           isLoading: false
         }

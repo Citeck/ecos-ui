@@ -7,15 +7,16 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 
 import { arrayCompare, t } from '../../helpers/util';
-import { LAYOUTS, TYPE_MENU } from '../../constants/dashboardSettings';
+import { LAYOUTS, TYPE_MENU } from '../../constants/dashboard';
 import { MENU_TYPE, SAVE_STATUS, URL } from '../../constants';
 import { getAwayFromPage, initDashboardSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
 import { initMenuSettings } from '../../actions/menu';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { Btn } from '../../components/common/btns';
-import Loader from '../../components/common/Loader/Loader';
+import { Loader } from '../../components/common';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
+import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
 
@@ -29,9 +30,7 @@ const mapStateToProps = state => ({
   isLoadingMenu: get(state, ['menu', 'isLoading']),
   availableWidgets: get(state, ['dashboardSettings', 'availableWidgets']),
   isLoading: get(state, ['dashboardSettings', 'isLoading']),
-  saveResult: get(state, ['dashboardSettings', 'saveResult']),
-  dashboardId: get(state, ['dashboardSettings', 'config', 'dashboardId']),
-  dashboardKey: get(state, ['dashboardSettings', 'config', 'dashboardKey'])
+  saveResult: get(state, ['dashboardSettings', 'saveResult'])
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -56,8 +55,6 @@ class DashboardSettings extends React.Component {
       widgets: PropTypes.array,
       links: PropTypes.array
     }).isRequired,
-    dashboardKey: PropTypes.string,
-    dashboardId: PropTypes.string,
     availableMenuItems: PropTypes.array,
     availableWidgets: PropTypes.array
   };
@@ -78,7 +75,8 @@ class DashboardSettings extends React.Component {
       typeMenu: TYPE_MENU,
       isShowMenuConstructor: get(props, ['config', 'menuType']),
       availableWidgets: DndUtils.setDndId(props.availableWidgets),
-      availableMenuItems: DndUtils.setDndId(props.availableMenuItems)
+      availableMenuItems: DndUtils.setDndId(props.availableMenuItems),
+      urlParams: getSortedUrlParams()
     };
 
     this.state = {
@@ -88,16 +86,19 @@ class DashboardSettings extends React.Component {
   }
 
   componentDidMount() {
-    const { initDashboardSettings, initMenuSettings } = this.props;
-    const { recordRef, dashboardId } = this.pathInfo;
-
-    initDashboardSettings({ recordRef, dashboardId });
-    initMenuSettings();
+    this.fetchData();
   }
 
   componentWillReceiveProps(nextProps) {
+    const { urlParams } = this.state;
+    const newUrlParams = getSortedUrlParams();
     let { config, availableMenuItems, availableWidgets, saveResult = {} } = this.props;
     let state = {};
+
+    if (urlParams !== newUrlParams) {
+      this.setState({ urlParams: newUrlParams });
+      this.fetchData(nextProps);
+    }
 
     if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
       const resultConfig = this.setStateByConfig(nextProps.config);
@@ -123,8 +124,16 @@ class DashboardSettings extends React.Component {
     this.setState({ ...state });
 
     if (nextProps.saveResult && saveResult.status !== nextProps.saveResult.status && nextProps.saveResult.status !== SAVE_STATUS.FAILURE) {
-      this.handleCloseClick(nextProps.saveResult);
+      this.closePage(nextProps);
     }
+  }
+
+  fetchData(props = this.props) {
+    const { initDashboardSettings, initMenuSettings } = props;
+    const { recordRef, dashboardId } = this.getPathInfo(props);
+
+    initDashboardSettings({ recordRef, dashboardId });
+    initMenuSettings();
   }
 
   setStateByConfig(config, state = this.state) {
@@ -167,25 +176,18 @@ class DashboardSettings extends React.Component {
     return newWidgets;
   }
 
-  get pathInfo() {
+  getPathInfo(props = this.props) {
     const {
       location: { search }
-    } = this.props;
+    } = props;
     const searchParams = queryString.parse(search);
     const { recordRef, dashboardId } = searchParams;
 
     return {
-      pathDashboard: URL.DASHBOARD + search,
+      pathDashboard: URL.DASHBOARD + (recordRef ? `?recordRef=${recordRef}` : ''),
       recordRef,
       dashboardId
     };
-  }
-
-  get dashboardId() {
-    const { dashboardId: savedId } = this.props;
-    const { dashboardId: pathId } = this.pathInfo;
-
-    return savedId || pathId || '';
   }
 
   get menuWidth() {
@@ -584,33 +586,31 @@ class DashboardSettings extends React.Component {
 
   /*-------- start Buttons --------*/
 
-  handleCloseClick = (saveResult = {}) => {
-    const { dashboardId, pathDashboard } = this.pathInfo;
-    let path = pathDashboard;
-
-    if (saveResult && saveResult.dashboardId && !dashboardId) {
-      path += '&dashboardId=' + saveResult.dashboardId;
-    }
-
-    changeUrlLink(path, { openNewTab: true });
+  handleCloseClick = () => {
+    this.closePage();
   };
 
   handleAcceptClick = () => {
-    const { saveSettings, dashboardKey, getAwayFromPage } = this.props;
+    const { saveSettings, getAwayFromPage } = this.props;
     const { selectedWidgets: widgets, selectedMenuItems: links, typeMenu } = this.state;
     const layout = this.selectedLayout;
-    const menuType = typeMenu.find(item => item.isActive).type;
+    const activeMenuType = typeMenu.find(item => item.isActive);
+    const menuType = activeMenuType ? activeMenuType.type : typeMenu[0].type;
 
     saveSettings({
       layoutType: layout.type,
       columns: layout.columns,
       menuType,
       widgets,
-      links,
-      dashboardId: this.dashboardId,
-      dashboardKey
+      links
     });
     getAwayFromPage();
+  };
+
+  closePage = (props = this.props) => {
+    const { pathDashboard } = this.getPathInfo(props);
+
+    changeUrlLink(pathDashboard, { openNewTab: true, closeActiveTab: true });
   };
 
   renderButtons() {

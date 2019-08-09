@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { TableFormContext, FORM_MODE_CREATE } from '../../TableFormContext';
-import EcosForm from '../../../../../EcosForm/EcosForm';
+import { TableFormContext } from '../../TableFormContext';
+import EcosForm, { FORM_MODE_CREATE } from '../../../../../EcosForm/EcosForm';
 import EcosModal from '../../../../EcosModal';
 import { t } from '../../../../../../helpers/util';
 import Records from '../../../../../Records';

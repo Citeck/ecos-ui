@@ -11,6 +11,12 @@
     flex: 1;
     margin: 0 10px !important;
 
+    &_small {
+      flex: initial;
+      max-width: 290px;
+      width: 290px;
+    }
+
     .dashlet {
       margin: 20px 0;
     }

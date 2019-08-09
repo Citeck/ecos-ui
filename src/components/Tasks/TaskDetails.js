@@ -1,22 +1,22 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
+import { deepClone, getOutputFormat } from '../../helpers/util';
 import EcosForm from '../EcosForm';
 import { Caption } from '../common/form';
 import { Grid } from '../common/grid';
-import Separator from '../common/Separator/Separator';
-import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
-import { deepClone } from '../../helpers/util';
-import { getDisplayedColumns, getOutputFormat, TasksPropTypes } from './utils';
+import { Separator } from '../common';
+import { DisplayedColumns, TaskPropTypes } from './utils';
 import AssignmentPanel from './AssignmentPanel';
+
 import './style.scss';
 
 class TaskDetails extends React.Component {
   static propTypes = {
-    details: PropTypes.shape(TasksPropTypes).isRequired,
+    details: PropTypes.shape(TaskPropTypes).isRequired,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
-    onAssignClick: PropTypes.func.isRequired,
     onSubmitForm: PropTypes.func.isRequired
   };
 
@@ -29,7 +29,6 @@ class TaskDetails extends React.Component {
   };
 
   className = 'ecos-task-ins';
-  displayedColumns = getDisplayedColumns();
 
   onSubmitForm = () => {
     this.props.onSubmitForm();
@@ -40,7 +39,7 @@ class TaskDetails extends React.Component {
 
     for (const key in details) {
       if (details.hasOwnProperty(key)) {
-        const desc = ArrayOfObjects.getObjectByKV(this.displayedColumns, 'key', key);
+        const desc = ArrayOfObjects.getObjectByKV(DisplayedColumns, 'key', key);
 
         if (Object.keys(desc).length) {
           details[key] = getOutputFormat(desc.format, details[key]);
@@ -49,7 +48,7 @@ class TaskDetails extends React.Component {
     }
 
     const arr = [details];
-    const updCols = ArrayOfObjects.replaceKeys(this.displayedColumns, { key: 'dataField', label: 'text' });
+    const updCols = ArrayOfObjects.replaceKeys(DisplayedColumns, { key: 'dataField', label: 'text' });
     const gridCols = ArrayOfObjects.filterKeys(updCols, ['dataField', 'text']);
     const classes = `${this.className}_view-table`;
 
@@ -59,7 +58,7 @@ class TaskDetails extends React.Component {
   renderDetailsEnum() {
     const { details } = this.props;
     const classInfo = `${this.className}_view-enum`;
-    const columns = ArrayOfObjects.sort(this.displayedColumns, 'order');
+    const columns = ArrayOfObjects.sort(DisplayedColumns, 'order');
 
     return (
       <React.Fragment>
@@ -97,7 +96,7 @@ class TaskDetails extends React.Component {
         </div>
         <Separator />
         <div className={`${this.className}__eform`}>
-          <EcosForm record={'eform'} formKey={details.formKey} onSubmit={this.onSubmitForm} />
+          <EcosForm record={details.id} formKey={details.formKey} onSubmit={this.onSubmitForm} />
         </div>
       </div>
     );

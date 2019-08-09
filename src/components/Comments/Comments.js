@@ -3,19 +3,18 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import moment from 'moment';
-import ReactResizeDetector from 'react-resize-detector';
-import { Editor, EditorState, RichUtils, ContentState, convertToRaw, convertFromRaw } from 'draft-js';
+import { ContentState, convertFromRaw, convertToRaw, Editor, EditorState, RichUtils } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import classNames from 'classnames';
 
 import Dashlet from '../Dashlet/Dashlet';
-import Btn from '../common/btns/Btn/Btn';
-import Loader from '../common/Loader/Loader';
-import IcoBtn from '../common/btns/IcoBtn/IcoBtn';
-import { t, num2str } from '../../helpers/util';
+import { Btn, IcoBtn } from '../common/btns';
+import { Avatar, DefineHeight, Loader } from '../common';
+import { num2str, t } from '../../helpers/util';
+import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 import { selectStateByNodeRef } from '../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../actions/comments';
-import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
@@ -52,6 +51,7 @@ class Comments extends React.Component {
     saveIsLoading: PropTypes.bool,
     fetchIsLoading: PropTypes.bool,
     hasMore: PropTypes.bool,
+    canDragging: PropTypes.bool,
     commentListMaxHeight: PropTypes.number,
     onSave: PropTypes.func,
     onDelete: PropTypes.func,
@@ -68,6 +68,7 @@ class Comments extends React.Component {
     errorMessage: '',
     saveIsLoading: false,
     fetchIsLoading: false,
+    canDragging: false,
     commentListMaxHeight: 217,
     onSave: () => {},
     onDelete: () => {},
@@ -78,31 +79,36 @@ class Comments extends React.Component {
     setErrorMessage: () => {}
   };
 
-  state = {
-    isEdit: false,
-    width: MIN_WIDTH_DASHLET_SMALL,
-    editorHeight: BASE_HEIGHT,
-    comment: EditorState.createEmpty(),
-    editableComment: null,
-    commentForDeletion: null
-  };
-
   constructor(props) {
     super(props);
 
     this._list = React.createRef();
     this._scroll = React.createRef();
+    this._header = React.createRef();
+
+    this.state = {
+      isEdit: false,
+      width: MIN_WIDTH_DASHLET_SMALL,
+      editorHeight: BASE_HEIGHT,
+      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
+      contentHeight: null,
+      fitHeights: {},
+      comment: EditorState.createEmpty(),
+      editableComment: null,
+      commentForDeletion: null
+    };
   }
 
   componentDidMount() {
     const { getComments } = this.props;
 
     getComments();
-    this.recalculateScrollbarHeight();
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.saveIsLoading && !nextProps.saveIsLoading && !nextProps.errorMessage) {
+    const { saveIsLoading, id } = this.props;
+
+    if (saveIsLoading && !nextProps.saveIsLoading && !nextProps.errorMessage) {
       this.setState({
         isEdit: false,
         editorHeight: BASE_HEIGHT,
@@ -111,10 +117,10 @@ class Comments extends React.Component {
         commentForDeletion: null
       });
     }
-  }
 
-  componentDidUpdate() {
-    this.recalculateScrollbarHeight();
+    if (id !== nextProps.id) {
+      getComments();
+    }
   }
 
   formatDate(date = new Date()) {
@@ -169,7 +175,7 @@ class Comments extends React.Component {
     const { width } = this.state;
     const classes = ['ecos-comments'];
 
-    if (width <= MIN_WIDTH_DASHLET_SMALL) {
+    if (width < MIN_WIDTH_DASHLET_LARGE) {
       classes.push('ecos-comments_small');
     }
 
@@ -382,22 +388,37 @@ class Comments extends React.Component {
     getComments();
   };
 
+  handleChangeHeight = height => {
+    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    this.setState({ userHeight: height });
+  };
+
+  setContentHeight = contentHeight => {
+    this.setState({ contentHeight });
+  };
+
+  setFitHeights = fitHeights => {
+    this.setState({ fitHeights });
+  };
+
   renderHeader() {
     const { isEdit } = this.state;
 
-    if (isEdit) {
-      return this.renderEditor();
-    }
-
     return (
-      <React.Fragment>
-        <div className="ecos-comments__count">
-          <span className="ecos-comments__count-text">{this.countComments}</span>
-        </div>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__add-btn" onClick={this.handleShowEditor}>
-          {t('comments-widget.add')}
-        </Btn>
-      </React.Fragment>
+      <div className="ecos-comments__header" ref={this._header}>
+        {isEdit ? (
+          this.renderEditor()
+        ) : (
+          <React.Fragment>
+            <div className="ecos-comments__count">
+              <span className="ecos-comments__count-text">{this.countComments}</span>
+            </div>
+            <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__add-btn" onClick={this.handleShowEditor}>
+              {t('comments-widget.add')}
+            </Btn>
+          </React.Fragment>
+        )}
+      </div>
     );
   }
 
@@ -504,28 +525,6 @@ class Comments extends React.Component {
     );
   }
 
-  renderAvatar(avatarLink = '', userName = '') {
-    if (avatarLink) {
-      return <img alt="avatar" src={avatarLink} className="ecos-comments__comment-avatar" />;
-    }
-
-    if (userName) {
-      return (
-        <div className="ecos-comments__comment-avatar ecos-comments__comment-avatar_empty">
-          <div className="ecos-comments__comment-avatar-name">
-            {userName
-              .split(' ')
-              .map(word => word[0])
-              .join(' ')
-              .toUpperCase()}
-          </div>
-        </div>
-      );
-    }
-
-    return <div className="ecos-comments__comment-avatar ecos-comments__comment-avatar_empty" />;
-  }
-
   renderConfirmDelete(id) {
     const { commentForDeletion } = this.state;
 
@@ -574,7 +573,12 @@ class Comments extends React.Component {
       <div className="ecos-comments__comment" key={id}>
         <div className="ecos-comments__comment-header">
           <div className="ecos-comments__comment-header-cell">
-            {this.renderAvatar(avatar, displayName)}
+            <Avatar
+              url={avatar}
+              userName={displayName}
+              className={'ecos-comments__comment-avatar'}
+              classNameEmpty={'ecos-comments__comment-avatar_empty'}
+            />
             <div className="ecos-comments__comment-header-column">
               <div className="ecos-comments__comment-name">
                 {firstName} {middleName}
@@ -614,11 +618,23 @@ class Comments extends React.Component {
       return null;
     }
 
+    const { userHeight = 0, contentHeight, fitHeights } = this.state;
+    const _commentsHeader = this._header.current || {};
+    const headerHeight = _commentsHeader.offsetHeight || 0;
+    const fixHeight = userHeight ? userHeight - headerHeight : null;
+
     return (
-      <Scrollbars autoHide ref={this._scroll} style={{ height: '100%' }}>
-        <div className="ecos-comments__list" ref={this._list}>
-          {comments.map(this.renderComment)}
-        </div>
+      <Scrollbars autoHide ref={this._scroll} style={{ height: contentHeight || '100%' }}>
+        <DefineHeight
+          fixHeight={fixHeight}
+          maxHeight={fitHeights.max - headerHeight}
+          minHeight={1}
+          getOptimalHeight={this.setContentHeight}
+        >
+          <div className="ecos-comments__list" ref={this._list}>
+            {comments.map(this.renderComment)}
+          </div>
+        </DefineHeight>
       </Scrollbars>
     );
   }
@@ -634,6 +650,8 @@ class Comments extends React.Component {
   }
 
   render() {
+    const { dragHandleProps, canDragging } = this.props;
+
     return (
       <div className={this.className}>
         <Dashlet
@@ -641,12 +659,15 @@ class Comments extends React.Component {
           needGoTo={false}
           actionEdit={false}
           actionHelp={false}
+          canDragging={canDragging}
           resizable
           onReload={this.handleReloadData}
+          onResize={this.handleResize}
+          dragHandleProps={dragHandleProps}
+          onChangeHeight={this.handleChangeHeight}
+          getFitHeights={this.setFitHeights}
         >
-          <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
-          <div className="ecos-comments__header">{this.renderHeader()}</div>
-
+          {this.renderHeader()}
           {this.renderComments()}
         </Dashlet>
         {this.renderLoader()}

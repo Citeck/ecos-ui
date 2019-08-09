@@ -1,24 +1,30 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
-import TaskDetails from './TaskDetails';
-import { TasksPropTypes } from './utils';
-import Loader from '../common/Loader/Loader';
 import { isLastItem, t } from '../../helpers/util';
-import Separator from '../common/Separator/Separator';
+import { InfoText, Loader, Separator } from '../common';
+import TaskDetails from './TaskDetails';
+import { TaskPropTypes } from './utils';
 
 class TaskList extends React.Component {
   static propTypes = {
-    tasks: PropTypes.arrayOf(TasksPropTypes).isRequired,
+    tasks: PropTypes.arrayOf(TaskPropTypes).isRequired,
     className: PropTypes.string,
-    height: PropTypes.string
+    height: PropTypes.string,
+    isLoading: PropTypes.bool,
+    isSmallMode: PropTypes.bool,
+    onAssignClick: PropTypes.func,
+    onSubmitForm: PropTypes.func
   };
 
   static defaultProps = {
     tasks: [],
     className: '',
-    height: '100%'
+    height: '100%',
+    isLoading: false,
+    isSmallMode: false,
+    onAssignClick: () => {},
+    onSubmitForm: () => {}
   };
 
   className = 'ecos-task-list';
@@ -26,15 +32,7 @@ class TaskList extends React.Component {
   renderLoader() {
     let { isLoading } = this.props;
 
-    if (!isLoading) {
-      return null;
-    }
-
-    return (
-      <div className={`${this.className}__loader-wrapper`}>
-        <Loader />
-      </div>
-    );
+    return isLoading && <Loader className={`${this.className}__loader`} />;
   }
 
   renderEmptyInfo() {
@@ -44,7 +42,7 @@ class TaskList extends React.Component {
       return null;
     }
 
-    return <div className={this.className + '_empty'}>{t('tasks-widget.no-tasks')}</div>;
+    return <InfoText text={t('tasks-widget.no-tasks')} />;
   }
 
   renderTaskDetailsList() {
@@ -54,37 +52,27 @@ class TaskList extends React.Component {
       return null;
     }
 
-    return (
-      <React.Fragment>
-        {tasks.map((item, i) => (
-          <React.Fragment key={i + item.id}>
-            <TaskDetails
-              details={item}
-              onAssignClick={onAssignClick}
-              onSubmitForm={onSubmitForm}
-              className={className}
-              isSmallMode={isSmallMode}
-            />
-            {!isLastItem(tasks, i) && <Separator noIndents />}
-          </React.Fragment>
-        ))}
+    return tasks.map((item, i) => (
+      <React.Fragment key={i + item.id}>
+        <TaskDetails
+          details={item}
+          onAssignClick={onAssignClick}
+          onSubmitForm={onSubmitForm}
+          className={className}
+          isSmallMode={isSmallMode}
+        />
+        {!isLastItem(tasks, i) && <Separator noIndents />}
       </React.Fragment>
-    );
+    ));
   }
 
   render() {
-    const { height } = this.props;
-
     return (
-      <Scrollbars
-        style={{ height }}
-        className={this.className}
-        renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
-      >
+      <React.Fragment>
         {this.renderLoader()}
         {this.renderEmptyInfo()}
         {this.renderTaskDetailsList()}
-      </Scrollbars>
+      </React.Fragment>
     );
   }
 }

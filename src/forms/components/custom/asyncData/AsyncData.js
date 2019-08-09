@@ -75,17 +75,26 @@ export default class AsyncDataComponent extends BaseComponent {
     return info;
   }
 
+  updatedOnce = false;
+
   checkConditions(data) {
     let result = super.checkConditions(data);
 
     let comp = this.component;
 
-    if (_.get(comp, 'update.type', '') !== 'any-change') {
-      return result;
-    }
+    const updateType = _.get(comp, 'update.type', '');
 
-    if (this.shouldUpdate) {
-      this._updateValue(false);
+    if (updateType === 'any-change') {
+      if (this.shouldExecute) {
+        this._updateValue(false);
+      }
+      return result;
+    } else if (updateType === 'once' && !this.updatedOnce) {
+      if (this.shouldExecute) {
+        this.updatedOnce = true;
+        this._updateValue(false);
+      }
+      return result;
     }
 
     return result;
@@ -95,7 +104,7 @@ export default class AsyncDataComponent extends BaseComponent {
     return false;
   }
 
-  get shouldUpdate() {
+  get shouldExecute() {
     let comp = this.component;
 
     if (comp.executionCondition) {
@@ -164,10 +173,7 @@ export default class AsyncDataComponent extends BaseComponent {
             if (recQueryConfig.isSingle) {
               return Records.queryOne(query, attributes);
             } else {
-              return Records.query({
-                query: query,
-                attributes: attributes
-              });
+              return Records.query(query, attributes);
             }
           },
           {},
@@ -290,6 +296,8 @@ export default class AsyncDataComponent extends BaseComponent {
     if (this.options.builder) {
       // We need to see it in builder mode.
       this.append(this.text(this.name + ' (' + this.key + ')'));
+    } else if (this.element && this.element.classList) {
+      this.element.classList.remove('form-group');
     }
 
     const updateType = _.get(this.component, 'update.type', '');
@@ -297,14 +305,15 @@ export default class AsyncDataComponent extends BaseComponent {
       this.on(
         this.component.update.event,
         () => {
-          if (this.shouldUpdate) {
+          if (this.shouldExecute) {
             const isForceUpdate = _.get(this.component, 'update.force', false);
             this._updateValue(isForceUpdate);
           }
         },
         true
       );
-    } else if (updateType === 'once') {
+    } else if (updateType === 'once' && !this.updatedOnce && this.shouldExecute) {
+      this.updatedOnce = true;
       this._updateValue(false);
     }
 
@@ -315,13 +324,11 @@ export default class AsyncDataComponent extends BaseComponent {
         event => {
           // console.log('changed event', event)
           if (
-            this.shouldUpdate &&
             event.changed &&
             event.changed.component &&
-            (refreshOn.findIndex(item => item.value === event.changed.component.key) !== -1) &
-              // Make sure the changed component is not in a different "context". Solves issues where refreshOn being set
-              // in fields inside EditGrids could alter their state from other rows (which is bad).
-              this.inContext(event.changed.instance)
+            refreshOn.findIndex(item => item.value === event.changed.component.key) !== -1 &&
+            this.inContext(event.changed.instance) && // Make sure the changed component is not in a different "context". Solves issues where refreshOn being set in fields inside EditGrids could alter their state from other rows (which is bad).
+            this.shouldExecute // !!! это условие должно быть последним в этом "if" во избежание ненужных вызовов this.shouldExecute
           ) {
             this._updateValue(false);
           }

@@ -19,7 +19,7 @@ const InputView = () => {
 
   useEffect(() => {
     const resetInlineToolsOffsets = () => {
-      setInlineToolsOffsets(null, { height: 0, top: 0, row: {} });
+      setInlineToolsOffsets({ height: 0, top: 0, row: {} });
     };
 
     const gridWrapper = wrapperRef.current;
@@ -38,7 +38,7 @@ const InputView = () => {
   const placeholderText = placeholder ? placeholder : t('ecos-table-form.placeholder');
 
   const onClickDelete = () => {
-    setInlineToolsOffsets(null, { height: 0, top: 0, row: {} });
+    setInlineToolsOffsets({ height: 0, top: 0, row: {} });
     deleteSelectedItem(inlineToolsOffsets.rowId);
   };
 
@@ -74,7 +74,7 @@ const InputView = () => {
             singleSelectable={false}
             multiSelectable={false}
             inlineTools={inlineTools}
-            onMouseEnter={setInlineToolsOffsets}
+            onChangeTrOptions={setInlineToolsOffsets}
             className={'ecos-table-form__grid'}
             scrollable={false}
           />

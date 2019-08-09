@@ -9,7 +9,7 @@ export default class BooleanFormatter extends DefaultGqlFormatter {
 
   render() {
     let cell = this.props.cell;
-    cell = cell === true ? t('boolean.yes') : cell === false ? t('boolean.no') : '';
+    cell = cell === true || cell === 'true' ? t('boolean.yes') : t('boolean.no');
     return <Fragment>{cell}</Fragment>;
   }
 }

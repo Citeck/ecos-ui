@@ -21,6 +21,7 @@ $color-gray-8: #d5d5d5;
 $color-gray-9: #d4d4d4;
 $color-gray-10: #f3f7f9;
 $color-gray-11: #8a8a8a;
+$color-gray-12: #757575;
 $color-gray-dark: #141414;
 $color-red-1: #ff5721;
 $color-red-2: #ec4f1d;
@@ -44,6 +45,7 @@ $font-weight-normal: 400;
 
 $font-size-extra-large: 20px;
 $font-size-large: 18px;
+$font-size-15: 15px;
 $font-size-standard: 14px;
 $font-size-small: 12px;
 $font-size-extra-small: 11px;
@@ -84,6 +86,8 @@ $citeck-icon-radio-dark: '\e834';
 $citeck-icon-left: '\51';
 $citeck-icon-right: '\52';
 
+$background-loader: rgba($color-gray-5, 0.3);
+
 %v-scroll {
   position: absolute;
   width: 6px;
@@ -95,4 +99,8 @@ $citeck-icon-right: '\52';
   z-index: 11;
 }
 
-$background-loader: rgba($color-gray-5, 0.3);
+%ellipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

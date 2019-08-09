@@ -12,9 +12,10 @@ import JournalsSettingBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
 
+import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
 import { getJournalsData, reloadGrid, search } from '../../actions/journals';
-import { goToCreateRecordPage } from '../../helpers/urls';
+import { setActiveTabTitle } from '../../actions/pageTabs';
 import { Well } from '../common/form';
 import { t } from '../../helpers/util';
 import { wrapArgs } from '../../helpers/redux';
@@ -25,7 +26,9 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
-    journalConfig: newState.journalConfig
+    pageTabsIsShow: state.pageTabs.isShow,
+    journalConfig: newState.journalConfig,
+    journalSetting: newState.journalSetting
   };
 };
 
@@ -35,7 +38,8 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
-    search: text => dispatch(search(w(text)))
+    search: text => dispatch(search(w(text))),
+    setActiveTabTitle: text => dispatch(setActiveTabTitle(text))
   };
 };
 
@@ -49,6 +53,8 @@ class Journals extends Component {
       showPreview: this.props.urlParams.showPreview,
       showPie: false
     };
+
+    this.title = '';
   }
 
   componentDidMount() {
@@ -56,7 +62,11 @@ class Journals extends Component {
   }
 
   refresh = () => {
-    this.getJournalsData();
+    const {
+      journalSetting: { columns, groupBy, sortBy, predicate },
+      reloadGrid
+    } = this.props;
+    reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
   };
 
   getJournalsData() {
@@ -69,8 +79,7 @@ class Journals extends Component {
         meta: { createVariants = [{}] }
       }
     } = this.props;
-    createVariants = createVariants[0];
-    createVariants.canCreate && goToCreateRecordPage(createVariants);
+    FormManager.createRecordByVariant(createVariants[0]);
   };
 
   toggleSettings = () => {
@@ -108,7 +117,7 @@ class Journals extends Component {
 
   render() {
     const { menuOpen, settingsVisible, showPreview, showPie } = this.state;
-    const { stateId, journalConfig } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, setActiveTabTitle } = this.props;
 
     if (!journalConfig) {
       return null;
@@ -117,7 +126,8 @@ class Journals extends Component {
     const {
       id: journalId,
       columns = [],
-      meta: { title = '' }
+      meta: { title = '' },
+      sourceId
     } = journalConfig;
 
     if (!columns.length) {
@@ -125,6 +135,12 @@ class Journals extends Component {
     }
 
     const visibleColumns = columns.filter(c => c.visible);
+
+    if (pageTabsIsShow && title && this.title !== title) {
+      const quotes = String.fromCharCode(8221);
+      setActiveTabTitle(`${t('page-tabs.journal')} ${quotes + title + quotes}`);
+      this.title = title;
+    }
 
     return (
       <div className={'ecos-journal'}>
@@ -152,8 +168,8 @@ class Journals extends Component {
             className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
           >
             <Well className={'ecos-journal__settings'}>
-              <JournalsFilters stateId={stateId} columns={visibleColumns} />
-              <JournalsColumnsSetup stateId={stateId} columns={columns} />
+              <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} />
+              <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
               <JournalsGrouping stateId={stateId} columns={visibleColumns} />
               <JournalsSettingsFooter
                 stateId={stateId}
@@ -171,7 +187,7 @@ class Journals extends Component {
           </div>
         </div>
 
-        <div className={'ecos-journal__menu'}>
+        <div className={`ecos-journal__menu ${pageTabsIsShow ? 'ecos-journal__menu_tabs' : ''}`}>
           <JournalsMenu stateId={stateId} open={menuOpen} onClose={this.toggleMenu} />
         </div>
       </div>

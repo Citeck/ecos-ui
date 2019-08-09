@@ -1,74 +1,73 @@
-import { QUERY_KEYS } from '../constants';
-import { LAYOUT_TYPE } from '../constants/layout';
+import { get, isEmpty } from 'lodash';
+import moment from 'moment';
 
-export const getDefaultDashboardConfig = {
-  layout: {
-    type: LAYOUT_TYPE.TWO_COLUMNS_BS,
-    columns: [
-      {
-        width: '30%',
-        widgets: []
-      },
-      {
-        widgets: []
+import { TITLE } from '../constants/pageTabs';
+import DashboardService from '../services/dashboard';
+
+export default class DashboardConverter {
+  static getKeyInfoDashboardForWeb(source) {
+    const target = {};
+
+    if (!isEmpty(source)) {
+      const { key, id = '', type } = source;
+
+      target.identification = { key, type, id: DashboardService.parseDashboardId(id) };
+    }
+
+    return target;
+  }
+
+  static getDashboardForWeb(source) {
+    const target = {};
+
+    if (!isEmpty(source)) {
+      const { config } = source;
+      const layout = get(config, ['layout']) || {};
+
+      target.columns = layout.columns || [];
+      target.type = layout.type;
+    }
+
+    return target;
+  }
+
+  static getDashboardForServer(source) {
+    if (isEmpty(source)) {
+      return {};
+    }
+
+    const {
+      config: { columns, type }
+    } = source;
+
+    return { layout: { columns, type } };
+  }
+
+  static getTitleInfo(source = {}) {
+    const target = {};
+
+    if (!isEmpty(source)) {
+      const { modifier, modified = '', displayName = '', version = '' } = source;
+
+      target.version = version;
+      target.name = displayName || TITLE.NO_NAME;
+
+      target.date = '';
+      target.modifierName = '';
+      target.modifierUrl = '';
+
+      if (!isEmpty(modifier)) {
+        target.modifierName = modifier.disp;
+        target.modifierUrl = `/share/page/user/${modifier.str}/profile`;
       }
-    ]
+
+      if (modified) {
+        target.date = moment(modified)
+          .utc()
+          .format('ddd D MMM YYYY H:m:s');
+      }
+    }
+
+    return target;
   }
-};
-
-export function getDashboardForWeb(source) {
-  if (!source || (source && !Object.keys(source).length)) {
-    return {};
-  }
-
-  const { layout, dashboardKey, dashboardId } = source;
-  const target = {};
-
-  target.dashboardKey = dashboardKey;
-  target.dashboardId = dashboardId;
-  target.columns = layout.columns;
-  target.type = layout.type;
-
-  return target;
-}
-
-export function getDashboardForServer(source) {
-  if (!source || (source && !Object.keys(source).length)) {
-    return {};
-  }
-
-  const {
-    config: { columns, type },
-    dashboardId
-  } = source;
-
-  return {
-    config: {
-      layout: { columns, type }
-    },
-    dashboardId
-  };
-}
-
-export function parseGetResult(result) {
-  if (!result || (result && !Object.keys(result).length)) {
-    return {};
-  }
-
-  return result[QUERY_KEYS.CONFIG_JSON] || {};
-}
-
-export function parseSaveResult(result) {
-  if (!result || (result && !Object.keys(result).length)) {
-    return {};
-  }
-
-  const DIV = '@';
-  const fullId = result._id || '';
-  const dashboardId = fullId && fullId.indexOf(DIV) >= 0 ? fullId.split(DIV)[1] : null;
-
-  return {
-    dashboardId,
-    fullId
-  };
 }

@@ -19,7 +19,7 @@
     font-size: 24px;
     line-height: 33px;
     color: $text-color-dark;
-    //margin-top: 36px;
+    margin-top: 30px;
   }
 
   &__container {
@@ -28,6 +28,7 @@
     border-radius: 12px;
     padding: 26px;
     margin-bottom: 30px;
+    position: relative;
 
     &-title {
       background: $color-yellow;
@@ -175,6 +176,7 @@
 
   &__loader-wrapper {
     background-color: $background-loader;
+    border-radius: 12px;
   }
 }
 

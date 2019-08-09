@@ -86,6 +86,18 @@ class AddModal extends Component {
       // body.get('fileField')
     );
 
+    const reader = new FileReader();
+
+    // Closure to capture the file information.
+    reader.onload = (function(theFile) {
+      return function(e) {
+        // Render thumbnail.
+        console.warn(theFile);
+      };
+    })(file);
+
+    reader.readAsDataURL(file);
+
     return {
       url: 'https://httpbin.org/post',
       // url: '/share/proxy/alfresco/api/upload',

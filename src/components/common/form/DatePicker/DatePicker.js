@@ -50,6 +50,7 @@ export default class extends Component {
           // dropdownMode="select"
           // popperPlacement="top-end"
           {...otherProps}
+          selected={otherProps.selected || null}
           {...additionalProps}
           className={cssClasses}
           calendarClassName={'ecos-datepicker__calendar'}

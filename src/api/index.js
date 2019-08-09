@@ -7,4 +7,7 @@ export { JournalsApi } from './journalsApi';
 export { TasksApi } from './tasks';
 export { CommentsApi } from './comments';
 export { DashboardApi } from './dashboard';
+export { DocPreviewApi } from './docPreview';
+export { PageTabsApi } from './pageTabs';
+export { DocStatusApi } from './docStatus';
 export { VersionsJournalApi } from './versionsJournal';

@@ -69,7 +69,9 @@ button {
   &.ecos-btn_transparent {
     background-color: rgba(0, 0, 0, 0);
 
-    &:hover {
+    &:hover,
+    &:active,
+    &:focus {
       background-color: rgba(0, 0, 0, 0);
     }
   }
@@ -164,6 +166,12 @@ button {
     font-size: $font-size-small;
     width: 12px;
     height: 12px;
+    padding: 0;
+  }
+
+  &.ecos-btn_i_15 {
+    font-size: $font-size-15;
+    height: 20px;
     padding: 0;
   }
 
@@ -262,6 +270,18 @@ button {
     color: $color-white;
   }
 
+  &.ecos-btn_color_blue-light2 {
+    color: $color-blue-light2;
+  }
+
+  &.ecos-btn_color_red {
+    color: $color-red-1;
+  }
+
+  &.ecos-btn_color_green {
+    color: $color-green1;
+  }
+
   &.ecos-btn_white {
     background: $color-white;
     color: $color-gray-5;
@@ -347,6 +367,7 @@ button {
 
   &.ecos-btn_bgr-inherit {
     background: inherit;
+
     &:active,
     &:focus {
       background: inherit;
@@ -355,6 +376,17 @@ button {
 
   &.ecos-btn_color-inherit {
     color: inherit;
+  }
+
+  &.ecos-btn_no-back {
+    color: $color-white;
+    background: transparent;
+
+    &:active,
+    &:focus,
+    &:hover {
+      background: transparent;
+    }
   }
 
   /*hovers*/
@@ -379,6 +411,24 @@ button {
     }
   }
 
+  &.ecos-btn_hover_t_light-red {
+    &:hover {
+      color: lighten($color-red-1, 10%);
+    }
+  }
+
+  &.ecos-btn_hover_t_light-green {
+    &:hover {
+      color: lighten($color-green1, 10%);
+    }
+  }
+
+  &.ecos-btn_hover_t_white {
+    &:hover {
+      color: $color-white;
+    }
+  }
+
   &.ecos-btn_hover_light-blue {
     &:hover {
       background-color: $color-blue-light;
@@ -397,6 +447,7 @@ button {
       color: $color-blue-light;
       background: inherit;
     }
+
     &:active {
       color: $color-blue-dark;
       background: inherit;
@@ -450,6 +501,23 @@ button {
     }
   }
 
+  /*active, focus*/
+  &.ecos-btn_active_blue {
+    &:focus,
+    &:active {
+      color: $color-blue-dark;
+      background: $color-white;
+    }
+  }
+
+  &.ecos-btn_active_blue2 {
+    &:focus,
+    &:active {
+      color: $color-white;
+      background: $color-blue-dark;
+    }
+  }
+
   /* Width */
   &.ecos-btn_full-width {
     margin-top: 10px;
@@ -471,52 +539,6 @@ button {
 
     &:hover {
       background: lighten($color-red-1, 10%);
-    }
-  }
-}
-
-.ecos-btn {
-  &__loading {
-    $animationDuration: 1.4s;
-    $delayRange: 0.32s;
-
-    width: 40%;
-    font-size: 8px;
-    display: flex;
-    justify-content: space-around;
-    height: 100%;
-    margin: auto;
-    text-align: center;
-    align-items: center;
-
-    @keyframes loading {
-      0% {
-        opacity: 0;
-      }
-      45%,
-      55% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-      }
-    }
-
-    &-child {
-      width: 1em; // 8px;
-      height: 1em; // 8px;
-      background-color: $color-white;
-      border-radius: 50%;
-      animation: loading $animationDuration ease-in-out 0s infinite alternate;
-      opacity: 0;
-
-      &-1 {
-        animation-delay: -$delayRange;
-      }
-
-      &-2 {
-        animation-delay: (-$delayRange / 2);
-      }
     }
   }
 }

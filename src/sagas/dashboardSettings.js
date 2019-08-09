@@ -1,4 +1,4 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 import {
   getAvailableWidgets,
   getDashboardConfig,
@@ -9,10 +9,11 @@ import {
   setResultSaveDashboardConfig
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
+import { selectIdentificationForSet } from '../selectors/dashboard';
 import { saveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
-import * as dtoDB from '../dto/dashboard';
-import * as dtoDBS from '../dto/dashboardSettings';
+import DashboardService from '../services/dashboard';
+import DashboardSettingsConverter from '../dto/dashboardSettings';
 import { SAVE_STATUS } from '../constants';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
@@ -27,26 +28,16 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
-    const { dashboardId = '', recordRef } = payload;
-    const result = dashboardId
-      ? yield call(api.dashboard.getDashboardConfig, dashboardId)
-      : yield call(api.dashboard.getDashboardByRecordRef, recordRef);
-    let config;
-    let dbId = dashboardId;
-    let dashboardKey = result.key;
+    const { dashboardId } = payload;
+    if (dashboardId) {
+      const result = yield call(api.dashboard.getDashboardById, dashboardId, true);
+      const data = DashboardService.checkDashboardResult(result);
+      const webConfig = DashboardSettingsConverter.getSettingsConfigForWeb(data);
 
-    if (dashboardId && result) {
-      config = dtoDB.parseGetResult(result);
+      yield put(setDashboardConfig(webConfig));
     } else {
-      config = result ? result.data.config : dtoDB.getDefaultDashboardConfig;
+      yield put(setNotificationMessage(t('dashboard-settings.error2')));
     }
-    if (config) {
-      dbId = config.id;
-    }
-
-    const webConfig = dtoDBS.getSettingsConfigForWeb({ ...config, dashboardId: dbId, dashboardKey });
-
-    yield put(setDashboardConfig(webConfig));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error2')));
     logger.error('[dashboard/settings/ doGetDashboardConfigRequest saga] error', e.message);
@@ -66,15 +57,14 @@ function* doGetWidgetsRequest({ api, logger }, action) {
 
 function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
-    const { dashboardId, dashboardKey } = payload;
-    const serverConfig = dtoDBS.getSettingsConfigForServer(payload);
+    const identification = yield select(selectIdentificationForSet);
+    const serverConfig = DashboardSettingsConverter.getSettingsConfigForServer(payload);
     const { layout, menu } = serverConfig;
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
       config: { layout },
-      dashboardId,
-      dashboardKey
+      identification
     });
-    const parseDashboard = dtoDB.parseSaveResult(dashboardResult);
+    const parseDashboard = DashboardService.parseSaveResult(dashboardResult);
 
     yield put(saveMenuConfig(menu));
     yield put(

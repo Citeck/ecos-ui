@@ -11,7 +11,9 @@ export const ComponentKeys = {
   JOURNAL: 'journal',
   COMMENTS: 'comments',
   PROPERTIES: 'properties',
-  TASKS: 'tasks'
+  TASKS: 'tasks',
+  CURRENT_TASKS: 'current-tasks',
+  DOC_STATUS: 'doc-status'
 };
 
 export default class Components {
@@ -35,6 +37,14 @@ export default class Components {
     [ComponentKeys.TASKS]: {
       path: './Tasks',
       label: 'dashboard-settings.widget.tasks'
+    },
+    [ComponentKeys.CURRENT_TASKS]: {
+      path: './CurrentTasks',
+      label: 'dashboard-settings.widget.current-tasks'
+    },
+    [ComponentKeys.DOC_STATUS]: {
+      path: './DocStatus',
+      label: 'dashboard-settings.widget.doc-status'
     }
   };
 
@@ -77,15 +87,13 @@ export default class Components {
           ...props,
           id: props.id || defWidget.id,
           config: {
-            ...config,
-            height: config.height || '500px'
+            ...config
           }
         };
 
         switch (defWidget.name) {
           case ComponentKeys.DOC_PREVIEW: {
-            defWidget.props.config.link = config.link || '/share/proxy/alfresco/demo.pdf';
-            defWidget.props.config.scale = config.scale || 1;
+            defWidget.props.config.link = config.link || '';
             break;
           }
           case ComponentKeys.JOURNAL: {

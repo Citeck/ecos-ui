@@ -17,6 +17,8 @@ import comments from './comments';
 import dashboardSettings from './dashboardSettings';
 import dashboard from './dashboard';
 import menu from './menu';
+import currentTasks from './currentTasks';
+import docStatus from './docStatus';
 import versionsJournal from './versionsJournal';
 
 const reducers = {
@@ -36,6 +38,8 @@ const reducers = {
   dashboardSettings,
   dashboard,
   menu,
+  currentTasks,
+  docStatus,
   versionsJournal
 };
 

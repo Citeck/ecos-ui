@@ -63,7 +63,16 @@ function recordsFetch(url, body) {
     },
     body: JSON.stringify(body)
   }).then(response => {
-    return response.json();
+    return response.json().then(body => {
+      if (response.status >= 200 && response.status < 300) {
+        return body;
+      }
+      if (body.message) {
+        throw new Error(body.message);
+      } else {
+        throw new Error(response.statusText);
+      }
+    });
   });
 }
 
@@ -212,7 +221,7 @@ class RecordsComponent {
   }
 
   query(query, attributes) {
-    if (query.attributes || (query.query && query.query.query)) {
+    if (query.attributes && arguments.length === 1) {
       attributes = query.attributes;
       query = query.query;
     }

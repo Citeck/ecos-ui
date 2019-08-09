@@ -23,9 +23,11 @@ import {
   BpmnApi,
   CommentsApi,
   DashboardApi,
+  DocStatusApi,
   JournalsApi,
   MenuApi,
   OrgStructApi,
+  PageTabsApi,
   TasksApi,
   UserApi,
   VersionsJournalApi
@@ -65,6 +67,8 @@ api.journals = new JournalsApi(store);
 api.tasks = new TasksApi(store);
 api.comments = new CommentsApi(store);
 api.dashboard = new DashboardApi(store);
+api.pageTabs = new PageTabsApi(store);
+api.docStatus = new DocStatusApi(store);
 api.versionsJournal = new VersionsJournalApi(store);
 
 /**

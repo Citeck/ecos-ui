@@ -178,6 +178,36 @@
 .icon-clock:before {
   content: '\e83b';
 } /* '' */
-.icon-actual:before {
+.icon-usergroup:before {
   content: '\e83c';
+} /* '' */
+.icon-print:before {
+  content: '\e843';
+} /* '' */
+.icon-User_avatar_off:before {
+  content: '\e844';
+} /* '' */
+.icon-User_avatar_on:before {
+  content: '\e845';
+} /* '' */
+.icon-User_avatar:before {
+  content: '\e846';
+} /* '' */
+.icon-exit:before {
+  content: '\e847';
+} /* '' */
+.icon-notify-dialogue:before {
+  content: '\e849';
+} /* '' */
+.icon-filetype-doc:before {
+  content: '\e84a';
+} /* '' */
+.icon-filetype-none:before {
+  content: '\e84b';
+} /* '' */
+.icon-big_alert:before {
+  content: '\e84c';
+} /* '' */
+.icon-actual:before {
+  content: '\e85a';
 } /* '' */
