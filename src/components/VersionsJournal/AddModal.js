@@ -7,6 +7,7 @@ import EcosModal from '../common/EcosModal';
 import { t, deepClone } from '../../helpers/util';
 import Radio from '../common/form/Radio';
 import Btn from '../common/btns/Btn/Btn';
+import { Loader } from '../common';
 
 import 'react-dropzone-uploader/dist/styles.css';
 
@@ -50,6 +51,7 @@ const LABELS = {
 class AddModal extends Component {
   static propTypes = {
     isShow: PropTypes.bool,
+    isLoading: PropTypes.bool,
     onHideModal: PropTypes.func,
     title: PropTypes.string,
     currentVersion: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -59,6 +61,7 @@ class AddModal extends Component {
 
   static defaultProps = {
     isShow: false,
+    isLoading: false,
     onHideModal: () => {},
     title: '',
     currentVersion: 1,
@@ -71,32 +74,29 @@ class AddModal extends Component {
     fileStatus: '',
     selectedVersion: VERSIONS.MINOR,
     comment: '',
+    fileName: '',
     isMajorVersion: false
   };
 
-  getUploadParams = ({ file, ...other }) => {
+  initSavingData = file => {
+    const reader = new FileReader();
+
+    reader.onload = event => {
+      console.warn(event, event.target.result);
+
+      // this.setState({ file: event.target.result });
+      this.setState({ file: new Int8Array(event.target.result) });
+    };
+    // reader.readAsBinaryString(file);
+    reader.readAsArrayBuffer(file);
+    // reader.readAsDataURL(file);
+  };
+
+  getUploadParams = ({ file }) => {
     const body = new FormData();
 
     body.append('fileField', file);
-
-    // console.warn(new File(file.name))
-    console.warn(
-      'getUploadParams'
-      // File.readAllBytes(file.toPath())
-      // body.get('fileField')
-    );
-
-    const reader = new FileReader();
-
-    // Closure to capture the file information.
-    reader.onload = (function(theFile) {
-      return function(e) {
-        // Render thumbnail.
-        console.warn(theFile);
-      };
-    })(file);
-
-    reader.readAsDataURL(file);
+    this.initSavingData(file);
 
     return {
       url: 'https://httpbin.org/post',
@@ -140,13 +140,13 @@ class AddModal extends Component {
     return Number.isInteger(result) ? `${result}.0` : result;
   }
 
-  handleChangeStatus = ({ meta, file, remove, xhr, ...other }, status) => {
+  handleChangeStatus = ({ meta, file, remove, xhr }, status) => {
     this.setState({ fileStatus: status });
 
     if (status === FILE_STATUS.DONE) {
-      console.warn({ meta, file, remove, xhr, other });
+      console.warn({ meta, file, remove, xhr });
 
-      this.setState({ file });
+      this.setState({ fileName: file.name });
       remove();
     }
   };
@@ -171,10 +171,11 @@ class AddModal extends Component {
   };
 
   handleSave = () => {
-    const { file, comment, selectedVersion } = this.state;
+    const { file, comment, selectedVersion, fileName } = this.state;
 
     this.props.onCreate({
       file,
+      fileName,
       comment,
       isMajor: selectedVersion === VERSIONS.MAJOR
     });
@@ -259,13 +260,13 @@ class AddModal extends Component {
   }
 
   renderFile() {
-    const { file } = this.state;
+    const { file, fileName } = this.state;
 
     if (!file) {
       return null;
     }
 
-    return <div className="vj-modal__file">{file.name}</div>;
+    return <div className="vj-modal__file">{fileName}</div>;
   }
 
   renderComment() {
@@ -330,6 +331,16 @@ class AddModal extends Component {
     return <div className="vj-modal__error">{errorMessage}</div>;
   }
 
+  renderLoading() {
+    const { isLoading } = this.props;
+
+    if (!isLoading) {
+      return null;
+    }
+
+    return <Loader blur />;
+  }
+
   render() {
     const { isShow, title } = this.props;
 
@@ -341,6 +352,7 @@ class AddModal extends Component {
         {this.renderVersions()}
         {this.renderComment()}
         {this.renderActionButtons()}
+        {this.renderLoading()}
       </EcosModal>
     );
   }

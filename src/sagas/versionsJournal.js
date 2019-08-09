@@ -1,5 +1,5 @@
 import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
-import { addNewVersion, getVersions, setVersions } from '../actions/versionsJournal';
+import { addNewVersion, addNewVersionSuccess, addNewVersionError, getVersions, setVersions } from '../actions/versionsJournal';
 import VersionsJournalConverter from '../dto/versionsJournal';
 
 function* sagaGetVersions({ api, logger }, { payload }) {
@@ -23,9 +23,12 @@ function* sagaAddNewVersion({ api, logger }, { payload }) {
   try {
     const result = yield call(api.versionsJournal.addNewVersion, payload);
 
+    yield call(addNewVersionSuccess);
+    yield call(getVersions);
     console.warn(result);
   } catch (e) {
     logger.error('[versionJournal/sagaAddNewVersion saga] error', e.message);
+    yield call(addNewVersionError);
   }
 }
 

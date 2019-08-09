@@ -1,10 +1,12 @@
 import { handleActions } from 'redux-actions';
-import { setVersions } from '../actions/versionsJournal';
+import { addNewVersion, addNewVersionError, addNewVersionSuccess, setVersions } from '../actions/versionsJournal';
 
 const initialState = {
   versions: [],
   hasMore: false,
-  totalCount: 0
+  totalCount: 0,
+  addModalIsLoading: false,
+  listIsLoading: false
 };
 
 Object.freeze(initialState);
@@ -16,6 +18,18 @@ export default handleActions(
       hasMore: payload.hasMore,
       totalCount: payload.totalCount,
       versions: payload.versions
+    }),
+    [addNewVersion]: state => ({
+      ...state,
+      addModalIsLoading: true
+    }),
+    [addNewVersionSuccess]: state => ({
+      ...state,
+      addModalIsLoading: false
+    }),
+    [addNewVersionError]: state => ({
+      ...state,
+      addModalIsLoading: false
     })
   },
   initialState

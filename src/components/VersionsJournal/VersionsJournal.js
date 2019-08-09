@@ -24,7 +24,8 @@ const TOOLTIP = {
 };
 
 const mapStateToProps = state => ({
-  versions: get(state, ['versionsJournal', 'versions'])
+  versions: get(state, ['versionsJournal', 'versions']),
+  addModalIsLoading: get(state, ['versionsJournal', 'addModalIsLoading'])
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -188,7 +189,7 @@ class VersionsJournal extends Component {
   }
 
   renderModal() {
-    const { versions } = this.props;
+    const { versions, addModalIsLoading } = this.props;
     const { modalIsShow } = this.state;
     const currentVersion = versions.length ? versions[0].version : 1;
 
@@ -203,6 +204,7 @@ class VersionsJournal extends Component {
         currentVersion={currentVersion}
         onHideModal={this.handleToggleModal}
         onCreate={this.handleAddNewVersion}
+        isLoading={addModalIsLoading}
       />
     );
   }
