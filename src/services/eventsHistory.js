@@ -52,6 +52,4 @@ export default class EventsHistoryService {
       }
     ]
   };
-
-  static doFilter(list) {}
 }
