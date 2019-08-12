@@ -74,11 +74,11 @@ class EventsHistoryList extends React.Component {
     }
 
     if (isEmpty(columns)) {
-      return <InfoText text={t('Нет настроек отображения')} />;
+      return <InfoText text={t('events-history-widget.info.no-columns')} />;
     }
 
     if (isEmpty(list)) {
-      return <InfoText text={t('Нет событий')} />;
+      return <InfoText text={t('events-history-widget.info.no-events')} />;
     }
 
     if (isSmallMode || isMobile) {

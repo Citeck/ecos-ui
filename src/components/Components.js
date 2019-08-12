@@ -49,7 +49,7 @@ export default class Components {
     },
     [ComponentKeys.EVENTS_HISTORY]: {
       path: './EventsHistory',
-      label: 'История событий'
+      label: 'dashboard-settings.widget.events-history'
     }
   };
 
