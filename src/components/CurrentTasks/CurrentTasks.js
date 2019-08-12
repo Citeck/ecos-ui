@@ -4,14 +4,14 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { isEmpty } from 'lodash';
 import { getCurrentTaskList } from '../../actions/tasks';
-import { selectDataCurrentTasksByStateId } from '../../selectors/tasks';
+import { selectStateCurrentTasksById } from '../../selectors/tasks';
 import { DefineHeight } from '../common';
 import CurrentTaskList from './CurrentTaskList';
 
 import './style.scss';
 
 const mapStateToProps = (state, context) => {
-  const currentTasksState = selectDataCurrentTasksByStateId(state, context.stateId) || {};
+  const currentTasksState = selectStateCurrentTasksById(state, context.stateId) || {};
 
   return {
     currentTasks: currentTasksState.list,
