@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { debounce, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus } from '../../actions/docStatus';
+import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus, updateDocStatus } from '../../actions/docStatus';
 import { selectStateDocStatusById } from '../../selectors/docStatus';
 import { deepClone } from '../../helpers/util';
 import DocStatusService from '../../services/docStatus';
@@ -30,7 +30,8 @@ const mapDispatchToProps = dispatch => ({
   initDocStatus: payload => dispatch(initDocStatus(payload)),
   changeDocStatus: payload => dispatch(changeDocStatus(payload)),
   getDocStatus: payload => dispatch(getDocStatus(payload)),
-  getCheckDocStatus: payload => dispatch(getCheckDocStatus(payload))
+  getCheckDocStatus: payload => dispatch(getCheckDocStatus(payload)),
+  updateDocStatus: payload => dispatch(updateDocStatus(payload))
 });
 
 const MAX_ATTEMPT = 3;
@@ -65,10 +66,14 @@ class DocStatus extends React.Component {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    const { stateId, record, getDocStatus, isLoading, updateRequestRecord } = this.props;
+    const { stateId, record, isLoading, getDocStatus, updateDocStatus } = this.props;
+
+    if (nextProps.updateRequestRecord === record) {
+      updateDocStatus({ stateId });
+    }
 
     if (!isLoading) {
-      if ((nextProps.isUpdating && nextProps.countAttempt < MAX_ATTEMPT) || nextProps.updateRequestRecord === record) {
+      if (nextProps.isUpdating && nextProps.countAttempt < MAX_ATTEMPT) {
         this.checkDocStatusPing();
       } else if (!nextProps.isUpdating || nextProps.countAttempt === MAX_ATTEMPT) {
         this.checkDocStatusPing.cancel();
