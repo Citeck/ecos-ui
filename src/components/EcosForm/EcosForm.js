@@ -249,6 +249,7 @@ EcosForm.propTypes = {
   formKey: PropTypes.string,
   onSubmit: PropTypes.func,
   onReady: PropTypes.func, // Form ready, but not rendered yet
+  onFormCancel: PropTypes.func,
   // See https://github.com/formio/formio.js/wiki/Form-Renderer#events
   onFormSubmitDone: PropTypes.func,
   onFormChange: PropTypes.func,
@@ -258,7 +259,6 @@ EcosForm.propTypes = {
   // -----
   saveOnSubmit: PropTypes.bool,
   className: PropTypes.string
-  // onForm[Event]: PropTypes.func (for example, onFormCancel)
 };
 
 EcosForm.defaultProps = {
