@@ -2,9 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
-import cloneDeep from 'lodash/cloneDeep';
 import * as queryString from 'query-string';
-import get from 'lodash/get';
+import { cloneDeep, get, isArray, isEmpty } from 'lodash';
 
 import { arrayCompare, t } from '../../helpers/util';
 import { LAYOUTS, TYPE_MENU } from '../../constants/dashboard';
@@ -21,11 +20,11 @@ import { getSortedUrlParams } from '../../helpers/urls';
 import './style.scss';
 
 const mapStateToProps = state => ({
-  config: {
-    menuType: get(state, ['menu', 'type']),
-    links: get(state, ['menu', 'links']),
-    ...get(state, ['dashboardSettings', 'config'])
+  menu: {
+    type: get(state, 'menu.type'),
+    links: get(state, 'menu.links')
   },
+  config: get(state, ['dashboardSettings', 'config']),
   availableMenuItems: get(state, ['menu', 'availableMenuItems']),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
   availableWidgets: get(state, ['dashboardSettings', 'availableWidgets']),
@@ -49,18 +48,24 @@ const DROPPABLE_ZONE = {
 
 class DashboardSettings extends React.Component {
   static propTypes = {
-    config: PropTypes.shape({
-      layoutType: PropTypes.string,
-      menuType: PropTypes.string,
-      widgets: PropTypes.array,
+    menu: {
+      type: PropTypes.string,
       links: PropTypes.array
-    }).isRequired,
+    },
+    config: PropTypes.arrayOf(
+      PropTypes.shape({
+        type: PropTypes.string,
+        widgets: PropTypes.array,
+        tab: PropTypes.object
+      })
+    ).isRequired,
     availableMenuItems: PropTypes.array,
     availableWidgets: PropTypes.array
   };
 
   static defaultProps = {
-    config: {},
+    menu: {},
+    config: [],
     availableWidgets: [],
     availableMenuItems: []
   };
@@ -73,15 +78,16 @@ class DashboardSettings extends React.Component {
       selectedWidgets: [],
       selectedMenuItems: [],
       typeMenu: TYPE_MENU,
-      isShowMenuConstructor: get(props, ['config', 'menuType']),
+      isShowMenuConstructor: get(props, 'menu.type'),
       availableWidgets: DndUtils.setDndId(props.availableWidgets),
       availableMenuItems: DndUtils.setDndId(props.availableMenuItems),
-      urlParams: getSortedUrlParams()
+      urlParams: getSortedUrlParams(),
+      tabs: []
     };
 
     this.state = {
       ...state,
-      ...this.setStateByConfig(props.config, state)
+      ...this.setStateByConfig(props, state)
     };
   }
 
@@ -101,7 +107,7 @@ class DashboardSettings extends React.Component {
     }
 
     if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
-      const resultConfig = this.setStateByConfig(nextProps.config);
+      const resultConfig = this.setStateByConfig(nextProps);
 
       state = { ...state, ...resultConfig };
     }
@@ -117,9 +123,7 @@ class DashboardSettings extends React.Component {
       state.availableWidgets = DndUtils.setDndId(nextProps.availableWidgets);
     }
 
-    // if (config.menuType !== nextProps.config.menuType) {
-    state.isShowMenuConstructor = nextProps.config.menuType === MENU_TYPE.TOP;
-    // }
+    state.isShowMenuConstructor = get(nextProps, 'menu.type') === MENU_TYPE.TOP;
 
     this.setState({ ...state });
 
@@ -136,30 +140,40 @@ class DashboardSettings extends React.Component {
     initMenuSettings();
   }
 
-  setStateByConfig(config, state = this.state) {
+  setStateByConfig(props, state = this.state) {
     const { layouts, typeMenu } = state;
-    let { layoutType, menuType, widgets: selectedWidgets, links: selectedMenuItems } = config;
+
+    let configLayout = this.getActiveLayout(props);
     let selectedLayout = {};
+    let tabs = [];
 
     layouts.forEach(item => {
-      item.isActive = item.type === layoutType;
+      item.isActive = item.type === configLayout.type;
 
       if (item.isActive) {
         selectedLayout = item;
       }
     });
+
     typeMenu.forEach(item => {
-      item.isActive = item.type === menuType;
+      item.isActive = item.type === get(props, 'menu.type');
     });
 
-    selectedWidgets = this.setSelectedWidgets(selectedLayout, selectedWidgets);
+    let selectedWidgets = this.setSelectedWidgets(selectedLayout, configLayout.widgets);
     selectedWidgets = selectedWidgets.map(item => {
       return DndUtils.setDndId(item);
     });
 
+    let selectedMenuItems = get(props, 'menu.links');
     selectedMenuItems = DndUtils.setDndId(selectedMenuItems);
 
-    return { layouts, selectedWidgets, selectedMenuItems };
+    const { config } = props;
+
+    if (!isEmpty(config) && isArray(config)) {
+      tabs = config.map((item, index) => ({ ...item.tab, idLayout: item.id, index }));
+    }
+
+    return { layouts, selectedWidgets, selectedMenuItems, tabs };
   }
 
   setSelectedWidgets(item, availableWidgets) {
@@ -190,6 +204,16 @@ class DashboardSettings extends React.Component {
     };
   }
 
+  getActiveLayout(props = this.props) {
+    const { config } = props || [];
+
+    if (!isEmpty(config) && isArray(config)) {
+      return config.find(item => item.tab.isActive);
+    }
+
+    return {};
+  }
+
   get menuWidth() {
     const menu = document.querySelector('.slide-menu');
 
@@ -210,7 +234,7 @@ class DashboardSettings extends React.Component {
     return body.scrollTop;
   }
 
-  get selectedLayout() {
+  get selectedTypeLayout() {
     const { layouts = [] } = this.state;
 
     return layouts.find(item => item.isActive) || {};
@@ -223,13 +247,30 @@ class DashboardSettings extends React.Component {
   }
 
   draggablePositionAdjusment = () => {
-    const menuType = get(this.props, ['config', 'menuType']);
+    const menuType = get(this.props, 'menu.type');
 
     return {
       top: menuType === MENU_TYPE.LEFT ? this.bodyScrollTop : 0,
       left: menuType === MENU_TYPE.LEFT ? this.menuWidth : 0
     };
   };
+
+  /*-------- start Tabs --------*/
+  renderTabsBlock() {
+    const { tabs } = this.state;
+
+    return (
+      <React.Fragment>
+        <h5 className="ecos-dashboard-settings__container-title">{t('Вкладки')}</h5>
+        <h6 className="ecos-dashboard-settings__container-subtitle">{t('По умолчанию одна вкладка и она не отображается')}</h6>
+        <div className="ecos-dashboard-settings__container-group">
+          {tabs.map(item => (
+            <div>* {JSON.stringify(item)}</div>
+          ))}
+        </div>
+      </React.Fragment>
+    );
+  }
 
   /*-------- start Layouts --------*/
 
@@ -291,7 +332,7 @@ class DashboardSettings extends React.Component {
         onClick={this.handleClickColumn.bind(this, layout)}
         active={layout.isActive}
         config={{ columns: layout.columns || [] }}
-        className="ecos-ds__container-group-item"
+        className="ecos-dashboard-settings__container-group-item"
       />
     ));
   }
@@ -306,7 +347,7 @@ class DashboardSettings extends React.Component {
         active={menu.isActive}
         config={{ menu }}
         description={t(menu.description)}
-        className="ecos-ds__container-group-item"
+        className="ecos-dashboard-settings__container-group-item"
       />
     ));
   }
@@ -314,9 +355,9 @@ class DashboardSettings extends React.Component {
   renderLayoutsBlock() {
     return (
       <React.Fragment>
-        <h5 className="ecos-ds__container-title">{t('dashboard-settings.columns.title')}</h5>
-        <h6 className="ecos-ds__container-subtitle">{t('dashboard-settings.columns.subtitle')}</h6>
-        <div className="ecos-ds__container-group">{this.renderColumnLayouts()}</div>
+        <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.columns.title')}</h5>
+        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.columns.subtitle')}</h6>
+        <div className="ecos-dashboard-settings__container-group">{this.renderColumnLayouts()}</div>
       </React.Fragment>
     );
   }
@@ -372,12 +413,12 @@ class DashboardSettings extends React.Component {
 
     return (
       <React.Fragment>
-        <h6 className="ecos-ds__container-subtitle">{t('dashboard-settings.menu-constructor.subtitle')}</h6>
-        <div className="ecos-ds__drag ecos-ds__drag_menu">
+        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.menu-constructor.subtitle')}</h6>
+        <div className="ecos-dashboard-settings__drag ecos-dashboard-settings__drag_menu">
           <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDropEndMenu}>
             <Droppable
               droppableId={DROPPABLE_ZONE.MENU_FROM}
-              className="ecos-ds__drag-container ecos-ds__drag-container_menu-from"
+              className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_menu-from"
               placeholder={t('dashboard-settings.menu-constructor.placeholder1')}
               style={{ marginRight: '10px' }}
               direction="horizontal"
@@ -399,7 +440,7 @@ class DashboardSettings extends React.Component {
             <Droppable
               droppableId={DROPPABLE_ZONE.MENU_TO}
               placeholder={t('dashboard-settings.menu-constructor.placeholder2')}
-              className="ecos-ds__drag-container ecos-ds__drag-container_menu-to"
+              className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_menu-to"
               childPosition="column"
               isDragingOver={draggableDestination === DROPPABLE_ZONE.MENU_TO}
               scrollHeight={270}
@@ -409,7 +450,7 @@ class DashboardSettings extends React.Component {
                 selectedMenuItems.length &&
                 selectedMenuItems.map((item, index) => (
                   <DragItem
-                    className="ecos-ds__column-widgets__items__cell ecos-drag-item_full"
+                    className="ecos-dashboard-settings__column-widgets__items__cell ecos-drag-item_full"
                     title={item.label}
                     key={`selected-${item.id}-${index}`}
                     draggableId={item.dndId}
@@ -431,9 +472,11 @@ class DashboardSettings extends React.Component {
   renderMenuBlock() {
     return (
       <React.Fragment>
-        <h5 className="ecos-ds__container-title">{t('dashboard-settings.menu.title')}</h5>
-        <h6 className="ecos-ds__container-subtitle">{t('dashboard-settings.menu.subtitle')}</h6>
-        <div className="ecos-ds__container-group ecos-ds__container-group_row">{this.renderMenuLayouts()}</div>
+        <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.menu.title')}</h5>
+        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.menu.subtitle')}</h6>
+        <div className="ecos-dashboard-settings__container-group ecos-dashboard-settings__container-group_row">
+          {this.renderMenuLayouts()}
+        </div>
         {this.renderMenuConstructor()}
       </React.Fragment>
     );
@@ -503,21 +546,23 @@ class DashboardSettings extends React.Component {
 
   renderWidgetColumns() {
     const { selectedWidgets, draggableDestination } = this.state;
-    const columns = this.selectedLayout.columns || [];
+    const columns = this.selectedTypeLayout.columns || [];
 
     return (
-      <div className={'ecos-ds__drag-container_widgets-to'}>
+      <div className={'ecos-dashboard-settings__drag-container_widgets-to'}>
         {columns.map((column, indexColumn) => {
           const key_id = `column-widgets-${indexColumn}`;
 
           return (
-            <div className={'ecos-ds__column-widgets'} key={key_id}>
-              <div className={'ecos-ds__column-widgets__title'}>{`${t('dashboard-settings.column')} ${indexColumn + 1}`}</div>
+            <div className={'ecos-dashboard-settings__column-widgets'} key={key_id}>
+              <div className={'ecos-dashboard-settings__column-widgets__title'}>
+                {`${t('dashboard-settings.column')} ${indexColumn + 1}`}
+              </div>
               <Droppable
                 droppableId={DROPPABLE_ZONE.WIDGETS_TO + indexColumn}
                 droppableIndex={indexColumn}
                 childPosition="column"
-                className="ecos-ds__drag-container ecos-ds__column-widgets__items"
+                className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__column-widgets__items"
                 placeholder={t('dashboard-settings.column.placeholder')}
                 isDragingOver={draggableDestination === DROPPABLE_ZONE.WIDGETS_TO + indexColumn}
                 scrollHeight={320}
@@ -529,7 +574,7 @@ class DashboardSettings extends React.Component {
                       key={widget.dndId}
                       draggableId={widget.dndId}
                       draggableIndex={indexWidget}
-                      className={'ecos-ds__column-widgets__items__cell'}
+                      className={'ecos-dashboard-settings__column-widgets__items__cell'}
                       title={widget.label}
                       selected={true}
                       canRemove={true}
@@ -553,13 +598,13 @@ class DashboardSettings extends React.Component {
 
     return (
       <React.Fragment>
-        <h5 className="ecos-ds__container-title">{t('dashboard-settings.widgets.title')}</h5>
-        <h6 className="ecos-ds__container-subtitle">{t('dashboard-settings.widgets.subtitle')}</h6>
-        <div className="ecos-ds__container-group">
+        <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.widgets.title')}</h5>
+        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.widgets.subtitle')}</h6>
+        <div className="ecos-dashboard-settings__container-group">
           <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDropEndWidget}>
             <Droppable
               droppableId={DROPPABLE_ZONE.WIDGETS_FROM}
-              className="ecos-ds__drag-container ecos-ds__drag-container_col"
+              className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_col"
               placeholder={t('dashboard-settings.widgets.placeholder')}
               isDropDisabled={true}
               scrollHeight={136}
@@ -593,7 +638,7 @@ class DashboardSettings extends React.Component {
   handleAcceptClick = () => {
     const { saveSettings, getAwayFromPage } = this.props;
     const { selectedWidgets: widgets, selectedMenuItems: links, typeMenu } = this.state;
-    const layout = this.selectedLayout;
+    const layout = this.selectedTypeLayout;
     const activeMenuType = typeMenu.find(item => item.isActive);
     const menuType = activeMenuType ? activeMenuType.type : typeMenu[0].type;
 
@@ -615,7 +660,7 @@ class DashboardSettings extends React.Component {
 
   renderButtons() {
     return (
-      <div className={'ecos-ds__actions'}>
+      <div className={'ecos-dashboard-settings__actions'}>
         <Btn className={'ecos-btn_x-step_10'} onClick={this.handleCloseClick}>
           {t('dashboard-settings.button.cancel')}
         </Btn>
@@ -630,7 +675,7 @@ class DashboardSettings extends React.Component {
     let { isLoading, isLoadingMenu } = this.props;
 
     if (isLoading || isLoadingMenu) {
-      return <Loader className={`ecos-ds__loader-wrapper`} />;
+      return <Loader height={100} width={100} className={`ecos-dashboard-settings__loader-wrapper`} />;
     }
 
     return null;
@@ -638,20 +683,20 @@ class DashboardSettings extends React.Component {
 
   render() {
     return (
-      <Container>
+      <Container className="ecos-dashboard-settings">
+        {this.renderLoader()}
         <Row>
           <Col md={12}>
-            <h1 className="ecos-ds__header">{t('dashboard-settings.page-title')}</h1>
+            <h1 className="ecos-dashboard-settings__header">{t('dashboard-settings.page-title')}</h1>
           </Col>
         </Row>
-
-        <div className="ecos-ds__container">
-          {this.renderLoader()}
+        <div className="ecos-dashboard-settings__container">{this.renderTabsBlock()}</div>
+        <div className="ecos-dashboard-settings__container">
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
-          {this.renderMenuBlock()}
-          {this.renderButtons()}
         </div>
+        <div className="ecos-dashboard-settings__container">{this.renderMenuBlock()}</div>
+        <div className="ecos-dashboard-settings__container">{this.renderButtons()}</div>
       </Container>
     );
   }

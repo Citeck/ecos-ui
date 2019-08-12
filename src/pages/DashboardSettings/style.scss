@@ -9,8 +9,10 @@
   display: flex;
 }
 
-.ecos-ds {
-  $ecos-ds: &;
+.ecos-dashboard-settings {
+  $ecos-dashboard-settings: &;
+
+  position: relative;
 
   &__header {
     padding-bottom: 18px;
@@ -28,7 +30,6 @@
     border-radius: 12px;
     padding: 26px;
     margin-bottom: 30px;
-    position: relative;
 
     &-title {
       background: $color-yellow;
@@ -171,12 +172,17 @@
   }
 
   &__actions {
-    margin-top: 26px;
+    //margin-top: 26px;
   }
 
   &__loader-wrapper {
     background-color: $background-loader;
     border-radius: 12px;
+    align-items: unset;
+
+    div {
+      margin-top: 30%;
+    }
   }
 }
 

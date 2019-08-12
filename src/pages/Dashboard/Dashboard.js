@@ -201,13 +201,7 @@ class Dashboard extends Component {
   };
 
   renderTabs() {
-    return (
-      <Tabs
-        className="ecos-dashboard__tabs"
-        hasHover
-        items={this.tabList.concat([{ label: 'эээээээээээээээээ' }, { label: 'эээээээээээээээээээээээээээээ' }])}
-      />
-    );
+    return <Tabs className="ecos-dashboard__tabs" hasHover items={this.tabList} />;
   }
 
   renderLayout() {

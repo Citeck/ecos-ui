@@ -30,10 +30,10 @@ export default class DashboardService {
 
   static checkDashboardResult(result) {
     if (isEmpty(result)) {
-      return DashboardService.defaultDashboardConfig;
+      return [DashboardService.defaultDashboardConfig];
     }
 
-    return result || {};
+    return result || [];
   }
 
   static parseSaveResult(result) {

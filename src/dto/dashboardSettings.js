@@ -10,12 +10,38 @@ export default class DashboardSettingsConverter {
 
     if (!isEmpty(source)) {
       const { key, id = '', type, config } = source;
-      const layout = get(config, ['layout']) || {};
 
       target.identification = { key, type, id: DashboardService.parseDashboardId(id) };
-      target.layoutType = layout.type || LAYOUT_TYPE.TWO_COLUMNS_BS;
-      target.widgets = !isEmpty(layout.columns) ? layout.columns.map(item => item.widgets) : [];
+
+      const layouts = get(config, ['layouts'], []);
+
+      //for old version, which has one layout without tab
+      if (isEmpty(layouts)) {
+        const layout = get(config, ['layout']) || {};
+        layout.id = 0;
+
+        if (!isEmpty(layout)) {
+          layouts.push(layout);
+        }
+      }
+
+      target.config = [];
+
+      layouts.forEach(item => {
+        target.config.push(DashboardSettingsConverter.getSettingsLayoutForWeb(item));
+      });
     }
+
+    return target;
+  }
+
+  static getSettingsLayoutForWeb(source = {}) {
+    let target = {};
+
+    target.id = source.id;
+    target.tab = source.tab || DashboardService.defaultDashboardConfig.layout.tab;
+    target.type = source.type || LAYOUT_TYPE.TWO_COLUMNS_BS;
+    target.widgets = !isEmpty(source.columns) ? source.columns.map(item => item.widgets) : [];
 
     return target;
   }
