@@ -8,7 +8,7 @@ const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
 const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
 
-const ATT_NAME_REGEXP = /\.atts?\(n:"(.+)"\).+/;
+const ATT_NAME_REGEXP = /\.atts?\(n:"(.+?)"\).+/;
 
 const GATEWAY_URL_MAP = {};
 GATEWAY_URL_MAP[QUERY_URL] = '/share/api/records/query';
@@ -289,7 +289,7 @@ class Attribute {
   constructor(owner, name, persisted) {
     this._owner = owner;
     this._name = name;
-    this._persisted = persisted;
+    this._persisted = cloneDeep(persisted);
     this._value = null;
     this._wasChanged = false;
   }
@@ -299,7 +299,7 @@ class Attribute {
   }
 
   set persisted(value) {
-    this._persisted = value;
+    this._persisted = cloneDeep(value);
     this._value = null;
     this._wasChanged = false;
   }
