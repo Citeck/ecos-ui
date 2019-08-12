@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { t } from '../../helpers/util';
 import EcosForm, { FORM_MODE_EDIT } from '../EcosForm';
-import { DefineHeight, InfoText } from '../common';
+import { DefineHeight, InfoText, Loader } from '../common';
 
 import './style.scss';
 
@@ -56,25 +56,37 @@ class Properties extends React.Component {
     this.setState({ contentHeight });
   };
 
+  renderLoader() {
+    const { loaded } = this.state;
+    if (!loaded) {
+      return <Loader className={`${this.className}__loader`} />;
+    }
+
+    return null;
+  }
+
   renderForm() {
     const { record, isSmallMode, isReady } = this.props;
     const { isReadySubmit, hideForm } = this.state;
 
     return !hideForm && isReady && isReadySubmit ? (
-      <EcosForm
-        record={record}
-        options={{
-          readOnly: true,
-          viewAsHtml: true,
-          viewAsHtmlConfig: {
-            fullWidthColumns: isSmallMode
-          },
-          formMode: FORM_MODE_EDIT
-        }}
-        onSubmit={this.onSubmitForm}
-        onReady={this.onReady}
-        className={`${this.className}__formio`}
-      />
+      <React.Fragment>
+        {this.renderLoader()}
+        <EcosForm
+          record={record}
+          options={{
+            readOnly: true,
+            viewAsHtml: true,
+            viewAsHtmlConfig: {
+              fullWidthColumns: isSmallMode
+            },
+            formMode: FORM_MODE_EDIT
+          }}
+          onSubmit={this.onSubmitForm}
+          onReady={this.onReady}
+          className={`${this.className}__formio`}
+        />
+      </React.Fragment>
     ) : (
       <InfoText text={t('properties-widget.no-form.text')} />
     );
