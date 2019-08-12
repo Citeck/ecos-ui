@@ -1,9 +1,12 @@
 import { isEmpty, nth } from 'lodash';
 import { LAYOUT_TYPE } from '../constants/layout';
+import { t } from '../helpers/util';
 
 export default class DashboardService {
   static defaultDashboardConfig = {
     layout: {
+      id: 0,
+      tab: { label: t('По-умолчанию'), isActive: true, idLayout: 0 },
       type: LAYOUT_TYPE.TWO_COLUMNS_BS,
       columns: [
         {

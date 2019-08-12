@@ -43,10 +43,15 @@
     border-bottom-right-radius: $border-radius-standard;
     margin-right: 0;
   }
-}
 
-.ecos-tab_active {
-  color: $color-white;
-  background-color: $color-blue-dark;
-  border-color: $color-blue-dark;
+  &_active {
+    color: $color-white;
+    background-color: $color-blue-dark;
+    border-color: $color-blue-dark;
+  }
+
+  &_hover:hover {
+    background: $color-white;
+    color: $color-blue-dark;
+  }
 }

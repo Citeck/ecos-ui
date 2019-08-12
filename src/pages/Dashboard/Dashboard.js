@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as queryString from 'query-string';
-import get from 'lodash/get';
+import { get, isArray, isEmpty } from 'lodash';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { getDashboardConfig, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
@@ -9,19 +9,17 @@ import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import Layout from '../../components/Layout';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
-import Loader from '../../components/common/Loader/Loader';
+import { Loader, Tabs } from '../../components/common';
 import { MENU_TYPE } from '../../constants';
 import { DASHBOARD_TYPE } from '../../constants/dashboard';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../constants/pageTabs';
 import { deepClone, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../constants/pageTabs';
 
 import './style.scss';
 
 const mapStateToProps = state => ({
-  config: {
-    ...get(state, ['dashboard', 'config'])
-  },
+  config: get(state, ['dashboard', 'config'], []),
   isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
   saveResultDashboard: get(state, ['dashboard', 'saveResult']),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
@@ -53,15 +51,15 @@ class Dashboard extends Component {
   }
 
   componentDidMount() {
-    const { getDashboardConfig, config } = this.props;
+    const { getDashboardConfig } = this.props;
     const { recordRef } = this.getPathInfo();
 
-    this.setState({ config });
     getDashboardConfig({ recordRef });
   }
 
   componentWillReceiveProps(nextProps) {
     const { initMenuSettings, config, isLoadingDashboard, getDashboardConfig, resetDashboardConfig, setLoading } = nextProps;
+    console.log('payload config', JSON.stringify(config));
     const { recordRef } = this.getPathInfo(nextProps);
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
@@ -71,7 +69,7 @@ class Dashboard extends Component {
       resetDashboardConfig();
       getDashboardConfig({ recordRef });
       initMenuSettings();
-    } else if (urlParams === newUrlParams && isLoadingDashboard && config.type) {
+    } else if (urlParams === newUrlParams && isLoadingDashboard && !isEmpty(config)) {
       setLoading(false);
     }
 
@@ -122,6 +120,26 @@ class Dashboard extends Component {
     }
 
     return { height: `calc(100vh - (${height.join(' + ')}))` };
+  }
+
+  get activeLayout() {
+    const { config } = this.state;
+
+    if (!isEmpty(config) && isArray(config)) {
+      return config.find(item => item.tab.isActive);
+    }
+
+    return {};
+  }
+
+  get tabList() {
+    const { config } = this.state;
+
+    if (!isEmpty(config) && isArray(config)) {
+      return config.map((item, index) => ({ ...item.tab, idLayout: item.id, index }));
+    }
+
+    return [];
   }
 
   prepareWidgetsConfig = (data, dnd) => {
@@ -182,12 +200,20 @@ class Dashboard extends Component {
     this.saveDashboardConfig({ config });
   };
 
+  renderTabs() {
+    return (
+      <Tabs
+        className="ecos-dashboard__tabs"
+        hasHover
+        items={this.tabList.concat([{ label: 'эээээээээээээээээ' }, { label: 'эээээээээээээээээээээээээээээ' }])}
+      />
+    );
+  }
+
   renderLayout() {
     const { menuType } = this.props;
-    const {
-      config: { columns, type },
-      canDragging
-    } = this.state;
+    const { canDragging } = this.state;
+    const { columns, type } = this.activeLayout;
 
     return (
       <Layout
@@ -278,6 +304,7 @@ class Dashboard extends Component {
         >
           {this.renderTopMenu()}
           {this.renderHeader()}
+          {this.renderTabs()}
           {this.renderLayout()}
           {this.renderLoader()}
         </Scrollbars>

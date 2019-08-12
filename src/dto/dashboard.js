@@ -17,15 +17,41 @@ export default class DashboardConverter {
     return target;
   }
 
-  static getDashboardForWeb(source) {
+  static getDashboardLayoutForWeb(source) {
     const target = {};
 
     if (!isEmpty(source)) {
-      const { config } = source;
-      const layout = get(config, ['layout']) || {};
+      target.id = source.id;
+      target.tab = source.tab || {};
+      target.type = source.type || '';
+      target.columns = source.columns || [];
+    }
 
-      target.columns = layout.columns || [];
-      target.type = layout.type;
+    return target;
+  }
+
+  static getDashboardForWeb(source) {
+    const target = [];
+
+    if (!isEmpty(source)) {
+      const { config } = source;
+      const layouts = get(config, ['layouts'], []);
+
+      //for old version, which has one layout without tab
+      if (isEmpty(layouts)) {
+        const layout = get(config, ['layout'], {});
+
+        layout.id = 0;
+        layout.tab = DashboardService.defaultDashboardConfig.layout.tab;
+
+        if (!isEmpty(layout)) {
+          layouts.push(layout);
+        }
+      }
+
+      layouts.forEach(item => {
+        target.push(DashboardConverter.getDashboardLayoutForWeb(item));
+      });
     }
 
     return target;

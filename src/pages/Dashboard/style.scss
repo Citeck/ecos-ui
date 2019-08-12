@@ -55,4 +55,14 @@
       text-transform: capitalize;
     }
   }
+
+  &__tabs {
+    margin: 0 19px 18px;
+
+    .ecos-tab {
+      padding: 0 60px;
+      max-width: 259px;
+      @extend %ellipsis;
+    }
+  }
 }

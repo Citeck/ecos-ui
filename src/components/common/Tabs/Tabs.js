@@ -4,9 +4,10 @@ import classNames from 'classnames';
 import './Tabs.scss';
 
 const Tab = props => {
-  const { label, isActive, onClick } = props;
+  const { label, isActive, onClick, hasHover } = props;
   const tabClassNames = classNames('ecos-tab', {
-    'ecos-tab_active': isActive
+    'ecos-tab_active': isActive,
+    'ecos-tab_hover': hasHover
   });
 
   return (
@@ -20,17 +21,18 @@ Tab.propTypes = {
   id: PropTypes.string,
   label: PropTypes.string,
   isActive: PropTypes.bool,
+  hasHover: PropTypes.bool,
   onClick: PropTypes.func
 };
 
 const Tabs = props => {
-  const { items, className } = props;
+  const { items, className, hasHover } = props;
   const tabsClassNames = classNames('ecos-tabs', className);
 
   return (
     <div className={tabsClassNames}>
       {items.map(item => {
-        return <Tab key={item.id} {...item} />;
+        return <Tab key={item.id} {...item} hasHover={hasHover} />;
       })}
     </div>
   );
@@ -42,7 +44,14 @@ Tabs.propTypes = {
       ...Tab.propTypes
     })
   ),
-  className: PropTypes.string
+  className: PropTypes.string,
+  hasHover: PropTypes.bool
+};
+
+Tabs.defaultProps = {
+  items: [],
+  className: '',
+  hasHover: false
 };
 
 export default Tabs;
