@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import debounce from 'lodash/debounce';
+import { debounce, replace } from 'lodash';
 import { Tooltip } from 'reactstrap';
 import { Input } from '../../../../form';
 import Icon from '../../../../icons/Icon/Icon';
-import { trigger, getId } from '../../../../../../helpers/util';
+import { getId, trigger } from '../../../../../../helpers/util';
 
 import './HeaderFormatter.scss';
 
@@ -117,10 +117,10 @@ export default class HeaderFormatter extends Component {
   };
 
   render() {
-    const { column, filterable, ascending, onTextClick } = this.props;
+    const { column = {}, filterable, ascending, onTextClick } = this.props;
     const state = this.state;
 
-    this.id = `filter-${column.dataField.replace(':', '_')}-${this._id}`;
+    this.id = `filter-${replace(column.dataField, ':', '_')}-${this._id}`;
     this.tooltipId = `tooltip-${this.id}`;
 
     const text = (
@@ -131,7 +131,7 @@ export default class HeaderFormatter extends Component {
     );
 
     return (
-      <div ref={this.thRef} className={classNames('ecos-th', state.text && 'ecos-th_filtered')}>
+      <div ref={this.thRef} className={classNames('ecos-th', { 'ecos-th_filtered': state.text })}>
         {filterable ? this.filter(text) : text}
 
         <div className={'ecos-th__devider'} onMouseDown={this.onDeviderMouseDown} />

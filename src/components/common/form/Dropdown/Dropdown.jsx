@@ -28,8 +28,12 @@ export default class Dropdown extends Component {
     hasEmpty: PropTypes.bool,
     isStatic: PropTypes.bool,
     right: PropTypes.bool,
+    full: PropTypes.bool,
     isLinks: PropTypes.bool,
-    cascade: PropTypes.bool
+    cascade: PropTypes.bool,
+    hideSelected: PropTypes.bool,
+    CustomItem: PropTypes.element,
+    getStateOpen: PropTypes.func
   };
 
   static defaultProps = {
@@ -41,8 +45,12 @@ export default class Dropdown extends Component {
     hasEmpty: false,
     isStatic: false,
     right: false,
+    full: false,
     isLinks: false,
-    cascade: false
+    cascade: false,
+    hideSelected: false,
+    CustomItem: null,
+    getStateOpen: () => null
   };
 
   constructor(props) {
@@ -59,9 +67,16 @@ export default class Dropdown extends Component {
   }
 
   toggle = () => {
-    this.setState({
-      dropdownOpen: !this.state.dropdownOpen
-    });
+    this.setState(
+      {
+        dropdownOpen: !this.state.dropdownOpen
+      },
+      () => {
+        if (typeof this.props.getStateOpen == 'function') {
+          this.props.getStateOpen(this.state.dropdownOpen);
+        }
+      }
+    );
   };
 
   getControl = text => {
@@ -84,24 +99,40 @@ export default class Dropdown extends Component {
   };
 
   renderMenuItems() {
-    const { valueField, titleField, source, value, hideSelected } = this.props;
+    const { valueField, titleField, source, value, hideSelected, CustomItem } = this.props;
     const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
 
     return (
       <ul>
-        {filteredSource.map(item => (
-          <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
-            {getPropByStringKey(item, titleField)}
-          </MenuItem>
-        ))}
+        {filteredSource.map(item =>
+          CustomItem ? (
+            <CustomItem key={item[valueField]} onClick={this.onChange} item={item} />
+          ) : (
+            <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
+              {getPropByStringKey(item, titleField)}
+            </MenuItem>
+          )
+        )}
       </ul>
     );
   }
 
   render() {
-    const { titleField, isStatic, right, isLinks, cascade, className, menuClassName, toggleClassName, children, direction } = this.props;
+    const {
+      titleField,
+      isStatic,
+      right,
+      full,
+      isLinks,
+      cascade,
+      className,
+      menuClassName,
+      toggleClassName,
+      children,
+      direction
+    } = this.props;
     const { dropdownOpen } = this.state;
-    const cssClasses = classNames(this.className, className);
+    const cssClasses = classNames(this.className, className, { [`${this.className}_full-width`]: full });
     const cssDropdownMenu = classNames(
       `${this.className}__menu`,
       menuClassName,
