@@ -59,8 +59,7 @@ const defaultState = {
   config: null,
   initConfig: null,
   journalConfig: {
-    meta: {},
-    createVariants: []
+    meta: { createVariants: [] }
   },
 
   predicate: null,
