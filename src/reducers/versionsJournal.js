@@ -1,11 +1,13 @@
 import { handleActions } from 'redux-actions';
-import { addNewVersion, addNewVersionError, addNewVersionSuccess, setVersions } from '../actions/versionsJournal';
+import { addNewVersion, addNewVersionError, addNewVersionSuccess, setVersions, toggleAddModal } from '../actions/versionsJournal';
 
 const initialState = {
   versions: [],
   hasMore: false,
   totalCount: 0,
   addModalIsLoading: false,
+  addModalIsShow: false,
+  addModalErrorMessage: '',
   listIsLoading: false
 };
 
@@ -21,15 +23,23 @@ export default handleActions(
     }),
     [addNewVersion]: state => ({
       ...state,
-      addModalIsLoading: true
+      addModalIsLoading: true,
+      addModalErrorMessage: ''
     }),
     [addNewVersionSuccess]: state => ({
       ...state,
-      addModalIsLoading: false
+      addModalIsLoading: false,
+      addModalIsShow: false,
+      addModalErrorMessage: ''
     }),
-    [addNewVersionError]: state => ({
+    [addNewVersionError]: (state, { payload }) => ({
       ...state,
-      addModalIsLoading: false
+      addModalIsLoading: false,
+      addModalErrorMessage: payload
+    }),
+    [toggleAddModal]: state => ({
+      ...state,
+      addModalIsShow: !state.addModalIsShow
     })
   },
   initialState

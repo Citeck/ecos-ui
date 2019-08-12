@@ -6,8 +6,6 @@ function* sagaGetVersions({ api, logger }, { payload }) {
   try {
     const result = yield call(api.versionsJournal.getVersions, payload);
 
-    console.warn(result);
-
     yield put(
       setVersions({
         versions: result.records.map(VersionsJournalConverter.getVersionForWeb),
@@ -23,12 +21,15 @@ function* sagaAddNewVersion({ api, logger }, { payload }) {
   try {
     const result = yield call(api.versionsJournal.addNewVersion, payload);
 
-    yield call(addNewVersionSuccess);
-    yield call(getVersions);
-    console.warn(result);
+    if (result.status.code === 200) {
+      yield put(addNewVersionSuccess(result));
+      yield put(getVersions(result.nodeRef));
+    } else {
+      yield put(addNewVersionError(result.message));
+    }
   } catch (e) {
     logger.error('[versionJournal/sagaAddNewVersion saga] error', e.message);
-    yield call(addNewVersionError);
+    yield put(addNewVersionError(e.message));
   }
 }
 

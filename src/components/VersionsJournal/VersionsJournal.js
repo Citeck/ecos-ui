@@ -12,7 +12,7 @@ import Icon from '../common/icons/Icon/Icon';
 import { t } from '../../helpers/util';
 
 import AddModal from './AddModal';
-import { addNewVersion, getVersions } from '../../actions/versionsJournal';
+import { addNewVersion, getVersions, toggleAddModal } from '../../actions/versionsJournal';
 
 import './style.scss';
 
@@ -25,12 +25,15 @@ const TOOLTIP = {
 
 const mapStateToProps = state => ({
   versions: get(state, ['versionsJournal', 'versions']),
-  addModalIsLoading: get(state, ['versionsJournal', 'addModalIsLoading'])
+  addModalIsLoading: get(state, ['versionsJournal', 'addModalIsLoading']),
+  addModalIsShow: get(state, ['versionsJournal', 'addModalIsShow']),
+  addModalErrorMessage: get(state, ['versionsJournal', 'addModalErrorMessage'])
 });
 
 const mapDispatchToProps = dispatch => ({
   getVersionsList: payload => dispatch(getVersions(payload)),
-  addNewVersion: payload => dispatch(addNewVersion(payload))
+  addNewVersion: payload => dispatch(addNewVersion(payload)),
+  toggleAddModal: payload => dispatch(toggleAddModal(payload))
 });
 
 class VersionsJournal extends Component {
@@ -39,7 +42,6 @@ class VersionsJournal extends Component {
     tooltip: Object.keys(TOOLTIP)
       .map(key => ({ [TOOLTIP[key]]: false }))
       .reduce((reducer, current) => ({ ...reducer, ...current }), {}),
-    modalIsShow: false,
     selectedVersion: null
   };
 
@@ -63,7 +65,7 @@ class VersionsJournal extends Component {
   }
 
   handleToggleModal = () => {
-    this.setState(state => ({ modalIsShow: !state.modalIsShow }));
+    this.props.toggleAddModal();
   };
 
   handleAddNewVersion = data => {
@@ -120,7 +122,7 @@ class VersionsJournal extends Component {
             <div className="ecos-vj__version-actions">
               <Icon onClick={this.handleClickShowModal} className="icon-on ecos-vj__version-actions-item" />
               <Icon onClick={this.handleClickShowModal} className="icon-actual ecos-vj__version-actions-item" />
-              <a href={version.url} download>
+              <a href={version.url} download data-external>
                 <Icon onClick={this.handleClickShowModal} className="icon-download ecos-vj__version-actions-item" />
               </a>
             </div>
@@ -189,11 +191,10 @@ class VersionsJournal extends Component {
   }
 
   renderModal() {
-    const { versions, addModalIsLoading } = this.props;
-    const { modalIsShow } = this.state;
+    const { versions, addModalIsLoading, addModalIsShow, addModalErrorMessage } = this.props;
     const currentVersion = versions.length ? versions[0].version : 1;
 
-    if (!modalIsShow) {
+    if (!addModalIsShow) {
       return null;
     }
 
@@ -205,6 +206,7 @@ class VersionsJournal extends Component {
         onHideModal={this.handleToggleModal}
         onCreate={this.handleAddNewVersion}
         isLoading={addModalIsLoading}
+        errorMessage={addModalErrorMessage}
       />
     );
   }

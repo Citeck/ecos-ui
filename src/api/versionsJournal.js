@@ -24,45 +24,20 @@ export class VersionsJournalApi extends RecordService {
     ).then(response => response);
   };
 
-  // addNewVersion = data => {
-  //   const record = Records.get('version@');
-  //
-  //   console.warn(data);
-  //
-  //   record.att('version', {
-  //     filedata: data.file,
-  //     updateNodeRef: data.record,
-  //     description: data.comment,
-  //     majorversion: data.isMajor,
-  //     overwrite: true
-  //   });
-  //
-  //   return Records.file({
-  //     filedata: data.file,
-  //     updateNodeRef: data.record,
-  //     description: data.comment,
-  //     majorversion: data.isMajor,
-  //     overwrite: true
-  //   }).then(response => response);
-  // };
-
   addNewVersion = data => {
-    console.warn(data);
+    const body = new FormData();
+
+    body.append('filedata', data.file, data.file.name);
+    body.append('filename', data.file.name);
+    body.append('updateNodeRef', data.record);
+    body.append('description', data.comment);
+    body.append('majorversion', data.isMajor);
+    body.append('overwrite', 'true');
 
     return fetch('/share/proxy/alfresco/api/upload', {
       method: 'POST',
       credentials: 'include',
-      headers: {
-        'Content-type': 'application/json;charset=UTF-8'
-      },
-      body: JSON.stringify({
-        filedata: data.file,
-        filename: data.fileName,
-        updateNodeRef: data.record,
-        description: data.comment,
-        majorversion: data.isMajor,
-        overwrite: true
-      })
+      body
     }).then(response => response.json());
   };
 }

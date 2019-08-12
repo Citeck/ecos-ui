@@ -74,33 +74,16 @@ class AddModal extends Component {
     fileStatus: '',
     selectedVersion: VERSIONS.MINOR,
     comment: '',
-    fileName: '',
     isMajorVersion: false
-  };
-
-  initSavingData = file => {
-    const reader = new FileReader();
-
-    reader.onload = event => {
-      console.warn(event, event.target.result);
-
-      // this.setState({ file: event.target.result });
-      this.setState({ file: new Int8Array(event.target.result) });
-    };
-    // reader.readAsBinaryString(file);
-    reader.readAsArrayBuffer(file);
-    // reader.readAsDataURL(file);
   };
 
   getUploadParams = ({ file }) => {
     const body = new FormData();
 
-    body.append('fileField', file);
-    this.initSavingData(file);
+    this.setState({ file });
 
     return {
       url: 'https://httpbin.org/post',
-      // url: '/share/proxy/alfresco/api/upload',
       body
     };
   };
@@ -130,11 +113,11 @@ class AddModal extends Component {
     let result = 1;
 
     if (isMajor) {
-      result = Math.ceil(version + 1);
+      result = Math.floor(version + 1);
     } else {
       let [major, minor] = oldVersion.toString().split('.');
 
-      result = Number(`${major}.${+minor + 1}`);
+      result = `${major}.${+minor + 1}`;
     }
 
     return Number.isInteger(result) ? `${result}.0` : result;
@@ -144,15 +127,11 @@ class AddModal extends Component {
     this.setState({ fileStatus: status });
 
     if (status === FILE_STATUS.DONE) {
-      console.warn({ meta, file, remove, xhr });
-
-      this.setState({ fileName: file.name });
       remove();
     }
   };
 
   handleSubmit = (files, allFiles) => {
-    console.log(files.map(f => f.meta));
     allFiles.forEach(f => f.remove());
   };
 
@@ -171,11 +150,10 @@ class AddModal extends Component {
   };
 
   handleSave = () => {
-    const { file, comment, selectedVersion, fileName } = this.state;
+    const { file, comment, selectedVersion } = this.state;
 
     this.props.onCreate({
       file,
-      fileName,
       comment,
       isMajor: selectedVersion === VERSIONS.MAJOR
     });
@@ -260,13 +238,13 @@ class AddModal extends Component {
   }
 
   renderFile() {
-    const { file, fileName } = this.state;
+    const { file } = this.state;
 
     if (!file) {
       return null;
     }
 
-    return <div className="vj-modal__file">{fileName}</div>;
+    return <div className="vj-modal__file">{file.name}</div>;
   }
 
   renderComment() {
