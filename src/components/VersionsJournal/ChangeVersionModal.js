@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Dropzone from 'react-dropzone-uploader';
 import classNames from 'classnames';
 
 import EcosModal from '../common/EcosModal';
@@ -8,16 +7,11 @@ import { t, deepClone } from '../../helpers/util';
 import Radio from '../common/form/Radio';
 import Btn from '../common/btns/Btn/Btn';
 import { Loader } from '../common';
-import { FILE_STATUS, VERSIONS } from '../../constants/versionsJournal';
-
-import 'react-dropzone-uploader/dist/styles.css';
+import { VERSIONS } from '../../constants/versionsJournal';
 
 const LABELS = {
-  DROPZONE_PLACEHOLDER: 'Перетяните сюда файл или выберете вручную',
-  DROPZONE_SELECT_BUTTON: 'Выбрать файл',
-
   CANCEL: 'Отмена',
-  ADD: 'Добавить',
+  ADD: 'Сохранить',
 
   VERSION_MINOR: 'Незначительные изменения',
   VERSION_MAJOR: 'Существенные изменения',
@@ -26,7 +20,7 @@ const LABELS = {
   COMMENT_PLACEHOLDER: ['Не обязательно', 'не более', 'символов']
 };
 
-class AddModal extends Component {
+class ChangeVersionModal extends Component {
   static propTypes = {
     isShow: PropTypes.bool,
     isLoading: PropTypes.bool,
@@ -48,36 +42,10 @@ class AddModal extends Component {
   };
 
   state = {
-    file: null,
-    fileStatus: '',
     selectedVersion: VERSIONS.MINOR,
     comment: '',
     isMajorVersion: false
   };
-
-  getUploadParams = ({ file }) => {
-    const body = new FormData();
-
-    this.setState({ file });
-
-    return {
-      url: 'https://httpbin.org/post',
-      body
-    };
-  };
-
-  get dropzoneClassName() {
-    const { fileStatus } = this.state;
-    const classes = ['vj-modal__dropzone'];
-
-    if (
-      [FILE_STATUS.PREPARING, FILE_STATUS.UPLOADING, FILE_STATUS.GETTING_UPLOAD_PARAMS, FILE_STATUS.HEADERS_RECEIVED].includes(fileStatus)
-    ) {
-      classes.push('vj-modal__dropzone_uploading');
-    }
-
-    return classes.join(' ');
-  }
 
   get isValidComment() {
     const { commentMaxLength } = this.props;
@@ -101,23 +69,9 @@ class AddModal extends Component {
     return Number.isInteger(result) ? `${result}.0` : result;
   }
 
-  handleChangeStatus = ({ meta, file, remove, xhr }, status) => {
-    this.setState({ fileStatus: status });
-
-    if (status === FILE_STATUS.DONE) {
-      remove();
-    }
-  };
-
-  handleSubmit = (files, allFiles) => {
-    allFiles.forEach(f => f.remove());
-  };
-
   handleHideModal = () => {
     this.props.onHideModal();
     this.setState({
-      file: null,
-      fileStatus: '',
       selectedVersion: VERSIONS.MINOR,
       comment: ''
     });
@@ -128,63 +82,21 @@ class AddModal extends Component {
   };
 
   handleSave = () => {
-    const { file, comment, selectedVersion } = this.state;
+    const { currentVersion, onCreate } = this.props;
+    const { comment, selectedVersion } = this.state;
 
-    this.props.onCreate({
-      file,
+    onCreate({
       comment,
       isMajor: selectedVersion === VERSIONS.MAJOR
     });
   };
-
-  renderDropzoneInputContent = () => [
-    <label className="vj-modal__input-label-in" key={LABELS.DROPZONE_PLACEHOLDER}>
-      {t(LABELS.DROPZONE_PLACEHOLDER)}
-    </label>,
-    <div className="vj-modal__input-button" key={LABELS.DROPZONE_SELECT_BUTTON}>
-      {t(LABELS.DROPZONE_SELECT_BUTTON)}
-    </div>
-  ];
-
-  renderDropzoneSubmitButton = props => (
-    <div
-      className="vj-modal__input-button"
-      onClick={() => {
-        props.files[0].cancel();
-        props.files[0].remove();
-      }}
-    >
-      {t(LABELS.CANCEL)}
-    </div>
-  );
-
-  renderDropzone() {
-    return (
-      <Dropzone
-        multiple={false}
-        canCancel={false}
-        canRemove={false}
-        canRestart={false}
-        maxFiles={1}
-        getUploadParams={this.getUploadParams}
-        onChangeStatus={this.handleChangeStatus}
-        onSubmit={this.handleSubmit}
-        inputContent={this.renderDropzoneInputContent}
-        SubmitButtonComponent={this.renderDropzoneSubmitButton}
-        classNames={{
-          dropzone: this.dropzoneClassName,
-          inputLabel: 'vj-modal__input-label'
-        }}
-      />
-    );
-  }
 
   renderVersions() {
     const { currentVersion } = this.props;
     const { selectedVersion } = this.state;
 
     return (
-      <div className="vj-modal__radio">
+      <div className="vj-modal__radio vj-modal__radio_first-block">
         <Radio
           key={VERSIONS.MINOR}
           label={`${t(LABELS.VERSION_MINOR)} (v ${this.getVersion(currentVersion)})`}
@@ -213,16 +125,6 @@ class AddModal extends Component {
         />
       </div>
     );
-  }
-
-  renderFile() {
-    const { file } = this.state;
-
-    if (!file) {
-      return null;
-    }
-
-    return <div className="vj-modal__file">{file.name}</div>;
   }
 
   renderComment() {
@@ -259,7 +161,7 @@ class AddModal extends Component {
   }
 
   renderActionButtons() {
-    const { selectedVersion, file } = this.state;
+    const { selectedVersion } = this.state;
 
     return (
       <div className="vj-modal__footer">
@@ -269,7 +171,7 @@ class AddModal extends Component {
         <Btn
           className="ecos-btn_blue ecos-btn_hover_light-blue vj-modal__btn-add"
           onClick={this.handleSave}
-          disabled={!this.isValidComment || !selectedVersion || !file}
+          disabled={!this.isValidComment || !selectedVersion}
         >
           {t(LABELS.ADD)}
         </Btn>
@@ -302,9 +204,7 @@ class AddModal extends Component {
 
     return (
       <EcosModal isOpen={isShow} hideModal={this.handleHideModal} title={title} className="vj-modal">
-        {this.renderDropzone()}
         {this.renderErrorMessage()}
-        {this.renderFile()}
         {this.renderVersions()}
         {this.renderComment()}
         {this.renderActionButtons()}
@@ -314,4 +214,4 @@ class AddModal extends Component {
   }
 }
 
-export default AddModal;
+export default ChangeVersionModal;

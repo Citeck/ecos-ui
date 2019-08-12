@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactResizeDetector from 'react-resize-detector';
-import { Tooltip } from 'reactstrap';
+import { UncontrolledTooltip } from 'reactstrap';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
@@ -12,36 +12,34 @@ import Icon from '../common/icons/Icon/Icon';
 import { t } from '../../helpers/util';
 
 import AddModal from './AddModal';
-import { addNewVersion, getVersions, toggleAddModal } from '../../actions/versionsJournal';
+import ChangeVersionModal from './ChangeVersionModal';
+import { addNewVersion, getVersions, setActiveVersion, toggleModal } from '../../actions/versionsJournal';
+import { TOOLTIP, MODAL } from '../../constants/versionsJournal';
 
 import './style.scss';
 
-const TOOLTIP = {
-  ADD_NEW_VERSION: 'ADD_NEW_VERSION',
-  SET_ACTUAL_VERSION: 'SET_ACTUAL_VERSION',
-  VIEW_VERSION: 'VIEW_VERSION',
-  DOWNLOAD_VERSION: 'DOWNLOAD_VERSION'
-};
-
 const mapStateToProps = state => ({
   versions: get(state, ['versionsJournal', 'versions']),
+
   addModalIsLoading: get(state, ['versionsJournal', 'addModalIsLoading']),
   addModalIsShow: get(state, ['versionsJournal', 'addModalIsShow']),
-  addModalErrorMessage: get(state, ['versionsJournal', 'addModalErrorMessage'])
+  addModalErrorMessage: get(state, ['versionsJournal', 'addModalErrorMessage']),
+
+  changeVersionModalIsShow: get(state, ['versionsJournal', 'changeVersionModalIsShow']),
+  changeVersionModalIsLoading: get(state, ['versionsJournal', 'changeVersionModalIsLoading']),
+  changeVersionModalErrorMessage: get(state, ['versionsJournal', 'changeVersionModalErrorMessage'])
 });
 
 const mapDispatchToProps = dispatch => ({
   getVersionsList: payload => dispatch(getVersions(payload)),
   addNewVersion: payload => dispatch(addNewVersion(payload)),
-  toggleAddModal: payload => dispatch(toggleAddModal(payload))
+  toggleModal: payload => dispatch(toggleModal(payload)),
+  setActiveVersion: payload => dispatch(setActiveVersion(payload))
 });
 
 class VersionsJournal extends Component {
   state = {
     width: 290,
-    tooltip: Object.keys(TOOLTIP)
-      .map(key => ({ [TOOLTIP[key]]: false }))
-      .reduce((reducer, current) => ({ ...reducer, ...current }), {}),
     selectedVersion: null
   };
 
@@ -55,17 +53,12 @@ class VersionsJournal extends Component {
 
   handleClickShowModal = () => {};
 
-  handleToggleTooltip(type) {
-    this.setState(state => ({
-      tooltip: {
-        ...state.tooltip,
-        [type]: !state.tooltip[type]
-      }
-    }));
-  }
+  handleToggleAddModal = () => {
+    this.props.toggleModal(MODAL.ADD);
+  };
 
-  handleToggleModal = () => {
-    this.props.toggleAddModal();
+  handleToggleChangeVersionModal = () => {
+    this.props.toggleModal(MODAL.CHANGE_VERSION);
   };
 
   handleAddNewVersion = data => {
@@ -75,6 +68,21 @@ class VersionsJournal extends Component {
     });
   };
 
+  handleSetActiveVersion = data => {
+    const { selectedVersion } = this.state;
+
+    this.props.setActiveVersion({
+      ...data,
+      id: selectedVersion.id,
+      version: selectedVersion.version
+    });
+  };
+
+  handleOpenSetActiveVersionModal = version => {
+    this.handleToggleChangeVersionModal();
+    this.setState({ selectedVersion: version });
+  };
+
   renderAddButton() {
     return (
       <span key="add-button">
@@ -82,25 +90,25 @@ class VersionsJournal extends Component {
           id={TOOLTIP.ADD_NEW_VERSION}
           key="action-open-modal"
           icon="icon-plus"
-          onClick={this.handleToggleModal}
+          onClick={this.handleToggleAddModal}
           className="ecos-btn_i dashlet__btn_hidden dashlet__btn_next dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
         />
-        <Tooltip
+        <UncontrolledTooltip
           placement="top"
+          boundariesElement="window"
           key="action-open-modal-tooltip"
           innerClassName="ecos-vj__tooltip"
           arrowClassName="ecos-vj__tooltip-arrow"
-          isOpen={this.state.tooltip[TOOLTIP.ADD_NEW_VERSION]}
           target={TOOLTIP.ADD_NEW_VERSION}
-          toggle={this.handleToggleTooltip.bind(this, TOOLTIP.ADD_NEW_VERSION)}
         >
           {t('Добавить версию')}
-        </Tooltip>
+        </UncontrolledTooltip>
       </span>
     );
   }
 
   renderVersion = (version, showActions = true) => {
+    const id = version.id.replace(/[\:\/@]/gim, '');
     let avatar = <img src={version.avatar} alt="author" className="ecos-vj__version-author-avatar" />;
 
     if (!version.avatar) {
@@ -114,14 +122,27 @@ class VersionsJournal extends Component {
     }
 
     return (
-      <div className="ecos-vj__version" key={JSON.stringify(version)}>
+      <div className="ecos-vj__version" key={id}>
         <div className="ecos-vj__version-header">
           <div className="ecos-vj__version-number">{version.version}</div>
           <div className="ecos-vj__version-title">{version.name}</div>
           {showActions && (
             <div className="ecos-vj__version-actions">
               <Icon onClick={this.handleClickShowModal} className="icon-on ecos-vj__version-actions-item" />
-              <Icon onClick={this.handleClickShowModal} className="icon-actual ecos-vj__version-actions-item" />
+              <Icon
+                id={`${TOOLTIP.SET_ACTUAL_VERSION}-${id}`}
+                onClick={this.handleOpenSetActiveVersionModal.bind(null, version)}
+                className="icon-actual ecos-vj__version-actions-item"
+              />
+              <UncontrolledTooltip
+                placement="top"
+                boundariesElement="window"
+                innerClassName="ecos-vj__tooltip"
+                arrowClassName="ecos-vj__tooltip-arrow"
+                target={`${TOOLTIP.SET_ACTUAL_VERSION}-${id}`}
+              >
+                {t('Сделать актуальным')}
+              </UncontrolledTooltip>
               <a href={version.url} download data-external>
                 <Icon onClick={this.handleClickShowModal} className="icon-download ecos-vj__version-actions-item" />
               </a>
@@ -191,24 +212,42 @@ class VersionsJournal extends Component {
   }
 
   renderModal() {
-    const { versions, addModalIsLoading, addModalIsShow, addModalErrorMessage } = this.props;
-    const currentVersion = versions.length ? versions[0].version : 1;
+    const { addModalIsShow, changeVersionModalIsShow } = this.props;
 
-    if (!addModalIsShow) {
-      return null;
+    if (addModalIsShow) {
+      const { versions, addModalIsLoading, addModalErrorMessage } = this.props;
+      const currentVersion = versions.length ? versions[0].version : 1;
+
+      return (
+        <AddModal
+          isShow
+          title={t('Добавить новую версию')}
+          currentVersion={currentVersion}
+          onHideModal={this.handleToggleAddModal}
+          onCreate={this.handleAddNewVersion}
+          isLoading={addModalIsLoading}
+          errorMessage={addModalErrorMessage}
+        />
+      );
     }
 
-    return (
-      <AddModal
-        isShow
-        title={t('Добавить новую версию')}
-        currentVersion={currentVersion}
-        onHideModal={this.handleToggleModal}
-        onCreate={this.handleAddNewVersion}
-        isLoading={addModalIsLoading}
-        errorMessage={addModalErrorMessage}
-      />
-    );
+    if (changeVersionModalIsShow) {
+      const { versions, changeVersionModalErrorMessage, changeVersionModalIsLoading } = this.props;
+
+      return (
+        <ChangeVersionModal
+          isShow
+          title={t('Сделать актуальной версию')}
+          currentVersion={versions[0].version}
+          onHideModal={this.handleToggleChangeVersionModal}
+          onCreate={this.handleSetActiveVersion}
+          isLoading={changeVersionModalIsLoading}
+          errorMessage={changeVersionModalErrorMessage}
+        />
+      );
+    }
+
+    return null;
   }
 
   render() {

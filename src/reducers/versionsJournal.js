@@ -1,14 +1,19 @@
 import { handleActions } from 'redux-actions';
-import { addNewVersion, addNewVersionError, addNewVersionSuccess, setVersions, toggleAddModal } from '../actions/versionsJournal';
+import { addNewVersion, addNewVersionError, addNewVersionSuccess, setVersions, toggleModal } from '../actions/versionsJournal';
 
 const initialState = {
   versions: [],
   hasMore: false,
   totalCount: 0,
+  listIsLoading: false,
+
   addModalIsLoading: false,
   addModalIsShow: false,
   addModalErrorMessage: '',
-  listIsLoading: false
+
+  changeVersionModalIsShow: false,
+  changeVersionModalIsLoading: false,
+  changeVersionModalErrorMessage: ''
 };
 
 Object.freeze(initialState);
@@ -37,9 +42,9 @@ export default handleActions(
       addModalIsLoading: false,
       addModalErrorMessage: payload
     }),
-    [toggleAddModal]: state => ({
+    [toggleModal]: (state, { payload }) => ({
       ...state,
-      addModalIsShow: !state.addModalIsShow
+      [`${payload}ModalIsShow`]: !state[`${payload}ModalIsShow`]
     })
   },
   initialState

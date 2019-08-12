@@ -2,8 +2,6 @@ import { RecordService } from './recordService';
 import Records from '../components/Records';
 
 export class VersionsJournalApi extends RecordService {
-  uploadNewVersion = () => {};
-
   getVersions = record => {
     return Records.query(
       {
@@ -39,5 +37,17 @@ export class VersionsJournalApi extends RecordService {
       credentials: 'include',
       body
     }).then(response => response.json());
+  };
+
+  setActiveVersion = data => {
+    const record = Records.get(data.id);
+
+    record.att('revert', {
+      version: data.version,
+      comment: data.comment,
+      majorVersion: data.isMajor
+    });
+
+    return record.save().then(response => response);
   };
 }
