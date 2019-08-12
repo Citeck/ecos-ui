@@ -55,7 +55,7 @@ export default class Measurer extends Component {
     const { className, children } = this.props;
     return (
       <div style={{ width: '100%' }} ref={this._ref} className={className}>
-        {this.state.show ? React.cloneElement(children, { measurer: this.measurer }) : null}
+        {this.state.show && children ? React.cloneElement(children, { measurer: this.measurer }) : null}
       </div>
     );
   }
