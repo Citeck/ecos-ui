@@ -1,6 +1,12 @@
 @import '../../constants';
 
 .ecos-vj {
+  position: relative;
+
+  &__loader {
+    border-radius: 12px;
+  }
+
   &__title {
     background: $color-blue-light4;
     font-weight: bold;

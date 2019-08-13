@@ -5,7 +5,9 @@ import {
   addNewVersionError,
   getVersions,
   setVersions,
-  setActiveVersion
+  setActiveVersion,
+  setActiveVersionSuccess,
+  setActiveVersionError
 } from '../actions/versionsJournal';
 import VersionsJournalConverter from '../dto/versionsJournal';
 
@@ -26,7 +28,7 @@ function* sagaGetVersions({ api, logger }, { payload }) {
 
 function* sagaAddNewVersion({ api, logger }, { payload }) {
   try {
-    const result = yield call(api.versionsJournal.addNewVersion, payload);
+    const result = yield call(api.versionsJournal.addNewVersion, VersionsJournalConverter.getAddVersionFormDataForServer(payload));
 
     if (result.status.code === 200) {
       yield put(addNewVersionSuccess(result));
@@ -42,11 +44,14 @@ function* sagaAddNewVersion({ api, logger }, { payload }) {
 
 function* sagaSetNewVersion({ api, logger }, { payload }) {
   try {
-    const result = yield call(api.versionsJournal.setActiveVersion, payload);
+    const result = yield call(api.versionsJournal.setActiveVersion, VersionsJournalConverter.getActiveVersionForServer(payload));
 
+    yield put(setActiveVersionSuccess(result));
+    yield put(getVersions(result.id));
     console.warn(result);
   } catch (e) {
     logger.error('[versionJournal/sagaSetNewVersion saga] error', e.message);
+    yield put(setActiveVersionError(e.message));
   }
 }
 

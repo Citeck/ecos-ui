@@ -48,4 +48,36 @@ export default class VersionsJournalConverter {
 
     return target;
   }
+
+  static getAddVersionFormDataForServer(source = {}) {
+    const target = new FormData();
+
+    if (!source || (source && !Object.keys(source))) {
+      return target;
+    }
+
+    target.append('filedata', source.file, source.file.name);
+    target.append('filename', source.file.name);
+    target.append('updateNodeRef', source.record);
+    target.append('description', source.comment);
+    target.append('majorversion', source.isMajor);
+    target.append('overwrite', 'true');
+
+    return target;
+  }
+
+  static getActiveVersionForServer(source = {}) {
+    const target = {};
+
+    if (!source || (source && !Object.keys(source))) {
+      return target;
+    }
+
+    target.id = source.id || '';
+    target.comment = source.comment || '';
+    target.version = source.version || 1;
+    target.majorVersion = source.isMajor || false;
+
+    return target;
+  }
 }

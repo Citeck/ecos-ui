@@ -9,6 +9,7 @@ import get from 'lodash/get';
 import Dashlet from '../Dashlet/Dashlet';
 import { IcoBtn } from '../common/btns';
 import Icon from '../common/icons/Icon/Icon';
+import { Loader } from '../common';
 import { t } from '../../helpers/util';
 
 import AddModal from './AddModal';
@@ -20,6 +21,7 @@ import './style.scss';
 
 const mapStateToProps = state => ({
   versions: get(state, ['versionsJournal', 'versions']),
+  isLoading: get(state, ['versionsJournal', 'listIsLoading']),
 
   addModalIsLoading: get(state, ['versionsJournal', 'addModalIsLoading']),
   addModalIsShow: get(state, ['versionsJournal', 'addModalIsShow']),
@@ -250,11 +252,22 @@ class VersionsJournal extends Component {
     return null;
   }
 
+  renderLoading() {
+    const { isLoading } = this.props;
+
+    if (!isLoading) {
+      return null;
+    }
+
+    return <Loader blur className="ecos-vj__loader" />;
+  }
+
   render() {
     return (
       <div>
         <Dashlet
           title={t('Журнал версий')}
+          className="ecos-vj"
           needGoTo={false}
           actionEdit={false}
           actionHelp={false}
@@ -268,6 +281,7 @@ class VersionsJournal extends Component {
             {this.renderOldVersions()}
           </Scrollbars>
           {this.renderModal()}
+          {this.renderLoading()}
         </Dashlet>
       </div>
     );

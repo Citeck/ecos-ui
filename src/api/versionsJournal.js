@@ -22,16 +22,7 @@ export class VersionsJournalApi extends RecordService {
     ).then(response => response);
   };
 
-  addNewVersion = data => {
-    const body = new FormData();
-
-    body.append('filedata', data.file, data.file.name);
-    body.append('filename', data.file.name);
-    body.append('updateNodeRef', data.record);
-    body.append('description', data.comment);
-    body.append('majorversion', data.isMajor);
-    body.append('overwrite', 'true');
-
+  addNewVersion = body => {
     return fetch('/share/proxy/alfresco/api/upload', {
       method: 'POST',
       credentials: 'include',
@@ -39,14 +30,10 @@ export class VersionsJournalApi extends RecordService {
     }).then(response => response.json());
   };
 
-  setActiveVersion = data => {
-    const record = Records.get(data.id);
+  setActiveVersion = ({ id, ...attributes }) => {
+    const record = Records.get(id);
 
-    record.att('revert', {
-      version: data.version,
-      comment: data.comment,
-      majorVersion: data.isMajor
-    });
+    record.att('revert', attributes);
 
     return record.save().then(response => response);
   };

@@ -6,7 +6,6 @@ import EcosModal from '../common/EcosModal';
 import { t, deepClone } from '../../helpers/util';
 import Radio from '../common/form/Radio';
 import Btn from '../common/btns/Btn/Btn';
-import { Loader } from '../common';
 import { VERSIONS } from '../../constants/versionsJournal';
 
 const LABELS = {
@@ -189,26 +188,15 @@ class ChangeVersionModal extends Component {
     return <div className="vj-modal__error">{errorMessage}</div>;
   }
 
-  renderLoading() {
-    const { isLoading } = this.props;
-
-    if (!isLoading) {
-      return null;
-    }
-
-    return <Loader blur />;
-  }
-
   render() {
-    const { isShow, title } = this.props;
+    const { isShow, title, isLoading } = this.props;
 
     return (
-      <EcosModal isOpen={isShow} hideModal={this.handleHideModal} title={title} className="vj-modal">
+      <EcosModal isOpen={isShow} isLoading={isLoading} hideModal={this.handleHideModal} title={title} className="vj-modal">
         {this.renderErrorMessage()}
         {this.renderVersions()}
         {this.renderComment()}
         {this.renderActionButtons()}
-        {this.renderLoading()}
       </EcosModal>
     );
   }

@@ -7,7 +7,6 @@ import EcosModal from '../common/EcosModal';
 import { t, deepClone } from '../../helpers/util';
 import Radio from '../common/form/Radio';
 import Btn from '../common/btns/Btn/Btn';
-import { Loader } from '../common';
 import { FILE_STATUS, VERSIONS } from '../../constants/versionsJournal';
 
 import 'react-dropzone-uploader/dist/styles.css';
@@ -287,28 +286,17 @@ class AddModal extends Component {
     return <div className="vj-modal__error">{errorMessage}</div>;
   }
 
-  renderLoading() {
-    const { isLoading } = this.props;
-
-    if (!isLoading) {
-      return null;
-    }
-
-    return <Loader blur />;
-  }
-
   render() {
-    const { isShow, title } = this.props;
+    const { isShow, isLoading, title } = this.props;
 
     return (
-      <EcosModal isOpen={isShow} hideModal={this.handleHideModal} title={title} className="vj-modal">
+      <EcosModal isOpen={isShow} isLoading={isLoading} hideModal={this.handleHideModal} title={title} className="vj-modal">
         {this.renderDropzone()}
         {this.renderErrorMessage()}
         {this.renderFile()}
         {this.renderVersions()}
         {this.renderComment()}
         {this.renderActionButtons()}
-        {this.renderLoading()}
       </EcosModal>
     );
   }
