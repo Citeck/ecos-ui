@@ -1,13 +1,13 @@
 import { select } from 'redux-saga/effects';
 import { isArray, isEmpty, isString } from 'lodash';
-import { selectDataTasksByStateId } from '../selectors/tasks';
+import { selectStateTasksById } from '../selectors/tasks';
 import { getIndexObjectByKV } from '../helpers/arrayOfObjects';
 import { isExistIndex } from '../helpers/util';
 import { USER_CURRENT } from '../constants';
 
 export default class TasksService {
   static updateList = function*({ stateId, taskId, updatedFields, ownerUserName }) {
-    const dataTasks = yield select(selectDataTasksByStateId, stateId);
+    const dataTasks = yield select(selectStateTasksById, stateId);
     const list = dataTasks && Object.keys(dataTasks).length ? dataTasks.list : [];
     const taskIndex = getIndexObjectByKV(list, 'id', taskId);
     const { actors, ...stateAssign } = updatedFields;

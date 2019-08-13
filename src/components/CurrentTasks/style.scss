@@ -4,12 +4,6 @@
   padding: 0 20px;
 }
 
-%ellipsis {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
 .ecos-current-task {
   $root: &;
 

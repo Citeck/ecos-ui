@@ -1,2 +1,4 @@
-export const selectDataTasksByStateId = (state, dId) => state.tasks[dId];
-export const selectDataCurrentTasksByStateId = (state, dId) => state.currentTasks[dId];
+import { get } from 'lodash';
+
+export const selectStateTasksById = (state, dId) => get(state, ['tasks', dId], {});
+export const selectStateCurrentTasksById = (state, dId) => get(state, ['currentTasks', dId], {});

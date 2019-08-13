@@ -7,9 +7,15 @@ import {
   initDocStatus,
   setAvailableToChangeStatuses,
   setCheckDocStatus,
-  setDocStatus
+  setDocStatus,
+  updateDocStatus,
+  updateRequestDocStatus
 } from '../actions/docStatus';
 import { getCurrentStateById } from '../helpers/redux';
+
+const commonInitialState = {
+  updateRequestRecord: null
+};
 
 const initialState = {
   isLoading: false,
@@ -62,6 +68,21 @@ export default handleActions(
         countAttempt: 0
       }
     }),
+    [updateRequestDocStatus]: (state, { payload: { record } }) => ({
+      ...state,
+      updateRequestRecord: record
+    }),
+    [updateDocStatus]: (state, { payload: { stateId } }) => ({
+      ...state,
+      [stateId]: {
+        ...getCurrentStateById(state, stateId, initialState),
+        status: {},
+        isLoading: false,
+        isUpdating: true,
+        countAttempt: 0
+      },
+      updateRequestRecord: null
+    }),
     [setDocStatus]: (state, { payload: { stateId, status } }) => ({
       ...state,
       [stateId]: {
@@ -87,5 +108,5 @@ export default handleActions(
       }
     })
   },
-  {}
+  commonInitialState
 );

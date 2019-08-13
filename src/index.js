@@ -24,6 +24,7 @@ import {
   CommentsApi,
   DashboardApi,
   DocStatusApi,
+  EventsHistoryApi,
   JournalsApi,
   MenuApi,
   OrgStructApi,
@@ -68,6 +69,7 @@ api.comments = new CommentsApi(store);
 api.dashboard = new DashboardApi(store);
 api.pageTabs = new PageTabsApi(store);
 api.docStatus = new DocStatusApi(store);
+api.eventsHistory = new EventsHistoryApi(store);
 
 const history = getHistory();
 

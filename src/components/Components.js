@@ -13,7 +13,8 @@ export const ComponentKeys = {
   PROPERTIES: 'properties',
   TASKS: 'tasks',
   CURRENT_TASKS: 'current-tasks',
-  DOC_STATUS: 'doc-status'
+  DOC_STATUS: 'doc-status',
+  EVENTS_HISTORY: 'events-history'
 };
 
 export default class Components {
@@ -45,6 +46,10 @@ export default class Components {
     [ComponentKeys.DOC_STATUS]: {
       path: './DocStatus',
       label: 'dashboard-settings.widget.doc-status'
+    },
+    [ComponentKeys.EVENTS_HISTORY]: {
+      path: './EventsHistory',
+      label: 'dashboard-settings.widget.events-history'
     }
   };
 
