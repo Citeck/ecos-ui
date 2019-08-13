@@ -59,7 +59,6 @@ class Dashboard extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { initMenuSettings, config, isLoadingDashboard, getDashboardConfig, resetDashboardConfig, setLoading } = nextProps;
-    console.log('payload config', JSON.stringify(config));
     const { recordRef } = this.getPathInfo(nextProps);
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
@@ -201,6 +200,10 @@ class Dashboard extends Component {
   };
 
   renderTabs() {
+    if (this.tabList.length < 2) {
+      return null;
+    }
+
     return <Tabs className="ecos-dashboard__tabs" hasHover items={this.tabList} />;
   }
 

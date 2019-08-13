@@ -18,7 +18,7 @@ const Tab = props => {
 };
 
 Tab.propTypes = {
-  id: PropTypes.string,
+  id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   label: PropTypes.string,
   isActive: PropTypes.bool,
   hasHover: PropTypes.bool,
@@ -31,8 +31,8 @@ const Tabs = props => {
 
   return (
     <div className={tabsClassNames}>
-      {items.map(item => {
-        return <Tab key={item.id} {...item} hasHover={hasHover} />;
+      {items.map((item, index) => {
+        return <Tab key={`${item.id}-${index}`} {...item} hasHover={hasHover} />;
       })}
     </div>
   );

@@ -12,18 +12,16 @@ import { getAwayFromPage, initDashboardSettings, saveDashboardConfig } from '../
 import { initMenuSettings } from '../../actions/menu';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
-import { Btn } from '../../components/common/btns';
-import { Loader } from '../../components/common';
+import { Btn, IcoBtn } from '../../components/common/btns';
+import { Loader, Tabs } from '../../components/common';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
 
 const mapStateToProps = state => ({
-  menu: {
-    type: get(state, 'menu.type'),
-    links: get(state, 'menu.links')
-  },
+  menuType: get(state, 'menu.type'),
+  menuLinks: get(state, 'menu.links'),
   config: get(state, ['dashboardSettings', 'config']),
   availableMenuItems: get(state, ['menu', 'availableMenuItems']),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
@@ -48,10 +46,8 @@ const DROPPABLE_ZONE = {
 
 class DashboardSettings extends React.Component {
   static propTypes = {
-    menu: {
-      type: PropTypes.string,
-      links: PropTypes.array
-    },
+    menuType: PropTypes.string,
+    menuLinks: PropTypes.array,
     config: PropTypes.arrayOf(
       PropTypes.shape({
         type: PropTypes.string,
@@ -64,7 +60,8 @@ class DashboardSettings extends React.Component {
   };
 
   static defaultProps = {
-    menu: {},
+    menuType: '',
+    menuLinks: [],
     config: [],
     availableWidgets: [],
     availableMenuItems: []
@@ -74,11 +71,12 @@ class DashboardSettings extends React.Component {
     super(props);
 
     const state = {
-      layouts: LAYOUTS,
-      selectedWidgets: [],
+      activeLayoutId: null,
+      selectedLayout: {},
+      selectedWidgets: {},
       selectedMenuItems: [],
       typeMenu: TYPE_MENU,
-      isShowMenuConstructor: get(props, 'menu.type'),
+      isShowMenuConstructor: false,
       availableWidgets: DndUtils.setDndId(props.availableWidgets),
       availableMenuItems: DndUtils.setDndId(props.availableMenuItems),
       urlParams: getSortedUrlParams(),
@@ -87,7 +85,8 @@ class DashboardSettings extends React.Component {
 
     this.state = {
       ...state,
-      ...this.setStateByConfig(props, state)
+      ...this.setStateByConfig(props, state),
+      ...this.setStateMenu(props, state)
     };
   }
 
@@ -98,7 +97,7 @@ class DashboardSettings extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
-    let { config, availableMenuItems, availableWidgets, saveResult = {} } = this.props;
+    let { config, menuType, availableMenuItems, availableWidgets, saveResult = {} } = this.props;
     let state = {};
 
     if (urlParams !== newUrlParams) {
@@ -112,6 +111,12 @@ class DashboardSettings extends React.Component {
       state = { ...state, ...resultConfig };
     }
 
+    if (JSON.stringify(menuType) !== JSON.stringify(nextProps.menuType)) {
+      const resultMenu = this.setStateMenu(nextProps);
+
+      state = { ...state, ...resultMenu };
+    }
+
     if (JSON.stringify(availableMenuItems) !== JSON.stringify(nextProps.availableMenuItems)) {
       state.availableMenuItems = DndUtils.setDndId(nextProps.availableMenuItems);
     }
@@ -122,8 +127,6 @@ class DashboardSettings extends React.Component {
     ) {
       state.availableWidgets = DndUtils.setDndId(nextProps.availableWidgets);
     }
-
-    state.isShowMenuConstructor = get(nextProps, 'menu.type') === MENU_TYPE.TOP;
 
     this.setState({ ...state });
 
@@ -141,39 +144,46 @@ class DashboardSettings extends React.Component {
   }
 
   setStateByConfig(props, state = this.state) {
-    const { layouts, typeMenu } = state;
-
-    let configLayout = this.getActiveLayout(props);
-    let selectedLayout = {};
-    let tabs = [];
-
-    layouts.forEach(item => {
-      item.isActive = item.type === configLayout.type;
-
-      if (item.isActive) {
-        selectedLayout = item;
-      }
-    });
-
-    typeMenu.forEach(item => {
-      item.isActive = item.type === get(props, 'menu.type');
-    });
-
-    let selectedWidgets = this.setSelectedWidgets(selectedLayout, configLayout.widgets);
-    selectedWidgets = selectedWidgets.map(item => {
-      return DndUtils.setDndId(item);
-    });
-
-    let selectedMenuItems = get(props, 'menu.links');
-    selectedMenuItems = DndUtils.setDndId(selectedMenuItems);
-
     const { config } = props;
+    const activeConfig = this.getActiveLayout(props);
+
+    let activeLayoutId = activeConfig.id;
+    let tabs = [];
+    let selectedLayout = {};
+    let selectedWidgets = {};
 
     if (!isEmpty(config) && isArray(config)) {
-      tabs = config.map((item, index) => ({ ...item.tab, idLayout: item.id, index }));
+      config.forEach((item, index) => {
+        let idLayout = item.id;
+
+        tabs.push({ ...item.tab, label: t(item.tab.label), idLayout, onClick: () => this.onClickTabLayout(item.id) });
+
+        selectedLayout[idLayout] = item.type;
+
+        let layout = LAYOUTS.find(layout => layout.type === item.type) || {};
+        let widgets = this.setSelectedWidgets(layout, activeConfig.widgets);
+
+        widgets.map(item => DndUtils.setDndId(item));
+        selectedWidgets[idLayout] = widgets;
+      });
     }
 
-    return { layouts, selectedWidgets, selectedMenuItems, tabs };
+    return { selectedLayout, selectedWidgets, tabs, activeLayoutId };
+  }
+
+  setStateMenu(props, state = this.state) {
+    const { typeMenu } = state;
+
+    let selectedMenuItems = get(props, 'menuLinks');
+    selectedMenuItems = DndUtils.setDndId(selectedMenuItems);
+
+    typeMenu.forEach(item => {
+      item.isActive = item.type === this.getMenuType(props);
+    });
+
+    const isShowMenuConstructor = this.getMenuType(props) === MENU_TYPE.TOP;
+
+    return { typeMenu, selectedMenuItems, isShowMenuConstructor };
   }
 
   setSelectedWidgets(item, availableWidgets) {
@@ -208,10 +218,14 @@ class DashboardSettings extends React.Component {
     const { config } = props || [];
 
     if (!isEmpty(config) && isArray(config)) {
-      return config.find(item => item.tab.isActive);
+      return config.find(item => item.tab.isActive) || config[0];
     }
 
     return {};
+  }
+
+  getMenuType(props = this.props) {
+    return get(props, 'menuType', '');
   }
 
   get menuWidth() {
@@ -235,9 +249,7 @@ class DashboardSettings extends React.Component {
   }
 
   get selectedTypeLayout() {
-    const { layouts = [] } = this.state;
-
-    return layouts.find(item => item.isActive) || {};
+    return LAYOUTS.find(layout => layout.type === this.activeData.layout) || {};
   }
 
   get filterAvailableMenuItems() {
@@ -246,8 +258,17 @@ class DashboardSettings extends React.Component {
     return availableMenuItems.filter(item => !selectedMenuItems.find(elm => item.id === elm.id));
   }
 
+  get activeData() {
+    const { activeLayoutId, selectedWidgets, selectedLayout } = this.state;
+
+    return {
+      widgets: selectedWidgets[activeLayoutId] || [],
+      layout: selectedLayout[activeLayoutId] || ''
+    };
+  }
+
   draggablePositionAdjusment = () => {
-    const menuType = get(this.props, 'menu.type');
+    const menuType = this.getMenuType();
 
     return {
       top: menuType === MENU_TYPE.LEFT ? this.bodyScrollTop : 0,
@@ -255,19 +276,55 @@ class DashboardSettings extends React.Component {
     };
   };
 
+  renderHeader() {
+    return (
+      <Row>
+        <Col md={12}>
+          <h1 className="ecos-dashboard-settings__header">{t('dashboard-settings.page-title')}</h1>
+        </Col>
+      </Row>
+    );
+  }
+
   /*-------- start Tabs --------*/
+  onClickTabLayout = activeLayoutId => {
+    let { tabs } = this.state;
+
+    tabs.forEach(item => {
+      item.isActive = item.idLayout === activeLayoutId;
+    });
+
+    this.setState({ tabs, activeLayoutId });
+  };
+
+  onClickNewTab = () => {
+    const { tabs } = this.state;
+    const idLayout = tabs.length;
+
+    tabs.push({ label: 'new tab', idLayout, onClick: () => this.onClickTabLayout(idLayout) });
+
+    this.setState({ tabs });
+  };
+
   renderTabsBlock() {
     const { tabs } = this.state;
+    const active = tabs.find(tab => tab.isActive) || {};
 
     return (
       <React.Fragment>
         <h5 className="ecos-dashboard-settings__container-title">{t('Вкладки')}</h5>
-        <h6 className="ecos-dashboard-settings__container-subtitle">{t('По умолчанию одна вкладка и она не отображается')}</h6>
+        <h6 className="ecos-dashboard-settings__container-subtitle">{t('Установите необходимые вкладки дашборда')}</h6>
         <div className="ecos-dashboard-settings__container-group">
-          {tabs.map(item => (
-            <div>* {JSON.stringify(item)}</div>
-          ))}
+          <Tabs className="ecos-dashboard-settings__tabs" hasHover items={tabs} />
+          <IcoBtn
+            icon={'icon-big-plus'}
+            className={'ecos-btn_i ecos-btn_i-big-plus ecos-btn_blue ecos-btn_hover_light-blue'}
+            onClick={this.onClickNewTab}
+          />
         </div>
+        <h6 className="ecos-dashboard-settings__container-subtitle">
+          {t('Настройте контент для выбранной вкладки') + ': ' + active.label}
+        </h6>
       </React.Fragment>
     );
   }
@@ -275,27 +332,16 @@ class DashboardSettings extends React.Component {
   /*-------- start Layouts --------*/
 
   handleClickColumn(layout) {
-    let { selectedWidgets = [], layouts: oldLayouts } = this.state;
-    let layouts = cloneDeep(oldLayouts);
+    const { activeLayoutId, selectedWidgets, selectedLayout } = this.state;
 
-    if (layout.isActive) {
+    if (this.activeData.layout === layout.type) {
       return;
     }
 
-    layouts = layouts.map(item => {
-      if (item.isActive) {
-        item.isActive = false;
-      }
+    selectedLayout[activeLayoutId] = layout.type;
+    selectedWidgets[activeLayoutId] = this.setSelectedWidgets(layout, selectedWidgets[activeLayoutId]);
 
-      if (item.type === layout.type) {
-        selectedWidgets = this.setSelectedWidgets(item, selectedWidgets);
-        item.isActive = true;
-      }
-
-      return item;
-    });
-
-    this.setState({ layouts, selectedWidgets });
+    this.setState({ selectedWidgets, selectedLayout });
   }
 
   handleClickMenu(menu) {
@@ -307,15 +353,8 @@ class DashboardSettings extends React.Component {
     }
 
     typeMenu = typeMenu.map(item => {
-      if (item.isActive) {
-        item.isActive = false;
-      }
-
-      if (item.type === menu.type) {
-        item.isActive = true;
-
-        isShowMenuConstructor = item.type === MENU_TYPE.TOP;
-      }
+      item.isActive = item.type === menu.type;
+      isShowMenuConstructor = menu.type === MENU_TYPE.TOP;
 
       return item;
     });
@@ -324,13 +363,11 @@ class DashboardSettings extends React.Component {
   }
 
   renderColumnLayouts() {
-    const { layouts } = this.state;
-
-    return layouts.map(layout => (
+    return LAYOUTS.map(layout => (
       <ColumnsLayoutItem
         key={`${layout.position}-${layout.type}`}
         onClick={this.handleClickColumn.bind(this, layout)}
-        active={layout.isActive}
+        active={layout.type === this.activeData.layout}
         config={{ columns: layout.columns || [] }}
         className="ecos-dashboard-settings__container-group-item"
       />
@@ -545,8 +582,9 @@ class DashboardSettings extends React.Component {
   };
 
   renderWidgetColumns() {
-    const { selectedWidgets, draggableDestination } = this.state;
-    const columns = this.selectedTypeLayout.columns || [];
+    const { draggableDestination } = this.state;
+    const { columns = [] } = this.selectedTypeLayout;
+    const { widgets } = this.activeData;
 
     return (
       <div className={'ecos-dashboard-settings__drag-container_widgets-to'}>
@@ -567,9 +605,9 @@ class DashboardSettings extends React.Component {
                 isDragingOver={draggableDestination === DROPPABLE_ZONE.WIDGETS_TO + indexColumn}
                 scrollHeight={320}
               >
-                {selectedWidgets &&
-                  selectedWidgets[indexColumn] &&
-                  selectedWidgets[indexColumn].map((widget, indexWidget) => (
+                {widgets &&
+                  widgets[indexColumn] &&
+                  widgets[indexColumn].map((widget, indexWidget) => (
                     <DragItem
                       key={widget.dndId}
                       draggableId={widget.dndId}
@@ -637,7 +675,7 @@ class DashboardSettings extends React.Component {
 
   handleAcceptClick = () => {
     const { saveSettings, getAwayFromPage } = this.props;
-    const { selectedWidgets: widgets, selectedMenuItems: links, typeMenu } = this.state;
+    const { selectedWidgets: widgets, selectedMenuItems: links, typeMenu, tabs } = this.state;
     const layout = this.selectedTypeLayout;
     const activeMenuType = typeMenu.find(item => item.isActive);
     const menuType = activeMenuType ? activeMenuType.type : typeMenu[0].type;
@@ -647,7 +685,8 @@ class DashboardSettings extends React.Component {
       columns: layout.columns,
       menuType,
       widgets,
-      links
+      links,
+      tabs
     });
     getAwayFromPage();
   };
@@ -685,13 +724,9 @@ class DashboardSettings extends React.Component {
     return (
       <Container className="ecos-dashboard-settings">
         {this.renderLoader()}
-        <Row>
-          <Col md={12}>
-            <h1 className="ecos-dashboard-settings__header">{t('dashboard-settings.page-title')}</h1>
-          </Col>
-        </Row>
-        <div className="ecos-dashboard-settings__container">{this.renderTabsBlock()}</div>
+        {this.renderHeader()}
         <div className="ecos-dashboard-settings__container">
+          {this.renderTabsBlock()}
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
         </div>

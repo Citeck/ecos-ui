@@ -50,7 +50,7 @@
     border-color: $color-blue-dark;
   }
 
-  &_hover:hover {
+  &_hover:not(&_active):hover {
     background: $color-white;
     color: $color-blue-dark;
   }

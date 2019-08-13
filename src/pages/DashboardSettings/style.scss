@@ -1,10 +1,10 @@
-@import '../../constants.scss';
+@import '../../constants';
 
 .draggable-item {
   padding: 10px;
-  border: 2px gray solid;
-  border-radius: 5px;
-  background: #b7b7b7;
+  border: $border-width-standard solid $color-gray-11;
+  border-radius: $border-radius-standard;
+  background: $color-gray-5;
   width: 100px;
   display: flex;
 }
@@ -24,16 +24,29 @@
     margin-top: 30px;
   }
 
+  &__tabs {
+    margin-right: 20px;
+
+    .ecos-tab {
+      padding: 0 60px;
+      max-width: 259px;
+      border-width: $border-width-standard;
+      border-style: solid;
+      margin: 0;
+      @extend %ellipsis;
+    }
+  }
+
   &__container {
     background: $color-white;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
-    border-radius: 12px;
+    box-shadow: $box-shadow-default;
+    border-radius: $border-radius-extra-large;
     padding: 26px;
     margin-bottom: 30px;
 
     &-title {
       background: $color-yellow;
-      border-radius: 6px;
+      border-radius: $border-radius-standard;
       padding: 5px 12px;
       font-style: normal;
       font-weight: $font-weight-bold;
@@ -45,7 +58,7 @@
 
     &-subtitle {
       font-style: normal;
-      font-weight: 600;
+      font-weight: $font-weight-semi-bold;
       font-size: $font-size-standard;
       line-height: 22px;
       color: $text-color-dark;
@@ -177,7 +190,7 @@
 
   &__loader-wrapper {
     background-color: $background-loader;
-    border-radius: 12px;
+    border-radius: $border-radius-extra-large;
     align-items: unset;
 
     div {
