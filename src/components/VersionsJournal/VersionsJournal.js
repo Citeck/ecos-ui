@@ -19,18 +19,23 @@ import { TOOLTIP, MODAL } from '../../constants/versionsJournal';
 
 import './style.scss';
 
-const mapStateToProps = state => ({
-  versions: get(state, ['versionsJournal', 'versions']),
-  isLoading: get(state, ['versionsJournal', 'listIsLoading']),
+const mapStateToProps = (state, ownProps) => {
+  console.warn(state, ownProps);
 
-  addModalIsLoading: get(state, ['versionsJournal', 'addModalIsLoading']),
-  addModalIsShow: get(state, ['versionsJournal', 'addModalIsShow']),
-  addModalErrorMessage: get(state, ['versionsJournal', 'addModalErrorMessage']),
+  return {
+    id: get(ownProps, ['id']),
+    versions: get(state, ['versionsJournal', 'versions']),
+    isLoading: get(state, ['versionsJournal', 'listIsLoading']),
 
-  changeVersionModalIsShow: get(state, ['versionsJournal', 'changeVersionModalIsShow']),
-  changeVersionModalIsLoading: get(state, ['versionsJournal', 'changeVersionModalIsLoading']),
-  changeVersionModalErrorMessage: get(state, ['versionsJournal', 'changeVersionModalErrorMessage'])
-});
+    addModalIsLoading: get(state, ['versionsJournal', 'addModalIsLoading']),
+    addModalIsShow: get(state, ['versionsJournal', 'addModalIsShow']),
+    addModalErrorMessage: get(state, ['versionsJournal', 'addModalErrorMessage']),
+
+    changeVersionModalIsShow: get(state, ['versionsJournal', 'changeVersionModalIsShow']),
+    changeVersionModalIsLoading: get(state, ['versionsJournal', 'changeVersionModalIsLoading']),
+    changeVersionModalErrorMessage: get(state, ['versionsJournal', 'changeVersionModalErrorMessage'])
+  };
+};
 
 const mapDispatchToProps = dispatch => ({
   getVersionsList: payload => dispatch(getVersions(payload)),
@@ -86,14 +91,16 @@ class VersionsJournal extends Component {
   };
 
   renderAddButton() {
+    const { id } = this.props;
+
     return (
       <span key="add-button">
         <IcoBtn
-          id={TOOLTIP.ADD_NEW_VERSION}
+          id={`${TOOLTIP.ADD_NEW_VERSION}-${id}`}
           key="action-open-modal"
           icon="icon-plus"
           onClick={this.handleToggleAddModal}
-          className="ecos-btn_i dashlet__btn_hidden dashlet__btn_next dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+          className="ecos-btn_i dashlet__btn_hidden dashlet__btn_next dashlet__btn_add ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
         />
         <UncontrolledTooltip
           placement="top"
@@ -101,7 +108,7 @@ class VersionsJournal extends Component {
           key="action-open-modal-tooltip"
           innerClassName="ecos-vj__tooltip"
           arrowClassName="ecos-vj__tooltip-arrow"
-          target={TOOLTIP.ADD_NEW_VERSION}
+          target={`${TOOLTIP.ADD_NEW_VERSION}-${id}`}
         >
           {t('Добавить версию')}
         </UncontrolledTooltip>
@@ -110,7 +117,8 @@ class VersionsJournal extends Component {
   }
 
   renderVersion = (version, showActions = true) => {
-    const id = version.id.replace(/[\:\/@]/gim, '');
+    const { id } = this.props;
+    const key = `${version.id.replace(/[\:\/@]/gim, '')}-${id}`;
     let avatar = <img src={version.avatar} alt="author" className="ecos-vj__version-author-avatar" />;
 
     if (!version.avatar) {
@@ -124,7 +132,7 @@ class VersionsJournal extends Component {
     }
 
     return (
-      <div className="ecos-vj__version" key={id}>
+      <div className="ecos-vj__version" key={key}>
         <div className="ecos-vj__version-header">
           <div className="ecos-vj__version-number">{version.version}</div>
           <div className="ecos-vj__version-title">{version.name}</div>
@@ -132,7 +140,7 @@ class VersionsJournal extends Component {
             <div className="ecos-vj__version-actions">
               <Icon onClick={this.handleClickShowModal} className="icon-on ecos-vj__version-actions-item" />
               <Icon
-                id={`${TOOLTIP.SET_ACTUAL_VERSION}-${id}`}
+                id={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
                 onClick={this.handleOpenSetActiveVersionModal.bind(null, version)}
                 className="icon-actual ecos-vj__version-actions-item"
               />
@@ -141,7 +149,7 @@ class VersionsJournal extends Component {
                 boundariesElement="window"
                 innerClassName="ecos-vj__tooltip"
                 arrowClassName="ecos-vj__tooltip-arrow"
-                target={`${TOOLTIP.SET_ACTUAL_VERSION}-${id}`}
+                target={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
               >
                 {t('Сделать актуальным')}
               </UncontrolledTooltip>
