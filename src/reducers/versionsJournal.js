@@ -86,7 +86,7 @@ export default handleActions(
       ...state,
       [payload.id]: {
         ...state[payload.id],
-        [`${payload.key}ModalIsShow`]: !state[`${payload.key}ModalIsShow`]
+        [`${payload.key}ModalIsShow`]: !state[payload.id][`${payload.key}ModalIsShow`]
       }
     }),
 

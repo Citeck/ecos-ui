@@ -12,7 +12,6 @@ import ReduxModal from '../ReduxModal';
 import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
-import VersionsJournal from '../VersionsJournal';
 
 import { changeActiveTab, getActiveTabTitle, getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
@@ -36,6 +35,7 @@ const CommentsWidgetPage = lazy(() => import('../../pages/debug/CommentsWidget')
 const CurrentTasksPage = lazy(() => import('../../pages/debug/CurrentTasks/CurrentTasksPage'));
 const DocStatusPage = lazy(() => import('../../pages/debug/DocStatus/DocStatusPage'));
 const EventsHistoryPage = lazy(() => import('../../pages/debug/EventsHistoryPage'));
+const VersionsJournalWidgetPage = lazy(() => import('../../pages/debug/VersionsJournalWidgetPage'));
 
 class App extends Component {
   componentDidMount() {
@@ -56,20 +56,6 @@ class App extends Component {
         return null;
     }
   }
-
-  renderVersionsJournal = () => (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-around',
-        margin: '50px 0'
-      }}
-    >
-      <div style={{ width: '500px' }}>
-        <VersionsJournal />
-      </div>
-    </div>
-  );
 
   render() {
     const {
@@ -147,7 +133,7 @@ class App extends Component {
               <Route path={URL.WIDGET_EVENTS_HISTORY} exact component={EventsHistoryPage} />
               <Route path="/v2/debug/formio-develop" component={FormIOPage} />
               <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
-              <Route path="/v2/debug/versions-journal" component={this.renderVersionsJournal} />
+              <Route path="/v2/debug/versions-journal" component={VersionsJournalWidgetPage} />
               {/*<Route component={NotFoundPage} />*/}
             </Switch>
           </Suspense>

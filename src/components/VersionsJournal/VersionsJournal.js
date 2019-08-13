@@ -125,7 +125,11 @@ class VersionsJournal extends Component {
   };
 
   renderAddButton() {
-    const { id } = this.props;
+    const { id, record } = this.props;
+
+    if (!record) {
+      return null;
+    }
 
     return (
       <span key="add-button">
