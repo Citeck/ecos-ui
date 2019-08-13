@@ -1,4 +1,5 @@
 import Records from '../Records/Records';
+import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
@@ -249,6 +250,8 @@ export default class EcosFormUtils {
               let input = inputByKey[att];
               if (input && input.dataType === 'json-record') {
                 submission[att] = EcosFormUtils.initJsonRecord(recordData[att]);
+              } else if (input && input.component && input.component.type === 'file') {
+                submission[att] = EcosFormUtils.removeEmptyValuesFromArray(recordData[att]);
               } else {
                 submission[att] = recordData[att];
               }
@@ -261,6 +264,14 @@ export default class EcosFormUtils {
           submission
         };
       });
+  }
+
+  static removeEmptyValuesFromArray(data) {
+    if (!Array.isArray(data)) {
+      return data;
+    }
+
+    return data.filter(item => !isEmpty(item));
   }
 
   static initJsonRecord(data) {

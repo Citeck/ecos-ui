@@ -225,7 +225,7 @@
               },
               "customConditional": "",
               "logic": [],
-              "type": "textfield",
+              "type": "textarea",
               "input": true,
               "tags": [],
               "widget": {

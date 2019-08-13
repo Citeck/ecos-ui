@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 import BootstrapTable from 'react-bootstrap-table-next';
 import cellEditFactory from 'react-bootstrap-table2-editor';
-import Checkbox from '../../form/Checkbox/Checkbox';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { closest, getId, t, trigger } from '../../../../helpers/util';
+import Checkbox from '../../form/Checkbox/Checkbox';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
-import { t, getId, trigger, closest } from '../../../../helpers/util';
 
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
@@ -29,7 +30,7 @@ const SelectorHeader = ({ indeterminate, ...rest }) => (
   </Fragment>
 );
 
-export default class Grid extends Component {
+class Grid extends Component {
   constructor(props) {
     super(props);
     this._selected = [];
@@ -482,3 +483,24 @@ export default class Grid extends Component {
     return null;
   }
 }
+
+Grid.propTypes = {
+  className: PropTypes.string,
+  keyField: PropTypes.string,
+  dataField: PropTypes.string,
+
+  filterable: PropTypes.bool,
+  editable: PropTypes.bool,
+  multiSelectable: PropTypes.bool,
+  singleSelectable: PropTypes.bool,
+  selectAll: PropTypes.bool,
+  scrollable: PropTypes.bool,
+
+  columns: PropTypes.array,
+  data: PropTypes.array,
+  filters: PropTypes.array,
+  sortBy: PropTypes.array,
+  selected: PropTypes.array
+};
+
+export default Grid;
