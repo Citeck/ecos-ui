@@ -73,7 +73,7 @@ export default class VersionsJournalConverter {
       return target;
     }
 
-    target.id = source.id || '';
+    target.id = source.versionId || '';
     target.comment = source.comment || '';
     target.version = source.version || 1;
     target.majorVersion = source.isMajor || false;

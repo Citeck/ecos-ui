@@ -4,7 +4,7 @@ import Dropzone from 'react-dropzone-uploader';
 import classNames from 'classnames';
 
 import EcosModal from '../common/EcosModal';
-import { t, deepClone } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import Radio from '../common/form/Radio';
 import Btn from '../common/btns/Btn/Btn';
 import { FILE_STATUS, VERSIONS } from '../../constants/versionsJournal';

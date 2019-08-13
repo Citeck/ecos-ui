@@ -19,39 +19,76 @@ import { TOOLTIP, MODAL } from '../../constants/versionsJournal';
 
 import './style.scss';
 
-const mapStateToProps = (state, ownProps) => {
-  console.warn(state, ownProps);
+const mapStateToProps = (state, ownProps) => ({
+  id: get(ownProps, ['id']),
+  versions: get(state, ['versionsJournal', ownProps.id, 'versions']),
+  isLoading: get(state, ['versionsJournal', ownProps.id, 'listIsLoading']),
 
-  return {
-    id: get(ownProps, ['id']),
-    versions: get(state, ['versionsJournal', 'versions']),
-    isLoading: get(state, ['versionsJournal', 'listIsLoading']),
+  addModalIsLoading: get(state, ['versionsJournal', ownProps.id, 'addModalIsLoading']),
+  addModalIsShow: get(state, ['versionsJournal', ownProps.id, 'addModalIsShow']),
+  addModalErrorMessage: get(state, ['versionsJournal', ownProps.id, 'addModalErrorMessage']),
 
-    addModalIsLoading: get(state, ['versionsJournal', 'addModalIsLoading']),
-    addModalIsShow: get(state, ['versionsJournal', 'addModalIsShow']),
-    addModalErrorMessage: get(state, ['versionsJournal', 'addModalErrorMessage']),
+  changeVersionModalIsShow: get(state, ['versionsJournal', ownProps.id, 'changeVersionModalIsShow']),
+  changeVersionModalIsLoading: get(state, ['versionsJournal', ownProps.id, 'changeVersionModalIsLoading']),
+  changeVersionModalErrorMessage: get(state, ['versionsJournal', ownProps.id, 'changeVersionModalErrorMessage'])
+});
 
-    changeVersionModalIsShow: get(state, ['versionsJournal', 'changeVersionModalIsShow']),
-    changeVersionModalIsLoading: get(state, ['versionsJournal', 'changeVersionModalIsLoading']),
-    changeVersionModalErrorMessage: get(state, ['versionsJournal', 'changeVersionModalErrorMessage'])
-  };
-};
-
-const mapDispatchToProps = dispatch => ({
-  getVersionsList: payload => dispatch(getVersions(payload)),
-  addNewVersion: payload => dispatch(addNewVersion(payload)),
-  toggleModal: payload => dispatch(toggleModal(payload)),
-  setActiveVersion: payload => dispatch(setActiveVersion(payload))
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  getVersionsList: () => dispatch(getVersions({ record: ownProps.record, id: ownProps.id })),
+  addNewVersion: payload => dispatch(addNewVersion({ ...payload, record: ownProps.record, id: ownProps.id })),
+  toggleModal: key => dispatch(toggleModal({ key, record: ownProps.record, id: ownProps.id })),
+  setActiveVersion: payload => dispatch(setActiveVersion({ ...payload, record: ownProps.record, id: ownProps.id }))
 });
 
 class VersionsJournal extends Component {
+  static propTypes = {
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    versions: PropTypes.arrayOf(
+      PropTypes.shape({
+        firstName: PropTypes.string.isRequired,
+        lastName: PropTypes.string,
+        middleName: PropTypes.string,
+        userName: PropTypes.string,
+        comment: PropTypes.string,
+        version: PropTypes.string.isRequired,
+        date: PropTypes.string.isRequired,
+        name: PropTypes.string,
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+        url: PropTypes.string.isRequired,
+        avatar: PropTypes.string
+      })
+    ),
+    isLoading: PropTypes.bool,
+
+    addModalIsLoading: PropTypes.bool,
+    addModalIsShow: PropTypes.bool,
+    addModalErrorMessage: PropTypes.string,
+
+    changeVersionModalIsShow: PropTypes.bool,
+    changeVersionModalIsLoading: PropTypes.bool,
+    changeVersionModalErrorMessage: PropTypes.string
+  };
+
+  static defaultProps = {
+    versions: [],
+    isLoading: false,
+
+    addModalIsLoading: false,
+    addModalIsShow: false,
+    addModalErrorMessage: '',
+
+    changeVersionModalIsShow: false,
+    changeVersionModalIsLoading: false,
+    changeVersionModalErrorMessage: ''
+  };
+
   state = {
     width: 290,
     selectedVersion: null
   };
 
   componentDidMount() {
-    this.props.getVersionsList('workspace://SpacesStore/848e6c2a-7c08-4c95-b70c-0bcf9aa5bcfa');
+    this.props.getVersionsList();
   }
 
   handleResize = width => {
@@ -69,10 +106,7 @@ class VersionsJournal extends Component {
   };
 
   handleAddNewVersion = data => {
-    this.props.addNewVersion({
-      record: 'workspace://SpacesStore/848e6c2a-7c08-4c95-b70c-0bcf9aa5bcfa',
-      ...data
-    });
+    this.props.addNewVersion(data);
   };
 
   handleSetActiveVersion = data => {
@@ -80,7 +114,7 @@ class VersionsJournal extends Component {
 
     this.props.setActiveVersion({
       ...data,
-      id: selectedVersion.id,
+      versionId: selectedVersion.id,
       version: selectedVersion.version
     });
   };
@@ -118,7 +152,7 @@ class VersionsJournal extends Component {
 
   renderVersion = (version, showActions = true) => {
     const { id } = this.props;
-    const key = `${version.id.replace(/[\:\/@]/gim, '')}-${id}`;
+    const key = `${version.id.replace(/[:@/]/gim, '')}-${id}`;
     let avatar = <img src={version.avatar} alt="author" className="ecos-vj__version-author-avatar" />;
 
     if (!version.avatar) {

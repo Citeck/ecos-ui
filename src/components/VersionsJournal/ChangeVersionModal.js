@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import EcosModal from '../common/EcosModal';
-import { t, deepClone } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import Radio from '../common/form/Radio';
 import Btn from '../common/btns/Btn/Btn';
 import { VERSIONS } from '../../constants/versionsJournal';
@@ -81,7 +81,7 @@ class ChangeVersionModal extends Component {
   };
 
   handleSave = () => {
-    const { currentVersion, onCreate } = this.props;
+    const { onCreate } = this.props;
     const { comment, selectedVersion } = this.state;
 
     onCreate({
