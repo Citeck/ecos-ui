@@ -62,7 +62,7 @@ class CurrentTaskList extends React.Component {
     const updCols = ArrayOfObjects.replaceKeys(cols, { key: 'dataField', label: 'text' });
     const gridCols = ArrayOfObjects.filterKeys(updCols, ['dataField', 'text']);
 
-    return <Grid data={formatTasks} columns={gridCols} scrollable={true} className={`${this.className}_view-table`} />;
+    return <Grid data={formatTasks} columns={gridCols} scrollable={false} className={`${this.className}_view-table`} />;
   }
 
   render() {

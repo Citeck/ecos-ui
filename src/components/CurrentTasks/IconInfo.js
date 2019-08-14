@@ -4,7 +4,10 @@ import classNames from 'classnames';
 import { Tooltip } from 'reactstrap';
 import { Scrollbars } from 'react-custom-scrollbars';
 import Icon from '../common/icons/Icon/Icon';
+import ClickOutside from '../ClickOutside';
+
 import './style.scss';
+import '../../bootstrap.scss';
 
 export default class IconInfo extends React.Component {
   static propTypes = {
@@ -48,11 +51,13 @@ export default class IconInfo extends React.Component {
 
     return isShow ? (
       <React.Fragment>
-        <Icon
-          id={domId}
-          className={classNames(icon, iconClass, { [`${icon}_open`]: isOpen, [`${icon}_big`]: noTooltip })}
-          onClick={this.setTooltipOpen}
-        />
+        <ClickOutside handleClickOutside={this.setTooltipOpen}>
+          <Icon
+            id={domId}
+            className={classNames(icon, iconClass, { [`${icon}_open`]: isOpen, [`${icon}_big`]: noTooltip })}
+            onClick={this.setTooltipOpen}
+          />
+        </ClickOutside>
         {!noTooltip && (
           <Tooltip
             placement="top"
