@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import Select from '../../common/form/Select';
 import { IcoBtn } from '../../common/btns';
-import { t } from '../../../helpers/util';
+import { t, trigger } from '../../../helpers/util';
 
 import './Pagination.scss';
 
@@ -46,8 +47,12 @@ export default class Pagination extends Component {
     }
   };
 
+  onChangeMaxItems = item => {
+    trigger.call(this, 'onChangeMaxItems', item);
+  };
+
   render() {
-    const { maxItems, total, page, className } = this.props;
+    const { maxItems, total, page, className, sizes, hasPageSize } = this.props;
 
     this.calculate(page, maxItems, total);
 
@@ -70,9 +75,20 @@ export default class Pagination extends Component {
         />
         <IcoBtn
           icon={'icon-right'}
-          className={'ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue'}
+          className={`ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue pagination__text ${
+            hasPageSize ? 'pagination__step' : ''
+          }`}
           onClick={this.next}
         />
+
+        {hasPageSize ? (
+          <Select
+            className={'select_narrow pagination__page-size select_page-size'}
+            options={sizes}
+            value={sizes.filter(s => s.value === maxItems)}
+            onChange={this.onChangeMaxItems}
+          />
+        ) : null}
       </div>
     );
   }

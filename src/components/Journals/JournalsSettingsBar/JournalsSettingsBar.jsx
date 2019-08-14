@@ -27,14 +27,14 @@ const JournalsSettingsBar = ({ stateId, showPreview, showPie, toggleSettings, to
         <IcoBtn
           title={t('journal.title')}
           icon={'icon-list'}
-          className={`${!showPie && !showPreview ? blue : grey} ${step}`}
+          className={`${!showPie && !showPreview ? blue : grey} ${step} ecos-journal__settings-bar_right-btn`}
           onClick={showGrid}
         />
 
         <IcoBtn
           title={t('doc-preview.preview')}
           icon={'icon-columns'}
-          className={`${showPreview ? blue : grey} ${step}`}
+          className={`${showPreview ? blue : grey} ${step} ecos-journal__settings-bar_right-btn`}
           onClick={togglePreview}
         />
 
