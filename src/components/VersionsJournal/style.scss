@@ -3,6 +3,10 @@
 .ecos-vj {
   position: relative;
 
+  %block-padding {
+    padding: 15px 20px;
+  }
+
   &__loader {
     border-radius: 12px;
   }
@@ -42,6 +46,8 @@
     }
 
     &-actions {
+      $actions: &;
+
       display: none;
       right: 20px;
       position: absolute;
@@ -72,6 +78,35 @@
           color: $color-blue-light;
         }
       }
+
+      &_mobile {
+        &#{$actions} {
+          display: flex;
+          background: unset;
+          position: relative;
+          margin-top: 15px;
+          left: 0;
+
+          &:before {
+            display: none;
+          }
+        }
+
+        #{$actions}-item {
+          background: $color-gray-1;
+          color: $color-white;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+
+          &:before {
+            display: flex;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+      }
     }
 
     &-header {
@@ -82,7 +117,7 @@
     }
 
     &-body {
-      padding: 15px 20px;
+      @extend %block-padding;
     }
 
     &-author {
@@ -168,6 +203,54 @@
         background: $color-white !important;
         transform: rotate(45deg);
         box-shadow: 4px 4px 3px 0 rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+
+  &__btn {
+    &-add {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 40px !important;
+
+      &-icon {
+        margin-right: 8px;
+      }
+
+      &-title {
+        font-style: normal;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 23px;
+      }
+    }
+  }
+
+  &__compare {
+    @extend %block-padding;
+
+    &-dropdown {
+      position: relative;
+      height: 40px;
+      min-width: 203px;
+      width: 50%;
+
+      &-toggle {
+        width: 100%;
+        background: $color-white;
+        border-color: $color-gray-6;
+        color: $color-gray-6;
+
+        &-icon {
+          position: absolute;
+          right: 14px;
+        }
+      }
+
+      &-list {
+        width: 100% !important;
       }
     }
   }

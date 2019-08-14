@@ -3,9 +3,12 @@ import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
+import { Scrollbars } from 'react-custom-scrollbars';
+
 import { getPropByStringKey } from '../../../../helpers/util';
 
 import './Dropdown.scss';
+import Dashlet from '../../../VersionsJournal/VersionsJournal';
 
 class MenuItem extends React.PureComponent {
   onClick = () => {
@@ -31,6 +34,9 @@ export default class Dropdown extends Component {
     full: PropTypes.bool,
     isLinks: PropTypes.bool,
     cascade: PropTypes.bool,
+    withScrollbar: PropTypes.bool,
+    scrollbarHeightMin: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    scrollbarHeightMax: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     hideSelected: PropTypes.bool,
     CustomItem: PropTypes.element,
     getStateOpen: PropTypes.func
@@ -49,6 +55,9 @@ export default class Dropdown extends Component {
     isLinks: false,
     cascade: false,
     hideSelected: false,
+    withScrollbar: false,
+    scrollbarHeightMin: '100%',
+    scrollbarHeightMax: '100%',
     CustomItem: null,
     getStateOpen: () => null
   };
@@ -99,21 +108,42 @@ export default class Dropdown extends Component {
   };
 
   renderMenuItems() {
-    const { valueField, titleField, source, value, hideSelected, CustomItem } = this.props;
+    const {
+      valueField,
+      titleField,
+      source,
+      value,
+      hideSelected,
+      CustomItem,
+      withScrollbar,
+      scrollbarHeightMin,
+      scrollbarHeightMax
+    } = this.props;
     const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
+    let Wrapper = ({ children }) => <div>{children}</div>;
+
+    if (withScrollbar) {
+      Wrapper = ({ children }) => (
+        <Scrollbars autoHeight autoHeightMin={scrollbarHeightMin} autoHeightMax={scrollbarHeightMax}>
+          {children}
+        </Scrollbars>
+      );
+    }
 
     return (
-      <ul>
-        {filteredSource.map(item =>
-          CustomItem ? (
-            <CustomItem key={item[valueField]} onClick={this.onChange} item={item} />
-          ) : (
-            <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
-              {getPropByStringKey(item, titleField)}
-            </MenuItem>
-          )
-        )}
-      </ul>
+      <Wrapper>
+        <ul>
+          {filteredSource.map(item =>
+            CustomItem ? (
+              <CustomItem key={item[valueField]} onClick={this.onChange} item={item} />
+            ) : (
+              <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
+                {getPropByStringKey(item, titleField)}
+              </MenuItem>
+            )
+          )}
+        </ul>
+      </Wrapper>
     );
   }
 

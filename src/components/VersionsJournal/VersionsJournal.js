@@ -5,6 +5,7 @@ import { UncontrolledTooltip } from 'reactstrap';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import classNames from 'classnames';
 
 import Dashlet from '../Dashlet/Dashlet';
 import { IcoBtn } from '../common/btns';
@@ -16,22 +17,32 @@ import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
 import { addNewVersion, getVersions, setActiveVersion, toggleModal } from '../../actions/versionsJournal';
 import { TOOLTIP, MODAL } from '../../constants/versionsJournal';
+import { selectLabelsVersions } from '../../selectors/versionsJournal';
 
+import Btn from '../common/btns/Btn';
+import { Dropdown } from '../common/form';
 import './style.scss';
 
-const mapStateToProps = (state, ownProps) => ({
-  id: get(ownProps, ['id']),
-  versions: get(state, ['versionsJournal', ownProps.id, 'versions']),
-  isLoading: get(state, ['versionsJournal', ownProps.id, 'listIsLoading']),
+const mapStateToProps = (state, ownProps) => {
+  const id = get(ownProps, ['id']);
+  const isMobile = get(state, ['view', 'isMobile'], false);
 
-  addModalIsLoading: get(state, ['versionsJournal', ownProps.id, 'addModalIsLoading']),
-  addModalIsShow: get(state, ['versionsJournal', ownProps.id, 'addModalIsShow']),
-  addModalErrorMessage: get(state, ['versionsJournal', ownProps.id, 'addModalErrorMessage']),
+  return {
+    id,
+    isMobile,
+    versions: get(state, ['versionsJournal', id, 'versions']),
+    versionsLabels: selectLabelsVersions(state, id, isMobile),
+    isLoading: get(state, ['versionsJournal', id, 'listIsLoading']),
 
-  changeVersionModalIsShow: get(state, ['versionsJournal', ownProps.id, 'changeVersionModalIsShow']),
-  changeVersionModalIsLoading: get(state, ['versionsJournal', ownProps.id, 'changeVersionModalIsLoading']),
-  changeVersionModalErrorMessage: get(state, ['versionsJournal', ownProps.id, 'changeVersionModalErrorMessage'])
-});
+    addModalIsLoading: get(state, ['versionsJournal', id, 'addModalIsLoading']),
+    addModalIsShow: get(state, ['versionsJournal', id, 'addModalIsShow']),
+    addModalErrorMessage: get(state, ['versionsJournal', id, 'addModalErrorMessage']),
+
+    changeVersionModalIsShow: get(state, ['versionsJournal', id, 'changeVersionModalIsShow']),
+    changeVersionModalIsLoading: get(state, ['versionsJournal', id, 'changeVersionModalIsLoading']),
+    changeVersionModalErrorMessage: get(state, ['versionsJournal', id, 'changeVersionModalErrorMessage'])
+  };
+};
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getVersionsList: () => dispatch(getVersions({ record: ownProps.record, id: ownProps.id })),
@@ -84,7 +95,9 @@ class VersionsJournal extends Component {
 
   state = {
     width: 290,
-    selectedVersion: null
+    selectedVersion: null,
+    compareFirstVersion: null,
+    compareSecondVersion: null
   };
 
   componentDidMount() {
@@ -124,11 +137,20 @@ class VersionsJournal extends Component {
     this.setState({ selectedVersion: version });
   };
 
-  renderAddButton() {
+  renderAddButton(isModal = false) {
     const { id, record } = this.props;
 
     if (!record) {
       return null;
+    }
+
+    if (isModal) {
+      return (
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-vj__btn-add" onClick={this.handleToggleAddModal}>
+          <Icon className="icon-plus ecos-vj__btn-add-icon" />
+          <span className="ecos-vj__btn-add-title">{t('Добавить версию')}</span>
+        </Btn>
+      );
     }
 
     return (
@@ -154,8 +176,40 @@ class VersionsJournal extends Component {
     );
   }
 
-  renderVersion = (version, showActions = true) => {
+  renderVersionActions(version, isMobile = false) {
     const { id } = this.props;
+    const key = `${version.id.replace(/[:@/]/gim, '')}-${id}`;
+
+    return (
+      <div
+        className={classNames('ecos-vj__version-actions', {
+          'ecos-vj__version-actions_mobile': isMobile
+        })}
+      >
+        <Icon onClick={this.handleClickShowModal} className="icon-on ecos-vj__version-actions-item" />
+        <Icon
+          id={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
+          onClick={this.handleOpenSetActiveVersionModal.bind(null, version)}
+          className="icon-actual ecos-vj__version-actions-item"
+        />
+        <UncontrolledTooltip
+          placement="top"
+          boundariesElement="window"
+          innerClassName="ecos-vj__tooltip"
+          arrowClassName="ecos-vj__tooltip-arrow"
+          target={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
+        >
+          {t('Сделать актуальным')}
+        </UncontrolledTooltip>
+        <a href={version.url} download data-external>
+          <Icon onClick={this.handleClickShowModal} className="icon-download ecos-vj__version-actions-item" />
+        </a>
+      </div>
+    );
+  }
+
+  renderVersion = (version, showActions = true) => {
+    const { id, isMobile } = this.props;
     const key = `${version.id.replace(/[:@/]/gim, '')}-${id}`;
     let avatar = <img src={version.avatar} alt="author" className="ecos-vj__version-author-avatar" />;
 
@@ -174,28 +228,7 @@ class VersionsJournal extends Component {
         <div className="ecos-vj__version-header">
           <div className="ecos-vj__version-number">{version.version}</div>
           <div className="ecos-vj__version-title">{version.name}</div>
-          {showActions && (
-            <div className="ecos-vj__version-actions">
-              <Icon onClick={this.handleClickShowModal} className="icon-on ecos-vj__version-actions-item" />
-              <Icon
-                id={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
-                onClick={this.handleOpenSetActiveVersionModal.bind(null, version)}
-                className="icon-actual ecos-vj__version-actions-item"
-              />
-              <UncontrolledTooltip
-                placement="top"
-                boundariesElement="window"
-                innerClassName="ecos-vj__tooltip"
-                arrowClassName="ecos-vj__tooltip-arrow"
-                target={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
-              >
-                {t('Сделать актуальным')}
-              </UncontrolledTooltip>
-              <a href={version.url} download data-external>
-                <Icon onClick={this.handleClickShowModal} className="icon-download ecos-vj__version-actions-item" />
-              </a>
-            </div>
-          )}
+          {showActions && !isMobile && this.renderVersionActions(version)}
         </div>
         <div className="ecos-vj__version-body">
           <div className="ecos-vj__version-author">
@@ -213,7 +246,9 @@ class VersionsJournal extends Component {
               </div>
             </div>
           </div>
+
           {version.comment && <div className="ecos-vj__version-comment">{version.comment}</div>}
+          {showActions && isMobile && this.renderVersionActions(version, isMobile)}
         </div>
       </div>
     );
@@ -309,6 +344,11 @@ class VersionsJournal extends Component {
   }
 
   render() {
+    const { isMobile, versionsLabels } = this.props;
+    const { compareFirstVersion, compareSecondVersion } = this.state;
+
+    // console.warn(versionsLabels);
+
     return (
       <div>
         <Dashlet
@@ -319,8 +359,42 @@ class VersionsJournal extends Component {
           actionHelp={false}
           actionReload={false}
           resizable
-          customButtons={[this.renderAddButton()]}
+          customButtons={[!isMobile && this.renderAddButton()]}
         >
+          <div className="ecos-vj__compare">
+            <Dropdown
+              source={versionsLabels}
+              value={compareFirstVersion}
+              valueField="id"
+              titleField="text"
+              className="ecos-vj__compare-dropdown"
+              menuClassName="ecos-vj__compare-dropdown-list"
+              // onChange={this.onChangeZoomOption}
+              hideSelected
+              withScrollbar
+              scrollbarHeightMax="200px"
+            >
+              <IcoBtn invert icon="icon-down" className="ecos-vj__compare-dropdown-toggle" />
+            </Dropdown>
+
+            <Dropdown
+              source={versionsLabels}
+              value={compareSecondVersion}
+              valueField="id"
+              titleField="text"
+              className="ecos-vj__compare-dropdown"
+              menuClassName="ecos-vj__compare-dropdown-list"
+              // onChange={this.onChangeZoomOption}
+              hideSelected
+              withScrollbar
+              scrollbarHeightMax={'200px'}
+            >
+              <IcoBtn invert icon="icon-down ecos-vj__compare-dropdown-toggle-icon" className="ecos-vj__compare-dropdown-toggle" />
+            </Dropdown>
+
+            {isMobile && this.renderAddButton(isMobile)}
+          </div>
+
           <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
           <Scrollbars autoHide autoHeight autoHeightMin={270} autoHeightMax={430}>
             {this.renderActualVersion()}
