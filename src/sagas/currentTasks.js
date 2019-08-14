@@ -1,5 +1,5 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { getCurrentTaskList, setCurrentTaskList } from '../actions/tasks';
+import { getCurrentTaskList, setCurrentTaskList } from '../actions/currentTasks';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import TasksConverter from '../dto/tasks';
