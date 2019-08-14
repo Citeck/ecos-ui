@@ -25,15 +25,27 @@
   }
 
   &__tabs {
-    margin-right: 20px;
+    &-list {
+      &__item {
+        padding: 5px;
+      }
+    }
 
-    .ecos-tab {
-      padding: 0 60px;
-      max-width: 259px;
-      border-width: $border-width-standard;
-      border-style: solid;
-      margin: 0;
-      @extend %ellipsis;
+    &-view {
+      margin-bottom: 10px;
+
+      .ecos-tab {
+        padding: 0 60px;
+        max-width: 259px;
+        //border-width: $border-width-standard;
+        //border-style: solid;
+        //margin: 0;
+        @extend %ellipsis;
+      }
+
+      &-container {
+        padding: 0 8px 5px;
+      }
     }
   }
 

@@ -41,7 +41,7 @@ export default class DashboardConverter {
       if (isEmpty(layouts)) {
         const layout = get(config, ['layout'], {});
 
-        layout.id = 0;
+        layout.id = 'layout_0';
         layout.tab = DashboardService.defaultDashboardConfig.layout.tab;
 
         if (!isEmpty(layout)) {

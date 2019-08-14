@@ -18,7 +18,7 @@ export default class DashboardSettingsConverter {
       //for old version, which has one layout without tab
       if (isEmpty(layouts)) {
         const layout = get(config, ['layout']) || {};
-        layout.id = 0;
+        layout.id = 'layout_0';
 
         if (!isEmpty(layout)) {
           layouts.push(layout);

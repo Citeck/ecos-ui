@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 import * as queryString from 'query-string';
 import { cloneDeep, get, isArray, isEmpty } from 'lodash';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import { arrayCompare, t } from '../../helpers/util';
 import { LAYOUTS, TYPE_MENU } from '../../constants/dashboard';
@@ -299,32 +300,54 @@ class DashboardSettings extends React.Component {
 
   onClickNewTab = () => {
     const { tabs } = this.state;
-    const idLayout = tabs.length;
+    const idLayout = `layout_${tabs.length}`;
 
-    tabs.push({ label: 'new tab', idLayout, onClick: () => this.onClickTabLayout(idLayout) });
+    tabs.push({ label: `${t('Новая вкладка')} ${idLayout}`, idLayout, onClick: () => this.onClickTabLayout(idLayout) });
 
     this.setState({ tabs });
   };
 
+  onClickDeleteTab = tab => {
+    const { tabs } = this.state;
+
+    this.setState({ tabs });
+  };
+
+  renderTabList() {
+    const { tabs } = this.state;
+
+    return (
+      <div className="ecos-dashboard-settings__tabs">
+        <div className="ecos-dashboard-settings__tabs-list">
+          {tabs.map(tab => (
+            <div className="ecos-dashboard-settings__tabs-list__item">
+              {tab.label}
+              <IcoBtn icon={'icon-delete'} className={'ecos-btn_transparent ecos-btn_i_sm'} onClick={() => this.onClickDeleteTab(tab)} />
+            </div>
+          ))}
+          <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.onClickNewTab}>
+            {t('Создать новую')}
+          </Btn>
+        </div>
+      </div>
+    );
+  }
+
   renderTabsBlock() {
     const { tabs } = this.state;
-    const active = tabs.find(tab => tab.isActive) || {};
 
     return (
       <React.Fragment>
-        <h5 className="ecos-dashboard-settings__container-title">{t('Вкладки')}</h5>
-        <h6 className="ecos-dashboard-settings__container-subtitle">{t('Установите необходимые вкладки дашборда')}</h6>
-        <div className="ecos-dashboard-settings__container-group">
-          <Tabs className="ecos-dashboard-settings__tabs" hasHover items={tabs} />
-          <IcoBtn
-            icon={'icon-big-plus'}
-            className={'ecos-btn_i ecos-btn_i-big-plus ecos-btn_blue ecos-btn_hover_light-blue'}
-            onClick={this.onClickNewTab}
-          />
+        <div className="ecos-dashboard-settings__container">
+          <h5 className="ecos-dashboard-settings__container-title">{t('Вкладки')}</h5>
+          <h6 className="ecos-dashboard-settings__container-subtitle">{t('Установите необходимые вкладки дашборда')}</h6>
+          {this.renderTabList()}
         </div>
-        <h6 className="ecos-dashboard-settings__container-subtitle">
-          {t('Настройте контент для выбранной вкладки') + ': ' + active.label}
-        </h6>
+        <div className="ecos-dashboard-settings__tabs-view-container">
+          <Scrollbars autoHeight autoHeightMin={'100%'} autoHeightMax={'100%'} className="ecos-dashboard-settings__tabs-view-scroll">
+            <Tabs className="ecos-dashboard-settings__tabs-view" hasHover items={tabs} />
+          </Scrollbars>
+        </div>
       </React.Fragment>
     );
   }
@@ -675,18 +698,17 @@ class DashboardSettings extends React.Component {
 
   handleAcceptClick = () => {
     const { saveSettings, getAwayFromPage } = this.props;
-    const { selectedWidgets: widgets, selectedMenuItems: links, typeMenu, tabs } = this.state;
+    const { selectedWidgets: widgets, selectedMenuItems: menuLinks, typeMenu, tabs, selectedLayout: layoutType } = this.state;
     const layout = this.selectedTypeLayout;
     const activeMenuType = typeMenu.find(item => item.isActive);
     const menuType = activeMenuType ? activeMenuType.type : typeMenu[0].type;
 
     saveSettings({
-      layoutType: layout.type,
-      columns: layout.columns,
-      menuType,
+      layoutType,
       widgets,
-      links,
-      tabs
+      tabs,
+      menuType,
+      menuLinks
     });
     getAwayFromPage();
   };
@@ -725,8 +747,9 @@ class DashboardSettings extends React.Component {
       <Container className="ecos-dashboard-settings">
         {this.renderLoader()}
         {this.renderHeader()}
+        {this.renderTabsBlock()}
         <div className="ecos-dashboard-settings__container">
-          {this.renderTabsBlock()}
+          <h6 className="ecos-dashboard-settings__container-subtitle">{t('Настройте контент для выбранной вкладки')}</h6>
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
         </div>
