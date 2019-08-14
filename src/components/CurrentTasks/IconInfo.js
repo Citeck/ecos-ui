@@ -41,6 +41,14 @@ export default class IconInfo extends React.Component {
     });
   };
 
+  closeTooltip = () => {
+    this.setState({ isOpen: false }, () => {
+      if (this.props.noTooltip) {
+        this.props.handleClick(false);
+      }
+    });
+  };
+
   render() {
     const { id, iconClass, isShow, noTooltip, text } = this.props;
     const { isOpen } = this.state;
@@ -51,7 +59,7 @@ export default class IconInfo extends React.Component {
 
     return isShow ? (
       <React.Fragment>
-        <ClickOutside handleClickOutside={this.setTooltipOpen}>
+        <ClickOutside handleClickOutside={this.closeTooltip}>
           <Icon
             id={domId}
             className={classNames(icon, iconClass, { [`${icon}_open`]: isOpen, [`${icon}_big`]: noTooltip })}
