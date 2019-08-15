@@ -109,6 +109,10 @@
     font-size: 17px;
     margin-left: 10px;
 
+    &-wrap {
+      display: inline-block;
+    }
+
     &:hover,
     &_open {
       color: $color-blue-light;
