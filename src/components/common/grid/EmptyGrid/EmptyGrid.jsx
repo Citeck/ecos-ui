@@ -9,7 +9,7 @@ export default class EmptyGrid extends Component {
   }
 
   getHeight = () => {
-    return (this._ref.current || {}).offsetHeight + (this.props.diff || 15);
+    return ((this._ref.current || {}).offsetHeight || 0) + (this.props.diff || 15);
   };
 
   componentDidMount() {
