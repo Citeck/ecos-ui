@@ -2,20 +2,25 @@ import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { getShowTabsStatus, getTabs, setActiveTabTitle, setShowTabsStatus, setTabs } from '../actions/pageTabs';
 import { selectTabs } from '../selectors/pageTabs';
 import { deepClone } from '../helpers/util';
+import Records from '../components/Records';
+import { isNewVersionPage } from '../helpers/urls';
 
 function* sagaGetShowTabsStatus({ api, logger }, action) {
   try {
     const result = yield call(function() {
-      return window.Citeck.Records.queryOne(
-        {
-          query: {
-            key: 'tabs-enabled'
-          },
-          sourceId: 'uiserv/config'
-        },
-        '.bool',
-        true
-      );
+      if (!isNewVersionPage()) {
+        return Promise.resolve(false);
+      }
+
+      return Records.get('uiserv/config@tabs-enabled')
+        .load('value?bool')
+        .then(value => {
+          return value != null ? value : true;
+        })
+        .catch(e => {
+          logger.error('[pageTabs sagaGetShowTabsStatus saga error', e);
+          return false;
+        });
     }, action.payload);
 
     yield put(setShowTabsStatus(result));
