@@ -17,8 +17,17 @@ const mapStateToProps = state => {
 };
 
 class JournalsPage extends React.Component {
-  state = {
-    stateId: null
+  constructor(props) {
+    super(props);
+
+    const stateId = this.getStateId();
+
+    this.state = { stateId };
+    this.props.initState(stateId);
+  }
+
+  getStateId = () => {
+    return this.getActiveTabId() || this.state.stateId || getId();
   };
 
   getActiveTabId = () => {
@@ -26,30 +35,20 @@ class JournalsPage extends React.Component {
   };
 
   componentDidUpdate = () => {
-    const { pageTabsIsShow, initState } = this.props;
-    const { stateId } = this.state;
+    const stateId = this.getStateId();
 
-    if (pageTabsIsShow) {
-      const activeTabId = this.getActiveTabId();
-
-      if (activeTabId !== stateId) {
-        initState(activeTabId);
-        this.setState({ stateId: activeTabId });
-      }
-    } else if (!stateId) {
-      const id = getId();
-      initState(id);
-      this.setState({ stateId: id });
+    if (stateId !== this.state.stateId) {
+      this.props.initState(stateId);
+      this.setState({ stateId });
     }
   };
 
   render() {
-    const { pageTabsIsShow } = this.props;
-    const { stateId } = this.state;
+    const stateId = this.state.stateId;
 
     return (
       <Fragment>
-        {(pageTabsIsShow && stateId === this.getActiveTabId()) || (!pageTabsIsShow && stateId) ? (
+        {stateId === this.getStateId() ? (
           <JournalsUrlManager stateId={stateId}>
             <Journals stateId={stateId} />
           </JournalsUrlManager>

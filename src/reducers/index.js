@@ -20,6 +20,7 @@ import menu from './menu';
 import currentTasks from './currentTasks';
 import docStatus from './docStatus';
 import eventsHistory from './eventsHistory';
+import versionsJournal from './versionsJournal';
 
 const reducers = {
   app,
@@ -40,7 +41,8 @@ const reducers = {
   menu,
   currentTasks,
   docStatus,
-  eventsHistory
+  eventsHistory,
+  versionsJournal
 };
 
 export default history =>
