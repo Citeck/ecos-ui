@@ -1,4 +1,6 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
+import get from 'lodash/get';
+
 import {
   addNewVersion,
   addNewVersionSuccess,
@@ -7,7 +9,9 @@ import {
   setVersions,
   setActiveVersion,
   setActiveVersionSuccess,
-  setActiveVersionError
+  setActiveVersionError,
+  getVersionsComparison,
+  setVersionsComparison
 } from '../actions/versionsJournal';
 import VersionsJournalConverter from '../dto/versionsJournal';
 
@@ -54,10 +58,24 @@ function* sagaSetNewVersion({ api, logger }, { payload }) {
   }
 }
 
+function* sagaGetVersionsComparison({ api, logger }, { payload }) {
+  try {
+    const result = yield call(api.versionsJournal.getVersionsComparison, VersionsJournalConverter.getVersionsComparisonForServer(payload));
+    const comparison = get(result, ['records', '0', 'diff'], '');
+
+    if (comparison) {
+      yield put(setVersionsComparison({ record: payload.record, id: payload.id, comparison }));
+    }
+  } catch (e) {
+    logger.error('[versionJournal/sagaGetVersionsComparison saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(getVersions().type, sagaGetVersions, ea);
   yield takeEvery(addNewVersion().type, sagaAddNewVersion, ea);
   yield takeEvery(setActiveVersion().type, sagaSetNewVersion, ea);
+  yield takeEvery(getVersionsComparison().type, sagaGetVersionsComparison, ea);
 }
 
 export default saga;

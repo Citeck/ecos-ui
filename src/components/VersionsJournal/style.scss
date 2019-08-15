@@ -1,10 +1,24 @@
 @import '../../constants';
 
+%btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 40px;
+}
+
+%block-padding {
+  padding: 15px 20px;
+}
+
 .ecos-vj {
+  $root: &;
+
   position: relative;
 
-  %block-padding {
-    padding: 15px 20px;
+  &__block {
+    @extend %block-padding;
   }
 
   &__loader {
@@ -125,8 +139,6 @@
       align-items: center;
 
       &-avatar {
-        //width: 35px;
-        //height: 35px;
         width: 49px;
         height: 49px;
         border-radius: 50%;
@@ -209,11 +221,9 @@
 
   &__btn {
     &-add {
+      @extend %btn;
+
       display: flex !important;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 40px !important;
 
       &-icon {
         margin-right: 8px;
@@ -226,31 +236,66 @@
         line-height: 23px;
       }
     }
+
+    &-comparison {
+      @extend %btn;
+
+      width: 122px;
+      font-weight: bold;
+
+      &_mobile {
+        width: 100%;
+        margin-top: 10px;
+      }
+    }
   }
 
-  &__compare {
-    @extend %block-padding;
+  &__comparison {
+    $compare: &;
+    margin-bottom: 15px;
+    //@extend %block-padding;
 
     &-dropdown {
       position: relative;
       height: 40px;
-      min-width: 203px;
-      width: 50%;
+      //max-width: 203px;
+      //width: 50%;
+      margin-right: 10px;
+      min-width: 120px;
+      width: 100%;
+      max-width: calc(50% - 122px / 2 - 10px);
 
       &-toggle {
         width: 100%;
-        background: $color-white;
-        border-color: $color-gray-6;
-        color: $color-gray-6;
+        background: $color-white !important;
+        border-color: $color-gray-6 !important;
+        padding: 10px 15px !important;
 
         &-icon {
           position: absolute;
           right: 14px;
+          color: $color-gray-6 !important;
         }
       }
 
       &-list {
         width: 100% !important;
+      }
+    }
+
+    &_small {
+      #{$compare}-dropdown {
+        max-width: calc(50% - 10px / 2);
+        width: 50%;
+
+        &:nth-child(2) {
+          margin-right: 0;
+        }
+      }
+
+      #{$root}__btn-comparison {
+        width: 100%;
+        margin-top: 10px;
       }
     }
   }
@@ -464,5 +509,123 @@
     line-height: 22px;
     color: $color-red-1;
     margin-top: 18px;
+  }
+
+  &-comparison {
+    max-width: 96%;
+
+    &__header {
+      display: flex;
+      align-items: center;
+      background: $color-gray-13;
+      border: 1px solid $color-gray-14;
+      height: 45px;
+
+      &-item {
+        position: relative;
+        display: flex;
+        flex-wrap: nowrap;
+        width: 50%;
+        padding: 0 18px;
+
+        &:not(:last-child) {
+          &:after {
+            $width: 1px;
+            $height: 37px;
+
+            content: '';
+            position: absolute;
+            top: calc(50% - #{$height} / 2);
+            right: calc(0px - #{$width});
+            background: $color-gray-7;
+            width: $width;
+            height: $height;
+          }
+        }
+      }
+
+      &-version {
+        font-style: normal;
+        font-weight: bold;
+        font-size: 18px;
+        line-height: 22px;
+        color: $text-color-dark;
+        margin-right: 15px;
+        white-space: nowrap;
+      }
+
+      &-date {
+        font-style: normal;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 23px;
+        color: $text-color-gray;
+        margin-right: 15px;
+        white-space: nowrap;
+      }
+
+      &-author {
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+
+        &-name {
+          font-style: normal;
+          font-weight: 600;
+          font-size: 12px;
+          line-height: 16px;
+          color: $color-black;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        &-icon {
+          color: $color-gray-6;
+          font-size: 20px;
+          line-height: 1em;
+          margin-right: 7px;
+        }
+      }
+    }
+
+    &__body {
+      background: $color-gray-15;
+      border: 1px solid $color-gray-14;
+      border-top: none;
+      display: flex;
+      justify-content: space-around;
+      padding: 18px 0;
+    }
+
+    &__document {
+      max-width: 47%;
+      width: 100%;
+      background: $color-white;
+      padding: 20px 17px;
+      word-break: break-word;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
+
+      .DELETE {
+        background-color: $color-pink;
+      }
+
+      .INSERT {
+        background-color: $color-gray-9;
+        color: transparent;
+      }
+
+      &_right {
+        .DELETE {
+          background-color: $color-gray-9;
+          color: transparent;
+        }
+
+        .INSERT {
+          background-color: $color-green;
+          color: $color-black;
+        }
+      }
+    }
   }
 }

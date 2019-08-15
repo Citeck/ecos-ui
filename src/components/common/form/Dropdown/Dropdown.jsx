@@ -8,7 +8,6 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { getPropByStringKey } from '../../../../helpers/util';
 
 import './Dropdown.scss';
-import Dashlet from '../../../VersionsJournal/VersionsJournal';
 
 class MenuItem extends React.PureComponent {
   onClick = () => {

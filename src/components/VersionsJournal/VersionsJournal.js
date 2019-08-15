@@ -15,7 +15,9 @@ import { t } from '../../helpers/util';
 
 import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
-import { addNewVersion, getVersions, setActiveVersion, toggleModal } from '../../actions/versionsJournal';
+import ComparisonModal from './ComparisonModal';
+import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../actions/versionsJournal';
+import { MIN_WIDTH_DASHLET_LARGE } from '../../constants';
 import { TOOLTIP, MODAL } from '../../constants/versionsJournal';
 import { selectLabelsVersions } from '../../selectors/versionsJournal';
 
@@ -40,12 +42,18 @@ const mapStateToProps = (state, ownProps) => {
 
     changeVersionModalIsShow: get(state, ['versionsJournal', id, 'changeVersionModalIsShow']),
     changeVersionModalIsLoading: get(state, ['versionsJournal', id, 'changeVersionModalIsLoading']),
-    changeVersionModalErrorMessage: get(state, ['versionsJournal', id, 'changeVersionModalErrorMessage'])
+    changeVersionModalErrorMessage: get(state, ['versionsJournal', id, 'changeVersionModalErrorMessage']),
+
+    comparison: get(state, ['versionsJournal', id, 'comparison']),
+    comparisonModalIsShow: get(state, ['versionsJournal', id, 'comparisonModalIsShow']),
+    comparisonModalIsLoading: get(state, ['versionsJournal', id, 'comparisonModalIsLoading']),
+    comparisonModalErrorMessage: get(state, ['versionsJournal', id, 'comparisonModalErrorMessage'])
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getVersionsList: () => dispatch(getVersions({ record: ownProps.record, id: ownProps.id })),
+  getVersionsComparison: payload => dispatch(getVersionsComparison({ ...payload, record: ownProps.record, id: ownProps.id })),
   addNewVersion: payload => dispatch(addNewVersion({ ...payload, record: ownProps.record, id: ownProps.id })),
   toggleModal: key => dispatch(toggleModal({ key, record: ownProps.record, id: ownProps.id })),
   setActiveVersion: payload => dispatch(setActiveVersion({ ...payload, record: ownProps.record, id: ownProps.id }))
@@ -69,6 +77,12 @@ class VersionsJournal extends Component {
         avatar: PropTypes.string
       })
     ),
+    versionsLabels: PropTypes.arrayOf([
+      PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+        text: PropTypes.string
+      })
+    ]),
     isLoading: PropTypes.bool,
 
     addModalIsLoading: PropTypes.bool,
@@ -82,6 +96,7 @@ class VersionsJournal extends Component {
 
   static defaultProps = {
     versions: [],
+    versionsLabels: [],
     isLoading: false,
 
     addModalIsLoading: false,
@@ -93,12 +108,47 @@ class VersionsJournal extends Component {
     changeVersionModalErrorMessage: ''
   };
 
-  state = {
-    width: 290,
-    selectedVersion: null,
-    compareFirstVersion: null,
-    compareSecondVersion: null
-  };
+  constructor(props) {
+    super(props);
+
+    const state = {
+      width: 290,
+      selectedVersion: null,
+      comparisonFirstVersion: null,
+      comparisonSecondVersion: null
+    };
+
+    this.state = { ...state, ...VersionsJournal.getDefaultSelectedVersions(props) };
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    if (!state.comparisonFirstVersion && props.versionsLabels.length) {
+      return { ...VersionsJournal.getDefaultSelectedVersions(props) };
+    }
+
+    return null;
+  }
+
+  static getDefaultSelectedVersions(props) {
+    const state = {
+      comparisonFirstVersion: null,
+      comparisonSecondVersion: null
+    };
+
+    if (props.versionsLabels.length) {
+      const [comparisonFirstVersion, comparisonSecondVersion] = props.versionsLabels;
+
+      if (comparisonFirstVersion) {
+        state.comparisonFirstVersion = comparisonFirstVersion.id;
+      }
+
+      if (comparisonSecondVersion) {
+        state.comparisonSecondVersion = comparisonSecondVersion.id;
+      }
+    }
+
+    return state;
+  }
 
   componentDidMount() {
     this.props.getVersionsList();
@@ -135,6 +185,25 @@ class VersionsJournal extends Component {
   handleOpenSetActiveVersionModal = version => {
     this.handleToggleChangeVersionModal();
     this.setState({ selectedVersion: version });
+  };
+
+  handleSelectFirstVersion = data => {
+    this.setState({ comparisonFirstVersion: data.id });
+  };
+
+  handleSelectSecondVersion = data => {
+    this.setState({ comparisonSecondVersion: data.id });
+  };
+
+  handleClickShowComparisonModal = () => {
+    const { comparisonFirstVersion, comparisonSecondVersion } = this.state;
+
+    this.props.toggleModal(MODAL.COMPARISON);
+    this.props.getVersionsComparison({ comparisonFirstVersion, comparisonSecondVersion });
+  };
+
+  handleClickHideComparisonModal = () => {
+    this.props.toggleModal(MODAL.COMPARISON);
   };
 
   renderAddButton(isModal = false) {
@@ -295,7 +364,7 @@ class VersionsJournal extends Component {
   }
 
   renderModal() {
-    const { addModalIsShow, changeVersionModalIsShow } = this.props;
+    const { addModalIsShow, changeVersionModalIsShow, comparisonModalIsShow } = this.props;
 
     if (addModalIsShow) {
       const { versions, addModalIsLoading, addModalErrorMessage } = this.props;
@@ -330,6 +399,22 @@ class VersionsJournal extends Component {
       );
     }
 
+    if (comparisonModalIsShow) {
+      const { versionsLabels, versions, comparison, comparisonModalIsLoading } = this.props;
+      const { comparisonFirstVersion, comparisonSecondVersion } = this.state;
+      const selectedVersions = versions.filter(version => version.id === comparisonFirstVersion || version.id === comparisonSecondVersion);
+
+      return (
+        <ComparisonModal
+          isShow
+          isLoading={comparisonModalIsLoading}
+          comparison={comparison}
+          versions={selectedVersions}
+          onHideModal={this.handleClickHideComparisonModal}
+        />
+      );
+    }
+
     return null;
   }
 
@@ -343,11 +428,75 @@ class VersionsJournal extends Component {
     return <Loader blur className="ecos-vj__loader" />;
   }
 
+  renderComparison() {
+    const { isMobile, versionsLabels } = this.props;
+    const { comparisonFirstVersion, comparisonSecondVersion, width } = this.state;
+
+    if (versionsLabels.length < 2) {
+      return null;
+    }
+
+    let comparisonButtonIsDisabled = false;
+
+    if (comparisonSecondVersion && comparisonFirstVersion) {
+      comparisonButtonIsDisabled = comparisonFirstVersion === comparisonSecondVersion;
+    }
+
+    console.warn(width);
+
+    return (
+      <div
+        className={classNames('ecos-vj__comparison', {
+          'ecos-vj__comparison_small': isMobile || width <= MIN_WIDTH_DASHLET_LARGE
+        })}
+      >
+        <Dropdown
+          source={versionsLabels}
+          value={comparisonFirstVersion}
+          valueField="id"
+          titleField="text"
+          className="ecos-vj__comparison-dropdown"
+          menuClassName="ecos-vj__comparison-dropdown-list"
+          onChange={this.handleSelectFirstVersion}
+          hideSelected
+          withScrollbar
+          scrollbarHeightMax="200px"
+        >
+          <IcoBtn invert icon="icon-down ecos-vj__comparison-dropdown-toggle-icon" className="ecos-vj__comparison-dropdown-toggle" />
+        </Dropdown>
+
+        <Dropdown
+          source={versionsLabels}
+          value={comparisonSecondVersion}
+          valueField="id"
+          titleField="text"
+          className="ecos-vj__comparison-dropdown"
+          menuClassName="ecos-vj__comparison-dropdown-list"
+          onChange={this.handleSelectSecondVersion}
+          hideSelected
+          withScrollbar
+          scrollbarHeightMax={'200px'}
+        >
+          <IcoBtn invert icon="icon-down ecos-vj__comparison-dropdown-toggle-icon" className="ecos-vj__comparison-dropdown-toggle" />
+        </Dropdown>
+
+        <Btn
+          className={classNames('ecos-btn', 'ecos-vj__btn-comparison', {
+            'ecos-btn_blue': !isMobile,
+            'ecos-btn_hover_light-blue': !isMobile,
+            'ecos-vj__btn-comparison_mobile': isMobile
+          })}
+          disabled={comparisonButtonIsDisabled}
+          onClick={this.handleClickShowComparisonModal}
+        >
+          {t('Сравнить')}
+        </Btn>
+      </div>
+    );
+  }
+
   render() {
     const { isMobile, versionsLabels } = this.props;
-    const { compareFirstVersion, compareSecondVersion } = this.state;
-
-    // console.warn(versionsLabels);
 
     return (
       <div>
@@ -361,45 +510,20 @@ class VersionsJournal extends Component {
           resizable
           customButtons={[!isMobile && this.renderAddButton()]}
         >
-          <div className="ecos-vj__compare">
-            <Dropdown
-              source={versionsLabels}
-              value={compareFirstVersion}
-              valueField="id"
-              titleField="text"
-              className="ecos-vj__compare-dropdown"
-              menuClassName="ecos-vj__compare-dropdown-list"
-              // onChange={this.onChangeZoomOption}
-              hideSelected
-              withScrollbar
-              scrollbarHeightMax="200px"
-            >
-              <IcoBtn invert icon="icon-down" className="ecos-vj__compare-dropdown-toggle" />
-            </Dropdown>
+          {(versionsLabels.length > 1 || isMobile) && (
+            <div className="ecos-vj__block">
+              {this.renderComparison()}
 
-            <Dropdown
-              source={versionsLabels}
-              value={compareSecondVersion}
-              valueField="id"
-              titleField="text"
-              className="ecos-vj__compare-dropdown"
-              menuClassName="ecos-vj__compare-dropdown-list"
-              // onChange={this.onChangeZoomOption}
-              hideSelected
-              withScrollbar
-              scrollbarHeightMax={'200px'}
-            >
-              <IcoBtn invert icon="icon-down ecos-vj__compare-dropdown-toggle-icon" className="ecos-vj__compare-dropdown-toggle" />
-            </Dropdown>
-
-            {isMobile && this.renderAddButton(isMobile)}
-          </div>
+              {isMobile && this.renderAddButton(isMobile)}
+            </div>
+          )}
 
           <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
           <Scrollbars autoHide autoHeight autoHeightMin={270} autoHeightMax={430}>
             {this.renderActualVersion()}
             {this.renderOldVersions()}
           </Scrollbars>
+
           {this.renderModal()}
           {this.renderLoading()}
         </Dashlet>

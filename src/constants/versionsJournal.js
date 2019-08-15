@@ -7,7 +7,8 @@ export const TOOLTIP = {
 
 export const MODAL = {
   ADD: 'add',
-  CHANGE_VERSION: 'changeVersion'
+  CHANGE_VERSION: 'changeVersion',
+  COMPARISON: 'comparison'
 };
 
 export const FILE_STATUS = {

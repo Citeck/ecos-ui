@@ -8,7 +8,9 @@ import {
   setActiveVersionError,
   setActiveVersionSuccess,
   setVersions,
-  toggleModal
+  toggleModal,
+  getVersionsComparison,
+  setVersionsComparison
 } from '../actions/versionsJournal';
 
 const initialState = {
@@ -23,7 +25,12 @@ const initialState = {
 
   changeVersionModalIsShow: false,
   changeVersionModalIsLoading: false,
-  changeVersionModalErrorMessage: ''
+  changeVersionModalErrorMessage: '',
+
+  comparison: '',
+  comparisonModalIsShow: false,
+  comparisonModalIsLoading: false,
+  comparisonModalErrorMessage: ''
 };
 
 Object.freeze(initialState);
@@ -112,6 +119,23 @@ export default handleActions(
         ...state[payload.id],
         changeVersionModalIsLoading: false,
         changeVersionModalErrorMessage: payload.message
+      }
+    }),
+
+    [getVersionsComparison]: (state, { payload }) => ({
+      ...state,
+      [payload.id]: {
+        ...state[payload.id],
+        comparisonModalIsLoading: true,
+        comparison: ''
+      }
+    }),
+    [setVersionsComparison]: (state, { payload }) => ({
+      ...state,
+      [payload.id]: {
+        ...state[payload.id],
+        comparisonModalIsLoading: false,
+        comparison: payload.comparison
       }
     })
   },
