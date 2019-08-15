@@ -148,7 +148,7 @@ class VersionsJournal extends Component {
       return (
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-vj__btn-add" onClick={this.handleToggleAddModal}>
           <Icon className="icon-plus ecos-vj__btn-add-icon" />
-          <span className="ecos-vj__btn-add-title">{t('Добавить версию')}</span>
+          <span className="ecos-vj__btn-add-title">{t('versions-journal-widget.add-version')}</span>
         </Btn>
       );
     }
@@ -170,7 +170,7 @@ class VersionsJournal extends Component {
           arrowClassName="ecos-vj__tooltip-arrow"
           target={`${TOOLTIP.ADD_NEW_VERSION}-${id}`}
         >
-          {t('Добавить версию')}
+          {t('versions-journal-widget.add-version')}
         </UncontrolledTooltip>
       </span>
     );
@@ -199,7 +199,7 @@ class VersionsJournal extends Component {
           arrowClassName="ecos-vj__tooltip-arrow"
           target={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
         >
-          {t('Сделать актуальным')}
+          {t('versions-journal-widget.set-current')}
         </UncontrolledTooltip>
         <a href={version.url} download data-external>
           <Icon onClick={this.handleClickShowModal} className="icon-download ecos-vj__version-actions-item" />
@@ -264,11 +264,13 @@ class VersionsJournal extends Component {
     }
 
     const version = versions[0];
-    const versionBlock = version ? this.renderVersion(version, false) : this.renderMessage(t('Нет актуальных версий'));
+    const versionBlock = version
+      ? this.renderVersion(version, false)
+      : this.renderMessage(t('versions-journal-widget.no-current-versions'));
 
     return (
       <React.Fragment>
-        <div className="ecos-vj__title">{t('Актуальная версия')}</div>
+        <div className="ecos-vj__title">{t('versions-journal-widget.current-version')}</div>
         {versionBlock}
       </React.Fragment>
     );
@@ -284,11 +286,11 @@ class VersionsJournal extends Component {
     const [, ...oldVersions] = versions;
     const versionsBlock = oldVersions.length
       ? oldVersions.map(version => this.renderVersion(version))
-      : this.renderMessage(t('Пока нет старых версий'));
+      : this.renderMessage(t('versions-journal-widget.no-old-versions'));
 
     return (
       <React.Fragment>
-        <div className="ecos-vj__title">{t('Старые версии')}</div>
+        <div className="ecos-vj__title">{t('versions-journal-widget.old')}</div>
         {versionsBlock}
       </React.Fragment>
     );
@@ -304,7 +306,7 @@ class VersionsJournal extends Component {
       return (
         <AddModal
           isShow
-          title={t('Добавить новую версию')}
+          title={t('versions-journal-widget.add')}
           currentVersion={currentVersion}
           onHideModal={this.handleToggleAddModal}
           onCreate={this.handleAddNewVersion}
@@ -320,7 +322,7 @@ class VersionsJournal extends Component {
       return (
         <ChangeVersionModal
           isShow
-          title={t('Сделать актуальной версию')}
+          title={t('versions-journal-widget.set-current-version')}
           currentVersion={versions[0].version}
           onHideModal={this.handleToggleChangeVersionModal}
           onCreate={this.handleSetActiveVersion}
@@ -352,7 +354,7 @@ class VersionsJournal extends Component {
     return (
       <div>
         <Dashlet
-          title={t('Журнал версий')}
+          title={t('versions-journal-widget.title')}
           className="ecos-vj"
           needGoTo={false}
           actionEdit={false}
