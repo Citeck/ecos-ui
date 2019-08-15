@@ -44,9 +44,12 @@ class DocPreview extends Component {
     setUserScale: () => null
   };
 
-  static className = 'ecos-dp';
+  static className = 'ecos-doc-preview';
 
   state = {};
+
+  refToolbar = React.createRef();
+  refBody = React.createRef();
 
   constructor(props) {
     super(props);
@@ -154,6 +157,13 @@ class DocPreview extends Component {
     const { height, minHeight, maxHeight } = this.props;
 
     return getOptimalHeight(height, contentHeight, minHeight, maxHeight, !this.loaded) || '100%';
+  }
+
+  get hiddenTool() {
+    const heightTool = get(this.refToolbar, 'current.offsetHeight', 0) + 10;
+    const heightBody = get(this.refBody, 'current.offsetHeight', 0);
+
+    return heightTool >= heightBody;
   }
 
   getRecordId(props = this.props) {
@@ -266,7 +276,6 @@ class DocPreview extends Component {
     return !this.loaded ? null : (
       <Toolbar
         totalPages={pages}
-        ctrClass={DocPreview.className}
         isPDF={this.isPDF}
         onChangeSettings={this.onChangeSettings}
         onDownload={this.onDownload}
@@ -274,6 +283,7 @@ class DocPreview extends Component {
         scale={scale}
         scrollPage={scrollPage}
         calcScale={calcScale}
+        inputRef={this.refToolbar}
       />
     );
   }
@@ -300,9 +310,9 @@ class DocPreview extends Component {
     const CN = DocPreview.className;
 
     return (
-      <div className={classNames(CN, className)} style={{ height: this.height }}>
+      <div className={classNames(CN, className, { [`${CN}_hidden`]: this.hiddenTool })} style={{ height: this.height }}>
         {!isLoading && (
-          <div className={classNames(`${CN}__container`, { [`${CN}_indents`]: !noIndents })}>
+          <div ref={this.refBody} className={classNames(`${CN}__container`, { [`${CN}_indents`]: !noIndents })}>
             {this.renderToolbar()}
             {this.renderViewer()}
             {this.renderMessage()}

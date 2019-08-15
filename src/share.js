@@ -82,50 +82,59 @@ export function fillConstants() {
 }
 
 export function requireScripts() {
-  return new Promise(resolve => {
-    window.require(
-      [
-        '/share/res/modules/editors/tinymce/tinymce.min.js',
-        '/share/res/yui/history/history.js',
-        '/share/res/js/bubbling.v2.1.js',
-
-        '/share/res/js/flash/AC_OETags.js',
-        '/share/res/modules/editors/tiny_mce.js',
-        '/share/res/modules/editors/yui_editor.js',
-        '/share/res/js/forms-runtime.js',
-
-        '/share/res/js/share.js',
-        '/share/res/modules/create-site.js',
-
-        '/share/res/js/lightbox.js',
-        '/share/res/js/citeck/modules/utils/citeck.js',
-        '/share/res/citeck/components/form/constraints.js',
-
-        '/share/res/citeck/mobile/mobile.js'
-      ],
-      function() {
-        // TODO check it
-        if (
-          navigator.userAgent.indexOf(' Android ') !== -1 ||
-          navigator.userAgent.indexOf('iPad;') !== -1 ||
-          navigator.userAgent.indexOf('iPhone;') !== -1
-        ) {
-          // document.write(
-          //   "<link media='only screen and (max-device-width: 1024px)' rel='stylesheet' type='text/css' href='/share/res/css/tablet.css'/>"
-          // );
-          // document.write("<link rel='stylesheet' type='text/css' href='/share/res/css/tablet.css'/>");
-          window.require(['/share/res/css/tablet.css']);
+  let requireOne = script =>
+    new Promise(resolve => {
+      let resolved = false;
+      let localResolve = () => {
+        if (!resolved) {
+          resolved = true;
+          resolve();
         }
+      };
+      setTimeout(localResolve, 2000);
+      window.require([script], localResolve);
+    });
 
-        window.Alfresco.util.YUILoaderHelper.loadComponents(true);
+  //DO NOT USE THIS DEPENDENCIES!
+  return Promise.all(
+    [
+      '/share/res/modules/editors/tinymce/tinymce.min.js',
+      '/share/res/yui/history/history.js',
+      '/share/res/js/bubbling.v2.1.js',
 
-        window.YAHOO.Bubbling.unsubscribe = function(layer, handler, scope) {
-          this.bubble[layer].unsubscribe(handler, scope);
-        };
+      '/share/res/js/flash/AC_OETags.js',
+      '/share/res/modules/editors/tiny_mce.js',
+      '/share/res/modules/editors/yui_editor.js',
+      '/share/res/js/forms-runtime.js',
 
-        resolve();
-      }
-    );
+      '/share/res/js/share.js',
+      '/share/res/modules/create-site.js',
+
+      '/share/res/js/lightbox.js',
+      '/share/res/js/citeck/modules/utils/citeck.js',
+      '/share/res/citeck/components/form/constraints.js',
+
+      '/share/res/citeck/mobile/mobile.js'
+    ].map(requireOne)
+  ).then(() => {
+    // TODO check it
+    if (
+      navigator.userAgent.indexOf(' Android ') !== -1 ||
+      navigator.userAgent.indexOf('iPad;') !== -1 ||
+      navigator.userAgent.indexOf('iPhone;') !== -1
+    ) {
+      // document.write(
+      //   "<link media='only screen and (max-device-width: 1024px)' rel='stylesheet' type='text/css' href='/share/res/css/tablet.css'/>"
+      // );
+      // document.write("<link rel='stylesheet' type='text/css' href='/share/res/css/tablet.css'/>");
+      window.require(['/share/res/css/tablet.css']);
+    }
+
+    window.Alfresco.util.YUILoaderHelper.loadComponents(true);
+
+    window.YAHOO.Bubbling.unsubscribe = function(layer, handler, scope) {
+      this.bubble[layer].unsubscribe(handler, scope);
+    };
   });
 }
 

@@ -24,7 +24,8 @@ const Header = ({
   actionHelp,
   actionDrag,
   measurer,
-  actionEditTitle
+  actionEditTitle,
+  customButtons
 }) => {
   const btnGoTo = (
     <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className={'dashlet__btn ecos-btn_narrow'} onClick={onGoTo}>
@@ -32,7 +33,7 @@ const Header = ({
     </IcoBtn>
   );
 
-  const actions = [];
+  const actions = [...customButtons];
 
   if (actionReload) {
     actions.push(
@@ -107,6 +108,7 @@ export default class Dashlet extends Component {
     resizable: PropTypes.bool,
     canDragging: PropTypes.bool,
     dragHandleProps: PropTypes.object,
+    customButtons: PropTypes.array,
     onEdit: PropTypes.func,
     onGoTo: PropTypes.func,
     onReload: PropTypes.func,
@@ -129,6 +131,7 @@ export default class Dashlet extends Component {
     canDragging: false,
     dragButton: null,
     dragHandleProps: {},
+    customButtons: [],
     onEdit: () => {},
     onGoTo: () => {},
     onReload: () => {},
@@ -207,7 +210,8 @@ export default class Dashlet extends Component {
       actionDrag,
       onResize,
       dragHandleProps,
-      canDragging
+      canDragging,
+      customButtons
     } = this.props;
     const cssClasses = classNames('dashlet', className);
 
@@ -232,6 +236,7 @@ export default class Dashlet extends Component {
                 actionDrag={actionDrag && canDragging}
                 dragHandleProps={dragHandleProps}
                 actionEditTitle={actionEditTitle}
+                customButtons={customButtons}
               />
             </Measurer>
           }

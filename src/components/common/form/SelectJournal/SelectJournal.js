@@ -44,6 +44,7 @@ export default class SelectJournal extends Component {
     gridData: {
       total: 0,
       data: [],
+      inMemoryData: [],
       columns: [],
       selected: []
     },
@@ -239,10 +240,9 @@ export default class SelectJournal extends Component {
             requestParams['sourceId'] = sourceId;
           }
 
-          return this.api.getGridDataUsePredicates(requestParams).then(gridData => {
-            // console.log('gridData', gridData);
+          return this.api.getGridDataUsePredicates(requestParams).then(fetchedGridData => {
+            const gridData = this.mergeFetchedDataWithInMemoryData(fetchedGridData);
 
-            // setTimeout(() => {
             this.setState(prevState => {
               return {
                 gridData: {
@@ -252,13 +252,40 @@ export default class SelectJournal extends Component {
                 isGridDataReady: true
               };
             });
-            // }, 3000);
 
             resolve(gridData);
           });
         }
       );
     });
+  };
+
+  mergeFetchedDataWithInMemoryData = fetchedGridData => {
+    const { requestParams, gridData } = this.state;
+    const { pagination } = requestParams;
+    const { inMemoryData } = gridData;
+
+    if (inMemoryData.length < 1) {
+      return fetchedGridData;
+    }
+
+    let newInMemoryData = [...inMemoryData];
+
+    for (let i = 0; i < inMemoryData.length; i++) {
+      const exists = fetchedGridData.data.find(item => item.id === inMemoryData[i].id);
+      // если запись успела проиндексироваться, удаляем её из inMemoryData, иначе добаляем в fetchedGridData.data временную запись
+      if (exists) {
+        newInMemoryData = newInMemoryData.filter(item => item.id !== inMemoryData[i].id);
+      } else if (fetchedGridData.data.length < pagination.maxItems) {
+        fetchedGridData.data.push(inMemoryData[i]);
+      }
+    }
+
+    return {
+      ...fetchedGridData,
+      inMemoryData: newInMemoryData,
+      total: fetchedGridData.total + newInMemoryData.length
+    };
   };
 
   toggleSelectModal = () => {
@@ -402,12 +429,26 @@ export default class SelectJournal extends Component {
     }
   };
 
-  onCreateFormSubmit = form => {
-    this.setState({
-      isCreateModalOpen: false
-    });
-
-    this.refreshGridData();
+  onCreateFormSubmit = (record, form, alias) => {
+    this.setState(state => {
+      return {
+        isCreateModalOpen: false,
+        gridData: {
+          ...state.gridData,
+          inMemoryData: [
+            ...state.gridData.inMemoryData,
+            {
+              id: record.id,
+              ...alias.getRawAttributes()
+            }
+          ]
+        },
+        requestParams: {
+          ...state.requestParams,
+          predicates: []
+        }
+      };
+    }, this.refreshGridData);
   };
 
   onEditFormSubmit = form => {
@@ -455,7 +496,8 @@ export default class SelectJournal extends Component {
       return {
         requestParams: {
           ...prevState.requestParams,
-          predicates: predicates
+          predicates: predicates,
+          pagination: paginationInitState
         },
         isJournalConfigFetched: true
       };

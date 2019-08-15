@@ -54,7 +54,7 @@ export default class FilterItem extends React.PureComponent {
               onChange={this.onChangeSearch}
               onKeyDown={this.onKeyDown}
               value={search}
-              placeholder={t('Фильтровать')}
+              placeholder={t('dropdown-filter.item.placeholder')}
             />
 
             <Icon className={classNames(`${_field}__close`, 'icon-close icon_small')} onClick={this.onClean} />

@@ -39,7 +39,7 @@ export default class DropdownFilter extends React.Component {
   render() {
     const { isOpenFilter } = this.state;
     const { columns, className } = this.props;
-    const all = [{ dataField: 'all-fields', text: t('По всем полям') }];
+    const all = [{ dataField: 'all-fields', text: t('dropdown-filter.all-fields') }];
 
     return (
       <div className={className + '-wrapper'}>
@@ -55,7 +55,7 @@ export default class DropdownFilter extends React.Component {
           full
         >
           <IcoBtn invert icon={isOpenFilter ? 'icon-up' : 'icon-down'} className={`ecos-btn_full-width ecos-btn_drop-down`}>
-            {t('Фильтровать')}
+            {t('dropdown-filter.icon-button.label')}
           </IcoBtn>
         </Dropdown>
       </div>

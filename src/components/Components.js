@@ -14,7 +14,8 @@ export const ComponentKeys = {
   TASKS: 'tasks',
   CURRENT_TASKS: 'current-tasks',
   DOC_STATUS: 'doc-status',
-  EVENTS_HISTORY: 'events-history'
+  EVENTS_HISTORY: 'events-history',
+  VERSIONS_JOURNAL: 'versions-journal'
 };
 
 export default class Components {
@@ -49,7 +50,11 @@ export default class Components {
     },
     [ComponentKeys.EVENTS_HISTORY]: {
       path: './EventsHistory',
-      label: 'История событий'
+      label: 'dashboard-settings.widget.events-history'
+    },
+    [ComponentKeys.VERSIONS_JOURNAL]: {
+      path: './VersionsJournal',
+      label: 'dashboard-settings.widget.versions-journal'
     }
   };
 

@@ -61,7 +61,7 @@ class EventsHistoryDashlet extends React.Component {
 
     return (
       <Dashlet
-        title={title || t('История событий')}
+        title={title || t('events-history-widget.title')}
         bodyClassName={`${this.className}__body`}
         className={classDashlet}
         resizable={true}

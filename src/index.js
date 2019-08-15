@@ -30,7 +30,8 @@ import {
   OrgStructApi,
   PageTabsApi,
   TasksApi,
-  UserApi
+  UserApi,
+  VersionsJournalApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
@@ -70,6 +71,19 @@ api.dashboard = new DashboardApi(store);
 api.pageTabs = new PageTabsApi(store);
 api.docStatus = new DocStatusApi(store);
 api.eventsHistory = new EventsHistoryApi(store);
+api.versionsJournal = new VersionsJournalApi(store);
+
+/**
+ * todo: Maybe need such union all api?
+ */
+// Object
+//   .keys(API)
+//   .forEach((key => {
+//   let name = key.replace('Api', '');
+//
+//   name = name[0].toLowerCase() + name.slice(1);
+//   api[name] = new API[key](store);
+// }));
 
 const history = getHistory();
 
