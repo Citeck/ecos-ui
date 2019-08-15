@@ -1,6 +1,5 @@
 import { get, isEmpty } from 'lodash';
 import moment from 'moment';
-
 import { TITLE } from '../constants/pageTabs';
 import DashboardService from '../services/dashboard';
 
@@ -37,17 +36,7 @@ export default class DashboardConverter {
       const { config } = source;
       const layouts = get(config, ['layouts'], []);
 
-      //for old version, which has one layout without tab
-      if (isEmpty(layouts)) {
-        const layout = get(config, ['layout'], {});
-
-        layout.id = 'layout_0';
-        layout.tab = DashboardService.defaultDashboardConfig.layout.tab;
-
-        if (!isEmpty(layout)) {
-          layouts.push(layout);
-        }
-      }
+      DashboardService.movedToListLayout(config, layouts);
 
       layouts.forEach(item => {
         target.push(DashboardConverter.getDashboardLayoutForWeb(item));

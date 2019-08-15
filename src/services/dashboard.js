@@ -1,12 +1,14 @@
-import { isEmpty, nth } from 'lodash';
+import { get, isEmpty, nth } from 'lodash';
 import { LAYOUT_TYPE } from '../constants/layout';
 import { t } from '../helpers/util';
 
 export default class DashboardService {
+  static defaultDashboardTab = idLayout => ({ label: t('Новая вкладка'), idLayout });
+
   static defaultDashboardConfig = {
     layout: {
-      id: 0,
-      tab: { label: t('По-умолчанию'), isActive: true, idLayout: 0 },
+      id: 'layout_0',
+      tab: DashboardService.defaultDashboardTab('layout_0'),
       type: LAYOUT_TYPE.TWO_COLUMNS_BS,
       columns: [
         {
@@ -48,5 +50,19 @@ export default class DashboardService {
       dashboardId,
       fullId
     };
+  }
+
+  static movedToListLayout(config, layouts) {
+    if (isEmpty(layouts)) {
+      console.log('movedToListLayout: for old version, which has one layout without tab');
+      const layout = get(config, ['layout'], {});
+
+      layout.id = 'layout_0';
+      layout.tab = DashboardService.defaultDashboardConfig.layout.tab;
+
+      if (!isEmpty(layout)) {
+        layouts.push(layout);
+      }
+    }
   }
 }

@@ -37,10 +37,11 @@
       .ecos-tab {
         padding: 0 60px;
         max-width: 259px;
-        //border-width: $border-width-standard;
-        //border-style: solid;
-        //margin: 0;
         @extend %ellipsis;
+
+        &_active {
+          pointer-events: none;
+        }
       }
 
       &-container {

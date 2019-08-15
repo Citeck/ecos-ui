@@ -46,7 +46,8 @@ class Dashboard extends Component {
     this.state = {
       config: props.config,
       urlParams: getSortedUrlParams(),
-      canDragging: false
+      canDragging: false,
+      activeLayoutId: null
     };
   }
 
@@ -73,7 +74,7 @@ class Dashboard extends Component {
     }
 
     if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
-      this.setState({ config });
+      this.setState({ config, activeLayoutId: get(config, '[0].id') });
     }
   }
 
@@ -122,20 +123,24 @@ class Dashboard extends Component {
   }
 
   get activeLayout() {
-    const { config } = this.state;
+    const { config, activeLayoutId } = this.state;
 
-    if (!isEmpty(config) && isArray(config)) {
-      return config.find(item => item.tab.isActive);
+    if (!isEmpty(config) && isArray(config) && !!activeLayoutId) {
+      return config.find(item => item.tab.idLayout === activeLayoutId);
     }
 
     return {};
   }
 
   get tabList() {
-    const { config } = this.state;
+    const { config, activeLayoutId } = this.state;
 
     if (!isEmpty(config) && isArray(config)) {
-      return config.map((item, index) => ({ ...item.tab, idLayout: item.id, index }));
+      return config.map(item => ({
+        ...item.tab,
+        isActive: item.id === activeLayoutId,
+        onClick: () => this.toggleTabLayout(item.id)
+      }));
     }
 
     return [];
@@ -197,6 +202,10 @@ class Dashboard extends Component {
 
     this.setState({ config });
     this.saveDashboardConfig({ config });
+  };
+
+  toggleTabLayout = activeLayoutId => {
+    this.setState({ activeLayoutId });
   };
 
   renderTabs() {

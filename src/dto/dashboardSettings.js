@@ -1,7 +1,8 @@
 import { get, isEmpty } from 'lodash';
 import { LAYOUT_TYPE } from '../constants/layout';
+import { LAYOUTS } from '../constants/dashboard';
 import Components from '../components/Components';
-import * as dtoMenu from './menu';
+import MenuConverter from './menu';
 import DashboardService from '../services/dashboard';
 
 export default class DashboardSettingsConverter {
@@ -15,48 +16,52 @@ export default class DashboardSettingsConverter {
 
       const layouts = get(config, ['layouts'], []);
 
-      //for old version, which has one layout without tab
-      if (isEmpty(layouts)) {
-        const layout = get(config, ['layout']) || {};
-        layout.id = 'layout_0';
-
-        if (!isEmpty(layout)) {
-          layouts.push(layout);
-        }
-      }
+      DashboardService.movedToListLayout(config, layouts);
 
       target.config = [];
 
-      layouts.forEach(item => {
-        target.config.push(DashboardSettingsConverter.getSettingsLayoutForWeb(item));
+      layouts.forEach(layout => {
+        target.config.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout));
       });
     }
 
     return target;
   }
 
-  static getSettingsLayoutForWeb(source = {}) {
+  static getSettingsLayoutForWeb(layout = {}) {
     let target = {};
 
-    target.id = source.id;
-    target.tab = source.tab || DashboardService.defaultDashboardConfig.layout.tab;
-    target.type = source.type || LAYOUT_TYPE.TWO_COLUMNS_BS;
-    target.widgets = !isEmpty(source.columns) ? source.columns.map(item => item.widgets) : [];
+    target.id = layout.id;
+    target.tab = layout.tab || DashboardService.defaultDashboardTab(layout.id);
+    target.type = layout.type || LAYOUT_TYPE.TWO_COLUMNS_BS;
+    target.widgets = !isEmpty(layout.columns) ? layout.columns.map(item => item.widgets) : [];
 
     return target;
   }
 
   static getSettingsConfigForServer(source) {
     const target = {
-      layout: {},
+      layouts: [],
       menu: {}
     };
 
-    target.menu.type = source.menuType;
-    target.menu.links = dtoMenu.getMenuItemsForServer(source.links);
+    const { menuType, menuLinks, layoutType, widgets } = source;
 
-    target.layout.type = source.layoutType;
-    target.layout.columns = DashboardSettingsConverter.getWidgetsForServer(source.columns, source.widgets);
+    target.menu.type = menuType;
+    target.menu.links = MenuConverter.getMenuItemsForServer(menuLinks);
+
+    source.tabs.forEach(tab => {
+      const { label, idLayout } = tab;
+      const type = layoutType[idLayout] || LAYOUT_TYPE.TWO_COLUMNS_BS;
+      const columns = LAYOUTS.find(layout => layout.type === type).columns;
+
+      target.layouts.push({
+        id: idLayout,
+        tab: { label, idLayout },
+        type,
+        columns: DashboardSettingsConverter.getWidgetsForServer(columns, widgets[idLayout])
+      });
+    });
 
     return target;
   }
