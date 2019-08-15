@@ -183,7 +183,7 @@ class Journals extends Component {
           <JournalsContent stateId={stateId} showPreview={showPreview} showPie={showPie} />
 
           <div className={'ecos-journal__footer'}>
-            <JournalsDashletPagination stateId={stateId} />
+            <JournalsDashletPagination stateId={stateId} hasPageSize />
           </div>
         </div>
 

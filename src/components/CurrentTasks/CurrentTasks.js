@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { isEmpty } from 'lodash';
-import { getCurrentTaskList } from '../../actions/tasks';
+import { getCurrentTaskList } from '../../actions/currentTasks';
 import { selectStateCurrentTasksById } from '../../selectors/tasks';
 import { DefineHeight } from '../common';
 import CurrentTaskList from './CurrentTaskList';
@@ -16,7 +16,8 @@ const mapStateToProps = (state, context) => {
   return {
     currentTasks: currentTasksState.list,
     isLoading: currentTasksState.isLoading,
-    isMobile: state.view.isMobile
+    isMobile: state.view.isMobile,
+    updateRequestRecord: state.currentTasks.updateRequestRecord
   };
 };
 
@@ -52,6 +53,14 @@ class CurrentTasks extends React.Component {
 
   componentDidMount() {
     this.getCurrentTaskList();
+  }
+
+  componentWillReceiveProps(nextProps, nextContext) {
+    const { record, isLoading } = this.props;
+
+    if (!isLoading && !isEmpty(nextProps.updateRequestRecord) && nextProps.updateRequestRecord === record) {
+      this.getCurrentTaskList();
+    }
   }
 
   getCurrentTaskList = () => {

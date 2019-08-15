@@ -103,8 +103,10 @@
     font-size: 17px;
     margin-left: 10px;
 
+    &:hover,
     &_open {
       color: $color-blue-light;
+      cursor: pointer;
     }
 
     &_big {
