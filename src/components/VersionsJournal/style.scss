@@ -253,13 +253,10 @@
   &__comparison {
     $compare: &;
     margin-bottom: 15px;
-    //@extend %block-padding;
 
     &-dropdown {
       position: relative;
       height: 40px;
-      //max-width: 203px;
-      //width: 50%;
       margin-right: 10px;
       min-width: 120px;
       width: 100%;
@@ -282,7 +279,6 @@
       }
 
       &-list.dropdown-menu {
-        //width: 100% !important;
         width: 100%;
         min-width: unset;
       }
@@ -710,7 +706,6 @@
       }
 
       &.ecos-modal {
-        //max-width: 100%;
       }
 
       #{$comparison}__header {
