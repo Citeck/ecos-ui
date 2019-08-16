@@ -139,8 +139,10 @@
       align-items: center;
 
       &-avatar {
-        width: 49px;
-        height: 49px;
+        $size: 49px;
+
+        width: $size;
+        height: $size;
         border-radius: 50%;
         object-fit: cover;
         margin-right: 10px;
@@ -151,7 +153,7 @@
           color: $color-white;
           font-weight: bold;
           font-size: 14px;
-          line-height: 35px;
+          line-height: $size;
         }
       }
 

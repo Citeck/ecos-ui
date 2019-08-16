@@ -9,8 +9,7 @@ import classNames from 'classnames';
 
 import Dashlet from '../Dashlet/Dashlet';
 import { IcoBtn } from '../common/btns';
-import Icon from '../common/icons/Icon/Icon';
-import { Loader } from '../common';
+import { Loader, Icon, Avatar } from '../common';
 import { t } from '../../helpers/util';
 import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
@@ -76,12 +75,13 @@ class VersionsJournal extends Component {
         avatar: PropTypes.string
       })
     ),
-    versionsLabels: PropTypes.arrayOf([
+    versionsLabels: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-        text: PropTypes.string
+        text: PropTypes.string,
+        shortText: PropTypes.string
       })
-    ]),
+    ),
     isLoading: PropTypes.bool,
 
     addModalIsLoading: PropTypes.bool,
@@ -279,17 +279,6 @@ class VersionsJournal extends Component {
   renderVersion = (version, showActions = true) => {
     const { id, isMobile } = this.props;
     const key = `${version.id.replace(/[:@/]/gim, '')}-${id}`;
-    let avatar = <img src={version.avatar} alt="author" className="ecos-vj__version-author-avatar" />;
-
-    if (!version.avatar) {
-      const initials = version.userName
-        .split(' ')
-        .map(word => word[0])
-        .join(' ')
-        .toUpperCase();
-
-      avatar = <div className="ecos-vj__version-author-avatar ecos-vj__version-author-avatar_empty">{initials}</div>;
-    }
 
     return (
       <div className="ecos-vj__version" key={key}>
@@ -300,7 +289,7 @@ class VersionsJournal extends Component {
         </div>
         <div className="ecos-vj__version-body">
           <div className="ecos-vj__version-author">
-            {avatar}
+            <Avatar url={version.avatar} className="ecos-vj__version-author-avatar" classNameEmpty="ecos-vj__version-author-avatar_empty" />
 
             <div className="ecos-vj__version-author-name">
               <div className="ecos-vj__version-author-name-item">
