@@ -4,6 +4,7 @@ import dataSourceStore from '../components/common/grid/dataSource/DataSourceStor
 import Records from '../components/Records';
 import { queryByCriteria, t, debounce } from '../helpers/util';
 import * as ls from '../helpers/ls';
+import { DocPreviewApi } from './docPreview';
 
 export class JournalsApi extends RecordService {
   lsJournalSettingIdsKey = ls.generateKey('journal-setting-ids', true);
@@ -239,15 +240,7 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getPreviewUrl = nodeRef => {
-    return Records.get(nodeRef)
-      .load('previewInfo?json', true)
-      .then(resp => {
-        resp = resp || {};
-        const { url = '', ext = '' } = resp;
-        return url && ext ? `${url}.${ext}` : '';
-      });
-  };
+  getPreviewUrl = DocPreviewApi.getLinkByRecord;
 
   performGroupAction = ({ groupAction, selected, criteria, journalId }) => {
     const { id, type, params } = groupAction;
