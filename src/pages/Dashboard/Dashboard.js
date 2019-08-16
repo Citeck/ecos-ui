@@ -11,7 +11,7 @@ import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
 import { Loader, Tabs } from '../../components/common';
 import { MENU_TYPE } from '../../constants';
-import { DASHBOARD_TYPE } from '../../constants/dashboard';
+import { DashboardTypes } from '../../constants/dashboard';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../constants/pageTabs';
 import { deepClone, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
@@ -136,8 +136,9 @@ class Dashboard extends Component {
     const { config, activeLayoutId } = this.state;
 
     if (!isEmpty(config) && isArray(config)) {
-      return config.map(item => ({
+      return config.map((item, index) => ({
         ...item.tab,
+        id: `tab-${index}-${item.id}`,
         isActive: item.id === activeLayoutId,
         onClick: () => this.toggleTabLayout(item.id)
       }));
@@ -251,7 +252,7 @@ class Dashboard extends Component {
     let title = null;
 
     switch (dashboardType) {
-      case DASHBOARD_TYPE.CASE_DETAILS:
+      case DashboardTypes.CASE_DETAILS:
         title = (
           <React.Fragment>
             <div className="ecos-dashboard__header-title" key="title">
@@ -282,8 +283,8 @@ class Dashboard extends Component {
           </React.Fragment>
         );
         break;
-      case DASHBOARD_TYPE.USER:
-      case DASHBOARD_TYPE.SITE:
+      case DashboardTypes.USER:
+      case DashboardTypes.SITE:
       default:
         title = <div className="ecos-dashboard__header-title">{name && <div className="ecos-dashboard__header-name">{t(name)}</div>}</div>;
         break;

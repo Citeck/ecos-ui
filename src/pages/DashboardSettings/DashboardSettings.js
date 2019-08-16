@@ -4,11 +4,10 @@ import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 import * as queryString from 'query-string';
 import { cloneDeep, get, isArray, isEmpty, set } from 'lodash';
-import { Scrollbars } from 'react-custom-scrollbars';
 
 import { arrayCompare, deepClone, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
-import { LAYOUTS, TYPE_MENU } from '../../constants/dashboard';
+import { DashboardTypes, Layouts, MenuTypes } from '../../constants/dashboard';
 import { MENU_TYPE, SAVE_STATUS, URL } from '../../constants';
 import { getAwayFromPage, initDashboardSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
 import { initMenuSettings } from '../../actions/menu';
@@ -16,7 +15,7 @@ import DashboardService from '../../services/dashboard';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { Btn, IcoBtn } from '../../components/common/btns';
-import { Loader, Tabs } from '../../components/common';
+import { EditTabs, Loader } from '../../components/common';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 
 import './style.scss';
@@ -29,7 +28,8 @@ const mapStateToProps = state => ({
   isLoadingMenu: get(state, ['menu', 'isLoading']),
   availableWidgets: get(state, ['dashboardSettings', 'availableWidgets']),
   isLoading: get(state, ['dashboardSettings', 'isLoading']),
-  saveResult: get(state, ['dashboardSettings', 'saveResult'])
+  saveResult: get(state, ['dashboardSettings', 'saveResult']),
+  dashboardType: get(state, ['dashboardSettings', 'identification', 'type'])
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -77,7 +77,7 @@ class DashboardSettings extends React.Component {
       selectedLayout: {},
       selectedWidgets: {},
       selectedMenuItems: [],
-      typeMenu: TYPE_MENU,
+      typeMenu: MenuTypes,
       isShowMenuConstructor: false,
       availableWidgets: DndUtils.setDndId(props.availableWidgets),
       availableMenuItems: DndUtils.setDndId(props.availableMenuItems),
@@ -163,7 +163,7 @@ class DashboardSettings extends React.Component {
 
         selectedLayout[idLayout] = item.type;
 
-        let layout = LAYOUTS.find(layout => layout.type === item.type) || {};
+        let layout = Layouts.find(layout => layout.type === item.type) || {};
         let widgets = this.setSelectedWidgets(layout, item.widgets);
 
         widgets.map(item => DndUtils.setDndId(item));
@@ -242,7 +242,7 @@ class DashboardSettings extends React.Component {
   }
 
   get selectedTypeLayout() {
-    return LAYOUTS.find(layout => layout.type === this.activeData.layout) || {};
+    return Layouts.find(layout => layout.type === this.activeData.layout) || {};
   }
 
   get filterAvailableMenuItems() {
@@ -260,6 +260,10 @@ class DashboardSettings extends React.Component {
     };
   }
 
+  get isUserType() {
+    return [DashboardTypes.USER].includes(this.props.dashboardType);
+  }
+
   draggablePositionAdjusment = () => {
     const menuType = this.getMenuType();
 
@@ -270,10 +274,23 @@ class DashboardSettings extends React.Component {
   };
 
   renderHeader() {
+    let title = '';
+
+    switch (this.props.dashboardType) {
+      case DashboardTypes.USER:
+        title = t('dashboard-settings.page-title');
+        break;
+      case DashboardTypes.CASE_DETAILS:
+        title = t('Настройки карточек кейсов');
+        break;
+      default:
+        title = t('Настройка отображения страницы');
+        break;
+    }
     return (
       <Row>
         <Col md={12}>
-          <h1 className="ecos-dashboard-settings__header">{t('dashboard-settings.page-title')}</h1>
+          <h1 className="ecos-dashboard-settings__header">{title}</h1>
         </Col>
       </Row>
     );
@@ -299,59 +316,41 @@ class DashboardSettings extends React.Component {
     tabs.splice(index, 1);
 
     if (tab.isActive) {
-      tabs[0].isActive = true;
       activeLayoutId = tabs[0].idLayout;
     }
 
     this.setState({ tabs, activeLayoutId });
   };
 
-  renderTabList() {
-    const { tabs } = this.state;
-
-    return (
-      <div className="ecos-dashboard-settings__tabs">
-        <div className="ecos-dashboard-settings__tabs-list">
-          {tabs.map((tab, index) => (
-            <div className="ecos-dashboard-settings__tabs-list__item" key={`tab_${index}`}>
-              {tab.label}
-              <IcoBtn
-                icon={'icon-delete'}
-                className={'ecos-btn_transparent ecos-btn_i_sm'}
-                disabled={tabs.length < 2}
-                onClick={() => this.onClickDeleteTab(tab, index)}
-              />
-            </div>
-          ))}
-          <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.onClickNewTab}>
-            {t('Создать новую')}
-          </Btn>
-        </div>
-      </div>
-    );
-  }
-
   renderTabsBlock() {
+    if (this.isUserType) {
+      return null;
+    }
+
     const { tabs, activeLayoutId } = this.state;
 
     const cloneTabs = deepClone(tabs);
 
-    cloneTabs.forEach(item => {
+    cloneTabs.forEach((item, index) => {
+      item.id = `tab-${index}-${item.idLayout}`;
       item.isActive = item.idLayout === activeLayoutId;
       item.onClick = () => this.onClickTabLayout(item.idLayout);
     });
 
     return (
       <React.Fragment>
-        <div className="ecos-dashboard-settings__container">
-          <h5 className="ecos-dashboard-settings__container-title">{t('Вкладки')}</h5>
-          <h6 className="ecos-dashboard-settings__container-subtitle">{t('Установите необходимые вкладки дашборда')}</h6>
-          {this.renderTabList()}
-        </div>
+        <h6 className="ecos-dashboard-settings__container-subtitle">
+          {t('Отредактируйте количество и содержимое табов для выбранного типа кейса')}
+        </h6>
         <div className="ecos-dashboard-settings__tabs-view-container">
-          <Scrollbars autoHeight autoHeightMin={'100%'} autoHeightMax={'100%'} className="ecos-dashboard-settings__tabs-view-scroll">
-            <Tabs className="ecos-dashboard-settings__tabs-view" hasHover items={cloneTabs} />
-          </Scrollbars>
+          <EditTabs
+            className="ecos-dashboard-settings__tabs-view"
+            hasHover
+            items={cloneTabs}
+            onDelete={this.onClickDeleteTab}
+            disabled={cloneTabs.length < 2}
+          />
+          <IcoBtn icon="icon-big-plus" className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.onClickNewTab} />
         </div>
       </React.Fragment>
     );
@@ -391,7 +390,7 @@ class DashboardSettings extends React.Component {
   }
 
   renderColumnLayouts() {
-    return LAYOUTS.map(layout => (
+    return Layouts.map(layout => (
       <ColumnsLayoutItem
         key={`${layout.position}-${layout.type}`}
         onClick={this.handleClickColumn.bind(this, layout)}
@@ -535,7 +534,7 @@ class DashboardSettings extends React.Component {
   }
 
   renderMenuBlock() {
-    return (
+    return this.isUserType ? (
       <React.Fragment>
         <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.menu.title')}</h5>
         <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.menu.subtitle')}</h6>
@@ -544,7 +543,7 @@ class DashboardSettings extends React.Component {
         </div>
         {this.renderMenuConstructor()}
       </React.Fragment>
-    );
+    ) : null;
   }
 
   /*-------- start Widgets --------*/
@@ -746,12 +745,11 @@ class DashboardSettings extends React.Component {
         {this.renderHeader()}
         {this.renderTabsBlock()}
         <div className="ecos-dashboard-settings__container">
-          <h6 className="ecos-dashboard-settings__container-subtitle">{t('Настройте контент для выбранной вкладки')}</h6>
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
+          {this.renderMenuBlock()}
+          {this.renderButtons()}
         </div>
-        <div className="ecos-dashboard-settings__container">{this.renderMenuBlock()}</div>
-        <div className="ecos-dashboard-settings__container">{this.renderButtons()}</div>
       </Container>
     );
   }

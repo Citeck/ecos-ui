@@ -1,6 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
+
 import './Tabs.scss';
 
 const Tab = props => {
@@ -17,13 +18,7 @@ const Tab = props => {
   );
 };
 
-Tab.propTypes = {
-  id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  label: PropTypes.string,
-  isActive: PropTypes.bool,
-  hasHover: PropTypes.bool,
-  onClick: PropTypes.func
-};
+Tab.propTypes = commonOneTabPropTypes;
 
 const Tabs = props => {
   const { items, className, hasHover } = props;
@@ -38,20 +33,8 @@ const Tabs = props => {
   );
 };
 
-Tabs.propTypes = {
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      ...Tab.propTypes
-    })
-  ),
-  className: PropTypes.string,
-  hasHover: PropTypes.bool
-};
+Tabs.propTypes = commonTabsPropTypes;
 
-Tabs.defaultProps = {
-  items: [],
-  className: '',
-  hasHover: false
-};
+Tabs.defaultProps = commonTabsDefaultProps;
 
 export default Tabs;

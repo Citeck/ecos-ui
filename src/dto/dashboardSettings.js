@@ -1,6 +1,6 @@
 import { get, isEmpty } from 'lodash';
 import { LAYOUT_TYPE } from '../constants/layout';
-import { LAYOUTS } from '../constants/dashboard';
+import { Layouts } from '../constants/dashboard';
 import Components from '../components/Components';
 import MenuConverter from './menu';
 import DashboardService from '../services/dashboard';
@@ -53,7 +53,7 @@ export default class DashboardSettingsConverter {
     source.tabs.forEach(tab => {
       const { label, idLayout } = tab;
       const type = layoutType[idLayout] || LAYOUT_TYPE.TWO_COLUMNS_BS;
-      const columns = LAYOUTS.find(layout => layout.type === type).columns;
+      const columns = Layouts.find(layout => layout.type === type).columns;
 
       target.layouts.push({
         id: idLayout,

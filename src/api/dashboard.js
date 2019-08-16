@@ -6,7 +6,7 @@ import { RecordService } from './recordService';
 import Components from '../components/Components';
 import Records from '../components/Records';
 import { TITLE } from '../constants/pageTabs';
-import { DASHBOARD_TYPE } from '../constants/dashboard';
+import { DashboardTypes } from '../constants/dashboard';
 import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
@@ -115,7 +115,7 @@ export class DashboardApi extends RecordService {
       {
         sourceId: SourcesId.DASHBOARD,
         query: {
-          type: 'user-dashboard',
+          type: DashboardTypes.USER,
           user
         }
       },
@@ -147,7 +147,7 @@ export class DashboardApi extends RecordService {
       .then(response => response);
 
     switch (type) {
-      case DASHBOARD_TYPE.CASE_DETAILS:
+      case DashboardTypes.CASE_DETAILS:
         return yield Records.get(recordRef)
           .load({
             modifier: '.att(n:"cm:modifier"){disp,str}',
@@ -156,7 +156,7 @@ export class DashboardApi extends RecordService {
             version: 'version'
           })
           .then(response => response);
-      case DASHBOARD_TYPE.SITE:
+      case DashboardTypes.SITE:
       default: {
         const displayName = yield Records.get(recordRef)
           .load('.disp')
