@@ -74,7 +74,7 @@ export default class EcosModal extends Component {
   };
 
   render() {
-    const { hideModal, children, title, isBigHeader, className, reactstrapProps, isLoading } = this.props;
+    const { hideModal, children, title, isBigHeader, className, reactstrapProps, isLoading, isEmptyTitle } = this.props;
     const { isOpen, level, draggableState } = this.state;
 
     const modalZIndex = this.props.zIndex ? this.props.zIndex + level : zIndex + level;
@@ -108,11 +108,11 @@ export default class EcosModal extends Component {
       );
     }
 
-    const header = title ? (
+    const header = (
       <ModalHeader toggle={hideModal} close={closeBtn} className={`modal-header_level-${level}`}>
-        {title}
+        {title && !isEmptyTitle ? title : ''}
       </ModalHeader>
-    ) : null;
+    );
 
     const draggableProps = {
       disabled: true
@@ -154,6 +154,7 @@ EcosModal.propTypes = {
   isBigHeader: PropTypes.bool,
   isOpen: PropTypes.bool,
   isLoading: PropTypes.bool,
+  isEmptyTitle: PropTypes.bool,
   hideModal: PropTypes.func,
   reactstrapProps: PropTypes.object,
   title: PropTypes.string

@@ -5,7 +5,8 @@ import VersionsJournal from '../../../components/VersionsJournal';
 class VersionsJournalWidgetPage extends React.Component {
   state = {
     id: uuid(),
-    record: 'workspace://SpacesStore/848e6c2a-7c08-4c95-b70c-0bcf9aa5bcfa'
+    // record: 'workspace://SpacesStore/848e6c2a-7c08-4c95-b70c-0bcf9aa5bcfa'
+    record: 'workspace://SpacesStore/32fda355-1725-4e5e-9665-7b1a487535a2'
   };
 
   render() {
@@ -19,7 +20,7 @@ class VersionsJournalWidgetPage extends React.Component {
           margin: '50px 0'
         }}
       >
-        <div style={{ width: '500px' }}>
+        <div style={{ width: '588px' }}>
           <VersionsJournal id={id} record={record} />
         </div>
       </div>
