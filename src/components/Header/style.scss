@@ -172,8 +172,11 @@
 
   &-user {
     &__btn {
-      max-width: 242px;
-      @extend %ellipsis;
+      max-width: 152px;
+
+      .ecos-btn__text {
+        @extend %ellipsis;
+      }
     }
   }
 
