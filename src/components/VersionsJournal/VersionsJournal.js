@@ -217,7 +217,7 @@ class VersionsJournal extends Component {
       return (
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-vj__btn-add" onClick={this.handleToggleAddModal}>
           <Icon className="icon-plus ecos-vj__btn-add-icon" />
-          <span className="ecos-vj__btn-add-title">{t('Добавить версию')}</span>
+          <span className="ecos-vj__btn-add-title">{t('versions-journal-widget.add-version')}</span>
         </Btn>
       );
     }
