@@ -59,7 +59,7 @@ export default class IconInfo extends React.Component {
 
     return isShow ? (
       <React.Fragment>
-        <ClickOutside handleClickOutside={this.closeTooltip}>
+        <ClickOutside handleClickOutside={this.closeTooltip} className={`${icon}-wrap`}>
           <Icon
             id={domId}
             className={classNames(icon, iconClass, { [`${icon}_open`]: isOpen, [`${icon}_big`]: noTooltip })}
