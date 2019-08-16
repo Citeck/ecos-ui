@@ -104,6 +104,8 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
           if (params.maxItems) {
             targetUrl += `&maxItems=${params.maxItems}`;
           }
+
+          targetUrl = menuApi.getNewJournalPageUrl(params);
         }
 
         break;
