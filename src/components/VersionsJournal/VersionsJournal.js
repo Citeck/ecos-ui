@@ -12,17 +12,16 @@ import { IcoBtn } from '../common/btns';
 import Icon from '../common/icons/Icon/Icon';
 import { Loader } from '../common';
 import { t } from '../../helpers/util';
-
 import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
 import ComparisonModal from './ComparisonModal';
 import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../actions/versionsJournal';
-import { MIN_WIDTH_DASHLET_LARGE } from '../../constants';
+import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import { TOOLTIP, MODAL } from '../../constants/versionsJournal';
 import { selectLabelsVersions } from '../../selectors/versionsJournal';
-
 import Btn from '../common/btns/Btn';
 import { Dropdown } from '../common/form';
+
 import './style.scss';
 
 const mapStateToProps = (state, ownProps) => {
@@ -402,13 +401,14 @@ class VersionsJournal extends Component {
     }
 
     if (comparisonModalIsShow) {
-      const { versionsLabels, versions, comparison, comparisonModalIsLoading } = this.props;
+      const { versions, comparison, comparisonModalIsLoading, isMobile } = this.props;
       const { comparisonFirstVersion, comparisonSecondVersion } = this.state;
-      const selectedVersions = versions.filter(version => version.id === comparisonFirstVersion || version.id === comparisonSecondVersion);
+      const selectedVersions = [versions.find(v => v.id === comparisonFirstVersion), versions.find(v => v.id === comparisonSecondVersion)];
 
       return (
         <ComparisonModal
           isShow
+          isMobile={isMobile}
           isLoading={comparisonModalIsLoading}
           comparison={comparison}
           versions={selectedVersions}
@@ -508,35 +508,34 @@ class VersionsJournal extends Component {
     const { isMobile, versionsLabels } = this.props;
 
     return (
-      <div>
-        <Dashlet
-          title={t('versions-journal-widget.title')}
-          className="ecos-vj"
-          needGoTo={false}
-          actionEdit={false}
-          actionHelp={false}
-          actionReload={false}
-          resizable
-          customButtons={[!isMobile && this.renderAddButton()]}
-        >
-          {(versionsLabels.length > 1 || isMobile) && (
-            <div className="ecos-vj__block">
-              {this.renderComparison()}
+      <Dashlet
+        title={t('versions-journal-widget.title')}
+        className="ecos-vj"
+        style={{ minWidth: MIN_WIDTH_DASHLET_SMALL }}
+        needGoTo={false}
+        actionEdit={false}
+        actionHelp={false}
+        actionReload={false}
+        resizable
+        customButtons={[!isMobile && this.renderAddButton()]}
+      >
+        {(versionsLabels.length > 1 || isMobile) && (
+          <div className="ecos-vj__block">
+            {this.renderComparison()}
 
-              {isMobile && this.renderAddButton(isMobile)}
-            </div>
-          )}
+            {isMobile && this.renderAddButton(isMobile)}
+          </div>
+        )}
 
-          <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
-          <Scrollbars autoHide autoHeight autoHeightMin={270} autoHeightMax={430}>
-            {this.renderActualVersion()}
-            {this.renderOldVersions()}
-          </Scrollbars>
+        <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
+        <Scrollbars autoHide autoHeight autoHeightMin={270} autoHeightMax={430}>
+          {this.renderActualVersion()}
+          {this.renderOldVersions()}
+        </Scrollbars>
 
-          {this.renderModal()}
-          {this.renderLoading()}
-        </Dashlet>
-      </div>
+        {this.renderModal()}
+        {this.renderLoading()}
+      </Dashlet>
     );
   }
 }

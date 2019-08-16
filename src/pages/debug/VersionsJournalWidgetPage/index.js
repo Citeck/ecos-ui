@@ -20,7 +20,7 @@ class VersionsJournalWidgetPage extends React.Component {
           margin: '50px 0'
         }}
       >
-        <div style={{ width: '588px' }}>
+        <div style={{ width: '80%' }}>
           <VersionsJournal id={id} record={record} />
         </div>
       </div>
