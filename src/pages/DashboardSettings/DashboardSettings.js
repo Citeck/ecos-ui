@@ -298,19 +298,32 @@ class DashboardSettings extends React.Component {
 
   /*-------- start Tabs --------*/
   onClickTabLayout = activeLayoutId => {
-    this.setState({ activeLayoutId });
+    let { activeLayoutId: oldId } = this.state;
+
+    if (activeLayoutId !== oldId) {
+      this.setState({ activeLayoutId });
+    }
   };
 
-  onClickNewTab = () => {
+  onCreateTab = () => {
     const { tabs } = this.state;
-    const idLayout = `layout_${tabs.length}`;
+    const idLayout = DashboardService.newIdLayout;
 
     tabs.push(DashboardService.defaultDashboardTab(idLayout));
 
     this.setState({ tabs });
   };
 
-  onClickDeleteTab = (tab, index) => {
+  onEditTab = (tab, index) => {
+    let { tabs } = this.state;
+    const { id, isActive, onClick, ...data } = tab;
+
+    set(tabs, [index], data);
+
+    this.setState({ tabs });
+  };
+
+  onDeleteTab = (tab, index) => {
     let { tabs, activeLayoutId } = this.state;
 
     tabs.splice(index, 1);
@@ -320,6 +333,15 @@ class DashboardSettings extends React.Component {
     }
 
     this.setState({ tabs, activeLayoutId });
+  };
+
+  onSortTabs = sortedTabs => {
+    this.setState({
+      tabs: sortedTabs.map(item => {
+        const { id, isActive, onClick, ...data } = item;
+        return data;
+      })
+    });
   };
 
   renderTabsBlock() {
@@ -342,15 +364,18 @@ class DashboardSettings extends React.Component {
         <h6 className="ecos-dashboard-settings__container-subtitle">
           {t('Отредактируйте количество и содержимое табов для выбранного типа кейса')}
         </h6>
-        <div className="ecos-dashboard-settings__tabs-view-container">
+        <div className="ecos-dashboard-settings__tabs-container">
           <EditTabs
-            className="ecos-dashboard-settings__tabs-view"
+            className="ecos-tabs_width-full ecos-dashboard-settings__tabs"
+            classNameTab="ecos-dashboard-settings__tabs-item"
             hasHover
             items={cloneTabs}
-            onDelete={this.onClickDeleteTab}
+            onDelete={this.onDeleteTab}
+            onSort={this.onSortTabs}
+            onEdit={this.onEditTab}
             disabled={cloneTabs.length < 2}
           />
-          <IcoBtn icon="icon-big-plus" className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.onClickNewTab} />
+          <IcoBtn icon="icon-big-plus" className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.onCreateTab} />
         </div>
       </React.Fragment>
     );

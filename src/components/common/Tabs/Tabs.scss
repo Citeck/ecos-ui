@@ -17,6 +17,8 @@
 }
 
 .ecos-tab {
+  $root: &;
+
   font-size: $font-size-standard;
   background: $color-white;
   color: $text-color-gray;
@@ -53,5 +55,66 @@
   &_hover:not(&_active):hover {
     background: $color-white;
     color: $color-blue-dark;
+  }
+
+  &_edit {
+    display: inline-flex;
+    align-items: center;
+    min-width: 190px;
+
+    &_disabled {
+      pointer-events: none;
+      cursor: none;
+    }
+
+    &:hover {
+      #{$root}-actions_hover {
+        visibility: visible;
+      }
+    }
+  }
+
+  &-label {
+    flex: auto;
+    padding-right: 5px;
+    @extend %ellipsis;
+  }
+
+  &-actions {
+    display: inline-flex;
+    align-items: center;
+
+    &_none,
+    &_hover {
+      visibility: hidden;
+    }
+
+    & :nth-child(n) {
+      padding-right: 5px;
+    }
+
+    &-edit,
+    &-delete {
+      color: $color-gray-5;
+      font-size: $font-size-standard;
+    }
+
+    &-move {
+      color: $color-gray-1;
+      font-size: $font-size-extra-large;
+    }
+  }
+
+  &_active {
+    #{$root}-actions {
+      &-edit,
+      &-delete {
+        color: $color-blue-light2;
+      }
+
+      &-move {
+        color: $color-blue-light;
+      }
+    }
   }
 }

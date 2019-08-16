@@ -1,14 +1,19 @@
 import { get, isEmpty, nth } from 'lodash';
 import { LAYOUT_TYPE } from '../constants/layout';
 import { t } from '../helpers/util';
+import uuid from 'uuidv4';
 
 export default class DashboardService {
+  static get newIdLayout() {
+    return `layout_${uuid()}`;
+  }
+
   static defaultDashboardTab = idLayout => ({ label: t('Новая вкладка'), idLayout });
 
-  static defaultDashboardConfig = {
+  static defaultDashboardConfig = idLayout => ({
     layout: {
-      id: 'layout_0',
-      tab: DashboardService.defaultDashboardTab('layout_0'),
+      id: idLayout,
+      tab: DashboardService.defaultDashboardTab(idLayout),
       type: LAYOUT_TYPE.TWO_COLUMNS_BS,
       columns: [
         {
@@ -20,7 +25,7 @@ export default class DashboardService {
         }
       ]
     }
-  };
+  });
 
   static parseDashboardId(fullId) {
     if (fullId.includes('@')) {
@@ -32,7 +37,7 @@ export default class DashboardService {
 
   static checkDashboardResult(result) {
     if (isEmpty(result)) {
-      return [DashboardService.defaultDashboardConfig];
+      return [DashboardService.defaultDashboardConfig(DashboardService.newIdLayout)];
     }
 
     return result || [];
@@ -57,8 +62,8 @@ export default class DashboardService {
       console.log('movedToListLayout: for old version, which has one layout without tab');
       const layout = get(config, ['layout'], {});
 
-      layout.id = 'layout_0';
-      layout.tab = DashboardService.defaultDashboardConfig.layout.tab;
+      layout.id = DashboardService.newIdLayout;
+      layout.tab = DashboardService.defaultDashboardTab(layout.id);
 
       if (!isEmpty(layout)) {
         layouts.push(layout);
