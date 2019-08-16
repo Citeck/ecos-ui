@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
 import { deepClone } from '../../../helpers/util';
 import { commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
+import { Input } from '../form';
 import { Icon } from '../';
 
 import './Tabs.scss';
@@ -18,32 +19,60 @@ const SortableElement = sortableElement(({ children }) => {
 
 const DragHandle = sortableHandle(() => <Icon className={'icon-drag ecos-tab-actions-move'} />);
 
-const Tab = props => {
-  const { label, isActive, onClick, hasHover, disabled, onDelete = () => null } = props;
-  const tabClassNames = classNames('ecos-tab', 'ecos-tab_edit', {
-    'ecos-tab_active': isActive,
-    'ecos-tab_hover': hasHover,
-    'ecos-tab_disabled': disabled
-  });
+class Tab extends React.Component {
+  static propTypes = {
+    ...commonOneTabPropTypes,
+    disabled: PropTypes.bool,
+    onDelete: PropTypes.func,
+    onEdit: PropTypes.func
+  };
 
-  return (
-    <div className={tabClassNames} onClick={onClick}>
-      <div className="ecos-tab-label">{label}</div>
-      <div className={classNames('ecos-tab-actions', { 'ecos-tab-actions_none': disabled })}>
-        <Icon className={'icon-edit ecos-tab-actions-edit ecos-tab-actions_hover'} onClick={onDelete} />
-        <Icon className={'icon-close ecos-tab-actions-delete ecos-tab-actions_hover'} onClick={onDelete} />
-        <DragHandle />
+  state = {
+    edit: false,
+    text: ''
+  };
+
+  startEdit = () => {
+    this.setState({ edit: true, text: this.props.label });
+  };
+
+  endEdit = () => {
+    const { onEdit } = this.props;
+    this.setState({ edit: false, text: '' });
+
+    onEdit(this.state.text);
+  };
+
+  onChange = e => {
+    this.setState({ text: e.target.value });
+  };
+
+  render() {
+    const { label, isActive, onClick, hasHover, disabled, onDelete = () => null } = this.props;
+    const { edit, text } = this.state;
+    const tabClassNames = classNames('ecos-tab', 'ecos-tab_edit', {
+      'ecos-tab_active': isActive,
+      'ecos-tab_hover': hasHover,
+      'ecos-tab_disabled': disabled
+    });
+
+    return (
+      <div className={tabClassNames} onClick={onClick}>
+        <div className="ecos-tab-label">
+          {edit ? <Input className="ecos-tab-label__input" autoFocus onChange={this.onChange} value={text} /> : label}
+        </div>
+        <div className={classNames('ecos-tab-actions')}>
+          {edit && <Icon className={'icon-check ecos-tab-actions-edit'} onClick={this.endEdit} />}
+          {!edit && <Icon className={classNames('icon-edit ecos-tab-actions-edit ecos-tab-actions_hover')} onClick={this.startEdit} />}
+          {!edit && !disabled && (
+            <Icon className={classNames('icon-close ecos-tab-actions-delete ecos-tab-actions_hover')} onClick={onDelete} />
+          )}
+          <DragHandle />
+        </div>
       </div>
-    </div>
-  );
-};
-
-Tab.propTypes = {
-  ...commonOneTabPropTypes,
-  disabled: PropTypes.bool,
-  onDelete: PropTypes.func,
-  onEdit: PropTypes.func
-};
+    );
+  }
+}
 
 class EditTabs extends React.Component {
   static propTypes = {

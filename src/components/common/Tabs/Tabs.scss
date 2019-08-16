@@ -78,6 +78,12 @@
     flex: auto;
     padding-right: 5px;
     @extend %ellipsis;
+
+    &__input {
+      background: transparent;
+      border: none;
+      color: $color-white;
+    }
   }
 
   &-actions {
