@@ -73,7 +73,7 @@ export default class Filters extends Component {
     trigger.call(this, 'onChange', predicate);
   };
 
-  createGroup = (group, first, idx, sourceId) => {
+  createGroup = (group, first, idx, sourceId, metaRecord) => {
     return (
       <FiltersGroup
         key={idx}
@@ -81,6 +81,7 @@ export default class Filters extends Component {
         first={first}
         group={group}
         sourceId={sourceId}
+        metaRecord={metaRecord}
         columns={this.props.columns}
         onAddGroup={this.addGroup}
         onChangeFilter={this.onChangeFilter}
@@ -93,14 +94,14 @@ export default class Filters extends Component {
     );
   };
 
-  createSubGroup = (group, notLast, idx, sourceId) => {
+  createSubGroup = (group, notLast, idx, sourceId, metaRecord) => {
     return (
       <div key={idx} className={'ecos-filters__shift'}>
         <div className={'ecos-filters__bend'} />
 
         {notLast && <div className={'ecos-filters__v-line'} />}
 
-        <div className={'ecos-filters__shift-slot'}>{this.createGroup(group, false, idx, sourceId)}</div>
+        <div className={'ecos-filters__shift-slot'}>{this.createGroup(group, false, idx, sourceId, metaRecord)}</div>
       </div>
     );
   };
@@ -206,15 +207,16 @@ export default class Filters extends Component {
     const length = groups.length;
     const lastIdx = length ? length - 1 : 0;
     const sourceId = props.sourceId;
+    const metaRecord = props.metaRecord;
 
     return (
       <div className={classNames('ecos-filters', this.props.className)}>
         <DragDropContext onDragEnd={this.onDragEnd}>
           {groups.map((group, idx) => {
             if (idx > 0) {
-              return this.createSubGroup(group, lastIdx !== idx, idx, sourceId);
+              return this.createSubGroup(group, lastIdx !== idx, idx, sourceId, metaRecord);
             } else {
-              return this.createGroup(group, true, idx, sourceId);
+              return this.createGroup(group, true, idx, sourceId, metaRecord);
             }
           })}
         </DragDropContext>

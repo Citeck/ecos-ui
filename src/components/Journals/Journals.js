@@ -126,7 +126,7 @@ class Journals extends Component {
     const {
       id: journalId,
       columns = [],
-      meta: { title = '' },
+      meta: { title = '', metaRecord },
       sourceId
     } = journalConfig;
 
@@ -168,7 +168,7 @@ class Journals extends Component {
             className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
           >
             <Well className={'ecos-journal__settings'}>
-              <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} />
+              <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} metaRecord={metaRecord} />
               <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
               <JournalsGrouping stateId={stateId} columns={visibleColumns} />
               <JournalsSettingsFooter
