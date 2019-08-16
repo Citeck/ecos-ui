@@ -30,7 +30,7 @@ export class MenuApi extends CommonApi {
   getSlideMenuItems = () => {
     const username = getCurrentUserName();
     return this.getJsonWithSessionCache({
-      url: `${PROXY_URI}citeck/menu/menu?${username}`,
+      url: `${PROXY_URI}citeck/menu/menu?username=${username}`,
       timeout: 14400000 //4h
     }).catch(() => {});
   };
