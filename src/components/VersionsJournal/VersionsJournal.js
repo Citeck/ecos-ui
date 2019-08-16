@@ -271,7 +271,7 @@ class VersionsJournal extends Component {
           {t('Сделать актуальным')}
         </UncontrolledTooltip>
         <a href={version.url} download data-external>
-          <Icon onClick={this.handleClickShowModal} className="icon-download ecos-vj__version-actions-item" />
+          <Icon className="icon-download ecos-vj__version-actions-item" />
         </a>
       </div>
     );
@@ -436,25 +436,24 @@ class VersionsJournal extends Component {
       return null;
     }
 
+    const isSmall = isMobile || width <= MIN_WIDTH_DASHLET_LARGE;
     let comparisonButtonIsDisabled = false;
 
     if (comparisonSecondVersion && comparisonFirstVersion) {
       comparisonButtonIsDisabled = comparisonFirstVersion === comparisonSecondVersion;
     }
 
-    console.warn(width);
-
     return (
       <div
         className={classNames('ecos-vj__comparison', {
-          'ecos-vj__comparison_small': isMobile || width <= MIN_WIDTH_DASHLET_LARGE
+          'ecos-vj__comparison_small': isSmall
         })}
       >
         <Dropdown
           source={versionsLabels}
           value={comparisonFirstVersion}
           valueField="id"
-          titleField="text"
+          titleField={isSmall ? 'shortText' : 'text'}
           className="ecos-vj__comparison-dropdown"
           menuClassName="ecos-vj__comparison-dropdown-list"
           onChange={this.handleSelectFirstVersion}
@@ -462,14 +461,18 @@ class VersionsJournal extends Component {
           withScrollbar
           scrollbarHeightMax="200px"
         >
-          <IcoBtn invert icon="icon-down ecos-vj__comparison-dropdown-toggle-icon" className="ecos-vj__comparison-dropdown-toggle" />
+          <IcoBtn
+            invert
+            icon="icon-down ecos-vj__comparison-dropdown-toggle-icon"
+            className="ecos-vj__comparison-dropdown-toggle ecos-btn_transparent"
+          />
         </Dropdown>
 
         <Dropdown
           source={versionsLabels}
           value={comparisonSecondVersion}
           valueField="id"
-          titleField="text"
+          titleField={isSmall ? 'shortText' : 'text'}
           className="ecos-vj__comparison-dropdown"
           menuClassName="ecos-vj__comparison-dropdown-list"
           onChange={this.handleSelectSecondVersion}
@@ -477,7 +480,11 @@ class VersionsJournal extends Component {
           withScrollbar
           scrollbarHeightMax={'200px'}
         >
-          <IcoBtn invert icon="icon-down ecos-vj__comparison-dropdown-toggle-icon" className="ecos-vj__comparison-dropdown-toggle" />
+          <IcoBtn
+            invert
+            icon="icon-down ecos-vj__comparison-dropdown-toggle-icon"
+            className="ecos-vj__comparison-dropdown-toggle ecos-btn_transparent"
+          />
         </Dropdown>
 
         <Btn

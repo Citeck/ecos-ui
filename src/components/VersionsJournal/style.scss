@@ -266,10 +266,13 @@
       max-width: calc(50% - 122px / 2 - 10px);
 
       &-toggle {
-        width: 100%;
-        background: $color-white !important;
-        border-color: $color-gray-6 !important;
-        padding: 10px 15px !important;
+        &.ecos-btn {
+          width: 100%;
+          background: $color-white;
+          border-color: $color-gray-6;
+          padding: 10px 15px;
+          text-align: left;
+        }
 
         &-icon {
           position: absolute;
@@ -278,8 +281,10 @@
         }
       }
 
-      &-list {
-        width: 100% !important;
+      &-list.dropdown-menu {
+        //width: 100% !important;
+        width: 100%;
+        min-width: unset;
       }
     }
 
@@ -599,6 +604,9 @@
     }
 
     &__document {
+      $document: &;
+
+      position: relative;
       max-width: 47%;
       width: 100%;
       background: $color-white;
@@ -606,24 +614,59 @@
       word-break: break-word;
       box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
 
-      .DELETE {
-        background-color: $color-pink;
-      }
-
-      .INSERT {
-        background-color: $color-gray-9;
-        color: transparent;
-      }
-
-      &_right {
+      &-content {
         .DELETE {
+          background-color: $color-pink;
+        }
+
+        .INSERT {
           background-color: $color-gray-9;
           color: transparent;
         }
 
-        .INSERT {
-          background-color: $color-green;
-          color: $color-black;
+        &_right {
+          .DELETE {
+            background-color: $color-gray-9;
+            color: transparent;
+          }
+
+          .INSERT {
+            background-color: $color-green;
+            color: $color-black;
+          }
+        }
+      }
+
+      &-btn {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+
+        &.ecos-btn {
+          display: none;
+          padding: 0 12px;
+        }
+
+        &-title {
+          color: $text-color-gray;
+          font-style: normal;
+          font-weight: bold;
+          font-size: 14px;
+          line-height: 23px;
+        }
+
+        &-icon {
+          margin-right: 4px;
+
+          &.icon-download {
+            font-size: 13px;
+          }
+        }
+      }
+
+      &:hover {
+        #{$document}-btn.ecos-btn {
+          display: block;
         }
       }
     }

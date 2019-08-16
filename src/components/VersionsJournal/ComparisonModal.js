@@ -5,8 +5,9 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import EcosModal from '../common/EcosModal';
 import { VERSIONS } from '../../constants/versionsJournal';
-import Icon from '../common/icons/Icon/Icon';
-import Dashlet from './VersionsJournal';
+import { Icon } from '../common';
+import { Btn } from '../common/btns';
+import { t } from '../../helpers/util';
 
 const LABELS = {
   DOWNLOAD: 'Скачать'
@@ -57,16 +58,32 @@ class ComparisonModal extends Component {
   }
 
   renderBody() {
-    const { comparison } = this.props;
+    const { comparison, versions } = this.props;
 
     return (
       <Scrollbars autoHeight autoHeightMin="100px" autoHeightMax="80vh">
         <div className="vj-modal-comparison__body">
-          <div className="vj-modal-comparison__document vj-modal-comparison__document" dangerouslySetInnerHTML={{ __html: comparison }} />
-          <div
-            className="vj-modal-comparison__document vj-modal-comparison__document_right"
-            dangerouslySetInnerHTML={{ __html: comparison }}
-          />
+          <div className="vj-modal-comparison__document">
+            <div className="vj-modal-comparison__document-content" dangerouslySetInnerHTML={{ __html: comparison }} />
+            <a href={versions[0].url} download data-external>
+              <Btn className="ecos-btn_grey5 ecos-btn_narrow vj-modal-comparison__document-btn" onClick={this.handleToggleAddModal}>
+                <Icon className="icon-download vj-modal-comparison__document-btn-icon" />
+                <span className="vj-modal-comparison__document-btn-title">{t(LABELS.DOWNLOAD)}</span>
+              </Btn>
+            </a>
+          </div>
+          <div className="vj-modal-comparison__document">
+            <div
+              className="vj-modal-comparison__document-content vj-modal-comparison__document-content_right"
+              dangerouslySetInnerHTML={{ __html: comparison }}
+            />
+            <a href={versions[1].url} download data-external>
+              <Btn className="ecos-btn_grey5 ecos-btn_narrow vj-modal-comparison__document-btn" onClick={this.handleToggleAddModal}>
+                <Icon className="icon-download vj-modal-comparison__document-btn-icon" />
+                <span className="vj-modal-comparison__document-btn-title">{t(LABELS.DOWNLOAD)}</span>
+              </Btn>
+            </a>
+          </div>
         </div>
       </Scrollbars>
     );
