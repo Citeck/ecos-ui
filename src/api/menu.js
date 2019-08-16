@@ -18,6 +18,8 @@ export class MenuApi extends CommonApi {
       if (tokens.length > 1) {
         if (tokens[0] === 'site') {
           siteId = listId.substring('site-'.length, listId.length - tokens[tokens.length - 1].length - 1);
+
+          listId = tokens[tokens.length - 1];
         } else if (tokens[0] === 'global') {
           siteId = null;
 
