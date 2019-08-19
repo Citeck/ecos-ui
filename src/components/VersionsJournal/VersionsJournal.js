@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ReactResizeDetector from 'react-resize-detector';
 import { UncontrolledTooltip } from 'reactstrap';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
@@ -9,19 +8,20 @@ import classNames from 'classnames';
 
 import Dashlet from '../Dashlet/Dashlet';
 import { IcoBtn } from '../common/btns';
-import { Loader, Icon, Avatar } from '../common';
+import { Loader, Icon, Avatar, DefineHeight } from '../common';
 import { t } from '../../helpers/util';
 import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
 import ComparisonModal from './ComparisonModal';
 import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../actions/versionsJournal';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
-import { TOOLTIP, MODAL } from '../../constants/versionsJournal';
+import { TOOLTIP, MODAL, BASE_HEIGHT } from '../../constants/versionsJournal';
 import { selectLabelsVersions } from '../../selectors/versionsJournal';
 import Btn from '../common/btns/Btn';
 import { Dropdown } from '../common/form';
 
 import './style.scss';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 
 const mapStateToProps = (state, ownProps) => {
   const id = get(ownProps, ['id']);
@@ -114,10 +114,16 @@ class VersionsJournal extends Component {
       width: 290,
       selectedVersion: null,
       comparisonFirstVersion: null,
-      comparisonSecondVersion: null
+      comparisonSecondVersion: null,
+      editorHeight: BASE_HEIGHT,
+      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
+      contentHeight: null,
+      fitHeights: {}
     };
 
     this.state = { ...state, ...VersionsJournal.getDefaultSelectedVersions(props) };
+
+    this.topPanel = React.createRef();
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -204,6 +210,30 @@ class VersionsJournal extends Component {
   handleClickHideComparisonModal = () => {
     this.props.toggleModal(MODAL.COMPARISON);
   };
+
+  handleChangeHeight = height => {
+    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    this.setState({ userHeight: height });
+  };
+
+  handleGetFitHeights = fitHeights => {
+    this.setState({ fitHeights });
+  };
+
+  setContentHeight = contentHeight => {
+    this.setState({ contentHeight });
+  };
+
+  get scrollableHeight() {
+    const { contentHeight } = this.state;
+    let scrollableHeight = contentHeight;
+
+    if (this.topPanel.current) {
+      scrollableHeight -= this.topPanel.current.offsetHeight;
+    }
+
+    return scrollableHeight;
+  }
 
   renderAddButton(isModal = false) {
     const { id, record } = this.props;
@@ -496,34 +526,42 @@ class VersionsJournal extends Component {
   render() {
     const { isMobile, versionsLabels } = this.props;
 
+    const { userHeight = 0, fitHeights } = this.state;
+    const fixHeight = userHeight ? userHeight : null;
+
     return (
       <Dashlet
         title={t('versions-journal-widget.title')}
         className="ecos-vj"
+        titleClassName="ecos-vj__dashboard-title"
         style={{ minWidth: MIN_WIDTH_DASHLET_SMALL }}
         needGoTo={false}
         actionEdit={false}
         actionHelp={false}
         actionReload={false}
         resizable
+        onResize={this.handleResize}
+        onChangeHeight={this.handleChangeHeight}
         customButtons={[!isMobile && this.renderAddButton()]}
+        getFitHeights={this.handleGetFitHeights}
       >
-        {(versionsLabels.length > 1 || isMobile) && (
-          <div className="ecos-vj__block">
-            {this.renderComparison()}
+        <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
+          {(versionsLabels.length > 1 || isMobile) && (
+            <div className="ecos-vj__block" ref={this.topPanel}>
+              {this.renderComparison()}
 
-            {isMobile && this.renderAddButton(isMobile)}
-          </div>
-        )}
+              {isMobile && this.renderAddButton(isMobile)}
+            </div>
+          )}
 
-        <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
-        <Scrollbars autoHide autoHeight autoHeightMin={270} autoHeightMax={430}>
-          {this.renderActualVersion()}
-          {this.renderOldVersions()}
-        </Scrollbars>
+          <Scrollbars autoHide style={{ height: this.scrollableHeight || '100%' }}>
+            {this.renderActualVersion()}
+            {this.renderOldVersions()}
+          </Scrollbars>
 
-        {this.renderModal()}
-        {this.renderLoading()}
+          {this.renderModal()}
+          {this.renderLoading()}
+        </DefineHeight>
       </Dashlet>
     );
   }

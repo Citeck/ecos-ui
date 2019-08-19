@@ -35,3 +35,5 @@ export const VERSIONS = {
   MINOR: 'minor',
   MAJOR: 'major'
 };
+
+export const BASE_HEIGHT = 357;
