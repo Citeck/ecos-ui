@@ -37,4 +37,14 @@ export class VersionsJournalApi extends RecordService {
 
     return record.save().then(response => response);
   };
+
+  getVersionsComparison = ({ first, second }) => {
+    return Records.query(
+      {
+        sourceId: 'version-diff',
+        query: { first, second }
+      },
+      { diff: 'diff' }
+    ).then(response => response);
+  };
 }

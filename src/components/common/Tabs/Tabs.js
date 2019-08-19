@@ -24,14 +24,21 @@ Tab.propTypes = {
 };
 
 const Tabs = props => {
-  const { items, className } = props;
+  const { items, keyField, valueField, valuePrefix, className, activeTabKey, onClick } = props;
   const tabsClassNames = classNames('ecos-tabs', className);
 
   return (
     <div className={tabsClassNames}>
-      {items.map(item => {
-        return <Tab key={item.id} {...item} />;
-      })}
+      {items.map((item, index) => (
+        <Tab
+          key={item[keyField]}
+          id={item[keyField]}
+          label={`${valuePrefix} ${item[valueField]}`}
+          isActive={item.isActive || item[keyField] === activeTabKey}
+          onClick={() => onClick(index)}
+          {...item}
+        />
+      ))}
     </div>
   );
 };
@@ -42,7 +49,19 @@ Tabs.propTypes = {
       ...Tab.propTypes
     })
   ),
-  className: PropTypes.string
+  keyField: PropTypes.string,
+  valueField: PropTypes.string,
+  className: PropTypes.string,
+  activeTab: PropTypes.string
+};
+
+Tabs.defaultProps = {
+  items: [],
+  keyField: 'id',
+  valueField: 'label',
+  className: '',
+  activeTab: '',
+  valuePrefix: ''
 };
 
 export default Tabs;

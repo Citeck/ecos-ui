@@ -2,9 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { ModalBody, ModalHeader } from 'reactstrap';
+import ReactResizeDetector from 'react-resize-detector';
 import throttle from 'lodash/throttle';
+
 import Modal from './ModalDraggable';
 import { t, trigger } from '../../../helpers/util';
+
 import './EcosModal.scss';
 
 const zIndex = 10000;
@@ -74,7 +77,7 @@ export default class EcosModal extends Component {
   };
 
   render() {
-    const { hideModal, children, title, isBigHeader, className, reactstrapProps, isLoading } = this.props;
+    const { hideModal, children, title, isBigHeader, className, reactstrapProps, isLoading, isEmptyTitle, onResize } = this.props;
     const { isOpen, level, draggableState } = this.state;
 
     const modalZIndex = this.props.zIndex ? this.props.zIndex + level : zIndex + level;
@@ -108,11 +111,11 @@ export default class EcosModal extends Component {
       );
     }
 
-    const header = title ? (
+    const header = (
       <ModalHeader toggle={hideModal} close={closeBtn} className={`modal-header_level-${level}`}>
-        {title}
+        {title && !isEmptyTitle ? title : ''}
       </ModalHeader>
-    ) : null;
+    );
 
     const draggableProps = {
       disabled: true
@@ -143,6 +146,7 @@ export default class EcosModal extends Component {
       >
         {header}
         <ModalBody>{children}</ModalBody>
+        <ReactResizeDetector handleWidth handleHeight onResize={onResize} />
       </Modal>
     );
   }
@@ -154,7 +158,9 @@ EcosModal.propTypes = {
   isBigHeader: PropTypes.bool,
   isOpen: PropTypes.bool,
   isLoading: PropTypes.bool,
+  isEmptyTitle: PropTypes.bool,
   hideModal: PropTypes.func,
   reactstrapProps: PropTypes.object,
-  title: PropTypes.string
+  title: PropTypes.string,
+  onResize: PropTypes.func
 };
