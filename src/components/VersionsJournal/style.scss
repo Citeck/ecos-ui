@@ -63,9 +63,6 @@
       font-weight: bold;
       font-size: 14px;
       line-height: 23px;
-      //white-space: nowrap;
-      //overflow: hidden;
-      //text-overflow: ellipsis;
     }
 
     &-actions {
@@ -173,10 +170,6 @@
 
         &-item {
           @extend %overflow-ellipsis;
-
-          //white-space: nowrap;
-          //overflow: hidden;
-          //text-overflow: ellipsis;
         }
       }
     }
@@ -317,6 +310,7 @@
   &__dashboard {
     &-title {
       @extend %overflow-ellipsis;
+      text-align: left;
     }
   }
 }
@@ -601,9 +595,6 @@
           font-size: 12px;
           line-height: 16px;
           color: $color-black;
-          //overflow: hidden;
-          //text-overflow: ellipsis;
-          //white-space: nowrap;
         }
 
         &-icon {

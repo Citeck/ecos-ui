@@ -19,9 +19,9 @@ import { TOOLTIP, MODAL, BASE_HEIGHT } from '../../constants/versionsJournal';
 import { selectLabelsVersions } from '../../selectors/versionsJournal';
 import Btn from '../common/btns/Btn';
 import { Dropdown } from '../common/form';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 
 import './style.scss';
-import UserLocalSettingsService from '../../services/userLocalSettings';
 
 const mapStateToProps = (state, ownProps) => {
   const id = get(ownProps, ['id']);
@@ -525,7 +525,6 @@ class VersionsJournal extends Component {
 
   render() {
     const { isMobile, versionsLabels } = this.props;
-
     const { userHeight = 0, fitHeights } = this.state;
     const fixHeight = userHeight ? userHeight : null;
 
