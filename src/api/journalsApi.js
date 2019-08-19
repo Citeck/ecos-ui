@@ -33,15 +33,15 @@ export class JournalsApi extends RecordService {
     return (this.getLsJournalSettingIds().filter(j => j.key === journalConfigId)[0] || {}).value;
   };
 
-  getRecord = ({ id, attributes }) => {
+  getRecord = ({ id, attributes, noCache = false }) => {
     return Records.get(id)
-      .load(attributes)
+      .load(attributes, noCache)
       .then(resp => resp)
       .catch(() => null);
   };
 
   saveRecords = ({ id, attributes }) => {
-    return this.mutate({ record: { id, attributes } });
+    return this.mutate({ record: { id, attributes } }).catch(() => null);
   };
 
   deleteRecords = records => {

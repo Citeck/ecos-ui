@@ -212,8 +212,14 @@ class Grid extends Component {
     return (cell, row, rowIndex, formatExtraData) => {
       formatExtraData = formatExtraData || {};
       const Formatter = formatExtraData.formatter;
+      const errorAttribute = row.error;
+
       return (
-        <div className={`ecos-grid__td ${editable ? 'ecos-grid__td_editable' : ''}`}>
+        <div
+          className={`ecos-grid__td ${editable ? 'ecos-grid__td_editable' : ''} ${
+            errorAttribute && row[errorAttribute] === cell ? 'ecos-grid__td_error' : ''
+          }`}
+        >
           {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
         </div>
       );
