@@ -25,8 +25,22 @@
   }
 
   &__tabs {
-    &-container {
+    &-wrapper {
+      display: flex;
       padding-bottom: 28px;
+    }
+
+    &-block {
+      flex: auto;
+      display: flex;
+    }
+
+    &-item {
+      flex: 1;
+    }
+
+    &__add-tab {
+      margin-left: 10px;
     }
   }
 

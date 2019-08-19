@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
-import { commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
+import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
 
 import './Tabs.scss';
 
@@ -19,6 +19,7 @@ const Tab = props => {
 };
 
 Tab.propTypes = commonOneTabPropTypes;
+Tab.defaultProps = commonOneTabDefaultProps;
 
 const Tabs = props => {
   const { items, className, hasHover } = props;
@@ -34,7 +35,6 @@ const Tabs = props => {
 };
 
 Tabs.propTypes = commonTabsPropTypes;
-
 Tabs.defaultProps = commonTabsDefaultProps;
 
 export default Tabs;

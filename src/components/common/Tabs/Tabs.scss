@@ -61,6 +61,8 @@
     display: inline-flex;
     align-items: center;
     min-width: 190px;
+    max-width: 50%;
+    position: relative;
 
     &_disabled {
       pointer-events: none;
@@ -76,19 +78,23 @@
 
   &-label {
     flex: auto;
-    padding-right: 5px;
     @extend %ellipsis;
+    padding: 0 60px;
 
     &__input {
       background: transparent;
       border: none;
-      color: $color-white;
+      color: $text-color-dark;
+      text-align: center;
+      padding: 0;
     }
   }
 
   &-actions {
     display: inline-flex;
     align-items: center;
+    position: absolute;
+    right: 0;
 
     &_none,
     &_hover {
@@ -103,23 +109,44 @@
     &-delete {
       color: $color-gray-5;
       font-size: $font-size-standard;
+
+      &:hover {
+        color: $text-color-gray;
+      }
     }
 
     &-move {
       color: $color-gray-1;
       font-size: $font-size-extra-large;
+      cursor: grab;
+
+      &:hover {
+        color: $color-gray-5;
+      }
     }
   }
 
   &_active {
+    #{$root}-label__input {
+      color: $color-white;
+    }
+
     #{$root}-actions {
       &-edit,
       &-delete {
         color: $color-blue-light2;
+
+        &:hover {
+          color: $color-white;
+        }
       }
 
       &-move {
         color: $color-blue-light;
+
+        &:hover {
+          color: $color-blue-light2;
+        }
       }
     }
   }

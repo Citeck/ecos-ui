@@ -8,7 +8,7 @@ export default class DashboardService {
     return `layout_${uuid()}`;
   }
 
-  static defaultDashboardTab = idLayout => ({ label: t('Новая вкладка'), idLayout });
+  static defaultDashboardTab = idLayout => ({ label: t('Вкладка'), idLayout });
 
   static defaultDashboardConfig = idLayout => ({
     layout: {

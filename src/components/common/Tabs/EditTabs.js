@@ -2,8 +2,8 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
-import { deepClone } from '../../../helpers/util';
-import { commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
+import { deepClone, t } from '../../../helpers/util';
+import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
 import { Input } from '../form';
 import { Icon } from '../';
 
@@ -23,8 +23,17 @@ class Tab extends React.Component {
   static propTypes = {
     ...commonOneTabPropTypes,
     disabled: PropTypes.bool,
+    isNew: PropTypes.bool,
     onDelete: PropTypes.func,
     onEdit: PropTypes.func
+  };
+
+  static defaultProps = {
+    ...commonOneTabDefaultProps,
+    disabled: false,
+    isNew: false,
+    onDelete: () => null,
+    onEdit: () => null
   };
 
   state = {
@@ -32,15 +41,40 @@ class Tab extends React.Component {
     text: ''
   };
 
-  startEdit = () => {
-    this.setState({ edit: true, text: this.props.label });
+  startEdit = e => {
+    const { label, isNew } = this.props;
+
+    e.stopPropagation();
+    this.setState({ edit: true, text: isNew ? '' : label });
   };
 
   endEdit = () => {
-    const { onEdit } = this.props;
+    const { onEdit = () => null, label } = this.props;
+    const { text } = this.state;
+    const newLabel = text || label;
+
     this.setState({ edit: false, text: '' });
 
-    onEdit(this.state.text);
+    onEdit(newLabel);
+  };
+
+  onKeyPress = e => {
+    e.stopPropagation();
+
+    switch (e.key) {
+      case 'Enter':
+      case 'Escape':
+        this.endEdit();
+        break;
+      default:
+        break;
+    }
+  };
+
+  onDelete = e => {
+    const { onDelete = () => null } = this.props;
+    e.stopPropagation();
+    onDelete();
   };
 
   onChange = e => {
@@ -48,24 +82,38 @@ class Tab extends React.Component {
   };
 
   render() {
-    const { label, isActive, onClick, hasHover, disabled, onDelete = () => null } = this.props;
+    const { label, isActive, onClick, hasHover, disabled, isNew, className } = this.props;
     const { edit, text } = this.state;
-    const tabClassNames = classNames('ecos-tab', 'ecos-tab_edit', {
+    const tabClassNames = classNames('ecos-tab', 'ecos-tab_edit', className, {
       'ecos-tab_active': isActive,
       'ecos-tab_hover': hasHover,
       'ecos-tab_disabled': disabled
     });
+    const isEdit = edit || isNew;
+    const placeholder = isNew ? label : t('Название вкладки');
 
     return (
       <div className={tabClassNames} onClick={onClick}>
         <div className="ecos-tab-label">
-          {edit ? <Input className="ecos-tab-label__input" autoFocus onChange={this.onChange} value={text} /> : label}
+          {isEdit ? (
+            <Input
+              className="ecos-tab-label__input"
+              autoFocus
+              value={text}
+              placeholder={placeholder}
+              onChange={this.onChange}
+              onKeyPress={this.onKeyPress}
+              onBlur={() => this.endEdit()}
+              onClick={e => e.stopPropagation()}
+            />
+          ) : (
+            label
+          )}
         </div>
         <div className={classNames('ecos-tab-actions')}>
-          {edit && <Icon className={'icon-check ecos-tab-actions-edit'} onClick={this.endEdit} />}
-          {!edit && <Icon className={classNames('icon-edit ecos-tab-actions-edit ecos-tab-actions_hover')} onClick={this.startEdit} />}
-          {!edit && !disabled && (
-            <Icon className={classNames('icon-close ecos-tab-actions-delete ecos-tab-actions_hover')} onClick={onDelete} />
+          {!isEdit && <Icon className={classNames('icon-edit ecos-tab-actions-edit ecos-tab-actions_hover')} onClick={this.startEdit} />}
+          {!isEdit && !disabled && (
+            <Icon className={classNames('icon-close ecos-tab-actions-delete ecos-tab-actions_hover')} onClick={this.onDelete} />
           )}
           <DragHandle />
         </div>
@@ -119,10 +167,10 @@ class EditTabs extends React.Component {
             <SortableElement key={`${item.id}-edit`} index={index} disabled={disabled}>
               <Tab
                 {...item}
-                onDelete={() => this.onDeleteItem(item, index)}
                 className={classNameTab}
                 hasHover={hasHover}
                 disabled={disabled}
+                onDelete={() => this.onDeleteItem(item, index)}
                 onEdit={text => this.onEditItem(item, text, index)}
               />
             </SortableElement>

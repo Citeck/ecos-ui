@@ -15,7 +15,7 @@ import DashboardService from '../../services/dashboard';
 import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
 import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { Btn, IcoBtn } from '../../components/common/btns';
-import { EditTabs, Loader } from '../../components/common';
+import { EditTabs, Loader, ScrollArrow } from '../../components/common';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 
 import './style.scss';
@@ -82,7 +82,8 @@ class DashboardSettings extends React.Component {
       availableWidgets: DndUtils.setDndId(props.availableWidgets),
       availableMenuItems: DndUtils.setDndId(props.availableMenuItems),
       urlParams: getSortedUrlParams(),
-      tabs: []
+      tabs: [],
+      scrollTabToRight: false
     };
 
     this.state = {
@@ -308,17 +309,23 @@ class DashboardSettings extends React.Component {
   onCreateTab = () => {
     const { tabs } = this.state;
     const idLayout = DashboardService.newIdLayout;
+    const newTab = DashboardService.defaultDashboardTab(idLayout);
 
-    tabs.push(DashboardService.defaultDashboardTab(idLayout));
+    newTab.label += ` ${tabs.length + 1}`;
+    newTab.isNew = true;
 
-    this.setState({ tabs });
+    tabs.push(newTab);
+
+    this.setState({ tabs, scrollTabToRight: true }, () => {
+      this.setState({ scrollTabToRight: false });
+    });
   };
 
   onEditTab = (tab, index) => {
     let { tabs } = this.state;
-    const { id, isActive, onClick, ...data } = tab;
+    const { label, idLayout } = tab;
 
-    set(tabs, [index], data);
+    set(tabs, [index], { label, idLayout });
 
     this.setState({ tabs });
   };
@@ -338,8 +345,9 @@ class DashboardSettings extends React.Component {
   onSortTabs = sortedTabs => {
     this.setState({
       tabs: sortedTabs.map(item => {
-        const { id, isActive, onClick, ...data } = item;
-        return data;
+        const { label, idLayout } = item;
+
+        return { label, idLayout };
       })
     });
   };
@@ -349,7 +357,7 @@ class DashboardSettings extends React.Component {
       return null;
     }
 
-    const { tabs, activeLayoutId } = this.state;
+    const { tabs, activeLayoutId, scrollTabToRight } = this.state;
 
     const cloneTabs = deepClone(tabs);
 
@@ -364,18 +372,24 @@ class DashboardSettings extends React.Component {
         <h6 className="ecos-dashboard-settings__container-subtitle">
           {t('Отредактируйте количество и содержимое табов для выбранного типа кейса')}
         </h6>
-        <div className="ecos-dashboard-settings__tabs-container">
-          <EditTabs
-            className="ecos-tabs_width-full ecos-dashboard-settings__tabs"
-            classNameTab="ecos-dashboard-settings__tabs-item"
-            hasHover
-            items={cloneTabs}
-            onDelete={this.onDeleteTab}
-            onSort={this.onSortTabs}
-            onEdit={this.onEditTab}
-            disabled={cloneTabs.length < 2}
+        <div className="ecos-dashboard-settings__tabs-wrapper">
+          <ScrollArrow scrollToRight={scrollTabToRight}>
+            <EditTabs
+              className="ecos-dashboard-settings__tabs-block"
+              classNameTab="ecos-dashboard-settings__tabs-item"
+              hasHover
+              items={cloneTabs}
+              onDelete={this.onDeleteTab}
+              onSort={this.onSortTabs}
+              onEdit={this.onEditTab}
+              disabled={cloneTabs.length < 2}
+            />
+          </ScrollArrow>
+          <IcoBtn
+            icon="icon-big-plus"
+            className={'ecos-dashboard-settings__tabs__add-tab ecos-btn_i ecos-btn_blue2 ecos-btn_hover_blue2'}
+            onClick={this.onCreateTab}
           />
-          <IcoBtn icon="icon-big-plus" className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.onCreateTab} />
         </div>
       </React.Fragment>
     );

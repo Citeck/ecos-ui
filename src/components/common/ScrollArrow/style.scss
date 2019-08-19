@@ -1,0 +1,39 @@
+@import '../../../constants';
+
+.ecos-scrollbar-arrow {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  width: 100%;
+
+  &__btn-prev {
+    margin-right: 20px;
+  }
+
+  &__btn-next {
+  }
+
+  &__btn-next_right-gradient {
+    background: linear-gradient(to left, $color-gray-4 41.99%, rgba($color-white, 0) 100%);
+    width: 20px;
+    height: 100%;
+    margin-left: -10px;
+    z-index: 1;
+  }
+
+  &__scroll {
+    overflow: auto;
+    width: 100%;
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &__child {
+    width: 100%;
+  }
+}
