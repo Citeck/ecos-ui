@@ -1,0 +1,24 @@
+@import '../../../../constants';
+
+.ecos-remove-dialog {
+}
+
+.ecos-remove-dialog__body {
+  font-weight: $font-weight-semi-bold;
+  text-align: center;
+}
+
+.ecos-remove-dialog__footer {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+
+  button {
+    width: 40%;
+    margin-left: 0;
+
+    &:last-child {
+      margin-left: 15px;
+    }
+  }
+}

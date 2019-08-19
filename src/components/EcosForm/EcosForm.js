@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
+import '../../forms/components';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormUtils from './EcosFormUtils';
@@ -10,6 +12,9 @@ import { t } from '../../helpers/util';
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
 import '../../forms/style.scss';
+
+export const FORM_MODE_CREATE = 'CREATE';
+export const FORM_MODE_EDIT = 'EDIT';
 
 let formCounter = 0;
 
@@ -105,7 +110,12 @@ class EcosForm extends React.Component {
 
         options.i18n = i18n;
 
-        let formPromise = Formio.createForm(document.getElementById(this.state.containerId), formDefinition, options);
+        const containerElement = document.getElementById(this.state.containerId);
+        if (!containerElement) {
+          return;
+        }
+
+        let formPromise = Formio.createForm(containerElement, formDefinition, options);
 
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
           let form = formAndCustom[0];
@@ -207,20 +217,28 @@ class EcosForm extends React.Component {
     let onSubmit = self.props.onSubmit || (() => {});
 
     if (this.props.saveOnSubmit !== false) {
-      record.save().then(record => {
-        onSubmit(record, form);
-      });
+      record
+        .save()
+        .then(persistedRecord => {
+          onSubmit(persistedRecord, form, record);
+        })
+        .catch(e => {
+          form.showErrors(e);
+        });
     } else {
       onSubmit(record, form);
     }
   }
 
   render() {
+    const { className } = this.props;
     let self = this;
+
     if (this.state.error) {
-      return <div className={'ecos-ui-form__error'}>{self.state.error.message}</div>;
+      return <div className={classNames('ecos-ui-form__error', className)}>{self.state.error.message}</div>;
     }
-    return <div id={this.state.containerId} />;
+
+    return <div className={classNames(className)} id={this.state.containerId} />;
   }
 }
 
@@ -230,9 +248,21 @@ EcosForm.propTypes = {
   options: PropTypes.object,
   formKey: PropTypes.string,
   onSubmit: PropTypes.func,
-  onReady: PropTypes.func,
-  saveOnSubmit: PropTypes.bool
-  // onForm[Event]: PropTypes.func (for example, onFormCancel)
+  onReady: PropTypes.func, // Form ready, but not rendered yet
+  onFormCancel: PropTypes.func,
+  // See https://github.com/formio/formio.js/wiki/Form-Renderer#events
+  onFormSubmitDone: PropTypes.func,
+  onFormChange: PropTypes.func,
+  onFormRender: PropTypes.func,
+  onFormPrevPage: PropTypes.func,
+  onFormNextPage: PropTypes.func,
+  // -----
+  saveOnSubmit: PropTypes.bool,
+  className: PropTypes.string
+};
+
+EcosForm.defaultProps = {
+  className: ''
 };
 
 export default EcosForm;

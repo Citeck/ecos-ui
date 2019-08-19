@@ -1,8 +1,11 @@
 import DefaultComponents from 'formiojs/components';
 import Components from 'formiojs/components/Components';
 
+import Button from './override/button';
 import { Column, Columns } from './override/columns';
 import Checkbox from './override/checkbox';
+import File from './override/file';
+import Number from './override/number';
 import Panel from './override/panel';
 import Tabs from './override/tabs';
 
@@ -18,9 +21,12 @@ import './prototypeMutation';
 
 Components.setComponents({
   ...DefaultComponents,
+  button: Button,
   column: Column,
   columns: Columns,
   checkbox: Checkbox,
+  file: File,
+  number: Number,
   panel: Panel,
   tabs: Tabs,
   selectJournal: SelectJournal,

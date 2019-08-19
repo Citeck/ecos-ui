@@ -1,0 +1,24 @@
+@import '../../constants';
+
+.ecos-properties {
+  $root: &;
+
+  &__scroll {
+    &_v {
+      @extend %v-scroll;
+    }
+  }
+
+  &__formio {
+    padding: 20px; //fixme временное решение: Отступы для read полей - требуется доработка верстки EcosForm.
+  }
+
+  &-dashlet {
+    &__body {
+    }
+  }
+
+  &__loader {
+    margin-top: 7px;
+  }
+}

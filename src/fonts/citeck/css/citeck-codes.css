@@ -97,7 +97,7 @@
 .icon-question:before {
   content: '\72';
 } /* 'r' */
-.icon-list:before {
+.icon-list-1:before {
   content: '\73';
 } /* 's' */
 .icon-arrow:before {
@@ -121,6 +121,15 @@
 .icon-reload:before {
   content: '\7a';
 } /* 'z' */
+.icon-list3:before {
+  content: '\e800';
+} /* '' */
+.icon-checked:before {
+  content: '\e829';
+} /* '' */
+.icon-checked2:before {
+  content: '\e82a';
+} /* '' */
 .icon-unchecked:before {
   content: '\e82b';
 } /* '' */
@@ -157,3 +166,45 @@
 .icon-resize:before {
   content: '\e837';
 } /* '' */
+.icon-underline:before {
+  content: '\e838';
+} /* '' */
+.icon-italic:before {
+  content: '\e839';
+} /* '' */
+.icon-bold:before {
+  content: '\e83a';
+} /* '' */
+.icon-clock:before {
+  content: '\e83b';
+} /* '' */
+.icon-usergroup:before {
+  content: '\e83c';
+} /* '' */
+.icon-print:before {
+  content: '\e843';
+} /* '' */
+.icon-User_avatar_off:before {
+  content: '\e844';
+} /* '' */
+.icon-User_avatar_on:before {
+  content: '\e845';
+} /* '' */
+.icon-User_avatar:before {
+  content: '\e846';
+} /* '' */
+.icon-exit:before {
+  content: '\e847';
+} /* '' */
+.icon-notify-dialogue:before {
+  content: '\e849';
+} /* '' */
+.icon-filetype-doc:before {
+  content: '\e84a';
+} /* '' */
+.icon-filetype-none:before {
+  content: '\e84b';
+} /* '' */
+.icon-big_alert:before {
+  content: '\e84c';
+} /* '' */

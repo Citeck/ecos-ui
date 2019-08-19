@@ -1,7 +1,6 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
-import Columns from '../../common/templates/Columns/Columns';
 import { Caption, Select, Field } from '../../common/form';
 import { Btn } from '../../common/btns';
 
@@ -16,27 +15,36 @@ import {
 } from '../../../actions/journals';
 
 import { t, getSelectedValue } from '../../../helpers/util';
+import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../constants';
 
 import './JournalsDashletEditor.scss';
 
-const mapStateToProps = state => ({
-  journalsList: state.journals.journalsList,
-  journals: state.journals.journals,
-  journalSettings: state.journals.journalSettings,
-  config: state.journals.config,
-  initConfig: state.journals.initConfig
-});
+const mapStateToProps = (state, props) => {
+  const newState = state.journals[props.stateId] || {};
 
-const mapDispatchToProps = dispatch => ({
-  setEditorMode: visible => dispatch(setEditorMode(visible)),
-  getDashletEditorData: config => dispatch(getDashletEditorData(config)),
-  setJournalsListItem: item => dispatch(setJournalsListItem(item)),
-  setJournalsItem: item => dispatch(setJournalsItem(item)),
-  setSettingItem: id => dispatch(setSettingItem(id)),
-  setDashletConfig: config => dispatch(setDashletConfig(config)),
-  saveDashlet: (config, id) => dispatch(saveDashlet({ config: config, id: id }))
-});
+  return {
+    journalsList: newState.journalsList,
+    journals: newState.journals,
+    journalSettings: newState.journalSettings,
+    config: newState.config,
+    initConfig: newState.initConfig
+  };
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
+
+  return {
+    setEditorMode: visible => dispatch(setEditorMode(w(visible))),
+    getDashletEditorData: config => dispatch(getDashletEditorData(w(config))),
+    setJournalsListItem: item => dispatch(setJournalsListItem(w(item))),
+    setJournalsItem: item => dispatch(setJournalsItem(w(item))),
+    setSettingItem: id => dispatch(setSettingItem(w(id))),
+    setDashletConfig: config => dispatch(setDashletConfig(w(config))),
+    saveDashlet: (config, id) => dispatch(saveDashlet(w({ config: config, id: id })))
+  };
+};
 
 class JournalsDashletEditor extends Component {
   componentDidMount() {
@@ -75,6 +83,8 @@ class JournalsDashletEditor extends Component {
     const props = this.props;
     const config = props.config || {};
     const cssClasses = classNames('ecos-journal-dashlet-editor', props.className);
+    const measurer = props.measurer;
+    const padding = isSmall => (isSmall ? 'ecos-btn_padding_small' : '');
 
     return (
       <div className={cssClasses}>
@@ -84,6 +94,7 @@ class JournalsDashletEditor extends Component {
           </Caption>
           <Field label={t('journals.list.name')}>
             <Select
+              className={'ecos-journal-dashlet-editor__select'}
               placeholder={t('journals.action.select-journal-list')}
               options={props.journalsList}
               getOptionLabel={option => option.title}
@@ -95,6 +106,7 @@ class JournalsDashletEditor extends Component {
 
           <Field label={t('journals.name')}>
             <Select
+              className={'ecos-journal-dashlet-editor__select'}
               placeholder={t('journals.action.select-journal')}
               options={props.journals}
               getOptionLabel={option => option.title}
@@ -106,6 +118,7 @@ class JournalsDashletEditor extends Component {
 
           <Field label={t('journals.settings')}>
             <Select
+              className={'ecos-journal-dashlet-editor__select'}
               placeholder={t('journals.default')}
               options={props.journalSettings}
               getOptionLabel={option => option[JOURNAL_SETTING_DATA_FIELD].title}
@@ -116,22 +129,22 @@ class JournalsDashletEditor extends Component {
           </Field>
         </div>
 
-        <Columns
-          className={'ecos-journal-dashlet-editor__actions'}
-          cols={[
-            <Btn onClick={this.clear}>{t('journals.action.reset-settings')}</Btn>,
+        <div className={'ecos-journal-dashlet-editor__actions'}>
+          <Btn className={`ecos-btn_x-step_10 ${padding(measurer.xxs || measurer.xxxs)}`} onClick={this.clear}>
+            {measurer.xxs || measurer.xxxs ? t('journals.action.reset') : t('journals.action.reset-settings')}
+          </Btn>
 
-            <Fragment>
-              <Btn className={'ecos-btn_x-step_10'} onClick={this.cancel}>
-                {t('journals.action.cancel')}
-              </Btn>
-              <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.save}>
-                {t('journals.action.save')}
-              </Btn>
-            </Fragment>
-          ]}
-          cfgs={[{}, { className: 'columns_right' }]}
-        />
+          <Btn
+            className={`ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_float_right ${padding(measurer.xxs || measurer.xxxs)}`}
+            onClick={this.save}
+          >
+            {t('journals.action.save')}
+          </Btn>
+
+          <Btn className={`ecos-btn_x-step_10 ecos-btn_float_right ${padding(measurer.xxs || measurer.xxxs)}`} onClick={this.cancel}>
+            {t('journals.action.cancel')}
+          </Btn>
+        </div>
       </div>
     );
   }

@@ -1,0 +1,251 @@
+@import '../../constants';
+
+.ecos-header {
+  $root: &;
+
+  background: $color-blue-light;
+  padding: 10px 26px;
+  display: flex;
+  justify-content: space-between;
+
+  & .ecos-btn {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  &_small {
+    padding: 10px 15px;
+    justify-content: unset;
+
+    #{$root}__side {
+      display: flex;
+      //justify-content: space-between;
+
+      &_right {
+        flex: 1;
+      }
+
+      .ecos-input-search {
+        &_open {
+          width: 210px;
+          //width: 100%;
+
+          & + .ecos-header-user {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .ecos-header-create__menu,
+    .ecos-header-user__menu,
+    .ecos-input-search__results {
+      max-width: 280px;
+    }
+
+    .ecos-header-create__btn .ecos-btn__i {
+      margin-right: unset;
+    }
+  }
+
+  &__side {
+    display: flex;
+
+    &_left {
+      margin-right: 10px;
+    }
+
+    &_right {
+      justify-content: flex-end;
+    }
+
+    & > :not(:last-child) {
+      margin-right: 10px;
+    }
+  }
+
+  &-create {
+    $root: &;
+
+    &__btn {
+      &.ecos-btn {
+        font-size: $font-size-large;
+      }
+
+      .ecos-btn__text {
+        margin-left: 6px;
+      }
+    }
+  }
+
+  &-search {
+    $search: &;
+    width: 315px;
+
+    .ecos-dropdown__menu {
+      #{$search}-result {
+        padding: 0 15px;
+
+        &__group-name {
+          @extend %ellipsis;
+          background: $color-gray-10;
+          color: $color-gray-dark;
+          font-weight: $font-weight-bold;
+          font-size: $font-size-large;
+          padding: 15px;
+        }
+
+        &__content {
+          display: flex;
+          padding: 11px 0;
+
+          &-icon {
+            color: $color-blue-light2;
+            font-size: 33px;
+            padding-right: 12px;
+          }
+
+          &-avatar {
+            margin-right: 10px;
+
+            .ecos-avatar__icon {
+              color: $color-blue-light2;
+              background: $color-white;
+            }
+          }
+
+          &-data {
+            width: 0;
+            flex: 1;
+          }
+
+          &-title {
+            @extend %ellipsis;
+            color: $color-blue-dark;
+            font-weight: $font-weight-semi-bold;
+            font-size: $font-size-standard;
+          }
+
+          &-desc {
+            @extend %ellipsis;
+            color: $text-color-gray;
+            font-weight: $font-weight-semi-bold;
+            font-size: $font-size-small;
+          }
+        }
+      }
+      //
+      //#{$search}-result:not(:last-of-type) {
+      //  #{$search}-result__content {
+      //    border-bottom: 2px solid $color-gray-4;
+      //  }
+      //}
+    }
+
+    &-result {
+      $result: &;
+
+      &__separator {
+      }
+
+      &:hover {
+        margin-top: -2px;
+        padding: 2px 15px 0 !important;
+
+        &[data-separator='true'] {
+          padding: 2px 15px !important;
+        }
+
+        #{$result}__separator {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &-site {
+    &__btn.ecos-btn {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  &-user {
+    &__btn {
+      max-width: 152px;
+
+      .ecos-btn__text {
+        @extend %ellipsis;
+      }
+    }
+  }
+
+  &-dropdown__toggle {
+    display: flex;
+
+    .ecos-avatar {
+      margin-right: 10px;
+    }
+  }
+
+  &-hamburger {
+    &__btn {
+      position: relative;
+
+      .ecos-btn__i {
+        margin-right: 0;
+        font-size: 18px;
+      }
+    }
+
+    &__label {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      margin: 0;
+    }
+  }
+}
+
+@media all and (max-width: 600px) {
+  .ecos-header {
+    padding: 10px 15px;
+
+    &__side {
+      &_right {
+        width: 100%;
+        position: relative;
+      }
+    }
+
+    &-search {
+      flex-grow: 1;
+      position: absolute;
+      max-width: 40px;
+      left: 0;
+      top: 0;
+
+      &.ecos-input-search_open {
+        $size: 100%;
+
+        max-width: $size !important;
+        width: $size !important;
+        z-index: 1;
+
+        & ~ .ecos-avatar,
+        & ~ .ecos-header-user {
+          opacity: 0;
+          transition: opacity 0.15s ease-out;
+        }
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 551px) {
+  .ecos-header .ecos-header-hamburger__btn {
+    display: none !important;
+  }
+}

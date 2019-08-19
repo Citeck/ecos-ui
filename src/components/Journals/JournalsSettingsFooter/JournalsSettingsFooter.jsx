@@ -4,25 +4,41 @@ import Columns from '../../common/templates/Columns/Columns';
 import EcosModal from '../../../../src/components/common/EcosModal';
 import { Btn } from '../../common/btns';
 import { Input } from '../../common/form';
-import { reloadGrid, saveJournalSetting, createJournalSetting, initJournalSettingData } from '../../../actions/journals';
+import {
+  reloadGrid,
+  saveJournalSetting,
+  createJournalSetting,
+  cancelJournalSettingData,
+  setJournalSetting
+} from '../../../actions/journals';
 import { JOURNAL_SETTING_ID_FIELD } from '../constants';
 import { t, trigger } from '../../../helpers/util';
+import { wrapArgs } from '../../../helpers/redux';
 
 import './JournalsSettingsFooter.scss';
 
-const mapStateToProps = state => ({
-  predicate: state.journals.predicate,
-  columnsSetup: state.journals.columnsSetup,
-  grouping: state.journals.grouping,
-  journalSetting: state.journals.journalSetting
-});
+const mapStateToProps = (state, props) => {
+  const newState = state.journals[props.stateId] || {};
 
-const mapDispatchToProps = dispatch => ({
-  reloadGrid: options => dispatch(reloadGrid(options)),
-  saveJournalSetting: (id, settings) => dispatch(saveJournalSetting({ id, settings })),
-  createJournalSetting: (journalId, settings) => dispatch(createJournalSetting({ journalId, settings })),
-  initJournalSettingData: journalSetting => dispatch(initJournalSettingData(journalSetting))
-});
+  return {
+    predicate: newState.predicate,
+    columnsSetup: newState.columnsSetup,
+    grouping: newState.grouping,
+    journalSetting: newState.journalSetting
+  };
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
+
+  return {
+    reloadGrid: options => dispatch(reloadGrid(w(options))),
+    setJournalSetting: setting => dispatch(setJournalSetting(w(setting))),
+    saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
+    createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
+    cancelJournalSettingData: journalSettingId => dispatch(cancelJournalSettingData(w(journalSettingId)))
+  };
+};
 
 class JournalsSettingsFooter extends Component {
   constructor(props) {
@@ -31,6 +47,37 @@ class JournalsSettingsFooter extends Component {
     this.state = { dialogOpen: false };
     this.settingName = '';
   }
+
+  componentDidMount() {
+    this.createKeydownEvents();
+  }
+
+  componentWillUnmount() {
+    this.removeKeydownEvents();
+  }
+
+  createKeydownEvents() {
+    document.addEventListener('keydown', this.onKeydown);
+  }
+
+  removeKeydownEvents() {
+    document.removeEventListener('keydown', this.onKeydown);
+  }
+
+  onKeydown = e => {
+    switch (e.key) {
+      case 'Enter':
+        const inputRef = this.settingTitleInputRef || {};
+        if (e.target === inputRef.current) {
+          this.createSetting();
+        } else {
+          this.applySetting();
+        }
+        break;
+      default:
+        break;
+    }
+  };
 
   createSetting = () => {
     if (this.settingName) {
@@ -48,15 +95,17 @@ class JournalsSettingsFooter extends Component {
 
   applySetting = () => {
     let journalSetting = this.getSetting();
+    const { setJournalSetting, reloadGrid } = this.props;
     const { columns, groupBy, sortBy, predicate } = journalSetting;
 
-    this.props.reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
+    setJournalSetting(journalSetting);
+    reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
     trigger.call(this, 'onApply');
   };
 
   cancelSetting = () => {
-    const { initJournalSettingData, journalSetting } = this.props;
-    initJournalSettingData(journalSetting);
+    const { cancelJournalSettingData, journalSetting } = this.props;
+    cancelJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD]);
     trigger.call(this, 'onCancel');
   };
 
@@ -91,8 +140,9 @@ class JournalsSettingsFooter extends Component {
   };
 
   onDialogCalculateBounds = () => {
-    if (this.settingTitleInputRef) {
-      this.settingTitleInputRef.current.focus();
+    const ref = this.settingTitleInputRef;
+    if (ref && ref.current) {
+      ref.current.focus();
     }
   };
 

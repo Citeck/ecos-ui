@@ -8,7 +8,7 @@ const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
 const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
 
-const ATT_NAME_REGEXP = /\.atts?\(n:"(.+)"\).+/;
+const ATT_NAME_REGEXP = /\.atts?\(n:"(.+?)"\).+/;
 
 const GATEWAY_URL_MAP = {};
 GATEWAY_URL_MAP[QUERY_URL] = '/share/api/records/query';
@@ -61,7 +61,16 @@ function recordsFetch(url, body) {
     },
     body: JSON.stringify(body)
   }).then(response => {
-    return response.json();
+    return response.json().then(body => {
+      if (response.status >= 200 && response.status < 300) {
+        return body;
+      }
+      if (body.message) {
+        throw new Error(body.message);
+      } else {
+        throw new Error(response.statusText);
+      }
+    });
   });
 }
 
@@ -206,7 +215,7 @@ class RecordsComponent {
   }
 
   query(query, attributes) {
-    if (query.attributes || (query.query && query.query.query)) {
+    if (query.attributes && arguments.length === 1) {
       attributes = query.attributes;
       query = query.query;
     }
@@ -280,7 +289,7 @@ class Attribute {
   constructor(owner, name, persisted) {
     this._owner = owner;
     this._name = name;
-    this._persisted = persisted;
+    this._persisted = cloneDeep(persisted);
     this._value = null;
     this._wasChanged = false;
   }
@@ -290,7 +299,7 @@ class Attribute {
   }
 
   set persisted(value) {
-    this._persisted = value;
+    this._persisted = cloneDeep(value);
     this._value = null;
     this._wasChanged = false;
   }
@@ -392,6 +401,11 @@ class Record {
     let isSingleAttribute = isString(attributes);
     let attributesObj = attributes;
 
+    const isArrayOfIds = Array.isArray(self.id);
+    if (isArrayOfIds) {
+      force = true;
+    }
+
     if (isSingleAttribute) {
       attributesObj = { a: attributes };
     } else if (Array.isArray(attributes)) {
@@ -453,20 +467,24 @@ class Record {
       result = this._baseRecord.load(toLoad, force);
     } else {
       result = recordsFetch(QUERY_URL, {
-        record: self.id,
+        [isArrayOfIds ? 'records' : 'record']: self.id,
         attributes: toLoad
-      }).then(resp => resp.attributes || {});
+      }).then(resp => (isArrayOfIds ? resp.records || [] : resp.attributes || {}));
     }
 
     return result.then(atts => {
-      for (let att in atts) {
-        if (!atts.hasOwnProperty(att)) {
-          continue;
+      const getResult = atts => {
+        for (let att in atts) {
+          if (!atts.hasOwnProperty(att)) {
+            continue;
+          }
+          loaded[toLoadNames[att]] = atts[att];
+          self._attributes[att] = new Attribute(self, att, atts[att]);
         }
-        loaded[toLoadNames[att]] = atts[att];
-        self._attributes[att] = new Attribute(self, att, atts[att]);
-      }
-      return formatResult(loaded);
+        return formatResult(loaded);
+      };
+
+      return Array.isArray(atts) ? atts.map(a => getResult(a.attributes || {})) : getResult(atts);
     });
   }
 

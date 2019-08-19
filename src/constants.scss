@@ -7,6 +7,7 @@ $color-blue-dark: #4b75b7;
 $color-blue-dark2: #2a446c;
 $color-blue-light: #7396cd;
 $color-blue-light2: #c6d6f0;
+$color-blue-light3: #f8fbfd;
 $color-gray: #e5e5e5;
 $color-gray-1: #d8dee1;
 $color-gray-2: #cdd3d6;
@@ -15,6 +16,11 @@ $color-gray-4: #e8edef;
 $color-gray-5: #b7b7b7;
 $color-gray-6: #d0d0d0;
 $color-gray-7: #c4c4c4;
+$color-gray-8: #d5d5d5;
+$color-gray-9: #d4d4d4;
+$color-gray-10: #f3f7f9;
+$color-gray-11: #8a8a8a;
+$color-gray-12: #757575;
 $color-gray-dark: #141414;
 $color-red-1: #ff5721;
 $color-red-2: #ec4f1d;
@@ -38,6 +44,7 @@ $font-weight-normal: 400;
 
 $font-size-extra-large: 20px;
 $font-size-large: 18px;
+$font-size-15: 15px;
 $font-size-standard: 14px;
 $font-size-small: 12px;
 $font-size-extra-small: 11px;
@@ -77,3 +84,22 @@ $citeck-icon-radio-checked: '\e835';
 $citeck-icon-radio-dark: '\e834';
 $citeck-icon-left: '\51';
 $citeck-icon-right: '\52';
+
+$background-loader: rgba($color-gray-5, 0.3);
+
+%v-scroll {
+  position: absolute;
+  width: 6px;
+  right: 5px;
+  bottom: 2px;
+  top: 6px;
+  border-radius: 3px;
+  visibility: visible;
+  z-index: 11;
+}
+
+%ellipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

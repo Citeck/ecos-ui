@@ -26,23 +26,25 @@ export default class Filter extends Component {
   };
 
   render() {
-    const btnClasses =
-      'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height ecos-btn_hover_t-light-blue';
+    const btnClasses = 'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height';
     const {
       className,
       children,
       filter: {
         meta: { column },
         predicate
-      }
+      },
+      sourceId,
+      metaRecord
     } = this.props;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
-    const predicateInput = getPredicateInput(column);
+    const predicateInput = getPredicateInput(column, sourceId, metaRecord);
     const predicateProps = predicateInput.getProps({
       predicateValue: predicate.val,
       changePredicateValue: this.changeValue,
-      wrapperClasses: 'ecos-filter_width_full'
+      datePickerWrapperClasses: 'ecos-filter_width_full',
+      selectClassName: 'select_width_full'
     });
     const FilterValueComponent = predicateInput.component;
 
@@ -71,8 +73,13 @@ export default class Filter extends Component {
             </div>,
 
             <Fragment>
-              <IcoBtn icon={'icon-delete'} className={classNames(btnClasses, 'ecos-btn_x-step_10')} onClick={this.delete} />
-              <IcoBtn icon={'icon-drag'} className={btnClasses} />
+              <IcoBtn
+                icon={'icon-delete'}
+                className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
+                onClick={this.delete}
+              />
+
+              <i className={classNames('ecos-btn__i', 'ecos-btn__i_right icon-drag ecos-filter__drag-ico')} />
             </Fragment>
           ]}
         />

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import { withRouter } from 'react-router';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
@@ -13,46 +12,66 @@ import JournalsSettingBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
 
+import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
-import { getJournalsData, reloadGrid } from '../../actions/journals';
-import { getPreview, goToCreateRecordPage } from './urlManager';
+import { getJournalsData, reloadGrid, search } from '../../actions/journals';
+import { setActiveTabTitle } from '../../actions/pageTabs';
 import { Well } from '../common/form';
 import { t } from '../../helpers/util';
+import { wrapArgs } from '../../helpers/redux';
 
 import './Journals.scss';
 
-const mapStateToProps = state => ({
-  journalConfig: state.journals.journalConfig
-});
+const mapStateToProps = (state, props) => {
+  const newState = state.journals[props.stateId] || {};
 
-const mapDispatchToProps = dispatch => ({
-  getJournalsData: ({ journalsListId, journalId, journalSettingId }) =>
-    dispatch(getJournalsData({ journalsListId, journalId, journalSettingId })),
-  reloadGrid: options => dispatch(reloadGrid(options))
-});
+  return {
+    pageTabsIsShow: state.pageTabs.isShow,
+    journalConfig: newState.journalConfig,
+    journalSetting: newState.journalSetting
+  };
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
+
+  return {
+    getJournalsData: options => dispatch(getJournalsData(w(options))),
+    reloadGrid: options => dispatch(reloadGrid(w(options))),
+    search: text => dispatch(search(w(text))),
+    setActiveTabTitle: text => dispatch(setActiveTabTitle(text))
+  };
+};
 
 class Journals extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       menuOpen: false,
       settingsVisible: false,
-      showPreview: getPreview(this.props.history.location),
+      showPreview: this.props.urlParams.showPreview,
       showPie: false
     };
+
+    this.title = '';
   }
 
   componentDidMount() {
-    const props = this.props;
-    const { journalsListId = '', journalId = '', journalSettingId = '' } = props;
-    props.getJournalsData({ journalsListId, journalId, journalSettingId });
+    this.getJournalsData();
   }
 
   refresh = () => {
-    const props = this.props;
-    const { journalsListId = '', journalId = '', journalSettingId = '' } = props;
-    props.getJournalsData({ journalsListId, journalId, journalSettingId });
+    const {
+      journalSetting: { columns, groupBy, sortBy, predicate },
+      reloadGrid
+    } = this.props;
+    reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
   };
+
+  getJournalsData() {
+    this.props.getJournalsData();
+  }
 
   addRecord = () => {
     let {
@@ -60,8 +79,7 @@ class Journals extends Component {
         meta: { createVariants = [{}] }
       }
     } = this.props;
-    createVariants = createVariants[0];
-    createVariants.canCreate && goToCreateRecordPage(createVariants);
+    FormManager.createRecordByVariant(createVariants[0]);
   };
 
   toggleSettings = () => {
@@ -93,16 +111,24 @@ class Journals extends Component {
     this.setState({ menuOpen: !this.state.menuOpen });
   };
 
+  search = text => {
+    this.props.search(text);
+  };
+
   render() {
     const { menuOpen, settingsVisible, showPreview, showPie } = this.state;
+    const { stateId, journalConfig, pageTabsIsShow, setActiveTabTitle } = this.props;
+
+    if (!journalConfig) {
+      return null;
+    }
+
     const {
-      journalConfig,
-      journalConfig: {
-        id: journalId,
-        columns = [],
-        meta: { title = '' }
-      }
-    } = this.props;
+      id: journalId,
+      columns = [],
+      meta: { title = '', metaRecord },
+      sourceId
+    } = journalConfig;
 
     if (!columns.length) {
       return null;
@@ -110,14 +136,21 @@ class Journals extends Component {
 
     const visibleColumns = columns.filter(c => c.visible);
 
+    if (pageTabsIsShow && title && this.title !== title) {
+      const quotes = String.fromCharCode(8221);
+      setActiveTabTitle(`${t('page-tabs.journal')} ${quotes + title + quotes}`);
+      this.title = title;
+    }
+
     return (
       <div className={'ecos-journal'}>
         <div className={`ecos-journal__body ${menuOpen ? 'ecos-journal__body_with-menu' : ''}`}>
           <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} />
 
-          <JournalsTools journalConfig={journalConfig} addRecord={this.addRecord} />
+          <JournalsTools journalConfig={journalConfig} addRecord={this.addRecord} onSearch={this.search} />
 
           <JournalsSettingBar
+            stateId={stateId}
             showPreview={showPreview}
             showPie={showPie}
             toggleSettings={this.toggleSettings}
@@ -127,32 +160,35 @@ class Journals extends Component {
             refresh={this.refresh}
           />
 
-          {settingsVisible ? (
-            <EcosModal
-              title={t('journals.action.setting-dialog-msg')}
-              isOpen={settingsVisible}
-              hideModal={this.toggleSettings}
-              isBigHeader
-              className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
-            >
-              <Well className={'ecos-journal__settings'}>
-                <JournalsFilters columns={visibleColumns} />
-                <JournalsColumnsSetup columns={columns} />
-                <JournalsGrouping columns={visibleColumns} />
-                <JournalsSettingsFooter journalId={journalId} />
-              </Well>
-            </EcosModal>
-          ) : null}
+          <EcosModal
+            title={t('journals.action.setting-dialog-msg')}
+            isOpen={settingsVisible}
+            hideModal={this.toggleSettings}
+            isBigHeader
+            className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
+          >
+            <Well className={'ecos-journal__settings'}>
+              <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} metaRecord={metaRecord} />
+              <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
+              <JournalsGrouping stateId={stateId} columns={visibleColumns} />
+              <JournalsSettingsFooter
+                stateId={stateId}
+                journalId={journalId}
+                onApply={this.toggleSettings}
+                onCreate={this.toggleSettings}
+              />
+            </Well>
+          </EcosModal>
 
-          <JournalsContent showPreview={showPreview} showPie={showPie} />
+          <JournalsContent stateId={stateId} showPreview={showPreview} showPie={showPie} />
 
           <div className={'ecos-journal__footer'}>
-            <JournalsDashletPagination />
+            <JournalsDashletPagination stateId={stateId} hasPageSize />
           </div>
         </div>
 
-        <div className={'ecos-journal__menu'}>
-          <JournalsMenu open={menuOpen} onClose={this.toggleMenu} />
+        <div className={`ecos-journal__menu ${pageTabsIsShow ? 'ecos-journal__menu_tabs' : ''}`}>
+          <JournalsMenu stateId={stateId} open={menuOpen} onClose={this.toggleMenu} />
         </div>
       </div>
     );
@@ -162,4 +198,4 @@ class Journals extends Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withRouter(Journals));
+)(Journals);

@@ -1,32 +1,72 @@
 import React, { Component, Fragment } from 'react';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsDashletToolbar from '../JournalsDashletToolbar';
 import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletFooter from '../JournalsDashletFooter';
-import { getDashletConfig, setEditorMode, reloadGrid } from '../../../actions/journals';
+import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet/Dashlet';
-import { goToJournalsPage } from '../urlManager';
-import classNames from 'classnames';
+import { getDashletConfig, initState, reloadGrid, setEditorMode } from '../../../actions/journals';
+import { goToJournalsPage } from '../../../helpers/urls';
+import { wrapArgs } from '../../../helpers/redux';
+import { MIN_WIDTH_DASHLET_SMALL, MIN_WIDTH_DASHLET_LARGE } from '../../../constants';
 
 import './JournalsDashlet.scss';
 
-const mapStateToProps = state => ({
-  editorMode: state.journals.editorMode,
-  journalConfig: state.journals.journalConfig,
-  config: state.journals.config
-});
+const mapStateToProps = (state, props) => {
+  const newState = state.journals[props.stateId || props.id] || {};
 
-const mapDispatchToProps = dispatch => ({
-  getDashletConfig: id => dispatch(getDashletConfig(id)),
-  setEditorMode: visible => dispatch(setEditorMode(visible)),
-  reloadGrid: options => dispatch(reloadGrid(options))
-});
+  return {
+    editorMode: newState.editorMode,
+    journalConfig: newState.journalConfig,
+    config: newState.config
+  };
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId || props.id);
+
+  return {
+    initState: stateId => dispatch(initState(stateId)),
+
+    getDashletConfig: id => dispatch(getDashletConfig(w(id))),
+    setEditorMode: visible => dispatch(setEditorMode(w(visible))),
+    reloadGrid: options => dispatch(reloadGrid(w(options)))
+  };
+};
 
 class JournalsDashlet extends Component {
+  static propTypes = {
+    id: PropTypes.string.isRequired,
+    dragHandleProps: PropTypes.object
+  };
+
+  static defaultProps = {
+    dragHandleProps: {}
+  };
+
+  state = {
+    width: MIN_WIDTH_DASHLET_SMALL
+  };
+
+  constructor(props) {
+    super(props);
+
+    this._stateId = props.stateId || props.id;
+
+    this.props.initState(this._stateId);
+  }
+
   componentDidMount() {
     this.props.getDashletConfig(this.props.id);
   }
+
+  handleResize = width => {
+    this.setState({ width });
+  };
 
   showEditor = () => this.props.setEditorMode(true);
 
@@ -43,7 +83,12 @@ class JournalsDashlet extends Component {
   };
 
   render() {
-    const { journalConfig, className, id, editorMode, reloadGrid } = this.props;
+    const { journalConfig, className, id, editorMode, reloadGrid, dragHandleProps } = this.props;
+    const { width } = this.state;
+
+    if (!journalConfig) {
+      return null;
+    }
 
     return (
       <Dashlet
@@ -54,16 +99,26 @@ class JournalsDashlet extends Component {
         onReload={reloadGrid}
         onEdit={this.showEditor}
         onGoTo={this.goToJournalsPage}
+        needGoTo={width >= MIN_WIDTH_DASHLET_LARGE}
+        style={{
+          minWidth: `${MIN_WIDTH_DASHLET_SMALL}px`
+        }}
+        onResize={this.handleResize}
+        dragHandleProps={dragHandleProps}
       >
         {editorMode ? (
-          <JournalsDashletEditor id={id} />
+          <Measurer>
+            <JournalsDashletEditor id={id} stateId={this._stateId} />
+          </Measurer>
         ) : (
           <Fragment>
-            <JournalsDashletToolbar />
+            <Measurer>
+              <JournalsDashletToolbar stateId={this._stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
+            </Measurer>
 
-            <JournalsDashletGrid />
+            <JournalsDashletGrid stateId={this._stateId} />
 
-            <JournalsDashletFooter />
+            <JournalsDashletFooter stateId={this._stateId} />
           </Fragment>
         )}
       </Dashlet>

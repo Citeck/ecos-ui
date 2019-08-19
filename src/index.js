@@ -18,7 +18,19 @@ import { getCurrentLocale } from './helpers/util';
 import configureStore, { getHistory } from './store';
 import { requireShareAssets } from './share';
 import { initAppRequest, loadThemeRequest } from './actions/app';
-import { AppApi, BpmnApi, JournalsApi, MenuApi, OrgStructApi, UserApi } from './api';
+import {
+  AppApi,
+  BpmnApi,
+  CommentsApi,
+  DashboardApi,
+  DocStatusApi,
+  JournalsApi,
+  MenuApi,
+  OrgStructApi,
+  PageTabsApi,
+  TasksApi,
+  UserApi
+} from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
@@ -51,6 +63,11 @@ api.menu = new MenuApi(store);
 api.orgStruct = new OrgStructApi(store);
 api.user = new UserApi(store);
 api.journals = new JournalsApi(store);
+api.tasks = new TasksApi(store);
+api.comments = new CommentsApi(store);
+api.dashboard = new DashboardApi(store);
+api.pageTabs = new PageTabsApi(store);
+api.docStatus = new DocStatusApi(store);
 
 const history = getHistory();
 

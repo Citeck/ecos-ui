@@ -2,8 +2,37 @@ import { RecordService } from './recordService';
 import { PROXY_URI, MICRO_URI } from '../constants/alfresco';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 import Records from '../components/Records';
+import { queryByCriteria, t, debounce } from '../helpers/util';
+import * as ls from '../helpers/ls';
+import { DocPreviewApi } from './docPreview';
 
 export class JournalsApi extends RecordService {
+  lsJournalSettingIdsKey = ls.generateKey('journal-setting-ids', true);
+
+  getLsJournalSettingIds = () => {
+    let ids = [];
+
+    if (ls.hasData(this.lsJournalSettingIdsKey, 'array')) {
+      ids = ls.getData(this.lsJournalSettingIdsKey);
+    }
+
+    return ids;
+  };
+
+  setLsJournalSettingIds = ids => {
+    ls.setData(this.lsJournalSettingIdsKey, ids);
+  };
+
+  setLsJournalSettingId = (journalConfigId, journalSettingId) => {
+    const ids = this.getLsJournalSettingIds().filter(j => j.key !== journalConfigId);
+    ids.push({ key: journalConfigId, value: journalSettingId });
+    this.setLsJournalSettingIds(ids);
+  };
+
+  getLsJournalSettingId = journalConfigId => {
+    return (this.getLsJournalSettingIds().filter(j => j.key === journalConfigId)[0] || {}).value;
+  };
+
   getRecord = ({ id, attributes }) => {
     return Records.get(id)
       .load(attributes)
@@ -19,7 +48,7 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [] }) => {
+  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId }) => {
     const query = {
       t: 'and',
       val: [
@@ -30,18 +59,25 @@ export class JournalsApi extends RecordService {
       ]
     };
 
+    let bodyQery = {
+      consistency: 'EVENTUAL',
+      query: query,
+      language: 'predicate',
+      page: pagination,
+      groupBy,
+      sortBy
+    };
+
+    if (sourceId) {
+      bodyQery.sourceId = sourceId;
+    }
+
     const dataSource = new dataSourceStore['GqlDataSource']({
       url: `${PROXY_URI}citeck/ecos/records`,
       dataSourceName: 'GqlDataSource',
       ajax: {
         body: {
-          query: {
-            query: query,
-            language: 'predicate',
-            page: pagination,
-            groupBy,
-            sortBy
-          }
+          query: bodyQery
         }
       },
       columns: columns || []
@@ -185,9 +221,11 @@ export class JournalsApi extends RecordService {
   };
 
   createJournalSetting = ({ journalId, settings }) => {
-    return this.postJson(`${MICRO_URI}api/journalprefs?journalId=${journalId}`, settings, true).then(resp => {
-      return resp;
-    });
+    return this.postJson(`${MICRO_URI}api/journalprefs?journalId=${journalId}`, settings, true)
+      .then(resp => {
+        return resp;
+      })
+      .catch(() => null);
   };
 
   deleteJournalSetting = id => {
@@ -202,13 +240,52 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getPreviewUrl = nodeRef => {
-    return Records.get(nodeRef)
-      .load('cm:content.previewInfo?json', true)
+  getPreviewUrl = DocPreviewApi.getLinkByRecord;
+
+  performGroupAction = ({ groupAction, selected, criteria, journalId }) => {
+    const { id, type, params } = groupAction;
+
+    return Promise.all([
+      this.postJson(`${PROXY_URI}api/journals/group-action`, {
+        actionId: id,
+        groupType: type,
+        journalId: journalId,
+        nodes: selected,
+        params: params,
+        query: queryByCriteria(criteria)
+      }),
+      Records.get(selected).load('.disp')
+    ])
       .then(resp => {
-        resp = resp || {};
-        const { url = '', ext = '' } = resp;
-        return url && ext ? `${url}.${ext}` : '';
-      });
+        let actionResults = (resp[0] || {}).results || [];
+        let titles = resp[1] || [];
+
+        titles = Array.isArray(titles) ? titles : [titles];
+
+        return actionResults.map((a, i) => ({ ...a, title: titles[i], status: t(`batch-edit.message.${a.status}`) }));
+      })
+      .catch(() => []);
+  };
+
+  getStatus = nodeRef => {
+    return this.getJson(`${PROXY_URI}api/internal/downloads/${nodeRef.replace(':/', '')}/status`)
+      .then(status => {
+        if (status.status !== 'DONE') {
+          return debounce(this.getStatus, 500)(nodeRef);
+        }
+
+        return nodeRef;
+      })
+      .catch(() => null);
+  };
+
+  deleteDownloadsProgress = nodeRef => {
+    return this.deleteJson(`${PROXY_URI}api/internal/downloads/${nodeRef.replace(':/', '')}`, true).then(resp => resp);
+  };
+
+  createZip = selected => {
+    return this.postJson(`${PROXY_URI}api/internal/downloads`, selected.map(s => ({ nodeRef: s })))
+      .then(resp => this.getStatus(resp.nodeRef))
+      .catch(() => null);
   };
 }

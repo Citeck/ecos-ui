@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Btn } from '../../btns';
 import { t, trigger } from '../../../../helpers/util';
+import classNames from 'classnames';
 
 import './Tools.scss';
 
@@ -18,14 +19,16 @@ export default class Tools extends Component {
   };
 
   render() {
-    const { selectAllVisible, selectAll, total } = this.props;
+    const { selectAllVisible, selectAll, total, className } = this.props;
 
     return (
-      <div className={'grid-tools'}>
+      <div className={classNames('grid-tools', className)}>
         {selectAllVisible ? (
-          <div className={'grid-tools__item grid-tools__item_select-all-btn'}>
+          <div className={'grid-tools__item grid-tools__item_select-all'}>
             <Btn
-              className={`ecos-btn_extra-narrow ${selectAll ? 'ecos-btn_blue' : 'ecos-btn_grey5'} ecos-btn_hover_light-blue2`}
+              className={`ecos-btn_extra-narrow ${
+                selectAll ? 'ecos-btn_blue' : 'ecos-btn_grey5'
+              } grid-tools__item_select-all-btn ecos-btn_hover_light-blue2`}
               title={t('grid.tools.select-all')}
               onClick={this.selectAll}
             >

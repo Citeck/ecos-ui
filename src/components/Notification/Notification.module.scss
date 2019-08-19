@@ -8,11 +8,12 @@
   position: absolute;
   right: 15px;
   cursor: pointer;
-  display: none;
-}
+  line-height: 1em;
+  top: calc(50% - 1em / 2);
 
-.after {
-  font-family: FontAwesome;
-  content: '\f00d';
-  color: #666;
+  &:after {
+    font-family: FontAwesome;
+    content: '\f00d';
+    color: #666;
+  }
 }

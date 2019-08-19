@@ -1,21 +1,47 @@
 @import '../../constants';
 
 .dashlet {
+  $root: &;
   min-height: auto !important;
+  padding-top: 0 !important;
 
-  .dashlet__header {
+  &__header {
     height: 100%;
     position: relative;
     padding: 12px 0;
+    overflow: hidden;
 
     &:hover {
-      .dashlet__btn_hidden {
-        visibility: visible;
+      #{$root} {
+        &__btn {
+          &_hidden {
+            visibility: visible;
+          }
+        }
+
+        &__actions {
+          &_header:not(:empty) {
+            background: $color-white;
+            border-top-right-radius: $border-radius-extra-large;
+
+            &:before {
+              $size: 30px;
+              border-top-right-radius: $border-radius-extra-large;
+              content: '';
+              width: $size;
+              position: absolute;
+              left: -$size;
+              top: 0;
+              height: 100%;
+              background: linear-gradient(to right, rgba(255, 255, 255, 0.35), $color-white);
+            }
+          }
+        }
       }
     }
   }
 
-  .dashlet__caption {
+  &__caption {
     display: inline-block;
     text-align: center;
     white-space: nowrap;
@@ -35,40 +61,47 @@
     box-sizing: border-box;
   }
 
-  .dashlet__body_relative {
-    position: relative;
+  &__body {
+    padding-bottom: 0;
+    min-height: 20px;
+
+    &_relative {
+      position: relative;
+    }
   }
 
-  .dashlet__actions {
+  &__actions {
     position: absolute;
     top: 0;
     right: 0;
+
+    &_header {
+      padding: 10px 0;
+    }
   }
 
-  .dashlet__actions_header {
-    padding: 10px 0;
-  }
-
-  .dashlet__btn {
+  &__btn {
     font-size: $font-size-standard;
     font-weight: $font-weight-bold;
+
+    &_next {
+      margin-right: 20px;
+    }
+
+    &_hidden {
+      visibility: hidden;
+    }
+
+    &_move {
+      font-size: 28px !important;
+
+      &-wrapper {
+        display: inline-block;
+      }
+    }
   }
 
-  .dashlet__btn_next {
-    margin-right: 20px;
-  }
-
-  .dashlet__btn_hidden {
-    visibility: hidden;
-  }
-
-  .dashlet__resizer {
-    text-align: center;
-    color: $color-gray-6;
-    font-size: $font-size-extra-small;
-  }
-
-  .dashlet__btn_move {
-    font-size: 28px;
+  &__footer {
+    padding: 2px 0 5px;
   }
 }

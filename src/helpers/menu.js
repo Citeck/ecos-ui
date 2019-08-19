@@ -1,3 +1,6 @@
+import { URL } from '../constants';
+import { isEmpty } from 'lodash';
+
 export function processCreateVariantsItems(sites) {
   let menuItems = [];
 
@@ -22,14 +25,16 @@ export function processCreateVariantsItems(sites) {
   for (let site of sites) {
     let createVariants = [];
     for (let variant of site.createVariants) {
-      // variant.isDefault
       if (!variant.canCreate) {
         continue;
       }
       createVariants.push({
         id: 'HEADER_' + (site.siteId + '_' + variant.type).replace(/-/g, '_').toUpperCase(),
         label: variant.title,
-        targetUrl: '/share/page/node-create?type=' + variant.type + '&viewId=' + variant.formId + '&destination=' + variant.destination
+        control: {
+          type: 'ECOS_CREATE_VARIANT',
+          payload: variant
+        }
       });
     }
 
@@ -71,13 +76,13 @@ export const makeUserMenuItems = (userName, isAvailable, isMutable, isExternalAu
     }
   );
 
-  if (isMutable) {
-    userMenuItems.push({
-      id: 'HEADER_USER_MENU_PASSWORD',
-      label: 'header.change-password.label',
-      targetUrl: '/share/page/user/' + encodeURIComponent(userName) + '/change-password'
-    });
-  }
+  // if (isMutable) {
+  //   userMenuItems.push({
+  //     id: 'HEADER_USER_MENU_PASSWORD',
+  //     label: 'header.change-password.label',
+  //     targetUrl: '/share/page/user/' + encodeURIComponent(userName) + '/change-password'
+  //   });
+  // }
 
   userMenuItems.push(
     {
@@ -148,4 +153,74 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
   }
 
   return siteMenuItems;
+}
+
+export function makeSiteMenu() {
+  return [
+    {
+      id: 'HOME_PAGE',
+      label: 'header.site-menu.home-page',
+      targetUrl: URL.DASHBOARD,
+      targetUrlType: 'FULL_PATH'
+    },
+    {
+      id: 'SETTINGS_HOME_PAGE',
+      label: 'header.site-menu.home-page-settings',
+      targetUrl: URL.DASHBOARD_SETTINGS,
+      targetUrlType: 'FULL_PATH'
+    },
+    {
+      id: 'GO_ADMIN_PAGE',
+      label: 'header.site-menu.admin-page',
+      targetUrl: URL.BPMN_DESIGNER,
+      targetUrlType: 'FULL_PATH'
+    }
+  ];
+}
+
+export function getIconClassMenu(id, specialClass) {
+  switch (id) {
+    case 'HEADER_USER_MENU_MY_PROFILE':
+      return 'icon-User_avatar';
+    case 'HEADER_USER_MENU_AVAILABILITY':
+      return specialClass;
+    case 'HEADER_USER_MENU_PASSWORD':
+      return '';
+    case 'HEADER_USER_MENU_FEEDBACK':
+      return 'icon-notify-dialogue';
+    case 'HEADER_USER_MENU_REPORTISSUE':
+      return 'icon-big_alert';
+    case 'HEADER_USER_MENU_LOGOUT':
+      return 'icon-exit';
+    case 'HEADER_SITE_INVITE':
+      return '';
+    case 'HEADER_CUSTOMIZE_SITE_DASHBOARD':
+      return '';
+    case 'HEADER_EDIT_SITE_DETAILS':
+      return '';
+    case 'HEADER_CUSTOMIZE_SITE':
+      return '';
+    case 'HEADER_LEAVE_SITE':
+      return '';
+    case 'HEADER_SITE_JOURNALS':
+      return '';
+    default:
+      return '';
+  }
+}
+
+export function getSpecialClassByState(id, params = {}) {
+  if (!isEmpty(params)) {
+    const colorOn = 'icon_on';
+    const colorOff = 'icon_off';
+
+    switch (id) {
+      case 'HEADER_USER_MENU_AVAILABILITY':
+        return params.available ? `icon-User_avatar_on ${colorOn}` : `icon-User_avatar_off ${colorOff}`;
+      default:
+        return false;
+    }
+  }
+
+  return false;
 }

@@ -6,12 +6,48 @@ import { t } from '../../../../../helpers/util';
 import './InputView.scss';
 
 class InputView extends Component {
-  render() {
-    const { selectedRows, placeholder, error, disabled, multiple, isCompact, editValue, deleteValue, openSelectModal } = this.props;
+  stopBlur = false;
 
-    const wrapperClasses = classNames('select-journal__input-view', {
-      'select-journal__input-view_compact': isCompact
-    });
+  onBlur = () => {
+    const { onBlur } = this.props;
+
+    if (!this.stopBlur && typeof onBlur === 'function') {
+      onBlur.call(this);
+    }
+  };
+
+  onClick = () => {
+    const { openSelectModal } = this.props;
+
+    if (typeof openSelectModal === 'function') {
+      this.stopBlur = true;
+      openSelectModal.call(this);
+    }
+  };
+
+  render() {
+    const {
+      selectedRows,
+      placeholder,
+      error,
+      disabled,
+      multiple,
+      isCompact,
+      editValue,
+      deleteValue,
+      className,
+      autoFocus,
+      hideEditRowButton,
+      hideDeleteRowButton
+    } = this.props;
+
+    const wrapperClasses = classNames(
+      'select-journal__input-view',
+      {
+        'select-journal__input-view_compact': isCompact
+      },
+      className
+    );
 
     const buttonClasses = classNames('ecos-btn_blue', {
       'ecos-btn_narrow': true, //isCompact,
@@ -35,8 +71,8 @@ class InputView extends Component {
                 <span className="select-journal__values-list-disp">{item.disp}</span>
                 {disabled ? null : (
                   <div className="select-journal__values-list-actions">
-                    <span data-id={item.id} className={'icon icon-edit'} onClick={editValue} />
-                    <span data-id={item.id} className={'icon icon-delete'} onClick={deleteValue} />
+                    {hideEditRowButton ? null : <span data-id={item.id} className={'icon icon-edit'} onClick={editValue} />}
+                    {hideDeleteRowButton ? null : <span data-id={item.id} className={'icon icon-delete'} onClick={deleteValue} />}
                   </div>
                 )}
               </li>
@@ -55,7 +91,7 @@ class InputView extends Component {
         {error ? (
           <p className={'select-journal__error'}>{error.message}</p>
         ) : (
-          <Btn className={buttonClasses} onClick={openSelectModal} disabled={disabled}>
+          <Btn className={buttonClasses} onClick={this.onClick} disabled={disabled} autoFocus={autoFocus} onBlur={this.onBlur}>
             {selectedRows.length > 0
               ? multiple
                 ? t('select-journal.button.add')
@@ -79,7 +115,9 @@ InputView.propTypes = {
   isCompact: PropTypes.bool,
   editValue: PropTypes.func,
   deleteValue: PropTypes.func,
-  openSelectModal: PropTypes.func
+  openSelectModal: PropTypes.func,
+  hideEditRowButton: PropTypes.bool,
+  hideDeleteRowButton: PropTypes.bool
 };
 
 export default InputView;

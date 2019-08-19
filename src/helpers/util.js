@@ -1,4 +1,56 @@
 import lodashGet from 'lodash/get';
+import moment from 'moment';
+import { DataFormatTypes, MIN_WIDTH_DASHLET_LARGE } from '../constants';
+import * as queryString from 'query-string';
+
+export const debounce = (func, ms = 0) => {
+  let timer = null;
+  let resolves = [];
+
+  return function(...args) {
+    clearTimeout(timer);
+
+    timer = setTimeout(() => {
+      let result = func(...args);
+
+      resolves.forEach(r => r(result));
+
+      resolves = [];
+    }, ms);
+
+    return new Promise(r => resolves.push(r));
+  };
+};
+
+export const queryByCriteria = criteria => {
+  let query = {};
+
+  (criteria || []).forEach((criterion, idx) => {
+    query['field_' + idx] = criterion.field;
+    query['predicate_' + idx] = criterion.predicate;
+    query['value_' + idx] = criterion.value;
+  });
+
+  return query;
+};
+
+export const getBool = val => (val === 'false' ? false : val === 'true' ? true : val);
+
+export function closest(node, selector) {
+  const parent = node.parentElement;
+
+  if (parent) {
+    const className = parent.className;
+
+    if (className && className.indexOf(selector) !== -1) {
+      return parent;
+    } else {
+      return closest(parent, selector);
+    }
+  }
+
+  return null;
+}
 
 export function getPropByStringKey(obj, strKey) {
   const keys = strKey.split('.');
@@ -249,6 +301,10 @@ export function isPDFbyStr(str) {
   return format.toLowerCase() === pdf;
 }
 
+/**
+ * Реализация скачивания файла с добавлением в dom элемента и его удалением после скрипт-нажатия
+ * @param link ссылка на файл для скачивания
+ */
 export function fileDownload(link) {
   let elLink = document.createElement('a');
 
@@ -261,6 +317,10 @@ export function fileDownload(link) {
   document.body.removeChild(elLink);
 }
 
+/**
+ * Варианты масштабирования объекта на странице
+ * @returns {Array}
+ */
 export function getScaleModes() {
   return [
     { id: 'auto', title: t('doc-preview.scale.auto'), scale: 'auto' },
@@ -278,6 +338,15 @@ export function getScaleModes() {
   ];
 }
 
+/**
+ * Вычисление масштабирования для строковых режимов
+ * @param scale {Number|String} - режим см getScaleModes
+ * @param paramsContainer {Object} - ширина и высота объекта масштабирования
+ * @param paramsScaleObject {Object} - ширина и высота контейнера
+ * @param ratioAuto
+ * @param paddingContainer
+ * @returns {Number} масштаб
+ */
 export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, ratioAuto = 50, paddingContainer = 0) {
   let { width: soW, height: soH } = paramsScaleObject || {};
   let { width: cW, height: cH } = paramsContainer || {};
@@ -314,4 +383,84 @@ export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, rat
 
 export function getCurrentUserName() {
   return lodashGet(window, 'Alfresco.constants.USERNAME', '');
+}
+
+export const isSmallMode = width => width <= MIN_WIDTH_DASHLET_LARGE;
+
+export function isExistIndex(idx) {
+  return !(idx === null || idx === undefined || idx === -1);
+}
+
+export function isLastItem(array, idx) {
+  return idx === array.length - 1;
+}
+
+/**
+ * Функция склонения слов в зависимости от числительного
+ *
+ * @param n - числительное
+ * @param textForms - массив из слов в 3х формах в соответствующем порядке:
+ * именительный падеж, единственное число (в зависимости от слова, с которым употребляется)
+ * родительный падеж, единственное число (в зависимости от слова, с которым употребляется)
+ * родительный падеж, множественное число (в зависимости от слова, с которым употребляется)
+ *
+ * @returns string
+ */
+export function num2str(n = 0, textForms = []) {
+  const number = Math.abs(n) % 100;
+  const n1 = number % 10;
+
+  if (number > 10 && number < 20) {
+    return textForms[2];
+  }
+
+  if (n1 > 1 && n1 < 5) {
+    return textForms[1];
+  }
+
+  if (n1 === 1) {
+    return textForms[0];
+  }
+
+  return textForms[2];
+}
+
+export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
+  if (!byField) {
+    return JSON.parse(JSON.stringify(arr1)) === JSON.parse(JSON.stringify(arr2));
+  }
+
+  return JSON.parse(JSON.stringify(arr1.map(item => item[byField]))) === JSON.parse(JSON.stringify(arr2.map(item => item[byField])));
+}
+
+export function getSearchParams(searchString = window.location.search) {
+  return queryString.parse(searchString);
+}
+
+export function getOutputFormat(format, value) {
+  if (!format || !value) {
+    return value || '';
+  }
+
+  switch (format) {
+    case DataFormatTypes.DATE:
+      return moment(value).format('DD.MM.YYYY');
+    default:
+      return value;
+  }
+}
+
+export const hasInString = (originalString = '', searchedString = '') => {
+  return originalString.includes(searchedString);
+};
+
+export function getIconFileByMimetype(mimetype) {
+  switch (mimetype) {
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+    case 'application/msword':
+      return 'icon-filetype-doc';
+    case 'application/pdf':
+    default:
+      return 'icon-filetype-none';
+  }
 }

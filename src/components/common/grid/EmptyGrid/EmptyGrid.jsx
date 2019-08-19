@@ -8,11 +8,21 @@ export default class EmptyGrid extends Component {
     this.state = { height: 0 };
   }
 
+  getHeight = () => {
+    return ((this._ref.current || {}).offsetHeight || 0) + (this.props.diff || 15);
+  };
+
   componentDidMount() {
-    const grid = this._ref.current || {};
-    const height = grid.offsetHeight + (this.props.diff || 0);
-    this.setState({ height: height });
+    this.setState({ height: this.getHeight() });
   }
+
+  componentDidUpdate = prevProps => {
+    if (prevProps.maxItems !== this.props.maxItems) {
+      this.setState({ height: 0 });
+    } else if (!this.state.height) {
+      this.setState({ height: this.getHeight() });
+    }
+  };
 
   getChild = height => {
     return React.Children.map(this.props.children, child => {

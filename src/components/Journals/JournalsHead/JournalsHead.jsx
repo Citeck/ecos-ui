@@ -21,7 +21,9 @@ const JournalsHead = ({ menuOpen, toggleMenu, title }) => {
       </div>
 
       <div className={'ecos-journal__caption'}>
-        <Caption large>{title}</Caption>
+        <Caption large className={'ecos-journal__caption_align_top'}>
+          {title}
+        </Caption>
       </div>
     </Fragment>
   );

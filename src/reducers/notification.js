@@ -9,12 +9,10 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
-    [setNotificationMessage]: (state, action) => {
-      return {
-        ...state,
-        text: action.payload
-      };
-    }
+    [setNotificationMessage]: (state, action) => ({
+      ...state,
+      text: action.payload
+    })
   },
   initialState
 );

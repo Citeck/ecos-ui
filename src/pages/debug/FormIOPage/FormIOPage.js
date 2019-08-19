@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col } from 'reactstrap';
+import { Col, Container, Row } from 'reactstrap';
 import Form from 'formiojs/Form';
 import FormBuilder from 'formiojs/FormBuilder';
 // import schema from './form.json';
@@ -7,6 +7,7 @@ import FormBuilder from 'formiojs/FormBuilder';
 import schema from './contractor.json';
 import '../../../forms/components';
 import Formio from 'formiojs/Formio';
+import './temp.scss';
 
 // import SelectJournal from '../../components/common/form/SelectJournal';
 
@@ -26,9 +27,8 @@ class FormIOPage extends React.Component {
         viewAsHtml: true,
 
         viewAsHtmlConfig: {
-          fullWidthColumns: true,
-          hidePanels: true
-          // alwaysWrap: true,
+          fullWidthColumns: true
+          // hidePanels: true
         }
       };
     }

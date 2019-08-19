@@ -5,7 +5,6 @@ import SelectJournal from '../../../common/form/SelectJournal';
 import SelectOrgstruct from '../../../common/form/SelectOrgstruct';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../../common/form/SelectOrgstruct/constants';
 import { RecordService } from '../../../../api/recordService';
-import moment from 'moment';
 import { t } from '../../../../helpers/util';
 
 export const COLUMN_DATA_TYPE_TEXT = 'text';
@@ -63,6 +62,50 @@ export const ALFRESCO_EQUAL_PREDICATES_MAP = {
   [COLUMN_DATA_TYPE_AUTHORITY_GROUP]: 'assoc-contains',
   [COLUMN_DATA_TYPE_AUTHORITY]: 'assoc-contains'
 };
+
+export const EQUAL_PREDICATES_MAP = {
+  [COLUMN_DATA_TYPE_TEXT]: PREDICATE_CONTAINS,
+  [COLUMN_DATA_TYPE_CONTENT]: PREDICATE_NOT_EMPTY,
+  [COLUMN_DATA_TYPE_MLTEXT]: PREDICATE_CONTAINS,
+  [COLUMN_DATA_TYPE_INT]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_LONG]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_FLOAT]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_DOUBLE]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_DATE]: PREDICATE_GE,
+  [COLUMN_DATA_TYPE_DATETIME]: PREDICATE_GE,
+  [COLUMN_DATA_TYPE_BOOLEAN]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_QNAME]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_NODEREF]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_CATEGORY]: PREDICATE_CONTAINS,
+  [COLUMN_DATA_TYPE_ASSOC]: PREDICATE_CONTAINS,
+  [COLUMN_DATA_TYPE_OPTIONS]: PREDICATE_CONTAINS,
+  [COLUMN_DATA_TYPE_PERSON]: PREDICATE_CONTAINS,
+  [COLUMN_DATA_TYPE_AUTHORITY_GROUP]: PREDICATE_CONTAINS,
+  [COLUMN_DATA_TYPE_AUTHORITY]: PREDICATE_CONTAINS
+};
+
+export const SEARCH_EQUAL_PREDICATES_MAP = {
+  [COLUMN_DATA_TYPE_TEXT]: PREDICATE_CONTAINS,
+  [COLUMN_DATA_TYPE_CONTENT]: PREDICATE_NOT_EMPTY,
+  [COLUMN_DATA_TYPE_MLTEXT]: PREDICATE_CONTAINS,
+  [COLUMN_DATA_TYPE_INT]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_LONG]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_FLOAT]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_DOUBLE]: PREDICATE_EQ,
+  // [COLUMN_DATA_TYPE_DATE]: PREDICATE_EQ,
+  // [COLUMN_DATA_TYPE_DATETIME]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_BOOLEAN]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_QNAME]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_NODEREF]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_CATEGORY]: PREDICATE_CONTAINS,
+  [COLUMN_DATA_TYPE_ASSOC]: PREDICATE_CONTAINS,
+  [COLUMN_DATA_TYPE_OPTIONS]: PREDICATE_CONTAINS,
+  [COLUMN_DATA_TYPE_PERSON]: PREDICATE_CONTAINS,
+  [COLUMN_DATA_TYPE_AUTHORITY_GROUP]: PREDICATE_CONTAINS,
+  [COLUMN_DATA_TYPE_AUTHORITY]: PREDICATE_CONTAINS
+};
+
+export const NUMBERS = [COLUMN_DATA_TYPE_INT, COLUMN_DATA_TYPE_DOUBLE, COLUMN_DATA_TYPE_LONG, COLUMN_DATA_TYPE_FLOAT];
 
 // Hack: Currently t('') works correctly only after execution loadMessagesAndAlfrescoScript function in share.js, so we should use function instead of array:
 const getAllPredicates = function() {
@@ -163,7 +206,7 @@ export function getPredicates(field) {
 
 const recordServiceAPI = new RecordService();
 
-export function getPredicateInput(field, sourceId) {
+export function getPredicateInput(field, sourceId, metaRecord) {
   const defaultValue = {
     label: t('react-select.default-value.label'),
     value: null
@@ -185,7 +228,7 @@ export function getPredicateInput(field, sourceId) {
         changePredicateValue(e.target.value);
       },
       onKeyDown: function(e) {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && typeof applyFilters === 'function') {
           applyFilters();
         }
       }
@@ -198,11 +241,11 @@ export function getPredicateInput(field, sourceId) {
       return {
         component: DatePicker,
         defaultValue: null, // new Date(),
-        getProps: ({ predicateValue, changePredicateValue, wrapperClasses }) => ({
+        getProps: ({ predicateValue, changePredicateValue, datePickerWrapperClasses }) => ({
           className: 'ecos-input_narrow',
-          wrapperClasses: wrapperClasses,
+          wrapperClasses: datePickerWrapperClasses,
           showIcon: true,
-          selected: moment(predicateValue || undefined).toDate(),
+          selected: predicateValue,
           onChange: function(value) {
             changePredicateValue(value);
           },
@@ -229,9 +272,9 @@ export function getPredicateInput(field, sourceId) {
               attributes: {
                 opt: `#${field.attribute}?options`
               },
-              record: `${sourceId}@`
+              record: metaRecord || `${sourceId || ''}@`
             })
-            .then(record => record.attributes.opt)
+            .then(record => record.attributes.opt || [])
             .then(opt =>
               opt.map(item => {
                 return {
@@ -249,13 +292,16 @@ export function getPredicateInput(field, sourceId) {
       return {
         component: Select,
         defaultValue: null,
-        getProps: ({ predicateValue, changePredicateValue }) => ({
-          className: 'select_narrow',
+        getProps: ({ predicateValue, changePredicateValue, selectClassName }) => ({
+          className: `select_narrow ${selectClassName}`,
+          placeholder: t('react-select.default-value.label'),
           cacheOptions: true,
           defaultOptions: true,
           isSearchable: false,
           loadOptions: loadOptions,
           defaultValue: defaultValue,
+          value: predicateValue,
+          handleSetValue: (value, options) => options.filter(o => o.value === value)[0],
           onChange: function(selected) {
             changePredicateValue(selected.value);
           }

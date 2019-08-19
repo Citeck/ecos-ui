@@ -4,16 +4,26 @@ import Grouping from '../../Grouping/Grouping';
 import PanelBar from '../../common/PanelBar/PanelBar';
 import { setGrouping } from '../../../actions/journals';
 import { t } from '../../../helpers/util';
+import { wrapArgs } from '../../../helpers/redux';
 
 import './JournalsGrouping.scss';
 
-const mapStateToProps = state => ({
-  grouping: state.journals.grouping
-});
+const mapStateToProps = (state, props) => {
+  const newState = state.journals[props.stateId] || {};
 
-const mapDispatchToProps = dispatch => ({
-  setGrouping: grouping => dispatch(setGrouping(grouping))
-});
+  return {
+    grouping: newState.grouping,
+    columnsSetup: newState.columnsSetup
+  };
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
+
+  return {
+    setGrouping: grouping => dispatch(setGrouping(w(grouping)))
+  };
+};
 
 class JournalsGrouping extends Component {
   onGrouping = grouping => {
@@ -21,10 +31,12 @@ class JournalsGrouping extends Component {
   };
 
   render() {
-    const { columns, grouping } = this.props;
+    const { grouping, columnsSetup } = this.props;
 
     let groupingList = [];
     let aggregation = [];
+
+    const columns = columnsSetup.columns.filter(c => c.default);
 
     grouping.columns.forEach(groupingColumn => {
       const match = columns.filter(column => column.attribute === groupingColumn.attribute)[0];

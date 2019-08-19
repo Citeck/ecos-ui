@@ -1,29 +1,64 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import Pagination from '../../common/Pagination/Pagination';
+import { PAGINATION_SIZES } from '../../Journals/constants';
 import { reloadGrid } from '../../../actions/journals';
+import { wrapArgs } from '../../../helpers/redux';
 
-const mapStateToProps = state => ({
-  grid: state.journals.grid
-});
+const mapStateToProps = (state, props) => {
+  const newState = state.journals[props.stateId] || {};
 
-const mapDispatchToProps = dispatch => ({
-  reloadGrid: options => dispatch(reloadGrid(options))
-});
+  return {
+    grid: newState.grid,
+    journalSetting: newState.journalSetting
+  };
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
+
+  return {
+    reloadGrid: options => dispatch(reloadGrid(w(options)))
+  };
+};
 
 class JournalsDashletPagination extends Component {
-  onChangePage = pagination => this.props.reloadGrid({ pagination });
+  changePage = pagination => {
+    this.reloadGrid(pagination);
+  };
+
+  changeMaxItems = item => {
+    this.reloadGrid({ ...this.props.grid.pagination, maxItems: item.value });
+  };
+
+  reloadGrid = pagination => {
+    const { journalSetting, reloadGrid } = this.props;
+    const { columns, groupBy, sortBy, predicate } = journalSetting;
+
+    reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [], pagination });
+  };
 
   render() {
     const {
-      grid: { total, pagination, groupBy }
+      grid: { total, pagination, groupBy },
+      hasPageSize
     } = this.props;
 
     if (groupBy && groupBy.length) {
       return null;
     }
 
-    return <Pagination className={'ecos-journal-dashlet__pagination'} total={total} {...pagination} onChange={this.onChangePage} />;
+    return (
+      <Pagination
+        className={'ecos-journal-dashlet__pagination'}
+        total={total}
+        {...pagination}
+        sizes={PAGINATION_SIZES}
+        onChange={this.changePage}
+        onChangeMaxItems={this.changeMaxItems}
+        hasPageSize={hasPageSize}
+      />
+    );
   }
 }
 

@@ -1,0 +1,58 @@
+@import '../../constants.scss';
+
+.ecos-dashboard {
+  &__loader-wrapper {
+    background-color: $background-loader;
+  }
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    padding: 0 18px;
+    margin-bottom: 29px;
+
+    &-title {
+      display: inline-flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin-bottom: 5px;
+      margin-top: 30px;
+    }
+
+    &-name {
+      font-style: normal;
+      font-weight: bold;
+      font-size: 24px;
+      line-height: 33px;
+      color: $text-color-dark;
+      margin-right: 15px;
+    }
+
+    &-version {
+      font-style: normal;
+      font-weight: bold;
+      font-size: 18px;
+      line-height: 26px;
+      color: $color-white;
+      padding: 0 11px;
+      background: $color-gray-5;
+      border-radius: 100px;
+      display: inline-flex;
+      align-items: center;
+      text-align: center;
+    }
+
+    &-mod {
+      color: $color-gray-12;
+    }
+
+    &-user {
+      margin: 0 5px;
+      font-weight: $font-weight-semi-bold;
+    }
+
+    &-date {
+      text-transform: capitalize;
+    }
+  }
+}

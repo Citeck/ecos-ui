@@ -1,0 +1,318 @@
+@import '../../constants.scss';
+
+$indents-of-items: 15px;
+
+.ecos-layout {
+  $root: &;
+
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  padding: 0 13px;
+  margin-bottom: 30px;
+
+  &_left-menu {
+    -webkit-transform: translateX(60px);
+    -moz-transform: translateX(60px);
+    transform: translateX(60px);
+    transition: transform 0.3s;
+    width: calc(100% - 60px);
+  }
+
+  &__item {
+    $item: &;
+
+    position: relative;
+    width: 160px;
+
+    &-template {
+      $template: &;
+
+      display: flex;
+      height: 100px;
+      background: $color-gray-4;
+      border: $border-width-standard solid $color-gray-8;
+      box-sizing: border-box;
+      border-radius: $border-radius-standard;
+      cursor: pointer;
+      z-index: 1;
+
+      #{$root}__menu {
+        padding: 10px;
+      }
+
+      &:hover {
+        background: $color-gray-1;
+        border-color: $color-gray-5;
+
+        #{$root}__item-template-column {
+          border-color: $color-gray-5;
+        }
+
+        #{$root}__menu {
+          &-item-template,
+          &-left {
+            background: $color-gray-5;
+          }
+        }
+      }
+
+      &-column {
+        flex-grow: 1;
+        width: 100%;
+
+        &:not(:first-child) {
+          border-left: 1px $color-gray-9 solid;
+        }
+
+        &:not(:last-child) {
+          border-right: 1px $color-gray-9 solid;
+        }
+      }
+
+      &-columns-wrapper {
+        display: flex;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    &_active {
+      pointer-events: none;
+
+      #{$item}-template {
+        position: relative;
+        background: $color-blue-light2;
+        border-color: $color-blue-dark;
+        z-index: 2;
+      }
+
+      #{$root}__item-template {
+        &-column {
+          border-color: $color-blue-dark !important;
+        }
+      }
+
+      #{$root}__menu {
+        &-item-template,
+        &-left {
+          background: $color-blue-dark !important;
+        }
+      }
+
+      &-icon {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        font-size: 24px !important;
+
+        &:before {
+          position: absolute;
+          color: $color-blue-dark;
+          top: calc(50% - 1em / 2);
+          left: calc(50% - 21px / 2);
+          z-index: 2;
+        }
+
+        &:after {
+          $size: 18px;
+
+          content: '';
+          position: absolute;
+          background: $color-white;
+          top: calc(50% - #{$size} / 2);
+          left: calc(50% - #{$size} / 2);
+          width: $size;
+          height: $size;
+          border-radius: 50%;
+          z-index: 1;
+        }
+      }
+    }
+
+    &-description {
+      margin-top: 9px;
+      font-style: normal;
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-standard;
+      line-height: 18px;
+      color: $text-color-gray;
+    }
+  }
+
+  &__column {
+    width: 100%;
+    height: auto !important;
+    padding: 2px 0; // To fix shadow clipping in widgets
+
+    &:not(:first-child) {
+      margin-left: $indents-of-items;
+    }
+
+    &-wrapper {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+
+  &__menu {
+    display: flex;
+    width: 100%;
+    padding: 2px 13px 0;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+
+    &_big {
+      //margin-top: 37px;
+      //margin: 37px 0 22px 0;
+      margin: 30px 0 0 0;
+    }
+
+    &_top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-content: baseline;
+      width: 100%;
+    }
+
+    &-item {
+      display: flex;
+      //min-width: 290px;
+      padding: 13px 20px;
+      width: calc((100% - #{$indents-of-items} * 2) / 3);
+      height: 60px;
+      background: $color-white;
+      box-shadow: $box-shadow-default;
+      border-radius: 12px;
+      position: relative;
+      margin-bottom: $indents-of-items;
+      margin-right: $indents-of-items;
+
+      &:nth-child(3n) {
+        margin-right: 0;
+      }
+
+      &:last-child {
+        margin-right: 0;
+      }
+
+      &_sorting {
+        &:after {
+          display: none !important;
+        }
+      }
+
+      &-i {
+        &-next {
+          position: relative;
+          color: $color-blue-light;
+
+          &:before {
+            content: '\f0a9';
+            font-family: FontAwesome;
+            font-style: normal;
+            font-size: 26px;
+            position: absolute;
+            top: 0;
+            left: 0;
+          }
+        }
+
+        &-drag {
+          font-size: 28px;
+          color: $color-gray-1;
+          cursor: grab;
+
+          &:before {
+            position: absolute;
+            right: 0;
+            top: calc(50% - 1em / 2);
+          }
+        }
+      }
+
+      &-title {
+        font-style: normal;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-large;
+        line-height: 22px;
+        align-items: center;
+        color: $color-blue-light;
+        white-space: nowrap;
+        overflow: hidden;
+        display: block;
+        text-overflow: ellipsis;
+        margin: auto 0;
+        max-width: calc(100% - 40px);
+        padding-right: 10px;
+      }
+
+      &-template {
+        flex-basis: 30%;
+        height: 10px;
+        background: $color-gray-9;
+        margin-bottom: 5px;
+      }
+    }
+
+    &-left {
+      background: $color-gray-9;
+      flex-basis: 15%;
+      height: 100%;
+    }
+  }
+
+  &__droppable {
+    display: flex;
+    width: 100%;
+
+    .ecos-dnd__droppable-children-wrapper > :not(:last-child) {
+      margin-bottom: $indents-of-items;
+    }
+  }
+
+  &__element {
+    &:not(:last-child) {
+      margin-bottom: 15px;
+    }
+  }
+
+  .dashlet__btn_move {
+    pointer-events: none !important;
+  }
+}
+
+@media (max-width: 920px) {
+  .ecos-layout {
+    &__menu {
+      &-item {
+        width: calc((100% - #{$indents-of-items}) / 2);
+
+        &:nth-child(3n) {
+          margin-right: $indents-of-items;
+        }
+
+        &:nth-child(2n) {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .ecos-layout {
+    &__menu {
+      flex-direction: column;
+
+      &-item {
+        width: 100%;
+        margin-right: 0;
+      }
+    }
+  }
+}

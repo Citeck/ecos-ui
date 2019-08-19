@@ -2,6 +2,7 @@ import React from 'react';
 // import { NavLink } from 'react-router-dom';
 import { Col } from 'reactstrap';
 import cn from 'classnames';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
 import { t } from '../../../helpers/util';
 import styles from './ModelList.module.scss';
 
@@ -11,7 +12,7 @@ const ModelList = ({ label, author, datetime, viewLink, editLink, onViewLinkClic
   let editButton = <div className={styles.emptyActionIcon} />;
   if (canWrite) {
     editButton = (
-      <a href={editLink} className={styles.editActionIcon} onClick={onEditLinkClick}>
+      <a href={editLink} className={styles.editActionIcon} onClick={onEditLinkClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
         <span className={'icon-edit'} />
       </a>
     );
@@ -32,7 +33,7 @@ const ModelList = ({ label, author, datetime, viewLink, editLink, onViewLinkClic
           {/*<NavLink to={viewLink} className={styles.viewCard}>*/}
           {/*{t('bpmn-designer.view-button')}*/}
           {/*</NavLink>*/}
-          <a href={viewLink} onClick={onViewLinkClick} className={styles.viewCard}>
+          <a href={viewLink} onClick={onViewLinkClick} className={styles.viewCard} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
             {t('bpmn-designer.view-button')}
           </a>
           {editButton}

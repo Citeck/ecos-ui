@@ -1,0 +1,149 @@
+@import '../../constants';
+
+%h-indents {
+  padding: 0 20px;
+}
+
+%ellipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.ecos-current-task {
+  $root: &;
+
+  &-list {
+    &__v-scroll {
+      @extend %v-scroll;
+    }
+
+    &-dashlet {
+      height: fit-content;
+    }
+
+    &__loader {
+      height: 100%;
+    }
+
+    &_view-enum {
+    }
+
+    &_view-table {
+      padding: 0 20px;
+
+      .table {
+        border-top: none;
+
+        th {
+          border-top: none;
+        }
+      }
+
+      .ecos-th {
+        font-weight: $font-weight-bold;
+      }
+
+      .ecos-grid__td {
+        font-weight: $font-weight-semi-bold;
+      }
+    }
+  }
+
+  &-info {
+    $info: &;
+
+    &__title {
+      height: 51px;
+      padding: 0 20px;
+      font-size: $font-size-standard;
+      font-weight: $font-weight-bold;
+      color: $color-gray-dark;
+      background-color: $color-yellow;
+      line-height: 3.5;
+      @extend %ellipsis;
+    }
+
+    &__separator {
+      margin: 11px 0;
+    }
+
+    &__fields {
+      margin: 14px 16px;
+      color: $text-color-dark;
+
+      #{$info}-label {
+        min-height: 17px;
+        font-weight: $font-weight-bold;
+        margin-bottom: 9px;
+      }
+
+      #{$info}-value {
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-small;
+        min-height: 20px;
+
+        &_mobile {
+          display: flex;
+
+          &-val {
+            flex: 1;
+          }
+
+          &-icon {
+            position: relative;
+            top: -20px;
+          }
+        }
+
+        &_add {
+          margin-top: 23px;
+          font-weight: $font-weight-semi-bold;
+        }
+      }
+    }
+  }
+
+  &__icon {
+    color: $color-gray-6;
+    font-size: 17px;
+    margin-left: 10px;
+
+    &-wrap {
+      display: inline-block;
+    }
+
+    &:hover,
+    &_open {
+      color: $color-blue-light;
+      cursor: pointer;
+    }
+
+    &_big {
+      font-size: 32px;
+    }
+  }
+
+  &_no-data {
+    color: $color-gray-5;
+  }
+
+  &__tooltip {
+    .ecos-base-tooltip-inner {
+      text-align: left;
+      white-space: pre;
+      padding: 0;
+      font-size: $font-size-small;
+      line-height: 18px;
+    }
+
+    &-text {
+      padding: 15px 0 15px 15px;
+      min-width: 153px;
+    }
+
+    &__v-scroll {
+      @extend %v-scroll;
+    }
+  }
+}

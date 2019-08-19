@@ -1,12 +1,64 @@
-import React from 'react';
+import React, { Fragment } from 'react';
+import connect from 'react-redux/es/connect/connect';
 import { Journals } from '../../components/Journals';
-import queryString from 'query-string';
+import { JournalsUrlManager } from '../../components/Journals';
+import { getId } from '../../helpers/util';
+import { initState } from '../../actions/journals';
 
-export default class JournalsPage extends React.Component {
+const mapDispatchToProps = dispatch => ({
+  initState: stateId => dispatch(initState(stateId))
+});
+
+const mapStateToProps = state => {
+  return {
+    tabs: state.pageTabs.tabs,
+    pageTabsIsShow: state.pageTabs.isShow
+  };
+};
+
+class JournalsPage extends React.Component {
+  constructor(props) {
+    super(props);
+
+    const stateId = this.getStateId();
+
+    this.state = { stateId };
+    this.props.initState(stateId);
+  }
+
+  getStateId = () => {
+    return this.getActiveTabId() || this.state.stateId || getId();
+  };
+
+  getActiveTabId = () => {
+    return (this.props.tabs.filter(t => t.isActive)[0] || {}).id;
+  };
+
+  componentDidUpdate = () => {
+    const stateId = this.getStateId();
+
+    if (stateId !== this.state.stateId) {
+      this.props.initState(stateId);
+      this.setState({ stateId });
+    }
+  };
+
   render() {
-    const params = queryString.parse(this.props.location.search);
-    const { journalsListId = '', journalId = '', journalSettingId = '' } = params;
+    const stateId = this.state.stateId;
 
-    return <Journals journalsListId={journalsListId} journalId={journalId} journalSettingId={journalSettingId} />;
+    return (
+      <Fragment>
+        {stateId === this.getStateId() ? (
+          <JournalsUrlManager stateId={stateId}>
+            <Journals stateId={stateId} />
+          </JournalsUrlManager>
+        ) : null}
+      </Fragment>
+    );
   }
 }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(JournalsPage);

@@ -31,6 +31,7 @@ export const getJournalsData = createAction(prefix + 'GET_JOURNALS_DATA');
 export const saveJournalSetting = createAction(prefix + 'SAVE_JOURNAL_SETTING');
 export const createJournalSetting = createAction(prefix + 'CREATE_JOURNAL_SETTING');
 export const deleteJournalSetting = createAction(prefix + 'DELETE_JOURNAL_SETTING');
+export const renameJournalSetting = createAction(prefix + 'RENAME_JOURNAL_SETTING');
 export const setJournalSetting = createAction(prefix + 'SET_JOURNAL_SETTING');
 export const setJournalSettings = createAction(prefix + 'SET_JOURNAL_SETTINGS');
 
@@ -38,6 +39,7 @@ export const setPredicate = createAction(prefix + 'SET_PREDICATE');
 export const setColumnsSetup = createAction(prefix + 'SET_COLUMNS_SETUP');
 export const setGrouping = createAction(prefix + 'SET_GROUPING');
 export const initJournalSettingData = createAction(prefix + 'INIT_JOURNAL_SETTING_DATA');
+export const cancelJournalSettingData = createAction(prefix + 'CANCEL_JOURNAL_SETTING_DATA');
 
 export const onJournalSettingsSelect = createAction(prefix + 'ON_JOURNAL_SETTINGS_SELECT');
 export const onJournalSelect = createAction(prefix + 'ON_JOURNAL_SELECT');
@@ -46,3 +48,10 @@ export const initPreview = createAction(prefix + 'INIT_PREVIEW');
 export const setPreviewUrl = createAction(prefix + 'SET_PREVIEW_URL');
 
 export const goToJournalsPage = createAction(prefix + 'GO_TO_JOURNALS_PAGE');
+export const search = createAction(prefix + 'SEARCH');
+export const setUrl = createAction(prefix + 'SET_URL');
+export const initState = createAction(prefix + 'INIT_STATE');
+export const performGroupAction = createAction(prefix + 'PERFORM_GROUP_ACTION');
+export const setPerformGroupActionResponse = createAction(prefix + 'SET_PERFORM_GROUP_ACTION_RESPONSE');
+export const createZip = createAction(prefix + 'CREATE_ZIP');
+export const setZipNodeRef = createAction(prefix + 'SET_ZIP_NODEREF');

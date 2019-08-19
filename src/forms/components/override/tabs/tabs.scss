@@ -30,12 +30,23 @@ $small-size: 28px;
       max-width: 100%;
       overflow-y: hidden;
       overflow-x: auto;
+
+      // hide scrollbar
+      -ms-overflow-style: none; // Internet Explorer 10+
+      scrollbar-width: none; // Firefox
+      &::-webkit-scrollbar {
+        display: none; // Safari and Chrome
+      }
     }
 
     .nav-item {
       font-size: $font-size-standard;
       margin-right: 2px;
       margin-bottom: 0;
+
+      &.hidden {
+        display: none;
+      }
 
       .nav-link {
         background: $color-gray-4;
@@ -242,5 +253,17 @@ $small-size: 28px;
     .formio-component-tabs-scroll-wrapper {
       max-width: calc(100% - 80px);
     }
+  }
+}
+
+.ecos-modal {
+  .tab-content_scrollable {
+    border: 2px solid $color-gray-4;
+    border-right-width: 0;
+    border-left-width: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 0 -20px 20px -20px;
+    padding: 15px;
   }
 }

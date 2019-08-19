@@ -69,9 +69,19 @@ button {
   &.ecos-btn_transparent {
     background-color: rgba(0, 0, 0, 0);
 
-    &:hover {
+    &:hover,
+    &:active,
+    &:focus {
       background-color: rgba(0, 0, 0, 0);
     }
+  }
+
+  &.ecos-btn_float_right {
+    float: right;
+  }
+
+  &.ecos-btn_padding_small {
+    padding: 9px 10px;
   }
 
   &.ecos-btn_i {
@@ -156,6 +166,12 @@ button {
     font-size: $font-size-small;
     width: 12px;
     height: 12px;
+    padding: 0;
+  }
+
+  &.ecos-btn_i_15 {
+    font-size: $font-size-15;
+    height: 20px;
     padding: 0;
   }
 
@@ -254,6 +270,18 @@ button {
     color: $color-white;
   }
 
+  &.ecos-btn_color_blue-light2 {
+    color: $color-blue-light2;
+  }
+
+  &.ecos-btn_color_red {
+    color: $color-red-1;
+  }
+
+  &.ecos-btn_color_green {
+    color: $color-green1;
+  }
+
   &.ecos-btn_white {
     background: $color-white;
     color: $color-gray-5;
@@ -329,10 +357,17 @@ button {
   &.ecos-btn_brown {
     background: $color-white;
     color: $color-brown-2;
+
+    &:active,
+    &:focus {
+      background: $color-white;
+      color: $color-brown-2;
+    }
   }
 
   &.ecos-btn_bgr-inherit {
     background: inherit;
+
     &:active,
     &:focus {
       background: inherit;
@@ -341,6 +376,17 @@ button {
 
   &.ecos-btn_color-inherit {
     color: inherit;
+  }
+
+  &.ecos-btn_no-back {
+    color: $color-white;
+    background: transparent;
+
+    &:active,
+    &:focus,
+    &:hover {
+      background: transparent;
+    }
   }
 
   /*hovers*/
@@ -354,6 +400,31 @@ button {
   &.ecos-btn_hover_blue2 {
     &:hover {
       background-color: $color-blue-dark;
+      color: $color-white;
+    }
+  }
+
+  &.ecos-btn_hover_t_red {
+    &:hover {
+      color: $color-red-1;
+      background: $color-white;
+    }
+  }
+
+  &.ecos-btn_hover_t_light-red {
+    &:hover {
+      color: lighten($color-red-1, 10%);
+    }
+  }
+
+  &.ecos-btn_hover_t_light-green {
+    &:hover {
+      color: lighten($color-green1, 10%);
+    }
+  }
+
+  &.ecos-btn_hover_t_white {
+    &:hover {
       color: $color-white;
     }
   }
@@ -376,6 +447,7 @@ button {
       color: $color-blue-light;
       background: inherit;
     }
+
     &:active {
       color: $color-blue-dark;
       background: inherit;
@@ -429,6 +501,23 @@ button {
     }
   }
 
+  /*active, focus*/
+  &.ecos-btn_active_blue {
+    &:focus,
+    &:active {
+      color: $color-blue-dark;
+      background: $color-white;
+    }
+  }
+
+  &.ecos-btn_active_blue2 {
+    &:focus,
+    &:active {
+      color: $color-white;
+      background: $color-blue-dark;
+    }
+  }
+
   /* Width */
   &.ecos-btn_full-width {
     margin-top: 10px;
@@ -437,5 +526,19 @@ button {
 
   &.ecos-btn_full-height {
     height: 100%;
+  }
+
+  &.ecos-btn_red {
+    background: $color-red-1;
+    color: $color-white;
+
+    &:focus {
+      background: $color-red-1;
+      color: $color-white;
+    }
+
+    &:hover {
+      background: lighten($color-red-1, 10%);
+    }
   }
 }

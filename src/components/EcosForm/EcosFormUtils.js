@@ -1,4 +1,5 @@
 import Records from '../Records/Records';
+import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
@@ -6,6 +7,10 @@ import isString from 'lodash/isString';
 const EDGE_PREFIX = 'edge__';
 
 export default class EcosFormUtils {
+  static isNewFormsEnabled() {
+    return Records.get('ecos-config@ecos-forms-enable').load('.bool');
+  }
+
   static hasForm(recordRef, formKey = null) {
     if (!recordRef) {
       return Promise.resolve(false);
@@ -22,17 +27,56 @@ export default class EcosFormUtils {
     let recordInstance = isString(record) ? Records.get(record) : record;
     recordInstance = recordInstance.getBaseRecord();
 
-    const query = {
-      sourceId: 'eform',
-      query: {
-        record: recordInstance.id,
-        formKey: formKey
+    let getFormByRecord = () => {
+      const query = {
+        sourceId: 'eform',
+        query: {
+          record: recordInstance.id,
+          formKey: formKey
+        }
+      };
+      if (attributes) {
+        return Records.queryOne(query, attributes);
+      } else {
+        return Records.queryOne(query);
       }
     };
-    if (attributes) {
-      return Records.queryOne(query, attributes);
+
+    let getFormByKeysFromRecord = (keys, idx) => {
+      if (!keys || idx >= keys.length) {
+        return null;
+      }
+
+      let query = {
+        sourceId: 'eform',
+        query: {
+          record: recordInstance.id,
+          formKey: keys[idx]
+        }
+      };
+
+      let formRec;
+      if (attributes) {
+        formRec = Records.queryOne(query, attributes);
+      } else {
+        formRec = Records.queryOne(query);
+      }
+
+      return formRec.then(res => {
+        if (res) {
+          return res;
+        } else {
+          return getFormByKeysFromRecord(keys, idx + 1);
+        }
+      });
+    };
+
+    if (!formKey && recordInstance && (recordInstance.id || '').indexOf('/') > 0) {
+      return recordInstance.load('_formKey[]').then(keys => {
+        return getFormByKeysFromRecord(keys, 0);
+      });
     } else {
-      return Records.queryOne(query);
+      return getFormByRecord();
     }
   }
 
@@ -127,6 +171,9 @@ export default class EcosFormUtils {
           case 'selectJournal':
             attributeSchema = 'assoc';
             break;
+          case 'container':
+            attributeSchema = 'json';
+            break;
           case 'file':
             attributeSchema = 'as(n:"content-data"){json}';
             break;
@@ -203,6 +250,8 @@ export default class EcosFormUtils {
               let input = inputByKey[att];
               if (input && input.dataType === 'json-record') {
                 submission[att] = EcosFormUtils.initJsonRecord(recordData[att]);
+              } else if (input && input.component && input.component.type === 'file') {
+                submission[att] = EcosFormUtils.removeEmptyValuesFromArray(recordData[att]);
               } else {
                 submission[att] = recordData[att];
               }
@@ -215,6 +264,14 @@ export default class EcosFormUtils {
           submission
         };
       });
+  }
+
+  static removeEmptyValuesFromArray(data) {
+    if (!Array.isArray(data)) {
+      return data;
+    }
+
+    return data.filter(item => !isEmpty(item));
   }
 
   static initJsonRecord(data) {

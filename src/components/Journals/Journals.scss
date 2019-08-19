@@ -39,6 +39,11 @@
   }
 }
 
+.ecos-journal__menu_tabs {
+  margin-top: 15px;
+  border-top-left-radius: $border-radius-extra-large;
+}
+
 .ecos-journal__visibility-menu-btn {
   width: 100%;
   text-align: right;
@@ -47,7 +52,11 @@
 
 .ecos-journal__caption {
   width: 100%;
-  margin-bottom: 13px;
+  margin-bottom: 20px;
+}
+
+.ecos-journal__caption_align_top {
+  line-height: 0.9;
 }
 
 /*Tools*/
@@ -80,6 +89,11 @@
   position: absolute;
   right: 0;
   top: 0;
+}
+
+.ecos-journal__settings-bar_right-btn {
+  position: relative;
+  top: -1px;
 }
 
 .ecos-journal__settings-footer {

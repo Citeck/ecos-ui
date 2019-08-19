@@ -50,7 +50,7 @@
 }
 
 .ecos-th__filter-tooltip {
-  padding: 0.7rem 0;
+  //padding: 0.7rem 0;
 
   .ecos-th__filter-tooltip-body {
     background-color: $color-white;
@@ -103,4 +103,8 @@
 .ecos-th__order {
   font-size: $font-size-small;
   color: $color-gray-5;
+}
+
+.ecos-th__pointer {
+  cursor: pointer;
 }

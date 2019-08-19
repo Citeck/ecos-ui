@@ -1,14 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
 import Columns from '../common/templates/Columns/Columns';
+import Checkbox from '../common/form/Checkbox/Checkbox';
+import Select from '../common/form/Select/Select';
 import { Label } from '../common/form';
 import { Dnd2List, List } from '../common/List';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { NUMBERS } from '../../components/common/form/SelectJournal/predicates';
 import { t, trigger } from '../../helpers/util';
 
 import './Grouping.scss';
-import Checkbox from '../common/form/Checkbox/Checkbox';
-import Select from '../common/form/Select/Select';
 
 class ListItem extends Component {
   render() {
@@ -74,7 +75,10 @@ class AggregationListItem extends Component {
 export default class Grouping extends Component {
   onGrouping = state => {
     const { valueField, aggregation } = this.props;
-    const columns = state.second;
+    const columns = state.second.map(c => ({
+      ...c,
+      formatter: c.type === 'assoc' || c.type === 'options' ? 'StrAndDispFormatter' : c.formatter
+    }));
     const groupBy = columns.map(col => col[valueField]).join('&');
 
     trigger.call(this, 'onGrouping', {
@@ -115,7 +119,9 @@ export default class Grouping extends Component {
   };
 
   getAggregationList = () => {
-    const { list, titleField, aggregation } = this.props;
+    let { list, titleField, aggregation } = this.props;
+
+    list = list.filter(l => NUMBERS.filter(n => n === l.type)[0]);
 
     return list.map(column => {
       const selected =
