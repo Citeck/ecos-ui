@@ -4,7 +4,7 @@ import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJournal/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
 import { changeUrlLink } from '../components/PageTabs/PageTabs';
-import { hasInString } from './util';
+import { isNewVersionPage } from './export/urls';
 
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
 const JOURNAL_ID_KEY = 'journalId';
@@ -13,7 +13,7 @@ const TYPE_KEY = 'type';
 const DESTINATION_KEY = 'destination';
 const FILTER_KEY = 'filter';
 
-export const NEW_VERSION_PREFIX = '/v2';
+export { NEW_VERSION_PREFIX, isNewVersionPage } from './export/urls';
 
 export const OLD_LINKS = false;
 
@@ -118,10 +118,6 @@ export const goToCardDetailsPage = nodeRef => {
 };
 
 export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page?nodeRef=${nodeRef}`, '_blank');
-
-export const isNewVersionPage = (link = window.location.pathname) => {
-  return hasInString(link, `${NEW_VERSION_PREFIX}/`);
-};
 
 /**
  * Метод перебирает и сортирует параметры из url
