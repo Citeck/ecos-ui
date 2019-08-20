@@ -11,7 +11,7 @@ import { t } from '../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE } from '../../constants';
 
 const LABELS = {
-  DOWNLOAD: 'Скачать'
+  DOWNLOAD: 'versions-journal-widget.modal.download'
 };
 
 class ComparisonModal extends Component {
