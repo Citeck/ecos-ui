@@ -83,7 +83,7 @@ class DashboardSettings extends React.Component {
       availableMenuItems: DndUtils.setDndId(props.availableMenuItems),
       urlParams: getSortedUrlParams(),
       tabs: [],
-      scrollTabToRight: false
+      scrollTabToEnd: false
     };
 
     this.state = {
@@ -282,7 +282,7 @@ class DashboardSettings extends React.Component {
         title = t('dashboard-settings.page-title');
         break;
       case DashboardTypes.CASE_DETAILS:
-        title = t('Настройки карточек кейсов');
+        title = t('Настройка карточек');
         break;
       default:
         title = t('Настройка отображения страницы');
@@ -316,8 +316,8 @@ class DashboardSettings extends React.Component {
 
     tabs.push(newTab);
 
-    this.setState({ tabs, scrollTabToRight: true }, () => {
-      this.setState({ scrollTabToRight: false });
+    this.setState({ tabs, scrollTabToEnd: true }, () => {
+      this.setState({ scrollTabToEnd: false });
     });
   };
 
@@ -344,11 +344,7 @@ class DashboardSettings extends React.Component {
 
   onSortTabs = sortedTabs => {
     this.setState({
-      tabs: sortedTabs.map(item => {
-        const { label, idLayout } = item;
-
-        return { label, idLayout };
-      })
+      tabs: sortedTabs.map(({ label, idLayout }) => ({ label, idLayout }))
     });
   };
 
@@ -357,16 +353,16 @@ class DashboardSettings extends React.Component {
       return null;
     }
 
-    const { tabs, activeLayoutId, scrollTabToRight } = this.state;
+    const { tabs, activeLayoutId, scrollTabToEnd } = this.state;
     const cloneTabs = deepClone(tabs);
 
     return (
       <React.Fragment>
         <h6 className="ecos-dashboard-settings__container-subtitle">
-          {t('Отредактируйте количество и содержимое табов для выбранного типа кейса')}
+          {t('Отредактируйте количество и содержимое табов для соответствующего типа дашборда')}
         </h6>
         <div className="ecos-dashboard-settings__tabs-wrapper">
-          <ScrollArrow scrollToRight={scrollTabToRight}>
+          <ScrollArrow scrollToEnd={scrollTabToEnd}>
             <EditTabs
               className="ecos-dashboard-settings__tabs-block"
               classNameTab="ecos-dashboard-settings__tabs-item"
@@ -640,7 +636,7 @@ class DashboardSettings extends React.Component {
     const { draggableDestination } = this.state;
     const { columns = [] } = this.selectedTypeLayout;
     const { widgets } = this.activeData;
-    console.log(widgets);
+
     return (
       <div className={'ecos-dashboard-settings__drag-container_widgets-to'}>
         {columns.map((column, indexColumn) => {

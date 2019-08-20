@@ -9,13 +9,16 @@ export default class ScrollArrow extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     step: PropTypes.number,
-    scrollToRight: PropTypes.bool
+    updateWhenDataChange: PropTypes.bool,
+    scrollToEnd: PropTypes.bool,
+    scrollToSide: PropTypes.oneOf([0, -1, 1])
   };
 
   static defaultProps = {
     className: '',
     step: 190,
-    scrollToRight: false
+    scrollToEnd: false,
+    scrollToSide: 0
   };
 
   refScroll = React.createRef();
@@ -26,16 +29,24 @@ export default class ScrollArrow extends React.Component {
   };
 
   componentWillReceiveProps(nextProps, nextContext) {
-    const { scrollToRight, updateScroll } = this.props;
+    const { scrollToEnd, scrollToSide } = this.props;
 
-    if (!scrollToRight && nextProps.scrollToRight) {
+    if (!scrollToEnd && nextProps.scrollToEnd) {
       const wTabs = get(this.refChild, 'current.scrollWidth', 0);
 
       set(this.refScroll, 'current.scrollLeft', wTabs);
     }
+
+    if (nextProps.scrollToSide !== 0 && scrollToSide !== nextProps.scrollToSide) {
+      this.doScroll(nextProps.scrollToSide);
+    }
   }
 
-  componentDidMount(prevProps) {
+  componentDidMount() {
+    this.checkSize();
+  }
+
+  componentDidUpdate(prevProps) {
     this.checkSize();
   }
 
@@ -49,7 +60,7 @@ export default class ScrollArrow extends React.Component {
     const { isShowBtnScroll: old } = this.state;
     const wScroll = get(this.refScroll, 'current.offsetWidth', 0);
     const wChild = get(this.refChild, 'current.scrollWidth', 0);
-    const isShowBtnScroll = parseInt(wScroll) < parseInt(wChild);
+    const isShowBtnScroll = wScroll < wChild;
 
     if (isShowBtnScroll !== old) {
       this.setState({ isShowBtnScroll });
