@@ -13,6 +13,7 @@ import { getDownloadContentUrl, goToCardDetailsPage, goToNodeEditPage } from '..
 import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
+import { PROXY_URI } from '../../../constants/alfresco';
 import classNames from 'classnames';
 import {
   deleteRecords,
@@ -330,6 +331,64 @@ class JournalsDashletGrid extends Component {
     this.delete = this.deleteRecords;
   };
 
+  renderPerformGroupActionResponse = performGroupActionResponse => {
+    const { className } = this.props;
+    const performGroupActionResponseUrl = (performGroupActionResponse[0] || {}).url;
+
+    return (
+      <EmptyGrid maxItems={performGroupActionResponse.length}>
+        {performGroupActionResponseUrl ? (
+          <Grid
+            keyField={'link'}
+            data={[
+              {
+                status: t('group-action.label.report'),
+                link: performGroupActionResponseUrl
+              }
+            ]}
+            columns={[
+              {
+                dataField: 'status',
+                text: t('group-action.label.status')
+              },
+              {
+                dataField: 'link',
+                text: t('actions.document.download'),
+                formatExtraData: {
+                  formatter: ({ cell }) => {
+                    const html = `<a href="${PROXY_URI + cell}" onclick="event.stopPropagation()">${t('actions.document.download')}</a>`;
+                    return <span dangerouslySetInnerHTML={{ __html: html }} />;
+                  }
+                }
+              }
+            ]}
+            className={className}
+          />
+        ) : (
+          <Grid
+            keyField={'nodeRef'}
+            data={performGroupActionResponse}
+            columns={[
+              {
+                dataField: 'title',
+                text: t('group-action.label.record')
+              },
+              {
+                dataField: 'status',
+                text: t('group-action.label.status')
+              },
+              {
+                dataField: 'message',
+                text: t('group-action.label.message')
+              }
+            ]}
+            className={className}
+          />
+        )}
+      </EmptyGrid>
+    );
+  };
+
   render() {
     const {
       selectedRecords,
@@ -388,27 +447,7 @@ class JournalsDashletGrid extends Component {
           hideModal={this.closePerformGroupActionDialog}
           className={'journal__dialog'}
         >
-          <EmptyGrid maxItems={performGroupActionResponse.length}>
-            <Grid
-              keyField={'nodeRef'}
-              data={performGroupActionResponse}
-              columns={[
-                {
-                  dataField: 'title',
-                  text: 'Запись'
-                },
-                {
-                  dataField: 'status',
-                  text: 'Статус'
-                },
-                {
-                  dataField: 'message',
-                  text: 'Описание'
-                }
-              ]}
-              className={className}
-            />
-          </EmptyGrid>
+          {this.renderPerformGroupActionResponse(performGroupActionResponse)}
         </EcosModal>
 
         <RemoveDialog
