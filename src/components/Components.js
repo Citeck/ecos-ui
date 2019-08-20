@@ -1,9 +1,10 @@
 import loadable from '@loadable/component';
 import get from 'lodash/get';
-import { deepClone, t } from '../helpers/util';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import uuidV4 from 'uuid/v4';
+import { deepClone, t } from '../helpers/util';
+import { DashboardTypes } from '../constants/dashboard';
 
 export const ComponentKeys = {
   LOGIN: 'login',
@@ -19,58 +20,52 @@ export const ComponentKeys = {
   VERSIONS_JOURNAL: 'versions-journal'
 };
 
-export const DASHBOARD_TYPE = {
-  CASE_DETAILS: 'case-details',
-  USER: 'user-dashboard',
-  SITE: 'site-dashboard'
-};
-
 export default class Components {
   static components = {
     [ComponentKeys.DOC_PREVIEW]: {
       path: './DocPreview',
       label: 'dashboard-settings.widget.preview',
-      supportedDashboardTypes: [DASHBOARD_TYPE.CASE_DETAILS]
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.JOURNAL]: {
       path: './Journals/JournalsDashlet/JournalsDashlet',
       label: 'dashboard-settings.widget.journal',
-      supportedDashboardTypes: [DASHBOARD_TYPE.CASE_DETAILS, DASHBOARD_TYPE.SITE, DASHBOARD_TYPE.USER]
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.SITE, DashboardTypes.USER]
     },
     [ComponentKeys.COMMENTS]: {
       path: './Comments',
       label: 'dashboard-settings.widget.comments',
-      supportedDashboardTypes: [DASHBOARD_TYPE.CASE_DETAILS]
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.PROPERTIES]: {
       path: './Properties',
       label: 'dashboard-settings.widget.properties',
-      supportedDashboardTypes: [DASHBOARD_TYPE.CASE_DETAILS]
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.TASKS]: {
       path: './Tasks',
       label: 'dashboard-settings.widget.tasks',
-      supportedDashboardTypes: [DASHBOARD_TYPE.CASE_DETAILS]
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.CURRENT_TASKS]: {
       path: './CurrentTasks',
       label: 'dashboard-settings.widget.current-tasks',
-      supportedDashboardTypes: [DASHBOARD_TYPE.CASE_DETAILS]
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.DOC_STATUS]: {
       path: './DocStatus',
       label: 'dashboard-settings.widget.doc-status',
-      supportedDashboardTypes: [DASHBOARD_TYPE.CASE_DETAILS]
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.EVENTS_HISTORY]: {
       path: './EventsHistory',
       label: 'dashboard-settings.widget.events-history',
-      supportedDashboardTypes: [DASHBOARD_TYPE.CASE_DETAILS]
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.VERSIONS_JOURNAL]: {
       path: './VersionsJournal',
       label: 'dashboard-settings.widget.versions-journal',
-      supportedDashboardTypes: [DASHBOARD_TYPE.CASE_DETAILS]
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     }
   };
 
@@ -84,7 +79,7 @@ export default class Components {
     return loadable(() => import(`${link}`));
   }
 
-  static getComponentsFullData(dashboardType = DASHBOARD_TYPE.CASE_DETAILS) {
+  static getComponentsFullData(dashboardType = DashboardTypes.CASE_DETAILS) {
     const arrComponents = [];
 
     Object.entries(Components.components).forEach(([name, component]) => {
