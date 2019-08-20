@@ -18,7 +18,6 @@ import { SAVE_STATUS } from '../constants';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
-    yield put(getAvailableWidgets());
     yield put(getDashboardConfig(payload));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error1')));
@@ -35,6 +34,7 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
       const webConfig = DashboardSettingsConverter.getSettingsConfigForWeb(data);
 
       yield put(setDashboardConfig(webConfig));
+      yield put(getAvailableWidgets(data.type));
     } else {
       yield put(setNotificationMessage(t('dashboard-settings.error2')));
     }
@@ -44,9 +44,9 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   }
 }
 
-function* doGetWidgetsRequest({ api, logger }, action) {
+function* doGetWidgetsRequest({ api, logger }, { payload }) {
   try {
-    const apiData = yield call(api.dashboard.getAllWidgets);
+    const apiData = yield call(api.dashboard.getWidgetsByDashboardType, payload);
 
     yield put(setAvailableWidgets(apiData));
   } catch (e) {
