@@ -102,7 +102,7 @@ class ImgViewer extends Component {
 
     return (
       <div className={classNames(_pageCtr, `${_pageCtr}_img`)} ref={this.refImgCtr}>
-        <img src={src} alt={src} style={this.styleZoom} className={`${_pageCtr}__content`} ref={this.refImg} />
+        <img src={src} alt={src} style={this.styleZoom} className={`${_pageCtr}-content`} ref={this.refImg} />
       </div>
     );
   }

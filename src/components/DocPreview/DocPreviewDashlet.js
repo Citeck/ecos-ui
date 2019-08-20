@@ -93,6 +93,7 @@ class DocPreviewDashlet extends Component {
           maxHeight={fitHeights.max}
           scale={scale}
           setUserScale={this.setUserScale}
+          resizable
         />
       </Dashlet>
     );
