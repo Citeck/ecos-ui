@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
-import { PROXY_URI_SHORT } from '../../../constants/alfresco';
 import DocPreview from '../../DocPreview/DocPreview';
 import '../../DocPreview/style.scss';
 import './JournalsPreview.scss';
@@ -17,7 +16,7 @@ const mapStateToProps = (state, props) => {
 class JournalsPreview extends Component {
   render() {
     const { previewUrl } = this.props;
-    const link = previewUrl ? `${PROXY_URI_SHORT}${previewUrl}` : '';
+    const link = previewUrl ? `${previewUrl}` : '';
 
     return (
       <div className={classNames('ecos-journals-preview', this.props.className)}>

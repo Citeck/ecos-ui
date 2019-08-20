@@ -31,7 +31,9 @@ export default class VersionsJournalConverter {
     target.name = source.name || '';
     target.id = source.id || '';
     target.url = source.downloadUrl || '';
-    target.avatar = `/share/proxy/alfresco/citeck/ecos/image/thumbnail?nodeRef=${source.modifierId}&property=ecos:photo&width=50`;
+    target.avatar = source.modifierId
+      ? `/share/proxy/alfresco/citeck/ecos/image/thumbnail?nodeRef=${source.modifierId}&property=ecos:photo&width=50`
+      : '';
 
     return target;
   }
@@ -77,6 +79,19 @@ export default class VersionsJournalConverter {
     target.comment = source.comment || '';
     target.version = source.version || 1;
     target.majorVersion = source.isMajor || false;
+
+    return target;
+  }
+
+  static getVersionsComparisonForServer(source = {}) {
+    const target = {};
+
+    if (!source || (source && !Object.keys(source))) {
+      return target;
+    }
+
+    target.first = source.comparisonFirstVersion;
+    target.second = source.comparisonSecondVersion;
 
     return target;
   }

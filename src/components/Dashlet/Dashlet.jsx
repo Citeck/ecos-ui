@@ -25,7 +25,8 @@ const Header = ({
   actionDrag,
   measurer,
   actionEditTitle,
-  customButtons
+  customButtons,
+  titleClassName
 }) => {
   const btnGoTo = (
     <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className={'dashlet__btn ecos-btn_narrow'} onClick={onGoTo}>
@@ -85,7 +86,7 @@ const Header = ({
 
   return (
     <div className={'dashlet__header'}>
-      <span className={'dashlet__caption'}>{title}</span>
+      <span className={classNames('dashlet__caption', titleClassName)}>{title}</span>
 
       {needGoTo && btnGoTo}
 
@@ -99,6 +100,7 @@ export default class Dashlet extends Component {
     title: PropTypes.string,
     className: PropTypes.string,
     bodyClassName: PropTypes.string,
+    titleClassName: PropTypes.string,
     actionEditTitle: PropTypes.string,
     needGoTo: PropTypes.bool,
     actionReload: PropTypes.bool,
@@ -122,6 +124,7 @@ export default class Dashlet extends Component {
     title: '',
     className: '',
     bodyClassName: '',
+    titleClassName: '',
     needGoTo: true,
     actionReload: true,
     actionEdit: true,
@@ -200,6 +203,7 @@ export default class Dashlet extends Component {
       title,
       className,
       bodyClassName,
+      titleClassName,
       actionEditTitle,
       needGoTo,
       actionReload,
@@ -237,6 +241,7 @@ export default class Dashlet extends Component {
                 dragHandleProps={dragHandleProps}
                 actionEditTitle={actionEditTitle}
                 customButtons={customButtons}
+                titleClassName={titleClassName}
               />
             </Measurer>
           }

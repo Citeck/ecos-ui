@@ -87,6 +87,7 @@ export default class Pagination extends Component {
             options={sizes}
             value={sizes.filter(s => s.value === maxItems)}
             onChange={this.onChangeMaxItems}
+            menuPlacement={'auto'}
           />
         ) : null}
       </div>

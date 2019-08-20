@@ -27,7 +27,7 @@ class JournalsPage extends React.Component {
   }
 
   getStateId = () => {
-    return this.getActiveTabId() || this.state.stateId || getId();
+    return this.getActiveTabId() || (this.state || {}).stateId || getId();
   };
 
   getActiveTabId = () => {

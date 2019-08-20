@@ -9,14 +9,18 @@ import Btn from '../common/btns/Btn/Btn';
 import { VERSIONS } from '../../constants/versionsJournal';
 
 const LABELS = {
-  CANCEL: 'Отмена',
-  ADD: 'Сохранить',
+  CANCEL: 'versions-journal-widget.modal.cancel',
+  ADD: 'versions-journal-widget.modal.save',
 
-  VERSION_MINOR: 'Незначительные изменения',
-  VERSION_MAJOR: 'Существенные изменения',
+  VERSION_MINOR: 'versions-journal-widget.modal.version_minor',
+  VERSION_MAJOR: 'versions-journal-widget.modal.version_major',
 
-  COMMENT_TITLE: 'Комментарий',
-  COMMENT_PLACEHOLDER: ['Не обязательно', 'не более', 'символов']
+  COMMENT_TITLE: 'versions-journal-widget.modal.comment_title',
+  COMMENT_PLACEHOLDER: [
+    'versions-journal-widget.modal.comment_placeholder_not_necessary',
+    'versions-journal-widget.modal.comment_placeholder_no_more',
+    'versions-journal-widget.modal.comment_placeholder_characters'
+  ]
 };
 
 class ChangeVersionModal extends Component {

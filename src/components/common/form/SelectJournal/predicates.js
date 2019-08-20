@@ -206,7 +206,7 @@ export function getPredicates(field) {
 
 const recordServiceAPI = new RecordService();
 
-export function getPredicateInput(field, sourceId) {
+export function getPredicateInput(field, sourceId, metaRecord) {
   const defaultValue = {
     label: t('react-select.default-value.label'),
     value: null
@@ -272,7 +272,7 @@ export function getPredicateInput(field, sourceId) {
               attributes: {
                 opt: `#${field.attribute}?options`
               },
-              record: `${sourceId || ''}@`
+              record: metaRecord || `${sourceId || ''}@`
             })
             .then(record => record.attributes.opt || [])
             .then(opt =>

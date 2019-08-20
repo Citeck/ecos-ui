@@ -4,7 +4,7 @@ import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class UserNameLinkFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {
-    return `.att(n:"${attribute}"){displayName:str,userName:att(n:"cm:userName"){str}}`;
+    return `.att(n:"${attribute}"){displayName:disp,nodeRef:str,userName:att(n:"cm:userName"){str}}`;
   }
 
   render() {

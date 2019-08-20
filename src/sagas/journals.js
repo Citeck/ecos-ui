@@ -367,7 +367,38 @@ function* sagaDeleteRecords({ api, logger, stateId, w }, action) {
 
 function* sagaSaveRecords({ api, logger, stateId, w }, action) {
   try {
-    yield call(api.journals.saveRecords, action.payload);
+    const grid = yield select(state => state.journals[stateId].grid);
+    const { id, attributes } = action.payload;
+    const attribute = Object.keys(attributes)[0];
+    const value = attributes[attribute];
+
+    yield call(api.journals.saveRecords, { id, attributes });
+
+    let formatter;
+    const tempAttributes = {};
+    grid.columns.forEach(c => {
+      tempAttributes[c.attribute] = c.formatExtraData.formatter.getQueryString(c.attribute);
+
+      if (c.attribute === attribute) {
+        formatter = c.formatExtraData.formatter;
+      }
+    });
+    const savedRecord = yield call(api.journals.getRecord, { id, attributes: tempAttributes, noCache: true });
+
+    grid.data = grid.data.map(record => {
+      if (record.id === id) {
+        const savedValue = formatter ? formatter.getId(savedRecord[attribute]) : savedRecord[attribute];
+
+        if (savedValue !== value) {
+          savedRecord.error = attribute;
+        }
+
+        return { ...savedRecord, id };
+      }
+
+      return record;
+    });
+    yield put(setGrid(w(grid)));
   } catch (e) {
     logger.error('[journals sagaSaveRecords saga error', e.message);
   }

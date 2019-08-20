@@ -23,6 +23,10 @@ export class DashboardApi extends RecordService {
     return Components.getComponentsFullData();
   };
 
+  getWidgetsByDashboardType = type => {
+    return Components.getComponentsFullData(type);
+  };
+
   saveDashboardConfig = ({ identification, config }) => {
     const { key, id } = identification;
     const record = Records.get(`${SourcesId.DASHBOARD}@${id}`);

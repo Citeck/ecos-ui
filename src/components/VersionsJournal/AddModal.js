@@ -12,17 +12,21 @@ import { FILE_STATUS, VERSIONS } from '../../constants/versionsJournal';
 import 'react-dropzone-uploader/dist/styles.css';
 
 const LABELS = {
-  DROPZONE_PLACEHOLDER: 'Перетяните сюда файл или выберете вручную',
-  DROPZONE_SELECT_BUTTON: 'Выбрать файл',
+  DROPZONE_PLACEHOLDER: 'versions-journal-widget.modal.dropzone_placeholder',
+  DROPZONE_SELECT_BUTTON: 'versions-journal-widget.modal.dropzone_select_button',
 
-  CANCEL: 'Отмена',
-  ADD: 'Добавить',
+  CANCEL: 'versions-journal-widget.modal.cancel',
+  ADD: 'versions-journal-widget.modal.add',
 
-  VERSION_MINOR: 'Незначительные изменения',
-  VERSION_MAJOR: 'Существенные изменения',
+  VERSION_MINOR: 'versions-journal-widget.modal.version_minor',
+  VERSION_MAJOR: 'versions-journal-widget.modal.version_major',
 
-  COMMENT_TITLE: 'Комментарий',
-  COMMENT_PLACEHOLDER: ['Не обязательно', 'не более', 'символов']
+  COMMENT_TITLE: 'versions-journal-widget.modal.comment_title',
+  COMMENT_PLACEHOLDER: [
+    'versions-journal-widget.modal.comment_placeholder_not_necessary',
+    'versions-journal-widget.modal.comment_placeholder_no_more',
+    'versions-journal-widget.modal.comment_placeholder_characters'
+  ]
 };
 
 class AddModal extends Component {
