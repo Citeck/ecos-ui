@@ -9,7 +9,7 @@ import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import Layout from '../../components/Layout';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
-import { Loader, Tabs } from '../../components/common';
+import { Loader, ScrollArrow, Tabs } from '../../components/common';
 import { MENU_TYPE } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../constants/pageTabs';
@@ -214,7 +214,11 @@ class Dashboard extends Component {
       return null;
     }
 
-    return <Tabs className="ecos-dashboard__tabs" hasHover items={this.tabList} />;
+    return (
+      <ScrollArrow className="ecos-dashboard__tabs">
+        <Tabs hasHover items={this.tabList} />
+      </ScrollArrow>
+    );
   }
 
   renderLayout() {

@@ -6,19 +6,19 @@
   overflow: hidden;
   width: 100%;
 
-  &__btn-prev {
-    margin-right: 20px;
-  }
-
-  &__btn-next {
-  }
-
-  &__btn-next_right-gradient {
-    background: linear-gradient(to left, $color-gray-4 41.99%, rgba($color-white, 0) 100%);
-    width: 20px;
-    height: 100%;
-    margin-left: -10px;
+  &__btns-gradient {
+    background: linear-gradient(to left, rgba($color-white, 0) 0%, $color-gray-4 30% 70%, rgba($color-white, 0) 100%);
+    width: 55px;
     z-index: 1;
+
+    &_next {
+      text-align: right;
+    }
+  }
+
+  &__btns-gradient + &__scroll {
+    margin-right: -10px;
+    margin-left: -10px;
   }
 
   &__scroll {
@@ -31,9 +31,5 @@
     &::-webkit-scrollbar {
       display: none;
     }
-  }
-
-  &__child {
-    width: 100%;
   }
 }
