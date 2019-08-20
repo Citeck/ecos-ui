@@ -10,24 +10,32 @@ export const commonOneTabPropTypes = {
 };
 
 export const commonOneTabDefaultProps = {
+  id: '',
   label: '',
   className: '',
+  isActive: false,
   hasHover: false,
   onClick: () => null
 };
 
 export const commonTabsPropTypes = {
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      ...commonOneTabPropTypes
-    })
-  ),
+  items: PropTypes.array,
   className: PropTypes.string,
-  hasHover: PropTypes.bool
+  classNameTab: PropTypes.string,
+  hasHover: PropTypes.bool,
+  keyField: PropTypes.string,
+  valueField: PropTypes.string,
+  activeTabKey: PropTypes.string,
+  onClick: PropTypes.func
 };
 
 export const commonTabsDefaultProps = {
   items: [],
   className: '',
-  hasHover: false
+  hasHover: false,
+  keyField: 'id',
+  valueField: 'label',
+  activeTabKey: '',
+  valuePrefix: '',
+  onClick: () => null
 };

@@ -160,7 +160,7 @@ class DashboardSettings extends React.Component {
       config.forEach(item => {
         let idLayout = item.id;
 
-        tabs.push({ ...item.tab, label: t(item.tab.label), idLayout });
+        tabs.push(item.tab);
 
         selectedLayout[idLayout] = item.type;
 
@@ -298,11 +298,11 @@ class DashboardSettings extends React.Component {
   }
 
   /*-------- start Tabs --------*/
-  onClickTabLayout = activeLayoutId => {
-    let { activeLayoutId: oldId } = this.state;
+  onClickTabLayout = tab => {
+    let { activeLayoutId } = this.state;
 
-    if (activeLayoutId !== oldId) {
-      this.setState({ activeLayoutId });
+    if (tab.idLayout !== activeLayoutId) {
+      this.setState({ activeLayoutId: tab.idLayout });
     }
   };
 
@@ -322,7 +322,7 @@ class DashboardSettings extends React.Component {
   };
 
   onEditTab = (tab, index) => {
-    let { tabs } = this.state;
+    const { tabs } = this.state;
     const { label, idLayout } = tab;
 
     set(tabs, [index], { label, idLayout });
@@ -335,8 +335,8 @@ class DashboardSettings extends React.Component {
 
     tabs.splice(index, 1);
 
-    if (tab.isActive) {
-      activeLayoutId = tabs[0].idLayout;
+    if (tab.idLayout === activeLayoutId) {
+      activeLayoutId = get(tabs, '[0].idLayout', null);
     }
 
     this.setState({ tabs, activeLayoutId });
@@ -358,14 +358,7 @@ class DashboardSettings extends React.Component {
     }
 
     const { tabs, activeLayoutId, scrollTabToRight } = this.state;
-
     const cloneTabs = deepClone(tabs);
-
-    cloneTabs.forEach((item, index) => {
-      item.id = `tab-${index}-${item.idLayout}`;
-      item.isActive = item.idLayout === activeLayoutId;
-      item.onClick = () => this.onClickTabLayout(item.idLayout);
-    });
 
     return (
       <React.Fragment>
@@ -379,10 +372,13 @@ class DashboardSettings extends React.Component {
               classNameTab="ecos-dashboard-settings__tabs-item"
               hasHover
               items={cloneTabs}
+              keyField={'idLayout'}
               onDelete={this.onDeleteTab}
               onSort={this.onSortTabs}
               onEdit={this.onEditTab}
+              onClick={this.onClickTabLayout}
               disabled={cloneTabs.length < 2}
+              activeTabKey={activeLayoutId}
             />
           </ScrollArrow>
           <IcoBtn

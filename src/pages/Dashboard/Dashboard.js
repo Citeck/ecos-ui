@@ -133,15 +133,10 @@ class Dashboard extends Component {
   }
 
   get tabList() {
-    const { config, activeLayoutId } = this.state;
+    const { config } = this.state;
 
     if (!isEmpty(config) && isArray(config)) {
-      return config.map((item, index) => ({
-        ...item.tab,
-        id: `tab-${index}-${item.id}`,
-        isActive: item.id === activeLayoutId,
-        onClick: () => this.toggleTabLayout(item.id)
-      }));
+      return config.map((item, index) => item.tab);
     }
 
     return [];
@@ -205,8 +200,10 @@ class Dashboard extends Component {
     this.saveDashboardConfig({ config });
   };
 
-  toggleTabLayout = activeLayoutId => {
-    this.setState({ activeLayoutId });
+  toggleTabLayout = index => {
+    const tab = get(this.tabList, [index], {});
+
+    this.setState({ activeLayoutId: tab.idLayout });
   };
 
   renderTabs() {
@@ -214,9 +211,11 @@ class Dashboard extends Component {
       return null;
     }
 
+    const { activeLayoutId } = this.state;
+
     return (
       <ScrollArrow className="ecos-dashboard__tabs">
-        <Tabs hasHover items={this.tabList} />
+        <Tabs hasHover items={this.tabList} onClick={this.toggleTabLayout} keyField={'idLayout'} activeTabKey={activeLayoutId} />
       </ScrollArrow>
     );
   }

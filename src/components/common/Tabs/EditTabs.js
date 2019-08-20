@@ -3,9 +3,9 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
 import { deepClone, t } from '../../../helpers/util';
-import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
 import { Input } from '../form';
 import { Icon } from '../';
+import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
 
 import './Tabs.scss';
 
@@ -90,7 +90,7 @@ class Tab extends React.Component {
       'ecos-tab_disabled': disabled
     });
     const isEdit = edit || isNew;
-    const placeholder = isNew ? label : t('Название вкладки');
+    const placeholder = isNew ? t(label) : t('Название вкладки');
 
     return (
       <div className={tabClassNames} onClick={onClick}>
@@ -107,7 +107,7 @@ class Tab extends React.Component {
               onClick={e => e.stopPropagation()}
             />
           ) : (
-            label
+            t(label)
           )}
         </div>
         <div className={classNames('ecos-tab-actions')}>
@@ -126,7 +126,6 @@ class EditTabs extends React.Component {
   static propTypes = {
     ...commonTabsPropTypes,
     disabled: PropTypes.bool,
-    classNameTab: PropTypes.string,
     onSort: PropTypes.func,
     onDelete: PropTypes.func,
     onEdit: PropTypes.func
@@ -157,21 +156,36 @@ class EditTabs extends React.Component {
   };
 
   render() {
-    const { items = [], className, hasHover, classNameTab, disabled } = this.props;
+    const {
+      items = [],
+      className,
+      classNameTab,
+      keyField,
+      valueField,
+      valuePrefix,
+      activeTabKey,
+      hasHover,
+      disabled,
+      onClick
+    } = this.props;
     const tabsClassNames = classNames('ecos-tabs', className);
 
     return (
       <SortableContainer axis="x" lockAxis="x" onSortEnd={this.handleSortEnd} useDragHandle>
         <div className={tabsClassNames}>
           {items.map((item, index) => (
-            <SortableElement key={`${item.id}-edit`} index={index} disabled={disabled}>
+            <SortableElement key={`${item[keyField]}-${index}-edit`} index={index} disabled={disabled}>
               <Tab
                 {...item}
                 className={classNameTab}
-                hasHover={hasHover}
-                disabled={disabled}
+                id={item[keyField]}
+                label={classNames(valuePrefix, item[valueField])}
+                isActive={item.isActive || item[keyField] === activeTabKey}
+                onClick={() => onClick(item, index)}
                 onDelete={() => this.onDeleteItem(item, index)}
                 onEdit={text => this.onEditItem(item, text, index)}
+                hasHover={hasHover}
+                disabled={disabled}
               />
             </SortableElement>
           ))}
