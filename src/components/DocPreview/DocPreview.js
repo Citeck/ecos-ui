@@ -215,12 +215,6 @@ class DocPreview extends Component {
     this.props.setUserScale(settings.scale);
   };
 
-  onDownload = () => {
-    const { link } = this.state;
-
-    fileDownload(link);
-  };
-
   onFullscreen = (isFullscreen = false) => {
     this.setState(state => ({
       settings: {
@@ -270,20 +264,24 @@ class DocPreview extends Component {
 
   renderToolbar() {
     const { scale } = this.props;
-    const { pdf, scrollPage, calcScale } = this.state;
+    const { pdf, scrollPage, calcScale, link } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
-    return !this.loaded ? null : (
+    if (!this.loaded) {
+      return null;
+    }
+
+    return (
       <Toolbar
         totalPages={pages}
         isPDF={this.isPDF}
         onChangeSettings={this.onChangeSettings}
-        onDownload={this.onDownload}
         onFullscreen={this.onFullscreen}
         scale={scale}
         scrollPage={scrollPage}
         calcScale={calcScale}
         inputRef={this.refToolbar}
+        link={link}
       />
     );
   }

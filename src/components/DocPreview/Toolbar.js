@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
@@ -17,13 +17,14 @@ class Toolbar extends Component {
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     totalPages: PropTypes.number.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
-    onDownload: PropTypes.func.isRequired,
-    inputRef: PropTypes.any
+    inputRef: PropTypes.any,
+    link: PropTypes.string
   };
 
   static defaultProps = {
     scale: AUTO,
-    className: ''
+    className: '',
+    link: ''
   };
 
   className = 'ecos-doc-preview__toolbar';
@@ -162,10 +163,10 @@ class Toolbar extends Component {
           onClick={this.handlePrev}
         />
         {!!totalPages && (
-          <Fragment>
+          <>
             <Input type="text" onChange={this.goToPage} value={currentPage} className={classNames(`${pagerClass}-input`)} />
             <span className={`${pagerClass}-text`}> {`${t('doc-preview.out-of')} ${totalPages}`} </span>
-          </Fragment>
+          </>
         )}
         <IcoBtn
           icon={'icon-right'}
@@ -204,14 +205,13 @@ class Toolbar extends Component {
   }
 
   renderExtraBtns() {
+    const { link } = this.props;
+
     return (
       <div className={classNames(`${this.classNameGroup} ${this.className}-extra-btns`)}>
-        <IcoBtn
-          icon={'icon-download'}
-          className={this.commonBtnClasses}
-          onClick={this.props.onDownload}
-          title={t('doc-preview.download')}
-        />
+        <a href={link} download data-external>
+          <IcoBtn icon={'icon-download'} className={this.commonBtnClasses} title={t('doc-preview.download')} />
+        </a>
       </div>
     );
   }
