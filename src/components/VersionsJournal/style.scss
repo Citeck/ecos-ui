@@ -12,6 +12,13 @@
   padding: 15px 20px;
 }
 
+%overflow-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  white-space: nowrap;
+}
+
 .ecos-vj {
   $root: &;
 
@@ -50,13 +57,12 @@
     }
 
     &-title {
+      @extend %overflow-ellipsis;
+
       color: $text-color-gray;
       font-weight: bold;
       font-size: 14px;
       line-height: 23px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     &-actions {
@@ -163,9 +169,7 @@
         line-height: 16px;
 
         &-item {
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          @extend %overflow-ellipsis;
         }
       }
     }
@@ -300,6 +304,13 @@
         width: 100%;
         margin-top: 10px;
       }
+    }
+  }
+
+  &__dashboard {
+    &-title {
+      @extend %overflow-ellipsis;
+      text-align: left;
     }
   }
 }
@@ -577,14 +588,13 @@
         overflow: hidden;
 
         &-name {
+          @extend %overflow-ellipsis;
+
           font-style: normal;
           font-weight: 600;
           font-size: 12px;
           line-height: 16px;
           color: $color-black;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
         }
 
         &-icon {
