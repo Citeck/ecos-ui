@@ -17,7 +17,7 @@ import EcosModal from '../common/EcosModal/EcosModal';
 import { getJournalsData, reloadGrid, search } from '../../actions/journals';
 import { setActiveTabTitle } from '../../actions/pageTabs';
 import { Well } from '../common/form';
-import { t } from '../../helpers/util';
+import { t, trigger } from '../../helpers/util';
 import { wrapArgs } from '../../helpers/redux';
 
 import './Journals.scss';
@@ -133,6 +133,8 @@ class Journals extends Component {
     if (!columns.length) {
       return null;
     }
+
+    trigger.call(this, 'onRender');
 
     const visibleColumns = columns.filter(c => c.visible);
 

@@ -66,11 +66,19 @@ class UrlManager extends Component {
     return obj;
   };
 
+  onChildrenRender = () => {
+    trigger.call(this, 'onChildrenRender');
+  };
+
   render() {
     const { children, params } = this.props;
     const urlParams = (this._prevUrlParams = this.updateUrl(params, this._prevUrlParams));
 
-    return <Fragment>{typeof children.type === 'function' ? React.cloneElement(children, { urlParams }) : children}</Fragment>;
+    return (
+      <Fragment>
+        {typeof children.type === 'function' ? React.cloneElement(children, { urlParams, onRender: this.onChildrenRender }) : children}
+      </Fragment>
+    );
   }
 }
 
