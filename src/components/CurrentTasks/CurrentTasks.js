@@ -2,7 +2,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+
 import { getCurrentTaskList } from '../../actions/currentTasks';
 import { selectStateCurrentTasksById } from '../../selectors/tasks';
 import { DefineHeight } from '../common';
@@ -49,8 +50,6 @@ class CurrentTasks extends React.Component {
     contentHeight: 0
   };
 
-  className = 'ecos-current-task-list';
-
   componentDidMount() {
     this.getCurrentTaskList();
   }
@@ -90,8 +89,8 @@ class CurrentTasks extends React.Component {
     return (
       <Scrollbars
         style={{ height: contentHeight || '100%' }}
-        className={this.className}
-        renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
+        className="ecos-current-task-list"
+        renderTrackVertical={props => <div {...props} className="ecos-current-task-list__v-scroll" />}
       >
         <DefineHeight
           fixHeight={height}
