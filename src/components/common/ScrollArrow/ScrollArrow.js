@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { get, set } from 'lodash';
+import classNames from 'classnames';
+import { get, isEmpty, set } from 'lodash';
 import { IcoBtn } from '../btns';
 
 import './style.scss';
@@ -22,19 +23,20 @@ export default class ScrollArrow extends React.Component {
   };
 
   refScroll = React.createRef();
-  refChild = React.createRef();
 
   state = {
-    isShowBtnScroll: false
+    isShowArrows: false,
+    isActiveLeft: false,
+    isActiveRight: true
   };
 
   componentWillReceiveProps(nextProps, nextContext) {
     const { scrollToEnd, scrollToSide } = this.props;
 
     if (!scrollToEnd && nextProps.scrollToEnd) {
-      const wTabs = get(this.refChild, 'current.scrollWidth', 0);
+      const width = get(this.refScroll, 'current.scrollWidth', 0);
 
-      set(this.refScroll, 'current.scrollLeft', wTabs);
+      set(this.refScroll, 'current.scrollLeft', width);
     }
 
     if (nextProps.scrollToSide !== 0 && scrollToSide !== nextProps.scrollToSide) {
@@ -43,50 +45,75 @@ export default class ScrollArrow extends React.Component {
   }
 
   componentDidMount() {
-    this.checkSize();
+    this.checkArrows();
   }
 
-  componentDidUpdate(prevProps) {
-    this.checkSize();
+  componentDidUpdate() {
+    this.checkArrows();
   }
 
   doScroll = (factor = 1) => {
     const curScroll = get(this.refScroll, 'current.scrollLeft', 0);
 
     set(this.refScroll, 'current.scrollLeft', curScroll + this.props.step * factor);
+    this.checkArrows();
   };
 
-  checkSize = () => {
-    const { isShowBtnScroll: old } = this.state;
-    const wScroll = get(this.refScroll, 'current.offsetWidth', 0);
-    const wChild = get(this.refChild, 'current.scrollWidth', 0);
-    const isShowBtnScroll = wScroll < wChild;
+  checkArrows = () => {
+    const { isShowArrows: oldShow, isActiveRight: oldRight, isActiveLeft: oldLeft } = this.state;
+    const { offsetWidth, scrollWidth, scrollLeft } = get(this.refScroll, 'current', {});
 
-    if (isShowBtnScroll !== old) {
-      this.setState({ isShowBtnScroll });
+    const state = {};
+    const isShowArrows = scrollWidth > offsetWidth;
+    const isActiveRight = scrollWidth > offsetWidth + scrollLeft;
+    const isActiveLeft = scrollLeft > 0;
+
+    if (isShowArrows !== oldShow) {
+      state.isShowArrows = isShowArrows;
+    }
+
+    if (isActiveRight !== oldRight) {
+      state.isActiveRight = isActiveRight;
+    }
+
+    if (isActiveLeft !== oldLeft) {
+      state.isActiveLeft = isActiveLeft;
+    }
+
+    if (!isEmpty(state)) {
+      this.setState(state);
     }
   };
 
   render() {
     const { className, children } = this.props;
-    const { isShowBtnScroll } = this.state;
+    const { isShowArrows, isActiveLeft, isActiveRight } = this.state;
 
     return (
-      <div className={`ecos-scrollbar-arrow ${className}`}>
-        {isShowBtnScroll && (
-          <div className="ecos-scrollbar-arrow__btns-gradient">
-            <IcoBtn icon="icon-left" className="ecos-btn_white ecos-btn_hover_blue2 ecos-btn_circle" onClick={() => this.doScroll(-1)} />
-          </div>
+      <div className={classNames('ecos-scrollbar-arrow', className)}>
+        {isShowArrows && (
+          <IcoBtn
+            className={classNames('ecos-btn_white ecos-btn_hover_blue2 ecos-btn_circle', { 'ecos-btn_disabled': !isActiveLeft })}
+            icon="icon-left"
+            onClick={() => this.doScroll(-1)}
+          />
         )}
-        <div className="ecos-scrollbar-arrow__scroll" ref={this.refScroll}>
-          <div className="ecos-scrollbar-arrow__child" ref={this.refChild}>
-            {children}
-          </div>
+        <div
+          ref={this.refScroll}
+          className={classNames(
+            'ecos-scrollbar-arrow__scroll',
+            { 'ecos-scrollbar-arrow__scroll_intend-left': isActiveLeft },
+            { 'ecos-scrollbar-arrow__scroll_intend-right': isActiveRight }
+          )}
+        >
+          <div className="ecos-scrollbar-arrow__child">{children}</div>
         </div>
-        {isShowBtnScroll && (
-          <div className="ecos-scrollbar-arrow__btns-gradient ecos-scrollbar-arrow__btns-gradient_next">
-            <IcoBtn icon="icon-right" className="ecos-btn_white ecos-btn_hover_blue2 ecos-btn_circle" onClick={() => this.doScroll()} />
-          </div>
+        {isShowArrows && (
+          <IcoBtn
+            className={classNames('ecos-btn_white ecos-btn_hover_blue2 ecos-btn_circle', { 'ecos-btn_disabled': !isActiveRight })}
+            icon="icon-right"
+            onClick={() => this.doScroll()}
+          />
         )}
       </div>
     );
