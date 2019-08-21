@@ -24,6 +24,27 @@
     margin-top: 30px;
   }
 
+  &__keys {
+    &-wrapper {
+      display: flex;
+      align-items: center;
+
+      & > :not(:first-child) {
+        margin-left: 23px;
+      }
+    }
+
+    &-dropdown {
+      .ecos-btn {
+        width: 290px;
+      }
+    }
+
+    &-checkbox {
+      width: 100%;
+    }
+  }
+
   &__tabs {
     &-wrapper {
       display: flex;

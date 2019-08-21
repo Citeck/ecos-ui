@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
 import { getCurrentUserName, t } from '../helpers/util';
 import Cache from '../helpers/cache';
-import { QueryKeys, SourcesId } from '../constants';
+import { DASHBOARD_DEFAULT_KEY, QueryKeys, SourcesId } from '../constants';
 import { RecordService } from './recordService';
 import Components from '../components/Components';
 import Records from '../components/Records';
@@ -27,12 +27,27 @@ export class DashboardApi extends RecordService {
     return Components.getComponentsFullData(type);
   };
 
+  getDashboardKeysByRef = function*(recordRef) {
+    const result = yield Records.get(recordRef)
+      .load('.atts(n:"_dashboardKey"){key:str,displayName:disp}')
+      .then(response => response);
+
+    const dashboardKeys = Array.from(result || []);
+
+    if (!isEmpty(result)) {
+      dashboardKeys.forEach(item => (item.displayName = t(item.displayName)));
+      dashboardKeys.push({ key: DASHBOARD_DEFAULT_KEY, displayName: t('По умолчанию') });
+    }
+
+    return dashboardKeys;
+  };
+
   saveDashboardConfig = ({ identification, config }) => {
     const { key, id } = identification;
     const record = Records.get(`${SourcesId.DASHBOARD}@${id}`);
 
     record.att(QueryKeys.CONFIG_JSON, config);
-    record.att(QueryKeys.KEY, key || QueryKeys.DEFAULT);
+    record.att(QueryKeys.KEY, key || DASHBOARD_DEFAULT_KEY);
 
     return record.save().then(response => response);
   };
@@ -84,7 +99,7 @@ export class DashboardApi extends RecordService {
     const { keys, type } = result;
     const dashboardKeys = Array.from(keys || []);
 
-    dashboardKeys.push(QueryKeys.DEFAULT);
+    dashboardKeys.push(DASHBOARD_DEFAULT_KEY);
 
     const cacheKey = dashboardKeys.find(key => cache.check(key));
     const dashboardId = cacheKey ? cache.get(cacheKey) : null;

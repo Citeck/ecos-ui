@@ -2,10 +2,12 @@ import { call, put, select, takeLatest } from 'redux-saga/effects';
 import {
   getAvailableWidgets,
   getDashboardConfig,
+  getDashboardKeys,
   initDashboardSettings,
   saveDashboardConfig,
   setAvailableWidgets,
   setDashboardConfig,
+  setDashboardKeys,
   setResultSaveDashboardConfig
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
@@ -27,7 +29,8 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
-    const { dashboardId } = payload;
+    const { dashboardId, recordRef } = payload;
+
     if (dashboardId) {
       const result = yield call(api.dashboard.getDashboardById, dashboardId, true);
       const data = DashboardService.checkDashboardResult(result);
@@ -35,6 +38,7 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
 
       yield put(setDashboardConfig(webConfig));
       yield put(getAvailableWidgets(data.type));
+      yield put(getDashboardKeys(recordRef));
     } else {
       yield put(setNotificationMessage(t('dashboard-settings.error2')));
     }
@@ -49,6 +53,17 @@ function* doGetWidgetsRequest({ api, logger }, { payload }) {
     const apiData = yield call(api.dashboard.getWidgetsByDashboardType, payload);
 
     yield put(setAvailableWidgets(apiData));
+  } catch (e) {
+    yield put(setNotificationMessage(t('dashboard-settings.error3')));
+    logger.error('[dashboard/settings/ doGetWidgetsRequest saga] error', e.message);
+  }
+}
+
+function* doGetDashboardKeys({ api, logger }, { payload }) {
+  try {
+    const result = yield call(api.dashboard.getDashboardKeysByRef, payload);
+
+    yield put(setDashboardKeys(result));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error3')));
     logger.error('[dashboard/settings/ doGetWidgetsRequest saga] error', e.message);
@@ -85,6 +100,7 @@ function* saga(ea) {
   yield takeLatest(getDashboardConfig().type, doGetDashboardConfigRequest, ea);
   yield takeLatest(getAvailableWidgets().type, doGetWidgetsRequest, ea);
   yield takeLatest(saveDashboardConfig().type, doSaveSettingsRequest, ea);
+  yield takeLatest(getDashboardKeys().type, doGetDashboardKeys, ea);
 }
 
 export default saga;

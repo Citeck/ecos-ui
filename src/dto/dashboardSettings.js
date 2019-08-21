@@ -4,6 +4,7 @@ import { Layouts } from '../constants/dashboard';
 import Components from '../components/Components';
 import MenuConverter from './menu';
 import DashboardService from '../services/dashboard';
+import { DASHBOARD_DEFAULT_KEY } from '../constants';
 
 export default class DashboardSettingsConverter {
   static getSettingsConfigForWeb(source = {}) {
@@ -12,7 +13,11 @@ export default class DashboardSettingsConverter {
     if (!isEmpty(source)) {
       const { key, id = '', type, config } = source;
 
-      target.identification = { key, type, id: DashboardService.parseDashboardId(id) };
+      target.identification = {
+        type,
+        key: key || DASHBOARD_DEFAULT_KEY,
+        id: DashboardService.parseDashboardId(id)
+      };
 
       const layouts = get(config, ['layouts'], []);
 

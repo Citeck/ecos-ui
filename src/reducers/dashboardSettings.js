@@ -3,10 +3,12 @@ import {
   getAvailableWidgets,
   getAwayFromPage,
   getDashboardConfig,
+  getDashboardKeys,
   initDashboardSettings,
   saveDashboardConfig,
   setAvailableWidgets,
   setDashboardConfig,
+  setDashboardKeys,
   setResultSaveDashboardConfig
 } from '../actions/dashboardSettings';
 
@@ -18,6 +20,7 @@ const initialState = {
   },
   config: [],
   availableWidgets: [],
+  dashboardKeys: [],
   isLoading: false,
   saveResult: {
     status: '',
@@ -34,6 +37,7 @@ export default handleActions(
     [initDashboardSettings]: startLoading,
     [getDashboardConfig]: startLoading,
     [getAvailableWidgets]: startLoading,
+    [getDashboardKeys]: startLoading,
     [saveDashboardConfig]: startLoading,
 
     [setDashboardConfig]: (state, { payload }) => {
@@ -50,6 +54,13 @@ export default handleActions(
       return {
         ...state,
         availableWidgets: payload,
+        isLoading: false
+      };
+    },
+    [setDashboardKeys]: (state, { payload }) => {
+      return {
+        ...state,
+        dashboardKeys: payload,
         isLoading: false
       };
     },

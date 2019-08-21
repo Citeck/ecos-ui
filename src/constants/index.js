@@ -32,14 +32,15 @@ export const SAVE_STATUS = {
   FAILURE: 'FAILURE'
 };
 
+export const DASHBOARD_DEFAULT_KEY = 'DEFAULT';
+
 export const QueryKeys = {
   CONFIG_JSON: 'config?json',
   VALUE_JSON: 'value?json',
   KEY: 'key',
   VALUE: 'value',
   TITLE: 'title',
-  DESCRIPTION: 'description',
-  DEFAULT: 'DEFAULT'
+  DESCRIPTION: 'description'
 };
 
 export const MIN_WIDTH_DASHLET_SMALL = 290;
