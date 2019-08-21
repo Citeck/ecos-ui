@@ -14,6 +14,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
       pdf: PropTypes.object,
       src: PropTypes.string,
       isLoading: PropTypes.bool,
+      resizable: PropTypes.bool,
       scrollPage: PropTypes.func,
       settings: PropTypes.shape({
         scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -24,6 +25,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
 
     static defaultProps = {
       isLoading: false,
+      resizable: false,
       scrollPage: () => null,
       settings: {}
     };
@@ -134,7 +136,8 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     renderDocument() {
       let {
         settings: { isFullscreen },
-        getContentHeight
+        getContentHeight,
+        resizable
       } = this.props;
       let _doc = `${_viewer}-doc`;
       let _fullscreen = `${_viewer}_fullscreen`;
@@ -156,7 +159,12 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
           onScrollFrame={this.onScrollFrame}
           autoHide
         >
-          <DefineHeight getContentHeight={getContentHeight}>
+          <DefineHeight
+            className={classNames({
+              'ecos-doc-preview__viewer-define': resizable
+            })}
+            getContentHeight={getContentHeight}
+          >
             <WrappedComponent {...newProps} />
           </DefineHeight>
         </Scrollbars>

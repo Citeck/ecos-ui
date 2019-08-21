@@ -49,7 +49,7 @@ class JournalsPage extends React.Component {
     return (
       <Fragment>
         {stateId === this.getStateId() ? (
-          <JournalsUrlManager stateId={stateId}>
+          <JournalsUrlManager stateId={stateId} withLoader>
             <Journals stateId={stateId} />
           </JournalsUrlManager>
         ) : null}

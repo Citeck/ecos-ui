@@ -57,13 +57,7 @@ class UserMenu extends React.Component {
         <Dropdown className={`${this.className} ecos-header-dropdown`} isOpen={dropdownOpen} toggle={this.toggle}>
           <DropdownToggle tag="div" className={'ecos-header-dropdown__toggle'}>
             {mob ? <Avatar url={userPhotoUrl} /> : null}
-            <IcoBtn
-              invert={true}
-              icon={dropdownOpen ? 'icon-up' : 'icon-down'}
-              className={classNameIcoBtn}
-              title={t('create_case.label')}
-              disabled={disabled}
-            >
+            <IcoBtn invert={true} icon={dropdownOpen ? 'icon-up' : 'icon-down'} className={classNameIcoBtn} disabled={disabled}>
               {!mob && userFullName}
             </IcoBtn>
           </DropdownToggle>

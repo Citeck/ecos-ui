@@ -22,7 +22,11 @@ authority
 const MAP = [
   {
     options: () => 'DateTimeFormatter',
-    enable: column => column.type === 'datetime' || column.type === 'date'
+    enable: column => column.type === 'datetime'
+  },
+  {
+    options: () => 'DateFormatter',
+    enable: column => column.type === 'date'
   },
   {
     options: () => 'BooleanFormatter',

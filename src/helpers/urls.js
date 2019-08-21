@@ -101,7 +101,7 @@ export const goToJournalsPage = options => {
   if (OLD_LINKS || !isNewVersionPage()) {
     window.open(journalPageUrl, '_blank');
   } else {
-    changeUrlLink(journalPageUrl, { openNewTab: true }); // TODO set "remoteTitle: true" when https://citeck.atlassian.net/browse/ECOSCOM-2426 done
+    changeUrlLink(journalPageUrl, { openNewTab: true, remoteTitle: true });
   }
 };
 

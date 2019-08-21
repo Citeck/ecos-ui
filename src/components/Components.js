@@ -20,8 +20,19 @@ export const ComponentKeys = {
   VERSIONS_JOURNAL: 'versions-journal'
 };
 
+/**
+ * При добавлении нового виджета, необходимо его зарегистрировать
+ * в объекте components
+ *
+ * Если виджет должен отображаться для абсолютно всех дашбордов,
+ * необходимо поместить его ключ в массив allDashboardsComponents
+ *
+ * Если виджет должен отображаться только на определенных типах дашбордов,
+ * необходимо при регистрации в объект components, в поле supportedDashboardTypes
+ * указать поддерживаемые типы дашбордов (их ключи)
+ */
 export default class Components {
-  static components = {
+  static components = Object.freeze({
     [ComponentKeys.DOC_PREVIEW]: {
       path: './DocPreview',
       label: 'dashboard-settings.widget.preview',
@@ -30,7 +41,7 @@ export default class Components {
     [ComponentKeys.JOURNAL]: {
       path: './Journals/JournalsDashlet/JournalsDashlet',
       label: 'dashboard-settings.widget.journal',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.SITE, DashboardTypes.USER]
+      supportedDashboardTypes: []
     },
     [ComponentKeys.COMMENTS]: {
       path: './Comments',
@@ -67,7 +78,9 @@ export default class Components {
       label: 'dashboard-settings.widget.versions-journal',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     }
-  };
+  });
+
+  static allDashboardsComponents = [ComponentKeys.JOURNAL];
 
   static get(component) {
     const link = get(Components.components, [component, 'path']);
@@ -80,18 +93,27 @@ export default class Components {
   }
 
   static getComponentsFullData(dashboardType = DashboardTypes.CASE_DETAILS) {
-    const arrComponents = [];
+    const components = new Map();
+
+    Components.getWidgetsForAllDasboards().forEach(component => {
+      components.set(component.name, t(component.label));
+    });
 
     Object.entries(Components.components).forEach(([name, component]) => {
       if (component.supportedDashboardTypes.includes(dashboardType)) {
-        arrComponents.push({
-          name,
-          label: t(component.label)
-        });
+        components.set(name, t(component.label));
       }
     });
 
-    return arrComponents;
+    const arrComponents = [...components].map(([name, label]) => ({ name, label }));
+
+    components.clear();
+
+    return deepClone(arrComponents);
+  }
+
+  static getWidgetsForAllDasboards() {
+    return Components.allDashboardsComponents.map(key => ({ ...Components.components[key], name: key }));
   }
 
   static setDefaultPropsOfWidgets(items) {
