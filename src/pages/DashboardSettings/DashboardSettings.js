@@ -106,7 +106,7 @@ class DashboardSettings extends React.Component {
       state = { ...state, ...resultConfig };
     }
 
-    if (JSON.stringify(availableMenuItems) !== JSON.stringify(nextProps.availableMenuItems)) {
+    if (!arrayCompare(availableMenuItems, nextProps.availableMenuItems)) {
       state.availableMenuItems = DndUtils.setDndId(nextProps.availableMenuItems);
     }
 
@@ -117,9 +117,7 @@ class DashboardSettings extends React.Component {
       state.availableWidgets = DndUtils.setDndId(nextProps.availableWidgets);
     }
 
-    // if (config.menuType !== nextProps.config.menuType) {
     state.isShowMenuConstructor = nextProps.config.menuType === MENU_TYPE.TOP;
-    // }
 
     this.setState({ ...state });
 

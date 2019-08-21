@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { get, isEmpty } from 'lodash';
+import get from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 import { t } from '../../helpers/util';
 import { Grid } from '../common/grid';
 import { InfoText, Loader } from '../common';
@@ -56,7 +57,7 @@ class EventsHistoryList extends React.Component {
 
   renderTable() {
     const { list, columns } = this.props;
-    const { filters } = this.state;
+    // const { filters } = this.state;
 
     return (
       <Grid data={list} columns={columns} scrollable={false} className={`${this.className}_view-table`} />

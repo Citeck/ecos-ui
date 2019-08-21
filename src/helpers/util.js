@@ -433,10 +433,10 @@ export function num2str(n = 0, textForms = []) {
 
 export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
   if (!byField) {
-    return JSON.parse(JSON.stringify(arr1)) === JSON.parse(JSON.stringify(arr2));
+    return JSON.stringify(arr1) === JSON.stringify(arr2);
   }
 
-  return JSON.parse(JSON.stringify(arr1.map(item => item[byField]))) === JSON.parse(JSON.stringify(arr2.map(item => item[byField])));
+  return JSON.stringify(arr1.map(item => item[byField])) === JSON.stringify(arr2.map(item => item[byField]));
 }
 
 export function getSearchParams(searchString = window.location.search) {
