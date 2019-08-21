@@ -1,3 +1,4 @@
+import moment from 'moment';
 import Input from '../../../common/form/Input';
 import DatePicker from '../../../common/form/DatePicker';
 import Select from '../../../common/form/Select';
@@ -137,7 +138,7 @@ const PREDICATE_LIST_TYPE_STRING = [
   PREDICATE_NOT_EMPTY
 ];
 const PREDICATE_LIST_TYPE_OPTIONS = PREDICATE_LIST_TYPE_STRING;
-const PREDICATE_LIST_TYPE_DATE = [PREDICATE_GE, PREDICATE_LT, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
+const PREDICATE_LIST_TYPE_DATE = [PREDICATE_EQ, PREDICATE_GE, PREDICATE_LT, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_NODE_REF = [PREDICATE_CONTAINS, PREDICATE_NOT_CONTAINS, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_NUMBER = [PREDICATE_EQ, PREDICATE_NOT_EQ, PREDICATE_LT, PREDICATE_LE, PREDICATE_GT, PREDICATE_GE];
 const PREDICATE_LIST_TYPE_BOOLEAN = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
@@ -247,6 +248,14 @@ export function getPredicateInput(field, sourceId, metaRecord) {
           showIcon: true,
           selected: predicateValue,
           onChange: function(value) {
+            //if the type is date, then reset the time to 00:00:00
+            if (field.type === COLUMN_DATA_TYPE_DATE) {
+              const format = 'DD.MM.YYYY';
+              const dateStrWithoutTime = moment(value).format(format);
+
+              value = moment.utc(dateStrWithoutTime, format).toDate();
+            }
+
             changePredicateValue(value);
           },
           showTimeInput: field.type === COLUMN_DATA_TYPE_DATETIME
