@@ -293,8 +293,8 @@ export function getScrollbarWidth() {
   return scrollbarWidth;
 }
 
-export function deepClone(data) {
-  return JSON.parse(JSON.stringify(data));
+export function deepClone(data, defaultValue = '') {
+  return JSON.parse(JSON.stringify(data || defaultValue));
 }
 
 export function isPDFbyStr(str) {

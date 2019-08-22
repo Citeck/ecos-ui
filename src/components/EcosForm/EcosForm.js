@@ -2,13 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
+
 import '../../forms/components';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import DataGridAssocComponent from './../../forms/components/custom/datagridAssoc/DataGridAssoc';
-import { t } from '../../helpers/util';
+import { t, deepClone } from '../../helpers/util';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -20,6 +21,8 @@ export const FORM_MODE_EDIT = 'EDIT';
 let formCounter = 0;
 
 class EcosForm extends React.Component {
+  _formBuilderModal = React.createRef();
+
   constructor(props) {
     super(props);
 
@@ -29,26 +32,31 @@ class EcosForm extends React.Component {
       containerId: 'ecos-ui-form-' + formCounter++,
       recordId: record.id,
       error: null,
+      form: null,
       formDefinition: {}
     };
   }
 
   componentDidMount() {
-    const recordId = this.state.recordId;
-    const props = this.props;
+    this.initForm();
+  }
 
-    let formLoadingPromise = EcosFormUtils.getForm(props.record, props.formKey, {
+  initForm(newFormDefinition = this.state.formDefinition) {
+    console.warn('initForm');
+    const { record, formKey, options: propsOptions } = this.props;
+    const { recordId } = this.state;
+    const options = deepClone(propsOptions);
+    let formLoadingPromise = EcosFormUtils.getForm(record, formKey, {
       definition: 'definition?json',
       customModule: 'customModule',
       i18n: 'i18n?json'
     });
 
-    let options = this.props.options || {};
     options.recordId = recordId;
 
     let alfConstants = (window.Alfresco || {}).constants || {};
-
     let proxyUri = alfConstants.PROXY_URI || '/';
+
     proxyUri = proxyUri.substring(0, proxyUri.length - 1);
     Formio.setProjectUrl(proxyUri);
 
@@ -59,6 +67,8 @@ class EcosForm extends React.Component {
     let self = this;
 
     formLoadingPromise.then(formData => {
+      console.warn('formData: ', formData);
+
       if (!formData) {
         self.setState({
           error: new Error(t('ecos-form.empty-form-data'))
@@ -84,7 +94,8 @@ class EcosForm extends React.Component {
       let recordDataPromise = EcosFormUtils.getData(recordId, inputs);
 
       recordDataPromise.then(recordData => {
-        let formDefinition = JSON.parse(JSON.stringify(formData.definition));
+        const definition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
+        let formDefinition = deepClone(definition);
 
         this.setState({ formDefinition });
 
@@ -121,6 +132,10 @@ class EcosForm extends React.Component {
 
         let formPromise = Formio.createForm(containerElement, formDefinition, options);
 
+        if (this.state.form) {
+          return;
+        }
+
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
           let form = formAndCustom[0];
           let customModule = formAndCustom[1];
@@ -153,6 +168,7 @@ class EcosForm extends React.Component {
 
               if (event !== 'submit') {
                 form.on(event, () => {
+                  console.warn('Other Event: ', event, form, arguments);
                   self.props[key].apply(form, arguments);
                 });
               } else {
@@ -164,6 +180,9 @@ class EcosForm extends React.Component {
           if (self.props.onReady) {
             self.props.onReady(form);
           }
+
+          this.setState({ form });
+          // console.warn(form);
         });
       });
     });
@@ -171,13 +190,31 @@ class EcosForm extends React.Component {
 
   fireEvent(event, data) {
     let handlerName = 'on' + event.charAt(0).toUpperCase() + event.slice(1);
+
     if (this.props[handlerName]) {
       this.props[handlerName](data);
     }
   }
 
+  onShowFormBuilder = () => {
+    if (this._formBuilderModal.current) {
+      this._formBuilderModal.current.show(this.state.formDefinition, formBuilder => {
+        console.warn(formBuilder, this.state.form);
+        // this.state.form.onSubmit(formBuilder.submission, true);
+        this.initForm(formBuilder.form);
+        this.submitForm(this.state.form, formBuilder.submission);
+        // this.fireEvent('builderSubmit', formBuilder.submission);
+        // console.warn(this.props);
+        // this.props.onSubmit(formDefinition);
+        // this.submitForm(formDefinition);
+      });
+    }
+  };
+
   submitForm(form, submission) {
     let self = this;
+
+    console.warn('submitForm: ', form, submission);
 
     let inputs = EcosFormUtils.getFormInputs(form.component);
     let keysMapping = {};
@@ -215,6 +252,7 @@ class EcosForm extends React.Component {
     }
 
     if (submission.state) {
+      console.warn('submission.state', submission.state);
       record.att('_state', submission.state);
     }
 
@@ -235,20 +273,17 @@ class EcosForm extends React.Component {
   }
 
   render() {
-    const { className, builderModalIsShow } = this.props;
-    const { formDefinition } = this.state;
+    const { className } = this.props;
     let self = this;
 
     if (this.state.error) {
       return <div className={classNames('ecos-ui-form__error', className)}>{self.state.error.message}</div>;
     }
 
-    console.warn(builderModalIsShow ? formDefinition : 'Builder modal not opened');
-
     return (
       <>
         <div className={classNames(className)} id={this.state.containerId} />
-        <EcosFormBuilderModal isModalOpen={builderModalIsShow} formDefinition={formDefinition} />
+        <EcosFormBuilderModal ref={this._formBuilderModal} />
       </>
     );
   }
@@ -270,14 +305,13 @@ EcosForm.propTypes = {
   onFormNextPage: PropTypes.func,
   // -----
   saveOnSubmit: PropTypes.bool,
-  className: PropTypes.string,
-
-  builderModalIsShow: PropTypes.bool
+  className: PropTypes.string
 };
 
 EcosForm.defaultProps = {
   className: '',
-  builderModalIsShow: false
+  builderModalIsShow: false,
+  options: {}
 };
 
 export default EcosForm;

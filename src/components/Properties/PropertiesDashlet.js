@@ -45,6 +45,8 @@ class PropertiesDashlet extends React.Component {
     canDragging: false
   };
 
+  _propertiesRef = React.createRef();
+
   constructor(props) {
     super(props);
 
@@ -52,7 +54,6 @@ class PropertiesDashlet extends React.Component {
       isSmallMode: false,
       isReady: true,
       isEditProps: false,
-      constructorModalIsShow: false,
       height: UserLocalSettingsService.getDashletHeight(props.id),
       fitHeights: {}
     };
@@ -85,9 +86,10 @@ class PropertiesDashlet extends React.Component {
     this.setState({ isEditProps: false });
   };
 
-  handleClickShowFormConstructor = () => {
-    console.warn('handleClickShowFormConstructor');
-    this.setState({ constructorModalIsShow: true });
+  onClickShowFormBuilder = () => {
+    if (this._propertiesRef.current) {
+      this._propertiesRef.current.onShowBuilder();
+    }
   };
 
   renderDashletCustomButtons() {
@@ -101,7 +103,7 @@ class PropertiesDashlet extends React.Component {
             icon="icon-settings"
             id={`settings-icon-${id}`}
             className="ecos-btn_grey ecos-btn_sq_sm ecos-btn_hover_color-grey mr-2"
-            onClick={this.handleClickShowFormConstructor}
+            onClick={this.onClickShowFormBuilder}
           />
           <UncontrolledTooltip
             target={`settings-icon-${id}`}
@@ -121,7 +123,7 @@ class PropertiesDashlet extends React.Component {
 
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isReady, isEditProps, height, fitHeights, constructorModalIsShow } = this.state;
+    const { isSmallMode, isReady, isEditProps, height, fitHeights } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -143,6 +145,7 @@ class PropertiesDashlet extends React.Component {
         customButtons={this.renderDashletCustomButtons()}
       >
         <Properties
+          ref={this._propertiesRef}
           className={classNameProps}
           record={record}
           isSmallMode={isSmallMode}
@@ -151,7 +154,6 @@ class PropertiesDashlet extends React.Component {
           height={height}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
-          constructorModalIsShow={constructorModalIsShow}
         />
         <PropertiesEditModal record={record} isOpen={isEditProps} onFormCancel={this.closeModal} onFormSubmit={this.updateProps} />
       </Dashlet>

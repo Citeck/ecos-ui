@@ -14,7 +14,6 @@ class Properties extends React.Component {
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
     isReady: PropTypes.bool,
-    constructorModalIsShow: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
@@ -24,11 +23,12 @@ class Properties extends React.Component {
     record: '',
     className: '',
     isSmallMode: false,
-    constructorModalIsShow: false,
     isReady: true
   };
 
   className = 'ecos-properties';
+
+  _ecosForm = React.createRef();
 
   state = {
     loaded: false,
@@ -47,11 +47,17 @@ class Properties extends React.Component {
   }
 
   onSubmitForm = () => {
-    this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
+    // this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
   };
 
   onReady = () => {
     this.setState({ loaded: true });
+  };
+
+  onShowBuilder = () => {
+    if (this._ecosForm.current) {
+      this._ecosForm.current.onShowFormBuilder();
+    }
   };
 
   setHeight = contentHeight => {
@@ -68,13 +74,14 @@ class Properties extends React.Component {
   }
 
   renderForm() {
-    const { record, isSmallMode, isReady, constructorModalIsShow } = this.props;
+    const { record, isSmallMode, isReady } = this.props;
     const { isReadySubmit, hideForm } = this.state;
 
     return !hideForm && isReady && isReadySubmit ? (
       <React.Fragment>
         {this.renderLoader()}
         <EcosForm
+          ref={this._ecosForm}
           record={record}
           options={{
             readOnly: true,
@@ -84,7 +91,6 @@ class Properties extends React.Component {
             },
             formMode: FORM_MODE_EDIT
           }}
-          builderModalIsShow={constructorModalIsShow}
           onSubmit={this.onSubmitForm}
           onReady={this.onReady}
           className={`${this.className}__formio`}
