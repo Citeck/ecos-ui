@@ -15,7 +15,6 @@ import { MENU_TYPE, SAVE_STATUS, URL } from '../../constants';
 import { getAwayFromPage, initDashboardSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
 import { initMenuSettings } from '../../actions/menu';
 import DashboardService from '../../services/dashboard';
-import { ColumnsLayoutItem } from '../../components/Layout';
 import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { EditTabs, Loader, ScrollArrow } from '../../components/common';
@@ -23,6 +22,7 @@ import { Btn, IcoBtn } from '../../components/common/btns';
 import { Checkbox, Dropdown } from '../../components/common/form';
 
 import SetMenu from './SetMenu';
+import SetLayouts from './SetLayouts';
 
 import './style.scss';
 
@@ -444,41 +444,17 @@ class DashboardSettings extends React.Component {
     );
   }
 
-  /*-------- start Layouts --------*/
-
-  handleClickColumn(layout) {
-    const { activeLayoutId, selectedWidgets, selectedLayout } = this.state;
-
-    if (this.activeData.layout === layout.type) {
-      return;
-    }
-
-    selectedLayout[activeLayoutId] = layout.type;
-    selectedWidgets[activeLayoutId] = this.setSelectedWidgets(layout, selectedWidgets[activeLayoutId]);
-
-    this.setState({ selectedWidgets, selectedLayout });
-  }
-
-  renderColumnLayouts() {
-    return Layouts.map(layout => (
-      <ColumnsLayoutItem
-        key={`${layout.position}-${layout.type}`}
-        onClick={this.handleClickColumn.bind(this, layout)}
-        active={layout.type === this.activeData.layout}
-        config={{ columns: layout.columns || [] }}
-        className="ecos-dashboard-settings__container-group-item"
-      />
-    ));
-  }
-
   renderLayoutsBlock() {
-    return (
-      <React.Fragment>
-        <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.columns.title')}</h5>
-        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.columns.subtitle')}</h6>
-        <div className="ecos-dashboard-settings__container-group">{this.renderColumnLayouts()}</div>
-      </React.Fragment>
-    );
+    const setData = layout => {
+      const { activeLayoutId, selectedWidgets, selectedLayout } = this.state;
+
+      selectedLayout[activeLayoutId] = layout.type;
+      selectedWidgets[activeLayoutId] = this.setSelectedWidgets(layout, selectedWidgets[activeLayoutId]);
+
+      this.setState({ selectedWidgets, selectedLayout });
+    };
+
+    return <SetLayouts activeLayout={this.activeData.layout} setData={setData} />;
   }
 
   renderMenuBlock() {
@@ -592,7 +568,7 @@ class DashboardSettings extends React.Component {
                       removeItem={response => {
                         this.handleRemoveWidget(response, indexColumn, indexWidget);
                       }}
-                      getPositionAdjusment={this.draggablePositionAdjusment}
+                      getPositionAdjusment={this.draggablePositionAdjustment}
                       item={widget}
                     />
                   ))}
@@ -629,7 +605,7 @@ class DashboardSettings extends React.Component {
                     draggableId={item.dndId}
                     draggableIndex={index}
                     title={item.label}
-                    getPositionAdjusment={this.draggablePositionAdjusment}
+                    getPositionAdjusment={this.draggablePositionAdjustment}
                   />
                 ))}
             </Droppable>

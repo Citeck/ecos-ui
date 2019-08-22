@@ -14,7 +14,6 @@ const DROPPABLE_ZONE = {
 
 class SetMenu extends React.Component {
   static propTypes = {
-    className: PropTypes.string,
     typeMenu: PropTypes.array,
     availableMenuItems: PropTypes.array,
     selectedMenuItems: PropTypes.array,
@@ -23,7 +22,6 @@ class SetMenu extends React.Component {
   };
 
   static defaultProps = {
-    className: '',
     typeMenu: [],
     availableMenuItems: [],
     selectedMenuItems: [],
@@ -68,32 +66,34 @@ class SetMenu extends React.Component {
   };
 
   handleRemoveMenuItem = ({ item }) => {
-    const { selectedMenuItems, availableMenuItems } = this.props;
+    const { selectedMenuItems, availableMenuItems, setData } = this.props;
 
     if (!availableMenuItems.find(elm => elm.id === item.id)) {
       availableMenuItems.push(item);
     }
 
-    this.props.setData({
+    setData({
       selectedMenuItems: selectedMenuItems.filter(menu => menu.id !== item.id),
       availableMenuItems
     });
   };
 
   handleClickMenu = menu => {
-    let typeMenu = deepClone(this.props.typeMenu);
+    const { typeMenu, setData } = this.props;
+
+    let types = deepClone(typeMenu);
 
     if (menu.isActive) {
       return;
     }
 
-    typeMenu = typeMenu.map(item => {
+    types = types.map(item => {
       item.isActive = item.type === menu.type;
 
       return item;
     });
 
-    this.props.setData({ typeMenu });
+    setData({ typeMenu: types });
   };
 
   renderMenuLayouts() {
