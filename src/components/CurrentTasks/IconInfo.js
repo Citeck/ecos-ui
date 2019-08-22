@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Tooltip } from 'reactstrap';
 import { Scrollbars } from 'react-custom-scrollbars';
-import Icon from '../common/icons/Icon/Icon';
+
+import { Icon } from '../common';
 import ClickOutside from '../ClickOutside';
 
-import './style.scss';
 import '../../bootstrap.scss';
+import './style.scss';
 
 export default class IconInfo extends React.Component {
   static propTypes = {
@@ -31,14 +32,15 @@ export default class IconInfo extends React.Component {
     isOpen: false
   };
 
-  className = 'ecos-current-task';
-
   setTooltipOpen = () => {
-    this.setState({ isOpen: !this.state.isOpen }, () => {
-      if (this.props.noTooltip) {
-        this.props.handleClick(this.state.isOpen);
+    this.setState(
+      state => ({ isOpen: !state.isOpen }),
+      () => {
+        if (this.props.noTooltip) {
+          this.props.handleClick(this.state.isOpen);
+        }
       }
-    });
+    );
   };
 
   closeTooltip = () => {
@@ -52,39 +54,51 @@ export default class IconInfo extends React.Component {
   render() {
     const { id, iconClass, isShow, noTooltip, text } = this.props;
     const { isOpen } = this.state;
-    const domId = `${this.className}-${id}`;
-    const icon = `${this.className}__icon`;
-    const tooltip = `${this.className}__tooltip`;
-    const renderTrackVertical = props => <div {...props} className={`${tooltip}__v-scroll`} />;
+    const domId = `ecos-current-task-${id}`;
 
-    return isShow ? (
-      <React.Fragment>
-        <ClickOutside handleClickOutside={this.closeTooltip} className={`${icon}-wrap`}>
+    if (!isShow) {
+      return null;
+    }
+
+    return (
+      <>
+        <ClickOutside key={`icon-info-outside=${domId}`} handleClickOutside={this.closeTooltip} className="ecos-current-task__icon-wrap">
           <Icon
             id={domId}
-            className={classNames(icon, iconClass, { [`${icon}_open`]: isOpen, [`${icon}_big`]: noTooltip })}
+            className={classNames('ecos-current-task__icon', iconClass, {
+              'ecos-current-task__icon_open': isOpen,
+              'ecos-current-task__icon_big': noTooltip
+            })}
             onClick={this.setTooltipOpen}
           />
         </ClickOutside>
         {!noTooltip && (
           <Tooltip
+            key={`icon-info-tooltip-${domId}`}
             placement="top"
             boundariesElement="window"
             target={domId}
             isOpen={isOpen}
-            trigger={'click'}
-            className={`ecos-base-tooltip ${tooltip}`}
-            innerClassName={`ecos-base-tooltip-inner`}
-            arrowClassName={`ecos-base-tooltip-arrow`}
+            trigger="click"
+            className="ecos-base-tooltip ecos-current-task__tooltip"
+            innerClassName="ecos-base-tooltip-inner"
+            arrowClassName="ecos-base-tooltip-arrow"
           >
-            <div className={`${tooltip}-text`}>
-              <Scrollbars autoHeight autoHeightMin={20} autoHeightMax={145} renderTrackVertical={renderTrackVertical}>
-                {text}
+            <div className="ecos-current-task__tooltip-text">
+              <Scrollbars
+                autoHeight
+                autoHeightMin={20}
+                autoHeightMax={145}
+                renderTrackVertical={props => <div {...props} className="ecos-current-task__tooltip__v-scroll" />}
+                renderTrackHorizontal={props => <div {...props} hidden />}
+                renderThumbHorizontal={props => <div {...props} hidden />}
+              >
+                <div className="ecos-current-task__tooltip-text-inner">{text}</div>
               </Scrollbars>
             </div>
           </Tooltip>
         )}
-      </React.Fragment>
-    ) : null;
+      </>
+    );
   }
 }

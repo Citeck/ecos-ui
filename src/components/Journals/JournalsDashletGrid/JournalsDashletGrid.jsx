@@ -99,12 +99,9 @@ class JournalsDashletGrid extends Component {
   };
 
   onFilter = predicates => {
-    const props = this.props;
-    const { columns } = props.journalConfig;
-
     this.filters = predicates;
 
-    this.reloadGrid({ columns, predicates });
+    this.reloadGrid({ predicates });
   };
 
   reloadGrid(options) {

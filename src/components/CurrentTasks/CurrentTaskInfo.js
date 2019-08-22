@@ -1,7 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { uniqueId } from 'lodash';
+import uniqueId from 'lodash/uniqueId';
+
 import { getOutputFormat } from '../../helpers/util';
 import { Separator } from '../common';
 import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
@@ -17,28 +18,39 @@ class CurrentTaskInfo extends React.Component {
     isMobile: false
   };
 
-  className = 'ecos-current-task-info';
-
   state = {
     isOpen: false
   };
 
+  renderLabel = key => <div className="ecos-current-task-info-label">{DC[key].label}</div>;
+
   render() {
     const { task, isMobile } = this.props;
     const { isOpen } = this.state;
-    const label = key => {
-      return <div className={`${this.className}-label`}>{DC[key].label}</div>;
-    };
-    const classValue = `${this.className}-value`;
 
     return (
-      <div className={this.className}>
-        <div className={`${this.className}__title`}>{task[DC.title.key]}</div>
-        <div className={`${this.className}__fields`}>
-          {label('actors')}
-          <div className={classNames(classValue, { [`${classValue}_mobile`]: isMobile })}>
-            <span className={classNames({ [`${classValue}_mobile-val`]: isMobile })}>{task[DC.actors.key] || noData}</span>
-            <span className={classNames({ [`${classValue}_mobile-icon`]: isMobile })}>
+      <div className="ecos-current-task-info">
+        <div className="ecos-current-task-info__title">{task[DC.title.key]}</div>
+        <div className="ecos-current-task-info__fields">
+          {this.renderLabel('actors')}
+
+          <div
+            className={classNames('ecos-current-task-info-value', {
+              'ecos-current-task-info-value_mobile': isMobile
+            })}
+          >
+            <span
+              className={classNames({
+                'ecos-current-task-info-value_mobile-val': isMobile
+              })}
+            >
+              {task[DC.actors.key] || noData}
+            </span>
+            <span
+              className={classNames({
+                'ecos-current-task-info-value_mobile-icon': isMobile
+              })}
+            >
               <IconInfo
                 iconClass={'icon-usergroup'}
                 id={uniqueId(cleanTaskId(task.id))}
@@ -49,10 +61,12 @@ class CurrentTaskInfo extends React.Component {
               />
             </span>
           </div>
-          {isMobile && isOpen && <div className={`${classValue}_add`}>{task.containedUsers}</div>}
-          <Separator noIndents className={`${this.className}__separator`} />
-          {label('deadline')}
-          <div className={classValue}>{getOutputFormat(DC.deadline.format, task[DC.deadline.key]) || noData}</div>
+
+          {isMobile && isOpen && <div className="ecos-current-task-info-value_add">{task.usersGroup}</div>}
+
+          <Separator noIndents className="ecos-current-task-info__separator" />
+          {this.renderLabel('deadline')}
+          <div className="ecos-current-task-info-value">{getOutputFormat(DC.deadline.format, task[DC.deadline.key]) || noData}</div>
         </div>
       </div>
     );

@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { get, isEmpty } from 'lodash';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import { DefineHeight } from '../common';
 import { selectDataEventsHistoryByStateId } from '../../selectors/eventsHistory';
 import { filterEventsHistory, getEventsHistory, resetEventsHistory } from '../../actions/eventsHistory';
@@ -99,7 +100,7 @@ class EventsHistory extends React.Component {
     const fixHeight = height ? height - filterHeight : null;
 
     return (
-      <React.Fragment>
+      <>
         <div ref={this._filter}>
           {/*{(isMobile || isSmallMode) && (
             <DropdownFilter columns={columns} className={`${this.className}__filter`} onFilter={this.onFilter} />
@@ -128,7 +129,7 @@ class EventsHistory extends React.Component {
             />
           </DefineHeight>
         </Scrollbars>
-      </React.Fragment>
+      </>
     );
   }
 }

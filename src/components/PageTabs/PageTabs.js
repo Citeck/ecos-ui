@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { deepClone, getScrollbarWidth, t } from '../../helpers/util';
-import { SortableContainer, SortableElement } from './sortable';
+import { SortableContainer, SortableElement } from '../Drag-n-Drop';
 import {
   getTitleByUrl,
   IGNORE_TABS_HANDLER_ATTR_NAME,
@@ -13,6 +13,7 @@ import {
   TITLE
 } from '../../constants/pageTabs';
 import { PointsLoader } from '../common';
+import { isNewVersionPage } from '../../helpers/urls';
 import './style.scss';
 
 const CHANGE_URL_LINK_EVENT = 'CHANGE_URL_LINK_EVENT';
@@ -344,6 +345,10 @@ class PageTabs extends React.Component {
     const link = elem.getAttribute('href');
     const isNewTab = elem.getAttribute('target') === '_blank';
     const withLinkTabIndex = tabs.findIndex(tab => tab.link === link);
+
+    if (!isNewVersionPage(link)) {
+      return;
+    }
 
     event.preventDefault();
 
@@ -691,7 +696,7 @@ class PageTabs extends React.Component {
     }
 
     return (
-      <div className={className.join(' ')}>
+      <div className={className.join(' ')} key="tabs-wrapper">
         {this.renderLeftButton()}
         <SortableContainer
           axis="x"
@@ -715,7 +720,7 @@ class PageTabs extends React.Component {
 
     if (isShow && children) {
       return (
-        <div className="page-tab__body">
+        <div className="page-tab__body" key="children">
           <Scrollbars className="page-tab__body-scroll" style={{ height: '100%' }}>
             <div className="page-tab__body-content">{children}</div>
           </Scrollbars>
@@ -728,10 +733,10 @@ class PageTabs extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <>
         {this.renderTabWrapper()}
         {this.renderChildren()}
-      </React.Fragment>
+      </>
     );
   }
 }

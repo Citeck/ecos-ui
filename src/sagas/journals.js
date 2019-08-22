@@ -258,11 +258,10 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
   try {
     yield put(setLoading(w(true)));
 
-    const { columns } = yield select(state => state.journals[stateId].journalConfig);
+    const { columns } = yield select(state => state.journals[stateId].journalSetting);
     const grid = yield select(state => state.journals[stateId].grid);
 
     grid.columns = columns;
-    //grid.pagination = DEFAULT_PAGINATION;
 
     let params = {
       ...grid,
@@ -358,7 +357,7 @@ function* sagaDeleteRecords({ api, logger, stateId, w }, action) {
     yield call(api.journals.deleteRecords, action.payload);
     yield put(setLoading(w(false)));
 
-    yield put(reloadGrid(w({})));
+    yield put(reloadGrid(w()));
     yield put(setSelectedRecords(w([])));
   } catch (e) {
     logger.error('[journals sagaDeleteRecords saga error', e.message);
@@ -527,13 +526,12 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
 function* sagaSearch({ api, logger, stateId, w }, action) {
   try {
     let text = action.payload;
-    const journalConfig = yield select(state => state.journals[stateId].journalConfig);
     const grid = yield select(state => state.journals[stateId].grid);
     const { columns, groupBy = [] } = grid;
 
     const predicates = ParserPredicate.getSearchPredicates({ text, columns, groupBy });
 
-    yield put(reloadGrid(w({ columns: journalConfig.columns, predicates: predicates ? [predicates] : null })));
+    yield put(reloadGrid(w({ predicates: predicates ? [predicates] : null })));
   } catch (e) {
     logger.error('[journals sagaSearch saga error', e.message);
   }
@@ -553,7 +551,7 @@ function* sagaPerformGroupAction({ api, logger, stateId, w }, action) {
 
     if (performGroupActionResponse.length) {
       yield put(setSelectedRecords(w([])));
-      yield put(reloadGrid(w({})));
+      yield put(reloadGrid(w()));
       yield put(setPerformGroupActionResponse(w(performGroupActionResponse)));
     }
   } catch (e) {

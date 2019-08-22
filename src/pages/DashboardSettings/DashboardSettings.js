@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 import * as queryString from 'query-string';
-import { cloneDeep, get, isArray, isEmpty, set } from 'lodash';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
+import set from 'lodash/set';
 
 import { arrayCompare, deepClone, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
@@ -132,22 +135,24 @@ class DashboardSettings extends React.Component {
       state = { ...state, ...resultConfig };
     }
 
-    if (JSON.stringify(menuType) !== JSON.stringify(nextProps.menuType)) {
+    if (menuType !== nextProps.menuType) {
       const resultMenu = this.setStateMenu(nextProps);
 
       state = { ...state, ...resultMenu };
     }
 
-    if (JSON.stringify(availableMenuItems) !== JSON.stringify(nextProps.availableMenuItems)) {
+    if (!arrayCompare(availableMenuItems, nextProps.availableMenuItems)) {
       state.availableMenuItems = DndUtils.setDndId(nextProps.availableMenuItems);
     }
 
     if (
-      JSON.stringify(availableWidgets) !== JSON.stringify(nextProps.availableWidgets) ||
+      !arrayCompare(availableWidgets, nextProps.availableWidgets) ||
       !arrayCompare(nextProps.availableWidgets, this.state.availableWidgets, 'name')
     ) {
       state.availableWidgets = DndUtils.setDndId(nextProps.availableWidgets);
     }
+
+    state.isShowMenuConstructor = nextProps.config.menuType === MENU_TYPE.TOP;
 
     this.setState({ ...state });
 
@@ -300,10 +305,10 @@ class DashboardSettings extends React.Component {
         title = t('dashboard-settings.page-title');
         break;
       case DashboardTypes.CASE_DETAILS:
-        title = t('Настройка карточек');
+        title = t('dashboard-settings.card-settings');
         break;
       default:
-        title = t('Настройка отображения страницы');
+        title = t('dashboard-settings.page-display-settings');
         break;
     }
     return (
@@ -423,9 +428,7 @@ class DashboardSettings extends React.Component {
 
     return (
       <React.Fragment>
-        <h6 className="ecos-dashboard-settings__container-subtitle">
-          {t('Отредактируйте количество и содержимое табов для соответствующего типа дашборда')}
-        </h6>
+        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
         <div className="ecos-dashboard-settings__tabs-wrapper">
           <ScrollArrow scrollToEnd={scrollTabToEnd}>
             <EditTabs
@@ -468,7 +471,7 @@ class DashboardSettings extends React.Component {
   }
 
   handleClickMenu(menu) {
-    let typeMenu = cloneDeep(this.state.typeMenu);
+    let typeMenu = deepClone(this.state.typeMenu);
     let isShowMenuConstructor = false;
 
     if (menu.isActive) {
