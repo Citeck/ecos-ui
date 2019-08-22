@@ -2,7 +2,7 @@ import { MENU_TYPE, QueryKeys } from '../constants';
 
 export const getDefaultMenuConfig = {
   menu: {
-    type: MENU_TYPE.TOP,
+    type: MENU_TYPE.LEFT,
     links: []
   }
 };
