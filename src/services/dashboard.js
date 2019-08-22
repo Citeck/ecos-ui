@@ -57,6 +57,8 @@ export default class DashboardService {
     };
   }
 
+  static defineSavingDashboard() {}
+
   static movedToListLayout(config, layouts) {
     if (isEmpty(layouts)) {
       console.log('movedToListLayout: for old version, which has one layout without tab');

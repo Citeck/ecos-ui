@@ -12,6 +12,7 @@ import {
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
 import { selectIdentificationForSet } from '../selectors/dashboard';
+import { selectUserName } from '../selectors/user';
 import { saveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
 import DashboardService from '../services/dashboard';
@@ -72,23 +73,37 @@ function* doGetDashboardKeys({ api, logger }, { payload }) {
 
 function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
+    const userName = yield select(selectUserName);
     const identification = yield select(selectIdentificationForSet);
-    const serverConfig = DashboardSettingsConverter.getSettingsConfigForServer(payload);
+    const isChangedKey = identification.key !== payload.dashboardKey;
 
-    const { layouts, menu } = serverConfig;
-    const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
-      config: { layouts },
-      identification
+    const data = DashboardService.defineSavingDashboard(isChangedKey, payload.isForAllUsers, !!identification.user);
+
+    const checkExistDashboard = yield call(api.dashboard.checkExistDashboard, {
+      key: payload.dashboardKey,
+      type: identification.type,
+      user: payload.isForAllUsers ? null : userName
     });
-    const parseDashboard = DashboardService.parseSaveResult(dashboardResult);
 
-    yield put(saveMenuConfig(menu));
-    yield put(
-      setResultSaveDashboardConfig({
-        status: parseDashboard.dashboardId ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
-        dashboardId: parseDashboard.dashboardId
-      })
-    );
+    if (checkExistDashboard) {
+    } else {
+      const serverConfig = DashboardSettingsConverter.getSettingsConfigForServer(payload);
+
+      const { layouts, menu } = serverConfig;
+      const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
+        config: { layouts },
+        identification
+      });
+      const parseDashboard = DashboardService.parseSaveResult(dashboardResult);
+
+      yield put(saveMenuConfig(menu));
+      yield put(
+        setResultSaveDashboardConfig({
+          status: parseDashboard.dashboardId ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
+          dashboardId: parseDashboard.dashboardId
+        })
+      );
+    }
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error4')));
     logger.error('[dashboard/settings/ doSaveSettingsRequest saga] error', e.message);

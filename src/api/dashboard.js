@@ -12,6 +12,7 @@ import DashboardService from '../services/dashboard';
 const defaultAttr = {
   key: QueryKeys.KEY,
   config: QueryKeys.CONFIG_JSON,
+  user: 'user',
   type: 'type',
   id: 'id'
 };
@@ -187,5 +188,19 @@ export class DashboardApi extends RecordService {
         };
       }
     }
+  };
+
+  checkExistDashboard = function*({ key, type, user }) {
+    return yield Records.queryOne(
+      {
+        sourceId: SourcesId.DASHBOARD,
+        query: {
+          type,
+          user,
+          key
+        }
+      },
+      { user: 'user' }
+    ).then(response => console.log);
   };
 }

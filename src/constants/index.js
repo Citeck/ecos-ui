@@ -19,7 +19,12 @@ export const URL = {
 };
 
 export const SourcesId = {
-  DASHBOARD: 'uiserv/dashboard'
+  DASHBOARD: 'uiserv/dashboard',
+  HISTORY: 'history',
+  STATUS: 'status',
+  COMMENT: 'comment',
+  VERSION: 'version',
+  PEOPLE: 'people'
 };
 
 export const MENU_TYPE = {

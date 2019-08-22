@@ -302,12 +302,17 @@ class DashboardSettings extends React.Component {
     const { dashboardKeyItems, userData } = this.props;
     const { selectedDashboardKey, isForAllUsers } = this.state;
 
+    const setData = data => {
+      this.setState(data);
+    };
+
     return isEmpty(dashboardKeyItems) ? null : (
       <SetBind
         keys={dashboardKeyItems}
         selectedDashboardKey={selectedDashboardKey}
         isAdmin={userData.isAdmin}
         isForAllUsers={isForAllUsers}
+        setData={setData}
       />
     );
   }
@@ -392,12 +397,14 @@ class DashboardSettings extends React.Component {
       typeMenu,
       tabs,
       selectedLayout: layoutType,
-      selectedDashboardKey: dashboardKey
+      selectedDashboardKey: dashboardKey,
+      isForAllUsers
     } = this.state;
     const activeMenuType = typeMenu.find(item => item.isActive);
     const menuType = activeMenuType ? activeMenuType.type : typeMenu[0].type;
 
     saveSettings({
+      isForAllUsers,
       dashboardKey,
       layoutType,
       widgets,

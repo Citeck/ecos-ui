@@ -15,7 +15,8 @@ const initialState = {
   identification: {
     key: null,
     id: null,
-    type: null
+    type: null,
+    user: null
   },
   config: [],
   titleInfo: {
