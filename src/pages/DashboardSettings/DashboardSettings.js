@@ -15,12 +15,14 @@ import { MENU_TYPE, SAVE_STATUS, URL } from '../../constants';
 import { getAwayFromPage, initDashboardSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
 import { initMenuSettings } from '../../actions/menu';
 import DashboardService from '../../services/dashboard';
-import { ColumnsLayoutItem, MenuLayoutItem } from '../../components/Layout';
+import { ColumnsLayoutItem } from '../../components/Layout';
 import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { EditTabs, Loader, ScrollArrow } from '../../components/common';
 import { Btn, IcoBtn } from '../../components/common/btns';
 import { Checkbox, Dropdown } from '../../components/common/form';
+
+import SetMenu from './SetMenu';
 
 import './style.scss';
 
@@ -50,8 +52,6 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const DROPPABLE_ZONE = {
-  MENU_FROM: 'availableMenuItems',
-  MENU_TO: 'selectedMenuItems',
   WIDGETS_FROM: 'availableWidgets',
   WIDGETS_TO: 'selectedWidgets'
 };
@@ -98,7 +98,6 @@ class DashboardSettings extends React.Component {
       selectedWidgets: {},
       selectedMenuItems: [],
       typeMenu: MenuTypes,
-      isShowMenuConstructor: false,
       availableWidgets: DndUtils.setDndId(props.availableWidgets),
       availableMenuItems: DndUtils.setDndId(props.availableMenuItems),
       urlParams: getSortedUrlParams(),
@@ -151,8 +150,6 @@ class DashboardSettings extends React.Component {
     ) {
       state.availableWidgets = DndUtils.setDndId(nextProps.availableWidgets);
     }
-
-    state.isShowMenuConstructor = nextProps.config.menuType === MENU_TYPE.TOP;
 
     this.setState({ ...state });
 
@@ -208,9 +205,7 @@ class DashboardSettings extends React.Component {
       item.isActive = item.type === this.getMenuType(props);
     });
 
-    const isShowMenuConstructor = this.getMenuType(props) === MENU_TYPE.TOP;
-
-    return { typeMenu, selectedMenuItems, isShowMenuConstructor };
+    return { typeMenu, selectedMenuItems };
   }
 
   setSelectedWidgets(item, availableWidgets) {
@@ -269,12 +264,6 @@ class DashboardSettings extends React.Component {
     return Layouts.find(layout => layout.type === this.activeData.layout) || {};
   }
 
-  get filterAvailableMenuItems() {
-    const { availableMenuItems, selectedMenuItems } = this.state;
-
-    return availableMenuItems.filter(item => !selectedMenuItems.find(elm => item.id === elm.id));
-  }
-
   get activeData() {
     const { activeLayoutId, selectedWidgets, selectedLayout } = this.state;
 
@@ -288,7 +277,7 @@ class DashboardSettings extends React.Component {
     return [DashboardTypes.USER].includes(this.props.dashboardType);
   }
 
-  draggablePositionAdjusment = () => {
+  draggablePositionAdjustment = () => {
     const menuType = this.getMenuType();
 
     return {
@@ -470,24 +459,6 @@ class DashboardSettings extends React.Component {
     this.setState({ selectedWidgets, selectedLayout });
   }
 
-  handleClickMenu(menu) {
-    let typeMenu = deepClone(this.state.typeMenu);
-    let isShowMenuConstructor = false;
-
-    if (menu.isActive) {
-      return;
-    }
-
-    typeMenu = typeMenu.map(item => {
-      item.isActive = item.type === menu.type;
-      isShowMenuConstructor = menu.type === MENU_TYPE.TOP;
-
-      return item;
-    });
-
-    this.setState({ typeMenu, isShowMenuConstructor });
-  }
-
   renderColumnLayouts() {
     return Layouts.map(layout => (
       <ColumnsLayoutItem
@@ -495,21 +466,6 @@ class DashboardSettings extends React.Component {
         onClick={this.handleClickColumn.bind(this, layout)}
         active={layout.type === this.activeData.layout}
         config={{ columns: layout.columns || [] }}
-        className="ecos-dashboard-settings__container-group-item"
-      />
-    ));
-  }
-
-  renderMenuLayouts() {
-    const { typeMenu } = this.state;
-
-    return typeMenu.map(menu => (
-      <MenuLayoutItem
-        key={`${menu.position}-${menu.type}`}
-        onClick={this.handleClickMenu.bind(this, menu)}
-        active={menu.isActive}
-        config={{ menu }}
-        description={t(menu.description)}
         className="ecos-dashboard-settings__container-group-item"
       />
     ));
@@ -525,123 +481,21 @@ class DashboardSettings extends React.Component {
     );
   }
 
-  /*-------- start Menu --------*/
-
-  handleDropEndMenu = result => {
-    const { source, destination } = result;
-    const state = {};
-
-    this.setState({ draggableDestination: '' });
-
-    if (!destination) {
-      return;
-    }
-
-    if (source.droppableId === destination.droppableId) {
-      const menuReorder = DndUtils.reorder(this.state[source.droppableId], source.index, destination.index);
-
-      if (source.droppableId === DROPPABLE_ZONE.MENU_TO) {
-        state.selectedMenuItems = menuReorder;
-      }
-    } else {
-      const menuMove = DndUtils.move(this.filterAvailableMenuItems, this.state[destination.droppableId], source, destination);
-
-      state.availableMenuItems = menuMove[DROPPABLE_ZONE.MENU_FROM];
-      state.selectedMenuItems = menuMove[DROPPABLE_ZONE.MENU_TO];
-    }
-
-    this.setState(state);
-  };
-
-  handleRemoveMenuItem = ({ item }) => {
-    const { selectedMenuItems, availableMenuItems } = this.state;
-
-    if (!availableMenuItems.find(elm => elm.id === item.id)) {
-      availableMenuItems.push(item);
-    }
-
-    this.setState({
-      selectedMenuItems: selectedMenuItems.filter(menu => menu.id !== item.id),
-      availableMenuItems
-    });
-  };
-
-  renderMenuConstructor() {
-    const { selectedMenuItems, isShowMenuConstructor, draggableDestination } = this.state;
-    const filterMenuItems = this.filterAvailableMenuItems;
-
-    if (!isShowMenuConstructor) {
-      return null;
-    }
-
-    return (
-      <React.Fragment>
-        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.menu-constructor.subtitle')}</h6>
-        <div className="ecos-dashboard-settings__drag ecos-dashboard-settings__drag_menu">
-          <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDropEndMenu}>
-            <Droppable
-              droppableId={DROPPABLE_ZONE.MENU_FROM}
-              className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_menu-from"
-              placeholder={t('dashboard-settings.menu-constructor.placeholder1')}
-              style={{ marginRight: '10px' }}
-              direction="horizontal"
-              isDropDisabled
-              scrollHeight={270}
-            >
-              {filterMenuItems &&
-                filterMenuItems.length &&
-                filterMenuItems.map((item, index) => (
-                  <DragItem
-                    title={item.label}
-                    key={`all-${item.id}-${item.dndId}-${index}`}
-                    draggableId={item.dndId}
-                    draggableIndex={index}
-                    getPositionAdjusment={this.draggablePositionAdjusment}
-                  />
-                ))}
-            </Droppable>
-            <Droppable
-              droppableId={DROPPABLE_ZONE.MENU_TO}
-              placeholder={t('dashboard-settings.menu-constructor.placeholder2')}
-              className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_menu-to"
-              childPosition="column"
-              isDragingOver={draggableDestination === DROPPABLE_ZONE.MENU_TO}
-              scrollHeight={270}
-              // style={{ height: '270px' }}
-            >
-              {selectedMenuItems &&
-                selectedMenuItems.length &&
-                selectedMenuItems.map((item, index) => (
-                  <DragItem
-                    className="ecos-dashboard-settings__column-widgets__items__cell ecos-drag-item_full"
-                    title={item.label}
-                    key={`selected-${item.id}-${index}`}
-                    draggableId={item.dndId}
-                    draggableIndex={index}
-                    getPositionAdjusment={this.draggablePositionAdjusment}
-                    removeItem={this.handleRemoveMenuItem}
-                    selected={true}
-                    canRemove={true}
-                    item={item}
-                  />
-                ))}
-            </Droppable>
-          </DragDropContext>
-        </div>
-      </React.Fragment>
-    );
-  }
-
   renderMenuBlock() {
+    const { selectedMenuItems, availableMenuItems, typeMenu } = this.state;
+
+    const setData = data => {
+      this.setState(data);
+    };
+
     return this.isUserType ? (
-      <React.Fragment>
-        <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.menu.title')}</h5>
-        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.menu.subtitle')}</h6>
-        <div className="ecos-dashboard-settings__container-group ecos-dashboard-settings__container-group_row">
-          {this.renderMenuLayouts()}
-        </div>
-        {this.renderMenuConstructor()}
-      </React.Fragment>
+      <SetMenu
+        typeMenu={typeMenu}
+        availableMenuItems={availableMenuItems}
+        selectedMenuItems={selectedMenuItems}
+        setData={setData}
+        positionAdjustment={this.draggablePositionAdjustment}
+      />
     ) : null;
   }
 

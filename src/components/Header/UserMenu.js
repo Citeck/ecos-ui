@@ -5,9 +5,8 @@ import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
-import { DropdownMenu as Menu } from '../common';
+import { Avatar, DropdownMenu as Menu } from '../common';
 import { IcoBtn } from '../common/btns';
-import { Avatar } from '../common';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
