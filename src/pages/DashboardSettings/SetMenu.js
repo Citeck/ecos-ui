@@ -7,7 +7,7 @@ import { MENU_TYPE } from '../../constants';
 import { DndUtils, DragItem, Droppable } from '../../components/Drag-n-Drop';
 import { MenuLayoutItem } from '../../components/Layout';
 
-const DROPPABLE_ZONE = {
+const NAMES = {
   MENU_FROM: 'availableMenuItems',
   MENU_TO: 'selectedMenuItems'
 };
@@ -52,14 +52,14 @@ class SetMenu extends React.Component {
     if (source.droppableId === destination.droppableId) {
       const menuReorder = DndUtils.reorder(this.props[source.droppableId], source.index, destination.index);
 
-      if (source.droppableId === DROPPABLE_ZONE.MENU_TO) {
+      if (source.droppableId === NAMES.MENU_TO) {
         state.selectedMenuItems = menuReorder;
       }
     } else {
       const menuMove = DndUtils.move(this.filterAvailableMenuItems, this.props[destination.droppableId], source, destination);
 
-      state.availableMenuItems = menuMove[DROPPABLE_ZONE.MENU_FROM];
-      state.selectedMenuItems = menuMove[DROPPABLE_ZONE.MENU_TO];
+      state.availableMenuItems = menuMove[NAMES.MENU_FROM];
+      state.selectedMenuItems = menuMove[NAMES.MENU_TO];
     }
 
     this.props.setData(state);
@@ -127,7 +127,7 @@ class SetMenu extends React.Component {
         <div className="ecos-dashboard-settings__drag ecos-dashboard-settings__drag_menu">
           <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDropEndMenu}>
             <Droppable
-              droppableId={DROPPABLE_ZONE.MENU_FROM}
+              droppableId={NAMES.MENU_FROM}
               className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_menu-from"
               placeholder={t('dashboard-settings.menu-constructor.placeholder1')}
               style={{ marginRight: '10px' }}
@@ -148,11 +148,11 @@ class SetMenu extends React.Component {
                 ))}
             </Droppable>
             <Droppable
-              droppableId={DROPPABLE_ZONE.MENU_TO}
+              droppableId={NAMES.MENU_TO}
               placeholder={t('dashboard-settings.menu-constructor.placeholder2')}
               className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_menu-to"
               childPosition="column"
-              isDragingOver={draggableDestination === DROPPABLE_ZONE.MENU_TO}
+              isDragingOver={draggableDestination === NAMES.MENU_TO}
               scrollHeight={270}
             >
               {selectedMenuItems &&

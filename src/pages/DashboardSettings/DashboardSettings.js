@@ -15,14 +15,15 @@ import { MENU_TYPE, SAVE_STATUS, URL } from '../../constants';
 import { getAwayFromPage, initDashboardSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
 import { initMenuSettings } from '../../actions/menu';
 import DashboardService from '../../services/dashboard';
-import { DndUtils, DragDropContext, DragItem, Droppable } from '../../components/Drag-n-Drop';
+import { DndUtils } from '../../components/Drag-n-Drop';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { EditTabs, Loader, ScrollArrow } from '../../components/common';
 import { Btn, IcoBtn } from '../../components/common/btns';
 import { Checkbox, Dropdown } from '../../components/common/form';
 
-import SetMenu from './SetMenu';
 import SetLayouts from './SetLayouts';
+import SetWidgets from './SetWidgets';
+import SetMenu from './SetMenu';
 
 import './style.scss';
 
@@ -50,11 +51,6 @@ const mapDispatchToProps = dispatch => ({
   saveSettings: payload => dispatch(saveDashboardConfig(payload)),
   getAwayFromPage: payload => dispatch(getAwayFromPage(payload))
 });
-
-const DROPPABLE_ZONE = {
-  WIDGETS_FROM: 'availableWidgets',
-  WIDGETS_TO: 'selectedWidgets'
-};
 
 class DashboardSettings extends React.Component {
   static propTypes = {
@@ -457,6 +453,27 @@ class DashboardSettings extends React.Component {
     return <SetLayouts activeLayout={this.activeData.layout} setData={setData} />;
   }
 
+  renderWidgetsBlock() {
+    const { availableWidgets, activeLayoutId, selectedWidgets } = this.state;
+
+    const setData = data => {
+      selectedWidgets[activeLayoutId] = data;
+
+      this.setState({ selectedWidgets });
+    };
+
+    return (
+      <SetWidgets
+        availableWidgets={availableWidgets}
+        activeWidgets={this.activeData.widgets}
+        columns={this.selectedTypeLayout.columns}
+        activeLayoutId={activeLayoutId}
+        positionAdjustment={this.draggablePositionAdjustment}
+        setData={setData}
+      />
+    );
+  }
+
   renderMenuBlock() {
     const { selectedMenuItems, availableMenuItems, typeMenu } = this.state;
 
@@ -473,147 +490,6 @@ class DashboardSettings extends React.Component {
         positionAdjustment={this.draggablePositionAdjustment}
       />
     ) : null;
-  }
-
-  /*-------- start Widgets --------*/
-
-  handleDragUpdate = provided => {
-    const { destination, source } = provided;
-
-    if (!destination || !source) {
-      this.setState({ draggableDestination: '' });
-      return;
-    }
-
-    this.setState({
-      draggableDestination: source.droppableId !== destination.droppableId ? destination.droppableId : ''
-    });
-  };
-
-  handleDropEndWidget = result => {
-    const { source, destination } = result;
-    const { selectedWidgets = {}, activeLayoutId } = this.state;
-    const { widgets } = this.activeData;
-    const { availableWidgets } = this.props;
-
-    if (!isEmpty(source) && !isEmpty(destination) && destination.droppableId !== DROPPABLE_ZONE.WIDGETS_FROM) {
-      const colIndex = destination.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[1];
-      const colSelected = widgets[colIndex];
-
-      switch (source.droppableId) {
-        case DROPPABLE_ZONE.WIDGETS_FROM:
-          set(selectedWidgets, [activeLayoutId, colIndex], DndUtils.copy(availableWidgets, widgets[colIndex], source, destination, true));
-          break;
-        case destination.droppableId:
-          set(selectedWidgets, [activeLayoutId, colIndex], DndUtils.reorder(colSelected, source.index, destination.index));
-          break;
-        default:
-          const colSourceIndex = source.droppableId.split(DROPPABLE_ZONE.WIDGETS_TO)[1];
-          const colSource = widgets[colSourceIndex];
-          const resultMove = DndUtils.move(colSource, colSelected, source, destination);
-
-          set(selectedWidgets, [activeLayoutId, colSourceIndex], resultMove[source.droppableId]);
-          set(selectedWidgets, [activeLayoutId, colIndex], resultMove[destination.droppableId]);
-          break;
-      }
-    }
-
-    this.setState({ draggableDestination: '', selectedWidgets });
-  };
-
-  handleRemoveWidget = ({ item }, indexColumn, indexWidget) => {
-    const { widgets } = this.activeData;
-    const { activeLayoutId, selectedWidgets } = this.state;
-
-    widgets[indexColumn].splice(indexWidget, 1);
-
-    this.setState({ selectedWidgets: set(selectedWidgets, [activeLayoutId], widgets) });
-  };
-
-  renderWidgetColumns() {
-    const { draggableDestination } = this.state;
-    const { columns = [] } = this.selectedTypeLayout;
-    const { widgets } = this.activeData;
-
-    return (
-      <div className={'ecos-dashboard-settings__drag-container_widgets-to'}>
-        {columns.map((column, indexColumn) => {
-          const key_id = `column-widgets-${indexColumn}`;
-
-          return (
-            <div className={'ecos-dashboard-settings__column-widgets'} key={key_id}>
-              <div className={'ecos-dashboard-settings__column-widgets__title'}>
-                {`${t('dashboard-settings.column')} ${indexColumn + 1}`}
-              </div>
-              <Droppable
-                droppableId={DROPPABLE_ZONE.WIDGETS_TO + indexColumn}
-                droppableIndex={indexColumn}
-                childPosition="column"
-                className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__column-widgets__items"
-                placeholder={t('dashboard-settings.column.placeholder')}
-                isDragingOver={draggableDestination === DROPPABLE_ZONE.WIDGETS_TO + indexColumn}
-                scrollHeight={320}
-              >
-                {widgets &&
-                  widgets[indexColumn] &&
-                  widgets[indexColumn].map((widget, indexWidget) => (
-                    <DragItem
-                      key={widget.dndId}
-                      draggableId={widget.dndId}
-                      draggableIndex={indexWidget}
-                      className={'ecos-dashboard-settings__column-widgets__items__cell'}
-                      title={widget.label}
-                      selected={true}
-                      canRemove={true}
-                      removeItem={response => {
-                        this.handleRemoveWidget(response, indexColumn, indexWidget);
-                      }}
-                      getPositionAdjusment={this.draggablePositionAdjustment}
-                      item={widget}
-                    />
-                  ))}
-              </Droppable>
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-
-  renderWidgetsBlock() {
-    const { availableWidgets } = this.state;
-
-    return (
-      <React.Fragment>
-        <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.widgets.title')}</h5>
-        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.widgets.subtitle')}</h6>
-        <div className="ecos-dashboard-settings__container-group">
-          <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDropEndWidget}>
-            <Droppable
-              droppableId={DROPPABLE_ZONE.WIDGETS_FROM}
-              className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_col"
-              placeholder={t('dashboard-settings.widgets.placeholder')}
-              isDropDisabled={true}
-              scrollHeight={136}
-            >
-              {availableWidgets &&
-                availableWidgets.length &&
-                availableWidgets.map((item, index) => (
-                  <DragItem
-                    isCloning
-                    key={item.dndId}
-                    draggableId={item.dndId}
-                    draggableIndex={index}
-                    title={item.label}
-                    getPositionAdjusment={this.draggablePositionAdjustment}
-                  />
-                ))}
-            </Droppable>
-            {this.renderWidgetColumns()}
-          </DragDropContext>
-        </div>
-      </React.Fragment>
-    );
   }
 
   /*-------- start Buttons --------*/
