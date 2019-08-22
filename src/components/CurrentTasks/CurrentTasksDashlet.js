@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+
 import { isSmallMode, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
@@ -28,8 +29,6 @@ class CurrentTasksDashlet extends React.Component {
     dragHandleProps: {},
     canDragging: false
   };
-
-  className = 'ecos-current-task-list-dashlet';
 
   constructor(props) {
     super(props);
@@ -62,14 +61,14 @@ class CurrentTasksDashlet extends React.Component {
   render() {
     const { id, title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isSmallMode, isUpdating, height, fitHeights } = this.state;
-    const classDashlet = classNames(this.className, classNameDashlet);
+    const classDashlet = classNames('ecos-current-task-list-dashlet', classNameDashlet);
 
     return (
       <Dashlet
         title={title || t('current-tasks-widget.title')}
-        bodyClassName={`${this.className}__body`}
+        bodyClassName="ecos-current-task-list-dashlet__body"
         className={classDashlet}
-        resizable={true}
+        resizable
         onReload={this.onReload}
         needGoTo={false}
         actionEdit={false}
