@@ -57,7 +57,7 @@ class EventsHistoryList extends React.Component {
 
   renderTable() {
     const { list, columns } = this.props;
-    // const { filters } = this.state;
+    //todo for server filer const { filters } = this.state;
 
     return (
       <Grid data={list} columns={columns} scrollable={false} className={`${this.className}_view-table`} />

@@ -1,12 +1,14 @@
+import * as React from 'react';
 import PropTypes from 'prop-types';
+
 import { t } from '../../helpers/util';
 import { DataFormatTypes } from '../../constants';
-import * as React from 'react';
 
 export const CurrentTaskPropTypes = {
   id: PropTypes.string,
   title: PropTypes.string,
   actors: PropTypes.string,
+  usersGroup: PropTypes.string,
   deadline: PropTypes.any
 };
 
@@ -29,6 +31,6 @@ export const DisplayedColumns = {
   }
 };
 
-export const noData = <span className={'ecos-current-task_no-data'}>{t('current-tasks-widget.no-data')}</span>;
+export const noData = <span className="ecos-current-task_no-data">{t('current-tasks-widget.no-data')}</span>;
 
 export const cleanTaskId = taskId => taskId.replace(/[$@]/g, '');

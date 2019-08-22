@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as queryString from 'query-string';
-import get from 'lodash/get';
+import { get, isArray, isEmpty } from 'lodash';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { getDashboardConfig, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
@@ -9,19 +9,17 @@ import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import Layout from '../../components/Layout';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
-import Loader from '../../components/common/Loader/Loader';
+import { Loader, ScrollArrow, Tabs } from '../../components/common';
 import { MENU_TYPE } from '../../constants';
-import { DASHBOARD_TYPE } from '../../constants/dashboard';
+import { DashboardTypes } from '../../constants/dashboard';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../constants/pageTabs';
 import { deepClone, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../constants/pageTabs';
 
 import './style.scss';
 
 const mapStateToProps = state => ({
-  config: {
-    ...get(state, ['dashboard', 'config'])
-  },
+  config: get(state, ['dashboard', 'config'], []),
   isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
   saveResultDashboard: get(state, ['dashboard', 'saveResult']),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
@@ -48,15 +46,15 @@ class Dashboard extends Component {
     this.state = {
       config: props.config,
       urlParams: getSortedUrlParams(),
-      canDragging: false
+      canDragging: false,
+      activeLayoutId: null
     };
   }
 
   componentDidMount() {
-    const { getDashboardConfig, config } = this.props;
+    const { getDashboardConfig } = this.props;
     const { recordRef } = this.getPathInfo();
 
-    this.setState({ config });
     getDashboardConfig({ recordRef });
   }
 
@@ -71,12 +69,12 @@ class Dashboard extends Component {
       resetDashboardConfig();
       getDashboardConfig({ recordRef });
       initMenuSettings();
-    } else if (urlParams === newUrlParams && isLoadingDashboard && config.type) {
+    } else if (urlParams === newUrlParams && isLoadingDashboard && !isEmpty(config)) {
       setLoading(false);
     }
 
     if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
-      this.setState({ config });
+      this.setState({ config, activeLayoutId: get(config, '[0].id') });
     }
   }
 
@@ -122,6 +120,26 @@ class Dashboard extends Component {
     }
 
     return { height: `calc(100vh - (${height.join(' + ')}))` };
+  }
+
+  get activeLayout() {
+    const { config, activeLayoutId } = this.state;
+
+    if (!isEmpty(config) && isArray(config) && !!activeLayoutId) {
+      return config.find(item => item.tab.idLayout === activeLayoutId);
+    }
+
+    return {};
+  }
+
+  get tabList() {
+    const { config } = this.state;
+
+    if (!isEmpty(config) && isArray(config)) {
+      return config.map((item, index) => item.tab);
+    }
+
+    return [];
   }
 
   prepareWidgetsConfig = (data, dnd) => {
@@ -182,12 +200,30 @@ class Dashboard extends Component {
     this.saveDashboardConfig({ config });
   };
 
+  toggleTabLayout = index => {
+    const tab = get(this.tabList, [index], {});
+
+    this.setState({ activeLayoutId: tab.idLayout });
+  };
+
+  renderTabs() {
+    if (this.tabList.length < 2) {
+      return null;
+    }
+
+    const { activeLayoutId } = this.state;
+
+    return (
+      <ScrollArrow className="ecos-dashboard__tabs">
+        <Tabs hasHover items={this.tabList} onClick={this.toggleTabLayout} keyField={'idLayout'} activeTabKey={activeLayoutId} />
+      </ScrollArrow>
+    );
+  }
+
   renderLayout() {
     const { menuType } = this.props;
-    const {
-      config: { columns, type },
-      canDragging
-    } = this.state;
+    const { canDragging } = this.state;
+    const { columns, type } = this.activeLayout;
 
     return (
       <Layout
@@ -219,7 +255,7 @@ class Dashboard extends Component {
     let title = null;
 
     switch (dashboardType) {
-      case DASHBOARD_TYPE.CASE_DETAILS:
+      case DashboardTypes.CASE_DETAILS:
         title = (
           <React.Fragment>
             <div className="ecos-dashboard__header-title" key="title">
@@ -250,8 +286,8 @@ class Dashboard extends Component {
           </React.Fragment>
         );
         break;
-      case DASHBOARD_TYPE.USER:
-      case DASHBOARD_TYPE.SITE:
+      case DashboardTypes.USER:
+      case DashboardTypes.SITE:
       default:
         title = <div className="ecos-dashboard__header-title">{name && <div className="ecos-dashboard__header-name">{t(name)}</div>}</div>;
         break;
@@ -278,6 +314,7 @@ class Dashboard extends Component {
         >
           {this.renderTopMenu()}
           {this.renderHeader()}
+          {this.renderTabs()}
           {this.renderLayout()}
           {this.renderLoader()}
         </Scrollbars>

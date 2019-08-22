@@ -1,6 +1,5 @@
 import { get, isEmpty } from 'lodash';
 import moment from 'moment';
-
 import { TITLE } from '../constants/pageTabs';
 import DashboardService from '../services/dashboard';
 
@@ -17,15 +16,31 @@ export default class DashboardConverter {
     return target;
   }
 
-  static getDashboardForWeb(source) {
+  static getDashboardLayoutForWeb(source) {
     const target = {};
 
     if (!isEmpty(source)) {
-      const { config } = source;
-      const layout = get(config, ['layout']) || {};
+      target.id = source.id;
+      target.tab = source.tab || {};
+      target.type = source.type || '';
+      target.columns = source.columns || [];
+    }
 
-      target.columns = layout.columns || [];
-      target.type = layout.type;
+    return target;
+  }
+
+  static getDashboardForWeb(source) {
+    const target = [];
+
+    if (!isEmpty(source)) {
+      const { config } = source;
+      const layouts = get(config, ['layouts'], []);
+
+      DashboardService.movedToListLayout(config, layouts);
+
+      layouts.forEach(item => {
+        target.push(DashboardConverter.getDashboardLayoutForWeb(item));
+      });
     }
 
     return target;

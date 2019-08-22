@@ -59,9 +59,10 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
     const identification = yield select(selectIdentificationForSet);
     const serverConfig = DashboardSettingsConverter.getSettingsConfigForServer(payload);
-    const { layout, menu } = serverConfig;
+
+    const { layouts, menu } = serverConfig;
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
-      config: { layout },
+      config: { layouts },
       identification
     });
     const parseDashboard = DashboardService.parseSaveResult(dashboardResult);

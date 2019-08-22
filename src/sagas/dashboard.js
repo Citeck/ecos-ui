@@ -22,7 +22,7 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     const resTitle = yield call(api.dashboard.getTitleInfo, recordRef);
 
     const data = DashboardService.checkDashboardResult(result);
-    const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(data);
+    const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
     const webConfig = DashboardConverter.getDashboardForWeb(data);
     const titleInfo = DashboardConverter.getTitleInfo(resTitle);
 

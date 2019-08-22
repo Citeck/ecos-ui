@@ -96,6 +96,12 @@
         }
       }
     }
+
+    &-value {
+      &_add {
+        white-space: pre;
+      }
+    }
   }
 
   &__icon {
@@ -129,15 +135,24 @@
       padding: 0;
       font-size: $font-size-small;
       line-height: 18px;
+      max-width: 100%;
     }
 
     &-text {
       padding: 15px 0 15px 15px;
       min-width: 153px;
+
+      &-inner {
+        margin-right: 15px;
+      }
     }
 
     &__v-scroll {
       @extend %v-scroll;
+    }
+
+    .tooltip.show {
+      opacity: 1;
     }
   }
 }

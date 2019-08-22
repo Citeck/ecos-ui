@@ -1,0 +1,53 @@
+@import '../../../constants';
+
+.ecos-scrollbar-arrow {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+
+  & > :nth-child(2) {
+    margin: 0 10px;
+  }
+
+  &__scroll {
+    overflow: auto;
+    width: 100%;
+
+    &_intend-left {
+      &:before {
+        content: '';
+        left: 40px;
+        top: 0;
+        position: absolute;
+        width: 40px;
+        height: 100%;
+        background: linear-gradient(90deg, $color-gray-4 0%, rgba($color-white, 0) 100%);
+        z-index: 4;
+        pointer-events: none;
+      }
+    }
+
+    &_intend-right {
+      &:after {
+        content: '';
+        right: 40px;
+        top: 0;
+        position: absolute;
+        width: 40px;
+        height: 100%;
+        background: linear-gradient(270deg, $color-gray-4 0%, rgba($color-white, 0) 100%);
+        z-index: 4;
+        pointer-events: none;
+      }
+    }
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
