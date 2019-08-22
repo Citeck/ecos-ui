@@ -1,13 +1,28 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
+import get from 'lodash/get';
+import { UncontrolledTooltip } from 'reactstrap';
+
 import { isSmallMode, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
+import IcoBtn from '../common/btns/IcoBtn';
 
 import './style.scss';
+
+const LABELS = {
+  WIDGET_TITLE: 'properties-widget.title',
+  EDIT_TITLE: 'properties-widget.action-edit.title',
+  CONSTRUCTOR_BTN_TOOLTIP: 'Перейти в конструктор'
+};
+
+const mapStateToProps = state => ({
+  isAdmin: get(state, ['user', 'isAdmin'], false)
+});
 
 class PropertiesDashlet extends React.Component {
   static propTypes = {
@@ -37,6 +52,7 @@ class PropertiesDashlet extends React.Component {
       isSmallMode: false,
       isReady: true,
       isEditProps: false,
+      constructorModalIsShow: false,
       height: UserLocalSettingsService.getDashletHeight(props.id),
       fitHeights: {}
     };
@@ -69,17 +85,51 @@ class PropertiesDashlet extends React.Component {
     this.setState({ isEditProps: false });
   };
 
+  handleClickShowFormConstructor = () => {
+    console.warn('handleClickShowFormConstructor');
+    this.setState({ constructorModalIsShow: true });
+  };
+
+  renderDashletCustomButtons() {
+    const { isAdmin, id } = this.props;
+    const buttons = [];
+
+    if (isAdmin) {
+      buttons.push(
+        <React.Fragment key={`settings-button-${id}`}>
+          <IcoBtn
+            icon="icon-settings"
+            id={`settings-icon-${id}`}
+            className="ecos-btn_grey ecos-btn_sq_sm ecos-btn_hover_color-grey mr-2"
+            onClick={this.handleClickShowFormConstructor}
+          />
+          <UncontrolledTooltip
+            target={`settings-icon-${id}`}
+            delay={0}
+            placement="top"
+            innerClassName="tooltip-inner-custom"
+            arrowClassName="arrow-custom"
+          >
+            {t(LABELS.CONSTRUCTOR_BTN_TOOLTIP)}
+          </UncontrolledTooltip>
+        </React.Fragment>
+      );
+    }
+
+    return buttons;
+  }
+
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isReady, isEditProps, height, fitHeights } = this.state;
+    const { isSmallMode, isReady, isEditProps, height, fitHeights, constructorModalIsShow } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
       <Dashlet
-        title={title || t('properties-widget.title')}
+        title={title || t(LABELS.WIDGET_TITLE)}
         className={classDashlet}
         bodyClassName={`${this.className}__body`}
-        actionEditTitle={t('properties-widget.action-edit.title')}
+        actionEditTitle={t(LABELS.EDIT_TITLE)}
         resizable={true}
         needGoTo={false}
         actionHelp={false}
@@ -90,6 +140,7 @@ class PropertiesDashlet extends React.Component {
         onChangeHeight={this.onChangeHeight}
         getFitHeights={this.setFitHeights}
         onResize={this.onResize}
+        customButtons={this.renderDashletCustomButtons()}
       >
         <Properties
           className={classNameProps}
@@ -100,6 +151,7 @@ class PropertiesDashlet extends React.Component {
           height={height}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
+          constructorModalIsShow={constructorModalIsShow}
         />
         <PropertiesEditModal record={record} isOpen={isEditProps} onFormCancel={this.closeModal} onFormSubmit={this.updateProps} />
       </Dashlet>
@@ -107,4 +159,7 @@ class PropertiesDashlet extends React.Component {
   }
 }
 
-export default PropertiesDashlet;
+export default connect(
+  mapStateToProps,
+  {}
+)(PropertiesDashlet);

@@ -14,6 +14,7 @@ class Properties extends React.Component {
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
     isReady: PropTypes.bool,
+    constructorModalIsShow: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
@@ -23,6 +24,7 @@ class Properties extends React.Component {
     record: '',
     className: '',
     isSmallMode: false,
+    constructorModalIsShow: false,
     isReady: true
   };
 
@@ -66,7 +68,7 @@ class Properties extends React.Component {
   }
 
   renderForm() {
-    const { record, isSmallMode, isReady } = this.props;
+    const { record, isSmallMode, isReady, constructorModalIsShow } = this.props;
     const { isReadySubmit, hideForm } = this.state;
 
     return !hideForm && isReady && isReadySubmit ? (
@@ -82,6 +84,7 @@ class Properties extends React.Component {
             },
             formMode: FORM_MODE_EDIT
           }}
+          builderModalIsShow={constructorModalIsShow}
           onSubmit={this.onSubmitForm}
           onReady={this.onReady}
           className={`${this.className}__formio`}

@@ -5,6 +5,7 @@ import Formio from 'formiojs/Formio';
 import '../../forms/components';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
+import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import DataGridAssocComponent from './../../forms/components/custom/datagridAssoc/DataGridAssoc';
 import { t } from '../../helpers/util';
@@ -27,7 +28,8 @@ class EcosForm extends React.Component {
     this.state = {
       containerId: 'ecos-ui-form-' + formCounter++,
       recordId: record.id,
-      error: null
+      error: null,
+      formDefinition: {}
     };
   }
 
@@ -83,6 +85,8 @@ class EcosForm extends React.Component {
 
       recordDataPromise.then(recordData => {
         let formDefinition = JSON.parse(JSON.stringify(formData.definition));
+
+        this.setState({ formDefinition });
 
         let attributesTitles = {};
         EcosFormUtils.forEachComponent(formDefinition, component => {
@@ -231,14 +235,22 @@ class EcosForm extends React.Component {
   }
 
   render() {
-    const { className } = this.props;
+    const { className, builderModalIsShow } = this.props;
+    const { formDefinition } = this.state;
     let self = this;
 
     if (this.state.error) {
       return <div className={classNames('ecos-ui-form__error', className)}>{self.state.error.message}</div>;
     }
 
-    return <div className={classNames(className)} id={this.state.containerId} />;
+    console.warn(builderModalIsShow ? formDefinition : 'Builder modal not opened');
+
+    return (
+      <>
+        <div className={classNames(className)} id={this.state.containerId} />
+        <EcosFormBuilderModal isModalOpen={builderModalIsShow} formDefinition={formDefinition} />
+      </>
+    );
   }
 }
 
@@ -258,12 +270,15 @@ EcosForm.propTypes = {
   onFormNextPage: PropTypes.func,
   // -----
   saveOnSubmit: PropTypes.bool,
-  className: PropTypes.string
+  className: PropTypes.string,
+
+  builderModalIsShow: PropTypes.bool
 };
 
 EcosForm.defaultProps = {
-  className: ''
+  className: '',
+  builderModalIsShow: false
 };
 
 export default EcosForm;
-export { EcosForm, EcosFormBuilder };
+export { EcosForm, EcosFormBuilder, EcosFormBuilderModal };
