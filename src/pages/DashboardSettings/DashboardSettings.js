@@ -16,9 +16,9 @@ import { initMenuSettings } from '../../actions/menu';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { Loader } from '../../components/common';
-import { Btn, IcoBtn } from '../../components/common/btns';
-import { Checkbox, Dropdown } from '../../components/common/form';
+import { Btn } from '../../components/common/btns';
 
+import SetBind from './SetBind';
 import SetTabs from './SetTabs';
 import SetLayouts from './SetLayouts';
 import SetWidgets from './SetWidgets';
@@ -41,7 +41,7 @@ const mapStateToProps = state => ({
   saveResult: get(state, ['dashboardSettings', 'saveResult']),
   dashboardType: get(state, ['dashboardSettings', 'identification', 'type']),
   dashboardKey: get(state, ['dashboardSettings', 'identification', 'key']),
-  dashboardKeyList: get(state, ['dashboardSettings', 'dashboardKeys'], [])
+  dashboardKeyItems: get(state, ['dashboardSettings', 'dashboardKeys'], [])
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -67,7 +67,7 @@ class DashboardSettings extends React.Component {
     availableWidgets: PropTypes.array,
     dashboardKey: PropTypes.string,
     dashboardType: PropTypes.string,
-    dashboardKeyList: PropTypes.array
+    dashboardKeyItems: PropTypes.array
   };
 
   static defaultProps = {
@@ -79,7 +79,7 @@ class DashboardSettings extends React.Component {
     availableMenuItems: [],
     dashboardKey: '',
     dashboardType: '',
-    dashboardKeyList: []
+    dashboardKeyItems: []
   };
 
   constructor(props) {
@@ -88,7 +88,7 @@ class DashboardSettings extends React.Component {
     const state = {
       activeLayoutId: null,
       selectedDashboardKey: '',
-      dashboardKeyForAllUsers: false,
+      isForAllUsers: false,
       selectedLayout: {},
       selectedWidgets: {},
       selectedMenuItems: [],
@@ -96,8 +96,7 @@ class DashboardSettings extends React.Component {
       availableWidgets: DndUtils.setDndId(props.availableWidgets),
       availableMenuItems: DndUtils.setDndId(props.availableMenuItems),
       urlParams: getSortedUrlParams(),
-      tabs: [],
-      isOpenKeys: false
+      tabs: []
     };
 
     this.state = {
@@ -299,50 +298,17 @@ class DashboardSettings extends React.Component {
     );
   }
 
-  /*-------- start Keys --------*/
-  getStateOpen = isOpenKeys => {
-    this.setState({ isOpenKeys });
-  };
-
-  onChangeDashboardKey = field => {
-    this.setState({ selectedDashboardKey: field.key });
-  };
-
-  onChangeKeyForAllUser = field => {
-    this.setState({ dashboardKeyForAllUsers: field.checked });
-  };
-
   renderDashboardKey() {
-    const { dashboardKeyList, userData } = this.props;
-    const { isOpenKeys, selectedDashboardKey, dashboardKeyForAllUsers } = this.state;
+    const { dashboardKeyItems, userData } = this.props;
+    const { selectedDashboardKey, isForAllUsers } = this.state;
 
-    return isEmpty(dashboardKeyList) ? null : (
-      <div className="ecos-dashboard-settings__container">
-        <h5 className="ecos-dashboard-settings__container-title">{t('Привязка к типу кейса')}</h5>
-        <div className="ecos-dashboard-settings__keys-wrapper">
-          <Dropdown
-            source={dashboardKeyList}
-            value={selectedDashboardKey}
-            valueField={'key'}
-            titleField={'displayName'}
-            onChange={this.onChangeDashboardKey}
-            getStateOpen={this.getStateOpen}
-            hideSelected
-            className={'ecos-dashboard-settings__keys-dropdown'}
-          >
-            <IcoBtn invert icon={isOpenKeys ? 'icon-up' : 'icon-down'} className={`ecos-btn_white2 ecos-btn_focus_no ecos-btn_drop-down`} />
-          </Dropdown>
-          {userData.isAdmin && (
-            <Checkbox
-              checked={dashboardKeyForAllUsers}
-              onChange={this.onChangeKeyForAllUser}
-              className={'ecos-dashboard-settings__keys-checkbox'}
-            >
-              {t('Для всех пользователей')}
-            </Checkbox>
-          )}
-        </div>
-      </div>
+    return isEmpty(dashboardKeyItems) ? null : (
+      <SetBind
+        keys={dashboardKeyItems}
+        selectedDashboardKey={selectedDashboardKey}
+        isAdmin={userData.isAdmin}
+        isForAllUsers={isForAllUsers}
+      />
     );
   }
 
@@ -355,7 +321,7 @@ class DashboardSettings extends React.Component {
       this.setState(data);
     };
 
-    const { tabs, activeLayoutId, scrollTabToEnd } = this.state;
+    const { tabs, activeLayoutId } = this.state;
 
     return <SetTabs tabs={tabs} activeLayoutId={activeLayoutId} setData={setData} />;
   }
@@ -476,7 +442,7 @@ class DashboardSettings extends React.Component {
       <Container className="ecos-dashboard-settings">
         {this.renderLoader()}
         {this.renderHeader()}
-        {this.renderDashboardKey()}
+        <div className="ecos-dashboard-settings__container">{this.renderDashboardKey()}</div>
         {this.renderTabsBlock()}
         <div className="ecos-dashboard-settings__container">
           {this.renderLayoutsBlock()}
