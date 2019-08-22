@@ -282,10 +282,10 @@ class DashboardSettings extends React.Component {
         title = t('dashboard-settings.page-title');
         break;
       case DashboardTypes.CASE_DETAILS:
-        title = t('Настройка карточек');
+        title = t('dashboard-settings.card-settings');
         break;
       default:
-        title = t('Настройка отображения страницы');
+        title = t('dashboard-settings.page-display-settings');
         break;
     }
     return (
@@ -358,9 +358,7 @@ class DashboardSettings extends React.Component {
 
     return (
       <React.Fragment>
-        <h6 className="ecos-dashboard-settings__container-subtitle">
-          {t('Отредактируйте количество и содержимое табов для соответствующего типа дашборда')}
-        </h6>
+        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
         <div className="ecos-dashboard-settings__tabs-wrapper">
           <ScrollArrow scrollToEnd={scrollTabToEnd}>
             <EditTabs
