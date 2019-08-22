@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { get, isEmpty } from 'lodash';
+import get from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 import { t } from '../../helpers/util';
 import { Grid } from '../common/grid';
 import { InfoText, Loader } from '../common';
