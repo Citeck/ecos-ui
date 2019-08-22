@@ -9,8 +9,7 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
-    grid: newState.grid,
-    journalSetting: newState.journalSetting
+    grid: newState.grid
   };
 };
 
@@ -32,10 +31,7 @@ class JournalsDashletPagination extends Component {
   };
 
   reloadGrid = pagination => {
-    const { journalSetting, reloadGrid } = this.props;
-    const { columns, groupBy, sortBy, predicate } = journalSetting;
-
-    reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [], pagination });
+    this.props.reloadGrid({ pagination });
   };
 
   render() {
