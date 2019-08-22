@@ -9,7 +9,6 @@ import {
   setDashboardConfig,
   setResultSaveDashboardConfig
 } from '../actions/dashboardSettings';
-import { LAYOUT_TYPE } from '../constants/layout';
 
 const initialState = {
   identification: {
@@ -17,10 +16,7 @@ const initialState = {
     id: null,
     type: null
   },
-  config: {
-    layoutType: LAYOUT_TYPE.TWO_COLUMNS_BS,
-    widgets: []
-  },
+  config: [],
   availableWidgets: [],
   isLoading: false,
   saveResult: {
@@ -41,7 +37,7 @@ export default handleActions(
     [saveDashboardConfig]: startLoading,
 
     [setDashboardConfig]: (state, { payload }) => {
-      const { identification, ...config } = payload;
+      const { identification, config } = payload;
 
       return {
         ...state,

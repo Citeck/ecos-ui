@@ -169,7 +169,7 @@ export default class SearchSelect extends React.Component {
 
     return isLoading ? (
       <li className={`${this.className}__loader`}>
-        <Loader height="30" width="30" />
+        <Loader height={30} width={30} />
       </li>
     ) : null;
   }

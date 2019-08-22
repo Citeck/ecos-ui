@@ -17,10 +17,7 @@ const initialState = {
     id: null,
     type: null
   },
-  config: {
-    columns: [],
-    type: ''
-  },
+  config: [],
   titleInfo: {
     modifierName: '',
     modifierUrl: '',
@@ -60,11 +57,9 @@ export default handleActions(
       };
     },
     [setDashboardConfig]: (state, { payload }) => {
-      const { ...config } = payload;
-
       return {
         ...state,
-        config,
+        config: payload,
         isLoading: false
       };
     },

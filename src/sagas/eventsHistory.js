@@ -16,7 +16,8 @@ function* sagaGetEventsHistory({ api, logger }, { payload }) {
 }
 
 function* sagaFilterEventsHistory({ api, logger }, { payload }) {
-  const { record, stateId, columns, predicates } = payload;
+  // todo for server filer record, predicates
+  const { stateId, columns } = payload;
   const list = yield select(selectListEventsHistory, stateId);
 
   try {

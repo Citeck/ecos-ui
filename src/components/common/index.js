@@ -10,6 +10,8 @@ export { default as RawHtmlWrapper } from './RawHtmlWrapper';
 export { default as Search } from './Search/Search';
 export { default as Separator } from './Separator/Separator';
 export { default as Tabs } from './Tabs';
+export { EditTabs } from './Tabs';
+export { default as ScrollArrow } from './ScrollArrow/ScrollArrow';
 export { default as SearchSelect } from './SearchSelect/SearchSelect';
 export { default as Avatar } from './Avatar/Avatar';
 export { default as InfoText } from './InfoText/InfoText';

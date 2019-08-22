@@ -11,7 +11,7 @@ import {
 } from '../actions/menu';
 import { t } from '../helpers/util';
 import { SAVE_STATUS } from '../constants';
-import * as dto from '../dto/menu';
+import MenuConverter from '../dto/menu';
 
 function* doInitMenuSettings({ api, logger }, action) {
   try {
@@ -26,7 +26,7 @@ function* doInitMenuSettings({ api, logger }, action) {
 function* doGetAvailableMenuItemsRequest({ api, logger }, action) {
   try {
     const apiData = yield call(api.menu.getSlideMenuItems); // todo temp
-    const menuItems = dto.getAvailableMenuItemsForWeb(apiData.items);
+    const menuItems = MenuConverter.getAvailableMenuItemsForWeb(apiData.items);
 
     yield put(setAvailableMenuItems(menuItems));
   } catch (e) {
@@ -38,7 +38,7 @@ function* doGetAvailableMenuItemsRequest({ api, logger }, action) {
 function* doGetMenuConfigRequest({ api, logger }, { payload }) {
   try {
     const result = yield call(() => api.menu.getMenuConfig(true));
-    const menu = dto.parseGetResult(result);
+    const menu = MenuConverter.parseGetResult(result);
 
     yield put(setMenuConfig(menu));
   } catch (e) {

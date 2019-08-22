@@ -1,7 +1,7 @@
 import { MENU_TYPE } from './';
 import { LAYOUT_TYPE } from './layout';
 
-export const LAYOUTS = [
+export const Layouts = [
   {
     position: 0,
     type: LAYOUT_TYPE.TWO_COLUMNS_BS,
@@ -34,7 +34,7 @@ export const LAYOUTS = [
   }
 ];
 
-export const TYPE_MENU = [
+export const MenuTypes = [
   {
     position: 0,
     isActive: true,
@@ -49,7 +49,7 @@ export const TYPE_MENU = [
   }
 ];
 
-export const DASHBOARD_TYPE = {
+export const DashboardTypes = {
   CASE_DETAILS: 'case-details',
   USER: 'user-dashboard',
   SITE: 'site-details'

@@ -1,67 +1,50 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { t } from '../../../helpers/util';
+import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
+
 import './Tabs.scss';
 
 const Tab = props => {
-  const { label, isActive, onClick } = props;
+  const { label, isActive, onClick, hasHover } = props;
   const tabClassNames = classNames('ecos-tab', {
-    'ecos-tab_active': isActive
+    'ecos-tab_active': isActive,
+    'ecos-tab_hover': hasHover
   });
 
   return (
     <div className={tabClassNames} onClick={onClick}>
-      {label}
+      {t(label)}
     </div>
   );
 };
 
-Tab.propTypes = {
-  id: PropTypes.string,
-  label: PropTypes.string,
-  isActive: PropTypes.bool,
-  onClick: PropTypes.func
-};
+Tab.propTypes = commonOneTabPropTypes;
+Tab.defaultProps = commonOneTabDefaultProps;
 
 const Tabs = props => {
-  const { items, keyField, valueField, valuePrefix, className, activeTabKey, onClick } = props;
+  const { items, keyField, valueField, valuePrefix, className, classNameTab, activeTabKey, onClick, hasHover } = props;
   const tabsClassNames = classNames('ecos-tabs', className);
 
   return (
     <div className={tabsClassNames}>
       {items.map((item, index) => (
         <Tab
-          key={item[keyField]}
+          {...item}
+          key={`${item[keyField]}-${index}`}
+          className={classNameTab}
           id={item[keyField]}
-          label={`${valuePrefix} ${item[valueField]}`}
+          label={classNames(valuePrefix, item[valueField])}
           isActive={item.isActive || item[keyField] === activeTabKey}
           onClick={() => onClick(index)}
-          {...item}
+          hasHover={hasHover}
         />
       ))}
     </div>
   );
 };
 
-Tabs.propTypes = {
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      ...Tab.propTypes
-    })
-  ),
-  keyField: PropTypes.string,
-  valueField: PropTypes.string,
-  className: PropTypes.string,
-  activeTab: PropTypes.string
-};
-
-Tabs.defaultProps = {
-  items: [],
-  keyField: 'id',
-  valueField: 'label',
-  className: '',
-  activeTab: '',
-  valuePrefix: ''
-};
+Tabs.propTypes = commonTabsPropTypes;
+Tabs.defaultProps = commonTabsDefaultProps;
 
 export default Tabs;
