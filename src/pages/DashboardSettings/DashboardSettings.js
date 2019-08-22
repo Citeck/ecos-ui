@@ -6,21 +6,20 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
-import set from 'lodash/set';
 
-import { arrayCompare, deepClone, t } from '../../helpers/util';
+import { arrayCompare, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 import { DashboardTypes, Layouts, MenuTypes } from '../../constants/dashboard';
 import { MENU_TYPE, SAVE_STATUS, URL } from '../../constants';
 import { getAwayFromPage, initDashboardSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
 import { initMenuSettings } from '../../actions/menu';
-import DashboardService from '../../services/dashboard';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
-import { EditTabs, Loader, ScrollArrow } from '../../components/common';
+import { Loader } from '../../components/common';
 import { Btn, IcoBtn } from '../../components/common/btns';
 import { Checkbox, Dropdown } from '../../components/common/form';
 
+import SetTabs from './SetTabs';
 import SetLayouts from './SetLayouts';
 import SetWidgets from './SetWidgets';
 import SetMenu from './SetMenu';
@@ -98,7 +97,6 @@ class DashboardSettings extends React.Component {
       availableMenuItems: DndUtils.setDndId(props.availableMenuItems),
       urlParams: getSortedUrlParams(),
       tabs: [],
-      scrollTabToEnd: false,
       isOpenKeys: false
     };
 
@@ -198,7 +196,7 @@ class DashboardSettings extends React.Component {
     selectedMenuItems = DndUtils.setDndId(selectedMenuItems);
 
     typeMenu.forEach(item => {
-      item.isActive = item.type === this.getMenuType(props);
+      item.isActive = item.type === get(props, 'menuType', '');
     });
 
     return { typeMenu, selectedMenuItems };
@@ -230,10 +228,6 @@ class DashboardSettings extends React.Component {
       recordRef,
       dashboardId
     };
-  }
-
-  getMenuType(props = this.props) {
-    return get(props, 'menuType', '');
   }
 
   get menuWidth() {
@@ -274,7 +268,7 @@ class DashboardSettings extends React.Component {
   }
 
   draggablePositionAdjustment = () => {
-    const menuType = this.getMenuType();
+    const menuType = get(this.props, 'menuType', '');
 
     return {
       top: menuType === MENU_TYPE.LEFT ? this.bodyScrollTop : 0,
@@ -352,92 +346,18 @@ class DashboardSettings extends React.Component {
     );
   }
 
-  /*-------- start Tabs --------*/
-  onClickTabLayout = tab => {
-    let { activeLayoutId } = this.state;
-
-    if (tab.idLayout !== activeLayoutId) {
-      this.setState({ activeLayoutId: tab.idLayout });
-    }
-  };
-
-  onCreateTab = () => {
-    const { tabs } = this.state;
-    const idLayout = DashboardService.newIdLayout;
-    const newTab = DashboardService.defaultDashboardTab(idLayout);
-
-    newTab.label += ` ${tabs.length + 1}`;
-    newTab.isNew = true;
-
-    tabs.push(newTab);
-
-    this.setState({ tabs, scrollTabToEnd: true }, () => {
-      this.setState({ scrollTabToEnd: false });
-    });
-  };
-
-  onEditTab = (tab, index) => {
-    const { tabs } = this.state;
-    const { label, idLayout } = tab;
-
-    set(tabs, [index], { label, idLayout });
-
-    this.setState({ tabs });
-  };
-
-  onDeleteTab = (tab, index) => {
-    let { tabs, activeLayoutId } = this.state;
-
-    tabs.splice(index, 1);
-
-    if (tab.idLayout === activeLayoutId) {
-      activeLayoutId = get(tabs, '[0].idLayout', null);
-    }
-
-    this.setState({ tabs, activeLayoutId });
-  };
-
-  onSortTabs = sortedTabs => {
-    this.setState({
-      tabs: sortedTabs.map(({ label, idLayout }) => ({ label, idLayout }))
-    });
-  };
-
   renderTabsBlock() {
     if (this.isUserType) {
       return null;
     }
 
-    const { tabs, activeLayoutId, scrollTabToEnd } = this.state;
-    const cloneTabs = deepClone(tabs);
+    const setData = data => {
+      this.setState(data);
+    };
 
-    return (
-      <React.Fragment>
-        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
-        <div className="ecos-dashboard-settings__tabs-wrapper">
-          <ScrollArrow scrollToEnd={scrollTabToEnd}>
-            <EditTabs
-              className="ecos-dashboard-settings__tabs-block"
-              classNameTab="ecos-dashboard-settings__tabs-item"
-              hasHover
-              items={cloneTabs}
-              keyField={'idLayout'}
-              onDelete={this.onDeleteTab}
-              onSort={this.onSortTabs}
-              onEdit={this.onEditTab}
-              onClick={this.onClickTabLayout}
-              disabled={cloneTabs.length < 2}
-              activeTabKey={activeLayoutId}
-            />
-          </ScrollArrow>
-          <IcoBtn
-            icon="icon-big-plus"
-            className={'ecos-dashboard-settings__tabs__add-tab ecos-btn_i ecos-btn_blue2 ecos-btn_hover_blue2'}
-            onClick={this.onCreateTab}
-          />
-        </div>
-      </React.Fragment>
-    );
+    const { tabs, activeLayoutId, scrollTabToEnd } = this.state;
+
+    return <SetTabs tabs={tabs} activeLayoutId={activeLayoutId} setData={setData} />;
   }
 
   renderLayoutsBlock() {
@@ -492,7 +412,7 @@ class DashboardSettings extends React.Component {
     ) : null;
   }
 
-  /*-------- start Buttons --------*/
+  /*-------- Buttons --------*/
 
   handleCloseClick = () => {
     this.closePage();
