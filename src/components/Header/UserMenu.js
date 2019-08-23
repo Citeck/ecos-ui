@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { isArray, isEmpty } from 'lodash';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
-import { t } from '../../helpers/util';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import { DropdownMenu as Menu } from '../common';
 import { IcoBtn } from '../common/btns';
@@ -52,7 +52,7 @@ class UserMenu extends React.Component {
     );
 
     return (
-      <React.Fragment>
+      <>
         {!mob ? <Avatar url={userPhotoUrl} /> : null}
         <Dropdown className={`${this.className} ecos-header-dropdown`} isOpen={dropdownOpen} toggle={this.toggle}>
           <DropdownToggle tag="div" className={'ecos-header-dropdown__toggle'}>
@@ -65,7 +65,7 @@ class UserMenu extends React.Component {
             <Menu items={items} />
           </DropdownMenu>
         </Dropdown>
-      </React.Fragment>
+      </>
     );
   }
 }
