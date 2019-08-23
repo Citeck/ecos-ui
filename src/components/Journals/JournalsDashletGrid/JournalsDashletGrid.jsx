@@ -264,7 +264,13 @@ class JournalsDashletGrid extends Component {
           />,
           <Dropdown
             className={'grid-tools__item_left_5'}
-            source={groupActions}
+            source={groupActions.filter(g => {
+              if (selectAllRecords) {
+                return g.type === 'filtered';
+              }
+
+              return g.type === 'selected';
+            })}
             valueField={'id'}
             titleField={'title'}
             isButton={true}

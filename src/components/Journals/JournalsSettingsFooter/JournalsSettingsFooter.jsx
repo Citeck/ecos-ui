@@ -12,7 +12,7 @@ import {
   setJournalSetting
 } from '../../../actions/journals';
 import { JOURNAL_SETTING_ID_FIELD } from '../constants';
-import { t, trigger } from '../../../helpers/util';
+import { closest, t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 
 import './JournalsSettingsFooter.scss';
@@ -68,11 +68,13 @@ class JournalsSettingsFooter extends Component {
     switch (e.key) {
       case 'Enter':
         const inputRef = this.settingTitleInputRef || {};
+
         if (e.target === inputRef.current) {
           this.createSetting();
-        } else {
+        } else if (closest(e.target, this.props.parentClass)) {
           this.applySetting();
         }
+
         break;
       default:
         break;
