@@ -31,8 +31,8 @@ class EcosForm extends React.Component {
     this.state = {
       containerId: 'ecos-ui-form-' + formCounter++,
       recordId: record.id,
+      formId: 'eform@',
       error: null,
-      form: null,
       formDefinition: {}
     };
   }
@@ -42,7 +42,6 @@ class EcosForm extends React.Component {
   }
 
   initForm(newFormDefinition = this.state.formDefinition) {
-    console.warn('initForm');
     const { record, formKey, options: propsOptions } = this.props;
     const { recordId } = this.state;
     const options = deepClone(propsOptions);
@@ -67,14 +66,14 @@ class EcosForm extends React.Component {
     let self = this;
 
     formLoadingPromise.then(formData => {
-      console.warn('formData: ', formData);
-
       if (!formData) {
         self.setState({
           error: new Error(t('ecos-form.empty-form-data'))
         });
         return null;
       }
+
+      this.setState({ formId: formData.id });
 
       let customModulePromise = new Promise(function(resolve, reject) {
         if (formData.customModule) {
@@ -132,10 +131,6 @@ class EcosForm extends React.Component {
 
         let formPromise = Formio.createForm(containerElement, formDefinition, options);
 
-        if (this.state.form) {
-          return;
-        }
-
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
           let form = formAndCustom[0];
           let customModule = formAndCustom[1];
@@ -180,9 +175,6 @@ class EcosForm extends React.Component {
           if (self.props.onReady) {
             self.props.onReady(form);
           }
-
-          this.setState({ form });
-          // console.warn(form);
         });
       });
     });
@@ -198,23 +190,19 @@ class EcosForm extends React.Component {
 
   onShowFormBuilder = () => {
     if (this._formBuilderModal.current) {
-      this._formBuilderModal.current.show(this.state.formDefinition, formBuilder => {
-        console.warn(formBuilder, this.state.form);
-        // this.state.form.onSubmit(formBuilder.submission, true);
-        this.initForm(formBuilder.form);
-        this.submitForm(this.state.form, formBuilder.submission);
-        // this.fireEvent('builderSubmit', formBuilder.submission);
-        // console.warn(this.props);
-        // this.props.onSubmit(formDefinition);
-        // this.submitForm(formDefinition);
+      const { formDefinition, formId } = this.state;
+
+      this._formBuilderModal.current.show(formDefinition, form => {
+        EcosFormUtils.saveFormBuilder(form, formId).then(() => {
+          this.initForm(form);
+          this.props.onFormSubmitDone();
+        });
       });
     }
   };
 
   submitForm(form, submission) {
     let self = this;
-
-    console.warn('submitForm: ', form, submission);
 
     let inputs = EcosFormUtils.getFormInputs(form.component);
     let keysMapping = {};
@@ -252,7 +240,6 @@ class EcosForm extends React.Component {
     }
 
     if (submission.state) {
-      console.warn('submission.state', submission.state);
       record.att('_state', submission.state);
     }
 
@@ -272,17 +259,21 @@ class EcosForm extends React.Component {
     }
   }
 
+  onReload() {
+    this.initForm({});
+  }
+
   render() {
     const { className } = this.props;
-    let self = this;
+    const { error, containerId } = this.state;
 
-    if (this.state.error) {
-      return <div className={classNames('ecos-ui-form__error', className)}>{self.state.error.message}</div>;
+    if (error) {
+      return <div className={classNames('ecos-ui-form__error', className)}>{error.message}</div>;
     }
 
     return (
       <>
-        <div className={classNames(className)} id={this.state.containerId} />
+        <div className={classNames(className)} id={containerId} />
         <EcosFormBuilderModal ref={this._formBuilderModal} />
       </>
     );

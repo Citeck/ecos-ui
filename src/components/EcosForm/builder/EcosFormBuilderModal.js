@@ -54,8 +54,8 @@ export default class EcosFormBuilderModal extends React.Component {
         isBigHeader={false}
         title={'Form Builder'}
         isOpen={this.state.isModalOpen}
-        hideModal={toggleVisibility}
         zIndex={9000}
+        hideModal={toggleVisibility}
       >
         <EcosFormBuilder formDefinition={this.state.formDefinition} onSubmit={onSubmit} onCancel={toggleVisibility} />
       </EcosModal>

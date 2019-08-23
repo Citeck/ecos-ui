@@ -30,7 +30,7 @@ export default class EcosFormBuilder extends React.Component {
 
   onSubmit() {
     if (this.props.onSubmit) {
-      this.props.onSubmit(this.state.editorForm);
+      this.props.onSubmit(this.state.editorForm.form);
     }
   }
 

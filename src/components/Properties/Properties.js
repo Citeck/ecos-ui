@@ -47,7 +47,11 @@ class Properties extends React.Component {
   }
 
   onSubmitForm = () => {
-    // this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
+    if (this._ecosForm.current) {
+      this._ecosForm.current.onReload();
+    }
+
+    this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
   };
 
   onReady = () => {
@@ -74,11 +78,11 @@ class Properties extends React.Component {
   }
 
   renderForm() {
-    const { record, isSmallMode, isReady } = this.props;
+    const { record, isSmallMode, isReady, onUpdate } = this.props;
     const { isReadySubmit, hideForm } = this.state;
 
     return !hideForm && isReady && isReadySubmit ? (
-      <React.Fragment>
+      <>
         {this.renderLoader()}
         <EcosForm
           ref={this._ecosForm}
@@ -92,10 +96,11 @@ class Properties extends React.Component {
             formMode: FORM_MODE_EDIT
           }}
           onSubmit={this.onSubmitForm}
+          onFormSubmitDone={onUpdate}
           onReady={this.onReady}
           className={`${this.className}__formio`}
         />
-      </React.Fragment>
+      </>
     ) : (
       <InfoText text={t('properties-widget.no-form.text')} />
     );

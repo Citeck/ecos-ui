@@ -54,6 +54,7 @@ class PropertiesDashlet extends React.Component {
       isSmallMode: false,
       isReady: true,
       isEditProps: false,
+      formIsChanged: false,
       height: UserLocalSettingsService.getDashletHeight(props.id),
       fitHeights: {}
     };
@@ -92,7 +93,11 @@ class PropertiesDashlet extends React.Component {
     }
   };
 
-  renderDashletCustomButtons() {
+  onUpdateProperties = () => {
+    this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
+  };
+
+  renderDashletCustomButtons(isDashlet = false) {
     const { isAdmin, id } = this.props;
     const buttons = [];
 
@@ -102,7 +107,10 @@ class PropertiesDashlet extends React.Component {
           <IcoBtn
             icon="icon-settings"
             id={`settings-icon-${id}`}
-            className="ecos-btn_grey ecos-btn_sq_sm ecos-btn_hover_color-grey mr-2"
+            className={classNames('ecos-btn_grey ecos-btn_sq_sm ecos-btn_hover_color-grey', {
+              'dashlet__btn_hidden mr-2': isDashlet,
+              'ml-2': !isDashlet
+            })}
             onClick={this.onClickShowFormBuilder}
           />
           <UncontrolledTooltip
@@ -123,7 +131,7 @@ class PropertiesDashlet extends React.Component {
 
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isReady, isEditProps, height, fitHeights } = this.state;
+    const { isSmallMode, isReady, isEditProps, height, fitHeights, formIsChanged } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -142,7 +150,7 @@ class PropertiesDashlet extends React.Component {
         onChangeHeight={this.onChangeHeight}
         getFitHeights={this.setFitHeights}
         onResize={this.onResize}
-        customButtons={this.renderDashletCustomButtons()}
+        customButtons={this.renderDashletCustomButtons(true)}
       >
         <Properties
           ref={this._propertiesRef}
@@ -154,8 +162,16 @@ class PropertiesDashlet extends React.Component {
           height={height}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
+          onUpdate={this.onUpdateProperties}
         />
-        <PropertiesEditModal record={record} isOpen={isEditProps} onFormCancel={this.closeModal} onFormSubmit={this.updateProps} />
+        <PropertiesEditModal
+          record={record}
+          isOpen={isEditProps}
+          customButtons={this.renderDashletCustomButtons()}
+          onFormCancel={this.closeModal}
+          onFormSubmit={this.updateProps}
+          formIsChanged={formIsChanged}
+        />
       </Dashlet>
     );
   }

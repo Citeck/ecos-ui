@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 
 import EcosForm from './EcosForm';
 import EcosModal from '../common/EcosModal';
@@ -39,7 +39,7 @@ export default class EcosFormModal extends React.Component {
     let recordData = this.state.recordData;
 
     if (!this.state.isModalOpen || !recordData || !record) {
-      return <Fragment />;
+      return null;
     }
 
     let formProps = Object.assign({}, this.props);
