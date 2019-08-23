@@ -139,6 +139,8 @@ class Journals extends Component {
       this.title = title;
     }
 
+    const journalSettingsClassName = 'ecos-journal__settings';
+
     return (
       <div className={'ecos-journal'}>
         <div className={`ecos-journal__body ${menuOpen ? 'ecos-journal__body_with-menu' : ''}`}>
@@ -164,11 +166,12 @@ class Journals extends Component {
             isBigHeader
             className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
           >
-            <Well className={'ecos-journal__settings'}>
+            <Well className={journalSettingsClassName}>
               <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} metaRecord={metaRecord} />
               <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
               <JournalsGrouping stateId={stateId} columns={visibleColumns} />
               <JournalsSettingsFooter
+                parentClass={journalSettingsClassName}
                 stateId={stateId}
                 journalId={journalId}
                 onApply={this.toggleSettings}
