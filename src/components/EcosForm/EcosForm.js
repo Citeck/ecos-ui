@@ -163,7 +163,6 @@ class EcosForm extends React.Component {
 
               if (event !== 'submit') {
                 form.on(event, () => {
-                  console.warn('Other Event: ', event, form, arguments);
                   self.props[key].apply(form, arguments);
                 });
               } else {

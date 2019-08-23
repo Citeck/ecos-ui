@@ -1,4 +1,6 @@
 import React from 'react';
+import classNames from 'classnames';
+import IcoBtn from '../common/btns/IcoBtn';
 
 import EcosForm from './EcosForm';
 import EcosModal from '../common/EcosModal';
@@ -6,6 +8,8 @@ import Records from '../Records';
 import { t } from '../../helpers/util';
 
 export default class EcosFormModal extends React.Component {
+  _formRef = React.createRef();
+
   constructor(props) {
     super(props);
 
@@ -31,6 +35,29 @@ export default class EcosFormModal extends React.Component {
           recordData: data
         });
       });
+  }
+
+  onClickShowFormBuilder = () => {
+    if (this._formRef.current) {
+      this._formRef.current.onShowFormBuilder();
+    }
+  };
+
+  onUpdateForm = () => {
+    if (this._formRef.current) {
+      this._formRef.current.onReload();
+    }
+  };
+
+  renderConstructorButton() {
+    return (
+      <IcoBtn
+        key="constructor-btn"
+        icon="icon-settings"
+        className={classNames('ecos-btn_grey ecos-btn_sq_sm ecos-btn_hover_color-grey ml-2')}
+        onClick={this.onClickShowFormBuilder}
+      />
+    );
   }
 
   render() {
@@ -79,8 +106,10 @@ export default class EcosFormModal extends React.Component {
           title={title}
           isOpen={this.state.isModalOpen}
           hideModal={() => this.hide()}
+          customButtons={[this.renderConstructorButton()]}
+          zIndex={9000}
         >
-          <EcosForm {...formProps} />
+          <EcosForm ref={this._formRef} onFormSubmitDone={this.onUpdateForm} {...formProps} />
         </EcosModal>
       </div>
     );

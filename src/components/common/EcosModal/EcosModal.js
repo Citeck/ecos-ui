@@ -175,7 +175,8 @@ EcosModal.propTypes = {
   reactstrapProps: PropTypes.object,
   title: PropTypes.string,
   onResize: PropTypes.func,
-  customButtons: PropTypes.array
+  customButtons: PropTypes.array,
+  zIndex: PropTypes.number
 };
 
 EcosModal.defaultProps = {
@@ -188,5 +189,6 @@ EcosModal.defaultProps = {
   title: '',
   customButtons: [],
   hideModal: () => {},
-  onResize: () => {}
+  onResize: () => {},
+  zIndex: 9000
 };
