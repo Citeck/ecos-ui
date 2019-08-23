@@ -6,7 +6,7 @@ import {
   setDashboardIdentification,
   setDashboardTitleInfo,
   setLoading,
-  setResultSaveDashboardConfig
+  setRequestResultDashboard
 } from '../actions/dashboard';
 import { changeActiveTab } from '../actions/pageTabs';
 
@@ -26,7 +26,7 @@ const initialState = {
     name: '',
     version: ''
   },
-  saveResult: {
+  requestResult: {
     status: '',
     dashboardId: ''
   }
@@ -64,10 +64,10 @@ export default handleActions(
         isLoading: false
       };
     },
-    [setResultSaveDashboardConfig]: (state, { payload }) => {
+    [setRequestResultDashboard]: (state, { payload }) => {
       return {
         ...state,
-        saveResult: payload,
+        requestResult: payload,
         isLoading: false
       };
     },

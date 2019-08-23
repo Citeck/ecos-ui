@@ -6,17 +6,26 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import isNull from 'lodash/isNull';
 
 import { arrayCompare, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 import { DashboardTypes, Layouts, MenuTypes } from '../../constants/dashboard';
-import { MENU_TYPE, SAVE_STATUS, URL } from '../../constants';
-import { getAwayFromPage, initDashboardSettings, saveDashboardConfig } from '../../actions/dashboardSettings';
+import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
+import DashboardService from '../../services/dashboard';
+import {
+  getAwayFromPage,
+  getCheckUpdatedDashboardConfig,
+  initDashboardSettings,
+  saveDashboardConfig,
+  setCheckUpdatedDashboardConfig
+} from '../../actions/dashboardSettings';
 import { initMenuSettings } from '../../actions/menu';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { Loader } from '../../components/common';
 import { Btn } from '../../components/common/btns';
+import { TunableDialog } from '../../components/common/dialogs';
 
 import SetBind from './SetBind';
 import SetTabs from './SetTabs';
@@ -33,26 +42,28 @@ const mapStateToProps = state => ({
   },
   menuType: get(state, 'menu.type'),
   menuLinks: get(state, 'menu.links', []),
-  config: get(state, ['dashboardSettings', 'config'], []),
   availableMenuItems: get(state, ['menu', 'availableMenuItems'], []),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
+  config: get(state, ['dashboardSettings', 'config'], []),
   availableWidgets: get(state, ['dashboardSettings', 'availableWidgets'], []),
   isLoading: get(state, ['dashboardSettings', 'isLoading']),
-  saveResult: get(state, ['dashboardSettings', 'saveResult']),
-  dashboardType: get(state, ['dashboardSettings', 'identification', 'type']),
-  dashboardKey: get(state, ['dashboardSettings', 'identification', 'key']),
+  requestResult: get(state, ['dashboardSettings', 'requestResult'], {}),
+  identification: get(state, ['dashboardSettings', 'identification'], {}),
   dashboardKeyItems: get(state, ['dashboardSettings', 'dashboardKeys'], [])
 });
 
 const mapDispatchToProps = dispatch => ({
   initMenuSettings: () => dispatch(initMenuSettings()),
   initDashboardSettings: payload => dispatch(initDashboardSettings(payload)),
+  checkUpdatedSettings: payload => dispatch(getCheckUpdatedDashboardConfig(payload)),
   saveSettings: payload => dispatch(saveDashboardConfig(payload)),
-  getAwayFromPage: payload => dispatch(getAwayFromPage(payload))
+  getAwayFromPage: payload => dispatch(getAwayFromPage(payload)),
+  setCheckUpdatedDashboardConfig: payload => dispatch(setCheckUpdatedDashboardConfig(payload))
 });
 
 class DashboardSettings extends React.Component {
   static propTypes = {
+    identification: PropTypes.object,
     userData: PropTypes.object,
     menuType: PropTypes.string,
     menuLinks: PropTypes.array,
@@ -65,21 +76,20 @@ class DashboardSettings extends React.Component {
     ).isRequired,
     availableMenuItems: PropTypes.array,
     availableWidgets: PropTypes.array,
-    dashboardKey: PropTypes.string,
-    dashboardType: PropTypes.string,
-    dashboardKeyItems: PropTypes.array
+    dashboardKeyItems: PropTypes.array,
+    requestResult: PropTypes.object
   };
 
   static defaultProps = {
+    identification: {},
     userData: {},
     menuType: '',
     menuLinks: [],
     config: [],
     availableWidgets: [],
     availableMenuItems: [],
-    dashboardKey: '',
-    dashboardType: '',
-    dashboardKeyItems: []
+    dashboardKeyItems: [],
+    requestResult: {}
   };
 
   constructor(props) {
@@ -113,7 +123,7 @@ class DashboardSettings extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
-    let { config, menuType, availableMenuItems, availableWidgets, saveResult = {} } = this.props;
+    let { config, menuType, availableMenuItems, availableWidgets } = this.props;
     let state = {};
 
     if (urlParams !== newUrlParams) {
@@ -145,10 +155,7 @@ class DashboardSettings extends React.Component {
     }
 
     this.setState({ ...state });
-
-    if (nextProps.saveResult && saveResult.status !== nextProps.saveResult.status && nextProps.saveResult.status !== SAVE_STATUS.FAILURE) {
-      this.closePage(nextProps);
-    }
+    this.checkRequestResult(nextProps);
   }
 
   fetchData(props = this.props) {
@@ -160,7 +167,9 @@ class DashboardSettings extends React.Component {
   }
 
   setStateByConfig(props, state = this.state) {
-    const { config, dashboardKey } = props;
+    const selectedDashboardKey = get(props, 'identification.key', '');
+    const isForAllUsers = isNull(get(props, 'identification.user', null));
+    const { config } = props;
 
     let activeLayoutId = null;
     let tabs = [];
@@ -185,7 +194,7 @@ class DashboardSettings extends React.Component {
       });
     }
 
-    return { selectedLayout, selectedWidgets, tabs, activeLayoutId, selectedDashboardKey: dashboardKey };
+    return { selectedLayout, selectedWidgets, tabs, activeLayoutId, selectedDashboardKey, isForAllUsers };
   }
 
   setStateMenu(props, state = this.state) {
@@ -213,6 +222,18 @@ class DashboardSettings extends React.Component {
     });
 
     return newWidgets;
+  }
+
+  checkRequestResult(nextProps) {
+    const oldRStatus = get(this.props, 'requestResult.status', null);
+    const newRStatus = get(nextProps, 'requestResult.status', null);
+    const saveWay = get(nextProps, 'requestResult.saveWay', null);
+
+    if (newRStatus && oldRStatus !== newRStatus && newRStatus === RequestStatuses.SUCCESS) {
+      this.closePage(nextProps);
+    } else if (saveWay && saveWay !== DashboardService.SaveWays.CONFIRM) {
+      this.acceptChanges(saveWay === DashboardService.SaveWays.CREATE);
+    }
   }
 
   getPathInfo(props = this.props) {
@@ -263,7 +284,7 @@ class DashboardSettings extends React.Component {
   }
 
   get isUserType() {
-    return [DashboardTypes.USER].includes(this.props.dashboardType);
+    return [DashboardTypes.USER].includes(get(this, 'props.identification.type', ''));
   }
 
   draggablePositionAdjustment = () => {
@@ -278,7 +299,7 @@ class DashboardSettings extends React.Component {
   renderHeader() {
     let title = '';
 
-    switch (this.props.dashboardType) {
+    switch (get(this, 'props.identification.type', '')) {
       case DashboardTypes.USER:
         title = t('dashboard-settings.page-title');
         break;
@@ -307,13 +328,15 @@ class DashboardSettings extends React.Component {
     };
 
     return isEmpty(dashboardKeyItems) ? null : (
-      <SetBind
-        keys={dashboardKeyItems}
-        selectedDashboardKey={selectedDashboardKey}
-        isAdmin={userData.isAdmin}
-        isForAllUsers={isForAllUsers}
-        setData={setData}
-      />
+      <div className="ecos-dashboard-settings__container">
+        <SetBind
+          keys={dashboardKeyItems}
+          selectedDashboardKey={selectedDashboardKey}
+          isAdmin={userData.isAdmin}
+          isForAllUsers={isForAllUsers}
+          setData={setData}
+        />
+      </div>
     );
   }
 
@@ -383,14 +406,19 @@ class DashboardSettings extends React.Component {
     ) : null;
   }
 
-  /*-------- Buttons --------*/
-
-  handleCloseClick = () => {
+  handleCloseSettings = () => {
     this.closePage();
   };
 
-  handleAcceptClick = () => {
-    const { saveSettings, getAwayFromPage } = this.props;
+  handleCheckChanges = () => {
+    const { checkUpdatedSettings } = this.props;
+    const { selectedDashboardKey: dashboardKey, isForAllUsers } = this.state;
+
+    checkUpdatedSettings({ isForAllUsers, dashboardKey });
+  };
+
+  acceptChanges = (create = false) => {
+    const { saveSettings, getAwayFromPage, identification, userData } = this.props;
     const {
       selectedWidgets: widgets,
       selectedMenuItems: menuLinks,
@@ -402,10 +430,15 @@ class DashboardSettings extends React.Component {
     } = this.state;
     const activeMenuType = typeMenu.find(item => item.isActive);
     const menuType = activeMenuType ? activeMenuType.type : typeMenu[0].type;
+    const userName = isForAllUsers ? null : identification.user || userData.userName;
+    const newIdentification = { user: userName, key: dashboardKey };
+
+    if (create) {
+      newIdentification.id = '';
+    }
 
     saveSettings({
-      isForAllUsers,
-      dashboardKey,
+      newIdentification,
       layoutType,
       widgets,
       tabs,
@@ -424,14 +457,47 @@ class DashboardSettings extends React.Component {
   renderButtons() {
     return (
       <div className={'ecos-dashboard-settings__actions'}>
-        <Btn className={'ecos-btn_x-step_10'} onClick={this.handleCloseClick}>
+        <Btn className={'ecos-btn_x-step_10'} onClick={this.handleCloseSettings}>
           {t('dashboard-settings.button.cancel')}
         </Btn>
-        <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.handleAcceptClick}>
+        <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.handleCheckChanges}>
           {t('dashboard-settings.button.save')}
         </Btn>
       </div>
     );
+  }
+
+  renderDialogs() {
+    const { setCheckUpdatedDashboardConfig, requestResult } = this.props;
+
+    if (requestResult.saveWay === DashboardService.SaveWays.CONFIRM) {
+      const handleReplace = () => {
+        setCheckUpdatedDashboardConfig({ saveWay: DashboardService.SaveWays.UPDATE });
+      };
+
+      const handleCancel = () => {
+        setCheckUpdatedDashboardConfig({});
+      };
+
+      return (
+        <TunableDialog
+          isOpen
+          onClose={handleCancel}
+          title={t('Подтвердить изменения?')}
+          content={t('Дашборд для установленного типа и/или пользователя уже существует')}
+          footer={[
+            <Btn key="handleCancel" onClick={handleCancel}>
+              {t('Отменить')}
+            </Btn>,
+            <Btn key="handleReplace" onClick={handleReplace} className={'ecos-btn_blue'}>
+              {t('Заменить')}
+            </Btn>
+          ]}
+        />
+      );
+    }
+
+    return null;
   }
 
   renderLoader() {
@@ -449,13 +515,14 @@ class DashboardSettings extends React.Component {
       <Container className="ecos-dashboard-settings">
         {this.renderLoader()}
         {this.renderHeader()}
-        <div className="ecos-dashboard-settings__container">{this.renderDashboardKey()}</div>
+        {this.renderDashboardKey()}
         {this.renderTabsBlock()}
         <div className="ecos-dashboard-settings__container">
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
           {this.renderMenuBlock()}
           {this.renderButtons()}
+          {this.renderDialogs()}
         </div>
       </Container>
     );

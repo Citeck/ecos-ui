@@ -115,7 +115,7 @@ class Tab extends React.Component {
           {!isEdit && !disabled && (
             <Icon className={classNames('icon-close ecos-tab-actions-delete ecos-tab-actions_hover')} onClick={this.onDelete} />
           )}
-          <DragHandle />
+          {!disabled && <DragHandle />}
         </div>
       </div>
     );

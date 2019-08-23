@@ -5,7 +5,7 @@ import {
   setDashboardConfig,
   setDashboardIdentification,
   setDashboardTitleInfo,
-  setResultSaveDashboardConfig
+  setRequestResultDashboard
 } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
 import { setActiveTabTitle } from '../actions/pageTabs';
@@ -13,7 +13,7 @@ import { selectIdentificationForView } from '../selectors/dashboard';
 import { t } from '../helpers/util';
 import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
-import { SAVE_STATUS } from '../constants';
+import { RequestStatuses } from '../constants';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
@@ -41,12 +41,12 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
     const identification = yield select(selectIdentificationForView);
     const config = DashboardConverter.getDashboardForServer(payload);
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification });
-    const res = DashboardService.parseSaveResult(dashboardResult);
+    const res = DashboardService.parseRequestResult(dashboardResult);
     const newConfig = payload.config;
 
     yield put(
-      setResultSaveDashboardConfig({
-        status: res.dashboardId ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
+      setRequestResultDashboard({
+        status: res.dashboardId ? RequestStatuses.SUCCESS : RequestStatuses.FAILURE,
         dashboardId: res.dashboardId
       })
     );

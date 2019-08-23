@@ -21,9 +21,9 @@ import './style.scss';
 const mapStateToProps = state => ({
   config: get(state, ['dashboard', 'config'], []),
   isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
-  saveResultDashboard: get(state, ['dashboard', 'saveResult']),
+  saveResultDashboard: get(state, ['dashboard', 'requestResult']),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
-  saveResultMenu: get(state, ['menu', 'saveResult']),
+  saveResultMenu: get(state, ['menu', 'requestResult']),
   menuType: get(state, ['menu', 'type']),
   links: get(state, ['menu', 'links']),
   dashboardType: get(state, ['dashboard', 'identification', 'type']),

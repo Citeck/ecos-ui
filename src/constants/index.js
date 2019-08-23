@@ -32,7 +32,7 @@ export const MENU_TYPE = {
   TOP: 'TOP'
 };
 
-export const SAVE_STATUS = {
+export const RequestStatuses = {
   SUCCESS: 'SUCCESS',
   FAILURE: 'FAILURE'
 };
@@ -45,7 +45,8 @@ export const QueryKeys = {
   KEY: 'key',
   VALUE: 'value',
   TITLE: 'title',
-  DESCRIPTION: 'description'
+  DESCRIPTION: 'description',
+  USER: 'user'
 };
 
 export const MIN_WIDTH_DASHLET_SMALL = 290;

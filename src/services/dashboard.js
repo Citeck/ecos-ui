@@ -4,6 +4,12 @@ import { t } from '../helpers/util';
 import uuid from 'uuidv4';
 
 export default class DashboardService {
+  static SaveWays = {
+    CREATE: 'CREATE',
+    UPDATE: 'UPDATE',
+    CONFIRM: 'CONFIRM'
+  };
+
   static get newIdLayout() {
     return `layout_${uuid()}`;
   }
@@ -43,7 +49,7 @@ export default class DashboardService {
     return result || [];
   }
 
-  static parseSaveResult(result) {
+  static parseRequestResult(result) {
     if (isEmpty(result)) {
       return {};
     }
@@ -57,7 +63,18 @@ export default class DashboardService {
     };
   }
 
-  static defineSavingDashboard() {}
+  static defineWaySavingDashboard(diffKey = false, allUser = false, diffUser = false) {
+    switch (true) {
+      case !diffKey && !allUser && !diffUser:
+        return DashboardService.SaveWays.CREATE;
+      case !diffKey && !allUser && diffUser:
+      case !diffKey && allUser && !diffUser:
+        return DashboardService.SaveWays.UPDATE;
+      case diffKey || (!diffKey && allUser && diffUser):
+      default:
+        return DashboardService.SaveWays.CONFIRM;
+    }
+  }
 
   static movedToListLayout(config, layouts) {
     if (isEmpty(layouts)) {
