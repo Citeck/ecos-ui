@@ -52,5 +52,6 @@ export const MenuTypes = [
 export const DashboardTypes = {
   CASE_DETAILS: 'case-details',
   USER: 'user-dashboard',
-  SITE: 'site-details'
+  SITE: 'site-details',
+  PROFILE: 'profile-details'
 };

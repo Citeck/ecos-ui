@@ -93,7 +93,16 @@ export class MenuApi extends CommonApi {
   getMenuConfig = (disabledCache = false) => {
     return Records.get(`${PREFIX}menu-config`)
       .load([QueryKeys.VALUE_JSON], disabledCache)
-      .then(resp => resp);
+      .then(resp => resp)
+      .catch(e => {
+        console.error(e);
+        return {
+          [QueryKeys.VALUE_JSON]: {
+            type: 'LEFT',
+            links: []
+          }
+        };
+      });
   };
 
   saveMenuConfig = ({ config = {}, title = '', description = '' }) => {
