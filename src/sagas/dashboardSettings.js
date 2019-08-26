@@ -14,7 +14,6 @@ import {
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
 import { selectIdentificationForSet } from '../selectors/dashboard';
-import { selectUserName } from '../selectors/user';
 import { saveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
 import DashboardService from '../services/dashboard';
@@ -68,46 +67,30 @@ function* doGetDashboardKeys({ api, logger }, { payload }) {
 
     yield put(setDashboardKeys(result));
   } catch (e) {
-    yield put(setNotificationMessage(t('dashboard-settings.error3')));
-    logger.error('[dashboard/settings/ doGetWidgetsRequest saga] error', e.message);
+    logger.error('[dashboard/settings/ doGetDashboardKeys saga] error', e.message);
   }
 }
 
 function* doCheckUpdatedSettings({ api, logger }, { payload }) {
   try {
-    const userName = yield select(selectUserName);
     const identification = yield select(selectIdentificationForSet);
-    const newUserName = payload.isForAllUsers ? null : identification.user || userName;
-    const isChangedKey = identification.key !== payload.dashboardKey;
-    const isChangedUser = identification.user !== newUserName;
+    const user = payload.isForAllUsers ? null : identification.user;
+    const eqKey = identification.key === payload.dashboardKey;
+    const hasUser = !!identification.user;
 
-    const saveWay = DashboardService.defineWaySavingDashboard(isChangedKey, payload.isForAllUsers, isChangedUser);
+    let saveWay = DashboardService.defineWaySavingDashboard(eqKey, payload.isForAllUsers, hasUser);
 
-    switch (saveWay) {
-      case DashboardService.SaveWays.CONFIRM:
-        const checkExistDashboard = yield call(api.dashboard.checkExistDashboard, {
-          key: payload.dashboardKey,
-          type: identification.type,
-          user: newUserName
-        });
+    if (saveWay === DashboardService.SaveWays.CONFIRM) {
+      const checkExistDashboard = yield call(api.dashboard.checkExistDashboard, {
+        key: payload.dashboardKey,
+        type: identification.type,
+        user
+      });
 
-        yield put(
-          setCheckUpdatedDashboardConfig({
-            saveWay: checkExistDashboard ? DashboardService.SaveWays.CONFIRM : DashboardService.SaveWays.CREATE
-          })
-        );
-        break;
-      case DashboardService.SaveWays.CREATE:
-      case DashboardService.SaveWays.UPDATE:
-        yield put(
-          setCheckUpdatedDashboardConfig({
-            saveWay: saveWay
-          })
-        );
-        break;
-      default:
-        break;
+      saveWay = checkExistDashboard ? DashboardService.SaveWays.CONFIRM : DashboardService.SaveWays.CREATE;
     }
+
+    yield put(setCheckUpdatedDashboardConfig({ saveWay }));
   } catch (e) {
     logger.error('[dashboard/settings/ doCheckUpdatedSettings saga] error', e.message);
   }
@@ -126,6 +109,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
 
     const parseDashboard = DashboardService.parseRequestResult(dashboardResult);
 
+    yield call(api.dashboard.deleteFromCache, { ...identification });
     yield put(saveMenuConfig(menu));
     yield put(
       setRequestResultDashboard({

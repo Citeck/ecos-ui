@@ -61,11 +61,12 @@ class Dashboard extends Component {
   componentWillReceiveProps(nextProps) {
     const { initMenuSettings, config, isLoadingDashboard, getDashboardConfig, resetDashboardConfig, setLoading } = nextProps;
     const { recordRef } = this.getPathInfo(nextProps);
-    const { urlParams } = this.state;
+    const { urlParams, activeLayoutId } = this.state;
     const newUrlParams = getSortedUrlParams();
+    const state = {};
 
     if (urlParams !== newUrlParams) {
-      this.setState({ urlParams: newUrlParams });
+      state.urlParams = newUrlParams;
       resetDashboardConfig();
       getDashboardConfig({ recordRef });
       initMenuSettings();
@@ -74,8 +75,14 @@ class Dashboard extends Component {
     }
 
     if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
-      this.setState({ config, activeLayoutId: get(config, '[0].id') });
+      state.config = config;
     }
+
+    if (isEmpty(activeLayoutId) && !isEmpty(config)) {
+      state.activeLayoutId = get(config, '[0].id');
+    }
+
+    this.setState(state);
   }
 
   getPathInfo(props) {

@@ -92,21 +92,25 @@ class DashboardSettings extends React.Component {
     requestResult: {}
   };
 
+  state = {
+    activeLayoutId: null,
+    selectedDashboardKey: '',
+    isForAllUsers: false,
+    selectedLayout: {},
+    selectedWidgets: {},
+    selectedMenuItems: [],
+    typeMenu: MenuTypes,
+    urlParams: getSortedUrlParams(),
+    tabs: []
+  };
+
   constructor(props) {
     super(props);
 
     const state = {
-      activeLayoutId: null,
-      selectedDashboardKey: '',
-      isForAllUsers: false,
-      selectedLayout: {},
-      selectedWidgets: {},
-      selectedMenuItems: [],
-      typeMenu: MenuTypes,
+      ...this.state,
       availableWidgets: DndUtils.setDndId(props.availableWidgets),
-      availableMenuItems: DndUtils.setDndId(props.availableMenuItems),
-      urlParams: getSortedUrlParams(),
-      tabs: []
+      availableMenuItems: DndUtils.setDndId(props.availableMenuItems)
     };
 
     this.state = {
@@ -183,7 +187,6 @@ class DashboardSettings extends React.Component {
         let idLayout = item.id;
 
         tabs.push(item.tab);
-
         selectedLayout[idLayout] = item.type;
 
         let layout = Layouts.find(layout => layout.type === item.type) || {};
@@ -227,12 +230,13 @@ class DashboardSettings extends React.Component {
   checkRequestResult(nextProps) {
     const oldRStatus = get(this.props, 'requestResult.status', null);
     const newRStatus = get(nextProps, 'requestResult.status', null);
-    const saveWay = get(nextProps, 'requestResult.saveWay', null);
+    const oldSaveWay = get(this.props, 'requestResult.saveWay', null);
+    const newSaveWay = get(nextProps, 'requestResult.saveWay', null);
 
     if (newRStatus && oldRStatus !== newRStatus && newRStatus === RequestStatuses.SUCCESS) {
       this.closePage(nextProps);
-    } else if (saveWay && saveWay !== DashboardService.SaveWays.CONFIRM) {
-      this.acceptChanges(saveWay === DashboardService.SaveWays.CREATE);
+    } else if (newSaveWay && oldSaveWay !== newSaveWay && newSaveWay !== DashboardService.SaveWays.CONFIRM) {
+      this.acceptChanges(newSaveWay === DashboardService.SaveWays.CREATE);
     }
   }
 
@@ -244,10 +248,29 @@ class DashboardSettings extends React.Component {
     const { recordRef, dashboardId } = searchParams;
 
     return {
-      pathDashboard: URL.DASHBOARD + (recordRef ? `?recordRef=${recordRef}` : ''),
       recordRef,
       dashboardId
     };
+  }
+
+  getUrlToDashboard() {
+    const { identification = {}, dashboardKeyItems = [] } = this.props;
+    const { selectedDashboardKey } = this.state;
+    const { recordRef } = this.getPathInfo();
+    const pathDashboardParams = {};
+
+    if (recordRef) {
+      pathDashboardParams.recordRef = recordRef;
+    }
+
+    const oldKeyI = dashboardKeyItems.findIndex(k => k.key === identification.key);
+    const newKeyI = dashboardKeyItems.findIndex(k => k.key === selectedDashboardKey);
+
+    if (oldKeyI < newKeyI) {
+      pathDashboardParams.dashboardKey = selectedDashboardKey;
+    }
+
+    return URL.DASHBOARD + (isEmpty(pathDashboardParams) ? '' : `?${queryString.stringify(pathDashboardParams)}`);
   }
 
   get menuWidth() {
@@ -418,7 +441,7 @@ class DashboardSettings extends React.Component {
   };
 
   acceptChanges = (create = false) => {
-    const { saveSettings, getAwayFromPage, identification, userData } = this.props;
+    const { saveSettings, identification, userData } = this.props;
     const {
       selectedWidgets: widgets,
       selectedMenuItems: menuLinks,
@@ -445,13 +468,14 @@ class DashboardSettings extends React.Component {
       menuType,
       menuLinks
     });
-    getAwayFromPage();
   };
 
-  closePage = (props = this.props) => {
-    const { pathDashboard } = this.getPathInfo(props);
+  closePage = () => {
+    const urlGoTo = this.getUrlToDashboard();
 
-    changeUrlLink(pathDashboard, { openNewTab: true, closeActiveTab: true });
+    this.props.getAwayFromPage();
+
+    changeUrlLink(urlGoTo, { openNewTab: true, closeActiveTab: true });
   };
 
   renderButtons() {

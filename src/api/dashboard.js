@@ -31,7 +31,7 @@ export class DashboardApi extends RecordService {
   getDashboardKeysByRef = function*(recordRef) {
     const result = yield Records.get(recordRef)
       .load('.atts(n:"_dashboardKey"){str,disp}')
-      .then(response => Array.from(response));
+      .then(response => response);
 
     let dashboardKeys = [];
 
@@ -47,7 +47,6 @@ export class DashboardApi extends RecordService {
   };
 
   saveDashboardConfig = ({ identification, config }) => {
-    console.log(identification);
     const { key, id, user, type } = identification;
     const record = Records.get(`${SourcesId.DASHBOARD}@${id}`);
 
@@ -213,4 +212,9 @@ export class DashboardApi extends RecordService {
       { user: 'user' }
     ).then(response => response === user);
   };
+
+  deleteFromCache({ user, key }) {
+    user && cache.remove(user);
+    key && cache.remove(key);
+  }
 }

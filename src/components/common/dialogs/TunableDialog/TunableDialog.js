@@ -12,7 +12,7 @@ class TunableDialog extends React.Component {
     bodyClassName: PropTypes.string,
     footerClassName: PropTypes.string,
     title: PropTypes.string,
-    content: PropTypes.oneOf(PropTypes.element, PropTypes.string),
+    content: PropTypes.oneOf([PropTypes.element, PropTypes.string]),
     footer: PropTypes.arrayOf(PropTypes.element),
     isOpen: PropTypes.bool,
     onClose: PropTypes.func

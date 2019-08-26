@@ -63,14 +63,14 @@ export default class DashboardService {
     };
   }
 
-  static defineWaySavingDashboard(diffKey = false, allUser = false, diffUser = false) {
+  static defineWaySavingDashboard(eqKey, allUser, hasUser) {
     switch (true) {
-      case !diffKey && !allUser && !diffUser:
+      case eqKey && !allUser && !hasUser:
         return DashboardService.SaveWays.CREATE;
-      case !diffKey && !allUser && diffUser:
-      case !diffKey && allUser && !diffUser:
+      case eqKey && !allUser && hasUser:
+      case eqKey && allUser && !hasUser:
         return DashboardService.SaveWays.UPDATE;
-      case diffKey || (!diffKey && allUser && diffUser):
+      case !eqKey || (eqKey && allUser && hasUser):
       default:
         return DashboardService.SaveWays.CONFIRM;
     }
