@@ -63,6 +63,10 @@ export default class AsyncDataComponent extends BaseComponent {
     };
   }
 
+  isReadyToSubmit() {
+    return this.isReadyToSubmitFlag !== false;
+  }
+
   get defaultSchema() {
     return AsyncDataComponent.schema();
   }
@@ -262,6 +266,13 @@ export default class AsyncDataComponent extends BaseComponent {
     if (forceUpdate || !_.isEqual(currentValue, data)) {
       this[dataField] = data;
 
+      this.isReadyToSubmitFlag = false;
+
+      const setValue = value => {
+        self.setValue(value);
+        self.isReadyToSubmitFlag = true;
+      };
+
       let actionImpl = () => {
         if (data === self[dataField]) {
           let result = action.call(self, data);
@@ -269,14 +280,14 @@ export default class AsyncDataComponent extends BaseComponent {
             if (result.then) {
               result
                 .then(data => {
-                  self.setValue(data);
+                  setValue(data);
                 })
                 .catch(e => {
                   console.warn(e);
-                  self.setValue(defaultValue);
+                  setValue(defaultValue);
                 });
             } else {
-              self.setValue(result);
+              setValue(result);
             }
           }
         }
@@ -341,6 +352,7 @@ export default class AsyncDataComponent extends BaseComponent {
   viewOnlyBuild() {} // hide control for viewOnly mode
 
   createLabel() {}
+  createErrorElement() {}
 
   get emptyValue() {
     return {};
