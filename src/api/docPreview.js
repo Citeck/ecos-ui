@@ -5,14 +5,27 @@ import endsWith from 'lodash/endsWith';
 export class DocPreviewApi extends RecordService {
   static getLinkByRecord = nodeRef => {
     return Records.get(nodeRef)
-      .load('previewInfo?json', true)
+      .load(
+        {
+          json: 'previewInfo?json',
+          fileName: '.disp'
+        },
+        true
+      )
       .then(resp => {
         resp = resp || {};
-        const { url = '', ext = '' } = resp;
+
+        const fileName = resp.fileName || '';
+        const json = resp.json || {};
+        const { url = '', ext = '' } = json;
+
         if (url && ext) {
           const extWithDot = '.' + ext;
-          return endsWith(url, extWithDot) ? url : `${url}#.${ext}`;
+          const withFileName = fileName ? `|${fileName}.${ext}` : '';
+
+          return endsWith(url, extWithDot) ? url + withFileName : `${url}#.${ext}` + withFileName;
         }
+
         return '';
       })
       .then(url => (url ? `/share/proxy/${url}` : ''))

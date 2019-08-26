@@ -18,13 +18,15 @@ class Toolbar extends Component {
     totalPages: PropTypes.number.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
     inputRef: PropTypes.any,
-    link: PropTypes.string
+    link: PropTypes.string,
+    fileName: PropTypes.string
   };
 
   static defaultProps = {
     scale: AUTO,
     className: '',
-    link: ''
+    link: '',
+    fileName: ''
   };
 
   className = 'ecos-doc-preview__toolbar';
@@ -205,11 +207,11 @@ class Toolbar extends Component {
   }
 
   renderExtraBtns() {
-    const { link } = this.props;
+    const { link, fileName } = this.props;
 
     return (
       <div className={classNames(`${this.classNameGroup} ${this.className}-extra-btns`)}>
-        <a href={link} download data-external>
+        <a href={link} download={fileName} data-external>
           <IcoBtn icon={'icon-download'} className={this.commonBtnClasses} title={t('doc-preview.download')} />
         </a>
       </div>
