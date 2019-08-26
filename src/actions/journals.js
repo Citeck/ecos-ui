@@ -46,6 +46,7 @@ export const onJournalSelect = createAction(prefix + 'ON_JOURNAL_SELECT');
 
 export const initPreview = createAction(prefix + 'INIT_PREVIEW');
 export const setPreviewUrl = createAction(prefix + 'SET_PREVIEW_URL');
+export const setPreviewFileName = createAction(prefix + 'SET_PREVIEW_FILE_NAME');
 
 export const goToJournalsPage = createAction(prefix + 'GO_TO_JOURNALS_PAGE');
 export const search = createAction(prefix + 'SEARCH');

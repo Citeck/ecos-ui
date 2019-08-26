@@ -9,13 +9,14 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
-    previewUrl: newState.previewUrl
+    previewUrl: newState.previewUrl,
+    previewFileName: newState.previewFileName
   };
 };
 
 class JournalsPreview extends Component {
   render() {
-    const { previewUrl } = this.props;
+    const { previewUrl, previewFileName } = this.props;
     const link = previewUrl ? `${previewUrl}` : '';
 
     return (
@@ -23,7 +24,7 @@ class JournalsPreview extends Component {
         {/*<Well className={'ecos-journals-preview__caption-well ecos-well_grey4 ecos-well_radius_6'}>{t('journals.action.preview')}</Well>*/}
 
         <div className={'ecos-journals-preview__container'}>
-          <DocPreview link={link} height={'100%'} scale={1} byLink />
+          <DocPreview fileName={previewFileName} link={link} height={'100%'} scale={1} byLink />
         </div>
       </div>
     );

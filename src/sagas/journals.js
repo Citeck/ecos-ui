@@ -40,7 +40,8 @@ import {
   setSelectAllRecords,
   setSelectAllRecordsVisible,
   setGridInlineToolSettings,
-  cancelJournalSettingData
+  cancelJournalSettingData,
+  setPreviewFileName
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { JOURNAL_SETTING_ID_FIELD, DEFAULT_PAGINATION, DEFAULT_INLINE_TOOL_SETTINGS } from '../components/Journals/constants';
@@ -250,6 +251,7 @@ function* loadGrid(api, journalSettingId, journalConfig, stateId, w) {
   yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
   yield put(setPerformGroupActionResponse(w([])));
   yield put(setPreviewUrl(w('')));
+  yield put(setPreviewFileName(w('')));
 
   yield put(setGrid(w({ ...params, ...gridData })));
 }
