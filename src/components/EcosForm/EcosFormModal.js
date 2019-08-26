@@ -1,11 +1,16 @@
 import React from 'react';
 import classNames from 'classnames';
-import IcoBtn from '../common/btns/IcoBtn';
+import { UncontrolledTooltip } from 'reactstrap';
 
+import IcoBtn from '../common/btns/IcoBtn';
 import EcosForm from './EcosForm';
 import EcosModal from '../common/EcosModal';
 import Records from '../Records';
 import { t } from '../../helpers/util';
+
+const LABELS = {
+  CONSTRUCTOR_BTN_TOOLTIP: 'Перейти в конструктор'
+};
 
 export default class EcosFormModal extends React.Component {
   _formRef = React.createRef();
@@ -51,12 +56,24 @@ export default class EcosFormModal extends React.Component {
 
   renderConstructorButton() {
     return (
-      <IcoBtn
-        key="constructor-btn"
-        icon="icon-settings"
-        className={classNames('ecos-btn_grey ecos-btn_sq_sm ecos-btn_hover_color-grey ml-2')}
-        onClick={this.onClickShowFormBuilder}
-      />
+      <React.Fragment key="ecos-form-modal-constructor-btn">
+        <IcoBtn
+          id="ecos-form-modal-constructor-btn"
+          icon="icon-settings"
+          className={classNames('ecos-btn_grey ecos-btn_sq_sm ecos-btn_hover_color-grey ml-2')}
+          onClick={this.onClickShowFormBuilder}
+        />
+        <UncontrolledTooltip
+          target="ecos-form-modal-constructor-btn"
+          delay={0}
+          placement="top"
+          className="ecos-modal-tooltip ecos-base-tooltip"
+          innerClassName="ecos-base-tooltip-inner"
+          arrowClassName="ecos-base-tooltip-arrow"
+        >
+          {t(LABELS.CONSTRUCTOR_BTN_TOOLTIP)}
+        </UncontrolledTooltip>
+      </React.Fragment>
     );
   }
 

@@ -106,7 +106,7 @@ class PropertiesDashlet extends React.Component {
         <React.Fragment key={`settings-button-${id}`}>
           <IcoBtn
             icon="icon-settings"
-            id={`settings-icon-${id}`}
+            id={`settings-icon-${id}-${isDashlet ? '-dashlet' : '-properties'}`}
             className={classNames('ecos-btn_grey ecos-btn_sq_sm ecos-btn_hover_color-grey', {
               'dashlet__btn_hidden mr-2': isDashlet,
               'ml-2': !isDashlet
@@ -114,11 +114,14 @@ class PropertiesDashlet extends React.Component {
             onClick={this.onClickShowFormBuilder}
           />
           <UncontrolledTooltip
-            target={`settings-icon-${id}`}
+            target={`settings-icon-${id}-${isDashlet ? '-dashlet' : '-properties'}`}
             delay={0}
             placement="top"
-            innerClassName="tooltip-inner-custom"
-            arrowClassName="arrow-custom"
+            className={classNames('ecos-base-tooltip', {
+              'ecos-modal-tooltip': !isDashlet
+            })}
+            innerClassName="ecos-base-tooltip-inner"
+            arrowClassName="ecos-base-tooltip-arrow"
           >
             {t(LABELS.CONSTRUCTOR_BTN_TOOLTIP)}
           </UncontrolledTooltip>
