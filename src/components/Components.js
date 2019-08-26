@@ -51,7 +51,7 @@ export default class Components {
     [ComponentKeys.PROPERTIES]: {
       path: './Properties',
       label: 'dashboard-settings.widget.properties',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.PROFILE]
     },
     [ComponentKeys.TASKS]: {
       path: './Tasks',
