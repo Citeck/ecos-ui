@@ -28,6 +28,8 @@ class Properties extends React.Component {
 
   className = 'ecos-properties';
 
+  _ecosForm = React.createRef();
+
   state = {
     loaded: false,
     isReadySubmit: true,
@@ -45,11 +47,21 @@ class Properties extends React.Component {
   }
 
   onSubmitForm = () => {
+    if (this._ecosForm.current) {
+      this._ecosForm.current.onReload();
+    }
+
     this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
   };
 
   onReady = () => {
     this.setState({ loaded: true });
+  };
+
+  onShowBuilder = () => {
+    if (this._ecosForm.current) {
+      this._ecosForm.current.onShowFormBuilder();
+    }
   };
 
   setHeight = contentHeight => {
@@ -66,13 +78,14 @@ class Properties extends React.Component {
   }
 
   renderForm() {
-    const { record, isSmallMode, isReady } = this.props;
+    const { record, isSmallMode, isReady, onUpdate } = this.props;
     const { isReadySubmit, hideForm } = this.state;
 
     return !hideForm && isReady && isReadySubmit ? (
-      <React.Fragment>
+      <>
         {this.renderLoader()}
         <EcosForm
+          ref={this._ecosForm}
           record={record}
           options={{
             readOnly: true,
@@ -83,10 +96,11 @@ class Properties extends React.Component {
             formMode: FORM_MODE_EDIT
           }}
           onSubmit={this.onSubmitForm}
+          onFormSubmitDone={onUpdate}
           onReady={this.onReady}
           className={`${this.className}__formio`}
         />
-      </React.Fragment>
+      </>
     ) : (
       <InfoText text={t('properties-widget.no-form.text')} />
     );

@@ -503,6 +503,12 @@ button {
     }
   }
 
+  &.ecos-btn_hover_color-grey {
+    &:hover {
+      color: $text-color-gray;
+    }
+  }
+
   /*active, focus*/
   &.ecos-btn_active_blue {
     &:focus,

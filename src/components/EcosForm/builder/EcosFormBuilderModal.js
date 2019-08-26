@@ -1,8 +1,8 @@
 import React from 'react';
+import cloneDeep from 'lodash/cloneDeep';
 
 import EcosFormBuilder from './EcosFormBuilder';
 import EcosModal from '../../common/EcosModal';
-import cloneDeep from 'lodash/cloneDeep';
 
 export default class EcosFormBuilderModal extends React.Component {
   constructor(props) {
@@ -34,9 +34,9 @@ export default class EcosFormBuilderModal extends React.Component {
     });
   }
 
-  onSubmit(formDefinition) {
+  onSubmit(form) {
     if (this.state.onSubmit) {
-      this.state.onSubmit(formDefinition);
+      this.state.onSubmit(form);
     }
     this.hide();
   }
@@ -54,8 +54,8 @@ export default class EcosFormBuilderModal extends React.Component {
         isBigHeader={false}
         title={'Form Builder'}
         isOpen={this.state.isModalOpen}
-        hideModal={toggleVisibility}
         zIndex={9000}
+        hideModal={toggleVisibility}
       >
         <EcosFormBuilder formDefinition={this.state.formDefinition} onSubmit={onSubmit} onCancel={toggleVisibility} />
       </EcosModal>

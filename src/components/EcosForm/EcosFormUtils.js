@@ -1,8 +1,8 @@
-import Records from '../Records/Records';
 import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
+import Records from '../Records/Records';
 
 const EDGE_PREFIX = 'edge__';
 
@@ -318,5 +318,13 @@ export default class EcosFormUtils {
     }
 
     return id;
+  }
+
+  static saveFormBuilder(form, formId) {
+    const record = Records.get(formId);
+
+    record.att('definition?json', form);
+
+    return record.save();
   }
 }
