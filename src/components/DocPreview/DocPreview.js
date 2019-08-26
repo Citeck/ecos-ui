@@ -31,6 +31,7 @@ class DocPreview extends Component {
     byLink: PropTypes.bool,
     noIndents: PropTypes.bool,
     resizable: PropTypes.bool,
+    fileName: PropTypes.string,
     setUserScale: PropTypes.func
   };
 
@@ -44,6 +45,7 @@ class DocPreview extends Component {
     byLink: false,
     noIndents: false,
     resizable: false,
+    fileName: '',
     setUserScale: () => null
   };
 
@@ -268,7 +270,7 @@ class DocPreview extends Component {
   }
 
   renderToolbar() {
-    const { scale } = this.props;
+    const { scale, fileName } = this.props;
     const { pdf, scrollPage, calcScale, link } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
@@ -287,6 +289,7 @@ class DocPreview extends Component {
         calcScale={calcScale}
         inputRef={this.refToolbar}
         link={link}
+        fileName={fileName}
       />
     );
   }

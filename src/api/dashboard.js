@@ -186,6 +186,7 @@ export class DashboardApi extends RecordService {
           })
           .then(response => response);
       case DashboardTypes.SITE:
+      case DashboardTypes.PROFILE:
       default: {
         const displayName = yield Records.get(recordRef)
           .load('.disp')

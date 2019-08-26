@@ -288,6 +288,7 @@ class Dashboard extends Component {
         break;
       case DashboardTypes.USER:
       case DashboardTypes.SITE:
+      case DashboardTypes.PROFILE:
       default:
         title = <div className="ecos-dashboard__header-title">{name && <div className="ecos-dashboard__header-name">{t(name)}</div>}</div>;
         break;

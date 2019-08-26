@@ -25,7 +25,7 @@ export default class DateEditor extends BaseEditor {
         inputViewClass={'select-journal__input-view_extra-compact'}
         isCompact={true}
         journalId={column.editorKey}
-        defaultValue={value.assoc}
+        defaultValue={(value || {}).assoc}
         onChange={this.onChange}
         onCancel={rest.onBlur}
       />

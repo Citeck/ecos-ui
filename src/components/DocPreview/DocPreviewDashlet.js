@@ -13,6 +13,7 @@ class DocPreviewDashlet extends Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
     title: PropTypes.string,
+    fileName: PropTypes.string,
     classNamePreview: PropTypes.string,
     classNameDashlet: PropTypes.string,
     config: PropTypes.shape({
@@ -25,6 +26,7 @@ class DocPreviewDashlet extends Component {
   static defaultProps = {
     title: t('doc-preview.preview'),
     classNamePreview: '',
+    fileName: '',
     classNameDashlet: '',
     dragHandleProps: {},
     canDragging: false
@@ -63,7 +65,7 @@ class DocPreviewDashlet extends Component {
   };
 
   render() {
-    const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging } = this.props;
+    const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName } = this.props;
     const { width, height, fitHeights, scale } = this.state;
     const classesDashlet = classNames(this.className, classNameDashlet, {
       [`${this.className}_small`]: width < MIN_WIDTH_DASHLET_LARGE
@@ -92,6 +94,7 @@ class DocPreviewDashlet extends Component {
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           scale={scale}
+          fileName={fileName}
           setUserScale={this.setUserScale}
           resizable
         />
