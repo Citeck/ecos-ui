@@ -4,6 +4,7 @@ import { selectTabs } from '../selectors/pageTabs';
 import { deepClone } from '../helpers/util';
 import Records from '../components/Records';
 import { isNewVersionPage } from '../helpers/urls';
+import { selectUserUid } from '../selectors/user';
 
 function* sagaGetShowTabsStatus({ api, logger }, action) {
   try {
@@ -31,6 +32,9 @@ function* sagaGetShowTabsStatus({ api, logger }, action) {
 
 function* sagaGetTabs({ api, logger }) {
   try {
+    const uid = yield select(selectUserUid);
+
+    yield api.pageTabs.checkOldVersion(uid);
     const tabs = yield api.pageTabs.getAll();
 
     yield put(setTabs(tabs));

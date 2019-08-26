@@ -21,7 +21,8 @@ const LABELS = {
 };
 
 const mapStateToProps = state => ({
-  isAdmin: get(state, ['user', 'isAdmin'], false)
+  isAdmin: get(state, ['user', 'isAdmin'], false),
+  uid: get(state, ['user', 'uid'], '')
 });
 
 class PropertiesDashlet extends React.Component {
@@ -62,12 +63,26 @@ class PropertiesDashlet extends React.Component {
 
   className = 'ecos-properties-dashlet';
 
+  static getDerivedStateFromProps(props, state) {
+    if (props.uid && props.id && !state.lsKey) {
+      const lsKey = `${UserLocalSettingsService.getPrefix()}${props.id}/user-${props.uid}`;
+
+      UserLocalSettingsService.transferData(`${UserLocalSettingsService.getPrefix()}${props.id}`, lsKey, true);
+
+      return {
+        lsKey,
+        height: UserLocalSettingsService.getDashletHeight(lsKey)
+      };
+    }
+  }
+
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
   onChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    // UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    UserLocalSettingsService.setDashletHeight(this.state.lsKey, height);
     this.setState({ height });
   };
 

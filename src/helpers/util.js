@@ -472,3 +472,19 @@ export function getIconFileByMimetype(mimetype) {
       return 'icon-filetype-none';
   }
 }
+
+/**
+ * Функция для сортировки элементов массива
+ *
+ * @param array
+ * @param indexFrom
+ * @param indexTo
+ * @returns {array}
+ */
+export function arrayMove(array, indexFrom, indexTo) {
+  const newArray = deepClone(array);
+
+  newArray.splice(indexTo < 0 ? newArray.length + indexTo : indexTo, 0, newArray.splice(indexFrom, 1)[0]);
+
+  return newArray;
+}

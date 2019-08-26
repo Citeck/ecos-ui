@@ -1,10 +1,11 @@
-import { getData, setData } from '../helpers/ls';
+import { getData, setData, transferData } from '../helpers/ls';
 import { get, isEmpty } from 'lodash';
 
 const prefix = 'dashletSettings_';
 
 function getDashletSettings(dashletId) {
-  let dashletData = getData(prefix + dashletId);
+  // let dashletData = getData(prefix + dashletId);
+  let dashletData = getData(dashletId);
 
   if (isEmpty(dashletData)) {
     dashletData = {};
@@ -14,10 +15,17 @@ function getDashletSettings(dashletId) {
 }
 
 function setDashletSettings(dashletId, data) {
-  setData(prefix + dashletId, data);
+  // setData(prefix + dashletId, data);
+  setData(dashletId, data);
 }
 
 export default class UserLocalSettingsService {
+  static getPrefix = () => prefix;
+
+  static transferData(oldKey, newKey) {
+    transferData(oldKey, newKey, true);
+  }
+
   static getDashletHeight(dashletId) {
     return get(getDashletSettings(dashletId), 'contentHeight');
   }
