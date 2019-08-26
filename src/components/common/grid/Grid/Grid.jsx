@@ -7,6 +7,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { closest, getId, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
+import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../form/SelectJournal/predicates';
 
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
@@ -97,7 +98,9 @@ class Grid extends Component {
         column.hidden = !column.default;
       }
 
-      column = this.setHeaderFormatter(column, props.filterable, column.sortable);
+      const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
+
+      column = this.setHeaderFormatter(column, filterable, column.sortable);
 
       column.formatter = this.initFormatter(props.editable);
 
