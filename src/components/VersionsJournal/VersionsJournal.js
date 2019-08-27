@@ -110,6 +110,8 @@ class VersionsJournal extends Component {
   constructor(props) {
     super(props);
 
+    UserLocalSettingsService.checkOldData(props.id);
+
     const state = {
       width: 290,
       selectedVersion: null,
