@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as queryString from 'query-string';
-import { get, isArray, isEmpty } from 'lodash';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { getDashboardConfig, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';

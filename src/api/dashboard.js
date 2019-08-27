@@ -1,4 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 import { getCurrentUserName, t } from '../helpers/util';
 import Cache from '../helpers/cache';
 import { DASHBOARD_DEFAULT_KEY, QueryKeys, SourcesId } from '../constants';
@@ -7,6 +8,7 @@ import Components from '../components/Components';
 import Records from '../components/Records';
 import { TITLE } from '../constants/pageTabs';
 import { DashboardTypes } from '../constants/dashboard';
+import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
   key: QueryKeys.KEY,
@@ -47,7 +49,7 @@ export class DashboardApi extends RecordService {
 
   saveDashboardConfig = ({ identification, config }) => {
     const { key, id, user, type } = identification;
-    const record = Records.get(id || `${SourcesId.DASHBOARD}@`);
+    const record = Records.get(DashboardService.formFullId(id));
 
     record.att(QueryKeys.CONFIG_JSON, config);
     record.att(QueryKeys.USER, user);
@@ -77,7 +79,7 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardById = (dashboardId, force = false) => {
-    return Records.get(dashboardId)
+    return Records.get(DashboardService.formFullId(dashboardId))
       .load({ ...defaultAttr }, force)
       .then(response => response);
   };
@@ -211,7 +213,7 @@ export class DashboardApi extends RecordService {
         }
       },
       { user: 'user' }
-    ).then(response => response === user);
+    ).then(response => get(response, 'user', null) === user);
   };
 
   deleteFromCache({ user, key }) {

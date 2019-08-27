@@ -1,7 +1,14 @@
-import { get, isEmpty, nth } from 'lodash';
-import { LAYOUT_TYPE } from '../constants/layout';
-import { t } from '../helpers/util';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import nth from 'lodash/nth';
+import split from 'lodash/split';
+import includes from 'lodash/includes';
 import uuid from 'uuidv4';
+import { LAYOUT_TYPE } from '../constants/layout';
+import { SourcesId } from '../constants';
+import { t } from '../helpers/util';
+
+const separatorId = '@';
 
 export default class DashboardService {
   static SaveWays = {
@@ -33,12 +40,16 @@ export default class DashboardService {
     }
   });
 
-  static parseDashboardId(fullId) {
-    if (fullId && fullId.includes('@')) {
-      return nth(fullId.split('@'), 1);
+  static formShortId(id) {
+    if (includes(id, separatorId)) {
+      return nth(split(id, separatorId), 1);
     }
 
-    return fullId;
+    return id;
+  }
+
+  static formFullId(id) {
+    return `${SourcesId.DASHBOARD}${separatorId}${DashboardService.formShortId(id)}`;
   }
 
   static checkDashboardResult(result) {
@@ -54,7 +65,8 @@ export default class DashboardService {
       return {};
     }
 
-    const dashboardId = result._id || '';
+    const fullId = result._id || '';
+    const dashboardId = DashboardService.formShortId(fullId);
 
     return {
       dashboardId
