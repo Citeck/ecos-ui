@@ -54,8 +54,8 @@ export class DashboardApi extends RecordService {
     record.att(QueryKeys.USER, user);
 
     if (!id) {
-      record.att('_dashboardKey', key || DASHBOARD_DEFAULT_KEY);
-      record.att('_dashboardType', type);
+      record.att('key', key || DASHBOARD_DEFAULT_KEY);
+      record.att('type', type);
     }
 
     return record.save().then(response => response);

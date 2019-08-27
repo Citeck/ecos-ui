@@ -40,15 +40,16 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class Dashboard extends Component {
+  state = {
+    urlParams: getSortedUrlParams(),
+    canDragging: false,
+    activeLayoutId: null
+  };
+
   constructor(props) {
     super(props);
 
-    this.state = {
-      config: props.config,
-      urlParams: getSortedUrlParams(),
-      canDragging: false,
-      activeLayoutId: null
-    };
+    this.state.config = props.config || [];
   }
 
   componentDidMount() {
@@ -76,9 +77,6 @@ class Dashboard extends Component {
 
     if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
       state.config = config;
-    }
-
-    if (isEmpty(activeLayoutId) && !isEmpty(config)) {
       state.activeLayoutId = get(config, '[0].id');
     }
 
@@ -133,7 +131,7 @@ class Dashboard extends Component {
     const { config, activeLayoutId } = this.state;
 
     if (!isEmpty(config) && isArray(config) && !!activeLayoutId) {
-      return config.find(item => item.tab.idLayout === activeLayoutId);
+      return config.find(item => item.id === activeLayoutId) || {};
     }
 
     return {};
@@ -149,14 +147,27 @@ class Dashboard extends Component {
     return [];
   }
 
+  updateActiveConfig(activeLayout) {
+    const { config, activeLayoutId } = this.state;
+    const upConfig = deepClone(config, []);
+
+    upConfig.forEach(item => {
+      if (item.id === activeLayoutId) {
+        config[activeLayoutId] = activeLayout;
+      }
+    });
+
+    this.setState({ config: upConfig });
+
+    return upConfig;
+  }
+
   prepareWidgetsConfig = (data, dnd) => {
-    const {
-      config: currentConfig,
-      config: { columns }
-    } = this.state;
+    const activeLayout = deepClone(this.activeLayout, {});
+    const columns = activeLayout.columns || [];
+
     const { isWidget, columnFrom, columnTo } = data;
     const { source, destination } = dnd;
-    const config = JSON.parse(JSON.stringify(currentConfig));
 
     if (isWidget) {
       let widgetsFrom = columns[columnFrom].widgets || [];
@@ -167,15 +178,16 @@ class Dashboard extends Component {
         result = DndUtils.move(widgetsFrom, widgetsTo, source, destination);
         widgetsFrom = result[source.droppableId];
         widgetsTo = result[destination.droppableId];
-        config.columns[columnTo].widgets = widgetsTo;
-        config.columns[columnFrom].widgets = widgetsFrom;
+
+        activeLayout.columns[columnTo].widgets = widgetsTo;
+        activeLayout.columns[columnFrom].widgets = widgetsFrom;
       } else {
         widgetsFrom = DndUtils.reorder(widgetsFrom, data.positionFrom, data.positionTo);
-        config.columns[columnFrom].widgets = widgetsFrom;
+        activeLayout.columns[columnFrom].widgets = widgetsFrom;
       }
     }
 
-    this.setState({ config });
+    const config = this.updateActiveConfig(activeLayout);
     this.saveDashboardConfig({ config });
   };
 
@@ -190,9 +202,10 @@ class Dashboard extends Component {
   };
 
   handleSaveWidgetProps = (id, props = {}) => {
-    const config = deepClone(this.state.config);
+    const activeLayout = deepClone(this.activeLayout, {});
+    const columns = activeLayout.columns || [];
 
-    config.columns.forEach(column => {
+    columns.forEach(column => {
       const index = column.widgets.findIndex(widget => widget.id === id);
 
       if (index !== -1) {
@@ -202,8 +215,9 @@ class Dashboard extends Component {
 
       return true;
     });
+    activeLayout.columns = columns;
 
-    this.setState({ config });
+    const config = this.updateActiveConfig(activeLayout);
     this.saveDashboardConfig({ config });
   };
 

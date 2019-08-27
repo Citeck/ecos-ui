@@ -115,7 +115,7 @@ class DashboardSettings extends React.Component {
 
     this.state = {
       ...state,
-      ...this.setStateByConfig(props, state),
+      ...this.setStateByConfig(props),
       ...this.setStateMenu(props, state)
     };
   }
@@ -170,7 +170,7 @@ class DashboardSettings extends React.Component {
     initMenuSettings();
   }
 
-  setStateByConfig(props, state = this.state) {
+  setStateByConfig(props) {
     const selectedDashboardKey = get(props, 'identification.key', '');
     const isForAllUsers = isNull(get(props, 'identification.user', null));
     const { config } = props;
