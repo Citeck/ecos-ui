@@ -63,6 +63,12 @@
     &__add-tab {
       margin-left: 10px;
     }
+
+    &_empty {
+      background: $color-gray-1;
+      border-radius: $border-radius-standard;
+      flex: auto;
+    }
   }
 
   &__container {

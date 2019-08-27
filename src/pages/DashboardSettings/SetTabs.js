@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import set from 'lodash/set';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import DashboardService from '../../services/dashboard';
 import { t } from '../../helpers/util';
 import { EditTabs, ScrollArrow } from '../../components/common';
@@ -82,26 +83,30 @@ class SetTabs extends React.Component {
   render() {
     const { tabs, activeLayoutId } = this.props;
     const { scrollTabToEnd } = this.state;
+    const empty = isEmpty(tabs);
 
     return (
       <React.Fragment>
         <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
         <div className="ecos-dashboard-settings__tabs-wrapper">
-          <ScrollArrow scrollToEnd={scrollTabToEnd}>
-            <EditTabs
-              className="ecos-dashboard-settings__tabs-block"
-              classNameTab="ecos-dashboard-settings__tabs-item"
-              hasHover
-              items={tabs}
-              keyField={'idLayout'}
-              onDelete={this.onDeleteTab}
-              onSort={this.onSortTabs}
-              onEdit={this.onEditTab}
-              onClick={this.onClickTabLayout}
-              disabled={tabs.length < 2}
-              activeTabKey={activeLayoutId}
-            />
-          </ScrollArrow>
+          {!empty && (
+            <ScrollArrow scrollToEnd={scrollTabToEnd}>
+              <EditTabs
+                className="ecos-dashboard-settings__tabs-block"
+                classNameTab="ecos-dashboard-settings__tabs-item"
+                hasHover
+                items={tabs}
+                keyField={'idLayout'}
+                onDelete={this.onDeleteTab}
+                onSort={this.onSortTabs}
+                onEdit={this.onEditTab}
+                onClick={this.onClickTabLayout}
+                disabled={tabs.length < 2}
+                activeTabKey={activeLayoutId}
+              />
+            </ScrollArrow>
+          )}
+          {empty && <div className="ecos-dashboard-settings__tabs_empty" />}
           <IcoBtn
             icon="icon-big-plus"
             className={'ecos-dashboard-settings__tabs__add-tab ecos-btn_i ecos-btn_blue2 ecos-btn_hover_blue2'}
