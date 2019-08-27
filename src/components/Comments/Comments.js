@@ -86,6 +86,8 @@ class Comments extends React.Component {
     this._scroll = React.createRef();
     this._header = React.createRef();
 
+    UserLocalSettingsService.checkOldData(props.id);
+
     this.state = {
       isEdit: false,
       width: MIN_WIDTH_DASHLET_SMALL,

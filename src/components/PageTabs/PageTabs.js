@@ -2,7 +2,8 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { deepClone, getScrollbarWidth, t } from '../../helpers/util';
+
+import { deepClone, getScrollbarWidth, t, arrayMove } from '../../helpers/util';
 import { SortableContainer, SortableElement } from '../Drag-n-Drop';
 import {
   getTitleByUrl,
@@ -14,6 +15,7 @@ import {
 } from '../../constants/pageTabs';
 import { PointsLoader } from '../common';
 import { isNewVersionPage } from '../../helpers/urls';
+
 import './style.scss';
 
 const CHANGE_URL_LINK_EVENT = 'CHANGE_URL_LINK_EVENT';
@@ -109,10 +111,10 @@ class PageTabs extends React.Component {
 
   componentWillUnmount() {
     window.clearInterval(this.checkArrowID);
-    this.checkArrowID = null;
     document.removeEventListener('click', this.handleClickLink);
     document.removeEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent);
     window.removeEventListener('popstate', this.handlePopState);
+    this.checkArrowID = null;
   }
 
   initArrows() {
@@ -175,14 +177,13 @@ class PageTabs extends React.Component {
   }
 
   generateNewTab(params = {}) {
-    const { countTabs = this.props.tabs.length, props = this.props, link = '', remoteTitle = false } = params;
+    const { props = this.props, link = '', remoteTitle = false } = params;
     const { homepageLink } = props;
 
     return {
       id: Math.random()
         .toString(36)
         .substring(6),
-      position: countTabs,
       isActive: true,
       link: link || homepageLink,
       title: remoteTitle ? TITLE.NEW_TAB : this.getTitle(link || homepageLink)
@@ -521,14 +522,7 @@ class PageTabs extends React.Component {
     draggableNode.classList.toggle('page-tab__tabs-item_sorting');
 
     this.setState(state => {
-      const tabs = deepClone(state.tabs);
-      const draggableTab = tabs[oldIndex];
-
-      tabs.splice(oldIndex, 1);
-      tabs.splice(newIndex, 0, draggableTab);
-      tabs.forEach((tab, index) => {
-        tab.position = index;
-      });
+      const tabs = arrayMove(state.tabs, oldIndex, newIndex);
 
       this.props.saveTabs(tabs);
 
@@ -565,20 +559,10 @@ class PageTabs extends React.Component {
       history.push.call(this, link);
     }
 
-    for (let i = index; i < tabs.length; i++) {
-      tabs[i].position -= 1;
-    }
-
     tabs.splice(index, 1);
     saveTabs(tabs);
 
     this.setState({ tabs }, this.checkNeedArrow.bind(this));
-  }
-
-  get sortableTabs() {
-    const { tabs } = this.state;
-
-    return tabs.sort((first, second) => (first.position > second.position ? 1 : -1));
   }
 
   activeTab = (tab, allTabs = this.state.tabs) => {
@@ -647,7 +631,7 @@ class PageTabs extends React.Component {
     );
   }
 
-  renderTabItem = item => {
+  renderTabItem = (item, position) => {
     const { tabs } = this.state;
     const { isLoadingTitle } = this.props;
     const className = ['page-tab__tabs-item'];
@@ -663,7 +647,7 @@ class PageTabs extends React.Component {
     }
 
     return (
-      <SortableElement key={item.id} index={item.position} onSortEnd={this.handleSortEnd}>
+      <SortableElement key={item.id} index={position} onSortEnd={this.handleSortEnd}>
         <div key={item.id} className={className.join(' ')} title={t(item.title)} onClick={this.handleClickTab.bind(this, item)}>
           <span className="page-tab__tabs-item-title">
             {isLoadingTitle && item.isActive && <PointsLoader className={'page-tab__tabs-item-title-loader'} />}
@@ -706,7 +690,7 @@ class PageTabs extends React.Component {
           onSortEnd={this.handleSortEnd}
         >
           <div className="page-tab__tabs" ref={this.$tabWrapper}>
-            {this.sortableTabs.map(this.renderTabItem)}
+            {tabs.map(this.renderTabItem)}
           </div>
         </SortableContainer>
         <div className="page-tab__tabs-add icon-plus" onClick={this.handleAddTab} />

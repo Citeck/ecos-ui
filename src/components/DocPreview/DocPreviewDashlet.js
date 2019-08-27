@@ -37,6 +37,8 @@ class DocPreviewDashlet extends Component {
   constructor(props) {
     super(props);
 
+    UserLocalSettingsService.checkOldData(props.id);
+
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
       height: UserLocalSettingsService.getDashletHeight(props.id),

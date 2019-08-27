@@ -26,7 +26,7 @@ export default class IcoBtn extends Component {
   }
 
   render() {
-    const { className, invert, children, icon, loading, ...props } = this.props;
+    const { className, invert, children, loading, ...props } = this.props;
     const cssClasses = classNames('ecos-btn', className);
 
     const text = children ? <span className={'ecos-btn__text'}>{children}</span> : null;

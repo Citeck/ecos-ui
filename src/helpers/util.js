@@ -293,8 +293,8 @@ export function getScrollbarWidth() {
   return scrollbarWidth;
 }
 
-export function deepClone(data) {
-  return JSON.parse(JSON.stringify(data));
+export function deepClone(data, defaultValue = '') {
+  return JSON.parse(JSON.stringify(data || defaultValue));
 }
 
 export function isPDFbyStr(str) {
@@ -471,4 +471,20 @@ export function getIconFileByMimetype(mimetype) {
     default:
       return 'icon-filetype-none';
   }
+}
+
+/**
+ * Функция для сортировки элементов массива
+ *
+ * @param array
+ * @param indexFrom
+ * @param indexTo
+ * @returns {array}
+ */
+export function arrayMove(array, indexFrom, indexTo) {
+  const newArray = deepClone(array);
+
+  newArray.splice(indexTo < 0 ? newArray.length + indexTo : indexTo, 0, newArray.splice(indexFrom, 1)[0]);
+
+  return newArray;
 }
