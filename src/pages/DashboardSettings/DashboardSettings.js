@@ -528,7 +528,7 @@ class DashboardSettings extends React.Component {
     let { isLoading, isLoadingMenu } = this.props;
 
     if (isLoading || isLoadingMenu) {
-      return <Loader height={100} width={100} className={`ecos-dashboard-settings__loader-wrapper`} />;
+      return <Loader height={100} width={100} className="ecos-dashboard-settings__loader-wrapper" darkened />;
     }
 
     return null;

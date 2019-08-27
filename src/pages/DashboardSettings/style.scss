@@ -14,6 +14,15 @@
 
   position: relative;
 
+  &__loader-wrapper {
+    border-radius: $border-radius-extra-large;
+    align-items: unset;
+
+    div {
+      margin-top: 30%;
+    }
+  }
+
   &__header {
     padding-bottom: 18px;
     font-style: normal;
@@ -220,16 +229,6 @@
 
   &__actions {
     //margin-top: 26px;
-  }
-
-  &__loader-wrapper {
-    background-color: $background-loader;
-    border-radius: $border-radius-extra-large;
-    align-items: unset;
-
-    div {
-      margin-top: 30%;
-    }
   }
 }
 
