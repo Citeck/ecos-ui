@@ -33,6 +33,8 @@ class CurrentTasksDashlet extends React.Component {
   constructor(props) {
     super(props);
 
+    UserLocalSettingsService.checkOldData(props.id);
+
     this.state = {
       isSmallMode: false,
       isUpdating: false,

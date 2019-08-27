@@ -1,10 +1,9 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { getShowTabsStatus, getTabs, setActiveTabTitle, setShowTabsStatus, setTabs } from '../actions/pageTabs';
 import { selectTabs } from '../selectors/pageTabs';
-import { deepClone } from '../helpers/util';
+import { deepClone, getCurrentUserName } from '../helpers/util';
 import Records from '../components/Records';
 import { isNewVersionPage } from '../helpers/urls';
-import { selectUserUid } from '../selectors/user';
 
 function* sagaGetShowTabsStatus({ api, logger }, action) {
   try {
@@ -32,9 +31,9 @@ function* sagaGetShowTabsStatus({ api, logger }, action) {
 
 function* sagaGetTabs({ api, logger }) {
   try {
-    const uid = yield select(selectUserUid);
+    const userName = getCurrentUserName();
 
-    yield api.pageTabs.checkOldVersion(uid);
+    yield api.pageTabs.checkOldVersion(userName);
     const tabs = yield api.pageTabs.getAll();
 
     yield put(setTabs(tabs));

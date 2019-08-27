@@ -1,4 +1,5 @@
 import * as ls from '../helpers/ls';
+import { USER_GUEST } from '../constants';
 
 export class PageTabsApi {
   _lsKey = ls.generateKey('page-tabs', true);
@@ -22,9 +23,13 @@ export class PageTabsApi {
     return tabs;
   };
 
-  checkOldVersion(uid) {
+  checkOldVersion(userName) {
+    if (userName === USER_GUEST) {
+      return;
+    }
+
     const currentVersion = this.lsKey;
-    const newVersionKey = `${this.lsKey}${this._newVersionKeyPath}-${uid}`;
+    const newVersionKey = `${this.lsKey}${this._newVersionKeyPath}-${userName}`;
 
     if (this.lsKey.includes(this._newVersionKeyPath)) {
       return;
