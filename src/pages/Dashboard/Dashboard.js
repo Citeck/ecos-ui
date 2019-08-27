@@ -54,9 +54,9 @@ class Dashboard extends Component {
 
   componentDidMount() {
     const { getDashboardConfig } = this.props;
-    const { recordRef } = this.getPathInfo();
+    const { recordRef, dashboardKey } = this.getPathInfo();
 
-    getDashboardConfig({ recordRef });
+    getDashboardConfig({ recordRef, dashboardKey });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -77,6 +77,9 @@ class Dashboard extends Component {
 
     if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
       state.config = config;
+    }
+
+    if (JSON.stringify(config) !== JSON.stringify(this.props.config) || isEmpty(activeLayoutId)) {
       state.activeLayoutId = get(config, '[0].id');
     }
 
@@ -88,11 +91,12 @@ class Dashboard extends Component {
       location: { search }
     } = props || this.props;
     const searchParams = queryString.parse(search);
-    const { recordRef, dashboardId } = searchParams;
+    const { recordRef, dashboardId, dashboardKey } = searchParams;
 
     return {
       recordRef,
       dashboardId,
+      dashboardKey,
       search
     };
   }

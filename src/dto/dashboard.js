@@ -15,7 +15,7 @@ export default class DashboardConverter {
         key: key || DASHBOARD_DEFAULT_KEY,
         type,
         user,
-        id: DashboardService.parseDashboardId(id)
+        id
       };
     }
 

@@ -7,7 +7,6 @@ import Components from '../components/Components';
 import Records from '../components/Records';
 import { TITLE } from '../constants/pageTabs';
 import { DashboardTypes } from '../constants/dashboard';
-import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
   key: QueryKeys.KEY,
@@ -48,7 +47,7 @@ export class DashboardApi extends RecordService {
 
   saveDashboardConfig = ({ identification, config }) => {
     const { key, id, user, type } = identification;
-    const record = Records.get(`${SourcesId.DASHBOARD}@${id}`);
+    const record = Records.get(id || `${SourcesId.DASHBOARD}@`);
 
     record.att(QueryKeys.CONFIG_JSON, config);
     record.att(QueryKeys.USER, user);
@@ -61,13 +60,13 @@ export class DashboardApi extends RecordService {
     return record.save().then(response => response);
   };
 
-  getDashboardByOneOf = ({ dashboardId, recordRef, off = {} }) => {
+  getDashboardByOneOf = ({ dashboardId, dashboardKey, recordRef, off = {} }) => {
     if (!isEmpty(dashboardId)) {
       return this.getDashboardById(dashboardId);
     }
 
     if (!isEmpty(recordRef) && !off.ref) {
-      return this.getDashboardByRecordRef(recordRef);
+      return this.getDashboardByRecordRef(recordRef, dashboardKey);
     }
 
     if (!off.user) {
@@ -78,9 +77,7 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardById = (dashboardId, force = false) => {
-    const id = DashboardService.parseDashboardId(dashboardId);
-
-    return Records.get(`${SourcesId.DASHBOARD}@${id}`)
+    return Records.get(dashboardId)
       .load({ ...defaultAttr }, force)
       .then(response => response);
   };
@@ -99,16 +96,20 @@ export class DashboardApi extends RecordService {
     ).then(response => response);
   };
 
-  getDashboardByRecordRef = function*(recordRef) {
+  getDashboardByRecordRef = function*(recordRef, dashboardKey = '') {
     const result = yield Records.get(recordRef).load({
       type: '_dashboardType',
       keys: '_dashboardKey[]'
     });
 
     const { keys, type } = result;
-    const dashboardKeys = Array.from(keys || []);
+    let dashboardKeys = Array.from(keys || []);
 
     dashboardKeys.push(DASHBOARD_DEFAULT_KEY);
+
+    if (dashboardKey) {
+      dashboardKeys = dashboardKeys.filter(item => item === dashboardKey);
+    }
 
     const cacheKey = dashboardKeys.find(key => cache.check(key));
     const dashboardId = cacheKey ? cache.get(cacheKey) : null;

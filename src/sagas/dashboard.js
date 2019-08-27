@@ -17,8 +17,8 @@ import { RequestStatuses } from '../constants';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
-    const { recordRef } = payload;
-    const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
+    const { recordRef, dashboardKey } = payload;
+    const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef, dashboardKey });
     const resTitle = yield call(api.dashboard.getTitleInfo, recordRef);
 
     const data = DashboardService.checkDashboardResult(result);

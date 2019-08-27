@@ -34,7 +34,7 @@ export default class DashboardService {
   });
 
   static parseDashboardId(fullId) {
-    if (fullId.includes('@')) {
+    if (fullId && fullId.includes('@')) {
       return nth(fullId.split('@'), 1);
     }
 
@@ -54,12 +54,10 @@ export default class DashboardService {
       return {};
     }
 
-    const fullId = result._id || '';
-    const dashboardId = DashboardService.parseDashboardId(fullId);
+    const dashboardId = result._id || '';
 
     return {
-      dashboardId,
-      fullId
+      dashboardId
     };
   }
 
