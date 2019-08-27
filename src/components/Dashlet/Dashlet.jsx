@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import ReactResizeDetector from 'react-resize-detector';
+import get from 'lodash/get';
 
 import Panel from '../common/panels/Panel/Panel';
 import Measurer from '../Measurer/Measurer';
-import { IcoBtn } from '../common/btns';
-import { ResizableBox } from '../common';
+import { IcoBtn, Btn } from '../common/btns';
+import { ResizableBox, Icon } from '../common';
 import { t } from '../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 
@@ -19,6 +21,7 @@ const Header = ({
   onGoTo,
   onReload,
   onEdit,
+  onToggle,
   actionReload,
   actionEdit,
   actionHelp,
@@ -26,15 +29,16 @@ const Header = ({
   measurer,
   actionEditTitle,
   customButtons,
-  titleClassName
+  titleClassName,
+  isMobile
 }) => {
   const btnGoTo = (
     <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className={'dashlet__btn ecos-btn_narrow'} onClick={onGoTo}>
       {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
     </IcoBtn>
   );
-
   const actions = [...customButtons];
+  let toggleBtn = null;
 
   if (actionReload) {
     actions.push(
@@ -84,9 +88,20 @@ const Header = ({
     );
   }
 
+  if (isMobile) {
+    toggleBtn = <Icon className="dashlet__header-toggle icon-down" />;
+  }
+
   return (
     <div className={'dashlet__header'}>
-      <span className={classNames('dashlet__caption', titleClassName)}>{title}</span>
+      <span
+        onClick={onToggle}
+        // onTouchEnd={onToggle}
+        className={classNames('dashlet__caption', titleClassName)}
+      >
+        {toggleBtn}
+        {title}
+      </span>
 
       {needGoTo && btnGoTo}
 
@@ -95,7 +110,7 @@ const Header = ({
   );
 };
 
-export default class Dashlet extends Component {
+class Dashlet extends Component {
   static propTypes = {
     title: PropTypes.string,
     className: PropTypes.string,
@@ -109,12 +124,14 @@ export default class Dashlet extends Component {
     actionDrag: PropTypes.bool,
     resizable: PropTypes.bool,
     canDragging: PropTypes.bool,
+    isMobile: PropTypes.bool,
     dragHandleProps: PropTypes.object,
     customButtons: PropTypes.array,
     onEdit: PropTypes.func,
     onGoTo: PropTypes.func,
     onReload: PropTypes.func,
     onResize: PropTypes.func,
+    onToggle: PropTypes.func,
     dragButton: PropTypes.func,
     onChangeHeight: PropTypes.func,
     getFitHeights: PropTypes.func
@@ -132,6 +149,7 @@ export default class Dashlet extends Component {
     actionDrag: true,
     resizable: false,
     canDragging: false,
+    isMobile: false,
     dragButton: null,
     dragHandleProps: {},
     customButtons: [],
@@ -139,6 +157,7 @@ export default class Dashlet extends Component {
     onGoTo: () => {},
     onReload: () => {},
     onResize: () => {},
+    onToggle: () => {},
     onChangeHeight: () => null,
     getFitHeights: () => null
   };
@@ -160,8 +179,8 @@ export default class Dashlet extends Component {
 
   get busyDashletHeight() {
     const elDashlet = this.refDashlet.current || {};
-    const headerH = elDashlet.querySelector('.dashlet__wrap-header').offsetHeight || 0;
-    const resizerH = elDashlet.querySelector('.dashlet__resizer').offsetHeight || 0;
+    const headerH = get(elDashlet.querySelector('.dashlet__wrap-header'), ['offsetHeight'], 0);
+    const resizerH = get(elDashlet.querySelector('.dashlet__resizer'), ['offsetHeight'], 0);
 
     return headerH + resizerH;
   }
@@ -195,8 +214,40 @@ export default class Dashlet extends Component {
 
     if (typeof onChangeHeight === 'function') {
       onChangeHeight(height);
+
+      this.props.getFitHeights(this.fitHeightChildren);
     }
   };
+
+  renderContent() {
+    const { isMobile, resizable, children } = this.props;
+
+    if (isMobile) {
+      return children;
+    }
+
+    return (
+      <ResizableBox resizable={resizable} classNameResizer={'dashlet__resizer'} getHeight={this.onChangeHeight}>
+        {children}
+      </ResizableBox>
+    );
+  }
+
+  renderHideButton() {
+    const { isMobile, onToggle } = this.props;
+
+    if (!isMobile) {
+      return null;
+    }
+
+    return (
+      <div className="dashlet__body-actions">
+        <Btn className="ecos-btn_full-width ecos-btn_sq_sm" onClick={onToggle}>
+          Свернуть
+        </Btn>
+      </div>
+    );
+  }
 
   render() {
     const {
@@ -207,15 +258,16 @@ export default class Dashlet extends Component {
       actionEditTitle,
       needGoTo,
       actionReload,
-      resizable,
-      children,
       actionEdit,
       actionHelp,
       actionDrag,
       onResize,
       dragHandleProps,
       canDragging,
-      customButtons
+      customButtons,
+      isMobile,
+      onToggle,
+      isCollapsed
     } = this.props;
     const cssClasses = classNames('dashlet', className);
 
@@ -224,7 +276,9 @@ export default class Dashlet extends Component {
         <Panel
           {...this.props}
           className={cssClasses}
-          headClassName={'dashlet__wrap-header ecos-panel__large'}
+          headClassName={classNames('dashlet__wrap-header ecos-panel__large', {
+            'dashlet__wrap-header_rounded': isCollapsed
+          })}
           bodyClassName={classNames('dashlet__body', bodyClassName)}
           header={
             <Measurer>
@@ -234,6 +288,7 @@ export default class Dashlet extends Component {
                 onGoTo={this.onGoTo}
                 actionReload={actionReload}
                 onReload={this.onReload}
+                onToggle={onToggle}
                 actionEdit={actionEdit}
                 onEdit={this.onEdit}
                 actionHelp={actionHelp}
@@ -242,13 +297,19 @@ export default class Dashlet extends Component {
                 actionEditTitle={actionEditTitle}
                 customButtons={customButtons}
                 titleClassName={titleClassName}
+                isMobile={isMobile}
               />
             </Measurer>
           }
         >
-          <ResizableBox resizable={resizable} classNameResizer={'dashlet__resizer'} getHeight={this.onChangeHeight}>
-            {children}
-          </ResizableBox>
+          <div
+            className={classNames('dashlet__body-content', {
+              'dashlet__body-content_hidden': isCollapsed
+            })}
+          >
+            {this.renderContent()}
+            {this.renderHideButton()}
+          </div>
         </Panel>
 
         <ReactResizeDetector handleWidth handleHeight onResize={onResize} />
@@ -256,3 +317,13 @@ export default class Dashlet extends Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  isMobile: get(state, ['view', 'isMobile'])
+});
+const mapDispatchToProps = dispatch => ({});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Dashlet);

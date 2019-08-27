@@ -57,6 +57,8 @@ class PropertiesDashlet extends React.Component {
       isReady: true,
       isEditProps: false,
       formIsChanged: false,
+      isSmall: false,
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       height: UserLocalSettingsService.getDashletHeight(props.id),
       fitHeights: {}
     };
@@ -99,6 +101,11 @@ class PropertiesDashlet extends React.Component {
     this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
   };
 
+  handleToggleContent = () => {
+    this.setState(state => ({ isCollapsed: !state.isCollapsed }));
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed: !this.state.isSmall });
+  };
+
   renderDashletCustomButtons(isDashlet = false) {
     const { isAdmin, id } = this.props;
     const buttons = [];
@@ -136,7 +143,7 @@ class PropertiesDashlet extends React.Component {
 
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isReady, isEditProps, height, fitHeights, formIsChanged } = this.state;
+    const { isSmallMode, isReady, isEditProps, height, fitHeights, formIsChanged, isCollapsed } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -156,6 +163,8 @@ class PropertiesDashlet extends React.Component {
         getFitHeights={this.setFitHeights}
         onResize={this.onResize}
         customButtons={this.renderDashletCustomButtons(true)}
+        onToggle={this.handleToggleContent}
+        isCollapsed={isCollapsed}
       >
         <Properties
           ref={this._propertiesRef}

@@ -70,4 +70,18 @@ export default class UserLocalSettingsService {
 
     setDashletSettings(key, dashletData);
   }
+
+  static setProperty(dashletId, property = {}) {
+    const key = UserLocalSettingsService.getKey(dashletId);
+    const data = getDashletSettings(key);
+
+    setDashletSettings(key, { ...data, ...property });
+  }
+
+  static getProperty(dashletId, propertyName) {
+    const key = UserLocalSettingsService.getKey(dashletId);
+    const data = getDashletSettings(key);
+
+    return get(data, [propertyName]);
+  }
 }
