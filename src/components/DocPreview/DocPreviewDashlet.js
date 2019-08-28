@@ -43,6 +43,7 @@ class DocPreviewDashlet extends Component {
       width: MIN_WIDTH_DASHLET_SMALL,
       height: UserLocalSettingsService.getDashletHeight(props.id),
       scale: UserLocalSettingsService.getDashletScale(props.id) || 'auto',
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       fitHeights: {}
     };
   }
@@ -66,9 +67,16 @@ class DocPreviewDashlet extends Component {
     }
   };
 
+  handleToggleContent = () => {
+    const { isCollapsed } = this.state;
+
+    this.setState({ isCollapsed: !isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed: !isCollapsed });
+  };
+
   render() {
     const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName } = this.props;
-    const { width, height, fitHeights, scale } = this.state;
+    const { width, height, fitHeights, scale, isCollapsed } = this.state;
     const classesDashlet = classNames(this.className, classNameDashlet, {
       [`${this.className}_small`]: width < MIN_WIDTH_DASHLET_LARGE
     });
@@ -88,6 +96,8 @@ class DocPreviewDashlet extends Component {
         dragHandleProps={dragHandleProps}
         resizable
         getFitHeights={this.setFitHeights}
+        onToggleCollapse={this.handleToggleContent}
+        isCollapsed={isCollapsed}
       >
         <DocPreview
           link={config.link}
@@ -99,6 +109,7 @@ class DocPreviewDashlet extends Component {
           fileName={fileName}
           setUserScale={this.setUserScale}
           resizable
+          isCollapsed={isCollapsed}
         />
       </Dashlet>
     );

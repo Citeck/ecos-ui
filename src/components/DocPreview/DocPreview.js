@@ -31,6 +31,7 @@ class DocPreview extends Component {
     byLink: PropTypes.bool,
     noIndents: PropTypes.bool,
     resizable: PropTypes.bool,
+    isCollapsed: PropTypes.bool,
     fileName: PropTypes.string,
     setUserScale: PropTypes.func
   };
@@ -45,6 +46,7 @@ class DocPreview extends Component {
     byLink: false,
     noIndents: false,
     resizable: false,
+    isCollapsed: false,
     fileName: '',
     setUserScale: () => null
   };
@@ -84,7 +86,7 @@ class DocPreview extends Component {
 
   componentWillReceiveProps(nextProps) {
     const oldProps = this.props;
-    const { link, isLoading, byLink } = nextProps;
+    const { link, isLoading, byLink, isCollapsed } = nextProps;
     const { recordId } = this.state;
     const newRecordId = this.getRecordId(nextProps);
     const isPdf = isPDFbyStr(link);
@@ -94,7 +96,7 @@ class DocPreview extends Component {
       state = { isLoading };
     }
 
-    if (byLink && oldProps.link !== link && isPdf) {
+    if (byLink && oldProps.link !== link && isPdf && isCollapsed) {
       state = { isLoading: true, pdf: {} };
       this.loadPDF(link);
     }
@@ -103,7 +105,7 @@ class DocPreview extends Component {
       state.link = link;
     }
 
-    if (!byLink && recordId !== newRecordId) {
+    if ((!byLink && recordId !== newRecordId) || (!byLink && oldProps.isCollapsed && !isCollapsed)) {
       this.setState({ recordId: newRecordId }, this.getUrlByRecord);
     }
 

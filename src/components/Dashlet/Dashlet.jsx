@@ -21,7 +21,7 @@ const Header = ({
   onGoTo,
   onReload,
   onEdit,
-  onToggle,
+  onToggleCollapse,
   actionReload,
   actionEdit,
   actionHelp,
@@ -32,13 +32,19 @@ const Header = ({
   titleClassName,
   isMobile
 }) => {
-  const btnGoTo = (
+  const btnGoTo = isMobile ? null : (
     <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className={'dashlet__btn ecos-btn_narrow'} onClick={onGoTo}>
       {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
     </IcoBtn>
   );
   const actions = [...customButtons];
-  let toggleBtn = null;
+  let toggleIcon = null;
+  let dragBtn = null;
+  const onToggle = () => {
+    if (isMobile) {
+      onToggleCollapse();
+    }
+  };
 
   if (actionReload) {
     actions.push(
@@ -76,7 +82,7 @@ const Header = ({
   }
 
   if (actionDrag) {
-    actions.push(
+    dragBtn = (
       <span className="dashlet__btn_move-wrapper" {...dragHandleProps}>
         <IcoBtn
           key="action-drag"
@@ -89,23 +95,22 @@ const Header = ({
   }
 
   if (isMobile) {
-    toggleBtn = <Icon className="dashlet__header-toggle icon-down" />;
+    toggleIcon = <Icon className="dashlet__header-toggle icon-down" />;
   }
 
   return (
-    <div className={'dashlet__header'}>
-      <span
-        onClick={onToggle}
-        // onTouchEnd={onToggle}
-        className={classNames('dashlet__caption', titleClassName)}
-      >
-        {toggleBtn}
+    <div className={'dashlet__header'} onClick={isMobile && onToggleCollapse}>
+      <span className={classNames('dashlet__caption', titleClassName)}>
+        {toggleIcon}
         {title}
       </span>
 
       {needGoTo && btnGoTo}
 
-      <div className={'dashlet__actions dashlet__actions_header'}>{actions}</div>
+      <div className={'dashlet__actions dashlet__actions_header'}>
+        {!isMobile && actions}
+        {dragBtn}
+      </div>
     </div>
   );
 };
@@ -131,7 +136,7 @@ class Dashlet extends Component {
     onGoTo: PropTypes.func,
     onReload: PropTypes.func,
     onResize: PropTypes.func,
-    onToggle: PropTypes.func,
+    onToggleCollapse: PropTypes.func,
     dragButton: PropTypes.func,
     onChangeHeight: PropTypes.func,
     getFitHeights: PropTypes.func
@@ -157,7 +162,7 @@ class Dashlet extends Component {
     onGoTo: () => {},
     onReload: () => {},
     onResize: () => {},
-    onToggle: () => {},
+    onToggleCollapse: () => {},
     onChangeHeight: () => null,
     getFitHeights: () => null
   };
@@ -234,7 +239,7 @@ class Dashlet extends Component {
   }
 
   renderHideButton() {
-    const { isMobile, onToggle } = this.props;
+    const { isMobile, onToggleCollapse } = this.props;
 
     if (!isMobile) {
       return null;
@@ -242,7 +247,7 @@ class Dashlet extends Component {
 
     return (
       <div className="dashlet__body-actions">
-        <Btn className="ecos-btn_full-width ecos-btn_sq_sm" onClick={onToggle}>
+        <Btn className="ecos-btn_full-width ecos-btn_sq_sm" onClick={onToggleCollapse}>
           Свернуть
         </Btn>
       </div>
@@ -266,7 +271,7 @@ class Dashlet extends Component {
       canDragging,
       customButtons,
       isMobile,
-      onToggle,
+      onToggleCollapse,
       isCollapsed
     } = this.props;
     const cssClasses = classNames('dashlet', className);
@@ -277,9 +282,11 @@ class Dashlet extends Component {
           {...this.props}
           className={cssClasses}
           headClassName={classNames('dashlet__wrap-header ecos-panel__large', {
-            'dashlet__wrap-header_rounded': isCollapsed
+            'dashlet__wrap-header_rounded': isMobile && isCollapsed
           })}
-          bodyClassName={classNames('dashlet__body', bodyClassName)}
+          bodyClassName={classNames('dashlet__body', bodyClassName, {
+            dashlet__body_collapsed: isMobile && isCollapsed
+          })}
           header={
             <Measurer>
               <Header
@@ -288,7 +295,7 @@ class Dashlet extends Component {
                 onGoTo={this.onGoTo}
                 actionReload={actionReload}
                 onReload={this.onReload}
-                onToggle={onToggle}
+                onToggleCollapse={onToggleCollapse}
                 actionEdit={actionEdit}
                 onEdit={this.onEdit}
                 actionHelp={actionHelp}
@@ -304,7 +311,7 @@ class Dashlet extends Component {
         >
           <div
             className={classNames('dashlet__body-content', {
-              'dashlet__body-content_hidden': isCollapsed
+              'dashlet__body-content_hidden': isMobile && isCollapsed
             })}
           >
             {this.renderContent()}

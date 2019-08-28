@@ -65,7 +65,6 @@ class Properties extends React.Component {
   };
 
   setHeight = contentHeight => {
-    console.warn('setHeight', contentHeight);
     this.setState({ contentHeight });
   };
 

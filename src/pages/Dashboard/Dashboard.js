@@ -225,6 +225,10 @@ class Dashboard extends Component {
     const { canDragging } = this.state;
     const { columns, type } = this.activeLayout;
 
+    if (!columns) {
+      return null;
+    }
+
     return (
       <Layout
         columns={columns}

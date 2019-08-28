@@ -15,6 +15,7 @@ import { wrapArgs } from '../../../helpers/redux';
 import { MIN_WIDTH_DASHLET_SMALL, MIN_WIDTH_DASHLET_LARGE } from '../../../constants';
 
 import './JournalsDashlet.scss';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId || props.id] || {};
@@ -48,14 +49,14 @@ class JournalsDashlet extends Component {
     dragHandleProps: {}
   };
 
-  state = {
-    width: MIN_WIDTH_DASHLET_SMALL
-  };
-
   constructor(props) {
     super(props);
 
     this._stateId = props.stateId || props.id;
+    this.state = {
+      width: MIN_WIDTH_DASHLET_SMALL,
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
+    };
 
     this.props.initState(this._stateId);
   }
@@ -66,6 +67,13 @@ class JournalsDashlet extends Component {
 
   handleResize = width => {
     this.setState({ width });
+  };
+
+  handleToggleContent = () => {
+    const { isCollapsed } = this.state;
+
+    this.setState({ isCollapsed: !isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed: !isCollapsed });
   };
 
   showEditor = () => this.props.setEditorMode(true);
@@ -84,7 +92,7 @@ class JournalsDashlet extends Component {
 
   render() {
     const { journalConfig, className, id, editorMode, reloadGrid, dragHandleProps } = this.props;
-    const { width } = this.state;
+    const { width, isCollapsed } = this.state;
 
     if (!journalConfig) {
       return null;
@@ -105,6 +113,8 @@ class JournalsDashlet extends Component {
         }}
         onResize={this.handleResize}
         dragHandleProps={dragHandleProps}
+        onToggleCollapse={this.handleToggleContent}
+        isCollapsed={isCollapsed}
       >
         {editorMode ? (
           <Measurer>
