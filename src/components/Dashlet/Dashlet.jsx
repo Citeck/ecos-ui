@@ -285,9 +285,7 @@ class Dashlet extends Component {
       dragHandleProps,
       canDragging,
       customButtons,
-      isMobile,
-      onToggleCollapse
-      // isCollapsed
+      isMobile
     } = this.props;
     const { isCollapsed } = this.state;
     const cssClasses = classNames('dashlet', className);
