@@ -96,7 +96,10 @@ class DocPreview extends Component {
       state = { isLoading };
     }
 
-    if (byLink && oldProps.link !== link && isPdf && isCollapsed) {
+    if (
+      (byLink && oldProps.link !== link && isPdf) ||
+      (byLink && oldProps.link !== link && isPdf && oldProps.isCollapsed && !isCollapsed)
+    ) {
       state = { isLoading: true, pdf: {} };
       this.loadPDF(link);
     }

@@ -99,7 +99,7 @@ const Header = ({
   }
 
   return (
-    <div className={'dashlet__header'} onClick={isMobile && onToggleCollapse}>
+    <div className={'dashlet__header'} onClick={onToggle}>
       <span className={classNames('dashlet__caption', titleClassName)}>
         {toggleIcon}
         {title}
