@@ -1,6 +1,7 @@
 import { get, isEmpty } from 'lodash';
 import moment from 'moment';
 import { TITLE } from '../constants/pageTabs';
+import { DASHBOARD_DEFAULT_KEY } from '../constants';
 import DashboardService from '../services/dashboard';
 
 export default class DashboardConverter {
@@ -8,9 +9,14 @@ export default class DashboardConverter {
     const target = {};
 
     if (!isEmpty(source)) {
-      const { key, id = '', type } = source;
+      const { key, id = '', type, user } = source;
 
-      target.identification = { key, type, id: DashboardService.parseDashboardId(id) };
+      target.identification = {
+        key: key || DASHBOARD_DEFAULT_KEY,
+        type,
+        user,
+        id: DashboardService.formShortId(id)
+      };
     }
 
     return target;

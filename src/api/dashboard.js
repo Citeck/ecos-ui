@@ -1,7 +1,8 @@
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 import { getCurrentUserName, t } from '../helpers/util';
 import Cache from '../helpers/cache';
-import { QueryKeys, SourcesId } from '../constants';
+import { DASHBOARD_DEFAULT_KEY, QueryKeys, SourcesId } from '../constants';
 import { RecordService } from './recordService';
 import Components from '../components/Components';
 import Records from '../components/Records';
@@ -12,6 +13,7 @@ import DashboardService from '../services/dashboard';
 const defaultAttr = {
   key: QueryKeys.KEY,
   config: QueryKeys.CONFIG_JSON,
+  user: 'user',
   type: 'type',
   id: 'id'
 };
@@ -27,23 +29,46 @@ export class DashboardApi extends RecordService {
     return Components.getComponentsFullData(type);
   };
 
+  getDashboardKeysByRef = function*(recordRef) {
+    const result = yield Records.get(recordRef)
+      .load('.atts(n:"_dashboardKey"){str,disp}')
+      .then(response => response);
+
+    let dashboardKeys = [];
+
+    if (!isEmpty(result)) {
+      dashboardKeys = result.map(item => ({
+        key: item.str,
+        displayName: t(item.disp)
+      }));
+      dashboardKeys.push({ key: DASHBOARD_DEFAULT_KEY, displayName: t('По умолчанию') });
+    }
+
+    return dashboardKeys;
+  };
+
   saveDashboardConfig = ({ identification, config }) => {
-    const { key, id } = identification;
-    const record = Records.get(`${SourcesId.DASHBOARD}@${id}`);
+    const { key, id, user, type } = identification;
+    const record = Records.get(DashboardService.formFullId(id));
 
     record.att(QueryKeys.CONFIG_JSON, config);
-    record.att(QueryKeys.KEY, key || QueryKeys.DEFAULT);
+    record.att(QueryKeys.USER, user);
+
+    if (!id) {
+      record.att('key', key || DASHBOARD_DEFAULT_KEY);
+      record.att('type', type);
+    }
 
     return record.save().then(response => response);
   };
 
-  getDashboardByOneOf = ({ dashboardId, recordRef, off = {} }) => {
+  getDashboardByOneOf = ({ dashboardId, dashboardKey, recordRef, off = {} }) => {
     if (!isEmpty(dashboardId)) {
       return this.getDashboardById(dashboardId);
     }
 
     if (!isEmpty(recordRef) && !off.ref) {
-      return this.getDashboardByRecordRef(recordRef);
+      return this.getDashboardByRecordRef(recordRef, dashboardKey);
     }
 
     if (!off.user) {
@@ -54,9 +79,7 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardById = (dashboardId, force = false) => {
-    const id = DashboardService.parseDashboardId(dashboardId);
-
-    return Records.get(`${SourcesId.DASHBOARD}@${id}`)
+    return Records.get(DashboardService.formFullId(dashboardId))
       .load({ ...defaultAttr }, force)
       .then(response => response);
   };
@@ -75,16 +98,20 @@ export class DashboardApi extends RecordService {
     ).then(response => response);
   };
 
-  getDashboardByRecordRef = function*(recordRef) {
+  getDashboardByRecordRef = function*(recordRef, dashboardKey = '') {
     const result = yield Records.get(recordRef).load({
       type: '_dashboardType',
       keys: '_dashboardKey[]'
     });
 
     const { keys, type } = result;
-    const dashboardKeys = Array.from(keys || []);
+    let dashboardKeys = Array.from(keys || []);
 
-    dashboardKeys.push(QueryKeys.DEFAULT);
+    dashboardKeys.push(DASHBOARD_DEFAULT_KEY);
+
+    if (dashboardKey) {
+      dashboardKeys = dashboardKeys.filter(item => item === dashboardKey);
+    }
 
     const cacheKey = dashboardKeys.find(key => cache.check(key));
     const dashboardId = cacheKey ? cache.get(cacheKey) : null;
@@ -174,4 +201,23 @@ export class DashboardApi extends RecordService {
       }
     }
   };
+
+  checkExistDashboard = function*({ key, type, user }) {
+    return yield Records.queryOne(
+      {
+        sourceId: SourcesId.DASHBOARD,
+        query: {
+          type,
+          user,
+          key
+        }
+      },
+      { user: 'user' }
+    ).then(response => get(response, 'user', null) === user);
+  };
+
+  deleteFromCache({ user, key }) {
+    user && cache.remove(user);
+    key && cache.remove(key);
+  }
 }

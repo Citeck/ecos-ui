@@ -1,11 +1,12 @@
 import { RecordService } from './recordService';
 import Records from '../components/Records';
+import { SourcesId } from '../constants';
 
 export class VersionsJournalApi extends RecordService {
   getVersions = record => {
     return Records.query(
       {
-        sourceId: 'version',
+        sourceId: SourcesId.VERSION,
         query: { record }
       },
       {

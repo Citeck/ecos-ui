@@ -1,0 +1,14 @@
+.ecos-tune-dialog {
+  &__body {
+  }
+
+  &__footer {
+    margin-top: 32px;
+    display: flex;
+    justify-content: flex-end;
+
+    .ecos-btn:not(:last-child) {
+      margin-right: 15px;
+    }
+  }
+}

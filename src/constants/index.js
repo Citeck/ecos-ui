@@ -19,7 +19,12 @@ export const URL = {
 };
 
 export const SourcesId = {
-  DASHBOARD: 'uiserv/dashboard'
+  DASHBOARD: 'uiserv/dashboard',
+  HISTORY: 'history',
+  STATUS: 'status',
+  COMMENT: 'comment',
+  VERSION: 'version',
+  PEOPLE: 'people'
 };
 
 export const MENU_TYPE = {
@@ -27,10 +32,12 @@ export const MENU_TYPE = {
   TOP: 'TOP'
 };
 
-export const SAVE_STATUS = {
+export const RequestStatuses = {
   SUCCESS: 'SUCCESS',
   FAILURE: 'FAILURE'
 };
+
+export const DASHBOARD_DEFAULT_KEY = 'DEFAULT';
 
 export const QueryKeys = {
   CONFIG_JSON: 'config?json',
@@ -39,7 +46,7 @@ export const QueryKeys = {
   VALUE: 'value',
   TITLE: 'title',
   DESCRIPTION: 'description',
-  DEFAULT: 'DEFAULT'
+  USER: 'user'
 };
 
 export const MIN_WIDTH_DASHLET_SMALL = 290;

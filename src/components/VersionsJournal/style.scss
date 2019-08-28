@@ -13,10 +13,8 @@
 }
 
 %overflow-ellipsis {
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @extend %ellipsis;
   width: 100%;
-  white-space: nowrap;
 }
 
 .ecos-vj {

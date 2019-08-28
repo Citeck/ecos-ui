@@ -1,6 +1,7 @@
 import { RecordService } from './recordService';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 import { PROXY_URI } from '../constants/alfresco';
+import { SourcesId } from '../constants';
 
 export class EventsHistoryApi extends RecordService {
   getEventsHistory = ({ record, columns = [], predicates = [] }) => {
@@ -10,7 +11,7 @@ export class EventsHistoryApi extends RecordService {
         events:
           'node.created,node.updated,assoc.updated,task.complete,user.action,status.changed,esign.signed,approval.cancelled,role.changed'
       },
-      sourceId: 'history',
+      sourceId: SourcesId.HISTORY,
       language: 'document'
     };
 
