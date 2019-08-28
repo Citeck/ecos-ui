@@ -59,6 +59,10 @@ export default class EcosModal extends Component {
   }
 
   _calculateBounds = () => {
+    if (this.props.noDraggable) {
+      return;
+    }
+
     if (this._dialog) {
       const boundX = this._dialog.offsetLeft;
       const boundY = this._dialog.offsetTop;
@@ -171,6 +175,7 @@ EcosModal.propTypes = {
   isOpen: PropTypes.bool,
   isLoading: PropTypes.bool,
   isEmptyTitle: PropTypes.bool,
+  noDraggable: PropTypes.bool,
   hideModal: PropTypes.func,
   reactstrapProps: PropTypes.object,
   title: PropTypes.string,

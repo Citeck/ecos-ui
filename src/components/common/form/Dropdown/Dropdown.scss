@@ -40,7 +40,7 @@
       font-size: $font-size-standard;
       font-weight: $font-weight-semi-bold;
       color: $text-color-dark;
-      white-space: nowrap;
+      @extend %ellipsis;
 
       &:hover {
         background-color: $color-gray-4;

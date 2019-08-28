@@ -1,10 +1,6 @@
 @import '../../constants.scss';
 
 .ecos-dashboard {
-  &__loader-wrapper {
-    background-color: $background-loader;
-  }
-
   &__header {
     display: flex;
     flex-direction: column;

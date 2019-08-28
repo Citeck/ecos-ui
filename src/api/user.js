@@ -1,5 +1,6 @@
 import { RecordService } from './recordService';
 import { PROXY_URI, URL_CONTEXT } from '../constants/alfresco';
+import { SourcesId } from '../constants';
 
 export class UserApi extends RecordService {
   getPhotoSize = userNodeRef => {
@@ -21,7 +22,7 @@ export class UserApi extends RecordService {
   getUserData = () => {
     return this.query({
       query: {
-        sourceId: 'people'
+        sourceId: SourcesId.PEOPLE
       },
       attributes: {
         userName: 'userName',

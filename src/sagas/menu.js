@@ -7,10 +7,10 @@ import {
   saveMenuConfig,
   setAvailableMenuItems,
   setMenuConfig,
-  setResultSaveMenuConfig
+  setRequestResultMenuConfig
 } from '../actions/menu';
 import { t } from '../helpers/util';
-import { SAVE_STATUS } from '../constants';
+import { RequestStatuses } from '../constants';
 import MenuConverter from '../dto/menu';
 
 function* doInitMenuSettings({ api, logger }, action) {
@@ -51,7 +51,7 @@ function* doSaveMenuConfigRequest({ api, logger }, { payload }) {
   try {
     yield call(api.menu.saveMenuConfig, { config: payload });
     yield put(setMenuConfig(payload));
-    yield put(setResultSaveMenuConfig({ status: SAVE_STATUS.SUCCESS }));
+    yield put(setRequestResultMenuConfig({ status: RequestStatuses.SUCCESS }));
   } catch (e) {
     yield put(setNotificationMessage(t('Ошибка получения меню')));
     logger.error('[menu/ doSaveMenuConfigRequest saga] error', e.message);

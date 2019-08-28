@@ -3,6 +3,7 @@ import { LAYOUT_TYPE } from '../constants/layout';
 import { Layouts } from '../constants/dashboard';
 import Components from '../components/Components';
 import MenuConverter from './menu';
+import DashboardConverter from './dashboard';
 import DashboardService from '../services/dashboard';
 
 export default class DashboardSettingsConverter {
@@ -10,9 +11,9 @@ export default class DashboardSettingsConverter {
     let target = {};
 
     if (!isEmpty(source)) {
-      const { key, id = '', type, config } = source;
+      const { config } = source;
 
-      target.identification = { key, type, id: DashboardService.parseDashboardId(id) };
+      target.identification = DashboardConverter.getKeyInfoDashboardForWeb(source).identification;
 
       const layouts = get(config, ['layouts'], []);
 

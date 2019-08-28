@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as queryString from 'query-string';
-import { get, isArray, isEmpty } from 'lodash';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { getDashboardConfig, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
@@ -21,9 +23,9 @@ import './style.scss';
 const mapStateToProps = state => ({
   config: get(state, ['dashboard', 'config'], []),
   isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
-  saveResultDashboard: get(state, ['dashboard', 'saveResult']),
+  saveResultDashboard: get(state, ['dashboard', 'requestResult']),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
-  saveResultMenu: get(state, ['menu', 'saveResult']),
+  saveResultMenu: get(state, ['menu', 'requestResult']),
   menuType: get(state, ['menu', 'type']),
   links: get(state, ['menu', 'links']),
   dashboardType: get(state, ['dashboard', 'identification', 'type']),
@@ -40,32 +42,34 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class Dashboard extends Component {
+  state = {
+    urlParams: getSortedUrlParams(),
+    canDragging: false,
+    activeLayoutId: null
+  };
+
   constructor(props) {
     super(props);
 
-    this.state = {
-      config: props.config,
-      urlParams: getSortedUrlParams(),
-      canDragging: false,
-      activeLayoutId: null
-    };
+    this.state.config = props.config || [];
   }
 
   componentDidMount() {
     const { getDashboardConfig } = this.props;
-    const { recordRef } = this.getPathInfo();
+    const { recordRef, dashboardKey } = this.getPathInfo();
 
-    getDashboardConfig({ recordRef });
+    getDashboardConfig({ recordRef, dashboardKey });
   }
 
   componentWillReceiveProps(nextProps) {
     const { initMenuSettings, config, isLoadingDashboard, getDashboardConfig, resetDashboardConfig, setLoading } = nextProps;
     const { recordRef } = this.getPathInfo(nextProps);
-    const { urlParams } = this.state;
+    const { urlParams, activeLayoutId } = this.state;
     const newUrlParams = getSortedUrlParams();
+    const state = {};
 
     if (urlParams !== newUrlParams) {
-      this.setState({ urlParams: newUrlParams });
+      state.urlParams = newUrlParams;
       resetDashboardConfig();
       getDashboardConfig({ recordRef });
       initMenuSettings();
@@ -74,8 +78,14 @@ class Dashboard extends Component {
     }
 
     if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
-      this.setState({ config, activeLayoutId: get(config, '[0].id') });
+      state.config = config;
     }
+
+    if (JSON.stringify(config) !== JSON.stringify(this.props.config) || isEmpty(activeLayoutId)) {
+      state.activeLayoutId = get(config, '[0].id');
+    }
+
+    this.setState(state);
   }
 
   getPathInfo(props) {
@@ -83,11 +93,12 @@ class Dashboard extends Component {
       location: { search }
     } = props || this.props;
     const searchParams = queryString.parse(search);
-    const { recordRef, dashboardId } = searchParams;
+    const { recordRef, dashboardId, dashboardKey } = searchParams;
 
     return {
       recordRef,
       dashboardId,
+      dashboardKey,
       search
     };
   }
@@ -126,7 +137,7 @@ class Dashboard extends Component {
     const { config, activeLayoutId } = this.state;
 
     if (!isEmpty(config) && isArray(config) && !!activeLayoutId) {
-      return config.find(item => item.tab.idLayout === activeLayoutId);
+      return config.find(item => item.id === activeLayoutId) || {};
     }
 
     return {};
@@ -142,14 +153,27 @@ class Dashboard extends Component {
     return [];
   }
 
+  updateActiveConfig(activeLayout) {
+    const { config, activeLayoutId } = this.state;
+    const upConfig = deepClone(config, []);
+
+    upConfig.forEach(item => {
+      if (item.id === activeLayoutId) {
+        config[activeLayoutId] = activeLayout;
+      }
+    });
+
+    this.setState({ config: upConfig });
+
+    return upConfig;
+  }
+
   prepareWidgetsConfig = (data, dnd) => {
-    const {
-      config: currentConfig,
-      config: { columns }
-    } = this.state;
+    const activeLayout = deepClone(this.activeLayout, {});
+    const columns = activeLayout.columns || [];
+
     const { isWidget, columnFrom, columnTo } = data;
     const { source, destination } = dnd;
-    const config = JSON.parse(JSON.stringify(currentConfig));
 
     if (isWidget) {
       let widgetsFrom = columns[columnFrom].widgets || [];
@@ -160,15 +184,16 @@ class Dashboard extends Component {
         result = DndUtils.move(widgetsFrom, widgetsTo, source, destination);
         widgetsFrom = result[source.droppableId];
         widgetsTo = result[destination.droppableId];
-        config.columns[columnTo].widgets = widgetsTo;
-        config.columns[columnFrom].widgets = widgetsFrom;
+
+        activeLayout.columns[columnTo].widgets = widgetsTo;
+        activeLayout.columns[columnFrom].widgets = widgetsFrom;
       } else {
         widgetsFrom = DndUtils.reorder(widgetsFrom, data.positionFrom, data.positionTo);
-        config.columns[columnFrom].widgets = widgetsFrom;
+        activeLayout.columns[columnFrom].widgets = widgetsFrom;
       }
     }
 
-    this.setState({ config });
+    const config = this.updateActiveConfig(activeLayout);
     this.saveDashboardConfig({ config });
   };
 
@@ -183,9 +208,10 @@ class Dashboard extends Component {
   };
 
   handleSaveWidgetProps = (id, props = {}) => {
-    const config = deepClone(this.state.config);
+    const activeLayout = deepClone(this.activeLayout, {});
+    const columns = activeLayout.columns || [];
 
-    config.columns.forEach(column => {
+    columns.forEach(column => {
       const index = column.widgets.findIndex(widget => widget.id === id);
 
       if (index !== -1) {
@@ -195,8 +221,9 @@ class Dashboard extends Component {
 
       return true;
     });
+    activeLayout.columns = columns;
 
-    this.setState({ config });
+    const config = this.updateActiveConfig(activeLayout);
     this.saveDashboardConfig({ config });
   };
 

@@ -2,12 +2,16 @@ import { handleActions } from 'redux-actions';
 import {
   getAvailableWidgets,
   getAwayFromPage,
+  getCheckUpdatedDashboardConfig,
   getDashboardConfig,
+  getDashboardKeys,
   initDashboardSettings,
   saveDashboardConfig,
   setAvailableWidgets,
+  setCheckUpdatedDashboardConfig,
   setDashboardConfig,
-  setResultSaveDashboardConfig
+  setDashboardKeys,
+  setRequestResultDashboard
 } from '../actions/dashboardSettings';
 
 const initialState = {
@@ -18,10 +22,12 @@ const initialState = {
   },
   config: [],
   availableWidgets: [],
+  dashboardKeys: [],
   isLoading: false,
-  saveResult: {
+  requestResult: {
     status: '',
-    dashboardId: ''
+    dashboardId: '',
+    saveWay: ''
   }
 };
 
@@ -34,7 +40,9 @@ export default handleActions(
     [initDashboardSettings]: startLoading,
     [getDashboardConfig]: startLoading,
     [getAvailableWidgets]: startLoading,
+    [getDashboardKeys]: startLoading,
     [saveDashboardConfig]: startLoading,
+    [getCheckUpdatedDashboardConfig]: startLoading,
 
     [setDashboardConfig]: (state, { payload }) => {
       const { identification, config } = payload;
@@ -53,10 +61,24 @@ export default handleActions(
         isLoading: false
       };
     },
-    [setResultSaveDashboardConfig]: (state, { payload = {} }) => {
+    [setDashboardKeys]: (state, { payload }) => {
       return {
         ...state,
-        saveResult: payload,
+        dashboardKeys: payload,
+        isLoading: false
+      };
+    },
+    [setRequestResultDashboard]: (state, { payload = {} }) => {
+      return {
+        ...state,
+        requestResult: payload,
+        isLoading: false
+      };
+    },
+    [setCheckUpdatedDashboardConfig]: (state, { payload = {} }) => {
+      return {
+        ...state,
+        requestResult: payload,
         isLoading: false
       };
     },

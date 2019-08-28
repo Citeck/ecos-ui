@@ -134,7 +134,7 @@ button {
     padding: 9px 11px 9px 15px;
     //width: 165px;
     text-align: left;
-    //display: inline-flex;
+    display: inline-flex;
 
     .icon-up,
     .icon-down {
@@ -146,6 +146,7 @@ button {
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
+      flex: auto;
       //width: 85%;
     }
   }
@@ -292,6 +293,15 @@ button {
     &:active {
       background: $color-white;
       color: $color-gray-5;
+    }
+  }
+
+  &.ecos-btn_white2 {
+    background: $color-white;
+    border: $border-width-standard solid $color-gray-6;
+
+    .ecos-btn__i_right {
+      color: $color-gray-6;
     }
   }
 
