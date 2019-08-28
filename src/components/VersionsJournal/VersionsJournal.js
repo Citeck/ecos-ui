@@ -556,23 +556,23 @@ class VersionsJournal extends Component {
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
       >
-        <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
-          {(versionsLabels.length > 1 || isMobile) && (
-            <div className="ecos-vj__block" ref={this.topPanel}>
-              {this.renderComparison()}
+        {(versionsLabels.length > 1 || isMobile) && (
+          <div className="ecos-vj__block" ref={this.topPanel}>
+            {this.renderComparison()}
 
-              {isMobile && this.renderAddButton(isMobile)}
-            </div>
-          )}
+            {isMobile && this.renderAddButton(isMobile)}
+          </div>
+        )}
 
-          <Scrollbars autoHide style={{ height: this.scrollableHeight || '100%' }}>
+        <Scrollbars autoHide style={{ height: this.scrollableHeight || '100%' }}>
+          <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
             {this.renderActualVersion()}
             {this.renderOldVersions()}
-          </Scrollbars>
+          </DefineHeight>
+        </Scrollbars>
 
-          {this.renderModal()}
-          {this.renderLoading()}
-        </DefineHeight>
+        {this.renderModal()}
+        {this.renderLoading()}
       </Dashlet>
     );
   }
