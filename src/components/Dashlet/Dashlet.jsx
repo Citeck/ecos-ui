@@ -40,11 +40,6 @@ const Header = ({
   const actions = [...customButtons];
   let toggleIcon = null;
   let dragBtn = null;
-  const onToggle = () => {
-    if (isMobile) {
-      onToggleCollapse();
-    }
-  };
 
   if (actionReload) {
     actions.push(
@@ -99,7 +94,7 @@ const Header = ({
   }
 
   return (
-    <div className={'dashlet__header'} onClick={onToggle}>
+    <div className={'dashlet__header'} onClick={onToggleCollapse}>
       <span className={classNames('dashlet__caption', titleClassName)}>
         {toggleIcon}
         {title}
@@ -169,6 +164,14 @@ class Dashlet extends Component {
 
   refDashlet = React.createRef();
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isCollapsed: props.isCollapsed || false
+    };
+  }
+
   componentDidMount() {
     this.props.getFitHeights(this.fitHeightChildren);
   }
@@ -224,6 +227,18 @@ class Dashlet extends Component {
     }
   };
 
+  onToggle = () => {
+    const { onToggleCollapse, isMobile } = this.props;
+    const { isCollapsed } = this.state;
+
+    if (!isMobile) {
+      return;
+    }
+
+    this.setState({ isCollapsed: !isCollapsed });
+    onToggleCollapse(!isCollapsed);
+  };
+
   renderContent() {
     const { isMobile, resizable, children } = this.props;
 
@@ -239,7 +254,7 @@ class Dashlet extends Component {
   }
 
   renderHideButton() {
-    const { isMobile, onToggleCollapse } = this.props;
+    const { isMobile } = this.props;
 
     if (!isMobile) {
       return null;
@@ -247,7 +262,7 @@ class Dashlet extends Component {
 
     return (
       <div className="dashlet__body-actions">
-        <Btn className="ecos-btn_full-width ecos-btn_sq_sm" onClick={onToggleCollapse}>
+        <Btn className="ecos-btn_full-width ecos-btn_sq_sm" onClick={this.onToggle}>
           Свернуть
         </Btn>
       </div>
@@ -271,9 +286,10 @@ class Dashlet extends Component {
       canDragging,
       customButtons,
       isMobile,
-      onToggleCollapse,
-      isCollapsed
+      onToggleCollapse
+      // isCollapsed
     } = this.props;
+    const { isCollapsed } = this.state;
     const cssClasses = classNames('dashlet', className);
 
     return (
@@ -295,7 +311,7 @@ class Dashlet extends Component {
                 onGoTo={this.onGoTo}
                 actionReload={actionReload}
                 onReload={this.onReload}
-                onToggleCollapse={onToggleCollapse}
+                onToggleCollapse={this.onToggle}
                 actionEdit={actionEdit}
                 onEdit={this.onEdit}
                 actionHelp={actionHelp}

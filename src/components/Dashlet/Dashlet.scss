@@ -88,8 +88,7 @@
     }
 
     &_collapsed {
-      min-height: 0;
-      height: 0;
+      display: none;
     }
   }
 

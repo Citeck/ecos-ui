@@ -101,11 +101,9 @@ class PropertiesDashlet extends React.Component {
     this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
   };
 
-  handleToggleContent = () => {
-    const { isCollapsed } = this.state;
-
-    this.setState({ isCollapsed: !isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed: !isCollapsed });
+  handleToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
   };
 
   renderDashletCustomButtons(isDashlet = false) {

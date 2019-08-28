@@ -69,11 +69,9 @@ class JournalsDashlet extends Component {
     this.setState({ width });
   };
 
-  handleToggleContent = () => {
-    const { isCollapsed } = this.state;
-
-    this.setState({ isCollapsed: !isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed: !isCollapsed });
+  handleToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
   };
 
   showEditor = () => this.props.setEditorMode(true);

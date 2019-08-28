@@ -66,11 +66,9 @@ class TasksDashlet extends React.Component {
     this.setState({ isRunReload: !isDone });
   };
 
-  handleToggleContent = () => {
-    const { isCollapsed } = this.state;
-
-    this.setState({ isCollapsed: !isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed: !isCollapsed });
+  handleToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
   };
 
   render() {

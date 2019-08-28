@@ -32,10 +32,5 @@
 
   &__body {
     min-height: 115px;
-
-    &.dashlet__body_collapsed {
-      min-height: 0;
-      height: 0;
-    }
   }
 }

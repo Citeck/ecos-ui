@@ -67,11 +67,9 @@ class DocPreviewDashlet extends Component {
     }
   };
 
-  handleToggleContent = () => {
-    const { isCollapsed } = this.state;
-
-    this.setState({ isCollapsed: !isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed: !isCollapsed });
+  handleToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
   };
 
   render() {
