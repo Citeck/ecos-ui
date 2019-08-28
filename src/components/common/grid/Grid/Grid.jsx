@@ -109,6 +109,8 @@ class Grid extends Component {
 
     if (props.editable) {
       props.cellEdit = this.setEditable(props.editable);
+    } else {
+      props.cellEdit = undefined;
     }
 
     props.rowEvents = props.rowEvents || {};

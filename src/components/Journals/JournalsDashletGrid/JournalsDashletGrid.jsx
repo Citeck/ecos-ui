@@ -403,11 +403,14 @@ class JournalsDashletGrid extends Component {
         data,
         columns,
         sortBy,
-        pagination: { maxItems }
+        pagination: { maxItems },
+        groupBy
       },
       doInlineToolsOnRowClick = false,
       performGroupActionResponse
     } = this.props;
+
+    const editable = !(groupBy && groupBy.length);
 
     return (
       <Fragment>
@@ -422,7 +425,7 @@ class JournalsDashletGrid extends Component {
                 className={className}
                 freezeCheckboxes
                 filterable
-                editable
+                editable={editable}
                 multiSelectable
                 sortBy={sortBy}
                 changeTrOptionsByRowClick={doInlineToolsOnRowClick}
