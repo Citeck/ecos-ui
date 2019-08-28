@@ -38,6 +38,7 @@ class TasksDashlet extends React.Component {
       isSmallMode: false,
       isRunReload: false,
       height: UserLocalSettingsService.getDashletHeight(props.id),
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       fitHeights: {}
     };
   }
@@ -65,9 +66,16 @@ class TasksDashlet extends React.Component {
     this.setState({ isRunReload: !isDone });
   };
 
+  handleToggleContent = () => {
+    const { isCollapsed } = this.state;
+
+    this.setState({ isCollapsed: !isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed: !isCollapsed });
+  };
+
   render() {
     const { id, title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isRunReload, isSmallMode, height, fitHeights } = this.state;
+    const { isRunReload, isSmallMode, height, fitHeights, isCollapsed } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -85,6 +93,8 @@ class TasksDashlet extends React.Component {
         onChangeHeight={this.onChangeHeight}
         getFitHeights={this.setFitHeights}
         onResize={this.onResize}
+        onToggleCollapse={this.handleToggleContent}
+        isCollapsed={isCollapsed}
       >
         <Tasks
           {...config}
