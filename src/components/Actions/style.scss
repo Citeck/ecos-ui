@@ -25,10 +25,8 @@
         font-weight: $font-weight-semi-bold;
         font-size: $font-size-standard;
         @extend %ellipsis;
-      }
 
-      &_multi {
-        &:hover {
+        &:not(&_group):hover {
           background: $color-gray-10;
           cursor: pointer;
         }

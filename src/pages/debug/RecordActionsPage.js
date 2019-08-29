@@ -2,7 +2,7 @@ import * as React from 'react';
 import queryString from 'query-string';
 import { get, split } from 'lodash';
 import { deepClone } from '../../helpers/util';
-import ActionsDashlet from '../../components/Actions';
+import ActionsDashlet, { Actions } from '../../components/Actions';
 
 import './testStyle.scss';
 
@@ -63,9 +63,9 @@ export default class RecordActionsPage extends React.Component {
           </div>
           <div className={'ecos-debug-col'}>
             <h5>Solo</h5>
-            {/*{col2.map((item, index) => (
-              <EventsHistory record={item.document} {...item.config} key={item.id + index} stateId={'tasks' + index} />
-            ))}*/}
+            {col2.map((item, index) => (
+              <Actions record={item.document} {...item.config} key={item.id + index} stateId={'tasks' + index} />
+            ))}
           </div>
         </div>
       </div>

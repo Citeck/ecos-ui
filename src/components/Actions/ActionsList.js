@@ -56,7 +56,7 @@ class ActionsList extends React.Component {
         {list.map((action, index) => (
           <React.Fragment key={`action-${action.id}-${index}`}>
             <div
-              className={classNames('ecos-actions-list__item-title', { 'ecos-actions-list__item_multi': !isEmpty(action.variants) })}
+              className={classNames('ecos-actions-list__item-title', { 'ecos-actions-list__item-title_group': !isEmpty(action.variants) })}
               onClick={() => this.onClick(action, index)}
             >
               {action.title}
