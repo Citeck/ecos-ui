@@ -401,7 +401,7 @@ class PageTabs extends React.Component {
       return;
     }
 
-    this.props.changeActiveTab();
+    this.props.changeActiveTab({ url: tab.link });
     this.activeTab(tab);
   }
 

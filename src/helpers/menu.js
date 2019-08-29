@@ -1,5 +1,6 @@
+import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 import { URL } from '../constants';
-import { isEmpty } from 'lodash';
 
 export function processCreateVariantsItems(sites) {
   let menuItems = [];
@@ -155,8 +156,9 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
   return siteMenuItems;
 }
 
-export function makeSiteMenu() {
-  return [
+export function makeSiteMenu(params = {}) {
+  const isDashboardPage = get(params, ['isDashboardPage'], false);
+  const menu = [
     {
       id: 'HOME_PAGE',
       label: 'header.site-menu.home-page',
@@ -176,6 +178,16 @@ export function makeSiteMenu() {
       targetUrlType: 'FULL_PATH'
     }
   ];
+
+  return menu.filter(item => {
+    let status = true;
+
+    if (!isDashboardPage) {
+      status = item.id !== 'SETTINGS_HOME_PAGE';
+    }
+
+    return status;
+  });
 }
 
 export function getIconClassMenu(id, specialClass) {
