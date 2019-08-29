@@ -29,7 +29,7 @@ class EventsHistoryDashlet extends React.Component {
     canDragging: false
   };
 
-  className = 'ecos-action-history-dashlet';
+  className = 'ecos-event-history-dashlet';
 
   constructor(props) {
     super(props);

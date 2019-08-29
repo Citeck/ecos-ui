@@ -16,8 +16,6 @@ class EventsHistoryCard extends React.Component {
     columns: []
   };
 
-  className = 'ecos-action-history-card';
-
   renderValue(column = {}, className = '', defV = '') {
     const { event } = this.props;
     const formatExtraData = column.formatExtraData || {};
@@ -28,7 +26,7 @@ class EventsHistoryCard extends React.Component {
     cell = !empty ? cell : defV || 'Нет данных';
 
     return (
-      <div className={classNames(`${this.className}-value`, className, { [`${this.className}-value_none`]: empty })}>
+      <div className={classNames('ecos-event-history-card-value', className, { 'ecos-event-history-card-value_none': empty })}>
         {Formatter && !empty ? <Formatter cell={cell} {...formatExtraData} /> : t(cell)}
       </div>
     );
@@ -42,17 +40,17 @@ class EventsHistoryCard extends React.Component {
     const sItem = key => columns.find(item => item.dataField === key);
 
     return (
-      <div className={this.className}>
-        <div className={`${this.className}__title`}>
-          {this.renderValue(sItem(version), `${this.className}-value_version`, '—')}
-          {this.renderValue(sItem(date), `${this.className}-value_date`)}
+      <div className="ecos-event-history-card">
+        <div className="ecos-event-history-card__title">
+          {this.renderValue(sItem(version), 'ecos-event-history-card-value_version', '—')}
+          {this.renderValue(sItem(date), 'ecos-event-history-card-value_date')}
         </div>
-        <div className={`${this.className}__fields`}>
-          {this.renderValue(sItem(status), `${this.className}-value_status`)}
+        <div className="ecos-event-history-card__fields">
+          {this.renderValue(sItem(status), `ecos-event-history-card-value_status`)}
           {fColumns.map(item => (
             <React.Fragment key={event.id + item.dataField}>
-              <Separator noIndents className={`${this.className}__separator`} />
-              <div className={`${this.className}-label`}>{item.text}</div>
+              <Separator noIndents className="ecos-event-history-card__separator" />
+              <div className="ecos-event-history-card-label">{item.text}</div>
               {this.renderValue(item)}
             </React.Fragment>
           ))}

@@ -26,8 +26,6 @@ class EventsHistoryList extends React.Component {
     isLoading: false
   };
 
-  className = 'ecos-action-history-list';
-
   state = {
     filters: []
   };
@@ -47,7 +45,7 @@ class EventsHistoryList extends React.Component {
     const { list, columns } = this.props;
 
     return (
-      <div className={`${this.className}_view-enum`}>
+      <div className="ecos-event-history-list_view-enum">
         {list.map((item, i) => (
           <EventsHistoryCard key={item.id + i} columns={columns} event={item} />
         ))}
@@ -60,7 +58,7 @@ class EventsHistoryList extends React.Component {
     //todo for server filer const { filters } = this.state;
 
     return (
-      <Grid data={list} columns={columns} scrollable={false} className={`${this.className}_view-table`} />
+      <Grid data={list} columns={columns} scrollable={false} className="ecos-event-history-list_view-table" />
       // filterable={false}
       // filters={filters}
       // onFilter={this.onGridFilter}
@@ -71,7 +69,7 @@ class EventsHistoryList extends React.Component {
     const { isSmallMode, isMobile, isLoading, list, columns } = this.props;
 
     if (isLoading) {
-      return <Loader className={`${this.className}__loader`} />;
+      return <Loader className="ecos-event-history-list__loader" />;
     }
 
     if (isEmpty(columns)) {

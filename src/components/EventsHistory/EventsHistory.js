@@ -53,8 +53,6 @@ class EventsHistory extends React.Component {
     contentHeight: 0
   };
 
-  className = 'ecos-action-history';
-
   _filter = React.createRef();
 
   componentDidMount() {
@@ -108,8 +106,8 @@ class EventsHistory extends React.Component {
         </div>
         <Scrollbars
           style={{ height: contentHeight || '100%' }}
-          className={this.className}
-          renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
+          className="ecos-event-history"
+          renderTrackVertical={props => <div {...props} className="ecos-event-history__v-scroll" />}
         >
           <DefineHeight
             fixHeight={fixHeight}
