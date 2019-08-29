@@ -1,0 +1,70 @@
+@import '../../constants';
+
+.ecos-actions {
+  $root: &;
+
+  &-dashlet {
+  }
+
+  &__v-scroll {
+    @extend %v-scroll;
+  }
+
+  &-list {
+    padding: 8px 0;
+
+    &__loader {
+      height: 100%;
+    }
+
+    &__item {
+      &-title {
+        display: flex;
+        align-items: center;
+        height: 40px;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-standard;
+        @extend %ellipsis;
+      }
+
+      &_multi {
+        &:hover {
+          background: $color-gray-10;
+          cursor: pointer;
+        }
+      }
+
+      &-variants {
+        position: relative;
+        background: $color-gray-4;
+        border-radius: $border-radius-standard;
+
+        &::after {
+          content: '';
+          display: block;
+          position: absolute;
+          width: 17px;
+          height: 17px;
+          transform: rotate(45deg);
+          background: $color-gray-4;
+          right: 15px;
+          top: -8px;
+        }
+      }
+    }
+
+    &__variant {
+      display: flex;
+      align-items: center;
+      padding: 0 22px;
+      height: 40px;
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-standard;
+
+      &:hover {
+        background: $color-gray-10;
+        cursor: pointer;
+      }
+    }
+  }
+}

@@ -10,11 +10,9 @@ export default class RecordActionsConverter {
     }
 
     target.id = source.id || '';
-    target.formKey = source.formKey || '';
     target.title = source.title || '';
-
-    const { claimable, releasable, reassignable, assignable } = source;
-    target.stateAssign = { claimable, releasable, reassignable, assignable };
+    target.variants = source.variants || [];
+    target.theme = source.theme || '';
 
     return target;
   }
