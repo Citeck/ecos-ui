@@ -118,9 +118,10 @@ class VersionsJournal extends Component {
       comparisonFirstVersion: null,
       comparisonSecondVersion: null,
       editorHeight: BASE_HEIGHT,
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       contentHeight: null,
-      fitHeights: {}
+      fitHeights: {},
+      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
     };
 
     this.state = { ...state, ...VersionsJournal.getDefaultSelectedVersions(props) };
@@ -236,6 +237,11 @@ class VersionsJournal extends Component {
 
     return scrollableHeight;
   }
+
+  handleToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+  };
 
   renderAddButton(isModal = false) {
     const { id, record } = this.props;
@@ -527,7 +533,7 @@ class VersionsJournal extends Component {
 
   render() {
     const { isMobile, versionsLabels } = this.props;
-    const { userHeight = 0, fitHeights } = this.state;
+    const { userHeight = 0, fitHeights, isCollapsed } = this.state;
     const fixHeight = userHeight ? userHeight : null;
 
     return (
@@ -545,24 +551,26 @@ class VersionsJournal extends Component {
         onChangeHeight={this.handleChangeHeight}
         customButtons={[!isMobile && this.renderAddButton()]}
         getFitHeights={this.handleGetFitHeights}
+        onToggleCollapse={this.handleToggleContent}
+        isCollapsed={isCollapsed}
       >
-        <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
-          {(versionsLabels.length > 1 || isMobile) && (
-            <div className="ecos-vj__block" ref={this.topPanel}>
-              {this.renderComparison()}
+        {(versionsLabels.length > 1 || isMobile) && (
+          <div className="ecos-vj__block" ref={this.topPanel}>
+            {this.renderComparison()}
 
-              {isMobile && this.renderAddButton(isMobile)}
-            </div>
-          )}
+            {isMobile && this.renderAddButton(isMobile)}
+          </div>
+        )}
 
-          <Scrollbars autoHide style={{ height: this.scrollableHeight || '100%' }}>
+        <Scrollbars autoHide style={{ height: this.scrollableHeight || '100%' }}>
+          <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
             {this.renderActualVersion()}
             {this.renderOldVersions()}
-          </Scrollbars>
+          </DefineHeight>
+        </Scrollbars>
 
-          {this.renderModal()}
-          {this.renderLoading()}
-        </DefineHeight>
+        {this.renderModal()}
+        {this.renderLoading()}
       </Dashlet>
     );
   }

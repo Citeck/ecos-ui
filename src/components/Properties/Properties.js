@@ -108,7 +108,11 @@ class Properties extends React.Component {
 
   render() {
     const { loaded, contentHeight } = this.state;
-    const { height, minHeight, maxHeight } = this.props;
+    const {
+      height,
+      minHeight
+      // maxHeight
+    } = this.props;
 
     return (
       <Scrollbars
@@ -116,7 +120,7 @@ class Properties extends React.Component {
         className={`${this.className}__scroll`}
         renderTrackVertical={props => <div {...props} className={`${this.className}__scroll_v`} />}
       >
-        <DefineHeight fixHeight={height} maxHeight={maxHeight} minHeight={minHeight} isMin={!loaded} getOptimalHeight={this.setHeight}>
+        <DefineHeight fixHeight={height} minHeight={minHeight} isMin={!loaded} getOptimalHeight={this.setHeight}>
           {this.renderForm()}
         </DefineHeight>
       </Scrollbars>
