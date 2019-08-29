@@ -12,3 +12,4 @@ export { PageTabsApi } from './pageTabs';
 export { DocStatusApi } from './docStatus';
 export { EventsHistoryApi } from './eventsHistory';
 export { VersionsJournalApi } from './versionsJournal';
+export { RecordActionsApi } from './recordActions';

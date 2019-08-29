@@ -21,6 +21,7 @@ import currentTasks from './currentTasks';
 import docStatus from './docStatus';
 import eventsHistory from './eventsHistory';
 import versionsJournal from './versionsJournal';
+import recordActions from './recordActions';
 
 const reducers = {
   app,
@@ -42,7 +43,8 @@ const reducers = {
   currentTasks,
   docStatus,
   eventsHistory,
-  versionsJournal
+  versionsJournal,
+  recordActions
 };
 
 export default history =>

@@ -15,6 +15,7 @@ import currentTasks from './currentTasks';
 import docStatus from './docStatus';
 import eventsHistory from './eventsHistory';
 import versionsJournal from './versionsJournal';
+import recordActions from './recordActions';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -33,6 +34,7 @@ export default function* rootSaga(extraArguments) {
     currentTasks(extraArguments),
     docStatus(extraArguments),
     eventsHistory(extraArguments),
-    versionsJournal(extraArguments)
+    versionsJournal(extraArguments),
+    recordActions(extraArguments)
   ]);
 }

@@ -1,4 +1,5 @@
-import { isArray, isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+import isArray from 'lodash/isArray';
 import TasksService from '../services/tasks';
 
 export default class TasksConverter {

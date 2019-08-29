@@ -29,6 +29,7 @@ import {
   MenuApi,
   OrgStructApi,
   PageTabsApi,
+  RecordActionsApi,
   TasksApi,
   UserApi,
   VersionsJournalApi
@@ -72,6 +73,7 @@ api.pageTabs = new PageTabsApi(store);
 api.docStatus = new DocStatusApi(store);
 api.eventsHistory = new EventsHistoryApi(store);
 api.versionsJournal = new VersionsJournalApi(store);
+api.recordActions = new RecordActionsApi(store);
 
 /**
  * todo: Maybe need such union all api?
