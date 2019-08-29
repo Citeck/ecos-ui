@@ -1,12 +1,226 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
 import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 import Records from '../Records/Records';
+import { getCurrentUserName, t } from '../../helpers/util';
+import { EcosForm } from '../EcosForm';
+import Modal from '../common/EcosModal/CiteckEcosModal';
 
 const EDGE_PREFIX = 'edge__';
 
 export default class EcosFormUtils {
+  static isCurrentUserInGroup(group) {
+    const currentPersonName = getCurrentUserName();
+
+    return Records.queryOne(
+      {
+        query: 'TYPE:"cm:authority" AND =cm:authorityName:"' + group + '"',
+        language: 'fts-alfresco'
+      },
+      'cm:member[].cm:userName'
+    ).then(function(userNames) {
+      return (userNames || []).indexOf(currentPersonName) !== -1;
+    });
+  }
+
+  static isShouldDisplayForms() {
+    return Records.get('ecos-config@default-ui-left-menu-access-groups')
+      .load('.str')
+      .then(function(groupsInOneString) {
+        if (!groupsInOneString) {
+          return false;
+        }
+
+        const groups = groupsInOneString.split(',');
+        const results = [];
+
+        for (let groupsCounter = 0; groupsCounter < groups.length; ++groupsCounter) {
+          results.push(EcosFormUtils.isCurrentUserInGroup(groups[groupsCounter]));
+        }
+
+        return Promise.all(results).then(function(values) {
+          return values.indexOf(false) === -1;
+        });
+      });
+  }
+
+  static isShouldDisplayFormsForUser() {
+    return Records.get('ecos-config@default-ui-main-menu')
+      .load('.str')
+      .then(function(result) {
+        if (result === 'left') {
+          return EcosFormUtils.isShouldDisplayForms();
+        }
+        return false;
+      });
+  }
+
+  static eform(record, config) {
+    if (!config) {
+      config = {};
+    }
+
+    if (!config.reactstrapProps) {
+      config.reactstrapProps = {};
+    }
+
+    if (!config.reactstrapProps.backdrop) {
+      config.reactstrapProps.backdrop = 'static';
+    }
+
+    if (!config.reactstrapProps.keyboard) {
+      config.reactstrapProps.keyboard = false;
+    }
+
+    let modal = null;
+
+    if (!config.formContainer) {
+      modal = new Modal();
+    }
+
+    const formParams = Object.assign(
+      {
+        record: record
+      },
+      config.params || {}
+    );
+
+    const configParams = config.params || {};
+
+    formParams['options'] = configParams.options || {};
+
+    formParams['onSubmit'] = function(record, form) {
+      if (modal) {
+        modal.close();
+      }
+
+      if (configParams.onSubmit) {
+        configParams.onSubmit(record, form);
+      }
+    };
+
+    formParams['onFormCancel'] = function(record, form) {
+      if (modal) {
+        modal.close();
+      }
+
+      if (configParams.onFormCancel) {
+        configParams.onFormCancel(record, form);
+      }
+    };
+
+    formParams['onReady'] = function() {
+      setTimeout(function(record, form) {
+        if (configParams.onReady) {
+          configParams.onReady(record, form);
+        }
+      }, 100);
+    };
+
+    Records.get(record)
+      .load({
+        displayName: '.disp',
+        formMode: '_formMode'
+      })
+      .then(function(recordData) {
+        const displayName = recordData.displayName || '';
+        const formMode = recordData.formMode || 'EDIT';
+
+        if (formMode === 'CREATE') {
+          Records.get(record).reset();
+        }
+
+        const options = formParams.options || {};
+
+        options.formMode = formMode;
+        formParams.options = options;
+
+        const prefixId = 'eform.header.' + formMode + '.title';
+        const prefix = t(prefixId);
+
+        if (!prefix || prefix === prefixId) {
+          config.header = displayName;
+        } else {
+          config.header = prefix + ' ' + displayName;
+        }
+
+        const formInstance = React.createElement(EcosForm, formParams);
+
+        if (config.formContainer) {
+          let container = config.formContainer;
+
+          if (typeof config.formContainer === 'string') {
+            container = document.getElementById(config.formContainer);
+          }
+
+          ReactDOM.render(formInstance, container);
+        } else {
+          modal.open(formInstance, config);
+        }
+      });
+  }
+
+  static editRecord(config) {
+    const recordRef = config.recordRef,
+      fallback = config.fallback,
+      forceNewForm = config.forceNewForm,
+      formKey = config.formKey;
+
+    const showForm = recordRef => {
+      if (recordRef) {
+        const params = {
+          attributes: config.attributes || {},
+          onSubmit: config.onSubmit
+        };
+
+        if (formKey) {
+          params.formKey = config.formKey;
+        }
+
+        EcosFormUtils.eform(recordRef, {
+          params: params,
+          class: 'ecos-modal_width-lg',
+          isBigHeader: true,
+          formContainer: config.formContainer || null
+        });
+      } else {
+        fallback();
+      }
+    };
+
+    let isFormsEnabled;
+
+    if (!forceNewForm) {
+      isFormsEnabled = Records.get('ecos-config@ecos-forms-enable').load('.bool');
+    } else {
+      isFormsEnabled = Promise.resolve(true);
+    }
+
+    const isShouldDisplay = EcosFormUtils.isShouldDisplayFormsForUser();
+
+    Promise.all([isFormsEnabled, isShouldDisplay])
+      .then(function(values) {
+        if (values[0] || values[1]) {
+          EcosFormUtils.hasForm(recordRef).then(function(result) {
+            if (result) {
+              showForm(recordRef);
+            } else {
+              showForm(null);
+            }
+          });
+        } else {
+          showForm(null);
+        }
+      })
+      .catch(function(e) {
+        console.error(e);
+        showForm(null);
+      });
+  }
+
   static isNewFormsEnabled() {
     return Records.get('ecos-config@ecos-forms-enable').load('.bool');
   }

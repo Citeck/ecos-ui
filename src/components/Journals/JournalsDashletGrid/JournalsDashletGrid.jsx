@@ -1,11 +1,13 @@
 import React, { Component, Fragment } from 'react';
+import classNames from 'classnames';
 import lodash from 'lodash';
 import connect from 'react-redux/es/connect/connect';
 import Loader from '../../common/Loader/Loader';
 import JournalsDownloadZip from '../JournalsDownloadZip';
 import EcosModal from '../../common/EcosModal/EcosModal';
-import { EmptyGrid, Grid, InlineTools, Tools } from '../../common/grid';
+import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import FormManager from '../../EcosForm/FormManager';
+import { EmptyGrid, Grid, InlineTools, Tools } from '../../common/grid';
 import { IcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { RemoveDialog } from '../../common/dialogs';
@@ -14,7 +16,6 @@ import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
 import { PROXY_URI } from '../../../constants/alfresco';
-import classNames from 'classnames';
 import {
   deleteRecords,
   goToJournalsPage,
@@ -105,6 +106,7 @@ class JournalsDashletGrid extends Component {
   };
 
   reloadGrid(options) {
+    options = options || {};
     this.hideGridInlineToolSettings();
     this.props.reloadGrid({ ...options });
   }
@@ -152,9 +154,15 @@ class JournalsDashletGrid extends Component {
     goToCardDetailsPage(selectedRow.id);
   };
 
-  goToNodeEditPage = () => {
+  edit = () => {
     const selectedRow = this.getSelectedRow();
-    goToNodeEditPage(selectedRow.id);
+    const recordRef = selectedRow.id;
+
+    EcosFormUtils.editRecord({
+      recordRef: recordRef,
+      fallback: () => goToNodeEditPage(recordRef),
+      onSubmit: () => this.reloadGrid()
+    });
   };
 
   inlineTools = () => {
@@ -181,7 +189,7 @@ class JournalsDashletGrid extends Component {
       <IcoBtn
         title={t('grid.inline-tools.edit')}
         icon={'icon-edit'}
-        onClick={this.goToNodeEditPage}
+        onClick={this.edit}
         className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
       />,
       <IcoBtn
@@ -403,14 +411,11 @@ class JournalsDashletGrid extends Component {
         data,
         columns,
         sortBy,
-        pagination: { maxItems },
-        groupBy
+        pagination: { maxItems }
       },
       doInlineToolsOnRowClick = false,
       performGroupActionResponse
     } = this.props;
-
-    const editable = !(groupBy && groupBy.length);
 
     return (
       <Fragment>
@@ -425,7 +430,7 @@ class JournalsDashletGrid extends Component {
                 className={className}
                 freezeCheckboxes
                 filterable
-                editable={editable}
+                editable
                 multiSelectable
                 sortBy={sortBy}
                 changeTrOptionsByRowClick={doInlineToolsOnRowClick}
