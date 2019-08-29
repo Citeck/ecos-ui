@@ -137,10 +137,7 @@ class App extends Component {
               {/*<Route component={NotFoundPage} />*/}
             </Switch>
           </Suspense>
-
-          <div className="sticky-push" />
         </div>
-        <Footer key="card-details-footer" theme={theme} />
       </div>
     );
   }
