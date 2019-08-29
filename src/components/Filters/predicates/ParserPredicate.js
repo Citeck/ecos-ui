@@ -51,11 +51,12 @@ export default class ParserPredicate {
 
     for (const key in row) {
       const value = row[key];
-      const type = (columns.filter(c => c.attribute === key && c.visible && c.default && c.searchable)[0] || {}).type;
+      const column = columns.filter(c => c.attribute === key && c.visible && c.default && c.searchable)[0] || {};
+      const type = column.type;
       const predicate = EQUAL_PREDICATES_MAP[type];
 
       if (predicate) {
-        val.push(new Predicate({ att: key, t: predicate, val: value }));
+        val.push(new Predicate({ att: key, t: predicate, val: column.formatExtraData.formatter.getFilterValue(value) }));
       }
     }
 

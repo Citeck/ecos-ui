@@ -60,6 +60,15 @@ class Journals extends Component {
     this.getJournalsData();
   }
 
+  componentDidUpdate(prevProps) {
+    const journalId = this.props.urlParams.journalId;
+    const prevJournalId = prevProps.urlParams.journalId;
+
+    if (journalId !== prevJournalId) {
+      this.getJournalsData();
+    }
+  }
+
   refresh = () => {
     this.props.reloadGrid();
   };

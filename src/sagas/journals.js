@@ -1,4 +1,4 @@
-import { put, call, select, takeEvery } from 'redux-saga/effects';
+import { put, call, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import cloneDeep from 'lodash/cloneDeep';
 import {
   getDashletEditorData,
@@ -491,11 +491,8 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     if (journalType) {
       let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(journalType)}`);
       nodeRef = journalConfig.meta.nodeRef;
+      id = journalConfig.id;
     }
-
-    let attributes = {};
-
-    columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
 
     if (groupBy.length) {
       for (let key in row) {
@@ -510,6 +507,10 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
         }
       }
     } else {
+      let attributes = {};
+
+      columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
+
       row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
     }
 
@@ -579,7 +580,7 @@ function* sagaCreateZip({ api, logger, stateId, w }, action) {
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(getDashletEditorData().type, wrapSaga, { ...ea, saga: sagaGetDashletEditorData });
-  yield takeEvery(getJournalsData().type, wrapSaga, { ...ea, saga: sagaGetJournalsData });
+  yield takeLatest(getJournalsData().type, wrapSaga, { ...ea, saga: sagaGetJournalsData });
   yield takeEvery(saveDashlet().type, wrapSaga, { ...ea, saga: sagaSaveDashlet });
   yield takeEvery(initJournal().type, wrapSaga, { ...ea, saga: sagaInitJournal });
 
