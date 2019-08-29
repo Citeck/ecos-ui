@@ -8,13 +8,13 @@ import DropdownMenuItem from './DropdownMenuItem';
 export default class DropdownMenuGroup extends React.Component {
   static propTypes = {
     groups: PropTypes.array,
-    showLabel: PropTypes.bool,
+    showGroupName: PropTypes.bool,
     showSeparator: PropTypes.bool
   };
 
   static defaultProps = {
     groups: [],
-    showLabel: false,
+    showGroupName: false,
     showSeparator: false
   };
 
@@ -27,7 +27,7 @@ export default class DropdownMenuGroup extends React.Component {
   }
 
   render() {
-    const { groups, showLabel, showSeparator } = this.props;
+    const { groups, showGroupName, showSeparator } = this.props;
 
     return groups.map((item, i) => {
       const { id, label, items } = item;
@@ -35,7 +35,7 @@ export default class DropdownMenuGroup extends React.Component {
 
       return (
         <div key={key}>
-          {showLabel && <div className={'ecos-dropdown-menu__group-label'}>{t(label)}</div>}
+          {showGroupName && <div className={'ecos-dropdown-menu__group-label'}>{t(label)}</div>}
           {this.renderMenuItems(items)}
           {showSeparator && <Separator noIndents />}
         </div>
