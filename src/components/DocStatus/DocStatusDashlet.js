@@ -6,6 +6,7 @@ import Dashlet from '../Dashlet/Dashlet';
 import DocStatus from './DocStatus';
 
 import './style.scss';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 
 class DocStatusDashlet extends React.Component {
   static propTypes = {
@@ -25,8 +26,22 @@ class DocStatusDashlet extends React.Component {
 
   className = 'ecos-doc-status-dashlet';
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
+    };
+  }
+
+  handleToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+  };
+
   render() {
     const { id, title, config, classNameStatus, classNameDashlet, record } = this.props;
+    const { isCollapsed } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -40,6 +55,8 @@ class DocStatusDashlet extends React.Component {
         actionReload={false}
         actionDrag={isMobileDevice()}
         actionEdit={false}
+        onToggleCollapse={this.handleToggleContent}
+        isCollapsed={isCollapsed}
       >
         <DocStatus {...config} className={classNameStatus} record={record} stateId={id} />
       </Dashlet>

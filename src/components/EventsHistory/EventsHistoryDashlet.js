@@ -38,8 +38,9 @@ class EventsHistoryDashlet extends React.Component {
 
     this.state = {
       isSmallMode: false,
+      fitHeights: {},
       height: UserLocalSettingsService.getDashletHeight(props.id),
-      fitHeights: {}
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
     };
   }
 
@@ -56,9 +57,14 @@ class EventsHistoryDashlet extends React.Component {
     this.setState({ fitHeights });
   };
 
+  handleToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+  };
+
   render() {
     const { id, title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isUpdating, height, fitHeights } = this.state;
+    const { isSmallMode, isUpdating, height, fitHeights, isCollapsed } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -76,6 +82,8 @@ class EventsHistoryDashlet extends React.Component {
         onChangeHeight={this.onChangeHeight}
         getFitHeights={this.setFitHeights}
         onResize={this.onResize}
+        onToggleCollapse={this.handleToggleContent}
+        isCollapsed={isCollapsed}
       >
         {!isUpdating && (
           <EventsHistory

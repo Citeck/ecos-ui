@@ -38,8 +38,9 @@ class CurrentTasksDashlet extends React.Component {
     this.state = {
       isSmallMode: false,
       isUpdating: false,
+      fitHeights: {},
       height: UserLocalSettingsService.getDashletHeight(props.id),
-      fitHeights: {}
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
     };
   }
 
@@ -60,9 +61,14 @@ class CurrentTasksDashlet extends React.Component {
     this.setState({ fitHeights });
   };
 
+  handleToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+  };
+
   render() {
     const { id, title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isUpdating, height, fitHeights } = this.state;
+    const { isSmallMode, isUpdating, height, fitHeights, isCollapsed } = this.state;
     const classDashlet = classNames('ecos-current-task-list-dashlet', classNameDashlet);
 
     return (
@@ -80,6 +86,8 @@ class CurrentTasksDashlet extends React.Component {
         onChangeHeight={this.onChangeHeight}
         getFitHeights={this.setFitHeights}
         onResize={this.onResize}
+        onToggleCollapse={this.handleToggleContent}
+        isCollapsed={isCollapsed}
       >
         {!isUpdating && (
           <CurrentTasks

@@ -90,14 +90,15 @@ class Comments extends React.Component {
 
     this.state = {
       isEdit: false,
-      width: MIN_WIDTH_DASHLET_SMALL,
-      editorHeight: BASE_HEIGHT,
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      contentHeight: null,
       fitHeights: {},
-      comment: EditorState.createEmpty(),
+      contentHeight: null,
       editableComment: null,
-      commentForDeletion: null
+      commentForDeletion: null,
+      editorHeight: BASE_HEIGHT,
+      width: MIN_WIDTH_DASHLET_SMALL,
+      comment: EditorState.createEmpty(),
+      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
     };
   }
 
@@ -403,6 +404,11 @@ class Comments extends React.Component {
     this.setState({ fitHeights });
   };
 
+  handleToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+  };
+
   renderHeader() {
     const { isEdit } = this.state;
 
@@ -653,6 +659,7 @@ class Comments extends React.Component {
 
   render() {
     const { dragHandleProps, canDragging } = this.props;
+    const { isCollapsed } = this.state;
 
     return (
       <div className={this.className}>
@@ -668,6 +675,8 @@ class Comments extends React.Component {
           dragHandleProps={dragHandleProps}
           onChangeHeight={this.handleChangeHeight}
           getFitHeights={this.setFitHeights}
+          onToggleCollapse={this.handleToggleContent}
+          isCollapsed={isCollapsed}
         >
           {this.renderHeader()}
           {this.renderComments()}

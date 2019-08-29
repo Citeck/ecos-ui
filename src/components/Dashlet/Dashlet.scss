@@ -23,6 +23,7 @@
           &_header:not(:empty) {
             background: $color-white;
             border-top-right-radius: $border-radius-extra-large;
+            border-bottom-right-radius: $border-radius-extra-large;
 
             &:before {
               $size: 30px;
@@ -38,6 +39,11 @@
           }
         }
       }
+    }
+
+    &-toggle {
+      font-size: 14px;
+      padding-right: 10px;
     }
   }
 
@@ -67,6 +73,22 @@
 
     &_relative {
       position: relative;
+    }
+
+    &-actions {
+      padding: 5px 15px 15px;
+    }
+
+    &-content {
+      display: block;
+
+      &_hidden {
+        display: none;
+      }
+    }
+
+    &_collapsed {
+      display: none;
     }
   }
 
@@ -111,5 +133,13 @@
 
   &__footer {
     padding: 2px 0 5px;
+  }
+
+  &__wrap {
+    &-header {
+      &_rounded {
+        border-radius: 12px;
+      }
+    }
   }
 }
