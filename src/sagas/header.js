@@ -14,11 +14,12 @@ import {
 } from '../actions/header';
 import { setDashboardIdentification } from '../actions/dashboard';
 import { setUserThumbnail } from '../actions/user';
-import { makeSiteMenu, makeUserMenuItems, processCreateVariantsItems } from '../helpers/menu';
-import { PROXY_URI } from '../constants/alfresco';
-import { URL } from '../constants';
+import { changeActiveTab } from '../actions/pageTabs';
 import { changeUrlLink } from '../components/PageTabs/PageTabs';
-import { checkUrl } from '../helpers/urls';
+import { makeSiteMenu, makeUserMenuItems, processCreateVariantsItems } from '../helpers/menu';
+import { URL } from '../constants';
+import { PROXY_URI } from '../constants/alfresco';
+import { hasInString } from '../helpers/util';
 import MenuService from '../services/menu';
 
 function* fetchCreateCaseWidget({ api, logger }) {
@@ -62,19 +63,28 @@ function* fetchUserMenu({ api, fakeApi, logger }) {
 
 function* fetchSiteMenu({ api, fakeApi, logger }) {
   try {
-    const isDashboardPage = checkUrl(URL.DASHBOARD) && !checkUrl(URL.DASHBOARD_SETTINGS);
-    const menuItems = makeSiteMenu({ isDashboardPage });
+    const menuItems = makeSiteMenu();
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
     logger.error('[fetchSiteMenu saga] error', e.message);
   }
 }
 
-function* filterSiteMenu({ api, logger }, { payload }) {
+function* filterSiteMenu({ api, logger }, { payload = {} }) {
   try {
-    const menuItems = makeSiteMenu({
-      isDashboardPage: Boolean(get(payload, ['identification', 'id'], null))
-    });
+    const { identification = null, url = '' } = payload;
+    let isDashboardPage = false;
+
+    if (identification) {
+      isDashboardPage = Boolean(get(payload, ['identification', 'id'], null));
+    }
+
+    if (url) {
+      isDashboardPage = hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS);
+    }
+
+    const menuItems = makeSiteMenu({ isDashboardPage });
+
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
     logger.error('[filterSiteMenu saga] error', e.message);
@@ -108,7 +118,7 @@ function* headerSaga(ea) {
   yield takeLatest(fetchCreateCaseWidgetData().type, fetchCreateCaseWidget, ea);
   yield takeLatest(fetchUserMenuData().type, fetchUserMenu, ea);
   yield takeLatest(fetchSiteMenuData().type, fetchSiteMenu, ea);
-  yield takeLatest(setDashboardIdentification().type, filterSiteMenu, ea);
+  yield takeLatest([setDashboardIdentification().type, changeActiveTab().type], filterSiteMenu, ea);
   yield takeLatest(goToPageFromSiteMenu().type, goToPageSiteMenu, ea);
   yield takeLatest(runSearchAutocompleteItems().type, sagaRunSearchAutocomplete, ea);
 }
