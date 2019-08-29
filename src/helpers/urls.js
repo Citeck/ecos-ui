@@ -155,3 +155,7 @@ export const getSortedUrlParams = (params = window.location.search) => {
 export const getSearchParams = (params = window.location.search) => {
   return queryString.parse(params);
 };
+
+export const checkUrl = (subString = '') => {
+  return window.location.href.includes(subString);
+};

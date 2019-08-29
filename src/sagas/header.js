@@ -1,4 +1,5 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
+import get from 'lodash/get';
 import {
   fetchCreateCaseWidgetData,
   fetchSiteMenuData,
@@ -11,10 +12,13 @@ import {
   setSiteMenuItems,
   setUserMenuItems
 } from '../actions/header';
+import { setDashboardIdentification } from '../actions/dashboard';
 import { setUserThumbnail } from '../actions/user';
 import { makeSiteMenu, makeUserMenuItems, processCreateVariantsItems } from '../helpers/menu';
 import { PROXY_URI } from '../constants/alfresco';
+import { URL } from '../constants';
 import { changeUrlLink } from '../components/PageTabs/PageTabs';
+import { checkUrl } from '../helpers/urls';
 import MenuService from '../services/menu';
 
 function* fetchCreateCaseWidget({ api, logger }) {
@@ -58,10 +62,22 @@ function* fetchUserMenu({ api, fakeApi, logger }) {
 
 function* fetchSiteMenu({ api, fakeApi, logger }) {
   try {
-    const menuItems = makeSiteMenu();
+    const isDashboardPage = checkUrl(URL.DASHBOARD) && !checkUrl(URL.DASHBOARD_SETTINGS);
+    const menuItems = makeSiteMenu({ isDashboardPage });
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
     logger.error('[fetchSiteMenu saga] error', e.message);
+  }
+}
+
+function* filterSiteMenu({ api, logger }, { payload }) {
+  try {
+    const menuItems = makeSiteMenu({
+      isDashboardPage: Boolean(get(payload, ['identification', 'id'], null))
+    });
+    yield put(setSiteMenuItems(menuItems));
+  } catch (e) {
+    logger.error('[filterSiteMenu saga] error', e.message);
   }
 }
 
@@ -92,6 +108,7 @@ function* headerSaga(ea) {
   yield takeLatest(fetchCreateCaseWidgetData().type, fetchCreateCaseWidget, ea);
   yield takeLatest(fetchUserMenuData().type, fetchUserMenu, ea);
   yield takeLatest(fetchSiteMenuData().type, fetchSiteMenu, ea);
+  yield takeLatest(setDashboardIdentification().type, filterSiteMenu, ea);
   yield takeLatest(goToPageFromSiteMenu().type, goToPageSiteMenu, ea);
   yield takeLatest(runSearchAutocompleteItems().type, sagaRunSearchAutocomplete, ea);
 }
