@@ -9,7 +9,6 @@ import Header from '../Header';
 import Notification from '../Notification';
 import SlideMenu from '../SlideMenu';
 import ReduxModal from '../ReduxModal';
-import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 
@@ -64,7 +63,6 @@ class App extends Component {
       isInitFailure,
       isAuthenticated,
       isMobile,
-      theme,
       isShow,
       tabs,
       setTabs,
@@ -160,7 +158,7 @@ const mapDispatchToProps = dispatch => ({
   getTabs: () => dispatch(getTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
   changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
-  getActiveTabTitle: tabs => dispatch(getActiveTabTitle()),
+  getActiveTabTitle: () => dispatch(getActiveTabTitle()),
   initMenuSettings: () => dispatch(initMenuSettings())
 });
 
