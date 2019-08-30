@@ -58,7 +58,7 @@ function* sagaCreateComment({ api, logger }, action) {
   } catch (e) {
     yield put(
       setError({
-        message: t('Ошибка отправки! Попробуйте еще раз'),
+        message: t('comments-widget.error'),
         nodeRef: action.payload.action
       })
     );
