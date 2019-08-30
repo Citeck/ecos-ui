@@ -284,13 +284,9 @@ export function getScrollbarWidth() {
   scrollDiv.className = 'scrollbar-measure';
   document.body.appendChild(scrollDiv);
 
-  // Get the scrollbar width
   const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
 
-  // Delete the DIV
   document.body.removeChild(scrollDiv);
-
-  console.warn(scrollbarWidth);
 
   return scrollbarWidth;
 }
