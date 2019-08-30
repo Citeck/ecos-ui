@@ -56,7 +56,7 @@ class CreateMenu extends React.Component {
           </IcoBtn>
         </DropdownToggle>
         <DropdownMenu className={classNameMenu}>
-          <Menu items={items} mode={mode} />
+          <Menu items={items} mode={mode} setCascade={{ collapseOneItem: true }} />
         </DropdownMenu>
       </Dropdown>
     );
