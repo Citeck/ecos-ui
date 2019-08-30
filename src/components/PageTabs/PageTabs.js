@@ -2,7 +2,6 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
-import get from 'lodash/get';
 
 import { deepClone, getScrollbarWidth, t, arrayMove } from '../../helpers/util';
 import { SortableContainer, SortableElement } from '../Drag-n-Drop';
@@ -17,7 +16,6 @@ import {
 import { PointsLoader } from '../common';
 import { isNewVersionPage } from '../../helpers/urls';
 
-import constants from '../../constants.scss';
 import './style.scss';
 
 const CHANGE_URL_LINK_EVENT = 'CHANGE_URL_LINK_EVENT';
@@ -92,8 +90,6 @@ class PageTabs extends React.Component {
     document.addEventListener('click', this.handleClickLink);
     document.addEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
     window.addEventListener('popstate', this.handlePopState);
-
-    console.warn(parseInt(get(constants, ['scrollbarWidth'], 0), 10));
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
