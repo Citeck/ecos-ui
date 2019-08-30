@@ -290,6 +290,8 @@ export function getScrollbarWidth() {
   // Delete the DIV
   document.body.removeChild(scrollDiv);
 
+  console.warn(scrollbarWidth);
+
   return scrollbarWidth;
 }
 

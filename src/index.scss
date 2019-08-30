@@ -1,6 +1,7 @@
 @import './bootstrap.scss';
 @import './fonts/citeck/css/citeck.css';
 @import './fonts/open-sans/open-sans.css';
+@import './constants';
 
 html {
   overflow: auto;
@@ -47,4 +48,22 @@ ul {
 #alf-hd {
   position: relative;
   z-index: 5;
+}
+
+// set scrollbar styles
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: $scroll-size;
+  height: $scroll-size;
+  background-color: $color-gray-4;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: $scroll-border-radius;
+  background-color: #cccccc;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+::-webkit-scrollbar-track {
+  border-radius: $scroll-border-radius;
+  background-color: $color-gray-4;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
 }

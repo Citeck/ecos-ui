@@ -284,13 +284,13 @@ class DashboardSettings extends React.Component {
   }
 
   get bodyScrollTop() {
-    const body = document.querySelector('body');
+    const element = document.scrollingElement || document.documentElement;
 
-    if (!body) {
+    if (!element) {
       return 0;
     }
 
-    return body.scrollTop;
+    return element.scrollTop;
   }
 
   get selectedTypeLayout() {
