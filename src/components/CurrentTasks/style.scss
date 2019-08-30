@@ -99,7 +99,7 @@
 
     &-value {
       &_add {
-        white-space: pre;
+        max-width: 348px;
       }
     }
   }
@@ -147,6 +147,12 @@
 
       &-inner {
         margin-right: 15px;
+      }
+    }
+
+    &-list {
+      &-item {
+        @extend %ellipsis;
       }
     }
 

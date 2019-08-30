@@ -51,12 +51,22 @@ export default class IconInfo extends React.Component {
     });
   };
 
+  renderContent() {
+    const { text, children } = this.props;
+
+    if (text) {
+      return <div className="ecos-current-task__tooltip-text-inner">{text}</div>;
+    }
+
+    return <div className="ecos-current-task__tooltip-text-inner">{children}</div>;
+  }
+
   render() {
-    const { id, iconClass, isShow, noTooltip, text } = this.props;
+    const { id, iconClass, isShow, noTooltip, text, children } = this.props;
     const { isOpen } = this.state;
     const domId = `ecos-current-task-${id}`;
 
-    if (!isShow) {
+    if (!isShow || (!text && !children)) {
       return null;
     }
 
@@ -93,7 +103,7 @@ export default class IconInfo extends React.Component {
                 renderTrackHorizontal={props => <div {...props} hidden />}
                 renderThumbHorizontal={props => <div {...props} hidden />}
               >
-                <div className="ecos-current-task__tooltip-text-inner">{text}</div>
+                {this.renderContent()}
               </Scrollbars>
             </div>
           </Tooltip>
