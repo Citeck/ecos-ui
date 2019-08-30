@@ -18,7 +18,7 @@ function* doInitMenuSettings({ api, logger }, action) {
     yield put(getAvailableMenuItems());
     yield put(getMenuConfig());
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка получения меню')));
+    yield put(setNotificationMessage(t('menu.error')));
     logger.error('[menu/ doInitMenuSettings saga] error', e.message);
   }
 }
@@ -30,7 +30,7 @@ function* doGetAvailableMenuItemsRequest({ api, logger }, action) {
 
     yield put(setAvailableMenuItems(menuItems));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка. Пункты меню не получены')));
+    yield put(setNotificationMessage(t('menu.error-detail')));
     logger.error('[menu/ doGetAvailableMenuItemsRequest saga] error', e.message);
   }
 }
@@ -42,7 +42,7 @@ function* doGetMenuConfigRequest({ api, logger }, { payload }) {
 
     yield put(setMenuConfig(menu));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка получения меню')));
+    yield put(setNotificationMessage(t('menu.error')));
     logger.error('[menu/ doGetMenuConfigRequest saga] error', e.message);
   }
 }
@@ -53,7 +53,7 @@ function* doSaveMenuConfigRequest({ api, logger }, { payload }) {
     yield put(setMenuConfig(payload));
     yield put(setRequestResultMenuConfig({ status: RequestStatuses.SUCCESS }));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка получения меню')));
+    yield put(setNotificationMessage(t('menu.error')));
     logger.error('[menu/ doSaveMenuConfigRequest saga] error', e.message);
   }
 }

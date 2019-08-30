@@ -31,7 +31,7 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     yield put(setDashboardIdentification(webKeyInfo));
     yield put(setDashboardConfig(webConfig));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка получения данных по дашборду')));
+    yield put(setNotificationMessage(t('dashboard-settings.error5')));
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
   }
 }
@@ -53,7 +53,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
 
     yield put(setDashboardConfig(newConfig));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка сохранения дашборда')));
+    yield put(setNotificationMessage(t('dashboard-settings.error6')));
     logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e.message);
   }
 }

@@ -90,7 +90,7 @@ class Tab extends React.Component {
       'ecos-tab_disabled': disabled
     });
     const isEdit = edit || isNew;
-    const placeholder = isNew ? t(label) : t('Название вкладки');
+    const placeholder = isNew ? t(label) : t('page-tabs.tab-name');
 
     return (
       <div className={tabClassNames} onClick={onClick}>

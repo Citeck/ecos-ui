@@ -507,14 +507,14 @@ class DashboardSettings extends React.Component {
         <TunableDialog
           isOpen
           onClose={handleCancel}
-          title={t('Подтвердить изменения?')}
-          content={t('Дашборд для установленного типа и/или пользователя уже существует')}
+          title={t('dashboard-settings.confirm-changes')}
+          content={t('dashboard-settings.already-exists')}
           footer={[
             <Btn key="handleCancel" onClick={handleCancel}>
-              {t('Отменить')}
+              {t('dashboard-settings.cancel')}
             </Btn>,
             <Btn key="handleReplace" onClick={handleReplace} className={'ecos-btn_blue'}>
-              {t('Заменить')}
+              {t('dashboard-settings.replace')}
             </Btn>
           ]}
         />
