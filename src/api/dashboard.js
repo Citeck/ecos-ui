@@ -41,7 +41,7 @@ export class DashboardApi extends RecordService {
         key: item.str,
         displayName: t(item.disp)
       }));
-      dashboardKeys.push({ key: DASHBOARD_DEFAULT_KEY, displayName: t('По умолчанию') });
+      dashboardKeys.push({ key: DASHBOARD_DEFAULT_KEY, displayName: t('dashboard-settings.default') });
     }
 
     return dashboardKeys;

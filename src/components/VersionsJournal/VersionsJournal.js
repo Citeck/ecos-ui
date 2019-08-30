@@ -525,7 +525,7 @@ class VersionsJournal extends Component {
           disabled={comparisonButtonIsDisabled}
           onClick={this.handleClickShowComparisonModal}
         >
-          {t('Сравнить')}
+          {t('versions-journal-widget.diff')}
         </Btn>
       </div>
     );

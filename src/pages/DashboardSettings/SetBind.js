@@ -45,7 +45,7 @@ class SetBind extends React.Component {
 
     return (
       <React.Fragment>
-        <h5 className="ecos-dashboard-settings__container-title">{t('Привязка к типу кейса')}</h5>
+        <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.case-type')}</h5>
         <div className="ecos-dashboard-settings__keys-wrapper">
           <Dropdown
             source={keys}
@@ -61,7 +61,7 @@ class SetBind extends React.Component {
           </Dropdown>
           {isAdmin && (
             <Checkbox checked={isForAllUsers} onChange={this.onChangeKeyForAllUser} className={'ecos-dashboard-settings__keys-checkbox'}>
-              {t('Для всех пользователей')}
+              {t('dashboard-settings.for-all')}
             </Checkbox>
           )}
         </div>

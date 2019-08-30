@@ -43,7 +43,7 @@ export default class DropdownMenuCascade extends React.Component {
 
       return (
         <Dropdown className={`ecos-dropdown ${this.className}`} key={key} isOpen={openedItem === key} toggle={() => null} direction="right">
-          <DropdownToggle tag="ul" className={`ecos-dropdown__toggle ${this.className}-toggle`} onPointerOver={() => this.toggle(key)}>
+          <DropdownToggle tag="ul" className={`ecos-dropdown__toggle ${this.className}-toggle`} onMouseEnter={() => this.toggle(key)}>
             <DropdownMenuItem data={item} iconRight={iconRight} />
           </DropdownToggle>
           <DropdownMenu className={`ecos-dropdown__menu ecos-dropdown__menu_cascade`}>
