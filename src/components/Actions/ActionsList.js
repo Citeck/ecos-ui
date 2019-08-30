@@ -44,6 +44,7 @@ class ActionsList extends React.Component {
               className={classNames(
                 'ecos-actions-list__item',
                 { 'ecos-actions-list__item_group': hasVariants },
+                { 'ecos-actions-list__item_disabled': isLoading },
                 { 'ecos-actions-list__item_warning': action.theme }
               )}
               onClick={() => (hasVariants ? null : this.onClick(action))}
@@ -52,7 +53,13 @@ class ActionsList extends React.Component {
               {hasVariants && (
                 <div className="ecos-actions-list__item-variants">
                   {action.variants.map(variant => (
-                    <div className="ecos-actions-list__item-variants__item" onClick={() => this.onClick(action)}>
+                    <div
+                      key={`action-${action.id}-${index}-${variant.id}`}
+                      className={classNames('ecos-actions-list__item-variants__item', {
+                        'ecos-actions-list__item-variants__item_disabled': isLoading
+                      })}
+                      onClick={() => this.onClick(action)}
+                    >
                       {variant.title}
                     </div>
                   ))}

@@ -31,7 +31,7 @@ export default class Loader extends Component {
 
     return (
       <div className={cssClasses}>
-        <ReactLoader style="ecos-loader__elm" type="Oval" color="#7396cd" height={height} width={width} />
+        <ReactLoader type="Oval" color="#7396cd" height={height} width={width} />
       </div>
     );
   }

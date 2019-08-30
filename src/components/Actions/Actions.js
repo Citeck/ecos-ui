@@ -94,7 +94,7 @@ class Actions extends React.Component {
         className="ecos-actions"
         renderTrackVertical={props => <div {...props} className="ecos-actions__v-scroll" />}
       >
-        <DefineHeight fixHeight={height} minHeight={minHeight} isMin={isLoading || isEmpty(list)} getOptimalHeight={this.setHeight}>
+        <DefineHeight fixHeight={height} minHeight={minHeight} isMin={isEmpty(list)} getOptimalHeight={this.setHeight}>
           <ActionsList list={list} isLoading={isLoading} className={className} executeAction={this.executeAction} isMobile={isMobile} />
         </DefineHeight>
       </Scrollbars>

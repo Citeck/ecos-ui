@@ -43,11 +43,15 @@
         margin: 5px 0;
       }
 
+      &_disabled {
+        pointer-events: none;
+      }
+
       &_warning {
         color: $color-red-1;
       }
 
-      &:not(&_group) > &-title {
+      &:not(&_group, &_disabled) > &-title {
         &:hover {
           @extend %hover;
         }
@@ -66,7 +70,11 @@
           font-weight: $font-weight-semi-bold;
           font-size: $font-size-standard;
 
-          &:hover {
+          &_disabled {
+            pointer-events: none;
+          }
+
+          &:not(&_disabled):hover {
             @extend %hover;
             border-radius: 0;
 
