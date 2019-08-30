@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import classNames from 'classnames';
 import lodash from 'lodash';
 import connect from 'react-redux/es/connect/connect';
 import Loader from '../../common/Loader/Loader';
