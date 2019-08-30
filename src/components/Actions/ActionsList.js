@@ -3,67 +3,65 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import { t } from '../../helpers/util';
-import { InfoText, Loader } from '../common';
+import { InfoText, Loader, Separator } from '../common';
 
 class ActionsList extends React.Component {
   static propTypes = {
     list: PropTypes.array,
+    isMobile: PropTypes.bool,
     isLoading: PropTypes.bool,
     executeAction: PropTypes.func
   };
 
   static defaultProps = {
     list: [],
+    isMobile: false,
     isLoading: false,
     executeAction: () => null
   };
 
-  onClick = (action, index) => {
-    const { executeAction } = this.props;
+  onClick = action => {
+    const { executeAction, isLoading } = this.props;
 
-    if (isEmpty(action.variants)) {
+    if (!isLoading) {
       executeAction(action);
     }
   };
 
-  renderVariants(variants) {
-    const isOpen = !isEmpty(variants);
-
-    return (
-      isOpen && (
-        <div className="ecos-actions-list__item-variants">
-          {variants.map(variant => (
-            <div className="ecos-actions-list__variant">{variant.title}</div>
-          ))}
-        </div>
-      )
-    );
-  }
-
   render() {
-    const { isLoading, list = [] } = this.props;
-
-    if (isLoading) {
-      return <Loader className="ecos-actions-list__loader" />;
-    }
-
-    if (isEmpty(list)) {
-      return <InfoText text={t('Нет доступных действий')} />;
-    }
+    const { isLoading, list = [], isMobile } = this.props;
 
     return (
       <div className="ecos-actions-list">
-        {list.map((action, index) => (
-          <React.Fragment key={`action-${action.id}-${index}`}>
+        {isLoading && <Loader className="ecos-actions-list__loader" blur />}
+        {!isLoading && isEmpty(list) && <InfoText className="ecos-actions-list__text-empty" text={t('Нет доступных действий')} />}
+        {list.map((action, index) => {
+          const hasVariants = !isEmpty(action.variants);
+
+          return (
             <div
-              className={classNames('ecos-actions-list__item-title', { 'ecos-actions-list__item-title_group': !isEmpty(action.variants) })}
-              onClick={() => this.onClick(action, index)}
+              key={`action-${action.id}-${index}`}
+              className={classNames(
+                'ecos-actions-list__item',
+                { 'ecos-actions-list__item_group': hasVariants },
+                { 'ecos-actions-list__item_warning': action.theme }
+              )}
+              onClick={() => (hasVariants ? null : this.onClick(action))}
             >
-              {action.title}
+              <div className="ecos-actions-list__item-title">{action.title}</div>
+              {hasVariants && (
+                <div className="ecos-actions-list__item-variants">
+                  {action.variants.map(variant => (
+                    <div className="ecos-actions-list__item-variants__item" onClick={() => this.onClick(action)}>
+                      {variant.title}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {isMobile && index < list.length - 1 && !hasVariants && <Separator noIndents />}
             </div>
-            {this.renderVariants(action.variants)}
-          </React.Fragment>
-        ))}
+          );
+        })}
       </div>
     );
   }

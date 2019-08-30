@@ -17,7 +17,8 @@ const mapStateToProps = (state, context) => {
   return {
     dashboardId: selectIdentificationForView(state).id,
     list: aState.list,
-    isLoading: aState.isLoading
+    isLoading: aState.isLoading,
+    isMobile: state.view.isMobile
   };
 };
 
@@ -33,6 +34,7 @@ class Actions extends React.Component {
     stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
     isLoading: PropTypes.bool,
+    isMobile: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
@@ -40,7 +42,8 @@ class Actions extends React.Component {
 
   static defaultProps = {
     className: '',
-    isLoading: false
+    isLoading: false,
+    isMobile: false
   };
 
   state = {
@@ -82,21 +85,19 @@ class Actions extends React.Component {
   };
 
   render() {
-    const { isLoading, className, height, minHeight, maxHeight, list } = this.props;
+    const { isLoading, className, height, minHeight, list, isMobile } = this.props;
     const { contentHeight } = this.state;
 
     return (
-      <>
-        <Scrollbars
-          style={{ height: contentHeight || '100%' }}
-          className="ecos-actions"
-          renderTrackVertical={props => <div {...props} className="ecos-actions__v-scroll" />}
-        >
-          <DefineHeight fixHeight={height} minHeight={minHeight} isMin={isLoading || isEmpty(list)} getOptimalHeight={this.setHeight}>
-            <ActionsList list={list} isLoading={isLoading} className={className} executeAction={this.executeAction} />
-          </DefineHeight>
-        </Scrollbars>
-      </>
+      <Scrollbars
+        style={{ height: contentHeight || '100%' }}
+        className="ecos-actions"
+        renderTrackVertical={props => <div {...props} className="ecos-actions__v-scroll" />}
+      >
+        <DefineHeight fixHeight={height} minHeight={minHeight} isMin={isLoading || isEmpty(list)} getOptimalHeight={this.setHeight}>
+          <ActionsList list={list} isLoading={isLoading} className={className} executeAction={this.executeAction} isMobile={isMobile} />
+        </DefineHeight>
+      </Scrollbars>
     );
   }
 }

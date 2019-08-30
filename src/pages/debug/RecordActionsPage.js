@@ -2,6 +2,9 @@ import * as React from 'react';
 import queryString from 'query-string';
 import { get, split } from 'lodash';
 import { deepClone } from '../../helpers/util';
+import Row from 'reactstrap/es/Row';
+import Container from 'reactstrap/es/Container';
+import Col from 'reactstrap/es/Col';
 import ActionsDashlet, { Actions } from '../../components/Actions';
 
 import './testStyle.scss';
@@ -46,29 +49,43 @@ export default class RecordActionsPage extends React.Component {
     const col2 = configs.splice(Math.ceil(configs.length / 2));
 
     return (
-      <div>
-        <h3>Demo Actions</h3>
-        <div className={'ecos-debug-container'}>
-          <div className={'ecos-debug-col ecos-debug-col_small'}>
+      <Container fluid className="ecos-debug-bs">
+        <Row className="justify-content-md-center">
+          <h3>Demo Actions</h3>
+        </Row>
+        <Row className="justify-content-md-center">
+          <Col sm lg="2">
             <h5>Widget Small</h5>
             {configs.map((item, index) => (
-              <ActionsDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
+              <ActionsDashlet
+                id={item.id}
+                record={item.document}
+                config={item.config}
+                title={item.title}
+                key={`action1${item.id}${index}`}
+              />
             ))}
-          </div>
-          <div className={'ecos-debug-col'}>
+          </Col>
+          <Col sm lg="6">
             <h5>Widget Large</h5>
             {col2.map((item, index) => (
-              <ActionsDashlet id={item.id} record={item.document} config={item.config} title={item.title} key={item.id + index} />
+              <ActionsDashlet
+                id={item.id}
+                record={item.document}
+                config={item.config}
+                title={item.title}
+                key={`action2${item.id}${index}`}
+              />
             ))}
-          </div>
-          <div className={'ecos-debug-col'}>
+          </Col>
+          <Col sm lg="4">
             <h5>Solo</h5>
             {col2.map((item, index) => (
-              <Actions record={item.document} {...item.config} key={item.id + index} stateId={'tasks' + index} />
+              <Actions record={item.document} {...item.config} key={item.id + index} stateId={`action3${index}`} />
             ))}
-          </div>
-        </div>
-      </div>
+          </Col>
+        </Row>
+      </Container>
     );
   }
 }
