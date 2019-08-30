@@ -5,7 +5,12 @@ export default class EventsHistoryService {
     columns: [
       {
         attribute: 'event:date',
-        formatter: 'DateTimeFormatter',
+        formatter: {
+          name: 'DateTimeFormatter',
+          params: {
+            format: 'DD.MM.YYYY HH:mm:ss'
+          }
+        },
         text: t('dochist.header.date'),
         type: 'date'
       },
