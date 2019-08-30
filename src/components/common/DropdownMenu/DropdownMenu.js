@@ -69,6 +69,6 @@ export default class DropdownMenu extends React.Component {
   }
 
   render() {
-    return <div className={'ecos-dropdown-menu'}>{this.renderMode()}</div>;
+    return <div className="ecos-dropdown-menu">{this.renderMode()}</div>;
   }
 }

@@ -35,7 +35,7 @@ export default class DropdownMenuGroup extends React.Component {
 
       return (
         <div key={key}>
-          {showGroupName && <div className={'ecos-dropdown-menu__group-label'}>{t(label)}</div>}
+          {showGroupName && <div className="ecos-dropdown-menu__group-label">{t(label)}</div>}
           {this.renderMenuItems(items)}
           {showSeparator && <Separator noIndents />}
         </div>
