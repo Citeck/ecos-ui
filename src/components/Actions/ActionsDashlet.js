@@ -64,7 +64,7 @@ class ActionsDashlet extends React.Component {
 
     return (
       <Dashlet
-        title={title || t('Действия')}
+        title={title || t('records-actions.actions')}
         bodyClassName="ecos-actions-dashlet__body"
         className={classNames('ecos-actions-dashlet', classNameDashlet)}
         resizable={true}

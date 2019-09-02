@@ -34,7 +34,7 @@ class ActionsList extends React.Component {
     return (
       <div className="ecos-actions-list">
         {isLoading && <Loader className="ecos-actions-list__loader" blur />}
-        {!isLoading && isEmpty(list) && <InfoText className="ecos-actions-list__text-empty" text={t('Нет доступных действий')} />}
+        {!isLoading && isEmpty(list) && <InfoText className="ecos-actions-list__text-empty" text={t('records-actions.no-available')} />}
         {list.map((action, index) => {
           const hasVariants = !isEmpty(action.variants);
 

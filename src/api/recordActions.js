@@ -1,4 +1,5 @@
 import { RecordService } from './recordService';
+import { t } from '../helpers/util';
 
 //todo need api
 const RecordsActions = {
@@ -6,10 +7,10 @@ const RecordsActions = {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve([
-          { title: 'Создать' },
-          { title: 'Изменить' },
-          { title: 'Скачать', variants: [{ title: 'Оригинал' }, { title: 'PDF' }] },
-          { title: 'Удалить', theme: 'warning' }
+          { title: t('records-actions.create') },
+          { title: t('records-actions.edit') },
+          { title: t('records-actions.download'), variants: [{ title: t('records-actions.original') }, { title: 'PDF' }] },
+          { title: t('records-actions.remove'), theme: 'warning' }
         ]);
       }, 1500);
     });

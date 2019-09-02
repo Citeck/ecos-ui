@@ -23,11 +23,11 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
     const res = yield call(api.recordActions.executeAction, { record, action });
 
     if (!res) {
-      yield put(setNotificationMessage(t('Действие не выполнено')));
+      yield put(setNotificationMessage(t('records-actions.action-failed')));
     }
     yield put(backExecuteAction({ stateId }));
   } catch (e) {
-    yield put(setNotificationMessage(t('Действие не выполнено')));
+    yield put(setNotificationMessage(t('records-actions.action-failed')));
     logger.error('[tasks/sagaGetCurrentTasks saga] error', e.message);
   }
 }
