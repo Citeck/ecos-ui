@@ -235,7 +235,7 @@
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        line-height: 16px;
+        line-height: inherit;
         margin-right: 5px;
 
         &-loader {
@@ -252,6 +252,7 @@
       &-close {
         align-self: end;
         color: $text-color-gray;
+        line-height: initial;
 
         &:hover {
           color: $color-blue-dark !important;
