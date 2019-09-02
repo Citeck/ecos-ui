@@ -5,6 +5,7 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
+import classNames from 'classnames';
 
 import { getDashboardConfig, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
@@ -22,6 +23,7 @@ import './style.scss';
 
 const mapStateToProps = state => ({
   config: get(state, ['dashboard', 'config'], []),
+  mobileConfig: get(state, ['dashboard', 'mobileConfig'], []),
   isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
   saveResultDashboard: get(state, ['dashboard', 'requestResult']),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
@@ -29,7 +31,8 @@ const mapStateToProps = state => ({
   menuType: get(state, ['menu', 'type']),
   links: get(state, ['menu', 'links']),
   dashboardType: get(state, ['dashboard', 'identification', 'type']),
-  titleInfo: get(state, ['dashboard', 'titleInfo'])
+  titleInfo: get(state, ['dashboard', 'titleInfo']),
+  isMobile: get(state, ['view', 'isMobile'])
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -52,6 +55,7 @@ class Dashboard extends Component {
     super(props);
 
     this.state.config = props.config || [];
+    this.state.mobileConfig = props.mobileConfig || [];
   }
 
   componentDidMount() {
@@ -62,7 +66,7 @@ class Dashboard extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { initMenuSettings, config, isLoadingDashboard, getDashboardConfig, resetDashboardConfig, setLoading } = nextProps;
+    const { initMenuSettings, config, mobileConfig, isLoadingDashboard, getDashboardConfig, resetDashboardConfig, setLoading } = nextProps;
     const { recordRef } = this.getPathInfo(nextProps);
     const { urlParams, activeLayoutId } = this.state;
     const newUrlParams = getSortedUrlParams();
@@ -79,6 +83,10 @@ class Dashboard extends Component {
 
     if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
       state.config = config;
+    }
+
+    if (JSON.stringify(mobileConfig) !== JSON.stringify(this.props.mobileConfig)) {
+      state.mobileConfig = mobileConfig;
     }
 
     if (JSON.stringify(config) !== JSON.stringify(this.props.config) || isEmpty(activeLayoutId)) {
@@ -134,10 +142,12 @@ class Dashboard extends Component {
   }
 
   get activeLayout() {
-    const { config, activeLayoutId } = this.state;
+    const { isMobile } = this.props;
+    const { config, activeLayoutId, mobileConfig } = this.state;
+    const cfg = isMobile ? mobileConfig : config;
 
-    if (!isEmpty(config) && isArray(config) && !!activeLayoutId) {
-      return config.find(item => item.id === activeLayoutId) || {};
+    if (!isEmpty(cfg) && isArray(cfg) && !!activeLayoutId) {
+      return cfg.find(item => item.id === activeLayoutId) || {};
     }
 
     return {};
@@ -238,7 +248,16 @@ class Dashboard extends Component {
       return null;
     }
 
+    const { isMobile } = this.props;
     const { activeLayoutId } = this.state;
+
+    if (isMobile) {
+      return (
+        <div className="ecos-dashboard__tabs ecos-dashboard__tabs_mobile">
+          <Tabs items={this.tabList} onClick={this.toggleTabLayout} keyField={'idLayout'} activeTabKey={activeLayoutId} />
+        </div>
+      );
+    }
 
     return (
       <ScrollArrow className="ecos-dashboard__tabs">
@@ -248,7 +267,7 @@ class Dashboard extends Component {
   }
 
   renderLayout() {
-    const { menuType } = this.props;
+    const { menuType, isMobile } = this.props;
     const { canDragging } = this.state;
     const { columns, type } = this.activeLayout;
 
@@ -258,6 +277,9 @@ class Dashboard extends Component {
 
     return (
       <Layout
+        className={classNames({
+          'ecos-layout_mobile': isMobile
+        })}
         columns={columns}
         onSaveWidget={this.prepareWidgetsConfig}
         type={type}
@@ -281,14 +303,15 @@ class Dashboard extends Component {
   renderHeader() {
     const {
       titleInfo: { modifierName = '', modifierUrl = '', date = '', name = '', version = '' },
-      dashboardType
+      dashboardType,
+      isMobile
     } = this.props;
     let title = null;
 
     switch (dashboardType) {
       case DashboardTypes.CASE_DETAILS:
         title = (
-          <React.Fragment>
+          <>
             <div className="ecos-dashboard__header-title" key="title">
               {name && <div className="ecos-dashboard__header-name">{t(name)}</div>}
               {version && <div className="ecos-dashboard__header-version">{version}</div>}
@@ -314,7 +337,7 @@ class Dashboard extends Component {
                 </span>
               )}
             </div>
-          </React.Fragment>
+          </>
         );
         break;
       case DashboardTypes.USER:
@@ -325,7 +348,15 @@ class Dashboard extends Component {
         break;
     }
 
-    return <div className="ecos-dashboard__header">{title}</div>;
+    return (
+      <div
+        className={classNames('ecos-dashboard__header', {
+          'ecos-dashboard__header_mobile': isMobile
+        })}
+      >
+        {title}
+      </div>
+    );
   }
 
   renderLoader() {

@@ -5,6 +5,7 @@ import {
   setDashboardConfig,
   setDashboardIdentification,
   setDashboardTitleInfo,
+  setMobileDashboardConfig,
   setRequestResultDashboard
 } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
@@ -24,12 +25,16 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     const data = DashboardService.checkDashboardResult(result);
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
     const webConfig = DashboardConverter.getDashboardForWeb(data);
+    const webConfigMobile = DashboardConverter.getMobileDashboardForWeb(data);
     const titleInfo = DashboardConverter.getTitleInfo(resTitle);
+
+    console.warn(webConfig, data);
 
     yield put(setDashboardTitleInfo(titleInfo));
     yield put(setActiveTabTitle(titleInfo.name));
     yield put(setDashboardIdentification(webKeyInfo));
     yield put(setDashboardConfig(webConfig));
+    yield put(setMobileDashboardConfig(webConfigMobile));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error5')));
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);

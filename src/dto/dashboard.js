@@ -1,4 +1,5 @@
-import { get, isEmpty } from 'lodash';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import moment from 'moment';
 import { TITLE } from '../constants/pageTabs';
 import { DASHBOARD_DEFAULT_KEY } from '../constants';
@@ -45,6 +46,23 @@ export default class DashboardConverter {
       DashboardService.movedToListLayout(config, layouts);
 
       layouts.forEach(item => {
+        target.push(DashboardConverter.getDashboardLayoutForWeb(item));
+      });
+    }
+
+    return target;
+  }
+
+  static getMobileDashboardForWeb(source) {
+    const target = [];
+
+    if (!isEmpty(source)) {
+      const { config } = source;
+      const tabs = get(config, ['mobile'], []);
+
+      DashboardService.movedToListLayout(config, tabs);
+
+      tabs.forEach(item => {
         target.push(DashboardConverter.getDashboardLayoutForWeb(item));
       });
     }

@@ -99,11 +99,11 @@ function* doCheckUpdatedSettings({ api, logger }, { payload }) {
 function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
     const serverConfig = DashboardSettingsConverter.getSettingsConfigForServer({ ...payload });
-    const { layouts, menu } = serverConfig;
+    const { layouts, menu, mobile } = serverConfig;
     const identification = yield select(selectIdentificationForSet);
 
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
-      config: { layouts },
+      config: { layouts, mobile },
       identification: { ...identification, ...(payload.newIdentification || {}) }
     });
 

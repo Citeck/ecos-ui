@@ -99,7 +99,7 @@ class App extends Component {
 
           <PageTabs
             homepageLink={URL.DASHBOARD}
-            isShow={isShow}
+            isShow={isShow && !isMobile}
             tabs={tabs}
             saveTabs={setTabs}
             changeActiveTab={changeActiveTab}

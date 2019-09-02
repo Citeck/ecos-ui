@@ -1,4 +1,5 @@
-import { get, isEmpty } from 'lodash';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import { LAYOUT_TYPE } from '../constants/layout';
 import { Layouts } from '../constants/dashboard';
 import Components from '../components/Components';
@@ -43,7 +44,8 @@ export default class DashboardSettingsConverter {
   static getSettingsConfigForServer(source) {
     const target = {
       layouts: [],
-      menu: {}
+      menu: {},
+      mobile: []
     };
 
     const { menuType, menuLinks, layoutType, widgets } = source;
@@ -61,6 +63,20 @@ export default class DashboardSettingsConverter {
         tab: { label, idLayout },
         type,
         columns: DashboardSettingsConverter.getWidgetsForServer(columns, widgets[idLayout])
+      });
+
+      target.mobile.push({
+        id: idLayout,
+        tab: { label, idLayout },
+        type: LAYOUT_TYPE.MOBILE,
+        columns: [
+          {
+            widgets: DashboardSettingsConverter.getWidgetsForServer(columns, widgets[idLayout]).reduce(
+              (result, current) => [...result, ...current.widgets],
+              []
+            )
+          }
+        ]
       });
     });
 

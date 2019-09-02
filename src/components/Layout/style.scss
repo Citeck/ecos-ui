@@ -284,6 +284,10 @@ $indents-of-items: 15px;
   .dashlet__btn_move {
     pointer-events: none !important;
   }
+
+  &_mobile {
+    padding: 0;
+  }
 }
 
 @media (max-width: 920px) {
