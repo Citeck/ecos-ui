@@ -7,7 +7,6 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { Icon } from '../common';
 import ClickOutside from '../ClickOutside';
 
-import '../../bootstrap.scss';
 import './style.scss';
 
 export default class IconInfo extends React.Component {
