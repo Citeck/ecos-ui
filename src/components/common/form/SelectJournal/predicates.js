@@ -320,11 +320,13 @@ export function getPredicateInput(field, sourceId, metaRecord) {
       return {
         component: Select,
         defaultValue: null,
-        getProps: ({ predicateValue, changePredicateValue }) => ({
-          className: 'select_narrow',
+        getProps: ({ predicateValue, changePredicateValue, selectClassName }) => ({
+          className: `select_narrow ${selectClassName}`,
           isSearchable: false,
           defaultValue: defaultValue,
           options: booleanOptions,
+          value: predicateValue,
+          handleSetValue: (value, options) => options.filter(o => o.value === value)[0],
           onChange: function(selected) {
             changePredicateValue(selected.value);
           }
