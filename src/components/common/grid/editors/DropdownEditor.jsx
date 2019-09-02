@@ -38,7 +38,7 @@ export default class DropdownEditor extends BaseEditor {
         getOptionLabel={options => options.label}
         getOptionValue={options => options.value}
         options={options}
-        value={options.filter(o => o.value === value.str)[0]}
+        value={options.filter(o => o.value === (value || {}).str)[0]}
         styles={{
           menu: css => ({
             ...css,
