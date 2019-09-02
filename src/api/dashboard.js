@@ -213,7 +213,7 @@ export class DashboardApi extends RecordService {
         }
       },
       { user: 'user' }
-    ).then(response => get(response, 'user', null) === user);
+    ).then(response => !isEmpty(response) && get(response, 'user', null) === user);
   };
 
   deleteFromCache({ user, key }) {
