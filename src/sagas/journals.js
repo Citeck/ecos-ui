@@ -229,13 +229,17 @@ function* sagaCancelJournalSettingData({ api, logger, stateId, w }, action) {
   }
 }
 
-function* getGridData(api, params) {
+function* getGridData(api, params, stateId) {
   let { pagination, predicates, ...forRequest } = params;
+
+  const recordRef = yield select(state => state.journals[stateId].recordRef);
+  const config = yield select(state => state.journals[stateId].config);
 
   return yield call(api.journals.getGridData, {
     ...forRequest,
     predicates: ParserPredicate.removeEmptyPredicates(cloneDeep(predicates)),
-    pagination: forRequest.groupBy.length ? { ...pagination, maxItems: undefined } : pagination
+    pagination: forRequest.groupBy.length ? { ...pagination, maxItems: undefined } : pagination,
+    recordRef: recordRef && (config || {}).onlyLinked ? recordRef : null
   });
 }
 
@@ -243,7 +247,7 @@ function* loadGrid(api, journalSettingId, journalConfig, stateId, w) {
   let journalSetting = yield getJournalSetting(api, journalSettingId, journalConfig, stateId, w);
   let params = getGridParams(journalConfig, journalSetting, stateId);
 
-  const gridData = yield getGridData(api, params);
+  const gridData = yield getGridData(api, params, stateId);
 
   yield put(setSelectedRecords(w([])));
   yield put(setSelectAllRecords(w(false)));
@@ -270,7 +274,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
       ...(action.payload || {})
     };
 
-    const gridData = yield getGridData(api, params);
+    const gridData = yield getGridData(api, params, stateId);
 
     yield put(setGrid(w({ ...params, ...gridData })));
 

@@ -9,6 +9,7 @@ import {
   setJournalsListItem,
   setJournalsItem,
   setSettingItem,
+  setOnlyLinked,
   setJournalConfig,
   setSelectedRecords,
   setSelectAllRecords,
@@ -24,7 +25,8 @@ import {
   initState,
   setPerformGroupActionResponse,
   setZipNodeRef,
-  setPreviewFileName
+  setPreviewFileName,
+  setRecordRef
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { t, deepClone } from '../helpers/util';
@@ -63,6 +65,7 @@ const defaultState = {
   journalConfig: {
     meta: { createVariants: [] }
   },
+  recordRef: null,
 
   predicate: null,
   columnsSetup: {
@@ -300,6 +303,29 @@ export default handleActions(
             }
           };
     },
+    [setOnlyLinked]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return stateId
+        ? {
+            ...state,
+            [stateId]: {
+              ...state[stateId],
+              config: {
+                ...state[stateId].config,
+                onlyLinked: action.payload
+              }
+            }
+          }
+        : {
+            ...state,
+            config: {
+              ...state.config,
+              onlyLinked: action.payload
+            }
+          };
+    },
     [setEditorMode]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
@@ -376,6 +402,12 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { loading: action.payload });
+    },
+    [setRecordRef]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { recordRef: action.payload });
     }
   },
   initialState

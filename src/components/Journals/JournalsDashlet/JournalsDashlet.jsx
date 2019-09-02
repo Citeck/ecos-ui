@@ -9,7 +9,9 @@ import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletFooter from '../JournalsDashletFooter';
 import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet/Dashlet';
-import { getDashletConfig, initState, reloadGrid, setEditorMode } from '../../../actions/journals';
+import queryString from 'query-string';
+import { withRouter } from 'react-router';
+import { getDashletConfig, initState, reloadGrid, setEditorMode, setRecordRef } from '../../../actions/journals';
 import { goToJournalsPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
 import { MIN_WIDTH_DASHLET_SMALL, MIN_WIDTH_DASHLET_LARGE } from '../../../constants';
@@ -34,6 +36,7 @@ const mapDispatchToProps = (dispatch, props) => {
     initState: stateId => dispatch(initState(stateId)),
 
     getDashletConfig: id => dispatch(getDashletConfig(w(id))),
+    setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
     reloadGrid: options => dispatch(reloadGrid(w(options)))
   };
@@ -59,10 +62,15 @@ class JournalsDashlet extends Component {
     };
 
     this.props.initState(this._stateId);
+
+    this.recordRef = queryString.parse(props.location.search).recordRef;
   }
 
   componentDidMount() {
-    this.props.getDashletConfig(this.props.id);
+    const { setRecordRef, getDashletConfig, id } = this.props;
+
+    setRecordRef(this.recordRef);
+    getDashletConfig(id);
   }
 
   handleResize = width => {
@@ -116,7 +124,7 @@ class JournalsDashlet extends Component {
       >
         {editorMode ? (
           <Measurer>
-            <JournalsDashletEditor id={id} stateId={this._stateId} />
+            <JournalsDashletEditor id={id} stateId={this._stateId} recordRef={this.recordRef} />
           </Measurer>
         ) : (
           <Fragment>
@@ -137,4 +145,4 @@ class JournalsDashlet extends Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(JournalsDashlet);
+)(withRouter(JournalsDashlet));
