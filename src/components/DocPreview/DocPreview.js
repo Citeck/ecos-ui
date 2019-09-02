@@ -173,7 +173,7 @@ class DocPreview extends Component {
     const heightTool = get(this.refToolbar, 'current.offsetHeight', 0) + 10;
     const heightBody = get(this.refBody, 'current.offsetHeight', 0);
 
-    return heightTool >= heightBody;
+    return heightTool >= heightBody && !this.message;
   }
 
   getRecordId(props = this.props) {
