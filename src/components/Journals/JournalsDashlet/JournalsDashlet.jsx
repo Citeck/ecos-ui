@@ -10,7 +10,6 @@ import JournalsDashletFooter from '../JournalsDashletFooter';
 import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet/Dashlet';
 import queryString from 'query-string';
-import { withRouter } from 'react-router';
 import { getDashletConfig, initState, reloadGrid, setEditorMode, setRecordRef } from '../../../actions/journals';
 import { goToJournalsPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
@@ -63,7 +62,7 @@ class JournalsDashlet extends Component {
 
     this.props.initState(this._stateId);
 
-    this.recordRef = queryString.parse(props.location.search).recordRef;
+    this.recordRef = queryString.parse(window.location.search).recordRef;
   }
 
   componentDidMount() {
@@ -145,4 +144,4 @@ class JournalsDashlet extends Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withRouter(JournalsDashlet));
+)(JournalsDashlet);
