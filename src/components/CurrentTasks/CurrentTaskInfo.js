@@ -54,15 +54,28 @@ class CurrentTaskInfo extends React.Component {
               <IconInfo
                 iconClass={'icon-usergroup'}
                 id={uniqueId(cleanTaskId(task.id))}
-                text={task.usersGroup}
                 isShow={task.isGroup}
                 noTooltip={isMobile}
                 handleClick={res => this.setState({ isOpen: res })}
-              />
+              >
+                {task.usersGroup.map((user, position) => (
+                  <div key={position} className="ecos-current-task__tooltip-list-item">
+                    {user}
+                  </div>
+                ))}
+              </IconInfo>
             </span>
           </div>
 
-          {isMobile && isOpen && <div className="ecos-current-task-info-value_add">{task.usersGroup}</div>}
+          {isMobile && isOpen && (
+            <div className="ecos-current-task-info-value_add">
+              {task.usersGroup.map((user, position) => (
+                <div key={position} className="ecos-current-task__tooltip-list-item">
+                  {user}
+                </div>
+              ))}
+            </div>
+          )}
 
           <Separator noIndents className="ecos-current-task-info__separator" />
           {this.renderLabel('deadline')}

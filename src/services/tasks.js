@@ -60,4 +60,16 @@ export default class TasksService {
 
     return '';
   }
+
+  static getUsersOfGroupArrayStr(value) {
+    if (isEmpty(value)) {
+      return [];
+    }
+
+    if (isArray(value)) {
+      return value.map(item => item.displayName);
+    }
+
+    return [];
+  }
 }

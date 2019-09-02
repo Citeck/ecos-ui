@@ -99,7 +99,7 @@
 
     &-value {
       &_add {
-        white-space: pre;
+        max-width: 348px;
       }
     }
   }
@@ -131,11 +131,14 @@
   &__tooltip {
     .ecos-base-tooltip-inner {
       text-align: left;
-      white-space: pre;
+      white-space: pre-line;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      word-break: break-word;
+      max-width: 348px;
       padding: 0;
       font-size: $font-size-small;
       line-height: 18px;
-      max-width: 100%;
     }
 
     &-text {
@@ -144,6 +147,12 @@
 
       &-inner {
         margin-right: 15px;
+      }
+    }
+
+    &-list {
+      &-item {
+        @extend %ellipsis;
       }
     }
 
