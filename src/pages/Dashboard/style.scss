@@ -56,6 +56,8 @@
       margin-bottom: 0;
       padding-bottom: 15px;
       border-bottom: 2px solid $color-gray-4;
+      position: relative;
+      z-index: 1;
     }
   }
 
@@ -74,6 +76,13 @@
       overflow: auto;
       padding: 16px 15px;
       background-color: $color-white;
+
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      margin-bottom: 10px;
+
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 
       &::-webkit-scrollbar {
         display: none;

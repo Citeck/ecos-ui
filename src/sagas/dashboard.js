@@ -28,7 +28,7 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     const webConfigMobile = DashboardConverter.getMobileDashboardForWeb(data);
     const titleInfo = DashboardConverter.getTitleInfo(resTitle);
 
-    console.warn(webConfig, data);
+    console.warn('doGetDashboardRequest', webConfig, webConfigMobile);
 
     yield put(setDashboardTitleInfo(titleInfo));
     yield put(setActiveTabTitle(titleInfo.name));

@@ -4,6 +4,7 @@ import moment from 'moment';
 import { TITLE } from '../constants/pageTabs';
 import { DASHBOARD_DEFAULT_KEY } from '../constants';
 import DashboardService from '../services/dashboard';
+import DasboardSettingsConverter from './dashboardSettings';
 
 export default class DashboardConverter {
   static getKeyInfoDashboardForWeb(source) {
@@ -58,7 +59,12 @@ export default class DashboardConverter {
 
     if (!isEmpty(source)) {
       const { config } = source;
-      const tabs = get(config, ['mobile'], []);
+      const layouts = get(config, ['layouts'], []);
+      let tabs = get(config, ['mobile'], []);
+
+      if (!tabs.length && layouts.length) {
+        tabs = DasboardSettingsConverter.generateMobileConfig(layouts);
+      }
 
       DashboardService.movedToListLayout(config, tabs);
 
