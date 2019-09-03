@@ -129,11 +129,11 @@ class SetTabs extends React.Component {
         </div>
         <RemoveDialog
           isOpen={!isEmpty(removedTab)}
-          title={t('Подтверждение удаления')}
+          title={t('dashboard-settings.remove-tab-dialog.title')}
           text={
             <>
-              <div>{`${t('Удалить вкладку')} «${get(removedTab, 'label', '')}»?`}</div>
-              <div>{`${t('Безвозвратное удаление произойдет после сохранения конфигурации')}`}</div>
+              <div>{`${t('dashboard-settings.remove-tab-dialog.text1')} "${get(removedTab, 'label', '')}"?`}</div>
+              <div>{`${t('dashboard-settings.remove-tab-dialog.text2')}`}</div>
             </>
           }
           onDelete={this.onDeleteTab}
