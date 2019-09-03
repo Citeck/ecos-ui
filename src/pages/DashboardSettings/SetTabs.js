@@ -95,6 +95,7 @@ class SetTabs extends React.Component {
                 className="ecos-dashboard-settings__tabs-block"
                 classNameTab="ecos-dashboard-settings__tabs-item"
                 hasHover
+                hasHint
                 items={tabs}
                 keyField={'idLayout'}
                 onDelete={this.onDeleteTab}

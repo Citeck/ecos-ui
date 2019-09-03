@@ -6,6 +6,7 @@ export const commonOneTabPropTypes = {
   className: PropTypes.string,
   isActive: PropTypes.bool,
   hasHover: PropTypes.bool,
+  hasHint: PropTypes.bool,
   onClick: PropTypes.func
 };
 
@@ -15,6 +16,7 @@ export const commonOneTabDefaultProps = {
   className: '',
   isActive: false,
   hasHover: false,
+  hasHint: false,
   onClick: () => null
 };
 
@@ -23,6 +25,7 @@ export const commonTabsPropTypes = {
   className: PropTypes.string,
   classNameTab: PropTypes.string,
   hasHover: PropTypes.bool,
+  hasHint: PropTypes.bool,
   keyField: PropTypes.string,
   valueField: PropTypes.string,
   activeTabKey: PropTypes.string,
@@ -33,6 +36,7 @@ export const commonTabsDefaultProps = {
   items: [],
   className: '',
   hasHover: false,
+  hasHint: false,
   keyField: 'id',
   valueField: 'label',
   activeTabKey: '',
