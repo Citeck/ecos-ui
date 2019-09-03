@@ -6,8 +6,8 @@ import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps
 import './Tabs.scss';
 
 const Tab = props => {
-  const { label, isActive, onClick, hasHover, hasHint } = props;
-  const tabClassNames = classNames('ecos-tab', {
+  const { label, isActive, onClick, hasHover, hasHint, className } = props;
+  const tabClassNames = classNames('ecos-tab', className, {
     'ecos-tab_active': isActive,
     'ecos-tab_hover': hasHover
   });

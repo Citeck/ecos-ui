@@ -55,13 +55,17 @@
   &__tabs {
     &-wrapper {
       padding: 0 19px 18px;
+    }
 
-      .ecos-tab {
-        padding: 0 60px;
-        min-width: 190px;
-        max-width: 259px;
-        @extend %ellipsis;
-      }
+    &-block {
+      display: flex;
+    }
+
+    &-item {
+      flex: 1;
+      padding: 0 60px;
+      min-width: 190px;
+      @extend %ellipsis;
     }
   }
 }
