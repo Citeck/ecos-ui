@@ -6,7 +6,7 @@ import { getMinWidthColumn } from '../../helpers/layout';
 import Components from '../Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
 import { MENU_TYPE } from '../../constants';
-import { getSearchParams } from '../../helpers/util';
+import { getSearchParams, documentScrollTop } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
@@ -47,16 +47,6 @@ class Layout extends Component {
     return classes.join(' ');
   }
 
-  get bodyScrollTop() {
-    const body = document.querySelector('body');
-
-    if (!body) {
-      return 0;
-    }
-
-    return body.scrollTop;
-  }
-
   get menuWidth() {
     const menu = document.querySelector('.slide-menu');
 
@@ -71,7 +61,7 @@ class Layout extends Component {
     const { menuType } = this.props;
 
     return {
-      top: menuType === MENU_TYPE.LEFT ? this.bodyScrollTop : 0,
+      top: menuType === MENU_TYPE.LEFT ? documentScrollTop() : 0,
       left: menuType === MENU_TYPE.LEFT ? this.menuWidth : 0
     };
   };
