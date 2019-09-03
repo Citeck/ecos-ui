@@ -286,7 +286,7 @@ export default class EcosFormUtils {
     };
 
     if (!formKey && recordInstance && (recordInstance.id || '').indexOf('/') > 0) {
-      return recordInstance.load('_formKey[]').then(keys => {
+      return recordInstance.load('_formKey[]?str').then(keys => {
         return getFormByKeysFromRecord(keys, 0);
       });
     } else {
