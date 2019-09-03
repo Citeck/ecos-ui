@@ -486,3 +486,14 @@ export function arrayMove(array, indexFrom, indexTo) {
 
   return newArray;
 }
+
+export function documentScrollTop() {
+  const elementScrollTop = lodashGet(document.scrollingElement || document.documentElement, ['scrollTop'], 0);
+  const bodyScrollTop = lodashGet(document.querySelector('body'), ['scrollTop'], 0);
+
+  if (!elementScrollTop && !bodyScrollTop) {
+    return 0;
+  }
+
+  return elementScrollTop || bodyScrollTop;
+}
