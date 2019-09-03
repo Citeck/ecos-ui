@@ -287,6 +287,19 @@ $indents-of-items: 15px;
 
   &_mobile {
     padding: 0;
+    margin-bottom: 0;
+
+    .dashlet__wrap-header {
+      border-radius: 0;
+    }
+
+    .dashlet {
+      border-radius: 0;
+    }
+
+    .ecos-layout__element {
+      margin-bottom: 10px;
+    }
   }
 }
 
