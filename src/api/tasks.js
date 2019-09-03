@@ -31,7 +31,7 @@ export class TasksApi extends RecordService {
 
   getTasksForUser = ({ document }) => {
     return TasksApi.getTasks(SOURCE_ID_CURRENT_TASKS, document, USER_CURRENT, {
-      formKey: '_formKey',
+      formKey: '_formKey?str',
       title: 'title',
       started: 'started',
       dueDate: 'dueDate',
