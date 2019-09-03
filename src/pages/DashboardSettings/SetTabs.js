@@ -7,6 +7,7 @@ import DashboardService from '../../services/dashboard';
 import { t } from '../../helpers/util';
 import { EditTabs, ScrollArrow } from '../../components/common';
 import { IcoBtn } from '../../components/common/btns';
+import { RemoveDialog } from '../../components/common/dialogs';
 
 import './style.scss';
 
@@ -24,7 +25,8 @@ class SetTabs extends React.Component {
   };
 
   state = {
-    scrollTabToEnd: false
+    scrollTabToEnd: false,
+    removedTab: null
   };
 
   onClickTabLayout = tab => {
@@ -60,29 +62,41 @@ class SetTabs extends React.Component {
     setData({ tabs });
   };
 
-  onDeleteTab = (tab, index) => {
-    let { tabs, activeLayoutId, setData } = this.props;
-
-    tabs.splice(index, 1);
-
-    if (tab.idLayout === activeLayoutId) {
-      activeLayoutId = get(tabs, '[0].idLayout', null);
-    }
-
-    setData({ tabs, activeLayoutId });
+  onConfirmDeleteTab = (tab, index) => {
+    this.setState({ removedTab: { ...tab, index } });
   };
 
   onSortTabs = sortedTabs => {
-    let { setData } = this.props;
+    const { setData } = this.props;
 
     setData({
       tabs: sortedTabs.map(({ label, idLayout }) => ({ label, idLayout }))
     });
   };
 
+  onDeleteTab = () => {
+    const {
+      removedTab: { index, idLayout }
+    } = this.state;
+    let { tabs, activeLayoutId, setData } = this.props;
+
+    tabs.splice(index, 1);
+
+    if (idLayout === activeLayoutId) {
+      activeLayoutId = get(tabs, '[0].idLayout', null);
+    }
+
+    this.closeDialog();
+    setData({ tabs, activeLayoutId });
+  };
+
+  closeDialog = () => {
+    this.setState({ removedTab: null });
+  };
+
   render() {
     const { tabs, activeLayoutId } = this.props;
-    const { scrollTabToEnd } = this.state;
+    const { scrollTabToEnd, removedTab } = this.state;
     const empty = isEmpty(tabs);
 
     return (
@@ -97,7 +111,7 @@ class SetTabs extends React.Component {
                 hasHover
                 items={tabs}
                 keyField={'idLayout'}
-                onDelete={this.onDeleteTab}
+                onDelete={this.onConfirmDeleteTab}
                 onSort={this.onSortTabs}
                 onEdit={this.onEditTab}
                 onClick={this.onClickTabLayout}
@@ -113,6 +127,19 @@ class SetTabs extends React.Component {
             onClick={this.onCreateTab}
           />
         </div>
+        <RemoveDialog
+          isOpen={!isEmpty(removedTab)}
+          title={t('Подтверждение удаления')}
+          text={
+            <>
+              <div>{`${t('Удалить вкладку')} «${get(removedTab, 'label', '')}»?`}</div>
+              <div>{`${t('Безвозвратное удаление произойдет после сохранения конфигурации')}`}</div>
+            </>
+          }
+          onDelete={this.onDeleteTab}
+          onCancel={this.closeDialog}
+          onClose={this.closeDialog}
+        />
       </React.Fragment>
     );
   }
