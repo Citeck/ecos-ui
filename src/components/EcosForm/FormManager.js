@@ -51,6 +51,9 @@ export default class FormManager {
             record: recordRef,
             formKey: variant.formKey,
             attributes: attributes,
+            options: {
+              params: this.parseCreateArguments(variant.createArguments)
+            },
             ...options
           });
         } else {
@@ -61,6 +64,31 @@ export default class FormManager {
         console.error(e);
         goToCreateRecordPage(variant);
       });
+  }
+
+  static parseCreateArguments(createArgs) {
+    if (!createArgs) {
+      return {};
+    }
+    let params = {};
+    try {
+      let args = createArgs.split('&');
+      for (let i = 0; i < args.length; i++) {
+        let keyValue = (args[i] || '').split('=');
+        if (keyValue.length === 2) {
+          let key = keyValue[0] || '';
+          let value = keyValue[1] || '';
+          if (key.indexOf('param_') === 0) {
+            params[key.substring('param_'.length)] = value;
+          }
+        }
+      }
+    } catch (e) {
+      //protection for hotfix
+      //todo: remove it in develop
+      console.error(e);
+    }
+    return params;
   }
 
   static openFormModal(props) {
