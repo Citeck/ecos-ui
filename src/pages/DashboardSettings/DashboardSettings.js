@@ -8,7 +8,7 @@ import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isNull from 'lodash/isNull';
 
-import { arrayCompare, t } from '../../helpers/util';
+import { arrayCompare, t, documentScrollTop } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 import { DashboardTypes, Layouts, MenuTypes } from '../../constants/dashboard';
 import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
@@ -283,17 +283,6 @@ class DashboardSettings extends React.Component {
     return -menu.clientWidth;
   }
 
-  get bodyScrollTop() {
-    const elementScrollTop = get(document.scrollingElement || document.documentElement, ['scrollTop'], 0);
-    const bodyScrollTop = get(document.querySelector('body'), ['scrollTop'], 0);
-
-    if (!elementScrollTop && !bodyScrollTop) {
-      return 0;
-    }
-
-    return elementScrollTop || bodyScrollTop;
-  }
-
   get selectedTypeLayout() {
     return Layouts.find(layout => layout.type === this.activeData.layout) || {};
   }
@@ -315,7 +304,7 @@ class DashboardSettings extends React.Component {
     const menuType = get(this.props, 'menuType', '');
 
     return {
-      top: menuType === MENU_TYPE.LEFT ? this.bodyScrollTop : 0,
+      top: menuType === MENU_TYPE.LEFT ? documentScrollTop() : 0,
       left: menuType === MENU_TYPE.LEFT ? this.menuWidth : 0
     };
   };
