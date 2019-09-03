@@ -6,20 +6,20 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import classNames from 'classnames';
 
-import Dashlet from '../Dashlet/Dashlet';
-import { IcoBtn } from '../common/btns';
-import { Avatar, DefineHeight, Icon, Loader } from '../common';
+import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../actions/versionsJournal';
+import { selectLabelsVersions } from '../../selectors/versionsJournal';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 import { t } from '../../helpers/util';
+import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../constants/versionsJournal';
+
+import { Avatar, DefineHeight, Icon, Loader } from '../common';
+import { Btn, IcoBtn } from '../common/btns';
+import { Dropdown } from '../common/form';
+import Dashlet from '../Dashlet/Dashlet';
 import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
 import ComparisonModal from './ComparisonModal';
-import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../actions/versionsJournal';
-import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
-import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../constants/versionsJournal';
-import { selectLabelsVersions } from '../../selectors/versionsJournal';
-import Btn from '../common/btns/Btn';
-import { Dropdown } from '../common/form';
-import UserLocalSettingsService from '../../services/userLocalSettings';
 
 import './style.scss';
 
