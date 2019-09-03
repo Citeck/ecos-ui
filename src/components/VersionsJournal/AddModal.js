@@ -30,7 +30,7 @@ const LABELS = {
   ],
 
   Messages: {
-    ERROR_FILE_SIZE_MIN: 'Файл VAL имеет размер VAL байт, передать этот файл невозможно.' //в переводе нужен делитель VAL для значений
+    ERROR_FILE_SIZE_MIN: 'Файл VAL имеет размер VAL байт, передать этот файл невозможно.' //todo в переводе нужен делитель VAL для значений
   }
 };
 
@@ -115,7 +115,7 @@ class AddModal extends Component {
 
   getUploadParams = ({ file }) => {
     const body = new FormData();
-    const clientError = this.validateUploadedFile(file);
+    const clientError = this.state.clientError || this.validateUploadedFile(file);
 
     if (clientError) {
       this.setState({ file: null, clientError });
@@ -132,8 +132,22 @@ class AddModal extends Component {
   handleChangeStatus = ({ meta, file, remove, xhr }, status) => {
     this.setState({ fileStatus: status });
 
-    if (status === FILE_STATUS.DONE) {
-      remove();
+    switch (status) {
+      case FILE_STATUS.PREPARING:
+        const clientError = this.validateUploadedFile(file);
+
+        if (clientError) {
+          this.setState({ file: null, clientError });
+          remove();
+        } else {
+          this.setState({ clientError: '' });
+        }
+        break;
+      case FILE_STATUS.DONE:
+        remove();
+        break;
+      default:
+        break;
     }
   };
 
