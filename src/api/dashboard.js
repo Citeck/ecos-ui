@@ -105,6 +105,7 @@ export class DashboardApi extends RecordService {
     });
 
     const { keys, type } = result;
+    const defaultCompositeKey = `${DASHBOARD_DEFAULT_KEY}/${recordRef}`;
     let dashboardKeys = Array.from(keys || []);
 
     dashboardKeys.push(DASHBOARD_DEFAULT_KEY);
@@ -113,8 +114,14 @@ export class DashboardApi extends RecordService {
       dashboardKeys = dashboardKeys.filter(item => item === dashboardKey);
     }
 
-    const cacheKey = dashboardKeys.find(key => cache.check(key));
-    const dashboardId = cacheKey ? cache.get(cacheKey) : null;
+    const cacheKey = dashboardKeys.find(key => {
+      if (key === DASHBOARD_DEFAULT_KEY) {
+        return cache.check(defaultCompositeKey);
+      }
+
+      return cache.check(key);
+    });
+    const dashboardId = cacheKey ? cache.get(cacheKey === DASHBOARD_DEFAULT_KEY ? defaultCompositeKey : cacheKey) : null;
 
     if (!isEmpty(dashboardId)) {
       return yield this.getDashboardById(dashboardId);
@@ -126,7 +133,7 @@ export class DashboardApi extends RecordService {
       data = yield this.getDashboardByKeyType(key, type);
 
       if (!isEmpty(data)) {
-        cache.set(key, data.id);
+        cache.set(key === DASHBOARD_DEFAULT_KEY ? defaultCompositeKey : key, data.id);
         break;
       }
     }
