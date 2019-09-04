@@ -186,7 +186,7 @@
         display: flex;
         width: 100%;
 
-        &-mobile {
+        &_mobile {
           width: auto;
         }
       }
@@ -203,10 +203,11 @@
         }
       }
 
-      &_widgets-from-mobile {
+      &_widgets-from_mobile {
         margin-right: 15px;
         margin-bottom: 0;
         width: 80%;
+        height: 320px;
       }
     }
 

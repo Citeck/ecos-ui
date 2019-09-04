@@ -32,7 +32,7 @@ class SetLayouts extends React.Component {
   renderColumnLayouts() {
     const { activeLayout } = this.props;
 
-    return Layouts.map(layout => (
+    return Layouts.filter(item => !item.excluded).map(layout => (
       <ColumnsLayoutItem
         key={`${layout.position}-${layout.type}`}
         onClick={this.handleClickColumn.bind(this, layout)}

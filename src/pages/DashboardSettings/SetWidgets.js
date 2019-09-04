@@ -100,7 +100,7 @@ class SetWidgets extends React.Component {
       <div
         className={classNames('ecos-dashboard-settings__drag-container', {
           'ecos-dashboard-settings__drag-container_widgets-to': !isMobile,
-          'ecos-dashboard-settings__drag-container_widgets-to-mobile': isMobile
+          'ecos-dashboard-settings__drag-container_widgets-to_mobile': isMobile
         })}
       >
         {columns.map((column, indexColumn) => {
@@ -154,7 +154,9 @@ class SetWidgets extends React.Component {
     return (
       <React.Fragment>
         <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.widgets.title')}</h5>
-        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.widgets.subtitle')}</h6>
+        <h6 className="ecos-dashboard-settings__container-subtitle">
+          {isMobile ? t('Выберите порядок расположения виджетов, перетащив их в колонку справа') : t('dashboard-settings.widgets.subtitle')}
+        </h6>
         <div
           className={classNames('ecos-dashboard-settings__container-group', {
             'ecos-dashboard-settings__container-group_mobile': isMobile
@@ -164,7 +166,7 @@ class SetWidgets extends React.Component {
             <Droppable
               droppableId={NAMES.WIDGETS_FROM}
               className={classNames('ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_col', {
-                'ecos-dashboard-settings__drag-container_widgets-from-mobile': isMobile
+                'ecos-dashboard-settings__drag-container_widgets-from_mobile': isMobile
               })}
               placeholder={t('dashboard-settings.widgets.placeholder')}
               isDropDisabled={true}

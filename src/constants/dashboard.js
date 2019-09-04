@@ -32,6 +32,13 @@ export const Layouts = [
     type: LAYOUT_TYPE.ONE_COLUMN,
     isActive: false,
     columns: [{}]
+  },
+  {
+    position: 5,
+    type: LAYOUT_TYPE.MOBILE,
+    isActive: false,
+    excluded: true,
+    columns: [{}]
   }
 ];
 

@@ -11,8 +11,9 @@ import find from 'lodash/find';
 
 import { arrayCompare, documentScrollTop, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
-import { DashboardTypes, DeviceTabs, Layouts, MenuTypes } from '../../constants/dashboard';
 import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
+import { DashboardTypes, DeviceTabs, Layouts, MenuTypes } from '../../constants/dashboard';
+import { LAYOUT_TYPE } from '../../constants/layout';
 import DashboardService from '../../services/dashboard';
 import {
   getAwayFromPage,
@@ -65,6 +66,8 @@ const mapDispatchToProps = dispatch => ({
 
 const DESK_VER = find(DeviceTabs, ['key', 'desktop']);
 
+const findLayout = type => Layouts.find(layout => layout.type === type) || {};
+
 class DashboardSettings extends React.Component {
   static propTypes = {
     identification: PropTypes.object,
@@ -77,7 +80,8 @@ class DashboardSettings extends React.Component {
         widgets: PropTypes.array,
         tab: PropTypes.object
       })
-    ).isRequired,
+    ),
+    mobileConfig: PropTypes.array,
     availableMenuItems: PropTypes.array,
     availableWidgets: PropTypes.array,
     dashboardKeyItems: PropTypes.array,
@@ -91,6 +95,7 @@ class DashboardSettings extends React.Component {
     menuType: '',
     menuLinks: [],
     config: [],
+    mobileConfig: [],
     availableWidgets: [],
     availableMenuItems: [],
     dashboardKeyItems: [],
@@ -106,8 +111,9 @@ class DashboardSettings extends React.Component {
     tabs: [],
     mobileTabs: [],
 
-    activeLayoutTabId: null, //todo: rename
+    activeLayoutTabId: null,
     mobileActiveLayoutTabId: null,
+
     selectedLayout: {},
 
     selectedWidgets: {},
@@ -130,6 +136,7 @@ class DashboardSettings extends React.Component {
     this.state = {
       ...state,
       ...this.setStateConfig(props),
+      ...this.setStateMobileConfig(props),
       ...this.setStateMenu(props, state)
     };
   }
@@ -141,7 +148,7 @@ class DashboardSettings extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
-    let { config, menuType, availableMenuItems, availableWidgets } = this.props;
+    let { config, mobileConfig, menuType, availableMenuItems, availableWidgets } = this.props;
     let state = {};
 
     if (urlParams !== newUrlParams) {
@@ -151,6 +158,12 @@ class DashboardSettings extends React.Component {
 
     if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
       const resultConfig = this.setStateConfig(nextProps);
+
+      state = { ...state, ...resultConfig };
+    }
+
+    if (JSON.stringify(mobileConfig) !== JSON.stringify(nextProps.mobileConfig)) {
+      const resultConfig = this.setStateMobileConfig(nextProps);
 
       state = { ...state, ...resultConfig };
     }
@@ -203,7 +216,7 @@ class DashboardSettings extends React.Component {
         tabs.push(item.tab);
         selectedLayout[idLayout] = item.type;
 
-        let layout = Layouts.find(layout => layout.type === item.type) || {};
+        let layout = findLayout(item.type);
         let widgets = this.setSelectedWidgets(layout, item.widgets);
 
         widgets.map(item => DndUtils.setDndId(item));
@@ -215,31 +228,29 @@ class DashboardSettings extends React.Component {
   }
 
   setStateMobileConfig(props) {
-    const { config } = props;
+    const { mobileConfig } = props;
 
-    let activeLayoutTabId = null;
-    let tabs = [];
-    let selectedLayout = {};
-    let selectedWidgets = {};
+    let mobileActiveLayoutTabId = null;
+    let mobileTabs = [];
+    let mobileSelectedWidgets = {};
 
-    if (!isEmpty(config) && isArray(config)) {
-      activeLayoutTabId = config[0].id;
+    if (!isEmpty(mobileConfig) && isArray(mobileConfig)) {
+      mobileActiveLayoutTabId = mobileConfig[0].id;
 
-      config.forEach(item => {
+      mobileConfig.forEach(item => {
         let idLayout = item.id;
 
-        tabs.push(item.tab);
-        selectedLayout[idLayout] = item.type;
+        mobileTabs.push(item.tab);
 
-        let layout = Layouts.find(layout => layout.type === item.type) || {};
+        let layout = findLayout(item.type);
         let widgets = this.setSelectedWidgets(layout, item.widgets);
 
         widgets.map(item => DndUtils.setDndId(item));
-        selectedWidgets[idLayout] = widgets;
+        mobileSelectedWidgets[idLayout] = widgets;
       });
     }
 
-    return { selectedLayout, selectedWidgets, tabs, activeLayoutTabId };
+    return { mobileSelectedWidgets, mobileTabs, mobileActiveLayoutTabId };
   }
 
   setStateMenu(props, state = this.state) {
@@ -257,7 +268,7 @@ class DashboardSettings extends React.Component {
 
   setSelectedWidgets(item, availableWidgets) {
     const columns = item ? item.columns || [] : [];
-    let newWidgets = new Array(columns.length);
+    const newWidgets = new Array(columns.length);
 
     newWidgets.fill([]);
     newWidgets.forEach((value, index) => {
@@ -326,15 +337,17 @@ class DashboardSettings extends React.Component {
   }
 
   get selectedTypeLayout() {
-    return Layouts.find(layout => layout.type === this.activeData.layout) || {};
+    return findLayout(this.activeData.layout);
   }
 
   get activeData() {
-    const { activeDeviceTabId, activeLayoutTabId, selectedWidgets, selectedLayout } = this.state;
+    const { activeLayoutTabId, selectedWidgets, selectedLayout, mobileActiveLayoutTabId, mobileSelectedWidgets } = this.state;
 
     return {
-      widgets: selectedWidgets[activeLayoutTabId] || [],
-      layout: selectedLayout[activeLayoutTabId] || ''
+      widgets: this.isSelectedMobileVer
+        ? get(mobileSelectedWidgets, mobileActiveLayoutTabId, [])
+        : get(selectedWidgets, activeLayoutTabId, []),
+      layout: this.isSelectedMobileVer ? LAYOUT_TYPE.MOBILE : get(selectedLayout, activeLayoutTabId, '')
     };
   }
 
@@ -428,13 +441,18 @@ class DashboardSettings extends React.Component {
       return null;
     }
 
+    const isMob = this.isSelectedMobileVer;
+
     const setData = data => {
-      this.setState(data);
+      isMob ? this.setState({ mobileActiveLayoutTabId: data }) : this.setState({ activeLayoutTabId: data });
     };
 
-    const { tabs, activeLayoutTabId, activeDeviceTabId } = this.state;
+    const { tabs, activeLayoutTabId, mobileActiveLayoutTabId, mobileTabs } = this.state;
 
-    return <SetTabs tabs={tabs} activeTabKey={activeLayoutTabId} setData={setData} />;
+    const currentTabs = isMob ? mobileTabs : tabs;
+    const active = isMob ? mobileActiveLayoutTabId : activeLayoutTabId;
+
+    return <SetTabs tabs={currentTabs} activeTabKey={active} setData={setData} />;
   }
 
   renderLayoutsBlock() {
@@ -451,12 +469,17 @@ class DashboardSettings extends React.Component {
   }
 
   renderWidgetsBlock() {
-    const { availableWidgets, activeLayoutTabId, selectedWidgets } = this.state;
+    const { availableWidgets, activeLayoutTabId, selectedWidgets, mobileSelectedWidgets, mobileActiveLayoutTabId } = this.state;
+    const isMob = this.isSelectedMobileVer;
 
     const setData = data => {
-      selectedWidgets[activeLayoutTabId] = data;
-
-      this.setState({ selectedWidgets });
+      if (isMob) {
+        mobileSelectedWidgets[mobileActiveLayoutTabId] = data;
+        this.setState({ mobileSelectedWidgets });
+      } else {
+        selectedWidgets[activeLayoutTabId] = data;
+        this.setState({ selectedWidgets });
+      }
     };
 
     return (
@@ -466,7 +489,7 @@ class DashboardSettings extends React.Component {
         columns={this.selectedTypeLayout.columns}
         positionAdjustment={this.draggablePositionAdjustment}
         setData={setData}
-        isMobile={this.isSelectedMobileVer}
+        isMobile={isMob}
       />
     );
   }

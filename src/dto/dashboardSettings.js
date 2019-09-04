@@ -17,9 +17,10 @@ export default class DashboardSettingsConverter {
       target.identification = DashboardConverter.getKeyInfoDashboardForWeb(source).identification;
 
       const layouts = get(config, ['layouts'], []);
-      const mobile = get(config, ['mobile'], []);
 
       DashboardService.movedToListLayout(config, layouts);
+
+      const mobile = get(config, ['mobile'], DashboardService.generateMobileConfig(layouts));
 
       target.config = {
         layouts: [],
@@ -30,9 +31,9 @@ export default class DashboardSettingsConverter {
         target.config.layouts.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout));
       });
 
-      if (!isEmpty(mobile) && !isEmpty(layouts)) {
-        target.config.mobile = DashboardService.generateMobileConfig(layouts);
-      }
+      mobile.forEach(layout => {
+        target.config.mobile.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout));
+      });
     }
 
     return target;
