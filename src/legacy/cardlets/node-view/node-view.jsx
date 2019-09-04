@@ -93,6 +93,8 @@ export default class NodeViewFormCardlet extends NodeCardlet {
     const { eformExists, nodeRef, htmlId, header, column } = this.props.data;
     const { isReady } = this.state;
 
+    const isSmallMode = column === 'right';
+
     if (eformExists) {
       return (
         <div id={`${htmlId}-panel`} className="document-children document-details-panel">
@@ -116,7 +118,8 @@ export default class NodeViewFormCardlet extends NodeCardlet {
                   readOnly: true,
                   viewAsHtml: true,
                   viewAsHtmlConfig: {
-                    fullWidthColumns: column === 'right'
+                    fullWidthColumns: isSmallMode,
+                    hidePanels: isSmallMode
                   },
                   formMode: FORM_MODE_EDIT
                 }}
