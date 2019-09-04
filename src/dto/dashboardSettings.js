@@ -17,14 +17,22 @@ export default class DashboardSettingsConverter {
       target.identification = DashboardConverter.getKeyInfoDashboardForWeb(source).identification;
 
       const layouts = get(config, ['layouts'], []);
+      const mobile = get(config, ['mobile'], []);
 
       DashboardService.movedToListLayout(config, layouts);
 
-      target.config = [];
+      target.config = {
+        layouts: [],
+        mobile: []
+      };
 
       layouts.forEach(layout => {
-        target.config.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout));
+        target.config.layouts.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout));
       });
+
+      if (!isEmpty(mobile) && !isEmpty(layouts)) {
+        target.config.mobile = DashboardService.generateMobileConfig(layouts);
+      }
     }
 
     return target;
@@ -80,8 +88,6 @@ export default class DashboardSettingsConverter {
       });
     });
 
-    target.mobile = DashboardSettingsConverter.generateMobileConfig(source.tabs);
-
     return target;
   }
 
@@ -99,26 +105,5 @@ export default class DashboardSettingsConverter {
 
       return data;
     });
-  }
-
-  static generateMobileConfig(source = []) {
-    const mobile = [];
-
-    source.forEach(layout => {
-      const { id: idLayout, columns, tab } = layout;
-
-      mobile.push({
-        id: idLayout,
-        tab: { label: tab.label, idLayout },
-        type: LAYOUT_TYPE.MOBILE,
-        columns: [
-          {
-            widgets: columns.reduce((result, current) => [...result, ...current.widgets], [])
-          }
-        ]
-      });
-    });
-
-    return mobile;
   }
 }

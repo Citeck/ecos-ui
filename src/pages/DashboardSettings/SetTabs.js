@@ -88,12 +88,12 @@ class SetTabs extends React.Component {
     return (
       <React.Fragment>
         <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
-        <div className="ecos-dashboard-settings__tabs-wrapper">
+        <div className="ecos-dashboard-settings__layout-tabs-wrapper">
           {!empty && (
             <ScrollArrow scrollToEnd={scrollTabToEnd}>
               <EditTabs
-                className="ecos-dashboard-settings__tabs-block"
-                classNameTab="ecos-dashboard-settings__tabs-item"
+                className="ecos-dashboard-settings__layout-tabs-block"
+                classNameTab="ecos-dashboard-settings__layout-tabs-item"
                 hasHover
                 items={tabs}
                 keyField={'idLayout'}
@@ -106,10 +106,10 @@ class SetTabs extends React.Component {
               />
             </ScrollArrow>
           )}
-          {empty && <div className="ecos-dashboard-settings__tabs_empty" />}
+          {empty && <div className="ecos-dashboard-settings__layout-tabs_empty" />}
           <IcoBtn
             icon="icon-big-plus"
-            className={'ecos-dashboard-settings__tabs__add-tab ecos-btn_i ecos-btn_blue2 ecos-btn_hover_blue2'}
+            className={'ecos-dashboard-settings__layout-tabs__add-tab ecos-btn_i ecos-btn_blue2 ecos-btn_hover_blue2'}
             onClick={this.onCreateTab}
           />
         </div>

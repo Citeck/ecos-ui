@@ -58,7 +58,15 @@
     }
   }
 
-  &__tabs {
+  &__device-tabs {
+    margin-bottom: 28px;
+
+    &-item {
+      padding: 0 15px;
+    }
+  }
+
+  &__layout-tabs {
     &-wrapper {
       display: flex;
       padding-bottom: 28px;

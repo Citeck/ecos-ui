@@ -7,10 +7,11 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isNull from 'lodash/isNull';
+import find from 'lodash/find';
 
-import { arrayCompare, t, documentScrollTop } from '../../helpers/util';
+import { arrayCompare, documentScrollTop, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
-import { DashboardTypes, Layouts, MenuTypes } from '../../constants/dashboard';
+import { DashboardTypes, DeviceTabs, Layouts, MenuTypes } from '../../constants/dashboard';
 import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
 import DashboardService from '../../services/dashboard';
 import {
@@ -23,7 +24,7 @@ import {
 import { initMenuSettings } from '../../actions/menu';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
-import { Loader } from '../../components/common';
+import { Loader, Tabs } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import { TunableDialog } from '../../components/common/dialogs';
 
@@ -44,7 +45,8 @@ const mapStateToProps = state => ({
   menuLinks: get(state, 'menu.links', []),
   availableMenuItems: get(state, ['menu', 'availableMenuItems'], []),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
-  config: get(state, ['dashboardSettings', 'config'], []),
+  config: get(state, 'dashboardSettings.config.layouts', []),
+  mobileConfig: get(state, 'dashboardSettings.config.mobile', []),
   availableWidgets: get(state, ['dashboardSettings', 'availableWidgets'], []),
   isLoading: get(state, ['dashboardSettings', 'isLoading']),
   requestResult: get(state, ['dashboardSettings', 'requestResult'], {}),
@@ -60,6 +62,8 @@ const mapDispatchToProps = dispatch => ({
   getAwayFromPage: payload => dispatch(getAwayFromPage(payload)),
   setCheckUpdatedDashboardConfig: payload => dispatch(setCheckUpdatedDashboardConfig(payload))
 });
+
+const DESK_VER = find(DeviceTabs, ['key', 'desktop']);
 
 class DashboardSettings extends React.Component {
   static propTypes = {
@@ -93,6 +97,7 @@ class DashboardSettings extends React.Component {
   };
 
   state = {
+    activeDeviceTabId: DESK_VER.key,
     activeLayoutId: null,
     selectedDashboardKey: '',
     isForAllUsers: false,
@@ -353,7 +358,31 @@ class DashboardSettings extends React.Component {
     );
   }
 
-  renderTabsBlock() {
+  renderDeviceTabsBlock() {
+    const { activeDeviceTabId } = this.state;
+
+    const toggleTab = index => {
+      const tab = DeviceTabs[index];
+
+      if (tab.key !== activeDeviceTabId) {
+        this.setState({ activeDeviceTabId: tab.key });
+      }
+    };
+
+    return (
+      <Tabs
+        hasHover
+        className="ecos-dashboard-settings__device-tabs"
+        classNameTab="ecos-dashboard-settings__device-tabs-item"
+        items={DeviceTabs}
+        onClick={toggleTab}
+        activeTabKey={activeDeviceTabId}
+        keyField="key"
+      />
+    );
+  }
+
+  renderLayoutTabsBlock() {
     if (this.isUserType) {
       return null;
     }
@@ -525,19 +554,24 @@ class DashboardSettings extends React.Component {
   }
 
   render() {
+    const { activeDeviceTabId } = this.state;
+
     return (
       <Container className="ecos-dashboard-settings">
         {this.renderLoader()}
         {this.renderHeader()}
         {this.renderDashboardKey()}
-        {this.renderTabsBlock()}
-        <div className="ecos-dashboard-settings__container">
-          {this.renderLayoutsBlock()}
-          {this.renderWidgetsBlock()}
-          {this.renderMenuBlock()}
-          {this.renderButtons()}
-          {this.renderDialogs()}
-        </div>
+        {this.renderDeviceTabsBlock()}
+        {this.renderLayoutTabsBlock()}
+        {activeDeviceTabId === DESK_VER.key && (
+          <div className="ecos-dashboard-settings__container">
+            {this.renderLayoutsBlock()}
+            {this.renderWidgetsBlock()}
+            {this.renderMenuBlock()}
+            {this.renderButtons()}
+          </div>
+        )}
+        {this.renderDialogs()}
       </Container>
     );
   }

@@ -99,4 +99,25 @@ export default class DashboardService {
       }
     }
   }
+
+  static generateMobileConfig(source = []) {
+    const mobile = [];
+
+    source.forEach(layout => {
+      const { id: idLayout, columns, tab } = layout;
+
+      mobile.push({
+        id: idLayout,
+        tab: { label: tab.label, idLayout },
+        type: LAYOUT_TYPE.MOBILE,
+        columns: [
+          {
+            widgets: columns.reduce((result, current) => [...result, ...current.widgets], [])
+          }
+        ]
+      });
+    });
+
+    return mobile;
+  }
 }
