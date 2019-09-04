@@ -134,6 +134,10 @@
           margin-right: 11px;
         }
       }
+
+      &_mobile {
+        flex-wrap: nowrap;
+      }
     }
   }
 
@@ -152,6 +156,8 @@
     }
 
     &-container {
+      $container: &;
+
       display: flex;
       width: 100%;
       flex-wrap: wrap;
@@ -179,6 +185,10 @@
       &_widgets-to {
         display: flex;
         width: 100%;
+
+        &-mobile {
+          width: auto;
+        }
       }
 
       &_row {
@@ -191,6 +201,12 @@
         &:not(:last-child) {
           margin-bottom: 27px;
         }
+      }
+
+      &_widgets-from-mobile {
+        margin-right: 15px;
+        margin-bottom: 0;
+        width: 80%;
       }
     }
 

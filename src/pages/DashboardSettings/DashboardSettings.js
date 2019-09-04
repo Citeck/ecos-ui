@@ -81,7 +81,8 @@ class DashboardSettings extends React.Component {
     availableMenuItems: PropTypes.array,
     availableWidgets: PropTypes.array,
     dashboardKeyItems: PropTypes.array,
-    requestResult: PropTypes.object
+    requestResult: PropTypes.object,
+    isMobile: PropTypes.bool
   };
 
   static defaultProps = {
@@ -594,8 +595,6 @@ class DashboardSettings extends React.Component {
   }
 
   render() {
-    const { activeDeviceTabId } = this.state;
-
     return (
       <Container className="ecos-dashboard-settings">
         {this.renderLoader()}
