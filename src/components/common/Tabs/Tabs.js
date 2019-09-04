@@ -1,20 +1,19 @@
 import React from 'react';
 import classNames from 'classnames';
-import { t } from '../../../helpers/util';
 import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
 
 import './Tabs.scss';
 
 const Tab = props => {
-  const { label, isActive, onClick, hasHover } = props;
-  const tabClassNames = classNames('ecos-tab', {
+  const { label, isActive, onClick, hasHover, hasHint, className } = props;
+  const tabClassNames = classNames('ecos-tab', className, {
     'ecos-tab_active': isActive,
     'ecos-tab_hover': hasHover
   });
 
   return (
-    <div className={tabClassNames} onClick={onClick}>
-      {t(label)}
+    <div className={tabClassNames} onClick={onClick} title={hasHint ? label : ''}>
+      {label}
     </div>
   );
 };
@@ -23,7 +22,7 @@ Tab.propTypes = commonOneTabPropTypes;
 Tab.defaultProps = commonOneTabDefaultProps;
 
 const Tabs = props => {
-  const { items, keyField, valueField, valuePrefix, className, classNameTab, activeTabKey, onClick, hasHover } = props;
+  const { items, keyField, valueField, valuePrefix, className, classNameTab, activeTabKey, onClick, hasHover, hasHint } = props;
   const tabsClassNames = classNames('ecos-tabs', className);
 
   return (
@@ -38,6 +37,7 @@ const Tabs = props => {
           isActive={item.isActive || item[keyField] === activeTabKey}
           onClick={() => onClick(index)}
           hasHover={hasHover}
+          hasHint={hasHint}
         />
       ))}
     </div>

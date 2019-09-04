@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import debounce from 'lodash/debounce';
 import DashboardService from '../../services/dashboard';
 import { t } from '../../helpers/util';
 import { EditTabs, ScrollArrow } from '../../components/common';
@@ -48,9 +49,12 @@ class SetTabs extends React.Component {
     tabs.push(newTab);
 
     setData({ tabs });
-    this.setState({ scrollTabToEnd: true }, () => {
-      this.setState({ scrollTabToEnd: false });
-    });
+
+    debounce(() => {
+      this.setState({ scrollTabToEnd: true }, () => {
+        this.setState({ scrollTabToEnd: false });
+      });
+    }, 50)();
   };
 
   onEditTab = (tab, index) => {
@@ -109,6 +113,7 @@ class SetTabs extends React.Component {
                 className="ecos-dashboard-settings__tabs-block"
                 classNameTab="ecos-dashboard-settings__tabs-item"
                 hasHover
+                hasHint
                 items={tabs}
                 keyField={'idLayout'}
                 onDelete={this.onConfirmDeleteTab}

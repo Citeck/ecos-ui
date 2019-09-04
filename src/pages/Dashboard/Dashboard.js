@@ -241,9 +241,20 @@ class Dashboard extends Component {
     const { activeLayoutId } = this.state;
 
     return (
-      <ScrollArrow className="ecos-dashboard__tabs">
-        <Tabs hasHover items={this.tabList} onClick={this.toggleTabLayout} keyField={'idLayout'} activeTabKey={activeLayoutId} />
-      </ScrollArrow>
+      <div className="ecos-dashboard__tabs-wrapper">
+        <ScrollArrow>
+          <Tabs
+            hasHover
+            hasHint
+            className="ecos-dashboard__tabs-block"
+            classNameTab="ecos-dashboard__tabs-item"
+            items={this.tabList}
+            onClick={this.toggleTabLayout}
+            keyField={'idLayout'}
+            activeTabKey={activeLayoutId}
+          />
+        </ScrollArrow>
+      </div>
     );
   }
 

@@ -82,7 +82,7 @@ class Tab extends React.Component {
   };
 
   render() {
-    const { label, isActive, onClick, hasHover, disabled, isNew, className } = this.props;
+    const { label, isActive, onClick, hasHover, hasHint, disabled, isNew, className } = this.props;
     const { edit, text } = this.state;
     const tabClassNames = classNames('ecos-tab', 'ecos-tab_edit', className, {
       'ecos-tab_active': isActive,
@@ -93,7 +93,7 @@ class Tab extends React.Component {
     const placeholder = isNew ? t(label) : t('page-tabs.tab-name');
 
     return (
-      <div className={tabClassNames} onClick={onClick}>
+      <div className={tabClassNames} onClick={onClick} title={hasHint ? t(label) : ''}>
         <div className="ecos-tab-label">
           {isEdit ? (
             <Input
@@ -165,6 +165,7 @@ class EditTabs extends React.Component {
       valuePrefix,
       activeTabKey,
       hasHover,
+      hasHint,
       disabled,
       onClick
     } = this.props;
@@ -185,6 +186,7 @@ class EditTabs extends React.Component {
                 onDelete={() => this.onDeleteItem(item, index)}
                 onEdit={text => this.onEditItem(item, text, index)}
                 hasHover={hasHover}
+                hasHint={hasHint}
                 disabled={disabled}
               />
             </SortableElement>
