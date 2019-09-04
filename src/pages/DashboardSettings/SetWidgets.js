@@ -19,7 +19,8 @@ class SetWidgets extends React.Component {
     availableWidgets: PropTypes.array,
     activeWidgets: PropTypes.array,
     setData: PropTypes.func,
-    positionAdjustment: PropTypes.func
+    positionAdjustment: PropTypes.func,
+    isMobile: PropTypes.bool
   };
 
   static defaultProps = {
@@ -28,7 +29,8 @@ class SetWidgets extends React.Component {
     activeWidgets: [],
     columns: [],
     setData: () => {},
-    positionAdjustment: () => {}
+    positionAdjustment: () => {},
+    isMobile: false
   };
 
   state = {
@@ -138,7 +140,7 @@ class SetWidgets extends React.Component {
   }
 
   render() {
-    const { availableWidgets, positionAdjustment } = this.props;
+    const { availableWidgets, positionAdjustment, isMobile } = this.props;
 
     return (
       <React.Fragment>

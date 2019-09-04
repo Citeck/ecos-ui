@@ -12,13 +12,13 @@ import './style.scss';
 
 class SetTabs extends React.Component {
   static propTypes = {
-    activeLayoutId: PropTypes.string,
+    activeTabKey: PropTypes.string,
     tabs: PropTypes.array,
     setData: PropTypes.func
   };
 
   static defaultProps = {
-    activeLayoutId: '',
+    activeTabKey: '',
     tabs: [],
     setData: () => {}
   };
@@ -28,10 +28,10 @@ class SetTabs extends React.Component {
   };
 
   onClickTabLayout = tab => {
-    let { activeLayoutId, setData } = this.props;
+    let { activeTabKey, setData } = this.props;
 
-    if (tab.idLayout !== activeLayoutId) {
-      setData({ activeLayoutId: tab.idLayout });
+    if (tab.idLayout !== activeTabKey) {
+      setData({ activeTabKey: tab.idLayout });
     }
   };
 
@@ -61,15 +61,15 @@ class SetTabs extends React.Component {
   };
 
   onDeleteTab = (tab, index) => {
-    let { tabs, activeLayoutId, setData } = this.props;
+    let { tabs, activeTabKey, setData } = this.props;
 
     tabs.splice(index, 1);
 
-    if (tab.idLayout === activeLayoutId) {
-      activeLayoutId = get(tabs, '[0].idLayout', null);
+    if (tab.idLayout === activeTabKey) {
+      activeTabKey = get(tabs, '[0].idLayout', null);
     }
 
-    setData({ tabs, activeLayoutId });
+    setData({ tabs, activeTabKey });
   };
 
   onSortTabs = sortedTabs => {
@@ -81,7 +81,7 @@ class SetTabs extends React.Component {
   };
 
   render() {
-    const { tabs, activeLayoutId } = this.props;
+    const { tabs, activeTabKey } = this.props;
     const { scrollTabToEnd } = this.state;
     const empty = isEmpty(tabs);
 
@@ -102,7 +102,7 @@ class SetTabs extends React.Component {
                 onEdit={this.onEditTab}
                 onClick={this.onClickTabLayout}
                 disabled={tabs.length < 2}
-                activeTabKey={activeLayoutId}
+                activeTabKey={activeTabKey}
               />
             </ScrollArrow>
           )}
