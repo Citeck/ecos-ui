@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
+import { cloneDeep } from 'lodash';
 
 import '../../forms/components';
 import Records from '../Records';
@@ -9,7 +10,7 @@ import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import DataGridAssocComponent from './../../forms/components/custom/datagridAssoc/DataGridAssoc';
-import { t, deepClone } from '../../helpers/util';
+import { t } from '../../helpers/util';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -44,7 +45,8 @@ class EcosForm extends React.Component {
   initForm(newFormDefinition = this.state.formDefinition) {
     const { record, formKey, options: propsOptions } = this.props;
     const { recordId } = this.state;
-    const options = deepClone(propsOptions);
+
+    const options = cloneDeep(propsOptions);
     let formLoadingPromise = EcosFormUtils.getForm(record, formKey, {
       definition: 'definition?json',
       customModule: 'customModule',
@@ -94,7 +96,7 @@ class EcosForm extends React.Component {
 
       recordDataPromise.then(recordData => {
         const definition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
-        let formDefinition = deepClone(definition);
+        let formDefinition = cloneDeep(definition);
 
         this.setState({ formDefinition });
 

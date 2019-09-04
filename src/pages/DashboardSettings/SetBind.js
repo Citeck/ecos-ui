@@ -56,6 +56,7 @@ class SetBind extends React.Component {
             getStateOpen={this.getStateOpen}
             hideSelected
             className={'ecos-dashboard-settings__keys-dropdown'}
+            menuClassName={'ecos-dashboard-settings__keys-dropdown__menu'}
           >
             <IcoBtn invert icon={isOpenKeys ? 'icon-up' : 'icon-down'} className={`ecos-btn_white2 ecos-btn_focus_no ecos-btn_drop-down`} />
           </Dropdown>

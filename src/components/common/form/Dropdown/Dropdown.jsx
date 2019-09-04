@@ -34,9 +34,9 @@ export default class Dropdown extends Component {
     isLinks: PropTypes.bool,
     cascade: PropTypes.bool,
     withScrollbar: PropTypes.bool,
+    hideSelected: PropTypes.bool,
     scrollbarHeightMin: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     scrollbarHeightMax: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    hideSelected: PropTypes.bool,
     CustomItem: PropTypes.element,
     getStateOpen: PropTypes.func
   };
@@ -46,7 +46,7 @@ export default class Dropdown extends Component {
     className: '',
     menuClassName: '',
     toggleClassName: '',
-    direction: '',
+    direction: 'down',
     hasEmpty: false,
     isStatic: false,
     right: false,
@@ -65,8 +65,6 @@ export default class Dropdown extends Component {
     super(props);
     this.state = { dropdownOpen: false };
   }
-
-  className = 'ecos-dropdown';
 
   get selected() {
     const { valueField, source, value, hasEmpty } = this.props;
@@ -161,24 +159,19 @@ export default class Dropdown extends Component {
       direction
     } = this.props;
     const { dropdownOpen } = this.state;
-    const cssClasses = classNames(this.className, className, { [`${this.className}_full-width`]: full });
+    const cssClasses = classNames('ecos-dropdown', className, { 'ecos-dropdown_full-width': full });
     const cssDropdownMenu = classNames(
-      `${this.className}__menu`,
+      'ecos-dropdown__menu',
       menuClassName,
-      { [`${this.className}__menu_right`]: right },
-      { [`${this.className}__menu_links`]: isLinks },
-      { [`${this.className}__menu_cascade`]: cascade }
+      { 'ecos-dropdown__menu_right': right },
+      { 'ecos-dropdown__menu_links': isLinks },
+      { 'ecos-dropdown__menu_cascade': cascade }
     );
+    const cssDropdownToggle = classNames('ecos-dropdown__toggle', toggleClassName);
 
     return (
       <Drd className={cssClasses} isOpen={dropdownOpen} toggle={this.toggle} direction={direction}>
-        <DropdownToggle
-          onClick={this.toggle}
-          data-toggle="dropdown"
-          aria-expanded={dropdownOpen}
-          className={`${this.className}__toggle ${toggleClassName}`}
-          tag="span"
-        >
+        <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={dropdownOpen} className={cssDropdownToggle} tag="span">
           {isStatic ? children : this.getControl(getPropByStringKey(this.selected, titleField))}
         </DropdownToggle>
         <DropdownMenu className={cssDropdownMenu}>{this.renderMenuItems()}</DropdownMenu>
@@ -186,12 +179,3 @@ export default class Dropdown extends Component {
     );
   }
 }
-
-Dropdown.propTypes = {
-  isStatic: PropTypes.bool,
-  hideSelected: PropTypes.bool
-};
-
-Dropdown.defaultProps = {
-  hideSelected: false
-};

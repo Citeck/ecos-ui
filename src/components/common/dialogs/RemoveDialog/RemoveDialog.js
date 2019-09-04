@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import EcosModal from '../../EcosModal/EcosModal';
 import { Btn } from '../../btns';
@@ -6,7 +7,7 @@ import { t, trigger } from '../../../../helpers/util';
 
 import './RemoveDialog.scss';
 
-export default class RemoveDialog extends Component {
+class RemoveDialog extends Component {
   onClose = () => {
     trigger.call(this, 'onClose');
   };
@@ -41,3 +42,23 @@ export default class RemoveDialog extends Component {
     );
   }
 }
+
+RemoveDialog.propTypes = {
+  className: PropTypes.string,
+  bodyClassName: PropTypes.string,
+  footerClassName: PropTypes.string,
+  title: PropTypes.string,
+  text: PropTypes.any,
+  isOpen: PropTypes.bool
+};
+
+RemoveDialog.defaultProps = {
+  className: '',
+  bodyClassName: '',
+  footerClassName: '',
+  title: '',
+  text: '',
+  isOpen: false
+};
+
+export default RemoveDialog;
