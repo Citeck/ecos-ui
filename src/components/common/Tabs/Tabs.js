@@ -1,6 +1,5 @@
 import React from 'react';
 import classNames from 'classnames';
-import { t } from '../../../helpers/util';
 import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
 
 import './Tabs.scss';
@@ -13,8 +12,8 @@ const Tab = props => {
   });
 
   return (
-    <div className={tabClassNames} onClick={onClick} title={hasHint ? t(label) : ''}>
-      {t(label)}
+    <div className={tabClassNames} onClick={onClick} title={hasHint ? label : ''}>
+      {label}
     </div>
   );
 };
