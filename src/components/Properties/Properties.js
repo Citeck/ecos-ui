@@ -91,7 +91,8 @@ class Properties extends React.Component {
             readOnly: true,
             viewAsHtml: true,
             viewAsHtmlConfig: {
-              fullWidthColumns: isSmallMode
+              fullWidthColumns: isSmallMode,
+              hidePanels: isSmallMode
             },
             formMode: FORM_MODE_EDIT
           }}
