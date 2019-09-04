@@ -21,4 +21,10 @@ export default class FileComponent extends FormIOFileComponent {
 
     return render;
   }
+
+  build() {
+    this.disabled = this.shouldDisable;
+
+    super.build();
+  }
 }
