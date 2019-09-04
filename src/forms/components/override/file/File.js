@@ -1,5 +1,8 @@
+import { cloneDeep } from 'lodash';
 import FormIOFileComponent from 'formiojs/components/file/File';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../constants/pageTabs';
+import { isNewVersionPage } from '../../../../helpers/urls';
+import { URL } from '../../../../constants';
 
 export default class FileComponent extends FormIOFileComponent {
   createFileLink(file) {
@@ -23,8 +26,64 @@ export default class FileComponent extends FormIOFileComponent {
   }
 
   build() {
+    if (this.viewOnly) {
+      return this.viewOnlyBuild();
+    }
+
     this.disabled = this.shouldDisable;
 
     super.build();
+  }
+
+  setupValueElement(element) {
+    const value = this.getValue();
+    const valueView = this.getView(value);
+
+    if (valueView instanceof Element) {
+      element.innerHTML = '';
+      element.appendChild(valueView);
+    } else {
+      element.innerHTML = valueView;
+    }
+  }
+
+  getView(value) {
+    if (this.isEmpty(value)) {
+      return this.defaultViewOnlyValue;
+    }
+
+    return this.ce(
+      'ul',
+      { class: 'file-list_view-mode' },
+      Array.isArray(value) ? value.map(fileInfo => this.createFileListItemViewMode(fileInfo)) : this.createFileListItemViewMode(value)
+    );
+  }
+
+  createFileListItemViewMode(fileInfo) {
+    return this.ce('li', { class: 'file-item_view-mode' }, this.createFileLinkViewMode(fileInfo));
+  }
+
+  createFileLinkViewMode(f) {
+    const file = cloneDeep(f);
+
+    if (isNewVersionPage()) {
+      file.url = file.url.replace(/\/share\/page\/(.*\/)?card-details/, URL.DASHBOARD);
+      file.url = file.url.replace('nodeRef', 'recordRef');
+    }
+
+    if (this.options.uploadOnly) {
+      return file.originalName || file.name;
+    }
+
+    const linkAttributes = {
+      href: file.url,
+      target: '_blank'
+    };
+
+    if (!isNewVersionPage(file.url)) {
+      linkAttributes[IGNORE_TABS_HANDLER_ATTR_NAME] = true;
+    }
+
+    return this.ce('a', linkAttributes, file.originalName || file.name);
   }
 }
