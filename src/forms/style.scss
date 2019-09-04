@@ -16,11 +16,3 @@
 @import './components/override/file/file';
 
 @import './components/custom/horizontalLine/horizontalLine';
-
-.ecos-form-modal {
-  &__btn {
-    &-settings {
-      font-size: 16px;
-    }
-  }
-}

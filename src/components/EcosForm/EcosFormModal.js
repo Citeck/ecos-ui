@@ -7,6 +7,7 @@ import EcosForm from './EcosForm';
 import EcosModal from '../common/EcosModal';
 import Records from '../Records';
 import { t } from '../../helpers/util';
+import './EcosFormModal.scss';
 
 const LABELS = {
   CONSTRUCTOR_BTN_TOOLTIP: 'Перейти в конструктор'
@@ -60,7 +61,7 @@ export default class EcosFormModal extends React.Component {
         <IcoBtn
           id="ecos-form-modal-constructor-btn"
           icon="icon-settings"
-          className={classNames('ecos-btn_grey ecos-btn_sq_sm ecos-btn_hover_color-grey ml-2 ecos-form-modal__btn-settings')}
+          className={classNames('ecos-btn_grey ecos-btn_sq_sm2 ecos-btn_hover_color-grey ml-2 ecos-form-modal__btn-settings')}
           onClick={this.onClickShowFormBuilder}
         />
         <UncontrolledTooltip
