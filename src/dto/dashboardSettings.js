@@ -1,6 +1,7 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
+import head from 'lodash/head';
 import { LAYOUT_TYPE } from '../constants/layout';
 import { Layouts } from '../constants/dashboard';
 import Components from '../components/Components';
@@ -100,7 +101,7 @@ export default class DashboardSettingsConverter {
         type: LAYOUT_TYPE.MOBILE,
         columns: [
           {
-            widgets: Components.setDefaultPropsOfWidgets(mobile.widgets[idLayout]) || []
+            widgets: head(Components.setDefaultPropsOfWidgets(mobile.widgets[idLayout])) || []
           }
         ]
       });
