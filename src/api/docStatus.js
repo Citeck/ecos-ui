@@ -29,38 +29,17 @@ export class DocStatusApi extends RecordService {
   };
 
   getAvailableToChangeStatuses = ({ record }) => {
-    return {
-      records: [
-        {
-          name: 'Согласование',
-          type: 'case-status',
-          id: 'status@approval'
-        },
-        {
-          name: 'Черновик',
-          type: 'case-status',
-          id: 'status@draft'
-        },
-        {
-          name: 'На подписании',
-          type: 'case-status',
-          id: 'status@signing'
+    return Records.query(
+      {
+        sourceId: SourcesId.STATUS,
+        query: {
+          allAvailableToChange: record
         }
-      ],
-      hasMore: false,
-      totalCount: 3
-    };
-    // return Records.query(
-    //   {
-    //     sourceId: SourcesId.STATUS,
-    //     query: {
-    //       allAvailableToChange: record
-    //     }
-    //   },
-    //   {
-    //     name: 'name',
-    //     type: 'type'
-    //   }
-    // ).then(res => res);
+      },
+      {
+        name: 'name',
+        type: 'type'
+      }
+    ).then(res => res);
   };
 }

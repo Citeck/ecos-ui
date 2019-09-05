@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { isMobileDevice, t } from '../../helpers/util';
+import { isMobileDevice } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import DocStatus from './DocStatus';
@@ -12,14 +12,12 @@ class DocStatusDashlet extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
     record: PropTypes.string.isRequired,
-    title: PropTypes.string,
     classNameStatus: PropTypes.string,
     classNameDashlet: PropTypes.string,
     config: PropTypes.shape({})
   };
 
   static defaultProps = {
-    title: t('Статус кейса'),
     classNameStatus: '',
     classNameDashlet: ''
   };
@@ -38,7 +36,7 @@ class DocStatusDashlet extends React.Component {
   };
 
   render() {
-    const { id, title, config, classNameStatus, classNameDashlet, record } = this.props;
+    const { id, config, classNameStatus, classNameDashlet, record } = this.props;
     const { isCollapsed } = this.state;
 
     return (
@@ -55,7 +53,7 @@ class DocStatusDashlet extends React.Component {
         isCollapsed={isCollapsed}
         noHeader
       >
-        <DocStatus title={title} {...config} className={classNameStatus} record={record} stateId={id} />
+        <DocStatus {...config} className={classNameStatus} record={record} stateId={id} />
       </Dashlet>
     );
   }
