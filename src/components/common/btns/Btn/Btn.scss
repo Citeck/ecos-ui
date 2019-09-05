@@ -190,6 +190,11 @@ button {
     padding: 0 7px;
   }
 
+  &.ecos-btn_sq_sm2 {
+    @extend .ecos-btn_narrow;
+    padding: 0 4px;
+  }
+
   &.ecos-btn_narrow-t_standart {
     height: 26px;
     padding: 0 15px;

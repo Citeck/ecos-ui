@@ -62,12 +62,18 @@
   }
 
   &__tabs {
-    padding: 0 19px 18px;
+    &-wrapper {
+      padding: 0 19px 18px;
+    }
 
-    .ecos-tab {
-      padding: 0 60px;
+    &-block {
+      display: flex;
+    }
+
+    &-item {
+      flex: 1;
+      padding: 0 10px;
       min-width: 190px;
-      max-width: 259px;
       @extend %ellipsis;
     }
 

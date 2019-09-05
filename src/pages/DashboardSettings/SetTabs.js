@@ -3,10 +3,12 @@ import PropTypes from 'prop-types';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import debounce from 'lodash/debounce';
 import DashboardService from '../../services/dashboard';
 import { t } from '../../helpers/util';
 import { EditTabs, ScrollArrow } from '../../components/common';
 import { IcoBtn } from '../../components/common/btns';
+import { RemoveDialog } from '../../components/common/dialogs';
 
 import './style.scss';
 
@@ -24,7 +26,8 @@ class SetTabs extends React.Component {
   };
 
   state = {
-    scrollTabToEnd: false
+    scrollTabToEnd: false,
+    removedTab: null
   };
 
   onClickTabLayout = tab => {
@@ -46,9 +49,12 @@ class SetTabs extends React.Component {
     tabs.push(newTab);
 
     setData({ tabs });
-    this.setState({ scrollTabToEnd: true }, () => {
-      this.setState({ scrollTabToEnd: false });
-    });
+
+    debounce(() => {
+      this.setState({ scrollTabToEnd: true }, () => {
+        this.setState({ scrollTabToEnd: false });
+      });
+    }, 50)();
   };
 
   onEditTab = (tab, index) => {
@@ -60,29 +66,41 @@ class SetTabs extends React.Component {
     setData({ tabs });
   };
 
-  onDeleteTab = (tab, index) => {
-    let { tabs, activeTabKey, setData } = this.props;
-
-    tabs.splice(index, 1);
-
-    if (tab.idLayout === activeTabKey) {
-      activeTabKey = get(tabs, '[0].idLayout', null);
-    }
-
-    setData({ tabs, activeTabKey });
+  onConfirmDeleteTab = (tab, index) => {
+    this.setState({ removedTab: { ...tab, index } });
   };
 
   onSortTabs = sortedTabs => {
-    let { setData } = this.props;
+    const { setData } = this.props;
 
     setData({
       tabs: sortedTabs.map(({ label, idLayout }) => ({ label, idLayout }))
     });
   };
 
+  onDeleteTab = () => {
+    const {
+      removedTab: { index, idLayout }
+    } = this.state;
+    let { tabs, activeTabKey, setData } = this.props;
+
+    tabs.splice(index, 1);
+
+    if (idLayout === activeTabKey) {
+      activeTabKey = get(tabs, '[0].idLayout', null);
+    }
+
+    this.closeDialog();
+    setData({ tabs, activeTabKey });
+  };
+
+  closeDialog = () => {
+    this.setState({ removedTab: null });
+  };
+
   render() {
     const { tabs, activeTabKey } = this.props;
-    const { scrollTabToEnd } = this.state;
+    const { scrollTabToEnd, removedTab } = this.state;
     const empty = isEmpty(tabs);
 
     return (
@@ -95,9 +113,10 @@ class SetTabs extends React.Component {
                 className="ecos-dashboard-settings__layout-tabs-block"
                 classNameTab="ecos-dashboard-settings__layout-tabs-item"
                 hasHover
+                hasHint
                 items={tabs}
                 keyField={'idLayout'}
-                onDelete={this.onDeleteTab}
+                onDelete={this.onConfirmDeleteTab}
                 onSort={this.onSortTabs}
                 onEdit={this.onEditTab}
                 onClick={this.onClickTabLayout}
@@ -113,6 +132,19 @@ class SetTabs extends React.Component {
             onClick={this.onCreateTab}
           />
         </div>
+        <RemoveDialog
+          isOpen={!isEmpty(removedTab)}
+          title={t('dashboard-settings.remove-tab-dialog.title')}
+          text={
+            <>
+              <div>{`${t('dashboard-settings.remove-tab-dialog.text1')} "${get(removedTab, 'label', '')}"?`}</div>
+              <div>{`${t('dashboard-settings.remove-tab-dialog.text2')}`}</div>
+            </>
+          }
+          onDelete={this.onDeleteTab}
+          onCancel={this.closeDialog}
+          onClose={this.closeDialog}
+        />
       </React.Fragment>
     );
   }

@@ -14,7 +14,12 @@
   }
 
   &-dashlet {
-    &__body {
+    &__btn {
+      &-settings {
+        & .icon-settings {
+          font-size: 16px;
+        }
+      }
     }
   }
 

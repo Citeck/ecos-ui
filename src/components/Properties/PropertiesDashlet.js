@@ -116,7 +116,7 @@ class PropertiesDashlet extends React.Component {
           <IcoBtn
             icon="icon-settings"
             id={`settings-icon-${id}-${isDashlet ? '-dashlet' : '-properties'}`}
-            className={classNames('ecos-btn_grey ecos-btn_sq_sm ecos-btn_hover_color-grey', {
+            className={classNames('ecos-properties-dashlet__btn-settings ecos-btn_grey ecos-btn_sq_sm2 ecos-btn_hover_color-grey ', {
               'dashlet__btn_hidden mr-2': isDashlet,
               'ml-2': !isDashlet
             })}
