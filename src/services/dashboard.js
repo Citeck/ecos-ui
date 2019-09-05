@@ -86,9 +86,13 @@ export default class DashboardService {
     }
   }
 
+  /**
+   * for old version, which has one layout (just object) without tab
+   * @param config
+   * @param layouts
+   */
   static movedToListLayout(config, layouts) {
     if (isEmpty(layouts)) {
-      console.log('movedToListLayout: for old version, which has one layout without tab');
       const layout = get(config, ['layout'], {});
 
       layout.id = DashboardService.newIdLayout;

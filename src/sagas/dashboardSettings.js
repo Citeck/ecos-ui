@@ -37,7 +37,7 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
     if (dashboardId) {
       const result = yield call(api.dashboard.getDashboardById, dashboardId, true);
       const data = DashboardService.checkDashboardResult(result);
-      const webConfigs = DashboardSettingsConverter.getSettingsConfigsForWeb(data);
+      const webConfigs = DashboardSettingsConverter.getSettingsForWeb(data);
 
       yield put(setDashboardConfig(webConfigs));
       yield put(getAvailableWidgets(data.type));

@@ -8,7 +8,7 @@ import DashboardService from '../services/dashboard';
 import DashboardConverter from './dashboard';
 
 export default class DashboardSettingsConverter {
-  static getSettingsConfigsForWeb(source = {}) {
+  static getSettingsForWeb(source = {}) {
     let target = {};
 
     if (!isEmpty(source)) {
@@ -16,27 +16,35 @@ export default class DashboardSettingsConverter {
 
       target.identification = DashboardConverter.getKeyInfoDashboardForWeb(source).identification;
 
-      const layouts = get(config, ['layouts'], []);
-
-      DashboardService.movedToListLayout(config, layouts);
-
       target.config = {
-        layouts: [],
-        mobile: []
+        layouts: DashboardSettingsConverter.getDescConfigForWeb(config),
+        mobile: DashboardSettingsConverter.getMobileConfigForWeb(config)
       };
-
-      layouts.forEach(layout => {
-        target.config.layouts.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout));
-      });
-
-      target.config.mobile = DashboardSettingsConverter.getMobileConfigForWeb(config, layouts);
     }
 
     return target;
   }
 
-  static getMobileConfigForWeb(config, layouts) {
+  static getDescConfigForWeb(config) {
     const target = [];
+
+    const layouts = get(config, ['layouts'], []);
+
+    DashboardService.movedToListLayout(config, layouts);
+
+    layouts.forEach(layout => {
+      target.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout));
+    });
+
+    return target;
+  }
+
+  static getMobileConfigForWeb(config) {
+    const target = [];
+
+    const layouts = get(config, ['layouts'], []);
+
+    DashboardService.movedToListLayout(config, layouts);
 
     const mobile = get(config, ['mobile'], DashboardService.generateMobileConfig(layouts));
 
