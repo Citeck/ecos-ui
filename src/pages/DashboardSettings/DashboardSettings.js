@@ -442,9 +442,25 @@ class DashboardSettings extends React.Component {
     }
 
     const isMob = this.isSelectedMobileVer;
+    const state = {};
 
-    const setData = data => {
-      isMob ? this.setState({ mobileActiveLayoutTabId: data }) : this.setState({ activeLayoutTabId: data });
+    const setData = ({ tabs, activeTabKey }) => {
+      if (isMob) {
+        if (!isEmpty(tabs)) {
+          state.mobileTabs = tabs;
+        }
+        if (!isEmpty(activeTabKey)) {
+          state.mobileActiveLayoutTabId = activeTabKey;
+        }
+      } else {
+        if (!isEmpty(tabs)) {
+          state.tabs = tabs;
+        }
+        if (!isEmpty(activeTabKey)) {
+          state.activeLayoutTabId = activeTabKey;
+        }
+      }
+      this.setState(state);
     };
 
     const { tabs, activeLayoutTabId, mobileActiveLayoutTabId, mobileTabs } = this.state;

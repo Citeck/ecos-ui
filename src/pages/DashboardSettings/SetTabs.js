@@ -34,7 +34,7 @@ class SetTabs extends React.Component {
     let { activeTabKey, setData } = this.props;
 
     if (tab.idLayout !== activeTabKey) {
-      setData(tab.idLayout);
+      setData({ activeTabKey: tab.idLayout });
     }
   };
 
