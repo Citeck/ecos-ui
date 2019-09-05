@@ -25,8 +25,6 @@ export default class ResizableBox extends React.Component {
     resizing: false
   };
 
-  className = 'ecos-resize';
-
   refBox = React.createRef();
   resizeButtonRef = React.createRef();
 
@@ -73,13 +71,13 @@ export default class ResizableBox extends React.Component {
 
     return (
       <React.Fragment>
-        <div ref={this.refBox} className={classNames(`${this.className}__container`, classNameBox)}>
+        <div ref={this.refBox} className={classNames('ecos-resize__container', classNameBox)}>
           {children}
         </div>
-        <div className={classNames(`${this.className}__bottom`, classNameResizer)}>
+        <div className={classNames('ecos-resize__bottom', classNameResizer)}>
           {resizable && (
-            <div ref={this.resizeButtonRef} className={classNames(`${this.className}__control`)}>
-              <Icon className={'icon-resize'} title={t('dashlet.resize.title')} onMouseDown={this.startResize} />
+            <div ref={this.resizeButtonRef} className="ecos-resize__control">
+              <Icon className="icon-resize" title={t('dashlet.resize.title')} onMouseDown={this.startResize} />
             </div>
           )}
         </div>

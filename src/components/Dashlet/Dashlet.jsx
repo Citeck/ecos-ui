@@ -7,8 +7,8 @@ import get from 'lodash/get';
 
 import Panel from '../common/panels/Panel/Panel';
 import Measurer from '../Measurer/Measurer';
-import { IcoBtn, Btn } from '../common/btns';
-import { ResizableBox, Icon } from '../common';
+import { Btn, IcoBtn } from '../common/btns';
+import { Icon, ResizableBox } from '../common';
 import { t } from '../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 
@@ -117,6 +117,7 @@ class Dashlet extends Component {
     bodyClassName: PropTypes.string,
     titleClassName: PropTypes.string,
     actionEditTitle: PropTypes.string,
+    noHeader: PropTypes.bool,
     needGoTo: PropTypes.bool,
     actionReload: PropTypes.bool,
     actionEdit: PropTypes.bool,
@@ -142,6 +143,7 @@ class Dashlet extends Component {
     className: '',
     bodyClassName: '',
     titleClassName: '',
+    noHeader: false,
     needGoTo: true,
     actionReload: true,
     actionEdit: true,
@@ -285,7 +287,8 @@ class Dashlet extends Component {
       dragHandleProps,
       canDragging,
       customButtons,
-      isMobile
+      isMobile,
+      noHeader
     } = this.props;
     const { isCollapsed } = this.state;
     const cssClasses = classNames('dashlet', className);
@@ -301,26 +304,29 @@ class Dashlet extends Component {
           bodyClassName={classNames('dashlet__body', bodyClassName, {
             dashlet__body_collapsed: isMobile && isCollapsed
           })}
+          noHeader={noHeader}
           header={
-            <Measurer>
-              <Header
-                title={title}
-                needGoTo={needGoTo}
-                onGoTo={this.onGoTo}
-                actionReload={actionReload}
-                onReload={this.onReload}
-                onToggleCollapse={this.onToggle}
-                actionEdit={actionEdit}
-                onEdit={this.onEdit}
-                actionHelp={actionHelp}
-                actionDrag={actionDrag && canDragging}
-                dragHandleProps={dragHandleProps}
-                actionEditTitle={actionEditTitle}
-                customButtons={customButtons}
-                titleClassName={titleClassName}
-                isMobile={isMobile}
-              />
-            </Measurer>
+            !noHeader && (
+              <Measurer>
+                <Header
+                  title={title}
+                  needGoTo={needGoTo}
+                  onGoTo={this.onGoTo}
+                  actionReload={actionReload}
+                  onReload={this.onReload}
+                  onToggleCollapse={this.onToggle}
+                  actionEdit={actionEdit}
+                  onEdit={this.onEdit}
+                  actionHelp={actionHelp}
+                  actionDrag={actionDrag && canDragging}
+                  dragHandleProps={dragHandleProps}
+                  actionEditTitle={actionEditTitle}
+                  customButtons={customButtons}
+                  titleClassName={titleClassName}
+                  isMobile={isMobile}
+                />
+              </Measurer>
+            )
           }
         >
           <div

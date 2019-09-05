@@ -1,30 +1,26 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { isMobileDevice, t } from '../../helpers/util';
+import { isMobileDevice } from '../../helpers/util';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import DocStatus from './DocStatus';
 
 import './style.scss';
-import UserLocalSettingsService from '../../services/userLocalSettings';
 
 class DocStatusDashlet extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
     record: PropTypes.string.isRequired,
-    title: PropTypes.string,
     classNameStatus: PropTypes.string,
     classNameDashlet: PropTypes.string,
     config: PropTypes.shape({})
   };
 
   static defaultProps = {
-    title: t('doc-status-widget.title'),
     classNameStatus: '',
     classNameDashlet: ''
   };
-
-  className = 'ecos-doc-status-dashlet';
 
   constructor(props) {
     super(props);
@@ -40,15 +36,13 @@ class DocStatusDashlet extends React.Component {
   };
 
   render() {
-    const { id, title, config, classNameStatus, classNameDashlet, record } = this.props;
+    const { id, config, classNameStatus, classNameDashlet, record } = this.props;
     const { isCollapsed } = this.state;
-    const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
       <Dashlet
-        title={title}
-        bodyClassName={`${this.className}__body`}
-        className={classDashlet}
+        className={classNames('ecos-doc-status-dashlet', classNameDashlet)}
+        bodyClassName="ecos-doc-status-dashlet__body"
         resizable={false}
         needGoTo={false}
         actionHelp={false}
@@ -57,6 +51,7 @@ class DocStatusDashlet extends React.Component {
         actionEdit={false}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
+        noHeader
       >
         <DocStatus {...config} className={classNameStatus} record={record} stateId={id} />
       </Dashlet>
