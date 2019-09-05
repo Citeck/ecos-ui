@@ -59,15 +59,12 @@ export default class DashboardConverter {
     if (!isEmpty(source)) {
       const { config } = source;
       const layouts = get(config, ['layouts'], []);
-      let tabs = get(config, ['mobile'], []);
 
-      if (!tabs.length && layouts.length) {
-        tabs = DashboardService.generateMobileConfig(layouts);
-      }
+      DashboardService.movedToListLayout(config, layouts);
 
-      DashboardService.movedToListLayout(config, tabs);
+      const mobile = get(config, ['mobile'], DashboardService.generateMobileConfig(layouts));
 
-      tabs.forEach(item => {
+      mobile.forEach(item => {
         target.push(DashboardConverter.getDashboardLayoutForWeb(item));
       });
     }

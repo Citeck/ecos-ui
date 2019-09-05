@@ -532,7 +532,9 @@ class DashboardSettings extends React.Component {
       tabs,
       selectedLayout: layoutType,
       selectedDashboardKey: dashboardKey,
-      isForAllUsers
+      isForAllUsers,
+      mobileSelectedWidgets,
+      mobileTabs
     } = this.state;
     const activeMenuType = typeMenu.find(item => item.isActive);
     const menuType = activeMenuType ? activeMenuType.type : typeMenu[0].type;
@@ -549,7 +551,11 @@ class DashboardSettings extends React.Component {
       widgets,
       tabs,
       menuType,
-      menuLinks
+      menuLinks,
+      mobile: {
+        widgets: mobileSelectedWidgets,
+        tabs: mobileTabs
+      }
     });
   };
 

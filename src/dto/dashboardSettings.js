@@ -1,14 +1,14 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isArray from 'lodash/isArray';
 import { LAYOUT_TYPE } from '../constants/layout';
 import { Layouts } from '../constants/dashboard';
 import Components from '../components/Components';
-import MenuConverter from './menu';
-import DashboardConverter from './dashboard';
 import DashboardService from '../services/dashboard';
+import DashboardConverter from './dashboard';
 
 export default class DashboardSettingsConverter {
-  static getSettingsConfigForWeb(source = {}) {
+  static getSettingsConfigsForWeb(source = {}) {
     let target = {};
 
     if (!isEmpty(source)) {
@@ -20,8 +20,6 @@ export default class DashboardSettingsConverter {
 
       DashboardService.movedToListLayout(config, layouts);
 
-      const mobile = get(config, ['mobile'], DashboardService.generateMobileConfig(layouts));
-
       target.config = {
         layouts: [],
         mobile: []
@@ -31,10 +29,20 @@ export default class DashboardSettingsConverter {
         target.config.layouts.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout));
       });
 
-      mobile.forEach(layout => {
-        target.config.mobile.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout));
-      });
+      target.config.mobile = DashboardSettingsConverter.getMobileConfigForWeb(config, layouts);
     }
+
+    return target;
+  }
+
+  static getMobileConfigForWeb(config, layouts) {
+    const target = [];
+
+    const mobile = get(config, ['mobile'], DashboardService.generateMobileConfig(layouts));
+
+    mobile.forEach(layout => {
+      target.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout));
+    });
 
     return target;
   }
@@ -45,45 +53,46 @@ export default class DashboardSettingsConverter {
     target.id = layout.id;
     target.tab = layout.tab || DashboardService.defaultDashboardTab(layout.id);
     target.type = layout.type || LAYOUT_TYPE.TWO_COLUMNS_BS;
-    target.widgets = !isEmpty(layout.columns) ? layout.columns.map(item => item.widgets) : [];
+    target.widgets = isArray(layout.columns) ? layout.columns.map(item => item.widgets) : [];
 
     return target;
   }
 
   static getSettingsConfigForServer(source) {
-    const target = {
-      layouts: [],
-      menu: {},
-      mobile: []
-    };
+    const target = [];
 
-    const { menuType, menuLinks, layoutType, widgets } = source;
+    const { tabs = [], layoutType, widgets = {} } = source;
 
-    target.menu.type = menuType;
-    target.menu.links = MenuConverter.getMenuItemsForServer(menuLinks);
-
-    source.tabs.forEach(tab => {
+    tabs.forEach(tab => {
       const { label, idLayout } = tab;
       const type = layoutType[idLayout] || LAYOUT_TYPE.TWO_COLUMNS_BS;
       const columns = Layouts.find(layout => layout.type === type).columns;
 
-      target.layouts.push({
+      target.push({
         id: idLayout,
         tab: { label, idLayout },
         type,
         columns: DashboardSettingsConverter.getWidgetsForServer(columns, widgets[idLayout])
       });
+    });
 
-      target.mobile.push({
+    return target;
+  }
+
+  static getSettingsMobileConfigForServer(source) {
+    const { mobile } = source;
+    const target = [];
+
+    mobile.tabs.forEach(tab => {
+      const { label, idLayout } = tab;
+
+      target.push({
         id: idLayout,
         tab: { label, idLayout },
         type: LAYOUT_TYPE.MOBILE,
         columns: [
           {
-            widgets: DashboardSettingsConverter.getWidgetsForServer(columns, widgets[idLayout]).reduce(
-              (result, current) => [...result, ...current.widgets],
-              []
-            )
+            widgets: Components.setDefaultPropsOfWidgets(mobile.widgets[idLayout]) || []
           }
         ]
       });
