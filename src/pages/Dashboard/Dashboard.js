@@ -14,7 +14,6 @@ import TopMenu from '../../components/Layout/TopMenu';
 import { Loader, ScrollArrow, Tabs } from '../../components/common';
 import { MENU_TYPE } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../constants/pageTabs';
 import { deepClone, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 
@@ -291,7 +290,7 @@ class Dashboard extends Component {
 
   renderHeader() {
     const {
-      titleInfo: { modifierName = '', modifierUrl = '', date = '', name = '', version = '' },
+      titleInfo: { name = '', version = '' },
       dashboardType
     } = this.props;
     let title = null;
@@ -299,33 +298,10 @@ class Dashboard extends Component {
     switch (dashboardType) {
       case DashboardTypes.CASE_DETAILS:
         title = (
-          <React.Fragment>
-            <div className="ecos-dashboard__header-title" key="title">
-              {name && <div className="ecos-dashboard__header-name">{t(name)}</div>}
-              {version && <div className="ecos-dashboard__header-version">{version}</div>}
-            </div>
-
-            <div className="ecos-dashboard__header-mod" key="subtitle">
-              {t('cardlet.node-header.modified-by-user')}
-              {modifierName && (
-                <a
-                  {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ecos-dashboard__header-user"
-                  href={modifierUrl}
-                  title={t(`Открыть профиль ${modifierName}`)}
-                >
-                  {modifierName}
-                </a>
-              )}
-              {date && (
-                <span className="ecos-dashboard__header-date">
-                  {t('cardlet.node-header.modified-on')} {t(date)}
-                </span>
-              )}
-            </div>
-          </React.Fragment>
+          <div className="ecos-dashboard__header-title" key="title">
+            {name && <div className="ecos-dashboard__header-name">{t(name)}</div>}
+            {version && <div className="ecos-dashboard__header-version">{version}</div>}
+          </div>
         );
         break;
       case DashboardTypes.USER:
