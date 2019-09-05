@@ -17,7 +17,7 @@ export const commonOneTabDefaultProps = {
   isActive: false,
   hasHover: false,
   hasHint: false,
-  onClick: () => null
+  onClick: null
 };
 
 export const commonTabsPropTypes = {
@@ -41,5 +41,5 @@ export const commonTabsDefaultProps = {
   valueField: 'label',
   activeTabKey: '',
   valuePrefix: '',
-  onClick: () => null
+  onClick: null
 };

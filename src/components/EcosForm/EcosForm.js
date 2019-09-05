@@ -253,7 +253,7 @@ class EcosForm extends React.Component {
           onSubmit(persistedRecord, form, record);
         })
         .catch(e => {
-          form.showErrors(e);
+          form.showErrors(e, true);
         });
     } else {
       onSubmit(record, form);
