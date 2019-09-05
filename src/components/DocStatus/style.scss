@@ -4,13 +4,13 @@
   $root: &;
 
   &_read {
-    background-color: $color-blue-light2;
-    color: $color-blue-dark;
-    padding: 12px 0;
+    display: inline-block;
+    background-color: $color-blue-dark;
+    color: $color-white;
     text-align: center;
     font-weight: $font-weight-bold;
     font-size: $font-size-large;
-    margin-top: -11px;
+    border-radius: $border-radius-standard;
   }
 
   &_no-status {
@@ -19,7 +19,7 @@
   }
 
   &_manual {
-    padding: 0 16px;
+    display: inline-block;
 
     .ecos-dropdown {
       width: 100%;
@@ -41,11 +41,7 @@
     top: -2px;
   }
 
-  &-dashlet {
-    overflow: unset;
-
-    &__body {
-      padding: 11px 0 8px;
-    }
+  &__title {
+    display: inline-block;
   }
 }

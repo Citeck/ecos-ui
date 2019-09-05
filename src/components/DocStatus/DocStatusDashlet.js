@@ -2,11 +2,11 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { isMobileDevice, t } from '../../helpers/util';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import DocStatus from './DocStatus';
 
 import './style.scss';
-import UserLocalSettingsService from '../../services/userLocalSettings';
 
 class DocStatusDashlet extends React.Component {
   static propTypes = {
@@ -19,12 +19,10 @@ class DocStatusDashlet extends React.Component {
   };
 
   static defaultProps = {
-    title: t('doc-status-widget.title'),
+    title: t('Статус кейса'),
     classNameStatus: '',
     classNameDashlet: ''
   };
-
-  className = 'ecos-doc-status-dashlet';
 
   constructor(props) {
     super(props);
@@ -42,13 +40,11 @@ class DocStatusDashlet extends React.Component {
   render() {
     const { id, title, config, classNameStatus, classNameDashlet, record } = this.props;
     const { isCollapsed } = this.state;
-    const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
       <Dashlet
-        title={title}
-        bodyClassName={`${this.className}__body`}
-        className={classDashlet}
+        className={classNames('ecos-doc-status-dashlet', classNameDashlet)}
+        bodyClassName="ecos-doc-status-dashlet__body"
         resizable={false}
         needGoTo={false}
         actionHelp={false}
@@ -57,8 +53,9 @@ class DocStatusDashlet extends React.Component {
         actionEdit={false}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
+        noHeader
       >
-        <DocStatus {...config} className={classNameStatus} record={record} stateId={id} />
+        <DocStatus title={title} {...config} className={classNameStatus} record={record} stateId={id} />
       </Dashlet>
     );
   }

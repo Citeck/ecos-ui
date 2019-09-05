@@ -8,7 +8,7 @@ import { selectStateDocStatusById } from '../../selectors/docStatus';
 import { deepClone } from '../../helpers/util';
 import DocStatusService from '../../services/docStatus';
 import { IcoBtn } from '../common/btns';
-import { Dropdown } from '../common/form';
+import { Caption, Dropdown } from '../common/form';
 import { Loader } from '../common';
 
 import './style.scss';
@@ -40,14 +40,14 @@ class DocStatus extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
-    className: PropTypes.string
+    className: PropTypes.string,
+    title: PropTypes.string
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
+    title: ''
   };
-
-  className = 'ecos-doc-status';
 
   state = {
     wasChanged: false
@@ -112,7 +112,7 @@ class DocStatus extends React.Component {
 
   renderReadField() {
     const { status = {} } = this.props;
-    const classStatus = classNames(`${this.className}_read`, { [`${this.className}_no-status`]: this.isNoStatus });
+    const classStatus = classNames('ecos-doc-status_read', { 'ecos-doc-status_no-status': this.isNoStatus });
 
     return <div className={classStatus}>{status.name}</div>;
   }
@@ -120,12 +120,12 @@ class DocStatus extends React.Component {
   renderManualField() {
     const { availableToChangeStatuses = [], status } = this.props;
     const source = deepClone(availableToChangeStatuses);
-    const classStatus = classNames('ecos-btn_drop-down ecos-btn_full-width', { 'ecos-btn_blue': !this.isNoStatus || this.isShowLoader });
+    const classStatus = classNames('ecos-btn_drop-down ecos-btn_narrow', { 'ecos-btn_blue': !this.isNoStatus || this.isShowLoader });
 
     source.push(status);
 
     return (
-      <div className={`${this.className}_manual`}>
+      <div className="ecos-doc-status_manual">
         <Dropdown source={source} value={status.id} valueField={'id'} titleField={'name'} onChange={this.onChangeStatus} hideSelected>
           <IcoBtn invert icon={'icon-down'} className={classStatus} loading={this.isShowLoader} />
         </Dropdown>
@@ -134,14 +134,18 @@ class DocStatus extends React.Component {
   }
 
   render() {
+    const { title } = this.props;
     const { wasChanged } = this.state;
 
     return (
-      <div className={this.className}>
+      <div className="ecos-doc-status">
         {this.isShowLoader && !wasChanged ? (
-          <Loader className={`${this.className}__loader`} />
+          <Loader className="ecos-doc-status__loader" />
         ) : (
           <React.Fragment>
+            <Caption middle className="ecos-doc-status__title">
+              {title}
+            </Caption>
             {this.isReadField && this.renderReadField()}
             {!this.isReadField && this.renderManualField()}
           </React.Fragment>

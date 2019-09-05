@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import './Caption.scss';
 
-export default class Caption extends Component {
+class Caption extends Component {
   render() {
     const { children, className, extra, large, middle } = { ...this.props };
 
@@ -16,3 +17,19 @@ export default class Caption extends Component {
     ) : null;
   }
 }
+
+Caption.propTypes = {
+  className: PropTypes.string,
+  extra: PropTypes.bool,
+  large: PropTypes.bool,
+  middle: PropTypes.bool
+};
+
+Caption.defaultProps = {
+  className: '',
+  extra: false,
+  large: false,
+  middle: false
+};
+
+export default Caption;
