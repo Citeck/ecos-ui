@@ -101,7 +101,7 @@ export class DashboardApi extends RecordService {
   getDashboardByRecordRef = function*(recordRef, dashboardKey = '') {
     const result = yield Records.get(recordRef).load({
       type: '_dashboardType',
-      keys: '_dashboardKey[]'
+      keys: '_dashboardKey[]?str'
     });
 
     const { keys, type } = result;
