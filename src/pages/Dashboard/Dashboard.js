@@ -21,19 +21,22 @@ import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
 
-const mapStateToProps = state => ({
-  config: get(state, ['dashboard', 'config'], []),
-  mobileConfig: get(state, ['dashboard', 'mobileConfig'], []),
-  isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
-  saveResultDashboard: get(state, ['dashboard', 'requestResult']),
-  isLoadingMenu: get(state, ['menu', 'isLoading']),
-  saveResultMenu: get(state, ['menu', 'requestResult']),
-  menuType: get(state, ['menu', 'type']),
-  links: get(state, ['menu', 'links']),
-  dashboardType: get(state, ['dashboard', 'identification', 'type']),
-  titleInfo: get(state, ['dashboard', 'titleInfo']),
-  isMobile: get(state, ['view', 'isMobile'])
-});
+const mapStateToProps = state => {
+  const isMobile = get(state, ['view', 'isMobile'], false);
+
+  return {
+    config: get(state, ['dashboard', isMobile ? 'mobileConfig' : 'config'], []),
+    isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
+    saveResultDashboard: get(state, ['dashboard', 'requestResult']),
+    isLoadingMenu: get(state, ['menu', 'isLoading']),
+    saveResultMenu: get(state, ['menu', 'requestResult']),
+    menuType: get(state, ['menu', 'type']),
+    links: get(state, ['menu', 'links']),
+    dashboardType: get(state, ['dashboard', 'identification', 'type']),
+    titleInfo: get(state, ['dashboard', 'titleInfo']),
+    isMobile
+  };
+};
 
 const mapDispatchToProps = dispatch => ({
   getDashboardConfig: payload => dispatch(getDashboardConfig(payload)),
@@ -55,7 +58,6 @@ class Dashboard extends Component {
     super(props);
 
     this.state.config = props.config || [];
-    this.state.mobileConfig = props.mobileConfig || [];
   }
 
   componentDidMount() {
@@ -66,7 +68,7 @@ class Dashboard extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { initMenuSettings, config, mobileConfig, isLoadingDashboard, getDashboardConfig, resetDashboardConfig, setLoading } = nextProps;
+    const { initMenuSettings, config, isLoadingDashboard, getDashboardConfig, resetDashboardConfig, setLoading } = nextProps;
     const { recordRef } = this.getPathInfo(nextProps);
     const { urlParams, activeLayoutId } = this.state;
     const newUrlParams = getSortedUrlParams();
@@ -83,10 +85,6 @@ class Dashboard extends Component {
 
     if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
       state.config = config;
-    }
-
-    if (JSON.stringify(mobileConfig) !== JSON.stringify(this.props.mobileConfig)) {
-      state.mobileConfig = mobileConfig;
     }
 
     if (JSON.stringify(config) !== JSON.stringify(this.props.config) || isEmpty(activeLayoutId)) {
@@ -142,12 +140,10 @@ class Dashboard extends Component {
   }
 
   get activeLayout() {
-    const { isMobile } = this.props;
-    const { config, activeLayoutId, mobileConfig } = this.state;
-    const cfg = isMobile ? mobileConfig : config;
+    const { config, activeLayoutId } = this.state;
 
-    if (!isEmpty(cfg) && isArray(cfg) && !!activeLayoutId) {
-      return cfg.find(item => item.id === activeLayoutId) || {};
+    if (!isEmpty(config) && isArray(config) && !!activeLayoutId) {
+      return config.find(item => item.id === activeLayoutId) || {};
     }
 
     return {};
@@ -157,7 +153,7 @@ class Dashboard extends Component {
     const { config } = this.state;
 
     if (!isEmpty(config) && isArray(config)) {
-      return config.map((item, index) => item.tab);
+      return config.map(item => item.tab);
     }
 
     return [];
