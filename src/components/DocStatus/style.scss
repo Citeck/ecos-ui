@@ -15,11 +15,12 @@
 
   &__data {
     flex: auto;
+    max-width: 270px;
 
     &_read {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: inline-block;
+      text-align: center;
+      line-height: 26px;
       height: 26px;
       padding: 0 15px;
       border-radius: $border-radius-standard;
@@ -27,6 +28,8 @@
       color: $color-white;
       font-weight: $font-weight-bold;
       font-size: $font-size-standard;
+
+      @extend %ellipsis;
     }
 
     &_manual {
