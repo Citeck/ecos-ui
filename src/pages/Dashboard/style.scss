@@ -50,6 +50,15 @@
     &-date {
       text-transform: capitalize;
     }
+
+    &_mobile {
+      background-color: $color-white;
+      margin-bottom: 0;
+      padding-bottom: 15px;
+      border-bottom: 2px solid $color-gray-4;
+      position: relative;
+      z-index: 1;
+    }
   }
 
   &__tabs {
@@ -66,6 +75,38 @@
       padding: 0 10px;
       min-width: 190px;
       @extend %ellipsis;
+    }
+
+    &_mobile {
+      width: 100%;
+      overflow: auto;
+      padding: 16px 15px;
+      background-color: $color-white;
+
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      margin-bottom: 10px;
+
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      .ecos-tab {
+        background-color: $color-gray-4;
+        font-weight: bold;
+        height: 26px;
+        line-height: 26px;
+        padding: 0 17px;
+        min-width: 0;
+
+        &_active {
+          color: $color-white;
+          background-color: $color-blue-dark;
+        }
+      }
     }
   }
 }

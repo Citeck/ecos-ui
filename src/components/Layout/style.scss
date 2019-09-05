@@ -284,6 +284,23 @@ $indents-of-items: 15px;
   .dashlet__btn_move {
     pointer-events: none !important;
   }
+
+  &_mobile {
+    padding: 0;
+    margin-bottom: 0;
+
+    .dashlet__wrap-header {
+      border-radius: 0;
+    }
+
+    .dashlet {
+      border-radius: 0;
+    }
+
+    .ecos-layout__element {
+      margin-bottom: 10px;
+    }
+  }
 }
 
 @media (max-width: 920px) {

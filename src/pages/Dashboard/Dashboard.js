@@ -5,6 +5,7 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
+import classNames from 'classnames';
 
 import { getDashboardConfig, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
@@ -19,17 +20,22 @@ import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
 
-const mapStateToProps = state => ({
-  config: get(state, ['dashboard', 'config'], []),
-  isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
-  saveResultDashboard: get(state, ['dashboard', 'requestResult']),
-  isLoadingMenu: get(state, ['menu', 'isLoading']),
-  saveResultMenu: get(state, ['menu', 'requestResult']),
-  menuType: get(state, ['menu', 'type']),
-  links: get(state, ['menu', 'links']),
-  dashboardType: get(state, ['dashboard', 'identification', 'type']),
-  titleInfo: get(state, ['dashboard', 'titleInfo'])
-});
+const mapStateToProps = state => {
+  const isMobile = get(state, ['view', 'isMobile'], false);
+
+  return {
+    config: get(state, ['dashboard', isMobile ? 'mobileConfig' : 'config'], []),
+    isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
+    saveResultDashboard: get(state, ['dashboard', 'requestResult']),
+    isLoadingMenu: get(state, ['menu', 'isLoading']),
+    saveResultMenu: get(state, ['menu', 'requestResult']),
+    menuType: get(state, ['menu', 'type']),
+    links: get(state, ['menu', 'links']),
+    dashboardType: get(state, ['dashboard', 'identification', 'type']),
+    titleInfo: get(state, ['dashboard', 'titleInfo']),
+    isMobile
+  };
+};
 
 const mapDispatchToProps = dispatch => ({
   getDashboardConfig: payload => dispatch(getDashboardConfig(payload)),
@@ -146,7 +152,7 @@ class Dashboard extends Component {
     const { config } = this.state;
 
     if (!isEmpty(config) && isArray(config)) {
-      return config.map((item, index) => item.tab);
+      return config.map(item => item.tab);
     }
 
     return [];
@@ -237,7 +243,16 @@ class Dashboard extends Component {
       return null;
     }
 
+    const { isMobile } = this.props;
     const { activeLayoutId } = this.state;
+
+    if (isMobile) {
+      return (
+        <div className="ecos-dashboard__tabs ecos-dashboard__tabs_mobile">
+          <Tabs items={this.tabList} onClick={this.toggleTabLayout} keyField={'idLayout'} activeTabKey={activeLayoutId} />
+        </div>
+      );
+    }
 
     return (
       <div className="ecos-dashboard__tabs-wrapper">
@@ -258,7 +273,7 @@ class Dashboard extends Component {
   }
 
   renderLayout() {
-    const { menuType } = this.props;
+    const { menuType, isMobile } = this.props;
     const { canDragging } = this.state;
     const { columns, type } = this.activeLayout;
 
@@ -268,6 +283,9 @@ class Dashboard extends Component {
 
     return (
       <Layout
+        className={classNames({
+          'ecos-layout_mobile': isMobile
+        })}
         columns={columns}
         onSaveWidget={this.prepareWidgetsConfig}
         type={type}
@@ -291,7 +309,8 @@ class Dashboard extends Component {
   renderHeader() {
     const {
       titleInfo: { name = '', version = '' },
-      dashboardType
+      dashboardType,
+      isMobile
     } = this.props;
     let title = null;
 
@@ -312,7 +331,15 @@ class Dashboard extends Component {
         break;
     }
 
-    return <div className="ecos-dashboard__header">{title}</div>;
+    return (
+      <div
+        className={classNames('ecos-dashboard__header', {
+          'ecos-dashboard__header_mobile': isMobile
+        })}
+      >
+        {title}
+      </div>
+    );
   }
 
   renderLoader() {
