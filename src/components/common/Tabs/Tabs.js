@@ -35,7 +35,7 @@ const Tabs = props => {
           id={item[keyField]}
           label={classNames(valuePrefix, item[valueField])}
           isActive={item.isActive || item[keyField] === activeTabKey}
-          onClick={() => onClick(index)}
+          onClick={onClick ? () => onClick(index) : item.onClick}
           hasHover={hasHover}
           hasHint={hasHint}
         />
