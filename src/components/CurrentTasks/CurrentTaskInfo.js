@@ -5,6 +5,7 @@ import uniqueId from 'lodash/uniqueId';
 
 import { getOutputFormat } from '../../helpers/util';
 import { Separator } from '../common';
+import { Caption } from '../common/form';
 import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
 import IconInfo from './IconInfo';
 
@@ -30,7 +31,9 @@ class CurrentTaskInfo extends React.Component {
 
     return (
       <div className="ecos-current-task-info">
-        <div className="ecos-current-task-info__title">{task[DC.title.key]}</div>
+        <Caption className="ecos-current-task-info__title" small>
+          {task[DC.title.key]}
+        </Caption>
         <div className="ecos-current-task-info__fields">
           {this.renderLabel('actors')}
 

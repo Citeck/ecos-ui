@@ -48,13 +48,11 @@
     $info: &;
 
     &__title {
-      height: 51px;
+      height: 40px;
       padding: 0 20px;
-      font-size: $font-size-standard;
       font-weight: $font-weight-bold;
-      color: $color-gray-dark;
       background-color: $color-yellow;
-      line-height: 3.5;
+      line-height: 2.7;
       @extend %ellipsis;
     }
 
