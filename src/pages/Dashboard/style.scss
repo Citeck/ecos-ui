@@ -70,12 +70,10 @@
     }
 
     &-item {
-      padding: 0 10px;
-      min-width: 190px;
+      padding: 0 13px;
       max-width: 350px;
-
       font-size: 14px;
-      line-height: 23px;
+      line-height: 26px;
 
       @extend %ellipsis;
     }
