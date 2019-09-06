@@ -126,6 +126,8 @@ class Dashlet extends Component {
     resizable: PropTypes.bool,
     canDragging: PropTypes.bool,
     isMobile: PropTypes.bool,
+    isCollapsed: PropTypes.bool,
+    collapsible: PropTypes.bool,
     dragHandleProps: PropTypes.object,
     customButtons: PropTypes.array,
     onEdit: PropTypes.func,
@@ -152,6 +154,8 @@ class Dashlet extends Component {
     resizable: false,
     canDragging: false,
     isMobile: false,
+    isCollapsed: false,
+    collapsible: true,
     dragButton: null,
     dragHandleProps: {},
     customButtons: [],
@@ -256,7 +260,11 @@ class Dashlet extends Component {
   }
 
   renderHideButton() {
-    const { isMobile } = this.props;
+    const { isMobile, collapsible } = this.props;
+
+    if (!collapsible) {
+      return null;
+    }
 
     if (!isMobile) {
       return null;

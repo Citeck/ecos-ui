@@ -4,18 +4,24 @@
   height: 46px;
   display: flex;
   align-items: center;
-  padding: 7px 20px 0;
+  padding: 0 20px;
+
+  &_mobile {
+    height: 80px;
+    flex-wrap: wrap;
+  }
 
   &__title {
     display: inline-block;
     color: $text-color-gray;
     font-weight: $font-weight-bold;
     padding-right: 20px;
+    @extend %ellipsis;
   }
 
   &__data {
     flex: auto;
-    max-width: 270px;
+    max-width: 223px;
 
     &_read {
       display: inline-block;
@@ -24,8 +30,8 @@
       height: 26px;
       padding: 0 15px;
       border-radius: $border-radius-standard;
-      background: $color-blue-dark;
-      color: $color-white;
+      background: $color-blue-light2;
+      color: $color-blue-dark;
       font-weight: $font-weight-bold;
       font-size: $font-size-standard;
 

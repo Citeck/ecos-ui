@@ -1,8 +1,10 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { debounce, isEmpty } from 'lodash';
+import debounce from 'lodash/debounce';
+import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
+import ReactResizeDetector from 'react-resize-detector';
 import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus, updateDocStatus } from '../../actions/docStatus';
 import { selectStateDocStatusById } from '../../selectors/docStatus';
 import { deepClone, t } from '../../helpers/util';
@@ -40,13 +42,11 @@ class DocStatus extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
-    className: PropTypes.string,
-    title: PropTypes.string
+    className: PropTypes.string
   };
 
   static defaultProps = {
-    className: '',
-    title: ''
+    className: ''
   };
 
   state = {
@@ -141,17 +141,18 @@ class DocStatus extends React.Component {
     const { wasChanged } = this.state;
 
     return (
-      <div className="ecos-doc-status">
+      <div className={classNames('ecos-doc-status', { 'ecos-doc-status_mobile': true })}>
+        <ReactResizeDetector handleWidth handleHeight />
         {this.isShowLoader && !wasChanged ? (
           <Loader className="ecos-doc-status__loader" />
         ) : (
-          <React.Fragment>
+          <>
             <Caption middle className="ecos-doc-status__title">
               {t('Статус кейса')}
             </Caption>
             {this.isReadField && this.renderReadField()}
             {!this.isReadField && this.renderManualField()}
-          </React.Fragment>
+          </>
         )}
       </div>
     );
