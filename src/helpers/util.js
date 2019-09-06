@@ -3,6 +3,15 @@ import moment from 'moment';
 import { DataFormatTypes, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import * as queryString from 'query-string';
 
+const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
+
+export const utcAsLocal = jsonDate =>
+  moment(jsonDate)
+    .zone(0)
+    .format(UTC_AS_LOCAL_FORMAT);
+
+export const revokeUtcAsLocal = jsonDate => moment(jsonDate).format(UTC_AS_LOCAL_FORMAT) + 'Z';
+
 export const debounce = (func, ms = 0) => {
   let timer = null;
   let resolves = [];
