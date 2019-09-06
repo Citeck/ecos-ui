@@ -4,6 +4,7 @@ import Components from 'formiojs/components/Components';
 import Button from './override/button';
 import { Column, Columns } from './override/columns';
 import Checkbox from './override/checkbox';
+import DateTime from './override/datetime';
 import File from './override/file';
 import Number from './override/number';
 import Panel from './override/panel';
@@ -25,6 +26,7 @@ Components.setComponents({
   column: Column,
   columns: Columns,
   checkbox: Checkbox,
+  datetime: DateTime,
   file: File,
   number: Number,
   panel: Panel,
