@@ -104,11 +104,11 @@ class SetTabs extends React.Component {
     const empty = isEmpty(tabs);
 
     return (
-      <React.Fragment>
+      <>
         <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
         <div className="ecos-dashboard-settings__layout-tabs-wrapper">
           {!empty && (
-            <ScrollArrow scrollToEnd={scrollTabToEnd}>
+            <ScrollArrow scrollToEnd={scrollTabToEnd} className="ecos-dashboard-settings__layout-tabs-arrows">
               <EditTabs
                 className="ecos-dashboard-settings__layout-tabs-block"
                 classNameTab="ecos-dashboard-settings__layout-tabs-item"
@@ -128,7 +128,7 @@ class SetTabs extends React.Component {
           {empty && <div className="ecos-dashboard-settings__layout-tabs_empty" />}
           <IcoBtn
             icon="icon-big-plus"
-            className={'ecos-dashboard-settings__layout-tabs__add-tab ecos-btn_i ecos-btn_blue2 ecos-btn_hover_blue2'}
+            className={'ecos-dashboard-settings__layout-tabs-add-tab ecos-btn_i ecos-btn_blue2 ecos-btn_hover_blue2'}
             onClick={this.onCreateTab}
           />
         </div>
@@ -145,7 +145,7 @@ class SetTabs extends React.Component {
           onCancel={this.closeDialog}
           onClose={this.closeDialog}
         />
-      </React.Fragment>
+      </>
     );
   }
 }
