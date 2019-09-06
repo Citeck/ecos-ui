@@ -2,20 +2,15 @@ import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
-import { push } from 'connected-react-router';
 import { withRouter } from 'react-router';
 import { trigger, getBool } from '../../helpers/util';
-
-const mapDispatchToProps = dispatch => ({
-  push: url => dispatch(push(url))
-});
+import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 
 class UrlManager extends Component {
   _prevUrlParams = {};
 
   updateUrl(params, prevUrlParams) {
     const {
-      push,
       history: {
         location: { pathname, search }
       }
@@ -45,7 +40,7 @@ class UrlManager extends Component {
       }
 
       if (needUpdate) {
-        push(`${pathname}?${queryString.stringify(fromUrlParams)}`);
+        changeUrlLink(`${pathname}?${queryString.stringify(fromUrlParams)}`);
         this.triggerParse(fromUrlParams);
       }
     }
@@ -82,7 +77,4 @@ class UrlManager extends Component {
   }
 }
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(withRouter(UrlManager));
+export default withRouter(UrlManager);
