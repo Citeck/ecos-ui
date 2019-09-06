@@ -6,18 +6,29 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import classNames from 'classnames';
 
-import Dashlet from '../Dashlet/Dashlet';
+import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../actions/versionsJournal';
+import { selectLabelsVersions } from '../../selectors/versionsJournal';
+import UserLocalSettingsService from '../../services/userLocalSettings';
+import { t } from '../../helpers/util';
+import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../constants/versionsJournal';
+
 import { Avatar, DefineHeight, Icon, Loader } from '../common';
 import { Btn, IcoBtn } from '../common/btns';
-import { Dropdown, Headline } from '../common/form';
+import { Dropdown } from '../common/form';
+import Dashlet from '../Dashlet/Dashlet';
+import { IcoBtn } from '../common/btns';
+import { Loader, Icon, Avatar, DefineHeight } from '../common';
 import { t } from '../../helpers/util';
 import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
 import ComparisonModal from './ComparisonModal';
 import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../actions/versionsJournal';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
-import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../constants/versionsJournal';
+import { TOOLTIP, MODAL, BASE_HEIGHT } from '../../constants/versionsJournal';
 import { selectLabelsVersions } from '../../selectors/versionsJournal';
+import Btn from '../common/btns/Btn';
+import { Dropdown } from '../common/form';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 
 import './style.scss';
@@ -291,7 +302,7 @@ class VersionsJournal extends Component {
           'ecos-vj__version-actions_mobile': isMobile
         })}
       >
-        <Icon onClick={this.handleClickShowModal} className="icon-on ecos-vj__version-actions-item" />
+        {/*<Icon onClick={this.handleClickShowModal} className="icon-on ecos-vj__version-actions-item" />*/}
         <Icon
           id={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
           onClick={this.handleOpenSetActiveVersionModal.bind(null, version)}
@@ -306,9 +317,18 @@ class VersionsJournal extends Component {
         >
           {t('versions-journal-widget.set-current')}
         </UncontrolledTooltip>
-        <a href={version.url} download data-external>
+        <a href={version.url} download data-external id={`${TOOLTIP.DOWNLOAD_VERSION}-${key}`}>
           <Icon className="icon-download ecos-vj__version-actions-item" />
         </a>
+        <UncontrolledTooltip
+          placement="top"
+          boundariesElement="window"
+          innerClassName="ecos-vj__tooltip"
+          arrowClassName="ecos-vj__tooltip-arrow"
+          target={`${TOOLTIP.DOWNLOAD_VERSION}-${key}`}
+        >
+          {t('versions-journal-widget.download')}
+        </UncontrolledTooltip>
       </div>
     );
   }

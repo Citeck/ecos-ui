@@ -23,11 +23,7 @@ export default class VersionsJournalConverter {
     target.userName = [source.firstName || '', source.middleName || '', source.lastName || ''].join(' ');
     target.comment = source.comment || '';
     target.version = source.version || '';
-    target.date = source.modified
-      ? moment(source.modified)
-          .utc()
-          .format(dateFormat)
-      : '';
+    target.date = source.modified ? moment(source.modified).format(dateFormat) : '';
     target.name = source.name || '';
     target.id = source.id || '';
     target.url = source.downloadUrl || '';

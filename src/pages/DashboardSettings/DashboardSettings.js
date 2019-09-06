@@ -7,11 +7,13 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isNull from 'lodash/isNull';
+import find from 'lodash/find';
 
-import { arrayCompare, t, documentScrollTop } from '../../helpers/util';
+import { arrayCompare, documentScrollTop, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
-import { DashboardTypes, Layouts, MenuTypes } from '../../constants/dashboard';
 import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
+import { DashboardTypes, DeviceTabs, Layouts, MenuTypes } from '../../constants/dashboard';
+import { LAYOUT_TYPE } from '../../constants/layout';
 import DashboardService from '../../services/dashboard';
 import {
   getAwayFromPage,
@@ -23,7 +25,7 @@ import {
 import { initMenuSettings } from '../../actions/menu';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
-import { Loader } from '../../components/common';
+import { Loader, Tabs } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import { TunableDialog } from '../../components/common/dialogs';
 
@@ -44,7 +46,8 @@ const mapStateToProps = state => ({
   menuLinks: get(state, 'menu.links', []),
   availableMenuItems: get(state, ['menu', 'availableMenuItems'], []),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
-  config: get(state, ['dashboardSettings', 'config'], []),
+  config: get(state, 'dashboardSettings.config.layouts', []),
+  mobileConfig: get(state, 'dashboardSettings.config.mobile', []),
   availableWidgets: get(state, ['dashboardSettings', 'availableWidgets'], []),
   isLoading: get(state, ['dashboardSettings', 'isLoading']),
   requestResult: get(state, ['dashboardSettings', 'requestResult'], {}),
@@ -61,6 +64,10 @@ const mapDispatchToProps = dispatch => ({
   setCheckUpdatedDashboardConfig: payload => dispatch(setCheckUpdatedDashboardConfig(payload))
 });
 
+const DESK_VER = find(DeviceTabs, ['key', 'desktop']);
+
+const findLayout = type => Layouts.find(layout => layout.type === type) || {};
+
 class DashboardSettings extends React.Component {
   static propTypes = {
     identification: PropTypes.object,
@@ -73,11 +80,13 @@ class DashboardSettings extends React.Component {
         widgets: PropTypes.array,
         tab: PropTypes.object
       })
-    ).isRequired,
+    ),
+    mobileConfig: PropTypes.array,
     availableMenuItems: PropTypes.array,
     availableWidgets: PropTypes.array,
     dashboardKeyItems: PropTypes.array,
-    requestResult: PropTypes.object
+    requestResult: PropTypes.object,
+    isMobile: PropTypes.bool
   };
 
   static defaultProps = {
@@ -86,6 +95,7 @@ class DashboardSettings extends React.Component {
     menuType: '',
     menuLinks: [],
     config: [],
+    mobileConfig: [],
     availableWidgets: [],
     availableMenuItems: [],
     dashboardKeyItems: [],
@@ -93,15 +103,25 @@ class DashboardSettings extends React.Component {
   };
 
   state = {
-    activeLayoutId: null,
     selectedDashboardKey: '',
     isForAllUsers: false,
+
+    activeDeviceTabId: DESK_VER.key,
+
+    tabs: [],
+    mobileTabs: [],
+
+    activeLayoutTabId: null,
+    mobileActiveLayoutTabId: null,
+
     selectedLayout: {},
+
     selectedWidgets: {},
+    mobileSelectedWidgets: {},
+
     selectedMenuItems: [],
     typeMenu: MenuTypes,
-    urlParams: getSortedUrlParams(),
-    tabs: []
+    urlParams: getSortedUrlParams()
   };
 
   constructor(props) {
@@ -115,7 +135,8 @@ class DashboardSettings extends React.Component {
 
     this.state = {
       ...state,
-      ...this.setStateByConfig(props),
+      ...this.setStateConfig(props),
+      ...this.setStateMobileConfig(props),
       ...this.setStateMenu(props, state)
     };
   }
@@ -127,7 +148,7 @@ class DashboardSettings extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
-    let { config, menuType, availableMenuItems, availableWidgets } = this.props;
+    let { config, mobileConfig, menuType, availableMenuItems, availableWidgets } = this.props;
     let state = {};
 
     if (urlParams !== newUrlParams) {
@@ -136,7 +157,13 @@ class DashboardSettings extends React.Component {
     }
 
     if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
-      const resultConfig = this.setStateByConfig(nextProps);
+      const resultConfig = this.setStateConfig(nextProps);
+
+      state = { ...state, ...resultConfig };
+    }
+
+    if (JSON.stringify(mobileConfig) !== JSON.stringify(nextProps.mobileConfig)) {
+      const resultConfig = this.setStateMobileConfig(nextProps);
 
       state = { ...state, ...resultConfig };
     }
@@ -170,18 +197,18 @@ class DashboardSettings extends React.Component {
     initMenuSettings();
   }
 
-  setStateByConfig(props) {
+  setStateConfig(props) {
     const selectedDashboardKey = get(props, 'identification.key', '');
     const isForAllUsers = isNull(get(props, 'identification.user', null));
     const { config } = props;
 
-    let activeLayoutId = null;
+    let activeLayoutTabId = null;
     let tabs = [];
     let selectedLayout = {};
     let selectedWidgets = {};
 
     if (!isEmpty(config) && isArray(config)) {
-      activeLayoutId = config[0].id;
+      activeLayoutTabId = config[0].id;
 
       config.forEach(item => {
         let idLayout = item.id;
@@ -189,7 +216,7 @@ class DashboardSettings extends React.Component {
         tabs.push(item.tab);
         selectedLayout[idLayout] = item.type;
 
-        let layout = Layouts.find(layout => layout.type === item.type) || {};
+        let layout = findLayout(item.type);
         let widgets = this.setSelectedWidgets(layout, item.widgets);
 
         widgets.map(item => DndUtils.setDndId(item));
@@ -197,7 +224,33 @@ class DashboardSettings extends React.Component {
       });
     }
 
-    return { selectedLayout, selectedWidgets, tabs, activeLayoutId, selectedDashboardKey, isForAllUsers };
+    return { selectedLayout, selectedWidgets, tabs, activeLayoutTabId, selectedDashboardKey, isForAllUsers };
+  }
+
+  setStateMobileConfig(props) {
+    const { mobileConfig } = props;
+
+    let mobileActiveLayoutTabId = null;
+    let mobileTabs = [];
+    let mobileSelectedWidgets = {};
+
+    if (!isEmpty(mobileConfig) && isArray(mobileConfig)) {
+      mobileActiveLayoutTabId = mobileConfig[0].id;
+
+      mobileConfig.forEach(item => {
+        let idLayout = item.id;
+
+        mobileTabs.push(item.tab);
+
+        let layout = findLayout(item.type);
+        let widgets = this.setSelectedWidgets(layout, item.widgets);
+
+        widgets.map(item => DndUtils.setDndId(item));
+        mobileSelectedWidgets[idLayout] = widgets;
+      });
+    }
+
+    return { mobileSelectedWidgets, mobileTabs, mobileActiveLayoutTabId };
   }
 
   setStateMenu(props, state = this.state) {
@@ -215,7 +268,7 @@ class DashboardSettings extends React.Component {
 
   setSelectedWidgets(item, availableWidgets) {
     const columns = item ? item.columns || [] : [];
-    let newWidgets = new Array(columns.length);
+    const newWidgets = new Array(columns.length);
 
     newWidgets.fill([]);
     newWidgets.forEach((value, index) => {
@@ -284,20 +337,26 @@ class DashboardSettings extends React.Component {
   }
 
   get selectedTypeLayout() {
-    return Layouts.find(layout => layout.type === this.activeData.layout) || {};
+    return findLayout(this.activeData.layout);
   }
 
   get activeData() {
-    const { activeLayoutId, selectedWidgets, selectedLayout } = this.state;
+    const { activeLayoutTabId, selectedWidgets, selectedLayout, mobileActiveLayoutTabId, mobileSelectedWidgets } = this.state;
 
     return {
-      widgets: selectedWidgets[activeLayoutId] || [],
-      layout: selectedLayout[activeLayoutId] || ''
+      widgets: this.isSelectedMobileVer
+        ? get(mobileSelectedWidgets, mobileActiveLayoutTabId, [])
+        : get(selectedWidgets, activeLayoutTabId, []),
+      layout: this.isSelectedMobileVer ? LAYOUT_TYPE.MOBILE : get(selectedLayout, activeLayoutTabId, '')
     };
   }
 
   get isUserType() {
     return [DashboardTypes.USER].includes(get(this, 'props.identification.type', ''));
+  }
+
+  get isSelectedMobileVer() {
+    return find(DeviceTabs, ['key', 'mobile']).key === this.state.activeDeviceTabId;
   }
 
   draggablePositionAdjustment = () => {
@@ -353,40 +412,90 @@ class DashboardSettings extends React.Component {
     );
   }
 
-  renderTabsBlock() {
+  renderDeviceTabsBlock() {
+    const { activeDeviceTabId } = this.state;
+
+    const toggleTab = index => {
+      const tab = DeviceTabs[index];
+
+      if (tab.key !== activeDeviceTabId) {
+        this.setState({ activeDeviceTabId: tab.key });
+      }
+    };
+
+    return (
+      <Tabs
+        hasHover
+        className="ecos-dashboard-settings__device-tabs"
+        classNameTab="ecos-dashboard-settings__device-tabs-item"
+        items={DeviceTabs.map(item => ({ ...item, label: t(item.label) }))}
+        onClick={toggleTab}
+        activeTabKey={activeDeviceTabId}
+        keyField="key"
+      />
+    );
+  }
+
+  renderLayoutTabsBlock() {
     if (this.isUserType) {
       return null;
     }
 
-    const setData = data => {
-      this.setState(data);
+    const isMob = this.isSelectedMobileVer;
+    const state = {};
+
+    const setData = ({ tabs, activeTabKey }) => {
+      if (isMob) {
+        if (!isEmpty(tabs)) {
+          state.mobileTabs = tabs;
+        }
+        if (!isEmpty(activeTabKey)) {
+          state.mobileActiveLayoutTabId = activeTabKey;
+        }
+      } else {
+        if (!isEmpty(tabs)) {
+          state.tabs = tabs;
+        }
+        if (!isEmpty(activeTabKey)) {
+          state.activeLayoutTabId = activeTabKey;
+        }
+      }
+      this.setState(state);
     };
 
-    const { tabs, activeLayoutId } = this.state;
+    const { tabs, activeLayoutTabId, mobileActiveLayoutTabId, mobileTabs } = this.state;
 
-    return <SetTabs tabs={tabs} activeLayoutId={activeLayoutId} setData={setData} />;
+    const currentTabs = isMob ? mobileTabs : tabs;
+    const active = isMob ? mobileActiveLayoutTabId : activeLayoutTabId;
+
+    return <SetTabs tabs={currentTabs} activeTabKey={active} setData={setData} />;
   }
 
   renderLayoutsBlock() {
     const setData = layout => {
-      const { activeLayoutId, selectedWidgets, selectedLayout } = this.state;
+      const { activeLayoutTabId, selectedWidgets, selectedLayout } = this.state;
 
-      selectedLayout[activeLayoutId] = layout.type;
-      selectedWidgets[activeLayoutId] = this.setSelectedWidgets(layout, selectedWidgets[activeLayoutId]);
+      selectedLayout[activeLayoutTabId] = layout.type;
+      selectedWidgets[activeLayoutTabId] = this.setSelectedWidgets(layout, selectedWidgets[activeLayoutTabId]);
 
       this.setState({ selectedWidgets, selectedLayout });
     };
 
-    return <SetLayouts activeLayout={this.activeData.layout} setData={setData} />;
+    return <SetLayouts activeLayout={this.activeData.layout} setData={setData} isMobile={this.isSelectedMobileVer} />;
   }
 
   renderWidgetsBlock() {
-    const { availableWidgets, activeLayoutId, selectedWidgets } = this.state;
+    const { availableWidgets, activeLayoutTabId, selectedWidgets, mobileSelectedWidgets, mobileActiveLayoutTabId } = this.state;
+    const isMob = this.isSelectedMobileVer;
 
     const setData = data => {
-      selectedWidgets[activeLayoutId] = data;
-
-      this.setState({ selectedWidgets });
+      if (isMob) {
+        mobileSelectedWidgets[mobileActiveLayoutTabId] = data;
+        this.setState({ mobileSelectedWidgets });
+      } else {
+        selectedWidgets[activeLayoutTabId] = data;
+        this.setState({ selectedWidgets });
+      }
     };
 
     return (
@@ -394,9 +503,9 @@ class DashboardSettings extends React.Component {
         availableWidgets={availableWidgets}
         activeWidgets={this.activeData.widgets}
         columns={this.selectedTypeLayout.columns}
-        activeLayoutId={activeLayoutId}
         positionAdjustment={this.draggablePositionAdjustment}
         setData={setData}
+        isMobile={isMob}
       />
     );
   }
@@ -439,7 +548,9 @@ class DashboardSettings extends React.Component {
       tabs,
       selectedLayout: layoutType,
       selectedDashboardKey: dashboardKey,
-      isForAllUsers
+      isForAllUsers,
+      mobileSelectedWidgets,
+      mobileTabs
     } = this.state;
     const activeMenuType = typeMenu.find(item => item.isActive);
     const menuType = activeMenuType ? activeMenuType.type : typeMenu[0].type;
@@ -456,7 +567,11 @@ class DashboardSettings extends React.Component {
       widgets,
       tabs,
       menuType,
-      menuLinks
+      menuLinks,
+      mobile: {
+        widgets: mobileSelectedWidgets,
+        tabs: mobileTabs
+      }
     });
   };
 
@@ -530,14 +645,15 @@ class DashboardSettings extends React.Component {
         {this.renderLoader()}
         {this.renderHeader()}
         {this.renderDashboardKey()}
-        {this.renderTabsBlock()}
+        {this.renderDeviceTabsBlock()}
+        {this.renderLayoutTabsBlock()}
         <div className="ecos-dashboard-settings__container">
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
           {this.renderMenuBlock()}
           {this.renderButtons()}
-          {this.renderDialogs()}
         </div>
+        {this.renderDialogs()}
       </Container>
     );
   }
