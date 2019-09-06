@@ -1,3 +1,5 @@
+export const BASE_HEIGHT = 357;
+
 export const TOOLTIP = {
   ADD_NEW_VERSION: 'ADD_NEW_VERSION',
   SET_ACTUAL_VERSION: 'SET_ACTUAL_VERSION',
@@ -35,5 +37,3 @@ export const VERSIONS = {
   MINOR: 'minor',
   MAJOR: 'major'
 };
-
-export const BASE_HEIGHT = 357;
