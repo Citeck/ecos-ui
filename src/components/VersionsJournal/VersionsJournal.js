@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
-import classNames from 'classnames';
 
 import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../actions/versionsJournal';
 import { selectLabelsVersions } from '../../selectors/versionsJournal';
@@ -15,21 +15,11 @@ import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../constants/versionsJournal';
 
 import { Avatar, DefineHeight, Icon, Loader } from '../common';
 import { Btn, IcoBtn } from '../common/btns';
-import { Dropdown } from '../common/form';
+import { Dropdown, Headline } from '../common/form';
 import Dashlet from '../Dashlet/Dashlet';
-import { IcoBtn } from '../common/btns';
-import { Loader, Icon, Avatar, DefineHeight } from '../common';
-import { t } from '../../helpers/util';
 import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
 import ComparisonModal from './ComparisonModal';
-import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../actions/versionsJournal';
-import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
-import { TOOLTIP, MODAL, BASE_HEIGHT } from '../../constants/versionsJournal';
-import { selectLabelsVersions } from '../../selectors/versionsJournal';
-import Btn from '../common/btns/Btn';
-import { Dropdown } from '../common/form';
-import UserLocalSettingsService from '../../services/userLocalSettings';
 
 import './style.scss';
 
@@ -61,7 +51,14 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getVersionsList: () => dispatch(getVersions({ record: ownProps.record, id: ownProps.id })),
-  getVersionsComparison: payload => dispatch(getVersionsComparison({ ...payload, record: ownProps.record, id: ownProps.id })),
+  getVersionsComparison: payload =>
+    dispatch(
+      getVersionsComparison({
+        ...payload,
+        record: ownProps.record,
+        id: ownProps.id
+      })
+    ),
   addNewVersion: payload => dispatch(addNewVersion({ ...payload, record: ownProps.record, id: ownProps.id })),
   toggleModal: key => dispatch(toggleModal({ key, record: ownProps.record, id: ownProps.id })),
   setActiveVersion: payload => dispatch(setActiveVersion({ ...payload, record: ownProps.record, id: ownProps.id }))
