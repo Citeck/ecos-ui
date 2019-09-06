@@ -183,9 +183,7 @@ class SetMenu extends React.Component {
       <React.Fragment>
         <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.menu.title')}</h5>
         <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.menu.subtitle')}</h6>
-        <div className="ecos-dashboard-settings__container-group ecos-dashboard-settings__container-group_row">
-          {this.renderMenuLayouts()}
-        </div>
+        <div className="ecos-dashboard-settings__container-group">{this.renderMenuLayouts()}</div>
         {this.renderMenuConstructor()}
       </React.Fragment>
     );

@@ -31,6 +31,13 @@ export const Layouts = [
     type: LAYOUT_TYPE.ONE_COLUMN,
     isActive: false,
     columns: [{}]
+  },
+  {
+    position: 5,
+    type: LAYOUT_TYPE.MOBILE,
+    isActive: false,
+    excluded: true,
+    columns: [{}]
   }
 ];
 
@@ -55,3 +62,14 @@ export const DashboardTypes = {
   SITE: 'site-details',
   PROFILE: 'profile-details'
 };
+
+export const DeviceTabs = [
+  {
+    key: 'desktop',
+    label: 'dashboard-settings.tabs.desktop'
+  },
+  {
+    key: 'mobile',
+    label: 'dashboard-settings.tabs.mobile'
+  }
+];

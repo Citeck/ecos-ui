@@ -6,6 +6,7 @@ import {
   setDashboardIdentification,
   setDashboardTitleInfo,
   setLoading,
+  setMobileDashboardConfig,
   setRequestResultDashboard
 } from '../actions/dashboard';
 import { changeActiveTab } from '../actions/pageTabs';
@@ -19,6 +20,7 @@ const initialState = {
     user: null
   },
   config: [],
+  mobileConfig: [],
   titleInfo: {
     modifierName: '',
     modifierUrl: '',
@@ -61,6 +63,13 @@ export default handleActions(
       return {
         ...state,
         config: payload,
+        isLoading: false
+      };
+    },
+    [setMobileDashboardConfig]: (state, { payload }) => {
+      return {
+        ...state,
+        mobileConfig: payload,
         isLoading: false
       };
     },

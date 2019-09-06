@@ -38,4 +38,15 @@ export default class MenuConverter {
       };
     });
   }
+
+  static getSettingsConfigForServer(source) {
+    const target = {};
+
+    const { menuType, menuLinks } = source;
+
+    target.type = menuType;
+    target.links = MenuConverter.getMenuItemsForServer(menuLinks);
+
+    return target;
+  }
 }
