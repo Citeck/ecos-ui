@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
 import { deepClone, getOutputFormat } from '../../helpers/util';
 import EcosForm from '../EcosForm';
-import { Caption } from '../common/form';
+import { Headline } from '../common/form';
 import { Grid } from '../common/grid';
 import { Separator } from '../common';
 import { DisplayedColumns, TaskPropTypes } from './utils';
@@ -74,9 +74,7 @@ class TaskDetails extends React.Component {
 
     return (
       <div className={classNames('ecos-task-ins', className)}>
-        <Caption className="ecos-task-ins__title" small>
-          {details.title}
-        </Caption>
+        <Headline>{details.title}</Headline>
         <div className="ecos-task-ins__info-wrap">
           {!isSmallMode && this.renderDetailsGrid()}
           {isSmallMode && this.renderDetailsEnum()}

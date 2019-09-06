@@ -7,18 +7,17 @@ import get from 'lodash/get';
 import classNames from 'classnames';
 
 import Dashlet from '../Dashlet/Dashlet';
-import { IcoBtn } from '../common/btns';
-import { Loader, Icon, Avatar, DefineHeight } from '../common';
+import { Avatar, DefineHeight, Icon, Loader } from '../common';
+import { Btn, IcoBtn } from '../common/btns';
+import { Dropdown, Headline } from '../common/form';
 import { t } from '../../helpers/util';
 import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
 import ComparisonModal from './ComparisonModal';
 import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../actions/versionsJournal';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
-import { TOOLTIP, MODAL, BASE_HEIGHT } from '../../constants/versionsJournal';
+import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../constants/versionsJournal';
 import { selectLabelsVersions } from '../../selectors/versionsJournal';
-import Btn from '../common/btns/Btn';
-import { Dropdown } from '../common/form';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 
 import './style.scss';
@@ -320,11 +319,11 @@ class VersionsJournal extends Component {
 
     return (
       <div className="ecos-vj__version" key={key}>
-        <div className="ecos-vj__version-header">
+        <Headline>
           <div className="ecos-vj__version-number">{version.version}</div>
           <div className="ecos-vj__version-title">{version.name}</div>
           {showActions && !isMobile && this.renderVersionActions(version)}
-        </div>
+        </Headline>
         <div className="ecos-vj__version-body">
           <div className="ecos-vj__version-author">
             <Avatar url={version.avatar} className="ecos-vj__version-author-avatar" classNameEmpty="ecos-vj__version-author-avatar_empty" />

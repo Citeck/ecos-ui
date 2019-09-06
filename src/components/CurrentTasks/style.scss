@@ -47,21 +47,12 @@
   &-info {
     $info: &;
 
-    &__title {
-      height: 40px;
-      padding: 0 20px;
-      font-weight: $font-weight-bold;
-      background-color: $color-yellow;
-      line-height: 2.7;
-      @extend %ellipsis;
-    }
-
     &__separator {
       margin: 11px 0;
     }
 
     &__fields {
-      margin: 14px 16px;
+      margin: 0 16px 7px;
       color: $text-color-dark;
 
       #{$info}-label {

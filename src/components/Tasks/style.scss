@@ -24,18 +24,6 @@
   &-ins {
     $ins: &;
 
-    &__title {
-      height: 40px;
-      padding: 0 20px;
-      margin-bottom: 7px;
-      font-weight: $font-weight-bold;
-      background-color: $color-yellow;
-      line-height: 2.7;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-
     &__info-wrap {
       @extend %h-indents;
 
