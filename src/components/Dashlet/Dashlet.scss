@@ -20,8 +20,9 @@
       margin-right: 0;
       margin-left: 0;
 
-      &_rounded {
-        border-radius: 12px;
+      &_collapsed {
+        border: none;
+        //border-radius: 12px;
       }
     }
 
