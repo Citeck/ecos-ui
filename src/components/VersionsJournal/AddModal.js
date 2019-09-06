@@ -289,9 +289,9 @@ class AddModal extends Component {
         </div>
         <div className="vj-modal__comment-body">
           <textarea
-            placeholder={`${LABELS.COMMENT_PLACEHOLDER[0]} (${LABELS.COMMENT_PLACEHOLDER[1]} ${commentMaxLength} ${
+            placeholder={`${t(LABELS.COMMENT_PLACEHOLDER[0])} (${t(LABELS.COMMENT_PLACEHOLDER[1])} ${commentMaxLength} ${t(
               LABELS.COMMENT_PLACEHOLDER[2]
-            })`}
+            )})`}
             className="vj-modal__comment-input"
             onChange={this.handleChangeComment}
             defaultValue={comment}
