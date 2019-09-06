@@ -155,7 +155,7 @@ class SetWidgets extends React.Component {
       <React.Fragment>
         <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.widgets.title')}</h5>
         <h6 className="ecos-dashboard-settings__container-subtitle">
-          {isMobile ? t('Выберите порядок расположения виджетов, перетащив их в колонку справа') : t('dashboard-settings.widgets.subtitle')}
+          {isMobile ? t('dashboard-settings.widgets.subtitle-mobile') : t('dashboard-settings.widgets.subtitle')}
         </h6>
         <div
           className={classNames('ecos-dashboard-settings__container-group', {

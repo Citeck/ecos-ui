@@ -428,7 +428,7 @@ class DashboardSettings extends React.Component {
         hasHover
         className="ecos-dashboard-settings__device-tabs"
         classNameTab="ecos-dashboard-settings__device-tabs-item"
-        items={DeviceTabs}
+        items={DeviceTabs.map(item => ({ ...item, label: t(item.label) }))}
         onClick={toggleTab}
         activeTabKey={activeDeviceTabId}
         keyField="key"
