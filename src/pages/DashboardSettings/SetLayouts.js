@@ -9,12 +9,14 @@ import './style.scss';
 class SetLayouts extends React.Component {
   static propTypes = {
     activeLayout: PropTypes.string,
-    setData: PropTypes.func
+    setData: PropTypes.func,
+    isMobile: PropTypes.bool
   };
 
   static defaultProps = {
     activeLayout: '',
-    setData: () => {}
+    setData: () => {},
+    isMobile: false
   };
 
   handleClickColumn = layout => {
@@ -30,7 +32,7 @@ class SetLayouts extends React.Component {
   renderColumnLayouts() {
     const { activeLayout } = this.props;
 
-    return Layouts.map(layout => (
+    return Layouts.filter(item => !item.excluded).map(layout => (
       <ColumnsLayoutItem
         key={`${layout.position}-${layout.type}`}
         onClick={this.handleClickColumn.bind(this, layout)}
@@ -42,12 +44,17 @@ class SetLayouts extends React.Component {
   }
 
   render() {
+    const { isMobile } = this.props;
+
     return (
-      <React.Fragment>
+      <>
         <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.columns.title')}</h5>
-        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.columns.subtitle')}</h6>
-        <div className="ecos-dashboard-settings__container-group">{this.renderColumnLayouts()}</div>
-      </React.Fragment>
+        <h6 className="ecos-dashboard-settings__container-subtitle">
+          {!isMobile && t('dashboard-settings.columns.subtitle')}
+          {isMobile && t('dashboard-settings.columns.subtitle-mobile')}
+        </h6>
+        {!isMobile && <div className="ecos-dashboard-settings__container-group">{this.renderColumnLayouts()}</div>}
+      </>
     );
   }
 }

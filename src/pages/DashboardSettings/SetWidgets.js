@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
 import isEmpty from 'lodash/isEmpty';
 import set from 'lodash/set';
+import classNames from 'classnames';
+
 import { deepClone, t } from '../../helpers/util';
 import { DndUtils, DragItem, Droppable } from '../../components/Drag-n-Drop';
 
@@ -19,7 +21,8 @@ class SetWidgets extends React.Component {
     availableWidgets: PropTypes.array,
     activeWidgets: PropTypes.array,
     setData: PropTypes.func,
-    positionAdjustment: PropTypes.func
+    positionAdjustment: PropTypes.func,
+    isMobile: PropTypes.bool
   };
 
   static defaultProps = {
@@ -28,7 +31,8 @@ class SetWidgets extends React.Component {
     activeWidgets: [],
     columns: [],
     setData: () => {},
-    positionAdjustment: () => {}
+    positionAdjustment: () => {},
+    isMobile: false
   };
 
   state = {
@@ -89,19 +93,26 @@ class SetWidgets extends React.Component {
   };
 
   renderWidgetColumns() {
+    const { activeWidgets, columns, positionAdjustment, isMobile } = this.props;
     const { draggableDestination } = this.state;
-    const { activeWidgets, columns, positionAdjustment } = this.props;
 
     return (
-      <div className={'ecos-dashboard-settings__drag-container_widgets-to'}>
+      <div
+        className={classNames('ecos-dashboard-settings__drag-container', {
+          'ecos-dashboard-settings__drag-container_widgets-to': !isMobile,
+          'ecos-dashboard-settings__drag-container_widgets-to_mobile': isMobile
+        })}
+      >
         {columns.map((column, indexColumn) => {
           const key_id = `column-widgets-${indexColumn}`;
 
           return (
             <div className={'ecos-dashboard-settings__column-widgets'} key={key_id}>
-              <div className={'ecos-dashboard-settings__column-widgets__title'}>
-                {`${t('dashboard-settings.column')} ${indexColumn + 1}`}
-              </div>
+              {isMobile ? null : (
+                <div className={'ecos-dashboard-settings__column-widgets__title'}>
+                  {`${t('dashboard-settings.column')} ${indexColumn + 1}`}
+                </div>
+              )}
               <Droppable
                 droppableId={NAMES.WIDGETS_TO + indexColumn}
                 droppableIndex={indexColumn}
@@ -138,17 +149,25 @@ class SetWidgets extends React.Component {
   }
 
   render() {
-    const { availableWidgets, positionAdjustment } = this.props;
+    const { availableWidgets, positionAdjustment, isMobile } = this.props;
 
     return (
       <React.Fragment>
         <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.widgets.title')}</h5>
-        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.widgets.subtitle')}</h6>
-        <div className="ecos-dashboard-settings__container-group">
+        <h6 className="ecos-dashboard-settings__container-subtitle">
+          {isMobile ? t('dashboard-settings.widgets.subtitle-mobile') : t('dashboard-settings.widgets.subtitle')}
+        </h6>
+        <div
+          className={classNames('ecos-dashboard-settings__container-group', {
+            'ecos-dashboard-settings__container-group_mobile': isMobile
+          })}
+        >
           <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDropEndWidget}>
             <Droppable
               droppableId={NAMES.WIDGETS_FROM}
-              className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_col"
+              className={classNames('ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_col', {
+                'ecos-dashboard-settings__drag-container_widgets-from_mobile': isMobile
+              })}
               placeholder={t('dashboard-settings.widgets.placeholder')}
               isDropDisabled={true}
               scrollHeight={136}

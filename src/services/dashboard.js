@@ -86,9 +86,13 @@ export default class DashboardService {
     }
   }
 
+  /**
+   * for old version, which has one layout (just object) without tab
+   * @param config
+   * @param layouts
+   */
   static movedToListLayout(config, layouts) {
     if (isEmpty(layouts)) {
-      console.log('movedToListLayout: for old version, which has one layout without tab');
       const layout = get(config, ['layout'], {});
 
       layout.id = DashboardService.newIdLayout;
@@ -98,5 +102,26 @@ export default class DashboardService {
         layouts.push(layout);
       }
     }
+  }
+
+  static generateMobileConfig(source = []) {
+    const mobile = [];
+
+    source.forEach(layout => {
+      const { id: idLayout, columns, tab } = layout;
+
+      mobile.push({
+        id: idLayout,
+        tab: { label: tab.label, idLayout },
+        type: LAYOUT_TYPE.MOBILE,
+        columns: [
+          {
+            widgets: columns.reduce((result, current) => [...result, ...current.widgets], [])
+          }
+        ]
+      });
+    });
+
+    return mobile;
   }
 }

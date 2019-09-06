@@ -14,13 +14,13 @@ import './style.scss';
 
 class SetTabs extends React.Component {
   static propTypes = {
-    activeLayoutId: PropTypes.string,
+    activeTabKey: PropTypes.string,
     tabs: PropTypes.array,
     setData: PropTypes.func
   };
 
   static defaultProps = {
-    activeLayoutId: '',
+    activeTabKey: '',
     tabs: [],
     setData: () => {}
   };
@@ -31,10 +31,10 @@ class SetTabs extends React.Component {
   };
 
   onClickTabLayout = tab => {
-    let { activeLayoutId, setData } = this.props;
+    let { activeTabKey, setData } = this.props;
 
-    if (tab.idLayout !== activeLayoutId) {
-      setData({ activeLayoutId: tab.idLayout });
+    if (tab.idLayout !== activeTabKey) {
+      setData({ activeTabKey: tab.idLayout });
     }
   };
 
@@ -82,16 +82,16 @@ class SetTabs extends React.Component {
     const {
       removedTab: { index, idLayout }
     } = this.state;
-    let { tabs, activeLayoutId, setData } = this.props;
+    let { tabs, activeTabKey, setData } = this.props;
 
     tabs.splice(index, 1);
 
-    if (idLayout === activeLayoutId) {
-      activeLayoutId = get(tabs, '[0].idLayout', null);
+    if (idLayout === activeTabKey) {
+      activeTabKey = get(tabs, '[0].idLayout', null);
     }
 
     this.closeDialog();
-    setData({ tabs, activeLayoutId });
+    setData({ tabs, activeTabKey });
   };
 
   closeDialog = () => {
@@ -99,19 +99,19 @@ class SetTabs extends React.Component {
   };
 
   render() {
-    const { tabs, activeLayoutId } = this.props;
+    const { tabs, activeTabKey } = this.props;
     const { scrollTabToEnd, removedTab } = this.state;
     const empty = isEmpty(tabs);
 
     return (
-      <React.Fragment>
+      <>
         <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
-        <div className="ecos-dashboard-settings__tabs-wrapper">
+        <div className="ecos-dashboard-settings__layout-tabs-wrapper">
           {!empty && (
-            <ScrollArrow scrollToEnd={scrollTabToEnd}>
+            <ScrollArrow scrollToEnd={scrollTabToEnd} className="ecos-dashboard-settings__layout-tabs-arrows">
               <EditTabs
-                className="ecos-dashboard-settings__tabs-block"
-                classNameTab="ecos-dashboard-settings__tabs-item"
+                className="ecos-dashboard-settings__layout-tabs-block"
+                classNameTab="ecos-dashboard-settings__layout-tabs-item"
                 hasHover
                 hasHint
                 items={tabs}
@@ -121,14 +121,14 @@ class SetTabs extends React.Component {
                 onEdit={this.onEditTab}
                 onClick={this.onClickTabLayout}
                 disabled={tabs.length < 2}
-                activeTabKey={activeLayoutId}
+                activeTabKey={activeTabKey}
               />
             </ScrollArrow>
           )}
-          {empty && <div className="ecos-dashboard-settings__tabs_empty" />}
+          {empty && <div className="ecos-dashboard-settings__layout-tabs_empty" />}
           <IcoBtn
             icon="icon-big-plus"
-            className={'ecos-dashboard-settings__tabs__add-tab ecos-btn_i ecos-btn_blue2 ecos-btn_hover_blue2'}
+            className={'ecos-dashboard-settings__layout-tabs-add-tab ecos-btn_i ecos-btn_blue2 ecos-btn_hover_blue2'}
             onClick={this.onCreateTab}
           />
         </div>
@@ -145,7 +145,7 @@ class SetTabs extends React.Component {
           onCancel={this.closeDialog}
           onClose={this.closeDialog}
         />
-      </React.Fragment>
+      </>
     );
   }
 }

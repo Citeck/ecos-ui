@@ -20,6 +20,7 @@ class Layout extends Component {
       })
     ).isRequired,
     menuType: PropTypes.string,
+    className: PropTypes.string,
     onSaveWidget: PropTypes.func,
     onSaveWidgetProps: PropTypes.func,
     canDragging: PropTypes.bool
@@ -28,7 +29,8 @@ class Layout extends Component {
   static defaultProps = {
     onSaveWidget: () => {},
     onSaveWidgetProps: () => {},
-    canDragging: false
+    canDragging: false,
+    className: ''
   };
 
   state = {
@@ -39,7 +41,8 @@ class Layout extends Component {
   _components = {};
 
   get className() {
-    const classes = ['ecos-layout'];
+    const { className } = this.props;
+    const classes = ['ecos-layout', className];
 
     return classes.join(' ');
   }

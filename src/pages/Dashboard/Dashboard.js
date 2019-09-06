@@ -5,6 +5,7 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
+import classNames from 'classnames';
 
 import { getDashboardConfig, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
@@ -14,23 +15,27 @@ import TopMenu from '../../components/Layout/TopMenu';
 import { Loader, ScrollArrow, Tabs } from '../../components/common';
 import { MENU_TYPE } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../constants/pageTabs';
 import { deepClone, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
 
-const mapStateToProps = state => ({
-  config: get(state, ['dashboard', 'config'], []),
-  isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
-  saveResultDashboard: get(state, ['dashboard', 'requestResult']),
-  isLoadingMenu: get(state, ['menu', 'isLoading']),
-  saveResultMenu: get(state, ['menu', 'requestResult']),
-  menuType: get(state, ['menu', 'type']),
-  links: get(state, ['menu', 'links']),
-  dashboardType: get(state, ['dashboard', 'identification', 'type']),
-  titleInfo: get(state, ['dashboard', 'titleInfo'])
-});
+const mapStateToProps = state => {
+  const isMobile = get(state, ['view', 'isMobile'], false);
+
+  return {
+    config: get(state, ['dashboard', isMobile ? 'mobileConfig' : 'config'], []),
+    isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
+    saveResultDashboard: get(state, ['dashboard', 'requestResult']),
+    isLoadingMenu: get(state, ['menu', 'isLoading']),
+    saveResultMenu: get(state, ['menu', 'requestResult']),
+    menuType: get(state, ['menu', 'type']),
+    links: get(state, ['menu', 'links']),
+    dashboardType: get(state, ['dashboard', 'identification', 'type']),
+    titleInfo: get(state, ['dashboard', 'titleInfo']),
+    isMobile
+  };
+};
 
 const mapDispatchToProps = dispatch => ({
   getDashboardConfig: payload => dispatch(getDashboardConfig(payload)),
@@ -147,7 +152,7 @@ class Dashboard extends Component {
     const { config } = this.state;
 
     if (!isEmpty(config) && isArray(config)) {
-      return config.map((item, index) => item.tab);
+      return config.map(item => item.tab);
     }
 
     return [];
@@ -238,7 +243,16 @@ class Dashboard extends Component {
       return null;
     }
 
+    const { isMobile } = this.props;
     const { activeLayoutId } = this.state;
+
+    if (isMobile) {
+      return (
+        <div className="ecos-dashboard__tabs ecos-dashboard__tabs_mobile">
+          <Tabs items={this.tabList} onClick={this.toggleTabLayout} keyField={'idLayout'} activeTabKey={activeLayoutId} />
+        </div>
+      );
+    }
 
     return (
       <div className="ecos-dashboard__tabs-wrapper">
@@ -259,7 +273,7 @@ class Dashboard extends Component {
   }
 
   renderLayout() {
-    const { menuType } = this.props;
+    const { menuType, isMobile } = this.props;
     const { canDragging } = this.state;
     const { columns, type } = this.activeLayout;
 
@@ -269,6 +283,9 @@ class Dashboard extends Component {
 
     return (
       <Layout
+        className={classNames({
+          'ecos-layout_mobile': isMobile
+        })}
         columns={columns}
         onSaveWidget={this.prepareWidgetsConfig}
         type={type}
@@ -291,41 +308,19 @@ class Dashboard extends Component {
 
   renderHeader() {
     const {
-      titleInfo: { modifierName = '', modifierUrl = '', date = '', name = '', version = '' },
-      dashboardType
+      titleInfo: { name = '', version = '' },
+      dashboardType,
+      isMobile
     } = this.props;
     let title = null;
 
     switch (dashboardType) {
       case DashboardTypes.CASE_DETAILS:
         title = (
-          <React.Fragment>
-            <div className="ecos-dashboard__header-title" key="title">
-              {name && <div className="ecos-dashboard__header-name">{t(name)}</div>}
-              {version && <div className="ecos-dashboard__header-version">{version}</div>}
-            </div>
-
-            <div className="ecos-dashboard__header-mod" key="subtitle">
-              {t('cardlet.node-header.modified-by-user')}
-              {modifierName && (
-                <a
-                  {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ecos-dashboard__header-user"
-                  href={modifierUrl}
-                  title={t(`Открыть профиль ${modifierName}`)}
-                >
-                  {modifierName}
-                </a>
-              )}
-              {date && (
-                <span className="ecos-dashboard__header-date">
-                  {t('cardlet.node-header.modified-on')} {t(date)}
-                </span>
-              )}
-            </div>
-          </React.Fragment>
+          <div className="ecos-dashboard__header-title" key="title">
+            {name && <div className="ecos-dashboard__header-name">{t(name)}</div>}
+            {version && <div className="ecos-dashboard__header-version">{version}</div>}
+          </div>
         );
         break;
       case DashboardTypes.USER:
@@ -336,7 +331,15 @@ class Dashboard extends Component {
         break;
     }
 
-    return <div className="ecos-dashboard__header">{title}</div>;
+    return (
+      <div
+        className={classNames('ecos-dashboard__header', {
+          'ecos-dashboard__header_mobile': isMobile
+        })}
+      >
+        {title}
+      </div>
+    );
   }
 
   renderLoader() {

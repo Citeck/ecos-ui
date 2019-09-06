@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone-uploader';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
 import EcosModal from '../common/EcosModal';
 import { t } from '../../helpers/util';
@@ -26,7 +27,11 @@ const LABELS = {
     'versions-journal-widget.modal.comment_placeholder_not_necessary',
     'versions-journal-widget.modal.comment_placeholder_no_more',
     'versions-journal-widget.modal.comment_placeholder_characters'
-  ]
+  ],
+
+  Messages: {
+    ERROR_FILE_SIZE_MIN: 'versions-journal-widget.modal.error-file-size'
+  }
 };
 
 class AddModal extends Component {
@@ -55,18 +60,8 @@ class AddModal extends Component {
     fileStatus: '',
     selectedVersion: VERSIONS.MINOR,
     comment: '',
-    isMajorVersion: false
-  };
-
-  getUploadParams = ({ file }) => {
-    const body = new FormData();
-
-    this.setState({ file });
-
-    return {
-      url: 'https://httpbin.org/post',
-      body
-    };
+    isMajorVersion: false,
+    clientError: ''
   };
 
   get dropzoneClassName() {
@@ -104,11 +99,55 @@ class AddModal extends Component {
     return Number.isInteger(result) ? `${result}.0` : result;
   }
 
+  validateUploadedFile = file => {
+    let clientError = [];
+
+    if (!file.size) {
+      const arrMsg = t(LABELS.Messages.ERROR_FILE_SIZE_MIN).split('VAL');
+      const vals = [file.name, file.size];
+      const msg = arrMsg.map((item, i) => item + get(vals, i.toString(), ''));
+
+      clientError.push(msg.join(''));
+    }
+
+    return clientError.join(' ');
+  };
+
+  getUploadParams = ({ file }) => {
+    const body = new FormData();
+    const clientError = this.state.clientError || this.validateUploadedFile(file);
+
+    if (clientError) {
+      this.setState({ file: null, clientError });
+    } else {
+      this.setState({ file, clientError: '' });
+    }
+
+    return {
+      url: 'https://httpbin.org/post',
+      body
+    };
+  };
+
   handleChangeStatus = ({ meta, file, remove, xhr }, status) => {
     this.setState({ fileStatus: status });
 
-    if (status === FILE_STATUS.DONE) {
-      remove();
+    switch (status) {
+      case FILE_STATUS.PREPARING:
+        const clientError = this.validateUploadedFile(file);
+
+        if (clientError) {
+          this.setState({ file: null, clientError });
+          remove();
+        } else {
+          this.setState({ clientError: '' });
+        }
+        break;
+      case FILE_STATUS.DONE:
+        remove();
+        break;
+      default:
+        break;
     }
   };
 
@@ -155,6 +194,7 @@ class AddModal extends Component {
       onClick={() => {
         props.files[0].cancel();
         props.files[0].remove();
+        this.setState({ file: null, clientError: '' });
       }}
     >
       {t(LABELS.CANCEL)}
@@ -249,9 +289,9 @@ class AddModal extends Component {
         </div>
         <div className="vj-modal__comment-body">
           <textarea
-            placeholder={`${LABELS.COMMENT_PLACEHOLDER[0]} (${LABELS.COMMENT_PLACEHOLDER[1]} ${commentMaxLength} ${
+            placeholder={`${t(LABELS.COMMENT_PLACEHOLDER[0])} (${t(LABELS.COMMENT_PLACEHOLDER[1])} ${commentMaxLength} ${t(
               LABELS.COMMENT_PLACEHOLDER[2]
-            })`}
+            )})`}
             className="vj-modal__comment-input"
             onChange={this.handleChangeComment}
             defaultValue={comment}
@@ -282,12 +322,13 @@ class AddModal extends Component {
 
   renderErrorMessage() {
     const { errorMessage } = this.props;
+    const { clientError } = this.state;
 
-    if (!errorMessage) {
+    if (!errorMessage && !clientError) {
       return null;
     }
 
-    return <div className="vj-modal__error">{errorMessage}</div>;
+    return <div className="vj-modal__error">{errorMessage || clientError}</div>;
   }
 
   render() {

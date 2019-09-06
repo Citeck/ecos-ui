@@ -18,6 +18,7 @@ import { saveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
 import DashboardService from '../services/dashboard';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
+import MenuConverter from '../dto/menu';
 import { RequestStatuses } from '../constants';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
@@ -36,9 +37,9 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
     if (dashboardId) {
       const result = yield call(api.dashboard.getDashboardById, dashboardId, true);
       const data = DashboardService.checkDashboardResult(result);
-      const webConfig = DashboardSettingsConverter.getSettingsConfigForWeb(data);
+      const webConfigs = DashboardSettingsConverter.getSettingsForWeb(data);
 
-      yield put(setDashboardConfig(webConfig));
+      yield put(setDashboardConfig(webConfigs));
       yield put(getAvailableWidgets(data.type));
       yield put(getDashboardKeys(recordRef));
     } else {
@@ -98,12 +99,16 @@ function* doCheckUpdatedSettings({ api, logger }, { payload }) {
 
 function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
-    const serverConfig = DashboardSettingsConverter.getSettingsConfigForServer({ ...payload });
-    const { layouts, menu } = serverConfig;
+    const serverConfig = {
+      layouts: DashboardSettingsConverter.getSettingsConfigForServer(payload),
+      menu: MenuConverter.getSettingsConfigForServer(payload),
+      mobile: DashboardSettingsConverter.getSettingsMobileConfigForServer(payload)
+    };
+    const { layouts, menu, mobile } = serverConfig;
     const identification = yield select(selectIdentificationForSet);
 
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
-      config: { layouts },
+      config: { layouts, mobile },
       identification: { ...identification, ...(payload.newIdentification || {}) }
     });
 

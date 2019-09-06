@@ -58,10 +58,22 @@
     }
   }
 
-  &__tabs {
+  &__device-tabs {
+    margin-bottom: 28px;
+
+    &-item {
+      padding: 0 15px;
+    }
+  }
+
+  &__layout-tabs {
     &-wrapper {
       display: flex;
       padding-bottom: 28px;
+    }
+
+    &-arrows {
+      width: auto;
     }
 
     &-block {
@@ -70,11 +82,17 @@
     }
 
     &-item {
-      flex: 1;
+      max-width: 350px;
+      padding: 0 60px;
+      width: auto;
+      //flex: 1;
+      //padding: 0 60px 0 0;
     }
 
-    &__add-tab {
+    &-add-tab {
       margin-left: 10px;
+      min-width: 40px;
+      min-height: 40px;
     }
 
     &_empty {
@@ -126,6 +144,10 @@
           margin-right: 11px;
         }
       }
+
+      &_mobile {
+        flex-wrap: nowrap;
+      }
     }
   }
 
@@ -136,6 +158,7 @@
 
     &_menu {
       height: 270px;
+      margin-bottom: 34px;
     }
 
     &_multiline {
@@ -143,6 +166,8 @@
     }
 
     &-container {
+      $container: &;
+
       display: flex;
       width: 100%;
       flex-wrap: wrap;
@@ -170,6 +195,10 @@
       &_widgets-to {
         display: flex;
         width: 100%;
+
+        &_mobile {
+          width: auto;
+        }
       }
 
       &_row {
@@ -182,6 +211,13 @@
         &:not(:last-child) {
           margin-bottom: 27px;
         }
+      }
+
+      &_widgets-from_mobile {
+        margin-right: 15px;
+        margin-bottom: 0;
+        width: 80%;
+        height: 320px;
       }
     }
 

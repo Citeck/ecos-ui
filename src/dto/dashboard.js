@@ -1,4 +1,5 @@
-import { get, isEmpty } from 'lodash';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import moment from 'moment';
 import { TITLE } from '../constants/pageTabs';
 import { DASHBOARD_DEFAULT_KEY } from '../constants';
@@ -52,6 +53,25 @@ export default class DashboardConverter {
     return target;
   }
 
+  static getMobileDashboardForWeb(source) {
+    const target = [];
+
+    if (!isEmpty(source)) {
+      const { config } = source;
+      const layouts = get(config, ['layouts'], []);
+
+      DashboardService.movedToListLayout(config, layouts);
+
+      const mobile = get(config, ['mobile'], DashboardService.generateMobileConfig(layouts));
+
+      mobile.forEach(item => {
+        target.push(DashboardConverter.getDashboardLayoutForWeb(item));
+      });
+    }
+
+    return target;
+  }
+
   static getDashboardForServer(source) {
     if (isEmpty(source)) {
       return {};
@@ -83,9 +103,7 @@ export default class DashboardConverter {
       }
 
       if (modified) {
-        target.date = moment(modified)
-          .utc()
-          .format('ddd D MMM YYYY H:m:s');
+        target.date = moment(modified).format('ddd D MMM YYYY H:m:s');
       }
     }
 

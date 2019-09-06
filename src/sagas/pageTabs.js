@@ -1,8 +1,10 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
+
 import { getShowTabsStatus, getTabs, setActiveTabTitle, setShowTabsStatus, setTabs } from '../actions/pageTabs';
 import { selectTabs } from '../selectors/pageTabs';
-import { deepClone, getCurrentUserName } from '../helpers/util';
+import { selectIsAuthenticated } from '../selectors/user';
 import Records from '../components/Records';
+import { deepClone, getCurrentUserName } from '../helpers/util';
 import { isNewVersionPage } from '../helpers/urls';
 
 function* sagaGetShowTabsStatus({ api, logger }, action) {
@@ -31,6 +33,12 @@ function* sagaGetShowTabsStatus({ api, logger }, action) {
 
 function* sagaGetTabs({ api, logger }) {
   try {
+    const isAuthorized = yield select(selectIsAuthenticated);
+
+    if (!isAuthorized) {
+      return;
+    }
+
     const userName = getCurrentUserName();
 
     yield api.pageTabs.checkOldVersion(userName);
