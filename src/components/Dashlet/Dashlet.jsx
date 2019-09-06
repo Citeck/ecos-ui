@@ -7,8 +7,8 @@ import get from 'lodash/get';
 
 import Panel from '../common/panels/Panel/Panel';
 import Measurer from '../Measurer/Measurer';
-import { IcoBtn, Btn } from '../common/btns';
-import { ResizableBox, Icon } from '../common';
+import { Btn, IcoBtn } from '../common/btns';
+import { Icon, ResizableBox } from '../common';
 import { t } from '../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 
@@ -33,7 +33,7 @@ const Header = ({
   isMobile
 }) => {
   const btnGoTo = isMobile ? null : (
-    <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className={'dashlet__btn ecos-btn_narrow'} onClick={onGoTo}>
+    <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className="dashlet__btn ecos-btn_narrow" onClick={onGoTo}>
       {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
     </IcoBtn>
   );
@@ -46,7 +46,7 @@ const Header = ({
       <IcoBtn
         key="action-reload"
         icon={'icon-reload'}
-        className={'ecos-btn_i dashlet__btn_hidden dashlet__btn_next ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue'}
+        className="ecos-btn_i dashlet__btn_hidden dashlet__btn_next ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
         onClick={onReload}
         title={t('dashlet.update.title')}
       />
@@ -58,7 +58,7 @@ const Header = ({
       <IcoBtn
         key="action-edit"
         icon={'icon-edit'}
-        className={'ecos-btn_i dashlet__btn_hidden dashlet__btn_next ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue'}
+        className="ecos-btn_i dashlet__btn_hidden dashlet__btn_next ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
         onClick={onEdit}
         title={actionEditTitle || t('dashlet.edit.title')}
       />
@@ -70,7 +70,7 @@ const Header = ({
       <IcoBtn
         key="action-help"
         icon={'icon-question'}
-        className={'ecos-btn_i dashlet__btn_hidden dashlet__btn_next ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue'}
+        className="ecos-btn_i dashlet__btn_hidden dashlet__btn_next ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
         title={t('dashlet.help.title')}
       />
     );
@@ -82,7 +82,7 @@ const Header = ({
         <IcoBtn
           key="action-drag"
           icon={'icon-drag'}
-          className={'ecos-btn_i dashlet__btn_next dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1'}
+          className="ecos-btn_i dashlet__btn_next dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1"
           title={t('dashlet.move.title')}
         />
       </span>
@@ -90,11 +90,11 @@ const Header = ({
   }
 
   if (isMobile) {
-    toggleIcon = <Icon className="dashlet__header-toggle icon-down" />;
+    toggleIcon = <Icon className="dashlet__header-collapser icon-down" />;
   }
 
   return (
-    <div className={'dashlet__header'} onClick={onToggleCollapse}>
+    <div className="dashlet__header" onClick={onToggleCollapse}>
       <span className={classNames('dashlet__caption', titleClassName)}>
         {toggleIcon}
         {title}
@@ -102,7 +102,7 @@ const Header = ({
 
       {needGoTo && btnGoTo}
 
-      <div className={'dashlet__actions dashlet__actions_header'}>
+      <div className="dashlet__header-actions">
         {!isMobile && actions}
         {dragBtn}
       </div>
@@ -187,7 +187,7 @@ class Dashlet extends Component {
 
   get busyDashletHeight() {
     const elDashlet = this.refDashlet.current || {};
-    const headerH = get(elDashlet.querySelector('.dashlet__wrap-header'), ['offsetHeight'], 0);
+    const headerH = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
     const resizerH = get(elDashlet.querySelector('.dashlet__resizer'), ['offsetHeight'], 0);
 
     return headerH + resizerH;
@@ -295,14 +295,14 @@ class Dashlet extends Component {
         <Panel
           {...this.props}
           className={cssClasses}
-          headClassName={classNames('dashlet__wrap-header ecos-panel__large', {
-            'dashlet__wrap-header_rounded': isMobile && isCollapsed
+          headClassName={classNames('dashlet__header-wrapper', {
+            'dashlet__header-wrapper_rounded': isMobile && isCollapsed
           })}
           bodyClassName={classNames('dashlet__body', bodyClassName, {
             dashlet__body_collapsed: isMobile && isCollapsed
           })}
           header={
-            <Measurer>
+            <Measurer className="dashlet__header-measurer">
               <Header
                 title={title}
                 needGoTo={needGoTo}
