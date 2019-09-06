@@ -84,21 +84,33 @@ class Tab extends React.Component {
   render() {
     const { label, isActive, onClick, hasHover, hasHint, disabled, isNew, className } = this.props;
     const { edit, text } = this.state;
+    const isEdit = edit || isNew;
     const tabClassNames = classNames('ecos-tab', 'ecos-tab_edit', className, {
       'ecos-tab_active': isActive,
       'ecos-tab_hover': hasHover,
-      'ecos-tab_disabled': disabled
+      'ecos-tab_disabled': disabled,
+      'ecos-tab_symmetrican-padding': isEdit
     });
-    const isEdit = edit || isNew;
     const placeholder = isNew ? t(label) : t('page-tabs.tab-name');
+    const textSize = text.length * 8;
 
     return (
       <div className={tabClassNames} onClick={onClick} title={hasHint ? t(label) : ''}>
-        <div className="ecos-tab-label">
+        <div
+          className={classNames('ecos-tab-label', {
+            'ecos-tab-label_edit': isEdit
+          })}
+          style={{
+            minWidth: `${textSize > 330 ? 330 : textSize}px`
+          }}
+        >
           {isEdit ? (
             <Input
               className="ecos-tab-label__input"
               autoFocus
+              style={{
+                width: textSize ? `${textSize}px` : 'auto'
+              }}
               value={text}
               placeholder={placeholder}
               onChange={this.onChange}

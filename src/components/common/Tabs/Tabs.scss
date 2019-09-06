@@ -61,8 +61,10 @@
     display: inline-flex;
     align-items: center;
     min-width: 190px;
-    max-width: 50%;
+    width: 100%;
     position: relative;
+
+    padding-left: 60px;
 
     &_disabled {
       pointer-events: none;
@@ -76,16 +78,28 @@
     }
   }
 
+  &_symmetrican-padding {
+    padding: 0 10px !important;
+  }
+
   &-label {
     flex: auto;
     @extend %ellipsis;
-    padding: 0 60px;
+
+    text-align: center;
+    width: 100%;
 
     &__input {
       background: transparent;
       border: none;
       color: $text-color-dark;
       text-align: center;
+      padding: 0 12px;
+      min-width: 190px;
+    }
+
+    &_edit {
+      display: flex;
       padding: 0;
     }
   }

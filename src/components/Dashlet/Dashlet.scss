@@ -8,8 +8,36 @@
   &__header {
     height: 100%;
     position: relative;
-    padding: 12px 0;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+
+    &-wrapper {
+      height: 48px;
+      border-bottom: 2px solid $color-gray-4;
+      background-color: $color-white;
+      border-radius: $border-radius-extra-large $border-radius-extra-large 0 0;
+      margin-right: 0;
+      margin-left: 0;
+
+      &_rounded {
+        border-radius: 12px;
+      }
+    }
+
+    &-measurer {
+      height: 100%;
+    }
+
+    &-collapser {
+      font-size: 14px;
+      padding-right: 10px;
+    }
+
+    &-actions {
+      flex: auto;
+      text-align: end;
+    }
 
     &:hover {
       #{$root} {
@@ -19,8 +47,8 @@
           }
         }
 
-        &__actions {
-          &_header:not(:empty) {
+        &__header-actions {
+          &:not(:empty) {
             background: $color-white;
             border-top-right-radius: $border-radius-extra-large;
             border-bottom-right-radius: $border-radius-extra-large;
@@ -39,11 +67,6 @@
           }
         }
       }
-    }
-
-    &-toggle {
-      font-size: 14px;
-      padding-right: 10px;
     }
   }
 
@@ -92,16 +115,6 @@
     }
   }
 
-  &__actions {
-    position: absolute;
-    top: 0;
-    right: 0;
-
-    &_header {
-      padding: 10px 0;
-    }
-  }
-
   &__btn {
     font-size: $font-size-standard;
     font-weight: $font-weight-bold;
@@ -133,13 +146,5 @@
 
   &__footer {
     padding: 2px 0 5px;
-  }
-
-  &__wrap {
-    &-header {
-      &_rounded {
-        border-radius: 12px;
-      }
-    }
   }
 }

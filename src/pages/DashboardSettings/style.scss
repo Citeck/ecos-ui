@@ -72,17 +72,27 @@
       padding-bottom: 28px;
     }
 
+    &-arrows {
+      width: auto;
+    }
+
     &-block {
       flex: auto;
       display: flex;
     }
 
     &-item {
-      flex: 1;
+      max-width: 350px;
+      padding: 0 60px;
+      width: auto;
+      //flex: 1;
+      //padding: 0 60px 0 0;
     }
 
-    &__add-tab {
+    &-add-tab {
       margin-left: 10px;
+      min-width: 40px;
+      min-height: 40px;
     }
 
     &_empty {
