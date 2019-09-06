@@ -1,6 +1,5 @@
 import { MENU_TYPE } from './';
 import { LAYOUT_TYPE } from './layout';
-import { t } from '../helpers/util';
 
 export const Layouts = [
   {
@@ -64,4 +63,13 @@ export const DashboardTypes = {
   PROFILE: 'profile-details'
 };
 
-export const DeviceTabs = [{ key: 'desktop', label: t('Десктопная версия') }, { key: 'mobile', label: t('Мобильная версия') }];
+export const DeviceTabs = [
+  {
+    key: 'desktop',
+    label: 'dashboard-settings.tabs.desktop'
+  },
+  {
+    key: 'mobile',
+    label: 'dashboard-settings.tabs.mobile'
+  }
+];

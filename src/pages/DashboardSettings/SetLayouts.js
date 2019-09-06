@@ -51,7 +51,7 @@ class SetLayouts extends React.Component {
         <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.columns.title')}</h5>
         <h6 className="ecos-dashboard-settings__container-subtitle">
           {!isMobile && t('dashboard-settings.columns.subtitle')}
-          {isMobile && t('Виджеты будут расположены в одну колонку.')}
+          {isMobile && t('dashboard-settings.columns.subtitle-mobile')}
         </h6>
         {!isMobile && <div className="ecos-dashboard-settings__container-group">{this.renderColumnLayouts()}</div>}
       </>

@@ -103,9 +103,7 @@ export default class DashboardConverter {
       }
 
       if (modified) {
-        target.date = moment(modified)
-          .utc()
-          .format('ddd D MMM YYYY H:m:s');
+        target.date = moment(modified).format('ddd D MMM YYYY H:m:s');
       }
     }
 
