@@ -30,7 +30,7 @@ const LABELS = {
   ],
 
   Messages: {
-    ERROR_FILE_SIZE_MIN: 'Файл VAL имеет размер VAL байт, передать этот файл невозможно.' //todo в переводе нужен делитель VAL для значений
+    ERROR_FILE_SIZE_MIN: 'versions-journal-widget.modal.error-file-size'
   }
 };
 
@@ -103,7 +103,7 @@ class AddModal extends Component {
     let clientError = [];
 
     if (!file.size) {
-      const arrMsg = LABELS.Messages.ERROR_FILE_SIZE_MIN.split('VAL');
+      const arrMsg = t(LABELS.Messages.ERROR_FILE_SIZE_MIN).split('VAL');
       const vals = [file.name, file.size];
       const msg = arrMsg.map((item, i) => item + get(vals, i.toString(), ''));
 

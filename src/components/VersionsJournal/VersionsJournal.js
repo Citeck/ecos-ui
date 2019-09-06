@@ -317,7 +317,7 @@ class VersionsJournal extends Component {
           arrowClassName="ecos-vj__tooltip-arrow"
           target={`${TOOLTIP.DOWNLOAD_VERSION}-${key}`}
         >
-          {t('Скачать')}
+          {t('versions-journal-widget.download')}
         </UncontrolledTooltip>
       </div>
     );
