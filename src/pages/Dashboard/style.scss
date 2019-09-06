@@ -5,14 +5,13 @@
     display: flex;
     flex-direction: column;
     padding: 0 18px;
-    margin-bottom: 16px;
+    margin-bottom: 13px;
 
     &-title {
       display: inline-flex;
       justify-content: flex-start;
       align-items: center;
-      margin-bottom: 5px;
-      margin-top: 20px;
+      margin-top: 17px;
     }
 
     &-name {
@@ -27,7 +26,7 @@
     &-version {
       font-style: normal;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 16px;
       line-height: 20px;
       color: $color-white;
       padding: 0 9px;
@@ -63,7 +62,7 @@
 
   &__tabs {
     &-wrapper {
-      padding: 0 19px 18px;
+      padding: 0 19px 13px;
     }
 
     &-block {
