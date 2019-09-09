@@ -47,7 +47,7 @@ class DocStatusDashlet extends React.Component {
     const { id, config, classNameStatus, classNameDashlet, record } = this.props;
     const { isSmall, isCollapsed } = this.state;
     const isMobile = isMobileDevice();
-    const title = this.props.title || t('Статус кейса');
+    const title = this.props.title || t('doc-status-widget.title');
     const isBig = !(isMobile || isSmall);
 
     return (
