@@ -25,7 +25,8 @@
     $ins: &;
 
     &__title {
-      height: 51px;
+      font-size: 14px;
+      height: 40px;
       padding: 0 20px;
       margin-bottom: 7px;
       font-weight: $font-weight-bold;
@@ -67,11 +68,21 @@
 
           th {
             border-top: none;
+            padding: 0;
+            height: 34px;
+          }
+
+          td {
+            height: 38px;
+            padding: 0;
           }
         }
 
         .ecos-th {
           font-weight: $font-weight-bold;
+          font-size: 12px;
+          height: 34px;
+          padding: 0 12px;
         }
 
         .ecos-grid__td {
