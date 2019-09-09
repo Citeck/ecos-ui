@@ -4,14 +4,13 @@ import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
-import ReactResizeDetector from 'react-resize-detector';
 import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus, updateDocStatus } from '../../actions/docStatus';
 import { selectStateDocStatusById } from '../../selectors/docStatus';
-import { deepClone, t } from '../../helpers/util';
 import DocStatusService from '../../services/docStatus';
+import { deepClone } from '../../helpers/util';
+import { Loader } from '../common';
 import { IcoBtn } from '../common/btns';
 import { Caption, Dropdown } from '../common/form';
-import { Loader } from '../common';
 
 import './style.scss';
 
@@ -42,11 +41,15 @@ class DocStatus extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
-    className: PropTypes.string
+    className: PropTypes.string,
+    title: PropTypes.string,
+    isMobile: PropTypes.bool
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
+    title: '',
+    isMobile: false
   };
 
   state = {
@@ -138,18 +141,20 @@ class DocStatus extends React.Component {
   }
 
   render() {
+    const { isMobile, title } = this.props;
     const { wasChanged } = this.state;
 
     return (
-      <div className={classNames('ecos-doc-status', { 'ecos-doc-status_mobile': true })}>
-        <ReactResizeDetector handleWidth handleHeight />
+      <div className="ecos-doc-status">
         {this.isShowLoader && !wasChanged ? (
           <Loader className="ecos-doc-status__loader" />
         ) : (
           <>
-            <Caption middle className="ecos-doc-status__title">
-              {t('Статус кейса')}
-            </Caption>
+            {!isMobile && (
+              <Caption middle className="ecos-doc-status__title">
+                {title}
+              </Caption>
+            )}
             {this.isReadField && this.renderReadField()}
             {!this.isReadField && this.renderManualField()}
           </>

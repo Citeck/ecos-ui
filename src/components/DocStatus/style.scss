@@ -1,14 +1,39 @@
 @import '../../constants';
 
 .ecos-doc-status {
-  height: 46px;
+  $root: &;
   display: flex;
   align-items: center;
   padding: 0 20px;
 
-  &_mobile {
-    height: 80px;
-    flex-wrap: wrap;
+  &_small {
+    height: auto;
+
+    #{$root} {
+      &_data {
+        width: 100%;
+        padding: 11px 0 4px;
+      }
+    }
+  }
+
+  &-dashlet {
+    $dashlet: &;
+
+    &_mobile {
+      #{$dashlet}__body {
+        padding-bottom: 11px;
+      }
+
+      #{$root}__data {
+        max-width: unset;
+      }
+    }
+
+    &__body {
+      padding-top: 11px;
+      padding-bottom: 4px;
+    }
   }
 
   &__title {
@@ -16,12 +41,14 @@
     color: $text-color-gray;
     font-weight: $font-weight-bold;
     padding-right: 20px;
+    min-width: fit-content;
     @extend %ellipsis;
   }
 
   &__data {
     flex: auto;
     max-width: 223px;
+    min-width: 0;
 
     &_read {
       display: inline-block;
@@ -62,7 +89,6 @@
 
   &__loader {
     position: relative;
-    height: 49px;
     width: 100%;
   }
 }
