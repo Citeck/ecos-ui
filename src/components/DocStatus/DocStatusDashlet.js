@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { isMobileDevice, t } from '../../helpers/util';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import DocStatus from './DocStatus';
 
@@ -27,15 +28,27 @@ class DocStatusDashlet extends React.Component {
     isSmall: false
   };
 
+  constructor(props) {
+    super(props);
+
+    this.state.isCollapsed = UserLocalSettingsService.getProperty(props.id, 'isCollapsed');
+  }
+
+  handleToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+  };
+
   onResize = w => {
     this.setState({ isSmall: w <= 263 });
   };
 
   render() {
     const { id, config, classNameStatus, classNameDashlet, record } = this.props;
-    const { isSmall } = this.state;
+    const { isSmall, isCollapsed } = this.state;
     const isMobile = isMobileDevice();
     const title = this.props.title || t('Статус кейса');
+    const isBig = !(isMobile || isSmall);
 
     return (
       <Dashlet
@@ -43,14 +56,16 @@ class DocStatusDashlet extends React.Component {
         className={classNames('ecos-doc-status-dashlet', classNameDashlet, { 'ecos-doc-status-dashlet_mobile': isMobile })}
         bodyClassName="ecos-doc-status-dashlet__body"
         resizable={false}
-        collapsible={false}
+        collapsible={!isBig}
         needGoTo={false}
         actionHelp={false}
         actionReload={false}
         actionDrag={isMobile}
         actionEdit={false}
         onResize={this.onResize}
-        noHeader={!isMobile || !isSmall}
+        onToggleCollapse={this.handleToggleContent}
+        isCollapsed={isCollapsed}
+        noHeader={isBig}
       >
         <DocStatus title={title} isMobile={isMobile || isSmall} {...config} className={classNameStatus} record={record} stateId={id} />
       </Dashlet>
