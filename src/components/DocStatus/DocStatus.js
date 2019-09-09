@@ -119,7 +119,11 @@ class DocStatus extends React.Component {
       'ecos-doc-status__data_no-status': this.isNoStatus
     });
 
-    return <div className={classStatus}>{status.name}</div>;
+    return (
+      <div className={classStatus} title={status.name}>
+        {status.name}
+      </div>
+    );
   }
 
   renderManualField() {
