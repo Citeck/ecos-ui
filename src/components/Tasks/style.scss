@@ -87,8 +87,40 @@
   }
 
   &__assign-btn {
+    $btn: &;
+
     &:not(:last-of-type) {
       margin-right: 10px;
+    }
+
+    &__wrapper {
+      &_small-mode {
+        margin: 13px 0;
+      }
+    }
+
+    &_small-mode {
+      width: 100%;
+
+      &.ecos-btn {
+        margin-right: 0;
+        margin-bottom: 13px;
+        background-color: $color-blue-dark;
+        color: $color-white;
+
+        &:hover {
+          background-color: $color-blue-light;
+        }
+      }
+
+      &:last-of-type {
+        background-color: $color-gray-4;
+        color: $text-color-dark;
+
+        &:hover {
+          background-color: $color-gray-1;
+        }
+      }
     }
   }
 }

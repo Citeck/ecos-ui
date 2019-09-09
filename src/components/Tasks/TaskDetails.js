@@ -68,6 +68,26 @@ class TaskDetails extends React.Component {
     );
   }
 
+  renderAssignmentPanel() {
+    const { details, onAssignClick, isSmallMode } = this.props;
+
+    return (
+      <AssignmentPanel
+        narrow
+        wrapperClassName={classNames({
+          'ecos-task__assign-btn__wrapper_small-mode': isSmallMode
+        })}
+        className={classNames({
+          'ecos-task__assign-btn_small-mode': isSmallMode
+        })}
+        stateAssign={details.stateAssign}
+        onClick={res => {
+          onAssignClick({ taskId: details.id, ...res });
+        }}
+      />
+    );
+  }
+
   render() {
     const { details, onAssignClick, className, isSmallMode } = this.props;
 
@@ -75,15 +95,10 @@ class TaskDetails extends React.Component {
       <div className={classNames('ecos-task-ins', className)}>
         <Headline className="ecos-task-ins__title">
           <div>{details.title}</div>
-          <AssignmentPanel
-            narrow
-            stateAssign={details.stateAssign}
-            onClick={res => {
-              onAssignClick({ taskId: details.id, ...res });
-            }}
-          />
+          {!isSmallMode && this.renderAssignmentPanel()}
         </Headline>
         <div className="ecos-task-ins__info-wrap">
+          {isSmallMode && this.renderAssignmentPanel()}
           {!isSmallMode && this.renderDetailsGrid()}
           {isSmallMode && this.renderDetailsEnum()}
         </div>
