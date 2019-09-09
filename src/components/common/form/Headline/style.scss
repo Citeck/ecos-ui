@@ -1,0 +1,22 @@
+@import '../../../../constants';
+
+.ecos-headline {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 20px;
+  margin-bottom: 7px;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-standard;
+  color: $text-color-dark;
+
+  @extend %ellipsis;
+
+  &_highlight {
+    background-color: $color-yellow;
+  }
+
+  &_inline {
+    display: inline-flex;
+  }
+}

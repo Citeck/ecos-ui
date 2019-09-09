@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
 
-import { getOutputFormat, t } from '../../helpers/util';
+import { getOutputFormat, isLastItem, t } from '../../helpers/util';
 import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
 import { Grid } from '../common/grid';
 import { InfoText, Loader, Separator } from '../common';
@@ -38,7 +38,7 @@ class CurrentTaskList extends React.Component {
         {currentTasks.map((item, i) => (
           <React.Fragment key={item.id + i}>
             <CurrentTaskInfo task={item} isMobile={isMobile} />
-            <Separator noIndents />
+            {!isLastItem(currentTasks, i) && <Separator noIndents />}
           </React.Fragment>
         ))}
       </div>

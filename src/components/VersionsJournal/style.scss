@@ -48,19 +48,13 @@
     }
 
     &-number {
-      font-weight: bold;
-      font-size: 18px;
-      line-height: 22px;
+      font-size: $font-size-large;
       margin-right: 10px;
     }
 
     &-title {
       @extend %overflow-ellipsis;
-
       color: $text-color-gray;
-      font-weight: bold;
-      font-size: 14px;
-      line-height: 23px;
     }
 
     &-actions {
@@ -125,13 +119,6 @@
           }
         }
       }
-    }
-
-    &-header {
-      display: flex;
-      position: relative;
-      background: $color-yellow;
-      padding: 5px 20px;
     }
 
     &-body {
