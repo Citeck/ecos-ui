@@ -24,6 +24,10 @@
   &-ins {
     $ins: &;
 
+    &__title {
+      justify-content: space-between;
+    }
+
     &__info-wrap {
       @extend %h-indents;
 
@@ -73,35 +77,8 @@
   }
 
   &__assign-btn {
-    $btn: &;
-
-    &.ecos-btn {
-      font-weight: $font-weight-bold;
-    }
-
     &:not(:last-of-type) {
       margin-right: 10px;
-    }
-
-    &._fill {
-      width: 100%;
-      margin-right: 0;
-
-      &:first-of-type {
-        margin-top: 3px;
-      }
-
-      &:last-of-type {
-        margin-bottom: 2px;
-      }
-
-      &:not(:last-of-type) {
-        margin-bottom: 10px;
-      }
-    }
-
-    &__wrapper {
-      margin-top: 16px;
     }
   }
 }

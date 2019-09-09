@@ -70,22 +70,22 @@ class TaskDetails extends React.Component {
 
   render() {
     const { details, onAssignClick, className, isSmallMode } = this.props;
-    const classBtn = classNames({ _fill: isSmallMode });
 
     return (
       <div className={classNames('ecos-task-ins', className)}>
-        <Headline>{details.title}</Headline>
-        <div className="ecos-task-ins__info-wrap">
-          {!isSmallMode && this.renderDetailsGrid()}
-          {isSmallMode && this.renderDetailsEnum()}
+        <Headline className="ecos-task-ins__title">
+          <div>{details.title}</div>
           <AssignmentPanel
+            narrow
             stateAssign={details.stateAssign}
             onClick={res => {
               onAssignClick({ taskId: details.id, ...res });
             }}
-            narrow={!isSmallMode}
-            className={classBtn}
           />
+        </Headline>
+        <div className="ecos-task-ins__info-wrap">
+          {!isSmallMode && this.renderDetailsGrid()}
+          {isSmallMode && this.renderDetailsEnum()}
         </div>
         <Separator />
         <div className="ecos-task-ins__eform">

@@ -23,8 +23,6 @@ class AssignmentPanel extends React.Component {
     onClick: () => {}
   };
 
-  className = 'ecos-task__assign-btn';
-
   get infoButtons() {
     const {
       stateAssign: { claimable, releasable, reassignable, assignable }
@@ -58,10 +56,10 @@ class AssignmentPanel extends React.Component {
 
   render() {
     const { onClick, narrow, className } = this.props;
-    const classBtn = classNames(this.className, className, { 'ecos-btn_narrow-t_standart': narrow });
+    const classBtn = classNames('ecos-task__assign-btn ecos-btn_brown2', className, { 'ecos-btn_narrow-t_standart': narrow });
 
     return (
-      <div className={this.className + '__wrapper'}>
+      <div className="ecos-task__assign-btn__wrapper">
         {this.infoButtons.map((btn, i) => (
           <Btn
             key={i + new Date().getTime()}
