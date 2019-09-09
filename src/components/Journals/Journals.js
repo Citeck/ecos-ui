@@ -14,6 +14,8 @@ import JournalsContent from './JournalsContent';
 
 import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
+import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { getJournalsData, reloadGrid, search } from '../../actions/journals';
 import { setActiveTabTitle } from '../../actions/pageTabs';
 import { Well } from '../common/form';
@@ -176,9 +178,16 @@ class Journals extends Component {
             className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
           >
             <Well className={journalSettingsClassName}>
-              <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} metaRecord={metaRecord} />
-              <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
-              <JournalsGrouping stateId={stateId} columns={visibleColumns} />
+              <EcosModalHeight>
+                {height => (
+                  <Scrollbars style={{ height }}>
+                    <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} metaRecord={metaRecord} />
+                    <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
+                    <JournalsGrouping stateId={stateId} columns={visibleColumns} />
+                  </Scrollbars>
+                )}
+              </EcosModalHeight>
+
               <JournalsSettingsFooter
                 parentClass={journalSettingsClassName}
                 stateId={stateId}
