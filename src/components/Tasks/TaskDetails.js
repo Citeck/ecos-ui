@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
 import { deepClone, getOutputFormat } from '../../helpers/util';
 import EcosForm, { FORM_MODE_EDIT } from '../EcosForm';
-import { Caption } from '../common/form';
+import { Headline } from '../common/form';
 import { Grid } from '../common/grid';
 import { Separator } from '../common';
 import { DisplayedColumns, TaskPropTypes } from './utils';
@@ -28,8 +28,6 @@ class TaskDetails extends React.Component {
     onSubmitForm: () => {}
   };
 
-  className = 'ecos-task-ins';
-
   onSubmitForm = () => {
     this.props.onSubmitForm();
   };
@@ -50,22 +48,20 @@ class TaskDetails extends React.Component {
     const arr = [details];
     const updCols = ArrayOfObjects.replaceKeys(DisplayedColumns, { key: 'dataField', label: 'text' });
     const gridCols = ArrayOfObjects.filterKeys(updCols, ['dataField', 'text']);
-    const classes = `${this.className}_view-table`;
 
-    return <Grid data={arr} columns={gridCols} scrollable={true} className={classes} />;
+    return <Grid data={arr} columns={gridCols} scrollable={true} className="ecos-task-ins_view-table" />;
   }
 
   renderDetailsEnum() {
     const { details } = this.props;
-    const classInfo = `${this.className}_view-enum`;
     const columns = ArrayOfObjects.sort(DisplayedColumns, 'order');
 
     return (
       <React.Fragment>
         {columns.map((item, i) => (
-          <div className={classInfo} key={details.id + i}>
-            <div className={`${classInfo}-label`}>{item.label}</div>
-            <div className={`${classInfo}-value`}>{getOutputFormat(item.format, details[item.key])}</div>
+          <div className="ecos-task-ins_view-enum" key={details.id + i}>
+            <div className="ecos-task-ins_view-enum-label">{item.label}</div>
+            <div className="ecos-task-ins_view-enum-value">{getOutputFormat(item.format, details[item.key])}</div>
           </div>
         ))}
       </React.Fragment>
@@ -77,12 +73,9 @@ class TaskDetails extends React.Component {
     const classBtn = classNames({ _fill: isSmallMode });
 
     return (
-      <div className={classNames(`${this.className}`, className)}>
-        <Caption className={`${this.className}__title`} middle>
-          {details.title}
-        </Caption>
-
-        <div className={`${this.className}__info-wrap`}>
+      <div className={classNames('ecos-task-ins', className)}>
+        <Headline>{details.title}</Headline>
+        <div className="ecos-task-ins__info-wrap">
           {!isSmallMode && this.renderDetailsGrid()}
           {isSmallMode && this.renderDetailsEnum()}
           <AssignmentPanel
@@ -95,7 +88,7 @@ class TaskDetails extends React.Component {
           />
         </div>
         <Separator />
-        <div className={`${this.className}__eform`}>
+        <div className="ecos-task-ins__eform">
           <EcosForm
             record={details.id}
             formKey={details.formKey}

@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Separator } from '../common';
+import { Headline } from '../common/form';
 import { t } from '../../helpers/util';
 import { isEmpty } from 'lodash';
 
@@ -41,10 +42,10 @@ class EventsHistoryCard extends React.Component {
 
     return (
       <div className="ecos-event-history-card">
-        <div className="ecos-event-history-card__title">
+        <Headline>
           {this.renderValue(sItem(version), 'ecos-event-history-card-value_version', '—')}
           {this.renderValue(sItem(date), 'ecos-event-history-card-value_date')}
-        </div>
+        </Headline>
         <div className="ecos-event-history-card__fields">
           {this.renderValue(sItem(status), `ecos-event-history-card-value_status`)}
           {fColumns.map(item => (
