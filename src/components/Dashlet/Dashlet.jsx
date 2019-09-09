@@ -117,6 +117,7 @@ class Dashlet extends Component {
     bodyClassName: PropTypes.string,
     titleClassName: PropTypes.string,
     actionEditTitle: PropTypes.string,
+    noHeader: PropTypes.bool,
     needGoTo: PropTypes.bool,
     actionReload: PropTypes.bool,
     actionEdit: PropTypes.bool,
@@ -125,6 +126,8 @@ class Dashlet extends Component {
     resizable: PropTypes.bool,
     canDragging: PropTypes.bool,
     isMobile: PropTypes.bool,
+    isCollapsed: PropTypes.bool,
+    collapsible: PropTypes.bool,
     dragHandleProps: PropTypes.object,
     customButtons: PropTypes.array,
     onEdit: PropTypes.func,
@@ -142,6 +145,7 @@ class Dashlet extends Component {
     className: '',
     bodyClassName: '',
     titleClassName: '',
+    noHeader: false,
     needGoTo: true,
     actionReload: true,
     actionEdit: true,
@@ -150,6 +154,8 @@ class Dashlet extends Component {
     resizable: false,
     canDragging: false,
     isMobile: false,
+    isCollapsed: false,
+    collapsible: true,
     dragButton: null,
     dragHandleProps: {},
     customButtons: [],
@@ -254,7 +260,11 @@ class Dashlet extends Component {
   }
 
   renderHideButton() {
-    const { isMobile } = this.props;
+    const { isMobile, collapsible } = this.props;
+
+    if (!collapsible) {
+      return null;
+    }
 
     if (!isMobile) {
       return null;
@@ -285,7 +295,8 @@ class Dashlet extends Component {
       dragHandleProps,
       canDragging,
       customButtons,
-      isMobile
+      isMobile,
+      noHeader
     } = this.props;
     const { isCollapsed } = this.state;
     const cssClasses = classNames('dashlet', className);
@@ -301,26 +312,29 @@ class Dashlet extends Component {
           bodyClassName={classNames('dashlet__body', bodyClassName, {
             dashlet__body_collapsed: isMobile && isCollapsed
           })}
+          noHeader={noHeader}
           header={
-            <Measurer className="dashlet__header-measurer">
-              <Header
-                title={title}
-                needGoTo={needGoTo}
-                onGoTo={this.onGoTo}
-                actionReload={actionReload}
-                onReload={this.onReload}
-                onToggleCollapse={this.onToggle}
-                actionEdit={actionEdit}
-                onEdit={this.onEdit}
-                actionHelp={actionHelp}
-                actionDrag={actionDrag && canDragging}
-                dragHandleProps={dragHandleProps}
-                actionEditTitle={actionEditTitle}
-                customButtons={customButtons}
-                titleClassName={titleClassName}
-                isMobile={isMobile}
-              />
-            </Measurer>
+            !noHeader && (
+              <Measurer className="dashlet__header-measurer">
+                <Header
+                  title={title}
+                  needGoTo={needGoTo}
+                  onGoTo={this.onGoTo}
+                  actionReload={actionReload}
+                  onReload={this.onReload}
+                  onToggleCollapse={this.onToggle}
+                  actionEdit={actionEdit}
+                  onEdit={this.onEdit}
+                  actionHelp={actionHelp}
+                  actionDrag={actionDrag && canDragging}
+                  dragHandleProps={dragHandleProps}
+                  actionEditTitle={actionEditTitle}
+                  customButtons={customButtons}
+                  titleClassName={titleClassName}
+                  isMobile={isMobile}
+                />
+              </Measurer>
+            )
           }
         >
           <div

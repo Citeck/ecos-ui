@@ -1,15 +1,16 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { debounce, isEmpty } from 'lodash';
+import debounce from 'lodash/debounce';
+import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
 import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus, updateDocStatus } from '../../actions/docStatus';
 import { selectStateDocStatusById } from '../../selectors/docStatus';
-import { deepClone } from '../../helpers/util';
 import DocStatusService from '../../services/docStatus';
-import { IcoBtn } from '../common/btns';
-import { Dropdown } from '../common/form';
+import { deepClone } from '../../helpers/util';
 import { Loader } from '../common';
+import { IcoBtn } from '../common/btns';
+import { Caption, Dropdown } from '../common/form';
 
 import './style.scss';
 
@@ -40,14 +41,16 @@ class DocStatus extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
-    className: PropTypes.string
+    className: PropTypes.string,
+    title: PropTypes.string,
+    isMobile: PropTypes.bool
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
+    title: '',
+    isMobile: false
   };
-
-  className = 'ecos-doc-status';
 
   state = {
     wasChanged: false
@@ -112,20 +115,28 @@ class DocStatus extends React.Component {
 
   renderReadField() {
     const { status = {} } = this.props;
-    const classStatus = classNames(`${this.className}_read`, { [`${this.className}_no-status`]: this.isNoStatus });
+    const classStatus = classNames('ecos-doc-status__data ecos-doc-status__data_read', {
+      'ecos-doc-status__data_no-status': this.isNoStatus
+    });
 
-    return <div className={classStatus}>{status.name}</div>;
+    return (
+      <div className={classStatus} title={status.name}>
+        {status.name}
+      </div>
+    );
   }
 
   renderManualField() {
     const { availableToChangeStatuses = [], status } = this.props;
     const source = deepClone(availableToChangeStatuses);
-    const classStatus = classNames('ecos-btn_drop-down ecos-btn_full-width', { 'ecos-btn_blue': !this.isNoStatus || this.isShowLoader });
+    const classStatus = classNames('ecos-btn_drop-down ecos-btn_full-width ecos-btn_narrow', {
+      'ecos-btn_blue': !this.isNoStatus || this.isShowLoader
+    });
 
     source.push(status);
 
     return (
-      <div className={`${this.className}_manual`}>
+      <div className="ecos-doc-status__data ecos-doc-status__data_manual">
         <Dropdown source={source} value={status.id} valueField={'id'} titleField={'name'} onChange={this.onChangeStatus} hideSelected>
           <IcoBtn invert icon={'icon-down'} className={classStatus} loading={this.isShowLoader} />
         </Dropdown>
@@ -134,17 +145,23 @@ class DocStatus extends React.Component {
   }
 
   render() {
+    const { isMobile, title } = this.props;
     const { wasChanged } = this.state;
 
     return (
-      <div className={this.className}>
+      <div className="ecos-doc-status">
         {this.isShowLoader && !wasChanged ? (
-          <Loader className={`${this.className}__loader`} />
+          <Loader className="ecos-doc-status__loader" />
         ) : (
-          <React.Fragment>
+          <>
+            {!isMobile && (
+              <Caption middle className="ecos-doc-status__title">
+                {title}
+              </Caption>
+            )}
             {this.isReadField && this.renderReadField()}
             {!this.isReadField && this.renderManualField()}
-          </React.Fragment>
+          </>
         )}
       </div>
     );
