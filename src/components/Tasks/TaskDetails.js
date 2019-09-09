@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
 import { deepClone, getOutputFormat } from '../../helpers/util';
-import EcosForm from '../EcosForm';
+import EcosForm, { FORM_MODE_EDIT } from '../EcosForm';
 import { Caption } from '../common/form';
 import { Grid } from '../common/grid';
 import { Separator } from '../common';
@@ -96,7 +96,16 @@ class TaskDetails extends React.Component {
         </div>
         <Separator />
         <div className={`${this.className}__eform`}>
-          <EcosForm record={details.id} formKey={details.formKey} onSubmit={this.onSubmitForm} saveOnSubmit />
+          <EcosForm
+            record={details.id}
+            formKey={details.formKey}
+            onSubmit={this.onSubmitForm}
+            saveOnSubmit
+            options={{
+              useNarrowButtons: true,
+              fullWidthColumns: isSmallMode
+            }}
+          />
         </div>
       </div>
     );

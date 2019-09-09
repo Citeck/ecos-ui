@@ -25,9 +25,8 @@ class FormIOPage extends React.Component {
       options = {
         readOnly: true,
         viewAsHtml: true,
-
+        fullWidthColumns: true,
         viewAsHtmlConfig: {
-          fullWidthColumns: true
           // hidePanels: true
         }
       };
