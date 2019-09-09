@@ -1,15 +1,16 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { debounce, isEmpty } from 'lodash';
+import debounce from 'lodash/debounce';
+import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
 import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus, updateDocStatus } from '../../actions/docStatus';
 import { selectStateDocStatusById } from '../../selectors/docStatus';
-import { deepClone, t } from '../../helpers/util';
 import DocStatusService from '../../services/docStatus';
+import { deepClone } from '../../helpers/util';
+import { Loader } from '../common';
 import { IcoBtn } from '../common/btns';
 import { Caption, Dropdown } from '../common/form';
-import { Loader } from '../common';
 
 import './style.scss';
 
@@ -41,12 +42,14 @@ class DocStatus extends React.Component {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
-    title: PropTypes.string
+    title: PropTypes.string,
+    isMobile: PropTypes.bool
   };
 
   static defaultProps = {
     className: '',
-    title: ''
+    title: '',
+    isMobile: false
   };
 
   state = {
@@ -116,7 +119,11 @@ class DocStatus extends React.Component {
       'ecos-doc-status__data_no-status': this.isNoStatus
     });
 
-    return <div className={classStatus}>{status.name}</div>;
+    return (
+      <div className={classStatus} title={status.name}>
+        {status.name}
+      </div>
+    );
   }
 
   renderManualField() {
@@ -138,6 +145,7 @@ class DocStatus extends React.Component {
   }
 
   render() {
+    const { isMobile, title } = this.props;
     const { wasChanged } = this.state;
 
     return (
@@ -145,13 +153,15 @@ class DocStatus extends React.Component {
         {this.isShowLoader && !wasChanged ? (
           <Loader className="ecos-doc-status__loader" />
         ) : (
-          <React.Fragment>
-            <Caption middle className="ecos-doc-status__title">
-              {t('Статус кейса')}
-            </Caption>
+          <>
+            {!isMobile && (
+              <Caption middle className="ecos-doc-status__title">
+                {title}
+              </Caption>
+            )}
             {this.isReadField && this.renderReadField()}
             {!this.isReadField && this.renderManualField()}
-          </React.Fragment>
+          </>
         )}
       </div>
     );
