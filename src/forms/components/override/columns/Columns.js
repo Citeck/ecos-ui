@@ -66,7 +66,7 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
   get className() {
     const classList = ['row'];
 
-    if (this.options.viewAsHtmlConfig && this.options.viewAsHtmlConfig.fullWidthColumns) {
+    if (this.options.fullWidthColumns) {
       classList.push('m-0', 'p-0');
     }
 
