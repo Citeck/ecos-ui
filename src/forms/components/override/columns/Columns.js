@@ -12,6 +12,7 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
         columns: [{ components: [], xs: 0, sm: 12, md: 6, lg: 0, xl: 0, classes: '' }],
         clearOnHide: false,
         input: false,
+        inlineColumns: false,
         tableView: false,
         persistent: false,
         autoAdjust: false,
@@ -68,6 +69,12 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
 
     if (this.options.fullWidthColumns) {
       classList.push('m-0', 'p-0');
+      return `${classList.join(' ')} ${super.className}`;
+    }
+
+    // exclude this.options.fullWidthColumns case
+    if (this.component.inlineColumns) {
+      return 'row-with-inline-blocks';
     }
 
     return `${classList.join(' ')} ${super.className}`;

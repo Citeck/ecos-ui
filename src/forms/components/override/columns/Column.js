@@ -12,6 +12,11 @@ export default class ColumnComponent extends FormIOColumnComponent {
       return classList.join(' ');
     }
 
+    // exclude options.fullWidthColumns case
+    if (this.parent.component.inlineColumns) {
+      return 'col-inline-block';
+    }
+
     if (this.viewOnly) {
       if (
         this.parent &&
