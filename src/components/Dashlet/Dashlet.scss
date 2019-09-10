@@ -38,6 +38,15 @@
     &-actions {
       position: absolute;
       right: 0;
+      background: linear-gradient(to right, rgba(255, 255, 255, 0) 10%, $color-white);
+      border-top-right-radius: $border-radius-extra-large;
+      border-bottom-right-radius: $border-radius-extra-large;
+
+      .ecos-btn {
+        margin-left: 16px;
+        padding-left: 2px;
+        padding-right: 2px;
+      }
     }
 
     &:hover {
@@ -49,14 +58,8 @@
         }
 
         &__header-actions {
-          & :not(:last-child) {
-            margin-right: 20px;
-          }
-
           &:not(:empty) {
             background: $color-white;
-            border-top-right-radius: $border-radius-extra-large;
-            border-bottom-right-radius: $border-radius-extra-large;
           }
 
           &:before {
