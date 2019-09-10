@@ -1,5 +1,13 @@
 export default [
   {
+    weight: 149,
+    type: 'checkbox',
+    label: 'In-line columns',
+    tooltip: 'Display columns as in-line blocks',
+    key: 'inlineColumns',
+    input: true
+  },
+  {
     weight: 150,
     type: 'datagrid',
     input: true,
