@@ -36,6 +36,7 @@ const DocStatusPage = lazy(() => import('../../pages/debug/DocStatus/DocStatusPa
 const EventsHistoryPage = lazy(() => import('../../pages/debug/EventsHistoryPage'));
 const VersionsJournalWidgetPage = lazy(() => import('../../pages/debug/VersionsJournalWidgetPage'));
 const RecordActionsPage = lazy(() => import('../../pages/debug/RecordActionsPage'));
+const DocAssociations = lazy(() => import('../../pages/debug/DocAssociations'));
 
 class App extends Component {
   componentDidMount() {
@@ -133,7 +134,7 @@ class App extends Component {
               <Route path={URL.WIDGET_DOC_STATUS} exact component={DocStatusPage} />
               <Route path={URL.WIDGET_EVENTS_HISTORY} exact component={EventsHistoryPage} />
               <Route path={URL.WIDGET_VERSIONS_JOURNAL} component={VersionsJournalWidgetPage} />
-              <Route path={URL.WIDGET_ACTIONS} component={RecordActionsPage} />
+              <Route path={URL.WIDGET_DOC_ASSOCIATIONS} component={DocAssociations} />
               {/*<Route component={NotFoundPage} />*/}
             </Switch>
           </Suspense>

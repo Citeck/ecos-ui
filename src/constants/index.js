@@ -17,7 +17,8 @@ export const URL = {
   WIDGET_DOC_STATUS: '/v2/debug/doc-status',
   WIDGET_EVENTS_HISTORY: '/v2/debug/events-history',
   WIDGET_VERSIONS_JOURNAL: '/v2/debug/versions-journal',
-  WIDGET_ACTIONS: '/v2/debug/record-actions'
+  WIDGET_ACTIONS: '/v2/debug/record-actions',
+  WIDGET_DOC_ASSOCIATIONS: '/v2/debug/doc-associations'
 };
 
 export const SourcesId = {
