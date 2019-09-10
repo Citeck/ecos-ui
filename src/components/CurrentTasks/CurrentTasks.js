@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
 
-import { getCurrentTaskList } from '../../actions/currentTasks';
+import { getCurrentTaskList, resetCurrentTaskList } from '../../actions/currentTasks';
 import { selectStateCurrentTasksById } from '../../selectors/tasks';
 import { DefineHeight } from '../common';
 import CurrentTaskList from './CurrentTaskList';
@@ -23,7 +23,8 @@ const mapStateToProps = (state, context) => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  getCurrentTaskList: payload => dispatch(getCurrentTaskList(payload))
+  getCurrentTaskList: payload => dispatch(getCurrentTaskList(payload)),
+  resetCurrentTaskList: payload => dispatch(resetCurrentTaskList(payload))
 });
 
 class CurrentTasks extends React.Component {
@@ -60,6 +61,12 @@ class CurrentTasks extends React.Component {
     if (!isLoading && !isEmpty(nextProps.updateRequestRecord) && nextProps.updateRequestRecord === record) {
       this.getCurrentTaskList();
     }
+  }
+
+  componentWillUnmount() {
+    const { resetCurrentTaskList, stateId } = this.props;
+
+    resetCurrentTaskList({ stateId });
   }
 
   getCurrentTaskList = () => {
