@@ -1,0 +1,16 @@
+@import '../../../../constants';
+
+.ecos-badge {
+  display: inline-block;
+  white-space: nowrap;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-standard;
+  background-color: $color-gray-5;
+  color: $color-white;
+  padding: 5px 9px;
+  border-radius: $border-radius-biggest;
+
+  &_error {
+    background-color: $color-red-2;
+  }
+}

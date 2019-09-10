@@ -14,6 +14,7 @@
 
     &-wrapper {
       height: 48px;
+      padding: 0 20px;
       border-bottom: 2px solid $color-gray-4;
       background-color: $color-white;
       border-radius: $border-radius-extra-large $border-radius-extra-large 0 0;
@@ -35,8 +36,8 @@
     }
 
     &-actions {
-      flex: auto;
-      text-align: end;
+      position: absolute;
+      right: 0;
     }
 
     &:hover {
@@ -48,22 +49,24 @@
         }
 
         &__header-actions {
+          & :not(:last-child) {
+            margin-right: 20px;
+          }
+
           &:not(:empty) {
             background: $color-white;
             border-top-right-radius: $border-radius-extra-large;
             border-bottom-right-radius: $border-radius-extra-large;
+          }
 
-            &:before {
-              $size: 30px;
-              border-top-right-radius: $border-radius-extra-large;
-              content: '';
-              width: $size;
-              position: absolute;
-              left: -$size;
-              top: 0;
-              height: 100%;
-              background: linear-gradient(to right, rgba(255, 255, 255, 0.35), $color-white);
-            }
+          &:before {
+            $size: 30px;
+            content: '';
+            width: $size;
+            position: absolute;
+            left: -$size;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.2), $color-white);
           }
         }
       }
@@ -73,10 +76,11 @@
   &__caption {
     display: inline-block;
     text-align: center;
-    white-space: nowrap;
     vertical-align: middle;
     border: 1px solid transparent;
     text-decoration: none;
+
+    @extend %ellipsis;
 
     background: inherit;
     color: $text-color-gray;
@@ -85,9 +89,8 @@
     font-weight: $font-weight-bold;
     font-style: normal;
     line-height: 1;
-    padding: 6px 18px 6px 20px;
-    height: 34px;
     box-sizing: border-box;
+    padding-right: 12px;
   }
 
   &__body {
@@ -119,12 +122,8 @@
     font-size: $font-size-standard;
     font-weight: $font-weight-bold;
 
-    &_next {
-      margin-right: 20px;
-    }
-
     &_hidden {
-      visibility: hidden;
+      visibility: collapse;
     }
 
     &_move {

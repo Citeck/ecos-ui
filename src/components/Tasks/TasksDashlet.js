@@ -72,13 +72,13 @@ class TasksDashlet extends React.Component {
   };
 
   render() {
-    const { id, title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
+    const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isRunReload, isSmallMode, height, fitHeights, isCollapsed } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
       <Dashlet
-        title={title || t('tasks-widget.title')}
+        title={title || t('tasks-widget.title') + '1111111111111111111111111111111111'}
         bodyClassName={`${this.className}__body`}
         className={classDashlet}
         resizable={true}
@@ -93,6 +93,7 @@ class TasksDashlet extends React.Component {
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
+        badgeText={'11111111111111'}
       >
         <Tasks
           {...config}

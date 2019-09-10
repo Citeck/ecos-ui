@@ -8,6 +8,7 @@ import get from 'lodash/get';
 import Panel from '../common/panels/Panel/Panel';
 import Measurer from '../Measurer/Measurer';
 import { Btn, IcoBtn } from '../common/btns';
+import { Badge } from '../common/form';
 import { Icon, ResizableBox } from '../common';
 import { t } from '../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
@@ -30,7 +31,8 @@ const Header = ({
   actionEditTitle,
   customButtons,
   titleClassName,
-  isMobile
+  isMobile,
+  badgeText
 }) => {
   const btnGoTo = isMobile ? null : (
     <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className="dashlet__btn ecos-btn_narrow" onClick={onGoTo}>
@@ -46,7 +48,7 @@ const Header = ({
       <IcoBtn
         key="action-reload"
         icon={'icon-reload'}
-        className="ecos-btn_i dashlet__btn_hidden dashlet__btn_next ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
         onClick={onReload}
         title={t('dashlet.update.title')}
       />
@@ -58,7 +60,7 @@ const Header = ({
       <IcoBtn
         key="action-edit"
         icon={'icon-edit'}
-        className="ecos-btn_i dashlet__btn_hidden dashlet__btn_next ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
         onClick={onEdit}
         title={actionEditTitle || t('dashlet.edit.title')}
       />
@@ -70,19 +72,19 @@ const Header = ({
       <IcoBtn
         key="action-help"
         icon={'icon-question'}
-        className="ecos-btn_i dashlet__btn_hidden dashlet__btn_next ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
         title={t('dashlet.help.title')}
       />
     );
   }
 
-  if (actionDrag) {
+  if (true) {
     dragBtn = (
       <span className="dashlet__btn_move-wrapper" {...dragHandleProps}>
         <IcoBtn
           key="action-drag"
           icon={'icon-drag'}
-          className="ecos-btn_i dashlet__btn_next dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1"
+          className="ecos-btn_i dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1"
           title={t('dashlet.move.title')}
         />
       </span>
@@ -99,6 +101,8 @@ const Header = ({
         {toggleIcon}
         {title}
       </span>
+
+      {badgeText && <Badge>{badgeText}</Badge>}
 
       {needGoTo && btnGoTo}
 
@@ -117,6 +121,7 @@ class Dashlet extends Component {
     bodyClassName: PropTypes.string,
     titleClassName: PropTypes.string,
     actionEditTitle: PropTypes.string,
+    badgeText: PropTypes.string,
     noHeader: PropTypes.bool,
     needGoTo: PropTypes.bool,
     actionReload: PropTypes.bool,
@@ -145,6 +150,7 @@ class Dashlet extends Component {
     className: '',
     bodyClassName: '',
     titleClassName: '',
+    badgeText: '',
     noHeader: false,
     needGoTo: true,
     actionReload: true,
@@ -286,6 +292,7 @@ class Dashlet extends Component {
       bodyClassName,
       titleClassName,
       actionEditTitle,
+      badgeText,
       needGoTo,
       actionReload,
       actionEdit,
@@ -332,6 +339,7 @@ class Dashlet extends Component {
                   customButtons={customButtons}
                   titleClassName={titleClassName}
                   isMobile={isMobile}
+                  badgeText={badgeText}
                 />
               </Measurer>
             )

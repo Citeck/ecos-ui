@@ -67,7 +67,7 @@ class CurrentTasksDashlet extends React.Component {
   };
 
   render() {
-    const { id, title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
+    const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isSmallMode, isUpdating, height, fitHeights, isCollapsed } = this.state;
     const classDashlet = classNames('ecos-current-task-list-dashlet', classNameDashlet);
 
@@ -88,6 +88,7 @@ class CurrentTasksDashlet extends React.Component {
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
+        badgeText={'111'}
       >
         {!isUpdating && (
           <CurrentTasks
