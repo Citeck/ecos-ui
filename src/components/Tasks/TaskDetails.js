@@ -1,12 +1,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+
 import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
 import { deepClone, getOutputFormat } from '../../helpers/util';
-import EcosForm, { FORM_MODE_EDIT } from '../EcosForm';
+import EcosForm from '../EcosForm';
 import { Headline } from '../common/form';
 import { Grid } from '../common/grid';
-import { Separator } from '../common';
 import { DisplayedColumns, TaskPropTypes } from './utils';
 import AssignmentPanel from './AssignmentPanel';
 
@@ -57,37 +57,51 @@ class TaskDetails extends React.Component {
     const columns = ArrayOfObjects.sort(DisplayedColumns, 'order');
 
     return (
-      <React.Fragment>
+      <>
         {columns.map((item, i) => (
           <div className="ecos-task-ins_view-enum" key={details.id + i}>
             <div className="ecos-task-ins_view-enum-label">{item.label}</div>
             <div className="ecos-task-ins_view-enum-value">{getOutputFormat(item.format, details[item.key])}</div>
           </div>
         ))}
-      </React.Fragment>
+      </>
+    );
+  }
+
+  renderAssignmentPanel() {
+    const { details, onAssignClick, isSmallMode } = this.props;
+
+    return (
+      <AssignmentPanel
+        narrow
+        wrapperClassName={classNames({
+          'ecos-task__assign-btn__wrapper_small-mode': isSmallMode
+        })}
+        className={classNames({
+          'ecos-task__assign-btn_small-mode': isSmallMode
+        })}
+        stateAssign={details.stateAssign}
+        onClick={res => {
+          onAssignClick({ taskId: details.id, ...res });
+        }}
+      />
     );
   }
 
   render() {
-    const { details, onAssignClick, className, isSmallMode } = this.props;
+    const { details, className, isSmallMode } = this.props;
 
     return (
       <div className={classNames('ecos-task-ins', className)}>
         <Headline className="ecos-task-ins__title">
           <div>{details.title}</div>
-          <AssignmentPanel
-            narrow
-            stateAssign={details.stateAssign}
-            onClick={res => {
-              onAssignClick({ taskId: details.id, ...res });
-            }}
-          />
+          {!isSmallMode && this.renderAssignmentPanel()}
         </Headline>
         <div className="ecos-task-ins__info-wrap">
+          {isSmallMode && this.renderAssignmentPanel()}
           {!isSmallMode && this.renderDetailsGrid()}
           {isSmallMode && this.renderDetailsEnum()}
         </div>
-        <Separator />
         <div className="ecos-task-ins__eform">
           <EcosForm
             record={details.id}

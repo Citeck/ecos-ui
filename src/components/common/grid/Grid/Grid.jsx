@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import BootstrapTable from 'react-bootstrap-table-next';
@@ -23,12 +23,12 @@ const Selector = ({ mode, ...rest }) => (
 );
 
 const SelectorHeader = ({ indeterminate, ...rest }) => (
-  <Fragment>
+  <>
     <div className={'ecos-grid__checkbox'}>
       {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
       <div className={'ecos-grid__checkbox-devider'} />
     </div>
-  </Fragment>
+  </>
 );
 
 class Grid extends Component {
@@ -461,7 +461,7 @@ class Grid extends Component {
           {children}
         </Scrollbars>
       ) : (
-        <Fragment>{children}</Fragment>
+        <>{children}</>
       );
 
     if (props.columns.length) {

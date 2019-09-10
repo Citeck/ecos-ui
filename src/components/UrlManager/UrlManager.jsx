@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import connect from 'react-redux/es/connect/connect';
 import queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
 import { withRouter } from 'react-router';
