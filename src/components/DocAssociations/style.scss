@@ -1,0 +1,44 @@
+@import '../../constants.scss';
+
+.ecos-doc-associations {
+  &__headline {
+    display: flex;
+    justify-content: space-between;
+    background-color: $color-blue-light4;
+    height: 34px;
+    width: 100%;
+    padding: 5px 20px;
+
+    &-text {
+      font-style: normal;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 23px;
+    }
+  }
+
+  &__icon {
+    &-plus {
+      cursor: pointer;
+      color: $color-gray-5;
+      line-height: inherit;
+      font-size: 16px;
+    }
+  }
+
+  &__empty {
+    display: flex;
+    margin: auto;
+    padding: 16px 0;
+    width: 100%;
+
+    &-message {
+      font-style: normal;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 22px;
+      color: $color-gray-5;
+      margin: auto;
+    }
+  }
+}
