@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { isEmpty } from 'lodash';
-import { changeTaskAssignee, getTaskList } from '../../actions/tasks';
+import { changeTaskAssignee, getTaskList, resetTaskList } from '../../actions/tasks';
 import { updateRequestDocStatus } from '../../actions/docStatus';
 import { updateRequestCurrentTasks } from '../../actions/currentTasks';
 import { selectStateTasksById } from '../../selectors/tasks';
@@ -25,7 +25,8 @@ const mapDispatchToProps = dispatch => ({
   getTaskList: payload => dispatch(getTaskList(payload)),
   changeTaskAssignee: payload => dispatch(changeTaskAssignee(payload)),
   updateRequestDocStatus: payload => dispatch(updateRequestDocStatus(payload)),
-  updateRequestCurrentTasks: payload => dispatch(updateRequestCurrentTasks(payload))
+  updateRequestCurrentTasks: payload => dispatch(updateRequestCurrentTasks(payload)),
+  resetTaskList: payload => dispatch(resetTaskList(payload))
 });
 
 class Tasks extends React.Component {
@@ -63,6 +64,12 @@ class Tasks extends React.Component {
       this.getTaskList();
       this.props.setReloadDone(true);
     }
+  }
+
+  componentWillUnmount() {
+    const { resetTaskList, stateId } = this.props;
+
+    resetTaskList({ stateId });
   }
 
   getTaskList = () => {

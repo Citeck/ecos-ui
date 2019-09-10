@@ -42,14 +42,15 @@ export const RequestStatuses = {
 
 export const DASHBOARD_DEFAULT_KEY = 'DEFAULT';
 
-export const QueryKeys = {
+export const QueryEntityKeys = {
   CONFIG_JSON: 'config?json',
   VALUE_JSON: 'value?json',
   KEY: 'key',
   VALUE: 'value',
   TITLE: 'title',
   DESCRIPTION: 'description',
-  USER: 'user'
+  USER: 'user',
+  TYPE: 'type'
 };
 
 export const MIN_WIDTH_DASHLET_SMALL = 290;

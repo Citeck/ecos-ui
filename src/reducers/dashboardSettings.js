@@ -6,6 +6,7 @@ import {
   getDashboardConfig,
   getDashboardKeys,
   initDashboardSettings,
+  resetDashboardConfig,
   saveDashboardConfig,
   setAvailableWidgets,
   setCheckUpdatedDashboardConfig,
@@ -85,6 +86,12 @@ export default handleActions(
     [getAwayFromPage]: (state, { payload = {} }) => {
       return {
         ...state,
+        ...initialState
+      };
+    },
+
+    [resetDashboardConfig]: state => {
+      return {
         ...initialState
       };
     }

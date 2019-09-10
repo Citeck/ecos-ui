@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
-import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus, updateDocStatus } from '../../actions/docStatus';
+import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus, resetDocStatus, updateDocStatus } from '../../actions/docStatus';
 import { selectStateDocStatusById } from '../../selectors/docStatus';
 import DocStatusService from '../../services/docStatus';
 import { deepClone } from '../../helpers/util';
@@ -32,7 +32,8 @@ const mapDispatchToProps = dispatch => ({
   changeDocStatus: payload => dispatch(changeDocStatus(payload)),
   getDocStatus: payload => dispatch(getDocStatus(payload)),
   getCheckDocStatus: payload => dispatch(getCheckDocStatus(payload)),
-  updateDocStatus: payload => dispatch(updateDocStatus(payload))
+  updateDocStatus: payload => dispatch(updateDocStatus(payload)),
+  resetDocStatus: payload => dispatch(resetDocStatus(payload))
 });
 
 const MAX_ATTEMPT = 3;
@@ -60,7 +61,7 @@ class DocStatus extends React.Component {
     const { stateId, record, getCheckDocStatus } = this.props;
 
     getCheckDocStatus({ stateId, record });
-  }, 3000);
+  }, 2000);
 
   componentDidMount() {
     const { stateId, record, initDocStatus } = this.props;
@@ -86,6 +87,12 @@ class DocStatus extends React.Component {
         }
       }
     }
+  }
+
+  componentWillUnmount() {
+    const { resetDocStatus, stateId } = this.props;
+
+    resetDocStatus({ stateId });
   }
 
   get isNoStatus() {

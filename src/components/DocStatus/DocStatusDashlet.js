@@ -67,7 +67,7 @@ class DocStatusDashlet extends React.Component {
         isCollapsed={isCollapsed}
         noHeader={isBig}
       >
-        <DocStatus title={title} isMobile={isMobile || isSmall} {...config} className={classNameStatus} record={record} stateId={id} />
+        <DocStatus title={title} isMobile={isMobile || isSmall} {...config} className={classNameStatus} record={record} stateId={record} />
       </Dashlet>
     );
   }
