@@ -1,4 +1,4 @@
-import { MENU_TYPE, QueryKeys } from '../constants';
+import { MENU_TYPE, QueryEntityKeys } from '../constants';
 
 const getDefaultMenuConfig = {
   type: MENU_TYPE.LEFT,
@@ -11,7 +11,7 @@ export default class MenuConverter {
       return getDefaultMenuConfig;
     }
 
-    let resultConfig = result[QueryKeys.VALUE_JSON];
+    let resultConfig = result[QueryEntityKeys.VALUE_JSON];
     if (!resultConfig || !resultConfig.type) {
       resultConfig = getDefaultMenuConfig;
     }
