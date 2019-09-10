@@ -95,7 +95,7 @@ class CurrentTasksDashlet extends React.Component {
             className={classNameTasks}
             record={record}
             isSmallMode={isSmallMode}
-            stateId={id}
+            stateId={record}
             height={height}
             minHeight={fitHeights.min}
             maxHeight={fitHeights.max}

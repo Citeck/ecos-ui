@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { getCurrentTaskList, setCurrentTaskList, updateRequestCurrentTasks } from '../actions/currentTasks';
+import { getCurrentTaskList, resetCurrentTaskList, setCurrentTaskList, updateRequestCurrentTasks } from '../actions/currentTasks';
 import { getCurrentStateById } from '../helpers/redux';
 
 const commonInitialState = {
@@ -34,7 +34,12 @@ export default handleActions(
     [updateRequestCurrentTasks]: (state, { payload: { record } }) => ({
       ...state,
       updateRequestRecord: record
-    })
+    }),
+    [resetCurrentTaskList]: (state, { payload: { stateId } }) => {
+      delete state[stateId];
+
+      return state;
+    }
   },
   commonInitialState
 );

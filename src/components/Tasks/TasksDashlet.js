@@ -98,7 +98,7 @@ class TasksDashlet extends React.Component {
           {...config}
           className={classNameTasks}
           record={record}
-          stateId={id}
+          stateId={record}
           isRunReload={isRunReload}
           setReloadDone={this.setReload}
           isSmallMode={isSmallMode}
