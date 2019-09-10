@@ -19,6 +19,7 @@ import {
   getAwayFromPage,
   getCheckUpdatedDashboardConfig,
   initDashboardSettings,
+  resetDashboardConfig,
   saveDashboardConfig,
   setCheckUpdatedDashboardConfig
 } from '../../actions/dashboardSettings';
@@ -61,7 +62,8 @@ const mapDispatchToProps = dispatch => ({
   checkUpdatedSettings: payload => dispatch(getCheckUpdatedDashboardConfig(payload)),
   saveSettings: payload => dispatch(saveDashboardConfig(payload)),
   getAwayFromPage: payload => dispatch(getAwayFromPage(payload)),
-  setCheckUpdatedDashboardConfig: payload => dispatch(setCheckUpdatedDashboardConfig(payload))
+  setCheckUpdatedDashboardConfig: payload => dispatch(setCheckUpdatedDashboardConfig(payload)),
+  resetDashboardConfig: () => dispatch(resetDashboardConfig())
 });
 
 const DESK_VER = find(DeviceTabs, ['key', 'desktop']);
@@ -143,6 +145,10 @@ class DashboardSettings extends React.Component {
 
   componentDidMount() {
     this.fetchData();
+  }
+
+  componentWillUnmount() {
+    this.props.resetDashboardConfig();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -284,12 +290,13 @@ class DashboardSettings extends React.Component {
     const oldRStatus = get(this.props, 'requestResult.status', null);
     const newRStatus = get(nextProps, 'requestResult.status', null);
     const oldSaveWay = get(this.props, 'requestResult.saveWay', null);
-    const newSaveWay = get(nextProps, 'requestResult.saveWay', null);
+    const checkResult = get(nextProps, 'requestResult', {});
+    const newSaveWay = checkResult.saveWay;
 
     if (newRStatus && oldRStatus !== newRStatus && newRStatus === RequestStatuses.SUCCESS) {
       this.closePage(nextProps);
     } else if (newSaveWay && oldSaveWay !== newSaveWay && newSaveWay !== DashboardService.SaveWays.CONFIRM) {
-      this.acceptChanges(newSaveWay === DashboardService.SaveWays.CREATE);
+      this.acceptChanges(checkResult.dashboardId);
     }
   }
 
@@ -539,7 +546,7 @@ class DashboardSettings extends React.Component {
     checkUpdatedSettings({ isForAllUsers, dashboardKey });
   };
 
-  acceptChanges = (create = false) => {
+  acceptChanges = checkResultId => {
     const { saveSettings, identification, userData } = this.props;
     const {
       selectedWidgets: widgets,
@@ -555,11 +562,7 @@ class DashboardSettings extends React.Component {
     const activeMenuType = typeMenu.find(item => item.isActive);
     const menuType = activeMenuType ? activeMenuType.type : typeMenu[0].type;
     const userName = isForAllUsers ? null : identification.user || userData.userName;
-    const newIdentification = { user: userName, key: dashboardKey };
-
-    if (create) {
-      newIdentification.id = '';
-    }
+    const newIdentification = { user: userName, key: dashboardKey, id: checkResultId };
 
     saveSettings({
       newIdentification,
@@ -601,7 +604,7 @@ class DashboardSettings extends React.Component {
 
     if (requestResult.saveWay === DashboardService.SaveWays.CONFIRM) {
       const handleReplace = () => {
-        setCheckUpdatedDashboardConfig({ saveWay: DashboardService.SaveWays.UPDATE });
+        setCheckUpdatedDashboardConfig({ ...requestResult, saveWay: DashboardService.SaveWays.UPDATE });
       };
 
       const handleCancel = () => {
