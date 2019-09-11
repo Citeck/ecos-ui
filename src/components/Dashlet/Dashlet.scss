@@ -38,38 +38,40 @@
     &-actions {
       position: absolute;
       right: 0;
-      background: linear-gradient(to right, rgba(255, 255, 255, 0) 10%, $color-white);
+      background: $color-white;
       border-top-right-radius: $border-radius-extra-large;
       border-bottom-right-radius: $border-radius-extra-large;
 
-      .ecos-btn {
-        margin-left: 16px;
-        padding-left: 2px;
-        padding-right: 2px;
+      & > :nth-child(n) {
+        margin-left: 15px;
+      }
+
+      &:before {
+        $size: 25px;
+        content: '';
+        width: $size;
+        position: absolute;
+        left: -$size;
+        height: 100%;
+        background: linear-gradient(to right, rgba(255, 255, 255, 0), $color-white);
+        margin: 0;
       }
     }
 
     &:hover {
       #{$root} {
-        &__btn {
-          &_hidden {
-            visibility: visible;
-          }
-        }
-
         &__header-actions {
           &:not(:empty) {
-            background: $color-white;
           }
+        }
+      }
+    }
 
-          &:before {
-            $size: 30px;
-            content: '';
-            width: $size;
-            position: absolute;
-            left: -$size;
-            height: 100%;
-            background: linear-gradient(to right, rgba(255, 255, 255, 0.2), $color-white);
+    &:not(:hover) {
+      #{$root} {
+        &__btn {
+          &_hidden {
+            display: none;
           }
         }
       }
@@ -124,10 +126,6 @@
   &__btn {
     font-size: $font-size-standard;
     font-weight: $font-weight-bold;
-
-    &_hidden {
-      visibility: collapse;
-    }
 
     &_move {
       font-size: 28px !important;

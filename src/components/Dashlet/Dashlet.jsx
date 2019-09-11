@@ -78,7 +78,7 @@ const Header = ({
     );
   }
 
-  if (true) {
+  if (actionDrag) {
     dragBtn = (
       <span className="dashlet__btn_move-wrapper" {...dragHandleProps}>
         <IcoBtn
