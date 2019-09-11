@@ -236,6 +236,11 @@ class EcosForm extends React.Component {
           value = DataGridAssocComponent.convertToAssoc(value, input, keysMapping);
         }
 
+        // cause: https://citeck.atlassian.net/browse/ECOSCOM-2561
+        if (input && input.component.type === 'ecosSelect' && !value) {
+          value = null;
+        }
+
         record.att(keysMapping[key] || key, value);
       }
     }
