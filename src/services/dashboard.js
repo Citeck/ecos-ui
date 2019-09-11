@@ -108,7 +108,7 @@ export default class DashboardService {
     const mobile = [];
 
     source.forEach(layout => {
-      const { id: idLayout, columns, tab } = layout;
+      const { id: idLayout, columns = [], tab = {} } = layout;
 
       mobile.push({
         id: idLayout,
