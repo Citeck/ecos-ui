@@ -207,7 +207,7 @@ class Journals extends Component {
               </div>
             </div>
 
-            <div className={`ecos-journal__menu ${pageTabsIsShow ? 'ecos-journal__menu_tabs' : ''}`} style={{ height }}>
+            <div className={`ecos-journal__menu ${pageTabsIsShow ? 'ecos-journal__menu_with-tabs' : ''}`} style={{ height }}>
               <JournalsMenu stateId={stateId} open={menuOpen} onClose={this.toggleMenu} />
             </div>
           </div>
