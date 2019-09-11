@@ -102,7 +102,7 @@ const Header = ({
         {title}
       </span>
 
-      {badgeText && <Badge>{badgeText}</Badge>}
+      <Badge text={badgeText} />
 
       {needGoTo && btnGoTo}
 
@@ -123,6 +123,7 @@ class Dashlet extends Component {
     actionEditTitle: PropTypes.string,
     badgeText: PropTypes.string,
     noHeader: PropTypes.bool,
+    noBody: PropTypes.bool,
     needGoTo: PropTypes.bool,
     actionReload: PropTypes.bool,
     actionEdit: PropTypes.bool,
@@ -152,6 +153,7 @@ class Dashlet extends Component {
     titleClassName: '',
     badgeText: '',
     noHeader: false,
+    noBody: false,
     needGoTo: true,
     actionReload: true,
     actionEdit: true,
@@ -303,7 +305,8 @@ class Dashlet extends Component {
       canDragging,
       customButtons,
       isMobile,
-      noHeader
+      noHeader,
+      noBody
     } = this.props;
     const { isCollapsed } = this.state;
     const cssClasses = classNames('dashlet', className);
@@ -314,10 +317,10 @@ class Dashlet extends Component {
           {...this.props}
           className={cssClasses}
           headClassName={classNames('dashlet__header-wrapper', {
-            'dashlet__header-wrapper_rounded': isMobile && isCollapsed
+            'dashlet__header-wrapper_rounded': noBody || (isMobile && isCollapsed)
           })}
           bodyClassName={classNames('dashlet__body', bodyClassName, {
-            dashlet__body_collapsed: isMobile && isCollapsed
+            dashlet__body_collapsed: noBody || (isMobile && isCollapsed)
           })}
           noHeader={noHeader}
           header={
@@ -347,7 +350,7 @@ class Dashlet extends Component {
         >
           <div
             className={classNames('dashlet__body-content', {
-              'dashlet__body-content_hidden': isMobile && isCollapsed
+              'dashlet__body-content_hidden': noBody || (isMobile && isCollapsed)
             })}
           >
             {this.renderContent()}

@@ -93,7 +93,9 @@ export default class ScrollArrow extends React.Component {
       <div className={classNames('ecos-scrollbar-arrow', className)}>
         {isShowArrows && (
           <IcoBtn
-            className={classNames('ecos-btn_white ecos-btn_hover_blue2 ecos-btn_circle', { 'ecos-btn_disabled': !isActiveLeft })}
+            className={classNames('ecos-scrollbar-arrow__btn_small', 'ecos-btn_white ecos-btn_hover_blue2 ecos-btn_circle', {
+              'ecos-btn_disabled': !isActiveLeft
+            })}
             icon="icon-left"
             onClick={() => this.doScroll(-1)}
           />
@@ -110,7 +112,9 @@ export default class ScrollArrow extends React.Component {
         </div>
         {isShowArrows && (
           <IcoBtn
-            className={classNames('ecos-btn_white ecos-btn_hover_blue2 ecos-btn_circle', { 'ecos-btn_disabled': !isActiveRight })}
+            className={classNames('ecos-scrollbar-arrow__btn_small', 'ecos-btn_white ecos-btn_hover_blue2 ecos-btn_circle', {
+              'ecos-btn_disabled': !isActiveRight
+            })}
             icon="icon-right"
             onClick={() => this.doScroll()}
           />

@@ -7,7 +7,8 @@
   font-size: $font-size-standard;
   background-color: $color-gray-5;
   color: $color-white;
-  padding: 5px 9px;
+  padding: 0 9px;
+  line-height: 20px;
   border-radius: $border-radius-biggest;
 
   &_error {
