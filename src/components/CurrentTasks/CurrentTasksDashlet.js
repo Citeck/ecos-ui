@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-import { isSmallMode, t } from '../../helpers/util';
+import { getAdaptiveNumberStr, isSmallMode, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import CurrentTasks from './CurrentTasks';
@@ -40,7 +40,9 @@ class CurrentTasksDashlet extends React.Component {
       isUpdating: false,
       fitHeights: {},
       height: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
+      totalCount: 0,
+      isLoading: true
     };
   }
 
@@ -66,9 +68,13 @@ class CurrentTasksDashlet extends React.Component {
     UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
   };
 
+  setInfo = data => {
+    this.setState(data);
+  };
+
   render() {
-    const { id, title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isUpdating, height, fitHeights, isCollapsed } = this.state;
+    const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
+    const { isSmallMode, isUpdating, height, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const classDashlet = classNames('ecos-current-task-list-dashlet', classNameDashlet);
 
     return (
@@ -88,6 +94,8 @@ class CurrentTasksDashlet extends React.Component {
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
+        badgeText={getAdaptiveNumberStr(totalCount)}
+        noBody={!totalCount && !isLoading}
       >
         {!isUpdating && (
           <CurrentTasks
@@ -99,6 +107,7 @@ class CurrentTasksDashlet extends React.Component {
             height={height}
             minHeight={fitHeights.min}
             maxHeight={fitHeights.max}
+            setInfo={this.setInfo}
           />
         )}
       </Dashlet>

@@ -4,7 +4,8 @@ import { getCurrentStateById } from '../helpers/redux';
 
 const initialState = {
   isLoading: false,
-  list: []
+  list: [],
+  totalCount: 0
 };
 
 const startLoading = (state, { payload: { stateId } }) => ({
@@ -19,20 +20,26 @@ export default handleActions(
   {
     [getTaskList]: startLoading,
     [changeTaskAssignee]: startLoading,
-    [setTaskList]: (state, { payload: { stateId, list } }) => ({
-      ...state,
-      [stateId]: {
-        ...getCurrentStateById(state, stateId, initialState),
-        list: list,
-        isLoading: false
-      }
-    }),
-    [setTaskAssignee]: (state, { payload: { stateId, list } }) => {
+    [setTaskList]: (state, { payload }) => {
+      const { stateId, ...data } = payload;
+
       return {
         ...state,
         [stateId]: {
           ...getCurrentStateById(state, stateId, initialState),
-          list,
+          ...data,
+          isLoading: false
+        }
+      };
+    },
+    [setTaskAssignee]: (state, { payload }) => {
+      const { stateId, ...data } = payload;
+
+      return {
+        ...state,
+        [stateId]: {
+          ...getCurrentStateById(state, stateId, initialState),
+          ...data,
           isLoading: false
         }
       };
