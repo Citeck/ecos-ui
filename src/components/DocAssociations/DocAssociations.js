@@ -7,19 +7,18 @@ import UserLocalSettingsService from '../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import { DefineHeight, Icon } from '../common';
 import { t } from '../../helpers/util';
-import { IcoBtn } from '../common/btns';
 
 import './style.scss';
 
 const LABELS = {
   TITLE: 'Связи документа',
-  ASSOCIATED_WITH_DOCS: 'Связан с документами',
-  HEADLINE: 'Заголовок',
-  DATE_OF_CREATION: 'Дата создания',
-  BASE_DOCUMENT: 'Документ-основание',
-  ACCOUNTING_DOCS: 'Учётные документы',
-  NOT_ADDED: 'Не добавлен',
-  ADD_LINK: 'Добавить связь'
+  HEADLINE_ASSOCIATED_WITH_DOCS: 'Связан с документами',
+  TABLE_CELL_HEADLINE: 'Заголовок',
+  TABLE_CELL_DATE_OF_CREATION: 'Дата создания',
+  HEADLINE_BASE_DOCUMENT: 'Документ-основание',
+  HEADLINE_ACCOUNTING_DOCS: 'Учётные документы',
+  MESSAGE_NOT_ADDED: 'Не добавлен',
+  TOOLTIP_ADD_LINK: 'Добавить связь'
 };
 
 // TODO: recordRef workspace://SpacesStore/e432d1a0-dbfd-47c4-972a-c3eb53aa2cfa
@@ -65,7 +64,37 @@ class DocAssociations extends Component {
     UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
   };
 
-  renderEmptyMessage = (message = LABELS.NOT_ADDED) => (
+  renderTable(data = []) {
+    if (!data.length) {
+      return this.renderEmptyMessage();
+    }
+
+    return (
+      <div className="ecos-doc-associations__table">
+        <div className="ecos-doc-associations__table-header">
+          <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-header-cell">{t(LABELS.TABLE_CELL_HEADLINE)}</div>
+          <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-header-cell">
+            {t(LABELS.TABLE_CELL_DATE_OF_CREATION)}
+          </div>
+        </div>
+
+        <div className="ecos-doc-associations__table-body">
+          {data.map(item => (
+            <div className="ecos-doc-associations__table-row surfbug_highlight" key={item.id}>
+              <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">
+                <a href="/v2/dashboard" target="_blank">
+                  {item.name}
+                </a>
+              </div>
+              <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">{item.date}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  renderEmptyMessage = (message = LABELS.MESSAGE_NOT_ADDED) => (
     <div className="ecos-doc-associations__empty">
       <span className="ecos-doc-associations__empty-message">{t(message)}</span>
     </div>
@@ -85,62 +114,93 @@ class DocAssociations extends Component {
       }
     ];
 
-    if (!docs.length) {
-      return this.renderEmptyMessage();
-    }
-
     return (
-      <div className="ecos-doc-associations__headline">
-        <div className="ecos-doc-associations__headline-text">{t(LABELS.ASSOCIATED_WITH_DOCS)}</div>
-        <div className="ecos-doc-associations__headline-actions">
-          <Icon
-            id="associated-with"
-            // onClick={}
-            className="icon-plus ecos-doc-associations__icon-plus"
-          />
-          <UncontrolledTooltip
-            placement="top"
-            boundariesElement="window"
-            className="ecos-base-tooltip"
-            innerClassName="ecos-base-tooltip-inner"
-            arrowClassName="ecos-base-tooltip-arrow"
-            target="associated-with"
-          >
-            {t(LABELS.ADD_LINK)}
-          </UncontrolledTooltip>
+      <>
+        <div className="ecos-doc-associations__headline">
+          <div className="ecos-doc-associations__headline-text">{t(LABELS.HEADLINE_ASSOCIATED_WITH_DOCS)}</div>
+          <div className="ecos-doc-associations__headline-actions">
+            <Icon
+              id="associated-with-docs"
+              // onClick={}
+              className="icon-plus ecos-doc-associations__icon-plus"
+            />
+            <UncontrolledTooltip
+              placement="top"
+              boundariesElement="window"
+              className="ecos-base-tooltip"
+              innerClassName="ecos-base-tooltip-inner"
+              arrowClassName="ecos-base-tooltip-arrow"
+              target="associated-with-docs"
+            >
+              {t(LABELS.TOOLTIP_ADD_LINK)}
+            </UncontrolledTooltip>
+          </div>
         </div>
-      </div>
+
+        {this.renderTable(docs)}
+      </>
     );
   }
 
   renderBaseDocument() {
     const docs = [];
 
-    if (!docs.length) {
-      return this.renderEmptyMessage();
-    }
+    return (
+      <>
+        <div className="ecos-doc-associations__headline">
+          <div className="ecos-doc-associations__headline-text">{t(LABELS.HEADLINE_BASE_DOCUMENT)}</div>
+          <div className="ecos-doc-associations__headline-actions">
+            <Icon
+              id="base-document"
+              // onClick={}
+              className="icon-plus ecos-doc-associations__icon-plus"
+            />
+            <UncontrolledTooltip
+              placement="top"
+              boundariesElement="window"
+              className="ecos-base-tooltip"
+              innerClassName="ecos-base-tooltip-inner"
+              arrowClassName="ecos-base-tooltip-arrow"
+              target="base-document"
+            >
+              {t(LABELS.TOOLTIP_ADD_LINK)}
+            </UncontrolledTooltip>
+          </div>
+        </div>
+
+        {this.renderTable(docs)}
+      </>
+    );
+  }
+
+  renderAccountingDocuments() {
+    const docs = [];
 
     return (
-      <div className="ecos-doc-associations__headline">
-        <div className="ecos-doc-associations__headline-text">{t(LABELS.BASE_DOCUMENT)}</div>
-        <div className="ecos-doc-associations__headline-actions">
-          <Icon
-            id="associated-with"
-            // onClick={}
-            className="icon-plus ecos-doc-associations__icon-plus"
-          />
-          <UncontrolledTooltip
-            placement="top"
-            boundariesElement="window"
-            className="ecos-base-tooltip"
-            innerClassName="ecos-base-tooltip-inner"
-            arrowClassName="ecos-base-tooltip-arrow"
-            target="associated-with"
-          >
-            {t(LABELS.ADD_LINK)}
-          </UncontrolledTooltip>
+      <>
+        <div className="ecos-doc-associations__headline">
+          <div className="ecos-doc-associations__headline-text">{t(LABELS.HEADLINE_ACCOUNTING_DOCS)}</div>
+          <div className="ecos-doc-associations__headline-actions">
+            <Icon
+              id="accounting-docs"
+              // onClick={}
+              className="icon-plus ecos-doc-associations__icon-plus"
+            />
+            <UncontrolledTooltip
+              placement="top"
+              boundariesElement="window"
+              className="ecos-base-tooltip"
+              innerClassName="ecos-base-tooltip-inner"
+              arrowClassName="ecos-base-tooltip-arrow"
+              target="accounting-docs"
+            >
+              {t(LABELS.TOOLTIP_ADD_LINK)}
+            </UncontrolledTooltip>
+          </div>
         </div>
-      </div>
+
+        {this.renderTable(docs)}
+      </>
     );
   }
 
@@ -168,6 +228,7 @@ class DocAssociations extends Component {
         <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
           {this.renderAssociatedWith()}
           {this.renderBaseDocument()}
+          {this.renderAccountingDocuments()}
         </DefineHeight>
       </Dashlet>
     );
