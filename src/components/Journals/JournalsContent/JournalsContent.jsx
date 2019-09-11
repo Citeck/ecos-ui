@@ -18,14 +18,16 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-const Grid = ({ stateId, showPreview, onRowClick }) => (
-  <Well>
+const Grid = ({ stateId, showPreview, onRowClick, height }) => (
+  <Well className={'ecos-grid_overflow_hidden'}>
     <JournalsDashletGrid
       stateId={stateId}
       onRowClick={onRowClick}
       doInlineToolsOnRowClick={showPreview}
       className={'ecos-grid_no-top-border'}
       toolsClassName={'grid-tools_r_12'}
+      doNotCount
+      minHeight={height}
     />
   </Well>
 );
@@ -48,11 +50,14 @@ class JournalsContent extends Component {
   };
 
   render() {
-    let { stateId, showPreview, showPie } = this.props;
+    let { stateId, showPreview, showPie, height } = this.props;
 
-    let cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} />];
+    let cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} height={height} />];
     if (showPreview)
-      cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} />, <Preview stateId={stateId} />];
+      cols = [
+        <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} height={height} />,
+        <Preview stateId={stateId} />
+      ];
     if (showPie) cols = [<Pie />];
 
     return (

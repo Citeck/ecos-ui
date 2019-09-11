@@ -1,14 +1,18 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { Caption } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
 import { t } from '../../../helpers/util';
 
 import './JournalsHead.scss';
 
-const JournalsHead = ({ menuOpen, toggleMenu, title }) => {
+const JournalsHead = ({ menuOpen, toggleMenu, title, pageTabsIsShow }) => {
   return (
-    <Fragment>
-      <div className={'ecos-journal__visibility-menu-btn'}>
+    <div className={`journals-head ${pageTabsIsShow ? 'journals-head_with-tabs' : ''}`}>
+      <Caption normal className={'journals-head__caption'}>
+        {title}
+      </Caption>
+
+      <div className={`journals-head__menu-btn`}>
         {menuOpen ? null : (
           <IcoBtn
             onClick={toggleMenu}
@@ -19,13 +23,7 @@ const JournalsHead = ({ menuOpen, toggleMenu, title }) => {
           </IcoBtn>
         )}
       </div>
-
-      <div className={'ecos-journal__caption'}>
-        <Caption large className={'ecos-journal__caption_align_top'}>
-          {title}
-        </Caption>
-      </div>
-    </Fragment>
+    </div>
   );
 };
 
