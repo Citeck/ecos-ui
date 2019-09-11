@@ -1,6 +1,10 @@
 @import '../../constants.scss';
 
 .ecos-doc-associations {
+  $root: &;
+
+  min-width: 290px;
+
   &__headline {
     display: flex;
     justify-content: space-between;
@@ -18,11 +22,29 @@
   }
 
   &__icon {
+    $icon: &;
+
     &-plus {
       cursor: pointer;
       color: $color-gray-5;
       line-height: inherit;
       font-size: 16px;
+    }
+
+    &-delete {
+      cursor: pointer;
+      color: $color-gray-1;
+
+      &:hover {
+        &,
+        #{$root}__table-row:hover & {
+          color: $color-red-1;
+        }
+      }
+    }
+
+    &_hidden {
+      display: none;
     }
   }
 
@@ -43,6 +65,8 @@
   }
 
   &__table {
+    $table: &;
+
     padding: 0 20px;
     margin-bottom: 15px;
 
@@ -80,6 +104,7 @@
     }
 
     &-row {
+      position: relative;
       display: flex;
       height: 38px;
       border-bottom: 2px solid $color-gray-4;
@@ -88,7 +113,7 @@
         border-top: 2px solid $color-gray-4;
       }
 
-      &:hover {
+      #{$table}:not(#{$table}_small) &:hover {
         outline: 2px solid $color-brown-2;
         border: none;
         padding-bottom: 2px;
@@ -97,6 +122,57 @@
           padding-top: 2px;
         }
       }
+
+      &:hover {
+        #{$root} {
+          &__icon_hidden {
+            display: block;
+          }
+
+          &__icon {
+            color: $color-brown-2;
+          }
+        }
+      }
     }
+
+    &-actions {
+      height: 100%;
+      position: absolute;
+      right: 17px;
+      top: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    &_small {
+      #{$table} {
+        &-header {
+          display: none;
+        }
+
+        &-row {
+          flex-wrap: wrap;
+          padding: 11px 0;
+          height: auto;
+        }
+
+        &-cell {
+          padding: 0;
+
+          &:not(:last-of-type) {
+            margin-bottom: 5px;
+          }
+        }
+
+        &-actions {
+          right: 0;
+        }
+      }
+    }
+  }
+
+  &__link {
+    color: $color-blue-dark;
   }
 }

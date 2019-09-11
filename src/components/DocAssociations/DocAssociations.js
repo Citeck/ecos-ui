@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { UncontrolledTooltip } from 'reactstrap';
+import classNames from 'classnames';
 
 import Dashlet from '../Dashlet/Dashlet';
 import UserLocalSettingsService from '../../services/userLocalSettings';
@@ -46,6 +47,13 @@ class DocAssociations extends Component {
     };
   }
 
+  get isSmallWidget() {
+    const { isMobile } = this.props;
+    const { width } = this.state;
+
+    return isMobile || width <= MIN_WIDTH_DASHLET_SMALL;
+  }
+
   handleResize = width => {
     this.setState({ width });
   };
@@ -65,12 +73,18 @@ class DocAssociations extends Component {
   };
 
   renderTable(data = []) {
+    const { isMobile } = this.props;
+
     if (!data.length) {
       return this.renderEmptyMessage();
     }
 
     return (
-      <div className="ecos-doc-associations__table">
+      <div
+        className={classNames('ecos-doc-associations__table', {
+          'ecos-doc-associations__table_small': this.isSmallWidget
+        })}
+      >
         <div className="ecos-doc-associations__table-header">
           <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-header-cell">{t(LABELS.TABLE_CELL_HEADLINE)}</div>
           <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-header-cell">
@@ -82,11 +96,20 @@ class DocAssociations extends Component {
           {data.map(item => (
             <div className="ecos-doc-associations__table-row surfbug_highlight" key={item.id}>
               <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">
-                <a href="/v2/dashboard" target="_blank">
+                <a href="/v2/dashboard" target="_blank" className="ecos-doc-associations__link">
                   {item.name}
                 </a>
               </div>
               <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">{item.date}</div>
+
+              {!isMobile && (
+                <span className="ecos-doc-associations__table-actions">
+                  <Icon
+                    // onClick={}
+                    className="icon-delete ecos-doc-associations__icon-delete ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
+                  />
+                </span>
+              )}
             </div>
           ))}
         </div>
@@ -101,6 +124,7 @@ class DocAssociations extends Component {
   );
 
   renderAssociatedWith() {
+    const { isMobile, id } = this.props;
     const docs = [
       {
         id: '1',
@@ -118,23 +142,25 @@ class DocAssociations extends Component {
       <>
         <div className="ecos-doc-associations__headline">
           <div className="ecos-doc-associations__headline-text">{t(LABELS.HEADLINE_ASSOCIATED_WITH_DOCS)}</div>
-          <div className="ecos-doc-associations__headline-actions">
-            <Icon
-              id="associated-with-docs"
-              // onClick={}
-              className="icon-plus ecos-doc-associations__icon-plus"
-            />
-            <UncontrolledTooltip
-              placement="top"
-              boundariesElement="window"
-              className="ecos-base-tooltip"
-              innerClassName="ecos-base-tooltip-inner"
-              arrowClassName="ecos-base-tooltip-arrow"
-              target="associated-with-docs"
-            >
-              {t(LABELS.TOOLTIP_ADD_LINK)}
-            </UncontrolledTooltip>
-          </div>
+          {!isMobile && (
+            <div className="ecos-doc-associations__headline-actions">
+              <Icon
+                id={`associated-with-docs-${id}`}
+                // onClick={}
+                className="icon-plus ecos-doc-associations__icon-plus"
+              />
+              <UncontrolledTooltip
+                placement="top"
+                boundariesElement="window"
+                className="ecos-base-tooltip"
+                innerClassName="ecos-base-tooltip-inner"
+                arrowClassName="ecos-base-tooltip-arrow"
+                target={`associated-with-docs-${id}`}
+              >
+                {t(LABELS.TOOLTIP_ADD_LINK)}
+              </UncontrolledTooltip>
+            </div>
+          )}
         </div>
 
         {this.renderTable(docs)}
@@ -143,29 +169,32 @@ class DocAssociations extends Component {
   }
 
   renderBaseDocument() {
+    const { isMobile, id } = this.props;
     const docs = [];
 
     return (
       <>
         <div className="ecos-doc-associations__headline">
           <div className="ecos-doc-associations__headline-text">{t(LABELS.HEADLINE_BASE_DOCUMENT)}</div>
-          <div className="ecos-doc-associations__headline-actions">
-            <Icon
-              id="base-document"
-              // onClick={}
-              className="icon-plus ecos-doc-associations__icon-plus"
-            />
-            <UncontrolledTooltip
-              placement="top"
-              boundariesElement="window"
-              className="ecos-base-tooltip"
-              innerClassName="ecos-base-tooltip-inner"
-              arrowClassName="ecos-base-tooltip-arrow"
-              target="base-document"
-            >
-              {t(LABELS.TOOLTIP_ADD_LINK)}
-            </UncontrolledTooltip>
-          </div>
+          {!isMobile && (
+            <div className="ecos-doc-associations__headline-actions">
+              <Icon
+                id={`base-document-${id}`}
+                // onClick={}
+                className="icon-plus ecos-doc-associations__icon-plus"
+              />
+              <UncontrolledTooltip
+                placement="top"
+                boundariesElement="window"
+                className="ecos-base-tooltip"
+                innerClassName="ecos-base-tooltip-inner"
+                arrowClassName="ecos-base-tooltip-arrow"
+                target={`base-document-${id}`}
+              >
+                {t(LABELS.TOOLTIP_ADD_LINK)}
+              </UncontrolledTooltip>
+            </div>
+          )}
         </div>
 
         {this.renderTable(docs)}
@@ -174,29 +203,32 @@ class DocAssociations extends Component {
   }
 
   renderAccountingDocuments() {
+    const { isMobile, id } = this.props;
     const docs = [];
 
     return (
       <>
         <div className="ecos-doc-associations__headline">
           <div className="ecos-doc-associations__headline-text">{t(LABELS.HEADLINE_ACCOUNTING_DOCS)}</div>
-          <div className="ecos-doc-associations__headline-actions">
-            <Icon
-              id="accounting-docs"
-              // onClick={}
-              className="icon-plus ecos-doc-associations__icon-plus"
-            />
-            <UncontrolledTooltip
-              placement="top"
-              boundariesElement="window"
-              className="ecos-base-tooltip"
-              innerClassName="ecos-base-tooltip-inner"
-              arrowClassName="ecos-base-tooltip-arrow"
-              target="accounting-docs"
-            >
-              {t(LABELS.TOOLTIP_ADD_LINK)}
-            </UncontrolledTooltip>
-          </div>
+          {!isMobile && (
+            <div className="ecos-doc-associations__headline-actions">
+              <Icon
+                id={`accounting-docs-${id}`}
+                // onClick={}
+                className="icon-plus ecos-doc-associations__icon-plus"
+              />
+              <UncontrolledTooltip
+                placement="top"
+                boundariesElement="window"
+                className="ecos-base-tooltip"
+                innerClassName="ecos-base-tooltip-inner"
+                arrowClassName="ecos-base-tooltip-arrow"
+                target={`accounting-docs-${id}`}
+              >
+                {t(LABELS.TOOLTIP_ADD_LINK)}
+              </UncontrolledTooltip>
+            </div>
+          )}
         </div>
 
         {this.renderTable(docs)}
@@ -211,6 +243,9 @@ class DocAssociations extends Component {
 
     return (
       <Dashlet
+        className={classNames('ecos-doc-associations', {
+          'ecos-doc-associations_small': this.isSmallWidget
+        })}
         title={LABELS.TITLE}
         needGoTo={false}
         actionEdit={false}
