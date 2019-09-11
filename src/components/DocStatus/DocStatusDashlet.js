@@ -44,7 +44,7 @@ class DocStatusDashlet extends React.Component {
   };
 
   render() {
-    const { id, config, classNameStatus, classNameDashlet, record } = this.props;
+    const { config, classNameStatus, classNameDashlet, record } = this.props;
     const { isSmall, isCollapsed } = this.state;
     const isMobile = isMobileDevice();
     const title = this.props.title || t('doc-status-widget.title');

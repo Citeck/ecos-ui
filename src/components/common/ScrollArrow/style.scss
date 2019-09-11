@@ -1,5 +1,18 @@
 @import '../../../constants';
 
+%shadow {
+  content: '';
+  top: 0;
+  position: absolute;
+  width: 40px;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+}
+
+$shadow-step_small: 35px;
+$btn-circle_small: 26px;
+
 .ecos-scrollbar-arrow {
   display: flex;
   align-items: center;
@@ -11,35 +24,28 @@
     margin: 0 10px;
   }
 
+  &__btn_small.ecos-btn {
+    height: $btn-circle_small;
+    width: $btn-circle_small;
+  }
+
   &__scroll {
     overflow: auto;
     width: 100%;
 
     &_intend-left {
       &:before {
-        content: '';
-        left: 40px;
-        top: 0;
-        position: absolute;
-        width: 40px;
-        height: 100%;
+        @extend %shadow;
         background: linear-gradient(90deg, $color-gray-4 0%, rgba($color-white, 0) 100%);
-        z-index: 4;
-        pointer-events: none;
+        left: $shadow-step_small;
       }
     }
 
     &_intend-right {
       &:after {
-        content: '';
-        right: 40px;
-        top: 0;
-        position: absolute;
-        width: 40px;
-        height: 100%;
+        @extend %shadow;
+        right: $shadow-step_small;
         background: linear-gradient(270deg, $color-gray-4 0%, rgba($color-white, 0) 100%);
-        z-index: 4;
-        pointer-events: none;
       }
     }
 
