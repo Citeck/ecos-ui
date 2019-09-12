@@ -156,7 +156,7 @@ class DocStatus extends React.Component {
     const { wasChanged } = this.state;
 
     return (
-      <div className="ecos-doc-status">
+      <div className={classNames('ecos-doc-status', { 'ecos-doc-status_narrow': !isMobile })}>
         {this.isShowLoader && !wasChanged ? (
           <Loader className="ecos-doc-status__loader" />
         ) : (
