@@ -13,7 +13,7 @@ export const TITLE = {
   [URL.HOME]: 'header.site-menu.home-page',
   [URL.JOURNAL]: 'page-tabs.journal',
   [URL.DASHBOARD]: 'header.site-menu.home-page',
-  [URL.DASHBOARD_SETTINGS]: 'page-tabs.dashboard-settings',
+  [URL.DASHBOARD_SETTINGS]: 'Настройка страницы',
   [URL.BPMN_DESIGNER]: 'page-tabs.bpmn-designer',
   // temporary pages
   '/v2/card-details': 'Карточка',

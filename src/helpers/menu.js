@@ -159,18 +159,24 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
 export function makeSiteMenu(params = {}) {
   const isDashboardPage = get(params, ['isDashboardPage'], false);
   const menu = [
-    {
-      id: 'HOME_PAGE',
-      label: 'header.site-menu.home-page',
-      targetUrl: URL.DASHBOARD,
-      targetUrlType: 'FULL_PATH'
-    },
+    // {
+    //   id: 'HOME_PAGE',
+    //   label: 'header.site-menu.home-page',
+    //   targetUrl: URL.DASHBOARD,
+    //   targetUrlType: 'FULL_PATH'
+    // },
     {
       id: 'SETTINGS_HOME_PAGE',
-      label: 'header.site-menu.home-page-settings',
+      label: 'Настроить страницу', //todo: new key will be better
       targetUrl: URL.DASHBOARD_SETTINGS,
       targetUrlType: 'FULL_PATH'
     },
+    // { //todo: when page will be
+    //   id: 'SETTINGS_HOME_PAGE',
+    //   label: 'Настроить меню',
+    //   targetUrl: URL.DASHBOARD_SETTINGS,
+    //   targetUrlType: 'FULL_PATH'
+    // },
     {
       id: 'GO_ADMIN_PAGE',
       label: 'header.site-menu.admin-page',
