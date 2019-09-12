@@ -17,7 +17,7 @@ export default class ButtonComponent extends FormIOButtonComponent {
   build() {
     super.build();
 
-    if (this.component.removeIndents) {
+    if (this.component.removeIndents && this.parent) {
       const parentEl = this.parent.element;
       if (!parentEl.classList.contains('col-12-manual')) {
         this.element.classList.remove('form-group');
