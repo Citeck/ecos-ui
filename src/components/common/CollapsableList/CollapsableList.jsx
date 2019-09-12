@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
 import PanelBar from '../PanelBar/PanelBar';
 import List from '../List/List';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import './CollapsableList.scss';
 
@@ -9,6 +10,9 @@ export default class CollapsableList extends Component {
   render() {
     const props = this.props;
     const cssClasses = classNames('collapsable-list', props.className);
+
+    const Scroll = ({ height, children }) =>
+      height ? <Scrollbars style={{ height }}>{children}</Scrollbars> : <Fragment>{children}</Fragment>;
 
     return (
       <div className={cssClasses}>
@@ -21,7 +25,9 @@ export default class CollapsableList extends Component {
             contentClassName: 'collapsable-list_panel-bar-header'
           }}
         >
-          <List list={props.list} selected={props.selected} className={classNames('list-group_no-border', props.classNameList)} />
+          <Scroll height={props.height}>
+            <List list={props.list} selected={props.selected} className={classNames('list-group_no-border', props.classNameList)} />
+          </Scroll>
         </PanelBar>
       </div>
     );

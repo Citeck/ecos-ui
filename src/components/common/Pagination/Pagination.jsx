@@ -51,10 +51,24 @@ export default class Pagination extends Component {
     trigger.call(this, 'onChangeMaxItems', item);
   };
 
+  getPageSize = () => {
+    const { maxItems, sizes } = this.props;
+    let value = sizes.filter(s => s.value === maxItems)[0];
+
+    if (!value) {
+      value = { value: maxItems, label: maxItems };
+      sizes.push(value);
+    }
+
+    return { value, sizes };
+  };
+
   render() {
-    const { maxItems, total, page, className, sizes, hasPageSize } = this.props;
+    const { maxItems, total, page, className, hasPageSize } = this.props;
 
     this.calculate(page, maxItems, total);
+
+    const { value: pageSizeValue, sizes } = this.getPageSize();
 
     if (!total) {
       return null;
@@ -85,7 +99,7 @@ export default class Pagination extends Component {
           <Select
             className={'select_narrow pagination__page-size select_page-size'}
             options={sizes}
-            value={sizes.filter(s => s.value === maxItems)}
+            value={pageSizeValue}
             onChange={this.onChangeMaxItems}
             menuPlacement={'auto'}
           />

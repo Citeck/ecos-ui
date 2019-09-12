@@ -44,7 +44,7 @@ import {
   setPreviewFileName
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { JOURNAL_SETTING_ID_FIELD, DEFAULT_PAGINATION, DEFAULT_INLINE_TOOL_SETTINGS } from '../components/Journals/constants';
+import { JOURNAL_SETTING_ID_FIELD, DEFAULT_JOURNALS_PAGINATION, DEFAULT_INLINE_TOOL_SETTINGS } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { goToJournalsPage as goToJournalsPageUrl, getFilterUrlParam } from '../helpers/urls';
 import { t } from '../helpers/util';
@@ -76,7 +76,7 @@ function getDefaultJournalSetting(journalConfig) {
   };
 }
 
-function getGridParams(journalConfig, journalSetting, stateId) {
+function getGridParams(journalConfig, journalSetting, stateId, pagination) {
   const {
     meta: { createVariants, predicate },
     sourceId
@@ -91,7 +91,7 @@ function getGridParams(journalConfig, journalSetting, stateId) {
     columns: columns.map(col => ({ ...col })),
     groupBy: Array.from(groupBy),
     predicates: journalSettingPredicate ? [{ ...journalSettingPredicate }] : [],
-    pagination: DEFAULT_PAGINATION
+    pagination: pagination
   };
 }
 
@@ -130,6 +130,9 @@ function* sagaGetJournalsData({ api, logger, stateId, w }) {
   try {
     const url = yield select(state => state.journals[stateId].url);
     const { journalsListId, journalId, journalSettingId = '' } = url;
+
+    yield put(setGrid(w({ pagination: DEFAULT_JOURNALS_PAGINATION })));
+
     yield getJournals(api, journalsListId, w);
 
     yield put(initJournal(w({ journalId, journalSettingId })));
@@ -244,8 +247,9 @@ function* getGridData(api, params, stateId) {
 }
 
 function* loadGrid(api, journalSettingId, journalConfig, stateId, w) {
+  const pagination = yield select(state => state.journals[stateId].grid.pagination);
   let journalSetting = yield getJournalSetting(api, journalSettingId, journalConfig, stateId, w);
-  let params = getGridParams(journalConfig, journalSetting, stateId);
+  let params = getGridParams(journalConfig, journalSetting, stateId, pagination);
 
   const gridData = yield getGridData(api, params, stateId);
 
