@@ -167,13 +167,13 @@ export function makeSiteMenu(params = {}) {
     // },
     {
       id: 'SETTINGS_HOME_PAGE',
-      label: 'Настроить страницу', //todo: new key will be better
+      label: 'header.site-menu.page-settings',
       targetUrl: URL.DASHBOARD_SETTINGS,
       targetUrlType: 'FULL_PATH'
     },
     // { //todo: when page will be
     //   id: 'SETTINGS_HOME_PAGE',
-    //   label: 'Настроить меню',
+    //   label: 'header.site-menu.menu-settings',
     //   targetUrl: URL.DASHBOARD_SETTINGS,
     //   targetUrlType: 'FULL_PATH'
     // },
