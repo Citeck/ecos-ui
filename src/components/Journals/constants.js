@@ -9,7 +9,7 @@ export const DEFAULT_PAGINATION = {
 
 export const DEFAULT_JOURNALS_PAGINATION = {
   skipCount: 0,
-  maxItems: 14,
+  maxItems: 10,
   page: 1
 };
 
