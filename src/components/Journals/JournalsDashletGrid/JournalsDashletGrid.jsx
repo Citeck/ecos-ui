@@ -415,15 +415,20 @@ class JournalsDashletGrid extends Component {
         groupBy
       },
       doInlineToolsOnRowClick = false,
-      performGroupActionResponse
+      performGroupActionResponse,
+      doNotCount,
+      minHeight
     } = this.props;
 
     const editable = !(groupBy && groupBy.length);
 
+    const HeightCalculation = ({ doNotCount, children, maxItems, minHeight }) =>
+      doNotCount ? <div style={{ height: minHeight }}>{children}</div> : <EmptyGrid maxItems={maxItems}>{children}</EmptyGrid>;
+
     return (
       <Fragment>
         <div className={'ecos-journal-dashlet__grid'}>
-          <EmptyGrid maxItems={maxItems}>
+          <HeightCalculation maxItems={maxItems} doNotCount={doNotCount} minHeight={minHeight}>
             {loading ? (
               <Loader />
             ) : (
@@ -450,9 +455,10 @@ class JournalsDashletGrid extends Component {
                 onEdit={saveRecords}
                 selected={selectedRecords}
                 selectAll={selectAllRecords}
+                minHeight={minHeight}
               />
             )}
-          </EmptyGrid>
+          </HeightCalculation>
         </div>
 
         <EcosModal

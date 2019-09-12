@@ -12,6 +12,10 @@ import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constan
 
 import './JournalsMenu.scss';
 
+const ITEM_HEIGHT = 41;
+const HEIGHT_DIFF = 250;
+const PAGE_TABS_HEIGHT_DIFF = 30;
+
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
@@ -235,6 +239,39 @@ class JournalsMenu extends Component {
     return undefined;
   };
 
+  calculateHeight = (journals, journalSettings) => {
+    const { height, pageTabsIsShow } = this.props;
+
+    const itemHeight = ITEM_HEIGHT;
+    const containerHeight = height - HEIGHT_DIFF + (pageTabsIsShow ? 0 : PAGE_TABS_HEIGHT_DIFF);
+    const halfHeight = containerHeight / 2;
+
+    const settingsCount = journalSettings.length;
+    const journalsCount = journals.length;
+
+    let settingsHeight = settingsCount * itemHeight;
+    let journalsHeight = journalsCount * itemHeight;
+
+    if (settingsHeight > halfHeight && journalsHeight > halfHeight) {
+      settingsHeight = halfHeight;
+      journalsHeight = halfHeight;
+    } else if (settingsHeight > halfHeight && journalsHeight < halfHeight) {
+      const freeHeight = halfHeight + halfHeight - journalsHeight;
+
+      if (settingsHeight > freeHeight) {
+        settingsHeight = freeHeight;
+      }
+    } else if (journalsHeight > halfHeight && settingsHeight < halfHeight) {
+      const freeHeight = halfHeight + halfHeight - settingsHeight;
+
+      if (journalsHeight > freeHeight) {
+        journalsHeight = freeHeight;
+      }
+    }
+
+    return { settingsHeight, journalsHeight };
+  };
+
   render() {
     const {
       stateId,
@@ -256,6 +293,8 @@ class JournalsMenu extends Component {
 
     const menuJournalSettingsSelectedIndex = this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD);
 
+    const { settingsHeight, journalsHeight } = this.calculateHeight(journals, journalSettings);
+
     return (
       <JournalsUrlManager stateId={stateId} params={{ journalId, journalSettingId }}>
         <div className={`ecos-journal-menu ${open ? 'ecos-journal-menu_open' : ''} ${pageTabsIsShow ? 'ecos-journal-menu_tabs' : ''}`}>
@@ -272,6 +311,7 @@ class JournalsMenu extends Component {
 
           <Well className={'ecos-journal-menu__journals'}>
             <CollapsableList
+              height={journalsHeight}
               classNameList={'ecos-list-group_mode_journal'}
               list={this.getMenuJornals(journals)}
               selected={this.getSelectedIndex(journals, nodeRef, 'nodeRef')}
@@ -282,6 +322,7 @@ class JournalsMenu extends Component {
 
           <Well className={'ecos-journal-menu__presets'}>
             <CollapsableList
+              height={settingsHeight}
               classNameList={'ecos-list-group_mode_journal'}
               list={this.getMenuJournalSettings(journalSettings, menuJournalSettingsSelectedIndex)}
               selected={menuJournalSettingsSelectedIndex}
