@@ -9,7 +9,8 @@ import UserLocalSettingsService from '../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import { DefineHeight, Icon } from '../common';
 import { t } from '../../helpers/util';
-
+import { getSectionList, initStore, getDocuments } from '../../actions/docAssociations';
+import { selectStateByKey } from '../../selectors/docAssociations';
 import './style.scss';
 
 const LABELS = {
@@ -49,6 +50,13 @@ class DocAssociations extends Component {
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
     };
+
+    props.initStore();
+  }
+
+  componentDidMount() {
+    this.props.getSectionList();
+    this.props.getDocuments();
   }
 
   get isSmallWidget() {
@@ -98,9 +106,9 @@ class DocAssociations extends Component {
 
         <div className="ecos-doc-associations__table-body">
           {data.map(item => (
-            <div className="ecos-doc-associations__table-row surfbug_highlight" key={item.id}>
+            <div className="ecos-doc-associations__table-row surfbug_highlight" key={item.record}>
               <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">
-                <a href="/v2/dashboard" target="_blank" className="ecos-doc-associations__link">
+                <a href={`/v2/dashboard?recordRef=${item.record}`} target="_blank" className="ecos-doc-associations__link">
                   {item.name}
                 </a>
               </div>
@@ -128,21 +136,9 @@ class DocAssociations extends Component {
   );
 
   renderAssociatedWith() {
-    const { isMobile, id } = this.props;
-    const docs = [
-      {
-        id: '1',
-        name: 'Акт №4 ОАО Северсталь',
-        date: '23.02.2019  17:48'
-      },
-      {
-        id: '2',
-        name: 'Договор №9',
-        date: '23.03.2019  17:46'
-      }
-    ];
+    const { isMobile, id, associatedWithDocs } = this.props;
 
-    if (!docs.length) {
+    if (!associatedWithDocs.length) {
       return null;
     }
 
@@ -171,16 +167,15 @@ class DocAssociations extends Component {
           )}
         </div>
 
-        {this.renderTable(docs)}
+        {this.renderTable(associatedWithDocs)}
       </>
     );
   }
 
   renderBaseDocument() {
-    const { isMobile, id } = this.props;
-    const docs = [];
+    const { isMobile, id, baseDocs } = this.props;
 
-    if (!docs.length) {
+    if (!baseDocs.length) {
       return null;
     }
 
@@ -209,16 +204,15 @@ class DocAssociations extends Component {
           )}
         </div>
 
-        {this.renderTable(docs)}
+        {this.renderTable(baseDocs)}
       </>
     );
   }
 
   renderAccountingDocuments() {
-    const { isMobile, id } = this.props;
-    const docs = [];
+    const { isMobile, id, accountingDocs } = this.props;
 
-    if (!docs.length) {
+    if (!accountingDocs.length) {
       return null;
     }
 
@@ -247,7 +241,7 @@ class DocAssociations extends Component {
           )}
         </div>
 
-        {this.renderTable(docs)}
+        {this.renderTable(accountingDocs)}
       </>
     );
   }
@@ -286,8 +280,12 @@ class DocAssociations extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({});
-const mapDispatchToProps = (dispatch, ownProps) => ({});
+const mapStateToProps = (state, ownProps) => ({ ...selectStateByKey(state, ownProps.record) });
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  initStore: () => dispatch(initStore(ownProps.record)),
+  getSectionList: () => dispatch(getSectionList(ownProps.record)),
+  getDocuments: () => dispatch(getDocuments(ownProps.record))
+});
 
 export default connect(
   mapStateToProps,
