@@ -296,7 +296,7 @@ export default class EcosFormUtils {
 
   static getCurrentLanguage() {
     let lang = navigator.language || navigator.userLanguage || 'en';
-    return lang.split('_')[0];
+    return lang.slice(0, 2);
   }
 
   static getCreateVariants(record, attribute) {
