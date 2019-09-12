@@ -49,12 +49,11 @@ class App extends Component {
   renderMenu() {
     const { menuType } = this.props;
 
-    switch (menuType) {
-      case MENU_TYPE.LEFT:
-        return <SlideMenu />;
-      default:
-        return null;
+    if (menuType === MENU_TYPE.LEFT) {
+      return <SlideMenu />;
     }
+
+    return null;
   }
 
   render() {
@@ -96,47 +95,50 @@ class App extends Component {
             <Header />
             <Notification />
           </div>
+          <div className="ecos-base-content">
+            {this.renderMenu()}
 
-          <PageTabs
-            homepageLink={URL.DASHBOARD}
-            isShow={isShow && !isMobile}
-            tabs={tabs}
-            saveTabs={setTabs}
-            changeActiveTab={changeActiveTab}
-            getActiveTabTitle={getActiveTabTitle}
-            isLoadingTitle={isLoadingTitle}
-          />
+            <div className="ecos-base-side">
+              <PageTabs
+                homepageLink={URL.DASHBOARD}
+                isShow={isShow && !isMobile}
+                tabs={tabs}
+                saveTabs={setTabs}
+                changeActiveTab={changeActiveTab}
+                getActiveTabTitle={getActiveTabTitle}
+                isLoadingTitle={isLoadingTitle}
+              />
 
-          {this.renderMenu()}
-
-          <Suspense fallback={null}>
-            <Switch>
-              {/*<Route path="/share/page" exact component={DashboardPage} />*/}
-              <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
-              <Route exact path="/share" render={() => <Redirect to={URL.DASHBOARD} />} />
-              {/* TODO delete redirect some day */}
-              <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
-              <Route path={URL.DASHBOARD} exact component={DashboardPage} />
-              <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
-              <Route path={URL.JOURNAL} component={JournalsPage} />
-              {/* temporary routes */}
-              <Route path="/v2/debug/formio-develop" component={FormIOPage} />
-              <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
-              <Route path={URL.JOURNAL_OLD} component={JournalsPage} />
-              <Route path={URL.CARD_DETAILS} component={CardDetailsPage} />
-              <Route path={URL.JOURNAL_DASHBOARD} component={JournalsDashboardPage} />
-              <Route path={URL.WIDGET_DOC_PREVIEW} component={DocPreviewPage} />
-              <Route path={URL.WIDGET_PROPERTIES} component={PropertiesPage} />
-              <Route path={URL.WIDGET_COMMENTS} component={CommentsWidgetPage} />
-              <Route path={URL.WIDGET_TASKS} exact component={TasksDashletPage} />
-              <Route path={URL.CURRENT_TASKS} component={CurrentTasksPage} />
-              <Route path={URL.WIDGET_DOC_STATUS} exact component={DocStatusPage} />
-              <Route path={URL.WIDGET_EVENTS_HISTORY} exact component={EventsHistoryPage} />
-              <Route path={URL.WIDGET_VERSIONS_JOURNAL} component={VersionsJournalWidgetPage} />
-              <Route path={URL.WIDGET_ACTIONS} component={RecordActionsPage} />
-              {/*<Route component={NotFoundPage} />*/}
-            </Switch>
-          </Suspense>
+              <Suspense fallback={null}>
+                <Switch>
+                  {/*<Route path="/share/page" exact component={DashboardPage} />*/}
+                  <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
+                  <Route exact path="/share" render={() => <Redirect to={URL.DASHBOARD} />} />
+                  {/* TODO delete redirect some day */}
+                  <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
+                  <Route path={URL.DASHBOARD} exact component={DashboardPage} />
+                  <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
+                  <Route path={URL.JOURNAL} component={JournalsPage} />
+                  {/* temporary routes */}
+                  <Route path="/v2/debug/formio-develop" component={FormIOPage} />
+                  <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
+                  <Route path={URL.JOURNAL_OLD} component={JournalsPage} />
+                  <Route path={URL.CARD_DETAILS} component={CardDetailsPage} />
+                  <Route path={URL.JOURNAL_DASHBOARD} component={JournalsDashboardPage} />
+                  <Route path={URL.WIDGET_DOC_PREVIEW} component={DocPreviewPage} />
+                  <Route path={URL.WIDGET_PROPERTIES} component={PropertiesPage} />
+                  <Route path={URL.WIDGET_COMMENTS} component={CommentsWidgetPage} />
+                  <Route path={URL.WIDGET_TASKS} exact component={TasksDashletPage} />
+                  <Route path={URL.CURRENT_TASKS} component={CurrentTasksPage} />
+                  <Route path={URL.WIDGET_DOC_STATUS} exact component={DocStatusPage} />
+                  <Route path={URL.WIDGET_EVENTS_HISTORY} exact component={EventsHistoryPage} />
+                  <Route path={URL.WIDGET_VERSIONS_JOURNAL} component={VersionsJournalWidgetPage} />
+                  <Route path={URL.WIDGET_ACTIONS} component={RecordActionsPage} />
+                  {/*<Route component={NotFoundPage} />*/}
+                </Switch>
+              </Suspense>
+            </div>
+          </div>
         </div>
       </div>
     );

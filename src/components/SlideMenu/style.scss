@@ -1,0 +1,12 @@
+@import '../../constants';
+
+.slide-menu {
+  $root: &;
+
+  width: 72px;
+  background: $color-white;
+
+  &_open {
+    width: 300px;
+  }
+}
