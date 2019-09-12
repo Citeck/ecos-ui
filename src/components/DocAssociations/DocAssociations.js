@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { UncontrolledTooltip } from 'reactstrap';
 import classNames from 'classnames';
 
@@ -23,6 +24,9 @@ const LABELS = {
 };
 
 // TODO: recordRef workspace://SpacesStore/e432d1a0-dbfd-47c4-972a-c3eb53aa2cfa
+// TODO: recordRef workspace://SpacesStore/b29f6514-aa80-4919-945e-6b4b6066238f
+// TODO: recordRef workspace://SpacesStore/b8fd6e1b-b897-4865-96dc-668cf8131358
+// TODO: recordRef https://community.ecos24.ru/share/page/card-details?nodeRef=workspace://SpacesStore/d17a1bf7-d77d-4b47-9477-b3d9a7da63ec
 
 class DocAssociations extends Component {
   static propTypes = {
@@ -138,6 +142,10 @@ class DocAssociations extends Component {
       }
     ];
 
+    if (!docs.length) {
+      return null;
+    }
+
     return (
       <>
         <div className="ecos-doc-associations__headline">
@@ -172,6 +180,10 @@ class DocAssociations extends Component {
     const { isMobile, id } = this.props;
     const docs = [];
 
+    if (!docs.length) {
+      return null;
+    }
+
     return (
       <>
         <div className="ecos-doc-associations__headline">
@@ -205,6 +217,10 @@ class DocAssociations extends Component {
   renderAccountingDocuments() {
     const { isMobile, id } = this.props;
     const docs = [];
+
+    if (!docs.length) {
+      return null;
+    }
 
     return (
       <>
@@ -270,4 +286,10 @@ class DocAssociations extends Component {
   }
 }
 
-export default DocAssociations;
+const mapStateToProps = (state, ownProps) => ({});
+const mapDispatchToProps = (dispatch, ownProps) => ({});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DocAssociations);
