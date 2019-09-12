@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { isSmallMode, t } from '../../helpers/util';
+import { getAdaptiveNumberStr, isSmallMode, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import Tasks from './Tasks';
@@ -39,11 +39,11 @@ class TasksDashlet extends React.Component {
       isRunReload: false,
       height: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
-      fitHeights: {}
+      fitHeights: {},
+      totalCount: 0,
+      isLoading: true
     };
   }
-
-  className = 'ecos-task-list-dashlet';
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
@@ -71,15 +71,19 @@ class TasksDashlet extends React.Component {
     UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
   };
 
+  setInfo = data => {
+    this.setState(data);
+  };
+
   render() {
-    const { id, title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isRunReload, isSmallMode, height, fitHeights, isCollapsed } = this.state;
-    const classDashlet = classNames(this.className, classNameDashlet);
+    const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
+    const { isRunReload, isSmallMode, height, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
+    const classDashlet = classNames('ecos-task-list-dashlet', classNameDashlet);
 
     return (
       <Dashlet
         title={title || t('tasks-widget.title')}
-        bodyClassName={`${this.className}__body`}
+        bodyClassName="ecos-task-list-dashlet__body"
         className={classDashlet}
         resizable={true}
         onReload={this.onReload}
@@ -93,18 +97,21 @@ class TasksDashlet extends React.Component {
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
+        badgeText={getAdaptiveNumberStr(totalCount)}
+        noBody={!totalCount && !isLoading}
       >
         <Tasks
           {...config}
           className={classNameTasks}
           record={record}
-          stateId={id}
+          stateId={record}
           isRunReload={isRunReload}
           setReloadDone={this.setReload}
           isSmallMode={isSmallMode}
           height={height}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
+          setInfo={this.setInfo}
         />
       </Dashlet>
     );

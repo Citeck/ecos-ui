@@ -506,3 +506,16 @@ export function documentScrollTop() {
 
   return elementScrollTop || bodyScrollTop;
 }
+
+export function getAdaptiveNumberStr(number) {
+  let num = parseInt(number);
+  if (num >= 1000) {
+    let res = parseInt((num / 1000).toString());
+    const end = num % 1000;
+    res = (end * 2).toString().length > end.toString().length ? res + 1 : res;
+
+    num = res.toString() + 'k';
+  }
+
+  return num.toString();
+}

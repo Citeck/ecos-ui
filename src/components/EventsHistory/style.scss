@@ -48,17 +48,6 @@
   &-card {
     $card: &;
 
-    &__title {
-      height: 34px;
-      padding: 0 20px;
-      font-size: $font-size-standard;
-      font-weight: $font-weight-bold;
-      color: $color-gray-dark;
-      background-color: $color-yellow;
-      display: flex;
-      align-items: center;
-    }
-
     &__fields {
       margin: 10px 20px;
       color: $text-color-dark;
@@ -81,15 +70,13 @@
       &_version {
         font-size: $font-size-large;
         font-weight: $font-weight-bold;
-        display: inline;
-        margin-right: 14px;
+        margin-right: 10px;
       }
 
       &_date {
-        color: $text-color-gray;
         font-size: $font-size-standard;
         font-weight: $font-weight-bold;
-        display: inline;
+        color: $text-color-gray;
       }
 
       &_status {

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
-import classNames from 'classnames';
 
 import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../actions/versionsJournal';
 import { selectLabelsVersions } from '../../selectors/versionsJournal';
@@ -15,7 +15,7 @@ import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../constants/versionsJournal';
 
 import { Avatar, DefineHeight, Icon, Loader } from '../common';
 import { Btn, IcoBtn } from '../common/btns';
-import { Dropdown } from '../common/form';
+import { Dropdown, Headline } from '../common/form';
 import Dashlet from '../Dashlet/Dashlet';
 import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
@@ -51,7 +51,14 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getVersionsList: () => dispatch(getVersions({ record: ownProps.record, id: ownProps.id })),
-  getVersionsComparison: payload => dispatch(getVersionsComparison({ ...payload, record: ownProps.record, id: ownProps.id })),
+  getVersionsComparison: payload =>
+    dispatch(
+      getVersionsComparison({
+        ...payload,
+        record: ownProps.record,
+        id: ownProps.id
+      })
+    ),
   addNewVersion: payload => dispatch(addNewVersion({ ...payload, record: ownProps.record, id: ownProps.id })),
   toggleModal: key => dispatch(toggleModal({ key, record: ownProps.record, id: ownProps.id })),
   setActiveVersion: payload => dispatch(setActiveVersion({ ...payload, record: ownProps.record, id: ownProps.id }))
@@ -329,11 +336,11 @@ class VersionsJournal extends Component {
 
     return (
       <div className="ecos-vj__version" key={key}>
-        <div className="ecos-vj__version-header">
+        <Headline>
           <div className="ecos-vj__version-number">{version.version}</div>
           <div className="ecos-vj__version-title">{version.name}</div>
           {showActions && !isMobile && this.renderVersionActions(version)}
-        </div>
+        </Headline>
         <div className="ecos-vj__version-body">
           <div className="ecos-vj__version-author">
             <Avatar url={version.avatar} className="ecos-vj__version-author-avatar" classNameEmpty="ecos-vj__version-author-avatar_empty" />

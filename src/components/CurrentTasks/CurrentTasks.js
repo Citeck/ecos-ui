@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
 
-import { getCurrentTaskList } from '../../actions/currentTasks';
+import { getCurrentTaskList, resetCurrentTaskList } from '../../actions/currentTasks';
 import { selectStateCurrentTasksById } from '../../selectors/tasks';
 import { DefineHeight } from '../common';
 import CurrentTaskList from './CurrentTaskList';
@@ -18,12 +18,14 @@ const mapStateToProps = (state, context) => {
     currentTasks: currentTasksState.list,
     isLoading: currentTasksState.isLoading,
     isMobile: state.view.isMobile,
-    updateRequestRecord: state.currentTasks.updateRequestRecord
+    updateRequestRecord: state.currentTasks.updateRequestRecord,
+    totalCount: currentTasksState.totalCount
   };
 };
 
 const mapDispatchToProps = dispatch => ({
-  getCurrentTaskList: payload => dispatch(getCurrentTaskList(payload))
+  getCurrentTaskList: payload => dispatch(getCurrentTaskList(payload)),
+  resetCurrentTaskList: payload => dispatch(resetCurrentTaskList(payload))
 });
 
 class CurrentTasks extends React.Component {
@@ -36,14 +38,16 @@ class CurrentTasks extends React.Component {
     isLoading: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    setInfo: PropTypes.func
   };
 
   static defaultProps = {
     className: '',
     isSmallMode: false,
     isMobile: false,
-    isLoading: false
+    isLoading: false,
+    setInfo: () => {}
   };
 
   state = {
@@ -60,6 +64,20 @@ class CurrentTasks extends React.Component {
     if (!isLoading && !isEmpty(nextProps.updateRequestRecord) && nextProps.updateRequestRecord === record) {
       this.getCurrentTaskList();
     }
+
+    if (this.props.totalCount !== nextProps.totalCount) {
+      this.props.setInfo({ totalCount: nextProps.totalCount });
+    }
+
+    if (this.props.isLoading !== nextProps.isLoading) {
+      this.props.setInfo({ isLoading: nextProps.isLoading });
+    }
+  }
+
+  componentWillUnmount() {
+    const { resetCurrentTaskList, stateId } = this.props;
+
+    resetCurrentTaskList({ stateId });
   }
 
   getCurrentTaskList = () => {

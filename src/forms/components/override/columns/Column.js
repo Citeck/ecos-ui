@@ -6,13 +6,18 @@ export default class ColumnComponent extends FormIOColumnComponent {
     const options = this.options;
     const classList = [];
 
+    if (options.fullWidthColumns) {
+      classList.push('col-12', 'col-12-manual', 'p-0', 'm-0');
+
+      return classList.join(' ');
+    }
+
+    // exclude options.fullWidthColumns case
+    if (this.parent.component.inlineColumns) {
+      return 'col-inline-block';
+    }
+
     if (this.viewOnly) {
-      if (options.viewAsHtmlConfig && options.viewAsHtmlConfig.fullWidthColumns) {
-        classList.push('col-12', 'p-0', 'm-0');
-
-        return classList.join(' ');
-      }
-
       if (
         this.parent &&
         this.parent.parent &&

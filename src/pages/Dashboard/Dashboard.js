@@ -40,10 +40,10 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
   getDashboardConfig: payload => dispatch(getDashboardConfig(payload)),
   saveDashboardConfig: payload => dispatch(saveDashboardConfig(payload)),
-  resetDashboardConfig: payload => dispatch(resetDashboardConfig(payload)),
   initMenuSettings: payload => dispatch(getMenuConfig(payload)),
   saveMenuConfig: config => dispatch(saveMenuConfig(config)),
-  setLoading: flag => dispatch(setLoading(flag))
+  setLoading: flag => dispatch(setLoading(flag)),
+  resetDashboardConfig: () => dispatch(resetDashboardConfig())
 });
 
 class Dashboard extends Component {
@@ -60,15 +60,11 @@ class Dashboard extends Component {
   }
 
   componentDidMount() {
-    const { getDashboardConfig } = this.props;
-    const { recordRef, dashboardKey } = this.getPathInfo();
-
-    getDashboardConfig({ recordRef, dashboardKey });
+    this.getConfig();
   }
 
   componentWillReceiveProps(nextProps) {
-    const { initMenuSettings, config, isLoadingDashboard, getDashboardConfig, resetDashboardConfig, setLoading } = nextProps;
-    const { recordRef } = this.getPathInfo(nextProps);
+    const { initMenuSettings, config, isLoadingDashboard, resetDashboardConfig, setLoading } = nextProps;
     const { urlParams, activeLayoutId } = this.state;
     const newUrlParams = getSortedUrlParams();
     const state = {};
@@ -76,7 +72,7 @@ class Dashboard extends Component {
     if (urlParams !== newUrlParams) {
       state.urlParams = newUrlParams;
       resetDashboardConfig();
-      getDashboardConfig({ recordRef });
+      this.getConfig(nextProps);
       initMenuSettings();
     } else if (urlParams === newUrlParams && isLoadingDashboard && !isEmpty(config)) {
       setLoading(false);
@@ -93,6 +89,10 @@ class Dashboard extends Component {
     this.setState(state);
   }
 
+  componentWillUnmount() {
+    this.props.resetDashboardConfig();
+  }
+
   getPathInfo(props) {
     const {
       location: { search }
@@ -106,6 +106,13 @@ class Dashboard extends Component {
       dashboardKey,
       search
     };
+  }
+
+  getConfig(props) {
+    const { getDashboardConfig } = this.props;
+    const { recordRef, dashboardKey } = this.getPathInfo(props);
+
+    getDashboardConfig({ recordRef, dashboardKey });
   }
 
   get wrapperStyle() {
