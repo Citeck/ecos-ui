@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import { PAGINATION_SIZES } from '../../../components/Journals/constants';
 import Select from '../../common/form/Select';
 import { IcoBtn } from '../../common/btns';
 import { t, trigger } from '../../../helpers/util';
@@ -108,3 +109,7 @@ export default class Pagination extends Component {
     );
   }
 }
+
+Pagination.defaultProps = {
+  sizes: PAGINATION_SIZES
+};
