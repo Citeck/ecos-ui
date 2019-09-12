@@ -291,13 +291,6 @@
       }
     }
   }
-
-  &__dashboard {
-    &-title {
-      @extend %overflow-ellipsis;
-      text-align: left;
-    }
-  }
 }
 
 .vj-modal {
