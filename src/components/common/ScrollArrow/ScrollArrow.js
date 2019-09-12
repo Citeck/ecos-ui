@@ -10,6 +10,8 @@ export default class ScrollArrow extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     step: PropTypes.number,
+    medium: PropTypes.bool,
+    small: PropTypes.bool,
     updateWhenDataChange: PropTypes.bool,
     scrollToEnd: PropTypes.bool,
     scrollToSide: PropTypes.oneOf([0, -1, 1])
@@ -18,6 +20,8 @@ export default class ScrollArrow extends React.Component {
   static defaultProps = {
     className: '',
     step: 190,
+    medium: false,
+    small: false,
     scrollToEnd: false,
     scrollToSide: 0
   };
@@ -86,15 +90,17 @@ export default class ScrollArrow extends React.Component {
   };
 
   render() {
-    const { className, children } = this.props;
+    const { className, children, small, medium } = this.props;
     const { isShowArrows, isActiveLeft, isActiveRight } = this.state;
 
     return (
       <div className={classNames('ecos-scrollbar-arrow', className)}>
         {isShowArrows && (
           <IcoBtn
-            className={classNames('ecos-scrollbar-arrow__btn_small', 'ecos-btn_white ecos-btn_hover_blue2 ecos-btn_circle', {
-              'ecos-btn_disabled': !isActiveLeft
+            className={classNames('ecos-scrollbar-arrow__btn', 'ecos-btn_white ecos-btn_hover_blue2 ecos-btn_circle', {
+              'ecos-btn_disabled': !isActiveLeft,
+              'ecos-scrollbar-arrow__btn_medium': medium,
+              'ecos-scrollbar-arrow__btn_small': small
             })}
             icon="icon-left"
             onClick={() => this.doScroll(-1)}
@@ -102,18 +108,21 @@ export default class ScrollArrow extends React.Component {
         )}
         <div
           ref={this.refScroll}
-          className={classNames(
-            'ecos-scrollbar-arrow__scroll',
-            { 'ecos-scrollbar-arrow__scroll_intend-left': isActiveLeft },
-            { 'ecos-scrollbar-arrow__scroll_intend-right': isActiveRight }
-          )}
+          className={classNames('ecos-scrollbar-arrow__scroll', {
+            'ecos-scrollbar-arrow__scroll_intend-left': isActiveLeft,
+            'ecos-scrollbar-arrow__scroll_intend-right': isActiveRight,
+            'ecos-scrollbar-arrow__scroll_medium': medium,
+            'ecos-scrollbar-arrow__scroll_small': small
+          })}
         >
           <div className="ecos-scrollbar-arrow__child">{children}</div>
         </div>
         {isShowArrows && (
           <IcoBtn
-            className={classNames('ecos-scrollbar-arrow__btn_small', 'ecos-btn_white ecos-btn_hover_blue2 ecos-btn_circle', {
-              'ecos-btn_disabled': !isActiveRight
+            className={classNames('ecos-scrollbar-arrow__btn', 'ecos-btn_white ecos-btn_hover_blue2 ecos-btn_circle', {
+              'ecos-btn_disabled': !isActiveRight,
+              'ecos-scrollbar-arrow__btn_medium': medium,
+              'ecos-scrollbar-arrow__btn_small': small
             })}
             icon="icon-right"
             onClick={() => this.doScroll()}

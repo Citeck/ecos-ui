@@ -108,7 +108,7 @@ class SetTabs extends React.Component {
         <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
         <div className="ecos-dashboard-settings__layout-tabs-wrapper">
           {!empty && (
-            <ScrollArrow scrollToEnd={scrollTabToEnd} className="ecos-dashboard-settings__layout-tabs-arrows">
+            <ScrollArrow medium scrollToEnd={scrollTabToEnd} className="ecos-dashboard-settings__layout-tabs-arrows">
               <EditTabs
                 className="ecos-dashboard-settings__layout-tabs-block"
                 classNameTab="ecos-dashboard-settings__layout-tabs-item"
