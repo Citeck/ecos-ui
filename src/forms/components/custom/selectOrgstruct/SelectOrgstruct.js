@@ -35,6 +35,15 @@ export default class SelectOrgstructComponent extends BaseComponent {
     return SelectOrgstructComponent.schema();
   }
 
+  /**
+   * Check if a component is eligible for multiple validation (Cause: https://citeck.atlassian.net/browse/ECOSCOM-2489)
+   *
+   * @return {boolean}
+   */
+  validateMultiple() {
+    return false;
+  }
+
   createViewOnlyValue(container) {
     this.reactContainer = this.ce('dd');
     container.appendChild(this.reactContainer);
