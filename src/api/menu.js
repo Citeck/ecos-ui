@@ -2,7 +2,7 @@ import { CommonApi } from './common';
 import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records';
-import { QueryKeys, URL } from '../constants';
+import { QueryEntityKeys, URL } from '../constants';
 
 const PREFIX = 'uiserv/config@';
 
@@ -92,12 +92,12 @@ export class MenuApi extends CommonApi {
 
   getMenuConfig = (disabledCache = false) => {
     return Records.get(`${PREFIX}menu-config`)
-      .load([QueryKeys.VALUE_JSON], disabledCache)
+      .load([QueryEntityKeys.VALUE_JSON], disabledCache)
       .then(resp => resp)
       .catch(e => {
         console.error(e);
         return {
-          [QueryKeys.VALUE_JSON]: {
+          [QueryEntityKeys.VALUE_JSON]: {
             type: 'LEFT',
             links: []
           }
@@ -108,9 +108,9 @@ export class MenuApi extends CommonApi {
   saveMenuConfig = ({ config = {}, title = '', description = '' }) => {
     const record = Records.get(`${PREFIX}menu-config`);
 
-    record.att(QueryKeys.VALUE_JSON, config);
-    record.att(QueryKeys.TITLE, title);
-    record.att(QueryKeys.DESCRIPTION, description);
+    record.att(QueryEntityKeys.VALUE_JSON, config);
+    record.att(QueryEntityKeys.TITLE, title);
+    record.att(QueryEntityKeys.DESCRIPTION, description);
 
     return record.save().then(resp => resp);
   };

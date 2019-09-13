@@ -12,18 +12,18 @@ import './style.scss';
 class AssignmentPanel extends React.Component {
   static propTypes = {
     stateAssign: PropTypes.shape(StateAssignPropTypes).isRequired,
+    wrapperClassName: PropTypes.string,
     className: PropTypes.string,
     onClick: PropTypes.func.isRequired,
     narrow: PropTypes.bool
   };
 
   static defaultProps = {
+    wrapperClassName: '',
     className: '',
     narrow: false,
     onClick: () => {}
   };
-
-  className = 'ecos-task__assign-btn';
 
   get infoButtons() {
     const {
@@ -57,11 +57,11 @@ class AssignmentPanel extends React.Component {
   }
 
   render() {
-    const { onClick, narrow, className } = this.props;
-    const classBtn = classNames(this.className, className, { 'ecos-btn_narrow-t_standart': narrow });
+    const { onClick, narrow, className, wrapperClassName } = this.props;
+    const classBtn = classNames('ecos-task__assign-btn ecos-btn_brown2', className, { 'ecos-btn_narrow-t_standart': narrow });
 
     return (
-      <div className={this.className + '__wrapper'}>
+      <div className={classNames('ecos-task__assign-btn__wrapper', wrapperClassName)}>
         {this.infoButtons.map((btn, i) => (
           <Btn
             key={i + new Date().getTime()}

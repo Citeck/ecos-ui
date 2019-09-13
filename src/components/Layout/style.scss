@@ -1,6 +1,6 @@
 @import '../../constants.scss';
 
-$indents-of-items: 15px;
+$indents-of-items: 10px;
 
 .ecos-layout {
   $root: &;
@@ -277,7 +277,7 @@ $indents-of-items: 15px;
 
   &__element {
     &:not(:last-child) {
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
   }
 

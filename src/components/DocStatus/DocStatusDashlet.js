@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { isMobileDevice } from '../../helpers/util';
+import { isMobileDevice, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import DocStatus from './DocStatus';
@@ -14,20 +14,24 @@ class DocStatusDashlet extends React.Component {
     record: PropTypes.string.isRequired,
     classNameStatus: PropTypes.string,
     classNameDashlet: PropTypes.string,
+    title: PropTypes.string,
     config: PropTypes.shape({})
   };
 
   static defaultProps = {
     classNameStatus: '',
-    classNameDashlet: ''
+    classNameDashlet: '',
+    title: ''
+  };
+
+  state = {
+    isSmall: false
   };
 
   constructor(props) {
     super(props);
 
-    this.state = {
-      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
-    };
+    this.state.isCollapsed = UserLocalSettingsService.getProperty(props.id, 'isCollapsed');
   }
 
   handleToggleContent = (isCollapsed = false) => {
@@ -35,25 +39,35 @@ class DocStatusDashlet extends React.Component {
     UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
   };
 
+  onResize = w => {
+    this.setState({ isSmall: w <= 263 });
+  };
+
   render() {
-    const { id, config, classNameStatus, classNameDashlet, record } = this.props;
-    const { isCollapsed } = this.state;
+    const { config, classNameStatus, classNameDashlet, record } = this.props;
+    const { isSmall, isCollapsed } = this.state;
+    const isMobile = isMobileDevice();
+    const title = this.props.title || t('doc-status-widget.title');
+    const isBig = !(isMobile || isSmall);
 
     return (
       <Dashlet
-        className={classNames('ecos-doc-status-dashlet', classNameDashlet)}
+        title={title}
+        className={classNames('ecos-doc-status-dashlet', classNameDashlet, { 'ecos-doc-status-dashlet_mobile': isMobile })}
         bodyClassName="ecos-doc-status-dashlet__body"
         resizable={false}
+        collapsible={!isBig}
         needGoTo={false}
         actionHelp={false}
         actionReload={false}
-        actionDrag={isMobileDevice()}
+        actionDrag={isMobile}
         actionEdit={false}
+        onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
-        noHeader
+        noHeader={isBig}
       >
-        <DocStatus {...config} className={classNameStatus} record={record} stateId={id} />
+        <DocStatus title={title} isMobile={isMobile || isSmall} {...config} className={classNameStatus} record={record} stateId={record} />
       </Dashlet>
     );
   }

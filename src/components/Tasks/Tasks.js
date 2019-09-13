@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { isEmpty } from 'lodash';
-import { changeTaskAssignee, getTaskList } from '../../actions/tasks';
+import { changeTaskAssignee, getTaskList, resetTaskList } from '../../actions/tasks';
 import { updateRequestDocStatus } from '../../actions/docStatus';
 import { updateRequestCurrentTasks } from '../../actions/currentTasks';
 import { selectStateTasksById } from '../../selectors/tasks';
@@ -17,7 +17,8 @@ const mapStateToProps = (state, context) => {
 
   return {
     tasks: tasksState.list,
-    isLoading: tasksState.isLoading
+    isLoading: tasksState.isLoading,
+    totalCount: tasksState.totalCount
   };
 };
 
@@ -25,7 +26,8 @@ const mapDispatchToProps = dispatch => ({
   getTaskList: payload => dispatch(getTaskList(payload)),
   changeTaskAssignee: payload => dispatch(changeTaskAssignee(payload)),
   updateRequestDocStatus: payload => dispatch(updateRequestDocStatus(payload)),
-  updateRequestCurrentTasks: payload => dispatch(updateRequestCurrentTasks(payload))
+  updateRequestCurrentTasks: payload => dispatch(updateRequestCurrentTasks(payload)),
+  resetTaskList: payload => dispatch(resetTaskList(payload))
 });
 
 class Tasks extends React.Component {
@@ -36,6 +38,7 @@ class Tasks extends React.Component {
     isSmallMode: PropTypes.bool,
     isRunReload: PropTypes.bool,
     setReloadDone: PropTypes.func,
+    setInfo: PropTypes.func,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
@@ -45,14 +48,13 @@ class Tasks extends React.Component {
     className: '',
     isSmallMode: false,
     isRunReload: false,
-    setReloadDone: () => {}
+    setReloadDone: () => {},
+    setInfo: () => {}
   };
 
   state = {
     contentHeight: 0
   };
-
-  className = 'ecos-task-list';
 
   componentDidMount() {
     this.getTaskList();
@@ -63,6 +65,20 @@ class Tasks extends React.Component {
       this.getTaskList();
       this.props.setReloadDone(true);
     }
+
+    if (this.props.totalCount !== nextProps.totalCount) {
+      this.props.setInfo({ totalCount: nextProps.totalCount });
+    }
+
+    if (this.props.isLoading !== nextProps.isLoading) {
+      this.props.setInfo({ isLoading: nextProps.isLoading });
+    }
+  }
+
+  componentWillUnmount() {
+    const { resetTaskList, stateId } = this.props;
+
+    resetTaskList({ stateId });
   }
 
   getTaskList = () => {
@@ -113,8 +129,8 @@ class Tasks extends React.Component {
     return (
       <Scrollbars
         style={{ height: contentHeight || '100%' }}
-        className={this.className}
-        renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
+        className="ecos-task-list"
+        renderTrackVertical={props => <div {...props} className="ecos-task-list__v-scroll" />}
       >
         <DefineHeight
           fixHeight={height}

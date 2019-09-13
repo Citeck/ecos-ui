@@ -2,7 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import { getCurrentUserName, t } from '../helpers/util';
 import Cache from '../helpers/cache';
-import { DASHBOARD_DEFAULT_KEY, QueryKeys, SourcesId } from '../constants';
+import { DASHBOARD_DEFAULT_KEY, QueryEntityKeys, SourcesId } from '../constants';
 import { RecordService } from './recordService';
 import Components from '../components/Components';
 import Records from '../components/Records';
@@ -11,10 +11,10 @@ import { DashboardTypes } from '../constants/dashboard';
 import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
-  key: QueryKeys.KEY,
-  config: QueryKeys.CONFIG_JSON,
-  user: 'user',
-  type: 'type',
+  key: QueryEntityKeys.KEY,
+  config: QueryEntityKeys.CONFIG_JSON,
+  user: QueryEntityKeys.USER,
+  type: QueryEntityKeys.TYPE,
   id: 'id'
 };
 
@@ -51,13 +51,10 @@ export class DashboardApi extends RecordService {
     const { key, id, user, type } = identification;
     const record = Records.get(DashboardService.formFullId(id));
 
-    record.att(QueryKeys.CONFIG_JSON, config);
-    record.att(QueryKeys.USER, user);
-
-    if (!id) {
-      record.att('key', key || DASHBOARD_DEFAULT_KEY);
-      record.att('type', type);
-    }
+    record.att(QueryEntityKeys.CONFIG_JSON, config);
+    record.att(QueryEntityKeys.USER, user);
+    record.att(QueryEntityKeys.KEY, key || DASHBOARD_DEFAULT_KEY);
+    record.att(QueryEntityKeys.TYPE, type);
 
     return record.save().then(response => response);
   };
@@ -219,12 +216,14 @@ export class DashboardApi extends RecordService {
           key
         }
       },
-      { user: 'user' }
-    ).then(response => !isEmpty(response) && get(response, 'user', null) === user);
+      { user: QueryEntityKeys.USER }
+    ).then(response => ({
+      exist: !isEmpty(response) && get(response, 'user', null) === user,
+      id: get(response, 'id', null)
+    }));
   };
 
-  deleteFromCache({ user, key }) {
-    user && cache.remove(user);
-    key && cache.remove(key);
+  deleteFromCache(arrKeys = []) {
+    arrKeys.forEach(key => cache.remove(key));
   }
 }

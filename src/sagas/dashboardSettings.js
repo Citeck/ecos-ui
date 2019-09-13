@@ -80,18 +80,26 @@ function* doCheckUpdatedSettings({ api, logger }, { payload }) {
     const hasUser = !!identification.user;
 
     let saveWay = DashboardService.defineWaySavingDashboard(eqKey, payload.isForAllUsers, hasUser);
+    let dashboardId = identification.id;
 
     if (saveWay === DashboardService.SaveWays.CONFIRM) {
-      const checkExistDashboard = yield call(api.dashboard.checkExistDashboard, {
+      const checkResult = yield call(api.dashboard.checkExistDashboard, {
         key: payload.dashboardKey,
         type: identification.type,
         user
       });
 
-      saveWay = checkExistDashboard ? DashboardService.SaveWays.CONFIRM : DashboardService.SaveWays.CREATE;
+      if (checkResult.id) {
+        dashboardId = checkResult.id;
+      }
+
+      if (!checkResult.exist) {
+        saveWay = DashboardService.SaveWays.CREATE;
+        dashboardId = '';
+      }
     }
 
-    yield put(setCheckUpdatedDashboardConfig({ saveWay }));
+    yield put(setCheckUpdatedDashboardConfig({ saveWay, dashboardId }));
   } catch (e) {
     logger.error('[dashboard/settings/ doCheckUpdatedSettings saga] error', e.message);
   }
@@ -106,15 +114,16 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     };
     const { layouts, menu, mobile } = serverConfig;
     const identification = yield select(selectIdentificationForSet);
+    const newIdentification = payload.newIdentification || {};
 
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
       config: { layouts, mobile },
-      identification: { ...identification, ...(payload.newIdentification || {}) }
+      identification: { ...identification, ...newIdentification }
     });
 
     const parseDashboard = DashboardService.parseRequestResult(dashboardResult);
 
-    yield call(api.dashboard.deleteFromCache, { ...identification });
+    yield call(api.dashboard.deleteFromCache, [identification.key, identification.user, newIdentification.key, newIdentification.user]);
     yield put(saveMenuConfig(menu));
     yield put(
       setRequestResultDashboard({

@@ -61,6 +61,10 @@ button {
     }
   }
 
+  &.ecos-btn_line-height_normal {
+    line-height: normal;
+  }
+
   &.ecos-btn_tight {
     padding-right: 14px;
     padding-left: 14px;
@@ -382,6 +386,19 @@ button {
     }
   }
 
+  &.ecos-btn_brown2 {
+    background-color: $color-brown-1;
+    color: $color-white;
+
+    &:hover {
+      background-color: $color-brown-2;
+    }
+
+    &:active {
+      background-color: $color-brown-1;
+    }
+  }
+
   &.ecos-btn_bgr-inherit {
     background: inherit;
 
@@ -403,6 +420,20 @@ button {
     &:focus,
     &:hover {
       background: transparent;
+    }
+  }
+
+  &.ecos-btn_red {
+    background: $color-red-1;
+    color: $color-white;
+
+    &:focus {
+      background: $color-red-1;
+      color: $color-white;
+    }
+
+    &:hover {
+      background: lighten($color-red-1, 10%);
     }
   }
 
@@ -551,25 +582,10 @@ button {
     height: 100%;
   }
 
-  &.ecos-btn_red {
-    background: $color-red-1;
-    color: $color-white;
-
-    &:focus {
-      background: $color-red-1;
-      color: $color-white;
-    }
-
-    &:hover {
-      background: lighten($color-red-1, 10%);
-    }
-  }
-
   /*Shapes */
   &.ecos-btn_circle {
-    width: 40px;
     border-radius: 50%;
-    padding: 0 12px;
+    padding: 0;
     text-align: center;
   }
 }

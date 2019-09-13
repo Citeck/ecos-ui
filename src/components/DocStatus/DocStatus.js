@@ -1,15 +1,16 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { debounce, isEmpty } from 'lodash';
+import debounce from 'lodash/debounce';
+import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
-import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus, updateDocStatus } from '../../actions/docStatus';
+import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus, resetDocStatus, updateDocStatus } from '../../actions/docStatus';
 import { selectStateDocStatusById } from '../../selectors/docStatus';
-import { deepClone, t } from '../../helpers/util';
 import DocStatusService from '../../services/docStatus';
+import { deepClone } from '../../helpers/util';
+import { Loader } from '../common';
 import { IcoBtn } from '../common/btns';
 import { Caption, Dropdown } from '../common/form';
-import { Loader } from '../common';
 
 import './style.scss';
 
@@ -31,7 +32,8 @@ const mapDispatchToProps = dispatch => ({
   changeDocStatus: payload => dispatch(changeDocStatus(payload)),
   getDocStatus: payload => dispatch(getDocStatus(payload)),
   getCheckDocStatus: payload => dispatch(getCheckDocStatus(payload)),
-  updateDocStatus: payload => dispatch(updateDocStatus(payload))
+  updateDocStatus: payload => dispatch(updateDocStatus(payload)),
+  resetDocStatus: payload => dispatch(resetDocStatus(payload))
 });
 
 const MAX_ATTEMPT = 3;
@@ -41,12 +43,14 @@ class DocStatus extends React.Component {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
-    title: PropTypes.string
+    title: PropTypes.string,
+    isMobile: PropTypes.bool
   };
 
   static defaultProps = {
     className: '',
-    title: ''
+    title: '',
+    isMobile: false
   };
 
   state = {
@@ -57,7 +61,7 @@ class DocStatus extends React.Component {
     const { stateId, record, getCheckDocStatus } = this.props;
 
     getCheckDocStatus({ stateId, record });
-  }, 3000);
+  }, 2000);
 
   componentDidMount() {
     const { stateId, record, initDocStatus } = this.props;
@@ -83,6 +87,12 @@ class DocStatus extends React.Component {
         }
       }
     }
+  }
+
+  componentWillUnmount() {
+    const { resetDocStatus, stateId } = this.props;
+
+    resetDocStatus({ stateId });
   }
 
   get isNoStatus() {
@@ -116,7 +126,11 @@ class DocStatus extends React.Component {
       'ecos-doc-status__data_no-status': this.isNoStatus
     });
 
-    return <div className={classStatus}>{status.name}</div>;
+    return (
+      <div className={classStatus} title={status.name}>
+        {status.name}
+      </div>
+    );
   }
 
   renderManualField() {
@@ -138,20 +152,23 @@ class DocStatus extends React.Component {
   }
 
   render() {
+    const { isMobile, title } = this.props;
     const { wasChanged } = this.state;
 
     return (
-      <div className="ecos-doc-status">
+      <div className={classNames('ecos-doc-status', { 'ecos-doc-status_narrow': !isMobile })}>
         {this.isShowLoader && !wasChanged ? (
           <Loader className="ecos-doc-status__loader" />
         ) : (
-          <React.Fragment>
-            <Caption middle className="ecos-doc-status__title">
-              {t('Статус кейса')}
-            </Caption>
+          <>
+            {!isMobile && (
+              <Caption middle className="ecos-doc-status__title">
+                {title}
+              </Caption>
+            )}
             {this.isReadField && this.renderReadField()}
             {!this.isReadField && this.renderManualField()}
-          </React.Fragment>
+          </>
         )}
       </div>
     );

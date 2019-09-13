@@ -14,15 +14,20 @@
 
     &-wrapper {
       height: 48px;
+      padding: 0 20px;
       border-bottom: 2px solid $color-gray-4;
       background-color: $color-white;
       border-radius: $border-radius-extra-large $border-radius-extra-large 0 0;
       margin-right: 0;
       margin-left: 0;
 
+      &_rounded {
+        border-bottom: none;
+        border-radius: $border-radius-extra-large;
+      }
+
       &_collapsed {
         border: none;
-        //border-radius: 12px;
       }
     }
 
@@ -36,35 +41,42 @@
     }
 
     &-actions {
-      flex: auto;
-      text-align: end;
+      position: absolute;
+      right: 0;
+      background: $color-white;
+      border-top-right-radius: $border-radius-extra-large;
+      border-bottom-right-radius: $border-radius-extra-large;
+
+      & > :nth-child(n) {
+        margin-left: 15px;
+      }
+
+      &:before {
+        $size: 25px;
+        content: '';
+        width: $size;
+        position: absolute;
+        left: -$size;
+        height: 100%;
+        background: linear-gradient(to right, rgba(255, 255, 255, 0), $color-white);
+        margin: 0;
+      }
     }
 
     &:hover {
       #{$root} {
-        &__btn {
-          &_hidden {
-            visibility: visible;
-          }
-        }
-
         &__header-actions {
           &:not(:empty) {
-            background: $color-white;
-            border-top-right-radius: $border-radius-extra-large;
-            border-bottom-right-radius: $border-radius-extra-large;
+          }
+        }
+      }
+    }
 
-            &:before {
-              $size: 30px;
-              border-top-right-radius: $border-radius-extra-large;
-              content: '';
-              width: $size;
-              position: absolute;
-              left: -$size;
-              top: 0;
-              height: 100%;
-              background: linear-gradient(to right, rgba(255, 255, 255, 0.35), $color-white);
-            }
+    &:not(:hover) {
+      #{$root} {
+        &__btn {
+          &_hidden {
+            display: none;
           }
         }
       }
@@ -73,22 +85,16 @@
 
   &__caption {
     display: inline-block;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
     border: 1px solid transparent;
-    text-decoration: none;
-
     background: inherit;
     color: $text-color-gray;
     font-family: $font-family;
     font-size: $font-size-large;
     font-weight: $font-weight-bold;
-    font-style: normal;
-    line-height: 1;
-    padding: 6px 18px 6px 20px;
-    height: 34px;
     box-sizing: border-box;
+    padding-right: 12px;
+
+    @extend %ellipsis;
   }
 
   &__body {
@@ -119,14 +125,6 @@
   &__btn {
     font-size: $font-size-standard;
     font-weight: $font-weight-bold;
-
-    &_next {
-      margin-right: 20px;
-    }
-
-    &_hidden {
-      visibility: hidden;
-    }
 
     &_move {
       font-size: 28px !important;

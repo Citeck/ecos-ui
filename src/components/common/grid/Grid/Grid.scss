@@ -91,6 +91,10 @@
   opacity: 0;
 }
 
+.ecos-grid_overflow_hidden {
+  overflow: hidden;
+}
+
 /*Checkable*/
 .ecos-grid_checkable {
   tbody > tr > td:nth-child(1),

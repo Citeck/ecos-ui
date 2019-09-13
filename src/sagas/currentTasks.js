@@ -1,4 +1,5 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
+import isEmpty from 'lodash/isEmpty';
 import { getCurrentTaskList, setCurrentTaskList } from '../actions/currentTasks';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
@@ -11,10 +12,16 @@ function* sagaGetCurrentTasks({ api, logger }, { payload }) {
     const { document, stateId } = payload;
     const res = yield call(api.tasks.getCurrentTasksForUser, { document });
 
-    if (res && Object.keys(res)) {
-      yield put(setCurrentTaskList({ stateId, list: TasksConverter.getCurrentTaskListForWeb(res.records) }));
-    } else {
+    if (isEmpty(res)) {
       yield put(setNotificationMessage(err));
+    } else {
+      yield put(
+        setCurrentTaskList({
+          stateId,
+          list: TasksConverter.getCurrentTaskListForWeb(res.records),
+          totalCount: res.totalCount || 0
+        })
+      );
     }
   } catch (e) {
     yield put(setNotificationMessage(err));

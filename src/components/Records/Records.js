@@ -9,6 +9,7 @@ const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
 const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
 
 const ATT_NAME_REGEXP = /\.atts?\(n:"(.+?)"\).+/;
+const ATT_INNER_REGEXP = /^([^{]+){(.+)}$/;
 
 const GATEWAY_URL_MAP = {};
 GATEWAY_URL_MAP[QUERY_URL] = '/share/api/records/query';
@@ -75,11 +76,12 @@ function recordsFetch(url, body) {
 }
 
 function convertAttributePath(path) {
-  if (path[0] === '.') {
-    return path;
-  }
   if (!path) {
     return null;
+  }
+
+  if (path[0] === '.' || ATT_INNER_REGEXP.test(path)) {
+    return path;
   }
 
   let attName;
