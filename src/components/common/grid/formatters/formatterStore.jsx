@@ -14,6 +14,7 @@ import BooleanFormatter from './gql/BooleanFormatter';
 import SelectFormatter from './gql/SelectFormatter';
 import FormFieldFormatter from './gql/FormFieldFormatter';
 import StrAndDispFormatter from './gql/StrAndDispFormatter';
+import ColoredFormatter from './gql/ColoredFormatter/ColoredFormatter';
 
 const formatterStore = {
   UserNameLinkFormatter,
@@ -31,7 +32,8 @@ const formatterStore = {
   BooleanFormatter,
   SelectFormatter,
   FormFieldFormatter,
-  StrAndDispFormatter
+  StrAndDispFormatter,
+  ColoredFormatter
 };
 
 export default formatterStore;
