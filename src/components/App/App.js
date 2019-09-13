@@ -7,7 +7,7 @@ import get from 'lodash/get';
 
 import Header from '../Header';
 import Notification from '../Notification';
-import SlideMenu from '../SlideMenu';
+import Menu from '../SlideMenu2';
 import ReduxModal from '../ReduxModal';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
@@ -50,7 +50,7 @@ class App extends Component {
     const { menuType } = this.props;
 
     if (menuType === MENU_TYPE.LEFT) {
-      return <SlideMenu />;
+      return <Menu />;
     }
 
     return null;
