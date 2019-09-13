@@ -24,7 +24,8 @@ export default class DropdownMenu extends React.Component {
     }),
     setCascade: PropTypes.shape({
       collapseOneItem: PropTypes.bool
-    })
+    }),
+    onClick: PropTypes.func
   };
 
   static defaultProps = {
@@ -36,11 +37,12 @@ export default class DropdownMenu extends React.Component {
     },
     setCascade: {
       collapseOneItem: false
-    }
+    },
+    onClick: () => {}
   };
 
   renderMode() {
-    const { mode, items, setGroup, setCascade, ...someProps } = this.props;
+    const { mode, items, setGroup, setCascade, onClick, ...someProps } = this.props;
 
     let menu = deepClone(items, []);
 
@@ -56,7 +58,7 @@ export default class DropdownMenu extends React.Component {
 
     switch (mode) {
       case MenuModes.CASCADE:
-        return <DropdownMenuCascade groups={menu} />;
+        return <DropdownMenuCascade groups={menu} onClick={onClick} />;
       case MenuModes.GROUP: {
         const { showGroupName, showSeparator } = setGroup;
 
@@ -64,7 +66,7 @@ export default class DropdownMenu extends React.Component {
       }
       case MenuModes.LIST:
       default:
-        return menu.map((item, key) => <DropdownMenuItem key={key} data={item} {...someProps} />);
+        return menu.map((item, key) => <DropdownMenuItem key={key} data={item} onClick={onClick} {...someProps} />);
     }
   }
 

@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { UncontrolledTooltip } from 'reactstrap';
+import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'reactstrap';
 import classNames from 'classnames';
 
 import Dashlet from '../Dashlet/Dashlet';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
-import { DefineHeight, Icon } from '../common';
+import { DefineHeight, DropdownMenu as Menu, Icon } from '../common';
 import { t } from '../../helpers/util';
-import { getSectionList, initStore, getDocuments } from '../../actions/docAssociations';
+import { getSectionList, initStore, getDocuments, getMenu } from '../../actions/docAssociations';
 import { selectStateByKey } from '../../selectors/docAssociations';
+
 import './style.scss';
 
 const LABELS = {
@@ -48,7 +49,8 @@ class DocAssociations extends Component {
       fitHeights: {},
       width: MIN_WIDTH_DASHLET_SMALL,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
+      isMenuOpen: false
     };
 
     props.initStore();
@@ -57,6 +59,7 @@ class DocAssociations extends Component {
   componentDidMount() {
     this.props.getSectionList();
     this.props.getDocuments();
+    this.props.getMenu();
   }
 
   get isSmallWidget() {
@@ -82,6 +85,12 @@ class DocAssociations extends Component {
   handleToggleContent = (isCollapsed = false) => {
     this.setState({ isCollapsed });
     UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+  };
+
+  handleToggleMenu = () => {
+    this.setState(state => ({
+      isMenuOpen: !state.isMenuOpen
+    }));
   };
 
   renderTable(data = []) {
@@ -135,116 +144,60 @@ class DocAssociations extends Component {
     </div>
   );
 
-  renderAssociatedWith() {
-    const { isMobile, id, associatedWithDocs } = this.props;
+  renderDocumentsItem = data => {
+    const { id } = this.props;
+    const { documents, title } = data;
 
-    if (!associatedWithDocs.length) {
+    if (!documents.length) {
       return null;
     }
 
     return (
-      <>
+      <React.Fragment key={`document-list-${title}-${id}`}>
         <div className="ecos-doc-associations__headline">
-          <div className="ecos-doc-associations__headline-text">{t(LABELS.HEADLINE_ASSOCIATED_WITH_DOCS)}</div>
-          {!isMobile && (
-            <div className="ecos-doc-associations__headline-actions">
-              <Icon
-                id={`associated-with-docs-${id}`}
-                // onClick={}
-                className="icon-plus ecos-doc-associations__icon-plus"
-              />
-              <UncontrolledTooltip
-                placement="top"
-                boundariesElement="window"
-                className="ecos-base-tooltip"
-                innerClassName="ecos-base-tooltip-inner"
-                arrowClassName="ecos-base-tooltip-arrow"
-                target={`associated-with-docs-${id}`}
-              >
-                {t(LABELS.TOOLTIP_ADD_LINK)}
-              </UncontrolledTooltip>
-            </div>
-          )}
+          <div className="ecos-doc-associations__headline-text">{t(title)}</div>
         </div>
 
-        {this.renderTable(associatedWithDocs)}
-      </>
+        {this.renderTable(documents)}
+      </React.Fragment>
     );
+  };
+
+  renderDocuments() {
+    const { documents } = this.props;
+
+    return documents.map(this.renderDocumentsItem);
   }
 
-  renderBaseDocument() {
-    const { isMobile, id, baseDocs } = this.props;
+  renderAddButton = () => {
+    const { menu, id, isMobile } = this.props;
+    const { isMenuOpen } = this.state;
 
-    if (!baseDocs.length) {
+    if (isMobile) {
       return null;
     }
 
     return (
-      <>
-        <div className="ecos-doc-associations__headline">
-          <div className="ecos-doc-associations__headline-text">{t(LABELS.HEADLINE_BASE_DOCUMENT)}</div>
-          {!isMobile && (
-            <div className="ecos-doc-associations__headline-actions">
-              <Icon
-                id={`base-document-${id}`}
-                // onClick={}
-                className="icon-plus ecos-doc-associations__icon-plus"
-              />
-              <UncontrolledTooltip
-                placement="top"
-                boundariesElement="window"
-                className="ecos-base-tooltip"
-                innerClassName="ecos-base-tooltip-inner"
-                arrowClassName="ecos-base-tooltip-arrow"
-                target={`base-document-${id}`}
-              >
-                {t(LABELS.TOOLTIP_ADD_LINK)}
-              </UncontrolledTooltip>
-            </div>
-          )}
-        </div>
-
-        {this.renderTable(baseDocs)}
-      </>
+      <Dropdown isOpen={isMenuOpen} toggle={this.handleToggleMenu}>
+        <DropdownToggle tag="div">
+          <Icon id={`tooltip-plus-${id}`} className="icon-plus ecos-doc-associations__icon-plus" />
+          <UncontrolledTooltip
+            placement="top"
+            boundariesElement="window"
+            className="ecos-base-tooltip"
+            innerClassName="ecos-base-tooltip-inner"
+            arrowClassName="ecos-base-tooltip-arrow"
+            target={`tooltip-plus-${id}`}
+          >
+            {t(LABELS.TOOLTIP_ADD_LINK)}
+          </UncontrolledTooltip>
+        </DropdownToggle>
+        <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_cascade">
+          <Menu items={menu} mode="cascade" onClick={data => console.warn(data)} />
+        </DropdownMenu>
+      </Dropdown>
     );
-  }
-
-  renderAccountingDocuments() {
-    const { isMobile, id, accountingDocs } = this.props;
-
-    if (!accountingDocs.length) {
-      return null;
-    }
-
-    return (
-      <>
-        <div className="ecos-doc-associations__headline">
-          <div className="ecos-doc-associations__headline-text">{t(LABELS.HEADLINE_ACCOUNTING_DOCS)}</div>
-          {!isMobile && (
-            <div className="ecos-doc-associations__headline-actions">
-              <Icon
-                id={`accounting-docs-${id}`}
-                // onClick={}
-                className="icon-plus ecos-doc-associations__icon-plus"
-              />
-              <UncontrolledTooltip
-                placement="top"
-                boundariesElement="window"
-                className="ecos-base-tooltip"
-                innerClassName="ecos-base-tooltip-inner"
-                arrowClassName="ecos-base-tooltip-arrow"
-                target={`accounting-docs-${id}`}
-              >
-                {t(LABELS.TOOLTIP_ADD_LINK)}
-              </UncontrolledTooltip>
-            </div>
-          )}
-        </div>
-
-        {this.renderTable(accountingDocs)}
-      </>
-    );
-  }
+  };
 
   render() {
     const { canDragging, dragHandleProps, isCollapsed } = this.props;
@@ -269,11 +222,10 @@ class DocAssociations extends Component {
         getFitHeights={this.handleSetFitHeights}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
+        customButtons={[this.renderAddButton()]}
       >
         <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
-          {this.renderAssociatedWith()}
-          {this.renderBaseDocument()}
-          {this.renderAccountingDocuments()}
+          {this.renderDocuments()}
         </DefineHeight>
       </Dashlet>
     );
@@ -284,7 +236,8 @@ const mapStateToProps = (state, ownProps) => ({ ...selectStateByKey(state, ownPr
 const mapDispatchToProps = (dispatch, ownProps) => ({
   initStore: () => dispatch(initStore(ownProps.record)),
   getSectionList: () => dispatch(getSectionList(ownProps.record)),
-  getDocuments: () => dispatch(getDocuments(ownProps.record))
+  getDocuments: () => dispatch(getDocuments(ownProps.record)),
+  getMenu: () => dispatch(getMenu(ownProps.record))
 });
 
 export default connect(

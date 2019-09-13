@@ -2,22 +2,19 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import moment from 'moment';
 
-export function getDocumentsForWeb(source) {
-  const target = {
-    associatedWithDocs: [],
-    baseDocs: [],
-    accountingDocs: []
-  };
+export function getDocumentsForWeb(source, allowedConnections) {
+  const keys = Object.keys(source);
+  const target = [];
 
-  if (isEmpty(source)) {
+  if (isEmpty(keys)) {
     return target;
   }
 
-  target.associatedWithDocs = get(source, ['associatedWith'], []).map(getDocumentForWeb);
-  target.baseDocs = get(source, ['documents'], []).map(getDocumentForWeb);
-  target.accountingDocs = get(source, ['accounting'], []).map(getDocumentForWeb);
-
-  return target;
+  return keys.map(key => ({
+    key,
+    documents: get(source, [key], []).map(getDocumentForWeb),
+    title: get(allowedConnections.find(item => item.name === key), ['title'], '')
+  }));
 }
 
 export function getDocumentForWeb(source) {
@@ -32,4 +29,45 @@ export function getDocumentForWeb(source) {
   target.record = source.id;
 
   return target;
+}
+
+export function getJournalForWeb(source) {
+  if (isEmpty(source)) {
+    return {};
+  }
+
+  const target = {};
+
+  target.label = get(source, ['title'], '');
+  target.id = get(source, ['type'], '');
+  target.nodeRef = get(source, ['nodeRef'], '');
+
+  return target;
+}
+
+export function getMenuForWeb(firstLvl, secondLvl) {
+  if (isEmpty(firstLvl)) {
+    return [];
+  }
+
+  const items = secondLvl.map(item => {
+    const target = {};
+
+    target.id = item.name;
+    target.label = item.title;
+    target.nodeRef = item.id;
+    target.items = item.items;
+
+    return target;
+  });
+
+  return firstLvl.map(item => {
+    const target = {};
+
+    target.id = item.name;
+    target.label = item.title;
+    target.items = items;
+
+    return target;
+  });
 }

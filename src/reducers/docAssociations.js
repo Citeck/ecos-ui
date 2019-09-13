@@ -1,11 +1,17 @@
 import { handleActions } from 'redux-actions';
-import { setSectionList, initStore, setAssociatedWithDocs, setAccountingDocs, setBaseDocs } from '../actions/docAssociations';
+import { setMenu, setSectionList, initStore, setDocuments, setAllowedConnections } from '../actions/docAssociations';
 
 export const initialState = {
+  // список разделов
   sectionList: [],
-  associatedWithDocs: [],
-  baseDocs: [],
-  accountingDocs: [],
+  // список документов, рассортированный по связям
+  documents: [],
+  // список доступных связей (первый уровень меню)
+  allowedConnections: [],
+
+  // меню-выпадашка (состоит из 3х уровней)
+  menu: [],
+
   isLoading: false
 };
 
@@ -34,25 +40,27 @@ export default handleActions(
       }
     }),
 
-    [setAssociatedWithDocs]: (state, action) => ({
+    [setDocuments]: (state, action) => ({
       ...state,
       [action.payload.key]: {
         ...state[action.payload.key],
-        associatedWithDocs: action.payload.associatedWithDocs
+        documents: action.payload.documents
       }
     }),
-    [setAccountingDocs]: (state, action) => ({
+
+    [setAllowedConnections]: (state, action) => ({
       ...state,
       [action.payload.key]: {
         ...state[action.payload.key],
-        accountingDocs: action.payload.accountingDocs
+        allowedConnections: action.payload.allowedConnections
       }
     }),
-    [setBaseDocs]: (state, action) => ({
+
+    [setMenu]: (state, action) => ({
       ...state,
       [action.payload.key]: {
         ...state[action.payload.key],
-        baseDocs: action.payload.baseDocs
+        menu: action.payload.menu
       }
     })
   },

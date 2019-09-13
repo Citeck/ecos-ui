@@ -6,9 +6,8 @@ export const selectStateByKey = (state, key) => {
 
   return {
     sectionList: get(ownState, ['sectionList'], []),
-    associatedWithDocs: get(ownState, ['associatedWithDocs'], []),
-    baseDocs: get(ownState, ['baseDocs'], []),
-    accountingDocs: get(ownState, ['accountingDocs'], []),
-    isLoading: get(ownState, ['isLoading'], false)
+    documents: get(ownState, ['documents'], []),
+    isLoading: get(ownState, ['isLoading'], false),
+    menu: get(ownState, ['menu'], [])
   };
 };

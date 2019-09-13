@@ -5,6 +5,10 @@
 
   min-width: 290px;
 
+  .dashlet__header {
+    overflow: unset;
+  }
+
   &__headline {
     display: flex;
     justify-content: space-between;

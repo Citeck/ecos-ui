@@ -8,6 +8,9 @@ export const getSectionList = createAction(prefix + 'GET_SECTION_LIST');
 export const setSectionList = createAction(prefix + 'SET_SECTION_LIST');
 
 export const getDocuments = createAction(prefix + 'GET_DOCUMENTS');
-export const setAssociatedWithDocs = createAction(prefix + 'SET_ASSOCIATED_WITH_DOCS');
-export const setBaseDocs = createAction(prefix + 'SET_BASE_DOCS');
-export const setAccountingDocs = createAction(prefix + 'SET_ACCOUNTING_DOCS');
+export const setDocuments = createAction(prefix + 'SET_DOCUMENTS');
+
+export const setAllowedConnections = createAction(prefix + 'SET_ALLOWED_CONNECTIONS');
+
+export const getMenu = createAction(prefix + 'GET_MENU');
+export const setMenu = createAction(prefix + 'SET_MENU');
