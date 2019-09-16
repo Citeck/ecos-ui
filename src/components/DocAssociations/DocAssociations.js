@@ -5,12 +5,13 @@ import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'rea
 import classNames from 'classnames';
 
 import Dashlet from '../Dashlet/Dashlet';
+import SelectJournal from '../common/form/SelectJournal';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import { DefineHeight, DropdownMenu as Menu, Icon } from '../common';
 import { t } from '../../helpers/util';
-import { getSectionList, initStore, getDocuments, getMenu } from '../../actions/docAssociations';
-import { selectStateByKey } from '../../selectors/docAssociations';
+import { getSectionList, initStore, getDocuments, getMenu, saveDocuments } from '../../actions/docAssociations';
+import { selectDocuments, selectStateByKey } from '../../selectors/docAssociations';
 
 import './style.scss';
 
@@ -50,7 +51,9 @@ class DocAssociations extends Component {
       width: MIN_WIDTH_DASHLET_SMALL,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
-      isMenuOpen: false
+      isMenuOpen: false,
+      journalId: '',
+      connectionId: ''
     };
 
     props.initStore();
@@ -93,6 +96,24 @@ class DocAssociations extends Component {
     }));
   };
 
+  handleSelectMenuItem = item => {
+    this.setState({
+      journalId: item.id,
+      connectionId: item.connectionId,
+      isMenuOpen: false
+    });
+  };
+
+  handleSelectJournal = selectedJournals => {
+    const { record } = this.props;
+    const { connectionId } = this.state;
+
+    const documents = selectDocuments(record, connectionId);
+    this.props.saveDocuments(this.state.connectionId, [...documents, ...selectedJournals]);
+
+    this.setState({ journalId: '' });
+  };
+
   renderTable(data = []) {
     const { isMobile } = this.props;
 
@@ -117,7 +138,12 @@ class DocAssociations extends Component {
           {data.map(item => (
             <div className="ecos-doc-associations__table-row surfbug_highlight" key={item.record}>
               <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">
-                <a href={`/v2/dashboard?recordRef=${item.record}`} target="_blank" className="ecos-doc-associations__link">
+                <a
+                  href={`/v2/dashboard?recordRef=${item.record}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ecos-doc-associations__link"
+                >
                   {item.name}
                 </a>
               </div>
@@ -126,7 +152,7 @@ class DocAssociations extends Component {
               {!isMobile && (
                 <span className="ecos-doc-associations__table-actions">
                   <Icon
-                    // onClick={}
+                    onClick={() => console.warn(data)}
                     className="icon-delete ecos-doc-associations__icon-delete ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
                   />
                 </span>
@@ -193,11 +219,33 @@ class DocAssociations extends Component {
           </UncontrolledTooltip>
         </DropdownToggle>
         <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_cascade">
-          <Menu items={menu} mode="cascade" onClick={data => console.warn(data)} />
+          <Menu items={menu} mode="cascade" onClick={this.handleSelectMenuItem} />
         </DropdownMenu>
       </Dropdown>
     );
   };
+
+  renderSelectJournalModal() {
+    const {} = this.props;
+    const { journalId } = this.state;
+
+    if (!journalId) {
+      return null;
+    }
+
+    return (
+      <SelectJournal
+        journalId={journalId}
+        isSelectModalOpen
+        multiple
+        renderView={() => null}
+        onChange={this.handleSelectJournal}
+        onCancel={() => {
+          this.setState({ journalId: '' });
+        }}
+      />
+    );
+  }
 
   render() {
     const { canDragging, dragHandleProps, isCollapsed } = this.props;
@@ -226,6 +274,7 @@ class DocAssociations extends Component {
       >
         <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
           {this.renderDocuments()}
+          {this.renderSelectJournalModal()}
         </DefineHeight>
       </Dashlet>
     );
@@ -237,7 +286,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   initStore: () => dispatch(initStore(ownProps.record)),
   getSectionList: () => dispatch(getSectionList(ownProps.record)),
   getDocuments: () => dispatch(getDocuments(ownProps.record)),
-  getMenu: () => dispatch(getMenu(ownProps.record))
+  getMenu: () => dispatch(getMenu(ownProps.record)),
+  saveDocuments: (connectionId, documents) => dispatch(saveDocuments({ record: ownProps.record, connectionId, documents }))
 });
 
 export default connect(

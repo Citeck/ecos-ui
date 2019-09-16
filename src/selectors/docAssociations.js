@@ -11,3 +11,9 @@ export const selectStateByKey = (state, key) => {
     menu: get(ownState, ['menu'], [])
   };
 };
+
+export const selectDocuments = (state, key, connectionId) => {
+  const docs = get(state, ['docAssociations', key, 'documents'], []).find(item => item.key === connectionId);
+
+  return get(docs, ['documents'], []).map(doc => doc.record);
+};

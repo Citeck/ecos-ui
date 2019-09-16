@@ -50,23 +50,24 @@ export function getMenuForWeb(firstLvl, secondLvl) {
     return [];
   }
 
-  const items = secondLvl.map(item => {
+  const mappingNextLevel = (item, connectionId) => {
     const target = {};
 
     target.id = item.name;
     target.label = item.title;
     target.nodeRef = item.id;
-    target.items = item.items;
+    target.connectionId = connectionId;
+    target.items = (item.items || []).map(i => ({ ...i, connectionId }));
 
     return target;
-  });
+  };
 
   return firstLvl.map(item => {
     const target = {};
 
     target.id = item.name;
     target.label = item.title;
-    target.items = items;
+    target.items = (secondLvl || []).map(i => mappingNextLevel(i, item.name)).filter(i => i.items.length);
 
     return target;
   });

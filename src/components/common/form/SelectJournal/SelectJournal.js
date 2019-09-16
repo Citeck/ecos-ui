@@ -70,6 +70,8 @@ export default class SelectJournal extends Component {
   constructor(props) {
     super(props);
     this.api = new JournalsApi();
+
+    this.state.isSelectModalOpen = props.isSelectModalOpen;
   }
 
   componentDidMount() {
@@ -90,6 +92,18 @@ export default class SelectJournal extends Component {
 
     if (initValue) {
       this.setValue(initValue, false);
+    }
+
+    const { isSelectModalOpen } = this.state;
+
+    if (isSelectModalOpen) {
+      const { isJournalConfigFetched, isGridDataReady } = this.state;
+
+      if (!isJournalConfigFetched) {
+        this.getJournalConfig().then(this.refreshGridData);
+      } else if (!isGridDataReady) {
+        this.refreshGridData();
+      }
     }
   }
 
@@ -292,6 +306,18 @@ export default class SelectJournal extends Component {
     this.setState({
       isSelectModalOpen: !this.state.isSelectModalOpen
     });
+  };
+
+  hideSelectModal = () => {
+    const { onCancel } = this.props;
+
+    this.setState({
+      isSelectModalOpen: false
+    });
+
+    if (typeof onCancel === 'function') {
+      onCancel.call(this);
+    }
   };
 
   toggleCreateModal = () => {
@@ -577,7 +603,7 @@ export default class SelectJournal extends Component {
           <EcosModal
             title={selectModalTitle}
             isOpen={isSelectModalOpen}
-            hideModal={this.toggleSelectModal}
+            hideModal={this.hideSelectModal}
             className={'select-journal-select-modal ecos-modal_width-m'}
           >
             <div className={'select-journal-collapse-panel'}>
@@ -677,5 +703,10 @@ SelectJournal.propTypes = {
   displayColumns: PropTypes.array,
   viewOnly: PropTypes.bool,
   renderView: PropTypes.func,
-  searchField: PropTypes.string
+  searchField: PropTypes.string,
+  isSelectModalOpen: PropTypes.bool
+};
+
+SelectJournal.defaultProps = {
+  isSelectModalOpen: false
 };

@@ -6,9 +6,11 @@ import {
   setDocuments,
   setAllowedConnections,
   getMenu,
-  setMenu
+  setMenu,
+  saveDocuments
 } from '../actions/docAssociations';
 import { getDocumentsForWeb, getJournalForWeb, getMenuForWeb } from '../dto/docAssociations';
+import { selectDocuments } from '../selectors/docAssociations';
 
 function* sagaGetSectionList({ api, logger }, action) {
   try {
@@ -60,10 +62,20 @@ function* sagaGetMenu({ api, logger }, action) {
   }
 }
 
+function* sagaSaveDocuments({ api, logger }, action) {
+  try {
+    const { connectionId, record, documents } = action.payload;
+    const result = yield api.docAssociations.sagaSaveDocuments({ connectionId, recordRef: record, documents });
+  } catch (e) {
+    logger.error('[comments sagaSaveDocuments saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(getSectionList().type, sagaGetSectionList, ea);
   yield takeEvery(getDocuments().type, sagaGetDocuments, ea);
   yield takeEvery(getMenu().type, sagaGetMenu, ea);
+  yield takeEvery(saveDocuments().type, sagaSaveDocuments, ea);
 }
 
 export default saga;

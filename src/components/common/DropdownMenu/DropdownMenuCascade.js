@@ -28,7 +28,7 @@ export default class DropdownMenuCascade extends React.Component {
     return isEmpty(items)
       ? []
       : items.map((item, key) => {
-          return <DropdownMenuItem key={key} data={item} onClick={data => console.warn(data)} />;
+          return <DropdownMenuItem key={key} data={item} />;
         });
   };
 
@@ -54,7 +54,7 @@ export default class DropdownMenuCascade extends React.Component {
             className="ecos-dropdown__toggle ecos-dropdown-menu__cascade-toggle"
             onMouseEnter={() => this.toggle(key)}
           >
-            <DropdownMenuItem data={item} iconRight={iconRight} onClick={onClick} />
+            <DropdownMenuItem data={item} iconRight={iconRight} onClick={item.items ? () => null : onClick} />
           </DropdownToggle>
 
           <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_cascade">

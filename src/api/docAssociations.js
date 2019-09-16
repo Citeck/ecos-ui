@@ -75,4 +75,13 @@ export class DocAssociationsApi extends RecordService {
       }
     }).then(response => response.json().then(response => response.journals));
   };
+
+  sagaSaveDocuments = data => {
+    const { connectionId, recordRef, documents } = data;
+    const record = Records.get(recordRef);
+
+    record.att(connectionId, documents);
+
+    return record.save().then(response => response);
+  };
 }
