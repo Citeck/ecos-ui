@@ -216,7 +216,7 @@ class RecordsComponent {
     });
   }
 
-  query(query, attributes) {
+  query(query, attributes, foreach) {
     if (query.attributes && arguments.length === 1) {
       attributes = query.attributes;
       query = query.query;
@@ -243,17 +243,14 @@ class RecordsComponent {
       }
     }
 
-    return recordsFetch(QUERY_URL, {
-      query: query,
-      attributes: queryAttributes
-    }).then(response => {
+    const processRespRecords = respRecords => {
       let records = [];
-      for (let idx in response.records) {
-        if (!response.records.hasOwnProperty(idx)) {
+      for (let idx in respRecords) {
+        if (!respRecords.hasOwnProperty(idx)) {
           continue;
         }
 
-        let recordMeta = response.records[idx];
+        let recordMeta = respRecords[idx];
 
         if (recordMeta.id) {
           let record = self.get(recordMeta.id);
@@ -275,6 +272,30 @@ class RecordsComponent {
           );
         } else {
           records.push(recordMeta.id);
+        }
+      }
+
+      return records;
+    };
+
+    let queryBody = {
+      query: query,
+      attributes: queryAttributes
+    };
+
+    if (foreach) {
+      queryBody.foreach = foreach;
+    }
+
+    return recordsFetch(QUERY_URL, queryBody).then(response => {
+      let records;
+      if (!foreach) {
+        records = processRespRecords(response.records);
+      } else {
+        records = [];
+        let recordsArr = response.records || [];
+        for (let resRecs of recordsArr) {
+          records.push(processRespRecords(resRecs));
         }
       }
 
