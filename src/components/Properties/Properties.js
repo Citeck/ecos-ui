@@ -29,6 +29,7 @@ class Properties extends React.Component {
   className = 'ecos-properties';
 
   _ecosForm = React.createRef();
+  _hiddenEcosForm = React.createRef();
 
   state = {
     loaded: false,
@@ -59,8 +60,10 @@ class Properties extends React.Component {
   };
 
   onShowBuilder = () => {
-    if (this._ecosForm.current) {
-      this._ecosForm.current.onShowFormBuilder();
+    if (this._hiddenEcosForm.current) {
+      this._hiddenEcosForm.current.onShowFormBuilder(() => {
+        this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
+      });
     }
   };
 
@@ -100,6 +103,17 @@ class Properties extends React.Component {
           onFormSubmitDone={onUpdate}
           onReady={this.onReady}
           className={`${this.className}__formio`}
+        />
+        {/* Cause: https://citeck.atlassian.net/browse/ECOSCOM-2654 */}
+        <EcosForm
+          ref={this._hiddenEcosForm}
+          record={record}
+          options={{
+            formMode: FORM_MODE_EDIT
+          }}
+          onSubmit={this.onSubmitForm}
+          onFormSubmitDone={onUpdate}
+          className={`d-none`}
         />
       </>
     ) : (
