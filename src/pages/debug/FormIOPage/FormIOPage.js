@@ -9,7 +9,7 @@ import '../../../forms/components';
 import Formio from 'formiojs/Formio';
 import './temp.scss';
 
-// import SelectJournal from '../../components/common/form/SelectJournal';
+import SelectJournal from '../../../components/common/form/SelectJournal';
 
 class FormIOPage extends React.Component {
   componentDidMount() {
@@ -85,7 +85,15 @@ class FormIOPage extends React.Component {
         <Row>
           <Col md={12}>
             <div className={'white-container'}>
-              {/*<SelectJournal />*/}
+              <SelectJournal
+                journalId={'payments'}
+                renderView={props => {
+                  return <p onClick={props.openSelectModal}>Select payment</p>;
+                }}
+                onChange={value => {
+                  console.log('onChange', value);
+                }}
+              />
 
               <div id="formio" />
               <br />

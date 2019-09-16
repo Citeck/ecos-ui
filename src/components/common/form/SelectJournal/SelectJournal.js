@@ -517,7 +517,8 @@ export default class SelectJournal extends Component {
       searchField,
       inputViewClass,
       autoFocus,
-      onBlur
+      onBlur,
+      renderView
     } = this.props;
     const {
       isGridDataReady,
@@ -566,9 +567,11 @@ export default class SelectJournal extends Component {
       editModalTitle += `: ${editRecordName}`;
     }
 
+    const defaultView = viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />;
+
     return (
       <div className={wrapperClasses}>
-        {viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />}
+        {typeof renderView === 'function' ? renderView(inputViewProps) : defaultView}
 
         <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} api={this.api}>
           <EcosModal
@@ -673,5 +676,6 @@ SelectJournal.propTypes = {
   hideDeleteRowButton: PropTypes.bool,
   displayColumns: PropTypes.array,
   viewOnly: PropTypes.bool,
+  renderView: PropTypes.func,
   searchField: PropTypes.string
 };

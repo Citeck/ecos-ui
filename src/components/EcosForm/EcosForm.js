@@ -189,7 +189,7 @@ class EcosForm extends React.Component {
     }
   }
 
-  onShowFormBuilder = () => {
+  onShowFormBuilder = callback => {
     if (this._formBuilderModal.current) {
       const { formDefinition, formId } = this.state;
 
@@ -197,6 +197,7 @@ class EcosForm extends React.Component {
         EcosFormUtils.saveFormBuilder(form, formId).then(() => {
           this.initForm(form);
           this.props.onFormSubmitDone();
+          typeof callback === 'function' && callback(form);
         });
       });
     }
