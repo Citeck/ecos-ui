@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { setSelectedId, toggleExpanded } from '../../../actions/slideMenu';
-import { t } from '../../../helpers/util';
-import ListItemIcon from '../ListItemIcon';
-import lodashGet from 'lodash/get';
-import { MenuApi } from '../../../api/menu';
-import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../../../constants/pageTabs';
-import { getJournalPageUrl, isNewVersionPage, NEW_VERSION_PREFIX } from '../../../helpers/urls';
-import { URL } from '../../../constants';
-import { setSelected } from '../../../helpers/slideMenu';
+import classNames from 'classnames';
+import get from 'lodash/get';
+import { t } from '../../helpers/util';
+import { getJournalPageUrl, isNewVersionPage, NEW_VERSION_PREFIX } from '../../helpers/urls';
+import { setSelected } from '../../helpers/slideMenu';
+import { URL } from '../../constants';
+import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../../constants/pageTabs';
+import { setSelectedId, toggleExpanded } from '../../actions/slideMenu';
+import { MenuApi } from '../../api/menu';
+import ListItemIcon from './ListItemIcon';
 
 const PAGE_PREFIX = '/share/page';
 const menuApi = new MenuApi();
@@ -27,7 +28,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 });
 
 const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded, isNestedListExpanded, withNestedList }) => {
-  const journalId = lodashGet(item, 'params.journalId', '');
+  const journalId = get(item, 'params.journalId', '');
   const [journalTotalCount, setJournalTotalCount] = useState(0);
   const attributes = {};
   let ignoreTabHandler = true;
@@ -39,17 +40,6 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
       });
     }
   }, [journalId]);
-
-  let itemId = item.id;
-  let label = t(item.label);
-
-  let classes = ['slide-menu-list__link'];
-  if (selectedId === itemId) {
-    classes.push('slide-menu-list__link_selected');
-  }
-  if (withNestedList) {
-    classes.push('slide-menu-list__link-with-nested-list');
-  }
 
   let targetUrl = null;
   if (item.action) {
@@ -75,7 +65,6 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
           ignoreTabHandler = false;
           attributes.target = '_blank';
           attributes.rel = 'noopener noreferrer';
-          // attributes[REMOTE_TITLE_ATTR_NAME] = true; // TODO
         } else {
           targetUrl = PAGE_PREFIX;
           if (params.siteName) {
@@ -152,25 +141,13 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
         break;
     }
 
-    switch (item.action.params.pageId) {
-      case 'bpmn-designer':
-        let sectionPostfix = params.section ? params.section : '';
-
-        targetUrl = `${NEW_VERSION_PREFIX}/${params.pageId}${sectionPostfix}`;
-        ignoreTabHandler = false;
-        attributes.target = '_blank';
-        attributes.rel = 'noopener noreferrer';
-        break;
-      default:
-        break;
+    if (item.action.params.pageId === 'bpmn-designer') {
+      let sectionPostfix = params.section ? params.section : '';
+      targetUrl = `${NEW_VERSION_PREFIX}/${params.pageId}${sectionPostfix}`;
+      ignoreTabHandler = false;
+      attributes.target = '_blank';
+      attributes.rel = 'noopener noreferrer';
     }
-  }
-
-  let counter = null;
-  let smallCounter = null;
-  if (journalTotalCount > 0) {
-    counter = <span className="slide-menu-list__link-badge">{journalTotalCount}</span>;
-    smallCounter = <div className="slide-menu-list__link-badge-indicator" />;
   }
 
   if (ignoreTabHandler) {
@@ -180,19 +157,14 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
   return (
     <a
       href={targetUrl}
-      onClick={() => {
-        onSelectItem(itemId);
-        // console.log('item', item);
-      }}
-      className={classes.join(' ')}
+      onClick={() => onSelectItem(item.id)}
+      className={classNames('ecos-slide-menu-item__link', { 'ecos-slide-menu-item__link_selected': selectedId === item.id })}
       {...attributes}
     >
       <ListItemIcon iconName={item.icon} />
-      <span className={'slide-menu-list__link-label'}>
-        {label}
-        {counter}
-      </span>
-      {smallCounter}
+      <span className="ecos-slide-menu-item__label"> {t(item.label)} </span>
+      {journalTotalCount > 0 && <span className="ecos-slide-menu-item__badge">{journalTotalCount}</span>}
+      {/*<div className="ecos-slide-menu-item__point"/>*/}
     </a>
   );
 };

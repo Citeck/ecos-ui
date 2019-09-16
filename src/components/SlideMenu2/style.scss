@@ -1,8 +1,9 @@
 @import '../../constants';
 
-$menu-item: '.ecos-slide-menu-item';
-
 .ecos-slide-menu {
+  $menu-item: '.ecos-slide-menu-item';
+  $menu-next-list: '.ecos-slide-menu-list_nested';
+
   &-inner {
     display: flex;
     flex-direction: column;
@@ -20,10 +21,11 @@ $menu-item: '.ecos-slide-menu-item';
     }
   }
 
-  &__logo {
+  &-logo {
     $logo: &;
 
     transition: opacity 0.4s;
+    text-align: center;
 
     &_small {
       padding: 15px 26px 24px;
@@ -46,55 +48,69 @@ $menu-item: '.ecos-slide-menu-item';
     @extend %v-scroll;
   }
 
-  &-list_zero {
-    padding: 0 15px 0 26px;
+  &-item {
+    &_collapsed {
+    }
 
-    #{$menu-item} {
+    &__link {
+      display: flex;
+      align-items: center;
+      height: 40px;
+      position: relative;
+      padding: 0 15px 0 26px;
+
+      &:hover {
+        background: $color-gray-16;
+      }
+    }
+
+    &__icon {
+      width: 20px;
+      color: $text-color-gray;
+      font-size: $font-size-extra-large !important;
+    }
+
+    &__label {
       @extend %ellipsis;
+      font-weight: $font-weight-bold;
+    }
+
+    &__badge {
+      padding: 4px 5px;
+      background: $color-red-1;
+      font-size: $font-size-extra-small;
+      font-weight: $font-weight-bold;
+      color: $color-white;
+      border-radius: 100px;
+      @extend %ellipsis;
+    }
+
+    &__point {
+      background: $color-red-1;
+      width: 10px;
+      height: 10px;
+      border-radius: 5px;
+    }
+  }
+
+  &-list_root {
+    #{$menu-item} {
       color: $color-gray-5;
 
-      &-text {
-        padding: 6px 0 7px;
-        font-weight: $font-weight-bold;
+      &__label {
+        padding: 6px 15px 7px 26px;
         font-size: $font-size-large;
       }
     }
   }
 
-  &-list_first {
+  &-list_nested {
     #{$menu-item} {
-      display: flex;
-      align-items: center;
-      height: 40px;
-      position: relative;
-
-      &_collapsed {
-      }
-
-      &-icon {
-        width: 20px;
-        color: $text-color-gray;
-        font-size: $font-size-extra-large;
-      }
-
-      &-text {
+      &__label {
         flex: auto;
         color: $text-color-dark;
         font-size: $font-size-standard;
-        font-weight: $font-weight-bold;
         padding: 0 9px;
-        @extend %ellipsis;
-      }
-
-      &-badge {
-        display: inline-block;
-        padding: 4px 5px;
-        background: $color-red-1;
-        font-size: $font-size-extra-small;
-        font-weight: $font-weight-bold;
-        color: $color-white;
-        border-radius: 100px;
-        @extend %ellipsis;
       }
     }
   }

@@ -6,9 +6,7 @@ import { fetchLargeLogoSrc, fetchSlideMenuItems, fetchSmallLogoSrc, toggleIsOpen
 import ULS from '../../services/userLocalSettings';
 import { Separator } from '../common';
 import Logo from './Logo';
-import List from './ListZeroLvl';
-
-import './style.scss';
+import ListRoot from './ListRoot';
 
 const mapStateToProps = state => ({
   isOpen: state.slideMenu.isOpen,
@@ -85,7 +83,7 @@ class SlideMenu2 extends React.Component {
           </div>
         )}
 
-        <List items={items} />
+        <ListRoot items={items} />
       </div>
     );
   }

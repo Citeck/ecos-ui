@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { t } from '../../helpers/util';
-import ListFirstLvl from './ListFirstLvl';
+import List from './List';
 
-class ListZeroLvl extends React.Component {
+import './style.scss';
+
+class ListRoot extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     items: PropTypes.array
@@ -23,16 +24,12 @@ class ListZeroLvl extends React.Component {
 
     return (
       <Scrollbars ref={el => (this.scrollbar = el)} autoHide renderTrackVertical={verticalTrack}>
-        <ul className="ecos-slide-menu-list_zero">
+        <ul className="ecos-slide-menu-list_root">
           {items.map(item => {
             return (
-              <li
-                key={item.id}
-                id={item.id}
-                className={classNames('ecos-slide-menu-item', { 'ecos-slide-menu__top-list__item_collapsed': true })}
-              >
-                <div className="ecos-slide-menu-item-text">{t(item.label)}</div>
-                <ListFirstLvl items={item.items} />
+              <li key={item.id} id={item.id}>
+                <div className="ecos-slide-menu-item__label">{t(item.label)}</div>
+                <List items={item.items} />
               </li>
             );
           })}
@@ -42,4 +39,4 @@ class ListZeroLvl extends React.Component {
   }
 }
 
-export default ListZeroLvl;
+export default ListRoot;

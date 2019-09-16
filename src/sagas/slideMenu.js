@@ -1,16 +1,16 @@
-import { put, takeLatest, call, select } from 'redux-saga/effects';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 import {
-  fetchSmallLogoSrc,
   fetchLargeLogoSrc,
   fetchSlideMenuItems,
-  setSmallLogo,
+  fetchSmallLogoSrc,
+  setIsReady,
   setLargeLogo,
-  setSlideMenuItems,
-  setSlideMenuExpandableItems,
   setSelectedId,
-  setIsReady
+  setSlideMenuExpandableItems,
+  setSlideMenuItems,
+  setSmallLogo
 } from '../actions/slideMenu';
-import { selectedMenuItemIdKey, fetchExpandableItems } from '../helpers/slideMenu';
+import { fetchExpandableItems, getSelected } from '../helpers/slideMenu';
 
 function* fetchSmallLogo({ api, fakeApi, logger }) {
   try {
@@ -36,16 +36,10 @@ function* fetchSlideMenu({ api, fakeApi, logger }) {
   try {
     const apiData = yield call(api.menu.getSlideMenuItems);
     const menuItems = apiData.items;
-    // console.log('menuItems', menuItems);
-
-    let selectedId = null;
-    if (sessionStorage && sessionStorage.getItem) {
-      selectedId = sessionStorage.getItem(selectedMenuItemIdKey);
-      yield put(setSelectedId(selectedId));
-    }
-
+    const selectedId = getSelected();
     const expandableItems = fetchExpandableItems(menuItems, selectedId);
 
+    yield put(setSelectedId(selectedId));
     yield put(setSlideMenuItems(menuItems));
     yield put(setSlideMenuExpandableItems(expandableItems));
     yield put(setIsReady(true));

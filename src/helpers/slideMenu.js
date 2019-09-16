@@ -1,4 +1,6 @@
-export const selectedMenuItemIdKey = 'selectedMenuItemId';
+import { getSessionData, setSessionData } from './ls';
+
+export const SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
 
 export function fetchExpandableItems(items, selectedId) {
   let flatList = [];
@@ -41,4 +43,12 @@ export function hasChildWithId(items, selectedId) {
   }
 
   return false;
+}
+
+export function setSelected(value) {
+  setSessionData(SELECTED_MENU_ITEM_ID_KEY, value);
+}
+
+export function getSelected() {
+  getSessionData(SELECTED_MENU_ITEM_ID_KEY);
 }
