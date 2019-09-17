@@ -108,4 +108,4 @@ class DateSlider extends Component {
   }
 }
 
-export default DateSlider;
+export default React.memo(DateSlider);

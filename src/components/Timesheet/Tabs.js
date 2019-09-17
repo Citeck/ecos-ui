@@ -55,4 +55,4 @@ class Tabs extends Component {
   }
 }
 
-export default Tabs;
+export default React.memo(Tabs);

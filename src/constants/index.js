@@ -17,11 +17,13 @@ export const URL = {
   WIDGET_DOC_STATUS: '/v2/debug/doc-status',
   TIMESHEET: '/v2/timesheet',
   TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates',
+  TIMESHEET_FOR_VERIFICATION: '/v2/timesheet/for-verification',
   TIMESHEET_IFRAME: '/v2/pure-timesheet',
-  TIMESHEET_IFRAME_SUBORDINATES: '/v2/pure-timesheet/subordinates'
+  TIMESHEET_IFRAME_SUBORDINATES: '/v2/pure-timesheet/subordinates',
+  TIMESHEET_IFRAME_FOR_VERIFICATION: '/v2/pure-timesheet/for-verification'
 };
 
-export const pagesWithOnlyContent = [URL.TIMESHEET_IFRAME, URL.TIMESHEET_IFRAME_SUBORDINATES];
+export const pagesWithOnlyContent = [URL.TIMESHEET_IFRAME, URL.TIMESHEET_IFRAME_SUBORDINATES, URL.TIMESHEET_IFRAME_FOR_VERIFICATION];
 
 export const SourcesId = {
   DASHBOARD: 'uiserv/dashboard'

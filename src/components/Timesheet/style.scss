@@ -3,6 +3,12 @@
 .ecos-timesheet {
   $root: &;
 
+  %icon-style {
+    font-family: citeck;
+    font-size: 14px;
+    line-height: 1em;
+  }
+
   padding: 28px 26px;
 
   &__white-block {
@@ -37,7 +43,7 @@
 
   &__date-settings {
     @extend #{$root}__white-block;
-    width: 65%;
+    //width: 65%;
     margin-right: 13px;
 
     &-tabs {
@@ -49,13 +55,46 @@
 
   &__status {
     @extend #{$root}__white-block;
-    width: 35%;
+
+    &-title {
+      margin-right: 9px;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 1em;
+      color: $text-color-dark;
+    }
+
+    &-value {
+      white-space: nowrap;
+      font-style: normal;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 1em;
+      color: $color-blue-light;
+      padding: 5px 17px;
+      border: 2px solid $color-blue-light2;
+      border-radius: 100px;
+      margin-right: 17px;
+
+      &_warning {
+        color: $color-red-1;
+        border-color: $color-red-1;
+      }
+    }
+
+    &-tabs {
+      &-item {
+        padding: 3px 15px !important;
+      }
+    }
   }
 
   &__table {
     @extend #{$root}__white-block;
+
     padding: 12px 0;
     max-height: unset;
+    align-items: flex-start;
 
     &-left-column {
       width: 390px;
@@ -76,40 +115,54 @@
     }
 
     &-search {
-      padding: 25px 17px;
+      padding: 26px 17px;
       position: relative;
       border-bottom: 2px $color-gray-4 solid;
 
       &-input {
-        height: 26px;
-        padding: 5px 12px;
-        font-size: 12px;
+        position: relative;
 
-        &:focus {
-          border-color: $color-blue-dark;
+        &-clear {
+          cursor: pointer;
+          color: $color-gray-6;
+
+          &:before {
+            content: '\0062';
+            font-family: citeck;
+            font-size: 14px;
+            line-height: 1em;
+            position: absolute;
+            top: calc(50% - 1em / 2);
+            right: 9px;
+          }
+
+          &:hover {
+            color: $color-blue-light;
+          }
+        }
+
+        &-field {
+          height: 26px;
+          padding: 5px 12px;
+          font-size: 12px;
+
+          &:focus {
+            border-color: $color-blue-dark;
+          }
         }
       }
 
-      &-clear {
-        cursor: pointer;
-        color: $color-gray-6;
-
-        &:before {
-          content: '\0062';
-          font-family: citeck;
-          font-size: 14px;
-          line-height: 1em;
-          position: absolute;
-          top: calc(50% - 1em / 2);
-          right: 26px;
-        }
-
-        &:hover {
-          color: $color-blue-light;
+      &-tabs {
+        &-item {
+          width: 100%;
         }
       }
 
       &_groups {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 21px;
         height: 114px;
       }
     }
@@ -119,6 +172,8 @@
       flex-direction: column;
 
       &-item {
+        $item: &;
+
         display: flex;
         align-items: center;
         height: 30px;
@@ -132,7 +187,7 @@
 
         &-dnd {
           margin-right: 9px;
-          //cursor: grab;
+          cursor: grab;
           color: $color-gray-6;
 
           &:before {
@@ -162,22 +217,33 @@
         }
 
         &-add-btn {
+          $size: 14px;
+
           color: $color-gray-1;
           cursor: pointer;
+          width: $size;
+          height: $size;
+          position: absolute;
+          top: calc(50% - #{$size} / 2);
+          right: 12px;
 
           &:before {
             position: absolute;
-            top: calc(50% - 1em / 2);
-            right: 12px;
+            font-size: $size;
             line-height: 1em;
             content: '\0044';
             font-family: citeck;
-            font-size: 14px;
+            top: 0;
+            right: 0;
           }
 
           &:hover {
             color: $text-color-gray;
           }
+        }
+
+        &_sorting {
+          box-shadow: 0 4px 23px -5px rgba(0, 0, 0, 0.75);
         }
       }
     }
@@ -191,8 +257,6 @@
       min-height: 80px;
       margin-top: 10px;
       margin-bottom: 10px;
-
-      // todo by refactoring
       flex-wrap: wrap;
 
       &-item {
@@ -226,8 +290,6 @@
       &-column {
         display: flex;
         flex-direction: column;
-        //border-left: 1px $color-gray-4 solid;
-        //border-right: 1px $color-gray-4 solid;
 
         &:first-child {
           #{$calendar}-cell {
@@ -252,20 +314,21 @@
         display: flex;
         height: 30px;
         width: 72px;
-        //border: 1px $color-gray-4 solid;
         border: 2px $color-gray-4 solid;
         border-bottom: none;
         border-right: 1px $color-gray-4 solid;
         border-left: 1px $color-gray-4 solid;
-        //border-bottom: 2px $color-gray-4 solid;
+        color: $text-color-dark;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 23px;
 
         &:first-child {
           border-left: none;
-          //border-top: 2px $color-gray-4 solid;
         }
 
         &:last-child {
-          //border-top: none;
           border-right-width: 2px;
         }
 
@@ -284,14 +347,28 @@
         &_weekend {
           border-color: $color-pink-3 !important;
           background-color: $color-pink-2;
+          color: $color-red-1;
         }
 
         &_current {
           background-color: $color-gray-4;
+
+          &#{$cell}_weekend {
+            background-color: $color-pink-3;
+            border-color: $color-pink-3;
+          }
         }
 
         &_by-group {
           height: 114px;
+        }
+      }
+
+      &_not-available {
+        cursor: not-allowed;
+
+        #{$calendar}-cell {
+          pointer-events: none;
         }
       }
     }
@@ -308,6 +385,62 @@
           line-height: 23px;
           color: $text-color-dark;
           user-select: none;
+        }
+
+        &-dnd {
+          @extend #{$root}__table-events-item-dnd;
+        }
+
+        &-action {
+          display: flex;
+          position: absolute;
+          right: 16px;
+
+          &-tooltip {
+            max-width: 128px;
+          }
+
+          %action-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+          }
+
+          &-approve {
+            @extend %action-btn;
+
+            background-color: $color-green1;
+
+            &:before {
+              @extend %icon-style;
+
+              content: '\E82E';
+              color: $color-white;
+              position: absolute;
+              top: calc(50% - 1em / 2);
+              left: calc(50% - 1em / 2);
+            }
+          }
+
+          &-disapprove {
+            @extend %action-btn;
+
+            background-color: $color-red-1;
+            margin-right: 5px;
+
+            &:before {
+              @extend %icon-style;
+
+              content: '\0074';
+              transform: rotate(180deg);
+              color: $color-white;
+              position: absolute;
+              top: calc(50% - 1em / 2);
+              left: calc(50% - 1em / 2);
+            }
+          }
         }
       }
 
@@ -328,7 +461,7 @@
           content: '\0052';
           font-family: citeck;
           font-size: 14px;
-          transition: 0.5s;
+          transition: 0.25s;
         }
 
         &-wrapper {
@@ -344,6 +477,12 @@
       }
     }
   }
+
+  &__tooltip {
+    &-arrow {
+      top: calc(100% - 12px);
+    }
+  }
 }
 
 .ecos-tabs-v2 {
@@ -357,10 +496,12 @@
     font-size: 14px;
     line-height: 20px;
     color: $text-color-gray;
-    background: $color-white;
+    background: $color-gray-4;
     cursor: pointer;
     padding: 10px 27px;
     max-height: 40px;
+    text-align: center;
+    white-space: nowrap;
 
     &:not(&_active):not(&_disabled):hover {
       color: $color-white;
@@ -402,6 +543,18 @@
       }
     }
   }
+
+  &_bg-white {
+    #{$root}__item {
+      &:not(#{$root}__item_active):not(#{$root}__item_disabled) {
+        background: $color-white;
+
+        &:hover {
+          background: $color-blue-light;
+        }
+      }
+    }
+  }
 }
 
 .ecos-date-slider {
@@ -416,6 +569,7 @@
     color: $text-color-dark;
     margin: 0 10px;
     text-transform: capitalize;
+    white-space: nowrap;
   }
 
   &__btn {

@@ -34,7 +34,9 @@ const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
 const CommentsWidgetPage = lazy(() => import('../../pages/debug/CommentsWidget'));
 const CurrentTasksPage = lazy(() => import('../../pages/debug/CurrentTasks/CurrentTasksPage'));
 const DocStatusPage = lazy(() => import('../../pages/debug/DocStatus/DocStatusPage'));
-const TimesheetPage = lazy(() => import('../../pages/Timesheet/TimesheetPage'));
+const MyTimesheetPage = lazy(() => import('../../pages/Timesheet/MyTimesheetPage'));
+const SubordinatesTimesheetPage = lazy(() => import('../../pages/Timesheet/SubordinatesTimesheetPage'));
+const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/VerificationTimesheetPage'));
 
 class App extends Component {
   componentDidMount() {
@@ -168,8 +170,12 @@ class App extends Component {
               <Route path={URL.WIDGET_TASKS} exact component={TasksDashletPage} />
               <Route path={URL.CURRENT_TASKS} component={CurrentTasksPage} />
               <Route path={URL.WIDGET_DOC_STATUS} exact component={DocStatusPage} />
-              <Route path={URL.TIMESHEET} component={TimesheetPage} />
-              <Route path={URL.TIMESHEET_IFRAME} component={TimesheetPage} />
+              <Route path={URL.TIMESHEET} exact component={MyTimesheetPage} />
+              <Route path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
+              <Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
+              <Route path={URL.TIMESHEET_IFRAME} exact component={MyTimesheetPage} />
+              <Route path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
+              <Route path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />
               <Route path="/v2/debug/formio-develop" component={FormIOPage} />
               <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
               {/*<Route component={NotFoundPage} />*/}
