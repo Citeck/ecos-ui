@@ -15,15 +15,15 @@ export class DocAssociationsApi extends RecordService {
       {
         name: 'assoc:associatedWith',
         title: 'Связан с документами'
-      },
-      {
-        name: 'payments:basis',
-        title: 'Документ-основание'
-      },
-      {
-        name: 'contracts:closingDocumentAgreement',
-        title: 'Учётные документы'
       }
+      // {
+      //   name: 'payments:basis',
+      //   title: 'Документ-основание'
+      // },
+      // {
+      //   name: 'contracts:closingDocumentAgreement',
+      //   title: 'Учётные документы'
+      // }
     ];
   };
 

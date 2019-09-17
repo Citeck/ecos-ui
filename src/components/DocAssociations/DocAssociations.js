@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'reactstrap';
 import classNames from 'classnames';
 
@@ -8,7 +9,7 @@ import Dashlet from '../Dashlet/Dashlet';
 import { RemoveDialog } from '../common/dialogs';
 import SelectJournal from '../common/form/SelectJournal';
 import UserLocalSettingsService from '../../services/userLocalSettings';
-import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import { MIN_WIDTH_DASHLET_SMALL, URL } from '../../constants';
 import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../common';
 import { getSectionList, initStore, getDocuments, getMenu, saveDocuments } from '../../actions/docAssociations';
 import { selectStateByKey } from '../../selectors/docAssociations';
@@ -52,6 +53,7 @@ class DocAssociations extends Component {
 
     this.state = {
       fitHeights: {},
+      contentHeight: null,
       width: MIN_WIDTH_DASHLET_SMALL,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
@@ -88,6 +90,10 @@ class DocAssociations extends Component {
 
     return `${label}?`;
   }
+
+  setContentHeight = contentHeight => {
+    this.setState({ contentHeight });
+  };
 
   handleResize = width => {
     this.setState({ width });
@@ -183,7 +189,7 @@ class DocAssociations extends Component {
             <div className="ecos-doc-associations__table-row surfbug_highlight" key={item.record}>
               <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">
                 <a
-                  href={`/v2/dashboard?recordRef=${item.record}`}
+                  href={`${URL.DASHBOARD}?recordRef=${item.record}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="ecos-doc-associations__link"
@@ -301,9 +307,24 @@ class DocAssociations extends Component {
     return <Loader blur rounded />;
   }
 
+  renderConfirmRemoveDialog() {
+    const { isConfirmRemoveDialogOpen } = this.state;
+
+    return (
+      <RemoveDialog
+        isOpen={isConfirmRemoveDialogOpen}
+        onClose={this.closeConfirmRemovingModal}
+        onCancel={this.closeConfirmRemovingModal}
+        onDelete={this.handleClickConfirmedRemoving}
+        title={t(LABELS.TITLE_CONFIRM_REMOVE_MODAL)}
+        text={this.confirmRemoveModalText}
+      />
+    );
+  }
+
   render() {
     const { canDragging, dragHandleProps, isCollapsed } = this.props;
-    const { userHeight = 0, fitHeights, isConfirmRemoveDialogOpen } = this.state;
+    const { userHeight = 0, fitHeights, contentHeight } = this.state;
     const fixHeight = userHeight || null;
 
     return (
@@ -326,19 +347,15 @@ class DocAssociations extends Component {
         isCollapsed={isCollapsed}
         customButtons={[this.renderAddButton()]}
       >
-        <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
-          {this.renderDocuments()}
-          {this.renderSelectJournalModal()}
-          {this.renderLoader()}
-          <RemoveDialog
-            isOpen={isConfirmRemoveDialogOpen}
-            onClose={this.closeConfirmRemovingModal}
-            onCancel={this.closeConfirmRemovingModal}
-            onDelete={this.handleClickConfirmedRemoving}
-            title={t(LABELS.TITLE_CONFIRM_REMOVE_MODAL)}
-            text={this.confirmRemoveModalText}
-          />
-        </DefineHeight>
+        <Scrollbars autoHide style={{ height: contentHeight || '100%' }}>
+          <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
+            {this.renderDocuments()}
+          </DefineHeight>
+        </Scrollbars>
+
+        {this.renderLoader()}
+        {this.renderSelectJournalModal()}
+        {this.renderConfirmRemoveDialog()}
       </Dashlet>
     );
   }
