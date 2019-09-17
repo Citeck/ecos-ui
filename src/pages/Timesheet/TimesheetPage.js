@@ -238,8 +238,6 @@ class TimesheetPage extends Component {
   handleChangeActiveSheetTab = tabIndex => {
     const sheetTabs = deepClone(this.state.sheetTabs);
 
-    console.warn(sheetTabs);
-
     sheetTabs.forEach((tab, index) => {
       tab.isActive = index === tabIndex;
 
