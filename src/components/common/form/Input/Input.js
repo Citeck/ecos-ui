@@ -26,7 +26,7 @@ export default class Input extends Component {
   }
 
   render() {
-    const { getInputRef: _, className, ...props } = this.props;
+    const { getInputRef, className, autoSelect, ...props } = this.props;
 
     const cssClasses = classNames('ecos-input', className);
 

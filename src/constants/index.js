@@ -1,7 +1,7 @@
 export const URL = {
   HOME: '/',
   JOURNAL_OLD: '/share/page/ui/journals',
-  JOURNAL: '/v2/journals',
+  JOURNAL: '/share/page/ui/journals',
   DASHBOARD: '/v2/dashboard',
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
   BPMN_DESIGNER: '/v2/bpmn-designer',

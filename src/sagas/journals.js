@@ -1,4 +1,4 @@
-import { put, call, select, takeEvery } from 'redux-saga/effects';
+import { put, call, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import cloneDeep from 'lodash/cloneDeep';
 import {
   getDashletEditorData,
@@ -36,10 +36,14 @@ import {
   setPerformGroupActionResponse,
   createZip,
   setZipNodeRef,
-  renameJournalSetting
+  renameJournalSetting,
+  setSelectAllRecords,
+  setSelectAllRecordsVisible,
+  setGridInlineToolSettings,
+  cancelJournalSettingData
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { JOURNAL_SETTING_ID_FIELD, DEFAULT_PAGINATION } from '../components/Journals/constants';
+import { JOURNAL_SETTING_ID_FIELD, DEFAULT_PAGINATION, DEFAULT_INLINE_TOOL_SETTINGS } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { goToJournalsPage as goToJournalsPageUrl, getFilterUrlParam } from '../helpers/urls';
 import { t } from '../helpers/util';
@@ -212,6 +216,18 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
   }
 }
 
+function* sagaCancelJournalSettingData({ api, logger, stateId, w }, action) {
+  try {
+    const journalSettingId = action.payload;
+    let journalConfig = yield select(state => state.journals[stateId].journalConfig);
+
+    let journalSetting = yield getJournalSetting(api, journalSettingId, journalConfig, stateId, w);
+    yield put(initJournalSettingData(w(journalSetting)));
+  } catch (e) {
+    logger.error('[journals sagaCancelJournalSettingData saga error', e.message);
+  }
+}
+
 function* getGridData(api, params) {
   let { pagination, predicates, ...forRequest } = params;
 
@@ -228,6 +244,13 @@ function* loadGrid(api, journalSettingId, journalConfig, stateId, w) {
 
   const gridData = yield getGridData(api, params);
 
+  yield put(setSelectedRecords(w([])));
+  yield put(setSelectAllRecords(w(false)));
+  yield put(setSelectAllRecordsVisible(w(false)));
+  yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
+  yield put(setPerformGroupActionResponse(w([])));
+  yield put(setPreviewUrl(w('')));
+
   yield put(setGrid(w({ ...params, ...gridData })));
 }
 
@@ -239,7 +262,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
     const grid = yield select(state => state.journals[stateId].grid);
 
     grid.columns = columns;
-    grid.pagination = DEFAULT_PAGINATION;
+    //grid.pagination = DEFAULT_PAGINATION;
 
     let params = {
       ...grid,
@@ -344,11 +367,7 @@ function* sagaDeleteRecords({ api, logger, stateId, w }, action) {
 
 function* sagaSaveRecords({ api, logger, stateId, w }, action) {
   try {
-    //yield put(setLoading(w(true)));
     yield call(api.journals.saveRecords, action.payload);
-    //yield put(setLoading(w(false)));
-
-    //yield put(reloadGrid(w({})));
   } catch (e) {
     logger.error('[journals sagaSaveRecords saga error', e.message);
   }
@@ -440,11 +459,8 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     if (journalType) {
       let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(journalType)}`);
       nodeRef = journalConfig.meta.nodeRef;
+      id = journalConfig.id;
     }
-
-    let attributes = {};
-
-    columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
 
     if (groupBy.length) {
       for (let key in row) {
@@ -459,6 +475,10 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
         }
       }
     } else {
+      let attributes = {};
+
+      columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
+
       row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
     }
 
@@ -529,7 +549,7 @@ function* sagaCreateZip({ api, logger, stateId, w }, action) {
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(getDashletEditorData().type, wrapSaga, { ...ea, saga: sagaGetDashletEditorData });
-  yield takeEvery(getJournalsData().type, wrapSaga, { ...ea, saga: sagaGetJournalsData });
+  yield takeLatest(getJournalsData().type, wrapSaga, { ...ea, saga: sagaGetJournalsData });
   yield takeEvery(saveDashlet().type, wrapSaga, { ...ea, saga: sagaSaveDashlet });
   yield takeEvery(initJournal().type, wrapSaga, { ...ea, saga: sagaInitJournal });
 
@@ -547,6 +567,7 @@ function* saga(ea) {
   yield takeEvery(onJournalSettingsSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSettingsSelect });
   yield takeEvery(onJournalSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSelect });
   yield takeEvery(initJournalSettingData().type, wrapSaga, { ...ea, saga: sagaInitJournalSettingData });
+  yield takeEvery(cancelJournalSettingData().type, wrapSaga, { ...ea, saga: sagaCancelJournalSettingData });
 
   yield takeEvery(initPreview().type, wrapSaga, { ...ea, saga: sagaInitPreview });
   yield takeEvery(goToJournalsPage().type, wrapSaga, { ...ea, saga: sagaGoToJournalsPage });

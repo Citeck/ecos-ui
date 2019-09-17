@@ -7,7 +7,7 @@ import { Btn, IcoBtn } from '../../../common/btns';
 import Grid from '../../../common/grid/Grid/Grid';
 import Pagination from '../../../common/Pagination/Pagination';
 import Loader from '../../../common/Loader/Loader';
-import EcosForm from '../../../EcosForm';
+import EcosForm, { FORM_MODE_EDIT } from '../../../EcosForm';
 import EcosModal from '../../EcosModal';
 import InputView from './InputView';
 import ViewMode from './ViewMode';
@@ -44,6 +44,7 @@ export default class SelectJournal extends Component {
     gridData: {
       total: 0,
       data: [],
+      inMemoryData: [],
       columns: [],
       selected: []
     },
@@ -59,7 +60,7 @@ export default class SelectJournal extends Component {
   static getDerivedStateFromProps(props, state) {
     if (state.value === undefined) {
       return {
-        value: props.multiple ? [] : null
+        value: props.multiple ? [] : ''
       };
     }
 
@@ -146,7 +147,10 @@ export default class SelectJournal extends Component {
           } else {
             requestParams = {
               ...requestParams,
-              journalPredicate: [customPredicate, selectedRowsPredicate]
+              journalPredicate: {
+                t: 'and',
+                val: [customPredicate, selectedRowsPredicate]
+              }
             };
           }
         }
@@ -236,10 +240,9 @@ export default class SelectJournal extends Component {
             requestParams['sourceId'] = sourceId;
           }
 
-          return this.api.getGridDataUsePredicates(requestParams).then(gridData => {
-            // console.log('gridData', gridData);
+          return this.api.getGridDataUsePredicates(requestParams).then(fetchedGridData => {
+            const gridData = this.mergeFetchedDataWithInMemoryData(fetchedGridData);
 
-            // setTimeout(() => {
             this.setState(prevState => {
               return {
                 gridData: {
@@ -249,13 +252,40 @@ export default class SelectJournal extends Component {
                 isGridDataReady: true
               };
             });
-            // }, 3000);
 
             resolve(gridData);
           });
         }
       );
     });
+  };
+
+  mergeFetchedDataWithInMemoryData = fetchedGridData => {
+    const { requestParams, gridData } = this.state;
+    const { pagination } = requestParams;
+    const { inMemoryData } = gridData;
+
+    if (inMemoryData.length < 1) {
+      return fetchedGridData;
+    }
+
+    let newInMemoryData = [...inMemoryData];
+
+    for (let i = 0; i < inMemoryData.length; i++) {
+      const exists = fetchedGridData.data.find(item => item.id === inMemoryData[i].id);
+      // если запись успела проиндексироваться, удаляем её из inMemoryData, иначе добаляем в fetchedGridData.data временную запись
+      if (exists) {
+        newInMemoryData = newInMemoryData.filter(item => item.id !== inMemoryData[i].id);
+      } else if (fetchedGridData.data.length < pagination.maxItems) {
+        fetchedGridData.data.push(inMemoryData[i]);
+      }
+    }
+
+    return {
+      ...fetchedGridData,
+      inMemoryData: newInMemoryData,
+      total: fetchedGridData.total + newInMemoryData.length
+    };
   };
 
   toggleSelectModal = () => {
@@ -330,7 +360,7 @@ export default class SelectJournal extends Component {
       if (multiple) {
         newValue = selected.map(item => item.id);
       } else {
-        newValue = selected.length > 0 ? selected[0]['id'] : null;
+        newValue = selected.length > 0 ? selected[0]['id'] : '';
       }
 
       return new Promise(resolve => {
@@ -399,12 +429,26 @@ export default class SelectJournal extends Component {
     }
   };
 
-  onCreateFormSubmit = form => {
-    this.setState({
-      isCreateModalOpen: false
-    });
-
-    this.refreshGridData();
+  onCreateFormSubmit = (record, form, alias) => {
+    this.setState(state => {
+      return {
+        isCreateModalOpen: false,
+        gridData: {
+          ...state.gridData,
+          inMemoryData: [
+            ...state.gridData.inMemoryData,
+            {
+              id: record.id,
+              ...alias.getRawAttributes()
+            }
+          ]
+        },
+        requestParams: {
+          ...state.requestParams,
+          predicates: []
+        }
+      };
+    }, this.refreshGridData);
   };
 
   onEditFormSubmit = form => {
@@ -452,7 +496,8 @@ export default class SelectJournal extends Component {
       return {
         requestParams: {
           ...prevState.requestParams,
-          predicates: predicates
+          predicates: predicates,
+          pagination: paginationInitState
         },
         isJournalConfigFetched: true
       };
@@ -605,6 +650,9 @@ export default class SelectJournal extends Component {
           title={editModalTitle}
           isOpen={isEditModalOpen}
           hideModal={this.toggleEditModal}
+          options={{
+            formMode: FORM_MODE_EDIT
+          }}
         >
           <EcosForm record={editRecordId} onSubmit={this.onEditFormSubmit} onFormCancel={this.toggleEditModal} />
         </EcosModal>

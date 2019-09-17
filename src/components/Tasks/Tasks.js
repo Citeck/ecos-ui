@@ -4,14 +4,16 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { isEmpty } from 'lodash';
 import { changeTaskAssignee, getTaskList } from '../../actions/tasks';
-import { selectDataTasksByStateId } from '../../selectors/tasks';
+import { updateRequestDocStatus } from '../../actions/docStatus';
+import { updateRequestCurrentTasks } from '../../actions/currentTasks';
+import { selectStateTasksById } from '../../selectors/tasks';
 import { DefineHeight } from '../common';
 import TaskList from './TaskList';
 
 import './style.scss';
 
 const mapStateToProps = (state, context) => {
-  const tasksState = selectDataTasksByStateId(state, context.stateId) || {};
+  const tasksState = selectStateTasksById(state, context.stateId) || {};
 
   return {
     tasks: tasksState.list,
@@ -21,7 +23,9 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = dispatch => ({
   getTaskList: payload => dispatch(getTaskList(payload)),
-  changeTaskAssignee: payload => dispatch(changeTaskAssignee(payload))
+  changeTaskAssignee: payload => dispatch(changeTaskAssignee(payload)),
+  updateRequestDocStatus: payload => dispatch(updateRequestDocStatus(payload)),
+  updateRequestCurrentTasks: payload => dispatch(updateRequestCurrentTasks(payload))
 });
 
 class Tasks extends React.Component {
@@ -82,6 +86,11 @@ class Tasks extends React.Component {
   };
 
   onSubmitForm = () => {
+    const { updateRequestDocStatus, updateRequestCurrentTasks, record } = this.props;
+
+    updateRequestDocStatus({ record });
+    updateRequestCurrentTasks({ record });
+
     this.getTaskList();
   };
 

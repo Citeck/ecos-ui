@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import { Journals } from '../../components/Journals';
 import { JournalsUrlManager } from '../../components/Journals';
@@ -9,23 +9,56 @@ const mapDispatchToProps = dispatch => ({
   initState: stateId => dispatch(initState(stateId))
 });
 
+const mapStateToProps = state => {
+  return {
+    tabs: state.pageTabs.tabs,
+    pageTabsIsShow: state.pageTabs.isShow
+  };
+};
+
 class JournalsPage extends React.Component {
   constructor(props) {
     super(props);
-    this.stateId = getId();
-    this.props.initState(this.stateId);
+
+    const stateId = this.getStateId();
+
+    this.state = { stateId };
+    this.props.initState(stateId);
   }
 
+  getStateId = () => {
+    return this.getActiveTabId() || (this.state || {}).stateId || getId();
+  };
+
+  getActiveTabId = () => {
+    return (this.props.tabs.filter(t => t.isActive)[0] || {}).id;
+  };
+
+  componentDidUpdate = () => {
+    const stateId = this.getStateId();
+
+    if (stateId !== this.state.stateId) {
+      this.props.initState(stateId);
+      this.setState({ stateId });
+    }
+  };
+
   render() {
+    const stateId = this.state.stateId;
+
     return (
-      <JournalsUrlManager stateId={this.stateId}>
-        <Journals stateId={this.stateId} />
-      </JournalsUrlManager>
+      <Fragment>
+        {stateId === this.getStateId() ? (
+          <JournalsUrlManager stateId={stateId}>
+            <Journals stateId={stateId} />
+          </JournalsUrlManager>
+        ) : null}
+      </Fragment>
     );
   }
 }
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(JournalsPage);

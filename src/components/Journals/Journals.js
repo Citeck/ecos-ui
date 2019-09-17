@@ -15,6 +15,7 @@ import JournalsContent from './JournalsContent';
 import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
 import { getJournalsData, reloadGrid, search } from '../../actions/journals';
+import { setActiveTabTitle } from '../../actions/pageTabs';
 import { Well } from '../common/form';
 import { t } from '../../helpers/util';
 import { wrapArgs } from '../../helpers/redux';
@@ -26,7 +27,8 @@ const mapStateToProps = (state, props) => {
 
   return {
     pageTabsIsShow: state.pageTabs.isShow,
-    journalConfig: newState.journalConfig
+    journalConfig: newState.journalConfig,
+    journalSetting: newState.journalSetting
   };
 };
 
@@ -36,7 +38,8 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
-    search: text => dispatch(search(w(text)))
+    search: text => dispatch(search(w(text))),
+    setActiveTabTitle: text => dispatch(setActiveTabTitle(text))
   };
 };
 
@@ -50,14 +53,29 @@ class Journals extends Component {
       showPreview: this.props.urlParams.showPreview,
       showPie: false
     };
+
+    this.title = '';
   }
 
   componentDidMount() {
     this.getJournalsData();
   }
 
+  componentDidUpdate(prevProps) {
+    const journalId = this.props.urlParams.journalId;
+    const prevJournalId = prevProps.urlParams.journalId;
+
+    if (journalId !== prevJournalId) {
+      this.getJournalsData();
+    }
+  }
+
   refresh = () => {
-    this.getJournalsData();
+    const {
+      journalSetting: { columns, groupBy, sortBy, predicate },
+      reloadGrid
+    } = this.props;
+    reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
   };
 
   getJournalsData() {
@@ -108,7 +126,7 @@ class Journals extends Component {
 
   render() {
     const { menuOpen, settingsVisible, showPreview, showPie } = this.state;
-    const { stateId, journalConfig, pageTabsIsShow } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, setActiveTabTitle } = this.props;
 
     if (!journalConfig) {
       return null;
@@ -117,7 +135,7 @@ class Journals extends Component {
     const {
       id: journalId,
       columns = [],
-      meta: { title = '' },
+      meta: { title = '', metaRecord },
       sourceId
     } = journalConfig;
 
@@ -126,6 +144,12 @@ class Journals extends Component {
     }
 
     const visibleColumns = columns.filter(c => c.visible);
+
+    if (pageTabsIsShow && title && this.title !== title) {
+      const quotes = String.fromCharCode(8221);
+      setActiveTabTitle(`${t('page-tabs.journal')} ${quotes + title + quotes}`);
+      this.title = title;
+    }
 
     return (
       <div className={'ecos-journal'}>
@@ -153,8 +177,8 @@ class Journals extends Component {
             className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
           >
             <Well className={'ecos-journal__settings'}>
-              <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} />
-              <JournalsColumnsSetup stateId={stateId} columns={columns} />
+              <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} metaRecord={metaRecord} />
+              <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
               <JournalsGrouping stateId={stateId} columns={visibleColumns} />
               <JournalsSettingsFooter
                 stateId={stateId}
@@ -168,7 +192,7 @@ class Journals extends Component {
           <JournalsContent stateId={stateId} showPreview={showPreview} showPie={showPie} />
 
           <div className={'ecos-journal__footer'}>
-            <JournalsDashletPagination stateId={stateId} />
+            <JournalsDashletPagination stateId={stateId} hasPageSize />
           </div>
         </div>
 

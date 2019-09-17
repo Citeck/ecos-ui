@@ -5,7 +5,7 @@ export default class JournalsDashletFooter extends Component {
   render() {
     return (
       <div className={'ecos-journal-dashlet__footer'}>
-        <JournalsDashletPagination stateId={this.props.stateId} />
+        <JournalsDashletPagination stateId={this.props.stateId} hasPageSize />
       </div>
     );
   }
