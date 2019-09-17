@@ -31,11 +31,6 @@ const LABELS = {
   CONFIRM_REMOVE_MODAL_TEXT: 'Удалить из связей'
 };
 
-// TODO: recordRef workspace://SpacesStore/e432d1a0-dbfd-47c4-972a-c3eb53aa2cfa
-// TODO: recordRef workspace://SpacesStore/b29f6514-aa80-4919-945e-6b4b6066238f
-// TODO: recordRef workspace://SpacesStore/b8fd6e1b-b897-4865-96dc-668cf8131358
-// TODO: recordRef https://community.ecos24.ru/share/page/card-details?nodeRef=workspace://SpacesStore/d17a1bf7-d77d-4b47-9477-b3d9a7da63ec
-
 class DocAssociations extends Component {
   static propTypes = {
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
