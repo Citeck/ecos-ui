@@ -3,6 +3,15 @@ import moment from 'moment';
 import { DataFormatTypes, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import * as queryString from 'query-string';
 
+const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
+
+export const utcAsLocal = jsonDate =>
+  moment(jsonDate)
+    .zone(0)
+    .format(UTC_AS_LOCAL_FORMAT);
+
+export const revokeUtcAsLocal = jsonDate => moment(jsonDate).format(UTC_AS_LOCAL_FORMAT) + 'Z';
+
 export const debounce = (func, ms = 0) => {
   let timer = null;
   let resolves = [];
@@ -164,6 +173,12 @@ export function t(messageId, multipleValues, scope = 'global') {
   return translatedMessage;
 }
 
+export function cellMsg(prefix) {
+  return function(elCell, oRecord, oColumn, sData) {
+    elCell.innerHTML = t(prefix + sData);
+  };
+}
+
 const BYTES_KB = 1024;
 const BYTES_MB = 1048576;
 const BYTES_GB = 1073741824;
@@ -278,17 +293,15 @@ export function getScrollbarWidth() {
   scrollDiv.className = 'scrollbar-measure';
   document.body.appendChild(scrollDiv);
 
-  // Get the scrollbar width
   const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
 
-  // Delete the DIV
   document.body.removeChild(scrollDiv);
 
   return scrollbarWidth;
 }
 
-export function deepClone(data) {
-  return JSON.parse(JSON.stringify(data));
+export function deepClone(data, defaultValue = '') {
+  return JSON.parse(JSON.stringify(data || defaultValue));
 }
 
 export function isPDFbyStr(str) {
@@ -427,10 +440,10 @@ export function num2str(n = 0, textForms = []) {
 
 export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
   if (!byField) {
-    return JSON.parse(JSON.stringify(arr1)) === JSON.parse(JSON.stringify(arr2));
+    return JSON.stringify(arr1) === JSON.stringify(arr2);
   }
 
-  return JSON.parse(JSON.stringify(arr1.map(item => item[byField]))) === JSON.parse(JSON.stringify(arr2.map(item => item[byField])));
+  return JSON.stringify(arr1.map(item => item[byField])) === JSON.stringify(arr2.map(item => item[byField]));
 }
 
 export function getSearchParams(searchString = window.location.search) {
@@ -445,6 +458,8 @@ export function getOutputFormat(format, value) {
   switch (format) {
     case DataFormatTypes.DATE:
       return moment(value).format('DD.MM.YYYY');
+    case DataFormatTypes.DATETIME:
+      return moment(value).format('DD.MM.YYYY, hh:mm');
     default:
       return value;
   }
@@ -463,4 +478,44 @@ export function getIconFileByMimetype(mimetype) {
     default:
       return 'icon-filetype-none';
   }
+}
+
+/**
+ * Функция для сортировки элементов массива
+ *
+ * @param array
+ * @param indexFrom
+ * @param indexTo
+ * @returns {array}
+ */
+export function arrayMove(array, indexFrom, indexTo) {
+  const newArray = deepClone(array);
+
+  newArray.splice(indexTo < 0 ? newArray.length + indexTo : indexTo, 0, newArray.splice(indexFrom, 1)[0]);
+
+  return newArray;
+}
+
+export function documentScrollTop() {
+  const elementScrollTop = lodashGet(document.scrollingElement || document.documentElement, ['scrollTop'], 0);
+  const bodyScrollTop = lodashGet(document.querySelector('body'), ['scrollTop'], 0);
+
+  if (!elementScrollTop && !bodyScrollTop) {
+    return 0;
+  }
+
+  return elementScrollTop || bodyScrollTop;
+}
+
+export function getAdaptiveNumberStr(number) {
+  let num = parseInt(number);
+  if (num >= 1000) {
+    let res = parseInt((num / 1000).toString());
+    const end = num % 1000;
+    res = (end * 2).toString().length > end.toString().length ? res + 1 : res;
+
+    num = res.toString() + 'k';
+  }
+
+  return num.toString();
 }
