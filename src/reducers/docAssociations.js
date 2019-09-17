@@ -8,11 +8,10 @@ export const initialState = {
   documents: [],
   // список доступных связей (первый уровень меню)
   allowedConnections: [],
-
   // меню-выпадашка (состоит из 3х уровней)
   menu: [],
-
-  isLoading: false
+  isLoading: false,
+  documentsTotalCount: 0
 };
 
 Object.freeze(initialState);
@@ -45,6 +44,7 @@ export default handleActions(
       [action.payload.key]: {
         ...state[action.payload.key],
         documents: action.payload.documents,
+        documentsTotalCount: action.payload.documentsTotalCount,
         isLoading: false
       }
     }),

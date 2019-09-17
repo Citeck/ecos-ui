@@ -77,3 +77,7 @@ export function getMenuForWeb(firstLvl, secondLvl) {
 export function getDocumentsRecords(documents = [], key) {
   return get(documents.find(doc => doc.key === key), ['documents'], []).map(document => document.record);
 }
+
+export function getDocumentsTotalCount(data = {}) {
+  return Object.keys(data).reduce((result, key) => result + data[key].length, 0);
+}

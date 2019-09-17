@@ -13,7 +13,7 @@ import { MIN_WIDTH_DASHLET_SMALL, URL } from '../../constants';
 import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../common';
 import { getSectionList, initStore, getDocuments, getMenu, saveDocuments } from '../../actions/docAssociations';
 import { selectStateByKey } from '../../selectors/docAssociations';
-import { removeItemFromArray, t } from '../../helpers/util';
+import { getAdaptiveNumberStr, removeItemFromArray, t } from '../../helpers/util';
 import { getDocumentsRecords } from '../../dto/docAssociations';
 
 import './style.scss';
@@ -35,7 +35,17 @@ class DocAssociations extends Component {
   static propTypes = {
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     canDragging: PropTypes.bool,
-    dragHandleProps: PropTypes.object
+    dragHandleProps: PropTypes.object,
+    sectionList: PropTypes.array,
+    documents: PropTypes.array,
+    isLoading: PropTypes.bool,
+    menu: PropTypes.array,
+    documentsTotalCount: PropTypes.number,
+    initStore: PropTypes.func,
+    getSectionList: PropTypes.func,
+    getDocuments: PropTypes.func,
+    getMenu: PropTypes.func,
+    saveDocuments: PropTypes.func
   };
 
   static defaultProps = {
@@ -318,7 +328,7 @@ class DocAssociations extends Component {
   }
 
   render() {
-    const { canDragging, dragHandleProps, isCollapsed } = this.props;
+    const { canDragging, dragHandleProps, isCollapsed, documentsTotalCount, isLoading } = this.props;
     const { userHeight = 0, fitHeights, contentHeight } = this.state;
     const fixHeight = userHeight || null;
 
@@ -341,6 +351,8 @@ class DocAssociations extends Component {
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
         customButtons={[this.renderAddButton()]}
+        badgeText={getAdaptiveNumberStr(documentsTotalCount)}
+        noBody={!documentsTotalCount && !isLoading}
       >
         <Scrollbars autoHide style={{ height: contentHeight || '100%' }}>
           <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>

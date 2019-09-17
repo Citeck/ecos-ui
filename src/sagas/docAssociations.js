@@ -9,7 +9,7 @@ import {
   setMenu,
   saveDocuments
 } from '../actions/docAssociations';
-import { getDocumentsForWeb, getJournalForWeb, getMenuForWeb } from '../dto/docAssociations';
+import { getDocumentsForWeb, getDocumentsTotalCount, getJournalForWeb, getMenuForWeb } from '../dto/docAssociations';
 
 function* sagaGetSectionList({ api, logger }, action) {
   try {
@@ -34,7 +34,13 @@ function* sagaGetDocuments({ api, logger }, action) {
 
     const response = yield api.docAssociations.getDocuments(action.payload, allowedConnections.map(item => item.name));
 
-    yield put(setDocuments({ key: action.payload, documents: getDocumentsForWeb(response, allowedConnections) }));
+    yield put(
+      setDocuments({
+        key: action.payload,
+        documents: getDocumentsForWeb(response, allowedConnections),
+        documentsTotalCount: getDocumentsTotalCount(response)
+      })
+    );
   } catch (e) {
     logger.error('[comments sagaGetDocuments saga error', e.message);
   }

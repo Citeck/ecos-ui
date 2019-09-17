@@ -8,7 +8,8 @@ export const selectStateByKey = (state, key) => {
     sectionList: get(ownState, ['sectionList'], []),
     documents: get(ownState, ['documents'], []),
     isLoading: get(ownState, ['isLoading'], false),
-    menu: get(ownState, ['menu'], [])
+    menu: get(ownState, ['menu'], []),
+    documentsTotalCount: get(ownState, ['documentsTotalCount'], 0)
   };
 };
 
