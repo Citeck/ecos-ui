@@ -3,12 +3,13 @@ import moment from 'moment';
 import 'moment-business-days';
 import { withRouter } from 'react-router-dom';
 import { Route, Switch } from 'react-router';
+import get from 'lodash/get';
 
 import Timesheet, { Tabs, DateSlider } from '../../components/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { deepClone, t } from '../../helpers/util';
-import { URL } from '../../constants';
 
+import { URL, pagesWithOnlyContent } from '../../constants';
 import './style.scss';
 
 class TimesheetPage extends Component {
@@ -189,14 +190,14 @@ class TimesheetPage extends Component {
       sheetTabs: [
         {
           name: 'Мой табель',
-          link: URL.TIMESHEET,
-          isActive: location.pathname === URL.TIMESHEET,
+          link: this.isOnlyContent ? URL.TIMESHEET_IFRAME : URL.TIMESHEET,
+          isActive: [URL.TIMESHEET, URL.TIMESHEET_IFRAME].includes(location.pathname),
           isAvailable: true
         },
         {
           name: 'Табели подчиненных',
-          link: URL.TIMESHEET_SUBORDINATES,
-          isActive: location.pathname === URL.TIMESHEET_SUBORDINATES,
+          link: this.isOnlyContent ? URL.TIMESHEET_IFRAME_SUBORDINATES : URL.TIMESHEET_SUBORDINATES,
+          isActive: [URL.TIMESHEET_SUBORDINATES, URL.TIMESHEET_IFRAME_SUBORDINATES].includes(location.pathname),
           isAvailable: true
         }
       ],
@@ -217,6 +218,12 @@ class TimesheetPage extends Component {
     };
   }
 
+  get isOnlyContent() {
+    const url = get(this.props, ['history', 'location', 'pathname'], '/');
+
+    return pagesWithOnlyContent.includes(url);
+  }
+
   getDaysOfMonth = currentDate =>
     Array.from({ length: moment(currentDate).daysInMonth() }, (x, i) =>
       moment(currentDate)
@@ -230,6 +237,8 @@ class TimesheetPage extends Component {
 
   handleChangeActiveSheetTab = tabIndex => {
     const sheetTabs = deepClone(this.state.sheetTabs);
+
+    console.warn(sheetTabs);
 
     sheetTabs.forEach((tab, index) => {
       tab.isActive = index === tabIndex;
@@ -295,7 +304,9 @@ class TimesheetPage extends Component {
 
         <Switch>
           <Route path={URL.TIMESHEET} exact component={this.renderMyTimesheet} />
+          <Route path={URL.TIMESHEET_IFRAME} exact component={this.renderMyTimesheet} />
           <Route path={URL.TIMESHEET_SUBORDINATES} exact component={this.renderSubordinateTimesheet} />
+          <Route path={URL.TIMESHEET_IFRAME_SUBORDINATES} exact component={this.renderSubordinateTimesheet} />
         </Switch>
       </div>
     );

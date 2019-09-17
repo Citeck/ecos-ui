@@ -15,7 +15,7 @@ import PageTabs from '../PageTabs';
 
 import { changeActiveTab, getActiveTabTitle, getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
-import { MENU_TYPE, URL } from '../../constants';
+import { MENU_TYPE, URL, pagesWithOnlyContent } from '../../constants';
 
 import './App.scss';
 
@@ -45,8 +45,18 @@ class App extends Component {
     initMenuSettings();
   }
 
+  get isOnlyContent() {
+    const url = get(this.props, ['history', 'location', 'pathname'], '/');
+
+    return pagesWithOnlyContent.includes(url);
+  }
+
   renderMenu() {
     const { menuType } = this.props;
+
+    if (this.isOnlyContent) {
+      return null;
+    }
 
     switch (menuType) {
       case MENU_TYPE.LEFT:
@@ -56,20 +66,61 @@ class App extends Component {
     }
   }
 
+  renderHeader() {
+    if (this.isOnlyContent) {
+      return null;
+    }
+
+    return (
+      <div id="alf-hd">
+        <Header />
+        <Notification />
+      </div>
+    );
+  }
+
+  renderTabs() {
+    const { changeActiveTab, isShow, tabs, setTabs, getActiveTabTitle, isLoadingTitle } = this.props;
+
+    return (
+      <PageTabs
+        homepageLink={URL.DASHBOARD}
+        isShow={isShow && !this.isOnlyContent}
+        tabs={tabs}
+        saveTabs={setTabs}
+        changeActiveTab={changeActiveTab}
+        getActiveTabTitle={getActiveTabTitle}
+        isLoadingTitle={isLoadingTitle}
+      />
+    );
+  }
+
+  renderStickyPush() {
+    if (this.isOnlyContent) {
+      return null;
+    }
+
+    return <div className="sticky-push" />;
+  }
+
+  renderFooter() {
+    if (this.isOnlyContent) {
+      return null;
+    }
+
+    return <Footer key="card-details-footer" theme={this.props.theme} />;
+  }
+
+  renderReduxModal() {
+    if (this.isOnlyContent) {
+      return null;
+    }
+
+    return <ReduxModal />;
+  }
+
   render() {
-    const {
-      changeActiveTab,
-      isInit,
-      isInitFailure,
-      isAuthenticated,
-      isMobile,
-      theme,
-      isShow,
-      tabs,
-      setTabs,
-      getActiveTabTitle,
-      isLoadingTitle
-    } = this.props;
+    const { isInit, isInitFailure, isAuthenticated, isMobile } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -89,24 +140,12 @@ class App extends Component {
 
     return (
       <div className={appClassNames}>
-        <ReduxModal />
+        {this.renderReduxModal()}
 
         <div className="ecos-sticky-wrapper" id="sticky-wrapper">
-          <div id="alf-hd">
-            <Header />
-            <Notification />
-          </div>
+          {this.renderHeader()}
 
-          <PageTabs
-            homepageLink={URL.DASHBOARD}
-            isShow={isShow}
-            tabs={tabs}
-            saveTabs={setTabs}
-            changeActiveTab={changeActiveTab}
-            getActiveTabTitle={getActiveTabTitle}
-            isLoadingTitle={isLoadingTitle}
-          />
-
+          {this.renderTabs()}
           {this.renderMenu()}
 
           <Suspense fallback={null}>
@@ -130,15 +169,16 @@ class App extends Component {
               <Route path={URL.CURRENT_TASKS} component={CurrentTasksPage} />
               <Route path={URL.WIDGET_DOC_STATUS} exact component={DocStatusPage} />
               <Route path={URL.TIMESHEET} component={TimesheetPage} />
+              <Route path={URL.TIMESHEET_IFRAME} component={TimesheetPage} />
               <Route path="/v2/debug/formio-develop" component={FormIOPage} />
               <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
               {/*<Route component={NotFoundPage} />*/}
             </Switch>
           </Suspense>
 
-          <div className="sticky-push" />
+          {this.renderStickyPush()}
         </div>
-        <Footer key="card-details-footer" theme={theme} />
+        {this.renderFooter()}
       </div>
     );
   }

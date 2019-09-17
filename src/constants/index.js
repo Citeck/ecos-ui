@@ -16,8 +16,12 @@ export const URL = {
   CURRENT_TASKS: '/v2/debug/current-tasks',
   WIDGET_DOC_STATUS: '/v2/debug/doc-status',
   TIMESHEET: '/v2/timesheet',
-  TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates'
+  TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates',
+  TIMESHEET_IFRAME: '/v2/pure-timesheet',
+  TIMESHEET_IFRAME_SUBORDINATES: '/v2/pure-timesheet/subordinates'
 };
+
+export const pagesWithOnlyContent = [URL.TIMESHEET_IFRAME, URL.TIMESHEET_IFRAME_SUBORDINATES];
 
 export const SourcesId = {
   DASHBOARD: 'uiserv/dashboard'
