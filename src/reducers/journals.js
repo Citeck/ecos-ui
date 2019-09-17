@@ -59,8 +59,7 @@ const defaultState = {
   config: null,
   initConfig: null,
   journalConfig: {
-    meta: {},
-    createVariants: []
+    meta: { createVariants: [] }
   },
 
   predicate: null,
@@ -104,9 +103,15 @@ Object.freeze(initialState);
 export default handleActions(
   {
     [initState]: (state, action) => {
+      const id = action.payload;
+
+      if (state[id]) {
+        return { ...state };
+      }
+
       return {
         ...state,
-        [action.payload]: deepClone(defaultState)
+        [id]: deepClone(defaultState)
       };
     },
     [setUrl]: (state, action) => {

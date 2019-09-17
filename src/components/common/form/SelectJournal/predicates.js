@@ -92,8 +92,8 @@ export const SEARCH_EQUAL_PREDICATES_MAP = {
   [COLUMN_DATA_TYPE_LONG]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_FLOAT]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_DOUBLE]: PREDICATE_EQ,
-  [COLUMN_DATA_TYPE_DATE]: PREDICATE_EQ,
-  [COLUMN_DATA_TYPE_DATETIME]: PREDICATE_EQ,
+  // [COLUMN_DATA_TYPE_DATE]: PREDICATE_EQ,
+  // [COLUMN_DATA_TYPE_DATETIME]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_BOOLEAN]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_QNAME]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_NODEREF]: PREDICATE_EQ,
@@ -206,7 +206,7 @@ export function getPredicates(field) {
 
 const recordServiceAPI = new RecordService();
 
-export function getPredicateInput(field, sourceId) {
+export function getPredicateInput(field, sourceId, metaRecord) {
   const defaultValue = {
     label: t('react-select.default-value.label'),
     value: null
@@ -272,7 +272,7 @@ export function getPredicateInput(field, sourceId) {
               attributes: {
                 opt: `#${field.attribute}?options`
               },
-              record: `${sourceId || ''}@`
+              record: metaRecord || `${sourceId || ''}@`
             })
             .then(record => record.attributes.opt || [])
             .then(opt =>

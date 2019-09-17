@@ -53,7 +53,7 @@ class JournalsDashletToolbar extends Component {
       journals,
       journalConfig,
       journalConfig: {
-        meta: { nodeRef = '' }
+        meta: { nodeRef = '', createVariants }
       },
       journalSettings,
       measurer,
@@ -62,11 +62,13 @@ class JournalsDashletToolbar extends Component {
 
     return (
       <div className={'ecos-journal-dashlet__toolbar'}>
-        <IcoBtn
-          icon={'icon-big-plus'}
-          className={'ecos-btn_i ecos-btn_i-big-plus ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10'}
-          onClick={this.addRecord}
-        />
+        {createVariants[0] ? (
+          <IcoBtn
+            icon={'icon-big-plus'}
+            className={'ecos-btn_i ecos-btn_i-big-plus ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10'}
+            onClick={this.addRecord}
+          />
+        ) : null}
 
         <Dropdown
           hasEmpty
@@ -104,7 +106,7 @@ class JournalsDashletToolbar extends Component {
               icon={'icon-list'}
               className={'ecos-btn_i ecos-btn_blue2 ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_10'}
             />
-            <IcoBtn icon={'icon-pie'} className={'ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue'} />
+            {/*<IcoBtn icon={'icon-pie'} className={'ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue'} />*/}
           </div>
         )}
       </div>
