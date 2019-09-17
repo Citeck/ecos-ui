@@ -36,12 +36,15 @@ export class DocAssociationsApi extends RecordService {
    */
   getDocuments = (recordRef, connections) => {
     return Records.get(recordRef)
-      .load({
-        ...[...connections].reduce(
-          (result, key) => ({ ...result, [key]: `.atts(n:"${key}"){id: assoc, displayName: disp, created: att(n:"cm:created"){str}}` }),
-          {}
-        )
-      })
+      .load(
+        {
+          ...[...connections].reduce(
+            (result, key) => ({ ...result, [key]: `.atts(n:"${key}"){id: assoc, displayName: disp, created: att(n:"cm:created"){str}}` }),
+            {}
+          )
+        },
+        true
+      )
       .then(response => response);
   };
 

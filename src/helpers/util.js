@@ -519,3 +519,11 @@ export function getAdaptiveNumberStr(number) {
 
   return num.toString();
 }
+
+export function removeItemFromArray(array = [], item = '', byKey = '') {
+  if (byKey) {
+    return array.filter(elem => elem[byKey] !== item[byKey]);
+  }
+
+  return array.filter(elem => elem !== item);
+}

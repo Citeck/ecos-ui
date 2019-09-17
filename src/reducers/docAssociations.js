@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { setMenu, setSectionList, initStore, setDocuments, setAllowedConnections } from '../actions/docAssociations';
+import { setMenu, setSectionList, initStore, setDocuments, setAllowedConnections, getDocuments } from '../actions/docAssociations';
 
 export const initialState = {
   // список разделов
@@ -44,7 +44,15 @@ export default handleActions(
       ...state,
       [action.payload.key]: {
         ...state[action.payload.key],
-        documents: action.payload.documents
+        documents: action.payload.documents,
+        isLoading: false
+      }
+    }),
+    [getDocuments]: (state, action) => ({
+      ...state,
+      [action.payload]: {
+        ...state[action.payload],
+        isLoading: true
       }
     }),
 

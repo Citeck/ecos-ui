@@ -12,12 +12,12 @@ export function getDocumentsForWeb(source, allowedConnections) {
 
   return keys.map(key => ({
     key,
-    documents: get(source, [key], []).map(getDocumentForWeb),
+    documents: get(source, [key], []).map(item => getDocumentForWeb(item, key)),
     title: get(allowedConnections.find(item => item.name === key), ['title'], '')
   }));
 }
 
-export function getDocumentForWeb(source) {
+export function getDocumentForWeb(source, connectionId) {
   if (isEmpty(source)) {
     return {};
   }
@@ -27,6 +27,7 @@ export function getDocumentForWeb(source) {
   target.name = source.displayName;
   target.date = moment(source.created || moment()).format('DD.MM.YYYY h:mm');
   target.record = source.id;
+  target.connectionId = connectionId;
 
   return target;
 }
@@ -71,4 +72,8 @@ export function getMenuForWeb(firstLvl, secondLvl) {
 
     return target;
   });
+}
+
+export function getDocumentsRecords(documents = [], key) {
+  return get(documents.find(doc => doc.key === key), ['documents'], []).map(document => document.record);
 }

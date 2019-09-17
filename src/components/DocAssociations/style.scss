@@ -33,6 +33,10 @@
       color: $color-gray-5;
       line-height: inherit;
       font-size: 16px;
+
+      &:hover {
+        color: $color-blue-light;
+      }
     }
 
     &-delete {

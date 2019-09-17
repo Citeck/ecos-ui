@@ -1,4 +1,4 @@
-import { put, select, takeEvery, all } from 'redux-saga/effects';
+import { put, takeEvery, all } from 'redux-saga/effects';
 import {
   getSectionList,
   setSectionList,
@@ -10,7 +10,6 @@ import {
   saveDocuments
 } from '../actions/docAssociations';
 import { getDocumentsForWeb, getJournalForWeb, getMenuForWeb } from '../dto/docAssociations';
-import { selectDocuments } from '../selectors/docAssociations';
 
 function* sagaGetSectionList({ api, logger }, action) {
   try {
@@ -65,7 +64,9 @@ function* sagaGetMenu({ api, logger }, action) {
 function* sagaSaveDocuments({ api, logger }, action) {
   try {
     const { connectionId, record, documents } = action.payload;
-    const result = yield api.docAssociations.sagaSaveDocuments({ connectionId, recordRef: record, documents });
+
+    yield api.docAssociations.sagaSaveDocuments({ connectionId, recordRef: record, documents });
+    yield put(getDocuments(record));
   } catch (e) {
     logger.error('[comments sagaSaveDocuments saga error', e.message);
   }

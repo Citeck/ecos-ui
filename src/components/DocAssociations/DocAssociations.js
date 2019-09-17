@@ -5,13 +5,15 @@ import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'rea
 import classNames from 'classnames';
 
 import Dashlet from '../Dashlet/Dashlet';
+import { RemoveDialog } from '../common/dialogs';
 import SelectJournal from '../common/form/SelectJournal';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
-import { DefineHeight, DropdownMenu as Menu, Icon } from '../common';
-import { t } from '../../helpers/util';
+import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../common';
 import { getSectionList, initStore, getDocuments, getMenu, saveDocuments } from '../../actions/docAssociations';
-import { selectDocuments, selectStateByKey } from '../../selectors/docAssociations';
+import { selectStateByKey } from '../../selectors/docAssociations';
+import { removeItemFromArray, t } from '../../helpers/util';
+import { getDocumentsRecords } from '../../dto/docAssociations';
 
 import './style.scss';
 
@@ -23,7 +25,9 @@ const LABELS = {
   HEADLINE_BASE_DOCUMENT: 'Документ-основание',
   HEADLINE_ACCOUNTING_DOCS: 'Учётные документы',
   MESSAGE_NOT_ADDED: 'Не добавлен',
-  TOOLTIP_ADD_LINK: 'Добавить связь'
+  TOOLTIP_ADD_LINK: 'Добавить связь',
+  TITLE_CONFIRM_REMOVE_MODAL: 'Удаление связи документа',
+  CONFIRM_REMOVE_MODAL_TEXT: 'Удалить из связей'
 };
 
 // TODO: recordRef workspace://SpacesStore/e432d1a0-dbfd-47c4-972a-c3eb53aa2cfa
@@ -52,8 +56,10 @@ class DocAssociations extends Component {
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       isMenuOpen: false,
+      isConfirmRemoveDialogOpen: false,
       journalId: '',
-      connectionId: ''
+      connectionId: '',
+      selectedDocument: null
     };
 
     props.initStore();
@@ -70,6 +76,17 @@ class DocAssociations extends Component {
     const { width } = this.state;
 
     return isMobile || width <= MIN_WIDTH_DASHLET_SMALL;
+  }
+
+  get confirmRemoveModalText() {
+    const { selectedDocument } = this.state;
+    let label = t(LABELS.CONFIRM_REMOVE_MODAL_TEXT);
+
+    if (selectedDocument) {
+      label += ` "${selectedDocument.name}"`;
+    }
+
+    return `${label}?`;
   }
 
   handleResize = width => {
@@ -97,6 +114,12 @@ class DocAssociations extends Component {
   };
 
   handleSelectMenuItem = item => {
+    const { isLoading } = this.props;
+
+    if (isLoading) {
+      return;
+    }
+
     this.setState({
       journalId: item.id,
       connectionId: item.connectionId,
@@ -105,13 +128,34 @@ class DocAssociations extends Component {
   };
 
   handleSelectJournal = selectedJournals => {
-    const { record } = this.props;
+    const { documents } = this.props;
     const { connectionId } = this.state;
 
-    const documents = selectDocuments(record, connectionId);
-    this.props.saveDocuments(this.state.connectionId, [...documents, ...selectedJournals]);
+    this.props.saveDocuments(this.state.connectionId, [...getDocumentsRecords(documents, connectionId), ...selectedJournals]);
 
     this.setState({ journalId: '' });
+  };
+
+  handleClickDeleteDocument = selectedDocument => {
+    this.setState({ isConfirmRemoveDialogOpen: true, selectedDocument });
+  };
+
+  closeConfirmRemovingModal = () => {
+    this.setState({ isConfirmRemoveDialogOpen: false, selectedDocument: null });
+  };
+
+  handleClickConfirmedRemoving = () => {
+    const { selectedDocument } = this.state;
+
+    if (!selectedDocument) {
+      return;
+    }
+
+    const { documents, saveDocuments } = this.props;
+    const { connectionId, record } = selectedDocument;
+
+    saveDocuments(connectionId, [...removeItemFromArray(getDocumentsRecords(documents, connectionId), record)]);
+    this.closeConfirmRemovingModal();
   };
 
   renderTable(data = []) {
@@ -152,7 +196,7 @@ class DocAssociations extends Component {
               {!isMobile && (
                 <span className="ecos-doc-associations__table-actions">
                   <Icon
-                    onClick={() => console.warn(data)}
+                    onClick={() => this.handleClickDeleteDocument(item)}
                     className="icon-delete ecos-doc-associations__icon-delete ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
                   />
                 </span>
@@ -247,9 +291,19 @@ class DocAssociations extends Component {
     );
   }
 
+  renderLoader() {
+    const { isLoading } = this.props;
+
+    if (!isLoading) {
+      return null;
+    }
+
+    return <Loader blur rounded />;
+  }
+
   render() {
     const { canDragging, dragHandleProps, isCollapsed } = this.props;
-    const { userHeight = 0, fitHeights } = this.state;
+    const { userHeight = 0, fitHeights, isConfirmRemoveDialogOpen } = this.state;
     const fixHeight = userHeight || null;
 
     return (
@@ -275,6 +329,15 @@ class DocAssociations extends Component {
         <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
           {this.renderDocuments()}
           {this.renderSelectJournalModal()}
+          {this.renderLoader()}
+          <RemoveDialog
+            isOpen={isConfirmRemoveDialogOpen}
+            onClose={this.closeConfirmRemovingModal}
+            onCancel={this.closeConfirmRemovingModal}
+            onDelete={this.handleClickConfirmedRemoving}
+            title={t(LABELS.TITLE_CONFIRM_REMOVE_MODAL)}
+            text={this.confirmRemoveModalText}
+          />
         </DefineHeight>
       </Dashlet>
     );
