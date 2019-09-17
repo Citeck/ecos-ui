@@ -7,7 +7,7 @@ import get from 'lodash/get';
 
 import Header from '../Header';
 import Notification from '../Notification';
-import Menu from '../SlideMenu2';
+import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
