@@ -25,6 +25,10 @@
         border-bottom: none;
         border-radius: $border-radius-extra-large;
       }
+
+      &_collapsed {
+        border: none;
+      }
     }
 
     &-measurer {
