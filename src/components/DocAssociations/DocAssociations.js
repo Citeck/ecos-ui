@@ -259,7 +259,7 @@ class DocAssociations extends Component {
     }
 
     return (
-      <Dropdown isOpen={isMenuOpen} toggle={this.handleToggleMenu}>
+      <Dropdown isOpen={isMenuOpen} toggle={this.handleToggleMenu} key="add-button">
         <DropdownToggle tag="div">
           <Icon id={`tooltip-plus-${id}`} className="icon-plus ecos-doc-associations__icon-plus" />
           <UncontrolledTooltip
@@ -281,7 +281,6 @@ class DocAssociations extends Component {
   };
 
   renderSelectJournalModal() {
-    const {} = this.props;
     const { journalId } = this.state;
 
     if (!journalId) {

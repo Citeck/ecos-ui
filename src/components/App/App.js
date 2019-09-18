@@ -35,7 +35,6 @@ const CurrentTasksPage = lazy(() => import('../../pages/debug/CurrentTasks/Curre
 const DocStatusPage = lazy(() => import('../../pages/debug/DocStatus/DocStatusPage'));
 const EventsHistoryPage = lazy(() => import('../../pages/debug/EventsHistoryPage'));
 const VersionsJournalWidgetPage = lazy(() => import('../../pages/debug/VersionsJournalWidgetPage'));
-const RecordActionsPage = lazy(() => import('../../pages/debug/RecordActionsPage'));
 const DocAssociations = lazy(() => import('../../pages/debug/DocAssociations'));
 
 class App extends Component {
