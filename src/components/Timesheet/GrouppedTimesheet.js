@@ -429,6 +429,8 @@ class GrouppedTimesheet extends BaseTimesheet {
         <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper}>
           {this.renderCalendar()}
         </div>
+
+        {this.renderLock()}
       </div>
     );
   }

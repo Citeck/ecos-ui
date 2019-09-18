@@ -2,26 +2,30 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
-import { UncontrolledTooltip } from 'reactstrap';
+
+import { Icon } from '../common';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { Input } from '../common/form';
 import Hour from './Hour';
 import Tooltip from './Tooltip';
 import { CalendarRow, CalendarCell, Header } from './Calendar';
 import { t, deepClone } from '../../helpers/util';
+
 import './style.scss';
 
 class BaseTimesheet extends Component {
   static propTypes = {
     eventTypes: PropTypes.array,
     daysOfMonth: PropTypes.array,
-    isAvailable: PropTypes.bool
+    isAvailable: PropTypes.bool,
+    lockedMessage: PropTypes.string
   };
 
   static defaultProps = {
     isAvailable: true,
     eventTypes: [],
-    daysOfMonth: []
+    daysOfMonth: [],
+    lockedMessage: ''
   };
 
   constructor(props) {
@@ -178,8 +182,6 @@ class BaseTimesheet extends Component {
     </CalendarCell>
   );
 
-  renderTooltip = (title, id) => <UncontrolledTooltip target={id}>{title}</UncontrolledTooltip>;
-
   renderCalendarHeader() {
     const { daysOfMonth } = this.props;
 
@@ -230,6 +232,25 @@ class BaseTimesheet extends Component {
     );
   }
 
+  renderLock() {
+    const { isAvailable, lockedMessage } = this.props;
+
+    if (isAvailable) {
+      return null;
+    }
+
+    return (
+      <div className="ecos-timesheet__table-lock">
+        <div id="timesheet-locked-tooltip">
+          <Icon className="icon-lock ecos-timesheet__table-lock-icon" />
+          <span>{t('Редактирование заблокировано')}</span>
+        </div>
+
+        <Tooltip innerClassName="ecos-timesheet__table-lock-tooltip" target="timesheet-locked-tooltip" content={lockedMessage} />
+      </div>
+    );
+  }
+
   render() {
     return (
       <div className="ecos-timesheet__table">
@@ -240,6 +261,8 @@ class BaseTimesheet extends Component {
         <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper}>
           {this.renderCalendar()}
         </div>
+
+        {this.renderLock()}
       </div>
     );
   }

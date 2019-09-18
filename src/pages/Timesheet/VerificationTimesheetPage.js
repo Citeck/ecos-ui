@@ -226,7 +226,15 @@ class SubordinatesTimesheetPage extends Component {
   renderSubordinateTimesheet = () => {
     const { subordinatesEvents, daysOfMonth } = this.state;
 
-    return <Timesheet groupBy={'user'} eventTypes={subordinatesEvents} daysOfMonth={daysOfMonth} onChange={this.handleChangeTimesheet} />;
+    return (
+      <Timesheet
+        groupBy={'user'}
+        eventTypes={subordinatesEvents}
+        daysOfMonth={daysOfMonth}
+        isAvailable
+        onChange={this.handleChangeTimesheet}
+      />
+    );
   };
 
   render() {

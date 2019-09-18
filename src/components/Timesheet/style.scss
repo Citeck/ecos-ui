@@ -11,6 +11,44 @@
 
   padding: 28px 26px;
 
+  &__column {
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  &__delegation {
+    max-width: 410px;
+
+    &-switch {
+      display: flex;
+      align-items: center;
+
+      &-checkbox {
+        margin-right: 15px;
+      }
+
+      &-label {
+        font-style: normal;
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 20px;
+        color: $text-color-gray;
+
+        &_error {
+          color: $color-red-1;
+        }
+
+        &_link {
+          color: $color-blue-dark;
+        }
+      }
+    }
+  }
+
   &__white-block {
     display: flex;
     justify-content: space-between;
@@ -31,7 +69,6 @@
   }
 
   &__type {
-    margin-bottom: 24px;
     display: flex;
   }
 
@@ -95,6 +132,7 @@
     padding: 12px 0;
     max-height: unset;
     align-items: flex-start;
+    position: relative;
 
     &-left-column {
       width: 390px;
@@ -636,6 +674,28 @@
       &-tooltip {
         padding: 6px 10px;
         max-width: unset;
+      }
+    }
+
+    &-lock {
+      display: flex;
+      align-items: center;
+      height: 40px;
+      padding: 15px;
+      border-radius: 0 12px;
+      position: absolute;
+      right: 0;
+      top: 0;
+      background: $text-color-dark;
+      color: $color-white;
+
+      &-tooltip {
+        max-width: 335px;
+      }
+
+      &-icon {
+        font-size: 16px;
+        margin-right: 8px;
       }
     }
   }

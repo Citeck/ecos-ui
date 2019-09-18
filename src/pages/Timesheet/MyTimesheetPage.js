@@ -5,6 +5,7 @@ import get from 'lodash/get';
 
 import Timesheet, { Tabs, DateSlider } from '../../components/Timesheet';
 import { Btn } from '../../components/common/btns';
+import { Switch } from '../../components/common/form/Checkbox';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { deepClone, t } from '../../helpers/util';
 import { pagesWithOnlyContent, URL } from '../../constants';
@@ -182,7 +183,8 @@ class MyTimesheetPage extends Component {
       ],
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date()),
-      currentStatus: STATUSES.NEED_IMPROVED
+      currentStatus: STATUSES.NEED_IMPROVED,
+      isDelegated: false
     };
   }
 
@@ -203,6 +205,20 @@ class MyTimesheetPage extends Component {
       isBusinessDay: moment(day).isBusinessDay(),
       isCurrentDay: moment().isSame(moment(day), 'd')
     }));
+
+  get lockDescription() {
+    const { isDelegated, currentStatus } = this.state;
+
+    if (currentStatus === STATUSES.AVAITING_APPROVAL) {
+      return t('Чтобы редактировать табель, нажмите на кнопку "Доработать"');
+    }
+
+    if (isDelegated) {
+      return t('Чтобы редактировать табель, отключите делегирование на другого сотрудника');
+    }
+
+    return '';
+  }
 
   // getDaysOfMonth = currentDate => {
   //   if (this.cacheDays.has(currentDate)) {
@@ -257,10 +273,21 @@ class MyTimesheetPage extends Component {
     this.setState({ currentStatus: status });
   };
 
-  renderMyTimesheet = () => {
-    const { eventTypes, daysOfMonth, currentStatus } = this.state;
+  handleToggleDelegated = isDelegated => {
+    this.setState({ isDelegated });
+  };
 
-    return <Timesheet eventTypes={eventTypes} daysOfMonth={daysOfMonth} isAvailable={currentStatus !== STATUSES.AVAITING_APPROVAL} />;
+  renderMyTimesheet = () => {
+    const { eventTypes, daysOfMonth, currentStatus, isDelegated } = this.state;
+
+    return (
+      <Timesheet
+        eventTypes={eventTypes}
+        daysOfMonth={daysOfMonth}
+        isAvailable={currentStatus !== STATUSES.AVAITING_APPROVAL && !isDelegated}
+        lockedMessage={this.lockDescription}
+      />
+    );
   };
 
   renderStatus() {
@@ -317,14 +344,30 @@ class MyTimesheetPage extends Component {
   }
 
   render() {
-    const { sheetTabs, dateTabs, currentDate } = this.state;
+    const { sheetTabs, isDelegated, currentDate } = this.state;
 
     return (
       <div className="ecos-timesheet">
-        <div className="ecos-timesheet__title">{t('Табели учёта времени')}</div>
+        <div className="ecos-timesheet__row">
+          <div className="ecos-timesheet__column">
+            <div className="ecos-timesheet__title">{t('Табели учёта времени')}</div>
 
-        <div className="ecos-timesheet__type">
-          <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab} />
+            <div className="ecos-timesheet__type">
+              <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab} />
+            </div>
+          </div>
+
+          <div className="ecos-timesheet__column ecos-timesheet__delegation">
+            <div className="ecos-timesheet__title">{t('Делегирование')}</div>
+
+            <div className="ecos-timesheet__delegation-switch">
+              <Switch checked={isDelegated} className="ecos-timesheet__delegation-switch-checkbox" onToggle={this.handleToggleDelegated} />
+
+              <span className="ecos-timesheet__delegation-switch-label">
+                {t('Табели подчиненных может заполнить другой сотрудник, если включить делегирование.')}
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="ecos-timesheet__header">

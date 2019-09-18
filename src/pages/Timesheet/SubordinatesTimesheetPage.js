@@ -10,6 +10,7 @@ import { deepClone, t } from '../../helpers/util';
 import { pagesWithOnlyContent, URL } from '../../constants';
 
 import './style.scss';
+import { Switch } from '../../components/common/form/Checkbox';
 
 class SubordinatesTimesheetPage extends Component {
   constructor(props) {
@@ -191,7 +192,8 @@ class SubordinatesTimesheetPage extends Component {
         }
       ],
       currentDate: new Date(),
-      daysOfMonth: this.getDaysOfMonth(new Date())
+      daysOfMonth: this.getDaysOfMonth(new Date()),
+      isDelegated: false
     };
   }
 
@@ -212,6 +214,16 @@ class SubordinatesTimesheetPage extends Component {
       isBusinessDay: moment(day).isBusinessDay(),
       isCurrentDay: moment().isSame(moment(day), 'd')
     }));
+
+  get lockDescription() {
+    const { isDelegated } = this.state;
+
+    if (isDelegated) {
+      return t('Чтобы редактировать табель, отключите делегирование на другого сотрудника');
+    }
+
+    return '';
+  }
 
   handleChangeActiveSheetTab = tabIndex => {
     const sheetTabs = deepClone(this.state.sheetTabs);
@@ -255,21 +267,50 @@ class SubordinatesTimesheetPage extends Component {
     this.setState({ subordinatesEvents });
   };
 
-  renderSubordinateTimesheet = () => {
-    const { subordinatesEvents, daysOfMonth } = this.state;
+  handleToggleDelegated = isDelegated => {
+    this.setState({ isDelegated });
+  };
 
-    return <Timesheet groupBy={'user'} eventTypes={subordinatesEvents} daysOfMonth={daysOfMonth} onChange={this.handleChangeTimesheet} />;
+  renderSubordinateTimesheet = () => {
+    const { subordinatesEvents, daysOfMonth, isDelegated } = this.state;
+
+    return (
+      <Timesheet
+        groupBy={'user'}
+        eventTypes={subordinatesEvents}
+        daysOfMonth={daysOfMonth}
+        isAvailable={!isDelegated}
+        onChange={this.handleChangeTimesheet}
+        lockedMessage={this.lockDescription}
+      />
+    );
   };
 
   render() {
-    const { sheetTabs, dateTabs, currentDate, statusTabs } = this.state;
+    const { sheetTabs, isDelegated, currentDate, statusTabs } = this.state;
 
     return (
       <div className="ecos-timesheet">
-        <div className="ecos-timesheet__title">{t('Табели учёта времени')}</div>
+        <div className="ecos-timesheet__row">
+          <div className="ecos-timesheet__column">
+            <div className="ecos-timesheet__title">{t('Табели учёта времени')}</div>
 
-        <div className="ecos-timesheet__type">
-          <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab} />
+            <div className="ecos-timesheet__type">
+              <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab} />
+            </div>
+          </div>
+
+          <div className="ecos-timesheet__column ecos-timesheet__delegation">
+            <div className="ecos-timesheet__title">{t('Делегирование')}</div>
+
+            <div className="ecos-timesheet__delegation-switch">
+              <Switch checked={isDelegated} className="ecos-timesheet__delegation-switch-checkbox" onToggle={this.handleToggleDelegated} />
+
+              <span className="ecos-timesheet__delegation-switch-label">
+                {t('Табели подчиненных может заполнить другой сотрудник, если включить делегирование.')}
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="ecos-timesheet__header">
