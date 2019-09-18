@@ -16,6 +16,7 @@ import docStatus from './docStatus';
 import eventsHistory from './eventsHistory';
 import versionsJournal from './versionsJournal';
 import recordActions from './recordActions';
+import docAssociations from './docAssociations';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -35,6 +36,7 @@ export default function* rootSaga(extraArguments) {
     docStatus(extraArguments),
     eventsHistory(extraArguments),
     versionsJournal(extraArguments),
-    recordActions(extraArguments)
+    recordActions(extraArguments),
+    docAssociations(extraArguments)
   ]);
 }

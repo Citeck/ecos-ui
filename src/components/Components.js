@@ -17,7 +17,8 @@ export const ComponentKeys = {
   CURRENT_TASKS: 'current-tasks',
   DOC_STATUS: 'doc-status',
   EVENTS_HISTORY: 'events-history',
-  VERSIONS_JOURNAL: 'versions-journal'
+  VERSIONS_JOURNAL: 'versions-journal',
+  DOC_ASSOCIATIONS: 'doc-associations'
 };
 
 /**
@@ -76,6 +77,11 @@ export default class Components {
     [ComponentKeys.VERSIONS_JOURNAL]: {
       path: './VersionsJournal',
       label: 'dashboard-settings.widget.versions-journal',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+    },
+    [ComponentKeys.DOC_ASSOCIATIONS]: {
+      path: './DocAssociations',
+      label: 'dashboard-settings.widget.doc-associations',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     }
   });
