@@ -362,6 +362,10 @@
         &_by-group {
           height: 114px;
         }
+
+        &_group-item {
+          height: 80px;
+        }
       }
 
       &_not-available {
@@ -373,6 +377,7 @@
       }
     }
 
+    // todo: можно будет удалить позже, заменено на v2
     &-group {
       &-header {
         height: 40px;
@@ -476,11 +481,168 @@
         }
       }
     }
+
+    &-group-v2 {
+      $group: &;
+
+      &:hover {
+        #{$group}-btn {
+          &_revision {
+            background: $color-red-1;
+
+            &:hover {
+              background: $color-red-10;
+            }
+          }
+
+          &_approve {
+            background: $color-green1;
+
+            &:hover {
+              background: $color-green-10;
+            }
+          }
+        }
+      }
+
+      &-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        height: 80px;
+        width: 100%;
+        padding: 6px 17px;
+        position: relative;
+        background-color: $color-gray-10;
+        border-bottom: 2px $color-gray-4 solid;
+
+        &-dnd {
+          @extend #{$root}__table-events-item-dnd;
+        }
+
+        &-title {
+          @extend %ellipsis;
+
+          font-style: normal;
+          font-weight: bold;
+          font-size: 14px;
+          line-height: 23px;
+          color: $text-color-dark;
+          user-select: none;
+          margin-right: 8px;
+        }
+
+        &-history {
+          font-size: 20px;
+          color: $color-gray-5;
+          cursor: pointer;
+
+          &:hover {
+            color: $text-color-gray;
+          }
+        }
+
+        &-message {
+          color: $color-gray-5;
+          font-size: 20px;
+          cursor: pointer;
+
+          &:hover {
+            color: $color-red-1;
+          }
+        }
+
+        &-badge {
+          color: $text-color-gray;
+          background: $color-white;
+          font-style: normal;
+          font-weight: 600;
+          font-size: 12px;
+          line-height: 16px;
+          padding: 4px 7px;
+          border-radius: $border-radius-standard;
+          margin-left: 8px;
+        }
+      }
+
+      &-line {
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+
+      &-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 179px;
+        height: 26px;
+        max-width: 50%;
+        border-radius: $border-radius-large;
+        background: $color-gray-6;
+        color: $color-white;
+
+        &-label {
+          text-align: center;
+          font-style: normal;
+          font-weight: bold;
+          font-size: 14px;
+          line-height: 23px;
+          cursor: pointer;
+        }
+
+        &-icon {
+          @extend %icon-style;
+          margin-right: 5px;
+        }
+
+        &:not(:last-of-type) {
+          margin-right: 10px;
+        }
+      }
+
+      &-collapse {
+        color: $color-gray-5;
+        cursor: pointer;
+        font-size: 14px;
+        width: 10px;
+        height: 100%;
+        position: relative;
+        margin-right: 8px;
+
+        &:before {
+          position: absolute;
+          top: calc(50% - 1em / 2);
+          left: calc(50% - 1em / 2);
+          line-height: 1em;
+          content: '\0052';
+          font-family: citeck;
+          font-size: 14px;
+          transition: 0.25s;
+        }
+
+        &-wrapper {
+          display: flex;
+          flex-wrap: wrap;
+        }
+
+        &_open {
+          &:before {
+            transform: rotate(90deg);
+          }
+        }
+      }
+
+      &-tooltip {
+        padding: 6px 10px;
+        max-width: unset;
+      }
+    }
   }
 
   &__tooltip {
     &-arrow {
-      top: calc(100% - 12px);
+      top: calc(100% - 6px);
     }
   }
 }
@@ -491,6 +653,7 @@
   display: flex;
 
   &__item {
+    display: flex;
     font-style: normal;
     font-weight: bold;
     font-size: 14px;
@@ -532,6 +695,23 @@
       background: $color-gray-1;
       color: $color-gray-5;
       cursor: not-allowed;
+    }
+
+    &-label {
+      width: 100%;
+    }
+
+    &-badge {
+      margin-left: 10px;
+      background: $text-color-gray;
+      color: $color-white;
+      font-style: normal;
+      font-weight: 600;
+      font-size: 12px;
+      height: 20px;
+      padding: 4px 7px;
+      line-height: 1em;
+      border-radius: 100px;
     }
   }
 

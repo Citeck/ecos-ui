@@ -119,27 +119,32 @@ class MyTimesheetPage extends Component {
         {
           user: 'Пантелеева Мадина (212392064)',
           organization: 'ООО ДжиИ Рус',
-          eventTypes: deepClone(eventTypes)
+          eventTypes: deepClone(eventTypes),
+          timesheetNumber: '212392064'
         },
         {
           user: 'Медведева Диана (212572436)',
           organization: 'ООО ДжиИ Рус',
-          eventTypes: deepClone(eventTypes)
+          eventTypes: deepClone(eventTypes),
+          timesheetNumber: '212572436'
         },
         {
           user: 'Миронова Татьяна (212604506)',
           organization: 'ООО ДжиИ Рус',
-          eventTypes: deepClone(eventTypes)
+          eventTypes: deepClone(eventTypes),
+          timesheetNumber: '212604506'
         },
         {
           user: 'Кулахметов Шамиль (212594037)',
           organization: 'ООО ДжиИ Хэлскеа',
-          eventTypes: deepClone(eventTypes)
+          eventTypes: deepClone(eventTypes),
+          timesheetNumber: '212594037'
         },
         {
           user: 'Печкуров Григорий (212555619)',
           organization: 'ООО АЛЬСТОМ',
-          eventTypes: deepClone(eventTypes)
+          eventTypes: deepClone(eventTypes),
+          timesheetNumber: '212555619'
         }
       ],
       sheetTabs: [
@@ -154,6 +159,13 @@ class MyTimesheetPage extends Component {
           link: this.isOnlyContent ? URL.TIMESHEET_IFRAME_SUBORDINATES : URL.TIMESHEET_SUBORDINATES,
           isActive: [URL.TIMESHEET_SUBORDINATES, URL.TIMESHEET_IFRAME_SUBORDINATES].includes(location.pathname),
           isAvailable: true
+        },
+        {
+          name: 'Делегированные',
+          link: URL.TIMESHEET_IFRAME,
+          isActive: false,
+          isAvailable: true,
+          badge: '99'
         }
       ],
       dateTabs: [

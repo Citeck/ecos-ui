@@ -6,6 +6,7 @@ import classNames from 'classnames';
 
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { Input } from '../common/form';
+import { Icon } from '../common';
 import Hour from './Hour';
 import BaseTimesheet from './BaseTimesheet';
 import Tabs from './Tabs';
@@ -245,44 +246,70 @@ class GrouppedTimesheet extends BaseTimesheet {
         <div>
           {filteredEventTypes.map((item, index) => (
             <SortableElement key={`${item.user}`} index={index}>
-              <div className="ecos-timesheet__table-group">
-                <div className="ecos-timesheet__table-events-item ecos-timesheet__table-group-header">
-                  <SortableHandle>
-                    <div className="ecos-timesheet__table-group-header-dnd" />
-                  </SortableHandle>
+              <div className="ecos-timesheet__table-group-v2">
+                <div className="ecos-timesheet__table-group-v2-header">
+                  <div className="ecos-timesheet__table-group-v2-line">
+                    <SortableHandle>
+                      <div className="ecos-timesheet__table-group-v2-header-dnd" />
+                    </SortableHandle>
 
-                  <div
-                    className={classNames('ecos-timesheet__table-group-collapse', {
-                      'ecos-timesheet__table-group-collapse_open': this.getGroupStatus(item.user)
-                    })}
-                    data-key={item.user}
-                    onClick={this.handleToggleGroupCollapse}
-                  />
-                  <div className="ecos-timesheet__table-group-header-title">{item.user}</div>
-                  <div className="ecos-timesheet__table-group-header-action">
                     <div
-                      id={`timesheet-${index}-disapprove`}
-                      className="ecos-timesheet__table-group-header-action-disapprove"
+                      className={classNames('ecos-timesheet__table-group-v2-collapse', {
+                        'ecos-timesheet__table-group-v2-collapse_open': this.getGroupStatus(item.user)
+                      })}
+                      data-key={item.user}
+                      onClick={this.handleToggleGroupCollapse}
+                    />
+
+                    <div className="ecos-timesheet__table-group-v2-header-title">{item.user}</div>
+
+                    {/* TODO: использовать проверку на наличие новых комментариев */}
+                    {this.getGroupStatus(item.user) ? (
+                      <>
+                        <Icon
+                          id={`timesheet-group-${index}-history`}
+                          className="icon-history ecos-timesheet__table-group-v2-header-history"
+                        />
+                        <Tooltip
+                          target={`timesheet-group-${index}-history`}
+                          content={t('Показать историю событий')}
+                          innerClassName="ecos-timesheet__table-group-v2-tooltip"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <Icon
+                          id={`timesheet-group-${index}-message`}
+                          className="icon-message ecos-timesheet__table-group-v2-header-message"
+                        />
+                        <Tooltip
+                          target={`timesheet-group-${index}-message`}
+                          content={t('Показать комментарий')}
+                          innerClassName="ecos-timesheet__table-group-v2-tooltip"
+                        />
+                      </>
+                    )}
+                    <div className="ecos-timesheet__table-group-v2-header-badge">{item.timesheetNumber}</div>
+                  </div>
+
+                  <div className="ecos-timesheet__table-group-v2-line">
+                    <div
+                      className="ecos-timesheet__table-group-v2-btn ecos-timesheet__table-group-v2-btn_revision"
                       onClick={() => this.handleClickDisapprove(index)}
-                    />
-                    <Tooltip
-                      target={`timesheet-${index}-disapprove`}
-                      content={t('Отправить на доработку')}
-                      innerClassName="ecos-timesheet__table-group-header-action-tooltip"
-                    />
-
+                    >
+                      <Icon className="icon-arrow-left ecos-timesheet__table-group-v2-btn-icon" />
+                      <span className="ecos-timesheet__table-group-v2-btn-label">{t('На доработку')}</span>
+                    </div>
                     <div
-                      id={`timesheet-${index}-approve`}
-                      className="ecos-timesheet__table-group-header-action-approve"
+                      className="ecos-timesheet__table-group-v2-btn ecos-timesheet__table-group-v2-btn_approve"
                       onClick={() => this.handleClickApprove(index)}
-                    />
-                    <Tooltip
-                      target={`timesheet-${index}-approve`}
-                      content={t('Согласовать')}
-                      innerClassName="ecos-timesheet__table-group-header-action-tooltip"
-                    />
+                    >
+                      <Icon className="icon-check ecos-timesheet__table-group-v2-btn-icon" />
+                      <span className="ecos-timesheet__table-group-v2-btn-label">{t('Согласовать')}</span>
+                    </div>
                   </div>
                 </div>
+
                 <Collapse isOpen={this.getGroupStatus(item.user)} transition="height 250ms linear 0s">
                   {this.renderEventsGroup(item.eventTypes, index)}
                 </Collapse>
@@ -312,7 +339,7 @@ class GrouppedTimesheet extends BaseTimesheet {
   renderCountByDay = day => (
     <CalendarCell
       key={day.title}
-      className={classNames('ecos-timesheet__table-calendar-cell_hours', 'ecos-timesheet__table-calendar-cell_big', {
+      className={classNames('ecos-timesheet__table-calendar-cell_hours', 'ecos-timesheet__table-calendar-cell_group-item', {
         'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay
       })}
     >

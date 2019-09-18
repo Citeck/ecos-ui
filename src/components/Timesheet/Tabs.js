@@ -33,17 +33,19 @@ class Tabs extends Component {
 
   renderTab = (tab, index) => {
     const { classNameItem } = this.props;
+    const { isActive = false, isAvailable = false, name = '', badge = null } = tab;
 
     return (
       <div
         key={index}
         className={classNames('ecos-tabs-v2__item', classNameItem, {
-          'ecos-tabs-v2__item_active': tab.isActive,
-          'ecos-tabs-v2__item_disabled': !tab.isAvailable
+          'ecos-tabs-v2__item_active': isActive,
+          'ecos-tabs-v2__item_disabled': !isAvailable
         })}
         onClick={this.handleClickTabItem.bind(null, tab, index)}
       >
-        {tab.name}
+        <span className="ecos-tabs-v2__item-label">{name}</span>
+        {badge !== null && <div className="ecos-tabs-v2__item-badge">{badge}</div>}
       </div>
     );
   };
