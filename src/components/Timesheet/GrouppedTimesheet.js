@@ -367,7 +367,7 @@ class GrouppedTimesheet extends BaseTimesheet {
     <CalendarRow key={`calendar-row-${eventItem.name}`}>
       {this.props.daysOfMonth.map(day => (
         <CalendarCell key={`calendar-cell-${day.number}`}>
-          <Hour color={eventItem.color} count={Math.round(Math.random())} canEdit={eventItem.canEdit} />
+          <Hour color={eventItem.color} count={eventItem.name == 'daytime-work' ? 8 : 0} canEdit={eventItem.canEdit} />
         </CalendarCell>
       ))}
     </CalendarRow>
