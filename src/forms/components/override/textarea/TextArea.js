@@ -3,6 +3,24 @@ import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
 const ACEJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/ace.js';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
+  createViewOnlyElement() {
+    this.element = super.createViewOnlyElement();
+
+    if (!this.isPlain) {
+      this.element.classList.add('dl-html');
+    }
+
+    return this.element;
+  }
+
+  createViewOnlyValue(container) {
+    super.createViewOnlyValue(container);
+
+    if (!this.isPlain) {
+      this.valueElement.classList.add('dd-html');
+    }
+  }
+
   addCKE(element, settings, onChange) {
     /*
      * Cause: https://citeck.atlassian.net/browse/ECOSCOM-2477
