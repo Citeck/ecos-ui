@@ -130,7 +130,7 @@
 
     &_lvl-1 {
       #{$list}_expanded {
-        border-bottom: $border-width-standard solid $color-gray-4;
+        border-bottom: 1px solid $color-gray-4;
       }
 
       #{$menu-item}__name-wrapper {
