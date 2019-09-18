@@ -42,7 +42,7 @@ export default class UserLocalSettingsService {
     transferData(oldKey, newKey, true);
   }
 
-  /*global settings*/
+  /*common settings*/
 
   static setMenuMode(data) {
     const userName = getCurrentUserName();

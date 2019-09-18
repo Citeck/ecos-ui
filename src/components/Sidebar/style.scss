@@ -2,22 +2,21 @@
 
 .ecos-sidebar {
   $menu-item: '.ecos-sidebar-item';
+  $menu-list: '.ecos-sidebar-list';
 
-  &-inner {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 
-    width: 72px;
-    transition: width 0.4s;
-    background: $color-white;
+  width: 72px;
+  transition: width 0.4s;
+  background: $color-white;
 
-    &_open {
-      width: 300px;
-    }
+  &_expanded {
+    width: 300px;
+  }
 
-    &__separator {
-      padding: 0 11px;
-    }
+  &-separator {
+    padding: 0 11px;
   }
 
   &-logo {
@@ -58,22 +57,22 @@
       height: 40px;
       width: 100%;
       cursor: pointer;
-
-      & > :not(:first-child) {
-        margin-left: 9px;
-      }
     }
 
     &__toggle {
       display: block;
       color: $color-gray-5;
       font-size: $font-size-standard;
+
+      &_h {
+        margin-left: 5px;
+      }
     }
 
     &__link {
-      &:hover {
-        background: $color-gray-16;
-      }
+      text-decoration: none;
+      display: inline-flex;
+      width: 100%;
     }
 
     &__icon {
@@ -82,9 +81,16 @@
       font-size: $font-size-extra-large !important;
     }
 
+    &__icon-img {
+    }
+
     &__label {
       flex: auto;
       @extend %ellipsis;
+    }
+
+    &__icon + &__label {
+      margin-left: 9px;
     }
 
     &__badge {
@@ -94,14 +100,18 @@
       font-weight: $font-weight-bold;
       color: $color-white;
       border-radius: 100px;
-      @extend %ellipsis;
     }
 
     &__point {
       background: $color-red-1;
+      box-sizing: unset;
       width: 10px;
       height: 10px;
-      border-radius: 5px;
+      border: 4px solid $color-white;
+      border-radius: 50%;
+      position: absolute;
+      right: 15px;
+      top: 5px;
     }
   }
 
@@ -112,7 +122,6 @@
     transition: height 0.4s;
 
     &_collapsed {
-      //height: 0;
       display: none;
     }
 
@@ -181,6 +190,27 @@
         color: $text-color-gray;
         font-size: $font-size-small;
         font-weight: $font-weight-semi-bold;
+      }
+    }
+  }
+
+  &_collapsed {
+    //#{$menu-list}_lvl-0 {
+    //  & > #{$menu-item}__name-wrapper {
+    //    display: none;
+    //  }
+    //}
+
+    #{$menu-list}_lvl-1 {
+      //& > #{$menu-item}__name-wrapper {
+      //  width: unset;
+      //  margin: 0 11px;
+      //  padding: 0 15px;
+      //  border-radius: $border-radius-standard;
+      //}
+
+      #{$menu-item}__label {
+        display: none;
       }
     }
   }
