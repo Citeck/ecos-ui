@@ -19,16 +19,16 @@ import { getDocumentsRecords } from '../../dto/docAssociations';
 import './style.scss';
 
 const LABELS = {
-  TITLE: 'Связи документа',
-  HEADLINE_ASSOCIATED_WITH_DOCS: 'Связан с документами',
-  TABLE_CELL_HEADLINE: 'Заголовок',
-  TABLE_CELL_DATE_OF_CREATION: 'Дата создания',
-  HEADLINE_BASE_DOCUMENT: 'Документ-основание',
-  HEADLINE_ACCOUNTING_DOCS: 'Учётные документы',
-  MESSAGE_NOT_ADDED: 'Не добавлен',
-  TOOLTIP_ADD_LINK: 'Добавить связь',
-  TITLE_CONFIRM_REMOVE_MODAL: 'Удаление связи документа',
-  CONFIRM_REMOVE_MODAL_TEXT: 'Удалить из связей'
+  TITLE: 'doc-associations-widget.title',
+  HEADLINE_ASSOCIATED_WITH_DOCS: 'doc-associations-widget.assoc-with-docs',
+  TABLE_CELL_HEADLINE: 'doc-associations-widget.table-cell.headline',
+  TABLE_CELL_DATE_OF_CREATION: 'doc-associations-widget.table-cell.creation-date',
+  HEADLINE_BASE_DOCUMENT: 'doc-associations-widget.basis-document',
+  HEADLINE_ACCOUNTING_DOCS: 'doc-associations-widget.closing-document',
+  MESSAGE_NOT_ADDED: 'doc-associations-widget.not-added',
+  TOOLTIP_ADD_LINK: 'doc-associations-widget.add-association',
+  TITLE_CONFIRM_REMOVE_MODAL: 'doc-associations-widget.confirm-remove-modal.title',
+  CONFIRM_REMOVE_MODAL_TEXT: 'doc-associations-widget.confirm-remove-modal.text'
 };
 
 class DocAssociations extends Component {
@@ -336,7 +336,7 @@ class DocAssociations extends Component {
         className={classNames('ecos-doc-associations', {
           'ecos-doc-associations_small': this.isSmallWidget
         })}
-        title={LABELS.TITLE}
+        title={t(LABELS.TITLE)}
         needGoTo={false}
         actionEdit={false}
         actionHelp={false}

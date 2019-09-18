@@ -1,6 +1,6 @@
 import { RecordService } from './recordService';
 import Records from '../components/Records';
-import {} from '../constants';
+import { t } from '../helpers/util';
 
 export class DocAssociationsApi extends RecordService {
   /**
@@ -14,7 +14,7 @@ export class DocAssociationsApi extends RecordService {
     return [
       {
         name: 'assoc:associatedWith',
-        title: 'Связан с документами'
+        title: t('doc-associations-widget.assoc-with-docs')
       }
       // {
       //   name: 'payments:basis',
