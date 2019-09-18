@@ -70,12 +70,10 @@ export default class SelectJournal extends Component {
   constructor(props) {
     super(props);
     this.api = new JournalsApi();
-
-    this.state.isSelectModalOpen = props.isSelectModalOpen;
   }
 
   componentDidMount() {
-    const { defaultValue, multiple, journalId, onError } = this.props;
+    const { defaultValue, multiple, journalId, onError, isSelectModalOpen } = this.props;
 
     if (!journalId) {
       const err = new Error('The "journalId" config is required!');
@@ -94,16 +92,8 @@ export default class SelectJournal extends Component {
       this.setValue(initValue, false);
     }
 
-    const { isSelectModalOpen } = this.state;
-
     if (isSelectModalOpen) {
-      const { isJournalConfigFetched, isGridDataReady } = this.state;
-
-      if (!isJournalConfigFetched) {
-        this.getJournalConfig().then(this.refreshGridData);
-      } else if (!isGridDataReady) {
-        this.refreshGridData();
-      }
+      this.openSelectModal();
     }
   }
 
@@ -300,12 +290,6 @@ export default class SelectJournal extends Component {
       inMemoryData: newInMemoryData,
       total: fetchedGridData.total + newInMemoryData.length
     };
-  };
-
-  toggleSelectModal = () => {
-    this.setState({
-      isSelectModalOpen: !this.state.isSelectModalOpen
-    });
   };
 
   hideSelectModal = () => {
