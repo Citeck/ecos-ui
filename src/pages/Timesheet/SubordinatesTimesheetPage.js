@@ -28,27 +28,15 @@ class SubordinatesTimesheetPage extends Component {
         canEdit: true
       },
       {
-        title: 'Работа в ночное время',
-        name: 'night-work',
-        color: '#4133DF',
+        title: 'Командировка',
+        name: 'business-trip',
+        color: '#ff3ecb',
         canEdit: true
       },
       {
-        title: 'Работа в выходные и праздничные дни (отгул + оплата)',
-        name: 'weekends-holidays-work-holiday-and-compensation',
-        color: '#33DFD5',
-        canEdit: true
-      },
-      {
-        title: 'Работа в выходные и праздничные дни (двойная оплата)',
-        name: 'weekends-holidays-work-doubled-compensation',
-        color: '#3382df',
-        canEdit: true
-      },
-      {
-        title: 'Сверхурочная работа',
-        name: 'overtime-work',
-        color: '#DF8633',
+        title: 'Отсутствие (необходимы оригиналы документов)',
+        name: 'absence',
+        color: '#af9fff',
         canEdit: true
       },
       {
@@ -88,21 +76,33 @@ class SubordinatesTimesheetPage extends Component {
         canEdit: false
       },
       {
-        title: 'Командировка',
-        name: 'business-trip',
-        color: '#ff3ecb',
-        canEdit: false
-      },
-      {
-        title: 'Отсутствие',
-        name: 'absence',
-        color: '#af9fff',
-        canEdit: true
-      },
-      {
         title: 'Отгул',
         name: 'compensatory-leave',
         color: '#29bd8d',
+        canEdit: true
+      },
+      {
+        title: 'Работа в выходные и праздничные дни (отгул + оплата)',
+        name: 'weekends-holidays-work-holiday-and-compensation',
+        color: '#33DFD5',
+        canEdit: true
+      },
+      {
+        title: 'Работа в выходные и праздничные дни (двойная оплата)',
+        name: 'weekends-holidays-work-doubled-compensation',
+        color: '#3382df',
+        canEdit: true
+      },
+      {
+        title: 'Сверхурочная работа',
+        name: 'overtime-work',
+        color: '#DF8633',
+        canEdit: true
+      },
+      {
+        title: 'Работа в ночное время',
+        name: 'night-work',
+        color: '#4133DF',
         canEdit: true
       }
     ];
