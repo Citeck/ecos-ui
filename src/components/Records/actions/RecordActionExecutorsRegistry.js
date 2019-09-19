@@ -1,0 +1,32 @@
+let Registry;
+
+class RecordActionExecutorsRegistry {
+  registry = {};
+
+  get(type) {
+    return this.registry[type];
+  }
+
+  addExecutor(key, executor) {
+    if (!executor.type || !executor.execute) {
+      console.error('Action executor should has type and implement method execute');
+      return;
+    }
+
+    this.registry[key] = executor;
+  }
+
+  addExecutors(executors) {
+    for (let key in executors) {
+      if (executors.hasOwnProperty(key)) {
+        this.addExecutor(key, executors[key]);
+      }
+    }
+  }
+}
+
+window.Citeck = window.Citeck || {};
+Registry = window.Citeck.RecordActionExecutorsRegistry || new RecordActionExecutorsRegistry();
+window.Citeck.RecordActionExecutorsRegistry = Registry;
+
+export default Registry;
