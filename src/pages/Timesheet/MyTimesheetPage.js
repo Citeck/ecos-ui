@@ -118,31 +118,31 @@ class MyTimesheetPage extends Component {
       eventTypes,
       subordinatesEvents: [
         {
-          user: 'Пантелеева Мадина (212392064)',
+          user: 'Пантелеева Мадина',
           organization: 'ООО ДжиИ Рус',
           eventTypes: deepClone(eventTypes),
           timesheetNumber: '212392064'
         },
         {
-          user: 'Медведева Диана (212572436)',
+          user: 'Медведева Диана',
           organization: 'ООО ДжиИ Рус',
           eventTypes: deepClone(eventTypes),
           timesheetNumber: '212572436'
         },
         {
-          user: 'Миронова Татьяна (212604506)',
+          user: 'Миронова Татьяна',
           organization: 'ООО ДжиИ Рус',
           eventTypes: deepClone(eventTypes),
           timesheetNumber: '212604506'
         },
         {
-          user: 'Кулахметов Шамиль (212594037)',
+          user: 'Кулахметов Шамиль',
           organization: 'ООО ДжиИ Хэлскеа',
           eventTypes: deepClone(eventTypes),
           timesheetNumber: '212594037'
         },
         {
-          user: 'Печкуров Григорий (212555619)',
+          user: 'Печкуров Григорий',
           organization: 'ООО АЛЬСТОМ',
           eventTypes: deepClone(eventTypes),
           timesheetNumber: '212555619'
