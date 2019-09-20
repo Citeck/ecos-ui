@@ -16,10 +16,13 @@ class RecordActionsService {
     let result = {};
 
     for (let rec of records) {
-      if (!rec.load) {
-        rec = Records.get(rec);
-      }
-      result[rec.id] = RecordActionsService.__getDefaultActions();
+      rec = Records.get(rec);
+      let actions = RecordActionsService.__getDefaultActions();
+
+      result[rec.id] = actions.filter(a => {
+        let executor = RecordActionExecutorsRegistry.get(a.type);
+        return executor && (!executor.canBeExecuted || executor.canBeExecuted(rec, context));
+      });
     }
 
     if (isSingleRecord) {
@@ -29,15 +32,12 @@ class RecordActionsService {
     return result;
   }
 
-  //mode = [journal|dashboard]
-  //scope for journal - journalId
-  //scope for dashboard - null
   execAction(records, action, context) {
     let executor = RecordActionExecutorsRegistry.get(action.type);
     if (lodash.isArray(records)) {
-      return Promise.all(records.map(r => executor.execute(r, action, context)));
+      return Promise.all(records.map(r => executor.execute(Records.get(r), action, context)));
     }
-    return Promise.resolve(executor.execute(records, action, context));
+    return Promise.resolve(executor.execute(Records.get(records), action, context));
   }
 
   static __getDefaultActions() {

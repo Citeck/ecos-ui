@@ -3,6 +3,7 @@ import isString from 'lodash/isString';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import lodashGet from 'lodash/get';
+import isArray from 'lodash/isArray';
 
 const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
@@ -109,6 +110,13 @@ class RecordsComponent {
     if (!id) {
       return new Record('');
     }
+    if (id instanceof Record) {
+      return id;
+    }
+    if (isArray(id)) {
+      return id.map(i => this.get(i));
+    }
+
     let rec = this._records[id];
     if (!rec) {
       rec = new Record(id);

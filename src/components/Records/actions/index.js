@@ -1,7 +1,7 @@
-import ActionsRegistry from './RecordActionExecutorsRegistry';
+import Registry from './RecordActionExecutorsRegistry';
 import { EditAction, ViewAction, DownloadAction } from './DefaultActions';
 
-ActionsRegistry.register({
+Registry.addExecutors({
   edit: EditAction,
   view: ViewAction,
   download: DownloadAction
