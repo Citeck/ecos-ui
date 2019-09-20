@@ -1,8 +1,8 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { loadMenuItemIconUrl } from '../../actions/slideMenu';
-import { Icon } from '../common';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { loadMenuItemIconUrl } from '../../../actions/slideMenu';
+import { Icon } from '../../common';
 
 const mapDispatchToProps = dispatch => ({
   loadMenuItemIconUrl: (iconName, cb) => dispatch(loadMenuItemIconUrl(iconName, cb))

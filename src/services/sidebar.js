@@ -13,22 +13,26 @@ export default class SidebarService {
     SITE_LINK: 'SITE_LINK'
   };
 
-  static HandleControlTypes = {
-    ALF_CREATE_SITE: 'ALF_CREATE_SITE'
-  };
-
   static getPropsStyleLevel = ({ level, actionType }) => {
     const common = {
       noIcon: true,
       noBadge: true,
       isRemoteBadge: false,
       noToggle: true,
-      isDefExpanded: true
+      isDefExpanded: true,
+      noMoveIfItems: false,
+      collapsed: {
+        noName: false
+      }
     };
 
     const lvls = {
       0: {
-        ...common
+        ...common,
+        collapsed: {
+          ...common.collapsed,
+          noName: true
+        }
       },
       1: {
         ...common,
@@ -39,7 +43,8 @@ export default class SidebarService {
         isRemoteBadge: actionType && ![ATypes.CREATE_SITE].includes(actionType)
       },
       2: {
-        ...common
+        ...common,
+        noMoveIfItems: true
       },
       3: {
         ...common

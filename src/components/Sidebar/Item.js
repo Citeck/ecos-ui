@@ -3,10 +3,12 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
+import SS from '../../services/sidebar';
 import { Icon } from '../common';
 import List from './List';
 import RemoteBadge from './RemoteBadge';
-import ItemIcon from './ItemIcon';
+import { ItemBtn, ItemIcon, ItemLink } from './itemComponents';
 
 const mapStateToProps = state => ({
   isOpen: state.slideMenu.isOpen
@@ -33,13 +35,43 @@ class Item extends React.Component {
   };
 
   state = {
-    isExpanded: false
+    isExpanded: false,
+    styleProps: {}
   };
 
   constructor(props) {
     super(props);
 
-    this.state.isExpanded = props.isDefExpanded;
+    const { actionType } = this.parseData(props);
+    const styleProps = SS.getPropsStyleLevel({ level: props.level, actionType });
+
+    this.state.isExpanded = styleProps.isDefExpanded;
+    this.state.styleProps = styleProps;
+  }
+
+  componentWillReceiveProps(nextProps, nextContext) {
+    if (!nextProps.isOpen && this.props.isOpen) {
+      this.setState({ isExpanded: this.state.styleProps.isDefExpanded });
+    }
+  }
+
+  parseData(props = this.props) {
+    const { data } = props;
+
+    return {
+      items: get(data, 'items', null),
+      actionType: get(data, 'action.type', '')
+    };
+  }
+
+  getMover(noMove) {
+    const { actionType } = this.parseData();
+
+    if (noMove) {
+      return ({ children }) => <div className="ecos-sidebar-item__link">{children}</div>;
+    }
+
+    return SS.ActionTypes.CREATE_SITE === actionType ? ItemBtn : ItemLink;
   }
 
   toggleList = e => {
@@ -50,34 +82,44 @@ class Item extends React.Component {
   };
 
   render() {
-    const { isOpen, data, level, noIcon, noBadge, noToggle, isRemoteBadge, targetUrl, attributes } = this.props;
-    const { isExpanded } = this.state;
+    const { isOpen, data, level } = this.props;
+    const { isExpanded, styleProps = {} } = this.state;
+    const { noIcon, noBadge, noToggle, isRemoteBadge, collapsed, noMoveIfItems } = styleProps;
 
     if (isEmpty(data)) {
       return null;
     }
 
+    const { items } = this.parseData();
+    const noItems = isEmpty(items);
+    const noMove = !noItems && noMoveIfItems;
+    const Mover = this.getMover(noMove);
+
     return (
       <li className="ecos-sidebar-item">
-        <div className="ecos-sidebar-item__name-wrapper">
-          <a href={targetUrl} {...attributes} className="ecos-sidebar-item__link">
-            {!noIcon && <ItemIcon iconName={data.icon} />}
-            <div className="ecos-sidebar-item__label">{data.label}</div>
-          </a>
-          {!noBadge && isRemoteBadge && <RemoteBadge data={data} isOpen={isOpen} />}
-          {!noToggle && (
-            <Icon
-              className={classNames('ecos-sidebar-item__toggle', {
-                'ecos-sidebar-item__toggle_v': isOpen,
-                'ecos-sidebar-item__toggle_h icon-right': !isOpen,
-                'icon-down': !isExpanded && isOpen,
-                'icon-up': isExpanded && isOpen
-              })}
-              onClick={this.toggleList}
-            />
-          )}
-        </div>
-        <List isExpanded={isExpanded} data={data.items} level={level + 1} />
+        {(isOpen || (!isOpen && !collapsed.noName)) && (
+          <div className={classNames('ecos-sidebar-item__name-wrapper', { 'ecos-sidebar-item__name-wrapper_no-action': noMove })}>
+            <Mover data={data}>
+              {!noIcon && <ItemIcon iconName={data.icon} />}
+              <div className="ecos-sidebar-item__label">{data.label}</div>
+            </Mover>
+
+            {!noBadge && isRemoteBadge && <RemoteBadge data={data} isOpen={isOpen} />}
+
+            {!noItems && !noToggle && (
+              <Icon
+                className={classNames('ecos-sidebar-item__toggle', {
+                  'ecos-sidebar-item__toggle_v': isOpen,
+                  'ecos-sidebar-item__toggle_h icon-right': !isOpen && false,
+                  'icon-down': !isExpanded && isOpen,
+                  'icon-up': isExpanded && isOpen
+                })}
+                onClick={this.toggleList}
+              />
+            )}
+          </div>
+        )}
+        <List isExpanded={isExpanded} data={items} level={level + 1} />
       </li>
     );
   }

@@ -47,9 +47,6 @@
   }
 
   &-item {
-    &_collapsed {
-    }
-
     &__name-wrapper {
       display: flex;
       align-items: center;
@@ -163,6 +160,14 @@
 
         &:hover {
           background: $color-gray-16;
+        }
+
+        &_no-action {
+          pointer-events: none;
+
+          &:hover {
+            background: unset;
+          }
         }
       }
 

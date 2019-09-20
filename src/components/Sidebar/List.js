@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
-import setItemConfiguration from './ItemConfiguration';
 import Item from './Item';
 
 class List extends React.Component {
@@ -27,8 +26,6 @@ class List extends React.Component {
       return null;
     }
 
-    const CustomItem = setItemConfiguration(Item);
-
     return (
       <ul
         className={classNames('ecos-sidebar-list', `ecos-sidebar-list_lvl-${level}`, className, {
@@ -37,7 +34,7 @@ class List extends React.Component {
         })}
       >
         {data.map(item => (
-          <CustomItem data={item} level={level} />
+          <Item data={item} level={level} />
         ))}
       </ul>
     );
