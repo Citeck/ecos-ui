@@ -276,6 +276,7 @@ export function getPredicateInput(field, sourceId, metaRecord) {
     case COLUMN_DATA_TYPE_OPTIONS:
       const loadOptions = () => {
         return new Promise(resolve => {
+          //todo: replace to using Records.js
           recordServiceAPI
             .query({
               attributes: {

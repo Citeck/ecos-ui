@@ -42,12 +42,17 @@ export default class RawHtmlWrapper extends Component {
   render() {
     let self = this;
 
+    let props = {
+      ...this.state.props,
+      setWrapperProps: p => this.setProps(p)
+    };
+
     // detect functional component
     if (!this.props.component.prototype.render) {
       self.resolveComponent(this);
-      return <this.props.component {...self.state.props} />;
+      return <this.props.component {...props} />;
     }
 
-    return <this.props.component {...self.state.props} ref={self.resolveComponent} />;
+    return <this.props.component {...props} ref={self.resolveComponent} />;
   }
 }

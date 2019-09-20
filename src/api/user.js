@@ -20,6 +20,7 @@ export class UserApi extends RecordService {
   };
 
   getUserData = () => {
+    //todo: replace to using Records.js
     return this.query({
       query: {
         sourceId: SourcesId.PEOPLE

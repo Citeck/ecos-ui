@@ -42,10 +42,12 @@ export class JournalsApi extends RecordService {
   };
 
   saveRecords = ({ id, attributes }) => {
+    //todo: replace to using Records.js
     return this.mutate({ record: { id, attributes } }).catch(() => null);
   };
 
   deleteRecords = records => {
+    //todo: replace to using Records.js
     return this.delete({ records: records });
   };
 

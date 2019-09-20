@@ -11,12 +11,14 @@ import { EmptyGrid, Grid, InlineTools, Tools } from '../../common/grid';
 import { IcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { RemoveDialog } from '../../common/dialogs';
-import { getDownloadContentUrl, goToCardDetailsPage, goToNodeEditPage } from '../../../helpers/urls';
+import { goToNodeEditPage } from '../../../helpers/urls';
 import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
 import { PROXY_URI } from '../../../constants/alfresco';
+import RecordActions from '../../Records/actions';
 import {
+  execRecordsAction,
   deleteRecords,
   goToJournalsPage,
   performGroupAction,
@@ -50,6 +52,7 @@ const mapDispatchToProps = (dispatch, props) => {
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     deleteRecords: records => dispatch(deleteRecords(w(records))),
     saveRecords: ({ id, attributes }) => dispatch(saveRecords(w({ id, attributes }))),
+    execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
     setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
     setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(w(visible))),
@@ -59,18 +62,6 @@ const mapDispatchToProps = (dispatch, props) => {
     setPerformGroupActionResponse: options => dispatch(setPerformGroupActionResponse(w(options)))
   };
 };
-
-class DownloadContentLink extends Component {
-  render() {
-    const { children, row } = this.props;
-
-    if (!row.hasContent) {
-      return null;
-    }
-
-    return <a href={getDownloadContentUrl(row.id)}>{children}</a>;
-  }
-}
 
 class JournalsDashletGrid extends Component {
   filters = [];
@@ -136,8 +127,60 @@ class JournalsDashletGrid extends Component {
 
   showGridInlineToolSettings = options => {
     this.setSelectedRow(options.row);
-    this.props.setGridInlineToolSettings(options);
+    this.getCurrentRowInlineActions().then(actions => {
+      this.props.setGridInlineToolSettings(
+        Object.assign(
+          {
+            actions: actions
+          },
+          options
+        )
+      );
+    });
   };
+
+  getCurrentRowInlineActions() {
+    const {
+      journalConfig = {},
+      execRecordsAction,
+      selectedRecords,
+      grid: { groupBy = [] }
+    } = this.props;
+    let currentRow = this.getSelectedRow().id;
+
+    if (selectedRecords.length) {
+      return Promise.resolve([]);
+    }
+
+    if (groupBy.length) {
+      return Promise.resolve([
+        {
+          title: t('grid.inline-tools.details'),
+          onClick: () => this.goToJournalPageWithFilter(),
+          icon: 'icon-big-arrow'
+        }
+      ]);
+    }
+
+    const context = {
+      mode: 'journal',
+      scope: journalConfig.id,
+      journalConfig
+    };
+
+    return RecordActions.getActions(currentRow, context)
+      .then(actions => {
+        return actions.map(action => {
+          return Object.assign({}, action, {
+            onClick: () => execRecordsAction([currentRow], action, context)
+          });
+        });
+      })
+      .catch(e => {
+        console.error(e);
+        return [];
+      });
+  }
 
   hideGridInlineToolSettings = () => {
     this.clearSelectedRow();
@@ -147,11 +190,6 @@ class JournalsDashletGrid extends Component {
   goToJournalPageWithFilter = () => {
     const selectedRow = this.getSelectedRow();
     this.props.goToJournalsPage(selectedRow);
-  };
-
-  goToCardDetailsPage = () => {
-    const selectedRow = this.getSelectedRow();
-    goToCardDetailsPage(selectedRow.id);
   };
 
   edit = () => {
@@ -166,64 +204,8 @@ class JournalsDashletGrid extends Component {
   };
 
   inlineTools = () => {
-    const {
-      stateId,
-      selectedRecords,
-      grid: { groupBy = [] }
-    } = this.props;
-    const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_x-step_10';
-    let tools = [
-      <IcoBtn
-        title={t('grid.inline-tools.show')}
-        icon={'icon-on'}
-        onClick={this.goToCardDetailsPage}
-        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
-      />,
-      <DownloadContentLink>
-        <IcoBtn
-          title={t('grid.inline-tools.download')}
-          icon={'icon-download'}
-          className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
-        />
-      </DownloadContentLink>,
-      <IcoBtn
-        title={t('grid.inline-tools.edit')}
-        icon={'icon-edit'}
-        onClick={this.edit}
-        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
-      />,
-      <IcoBtn
-        title={t('grid.inline-tools.delete')}
-        icon={'icon-delete'}
-        onClick={this.showDeleteRecordDialog}
-        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t_red')}
-      />
-    ];
-
-    if (selectedRecords.length) {
-      return null;
-    }
-
-    if (groupBy.length) {
-      tools = [
-        <IcoBtn
-          title={t('grid.inline-tools.details')}
-          onClick={this.goToJournalPageWithFilter}
-          icon={'icon-big-arrow'}
-          className={inlineToolsActionClassName}
-        />
-      ];
-    }
-
-    return <InlineTools tools={tools} stateId={stateId} />;
-  };
-
-  deleteRecord = () => {
-    const selectedRow = this.getSelectedRow();
-    this.props.deleteRecords([selectedRow.id]);
-    this.clearSelectedRow();
-    this.hideGridInlineToolSettings();
-    this.closeDialog();
+    const { stateId } = this.props;
+    return <InlineTools stateId={stateId} />;
   };
 
   deleteRecords = () => {
@@ -330,11 +312,6 @@ class JournalsDashletGrid extends Component {
 
   closeDialog = () => {
     this.setState({ isDialogShow: false });
-  };
-
-  showDeleteRecordDialog = () => {
-    this.setState({ isDialogShow: true });
-    this.delete = this.deleteRecord;
   };
 
   showDeleteRecordsDialog = () => {

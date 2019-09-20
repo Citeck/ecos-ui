@@ -19,5 +19,6 @@ export const DEFAULT_INLINE_TOOL_SETTINGS = {
   height: 0,
   top: 0,
   left: 0,
-  row: {}
+  row: {},
+  actions: []
 };
