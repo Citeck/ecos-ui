@@ -18,6 +18,10 @@
   &_darkened {
     background-color: $background-loader;
   }
+
+  &_rounded {
+    border-radius: $border-radius-extra-large;
+  }
 }
 
 .ecos-loader_pin {

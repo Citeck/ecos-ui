@@ -169,50 +169,72 @@ class JournalsDashletGrid extends Component {
     const {
       stateId,
       selectedRecords,
-      grid: { groupBy = [] }
+      grid: { groupBy = [] },
+      journalConfig
     } = this.props;
+
+    if (selectedRecords.length) {
+      return null;
+    }
+
     const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_x-step_10';
-    let tools = [
+
+    const showBtn = (
       <IcoBtn
         title={t('grid.inline-tools.show')}
         icon={'icon-on'}
         onClick={this.goToCardDetailsPage}
         className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
-      />,
+      />
+    );
+
+    const downloadBtn = (
       <DownloadContentLink>
         <IcoBtn
           title={t('grid.inline-tools.download')}
           icon={'icon-download'}
           className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
         />
-      </DownloadContentLink>,
+      </DownloadContentLink>
+    );
+
+    const editBtn = (
       <IcoBtn
         title={t('grid.inline-tools.edit')}
         icon={'icon-edit'}
         onClick={this.edit}
         className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
-      />,
+      />
+    );
+
+    const deleteBtn = (
       <IcoBtn
         title={t('grid.inline-tools.delete')}
         icon={'icon-delete'}
         onClick={this.showDeleteRecordDialog}
         className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t_red')}
       />
-    ];
+    );
 
-    if (selectedRecords.length) {
-      return null;
-    }
+    const groupDetailsBtn = (
+      <IcoBtn
+        title={t('grid.inline-tools.details')}
+        onClick={this.goToJournalPageWithFilter}
+        icon={'icon-big-arrow'}
+        className={inlineToolsActionClassName}
+      />
+    );
+
+    let tools;
+    let journalId = lodash.get(journalConfig, 'id', '');
 
     if (groupBy.length) {
-      tools = [
-        <IcoBtn
-          title={t('grid.inline-tools.details')}
-          onClick={this.goToJournalPageWithFilter}
-          icon={'icon-big-arrow'}
-          className={inlineToolsActionClassName}
-        />
-      ];
+      tools = [groupDetailsBtn];
+    } else if (journalId === 'event-lines') {
+      //temp solution
+      tools = [editBtn];
+    } else {
+      tools = [showBtn, downloadBtn, editBtn, deleteBtn];
     }
 
     return <InlineTools tools={tools} stateId={stateId} />;

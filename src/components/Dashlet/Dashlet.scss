@@ -4,6 +4,7 @@
   $root: &;
   min-height: auto !important;
   padding-top: 0 !important;
+  position: relative;
 
   &__header {
     height: 100%;
@@ -23,6 +24,11 @@
 
       &_rounded {
         border-bottom: none;
+        border-radius: $border-radius-extra-large;
+      }
+
+      &_collapsed {
+        border: none;
         border-radius: $border-radius-extra-large;
       }
     }

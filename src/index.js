@@ -23,6 +23,7 @@ import {
   BpmnApi,
   CommentsApi,
   DashboardApi,
+  DocAssociationsApi,
   DocStatusApi,
   EventsHistoryApi,
   JournalsApi,
@@ -74,6 +75,7 @@ api.docStatus = new DocStatusApi(store);
 api.eventsHistory = new EventsHistoryApi(store);
 api.versionsJournal = new VersionsJournalApi(store);
 api.recordActions = new RecordActionsApi(store);
+api.docAssociations = new DocAssociationsApi(store);
 
 /**
  * todo: Maybe need such union all api?

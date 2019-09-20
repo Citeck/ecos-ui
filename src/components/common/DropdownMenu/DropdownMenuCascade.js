@@ -7,11 +7,13 @@ import DropdownMenuItem from './DropdownMenuItem';
 
 export default class DropdownMenuCascade extends React.Component {
   static propTypes = {
-    groups: PropTypes.array
+    groups: PropTypes.array,
+    onClick: PropTypes.func
   };
 
   static defaultProps = {
-    groups: []
+    groups: [],
+    onClick: () => {}
   };
 
   state = {
@@ -22,16 +24,16 @@ export default class DropdownMenuCascade extends React.Component {
     this.setState({ openedItem: key });
   };
 
-  renderMenuItems(items) {
+  renderMenuItems = items => {
     return isEmpty(items)
       ? []
       : items.map((item, key) => {
           return <DropdownMenuItem key={key} data={item} />;
         });
-  }
+  };
 
   render() {
-    const { groups } = this.props;
+    const { groups, onClick } = this.props;
     const { openedItem } = this.state;
 
     return groups.map((item, i) => {
@@ -52,10 +54,11 @@ export default class DropdownMenuCascade extends React.Component {
             className="ecos-dropdown__toggle ecos-dropdown-menu__cascade-toggle"
             onMouseEnter={() => this.toggle(key)}
           >
-            <DropdownMenuItem data={item} iconRight={iconRight} />
+            <DropdownMenuItem data={item} iconRight={iconRight} onClick={item.items ? () => null : onClick} />
           </DropdownToggle>
+
           <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_cascade">
-            <ul>{this.renderMenuItems(items)}</ul>
+            {item.items ? <DropdownMenuCascade groups={item.items} onClick={onClick} /> : <ul>{this.renderMenuItems(items)}</ul>}
           </DropdownMenu>
         </Dropdown>
       );

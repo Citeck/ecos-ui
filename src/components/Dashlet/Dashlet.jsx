@@ -317,7 +317,7 @@ class Dashlet extends Component {
           {...this.props}
           className={cssClasses}
           headClassName={classNames('dashlet__header-wrapper', {
-            'dashlet__header-wrapper_rounded': noBody || (isMobile && isCollapsed)
+            'dashlet__header-wrapper_collapsed': noBody || (isMobile && isCollapsed)
           })}
           bodyClassName={classNames('dashlet__body', bodyClassName, {
             dashlet__body_collapsed: noBody || (isMobile && isCollapsed)
