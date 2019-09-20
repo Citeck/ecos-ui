@@ -8,11 +8,6 @@ class RecordActionExecutorsRegistry {
   }
 
   addExecutor(key, executor) {
-    if (!executor.type || !executor.execute) {
-      console.error('Action executor should has type and implement method execute');
-      return;
-    }
-
     this.registry[key] = executor;
   }
 

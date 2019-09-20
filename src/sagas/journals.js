@@ -14,6 +14,7 @@ import {
   initJournal,
   reloadTreeGrid,
   setJournalConfig,
+  execRecordsAction,
   deleteRecords,
   saveRecords,
   setSelectedRecords,
@@ -374,6 +375,18 @@ function* sagaDeleteRecords({ api, logger, stateId, w }, action) {
   }
 }
 
+function* sagaExecRecordsAction({ api, logger, stateId, w }, action) {
+  try {
+    const actionResult = yield call(api.recordActions.execAction, action.payload);
+    if (actionResult !== false) {
+      yield put(reloadGrid(w()));
+      yield put(setSelectedRecords(w([])));
+    }
+  } catch (e) {
+    logger.error('[journals sagaExecRecordsAction saga error', e.message, e);
+  }
+}
+
 function* sagaSaveRecords({ api, logger, stateId, w }, action) {
   try {
     const grid = yield select(state => state.journals[stateId].grid);
@@ -596,6 +609,7 @@ function* saga(ea) {
   yield takeEvery(reloadTreeGrid().type, wrapSaga, { ...ea, saga: sagaReloadTreeGrid });
 
   yield takeEvery(deleteRecords().type, wrapSaga, { ...ea, saga: sagaDeleteRecords });
+  yield takeEvery(execRecordsAction().type, wrapSaga, { ...ea, saga: sagaExecRecordsAction });
   yield takeEvery(saveRecords().type, wrapSaga, { ...ea, saga: sagaSaveRecords });
 
   yield takeEvery(saveJournalSetting().type, wrapSaga, { ...ea, saga: sagaSaveJournalSetting });

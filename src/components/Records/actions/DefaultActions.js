@@ -1,31 +1,37 @@
 import Records from '../Records';
-
-import { getDownloadContentUrl, goToCardDetailsPage, goToNodeEditPage } from '../../../helpers/urls';
+import { getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
-import { t } from '../../../helpers/util';
-import { RemoveDialog } from '../../common/dialogs';
-import React from 'react';
+import dialogManager from '../../common/dialogs/Manager';
 
 export const EditAction = {
-  execute: (record, action, context) => {
+  execute: ({ record }) => {
     return new Promise(resolve => {
       EcosFormUtils.editRecord({
         recordRef: record.id,
         fallback: () => goToNodeEditPage(record.id),
-        onSubmit: resolve
+        onSubmit: () => resolve(true),
+        onCancel: () => resolve(false)
       });
     });
   }
 };
 
 export const ViewAction = {
-  execute: (record, action, context) => {
+  disabledFor: ['event-lines'],
+
+  execute: ({ record }) => {
     goToCardDetailsPage(record.id);
+    return false;
+  },
+
+  canBeExecuted: ({ context }) => {
+    const { mode = '', scope = '' } = context;
+    return mode === 'journal' && ViewAction.disabledFor.indexOf(scope) === -1;
   }
 };
 
 export const DownloadAction = {
-  execute: ({ record, action, context }) => {
+  execute: ({ record }) => {
     const url = getDownloadContentUrl(record.id);
     const a = document.createElement('A', { target: '_blank' });
 
@@ -34,26 +40,66 @@ export const DownloadAction = {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+
+    return false;
   },
 
-  canBeExecuted: (record, action, context) => {
+  canBeExecuted: ({ record }) => {
     return !!record.att('.has(n:"cm:content")');
   }
 };
 
-export const DeleteAction = {
-  execute: ({ record, action, context }) => {},
+export const RemoveAction = {
+  disabledFor: ['event-lines'],
 
-  render: props => {
-    return (
-      <RemoveDialog
-        isOpen={this.state.isDialogShow}
-        title={t('journals.action.delete-records-msg')}
-        text={t('journals.action.remove-records-msg')}
-        onDelete={this.delete}
-        onCancel={this.closeDialog}
-        onClose={this.closeDialog}
-      />
-    );
+  groupExec: ({ records }) => {
+    return new Promise(resolve => {
+      dialogManager.showRemoveDialog({
+        onDelete: () => {
+          Records.remove(records)
+            .then(() => {
+              resolve(true);
+            })
+            .catch(e => {
+              console.error(e);
+              resolve(false);
+            });
+        },
+        onCancel: () => {
+          resolve(false);
+        }
+      });
+    });
+  },
+
+  canBeExecuted: ({ context }) => {
+    const { scope = '' } = context;
+    return RemoveAction.disabledFor.indexOf(scope) === -1;
+  }
+};
+
+//this action will be removed
+export const MoveToLinesJournal = {
+  enabledFor: ['incidents'],
+
+  execute: ({ record }) => {
+    let recordId = record.id;
+
+    goToJournalsPage({
+      journalsListId: 'site-ssg-skif-main',
+      journalId: 'event-lines',
+      filter: JSON.stringify({
+        t: 'eq',
+        att: 'skifem:eventRef',
+        val: recordId
+      })
+    });
+
+    return false;
+  },
+
+  canBeExecuted: ({ context }) => {
+    const { scope = '' } = context;
+    return MoveToLinesJournal.enabledFor.indexOf(scope) > -1;
   }
 };

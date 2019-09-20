@@ -141,6 +141,7 @@ class RecordsComponent {
   }
 
   remove(records) {
+    records = records.map(r => (r.id ? r.id : r));
     return recordsFetch(DELETE_URL, { records });
   }
 

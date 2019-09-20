@@ -1,37 +1,80 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import RawHtmlWrapper from '../../RawHtmlWrapper';
 import { t } from '../../../../helpers/util';
 import { RemoveDialog } from '../index';
 
-const DELETE_DIALOG_ID = 'DialogManager-delete-dialog';
+const REMOVE_DIALOG_ID = 'DialogManager-remove-dialog';
 
-const hideDialog = function() {
-  this.props.setWrapperProps({ isDialogShow: false });
-};
+class DialogWrapper extends React.Component {
+  constructor(props) {
+    super(props);
 
-const dialogsById = {
-  [DELETE_DIALOG_ID]: () => {
-    const onDelete = () => {
-      hideDialog();
-      this.props.onDelete(this.props.context);
+    this.state = {
+      isVisible: false,
+      dialogProps: props.dialogProps || {}
     };
+  }
 
-    const onCancel = () => {
-      hideDialog();
-      this.props.onCancel(this.props.context);
-    };
+  setProps(props) {
+    this.setState({
+      dialogProps: props
+    });
+  }
 
+  setVisible(value) {
+    this.setState({
+      isVisible: value
+    });
+  }
+
+  show() {
+    this.setVisible(true);
+  }
+
+  render() {
     return (
-      <RemoveDialog
-        isOpen={this.props.isDialogShow}
-        title={t('journals.action.delete-records-msg')}
-        text={t('journals.action.remove-records-msg')}
-        onDelete={onDelete}
-        onCancel={onCancel}
-        onClose={onCancel}
+      <this.props.dialogComponent
+        isVisible={this.state.isVisible}
+        setVisible={value => this.setVisible(value)}
+        dialogProps={this.state.dialogProps}
       />
     );
+  }
+}
+
+const dialogsById = {
+  [REMOVE_DIALOG_ID]: props => {
+    const dialogProps = props.dialogProps || {};
+
+    const { onDelete = () => {}, onCancel = () => {}, onClose = onCancel } = dialogProps;
+
+    let dProps = Object.assign(
+      {
+        title: t('journals.action.delete-records-msg'),
+        text: t('journals.action.remove-records-msg')
+      },
+      dialogProps,
+      {
+        isOpen: props.isVisible
+      }
+    );
+
+    dProps.onDelete = () => {
+      props.setVisible(false);
+      onDelete();
+    };
+
+    dProps.onCancel = () => {
+      props.setVisible(false);
+      onCancel();
+    };
+
+    dProps.onClose = () => {
+      props.setVisible(false);
+      onClose();
+    };
+
+    return <RemoveDialog {...dProps} />;
   }
 };
 
@@ -41,31 +84,34 @@ const showDialog = (id, props) => {
   let dialog = dialogs[id];
 
   if (!dialog) {
+    let dialogComponent = dialogsById[id];
+    if (!dialogComponent) {
+      throw new Error(`Dialog with id ${id} is not registered`);
+    }
+
     let container = document.createElement('div');
     container.id = id;
     document.body.appendChild(container);
 
-    let wrapperProps = {};
+    dialog = ReactDOM.render(<DialogWrapper dialogComponent={dialogComponent} dialogProps={props} />, container);
 
-    dialog = ReactDOM.render(editor, container);
     dialogs[id] = dialog;
+  } else {
+    dialog.setProps(props);
   }
+
+  dialog.setVisible(true);
+
+  return dialog;
 };
 
 export default class DialogManager {
-  showDeleteDialog({ onDelete, onCancel, context }) {
-    let self = this;
-
-    if (!editors[componentKey]) {
-      let editor = React.createElement(component);
-
-      let container = document.createElement('div');
-      container.id = self.contentId + '-' + componentKey;
-      document.body.appendChild(container);
-
-      editors[componentKey] = ReactDOM.render(editor, container);
-    }
-
-    editors[componentKey].show(showData, onSubmit);
+  static showRemoveDialog(props) {
+    return showDialog(REMOVE_DIALOG_ID, props);
   }
+}
+
+window.Citeck = window.Citeck || {};
+if (!window.Citeck.Dialogs) {
+  window.Citeck.Dialogs = DialogManager;
 }
