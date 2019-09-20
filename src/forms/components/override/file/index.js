@@ -1,5 +1,5 @@
 import File from './File';
-import FileEditor from 'formiojs/components/file/File.form';
+import FileEditor from './File.form';
 
 File.editForm = FileEditor;
 
