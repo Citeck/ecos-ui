@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import omit from 'lodash/omit';
 import { PROXY_URI } from '../../constants/alfresco';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
@@ -63,9 +64,10 @@ export default class ColumnsSetup extends Component {
   render() {
     const { right, ...props } = this.props;
     const cssClasses = classNames('export', props.className);
+    const attributes = omit(props, ['config']);
 
     return (
-      <div {...props} className={cssClasses}>
+      <div {...attributes} className={cssClasses}>
         <Dropdown
           menuClassName={right ? 'ecos-dropdown__menu_right' : ''}
           source={[
