@@ -17,6 +17,15 @@ const STATUSES = {
   AVAITING_APPROVAL: 'avaiting-approval',
   NEED_IMPROVED: 'need-improved'
 };
+const LABELS = {
+  HEADLINE_DELEGATION: 'Делегирование',
+
+  DELEGATION_DESCRIPTION_1: 'Табели подчиненных может заполнить другой сотрудник, если включить делегирование.',
+  DELEGATION_DESCRIPTION_2: 'Ваш табель заполнит другой сотрудник',
+  DELEGATION_DESCRIPTION_3: 'Внимание! Делегирование было отключено другим сотрудником.',
+
+  DELEGATION_LABEL_REJECT_OK: 'OK'
+};
 
 class MyTimesheetPage extends Component {
   constructor(props) {
@@ -184,7 +193,9 @@ class MyTimesheetPage extends Component {
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date()),
       currentStatus: STATUSES.NEED_IMPROVED,
-      isDelegated: false
+      isDelegated: false,
+      delegatedTo: 'Петренко Сергей Васильевич',
+      delegationRejected: true
     };
   }
 
@@ -274,7 +285,27 @@ class MyTimesheetPage extends Component {
   };
 
   handleToggleDelegated = isDelegated => {
-    this.setState({ isDelegated });
+    this.setState(state => {
+      const newState = {
+        isDelegated,
+        delegatedTo: ''
+      };
+
+      if (isDelegated) {
+        newState.delegatedTo = 'Петренко Сергей Васильевич';
+        newState.delegationRejected = false;
+      }
+
+      return newState;
+    });
+  };
+
+  handleClickDelegationRejectedConfirm = () => {
+    this.setState({
+      delegatedTo: '',
+      delegationRejected: false,
+      isDelegated: false
+    });
   };
 
   renderMyTimesheet = () => {
@@ -343,8 +374,51 @@ class MyTimesheetPage extends Component {
     );
   }
 
+  renderDelegation() {
+    const { isDelegated, delegatedTo, delegationRejected } = this.state;
+    let description = '';
+
+    if (!isDelegated) {
+      description = LABELS.DELEGATION_DESCRIPTION_1;
+    }
+
+    if (delegationRejected) {
+      description = LABELS.DELEGATION_DESCRIPTION_3;
+    }
+
+    if (delegatedTo) {
+      description = `${LABELS.DELEGATION_DESCRIPTION_2} - `;
+    }
+
+    return (
+      <div className="ecos-timesheet__column ecos-timesheet__delegation">
+        <div className="ecos-timesheet__title">{t(LABELS.HEADLINE_DELEGATION)}</div>
+
+        <div className="ecos-timesheet__delegation-switch">
+          <Switch checked={isDelegated} className="ecos-timesheet__delegation-switch-checkbox" onToggle={this.handleToggleDelegated} />
+
+          <span className="ecos-timesheet__delegation-switch-label">
+            {t(description)}{' '}
+            {delegatedTo && (
+              <span className="ecos-timesheet__delegation-switch-label ecos-timesheet__delegation-switch-label_link">{delegatedTo}</span>
+            )}
+          </span>
+
+          {delegationRejected && (
+            <div
+              className="ecos-timesheet__delegation-btn ecos-timesheet__delegation-btn-ok"
+              onClick={this.handleClickDelegationRejectedConfirm}
+            >
+              {t(LABELS.DELEGATION_LABEL_REJECT_OK)}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   render() {
-    const { sheetTabs, isDelegated, currentDate } = this.state;
+    const { sheetTabs, currentDate } = this.state;
 
     return (
       <div className="ecos-timesheet">
@@ -357,17 +431,7 @@ class MyTimesheetPage extends Component {
             </div>
           </div>
 
-          <div className="ecos-timesheet__column ecos-timesheet__delegation">
-            <div className="ecos-timesheet__title">{t('Делегирование')}</div>
-
-            <div className="ecos-timesheet__delegation-switch">
-              <Switch checked={isDelegated} className="ecos-timesheet__delegation-switch-checkbox" onToggle={this.handleToggleDelegated} />
-
-              <span className="ecos-timesheet__delegation-switch-label">
-                {t('Табели подчиненных может заполнить другой сотрудник, если включить делегирование.')}
-              </span>
-            </div>
-          </div>
+          {this.renderDelegation()}
         </div>
 
         <div className="ecos-timesheet__header">

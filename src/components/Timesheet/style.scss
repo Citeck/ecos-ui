@@ -44,7 +44,27 @@
 
         &_link {
           color: $color-blue-dark;
+          cursor: pointer;
         }
+      }
+    }
+
+    &-btn {
+      &-ok {
+        height: 40px;
+        padding: 9px 17px;
+        cursor: pointer;
+        background: $color-gray-1;
+        border-radius: $border-radius-standard;
+        color: $text-color-gray;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 23px;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin-left: 10px;
       }
     }
   }
