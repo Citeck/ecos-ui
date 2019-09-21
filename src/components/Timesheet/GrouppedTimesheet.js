@@ -342,9 +342,7 @@ class GrouppedTimesheet extends BaseTimesheet {
       className={classNames('ecos-timesheet__table-calendar-cell_hours', 'ecos-timesheet__table-calendar-cell_group-item', {
         'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay
       })}
-    >
-      10
-    </CalendarCell>
+    />
   );
 
   renderCalendarHeader() {

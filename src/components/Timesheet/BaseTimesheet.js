@@ -185,12 +185,7 @@ class BaseTimesheet extends Component {
   renderCalendarHeader() {
     const { daysOfMonth } = this.props;
 
-    return (
-      <>
-        <Header key="header-date" daysOfMonth={daysOfMonth} />
-        <CalendarRow key="hours">{daysOfMonth.map(this.renderCountByDay)}</CalendarRow>
-      </>
-    );
+    return <Header key="header-date" daysOfMonth={daysOfMonth} />;
   }
 
   renderEvents() {
