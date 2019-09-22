@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import classNames from 'classnames';
 
+import { Icon } from '../common';
+
 const TYPES = {
   DAY: 'day',
   MONTH: 'month',
@@ -75,8 +77,8 @@ class DateSlider extends Component {
     const { canDecrement } = this.props;
 
     return (
-      <div
-        className={classNames('ecos-date-slider__btn ecos-date-slider__btn-prev', {
+      <Icon
+        className={classNames('icon-left ecos-date-slider__btn', {
           'ecos-date-slider__btn_disabled': !canDecrement
         })}
         onClick={this.handleClick.bind(null, [DATE_ACTIONS.SUBTRACT])}
@@ -88,8 +90,8 @@ class DateSlider extends Component {
     const { canIncrement } = this.props;
 
     return (
-      <div
-        className={classNames('ecos-date-slider__btn ecos-date-slider__btn-next', {
+      <Icon
+        className={classNames('icon-right ecos-date-slider__btn', {
           'ecos-date-slider__btn_disabled': !canIncrement
         })}
         onClick={this.handleClick.bind(null, [DATE_ACTIONS.ADD])}

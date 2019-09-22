@@ -211,7 +211,11 @@ class SubordinatesTimesheetPage extends Component {
     ).map(day => ({
       number: day.format('D'),
       title: day.format('dd, D'),
+      // рабочий день
       isBusinessDay: moment(day).isBusinessDay(),
+      // короткий день
+      // isShortenedDay: true,
+      // текущий день
       isCurrentDay: moment().isSame(moment(day), 'd')
     }));
 

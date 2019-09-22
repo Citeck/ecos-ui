@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
-// import Collapse from 'react-css-collapse';
 
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { Input } from '../common/form';
@@ -212,7 +211,7 @@ class GrouppedTimesheet extends BaseTimesheet {
             onChange={this.handleFilterTypes}
           />
 
-          {typeFilter && <div className="ecos-timesheet__table-search-input-clear" onClick={this.handleClearFilterTypes} />}
+          {typeFilter && <Icon className="icon-close ecos-timesheet__table-search-input-clear" onClick={this.handleClearFilterTypes} />}
         </div>
       </div>
     );
@@ -246,66 +245,71 @@ class GrouppedTimesheet extends BaseTimesheet {
         <div>
           {filteredEventTypes.map((item, index) => (
             <SortableElement key={`${item.user}`} index={index}>
-              <div className="ecos-timesheet__table-group-v2">
-                <div className="ecos-timesheet__table-group-v2-header">
-                  <div className="ecos-timesheet__table-group-v2-line">
-                    <SortableHandle>
-                      <div className="ecos-timesheet__table-group-v2-header-dnd" />
-                    </SortableHandle>
+              <div className="ecos-timesheet__table-group">
+                <div className="ecos-timesheet__table-group-header">
+                  <div className="ecos-timesheet__table-group-line">
+                    <div className="ecos-timesheet__table-group-name">
+                      <SortableHandle>
+                        <Icon className="icon-drag ecos-timesheet__table-group-header-dnd" />
+                      </SortableHandle>
 
-                    <div
-                      className={classNames('ecos-timesheet__table-group-v2-collapse', {
-                        'ecos-timesheet__table-group-v2-collapse_open': this.getGroupStatus(item.user)
-                      })}
-                      data-key={item.user}
-                      onClick={this.handleToggleGroupCollapse}
-                    />
+                      <Icon
+                        className={classNames('icon-down ecos-timesheet__table-group-collapse', {
+                          'ecos-timesheet__table-group-collapse_open': this.getGroupStatus(item.user)
+                        })}
+                        data-key={item.user}
+                        onClick={this.handleToggleGroupCollapse}
+                      />
 
-                    <div className="ecos-timesheet__table-group-v2-header-title">{item.user}</div>
+                      <div className="ecos-timesheet__table-group-header-title">{item.user}</div>
+                    </div>
 
                     {/* TODO: использовать проверку на наличие новых комментариев */}
-                    {this.getGroupStatus(item.user) ? (
-                      <>
-                        <Icon
-                          id={`timesheet-group-${index}-history`}
-                          className="icon-history ecos-timesheet__table-group-v2-header-history"
-                        />
-                        <Tooltip
-                          target={`timesheet-group-${index}-history`}
-                          content={t('Показать историю событий')}
-                          innerClassName="ecos-timesheet__table-group-v2-tooltip"
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <Icon
-                          id={`timesheet-group-${index}-message`}
-                          className="icon-message ecos-timesheet__table-group-v2-header-message"
-                        />
-                        <Tooltip
-                          target={`timesheet-group-${index}-message`}
-                          content={t('Показать комментарий')}
-                          innerClassName="ecos-timesheet__table-group-v2-tooltip"
-                        />
-                      </>
-                    )}
-                    <div className="ecos-timesheet__table-group-v2-header-badge">{item.timesheetNumber}</div>
+
+                    <div className="ecos-timesheet__table-group-number">
+                      {this.getGroupStatus(item.user) ? (
+                        <>
+                          <Icon
+                            id={`timesheet-group-${index}-history`}
+                            className="icon-history ecos-timesheet__table-group-header-history"
+                          />
+                          <Tooltip
+                            target={`timesheet-group-${index}-history`}
+                            content={t('Показать историю событий')}
+                            innerClassName="ecos-timesheet__table-group-tooltip"
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <Icon
+                            id={`timesheet-group-${index}-message`}
+                            className="icon-message ecos-timesheet__table-group-header-message"
+                          />
+                          <Tooltip
+                            target={`timesheet-group-${index}-message`}
+                            content={t('Показать комментарий')}
+                            innerClassName="ecos-timesheet__table-group-tooltip"
+                          />
+                        </>
+                      )}
+                      <div className="ecos-timesheet__table-group-header-badge">{item.timesheetNumber}</div>
+                    </div>
                   </div>
 
-                  <div className="ecos-timesheet__table-group-v2-line">
+                  <div className="ecos-timesheet__table-group-line">
                     <div
-                      className="ecos-timesheet__table-group-v2-btn ecos-timesheet__table-group-v2-btn_revision"
+                      className="ecos-timesheet__table-group-btn ecos-timesheet__table-group-btn_revision"
                       onClick={() => this.handleClickDisapprove(index)}
                     >
-                      <Icon className="icon-arrow-left ecos-timesheet__table-group-v2-btn-icon" />
-                      <span className="ecos-timesheet__table-group-v2-btn-label">{t('На доработку')}</span>
+                      <Icon className="icon-arrow-left ecos-timesheet__table-group-btn-icon" />
+                      <span className="ecos-timesheet__table-group-btn-label">{t('На доработку')}</span>
                     </div>
                     <div
-                      className="ecos-timesheet__table-group-v2-btn ecos-timesheet__table-group-v2-btn_approve"
+                      className="ecos-timesheet__table-group-btn ecos-timesheet__table-group-btn_approve"
                       onClick={() => this.handleClickApprove(index)}
                     >
-                      <Icon className="icon-check ecos-timesheet__table-group-v2-btn-icon" />
-                      <span className="ecos-timesheet__table-group-v2-btn-label">{t('Согласовать')}</span>
+                      <Icon className="icon-check ecos-timesheet__table-group-btn-icon" />
+                      <span className="ecos-timesheet__table-group-btn-label">{t('Согласовать')}</span>
                     </div>
                   </div>
                 </div>
@@ -325,12 +329,12 @@ class GrouppedTimesheet extends BaseTimesheet {
     <SortableElement key={item.title} index={position}>
       <div className="ecos-timesheet__table-events-item">
         <SortableHandle>
-          <div className="ecos-timesheet__table-events-item-dnd" />
+          <Icon className="icon-drag ecos-timesheet__table-events-item-dnd" />
         </SortableHandle>
 
         <div className="ecos-timesheet__table-events-item-filter" style={{ backgroundColor: item.color || '#D0D0D0' }} />
         <div className="ecos-timesheet__table-events-item-title">{item.title}</div>
-        <div className="ecos-timesheet__table-events-item-add-btn" id={`event-type-${position}-group-${groupPosition}`} />
+        <Icon className="icon-plus ecos-timesheet__table-events-item-add-btn" id={`event-type-${position}-group-${groupPosition}`} />
         <Tooltip target={`event-type-${position}-group-${groupPosition}`} content={t('Добавить дни')} />
       </div>
     </SortableElement>

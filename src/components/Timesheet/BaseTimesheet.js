@@ -134,7 +134,7 @@ class BaseTimesheet extends Component {
             onChange={this.handleFilterTypes}
           />
 
-          {typeFilter && <div className="ecos-timesheet__table-search-input-clear" onClick={this.handleClearFilterTypes} />}
+          {typeFilter && <Icon className="icon-close ecos-timesheet__table-search-input-clear" onClick={this.handleClearFilterTypes} />}
         </div>
       </div>
     );
@@ -160,12 +160,12 @@ class BaseTimesheet extends Component {
     <SortableElement key={item.title} index={position}>
       <div className="ecos-timesheet__table-events-item">
         <SortableHandle>
-          <div className="ecos-timesheet__table-events-item-dnd" />
+          <Icon className="icon-drag ecos-timesheet__table-events-item-dnd" />
         </SortableHandle>
 
         <div className="ecos-timesheet__table-events-item-filter" style={{ backgroundColor: item.color || '#D0D0D0' }} />
         <div className="ecos-timesheet__table-events-item-title">{item.title}</div>
-        <div className="ecos-timesheet__table-events-item-add-btn" id={`event-type-${position}`} />
+        <Icon className="icon-plus ecos-timesheet__table-events-item-add-btn" id={`event-type-${position}`} />
         <Tooltip target={`event-type-${position}`} content={t('Добавить дни')} />
       </div>
     </SortableElement>

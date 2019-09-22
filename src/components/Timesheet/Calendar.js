@@ -2,7 +2,9 @@ import React from 'react';
 import classNames from 'classnames';
 import MyCollapse from 'react-css-collapse';
 import uuid from 'uuidv4';
+
 import Tooltip from './Tooltip';
+import { t } from '../../helpers/util';
 
 export const CalendarRow = React.memo(({ children = null, className, ...props }) => (
   <div className={classNames('ecos-timesheet__table-calendar-row', className)} {...props}>
@@ -56,12 +58,31 @@ export const Header = React.memo(({ daysOfMonth, byGroup = false }) => (
         className={classNames('ecos-timesheet__table-calendar-cell_day', 'ecos-timesheet__table-calendar-cell_big', {
           'ecos-timesheet__table-calendar-cell_weekend': !day.isBusinessDay,
           'ecos-timesheet__table-calendar-cell_current': day.isCurrentDay,
+          'ecos-timesheet__table-calendar-cell_shortened': day.isShortenedDay,
           'ecos-timesheet__table-calendar-cell_by-group': byGroup
         })}
-        tooltipLabel={day.isCurrentDay ? 'Сегодня' : day.isBusinessDay ? '' : 'Выходной день'}
+        tooltipLabel={dayTypeLabel(day)}
       >
         {day.title}
       </CalendarCell>
     ))}
   </CalendarRow>
 ));
+
+export const dayTypeLabel = day => {
+  let label = '';
+
+  if (day.isShortenedDay) {
+    label = t('Сокращённый день');
+  }
+
+  if (!day.isBusinessDay) {
+    label = t('Выходной день');
+  }
+
+  if (day.isCurrentDay) {
+    label = t('Сегодня');
+  }
+
+  return label;
+};

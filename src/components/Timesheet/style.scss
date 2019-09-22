@@ -179,16 +179,14 @@
 
       &-input {
         position: relative;
+        height: 26px;
 
         &-clear {
           cursor: pointer;
           color: $color-gray-6;
+          font-size: 14px;
 
           &:before {
-            content: '\0062';
-            font-family: citeck;
-            font-size: 14px;
-            line-height: 1em;
             position: absolute;
             top: calc(50% - 1em / 2);
             right: 9px;
@@ -247,12 +245,7 @@
           margin-right: 9px;
           cursor: grab;
           color: $color-gray-6;
-
-          &:before {
-            content: '\006F';
-            font-family: citeck;
-            font-size: 14px;
-          }
+          font-size: 14px;
         }
 
         &-filter {
@@ -289,8 +282,6 @@
             position: absolute;
             font-size: $size;
             line-height: 1em;
-            content: '\0044';
-            font-family: citeck;
             top: 0;
             right: 0;
           }
@@ -424,6 +415,12 @@
         &_group-item {
           height: 80px;
         }
+
+        &_shortened {
+          border-color: $color-yellow-20 !important;
+          background-color: $color-yellow-10;
+          color: $color-yellow-30;
+        }
       }
 
       &_not-available {
@@ -435,112 +432,7 @@
       }
     }
 
-    // todo: можно будет удалить позже, заменено на v2
     &-group {
-      &-header {
-        height: 40px;
-        background-color: $color-gray-10;
-
-        &-title {
-          font-style: normal;
-          font-weight: bold;
-          font-size: 14px;
-          line-height: 23px;
-          color: $text-color-dark;
-          user-select: none;
-        }
-
-        &-dnd {
-          @extend #{$root}__table-events-item-dnd;
-        }
-
-        &-action {
-          display: flex;
-          position: absolute;
-          right: 16px;
-
-          &-tooltip {
-            max-width: 128px;
-          }
-
-          %action-btn {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            position: relative;
-            cursor: pointer;
-          }
-
-          &-approve {
-            @extend %action-btn;
-
-            background-color: $color-green1;
-
-            &:before {
-              @extend %icon-style;
-
-              content: '\E82E';
-              color: $color-white;
-              position: absolute;
-              top: calc(50% - 1em / 2);
-              left: calc(50% - 1em / 2);
-            }
-          }
-
-          &-disapprove {
-            @extend %action-btn;
-
-            background-color: $color-red-1;
-            margin-right: 5px;
-
-            &:before {
-              @extend %icon-style;
-
-              content: '\0074';
-              transform: rotate(180deg);
-              color: $color-white;
-              position: absolute;
-              top: calc(50% - 1em / 2);
-              left: calc(50% - 1em / 2);
-            }
-          }
-        }
-      }
-
-      &-collapse {
-        color: $color-gray-5;
-        cursor: pointer;
-        font-size: 14px;
-        width: 10px;
-        height: 100%;
-        position: relative;
-        margin-right: 8px;
-
-        &:before {
-          position: absolute;
-          top: calc(50% - 1em / 2);
-          left: calc(50% - 1em / 2);
-          line-height: 1em;
-          content: '\0052';
-          font-family: citeck;
-          font-size: 14px;
-          transition: 0.25s;
-        }
-
-        &-wrapper {
-          display: flex;
-          flex-wrap: wrap;
-        }
-
-        &_open {
-          &:before {
-            transform: rotate(90deg);
-          }
-        }
-      }
-    }
-
-    &-group-v2 {
       $group: &;
 
       &:hover {
@@ -627,6 +519,23 @@
         display: flex;
         align-items: center;
         width: 100%;
+
+        &_between {
+          justify-content: space-between;
+        }
+      }
+
+      &-name {
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+        max-width: 70%;
+      }
+
+      &-number {
+        display: flex;
+        align-items: center;
+        flex-grow: 0;
       }
 
       &-btn {
@@ -639,6 +548,7 @@
         border-radius: $border-radius-large;
         background: $color-gray-6;
         color: $color-white;
+        cursor: pointer;
 
         &-label {
           text-align: center;
@@ -646,7 +556,6 @@
           font-weight: bold;
           font-size: 14px;
           line-height: 23px;
-          cursor: pointer;
         }
 
         &-icon {
@@ -673,10 +582,9 @@
           top: calc(50% - 1em / 2);
           left: calc(50% - 1em / 2);
           line-height: 1em;
-          content: '\0052';
-          font-family: citeck;
           font-size: 14px;
           transition: 0.25s;
+          transform: rotate(-90deg);
         }
 
         &-wrapper {
@@ -686,8 +594,12 @@
 
         &_open {
           &:before {
-            transform: rotate(90deg);
+            transform: rotate(0deg);
           }
+        }
+
+        &:hover {
+          color: $text-color-gray;
         }
       }
 
@@ -843,28 +755,16 @@
     border-radius: 6px;
 
     &:before {
-      font-family: citeck;
       position: absolute;
       left: calc(50% - 1em / 2);
       top: calc(50% - 1em / 2);
       line-height: 1em;
+      margin: auto !important;
     }
 
     &:not(&_disabled):hover {
       background: $color-blue-light;
       color: $color-white;
-    }
-
-    &-prev {
-      &:before {
-        content: '\0051';
-      }
-    }
-
-    &-next {
-      &:before {
-        content: '\0052';
-      }
     }
 
     &_disabled {
@@ -876,6 +776,9 @@
 }
 
 .ecos-ts-hour {
+  $hour: &;
+
+  display: flex;
   position: relative;
 
   %box {
@@ -890,10 +793,10 @@
     opacity: 0;
     background: $color-gray-4;
     cursor: pointer;
+    font-size: 14px;
+    margin: auto;
 
     &:before {
-      content: '\0044';
-      font-family: citeck;
       font-size: 14px;
 
       position: absolute;
@@ -901,10 +804,6 @@
       left: calc(50% - 1em / 2);
       line-height: 1em;
       color: $color-gray-5;
-    }
-
-    &:hover {
-      opacity: 1;
     }
   }
 
@@ -923,29 +822,22 @@
 
     &:hover {
       #{$box}-delete {
-        &:after {
-          opacity: 1;
-        }
+        opacity: 1;
       }
     }
 
     &-delete {
       color: $text-color-gray;
-
-      &:after {
-        opacity: 0;
-        content: '\0062';
-        font-family: citeck;
-        font-size: 14px;
-        position: absolute;
-        right: calc(-1em / 2);
-        top: calc(-1em / 2 - 5px / 2);
-        line-height: 20px;
-        width: 20px;
-        border-radius: 50%;
-        background: $color-white;
-        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
-      }
+      position: absolute;
+      right: calc(-1em / 2);
+      top: calc(-1em / 2 - 5px / 2);
+      line-height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: $color-white;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
+      font-size: 14px;
+      opacity: 0;
 
       &:hover {
         color: $color-gray-dark;
@@ -975,6 +867,12 @@
 
     &-loader {
       width: 38px;
+    }
+  }
+
+  &:hover {
+    #{$hour}__empty {
+      opacity: 1;
     }
   }
 }

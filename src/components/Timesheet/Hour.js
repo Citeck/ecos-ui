@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { Input } from '../common/form';
-import { PointsLoader } from '../common';
+import { PointsLoader, Icon } from '../common';
 
 const KEYS = {
   ARROW_UP: 'ArrowUp',
@@ -172,7 +172,7 @@ class Hour extends Component {
       return null;
     }
 
-    return <div className="ecos-ts-hour__empty" onClick={this.handleToggleInput} />;
+    return <Icon className="icon-big-plus ecos-ts-hour__empty" onClick={this.handleToggleInput} />;
   }
 
   renderFullTime() {
@@ -190,7 +190,7 @@ class Hour extends Component {
         style={{ backgroundColor: color }}
         onClick={this.handleToggleInput}
       >
-        {canEdit && <div className="ecos-ts-hour__box-delete" onClick={this.handleDelete} />}
+        {canEdit && <Icon className="icon-plus ecos-ts-hour__box-delete" onClick={this.handleDelete} />}
         {this.value}
       </div>
     );
