@@ -85,7 +85,7 @@ export const MoveToLinesJournal = {
   execute: ({ record }) => {
     let recordId = record.id;
 
-    record.load('skifdm:eventTypeId').then(eventType => {
+    record.load('skifem:eventTypeAssoc.skifdm:eventTypeId?str').then(eventType => {
       goToJournalsPage({
         journalsListId: 'site-ssg-skif-main',
         journalId: 'event-lines-' + eventType,
