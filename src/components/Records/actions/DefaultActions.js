@@ -85,14 +85,16 @@ export const MoveToLinesJournal = {
   execute: ({ record }) => {
     let recordId = record.id;
 
-    goToJournalsPage({
-      journalsListId: 'site-ssg-skif-main',
-      journalId: 'event-lines',
-      filter: JSON.stringify({
-        t: 'eq',
-        att: 'skifem:eventRef',
-        val: recordId
-      })
+    record.load('skifdm:eventTypeId').then(eventType => {
+      goToJournalsPage({
+        journalsListId: 'site-ssg-skif-main',
+        journalId: 'event-lines-' + eventType,
+        filter: JSON.stringify({
+          t: 'eq',
+          att: 'skifem:eventRef',
+          val: recordId
+        })
+      });
     });
 
     return false;
