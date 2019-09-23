@@ -200,8 +200,8 @@
 .icon-history {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83e;&nbsp;');
 }
-.icon-message {
-  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83f;&nbsp;');
+.icon-drag-small {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe840;&nbsp;');
 }
 .icon-print {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe843;&nbsp;');

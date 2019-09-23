@@ -3,29 +3,14 @@ import moment from 'moment';
 import 'moment-business-days';
 import get from 'lodash/get';
 
-import Timesheet, { Tabs, DateSlider } from '../../components/Timesheet';
-import { Btn } from '../../components/common/btns';
+import Timesheet, { BlockStatus, DateSlider, Tabs } from '../../components/Timesheet';
 import { Switch } from '../../components/common/form/Checkbox';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { deepClone, t } from '../../helpers/util';
 import { pagesWithOnlyContent, URL } from '../../constants';
+import { Labels, Statuses } from '../../helpers/timesheet/constants';
 
 import './style.scss';
-
-const STATUSES = {
-  NOT_FILLED: 'not-filled',
-  AVAITING_APPROVAL: 'avaiting-approval',
-  NEED_IMPROVED: 'need-improved'
-};
-const LABELS = {
-  HEADLINE_DELEGATION: 'Делегирование',
-
-  DELEGATION_DESCRIPTION_1: 'Табели подчиненных может заполнить другой сотрудник, если включить делегирование.',
-  DELEGATION_DESCRIPTION_2: 'Ваш табель заполнит другой сотрудник',
-  DELEGATION_DESCRIPTION_3: 'Внимание! Делегирование было отключено другим сотрудником.',
-
-  DELEGATION_LABEL_REJECT_OK: 'OK'
-};
 
 class MyTimesheetPage extends Component {
   constructor(props) {
@@ -192,7 +177,7 @@ class MyTimesheetPage extends Component {
       ],
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date()),
-      currentStatus: STATUSES.NEED_IMPROVED,
+      currentStatus: Statuses.NEED_IMPROVED,
       isDelegated: false,
       delegatedTo: 'Петренко Сергей Васильевич',
       delegationRejected: true
@@ -224,7 +209,7 @@ class MyTimesheetPage extends Component {
   get lockDescription() {
     const { isDelegated, currentStatus } = this.state;
 
-    if (currentStatus === STATUSES.AVAITING_APPROVAL) {
+    if (currentStatus === Statuses.WAITING_APPROVAL) {
       return t('Чтобы редактировать табель, нажмите на кнопку "Доработать"');
     }
 
@@ -319,84 +304,31 @@ class MyTimesheetPage extends Component {
       <Timesheet
         eventTypes={eventTypes}
         daysOfMonth={daysOfMonth}
-        isAvailable={currentStatus !== STATUSES.AVAITING_APPROVAL && !isDelegated}
+        isAvailable={currentStatus !== Statuses.WAITING_APPROVAL && !isDelegated}
         lockedMessage={this.lockDescription}
       />
     );
   };
-
-  renderStatus() {
-    const { currentStatus } = this.state;
-    let content = null;
-
-    switch (currentStatus) {
-      case STATUSES.NOT_FILLED:
-        content = (
-          <React.Fragment>
-            <div className="ecos-timesheet__status-value">Не заполнен</div>
-            <Btn
-              className="ecos-timesheet__status-btn ecos-btn_blue"
-              onClick={this.handleChangeStatus.bind(null, STATUSES.AVAITING_APPROVAL)}
-            >
-              Отправить на согласование
-            </Btn>
-          </React.Fragment>
-        );
-        break;
-      case STATUSES.AVAITING_APPROVAL:
-        content = (
-          <React.Fragment>
-            <div className="ecos-timesheet__status-value">Ожидает согласования</div>
-            <Btn className="ecos-timesheet__status-btn ecos-btn_blue" onClick={this.handleChangeStatus.bind(null, STATUSES.NOT_FILLED)}>
-              Доработать
-            </Btn>
-          </React.Fragment>
-        );
-        break;
-      case STATUSES.NEED_IMPROVED:
-        content = (
-          <React.Fragment>
-            <div className="ecos-timesheet__status-value ecos-timesheet__status-value_warning">Требует доработки</div>
-            <Btn
-              className="ecos-timesheet__status-btn ecos-btn_blue"
-              onClick={this.handleChangeStatus.bind(null, STATUSES.AVAITING_APPROVAL)}
-            >
-              Отправить на согласование
-            </Btn>
-          </React.Fragment>
-        );
-        break;
-      default:
-        content = null;
-    }
-
-    return (
-      <div className="ecos-timesheet__status">
-        <div className="ecos-timesheet__status-title">Статус:</div>
-        {content}
-      </div>
-    );
-  }
 
   renderDelegation() {
     const { isDelegated, delegatedTo, delegationRejected } = this.state;
     let description = '';
 
     if (!isDelegated) {
-      description = LABELS.DELEGATION_DESCRIPTION_1;
+      description = Labels.DELEGATION_DESCRIPTION_1;
     }
 
     if (delegationRejected) {
-      description = LABELS.DELEGATION_DESCRIPTION_3;
+      description = Labels.DELEGATION_DESCRIPTION_3;
     }
 
     if (delegatedTo) {
-      description = `${LABELS.DELEGATION_DESCRIPTION_2} - `;
+      description = `${Labels.DELEGATION_DESCRIPTION_2} - `;
     }
 
     return (
       <div className="ecos-timesheet__column ecos-timesheet__delegation">
-        <div className="ecos-timesheet__title">{t(LABELS.HEADLINE_DELEGATION)}</div>
+        <div className="ecos-timesheet__title">{t(Labels.HEADLINE_DELEGATION)}</div>
 
         <div className="ecos-timesheet__delegation-switch">
           <Switch checked={isDelegated} className="ecos-timesheet__delegation-switch-checkbox" onToggle={this.handleToggleDelegated} />
@@ -413,7 +345,7 @@ class MyTimesheetPage extends Component {
               className="ecos-timesheet__delegation-btn ecos-timesheet__delegation-btn-ok"
               onClick={this.handleClickDelegationRejectedConfirm}
             >
-              {t(LABELS.DELEGATION_LABEL_REJECT_OK)}
+              {t(Labels.DELEGATION_LABEL_REJECT_OK)}
             </div>
           )}
         </div>
@@ -422,7 +354,7 @@ class MyTimesheetPage extends Component {
   }
 
   render() {
-    const { sheetTabs, currentDate } = this.state;
+    const { sheetTabs, currentDate, currentStatus } = this.state;
 
     return (
       <div className="ecos-timesheet">
@@ -449,7 +381,7 @@ class MyTimesheetPage extends Component {
             <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
           </div>
 
-          {this.renderStatus()}
+          <BlockStatus currentStatus={currentStatus} onChangeStatus={this.handleChangeStatus} />
         </div>
 
         {this.renderMyTimesheet()}
