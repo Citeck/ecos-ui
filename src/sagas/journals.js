@@ -506,33 +506,45 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
       id = '',
       meta: { nodeRef = '', criteria = [], predicate = {} }
     } = journalConfig;
+    let filter = '';
 
-    const journalType = (criteria[0] || {}).value || predicate.val;
+    if (id === 'event-lines-stat') {
+      //todo: move to journal config
 
-    if (journalType) {
-      let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(journalType)}`);
-      nodeRef = journalConfig.meta.nodeRef;
-      id = journalConfig.id;
-    }
-
-    if (groupBy.length) {
-      for (let key in row) {
-        if (!row.hasOwnProperty(key)) {
-          continue;
-        }
-
-        const value = row[key];
-
-        if (value && value.str) {
-          row[key] = value.str;
-        }
-      }
+      let eventType = yield call(api.journals.getRecord, { id: row.id, attributes: '.att(n:"skifem:eventTypeAssoc"){disp,assoc}' });
+      let eventRef = (eventType || {}).assoc;
+      let eventTypeId = yield call(api.journals.getRecord, { id: eventRef, attributes: 'skifdm:eventTypeId?str' });
+      id = 'event-lines-' + eventTypeId;
     } else {
-      let attributes = {};
+      const journalType = (criteria[0] || {}).value || predicate.val;
 
-      columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
+      if (journalType) {
+        let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(journalType)}`);
+        nodeRef = journalConfig.meta.nodeRef;
+        id = journalConfig.id;
+      }
 
-      row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
+      if (groupBy.length) {
+        for (let key in row) {
+          if (!row.hasOwnProperty(key)) {
+            continue;
+          }
+
+          const value = row[key];
+
+          if (value && value.str) {
+            row[key] = value.str;
+          }
+        }
+      } else {
+        let attributes = {};
+
+        columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
+
+        row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
+      }
+
+      filter = getFilterUrlParam({ row, columns, groupBy });
     }
 
     goToJournalsPageUrl({
@@ -540,7 +552,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
       journalId: id,
       journalSettingId,
       nodeRef,
-      filter: getFilterUrlParam({ row, columns, groupBy })
+      filter
     });
   } catch (e) {
     logger.error('[journals sagaGoToJournalsPage saga error', e.message);
