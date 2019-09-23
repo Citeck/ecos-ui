@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
-import moment from 'moment';
 import 'moment-business-days';
-import { withRouter } from 'react-router-dom';
 import get from 'lodash/get';
 
-import Timesheet, { Tabs, DateSlider } from '../../components/Timesheet';
-import { changeUrlLink } from '../../components/PageTabs/PageTabs';
+import { pagesWithOnlyContent } from '../../constants';
 import { deepClone, t } from '../../helpers/util';
-import { pagesWithOnlyContent, URL } from '../../constants';
+import { getDaysOfMonth } from '../../helpers/timesheet/util';
+import { Switch } from '../../components/common/form';
+import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
+import { changeUrlLink } from '../../components/PageTabs/PageTabs';
+import { TimesheetApi } from '../../api/timesheet';
 
 import './style.scss';
-import { Switch } from '../../components/common/form/Checkbox';
+
+const timesheetApi = new TimesheetApi();
 
 class SubordinatesTimesheetPage extends Component {
   constructor(props) {
@@ -20,148 +22,12 @@ class SubordinatesTimesheetPage extends Component {
       history: { location }
     } = props;
 
-    const eventTypes = [
-      {
-        title: 'Работа в дневное время',
-        name: 'daytime-work',
-        color: '#00C308',
-        canEdit: true
-      },
-      {
-        title: 'Командировка',
-        name: 'business-trip',
-        color: '#ff3ecb',
-        canEdit: true
-      },
-      {
-        title: 'Отсутствие (необходимы оригиналы документов)',
-        name: 'absence',
-        color: '#af9fff',
-        canEdit: true
-      },
-      {
-        title: 'Ежегодный основной оплачиваемый отпуск',
-        name: 'annual-basic-paid-leave',
-        color: '#DF3386',
-        canEdit: false
-      },
-      {
-        title: 'Отпуск без сохранения заработной платы',
-        name: 'basic-unpaid-leave',
-        color: '#ff41e3',
-        canEdit: false
-      },
-      {
-        title: 'Отпуск 1 из 5',
-        name: 'one-of-five',
-        color: '#d51842',
-        canEdit: false
-      },
-      {
-        title: 'Отпуск за работу в условиях крайнего севера',
-        name: 'north-paid-leave',
-        color: '#e89972',
-        canEdit: false
-      },
-      {
-        title: 'Дополнительный отпуск за работу во вредных условиях труда',
-        name: 'harmful-paid-leave',
-        color: '#c0ac70',
-        canEdit: false
-      },
-      {
-        title: 'Отпуск за ненормированный рабочий день',
-        name: 'irregular-paid-leave',
-        color: '#ff9953',
-        canEdit: false
-      },
-      {
-        title: 'Отгул',
-        name: 'compensatory-leave',
-        color: '#29bd8d',
-        canEdit: true
-      },
-      {
-        title: 'Работа в выходные и праздничные дни (отгул + оплата)',
-        name: 'weekends-holidays-work-holiday-and-compensation',
-        color: '#33DFD5',
-        canEdit: true
-      },
-      {
-        title: 'Работа в выходные и праздничные дни (двойная оплата)',
-        name: 'weekends-holidays-work-doubled-compensation',
-        color: '#3382df',
-        canEdit: true
-      },
-      {
-        title: 'Сверхурочная работа',
-        name: 'overtime-work',
-        color: '#DF8633',
-        canEdit: true
-      },
-      {
-        title: 'Работа в ночное время',
-        name: 'night-work',
-        color: '#4133DF',
-        canEdit: true
-      }
-    ];
+    const eventTypes = timesheetApi.getEventTypes();
 
     this.state = {
       eventTypes,
-      subordinatesEvents: [
-        {
-          user: 'Пантелеева Мадина',
-          organization: 'ООО ДжиИ Рус',
-          eventTypes: deepClone(eventTypes),
-          timesheetNumber: '212392064'
-        },
-        {
-          user: 'Медведева Диана',
-          organization: 'ООО ДжиИ Рус',
-          eventTypes: deepClone(eventTypes),
-          timesheetNumber: '212572436'
-        },
-        {
-          user: 'Миронова Татьяна',
-          organization: 'ООО ДжиИ Рус',
-          eventTypes: deepClone(eventTypes),
-          timesheetNumber: '212604506'
-        },
-        {
-          user: 'Кулахметов Шамиль',
-          organization: 'ООО ДжиИ Хэлскеа',
-          eventTypes: deepClone(eventTypes),
-          timesheetNumber: '212594037'
-        },
-        {
-          user: 'Печкуров Григорий',
-          organization: 'ООО АЛЬСТОМ',
-          eventTypes: deepClone(eventTypes),
-          timesheetNumber: '212555619'
-        }
-      ],
-      sheetTabs: [
-        {
-          name: 'Мой табель',
-          link: this.isOnlyContent ? URL.TIMESHEET_IFRAME : URL.TIMESHEET,
-          isActive: [URL.TIMESHEET, URL.TIMESHEET_IFRAME].includes(location.pathname),
-          isAvailable: true
-        },
-        {
-          name: 'Табели подчиненных',
-          link: this.isOnlyContent ? URL.TIMESHEET_IFRAME_SUBORDINATES : URL.TIMESHEET_SUBORDINATES,
-          isActive: [URL.TIMESHEET_SUBORDINATES, URL.TIMESHEET_IFRAME_SUBORDINATES].includes(location.pathname),
-          isAvailable: true
-        },
-        {
-          name: 'Делегированные',
-          link: URL.TIMESHEET_IFRAME,
-          isActive: false,
-          isAvailable: true,
-          badge: '99'
-        }
-      ],
+      subordinatesEvents: timesheetApi.getSubordinatesEvents(),
+      sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
       dateTabs: [
         {
           name: 'Месяц',
@@ -203,21 +69,9 @@ class SubordinatesTimesheetPage extends Component {
     return pagesWithOnlyContent.includes(url);
   }
 
-  getDaysOfMonth = currentDate =>
-    Array.from({ length: moment(currentDate).daysInMonth() }, (x, i) =>
-      moment(currentDate)
-        .startOf('month')
-        .add(i, 'days')
-    ).map(day => ({
-      number: day.format('D'),
-      title: day.format('dd, D'),
-      // рабочий день
-      isBusinessDay: moment(day).isBusinessDay(),
-      // короткий день
-      // isShortenedDay: true,
-      // текущий день
-      isCurrentDay: moment().isSame(moment(day), 'd')
-    }));
+  getDaysOfMonth = currentDate => {
+    return getDaysOfMonth(currentDate);
+  };
 
   get lockDescription() {
     const { isDelegated } = this.state;
