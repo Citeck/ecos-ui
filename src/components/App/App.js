@@ -15,7 +15,7 @@ import PageTabs from '../PageTabs';
 
 import { changeActiveTab, getActiveTabTitle, getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
-import { MENU_TYPE, URL, pagesWithOnlyContent } from '../../constants';
+import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 
 import './App.scss';
 
@@ -37,6 +37,7 @@ const DocStatusPage = lazy(() => import('../../pages/debug/DocStatus/DocStatusPa
 const MyTimesheetPage = lazy(() => import('../../pages/Timesheet/MyTimesheetPage'));
 const SubordinatesTimesheetPage = lazy(() => import('../../pages/Timesheet/SubordinatesTimesheetPage'));
 const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/VerificationTimesheetPage'));
+const DelegatedTimesheetsPage = lazy(() => import('../../pages/Timesheet/DelegatedTimesheetsPage'));
 
 class App extends Component {
   componentDidMount() {
@@ -173,9 +174,11 @@ class App extends Component {
               <Route path={URL.TIMESHEET} exact component={MyTimesheetPage} />
               <Route path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
               <Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
+              <Route path={URL.TIMESHEET_DELEGATED} component={DelegatedTimesheetsPage} />
               <Route path={URL.TIMESHEET_IFRAME} exact component={MyTimesheetPage} />
               <Route path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
               <Route path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />
+              <Route path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
               <Route path="/v2/debug/formio-develop" component={FormIOPage} />
               <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
               {/*<Route component={NotFoundPage} />*/}

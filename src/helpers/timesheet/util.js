@@ -1,4 +1,7 @@
 import moment from 'moment';
+import 'moment-business-days';
+import get from 'lodash/get';
+import { pagesWithOnlyContent } from '../../constants';
 
 export function getDaysOfMonth(currentDate) {
   const arr = Array.from({ length: moment(currentDate).daysInMonth() }, (x, i) => {
@@ -17,4 +20,10 @@ export function getDaysOfMonth(currentDate) {
     // текущий день
     isCurrentDay: moment().isSame(moment(day), 'd')
   }));
+}
+
+export function isOnlyContent(props) {
+  const url = get(props, ['history', 'location', 'pathname'], '/');
+
+  return pagesWithOnlyContent.includes(url);
 }

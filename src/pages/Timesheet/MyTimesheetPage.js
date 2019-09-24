@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import 'moment-business-days';
-import get from 'lodash/get';
 
 import Timesheet, { BlockStatus, DateSlider, Tabs } from '../../components/Timesheet';
 import { Switch } from '../../components/common/form/Checkbox';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { deepClone, t } from '../../helpers/util';
-import { pagesWithOnlyContent } from '../../constants';
 import { Labels, Statuses } from '../../helpers/timesheet/constants';
-import { getDaysOfMonth } from '../../helpers/timesheet/util';
+import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import { TimesheetApi } from '../../api/timesheet';
 
 import './style.scss';
@@ -52,9 +50,7 @@ class MyTimesheetPage extends Component {
   }
 
   get isOnlyContent() {
-    const url = get(this.props, ['history', 'location', 'pathname'], '/');
-
-    return pagesWithOnlyContent.includes(url);
+    return isOnlyContent(this.props);
   }
 
   getDaysOfMonth = currentDate => {

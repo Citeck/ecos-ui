@@ -18,8 +18,8 @@ export class TimesheetApi {
       },
       {
         name: 'Делегированные',
-        link: URL.TIMESHEET_IFRAME,
-        isActive: false,
+        link: isOnlyContent ? URL.TIMESHEET_IFRAME_DELEGATED : URL.TIMESHEET_DELEGATED,
+        isActive: [URL.TIMESHEET_IFRAME_DELEGATED, URL.TIMESHEET_DELEGATED].includes(location.pathname),
         isAvailable: true,
         badge: '99'
       }

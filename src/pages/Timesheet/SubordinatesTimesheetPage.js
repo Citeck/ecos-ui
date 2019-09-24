@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import 'moment-business-days';
-import get from 'lodash/get';
-
-import { pagesWithOnlyContent } from '../../constants';
 import { deepClone, t } from '../../helpers/util';
-import { getDaysOfMonth } from '../../helpers/timesheet/util';
+import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import { Switch } from '../../components/common/form';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
@@ -64,9 +61,7 @@ class SubordinatesTimesheetPage extends Component {
   }
 
   get isOnlyContent() {
-    const url = get(this.props, ['history', 'location', 'pathname'], '/');
-
-    return pagesWithOnlyContent.includes(url);
+    return isOnlyContent(this.props);
   }
 
   getDaysOfMonth = currentDate => {
