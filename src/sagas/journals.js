@@ -1,53 +1,53 @@
-import { put, call, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import cloneDeep from 'lodash/cloneDeep';
 import {
-  getDashletEditorData,
-  getDashletConfig,
-  getJournalsData,
-  saveDashlet,
-  setGrid,
-  setEditorMode,
-  setJournalsList,
-  setJournals,
-  setDashletConfig,
-  reloadGrid,
-  initJournal,
-  reloadTreeGrid,
-  setJournalConfig,
-  execRecordsAction,
-  deleteRecords,
-  saveRecords,
-  setSelectedRecords,
-  saveJournalSetting,
+  cancelJournalSettingData,
   createJournalSetting,
+  createZip,
   deleteJournalSetting,
+  deleteRecords,
+  execRecordsAction,
+  getDashletConfig,
+  getDashletEditorData,
+  getJournalsData,
+  goToJournalsPage,
+  initJournal,
+  initJournalSettingData,
+  initPreview,
+  onJournalSelect,
+  onJournalSettingsSelect,
+  performGroupAction,
+  reloadGrid,
+  reloadTreeGrid,
+  renameJournalSetting,
+  saveDashlet,
+  saveJournalSetting,
+  saveRecords,
+  search,
+  setColumnsSetup,
+  setDashletConfig,
+  setEditorMode,
+  setGrid,
+  setGridInlineToolSettings,
+  setGrouping,
+  setJournalConfig,
+  setJournals,
   setJournalSetting,
   setJournalSettings,
-  setPredicate,
-  setColumnsSetup,
-  setGrouping,
-  initJournalSettingData,
-  onJournalSettingsSelect,
-  onJournalSelect,
-  initPreview,
-  setPreviewUrl,
-  goToJournalsPage,
-  search,
-  performGroupAction,
+  setJournalsList,
   setPerformGroupActionResponse,
-  createZip,
-  setZipNodeRef,
-  renameJournalSetting,
+  setPredicate,
+  setPreviewFileName,
+  setPreviewUrl,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setGridInlineToolSettings,
-  cancelJournalSettingData,
-  setPreviewFileName
+  setSelectedRecords,
+  setZipNodeRef
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { JOURNAL_SETTING_ID_FIELD, DEFAULT_JOURNALS_PAGINATION, DEFAULT_INLINE_TOOL_SETTINGS } from '../components/Journals/constants';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
-import { goToJournalsPage as goToJournalsPageUrl, getFilterUrlParam } from '../helpers/urls';
+import { getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
 import { t } from '../helpers/util';
 import { wrapSaga } from '../helpers/redux';
 
@@ -377,7 +377,7 @@ function* sagaDeleteRecords({ api, logger, stateId, w }, action) {
 
 function* sagaExecRecordsAction({ api, logger, stateId, w }, action) {
   try {
-    const actionResult = yield call(api.recordActions.execAction, action.payload);
+    const actionResult = yield call(api.recordActions.executeAction, action.payload);
     if (actionResult !== false) {
       yield put(reloadGrid(w()));
       yield put(setSelectedRecords(w([])));

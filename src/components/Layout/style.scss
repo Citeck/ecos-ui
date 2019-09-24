@@ -276,7 +276,7 @@ $indents-of-items: 10px;
   }
 
   &__element {
-    &:not(:last-child) {
+    &:not(:last-child):not(:empty) {
       margin-bottom: 10px;
     }
   }

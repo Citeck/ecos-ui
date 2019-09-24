@@ -16,10 +16,11 @@ import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
 import { PROXY_URI } from '../../../constants/alfresco';
+import { ActionModes } from '../../../constants';
 import RecordActions from '../../Records/actions';
 import {
-  execRecordsAction,
   deleteRecords,
+  execRecordsAction,
   goToJournalsPage,
   performGroupAction,
   reloadGrid,
@@ -163,7 +164,7 @@ class JournalsDashletGrid extends Component {
     }
 
     const context = {
-      mode: 'journal',
+      mode: ActionModes.JOURNAL,
       scope: journalConfig.id,
       journalConfig
     };
