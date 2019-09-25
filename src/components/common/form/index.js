@@ -10,3 +10,4 @@ export { default as Dropdown } from './Dropdown';
 export { default as Checkbox } from './Checkbox';
 export { default as Headline } from './Headline/Headline';
 export { default as Badge } from './Badge/Badge';
+export { default as SelectOrgstruct } from './SelectOrgstruct';
