@@ -18,13 +18,14 @@ function* sagaGetActions({ api, logger }, { payload }) {
 function* sagaExecuteAction({ api, logger }, { payload }) {
   try {
     const { record, action, stateId, context } = payload;
+
+    yield put(backExecuteAction({ stateId })); //todo перенести после выполнения действия после доработки сервиса
+
     const res = yield call(api.recordActions.executeAction, { records: record, action, context });
 
     if (!res) {
       yield put(setNotificationMessage(t('records-actions.action-failed')));
     }
-
-    yield put(backExecuteAction({ stateId }));
   } catch (e) {
     yield put(setNotificationMessage(t('records-actions.action-failed')));
     logger.error('[tasks/sagaGetCurrentTasks saga] error', e.message);
