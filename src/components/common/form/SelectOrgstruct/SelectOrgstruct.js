@@ -32,7 +32,8 @@ SelectOrgstruct.propTypes = {
   allowedAuthorityTypes: PropTypes.array,
   allowedGroupTypes: PropTypes.array,
   allowedGroupSubTypes: PropTypes.array,
-  viewOnly: PropTypes.bool
+  viewOnly: PropTypes.bool,
+  renderView: PropTypes.func
 };
 
 export default SelectOrgstruct;
