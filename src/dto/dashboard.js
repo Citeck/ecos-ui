@@ -72,18 +72,6 @@ export default class DashboardConverter {
     return target;
   }
 
-  static getDashboardForServer(source) {
-    if (isEmpty(source)) {
-      return {};
-    }
-
-    const {
-      config: { columns, type }
-    } = source;
-
-    return { layout: { columns, type } };
-  }
-
   static getTitleInfo(source = {}) {
     const target = {};
 

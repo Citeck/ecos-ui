@@ -10,7 +10,7 @@ import {
 } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
 import { setActiveTabTitle } from '../actions/pageTabs';
-import { selectIdentificationForView } from '../selectors/dashboard';
+import { selectDashboardConfigs, selectIdentificationForView } from '../selectors/dashboard';
 import { t } from '../helpers/util';
 import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
@@ -42,10 +42,19 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   try {
     const identification = yield select(selectIdentificationForView);
-    const config = DashboardConverter.getDashboardForServer(payload);
+    const config = yield select(selectDashboardConfigs);
+
+    if (config.isMobile) {
+      config.mobile = payload.config;
+      yield put(setMobileDashboardConfig(payload.config));
+    } else {
+      config.layouts = payload.config;
+      yield put(setDashboardConfig(payload.config));
+    }
+    delete config.isMobile;
+
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification });
     const res = DashboardService.parseRequestResult(dashboardResult);
-    const newConfig = payload.config;
 
     yield put(
       setRequestResultDashboard({
@@ -53,8 +62,6 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
         dashboardId: res.dashboardId
       })
     );
-
-    yield put(setDashboardConfig(newConfig));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error6')));
     logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e.message);
