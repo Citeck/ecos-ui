@@ -114,7 +114,11 @@ class RecordsComponent {
       return id;
     }
     if (isArray(id)) {
-      return id.map(i => this.get(i));
+      let result = id.map(i => this.get(i));
+      result.load = function() {
+        return Promise.all(this.map(r => r.load.apply(r, arguments)));
+      };
+      return result;
     }
 
     let rec = this._records[id];
