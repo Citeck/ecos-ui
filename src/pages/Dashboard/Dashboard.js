@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
+import { Scrollbars } from 'react-custom-scrollbars';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
-import { Scrollbars } from 'react-custom-scrollbars';
-import classNames from 'classnames';
 
 import { getDashboardConfig, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
@@ -165,13 +165,17 @@ class Dashboard extends Component {
     return [];
   }
 
+  saveDashboardConfig = payload => {
+    this.props.saveDashboardConfig && this.props.saveDashboardConfig(payload);
+  };
+
   updateActiveConfig(activeLayout) {
     const { config, activeLayoutId } = this.state;
     const upConfig = deepClone(config, []);
 
-    upConfig.forEach(item => {
+    upConfig.forEach((item, i) => {
       if (item.id === activeLayoutId) {
-        config[activeLayoutId] = activeLayout;
+        upConfig[i] = activeLayout;
       }
     });
 
@@ -206,11 +210,8 @@ class Dashboard extends Component {
     }
 
     const config = this.updateActiveConfig(activeLayout);
-    this.saveDashboardConfig({ config });
-  };
 
-  saveDashboardConfig = payload => {
-    this.props.saveDashboardConfig(payload);
+    this.saveDashboardConfig({ config });
   };
 
   handleSaveMenu = links => {
@@ -236,6 +237,7 @@ class Dashboard extends Component {
     activeLayout.columns = columns;
 
     const config = this.updateActiveConfig(activeLayout);
+
     this.saveDashboardConfig({ config });
   };
 
