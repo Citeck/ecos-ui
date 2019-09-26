@@ -527,3 +527,7 @@ export function removeItemFromArray(array = [], item = '', byKey = '') {
 
   return array.filter(elem => elem !== item);
 }
+
+export function isNodeRef(str) {
+  return typeof str === 'string' && str.indexOf('workspace://SpacesStore/') === 0;
+}
