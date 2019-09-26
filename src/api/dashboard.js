@@ -100,9 +100,8 @@ export class DashboardApi extends RecordService {
       type: '_dashboardType',
       keys: '_dashboardKey[]?str'
     });
-
     const { keys, type } = result;
-    const defaultCompositeKey = `${DASHBOARD_DEFAULT_KEY}/${recordRef}`;
+
     let dashboardKeys = Array.from(keys || []);
 
     dashboardKeys.push(DASHBOARD_DEFAULT_KEY);
@@ -111,14 +110,8 @@ export class DashboardApi extends RecordService {
       dashboardKeys = dashboardKeys.filter(item => item === dashboardKey);
     }
 
-    const cacheKey = dashboardKeys.find(key => {
-      if (key === DASHBOARD_DEFAULT_KEY) {
-        return cache.check(defaultCompositeKey);
-      }
-
-      return cache.check(key);
-    });
-    const dashboardId = cacheKey ? cache.get(cacheKey === DASHBOARD_DEFAULT_KEY ? defaultCompositeKey : cacheKey) : null;
+    const cacheKey = dashboardKeys.find(key => cache.check(DashboardService.getCacheKey(key, recordRef)));
+    const dashboardId = cacheKey ? cache.get(DashboardService.getCacheKey(cacheKey, recordRef)) : null;
 
     if (!isEmpty(dashboardId)) {
       return yield this.getDashboardById(dashboardId);
@@ -130,7 +123,7 @@ export class DashboardApi extends RecordService {
       data = yield this.getDashboardByKeyType(key, type);
 
       if (!isEmpty(data)) {
-        cache.set(key === DASHBOARD_DEFAULT_KEY ? defaultCompositeKey : key, data.id);
+        cache.set(DashboardService.getCacheKey(key, recordRef), data.id);
         break;
       }
     }
@@ -217,13 +210,19 @@ export class DashboardApi extends RecordService {
         }
       },
       { user: QueryEntityKeys.USER }
-    ).then(response => ({
-      exist: !isEmpty(response) && get(response, 'user', null) === user,
-      id: get(response, 'id', null)
-    }));
+    ).then(response => {
+      const resUser = get(response, 'user', null);
+
+      return {
+        exist: !isEmpty(response) && (!resUser || resUser === user),
+        id: get(response, 'id', null)
+      };
+    });
   };
 
   deleteFromCache(arrKeys = []) {
-    arrKeys.forEach(key => cache.remove(key));
+    const unique = Array.from(new Set(arrKeys));
+
+    unique.forEach(key => cache.remove(key));
   }
 }

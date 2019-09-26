@@ -5,7 +5,7 @@ import split from 'lodash/split';
 import includes from 'lodash/includes';
 import uuid from 'uuidv4';
 import { LAYOUT_TYPE } from '../constants/layout';
-import { SourcesId } from '../constants';
+import { DASHBOARD_DEFAULT_KEY, SourcesId } from '../constants';
 import { t } from '../helpers/util';
 
 const separatorId = '@';
@@ -71,6 +71,15 @@ export default class DashboardService {
     return {
       dashboardId
     };
+  }
+
+  static getCacheKey(key, part) {
+    switch (key) {
+      case DASHBOARD_DEFAULT_KEY:
+        return `${DASHBOARD_DEFAULT_KEY}/${part}`;
+      default:
+        return key;
+    }
   }
 
   static defineWaySavingDashboard(eqKey, allUser, hasUser) {
