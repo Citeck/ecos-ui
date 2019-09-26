@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import BaseComponent from '../base/BaseComponent';
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
+import { isNodeRef } from '../../../../helpers/util';
 import isEqual from 'lodash/isEqual';
 import Formio from 'formiojs/Formio';
 
@@ -155,8 +156,6 @@ export default class SelectOrgstructComponent extends BaseComponent {
       callback(authority);
       return;
     }
-
-    let isNodeRef = r => r != null && r.indexOf('workspace://SpacesStore/') === 0;
 
     if (isNodeRef(authority)) {
       callback(authority);

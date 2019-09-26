@@ -12,6 +12,9 @@ export default class SelectFormatter extends DefaultGqlFormatter {
   }
 
   value(cell) {
+    if (typeof cell === 'string') {
+      return cell;
+    }
     return cell.disp || '';
   }
 

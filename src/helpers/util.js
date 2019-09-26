@@ -519,3 +519,7 @@ export function getAdaptiveNumberStr(number) {
 
   return num.toString();
 }
+
+export function isNodeRef(str) {
+  return typeof str === 'string' && str.indexOf('workspace://SpacesStore/') === 0;
+}
