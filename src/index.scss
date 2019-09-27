@@ -1,6 +1,8 @@
 @import './bootstrap.scss';
 @import './fonts/citeck/css/citeck.css';
 @import './fonts/open-sans/open-sans.css';
+@import './constants';
+@import './scrollbars';
 
 html {
   overflow: auto;

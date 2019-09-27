@@ -4,12 +4,6 @@
   padding: 0 20px;
 }
 
-%ellipsis {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
 .ecos-current-task {
   $root: &;
 
@@ -53,23 +47,12 @@
   &-info {
     $info: &;
 
-    &__title {
-      height: 51px;
-      padding: 0 20px;
-      font-size: $font-size-standard;
-      font-weight: $font-weight-bold;
-      color: $color-gray-dark;
-      background-color: $color-yellow;
-      line-height: 3.5;
-      @extend %ellipsis;
-    }
-
     &__separator {
       margin: 11px 0;
     }
 
     &__fields {
-      margin: 14px 16px;
+      margin: 0 16px 7px;
       color: $text-color-dark;
 
       #{$info}-label {
@@ -102,6 +85,12 @@
         }
       }
     }
+
+    &-value {
+      &_add {
+        max-width: 348px;
+      }
+    }
   }
 
   &__icon {
@@ -131,7 +120,11 @@
   &__tooltip {
     .ecos-base-tooltip-inner {
       text-align: left;
-      white-space: pre;
+      white-space: pre-line;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      word-break: break-word;
+      max-width: 348px;
       padding: 0;
       font-size: $font-size-small;
       line-height: 18px;
@@ -140,10 +133,24 @@
     &-text {
       padding: 15px 0 15px 15px;
       min-width: 153px;
+
+      &-inner {
+        margin-right: 15px;
+      }
+    }
+
+    &-list {
+      &-item {
+        @extend %ellipsis;
+      }
     }
 
     &__v-scroll {
       @extend %v-scroll;
+    }
+
+    .tooltip.show {
+      opacity: 1;
     }
   }
 }

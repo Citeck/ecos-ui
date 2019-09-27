@@ -1,29 +1,24 @@
 @import '../../constants.scss';
 
 .ecos-dashboard {
-  &__loader-wrapper {
-    background-color: $background-loader;
-  }
-
   &__header {
     display: flex;
     flex-direction: column;
     padding: 0 18px;
-    margin-bottom: 29px;
+    margin-bottom: 13px;
 
     &-title {
       display: inline-flex;
       justify-content: flex-start;
       align-items: center;
-      margin-bottom: 5px;
-      margin-top: 30px;
+      margin-top: 17px;
     }
 
     &-name {
       font-style: normal;
       font-weight: bold;
-      font-size: 24px;
-      line-height: 33px;
+      font-size: 16px;
+      line-height: 22px;
       color: $text-color-dark;
       margin-right: 15px;
     }
@@ -31,10 +26,10 @@
     &-version {
       font-style: normal;
       font-weight: bold;
-      font-size: 18px;
-      line-height: 26px;
+      font-size: 16px;
+      line-height: 20px;
       color: $color-white;
-      padding: 0 11px;
+      padding: 0 9px;
       background: $color-gray-5;
       border-radius: 100px;
       display: inline-flex;
@@ -53,6 +48,73 @@
 
     &-date {
       text-transform: capitalize;
+    }
+
+    &_mobile {
+      background-color: $color-white;
+      margin-bottom: 0;
+      padding-bottom: 15px;
+      border-bottom: 2px solid $color-gray-4;
+      position: relative;
+      z-index: 1;
+    }
+  }
+
+  &__tabs {
+    &-wrapper {
+      padding: 0 19px 13px;
+    }
+
+    &-block {
+    }
+
+    &-arrows {
+      .ecos-btn_circle {
+        width: 26px;
+        height: 26px;
+        padding: 0 5px;
+      }
+    }
+
+    &-item {
+      padding: 0 13px;
+      max-width: 350px;
+      font-size: 14px;
+      line-height: 26px;
+
+      @extend %ellipsis;
+    }
+
+    &_mobile {
+      width: 100%;
+      overflow: auto;
+      padding: 16px 15px;
+      background-color: $color-white;
+
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      margin-bottom: 10px;
+
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      .ecos-tab {
+        background-color: $color-gray-4;
+        font-weight: bold;
+        height: 26px;
+        line-height: 26px;
+        padding: 0 17px;
+        min-width: 0;
+
+        &_active {
+          color: $color-white;
+          background-color: $color-blue-dark;
+        }
+      }
     }
   }
 }

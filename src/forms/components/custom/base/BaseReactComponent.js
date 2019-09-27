@@ -149,6 +149,15 @@ export default class BaseReactComponent extends BaseComponent {
     return this.component.multiple ? [] : '';
   }
 
+  /**
+   * Check if a component is eligible for multiple validation (Cause: https://citeck.atlassian.net/browse/ECOSCOM-2489)
+   *
+   * @return {boolean}
+   */
+  validateMultiple() {
+    return false;
+  }
+
   getValue() {
     return this.dataValue;
   }

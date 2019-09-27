@@ -9,7 +9,6 @@ import Header from '../Header';
 import Notification from '../Notification';
 import SlideMenu from '../SlideMenu';
 import ReduxModal from '../ReduxModal';
-import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 
@@ -34,6 +33,9 @@ const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
 const CommentsWidgetPage = lazy(() => import('../../pages/debug/CommentsWidget'));
 const CurrentTasksPage = lazy(() => import('../../pages/debug/CurrentTasks/CurrentTasksPage'));
 const DocStatusPage = lazy(() => import('../../pages/debug/DocStatus/DocStatusPage'));
+const EventsHistoryPage = lazy(() => import('../../pages/debug/EventsHistoryPage'));
+const VersionsJournalWidgetPage = lazy(() => import('../../pages/debug/VersionsJournalWidgetPage'));
+const RecordActionsPage = lazy(() => import('../../pages/debug/RecordActionsPage'));
 
 class App extends Component {
   componentDidMount() {
@@ -62,7 +64,6 @@ class App extends Component {
       isInitFailure,
       isAuthenticated,
       isMobile,
-      theme,
       isShow,
       tabs,
       setTabs,
@@ -98,7 +99,7 @@ class App extends Component {
 
           <PageTabs
             homepageLink={URL.DASHBOARD}
-            isShow={isShow}
+            isShow={isShow && !isMobile}
             tabs={tabs}
             saveTabs={setTabs}
             changeActiveTab={changeActiveTab}
@@ -119,6 +120,8 @@ class App extends Component {
               <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
               <Route path={URL.JOURNAL} component={JournalsPage} />
               {/* temporary routes */}
+              <Route path="/v2/debug/formio-develop" component={FormIOPage} />
+              <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
               <Route path={URL.JOURNAL_OLD} component={JournalsPage} />
               <Route path={URL.CARD_DETAILS} component={CardDetailsPage} />
               <Route path={URL.JOURNAL_DASHBOARD} component={JournalsDashboardPage} />
@@ -128,15 +131,13 @@ class App extends Component {
               <Route path={URL.WIDGET_TASKS} exact component={TasksDashletPage} />
               <Route path={URL.CURRENT_TASKS} component={CurrentTasksPage} />
               <Route path={URL.WIDGET_DOC_STATUS} exact component={DocStatusPage} />
-              <Route path="/v2/debug/formio-develop" component={FormIOPage} />
-              <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
+              <Route path={URL.WIDGET_EVENTS_HISTORY} exact component={EventsHistoryPage} />
+              <Route path={URL.WIDGET_VERSIONS_JOURNAL} component={VersionsJournalWidgetPage} />
+              <Route path={URL.WIDGET_ACTIONS} component={RecordActionsPage} />
               {/*<Route component={NotFoundPage} />*/}
             </Switch>
           </Suspense>
-
-          <div className="sticky-push" />
         </div>
-        <Footer key="card-details-footer" theme={theme} />
       </div>
     );
   }
@@ -159,7 +160,7 @@ const mapDispatchToProps = dispatch => ({
   getTabs: () => dispatch(getTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
   changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
-  getActiveTabTitle: tabs => dispatch(getActiveTabTitle()),
+  getActiveTabTitle: () => dispatch(getActiveTabTitle()),
   initMenuSettings: () => dispatch(initMenuSettings())
 });
 

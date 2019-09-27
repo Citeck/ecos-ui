@@ -1,5 +1,6 @@
 import { RecordService } from './recordService';
 import Records from '../components/Records';
+import { SourcesId } from '../constants';
 
 export class DocStatusApi extends RecordService {
   isUpdateDocStatus = function({ record }) {
@@ -11,7 +12,7 @@ export class DocStatusApi extends RecordService {
   getDocStatus = ({ record }) => {
     return Records.query(
       {
-        sourceId: 'status',
+        sourceId: SourcesId.STATUS,
         query: {
           record
         }
@@ -30,7 +31,7 @@ export class DocStatusApi extends RecordService {
   getAvailableToChangeStatuses = ({ record }) => {
     return Records.query(
       {
-        sourceId: 'status',
+        sourceId: SourcesId.STATUS,
         query: {
           allAvailableToChange: record
         }

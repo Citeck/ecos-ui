@@ -5,6 +5,7 @@ import Records from '../components/Records';
 import { queryByCriteria, t, debounce } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import { DocPreviewApi } from './docPreview';
+import { PREDICATE_OR, COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS } from '../components/common/form/SelectJournal/predicates';
 
 export class JournalsApi extends RecordService {
   lsJournalSettingIdsKey = ls.generateKey('journal-setting-ids', true);
@@ -33,22 +34,22 @@ export class JournalsApi extends RecordService {
     return (this.getLsJournalSettingIds().filter(j => j.key === journalConfigId)[0] || {}).value;
   };
 
-  getRecord = ({ id, attributes }) => {
+  getRecord = ({ id, attributes, noCache = false }) => {
     return Records.get(id)
-      .load(attributes)
+      .load(attributes, noCache)
       .then(resp => resp)
       .catch(() => null);
   };
 
   saveRecords = ({ id, attributes }) => {
-    return this.mutate({ record: { id, attributes } });
+    return this.mutate({ record: { id, attributes } }).catch(() => null);
   };
 
   deleteRecords = records => {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId }) => {
+  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId, recordRef }) => {
     const query = {
       t: 'and',
       val: [
@@ -58,6 +59,21 @@ export class JournalsApi extends RecordService {
         })
       ]
     };
+
+    if (recordRef) {
+      query.val.push({
+        t: PREDICATE_OR,
+        val: columns
+          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC)
+          .map(a => {
+            return {
+              t: PREDICATE_CONTAINS,
+              val: recordRef,
+              att: a.attribute
+            };
+          })
+      });
+    }
 
     let bodyQery = {
       consistency: 'EVENTUAL',

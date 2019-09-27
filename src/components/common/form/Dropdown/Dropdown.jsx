@@ -3,6 +3,8 @@ import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
+import { Scrollbars } from 'react-custom-scrollbars';
+
 import { getPropByStringKey } from '../../../../helpers/util';
 
 import './Dropdown.scss';
@@ -28,8 +30,15 @@ export default class Dropdown extends Component {
     hasEmpty: PropTypes.bool,
     isStatic: PropTypes.bool,
     right: PropTypes.bool,
+    full: PropTypes.bool,
     isLinks: PropTypes.bool,
-    cascade: PropTypes.bool
+    cascade: PropTypes.bool,
+    withScrollbar: PropTypes.bool,
+    hideSelected: PropTypes.bool,
+    scrollbarHeightMin: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    scrollbarHeightMax: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    CustomItem: PropTypes.element,
+    getStateOpen: PropTypes.func
   };
 
   static defaultProps = {
@@ -37,20 +46,25 @@ export default class Dropdown extends Component {
     className: '',
     menuClassName: '',
     toggleClassName: '',
-    direction: '',
+    direction: 'down',
     hasEmpty: false,
     isStatic: false,
     right: false,
+    full: false,
     isLinks: false,
-    cascade: false
+    cascade: false,
+    hideSelected: false,
+    withScrollbar: false,
+    scrollbarHeightMin: '100%',
+    scrollbarHeightMax: '100%',
+    CustomItem: null,
+    getStateOpen: () => null
   };
 
   constructor(props) {
     super(props);
     this.state = { dropdownOpen: false };
   }
-
-  className = 'ecos-dropdown';
 
   get selected() {
     const { valueField, source, value, hasEmpty } = this.props;
@@ -59,9 +73,16 @@ export default class Dropdown extends Component {
   }
 
   toggle = () => {
-    this.setState({
-      dropdownOpen: !this.state.dropdownOpen
-    });
+    this.setState(
+      {
+        dropdownOpen: !this.state.dropdownOpen
+      },
+      () => {
+        if (typeof this.props.getStateOpen == 'function') {
+          this.props.getStateOpen(this.state.dropdownOpen);
+        }
+      }
+    );
   };
 
   getControl = text => {
@@ -84,41 +105,73 @@ export default class Dropdown extends Component {
   };
 
   renderMenuItems() {
-    const { valueField, titleField, source, value, hideSelected } = this.props;
+    const {
+      valueField,
+      titleField,
+      source,
+      value,
+      hideSelected,
+      CustomItem,
+      withScrollbar,
+      scrollbarHeightMin,
+      scrollbarHeightMax
+    } = this.props;
     const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
+    let Wrapper = ({ children }) => <div>{children}</div>;
+
+    if (withScrollbar) {
+      Wrapper = ({ children }) => (
+        <Scrollbars autoHeight autoHeightMin={scrollbarHeightMin} autoHeightMax={scrollbarHeightMax}>
+          {children}
+        </Scrollbars>
+      );
+    }
 
     return (
-      <ul>
-        {filteredSource.map(item => (
-          <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
-            {getPropByStringKey(item, titleField)}
-          </MenuItem>
-        ))}
-      </ul>
+      <Wrapper>
+        <ul>
+          {filteredSource.map(item =>
+            CustomItem ? (
+              <CustomItem key={item[valueField]} onClick={this.onChange} item={item} />
+            ) : (
+              <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
+                {getPropByStringKey(item, titleField)}
+              </MenuItem>
+            )
+          )}
+        </ul>
+      </Wrapper>
     );
   }
 
   render() {
-    const { titleField, isStatic, right, isLinks, cascade, className, menuClassName, toggleClassName, children, direction } = this.props;
-    const { dropdownOpen } = this.state;
-    const cssClasses = classNames(this.className, className);
-    const cssDropdownMenu = classNames(
-      `${this.className}__menu`,
+    const {
+      titleField,
+      isStatic,
+      right,
+      full,
+      isLinks,
+      cascade,
+      className,
       menuClassName,
-      { [`${this.className}__menu_right`]: right },
-      { [`${this.className}__menu_links`]: isLinks },
-      { [`${this.className}__menu_cascade`]: cascade }
+      toggleClassName,
+      children,
+      direction
+    } = this.props;
+    const { dropdownOpen } = this.state;
+    const cssClasses = classNames('ecos-dropdown', className, { 'ecos-dropdown_full-width': full });
+    const cssDropdownMenu = classNames(
+      'ecos-dropdown__menu',
+      menuClassName,
+      { 'ecos-dropdown__menu_right': right },
+      { 'ecos-dropdown__menu_links': isLinks },
+      { 'ecos-dropdown__menu_cascade': cascade }
     );
+    const cssDropdownToggle = classNames('ecos-dropdown__toggle', toggleClassName);
 
     return (
       <Drd className={cssClasses} isOpen={dropdownOpen} toggle={this.toggle} direction={direction}>
-        <DropdownToggle
-          onClick={this.toggle}
-          data-toggle="dropdown"
-          aria-expanded={dropdownOpen}
-          className={`${this.className}__toggle ${toggleClassName}`}
-          tag="span"
-        >
+        <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={dropdownOpen} className={cssDropdownToggle} tag="span">
           {isStatic ? children : this.getControl(getPropByStringKey(this.selected, titleField))}
         </DropdownToggle>
         <DropdownMenu className={cssDropdownMenu}>{this.renderMenuItems()}</DropdownMenu>
@@ -126,12 +179,3 @@ export default class Dropdown extends Component {
     );
   }
 }
-
-Dropdown.propTypes = {
-  isStatic: PropTypes.bool,
-  hideSelected: PropTypes.bool
-};
-
-Dropdown.defaultProps = {
-  hideSelected: false
-};

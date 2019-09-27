@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { Btn, IcoBtn } from '../../../common/btns';
 import Grid from '../../../common/grid/Grid/Grid';
 import Pagination from '../../../common/Pagination/Pagination';
@@ -517,7 +516,9 @@ export default class SelectJournal extends Component {
       searchField,
       inputViewClass,
       autoFocus,
-      onBlur
+      onBlur,
+      renderView,
+      isFullScreenWidthModal
     } = this.props;
     const {
       isGridDataReady,
@@ -566,17 +567,22 @@ export default class SelectJournal extends Component {
       editModalTitle += `: ${editRecordName}`;
     }
 
+    const defaultView = viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />;
+    const selectModalClasses = classNames('select-journal-select-modal', {
+      'ecos-modal_width-lg': !isFullScreenWidthModal,
+      'ecos-modal_width-full': isFullScreenWidthModal
+    });
+
+    const gridClasses = classNames('select-journal__grid', {
+      'select-journal__grid_transparent': !isGridDataReady
+    });
+
     return (
       <div className={wrapperClasses}>
-        {viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />}
+        {typeof renderView === 'function' ? renderView(inputViewProps) : defaultView}
 
         <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} api={this.api}>
-          <EcosModal
-            title={selectModalTitle}
-            isOpen={isSelectModalOpen}
-            hideModal={this.toggleSelectModal}
-            className={'select-journal-select-modal ecos-modal_width-m'}
-          >
+          <EcosModal title={selectModalTitle} isOpen={isSelectModalOpen} hideModal={this.toggleSelectModal} className={selectModalClasses}>
             <div className={'select-journal-collapse-panel'}>
               <div className={'select-journal-collapse-panel__controls'}>
                 <div className={'select-journal-collapse-panel__controls-left'}>
@@ -608,21 +614,19 @@ export default class SelectJournal extends Component {
               </Collapse>
             </div>
 
-            <div className={'select-journal__grid'}>
+            <div className={'select-journal__grid-container'}>
               {!isGridDataReady ? <Loader /> : null}
 
-              <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={500}>
-                <Grid
-                  {...gridData}
-                  singleSelectable={!multiple}
-                  multiSelectable={multiple}
-                  onSelect={this.onSelectGridItem}
-                  selectAllRecords={null}
-                  selectAllRecordsVisible={null}
-                  className={!isGridDataReady ? 'grid_transparent' : ''}
-                  scrollable={false}
-                />
-              </Scrollbars>
+              <Grid
+                {...gridData}
+                singleSelectable={!multiple}
+                multiSelectable={multiple}
+                onSelect={this.onSelectGridItem}
+                selectAllRecords={null}
+                selectAllRecordsVisible={null}
+                className={gridClasses}
+                scrollable={false}
+              />
 
               <Pagination
                 className={'select-journal__pagination'}
@@ -668,10 +672,12 @@ SelectJournal.propTypes = {
   onError: PropTypes.func,
   multiple: PropTypes.bool,
   isCompact: PropTypes.bool,
+  isFullScreenWidthModal: PropTypes.bool,
   hideCreateButton: PropTypes.bool,
   hideEditRowButton: PropTypes.bool,
   hideDeleteRowButton: PropTypes.bool,
   displayColumns: PropTypes.array,
   viewOnly: PropTypes.bool,
+  renderView: PropTypes.func,
   searchField: PropTypes.string
 };

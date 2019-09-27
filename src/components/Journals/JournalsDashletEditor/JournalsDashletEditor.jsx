@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
-import { Caption, Select, Field } from '../../common/form';
+import { Caption, Select, Field, Checkbox } from '../../common/form';
 import { Btn } from '../../common/btns';
 
 import {
@@ -11,7 +11,8 @@ import {
   setSettingItem,
   saveDashlet,
   setEditorMode,
-  setDashletConfig
+  setDashletConfig,
+  setOnlyLinked
 } from '../../../actions/journals';
 
 import { t, getSelectedValue } from '../../../helpers/util';
@@ -41,6 +42,7 @@ const mapDispatchToProps = (dispatch, props) => {
     setJournalsListItem: item => dispatch(setJournalsListItem(w(item))),
     setJournalsItem: item => dispatch(setJournalsItem(w(item))),
     setSettingItem: id => dispatch(setSettingItem(w(id))),
+    setOnlyLinked: onlyLinked => dispatch(setOnlyLinked(w(onlyLinked))),
     setDashletConfig: config => dispatch(setDashletConfig(w(config))),
     saveDashlet: (config, id) => dispatch(saveDashlet(w({ config: config, id: id })))
   };
@@ -58,8 +60,13 @@ class JournalsDashletEditor extends Component {
   };
 
   save = () => {
-    const props = this.props;
-    props.saveDashlet(props.config, props.id);
+    let { config, id, saveDashlet, recordRef } = this.props;
+
+    if (recordRef) {
+      config = config && config.onlyLinked === undefined ? { ...config, onlyLinked: true } : config;
+    }
+
+    saveDashlet(config, id);
   };
 
   clear = () => {
@@ -68,6 +75,10 @@ class JournalsDashletEditor extends Component {
 
   setSettingItem = item => {
     this.props.setSettingItem(item[JOURNAL_SETTING_ID_FIELD]);
+  };
+
+  setOnlyLinked = ({ checked }) => {
+    this.props.setOnlyLinked(checked);
   };
 
   componentDidUpdate(prevProps) {
@@ -92,6 +103,7 @@ class JournalsDashletEditor extends Component {
           <Caption middle className={'ecos-journal-dashlet-editor__caption'}>
             {t('journals.action.edit-dashlet')}
           </Caption>
+
           <Field label={t('journals.list.name')}>
             <Select
               className={'ecos-journal-dashlet-editor__select'}
@@ -127,6 +139,12 @@ class JournalsDashletEditor extends Component {
               value={getSelectedValue(props.journalSettings, JOURNAL_SETTING_ID_FIELD, config.journalSettingId)}
             />
           </Field>
+
+          {props.recordRef ? (
+            <Field label={t('journals.action.only-linked')}>
+              <Checkbox checked={config.onlyLinked === undefined ? true : config.onlyLinked} onChange={this.setOnlyLinked} />
+            </Field>
+          ) : null}
         </div>
 
         <div className={'ecos-journal-dashlet-editor__actions'}>

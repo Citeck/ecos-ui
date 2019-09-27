@@ -28,6 +28,9 @@ class Properties extends React.Component {
 
   className = 'ecos-properties';
 
+  _ecosForm = React.createRef();
+  _hiddenEcosForm = React.createRef();
+
   state = {
     loaded: false,
     isReadySubmit: true,
@@ -45,11 +48,23 @@ class Properties extends React.Component {
   }
 
   onSubmitForm = () => {
+    if (this._ecosForm.current) {
+      this._ecosForm.current.onReload();
+    }
+
     this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
   };
 
   onReady = () => {
     this.setState({ loaded: true });
+  };
+
+  onShowBuilder = () => {
+    if (this._hiddenEcosForm.current) {
+      this._hiddenEcosForm.current.onShowFormBuilder(() => {
+        this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
+      });
+    }
   };
 
   setHeight = contentHeight => {
@@ -66,27 +81,41 @@ class Properties extends React.Component {
   }
 
   renderForm() {
-    const { record, isSmallMode, isReady } = this.props;
+    const { record, isSmallMode, isReady, onUpdate } = this.props;
     const { isReadySubmit, hideForm } = this.state;
 
     return !hideForm && isReady && isReadySubmit ? (
-      <React.Fragment>
+      <>
         {this.renderLoader()}
         <EcosForm
+          ref={this._ecosForm}
           record={record}
           options={{
             readOnly: true,
             viewAsHtml: true,
+            fullWidthColumns: isSmallMode,
             viewAsHtmlConfig: {
-              fullWidthColumns: isSmallMode
+              hidePanels: isSmallMode
             },
             formMode: FORM_MODE_EDIT
           }}
           onSubmit={this.onSubmitForm}
+          onFormSubmitDone={onUpdate}
           onReady={this.onReady}
           className={`${this.className}__formio`}
         />
-      </React.Fragment>
+        {/* Cause: https://citeck.atlassian.net/browse/ECOSCOM-2654 */}
+        <EcosForm
+          ref={this._hiddenEcosForm}
+          record={record}
+          options={{
+            formMode: FORM_MODE_EDIT
+          }}
+          onSubmit={this.onSubmitForm}
+          onFormSubmitDone={onUpdate}
+          className={`d-none`}
+        />
+      </>
     ) : (
       <InfoText text={t('properties-widget.no-form.text')} />
     );
@@ -94,7 +123,11 @@ class Properties extends React.Component {
 
   render() {
     const { loaded, contentHeight } = this.state;
-    const { height, minHeight, maxHeight } = this.props;
+    const {
+      height,
+      minHeight
+      // maxHeight
+    } = this.props;
 
     return (
       <Scrollbars
@@ -102,7 +135,7 @@ class Properties extends React.Component {
         className={`${this.className}__scroll`}
         renderTrackVertical={props => <div {...props} className={`${this.className}__scroll_v`} />}
       >
-        <DefineHeight fixHeight={height} maxHeight={maxHeight} minHeight={minHeight} isMin={!loaded} getOptimalHeight={this.setHeight}>
+        <DefineHeight fixHeight={height} minHeight={minHeight} isMin={!loaded} getOptimalHeight={this.setHeight}>
           {this.renderForm()}
         </DefineHeight>
       </Scrollbars>

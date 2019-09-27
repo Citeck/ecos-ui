@@ -5,7 +5,8 @@ import {
   setDashboardConfig,
   setDashboardIdentification,
   setDashboardTitleInfo,
-  setResultSaveDashboardConfig
+  setMobileDashboardConfig,
+  setRequestResultDashboard
 } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
 import { setActiveTabTitle } from '../actions/pageTabs';
@@ -13,25 +14,27 @@ import { selectIdentificationForView } from '../selectors/dashboard';
 import { t } from '../helpers/util';
 import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
-import { SAVE_STATUS } from '../constants';
+import { RequestStatuses } from '../constants';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
-    const { recordRef } = payload;
-    const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
+    const { recordRef, dashboardKey } = payload;
+    const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef, dashboardKey });
     const resTitle = yield call(api.dashboard.getTitleInfo, recordRef);
 
     const data = DashboardService.checkDashboardResult(result);
-    const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(data);
+    const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
     const webConfig = DashboardConverter.getDashboardForWeb(data);
+    const webConfigMobile = DashboardConverter.getMobileDashboardForWeb(data);
     const titleInfo = DashboardConverter.getTitleInfo(resTitle);
 
     yield put(setDashboardTitleInfo(titleInfo));
     yield put(setActiveTabTitle(titleInfo.name));
     yield put(setDashboardIdentification(webKeyInfo));
     yield put(setDashboardConfig(webConfig));
+    yield put(setMobileDashboardConfig(webConfigMobile));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка получения данных по дашборду')));
+    yield put(setNotificationMessage(t('dashboard-settings.error5')));
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
   }
 }
@@ -41,19 +44,19 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
     const identification = yield select(selectIdentificationForView);
     const config = DashboardConverter.getDashboardForServer(payload);
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification });
-    const res = DashboardService.parseSaveResult(dashboardResult);
+    const res = DashboardService.parseRequestResult(dashboardResult);
     const newConfig = payload.config;
 
     yield put(
-      setResultSaveDashboardConfig({
-        status: res.dashboardId ? SAVE_STATUS.SUCCESS : SAVE_STATUS.FAILURE,
+      setRequestResultDashboard({
+        status: res.dashboardId ? RequestStatuses.SUCCESS : RequestStatuses.FAILURE,
         dashboardId: res.dashboardId
       })
     );
 
     yield put(setDashboardConfig(newConfig));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка сохранения дашборда')));
+    yield put(setNotificationMessage(t('dashboard-settings.error6')));
     logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e.message);
   }
 }

@@ -1,7 +1,6 @@
 @import '../../../constants';
 
-$large-size: 40px;
-$small-size: 28px;
+$tabs-height: 26px;
 
 .formio-dialog-content .preview-panel,
 .formio-form {
@@ -12,11 +11,12 @@ $small-size: 28px;
     }
 
     .formio-component-tabs-wrapper {
-      margin-bottom: 22px;
+      margin-bottom: 16px;
+      margin-top: -4px;
     }
 
     .formio-component-tabs-scroll-wrapper {
-      height: $large-size;
+      height: $tabs-height;
       overflow: hidden;
       box-sizing: content-box;
     }
@@ -50,12 +50,12 @@ $small-size: 28px;
 
       .nav-link {
         background: $color-gray-4;
-        color: $text-color-dark;
-        font-weight: $font-weight-semi-bold;
+        color: $text-color-gray;
+        font-weight: $font-weight-bold;
         border-radius: 0;
         border-color: $color-gray-4;
         padding: 0 15px;
-        line-height: 38px;
+        line-height: 24px;
 
         &.active {
           color: $color-white;
@@ -83,11 +83,11 @@ $small-size: 28px;
     &_scrollable {
       .nav-item {
         &:first-child {
-          border-left: 20px solid transparent;
+          border-left: 10px solid transparent;
         }
 
         &:last-child {
-          border-right: 20px solid transparent;
+          border-right: 10px solid transparent;
         }
       }
 
@@ -99,10 +99,10 @@ $small-size: 28px;
 
         &:before {
           content: '';
-          left: $large-size;
+          left: $tabs-height;
           top: 0;
           position: absolute;
-          width: 20px;
+          width: 15px;
           height: 100%;
           background: linear-gradient(90deg, #fff 41.99%, rgba(245, 245, 245, 0) 100%);
           z-index: 4;
@@ -111,10 +111,10 @@ $small-size: 28px;
 
         &:after {
           content: '';
-          right: $large-size;
+          right: $tabs-height;
           top: 0;
           position: absolute;
-          width: 20px;
+          width: 15px;
           height: 100%;
           background: linear-gradient(270deg, #fff 41.99%, rgba(245, 245, 245, 0) 100%);
           z-index: 4;
@@ -123,8 +123,8 @@ $small-size: 28px;
       }
 
       .formio-component-tabs-scroll-wrapper {
-        max-width: calc(100% - 80px);
-        height: $large-size;
+        max-width: calc(100% - 56px);
+        height: $tabs-height;
         overflow: hidden;
       }
 
@@ -133,8 +133,8 @@ $small-size: 28px;
         display: flex;
         justify-content: center;
         align-items: center;
-        width: $large-size;
-        height: $large-size;
+        width: $tabs-height;
+        height: $tabs-height;
         background-color: $color-gray-4;
         color: $text-color-gray;
         cursor: pointer;
@@ -165,93 +165,41 @@ $small-size: 28px;
 /* Tabs styles hack for form builder */
 .formio-dialog.formio-dialog-theme-default.component-settings .formio-component-tabs {
   .nav-item {
-    font-size: 12px;
+    font-size: $font-size-small;
   }
   .nav-link {
-    line-height: 26px;
     padding: 0 7px;
   }
   .formio-component-tabs-wrapper {
     margin-bottom: 0;
   }
-  .formio-component-tabs-scroll-wrapper {
-    height: $small-size;
-  }
-  .formio-component-tabs-right-button,
-  .formio-component-tabs-left-button {
-    width: $small-size;
-    height: $small-size;
-  }
   &_scrollable {
-    .nav-item {
-      &:first-child {
-        border-left: 10px solid transparent;
-      }
-
-      &:last-child {
-        border-right: 10px solid transparent;
-      }
-    }
-
     .formio-component-tabs-wrapper {
       &:before {
-        left: $small-size;
         width: 10px;
       }
-
       &:after {
-        right: $small-size;
         width: 10px;
       }
-    }
-
-    .formio-component-tabs-scroll-wrapper {
-      max-width: calc(100% - 56px);
     }
   }
 }
 
 .formio-dialog.formio-dialog-theme-default.component-settings .component-preview .formio-component-tabs {
   .nav-item {
-    font-size: 14px;
+    font-size: $font-size-standard;
   }
   .nav-link {
-    line-height: $large-size;
     padding: 0 15px;
   }
-  .formio-component-tabs-scroll-wrapper {
-    height: $large-size;
-  }
-  .formio-component-tabs-right-button,
-  .formio-component-tabs-left-button {
-    width: $large-size;
-    height: $large-size;
-  }
   &_scrollable {
-    .nav-item {
-      &:first-child {
-        border-left: 20px solid transparent;
-      }
-
-      &:last-child {
-        border-right: 20px solid transparent;
-      }
-    }
-
     .formio-component-tabs-wrapper {
       &:before {
-        left: $large-size;
-        width: 20px;
+        width: 15px;
       }
-
       &:after {
-        right: $large-size;
-        width: 20px;
+        width: 15px;
       }
-    }
-
-    .formio-component-tabs-scroll-wrapper {
-      max-width: calc(100% - 80px);
     }
   }
 }
@@ -265,5 +213,18 @@ $small-size: 28px;
     overflow-x: hidden;
     margin: 0 -20px 20px -20px;
     padding: 15px;
+  }
+}
+
+.ecos-properties-dashlet {
+  .formio-form .tab-content .panel-body.panel-body_scrollable {
+    border: 2px solid $color-gray-4;
+    border-right-width: 0;
+    border-left-width: 0;
+    border-bottom-width: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 0 -20px 20px -20px !important;
+    padding: 15px !important;
   }
 }

@@ -1,4 +1,5 @@
 import { handleActions } from 'redux-actions';
+import get from 'lodash/get';
 import {
   setEditorMode,
   setJournalsList,
@@ -8,6 +9,7 @@ import {
   setJournalsListItem,
   setJournalsItem,
   setSettingItem,
+  setOnlyLinked,
   setJournalConfig,
   setSelectedRecords,
   setSelectAllRecords,
@@ -22,7 +24,9 @@ import {
   setUrl,
   initState,
   setPerformGroupActionResponse,
-  setZipNodeRef
+  setZipNodeRef,
+  setPreviewFileName,
+  setRecordRef
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { t, deepClone } from '../helpers/util';
@@ -61,6 +65,7 @@ const defaultState = {
   journalConfig: {
     meta: { createVariants: [] }
   },
+  recordRef: null,
 
   predicate: null,
   columnsSetup: {
@@ -91,6 +96,7 @@ const defaultState = {
   inlineToolSettings: DEFAULT_INLINE_TOOL_SETTINGS,
 
   previewUrl: '',
+  previewFileName: '',
   zipNodeRef: null,
 
   performGroupActionResponse: []
@@ -161,6 +167,12 @@ export default handleActions(
 
       return handleState(state, stateId, { previewUrl: action.payload });
     },
+    [setPreviewFileName]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { previewFileName: action.payload });
+    },
     [setColumnsSetup]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
@@ -215,7 +227,10 @@ export default handleActions(
       const stateId = action.payload.stateId;
       action = handleAction(action);
 
-      return handleState(state, stateId, { inlineToolSettings: action.payload });
+      return handleState(state, stateId, {
+        inlineToolSettings: action.payload,
+        previewFileName: get(action.payload, ['row', 'cm:title'], '')
+      });
     },
     [setJournalsListItem]: (state, action) => {
       const stateId = action.payload.stateId;
@@ -285,6 +300,29 @@ export default handleActions(
             config: {
               ...state.config,
               journalSettingId: action.payload
+            }
+          };
+    },
+    [setOnlyLinked]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return stateId
+        ? {
+            ...state,
+            [stateId]: {
+              ...state[stateId],
+              config: {
+                ...state[stateId].config,
+                onlyLinked: action.payload
+              }
+            }
+          }
+        : {
+            ...state,
+            config: {
+              ...state.config,
+              onlyLinked: action.payload
             }
           };
     },
@@ -364,6 +402,12 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { loading: action.payload });
+    },
+    [setRecordRef]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { recordRef: action.payload });
     }
   },
   initialState

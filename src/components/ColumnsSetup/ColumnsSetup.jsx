@@ -160,6 +160,7 @@ export default class ColumnsSetup extends Component {
             tpl={this.getListItem}
             onOrder={this.onChangeOrder}
             draggableClassName={'ecos-dnd-list__item_draggable'}
+            noScroll
           />
         </div>
       </div>

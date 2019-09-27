@@ -1,10 +1,13 @@
-import { getData, setData } from '../helpers/ls';
-import { get, isEmpty } from 'lodash';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import { getData, setData, transferData } from '../helpers/ls';
+import { getCurrentUserName } from '../helpers/util';
 
 const prefix = 'dashletSettings_';
+const newVersionPath = '/user-';
 
-function getDashletSettings(dashletId) {
-  let dashletData = getData(prefix + dashletId);
+function getDashletSettings(key) {
+  let dashletData = getData(key);
 
   if (isEmpty(dashletData)) {
     dashletData = {};
@@ -13,32 +16,72 @@ function getDashletSettings(dashletId) {
   return dashletData;
 }
 
-function setDashletSettings(dashletId, data) {
-  setData(prefix + dashletId, data);
+function setDashletSettings(key, data) {
+  setData(key, data);
 }
 
 export default class UserLocalSettingsService {
+  static getPrefix = () => prefix;
+
+  static getNewVersionPath = () => newVersionPath;
+
+  static getOldKey = dashletId => `${UserLocalSettingsService.getPrefix()}${dashletId}`;
+
+  static getKey(dashletId) {
+    const userName = getCurrentUserName();
+
+    return `${UserLocalSettingsService.getPrefix()}${dashletId}${UserLocalSettingsService.getNewVersionPath()}${userName}`;
+  }
+
+  static checkOldData(dashletId) {
+    UserLocalSettingsService.transferData(UserLocalSettingsService.getOldKey(dashletId), UserLocalSettingsService.getKey(dashletId));
+  }
+
+  static transferData(oldKey, newKey) {
+    transferData(oldKey, newKey, true);
+  }
+
   static getDashletHeight(dashletId) {
-    return get(getDashletSettings(dashletId), 'contentHeight');
+    const key = UserLocalSettingsService.getKey(dashletId);
+
+    return get(getDashletSettings(key), 'contentHeight');
   }
 
   static setDashletHeight(dashletId, height) {
-    const dashletData = getDashletSettings(dashletId);
+    const key = UserLocalSettingsService.getKey(dashletId);
+    const dashletData = getDashletSettings(key);
 
     dashletData.contentHeight = height;
 
-    setDashletSettings(dashletId, dashletData);
+    setDashletSettings(key, dashletData);
   }
 
   static getDashletScale(dashletId) {
-    return get(getDashletSettings(dashletId), 'contentScale');
+    const key = UserLocalSettingsService.getKey(dashletId);
+
+    return get(getDashletSettings(key), 'contentScale');
   }
 
   static setDashletScale(dashletId, scale) {
-    const dashletData = getDashletSettings(dashletId);
+    const key = UserLocalSettingsService.getKey(dashletId);
+    const dashletData = getDashletSettings(key);
 
     dashletData.contentScale = scale;
 
-    setDashletSettings(dashletId, dashletData);
+    setDashletSettings(key, dashletData);
+  }
+
+  static setProperty(dashletId, property = {}) {
+    const key = UserLocalSettingsService.getKey(dashletId);
+    const data = getDashletSettings(key);
+
+    setDashletSettings(key, { ...data, ...property });
+  }
+
+  static getProperty(dashletId, propertyName) {
+    const key = UserLocalSettingsService.getKey(dashletId);
+    const data = getDashletSettings(key);
+
+    return get(data, [propertyName]);
   }
 }

@@ -1,4 +1,5 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
+import get from 'lodash/get';
 import {
   fetchCreateCaseWidgetData,
   fetchSiteMenuData,
@@ -11,10 +12,14 @@ import {
   setSiteMenuItems,
   setUserMenuItems
 } from '../actions/header';
+import { setDashboardIdentification } from '../actions/dashboard';
 import { setUserThumbnail } from '../actions/user';
-import { makeSiteMenu, makeUserMenuItems, processCreateVariantsItems } from '../helpers/menu';
-import { PROXY_URI } from '../constants/alfresco';
+import { changeActiveTab } from '../actions/pageTabs';
 import { changeUrlLink } from '../components/PageTabs/PageTabs';
+import { makeSiteMenu, makeUserMenuItems, processCreateVariantsItems } from '../helpers/menu';
+import { URL } from '../constants';
+import { PROXY_URI } from '../constants/alfresco';
+import { hasInString } from '../helpers/util';
 import MenuService from '../services/menu';
 
 function* fetchCreateCaseWidget({ api, logger }) {
@@ -65,6 +70,27 @@ function* fetchSiteMenu({ api, fakeApi, logger }) {
   }
 }
 
+function* filterSiteMenu({ api, logger }, { payload = {} }) {
+  try {
+    const { identification = null, url = '' } = payload;
+    let isDashboardPage = false;
+
+    if (identification) {
+      isDashboardPage = Boolean(get(payload, ['identification', 'id'], null));
+    }
+
+    if (url) {
+      isDashboardPage = hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS);
+    }
+
+    const menuItems = makeSiteMenu({ isDashboardPage });
+
+    yield put(setSiteMenuItems(menuItems));
+  } catch (e) {
+    logger.error('[filterSiteMenu saga] error', e.message);
+  }
+}
+
 function* goToPageSiteMenu({ api, fakeApi, logger }, { payload }) {
   try {
     const link = yield MenuService.processTransitSiteMenuItem(payload);
@@ -92,6 +118,7 @@ function* headerSaga(ea) {
   yield takeLatest(fetchCreateCaseWidgetData().type, fetchCreateCaseWidget, ea);
   yield takeLatest(fetchUserMenuData().type, fetchUserMenu, ea);
   yield takeLatest(fetchSiteMenuData().type, fetchSiteMenu, ea);
+  yield takeLatest([setDashboardIdentification().type, changeActiveTab().type], filterSiteMenu, ea);
   yield takeLatest(goToPageFromSiteMenu().type, goToPageSiteMenu, ea);
   yield takeLatest(runSearchAutocompleteItems().type, sagaRunSearchAutocomplete, ea);
 }

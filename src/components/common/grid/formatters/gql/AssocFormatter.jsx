@@ -1,5 +1,7 @@
 import React, { Fragment } from 'react';
+import { isNodeRef } from '../../../../../helpers/util';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
+import Records from '../../../../../components/Records';
 import { AssocEditor } from '../../editors';
 
 export default class AssocFormatter extends DefaultGqlFormatter {
@@ -12,6 +14,9 @@ export default class AssocFormatter extends DefaultGqlFormatter {
   }
 
   value(cell) {
+    if (typeof cell === 'string') {
+      return cell;
+    }
     return cell.disp || '';
   }
 
@@ -19,10 +24,23 @@ export default class AssocFormatter extends DefaultGqlFormatter {
     return cell.assoc || '';
   }
 
-  render() {
-    let props = this.props;
-    let cell = props.cell || {};
+  state = {
+    displayName: ''
+  };
 
-    return <Fragment>{this.value(cell)}</Fragment>;
+  componentDidMount() {
+    let cell = this.props.cell;
+
+    if (isNodeRef(cell)) {
+      Records.get(cell)
+        .load('.disp')
+        .then(displayName => this.setState({ displayName }));
+    } else {
+      this.setState({ displayName: this.value(cell || {}) });
+    }
+  }
+
+  render() {
+    return <Fragment>{this.state.displayName}</Fragment>;
   }
 }

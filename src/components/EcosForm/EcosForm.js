@@ -2,9 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
+import { cloneDeep } from 'lodash';
+
 import '../../forms/components';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
+import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import DataGridAssocComponent from './../../forms/components/custom/datagridAssoc/DataGridAssoc';
 import { t } from '../../helpers/util';
@@ -19,6 +22,8 @@ export const FORM_MODE_EDIT = 'EDIT';
 let formCounter = 0;
 
 class EcosForm extends React.Component {
+  _formBuilderModal = React.createRef();
+
   constructor(props) {
     super(props);
 
@@ -27,26 +32,32 @@ class EcosForm extends React.Component {
     this.state = {
       containerId: 'ecos-ui-form-' + formCounter++,
       recordId: record.id,
-      error: null
+      formId: 'eform@',
+      error: null,
+      formDefinition: {}
     };
   }
 
   componentDidMount() {
-    const recordId = this.state.recordId;
-    const props = this.props;
+    this.initForm();
+  }
 
-    let formLoadingPromise = EcosFormUtils.getForm(props.record, props.formKey, {
+  initForm(newFormDefinition = this.state.formDefinition) {
+    const { record, formKey, options: propsOptions } = this.props;
+    const { recordId } = this.state;
+
+    const options = cloneDeep(propsOptions);
+    let formLoadingPromise = EcosFormUtils.getForm(record, formKey, {
       definition: 'definition?json',
       customModule: 'customModule',
       i18n: 'i18n?json'
     });
 
-    let options = this.props.options || {};
     options.recordId = recordId;
 
     let alfConstants = (window.Alfresco || {}).constants || {};
-
     let proxyUri = alfConstants.PROXY_URI || '/';
+
     proxyUri = proxyUri.substring(0, proxyUri.length - 1);
     Formio.setProjectUrl(proxyUri);
 
@@ -63,6 +74,8 @@ class EcosForm extends React.Component {
         });
         return null;
       }
+
+      this.setState({ formId: formData.id });
 
       let customModulePromise = new Promise(function(resolve, reject) {
         if (formData.customModule) {
@@ -82,7 +95,10 @@ class EcosForm extends React.Component {
       let recordDataPromise = EcosFormUtils.getData(recordId, inputs);
 
       recordDataPromise.then(recordData => {
-        let formDefinition = JSON.parse(JSON.stringify(formData.definition));
+        const definition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
+        let formDefinition = cloneDeep(definition);
+
+        this.setState({ formDefinition });
 
         let attributesTitles = {};
         EcosFormUtils.forEachComponent(formDefinition, component => {
@@ -167,10 +183,25 @@ class EcosForm extends React.Component {
 
   fireEvent(event, data) {
     let handlerName = 'on' + event.charAt(0).toUpperCase() + event.slice(1);
+
     if (this.props[handlerName]) {
       this.props[handlerName](data);
     }
   }
+
+  onShowFormBuilder = callback => {
+    if (this._formBuilderModal.current) {
+      const { formDefinition, formId } = this.state;
+
+      this._formBuilderModal.current.show(formDefinition, form => {
+        EcosFormUtils.saveFormBuilder(form, formId).then(() => {
+          this.initForm(form);
+          this.props.onFormSubmitDone();
+          typeof callback === 'function' && callback(form);
+        });
+      });
+    }
+  };
 
   submitForm(form, submission) {
     let self = this;
@@ -206,6 +237,11 @@ class EcosForm extends React.Component {
           value = DataGridAssocComponent.convertToAssoc(value, input, keysMapping);
         }
 
+        // cause: https://citeck.atlassian.net/browse/ECOSCOM-2561
+        if (input && input.component.type === 'ecosSelect' && !value) {
+          value = null;
+        }
+
         record.att(keysMapping[key] || key, value);
       }
     }
@@ -223,22 +259,31 @@ class EcosForm extends React.Component {
           onSubmit(persistedRecord, form, record);
         })
         .catch(e => {
-          form.showErrors(e);
+          form.showErrors(e, true);
         });
     } else {
       onSubmit(record, form);
     }
   }
 
+  onReload() {
+    this.initForm({});
+  }
+
   render() {
     const { className } = this.props;
-    let self = this;
+    const { error, containerId } = this.state;
 
-    if (this.state.error) {
-      return <div className={classNames('ecos-ui-form__error', className)}>{self.state.error.message}</div>;
+    if (error) {
+      return <div className={classNames('ecos-ui-form__error', className)}>{error.message}</div>;
     }
 
-    return <div className={classNames(className)} id={this.state.containerId} />;
+    return (
+      <>
+        <div className={classNames(className)} id={containerId} />
+        <EcosFormBuilderModal ref={this._formBuilderModal} />
+      </>
+    );
   }
 }
 
@@ -262,8 +307,10 @@ EcosForm.propTypes = {
 };
 
 EcosForm.defaultProps = {
-  className: ''
+  className: '',
+  builderModalIsShow: false,
+  options: {}
 };
 
 export default EcosForm;
-export { EcosForm, EcosFormBuilder };
+export { EcosForm, EcosFormBuilder, EcosFormBuilderModal };

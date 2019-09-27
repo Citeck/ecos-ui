@@ -27,12 +27,10 @@ class TaskList extends React.Component {
     onSubmitForm: () => {}
   };
 
-  className = 'ecos-task-list';
-
   renderLoader() {
     let { isLoading } = this.props;
 
-    return isLoading && <Loader className={`${this.className}__loader`} />;
+    return isLoading && <Loader className="ecos-task-list__loader" />;
   }
 
   renderEmptyInfo() {

@@ -30,10 +30,10 @@
     <div id="root" class="page-content-root"></div>
     <div id="alfresco-yuiloader"></div>
 
-    <script type="text/javascript" src="/share/service/surf/dojo/bootstrap.js?{ASSETS_CACHE}"></script>
+    <script type="text/javascript" src="/share/service/surf/dojo/bootstrap.js?%REACT_APP_BUILD_VERSION%"></script>
     <script type="text/javascript">
       if (window.dojoConfig) {
-        window.dojoConfig.cacheBust = "{ASSETS_CACHE}";
+        window.dojoConfig.cacheBust = "%REACT_APP_BUILD_VERSION%";
         var ignorePackages = [
           'dojo',
           'dijit',
@@ -74,9 +74,9 @@
         });
       }
     </script>
-    <script type="text/javascript" src="/share/res/js/lib/dojo-1.10.4/dojo/dojo.js?{ASSETS_CACHE}"></script>
-    <script type="text/javascript" src="/share/res/js/yui-common.js?{ASSETS_CACHE}"></script>
-    <script type="text/javascript" src="/share/service/messages.js?locale=en&v={ASSETS_CACHE}"></script>
-    <script type="text/javascript" src="/share/res/js/alfresco.js?{ASSETS_CACHE}"></script>
+    <script type="text/javascript" src="/share/res/js/lib/dojo-1.10.4/dojo/dojo.js?%REACT_APP_BUILD_VERSION%"></script>
+    <script type="text/javascript" src="/share/res/js/yui-common.js?%REACT_APP_BUILD_VERSION%"></script>
+    <script type="text/javascript" src="/share/service/messages.js?locale=en&v=%REACT_APP_BUILD_VERSION%"></script>
+    <script type="text/javascript" src="/share/res/js/alfresco.js?%REACT_APP_BUILD_VERSION%"></script>
   </body>
 </html>

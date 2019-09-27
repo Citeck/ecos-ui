@@ -1,6 +1,6 @@
 {
   "name": "ecos-ui",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "private": true,
   "dependencies": {
     "@loadable/component": "^5.10.1",
@@ -24,7 +24,7 @@
     "logplease": "^1.2.15",
     "moment": "^2.23.0",
     "morgan": "^1.9.1",
-    "pdfjs-dist": "2.1.266",
+    "pdfjs-dist": "2.2.228",
     "preval.macro": "3.0.0",
     "prop-types": "^15.7.2",
     "query-string": "^6.2.0",
@@ -41,6 +41,7 @@
     "react-dom": "^16.8.2",
     "react-draggable": "^3.2.1",
     "react-dropzone": "^8.0.3",
+    "react-dropzone-uploader": "^2.10.1",
     "react-loader-spinner": "^2.3.0",
     "react-motion": "^0.5.2",
     "react-perfect-scrollbar": "^1.4.4",
@@ -61,11 +62,12 @@
     "uuidv4": "^4.0.0"
   },
   "scripts": {
-    "start": "npm-run-all export:dev start:react",
-    "start:react": "react-scripts start",
-    "build": "npm-run-all export build:src",
+    "start": "npm-run-all clean export:dev start:react",
+    "start:react": "react-scripts --max_old_space_size=2048 start",
+    "build": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all clean export build:src",
     "build-win": "npm-run-all export-win build:src",
     "build:src": "react-scripts --max_old_space_size=2048 build",
+    "clean": "rimraf public/ecosui/export",
     "export": "cross-env NODE_ENV=production webpack --config webpack.config.export.js",
     "export:dev": "cross-env NODE_ENV=development webpack --config webpack.config.export.js",
     "export-win": "set NODE_ENV=production&& webpack --config webpack.config.export.js",
@@ -110,6 +112,7 @@
     "node-sass": "^4.10.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.15.1",
+    "rimraf": "^3.0.0",
     "webpack-cli": "^3.2.1"
   }
 }

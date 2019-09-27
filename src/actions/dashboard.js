@@ -3,8 +3,9 @@ import { createAction } from 'redux-actions';
 const prefix = 'dashboard/';
 
 export const setDashboardConfig = createAction(prefix + 'SET_DASHBOARD_CONFIG');
+export const setMobileDashboardConfig = createAction(prefix + 'SET_MOBILE_DASHBOARD_CONFIG');
 export const setDashboardIdentification = createAction(prefix + 'SET_DASHBOARD_IDENTIFICATION');
-export const setResultSaveDashboardConfig = createAction(prefix + 'SET_STATUS_SAVE_DASHBOARD_CONFIG');
+export const setRequestResultDashboard = createAction(prefix + 'SET_REQUEST_RESULT_DASHBOARD');
 export const setDashboardTitleInfo = createAction(prefix + 'SET_TITLE_INFO');
 export const setLoading = createAction(prefix + 'SET_DASHBOARD_LOADING');
 

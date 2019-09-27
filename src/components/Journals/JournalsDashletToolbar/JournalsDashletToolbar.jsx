@@ -65,7 +65,9 @@ class JournalsDashletToolbar extends Component {
         {createVariants[0] ? (
           <IcoBtn
             icon={'icon-big-plus'}
-            className={'ecos-btn_i ecos-btn_i-big-plus ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10'}
+            className={
+              'ecos-btn_i ecos-btn_i-big-plus ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10 ecos-journal-dashlet__create-btn'
+            }
             onClick={this.addRecord}
           />
         ) : null}
@@ -100,13 +102,8 @@ class JournalsDashletToolbar extends Component {
         {!isSmall && <Export config={journalConfig} />}
 
         {!isSmall && (
-          <div className={'dashlet__actions'}>
+          <div className={'ecos-journal-dashlet__actions'}>
             {measurer.xs || measurer.xxs || measurer.xxxs ? null : <JournalsDashletPagination stateId={stateId} />}
-            <IcoBtn
-              icon={'icon-list'}
-              className={'ecos-btn_i ecos-btn_blue2 ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_10'}
-            />
-            {/*<IcoBtn icon={'icon-pie'} className={'ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue'} />*/}
           </div>
         )}
       </div>

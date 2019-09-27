@@ -21,20 +21,24 @@ authority
 
 const MAP = [
   {
+    options: () => 'CardDetailsLinkFormatter',
+    enable: column => column.attribute === 'cm:name' || column.attribute === 'cm:title'
+  },
+  {
     options: () => 'DateTimeFormatter',
-    enable: column => column.type === 'datetime' || column.type === 'date'
+    enable: column => column.type === 'datetime'
+  },
+  {
+    options: () => 'DateFormatter',
+    enable: column => column.type === 'date'
   },
   {
     options: () => 'BooleanFormatter',
     enable: column => column.type === 'boolean'
   },
   {
-    options: () => 'CardDetailsLinkFormatter',
-    enable: column => column.attribute === 'cm:name' || column.attribute === 'cm:title'
-  },
-  {
     options: () => 'SelectFormatter',
-    enable: column => column.attribute === 'payments:paymentFor'
+    enable: column => column.type === 'options'
   },
   {
     options: () => 'AssocFormatter',

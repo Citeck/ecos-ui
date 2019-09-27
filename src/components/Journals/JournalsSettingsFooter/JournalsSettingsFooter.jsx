@@ -12,8 +12,11 @@ import {
   setJournalSetting
 } from '../../../actions/journals';
 import { JOURNAL_SETTING_ID_FIELD } from '../constants';
-import { t, trigger } from '../../../helpers/util';
+import { closest, t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
+import { withRouter } from 'react-router';
+import { push } from 'connected-react-router';
+import queryString from 'query-string';
 
 import './JournalsSettingsFooter.scss';
 
@@ -32,6 +35,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
+    push: url => dispatch(push(url)),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     setJournalSetting: setting => dispatch(setJournalSetting(w(setting))),
     saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
@@ -68,11 +72,13 @@ class JournalsSettingsFooter extends Component {
     switch (e.key) {
       case 'Enter':
         const inputRef = this.settingTitleInputRef || {};
+
         if (e.target === inputRef.current) {
           this.createSetting();
-        } else {
+        } else if (closest(e.target, this.props.parentClass)) {
           this.applySetting();
         }
+
         break;
       default:
         break;
@@ -98,14 +104,31 @@ class JournalsSettingsFooter extends Component {
     const { setJournalSetting, reloadGrid } = this.props;
     const { columns, groupBy, sortBy, predicate } = journalSetting;
 
+    this.setFilterToUrl(predicate);
+
     setJournalSetting(journalSetting);
     reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
     trigger.call(this, 'onApply');
   };
 
+  setFilterToUrl = predicate => {
+    const {
+      push,
+      history: {
+        location: { pathname, search }
+      }
+    } = this.props;
+    const urlParams = { ...queryString.parse(search), filter: predicate ? JSON.stringify(predicate) : '' };
+
+    push(`${pathname}?${queryString.stringify(urlParams)}`);
+  };
+
   cancelSetting = () => {
     const { cancelJournalSettingData, journalSetting } = this.props;
     cancelJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD]);
+
+    this.setFilterToUrl();
+
     trigger.call(this, 'onCancel');
   };
 
@@ -203,4 +226,4 @@ class JournalsSettingsFooter extends Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(JournalsSettingsFooter);
+)(withRouter(JournalsSettingsFooter));

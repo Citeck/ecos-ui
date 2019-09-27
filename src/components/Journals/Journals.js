@@ -2,22 +2,24 @@ import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
+import PageHeight from './PageHeight';
 import JournalsGrouping from './JournalsGrouping';
 import JournalsFilters from './JournalsFilters';
 import JournalsColumnsSetup from './JournalsColumnsSetup';
 import JournalsSettingsFooter from './JournalsSettingsFooter';
 import JournalsMenu from './JournalsMenu';
-import JournalsTools from './JournalsTools';
 import JournalsSettingBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
 
 import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
+import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { getJournalsData, reloadGrid, search } from '../../actions/journals';
 import { setActiveTabTitle } from '../../actions/pageTabs';
 import { Well } from '../common/form';
-import { t } from '../../helpers/util';
+import { t, trigger } from '../../helpers/util';
 import { wrapArgs } from '../../helpers/redux';
 
 import './Journals.scss';
@@ -27,8 +29,7 @@ const mapStateToProps = (state, props) => {
 
   return {
     pageTabsIsShow: state.pageTabs.isShow,
-    journalConfig: newState.journalConfig,
-    journalSetting: newState.journalSetting
+    journalConfig: newState.journalConfig
   };
 };
 
@@ -71,11 +72,7 @@ class Journals extends Component {
   }
 
   refresh = () => {
-    const {
-      journalSetting: { columns, groupBy, sortBy, predicate },
-      reloadGrid
-    } = this.props;
-    reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
+    this.props.reloadGrid();
   };
 
   getJournalsData() {
@@ -143,6 +140,8 @@ class Journals extends Component {
       return null;
     }
 
+    trigger.call(this, 'onRender');
+
     const visibleColumns = columns.filter(c => c.visible);
 
     if (pageTabsIsShow && title && this.title !== title) {
@@ -151,55 +150,69 @@ class Journals extends Component {
       this.title = title;
     }
 
+    const journalSettingsClassName = 'ecos-journal__settings';
+
     return (
-      <div className={'ecos-journal'}>
-        <div className={`ecos-journal__body ${menuOpen ? 'ecos-journal__body_with-menu' : ''}`}>
-          <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} />
+      <PageHeight>
+        {height => (
+          <div className={'ecos-journal'} style={{ height }}>
+            <div className={`ecos-journal__body ${menuOpen ? 'ecos-journal__body_with-menu' : ''}`}>
+              <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} pageTabsIsShow={pageTabsIsShow} />
 
-          <JournalsTools journalConfig={journalConfig} addRecord={this.addRecord} onSearch={this.search} />
-
-          <JournalsSettingBar
-            stateId={stateId}
-            showPreview={showPreview}
-            showPie={showPie}
-            toggleSettings={this.toggleSettings}
-            togglePreview={this.togglePreview}
-            togglePie={this.togglePie}
-            showGrid={this.showGrid}
-            refresh={this.refresh}
-          />
-
-          <EcosModal
-            title={t('journals.action.setting-dialog-msg')}
-            isOpen={settingsVisible}
-            hideModal={this.toggleSettings}
-            isBigHeader
-            className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
-          >
-            <Well className={'ecos-journal__settings'}>
-              <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} metaRecord={metaRecord} />
-              <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
-              <JournalsGrouping stateId={stateId} columns={visibleColumns} />
-              <JournalsSettingsFooter
+              <JournalsSettingBar
+                journalConfig={journalConfig}
                 stateId={stateId}
-                journalId={journalId}
-                onApply={this.toggleSettings}
-                onCreate={this.toggleSettings}
+                showPreview={showPreview}
+                showPie={showPie}
+                toggleSettings={this.toggleSettings}
+                togglePreview={this.togglePreview}
+                togglePie={this.togglePie}
+                showGrid={this.showGrid}
+                refresh={this.refresh}
+                onSearch={this.search}
               />
-            </Well>
-          </EcosModal>
 
-          <JournalsContent stateId={stateId} showPreview={showPreview} showPie={showPie} />
+              <EcosModal
+                title={t('journals.action.setting-dialog-msg')}
+                isOpen={settingsVisible}
+                hideModal={this.toggleSettings}
+                isBigHeader
+                className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
+              >
+                <Well className={journalSettingsClassName}>
+                  <EcosModalHeight>
+                    {height => (
+                      <Scrollbars style={{ height }}>
+                        <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} metaRecord={metaRecord} />
+                        <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
+                        <JournalsGrouping stateId={stateId} columns={visibleColumns} />
+                      </Scrollbars>
+                    )}
+                  </EcosModalHeight>
 
-          <div className={'ecos-journal__footer'}>
-            <JournalsDashletPagination stateId={stateId} hasPageSize />
+                  <JournalsSettingsFooter
+                    parentClass={journalSettingsClassName}
+                    stateId={stateId}
+                    journalId={journalId}
+                    onApply={this.toggleSettings}
+                    onCreate={this.toggleSettings}
+                  />
+                </Well>
+              </EcosModal>
+
+              <JournalsContent stateId={stateId} showPreview={showPreview} showPie={showPie} height={height - 165} />
+
+              <div className={'ecos-journal__footer'}>
+                <JournalsDashletPagination stateId={stateId} hasPageSize />
+              </div>
+            </div>
+
+            <div className={`ecos-journal__menu ${pageTabsIsShow ? 'ecos-journal__menu_with-tabs' : ''}`} style={{ height }}>
+              <JournalsMenu stateId={stateId} open={menuOpen} onClose={this.toggleMenu} height={height} />
+            </div>
           </div>
-        </div>
-
-        <div className={`ecos-journal__menu ${pageTabsIsShow ? 'ecos-journal__menu_tabs' : ''}`}>
-          <JournalsMenu stateId={stateId} open={menuOpen} onClose={this.toggleMenu} />
-        </div>
-      </div>
+        )}
+      </PageHeight>
     );
   }
 }

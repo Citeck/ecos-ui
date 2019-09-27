@@ -19,4 +19,8 @@ export default class Cache {
   check = key => {
     return this.#map.has(key + this.#suffix);
   };
+
+  remove = key => {
+    return this.#map.delete(key + this.#suffix);
+  };
 }

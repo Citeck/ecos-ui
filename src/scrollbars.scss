@@ -1,0 +1,24 @@
+@import './constants';
+
+// Firefox
+* {
+  scrollbar-width: thin;
+}
+
+// Safari and Chrome
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: $scroll-size;
+  height: $scroll-size;
+  background-color: $color-gray-4;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: $scroll-border-radius;
+  background-color: #cccccc;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+::-webkit-scrollbar-track {
+  border-radius: $scroll-border-radius;
+  background-color: $color-gray-4;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}

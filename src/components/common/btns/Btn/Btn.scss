@@ -61,6 +61,10 @@ button {
     }
   }
 
+  &.ecos-btn_line-height_normal {
+    line-height: normal;
+  }
+
   &.ecos-btn_tight {
     padding-right: 14px;
     padding-left: 14px;
@@ -120,6 +124,7 @@ button {
   }
 
   &.ecos-btn_settings-down {
+    .icon-up,
     .icon-down {
       font-size: 14px;
       display: inline-block;
@@ -133,8 +138,9 @@ button {
     padding: 9px 11px 9px 15px;
     //width: 165px;
     text-align: left;
-    //display: inline-flex;
+    display: inline-flex;
 
+    .icon-up,
     .icon-down {
       float: right;
     }
@@ -144,6 +150,7 @@ button {
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
+      flex: auto;
       //width: 85%;
     }
   }
@@ -185,6 +192,11 @@ button {
   &.ecos-btn_sq_sm {
     @extend .ecos-btn_narrow;
     padding: 0 7px;
+  }
+
+  &.ecos-btn_sq_sm2 {
+    @extend .ecos-btn_narrow;
+    padding: 0 4px;
   }
 
   &.ecos-btn_narrow-t_standart {
@@ -293,6 +305,15 @@ button {
     }
   }
 
+  &.ecos-btn_white2 {
+    background: $color-white;
+    border: $border-width-standard solid $color-gray-6;
+
+    .ecos-btn__i_right {
+      color: $color-gray-6;
+    }
+  }
+
   &.ecos-btn_grey1 {
     background: $color-white;
     color: $color-gray-1;
@@ -365,6 +386,19 @@ button {
     }
   }
 
+  &.ecos-btn_brown2 {
+    background-color: $color-brown-1;
+    color: $color-white;
+
+    &:hover {
+      background-color: $color-brown-2;
+    }
+
+    &:active {
+      background-color: $color-brown-1;
+    }
+  }
+
   &.ecos-btn_bgr-inherit {
     background: inherit;
 
@@ -386,6 +420,20 @@ button {
     &:focus,
     &:hover {
       background: transparent;
+    }
+  }
+
+  &.ecos-btn_red {
+    background: $color-red-1;
+    color: $color-white;
+
+    &:focus {
+      background: $color-red-1;
+      color: $color-white;
+    }
+
+    &:hover {
+      background: lighten($color-red-1, 10%);
     }
   }
 
@@ -501,6 +549,12 @@ button {
     }
   }
 
+  &.ecos-btn_hover_color-grey {
+    &:hover {
+      color: $text-color-gray;
+    }
+  }
+
   /*active, focus*/
   &.ecos-btn_active_blue {
     &:focus,
@@ -528,17 +582,10 @@ button {
     height: 100%;
   }
 
-  &.ecos-btn_red {
-    background: $color-red-1;
-    color: $color-white;
-
-    &:focus {
-      background: $color-red-1;
-      color: $color-white;
-    }
-
-    &:hover {
-      background: lighten($color-red-1, 10%);
-    }
+  /*Shapes */
+  &.ecos-btn_circle {
+    border-radius: 50%;
+    padding: 0;
+    text-align: center;
   }
 }

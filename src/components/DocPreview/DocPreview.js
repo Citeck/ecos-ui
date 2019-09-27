@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import pdfjs from 'pdfjs-dist';
 import * as queryString from 'query-string';
-import { get, isEmpty } from 'lodash';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import { getOptimalHeight } from '../../helpers/layout';
-import { fileDownload, isPDFbyStr, t } from '../../helpers/util';
+import { isPDFbyStr, t } from '../../helpers/util';
 import { DocPreviewApi } from '../../api';
 import { InfoText, Loader } from '../common';
 import Toolbar from './Toolbar';
@@ -13,8 +14,8 @@ import PdfViewer from './PdfViewer';
 import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
 
-// 2.1.266 version of worker for 2.1.266 version of pdfjs-dist:
-// pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.1.266/build/pdf.worker.min.js';
+// 2.2.228 version of worker for 2.2.228 version of pdfjs-dist:
+// pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.2.228/build/pdf.worker.min.js';
 pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/js/lib/pdf.worker.min.js`;
 
 class DocPreview extends Component {
@@ -29,6 +30,9 @@ class DocPreview extends Component {
     recordKey: PropTypes.string,
     byLink: PropTypes.bool,
     noIndents: PropTypes.bool,
+    resizable: PropTypes.bool,
+    isCollapsed: PropTypes.bool,
+    fileName: PropTypes.string,
     setUserScale: PropTypes.func
   };
 
@@ -41,6 +45,9 @@ class DocPreview extends Component {
     recordKey: 'recordRef',
     byLink: false,
     noIndents: false,
+    resizable: false,
+    isCollapsed: false,
+    fileName: '',
     setUserScale: () => null
   };
 
@@ -79,7 +86,7 @@ class DocPreview extends Component {
 
   componentWillReceiveProps(nextProps) {
     const oldProps = this.props;
-    const { link, isLoading, byLink } = nextProps;
+    const { link, isLoading, byLink, isCollapsed } = nextProps;
     const { recordId } = this.state;
     const newRecordId = this.getRecordId(nextProps);
     const isPdf = isPDFbyStr(link);
@@ -89,7 +96,10 @@ class DocPreview extends Component {
       state = { isLoading };
     }
 
-    if (byLink && oldProps.link !== link && isPdf) {
+    if (
+      (byLink && oldProps.link !== link && isPdf) ||
+      (byLink && oldProps.link !== link && isPdf && oldProps.isCollapsed && !isCollapsed)
+    ) {
       state = { isLoading: true, pdf: {} };
       this.loadPDF(link);
     }
@@ -98,7 +108,7 @@ class DocPreview extends Component {
       state.link = link;
     }
 
-    if (!byLink && recordId !== newRecordId) {
+    if ((!byLink && recordId !== newRecordId) || (!byLink && oldProps.isCollapsed && !isCollapsed)) {
       this.setState({ recordId: newRecordId }, this.getUrlByRecord);
     }
 
@@ -163,7 +173,7 @@ class DocPreview extends Component {
     const heightTool = get(this.refToolbar, 'current.offsetHeight', 0) + 10;
     const heightBody = get(this.refBody, 'current.offsetHeight', 0);
 
-    return heightTool >= heightBody;
+    return heightTool >= heightBody && !this.message;
   }
 
   getRecordId(props = this.props) {
@@ -215,12 +225,6 @@ class DocPreview extends Component {
     this.props.setUserScale(settings.scale);
   };
 
-  onDownload = () => {
-    const { link } = this.state;
-
-    fileDownload(link);
-  };
-
   onFullscreen = (isFullscreen = false) => {
     this.setState(state => ({
       settings: {
@@ -255,11 +259,13 @@ class DocPreview extends Component {
   }
 
   imgViewer() {
+    const { resizable } = this.props;
     const { link } = this.state;
 
     return (
       <Img
         src={link}
+        resizable={resizable}
         {...this.commonProps}
         onError={() => {
           this.setState({ error: t('doc-preview.error.failure-to-fetch') });
@@ -269,21 +275,26 @@ class DocPreview extends Component {
   }
 
   renderToolbar() {
-    const { scale } = this.props;
-    const { pdf, scrollPage, calcScale } = this.state;
+    const { scale, fileName } = this.props;
+    const { pdf, scrollPage, calcScale, link } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
-    return !this.loaded ? null : (
+    if (!this.loaded) {
+      return null;
+    }
+
+    return (
       <Toolbar
         totalPages={pages}
         isPDF={this.isPDF}
         onChangeSettings={this.onChangeSettings}
-        onDownload={this.onDownload}
         onFullscreen={this.onFullscreen}
         scale={scale}
         scrollPage={scrollPage}
         calcScale={calcScale}
         inputRef={this.refToolbar}
+        link={link}
+        fileName={fileName}
       />
     );
   }

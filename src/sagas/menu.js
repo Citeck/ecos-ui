@@ -7,18 +7,18 @@ import {
   saveMenuConfig,
   setAvailableMenuItems,
   setMenuConfig,
-  setResultSaveMenuConfig
+  setRequestResultMenuConfig
 } from '../actions/menu';
 import { t } from '../helpers/util';
-import { SAVE_STATUS } from '../constants';
-import * as dto from '../dto/menu';
+import { RequestStatuses } from '../constants';
+import MenuConverter from '../dto/menu';
 
 function* doInitMenuSettings({ api, logger }, action) {
   try {
     yield put(getAvailableMenuItems());
     yield put(getMenuConfig());
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка получения меню')));
+    yield put(setNotificationMessage(t('menu.error')));
     logger.error('[menu/ doInitMenuSettings saga] error', e.message);
   }
 }
@@ -26,11 +26,11 @@ function* doInitMenuSettings({ api, logger }, action) {
 function* doGetAvailableMenuItemsRequest({ api, logger }, action) {
   try {
     const apiData = yield call(api.menu.getSlideMenuItems); // todo temp
-    const menuItems = dto.getAvailableMenuItemsForWeb(apiData.items);
+    const menuItems = MenuConverter.getAvailableMenuItemsForWeb(apiData.items);
 
     yield put(setAvailableMenuItems(menuItems));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка. Пункты меню не получены')));
+    yield put(setNotificationMessage(t('menu.error-detail')));
     logger.error('[menu/ doGetAvailableMenuItemsRequest saga] error', e.message);
   }
 }
@@ -38,11 +38,11 @@ function* doGetAvailableMenuItemsRequest({ api, logger }, action) {
 function* doGetMenuConfigRequest({ api, logger }, { payload }) {
   try {
     const result = yield call(() => api.menu.getMenuConfig(true));
-    const menu = dto.parseGetResult(result);
+    const menu = MenuConverter.parseGetResult(result);
 
     yield put(setMenuConfig(menu));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка получения меню')));
+    yield put(setNotificationMessage(t('menu.error')));
     logger.error('[menu/ doGetMenuConfigRequest saga] error', e.message);
   }
 }
@@ -51,9 +51,9 @@ function* doSaveMenuConfigRequest({ api, logger }, { payload }) {
   try {
     yield call(api.menu.saveMenuConfig, { config: payload });
     yield put(setMenuConfig(payload));
-    yield put(setResultSaveMenuConfig({ status: SAVE_STATUS.SUCCESS }));
+    yield put(setRequestResultMenuConfig({ status: RequestStatuses.SUCCESS }));
   } catch (e) {
-    yield put(setNotificationMessage(t('Ошибка получения меню')));
+    yield put(setNotificationMessage(t('menu.error')));
     logger.error('[menu/ doSaveMenuConfigRequest saga] error', e.message);
   }
 }
