@@ -3,16 +3,19 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
 
-import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
-import { Input } from '../common/form';
+import { deepClone, t } from '../../helpers/util';
+import { Labels, StatusCategories } from '../../helpers/timesheet/constants';
 import { Icon } from '../common';
+import { Input } from '../common/form';
+import { Btn } from '../common/btns';
+import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
+import { CalendarCell, CalendarRow, Collapse, Header } from './Calendar';
 import Hour from './Hour';
 import BaseTimesheet from './BaseTimesheet';
 import Tabs from './Tabs';
-import { CalendarRow, CalendarCell, Collapse, Header } from './Calendar';
-import { t, deepClone } from '../../helpers/util';
-import './style.scss';
 import Tooltip from './Tooltip';
+
+import './style.scss';
 
 const FILTER_BY = {
   PEOPLE: 'user',
@@ -25,6 +28,7 @@ class GrouppedTimesheet extends BaseTimesheet {
     eventTypes: PropTypes.array,
     daysOfMonth: PropTypes.array,
     groupBy: PropTypes.string,
+    category: PropTypes.string,
     onChange: PropTypes.func
   };
 
@@ -32,6 +36,7 @@ class GrouppedTimesheet extends BaseTimesheet {
     eventTypes: [],
     daysOfMonth: [],
     groupBy: '',
+    category: StatusCategories.APPROVE,
     onChange: () => {}
   };
 
@@ -79,7 +84,15 @@ class GrouppedTimesheet extends BaseTimesheet {
   }
 
   initGroupsStatuses(props) {
-    return props.eventTypes.map(item => item[props.groupBy]).reduce((result, key, index) => ({ ...result, [key]: !index }), {});
+    return props.eventTypes
+      .map(item => item[props.groupBy])
+      .reduce(
+        (result, key, index) => ({
+          ...result,
+          [key]: !index
+        }),
+        {}
+      );
   }
 
   getFiltered(data, filter) {
@@ -181,6 +194,14 @@ class GrouppedTimesheet extends BaseTimesheet {
     this.props.onChange(filteredEventTypes);
   };
 
+  handleClickOffDelegation = position => {
+    console.log('handleClickOffDelegation');
+  };
+
+  handleClickSentApprove = position => {
+    console.log('handleClickSentApprove');
+  };
+
   filterTypes(typeFilter = '') {
     let filteredEventTypes = deepClone(this.props.eventTypes);
 
@@ -233,6 +254,42 @@ class GrouppedTimesheet extends BaseTimesheet {
 
   renderGroupedEvents() {
     const { filteredEventTypes } = this.state;
+    const { category } = this.props;
+
+    const renderGroupBtn = index => {
+      switch (category) {
+        case StatusCategories.APPROVE:
+          return (
+            <>
+              <div
+                className="ecos-timesheet__table-group-btn ecos-timesheet__table-group-btn_revision"
+                onClick={() => this.handleClickDisapprove(index)}
+              >
+                <Icon className="icon-arrow-left ecos-timesheet__table-group-btn-icon" />
+                <span className="ecos-timesheet__table-group-btn-label">{t(Labels.STATUS_BTN_SENT_IMPROVE)}</span>
+              </div>
+              <div
+                className="ecos-timesheet__table-group-btn ecos-timesheet__table-group-btn_approve"
+                onClick={() => this.handleClickApprove(index)}
+              >
+                <Icon className="icon-check ecos-timesheet__table-group-btn-icon" />
+                <span className="ecos-timesheet__table-group-btn-label">{t(Labels.STATUS_BTN_APPROVE)}</span>
+              </div>
+            </>
+          );
+        case StatusCategories.FILL:
+          return (
+            <>
+              <Btn className="ecos-btn_grey7 ecos-btn_narrow" onClick={() => this.handleClickOffDelegation(index)}>
+                {t(Labels.STATUS_BTN_OFF_DELEGATION)}
+              </Btn>
+              <Btn className="ecos-btn_blue ecos-btn_narrow" onClick={() => this.handleClickSentApprove(index)}>
+                {t(Labels.STATUS_BTN_SENT_APPROVE)}
+              </Btn>
+            </>
+          );
+      }
+    };
 
     return (
       <SortableContainer
@@ -296,21 +353,8 @@ class GrouppedTimesheet extends BaseTimesheet {
                     </div>
                   </div>
 
-                  <div className="ecos-timesheet__table-group-line">
-                    <div
-                      className="ecos-timesheet__table-group-btn ecos-timesheet__table-group-btn_revision"
-                      onClick={() => this.handleClickDisapprove(index)}
-                    >
-                      <Icon className="icon-arrow-left ecos-timesheet__table-group-btn-icon" />
-                      <span className="ecos-timesheet__table-group-btn-label">{t('На доработку')}</span>
-                    </div>
-                    <div
-                      className="ecos-timesheet__table-group-btn ecos-timesheet__table-group-btn_approve"
-                      onClick={() => this.handleClickApprove(index)}
-                    >
-                      <Icon className="icon-check ecos-timesheet__table-group-btn-icon" />
-                      <span className="ecos-timesheet__table-group-btn-label">{t('Согласовать')}</span>
-                    </div>
+                  <div className="ecos-timesheet__table-group-line ecos-timesheet__table-group-line_space-between ">
+                    {renderGroupBtn(index)}
                   </div>
                 </div>
 

@@ -354,6 +354,15 @@ button {
     color: $text-color-dark;
   }
 
+  &.ecos-btn_grey7 {
+    background: $color-gray-5;
+    color: $color-white;
+
+    &:hover {
+      color: $color-gray-11;
+    }
+  }
+
   &.ecos-btn_brown {
     background: $color-white;
     color: $color-brown-2;

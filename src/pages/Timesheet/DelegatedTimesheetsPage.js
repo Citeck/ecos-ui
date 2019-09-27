@@ -1,13 +1,17 @@
 import React from 'react';
-import { Statuses } from '../../helpers/timesheet/constants';
+import find from 'lodash/find';
+
+import { deepClone, t } from '../../helpers/util';
+import { Labels, StatusCategories, Statuses } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import { TimesheetApi } from '../../api/timesheet';
 
-import './style.scss';
-import { deepClone, t } from '../../helpers/util';
 import { DateSlider, Tabs } from '../../components/Timesheet';
 import Timesheet from '../../components/Timesheet/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
+
+import './style.scss';
+import { Btn } from '../../components/common/btns';
 
 const timesheetApi = new TimesheetApi();
 
@@ -26,6 +30,7 @@ class DelegatedTimesheetsPage extends React.Component {
       eventTypes,
       subordinatesEvents: timesheetApi.getSubordinatesEvents(),
       sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
+      statusTabs: timesheetApi.getStatuses(StatusCategories.FILL),
       dateTabs: [
         {
           name: 'Месяц',
@@ -43,12 +48,19 @@ class DelegatedTimesheetsPage extends React.Component {
       currentStatus: Statuses.NEED_IMPROVED,
       isDelegated: false,
       delegatedTo: 'Петренко Сергей Васильевич',
-      delegationRejected: true
+      delegationRejected: true,
+      categoryDelegatedTabs: timesheetApi.getDelegatedCategories()
     };
   }
 
   get isOnlyContent() {
     return isOnlyContent(this.props);
+  }
+
+  get selectedCategory() {
+    const { categoryDelegatedTabs } = this.state;
+
+    return (categoryDelegatedTabs.find(item => item.isActive) || {}).category;
   }
 
   getDaysOfMonth = currentDate => {
@@ -73,63 +85,107 @@ class DelegatedTimesheetsPage extends React.Component {
     this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
   };
 
-  handleChangeStatusTab = status => {
-    this.setState({ currentStatus: status });
+  handleChangeCategoryTab = tabIndex => {
+    const categoryDelegatedTabs = deepClone(this.state.categoryDelegatedTabs);
+    let selectedCategory = '';
+
+    categoryDelegatedTabs.forEach((tab, index) => {
+      tab.isActive = index === tabIndex;
+
+      if (tab.isActive) {
+        selectedCategory = tab.category;
+      }
+    });
+
+    const statusTabs = timesheetApi.getStatuses(selectedCategory);
+
+    this.setState({ categoryDelegatedTabs, statusTabs });
   };
 
-  renderTimesheetFill = () => {
+  handleChangeStatusTab = tabIndex => {
+    const statusTabs = deepClone(this.state.statusTabs);
+
+    statusTabs.forEach((tab, index) => {
+      tab.isActive = index === tabIndex;
+    });
+
+    this.setState({ statusTabs });
+  };
+
+  renderCategoryTimesheet = () => {
     const { subordinatesEvents, daysOfMonth, isDelegated } = this.state;
 
-    return (
-      <Timesheet
-        groupBy={'user'}
-        eventTypes={subordinatesEvents}
-        daysOfMonth={daysOfMonth}
-        isAvailable={!isDelegated}
-        onChange={this.handleChangeTimesheet}
-        lockedMessage={this.lockDescription}
-      />
-    );
+    switch (this.selectedCategory) {
+      case StatusCategories.FILL:
+        return (
+          <Timesheet
+            groupBy={'user'}
+            category={StatusCategories.FILL}
+            eventTypes={subordinatesEvents}
+            daysOfMonth={daysOfMonth}
+            isAvailable={!isDelegated}
+            onChange={this.handleChangeTimesheet}
+            lockedMessage={this.lockDescription}
+          />
+        );
+      case StatusCategories.APPROVE:
+        return (
+          <Timesheet
+            groupBy={'user'}
+            category={StatusCategories.APPROVE}
+            eventTypes={subordinatesEvents}
+            daysOfMonth={daysOfMonth}
+            isAvailable={!isDelegated}
+            onChange={this.handleChangeTimesheet}
+            lockedMessage={this.lockDescription}
+          />
+        );
+      default:
+        return null;
+    }
   };
 
   render() {
-    const { sheetTabs, isDelegated, currentDate, statusTabs } = this.state;
+    const { sheetTabs, currentDate, statusTabs, categoryDelegatedTabs } = this.state;
 
     return (
       <div className="ecos-timesheet">
         <div className="ecos-timesheet__row">
           <div className="ecos-timesheet__column">
-            <div className="ecos-timesheet__title">{t('Табели учёта времени')}</div>
+            <div className="ecos-timesheet__title">{t(Labels.TIMESHEET_TITLE_1)}</div>
 
             <div className="ecos-timesheet__type">
               <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab} />
             </div>
           </div>
 
-          {
+          {this.selectedCategory === StatusCategories.APPROVE && (
             <div className="ecos-timesheet__column ecos-timesheet__delegation">
-              <div className="ecos-timesheet__title">{t('Делегирование')}</div>
-
-              <div className="ecos-timesheet__delegation-switch">
-                <span className="ecos-timesheet__delegation-switch-label">
-                  {t('Табели подчиненных может заполнить другой сотрудник, если включить делегирование.')}
-                </span>
+              <div className="ecos-timesheet__delegation-title">
+                {t(Labels.HEADLINE_DELEGATION)}
+                <Btn className="ecos-timesheet__delegation-btn-set ecos-btn_grey7 ecos-btn_narrow">{t(Labels.DELEGATION_BTN_SET)}</Btn>
               </div>
+
+              <div className="ecos-timesheet__delegation-label">{Labels.DELEGATION_LABEL_SET}</div>
             </div>
-          }
+          )}
         </div>
 
         <div className="ecos-timesheet__header">
-          <div className="ecos-timesheet__date-settings">
-            <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
+          <div className="ecos-timesheet__header-box">
+            <div className="ecos-timesheet__white-block">
+              <Tabs tabs={categoryDelegatedTabs} isSmall onClick={this.handleChangeCategoryTab} />
+            </div>
+            <div className="ecos-timesheet__date-settings">
+              <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
+            </div>
           </div>
 
           <div className="ecos-timesheet__white-block">
             <Tabs tabs={statusTabs} isSmall onClick={this.handleChangeStatusTab} />
           </div>
         </div>
-
-        {this.renderTimesheetFill()}
+        {this.renderCategoryTimesheet()}
       </div>
     );
   }

@@ -1,5 +1,9 @@
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
 import { URL } from '../constants';
 import { deepClone } from '../helpers/util';
+import { StatusCategories } from '../helpers/timesheet/constants';
 
 export class TimesheetApi {
   getSheetTabs = (isOnlyContent, location) => {
@@ -146,6 +150,74 @@ export class TimesheetApi {
         organization: 'ООО АЛЬСТОМ',
         eventTypes: deepClone(this.getEventTypes()),
         timesheetNumber: '212555619'
+      }
+    ];
+  };
+
+  getStatuses = categories => {
+    const all = [
+      {
+        name: 'Не заполнены',
+        isActive: true,
+        isAvailable: true,
+        category: StatusCategories.FILL
+      },
+      {
+        name: 'На доработке',
+        isActive: false,
+        isAvailable: true,
+        category: StatusCategories.FILL
+      },
+      {
+        name: 'На согласовании',
+        isActive: false,
+        isAvailable: true,
+        category: StatusCategories.FILL
+      },
+      {
+        name: 'Ожидают согласования',
+        isActive: true,
+        isAvailable: true,
+        category: StatusCategories.APPROVE
+      },
+      {
+        name: 'Отправлены в доработку',
+        isActive: false,
+        isAvailable: true,
+        category: StatusCategories.APPROVE
+      },
+      {
+        name: 'Согласованные',
+        isActive: false,
+        isAvailable: true,
+        category: StatusCategories.APPROVE
+      }
+    ];
+
+    categories = isArray(categories) ? categories : isString(categories) ? [categories] : [];
+
+    if (!isEmpty(categories)) {
+      return all.filter(item => categories.includes(item.category));
+    }
+
+    return all;
+  };
+
+  getDelegatedCategories = () => {
+    return [
+      {
+        name: 'Заполнить',
+        isActive: true,
+        isAvailable: true,
+        badge: '90',
+        category: StatusCategories.FILL
+      },
+      {
+        name: 'Согласовать',
+        isActive: false,
+        isAvailable: true,
+        badge: '9',
+        category: StatusCategories.APPROVE
       }
     ];
   };

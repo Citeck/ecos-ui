@@ -20,8 +20,22 @@
     margin-bottom: 24px;
   }
 
+  &__title {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 24px;
+    line-height: 33px;
+    color: $text-color-dark;
+    margin-bottom: 34px;
+  }
+
   &__delegation {
     max-width: 410px;
+
+    &-title {
+      @extend .ecos-timesheet__title;
+      margin-bottom: 14px;
+    }
 
     &-switch {
       display: flex;
@@ -66,6 +80,18 @@
         text-align: center;
         margin-left: 10px;
       }
+
+      &-set {
+        margin-left: 25px;
+      }
+    }
+
+    &-label {
+      font-style: normal;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 20px;
+      color: $text-color-gray;
     }
   }
 
@@ -78,16 +104,6 @@
     padding: 17px 21px;
     max-height: 60px;
   }
-
-  &__title {
-    font-style: normal;
-    font-weight: bold;
-    font-size: 24px;
-    line-height: 33px;
-    color: $text-color-dark;
-    margin-bottom: 34px;
-  }
-
   &__type {
     display: flex;
   }
@@ -96,6 +112,19 @@
     margin-bottom: 15px;
     display: flex;
     justify-content: space-between;
+
+    &-box {
+      display: flex;
+      flex: auto;
+
+      & > :nth-child(n):not(:last-child) {
+        margin-right: 10px;
+      }
+
+      & > :last-child {
+        flex: auto;
+      }
+    }
   }
 
   &__date-settings {
@@ -529,8 +558,12 @@
         align-items: center;
         width: 100%;
 
-        &_between {
-          justify-content: space-between;
+        &_space-between > :nth-child(n) {
+          @extend %ellipsis;
+        }
+
+        &_space-between > :nth-child(n):not(:last-child) {
+          margin-right: 10px;
         }
       }
 
@@ -570,10 +603,6 @@
         &-icon {
           @extend %icon-style;
           margin-right: 5px;
-        }
-
-        &:not(:last-of-type) {
-          margin-right: 10px;
         }
       }
 
@@ -654,6 +683,8 @@
   display: flex;
 
   &__item {
+    $item: &;
+
     display: flex;
     font-style: normal;
     font-weight: bold;
@@ -686,10 +717,15 @@
       margin-right: 2px;
     }
 
-    &_active {
+    &_active:not(&_disabled) {
       background: $color-blue-dark;
       color: $color-white;
       cursor: default;
+
+      #{$item}-badge {
+        background: $color-white;
+        color: $color-blue-dark;
+      }
     }
 
     &_disabled {
@@ -719,8 +755,14 @@
   &_small {
     #{$root} {
       &__item {
-        padding: 3px 30px;
+        padding: 5px 30px;
         max-height: 26px;
+        line-height: 16px;
+
+        &-badge {
+          padding: 3px 7px;
+          height: 16px;
+        }
       }
     }
   }

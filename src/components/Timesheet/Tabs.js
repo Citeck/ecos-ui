@@ -13,7 +13,8 @@ class Tabs extends Component {
     ),
     className: PropTypes.string,
     classNameItem: PropTypes.string,
-    onClick: PropTypes.func
+    onClick: PropTypes.func,
+    isSmall: PropTypes.bool
   };
 
   static defaultProps = {

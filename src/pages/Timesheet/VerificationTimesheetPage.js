@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import 'moment-business-days';
 
-import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
+import { Labels } from '../../helpers/timesheet/constants';
 import { deepClone, t } from '../../helpers/util';
 import { getDaysOfMonth } from '../../helpers/timesheet/util';
+import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import { TimesheetApi } from '../../api/timesheet';
 
 import './style.scss';
 
 const timesheetApi = new TimesheetApi();
 
-class SubordinatesTimesheetPage extends Component {
+class VerificationTimesheetPage extends Component {
   constructor(props) {
     super(props);
 
@@ -118,7 +119,7 @@ class SubordinatesTimesheetPage extends Component {
 
     return (
       <div className="ecos-timesheet">
-        <div className="ecos-timesheet__title">{t('Табели учёта времени для проверки')}</div>
+        <div className="ecos-timesheet__title">{t(Labels.TIMESHEET_TITLE_2)}</div>
 
         <div className="ecos-timesheet__header">
           <div className="ecos-timesheet__date-settings">
@@ -142,4 +143,4 @@ class SubordinatesTimesheetPage extends Component {
   }
 }
 
-export default SubordinatesTimesheetPage;
+export default VerificationTimesheetPage;

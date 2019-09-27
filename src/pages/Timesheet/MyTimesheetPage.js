@@ -163,7 +163,7 @@ class MyTimesheetPage extends Component {
 
     return (
       <div className="ecos-timesheet__column ecos-timesheet__delegation">
-        <div className="ecos-timesheet__title">{t(Labels.HEADLINE_DELEGATION)}</div>
+        <div className="ecos-timesheet__delegation-title">{t(Labels.HEADLINE_DELEGATION)}</div>
 
         <div className="ecos-timesheet__delegation-switch">
           <Switch checked={isDelegated} className="ecos-timesheet__delegation-switch-checkbox" onToggle={this.handleToggleDelegated} />
@@ -195,7 +195,7 @@ class MyTimesheetPage extends Component {
       <div className="ecos-timesheet">
         <div className="ecos-timesheet__row">
           <div className="ecos-timesheet__column">
-            <div className="ecos-timesheet__title">{t('Табели учёта времени')}</div>
+            <div className="ecos-timesheet__title">{t(Labels.TIMESHEET_TITLE_1)}</div>
 
             <div className="ecos-timesheet__type">
               <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab} />
