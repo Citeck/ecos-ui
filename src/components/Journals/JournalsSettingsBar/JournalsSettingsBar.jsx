@@ -17,7 +17,8 @@ const JournalsSettingsBar = ({
   showGrid,
   refresh,
   onSearch,
-  journalConfig
+  journalConfig,
+  addRecord
 }) => {
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
@@ -25,6 +26,15 @@ const JournalsSettingsBar = ({
 
   return (
     <div className={'ecos-journal__settings-bar'}>
+      {journalConfig && journalConfig.meta && Array.isArray(journalConfig.meta.createVariants) && journalConfig.meta.createVariants[0] ? (
+        <IcoBtn
+          icon={'icon-plus'}
+          className={`ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
+          onClick={addRecord}
+          title={t('journals.create-record-btn')}
+        />
+      ) : null}
+
       <IcoBtn
         title={t('journals.settings')}
         icon={'icon-settings'}
