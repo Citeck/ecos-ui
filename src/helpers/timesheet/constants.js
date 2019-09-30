@@ -7,6 +7,8 @@ export const Statuses = {
 export const Labels = {
   FIND_EMPLOYEE: 'Найти сотрудника',
   ADD_DAYS: 'Добавить дни',
+  SHOW_EVEN_HISTORY: 'Показать историю событий',
+  SHOW_COMMENT: 'Показать комментарий',
 
   TIMESHEET_TITLE_1: 'Табели учёта времени',
   TIMESHEET_TITLE_2: 'Табели учёта времени для проверки',

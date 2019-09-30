@@ -231,7 +231,6 @@ class GrouppedTimesheet extends BaseTimesheet {
             value={typeFilter}
             onChange={this.handleFilterTypes}
           />
-
           {typeFilter && <Icon className="icon-close ecos-timesheet__table-search-input-clear" onClick={this.handleClearFilterTypes} />}
         </div>
       </div>
@@ -334,7 +333,7 @@ class GrouppedTimesheet extends BaseTimesheet {
                           />
                           <Tooltip
                             target={`timesheet-group-${index}-history`}
-                            content={t('Показать историю событий')}
+                            content={t(Labels.SHOW_EVEN_HISTORY)}
                             innerClassName="ecos-timesheet__table-group-tooltip"
                           />
                         </>
@@ -342,11 +341,11 @@ class GrouppedTimesheet extends BaseTimesheet {
                         <>
                           <Icon
                             id={`timesheet-group-${index}-message`}
-                            className="icon-message ecos-timesheet__table-group-header-message"
+                            className="icon-notify-dialogue ecos-timesheet__table-group-header-message"
                           />
                           <Tooltip
                             target={`timesheet-group-${index}-message`}
-                            content={t('Показать комментарий')}
+                            content={t(Labels.SHOW_COMMENT)}
                             innerClassName="ecos-timesheet__table-group-tooltip"
                           />
                         </>
