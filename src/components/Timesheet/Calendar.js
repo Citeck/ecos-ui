@@ -7,8 +7,10 @@ import Tooltip from './Tooltip';
 import { t } from '../../helpers/util';
 
 export const CalendarRow = React.memo(({ children = null, className, ...props }) => (
-  <div className={classNames('ecos-timesheet__table-calendar-row', className)} {...props}>
-    {children}
+  <div>
+    <div className={classNames('ecos-timesheet__table-calendar-row', className)} {...props}>
+      {children}
+    </div>
   </div>
 ));
 

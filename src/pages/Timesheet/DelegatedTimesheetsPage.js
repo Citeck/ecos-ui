@@ -1,5 +1,4 @@
 import React from 'react';
-import find from 'lodash/find';
 
 import { deepClone, t } from '../../helpers/util';
 import { Labels, StatusCategories, Statuses } from '../../helpers/timesheet/constants';

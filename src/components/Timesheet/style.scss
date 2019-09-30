@@ -190,7 +190,7 @@
     @extend #{$root}__white-block;
 
     padding: 12px 0;
-    max-height: unset;
+    max-height: 100%;
     align-items: flex-start;
     position: relative;
 
@@ -401,6 +401,7 @@
         $cell: &;
 
         display: flex;
+        align-items: center;
         height: 30px;
         width: 72px;
         border: 2px $color-gray-4 solid;
@@ -610,6 +611,7 @@
         &-wrapper {
           display: flex;
           flex-wrap: wrap;
+          flex-direction: column;
         }
 
         &_open {
@@ -742,7 +744,7 @@
         line-height: 16px;
 
         &-badge {
-          padding: 3px 7px;
+          padding: 2px 7px;
           height: 16px;
         }
       }
