@@ -53,7 +53,7 @@ class Actions extends React.Component {
   };
 
   componentDidMount() {
-    this.getEventsHistory();
+    this.getActions();
   }
 
   componentWillUnmount() {
@@ -71,7 +71,7 @@ class Actions extends React.Component {
     };
   }
 
-  getEventsHistory = () => {
+  getActions = () => {
     const { getActions, record, stateId } = this.props;
     const context = this.getContext();
 
