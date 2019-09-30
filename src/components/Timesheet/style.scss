@@ -5,7 +5,7 @@
 
   %icon-style {
     font-family: citeck;
-    font-size: 14px;
+    font-size: $font-size-standard;
     line-height: 1em;
   }
 
@@ -22,7 +22,7 @@
 
   &__title {
     font-style: normal;
-    font-weight: bold;
+    font-weight: $font-weight-bold;
     font-size: 24px;
     line-height: 33px;
     color: $text-color-dark;
@@ -47,8 +47,8 @@
 
       &-label {
         font-style: normal;
-        font-weight: 600;
-        font-size: 14px;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-standard;
         line-height: 20px;
         color: $text-color-gray;
 
@@ -72,8 +72,8 @@
         border-radius: $border-radius-standard;
         color: $text-color-gray;
         font-style: normal;
-        font-weight: bold;
-        font-size: 14px;
+        font-weight: $font-weight-bold;
+        font-size: $font-size-standard;
         line-height: 23px;
         display: flex;
         align-items: center;
@@ -88,8 +88,8 @@
 
     &-label {
       font-style: normal;
-      font-weight: 600;
-      font-size: 14px;
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-standard;
       line-height: 20px;
       color: $text-color-gray;
     }
@@ -146,8 +146,8 @@
 
     &-title {
       margin-right: 9px;
-      font-weight: bold;
-      font-size: 14px;
+      font-weight: $font-weight-bold;
+      font-size: $font-size-standard;
       line-height: 1em;
       color: $text-color-dark;
     }
@@ -155,8 +155,8 @@
     &-value {
       white-space: nowrap;
       font-style: normal;
-      font-weight: bold;
-      font-size: 14px;
+      font-weight: $font-weight-bold;
+      font-size: $font-size-standard;
       line-height: 1em;
       color: $color-blue-light;
       padding: 5px 17px;
@@ -224,7 +224,7 @@
         &-clear {
           cursor: pointer;
           color: $color-gray-6;
-          font-size: 14px;
+          font-size: $font-size-standard;
 
           &:before {
             position: absolute;
@@ -240,7 +240,7 @@
         &-field {
           height: 26px;
           padding: 5px 12px;
-          font-size: 12px;
+          font-size: $font-size-small;
 
           &:focus {
             border-color: $color-blue-dark;
@@ -285,7 +285,7 @@
           margin-right: 9px;
           cursor: grab;
           color: $color-gray-6;
-          font-size: 14px;
+          font-size: $font-size-standard;
         }
 
         &-filter {
@@ -299,8 +299,8 @@
 
         &-title {
           font-style: normal;
-          font-weight: 600;
-          font-size: 12px;
+          font-weight: $font-weight-semi-bold;
+          font-size: $font-size-small;
           line-height: 16px;
           color: $text-color-dark;
           margin-right: 8px;
@@ -409,8 +409,8 @@
         border-left: 1px $color-gray-4 solid;
         color: $text-color-dark;
         font-style: normal;
-        font-weight: bold;
-        font-size: 14px;
+        font-weight: $font-weight-bold;
+        font-size: $font-size-standard;
         line-height: 23px;
 
         &:first-child {
@@ -516,8 +516,8 @@
           @extend %ellipsis;
 
           font-style: normal;
-          font-weight: bold;
-          font-size: 14px;
+          font-weight: $font-weight-bold;
+          font-size: $font-size-standard;
           line-height: 23px;
           color: $text-color-dark;
           user-select: none;
@@ -525,7 +525,7 @@
         }
 
         &-history {
-          font-size: 20px;
+          font-size: $font-size-extra-large;
           color: $color-gray-5;
           cursor: pointer;
 
@@ -536,7 +536,7 @@
 
         &-message {
           color: $color-gray-5;
-          font-size: 20px;
+          font-size: $font-size-extra-large;
           cursor: pointer;
 
           &:hover {
@@ -548,8 +548,8 @@
           color: $text-color-gray;
           background: $color-white;
           font-style: normal;
-          font-weight: 600;
-          font-size: 12px;
+          font-weight: $font-weight-semi-bold;
+          font-size: $font-size-small;
           line-height: 16px;
           padding: 4px 7px;
           border-radius: $border-radius-standard;
@@ -591,7 +591,7 @@
       &-collapse {
         color: $color-gray-5;
         cursor: pointer;
-        font-size: 14px;
+        font-size: $font-size-standard;
         width: 10px;
         height: 100%;
         position: relative;
@@ -602,7 +602,7 @@
           top: calc(50% - 1em / 2);
           left: calc(50% - 1em / 2);
           line-height: 1em;
-          font-size: 14px;
+          font-size: $font-size-standard;
           transition: 0.25s;
           transform: rotate(-90deg);
         }
@@ -669,8 +669,8 @@
 
     display: flex;
     font-style: normal;
-    font-weight: bold;
-    font-size: 14px;
+    font-weight: $font-weight-bold;
+    font-size: $font-size-standard;
     line-height: 20px;
     color: $text-color-gray;
     background: $color-gray-4;
@@ -686,13 +686,13 @@
     }
 
     &:first-child {
-      border-top-left-radius: 12px;
-      border-bottom-left-radius: 12px;
+      border-top-left-radius: $border-radius-standard;
+      border-bottom-left-radius: $border-radius-standard;
     }
 
     &:last-child {
-      border-top-right-radius: 12px;
-      border-bottom-right-radius: 12px;
+      border-top-right-radius: $border-radius-standard;
+      border-bottom-right-radius: $border-radius-standard;
     }
 
     &:not(:last-child) {
@@ -725,8 +725,8 @@
       background: $text-color-gray;
       color: $color-white;
       font-style: normal;
-      font-weight: 600;
-      font-size: 12px;
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-small;
       height: 20px;
       padding: 4px 7px;
       line-height: 1em;
@@ -768,7 +768,7 @@
 
   &__label {
     font-style: normal;
-    font-weight: bold;
+    font-weight: $font-weight-bold;
     font-size: 24px;
     line-height: 33px;
     color: $text-color-dark;
@@ -783,7 +783,7 @@
     background: $color-gray-4;
     width: 26px;
     height: 26px;
-    font-size: 14px;
+    font-size: $font-size-standard;
     cursor: pointer;
     border-radius: 6px;
 
@@ -826,11 +826,11 @@
     opacity: 0;
     background: $color-gray-4;
     cursor: pointer;
-    font-size: 14px;
+    font-size: $font-size-standard;
     margin: auto;
 
     &:before {
-      font-size: 14px;
+      font-size: $font-size-standard;
 
       position: absolute;
       top: calc(50% - 1em / 2);
@@ -847,8 +847,8 @@
     color: $color-white;
     text-align: center;
     font-style: normal;
-    font-weight: 600;
-    font-size: 12px;
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-small;
     line-height: 20px;
     cursor: pointer;
     position: relative;
@@ -869,7 +869,7 @@
       border-radius: 50%;
       background: $color-white;
       box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
-      font-size: 14px;
+      font-size: $font-size-standard;
       opacity: 0;
 
       &:hover {
@@ -887,8 +887,8 @@
 
     text-align: center;
     font-style: normal;
-    font-weight: 600;
-    font-size: 12px;
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-small;
     line-height: 20px;
     padding: 0;
   }
