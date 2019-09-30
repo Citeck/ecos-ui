@@ -8,8 +8,8 @@ import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Dr
 import { Input } from '../common/form';
 import Hour from './Hour';
 import Tooltip from './Tooltip';
-import { CalendarRow, CalendarCell, Header } from './Calendar';
-import { t, deepClone } from '../../helpers/util';
+import { CalendarCell, CalendarRow, Header } from './Calendar';
+import { deepClone, t } from '../../helpers/util';
 
 import './style.scss';
 
@@ -198,7 +198,11 @@ class BaseTimesheet extends Component {
     <CalendarRow key={`calendar-row-${eventItem.name}`}>
       {this.props.daysOfMonth.map(day => (
         <CalendarCell key={`calendar-cell-${day.number}`}>
-          <Hour color={eventItem.color} count={eventItem.name == 'daytime-work' && day.isBusinessDay ? 8 : 0} canEdit={eventItem.canEdit} />
+          <Hour
+            color={eventItem.color}
+            count={eventItem.name === 'daytime-work' && day.isBusinessDay ? 8 : 0}
+            canEdit={eventItem.canEdit}
+          />
         </CalendarCell>
       ))}
     </CalendarRow>

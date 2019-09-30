@@ -7,7 +7,7 @@ import { deepClone, t } from '../../helpers/util';
 import { Labels, StatusCategories } from '../../helpers/timesheet/constants';
 import { Icon } from '../common';
 import { Input } from '../common/form';
-import { Btn } from '../common/btns';
+import { Btn, IcoBtn } from '../common/btns';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { CalendarCell, CalendarRow, Collapse, Header } from './Calendar';
 import Hour from './Hour';
@@ -227,7 +227,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         <div className="ecos-timesheet__table-search-input">
           <Input
             className="ecos-timesheet__table-search-input-field"
-            placeholder={t('Найти сотрудника')}
+            placeholder={t(Labels.FIND_EMPLOYEE)}
             value={typeFilter}
             onChange={this.handleFilterTypes}
           />
@@ -261,20 +261,20 @@ class GrouppedTimesheet extends BaseTimesheet {
         case StatusCategories.APPROVE:
           return (
             <>
-              <div
-                className="ecos-timesheet__table-group-btn ecos-timesheet__table-group-btn_revision"
+              <IcoBtn
+                icon="icon-arrow-left"
+                className="ecos-btn_grey8 ecos-timesheet__table-group-btn_revision ecos-btn_narrow"
                 onClick={() => this.handleClickDisapprove(index)}
               >
-                <Icon className="icon-arrow-left ecos-timesheet__table-group-btn-icon" />
-                <span className="ecos-timesheet__table-group-btn-label">{t(Labels.STATUS_BTN_SENT_IMPROVE)}</span>
-              </div>
-              <div
-                className="ecos-timesheet__table-group-btn ecos-timesheet__table-group-btn_approve"
+                {t(Labels.STATUS_BTN_SENT_IMPROVE)}
+              </IcoBtn>
+              <IcoBtn
+                icon="icon-check"
+                className="ecos-btn_grey8 ecos-timesheet__table-group-btn_approve ecos-btn_narrow"
                 onClick={() => this.handleClickApprove(index)}
               >
-                <Icon className="icon-check ecos-timesheet__table-group-btn-icon" />
-                <span className="ecos-timesheet__table-group-btn-label">{t(Labels.STATUS_BTN_APPROVE)}</span>
-              </div>
+                {t(Labels.STATUS_BTN_APPROVE)}
+              </IcoBtn>
             </>
           );
         case StatusCategories.FILL:
@@ -288,6 +288,8 @@ class GrouppedTimesheet extends BaseTimesheet {
               </Btn>
             </>
           );
+        default:
+          return null;
       }
     };
 
@@ -379,7 +381,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         <div className="ecos-timesheet__table-events-item-filter" style={{ backgroundColor: item.color || '#D0D0D0' }} />
         <div className="ecos-timesheet__table-events-item-title">{item.title}</div>
         <Icon className="icon-plus ecos-timesheet__table-events-item-add-btn" id={`event-type-${position}-group-${groupPosition}`} />
-        <Tooltip target={`event-type-${position}-group-${groupPosition}`} content={t('Добавить дни')} />
+        <Tooltip target={`event-type-${position}-group-${groupPosition}`} content={t(Labels.ADD_DAYS)} />
       </div>
     </SortableElement>
   );
@@ -440,7 +442,11 @@ class GrouppedTimesheet extends BaseTimesheet {
     <CalendarRow key={`calendar-row-${eventItem.name}`}>
       {this.props.daysOfMonth.map(day => (
         <CalendarCell key={`calendar-cell-${day.number}`}>
-          <Hour color={eventItem.color} count={eventItem.name == 'daytime-work' && day.isBusinessDay ? 8 : 0} canEdit={eventItem.canEdit} />
+          <Hour
+            color={eventItem.color}
+            count={eventItem.name === 'daytime-work' && day.isBusinessDay ? 8 : 0}
+            canEdit={eventItem.canEdit}
+          />
         </CalendarCell>
       ))}
     </CalendarRow>

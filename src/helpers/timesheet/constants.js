@@ -5,6 +5,9 @@ export const Statuses = {
 };
 
 export const Labels = {
+  FIND_EMPLOYEE: 'Найти сотрудника',
+  ADD_DAYS: 'Добавить дни',
+
   TIMESHEET_TITLE_1: 'Табели учёта времени',
   TIMESHEET_TITLE_2: 'Табели учёта времени для проверки',
 

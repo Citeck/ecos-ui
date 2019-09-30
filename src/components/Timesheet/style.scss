@@ -104,6 +104,7 @@
     padding: 17px 21px;
     max-height: 60px;
   }
+
   &__type {
     display: flex;
   }
@@ -131,6 +132,7 @@
     @extend #{$root}__white-block;
     //width: 65%;
     margin-right: 13px;
+    flex: auto;
 
     &-tabs {
       &-item {
@@ -477,6 +479,7 @@
         #{$group}-btn {
           &_revision {
             background: $color-red-1;
+            color: $color-white;
 
             &:hover {
               background: $color-red-10;
@@ -485,6 +488,7 @@
 
           &_approve {
             background: $color-green1;
+            color: $color-white;
 
             &:hover {
               background: $color-green-10;
@@ -560,6 +564,7 @@
 
         &_space-between > :nth-child(n) {
           @extend %ellipsis;
+          flex: auto;
         }
 
         &_space-between > :nth-child(n):not(:last-child) {
@@ -581,29 +586,6 @@
       }
 
       &-btn {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 179px;
-        height: 26px;
-        max-width: 50%;
-        border-radius: $border-radius-large;
-        background: $color-gray-6;
-        color: $color-white;
-        cursor: pointer;
-
-        &-label {
-          text-align: center;
-          font-style: normal;
-          font-weight: bold;
-          font-size: 14px;
-          line-height: 23px;
-        }
-
-        &-icon {
-          @extend %icon-style;
-          margin-right: 5px;
-        }
       }
 
       &-collapse {

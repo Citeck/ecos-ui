@@ -358,8 +358,19 @@ button {
     background: $color-gray-5;
     color: $color-white;
 
+    &:focus,
     &:hover {
       color: $color-gray-11;
+    }
+  }
+
+  &.ecos-btn_grey8 {
+    background: $color-gray-6;
+    color: $color-white;
+
+    &:focus,
+    &:hover {
+      color: $color-gray-5;
     }
   }
 
@@ -426,9 +437,23 @@ button {
     }
   }
 
+  &.ecos-btn_hover_back_dark-red {
+    &:hover {
+      background: $color-red-10;
+      color: $color-white;
+    }
+  }
+
   &.ecos-btn_hover_t_light-green {
     &:hover {
       color: lighten($color-green1, 10%);
+    }
+  }
+
+  &.ecos-btn_hover_back_dark-green {
+    &:hover {
+      background: $color-green-10;
+      color: $color-white;
     }
   }
 
@@ -542,12 +567,32 @@ button {
     color: $color-white;
 
     &:focus {
-      background: $color-red-1;
+      background: $color-red-10;
       color: $color-white;
     }
 
     &:hover {
       background: lighten($color-red-1, 10%);
+    }
+  }
+
+  &.ecos-btn_red2 {
+    background: $color-red-1;
+    color: $color-white;
+
+    &:focus,
+    &:hover {
+      background: $color-red-10;
+    }
+  }
+
+  &.ecos-btn_green {
+    background: $color-green1;
+    color: $color-white;
+
+    &:focus,
+    &:hover {
+      background: $color-green-10;
     }
   }
 }
