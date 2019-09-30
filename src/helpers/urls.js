@@ -155,3 +155,11 @@ export const getSortedUrlParams = (params = window.location.search) => {
 export const getSearchParams = (params = window.location.search) => {
   return queryString.parse(params);
 };
+
+export const decodeLink = link => {
+  try {
+    return decodeURIComponent(link);
+  } catch (e) {
+    return link;
+  }
+};
