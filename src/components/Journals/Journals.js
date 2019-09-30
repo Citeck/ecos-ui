@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
 import PageHeight from './PageHeight';
@@ -170,6 +170,7 @@ class Journals extends Component {
                 showGrid={this.showGrid}
                 refresh={this.refresh}
                 onSearch={this.search}
+                addRecord={this.addRecord}
               />
 
               <EcosModal
