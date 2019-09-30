@@ -87,7 +87,7 @@ export default class Components {
     },
     [ComponentKeys.RECORD_ACTIONS]: {
       path: './Actions',
-      label: 'Actions',
+      label: 'dashboard-settings.widget.actions',
       supportedDashboardTypes: []
     }
   });
