@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
+import get from 'lodash/get';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import { Icon } from '../common';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
@@ -39,6 +40,7 @@ class BaseTimesheet extends Component {
     };
 
     this._scrollbar = React.createRef();
+    this._leftCol = React.createRef();
     this._calendarWrapper = React.createRef();
   }
 
@@ -120,6 +122,14 @@ class BaseTimesheet extends Component {
 
     this.setState({ typeFilter, filteredEventTypes });
   }
+
+  getRefElm = ref => {
+    return get(ref, 'current', {});
+  };
+
+  getResizeSize = ({ leftBoxWidth, rightBoxWidth }) => {
+    this.setState({ leftBoxWidth, rightBoxWidth });
+  };
 
   renderFilter() {
     const { typeFilter } = this.state;
@@ -253,7 +263,7 @@ class BaseTimesheet extends Component {
   render() {
     return (
       <div className="ecos-timesheet__table">
-        <div className="ecos-timesheet__table-left-column">
+        <div className="ecos-timesheet__table-left-column" ref={this._leftCol}>
           {this.renderFilter()}
           {this.renderEventTypes()}
         </div>

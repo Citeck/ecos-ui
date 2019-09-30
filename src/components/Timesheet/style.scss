@@ -187,15 +187,13 @@
   }
 
   &__table {
-    @extend #{$root}__white-block;
-
-    padding: 12px 0;
-    max-height: 100%;
-    align-items: flex-start;
     position: relative;
+    padding: 12px 0;
+    display: flex;
+    background: $color-white;
+    border-radius: $border-radius-extra-large;
 
     &-left-column {
-      width: 390px;
       min-width: 390px;
       border-top: 2px $color-gray-4 solid;
       border-bottom: 2px $color-gray-4 solid;
@@ -203,11 +201,10 @@
       height: 100%;
       margin-top: 10px;
       margin-bottom: 10px;
+      position: relative;
     }
 
     &-right-column {
-      flex-grow: 1;
-      height: 100%;
       overflow: auto;
       align-self: baseline;
     }
@@ -576,8 +573,7 @@
       &-name {
         display: flex;
         align-items: center;
-        flex-grow: 1;
-        max-width: 70%;
+        flex: auto;
       }
 
       &-number {
@@ -657,6 +653,28 @@
   &__tooltip {
     &-arrow {
       top: calc(100% - 6px);
+    }
+  }
+
+  &__resizer {
+    position: absolute;
+    z-index: 1111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 11px;
+    right: -10px;
+    height: 38px;
+    width: 20px;
+    background: $color-white;
+    box-shadow: $box-shadow-default;
+    border-radius: $border-radius-extra-large;
+    cursor: col-resize;
+
+    & > &-icon {
+      transform: rotate(90deg);
+      font-size: $font-size-standard;
+      color: $color-gray-6;
     }
   }
 }
