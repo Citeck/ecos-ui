@@ -5,11 +5,12 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
 import { DefineHeight } from '../common';
 import { selectDataRecordActionsByStateId } from '../../selectors/recordActions';
-import { getActions, runExecuteAction } from '../../actions/recordActions';
+import { getActions, resetActions, runExecuteAction } from '../../actions/recordActions';
 import ActionsList from './ActionsList';
 
 import './style.scss';
 import { selectIdentificationForView } from '../../selectors/dashboard';
+import { ActionModes } from '../../constants';
 
 const mapStateToProps = (state, context) => {
   const aState = selectDataRecordActionsByStateId(state, context.stateId) || {};
@@ -24,7 +25,8 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = dispatch => ({
   getActions: payload => dispatch(getActions(payload)),
-  runExecuteAction: payload => dispatch(runExecuteAction(payload))
+  runExecuteAction: payload => dispatch(runExecuteAction(payload)),
+  resetActions: payload => dispatch(resetActions(payload))
 });
 
 class Actions extends React.Component {
@@ -51,31 +53,43 @@ class Actions extends React.Component {
   };
 
   componentDidMount() {
-    this.getEventsHistory();
+    this.getActions();
   }
 
   componentWillUnmount() {
-    const { resetEventsHistory, stateId } = this.props;
+    const { resetActions, stateId } = this.props;
 
-    resetEventsHistory({ stateId });
+    resetActions({ stateId });
   }
 
-  getEventsHistory = () => {
-    const { getActions, record, stateId, dashboardId } = this.props;
+  getContext() {
+    const { dashboardId } = this.props;
+
+    return {
+      mode: ActionModes.DASHBOARD,
+      dashboardId
+    };
+  }
+
+  getActions = () => {
+    const { getActions, record, stateId } = this.props;
+    const context = this.getContext();
 
     getActions({
       stateId,
       record,
-      dashboardId
+      context
     });
   };
 
   executeAction = action => {
     const { runExecuteAction, record, stateId } = this.props;
+    const context = this.getContext();
 
     runExecuteAction({
       stateId,
       record,
+      context,
       action
     });
   };

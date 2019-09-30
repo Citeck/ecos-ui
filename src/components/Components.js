@@ -18,7 +18,8 @@ export const ComponentKeys = {
   DOC_STATUS: 'doc-status',
   EVENTS_HISTORY: 'events-history',
   VERSIONS_JOURNAL: 'versions-journal',
-  DOC_ASSOCIATIONS: 'doc-associations'
+  DOC_ASSOCIATIONS: 'doc-associations',
+  RECORD_ACTIONS: 'record-actions'
 };
 
 /**
@@ -83,10 +84,15 @@ export default class Components {
       path: './DocAssociations',
       label: 'dashboard-settings.widget.doc-associations',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+    },
+    [ComponentKeys.RECORD_ACTIONS]: {
+      path: './Actions',
+      label: 'dashboard-settings.widget.actions',
+      supportedDashboardTypes: []
     }
   });
 
-  static allDashboardsComponents = [ComponentKeys.JOURNAL];
+  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.RECORD_ACTIONS];
 
   static get(component) {
     const link = get(Components.components, [component, 'path']);
