@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, DelegateTimesheetLabels, StatusCategories, Statuses } from '../../helpers/timesheet/constants';
+import { CommonLabels, DelegateTimesheetLabels, StatusActions, Statuses } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import { DateSlider, Tabs } from '../../components/Timesheet';
 import Timesheet from '../../components/Timesheet/Timesheet';
@@ -28,7 +28,7 @@ class DelegatedTimesheetsPage extends React.Component {
       eventTypes,
       subordinatesEvents: timesheetApi.getSubordinatesEvents(),
       sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
-      statusTabs: timesheetApi.getStatuses(StatusCategories.FILL),
+      statusTabs: timesheetApi.getStatuses(StatusActions.FILL),
       dateTabs: [
         {
           name: 'Месяц',
@@ -47,7 +47,7 @@ class DelegatedTimesheetsPage extends React.Component {
       isDelegated: false,
       delegatedTo: '',
       delegationRejected: true,
-      categoryDelegatedTabs: timesheetApi.getDelegatedCategories()
+      actionDelegatedTabs: timesheetApi.getDelegatedActions()
     };
   }
 
@@ -55,10 +55,10 @@ class DelegatedTimesheetsPage extends React.Component {
     return isOnlyContent(this.props);
   }
 
-  get selectedCategory() {
-    const { categoryDelegatedTabs } = this.state;
+  get selectedAction() {
+    const { actionDelegatedTabs } = this.state;
 
-    return (categoryDelegatedTabs.find(item => item.isActive) || {}).category;
+    return (actionDelegatedTabs.find(item => item.isActive) || {}).action;
   }
 
   getDaysOfMonth = currentDate => {
@@ -83,21 +83,21 @@ class DelegatedTimesheetsPage extends React.Component {
     this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
   };
 
-  handleChangeCategoryTab = tabIndex => {
-    const categoryDelegatedTabs = deepClone(this.state.categoryDelegatedTabs);
-    let selectedCategory = '';
+  handleChangeActionTab = tabIndex => {
+    const actionDelegatedTabs = deepClone(this.state.actionDelegatedTabs);
+    let selectedAction = '';
 
-    categoryDelegatedTabs.forEach((tab, index) => {
+    actionDelegatedTabs.forEach((tab, index) => {
       tab.isActive = index === tabIndex;
 
       if (tab.isActive) {
-        selectedCategory = tab.category;
+        selectedAction = tab.action;
       }
     });
 
-    const statusTabs = timesheetApi.getStatuses(selectedCategory);
+    const statusTabs = timesheetApi.getStatuses(selectedAction);
 
-    this.setState({ categoryDelegatedTabs, statusTabs });
+    this.setState({ actionDelegatedTabs, statusTabs });
   };
 
   handleChangeStatusTab = tabIndex => {
@@ -110,15 +110,15 @@ class DelegatedTimesheetsPage extends React.Component {
     this.setState({ statusTabs });
   };
 
-  renderCategoryTimesheet = () => {
+  renderActionTimesheet = () => {
     const { subordinatesEvents, daysOfMonth, isDelegated } = this.state;
 
-    switch (this.selectedCategory) {
-      case StatusCategories.FILL:
+    switch (this.selectedAction) {
+      case StatusActions.FILL:
         return (
           <Timesheet
             groupBy={'user'}
-            category={StatusCategories.FILL}
+            action={StatusActions.FILL}
             eventTypes={subordinatesEvents}
             daysOfMonth={daysOfMonth}
             isAvailable={!isDelegated}
@@ -126,11 +126,11 @@ class DelegatedTimesheetsPage extends React.Component {
             lockedMessage={this.lockDescription}
           />
         );
-      case StatusCategories.APPROVE:
+      case StatusActions.APPROVE:
         return (
           <Timesheet
             groupBy={'user'}
-            category={StatusCategories.APPROVE}
+            action={StatusActions.APPROVE}
             eventTypes={subordinatesEvents}
             daysOfMonth={daysOfMonth}
             isAvailable={!isDelegated}
@@ -144,7 +144,7 @@ class DelegatedTimesheetsPage extends React.Component {
   };
 
   render() {
-    const { sheetTabs, currentDate, statusTabs, categoryDelegatedTabs } = this.state;
+    const { sheetTabs, currentDate, statusTabs, actionDelegatedTabs } = this.state;
 
     return (
       <div className="ecos-timesheet">
@@ -157,7 +157,7 @@ class DelegatedTimesheetsPage extends React.Component {
             </div>
           </div>
 
-          {this.selectedCategory === StatusCategories.APPROVE && (
+          {this.selectedAction === StatusActions.APPROVE && (
             <div className="ecos-timesheet__column ecos-timesheet__delegation">
               <div className="ecos-timesheet__delegation-title">
                 {t(CommonLabels.HEADLINE_DELEGATION)}
@@ -174,7 +174,7 @@ class DelegatedTimesheetsPage extends React.Component {
         <div className="ecos-timesheet__header">
           <div className="ecos-timesheet__header-box">
             <div className="ecos-timesheet__white-block">
-              <Tabs tabs={categoryDelegatedTabs} isSmall onClick={this.handleChangeCategoryTab} />
+              <Tabs tabs={actionDelegatedTabs} isSmall onClick={this.handleChangeActionTab} />
             </div>
             <div className="ecos-timesheet__date-settings">
               <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
@@ -185,7 +185,7 @@ class DelegatedTimesheetsPage extends React.Component {
             <Tabs tabs={statusTabs} isSmall onClick={this.handleChangeStatusTab} />
           </div>
         </div>
-        {this.renderCategoryTimesheet()}
+        {this.renderActionTimesheet()}
       </div>
     );
   }

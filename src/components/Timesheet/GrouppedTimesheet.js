@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, StatusCategories } from '../../helpers/timesheet/constants';
+import { CommonLabels, StatusActions } from '../../helpers/timesheet/constants';
 import { Icon, ResizeBoxes } from '../common';
 import { Input } from '../common/form';
 import { Btn, IcoBtn } from '../common/btns';
@@ -29,7 +29,7 @@ class GrouppedTimesheet extends BaseTimesheet {
     eventTypes: PropTypes.array,
     daysOfMonth: PropTypes.array,
     groupBy: PropTypes.string,
-    category: PropTypes.string,
+    action: PropTypes.string,
     onChange: PropTypes.func
   };
 
@@ -37,7 +37,7 @@ class GrouppedTimesheet extends BaseTimesheet {
     eventTypes: [],
     daysOfMonth: [],
     groupBy: '',
-    category: StatusCategories.APPROVE
+    action: StatusActions.APPROVE
   };
 
   constructor(props) {
@@ -227,7 +227,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         <div className="ecos-timesheet__table-search-input">
           <Input
             className="ecos-timesheet__table-search-input-field"
-            placeholder={t(CommonLabels.FIND_EMPLOYEE)}
+            placeholder={t(CommonLabels.FIND_EMPLOYEE_TIP)}
             value={typeFilter}
             onChange={this.handleFilterTypes}
           />
@@ -253,11 +253,11 @@ class GrouppedTimesheet extends BaseTimesheet {
 
   renderGroupedEvents() {
     const { filteredEventTypes } = this.state;
-    const { category } = this.props;
+    const { action } = this.props;
 
     const renderGroupBtn = index => {
-      switch (category) {
-        case StatusCategories.APPROVE:
+      switch (action) {
+        case StatusActions.APPROVE:
           return (
             <>
               <IcoBtn
@@ -276,7 +276,7 @@ class GrouppedTimesheet extends BaseTimesheet {
               </IcoBtn>
             </>
           );
-        case StatusCategories.FILL:
+        case StatusActions.FILL:
           return (
             <>
               <Btn className="ecos-btn_grey7 ecos-btn_narrow" onClick={() => this.handleClickOffDelegation(index)}>

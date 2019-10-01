@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import 'moment-business-days';
 import { deepClone, t } from '../../helpers/util';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
-import { CommonLabels, StatusCategories, SubTimesheetLabels } from '../../helpers/timesheet/constants';
+import { CommonLabels, StatusActions, SubTimesheetLabels } from '../../helpers/timesheet/constants';
 import { Switch } from '../../components/common/form';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
@@ -38,7 +38,7 @@ class SubordinatesTimesheetPage extends Component {
           isAvailable: false
         }
       ],
-      statusTabs: timesheetApi.getStatuses(StatusCategories.APPROVE),
+      statusTabs: timesheetApi.getStatuses(StatusActions.APPROVE),
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date()),
       isDelegated: false

@@ -2,26 +2,26 @@ import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 import { URL } from '../constants';
-import { deepClone } from '../helpers/util';
-import { StatusCategories } from '../helpers/timesheet/constants';
+import { deepClone, t } from '../helpers/util';
+import { CommonLabels, StatusActions } from '../helpers/timesheet/constants';
 
 export class TimesheetApi {
   getSheetTabs = (isOnlyContent, location) => {
     return [
       {
-        name: 'Мой табель',
+        name: t(CommonLabels.MAIN_TAB_1),
         link: isOnlyContent ? URL.TIMESHEET_IFRAME : URL.TIMESHEET,
         isActive: [URL.TIMESHEET, URL.TIMESHEET_IFRAME].includes(location.pathname),
         isAvailable: true
       },
       {
-        name: 'Табели подчиненных',
+        name: t(CommonLabels.MAIN_TAB_2),
         link: isOnlyContent ? URL.TIMESHEET_IFRAME_SUBORDINATES : URL.TIMESHEET_SUBORDINATES,
         isActive: [URL.TIMESHEET_SUBORDINATES, URL.TIMESHEET_IFRAME_SUBORDINATES].includes(location.pathname),
         isAvailable: true
       },
       {
-        name: 'Делегированные',
+        name: t(CommonLabels.MAIN_TAB_3),
         link: isOnlyContent ? URL.TIMESHEET_IFRAME_DELEGATED : URL.TIMESHEET_DELEGATED,
         isActive: [URL.TIMESHEET_IFRAME_DELEGATED, URL.TIMESHEET_DELEGATED].includes(location.pathname),
         isAvailable: true,
@@ -33,85 +33,85 @@ export class TimesheetApi {
   getEventTypes = () => {
     return [
       {
-        title: 'Работа в дневное время',
+        title: t(CommonLabels.EVENT_TYPE_DAYTIME_WORK),
         name: 'daytime-work',
         color: '#00C308',
         canEdit: true
       },
       {
-        title: 'Командировка',
+        title: t(CommonLabels.EVENT_TYPE_BUSINESS_TRIP),
         name: 'business-trip',
         color: '#ff3ecb',
         canEdit: true
       },
       {
-        title: 'Отсутствие (необходимы оригиналы документов)',
+        title: t(CommonLabels.EVENT_TYPE_ABSENCE),
         name: 'absence',
         color: '#af9fff',
         canEdit: true
       },
       {
-        title: 'Ежегодный основной оплачиваемый отпуск',
+        title: t(CommonLabels.EVENT_TYPE_ANNUAL_PAID_LEAVE),
         name: 'annual-basic-paid-leave',
         color: '#DF3386',
         canEdit: false
       },
       {
-        title: 'Отпуск без сохранения заработной платы',
+        title: t(CommonLabels.EVENT_TYPE_UNPAID_LEAVE),
         name: 'basic-unpaid-leave',
         color: '#ff41e3',
         canEdit: false
       },
       {
-        title: 'Отпуск 1 из 5',
+        title: t(CommonLabels.EVENT_TYPE_LEAVE_1_OF_5),
         name: 'one-of-five',
         color: '#d51842',
         canEdit: false
       },
       {
-        title: 'Отпуск за работу в условиях крайнего севера',
+        title: t(CommonLabels.EVENT_TYPE_NORTH_PAID_LEAVE),
         name: 'north-paid-leave',
         color: '#e89972',
         canEdit: false
       },
       {
-        title: 'Дополнительный отпуск за работу во вредных условиях труда',
+        title: t(CommonLabels.EVENT_TYPE_HARMFUL_PAID_LEAVE),
         name: 'harmful-paid-leave',
         color: '#c0ac70',
         canEdit: false
       },
       {
-        title: 'Отпуск за ненормированный рабочий день',
+        title: t(CommonLabels.EVENT_TYPE_IRREGULAR_PAID_LEAVE),
         name: 'irregular-paid-leave',
         color: '#ff9953',
         canEdit: false
       },
       {
-        title: 'Отгул',
+        title: t(CommonLabels.EVENT_TYPE_COMPENSATORY_LEAVE),
         name: 'compensatory-leave',
         color: '#29bd8d',
         canEdit: true
       },
       {
-        title: 'Работа в выходные и праздничные дни (отгул + оплата)',
+        title: t(CommonLabels.EVENT_TYPE_WORK_ON_DAY_OFF_1),
         name: 'weekends-holidays-work-holiday-and-compensation',
         color: '#33DFD5',
         canEdit: true
       },
       {
-        title: 'Работа в выходные и праздничные дни (двойная оплата)',
+        title: t(CommonLabels.EVENT_TYPE_WORK_ON_DAY_OFF_2),
         name: 'weekends-holidays-work-doubled-compensation',
         color: '#3382df',
         canEdit: true
       },
       {
-        title: 'Сверхурочная работа',
+        title: t(CommonLabels.EVENT_TYPE_OVERTIME_WORK),
         name: 'overtime-work',
         color: '#DF8633',
         canEdit: true
       },
       {
-        title: 'Работа в ночное время',
+        title: t(CommonLabels.EVENT_TYPE_NIGHT_WORK),
         name: 'night-work',
         color: '#4133DF',
         canEdit: true
@@ -157,40 +157,40 @@ export class TimesheetApi {
   getStatuses = categories => {
     const all = [
       {
-        name: 'Не заполнены',
+        name: t(CommonLabels.STATUSES_VAL_NOT_FILLED),
         isActive: true,
         isAvailable: true,
-        category: StatusCategories.FILL
+        category: StatusActions.FILL
       },
       {
-        name: 'На доработке',
+        name: t(CommonLabels.STATUSES_VAL_UNDER_REVISION),
         isActive: false,
         isAvailable: true,
-        category: StatusCategories.FILL
+        category: StatusActions.FILL
       },
       {
-        name: 'На согласовании',
+        name: t(CommonLabels.STATUSES_VAL_ON_AGREEMENT),
         isActive: false,
         isAvailable: true,
-        category: StatusCategories.FILL
+        category: StatusActions.FILL
       },
       {
-        name: 'Ожидают согласования',
+        name: t(CommonLabels.STATUSES_VAL_WAITING_APPROVAL),
         isActive: true,
         isAvailable: true,
-        category: StatusCategories.APPROVE
+        category: StatusActions.APPROVE
       },
       {
-        name: 'Отправлены в доработку',
+        name: t(CommonLabels.STATUSES_VAL_SENT_FOR_REVISION),
         isActive: false,
         isAvailable: true,
-        category: StatusCategories.APPROVE
+        category: StatusActions.APPROVE
       },
       {
-        name: 'Согласованные',
+        name: t(CommonLabels.STATUSES_VAL_AGREED),
         isActive: false,
         isAvailable: true,
-        category: StatusCategories.APPROVE
+        category: StatusActions.APPROVE
       }
     ];
 
@@ -203,21 +203,21 @@ export class TimesheetApi {
     return all;
   };
 
-  getDelegatedCategories = () => {
+  getDelegatedActions = () => {
     return [
       {
-        name: 'Заполнить',
+        name: t(CommonLabels.STATUS_ACTION_FILL_IN),
         isActive: true,
         isAvailable: true,
         badge: '90',
-        category: StatusCategories.FILL
+        action: StatusActions.FILL
       },
       {
-        name: 'Согласовать',
+        name: t(CommonLabels.STATUS_ACTION_TO_APPROVE),
         isActive: false,
         isAvailable: true,
         badge: '9',
-        category: StatusCategories.APPROVE
+        action: StatusActions.APPROVE
       }
     ];
   };
