@@ -180,6 +180,21 @@
     }
   }
 
+  &__language-switcher {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0 10px;
+    height: 40px;
+    background-color: $color-blue-dark;
+    border-radius: $border-radius-standard;
+
+    &:hover {
+      background-color: $color-white;
+    }
+  }
+
   &-dropdown__toggle {
     display: flex;
 
