@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
+import uniqueId from 'lodash/uniqueId';
 
 import { deepClone, t } from '../../helpers/util';
 import { Labels, StatusCategories } from '../../helpers/timesheet/constants';
-import { Icon, ResizerX } from '../common';
+import { Icon, ResizeBoxes } from '../common';
 import { Input } from '../common/form';
 import { Btn, IcoBtn } from '../common/btns';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
@@ -36,8 +37,7 @@ class GrouppedTimesheet extends BaseTimesheet {
     eventTypes: [],
     daysOfMonth: [],
     groupBy: '',
-    category: StatusCategories.APPROVE,
-    onChange: () => {}
+    category: StatusCategories.APPROVE
   };
 
   constructor(props) {
@@ -183,7 +183,7 @@ class GrouppedTimesheet extends BaseTimesheet {
 
     filteredEventTypes.splice(position, 1);
     this.setState({ filteredEventTypes });
-    this.props.onChange(filteredEventTypes);
+    this.props.onChange && this.props.onChange(filteredEventTypes);
   };
 
   handleClickApprove = position => {
@@ -191,7 +191,7 @@ class GrouppedTimesheet extends BaseTimesheet {
 
     filteredEventTypes.splice(position, 1);
     this.setState({ filteredEventTypes });
-    this.props.onChange(filteredEventTypes);
+    this.props.onChange && this.props.onChange(filteredEventTypes);
   };
 
   handleClickOffDelegation = position => {
@@ -471,19 +471,17 @@ class GrouppedTimesheet extends BaseTimesheet {
   }
 
   render() {
+    const leftId = uniqueId('tableLeftColumn_');
+    const rightId = uniqueId('tableRightColumn_');
+
     return (
       <div className="ecos-timesheet__table">
-        <div className="ecos-timesheet__table-left-column" ref={this._leftCol}>
+        <div className="ecos-timesheet__table-left-column" id={leftId}>
           {this.renderFilter()}
           {this.renderGroupedEvents()}
-          <ResizerX
-            getSize={this.getResizeSize}
-            leftBox={this.getRefElm(this._leftCol)}
-            rightBox={this.getRefElm(this._calendarWrapper)}
-            className="ecos-timesheet__resizer"
-          />
+          <ResizeBoxes className="ecos-timesheet__resizer" leftId={leftId} rightId={rightId} />
         </div>
-        <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper}>
+        <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper} id={rightId}>
           {this.renderCalendar()}
         </div>
 

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import get from 'lodash/get';
+import uniqueId from 'lodash/uniqueId';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { Icon } from '../common';
+import { Icon, ResizeBoxes } from '../common';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { Input } from '../common/form';
 import Hour from './Hour';
@@ -40,12 +40,11 @@ class BaseTimesheet extends Component {
     };
 
     this._scrollbar = React.createRef();
-    this._leftCol = React.createRef();
     this._calendarWrapper = React.createRef();
   }
 
   componentDidMount() {
-    if (this._calendarWrapper.current) {
+    if (this._calendarWrapper && this._calendarWrapper.current) {
       this._calendarWrapper.current.addEventListener('wheel', this.handleWheelCalendar, { passive: false });
     }
   }
@@ -60,7 +59,7 @@ class BaseTimesheet extends Component {
   }
 
   componentWillUnmount() {
-    if (this._calendarWrapper.current) {
+    if (this._calendarWrapper && this._calendarWrapper.current) {
       this._calendarWrapper.current.removeEventListener('wheel', this.handleWheelCalendar);
     }
   }
@@ -122,14 +121,6 @@ class BaseTimesheet extends Component {
 
     this.setState({ typeFilter, filteredEventTypes });
   }
-
-  getRefElm = ref => {
-    return get(ref, 'current', {});
-  };
-
-  getResizeSize = ({ leftBoxWidth, rightBoxWidth }) => {
-    this.setState({ leftBoxWidth, rightBoxWidth });
-  };
 
   renderFilter() {
     const { typeFilter } = this.state;
@@ -261,13 +252,17 @@ class BaseTimesheet extends Component {
   }
 
   render() {
+    const leftId = uniqueId('tableLeftColumn_');
+    const rightId = uniqueId('tableRightColumn_');
+
     return (
       <div className="ecos-timesheet__table">
-        <div className="ecos-timesheet__table-left-column" ref={this._leftCol}>
+        <div className="ecos-timesheet__table-left-column" id={leftId}>
           {this.renderFilter()}
           {this.renderEventTypes()}
+          <ResizeBoxes className="ecos-timesheet__resizer" leftId={leftId} rightId={rightId} />
         </div>
-        <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper}>
+        <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper} id={rightId}>
           {this.renderCalendar()}
         </div>
 

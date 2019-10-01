@@ -6,11 +6,11 @@ import { Icon } from '../';
 
 import './style.scss';
 
-class ResizerX extends React.Component {
+class ResizeBoxes extends React.Component {
   static propTypes = {
-    leftBox: PropTypes.any,
-    rightBox: PropTypes.any,
-    className: PropTypes.string
+    className: PropTypes.string,
+    leftId: PropTypes.string,
+    rightId: PropTypes.string
   };
 
   static defaultProps = {
@@ -24,16 +24,19 @@ class ResizerX extends React.Component {
     startRightWidth: 0
   };
 
+  getElm(id) {
+    return document.getElementById(id) || {};
+  }
+
   startResize = event => {
     event.preventDefault();
-
-    const { leftBox, rightBox } = this.props;
+    const { leftId, rightId } = this.props;
 
     this.setState({
       resizing: true,
       startX: event.pageX,
-      startLeftWidth: get(leftBox, 'offsetWidth', 0),
-      startRightWidth: get(rightBox, 'offsetWidth', 0)
+      startLeftWidth: get(this.getElm(leftId), 'offsetWidth', 0),
+      startRightWidth: get(this.getElm(rightId), 'offsetWidth', 0)
     });
 
     window.addEventListener('mousemove', this.doResize);
@@ -42,17 +45,17 @@ class ResizerX extends React.Component {
 
   doResize = event => {
     const { resizing, startLeftWidth, startRightWidth, startX } = this.state;
-    const { leftBox, rightBox } = this.props;
+    const { leftId, rightId } = this.props;
 
     if (resizing) {
       let diff = event.pageX - startX;
 
-      if (leftBox) {
-        leftBox.style.width = +startLeftWidth + diff + 'px';
+      if (leftId) {
+        this.getElm(leftId).style.width = +startLeftWidth + diff + 'px';
       }
 
-      if (rightBox) {
-        rightBox.style.width = +startRightWidth - diff + 'px';
+      if (rightId) {
+        this.getElm(rightId).style.width = +startRightWidth - diff + 'px';
       }
     }
   };
@@ -79,4 +82,4 @@ class ResizerX extends React.Component {
   }
 }
 
-export default ResizerX;
+export default ResizeBoxes;
