@@ -1,16 +1,15 @@
 import React from 'react';
 
 import { deepClone, t } from '../../helpers/util';
-import { Labels, StatusCategories, Statuses } from '../../helpers/timesheet/constants';
+import { CommonLabels, DelegateTimesheetLabels, StatusCategories, Statuses } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
-import { TimesheetApi } from '../../api/timesheet';
-
 import { DateSlider, Tabs } from '../../components/Timesheet';
 import Timesheet from '../../components/Timesheet/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
+import { Btn } from '../../components/common/btns';
+import { TimesheetApi } from '../../api/timesheet';
 
 import './style.scss';
-import { Btn } from '../../components/common/btns';
 
 const timesheetApi = new TimesheetApi();
 
@@ -46,7 +45,7 @@ class DelegatedTimesheetsPage extends React.Component {
       daysOfMonth: this.getDaysOfMonth(new Date()),
       currentStatus: Statuses.NEED_IMPROVED,
       isDelegated: false,
-      delegatedTo: 'Петренко Сергей Васильевич',
+      delegatedTo: '',
       delegationRejected: true,
       categoryDelegatedTabs: timesheetApi.getDelegatedCategories()
     };
@@ -151,7 +150,7 @@ class DelegatedTimesheetsPage extends React.Component {
       <div className="ecos-timesheet">
         <div className="ecos-timesheet__row">
           <div className="ecos-timesheet__column">
-            <div className="ecos-timesheet__title">{t(Labels.TIMESHEET_TITLE_1)}</div>
+            <div className="ecos-timesheet__title">{t(CommonLabels.TIMESHEET_TITLE)}</div>
 
             <div className="ecos-timesheet__type">
               <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab} />
@@ -161,11 +160,13 @@ class DelegatedTimesheetsPage extends React.Component {
           {this.selectedCategory === StatusCategories.APPROVE && (
             <div className="ecos-timesheet__column ecos-timesheet__delegation">
               <div className="ecos-timesheet__delegation-title">
-                {t(Labels.HEADLINE_DELEGATION)}
-                <Btn className="ecos-timesheet__delegation-btn-set ecos-btn_grey7 ecos-btn_narrow">{t(Labels.DELEGATION_BTN_SET)}</Btn>
+                {t(CommonLabels.HEADLINE_DELEGATION)}
+                <Btn className="ecos-timesheet__delegation-btn-set ecos-btn_grey7 ecos-btn_narrow">
+                  {t(DelegateTimesheetLabels.DELEGATION_BTN_SET)}
+                </Btn>
               </div>
 
-              <div className="ecos-timesheet__delegation-label">{Labels.DELEGATION_LABEL_SET}</div>
+              <div className="ecos-timesheet__delegation-label">{DelegateTimesheetLabels.DELEGATION_DESCRIPTION_1}</div>
             </div>
           )}
         </div>

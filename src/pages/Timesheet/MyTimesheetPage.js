@@ -5,7 +5,7 @@ import Timesheet, { BlockStatus, DateSlider, Tabs } from '../../components/Times
 import { Switch } from '../../components/common/form/Checkbox';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { deepClone, t } from '../../helpers/util';
-import { Labels, Statuses } from '../../helpers/timesheet/constants';
+import { CommonLabels, MyTimesheetLabels, Statuses } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import { TimesheetApi } from '../../api/timesheet';
 
@@ -30,12 +30,12 @@ class MyTimesheetPage extends Component {
       sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
       dateTabs: [
         {
-          name: 'Месяц',
+          name: t(CommonLabels.MONTH),
           isActive: true,
           isAvailable: true
         },
         {
-          name: 'Год',
+          name: t(CommonLabels.YEAR),
           isActive: false,
           isAvailable: false
         }
@@ -44,7 +44,7 @@ class MyTimesheetPage extends Component {
       daysOfMonth: this.getDaysOfMonth(new Date()),
       currentStatus: Statuses.NEED_IMPROVED,
       isDelegated: false,
-      delegatedTo: 'Петренко Сергей Васильевич',
+      delegatedTo: '',
       delegationRejected: true
     };
   }
@@ -66,11 +66,11 @@ class MyTimesheetPage extends Component {
     const { isDelegated, currentStatus } = this.state;
 
     if (currentStatus === Statuses.WAITING_APPROVAL) {
-      return t('Чтобы редактировать табель, нажмите на кнопку "Доработать"');
+      return t(MyTimesheetLabels.LOCK_DESCRIPTION_1);
     }
 
     if (isDelegated) {
-      return t('Чтобы редактировать табель, отключите делегирование на другого сотрудника');
+      return t(MyTimesheetLabels.LOCK_DESCRIPTION_2);
     }
 
     return '';
@@ -150,20 +150,20 @@ class MyTimesheetPage extends Component {
     let description = '';
 
     if (!isDelegated) {
-      description = Labels.DELEGATION_DESCRIPTION_1;
+      description = MyTimesheetLabels.DELEGATION_DESCRIPTION_1;
     }
 
     if (delegationRejected) {
-      description = Labels.DELEGATION_DESCRIPTION_3;
+      description = MyTimesheetLabels.DELEGATION_DESCRIPTION_3;
     }
 
     if (delegatedTo) {
-      description = `${Labels.DELEGATION_DESCRIPTION_2} - `;
+      description = `${MyTimesheetLabels.DELEGATION_DESCRIPTION_2} - `;
     }
 
     return (
       <div className="ecos-timesheet__column ecos-timesheet__delegation">
-        <div className="ecos-timesheet__delegation-title">{t(Labels.HEADLINE_DELEGATION)}</div>
+        <div className="ecos-timesheet__delegation-title">{t(CommonLabels.HEADLINE_DELEGATION)}</div>
 
         <div className="ecos-timesheet__delegation-switch">
           <Switch checked={isDelegated} className="ecos-timesheet__delegation-switch-checkbox" onToggle={this.handleToggleDelegated} />
@@ -180,7 +180,7 @@ class MyTimesheetPage extends Component {
               className="ecos-timesheet__delegation-btn ecos-timesheet__delegation-btn-ok"
               onClick={this.handleClickDelegationRejectedConfirm}
             >
-              {t(Labels.DELEGATION_LABEL_REJECT_OK)}
+              {t(MyTimesheetLabels.DELEGATION_LABEL_REJECT_OK)}
             </div>
           )}
         </div>
@@ -195,7 +195,7 @@ class MyTimesheetPage extends Component {
       <div className="ecos-timesheet">
         <div className="ecos-timesheet__row">
           <div className="ecos-timesheet__column">
-            <div className="ecos-timesheet__title">{t(Labels.TIMESHEET_TITLE_1)}</div>
+            <div className="ecos-timesheet__title">{t(CommonLabels.TIMESHEET_TITLE)}</div>
 
             <div className="ecos-timesheet__type">
               <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab} />

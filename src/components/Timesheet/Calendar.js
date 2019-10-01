@@ -3,8 +3,9 @@ import classNames from 'classnames';
 import MyCollapse from 'react-css-collapse';
 import uuid from 'uuidv4';
 
-import Tooltip from './Tooltip';
 import { t } from '../../helpers/util';
+import { CommonLabels } from '../../helpers/timesheet/constants';
+import Tooltip from './Tooltip';
 
 export const CalendarRow = React.memo(({ children = null, className, ...props }) => (
   <div>
@@ -75,15 +76,15 @@ export const dayTypeLabel = day => {
   let label = '';
 
   if (day.isShortenedDay) {
-    label = t('Сокращённый день');
+    label = t(CommonLabels.SHORTENED_DAY);
   }
 
   if (!day.isBusinessDay) {
-    label = t('Выходной день');
+    label = t(CommonLabels.DAY_OFF);
   }
 
   if (day.isCurrentDay) {
-    label = t('Сегодня');
+    label = t(CommonLabels.TODAY);
   }
 
   return label;

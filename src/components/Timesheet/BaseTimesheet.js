@@ -4,13 +4,14 @@ import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 import { Scrollbars } from 'react-custom-scrollbars';
 
+import { deepClone, t } from '../../helpers/util';
+import { CommonLabels } from '../../helpers/timesheet/constants';
 import { Icon, ResizeBoxes } from '../common';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { Input } from '../common/form';
 import Hour from './Hour';
 import Tooltip from './Tooltip';
 import { CalendarCell, CalendarRow, Header } from './Calendar';
-import { deepClone, t } from '../../helpers/util';
 
 import './style.scss';
 
@@ -130,7 +131,7 @@ class BaseTimesheet extends Component {
         <div className="ecos-timesheet__table-search-input">
           <Input
             className="ecos-timesheet__table-search-input-field"
-            placeholder={t('Найти событие')}
+            placeholder={t(CommonLabels.FIND_EVENT_TIP)}
             value={typeFilter}
             onChange={this.handleFilterTypes}
           />

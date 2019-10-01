@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import 'moment-business-days';
 import { deepClone, t } from '../../helpers/util';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
-import { Labels, StatusCategories } from '../../helpers/timesheet/constants';
+import { CommonLabels, StatusCategories, SubTimesheetLabels } from '../../helpers/timesheet/constants';
 import { Switch } from '../../components/common/form';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
@@ -28,12 +28,12 @@ class SubordinatesTimesheetPage extends Component {
       sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
       dateTabs: [
         {
-          name: 'Месяц',
+          name: t(CommonLabels.MONTH),
           isActive: true,
           isAvailable: true
         },
         {
-          name: 'Год',
+          name: t(CommonLabels.YEAR),
           isActive: false,
           isAvailable: false
         }
@@ -57,7 +57,7 @@ class SubordinatesTimesheetPage extends Component {
     const { isDelegated } = this.state;
 
     if (isDelegated) {
-      return t('Чтобы редактировать табель, отключите делегирование на другого сотрудника');
+      return t(SubTimesheetLabels.LOCK_DESCRIPTION_1);
     }
 
     return '';
@@ -131,7 +131,7 @@ class SubordinatesTimesheetPage extends Component {
       <div className="ecos-timesheet">
         <div className="ecos-timesheet__row">
           <div className="ecos-timesheet__column">
-            <div className="ecos-timesheet__title">{t(Labels.TIMESHEET_TITLE_1)}</div>
+            <div className="ecos-timesheet__title">{t(CommonLabels.TIMESHEET_TITLE)}</div>
 
             <div className="ecos-timesheet__type">
               <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab} />
@@ -139,14 +139,12 @@ class SubordinatesTimesheetPage extends Component {
           </div>
 
           <div className="ecos-timesheet__column ecos-timesheet__delegation">
-            <div className="ecos-timesheet__delegation-title">{t(Labels.HEADLINE_DELEGATION)}</div>
+            <div className="ecos-timesheet__delegation-title">{t(CommonLabels.HEADLINE_DELEGATION)}</div>
 
             <div className="ecos-timesheet__delegation-switch">
               <Switch checked={isDelegated} className="ecos-timesheet__delegation-switch-checkbox" onToggle={this.handleToggleDelegated} />
 
-              <span className="ecos-timesheet__delegation-switch-label">
-                {t('Табели подчиненных может заполнить другой сотрудник, если включить делегирование.')}
-              </span>
+              <span className="ecos-timesheet__delegation-switch-label">{t(SubTimesheetLabels.DELEGATION_DESCRIPTION_1)}</span>
             </div>
           </div>
         </div>

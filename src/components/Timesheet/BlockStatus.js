@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { t } from '../../helpers/util';
-import { Labels, Statuses } from '../../helpers/timesheet/constants';
+import { CommonLabels, Statuses } from '../../helpers/timesheet/constants';
 import { Btn, IcoBtn } from '../../components/common/btns';
 import EventHistoryModal from './EventHistoryModal';
 
@@ -34,7 +34,7 @@ class BlockStatus extends React.Component {
       <>
         <div className="ecos-timesheet__status-value">{t(currentStatusLbl)}</div>
         <IcoBtn icon="icon-calendar" className="ecos-timesheet__status-btn-history" onClick={this.openModalEventHistory}>
-          {t(Labels.EVENT_HISTORY_BTN)}
+          {t(CommonLabels.EVENT_HISTORY_BTN)}
         </IcoBtn>
         <Btn className="ecos-timesheet__status-btn-change ecos-btn_blue" onClick={this.handleChangeStatus.bind(null, changeStatus)}>
           {t(changeStatusLbl)}
@@ -50,13 +50,21 @@ class BlockStatus extends React.Component {
 
     switch (currentStatus) {
       case Statuses.NOT_FILLED:
-        content = this.renderCommonViewStatus(Labels.STATUS_VAL_NOT_FILLED, Statuses.WAITING_APPROVAL, Labels.STATUS_SENT_APPROVAL);
+        content = this.renderCommonViewStatus(
+          CommonLabels.STATUS_VAL_NOT_FILLED,
+          Statuses.WAITING_APPROVAL,
+          CommonLabels.STATUS_SENT_APPROVAL
+        );
         break;
       case Statuses.WAITING_APPROVAL:
-        content = this.renderCommonViewStatus(Labels.STATUS_VAL_WAITING_APPROVAL, Statuses.NOT_FILLED, Labels.STATUS_IMPROVE);
+        content = this.renderCommonViewStatus(CommonLabels.STATUS_VAL_WAITING_APPROVAL, Statuses.NOT_FILLED, CommonLabels.STATUS_IMPROVE);
         break;
       case Statuses.NEED_IMPROVED:
-        content = this.renderCommonViewStatus(Labels.STATUS_VAL_NEED_IMPROVED, Statuses.WAITING_APPROVAL, Labels.STATUS_SENT_APPROVAL);
+        content = this.renderCommonViewStatus(
+          CommonLabels.STATUS_VAL_NEED_IMPROVED,
+          Statuses.WAITING_APPROVAL,
+          CommonLabels.STATUS_SENT_APPROVAL
+        );
         break;
       default:
         content = null;
@@ -66,7 +74,7 @@ class BlockStatus extends React.Component {
       <>
         <EventHistoryModal onClose={this.closeModalEventHistory} isOpen={isOpenModalEventHistory} />
         <div className="ecos-timesheet__status">
-          <div className="ecos-timesheet__status-title">{t(Labels.STATUS_LBL)}</div>
+          <div className="ecos-timesheet__status-title">{t(CommonLabels.STATUS_LBL)}</div>
           {content}
         </div>
       </>

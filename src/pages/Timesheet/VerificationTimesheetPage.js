@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import 'moment-business-days';
 
-import { Labels } from '../../helpers/timesheet/constants';
 import { deepClone, t } from '../../helpers/util';
+import { VerifyTimesheetLabels } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth } from '../../helpers/timesheet/util';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import { TimesheetApi } from '../../api/timesheet';
@@ -119,7 +119,7 @@ class VerificationTimesheetPage extends Component {
 
     return (
       <div className="ecos-timesheet">
-        <div className="ecos-timesheet__title">{t(Labels.TIMESHEET_TITLE_2)}</div>
+        <div className="ecos-timesheet__title">{t(VerifyTimesheetLabels.TIMESHEET_TITLE)}</div>
 
         <div className="ecos-timesheet__header">
           <div className="ecos-timesheet__date-settings">

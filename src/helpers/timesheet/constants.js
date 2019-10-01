@@ -4,14 +4,28 @@ export const Statuses = {
   NEED_IMPROVED: 'need-improved'
 };
 
-export const Labels = {
-  FIND_EMPLOYEE: 'Найти сотрудника',
-  ADD_DAYS: 'Добавить дни',
-  SHOW_EVEN_HISTORY: 'Показать историю событий',
-  SHOW_COMMENT: 'Показать комментарий',
+export const StatusCategories = {
+  FILL: 'fill',
+  APPROVE: 'approve',
+  CHECK: 'check'
+};
 
-  TIMESHEET_TITLE_1: 'Табели учёта времени',
-  TIMESHEET_TITLE_2: 'Табели учёта времени для проверки',
+export const CommonLabels = {
+  TIMESHEET_TITLE: 'Табели учёта времени',
+
+  MONTH: 'Месяц',
+  YEAR: 'Год',
+  ADD_DAYS: 'Добавить дни',
+  SHORTENED_DAY: 'Сокращённый день',
+  DAY_OFF: 'Выходной день',
+  TODAY: 'Сегодня',
+
+  MODAL_IN_PROGRESS: 'Загружается',
+
+  SHOW_EVEN_HISTORY_TIP: 'Показать историю событий',
+  SHOW_COMMENT_TIP: 'Показать комментарий',
+
+  FIND_EVENT_TIP: 'Найти событие',
 
   STATUS_LBL: 'Статус:',
   STATUS_VAL_NOT_FILLED: 'Не заполнен',
@@ -28,20 +42,32 @@ export const Labels = {
   EVENT_HISTORY_BTN: 'История событий',
   EVENT_HISTORY_TITLE: 'История событий',
 
-  HEADLINE_DELEGATION: 'Делегирование',
-
-  DELEGATION_DESCRIPTION_1: 'Табели подчиненных может заполнить другой сотрудник, если включить делегирование.',
-  DELEGATION_DESCRIPTION_2: 'Ваш табель заполнит другой сотрудник',
-  DELEGATION_DESCRIPTION_3: 'Внимание! Делегирование было отключено другим сотрудником.',
-
-  DELEGATION_LABEL_REJECT_OK: 'OK',
-
-  DELEGATION_BTN_SET: 'Настроить',
-  DELEGATION_LABEL_SET: 'Вы можете управлять списком сотрудников, которые делегировали вам табели.'
+  HEADLINE_DELEGATION: 'Делегирование'
 };
 
-export const StatusCategories = {
-  FILL: 'fill',
-  APPROVE: 'approve',
-  CHECK: 'check'
+export const MyTimesheetLabels = {
+  DELEGATION_DESCRIPTION_1: 'Табель может быть заполнен другим сотрудником, если включить делегирование',
+  DELEGATION_DESCRIPTION_2: 'Ваш табель заполнит другой сотрудник',
+  DELEGATION_DESCRIPTION_3: 'Внимание! Делегирование было отключено другим сотрудником',
+
+  LOCK_DESCRIPTION_1: 'Чтобы редактировать табель, нажмите на кнопку "Доработать"',
+  LOCK_DESCRIPTION_2: 'Чтобы редактировать табель, отключите делегирование на другого сотрудника',
+
+  DELEGATION_LABEL_REJECT_OK: 'OK'
+};
+
+export const SubTimesheetLabels = {
+  DELEGATION_DESCRIPTION_1: 'Табели подчиненных может заполнить другой сотрудник, если включить делегирование',
+
+  LOCK_DESCRIPTION_1: 'Чтобы редактировать табель, отключите делегирование на другого сотрудника'
+};
+
+export const DelegateTimesheetLabels = {
+  DELEGATION_DESCRIPTION_1: 'Вы можете управлять списком сотрудников, которые делегировали вам табели',
+
+  DELEGATION_BTN_SET: 'Настроить'
+};
+
+export const VerifyTimesheetLabels = {
+  TIMESHEET_TITLE: 'Табели учёта времени для проверки'
 };

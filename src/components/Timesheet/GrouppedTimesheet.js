@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 
 import { deepClone, t } from '../../helpers/util';
-import { Labels, StatusCategories } from '../../helpers/timesheet/constants';
+import { CommonLabels, StatusCategories } from '../../helpers/timesheet/constants';
 import { Icon, ResizeBoxes } from '../common';
 import { Input } from '../common/form';
 import { Btn, IcoBtn } from '../common/btns';
@@ -227,7 +227,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         <div className="ecos-timesheet__table-search-input">
           <Input
             className="ecos-timesheet__table-search-input-field"
-            placeholder={t(Labels.FIND_EMPLOYEE)}
+            placeholder={t(CommonLabels.FIND_EMPLOYEE)}
             value={typeFilter}
             onChange={this.handleFilterTypes}
           />
@@ -265,14 +265,14 @@ class GrouppedTimesheet extends BaseTimesheet {
                 className="ecos-btn_grey8 ecos-timesheet__table-group-btn_revision ecos-btn_narrow"
                 onClick={() => this.handleClickDisapprove(index)}
               >
-                {t(Labels.STATUS_BTN_SENT_IMPROVE)}
+                {t(CommonLabels.STATUS_BTN_SENT_IMPROVE)}
               </IcoBtn>
               <IcoBtn
                 icon="icon-check"
                 className="ecos-btn_grey8 ecos-timesheet__table-group-btn_approve ecos-btn_narrow"
                 onClick={() => this.handleClickApprove(index)}
               >
-                {t(Labels.STATUS_BTN_APPROVE)}
+                {t(CommonLabels.STATUS_BTN_APPROVE)}
               </IcoBtn>
             </>
           );
@@ -280,10 +280,10 @@ class GrouppedTimesheet extends BaseTimesheet {
           return (
             <>
               <Btn className="ecos-btn_grey7 ecos-btn_narrow" onClick={() => this.handleClickOffDelegation(index)}>
-                {t(Labels.STATUS_BTN_OFF_DELEGATION)}
+                {t(CommonLabels.STATUS_BTN_OFF_DELEGATION)}
               </Btn>
               <Btn className="ecos-btn_blue ecos-btn_narrow" onClick={() => this.handleClickSentApprove(index)}>
-                {t(Labels.STATUS_BTN_SENT_APPROVE)}
+                {t(CommonLabels.STATUS_BTN_SENT_APPROVE)}
               </Btn>
             </>
           );
@@ -333,7 +333,7 @@ class GrouppedTimesheet extends BaseTimesheet {
                           />
                           <Tooltip
                             target={`timesheet-group-${index}-history`}
-                            content={t(Labels.SHOW_EVEN_HISTORY)}
+                            content={t(CommonLabels.SHOW_EVEN_HISTORY_TIP)}
                             innerClassName="ecos-timesheet__table-group-tooltip"
                           />
                         </>
@@ -345,7 +345,7 @@ class GrouppedTimesheet extends BaseTimesheet {
                           />
                           <Tooltip
                             target={`timesheet-group-${index}-message`}
-                            content={t(Labels.SHOW_COMMENT)}
+                            content={t(CommonLabels.SHOW_COMMENT_TIP)}
                             innerClassName="ecos-timesheet__table-group-tooltip"
                           />
                         </>
@@ -380,7 +380,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         <div className="ecos-timesheet__table-events-item-filter" style={{ backgroundColor: item.color || '#D0D0D0' }} />
         <div className="ecos-timesheet__table-events-item-title">{item.title}</div>
         <Icon className="icon-plus ecos-timesheet__table-events-item-add-btn" id={`event-type-${position}-group-${groupPosition}`} />
-        <Tooltip target={`event-type-${position}-group-${groupPosition}`} content={t(Labels.ADD_DAYS)} />
+        <Tooltip target={`event-type-${position}-group-${groupPosition}`} content={t(CommonLabels.ADD_DAYS)} />
       </div>
     </SortableElement>
   );

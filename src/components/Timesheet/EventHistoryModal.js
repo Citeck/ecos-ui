@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import EcosModal from '../common/EcosModal';
 import { t } from '../../helpers/util';
-import { Labels } from '../../helpers/timesheet/constants';
+import { CommonLabels } from '../../helpers/timesheet/constants';
 
 import './style.scss';
 
@@ -26,11 +26,11 @@ class EventHistoryModal extends React.Component {
         }}
         className="ecos-modal_width-xs"
         isBigHeader={true}
-        title={t(Labels.EVENT_HISTORY_TITLE)}
+        title={t(CommonLabels.EVENT_HISTORY_TITLE)}
         isOpen={isOpen}
         hideModal={onClose}
       >
-        In progress
+        {t(CommonLabels.MODAL_IN_PROGRESS)}
       </EcosModal>
     );
   }
