@@ -5,7 +5,7 @@ import classNames from 'classnames';
 
 import { deepClone, t } from '../../helpers/util';
 import { Labels, StatusCategories } from '../../helpers/timesheet/constants';
-import { Icon } from '../common';
+import { Icon, ResizerX } from '../common';
 import { Input } from '../common/form';
 import { Btn, IcoBtn } from '../common/btns';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
@@ -14,7 +14,6 @@ import Hour from './Hour';
 import BaseTimesheet from './BaseTimesheet';
 import Tabs from './Tabs';
 import Tooltip from './Tooltip';
-import ResizerX from './ResizerX';
 
 import './style.scss';
 
@@ -477,7 +476,12 @@ class GrouppedTimesheet extends BaseTimesheet {
         <div className="ecos-timesheet__table-left-column" ref={this._leftCol}>
           {this.renderFilter()}
           {this.renderGroupedEvents()}
-          <ResizerX getSize={this.getResizeSize} leftBox={this.getRefElm(this._leftCol)} rightBox={this.getRefElm(this._calendarWrapper)} />
+          <ResizerX
+            getSize={this.getResizeSize}
+            leftBox={this.getRefElm(this._leftCol)}
+            rightBox={this.getRefElm(this._calendarWrapper)}
+            className="ecos-timesheet__resizer"
+          />
         </div>
         <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper}>
           {this.renderCalendar()}

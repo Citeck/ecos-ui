@@ -1,0 +1,22 @@
+@import '../../../constants';
+
+.ecos-resizer-x {
+  position: absolute;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 5px;
+  right: -10px;
+  height: 38px;
+  width: 20px;
+  background: $color-white;
+  box-shadow: $box-shadow-default;
+  border-radius: $border-radius-extra-large;
+  cursor: col-resize;
+
+  & > &__icon {
+    font-size: 16px;
+    color: $color-gray-6;
+  }
+}

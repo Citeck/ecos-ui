@@ -187,6 +187,9 @@
 .icon-history:before {
   content: '\e83e';
 } /* '' */
+.icon-v_resize:before {
+  content: '\e83f';
+} /* '' */
 .icon-drag-small:before {
   content: '\e840';
 } /* '' */
