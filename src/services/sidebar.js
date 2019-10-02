@@ -3,6 +3,8 @@ import { getJournalPageUrl } from '../helpers/urls';
 import { URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
 import { MenuApi } from '../api';
+import isEmpty from 'lodash/isEmpty';
+import isArray from 'lodash/isArray';
 
 export default class SidebarService {
   static ActionTypes = {
@@ -54,7 +56,7 @@ export default class SidebarService {
     return lvls[level] || {};
   };
 
-  static getPropsUrl(item) {
+  static getPropsUrl(item, extraParams) {
     let targetUrl = null;
     let attributes = {};
     let ignoreTabHandler = true;
@@ -125,9 +127,8 @@ export default class SidebarService {
             ignoreTabHandler = false;
             attributes.target = '_blank';
             attributes.rel = 'noopener noreferrer';
-            // attributes[REMOTE_TITLE_ATTR_NAME] = true; // TODO
 
-            if (Array.isArray(item.items) && item.items.length > 0) {
+            if (!extraParams.isSiteDashboardEnable && !isEmpty(item.items) && isArray(item.items)) {
               const journalLink = item.items.find(item => {
                 return item.action.type === 'JOURNAL_LINK';
               });
@@ -149,8 +150,9 @@ export default class SidebarService {
               }
             }
 
-            targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
             attributes[REMOTE_TITLE_ATTR_NAME] = true;
+            targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
+            break;
           } else {
             targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
           }

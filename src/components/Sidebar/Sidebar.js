@@ -2,7 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
-import { fetchLargeLogoSrc, fetchSlideMenuItems, fetchSmallLogoSrc, toggleIsOpen } from '../../actions/slideMenu';
+import { fetchLargeLogoSrc, fetchSlideMenuItems, fetchSmallLogoSrc, getSiteDashboardEnable, toggleIsOpen } from '../../actions/slideMenu';
 import ULS from '../../services/userLocalSettings';
 import { Separator } from '../common';
 import Logo from './Logo';
@@ -22,7 +22,8 @@ const mapDispatchToProps = dispatch => ({
   fetchSmallLogoSrc: () => dispatch(fetchSmallLogoSrc()),
   fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
   fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
-  toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen))
+  toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
+  getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable())
 });
 
 const isOpenMenu = () => {
@@ -44,6 +45,7 @@ class Sidebar extends React.Component {
     this.props.fetchLargeLogoSrc();
     this.props.fetchSlideMenuItems();
     this.props.toggleIsOpen(isOpenMenu());
+    this.props.getSiteDashboardEnable();
 
     this.slideMenuToggle = document.getElementById('slide-menu-toggle');
 

@@ -131,15 +131,8 @@ const ListItemLink = ({
           ignoreTabHandler = false;
           attributes.target = '_blank';
           attributes.rel = 'noopener noreferrer';
-          // attributes[REMOTE_TITLE_ATTR_NAME] = true; // TODO
 
-          if (isSiteDashboardEnable) {
-            targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
-            attributes[REMOTE_TITLE_ATTR_NAME] = true;
-            break;
-          }
-
-          if (!isEmpty(item.items) && isArray(item.items)) {
+          if (!isSiteDashboardEnable && !isEmpty(item.items) && isArray(item.items)) {
             const journalLink = item.items.find(subitem => subitem.action.type === 'JOURNAL_LINK');
 
             if (journalLink) {
@@ -161,6 +154,10 @@ const ListItemLink = ({
               break;
             }
           }
+
+          targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
+          attributes[REMOTE_TITLE_ATTR_NAME] = true;
+          break;
         } else {
           targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
         }

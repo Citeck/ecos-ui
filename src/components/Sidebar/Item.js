@@ -11,7 +11,8 @@ import RemoteBadge from './RemoteBadge';
 import { ItemBtn, ItemIcon, ItemLink } from './itemComponents';
 
 const mapStateToProps = state => ({
-  isOpen: state.slideMenu.isOpen
+  isOpen: state.slideMenu.isOpen,
+  isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable
 });
 
 class Item extends React.Component {
@@ -82,14 +83,14 @@ class Item extends React.Component {
   };
 
   render() {
-    const { isOpen, data, level } = this.props;
+    const { isOpen, isSiteDashboardEnable, data, level } = this.props;
     const { isExpanded, styleProps = {} } = this.state;
     const { noIcon, noBadge, noToggle, isRemoteBadge, collapsed, noMoveIfItems } = styleProps;
 
     if (isEmpty(data)) {
       return null;
     }
-
+    const extraParams = { isSiteDashboardEnable };
     const { items } = this.parseData();
     const noItems = isEmpty(items);
     const noMove = !noItems && noMoveIfItems;
@@ -99,7 +100,7 @@ class Item extends React.Component {
       <li className="ecos-sidebar-item">
         {(isOpen || (!isOpen && !collapsed.noName)) && (
           <div className={classNames('ecos-sidebar-item__name-wrapper', { 'ecos-sidebar-item__name-wrapper_no-action': noMove })}>
-            <Mover data={data}>
+            <Mover data={data} extraParams={extraParams}>
               {!noIcon && <ItemIcon iconName={data.icon} />}
               <div className="ecos-sidebar-item__label">{data.label}</div>
             </Mover>
