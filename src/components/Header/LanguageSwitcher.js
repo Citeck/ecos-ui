@@ -1,5 +1,4 @@
 import React from 'react';
-import Records from '../Records';
 import { getCurrentLocale, setCookie } from '../../helpers/util';
 import { COOKIE_KEY_LOCALE, COOKIE_KEY_LOCALE_MAX_AGE } from '../../constants/alfresco';
 
@@ -8,26 +7,19 @@ const LANGUAGE_EN = 'en';
 
 export default class LanguageSwitcher extends React.Component {
   state = {
-    isShow: false,
-    language: LANGUAGE_EN
+    language: null
   };
 
   componentDidMount() {
-    Records.get('uiserv/config@language-switcher-enabled')
-      .load('value?bool')
-      .then(isEnabled => {
-        if (isEnabled) {
-          this.setState({ isShow: true });
-        }
-      });
-
-    const locale = getCurrentLocale();
-    this.setState({ language: locale });
+    this.setState({
+      language: getCurrentLocale()
+    });
   }
 
   render() {
-    const { isShow, language } = this.state;
-    if (!isShow) {
+    const { language } = this.state;
+
+    if (!language) {
       return null;
     }
 
