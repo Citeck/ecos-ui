@@ -1,3 +1,6 @@
+import isEmpty from 'lodash/isEmpty';
+import isArray from 'lodash/isArray';
+
 import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
 import { getJournalPageUrl } from '../helpers/urls';
 import { URL } from '../constants';
@@ -54,7 +57,7 @@ export default class SidebarService {
     return lvls[level] || {};
   };
 
-  static getPropsUrl(item) {
+  static getPropsUrl(item, addParams) {
     let targetUrl = null;
     let attributes = {};
     let ignoreTabHandler = true;
@@ -64,7 +67,7 @@ export default class SidebarService {
 
       switch (item.action.type) {
         case ATypes.FILTER_LINK:
-        case ATypes.JOURNAL_LINK:
+        case ATypes.JOURNAL_LINK: {
           let listId = 'tasks';
           if (params.siteName) {
             listId = params.listId || 'main';
@@ -116,18 +119,25 @@ export default class SidebarService {
           }
 
           break;
-        case 'PAGE_LINK':
+        }
+        case 'PAGE_LINK': {
           let sectionPostfix = params.section ? params.section : '';
           targetUrl = `${PAGE_PREFIX}/${params.pageId}${sectionPostfix}`;
           break;
-        case 'SITE_LINK':
+        }
+        case 'SITE_LINK': {
           if (isNewVersionPage()) {
             ignoreTabHandler = false;
             attributes.target = '_blank';
             attributes.rel = 'noopener noreferrer';
-            // attributes[REMOTE_TITLE_ATTR_NAME] = true; // TODO
 
-            if (Array.isArray(item.items) && item.items.length > 0) {
+            if (addParams.isSiteDashboardEnable) {
+              targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
+              attributes[REMOTE_TITLE_ATTR_NAME] = true;
+              break;
+            }
+
+            if (!isEmpty(item.items) && isArray(item.items)) {
               const journalLink = item.items.find(item => {
                 return item.action.type === 'JOURNAL_LINK';
               });
@@ -155,6 +165,7 @@ export default class SidebarService {
             targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
           }
           break;
+        }
         default:
           break;
       }
