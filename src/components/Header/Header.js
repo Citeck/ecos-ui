@@ -73,9 +73,9 @@ class Header extends React.Component {
           </div>
           <div className={`${classNameSide} ${classNameSide}_right`}>
             <Search isMobile={widthHeader <= 600} />
-            {isMobile || (widthHeader > 600 && <LanguageSwitcher />)}
             {isMobile || (widthHeader > 600 && <SiteMenu />)}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
+            {isMobile || (widthHeader > 600 && <LanguageSwitcher />)}
           </div>
         </div>
       </React.Fragment>
