@@ -16,7 +16,8 @@ const PAGE_PREFIX = '/share/page';
 const menuApi = new MenuApi();
 
 const mapStateToProps = (state, ownProps) => ({
-  selectedId: state.slideMenu.selectedId
+  selectedId: state.slideMenu.selectedId,
+  isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -28,11 +29,18 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   setExpanded: id => dispatch(toggleExpanded(id))
 });
 
-const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded, isNestedListExpanded, withNestedList }) => {
+const ListItemLink = ({
+  item,
+  onSelectItem,
+  selectedId,
+  nestedList,
+  setExpanded,
+  isNestedListExpanded,
+  withNestedList,
+  isSiteDashboardEnable
+}) => {
   const journalId = lodashGet(item, 'params.journalId', '');
-  const actionType = lodashGet(item, 'action.type', '');
   const [journalTotalCount, setJournalTotalCount] = useState(0);
-  const [isSiteDashboardEnable, setSiteDashboardEnable] = useState('');
   const attributes = {};
   let ignoreTabHandler = true;
 
@@ -43,10 +51,6 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
       });
     }
   }, [journalId]);
-
-  useEffect(() => {
-    menuApi.checkSiteDashboardEnable().then(value => setSiteDashboardEnable(value));
-  });
 
   let itemId = item.id;
   let label = t(item.label);
@@ -63,7 +67,7 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
   if (item.action) {
     const params = item.action.params;
 
-    switch (actionType) {
+    switch (item.action.type) {
       case 'FILTER_LINK':
       case 'JOURNAL_LINK':
         let listId = 'tasks';

@@ -116,6 +116,8 @@ export class MenuApi extends CommonApi {
   };
 
   checkSiteDashboardEnable = () => {
-    return Records.get('uiserv/config@site-dashboard-enable').load('value?bool');
+    return Records.get('uiserv/config@site-dashboard-enable')
+      .load('value?bool')
+      .then(resp => resp);
   };
 }

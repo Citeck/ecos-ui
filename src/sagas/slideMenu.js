@@ -3,9 +3,11 @@ import {
   fetchLargeLogoSrc,
   fetchSlideMenuItems,
   fetchSmallLogoSrc,
+  getSiteDashboardEnable,
   setIsReady,
   setLargeLogo,
   setSelectedId,
+  setSiteDashboardEnable,
   setSlideMenuExpandableItems,
   setSlideMenuItems,
   setSmallLogo
@@ -48,10 +50,21 @@ function* fetchSlideMenu({ api, fakeApi, logger }) {
   }
 }
 
+function* fetchSiteDashboardEnable({ api, logger }) {
+  try {
+    const res = yield call(api.menu.checkSiteDashboardEnable);
+
+    yield put(setSiteDashboardEnable(!!res));
+  } catch (e) {
+    logger.error('[fetchSiteDashboardEnable saga] error', e.message);
+  }
+}
+
 function* headerSaga(ea) {
   yield takeLatest(fetchSmallLogoSrc().type, fetchSmallLogo, ea);
   yield takeLatest(fetchLargeLogoSrc().type, fetchLargeLogo, ea);
   yield takeLatest(fetchSlideMenuItems().type, fetchSlideMenu, ea);
+  yield takeLatest(getSiteDashboardEnable().type, fetchSiteDashboardEnable, ea);
 }
 
 export default headerSaga;
