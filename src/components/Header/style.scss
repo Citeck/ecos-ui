@@ -180,18 +180,23 @@
     }
   }
 
-  &__language-switcher {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    padding: 0 10px;
-    height: 40px;
-    background-color: $color-blue-dark;
-    border-radius: $border-radius-standard;
+  &-lang {
+    &__btn {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
 
-    &:hover {
-      background-color: $color-white;
+    &__img {
+      width: 22px;
+      margin-right: 7px;
+    }
+
+    &__menu {
+      min-width: 100% !important;
+
+      li a {
+        padding: 9px 10px;
+      }
     }
   }
 
