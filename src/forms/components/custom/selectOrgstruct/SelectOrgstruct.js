@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import BaseComponent from '../base/BaseComponent';
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
+import { isNodeRef } from '../../../../helpers/util';
 import isEqual from 'lodash/isEqual';
 import Formio from 'formiojs/Formio';
 
@@ -93,8 +94,12 @@ export default class SelectOrgstructComponent extends BaseComponent {
     let allUsersGroup = this.component.allUsersGroup;
     let allowedAuthorityType = this.component.allowedAuthorityType || '';
     let allowedGroupType = this.component.allowedGroupType || '';
+    let allowedGroupSubType = this.component.allowedGroupSubType || '';
     const allowedAuthorityTypes = allowedAuthorityType.split(',').map(item => item.trim());
     const allowedGroupTypes = allowedGroupType.split(',').map(item => item.trim());
+
+    allowedGroupSubType = allowedGroupSubType.trim();
+    const allowedGroupSubTypes = allowedGroupSubType.length > 0 ? allowedGroupSubType.split(',').map(item => item.trim()) : [];
 
     const onChange = this.onValueChange.bind(this);
 
@@ -109,6 +114,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           allUsersGroup={allUsersGroup}
           allowedAuthorityTypes={allowedAuthorityTypes}
           allowedGroupTypes={allowedGroupTypes}
+          allowedGroupSubTypes={allowedGroupSubTypes}
           onChange={onChange}
           viewOnly={self.viewOnly}
           onError={err => {
@@ -150,8 +156,6 @@ export default class SelectOrgstructComponent extends BaseComponent {
       callback(authority);
       return;
     }
-
-    let isNodeRef = r => r != null && r.indexOf('workspace://SpacesStore/') === 0;
 
     if (isNodeRef(authority)) {
       callback(authority);

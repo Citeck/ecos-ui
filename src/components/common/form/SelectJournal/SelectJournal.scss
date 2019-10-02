@@ -45,7 +45,7 @@
   }
 }
 
-.select-journal__grid {
+.select-journal__grid-container {
   margin-top: 15px;
   margin-left: -21px;
   margin-right: -21px;
@@ -57,4 +57,12 @@
   position: absolute;
   bottom: -40px;
   left: 15px;
+}
+
+.select-journal__grid {
+  overflow: auto;
+
+  &_transparent {
+    opacity: 0.2;
+  }
 }

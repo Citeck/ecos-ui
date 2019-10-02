@@ -17,7 +17,7 @@ export const EditAction = {
 };
 
 export const ViewAction = {
-  disabledFor: ['event-lines'],
+  disabledFor: [/^event-lines.*/],
 
   execute: ({ record }) => {
     goToCardDetailsPage(record.id);
@@ -25,8 +25,13 @@ export const ViewAction = {
   },
 
   canBeExecuted: ({ context }) => {
-    const { mode = '', scope = '' } = context;
-    return mode === 'journal' && ViewAction.disabledFor.indexOf(scope) === -1;
+    const { scope = '' } = context;
+    for (let pattern of ViewAction.disabledFor) {
+      if (pattern.test(scope)) {
+        return false;
+      }
+    }
+    return true;
   }
 };
 
@@ -50,7 +55,7 @@ export const DownloadAction = {
 };
 
 export const RemoveAction = {
-  disabledFor: ['event-lines'],
+  disabledFor: [/^event-lines.*/],
 
   groupExec: ({ records }) => {
     return new Promise(resolve => {
@@ -74,7 +79,12 @@ export const RemoveAction = {
 
   canBeExecuted: ({ context }) => {
     const { scope = '' } = context;
-    return RemoveAction.disabledFor.indexOf(scope) === -1;
+    for (let pattern of RemoveAction.disabledFor) {
+      if (pattern.test(scope)) {
+        return false;
+      }
+    }
+    return true;
   }
 };
 
@@ -85,14 +95,16 @@ export const MoveToLinesJournal = {
   execute: ({ record }) => {
     let recordId = record.id;
 
-    goToJournalsPage({
-      journalsListId: 'site-ssg-skif-main',
-      journalId: 'event-lines',
-      filter: JSON.stringify({
-        t: 'eq',
-        att: 'skifem:eventRef',
-        val: recordId
-      })
+    record.load('skifem:eventTypeAssoc.skifdm:eventTypeId?str').then(eventType => {
+      goToJournalsPage({
+        journalsListId: 'site-ssg-skif-main',
+        journalId: 'event-lines-' + eventType,
+        filter: JSON.stringify({
+          t: 'eq',
+          att: 'skifem:eventRef',
+          val: recordId
+        })
+      });
     });
 
     return false;

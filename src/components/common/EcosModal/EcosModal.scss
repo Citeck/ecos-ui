@@ -169,6 +169,10 @@
   max-width: 1200px;
 }
 
+.ecos-modal.ecos-modal_width-full {
+  max-width: calc(100% - 1rem);
+}
+
 @media (max-width: 600px) {
   .ecos-modal.ecos-modal_width-sm {
     margin: 0.5rem;

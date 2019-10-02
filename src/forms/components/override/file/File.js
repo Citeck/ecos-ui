@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEmpty } from 'lodash';
 import FormIOFileComponent from 'formiojs/components/file/File';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../constants/pageTabs';
 import { isNewVersionPage } from '../../../../helpers/urls';
@@ -85,5 +85,13 @@ export default class FileComponent extends FormIOFileComponent {
     }
 
     return this.ce('a', linkAttributes, file.originalName || file.name);
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2667
+  setValue(value) {
+    if (!isEmpty(value) && !Array.isArray(value)) {
+      value = [value];
+    }
+    super.setValue(value);
   }
 }

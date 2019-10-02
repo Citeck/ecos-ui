@@ -40,7 +40,7 @@ class ActionsList extends React.Component {
 
           return (
             <div
-              key={`action-${action.id}-${index}`}
+              key={`action-${action.type}-${index}`}
               className={classNames(
                 'ecos-actions-list__item',
                 { 'ecos-actions-list__item_group': hasVariants },
@@ -52,17 +52,18 @@ class ActionsList extends React.Component {
               <div className="ecos-actions-list__item-title">{action.title}</div>
               {hasVariants && (
                 <div className="ecos-actions-list__item-variants">
-                  {action.variants.map(variant => (
-                    <div
-                      key={`action-${action.id}-${index}-${variant.id}`}
-                      className={classNames('ecos-actions-list__item-variants__item', {
-                        'ecos-actions-list__item-variants__item_disabled': isLoading
-                      })}
-                      onClick={() => this.onClick(action)}
-                    >
-                      {variant.title}
-                    </div>
-                  ))}
+                  {!isEmpty(action.variants) &&
+                    action.variants.map(variant => (
+                      <div
+                        key={`action-${action.type}-${index}-${variant.type}`}
+                        className={classNames('ecos-actions-list__item-variants__item', {
+                          'ecos-actions-list__item-variants__item_disabled': isLoading
+                        })}
+                        onClick={() => this.onClick(action)}
+                      >
+                        {variant.title}
+                      </div>
+                    ))}
                 </div>
               )}
               {isMobile && index < list.length - 1 && !hasVariants && <Separator noIndents />}

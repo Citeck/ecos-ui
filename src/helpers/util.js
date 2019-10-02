@@ -1,9 +1,39 @@
 import lodashGet from 'lodash/get';
 import moment from 'moment';
 import { DataFormatTypes, MIN_WIDTH_DASHLET_LARGE } from '../constants';
+import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
 import * as queryString from 'query-string';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
+
+export function getCookie(name) {
+  // eslint-disable-next-line
+  let matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
+  return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
+export function setCookie(name, value, options = {}) {
+  options = {
+    path: '/',
+    ...options
+  };
+
+  if (options.expires && options.expires.toUTCString) {
+    options.expires = options.expires.toUTCString();
+  }
+
+  let updatedCookie = encodeURIComponent(name) + '=' + encodeURIComponent(value);
+
+  for (let optionKey in options) {
+    updatedCookie += '; ' + optionKey;
+    let optionValue = options[optionKey];
+    if (optionValue !== true) {
+      updatedCookie += '=' + optionValue;
+    }
+  }
+
+  document.cookie = updatedCookie;
+}
 
 export const utcAsLocal = jsonDate =>
   moment(jsonDate)
@@ -130,6 +160,11 @@ export function isMobileDevice() {
 }
 
 export function getCurrentLocale() {
+  const manualLocale = getCookie(COOKIE_KEY_LOCALE);
+  if (manualLocale) {
+    return manualLocale;
+  }
+
   if (!window.navigator) {
     return 'en';
   }
@@ -526,4 +561,8 @@ export function removeItemFromArray(array = [], item = '', byKey = '') {
   }
 
   return array.filter(elem => elem !== item);
+}
+
+export function isNodeRef(str) {
+  return typeof str === 'string' && str.indexOf('workspace://SpacesStore/') === 0;
 }

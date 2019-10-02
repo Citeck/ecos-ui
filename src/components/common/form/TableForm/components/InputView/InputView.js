@@ -1,5 +1,4 @@
 import React, { useContext, useRef, useEffect } from 'react';
-import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
 import { IcoBtn } from '../../../../../common/btns';
 import Grid from '../../../../grid/Grid';
@@ -66,19 +65,17 @@ const InputView = () => {
 
     valuesList = (
       <div ref={wrapperRef} className={'ecos-table-form__grid-wrapper'}>
-        <Scrollbars autoHeight autoHeightMin={0}>
-          <Grid
-            data={selectedRows}
-            columns={columns}
-            total={selectedRows.length}
-            singleSelectable={false}
-            multiSelectable={false}
-            inlineTools={inlineTools}
-            onChangeTrOptions={setInlineToolsOffsets}
-            className={'ecos-table-form__grid'}
-            scrollable={false}
-          />
-        </Scrollbars>
+        <Grid
+          data={selectedRows}
+          columns={columns}
+          total={selectedRows.length}
+          singleSelectable={false}
+          multiSelectable={false}
+          inlineTools={inlineTools}
+          onChangeTrOptions={setInlineToolsOffsets}
+          className={'ecos-table-form__grid'}
+          scrollable={false}
+        />
       </div>
     );
   }

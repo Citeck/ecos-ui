@@ -6,12 +6,10 @@ import RecordActionsConverter from '../dto/recordActions';
 
 function* sagaGetActions({ api, logger }, { payload }) {
   try {
-    const { record, dashboardId, stateId } = payload;
-    const res = yield call(api.recordActions.getActions, { record, dashboardId });
+    const { record, stateId, context } = payload;
+    const res = yield call(api.recordActions.getActions, { records: record, context }) || [];
 
-    if (res && Object.keys(res)) {
-      yield put(setActions({ stateId, list: RecordActionsConverter.getActionListForWeb(res) }));
-    }
+    yield put(setActions({ stateId, list: RecordActionsConverter.getActionListForWeb(res) }));
   } catch (e) {
     logger.error('[tasks/sagaGetCurrentTasks saga] error', e.message);
   }
@@ -19,13 +17,15 @@ function* sagaGetActions({ api, logger }, { payload }) {
 
 function* sagaExecuteAction({ api, logger }, { payload }) {
   try {
-    const { record, action, stateId } = payload;
-    const res = yield call(api.recordActions.executeAction, { record, action });
+    const { record, action, stateId, context } = payload;
+
+    yield put(backExecuteAction({ stateId })); //todo перенести после выполнения действия после доработки сервиса
+
+    const res = yield call(api.recordActions.executeAction, { records: record, action, context });
 
     if (!res) {
       yield put(setNotificationMessage(t('records-actions.action-failed')));
     }
-    yield put(backExecuteAction({ stateId }));
   } catch (e) {
     yield put(setNotificationMessage(t('records-actions.action-failed')));
     logger.error('[tasks/sagaGetCurrentTasks saga] error', e.message);

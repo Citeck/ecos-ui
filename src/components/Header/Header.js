@@ -10,6 +10,7 @@ import CreateMenu from './CreateMenu';
 import UserMenu from './UserMenu';
 import SiteMenu from './SiteMenu';
 import Search from './Search';
+import LanguageSwitcher from './LanguageSwitcher';
 
 import './style.scss';
 
@@ -65,6 +66,7 @@ class Header extends React.Component {
             <Search isMobile={widthHeader <= 600} />
             {isMobile || (widthHeader > 600 && <SiteMenu />)}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
+            {isMobile || (widthHeader > 600 && <LanguageSwitcher />)}
           </div>
         </div>
       </React.Fragment>

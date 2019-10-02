@@ -1,6 +1,7 @@
 import React, { useContext, Fragment } from 'react';
 import classNames from 'classnames';
 import { Btn } from '../../../../../common/btns';
+import ViewMode from '../ViewMode';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 import { t } from '../../../../../../helpers/util';
 import './InputView.scss';
@@ -8,8 +9,16 @@ import './InputView.scss';
 const InputView = () => {
   const context = useContext(SelectOrgstructContext);
 
-  const { isCompact, disabled, multiple, placeholder } = context.controlProps;
+  const { isCompact, disabled, multiple, placeholder, viewOnly, renderView } = context.controlProps;
   const { selectedRows, error, toggleSelectModal, deleteSelectedItem } = context;
+
+  if (typeof renderView === 'function') {
+    return renderView(context);
+  }
+
+  if (viewOnly) {
+    return <ViewMode />;
+  }
 
   const wrapperClasses = classNames('select-orgstruct__input-view', {
     'select-orgstruct__input-view_compact': isCompact

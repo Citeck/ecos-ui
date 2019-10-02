@@ -1,53 +1,53 @@
-import { put, call, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import cloneDeep from 'lodash/cloneDeep';
 import {
-  getDashletEditorData,
-  getDashletConfig,
-  getJournalsData,
-  saveDashlet,
-  setGrid,
-  setEditorMode,
-  setJournalsList,
-  setJournals,
-  setDashletConfig,
-  reloadGrid,
-  initJournal,
-  reloadTreeGrid,
-  setJournalConfig,
-  execRecordsAction,
-  deleteRecords,
-  saveRecords,
-  setSelectedRecords,
-  saveJournalSetting,
+  cancelJournalSettingData,
   createJournalSetting,
+  createZip,
   deleteJournalSetting,
+  deleteRecords,
+  execRecordsAction,
+  getDashletConfig,
+  getDashletEditorData,
+  getJournalsData,
+  goToJournalsPage,
+  initJournal,
+  initJournalSettingData,
+  initPreview,
+  onJournalSelect,
+  onJournalSettingsSelect,
+  performGroupAction,
+  reloadGrid,
+  reloadTreeGrid,
+  renameJournalSetting,
+  saveDashlet,
+  saveJournalSetting,
+  saveRecords,
+  search,
+  setColumnsSetup,
+  setDashletConfig,
+  setEditorMode,
+  setGrid,
+  setGridInlineToolSettings,
+  setGrouping,
+  setJournalConfig,
+  setJournals,
   setJournalSetting,
   setJournalSettings,
-  setPredicate,
-  setColumnsSetup,
-  setGrouping,
-  initJournalSettingData,
-  onJournalSettingsSelect,
-  onJournalSelect,
-  initPreview,
-  setPreviewUrl,
-  goToJournalsPage,
-  search,
-  performGroupAction,
+  setJournalsList,
   setPerformGroupActionResponse,
-  createZip,
-  setZipNodeRef,
-  renameJournalSetting,
+  setPredicate,
+  setPreviewFileName,
+  setPreviewUrl,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setGridInlineToolSettings,
-  cancelJournalSettingData,
-  setPreviewFileName
+  setSelectedRecords,
+  setZipNodeRef
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { JOURNAL_SETTING_ID_FIELD, DEFAULT_JOURNALS_PAGINATION, DEFAULT_INLINE_TOOL_SETTINGS } from '../components/Journals/constants';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
-import { goToJournalsPage as goToJournalsPageUrl, getFilterUrlParam } from '../helpers/urls';
+import { getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
 import { t } from '../helpers/util';
 import { wrapSaga } from '../helpers/redux';
 
@@ -377,7 +377,7 @@ function* sagaDeleteRecords({ api, logger, stateId, w }, action) {
 
 function* sagaExecRecordsAction({ api, logger, stateId, w }, action) {
   try {
-    const actionResult = yield call(api.recordActions.execAction, action.payload);
+    const actionResult = yield call(api.recordActions.executeAction, action.payload);
     if (actionResult !== false) {
       yield put(reloadGrid(w()));
       yield put(setSelectedRecords(w([])));
@@ -506,33 +506,45 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
       id = '',
       meta: { nodeRef = '', criteria = [], predicate = {} }
     } = journalConfig;
+    let filter = '';
 
-    const journalType = (criteria[0] || {}).value || predicate.val;
+    if (id === 'event-lines-stat') {
+      //todo: move to journal config
 
-    if (journalType) {
-      let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(journalType)}`);
-      nodeRef = journalConfig.meta.nodeRef;
-      id = journalConfig.id;
-    }
-
-    if (groupBy.length) {
-      for (let key in row) {
-        if (!row.hasOwnProperty(key)) {
-          continue;
-        }
-
-        const value = row[key];
-
-        if (value && value.str) {
-          row[key] = value.str;
-        }
-      }
+      let eventType = yield call(api.journals.getRecord, { id: row.id, attributes: '.att(n:"skifem:eventTypeAssoc"){disp,assoc}' });
+      let eventRef = (eventType || {}).assoc;
+      let eventTypeId = yield call(api.journals.getRecord, { id: eventRef, attributes: 'skifdm:eventTypeId?str' });
+      id = 'event-lines-' + eventTypeId;
     } else {
-      let attributes = {};
+      const journalType = (criteria[0] || {}).value || predicate.val;
 
-      columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
+      if (journalType) {
+        let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(journalType)}`);
+        nodeRef = journalConfig.meta.nodeRef;
+        id = journalConfig.id;
+      }
 
-      row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
+      if (groupBy.length) {
+        for (let key in row) {
+          if (!row.hasOwnProperty(key)) {
+            continue;
+          }
+
+          const value = row[key];
+
+          if (value && value.str) {
+            row[key] = value.str;
+          }
+        }
+      } else {
+        let attributes = {};
+
+        columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
+
+        row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
+      }
+
+      filter = getFilterUrlParam({ row, columns, groupBy });
     }
 
     goToJournalsPageUrl({
@@ -540,7 +552,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
       journalId: id,
       journalSettingId,
       nodeRef,
-      filter: getFilterUrlParam({ row, columns, groupBy })
+      filter
     });
   } catch (e) {
     logger.error('[journals sagaGoToJournalsPage saga error', e.message);

@@ -30,6 +30,11 @@ export const SourcesId = {
   PEOPLE: 'people'
 };
 
+export const ActionModes = {
+  DASHBOARD: 'dashboard',
+  JOURNAL: 'journal'
+};
+
 export const MENU_TYPE = {
   LEFT: 'LEFT',
   TOP: 'TOP'

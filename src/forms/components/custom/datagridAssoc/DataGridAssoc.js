@@ -1,4 +1,5 @@
 import FormIODataGridComponent from 'formiojs/components/datagrid/DataGrid';
+import { isNodeRef } from '../../../../helpers/util';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import Records from '../../../../components/Records/Records';
 
@@ -64,7 +65,7 @@ export default class DataGridComponent extends FormIODataGridComponent {
 
       const valuesPromises = [];
       for (let i = 0; i < value.length; i++) {
-        if (DataGridComponent.isNodeRef(value[i])) {
+        if (isNodeRef(value[i])) {
           valuesPromises.push(
             new Promise(resolve => {
               const rec = Records.get(value[i]);
@@ -91,14 +92,10 @@ export default class DataGridComponent extends FormIODataGridComponent {
     super.setValue(value, flags);
   }
 
-  static isNodeRef(r) {
-    return typeof r === 'string' && r.indexOf('workspace://SpacesStore/') === 0;
-  }
-
   static hasNodeRefsInValueList(value) {
     if (Array.isArray(value) && value.length > 0) {
       for (let i = 0; i < value.length; i++) {
-        if (DataGridComponent.isNodeRef(value[i])) {
+        if (isNodeRef(value[i])) {
           return true;
         }
       }
