@@ -4,8 +4,6 @@ import { setSelectedId, toggleExpanded } from '../../../actions/slideMenu';
 import { t } from '../../../helpers/util';
 import ListItemIcon from '../ListItemIcon';
 import lodashGet from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
-import isArray from 'lodash/isArray';
 import { MenuApi } from '../../../api/menu';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../../../constants/pageTabs';
 import { getJournalPageUrl, isNewVersionPage, NEW_VERSION_PREFIX } from '../../../helpers/urls';
@@ -132,7 +130,7 @@ const ListItemLink = ({
           attributes.target = '_blank';
           attributes.rel = 'noopener noreferrer';
 
-          if (!isSiteDashboardEnable && !isEmpty(item.items) && isArray(item.items)) {
+          if (!isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
             const journalLink = item.items.find(subitem => subitem.action.type === 'JOURNAL_LINK');
 
             if (journalLink) {
@@ -157,7 +155,6 @@ const ListItemLink = ({
 
           targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
           attributes[REMOTE_TITLE_ATTR_NAME] = true;
-          break;
         } else {
           targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
         }
