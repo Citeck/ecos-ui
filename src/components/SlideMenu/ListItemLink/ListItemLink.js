@@ -4,6 +4,8 @@ import { setSelectedId, toggleExpanded } from '../../../actions/slideMenu';
 import { t } from '../../../helpers/util';
 import ListItemIcon from '../ListItemIcon';
 import lodashGet from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isArray from 'lodash/isArray';
 import { MenuApi } from '../../../api/menu';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../../../constants/pageTabs';
 import { getJournalPageUrl, isNewVersionPage, NEW_VERSION_PREFIX } from '../../../helpers/urls';
@@ -28,7 +30,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded, isNestedListExpanded, withNestedList }) => {
   const journalId = lodashGet(item, 'params.journalId', '');
+  const actionType = lodashGet(item, 'action.type', '');
   const [journalTotalCount, setJournalTotalCount] = useState(0);
+  const [isSiteDashboardEnable, setSiteDashboardEnable] = useState('');
   const attributes = {};
   let ignoreTabHandler = true;
 
@@ -39,6 +43,10 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
       });
     }
   }, [journalId]);
+
+  useEffect(() => {
+    menuApi.checkSiteDashboardEnable().then(value => setSiteDashboardEnable(value));
+  });
 
   let itemId = item.id;
   let label = t(item.label);
@@ -55,10 +63,11 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
   if (item.action) {
     const params = item.action.params;
 
-    switch (item.action.type) {
+    switch (actionType) {
       case 'FILTER_LINK':
       case 'JOURNAL_LINK':
         let listId = 'tasks';
+
         if (params.siteName) {
           listId = params.listId || 'main';
         }
@@ -120,17 +129,23 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
           attributes.rel = 'noopener noreferrer';
           // attributes[REMOTE_TITLE_ATTR_NAME] = true; // TODO
 
-          if (Array.isArray(item.items) && item.items.length > 0) {
-            const journalLink = item.items.find(item => {
-              return item.action.type === 'JOURNAL_LINK';
-            });
+          if (isSiteDashboardEnable) {
+            targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
+            attributes[REMOTE_TITLE_ATTR_NAME] = true;
+            break;
+          }
+
+          if (!isEmpty(item.items) && isArray(item.items)) {
+            const journalLink = item.items.find(subitem => subitem.action.type === 'JOURNAL_LINK');
 
             if (journalLink) {
               const params = journalLink.action.params;
               let listId = 'tasks';
+
               if (params.siteName) {
                 listId = params.listId || 'main';
               }
+
               targetUrl = getJournalPageUrl({
                 journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
                 journalId: params.journalRef,
@@ -138,12 +153,10 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
                 nodeRef: params.journalRef,
                 filter: params.filterRef
               });
+
               break;
             }
           }
-
-          targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
-          attributes[REMOTE_TITLE_ATTR_NAME] = true;
         } else {
           targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
         }
