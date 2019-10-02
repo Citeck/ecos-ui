@@ -3,8 +3,6 @@ import { getJournalPageUrl } from '../helpers/urls';
 import { URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
 import { MenuApi } from '../api';
-import isEmpty from 'lodash/isEmpty';
-import isArray from 'lodash/isArray';
 
 export default class SidebarService {
   static ActionTypes = {
@@ -128,7 +126,7 @@ export default class SidebarService {
             attributes.target = '_blank';
             attributes.rel = 'noopener noreferrer';
 
-            if (!extraParams.isSiteDashboardEnable && !isEmpty(item.items) && isArray(item.items)) {
+            if (!extraParams.isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
               const journalLink = item.items.find(item => {
                 return item.action.type === 'JOURNAL_LINK';
               });
