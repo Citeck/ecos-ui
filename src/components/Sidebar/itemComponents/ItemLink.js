@@ -1,34 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { MenuApi } from '../../../api';
 import SS from '../../../services/sidebar';
 
-const menuApi = new MenuApi();
+class ItemLink extends React.Component {
+  static propTypes = {
+    className: PropTypes.string,
+    data: PropTypes.object
+  };
 
-const ItemLink = ({ children, data }) => {
-  const [isSiteDashboardEnable, setSiteDashboardEnable] = useState('');
+  static defaultProps = {
+    className: '',
+    data: {}
+  };
 
-  useEffect(() => {
-    menuApi.checkSiteDashboardEnable().then(value => setSiteDashboardEnable(value));
-  });
+  render() {
+    const { children, data } = this.props;
+    const { targetUrl, attributes } = SS.getPropsUrl(data);
 
-  const { targetUrl, attributes } = SS.getPropsUrl(data, { isSiteDashboardEnable });
-
-  return (
-    <a href={targetUrl} {...attributes} className="ecos-sidebar-item__link">
-      {children}
-    </a>
-  );
-};
-
-ItemLink.propTypes = {
-  className: PropTypes.string,
-  data: PropTypes.object
-};
-
-ItemLink.defaultProps = {
-  className: '',
-  data: {}
-};
+    return (
+      <a href={targetUrl} {...attributes} className="ecos-sidebar-item__link">
+        {children}
+      </a>
+    );
+  }
+}
 
 export default ItemLink;
