@@ -10,7 +10,7 @@ import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import DataGridAssocComponent from './../../forms/components/custom/datagridAssoc/DataGridAssoc';
-import { t } from '../../helpers/util';
+import { t, getCurrentLocale } from '../../helpers/util';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -116,7 +116,7 @@ class EcosForm extends React.Component {
 
         let i18n = options.i18n || {};
 
-        let language = options.language || EcosFormUtils.getCurrentLanguage();
+        let language = options.language || getCurrentLocale();
         options.language = language;
 
         let defaultI18N = i18n[language] || {};
