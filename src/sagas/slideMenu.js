@@ -1,16 +1,18 @@
-import { put, takeLatest, call, select } from 'redux-saga/effects';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 import {
-  fetchSmallLogoSrc,
   fetchLargeLogoSrc,
   fetchSlideMenuItems,
-  setSmallLogo,
+  fetchSmallLogoSrc,
+  getSiteDashboardEnable,
+  setIsReady,
   setLargeLogo,
-  setSlideMenuItems,
-  setSlideMenuExpandableItems,
   setSelectedId,
-  setIsReady
+  setSiteDashboardEnable,
+  setSlideMenuExpandableItems,
+  setSlideMenuItems,
+  setSmallLogo
 } from '../actions/slideMenu';
-import { selectedMenuItemIdKey, fetchExpandableItems } from '../helpers/slideMenu';
+import { fetchExpandableItems, selectedMenuItemIdKey } from '../helpers/slideMenu';
 
 function* fetchSmallLogo({ api, fakeApi, logger }) {
   try {
@@ -54,10 +56,21 @@ function* fetchSlideMenu({ api, fakeApi, logger }) {
   }
 }
 
+function* fetchSiteDashboardEnable({ api, logger }) {
+  try {
+    const res = yield call(api.menu.checkSiteDashboardEnable);
+
+    yield put(setSiteDashboardEnable(!!res));
+  } catch (e) {
+    logger.error('[fetchSiteDashboardEnable saga] error', e.message);
+  }
+}
+
 function* headerSaga(ea) {
   yield takeLatest(fetchSmallLogoSrc().type, fetchSmallLogo, ea);
   yield takeLatest(fetchLargeLogoSrc().type, fetchLargeLogo, ea);
   yield takeLatest(fetchSlideMenuItems().type, fetchSlideMenu, ea);
+  yield takeLatest(getSiteDashboardEnable().type, fetchSiteDashboardEnable, ea);
 }
 
 export default headerSaga;
