@@ -1,14 +1,15 @@
 import { handleActions } from 'redux-actions';
 import {
-  setSelectedId,
-  setSmallLogo,
+  setIsReady,
   setLargeLogo,
-  setSlideMenuItems,
-  setSlideMenuExpandableItems,
-  toggleExpanded,
-  toggleIsOpen,
   setScrollTop,
-  setIsReady
+  setSelectedId,
+  setSiteDashboardEnable,
+  setSlideMenuExpandableItems,
+  setSlideMenuItems,
+  setSmallLogo,
+  toggleExpanded,
+  toggleIsOpen
 } from '../actions/slideMenu';
 
 const initialState = {
@@ -19,7 +20,8 @@ const initialState = {
   expandableItems: [],
   isOpen: false,
   scrollTop: 0,
-  isReady: false
+  isReady: false,
+  isSiteDashboardEnable: false
 };
 
 Object.freeze(initialState);
@@ -88,6 +90,12 @@ export default handleActions(
       return {
         ...state,
         isReady: action.payload
+      };
+    },
+    [setSiteDashboardEnable]: (state, action) => {
+      return {
+        ...state,
+        isSiteDashboardEnable: action.payload
       };
     }
   },
