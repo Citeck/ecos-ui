@@ -4,7 +4,6 @@ import { setSelectedId, toggleExpanded } from '../../../actions/slideMenu';
 import { t } from '../../../helpers/util';
 import ListItemIcon from '../ListItemIcon';
 import lodashGet from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
 import { MenuApi } from '../../../api/menu';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../../../constants/pageTabs';
 import { getJournalPageUrl, isNewVersionPage, NEW_VERSION_PREFIX } from '../../../helpers/urls';
@@ -132,7 +131,7 @@ const ListItemLink = ({
           attributes.rel = 'noopener noreferrer';
           // attributes[REMOTE_TITLE_ATTR_NAME] = true; // TODO
 
-          if (!isSiteDashboardEnable && !isEmpty(item.items) && Array.isArray(item.items)) {
+          if (!isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
             const journalLink = item.items.find(subitem => subitem.action.type === 'JOURNAL_LINK');
 
             if (journalLink) {
