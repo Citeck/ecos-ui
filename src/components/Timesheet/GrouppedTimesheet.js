@@ -267,6 +267,7 @@ class GrouppedTimesheet extends BaseTimesheet {
           icon="icon-arrow-left"
           className="ecos-btn_grey8 ecos-timesheet__table-group-btn_revision ecos-btn_narrow"
           onClick={() => this.handleClickDisapprove(index)}
+          id={`ecos-timesheet__table-group-btn_revision_${index}-message`}
         >
           {t(CommonLabels.STATUS_BTN_SENT_IMPROVE)}
         </IcoBtn>
@@ -276,27 +277,43 @@ class GrouppedTimesheet extends BaseTimesheet {
           icon="icon-check"
           className="ecos-btn_grey8 ecos-timesheet__table-group-btn_approve ecos-btn_narrow"
           onClick={() => this.handleClickApprove(index)}
+          id={`ecos-timesheet__table-group-btn_sent-approve_${index}-message`}
         >
           {t(CommonLabels.STATUS_BTN_APPROVE)}
         </IcoBtn>
       );
       const btnSentManagerApprove = (
-        <>
-          <IcoBtn
-            icon="icon-arrow"
-            className="ecos-btn_grey8 ecos-timesheet__table-group-btn_sent-manager-approve ecos-btn_narrow"
-            onClick={() => this.handleClickSentManagerApprove}
-            id={`ecos-timesheet__table-group-btn_sent-manager-approve_${index}-message`}
-          >
-            {t(CommonLabels.STATUS_BTN_SEND_MANAGER_APPROVE)}
-          </IcoBtn>
-          <Tooltip
-            target={`ecos-timesheet__table-group-btn_sent-manager-approve_${index}-message`}
-            content={t(CommonLabels.STATUS_TIP_SEND_MANAGER_APPROVE)}
-            innerClassName="ecos-timesheet__table-group-tooltip"
-          />
-        </>
+        <IcoBtn
+          icon="icon-arrow"
+          className="ecos-btn_grey8 ecos-timesheet__table-group-btn_sent-manager-approve ecos-btn_narrow"
+          onClick={() => this.handleClickSentManagerApprove}
+          id={`ecos-timesheet__table-group-btn_sent-manager-approve_${index}-message`}
+        >
+          {t(CommonLabels.STATUS_BTN_SEND_MANAGER_APPROVE)}
+        </IcoBtn>
       );
+      const tooltipRevision = (
+        <Tooltip
+          target={`ecos-timesheet__table-group-btn_revision_${index}-message`}
+          content={t(CommonLabels.STATUS_TIP_SENT_IMPROVE_1)}
+          innerClassName="ecos-timesheet__table-group-tooltip"
+        />
+      );
+      const tooltipApprove = (
+        <Tooltip
+          target={`ecos-timesheet__table-group-btn_sent-approve_${index}-message`}
+          content={t(CommonLabels.STATUS_TIP_APPROVE_1)}
+          innerClassName="ecos-timesheet__table-group-tooltip"
+        />
+      );
+      const tooltipSentManagerApprove = (
+        <Tooltip
+          target={`ecos-timesheet__table-group-btn_sent-manager-approve_${index}-message`}
+          content={t(CommonLabels.STATUS_TIP_SEND_MANAGER_APPROVE_1)}
+          innerClassName="ecos-timesheet__table-group-tooltip"
+        />
+      );
+
       const btnEmpty = <div className="ecos-timesheet__empty-btn ecos-timesheet__empty-btn_narrow" />;
 
       switch (selectedAction) {
@@ -331,6 +348,7 @@ class GrouppedTimesheet extends BaseTimesheet {
                 <>
                   {btnEmpty}
                   {btnSentManagerApprove}
+                  {tooltipSentManagerApprove}
                 </>
               );
             case 'on-agreement-by-manager':
@@ -338,14 +356,18 @@ class GrouppedTimesheet extends BaseTimesheet {
               return (
                 <>
                   {btnRevision}
+                  {tooltipRevision}
                   {btnApprove}
+                  {tooltipApprove}
                 </>
               );
             case 'sent-for-revision':
               return (
                 <>
                   {btnApprove}
+                  {tooltipApprove}
                   {btnSentManagerApprove}
+                  {tooltipSentManagerApprove}
                 </>
               );
             case 'agreed':
@@ -353,6 +375,7 @@ class GrouppedTimesheet extends BaseTimesheet {
                 <>
                   {btnEmpty}
                   {btnRevision}
+                  {tooltipRevision}
                 </>
               );
             default:

@@ -39,7 +39,9 @@ export const CommonLabels = {
   STATUS_BTN_OFF_DELEGATION: 'Откл. делегирование',
   STATUS_BTN_SEND_MANAGER_APPROVE: 'На согласование',
 
-  STATUS_TIP_SEND_MANAGER_APPROVE: 'Отправить на согласование менеджеру',
+  STATUS_TIP_SENT_IMPROVE_1: 'Отправить на доработку владельцу табеля',
+  STATUS_TIP_APPROVE_1: 'Согласовать без утверждения менеджером',
+  STATUS_TIP_SEND_MANAGER_APPROVE_1: 'Отправить на согласование менеджеру',
 
   STATUSES_VAL_NOT_FILLED: 'Не заполнены',
   STATUSES_VAL_UNDER_REVISION: 'На доработке',
