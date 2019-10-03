@@ -18,9 +18,9 @@ const timesheetApi = new TimesheetApi();
 
 const mapStateToProps = state => ({
   subordinatesList: get(state, ['timesheetSubordinates', 'subordinatesList'], []),
-  isLoadingSubordinateList: false,
+  isLoadingSubordinatesList: get(state, ['timesheetSubordinates', 'isLoadingSubordinatesList'], false),
   eventsList: get(state, ['timesheetSubordinates', 'eventsList'], []),
-  isLoadingEventsList: get(state, ['timesheetSubordinates', 'isLoadingEventsList'])
+  isLoadingEventsList: get(state, ['timesheetSubordinates', 'isLoadingEventsList'], false)
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -62,11 +62,12 @@ class SubordinatesTimesheetPage extends Component {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    const { subordinatesList, isLoadingSubordinateList } = this.props;
+    const { subordinatesList, isLoadingSubordinatesList } = this.props;
 
     if (
       deepClone(subordinatesList) !== deepClone(nextProps.subordinatesList) &&
-      !(isLoadingSubordinateList + !nextProps.isLoadingSubordinateList)
+      isLoadingSubordinatesList &&
+      !nextProps.isLoadingSubordinatesList
     ) {
       this.props.getSubordinatesEventsList();
     }
