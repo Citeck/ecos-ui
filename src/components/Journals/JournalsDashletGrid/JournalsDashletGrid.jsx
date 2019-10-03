@@ -394,10 +394,15 @@ class JournalsDashletGrid extends Component {
       doInlineToolsOnRowClick = false,
       performGroupActionResponse,
       doNotCount,
-      minHeight
+      minHeight,
+      journalConfig: { params = {} }
     } = this.props;
 
-    const editable = !(groupBy && groupBy.length);
+    let editable = true;
+
+    if ((groupBy && groupBy.length) || params.disableTableEditing) {
+      editable = false;
+    }
 
     const HeightCalculation = ({ doNotCount, children, maxItems, minHeight }) =>
       doNotCount ? <div style={{ height: minHeight }}>{children}</div> : <EmptyGrid maxItems={maxItems}>{children}</EmptyGrid>;

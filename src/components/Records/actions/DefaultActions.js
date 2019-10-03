@@ -5,7 +5,13 @@ import dialogManager from '../../common/dialogs/Manager';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 
 export const EditAction = {
-  execute: ({ record }) => {
+  execute: ({ record, context }) => {
+    if (context.scope === 'active-tasks') {
+      const name = record.att('cm:name?disp') || '';
+      window.open(`${URL_PAGECONTEXT}task-edit?taskId=${name}&formMode=edit`, '_blank');
+      return false;
+    }
+
     return new Promise(resolve => {
       EcosFormUtils.editRecord({
         recordRef: record.id,
@@ -62,7 +68,7 @@ export const DownloadAction = {
 };
 
 export const RemoveAction = {
-  disabledFor: [/^event-lines.*/],
+  disabledFor: [/^event-lines.*/, /active-tasks/],
 
   groupExec: ({ records }) => {
     return new Promise(resolve => {
