@@ -76,23 +76,10 @@ export default class DashboardConverter {
     const target = {};
 
     if (!isEmpty(source)) {
-      const { modifier, modified = '', displayName = '', version = '' } = source;
+      const { displayName = '', version = '' } = source;
 
       target.version = version;
       target.name = displayName || TITLE.NO_NAME;
-
-      target.date = '';
-      target.modifierName = '';
-      target.modifierUrl = '';
-
-      if (!isEmpty(modifier)) {
-        target.modifierName = modifier.disp;
-        target.modifierUrl = `/share/page/user/${modifier.str}/profile`;
-      }
-
-      if (modified) {
-        target.date = moment(modified).format('ddd D MMM YYYY H:m:s');
-      }
     }
 
     return target;

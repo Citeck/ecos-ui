@@ -7,7 +7,7 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 
-import { getDashboardConfig, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
+import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import Layout from '../../components/Layout';
 import { DndUtils } from '../../components/Drag-n-Drop';
@@ -39,6 +39,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
   getDashboardConfig: payload => dispatch(getDashboardConfig(payload)),
+  getDashboardTitle: payload => dispatch(getDashboardTitle(payload)),
   saveDashboardConfig: payload => dispatch(saveDashboardConfig(payload)),
   initMenuSettings: payload => dispatch(getMenuConfig(payload)),
   saveMenuConfig: config => dispatch(saveMenuConfig(config)),
@@ -109,10 +110,11 @@ class Dashboard extends Component {
   }
 
   getConfig(props) {
-    const { getDashboardConfig } = this.props;
+    const { getDashboardConfig, getDashboardTitle } = this.props;
     const { recordRef, dashboardKey } = this.getPathInfo(props);
 
     getDashboardConfig({ recordRef, dashboardKey });
+    getDashboardTitle({ recordRef });
   }
 
   get wrapperStyle() {
