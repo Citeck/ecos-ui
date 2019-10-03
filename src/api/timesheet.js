@@ -1,5 +1,3 @@
-import isArray from 'lodash/isArray';
-import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 import { URL } from '../constants';
 import { deepClone, t } from '../helpers/util';
@@ -154,50 +152,70 @@ export class TimesheetApi {
     ];
   };
 
-  getStatuses = categories => {
+  getStatuses = actions => {
     const all = [
       {
         name: t(CommonLabels.STATUSES_VAL_NOT_FILLED),
+        key: 'not-filled',
         isActive: true,
         isAvailable: true,
-        category: StatusActions.FILL
+        actions: [StatusActions.FILL, StatusActions.VERIFY]
       },
       {
         name: t(CommonLabels.STATUSES_VAL_UNDER_REVISION),
+        key: 'under-revision',
         isActive: false,
         isAvailable: true,
-        category: StatusActions.FILL
+        actions: [StatusActions.FILL]
       },
       {
         name: t(CommonLabels.STATUSES_VAL_ON_AGREEMENT),
+        key: 'on-agreement',
         isActive: false,
         isAvailable: true,
-        category: StatusActions.FILL
+        actions: [StatusActions.FILL]
       },
       {
         name: t(CommonLabels.STATUSES_VAL_WAITING_APPROVAL),
+        key: 'waiting-approval',
         isActive: true,
         isAvailable: true,
-        category: StatusActions.APPROVE
+        actions: [StatusActions.APPROVE]
       },
       {
         name: t(CommonLabels.STATUSES_VAL_SENT_FOR_REVISION),
+        key: 'sent-for-revision',
         isActive: false,
         isAvailable: true,
-        category: StatusActions.APPROVE
+        actions: [StatusActions.APPROVE, StatusActions.VERIFY]
       },
       {
         name: t(CommonLabels.STATUSES_VAL_AGREED),
+        key: 'agreed',
         isActive: false,
         isAvailable: true,
-        category: StatusActions.APPROVE
+        actions: [StatusActions.APPROVE, StatusActions.VERIFY]
+      },
+      {
+        name: t(CommonLabels.STATUSES_VAL_ON_AGREEMENT_BY_MANAGER),
+        key: 'on-agreement-by-manager',
+        isActive: false,
+        isAvailable: true,
+        actions: [StatusActions.VERIFY]
+      },
+      {
+        name: t(CommonLabels.STATUSES_VAL_AGREED_BY_MANAGER),
+        key: 'agreed-by-manager',
+        isActive: false,
+        isAvailable: true,
+        actions: [StatusActions.VERIFY]
       }
     ];
 
-    categories = isArray(categories) ? categories : isString(categories) ? [categories] : [];
+    actions = Array.isArray(actions) ? actions : isString(actions) ? [actions] : [];
 
-    if (!isEmpty(categories)) {
-      return all.filter(item => categories.includes(item.category));
+    if (actions.length) {
+      return all.filter(item => actions.some(act => item.actions.includes(act)));
     }
 
     return all;

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import 'moment-business-days';
 
 import { deepClone, t } from '../../helpers/util';
-import { VerifyTimesheetLabels } from '../../helpers/timesheet/constants';
+import { CommonLabels, StatusActions, VerifyTimesheetLabels } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth } from '../../helpers/timesheet/util';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import { TimesheetApi } from '../../api/timesheet';
@@ -26,43 +26,17 @@ class VerificationTimesheetPage extends Component {
       subordinatesEvents: timesheetApi.getSubordinatesEvents(),
       dateTabs: [
         {
-          name: 'Месяц',
+          name: t(CommonLabels.MONTH),
           isActive: true,
           isAvailable: true
         },
         {
-          name: 'Год',
+          name: t(CommonLabels.YEAR),
           isActive: false,
           isAvailable: false
         }
       ],
-      statusTabs: [
-        {
-          name: 'Не заполнены',
-          isActive: true,
-          isAvailable: true
-        },
-        {
-          name: 'На согласовании менеджера',
-          isActive: false,
-          isAvailable: true
-        },
-        {
-          name: 'Согласованы менеджером',
-          isActive: false,
-          isAvailable: true
-        },
-        {
-          name: 'Отправлены в доработку',
-          isActive: false,
-          isAvailable: true
-        },
-        {
-          name: 'Согласованные',
-          isActive: false,
-          isAvailable: true
-        }
-      ],
+      statusTabs: timesheetApi.getStatuses(StatusActions.VERIFY),
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date())
     };
@@ -101,7 +75,8 @@ class VerificationTimesheetPage extends Component {
   };
 
   renderSubordinateTimesheet = () => {
-    const { subordinatesEvents, daysOfMonth } = this.state;
+    const { subordinatesEvents, daysOfMonth, statusTabs } = this.state;
+    const selectedStatus = statusTabs.find(status => status.isActive) || {};
 
     return (
       <Timesheet
@@ -109,6 +84,8 @@ class VerificationTimesheetPage extends Component {
         eventTypes={subordinatesEvents}
         daysOfMonth={daysOfMonth}
         isAvailable
+        selectedStatus={selectedStatus.key}
+        selectedAction={StatusActions.VERIFY}
         onChange={this.handleChangeTimesheet}
       />
     );

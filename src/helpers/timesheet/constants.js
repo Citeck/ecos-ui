@@ -7,7 +7,7 @@ export const Statuses = {
 export const StatusActions = {
   FILL: 'fill',
   APPROVE: 'approve',
-  CHECK: 'check'
+  VERIFY: 'verify'
 };
 
 export const CommonLabels = {
@@ -37,6 +37,7 @@ export const CommonLabels = {
   STATUS_BTN_APPROVE: 'Согласовать',
   STATUS_BTN_SENT_APPROVE: 'Отправить на согласование',
   STATUS_BTN_OFF_DELEGATION: 'Откл. делегирование',
+  SEND_TO_MANAGER_APPROVAL: 'Отправить на согласование менеджеру',
 
   STATUSES_VAL_NOT_FILLED: 'Не заполнены',
   STATUSES_VAL_UNDER_REVISION: 'На доработке',
@@ -44,6 +45,8 @@ export const CommonLabels = {
   STATUSES_VAL_WAITING_APPROVAL: 'Ожидают согласования',
   STATUSES_VAL_SENT_FOR_REVISION: 'Отправлены в доработку',
   STATUSES_VAL_AGREED: 'Согласованные',
+  STATUSES_VAL_ON_AGREEMENT_BY_MANAGER: 'На согласовании менеджера',
+  STATUSES_VAL_AGREED_BY_MANAGER: 'Согласованы менеджером',
 
   STATUS_ACTION_FILL_IN: 'Заполнить',
   STATUS_ACTION_TO_APPROVE: 'Согласовать',

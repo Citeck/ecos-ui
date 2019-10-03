@@ -29,7 +29,8 @@ class GrouppedTimesheet extends BaseTimesheet {
     eventTypes: PropTypes.array,
     daysOfMonth: PropTypes.array,
     groupBy: PropTypes.string,
-    action: PropTypes.string,
+    selectedAction: PropTypes.string,
+    selectedStatus: PropTypes.string,
     onChange: PropTypes.func
   };
 
@@ -37,7 +38,8 @@ class GrouppedTimesheet extends BaseTimesheet {
     eventTypes: [],
     daysOfMonth: [],
     groupBy: '',
-    action: StatusActions.APPROVE
+    selectedAction: StatusActions.APPROVE,
+    selectedStatus: ''
   };
 
   constructor(props) {
@@ -202,6 +204,10 @@ class GrouppedTimesheet extends BaseTimesheet {
     console.log('handleClickSentApprove');
   };
 
+  handleClickSentManagerApprove = position => {
+    console.log('handleClickSentManagerApprove');
+  };
+
   filterTypes(typeFilter = '') {
     let filteredEventTypes = deepClone(this.props.eventTypes);
 
@@ -253,40 +259,98 @@ class GrouppedTimesheet extends BaseTimesheet {
 
   renderGroupedEvents() {
     const { filteredEventTypes } = this.state;
-    const { action } = this.props;
+    const { selectedAction, selectedStatus } = this.props;
 
     const renderGroupBtn = index => {
-      switch (action) {
+      const btnRevision = (
+        <IcoBtn
+          icon="icon-arrow-left"
+          className="ecos-btn_grey8 ecos-timesheet__table-group-btn_revision ecos-btn_narrow"
+          onClick={() => this.handleClickDisapprove(index)}
+        >
+          {t(CommonLabels.STATUS_BTN_SENT_IMPROVE)}
+        </IcoBtn>
+      );
+      const btnApprove = (
+        <IcoBtn
+          icon="icon-check"
+          className="ecos-btn_grey8 ecos-timesheet__table-group-btn_approve ecos-btn_narrow"
+          onClick={() => this.handleClickApprove(index)}
+        >
+          {t(CommonLabels.STATUS_BTN_APPROVE)}
+        </IcoBtn>
+      );
+      const btnSentManagerApprove = (
+        <IcoBtn
+          icon="icon-arrow"
+          className="ecos-btn_grey8 ecos-timesheet__table-group-btn_sent-manager-approve ecos-btn_narrow"
+          onClick={() => this.handleClickSentManagerApprove}
+        >
+          {t(CommonLabels.SEND_TO_MANAGER_APPROVAL)}
+        </IcoBtn>
+      );
+      const btnEmpty = <div className="ecos-timesheet__empty-btn ecos-timesheet__empty-btn_narrow" />;
+
+      switch (selectedAction) {
         case StatusActions.APPROVE:
           return (
             <>
-              <IcoBtn
-                icon="icon-arrow-left"
-                className="ecos-btn_grey8 ecos-timesheet__table-group-btn_revision ecos-btn_narrow"
-                onClick={() => this.handleClickDisapprove(index)}
-              >
-                {t(CommonLabels.STATUS_BTN_SENT_IMPROVE)}
-              </IcoBtn>
-              <IcoBtn
-                icon="icon-check"
-                className="ecos-btn_grey8 ecos-timesheet__table-group-btn_approve ecos-btn_narrow"
-                onClick={() => this.handleClickApprove(index)}
-              >
-                {t(CommonLabels.STATUS_BTN_APPROVE)}
-              </IcoBtn>
+              {btnRevision}
+              {btnApprove}
             </>
           );
         case StatusActions.FILL:
           return (
             <>
-              <Btn className="ecos-btn_grey7 ecos-btn_narrow" onClick={() => this.handleClickOffDelegation(index)}>
+              <Btn
+                className="ecos-btn_grey8 ecos-timesheet__table-group-btn_off-delegation ecos-btn_narrow"
+                onClick={() => this.handleClickOffDelegation(index)}
+              >
                 {t(CommonLabels.STATUS_BTN_OFF_DELEGATION)}
               </Btn>
-              <Btn className="ecos-btn_blue ecos-btn_narrow" onClick={() => this.handleClickSentApprove(index)}>
+              <Btn
+                className="ecos-btn_grey8  ecos-timesheet__table-group-btn_sent-approve ecos-btn_narrow"
+                onClick={() => this.handleClickSentApprove(index)}
+              >
                 {t(CommonLabels.STATUS_BTN_SENT_APPROVE)}
               </Btn>
             </>
           );
+        case StatusActions.VERIFY: {
+          switch (selectedStatus) {
+            case 'not-filled':
+              return (
+                <>
+                  {btnEmpty}
+                  {btnSentManagerApprove}
+                </>
+              );
+            case 'on-agreement-by-manager':
+            case 'agreed-by-manager':
+              return (
+                <>
+                  {btnRevision}
+                  {btnApprove}
+                </>
+              );
+            case 'sent-for-revision':
+              return (
+                <>
+                  {btnApprove}
+                  {btnSentManagerApprove}
+                </>
+              );
+            case 'agreed':
+              return (
+                <>
+                  {btnEmpty}
+                  {btnRevision}
+                </>
+              );
+            default:
+              return null;
+          }
+        }
         default:
           return null;
       }

@@ -31,12 +31,12 @@ class DelegatedTimesheetsPage extends React.Component {
       statusTabs: timesheetApi.getStatuses(StatusActions.FILL),
       dateTabs: [
         {
-          name: 'Месяц',
+          name: t(CommonLabels.MONTH),
           isActive: true,
           isAvailable: true
         },
         {
-          name: 'Год',
+          name: t(CommonLabels.YEAR),
           isActive: false,
           isAvailable: false
         }
@@ -118,7 +118,7 @@ class DelegatedTimesheetsPage extends React.Component {
         return (
           <Timesheet
             groupBy={'user'}
-            action={StatusActions.FILL}
+            selectedAction={StatusActions.FILL}
             eventTypes={subordinatesEvents}
             daysOfMonth={daysOfMonth}
             isAvailable={!isDelegated}
@@ -130,7 +130,7 @@ class DelegatedTimesheetsPage extends React.Component {
         return (
           <Timesheet
             groupBy={'user'}
-            action={StatusActions.APPROVE}
+            selectedAction={StatusActions.APPROVE}
             eventTypes={subordinatesEvents}
             daysOfMonth={daysOfMonth}
             isAvailable={!isDelegated}

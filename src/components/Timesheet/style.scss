@@ -476,6 +476,15 @@
 
       &:hover {
         #{$group}-btn {
+          &_off-delegation {
+            background: $color-gray-5;
+            color: $color-white;
+
+            &:hover {
+              background: $color-gray-11;
+            }
+          }
+
           &_revision {
             background: $color-red-1;
             color: $color-white;
@@ -491,6 +500,16 @@
 
             &:hover {
               background: $color-green-10;
+            }
+          }
+
+          &_sent-manager-approve,
+          &_sent-approve {
+            background: $color-blue-light;
+            color: $color-white;
+
+            &:hover {
+              background: $color-blue-dark;
             }
           }
         }
@@ -563,7 +582,7 @@
 
         &_space-between > :nth-child(n) {
           @extend %ellipsis;
-          flex: auto;
+          flex: 1;
         }
 
         &_space-between > :nth-child(n):not(:last-child) {
@@ -659,6 +678,16 @@
 
   &__resizer {
     top: 11px;
+  }
+
+  &__empty-btn {
+    background: $color-gray-4;
+
+    &_narrow {
+      height: 26px;
+      border-radius: $border-radius-standard;
+      padding: 0 10px;
+    }
   }
 }
 
