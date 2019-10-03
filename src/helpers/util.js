@@ -160,9 +160,9 @@ export function isMobileDevice() {
 }
 
 export function getCurrentLocale() {
-  const manualLocale = getCookie(COOKIE_KEY_LOCALE);
-  if (manualLocale) {
-    return manualLocale;
+  const cookiesLocale = getCookie(COOKIE_KEY_LOCALE);
+  if (cookiesLocale) {
+    return cookiesLocale;
   }
 
   if (!window.navigator) {
