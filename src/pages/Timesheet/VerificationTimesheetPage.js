@@ -5,7 +5,7 @@ import { deepClone, t } from '../../helpers/util';
 import { CommonLabels, StatusActions, VerifyTimesheetLabels } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth } from '../../helpers/timesheet/util';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
-import { TimesheetApi } from '../../api/timesheet';
+import { TimesheetApi } from '../../api/timesheet/timesheet';
 
 import './style.scss';
 
@@ -23,7 +23,7 @@ class VerificationTimesheetPage extends Component {
 
     this.state = {
       eventTypes,
-      subordinatesEvents: timesheetApi.getSubordinatesEvents(),
+      subordinatesEvents: timesheetApi.getEvents(),
       dateTabs: [
         {
           name: t(CommonLabels.MONTH),

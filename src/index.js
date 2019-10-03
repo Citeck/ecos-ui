@@ -29,6 +29,7 @@ import {
   OrgStructApi,
   PageTabsApi,
   TasksApi,
+  TimesheetSubordinatesApi,
   UserApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
@@ -68,6 +69,9 @@ api.comments = new CommentsApi(store);
 api.dashboard = new DashboardApi(store);
 api.pageTabs = new PageTabsApi(store);
 api.docStatus = new DocStatusApi(store);
+
+//timesheets
+api.timesheetSubordinates = new TimesheetSubordinatesApi(store);
 
 const history = getHistory();
 

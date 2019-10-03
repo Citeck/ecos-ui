@@ -1,7 +1,7 @@
 import isString from 'lodash/isString';
-import { URL } from '../constants';
-import { deepClone, t } from '../helpers/util';
-import { CommonLabels, StatusActions } from '../helpers/timesheet/constants';
+import { URL } from '../../constants';
+import { deepClone, t } from '../../helpers/util';
+import { CommonLabels, StatusActions } from '../../helpers/timesheet/constants';
 
 export class TimesheetApi {
   getSheetTabs = (isOnlyContent, location) => {
@@ -117,7 +117,7 @@ export class TimesheetApi {
     ];
   };
 
-  getSubordinatesEvents = () => {
+  getEvents = () => {
     return [
       {
         user: 'Пантелеева Мадина',
@@ -238,5 +238,22 @@ export class TimesheetApi {
         action: StatusActions.APPROVE
       }
     ];
+  };
+
+  getSubordinatesList = () => {
+    return {
+      records: [
+        {
+          peopleId: 'people@212000044',
+          eventTypes: deepClone(this.getEventTypes()),
+          timesheetNumber: '212392064'
+        },
+        {
+          peopleId: 'people@212000059',
+          eventTypes: deepClone(this.getEventTypes()),
+          timesheetNumber: '212572436'
+        }
+      ]
+    };
   };
 }

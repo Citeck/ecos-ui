@@ -7,7 +7,7 @@ import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels, MyTimesheetLabels, Statuses } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
-import { TimesheetApi } from '../../api/timesheet';
+import { TimesheetApi } from '../../api/timesheet/timesheet';
 
 import './style.scss';
 
@@ -26,7 +26,7 @@ class MyTimesheetPage extends Component {
     this.cacheDays = new Map();
     this.state = {
       eventTypes,
-      subordinatesEvents: timesheetApi.getSubordinatesEvents(),
+      subordinatesEvents: timesheetApi.getEvents(),
       sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
       dateTabs: [
         {

@@ -7,7 +7,7 @@ import { DateSlider, Tabs } from '../../components/Timesheet';
 import Timesheet from '../../components/Timesheet/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { Btn } from '../../components/common/btns';
-import { TimesheetApi } from '../../api/timesheet';
+import { TimesheetApi } from '../../api/timesheet/timesheet';
 
 import './style.scss';
 
@@ -26,7 +26,7 @@ class DelegatedTimesheetsPage extends React.Component {
     this.cacheDays = new Map();
     this.state = {
       eventTypes,
-      subordinatesEvents: timesheetApi.getSubordinatesEvents(),
+      subordinatesEvents: timesheetApi.getEvents(),
       sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
       statusTabs: timesheetApi.getStatuses(StatusActions.FILL),
       dateTabs: [
