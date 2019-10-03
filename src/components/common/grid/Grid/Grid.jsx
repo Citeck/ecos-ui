@@ -9,7 +9,6 @@ import Checkbox from '../../form/Checkbox/Checkbox';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../form/SelectJournal/predicates';
 
-import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
 
 const CLOSE_FILTER_EVENT = 'closeFilterEvent';
@@ -438,6 +437,7 @@ class Grid extends Component {
       bordered: false,
       scrollable: true,
       headerClasses: 'ecos-grid__header',
+      classes: 'table_table-layout_auto',
       noDataIndication: () => t('grid.no-data-indication'),
       ...this.props
     };
