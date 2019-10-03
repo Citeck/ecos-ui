@@ -1,3 +1,4 @@
+import { getCurrentLocale } from '../helpers/util';
 import { setIsAuthenticated } from '../actions/user';
 
 const getOptions = {
@@ -25,20 +26,6 @@ const deleteOptions = {
   ...getOptions,
   method: 'delete'
 };
-
-// const postUrlEncodedFormOptions = {
-//   ...getOptions,
-//   method: 'post',
-//   headers: {
-//     'Content-Type': 'application/x-www-form-urlencoded'
-//   }
-// };
-
-// const prepareUrlEncodedFormData = (params) => {
-//   return Object.keys(params).map((key) => {
-//     return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
-//   }).join('&');
-// };
 
 export class CommonApi {
   constructor(store) {
@@ -70,7 +57,8 @@ export class CommonApi {
 
     let { timeout, onError, url } = config;
 
-    const key = `CommonApi_${url}`;
+    const locale = getCurrentLocale();
+    const key = `CommonApi_${locale}_${url}`;
 
     let result = sessionStorage.getItem(key);
     if (result) {
@@ -108,21 +96,40 @@ export class CommonApi {
     return resultPromise;
   };
 
+  getCommonHeaders = () => {
+    return {
+      'Accept-Language': getCurrentLocale()
+    };
+  };
+
   getJson = url => {
-    return fetch(url, getOptions)
+    return fetch(url, {
+      ...getOptions,
+      headers: {
+        ...this.getCommonHeaders()
+      }
+    })
       .then(this.checkStatus)
       .then(parseJSON);
   };
 
   getHtml = url => {
-    return fetch(url, getOptions)
+    return fetch(url, {
+      ...getOptions,
+      headers: {
+        ...this.getCommonHeaders()
+      }
+    })
       .then(this.checkStatus)
       .then(parseHtml);
   };
 
   deleteJson = (url, notJsonResp) => {
     const prms = fetch(url, {
-      ...deleteOptions
+      ...deleteOptions,
+      headers: {
+        ...this.getCommonHeaders()
+      }
     }).then(this.checkStatus);
 
     return notJsonResp ? prms : prms.then(parseJSON);
@@ -131,7 +138,11 @@ export class CommonApi {
   putJson = (url, data, notJsonResp) => {
     const prms = fetch(url, {
       ...putOptions,
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      headers: {
+        ...this.getCommonHeaders(),
+        ...putOptions.headers
+      }
     }).then(this.checkStatus);
 
     return notJsonResp ? prms : prms.then(parseJSON);
@@ -140,18 +151,15 @@ export class CommonApi {
   postJson = (url, data, notJsonResp) => {
     const prms = fetch(url, {
       ...postOptions,
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      headers: {
+        ...this.getCommonHeaders(),
+        ...postOptions.headers
+      }
     }).then(this.checkStatus);
 
     return notJsonResp ? prms.then(resp => resp.text()) : prms.then(parseJSON);
   };
-
-  // postUrlEncodedForm = (url, data) => {
-  //   return fetch(url, {
-  //     ...postUrlEncodedFormOptions,
-  //     body: prepareUrlEncodedFormData(data)
-  //   });
-  // };
 }
 
 export function checkStatus(response) {
