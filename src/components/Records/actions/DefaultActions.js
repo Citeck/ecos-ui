@@ -2,6 +2,7 @@ import Records from '../Records';
 import { getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
+import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 
 export const EditAction = {
   execute: ({ record }) => {
@@ -19,7 +20,13 @@ export const EditAction = {
 export const ViewAction = {
   disabledFor: [/^event-lines.*/],
 
-  execute: ({ record }) => {
+  execute: ({ record, context }) => {
+    if (context.scope === 'active-tasks') {
+      const name = record.att('cm:name?disp') || '';
+      window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
+      return false;
+    }
+
     goToCardDetailsPage(record.id);
     return false;
   },
