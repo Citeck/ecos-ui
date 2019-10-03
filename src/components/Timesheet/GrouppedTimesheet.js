@@ -281,13 +281,21 @@ class GrouppedTimesheet extends BaseTimesheet {
         </IcoBtn>
       );
       const btnSentManagerApprove = (
-        <IcoBtn
-          icon="icon-arrow"
-          className="ecos-btn_grey8 ecos-timesheet__table-group-btn_sent-manager-approve ecos-btn_narrow"
-          onClick={() => this.handleClickSentManagerApprove}
-        >
-          {t(CommonLabels.SEND_TO_MANAGER_APPROVAL)}
-        </IcoBtn>
+        <>
+          <IcoBtn
+            icon="icon-arrow"
+            className="ecos-btn_grey8 ecos-timesheet__table-group-btn_sent-manager-approve ecos-btn_narrow"
+            onClick={() => this.handleClickSentManagerApprove}
+            id={`ecos-timesheet__table-group-btn_sent-manager-approve_${index}-message`}
+          >
+            {t(CommonLabels.STATUS_BTN_SEND_MANAGER_APPROVE)}
+          </IcoBtn>
+          <Tooltip
+            target={`ecos-timesheet__table-group-btn_sent-manager-approve_${index}-message`}
+            content={t(CommonLabels.STATUS_TIP_SEND_MANAGER_APPROVE)}
+            innerClassName="ecos-timesheet__table-group-tooltip"
+          />
+        </>
       );
       const btnEmpty = <div className="ecos-timesheet__empty-btn ecos-timesheet__empty-btn_narrow" />;
 

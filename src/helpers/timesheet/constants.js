@@ -37,7 +37,9 @@ export const CommonLabels = {
   STATUS_BTN_APPROVE: 'Согласовать',
   STATUS_BTN_SENT_APPROVE: 'Отправить на согласование',
   STATUS_BTN_OFF_DELEGATION: 'Откл. делегирование',
-  SEND_TO_MANAGER_APPROVAL: 'Отправить на согласование менеджеру',
+  STATUS_BTN_SEND_MANAGER_APPROVE: 'На согласование',
+
+  STATUS_TIP_SEND_MANAGER_APPROVE: 'Отправить на согласование менеджеру',
 
   STATUSES_VAL_NOT_FILLED: 'Не заполнены',
   STATUSES_VAL_UNDER_REVISION: 'На доработке',
