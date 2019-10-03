@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
+import ReactPlaceholder from 'react-placeholder';
+import { RoundShape, RectShape } from 'react-placeholder/lib/placeholders';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
@@ -329,8 +331,20 @@ class Dashboard extends Component {
       case DashboardTypes.CASE_DETAILS:
         title = (
           <div className="ecos-dashboard__header-title" key="title">
-            {name && <div className="ecos-dashboard__header-name">{t(name)}</div>}
-            {version && <div className="ecos-dashboard__header-version">{version}</div>}
+            <ReactPlaceholder
+              type="textRow"
+              ready={!!name}
+              showLoadingAnimation={true}
+              customPlaceholder={
+                <div className="ecos-dashboard__header-placeholder">
+                  <RectShape color="#b7b7b7" style={{ width: 150, height: 18 }} />
+                  <RoundShape color="#b7b7b7" style={{ width: 26, height: 20 }} />
+                </div>
+              }
+            >
+              <div className="ecos-dashboard__header-name">{t(name)}</div>
+              {version && <div className="ecos-dashboard__header-version">{version}</div>}
+            </ReactPlaceholder>
           </div>
         );
         break;

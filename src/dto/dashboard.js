@@ -1,6 +1,5 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import moment from 'moment';
 import { TITLE } from '../constants/pageTabs';
 import { DASHBOARD_DEFAULT_KEY } from '../constants';
 import DashboardService from '../services/dashboard';
