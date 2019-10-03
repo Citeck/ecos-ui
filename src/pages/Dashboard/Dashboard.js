@@ -338,7 +338,7 @@ class Dashboard extends Component {
               customPlaceholder={
                 <div className="ecos-dashboard__header-placeholder">
                   <RectShape color="#b7b7b7" style={{ width: 150, height: 18 }} />
-                  <RoundShape color="#b7b7b7" style={{ width: 26, height: 20 }} />
+                  <RoundShape color="#b7b7b7" style={{ width: 32, height: 20 }} />
                 </div>
               }
             >
