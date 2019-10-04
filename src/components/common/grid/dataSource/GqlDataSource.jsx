@@ -2,6 +2,7 @@ import BaseDataSource from './BaseDataSource';
 import formatterStore from '../formatters/formatterStore';
 import Mapper from '../mapping/Mapper';
 import Records from '../../../Records';
+import { getCurrentLocale } from '../../../../helpers/util';
 
 const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
 
@@ -165,6 +166,7 @@ export default class GqlDataSource extends BaseDataSource {
       ajax: {
         method: 'post',
         headers: {
+          'Accept-Language': getCurrentLocale(),
           'Content-type': 'application/json; charset=UTF-8'
         },
         credentials: 'include',
