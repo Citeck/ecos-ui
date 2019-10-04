@@ -18,7 +18,8 @@ const JournalsSettingsBar = ({
   refresh,
   onSearch,
   journalConfig,
-  addRecord
+  addRecord,
+  grid
 }) => {
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
@@ -44,7 +45,7 @@ const JournalsSettingsBar = ({
 
       <Search onSearch={onSearch} className={`search_border_white ${step}`} />
 
-      <Export config={journalConfig}>
+      <Export config={journalConfig} grid={grid}>
         <IcoBtn
           invert
           icon={'icon-down'}
