@@ -29,7 +29,8 @@ const mapStateToProps = (state, props) => {
 
   return {
     pageTabsIsShow: state.pageTabs.isShow,
-    journalConfig: newState.journalConfig
+    journalConfig: newState.journalConfig,
+    grid: newState.grid
   };
 };
 
@@ -123,7 +124,7 @@ class Journals extends Component {
 
   render() {
     const { menuOpen, settingsVisible, showPreview, showPie } = this.state;
-    const { stateId, journalConfig, pageTabsIsShow, setActiveTabTitle } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, setActiveTabTitle, grid } = this.props;
 
     if (!journalConfig) {
       return null;
@@ -160,6 +161,7 @@ class Journals extends Component {
               <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} pageTabsIsShow={pageTabsIsShow} />
 
               <JournalsSettingBar
+                grid={grid}
                 journalConfig={journalConfig}
                 stateId={stateId}
                 showPreview={showPreview}
