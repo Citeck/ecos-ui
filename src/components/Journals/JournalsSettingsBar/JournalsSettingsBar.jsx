@@ -58,7 +58,7 @@ const JournalsSettingsBar = ({
       <IcoBtn title={t('dashlet.update.title')} icon={'icon-reload'} className={`${grey} ${step}`} onClick={refresh} />
 
       <div className={'ecos-journal__settings-bar_right '}>
-        <JournalsDashletPagination stateId={stateId} />
+        <JournalsDashletPagination stateId={stateId} className={step} />
 
         <IcoBtn
           title={t('journal.title')}

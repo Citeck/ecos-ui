@@ -518,7 +518,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     } else {
       const journalType = (criteria[0] || {}).value || predicate.val;
 
-      if (journalType) {
+      if (journalType && journalConfig.groupBy && journalConfig.groupBy.length) {
         let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(journalType)}`);
         nodeRef = journalConfig.meta.nodeRef;
         id = journalConfig.id;
@@ -533,7 +533,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
           const value = row[key];
 
           if (value && value.str) {
-            row[key] = value.str;
+            //row[key] = value.str;
           }
         }
       } else {
@@ -545,6 +545,10 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
       }
 
       filter = getFilterUrlParam({ row, columns, groupBy });
+    }
+
+    if (filter) {
+      api.journals.setLsJournalSettingId(id, '');
     }
 
     goToJournalsPageUrl({
