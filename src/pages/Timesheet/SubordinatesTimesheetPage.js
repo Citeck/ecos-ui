@@ -6,11 +6,13 @@ import { connect } from 'react-redux';
 import { deepClone, t } from '../../helpers/util';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import { CommonLabels, StatusActions, SubTimesheetLabels } from '../../helpers/timesheet/constants';
+import { getStatusList, initSubordinatesTimesheetStart } from '../../actions/timesheet/subordinates';
+
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
-import { getStatusList, initSubordinatesTimesheetStart } from '../../actions/timesheet/subordinates';
+
 import { TimesheetApi } from '../../api/timesheet/timesheet';
 
 import './style.scss';

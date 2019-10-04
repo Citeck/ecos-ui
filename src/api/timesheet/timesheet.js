@@ -123,31 +123,31 @@ export class TimesheetApi {
         user: 'Пантелеева Мадина',
         organization: 'ООО ДжиИ Рус',
         eventTypes: deepClone(this.getEventTypes()),
-        timesheetNumber: ''
+        timesheetNumber: '1'
       },
       {
         user: 'Медведева Диана',
         organization: 'ООО ДжиИ Рус',
         eventTypes: deepClone(this.getEventTypes()),
-        timesheetNumber: ''
+        timesheetNumber: '2'
       },
       {
         user: 'Миронова Татьяна',
         organization: 'ООО ДжиИ Рус',
         eventTypes: deepClone(this.getEventTypes()),
-        timesheetNumber: ''
+        timesheetNumber: '3'
       },
       {
         user: 'Кулахметов Шамиль',
         organization: 'ООО ДжиИ Хэлскеа',
         eventTypes: deepClone(this.getEventTypes()),
-        timesheetNumber: ''
+        timesheetNumber: '4'
       },
       {
         user: 'Печкуров Григорий',
         organization: 'ООО АЛЬСТОМ',
         eventTypes: deepClone(this.getEventTypes()),
-        timesheetNumber: ''
+        timesheetNumber: '5'
       }
     ];
   };
@@ -246,12 +246,12 @@ export class TimesheetApi {
         {
           peopleId: 'people@212000044',
           eventTypes: deepClone(this.getEventTypes()),
-          timesheetNumber: '212392064'
+          timesheetNumber: ''
         },
         {
           peopleId: 'people@212000059',
           eventTypes: deepClone(this.getEventTypes()),
-          timesheetNumber: '212572436'
+          timesheetNumber: ''
         }
       ]
     };

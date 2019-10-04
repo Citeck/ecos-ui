@@ -1,17 +1,33 @@
 import React, { Component } from 'react';
 import 'moment-business-days';
+import get from 'lodash/get';
+import { connect } from 'react-redux';
 
-import Timesheet, { BlockStatus, DateSlider, Tabs } from '../../components/Timesheet';
-import { Switch } from '../../components/common/form/Checkbox';
-import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels, MyTimesheetLabels, Statuses } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
+import { getStatus, initMyTimesheetStart } from '../../actions/timesheet/mine';
+
+import { Loader } from '../../components/common';
+import { Switch } from '../../components/common/form';
+import Timesheet, { BlockStatus, DateSlider, Tabs } from '../../components/Timesheet';
+import { changeUrlLink } from '../../components/PageTabs/PageTabs';
+
 import { TimesheetApi } from '../../api/timesheet/timesheet';
 
 import './style.scss';
 
 const timesheetApi = new TimesheetApi();
+
+const mapStateToProps = state => ({
+  isLoading: get(state, ['timesheetMine', 'isLoading'], false),
+  status: get(state, ['timesheetMine', 'status'], false)
+});
+
+const mapDispatchToProps = dispatch => ({
+  initMyTimesheetStart: payload => dispatch(initMyTimesheetStart(payload)),
+  getStatusList: payload => dispatch(getStatus(payload))
+});
 
 class MyTimesheetPage extends Component {
   constructor(props) {
@@ -21,12 +37,9 @@ class MyTimesheetPage extends Component {
       history: { location }
     } = props;
 
-    const eventTypes = timesheetApi.getEventTypes();
-
     this.cacheDays = new Map();
     this.state = {
-      eventTypes,
-      subordinatesEvents: timesheetApi.getEvents(),
+      eventTypes: timesheetApi.getEventTypes(),
       sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
       dateTabs: [
         {
@@ -42,11 +55,14 @@ class MyTimesheetPage extends Component {
       ],
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date()),
-      currentStatus: Statuses.NEED_IMPROVED,
       isDelegated: false,
       delegatedTo: '',
       delegationRejected: true
     };
+  }
+
+  componentDidMount() {
+    this.props.initMyTimesheetStart();
   }
 
   get isOnlyContent() {
@@ -63,9 +79,10 @@ class MyTimesheetPage extends Component {
   };
 
   get lockDescription() {
-    const { isDelegated, currentStatus } = this.state;
+    const { isDelegated } = this.state;
+    const { status } = this.props;
 
-    if (currentStatus === Statuses.WAITING_APPROVAL) {
+    if (status.status === Statuses.WAITING_APPROVAL) {
       return t(MyTimesheetLabels.LOCK_DESCRIPTION_1);
     }
 
@@ -104,9 +121,7 @@ class MyTimesheetPage extends Component {
     this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
   };
 
-  handleChangeStatus = status => {
-    this.setState({ currentStatus: status });
-  };
+  handleChangeStatus = status => {};
 
   handleToggleDelegated = isDelegated => {
     this.setState(state => {
@@ -133,13 +148,14 @@ class MyTimesheetPage extends Component {
   };
 
   renderMyTimesheet = () => {
-    const { eventTypes, daysOfMonth, currentStatus, isDelegated } = this.state;
+    const { eventTypes, daysOfMonth, isDelegated } = this.state;
+    const { status } = this.props;
 
     return (
       <Timesheet
         eventTypes={eventTypes}
         daysOfMonth={daysOfMonth}
-        isAvailable={currentStatus !== Statuses.WAITING_APPROVAL && !isDelegated}
+        isAvailable={status.status !== Statuses.WAITING_APPROVAL && !isDelegated}
         lockedMessage={this.lockDescription}
       />
     );
@@ -189,7 +205,8 @@ class MyTimesheetPage extends Component {
   }
 
   render() {
-    const { sheetTabs, currentDate, currentStatus } = this.state;
+    const { sheetTabs, currentDate } = this.state;
+    const { isLoading, status } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -216,13 +233,15 @@ class MyTimesheetPage extends Component {
             <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
           </div>
 
-          <BlockStatus currentStatus={currentStatus} onChangeStatus={this.handleChangeStatus} />
+          <BlockStatus currentStatus={status.status} onChangeStatus={this.handleChangeStatus} />
         </div>
-
-        {this.renderMyTimesheet()}
+        {isLoading ? <Loader className="ecos-timesheet__loader" height={100} width={100} /> : this.renderMyTimesheet()}
       </div>
     );
   }
 }
 
-export default MyTimesheetPage;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(MyTimesheetPage);

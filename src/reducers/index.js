@@ -20,6 +20,7 @@ import menu from './menu';
 import currentTasks from './currentTasks';
 import docStatus from './docStatus';
 import timesheetSubordinates from './timesheet/subordinates';
+import timesheetMine from './timesheet/mine';
 
 const reducers = {
   app,
@@ -40,7 +41,8 @@ const reducers = {
   menu,
   currentTasks,
   docStatus,
-  timesheetSubordinates
+  timesheetSubordinates,
+  timesheetMine
 };
 
 export default history =>

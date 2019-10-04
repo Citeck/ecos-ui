@@ -10,5 +10,6 @@ export { DashboardApi } from './dashboard';
 export { DocPreviewApi } from './docPreview';
 export { PageTabsApi } from './pageTabs';
 export { DocStatusApi } from './docStatus';
-export { TimesheetSubordinatesApi } from './timesheet/subordinates';
 export { TimesheetCommonApi } from './timesheet/common';
+export { TimesheetSubordinatesApi } from './timesheet/subordinates';
+export { MyTimesheetApi } from './timesheet/mine';

@@ -8,7 +8,7 @@ import {
   setMergedList,
   setStatusList
 } from '../../actions/timesheet/subordinates';
-import { selectTimesheetSubordinatesEvents, selectTimesheetSubordinatesPeople } from '../../selectors/timesheet/subordinates';
+import { selectTimesheetSubordinatesEvents, selectTimesheetSubordinatesPeople } from '../../selectors/timesheet';
 import SubordinatesTimesheetService from '../../services/timesheet/subordinates';
 import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
 

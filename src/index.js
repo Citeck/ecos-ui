@@ -26,6 +26,7 @@ import {
   DocStatusApi,
   JournalsApi,
   MenuApi,
+  MyTimesheetApi,
   OrgStructApi,
   PageTabsApi,
   TasksApi,
@@ -74,6 +75,7 @@ api.docStatus = new DocStatusApi(store);
 //timesheets
 api.timesheetCommon = new TimesheetCommonApi(store);
 api.timesheetSubordinates = new TimesheetSubordinatesApi(store);
+api.timesheetMine = new MyTimesheetApi(store);
 
 const history = getHistory();
 
