@@ -31,7 +31,7 @@ export default class ColumnsSetup extends Component {
     config.meta = config.meta || {};
     config.meta.createVariants = config.meta.createVariants || [];
 
-    const name = (config.meta.createVariants[0] || {}).title;
+    const name = (config.meta.createVariants[0] || {}).title || config.meta.title;
     const reportColumns = (config.columns || []).map(column => {
       return {
         attribute: column.attribute,
