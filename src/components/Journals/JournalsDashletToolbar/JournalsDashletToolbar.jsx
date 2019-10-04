@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 import Export from '../../Export/Export';
@@ -9,6 +9,7 @@ import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { onJournalSelect, onJournalSettingsSelect } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
+import { goToCardDetailsPage } from '../../../helpers/urls';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 const mapStateToProps = (state, props) => {
@@ -39,7 +40,11 @@ class JournalsDashletToolbar extends Component {
       }
     } = this.props;
 
-    FormManager.createRecordByVariant(createVariants[0]);
+    FormManager.createRecordByVariant(createVariants[0], {
+      onSubmit: record => {
+        goToCardDetailsPage(record.id);
+      }
+    });
   };
 
   onChangeJournal = journal => this.props.onJournalSelect(journal.nodeRef);

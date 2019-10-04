@@ -20,6 +20,7 @@ import { getJournalsData, reloadGrid, search } from '../../actions/journals';
 import { setActiveTabTitle } from '../../actions/pageTabs';
 import { Well } from '../common/form';
 import { t, trigger } from '../../helpers/util';
+import { goToCardDetailsPage } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 
 import './Journals.scss';
@@ -86,7 +87,12 @@ class Journals extends Component {
         meta: { createVariants = [{}] }
       }
     } = this.props;
-    FormManager.createRecordByVariant(createVariants[0]);
+
+    FormManager.createRecordByVariant(createVariants[0], {
+      onSubmit: record => {
+        goToCardDetailsPage(record.id);
+      }
+    });
   };
 
   toggleSettings = () => {
