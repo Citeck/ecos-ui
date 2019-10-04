@@ -12,3 +12,4 @@ export const setLoading = createAction(prefix + 'SET_DASHBOARD_LOADING');
 export const getDashboardConfig = createAction(prefix + 'GET_DASHBOARD_CONFIG');
 export const saveDashboardConfig = createAction(prefix + 'SAVE_DASHBOARD_CONFIG');
 export const resetDashboardConfig = createAction(prefix + 'RESET_DASHBOARD_CONFIG');
+export const getDashboardTitle = createAction(prefix + 'GET_DASHBOARD_TITLE');

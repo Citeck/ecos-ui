@@ -36,7 +36,7 @@ const mapDispatchToProps = dispatch => ({
   resetDocStatus: payload => dispatch(resetDocStatus(payload))
 });
 
-const MAX_ATTEMPT = 3;
+const MAX_ATTEMPT = 10;
 
 class DocStatus extends React.Component {
   static propTypes = {

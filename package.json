@@ -44,7 +44,7 @@
     "react-dropzone-uploader": "^2.10.1",
     "react-loader-spinner": "^2.3.0",
     "react-motion": "^0.5.2",
-    "react-perfect-scrollbar": "^1.4.4",
+    "react-placeholder": "^3.0.2",
     "react-redux": "^5.1.0",
     "react-resize-detector": "^4.2.0",
     "react-router": "^4.3.1",

@@ -4,6 +4,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import lodashGet from 'lodash/get';
 import isArray from 'lodash/isArray';
+import { getCurrentLocale } from '../../helpers/util';
 
 const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
@@ -58,6 +59,7 @@ function recordsFetch(url, body) {
     method: 'POST',
     credentials: 'include',
     headers: {
+      'Accept-Language': getCurrentLocale(),
       'Content-type': 'application/json;charset=UTF-8'
     },
     body: JSON.stringify(body)

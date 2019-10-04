@@ -2,6 +2,7 @@ import { call, put, select, takeLatest } from 'redux-saga/effects';
 import {
   getDashboardConfig,
   saveDashboardConfig,
+  getDashboardTitle,
   setDashboardConfig,
   setDashboardIdentification,
   setDashboardTitleInfo,
@@ -20,22 +21,32 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
     const { recordRef, dashboardKey } = payload;
     const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef, dashboardKey });
-    const resTitle = yield call(api.dashboard.getTitleInfo, recordRef);
 
     const data = DashboardService.checkDashboardResult(result);
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
     const webConfig = DashboardConverter.getDashboardForWeb(data);
     const webConfigMobile = DashboardConverter.getMobileDashboardForWeb(data);
-    const titleInfo = DashboardConverter.getTitleInfo(resTitle);
 
-    yield put(setDashboardTitleInfo(titleInfo));
-    yield put(setActiveTabTitle(titleInfo.name));
     yield put(setDashboardIdentification(webKeyInfo));
     yield put(setDashboardConfig(webConfig));
     yield put(setMobileDashboardConfig(webConfigMobile));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error5')));
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
+  }
+}
+
+function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
+  try {
+    const { recordRef } = payload;
+    const resTitle = yield call(api.dashboard.getTitleInfo, recordRef);
+    const titleInfo = DashboardConverter.getTitleInfo(resTitle);
+
+    yield put(setDashboardTitleInfo(titleInfo));
+    yield put(setActiveTabTitle(titleInfo.name));
+  } catch (e) {
+    yield put(setNotificationMessage(t('dashboard-settings.error5')));
+    logger.error('[dashboard/ doGetDashboardTitleRequest saga] error', e.message);
   }
 }
 
@@ -70,6 +81,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
 
 function* saga(ea) {
   yield takeLatest(getDashboardConfig().type, doGetDashboardRequest, ea);
+  yield takeLatest(getDashboardTitle().type, doGetDashboardTitleRequest, ea);
   yield takeLatest(saveDashboardConfig().type, doSaveDashboardConfigRequest, ea);
 }
 
