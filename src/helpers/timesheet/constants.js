@@ -10,6 +10,18 @@ export const StatusActions = {
   VERIFY: 'verify'
 };
 
+export const StatusesServerKeys = {
+  NOT_FILLED: 'Not_Started',
+  ON_AGREEMENT_BY_MANAGER: 'Manager_Approval',
+  AGREED_BY_MANAGER: 'Approved_By_Manager',
+  WAITING_APPROVAL: 'waiting-approval',
+  SENT_FOR_REVISION: 'Correction',
+  UNDER_REVISION: 'Manager_Approval',
+  ON_AGREEMENT: 'on-agreement',
+  AGREED: 'Approved_By_HR',
+  SENT_TO_ACCOUNTING_SYSTEM: 'Sent_To_Accounting_System'
+};
+
 export const CommonLabels = {
   TIMESHEET_TITLE: 'timesheets.allForms.title',
 
@@ -18,6 +30,8 @@ export const CommonLabels = {
   MAIN_TAB_1: 'timesheets.tabs.myTimesheetTab',
   MAIN_TAB_2: 'timesheets.tabs.mySubordinatesTab',
   MAIN_TAB_3: 'timesheets.tabs.delegated',
+
+  NO_DATA: 'No data',
 
   MONTH: 'timesheets.allForms.month',
   YEAR: 'timesheets.allForms.year',

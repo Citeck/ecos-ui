@@ -7,9 +7,12 @@ export default class SubordinatesTimesheetConverter {
 
     source.forEach(item => {
       const newItem = deepClone(item);
-      const user = [get(item, 'user.firstName', ''), get(item, 'user.lastName', '')].join(' ');
 
-      newItem.user = user;
+      newItem.user = [get(item, 'user.lastName', ''), get(item, 'user.firstName', ''), get(item, 'user.middleName', '')].join(' ');
+
+      newItem.timesheetNumber = get(item, 'user.userName', '');
+      newItem.status = item.status.status;
+
       target.push(newItem);
     });
 

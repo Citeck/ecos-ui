@@ -1,7 +1,7 @@
 import isString from 'lodash/isString';
 import { URL } from '../../constants';
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, StatusActions } from '../../helpers/timesheet/constants';
+import { CommonLabels, StatusActions, StatusesServerKeys } from '../../helpers/timesheet/constants';
 
 export class TimesheetApi {
   getSheetTabs = (isOnlyContent, location) => {
@@ -123,31 +123,31 @@ export class TimesheetApi {
         user: 'Пантелеева Мадина',
         organization: 'ООО ДжиИ Рус',
         eventTypes: deepClone(this.getEventTypes()),
-        timesheetNumber: '212392064'
+        timesheetNumber: ''
       },
       {
         user: 'Медведева Диана',
         organization: 'ООО ДжиИ Рус',
         eventTypes: deepClone(this.getEventTypes()),
-        timesheetNumber: '212572436'
+        timesheetNumber: ''
       },
       {
         user: 'Миронова Татьяна',
         organization: 'ООО ДжиИ Рус',
         eventTypes: deepClone(this.getEventTypes()),
-        timesheetNumber: '212604506'
+        timesheetNumber: ''
       },
       {
         user: 'Кулахметов Шамиль',
         organization: 'ООО ДжиИ Хэлскеа',
         eventTypes: deepClone(this.getEventTypes()),
-        timesheetNumber: '212594037'
+        timesheetNumber: ''
       },
       {
         user: 'Печкуров Григорий',
         organization: 'ООО АЛЬСТОМ',
         eventTypes: deepClone(this.getEventTypes()),
-        timesheetNumber: '212555619'
+        timesheetNumber: ''
       }
     ];
   };
@@ -156,56 +156,56 @@ export class TimesheetApi {
     const all = [
       {
         name: t(CommonLabels.STATUSES_VAL_NOT_FILLED),
-        key: 'not-filled',
+        key: StatusesServerKeys.NOT_FILLED,
         isActive: true,
         isAvailable: true,
         actions: [StatusActions.FILL, StatusActions.VERIFY]
       },
       {
         name: t(CommonLabels.STATUSES_VAL_ON_AGREEMENT_BY_MANAGER),
-        key: 'on-agreement-by-manager',
+        key: StatusesServerKeys.ON_AGREEMENT_BY_MANAGER,
         isActive: false,
         isAvailable: true,
         actions: [StatusActions.VERIFY]
       },
       {
         name: t(CommonLabels.STATUSES_VAL_AGREED_BY_MANAGER),
-        key: 'agreed-by-manager',
+        key: StatusesServerKeys.AGREED_BY_MANAGER,
         isActive: false,
         isAvailable: true,
         actions: [StatusActions.VERIFY]
       },
       {
         name: t(CommonLabels.STATUSES_VAL_WAITING_APPROVAL),
-        key: 'waiting-approval',
+        key: StatusesServerKeys.WAITING_APPROVAL,
         isActive: true,
         isAvailable: true,
         actions: [StatusActions.APPROVE]
       },
       {
         name: t(CommonLabels.STATUSES_VAL_SENT_FOR_REVISION),
-        key: 'sent-for-revision',
+        key: StatusesServerKeys.SENT_FOR_REVISION,
         isActive: false,
         isAvailable: true,
         actions: [StatusActions.APPROVE, StatusActions.VERIFY]
       },
       {
         name: t(CommonLabels.STATUSES_VAL_UNDER_REVISION),
-        key: 'under-revision',
+        key: StatusesServerKeys.UNDER_REVISION,
         isActive: false,
         isAvailable: true,
         actions: [StatusActions.FILL]
       },
       {
         name: t(CommonLabels.STATUSES_VAL_ON_AGREEMENT),
-        key: 'on-agreement',
+        key: StatusesServerKeys.ON_AGREEMENT,
         isActive: false,
         isAvailable: true,
         actions: [StatusActions.FILL]
       },
       {
         name: t(CommonLabels.STATUSES_VAL_AGREED),
-        key: 'agreed',
+        key: StatusesServerKeys.AGREED,
         isActive: false,
         isAvailable: true,
         actions: [StatusActions.APPROVE, StatusActions.VERIFY]

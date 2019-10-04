@@ -29,6 +29,7 @@ import {
   OrgStructApi,
   PageTabsApi,
   TasksApi,
+  TimesheetCommonApi,
   TimesheetSubordinatesApi,
   UserApi
 } from './api';
@@ -71,6 +72,7 @@ api.pageTabs = new PageTabsApi(store);
 api.docStatus = new DocStatusApi(store);
 
 //timesheets
+api.timesheetCommon = new TimesheetCommonApi(store);
 api.timesheetSubordinates = new TimesheetSubordinatesApi(store);
 
 const history = getHistory();

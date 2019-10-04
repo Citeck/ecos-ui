@@ -11,6 +11,14 @@
 
   padding: 28px 26px;
 
+  &__no-data {
+    font-style: normal;
+    font-weight: $font-weight-bold;
+    color: $text-color-dark;
+    text-align: center;
+    width: 100%;
+  }
+
   &__column {
   }
 

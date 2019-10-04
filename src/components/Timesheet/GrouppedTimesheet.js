@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, StatusActions } from '../../helpers/timesheet/constants';
+import { CommonLabels, StatusActions, StatusesServerKeys } from '../../helpers/timesheet/constants';
 import { Icon, ResizeBoxes } from '../common';
 import { Input } from '../common/form';
 import { Btn, IcoBtn } from '../common/btns';
@@ -350,8 +350,8 @@ class GrouppedTimesheet extends BaseTimesheet {
           );
         case StatusActions.VERIFY: {
           switch (selectedStatus) {
-            case 'not-filled':
-            case 'sent-for-revision':
+            case StatusesServerKeys.NOT_FILLED:
+            case StatusesServerKeys.SENT_FOR_REVISION:
               return (
                 <>
                   {btnApprove}
@@ -360,17 +360,17 @@ class GrouppedTimesheet extends BaseTimesheet {
                   {tooltipSentManagerApprove}
                 </>
               );
-            case 'on-agreement-by-manager':
-            case 'agreed-by-manager':
+            case StatusesServerKeys.ON_AGREEMENT_BY_MANAGER:
+            case StatusesServerKeys.AGREED_BY_MANAGER:
               return (
                 <>
                   {btnRevision}
                   {tooltipRevision}
                   {btnApprove}
-                  {selectedStatus === 'agreed-by-manager' ? tooltipApprove1 : tooltipApprove2}
+                  {selectedStatus === StatusesServerKeys.AGREED_BY_MANAGER ? tooltipApprove1 : tooltipApprove2}
                 </>
               );
-            case 'agreed':
+            case StatusesServerKeys.AGREED:
               return (
                 <>
                   {btnEmpty}

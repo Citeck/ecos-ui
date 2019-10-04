@@ -6,10 +6,11 @@ import { connect } from 'react-redux';
 import { deepClone, t } from '../../helpers/util';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import { CommonLabels, StatusActions, SubTimesheetLabels } from '../../helpers/timesheet/constants';
+import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
-import { initSubordinatesTimesheetStart } from '../../actions/timesheet/subordinates';
+import { getStatusList, initSubordinatesTimesheetStart } from '../../actions/timesheet/subordinates';
 import { TimesheetApi } from '../../api/timesheet/timesheet';
 
 import './style.scss';
@@ -17,12 +18,13 @@ import './style.scss';
 const timesheetApi = new TimesheetApi();
 
 const mapStateToProps = state => ({
-  subordinatesEventsList: get(state, ['timesheetSubordinates', 'subordinatesEventsList'], []),
+  mergedList: get(state, ['timesheetSubordinates', 'mergedList'], []),
   isLoading: get(state, ['timesheetSubordinates', 'isLoading'], false)
 });
 
 const mapDispatchToProps = dispatch => ({
-  initSubordinatesTimesheetStart: payload => dispatch(initSubordinatesTimesheetStart(payload))
+  initSubordinatesTimesheetStart: payload => dispatch(initSubordinatesTimesheetStart(payload)),
+  getStatusList: payload => dispatch(getStatusList(payload))
 });
 
 class SubordinatesTimesheetPage extends Component {
@@ -103,6 +105,7 @@ class SubordinatesTimesheetPage extends Component {
 
   handleChangeCurrentDate = currentDate => {
     this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
+    this.props.getStatusList({ currentDate });
   };
 
   handleChangeStatusTab = tabIndex => {
@@ -124,23 +127,33 @@ class SubordinatesTimesheetPage extends Component {
   };
 
   renderSubordinateTimesheet = () => {
-    const { daysOfMonth, isDelegated } = this.state;
-    const { subordinatesEventsList } = this.props;
+    const { daysOfMonth, isDelegated, statusTabs } = this.state;
+    const { mergedList } = this.props;
+    const filteredList = mergedList.filter(item => item.status === statusTabs.key);
+
+    if (filteredList.length > 0) {
+      return (
+        <Timesheet
+          groupBy={'user'}
+          eventTypes={filteredList}
+          daysOfMonth={daysOfMonth}
+          isAvailable={!isDelegated}
+          onChange={this.handleChangeTimesheet}
+          lockedMessage={this.lockDescription}
+        />
+      );
+    }
 
     return (
-      <Timesheet
-        groupBy={'user'}
-        eventTypes={subordinatesEventsList}
-        daysOfMonth={daysOfMonth}
-        isAvailable={!isDelegated}
-        onChange={this.handleChangeTimesheet}
-        lockedMessage={this.lockDescription}
-      />
+      <div className="ecos-timesheet__white-block">
+        <div className="ecos-timesheet__no-data">{CommonLabels.NO_DATA}</div>
+      </div>
     );
   };
 
   render() {
     const { sheetTabs, isDelegated, currentDate, statusTabs } = this.state;
+    const { isLoading } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -179,8 +192,7 @@ class SubordinatesTimesheetPage extends Component {
             <Tabs tabs={statusTabs} isSmall onClick={this.handleChangeStatusTab} />
           </div>
         </div>
-
-        {this.renderSubordinateTimesheet()}
+        {isLoading ? <Loader className="ecos-timesheet__loader" height={100} width={100} /> : this.renderSubordinateTimesheet()}
       </div>
     );
   }
