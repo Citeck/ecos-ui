@@ -1,5 +1,5 @@
 export const Statuses = {
-  NOT_FILLED: 'not-filled',
+  NOT_FILLED: 'Not_Started',
   WAITING_APPROVAL: 'waiting-approval',
   NEED_IMPROVED: 'need-improved'
 };
