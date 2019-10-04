@@ -51,19 +51,19 @@ class GrouppedTimesheet extends BaseTimesheet {
       groupsStatuses: this.initGroupsStatuses(props) || {},
       eventsFilterTabs: [
         {
-          name: 'По людям',
+          name: t(CommonLabels.FILTER_BY_PEOPLE),
           key: FILTER_BY.PEOPLE,
           isActive: true,
           isAvailable: true
         },
         // {
-        //   name: 'По событиям',
+        //   name: t(CommonLabels.FILTER_BY_EVENTS),
         //   key: FILTER_BY.EVENT,
         //   isActive: false,
         //   isAvailable: true
         // },
         {
-          name: 'По компаниям',
+          name: t(CommonLabels.FILTER_BY_COMPANIES),
           key: FILTER_BY.COMPANY,
           isActive: false,
           isAvailable: true

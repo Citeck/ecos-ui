@@ -11,100 +11,104 @@ export const StatusActions = {
 };
 
 export const CommonLabels = {
-  TIMESHEET_TITLE: 'Табели учёта времени',
+  TIMESHEET_TITLE: 'timesheets.allForms.title',
 
-  HEADLINE_DELEGATION: 'Делегирование',
+  HEADLINE_DELEGATION: 'timesheets.allForms.delegation',
 
-  MAIN_TAB_1: 'Мой табель',
-  MAIN_TAB_2: 'Табели подчиненных',
-  MAIN_TAB_3: 'Делегированные',
+  MAIN_TAB_1: 'timesheets.tabs.myTimesheetTab',
+  MAIN_TAB_2: 'timesheets.tabs.mySubordinatesTab',
+  MAIN_TAB_3: 'timesheets.tabs.delegated',
 
-  MONTH: 'Месяц',
-  YEAR: 'Год',
-  ADD_DAYS: 'Добавить дни',
-  SHORTENED_DAY: 'Сокращённый день',
-  DAY_OFF: 'Выходной день',
-  TODAY: 'Сегодня',
+  MONTH: 'timesheets.allForms.month',
+  YEAR: 'timesheets.allForms.year',
+  SHORTENED_DAY: 'timesheets.allForms.shortenedDay',
+  DAY_OFF: 'timesheets.allForms.dayOff',
+  TODAY: 'timesheets.allForms.today',
+  ADD_DAYS: 'timesheets.allForms.addDays',
 
-  STATUS_LBL: 'Статус:',
-  STATUS_VAL_NOT_FILLED: 'Не заполнен',
-  STATUS_VAL_WAITING_APPROVAL: 'Ожидает согласования',
-  STATUS_VAL_NEED_IMPROVED: 'Требует доработки',
-  STATUS_SENT_APPROVAL: 'Отправить на согласование',
-  STATUS_IMPROVE: 'Доработать',
+  STATUS_LBL: 'timesheets.allForms.status:',
+  STATUS_VAL_NOT_FILLED: 'timesheets.allForms.status.notFilled',
+  STATUS_VAL_WAITING_APPROVAL: 'timesheets.allForms.status.waitingForApproval',
+  STATUS_VAL_NEED_IMPROVED: 'timesheets.allForms.status.sendBack',
+  STATUS_SENT_APPROVAL: 'timesheets.allForms.status.sendToApproval',
+  STATUS_IMPROVE: 'timesheets.allForms.status.improve',
 
-  STATUS_BTN_SENT_IMPROVE: 'На доработку',
-  STATUS_BTN_APPROVE: 'Согласовать',
-  STATUS_BTN_SENT_APPROVE: 'Отправить на согласование',
-  STATUS_BTN_OFF_DELEGATION: 'Откл. делегирование',
-  STATUS_BTN_SEND_MANAGER_APPROVE: 'На согласование',
+  STATUS_BTN_SENT_IMPROVE: 'timesheets.allForms.buttons.sentBack',
+  STATUS_BTN_APPROVE: 'timesheets.allForms.buttons.approve',
+  STATUS_BTN_SENT_APPROVE: 'timesheets.allForms.buttons.sendToApproval',
+  STATUS_BTN_OFF_DELEGATION: 'timesheets.allForms.buttons.declineDelegation',
+  STATUS_BTN_SEND_MANAGER_APPROVE: 'timesheets.allForms.buttons.toApproval',
 
-  STATUS_TIP_SENT_IMPROVE_1: 'Отправить на доработку владельцу табеля',
-  STATUS_TIP_APPROVE_1: 'Согласовать без утверждения менеджером',
-  STATUS_TIP_SEND_MANAGER_APPROVE_1: 'Отправить на согласование менеджеру',
+  STATUS_TIP_SENT_IMPROVE_1: 'timesheets.allForms.buttons.sentBack.tip',
+  STATUS_TIP_APPROVE_1: 'timesheets.allForms.buttons.approve.tip',
+  STATUS_TIP_SEND_MANAGER_APPROVE_1: 'timesheets.allForms.buttons.sendToApproval.tip',
 
-  STATUSES_VAL_NOT_FILLED: 'Не заполнены',
-  STATUSES_VAL_UNDER_REVISION: 'На доработке',
-  STATUSES_VAL_ON_AGREEMENT: 'На согласовании',
-  STATUSES_VAL_WAITING_APPROVAL: 'Ожидают согласования',
-  STATUSES_VAL_SENT_FOR_REVISION: 'Отправлены в доработку',
-  STATUSES_VAL_AGREED: 'Согласованные',
-  STATUSES_VAL_ON_AGREEMENT_BY_MANAGER: 'На согласовании менеджера',
-  STATUSES_VAL_AGREED_BY_MANAGER: 'Согласованы менеджером',
+  STATUSES_VAL_NOT_FILLED: 'timesheets.allForms.statuses.notFilled',
+  STATUSES_VAL_UNDER_REVISION: 'timesheets.allForms.statuses.reworking',
+  STATUSES_VAL_ON_AGREEMENT: 'timesheets.allForms.statuses.onApproval',
+  STATUSES_VAL_WAITING_APPROVAL: 'timesheets.allForms.statuses.waitingForApproval',
+  STATUSES_VAL_SENT_FOR_REVISION: 'timesheets.allForms.statuses.sentBack',
+  STATUSES_VAL_AGREED: 'timesheets.allForms.statuses.approved',
+  STATUSES_VAL_ON_AGREEMENT_BY_MANAGER: 'timesheets.allForms.statuses.onManagerApproval',
+  STATUSES_VAL_AGREED_BY_MANAGER: 'timesheets.allForms.statuses.approvedByManager',
 
-  STATUS_ACTION_FILL_IN: 'Заполнить',
-  STATUS_ACTION_TO_APPROVE: 'Согласовать',
+  STATUS_ACTION_FILL_IN: 'timesheets.allForms.status.action.fillIn',
+  STATUS_ACTION_TO_APPROVE: 'timesheets.allForms.status.action.approve',
 
-  EVENT_TYPE_DAYTIME_WORK: 'Работа в дневное время',
-  EVENT_TYPE_BUSINESS_TRIP: 'Командировка',
-  EVENT_TYPE_ABSENCE: 'Отсутствие (необходимы оригиналы документов)',
-  EVENT_TYPE_ANNUAL_PAID_LEAVE: 'Ежегодный основной оплачиваемый отпуск',
-  EVENT_TYPE_UNPAID_LEAVE: 'Отпуск без сохранения заработной платы',
-  EVENT_TYPE_LEAVE_1_OF_5: 'Отпуск 1 из 5',
-  EVENT_TYPE_NORTH_PAID_LEAVE: 'Отпуск за работу в условиях крайнего севера',
-  EVENT_TYPE_HARMFUL_PAID_LEAVE: 'Дополнительный отпуск за работу во вредных условиях труда',
-  EVENT_TYPE_IRREGULAR_PAID_LEAVE: 'Отпуск за ненормированный рабочий день',
-  EVENT_TYPE_COMPENSATORY_LEAVE: 'Отгул',
-  EVENT_TYPE_WORK_ON_DAY_OFF_1: 'Работа в выходные и праздничные дни (отгул + оплата)',
-  EVENT_TYPE_WORK_ON_DAY_OFF_2: 'Работа в выходные и праздничные дни (двойная оплата)',
-  EVENT_TYPE_OVERTIME_WORK: 'Сверхурочная работа',
-  EVENT_TYPE_NIGHT_WORK: 'Работа в ночное время',
+  EVENT_TYPE_DAYTIME_WORK: 'timesheets.allForms.eventType.dayTimeWork',
+  EVENT_TYPE_BUSINESS_TRIP: 'timesheets.allForms.eventType.businessTrip',
+  EVENT_TYPE_ABSENCE: 'timesheets.allForms.eventType.absence',
+  EVENT_TYPE_ANNUAL_PAID_LEAVE: 'timesheets.allForms.eventType.annualPaidLeave',
+  EVENT_TYPE_UNPAID_LEAVE: 'timesheets.allForms.eventType.unpaidLeave',
+  EVENT_TYPE_LEAVE_1_OF_5: 'timesheets.allForms.eventType.oneOfFive',
+  EVENT_TYPE_NORTH_PAID_LEAVE: 'timesheets.allForms.eventType.nortPaidLeave',
+  EVENT_TYPE_HARMFUL_PAID_LEAVE: 'timesheets.allForms.eventType.harmfulPaidLeave',
+  EVENT_TYPE_IRREGULAR_PAID_LEAVE: 'timesheets.allForms.eventType.irregularPaidLeave',
+  EVENT_TYPE_COMPENSATORY_LEAVE: 'timesheets.allForms.eventType.compensatoryLeave',
+  EVENT_TYPE_WORK_ON_DAY_OFF_1: 'timesheets.allForms.eventType.workOnDayOfLeavePlusPayment',
+  EVENT_TYPE_WORK_ON_DAY_OFF_2: 'timesheets.allForms.eventType.workOnDayOfLeaveDoublePayment',
+  EVENT_TYPE_OVERTIME_WORK: 'timesheets.allForms.eventType.overtimeWork',
+  EVENT_TYPE_NIGHT_WORK: 'timesheets.allForms.eventType.nightWork',
 
-  EVENT_HISTORY_BTN: 'История событий',
-  EVENT_HISTORY_TITLE: 'История событий',
+  EVENT_HISTORY_BTN: 'timesheets.allForms.eventHistory.button',
+  EVENT_HISTORY_TITLE: 'timesheets.allForms.eventHistory.title',
 
-  MODAL_IN_PROGRESS: 'Загружается',
+  MODAL_IN_PROGRESS: 'timesheets.allForms.modal.inProgress',
 
-  SHOW_EVEN_HISTORY_TIP: 'Показать историю событий',
-  SHOW_COMMENT_TIP: 'Показать комментарий',
+  SHOW_EVEN_HISTORY_TIP: 'timesheets.allForms.tips.showEventHistory',
+  SHOW_COMMENT_TIP: 'timesheets.allForms.tips.showComment',
 
-  FIND_EVENT_TIP: 'Найти событие',
-  FIND_EMPLOYEE_TIP: 'Найти сотрудника'
+  FIND_EVENT_TIP: 'timesheets.allForms.tips.findEventType',
+  FIND_EMPLOYEE_TIP: 'timesheets.allForms.tips.findEmployee',
+
+  FILTER_BY_PEOPLE: 'По людям',
+  FILTER_BY_EVENTS: 'По событиям',
+  FILTER_BY_COMPANIES: 'По компаниям'
 };
 
 export const MyTimesheetLabels = {
-  DELEGATION_DESCRIPTION_1: 'Табель может быть заполнен другим сотрудником, если включить делегирование',
-  DELEGATION_DESCRIPTION_2: 'Ваш табель заполнит другой сотрудник',
-  DELEGATION_DESCRIPTION_3: 'Внимание! Делегирование было отключено другим сотрудником',
+  DELEGATION_DESCRIPTION_1: 'timesheets.myTimesheetForm.descriptions.delegationIsOff',
+  DELEGATION_DESCRIPTION_2: 'timesheets.myTimesheetForm.descriptions.delegationIsOn',
+  DELEGATION_DESCRIPTION_3: 'timesheets.myTimesheetForm.descriptions.delegationWasCanceled',
 
-  LOCK_DESCRIPTION_1: 'Чтобы редактировать табель, нажмите на кнопку "Доработать"',
-  LOCK_DESCRIPTION_2: 'Чтобы редактировать табель, отключите делегирование на другого сотрудника',
+  LOCK_DESCRIPTION_1: 'timesheets.allForms.descriptions.lockedByStatus',
+  LOCK_DESCRIPTION_2: 'timesheets.allForms.descriptions.lockedByDelegation',
 
-  DELEGATION_LABEL_REJECT_OK: 'OK'
+  DELEGATION_LABEL_REJECT_OK: 'timesheets.allForms.descriptions.delegationRejectedButton'
 };
 
 export const SubTimesheetLabels = {
-  DELEGATION_DESCRIPTION_1: 'Табели подчиненных может заполнить другой сотрудник, если включить делегирование',
+  DELEGATION_DESCRIPTION_1: 'timesheets.subordinatesForm.descriptions.delegationIsOff',
 
-  LOCK_DESCRIPTION_1: 'Чтобы редактировать табель, отключите делегирование на другого сотрудника'
+  LOCK_DESCRIPTION_1: 'timesheets.subordinatesForm.descriptions.delegationIsOn'
 };
 
 export const DelegateTimesheetLabels = {
-  DELEGATION_DESCRIPTION_1: 'Вы можете управлять списком сотрудников, которые делегировали вам табели',
+  DELEGATION_DESCRIPTION_1: 'timesheets.delegatedForApprovalForm.descriptions.manageDeligatedTimesheets',
 
-  DELEGATION_BTN_SET: 'Настроить'
+  DELEGATION_BTN_SET: 'timesheets.delegatedForApprovalForm.button.setUpTimsheetList'
 };
 
 export const VerifyTimesheetLabels = {
-  TIMESHEET_TITLE: 'Табели учёта времени для проверки'
+  TIMESHEET_TITLE: 'timesheets.allForms.title'
 };
