@@ -167,8 +167,8 @@ class BaseTimesheet extends Component {
 
         <div className="ecos-timesheet__table-events-item-filter" style={{ backgroundColor: item.color || '#D0D0D0' }} />
         <div className="ecos-timesheet__table-events-item-title">{item.title}</div>
-        <Icon className="icon-plus ecos-timesheet__table-events-item-add-btn" id={`event-type-${position}`} />
-        <Tooltip target={`event-type-${position}`} content={t('Добавить дни')} />
+        {/*<Icon className="icon-plus ecos-timesheet__table-events-item-add-btn" id={`event-type-${position}`} />*/}
+        {/*<Tooltip target={`event-type-${position}`} content={t('Добавить дни')} />*/}
       </div>
     </SortableElement>
   );
