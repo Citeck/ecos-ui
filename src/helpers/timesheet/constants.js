@@ -41,6 +41,7 @@ export const CommonLabels = {
 
   STATUS_TIP_SENT_IMPROVE_1: 'timesheets.allForms.buttons.sentBack.tip',
   STATUS_TIP_APPROVE_1: 'timesheets.allForms.buttons.approve.tip',
+  STATUS_TIP_APPROVE_2: 'timesheets.allForms.buttons.approve.withoutManager.tip',
   STATUS_TIP_SEND_MANAGER_APPROVE_1: 'timesheets.allForms.buttons.sendToApproval.tip',
 
   STATUSES_VAL_NOT_FILLED: 'timesheets.allForms.statuses.notFilled',
@@ -81,9 +82,9 @@ export const CommonLabels = {
   FIND_EVENT_TIP: 'timesheets.allForms.tips.findEventType',
   FIND_EMPLOYEE_TIP: 'timesheets.allForms.tips.findEmployee',
 
-  FILTER_BY_PEOPLE: 'По людям',
-  FILTER_BY_EVENTS: 'По событиям',
-  FILTER_BY_COMPANIES: 'По компаниям'
+  FILTER_BY_PEOPLE: 'timesheets.allForms.filter.people',
+  FILTER_BY_EVENTS: 'timesheets.allForms.filter.events',
+  FILTER_BY_COMPANIES: 'timesheets.allForms.filter.companies'
 };
 
 export const MyTimesheetLabels = {

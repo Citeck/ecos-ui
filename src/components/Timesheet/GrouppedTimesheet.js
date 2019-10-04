@@ -299,10 +299,17 @@ class GrouppedTimesheet extends BaseTimesheet {
           innerClassName="ecos-timesheet__table-group-tooltip"
         />
       );
-      const tooltipApprove = (
+      const tooltipApprove1 = (
         <Tooltip
           target={`ecos-timesheet__table-group-btn_sent-approve_${index}-message`}
           content={t(CommonLabels.STATUS_TIP_APPROVE_1)}
+          innerClassName="ecos-timesheet__table-group-tooltip"
+        />
+      );
+      const tooltipApprove2 = (
+        <Tooltip
+          target={`ecos-timesheet__table-group-btn_sent-approve_${index}-message`}
+          content={t(CommonLabels.STATUS_TIP_APPROVE_2)}
           innerClassName="ecos-timesheet__table-group-tooltip"
         />
       );
@@ -344,9 +351,11 @@ class GrouppedTimesheet extends BaseTimesheet {
         case StatusActions.VERIFY: {
           switch (selectedStatus) {
             case 'not-filled':
+            case 'sent-for-revision':
               return (
                 <>
-                  {btnEmpty}
+                  {btnApprove}
+                  {tooltipApprove2}
                   {btnSentManagerApprove}
                   {tooltipSentManagerApprove}
                 </>
@@ -358,16 +367,7 @@ class GrouppedTimesheet extends BaseTimesheet {
                   {btnRevision}
                   {tooltipRevision}
                   {btnApprove}
-                  {tooltipApprove}
-                </>
-              );
-            case 'sent-for-revision':
-              return (
-                <>
-                  {btnApprove}
-                  {tooltipApprove}
-                  {btnSentManagerApprove}
-                  {tooltipSentManagerApprove}
+                  {selectedStatus === 'agreed-by-manager' ? tooltipApprove1 : tooltipApprove2}
                 </>
               );
             case 'agreed':

@@ -162,18 +162,18 @@ export class TimesheetApi {
         actions: [StatusActions.FILL, StatusActions.VERIFY]
       },
       {
-        name: t(CommonLabels.STATUSES_VAL_UNDER_REVISION),
-        key: 'under-revision',
+        name: t(CommonLabels.STATUSES_VAL_ON_AGREEMENT_BY_MANAGER),
+        key: 'on-agreement-by-manager',
         isActive: false,
         isAvailable: true,
-        actions: [StatusActions.FILL]
+        actions: [StatusActions.VERIFY]
       },
       {
-        name: t(CommonLabels.STATUSES_VAL_ON_AGREEMENT),
-        key: 'on-agreement',
+        name: t(CommonLabels.STATUSES_VAL_AGREED_BY_MANAGER),
+        key: 'agreed-by-manager',
         isActive: false,
         isAvailable: true,
-        actions: [StatusActions.FILL]
+        actions: [StatusActions.VERIFY]
       },
       {
         name: t(CommonLabels.STATUSES_VAL_WAITING_APPROVAL),
@@ -190,25 +190,25 @@ export class TimesheetApi {
         actions: [StatusActions.APPROVE, StatusActions.VERIFY]
       },
       {
+        name: t(CommonLabels.STATUSES_VAL_UNDER_REVISION),
+        key: 'under-revision',
+        isActive: false,
+        isAvailable: true,
+        actions: [StatusActions.FILL]
+      },
+      {
+        name: t(CommonLabels.STATUSES_VAL_ON_AGREEMENT),
+        key: 'on-agreement',
+        isActive: false,
+        isAvailable: true,
+        actions: [StatusActions.FILL]
+      },
+      {
         name: t(CommonLabels.STATUSES_VAL_AGREED),
         key: 'agreed',
         isActive: false,
         isAvailable: true,
         actions: [StatusActions.APPROVE, StatusActions.VERIFY]
-      },
-      {
-        name: t(CommonLabels.STATUSES_VAL_ON_AGREEMENT_BY_MANAGER),
-        key: 'on-agreement-by-manager',
-        isActive: false,
-        isAvailable: true,
-        actions: [StatusActions.VERIFY]
-      },
-      {
-        name: t(CommonLabels.STATUSES_VAL_AGREED_BY_MANAGER),
-        key: 'agreed-by-manager',
-        isActive: false,
-        isAvailable: true,
-        actions: [StatusActions.VERIFY]
       }
     ];
 
