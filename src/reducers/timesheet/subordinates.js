@@ -1,15 +1,16 @@
 import { handleActions } from 'redux-actions';
 import {
-  getSubordinatesEventsList,
+  getEventsList,
   getSubordinatesList,
-  setSubordinatesEventsList,
-  setSubordinatesList
+  initSubordinatesTimesheetEnd,
+  initSubordinatesTimesheetStart,
+  setSubordinatesEventsList
 } from '../../actions/timesheet/subordinates';
 
 const initialState = {
-  subordinatesList: [],
+  isLoading: false,
+  subordinatesEventsList: [],
   isLoadingSubordinatesList: false,
-  eventsList: [],
   isLoadingEventsList: false
 };
 
@@ -17,25 +18,28 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [initSubordinatesTimesheetStart]: (state, actions) => ({
+      ...state,
+      isLoading: true,
+      subordinatesEventsList: []
+    }),
+    [initSubordinatesTimesheetEnd]: (state, actions) => ({
+      ...state,
+      isLoading: false,
+      subordinatesEventsList: actions.payload.records
+    }),
     [getSubordinatesList]: (state, actions) => ({
       ...state,
-      isLoadingSubordinatesList: true,
-      subordinatesList: []
+      isLoading: true
     }),
-    [setSubordinatesList]: (state, actions) => ({
+    [getEventsList]: (state, actions) => ({
       ...state,
-      isLoadingSubordinatesList: false,
-      subordinatesList: actions.payload.records
-    }),
-    [getSubordinatesEventsList]: (state, actions) => ({
-      ...state,
-      isLoadingEventsList: true,
-      eventsList: []
+      isLoading: true
     }),
     [setSubordinatesEventsList]: (state, actions) => ({
       ...state,
-      isLoadingEventsList: false,
-      eventsList: actions.payload.records
+      isLoading: false,
+      subordinatesEventsList: actions.payload.records
     })
   },
   initialState

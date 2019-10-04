@@ -9,7 +9,7 @@ import { CommonLabels, StatusActions, SubTimesheetLabels } from '../../helpers/t
 import { Switch } from '../../components/common/form';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
-import { getSubordinatesEventsList, getSubordinatesList } from '../../actions/timesheet/subordinates';
+import { initSubordinatesTimesheetStart } from '../../actions/timesheet/subordinates';
 import { TimesheetApi } from '../../api/timesheet/timesheet';
 
 import './style.scss';
@@ -17,15 +17,12 @@ import './style.scss';
 const timesheetApi = new TimesheetApi();
 
 const mapStateToProps = state => ({
-  subordinatesList: get(state, ['timesheetSubordinates', 'subordinatesList'], []),
-  isLoadingSubordinatesList: get(state, ['timesheetSubordinates', 'isLoadingSubordinatesList'], false),
-  eventsList: get(state, ['timesheetSubordinates', 'eventsList'], []),
-  isLoadingEventsList: get(state, ['timesheetSubordinates', 'isLoadingEventsList'], false)
+  subordinatesEventsList: get(state, ['timesheetSubordinates', 'subordinatesEventsList'], []),
+  isLoading: get(state, ['timesheetSubordinates', 'isLoading'], false)
 });
 
 const mapDispatchToProps = dispatch => ({
-  getSubordinatesList: payload => dispatch(getSubordinatesList(payload)),
-  getSubordinatesEventsList: payload => dispatch(getSubordinatesEventsList(payload))
+  initSubordinatesTimesheetStart: payload => dispatch(initSubordinatesTimesheetStart(payload))
 });
 
 class SubordinatesTimesheetPage extends Component {
@@ -37,6 +34,7 @@ class SubordinatesTimesheetPage extends Component {
     } = props;
 
     this.state = {
+      eventTypes: timesheetApi.getEventTypes(),
       sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
       dateTabs: [
         {
@@ -58,19 +56,7 @@ class SubordinatesTimesheetPage extends Component {
   }
 
   componentDidMount() {
-    this.props.getSubordinatesList();
-  }
-
-  componentWillReceiveProps(nextProps, nextContext) {
-    const { subordinatesList, isLoadingSubordinatesList } = this.props;
-
-    if (
-      deepClone(subordinatesList) !== deepClone(nextProps.subordinatesList) &&
-      isLoadingSubordinatesList &&
-      !nextProps.isLoadingSubordinatesList
-    ) {
-      this.props.getSubordinatesEventsList();
-    }
+    this.props.initSubordinatesTimesheetStart();
   }
 
   get isOnlyContent() {
@@ -139,12 +125,12 @@ class SubordinatesTimesheetPage extends Component {
 
   renderSubordinateTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
-    const { eventTypes } = this.props;
+    const { subordinatesEventsList } = this.props;
 
     return (
       <Timesheet
         groupBy={'user'}
-        eventTypes={eventTypes}
+        eventTypes={subordinatesEventsList}
         daysOfMonth={daysOfMonth}
         isAvailable={!isDelegated}
         onChange={this.handleChangeTimesheet}
