@@ -67,6 +67,7 @@ const mapDispatchToProps = (dispatch, props) => {
 class JournalsDashletGrid extends Component {
   filters = [];
   selectedRow = {};
+  scrollPosition = {};
 
   state = {
     isDialogShow: false
@@ -378,6 +379,11 @@ class JournalsDashletGrid extends Component {
     );
   };
 
+  onScrolling = e => {
+    this.scrollPosition = e;
+    this.hideGridInlineToolSettings();
+  };
+
   render() {
     const {
       selectedRecords,
@@ -434,11 +440,12 @@ class JournalsDashletGrid extends Component {
                 onRowClick={doInlineToolsOnRowClick && this.onRowClick}
                 onMouseLeave={!doInlineToolsOnRowClick && this.hideGridInlineToolSettings}
                 onChangeTrOptions={this.showGridInlineToolSettings}
-                onScrolling={this.hideGridInlineToolSettings}
+                onScrolling={this.onScrolling}
                 onEdit={saveRecords}
                 selected={selectedRecords}
                 selectAll={selectAllRecords}
                 minHeight={minHeight}
+                scrollPosition={this.scrollPosition}
               />
             )}
           </HeightCalculation>
