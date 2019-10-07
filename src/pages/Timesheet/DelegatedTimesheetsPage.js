@@ -1,12 +1,21 @@
 import React from 'react';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, DelegateTimesheetLabels, StatusActions, Statuses } from '../../helpers/timesheet/constants';
+import {
+  CommonLabels,
+  DelegateTimesheetLabels,
+  StatusActions,
+  StatusesServerKeys,
+  TimesheetTypes
+} from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
+import CommonTimesheetService from '../../services/timesheet/common';
+
 import { DateSlider, Tabs } from '../../components/Timesheet';
 import Timesheet from '../../components/Timesheet/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { Btn } from '../../components/common/btns';
+
 import { TimesheetApi } from '../../api/timesheet/timesheet';
 
 import './style.scss';
@@ -21,14 +30,13 @@ class DelegatedTimesheetsPage extends React.Component {
       history: { location }
     } = props;
 
-    const eventTypes = timesheetApi.getEventTypes();
-
     this.cacheDays = new Map();
+
     this.state = {
-      eventTypes,
+      eventTypes: timesheetApi.getEventTypes(),
       subordinatesEvents: timesheetApi.getEvents(),
       sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
-      statusTabs: timesheetApi.getStatuses(StatusActions.FILL),
+      statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, StatusActions.FILL),
       dateTabs: [
         {
           name: t(CommonLabels.MONTH),
@@ -43,7 +51,7 @@ class DelegatedTimesheetsPage extends React.Component {
       ],
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date()),
-      currentStatus: Statuses.NEED_IMPROVED,
+      currentStatus: StatusesServerKeys.CORRECTION,
       isDelegated: false,
       delegatedTo: '',
       delegationRejected: true,
@@ -95,7 +103,7 @@ class DelegatedTimesheetsPage extends React.Component {
       }
     });
 
-    const statusTabs = timesheetApi.getStatuses(selectedAction);
+    const statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, selectedAction);
 
     this.setState({ actionDelegatedTabs, statusTabs });
   };

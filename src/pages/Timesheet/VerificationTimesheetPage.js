@@ -2,9 +2,11 @@ import React, { Component } from 'react';
 import 'moment-business-days';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, StatusActions, VerifyTimesheetLabels } from '../../helpers/timesheet/constants';
+import { CommonLabels, StatusActions, TimesheetTypes, VerifyTimesheetLabels } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth } from '../../helpers/timesheet/util';
+import CommonTimesheetService from '../../services/timesheet/common';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
+
 import { TimesheetApi } from '../../api/timesheet/timesheet';
 
 import './style.scss';
@@ -36,7 +38,7 @@ class VerificationTimesheetPage extends Component {
           isAvailable: false
         }
       ],
-      statusTabs: timesheetApi.getStatuses(StatusActions.VERIFY),
+      statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.VERIFICATION),
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date())
     };

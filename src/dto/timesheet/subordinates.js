@@ -11,7 +11,7 @@ export default class SubordinatesTimesheetConverter {
       newItem.user = [get(item, 'user.lastName', ''), get(item, 'user.firstName', ''), get(item, 'user.middleName', '')].join(' ');
 
       newItem.timesheetNumber = get(item, 'user.userName', '');
-      newItem.status = item.status.status;
+      newItem.status = get(item, 'status.status', '');
 
       target.push(newItem);
     });

@@ -351,7 +351,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         case StatusActions.VERIFY: {
           switch (selectedStatus) {
             case StatusesServerKeys.NOT_FILLED:
-            case StatusesServerKeys.SENT_FOR_REVISION:
+            case StatusesServerKeys.CORRECTION:
               return (
                 <>
                   {btnApprove}
@@ -360,17 +360,17 @@ class GrouppedTimesheet extends BaseTimesheet {
                   {tooltipSentManagerApprove}
                 </>
               );
-            case StatusesServerKeys.ON_AGREEMENT_BY_MANAGER:
-            case StatusesServerKeys.AGREED_BY_MANAGER:
+            case StatusesServerKeys.MANAGER_APPROVAL:
+            case StatusesServerKeys.APPROVED_BY_MANAGER:
               return (
                 <>
                   {btnRevision}
                   {tooltipRevision}
                   {btnApprove}
-                  {selectedStatus === StatusesServerKeys.AGREED_BY_MANAGER ? tooltipApprove1 : tooltipApprove2}
+                  {selectedStatus === StatusesServerKeys.APPROVED_BY_MANAGER ? tooltipApprove1 : tooltipApprove2}
                 </>
               );
-            case StatusesServerKeys.AGREED:
+            case StatusesServerKeys.APPROVED_BY_HR:
               return (
                 <>
                   {btnEmpty}

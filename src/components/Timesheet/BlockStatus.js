@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import { t } from '../../helpers/util';
-import { CommonLabels, Statuses } from '../../helpers/timesheet/constants';
+import { CommonLabels, StatusesServerKeys } from '../../helpers/timesheet/constants';
 import { Btn, IcoBtn } from '../../components/common/btns';
 import EventHistoryModal from './EventHistoryModal';
 
@@ -29,16 +30,29 @@ class BlockStatus extends React.Component {
     this.setState({ isOpenModalEventHistory: false });
   };
 
-  renderCommonViewStatus(currentStatusLbl, changeStatus, changeStatusLbl) {
+  openReadComment = () => {};
+
+  renderCommonViewStatus({ value, outcome, btn, hasMsg }) {
     return (
       <>
-        <div className="ecos-timesheet__status-value">{t(currentStatusLbl)}</div>
-        <IcoBtn icon="icon-calendar" className="ecos-timesheet__status-btn-history" onClick={this.openModalEventHistory}>
-          {t(CommonLabels.EVENT_HISTORY_BTN)}
-        </IcoBtn>
-        <Btn className="ecos-timesheet__status-btn-change ecos-btn_blue" onClick={this.handleChangeStatus.bind(null, changeStatus)}>
-          {t(changeStatusLbl)}
-        </Btn>
+        {value && (
+          <div className={classnames('ecos-timesheet__status-value', { 'ecos-timesheet__status-value_warning': hasMsg })}>{t(value)}</div>
+        )}
+        {!hasMsg && (
+          <IcoBtn icon="icon-calendar" className="ecos-timesheet__status-btn-history" onClick={this.openModalEventHistory}>
+            {t(CommonLabels.EVENT_HISTORY_BTN)}
+          </IcoBtn>
+        )}
+        {hasMsg && (
+          <IcoBtn icon="icon-notify-dialogue" className="ecos-timesheet__status-btn-comment ecos-btn_red2" onClick={this.openReadComment}>
+            {t(CommonLabels.TO_READ_COMMENT_BTN)}
+          </IcoBtn>
+        )}
+        {outcome && (
+          <Btn className="ecos-timesheet__status-btn-change ecos-btn_blue" onClick={this.handleChangeStatus.bind(null, outcome)}>
+            {t(btn)}
+          </Btn>
+        )}
       </>
     );
   }
@@ -49,25 +63,38 @@ class BlockStatus extends React.Component {
     let content = null;
 
     switch (currentStatus) {
-      case Statuses.NOT_FILLED:
-        content = this.renderCommonViewStatus(
-          CommonLabels.STATUS_VAL_NOT_FILLED,
-          Statuses.WAITING_APPROVAL,
-          CommonLabels.STATUS_SENT_APPROVAL
-        );
+      case StatusesServerKeys.NOT_FILLED:
+        content = this.renderCommonViewStatus({
+          value: CommonLabels.STATUS_VAL_NOT_FILLED,
+          outcome: StatusesServerKeys.MANAGER_APPROVAL,
+          btn: CommonLabels.STATUS_BTN_SENT_APPROVE
+        });
         break;
-      case Statuses.WAITING_APPROVAL:
-        content = this.renderCommonViewStatus(CommonLabels.STATUS_VAL_WAITING_APPROVAL, Statuses.NOT_FILLED, CommonLabels.STATUS_IMPROVE);
+      case StatusesServerKeys.MANAGER_APPROVAL:
+      case StatusesServerKeys.APPROVED_BY_MANAGER:
+        content = this.renderCommonViewStatus({
+          value: CommonLabels.STATUS_VAL_WAITING_APPROVAL,
+          outcome: StatusesServerKeys.NOT_FILLED,
+          btn: CommonLabels.STATUS_BTN_SENT_IMPROVE
+        });
         break;
-      case Statuses.NEED_IMPROVED:
-        content = this.renderCommonViewStatus(
-          CommonLabels.STATUS_VAL_NEED_IMPROVED,
-          Statuses.WAITING_APPROVAL,
-          CommonLabels.STATUS_SENT_APPROVAL
-        );
+      case StatusesServerKeys.CORRECTION:
+        content = this.renderCommonViewStatus({
+          value: CommonLabels.STATUS_VAL_NEED_IMPROVED,
+          outcome: StatusesServerKeys.MANAGER_APPROVAL,
+          btn: CommonLabels.STATUS_BTN_SENT_APPROVE,
+          hasMsg: true
+        });
+        break;
+      case StatusesServerKeys.APPROVED_BY_HR:
+        content = this.renderCommonViewStatus({
+          value: CommonLabels.STATUS_VAL_APPROVED
+        });
         break;
       default:
-        content = null;
+        content = this.renderCommonViewStatus({
+          value: currentStatus || CommonLabels.STATUS_VAL_NONE
+        });
     }
 
     return (

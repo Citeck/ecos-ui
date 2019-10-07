@@ -1,7 +1,7 @@
 import { put, select, takeLatest } from 'redux-saga/effects';
-import get from 'lodash/get';
 import { getStatus, initMyTimesheetEnd, initMyTimesheetStart, setStatus } from '../../actions/timesheet/mine';
 import { selectUserUserName } from '../../selectors/user';
+import MyTimesheetConverter from '../../dto/timesheet/mine';
 
 function* sagaInitSubordinatesTimesheet({ api, logger }) {
   try {
@@ -13,7 +13,7 @@ function* sagaInitSubordinatesTimesheet({ api, logger }) {
       userNames: [userName]
     });
 
-    const status = get(statuses, 'records[0]', {});
+    const status = MyTimesheetConverter.getStatusForWeb(statuses);
 
     yield put(initMyTimesheetEnd({ status }));
   } catch (e) {
@@ -32,7 +32,7 @@ function* sagaGetStatus({ api, logger }, { payload }) {
       userNames: userName
     });
 
-    yield put(setStatus(get(statuses, 'records[0]', {})));
+    yield put(setStatus(MyTimesheetConverter.getStatusForWeb(statuses)));
   } catch (e) {
     logger.error('[pageTabs sagaGetSubordinatesEventsList saga error', e.message);
   }

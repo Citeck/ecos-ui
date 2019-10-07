@@ -5,8 +5,9 @@ import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
-import { CommonLabels, StatusActions, SubTimesheetLabels } from '../../helpers/timesheet/constants';
+import { CommonLabels, StatusActions, SubTimesheetLabels, TimesheetTypes } from '../../helpers/timesheet/constants';
 import { getStatusList, initSubordinatesTimesheetStart } from '../../actions/timesheet/subordinates';
+import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
@@ -52,7 +53,7 @@ class SubordinatesTimesheetPage extends Component {
           isAvailable: false
         }
       ],
-      statusTabs: timesheetApi.getStatuses(StatusActions.APPROVE),
+      statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.SUBORDINATES, StatusActions.APPROVE),
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date()),
       isDelegated: false

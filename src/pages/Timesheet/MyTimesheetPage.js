@@ -82,7 +82,7 @@ class MyTimesheetPage extends Component {
     const { isDelegated } = this.state;
     const { status } = this.props;
 
-    if (status.status === Statuses.WAITING_APPROVAL) {
+    if (status.key === StatusesServerKeys.MANAGER_APPROVAL) {
       return t(MyTimesheetLabels.LOCK_DESCRIPTION_1);
     }
 
@@ -155,7 +155,7 @@ class MyTimesheetPage extends Component {
       <Timesheet
         eventTypes={eventTypes}
         daysOfMonth={daysOfMonth}
-        isAvailable={status.status !== Statuses.WAITING_APPROVAL && !isDelegated}
+        isAvailable={status.key !== StatusesServerKeys.MANAGER_APPROVAL && !isDelegated}
         lockedMessage={this.lockDescription}
       />
     );
@@ -233,7 +233,7 @@ class MyTimesheetPage extends Component {
             <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
           </div>
 
-          <BlockStatus currentStatus={status.status} onChangeStatus={this.handleChangeStatus} />
+          <BlockStatus currentStatus={StatusesServerKeys.APPROVED_BY_HR} onChangeStatus={this.handleChangeStatus} />
         </div>
         {isLoading ? <Loader className="ecos-timesheet__loader" height={100} width={100} /> : this.renderMyTimesheet()}
       </div>

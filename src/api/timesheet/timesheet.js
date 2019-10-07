@@ -1,7 +1,6 @@
-import isString from 'lodash/isString';
 import { URL } from '../../constants';
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, StatusActions, StatusesServerKeys } from '../../helpers/timesheet/constants';
+import { CommonLabels, StatusActions } from '../../helpers/timesheet/constants';
 
 export class TimesheetApi {
   getSheetTabs = (isOnlyContent, location) => {
@@ -150,75 +149,6 @@ export class TimesheetApi {
         timesheetNumber: '5'
       }
     ];
-  };
-
-  getStatuses = actions => {
-    const all = [
-      {
-        name: t(CommonLabels.STATUSES_VAL_NOT_FILLED),
-        key: StatusesServerKeys.NOT_FILLED,
-        isActive: true,
-        isAvailable: true,
-        actions: [StatusActions.FILL, StatusActions.VERIFY]
-      },
-      {
-        name: t(CommonLabels.STATUSES_VAL_ON_AGREEMENT_BY_MANAGER),
-        key: StatusesServerKeys.ON_AGREEMENT_BY_MANAGER,
-        isActive: false,
-        isAvailable: true,
-        actions: [StatusActions.VERIFY]
-      },
-      {
-        name: t(CommonLabels.STATUSES_VAL_AGREED_BY_MANAGER),
-        key: StatusesServerKeys.AGREED_BY_MANAGER,
-        isActive: false,
-        isAvailable: true,
-        actions: [StatusActions.VERIFY]
-      },
-      {
-        name: t(CommonLabels.STATUSES_VAL_WAITING_APPROVAL),
-        key: StatusesServerKeys.WAITING_APPROVAL,
-        isActive: true,
-        isAvailable: true,
-        actions: [StatusActions.APPROVE]
-      },
-      {
-        name: t(CommonLabels.STATUSES_VAL_SENT_FOR_REVISION),
-        key: StatusesServerKeys.SENT_FOR_REVISION,
-        isActive: false,
-        isAvailable: true,
-        actions: [StatusActions.APPROVE, StatusActions.VERIFY]
-      },
-      {
-        name: t(CommonLabels.STATUSES_VAL_UNDER_REVISION),
-        key: StatusesServerKeys.UNDER_REVISION,
-        isActive: false,
-        isAvailable: true,
-        actions: [StatusActions.FILL]
-      },
-      {
-        name: t(CommonLabels.STATUSES_VAL_ON_AGREEMENT),
-        key: StatusesServerKeys.ON_AGREEMENT,
-        isActive: false,
-        isAvailable: true,
-        actions: [StatusActions.FILL]
-      },
-      {
-        name: t(CommonLabels.STATUSES_VAL_AGREED),
-        key: StatusesServerKeys.AGREED,
-        isActive: false,
-        isAvailable: true,
-        actions: [StatusActions.APPROVE, StatusActions.VERIFY]
-      }
-    ];
-
-    actions = Array.isArray(actions) ? actions : isString(actions) ? [actions] : [];
-
-    if (actions.length) {
-      return all.filter(item => actions.some(act => item.actions.includes(act)));
-    }
-
-    return all;
   };
 
   getDelegatedActions = () => {

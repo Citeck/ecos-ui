@@ -1,25 +1,27 @@
-export const Statuses = {
+export const StatusesServerKeys = {
+  NULL: 'Null',
   NOT_FILLED: 'Not_Started',
-  WAITING_APPROVAL: 'waiting-approval',
-  NEED_IMPROVED: 'need-improved'
+  CORRECTION: 'Correction',
+  MANAGER_APPROVAL: 'Manager_Approval',
+  APPROVED_BY_MANAGER: 'Approved_By_Manager',
+  APPROVED_BY_HR: 'Approved_By_HR',
+  SENT_TO_ACCOUNTING_SYSTEM: 'Sent_To_Accounting_System'
+};
+
+export const GroupedStatuses = {
+  APPROVED: [StatusesServerKeys.APPROVED_BY_MANAGER, StatusesServerKeys.APPROVED_BY_HR]
 };
 
 export const StatusActions = {
   FILL: 'fill',
-  APPROVE: 'approve',
-  VERIFY: 'verify'
+  APPROVE: 'approve'
 };
 
-export const StatusesServerKeys = {
-  NOT_FILLED: 'Not_Started',
-  ON_AGREEMENT_BY_MANAGER: 'Manager_Approval',
-  AGREED_BY_MANAGER: 'Approved_By_Manager',
-  WAITING_APPROVAL: 'waiting-approval',
-  SENT_FOR_REVISION: 'Correction',
-  UNDER_REVISION: 'Manager_Approval',
-  ON_AGREEMENT: 'on-agreement',
-  AGREED: 'Approved_By_HR',
-  SENT_TO_ACCOUNTING_SYSTEM: 'Sent_To_Accounting_System'
+export const TimesheetTypes = {
+  DELEGATED: 'delegated',
+  MINE: 'mine',
+  SUBORDINATES: 'subordinates',
+  VERIFICATION: 'verification'
 };
 
 export const CommonLabels = {
@@ -41,11 +43,12 @@ export const CommonLabels = {
   ADD_DAYS: 'timesheets.allForms.addDays',
 
   STATUS_LBL: 'timesheets.allForms.status',
+
+  STATUS_VAL_NONE: 'Нет статуса',
   STATUS_VAL_NOT_FILLED: 'timesheets.allForms.status.notFilled',
   STATUS_VAL_WAITING_APPROVAL: 'timesheets.allForms.status.waitingForApproval',
   STATUS_VAL_NEED_IMPROVED: 'timesheets.allForms.status.sendBack',
-  STATUS_SENT_APPROVAL: 'timesheets.allForms.status.sendToApproval',
-  STATUS_IMPROVE: 'timesheets.allForms.status.improve',
+  STATUS_VAL_APPROVED: 'Согласован',
 
   STATUS_BTN_SENT_IMPROVE: 'timesheets.allForms.buttons.sentBack',
   STATUS_BTN_APPROVE: 'timesheets.allForms.buttons.approve',
@@ -92,6 +95,7 @@ export const CommonLabels = {
 
   SHOW_EVEN_HISTORY_TIP: 'timesheets.allForms.tips.showEventHistory',
   SHOW_COMMENT_TIP: 'timesheets.allForms.tips.showComment',
+  TO_READ_COMMENT_BTN: 'Прочитать комментарий',
 
   FIND_EVENT_TIP: 'timesheets.allForms.tips.findEventType',
   FIND_EMPLOYEE_TIP: 'timesheets.allForms.tips.findEmployee',
