@@ -16,7 +16,7 @@ export default class ColumnsSetup extends Component {
   }
 
   export = item => {
-    this.textInput.current.value = JSON.stringify(this.getQuery(this.props.config, item.type));
+    this.textInput.current.value = JSON.stringify(this.getQuery(this.props.config, item.type, this.props.grid));
 
     let form = this.form.current;
 
@@ -26,18 +26,21 @@ export default class ColumnsSetup extends Component {
     form.submit();
   };
 
-  getQuery = (config, type) => {
+  getQuery = (config, type, grid) => {
+    grid = grid || {};
     config = config || {};
     config.meta = config.meta || {};
     config.meta.createVariants = config.meta.createVariants || [];
 
-    const name = (config.meta.createVariants[0] || {}).title;
-    const reportColumns = (config.columns || []).map(column => {
-      return {
-        attribute: column.attribute,
-        title: column.text
-      };
-    });
+    const name = (config.meta.createVariants[0] || {}).title || config.meta.title;
+    const reportColumns = (grid.columns || config.columns || [])
+      .filter(c => c.default)
+      .map(column => {
+        return {
+          attribute: column.attribute,
+          title: column.text
+        };
+      });
 
     let query = {
       sortBy: [

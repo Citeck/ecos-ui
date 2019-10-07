@@ -1,5 +1,7 @@
-import { RecordService } from './recordService';
 import { t } from '../helpers/util';
+
+import recordActions from '../components/Records/actions/RecordActions';
+import { CommonApi } from './common';
 
 //todo need api
 const RecordsActions = {
@@ -24,12 +26,18 @@ const RecordsActions = {
   }
 };
 
-export class RecordActionsApi extends RecordService {
+export class RecordActionsApi extends CommonApi {
+  //Deprecated
   getActions = ({ record, dashboardId }) => {
     return RecordsActions.getActions(record, 'dashboard', dashboardId).then(res => res);
   };
 
+  //Deprecated
   executeAction = ({ record, action }) => {
     return RecordsActions.execute(record, action).then(res => res);
+  };
+
+  execAction = ({ records, action, context }) => {
+    return recordActions.execAction(records, action, context);
   };
 }

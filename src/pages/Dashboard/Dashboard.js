@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
+import { Scrollbars } from 'react-custom-scrollbars';
+import ReactPlaceholder from 'react-placeholder';
+import { RoundShape, RectShape } from 'react-placeholder/lib/placeholders';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
-import { Scrollbars } from 'react-custom-scrollbars';
-import classNames from 'classnames';
 
-import { getDashboardConfig, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
+import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import Layout from '../../components/Layout';
 import { DndUtils } from '../../components/Drag-n-Drop';
@@ -39,6 +41,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
   getDashboardConfig: payload => dispatch(getDashboardConfig(payload)),
+  getDashboardTitle: payload => dispatch(getDashboardTitle(payload)),
   saveDashboardConfig: payload => dispatch(saveDashboardConfig(payload)),
   initMenuSettings: payload => dispatch(getMenuConfig(payload)),
   saveMenuConfig: config => dispatch(saveMenuConfig(config)),
@@ -109,10 +112,11 @@ class Dashboard extends Component {
   }
 
   getConfig(props) {
-    const { getDashboardConfig } = this.props;
+    const { getDashboardConfig, getDashboardTitle } = this.props;
     const { recordRef, dashboardKey } = this.getPathInfo(props);
 
     getDashboardConfig({ recordRef, dashboardKey });
+    getDashboardTitle({ recordRef });
   }
 
   get wrapperStyle() {
@@ -165,13 +169,17 @@ class Dashboard extends Component {
     return [];
   }
 
+  saveDashboardConfig = payload => {
+    this.props.saveDashboardConfig && this.props.saveDashboardConfig(payload);
+  };
+
   updateActiveConfig(activeLayout) {
     const { config, activeLayoutId } = this.state;
     const upConfig = deepClone(config, []);
 
-    upConfig.forEach(item => {
+    upConfig.forEach((item, i) => {
       if (item.id === activeLayoutId) {
-        config[activeLayoutId] = activeLayout;
+        upConfig[i] = activeLayout;
       }
     });
 
@@ -206,11 +214,8 @@ class Dashboard extends Component {
     }
 
     const config = this.updateActiveConfig(activeLayout);
-    this.saveDashboardConfig({ config });
-  };
 
-  saveDashboardConfig = payload => {
-    this.props.saveDashboardConfig(payload);
+    this.saveDashboardConfig({ config });
   };
 
   handleSaveMenu = links => {
@@ -236,6 +241,7 @@ class Dashboard extends Component {
     activeLayout.columns = columns;
 
     const config = this.updateActiveConfig(activeLayout);
+
     this.saveDashboardConfig({ config });
   };
 
@@ -325,8 +331,20 @@ class Dashboard extends Component {
       case DashboardTypes.CASE_DETAILS:
         title = (
           <div className="ecos-dashboard__header-title" key="title">
-            {name && <div className="ecos-dashboard__header-name">{t(name)}</div>}
-            {version && <div className="ecos-dashboard__header-version">{version}</div>}
+            <ReactPlaceholder
+              type="textRow"
+              ready={!!name}
+              showLoadingAnimation={true}
+              customPlaceholder={
+                <div className="ecos-dashboard__header-placeholder">
+                  <RectShape color="#b7b7b7" style={{ width: 150, height: 18 }} />
+                  <RoundShape color="#b7b7b7" style={{ width: 32, height: 20 }} />
+                </div>
+              }
+            >
+              <div className="ecos-dashboard__header-name">{t(name)}</div>
+              {version && <div className="ecos-dashboard__header-version">{version}</div>}
+            </ReactPlaceholder>
           </div>
         );
         break;

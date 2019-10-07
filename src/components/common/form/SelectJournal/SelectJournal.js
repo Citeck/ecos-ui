@@ -72,7 +72,7 @@ export default class SelectJournal extends Component {
   }
 
   componentDidMount() {
-    const { defaultValue, multiple, journalId, onError } = this.props;
+    const { defaultValue, multiple, journalId, onError, isSelectModalOpen } = this.props;
 
     if (!journalId) {
       const err = new Error('The "journalId" config is required!');
@@ -89,6 +89,10 @@ export default class SelectJournal extends Component {
 
     if (initValue) {
       this.setValue(initValue, false);
+    }
+
+    if (isSelectModalOpen) {
+      this.openSelectModal();
     }
   }
 
@@ -287,10 +291,16 @@ export default class SelectJournal extends Component {
     };
   };
 
-  toggleSelectModal = () => {
+  hideSelectModal = () => {
+    const { onCancel } = this.props;
+
     this.setState({
-      isSelectModalOpen: !this.state.isSelectModalOpen
+      isSelectModalOpen: false
     });
+
+    if (typeof onCancel === 'function') {
+      onCancel.call(this);
+    }
   };
 
   toggleCreateModal = () => {
@@ -582,7 +592,7 @@ export default class SelectJournal extends Component {
         {typeof renderView === 'function' ? renderView(inputViewProps) : defaultView}
 
         <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} api={this.api}>
-          <EcosModal title={selectModalTitle} isOpen={isSelectModalOpen} hideModal={this.toggleSelectModal} className={selectModalClasses}>
+          <EcosModal title={selectModalTitle} isOpen={isSelectModalOpen} hideModal={this.hideSelectModal} className={selectModalClasses}>
             <div className={'select-journal-collapse-panel'}>
               <div className={'select-journal-collapse-panel__controls'}>
                 <div className={'select-journal-collapse-panel__controls-left'}>
@@ -679,5 +689,10 @@ SelectJournal.propTypes = {
   displayColumns: PropTypes.array,
   viewOnly: PropTypes.bool,
   renderView: PropTypes.func,
-  searchField: PropTypes.string
+  searchField: PropTypes.string,
+  isSelectModalOpen: PropTypes.bool
+};
+
+SelectJournal.defaultProps = {
+  isSelectModalOpen: false
 };

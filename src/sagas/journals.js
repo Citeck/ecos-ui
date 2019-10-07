@@ -14,6 +14,7 @@ import {
   initJournal,
   reloadTreeGrid,
   setJournalConfig,
+  execRecordsAction,
   deleteRecords,
   saveRecords,
   setSelectedRecords,
@@ -374,6 +375,18 @@ function* sagaDeleteRecords({ api, logger, stateId, w }, action) {
   }
 }
 
+function* sagaExecRecordsAction({ api, logger, stateId, w }, action) {
+  try {
+    const actionResult = yield call(api.recordActions.execAction, action.payload);
+    if (actionResult !== false) {
+      yield put(reloadGrid(w()));
+      yield put(setSelectedRecords(w([])));
+    }
+  } catch (e) {
+    logger.error('[journals sagaExecRecordsAction saga error', e.message, e);
+  }
+}
+
 function* sagaSaveRecords({ api, logger, stateId, w }, action) {
   try {
     const grid = yield select(state => state.journals[stateId].grid);
@@ -493,33 +506,49 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
       id = '',
       meta: { nodeRef = '', criteria = [], predicate = {} }
     } = journalConfig;
+    let filter = '';
 
-    const journalType = (criteria[0] || {}).value || predicate.val;
+    if (id === 'event-lines-stat') {
+      //todo: move to journal config
 
-    if (journalType) {
-      let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(journalType)}`);
-      nodeRef = journalConfig.meta.nodeRef;
-      id = journalConfig.id;
+      let eventType = yield call(api.journals.getRecord, { id: row.id, attributes: '.att(n:"skifem:eventTypeAssoc"){disp,assoc}' });
+      let eventRef = (eventType || {}).assoc;
+      let eventTypeId = yield call(api.journals.getRecord, { id: eventRef, attributes: 'skifdm:eventTypeId?str' });
+      id = 'event-lines-' + eventTypeId;
+    } else {
+      const journalType = (criteria[0] || {}).value || predicate.val;
+
+      if (journalType && journalConfig.groupBy && journalConfig.groupBy.length) {
+        let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(journalType)}`);
+        nodeRef = journalConfig.meta.nodeRef;
+        id = journalConfig.id;
+      }
+
+      if (groupBy.length) {
+        for (let key in row) {
+          if (!row.hasOwnProperty(key)) {
+            continue;
+          }
+
+          const value = row[key];
+
+          if (value && value.str) {
+            //row[key] = value.str;
+          }
+        }
+      } else {
+        let attributes = {};
+
+        columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
+
+        row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
+      }
+
+      filter = getFilterUrlParam({ row, columns, groupBy });
     }
 
-    if (groupBy.length) {
-      for (let key in row) {
-        if (!row.hasOwnProperty(key)) {
-          continue;
-        }
-
-        const value = row[key];
-
-        if (value && value.str) {
-          row[key] = value.str;
-        }
-      }
-    } else {
-      let attributes = {};
-
-      columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
-
-      row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
+    if (filter) {
+      api.journals.setLsJournalSettingId(id, '');
     }
 
     goToJournalsPageUrl({
@@ -527,7 +556,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
       journalId: id,
       journalSettingId,
       nodeRef,
-      filter: getFilterUrlParam({ row, columns, groupBy })
+      filter
     });
   } catch (e) {
     logger.error('[journals sagaGoToJournalsPage saga error', e.message);
@@ -596,6 +625,7 @@ function* saga(ea) {
   yield takeEvery(reloadTreeGrid().type, wrapSaga, { ...ea, saga: sagaReloadTreeGrid });
 
   yield takeEvery(deleteRecords().type, wrapSaga, { ...ea, saga: sagaDeleteRecords });
+  yield takeEvery(execRecordsAction().type, wrapSaga, { ...ea, saga: sagaExecRecordsAction });
   yield takeEvery(saveRecords().type, wrapSaga, { ...ea, saga: sagaSaveRecords });
 
   yield takeEvery(saveJournalSetting().type, wrapSaga, { ...ea, saga: sagaSaveJournalSetting });

@@ -32,7 +32,8 @@ import {
   RecordActionsApi,
   TasksApi,
   UserApi,
-  VersionsJournalApi
+  VersionsJournalApi,
+  DocAssociationsApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
@@ -74,6 +75,7 @@ api.docStatus = new DocStatusApi(store);
 api.eventsHistory = new EventsHistoryApi(store);
 api.versionsJournal = new VersionsJournalApi(store);
 api.recordActions = new RecordActionsApi(store);
+api.docAssociations = new DocAssociationsApi(store);
 
 /**
  * todo: Maybe need such union all api?

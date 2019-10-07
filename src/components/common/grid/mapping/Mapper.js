@@ -25,6 +25,10 @@ const MAP = [
     enable: column => column.attribute === 'cm:name' || column.attribute === 'cm:title'
   },
   {
+    options: () => 'DateFormatter',
+    enable: column => column.attribute === 'bpm:startDate'
+  },
+  {
     options: () => 'DateTimeFormatter',
     enable: column => column.type === 'datetime'
   },

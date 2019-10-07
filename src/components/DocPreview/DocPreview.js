@@ -211,7 +211,7 @@ class DocPreview extends Component {
 
     loadingTask.promise.then(
       pdf => {
-        this.setState({ pdf, isLoading: false, scrollPage: firstPageNumber });
+        this.setState({ pdf, isLoading: false, scrollPage: firstPageNumber, error: '' });
       },
       err => {
         console.error(`Error during loading document: ${err}`);

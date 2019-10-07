@@ -6,7 +6,7 @@ import ListItemIcon from '../ListItemIcon';
 import lodashGet from 'lodash/get';
 import { MenuApi } from '../../../api/menu';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../../../constants/pageTabs';
-import { isNewVersionPage, getJournalPageUrl, NEW_VERSION_PREFIX } from '../../../helpers/urls';
+import { getJournalPageUrl, isNewVersionPage, NEW_VERSION_PREFIX } from '../../../helpers/urls';
 import { URL } from '../../../constants';
 
 const SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
@@ -14,7 +14,8 @@ const PAGE_PREFIX = '/share/page';
 const menuApi = new MenuApi();
 
 const mapStateToProps = (state, ownProps) => ({
-  selectedId: state.slideMenu.selectedId
+  selectedId: state.slideMenu.selectedId,
+  isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -26,7 +27,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   setExpanded: id => dispatch(toggleExpanded(id))
 });
 
-const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded, isNestedListExpanded, withNestedList }) => {
+const ListItemLink = ({
+  item,
+  onSelectItem,
+  selectedId,
+  nestedList,
+  setExpanded,
+  isNestedListExpanded,
+  withNestedList,
+  isSiteDashboardEnable
+}) => {
   const journalId = lodashGet(item, 'params.journalId', '');
   const [journalTotalCount, setJournalTotalCount] = useState(0);
   const attributes = {};
@@ -59,6 +69,7 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
       case 'FILTER_LINK':
       case 'JOURNAL_LINK':
         let listId = 'tasks';
+
         if (params.siteName) {
           listId = params.listId || 'main';
         }
@@ -120,17 +131,17 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
           attributes.rel = 'noopener noreferrer';
           // attributes[REMOTE_TITLE_ATTR_NAME] = true; // TODO
 
-          if (Array.isArray(item.items) && item.items.length > 0) {
-            const journalLink = item.items.find(item => {
-              return item.action.type === 'JOURNAL_LINK';
-            });
+          if (!isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
+            const journalLink = item.items.find(subitem => subitem.action.type === 'JOURNAL_LINK');
 
             if (journalLink) {
               const params = journalLink.action.params;
               let listId = 'tasks';
+
               if (params.siteName) {
                 listId = params.listId || 'main';
               }
+
               targetUrl = getJournalPageUrl({
                 journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
                 journalId: params.journalRef,
@@ -138,6 +149,7 @@ const ListItemLink = ({ item, onSelectItem, selectedId, nestedList, setExpanded,
                 nodeRef: params.journalRef,
                 filter: params.filterRef
               });
+
               break;
             }
           }

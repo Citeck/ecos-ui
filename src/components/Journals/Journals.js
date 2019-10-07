@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
 import PageHeight from './PageHeight';
@@ -20,6 +20,7 @@ import { getJournalsData, reloadGrid, search } from '../../actions/journals';
 import { setActiveTabTitle } from '../../actions/pageTabs';
 import { Well } from '../common/form';
 import { t, trigger } from '../../helpers/util';
+import { goToCardDetailsPage } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 
 import './Journals.scss';
@@ -29,7 +30,8 @@ const mapStateToProps = (state, props) => {
 
   return {
     pageTabsIsShow: state.pageTabs.isShow,
-    journalConfig: newState.journalConfig
+    journalConfig: newState.journalConfig,
+    grid: newState.grid
   };
 };
 
@@ -85,7 +87,12 @@ class Journals extends Component {
         meta: { createVariants = [{}] }
       }
     } = this.props;
-    FormManager.createRecordByVariant(createVariants[0]);
+
+    FormManager.createRecordByVariant(createVariants[0], {
+      onSubmit: record => {
+        goToCardDetailsPage(record.id);
+      }
+    });
   };
 
   toggleSettings = () => {
@@ -123,7 +130,7 @@ class Journals extends Component {
 
   render() {
     const { menuOpen, settingsVisible, showPreview, showPie } = this.state;
-    const { stateId, journalConfig, pageTabsIsShow, setActiveTabTitle } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, setActiveTabTitle, grid } = this.props;
 
     if (!journalConfig) {
       return null;
@@ -160,6 +167,7 @@ class Journals extends Component {
               <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} pageTabsIsShow={pageTabsIsShow} />
 
               <JournalsSettingBar
+                grid={grid}
                 journalConfig={journalConfig}
                 stateId={stateId}
                 showPreview={showPreview}
@@ -170,6 +178,7 @@ class Journals extends Component {
                 showGrid={this.showGrid}
                 refresh={this.refresh}
                 onSearch={this.search}
+                addRecord={this.addRecord}
               />
 
               <EcosModal
