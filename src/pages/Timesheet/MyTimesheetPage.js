@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, MyTimesheetLabels, Statuses, StatusesServerKeys } from '../../helpers/timesheet/constants';
+import { CommonLabels, MyTimesheetLabels, StatusesServerKeys } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import { getStatus, initMyTimesheetStart } from '../../actions/timesheet/mine';
 
