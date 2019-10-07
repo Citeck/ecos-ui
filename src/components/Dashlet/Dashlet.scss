@@ -64,25 +64,6 @@
         margin: 0;
       }
     }
-
-    &:hover {
-      #{$root} {
-        &__header-actions {
-          &:not(:empty) {
-          }
-        }
-      }
-    }
-
-    &:not(:hover) {
-      #{$root} {
-        &__btn {
-          &_hidden {
-            display: none;
-          }
-        }
-      }
-    }
   }
 
   &__caption {
