@@ -40,7 +40,7 @@ export const CommonLabels = {
   TODAY: 'timesheets.allForms.today',
   ADD_DAYS: 'timesheets.allForms.addDays',
 
-  STATUS_LBL: 'timesheets.allForms.status:',
+  STATUS_LBL: 'timesheets.allForms.status',
   STATUS_VAL_NOT_FILLED: 'timesheets.allForms.status.notFilled',
   STATUS_VAL_WAITING_APPROVAL: 'timesheets.allForms.status.waitingForApproval',
   STATUS_VAL_NEED_IMPROVED: 'timesheets.allForms.status.sendBack',
