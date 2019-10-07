@@ -9,12 +9,14 @@ import {
   setStatusList
 } from '../../actions/timesheet/subordinates';
 import { selectTimesheetSubordinatesEvents, selectTimesheetSubordinatesPeople } from '../../selectors/timesheet';
+import { selectUserUserName } from '../../selectors/user';
 import SubordinatesTimesheetService from '../../services/timesheet/subordinates';
 import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
 
 function* sagaInitSubordinatesTimesheet({ api, logger }) {
   try {
-    const subordinates = yield api.timesheetSubordinates.getSubordinatesList();
+    const userName = yield select(selectUserUserName);
+    const subordinates = yield api.timesheetSubordinates.getSubordinatesList({ userName });
     const userNames = SubordinatesTimesheetService.getUserNameList(subordinates.records);
 
     const currentDate = new Date();

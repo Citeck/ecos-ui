@@ -5,10 +5,10 @@ import { TimesheetApi } from './timesheet';
 const timesheetApi = new TimesheetApi();
 
 export class TimesheetSubordinatesApi extends RecordService {
-  getSubordinatesList = () => {
+  getSubordinatesList = ({ userName }) => {
     return Records.query(
       {
-        query: "TYPE:'cm:person' AND ggodic:geSupervisorId:212000038",
+        query: `@ggodic:geSupervisorId:${userName} AND (userName:1* OR userName:2*)`,
         language: 'fts-alfresco',
         maxItems: 100,
         sourceId: 'people',
