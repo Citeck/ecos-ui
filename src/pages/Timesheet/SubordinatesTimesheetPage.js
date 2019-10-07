@@ -132,7 +132,15 @@ class SubordinatesTimesheetPage extends Component {
   renderSubordinateTimesheet = () => {
     const { daysOfMonth, isDelegated, statusTabs } = this.state;
     const { mergedList } = this.props;
-    const filteredList = mergedList.filter(item => item.status === statusTabs.key);
+
+    const activeStatus = statusTabs.find(item => item.isActive) || {};
+
+    const filteredList = mergedList.filter(item => {
+      if (Array.isArray(activeStatus.key)) {
+        return activeStatus.key.includes(item.status);
+      }
+      return item.status === activeStatus.key;
+    });
 
     if (filteredList.length > 0) {
       return (
