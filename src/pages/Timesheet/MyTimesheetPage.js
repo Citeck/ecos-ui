@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels, MyTimesheetLabels, StatusesServerKeys } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
-import { getStatus, initMyTimesheetStart } from '../../actions/timesheet/mine';
+import { getStatus, initMyTimesheetStart, modifyStatus } from '../../actions/timesheet/mine';
 
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
@@ -26,7 +26,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   initMyTimesheetStart: payload => dispatch(initMyTimesheetStart(payload)),
-  getStatusList: payload => dispatch(getStatus(payload))
+  getStatus: payload => dispatch(getStatus(payload)),
+  modifyStatus: payload => dispatch(modifyStatus(payload))
 });
 
 class MyTimesheetPage extends Component {
@@ -119,9 +120,14 @@ class MyTimesheetPage extends Component {
 
   handleChangeCurrentDate = currentDate => {
     this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
+    this.props.getStatus && this.props.getStatus({ currentDate });
   };
 
-  handleChangeStatus = status => {};
+  handleChangeStatus = outcome => {
+    const { status } = this.props;
+    const { currentDate } = this.state;
+    this.props.modifyStatus && this.props.modifyStatus({ outcome, status, currentDate });
+  };
 
   handleToggleDelegated = isDelegated => {
     this.setState(state => {

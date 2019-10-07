@@ -1,8 +1,9 @@
 import { handleActions } from 'redux-actions';
-import { getStatus, initMyTimesheetEnd, initMyTimesheetStart, setStatus } from '../../actions/timesheet/mine';
+import { getStatus, initMyTimesheetEnd, initMyTimesheetStart, modifyStatus, setStatus } from '../../actions/timesheet/mine';
 
 const initialState = {
   isLoading: false,
+  isLoadingStatus: false,
   status: {}
 };
 
@@ -13,7 +14,7 @@ export default handleActions(
     [initMyTimesheetStart]: (state, actions) => ({
       ...state,
       isLoading: true,
-      status: []
+      status: {}
     }),
     [initMyTimesheetEnd]: (state, actions) => ({
       ...state,
@@ -22,13 +23,18 @@ export default handleActions(
     }),
     [getStatus]: (state, actions) => ({
       ...state,
-      status: [],
-      isLoading: true
+      status: {},
+      isLoadingStatus: true
     }),
     [setStatus]: (state, actions) => ({
       ...state,
-      statuses: actions.payload,
-      isLoading: false
+      status: actions.payload,
+      isLoadingStatus: false
+    }),
+    [modifyStatus]: (state, actions) => ({
+      ...state,
+      status: {},
+      isLoadingStatus: true
     })
   },
   initialState

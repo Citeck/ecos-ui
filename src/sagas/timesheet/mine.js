@@ -1,5 +1,5 @@
 import { put, select, takeLatest } from 'redux-saga/effects';
-import { getStatus, initMyTimesheetEnd, initMyTimesheetStart, setStatus } from '../../actions/timesheet/mine';
+import { getStatus, initMyTimesheetEnd, initMyTimesheetStart, modifyStatus, setStatus } from '../../actions/timesheet/mine';
 import { selectUserUserName } from '../../selectors/user';
 import MyTimesheetConverter from '../../dto/timesheet/mine';
 
@@ -38,9 +38,29 @@ function* sagaGetStatus({ api, logger }, { payload }) {
   }
 }
 
+function* sagaModifyStatus({ api, logger }, { payload }) {
+  try {
+    const {
+      outcome,
+      status: { taskId },
+      currentDate
+    } = payload;
+
+    yield api.timesheetCommon.modifyStatus({
+      outcome,
+      taskId
+    });
+
+    yield put(getStatus({ currentDate }));
+  } catch (e) {
+    logger.error('[pageTabs sagaGetSubordinatesEventsList saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initMyTimesheetStart().type, sagaInitSubordinatesTimesheet, ea);
   yield takeLatest(getStatus().type, sagaGetStatus, ea);
+  yield takeLatest(modifyStatus().type, sagaModifyStatus, ea);
 }
 
 export default saga;

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { t } from '../../helpers/util';
-import { CommonLabels, StatusesServerKeys } from '../../helpers/timesheet/constants';
+import { CommonLabels, StatusesServerKeys, StatusesServerOutcomeKeys } from '../../helpers/timesheet/constants';
 import { Btn, IcoBtn } from '../../components/common/btns';
 import EventHistoryModal from './EventHistoryModal';
 
@@ -18,8 +18,8 @@ class BlockStatus extends React.Component {
     isOpenModalEventHistory: false
   };
 
-  handleChangeStatus = newStatus => {
-    this.props.onChangeStatus && this.props.onChangeStatus(newStatus);
+  handleChangeStatus = outcome => {
+    this.props.onChangeStatus && this.props.onChangeStatus(outcome);
   };
 
   openModalEventHistory = () => {
@@ -66,7 +66,7 @@ class BlockStatus extends React.Component {
       case StatusesServerKeys.NOT_FILLED:
         content = this.renderCommonViewStatus({
           value: CommonLabels.STATUS_VAL_NOT_FILLED,
-          outcome: StatusesServerKeys.MANAGER_APPROVAL,
+          outcome: StatusesServerOutcomeKeys.TASK_DONE,
           btn: CommonLabels.STATUS_BTN_SENT_APPROVE
         });
         break;
@@ -81,7 +81,7 @@ class BlockStatus extends React.Component {
       case StatusesServerKeys.CORRECTION:
         content = this.renderCommonViewStatus({
           value: CommonLabels.STATUS_VAL_NEED_IMPROVED,
-          outcome: StatusesServerKeys.MANAGER_APPROVAL,
+          outcome: StatusesServerOutcomeKeys.TASK_DONE,
           btn: CommonLabels.STATUS_BTN_SENT_APPROVE,
           hasMsg: true
         });

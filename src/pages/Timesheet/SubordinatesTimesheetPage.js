@@ -108,7 +108,7 @@ class SubordinatesTimesheetPage extends Component {
 
   handleChangeCurrentDate = currentDate => {
     this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
-    this.props.getStatusList({ currentDate });
+    this.props.getStatusList && this.props.getStatusList({ currentDate });
   };
 
   handleChangeStatusTab = tabIndex => {

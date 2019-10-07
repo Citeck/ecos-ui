@@ -8,6 +8,12 @@ export const StatusesServerKeys = {
   SENT_TO_ACCOUNTING_SYSTEM: 'Sent_To_Accounting_System'
 };
 
+export const StatusesServerOutcomeKeys = {
+  TASK_DONE: 'Task_Done',
+  SEND_BACK: 'Send_Back',
+  APPROVE: 'Approve'
+};
+
 export const GroupedStatuses = {
   APPROVED: [StatusesServerKeys.APPROVED_BY_MANAGER, StatusesServerKeys.APPROVED_BY_HR]
 };
@@ -33,7 +39,7 @@ export const CommonLabels = {
   MAIN_TAB_2: 'timesheets.tabs.mySubordinatesTab',
   MAIN_TAB_3: 'timesheets.tabs.delegated',
 
-  NO_DATA: 'No data',
+  NO_DATA: 'Нет данных',
 
   MONTH: 'timesheets.allForms.month',
   YEAR: 'timesheets.allForms.year',

@@ -18,4 +18,12 @@ export class TimesheetCommonApi extends RecordService {
       }
     ).then(res => res);
   };
+
+  modifyStatus = ({ outcome, taskId }) => {
+    const task = Records.get(`wftask@${taskId}`);
+
+    task.att(`outcome_${outcome}`, 'true');
+
+    return task.save().then(res => res);
+  };
 }

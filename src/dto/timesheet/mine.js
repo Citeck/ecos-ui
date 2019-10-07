@@ -6,7 +6,8 @@ export default class MyTimesheetConverter {
     const target = {};
 
     target.key = st.status;
-    target.comment = '';
+    target.taskId = st.taskId;
+    target.comment = ''; //todo ?
 
     return target;
   }
