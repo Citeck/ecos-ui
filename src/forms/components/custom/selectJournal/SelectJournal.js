@@ -1,6 +1,6 @@
 import BaseReactComponent from '../base/BaseReactComponent';
 import SelectJournal from '../../../../components/common/form/SelectJournal';
-import { evaluate as formioEvaluate } from 'formiojs//utils/utils';
+import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
 import _ from 'lodash';
 import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
