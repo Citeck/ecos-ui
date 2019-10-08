@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { deepClone, t } from '../../helpers/util';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import { CommonLabels, StatusActions, SubTimesheetLabels, TimesheetTypes } from '../../helpers/timesheet/constants';
-import { getStatusList, initSubordinatesTimesheetStart } from '../../actions/timesheet/subordinates';
+import { getStatusList, initSubordinatesTimesheetStart, modifyStatus } from '../../actions/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
@@ -27,7 +27,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   initSubordinatesTimesheetStart: payload => dispatch(initSubordinatesTimesheetStart(payload)),
-  getStatusList: payload => dispatch(getStatusList(payload))
+  getStatusList: payload => dispatch(getStatusList(payload)),
+  modifyStatus: payload => dispatch(modifyStatus(payload))
 });
 
 class SubordinatesTimesheetPage extends Component {
@@ -121,8 +122,12 @@ class SubordinatesTimesheetPage extends Component {
     this.setState({ statusTabs });
   };
 
-  handleChangeTimesheet = subordinatesEvents => {
-    //this.setState({ subordinatesEvents });
+  handleChangeStatus = data => {
+    const { status, taskId } = data;
+    const outcome = CommonTimesheetService.getOutcomeStatusByCurrent(data.status);
+
+    console.log(status, outcome, taskId);
+    this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId });
   };
 
   handleToggleDelegated = isDelegated => {
@@ -135,12 +140,13 @@ class SubordinatesTimesheetPage extends Component {
 
     const activeStatus = statusTabs.find(item => item.isActive) || {};
 
-    const filteredList = mergedList.filter(item => {
+    const filteredList = mergedList;
+    /*const filteredList = mergedList.filter(item => {
       if (Array.isArray(activeStatus.key)) {
         return activeStatus.key.includes(item.status);
       }
       return item.status === activeStatus.key;
-    });
+    });*/
 
     if (filteredList.length > 0) {
       return (
@@ -149,7 +155,7 @@ class SubordinatesTimesheetPage extends Component {
           eventTypes={filteredList}
           daysOfMonth={daysOfMonth}
           isAvailable={!isDelegated}
-          onChange={this.handleChangeTimesheet}
+          onChangeStatus={this.handleChangeStatus}
           lockedMessage={this.lockDescription}
         />
       );

@@ -5,13 +5,16 @@ import {
   getSubordinatesList,
   initSubordinatesTimesheetEnd,
   initSubordinatesTimesheetStart,
+  modifyStatus,
   setMergedList,
   setStatusList
 } from '../../actions/timesheet/subordinates';
+import { setNotificationMessage } from '../../actions/notification';
 import { selectTimesheetSubordinatesEvents, selectTimesheetSubordinatesPeople } from '../../selectors/timesheet';
 import { selectUserUserName } from '../../selectors/user';
 import SubordinatesTimesheetService from '../../services/timesheet/subordinates';
 import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
+import { TimesheetMessages } from '../../helpers/timesheet/constants';
 
 function* sagaInitSubordinatesTimesheet({ api, logger }) {
   try {
@@ -38,7 +41,7 @@ function* sagaInitSubordinatesTimesheet({ api, logger }) {
 
     yield put(initSubordinatesTimesheetEnd({ mergedList, userNames, subordinates, events, statuses }));
   } catch (e) {
-    logger.error('[pageTabs sagaGetSubordinatesList saga error', e.message);
+    logger.error('[timesheetSubordinates sagaInitSubordinatesTimesheet saga error', e.message);
   }
 }
 
@@ -46,7 +49,7 @@ function* sagaGetSubordinatesList({ api, logger }) {
   try {
     //const res = yield api.timesheetSubordinates.getSubordinatesList();
   } catch (e) {
-    logger.error('[pageTabs sagaGetSubordinatesList saga error', e.message);
+    logger.error('[timesheetSubordinates sagaGetSubordinatesList saga error', e.message);
   }
 }
 
@@ -54,7 +57,7 @@ function* sagaGetSubordinatesEventsList({ api, logger }) {
   try {
     //const res = yield api.timesheetSubordinates.getSubordinatesEventsList();
   } catch (e) {
-    logger.error('[pageTabs sagaGetSubordinatesEventsList saga error', e.message);
+    logger.error('[timesheetSubordinates sagaGetSubordinatesEventsList saga error', e.message);
   }
 }
 
@@ -81,7 +84,21 @@ function* sagaGetStatusList({ api, logger }, { payload }) {
     yield put(setMergedList(mergedList));
     yield put(setStatusList(statuses));
   } catch (e) {
-    logger.error('[pageTabs sagaGetSubordinatesEventsList saga error', e.message);
+    logger.error('[timesheetSubordinates sagaGetStatusList saga error', e.message);
+  }
+}
+
+function* sagaModifyStatus({ api, logger }, { payload }) {
+  try {
+    const { outcome, taskId } = payload;
+
+    yield api.timesheetCommon.modifyStatus({
+      outcome,
+      taskId
+    });
+  } catch (e) {
+    yield put(setNotificationMessage(TimesheetMessages.ERROR_SAVE_STATUS));
+    logger.error('[timesheetSubordinates sagaModifyStatus saga error', e.message);
   }
 }
 
@@ -90,6 +107,7 @@ function* saga(ea) {
   yield takeLatest(getSubordinatesList().type, sagaGetSubordinatesList, ea);
   yield takeLatest(getEventsList().type, sagaGetSubordinatesEventsList, ea);
   yield takeLatest(getStatusList().type, sagaGetStatusList, ea);
+  yield takeLatest(modifyStatus().type, sagaModifyStatus, ea);
 }
 
 export default saga;

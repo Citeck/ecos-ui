@@ -5,6 +5,7 @@ import {
   getSubordinatesList,
   initSubordinatesTimesheetEnd,
   initSubordinatesTimesheetStart,
+  modifyStatus,
   setEventsList,
   setMergedList,
   setStatusList,
@@ -75,6 +76,9 @@ export default handleActions(
       ...state,
       statuses: actions.payload.records,
       isLoading: false
+    }),
+    [modifyStatus]: (state, actions) => ({
+      ...state
     })
   },
   initialState

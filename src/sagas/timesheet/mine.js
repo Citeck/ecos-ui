@@ -1,7 +1,9 @@
 import { put, select, takeLatest } from 'redux-saga/effects';
 import { getStatus, initMyTimesheetEnd, initMyTimesheetStart, modifyStatus, setStatus } from '../../actions/timesheet/mine';
+import { setNotificationMessage } from '../../actions/notification';
 import { selectUserUserName } from '../../selectors/user';
 import MyTimesheetConverter from '../../dto/timesheet/mine';
+import { TimesheetMessages } from '../../helpers/timesheet/constants';
 
 function* sagaInitSubordinatesTimesheet({ api, logger }) {
   try {
@@ -17,7 +19,7 @@ function* sagaInitSubordinatesTimesheet({ api, logger }) {
 
     yield put(initMyTimesheetEnd({ status }));
   } catch (e) {
-    logger.error('[pageTabs sagaGetSubordinatesList saga error', e.message);
+    logger.error('[timesheetMine sagaInitSubordinatesTimesheet saga error', e.message);
   }
 }
 
@@ -34,7 +36,7 @@ function* sagaGetStatus({ api, logger }, { payload }) {
 
     yield put(setStatus(MyTimesheetConverter.getStatusForWeb(statuses)));
   } catch (e) {
-    logger.error('[pageTabs sagaGetSubordinatesEventsList saga error', e.message);
+    logger.error('[timesheetMine sagaGetStatus saga error', e.message);
   }
 }
 
@@ -53,7 +55,8 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
 
     yield put(getStatus({ currentDate }));
   } catch (e) {
-    logger.error('[pageTabs sagaGetSubordinatesEventsList saga error', e.message);
+    yield put(setNotificationMessage(TimesheetMessages.ERROR_SAVE_STATUS));
+    logger.error('[timesheetMine sagaModifyStatus saga error', e.message);
   }
 }
 

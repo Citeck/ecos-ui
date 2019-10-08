@@ -180,32 +180,13 @@ class GrouppedTimesheet extends BaseTimesheet {
     this.setState({ eventsFilterTabs }, () => this.filterTypes(this.state.typeFilter));
   };
 
-  handleClickDisapprove = position => {
-    const filteredEventTypes = deepClone(this.state.filteredEventTypes);
-
-    filteredEventTypes.splice(position, 1);
-    this.setState({ filteredEventTypes });
-    this.props.onChange && this.props.onChange(filteredEventTypes);
-  };
-
-  handleClickApprove = position => {
-    const filteredEventTypes = deepClone(this.state.filteredEventTypes);
-
-    filteredEventTypes.splice(position, 1);
-    this.setState({ filteredEventTypes });
-    this.props.onChange && this.props.onChange(filteredEventTypes);
+  handleChangeStatus = position => {
+    const data = this.state.filteredEventTypes[position];
+    this.props.onChangeStatus && this.props.onChangeStatus(data);
   };
 
   handleClickOffDelegation = position => {
     console.log('handleClickOffDelegation');
-  };
-
-  handleClickSentApprove = position => {
-    console.log('handleClickSentApprove');
-  };
-
-  handleClickSentManagerApprove = position => {
-    console.log('handleClickSentManagerApprove');
   };
 
   filterTypes(typeFilter = '') {
@@ -266,7 +247,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         <IcoBtn
           icon="icon-arrow-left"
           className="ecos-btn_grey8 ecos-timesheet__table-group-btn_revision ecos-btn_narrow"
-          onClick={() => this.handleClickDisapprove(index)}
+          onClick={() => this.handleChangeStatus(index)}
           id={`ecos-timesheet__table-group-btn_revision_${index}-message`}
         >
           {t(CommonLabels.STATUS_BTN_SENT_IMPROVE)}
@@ -276,7 +257,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         <IcoBtn
           icon="icon-check"
           className="ecos-btn_grey8 ecos-timesheet__table-group-btn_approve ecos-btn_narrow"
-          onClick={() => this.handleClickApprove(index)}
+          onClick={() => this.handleChangeStatus(index)}
           id={`ecos-timesheet__table-group-btn_sent-approve_${index}-message`}
         >
           {t(CommonLabels.STATUS_BTN_APPROVE)}
@@ -286,7 +267,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         <IcoBtn
           icon="icon-arrow"
           className="ecos-btn_grey8 ecos-timesheet__table-group-btn_sent-manager-approve ecos-btn_narrow"
-          onClick={() => this.handleClickSentManagerApprove}
+          onClick={() => this.handleChangeStatus}
           id={`ecos-timesheet__table-group-btn_sent-manager-approve_${index}-message`}
         >
           {t(CommonLabels.STATUS_BTN_SEND_MANAGER_APPROVE)}
@@ -342,7 +323,7 @@ class GrouppedTimesheet extends BaseTimesheet {
               </Btn>
               <Btn
                 className="ecos-btn_grey8  ecos-timesheet__table-group-btn_sent-approve ecos-btn_narrow"
-                onClick={() => this.handleClickSentApprove(index)}
+                onClick={() => this.handleChangeStatus(index)}
               >
                 {t(CommonLabels.STATUS_BTN_SENT_APPROVE)}
               </Btn>

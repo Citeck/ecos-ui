@@ -186,6 +186,11 @@
 
       &-change {
       }
+
+      &_none.ecos-timesheet__empty-btn {
+        width: 175px;
+        background: $color-gray-10;
+      }
     }
 
     &-tabs {
@@ -691,11 +696,15 @@
 
   &__empty-btn {
     background: $color-gray-4;
+    border-radius: $border-radius-standard;
+    padding: 0 10px;
 
     &_narrow {
       height: 26px;
-      border-radius: $border-radius-standard;
-      padding: 0 10px;
+    }
+
+    &_normal {
+      height: 40px;
     }
   }
 }

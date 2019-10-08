@@ -12,6 +12,7 @@ export default class SubordinatesTimesheetConverter {
 
       newItem.timesheetNumber = get(item, 'user.userName', '');
       newItem.status = get(item, 'status.status', '');
+      newItem.taskId = get(item, 'status.taskId', '');
 
       target.push(newItem);
     });

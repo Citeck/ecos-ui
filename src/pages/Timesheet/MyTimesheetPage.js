@@ -239,7 +239,7 @@ class MyTimesheetPage extends Component {
             <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
           </div>
 
-          <BlockStatus currentStatus={status.key} onChangeStatus={this.handleChangeStatus} />
+          <BlockStatus currentStatus={status.key} onChangeStatus={this.handleChangeStatus} noActionBtn={!status.taskId} />
         </div>
         {isLoading ? <Loader className="ecos-timesheet__loader" height={100} width={100} /> : this.renderMyTimesheet()}
       </div>

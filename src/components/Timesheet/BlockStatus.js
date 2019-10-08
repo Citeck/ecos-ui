@@ -1,8 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
+import classNames from 'classnames';
+
 import { t } from '../../helpers/util';
-import { CommonLabels, StatusesServerKeys, StatusesServerOutcomeKeys } from '../../helpers/timesheet/constants';
+import { CommonLabels, StatusesServerKeys } from '../../helpers/timesheet/constants';
+import CommonTimesheetService from '../../services/timesheet/common';
+
 import { Btn, IcoBtn } from '../../components/common/btns';
 import EventHistoryModal from './EventHistoryModal';
 
@@ -11,7 +14,8 @@ import './style.scss';
 class BlockStatus extends React.Component {
   static propTypes = {
     currentStatus: PropTypes.string,
-    onChangeStatus: PropTypes.func
+    onChangeStatus: PropTypes.func,
+    noActionBtn: PropTypes.bool
   };
 
   state = {
@@ -33,10 +37,12 @@ class BlockStatus extends React.Component {
   openReadComment = () => {};
 
   renderCommonViewStatus({ value, outcome, btn, hasMsg }) {
+    const { noActionBtn } = this.props;
+
     return (
       <>
         {value && (
-          <div className={classnames('ecos-timesheet__status-value', { 'ecos-timesheet__status-value_warning': hasMsg })}>{t(value)}</div>
+          <div className={classNames('ecos-timesheet__status-value', { 'ecos-timesheet__status-value_warning': hasMsg })}>{t(value)}</div>
         )}
         {!hasMsg && (
           <IcoBtn icon="icon-calendar" className="ecos-timesheet__status-btn-history" onClick={this.openModalEventHistory}>
@@ -48,11 +54,12 @@ class BlockStatus extends React.Component {
             {t(CommonLabels.TO_READ_COMMENT_BTN)}
           </IcoBtn>
         )}
-        {outcome && (
+        {outcome && !noActionBtn && (
           <Btn className="ecos-timesheet__status-btn-change ecos-btn_blue" onClick={this.handleChangeStatus.bind(null, outcome)}>
             {t(btn)}
           </Btn>
         )}
+        {noActionBtn && <div className="ecos-timesheet__empty-btn ecos-timesheet__empty-btn_normal ecos-timesheet__status-btn_none" />}
       </>
     );
   }
@@ -60,13 +67,14 @@ class BlockStatus extends React.Component {
   render() {
     const { isOpenModalEventHistory } = this.state;
     const { currentStatus } = this.props;
+    const outcome = CommonTimesheetService.getOutcomeStatusByCurrent(currentStatus);
     let content = null;
 
     switch (currentStatus) {
       case StatusesServerKeys.NOT_FILLED:
         content = this.renderCommonViewStatus({
           value: CommonLabels.STATUS_VAL_NOT_FILLED,
-          outcome: StatusesServerOutcomeKeys.TASK_DONE,
+          outcome,
           btn: CommonLabels.STATUS_BTN_SENT_APPROVE
         });
         break;
@@ -74,14 +82,14 @@ class BlockStatus extends React.Component {
       case StatusesServerKeys.APPROVED_BY_MANAGER:
         content = this.renderCommonViewStatus({
           value: CommonLabels.STATUS_VAL_WAITING_APPROVAL,
-          outcome: StatusesServerKeys.NOT_FILLED,
+          outcome,
           btn: CommonLabels.STATUS_BTN_SENT_IMPROVE
         });
         break;
       case StatusesServerKeys.CORRECTION:
         content = this.renderCommonViewStatus({
           value: CommonLabels.STATUS_VAL_NEED_IMPROVED,
-          outcome: StatusesServerOutcomeKeys.TASK_DONE,
+          outcome,
           btn: CommonLabels.STATUS_BTN_SENT_APPROVE,
           hasMsg: true
         });

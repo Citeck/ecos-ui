@@ -1,4 +1,11 @@
-import { CommonLabels, GroupedStatuses, StatusActions, StatusesServerKeys, TimesheetTypes } from '../../helpers/timesheet/constants';
+import {
+  CommonLabels,
+  GroupedStatuses,
+  StatusActions,
+  StatusesServerKeys,
+  StatusesServerOutcomeKeys,
+  TimesheetTypes
+} from '../../helpers/timesheet/constants';
 import { t } from '../../helpers/util';
 
 const Types = TimesheetTypes;
@@ -53,4 +60,18 @@ export default class CommonTimesheetService {
       isAvailable: true
     }));
   };
+
+  static getOutcomeStatusByCurrent(currentStatus) {
+    switch (currentStatus) {
+      case StatusesServerKeys.NOT_FILLED:
+        return StatusesServerOutcomeKeys.TASK_DONE;
+      case StatusesServerKeys.MANAGER_APPROVAL:
+      case StatusesServerKeys.APPROVED_BY_MANAGER:
+        return StatusesServerKeys.NOT_FILLED;
+      case StatusesServerKeys.CORRECTION:
+        return StatusesServerOutcomeKeys.TASK_DONE;
+      default:
+        return null;
+    }
+  }
 }

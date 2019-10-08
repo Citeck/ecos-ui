@@ -137,3 +137,7 @@ export const DelegateTimesheetLabels = {
 export const VerifyTimesheetLabels = {
   TIMESHEET_TITLE: 'timesheets.allForms.title'
 };
+
+export const TimesheetMessages = {
+  ERROR_SAVE_STATUS: 'Ошибка обновления статуса'
+};
