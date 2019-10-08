@@ -21,10 +21,7 @@ class VerificationTimesheetPage extends Component {
       history: { location }
     } = props;
 
-    const eventTypes = timesheetApi.getEventTypes();
-
     this.state = {
-      eventTypes,
       subordinatesEvents: timesheetApi.getEvents(),
       dateTabs: [
         {

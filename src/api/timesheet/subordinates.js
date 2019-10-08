@@ -28,12 +28,4 @@ export class TimesheetSubordinatesApi extends RecordService {
       }
     ).then(res => res);
   };
-
-  getSubordinatesEventsList = () => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(timesheetApi.getSubordinatesList());
-      }, 1500);
-    });
-  };
 }

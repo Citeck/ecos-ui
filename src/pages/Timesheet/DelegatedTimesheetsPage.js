@@ -33,7 +33,6 @@ class DelegatedTimesheetsPage extends React.Component {
     this.cacheDays = new Map();
 
     this.state = {
-      eventTypes: timesheetApi.getEventTypes(),
       subordinatesEvents: timesheetApi.getEvents(),
       sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
       statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, StatusActions.FILL),

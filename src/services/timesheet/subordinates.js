@@ -1,17 +1,14 @@
-import { deepClone } from '../../helpers/util';
-
 export default class SubordinatesTimesheetService {
-  static mergeToSubordinatesEventsList({ subordinates, events, statuses }) {
+  static mergeToSubordinatesEventsList({ subordinates, calendarEvents, statuses }) {
     const target = [];
 
-    if (Array.isArray(subordinates) && Array.isArray(events)) {
-      events.forEach(item => {
-        const newItem = deepClone(item);
-        const user = subordinates.find(men => item.peopleId === men.id) || {};
-        const status = statuses.find(status => user.userName === status.userName) || {};
+    if (Array.isArray(subordinates)) {
+      subordinates.forEach(item => {
+        const newItem = {};
 
-        newItem.user = user;
-        newItem.status = status;
+        newItem.user = item;
+        newItem.calendarEvents = calendarEvents[item.userName] || {};
+        newItem.status = statuses.find(status => item.userName === status.userName) || {};
 
         target.push(newItem);
       });

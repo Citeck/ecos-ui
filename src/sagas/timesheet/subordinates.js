@@ -1,6 +1,6 @@
 import { put, select, takeLatest } from 'redux-saga/effects';
 import {
-  getEventsList,
+  getCalendarEventList,
   getStatusList,
   getSubordinatesList,
   initSubordinatesTimesheetEnd,
@@ -29,17 +29,21 @@ function* sagaInitSubordinatesTimesheet({ api, logger }) {
       userNames
     });
 
-    const events = yield api.timesheetSubordinates.getSubordinatesEventsList();
+    const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
+      month: currentDate.getMonth(),
+      year: currentDate.getFullYear(),
+      userNames: userNames
+    });
 
     const list = SubordinatesTimesheetService.mergeToSubordinatesEventsList({
       subordinates: subordinates.records,
-      events: events.records,
+      calendarEvents,
       statuses: statuses.records
     });
 
     const mergedList = SubordinatesTimesheetConverter.getSubordinatesEventsListForWeb(list);
 
-    yield put(initSubordinatesTimesheetEnd({ mergedList, userNames, subordinates, events, statuses }));
+    yield put(initSubordinatesTimesheetEnd({ mergedList, userNames, subordinates, calendarEvents, statuses }));
   } catch (e) {
     logger.error('[timesheetSubordinates sagaInitSubordinatesTimesheet saga error', e.message);
   }
@@ -65,7 +69,7 @@ function* sagaGetStatusList({ api, logger }, { payload }) {
   try {
     const { currentDate } = payload;
     const subordinates = yield select(selectTimesheetSubordinatesPeople);
-    const events = yield select(selectTimesheetSubordinatesEvents);
+    const calendarEvents = yield select(selectTimesheetSubordinatesEvents);
 
     const userNames = SubordinatesTimesheetService.getUserNameList(subordinates);
     const statuses = yield api.timesheetCommon.getTimesheetStatusList({
@@ -76,7 +80,7 @@ function* sagaGetStatusList({ api, logger }, { payload }) {
 
     const list = SubordinatesTimesheetService.mergeToSubordinatesEventsList({
       subordinates,
-      events,
+      calendarEvents,
       statuses: statuses.records
     });
 
@@ -105,7 +109,7 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
 function* saga(ea) {
   yield takeLatest(initSubordinatesTimesheetStart().type, sagaInitSubordinatesTimesheet, ea);
   yield takeLatest(getSubordinatesList().type, sagaGetSubordinatesList, ea);
-  yield takeLatest(getEventsList().type, sagaGetSubordinatesEventsList, ea);
+  yield takeLatest(getCalendarEventList().type, sagaGetSubordinatesEventsList, ea);
   yield takeLatest(getStatusList().type, sagaGetStatusList, ea);
   yield takeLatest(modifyStatus().type, sagaModifyStatus, ea);
 }

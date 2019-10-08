@@ -7,6 +7,7 @@ import { deepClone, t } from '../../helpers/util';
 import { CommonLabels, MyTimesheetLabels, StatusesServerKeys } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import { getStatus, initMyTimesheetStart, modifyStatus } from '../../actions/timesheet/mine';
+import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
@@ -39,8 +40,9 @@ class MyTimesheetPage extends Component {
     } = props;
 
     this.cacheDays = new Map();
+
     this.state = {
-      eventTypes: timesheetApi.getEventTypes(),
+      eventTypes: CommonTimesheetService.getEventTypes(),
       sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
       dateTabs: [
         {

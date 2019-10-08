@@ -1,12 +1,12 @@
 import { handleActions } from 'redux-actions';
 import {
-  getEventsList,
+  getCalendarEventList,
   getStatusList,
   getSubordinatesList,
   initSubordinatesTimesheetEnd,
   initSubordinatesTimesheetStart,
   modifyStatus,
-  setEventsList,
+  setCalendarEventList,
   setMergedList,
   setStatusList,
   setSubordinatesList
@@ -16,7 +16,7 @@ const initialState = {
   isLoading: false,
   mergedList: [],
   subordinates: [],
-  events: [],
+  calendarEvents: [],
   statuses: []
 };
 
@@ -29,7 +29,7 @@ export default handleActions(
       isLoading: true,
       mergedList: [],
       subordinates: [],
-      events: [],
+      calendarEvents: [],
       statuses: []
     }),
     [initSubordinatesTimesheetEnd]: (state, actions) => ({
@@ -37,7 +37,7 @@ export default handleActions(
       mergedList: actions.payload.mergedList,
 
       subordinates: actions.payload.subordinates.records,
-      events: actions.payload.events.records,
+      calendarEvents: actions.payload.calendarEvents,
       statuses: actions.payload.statuses.records,
 
       isLoading: false
@@ -57,14 +57,14 @@ export default handleActions(
       subordinates: actions.payload.records,
       isLoading: false
     }),
-    [getEventsList]: (state, actions) => ({
+    [getCalendarEventList]: (state, actions) => ({
       ...state,
-      events: [],
+      calendarEvents: [],
       isLoading: true
     }),
-    [setEventsList]: (state, actions) => ({
+    [setCalendarEventList]: (state, actions) => ({
       ...state,
-      events: actions.payload.records,
+      calendarEvents: actions.payload,
       isLoading: false
     }),
     [getStatusList]: (state, actions) => ({

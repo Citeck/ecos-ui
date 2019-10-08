@@ -40,7 +40,6 @@ class SubordinatesTimesheetPage extends Component {
     } = props;
 
     this.state = {
-      eventTypes: timesheetApi.getEventTypes(),
       sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
       dateTabs: [
         {
