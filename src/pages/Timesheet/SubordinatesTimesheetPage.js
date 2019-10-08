@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { deepClone, t } from '../../helpers/util';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import { CommonLabels, StatusActions, SubTimesheetLabels, TimesheetTypes } from '../../helpers/timesheet/constants';
-import { getStatusList, initSubordinatesTimesheetStart, modifyStatus } from '../../actions/timesheet/subordinates';
+import { getSubordinatesTimesheetByParams, initSubordinatesTimesheetStart, modifyStatus } from '../../actions/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
@@ -27,7 +27,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   initSubordinatesTimesheetStart: payload => dispatch(initSubordinatesTimesheetStart(payload)),
-  getStatusList: payload => dispatch(getStatusList(payload)),
+  getSubordinatesTimesheetDate: payload => dispatch(getSubordinatesTimesheetByParams(payload)),
   modifyStatus: payload => dispatch(modifyStatus(payload))
 });
 
@@ -40,19 +40,8 @@ class SubordinatesTimesheetPage extends Component {
     } = props;
 
     this.state = {
-      sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
-      dateTabs: [
-        {
-          name: t(CommonLabels.MONTH),
-          isActive: true,
-          isAvailable: true
-        },
-        {
-          name: t(CommonLabels.YEAR),
-          isActive: false,
-          isAvailable: false
-        }
-      ],
+      sheetTabs: CommonTimesheetService.getSheetTabs(this.isOnlyContent, location),
+      dateTabs: CommonTimesheetService.getPeriodFiltersTabs(),
       statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.SUBORDINATES, StatusActions.APPROVE),
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date()),
@@ -108,7 +97,7 @@ class SubordinatesTimesheetPage extends Component {
 
   handleChangeCurrentDate = currentDate => {
     this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
-    this.props.getStatusList && this.props.getStatusList({ currentDate });
+    this.props.getSubordinatesTimesheetDate && this.props.getSubordinatesTimesheetDate({ currentDate });
   };
 
   handleChangeStatusTab = tabIndex => {
@@ -125,7 +114,6 @@ class SubordinatesTimesheetPage extends Component {
     const { status, taskId } = data;
     const outcome = CommonTimesheetService.getOutcomeStatusByCurrent(data.status);
 
-    console.log(status, outcome, taskId);
     this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId });
   };
 

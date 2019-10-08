@@ -1,15 +1,13 @@
 import { handleActions } from 'redux-actions';
 import {
-  getCalendarEventList,
   getStatusList,
-  getSubordinatesList,
+  getSubordinatesTimesheetByParams,
   initSubordinatesTimesheetEnd,
   initSubordinatesTimesheetStart,
   modifyStatus,
-  setCalendarEventList,
   setMergedList,
   setStatusList,
-  setSubordinatesList
+  setSubordinatesTimesheetByParams
 } from '../../actions/timesheet/subordinates';
 
 const initialState = {
@@ -42,30 +40,24 @@ export default handleActions(
 
       isLoading: false
     }),
+    [getSubordinatesTimesheetByParams]: (state, actions) => ({
+      ...state,
+      isLoading: true,
+      mergedList: [],
+      calendarEvents: [],
+      statuses: []
+    }),
+    [setSubordinatesTimesheetByParams]: (state, actions) => ({
+      ...state,
+      isLoading: false,
+      mergedList: actions.payload.mergedList,
+      calendarEvents: actions.payload.calendarEvents,
+      statuses: actions.payload.statuses.records
+    }),
     [setMergedList]: (state, actions) => ({
       ...state,
       isLoading: false,
       mergedList: actions.payload
-    }),
-    [getSubordinatesList]: (state, actions) => ({
-      ...state,
-      subordinates: [],
-      isLoading: true
-    }),
-    [setSubordinatesList]: (state, actions) => ({
-      ...state,
-      subordinates: actions.payload.records,
-      isLoading: false
-    }),
-    [getCalendarEventList]: (state, actions) => ({
-      ...state,
-      calendarEvents: [],
-      isLoading: true
-    }),
-    [setCalendarEventList]: (state, actions) => ({
-      ...state,
-      calendarEvents: actions.payload,
-      isLoading: false
     }),
     [getStatusList]: (state, actions) => ({
       ...state,

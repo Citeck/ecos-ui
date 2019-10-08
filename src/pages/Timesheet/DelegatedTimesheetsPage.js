@@ -34,20 +34,9 @@ class DelegatedTimesheetsPage extends React.Component {
 
     this.state = {
       subordinatesEvents: timesheetApi.getEvents(),
-      sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
+      sheetTabs: CommonTimesheetService.getSheetTabs(this.isOnlyContent, location),
       statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, StatusActions.FILL),
-      dateTabs: [
-        {
-          name: t(CommonLabels.MONTH),
-          isActive: true,
-          isAvailable: true
-        },
-        {
-          name: t(CommonLabels.YEAR),
-          isActive: false,
-          isAvailable: false
-        }
-      ],
+      dateTabs: CommonTimesheetService.getPeriodFiltersTabs(),
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date()),
       currentStatus: StatusesServerKeys.CORRECTION,

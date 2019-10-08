@@ -198,15 +198,15 @@ class BaseTimesheet extends Component {
 
   renderEventCalendarRow = eventItem => (
     <CalendarRow key={`calendar-row-${eventItem.name}`}>
-      {this.props.daysOfMonth.map(day => (
-        <CalendarCell key={`calendar-cell-${day.number}`}>
-          <Hour
-            color={eventItem.color}
-            count={eventItem.name === 'daytime-work' && day.isBusinessDay ? 8 : 0}
-            canEdit={eventItem.canEdit}
-          />
-        </CalendarCell>
-      ))}
+      {this.props.daysOfMonth.map(day => {
+        const eventDay = (eventItem.days || []).find(dayItem => dayItem.number === day.number) || {};
+
+        return (
+          <CalendarCell key={`calendar-cell-${day.number}`}>
+            <Hour color={eventItem.color} count={eventDay.hours} canEdit={eventItem.canEdit} />
+          </CalendarCell>
+        );
+      })}
     </CalendarRow>
   );
 

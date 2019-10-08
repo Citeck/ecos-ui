@@ -1,33 +1,8 @@
-import { URL } from '../../constants';
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels, StatusActions } from '../../helpers/timesheet/constants';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 export class TimesheetApi {
-  getSheetTabs = (isOnlyContent, location) => {
-    return [
-      {
-        name: t(CommonLabels.MAIN_TAB_1),
-        link: isOnlyContent ? URL.TIMESHEET_IFRAME : URL.TIMESHEET,
-        isActive: [URL.TIMESHEET, URL.TIMESHEET_IFRAME].includes(location.pathname),
-        isAvailable: true
-      },
-      {
-        name: t(CommonLabels.MAIN_TAB_2),
-        link: isOnlyContent ? URL.TIMESHEET_IFRAME_SUBORDINATES : URL.TIMESHEET_SUBORDINATES,
-        isActive: [URL.TIMESHEET_SUBORDINATES, URL.TIMESHEET_IFRAME_SUBORDINATES].includes(location.pathname),
-        isAvailable: true
-      },
-      {
-        name: t(CommonLabels.MAIN_TAB_3),
-        link: isOnlyContent ? URL.TIMESHEET_IFRAME_DELEGATED : URL.TIMESHEET_DELEGATED,
-        isActive: [URL.TIMESHEET_IFRAME_DELEGATED, URL.TIMESHEET_DELEGATED].includes(location.pathname),
-        isAvailable: true,
-        badge: '99'
-      }
-    ];
-  };
-
   getEvents = () => {
     return [
       {

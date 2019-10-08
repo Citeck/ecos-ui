@@ -30,6 +30,23 @@ export const TimesheetTypes = {
   VERIFICATION: 'verification'
 };
 
+export const ServerEventTypes = {
+  DAYTIME_WORK: 'daytime-work',
+  BUSINESS_TRIP: 'business-trip',
+  ABSENCE: 'absence',
+  ANNUAL_BASIC_PAID_LEAVE: 'annual-basic-paid-leave',
+  BASIC_UNPAID_LEAVE: 'basic-unpaid-leave',
+  ONE_OF_FIVE: 'one-of-five',
+  NORTH_PAID_LEAVE: 'north-paid-leave',
+  IRREGULAR_PAID_LEAVE: 'irregular-paid-leave',
+  COMPENSATORY_LEAVE: 'compensatory-leave',
+  WEEKENDS_HOLIDAYS_WORK_HOLIDAY_AND_COMPENSATION: 'weekends-holidays-work-holiday-and-compensation',
+  WEEKENDS_HOLIDAYS_WORK_DOUBLED_COMPENSATION: 'weekends-holidays-work-doubled-compensation',
+  OVERTIME_WORK: 'overtime-work',
+  NIGHT_WORK: 'night-work',
+  HARMFUL_PAID_LEAVE: 'harmful-paid-leave'
+};
+
 export const CommonLabels = {
   TIMESHEET_TITLE: 'timesheets.allForms.title',
 

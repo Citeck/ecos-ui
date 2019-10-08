@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels, MyTimesheetLabels, StatusesServerKeys } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
-import { getStatus, initMyTimesheetStart, modifyStatus } from '../../actions/timesheet/mine';
+import { getMyTimesheetByParams, getStatus, initMyTimesheetStart, modifyStatus } from '../../actions/timesheet/mine';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
@@ -14,21 +14,19 @@ import { Switch } from '../../components/common/form';
 import Timesheet, { BlockStatus, DateSlider, Tabs } from '../../components/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 
-import { TimesheetApi } from '../../api/timesheet/timesheet';
-
 import './style.scss';
-
-const timesheetApi = new TimesheetApi();
 
 const mapStateToProps = state => ({
   isLoading: get(state, ['timesheetMine', 'isLoading'], false),
-  status: get(state, ['timesheetMine', 'status'], false)
+  status: get(state, ['timesheetMine', 'status'], false),
+  mergedEvents: get(state, ['timesheetMine', 'mergedEvents'], false)
 });
 
 const mapDispatchToProps = dispatch => ({
   initMyTimesheetStart: payload => dispatch(initMyTimesheetStart(payload)),
   getStatus: payload => dispatch(getStatus(payload)),
-  modifyStatus: payload => dispatch(modifyStatus(payload))
+  modifyStatus: payload => dispatch(modifyStatus(payload)),
+  getMyTimesheetByParams: payload => dispatch(getMyTimesheetByParams(payload))
 });
 
 class MyTimesheetPage extends Component {
@@ -42,20 +40,8 @@ class MyTimesheetPage extends Component {
     this.cacheDays = new Map();
 
     this.state = {
-      eventTypes: CommonTimesheetService.getEventTypes(),
-      sheetTabs: timesheetApi.getSheetTabs(this.isOnlyContent, location),
-      dateTabs: [
-        {
-          name: t(CommonLabels.MONTH),
-          isActive: true,
-          isAvailable: true
-        },
-        {
-          name: t(CommonLabels.YEAR),
-          isActive: false,
-          isAvailable: false
-        }
-      ],
+      sheetTabs: CommonTimesheetService.getSheetTabs(this.isOnlyContent, location),
+      dateTabs: CommonTimesheetService.getPeriodFiltersTabs(),
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date()),
       isDelegated: false,
@@ -122,7 +108,7 @@ class MyTimesheetPage extends Component {
 
   handleChangeCurrentDate = currentDate => {
     this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
-    this.props.getStatus && this.props.getStatus({ currentDate });
+    this.props.getMyTimesheetByParams && this.props.getMyTimesheetByParams({ currentDate });
   };
 
   handleChangeStatus = outcome => {
@@ -156,12 +142,12 @@ class MyTimesheetPage extends Component {
   };
 
   renderMyTimesheet = () => {
-    const { eventTypes, daysOfMonth, isDelegated } = this.state;
-    const { status } = this.props;
+    const { daysOfMonth, isDelegated } = this.state;
+    const { status, mergedEvents } = this.props;
 
     return (
       <Timesheet
-        eventTypes={eventTypes}
+        eventTypes={mergedEvents}
         daysOfMonth={daysOfMonth}
         isAvailable={status.key !== StatusesServerKeys.MANAGER_APPROVAL && !isDelegated}
         lockedMessage={this.lockDescription}

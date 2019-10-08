@@ -1,10 +1,20 @@
 import { handleActions } from 'redux-actions';
-import { getStatus, initMyTimesheetEnd, initMyTimesheetStart, modifyStatus, setStatus } from '../../actions/timesheet/mine';
+import {
+  getMyTimesheetByParams,
+  getStatus,
+  initMyTimesheetEnd,
+  initMyTimesheetStart,
+  modifyStatus,
+  setMyTimesheetByParams,
+  setStatus
+} from '../../actions/timesheet/mine';
 
 const initialState = {
   isLoading: false,
   isLoadingStatus: false,
-  status: {}
+  status: {},
+  calendarEvents: [],
+  mergedEvents: []
 };
 
 Object.freeze(initialState);
@@ -13,13 +23,31 @@ export default handleActions(
   {
     [initMyTimesheetStart]: (state, actions) => ({
       ...state,
+      ...initialState,
       isLoading: true,
-      status: {}
+      isLoadingStatus: true
     }),
     [initMyTimesheetEnd]: (state, actions) => ({
       ...state,
       status: actions.payload.status,
-      isLoading: false
+      calendarEvents: actions.payload.calendarEvents,
+      mergedEvents: actions.payload.mergedEvents,
+      isLoading: false,
+      isLoadingStatus: false
+    }),
+    [getMyTimesheetByParams]: (state, actions) => ({
+      ...state,
+      ...initialState,
+      isLoading: true,
+      isLoadingStatus: true
+    }),
+    [setMyTimesheetByParams]: (state, actions) => ({
+      ...state,
+      status: actions.payload.status,
+      calendarEvents: actions.payload.calendarEvents,
+      mergedEvents: actions.payload.mergedEvents,
+      isLoading: false,
+      isLoadingStatus: false
     }),
     [getStatus]: (state, actions) => ({
       ...state,
