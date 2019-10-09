@@ -115,6 +115,7 @@ class DelegatedTimesheetsPage extends React.Component {
           <Timesheet
             groupBy={'user'}
             selectedAction={StatusActions.FILL}
+            typeSheet={TimesheetTypes.DELEGATED}
             eventTypes={subordinatesEvents}
             daysOfMonth={daysOfMonth}
             isAvailable={!isDelegated}
@@ -127,6 +128,7 @@ class DelegatedTimesheetsPage extends React.Component {
           <Timesheet
             groupBy={'user'}
             selectedAction={StatusActions.APPROVE}
+            typeSheet={TimesheetTypes.DELEGATED}
             eventTypes={subordinatesEvents}
             daysOfMonth={daysOfMonth}
             isAvailable={!isDelegated}

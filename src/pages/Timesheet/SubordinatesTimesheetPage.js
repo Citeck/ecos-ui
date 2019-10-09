@@ -131,8 +131,7 @@ class SubordinatesTimesheetPage extends Component {
 
   handleChangeStatus = data => {
     const { currentDate } = this.state;
-    const { status, taskId, userName } = data;
-    const outcome = CommonTimesheetService.getOutcomeStatusByCurrent(status);
+    const { taskId, userName, outcome } = data;
 
     this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, currentDate });
   };
@@ -163,6 +162,8 @@ class SubordinatesTimesheetPage extends Component {
       return (
         <Timesheet
           groupBy={'user'}
+          typeSheet={TimesheetTypes.SUBORDINATES}
+          selectedAction={StatusActions.APPROVE}
           eventTypes={filteredList}
           daysOfMonth={daysOfMonth}
           isAvailable={!isDelegated}

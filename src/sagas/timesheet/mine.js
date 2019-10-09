@@ -31,7 +31,7 @@ function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
     const statuses = yield api.timesheetCommon.getTimesheetStatusList({
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userNames: userName
+      userNames: [userName]
     });
 
     const status = CommonTimesheetConverter.getStatusForWeb(statuses);
@@ -60,7 +60,7 @@ function* sagaGetStatus({ api, logger }, { payload }) {
     const statuses = yield api.timesheetCommon.getTimesheetStatusList({
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userNames: userName
+      userNames: [userName]
     });
 
     yield put(setStatus(CommonTimesheetConverter.getStatusForWeb(statuses)));

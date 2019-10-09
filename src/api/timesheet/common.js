@@ -23,6 +23,7 @@ export class TimesheetCommonApi extends RecordService {
     const task = Records.get(`wftask@${taskId}`);
 
     task.att(`outcome_${outcome}`, 'true');
+    task.att('cm:owner', 'admin');
 
     return task.save().then(res => res);
   };

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import 'moment-business-days';
 
 import { deepClone, t } from '../../helpers/util';
-import { StatusActions, TimesheetTypes, VerifyTimesheetLabels } from '../../helpers/timesheet/constants';
+import { TimesheetTypes, VerifyTimesheetLabels } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
@@ -73,7 +73,7 @@ class VerificationTimesheetPage extends Component {
         daysOfMonth={daysOfMonth}
         isAvailable
         selectedStatus={selectedStatus.key}
-        selectedAction={StatusActions.VERIFY}
+        typeSheet={TimesheetTypes.VERIFICATION}
         onChange={this.handleChangeTimesheet}
       />
     );

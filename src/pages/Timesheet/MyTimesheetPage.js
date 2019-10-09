@@ -8,6 +8,7 @@ import { CommonLabels, MyTimesheetLabels, StatusesServerKeys } from '../../helpe
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import { getMyTimesheetByParams, initMyTimesheetStart, modifyStatus } from '../../actions/timesheet/mine';
 import CommonTimesheetService from '../../services/timesheet/common';
+import MyTimesheetService from '../../services/timesheet/mine';
 
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
@@ -111,9 +112,11 @@ class MyTimesheetPage extends Component {
     this.props.getMyTimesheetByParams && this.props.getMyTimesheetByParams({ currentDate });
   };
 
-  handleChangeStatus = outcome => {
+  handleChangeStatus = () => {
     const { status } = this.props;
     const { currentDate } = this.state;
+    const outcome = MyTimesheetService.getMyStatusOutcomeByCurrent(status);
+
     this.props.modifyStatus && this.props.modifyStatus({ outcome, status, currentDate });
   };
 
@@ -234,7 +237,10 @@ class MyTimesheetPage extends Component {
             isLoading={isLoadingStatus}
           />
         </div>
-        {isLoading ? <Loader className="ecos-timesheet__loader" height={100} width={100} /> : this.renderMyTimesheet()}
+        <div className="ecos-timesheet__main-content">
+          {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
+          {this.renderMyTimesheet()}
+        </div>
       </div>
     );
   }

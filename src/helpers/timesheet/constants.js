@@ -11,7 +11,8 @@ export const StatusesServerKeys = {
 export const StatusesServerOutcomeKeys = {
   TASK_DONE: 'Task_Done',
   SEND_BACK: 'Send_Back',
-  APPROVE: 'Approve'
+  APPROVE: 'Approve',
+  HR_APPROVE: 'HR_Approve'
 };
 
 export const GroupedStatuses = {

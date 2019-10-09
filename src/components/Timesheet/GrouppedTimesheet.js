@@ -5,7 +5,13 @@ import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, StatusActions, StatusesServerKeys } from '../../helpers/timesheet/constants';
+import {
+  CommonLabels,
+  StatusActions,
+  StatusesServerKeys,
+  StatusesServerOutcomeKeys,
+  TimesheetTypes
+} from '../../helpers/timesheet/constants';
 
 import { Icon, ResizeBoxes } from '../common';
 import { Input } from '../common/form';
@@ -32,14 +38,15 @@ class GrouppedTimesheet extends BaseTimesheet {
     groupBy: PropTypes.string,
     selectedAction: PropTypes.string,
     selectedStatus: PropTypes.string,
-    onChange: PropTypes.func
+    onChange: PropTypes.func,
+    typeSheet: PropTypes.string
   };
 
   static defaultProps = {
     eventTypes: [],
     daysOfMonth: [],
     groupBy: '',
-    selectedAction: StatusActions.APPROVE,
+    selectedAction: '',
     selectedStatus: ''
   };
 
@@ -181,8 +188,10 @@ class GrouppedTimesheet extends BaseTimesheet {
     this.setState({ eventsFilterTabs }, () => this.filterTypes(this.state.typeFilter));
   };
 
-  handleChangeStatus = position => {
+  handleChangeStatus = (position, outcome) => {
     const data = this.state.filteredEventTypes[position];
+    data.outcome = outcome;
+
     this.props.onChangeStatus && this.props.onChangeStatus(data);
   };
 
@@ -241,14 +250,14 @@ class GrouppedTimesheet extends BaseTimesheet {
 
   renderGroupedEvents() {
     const { filteredEventTypes } = this.state;
-    const { selectedAction, selectedStatus } = this.props;
+    const { selectedAction, selectedStatus, typeSheet } = this.props;
 
     const renderGroupBtn = index => {
       const btnRevision = (
         <IcoBtn
           icon="icon-arrow-left"
           className="ecos-btn_grey8 ecos-timesheet__table-group-btn_revision ecos-btn_narrow"
-          onClick={() => this.handleChangeStatus(index)}
+          onClick={() => this.handleChangeStatus(index, StatusesServerOutcomeKeys.SEND_BACK)}
           id={`ecos-timesheet__table-group-btn_revision_${index}-message`}
         >
           {t(CommonLabels.STATUS_BTN_SENT_IMPROVE)}
@@ -258,7 +267,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         <IcoBtn
           icon="icon-check"
           className="ecos-btn_grey8 ecos-timesheet__table-group-btn_approve ecos-btn_narrow"
-          onClick={() => this.handleChangeStatus(index)}
+          onClick={() => this.handleChangeStatus(index, StatusesServerOutcomeKeys.APPROVE)}
           id={`ecos-timesheet__table-group-btn_sent-approve_${index}-message`}
         >
           {t(CommonLabels.STATUS_BTN_APPROVE)}
@@ -268,7 +277,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         <IcoBtn
           icon="icon-arrow"
           className="ecos-btn_grey8 ecos-timesheet__table-group-btn_sent-manager-approve ecos-btn_narrow"
-          onClick={() => this.handleChangeStatus}
+          onClick={() => this.handleChangeStatus(index, StatusesServerOutcomeKeys.APPROVE)}
           id={`ecos-timesheet__table-group-btn_sent-manager-approve_${index}-message`}
         >
           {t(CommonLabels.STATUS_BTN_SEND_MANAGER_APPROVE)}
@@ -305,67 +314,68 @@ class GrouppedTimesheet extends BaseTimesheet {
 
       const btnEmpty = <div className="ecos-timesheet__empty-btn ecos-timesheet__empty-btn_narrow" />;
 
-      switch (selectedAction) {
-        case StatusActions.APPROVE:
-          return (
-            <>
-              {btnRevision}
-              {btnApprove}
-            </>
-          );
-        case StatusActions.FILL:
-          return (
-            <>
-              <Btn
-                className="ecos-btn_grey8 ecos-timesheet__table-group-btn_off-delegation ecos-btn_narrow"
-                onClick={() => this.handleClickOffDelegation(index)}
-              >
-                {t(CommonLabels.STATUS_BTN_OFF_DELEGATION)}
-              </Btn>
-              <Btn
-                className="ecos-btn_grey8  ecos-timesheet__table-group-btn_sent-approve ecos-btn_narrow"
-                onClick={() => this.handleChangeStatus(index)}
-              >
-                {t(CommonLabels.STATUS_BTN_SENT_APPROVE)}
-              </Btn>
-            </>
-          );
-        case StatusActions.VERIFY: {
-          switch (selectedStatus) {
-            case StatusesServerKeys.NOT_FILLED:
-            case StatusesServerKeys.CORRECTION:
-              return (
-                <>
-                  {btnApprove}
-                  {tooltipApprove2}
-                  {btnSentManagerApprove}
-                  {tooltipSentManagerApprove}
-                </>
-              );
-            case StatusesServerKeys.MANAGER_APPROVAL:
-            case StatusesServerKeys.APPROVED_BY_MANAGER:
-              return (
-                <>
-                  {btnRevision}
-                  {tooltipRevision}
-                  {btnApprove}
-                  {selectedStatus === StatusesServerKeys.APPROVED_BY_MANAGER ? tooltipApprove1 : tooltipApprove2}
-                </>
-              );
-            case StatusesServerKeys.APPROVED_BY_HR:
-              return (
-                <>
-                  {btnEmpty}
-                  {btnRevision}
-                  {tooltipRevision}
-                </>
-              );
-            default:
-              return null;
-          }
+      if (typeSheet === TimesheetTypes.DELEGATED || typeSheet === TimesheetTypes.SUBORDINATES) {
+        switch (selectedAction) {
+          case StatusActions.APPROVE:
+            return (
+              <>
+                {btnRevision}
+                {btnApprove}
+              </>
+            );
+          case StatusActions.FILL:
+            return (
+              <>
+                <Btn
+                  className="ecos-btn_grey8 ecos-timesheet__table-group-btn_off-delegation ecos-btn_narrow"
+                  onClick={() => this.handleClickOffDelegation(index)}
+                >
+                  {t(CommonLabels.STATUS_BTN_OFF_DELEGATION)}
+                </Btn>
+                <Btn
+                  className="ecos-btn_grey8  ecos-timesheet__table-group-btn_sent-approve ecos-btn_narrow"
+                  onClick={() => this.handleChangeStatus(index)}
+                >
+                  {t(CommonLabels.STATUS_BTN_SENT_APPROVE)}
+                </Btn>
+              </>
+            );
+          default:
+            return null;
         }
-        default:
-          return null;
+      } else if (typeSheet === TimesheetTypes.VERIFICATION) {
+        switch (selectedStatus) {
+          case StatusesServerKeys.NOT_FILLED:
+          case StatusesServerKeys.CORRECTION:
+            return (
+              <>
+                {btnApprove}
+                {tooltipApprove2}
+                {btnSentManagerApprove}
+                {tooltipSentManagerApprove}
+              </>
+            );
+          case StatusesServerKeys.MANAGER_APPROVAL:
+          case StatusesServerKeys.APPROVED_BY_MANAGER:
+            return (
+              <>
+                {btnRevision}
+                {tooltipRevision}
+                {btnApprove}
+                {selectedStatus === StatusesServerKeys.APPROVED_BY_MANAGER ? tooltipApprove1 : tooltipApprove2}
+              </>
+            );
+          case StatusesServerKeys.APPROVED_BY_HR:
+            return (
+              <>
+                {btnEmpty}
+                {btnRevision}
+                {tooltipRevision}
+              </>
+            );
+          default:
+            return null;
+        }
       }
     };
 
@@ -518,10 +528,11 @@ class GrouppedTimesheet extends BaseTimesheet {
     <CalendarRow key={`calendar-row-${eventItem.name}`}>
       {this.props.daysOfMonth.map(day => {
         const eventDay = (eventItem.days || []).find(dayItem => dayItem.number === day.number) || {};
+        const count = +eventDay.hours;
 
         return (
           <CalendarCell key={`calendar-cell-${day.number}`}>
-            <Hour color={eventItem.color} count={eventDay.hours} canEdit={eventItem.canEdit} />
+            <Hour color={eventItem.color} count={count} canEdit={eventItem.canEdit} />
           </CalendarCell>
         );
       })}
