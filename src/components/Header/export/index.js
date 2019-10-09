@@ -36,18 +36,23 @@ api.user = new UserApi(store);
 api.view = new ViewApi(store);
 
 const render = (elementId, props) => {
-  store.dispatch(initAppRequest());
   store.dispatch(
-    loadThemeRequest({
+    initAppRequest({
       onSuccess: () => {
-        store.dispatch(initMenuSettings());
-        store.dispatch(fetchUserMenuData());
+        store.dispatch(
+          loadThemeRequest({
+            onSuccess: () => {
+              store.dispatch(initMenuSettings());
+              store.dispatch(fetchUserMenuData());
 
-        ReactDOM.render(
-          <Provider store={store}>
-            <Header {...props} />
-          </Provider>,
-          document.getElementById(elementId)
+              ReactDOM.render(
+                <Provider store={store}>
+                  <Header {...props} />
+                </Provider>,
+                document.getElementById(elementId)
+              );
+            }
+          })
         );
       }
     })

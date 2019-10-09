@@ -3,7 +3,7 @@ import { initAppRequest, initAppSuccess, initAppFailure } from '../actions/app';
 import { validateUserSuccess, validateUserFailure } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
 
-export function* initApp({ api, fakeApi, logger }) {
+export function* initApp({ api, fakeApi, logger }, { payload }) {
   try {
     // --- Validate user ---
     const checkAuthResp = yield call(api.user.checkIsAuthenticated);
@@ -22,6 +22,8 @@ export function* initApp({ api, fakeApi, logger }) {
     // TODO load translation messages
 
     yield put(initAppSuccess());
+
+    typeof payload.onSuccess === 'function' && payload.onSuccess();
   } catch (e) {
     logger.error('[initApp saga] error', e.message);
     yield put(initAppFailure());
