@@ -56,4 +56,12 @@ export class TimesheetCommonApi extends RecordService {
 
     return events;
   };
+
+  modifyEventHours = ({ userName, value, date, eventType }) => {
+    const event = Records.get(`timesheet-calendar@${userName}-${date}-${eventType}`);
+
+    event.att('value', value);
+
+    event.save().then(res => res);
+  };
 }

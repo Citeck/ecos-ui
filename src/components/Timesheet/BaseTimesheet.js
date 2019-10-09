@@ -20,7 +20,8 @@ class BaseTimesheet extends Component {
     eventTypes: PropTypes.array,
     daysOfMonth: PropTypes.array,
     isAvailable: PropTypes.bool,
-    lockedMessage: PropTypes.string
+    lockedMessage: PropTypes.string,
+    onChangeHour: PropTypes.func
   };
 
   static defaultProps = {
@@ -112,6 +113,10 @@ class BaseTimesheet extends Component {
     this.setState({ draggableNode: node });
   };
 
+  handleChangeEventHours = (event, value) => {
+    this.props.onChangeHour && this.props.onChangeHour({ event, value });
+  };
+
   filterTypes(typeFilter = '') {
     const { eventTypes } = this.props;
     let filteredEventTypes = deepClone(eventTypes);
@@ -200,11 +205,16 @@ class BaseTimesheet extends Component {
     <CalendarRow key={`calendar-row-${eventItem.name}`}>
       {this.props.daysOfMonth.map(day => {
         const eventDay = (eventItem.days || []).find(dayItem => dayItem.number === day.number) || {};
-        const count = +eventDay.hours;
+        const count = +(eventDay.hours || 0);
 
         return (
           <CalendarCell key={`calendar-cell-${day.number}`}>
-            <Hour color={eventItem.color} count={count} canEdit={eventItem.canEdit} />
+            <Hour
+              color={eventItem.color}
+              count={count}
+              canEdit={eventItem.canEdit}
+              onChange={value => this.handleChangeEventHours(eventItem, value)}
+            />
           </CalendarCell>
         );
       })}

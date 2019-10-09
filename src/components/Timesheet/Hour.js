@@ -17,7 +17,8 @@ class Hour extends Component {
   static propTypes = {
     count: PropTypes.number,
     color: PropTypes.string,
-    canEdit: PropTypes.bool
+    canEdit: PropTypes.bool,
+    onChange: PropTypes.func
   };
 
   static defaultProps = {
@@ -82,6 +83,11 @@ class Hour extends Component {
     this._input = ref;
   }
 
+  saveValue(value) {
+    this.setState({ value });
+    this.props.onChange && this.props.onChange(value);
+  }
+
   handleToggleInput = () => {
     const { canEdit } = this.props;
 
@@ -95,17 +101,16 @@ class Hour extends Component {
   handleChangeValue = event => {
     let value = parseInt(event.target.value.replace(/\D/g, ''), 10);
 
-    console.warn(value);
-
     if (Number.isNaN(value)) {
       value = 0;
     }
 
-    this.setState({ value });
+    this.saveValue(value);
   };
 
   handleInputKeyDown = event => {
     const { key } = event;
+    let { value } = this.state;
 
     if (KEY_FOR_SAVE.includes(key)) {
       event.preventDefault();
@@ -125,9 +130,9 @@ class Hour extends Component {
     if (key === KEYS.ARROW_UP) {
       event.preventDefault();
       event.stopPropagation();
+      value = value + 1;
 
-      this.setState(state => ({ value: state.value + 1 }));
-
+      this.saveValue(value);
       return;
     }
 
@@ -135,18 +140,13 @@ class Hour extends Component {
       event.preventDefault();
       event.stopPropagation();
 
-      this.setState(state => {
-        let { value } = state;
+      value -= 1;
 
-        value -= 1;
+      if (value < 0) {
+        value = 0;
+      }
 
-        if (value < 0) {
-          value = 0;
-        }
-
-        return { value };
-      });
-
+      this.saveValue(value);
       return;
     }
 
@@ -163,8 +163,10 @@ class Hour extends Component {
 
   handleDelete = event => {
     event.stopPropagation();
+    const value = 0;
 
-    this.setState({ value: 0 });
+    this.setState({ value });
+    this.saveValue(value);
   };
 
   renderEmpty() {

@@ -5,12 +5,12 @@ import {
   getStatus,
   initMyTimesheetEnd,
   initMyTimesheetStart,
+  modifyEventDayHours,
   modifyStatus,
   setPopupMessage,
   setStatus
 } from '../../actions/timesheet/mine';
 import { selectUserUserName } from '../../selectors/user';
-import MyTimesheetConverter from '../../dto/timesheet/mine';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
 
 function* sagaInitMyTimesheet({ api, logger }) {
@@ -44,7 +44,7 @@ function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
 
     const calendarEvents = calendar[userName] || [];
 
-    const mergedEvents = MyTimesheetConverter.getMergedEventsListForWeb(calendarEvents);
+    const mergedEvents = CommonTimesheetConverter.getCalendarEventsForWeb(calendarEvents);
 
     yield put(initMyTimesheetEnd({ status, mergedEvents, calendarEvents }));
   } catch (e) {
@@ -89,11 +89,24 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
   }
 }
 
+function* sagaModifyEventHours({ api, logger }, { payload }) {
+  try {
+    const { value, date, eventType } = payload;
+    const userName = yield select(selectUserUserName);
+
+    yield api.timesheetCommon.modifyEventHours({ userName, date, eventType, value });
+  } catch (e) {
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
+    logger.error('[timesheetMine sagaModifyStatus saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initMyTimesheetStart().type, sagaInitMyTimesheet, ea);
   yield takeLatest(getStatus().type, sagaGetStatus, ea);
   yield takeLatest(modifyStatus().type, sagaModifyStatus, ea);
   yield takeLatest(getMyTimesheetByParams().type, sagaGetMyTimesheetByParams, ea);
+  yield takeLatest(modifyEventDayHours().type, sagaModifyEventHours, ea);
 }
 
 export default saga;

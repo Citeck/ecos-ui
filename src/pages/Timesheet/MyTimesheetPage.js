@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import moment from 'moment';
 import 'moment-business-days';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
@@ -6,7 +7,7 @@ import { connect } from 'react-redux';
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels, MyTimesheetLabels, StatusesServerKeys } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
-import { getMyTimesheetByParams, initMyTimesheetStart, modifyStatus } from '../../actions/timesheet/mine';
+import { getMyTimesheetByParams, initMyTimesheetStart, modifyEventDayHours, modifyStatus } from '../../actions/timesheet/mine';
 import CommonTimesheetService from '../../services/timesheet/common';
 import MyTimesheetService from '../../services/timesheet/mine';
 
@@ -27,7 +28,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   initMyTimesheetStart: payload => dispatch(initMyTimesheetStart(payload)),
   modifyStatus: payload => dispatch(modifyStatus(payload)),
-  getMyTimesheetByParams: payload => dispatch(getMyTimesheetByParams(payload))
+  getMyTimesheetByParams: payload => dispatch(getMyTimesheetByParams(payload)),
+  modifyEventHours: payload => dispatch(modifyEventDayHours(payload))
 });
 
 class MyTimesheetPage extends Component {
@@ -144,6 +146,14 @@ class MyTimesheetPage extends Component {
     });
   };
 
+  handleChangeEventHours = data => {
+    const { value, event } = data;
+    const { currentDate } = this.state;
+    const date = moment(currentDate).set('date', event.number);
+
+    this.props.modifyEventHours && this.props.modifyEventHours({ value, date: '', eventType: event.name });
+  };
+
   renderMyTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
     const { status, mergedEvents } = this.props;
@@ -154,6 +164,7 @@ class MyTimesheetPage extends Component {
         daysOfMonth={daysOfMonth}
         isAvailable={status.key !== StatusesServerKeys.MANAGER_APPROVAL && !isDelegated}
         lockedMessage={this.lockDescription}
+        onChangeHour={this.handleChangeEventHours}
       />
     );
   };

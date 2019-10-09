@@ -528,11 +528,16 @@ class GrouppedTimesheet extends BaseTimesheet {
     <CalendarRow key={`calendar-row-${eventItem.name}`}>
       {this.props.daysOfMonth.map(day => {
         const eventDay = (eventItem.days || []).find(dayItem => dayItem.number === day.number) || {};
-        const count = +eventDay.hours;
+        const count = +(eventDay.hours || 0);
 
         return (
           <CalendarCell key={`calendar-cell-${day.number}`}>
-            <Hour color={eventItem.color} count={count} canEdit={eventItem.canEdit} />
+            <Hour
+              color={eventItem.color}
+              count={count}
+              canEdit={eventItem.canEdit}
+              onChange={value => this.handleChangeEventHours(eventDay, value)}
+            />
           </CalendarCell>
         );
       })}
