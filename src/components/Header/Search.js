@@ -57,12 +57,21 @@ class Search extends React.Component {
 
   openFullSearch = searchText => {
     const { searchPageUrl, hiddenSearchTerms } = this.props;
-    const url = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
+    const path = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
+    const url = window.Alfresco.constants.URL_PAGECONTEXT + path;
 
-    changeUrlLink(window.Alfresco.constants.URL_PAGECONTEXT + url, { reopenBrowserTab: true });
+    if (!isNewVersionPage()) {
+      return (window.location.href = url);
+    }
+
+    changeUrlLink(url, { reopenBrowserTab: true });
   };
 
   goToResult = data => {
+    if (!isNewVersionPage()) {
+      return (window.location.href = data.url);
+    }
+
     const reopenBrowserTab = !isNewVersionPage(data.url);
     const openNewTab = [Types.DOCUMENTS, Types.SITES].includes(data.type) && !reopenBrowserTab;
 

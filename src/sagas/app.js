@@ -23,7 +23,9 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
 
     yield put(initAppSuccess());
 
-    typeof payload.onSuccess === 'function' && payload.onSuccess();
+    if (payload && payload.onSuccess) {
+      typeof payload.onSuccess === 'function' && payload.onSuccess();
+    }
   } catch (e) {
     logger.error('[initApp saga] error', e.message);
     yield put(initAppFailure());
