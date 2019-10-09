@@ -1,5 +1,5 @@
 export const StatusesServerKeys = {
-  NULL: 'Null',
+  NULL: null,
   NOT_FILLED: 'Not_Started',
   CORRECTION: 'Correction',
   MANAGER_APPROVAL: 'Manager_Approval',
@@ -67,7 +67,7 @@ export const CommonLabels = {
 
   STATUS_LBL: 'timesheets.allForms.status',
 
-  STATUS_VAL_NONE: 'Нет статуса',
+  STATUS_VAL_NONE: 'Неизвестный',
   STATUS_VAL_NOT_FILLED: 'timesheets.allForms.status.notFilled',
   STATUS_VAL_WAITING_APPROVAL: 'timesheets.allForms.status.waitingForApproval',
   STATUS_VAL_NEED_IMPROVED: 'timesheets.allForms.status.sendBack',
@@ -152,7 +152,7 @@ export const DelegateTimesheetLabels = {
 };
 
 export const VerifyTimesheetLabels = {
-  TIMESHEET_TITLE: 'timesheets.allForms.title'
+  TIMESHEET_TITLE: 'timesheets.allForms.timesheetsForVerification.title'
 };
 
 export const TimesheetMessages = {

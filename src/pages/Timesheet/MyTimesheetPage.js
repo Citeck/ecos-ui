@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels, MyTimesheetLabels, StatusesServerKeys } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
-import { getMyTimesheetByParams, getStatus, initMyTimesheetStart, modifyStatus } from '../../actions/timesheet/mine';
+import { getMyTimesheetByParams, initMyTimesheetStart, modifyStatus } from '../../actions/timesheet/mine';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
@@ -18,13 +18,13 @@ import './style.scss';
 
 const mapStateToProps = state => ({
   isLoading: get(state, ['timesheetMine', 'isLoading'], false),
+  isLoadingStatus: get(state, ['timesheetMine', 'isLoadingStatus'], false),
   status: get(state, ['timesheetMine', 'status'], false),
   mergedEvents: get(state, ['timesheetMine', 'mergedEvents'], false)
 });
 
 const mapDispatchToProps = dispatch => ({
   initMyTimesheetStart: payload => dispatch(initMyTimesheetStart(payload)),
-  getStatus: payload => dispatch(getStatus(payload)),
   modifyStatus: payload => dispatch(modifyStatus(payload)),
   getMyTimesheetByParams: payload => dispatch(getMyTimesheetByParams(payload))
 });
@@ -200,7 +200,7 @@ class MyTimesheetPage extends Component {
 
   render() {
     const { sheetTabs, currentDate } = this.state;
-    const { isLoading, status } = this.props;
+    const { isLoading, isLoadingStatus, status } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -227,7 +227,12 @@ class MyTimesheetPage extends Component {
             <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
           </div>
 
-          <BlockStatus currentStatus={status.key} onChangeStatus={this.handleChangeStatus} noActionBtn={!status.taskId} />
+          <BlockStatus
+            currentStatus={status.key}
+            onChangeStatus={this.handleChangeStatus}
+            noActionBtn={!status.taskId || !StatusesServerKeys[status.key]}
+            isLoading={isLoadingStatus}
+          />
         </div>
         {isLoading ? <Loader className="ecos-timesheet__loader" height={100} width={100} /> : this.renderMyTimesheet()}
       </div>

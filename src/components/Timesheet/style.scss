@@ -151,6 +151,7 @@
 
   &__status {
     @extend #{$root}__white-block;
+    flex-basis: 35%;
 
     &-title {
       margin-right: 9px;
@@ -176,6 +177,18 @@
         color: $color-red-1;
         border-color: $color-red-1;
       }
+
+      &_loading {
+        width: 150px;
+
+        #{$root}__status-loader {
+          width: 50px;
+
+          .ecos-points-loader-child {
+            background-color: $color-blue-light;
+          }
+        }
+      }
     }
 
     &-btn {
@@ -188,7 +201,7 @@
       }
 
       &_none.ecos-timesheet__empty-btn {
-        width: 175px;
+        flex: auto;
         background: $color-gray-10;
       }
     }

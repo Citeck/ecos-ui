@@ -6,6 +6,7 @@ import { t } from '../../helpers/util';
 import { CommonLabels, StatusesServerKeys } from '../../helpers/timesheet/constants';
 import CommonTimesheetService from '../../services/timesheet/common';
 
+import { PointsLoader } from '../common';
 import { Btn, IcoBtn } from '../../components/common/btns';
 import EventHistoryModal from './EventHistoryModal';
 
@@ -15,7 +16,8 @@ class BlockStatus extends React.Component {
   static propTypes = {
     currentStatus: PropTypes.string,
     onChangeStatus: PropTypes.func,
-    noActionBtn: PropTypes.bool
+    noActionBtn: PropTypes.bool,
+    isLoading: PropTypes.bool
   };
 
   state = {
@@ -36,7 +38,7 @@ class BlockStatus extends React.Component {
 
   openReadComment = () => {};
 
-  renderCommonViewStatus({ value, outcome, btn, hasMsg }) {
+  getCommonViewStatus = ({ value, outcome, btn, hasMsg }) => {
     const { noActionBtn } = this.props;
 
     return (
@@ -62,55 +64,65 @@ class BlockStatus extends React.Component {
         {noActionBtn && <div className="ecos-timesheet__empty-btn ecos-timesheet__empty-btn_normal ecos-timesheet__status-btn_none" />}
       </>
     );
-  }
+  };
 
-  render() {
-    const { isOpenModalEventHistory } = this.state;
-    const { currentStatus } = this.props;
+  renderViewStatus = () => {
+    let { currentStatus } = this.props;
     const outcome = CommonTimesheetService.getOutcomeStatusByCurrent(currentStatus);
-    let content = null;
+
+    currentStatus = StatusesServerKeys[currentStatus] || null;
 
     switch (currentStatus) {
+      case StatusesServerKeys.NULL:
+        return this.getCommonViewStatus({ value: CommonLabels.STATUS_VAL_NOT_FILLED });
       case StatusesServerKeys.NOT_FILLED:
-        content = this.renderCommonViewStatus({
+        return this.getCommonViewStatus({
           value: CommonLabels.STATUS_VAL_NOT_FILLED,
           outcome,
           btn: CommonLabels.STATUS_BTN_SENT_APPROVE
         });
-        break;
       case StatusesServerKeys.MANAGER_APPROVAL:
       case StatusesServerKeys.APPROVED_BY_MANAGER:
-        content = this.renderCommonViewStatus({
+        return this.getCommonViewStatus({
           value: CommonLabels.STATUS_VAL_WAITING_APPROVAL,
           outcome,
           btn: CommonLabels.STATUS_BTN_SENT_IMPROVE
         });
-        break;
       case StatusesServerKeys.CORRECTION:
-        content = this.renderCommonViewStatus({
+        return this.getCommonViewStatus({
           value: CommonLabels.STATUS_VAL_NEED_IMPROVED,
           outcome,
           btn: CommonLabels.STATUS_BTN_SENT_APPROVE,
           hasMsg: true
         });
-        break;
       case StatusesServerKeys.APPROVED_BY_HR:
-        content = this.renderCommonViewStatus({
-          value: CommonLabels.STATUS_VAL_APPROVED
-        });
-        break;
+        return this.getCommonViewStatus({ value: CommonLabels.STATUS_VAL_APPROVED });
       default:
-        content = this.renderCommonViewStatus({
-          value: currentStatus || CommonLabels.STATUS_VAL_NONE
-        });
+        return this.getCommonViewStatus({ value: CommonLabels.STATUS_VAL_NONE });
     }
+  };
+
+  renderLoading = () => {
+    return (
+      <>
+        <div className="ecos-timesheet__status-value ecos-timesheet__status-value_loading">
+          <PointsLoader className="ecos-timesheet__status-loader" />
+        </div>
+        <div className="ecos-timesheet__empty-btn ecos-timesheet__empty-btn_normal ecos-timesheet__status-loading" />
+      </>
+    );
+  };
+
+  render() {
+    const { isOpenModalEventHistory } = this.state;
+    const { isLoading } = this.props;
 
     return (
       <>
         <EventHistoryModal onClose={this.closeModalEventHistory} isOpen={isOpenModalEventHistory} />
         <div className="ecos-timesheet__status">
           <div className="ecos-timesheet__status-title">{t(CommonLabels.STATUS_LBL)}</div>
-          {content}
+          {isLoading ? this.renderLoading() : this.renderViewStatus()}
         </div>
       </>
     );
