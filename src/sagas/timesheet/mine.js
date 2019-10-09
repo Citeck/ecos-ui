@@ -6,11 +6,12 @@ import {
   initMyTimesheetEnd,
   initMyTimesheetStart,
   modifyStatus,
+  setPopupMessage,
   setStatus
 } from '../../actions/timesheet/mine';
-import { setNotificationMessage } from '../../actions/notification';
 import { selectUserUserName } from '../../selectors/user';
 import MyTimesheetConverter from '../../dto/timesheet/mine';
+import CommonTimesheetConverter from '../../dto/timesheet/common';
 
 function* sagaInitMyTimesheet({ api, logger }) {
   try {
@@ -33,7 +34,7 @@ function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
       userNames: userName
     });
 
-    const status = MyTimesheetConverter.getStatusForWeb(statuses);
+    const status = CommonTimesheetConverter.getStatusForWeb(statuses);
 
     const calendar = yield api.timesheetCommon.getTimesheetCalendarEventsList({
       month: currentDate.getMonth(),
@@ -62,7 +63,7 @@ function* sagaGetStatus({ api, logger }, { payload }) {
       userNames: userName
     });
 
-    yield put(setStatus(MyTimesheetConverter.getStatusForWeb(statuses)));
+    yield put(setStatus(CommonTimesheetConverter.getStatusForWeb(statuses)));
   } catch (e) {
     logger.error('[timesheetMine sagaGetStatus saga error', e.message);
   }
@@ -83,7 +84,7 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
 
     yield put(getStatus({ currentDate }));
   } catch (e) {
-    yield put(setNotificationMessage(TimesheetMessages.ERROR_SAVE_STATUS));
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
     logger.error('[timesheetMine sagaModifyStatus saga error', e.message);
   }
 }

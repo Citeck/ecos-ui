@@ -1,11 +1,12 @@
 import { handleActions } from 'redux-actions';
 import {
-  getStatusList,
   getSubordinatesTimesheetByParams,
   initSubordinatesTimesheetEnd,
   initSubordinatesTimesheetStart,
-  modifyStatus,
+  modifyTaskStatus,
+  setLoading,
   setMergedList,
+  setPopupMessage,
   setStatusList,
   setSubordinatesTimesheetByParams
 } from '../../actions/timesheet/subordinates';
@@ -15,7 +16,8 @@ const initialState = {
   mergedList: [],
   subordinates: [],
   calendarEvents: [],
-  statuses: []
+  statuses: [],
+  popupMsg: ''
 };
 
 Object.freeze(initialState);
@@ -56,21 +58,24 @@ export default handleActions(
     }),
     [setMergedList]: (state, actions) => ({
       ...state,
-      isLoading: false,
-      mergedList: actions.payload
-    }),
-    [getStatusList]: (state, actions) => ({
-      ...state,
-      statuses: [],
-      isLoading: true
+      mergedList: actions.payload,
+      isLoading: false
     }),
     [setStatusList]: (state, actions) => ({
       ...state,
-      statuses: actions.payload.records,
-      isLoading: false
+      statuses: actions.payload.records
     }),
-    [modifyStatus]: (state, actions) => ({
-      ...state
+    [modifyTaskStatus]: (state, actions) => ({
+      ...state,
+      isLoading: true
+    }),
+    [setLoading]: (state, actions) => ({
+      ...state,
+      isLoading: actions.payload
+    }),
+    [setPopupMessage]: (state, actions) => ({
+      ...state,
+      popupMsg: actions.payload
     })
   },
   initialState

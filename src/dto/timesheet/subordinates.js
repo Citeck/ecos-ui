@@ -13,6 +13,7 @@ export default class SubordinatesTimesheetConverter {
       const newItem = {};
 
       newItem.user = [get(item, 'user.lastName', ''), get(item, 'user.firstName', ''), get(item, 'user.middleName', '')].join(' ');
+      newItem.userName = get(item, 'user.userName', '');
       newItem.timesheetNumber = get(item, 'user.userName', '');
       newItem.status = get(item, 'status.status', '');
       newItem.taskId = get(item, 'status.taskId', '');

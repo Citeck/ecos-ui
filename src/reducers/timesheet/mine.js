@@ -6,6 +6,7 @@ import {
   initMyTimesheetStart,
   modifyStatus,
   setMyTimesheetByParams,
+  setPopupMessage,
   setStatus
 } from '../../actions/timesheet/mine';
 
@@ -14,7 +15,8 @@ const initialState = {
   isLoadingStatus: false,
   status: {},
   calendarEvents: [],
-  mergedEvents: []
+  mergedEvents: [],
+  popupMsg: ''
 };
 
 Object.freeze(initialState);
@@ -63,6 +65,10 @@ export default handleActions(
       ...state,
       status: {},
       isLoadingStatus: true
+    }),
+    [setPopupMessage]: (state, actions) => ({
+      ...state,
+      popupMsg: actions.payload
     })
   },
   initialState

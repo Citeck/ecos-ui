@@ -136,6 +136,15 @@
     }
   }
 
+  &__main-content {
+    min-height: 300px;
+    position: relative;
+  }
+
+  &__loader {
+    border-radius: $border-radius-extra-large;
+  }
+
   &__date-settings {
     @extend #{$root}__white-block;
     //width: 65%;

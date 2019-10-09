@@ -1,34 +1,39 @@
 import React, { Component } from 'react';
 import 'moment-business-days';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import { CommonLabels, StatusActions, SubTimesheetLabels, TimesheetTypes } from '../../helpers/timesheet/constants';
-import { getSubordinatesTimesheetByParams, initSubordinatesTimesheetStart, modifyStatus } from '../../actions/timesheet/subordinates';
+import {
+  getSubordinatesTimesheetByParams,
+  initSubordinatesTimesheetStart,
+  modifyTaskStatus,
+  setPopupMessage
+} from '../../actions/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
+import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 
-import { TimesheetApi } from '../../api/timesheet/timesheet';
-
 import './style.scss';
-
-const timesheetApi = new TimesheetApi();
 
 const mapStateToProps = state => ({
   mergedList: get(state, ['timesheetSubordinates', 'mergedList'], []),
-  isLoading: get(state, ['timesheetSubordinates', 'isLoading'], false)
+  isLoading: get(state, ['timesheetSubordinates', 'isLoading'], false),
+  popupMsg: get(state, ['timesheetSubordinates', 'popupMsg'], '')
 });
 
 const mapDispatchToProps = dispatch => ({
   initSubordinatesTimesheetStart: payload => dispatch(initSubordinatesTimesheetStart(payload)),
   getSubordinatesTimesheetDate: payload => dispatch(getSubordinatesTimesheetByParams(payload)),
-  modifyStatus: payload => dispatch(modifyStatus(payload))
+  modifyStatus: payload => dispatch(modifyTaskStatus(payload)),
+  setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 
 class SubordinatesTimesheetPage extends Component {
@@ -45,12 +50,26 @@ class SubordinatesTimesheetPage extends Component {
       statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.SUBORDINATES, StatusActions.APPROVE),
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date()),
-      isDelegated: false
+      isDelegated: false,
+      turnOnTimerPopup: false
     };
   }
 
   componentDidMount() {
     this.props.initSubordinatesTimesheetStart();
+  }
+
+  componentWillReceiveProps(nextProps, nextContext) {
+    const { popupMsg } = nextProps;
+    const { turnOnTimerPopup } = this.state;
+
+    if (!!popupMsg && !turnOnTimerPopup) {
+      this.setState({ turnOnTimerPopup: true });
+      debounce(() => {
+        this.onClosePopup();
+        this.setState({ turnOnTimerPopup: false });
+      }, 3000)();
+    }
   }
 
   get isOnlyContent() {
@@ -111,19 +130,24 @@ class SubordinatesTimesheetPage extends Component {
   };
 
   handleChangeStatus = data => {
-    const { status, taskId } = data;
-    const outcome = CommonTimesheetService.getOutcomeStatusByCurrent(data.status);
+    const { currentDate } = this.state;
+    const { status, taskId, userName } = data;
+    const outcome = CommonTimesheetService.getOutcomeStatusByCurrent(status);
 
-    this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId });
+    this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, currentDate });
   };
 
   handleToggleDelegated = isDelegated => {
     this.setState({ isDelegated });
   };
 
+  onClosePopup = () => {
+    this.props.setPopupMessage && this.props.setPopupMessage('');
+  };
+
   renderSubordinateTimesheet = () => {
     const { daysOfMonth, isDelegated, statusTabs } = this.state;
-    const { mergedList } = this.props;
+    const { mergedList, isLoading } = this.props;
 
     const activeStatus = statusTabs.find(item => item.isActive) || {};
 
@@ -148,7 +172,7 @@ class SubordinatesTimesheetPage extends Component {
       );
     }
 
-    return (
+    return isLoading ? null : (
       <div className="ecos-timesheet__white-block">
         <div className="ecos-timesheet__no-data">{CommonLabels.NO_DATA}</div>
       </div>
@@ -157,7 +181,7 @@ class SubordinatesTimesheetPage extends Component {
 
   render() {
     const { sheetTabs, isDelegated, currentDate, statusTabs } = this.state;
-    const { isLoading } = this.props;
+    const { isLoading, popupMsg } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -196,7 +220,11 @@ class SubordinatesTimesheetPage extends Component {
             <Tabs tabs={statusTabs} isSmall onClick={this.handleChangeStatusTab} />
           </div>
         </div>
-        {isLoading ? <Loader className="ecos-timesheet__loader" height={100} width={100} /> : this.renderSubordinateTimesheet()}
+        <div className="ecos-timesheet__main-content">
+          {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
+          {this.renderSubordinateTimesheet()}
+        </div>
+        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.onClosePopup} title={'Сообщение'} />
       </div>
     );
   }
