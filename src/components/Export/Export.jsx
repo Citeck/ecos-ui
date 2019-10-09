@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import omit from 'lodash/omit';
+import queryString from 'query-string';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { NotificationContainer, NotificationManager } from 'react-notifications';
 import { PROXY_URI } from '../../constants/alfresco';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
 import { t } from '../../helpers/util';
 
+import 'react-notifications/lib/notifications.css';
 import './Export.scss';
 
 export default class ColumnsSetup extends Component {
@@ -16,14 +20,16 @@ export default class ColumnsSetup extends Component {
   }
 
   export = item => {
-    this.textInput.current.value = JSON.stringify(this.getQuery(this.props.config, item.type, this.props.grid));
+    if (item.target) {
+      this.textInput.current.value = JSON.stringify(this.getQuery(this.props.config, item.type, this.props.grid));
 
-    let form = this.form.current;
+      let form = this.form.current;
 
-    form.action = `${PROXY_URI}report/criteria-report?download=${item.download}`;
-    form.target = item.target;
+      form.action = `${PROXY_URI}report/criteria-report?download=${item.download}`;
+      form.target = item.target;
 
-    form.submit();
+      form.submit();
+    }
   };
 
   getQuery = (config, type, grid) => {
@@ -64,6 +70,20 @@ export default class ColumnsSetup extends Component {
     return query;
   };
 
+  setSelectionFilterUrl = () => {
+    const {
+      grid: { predicates = [] }
+    } = this.props;
+    const { search, host, pathname } = window.location;
+    const urlParams = { ...queryString.parse(search), filter: '', selectionFilter: predicates.length ? JSON.stringify(predicates[0]) : '' };
+
+    return `${host}${pathname}?${queryString.stringify(urlParams)}`;
+  };
+
+  onCopyUrl = () => {
+    NotificationManager.success('', t('journals.action.to-buffer'), 3000);
+  };
+
   render() {
     const { right, ...props } = this.props;
     const cssClasses = classNames('export', props.className);
@@ -77,7 +97,15 @@ export default class ColumnsSetup extends Component {
             { id: 0, title: t('export.list.html-read'), type: 'html', download: false, target: '_blank' },
             { id: 1, title: t('export.list.html-load'), type: 'html', download: true, target: '_self' },
             { id: 2, title: 'Excel', type: 'xlsx', download: true, target: '_self' },
-            { id: 3, title: 'CSV', type: 'csv', download: true, target: '_self' }
+            { id: 3, title: 'CSV', type: 'csv', download: true, target: '_self' },
+            {
+              id: 4,
+              title: (
+                <CopyToClipboard text={this.setSelectionFilterUrl()} onCopy={this.onCopyUrl}>
+                  <div>{t('journals.action.copy-link')}</div>
+                </CopyToClipboard>
+              )
+            }
           ]}
           value={0}
           valueField={'id'}
@@ -90,9 +118,11 @@ export default class ColumnsSetup extends Component {
           )}
         </Dropdown>
 
-        <form ref={this.form} id="export-form" action="" method="post" encType="multipart/form-data" target="">
+        <form ref={this.form} id="export-form" action="" method="" encType="multipart/form-data" target="">
           <input ref={this.textInput} type="hidden" name="jsondata" value="" />
         </form>
+
+        <NotificationContainer />
       </div>
     );
   }
