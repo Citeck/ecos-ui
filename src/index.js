@@ -17,7 +17,8 @@ import { getCurrentLocale } from './helpers/util';
 
 import configureStore, { getHistory } from './store';
 import { requireShareAssets } from './share';
-import { initAppRequest, loadThemeRequest } from './actions/app';
+import { initAppRequest } from './actions/app';
+import { loadThemeRequest } from './actions/view';
 import {
   AppApi,
   BpmnApi,
@@ -33,7 +34,8 @@ import {
   TasksApi,
   UserApi,
   VersionsJournalApi,
-  DocAssociationsApi
+  DocAssociationsApi,
+  ViewApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
@@ -76,6 +78,7 @@ api.eventsHistory = new EventsHistoryApi(store);
 api.versionsJournal = new VersionsJournalApi(store);
 api.recordActions = new RecordActionsApi(store);
 api.docAssociations = new DocAssociationsApi(store);
+api.view = new ViewApi(store);
 
 /**
  * todo: Maybe need such union all api?

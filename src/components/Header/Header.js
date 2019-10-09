@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
@@ -27,7 +28,7 @@ const mapDispatchToProps = dispatch => ({
 
 const mapStateToProps = state => ({
   isMobile: state.view.isMobile,
-  menuType: state.menu.type
+  menuType: state.menu ? state.menu.type : ''
 });
 
 class Header extends React.Component {
@@ -59,7 +60,7 @@ class Header extends React.Component {
 
   render() {
     const { widthHeader } = this.state;
-    const { isMobile } = this.props;
+    const { isMobile, hideSiteMenu } = this.props;
     const classNameContainer = classNames(this.className, { [`${this.className}_small`]: isMobile });
     const classNameSide = `${this.className}__side`;
 
@@ -73,7 +74,7 @@ class Header extends React.Component {
           </div>
           <div className={`${classNameSide} ${classNameSide}_right`}>
             <Search isMobile={widthHeader <= 600} />
-            {isMobile || (widthHeader > 600 && <SiteMenu />)}
+            {hideSiteMenu || isMobile || (widthHeader > 600 && <SiteMenu />)}
             {isMobile || (widthHeader > 600 && <LanguageSwitcher />)}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
           </div>
@@ -82,6 +83,10 @@ class Header extends React.Component {
     );
   }
 }
+
+Header.propTypes = {
+  hideSiteMenu: PropTypes.bool
+};
 
 export default connect(
   mapStateToProps,

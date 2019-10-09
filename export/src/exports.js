@@ -30,5 +30,6 @@ export default {
   'menu-api': () => MenuApi,
   'lodash': () => lodash,
   'cardlet-node-view': () => import('../../src/legacy/cardlets/node-view/node-view'),
-  'journalsApi': () => journalsApi
+  'journalsApi': () => journalsApi,
+  'header': () => import('../../src/components/Header/export'),
 };

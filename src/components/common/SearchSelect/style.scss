@@ -65,8 +65,8 @@
     }
 
     #{$root}__input {
-      background: unset;
-      border: none;
+      background: transparent;
+      border: none !important;
       color: $color-white;
 
       &::placeholder {
