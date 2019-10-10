@@ -17,6 +17,14 @@ export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './e
 
 export const OLD_LINKS = false;
 
+const changeUrl = (url, opts = {}) => {
+  if (isNewVersionSharePage()) {
+    window.open(url, opts.openNewTab === true ? '_blank' : '_self');
+  } else {
+    changeUrlLink(url, opts);
+  }
+};
+
 const getPredicateFilterParam = options => {
   const filter = ParserPredicate.getRowPredicates(options);
   return filter ? JSON.stringify(filter) : '';
@@ -101,7 +109,7 @@ export const goToJournalsPage = options => {
   if (OLD_LINKS || !isNewVersionPage()) {
     window.open(journalPageUrl, '_blank');
   } else {
-    changeUrlLink(journalPageUrl, { openNewTab: true, remoteTitle: true });
+    changeUrl(journalPageUrl, { openNewTab: true, remoteTitle: true });
   }
 };
 
@@ -111,9 +119,7 @@ export const goToCardDetailsPage = nodeRef => {
   const dashboardLink = `${URL.DASHBOARD}?recordRef=${nodeRef}`;
 
   if (isNewVersionPage()) {
-    changeUrlLink(dashboardLink, { openNewTab: true, remoteTitle: true });
-  } else if (isNewVersionSharePage()) {
-    window.open(dashboardLink, '_blank');
+    changeUrl(dashboardLink, { openNewTab: true, remoteTitle: true });
   } else {
     window.open(`${URL_PAGECONTEXT}card-details?nodeRef=${nodeRef}`, '_blank');
   }
