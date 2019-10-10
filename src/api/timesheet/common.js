@@ -19,11 +19,11 @@ export class TimesheetCommonApi extends RecordService {
     ).then(res => res);
   };
 
-  modifyStatus = ({ outcome, taskId }) => {
+  modifyStatus = ({ outcome, taskId, currentUser }) => {
     const task = Records.get(`wftask@${taskId}`);
 
     task.att(`outcome_${outcome}`, 'true');
-    task.att('cm:owner', 'admin');
+    task.att('cm:owner', currentUser);
 
     return task.save().then(res => res);
   };

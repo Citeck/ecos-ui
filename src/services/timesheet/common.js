@@ -46,7 +46,7 @@ export default class CommonTimesheetService {
           { key: Statuses.MANAGER_APPROVAL, label: CommonLabels.STATUSES_VAL_ON_AGREEMENT_BY_MANAGER },
           { key: Statuses.APPROVED_BY_MANAGER, label: CommonLabels.STATUSES_VAL_AGREED_BY_MANAGER },
           { key: Statuses.CORRECTION, label: CommonLabels.STATUSES_VAL_SENT_FOR_REVISION },
-          { key: GroupedStatuses.APPROVED, label: CommonLabels.STATUSES_VAL_AGREED, isGrouped: true }
+          { key: Statuses.APPROVED_BY_HR, label: CommonLabels.STATUSES_VAL_AGREED, isGrouped: true }
         ];
         break;
       default:

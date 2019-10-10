@@ -71,6 +71,7 @@ function* sagaGetStatus({ api, logger }, { payload }) {
 
 function* sagaModifyStatus({ api, logger }, { payload }) {
   try {
+    const currentUser = yield select(selectUserUserName);
     const {
       outcome,
       status: { taskId },
@@ -79,7 +80,8 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
 
     yield api.timesheetCommon.modifyStatus({
       outcome,
-      taskId
+      taskId,
+      currentUser
     });
 
     yield put(getStatus({ currentDate }));
