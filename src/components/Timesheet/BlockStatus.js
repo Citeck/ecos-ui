@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import values from 'lodash/values';
 
 import { t } from '../../helpers/util';
 import { CommonLabels, ServerStatusKeys } from '../../helpers/timesheet/constants';
@@ -72,7 +73,7 @@ class BlockStatus extends React.Component {
   renderViewStatus = () => {
     let { currentStatus } = this.props;
 
-    currentStatus = ServerStatusKeys[currentStatus] || null;
+    currentStatus = values(ServerStatusKeys).includes(currentStatus) ? currentStatus : null;
 
     switch (currentStatus) {
       case ServerStatusKeys.NULL:

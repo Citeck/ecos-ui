@@ -213,14 +213,12 @@ class SubordinatesTimesheetPage extends Component {
 
     const activeStatus = this.selectedStatus;
 
-    //fixme
-    const filteredList = mergedList;
-    // const filteredList = mergedList.filter(item => {
-    //   if (Array.isArray(activeStatus.key)) {
-    //     return activeStatus.key.includes(item.status);
-    //   }
-    //   return item.status === activeStatus.key;
-    // });
+    const filteredList = mergedList.filter(item => {
+      if (Array.isArray(activeStatus.key)) {
+        return activeStatus.key.includes(item.status);
+      }
+      return item.status === activeStatus.key;
+    });
 
     if (filteredList.length > 0) {
       return (

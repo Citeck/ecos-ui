@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import get from 'lodash/get';
+import values from 'lodash/values';
 import debounce from 'lodash/debounce';
 import { connect } from 'react-redux';
 
@@ -269,7 +270,7 @@ class MyTimesheetPage extends Component {
           <BlockStatus
             currentStatus={status.key}
             onChangeStatus={this.handleChangeStatus}
-            noActionBtn={!status.taskId || !ServerStatusKeys[status.key]}
+            noActionBtn={!status.taskId || !values(ServerStatusKeys).includes(status.key)}
             isLoading={isLoadingStatus}
           />
         </div>

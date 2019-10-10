@@ -13,7 +13,7 @@ export default class CommonTimesheetConverter {
 
     target.key = st.status;
     target.taskId = st.taskId;
-    target.comment = ''; //todo ?
+    target.comment = '';
 
     return target;
   }

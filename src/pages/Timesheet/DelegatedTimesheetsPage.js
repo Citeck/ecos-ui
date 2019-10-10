@@ -119,11 +119,10 @@ class DelegatedTimesheetsPage extends React.Component {
               tooltip: t(CommonLabels.STATUS_TIP_APPROVE_1)
             }
           ];
-
-        default:
-          return [{}, {}];
       }
     }
+
+    return [{}, {}];
   }
 
   getDaysOfMonth = currentDate => {

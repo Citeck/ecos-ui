@@ -393,8 +393,8 @@ class GrouppedTimesheet extends BaseTimesheet {
     const { daysOfMonth, groupBy } = this.props;
     const { filteredEventTypes } = this.state;
 
-    return filteredEventTypes.map(item => (
-      <div key={`event-${item.userName}`}>
+    return filteredEventTypes.map((item, index) => (
+      <div key={`event-${item.userName}-${index}`}>
         <CalendarRow>{daysOfMonth.map(this.renderCountByDay)}</CalendarRow>
         <Collapse
           transition="height 250ms linear 0s"
