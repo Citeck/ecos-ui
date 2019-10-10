@@ -140,7 +140,7 @@ class MyTimesheetPage extends Component {
   handleChangeStatus = () => {
     const { status } = this.props;
     const { currentDate } = this.state;
-    const outcome = MyTimesheetService.getMyStatusOutcomeByCurrent(status);
+    const outcome = MyTimesheetService.getMyStatusOutcomeByCurrent(status.key);
 
     this.props.modifyStatus && this.props.modifyStatus({ outcome, status, currentDate });
   };
