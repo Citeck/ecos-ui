@@ -28,12 +28,11 @@ const mapDispatchToProps = dispatch => ({
 
 const mapStateToProps = state => ({
   isMobile: state.view.isMobile,
+  theme: state.view.theme,
   menuType: state.menu ? state.menu.type : ''
 });
 
 class Header extends React.Component {
-  className = 'ecos-header';
-
   state = {
     widthHeader: 0
   };
@@ -60,22 +59,24 @@ class Header extends React.Component {
 
   render() {
     const { widthHeader } = this.state;
-    const { isMobile, hideSiteMenu } = this.props;
-    const classNameContainer = classNames(this.className, { [`${this.className}_small`]: isMobile });
-    const classNameSide = `${this.className}__side`;
+    const { isMobile, hideSiteMenu, theme } = this.props;
+    const classNameContainer = classNames('ecos-header', `ecos-header_theme_${theme}`, {
+      'ecos-header_small': isMobile
+    });
+    const classNameSide = 'ecos-header__side';
 
     return (
       <React.Fragment>
         <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
         <div className={classNameContainer}>
           <div className={`${classNameSide} ${classNameSide}_left`}>
-            <HamburgerIcon />
+            <HamburgerIcon theme={theme} />
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className={`${classNameSide} ${classNameSide}_right`}>
             <Search isMobile={widthHeader <= 600} />
             {hideSiteMenu || isMobile || (widthHeader > 600 && <SiteMenu />)}
-            {isMobile || (widthHeader > 600 && <LanguageSwitcher />)}
+            {isMobile || (widthHeader > 600 && <LanguageSwitcher theme={theme} />)}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
           </div>
         </div>

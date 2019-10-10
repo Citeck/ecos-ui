@@ -8,9 +8,11 @@ import { goToPageFromSiteMenu } from '../../actions/header';
 import IcoBtn from '../common/btns/IcoBtn';
 import Icon from '../common/icons/Icon/Icon';
 import { DropdownMenu as Menu } from '../common';
+import { DEFAULT_THEME } from '../../constants/theme';
 
 const mapStateToProps = state => ({
-  items: state.header.siteMenu.items
+  items: state.header.siteMenu.items,
+  theme: state.view.theme
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -43,11 +45,13 @@ class SiteMenu extends React.Component {
 
   render() {
     const { dropdownOpen } = this.state;
-    const { items } = this.props;
+    const { items, theme } = this.props;
     const disabled = isEmpty(items) || !isArray(items);
-    const classNameIcoBtn = classNames('ecos-header-site__btn ecos-btn_blue ecos-btn_hover_t-blue ecos-btn_padding_small ecos-btn_r_6', {
-      'ecos-btn_active_blue': dropdownOpen,
-      'ecos-btn_active_blue2': !dropdownOpen
+    const classNameIcoBtn = classNames('ecos-header-site__btn ecos-btn_padding_small ecos-btn_r_6', {
+      'ecos-btn_blue ecos-btn_hover_t-blue': theme === DEFAULT_THEME,
+      [`ecos-btn_theme_${theme}`]: theme !== DEFAULT_THEME,
+      'ecos-btn_active_blue': dropdownOpen && theme === DEFAULT_THEME,
+      'ecos-btn_active_blue2': !dropdownOpen && theme === DEFAULT_THEME
     });
 
     return (

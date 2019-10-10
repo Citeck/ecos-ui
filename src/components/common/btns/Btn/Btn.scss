@@ -258,6 +258,22 @@ button {
     }
   }
 
+  &.ecos-btn_theme_uedmsTheme {
+    background: $color-green-dark;
+    color: $color-white;
+
+    &:disabled {
+      background-color: $color-green-light2;
+    }
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: $color-green-dark;
+      background: $color-white;
+    }
+  }
+
   &.ecos-btn_blue2 {
     background: $color-white;
     color: $color-blue-light;

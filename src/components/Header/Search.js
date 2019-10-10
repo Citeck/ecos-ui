@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { generateSearchTerm, isLastItem, t } from '../../helpers/util';
@@ -17,7 +18,8 @@ const mapStateToProps = state => ({
   people: state.header.search.people,
   sites: state.header.search.sites,
   noResults: state.header.search.noResults,
-  isLoading: state.header.search.isLoading
+  isLoading: state.header.search.isLoading,
+  theme: state.view.theme
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -44,8 +46,6 @@ class Search extends React.Component {
   static defaultProps = {
     isMobile: false
   };
-
-  className = 'ecos-header-search';
 
   onSearch = searchText => {
     this.props.resetSearchAutocomplete();
@@ -104,19 +104,21 @@ class Search extends React.Component {
     const searchResult = this.searchResult;
 
     return !noResults && !isEmpty(searchResult)
-      ? searchResult.map((item, i, arr) => <SearchItem key={`${this.className}-${i}`} data={item} onClick={this.goToResult} />)
+      ? searchResult.map((item, i, arr) => <SearchItem key={`ecos-header-search-${i}`} data={item} onClick={this.goToResult} />)
       : null;
   }
 
   render() {
-    const { noResults, isMobile } = this.props;
+    const { noResults, isMobile, theme } = this.props;
+
+    const classes = classNames('ecos-header-search', `ecos-header-search_theme_${theme}`);
 
     return (
       <SearchSelect
-        className={this.className}
+        className={classes}
         onSearch={this.onSearch}
         openFullSearch={this.openFullSearch}
-        theme={'dark'}
+        theme={theme}
         formattedSearchResult={this.formattedSearchResult}
         autocomplete
         isMobile={isMobile}

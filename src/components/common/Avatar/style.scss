@@ -12,6 +12,10 @@
   justify-content: center;
   border-radius: 50%;
 
+  &_theme_uedmsTheme {
+    background: $color-green-light;
+  }
+
   &__image {
     height: 100%;
     width: 100%;

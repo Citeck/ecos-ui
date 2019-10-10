@@ -7,11 +7,13 @@ import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import { Avatar, DropdownMenu as Menu } from '../common';
 import { IcoBtn } from '../common/btns';
+import { DEFAULT_THEME } from '../../constants/theme';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
   userPhotoUrl: state.user.thumbnail,
-  items: state.header.userMenu.items
+  items: state.header.userMenu.items,
+  theme: state.view.theme
 });
 
 class UserMenu extends React.Component {
@@ -38,24 +40,24 @@ class UserMenu extends React.Component {
 
   render() {
     const { dropdownOpen } = this.state;
-    const { userFullName, items, isMobile, widthParent, userPhotoUrl } = this.props;
+    const { userFullName, items, isMobile, widthParent, userPhotoUrl, theme } = this.props;
     const medium = widthParent > 600 && widthParent < 910;
     const disabled = !(!isEmpty(items) && isArray(items));
     const mob = isMobile || medium;
-    const classNameIcoBtn = classNames(
-      `${this.className}__btn ecos-btn_tight ecos-btn_r_6`,
-      { 'ecos-btn_blue ecos-btn_hover_t-blue': !mob },
-      { 'ecos-btn_active_blue': dropdownOpen && !mob },
-      { 'ecos-btn_active_blue2': !dropdownOpen && !mob },
-      { 'ecos-btn_no-back ecos-btn_width_auto': mob }
-    );
+    const classNameIcoBtn = classNames(`${this.className}__btn ecos-btn_tight ecos-btn_r_6`, {
+      'ecos-btn_blue ecos-btn_hover_t-blue': !mob && theme === DEFAULT_THEME,
+      [`ecos-btn_theme_${theme}`]: !mob && theme !== DEFAULT_THEME,
+      'ecos-btn_active_blue': dropdownOpen && !mob && theme === DEFAULT_THEME,
+      'ecos-btn_active_blue2': !dropdownOpen && !mob && theme === DEFAULT_THEME,
+      'ecos-btn_no-back ecos-btn_width_auto': mob
+    });
 
     return (
       <>
-        {!mob ? <Avatar url={userPhotoUrl} /> : null}
+        {!mob ? <Avatar theme={theme} url={userPhotoUrl} /> : null}
         <Dropdown className={`${this.className} ecos-header-dropdown`} isOpen={dropdownOpen} toggle={this.toggle}>
           <DropdownToggle tag="div" className={'ecos-header-dropdown__toggle'}>
-            {mob ? <Avatar url={userPhotoUrl} /> : null}
+            {mob ? <Avatar theme={theme} url={userPhotoUrl} /> : null}
             <IcoBtn invert={true} icon={dropdownOpen ? 'icon-up' : 'icon-down'} className={classNameIcoBtn} disabled={disabled}>
               {!mob && userFullName}
             </IcoBtn>
