@@ -19,6 +19,7 @@ const mapStateToProps = (state, props) => {
     journals: newState.journals,
     journalConfig: newState.journalConfig,
     journalSettings: newState.journalSettings,
+    config: newState.config,
     grid: newState.grid
   };
 };
@@ -64,7 +65,8 @@ class JournalsDashletToolbar extends Component {
       journalSettings,
       measurer,
       isSmall,
-      grid
+      grid,
+      config
     } = this.props;
 
     return (
@@ -106,7 +108,7 @@ class JournalsDashletToolbar extends Component {
           </Dropdown>
         )}
 
-        {!isSmall && <Export config={journalConfig} grid={grid} />}
+        {!isSmall && <Export journalConfig={journalConfig} grid={grid} dashletConfig={config} />}
 
         {!isSmall && (
           <div className={'ecos-journal-dashlet__actions'}>
