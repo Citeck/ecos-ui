@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { PAGINATION_SIZES } from '../../../components/Journals/constants';
 import Select from '../../common/form/Select';
 import { IcoBtn } from '../../common/btns';
-import { t, trigger } from '../../../helpers/util';
+import { t } from '../../../helpers/util';
 
 import './Pagination.scss';
 
