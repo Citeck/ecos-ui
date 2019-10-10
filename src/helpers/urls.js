@@ -125,7 +125,7 @@ export const goToCardDetailsPage = nodeRef => {
   }
 };
 
-export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page?nodeRef=${nodeRef}`, '_blank');
+export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page-v2?nodeRef=${nodeRef}`, '_blank');
 
 /**
  * Метод перебирает и сортирует параметры из url
