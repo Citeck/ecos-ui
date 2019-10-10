@@ -186,6 +186,11 @@ function* getJournalSetting(api, journalSettingId, journalConfig, stateId, w) {
   journalSetting = { ...journalSetting, [JOURNAL_SETTING_ID_FIELD]: journalSettingId };
   journalSetting.predicate = url.filter ? JSON.parse(url.filter) : null || journalSetting.predicate;
 
+  journalSetting.columns = journalSetting.columns.map(column => {
+    const match = journalConfig.columns.filter(c => c.attribute === column.attribute)[0];
+    return match ? { ...column, sortable: match.sortable } : column;
+  });
+
   yield put(setJournalSetting(w(journalSetting)));
   yield put(initJournalSettingData(w(journalSetting)));
 
