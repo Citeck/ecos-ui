@@ -2,6 +2,7 @@ import React, { Component, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
+import { NotificationContainer } from 'react-notifications';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
@@ -138,6 +139,8 @@ class App extends Component {
             </Switch>
           </Suspense>
         </div>
+
+        <NotificationContainer />
       </div>
     );
   }

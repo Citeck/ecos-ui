@@ -45,7 +45,7 @@ const JournalsSettingsBar = ({
 
       <Search onSearch={onSearch} className={`search_border_white ${step}`} />
 
-      <Export config={journalConfig} grid={grid}>
+      <Export journalConfig={journalConfig} grid={grid}>
         <IcoBtn
           invert
           icon={'icon-down'}

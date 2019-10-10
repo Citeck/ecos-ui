@@ -3,13 +3,14 @@ import classNames from 'classnames';
 import omit from 'lodash/omit';
 import queryString from 'query-string';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { NotificationContainer, NotificationManager } from 'react-notifications';
+import { NotificationManager } from 'react-notifications';
 import { PROXY_URI } from '../../constants/alfresco';
+import { URL } from '../../constants';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
 import { t } from '../../helpers/util';
+import { decodeLink } from '../../helpers/urls';
 
-import 'react-notifications/lib/notifications.css';
 import './Export.scss';
 
 export default class ColumnsSetup extends Component {
@@ -21,7 +22,7 @@ export default class ColumnsSetup extends Component {
 
   export = item => {
     if (item.target) {
-      this.textInput.current.value = JSON.stringify(this.getQuery(this.props.config, item.type, this.props.grid));
+      this.textInput.current.value = JSON.stringify(this.getQuery(this.props.journalConfig, item.type, this.props.grid));
 
       let form = this.form.current;
 
@@ -70,14 +71,24 @@ export default class ColumnsSetup extends Component {
     return query;
   };
 
-  setSelectionFilterUrl = () => {
+  getSelectionFilterUrl = () => {
     const {
-      grid: { predicates = [] }
+      grid: { predicates = [] },
+      dashletConfig
     } = this.props;
-    const { search, host, pathname } = window.location;
-    const urlParams = { ...queryString.parse(search), filter: '', selectionFilter: predicates.length ? JSON.stringify(predicates[0]) : '' };
+    const { search, host } = window.location;
+    const urlParams = {
+      ...queryString.parse(search),
+      filter: '',
+      journalSettingId: '',
+      selectionFilter: predicates.length ? JSON.stringify(predicates[0]) : ''
+    };
 
-    return `${host}${pathname}?${queryString.stringify(urlParams)}`;
+    return decodeLink(
+      `${host}${URL.JOURNAL}?${queryString.stringify(
+        dashletConfig ? { ...urlParams, journalId: dashletConfig.journalId, journalsListId: dashletConfig.journalsListId } : urlParams
+      )}`
+    );
   };
 
   onCopyUrl = () => {
@@ -87,7 +98,7 @@ export default class ColumnsSetup extends Component {
   render() {
     const { right, ...props } = this.props;
     const cssClasses = classNames('export', props.className);
-    const attributes = omit(props, ['config']);
+    const attributes = omit(props, ['journalConfig', 'dashletConfig']);
 
     return (
       <div {...attributes} className={cssClasses}>
@@ -101,7 +112,7 @@ export default class ColumnsSetup extends Component {
             {
               id: 4,
               title: (
-                <CopyToClipboard text={this.setSelectionFilterUrl()} onCopy={this.onCopyUrl}>
+                <CopyToClipboard text={this.getSelectionFilterUrl()} onCopy={this.onCopyUrl}>
                   <div>{t('journals.action.copy-link')}</div>
                 </CopyToClipboard>
               )
@@ -121,8 +132,6 @@ export default class ColumnsSetup extends Component {
         <form ref={this.form} id="export-form" action="" method="" encType="multipart/form-data" target="">
           <input ref={this.textInput} type="hidden" name="jsondata" value="" />
         </form>
-
-        <NotificationContainer />
       </div>
     );
   }
