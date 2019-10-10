@@ -40,7 +40,7 @@ export const GroupedStatuses = {
   APPROVED: [ServerStatusKeys.APPROVED_BY_MANAGER, ServerStatusKeys.APPROVED_BY_HR]
 };
 
-export const StatusActions = {
+export const StatusActionFilters = {
   FILL: 'fill',
   APPROVE: 'approve'
 };

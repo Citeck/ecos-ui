@@ -178,10 +178,6 @@ class GrouppedTimesheet extends BaseTimesheet {
     this.setState({ eventsFilterTabs }, () => this.filterTypes(this.state.typeFilter));
   };
 
-  handleClickOffDelegation = position => {
-    console.log('handleClickOffDelegation');
-  };
-
   filterTypes(typeFilter = '') {
     let filteredEventTypes = deepClone(this.props.eventTypes);
 

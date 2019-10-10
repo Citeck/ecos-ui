@@ -3,7 +3,7 @@ import {
   GroupedStatuses,
   ServerEventTypes,
   ServerStatusKeys,
-  StatusActions,
+  StatusActionFilters,
   TimesheetTypes
 } from '../../helpers/timesheet/constants';
 import { t } from '../../helpers/util';
@@ -26,13 +26,13 @@ export default class CommonTimesheetService {
         ];
         break;
       case Types.DELEGATED:
-        if (action === StatusActions.FILL) {
+        if (action === StatusActionFilters.FILL) {
           arrStatuses = [
             { key: Statuses.NOT_FILLED, label: CommonLabels.STATUSES_VAL_NOT_FILLED, isActive: true },
             { key: Statuses.CORRECTION, label: CommonLabels.STATUSES_VAL_UNDER_REVISION },
             { key: Statuses.MANAGER_APPROVAL, label: CommonLabels.STATUSES_VAL_ON_AGREEMENT }
           ];
-        } else if (action === StatusActions.APPROVE) {
+        } else if (action === StatusActionFilters.APPROVE) {
           arrStatuses = [
             { key: Statuses.MANAGER_APPROVAL, label: CommonLabels.STATUSES_VAL_WAITING_APPROVAL, isActive: true },
             { key: Statuses.CORRECTION, label: CommonLabels.STATUSES_VAL_SENT_FOR_REVISION },

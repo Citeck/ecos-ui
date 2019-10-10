@@ -109,7 +109,7 @@ class SubordinatesTimesheetPage extends Component {
         return [
           {},
           {
-            id: 'ecos-timesheet__table-group-btn_sent-approve_id',
+            id: 'ecos-timesheet__table-group-btn_approve_id',
             className: 'ecos-timesheet__table-group-btn_approve',
             icon: 'icon-check',
             title: t(CommonLabels.STATUS_BTN_APPROVE),
@@ -128,7 +128,7 @@ class SubordinatesTimesheetPage extends Component {
             tooltip: t(CommonLabels.STATUS_TIP_SENT_IMPROVE_1)
           },
           {
-            id: 'ecos-timesheet__table-group-btn_sent-approve_id',
+            id: 'ecos-timesheet__table-group-btn_approve_id',
             className: 'ecos-timesheet__table-group-btn_approve',
             icon: 'icon-check',
             title: t(CommonLabels.STATUS_BTN_APPROVE),
@@ -213,6 +213,7 @@ class SubordinatesTimesheetPage extends Component {
 
     const activeStatus = this.selectedStatus;
 
+    //fixme
     const filteredList = mergedList;
     // const filteredList = mergedList.filter(item => {
     //   if (Array.isArray(activeStatus.key)) {

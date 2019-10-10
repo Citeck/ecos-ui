@@ -1,7 +1,14 @@
 import React from 'react';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, DelegateTimesheetLabels, ServerStatusKeys, StatusActions, TimesheetTypes } from '../../helpers/timesheet/constants';
+import {
+  CommonLabels,
+  DelegateTimesheetLabels,
+  ServerStatusKeys,
+  ServerStatusOutcomeKeys,
+  StatusActionFilters,
+  TimesheetTypes
+} from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 
@@ -29,7 +36,7 @@ class DelegatedTimesheetsPage extends React.Component {
     this.state = {
       subordinatesEvents: timesheetApi.getEvents(),
       sheetTabs: CommonTimesheetService.getSheetTabs(this.isOnlyContent, location),
-      statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, StatusActions.FILL),
+      statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, StatusActionFilters.FILL),
       dateTabs: CommonTimesheetService.getPeriodFiltersTabs(),
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date()),
@@ -49,6 +56,74 @@ class DelegatedTimesheetsPage extends React.Component {
     const { actionDelegatedTabs } = this.state;
 
     return (actionDelegatedTabs.find(item => item.isActive) || {}).action;
+  }
+
+  get selectedStatus() {
+    const { statusTabs } = this.state;
+
+    return statusTabs.find(item => item.isActive) || {};
+  }
+
+  get configGroupBtns() {
+    const status = this.selectedStatus;
+    const action = this.selectedAction;
+    const key = Array.isArray(status.key) ? status.key[0] : status.key;
+
+    if (action === StatusActionFilters.FILL) {
+      return [
+        {
+          id: 'ecos-timesheet__table-group-btn_off-delegation_id',
+          className: 'ecos-timesheet__table-group-btn_off-delegation',
+          title: t(CommonLabels.STATUS_BTN_OFF_DELEGATION),
+          onClick: data => this.handleClickOffDelegation(data)
+        },
+        {
+          id: 'ecos-timesheet__table-group-btn_sent-approve_id',
+          className: 'ecos-timesheet__table-group-btn_sent-approve',
+          title: t(CommonLabels.STATUS_BTN_SENT_APPROVE),
+          onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.TASK_DONE)
+        }
+      ];
+    }
+
+    if (action === StatusActionFilters.APPROVE) {
+      switch (key) {
+        case ServerStatusKeys.CORRECTION:
+          return [
+            {},
+            {
+              id: 'ecos-timesheet__table-group-btn_sent-approve_id',
+              className: 'ecos-timesheet__table-group-btn_approve',
+              icon: 'icon-check',
+              title: t(CommonLabels.STATUS_BTN_APPROVE),
+              onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.TASK_DONE),
+              tooltip: t(CommonLabels.STATUS_TIP_APPROVE_1)
+            }
+          ];
+        case ServerStatusKeys.MANAGER_APPROVAL:
+          return [
+            {
+              id: 'ecos-timesheet__table-group-btn_revision_id',
+              className: 'ecos-timesheet__table-group-btn_revision',
+              icon: 'icon-arrow-left',
+              title: t(CommonLabels.STATUS_BTN_SENT_IMPROVE),
+              onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK),
+              tooltip: t(CommonLabels.STATUS_TIP_SENT_IMPROVE_1)
+            },
+            {
+              id: 'ecos-timesheet__table-group-btn_approve_id',
+              className: 'ecos-timesheet__table-group-btn_approve',
+              icon: 'icon-check',
+              title: t(CommonLabels.STATUS_BTN_APPROVE),
+              onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.APPROVE),
+              tooltip: t(CommonLabels.STATUS_TIP_APPROVE_1)
+            }
+          ];
+
+        default:
+          return [{}, {}];
+      }
+    }
   }
 
   getDaysOfMonth = currentDate => {
@@ -100,40 +175,32 @@ class DelegatedTimesheetsPage extends React.Component {
     this.setState({ statusTabs });
   };
 
-  renderActionTimesheet = () => {
+  handleClickOffDelegation = data => {
+    console.log('handleClickOffDelegation', data);
+  };
+
+  handleChangeStatus = (data, outcome) => {
+    const { currentDate } = this.state;
+    const { taskId, userName } = data;
+    console.log('handleChangeStatus', { outcome, taskId, userName, currentDate });
+    //this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, currentDate });
+  };
+
+  renderActionTimesheet() {
     const { subordinatesEvents, daysOfMonth, isDelegated } = this.state;
 
-    switch (this.selectedAction) {
-      case StatusActions.FILL:
-        return (
-          <Timesheet
-            groupBy={'user'}
-            selectedAction={StatusActions.FILL}
-            typeSheet={TimesheetTypes.DELEGATED}
-            eventTypes={subordinatesEvents}
-            daysOfMonth={daysOfMonth}
-            isAvailable={!isDelegated}
-            onChange={this.handleChangeTimesheet}
-            lockedMessage={this.lockDescription}
-          />
-        );
-      case StatusActions.APPROVE:
-        return (
-          <Timesheet
-            groupBy={'user'}
-            selectedAction={StatusActions.APPROVE}
-            typeSheet={TimesheetTypes.DELEGATED}
-            eventTypes={subordinatesEvents}
-            daysOfMonth={daysOfMonth}
-            isAvailable={!isDelegated}
-            onChange={this.handleChangeTimesheet}
-            lockedMessage={this.lockDescription}
-          />
-        );
-      default:
-        return null;
-    }
-  };
+    return (
+      <Timesheet
+        groupBy={'user'}
+        configGroupBtns={this.configGroupBtns}
+        eventTypes={subordinatesEvents}
+        daysOfMonth={daysOfMonth}
+        isAvailable={!isDelegated}
+        onChange={this.handleChangeTimesheet}
+        lockedMessage={this.lockDescription}
+      />
+    );
+  }
 
   render() {
     const { sheetTabs, currentDate, statusTabs, actionDelegatedTabs } = this.state;
@@ -149,7 +216,7 @@ class DelegatedTimesheetsPage extends React.Component {
             </div>
           </div>
 
-          {this.selectedAction === StatusActions.APPROVE && (
+          {this.selectedAction === StatusActionFilters.APPROVE && (
             <div className="ecos-timesheet__column ecos-timesheet__delegation">
               <div className="ecos-timesheet__delegation-title">
                 {t(CommonLabels.HEADLINE_DELEGATION)}

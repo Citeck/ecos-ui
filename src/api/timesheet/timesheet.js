@@ -1,5 +1,5 @@
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, StatusActions } from '../../helpers/timesheet/constants';
+import { CommonLabels, StatusActionFilters } from '../../helpers/timesheet/constants';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 export class TimesheetApi {
@@ -45,14 +45,14 @@ export class TimesheetApi {
         isActive: true,
         isAvailable: true,
         badge: '90',
-        action: StatusActions.FILL
+        action: StatusActionFilters.FILL
       },
       {
         name: t(CommonLabels.STATUS_ACTION_TO_APPROVE),
         isActive: false,
         isAvailable: true,
         badge: '9',
-        action: StatusActions.APPROVE
+        action: StatusActionFilters.APPROVE
       }
     ];
   };
