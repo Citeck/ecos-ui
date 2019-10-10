@@ -3,10 +3,10 @@ import { TimesheetMessages } from '../../helpers/timesheet/constants';
 import {
   getMyTimesheetByParams,
   getStatus,
-  initMyTimesheetEnd,
   initMyTimesheetStart,
   modifyEventDayHours,
   modifyStatus,
+  setMyTimesheetByParams,
   setPopupMessage,
   setStatus
 } from '../../actions/timesheet/mine';
@@ -46,7 +46,7 @@ function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
 
     const mergedEvents = CommonTimesheetConverter.getCalendarEventsForWeb(calendarEvents);
 
-    yield put(initMyTimesheetEnd({ status, mergedEvents, calendarEvents }));
+    yield put(setMyTimesheetByParams({ status, mergedEvents, calendarEvents }));
   } catch (e) {
     logger.error('[timesheetMine sagaGetMyTimesheetByParams saga error', e.message);
   }

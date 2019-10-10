@@ -55,33 +55,6 @@ function* sagaInitSubordinatesTimesheet({ api, logger }) {
   }
 }
 
-// function* sagaGetStatusList({ api, logger }, { payload }) {
-//   try {
-//     const { currentDate } = payload;
-//     const subordinates = yield select(selectTimesheetSubordinatesPeople);
-//     const calendarEvents = yield select(selectTimesheetSubordinatesEvents);
-//
-//     const userNames = SubordinatesTimesheetService.getUserNameList(subordinates);
-//     const statuses = yield api.timesheetCommon.getTimesheetStatusList({
-//       month: currentDate.getMonth(),
-//       year: currentDate.getFullYear(),
-//       userNames
-//     });
-//
-//     const list = SubordinatesTimesheetService.mergeToSubordinatesEventsList({
-//       subordinates,
-//       calendarEvents,
-//       statuses: statuses.records
-//     });
-//
-//     const mergedList = SubordinatesTimesheetConverter.getSubordinatesEventsListForWeb(list);
-//     yield put(setMergedList(mergedList));
-//     yield put(setStatusList(statuses));
-//   } catch (e) {
-//     logger.error('[timesheetSubordinates sagaGetStatusList saga error', e.message);
-//   }
-// }
-
 function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
   try {
     const { currentDate } = payload;

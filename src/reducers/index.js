@@ -21,6 +21,7 @@ import currentTasks from './currentTasks';
 import docStatus from './docStatus';
 import timesheetSubordinates from './timesheet/subordinates';
 import timesheetMine from './timesheet/mine';
+import timesheetVerification from './timesheet/verification';
 
 const reducers = {
   app,
@@ -42,7 +43,8 @@ const reducers = {
   currentTasks,
   docStatus,
   timesheetSubordinates,
-  timesheetMine
+  timesheetMine,
+  timesheetVerification
 };
 
 export default history =>

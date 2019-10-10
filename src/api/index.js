@@ -13,3 +13,4 @@ export { DocStatusApi } from './docStatus';
 export { TimesheetCommonApi } from './timesheet/common';
 export { TimesheetSubordinatesApi } from './timesheet/subordinates';
 export { MyTimesheetApi } from './timesheet/mine';
+export { TimesheetVerificationApi } from './timesheet/verification';

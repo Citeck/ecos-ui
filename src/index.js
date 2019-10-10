@@ -32,6 +32,7 @@ import {
   TasksApi,
   TimesheetCommonApi,
   TimesheetSubordinatesApi,
+  TimesheetVerificationApi,
   UserApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
@@ -76,6 +77,7 @@ api.docStatus = new DocStatusApi(store);
 api.timesheetCommon = new TimesheetCommonApi(store);
 api.timesheetSubordinates = new TimesheetSubordinatesApi(store);
 api.timesheetMine = new MyTimesheetApi(store);
+api.timesheetVerification = new TimesheetVerificationApi(store);
 
 const history = getHistory();
 

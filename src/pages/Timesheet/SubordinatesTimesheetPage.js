@@ -37,7 +37,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   initSubordinatesTimesheetStart: payload => dispatch(initSubordinatesTimesheetStart(payload)),
-  getSubordinatesTimesheetDate: payload => dispatch(getSubordinatesTimesheetByParams(payload)),
+  getSubordinatesTimesheetByParams: payload => dispatch(getSubordinatesTimesheetByParams(payload)),
   modifyStatus: payload => dispatch(modifyStatus(payload)),
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
@@ -159,7 +159,7 @@ class SubordinatesTimesheetPage extends Component {
 
   handleChangeCurrentDate = currentDate => {
     this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
-    this.props.getSubordinatesTimesheetDate && this.props.getSubordinatesTimesheetDate({ currentDate });
+    this.props.getSubordinatesTimesheetByParams && this.props.getSubordinatesTimesheetByParams({ currentDate });
   };
 
   handleChangeStatusTab = tabIndex => {

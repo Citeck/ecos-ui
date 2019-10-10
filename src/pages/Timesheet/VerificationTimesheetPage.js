@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import 'moment-business-days';
+import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
 import {
@@ -16,8 +16,23 @@ import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import { TimesheetApi } from '../../api/timesheet/timesheet';
 
 import './style.scss';
+import get from 'lodash/get';
+import { getVerificationTimesheetByParams, initVerificationTimesheetStart, setPopupMessage } from '../../actions/timesheet/verification';
 
 const timesheetApi = new TimesheetApi();
+
+const mapStateToProps = state => ({
+  mergedList: get(state, ['timesheetVerification', 'mergedList'], []),
+  isLoading: get(state, ['timesheetVerification', 'isLoading'], false),
+  popupMsg: get(state, ['timesheetVerification', 'popupMsg'], '')
+});
+
+const mapDispatchToProps = dispatch => ({
+  initVerificationTimesheetStart: payload => dispatch(initVerificationTimesheetStart(payload)),
+  getVerificationTimesheetByParams: payload => dispatch(getVerificationTimesheetByParams(payload)),
+
+  setPopupMessage: payload => dispatch(setPopupMessage(payload))
+});
 
 class VerificationTimesheetPage extends Component {
   constructor(props) {
@@ -28,12 +43,15 @@ class VerificationTimesheetPage extends Component {
     } = props;
 
     this.state = {
-      subordinatesEvents: timesheetApi.getEvents(),
       dateTabs: CommonTimesheetService.getPeriodFiltersTabs(),
       statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.VERIFICATION),
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date())
     };
+  }
+
+  componentDidMount() {
+    this.props.initVerificationTimesheetStart && this.props.initVerificationTimesheetStart({ status: this.selectedStatus.key });
   }
 
   get selectedStatus() {
@@ -94,6 +112,13 @@ class VerificationTimesheetPage extends Component {
     }
   }
 
+  getData() {
+    const { currentDate } = this.state;
+    const status = this.selectedStatus.key;
+
+    this.props.getVerificationTimesheetByParams && this.props.getVerificationTimesheetByParams({ currentDate, status });
+  }
+
   getDaysOfMonth = currentDate => {
     return getDaysOfMonth(currentDate);
   };
@@ -109,7 +134,7 @@ class VerificationTimesheetPage extends Component {
   };
 
   handleChangeCurrentDate = currentDate => {
-    this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
+    this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) }, this.getData);
   };
 
   handleChangeStatusTab = tabIndex => {
@@ -119,26 +144,15 @@ class VerificationTimesheetPage extends Component {
       tab.isActive = index === tabIndex;
     });
 
-    this.setState({ statusTabs });
-  };
-
-  handleChangeTimesheet = subordinatesEvents => {
-    this.setState({ subordinatesEvents });
+    this.setState({ statusTabs }, this.getData);
   };
 
   renderSubordinateTimesheet = () => {
-    const { subordinatesEvents, daysOfMonth, statusTabs } = this.state;
-    const selectedStatus = statusTabs.find(status => status.isActive) || {};
+    const { daysOfMonth, statusTabs } = this.state;
+    const { mergedList } = this.props;
 
     return (
-      <Timesheet
-        groupBy={'user'}
-        eventTypes={subordinatesEvents}
-        daysOfMonth={daysOfMonth}
-        configGroupBtns={this.configGroupBtns}
-        isAvailable
-        onChange={this.handleChangeTimesheet}
-      />
+      <Timesheet groupBy={'user'} eventTypes={mergedList} daysOfMonth={daysOfMonth} configGroupBtns={this.configGroupBtns} isAvailable />
     );
   };
 
@@ -171,4 +185,7 @@ class VerificationTimesheetPage extends Component {
   }
 }
 
-export default VerificationTimesheetPage;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(VerificationTimesheetPage);

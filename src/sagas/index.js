@@ -15,6 +15,7 @@ import currentTasks from './currentTasks';
 import docStatus from './docStatus';
 import timesheetSubordinates from './timesheet/subordinates';
 import timesheetMine from './timesheet/mine';
+import timesheetVerification from './timesheet/verification';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -33,6 +34,7 @@ export default function* rootSaga(extraArguments) {
     currentTasks(extraArguments),
     docStatus(extraArguments),
     timesheetSubordinates(extraArguments),
-    timesheetMine(extraArguments)
+    timesheetMine(extraArguments),
+    timesheetVerification(extraArguments)
   ]);
 }
