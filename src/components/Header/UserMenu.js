@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import { Avatar, DropdownMenu as Menu } from '../common';
 import { IcoBtn } from '../common/btns';
-import { DEFAULT_THEME } from '../../constants/theme';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
@@ -45,10 +44,7 @@ class UserMenu extends React.Component {
     const disabled = !(!isEmpty(items) && isArray(items));
     const mob = isMobile || medium;
     const classNameIcoBtn = classNames(`${this.className}__btn ecos-btn_tight ecos-btn_r_6`, {
-      'ecos-btn_blue ecos-btn_hover_t-blue': !mob && theme === DEFAULT_THEME,
-      [`ecos-btn_theme_${theme}`]: !mob && theme !== DEFAULT_THEME,
-      'ecos-btn_active_blue': dropdownOpen && !mob && theme === DEFAULT_THEME,
-      'ecos-btn_active_blue2': !dropdownOpen && !mob && theme === DEFAULT_THEME,
+      [`ecos-btn_theme_${theme}`]: !mob,
       'ecos-btn_no-back ecos-btn_width_auto': mob
     });
 

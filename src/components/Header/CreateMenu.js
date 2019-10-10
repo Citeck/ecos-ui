@@ -7,7 +7,6 @@ import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import { IcoBtn } from '../common/btns';
 import { DropdownMenu as Menu } from '../common';
 import { t } from '../../helpers/util';
-import { DEFAULT_THEME } from '../../constants/theme';
 
 const mapStateToProps = state => ({
   items: state.header.createCaseWidget.items,
@@ -43,12 +42,7 @@ class CreateMenu extends React.Component {
     const classNameMenu = classNames(`${this.className}__menu ecos-dropdown__menu ecos-dropdown__menu_links`, {
       'ecos-dropdown__menu_cascade': isCascade
     });
-    const classNameIcoBtn = classNames(`${this.className}__btn ecos-btn_padding_small ecos-btn_r_6`, {
-      'ecos-btn_blue ecos-btn_hover_t-blue': theme === DEFAULT_THEME,
-      [`ecos-btn_theme_${theme}`]: theme !== DEFAULT_THEME,
-      'ecos-btn_active_blue': dropdownOpen && theme === DEFAULT_THEME,
-      'ecos-btn_active_blue2': !dropdownOpen && theme === DEFAULT_THEME
-    });
+    const classNameIcoBtn = classNames(`${this.className}__btn ecos-btn_theme_${theme} ecos-btn_padding_small ecos-btn_r_6`);
     const mode = isCascade && !isMobile ? 'cascade' : 'group';
 
     return (

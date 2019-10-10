@@ -249,12 +249,19 @@ button {
   }
 
   /*Colors*/
-  &.ecos-btn_blue {
+  &.ecos-btn_theme_citeckTheme {
     background: $color-blue-dark;
     color: $color-white;
 
     &:disabled {
       background-color: $color-blue-light2;
+    }
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: $color-blue-dark;
+      background: $color-white;
     }
   }
 
@@ -271,6 +278,15 @@ button {
     &:active {
       color: $color-green-dark;
       background: $color-white;
+    }
+  }
+
+  &.ecos-btn_blue {
+    background: $color-blue-dark;
+    color: $color-white;
+
+    &:disabled {
+      background-color: $color-blue-light2;
     }
   }
 

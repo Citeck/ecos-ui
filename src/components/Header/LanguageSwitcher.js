@@ -6,7 +6,6 @@ import { DropdownMenu as Menu } from '../common';
 import IcoBtn from '../common/btns/IcoBtn';
 import { getCurrentLocale, setCookie } from '../../helpers/util';
 import { COOKIE_KEY_LOCALE, COOKIE_KEY_LOCALE_MAX_AGE } from '../../constants/alfresco';
-import { DEFAULT_THEME } from '../../constants/theme';
 
 const LANGUAGE_RU = 'ru';
 const LANGUAGE_EN = 'en';
@@ -59,12 +58,7 @@ export default class LanguageSwitcher extends React.Component {
       return null;
     }
 
-    const classNameIcoBtn = classNames('ecos-header-lang__btn ecos-btn_padding_small ecos-btn_r_6', {
-      'ecos-btn_blue ecos-btn_hover_t-blue': theme === DEFAULT_THEME,
-      [`ecos-btn_theme_${theme}`]: theme !== DEFAULT_THEME,
-      'ecos-btn_active_blue': dropdownOpen && theme === DEFAULT_THEME,
-      'ecos-btn_active_blue2': !dropdownOpen && theme === DEFAULT_THEME
-    });
+    const classNameIcoBtn = classNames(`ecos-header-lang__btn ecos-btn_theme_${theme} ecos-btn_padding_small ecos-btn_r_6`);
 
     const currentLanguage = items.find(item => item.id === language);
     if (!currentLanguage) {

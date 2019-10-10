@@ -8,7 +8,6 @@ import { goToPageFromSiteMenu } from '../../actions/header';
 import IcoBtn from '../common/btns/IcoBtn';
 import Icon from '../common/icons/Icon/Icon';
 import { DropdownMenu as Menu } from '../common';
-import { DEFAULT_THEME } from '../../constants/theme';
 
 const mapStateToProps = state => ({
   items: state.header.siteMenu.items,
@@ -47,12 +46,7 @@ class SiteMenu extends React.Component {
     const { dropdownOpen } = this.state;
     const { items, theme } = this.props;
     const disabled = isEmpty(items) || !isArray(items);
-    const classNameIcoBtn = classNames('ecos-header-site__btn ecos-btn_padding_small ecos-btn_r_6', {
-      'ecos-btn_blue ecos-btn_hover_t-blue': theme === DEFAULT_THEME,
-      [`ecos-btn_theme_${theme}`]: theme !== DEFAULT_THEME,
-      'ecos-btn_active_blue': dropdownOpen && theme === DEFAULT_THEME,
-      'ecos-btn_active_blue2': !dropdownOpen && theme === DEFAULT_THEME
-    });
+    const classNameIcoBtn = classNames(`ecos-header-site__btn ecos-btn_theme_${theme} ecos-btn_padding_small ecos-btn_r_6`);
 
     return (
       <Dropdown className="ecos-header-site ecos-header-dropdown" isOpen={dropdownOpen} toggle={this.toggle}>
