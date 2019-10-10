@@ -9,7 +9,7 @@ import {
   TimesheetTypes,
   VerifyTimesheetLabels
 } from '../../helpers/timesheet/constants';
-import { getDaysOfMonth } from '../../helpers/timesheet/util';
+import { BaseConfigGroupButtons, getDaysOfMonth } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 
@@ -50,54 +50,42 @@ class VerificationTimesheetPage extends Component {
       case ServerStatusKeys.CORRECTION:
         return [
           {
-            id: 'ecos-timesheet__table-group-btn_sent-manager-approve_id',
-            className: 'ecos-timesheet__table-group-btn_sent-manager-approve',
-            icon: 'icon-arrow',
-            title: t(CommonLabels.STATUS_BTN_SEND_MANAGER_APPROVE),
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK),
-            tooltip: t(CommonLabels.STATUS_TIP_SEND_MANAGER_APPROVE_1)
+            ...BaseConfigGroupButtons.SEND_MANAGER_APPROVE,
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.TASK_DONE)
           },
           {
-            id: 'ecos-timesheet__table-group-btn_approve_id',
-            className: 'ecos-timesheet__table-group-btn_approve',
-            icon: 'icon-check',
-            title: t(CommonLabels.STATUS_BTN_APPROVE),
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK),
-            tooltip: t(CommonLabels.STATUS_TIP_APPROVE_1)
+            ...BaseConfigGroupButtons.APPROVE,
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.HR_APPROVE)
           }
         ];
       case ServerStatusKeys.MANAGER_APPROVAL:
+        return [
+          {
+            ...BaseConfigGroupButtons.SENT_IMPROVE,
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK)
+          },
+          {
+            ...BaseConfigGroupButtons.APPROVE,
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.HR_APPROVE),
+            tooltip: t(CommonLabels.STATUS_TIP_APPROVE_2)
+          }
+        ];
       case ServerStatusKeys.APPROVED_BY_MANAGER:
         return [
           {
-            id: 'ecos-timesheet__table-group-btn_revision_id',
-            className: 'ecos-timesheet__table-group-btn_revision',
-            icon: 'icon-arrow-left',
-            title: t(CommonLabels.STATUS_BTN_SENT_IMPROVE),
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK),
-            tooltip: t(CommonLabels.STATUS_TIP_SENT_IMPROVE_1)
+            ...BaseConfigGroupButtons.SENT_IMPROVE,
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK)
           },
           {
-            id: 'ecos-timesheet__table-group-btn_approve_id',
-            className: 'ecos-timesheet__table-group-btn_approve',
-            icon: 'icon-check',
-            title: t(CommonLabels.STATUS_BTN_APPROVE),
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.APPROVE),
-            tooltip:
-              status.key === ServerStatusKeys.APPROVED_BY_MANAGER
-                ? t(CommonLabels.STATUS_TIP_APPROVE_1)
-                : t(CommonLabels.STATUS_TIP_APPROVE_2)
+            ...BaseConfigGroupButtons.APPROVE,
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.APPROVE)
           }
         ];
       case ServerStatusKeys.APPROVED_BY_HR:
         return [
           {
-            id: 'ecos-timesheet__table-group-btn_revision_id',
-            className: 'ecos-timesheet__table-group-btn_revision',
-            icon: 'icon-arrow-left',
-            title: t(CommonLabels.STATUS_BTN_SENT_IMPROVE),
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK),
-            tooltip: t(CommonLabels.STATUS_TIP_SENT_IMPROVE_1)
+            ...BaseConfigGroupButtons.SENT_IMPROVE,
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK)
           },
           {}
         ];

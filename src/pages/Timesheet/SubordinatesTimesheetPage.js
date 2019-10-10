@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce';
 import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
-import { getDaysOfMonth, getNewDateByDayNumber, isOnlyContent } from '../../helpers/timesheet/util';
+import { BaseConfigGroupButtons, getDaysOfMonth, getNewDateByDayNumber, isOnlyContent } from '../../helpers/timesheet/util';
 import {
   CommonLabels,
   ServerStatusKeys,
@@ -109,31 +109,19 @@ class SubordinatesTimesheetPage extends Component {
         return [
           {},
           {
-            id: 'ecos-timesheet__table-group-btn_approve_id',
-            className: 'ecos-timesheet__table-group-btn_approve',
-            icon: 'icon-check',
-            title: t(CommonLabels.STATUS_BTN_APPROVE),
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.TASK_DONE),
-            tooltip: t(CommonLabels.STATUS_TIP_APPROVE_1)
+            ...BaseConfigGroupButtons.APPROVE,
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.TASK_DONE)
           }
         ];
       case ServerStatusKeys.MANAGER_APPROVAL:
         return [
           {
-            id: 'ecos-timesheet__table-group-btn_revision_id',
-            className: 'ecos-timesheet__table-group-btn_revision',
-            icon: 'icon-arrow-left',
-            title: t(CommonLabels.STATUS_BTN_SENT_IMPROVE),
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK),
-            tooltip: t(CommonLabels.STATUS_TIP_SENT_IMPROVE_1)
+            ...BaseConfigGroupButtons.SENT_IMPROVE,
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK)
           },
           {
-            id: 'ecos-timesheet__table-group-btn_approve_id',
-            className: 'ecos-timesheet__table-group-btn_approve',
-            icon: 'icon-check',
-            title: t(CommonLabels.STATUS_BTN_APPROVE),
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.APPROVE),
-            tooltip: t(CommonLabels.STATUS_TIP_APPROVE_1)
+            ...BaseConfigGroupButtons.APPROVE,
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.APPROVE)
           }
         ];
       default:
