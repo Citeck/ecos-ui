@@ -40,7 +40,7 @@ import {
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
-import './index.scss';
+import './styles/index.scss';
 
 import './build-info';
 
