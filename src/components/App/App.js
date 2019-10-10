@@ -10,7 +10,6 @@ import Header from '../Header';
 import Notification from '../Notification';
 import SlideMenu from '../SlideMenu';
 import ReduxModal from '../ReduxModal';
-import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 
 import { changeActiveTab, getActiveTabTitle, getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
@@ -19,24 +18,15 @@ import { MENU_TYPE, URL } from '../../constants';
 
 import './App.scss';
 
+const LoginForm = lazy(() => import('../LoginForm'));
+
 const BPMNDesignerPage = lazy(() => import('../../pages/BPMNDesignerPage'));
 const DashboardPage = lazy(() => import('../../pages/Dashboard'));
 const DashboardSettingsPage = lazy(() => import('../../pages/DashboardSettings'));
 const JournalsPage = lazy(() => import('../../pages/JournalsPage'));
 
-const CardDetailsPage = lazy(() => import('../../pages/CardDetailsPage'));
-const DocPreviewPage = lazy(() => import('../../pages/debug/DocPreview'));
-const JournalsDashboardPage = lazy(() => import('../../pages/debug/JournalsDashboardPage'));
-const PropertiesPage = lazy(() => import('../../pages/debug/Properties/PropertiesPage'));
-const TasksDashletPage = lazy(() => import('../../pages/debug/Tasks/TasksDashletPage'));
 const EcosFormPage = lazy(() => import('../../pages/debug/EcosFormPage'));
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
-const CommentsWidgetPage = lazy(() => import('../../pages/debug/CommentsWidget'));
-const CurrentTasksPage = lazy(() => import('../../pages/debug/CurrentTasks/CurrentTasksPage'));
-const DocStatusPage = lazy(() => import('../../pages/debug/DocStatus/DocStatusPage'));
-const EventsHistoryPage = lazy(() => import('../../pages/debug/EventsHistoryPage'));
-const VersionsJournalWidgetPage = lazy(() => import('../../pages/debug/VersionsJournalWidgetPage'));
-const DocAssociations = lazy(() => import('../../pages/debug/DocAssociations'));
 
 class App extends Component {
   componentDidMount() {
@@ -83,7 +73,11 @@ class App extends Component {
     }
 
     if (!isAuthenticated) {
-      return <LoginForm />;
+      return (
+        <Suspense fallback={null}>
+          <LoginForm />
+        </Suspense>
+      );
     }
 
     const appClassNames = classNames('app-container', { mobile: isMobile });
@@ -123,18 +117,7 @@ class App extends Component {
               {/* temporary routes */}
               <Route path="/v2/debug/formio-develop" component={FormIOPage} />
               <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
-              <Route path={URL.JOURNAL_OLD} component={JournalsPage} />
-              <Route path={URL.CARD_DETAILS} component={CardDetailsPage} />
-              <Route path={URL.JOURNAL_DASHBOARD} component={JournalsDashboardPage} />
-              <Route path={URL.WIDGET_DOC_PREVIEW} component={DocPreviewPage} />
-              <Route path={URL.WIDGET_PROPERTIES} component={PropertiesPage} />
-              <Route path={URL.WIDGET_COMMENTS} component={CommentsWidgetPage} />
-              <Route path={URL.WIDGET_TASKS} exact component={TasksDashletPage} />
-              <Route path={URL.CURRENT_TASKS} component={CurrentTasksPage} />
-              <Route path={URL.WIDGET_DOC_STATUS} exact component={DocStatusPage} />
-              <Route path={URL.WIDGET_EVENTS_HISTORY} exact component={EventsHistoryPage} />
-              <Route path={URL.WIDGET_VERSIONS_JOURNAL} component={VersionsJournalWidgetPage} />
-              <Route path={URL.WIDGET_DOC_ASSOCIATIONS} component={DocAssociations} />
+
               {/*<Route component={NotFoundPage} />*/}
             </Switch>
           </Suspense>
