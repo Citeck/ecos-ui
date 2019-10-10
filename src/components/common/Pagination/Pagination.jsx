@@ -29,16 +29,17 @@ export default class Pagination extends Component {
   };
 
   prev = () => {
-    this.min > 1 && this.triggerChange(this.props.page - 1);
+    const { page, maxItems } = this.props;
+    this.min > 1 && this.triggerChange(page - 1, maxItems);
   };
 
   next = () => {
-    const { total, page } = this.props;
-    this.max < total && this.triggerChange(page + 1);
+    const { total, page, maxItems } = this.props;
+    this.max < total && this.triggerChange(page + 1, maxItems);
   };
 
-  triggerChange = page => {
-    const { onChange, maxItems } = this.props;
+  triggerChange = (page, maxItems) => {
+    const { onChange } = this.props;
     if (typeof onChange === 'function') {
       onChange({
         skipCount: (page - 1) * maxItems,
@@ -49,7 +50,10 @@ export default class Pagination extends Component {
   };
 
   onChangeMaxItems = item => {
-    trigger.call(this, 'onChangeMaxItems', item);
+    const maxItems = item.value;
+    const page = Math.ceil(this.min / maxItems);
+
+    this.triggerChange(page, maxItems);
   };
 
   getPageSize = () => {
