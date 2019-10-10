@@ -1,13 +1,7 @@
 import React from 'react';
 
 import { deepClone, t } from '../../helpers/util';
-import {
-  CommonLabels,
-  DelegateTimesheetLabels,
-  StatusActions,
-  StatusesServerKeys,
-  TimesheetTypes
-} from '../../helpers/timesheet/constants';
+import { CommonLabels, DelegateTimesheetLabels, ServerStatusKeys, StatusActions, TimesheetTypes } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 
@@ -39,7 +33,7 @@ class DelegatedTimesheetsPage extends React.Component {
       dateTabs: CommonTimesheetService.getPeriodFiltersTabs(),
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date()),
-      currentStatus: StatusesServerKeys.CORRECTION,
+      currentStatus: ServerStatusKeys.CORRECTION,
       isDelegated: false,
       delegatedTo: '',
       delegationRejected: true,

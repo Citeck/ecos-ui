@@ -113,8 +113,8 @@ class BaseTimesheet extends Component {
     this.setState({ draggableNode: node });
   };
 
-  handleChangeEventHours = (event, value) => {
-    this.props.onChangeHour && this.props.onChangeHour({ event, value });
+  handleChangeEventHours = (type, number, value) => {
+    this.props.onChangeHour && this.props.onChangeHour({ type, number, value });
   };
 
   filterTypes(typeFilter = '') {
@@ -213,7 +213,7 @@ class BaseTimesheet extends Component {
               color={eventItem.color}
               count={count}
               canEdit={eventItem.canEdit}
-              onChange={value => this.handleChangeEventHours(eventItem, value)}
+              onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value)}
             />
           </CalendarCell>
         );

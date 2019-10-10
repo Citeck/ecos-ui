@@ -1,4 +1,4 @@
-export const StatusesServerKeys = {
+export const ServerStatusKeys = {
   NULL: null,
   NOT_FILLED: 'Not_Started',
   CORRECTION: 'Correction',
@@ -8,27 +8,11 @@ export const StatusesServerKeys = {
   SENT_TO_ACCOUNTING_SYSTEM: 'Sent_To_Accounting_System'
 };
 
-export const StatusesServerOutcomeKeys = {
+export const ServerStatusOutcomeKeys = {
   TASK_DONE: 'Task_Done',
   SEND_BACK: 'Send_Back',
   APPROVE: 'Approve',
   HR_APPROVE: 'HR_Approve'
-};
-
-export const GroupedStatuses = {
-  APPROVED: [StatusesServerKeys.APPROVED_BY_MANAGER, StatusesServerKeys.APPROVED_BY_HR]
-};
-
-export const StatusActions = {
-  FILL: 'fill',
-  APPROVE: 'approve'
-};
-
-export const TimesheetTypes = {
-  DELEGATED: 'delegated',
-  MINE: 'mine',
-  SUBORDINATES: 'subordinates',
-  VERIFICATION: 'verification'
 };
 
 export const ServerEventTypes = {
@@ -46,6 +30,26 @@ export const ServerEventTypes = {
   OVERTIME_WORK: 'overtime-work',
   NIGHT_WORK: 'night-work',
   HARMFUL_PAID_LEAVE: 'harmful-paid-leave'
+};
+
+export const ServerDateFormats = {
+  DDMMYYYY: 'DD.MM.YYYY'
+};
+
+export const GroupedStatuses = {
+  APPROVED: [ServerStatusKeys.APPROVED_BY_MANAGER, ServerStatusKeys.APPROVED_BY_HR]
+};
+
+export const StatusActions = {
+  FILL: 'fill',
+  APPROVE: 'approve'
+};
+
+export const TimesheetTypes = {
+  DELEGATED: 'delegated',
+  MINE: 'mine',
+  SUBORDINATES: 'subordinates',
+  VERIFICATION: 'verification'
 };
 
 export const CommonLabels = {

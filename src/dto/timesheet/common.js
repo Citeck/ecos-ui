@@ -1,6 +1,7 @@
 import get from 'lodash/get';
 import moment from 'moment';
 import { deepClone } from '../../helpers/util';
+import { ServerDateFormats } from '../../helpers/timesheet/constants';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 const eventTypes = CommonTimesheetService.getEventTypes();
@@ -31,7 +32,7 @@ export default class CommonTimesheetConverter {
           }
 
           eventType.days.push({
-            number: moment(day.date, 'DD.MM.YYYY').format('D'),
+            number: moment(day.date, ServerDateFormats.DDMMYYYY).format('D'),
             hours: day.hoursCount || 0
           });
 

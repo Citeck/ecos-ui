@@ -62,6 +62,6 @@ export class TimesheetCommonApi extends RecordService {
 
     event.att('value', value);
 
-    event.save().then(res => res);
+    return event.save().then(res => res);
   };
 }

@@ -66,9 +66,9 @@ class SubordinatesTimesheetPage extends Component {
     if (!!popupMsg && !turnOnTimerPopup) {
       this.setState({ turnOnTimerPopup: true });
       debounce(() => {
-        this.onClosePopup();
+        this.handleClosePopup();
         this.setState({ turnOnTimerPopup: false });
-      }, 3000)();
+      }, 10000)();
     }
   }
 
@@ -140,7 +140,7 @@ class SubordinatesTimesheetPage extends Component {
     this.setState({ isDelegated });
   };
 
-  onClosePopup = () => {
+  handleClosePopup = () => {
     this.props.setPopupMessage && this.props.setPopupMessage('');
   };
 
@@ -225,7 +225,7 @@ class SubordinatesTimesheetPage extends Component {
           {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
           {this.renderSubordinateTimesheet()}
         </div>
-        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.onClosePopup} title={'Сообщение'} />
+        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup} title={'Сообщение'} />
       </div>
     );
   }

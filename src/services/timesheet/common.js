@@ -2,15 +2,15 @@ import {
   CommonLabels,
   GroupedStatuses,
   ServerEventTypes,
+  ServerStatusKeys,
   StatusActions,
-  StatusesServerKeys,
   TimesheetTypes
 } from '../../helpers/timesheet/constants';
 import { t } from '../../helpers/util';
 import { URL } from '../../constants';
 
 const Types = TimesheetTypes;
-const Statuses = StatusesServerKeys;
+const Statuses = ServerStatusKeys;
 
 export default class CommonTimesheetService {
   static getStatusFilters = (type, action) => {

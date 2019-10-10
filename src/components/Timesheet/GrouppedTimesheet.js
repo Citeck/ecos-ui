@@ -5,13 +5,7 @@ import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 
 import { deepClone, t } from '../../helpers/util';
-import {
-  CommonLabels,
-  StatusActions,
-  StatusesServerKeys,
-  StatusesServerOutcomeKeys,
-  TimesheetTypes
-} from '../../helpers/timesheet/constants';
+import { CommonLabels, ServerStatusKeys, ServerStatusOutcomeKeys, StatusActions, TimesheetTypes } from '../../helpers/timesheet/constants';
 
 import { Icon, ResizeBoxes } from '../common';
 import { Input } from '../common/form';
@@ -257,7 +251,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         <IcoBtn
           icon="icon-arrow-left"
           className="ecos-btn_grey8 ecos-timesheet__table-group-btn_revision ecos-btn_narrow"
-          onClick={() => this.handleChangeStatus(index, StatusesServerOutcomeKeys.SEND_BACK)}
+          onClick={() => this.handleChangeStatus(index, ServerStatusOutcomeKeys.SEND_BACK)}
           id={`ecos-timesheet__table-group-btn_revision_${index}-message`}
         >
           {t(CommonLabels.STATUS_BTN_SENT_IMPROVE)}
@@ -267,7 +261,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         <IcoBtn
           icon="icon-check"
           className="ecos-btn_grey8 ecos-timesheet__table-group-btn_approve ecos-btn_narrow"
-          onClick={() => this.handleChangeStatus(index, StatusesServerOutcomeKeys.APPROVE)}
+          onClick={() => this.handleChangeStatus(index, ServerStatusOutcomeKeys.APPROVE)}
           id={`ecos-timesheet__table-group-btn_sent-approve_${index}-message`}
         >
           {t(CommonLabels.STATUS_BTN_APPROVE)}
@@ -277,7 +271,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         <IcoBtn
           icon="icon-arrow"
           className="ecos-btn_grey8 ecos-timesheet__table-group-btn_sent-manager-approve ecos-btn_narrow"
-          onClick={() => this.handleChangeStatus(index, StatusesServerOutcomeKeys.APPROVE)}
+          onClick={() => this.handleChangeStatus(index, ServerStatusOutcomeKeys.APPROVE)}
           id={`ecos-timesheet__table-group-btn_sent-manager-approve_${index}-message`}
         >
           {t(CommonLabels.STATUS_BTN_SEND_MANAGER_APPROVE)}
@@ -345,8 +339,8 @@ class GrouppedTimesheet extends BaseTimesheet {
         }
       } else if (typeSheet === TimesheetTypes.VERIFICATION) {
         switch (selectedStatus) {
-          case StatusesServerKeys.NOT_FILLED:
-          case StatusesServerKeys.CORRECTION:
+          case ServerStatusKeys.NOT_FILLED:
+          case ServerStatusKeys.CORRECTION:
             return (
               <>
                 {btnApprove}
@@ -355,17 +349,17 @@ class GrouppedTimesheet extends BaseTimesheet {
                 {tooltipSentManagerApprove}
               </>
             );
-          case StatusesServerKeys.MANAGER_APPROVAL:
-          case StatusesServerKeys.APPROVED_BY_MANAGER:
+          case ServerStatusKeys.MANAGER_APPROVAL:
+          case ServerStatusKeys.APPROVED_BY_MANAGER:
             return (
               <>
                 {btnRevision}
                 {tooltipRevision}
                 {btnApprove}
-                {selectedStatus === StatusesServerKeys.APPROVED_BY_MANAGER ? tooltipApprove1 : tooltipApprove2}
+                {selectedStatus === ServerStatusKeys.APPROVED_BY_MANAGER ? tooltipApprove1 : tooltipApprove2}
               </>
             );
-          case StatusesServerKeys.APPROVED_BY_HR:
+          case ServerStatusKeys.APPROVED_BY_HR:
             return (
               <>
                 {btnEmpty}
@@ -536,7 +530,7 @@ class GrouppedTimesheet extends BaseTimesheet {
               color={eventItem.color}
               count={count}
               canEdit={eventItem.canEdit}
-              onChange={value => this.handleChangeEventHours(eventDay, value)}
+              onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value)}
             />
           </CalendarCell>
         );

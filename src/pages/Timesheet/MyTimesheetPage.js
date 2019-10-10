@@ -2,17 +2,25 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import 'moment-business-days';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, MyTimesheetLabels, StatusesServerKeys } from '../../helpers/timesheet/constants';
+import { CommonLabels, MyTimesheetLabels, ServerDateFormats, ServerStatusKeys } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
-import { getMyTimesheetByParams, initMyTimesheetStart, modifyEventDayHours, modifyStatus } from '../../actions/timesheet/mine';
+import {
+  getMyTimesheetByParams,
+  initMyTimesheetStart,
+  modifyEventDayHours,
+  modifyStatus,
+  setPopupMessage
+} from '../../actions/timesheet/mine';
 import CommonTimesheetService from '../../services/timesheet/common';
 import MyTimesheetService from '../../services/timesheet/mine';
 
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
+import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { BlockStatus, DateSlider, Tabs } from '../../components/Timesheet';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 
@@ -22,14 +30,16 @@ const mapStateToProps = state => ({
   isLoading: get(state, ['timesheetMine', 'isLoading'], false),
   isLoadingStatus: get(state, ['timesheetMine', 'isLoadingStatus'], false),
   status: get(state, ['timesheetMine', 'status'], false),
-  mergedEvents: get(state, ['timesheetMine', 'mergedEvents'], false)
+  mergedEvents: get(state, ['timesheetMine', 'mergedEvents'], false),
+  popupMsg: get(state, ['timesheetMine', 'popupMsg'], '')
 });
 
 const mapDispatchToProps = dispatch => ({
   initMyTimesheetStart: payload => dispatch(initMyTimesheetStart(payload)),
   modifyStatus: payload => dispatch(modifyStatus(payload)),
   getMyTimesheetByParams: payload => dispatch(getMyTimesheetByParams(payload)),
-  modifyEventHours: payload => dispatch(modifyEventDayHours(payload))
+  modifyEventHours: payload => dispatch(modifyEventDayHours(payload)),
+  setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 
 class MyTimesheetPage extends Component {
@@ -49,12 +59,26 @@ class MyTimesheetPage extends Component {
       daysOfMonth: this.getDaysOfMonth(new Date()),
       isDelegated: false,
       delegatedTo: '',
-      delegationRejected: true
+      delegationRejected: true,
+      turnOnTimerPopup: false
     };
   }
 
   componentDidMount() {
     this.props.initMyTimesheetStart();
+  }
+
+  componentWillReceiveProps(nextProps, nextContext) {
+    const { popupMsg } = nextProps;
+    const { turnOnTimerPopup } = this.state;
+
+    if (!!popupMsg && !turnOnTimerPopup) {
+      this.setState({ turnOnTimerPopup: true });
+      debounce(() => {
+        this.handleClosePopup();
+        this.setState({ turnOnTimerPopup: false });
+      }, 10000)();
+    }
   }
 
   get isOnlyContent() {
@@ -74,7 +98,7 @@ class MyTimesheetPage extends Component {
     const { isDelegated } = this.state;
     const { status } = this.props;
 
-    if (status.key === StatusesServerKeys.MANAGER_APPROVAL) {
+    if (status.key === ServerStatusKeys.MANAGER_APPROVAL) {
       return t(MyTimesheetLabels.LOCK_DESCRIPTION_1);
     }
 
@@ -147,11 +171,17 @@ class MyTimesheetPage extends Component {
   };
 
   handleChangeEventHours = data => {
-    const { value, event } = data;
+    const { type: eventType, number, value } = data;
     const { currentDate } = this.state;
-    const date = moment(currentDate).set('date', event.number);
+    const date = moment(currentDate)
+      .date(number)
+      .format(ServerDateFormats.DDMMYYYY);
 
-    this.props.modifyEventHours && this.props.modifyEventHours({ value, date: '', eventType: event.name });
+    this.props.modifyEventHours && this.props.modifyEventHours({ value, date, eventType });
+  };
+
+  handleClosePopup = () => {
+    this.props.setPopupMessage && this.props.setPopupMessage('');
   };
 
   renderMyTimesheet = () => {
@@ -162,7 +192,7 @@ class MyTimesheetPage extends Component {
       <Timesheet
         eventTypes={mergedEvents}
         daysOfMonth={daysOfMonth}
-        isAvailable={status.key !== StatusesServerKeys.MANAGER_APPROVAL && !isDelegated}
+        isAvailable={status.key !== ServerStatusKeys.MANAGER_APPROVAL && !isDelegated}
         lockedMessage={this.lockDescription}
         onChangeHour={this.handleChangeEventHours}
       />
@@ -214,7 +244,7 @@ class MyTimesheetPage extends Component {
 
   render() {
     const { sheetTabs, currentDate } = this.state;
-    const { isLoading, isLoadingStatus, status } = this.props;
+    const { isLoading, isLoadingStatus, status, popupMsg } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -244,7 +274,7 @@ class MyTimesheetPage extends Component {
           <BlockStatus
             currentStatus={status.key}
             onChangeStatus={this.handleChangeStatus}
-            noActionBtn={!status.taskId || !StatusesServerKeys[status.key]}
+            noActionBtn={!status.taskId || !ServerStatusKeys[status.key]}
             isLoading={isLoadingStatus}
           />
         </div>
@@ -252,6 +282,7 @@ class MyTimesheetPage extends Component {
           {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
           {this.renderMyTimesheet()}
         </div>
+        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup} title={'Сообщение'} />
       </div>
     );
   }

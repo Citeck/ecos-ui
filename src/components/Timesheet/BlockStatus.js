@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { t } from '../../helpers/util';
-import { CommonLabels, StatusesServerKeys } from '../../helpers/timesheet/constants';
+import { CommonLabels, ServerStatusKeys } from '../../helpers/timesheet/constants';
 
 import { PointsLoader } from '../common';
 import { Btn, IcoBtn } from '../../components/common/btns';
@@ -72,29 +72,29 @@ class BlockStatus extends React.Component {
   renderViewStatus = () => {
     let { currentStatus } = this.props;
 
-    currentStatus = StatusesServerKeys[currentStatus] || null;
+    currentStatus = ServerStatusKeys[currentStatus] || null;
 
     switch (currentStatus) {
-      case StatusesServerKeys.NULL:
+      case ServerStatusKeys.NULL:
         return this.getCommonViewStatus({ value: CommonLabels.STATUS_VAL_NOT_FILLED });
-      case StatusesServerKeys.NOT_FILLED:
+      case ServerStatusKeys.NOT_FILLED:
         return this.getCommonViewStatus({
           value: CommonLabels.STATUS_VAL_NOT_FILLED,
           btn: CommonLabels.STATUS_BTN_SENT_APPROVE
         });
-      case StatusesServerKeys.MANAGER_APPROVAL:
-      case StatusesServerKeys.APPROVED_BY_MANAGER:
+      case ServerStatusKeys.MANAGER_APPROVAL:
+      case ServerStatusKeys.APPROVED_BY_MANAGER:
         return this.getCommonViewStatus({
           value: CommonLabels.STATUS_VAL_WAITING_APPROVAL,
           btn: CommonLabels.STATUS_BTN_SENT_IMPROVE
         });
-      case StatusesServerKeys.CORRECTION:
+      case ServerStatusKeys.CORRECTION:
         return this.getCommonViewStatus({
           value: CommonLabels.STATUS_VAL_NEED_IMPROVED,
           btn: CommonLabels.STATUS_BTN_SENT_APPROVE,
           hasMsg: true
         });
-      case StatusesServerKeys.APPROVED_BY_HR:
+      case ServerStatusKeys.APPROVED_BY_HR:
         return this.getCommonViewStatus({ value: CommonLabels.STATUS_VAL_APPROVED });
       default:
         return this.getCommonViewStatus({ value: CommonLabels.STATUS_VAL_NONE });
