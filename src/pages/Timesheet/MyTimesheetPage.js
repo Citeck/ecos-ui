@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
-import moment from 'moment';
-import 'moment-business-days';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, MyTimesheetLabels, ServerDateFormats, ServerStatusKeys } from '../../helpers/timesheet/constants';
-import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
+import { CommonLabels, MyTimesheetLabels, ServerStatusKeys } from '../../helpers/timesheet/constants';
+import { getDaysOfMonth, getNewDateByDayNumber, isOnlyContent } from '../../helpers/timesheet/util';
 import {
   getMyTimesheetByParams,
   initMyTimesheetStart,
@@ -38,7 +36,7 @@ const mapDispatchToProps = dispatch => ({
   initMyTimesheetStart: payload => dispatch(initMyTimesheetStart(payload)),
   modifyStatus: payload => dispatch(modifyStatus(payload)),
   getMyTimesheetByParams: payload => dispatch(getMyTimesheetByParams(payload)),
-  modifyEventHours: payload => dispatch(modifyEventDayHours(payload)),
+  modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 
@@ -170,14 +168,11 @@ class MyTimesheetPage extends Component {
     });
   };
 
-  handleChangeEventHours = data => {
+  handleChangeEventDayHours = data => {
     const { type: eventType, number, value } = data;
-    const { currentDate } = this.state;
-    const date = moment(currentDate)
-      .date(number)
-      .format(ServerDateFormats.DDMMYYYY);
+    const date = getNewDateByDayNumber(this.state.currentDate, number);
 
-    this.props.modifyEventHours && this.props.modifyEventHours({ value, date, eventType });
+    this.props.modifyEventDayHours && this.props.modifyEventDayHours({ value, date, eventType });
   };
 
   handleClosePopup = () => {
@@ -194,7 +189,7 @@ class MyTimesheetPage extends Component {
         daysOfMonth={daysOfMonth}
         isAvailable={status.key !== ServerStatusKeys.MANAGER_APPROVAL && !isDelegated}
         lockedMessage={this.lockDescription}
-        onChangeHour={this.handleChangeEventHours}
+        onChangeHours={this.handleChangeEventDayHours}
       />
     );
   };

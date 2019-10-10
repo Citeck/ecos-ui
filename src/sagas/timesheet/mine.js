@@ -89,7 +89,7 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
   }
 }
 
-function* sagaModifyEventHours({ api, logger }, { payload }) {
+function* sagaModifyEventDayHours({ api, logger }, { payload }) {
   try {
     const { value, date, eventType } = payload;
     const userName = yield select(selectUserUserName);
@@ -106,7 +106,7 @@ function* saga(ea) {
   yield takeLatest(getStatus().type, sagaGetStatus, ea);
   yield takeLatest(modifyStatus().type, sagaModifyStatus, ea);
   yield takeLatest(getMyTimesheetByParams().type, sagaGetMyTimesheetByParams, ea);
-  yield takeLatest(modifyEventDayHours().type, sagaModifyEventHours, ea);
+  yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
 }
 
 export default saga;

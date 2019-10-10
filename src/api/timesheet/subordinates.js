@@ -1,8 +1,5 @@
 import { RecordService } from '../recordService';
 import Records from '../../components/Records';
-import { TimesheetApi } from './timesheet';
-
-const timesheetApi = new TimesheetApi();
 
 export class TimesheetSubordinatesApi extends RecordService {
   getSubordinatesList = ({ userName }) => {

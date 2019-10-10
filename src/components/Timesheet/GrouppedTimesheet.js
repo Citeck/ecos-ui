@@ -32,8 +32,8 @@ class GrouppedTimesheet extends BaseTimesheet {
     groupBy: PropTypes.string,
     selectedAction: PropTypes.string,
     selectedStatus: PropTypes.string,
-    onChange: PropTypes.func,
-    typeSheet: PropTypes.string
+    typeSheet: PropTypes.string,
+    onChangeHours: PropTypes.func
   };
 
   static defaultProps = {
@@ -505,20 +505,20 @@ class GrouppedTimesheet extends BaseTimesheet {
     const { filteredEventTypes } = this.state;
 
     return filteredEventTypes.map(item => (
-      <div key={`event-${item.user}`}>
+      <div key={`event-${item.userName}`}>
         <CalendarRow>{daysOfMonth.map(this.renderCountByDay)}</CalendarRow>
         <Collapse
           transition="height 250ms linear 0s"
           className="ecos-timesheet__table-group-collapse-wrapper"
           isOpen={this.getGroupStatus(item[groupBy])}
         >
-          {item.eventTypes.map(this.renderEventCalendarRow)}
+          {item.eventTypes.map(item => this.renderEventCalendarRow(item, item.userName))}
         </Collapse>
       </div>
     ));
   }
 
-  renderEventCalendarRow = eventItem => (
+  renderEventCalendarRow = (eventItem, userName) => (
     <CalendarRow key={`calendar-row-${eventItem.name}`}>
       {this.props.daysOfMonth.map(day => {
         const eventDay = (eventItem.days || []).find(dayItem => dayItem.number === day.number) || {};
@@ -530,7 +530,7 @@ class GrouppedTimesheet extends BaseTimesheet {
               color={eventItem.color}
               count={count}
               canEdit={eventItem.canEdit}
-              onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value)}
+              onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value, userName)}
             />
           </CalendarCell>
         );

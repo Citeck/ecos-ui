@@ -1,8 +1,5 @@
 import get from 'lodash/get';
-import CommonTimesheetService from '../../services/timesheet/common';
 import CommonTimesheetConverter from './common';
-
-const eventTypes = CommonTimesheetService.getEventTypes();
 
 export default class SubordinatesTimesheetConverter {
   static getSubordinatesEventsListForWeb(source = []) {

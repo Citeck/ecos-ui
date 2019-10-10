@@ -21,7 +21,7 @@ class BaseTimesheet extends Component {
     daysOfMonth: PropTypes.array,
     isAvailable: PropTypes.bool,
     lockedMessage: PropTypes.string,
-    onChangeHour: PropTypes.func
+    onChangeHours: PropTypes.func
   };
 
   static defaultProps = {
@@ -113,8 +113,8 @@ class BaseTimesheet extends Component {
     this.setState({ draggableNode: node });
   };
 
-  handleChangeEventHours = (type, number, value) => {
-    this.props.onChangeHour && this.props.onChangeHour({ type, number, value });
+  handleChangeEventHours = (type, number, value, userName) => {
+    this.props.onChangeHours && this.props.onChangeHours({ type, number, value, userName });
   };
 
   filterTypes(typeFilter = '') {

@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-import 'moment-business-days';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
-import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
+import { getDaysOfMonth, getNewDateByDayNumber, isOnlyContent } from '../../helpers/timesheet/util';
 import { CommonLabels, StatusActions, SubTimesheetLabels, TimesheetTypes } from '../../helpers/timesheet/constants';
 import {
   getSubordinatesTimesheetByParams,
   initSubordinatesTimesheetStart,
-  modifyTaskStatus,
+  modifyEventDayHours,
+  modifyStatus,
   setPopupMessage
 } from '../../actions/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
@@ -32,7 +32,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   initSubordinatesTimesheetStart: payload => dispatch(initSubordinatesTimesheetStart(payload)),
   getSubordinatesTimesheetDate: payload => dispatch(getSubordinatesTimesheetByParams(payload)),
-  modifyStatus: payload => dispatch(modifyTaskStatus(payload)),
+  modifyStatus: payload => dispatch(modifyStatus(payload)),
+  modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 
@@ -140,6 +141,14 @@ class SubordinatesTimesheetPage extends Component {
     this.setState({ isDelegated });
   };
 
+  handleChangeEventDayHours = data => {
+    debugger;
+    const { type: eventType, number, value, userName } = data;
+    const date = getNewDateByDayNumber(this.state.currentDate, number);
+
+    this.props.modifyEventDayHours && this.props.modifyEventDayHours({ value, date, eventType, userName });
+  };
+
   handleClosePopup = () => {
     this.props.setPopupMessage && this.props.setPopupMessage('');
   };
@@ -167,8 +176,9 @@ class SubordinatesTimesheetPage extends Component {
           eventTypes={filteredList}
           daysOfMonth={daysOfMonth}
           isAvailable={!isDelegated}
-          onChangeStatus={this.handleChangeStatus}
           lockedMessage={this.lockDescription}
+          onChangeStatus={this.handleChangeStatus}
+          onChangeHours={this.handleChangeEventDayHours}
         />
       );
     }

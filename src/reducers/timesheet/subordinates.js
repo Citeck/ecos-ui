@@ -3,7 +3,7 @@ import {
   getSubordinatesTimesheetByParams,
   initSubordinatesTimesheetEnd,
   initSubordinatesTimesheetStart,
-  modifyTaskStatus,
+  modifyStatus,
   setLoading,
   setMergedList,
   setPopupMessage,
@@ -65,7 +65,7 @@ export default handleActions(
       ...state,
       statuses: actions.payload.records
     }),
-    [modifyTaskStatus]: (state, actions) => ({
+    [modifyStatus]: (state, actions) => ({
       ...state,
       isLoading: true
     }),

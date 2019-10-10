@@ -4,7 +4,8 @@ import {
   getSubordinatesTimesheetByParams,
   initSubordinatesTimesheetEnd,
   initSubordinatesTimesheetStart,
-  modifyTaskStatus,
+  modifyEventDayHours,
+  modifyStatus,
   setLoading,
   setMergedList,
   setPopupMessage,
@@ -147,10 +148,22 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   }
 }
 
+function* sagaModifyEventDayHours({ api, logger }, { payload }) {
+  try {
+    const { value, date, eventType, userName } = payload;
+
+    yield api.timesheetCommon.modifyEventHours({ userName, date, eventType, value });
+  } catch (e) {
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
+    logger.error('[timesheetMine sagaModifyStatus saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initSubordinatesTimesheetStart().type, sagaInitSubordinatesTimesheet, ea);
   yield takeLatest(getSubordinatesTimesheetByParams().type, sagaGetSubordinatesTimesheetByParams, ea);
-  yield takeLatest(modifyTaskStatus().type, sagaModifyTaskStatus, ea);
+  yield takeLatest(modifyStatus().type, sagaModifyTaskStatus, ea);
+  yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
 }
 
 export default saga;

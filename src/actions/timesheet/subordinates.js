@@ -8,7 +8,7 @@ export const getSubordinatesList = createAction(prefix + 'GET_SUBORDINATES_LIST'
 export const getCalendarEventList = createAction(prefix + 'GET_CALENDAR_EVENT_LIST');
 export const getStatusList = createAction(prefix + 'GET_STATUS_LIST');
 
-export const modifyTaskStatus = createAction(prefix + 'MODIFY_TASK_STATUS');
+export const modifyStatus = createAction(prefix + 'MODIFY_STATUS');
 export const modifyEventDayHours = createAction(prefix + 'MODIFY_EVENT_DAY_HOURS');
 
 export const initSubordinatesTimesheetEnd = createAction(prefix + 'INIT_SUBORDINATES_TIMESHEET_END');

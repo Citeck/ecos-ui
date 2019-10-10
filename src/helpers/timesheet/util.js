@@ -2,6 +2,7 @@ import moment from 'moment';
 import 'moment-business-days';
 import get from 'lodash/get';
 import { pagesWithOnlyContent } from '../../constants';
+import { ServerDateFormats } from './constants';
 
 export function getDaysOfMonth(currentDate) {
   const arr = Array.from({ length: moment(currentDate).daysInMonth() }, (x, i) => {
@@ -26,4 +27,10 @@ export function isOnlyContent(props) {
   const url = get(props, ['history', 'location', 'pathname'], '/');
 
   return pagesWithOnlyContent.includes(url);
+}
+
+export function getNewDateByDayNumber(currentDate, number) {
+  return moment(currentDate)
+    .date(number)
+    .format(ServerDateFormats.DDMMYYYY);
 }
