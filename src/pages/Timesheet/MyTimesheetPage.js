@@ -277,7 +277,7 @@ class MyTimesheetPage extends Component {
           {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
           {this.renderMyTimesheet()}
         </div>
-        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup} title={'Сообщение'} />
+        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup} title={t(CommonLabels.NOTICE)} />
       </div>
     );
   }

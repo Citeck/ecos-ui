@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, ServerStatusKeys, ServerStatusOutcomeKeys, StatusActions, TimesheetTypes } from '../../helpers/timesheet/constants';
+import { CommonLabels } from '../../helpers/timesheet/constants';
 
 import { Icon, ResizeBoxes } from '../common';
 import { Input } from '../common/form';
@@ -30,18 +30,14 @@ class GrouppedTimesheet extends BaseTimesheet {
     eventTypes: PropTypes.array,
     daysOfMonth: PropTypes.array,
     groupBy: PropTypes.string,
-    selectedAction: PropTypes.string,
-    selectedStatus: PropTypes.string,
-    typeSheet: PropTypes.string,
+    configGroupBtns: PropTypes.array,
     onChangeHours: PropTypes.func
   };
 
   static defaultProps = {
     eventTypes: [],
     daysOfMonth: [],
-    groupBy: '',
-    selectedAction: '',
-    selectedStatus: ''
+    groupBy: ''
   };
 
   constructor(props) {
@@ -182,13 +178,6 @@ class GrouppedTimesheet extends BaseTimesheet {
     this.setState({ eventsFilterTabs }, () => this.filterTypes(this.state.typeFilter));
   };
 
-  handleChangeStatus = (position, outcome) => {
-    const data = this.state.filteredEventTypes[position];
-    data.outcome = outcome;
-
-    this.props.onChangeStatus && this.props.onChangeStatus(data);
-  };
-
   handleClickOffDelegation = position => {
     console.log('handleClickOffDelegation');
   };
@@ -242,136 +231,40 @@ class GrouppedTimesheet extends BaseTimesheet {
     );
   }
 
+  renderGroupBtnByConfig(index) {
+    const { configGroupBtns } = this.props;
+
+    return configGroupBtns.map(config => {
+      const Button = config.icon ? IcoBtn : Btn;
+
+      const attr = {
+        className: classNames('ecos-btn_grey8 ecos-btn_narrow', config.className || ''),
+        onClick: () => {
+          const data = this.state.filteredEventTypes[index];
+          config.onClick(data);
+        },
+        id: `${config.id || 'ecos-timesheet-btn'}-${index}`
+      };
+
+      if (config.icon) {
+        attr.icon = config.icon;
+      }
+
+      if (!config.onClick) {
+        return <div key={attr.id} className="ecos-timesheet__empty-btn ecos-timesheet__empty-btn_narrow" />;
+      }
+
+      return (
+        <React.Fragment key={attr.id}>
+          <Button {...attr}>{config.title}</Button>
+          {config.tooltip && <Tooltip target={attr.id} content={config.tooltip} innerClassName="ecos-timesheet__table-group-tooltip" />}
+        </React.Fragment>
+      );
+    });
+  }
+
   renderGroupedEvents() {
     const { filteredEventTypes } = this.state;
-    const { selectedAction, selectedStatus, typeSheet } = this.props;
-
-    const renderGroupBtn = index => {
-      const btnRevision = (
-        <IcoBtn
-          icon="icon-arrow-left"
-          className="ecos-btn_grey8 ecos-timesheet__table-group-btn_revision ecos-btn_narrow"
-          onClick={() => this.handleChangeStatus(index, ServerStatusOutcomeKeys.SEND_BACK)}
-          id={`ecos-timesheet__table-group-btn_revision_${index}-message`}
-        >
-          {t(CommonLabels.STATUS_BTN_SENT_IMPROVE)}
-        </IcoBtn>
-      );
-      const btnApprove = (
-        <IcoBtn
-          icon="icon-check"
-          className="ecos-btn_grey8 ecos-timesheet__table-group-btn_approve ecos-btn_narrow"
-          onClick={() => this.handleChangeStatus(index, ServerStatusOutcomeKeys.APPROVE)}
-          id={`ecos-timesheet__table-group-btn_sent-approve_${index}-message`}
-        >
-          {t(CommonLabels.STATUS_BTN_APPROVE)}
-        </IcoBtn>
-      );
-      const btnSentManagerApprove = (
-        <IcoBtn
-          icon="icon-arrow"
-          className="ecos-btn_grey8 ecos-timesheet__table-group-btn_sent-manager-approve ecos-btn_narrow"
-          onClick={() => this.handleChangeStatus(index, ServerStatusOutcomeKeys.APPROVE)}
-          id={`ecos-timesheet__table-group-btn_sent-manager-approve_${index}-message`}
-        >
-          {t(CommonLabels.STATUS_BTN_SEND_MANAGER_APPROVE)}
-        </IcoBtn>
-      );
-      const tooltipRevision = (
-        <Tooltip
-          target={`ecos-timesheet__table-group-btn_revision_${index}-message`}
-          content={t(CommonLabels.STATUS_TIP_SENT_IMPROVE_1)}
-          innerClassName="ecos-timesheet__table-group-tooltip"
-        />
-      );
-      const tooltipApprove1 = (
-        <Tooltip
-          target={`ecos-timesheet__table-group-btn_sent-approve_${index}-message`}
-          content={t(CommonLabels.STATUS_TIP_APPROVE_1)}
-          innerClassName="ecos-timesheet__table-group-tooltip"
-        />
-      );
-      const tooltipApprove2 = (
-        <Tooltip
-          target={`ecos-timesheet__table-group-btn_sent-approve_${index}-message`}
-          content={t(CommonLabels.STATUS_TIP_APPROVE_2)}
-          innerClassName="ecos-timesheet__table-group-tooltip"
-        />
-      );
-      const tooltipSentManagerApprove = (
-        <Tooltip
-          target={`ecos-timesheet__table-group-btn_sent-manager-approve_${index}-message`}
-          content={t(CommonLabels.STATUS_TIP_SEND_MANAGER_APPROVE_1)}
-          innerClassName="ecos-timesheet__table-group-tooltip"
-        />
-      );
-
-      const btnEmpty = <div className="ecos-timesheet__empty-btn ecos-timesheet__empty-btn_narrow" />;
-
-      if (typeSheet === TimesheetTypes.DELEGATED || typeSheet === TimesheetTypes.SUBORDINATES) {
-        switch (selectedAction) {
-          case StatusActions.APPROVE:
-            return (
-              <>
-                {btnRevision}
-                {btnApprove}
-              </>
-            );
-          case StatusActions.FILL:
-            return (
-              <>
-                <Btn
-                  className="ecos-btn_grey8 ecos-timesheet__table-group-btn_off-delegation ecos-btn_narrow"
-                  onClick={() => this.handleClickOffDelegation(index)}
-                >
-                  {t(CommonLabels.STATUS_BTN_OFF_DELEGATION)}
-                </Btn>
-                <Btn
-                  className="ecos-btn_grey8  ecos-timesheet__table-group-btn_sent-approve ecos-btn_narrow"
-                  onClick={() => this.handleChangeStatus(index)}
-                >
-                  {t(CommonLabels.STATUS_BTN_SENT_APPROVE)}
-                </Btn>
-              </>
-            );
-          default:
-            return null;
-        }
-      } else if (typeSheet === TimesheetTypes.VERIFICATION) {
-        switch (selectedStatus) {
-          case ServerStatusKeys.NOT_FILLED:
-          case ServerStatusKeys.CORRECTION:
-            return (
-              <>
-                {btnApprove}
-                {tooltipApprove2}
-                {btnSentManagerApprove}
-                {tooltipSentManagerApprove}
-              </>
-            );
-          case ServerStatusKeys.MANAGER_APPROVAL:
-          case ServerStatusKeys.APPROVED_BY_MANAGER:
-            return (
-              <>
-                {btnRevision}
-                {tooltipRevision}
-                {btnApprove}
-                {selectedStatus === ServerStatusKeys.APPROVED_BY_MANAGER ? tooltipApprove1 : tooltipApprove2}
-              </>
-            );
-          case ServerStatusKeys.APPROVED_BY_HR:
-            return (
-              <>
-                {btnEmpty}
-                {btnRevision}
-                {tooltipRevision}
-              </>
-            );
-          default:
-            return null;
-        }
-      }
-    };
 
     return (
       <SortableContainer
@@ -436,7 +329,7 @@ class GrouppedTimesheet extends BaseTimesheet {
                   </div>
 
                   <div className="ecos-timesheet__table-group-line ecos-timesheet__table-group-line_space-between ">
-                    {renderGroupBtn(index)}
+                    {this.renderGroupBtnByConfig(index)}
                   </div>
                 </div>
 

@@ -5,7 +5,13 @@ import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
 import { getDaysOfMonth, getNewDateByDayNumber, isOnlyContent } from '../../helpers/timesheet/util';
-import { CommonLabels, StatusActions, SubTimesheetLabels, TimesheetTypes } from '../../helpers/timesheet/constants';
+import {
+  CommonLabels,
+  ServerStatusKeys,
+  ServerStatusOutcomeKeys,
+  SubTimesheetLabels,
+  TimesheetTypes
+} from '../../helpers/timesheet/constants';
 import {
   getSubordinatesTimesheetByParams,
   initSubordinatesTimesheetStart,
@@ -48,7 +54,7 @@ class SubordinatesTimesheetPage extends Component {
     this.state = {
       sheetTabs: CommonTimesheetService.getSheetTabs(this.isOnlyContent, location),
       dateTabs: CommonTimesheetService.getPeriodFiltersTabs(),
-      statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.SUBORDINATES, StatusActions.APPROVE),
+      statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.SUBORDINATES),
       currentDate: new Date(),
       daysOfMonth: this.getDaysOfMonth(new Date()),
       isDelegated: false,
@@ -77,10 +83,6 @@ class SubordinatesTimesheetPage extends Component {
     return isOnlyContent(this.props);
   }
 
-  getDaysOfMonth = currentDate => {
-    return getDaysOfMonth(currentDate);
-  };
-
   get lockDescription() {
     const { isDelegated } = this.state;
 
@@ -90,6 +92,58 @@ class SubordinatesTimesheetPage extends Component {
 
     return '';
   }
+
+  get selectedStatus() {
+    const { statusTabs } = this.state;
+
+    return statusTabs.find(item => item.isActive) || {};
+  }
+
+  get configGroupBtns() {
+    const status = this.selectedStatus;
+    const key = Array.isArray(status.key) ? status.key[0] : status.key;
+
+    switch (key) {
+      case ServerStatusKeys.NOT_FILLED:
+      case ServerStatusKeys.CORRECTION:
+        return [
+          {},
+          {
+            id: 'ecos-timesheet__table-group-btn_sent-approve_id',
+            className: 'ecos-timesheet__table-group-btn_approve',
+            icon: 'icon-check',
+            title: t(CommonLabels.STATUS_BTN_APPROVE),
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.TASK_DONE),
+            tooltip: t(CommonLabels.STATUS_TIP_APPROVE_1)
+          }
+        ];
+      case ServerStatusKeys.MANAGER_APPROVAL:
+        return [
+          {
+            id: 'ecos-timesheet__table-group-btn_revision_id',
+            className: 'ecos-timesheet__table-group-btn_revision',
+            icon: 'icon-arrow-left',
+            title: t(CommonLabels.STATUS_BTN_SENT_IMPROVE),
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK),
+            tooltip: t(CommonLabels.STATUS_TIP_SENT_IMPROVE_1)
+          },
+          {
+            id: 'ecos-timesheet__table-group-btn_sent-approve_id',
+            className: 'ecos-timesheet__table-group-btn_approve',
+            icon: 'icon-check',
+            title: t(CommonLabels.STATUS_BTN_APPROVE),
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.APPROVE),
+            tooltip: t(CommonLabels.STATUS_TIP_APPROVE_1)
+          }
+        ];
+      default:
+        return [{}, {}];
+    }
+  }
+
+  getDaysOfMonth = currentDate => {
+    return getDaysOfMonth(currentDate);
+  };
 
   handleChangeActiveSheetTab = tabIndex => {
     const sheetTabs = deepClone(this.state.sheetTabs);
@@ -130,9 +184,9 @@ class SubordinatesTimesheetPage extends Component {
     this.setState({ statusTabs });
   };
 
-  handleChangeStatus = data => {
+  handleChangeStatus = (data, outcome) => {
     const { currentDate } = this.state;
-    const { taskId, userName, outcome } = data;
+    const { taskId, userName } = data;
 
     this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, currentDate });
   };
@@ -154,30 +208,28 @@ class SubordinatesTimesheetPage extends Component {
   };
 
   renderSubordinateTimesheet = () => {
-    const { daysOfMonth, isDelegated, statusTabs } = this.state;
+    const { daysOfMonth, isDelegated } = this.state;
     const { mergedList, isLoading } = this.props;
 
-    const activeStatus = statusTabs.find(item => item.isActive) || {};
+    const activeStatus = this.selectedStatus;
 
-    // const filteredList = mergedList;
-    const filteredList = mergedList.filter(item => {
-      if (Array.isArray(activeStatus.key)) {
-        return activeStatus.key.includes(item.status);
-      }
-      return item.status === activeStatus.key;
-    });
+    const filteredList = mergedList;
+    // const filteredList = mergedList.filter(item => {
+    //   if (Array.isArray(activeStatus.key)) {
+    //     return activeStatus.key.includes(item.status);
+    //   }
+    //   return item.status === activeStatus.key;
+    // });
 
     if (filteredList.length > 0) {
       return (
         <Timesheet
           groupBy={'user'}
-          typeSheet={TimesheetTypes.SUBORDINATES}
-          selectedAction={StatusActions.APPROVE}
           eventTypes={filteredList}
           daysOfMonth={daysOfMonth}
           isAvailable={!isDelegated}
           lockedMessage={this.lockDescription}
-          onChangeStatus={this.handleChangeStatus}
+          configGroupBtns={this.configGroupBtns}
           onChangeHours={this.handleChangeEventDayHours}
         />
       );
@@ -235,7 +287,7 @@ class SubordinatesTimesheetPage extends Component {
           {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
           {this.renderSubordinateTimesheet()}
         </div>
-        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup} title={'Сообщение'} />
+        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup} title={t(CommonLabels.NOTICE)} />
       </div>
     );
   }

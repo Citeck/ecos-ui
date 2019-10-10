@@ -57,6 +57,8 @@ export const CommonLabels = {
 
   HEADLINE_DELEGATION: 'timesheets.allForms.delegation',
 
+  NOTICE: 'Уведомление',
+
   MAIN_TAB_1: 'timesheets.tabs.myTimesheetTab',
   MAIN_TAB_2: 'timesheets.tabs.mySubordinatesTab',
   MAIN_TAB_3: 'timesheets.tabs.delegated',
