@@ -1,5 +1,6 @@
 import { RecordService } from '../recordService';
 import Records from '../../components/Records';
+import { TASKS_URI } from '../../constants/alfresco';
 
 export class TimesheetCommonApi extends RecordService {
   getTimesheetStatusList = ({ month, year, userNames }) => {
@@ -19,7 +20,15 @@ export class TimesheetCommonApi extends RecordService {
     ).then(res => res);
   };
 
-  modifyStatus = ({ outcome, taskId, currentUser }) => {
+  changeTaskOwner = ({ taskId, currentUser }) => {
+    const data = { cm_owner: currentUser, action: 'claim' };
+
+    return this.putJson(`${TASKS_URI}change-task-owner/${taskId}`, data, true).then(resp => resp);
+  };
+
+  modifyStatus = function*({ outcome, taskId, currentUser }) {
+    yield this.changeTaskOwner({ taskId, currentUser });
+
     const task = Records.get(`wftask@${taskId}`);
 
     task.att(`outcome_${outcome}`, 'true');
