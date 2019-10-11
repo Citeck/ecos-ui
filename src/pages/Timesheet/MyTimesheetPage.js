@@ -28,9 +28,9 @@ const mapStateToProps = state => ({
   isLoading: get(state, ['timesheetMine', 'isLoading'], false),
   isLoadingStatus: get(state, ['timesheetMine', 'isLoadingStatus'], false),
   isUpdatingStatus: get(state, ['timesheetMine', 'isUpdatingStatus'], false),
-  status: get(state, ['timesheetMine', 'status'], false),
-  countAttemptGetStatus: get(state, ['timesheetMine', 'countAttemptGetStatus'], false),
-  mergedEvents: get(state, ['timesheetMine', 'mergedEvents'], false),
+  status: get(state, ['timesheetMine', 'status'], {}),
+  countAttemptGetStatus: get(state, ['timesheetMine', 'countAttemptGetStatus'], 0),
+  mergedEvents: get(state, ['timesheetMine', 'mergedEvents'], []),
   popupMsg: get(state, ['timesheetMine', 'popupMsg'], '')
 });
 
@@ -67,9 +67,11 @@ class MyTimesheetPage extends BaseTimesheetPage {
   componentWillReceiveProps(nextProps, nextContext) {
     super.componentWillReceiveProps(nextProps, nextContext);
 
-    if (nextProps.isUpdatingStatus && nextProps.countAttemptGetStatus !== this.props.countAttemptGetStatus) {
+    const { countAttemptGetStatus, status } = this.props;
+
+    if (nextProps.isUpdatingStatus && nextProps.countAttemptGetStatus !== countAttemptGetStatus) {
       this.statusPing();
-    } else if (nextProps.isUpdatingStatus && nextProps.countAttemptGetStatus === 0) {
+    } else if (nextProps.isUpdatingStatus && (nextProps.countAttemptGetStatus === 0 || status.key !== nextProps.status.key)) {
       this.statusPing.cancel();
       this.props.setUpdatingStatus && this.props.setUpdatingStatus(false);
     }
