@@ -21,6 +21,7 @@ import { fetchUserMenuData } from '../../../actions/header';
 import { loadThemeRequest } from '../../../actions/view';
 
 import configureStore from './store';
+import { i18nInit } from '../../../i18n';
 
 const logger = Logger.create('Header');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);
@@ -47,12 +48,14 @@ const render = (elementId, props) => {
               store.dispatch(initMenuSettings());
               store.dispatch(fetchUserMenuData());
 
-              ReactDOM.render(
-                <Provider store={store}>
-                  <Header {...props} />
-                </Provider>,
-                document.getElementById(elementId)
-              );
+              i18nInit().then(() => {
+                ReactDOM.render(
+                  <Provider store={store}>
+                    <Header {...props} />
+                  </Provider>,
+                  document.getElementById(elementId)
+                );
+              });
             }
           })
         );
