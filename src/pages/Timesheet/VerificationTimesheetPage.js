@@ -97,15 +97,15 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
     }
   }
 
-  getData() {
+  getData = () => {
     const { currentDate } = this.state;
     const status = this.selectedStatus.key;
 
     this.props.getVerificationTimesheetByParams && this.props.getVerificationTimesheetByParams({ currentDate, status });
-  }
+  };
 
   handleChangeCurrentDate(currentDate) {
-    super.handleChangeCurrentDate(currentDate);
+    super.handleChangeCurrentDate(currentDate, this.getData);
   }
 
   handleChangeStatusTab(tabIndex) {

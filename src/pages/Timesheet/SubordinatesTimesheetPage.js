@@ -92,8 +92,9 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
   }
 
   handleChangeCurrentDate(currentDate) {
-    super.handleChangeCurrentDate(currentDate);
-    this.props.getSubordinatesTimesheetByParams && this.props.getSubordinatesTimesheetByParams({ currentDate });
+    super.handleChangeCurrentDate(currentDate, () => {
+      this.props.getSubordinatesTimesheetByParams && this.props.getSubordinatesTimesheetByParams({ currentDate });
+    });
   }
 
   handleChangeStatus = (data, outcome) => {

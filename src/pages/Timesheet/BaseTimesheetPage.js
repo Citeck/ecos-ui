@@ -107,8 +107,8 @@ class BaseTimesheetPage extends React.Component {
     this.setState({ statusTabs }, callback);
   }
 
-  handleChangeCurrentDate(currentDate) {
-    this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
+  handleChangeCurrentDate(currentDate, callback = () => null) {
+    this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) }, callback);
   }
 
   render() {

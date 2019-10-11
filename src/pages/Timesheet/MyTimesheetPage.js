@@ -48,7 +48,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
   }
 
   componentDidMount() {
-    this.props.initMyTimesheetStart();
+    this.props.initMyTimesheetStart && this.props.initMyTimesheetStart();
   }
 
   get lockDescription() {
@@ -67,8 +67,9 @@ class MyTimesheetPage extends BaseTimesheetPage {
   }
 
   handleChangeCurrentDate(currentDate) {
-    super.handleChangeCurrentDate(currentDate);
-    this.props.getMyTimesheetByParams && this.props.getMyTimesheetByParams({ currentDate });
+    super.handleChangeCurrentDate(currentDate, () => {
+      this.props.getMyTimesheetByParams && this.props.getMyTimesheetByParams({ currentDate });
+    });
   }
 
   handleChangeStatus() {
