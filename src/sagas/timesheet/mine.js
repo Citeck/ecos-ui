@@ -8,7 +8,8 @@ import {
   modifyStatus,
   setMyTimesheetByParams,
   setPopupMessage,
-  setStatus
+  setStatus,
+  setUpdatingStatus
 } from '../../actions/timesheet/mine';
 import { selectUserUserName } from '../../selectors/user';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
@@ -74,8 +75,7 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
     const currentUser = yield select(selectUserUserName);
     const {
       outcome,
-      status: { taskId },
-      currentDate
+      status: { taskId }
     } = payload;
 
     yield api.timesheetCommon.modifyStatus({
@@ -83,8 +83,7 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
       taskId,
       currentUser
     });
-
-    yield put(getStatus({ currentDate }));
+    yield put(setUpdatingStatus(true));
   } catch (e) {
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
     logger.error('[timesheetMine sagaModifyStatus saga error', e.message);

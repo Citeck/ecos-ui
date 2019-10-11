@@ -36,6 +36,10 @@ export const ServerDateFormats = {
   DDMMYYYY: 'DD.MM.YYYY'
 };
 
+export const MaxAttempts = {
+  STATUS: 3
+};
+
 export const GroupedStatuses = {
   APPROVED: [ServerStatusKeys.APPROVED_BY_MANAGER, ServerStatusKeys.APPROVED_BY_HR]
 };

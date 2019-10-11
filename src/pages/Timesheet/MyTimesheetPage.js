@@ -8,10 +8,12 @@ import { CommonLabels, MyTimesheetLabels, ServerStatusKeys } from '../../helpers
 import { getNewDateByDayNumber } from '../../helpers/timesheet/util';
 import {
   getMyTimesheetByParams,
+  getStatus,
   initMyTimesheetStart,
   modifyEventDayHours,
   modifyStatus,
-  setPopupMessage
+  setPopupMessage,
+  setUpdatingStatus
 } from '../../actions/timesheet/mine';
 import MyTimesheetService from '../../services/timesheet/mine';
 
@@ -20,10 +22,12 @@ import { Switch } from '../../components/common/form';
 import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { BlockStatus, DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
+import { debounce } from 'lodash';
 
 const mapStateToProps = state => ({
   isLoading: get(state, ['timesheetMine', 'isLoading'], false),
   isLoadingStatus: get(state, ['timesheetMine', 'isLoadingStatus'], false),
+  isUpdatingStatus: get(state, ['timesheetMine', 'isUpdatingStatus'], false),
   status: get(state, ['timesheetMine', 'status'], false),
   mergedEvents: get(state, ['timesheetMine', 'mergedEvents'], false),
   popupMsg: get(state, ['timesheetMine', 'popupMsg'], '')
@@ -32,8 +36,10 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   initMyTimesheetStart: payload => dispatch(initMyTimesheetStart(payload)),
   modifyStatus: payload => dispatch(modifyStatus(payload)),
+  setUpdatingStatus: payload => dispatch(setUpdatingStatus(payload)),
   getMyTimesheetByParams: payload => dispatch(getMyTimesheetByParams(payload)),
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
+  getStatus: payload => dispatch(getStatus(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 
@@ -47,8 +53,25 @@ class MyTimesheetPage extends BaseTimesheetPage {
     this.state.delegationRejected = true;
   }
 
+  statusPing = debounce(() => {
+    const { currentDate } = this.state;
+
+    this.props.getStatus && this.props.getStatus({ currentDate });
+  }, 3000);
+
   componentDidMount() {
     this.props.initMyTimesheetStart && this.props.initMyTimesheetStart();
+  }
+
+  componentWillReceiveProps(nextProps, nextContext) {
+    super.componentWillReceiveProps(nextProps, nextContext);
+
+    if (nextProps.isUpdatingStatus && nextProps.countAttemptGetStatus !== this.props.countAttemptGetStatus) {
+      this.statusPing();
+    } else if (nextProps.isUpdatingStatus && nextProps.countAttemptGetStatus === 0) {
+      this.statusPing.cancel();
+      this.props.setUpdatingStatus && this.props.setUpdatingStatus(false);
+    }
   }
 
   get lockDescription() {
@@ -74,10 +97,9 @@ class MyTimesheetPage extends BaseTimesheetPage {
 
   handleChangeStatus() {
     const { status } = this.props;
-    const { currentDate } = this.state;
     const outcome = MyTimesheetService.getMyStatusOutcomeByCurrent(status.key);
 
-    this.props.modifyStatus && this.props.modifyStatus({ outcome, status, currentDate });
+    this.props.modifyStatus && this.props.modifyStatus({ outcome, status });
   }
 
   handleToggleDelegated(isDelegated) {
@@ -175,7 +197,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
 
   render() {
     const { sheetTabs, currentDate } = this.state;
-    const { isLoading, isLoadingStatus, status, popupMsg } = this.props;
+    const { isLoading, isLoadingStatus, isUpdatingStatus, status, popupMsg } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -206,7 +228,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
             currentStatus={status.key}
             onChangeStatus={this.handleChangeStatus.bind(this)}
             noActionBtn={!status.taskId || !values(ServerStatusKeys).includes(status.key)}
-            isLoading={isLoadingStatus}
+            isLoading={isLoadingStatus || isUpdatingStatus}
           />
         </div>
         <div className="ecos-timesheet__main-content">

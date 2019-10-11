@@ -1,4 +1,5 @@
 import { handleActions } from 'redux-actions';
+import { MaxAttempts } from '../../helpers/timesheet/constants';
 import {
   getMyTimesheetByParams,
   getStatus,
@@ -7,13 +8,16 @@ import {
   modifyStatus,
   setMyTimesheetByParams,
   setPopupMessage,
-  setStatus
+  setStatus,
+  setUpdatingStatus
 } from '../../actions/timesheet/mine';
 
 const initialState = {
   isLoading: false,
   isLoadingStatus: false,
+  isUpdatingStatus: false,
   status: {},
+  countAttemptGetStatus: 0,
   calendarEvents: [],
   mergedEvents: [],
   popupMsg: ''
@@ -54,7 +58,8 @@ export default handleActions(
     [getStatus]: (state, actions) => ({
       ...state,
       status: {},
-      isLoadingStatus: true
+      isLoadingStatus: true,
+      countAttemptGetStatus: state.isUpdatingStatus && state.countAttemptGetStatus > 0 ? state.countAttemptGetStatus - 1 : 0
     }),
     [setStatus]: (state, actions) => ({
       ...state,
@@ -69,6 +74,11 @@ export default handleActions(
     [setPopupMessage]: (state, actions) => ({
       ...state,
       popupMsg: actions.payload
+    }),
+    [setUpdatingStatus]: (state, actions) => ({
+      ...state,
+      isUpdatingStatus: actions.payload,
+      countAttemptGetStatus: actions.payload ? MaxAttempts.STATUS : 0
     })
   },
   initialState
