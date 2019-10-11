@@ -180,7 +180,7 @@ class MyTimesheetPage extends Component {
     this.props.setPopupMessage && this.props.setPopupMessage('');
   };
 
-  renderMyTimesheet = () => {
+  renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
     const { status, mergedEvents } = this.props;
 
@@ -276,7 +276,7 @@ class MyTimesheetPage extends Component {
         </div>
         <div className="ecos-timesheet__main-content">
           {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
-          {this.renderMyTimesheet()}
+          {this.renderTimesheet()}
         </div>
         <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup} title={t(CommonLabels.NOTICE)} />
       </div>

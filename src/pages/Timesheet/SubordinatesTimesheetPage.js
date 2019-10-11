@@ -184,7 +184,6 @@ class SubordinatesTimesheetPage extends Component {
   };
 
   handleChangeEventDayHours = data => {
-    debugger;
     const { type: eventType, number, value, userName } = data;
     const date = getNewDateByDayNumber(this.state.currentDate, number);
 
@@ -195,7 +194,7 @@ class SubordinatesTimesheetPage extends Component {
     this.props.setPopupMessage && this.props.setPopupMessage('');
   };
 
-  renderSubordinateTimesheet = () => {
+  renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
     const { mergedList, isLoading } = this.props;
 
@@ -272,7 +271,7 @@ class SubordinatesTimesheetPage extends Component {
         </div>
         <div className="ecos-timesheet__main-content">
           {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
-          {this.renderSubordinateTimesheet()}
+          {this.renderTimesheet()}
         </div>
         <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup} title={t(CommonLabels.NOTICE)} />
       </div>

@@ -1,25 +1,18 @@
-import React, { Component } from 'react';
+import React from 'react';
+import get from 'lodash/get';
 import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
-import {
-  CommonLabels,
-  ServerStatusKeys,
-  ServerStatusOutcomeKeys,
-  TimesheetTypes,
-  VerifyTimesheetLabels
-} from '../../helpers/timesheet/constants';
-import { BaseConfigGroupButtons, getDaysOfMonth } from '../../helpers/timesheet/util';
-import CommonTimesheetService from '../../services/timesheet/common';
-import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
-
-import { TimesheetApi } from '../../api/timesheet/timesheet';
-
-import './style.scss';
-import get from 'lodash/get';
+import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
+import { CommonLabels, ServerStatusKeys, ServerStatusOutcomeKeys, VerifyTimesheetLabels } from '../../helpers/timesheet/constants';
 import { getVerificationTimesheetByParams, initVerificationTimesheetStart, setPopupMessage } from '../../actions/timesheet/verification';
 
-const timesheetApi = new TimesheetApi();
+import BaseTimesheetPage from './BaseTimesheetPage';
+import { Loader } from '../../components/common';
+import { TunableDialog } from '../../components/common/dialogs';
+import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
+
+import './style.scss';
 
 const mapStateToProps = state => ({
   mergedList: get(state, ['timesheetVerification', 'mergedList'], []),
@@ -30,34 +23,16 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   initVerificationTimesheetStart: payload => dispatch(initVerificationTimesheetStart(payload)),
   getVerificationTimesheetByParams: payload => dispatch(getVerificationTimesheetByParams(payload)),
-
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 
-class VerificationTimesheetPage extends Component {
+class VerificationTimesheetPage extends BaseTimesheetPage {
   constructor(props) {
     super(props);
-
-    const {
-      history: { location }
-    } = props;
-
-    this.state = {
-      dateTabs: CommonTimesheetService.getPeriodFiltersTabs(),
-      statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.VERIFICATION),
-      currentDate: new Date(),
-      daysOfMonth: this.getDaysOfMonth(new Date())
-    };
   }
 
   componentDidMount() {
     this.props.initVerificationTimesheetStart && this.props.initVerificationTimesheetStart({ status: this.selectedStatus.key });
-  }
-
-  get selectedStatus() {
-    const { statusTabs } = this.state;
-
-    return statusTabs.find(item => item.isActive) || {};
   }
 
   get configGroupBtns() {
@@ -119,10 +94,6 @@ class VerificationTimesheetPage extends Component {
     this.props.getVerificationTimesheetByParams && this.props.getVerificationTimesheetByParams({ currentDate, status });
   }
 
-  getDaysOfMonth = currentDate => {
-    return getDaysOfMonth(currentDate);
-  };
-
   handleChangeActiveDateTab = tabIndex => {
     const dateTabs = deepClone(this.state.dateTabs);
 
@@ -147,7 +118,7 @@ class VerificationTimesheetPage extends Component {
     this.setState({ statusTabs }, this.getData);
   };
 
-  renderSubordinateTimesheet = () => {
+  renderTimesheet = () => {
     const { daysOfMonth, statusTabs } = this.state;
     const { mergedList } = this.props;
 
@@ -158,6 +129,7 @@ class VerificationTimesheetPage extends Component {
 
   render() {
     const { sheetTabs, dateTabs, currentDate, statusTabs } = this.state;
+    const { isLoading, popupMsg } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -178,8 +150,11 @@ class VerificationTimesheetPage extends Component {
             <Tabs tabs={statusTabs} isSmall onClick={this.handleChangeStatusTab} classNameItem="ecos-timesheet__status-tabs-item" />
           </div>
         </div>
-
-        {this.renderSubordinateTimesheet()}
+        <div className="ecos-timesheet__main-content">
+          {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
+          {this.renderTimesheet()}
+        </div>
+        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup} title={t(CommonLabels.NOTICE)} />
       </div>
     );
   }

@@ -171,7 +171,7 @@ class DelegatedTimesheetsPage extends React.Component {
     //this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, currentDate });
   };
 
-  renderActionTimesheet() {
+  renderTimesheet() {
     const { subordinatesEvents, daysOfMonth, isDelegated } = this.state;
 
     return (
@@ -229,7 +229,7 @@ class DelegatedTimesheetsPage extends React.Component {
             <Tabs tabs={statusTabs} isSmall onClick={this.handleChangeStatusTab} />
           </div>
         </div>
-        {this.renderActionTimesheet()}
+        {this.renderTimesheet()}
       </div>
     );
   }
