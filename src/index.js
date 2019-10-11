@@ -7,6 +7,8 @@ import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import * as serviceWorker from './serviceWorker';
 
+import { i18nInit } from './i18n';
+
 import moment from 'moment';
 import 'moment/locale/ru';
 import 'moment/locale/en-gb';
@@ -99,14 +101,16 @@ store.dispatch(
   loadThemeRequest({
     onSuccess: themeName => {
       requireShareAssets(themeName).then(() => {
-        ReactDOM.render(
-          <Provider store={store}>
-            <ConnectedRouter history={history}>
-              <App />
-            </ConnectedRouter>
-          </Provider>,
-          document.getElementById('root')
-        );
+        i18nInit().then(() => {
+          ReactDOM.render(
+            <Provider store={store}>
+              <ConnectedRouter history={history}>
+                <App />
+              </ConnectedRouter>
+            </Provider>,
+            document.getElementById('root')
+          );
+        });
       });
     }
   })

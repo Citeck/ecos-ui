@@ -1,5 +1,6 @@
 import lodashGet from 'lodash/get';
 import moment from 'moment';
+import i18next from 'i18next';
 import { DataFormatTypes, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
 import * as queryString from 'query-string';
@@ -185,27 +186,21 @@ export function dynamicallyLoadScript(url, callback) {
   }
 }
 
-// TODO
-export function t(messageId, multipleValues, scope = 'global') {
-  // https://dev.alfresco.com/resource/docs/aikau-jsdoc/Core.js.html
-  if (!messageId) {
+export function t(key, options, scope = 'global') {
+  if (!key) {
     return '';
   }
 
-  const Alfresco = window.Alfresco;
-
-  if (!Alfresco || !Alfresco.util || !Alfresco.util.message) {
-    // console.warn('[t]: Alfresco.util.message is not available');
-    return messageId;
+  if (i18next.exists(key)) {
+    return i18next.t(key, options);
   }
 
-  const translatedMessage = Alfresco.util.message(messageId, scope, multipleValues);
+  // const Alfresco = window.Alfresco;
+  // if (Alfresco && Alfresco.util && Alfresco.util.message) {
+  //   return Alfresco.util.message(key, scope, options);
+  // }
 
-  if (translatedMessage === messageId) {
-    // console.warn(`[t]: looks like message '${messageId}' has not translation`);
-  }
-
-  return translatedMessage;
+  return key;
 }
 
 export function cellMsg(prefix) {
@@ -282,13 +277,13 @@ export function getRelativeTime(from, to) {
   };
 
   if (minutes_ago <= 0) {
-    return fnTime('relative.seconds', seconds_ago);
+    return fnTime('relative.seconds', { value: seconds_ago });
   }
   if (minutes_ago === 1) {
     return fnTime('relative.minute');
   }
   if (minutes_ago < 45) {
-    return fnTime('relative.minutes', minutes_ago);
+    return fnTime('relative.minutes', { value: minutes_ago });
   }
   if (minutes_ago < 90) {
     return fnTime('relative.hour');
@@ -296,7 +291,7 @@ export function getRelativeTime(from, to) {
 
   const hours_ago = Math.round(minutes_ago / 60);
   if (minutes_ago < 1440) {
-    return fnTime('relative.hours', hours_ago);
+    return fnTime('relative.hours', { value: hours_ago });
   }
   if (minutes_ago < 2880) {
     return fnTime('relative.day');
@@ -304,7 +299,7 @@ export function getRelativeTime(from, to) {
 
   const days_ago = Math.round(minutes_ago / 1440);
   if (minutes_ago < 43200) {
-    return fnTime('relative.days', days_ago);
+    return fnTime('relative.days', { value: days_ago });
   }
   if (minutes_ago < 86400) {
     return fnTime('relative.month');
@@ -312,14 +307,14 @@ export function getRelativeTime(from, to) {
 
   const months_ago = Math.round(minutes_ago / 43200);
   if (minutes_ago < 525960) {
-    return fnTime('relative.months', months_ago);
+    return fnTime('relative.months', { value: months_ago });
   }
   if (minutes_ago < 1051920) {
     return fnTime('relative.year');
   }
 
   const years_ago = Math.round(minutes_ago / 525960);
-  return fnTime('relative.years', years_ago);
+  return fnTime('relative.years', { value: years_ago });
 }
 
 export function getScrollbarWidth() {
