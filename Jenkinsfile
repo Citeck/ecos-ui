@@ -40,6 +40,11 @@ timestamps {
           string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
         ]
       }
+      stage('Transfer artifacts to Unilever Jenkins') {
+        build job: 'artifact_transfer_to_unilever_jenkins', parameters: [
+          string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
+        ]
+      }
     }
     catch (Exception e) {
       currentBuild.result = 'FAILURE'
