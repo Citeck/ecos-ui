@@ -1,23 +1,38 @@
 @import '../../../../styles/constants';
 
 .ecos-field {
-  &.form-group {
-    margin-left: 0;
-    margin-right: 0;
-  }
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
 
-  .ecos-field__label {
-    font-family: $font-family !important;
-    font-size: $font-size-standard !important;
-    font-weight: $font-weight-semi-bold !important;
-    color: $text-color-dark !important;
-    padding-left: 0;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-  }
+.ecos-field_small {
+  display: block;
+}
 
-  .ecos-field__control {
-    padding: 0;
-  }
+.ecos-field__label {
+  font-family: $font-family !important;
+  font-size: $font-size-standard !important;
+  font-weight: $font-weight-semi-bold !important;
+  color: $text-color-dark !important;
+  padding-left: 0;
+  //white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 170px;
+  line-height: 1.2;
+}
+
+.ecos-field__label_small {
+  width: auto;
+  margin-bottom: 5px;
+}
+
+.ecos-field__control {
+  padding: 0;
+  min-width: 350px;
+}
+
+.ecos-field__control_small {
+  min-width: auto;
 }
