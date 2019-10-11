@@ -30,7 +30,7 @@ timestamps {
           if (!fileExists("/opt/ecos-ui-static/${env.BRANCH_NAME}")) {
             sh "mkdir /opt/ecos-ui-static/${env.BRANCH_NAME}"
           }
-          sh "rm -rf /opt/ecos-ui-static/${env.BRANCH_NAME}/*"
+          sh "rm -rf /opt/ecos-ui-static/${env.BRANCH_NAME}"
           fileOperations([folderCopyOperation(destinationFolderPath: '/opt/ecos-ui-static/'+"${env.BRANCH_NAME}"+'/', sourceFolderPath: "build")])
         }
       }
