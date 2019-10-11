@@ -401,7 +401,7 @@ class GrouppedTimesheet extends BaseTimesheet {
           className="ecos-timesheet__table-group-collapse-wrapper"
           isOpen={this.getGroupStatus(item[groupBy])}
         >
-          {item.eventTypes.map(item => this.renderEventCalendarRow(item, item.userName))}
+          {item.eventTypes.map(event => this.renderEventCalendarRow(event, item.userName))}
         </Collapse>
       </div>
     ));
