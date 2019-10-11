@@ -12,8 +12,6 @@ import { Loader } from '../../components/common';
 import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 
-import './style.scss';
-
 const mapStateToProps = state => ({
   mergedList: get(state, ['timesheetVerification', 'mergedList'], []),
   isLoading: get(state, ['timesheetVerification', 'isLoading'], false),
@@ -29,6 +27,8 @@ const mapDispatchToProps = dispatch => ({
 class VerificationTimesheetPage extends BaseTimesheetPage {
   constructor(props) {
     super(props);
+
+    this.state.sheetTabs = null;
   }
 
   componentDidMount() {
@@ -128,7 +128,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
   };
 
   render() {
-    const { sheetTabs, dateTabs, currentDate, statusTabs } = this.state;
+    const { dateTabs, currentDate, statusTabs } = this.state;
     const { isLoading, popupMsg } = this.props;
 
     return (

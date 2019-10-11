@@ -1,12 +1,11 @@
-import React, { Component } from 'react';
+import React from 'react';
 import get from 'lodash/get';
 import values from 'lodash/values';
-import debounce from 'lodash/debounce';
 import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels, MyTimesheetLabels, ServerStatusKeys } from '../../helpers/timesheet/constants';
-import { getDaysOfMonth, getNewDateByDayNumber, isOnlyContent } from '../../helpers/timesheet/util';
+import { getNewDateByDayNumber } from '../../helpers/timesheet/util';
 import {
   getMyTimesheetByParams,
   initMyTimesheetStart,
@@ -14,16 +13,13 @@ import {
   modifyStatus,
   setPopupMessage
 } from '../../actions/timesheet/mine';
-import CommonTimesheetService from '../../services/timesheet/common';
 import MyTimesheetService from '../../services/timesheet/mine';
 
+import BaseTimesheetPage from './BaseTimesheetPage';
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
 import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { BlockStatus, DateSlider, Tabs } from '../../components/Timesheet';
-import { changeUrlLink } from '../../components/PageTabs/PageTabs';
-
-import './style.scss';
 
 const mapStateToProps = state => ({
   isLoading: get(state, ['timesheetMine', 'isLoading'], false),
@@ -41,57 +37,20 @@ const mapDispatchToProps = dispatch => ({
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 
-class MyTimesheetPage extends Component {
+class MyTimesheetPage extends BaseTimesheetPage {
   constructor(props) {
     super(props);
 
-    const {
-      history: { location }
-    } = props;
+    this.statusTabs = null;
 
-    this.cacheDays = new Map();
-
-    this.state = {
-      sheetTabs: CommonTimesheetService.getSheetTabs(this.isOnlyContent, location),
-      dateTabs: CommonTimesheetService.getPeriodFiltersTabs(),
-      currentDate: new Date(),
-      daysOfMonth: this.getDaysOfMonth(new Date()),
-      isDelegated: false,
-      delegatedTo: '',
-      delegationRejected: true,
-      turnOnTimerPopup: false
-    };
+    this.isDelegated = false;
+    this.delegatedTo = '';
+    this.delegationRejected = true;
   }
 
   componentDidMount() {
     this.props.initMyTimesheetStart();
   }
-
-  componentWillReceiveProps(nextProps, nextContext) {
-    const { popupMsg } = nextProps;
-    const { turnOnTimerPopup } = this.state;
-
-    if (!!popupMsg && !turnOnTimerPopup) {
-      this.setState({ turnOnTimerPopup: true });
-      debounce(() => {
-        this.handleClosePopup();
-        this.setState({ turnOnTimerPopup: false });
-      }, 10000)();
-    }
-  }
-
-  get isOnlyContent() {
-    return isOnlyContent(this.props);
-  }
-
-  getDaysOfMonth = currentDate => {
-    //   if (this.cacheDays.has(currentDate)) {
-    //     return this.cacheDays.get(currentDate);
-    //   }
-    const days = getDaysOfMonth(currentDate);
-    //   this.cacheDays.set(currentDate, days);
-    return days;
-  };
 
   get lockDescription() {
     const { isDelegated } = this.state;
@@ -107,20 +66,6 @@ class MyTimesheetPage extends Component {
 
     return '';
   }
-
-  handleChangeActiveSheetTab = tabIndex => {
-    const sheetTabs = deepClone(this.state.sheetTabs);
-
-    sheetTabs.forEach((tab, index) => {
-      tab.isActive = index === tabIndex;
-
-      if (tab.isActive) {
-        changeUrlLink(tab.link);
-      }
-    });
-
-    this.setState({ sheetTabs });
-  };
 
   handleChangeActiveDateTab = tabIndex => {
     const dateTabs = deepClone(this.state.dateTabs);
@@ -174,10 +119,6 @@ class MyTimesheetPage extends Component {
     const date = getNewDateByDayNumber(this.state.currentDate, number);
 
     this.props.modifyEventDayHours && this.props.modifyEventDayHours({ value, date, eventType });
-  };
-
-  handleClosePopup = () => {
-    this.props.setPopupMessage && this.props.setPopupMessage('');
   };
 
   renderTimesheet = () => {
