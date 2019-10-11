@@ -31,6 +31,7 @@ const mapStateToProps = state => ({
   status: get(state, ['timesheetMine', 'status'], {}),
   countAttemptGetStatus: get(state, ['timesheetMine', 'countAttemptGetStatus'], 0),
   mergedEvents: get(state, ['timesheetMine', 'mergedEvents'], []),
+  updatingHours: get(state, ['timesheetMine', 'updatingHours'], {}),
   popupMsg: get(state, ['timesheetMine', 'popupMsg'], '')
 });
 
@@ -133,12 +134,12 @@ class MyTimesheetPage extends BaseTimesheetPage {
     const { type: eventType, number, value } = data;
     const date = getNewDateByDayNumber(this.state.currentDate, number);
 
-    this.props.modifyEventDayHours && this.props.modifyEventDayHours({ value, date, eventType });
+    this.props.modifyEventDayHours && this.props.modifyEventDayHours({ value, date, eventType, number });
   }
 
   renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
-    const { status, mergedEvents } = this.props;
+    const { status, mergedEvents, updatingHours } = this.props;
 
     return (
       <Timesheet
@@ -147,6 +148,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
         isAvailable={status.key !== ServerStatusKeys.MANAGER_APPROVAL && !isDelegated}
         lockedMessage={this.lockDescription}
         onChangeHours={this.handleChangeEventDayHours.bind(this)}
+        updatingHours={updatingHours}
       />
     );
   };

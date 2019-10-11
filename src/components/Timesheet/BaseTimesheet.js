@@ -6,6 +6,8 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/constants';
+import CommonTimesheetService from '../../services/timesheet/common';
+
 import { Icon, ResizeBoxes } from '../common';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { Input } from '../common/form';
@@ -21,6 +23,7 @@ class BaseTimesheet extends Component {
     daysOfMonth: PropTypes.array,
     isAvailable: PropTypes.bool,
     lockedMessage: PropTypes.string,
+    updatingHours: PropTypes.object,
     onChangeHours: PropTypes.func
   };
 
@@ -204,6 +207,9 @@ class BaseTimesheet extends Component {
   renderEventCalendarRow = eventItem => (
     <CalendarRow key={`calendar-row-${eventItem.name}`}>
       {this.props.daysOfMonth.map(day => {
+        const { updatingHours } = this.props;
+        const keyHour = CommonTimesheetService.getKeyHours({ number: day.number, eventType: eventItem.name });
+
         const eventDay = (eventItem.days || []).find(dayItem => dayItem.number === day.number) || {};
         const count = +(eventDay.hours || 0);
 
@@ -214,6 +220,7 @@ class BaseTimesheet extends Component {
               count={count}
               canEdit={eventItem.canEdit}
               onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value)}
+              isLoading={!!updatingHours[keyHour]}
             />
           </CalendarCell>
         );

@@ -2,3 +2,5 @@ export const selectTimesheetSubordinatesPeople = state => state.timesheetSubordi
 export const selectTimesheetSubordinatesEvents = state => state.timesheetSubordinates.calendarEvents || [];
 export const selectTimesheetSubordinatesStatuses = state => state.timesheetSubordinates.statuses || [];
 export const selectTimesheetSubordinatesMergedList = state => state.timesheetSubordinates.mergedList || [];
+
+export const selectTimesheetMineUpdatingHours = state => state.timesheetMine.updatingHours || {};

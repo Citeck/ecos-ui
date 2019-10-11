@@ -1,4 +1,5 @@
 import { put, select, takeLatest } from 'redux-saga/effects';
+import { delay } from 'redux-saga';
 import { TimesheetMessages } from '../../helpers/timesheet/constants';
 import {
   getMyTimesheetByParams,
@@ -9,10 +10,13 @@ import {
   setMyTimesheetByParams,
   setPopupMessage,
   setStatus,
+  setUpdatingEventDayHours,
   setUpdatingStatus
 } from '../../actions/timesheet/mine';
 import { selectUserUserName } from '../../selectors/user';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
+import { selectTimesheetMineUpdatingHours } from '../../selectors/timesheet';
+import CommonTimesheetService from '../../services/timesheet/common';
 
 function* sagaInitMyTimesheet({ api, logger }) {
   try {
@@ -91,12 +95,17 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
 }
 
 function* sagaModifyEventDayHours({ api, logger }, { payload }) {
-  try {
-    const { value, date, eventType } = payload;
-    const userName = yield select(selectUserUserName);
+  const userName = yield select(selectUserUserName);
+  const updatingHoursState = yield select(selectTimesheetMineUpdatingHours);
+  const l = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload);
 
-    yield api.timesheetCommon.modifyEventHours({ userName, date, eventType, value });
+  yield put(setUpdatingEventDayHours(l));
+  yield delay(3000);
+  try {
+    yield api.timesheetCommon.modifyEventHours({ ...payload, userName });
+    yield put(setUpdatingEventDayHours(CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true)));
   } catch (e) {
+    yield put(setUpdatingEventDayHours(CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true })));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
     logger.error('[timesheetMine sagaModifyStatus saga error', e.message);
   }

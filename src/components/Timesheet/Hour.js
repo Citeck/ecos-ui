@@ -18,6 +18,7 @@ class Hour extends Component {
     count: PropTypes.number,
     color: PropTypes.string,
     canEdit: PropTypes.bool,
+    isLoading: PropTypes.bool,
     onChange: PropTypes.func
   };
 
@@ -54,13 +55,13 @@ class Hour extends Component {
   }
 
   get isFull() {
-    const { isEdit, value, isLoading } = this.state;
+    const { isEdit, value } = this.state;
 
-    return value && !(isEdit || isLoading);
+    return value && !(isEdit || this.isLoader);
   }
 
   get isLoader() {
-    const { isLoading } = this.state;
+    const { isLoading } = this.props;
 
     return isLoading;
   }

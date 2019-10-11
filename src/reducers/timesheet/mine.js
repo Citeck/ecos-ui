@@ -9,6 +9,7 @@ import {
   setMyTimesheetByParams,
   setPopupMessage,
   setStatus,
+  setUpdatingEventDayHours,
   setUpdatingStatus
 } from '../../actions/timesheet/mine';
 
@@ -20,6 +21,7 @@ const initialState = {
   countAttemptGetStatus: 0,
   calendarEvents: [],
   mergedEvents: [],
+  updatingHours: {},
   popupMsg: ''
 };
 
@@ -79,6 +81,10 @@ export default handleActions(
       ...state,
       isUpdatingStatus: actions.payload,
       countAttemptGetStatus: actions.payload ? MaxAttempts.STATUS : 0
+    }),
+    [setUpdatingEventDayHours]: (state, actions) => ({
+      ...state,
+      updatingHours: actions.payload
     })
   },
   initialState

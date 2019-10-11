@@ -6,7 +6,7 @@ import {
   StatusActionFilters,
   TimesheetTypes
 } from '../../helpers/timesheet/constants';
-import { t } from '../../helpers/util';
+import { deepClone, t } from '../../helpers/util';
 import { URL } from '../../constants';
 
 const Types = TimesheetTypes;
@@ -192,4 +192,26 @@ export default class CommonTimesheetService {
       }
     ];
   };
+
+  static getKeyHours(data) {
+    const { userName = 'mine', number, eventType } = data;
+
+    return `${userName}-${number}-${eventType}`;
+  }
+
+  static setUpdatingHours(map, data, reset) {
+    const d = deepClone(data);
+
+    const { value, hasError = false } = d;
+
+    const key = CommonTimesheetService.getKeyHours(d);
+
+    if (reset) {
+      delete map[key];
+    } else {
+      map[key] = { value, hasError };
+    }
+
+    return map;
+  }
 }
