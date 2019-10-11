@@ -28,7 +28,7 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
       year: currentDate.getFullYear()
     });
 
-    const userNamesPure = VerificationTimesheetService.getUserNameList(userNameStatuses.records);
+    const userNamesPure = VerificationTimesheetService.getUserNameList(requestList.records);
 
     const infoPeopleList = yield api.timesheetVerification.getInfoPeopleList({ userNames: userNamesPure });
 
