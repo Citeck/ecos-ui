@@ -22,7 +22,7 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
   try {
     const { currentDate, status } = payload;
 
-    const userNameStatuses = yield api.timesheetVerification.getUserNameListByStatus({
+    const requestList = yield api.timesheetVerification.getRequestListByStatus({
       status,
       month: currentDate.getMonth(),
       year: currentDate.getFullYear()
@@ -41,7 +41,7 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
     const list = VerificationTimesheetService.mergeToVerificationEventsList({
       infoPeopleList: infoPeopleList.records,
       calendarEvents,
-      userNameStatuses
+      requestList: requestList.records
     });
 
     console.log('list', list);

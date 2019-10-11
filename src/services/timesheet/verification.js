@@ -1,14 +1,14 @@
 export default class VerificationTimesheetService {
-  static mergeToVerificationEventsList({ infoPeopleList, calendarEvents, userNameStatuses }) {
+  static mergeToVerificationEventsList({ peopleList, calendarEvents, requestList = [] }) {
     const target = [];
 
-    if (Array.isArray(infoPeopleList)) {
-      infoPeopleList.forEach(item => {
+    if (Array.isArray(peopleList)) {
+      peopleList.forEach(item => {
         const newItem = {};
 
         newItem.user = item;
         newItem.calendarEvents = calendarEvents[item.userName] || {};
-        newItem.status = userNameStatuses.find(us => item.userName === us.userName) || {};
+        newItem.status = Array.isArray(requestList) ? requestList.find(us => item.userName === us.userName) || {} : {};
 
         target.push(newItem);
       });
