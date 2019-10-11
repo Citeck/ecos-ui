@@ -104,20 +104,33 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
     this.props.getVerificationTimesheetByParams && this.props.getVerificationTimesheetByParams({ currentDate, status });
   }
 
-  handleChangeCurrentDate = currentDate => {
+  handleChangeCurrentDate(currentDate) {
     super.handleChangeCurrentDate(currentDate);
-  };
+  }
 
-  handleChangeStatusTab = tabIndex => {
+  handleChangeStatusTab(tabIndex) {
     super.handleChangeStatusTab(tabIndex, this.getData);
+  }
+
+  handleChangeStatus = (data, outcome) => {
+    const { currentDate } = this.state;
+    const { taskId, userName } = data;
   };
 
   renderTimesheet = () => {
-    const { daysOfMonth, statusTabs } = this.state;
-    const { mergedList } = this.props;
+    const { daysOfMonth } = this.state;
+    const { mergedList, isLoading } = this.props;
 
-    return (
-      <Timesheet groupBy={'user'} eventTypes={mergedList} daysOfMonth={daysOfMonth} configGroupBtns={this.configGroupBtns} isAvailable />
+    if (mergedList && mergedList.length > 0) {
+      return (
+        <Timesheet groupBy={'user'} eventTypes={mergedList} daysOfMonth={daysOfMonth} configGroupBtns={this.configGroupBtns} isAvailable />
+      );
+    }
+
+    return isLoading ? null : (
+      <div className="ecos-timesheet__white-block">
+        <div className="ecos-timesheet__no-data">{CommonLabels.NO_DATA}</div>
+      </div>
     );
   };
 
@@ -137,18 +150,23 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
             {/*onClick={this.handleChangeActiveDateTab}*/}
             {/*classNameItem="ecos-timesheet__date-settings-tabs-item"*/}
             {/*/>*/}
-            <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
+            <DateSlider onChange={this.handleChangeCurrentDate.bind(this)} date={currentDate} />
           </div>
 
           <div className="ecos-timesheet__status">
-            <Tabs tabs={statusTabs} isSmall onClick={this.handleChangeStatusTab} classNameItem="ecos-timesheet__status-tabs-item" />
+            <Tabs
+              tabs={statusTabs}
+              isSmall
+              onClick={this.handleChangeStatusTab.bind(this)}
+              classNameItem="ecos-timesheet__status-tabs-item"
+            />
           </div>
         </div>
         <div className="ecos-timesheet__main-content">
           {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
           {this.renderTimesheet()}
         </div>
-        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup} title={t(CommonLabels.NOTICE)} />
+        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
       </div>
     );
   }

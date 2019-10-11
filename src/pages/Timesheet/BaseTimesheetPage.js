@@ -69,11 +69,11 @@ class BaseTimesheetPage extends React.Component {
     }
   }
 
-  handleClosePopup = () => {
+  handleClosePopup() {
     this.props.setPopupMessage && this.props.setPopupMessage('');
-  };
+  }
 
-  handleChangeActiveSheetTab = tabIndex => {
+  handleChangeActiveSheetTab(tabIndex) {
     const sheetTabs = deepClone(this.state.sheetTabs);
 
     sheetTabs.forEach((tab, index) => {
@@ -85,9 +85,9 @@ class BaseTimesheetPage extends React.Component {
     });
 
     this.setState({ sheetTabs });
-  };
+  }
 
-  handleChangeActiveDateTab = tabIndex => {
+  handleChangeActiveDateTab(tabIndex) {
     const dateTabs = deepClone(this.state.dateTabs);
 
     dateTabs.forEach((tab, index) => {
@@ -95,9 +95,9 @@ class BaseTimesheetPage extends React.Component {
     });
 
     this.setState({ dateTabs });
-  };
+  }
 
-  handleChangeStatusTab = (tabIndex, callback = () => null) => {
+  handleChangeStatusTab(tabIndex, callback = () => null) {
     const statusTabs = deepClone(this.state.statusTabs);
 
     statusTabs.forEach((tab, index) => {
@@ -105,11 +105,11 @@ class BaseTimesheetPage extends React.Component {
     });
 
     this.setState({ statusTabs }, callback);
-  };
+  }
 
-  handleChangeCurrentDate = currentDate => {
+  handleChangeCurrentDate(currentDate) {
     this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
-  };
+  }
 
   render() {
     return null;

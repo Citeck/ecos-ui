@@ -66,20 +66,20 @@ class MyTimesheetPage extends BaseTimesheetPage {
     return '';
   }
 
-  handleChangeCurrentDate = currentDate => {
+  handleChangeCurrentDate(currentDate) {
     super.handleChangeCurrentDate(currentDate);
     this.props.getMyTimesheetByParams && this.props.getMyTimesheetByParams({ currentDate });
-  };
+  }
 
-  handleChangeStatus = () => {
+  handleChangeStatus() {
     const { status } = this.props;
     const { currentDate } = this.state;
     const outcome = MyTimesheetService.getMyStatusOutcomeByCurrent(status.key);
 
     this.props.modifyStatus && this.props.modifyStatus({ outcome, status, currentDate });
-  };
+  }
 
-  handleToggleDelegated = isDelegated => {
+  handleToggleDelegated(isDelegated) {
     this.setState(state => {
       const newState = {
         isDelegated,
@@ -93,22 +93,22 @@ class MyTimesheetPage extends BaseTimesheetPage {
 
       return newState;
     });
-  };
+  }
 
-  handleClickDelegationRejectedConfirm = () => {
+  handleClickDelegationRejectedConfirm() {
     this.setState({
       delegatedTo: '',
       delegationRejected: false,
       isDelegated: false
     });
-  };
+  }
 
-  handleChangeEventDayHours = data => {
+  handleChangeEventDayHours(data) {
     const { type: eventType, number, value } = data;
     const date = getNewDateByDayNumber(this.state.currentDate, number);
 
     this.props.modifyEventDayHours && this.props.modifyEventDayHours({ value, date, eventType });
-  };
+  }
 
   renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
@@ -120,7 +120,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
         daysOfMonth={daysOfMonth}
         isAvailable={status.key !== ServerStatusKeys.MANAGER_APPROVAL && !isDelegated}
         lockedMessage={this.lockDescription}
-        onChangeHours={this.handleChangeEventDayHours}
+        onChangeHours={this.handleChangeEventDayHours.bind(this)}
       />
     );
   };
@@ -146,7 +146,11 @@ class MyTimesheetPage extends BaseTimesheetPage {
         <div className="ecos-timesheet__delegation-title">{t(CommonLabels.HEADLINE_DELEGATION)}</div>
 
         <div className="ecos-timesheet__delegation-switch">
-          <Switch checked={isDelegated} className="ecos-timesheet__delegation-switch-checkbox" onToggle={this.handleToggleDelegated} />
+          <Switch
+            checked={isDelegated}
+            className="ecos-timesheet__delegation-switch-checkbox"
+            onToggle={this.handleToggleDelegated.bind(this)}
+          />
 
           <span className="ecos-timesheet__delegation-switch-label">
             {t(description)}{' '}
@@ -158,7 +162,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
           {delegationRejected && (
             <div
               className="ecos-timesheet__delegation-btn ecos-timesheet__delegation-btn-ok"
-              onClick={this.handleClickDelegationRejectedConfirm}
+              onClick={this.handleClickDelegationRejectedConfirm.bind(this)}
             >
               {t(MyTimesheetLabels.DELEGATION_LABEL_REJECT_OK)}
             </div>
@@ -179,7 +183,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
             <div className="ecos-timesheet__title">{t(CommonLabels.TIMESHEET_TITLE)}</div>
 
             <div className="ecos-timesheet__type">
-              <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab} />
+              <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab.bind(this)} />
             </div>
           </div>
 
@@ -194,12 +198,12 @@ class MyTimesheetPage extends BaseTimesheetPage {
             {/*onClick={this.handleChangeActiveDateTab}*/}
             {/*classNameItem="ecos-timesheet__date-settings-tabs-item"*/}
             {/*/>*/}
-            <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
+            <DateSlider onChange={this.handleChangeCurrentDate.bind(this)} date={currentDate} />
           </div>
 
           <BlockStatus
             currentStatus={status.key}
-            onChangeStatus={this.handleChangeStatus}
+            onChangeStatus={this.handleChangeStatus.bind(this)}
             noActionBtn={!status.taskId || !values(ServerStatusKeys).includes(status.key)}
             isLoading={isLoadingStatus}
           />
@@ -208,7 +212,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
           {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
           {this.renderTimesheet()}
         </div>
-        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup} title={t(CommonLabels.NOTICE)} />
+        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
       </div>
     );
   }

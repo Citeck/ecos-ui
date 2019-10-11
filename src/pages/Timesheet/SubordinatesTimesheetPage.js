@@ -91,10 +91,10 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
     }
   }
 
-  handleChangeCurrentDate = currentDate => {
+  handleChangeCurrentDate(currentDate) {
     super.handleChangeCurrentDate(currentDate);
     this.props.getSubordinatesTimesheetByParams && this.props.getSubordinatesTimesheetByParams({ currentDate });
-  };
+  }
 
   handleChangeStatus = (data, outcome) => {
     const { currentDate } = this.state;
@@ -103,20 +103,16 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
     this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, currentDate });
   };
 
-  handleToggleDelegated = isDelegated => {
+  handleToggleDelegated(isDelegated) {
     this.setState({ isDelegated });
-  };
+  }
 
-  handleChangeEventDayHours = data => {
+  handleChangeEventDayHours(data) {
     const { type: eventType, number, value, userName } = data;
     const date = getNewDateByDayNumber(this.state.currentDate, number);
 
     this.props.modifyEventDayHours && this.props.modifyEventDayHours({ value, date, eventType, userName });
-  };
-
-  handleClosePopup = () => {
-    this.props.setPopupMessage && this.props.setPopupMessage('');
-  };
+  }
 
   renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
@@ -140,7 +136,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
           isAvailable={!isDelegated}
           lockedMessage={this.lockDescription}
           configGroupBtns={this.configGroupBtns}
-          onChangeHours={this.handleChangeEventDayHours}
+          onChangeHours={this.handleChangeEventDayHours.bind(this)}
         />
       );
     }
@@ -163,7 +159,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
             <div className="ecos-timesheet__title">{t(CommonLabels.TIMESHEET_TITLE)}</div>
 
             <div className="ecos-timesheet__type">
-              <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab} />
+              <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab.bind(this)} />
             </div>
           </div>
 
@@ -171,7 +167,11 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
             <div className="ecos-timesheet__delegation-title">{t(CommonLabels.HEADLINE_DELEGATION)}</div>
 
             <div className="ecos-timesheet__delegation-switch">
-              <Switch checked={isDelegated} className="ecos-timesheet__delegation-switch-checkbox" onToggle={this.handleToggleDelegated} />
+              <Switch
+                checked={isDelegated}
+                className="ecos-timesheet__delegation-switch-checkbox"
+                onToggle={this.handleToggleDelegated.bind(this)}
+              />
 
               <span className="ecos-timesheet__delegation-switch-label">{t(SubTimesheetLabels.DELEGATION_DESCRIPTION_1)}</span>
             </div>
@@ -186,18 +186,18 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
             {/*onClick={this.handleChangeActiveDateTab}*/}
             {/*classNameItem="ecos-timesheet__date-settings-tabs-item"*/}
             {/*/>*/}
-            <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
+            <DateSlider onChange={this.handleChangeCurrentDate.bind(this)} date={currentDate} />
           </div>
 
           <div className="ecos-timesheet__white-block">
-            <Tabs tabs={statusTabs} isSmall onClick={this.handleChangeStatusTab} />
+            <Tabs tabs={statusTabs} isSmall onClick={this.handleChangeStatusTab.bind(this)} />
           </div>
         </div>
         <div className="ecos-timesheet__main-content">
           {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
           {this.renderTimesheet()}
         </div>
-        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup} title={t(CommonLabels.NOTICE)} />
+        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
       </div>
     );
   }

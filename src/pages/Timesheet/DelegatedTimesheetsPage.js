@@ -32,6 +32,12 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     this.state.actionDelegatedTabs = timesheetApi.getDelegatedActions();
   }
 
+  get selectedAction() {
+    const { actionDelegatedTabs } = this.state;
+
+    return (actionDelegatedTabs.find(item => item.isActive) || {}).action;
+  }
+
   get configGroupBtns() {
     const status = this.selectedStatus;
     const action = this.selectedAction;
@@ -79,11 +85,11 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     return [{}, {}];
   }
 
-  handleChangeCurrentDate = currentDate => {
+  handleChangeCurrentDate(currentDate) {
     super.handleChangeCurrentDate(currentDate);
-  };
+  }
 
-  handleChangeActionTab = tabIndex => {
+  handleChangeActionTab(tabIndex) {
     const actionDelegatedTabs = deepClone(this.state.actionDelegatedTabs);
     let selectedAction = '';
 
@@ -98,7 +104,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     const statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, selectedAction);
 
     this.setState({ actionDelegatedTabs, statusTabs });
-  };
+  }
 
   handleClickOffDelegation = data => {
     console.log('handleClickOffDelegation', data);
@@ -120,8 +126,8 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
         eventTypes={subordinatesEvents}
         daysOfMonth={daysOfMonth}
         isAvailable={!isDelegated}
-        onChange={this.handleChangeTimesheet}
         lockedMessage={this.lockDescription}
+        handleChangeEventDayHours
       />
     );
   }
@@ -136,7 +142,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
             <div className="ecos-timesheet__title">{t(CommonLabels.TIMESHEET_TITLE)}</div>
 
             <div className="ecos-timesheet__type">
-              <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab} />
+              <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab.bind(this)} />
             </div>
           </div>
 
@@ -157,15 +163,15 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
         <div className="ecos-timesheet__header">
           <div className="ecos-timesheet__header-box">
             <div className="ecos-timesheet__white-block">
-              <Tabs tabs={actionDelegatedTabs} isSmall onClick={this.handleChangeActionTab} />
+              <Tabs tabs={actionDelegatedTabs} isSmall onClick={this.handleChangeActionTab.bind(this)} />
             </div>
             <div className="ecos-timesheet__date-settings">
-              <DateSlider onChange={this.handleChangeCurrentDate} date={currentDate} />
+              <DateSlider onChange={this.handleChangeCurrentDate.bind(this)} date={currentDate} />
             </div>
           </div>
 
           <div className="ecos-timesheet__white-block">
-            <Tabs tabs={statusTabs} isSmall onClick={this.handleChangeStatusTab} />
+            <Tabs tabs={statusTabs} isSmall onClick={this.handleChangeStatusTab.bind(this)} />
           </div>
         </div>
         {this.renderTimesheet()}
