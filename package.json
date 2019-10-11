@@ -1,6 +1,6 @@
 {
   "name": "ecos-ui",
-  "version": "1.4.2-TIMESHEET",
+  "version": "1.4.2-timesheet-snapshot",
   "private": true,
   "dependencies": {
     "@loadable/component": "^5.10.1",
