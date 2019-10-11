@@ -19,7 +19,7 @@ timestamps {
           def build_timestamp = LocalDateTime.now()
           def package_props = readJSON file:("package.json")
           build_info.putAll(package_props.version)
-          build_info.putAll['timestamp':"${build_timestamp}"]
+          build_info.put("timestamp","${build_timestamp}")
           writeJSON(file: 'build/build-info.json', json: build_info, pretty: 4)
           fileOperations([folderCopyOperation(destinationFolderPath: '/opt/ecos-ui-static/'+"${env.BRANCH_NAME}", sourceFolderPath: "build")])
         }
