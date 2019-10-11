@@ -555,7 +555,7 @@ class Grid extends Component {
             {this.inlineTools()}
           </Scroll>
 
-          {props.fixedCols && props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
+          {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
             <>
               <BootstrapTable {...props} classes={ECOS_GRID_FREEZE_LEFT_CLASS} />
               <BootstrapTable {...props} classes={ECOS_GRID_FREEZE_TOP_CLASS} />
