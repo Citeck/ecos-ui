@@ -1,10 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import get from 'lodash/get';
-import debounce from 'lodash/debounce';
 import { connect } from 'react-redux';
 
-import { deepClone, t } from '../../helpers/util';
-import { BaseConfigGroupButtons, getDaysOfMonth, getNewDateByDayNumber, isOnlyContent } from '../../helpers/timesheet/util';
+import { t } from '../../helpers/util';
+import { BaseConfigGroupButtons, getNewDateByDayNumber } from '../../helpers/timesheet/util';
 import {
   CommonLabels,
   ServerStatusKeys,
@@ -25,9 +24,7 @@ import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
 import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
-import { changeUrlLink } from '../../components/PageTabs/PageTabs';
-
-import './style.scss';
+import BaseTimesheetPage from './BaseTimesheetPage';
 
 const mapStateToProps = state => ({
   mergedList: get(state, ['timesheetSubordinates', 'mergedList'], []),
@@ -43,44 +40,15 @@ const mapDispatchToProps = dispatch => ({
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 
-class SubordinatesTimesheetPage extends Component {
+class SubordinatesTimesheetPage extends BaseTimesheetPage {
   constructor(props) {
     super(props);
 
-    const {
-      history: { location }
-    } = props;
-
-    this.state = {
-      sheetTabs: CommonTimesheetService.getSheetTabs(this.isOnlyContent, location),
-      dateTabs: CommonTimesheetService.getPeriodFiltersTabs(),
-      statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.SUBORDINATES),
-      currentDate: new Date(),
-      daysOfMonth: this.getDaysOfMonth(new Date()),
-      isDelegated: false,
-      turnOnTimerPopup: false
-    };
+    this.state.statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.SUBORDINATES);
   }
 
   componentDidMount() {
     this.props.initSubordinatesTimesheetStart();
-  }
-
-  componentWillReceiveProps(nextProps, nextContext) {
-    const { popupMsg } = nextProps;
-    const { turnOnTimerPopup } = this.state;
-
-    if (!!popupMsg && !turnOnTimerPopup) {
-      this.setState({ turnOnTimerPopup: true });
-      debounce(() => {
-        this.handleClosePopup();
-        this.setState({ turnOnTimerPopup: false });
-      }, 10000)();
-    }
-  }
-
-  get isOnlyContent() {
-    return isOnlyContent(this.props);
   }
 
   get lockDescription() {
@@ -91,12 +59,6 @@ class SubordinatesTimesheetPage extends Component {
     }
 
     return '';
-  }
-
-  get selectedStatus() {
-    const { statusTabs } = this.state;
-
-    return statusTabs.find(item => item.isActive) || {};
   }
 
   get configGroupBtns() {
@@ -129,47 +91,9 @@ class SubordinatesTimesheetPage extends Component {
     }
   }
 
-  getDaysOfMonth = currentDate => {
-    return getDaysOfMonth(currentDate);
-  };
-
-  handleChangeActiveSheetTab = tabIndex => {
-    const sheetTabs = deepClone(this.state.sheetTabs);
-
-    sheetTabs.forEach((tab, index) => {
-      tab.isActive = index === tabIndex;
-
-      if (tab.isActive) {
-        changeUrlLink(tab.link);
-      }
-    });
-
-    this.setState({ sheetTabs });
-  };
-
-  handleChangeActiveDateTab = tabIndex => {
-    const dateTabs = deepClone(this.state.dateTabs);
-
-    dateTabs.forEach((tab, index) => {
-      tab.isActive = index === tabIndex;
-    });
-
-    this.setState({ dateTabs });
-  };
-
   handleChangeCurrentDate = currentDate => {
-    this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
+    super.handleChangeCurrentDate(currentDate);
     this.props.getSubordinatesTimesheetByParams && this.props.getSubordinatesTimesheetByParams({ currentDate });
-  };
-
-  handleChangeStatusTab = tabIndex => {
-    const statusTabs = deepClone(this.state.statusTabs);
-
-    statusTabs.forEach((tab, index) => {
-      tab.isActive = index === tabIndex;
-    });
-
-    this.setState({ statusTabs });
   };
 
   handleChangeStatus = (data, outcome) => {

@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import values from 'lodash/values';
 import { connect } from 'react-redux';
 
-import { deepClone, t } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import { CommonLabels, MyTimesheetLabels, ServerStatusKeys } from '../../helpers/timesheet/constants';
 import { getNewDateByDayNumber } from '../../helpers/timesheet/util';
 import {
@@ -15,11 +15,11 @@ import {
 } from '../../actions/timesheet/mine';
 import MyTimesheetService from '../../services/timesheet/mine';
 
-import BaseTimesheetPage from './BaseTimesheetPage';
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
 import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { BlockStatus, DateSlider, Tabs } from '../../components/Timesheet';
+import BaseTimesheetPage from './BaseTimesheetPage';
 
 const mapStateToProps = state => ({
   isLoading: get(state, ['timesheetMine', 'isLoading'], false),
@@ -41,11 +41,10 @@ class MyTimesheetPage extends BaseTimesheetPage {
   constructor(props) {
     super(props);
 
-    this.statusTabs = null;
+    this.state.statusTabs = null;
 
-    this.isDelegated = false;
-    this.delegatedTo = '';
-    this.delegationRejected = true;
+    this.state.delegatedTo = '';
+    this.state.delegationRejected = true;
   }
 
   componentDidMount() {
@@ -67,18 +66,8 @@ class MyTimesheetPage extends BaseTimesheetPage {
     return '';
   }
 
-  handleChangeActiveDateTab = tabIndex => {
-    const dateTabs = deepClone(this.state.dateTabs);
-
-    dateTabs.forEach((tab, index) => {
-      tab.isActive = index === tabIndex;
-    });
-
-    this.setState({ dateTabs });
-  };
-
   handleChangeCurrentDate = currentDate => {
-    this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
+    super.handleChangeCurrentDate(currentDate);
     this.props.getMyTimesheetByParams && this.props.getMyTimesheetByParams({ currentDate });
   };
 

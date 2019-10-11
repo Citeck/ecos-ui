@@ -2,15 +2,22 @@ import React from 'react';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
 
-import { deepClone, t } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
-import { CommonLabels, ServerStatusKeys, ServerStatusOutcomeKeys, VerifyTimesheetLabels } from '../../helpers/timesheet/constants';
+import {
+  CommonLabels,
+  ServerStatusKeys,
+  ServerStatusOutcomeKeys,
+  TimesheetTypes,
+  VerifyTimesheetLabels
+} from '../../helpers/timesheet/constants';
 import { getVerificationTimesheetByParams, initVerificationTimesheetStart, setPopupMessage } from '../../actions/timesheet/verification';
+import CommonTimesheetService from '../../services/timesheet/common';
 
-import BaseTimesheetPage from './BaseTimesheetPage';
 import { Loader } from '../../components/common';
 import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
+import BaseTimesheetPage from './BaseTimesheetPage';
 
 const mapStateToProps = state => ({
   mergedList: get(state, ['timesheetVerification', 'mergedList'], []),
@@ -29,6 +36,9 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
     super(props);
 
     this.state.sheetTabs = null;
+    this.state.isDelegated = null;
+
+    this.state.statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.VERIFICATION);
   }
 
   componentDidMount() {
@@ -94,28 +104,12 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
     this.props.getVerificationTimesheetByParams && this.props.getVerificationTimesheetByParams({ currentDate, status });
   }
 
-  handleChangeActiveDateTab = tabIndex => {
-    const dateTabs = deepClone(this.state.dateTabs);
-
-    dateTabs.forEach((tab, index) => {
-      tab.isActive = index === tabIndex;
-    });
-
-    this.setState({ dateTabs });
-  };
-
   handleChangeCurrentDate = currentDate => {
-    this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) }, this.getData);
+    super.handleChangeCurrentDate(currentDate);
   };
 
   handleChangeStatusTab = tabIndex => {
-    const statusTabs = deepClone(this.state.statusTabs);
-
-    statusTabs.forEach((tab, index) => {
-      tab.isActive = index === tabIndex;
-    });
-
-    this.setState({ statusTabs }, this.getData);
+    super.handleChangeStatusTab(tabIndex, this.getData);
   };
 
   renderTimesheet = () => {

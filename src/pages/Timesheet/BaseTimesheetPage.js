@@ -2,7 +2,6 @@ import React from 'react';
 import debounce from 'lodash/debounce';
 import { deepClone } from '../../helpers/util';
 import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
-import { TimesheetTypes } from '../../helpers/timesheet/constants';
 import CommonTimesheetService from '../../services/timesheet/common';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 
@@ -22,8 +21,9 @@ class BaseTimesheetPage extends React.Component {
       currentDate: new Date(),
       sheetTabs: CommonTimesheetService.getSheetTabs(this.isOnlyContent, location),
       dateTabs: CommonTimesheetService.getPeriodFiltersTabs(),
-      statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.VERIFICATION),
+      statusTabs: [],
       daysOfMonth: this.getDaysOfMonth(new Date()),
+      isDelegated: false,
       turnOnTimerPopup: false
     };
   }
@@ -38,17 +38,14 @@ class BaseTimesheetPage extends React.Component {
     return statusTabs.find(item => item.isActive) || {};
   }
 
+  get configGroupBtns() {
+    return [{}, {}];
+  }
+
   componentWillReceiveProps(nextProps, nextContext) {
     const { popupMsg } = nextProps;
-    const { turnOnTimerPopup } = this.state;
 
-    if (!!popupMsg && !turnOnTimerPopup) {
-      this.setState({ turnOnTimerPopup: true });
-      debounce(() => {
-        this.handleClosePopup();
-        this.setState({ turnOnTimerPopup: false });
-      }, 10000)();
-    }
+    this.resetPopupMsgTimer(popupMsg);
   }
 
   getDaysOfMonth = currentDate => {
@@ -59,6 +56,18 @@ class BaseTimesheetPage extends React.Component {
     //   this.cacheDays.set(currentDate, days);
     return days;
   };
+
+  resetPopupMsgTimer(popupMsg) {
+    const { turnOnTimerPopup } = this.state;
+
+    if (!!popupMsg && !turnOnTimerPopup) {
+      this.setState({ turnOnTimerPopup: true });
+      debounce(() => {
+        this.handleClosePopup();
+        this.setState({ turnOnTimerPopup: false });
+      }, 10000)();
+    }
+  }
 
   handleClosePopup = () => {
     this.props.setPopupMessage && this.props.setPopupMessage('');
@@ -76,6 +85,30 @@ class BaseTimesheetPage extends React.Component {
     });
 
     this.setState({ sheetTabs });
+  };
+
+  handleChangeActiveDateTab = tabIndex => {
+    const dateTabs = deepClone(this.state.dateTabs);
+
+    dateTabs.forEach((tab, index) => {
+      tab.isActive = index === tabIndex;
+    });
+
+    this.setState({ dateTabs });
+  };
+
+  handleChangeStatusTab = (tabIndex, callback = () => null) => {
+    const statusTabs = deepClone(this.state.statusTabs);
+
+    statusTabs.forEach((tab, index) => {
+      tab.isActive = index === tabIndex;
+    });
+
+    this.setState({ statusTabs }, callback);
+  };
+
+  handleChangeCurrentDate = currentDate => {
+    this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
   };
 
   render() {

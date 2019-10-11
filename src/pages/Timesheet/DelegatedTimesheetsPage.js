@@ -9,59 +9,27 @@ import {
   StatusActionFilters,
   TimesheetTypes
 } from '../../helpers/timesheet/constants';
-import { BaseConfigGroupButtons, getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
+import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 
-import { DateSlider, Tabs } from '../../components/Timesheet';
-import Timesheet from '../../components/Timesheet/Timesheet';
-import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { Btn } from '../../components/common/btns';
+import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
+import BaseTimesheetPage from './BaseTimesheetPage';
 
 import { TimesheetApi } from '../../api/timesheet/timesheet';
 
-import './style.scss';
-
 const timesheetApi = new TimesheetApi();
 
-class DelegatedTimesheetsPage extends React.Component {
+class DelegatedTimesheetsPage extends BaseTimesheetPage {
   constructor(props) {
     super(props);
 
-    const {
-      history: { location }
-    } = props;
-
-    this.cacheDays = new Map();
-
-    this.state = {
-      subordinatesEvents: timesheetApi.getEvents(),
-      sheetTabs: CommonTimesheetService.getSheetTabs(this.isOnlyContent, location),
-      statusTabs: CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, StatusActionFilters.FILL),
-      dateTabs: CommonTimesheetService.getPeriodFiltersTabs(),
-      currentDate: new Date(),
-      daysOfMonth: this.getDaysOfMonth(new Date()),
-      currentStatus: ServerStatusKeys.CORRECTION,
-      isDelegated: false,
-      delegatedTo: '',
-      delegationRejected: true,
-      actionDelegatedTabs: timesheetApi.getDelegatedActions()
-    };
-  }
-
-  get isOnlyContent() {
-    return isOnlyContent(this.props);
-  }
-
-  get selectedAction() {
-    const { actionDelegatedTabs } = this.state;
-
-    return (actionDelegatedTabs.find(item => item.isActive) || {}).action;
-  }
-
-  get selectedStatus() {
-    const { statusTabs } = this.state;
-
-    return statusTabs.find(item => item.isActive) || {};
+    this.state.subordinatesEvents = timesheetApi.getEvents();
+    this.state.statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, StatusActionFilters.FILL);
+    this.state.currentStatus = ServerStatusKeys.CORRECTION;
+    this.state.delegatedTo = '';
+    this.state.delegationRejected = true;
+    this.state.actionDelegatedTabs = timesheetApi.getDelegatedActions();
   }
 
   get configGroupBtns() {
@@ -111,26 +79,8 @@ class DelegatedTimesheetsPage extends React.Component {
     return [{}, {}];
   }
 
-  getDaysOfMonth = currentDate => {
-    return getDaysOfMonth(currentDate);
-  };
-
-  handleChangeActiveSheetTab = tabIndex => {
-    const sheetTabs = deepClone(this.state.sheetTabs);
-
-    sheetTabs.forEach((tab, index) => {
-      tab.isActive = index === tabIndex;
-
-      if (tab.isActive) {
-        changeUrlLink(tab.link);
-      }
-    });
-
-    this.setState({ sheetTabs });
-  };
-
   handleChangeCurrentDate = currentDate => {
-    this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) });
+    super.handleChangeCurrentDate(currentDate);
   };
 
   handleChangeActionTab = tabIndex => {
@@ -150,16 +100,6 @@ class DelegatedTimesheetsPage extends React.Component {
     this.setState({ actionDelegatedTabs, statusTabs });
   };
 
-  handleChangeStatusTab = tabIndex => {
-    const statusTabs = deepClone(this.state.statusTabs);
-
-    statusTabs.forEach((tab, index) => {
-      tab.isActive = index === tabIndex;
-    });
-
-    this.setState({ statusTabs });
-  };
-
   handleClickOffDelegation = data => {
     console.log('handleClickOffDelegation', data);
   };
@@ -168,7 +108,6 @@ class DelegatedTimesheetsPage extends React.Component {
     const { currentDate } = this.state;
     const { taskId, userName } = data;
     console.log('handleChangeStatus', { outcome, taskId, userName, currentDate });
-    //this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, currentDate });
   };
 
   renderTimesheet() {
