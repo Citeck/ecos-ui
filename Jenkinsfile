@@ -12,16 +12,26 @@ timestamps {
           userRemoteConfigs: [[credentialsId: 'bc074014-bab1-4fb0-b5a4-4cfa9ded5e66',url: 'git@bitbucket.org:citeck/ecos-ui.git']]
         ])
       }
+      def package_props = readJSON file:("package.json")
+      if ((env.BRANCH_NAME != "master") && (!package_props.version.contains('snapshot')))  {
+        echo "Assembly of release artifacts is allowed only from the master branch!"
+        currentBuild.result = 'SUCCESS'
+        return
+      }
       stage('Assembling and publishing project artifacts') {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
           sh "yarn && yarn build"
           def build_info = [:]
-          def build_timestamp = LocalDateTime.now()
-          def package_props = readJSON file:("package.json")
-          build_info.putAll(package_props.version)
+          def build_timestamp = new Date()
+          build_info.put("version", "${package_props.version}")
           build_info.put("timestamp","${build_timestamp}")
-          writeJSON(file: 'build/build-info.json', json: build_info, pretty: 4)
-          fileOperations([folderCopyOperation(destinationFolderPath: '/opt/ecos-ui-static/'+"${env.BRANCH_NAME}", sourceFolderPath: "build")])
+          def jsonOut = readJSON text: groovy.json.JsonOutput.toJson(build_info)
+          writeJSON(file: 'build/build-info.json', json: jsonOut, pretty: 2)
+          if (!fileExists("/opt/ecos-ui-static/${env.BRANCH_NAME}")) {
+            sh "mkdir /opt/ecos-ui-static/${env.BRANCH_NAME}"
+          }
+          sh "rm -rf /opt/ecos-ui-static/${env.BRANCH_NAME}/*"
+          fileOperations([folderCopyOperation(destinationFolderPath: '/opt/ecos-ui-static/'+"${env.BRANCH_NAME}"+'/', sourceFolderPath: "build")])
         }
       }
       stage('Building an ecos-ui docker images') {
