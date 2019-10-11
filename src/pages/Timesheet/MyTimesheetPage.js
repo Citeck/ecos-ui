@@ -29,6 +29,7 @@ const mapStateToProps = state => ({
   isLoadingStatus: get(state, ['timesheetMine', 'isLoadingStatus'], false),
   isUpdatingStatus: get(state, ['timesheetMine', 'isUpdatingStatus'], false),
   status: get(state, ['timesheetMine', 'status'], false),
+  countAttemptGetStatus: get(state, ['timesheetMine', 'countAttemptGetStatus'], false),
   mergedEvents: get(state, ['timesheetMine', 'mergedEvents'], false),
   popupMsg: get(state, ['timesheetMine', 'popupMsg'], '')
 });

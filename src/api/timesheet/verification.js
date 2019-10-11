@@ -5,7 +5,7 @@ export class TimesheetVerificationApi extends RecordService {
   getUserNameListByStatus = ({ month, year, status }) => {
     return Records.query(
       {
-        query: `TYPE:'timesheet:Request' AND @timesheet:currentYear:${year} @timesheet:currentMonth:${month} @timesheet:status:${status}`,
+        query: `TYPE:'timesheet:Request' AND @timesheet:currentYear:${year} AND @timesheet:currentMonth:${month} AND @timesheet:status:${status}`,
         language: 'fts-alfresco',
         maxItems: 100,
         sourceId: 'people',
@@ -24,7 +24,7 @@ export class TimesheetVerificationApi extends RecordService {
 
     return Records.query(
       {
-        query: `TYPE:'cm:person' AND ${queryNames}`,
+        query: `${queryNames}`,
         language: 'fts-alfresco',
         maxItems: 100,
         sourceId: 'people',
