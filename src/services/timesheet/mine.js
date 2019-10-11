@@ -6,6 +6,9 @@ export default class MyTimesheetService {
       case ServerStatusKeys.NOT_FILLED:
       case ServerStatusKeys.CORRECTION:
         return ServerStatusOutcomeKeys.TASK_DONE;
+      case ServerStatusKeys.MANAGER_APPROVAL:
+      case ServerStatusKeys.APPROVED_BY_MANAGER:
+        return ServerStatusOutcomeKeys.SEND_BACK;
       default:
         return null;
     }
