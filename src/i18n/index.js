@@ -3,6 +3,7 @@ import { getCurrentLocale } from '../helpers/util';
 import lodashSet from 'lodash/set';
 
 const loadKeys = async lang => {
+  // TODO group by modules
   const module = await import(`../i18n/${lang}`);
   return module.default;
 };
