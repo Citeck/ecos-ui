@@ -138,6 +138,7 @@ module.exports = {
       path
         .relative(paths.appSrc, info.absoluteResourcePath)
         .replace(/\\/g, '/'),
+    jsonpFunction: 'webpackJsonpExportECOSUI' // Avoid several webpack instances conflict
   },
   externals: exportConfig.externals,
   optimization: {
