@@ -177,7 +177,9 @@ export function getCurrentLocale() {
 
 export function dynamicallyLoadScript(url, callback) {
   const script = document.createElement('script');
-  script.src = url;
+
+  const prefix = url.indexOf('?') === -1 ? '?' : '&v=';
+  script.src = `${url}${prefix}${process.env.REACT_APP_BUILD_VERSION}`;
 
   document.body.appendChild(script);
 

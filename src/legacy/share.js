@@ -67,15 +67,15 @@ export function requireStyles(themeName) {
 
 export function loadCoreScripts() {
   return new Promise(resolve => {
-    dynamicallyLoadScript(`/share/service/surf/dojo/bootstrap.js?${process.env.REACT_APP_BUILD_VERSION}`, function() {
+    dynamicallyLoadScript(`/share/service/surf/dojo/bootstrap.js`, function() {
       if (window.dojoConfig) {
         window.dojoConfig.cacheBust = process.env.REACT_APP_BUILD_VERSION;
 
-        dynamicallyLoadScript(`/share/res/js/lib/dojo-1.10.4/dojo/dojo.js?${process.env.REACT_APP_BUILD_VERSION}`, function() {
-          dynamicallyLoadScript(`/share/res/js/yui-common.js?${process.env.REACT_APP_BUILD_VERSION}`, function() {
+        dynamicallyLoadScript(`/share/res/js/lib/dojo-1.10.4/dojo/dojo.js`, function() {
+          dynamicallyLoadScript(`/share/res/js/yui-common.js`, function() {
             lodashSet(window, 'Alfresco.messages', { global: null, scope: {} });
-            dynamicallyLoadScript('/share/service/messages.js?locale=' + getCurrentLocale() + '&v=' + window.dojoConfig.cacheBust, () => {
-              dynamicallyLoadScript(`/share/res/js/alfresco.js?${process.env.REACT_APP_BUILD_VERSION}`, function() {
+            dynamicallyLoadScript(`/share/service/messages.js?locale=${getCurrentLocale()}`, () => {
+              dynamicallyLoadScript(`/share/res/js/alfresco.js`, function() {
                 resolve();
               });
             });

@@ -63,11 +63,9 @@ export default function handleControl(type, payload, dispatch) {
       if (window.Alfresco && window.Alfresco.module && typeof window.Alfresco.module.getCreateSiteInstance === 'function') {
         window.Alfresco.module.getCreateSiteInstance().show();
       } else {
-        const legacyCreateSiteResource = `${URL_RESCONTEXT}modules/create-site${
-          process.env.NODE_ENV === 'development' ? '.js' : '-min.js'
-        }?${process.env.REACT_APP_BUILD_VERSION}`;
+        const createSiteScript = `${URL_RESCONTEXT}modules/create-site${process.env.NODE_ENV === 'development' ? '.js' : '-min.js'}`;
         requireShareAssets().then(() => {
-          dynamicallyLoadScript(legacyCreateSiteResource, function() {
+          dynamicallyLoadScript(createSiteScript, function() {
             window.Alfresco.module.getCreateSiteInstance().show();
           });
         });
