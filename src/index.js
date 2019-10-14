@@ -7,6 +7,8 @@ import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import * as serviceWorker from './serviceWorker';
 
+import { i18nInit } from './i18n';
+
 import moment from 'moment';
 import 'moment/locale/ru';
 import 'moment/locale/en-gb';
@@ -16,7 +18,6 @@ import datePickerLocaleRu from 'date-fns/locale/ru';
 import { getCurrentLocale } from './helpers/util';
 
 import configureStore, { getHistory } from './store';
-import { requireShareAssets } from './share';
 import { initAppRequest } from './actions/app';
 import { loadThemeRequest } from './actions/view';
 import {
@@ -94,20 +95,26 @@ api.view = new ViewApi(store);
 
 const history = getHistory();
 
-store.dispatch(initAppRequest());
+// TODO simplify
 store.dispatch(
-  loadThemeRequest({
-    onSuccess: themeName => {
-      requireShareAssets(themeName).then(() => {
-        ReactDOM.render(
-          <Provider store={store}>
-            <ConnectedRouter history={history}>
-              <App />
-            </ConnectedRouter>
-          </Provider>,
-          document.getElementById('root')
-        );
-      });
+  initAppRequest({
+    onSuccess: () => {
+      store.dispatch(
+        loadThemeRequest({
+          onSuccess: () => {
+            i18nInit().then(() => {
+              ReactDOM.render(
+                <Provider store={store}>
+                  <ConnectedRouter history={history}>
+                    <App />
+                  </ConnectedRouter>
+                </Provider>,
+                document.getElementById('root')
+              );
+            });
+          }
+        })
+      );
     }
   })
 );

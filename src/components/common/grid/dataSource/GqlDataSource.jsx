@@ -2,7 +2,7 @@ import BaseDataSource from './BaseDataSource';
 import formatterStore from '../formatters/formatterStore';
 import Mapper from '../mapping/Mapper';
 import Records from '../../../Records';
-import { getCurrentLocale } from '../../../../helpers/util';
+import { getCurrentLocale, t } from '../../../../helpers/util';
 
 const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
 
@@ -65,7 +65,7 @@ export default class GqlDataSource extends BaseDataSource {
       let newColumn = { ...column };
 
       newColumn.dataField = newColumn.dataField || newColumn.attribute;
-      newColumn.text = window.Alfresco.util.message(newColumn.text || newColumn.dataField);
+      newColumn.text = t(newColumn.text || newColumn.dataField);
 
       let formatterOptions = newColumn.formatter || Mapper.getFormatterOptions(newColumn, idx);
       let { formatter, params } = this._getFormatter(formatterOptions);
@@ -84,7 +84,7 @@ export default class GqlDataSource extends BaseDataSource {
       let newColumn = { ...column };
 
       newColumn.dataField = newColumn.dataField || newColumn.attribute;
-      newColumn.text = window.Alfresco.util.message(newColumn.text || newColumn.dataField);
+      newColumn.text = t(newColumn.text || newColumn.dataField);
 
       let formatterOptions = newColumn.formatter || Mapper.getFormatterOptions(newColumn, idx);
       let { formatter, params } = GqlDataSource.getFormatterStatic(formatterOptions);

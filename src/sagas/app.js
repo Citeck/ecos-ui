@@ -1,4 +1,6 @@
 import { put, takeLatest, call } from 'redux-saga/effects';
+import lodashSet from 'lodash/set';
+import lodashGet from 'lodash/get';
 import { initAppRequest, initAppSuccess, initAppFailure } from '../actions/app';
 import { validateUserSuccess, validateUserFailure } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
@@ -13,6 +15,9 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
         yield put(validateUserFailure());
       } else {
         yield put(validateUserSuccess(resp.payload));
+
+        // TODO remove in future: see src/helpers/util.js getCurrentUserName()
+        lodashSet(window, 'Alfresco.constants.USERNAME', lodashGet(resp.payload, 'userName'));
       }
     }
 
