@@ -10,6 +10,7 @@ import SearchService from '../../services/search';
 import SearchItem from './SearchItem';
 import { changeUrlLink } from '../PageTabs/PageTabs';
 import { isNewVersionPage } from '../../helpers/urls';
+import { URL_PAGECONTEXT } from '../../constants/alfresco';
 
 const Types = SearchService.SearchAutocompleteTypes;
 
@@ -58,7 +59,7 @@ class Search extends React.Component {
   openFullSearch = searchText => {
     const { searchPageUrl, hiddenSearchTerms } = this.props;
     const path = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
-    const url = window.Alfresco.constants.URL_PAGECONTEXT + path;
+    const url = URL_PAGECONTEXT + path;
 
     if (!isNewVersionPage()) {
       return (window.location.href = url);

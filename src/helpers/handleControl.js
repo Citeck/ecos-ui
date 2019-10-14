@@ -1,3 +1,4 @@
+import { URL_SERVICECONTEXT, URL_RESCONTEXT } from '../constants/alfresco';
 import { t } from '../helpers/util';
 import { goToCardDetailsPage } from '../helpers/urls';
 import { showModal, hideModal } from '../actions/modal';
@@ -8,7 +9,7 @@ import FormManager from '../components/EcosForm/FormManager';
 export default function handleControl(type, payload, dispatch) {
   switch (type) {
     case 'ALF_DOLOGOUT':
-      fetch(window.Alfresco.constants.URL_SERVICECONTEXT + 'dologout', {
+      fetch(URL_SERVICECONTEXT + 'dologout', {
         method: 'POST'
       }).then(() => {
         window.location.reload();
@@ -39,7 +40,7 @@ export default function handleControl(type, payload, dispatch) {
         window.Alfresco.module.getCreateSiteInstance().show();
       } else {
         const legacyCreateSiteResource =
-          window.Alfresco.constants.URL_RESCONTEXT + 'modules/create-site' + (window.Alfresco.constants.DEBUG ? '.js' : '-min.js');
+          URL_RESCONTEXT + 'modules/create-site' + (process.env.NODE_ENV === 'development' ? '.js' : '-min.js');
         window.require([legacyCreateSiteResource], function() {
           window.Alfresco.module.getCreateSiteInstance().show();
         });
@@ -53,8 +54,7 @@ export default function handleControl(type, payload, dispatch) {
           shortName: payload.site
         });
       } else {
-        const legacyEditSiteResource =
-          window.Alfresco.constants.URL_RESCONTEXT + 'modules/edit-site' + (window.Alfresco.constants.DEBUG ? '.js' : '-min.js');
+        const legacyEditSiteResource = URL_RESCONTEXT + 'modules/edit-site' + (process.env.NODE_ENV === 'development' ? '.js' : '-min.js');
         window.require([legacyEditSiteResource], function() {
           window.Alfresco.module.getEditSiteInstance().show({
             shortName: payload.site
