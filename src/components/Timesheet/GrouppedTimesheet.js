@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
+import get from 'lodash/get';
 
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/constants';
@@ -424,7 +425,8 @@ class GrouppedTimesheet extends BaseTimesheet {
               count={count}
               canEdit={eventItem.canEdit}
               onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value, userName)}
-              isLoading={!!updatingHours[keyHour]}
+              onReset={value => this.handleResetEventHours(eventItem.name, day.number, value, userName)}
+              updatingInfo={get(updatingHours, keyHour, null)}
             />
           </CalendarCell>
         );

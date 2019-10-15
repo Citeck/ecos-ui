@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import { connect } from 'react-redux';
 
 import { t } from '../../helpers/util';
-import { BaseConfigGroupButtons, getNewDateByDayNumber } from '../../helpers/timesheet/util';
+import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
 import {
   CommonLabels,
   ServerStatusKeys,
@@ -16,6 +16,7 @@ import {
   initSubordinatesTimesheetStart,
   modifyEventDayHours,
   modifyStatus,
+  resetEventDayHours,
   setPopupMessage
 } from '../../actions/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
@@ -29,6 +30,7 @@ import BaseTimesheetPage from './BaseTimesheetPage';
 const mapStateToProps = state => ({
   mergedList: get(state, ['timesheetSubordinates', 'mergedList'], []),
   isLoading: get(state, ['timesheetSubordinates', 'isLoading'], false),
+  updatingHours: get(state, ['timesheetMine', 'updatingHours'], {}),
   popupMsg: get(state, ['timesheetSubordinates', 'popupMsg'], '')
 });
 
@@ -37,6 +39,7 @@ const mapDispatchToProps = dispatch => ({
   getSubordinatesTimesheetByParams: payload => dispatch(getSubordinatesTimesheetByParams(payload)),
   modifyStatus: payload => dispatch(modifyStatus(payload)),
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
+  resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 
@@ -108,13 +111,6 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
     this.setState({ isDelegated });
   }
 
-  handleChangeEventDayHours(data) {
-    const { type: eventType, number, value, userName } = data;
-    const date = getNewDateByDayNumber(this.state.currentDate, number);
-
-    this.props.modifyEventDayHours && this.props.modifyEventDayHours({ value, date, eventType, userName });
-  }
-
   renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
     const { mergedList, isLoading } = this.props;
@@ -138,6 +134,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
           lockedMessage={this.lockDescription}
           configGroupBtns={this.configGroupBtns}
           onChangeHours={this.handleChangeEventDayHours.bind(this)}
+          onResetHours={this.handleResetEventDayHours.bind(this)}
         />
       );
     }

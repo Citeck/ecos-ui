@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
+import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { deepClone, t } from '../../helpers/util';
@@ -226,7 +227,7 @@ class BaseTimesheet extends Component {
               canEdit={eventItem.canEdit}
               onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value)}
               onReset={value => this.handleResetEventHours(eventItem.name, day.number, value)}
-              updatingInfo={updatingHours[keyHour]}
+              updatingInfo={get(updatingHours, keyHour, null)}
             />
           </CalendarCell>
         );

@@ -10,12 +10,14 @@ export const getStatusList = createAction(prefix + 'GET_STATUS_LIST');
 
 export const modifyStatus = createAction(prefix + 'MODIFY_STATUS');
 export const modifyEventDayHours = createAction(prefix + 'MODIFY_EVENT_DAY_HOURS');
+export const resetEventDayHours = createAction(prefix + 'RESET_EVENT_DAY_HOURS');
 
 export const initSubordinatesTimesheetEnd = createAction(prefix + 'INIT_SUBORDINATES_TIMESHEET_END');
 export const setSubordinatesTimesheetByParams = createAction(prefix + 'SET_SUBORDINATES_TIMESHEET_BY_PARAMS');
 export const setSubordinatesList = createAction(prefix + 'SET_SUBORDINATES_LIST');
 export const setCalendarEventList = createAction(prefix + 'SET_CALENDAR_EVENT_LIST');
 export const setStatusList = createAction(prefix + 'SET_STATUS_LIST');
+export const setUpdatingEventDayHours = createAction(prefix + 'SET_UPDATING_EVENT_DAY_HOURS');
 
 export const setMergedList = createAction(prefix + 'SET_MERGED_LIST');
 export const setLoading = createAction(prefix + 'SET_LOADING');
