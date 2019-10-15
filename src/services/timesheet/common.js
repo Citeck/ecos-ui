@@ -110,86 +110,142 @@ export default class CommonTimesheetService {
         title: t(CommonLabels.EVENT_TYPE_DAYTIME_WORK),
         name: ServerEventTypes.DAYTIME_WORK,
         color: '#00C308',
-        canEdit: true
+        hours: {
+          editable: true,
+          hidden: false,
+          max: 12
+        }
       },
       {
         title: t(CommonLabels.EVENT_TYPE_BUSINESS_TRIP),
         name: ServerEventTypes.BUSINESS_TRIP,
         color: '#ff3ecb',
-        canEdit: true
+        hours: {
+          editable: true,
+          hidden: true,
+          eq: 8
+        }
       },
       {
         title: t(CommonLabels.EVENT_TYPE_ABSENCE),
         name: ServerEventTypes.ABSENCE,
         color: '#af9fff',
-        canEdit: true
+        hours: {
+          editable: true,
+          hidden: true,
+          eq: 8
+        }
       },
       {
         title: t(CommonLabels.EVENT_TYPE_ANNUAL_PAID_LEAVE),
         name: ServerEventTypes.ANNUAL_BASIC_PAID_LEAVE,
         color: '#DF3386',
-        canEdit: false
+        hours: {
+          editable: false,
+          hidden: true,
+          eq: 8
+        }
       },
       {
         title: t(CommonLabels.EVENT_TYPE_UNPAID_LEAVE),
         name: ServerEventTypes.BASIC_UNPAID_LEAVE,
         color: '#ff41e3',
-        canEdit: false
+        hours: {
+          editable: false,
+          hidden: true,
+          eq: 8
+        }
       },
       {
         title: t(CommonLabels.EVENT_TYPE_LEAVE_1_OF_5),
         name: ServerEventTypes.ONE_OF_FIVE,
         color: '#d51842',
-        canEdit: false
+        hours: {
+          editable: false,
+          hidden: true,
+          eq: 8
+        }
       },
       {
         title: t(CommonLabels.EVENT_TYPE_NORTH_PAID_LEAVE),
         name: ServerEventTypes.NORTH_PAID_LEAVE,
         color: '#e89972',
-        canEdit: false
+        hours: {
+          editable: false,
+          hidden: true,
+          eq: 8
+        }
       },
       {
         title: t(CommonLabels.EVENT_TYPE_HARMFUL_PAID_LEAVE),
         name: ServerEventTypes.HARMFUL_PAID_LEAVE,
         color: '#c0ac70',
-        canEdit: false
+        hours: {
+          editable: false,
+          hidden: true,
+          eq: 8
+        }
       },
       {
         title: t(CommonLabels.EVENT_TYPE_IRREGULAR_PAID_LEAVE),
         name: ServerEventTypes.IRREGULAR_PAID_LEAVE,
         color: '#ff9953',
-        canEdit: false
+        hours: {
+          editable: false,
+          hidden: true,
+          eq: 8
+        }
       },
       {
         title: t(CommonLabels.EVENT_TYPE_COMPENSATORY_LEAVE),
         name: ServerEventTypes.COMPENSATORY_LEAVE,
         color: '#29bd8d',
-        canEdit: true
+        hours: {
+          editable: true,
+          hidden: true,
+          eq: 8
+        }
       },
       {
         title: t(CommonLabels.EVENT_TYPE_WORK_ON_DAY_OFF_1),
         name: ServerEventTypes.WEEKENDS_HOLIDAYS_WORK_HOLIDAY_AND_COMPENSATION,
         color: '#33DFD5',
-        canEdit: true
+        hours: {
+          editable: true,
+          hidden: false,
+          max: 8
+        }
       },
       {
         title: t(CommonLabels.EVENT_TYPE_WORK_ON_DAY_OFF_2),
         name: ServerEventTypes.WEEKENDS_HOLIDAYS_WORK_DOUBLED_COMPENSATION,
         color: '#3382df',
-        canEdit: true
+        hours: {
+          editable: true,
+          hidden: false,
+          max: 8
+        }
       },
       {
         title: t(CommonLabels.EVENT_TYPE_OVERTIME_WORK),
         name: ServerEventTypes.OVERTIME_WORK,
         color: '#DF8633',
-        canEdit: true
-      },
-      {
+        hours: {
+          editable: true,
+          hidden: false,
+          max: 4
+        }
+      }
+      /* {
         title: t(CommonLabels.EVENT_TYPE_NIGHT_WORK),
         name: ServerEventTypes.NIGHT_WORK,
         color: '#4133DF',
-        canEdit: true
-      }
+        hours: {
+          editable: true,
+          hidden: true,
+          max: 8
+        },
+      }*/
     ];
   };
 
