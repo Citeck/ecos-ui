@@ -1,3 +1,5 @@
+import '../../../fonts/citeck/css/citeck.css';
+
 import { registerLocale, setDefaultLocale } from 'react-datepicker';
 import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';
