@@ -24,7 +24,8 @@ class BaseTimesheet extends Component {
     isAvailable: PropTypes.bool,
     lockedMessage: PropTypes.string,
     updatingHours: PropTypes.object,
-    onChangeHours: PropTypes.func
+    onChangeHours: PropTypes.func,
+    onResetHours: PropTypes.func
   };
 
   static defaultProps = {
@@ -118,6 +119,10 @@ class BaseTimesheet extends Component {
 
   handleChangeEventHours = (type, number, value, userName) => {
     this.props.onChangeHours && this.props.onChangeHours({ type, number, value, userName });
+  };
+
+  handleResetEventHours = (type, number, value, userName) => {
+    this.props.onResetHours && this.props.onResetHours({ type, number, value, userName });
   };
 
   filterTypes(typeFilter = '') {
@@ -220,7 +225,8 @@ class BaseTimesheet extends Component {
               count={count}
               canEdit={eventItem.canEdit}
               onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value)}
-              isLoading={!!updatingHours[keyHour]}
+              onReset={value => this.handleResetEventHours(eventItem.name, day.number, value)}
+              updatingInfo={updatingHours[keyHour]}
             />
           </CalendarCell>
         );

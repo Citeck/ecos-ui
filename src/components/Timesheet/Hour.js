@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
-import { Input } from '../common/form';
 import { Icon, PointsLoader } from '../common';
+import { Input } from '../common/form';
 
 const KEYS = {
   ARROW_UP: 'ArrowUp',
@@ -18,8 +19,9 @@ class Hour extends Component {
     count: PropTypes.number,
     color: PropTypes.string,
     canEdit: PropTypes.bool,
-    isLoading: PropTypes.bool,
-    onChange: PropTypes.func
+    updatingInfo: PropTypes.object,
+    onChange: PropTypes.func,
+    onReset: PropTypes.func
   };
 
   static defaultProps = {
@@ -33,17 +35,14 @@ class Hour extends Component {
 
     this.state = {
       isEdit: false,
-      isLoading: false,
       value: props.count
     };
-    this._loaderTimer = null;
     this._input = React.createRef();
   }
 
-  componentWillUnmount() {
-    if (this._loaderTimer) {
-      window.clearTimeout(this._loaderTimer);
-      this._loaderTimer = null;
+  componentWillReceiveProps(nextProps, nextContext) {
+    if (get(nextProps, 'updatingInfo.hasError', false) && !get(this.props, 'updatingInfo.hasError', false)) {
+      this.resetValue();
     }
   }
 
@@ -61,9 +60,9 @@ class Hour extends Component {
   }
 
   get isLoader() {
-    const { isLoading } = this.props;
+    const { updatingInfo } = this.props;
 
-    return isLoading;
+    return !!updatingInfo;
   }
 
   get isEmpty() {
@@ -88,6 +87,13 @@ class Hour extends Component {
     this.props.onChange && this.props.onChange(value);
   }
 
+  resetValue() {
+    const value = this.props.count;
+
+    this.props.onReset && this.props.onReset(value);
+    this.setState({ value });
+  }
+
   handleToggleInput = () => {
     const { canEdit } = this.props;
 
@@ -100,8 +106,6 @@ class Hour extends Component {
 
   handleChangeValue = event => {
     let value = parseInt(event.target.value.replace(/\D/g, ''), 10);
-
-    console.warn(value);
 
     if (Number.isNaN(value)) {
       value = 0;
@@ -118,15 +122,7 @@ class Hour extends Component {
       event.stopPropagation();
 
       this.saveValue(this.state.value);
-
-      this.setState({ isLoading: true });
-
       this.handleToggleInput();
-
-      this._loaderTimer = window.setTimeout(() => {
-        this.setState({ isLoading: false });
-        this._loaderTimer = null;
-      }, 3000);
 
       return;
     }

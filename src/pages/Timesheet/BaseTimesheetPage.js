@@ -1,7 +1,7 @@
 import React from 'react';
 import debounce from 'lodash/debounce';
 import { deepClone } from '../../helpers/util';
-import { getDaysOfMonth, isOnlyContent } from '../../helpers/timesheet/util';
+import { getDaysOfMonth, getNewDateByDayNumber, isOnlyContent } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 
@@ -109,6 +109,20 @@ class BaseTimesheetPage extends React.Component {
 
   handleChangeCurrentDate(currentDate, callback = () => null) {
     this.setState({ currentDate, daysOfMonth: this.getDaysOfMonth(currentDate) }, callback);
+  }
+
+  handleChangeEventDayHours(data) {
+    const { type: eventType, number, value, userName } = data;
+    const date = getNewDateByDayNumber(this.state.currentDate, number);
+
+    this.props.modifyEventDayHours && this.props.modifyEventDayHours({ value, date, eventType, number, userName });
+  }
+
+  handleResetEventDayHours(data) {
+    const { type: eventType, number, value, userName } = data;
+    const date = getNewDateByDayNumber(this.state.currentDate, number);
+
+    this.props.resetEventDayHours && this.props.resetEventDayHours({ value, date, eventType, number, userName });
   }
 
   render() {

@@ -200,11 +200,12 @@ export default class CommonTimesheetService {
   }
 
   static setUpdatingHours(map, data, reset) {
-    const d = deepClone(data);
+    data = deepClone(data);
+    map = deepClone(map);
 
-    const { value, hasError = false } = d;
+    const { value, hasError = false } = data;
 
-    const key = CommonTimesheetService.getKeyHours(d);
+    const key = CommonTimesheetService.getKeyHours(data);
 
     if (reset) {
       delete map[key];
