@@ -30,7 +30,7 @@ import BaseTimesheetPage from './BaseTimesheetPage';
 const mapStateToProps = state => ({
   mergedList: get(state, ['timesheetSubordinates', 'mergedList'], []),
   isLoading: get(state, ['timesheetSubordinates', 'isLoading'], false),
-  updatingHours: get(state, ['timesheetMine', 'updatingHours'], {}),
+  updatingHours: get(state, ['timesheetSubordinates', 'updatingHours'], {}),
   popupMsg: get(state, ['timesheetSubordinates', 'popupMsg'], '')
 });
 
@@ -113,7 +113,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
   renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
-    const { mergedList, isLoading } = this.props;
+    const { mergedList, isLoading, updatingHours } = this.props;
 
     const activeStatus = this.selectedStatus;
 
@@ -135,6 +135,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
           configGroupBtns={this.configGroupBtns}
           onChangeHours={this.handleChangeEventDayHours.bind(this)}
           onResetHours={this.handleResetEventDayHours.bind(this)}
+          updatingHours={updatingHours}
         />
       );
     }
