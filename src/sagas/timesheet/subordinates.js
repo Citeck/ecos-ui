@@ -6,19 +6,23 @@ import {
   initSubordinatesTimesheetStart,
   modifyEventDayHours,
   modifyStatus,
+  resetEventDayHours,
   setLoading,
   setMergedList,
   setPopupMessage,
   setStatusList,
-  setSubordinatesTimesheetByParams
+  setSubordinatesTimesheetByParams,
+  setUpdatingEventDayHours
 } from '../../actions/timesheet/subordinates';
 import {
   selectTimesheetSubordinatesMergedList,
   selectTimesheetSubordinatesPeople,
-  selectTimesheetSubordinatesStatuses
+  selectTimesheetSubordinatesStatuses,
+  selectTimesheetSubordinatesUpdatingHours
 } from '../../selectors/timesheet';
-import { selectUserUserName } from '../../selectors/user';
 import SubordinatesTimesheetService from '../../services/timesheet/subordinates';
+import CommonTimesheetService from '../../services/timesheet/common';
+import { selectUserUserName } from '../../selectors/user';
 import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
 
@@ -51,7 +55,7 @@ function* sagaInitSubordinatesTimesheet({ api, logger }) {
 
     yield put(initSubordinatesTimesheetEnd({ mergedList, userNames, subordinates, calendarEvents, statuses }));
   } catch (e) {
-    logger.error('[timesheetSubordinates sagaInitSubordinatesTimesheet saga error', e.message);
+    logger.error('[timesheetSubordinates sagaInitSubordinatesTimesheet saga] error', e.message);
   }
 }
 
@@ -83,7 +87,7 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
 
     yield put(setSubordinatesTimesheetByParams({ mergedList, calendarEvents, statuses }));
   } catch (e) {
-    logger.error('[timesheetSubordinates sagaGetSubordinatesTimesheetByParams saga error', e.message);
+    logger.error('[timesheetSubordinates sagaGetSubordinatesTimesheetByParams saga] error', e.message);
   }
 }
 
@@ -119,18 +123,44 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading(false));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
-    logger.error('[timesheetSubordinates sagaModifyTaskStatus saga error', e.message);
+    logger.error('[timesheetSubordinates sagaModifyTaskStatus saga] error', e.message);
   }
 }
 
 function* sagaModifyEventDayHours({ api, logger }, { payload }) {
-  try {
-    const { value, date, eventType, userName } = payload;
+  const updatingHoursState = yield select(selectTimesheetSubordinatesUpdatingHours);
+  const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload);
 
-    yield api.timesheetCommon.modifyEventHours({ userName, date, eventType, value });
+  yield put(setUpdatingEventDayHours(firstState));
+
+  try {
+    yield api.timesheetCommon.modifyEventHours({ ...payload });
+
+    const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
+
+    yield put(setUpdatingEventDayHours(secondState));
   } catch (e) {
+    const thirdState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
+
+    yield put(setUpdatingEventDayHours(thirdState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetMine sagaModifyStatus saga error', e.message);
+    logger.error('[timesheetSubordinates sagaModifyStatus saga] error', e.message);
+  }
+}
+
+function* sagaResetEventDayHours({ api, logger }, { payload }) {
+  const updatingHoursState = yield select(selectTimesheetSubordinatesUpdatingHours);
+
+  try {
+    const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
+
+    yield put(setUpdatingEventDayHours(firstState));
+  } catch (e) {
+    const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
+
+    yield put(setUpdatingEventDayHours(secondState));
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
+    logger.error('[timesheetSubordinates sagaResetEventDayHours saga] error', e.message);
   }
 }
 
@@ -139,6 +169,7 @@ function* saga(ea) {
   yield takeLatest(getSubordinatesTimesheetByParams().type, sagaGetSubordinatesTimesheetByParams, ea);
   yield takeLatest(modifyStatus().type, sagaModifyTaskStatus, ea);
   yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
+  yield takeLatest(resetEventDayHours().type, sagaResetEventDayHours, ea);
 }
 
 export default saga;

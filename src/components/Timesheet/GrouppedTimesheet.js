@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
+import get from 'lodash/get';
 
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/constants';
+import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Icon, ResizeBoxes } from '../common';
 import { Input } from '../common/form';
@@ -31,6 +33,7 @@ class GrouppedTimesheet extends BaseTimesheet {
     daysOfMonth: PropTypes.array,
     groupBy: PropTypes.string,
     configGroupBtns: PropTypes.array,
+    updatingHours: PropTypes.object,
     onChangeHours: PropTypes.func
   };
 
@@ -410,6 +413,8 @@ class GrouppedTimesheet extends BaseTimesheet {
   renderEventCalendarRow = (eventItem, userName) => (
     <CalendarRow key={`calendar-row-${eventItem.name}`}>
       {this.props.daysOfMonth.map(day => {
+        const { updatingHours } = this.props;
+        const keyHour = CommonTimesheetService.getKeyHours({ userName, number: day.number, eventType: eventItem.name });
         const eventDay = (eventItem.days || []).find(dayItem => dayItem.number === day.number) || {};
         const count = +(eventDay.hours || 0);
 
@@ -420,6 +425,8 @@ class GrouppedTimesheet extends BaseTimesheet {
               count={count}
               canEdit={eventItem.canEdit}
               onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value, userName)}
+              onReset={value => this.handleResetEventHours(eventItem.name, day.number, value, userName)}
+              updatingInfo={get(updatingHours, keyHour, null)}
             />
           </CalendarCell>
         );

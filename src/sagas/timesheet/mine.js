@@ -6,13 +6,17 @@ import {
   initMyTimesheetStart,
   modifyEventDayHours,
   modifyStatus,
+  resetEventDayHours,
   setMyTimesheetByParams,
   setPopupMessage,
   setStatus,
+  setUpdatingEventDayHours,
   setUpdatingStatus
 } from '../../actions/timesheet/mine';
 import { selectUserUserName } from '../../selectors/user';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
+import { selectTimesheetMineUpdatingHours } from '../../selectors/timesheet';
+import CommonTimesheetService from '../../services/timesheet/common';
 
 function* sagaInitMyTimesheet({ api, logger }) {
   try {
@@ -20,7 +24,7 @@ function* sagaInitMyTimesheet({ api, logger }) {
 
     yield put(getMyTimesheetByParams({ currentDate }));
   } catch (e) {
-    logger.error('[timesheetMine sagaInitMyTimesheet saga error', e.message);
+    logger.error('[timesheetMine sagaInitMyTimesheet saga] error', e.message);
   }
 }
 
@@ -49,7 +53,7 @@ function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
 
     yield put(setMyTimesheetByParams({ status, mergedEvents, calendarEvents }));
   } catch (e) {
-    logger.error('[timesheetMine sagaGetMyTimesheetByParams saga error', e.message);
+    logger.error('[timesheetMine sagaGetMyTimesheetByParams saga] error', e.message);
   }
 }
 
@@ -66,7 +70,7 @@ function* sagaGetStatus({ api, logger }, { payload }) {
 
     yield put(setStatus(CommonTimesheetConverter.getStatusForWeb(statuses)));
   } catch (e) {
-    logger.error('[timesheetMine sagaGetStatus saga error', e.message);
+    logger.error('[timesheetMine sagaGetStatus saga] error', e.message);
   }
 }
 
@@ -86,19 +90,45 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
     yield put(setUpdatingStatus(true));
   } catch (e) {
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
-    logger.error('[timesheetMine sagaModifyStatus saga error', e.message);
+    logger.error('[timesheetMine sagaModifyStatus saga] error', e.message);
   }
 }
 
 function* sagaModifyEventDayHours({ api, logger }, { payload }) {
-  try {
-    const { value, date, eventType } = payload;
-    const userName = yield select(selectUserUserName);
+  const userName = yield select(selectUserUserName);
+  const updatingHoursState = yield select(selectTimesheetMineUpdatingHours);
+  const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload);
 
-    yield api.timesheetCommon.modifyEventHours({ userName, date, eventType, value });
+  yield put(setUpdatingEventDayHours(firstState));
+
+  try {
+    yield api.timesheetCommon.modifyEventHours({ ...payload, userName });
+
+    const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
+
+    yield put(setUpdatingEventDayHours(secondState));
   } catch (e) {
+    const thirdState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
+
+    yield put(setUpdatingEventDayHours(thirdState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetMine sagaModifyStatus saga error', e.message);
+    logger.error('[timesheetMine sagaModifyStatus saga] error', e.message);
+  }
+}
+
+function* sagaResetEventDayHours({ api, logger }, { payload }) {
+  const updatingHoursState = yield select(selectTimesheetMineUpdatingHours);
+
+  try {
+    const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
+
+    yield put(setUpdatingEventDayHours(firstState));
+  } catch (e) {
+    const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
+
+    yield put(setUpdatingEventDayHours(secondState));
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
+    logger.error('[timesheetMine sagaResetEventDayHours saga] error', e.message);
   }
 }
 
@@ -108,6 +138,7 @@ function* saga(ea) {
   yield takeLatest(modifyStatus().type, sagaModifyStatus, ea);
   yield takeLatest(getMyTimesheetByParams().type, sagaGetMyTimesheetByParams, ea);
   yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
+  yield takeLatest(resetEventDayHours().type, sagaResetEventDayHours, ea);
 }
 
 export default saga;

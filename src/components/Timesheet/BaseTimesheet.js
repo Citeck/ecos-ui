@@ -2,10 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
+import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/constants';
+import CommonTimesheetService from '../../services/timesheet/common';
+
 import { Icon, ResizeBoxes } from '../common';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { Input } from '../common/form';
@@ -21,7 +24,9 @@ class BaseTimesheet extends Component {
     daysOfMonth: PropTypes.array,
     isAvailable: PropTypes.bool,
     lockedMessage: PropTypes.string,
-    onChangeHours: PropTypes.func
+    updatingHours: PropTypes.object,
+    onChangeHours: PropTypes.func,
+    onResetHours: PropTypes.func
   };
 
   static defaultProps = {
@@ -117,6 +122,10 @@ class BaseTimesheet extends Component {
     this.props.onChangeHours && this.props.onChangeHours({ type, number, value, userName });
   };
 
+  handleResetEventHours = (type, number, value, userName) => {
+    this.props.onResetHours && this.props.onResetHours({ type, number, value, userName });
+  };
+
   filterTypes(typeFilter = '') {
     const { eventTypes } = this.props;
     let filteredEventTypes = deepClone(eventTypes);
@@ -204,6 +213,9 @@ class BaseTimesheet extends Component {
   renderEventCalendarRow = eventItem => (
     <CalendarRow key={`calendar-row-${eventItem.name}`}>
       {this.props.daysOfMonth.map(day => {
+        const { updatingHours } = this.props;
+        const keyHour = CommonTimesheetService.getKeyHours({ number: day.number, eventType: eventItem.name });
+
         const eventDay = (eventItem.days || []).find(dayItem => dayItem.number === day.number) || {};
         const count = +(eventDay.hours || 0);
 
@@ -214,6 +226,8 @@ class BaseTimesheet extends Component {
               count={count}
               canEdit={eventItem.canEdit}
               onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value)}
+              onReset={value => this.handleResetEventHours(eventItem.name, day.number, value)}
+              updatingInfo={get(updatingHours, keyHour, null)}
             />
           </CalendarCell>
         );

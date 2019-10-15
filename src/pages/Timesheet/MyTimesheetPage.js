@@ -5,13 +5,13 @@ import { connect } from 'react-redux';
 
 import { t } from '../../helpers/util';
 import { CommonLabels, MyTimesheetLabels, ServerStatusKeys } from '../../helpers/timesheet/constants';
-import { getNewDateByDayNumber } from '../../helpers/timesheet/util';
 import {
   getMyTimesheetByParams,
   getStatus,
   initMyTimesheetStart,
   modifyEventDayHours,
   modifyStatus,
+  resetEventDayHours,
   setPopupMessage,
   setUpdatingStatus
 } from '../../actions/timesheet/mine';
@@ -31,6 +31,7 @@ const mapStateToProps = state => ({
   status: get(state, ['timesheetMine', 'status'], {}),
   countAttemptGetStatus: get(state, ['timesheetMine', 'countAttemptGetStatus'], 0),
   mergedEvents: get(state, ['timesheetMine', 'mergedEvents'], []),
+  updatingHours: get(state, ['timesheetMine', 'updatingHours'], {}),
   popupMsg: get(state, ['timesheetMine', 'popupMsg'], '')
 });
 
@@ -40,6 +41,7 @@ const mapDispatchToProps = dispatch => ({
   setUpdatingStatus: payload => dispatch(setUpdatingStatus(payload)),
   getMyTimesheetByParams: payload => dispatch(getMyTimesheetByParams(payload)),
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
+  resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
   getStatus: payload => dispatch(getStatus(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
@@ -129,16 +131,9 @@ class MyTimesheetPage extends BaseTimesheetPage {
     });
   }
 
-  handleChangeEventDayHours(data) {
-    const { type: eventType, number, value } = data;
-    const date = getNewDateByDayNumber(this.state.currentDate, number);
-
-    this.props.modifyEventDayHours && this.props.modifyEventDayHours({ value, date, eventType });
-  }
-
   renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
-    const { status, mergedEvents } = this.props;
+    const { status, mergedEvents, updatingHours } = this.props;
 
     return (
       <Timesheet
@@ -147,6 +142,8 @@ class MyTimesheetPage extends BaseTimesheetPage {
         isAvailable={status.key !== ServerStatusKeys.MANAGER_APPROVAL && !isDelegated}
         lockedMessage={this.lockDescription}
         onChangeHours={this.handleChangeEventDayHours.bind(this)}
+        onResetHours={this.handleResetEventDayHours.bind(this)}
+        updatingHours={updatingHours}
       />
     );
   };

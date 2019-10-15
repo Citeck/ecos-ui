@@ -8,7 +8,8 @@ import {
   setMergedList,
   setPopupMessage,
   setStatusList,
-  setSubordinatesTimesheetByParams
+  setSubordinatesTimesheetByParams,
+  setUpdatingEventDayHours
 } from '../../actions/timesheet/subordinates';
 
 const initialState = {
@@ -17,6 +18,7 @@ const initialState = {
   subordinates: [],
   calendarEvents: [],
   statuses: [],
+  updatingHours: {},
   popupMsg: ''
 };
 
@@ -76,6 +78,10 @@ export default handleActions(
     [setPopupMessage]: (state, actions) => ({
       ...state,
       popupMsg: actions.payload
+    }),
+    [setUpdatingEventDayHours]: (state, actions) => ({
+      ...state,
+      updatingHours: actions.payload
     })
   },
   initialState
