@@ -11,6 +11,7 @@ import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import DataGridAssocComponent from './../../forms/components/custom/datagridAssoc/DataGridAssoc';
 import { t, getCurrentLocale } from '../../helpers/util';
+import { PROXY_URI } from '../../constants/alfresco';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -56,7 +57,7 @@ class EcosForm extends React.Component {
     options.recordId = recordId;
 
     let alfConstants = (window.Alfresco || {}).constants || {};
-    let proxyUri = alfConstants.PROXY_URI || '/';
+    let proxyUri = PROXY_URI || '/';
 
     proxyUri = proxyUri.substring(0, proxyUri.length - 1);
     Formio.setProjectUrl(proxyUri);
