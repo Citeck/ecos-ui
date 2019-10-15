@@ -9,7 +9,6 @@ export class TimesheetVerificationApi extends RecordService {
           1} AND @timesheet:status:'${status}'`,
         language: 'fts-alfresco',
         maxItems: 100,
-        sourceId: 'people',
         debug: false
       },
       {
