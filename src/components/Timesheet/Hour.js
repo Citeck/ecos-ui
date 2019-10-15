@@ -18,7 +18,12 @@ class Hour extends Component {
   static propTypes = {
     count: PropTypes.number,
     color: PropTypes.string,
-    canEdit: PropTypes.bool,
+    settings: PropTypes.shape({
+      editable: PropTypes.bool,
+      hidden: PropTypes.bool,
+      max: PropTypes.number,
+      eq: PropTypes.number
+    }),
     updatingInfo: PropTypes.object,
     onChange: PropTypes.func,
     onReset: PropTypes.func
@@ -26,8 +31,8 @@ class Hour extends Component {
 
   static defaultProps = {
     count: 0,
-    color: '#33DFD5',
-    canEdit: true
+    color: '#b7b7b7',
+    settings: {}
   };
 
   constructor(props) {
@@ -47,10 +52,10 @@ class Hour extends Component {
   }
 
   get isInput() {
-    const { canEdit } = this.props;
+    const { editable } = this.settings;
     const { isEdit } = this.state;
 
-    return canEdit && isEdit;
+    return editable && isEdit;
   }
 
   get isFull() {
@@ -66,21 +71,25 @@ class Hour extends Component {
   }
 
   get isEmpty() {
-    const { canEdit } = this.props;
+    const { editable } = this.settings;
     const { value } = this.state;
 
-    return canEdit && !value && !(this.isInput || this.isLoader);
+    return editable && !value && !(this.isInput || this.isLoader);
   }
 
   get value() {
-    const { canEdit } = this.props;
+    const { editable, hidden } = this.settings;
     const { value } = this.state;
 
-    return canEdit ? value : '';
+    return !editable || hidden ? '' : value;
   }
 
   set inputRef(ref) {
     this._input = ref;
+  }
+
+  get settings() {
+    return { ...(this.props.settings || {}) };
   }
 
   saveValue(value) {
@@ -94,10 +103,25 @@ class Hour extends Component {
     this.setState({ value });
   }
 
-  handleToggleInput = () => {
-    const { canEdit } = this.props;
+  setDefValue() {
+    const { eq } = this.settings;
+    const { value } = this.state;
 
-    if (!canEdit) {
+    if (!value) {
+      this.setState({ value: eq });
+      this.saveValue(eq);
+    }
+  }
+
+  handleToggleInput = () => {
+    const { editable, hidden } = this.settings;
+
+    if (!editable) {
+      return;
+    }
+
+    if (hidden) {
+      this.setDefValue();
       return;
     }
 
@@ -182,7 +206,8 @@ class Hour extends Component {
   }
 
   renderFullTime() {
-    const { color, canEdit } = this.props;
+    const { color } = this.props;
+    const { editable } = this.settings;
 
     if (!this.isFull) {
       return null;
@@ -191,12 +216,12 @@ class Hour extends Component {
     return (
       <div
         className={classNames('ecos-ts-hour__box', {
-          'ecos-ts-hour__box_disabled': !canEdit
+          'ecos-ts-hour__box_disabled': !editable
         })}
         style={{ backgroundColor: color }}
         onClick={this.handleToggleInput}
       >
-        {canEdit && <Icon className="icon-close ecos-ts-hour__box-delete" onClick={this.handleDelete} />}
+        {editable && <Icon className="icon-close ecos-ts-hour__box-delete" onClick={this.handleDelete} />}
         {this.value}
       </div>
     );
