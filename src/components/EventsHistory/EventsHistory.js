@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
@@ -18,7 +19,11 @@ const mapStateToProps = (state, context) => {
   return {
     list: ahState.list,
     isLoading: ahState.isLoading,
-    columns: isEmpty(ahState.columns) ? EventsHistoryService.config.columns : ahState.columns,
+    columns: isEmpty(ahState.columns)
+      ? isEmpty(context.myColumns)
+        ? EventsHistoryService.config.columns
+        : context.myColumns
+      : ahState.columns,
     isMobile: state.view.isMobile
   };
 };
@@ -39,14 +44,16 @@ class EventsHistory extends React.Component {
     isLoading: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    myColumns: PropTypes.array
   };
 
   static defaultProps = {
     className: '',
     isSmallMode: false,
     isMobile: false,
-    isLoading: false
+    isLoading: false,
+    myColumns: []
   };
 
   state = {
@@ -98,15 +105,15 @@ class EventsHistory extends React.Component {
     const fixHeight = height ? height - filterHeight : null;
 
     return (
-      <>
+      <div className={classNames('ecos-event-history', className)}>
         <div ref={this._filter}>
           {/*{(isMobile || isSmallMode) && (
             <DropdownFilter columns={columns} className={`${this.className}__filter`} onFilter={this.onFilter} />
           )}*/}
         </div>
         <Scrollbars
+          className="ecos-event-history__scroll"
           style={{ height: contentHeight || '100%' }}
-          className="ecos-event-history"
           renderTrackVertical={props => <div {...props} className="ecos-event-history__v-scroll" />}
         >
           <DefineHeight
@@ -122,12 +129,12 @@ class EventsHistory extends React.Component {
               isLoading={isLoading}
               isSmallMode={isSmallMode}
               isMobile={isMobile}
-              className={className}
+              className="ecos-event-history__content"
               onFilter={this.onFilter}
             />
           </DefineHeight>
         </Scrollbars>
-      </>
+      </div>
     );
   }
 }
