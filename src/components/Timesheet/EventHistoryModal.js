@@ -16,6 +16,19 @@ class EventHistoryModal extends React.Component {
     this.props.onClose && this.props.onClose();
   };
 
+  renderTable() {
+    const { list = [] } = this.props;
+
+    return list.map((item, i) => (
+      <div className="ecos-ts-event-story__container" key={`event-story-${i}-${item.id}`}>
+        <div className="ecos-ts-event-story__item ecos-timesheet-event-story__item-date">{item.datetime}</div>
+        <div className="ecos-ts-event-story__item ecos-timesheet-event-story__item-author">{item.author}</div>
+        <div className="ecos-ts-event-story__item ecos-timesheet-event-story__item-task">{item.task}</div>
+        <div className="ecos-ts-event-story__item ecos-timesheet-event-story__item-comment">{item.comment}</div>
+      </div>
+    ));
+  }
+
   render() {
     const { onClose, isOpen } = this.props;
 
@@ -24,13 +37,13 @@ class EventHistoryModal extends React.Component {
         reactstrapProps={{
           backdrop: 'static'
         }}
-        className="ecos-modal_width-xs"
+        className="ecos-ts-event-story ecos-modal_width-xs"
         isBigHeader={true}
         title={t(CommonLabels.EVENT_HISTORY_TITLE)}
         isOpen={isOpen}
         hideModal={onClose}
       >
-        {t(CommonLabels.MODAL_IN_PROGRESS)}
+        {this.renderTable()}
       </EcosModal>
     );
   }
