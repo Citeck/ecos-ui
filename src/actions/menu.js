@@ -4,7 +4,7 @@ const prefix = 'menu/';
 
 export const initMenuSettings = createAction(prefix + 'INIT_MENU_SETTINGS');
 export const setMenuConfig = createAction(prefix + 'SET_MENU_CONFIG');
-export const setResultSaveMenuConfig = createAction(prefix + 'SET_STATUS_SAVE_MENU_CONFIG');
+export const setRequestResultMenuConfig = createAction(prefix + 'SET_REQUEST_RESULT_MENU_CONFIG');
 export const setAvailableMenuItems = createAction(prefix + 'SET_AVAILABLE_MENU_ITEMS');
 
 export const getMenuConfig = createAction(prefix + 'GET_MENU_CONFIG');

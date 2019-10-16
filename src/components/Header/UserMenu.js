@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { isArray, isEmpty } from 'lodash';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
-import { t } from '../../helpers/util';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
-import { DropdownMenu as Menu } from '../common';
+import { Avatar, DropdownMenu as Menu } from '../common';
 import { IcoBtn } from '../common/btns';
-import { Avatar } from '../common';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
@@ -52,18 +51,12 @@ class UserMenu extends React.Component {
     );
 
     return (
-      <React.Fragment>
+      <>
         {!mob ? <Avatar url={userPhotoUrl} /> : null}
         <Dropdown className={`${this.className} ecos-header-dropdown`} isOpen={dropdownOpen} toggle={this.toggle}>
           <DropdownToggle tag="div" className={'ecos-header-dropdown__toggle'}>
             {mob ? <Avatar url={userPhotoUrl} /> : null}
-            <IcoBtn
-              invert={true}
-              icon={dropdownOpen ? 'icon-up' : 'icon-down'}
-              className={classNameIcoBtn}
-              title={t('create_case.label')}
-              disabled={disabled}
-            >
+            <IcoBtn invert={true} icon={dropdownOpen ? 'icon-up' : 'icon-down'} className={classNameIcoBtn} disabled={disabled}>
               {!mob && userFullName}
             </IcoBtn>
           </DropdownToggle>
@@ -71,7 +64,7 @@ class UserMenu extends React.Component {
             <Menu items={items} />
           </DropdownMenu>
         </Dropdown>
-      </React.Fragment>
+      </>
     );
   }
 }

@@ -1,6 +1,6 @@
 @import '../../constants.scss';
 
-$indents-of-items: 15px;
+$indents-of-items: 10px;
 
 .ecos-layout {
   $root: &;
@@ -8,7 +8,7 @@ $indents-of-items: 15px;
   display: flex;
   width: 100%;
   flex-direction: column;
-  padding: 0 13px;
+  padding: 0 18px;
   margin-bottom: 30px;
 
   &_left-menu {
@@ -277,12 +277,29 @@ $indents-of-items: 15px;
 
   &__element {
     &:not(:last-child) {
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
   }
 
   .dashlet__btn_move {
     pointer-events: none !important;
+  }
+
+  &_mobile {
+    padding: 0;
+    margin-bottom: 0;
+
+    .dashlet__wrap-header {
+      border-radius: 0;
+    }
+
+    .dashlet {
+      border-radius: 0;
+    }
+
+    .ecos-layout__element {
+      margin-bottom: 10px;
+    }
   }
 }
 

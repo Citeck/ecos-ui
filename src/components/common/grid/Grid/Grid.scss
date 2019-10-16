@@ -78,6 +78,10 @@
   }
 }
 
+.ecos-grid__td_error {
+  background: lighten($color-red-2, 40%);
+}
+
 .ecos-grid__body {
   width: 100%;
   overflow-x: auto;
@@ -85,6 +89,10 @@
 
 .ecos-grid_transparent {
   opacity: 0;
+}
+
+.ecos-grid_overflow_hidden {
+  overflow: hidden;
 }
 
 /*Checkable*/

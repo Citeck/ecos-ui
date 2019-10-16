@@ -16,6 +16,7 @@ class DropdownMenuItem extends React.Component {
     key: PropTypes.string,
     data: PropTypes.PropTypes.shape({
       id: PropTypes.string,
+      img: PropTypes.string,
       targetUrl: PropTypes.string,
       label: PropTypes.string,
       target: PropTypes.string,
@@ -58,14 +59,22 @@ class DropdownMenuItem extends React.Component {
     }
   };
 
+  renderImg() {
+    const { data } = this.props;
+    const { img, label } = data;
+
+    return <img className="ecos-dropdown-menu__img" src={img} alt={label} />;
+  }
+
   render() {
     const { data, iconRight } = this.props;
-    const { id, targetUrl, label, target } = data;
+    const { id, img, targetUrl, label, target } = data;
 
     return (
       <li>
         <a href={targetUrl} target={target} id={id} onClick={this.handlerClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
           {this.iconLeft && <i className={this.iconLeft} />}
+          {img && this.renderImg()}
           {label && t(label)}
           {iconRight && <i className={iconRight} />}
         </a>

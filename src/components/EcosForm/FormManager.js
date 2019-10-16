@@ -92,7 +92,7 @@ export default class FormManager {
   }
 
   static openFormModal(props) {
-    let form = React.createElement(EcosFormModal, props);
+    let form = React.createElement(EcosFormModal, { ...props, isModalOpen: true });
 
     let container = document.createElement('div');
     document.body.appendChild(container);

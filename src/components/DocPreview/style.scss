@@ -134,6 +134,10 @@ $border-base: #c1c1c1;
     border-right: 1px solid $border-base;
     border-left: 1px solid $border-base;
 
+    &-define {
+      height: 100%;
+    }
+
     &_fullscreen {
       height: 100vh;
       width: 100vw;
@@ -149,6 +153,7 @@ $border-base: #c1c1c1;
         display: flex;
         flex-direction: column;
         align-items: center;
+        height: 100%;
 
         &_pdf {
           padding: 12px;

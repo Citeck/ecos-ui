@@ -25,9 +25,8 @@ export default class ResizableBox extends React.Component {
     resizing: false
   };
 
-  className = 'ecos-resize';
-
   refBox = React.createRef();
+  resizeButtonRef = React.createRef();
 
   startResize = event => {
     event.preventDefault();
@@ -46,16 +45,21 @@ export default class ResizableBox extends React.Component {
       const box = this.refBox.current || {};
       const currentH = box.offsetHeight || 0;
       const delta = event.pageY - box.getBoundingClientRect().bottom;
-      const height = currentH + delta;
+      let height = currentH + delta;
+
+      if (this.resizeButtonRef.current) {
+        height -= this.resizeButtonRef.current.offsetHeight / 2;
+      }
 
       getHeight(height);
     }
   };
 
-  stopResize = event => {
+  stopResize = () => {
     const { resizing } = this.state;
 
     window.removeEventListener('mousemove', this.doResize);
+    window.removeEventListener('mouseup', this.stopResize);
 
     if (resizing) {
       this.setState({ resizing: false });
@@ -67,13 +71,13 @@ export default class ResizableBox extends React.Component {
 
     return (
       <React.Fragment>
-        <div ref={this.refBox} className={classNames(`${this.className}__container`, classNameBox)}>
+        <div ref={this.refBox} className={classNames('ecos-resize__container', classNameBox)}>
           {children}
         </div>
-        <div className={classNames(`${this.className}__bottom`, classNameResizer)}>
+        <div className={classNames('ecos-resize__bottom', classNameResizer)}>
           {resizable && (
-            <div className={classNames(`${this.className}__control`)}>
-              <Icon className={'icon-resize'} title={t('dashlet.resize.title')} onMouseDown={this.startResize} />
+            <div ref={this.resizeButtonRef} className="ecos-resize__control">
+              <Icon className="icon-resize" title={t('dashlet.resize.title')} onMouseDown={this.startResize} />
             </div>
           )}
         </div>

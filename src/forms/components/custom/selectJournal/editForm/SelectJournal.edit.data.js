@@ -50,6 +50,14 @@ export default [
     dataSrc: 'custom'
   },
   {
+    type: 'checkbox',
+    input: true,
+    key: 'isFullScreenWidthModal',
+    label: 'Full-width modal',
+    tooltip: 'Check to display modal window in full screen width',
+    weight: 23
+  },
+  {
     weight: 25,
     type: 'panel',
     title: 'Custom Predicate',

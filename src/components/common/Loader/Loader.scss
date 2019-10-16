@@ -14,6 +14,14 @@
   &_blur {
     background-color: rgba(255, 255, 255, 0.7);
   }
+
+  &_darkened {
+    background-color: $background-loader;
+  }
+
+  &_rounded {
+    border-radius: $border-radius-extra-large;
+  }
 }
 
 .ecos-loader_pin {

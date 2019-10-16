@@ -19,6 +19,10 @@ import dashboard from './dashboard';
 import menu from './menu';
 import currentTasks from './currentTasks';
 import docStatus from './docStatus';
+import eventsHistory from './eventsHistory';
+import versionsJournal from './versionsJournal';
+import recordActions from './recordActions';
+import docAssociations from './docAssociations';
 import timesheetSubordinates from './timesheet/subordinates';
 import timesheetMine from './timesheet/mine';
 import timesheetVerification from './timesheet/verification';
@@ -42,6 +46,10 @@ const reducers = {
   menu,
   currentTasks,
   docStatus,
+  eventsHistory,
+  versionsJournal,
+  recordActions,
+  docAssociations,
   timesheetSubordinates,
   timesheetMine,
   timesheetVerification

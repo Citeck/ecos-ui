@@ -48,6 +48,10 @@
     line-height: 22px;
     color: $text-color-dark;
   }
+
+  .modal-loading {
+    border-radius: 12px;
+  }
 }
 
 .ecos-modal_zero-padding {
@@ -167,6 +171,10 @@
 
 .ecos-modal.ecos-modal_width-extra-lg {
   max-width: 1200px;
+}
+
+.ecos-modal.ecos-modal_width-full {
+  max-width: calc(100% - 1rem);
 }
 
 @media (max-width: 600px) {

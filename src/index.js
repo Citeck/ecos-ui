@@ -24,16 +24,20 @@ import {
   CommentsApi,
   DashboardApi,
   DocStatusApi,
+  EventsHistoryApi,
   JournalsApi,
   MenuApi,
   MyTimesheetApi,
   OrgStructApi,
   PageTabsApi,
+  RecordActionsApi,
   TasksApi,
+  UserApi,
+  VersionsJournalApi,
+  DocAssociationsApi,
   TimesheetCommonApi,
   TimesheetSubordinatesApi,
-  TimesheetVerificationApi,
-  UserApi
+  TimesheetVerificationApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
@@ -72,6 +76,22 @@ api.comments = new CommentsApi(store);
 api.dashboard = new DashboardApi(store);
 api.pageTabs = new PageTabsApi(store);
 api.docStatus = new DocStatusApi(store);
+api.eventsHistory = new EventsHistoryApi(store);
+api.versionsJournal = new VersionsJournalApi(store);
+api.recordActions = new RecordActionsApi(store);
+api.docAssociations = new DocAssociationsApi(store);
+
+/**
+ * todo: Maybe need such union all api?
+ */
+// Object
+//   .keys(API)
+//   .forEach((key => {
+//   let name = key.replace('Api', '');
+//
+//   name = name[0].toLowerCase() + name.slice(1);
+//   api[name] = new API[key](store);
+// }));
 
 //timesheets
 api.timesheetCommon = new TimesheetCommonApi(store);

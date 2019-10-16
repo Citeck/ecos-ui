@@ -1,32 +1,43 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import Records from '../Records';
-import EcosForm, { FORM_MODE_EDIT } from '../EcosForm';
-import EcosModal from '../common/EcosModal';
+import EcosFormModal from '../EcosForm/EcosFormModal';
+
+function usePrevious(value = false) {
+  const ref = useRef();
+
+  useEffect(() => {
+    ref.current = value;
+  });
+
+  return ref.current;
+}
 
 function PropertiesEditModal(props) {
-  const { record, isOpen, onFormSubmit, onFormCancel } = props;
+  const { record, isOpen, onFormSubmit, onFormCancel, formIsChanged } = props;
   const [displayName, setDisplayName] = useState('');
+  const prev = usePrevious({ formIsChanged });
+  const formRef = useRef();
 
   useEffect(() => {
     Records.get(record)
       .load('.disp')
       .then(disp => setDisplayName(disp));
-  }, [record, setDisplayName]);
+
+    if (formRef.current && prev && prev.formIsChanged !== formIsChanged && formIsChanged) {
+      formRef.current.onReload();
+    }
+  }, [record, setDisplayName, formIsChanged]);
 
   return (
-    <EcosModal
-      reactstrapProps={{
-        backdrop: 'static'
-      }}
-      className="ecos-modal_width-lg"
-      isBigHeader={true}
+    <EcosFormModal
+      record={record}
+      onFormCancel={onFormCancel}
+      onSubmit={onFormSubmit}
       title={`${displayName}`}
-      isOpen={isOpen}
-      hideModal={onFormCancel}
-    >
-      <EcosForm record={record} onSubmit={onFormSubmit} onFormCancel={onFormCancel} formMode={FORM_MODE_EDIT} />
-    </EcosModal>
+      isModalOpen={isOpen}
+      onHideModal={onFormCancel}
+    />
   );
 }
 
@@ -36,7 +47,5 @@ PropertiesEditModal.propTypes = {
   onFormCancel: PropTypes.func.isRequired,
   onFormSubmit: PropTypes.func.isRequired
 };
-
-PropertiesEditModal.defaultProps = {};
 
 export default PropertiesEditModal;

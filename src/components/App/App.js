@@ -9,7 +9,6 @@ import Header from '../Header';
 import Notification from '../Notification';
 import SlideMenu from '../SlideMenu';
 import ReduxModal from '../ReduxModal';
-import Footer from '../Footer';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 
@@ -34,6 +33,9 @@ const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
 const CommentsWidgetPage = lazy(() => import('../../pages/debug/CommentsWidget'));
 const CurrentTasksPage = lazy(() => import('../../pages/debug/CurrentTasks/CurrentTasksPage'));
 const DocStatusPage = lazy(() => import('../../pages/debug/DocStatus/DocStatusPage'));
+const EventsHistoryPage = lazy(() => import('../../pages/debug/EventsHistoryPage'));
+const VersionsJournalWidgetPage = lazy(() => import('../../pages/debug/VersionsJournalWidgetPage'));
+const DocAssociations = lazy(() => import('../../pages/debug/DocAssociations'));
 const MyTimesheetPage = lazy(() => import('../../pages/Timesheet/MyTimesheetPage'));
 const SubordinatesTimesheetPage = lazy(() => import('../../pages/Timesheet/SubordinatesTimesheetPage'));
 const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/VerificationTimesheetPage'));
@@ -88,7 +90,7 @@ class App extends Component {
     return (
       <PageTabs
         homepageLink={URL.DASHBOARD}
-        isShow={isShow && !this.isOnlyContent}
+        isShow={isShow && !this.isOnlyContent && !isMobile}
         tabs={tabs}
         saveTabs={setTabs}
         changeActiveTab={changeActiveTab}
@@ -123,7 +125,18 @@ class App extends Component {
   }
 
   render() {
-    const { isInit, isInitFailure, isAuthenticated, isMobile } = this.props;
+    const {
+      changeActiveTab,
+      isInit,
+      isInitFailure,
+      isAuthenticated,
+      isMobile,
+      isShow,
+      tabs,
+      setTabs,
+      getActiveTabTitle,
+      isLoadingTitle
+    } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -162,6 +175,8 @@ class App extends Component {
               <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
               <Route path={URL.JOURNAL} component={JournalsPage} />
               {/* temporary routes */}
+              <Route path="/v2/debug/formio-develop" component={FormIOPage} />
+              <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
               <Route path={URL.JOURNAL_OLD} component={JournalsPage} />
               <Route path={URL.CARD_DETAILS} component={CardDetailsPage} />
               <Route path={URL.JOURNAL_DASHBOARD} component={JournalsDashboardPage} />
@@ -171,6 +186,9 @@ class App extends Component {
               <Route path={URL.WIDGET_TASKS} exact component={TasksDashletPage} />
               <Route path={URL.CURRENT_TASKS} component={CurrentTasksPage} />
               <Route path={URL.WIDGET_DOC_STATUS} exact component={DocStatusPage} />
+              <Route path={URL.WIDGET_EVENTS_HISTORY} exact component={EventsHistoryPage} />
+              <Route path={URL.WIDGET_VERSIONS_JOURNAL} component={VersionsJournalWidgetPage} />
+              <Route path={URL.WIDGET_DOC_ASSOCIATIONS} component={DocAssociations} />
               <Route path={URL.TIMESHEET} exact component={MyTimesheetPage} />
               <Route path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
               <Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
@@ -179,15 +197,10 @@ class App extends Component {
               <Route path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
               <Route path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />
               <Route path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
-              <Route path="/v2/debug/formio-develop" component={FormIOPage} />
-              <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
               {/*<Route component={NotFoundPage} />*/}
             </Switch>
           </Suspense>
-
-          {this.renderStickyPush()}
         </div>
-        {this.renderFooter()}
       </div>
     );
   }
@@ -210,7 +223,7 @@ const mapDispatchToProps = dispatch => ({
   getTabs: () => dispatch(getTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
   changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
-  getActiveTabTitle: tabs => dispatch(getActiveTabTitle()),
+  getActiveTabTitle: () => dispatch(getActiveTabTitle()),
   initMenuSettings: () => dispatch(initMenuSettings())
 });
 

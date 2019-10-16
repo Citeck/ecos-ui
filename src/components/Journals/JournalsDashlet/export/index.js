@@ -11,6 +11,7 @@ import { reducers } from './reducers';
 import sagas from './sagas';
 
 import { JournalsApi } from '../../../../api';
+import { RecordActionsApi } from '../../../../api';
 import JournalsDashlet from '../JournalsDashlet';
 
 import Logger from 'logplease';
@@ -27,6 +28,7 @@ const store = createStore(rootReducer, {}, compose(applyMiddleware(sagaMiddlewar
 sagaMiddleware.run(sagas, { api, logger });
 
 api.journals = new JournalsApi(store);
+api.recordActions = new RecordActionsApi(store);
 
 let render = (elementId, props) => {
   ReactDOM.render(

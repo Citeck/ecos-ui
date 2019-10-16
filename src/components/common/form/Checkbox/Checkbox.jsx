@@ -42,6 +42,7 @@ export default class Checkbox extends Component {
     const state = this.state;
     const props = this.props;
     const cssClasses = classNames('ecos-checkbox', props.className);
+    const text = props.children ? <span className={'ecos-checkbox__text'}>{props.children}</span> : null;
 
     return (
       <span className={cssClasses} onClick={this.toggle}>
@@ -57,6 +58,7 @@ export default class Checkbox extends Component {
             <i className="checkbox__i checkbox__i_white  icon-checkbox-check-icon" />
           </Fragment>
         ) : null}
+        {text}
       </span>
     );
   }

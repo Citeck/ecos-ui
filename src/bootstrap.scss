@@ -84,3 +84,15 @@
     }
   }
 }
+
+.ecos-modal-tooltip {
+  .tooltip {
+    z-index: 11000;
+
+    .arrow {
+      &:before {
+        top: -6px;
+      }
+    }
+  }
+}
