@@ -15,7 +15,8 @@ export class TimesheetCommonApi extends RecordService {
       {
         userName: 'username',
         status: 'status',
-        taskId: 'taskId'
+        taskId: 'taskId',
+        nodeRef: 'nodeRef'
       }
     ).then(res => res);
   };

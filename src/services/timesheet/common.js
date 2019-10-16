@@ -267,4 +267,34 @@ export default class CommonTimesheetService {
 
     return map;
   }
+
+  static getColumnsEventHistory() {
+    return [
+      {
+        attribute: 'event:date',
+        formatter: {
+          name: 'DateTimeFormatter',
+          params: {
+            format: 'DD.MM.YYYY HH:mm:ss'
+          }
+        },
+        text: t(CommonLabels.EVENT_HISTORY_COL_DATE),
+        type: 'date'
+      },
+      {
+        dataField: 'event:initiator',
+        formatter: 'UserNameLinkFormatter',
+        text: t(CommonLabels.EVENT_HISTORY_COL_PERSON)
+      },
+      {
+        attribute: 'event:taskTitle',
+        text: t(CommonLabels.EVENT_HISTORY_COL_TASK)
+      },
+      {
+        attribute: 'event:taskComment',
+        text: t(CommonLabels.EVENT_HISTORY_COL_COMMENT),
+        width: 230
+      }
+    ];
+  }
 }
