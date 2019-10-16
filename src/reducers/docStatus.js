@@ -5,6 +5,7 @@ import {
   getCheckDocStatus,
   getDocStatus,
   initDocStatus,
+  resetDocStatus,
   setAvailableToChangeStatuses,
   setCheckDocStatus,
   setDocStatus,
@@ -78,7 +79,7 @@ export default handleActions(
         ...getCurrentStateById(state, stateId, initialState),
         status: {},
         isLoading: false,
-        isUpdating: true,
+        isUpdating: false,
         countAttempt: 0
       },
       updateRequestRecord: null
@@ -106,7 +107,12 @@ export default handleActions(
         isUpdating,
         isLoading: false
       }
-    })
+    }),
+    [resetDocStatus]: (state, { payload: { stateId } }) => {
+      delete state[stateId];
+
+      return state;
+    }
   },
   commonInitialState
 );

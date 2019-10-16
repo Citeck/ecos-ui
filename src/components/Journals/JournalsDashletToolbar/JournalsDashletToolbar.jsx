@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 import Export from '../../Export/Export';
@@ -9,6 +9,7 @@ import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { onJournalSelect, onJournalSettingsSelect } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
+import { goToCardDetailsPage } from '../../../helpers/urls';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 const mapStateToProps = (state, props) => {
@@ -17,7 +18,8 @@ const mapStateToProps = (state, props) => {
   return {
     journals: newState.journals,
     journalConfig: newState.journalConfig,
-    journalSettings: newState.journalSettings
+    journalSettings: newState.journalSettings,
+    grid: newState.grid
   };
 };
 
@@ -38,7 +40,11 @@ class JournalsDashletToolbar extends Component {
       }
     } = this.props;
 
-    FormManager.createRecordByVariant(createVariants[0]);
+    FormManager.createRecordByVariant(createVariants[0], {
+      onSubmit: record => {
+        goToCardDetailsPage(record.id);
+      }
+    });
   };
 
   onChangeJournal = journal => this.props.onJournalSelect(journal.nodeRef);
@@ -57,7 +63,8 @@ class JournalsDashletToolbar extends Component {
       },
       journalSettings,
       measurer,
-      isSmall
+      isSmall,
+      grid
     } = this.props;
 
     return (
@@ -65,7 +72,9 @@ class JournalsDashletToolbar extends Component {
         {createVariants[0] ? (
           <IcoBtn
             icon={'icon-big-plus'}
-            className={'ecos-btn_i ecos-btn_i-big-plus ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10'}
+            className={
+              'ecos-btn_i ecos-btn_i-big-plus ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10 ecos-journal-dashlet__create-btn'
+            }
             onClick={this.addRecord}
           />
         ) : null}
@@ -97,16 +106,11 @@ class JournalsDashletToolbar extends Component {
           </Dropdown>
         )}
 
-        {!isSmall && <Export config={journalConfig} />}
+        {!isSmall && <Export config={journalConfig} grid={grid} />}
 
         {!isSmall && (
-          <div className={'dashlet__actions'}>
+          <div className={'ecos-journal-dashlet__actions'}>
             {measurer.xs || measurer.xxs || measurer.xxxs ? null : <JournalsDashletPagination stateId={stateId} />}
-            <IcoBtn
-              icon={'icon-list'}
-              className={'ecos-btn_i ecos-btn_blue2 ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-btn_x-step_10'}
-            />
-            {/*<IcoBtn icon={'icon-pie'} className={'ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue'} />*/}
           </div>
         )}
       </div>

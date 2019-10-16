@@ -1,4 +1,5 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
+import isEmpty from 'lodash/isEmpty';
 import { changeTaskAssignee, getTaskList, setTaskAssignee, setTaskList } from '../actions/tasks';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
@@ -12,10 +13,16 @@ function* sagaGetTasks({ api, logger }, { payload }) {
     const { document, stateId } = payload;
     const res = yield call(api.tasks.getTasksForUser, { document });
 
-    if (res && Object.keys(res)) {
-      yield put(setTaskList({ stateId, list: TasksConverter.getTaskListForWeb(res.records) }));
-    } else {
+    if (isEmpty(res)) {
       yield put(setNotificationMessage(err));
+    } else {
+      yield put(
+        setTaskList({
+          stateId,
+          list: TasksConverter.getTaskListForWeb(res.records),
+          totalCount: res.totalCount || 0
+        })
+      );
     }
   } catch (e) {
     yield put(setNotificationMessage(err));
@@ -31,14 +38,14 @@ function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
     const { taskId, stateId, ownerUserName, actionOfAssignment } = payload;
     const res = yield call(api.tasks.changeAssigneeTask, { taskId, action: actionOfAssignment, owner: ownerUserName });
 
-    if (res && Object.keys(res).length) {
-      const updatedFields = yield call(api.tasks.getTaskStateAssign, { taskId });
-      const list = yield TasksService.updateList({ stateId, taskId, updatedFields, ownerUserName });
-
-      yield put(setTaskAssignee({ stateId, list }));
-      yield put(setNotificationMessage(suc(res.id)));
-    } else {
+    if (isEmpty(res)) {
       yield put(setNotificationMessage(err));
+    } else {
+      const updatedFields = yield call(api.tasks.getTaskStateAssign, { taskId });
+      const data = yield TasksService.updateList({ stateId, taskId, updatedFields, ownerUserName });
+
+      yield put(setTaskAssignee({ stateId, ...data }));
+      yield put(setNotificationMessage(suc(res.id)));
     }
   } catch (e) {
     yield put(setNotificationMessage(err));

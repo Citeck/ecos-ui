@@ -1,6 +1,6 @@
 import React from 'react';
 import { Select } from '../../form';
-import { RecordService } from '../../../../api/recordService';
+import Records from '../../../../components/Records';
 import BaseEditor from './BaseEditor';
 
 export default class DropdownEditor extends BaseEditor {
@@ -10,27 +10,23 @@ export default class DropdownEditor extends BaseEditor {
   }
 
   componentDidMount() {
-    const createVariants = this.props.createVariants || [];
+    const { row, column } = this.props;
 
-    if (createVariants.length) {
-      const api = new RecordService({});
-      api
-        .query({
-          record: `TYPE:"${createVariants[0].type}"`,
-          attributes: {
-            options: `#${(this.props.column || {}).attribute}?options`
-          }
-        })
-        .then(resp => this.setState({ options: resp.attributes.options }));
-    }
+    Records.get((row || {}).id)
+      .load(`#${(column || {}).attribute}?options`)
+      .then(res => this.setState({ options: res }));
   }
 
   onChange = value => {
-    this.setValue(value.value);
+    this.setValue({
+      disp: value.label,
+      str: value.value
+    });
   };
 
   render() {
     const { value, onUpdate, ...rest } = this.props;
+    const { options } = this.state;
 
     return (
       <Select
@@ -41,7 +37,8 @@ export default class DropdownEditor extends BaseEditor {
         placeholder={''}
         getOptionLabel={options => options.label}
         getOptionValue={options => options.value}
-        options={this.state.options}
+        options={options}
+        value={options.filter(o => o.value === (value || {}).str)[0]}
         styles={{
           menu: css => ({
             ...css,

@@ -6,7 +6,7 @@ import { getMinWidthColumn } from '../../helpers/layout';
 import Components from '../Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
 import { MENU_TYPE } from '../../constants';
-import { getSearchParams } from '../../helpers/util';
+import { getSearchParams, documentScrollTop } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
@@ -20,6 +20,7 @@ class Layout extends Component {
       })
     ).isRequired,
     menuType: PropTypes.string,
+    className: PropTypes.string,
     onSaveWidget: PropTypes.func,
     onSaveWidgetProps: PropTypes.func,
     canDragging: PropTypes.bool
@@ -28,7 +29,8 @@ class Layout extends Component {
   static defaultProps = {
     onSaveWidget: () => {},
     onSaveWidgetProps: () => {},
-    canDragging: false
+    canDragging: false,
+    className: ''
   };
 
   state = {
@@ -39,19 +41,10 @@ class Layout extends Component {
   _components = {};
 
   get className() {
-    const classes = ['ecos-layout'];
+    const { className } = this.props;
+    const classes = ['ecos-layout', className];
 
     return classes.join(' ');
-  }
-
-  get bodyScrollTop() {
-    const body = document.querySelector('body');
-
-    if (!body) {
-      return 0;
-    }
-
-    return body.scrollTop;
   }
 
   get menuWidth() {
@@ -68,7 +61,7 @@ class Layout extends Component {
     const { menuType } = this.props;
 
     return {
-      top: menuType === MENU_TYPE.LEFT ? this.bodyScrollTop : 0,
+      top: menuType === MENU_TYPE.LEFT ? documentScrollTop() : 0,
       left: menuType === MENU_TYPE.LEFT ? this.menuWidth : 0
     };
   };

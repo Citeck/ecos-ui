@@ -25,16 +25,7 @@
     $ins: &;
 
     &__title {
-      height: 51px;
-      padding: 0 20px;
-      margin-bottom: 7px;
-      font-weight: $font-weight-bold;
-      color: $color-gray-dark;
-      background-color: $color-yellow;
-      line-height: 2.7;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
+      justify-content: space-between;
     }
 
     &__info-wrap {
@@ -60,18 +51,28 @@
       }
 
       #{$ins}_view-table {
-        height: 110px !important;
+        height: 90px !important;
 
         .table {
           border-top: none;
 
           th {
             border-top: none;
+            padding: 0;
+            height: 34px;
+          }
+
+          td {
+            height: 38px;
+            padding: 0;
           }
         }
 
         .ecos-th {
           font-weight: $font-weight-bold;
+          font-size: 12px;
+          height: 34px;
+          padding: 0 12px;
         }
 
         .ecos-grid__td {
@@ -88,33 +89,42 @@
   &__assign-btn {
     $btn: &;
 
-    &.ecos-btn {
-      font-weight: $font-weight-bold;
+    &__wrapper {
+      &_small-mode {
+        margin: 13px 0;
+      }
+
+      &:not(&_small-mode) > :nth-child(n) {
+        margin-left: 10px;
+      }
+
+      .select-orgstruct {
+        display: inline;
+      }
     }
 
-    &:not(:last-of-type) {
-      margin-right: 10px;
-    }
-
-    &._fill {
+    &_small-mode {
       width: 100%;
-      margin-right: 0;
 
-      &:first-of-type {
-        margin-top: 3px;
+      &.ecos-btn {
+        margin-right: 0;
+        margin-bottom: 13px;
+        background-color: $color-blue-dark;
+        color: $color-white;
+
+        &:hover {
+          background-color: $color-blue-light;
+        }
       }
 
       &:last-of-type {
-        margin-bottom: 2px;
-      }
+        background-color: $color-gray-4;
+        color: $text-color-dark;
 
-      &:not(:last-of-type) {
-        margin-bottom: 10px;
+        &:hover {
+          background-color: $color-gray-1;
+        }
       }
-    }
-
-    &__wrapper {
-      margin-top: 16px;
     }
   }
 }

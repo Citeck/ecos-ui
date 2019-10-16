@@ -12,6 +12,7 @@ export const initJournal = createAction(prefix + 'INIT_JOURNAL');
 export const setJournalsListItem = createAction(prefix + 'SET_JOURNALS_LIST_ITEM');
 export const setJournalsItem = createAction(prefix + 'SET_JOURNALS_ITEM');
 export const setSettingItem = createAction(prefix + 'SET_SETTING_ITEM');
+export const setOnlyLinked = createAction(prefix + 'SET_ONLY_LINKED');
 export const setJournalsList = createAction(prefix + 'SET_JOURNALS_LIST');
 export const setJournals = createAction(prefix + 'SET_JOURNALS');
 
@@ -20,6 +21,7 @@ export const setGrid = createAction(prefix + 'SET_GRID');
 export const reloadGrid = createAction(prefix + 'RELOAD_GRID');
 export const reloadTreeGrid = createAction(prefix + 'RELOAD_TREE_GRID');
 
+export const execRecordsAction = createAction(prefix + 'EXEC_RECORDS_ACTION');
 export const deleteRecords = createAction(prefix + 'DELETE_RECORDS');
 export const saveRecords = createAction(prefix + 'SAVE_RECORDS');
 export const setSelectedRecords = createAction(prefix + 'SET_SELECTED_RECORDS');
@@ -46,6 +48,7 @@ export const onJournalSelect = createAction(prefix + 'ON_JOURNAL_SELECT');
 
 export const initPreview = createAction(prefix + 'INIT_PREVIEW');
 export const setPreviewUrl = createAction(prefix + 'SET_PREVIEW_URL');
+export const setPreviewFileName = createAction(prefix + 'SET_PREVIEW_FILE_NAME');
 
 export const goToJournalsPage = createAction(prefix + 'GO_TO_JOURNALS_PAGE');
 export const search = createAction(prefix + 'SEARCH');
@@ -55,3 +58,4 @@ export const performGroupAction = createAction(prefix + 'PERFORM_GROUP_ACTION');
 export const setPerformGroupActionResponse = createAction(prefix + 'SET_PERFORM_GROUP_ACTION_RESPONSE');
 export const createZip = createAction(prefix + 'CREATE_ZIP');
 export const setZipNodeRef = createAction(prefix + 'SET_ZIP_NODEREF');
+export const setRecordRef = createAction(prefix + 'SET_RECORD_REF');

@@ -6,7 +6,8 @@ import {
   setDashboardIdentification,
   setDashboardTitleInfo,
   setLoading,
-  setResultSaveDashboardConfig
+  setMobileDashboardConfig,
+  setRequestResultDashboard
 } from '../actions/dashboard';
 import { changeActiveTab } from '../actions/pageTabs';
 
@@ -15,12 +16,11 @@ const initialState = {
   identification: {
     key: null,
     id: null,
-    type: null
+    type: null,
+    user: null
   },
-  config: {
-    columns: [],
-    type: ''
-  },
+  config: [],
+  mobileConfig: [],
   titleInfo: {
     modifierName: '',
     modifierUrl: '',
@@ -28,7 +28,7 @@ const initialState = {
     name: '',
     version: ''
   },
-  saveResult: {
+  requestResult: {
     status: '',
     dashboardId: ''
   }
@@ -60,18 +60,23 @@ export default handleActions(
       };
     },
     [setDashboardConfig]: (state, { payload }) => {
-      const { ...config } = payload;
-
       return {
         ...state,
-        config,
+        config: payload,
         isLoading: false
       };
     },
-    [setResultSaveDashboardConfig]: (state, { payload }) => {
+    [setMobileDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
-        saveResult: payload,
+        mobileConfig: payload,
+        isLoading: false
+      };
+    },
+    [setRequestResultDashboard]: (state, { payload }) => {
+      return {
+        ...state,
+        requestResult: payload,
         isLoading: false
       };
     },

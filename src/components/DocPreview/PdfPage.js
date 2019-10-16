@@ -74,8 +74,7 @@ class PdfPage extends Component {
     const [, , width, height] = page.getViewport().viewBox;
     const { clientWidth: cW, clientHeight: cH } = elContainer;
     const calcScale = getScale(scale, { width: cW, height: cH }, { width, height }, cW / 3);
-
-    const viewport = page.getViewport(calcScale);
+    const viewport = page.getViewport({ scale: calcScale });
 
     canvas.height = viewport.height;
     canvas.width = viewport.width;

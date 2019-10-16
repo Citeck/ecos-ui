@@ -12,12 +12,34 @@ export function getData(key = '') {
   return JSON.parse(window.localStorage.getItem(key));
 }
 
+export function transferData(fromKey = '', toKey = '', removeOldKey = false) {
+  if (hasData(fromKey)) {
+    setData(toKey, getData(fromKey));
+
+    if (removeOldKey) {
+      removeItem(fromKey);
+    }
+  }
+}
+
 export function setData(key = '', data = null) {
   if (!key) {
     return null;
   }
 
   window.localStorage.setItem(key, JSON.stringify(data));
+}
+
+export function removeItem(key = '') {
+  if (!key) {
+    return null;
+  }
+
+  window.localStorage.removeItem(key);
+}
+
+export function clearLS() {
+  window.localStorage.clear();
 }
 
 /**

@@ -1,9 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { USER_ADMIN, USER_CURRENT } from '../../constants';
+import { USER_CURRENT } from '../../constants';
 import { AssignActions } from '../../constants/tasks';
 import { t } from '../../helpers/util';
+import { AUTHORITY_TYPE_USER } from '../common/form/SelectOrgstruct/constants';
+import { SelectOrgstruct } from '../common/form';
 import { Btn } from '../common/btns';
 import { StateAssignPropTypes } from './utils';
 
@@ -12,18 +14,17 @@ import './style.scss';
 class AssignmentPanel extends React.Component {
   static propTypes = {
     stateAssign: PropTypes.shape(StateAssignPropTypes).isRequired,
+    wrapperClassName: PropTypes.string,
     className: PropTypes.string,
     onClick: PropTypes.func.isRequired,
     narrow: PropTypes.bool
   };
 
   static defaultProps = {
+    wrapperClassName: '',
     className: '',
-    narrow: false,
-    onClick: () => {}
+    narrow: false
   };
-
-  className = 'ecos-task__assign-btn';
 
   get infoButtons() {
     const {
@@ -38,13 +39,15 @@ class AssignmentPanel extends React.Component {
       },
       {
         isShow: assignable,
-        sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: USER_ADMIN }, //todo выбор пользователя из МО в другой доработке
-        label: t('tasks-widget.assign.assign')
+        sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: '' },
+        label: t('tasks-widget.assign.assign'),
+        hasSelector: true
       },
       {
         isShow: reassignable,
-        sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: USER_ADMIN },
-        label: t('tasks-widget.assign.reassign')
+        sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: '' },
+        label: t('tasks-widget.assign.reassign'),
+        hasSelector: true
       },
       {
         isShow: releasable,
@@ -56,23 +59,42 @@ class AssignmentPanel extends React.Component {
     return btns.filter(item => item.isShow);
   }
 
-  render() {
+  renderBtn(settings, index) {
     const { onClick, narrow, className } = this.props;
-    const classBtn = classNames(this.className, className, { 'ecos-btn_narrow-t_standart': narrow });
+    const classBtn = classNames('ecos-task__assign-btn ecos-btn_brown2', className, { 'ecos-btn_narrow-t_standart': narrow });
+    const keyBtn = `assignment-panel-${index}-${new Date().getTime()}`;
+
+    const handleSelect = () => onClick && onClick(settings.sentData);
+
+    const elmBtn = handleClick => (
+      <Btn key={keyBtn} className={classBtn} onClick={handleClick}>
+        {settings.label}
+      </Btn>
+    );
+
+    if (settings.hasSelector) {
+      return (
+        <SelectOrgstruct
+          key={`select-orgstruct-${keyBtn}`}
+          allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
+          renderView={props => elmBtn(props.toggleSelectModal)}
+          onChange={value => {
+            settings.sentData.ownerUserName = value;
+            handleSelect();
+          }}
+        />
+      );
+    }
+
+    return elmBtn(handleSelect);
+  }
+
+  render() {
+    const { wrapperClassName } = this.props;
 
     return (
-      <div className={this.className + '__wrapper'}>
-        {this.infoButtons.map((btn, i) => (
-          <Btn
-            key={i + new Date().getTime()}
-            className={classBtn}
-            onClick={() => {
-              onClick(btn.sentData);
-            }}
-          >
-            {btn.label}
-          </Btn>
-        ))}
+      <div className={classNames('ecos-task__assign-btn__wrapper', wrapperClassName)}>
+        {this.infoButtons.map((btn, i) => this.renderBtn(btn, i))}
       </div>
     );
   }

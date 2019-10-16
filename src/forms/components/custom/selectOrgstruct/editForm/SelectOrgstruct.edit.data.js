@@ -26,6 +26,18 @@ export default [
   {
     type: 'textfield',
     input: true,
+    key: 'allowedGroupSubType',
+    label: 'Allowed group subtype',
+    placeholder: 'Example: company, subdivision, manager, employee, director, department',
+    defaultValue: '',
+    validate: {
+      required: false
+    },
+    weight: 20
+  },
+  {
+    type: 'textfield',
+    input: true,
     key: 'allUsersGroup',
     label: '"All users" tab group short name',
     placeholder: 'Example: all',
@@ -33,7 +45,7 @@ export default [
     validate: {
       required: false
     },
-    weight: 20
+    weight: 21
   },
   {
     label: 'Current user by default',
@@ -46,6 +58,6 @@ export default [
     input: true,
     key: 'currentUserByDefault',
     defaultValue: false,
-    weight: 21
+    weight: 22
   }
 ];

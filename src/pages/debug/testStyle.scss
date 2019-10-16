@@ -21,4 +21,10 @@
       margin: 20px 0;
     }
   }
+
+  &-bs {
+    h5 ~ div {
+      margin-bottom: 10px;
+    }
+  }
 }

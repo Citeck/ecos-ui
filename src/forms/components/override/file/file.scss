@@ -76,6 +76,21 @@
   }
 }
 
+.file-list_view-mode {
+  background: $color-gray-4;
+  border-radius: $border-radius-standard;
+  padding: 5px 15px;
+  margin: 0 0 0 -15px;
+}
+
+.file-item_view-mode {
+  margin-bottom: 7px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
 @media (max-width: 767px) {
   .formio-form {
     .formio-component-file {

@@ -1,20 +1,20 @@
 import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import DropdownMenuItem from './DropdownMenuItem';
 
 export default class DropdownMenuCascade extends React.Component {
   static propTypes = {
-    groups: PropTypes.array
+    groups: PropTypes.array,
+    onClick: PropTypes.func
   };
 
   static defaultProps = {
-    groups: []
+    groups: [],
+    onClick: () => {}
   };
-
-  className = 'ecos-dropdown-menu__cascade';
 
   state = {
     openedItem: null
@@ -24,30 +24,41 @@ export default class DropdownMenuCascade extends React.Component {
     this.setState({ openedItem: key });
   };
 
-  renderMenuItems(items) {
+  renderMenuItems = items => {
     return isEmpty(items)
       ? []
       : items.map((item, key) => {
           return <DropdownMenuItem key={key} data={item} />;
         });
-  }
+  };
 
   render() {
-    const { groups } = this.props;
+    const { groups, onClick } = this.props;
     const { openedItem } = this.state;
 
     return groups.map((item, i) => {
-      const { id, label, items, targetUrl } = item;
+      const { id, items } = item;
       const key = `key-${i}-${id}`;
-      const iconRight = classNames({ [`icon-right ${this.className}-arrow`]: !isEmpty(items) });
+      const iconRight = classNames({ 'icon-right ecos-dropdown-menu__cascade-arrow': !isEmpty(items) });
 
       return (
-        <Dropdown className={`ecos-dropdown ${this.className}`} key={key} isOpen={openedItem === key} toggle={() => null} direction="right">
-          <DropdownToggle tag="ul" className={`ecos-dropdown__toggle ${this.className}-toggle`} onPointerOver={() => this.toggle(key)}>
-            <DropdownMenuItem data={{ id, label, targetUrl }} iconRight={iconRight} />
+        <Dropdown
+          className="ecos-dropdown ecos-dropdown-menu__cascade"
+          key={key}
+          isOpen={openedItem === key}
+          toggle={() => null}
+          direction="right"
+        >
+          <DropdownToggle
+            tag="ul"
+            className="ecos-dropdown__toggle ecos-dropdown-menu__cascade-toggle"
+            onMouseEnter={() => this.toggle(key)}
+          >
+            <DropdownMenuItem data={item} iconRight={iconRight} onClick={item.items ? () => null : onClick} />
           </DropdownToggle>
-          <DropdownMenu className={`ecos-dropdown__menu ecos-dropdown__menu_cascade`}>
-            <ul>{this.renderMenuItems(items)}</ul>
+
+          <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_cascade">
+            {item.items ? <DropdownMenuCascade groups={item.items} onClick={onClick} /> : <ul>{this.renderMenuItems(items)}</ul>}
           </DropdownMenu>
         </Dropdown>
       );

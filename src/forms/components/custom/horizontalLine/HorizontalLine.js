@@ -31,9 +31,9 @@ export default class HorizontalLine extends BaseComponent {
   }
 
   build() {
-    // if (this.viewOnly) {
-    //   return this.viewOnlyBuild();
-    // }
+    if (this.viewOnly) {
+      return this.viewOnlyBuild();
+    }
 
     this.createElement();
 
@@ -61,7 +61,7 @@ export default class HorizontalLine extends BaseComponent {
     this.attachLogic();
   }
 
-  // viewOnlyBuild() {} // hide control for viewOnly mode
+  viewOnlyBuild() {} // hide control for viewOnly mode
 
   createLabel() {}
 }

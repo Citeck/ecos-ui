@@ -8,6 +8,7 @@ import HamburgerIcon from './HamburgerIcon';
 import UserMenu from './UserMenu';
 import SiteMenu from './SiteMenu';
 import Search from './Search';
+import LanguageSwitcher from './LanguageSwitcher';
 import { MENU_TYPE } from '../../constants';
 
 import './style.scss';
@@ -73,6 +74,7 @@ class Header extends React.Component {
           <div className={`${classNameSide} ${classNameSide}_right`}>
             <Search isMobile={widthHeader <= 600} />
             {isMobile || (widthHeader > 600 && <SiteMenu />)}
+            {isMobile || (widthHeader > 600 && <LanguageSwitcher />)}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
           </div>
         </div>

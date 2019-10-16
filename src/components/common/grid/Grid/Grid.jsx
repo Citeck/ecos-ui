@@ -1,13 +1,14 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 import BootstrapTable from 'react-bootstrap-table-next';
 import cellEditFactory from 'react-bootstrap-table2-editor';
-import Checkbox from '../../form/Checkbox/Checkbox';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { closest, getId, t, trigger } from '../../../../helpers/util';
+import Checkbox from '../../form/Checkbox/Checkbox';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
-import { t, getId, trigger, closest } from '../../../../helpers/util';
+import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../form/SelectJournal/predicates';
 
-import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
 
 const CLOSE_FILTER_EVENT = 'closeFilterEvent';
@@ -21,15 +22,15 @@ const Selector = ({ mode, ...rest }) => (
 );
 
 const SelectorHeader = ({ indeterminate, ...rest }) => (
-  <Fragment>
+  <>
     <div className={'ecos-grid__checkbox'}>
       {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
       <div className={'ecos-grid__checkbox-devider'} />
     </div>
-  </Fragment>
+  </>
 );
 
-export default class Grid extends Component {
+class Grid extends Component {
   constructor(props) {
     super(props);
     this._selected = [];
@@ -96,7 +97,9 @@ export default class Grid extends Component {
         column.hidden = !column.default;
       }
 
-      column = this.setHeaderFormatter(column, props.filterable, column.sortable);
+      const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
+
+      column = this.setHeaderFormatter(column, filterable, column.sortable);
 
       column.formatter = this.initFormatter(props.editable);
 
@@ -105,6 +108,8 @@ export default class Grid extends Component {
 
     if (props.editable) {
       props.cellEdit = this.setEditable(props.editable);
+    } else {
+      props.cellEdit = undefined;
     }
 
     props.rowEvents = props.rowEvents || {};
@@ -211,8 +216,14 @@ export default class Grid extends Component {
     return (cell, row, rowIndex, formatExtraData) => {
       formatExtraData = formatExtraData || {};
       const Formatter = formatExtraData.formatter;
+      const errorAttribute = row.error;
+
       return (
-        <div className={`ecos-grid__td ${editable ? 'ecos-grid__td_editable' : ''}`}>
+        <div
+          className={`ecos-grid__td ${editable ? 'ecos-grid__td_editable' : ''} ${
+            errorAttribute && row[errorAttribute] === cell ? 'ecos-grid__td_error' : ''
+          }`}
+        >
           {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
         </div>
       );
@@ -426,6 +437,7 @@ export default class Grid extends Component {
       bordered: false,
       scrollable: true,
       headerClasses: 'ecos-grid__header',
+      classes: 'table_table-layout_auto',
       noDataIndication: () => t('grid.no-data-indication'),
       ...this.props
     };
@@ -449,7 +461,7 @@ export default class Grid extends Component {
           {children}
         </Scrollbars>
       ) : (
-        <Fragment>{children}</Fragment>
+        <>{children}</>
       );
 
     if (props.columns.length) {
@@ -482,3 +494,24 @@ export default class Grid extends Component {
     return null;
   }
 }
+
+Grid.propTypes = {
+  className: PropTypes.string,
+  keyField: PropTypes.string,
+  dataField: PropTypes.string,
+
+  filterable: PropTypes.bool,
+  editable: PropTypes.bool,
+  multiSelectable: PropTypes.bool,
+  singleSelectable: PropTypes.bool,
+  selectAll: PropTypes.bool,
+  scrollable: PropTypes.bool,
+
+  columns: PropTypes.array,
+  data: PropTypes.array,
+  filters: PropTypes.array,
+  sortBy: PropTypes.array,
+  selected: PropTypes.array
+};
+
+export default Grid;

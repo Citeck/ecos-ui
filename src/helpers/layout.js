@@ -19,6 +19,8 @@ export function getMinWidthColumn(typeLayout, colNum) {
       return colNum === 1 ? MIN_WIDTH_COLUMN.TWO_QUARTERS : MIN_WIDTH_COLUMN.ONE_QUARTER;
     case LAYOUT_TYPE.FOUR_COLUMNS:
       return MIN_WIDTH_COLUMN.ONE_QUARTER;
+    case LAYOUT_TYPE.MOBILE:
+      return MIN_WIDTH_COLUMN.AUTO;
     default:
       return MIN_WIDTH_COLUMN.ONE_QUARTER;
   }

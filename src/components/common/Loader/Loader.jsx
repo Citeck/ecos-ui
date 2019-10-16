@@ -10,20 +10,26 @@ export default class Loader extends Component {
     height: PropTypes.number,
     width: PropTypes.number,
     className: PropTypes.string,
-    blur: PropTypes.bool
+    blur: PropTypes.bool,
+    darkened: PropTypes.bool,
+    rounded: PropTypes.bool
   };
 
   static defaultProps = {
     height: 45,
     width: 45,
     className: '',
-    blur: false
+    blur: false,
+    darkened: false,
+    rounded: false
   };
 
   render() {
-    const { className, blur, height, width } = this.props;
+    const { className, blur, darkened, height, width, rounded } = this.props;
     const cssClasses = classNames('ecos-loader', className, {
-      'ecos-loader_blur': blur
+      'ecos-loader_blur': blur,
+      'ecos-loader_darkened': darkened,
+      'ecos-loader_rounded': rounded
     });
 
     return (
