@@ -22,13 +22,13 @@ import {
 } from '../../selectors/timesheet';
 import SubordinatesTimesheetService from '../../services/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
-import { selectUserUserName } from '../../selectors/user';
+import { selectUserName } from '../../selectors/user';
 import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
 
 function* sagaInitSubordinatesTimesheet({ api, logger }) {
   try {
-    const userName = yield select(selectUserUserName);
+    const userName = yield select(selectUserName);
     const subordinates = yield api.timesheetSubordinates.getSubordinatesList({ userName });
     const userNames = SubordinatesTimesheetService.getUserNameList(subordinates.records);
 
@@ -93,7 +93,7 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
 
 function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   try {
-    const currentUser = yield select(selectUserUserName);
+    const currentUser = yield select(selectUserName);
     const { outcome, taskId, userName, currentDate } = payload;
 
     const mergedList = yield select(selectTimesheetSubordinatesMergedList);

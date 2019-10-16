@@ -13,9 +13,9 @@ import {
   setUpdatingEventDayHours,
   setUpdatingStatus
 } from '../../actions/timesheet/mine';
-import { selectUserUserName } from '../../selectors/user';
-import CommonTimesheetConverter from '../../dto/timesheet/common';
+import { selectUserName } from '../../selectors/user';
 import { selectTimesheetMineUpdatingHours } from '../../selectors/timesheet';
+import CommonTimesheetConverter from '../../dto/timesheet/common';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 function* sagaInitMyTimesheet({ api, logger }) {
@@ -30,7 +30,7 @@ function* sagaInitMyTimesheet({ api, logger }) {
 
 function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
   try {
-    const userName = yield select(selectUserUserName);
+    const userName = yield select(selectUserName);
     const { currentDate } = payload;
 
     const statuses = yield api.timesheetCommon.getTimesheetStatusList({
@@ -59,7 +59,7 @@ function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
 
 function* sagaGetStatus({ api, logger }, { payload }) {
   try {
-    const userName = yield select(selectUserUserName);
+    const userName = yield select(selectUserName);
     const { currentDate } = payload;
 
     const statuses = yield api.timesheetCommon.getTimesheetStatusList({
@@ -76,7 +76,7 @@ function* sagaGetStatus({ api, logger }, { payload }) {
 
 function* sagaModifyStatus({ api, logger }, { payload }) {
   try {
-    const currentUser = yield select(selectUserUserName);
+    const currentUser = yield select(selectUserName);
     const {
       outcome,
       status: { taskId }
@@ -95,7 +95,7 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
 }
 
 function* sagaModifyEventDayHours({ api, logger }, { payload }) {
-  const userName = yield select(selectUserUserName);
+  const userName = yield select(selectUserName);
   const updatingHoursState = yield select(selectTimesheetMineUpdatingHours);
   const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload);
 

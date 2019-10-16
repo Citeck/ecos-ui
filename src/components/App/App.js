@@ -11,6 +11,7 @@ import SlideMenu from '../SlideMenu';
 import ReduxModal from '../ReduxModal';
 import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
+import Footer from '../Footer';
 
 import { changeActiveTab, getActiveTabTitle, getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
@@ -85,7 +86,7 @@ class App extends Component {
   }
 
   renderTabs() {
-    const { changeActiveTab, isShow, tabs, setTabs, getActiveTabTitle, isLoadingTitle } = this.props;
+    const { changeActiveTab, isShow, tabs, setTabs, getActiveTabTitle, isLoadingTitle, isMobile } = this.props;
 
     return (
       <PageTabs
