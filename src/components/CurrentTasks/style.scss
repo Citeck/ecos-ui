@@ -57,14 +57,29 @@
 
       #{$info}-label {
         min-height: 17px;
-        font-weight: $font-weight-bold;
+        font-weight: $font-weight-semi-bold;
         margin-bottom: 9px;
+        flex-basis: 50%;
+        color: $text-color-gray;
+        font-style: normal;
+        font-size: $font-size-small;
+        line-height: 21px;
       }
 
       #{$info}-value {
-        font-weight: $font-weight-semi-bold;
-        font-size: $font-size-small;
+        @extend %ellipsis;
+
+        font-weight: $font-weight-bold;
+        font-size: $font-size-standard;
         min-height: 20px;
+        flex-basis: 50%;
+        color: $text-color-dark;
+        font-style: normal;
+        line-height: 22px;
+
+        display: inline-block;
+        max-width: calc(100% - 32px);
+        vertical-align: middle;
 
         &_mobile {
           display: flex;
@@ -80,9 +95,14 @@
         }
 
         &_add {
-          margin-top: 23px;
-          font-weight: $font-weight-semi-bold;
+          margin-top: 10px;
+          font-weight: bold;
+          max-width: 100%;
         }
+      }
+
+      &-item {
+        display: flex;
       }
     }
 
@@ -100,6 +120,7 @@
 
     &-wrap {
       display: inline-block;
+      vertical-align: middle;
     }
 
     &:hover,

@@ -33,25 +33,22 @@ class CurrentTaskInfo extends React.Component {
       <div className="ecos-current-task-info">
         <Headline>{task[DC.title.key]}</Headline>
         <div className="ecos-current-task-info__fields">
-          {this.renderLabel('actors')}
+          <div className="ecos-current-task-info__fields-item">
+            {this.renderLabel('actors')}
 
-          <div
-            className={classNames('ecos-current-task-info-value', {
-              'ecos-current-task-info-value_mobile': isMobile
-            })}
-          >
-            <span
-              className={classNames({
-                'ecos-current-task-info-value_mobile-val': isMobile
+            <div
+              className={classNames('ecos-current-task-info-value', {
+                'ecos-current-task-info-value_mobile': isMobile
               })}
             >
-              {task[DC.actors.key] || noData}
-            </span>
-            <span
-              className={classNames({
-                'ecos-current-task-info-value_mobile-icon': isMobile
-              })}
-            >
+              <span
+                className={classNames('ecos-current-task-info-value', {
+                  'ecos-current-task-info-value_mobile-val': isMobile
+                })}
+              >
+                {task[DC.actors.key] || noData}
+              </span>
+
               <IconInfo
                 iconClass={'icon-usergroup'}
                 id={uniqueId(cleanTaskId(task.id))}
@@ -65,11 +62,11 @@ class CurrentTaskInfo extends React.Component {
                   </div>
                 ))}
               </IconInfo>
-            </span>
+            </div>
           </div>
 
           {isMobile && isOpen && (
-            <div className="ecos-current-task-info-value_add">
+            <div className="ecos-current-task-info-value ecos-current-task-info-value_add">
               {task.usersGroup.map((user, position) => (
                 <div key={position} className="ecos-current-task__tooltip-list-item">
                   {user}
@@ -78,9 +75,10 @@ class CurrentTaskInfo extends React.Component {
             </div>
           )}
 
-          <Separator noIndents className="ecos-current-task-info__separator" />
-          {this.renderLabel('deadline')}
-          <div className="ecos-current-task-info-value">{getOutputFormat(DC.deadline.format, task[DC.deadline.key]) || noData}</div>
+          <div className="ecos-current-task-info__fields-item">
+            {this.renderLabel('deadline')}
+            <div className="ecos-current-task-info-value">{getOutputFormat(DC.deadline.format, task[DC.deadline.key]) || noData}</div>
+          </div>
         </div>
       </div>
     );
