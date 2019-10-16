@@ -229,6 +229,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
             onChangeStatus={this.handleChangeStatus.bind(this)}
             noActionBtn={!status.taskId || !values(ServerStatusKeys).includes(status.key)}
             isLoading={isLoadingStatus || isUpdatingStatus}
+            record={status.recordRef}
           />
         </div>
         <div className="ecos-timesheet__main-content">

@@ -112,8 +112,7 @@ export default class CommonTimesheetService {
         color: '#00C308',
         hours: {
           editable: true,
-          hidden: false,
-          max: 12
+          hidden: false
         }
       },
       {
@@ -212,8 +211,7 @@ export default class CommonTimesheetService {
         color: '#33DFD5',
         hours: {
           editable: true,
-          hidden: false,
-          max: 8
+          hidden: false
         }
       },
       {
@@ -222,8 +220,7 @@ export default class CommonTimesheetService {
         color: '#3382df',
         hours: {
           editable: true,
-          hidden: false,
-          max: 8
+          hidden: false
         }
       },
       {
@@ -232,8 +229,7 @@ export default class CommonTimesheetService {
         color: '#DF8633',
         hours: {
           editable: true,
-          hidden: false,
-          max: 4
+          hidden: false
         }
       }
       /* {
@@ -270,5 +266,35 @@ export default class CommonTimesheetService {
     }
 
     return map;
+  }
+
+  static getColumnsEventHistory() {
+    return [
+      {
+        attribute: 'event:date',
+        formatter: {
+          name: 'DateTimeFormatter',
+          params: {
+            format: 'DD.MM.YYYY HH:mm:ss'
+          }
+        },
+        text: t(CommonLabels.EVENT_HISTORY_COL_DATE),
+        type: 'date'
+      },
+      {
+        dataField: 'event:initiator',
+        formatter: 'UserNameLinkFormatter',
+        text: t(CommonLabels.EVENT_HISTORY_COL_PERSON)
+      },
+      {
+        attribute: 'event:taskTitle',
+        text: t(CommonLabels.EVENT_HISTORY_COL_TASK)
+      },
+      {
+        attribute: 'event:taskComment',
+        text: t(CommonLabels.EVENT_HISTORY_COL_COMMENT),
+        width: 230
+      }
+    ];
   }
 }

@@ -15,6 +15,7 @@ import './style.scss';
 class BlockStatus extends React.Component {
   static propTypes = {
     currentStatus: PropTypes.string,
+    record: PropTypes.string,
     onChangeStatus: PropTypes.func,
     noActionBtn: PropTypes.bool,
     isLoading: PropTypes.bool
@@ -115,11 +116,11 @@ class BlockStatus extends React.Component {
 
   render() {
     const { isOpenModalEventHistory } = this.state;
-    const { isLoading } = this.props;
+    const { isLoading, record } = this.props;
 
     return (
       <>
-        <EventHistoryModal onClose={this.closeModalEventHistory} isOpen={isOpenModalEventHistory} />
+        <EventHistoryModal onClose={this.closeModalEventHistory} isOpen={isOpenModalEventHistory} record={record} />
         <div className="ecos-timesheet__status">
           <div className="ecos-timesheet__status-title">{t(CommonLabels.STATUS_LBL)}</div>
           {isLoading ? this.renderLoading() : this.renderViewStatus()}

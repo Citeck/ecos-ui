@@ -124,6 +124,10 @@ export const CommonLabels = {
 
   EVENT_HISTORY_BTN: 'timesheets.allForms.eventHistory.button',
   EVENT_HISTORY_TITLE: 'timesheets.allForms.eventHistory.title',
+  EVENT_HISTORY_COL_DATE: 'Дата',
+  EVENT_HISTORY_COL_PERSON: 'Участник',
+  EVENT_HISTORY_COL_TASK: 'Задача',
+  EVENT_HISTORY_COL_COMMENT: 'Комментарий',
 
   MODAL_IN_PROGRESS: 'timesheets.allForms.modal.inProgress',
 

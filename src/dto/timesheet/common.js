@@ -14,6 +14,7 @@ export default class CommonTimesheetConverter {
     target.key = st.status;
     target.taskId = st.taskId;
     target.comment = '';
+    target.recordRef = st.nodeRef;
 
     return target;
   }
