@@ -5,7 +5,7 @@ import { getSearchParams } from '../helpers/urls';
 export default class MenuService {
   static processTransitSiteMenuItem = function*(menuItem) {
     const dashboard = yield select(selectIdentificationForView);
-    const { recordRef } = getSearchParams();
+    const { recordRef, dashboardKey } = getSearchParams();
     const params = [];
     let link = menuItem.targetUrl;
 
@@ -14,6 +14,10 @@ export default class MenuService {
 
       if (recordRef) {
         params.push(`recordRef=${recordRef}`);
+      }
+
+      if (dashboardKey) {
+        params.push(`dashboardKey=${dashboardKey}`);
       }
     }
 
