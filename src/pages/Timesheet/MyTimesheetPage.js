@@ -230,6 +230,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
             noActionBtn={!status.taskId || !values(ServerStatusKeys).includes(status.key)}
             isLoading={isLoadingStatus || isUpdatingStatus}
             record={status.recordRef}
+            comment={status.comment}
           />
         </div>
         <div className="ecos-timesheet__main-content">

@@ -16,6 +16,7 @@ class BlockStatus extends React.Component {
   static propTypes = {
     currentStatus: PropTypes.string,
     record: PropTypes.string,
+    comment: PropTypes.string,
     onChangeStatus: PropTypes.func,
     noActionBtn: PropTypes.bool,
     isLoading: PropTypes.bool
@@ -37,7 +38,9 @@ class BlockStatus extends React.Component {
     this.setState({ isOpenModalEventHistory: false });
   };
 
-  openReadComment = () => {};
+  openReadComment = () => {
+    this.setState({ isOpenModalEventHistory: true });
+  };
 
   getEmptyBlock = () => {
     return <div className="ecos-timesheet__empty-btn ecos-timesheet__empty-btn_normal ecos-timesheet__status-btn_none" />;
@@ -116,11 +119,11 @@ class BlockStatus extends React.Component {
 
   render() {
     const { isOpenModalEventHistory } = this.state;
-    const { isLoading, record } = this.props;
+    const { isLoading, record, comment } = this.props;
 
     return (
       <>
-        <EventHistoryModal onClose={this.closeModalEventHistory} isOpen={isOpenModalEventHistory} record={record} />
+        <EventHistoryModal onClose={this.closeModalEventHistory} isOpen={isOpenModalEventHistory} record={record} comment={comment} />
         <div className="ecos-timesheet__status">
           <div className="ecos-timesheet__status-title">{t(CommonLabels.STATUS_LBL)}</div>
           {isLoading ? this.renderLoading() : this.renderViewStatus()}

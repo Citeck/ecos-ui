@@ -13,7 +13,8 @@ class EventHistoryModal extends React.Component {
   static propTypes = {
     isOpen: PropTypes.bool,
     onClose: PropTypes.func,
-    record: PropTypes.string
+    record: PropTypes.string,
+    comment: PropTypes.string
   };
 
   constructor(props) {
@@ -27,7 +28,7 @@ class EventHistoryModal extends React.Component {
   };
 
   render() {
-    const { onClose, isOpen, record } = this.props;
+    const { onClose, isOpen, record, comment } = this.props;
     const isMobile = isMobileDevice();
 
     return (
@@ -44,6 +45,10 @@ class EventHistoryModal extends React.Component {
         isOpen={isOpen}
         hideModal={onClose}
       >
+        {/*{comment &&*/}
+        {/*<div className="ecos-timesheet__white-block">*/}
+        {/*  {comment}*/}
+        {/*</div>}*/}
         <EventsHistory record={record} stateId={this.stateId} myColumns={CommonTimesheetService.getColumnsEventHistory()} minHeight={500} />
       </EcosModal>
     );
