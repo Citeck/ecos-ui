@@ -620,7 +620,20 @@ class Record {
     if (arguments.length > 1) {
       this._setAttributeValueImpl(localName, value);
     } else {
-      return (this._attributes[localName] || {}).value;
+      let attribute = this._attributes[localName];
+      if (!attribute && localName.indexOf('.') !== 0 && localName.indexOf('?') === -1) {
+        attribute = this._attributes[localName + '?disp'];
+        if (!attribute) {
+          attribute = this._attributes[localName + '?str'];
+        }
+        if (!attribute) {
+          attribute = this._attributes['.att(n:"' + localName + '"){str}'];
+        }
+        if (!attribute) {
+          attribute = this._attributes['.att(n:"' + localName + '"){disp}'];
+        }
+      }
+      return (attribute || {}).value;
     }
   }
 
