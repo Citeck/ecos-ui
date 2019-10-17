@@ -33,6 +33,7 @@ button {
     &:focus {
       background-color: $color-gray-1;
       box-shadow: none;
+      outline: 0;
     }
   }
 
