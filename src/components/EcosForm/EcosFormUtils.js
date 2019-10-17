@@ -380,6 +380,7 @@ export default class EcosFormUtils {
           case 'selectJournal':
             attributeSchema = 'assoc';
             break;
+          case 'datamap':
           case 'container':
             attributeSchema = 'json';
             break;
