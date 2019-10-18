@@ -124,7 +124,7 @@ class EventsHistory extends React.Component {
       <div className={classNames('ecos-event-history', className)}>
         <div ref={this._filter}>
           {/*{(isMobile || isSmallMode) && (
-            <DropdownFilter columns={columns} className={`${this.className}__filter`} onFilter={this.onFilter} />
+            <DropdownFilter columns={columns} className="ecos-event-history__filter" onFilter={this.onFilter} />
           )}*/}
         </div>
         {isMobile ? (
@@ -132,8 +132,8 @@ class EventsHistory extends React.Component {
         ) : (
           <Scrollbars
             style={{ height: contentHeight || '100%' }}
-            className={this.className}
-            renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
+            className="ecos-event-history__scroll"
+            renderTrackVertical={props => <div {...props} className="ecos-event-history__v-scroll" />}
           >
             <DefineHeight
               fixHeight={fixHeight}
