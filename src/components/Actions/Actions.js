@@ -98,18 +98,28 @@ class Actions extends React.Component {
     this.setState({ contentHeight });
   };
 
+  renderActionsList = () => {
+    const { isLoading, className, list, isMobile } = this.props;
+
+    return <ActionsList className={className} list={list} isLoading={isLoading} isMobile={isMobile} executeAction={this.executeAction} />;
+  };
+
   render() {
-    const { isLoading, className, height, minHeight, list, isMobile } = this.props;
+    const { height, minHeight, list, isMobile } = this.props;
     const { contentHeight } = this.state;
+
+    if (isMobile) {
+      return this.renderActionsList;
+    }
 
     return (
       <Scrollbars
         style={{ height: contentHeight || '100%' }}
-        className="ecos-actions"
+        className="ecos-actions__scroll"
         renderTrackVertical={props => <div {...props} className="ecos-actions__v-scroll" />}
       >
         <DefineHeight fixHeight={height} minHeight={minHeight} isMin={isEmpty(list)} getOptimalHeight={this.setHeight}>
-          <ActionsList list={list} isLoading={isLoading} className={className} executeAction={this.executeAction} isMobile={isMobile} />
+          {this.renderActionsList}
         </DefineHeight>
       </Scrollbars>
     );

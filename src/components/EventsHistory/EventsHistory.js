@@ -98,7 +98,7 @@ class EventsHistory extends React.Component {
     });
   };
 
-  renderEventList() {
+  renderEventList = () => {
     const { isLoading, isMobile, isSmallMode, list, columns } = this.props;
 
     return (
@@ -111,7 +111,7 @@ class EventsHistory extends React.Component {
         onFilter={this.onFilter}
       />
     );
-  }
+  };
 
   render() {
     const { isLoading, isMobile, className, height, minHeight, maxHeight, list } = this.props;
