@@ -59,7 +59,8 @@ class App extends Component {
       tabs,
       setTabs,
       getActiveTabTitle,
-      isLoadingTitle
+      isLoadingTitle,
+      theme
     } = this.props;
 
     if (!isInit) {
@@ -75,7 +76,7 @@ class App extends Component {
     if (!isAuthenticated) {
       return (
         <Suspense fallback={null}>
-          <LoginForm />
+          <LoginForm theme={theme} />
         </Suspense>
       );
     }

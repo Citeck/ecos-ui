@@ -97,10 +97,10 @@ const history = getHistory();
 
 // TODO simplify
 store.dispatch(
-  initAppRequest({
+  loadThemeRequest({
     onSuccess: () => {
       store.dispatch(
-        loadThemeRequest({
+        initAppRequest({
           onSuccess: () => {
             i18nInit().then(() => {
               ReactDOM.render(

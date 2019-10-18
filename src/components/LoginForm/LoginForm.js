@@ -1,8 +1,10 @@
 import React from 'react';
+import classNames from 'classnames';
 import { withRouter } from 'react-router';
 import queryString from 'query-string';
 import { t } from '../../helpers/util';
 import styles from './LoginForm.module.scss';
+import './LoginForm.scss';
 
 class LoginForm extends React.Component {
   usernameInput = null;
@@ -31,6 +33,7 @@ class LoginForm extends React.Component {
   render() {
     const locationPath = this.props.location.pathname;
     const locationSearch = this.props.location.search;
+    const theme = this.props.theme;
     let searchParams = queryString.parse(locationSearch);
 
     let loginError = null;
@@ -50,14 +53,14 @@ class LoginForm extends React.Component {
       <div className={styles.wrapper}>
         <div className={styles.trademark} />
 
-        <div className={styles.container}>
-          <div className="theme-company-logo logo-com" />
+        <div className={classNames(`login-form-container login-form-container_theme_${theme}`)}>
+          <div className={classNames(`login-company-logo login-company-logo_theme_${theme}`)} />
           {loginError}
-          <form method="post" action="/share/page/dologin" className={styles.form}>
+          <form method="post" action="/share/page/dologin" className={classNames(`login-form login-form_theme_${theme}`)}>
             <input type="hidden" name="success" value={successUrl} />
             <input type="hidden" name="failure" value={`${locationPath}?${failureSearchString}`} />
 
-            <div className={styles.formField}>
+            <div className={classNames(`login-form-field login-form-field_theme_${theme}`)}>
               <label>
                 {t('label.username')}
                 <br />
@@ -73,7 +76,7 @@ class LoginForm extends React.Component {
               </label>
             </div>
 
-            <div className={styles.formField}>
+            <div className={classNames(`login-form-field login-form-field_theme_${theme}`)}>
               <label>
                 {t('label.password')}
                 <br />
@@ -89,7 +92,7 @@ class LoginForm extends React.Component {
             </div>
 
             <div className={styles.formField}>
-              <button type="submit" className={styles.button}>
+              <button type="submit" className={classNames(`login-button login-button_theme_${theme}`)}>
                 {t('button.login')}
               </button>
             </div>

@@ -21,34 +21,6 @@ authority
 
 const MAP = [
   {
-    options: () => 'CardDetailsLinkFormatter',
-    enable: column => column.attribute === 'cm:name' || column.attribute === 'cm:title'
-  },
-  {
-    options: () => 'DateFormatter',
-    enable: column => column.attribute === 'bpm:startDate'
-  },
-  {
-    options: () => 'DateTimeFormatter',
-    enable: column => column.type === 'datetime'
-  },
-  {
-    options: () => 'DateFormatter',
-    enable: column => column.type === 'date'
-  },
-  {
-    options: () => 'BooleanFormatter',
-    enable: column => column.type === 'boolean'
-  },
-  {
-    options: () => 'SelectFormatter',
-    enable: column => column.type === 'options'
-  },
-  {
-    options: () => 'AssocFormatter',
-    enable: column => column.type === 'assoc'
-  },
-  {
     options: column => {
       let formatter = column.params.formatter;
 
@@ -81,6 +53,34 @@ const MAP = [
       return { name: formatter, params: column.params };
     },
     enable: column => column.params && column.params.formatter
+  },
+  {
+    options: () => 'CardDetailsLinkFormatter',
+    enable: column => column.attribute === 'cm:name' || column.attribute === 'cm:title'
+  },
+  {
+    options: () => 'DateFormatter',
+    enable: column => column.attribute === 'bpm:startDate'
+  },
+  {
+    options: () => 'DateTimeFormatter',
+    enable: column => column.type === 'datetime'
+  },
+  {
+    options: () => 'DateFormatter',
+    enable: column => column.type === 'date'
+  },
+  {
+    options: () => 'BooleanFormatter',
+    enable: column => column.type === 'boolean'
+  },
+  {
+    options: () => 'SelectFormatter',
+    enable: column => column.type === 'options'
+  },
+  {
+    options: () => 'AssocFormatter',
+    enable: column => column.type === 'assoc'
   }
 ];
 
