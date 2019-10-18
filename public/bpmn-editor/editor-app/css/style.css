@@ -1154,6 +1154,12 @@ hot-table .column-header.label {
 
 .close {
     width: 0px !important;
+  /*overflow: hidden;*/
+}
+
+button.close {
+  width: auto !important;
+  /*overflow: visible;*/
 }
 
 #contentCanvasWrapper {
