@@ -412,7 +412,7 @@ class VersionsJournal extends Component {
 
     if (addModalIsShow) {
       const { versions, addModalIsLoading, addModalErrorMessage } = this.props;
-      const currentVersion = versions.length ? versions[0].version : 1;
+      const currentVersion = get(versions, '[0].version', 1);
 
       return (
         <AddModal
@@ -547,6 +547,15 @@ class VersionsJournal extends Component {
     );
   }
 
+  renderBlockVersions = () => {
+    return (
+      <>
+        {this.renderActualVersion()}
+        {this.renderOldVersions()}
+      </>
+    );
+  };
+
   render() {
     const { isMobile, versionsLabels } = this.props;
     const { userHeight = 0, fitHeights, isCollapsed } = this.state;
@@ -578,13 +587,15 @@ class VersionsJournal extends Component {
           </div>
         )}
 
-        <Scrollbars autoHide style={{ height: this.scrollableHeight || '100%' }}>
-          <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
-            {this.renderActualVersion()}
-            {this.renderOldVersions()}
-          </DefineHeight>
-        </Scrollbars>
-
+        {isMobile ? (
+          this.renderBlockVersions()
+        ) : (
+          <Scrollbars autoHide style={{ height: this.scrollableHeight || '100%' }}>
+            <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
+              {this.renderBlockVersions()}
+            </DefineHeight>
+          </Scrollbars>
+        )}
         {this.renderModal()}
         {this.renderLoading()}
       </Dashlet>
