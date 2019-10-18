@@ -152,16 +152,16 @@ class DocStatus extends React.Component {
   }
 
   render() {
-    const { isMobile, title } = this.props;
+    const { isMobile, title, className } = this.props;
     const { wasChanged } = this.state;
 
     return (
-      <div className={classNames('ecos-doc-status', { 'ecos-doc-status_narrow': !isMobile })}>
+      <div className={classNames('ecos-doc-status', className, { 'ecos-doc-status_narrow': !isMobile })}>
         {this.isShowLoader && !wasChanged ? (
           <Loader className="ecos-doc-status__loader" />
         ) : (
           <>
-            {!isMobile && (
+            {!isMobile && title && (
               <Caption middle className="ecos-doc-status__title">
                 {title}
               </Caption>

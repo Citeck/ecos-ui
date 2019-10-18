@@ -3,22 +3,24 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ReactPlaceholder from 'react-placeholder';
-import { RoundShape, RectShape } from 'react-placeholder/lib/placeholders';
+import { RectShape, RoundShape } from 'react-placeholder/lib/placeholders';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 
-import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
-import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
-import Layout from '../../components/Layout';
-import { DndUtils } from '../../components/Drag-n-Drop';
-import TopMenu from '../../components/Layout/TopMenu';
-import { Loader, ScrollArrow, Tabs } from '../../components/common';
 import { MENU_TYPE } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
+import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
+import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
+import { Loader, ScrollArrow, Tabs } from '../../components/common';
+import { Badge } from '../../components/common/form';
+import { DocStatus } from '../../components/DocStatus';
+import Layout from '../../components/Layout';
+import { DndUtils } from '../../components/Drag-n-Drop';
+import TopMenu from '../../components/Layout/TopMenu';
 
 import './style.scss';
 
@@ -325,6 +327,8 @@ class Dashboard extends Component {
       dashboardType,
       isMobile
     } = this.props;
+    const { recordRef } = this.getPathInfo();
+
     let title = null;
 
     switch (dashboardType) {
@@ -343,7 +347,7 @@ class Dashboard extends Component {
               }
             >
               <div className="ecos-dashboard__header-name">{t(name)}</div>
-              {version && <div className="ecos-dashboard__header-version">{version}</div>}
+              {version && <Badge text={version} small={isMobile} />}
             </ReactPlaceholder>
           </div>
         );
@@ -363,6 +367,7 @@ class Dashboard extends Component {
         })}
       >
         {title}
+        {isMobile && <DocStatus record={recordRef} className="ecos-dashboard__header-status" />}
       </div>
     );
   }

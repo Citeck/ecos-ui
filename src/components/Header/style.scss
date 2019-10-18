@@ -233,8 +233,9 @@
   }
 
   &-hamburger {
-    &__btn {
+    &__btn.ecos-btn {
       position: relative;
+      padding: 0 5px;
 
       .ecos-btn__i {
         margin-right: 0;
