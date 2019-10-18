@@ -58,21 +58,18 @@
       #{$info}-label {
         min-height: 17px;
         font-weight: $font-weight-semi-bold;
-        margin-bottom: 9px;
-        flex-basis: 50%;
+        width: 30%;
         color: $text-color-gray;
         font-style: normal;
         font-size: $font-size-small;
         line-height: 21px;
+        margin-right: 34px;
       }
 
       #{$info}-value {
-        @extend %ellipsis;
-
         font-weight: $font-weight-bold;
         font-size: $font-size-standard;
         min-height: 20px;
-        flex-basis: 50%;
         color: $text-color-dark;
         font-style: normal;
         line-height: 22px;
@@ -85,7 +82,7 @@
           display: flex;
 
           &-val {
-            flex: 1;
+            width: auto;
           }
 
           &-icon {
@@ -96,6 +93,7 @@
 
         &_add {
           margin-top: 10px;
+          margin-bottom: 10px;
           font-weight: bold;
           max-width: 100%;
         }

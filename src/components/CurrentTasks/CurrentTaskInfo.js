@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 
 import { getOutputFormat } from '../../helpers/util';
-import { Separator } from '../common';
 import { Headline } from '../common/form';
 import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
 import IconInfo from './IconInfo';
