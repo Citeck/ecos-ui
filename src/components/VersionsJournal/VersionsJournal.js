@@ -567,10 +567,34 @@ class VersionsJournal extends Component {
     );
   }
 
+  renderBody() {
+    const { isMobile } = this.props;
+    const body = (
+      <>
+        {this.renderActualVersion()}
+        {this.renderOldVersions()}
+      </>
+    );
+
+    if (isMobile) {
+      return body;
+    }
+
+    const { userHeight = 0, fitHeights } = this.state;
+    const fixHeight = userHeight ? userHeight : null;
+
+    return (
+      <Scrollbars autoHide style={{ height: this.scrollableHeight || '100%' }}>
+        <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
+          {body}
+        </DefineHeight>
+      </Scrollbars>
+    );
+  }
+
   render() {
     const { isMobile, versionsLabels } = this.props;
-    const { userHeight = 0, fitHeights, isCollapsed } = this.state;
-    const fixHeight = userHeight ? userHeight : null;
+    const { isCollapsed } = this.state;
 
     return (
       <Dashlet
@@ -598,13 +622,7 @@ class VersionsJournal extends Component {
           </div>
         )}
 
-        <Scrollbars autoHide style={{ height: this.scrollableHeight || '100%' }}>
-          <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
-            {this.renderActualVersion()}
-            {this.renderOldVersions()}
-          </DefineHeight>
-        </Scrollbars>
-
+        {this.renderBody()}
         {this.renderModal()}
         {this.renderLoading()}
       </Dashlet>
