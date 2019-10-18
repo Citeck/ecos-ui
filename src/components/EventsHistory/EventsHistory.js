@@ -4,11 +4,13 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import { ScrollDashletContent } from '../common';
+import { Scrollbars } from 'react-custom-scrollbars';
+
+import { DefineHeight } from '../common';
 import { selectDataEventsHistoryByStateId } from '../../selectors/eventsHistory';
 import { filterEventsHistory, getEventsHistory, resetEventsHistory } from '../../actions/eventsHistory';
-import EventsHistoryList from './EventsHistoryList';
 import EventsHistoryService from '../../services/eventsHistory';
+import EventsHistoryList from './EventsHistoryList';
 
 import './style.scss';
 
@@ -96,8 +98,23 @@ class EventsHistory extends React.Component {
     });
   };
 
+  renderEventList() {
+    const { isLoading, isMobile, isSmallMode, list, columns } = this.props;
+
+    return (
+      <EventsHistoryList
+        list={list}
+        columns={columns}
+        isLoading={isLoading}
+        isSmallMode={isSmallMode}
+        isMobile={isMobile}
+        onFilter={this.onFilter}
+      />
+    );
+  }
+
   render() {
-    const { isLoading, isMobile, isSmallMode, className, height, minHeight, maxHeight, list, columns } = this.props;
+    const { isLoading, isMobile, className, height, minHeight, maxHeight, list } = this.props;
     const { contentHeight } = this.state;
 
     const filterHeight = get(this._filter, 'current.offsetHeight', 0);
@@ -110,26 +127,25 @@ class EventsHistory extends React.Component {
             <DropdownFilter columns={columns} className={`${this.className}__filter`} onFilter={this.onFilter} />
           )}*/}
         </div>
-        <ScrollDashletContent
-          offScroll={isMobile}
-          headClassName="ecos-event-history"
-          contentHeight={contentHeight}
-          fixHeight={fixHeight}
-          maxHeight={maxHeight - filterHeight}
-          minHeight={minHeight}
-          isMin={isLoading || isEmpty(list)}
-          setHeight={this.setHeight}
-        >
-          <EventsHistoryList
-            list={list}
-            columns={columns}
-            isLoading={isLoading}
-            isSmallMode={isSmallMode}
-            isMobile={isMobile}
-            className="ecos-event-history__content"
-            onFilter={this.onFilter}
-          />
-        </ScrollDashletContent>
+        {isMobile ? (
+          this.renderEventList()
+        ) : (
+          <Scrollbars
+            style={{ height: contentHeight || '100%' }}
+            className={this.className}
+            renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
+          >
+            <DefineHeight
+              fixHeight={fixHeight}
+              maxHeight={maxHeight - filterHeight}
+              minHeight={minHeight}
+              isMin={isLoading || isEmpty(list)}
+              getOptimalHeight={this.setHeight}
+            >
+              {this.renderEventList()}
+            </DefineHeight>
+          </Scrollbars>
+        )}
       </div>
     );
   }

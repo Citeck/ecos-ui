@@ -19,4 +19,3 @@ export { default as DefineHeight } from './DefineHeight/DefineHeight';
 export { default as ResizableBox } from './ResizableBox/ResizableBox';
 export { default as PointsLoader } from './PointsLoader/PointsLoader';
 export { default as DropdownFilter } from './DropdownFilter/DropdownFilter';
-export { default as ScrollDashletContent } from './ScrollDashletContent/ScrollDashletContent';
