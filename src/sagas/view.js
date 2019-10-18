@@ -2,7 +2,6 @@ import { put, takeLatest, call } from 'redux-saga/effects';
 import { detectMobileDevice, setTheme } from '../actions/view';
 import { setIsMobile, loadThemeRequest } from '../actions/view';
 import { applyTheme, isMobileDevice } from '../helpers/util';
-import { initAppFailure } from '../actions/app';
 
 export function* doDetectMobileDevice({ api, fakeApi, logger }) {
   try {
@@ -21,7 +20,6 @@ export function* loadTheme({ api, fakeApi, logger }, { payload }) {
     typeof payload.onSuccess === 'function' && payload.onSuccess(themeName);
   } catch (e) {
     logger.error('[loadTheme saga] error', e.message);
-    yield put(initAppFailure());
   }
 }
 
