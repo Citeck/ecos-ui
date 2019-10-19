@@ -1,0 +1,28 @@
+@import '../../styles/constants';
+
+.ecos-wpage {
+  &__body {
+    padding: 8px 20px;
+  }
+
+  &__ground {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 203px;
+    width: 100%;
+    background: $color-gray-25;
+  }
+
+  &__text {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 22px;
+    text-align: center;
+    color: $text-color-dark;
+    max-width: 167px;
+    margin-bottom: 14px;
+  }
+}
