@@ -25,4 +25,15 @@
     max-width: 167px;
     margin-bottom: 14px;
   }
+
+  &__settings {
+    &-label {
+      width: 100%;
+    }
+
+    &-input {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+  }
 }
