@@ -241,28 +241,13 @@ export default class EcosFormUtils {
     let recordInstance = isString(record) ? Records.get(record) : record;
     recordInstance = recordInstance.getBaseRecord();
 
-    let getFormByRecord = () => {
-      const query = {
-        sourceId: 'eform',
-        query: {
-          record: recordInstance.id,
-          formKey: formKey
-        }
-      };
-      if (attributes) {
-        return Records.queryOne(query, attributes);
-      } else {
-        return Records.queryOne(query);
-      }
-    };
-
     let getFormByKeysFromRecord = (keys, idx) => {
       if (!keys || idx >= keys.length) {
         return null;
       }
 
       let query = {
-        sourceId: 'eform',
+        sourceId: 'uiserv/eform',
         query: {
           record: recordInstance.id,
           formKey: keys[idx]
@@ -285,12 +270,12 @@ export default class EcosFormUtils {
       });
     };
 
-    if (!formKey && recordInstance && (recordInstance.id || '').indexOf('/') > 0) {
+    if (!formKey) {
       return recordInstance.load('_formKey[]?str').then(keys => {
         return getFormByKeysFromRecord(keys, 0);
       });
     } else {
-      return getFormByRecord();
+      return getFormByKeysFromRecord([formKey], 0);
     }
   }
 
@@ -531,7 +516,8 @@ export default class EcosFormUtils {
   }
 
   static saveFormBuilder(form, formId) {
-    const record = Records.get(formId);
+    let moduleId = formId.replace('uiserv/eform@', 'eapps/module@form$');
+    const record = Records.get(moduleId);
 
     record.att('definition?json', form);
 
