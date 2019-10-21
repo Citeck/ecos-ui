@@ -349,7 +349,9 @@ export default class AsyncDataComponent extends BaseComponent {
     }
   }
 
-  viewOnlyBuild() {} // hide control for viewOnly mode
+  viewOnlyBuild() {
+    this.buildHiddenElement();
+  }
 
   createLabel() {}
   createErrorElement() {}

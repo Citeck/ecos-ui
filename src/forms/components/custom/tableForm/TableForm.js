@@ -46,7 +46,9 @@ export default class TableFormComponent extends BaseReactComponent {
     return [];
   }
 
-  viewOnlyBuild() {} // hide control for viewOnly mode
+  viewOnlyBuild() {
+    this.buildHiddenElement();
+  }
 
   getComponentToRender() {
     return TableForm;

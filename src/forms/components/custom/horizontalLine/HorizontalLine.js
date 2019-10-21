@@ -61,7 +61,9 @@ export default class HorizontalLine extends BaseComponent {
     this.attachLogic();
   }
 
-  viewOnlyBuild() {} // hide control for viewOnly mode
+  viewOnlyBuild() {
+    this.buildHiddenElement();
+  }
 
   createLabel() {}
 }
