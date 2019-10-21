@@ -32,7 +32,7 @@
       color: $text-color-dark;
     }
 
-    & > &-status {
+    &-status {
       padding: 0;
 
       .ecos-doc-status__data {
@@ -64,6 +64,12 @@
       border-bottom: 2px solid $color-gray-4;
       position: relative;
       z-index: 1;
+    }
+
+    &_no-next {
+      margin-bottom: 10px;
+      border-bottom: none;
+      box-shadow: 0 5px 5px 1px rgba(0, 0, 0, 0.15);
     }
   }
 

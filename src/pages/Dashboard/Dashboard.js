@@ -171,6 +171,10 @@ class Dashboard extends Component {
     return [];
   }
 
+  get isShowTabs() {
+    return this.tabList.length > 1;
+  }
+
   saveDashboardConfig = payload => {
     this.props.saveDashboardConfig && this.props.saveDashboardConfig(payload);
   };
@@ -254,7 +258,7 @@ class Dashboard extends Component {
   };
 
   renderTabs() {
-    if (this.tabList.length < 2) {
+    if (!this.isShowTabs) {
       return null;
     }
 
@@ -366,7 +370,8 @@ class Dashboard extends Component {
     return (
       <div
         className={classNames('ecos-dashboard__header', {
-          'ecos-dashboard__header_mobile': isMobile
+          'ecos-dashboard__header_mobile': isMobile,
+          'ecos-dashboard__header_no-next': !this.isShowTabs
         })}
       >
         {title}
