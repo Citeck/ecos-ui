@@ -1,8 +1,8 @@
 import { handleActions } from 'redux-actions';
 import { getCurrentStateById } from '../helpers/redux';
-import { getPageData, setPageData, setError } from '../actions/webPage';
+import { getPageData, setPageData, setError, initPage } from '../actions/webPage';
 
-const initialState = {
+export const initialState = {
   isLoading: false,
   error: '',
   url: '',
@@ -11,6 +11,18 @@ const initialState = {
 
 export default handleActions(
   {
+    [initPage]: (state, { payload }) => {
+      let ownState = { ...initialState };
+
+      if (state[payload]) {
+        ownState = { ...ownState, ...state[payload] };
+      }
+
+      return {
+        ...state,
+        [payload]: { ...ownState }
+      };
+    },
     [getPageData]: (state, { payload }) => ({
       ...state,
       [payload.stateId]: {
