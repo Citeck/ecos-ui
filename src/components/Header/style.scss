@@ -138,6 +138,7 @@
           }
         }
       }
+
       //
       //#{$search}-result:not(:last-of-type) {
       //  #{$search}-result__content {
@@ -153,11 +154,13 @@
             &-icon {
               color: $color-green-light2;
             }
+
             &-avatar {
               .ecos-avatar__icon {
                 color: $color-green-light2;
               }
             }
+
             &-title {
               color: $color-green-dark;
             }
@@ -233,9 +236,12 @@
   }
 
   &-hamburger {
-    &__btn.ecos-btn {
-      position: relative;
-      padding: 0 5px;
+    &__btn {
+      &.ecos-btn {
+        position: relative;
+        padding: 0;
+        margin-right: 15px;
+      }
 
       .ecos-btn__i {
         margin-right: 0;
