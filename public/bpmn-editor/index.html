@@ -288,57 +288,51 @@
 <script src="scripts/resource-loader.js?v=2" app="editor"></script>
 
 <!-- Share header and slide menu -->
-<script type="text/javascript" src="/share/service/surf/dojo/bootstrap.js?{ASSETS_CACHE}"></script>
+<script type="text/javascript" src="scripts/dojo-bootstrap.js"></script>
+<script type="text/javascript" src="libs/dojo.js"></script>
+
+<script src="scripts/helpers.js"></script>
+
 <script type="text/javascript">
-  if (window.dojoConfig) {
-    window.dojoConfig.cacheBust = "{ASSETS_CACHE}";
+  window.BPMN_DESIGNER_CONTEXT = '/v2/bpmn-designer';
+  window.CARD_DETAILS_CONTEXT = '/share/page/card-details?nodeRef=workspace://SpacesStore/';
+
+  function redirectToBPMNDesignerPage() {
+    window.location.href = window.BPMN_DESIGNER_CONTEXT;
   }
-</script>
-<script type="text/javascript" src="/share/res/js/lib/dojo-1.10.4/dojo/dojo.js?{ASSETS_CACHE}"></script>
-<script type="text/javascript" src="/share/res/js/yui-common.js?{ASSETS_CACHE}"></script>
 
-<script src="scripts/helpers.js?{ASSETS_CACHE}"></script>
+  fetch('/share/service/modules/authenticated?noCache=${new Date().getTime()}&a=user', {
+    credentials: 'include'
+  }).then(function (response) {
+    if (response.status !== 200) {
+      redirectToBPMNDesignerPage();
+    }
 
+    require([
+      'ecosui!slide-menu'
+    ], function(SlideMenu) {
+      SlideMenu.render('slide-menu');
+    });
 
-<script type="text/javascript">
-  // Citeck.helpers.dynamicallyLoadScript('/share/service/messages.js?locale=' + Citeck.helpers.getCurrentLocale() + '&v=' + window.dojoConfig.cacheBust, function() {
-  //   Citeck.helpers.dynamicallyLoadScript('/share/res/js/alfresco.js?' + window.dojoConfig.cacheBust, function() {
-      window.BPMN_DESIGNER_CONTEXT = '/v2/bpmn-designer';
-      window.CARD_DETAILS_CONTEXT = '/share/page/card-details?nodeRef=workspace://SpacesStore/';
-
-      Citeck.helpers.dynamicallyLoadScript('/share/res/lib/underscore.js?' + window.dojoConfig.cacheBust, function() {
-        fetch('/share/service/modules/authenticated?noCache=${new Date().getTime()}&a=user', {
-          credentials: 'include'
-        }).then(function (response) {
-          if (response.status !== 200) {
-            window.location.href = window.BPMN_DESIGNER_CONTEXT;
-          }
-        });
-
-        // TODO remove
-        window.Citeck.helpers.getCurrentThemeName().then(themeName => {
-          document.body.classList.add(`yui-skin-${themeName}`);
-
-          require([
-            'ecosui!slide-menu'
-          ], function(SlideMenu) {
-            SlideMenu.render('slide-menu', {}, () => {
-              require(['ecosui!header'], function(Header) {
-                Header.render('share-header', {
-                  hideSiteMenu: true
-                });
-              });
-            });
-          });
-
-        }).catch(e => {
-          console.log('getCurrentThemeName error: ', e);
-        });
-
+    require(['ecosui!header'], function(Header) {
+      Header.render('share-header', {
+        hideSiteMenu: true
       });
-    // });
-  // });
+    });
 
+    require(['ecosui!idle-timer'], function(IdleTimer) {
+      const idleTimer = new IdleTimer.default();
+      idleTimer
+        .setCheckInterval(60000)
+        .setIdleTimeout(60000 * 60 * 3)
+        .setNoIdleCallback(() => {
+          fetch('/share/proxy/alfresco/citeck/ecos/touch', { credentials: 'include' });
+        })
+        .run();
+    });
+  }).catch(() => {
+    redirectToBPMNDesignerPage();
+  });
 </script>
 
 </div>

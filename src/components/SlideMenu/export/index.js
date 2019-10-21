@@ -39,7 +39,7 @@ const render = (elementId, props, callback) => {
         store.dispatch(initMenuSettings());
         store.dispatch(detectMobileDevice());
 
-        i18nInit().then(() => {
+        i18nInit({ debug: false }).then(() => {
           ReactDOM.render(
             <Provider store={store}>
               <SlideMenu {...props} />
