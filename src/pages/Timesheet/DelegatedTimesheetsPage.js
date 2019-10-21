@@ -1,4 +1,6 @@
 import React from 'react';
+import get from 'lodash/get';
+import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
 import {
@@ -11,6 +13,7 @@ import {
 } from '../../helpers/timesheet/constants';
 import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
+import { getDelegatedTimesheetByParams, setPopupMessage } from '../../actions/timesheet/delegated';
 
 import { Btn } from '../../components/common/btns';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
@@ -24,12 +27,18 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
   constructor(props) {
     super(props);
 
-    this.state.subordinatesEvents = timesheetApi.getEvents();
     this.state.statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, StatusActionFilters.FILL);
     this.state.currentStatus = ServerStatusKeys.CORRECTION;
     this.state.delegatedTo = '';
     this.state.delegationRejected = true;
     this.state.actionDelegatedTabs = timesheetApi.getDelegatedActions();
+  }
+
+  componentDidMount() {
+    const { currentDate } = this.state;
+    const action = this.selectedAction;
+
+    this.props.getDelegatedTimesheetByParams && this.props.getDelegatedTimesheetByParams({ currentDate, action });
   }
 
   get selectedAction() {
@@ -117,13 +126,14 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
   };
 
   renderTimesheet() {
-    const { subordinatesEvents, daysOfMonth, isDelegated } = this.state;
+    const { daysOfMonth, isDelegated } = this.state;
+    const { mergedList } = this.props;
 
     return (
       <Timesheet
         groupBy={'user'}
         configGroupBtns={this.configGroupBtns}
-        eventTypes={subordinatesEvents}
+        eventTypes={mergedList}
         daysOfMonth={daysOfMonth}
         isAvailable={!isDelegated}
         lockedMessage={this.lockDescription}
@@ -180,4 +190,18 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
   }
 }
 
-export default DelegatedTimesheetsPage;
+const mapStateToProps = state => ({
+  mergedList: get(state, 'timesheetSubordinates.mergedList', []),
+  isLoading: get(state, 'timesheetSubordinates.isLoading', false),
+  popupMsg: get(state, 'timesheetSubordinates.popupMsg', '')
+});
+
+const mapDispatchToProps = dispatch => ({
+  getDelegatedTimesheetByParams: payload => dispatch(getDelegatedTimesheetByParams(payload)),
+  setPopupMessage: payload => dispatch(setPopupMessage(payload))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DelegatedTimesheetsPage);

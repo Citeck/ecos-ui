@@ -23,6 +23,7 @@ import {
   BpmnApi,
   CommentsApi,
   DashboardApi,
+  DocAssociationsApi,
   DocStatusApi,
   EventsHistoryApi,
   JournalsApi,
@@ -32,12 +33,12 @@ import {
   PageTabsApi,
   RecordActionsApi,
   TasksApi,
-  UserApi,
-  VersionsJournalApi,
-  DocAssociationsApi,
   TimesheetCommonApi,
+  TimesheetDelegatedApi,
   TimesheetSubordinatesApi,
-  TimesheetVerificationApi
+  TimesheetVerificationApi,
+  UserApi,
+  VersionsJournalApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
@@ -98,6 +99,7 @@ api.timesheetCommon = new TimesheetCommonApi(store);
 api.timesheetSubordinates = new TimesheetSubordinatesApi(store);
 api.timesheetMine = new MyTimesheetApi(store);
 api.timesheetVerification = new TimesheetVerificationApi(store);
+api.timesheetDelegated = new TimesheetDelegatedApi(store);
 
 const history = getHistory();
 

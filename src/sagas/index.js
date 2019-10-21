@@ -20,6 +20,7 @@ import docAssociations from './docAssociations';
 import timesheetSubordinates from './timesheet/subordinates';
 import timesheetMine from './timesheet/mine';
 import timesheetVerification from './timesheet/verification';
+import timesheetDelegated from './timesheet/delegated';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -43,6 +44,7 @@ export default function* rootSaga(extraArguments) {
     docAssociations(extraArguments),
     timesheetSubordinates(extraArguments),
     timesheetMine(extraArguments),
-    timesheetVerification(extraArguments)
+    timesheetVerification(extraArguments),
+    timesheetDelegated(extraArguments)
   ]);
 }
