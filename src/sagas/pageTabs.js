@@ -39,10 +39,11 @@ function* sagaGetTabs({ api, logger }) {
       return;
     }
 
-    const userName = getCurrentUserName();
+    const userName = yield call(getCurrentUserName);
 
-    yield api.pageTabs.checkOldVersion(userName);
-    const tabs = yield api.pageTabs.getAll();
+    yield call(api.pageTabs.checkOldVersion, userName);
+
+    const tabs = yield call(api.pageTabs.getAll);
 
     yield put(setTabs(tabs));
   } catch (e) {
