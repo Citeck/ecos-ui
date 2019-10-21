@@ -13,7 +13,6 @@ import {
 } from '../../helpers/timesheet/constants';
 import {
   getSubordinatesTimesheetByParams,
-  initSubordinatesTimesheetStart,
   modifyEventDayHours,
   modifyStatus,
   resetEventDayHours,
@@ -27,22 +26,6 @@ import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 
-const mapStateToProps = state => ({
-  mergedList: get(state, ['timesheetSubordinates', 'mergedList'], []),
-  isLoading: get(state, ['timesheetSubordinates', 'isLoading'], false),
-  updatingHours: get(state, ['timesheetSubordinates', 'updatingHours'], {}),
-  popupMsg: get(state, ['timesheetSubordinates', 'popupMsg'], '')
-});
-
-const mapDispatchToProps = dispatch => ({
-  initSubordinatesTimesheetStart: payload => dispatch(initSubordinatesTimesheetStart(payload)),
-  getSubordinatesTimesheetByParams: payload => dispatch(getSubordinatesTimesheetByParams(payload)),
-  modifyStatus: payload => dispatch(modifyStatus(payload)),
-  modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
-  resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
-  setPopupMessage: payload => dispatch(setPopupMessage(payload))
-});
-
 class SubordinatesTimesheetPage extends BaseTimesheetPage {
   constructor(props) {
     super(props);
@@ -51,7 +34,9 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
   }
 
   componentDidMount() {
-    this.props.initSubordinatesTimesheetStart();
+    const { currentDate } = this.state;
+
+    this.props.getSubordinatesTimesheetByParams({ currentDate });
   }
 
   get lockDescription() {
@@ -201,6 +186,21 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  mergedList: get(state, 'timesheetSubordinates.mergedList', []),
+  isLoading: get(state, 'timesheetSubordinates.isLoading', false),
+  updatingHours: get(state, 'timesheetSubordinates.updatingHours', {}),
+  popupMsg: get(state, 'timesheetSubordinates.popupMsg', '')
+});
+
+const mapDispatchToProps = dispatch => ({
+  getSubordinatesTimesheetByParams: payload => dispatch(getSubordinatesTimesheetByParams(payload)),
+  modifyStatus: payload => dispatch(modifyStatus(payload)),
+  modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
+  resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
+  setPopupMessage: payload => dispatch(setPopupMessage(payload))
+});
 
 export default connect(
   mapStateToProps,

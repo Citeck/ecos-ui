@@ -8,7 +8,6 @@ import { CommonLabels, MyTimesheetLabels, ServerStatusKeys } from '../../helpers
 import {
   getMyTimesheetByParams,
   getStatus,
-  initMyTimesheetStart,
   modifyEventDayHours,
   modifyStatus,
   resetEventDayHours,
@@ -23,28 +22,6 @@ import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { BlockStatus, DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 import { debounce } from 'lodash';
-
-const mapStateToProps = state => ({
-  isLoading: get(state, ['timesheetMine', 'isLoading'], false),
-  isLoadingStatus: get(state, ['timesheetMine', 'isLoadingStatus'], false),
-  isUpdatingStatus: get(state, ['timesheetMine', 'isUpdatingStatus'], false),
-  status: get(state, ['timesheetMine', 'status'], {}),
-  countAttemptGetStatus: get(state, ['timesheetMine', 'countAttemptGetStatus'], 0),
-  mergedEvents: get(state, ['timesheetMine', 'mergedEvents'], []),
-  updatingHours: get(state, ['timesheetMine', 'updatingHours'], {}),
-  popupMsg: get(state, ['timesheetMine', 'popupMsg'], '')
-});
-
-const mapDispatchToProps = dispatch => ({
-  initMyTimesheetStart: payload => dispatch(initMyTimesheetStart(payload)),
-  modifyStatus: payload => dispatch(modifyStatus(payload)),
-  setUpdatingStatus: payload => dispatch(setUpdatingStatus(payload)),
-  getMyTimesheetByParams: payload => dispatch(getMyTimesheetByParams(payload)),
-  modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
-  resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
-  getStatus: payload => dispatch(getStatus(payload)),
-  setPopupMessage: payload => dispatch(setPopupMessage(payload))
-});
 
 class MyTimesheetPage extends BaseTimesheetPage {
   constructor(props) {
@@ -63,7 +40,9 @@ class MyTimesheetPage extends BaseTimesheetPage {
   }, 3000);
 
   componentDidMount() {
-    this.props.initMyTimesheetStart && this.props.initMyTimesheetStart();
+    const { currentDate } = this.state;
+
+    this.props.getMyTimesheetByParams && this.props.getMyTimesheetByParams({ currentDate });
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -242,6 +221,27 @@ class MyTimesheetPage extends BaseTimesheetPage {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  isLoading: get(state, 'timesheetMine.isLoading', false),
+  isLoadingStatus: get(state, 'timesheetMine.isLoadingStatus', false),
+  isUpdatingStatus: get(state, 'timesheetMine.isUpdatingStatus', false),
+  status: get(state, 'timesheetMine.status', {}),
+  countAttemptGetStatus: get(state, 'timesheetMine.countAttemptGetStatus', 0),
+  mergedEvents: get(state, 'timesheetMine.mergedEvents', []),
+  updatingHours: get(state, 'timesheetMine.updatingHours', {}),
+  popupMsg: get(state, 'timesheetMine.popupMsg', '')
+});
+
+const mapDispatchToProps = dispatch => ({
+  getMyTimesheetByParams: payload => dispatch(getMyTimesheetByParams(payload)),
+  modifyStatus: payload => dispatch(modifyStatus(payload)),
+  setUpdatingStatus: payload => dispatch(setUpdatingStatus(payload)),
+  modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
+  resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
+  getStatus: payload => dispatch(getStatus(payload)),
+  setPopupMessage: payload => dispatch(setPopupMessage(payload))
+});
 
 export default connect(
   mapStateToProps,

@@ -3,8 +3,6 @@ import { MaxAttempts } from '../../helpers/timesheet/constants';
 import {
   getMyTimesheetByParams,
   getStatus,
-  initMyTimesheetEnd,
-  initMyTimesheetStart,
   modifyStatus,
   setMyTimesheetByParams,
   setPopupMessage,
@@ -29,20 +27,6 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
-    [initMyTimesheetStart]: (state, actions) => ({
-      ...state,
-      ...initialState,
-      isLoading: true,
-      isLoadingStatus: true
-    }),
-    [initMyTimesheetEnd]: (state, actions) => ({
-      ...state,
-      status: actions.payload.status,
-      calendarEvents: actions.payload.calendarEvents,
-      mergedEvents: actions.payload.mergedEvents,
-      isLoading: false,
-      isLoadingStatus: false
-    }),
     [getMyTimesheetByParams]: (state, actions) => ({
       ...state,
       ...initialState,

@@ -19,18 +19,6 @@ export default class SubordinatesTimesheetService {
     return target;
   }
 
-  static getUserNameList(subordinates) {
-    const target = [];
-
-    if (Array.isArray(subordinates)) {
-      subordinates.forEach(item => {
-        target.push(item.userName);
-      });
-    }
-
-    return target;
-  }
-
   static setUserStatusInLists({ mergedList, statuses, userName, status }) {
     const updatedML = deepClone(mergedList);
     const updatedSL = deepClone(statuses);

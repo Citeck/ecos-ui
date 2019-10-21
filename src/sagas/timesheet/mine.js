@@ -3,7 +3,6 @@ import { TimesheetMessages } from '../../helpers/timesheet/constants';
 import {
   getMyTimesheetByParams,
   getStatus,
-  initMyTimesheetStart,
   modifyEventDayHours,
   modifyStatus,
   resetEventDayHours,
@@ -17,16 +16,6 @@ import { selectUserName } from '../../selectors/user';
 import { selectTimesheetMineUpdatingHours } from '../../selectors/timesheet';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
 import CommonTimesheetService from '../../services/timesheet/common';
-
-function* sagaInitMyTimesheet({ api, logger }) {
-  try {
-    const currentDate = new Date();
-
-    yield put(getMyTimesheetByParams({ currentDate }));
-  } catch (e) {
-    logger.error('[timesheetMine sagaInitMyTimesheet saga] error', e.message);
-  }
-}
 
 function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -133,7 +122,6 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 }
 
 function* saga(ea) {
-  yield takeLatest(initMyTimesheetStart().type, sagaInitMyTimesheet, ea);
   yield takeLatest(getStatus().type, sagaGetStatus, ea);
   yield takeLatest(modifyStatus().type, sagaModifyStatus, ea);
   yield takeLatest(getMyTimesheetByParams().type, sagaGetMyTimesheetByParams, ea);

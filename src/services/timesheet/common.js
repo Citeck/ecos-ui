@@ -297,4 +297,16 @@ export default class CommonTimesheetService {
       }
     ];
   }
+
+  static getUserNameList(array) {
+    const target = [];
+
+    if (Array.isArray(array)) {
+      array.forEach(item => {
+        target.push(item.userName);
+      });
+    }
+
+    return target;
+  }
 }
