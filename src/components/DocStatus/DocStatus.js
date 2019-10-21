@@ -4,11 +4,13 @@ import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
+
+import { deepClone } from '../../helpers/util';
+import { LoaderTypes } from '../../constants';
 import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus, resetDocStatus, updateDocStatus } from '../../actions/docStatus';
 import { selectStateDocStatusById } from '../../selectors/docStatus';
 import DocStatusService from '../../services/docStatus';
-import { deepClone } from '../../helpers/util';
-import { Loader } from '../common';
+import { Loader, PointsLoader } from '../common';
 import { IcoBtn } from '../common/btns';
 import { Caption, Dropdown } from '../common/form';
 
@@ -44,13 +46,16 @@ class DocStatus extends React.Component {
     stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
     title: PropTypes.string,
-    isMobile: PropTypes.bool
+    isMobile: PropTypes.bool,
+    loaderType: PropTypes.oneOf([LoaderTypes.CIRCLE, LoaderTypes.POINTS]),
+    noLoader: PropTypes.bool
   };
 
   static defaultProps = {
     className: '',
     title: '',
-    isMobile: false
+    isMobile: false,
+    loaderType: LoaderTypes.CIRCLE
   };
 
   state = {
@@ -108,9 +113,9 @@ class DocStatus extends React.Component {
   }
 
   get isShowLoader() {
-    const { isLoading, isUpdating, countAttempt, status } = this.props;
+    const { isLoading, isUpdating, countAttempt, status, noLoader } = this.props;
 
-    return isLoading || (isUpdating && countAttempt < MAX_ATTEMPT) || isEmpty(status);
+    return (!noLoader && isLoading) || (isUpdating && countAttempt < MAX_ATTEMPT) || isEmpty(status);
   }
 
   onChangeStatus = () => {
@@ -151,6 +156,17 @@ class DocStatus extends React.Component {
     );
   }
 
+  renderLoader() {
+    const { loaderType } = this.props;
+    const className = classNames('ecos-doc-status__loader', `ecos-doc-status__loader_${loaderType}`);
+
+    if (loaderType === LoaderTypes.POINTS) {
+      return <PointsLoader className={className} color={'light-blue'} />;
+    }
+
+    return <Loader className={className} />;
+  }
+
   render() {
     const { isMobile, title, className } = this.props;
     const { wasChanged } = this.state;
@@ -158,7 +174,7 @@ class DocStatus extends React.Component {
     return (
       <div className={classNames('ecos-doc-status', className, { 'ecos-doc-status_narrow': !isMobile })}>
         {this.isShowLoader && !wasChanged ? (
-          <Loader className="ecos-doc-status__loader" />
+          this.renderLoader()
         ) : (
           <>
             {!isMobile && title && (

@@ -9,7 +9,7 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 
-import { MENU_TYPE } from '../../constants';
+import { LoaderTypes, MENU_TYPE } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
@@ -325,7 +325,8 @@ class Dashboard extends Component {
     const {
       titleInfo: { name = '', version = '' },
       dashboardType,
-      isMobile
+      isMobile,
+      isLoadingDashboard
     } = this.props;
     const { recordRef } = this.getPathInfo();
 
@@ -360,6 +361,8 @@ class Dashboard extends Component {
         break;
     }
 
+    const showStatus = isMobile && [DashboardTypes.CASE_DETAILS].includes(dashboardType);
+
     return (
       <div
         className={classNames('ecos-dashboard__header', {
@@ -367,7 +370,14 @@ class Dashboard extends Component {
         })}
       >
         {title}
-        {isMobile && <DocStatus record={recordRef} className="ecos-dashboard__header-status" />}
+        {showStatus && (
+          <DocStatus
+            record={recordRef}
+            className="ecos-dashboard__header-status"
+            loaderType={LoaderTypes.POINTS}
+            noLoader={isLoadingDashboard}
+          />
+        )}
       </div>
     );
   }
