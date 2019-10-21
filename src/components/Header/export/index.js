@@ -48,7 +48,7 @@ const render = (elementId, props) => {
               store.dispatch(initMenuSettings());
               store.dispatch(fetchUserMenuData());
 
-              i18nInit().then(() => {
+              i18nInit({ debug: false }).then(() => {
                 ReactDOM.render(
                   <Provider store={store}>
                     <Header {...props} />

@@ -56,7 +56,7 @@
                                        <input type="checkbox" ng-model="formElement.readOnly">
                                        {{'FORM-BUILDER.COMPONENT.READONLY' | translate}}
                                    </label>
-                               </div>                               
+                               </div>
                            </div>
                         </div>
                     </div>
@@ -86,7 +86,7 @@
                                     <i class="glyphicon glyphicon-question-sign"></i>
                                 </a>
 
-                                <a class="input-group-addon" ng-disabled="optionsExpressionEnabled" ng-click="removeOption($index)" ng-if="$index > 1"><i class="icon icon-remove"></i></a>
+                                <a class="input-group-addon" ng-disabled="optionsExpressionEnabled" ng-click="removeOption($index)" ng-if="$index > 1"><i class="glyphicon glyphicon-remove"></i></a>
                             </div>
 
                             <div>
@@ -104,13 +104,13 @@
                             </label>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label translate="FORM-BUILDER.COMPONENT.OPTIONS-EXPRESSION"></label>
                         <textarea rows="3" ng-disabled="!optionsExpressionEnabled" ng-model="formElement.optionsExpression" class="form-control" id="readonly-text-value"></textarea>
                         <div class="subtle" translate="FORM-BUILDER.MESSAGE.OPTIONS-EXPRESSION-HELP" style="padding: 5px 0 5px 1px;"></div>
                     </div>
-                    
+
                 </div>
 
                 <div ng-if="activeTab.id == 'upload' && formElement.type === 'upload'">
@@ -184,14 +184,14 @@
 			</div>
 		    </div>
 		</div>
-                
+
 		<div ng-if="activeTab.id == 'advanced' && formElement.type === 'hyperlink'">
 		    <div class="form-group">
 			<label translate="FORM-BUILDER.COMPONENT.HYPERLINK-URL"></label> <input
 			type="text" class="form-control" ng-model="formElement.params.hyperlinkUrl">
 		    </div>
-		</div>	    
-		    
+		</div>
+
                 <div ng-if="activeTab.id == 'general' && formElement.type === 'expression'">
                     <div class="form-group">
                         <label translate="FORM-BUILDER.COMPONENT.EXPRESSION"></label>

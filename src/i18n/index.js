@@ -8,7 +8,7 @@ const loadKeys = async lang => {
   return module.default;
 };
 
-export function i18nInit() {
+export function i18nInit({ debug = false }) {
   const currentLocale = getCurrentLocale();
 
   return new Promise(resolve => {
@@ -19,7 +19,7 @@ export function i18nInit() {
       i18next
         .init({
           lng: currentLocale,
-          debug: process.env.NODE_ENV === 'development',
+          debug,
           keySeparator: false,
           resources: {
             [currentLocale]: {
