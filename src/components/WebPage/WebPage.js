@@ -2,16 +2,17 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import Iframe from 'react-iframe';
+import { Scrollbars } from 'react-custom-scrollbars';
+import debounce from 'lodash/debounce';
 
-import { Loader } from '../common';
+import { Loader, DefineHeight } from '../common';
 import { Btn } from '../common/btns';
 import { Label, Input } from '../common/form';
 import Dashlet from '../Dashlet/Dashlet';
 import { t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
-import { initPage, setPageData } from '../../actions/webPage';
+import { initPage, setPageData, getPageData, loadedPage, reloadPageData } from '../../actions/webPage';
 import { selectStateById } from '../../selectors/webPage';
 
 import './style.scss';
@@ -41,13 +42,17 @@ class WebPage extends Component {
     onSave: PropTypes.func.isRequired,
     initPage: PropTypes.func.isRequired,
     setPageData: PropTypes.func.isRequired,
-    isLoading: PropTypes.bool
+    loadedPage: PropTypes.func.isRequired,
+    reloadPageData: PropTypes.func.isRequired,
+    fetchIsLoading: PropTypes.bool,
+    pageIsLoading: PropTypes.bool
   };
 
   static defaultProps = {
     url: '',
     title: '',
-    isLoading: false,
+    fetchIsLoading: false,
+    pageIsLoading: false,
     // todo: возможно, стоит сохранять данные не в config, а просто в props виджета дашборда
     config: {
       url: '',
@@ -63,6 +68,9 @@ class WebPage extends Component {
       fitHeights: {},
       contentHeight: null,
       settingsIsShow: false,
+      resizable: false,
+      pageIsLoaded: false,
+      hasFrameContent: false,
       title: props.title,
       url: props.url,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
@@ -94,17 +102,50 @@ class WebPage extends Component {
     return null;
   }
 
+  componentWillUnmount() {
+    this.handleCancelResizable.cancel();
+  }
+
   get canSave() {
     const { title, url } = this.state;
 
     return title && url;
   }
 
+  setContentHeight = contentHeight => {
+    this.setState({ contentHeight, resizable: true }, this.handleCancelResizable);
+  };
+
+  handleCancelResizable = debounce(() => {
+    this.setState({ resizable: false });
+  }, 300);
+
+  handleGetFitHeights = fitHeights => {
+    this.setState({ fitHeights });
+  };
+
+  handleToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+  };
+
   handleEdit = () => {
     this.setState({ settingsIsShow: true });
   };
 
-  handleReload = () => {};
+  handleReload = () => {
+    const { url, title, reloadPageData } = this.props;
+
+    reloadPageData({ url, title });
+    this.setState({
+      settingsIsShow: false,
+      resizable: false,
+      pageIsLoaded: false,
+      hasFrameContent: false,
+      url: '',
+      title: ''
+    });
+  };
 
   handleResize = width => {
     this.setState({ width });
@@ -132,19 +173,35 @@ class WebPage extends Component {
   };
 
   handleSaveEdit = () => {
-    const { onSave, id, setPageData } = this.props;
-    const { url, title } = this.state;
+    this.setState(
+      {
+        settingsIsShow: false,
+        pageIsLoaded: false,
+        hasFrameContent: false
+      },
+      () => {
+        const { onSave, id, setPageData } = this.props;
+        const { url, title } = this.state;
 
-    onSave(id, { config: { url, title } });
-    setPageData({ url, title });
-    this.setState({ settingsIsShow: false });
+        onSave(id, { config: { url, title } });
+        setPageData({ url, title });
+      }
+    );
+  };
+
+  handleLoadFrame = event => {
+    this.props.loadedPage();
+    this.setState({
+      pageIsLoaded: true,
+      hasFrameContent: Boolean(event.currentTarget.contentWindow.length)
+    });
   };
 
   renderEmptyData() {
-    const { url, isLoading } = this.props;
+    const { url, fetchIsLoading, pageIsLoading } = this.props;
     const { settingsIsShow } = this.state;
 
-    if (url || settingsIsShow || isLoading) {
+    if (url || settingsIsShow || fetchIsLoading || pageIsLoading) {
       return null;
     }
 
@@ -204,21 +261,25 @@ class WebPage extends Component {
   }
 
   renderLoading() {
-    if (!this.props.isLoading) {
+    const { fetchIsLoading, pageIsLoading, url } = this.props;
+    const { pageIsLoaded } = this.state;
+
+    if ((!fetchIsLoading && !pageIsLoading) || pageIsLoaded) {
       return null;
     }
 
     return (
-      <div className="ecos-wpage__ground">
+      <div className="ecos-wpage__ground ecos-wpage__ground_full">
         <Loader />
       </div>
     );
   }
 
   renderError() {
-    const { error } = this.props;
+    const { error, fetchIsLoading, pageIsLoading } = this.props;
+    const { hasFrameContent, settingsIsShow } = this.state;
 
-    if (!error) {
+    if ((!error && hasFrameContent) || settingsIsShow || fetchIsLoading || pageIsLoading) {
       return null;
     }
 
@@ -238,20 +299,37 @@ class WebPage extends Component {
   }
 
   renderPage() {
-    const { url } = this.props;
-    const { settingsIsShow } = this.state;
+    const { url, title } = this.props;
+    const { settingsIsShow, pageIsLoaded, hasFrameContent } = this.state;
 
-    if (!url || settingsIsShow) {
+    if (!url || settingsIsShow || (pageIsLoaded && !hasFrameContent)) {
       return null;
     }
 
-    // return <Iframe url={url} />;
-    // return <object type="text/html" data={url}/>;
-    return <embed src={url} />;
+    const { userHeight = 0, resizable, contentHeight, fitHeights } = this.state;
+    const fixHeight = userHeight ? userHeight : pageIsLoaded && hasFrameContent ? 572 : 203;
+
+    return (
+      <iframe
+        title={title}
+        src={url}
+        style={{
+          width: '100%',
+          height: `${fixHeight}px`,
+          border: 'none',
+          pointerEvents: resizable ? 'none' : 'auto'
+        }}
+        onLoad={this.handleLoadFrame}
+      />
+    );
   }
 
   render() {
-    const { title } = this.props;
+    const { title, pageIsLoaded, hasFrameContent } = this.props;
+    const { isCollapsed } = this.state;
+
+    const { userHeight = 0, resizable, contentHeight, fitHeights } = this.state;
+    const fixHeight = userHeight ? userHeight : pageIsLoaded && hasFrameContent ? 572 : 203;
 
     return (
       <Dashlet
@@ -259,20 +337,35 @@ class WebPage extends Component {
         className="ecos-wpage"
         bodyClassName="ecos-wpage__body"
         needGoTo={false}
+        actionHelp={false}
         actionEdit
         actionReload
-        actionHelp
         resizable
         onResize={this.handleResize}
         onChangeHeight={this.handleChangeHeight}
         onEdit={this.handleEdit}
         onReload={this.handleReload}
+        getFitHeights={this.handleGetFitHeights}
+        onToggleCollapse={this.handleToggleContent}
+        isCollapsed={isCollapsed}
       >
-        {this.renderEmptyData()}
-        {this.renderSettings()}
-        {this.renderLoading()}
-        {this.renderError()}
-        {this.renderPage()}
+        <Scrollbars autoHide style={{ height: contentHeight || '100%' }}>
+          <DefineHeight
+            className="ecos-wpage__container"
+            fixHeight={fixHeight}
+            maxHeight={fitHeights.max}
+            minHeight={1}
+            getOptimalHeight={this.setContentHeight}
+          >
+            <div className="ecos-wpage__container">
+              {this.renderEmptyData()}
+              {this.renderSettings()}
+              {this.renderLoading()}
+              {this.renderError()}
+              {this.renderPage()}
+            </div>
+          </DefineHeight>
+        </Scrollbars>
       </Dashlet>
     );
   }
@@ -282,6 +375,9 @@ const mapStateToProps = (state, ownProps) => ({ ...selectStateById(state, ownPro
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   initPage: () => dispatch(initPage(ownProps.id)),
+  getPageData: () => dispatch(getPageData(ownProps.id)),
+  reloadPageData: data => dispatch(reloadPageData({ stateId: ownProps.id, data })),
+  loadedPage: () => dispatch(loadedPage(ownProps.id)),
   setPageData: data => dispatch(setPageData({ stateId: ownProps.id, data }))
 });
 

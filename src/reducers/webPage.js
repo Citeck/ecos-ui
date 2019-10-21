@@ -1,9 +1,10 @@
 import { handleActions } from 'redux-actions';
 import { getCurrentStateById } from '../helpers/redux';
-import { getPageData, setPageData, setError, initPage } from '../actions/webPage';
+import { getPageData, setPageData, setError, initPage, loadedPage, reloadPageData } from '../actions/webPage';
 
 export const initialState = {
-  isLoading: false,
+  fetchIsLoading: false,
+  pageIsLoading: false,
   error: '',
   url: '',
   title: ''
@@ -25,9 +26,10 @@ export default handleActions(
     },
     [getPageData]: (state, { payload }) => ({
       ...state,
-      [payload.stateId]: {
-        ...getCurrentStateById(state, payload.stateId, initialState),
-        isLoading: true,
+      [payload]: {
+        ...getCurrentStateById(state, payload, initialState),
+        fetchIsLoading: true,
+        pageIsLoading: false,
         error: ''
       }
     }),
@@ -36,7 +38,8 @@ export default handleActions(
       [payload.stateId]: {
         ...getCurrentStateById(state, payload.stateId, initialState),
         ...payload.data,
-        isLoading: false,
+        fetchIsLoading: false,
+        pageIsLoading: true,
         error: ''
       }
     }),
@@ -45,7 +48,27 @@ export default handleActions(
       [payload.stateId]: {
         ...getCurrentStateById(state, payload.stateId, initialState),
         error: payload.data,
-        isLoading: false
+        fetchIsLoading: false,
+        pageIsLoading: false
+      }
+    }),
+    [loadedPage]: (state, { payload }) => ({
+      ...state,
+      [payload]: {
+        ...getCurrentStateById(state, payload, initialState),
+        error: '',
+        fetchIsLoading: false,
+        pageIsLoading: false
+      }
+    }),
+    [reloadPageData]: (state, { payload }) => ({
+      ...state,
+      [payload.stateId]: {
+        ...getCurrentStateById(state, payload.stateId, initialState),
+        error: '',
+        url: '',
+        fetchIsLoading: true,
+        pageIsLoading: false
       }
     })
   },
