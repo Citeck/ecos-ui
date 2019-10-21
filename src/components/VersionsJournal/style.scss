@@ -9,7 +9,7 @@
 }
 
 %block-padding {
-  padding: 15px 20px;
+  padding: 12px 20px;
 }
 
 %overflow-ellipsis {
@@ -21,6 +21,11 @@
   $root: &;
 
   position: relative;
+
+  &__headline {
+    margin-bottom: 0;
+    height: 34px;
+  }
 
   &__block {
     @extend %block-padding;
@@ -35,7 +40,7 @@
     font-weight: bold;
     font-size: 14px;
     line-height: 23px;
-    padding: 16px 20px 12px;
+    padding: 6px 20px;
   }
 
   &__version {
@@ -79,7 +84,7 @@
 
       &-item {
         cursor: pointer;
-        color: $color-gray-5;
+        color: $color-brown-2;
         font-size: 20px;
 
         &:not(:last-child) {
@@ -87,7 +92,7 @@
         }
 
         &:hover {
-          color: $color-blue-light;
+          color: $color-brown-1;
         }
       }
 
@@ -130,9 +135,10 @@
       align-items: center;
 
       &-avatar {
-        $size: 49px;
+        $size: 32px;
 
         width: $size;
+        min-width: $size;
         height: $size;
         border-radius: 50%;
         object-fit: cover;
@@ -146,9 +152,23 @@
           font-size: 14px;
           line-height: $size;
         }
+
+        &_big {
+          $size: 49px;
+
+          width: $size;
+          min-width: $size;
+          height: $size;
+        }
+
+        img {
+          border: none;
+        }
       }
 
       &-name {
+        @extend %overflow-ellipsis;
+
         font-weight: bold;
         font-size: 12px;
         line-height: 16px;
@@ -165,6 +185,11 @@
       line-height: 16px;
       color: $text-color-gray;
       margin-top: 10px;
+      margin-left: 42px;
+
+      &_mobile {
+        margin-left: 0;
+      }
     }
 
     &-date {
@@ -177,7 +202,7 @@
 
       &-icon {
         color: $color-gray-7;
-        font-size: 14px;
+        font-size: 12px;
         margin-right: 5px;
       }
     }
@@ -217,6 +242,7 @@
       display: flex !important;
 
       &-icon {
+        font-size: 20px;
         margin-right: 8px;
       }
 

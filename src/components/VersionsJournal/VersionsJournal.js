@@ -273,7 +273,7 @@ class VersionsJournal extends Component {
           key="action-open-modal"
           icon="icon-plus"
           onClick={this.handleToggleAddModal}
-          className="ecos-btn_i dashlet__btn_hidden dashlet__btn_next dashlet__btn_add ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+          className="ecos-btn_i dashlet__btn_hidden dashlet__btn_next ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
         />
         <UncontrolledTooltip
           placement="top"
@@ -336,20 +336,32 @@ class VersionsJournal extends Component {
 
     return (
       <div className="ecos-vj__version" key={key}>
-        <Headline>
+        <Headline className="ecos-vj__headline">
           <div className="ecos-vj__version-number">{version.version}</div>
           <div className="ecos-vj__version-title">{version.name}</div>
           {showActions && !isMobile && this.renderVersionActions(version)}
         </Headline>
         <div className="ecos-vj__version-body">
           <div className="ecos-vj__version-author">
-            <Avatar url={version.avatar} className="ecos-vj__version-author-avatar" classNameEmpty="ecos-vj__version-author-avatar_empty" />
+            <Avatar
+              url={version.avatar}
+              className={classNames('ecos-vj__version-author-avatar', {
+                'ecos-vj__version-author-avatar_big': isMobile
+              })}
+              classNameEmpty="ecos-vj__version-author-avatar_empty"
+            />
 
             <div className="ecos-vj__version-author-name">
-              <div className="ecos-vj__version-author-name-item">
-                {version.firstName} {version.middleName}
-              </div>
-              <div className="ecos-vj__version-author-name-item">{version.lastName}</div>
+              {!isMobile && <div className="ecos-vj__version-author-name-item">{version.userName}</div>}
+
+              {isMobile && (
+                <>
+                  <div className="ecos-vj__version-author-name-item">
+                    {version.firstName} {version.middleName}
+                  </div>
+                  <div className="ecos-vj__version-author-name-item">{version.lastName}</div>
+                </>
+              )}
 
               <div className="ecos-vj__version-date">
                 <Icon className="icon-clock ecos-vj__version-date-icon" />
@@ -358,7 +370,15 @@ class VersionsJournal extends Component {
             </div>
           </div>
 
-          {version.comment && <div className="ecos-vj__version-comment">{version.comment}</div>}
+          {version.comment && (
+            <div
+              className={classNames('ecos-vj__version-comment', {
+                'ecos-vj__version-comment_mobile': isMobile
+              })}
+            >
+              {version.comment}
+            </div>
+          )}
           {showActions && isMobile && this.renderVersionActions(version, isMobile)}
         </div>
       </div>
@@ -380,10 +400,10 @@ class VersionsJournal extends Component {
       : this.renderMessage(t('versions-journal-widget.no-current-versions'));
 
     return (
-      <React.Fragment>
+      <>
         <div className="ecos-vj__title">{t('versions-journal-widget.current-version')}</div>
         {versionBlock}
-      </React.Fragment>
+      </>
     );
   }
 
@@ -400,10 +420,10 @@ class VersionsJournal extends Component {
       : this.renderMessage(t('versions-journal-widget.no-old-versions'));
 
     return (
-      <React.Fragment>
+      <>
         <div className="ecos-vj__title">{t('versions-journal-widget.old')}</div>
         {versionsBlock}
-      </React.Fragment>
+      </>
     );
   }
 
@@ -547,19 +567,34 @@ class VersionsJournal extends Component {
     );
   }
 
-  renderBlockVersions = () => {
-    return (
+  renderBody() {
+    const { isMobile } = this.props;
+    const body = (
       <>
         {this.renderActualVersion()}
         {this.renderOldVersions()}
       </>
     );
-  };
+
+    if (isMobile) {
+      return body;
+    }
+
+    const { userHeight = 0, fitHeights } = this.state;
+    const fixHeight = userHeight ? userHeight : null;
+
+    return (
+      <Scrollbars autoHide style={{ height: this.scrollableHeight || '100%' }}>
+        <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
+          {body}
+        </DefineHeight>
+      </Scrollbars>
+    );
+  }
 
   render() {
     const { isMobile, versionsLabels } = this.props;
-    const { userHeight = 0, fitHeights, isCollapsed } = this.state;
-    const fixHeight = userHeight ? userHeight : null;
+    const { isCollapsed } = this.state;
 
     return (
       <Dashlet
@@ -587,15 +622,7 @@ class VersionsJournal extends Component {
           </div>
         )}
 
-        {isMobile ? (
-          this.renderBlockVersions()
-        ) : (
-          <Scrollbars autoHide style={{ height: this.scrollableHeight || '100%' }}>
-            <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
-              {this.renderBlockVersions()}
-            </DefineHeight>
-          </Scrollbars>
-        )}
+        {this.renderBody()}
         {this.renderModal()}
         {this.renderLoading()}
       </Dashlet>
