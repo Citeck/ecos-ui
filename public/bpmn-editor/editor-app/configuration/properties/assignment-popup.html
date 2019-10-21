@@ -95,7 +95,7 @@
                                         <span user-name="user"></span>
 
                                         <div class="actions">
-                                            <a ng-click="removeCandidateUser(user)"><i class="icon icon-remove"></i></a>
+                                            <a ng-click="removeCandidateUser(user)"><i class="glyphicon glyphicon-remove"></i></a>
                                         </div>
                                     </li>
                                     <li ng-repeat="userField in popup.assignmentObject.idm.candidateUserFields">
@@ -104,7 +104,7 @@
                                         <span class="field-type"> - {{userFieldField.id}}</span>
 
                                         <div class="actions">
-                                            <a ng-click="removeCandidateUserField(userField)"><i class="icon icon-remove"></i></a>
+                                            <a ng-click="removeCandidateUserField(userField)"><i class="glyphicon glyphicon-remove"></i></a>
                                         </div>
                                     </li>
                                 </ul>
@@ -127,13 +127,13 @@
                                     <li ng-repeat="group in popup.assignmentObject.idm.candidateGroups">
                                         {{group.name}}
                                         <div class="actions">
-                                            <a ng-click="removeCandidateGroup(group)"><i class="icon icon-remove"></i></a>
+                                            <a ng-click="removeCandidateGroup(group)"><i class="glyphicon glyphicon-remove"></i></a>
                                         </div>
                                     </li>
                                     <li ng-repeat="groupField in popup.assignmentObject.idm.candidateGroupFields">
                                         {{groupField.name}}
                                         <div class="actions">
-                                            <a ng-click="removeCandidateGroupField(groupField)"><i class="icon icon-remove"></i></a>
+                                            <a ng-click="removeCandidateGroupField(groupField)"><i class="glyphicon glyphicon-remove"></i></a>
                                         </div>
                                     </li>
                                 </ul>
@@ -161,7 +161,7 @@
                                               class="field-type"> - {{popup.assignmentObject.idm.assigneeField.id}}</span>
 
                                         <div class="actions" ng-if="popup.assignmentObject.idm.assignee || popup.assignmentObject.idm.assigneeField">
-                                            <a ng-click="removeAssignee()"><i class="icon icon-remove"></i></a>
+                                            <a ng-click="removeAssignee()"><i class="glyphicon glyphicon-remove"></i></a>
                                         </div>
                                     </li>
                                 </ul>

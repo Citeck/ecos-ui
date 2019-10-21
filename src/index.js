@@ -102,7 +102,7 @@ store.dispatch(
       store.dispatch(
         initAppRequest({
           onSuccess: () => {
-            i18nInit().then(() => {
+            i18nInit({ debug: process.env.NODE_ENV === 'development' }).then(() => {
               ReactDOM.render(
                 <Provider store={store}>
                   <ConnectedRouter history={history}>

@@ -1711,6 +1711,15 @@ h3+div > .dropzone {
     min-height: 60px;
     border-bottom: 1px solid #a4acb9;
     padding: 15px 15px;
+    display: block;
+}
+
+.modal .ecos-modal .modal-header {
+  background-color: #fff;
+  border-bottom: none;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  display: flex;
 }
 
 .modal-header .actions {
@@ -3308,4 +3317,16 @@ ul#strength > li:last-child {
 
 .custom-dropdown-menu-cascad__label {
   margin-bottom: 0;
+}
+
+.input-group {
+  flex-wrap: nowrap;
+}
+
+.input-group-addon {
+  width: auto;
+}
+
+.toolbar-button.glyphicon {
+  top: -2px;
 }
