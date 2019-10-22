@@ -246,7 +246,7 @@ export default class AsyncDataComponent extends BaseComponent {
                 return value.then(resultMapping);
               }
             } else {
-              return fetchData(url, body, ajaxConfig.method);
+              return fetchData(url, body, ajaxConfig.method).then(resultMapping);
             }
           },
           null,
