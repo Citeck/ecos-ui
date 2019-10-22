@@ -6,7 +6,7 @@ export class TimesheetVerificationApi extends RecordService {
     return Records.query(
       {
         query: `TYPE:'timesheet:Request' AND @timesheet:currentYear:${year} AND @timesheet:currentMonth:${month +
-          1} AND @timesheet:status:'${status}'`,
+          1} AND @timesheet:status:${status}`,
         language: 'fts-alfresco',
         maxItems: 100,
         debug: false
