@@ -24,7 +24,7 @@ import CommonTimesheetService from '../../services/timesheet/common';
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
 import { TunableDialog } from '../../components/common/dialogs';
-import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
+import Timesheet, { DateSlider, Tabs, CommentModal } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 
 class SubordinatesTimesheetPage extends BaseTimesheetPage {
@@ -32,6 +32,8 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
     super(props);
 
     this.state.statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.SUBORDINATES);
+    this.state.isOpenCommentModal = false;
+    this.state.currenTimesheetData = null;
   }
 
   componentDidMount() {
@@ -70,7 +72,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK)
+            onClick: data => this.handleSentImprove(data)
           },
           {
             ...BaseConfigGroupButtons.APPROVE,
@@ -86,6 +88,29 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
     const { currentDate } = this.state;
 
     this.props.getSubordinatesTimesheetByParams({ currentDate });
+  };
+
+  handleSentImprove = data => {
+    this.setState({
+      isOpenCommentModal: true,
+      currenTimesheetData: data
+    });
+  };
+
+  handleCancelSendImprove = () => {
+    this.setState({
+      isOpenCommentModal: false,
+      currenTimesheetData: null
+    });
+  };
+
+  handleConfirmSendImprove = comment => {
+    this.handleChangeStatus({ ...this.state.currenTimesheetData, comment }, ServerStatusOutcomeKeys.SEND_BACK);
+
+    this.setState({
+      isOpenCommentModal: false,
+      currenTimesheetData: null
+    });
   };
 
   handleChangeCurrentDate(currentDate) {
@@ -137,7 +162,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
   };
 
   render() {
-    const { sheetTabs, isDelegated, currentDate, statusTabs } = this.state;
+    const { sheetTabs, isDelegated, currentDate, statusTabs, isOpenCommentModal } = this.state;
     const { isLoading, popupMsg } = this.props;
 
     return (
@@ -186,6 +211,13 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
           {this.renderTimesheet()}
         </div>
         <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
+
+        <CommentModal
+          isOpen={isOpenCommentModal}
+          isRequired
+          onCancel={this.handleCancelSendImprove}
+          onSend={this.handleConfirmSendImprove}
+        />
       </div>
     );
   }

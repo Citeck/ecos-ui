@@ -985,3 +985,23 @@
 
 .ecos-ts-event-history {
 }
+
+// comment modal styles
+.ecos-ts-cm {
+  &__textarea {
+    padding: 10px 15px;
+    margin-bottom: 20px;
+  }
+
+  &__btns {
+    display: flex;
+
+    &-item {
+      flex-basis: 50%;
+
+      &:not(:last-child) {
+        margin-right: 12px;
+      }
+    }
+  }
+}
