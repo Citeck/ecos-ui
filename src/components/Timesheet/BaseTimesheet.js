@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { deepClone, t } from '../../helpers/util';
@@ -210,6 +211,14 @@ class BaseTimesheet extends Component {
     return filteredEventTypes.map(this.renderEventCalendarRow);
   }
 
+  renderNoData() {
+    return (
+      <div className="ecos-timesheet__white-block">
+        <div className="ecos-timesheet__no-data">{CommonLabels.NO_DATA}</div>
+      </div>
+    );
+  }
+
   renderEventCalendarRow = eventItem => (
     <CalendarRow key={`calendar-row-${eventItem.name}`}>
       {this.props.daysOfMonth.map(day => {
@@ -279,20 +288,23 @@ class BaseTimesheet extends Component {
   render() {
     const leftId = uniqueId('tableLeftColumn_');
     const rightId = uniqueId('tableRightColumn_');
+    const { filteredEventTypes } = this.state;
 
     return (
-      <div className="ecos-timesheet__table">
-        <div className="ecos-timesheet__table-left-column" id={leftId}>
-          {this.renderFilter()}
-          {this.renderEventTypes()}
-          <ResizeBoxes className="ecos-timesheet__resizer" leftId={leftId} rightId={rightId} />
+      <>
+        <div className="ecos-timesheet__table">
+          <div className="ecos-timesheet__table-left-column" id={leftId}>
+            {this.renderFilter()}
+            {this.renderEventTypes()}
+            <ResizeBoxes className="ecos-timesheet__resizer" leftId={leftId} rightId={rightId} />
+          </div>
+          <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper} id={rightId}>
+            {this.renderCalendar()}
+          </div>
+          {this.renderLock()}
         </div>
-        <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper} id={rightId}>
-          {this.renderCalendar()}
-        </div>
-
-        {this.renderLock()}
-      </div>
+        {isEmpty(filteredEventTypes) && this.renderNoData()}
+      </>
     );
   }
 }

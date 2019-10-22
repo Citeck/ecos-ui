@@ -133,11 +133,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
       );
     }
 
-    return isLoading ? null : (
-      <div className="ecos-timesheet__white-block">
-        <div className="ecos-timesheet__no-data">{CommonLabels.NO_DATA}</div>
-      </div>
-    );
+    return isLoading ? null : this.renderNoData();
   };
 
   render() {
