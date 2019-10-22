@@ -1,3 +1,4 @@
+import get from 'lodash/get';
 import { handleActions } from 'redux-actions';
 import { getDelegatedTimesheetByParams, setDelegatedTimesheetByParams, setPopupMessage } from '../../actions/timesheet/delegated';
 
@@ -27,11 +28,11 @@ export default handleActions(
     }),
     [setDelegatedTimesheetByParams]: (state, actions) => ({
       ...state,
-      mergedList: actions.payload.mergedList,
-      subordinates: actions.payload.subordinates.records,
-      calendarEvents: actions.payload.calendarEvents,
-      statuses: actions.payload.statuses.records,
-      actionCounts: actions.payload.actionCounts,
+      mergedList: get(actions, 'payload.mergedList', []),
+      subordinates: get(actions, 'payload.subordinates.records', []),
+      calendarEvents: get(actions, 'payload.calendarEvents', []),
+      statuses: get(actions, 'payload.statuses.records', []),
+      actionCounts: get(actions, 'payload.actionCounts', {}),
       isLoading: false
     }),
     [setPopupMessage]: (state, actions) => ({

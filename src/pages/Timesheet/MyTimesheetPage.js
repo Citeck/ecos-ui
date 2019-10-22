@@ -40,9 +40,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
   }, 3000);
 
   componentDidMount() {
-    const { currentDate } = this.state;
-
-    this.props.getMyTimesheetByParams && this.props.getMyTimesheetByParams({ currentDate });
+    this.getData();
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -73,10 +71,14 @@ class MyTimesheetPage extends BaseTimesheetPage {
     return '';
   }
 
+  getData = () => {
+    const { currentDate } = this.state;
+
+    this.props.getMyTimesheetByParams && this.props.getMyTimesheetByParams({ currentDate });
+  };
+
   handleChangeCurrentDate(currentDate) {
-    super.handleChangeCurrentDate(currentDate, () => {
-      this.props.getMyTimesheetByParams && this.props.getMyTimesheetByParams({ currentDate });
-    });
+    super.handleChangeCurrentDate(currentDate, this.getData);
   }
 
   handleChangeStatus() {

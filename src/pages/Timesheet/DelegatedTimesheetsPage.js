@@ -35,10 +35,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
   }
 
   componentDidMount() {
-    const { currentDate } = this.state;
-    const action = this.selectedAction;
-
-    this.props.getDelegatedTimesheetByParams && this.props.getDelegatedTimesheetByParams({ currentDate, action });
+    this.getData();
   }
 
   get selectedAction() {
@@ -94,8 +91,15 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     return [{}, {}];
   }
 
+  getData = () => {
+    const { currentDate } = this.state;
+    const action = this.selectedAction;
+
+    this.props.getDelegatedTimesheetByParams && this.props.getDelegatedTimesheetByParams({ currentDate, action });
+  };
+
   handleChangeCurrentDate(currentDate) {
-    super.handleChangeCurrentDate(currentDate);
+    super.handleChangeCurrentDate(currentDate, this.getData);
   }
 
   handleChangeActionTab(tabIndex) {

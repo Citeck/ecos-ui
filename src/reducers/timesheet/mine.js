@@ -1,3 +1,4 @@
+import get from 'lodash/get';
 import { handleActions } from 'redux-actions';
 import { MaxAttempts } from '../../helpers/timesheet/constants';
 import {
@@ -35,9 +36,9 @@ export default handleActions(
     }),
     [setMyTimesheetByParams]: (state, actions) => ({
       ...state,
-      status: actions.payload.status,
-      calendarEvents: actions.payload.calendarEvents,
-      mergedEvents: actions.payload.mergedEvents,
+      status: get(actions, 'payload.status', {}),
+      calendarEvents: get(actions, 'payload.calendarEvents', []),
+      mergedEvents: get(actions, 'payload.mergedEvents', []),
       isLoading: false,
       isLoadingStatus: false
     }),

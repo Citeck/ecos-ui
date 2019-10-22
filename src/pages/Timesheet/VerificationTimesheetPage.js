@@ -30,10 +30,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
   }
 
   componentDidMount() {
-    const { currentDate } = this.state;
-    const status = this.selectedStatus.key;
-
-    this.props.getVerificationTimesheetByParams && this.props.getVerificationTimesheetByParams({ currentDate, status });
+    this.getData();
   }
 
   get configGroupBtns() {

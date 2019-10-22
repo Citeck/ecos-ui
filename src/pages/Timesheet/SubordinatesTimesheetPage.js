@@ -34,9 +34,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
   }
 
   componentDidMount() {
-    const { currentDate } = this.state;
-
-    this.props.getSubordinatesTimesheetByParams({ currentDate });
+    this.getData();
   }
 
   get lockDescription() {
@@ -79,10 +77,14 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
     }
   }
 
+  getData = () => {
+    const { currentDate } = this.state;
+
+    this.props.getSubordinatesTimesheetByParams({ currentDate });
+  };
+
   handleChangeCurrentDate(currentDate) {
-    super.handleChangeCurrentDate(currentDate, () => {
-      this.props.getSubordinatesTimesheetByParams && this.props.getSubordinatesTimesheetByParams({ currentDate });
-    });
+    super.handleChangeCurrentDate(currentDate, this.getData);
   }
 
   handleChangeStatus = (data, outcome) => {

@@ -1,3 +1,4 @@
+import get from 'lodash/get';
 import { handleActions } from 'redux-actions';
 import {
   getSubordinatesTimesheetByParams,
@@ -34,20 +35,20 @@ export default handleActions(
     }),
     [setSubordinatesTimesheetByParams]: (state, actions) => ({
       ...state,
-      mergedList: actions.payload.mergedList,
-      subordinates: actions.payload.subordinates.records,
-      calendarEvents: actions.payload.calendarEvents,
-      statuses: actions.payload.statuses.records,
+      mergedList: get(actions, 'payload.mergedList', []),
+      subordinates: get(actions, 'payload.subordinates.records', []),
+      calendarEvents: get(actions, 'payload.calendarEvents', []),
+      statuses: get(actions, 'payload.statuses.records', []),
       isLoading: false
     }),
     [setMergedList]: (state, actions) => ({
       ...state,
-      mergedList: actions.payload,
+      mergedList: get(actions, 'payload.mergedList', []),
       isLoading: false
     }),
     [setStatusList]: (state, actions) => ({
       ...state,
-      statuses: actions.payload.records
+      statuses: get(actions, 'payload.statuses.records', [])
     }),
     [modifyStatus]: (state, actions) => ({
       ...state,

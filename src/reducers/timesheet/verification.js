@@ -1,3 +1,4 @@
+import get from 'lodash/get';
 import { handleActions } from 'redux-actions';
 import { getVerificationTimesheetByParams, setPopupMessage, setVerificationTimesheetByParams } from '../../actions/timesheet/verification';
 
@@ -19,7 +20,7 @@ export default handleActions(
     [setVerificationTimesheetByParams]: (state, actions) => ({
       ...state,
       isLoading: false,
-      mergedList: actions.payload.mergedList
+      mergedList: get(actions, 'payload.mergedList', [])
     }),
     [setPopupMessage]: (state, actions) => ({
       ...state,
