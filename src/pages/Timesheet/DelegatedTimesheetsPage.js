@@ -1,4 +1,6 @@
 import React from 'react';
+import get from 'lodash/get';
+import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
 import {
@@ -11,25 +13,57 @@ import {
 } from '../../helpers/timesheet/constants';
 import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
+import DelegatedTimesheetService from '../../services/timesheet/delegated';
+import { getDelegatedTimesheetByParams, resetDelegatedTimesheet, setPopupMessage } from '../../actions/timesheet/delegated';
 
+import { Loader } from '../../components/common';
 import { Btn } from '../../components/common/btns';
+import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 
-import { TimesheetApi } from '../../api/timesheet/timesheet';
-
-const timesheetApi = new TimesheetApi();
+const initAction = StatusActionFilters.FILL;
+const initStatus = ServerStatusKeys.CORRECTION;
 
 class DelegatedTimesheetsPage extends BaseTimesheetPage {
   constructor(props) {
     super(props);
 
-    this.state.subordinatesEvents = timesheetApi.getEvents();
-    this.state.statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, StatusActionFilters.FILL);
-    this.state.currentStatus = ServerStatusKeys.CORRECTION;
+    const actions = DelegatedTimesheetService.getDelegatedActions();
+
+    this.state.statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, initAction);
+    this.state.currentStatus = initStatus;
+    this.state.actionDelegatedTabs = actions.map(item => ({ ...item, isActive: initAction === item.action }));
     this.state.delegatedTo = '';
     this.state.delegationRejected = true;
-    this.state.actionDelegatedTabs = timesheetApi.getDelegatedActions();
+  }
+
+  componentDidMount() {
+    this.getData();
+  }
+
+  componentWillReceiveProps(nextProps, nextContext) {
+    super.componentWillReceiveProps(nextProps, nextContext);
+
+    const { actionCounts } = this.props;
+
+    if (JSON.stringify(actionCounts) !== JSON.stringify(nextProps.actionCounts)) {
+      const actionDelegatedTabs = this.state.actionDelegatedTabs.map(item => ({
+        ...item,
+        badge: nextProps.actionCounts[item.action] || 0
+      }));
+
+      const sheetTabs = this.state.sheetTabs.map(item => ({
+        ...item,
+        badge: item.key === TimesheetTypes.DELEGATED ? nextProps.actionCounts.all || 0 : null
+      }));
+
+      this.setState({ actionDelegatedTabs, sheetTabs });
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.resetDelegatedTimesheet();
   }
 
   get selectedAction() {
@@ -85,8 +119,15 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     return [{}, {}];
   }
 
+  getData = () => {
+    const { currentDate } = this.state;
+    const action = this.selectedAction;
+
+    this.props.getDelegatedTimesheetByParams && this.props.getDelegatedTimesheetByParams({ currentDate, action });
+  };
+
   handleChangeCurrentDate(currentDate) {
-    super.handleChangeCurrentDate(currentDate);
+    super.handleChangeCurrentDate(currentDate, this.getData);
   }
 
   handleChangeActionTab(tabIndex) {
@@ -103,7 +144,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
 
     const statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, selectedAction);
 
-    this.setState({ actionDelegatedTabs, statusTabs });
+    this.setState({ actionDelegatedTabs, statusTabs }, this.getData);
   }
 
   handleClickOffDelegation = data => {
@@ -117,13 +158,24 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
   };
 
   renderTimesheet() {
-    const { subordinatesEvents, daysOfMonth, isDelegated } = this.state;
+    const { daysOfMonth, isDelegated } = this.state;
+    const { mergedList } = this.props;
+
+    const activeStatus = this.selectedStatus;
+
+    const filteredList = mergedList.filter(item => {
+      if (Array.isArray(activeStatus.key)) {
+        return activeStatus.key.includes(item.status);
+      }
+
+      return item.status === activeStatus.key;
+    });
 
     return (
       <Timesheet
         groupBy={'user'}
         configGroupBtns={this.configGroupBtns}
-        eventTypes={subordinatesEvents}
+        eventTypes={filteredList}
         daysOfMonth={daysOfMonth}
         isAvailable={!isDelegated}
         lockedMessage={this.lockDescription}
@@ -134,6 +186,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
 
   render() {
     const { sheetTabs, currentDate, statusTabs, actionDelegatedTabs } = this.state;
+    const { isLoading, popupMsg } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -174,10 +227,30 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
             <Tabs tabs={statusTabs} isSmall onClick={this.handleChangeStatusTab.bind(this)} />
           </div>
         </div>
-        {this.renderTimesheet()}
+        <div className="ecos-timesheet__main-content">
+          {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
+          {this.renderTimesheet()}
+        </div>
+        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
       </div>
     );
   }
 }
 
-export default DelegatedTimesheetsPage;
+const mapStateToProps = state => ({
+  mergedList: get(state, 'timesheetDelegated.mergedList', []),
+  actionCounts: get(state, 'timesheetDelegated.actionCounts', []),
+  isLoading: get(state, 'timesheetDelegated.isLoading', false),
+  popupMsg: get(state, 'timesheetDelegated.popupMsg', '')
+});
+
+const mapDispatchToProps = dispatch => ({
+  getDelegatedTimesheetByParams: payload => dispatch(getDelegatedTimesheetByParams(payload)),
+  resetDelegatedTimesheet: payload => dispatch(resetDelegatedTimesheet(payload)),
+  setPopupMessage: payload => dispatch(setPopupMessage(payload))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DelegatedTimesheetsPage);

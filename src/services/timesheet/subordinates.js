@@ -1,7 +1,7 @@
 import { deepClone } from '../../helpers/util';
 
 export default class SubordinatesTimesheetService {
-  static mergeToSubordinatesEventsList({ subordinates, calendarEvents, statuses }) {
+  static mergeManyToOneList({ subordinates, calendarEvents, statuses }) {
     const target = [];
 
     if (Array.isArray(subordinates)) {
@@ -13,18 +13,6 @@ export default class SubordinatesTimesheetService {
         newItem.status = statuses.find(status => item.userName === status.userName) || {};
 
         target.push(newItem);
-      });
-    }
-
-    return target;
-  }
-
-  static getUserNameList(subordinates) {
-    const target = [];
-
-    if (Array.isArray(subordinates)) {
-      subordinates.forEach(item => {
-        target.push(item.userName);
       });
     }
 

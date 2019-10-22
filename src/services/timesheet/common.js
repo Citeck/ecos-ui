@@ -84,7 +84,7 @@ export default class CommonTimesheetService {
         link: isOnlyContent ? URL.TIMESHEET_IFRAME_DELEGATED : URL.TIMESHEET_DELEGATED,
         isActive: [URL.TIMESHEET_IFRAME_DELEGATED, URL.TIMESHEET_DELEGATED].includes(location.pathname),
         isAvailable: true,
-        badge: '99'
+        badge: null
       }
     ];
   };
@@ -296,5 +296,25 @@ export default class CommonTimesheetService {
         width: 230
       }
     ];
+  }
+
+  static getUserNameList(array) {
+    const target = [];
+
+    if (Array.isArray(array)) {
+      array.forEach(item => {
+        target.push(item.userName);
+      });
+    }
+
+    return target;
+  }
+
+  static getTotalCounts(others, current) {
+    const target = { ...others, ...current };
+
+    target.all = Object.values(target).reduce((accumulator, current) => accumulator + current);
+
+    return target;
   }
 }

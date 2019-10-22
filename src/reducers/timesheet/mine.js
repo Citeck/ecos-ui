@@ -1,11 +1,11 @@
+import get from 'lodash/get';
 import { handleActions } from 'redux-actions';
 import { MaxAttempts } from '../../helpers/timesheet/constants';
 import {
   getMyTimesheetByParams,
   getStatus,
-  initMyTimesheetEnd,
-  initMyTimesheetStart,
   modifyStatus,
+  resetMyTimesheet,
   setMyTimesheetByParams,
   setPopupMessage,
   setStatus,
@@ -29,19 +29,8 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
-    [initMyTimesheetStart]: (state, actions) => ({
-      ...state,
-      ...initialState,
-      isLoading: true,
-      isLoadingStatus: true
-    }),
-    [initMyTimesheetEnd]: (state, actions) => ({
-      ...state,
-      status: actions.payload.status,
-      calendarEvents: actions.payload.calendarEvents,
-      mergedEvents: actions.payload.mergedEvents,
-      isLoading: false,
-      isLoadingStatus: false
+    [resetMyTimesheet]: (state, actions) => ({
+      ...initialState
     }),
     [getMyTimesheetByParams]: (state, actions) => ({
       ...state,
@@ -51,9 +40,9 @@ export default handleActions(
     }),
     [setMyTimesheetByParams]: (state, actions) => ({
       ...state,
-      status: actions.payload.status,
-      calendarEvents: actions.payload.calendarEvents,
-      mergedEvents: actions.payload.mergedEvents,
+      status: get(actions, 'payload.status', {}),
+      calendarEvents: get(actions, 'payload.calendarEvents', []),
+      mergedEvents: get(actions, 'payload.mergedEvents', []),
       isLoading: false,
       isLoadingStatus: false
     }),

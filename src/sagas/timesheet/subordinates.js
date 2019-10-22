@@ -2,8 +2,6 @@ import { put, select, takeLatest } from 'redux-saga/effects';
 import { TimesheetMessages } from '../../helpers/timesheet/constants';
 import {
   getSubordinatesTimesheetByParams,
-  initSubordinatesTimesheetEnd,
-  initSubordinatesTimesheetStart,
   modifyEventDayHours,
   modifyStatus,
   resetEventDayHours,
@@ -16,23 +14,21 @@ import {
 } from '../../actions/timesheet/subordinates';
 import {
   selectTimesheetSubordinatesMergedList,
-  selectTimesheetSubordinatesPeople,
   selectTimesheetSubordinatesStatuses,
   selectTimesheetSubordinatesUpdatingHours
 } from '../../selectors/timesheet';
-import SubordinatesTimesheetService from '../../services/timesheet/subordinates';
-import CommonTimesheetService from '../../services/timesheet/common';
 import { selectUserName } from '../../selectors/user';
 import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
+import CommonTimesheetService from '../../services/timesheet/common';
+import SubordinatesTimesheetService from '../../services/timesheet/subordinates';
 
-function* sagaInitSubordinatesTimesheet({ api, logger }) {
+function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
   try {
+    const { currentDate } = payload;
     const userName = yield select(selectUserName);
     const subordinates = yield api.timesheetSubordinates.getSubordinatesList({ userName });
-    const userNames = SubordinatesTimesheetService.getUserNameList(subordinates.records);
-
-    const currentDate = new Date();
+    const userNames = CommonTimesheetService.getUserNameList(subordinates.records);
     const statuses = yield api.timesheetCommon.getTimesheetStatusList({
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
@@ -45,7 +41,7 @@ function* sagaInitSubordinatesTimesheet({ api, logger }) {
       userNames: userNames
     });
 
-    const list = SubordinatesTimesheetService.mergeToSubordinatesEventsList({
+    const list = SubordinatesTimesheetService.mergeManyToOneList({
       subordinates: subordinates.records,
       calendarEvents,
       statuses: statuses.records
@@ -53,39 +49,7 @@ function* sagaInitSubordinatesTimesheet({ api, logger }) {
 
     const mergedList = SubordinatesTimesheetConverter.getSubordinatesEventsListForWeb(list);
 
-    yield put(initSubordinatesTimesheetEnd({ mergedList, userNames, subordinates, calendarEvents, statuses }));
-  } catch (e) {
-    logger.error('[timesheetSubordinates sagaInitSubordinatesTimesheet saga] error', e.message);
-  }
-}
-
-function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
-  try {
-    const { currentDate } = payload;
-    const subordinates = yield select(selectTimesheetSubordinatesPeople);
-
-    const userNames = SubordinatesTimesheetService.getUserNameList(subordinates);
-    const statuses = yield api.timesheetCommon.getTimesheetStatusList({
-      month: currentDate.getMonth(),
-      year: currentDate.getFullYear(),
-      userNames
-    });
-
-    const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
-      month: currentDate.getMonth(),
-      year: currentDate.getFullYear(),
-      userNames: userNames
-    });
-
-    const list = SubordinatesTimesheetService.mergeToSubordinatesEventsList({
-      subordinates,
-      calendarEvents,
-      statuses: statuses.records
-    });
-
-    const mergedList = SubordinatesTimesheetConverter.getSubordinatesEventsListForWeb(list);
-
-    yield put(setSubordinatesTimesheetByParams({ mergedList, calendarEvents, statuses }));
+    yield put(setSubordinatesTimesheetByParams({ mergedList, userNames, subordinates, calendarEvents, statuses }));
   } catch (e) {
     logger.error('[timesheetSubordinates sagaGetSubordinatesTimesheetByParams saga] error', e.message);
   }
@@ -165,7 +129,6 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 }
 
 function* saga(ea) {
-  yield takeLatest(initSubordinatesTimesheetStart().type, sagaInitSubordinatesTimesheet, ea);
   yield takeLatest(getSubordinatesTimesheetByParams().type, sagaGetSubordinatesTimesheetByParams, ea);
   yield takeLatest(modifyStatus().type, sagaModifyTaskStatus, ea);
   yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);

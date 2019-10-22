@@ -26,6 +26,7 @@ import docAssociations from './docAssociations';
 import timesheetSubordinates from './timesheet/subordinates';
 import timesheetMine from './timesheet/mine';
 import timesheetVerification from './timesheet/verification';
+import timesheetDelegated from './timesheet/delegated';
 
 const reducers = {
   app,
@@ -52,7 +53,8 @@ const reducers = {
   docAssociations,
   timesheetSubordinates,
   timesheetMine,
-  timesheetVerification
+  timesheetVerification,
+  timesheetDelegated
 };
 
 export default history =>

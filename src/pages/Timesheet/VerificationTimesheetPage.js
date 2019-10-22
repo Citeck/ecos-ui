@@ -11,25 +11,13 @@ import {
   TimesheetTypes,
   VerifyTimesheetLabels
 } from '../../helpers/timesheet/constants';
-import { getVerificationTimesheetByParams, initVerificationTimesheetStart, setPopupMessage } from '../../actions/timesheet/verification';
+import { getVerificationTimesheetByParams, resetVerificationTimesheet, setPopupMessage } from '../../actions/timesheet/verification';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
 import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
-
-const mapStateToProps = state => ({
-  mergedList: get(state, ['timesheetVerification', 'mergedList'], []),
-  isLoading: get(state, ['timesheetVerification', 'isLoading'], false),
-  popupMsg: get(state, ['timesheetVerification', 'popupMsg'], '')
-});
-
-const mapDispatchToProps = dispatch => ({
-  initVerificationTimesheetStart: payload => dispatch(initVerificationTimesheetStart(payload)),
-  getVerificationTimesheetByParams: payload => dispatch(getVerificationTimesheetByParams(payload)),
-  setPopupMessage: payload => dispatch(setPopupMessage(payload))
-});
 
 class VerificationTimesheetPage extends BaseTimesheetPage {
   constructor(props) {
@@ -42,7 +30,11 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
   }
 
   componentDidMount() {
-    this.props.initVerificationTimesheetStart && this.props.initVerificationTimesheetStart({ status: this.selectedStatus.key });
+    this.getData();
+  }
+
+  componentWillUnmount() {
+    this.props.resetVerificationTimesheet();
   }
 
   get configGroupBtns() {
@@ -171,6 +163,18 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  mergedList: get(state, 'timesheetVerification.mergedList', []),
+  isLoading: get(state, 'timesheetVerification.isLoading', false),
+  popupMsg: get(state, 'timesheetVerification.popupMsg', '')
+});
+
+const mapDispatchToProps = dispatch => ({
+  getVerificationTimesheetByParams: payload => dispatch(getVerificationTimesheetByParams(payload)),
+  resetVerificationTimesheet: payload => dispatch(resetVerificationTimesheet(payload)),
+  setPopupMessage: payload => dispatch(setPopupMessage(payload))
+});
 
 export default connect(
   mapStateToProps,

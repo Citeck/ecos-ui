@@ -21,23 +21,6 @@ export class TimesheetCommonApi extends RecordService {
     ).then(res => res);
   };
 
-  changeTaskOwner = ({ taskId, currentUser }) => {
-    const data = { cm_owner: currentUser, action: 'claim' };
-
-    return this.putJson(`${TASKS_URI}change-task-owner/${taskId}`, data, true).then(resp => resp);
-  };
-
-  modifyStatus = function*({ outcome, taskId, currentUser }) {
-    yield this.changeTaskOwner({ taskId, currentUser });
-
-    const task = Records.get(`wftask@${taskId}`);
-
-    task.att(`outcome_${outcome}`, 'true');
-    task.att('cm:owner', currentUser);
-
-    return task.save().then(res => res);
-  };
-
   getTimesheetCalendarEventsByUserName = ({ month, year, userName }) => {
     return Records.query(
       {
@@ -65,6 +48,51 @@ export class TimesheetCommonApi extends RecordService {
     }
 
     return events;
+  };
+
+  getInfoPeopleList = ({ userNames }) => {
+    const queryNames = userNames.map(name => `@ggodic:geSupervisorId:${name}`).join(' OR ');
+
+    if (!queryNames) {
+      return {};
+    }
+
+    return Records.query(
+      {
+        query: `${queryNames}`,
+        language: 'fts-alfresco',
+        maxItems: 100,
+        sourceId: 'people',
+        debug: false
+      },
+      {
+        userName: 'userName',
+        isAvailable: 'isAvailable',
+        firstName: 'cm:firstName',
+        lastName: 'cm:lastName',
+        middleName: 'cm:middleName',
+        firstNameRus: 'ggodic:firstNameRus',
+        lastNameRus: 'ggodic:lastNameRus',
+        middleNameRus: 'ggodic:middleNameRus'
+      }
+    ).then(res => res);
+  };
+
+  changeTaskOwner = ({ taskId, currentUser }) => {
+    const data = { cm_owner: currentUser, action: 'claim' };
+
+    return this.putJson(`${TASKS_URI}change-task-owner/${taskId}`, data, true).then(resp => resp);
+  };
+
+  modifyStatus = function*({ outcome, taskId, currentUser }) {
+    yield this.changeTaskOwner({ taskId, currentUser });
+
+    const task = Records.get(`wftask@${taskId}`);
+
+    task.att(`outcome_${outcome}`, 'true');
+    task.att('cm:owner', currentUser);
+
+    return task.save().then(res => res);
   };
 
   modifyEventHours = ({ userName, value, date, eventType }) => {

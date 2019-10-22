@@ -272,7 +272,7 @@ class GrouppedTimesheet extends BaseTimesheet {
       >
         <div>
           {filteredEventTypes.map((item, index) => (
-            <SortableElement key={`${item.user}`} index={index}>
+            <SortableElement key={`${item.timesheetNumber}-${index}`} index={index}>
               <div className="ecos-timesheet__table-group">
                 <div className="ecos-timesheet__table-group-header">
                   <div className="ecos-timesheet__table-group-line">

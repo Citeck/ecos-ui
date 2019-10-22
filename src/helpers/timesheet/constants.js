@@ -45,8 +45,8 @@ export const GroupedStatuses = {
 };
 
 export const StatusActionFilters = {
-  FILL: 'fill',
-  APPROVE: 'approve'
+  FILL: 'filling',
+  APPROVE: 'approval'
 };
 
 export const TimesheetTypes = {

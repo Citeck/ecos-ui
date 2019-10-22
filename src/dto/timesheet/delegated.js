@@ -1,8 +1,8 @@
 import get from 'lodash/get';
 import CommonTimesheetConverter from './common';
 
-export default class VerificationTimesheetConverter {
-  static getVerificationEventsListForWeb(source = []) {
+export default class DelegatedTimesheetConverter {
+  static getDelegatedEventsListForWeb(source = []) {
     const target = [];
 
     source.forEach(item => {
