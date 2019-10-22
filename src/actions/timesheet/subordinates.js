@@ -12,6 +12,7 @@ export const modifyEventDayHours = createAction(prefix + 'MODIFY_EVENT_DAY_HOURS
 export const resetEventDayHours = createAction(prefix + 'RESET_EVENT_DAY_HOURS');
 
 export const setSubordinatesTimesheetByParams = createAction(prefix + 'SET_SUBORDINATES_TIMESHEET_BY_PARAMS');
+export const resetSubordinatesTimesheet = createAction(prefix + 'RESET_SUBORDINATES_TIMESHEET');
 export const setSubordinatesList = createAction(prefix + 'SET_SUBORDINATES_LIST');
 export const setCalendarEventList = createAction(prefix + 'SET_CALENDAR_EVENT_LIST');
 export const setStatusList = createAction(prefix + 'SET_STATUS_LIST');

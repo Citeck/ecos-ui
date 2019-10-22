@@ -1,6 +1,11 @@
 import get from 'lodash/get';
 import { handleActions } from 'redux-actions';
-import { getVerificationTimesheetByParams, setPopupMessage, setVerificationTimesheetByParams } from '../../actions/timesheet/verification';
+import {
+  getVerificationTimesheetByParams,
+  resetVerificationTimesheet,
+  setPopupMessage,
+  setVerificationTimesheetByParams
+} from '../../actions/timesheet/verification';
 
 const initialState = {
   isLoading: false,
@@ -12,6 +17,9 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [resetVerificationTimesheet]: (state, actions) => ({
+      ...initialState
+    }),
     [getVerificationTimesheetByParams]: (state, actions) => ({
       ...state,
       isLoading: true,

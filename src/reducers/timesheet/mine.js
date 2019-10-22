@@ -5,6 +5,7 @@ import {
   getMyTimesheetByParams,
   getStatus,
   modifyStatus,
+  resetMyTimesheet,
   setMyTimesheetByParams,
   setPopupMessage,
   setStatus,
@@ -28,6 +29,9 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [resetMyTimesheet]: (state, actions) => ({
+      ...initialState
+    }),
     [getMyTimesheetByParams]: (state, actions) => ({
       ...state,
       ...initialState,

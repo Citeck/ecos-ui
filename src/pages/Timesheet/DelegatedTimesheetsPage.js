@@ -14,7 +14,7 @@ import {
 import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 import DelegatedTimesheetService from '../../services/timesheet/delegated';
-import { getDelegatedTimesheetByParams, setPopupMessage } from '../../actions/timesheet/delegated';
+import { getDelegatedTimesheetByParams, resetDelegatedTimesheet, setPopupMessage } from '../../actions/timesheet/delegated';
 
 import { Loader } from '../../components/common';
 import { Btn } from '../../components/common/btns';
@@ -55,6 +55,10 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
 
       this.setState({ actionDelegatedTabs, sheetTabs });
     }
+  }
+
+  componentWillUnmount() {
+    this.props.resetDelegatedTimesheet();
   }
 
   get selectedAction() {
@@ -227,6 +231,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   getDelegatedTimesheetByParams: payload => dispatch(getDelegatedTimesheetByParams(payload)),
+  resetDelegatedTimesheet: payload => dispatch(resetDelegatedTimesheet(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 

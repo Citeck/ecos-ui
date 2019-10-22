@@ -11,6 +11,7 @@ import {
   modifyEventDayHours,
   modifyStatus,
   resetEventDayHours,
+  resetMyTimesheet,
   setPopupMessage,
   setUpdatingStatus
 } from '../../actions/timesheet/mine';
@@ -54,6 +55,10 @@ class MyTimesheetPage extends BaseTimesheetPage {
       this.statusPing.cancel();
       this.props.setUpdatingStatus && this.props.setUpdatingStatus(false);
     }
+  }
+
+  componentWillUnmount() {
+    this.props.resetMyTimesheet();
   }
 
   get lockDescription() {
@@ -237,6 +242,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   getMyTimesheetByParams: payload => dispatch(getMyTimesheetByParams(payload)),
+  resetMyTimesheet: payload => dispatch(resetMyTimesheet(payload)),
   modifyStatus: payload => dispatch(modifyStatus(payload)),
   setUpdatingStatus: payload => dispatch(setUpdatingStatus(payload)),
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),

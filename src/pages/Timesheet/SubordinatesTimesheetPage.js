@@ -16,6 +16,7 @@ import {
   modifyEventDayHours,
   modifyStatus,
   resetEventDayHours,
+  resetSubordinatesTimesheet,
   setPopupMessage
 } from '../../actions/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
@@ -35,6 +36,10 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
   componentDidMount() {
     this.getData();
+  }
+
+  componentWillUnmount() {
+    this.props.resetSubordinatesTimesheet();
   }
 
   get lockDescription() {
@@ -198,6 +203,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   getSubordinatesTimesheetByParams: payload => dispatch(getSubordinatesTimesheetByParams(payload)),
+  resetSubordinatesTimesheet: payload => dispatch(resetSubordinatesTimesheet(payload)),
   modifyStatus: payload => dispatch(modifyStatus(payload)),
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
   resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),

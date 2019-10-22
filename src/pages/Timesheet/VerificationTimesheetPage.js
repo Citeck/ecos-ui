@@ -11,7 +11,7 @@ import {
   TimesheetTypes,
   VerifyTimesheetLabels
 } from '../../helpers/timesheet/constants';
-import { getVerificationTimesheetByParams, setPopupMessage } from '../../actions/timesheet/verification';
+import { getVerificationTimesheetByParams, resetVerificationTimesheet, setPopupMessage } from '../../actions/timesheet/verification';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
@@ -31,6 +31,10 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
 
   componentDidMount() {
     this.getData();
+  }
+
+  componentWillUnmount() {
+    this.props.resetVerificationTimesheet();
   }
 
   get configGroupBtns() {
@@ -168,6 +172,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   getVerificationTimesheetByParams: payload => dispatch(getVerificationTimesheetByParams(payload)),
+  resetVerificationTimesheet: payload => dispatch(resetVerificationTimesheet(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 

@@ -3,6 +3,7 @@ import { handleActions } from 'redux-actions';
 import {
   getSubordinatesTimesheetByParams,
   modifyStatus,
+  resetSubordinatesTimesheet,
   setLoading,
   setMergedList,
   setPopupMessage,
@@ -25,13 +26,13 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [resetSubordinatesTimesheet]: (state, actions) => ({
+      ...initialState
+    }),
     [getSubordinatesTimesheetByParams]: (state, actions) => ({
       ...state,
-      isLoading: true,
-      mergedList: [],
-      subordinates: [],
-      calendarEvents: [],
-      statuses: []
+      ...initialState,
+      isLoading: true
     }),
     [setSubordinatesTimesheetByParams]: (state, actions) => ({
       ...state,

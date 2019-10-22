@@ -1,6 +1,11 @@
 import get from 'lodash/get';
 import { handleActions } from 'redux-actions';
-import { getDelegatedTimesheetByParams, setDelegatedTimesheetByParams, setPopupMessage } from '../../actions/timesheet/delegated';
+import {
+  getDelegatedTimesheetByParams,
+  resetDelegatedTimesheet,
+  setDelegatedTimesheetByParams,
+  setPopupMessage
+} from '../../actions/timesheet/delegated';
 
 const initialState = {
   isLoading: false,
@@ -18,13 +23,13 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [resetDelegatedTimesheet]: (state, actions) => ({
+      ...initialState
+    }),
     [getDelegatedTimesheetByParams]: (state, actions) => ({
       ...state,
-      isLoading: true,
-      mergedList: [],
-      subordinates: [],
-      calendarEvents: [],
-      statuses: []
+      ...initialState,
+      isLoading: true
     }),
     [setDelegatedTimesheetByParams]: (state, actions) => ({
       ...state,
