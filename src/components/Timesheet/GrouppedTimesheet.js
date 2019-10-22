@@ -16,6 +16,7 @@ import { CalendarCell, CalendarRow, Collapse, Header } from './Calendar';
 import BaseTimesheet from './BaseTimesheet';
 import Tabs from './Tabs';
 import Tooltip from './Tooltip';
+import EventHistoryModal from './EventHistoryModal';
 
 import './style.scss';
 
@@ -23,6 +24,12 @@ const FILTER_BY = {
   PEOPLE: 'user',
   COMPANY: 'organization',
   EVENT: 'event'
+};
+
+const initEventHistory = {
+  isOpen: false,
+  record: '',
+  comment: ''
 };
 
 class GrouppedTimesheet extends BaseTimesheet {
@@ -68,7 +75,8 @@ class GrouppedTimesheet extends BaseTimesheet {
           isAvailable: true
         }
       ],
-      draggableNode: null
+      draggableNode: null,
+      eventHistory: initEventHistory
     };
 
     console.warn(this.initGroupsStatuses(props) || {});
@@ -177,6 +185,15 @@ class GrouppedTimesheet extends BaseTimesheet {
     });
 
     this.setState({ eventsFilterTabs }, () => this.filterTypes(this.state.typeFilter));
+  };
+
+  handleOpenEventHistory = item => {
+    console.log('handleOpenEventHistory', item);
+    this.setState({ eventHistory: { isOpen: true, record: item.nodeRef } });
+  };
+
+  handleCloseEventHistory = () => {
+    this.setState({ eventHistory: initEventHistory });
   };
 
   filterTypes(typeFilter = '') {
@@ -296,31 +313,16 @@ class GrouppedTimesheet extends BaseTimesheet {
                     {/* TODO: использовать проверку на наличие новых комментариев */}
 
                     <div className="ecos-timesheet__table-group-number">
-                      {this.getGroupStatus(item.user) ? (
-                        <>
-                          <Icon
-                            id={`timesheet-group-${index}-history`}
-                            className="icon-history ecos-timesheet__table-group-header-history"
-                          />
-                          <Tooltip
-                            target={`timesheet-group-${index}-history`}
-                            content={t(CommonLabels.SHOW_EVEN_HISTORY_TIP)}
-                            innerClassName="ecos-timesheet__table-group-tooltip"
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <Icon
-                            id={`timesheet-group-${index}-message`}
-                            className="icon-notify-dialogue ecos-timesheet__table-group-header-message"
-                          />
-                          <Tooltip
-                            target={`timesheet-group-${index}-message`}
-                            content={t(CommonLabels.SHOW_COMMENT_TIP)}
-                            innerClassName="ecos-timesheet__table-group-tooltip"
-                          />
-                        </>
-                      )}
+                      <Icon
+                        id={`timesheet-group-${index}-history`}
+                        className="icon-history ecos-timesheet__table-group-header-history"
+                        onClick={() => this.handleOpenEventHistory(item)}
+                      />
+                      <Tooltip
+                        target={`timesheet-group-${index}-history`}
+                        content={t(CommonLabels.SHOW_EVEN_HISTORY_TIP) || t(CommonLabels.SHOW_COMMENT_TIP)}
+                        innerClassName="ecos-timesheet__table-group-tooltip"
+                      />
                       <div className="ecos-timesheet__table-group-header-badge">{item.timesheetNumber}</div>
                     </div>
                   </div>
@@ -430,7 +432,7 @@ class GrouppedTimesheet extends BaseTimesheet {
   render() {
     const leftId = uniqueId('tableLeftColumn_');
     const rightId = uniqueId('tableRightColumn_');
-    const { filteredEventTypes } = this.state;
+    const { filteredEventTypes, eventHistory } = this.state;
 
     return (
       <>
@@ -446,6 +448,12 @@ class GrouppedTimesheet extends BaseTimesheet {
           {this.renderLock()}
         </div>
         {isEmpty(filteredEventTypes) && this.renderNoData()}
+        <EventHistoryModal
+          onClose={this.handleCloseEventHistory}
+          isOpen={eventHistory.isOpen}
+          record={eventHistory.record}
+          comment={eventHistory.comment}
+        />
       </>
     );
   }
