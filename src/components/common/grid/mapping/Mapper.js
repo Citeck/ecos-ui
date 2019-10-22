@@ -14,9 +14,6 @@ category
 noderef
 options
 +assoc
-person
-authorityGroup
-authority
 */
 
 const MAP = [
@@ -81,6 +78,18 @@ const MAP = [
   {
     options: () => 'AssocFormatter',
     enable: column => column.type === 'assoc'
+  },
+  {
+    options: () => 'AssocFormatter',
+    enable: column => column.type === 'person'
+  },
+  {
+    options: () => 'AssocFormatter',
+    enable: column => column.type === 'authority'
+  },
+  {
+    options: () => 'AssocFormatter',
+    enable: column => column.type === 'authorityGroup'
   }
 ];
 
