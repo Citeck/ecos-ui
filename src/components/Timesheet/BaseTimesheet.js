@@ -219,11 +219,11 @@ class BaseTimesheet extends Component {
     );
   }
 
-  renderEventCalendarRow = eventItem => (
+  renderEventCalendarRow = (eventItem, userName) => (
     <CalendarRow key={`calendar-row-${eventItem.name}`}>
       {this.props.daysOfMonth.map(day => {
         const { updatingHours } = this.props;
-        const keyHour = CommonTimesheetService.getKeyHours({ number: day.number, eventType: eventItem.name });
+        const keyHour = CommonTimesheetService.getKeyHours({ number: day.number, eventType: eventItem.name, userName });
         const eventDay = (eventItem.days || []).find(dayItem => dayItem.number === day.number) || {};
         const count = +(eventDay.hours || 0);
 
@@ -233,8 +233,8 @@ class BaseTimesheet extends Component {
               color={eventItem.color}
               count={count}
               settings={eventItem.hours}
-              onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value)}
-              onReset={value => this.handleResetEventHours(eventItem.name, day.number, value)}
+              onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value, userName)}
+              onReset={value => this.handleResetEventHours(eventItem.name, day.number, value, userName)}
               updatingInfo={get(updatingHours, keyHour, null)}
             />
           </CalendarCell>

@@ -1,6 +1,15 @@
 import { put, select, takeLatest } from 'redux-saga/effects';
-import { getDelegatedTimesheetByParams, setDelegatedTimesheetByParams } from '../../actions/timesheet/delegated';
+import { TimesheetMessages } from '../../helpers/timesheet/constants';
+import {
+  getDelegatedTimesheetByParams,
+  modifyEventDayHours,
+  resetEventDayHours,
+  setDelegatedTimesheetByParams,
+  setPopupMessage,
+  setUpdatingEventDayHours
+} from '../../actions/timesheet/delegated';
 import { selectUserName } from '../../selectors/user';
+import { selectTimesheetSubordinatesUpdatingHours } from '../../selectors/timesheet';
 import CommonTimesheetService from '../../services/timesheet/common';
 import DelegatedTimesheetService from '../../services/timesheet/delegated';
 import DelegatedTimesheetConverter from '../../dto/timesheet/delegated';
@@ -43,8 +52,47 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
   }
 }
 
+function* sagaModifyEventDayHours({ api, logger }, { payload }) {
+  const updatingHoursState = yield select(selectTimesheetSubordinatesUpdatingHours);
+  const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload);
+
+  yield put(setUpdatingEventDayHours(firstState));
+
+  try {
+    yield api.timesheetCommon.modifyEventHours({ ...payload });
+
+    const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
+
+    yield put(setUpdatingEventDayHours(secondState));
+  } catch (e) {
+    const thirdState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
+
+    yield put(setUpdatingEventDayHours(thirdState));
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
+    logger.error('[timesheetSubordinates sagaModifyStatus saga] error', e.message);
+  }
+}
+
+function* sagaResetEventDayHours({ api, logger }, { payload }) {
+  const updatingHoursState = yield select(selectTimesheetSubordinatesUpdatingHours);
+
+  try {
+    const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
+
+    yield put(setUpdatingEventDayHours(firstState));
+  } catch (e) {
+    const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
+
+    yield put(setUpdatingEventDayHours(secondState));
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
+    logger.error('[timesheetSubordinates sagaResetEventDayHours saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getDelegatedTimesheetByParams().type, sagaGetDelegatedTimesheetByParams, ea);
+  yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
+  yield takeLatest(resetEventDayHours().type, sagaResetEventDayHours, ea);
 }
 
 export default saga;

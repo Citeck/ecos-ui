@@ -4,7 +4,8 @@ import {
   getDelegatedTimesheetByParams,
   resetDelegatedTimesheet,
   setDelegatedTimesheetByParams,
-  setPopupMessage
+  setPopupMessage,
+  setUpdatingEventDayHours
 } from '../../actions/timesheet/delegated';
 
 const initialState = {
@@ -43,6 +44,10 @@ export default handleActions(
     [setPopupMessage]: (state, actions) => ({
       ...state,
       popupMsg: actions.payload
+    }),
+    [setUpdatingEventDayHours]: (state, actions) => ({
+      ...state,
+      updatingHours: actions.payload
     })
   },
   initialState

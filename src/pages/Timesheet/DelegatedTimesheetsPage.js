@@ -14,7 +14,13 @@ import {
 import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 import DelegatedTimesheetService from '../../services/timesheet/delegated';
-import { getDelegatedTimesheetByParams, resetDelegatedTimesheet, setPopupMessage } from '../../actions/timesheet/delegated';
+import {
+  getDelegatedTimesheetByParams,
+  modifyEventDayHours,
+  resetDelegatedTimesheet,
+  resetEventDayHours,
+  setPopupMessage
+} from '../../actions/timesheet/delegated';
 
 import { Loader } from '../../components/common';
 import { Btn } from '../../components/common/btns';
@@ -159,7 +165,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
 
   renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
-    const { mergedList, isLoading } = this.props;
+    const { mergedList, isLoading, updatingHours } = this.props;
 
     if (isLoading) {
       return null;
@@ -188,6 +194,8 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
         isAvailable={!isDelegated}
         lockedMessage={this.lockDescription}
         onChangeHours={this.handleChangeEventDayHours.bind(this)}
+        onResetHours={this.handleResetEventDayHours.bind(this)}
+        updatingHours={updatingHours}
       />
     );
   };
@@ -248,6 +256,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
 const mapStateToProps = state => ({
   mergedList: get(state, 'timesheetDelegated.mergedList', []),
   actionCounts: get(state, 'timesheetDelegated.actionCounts', []),
+  updatingHours: get(state, 'timesheetDelegated.updatingHours', {}),
   isLoading: get(state, 'timesheetDelegated.isLoading', false),
   popupMsg: get(state, 'timesheetDelegated.popupMsg', '')
 });
@@ -255,6 +264,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   getDelegatedTimesheetByParams: payload => dispatch(getDelegatedTimesheetByParams(payload)),
   resetDelegatedTimesheet: payload => dispatch(resetDelegatedTimesheet(payload)),
+  modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
+  resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 
