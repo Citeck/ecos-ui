@@ -13,15 +13,14 @@ import {
 } from '../../helpers/timesheet/constants';
 import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
+import DelegatedTimesheetService from '../../services/timesheet/delegated';
 import { getDelegatedTimesheetByParams, setPopupMessage } from '../../actions/timesheet/delegated';
 
+import { Loader } from '../../components/common';
 import { Btn } from '../../components/common/btns';
+import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
-
-import { TimesheetApi } from '../../api/timesheet/timesheet';
-
-const timesheetApi = new TimesheetApi();
 
 class DelegatedTimesheetsPage extends BaseTimesheetPage {
   constructor(props) {
@@ -31,11 +30,31 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     this.state.currentStatus = ServerStatusKeys.CORRECTION;
     this.state.delegatedTo = '';
     this.state.delegationRejected = true;
-    this.state.actionDelegatedTabs = timesheetApi.getDelegatedActions();
+    this.state.actionDelegatedTabs = DelegatedTimesheetService.getDelegatedActions();
   }
 
   componentDidMount() {
     this.getData();
+  }
+
+  componentWillReceiveProps(nextProps, nextContext) {
+    super.componentWillReceiveProps(nextProps, nextContext);
+
+    const { actionCounts } = this.props;
+
+    if (JSON.stringify(actionCounts) !== JSON.stringify(nextProps.actionCounts)) {
+      const actionDelegatedTabs = this.state.actionDelegatedTabs.map(item => ({
+        ...item,
+        badge: nextProps.actionCounts[item.action] || 0
+      }));
+
+      const sheetTabs = this.state.sheetTabs.map(item => ({
+        ...item,
+        badge: item.key === TimesheetTypes.DELEGATED ? nextProps.actionCounts.all || 0 : null
+      }));
+
+      this.setState({ actionDelegatedTabs, sheetTabs });
+    }
   }
 
   get selectedAction() {
@@ -148,6 +167,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
 
   render() {
     const { sheetTabs, currentDate, statusTabs, actionDelegatedTabs } = this.state;
+    const { isLoading, popupMsg } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -188,16 +208,21 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
             <Tabs tabs={statusTabs} isSmall onClick={this.handleChangeStatusTab.bind(this)} />
           </div>
         </div>
-        {this.renderTimesheet()}
+        <div className="ecos-timesheet__main-content">
+          {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
+          {this.renderTimesheet()}
+        </div>
+        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
       </div>
     );
   }
 }
 
 const mapStateToProps = state => ({
-  mergedList: get(state, 'timesheetSubordinates.mergedList', []),
-  isLoading: get(state, 'timesheetSubordinates.isLoading', false),
-  popupMsg: get(state, 'timesheetSubordinates.popupMsg', '')
+  mergedList: get(state, 'timesheetDelegated.mergedList', []),
+  actionCounts: get(state, 'timesheetDelegated.actionCounts', []),
+  isLoading: get(state, 'timesheetDelegated.isLoading', false),
+  popupMsg: get(state, 'timesheetDelegated.popupMsg', '')
 });
 
 const mapDispatchToProps = dispatch => ({

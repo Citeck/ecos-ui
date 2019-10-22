@@ -1,7 +1,7 @@
 import { deepClone } from '../../helpers/util';
 
 export default class SubordinatesTimesheetService {
-  static mergeToSubordinatesEventsList({ subordinates, calendarEvents, statuses }) {
+  static mergeManyToOneList({ subordinates, calendarEvents, statuses }) {
     const target = [];
 
     if (Array.isArray(subordinates)) {

@@ -1,5 +1,5 @@
 export default class VerificationTimesheetService {
-  static mergeToVerificationEventsList({ peopleList, calendarEvents, requestList = [] }) {
+  static mergeManyToOneList({ peopleList, calendarEvents, requestList = [] }) {
     const target = [];
 
     if (Array.isArray(peopleList)) {

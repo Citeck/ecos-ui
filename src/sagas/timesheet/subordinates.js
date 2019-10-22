@@ -41,7 +41,7 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
       userNames: userNames
     });
 
-    const list = SubordinatesTimesheetService.mergeToSubordinatesEventsList({
+    const list = SubordinatesTimesheetService.mergeManyToOneList({
       subordinates: subordinates.records,
       calendarEvents,
       statuses: statuses.records
