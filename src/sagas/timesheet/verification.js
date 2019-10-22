@@ -16,7 +16,7 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
 
     const userNamesPure = CommonTimesheetService.getUserNameList(requestList.records);
 
-    const peopleList = yield api.timesheetVerification.getInfoPeopleList({ userNames: userNamesPure });
+    const peopleList = yield api.timesheetCommon.getInfoPeopleList({ userNames: userNamesPure });
 
     const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
       month: currentDate.getMonth(),
@@ -30,8 +30,8 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
       requestList: requestList.records
     });
 
-    console.log('list', list);
     const mergedList = VerificationTimesheetConverter.getVerificationEventsListForWeb(list);
+
     yield put(setVerificationTimesheetByParams({ status, mergedList, calendarEvents }));
   } catch (e) {
     logger.error('[timesheetVerification sagaGetVerificationTimesheetByParams saga error', e.message);

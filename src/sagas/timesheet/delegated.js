@@ -9,10 +9,15 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
   try {
     const { currentDate, action } = payload;
     const userName = yield select(selectUserName);
-    const requestList = yield api.timesheetDelegated.getRequestListByAction({ currentDate, userName, action });
+    const requestList = yield api.timesheetDelegated.getRequestListByAction({
+      month: currentDate.getMonth(),
+      year: currentDate.getFullYear(),
+      userName,
+      action
+    });
     console.log(requestList);
     const userNames = CommonTimesheetService.getUserNameList(requestList.records);
-    const peopleList = yield api.timesheetVerification.getInfoPeopleList({ userNames });
+    const peopleList = yield api.timesheetCommon.getInfoPeopleList({ userNames });
     const othCounts = yield api.timesheetDelegated.getTotalCountsByAction({ userName, action });
     const actionCounts = CommonTimesheetService.getTotalCounts(othCounts, { [action]: requestList.totalCount || 0 });
 

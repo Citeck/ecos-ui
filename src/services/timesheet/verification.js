@@ -2,13 +2,12 @@ export default class VerificationTimesheetService {
   static mergeManyToOneList({ peopleList, calendarEvents, requestList = [] }) {
     const target = [];
 
-    if (Array.isArray(peopleList)) {
-      peopleList.forEach(item => {
-        const newItem = {};
+    if (Array.isArray(requestList)) {
+      requestList.forEach(item => {
+        const newItem = { ...item };
 
-        newItem.user = item;
+        newItem.user = Array.isArray(peopleList) ? peopleList.find(us => item.userName === us.userName) || {} : {};
         newItem.calendarEvents = calendarEvents[item.userName] || {};
-        newItem.status = Array.isArray(requestList) ? requestList.find(us => item.userName === us.userName) || {} : {};
 
         target.push(newItem);
       });

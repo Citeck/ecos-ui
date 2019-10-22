@@ -5,13 +5,12 @@ export default class DelegatedTimesheetService {
   static mergeManyToOneList({ peopleList = [], calendarEvents = [], requestList = [] }) {
     const target = [];
 
-    if (Array.isArray(peopleList)) {
-      peopleList.forEach(item => {
-        const newItem = {};
+    if (Array.isArray(requestList)) {
+      requestList.forEach(item => {
+        const newItem = { ...item };
 
-        newItem.user = item;
+        newItem.user = Array.isArray(peopleList) ? peopleList.find(us => item.userName === us.userName) || {} : {};
         newItem.calendarEvents = calendarEvents[item.userName] || {};
-        newItem.status = Array.isArray(requestList) ? requestList.find(us => item.userName === us.userName) || {} : {};
 
         target.push(newItem);
       });
@@ -24,7 +23,7 @@ export default class DelegatedTimesheetService {
     return [
       {
         name: t(CommonLabels.STATUS_ACTION_FILL_IN),
-        isActive: true,
+        isActive: false,
         isAvailable: true,
         badge: 0,
         action: StatusActionFilters.FILL

@@ -22,15 +22,20 @@ import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 
+const initAction = StatusActionFilters.FILL;
+const initStatus = ServerStatusKeys.CORRECTION;
+
 class DelegatedTimesheetsPage extends BaseTimesheetPage {
   constructor(props) {
     super(props);
 
-    this.state.statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, StatusActionFilters.FILL);
-    this.state.currentStatus = ServerStatusKeys.CORRECTION;
+    const actions = DelegatedTimesheetService.getDelegatedActions();
+
+    this.state.statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, initAction);
+    this.state.currentStatus = initStatus;
+    this.state.actionDelegatedTabs = actions.map(item => ({ ...item, isActive: initAction === item.action }));
     this.state.delegatedTo = '';
     this.state.delegationRejected = true;
-    this.state.actionDelegatedTabs = DelegatedTimesheetService.getDelegatedActions();
   }
 
   componentDidMount() {
@@ -139,7 +144,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
 
     const statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, selectedAction);
 
-    this.setState({ actionDelegatedTabs, statusTabs });
+    this.setState({ actionDelegatedTabs, statusTabs }, this.getData);
   }
 
   handleClickOffDelegation = data => {
@@ -156,11 +161,21 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     const { daysOfMonth, isDelegated } = this.state;
     const { mergedList } = this.props;
 
+    const activeStatus = this.selectedStatus;
+
+    const filteredList = mergedList.filter(item => {
+      if (Array.isArray(activeStatus.key)) {
+        return activeStatus.key.includes(item.status);
+      }
+
+      return item.status === activeStatus.key;
+    });
+
     return (
       <Timesheet
         groupBy={'user'}
         configGroupBtns={this.configGroupBtns}
-        eventTypes={mergedList}
+        eventTypes={filteredList}
         daysOfMonth={daysOfMonth}
         isAvailable={!isDelegated}
         lockedMessage={this.lockDescription}

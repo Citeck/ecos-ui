@@ -3,10 +3,11 @@ import Records from '../../components/Records';
 import { StatusActionFilters } from '../../helpers/timesheet/constants';
 
 export class TimesheetDelegatedApi extends RecordService {
-  getRequestListByAction = ({ userName, action }) => {
+  getRequestListByAction = ({ userName, action, year, month }) => {
     return Records.query({
       query: {
-        query: `TYPE:'timesheet:Request' AND @timesheet:${action}Delegated:true AND @timesheet:${action}Deputy:${userName}`,
+        query: `TYPE:'timesheet:Request' AND @timesheet:${action}Delegated:true AND @timesheet:${action}Deputy:${userName} AND @timesheet:currentYear:${year} AND @timesheet:currentMonth:${month +
+          1}`,
         language: 'fts-alfresco',
         maxItems: 100,
         sourceId: 'people',
@@ -14,7 +15,7 @@ export class TimesheetDelegatedApi extends RecordService {
       },
       attributes: {
         userName: 'timesheet:requestorUsername',
-        status: 'timesheet:status',
+        status: 'timesheet:status?str',
         taskId: 'timesheet:currentTaskId'
       }
     }).then(res => res);

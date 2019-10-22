@@ -113,6 +113,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
       if (Array.isArray(activeStatus.key)) {
         return activeStatus.key.includes(item.status);
       }
+
       return item.status === activeStatus.key;
     });
 

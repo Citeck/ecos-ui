@@ -13,32 +13,8 @@ export class TimesheetVerificationApi extends RecordService {
       },
       {
         userName: 'timesheet:requestorUsername',
-        status: 'timesheet:status',
+        status: 'timesheet:status?str',
         taskId: 'timesheet:currentTaskId'
-      }
-    ).then(res => res);
-  };
-
-  getInfoPeopleList = ({ userNames }) => {
-    const queryNames = userNames.map(name => `@ggodic:geSupervisorId:${name}`).join(' OR ');
-
-    return Records.query(
-      {
-        query: `${queryNames}`,
-        language: 'fts-alfresco',
-        maxItems: 100,
-        sourceId: 'people',
-        debug: false
-      },
-      {
-        userName: 'userName',
-        isAvailable: 'isAvailable',
-        firstName: 'cm:firstName',
-        lastName: 'cm:lastName',
-        middleName: 'cm:middleName',
-        firstNameRus: 'ggodic:firstNameRus',
-        lastNameRus: 'ggodic:lastNameRus',
-        middleNameRus: 'ggodic:middleNameRus'
       }
     ).then(res => res);
   };
