@@ -157,9 +157,17 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     console.log('handleChangeStatus', { outcome, taskId, userName, currentDate });
   };
 
-  renderTimesheet() {
+  renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
-    const { mergedList } = this.props;
+    const { mergedList, isLoading } = this.props;
+
+    if (isLoading) {
+      return null;
+    }
+
+    if (mergedList && !mergedList.length) {
+      return this.renderNoData();
+    }
 
     const activeStatus = this.selectedStatus;
 
@@ -179,10 +187,10 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
         daysOfMonth={daysOfMonth}
         isAvailable={!isDelegated}
         lockedMessage={this.lockDescription}
-        handleChangeEventDayHours
+        onChangeHours={this.handleChangeEventDayHours.bind(this)}
       />
     );
-  }
+  };
 
   render() {
     const { sheetTabs, currentDate, statusTabs, actionDelegatedTabs } = this.state;

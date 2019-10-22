@@ -1,6 +1,7 @@
 import React from 'react';
 import debounce from 'lodash/debounce';
 import { deepClone } from '../../helpers/util';
+import { CommonLabels } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, getNewDateByDayNumber, isOnlyContent } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
@@ -123,6 +124,14 @@ class BaseTimesheetPage extends React.Component {
     const date = getNewDateByDayNumber(this.state.currentDate, number);
 
     this.props.resetEventDayHours && this.props.resetEventDayHours({ value, date, eventType, number, userName });
+  }
+
+  renderNoData() {
+    return (
+      <div className="ecos-timesheet__white-block">
+        <div className="ecos-timesheet__no-data">{CommonLabels.NO_DATA}</div>
+      </div>
+    );
   }
 
   render() {

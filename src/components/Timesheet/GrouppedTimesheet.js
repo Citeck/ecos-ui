@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
+import isEmpty from 'lodash/isEmpty';
 
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/constants';
@@ -429,20 +430,23 @@ class GrouppedTimesheet extends BaseTimesheet {
   render() {
     const leftId = uniqueId('tableLeftColumn_');
     const rightId = uniqueId('tableRightColumn_');
+    const { filteredEventTypes } = this.state;
 
     return (
-      <div className="ecos-timesheet__table">
-        <div className="ecos-timesheet__table-left-column" id={leftId}>
-          {this.renderFilter()}
-          {this.renderGroupedEvents()}
-          <ResizeBoxes className="ecos-timesheet__resizer" leftId={leftId} rightId={rightId} />
+      <>
+        <div className="ecos-timesheet__table">
+          <div className="ecos-timesheet__table-left-column" id={leftId}>
+            {this.renderFilter()}
+            {this.renderGroupedEvents()}
+            <ResizeBoxes className="ecos-timesheet__resizer" leftId={leftId} rightId={rightId} />
+          </div>
+          <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper} id={rightId}>
+            {this.renderCalendar()}
+          </div>
+          {this.renderLock()}
         </div>
-        <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper} id={rightId}>
-          {this.renderCalendar()}
-        </div>
-
-        {this.renderLock()}
-      </div>
+        {isEmpty(filteredEventTypes) && this.renderNoData()}
+      </>
     );
   }
 }

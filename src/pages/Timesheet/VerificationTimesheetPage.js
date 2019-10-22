@@ -113,16 +113,16 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
     const { daysOfMonth } = this.state;
     const { mergedList, isLoading } = this.props;
 
-    if (mergedList && mergedList.length > 0) {
-      return (
-        <Timesheet groupBy={'user'} eventTypes={mergedList} daysOfMonth={daysOfMonth} configGroupBtns={this.configGroupBtns} isAvailable />
-      );
+    if (isLoading) {
+      return null;
     }
 
-    return isLoading ? null : (
-      <div className="ecos-timesheet__white-block">
-        <div className="ecos-timesheet__no-data">{CommonLabels.NO_DATA}</div>
-      </div>
+    if (mergedList && !mergedList.length) {
+      return this.renderNoData();
+    }
+
+    return (
+      <Timesheet groupBy={'user'} eventTypes={mergedList} daysOfMonth={daysOfMonth} configGroupBtns={this.configGroupBtns} isAvailable />
     );
   };
 
