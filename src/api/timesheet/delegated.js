@@ -33,7 +33,8 @@ export class TimesheetDelegatedApi extends RecordService {
         maxItems: 100,
         sourceId: 'people',
         debug: false
-      }
+      },
+      attributes: { id: 'id' }
     }).then(res => ({ [reqAction]: res.totalCount }));
   };
 }

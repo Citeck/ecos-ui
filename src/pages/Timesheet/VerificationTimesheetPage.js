@@ -11,7 +11,13 @@ import {
   TimesheetTypes,
   VerifyTimesheetLabels
 } from '../../helpers/timesheet/constants';
-import { getVerificationTimesheetByParams, resetVerificationTimesheet, setPopupMessage } from '../../actions/timesheet/verification';
+import {
+  getVerificationTimesheetByParams,
+  modifyEventDayHours,
+  resetEventDayHours,
+  resetVerificationTimesheet,
+  setPopupMessage
+} from '../../actions/timesheet/verification';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
@@ -111,7 +117,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
 
   renderTimesheet = () => {
     const { daysOfMonth } = this.state;
-    const { mergedList, isLoading } = this.props;
+    const { mergedList, isLoading, updatingHours } = this.props;
 
     if (isLoading) {
       return null;
@@ -122,7 +128,16 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
     }
 
     return (
-      <Timesheet groupBy={'user'} eventTypes={mergedList} daysOfMonth={daysOfMonth} configGroupBtns={this.configGroupBtns} isAvailable />
+      <Timesheet
+        groupBy={'user'}
+        eventTypes={mergedList}
+        daysOfMonth={daysOfMonth}
+        configGroupBtns={this.configGroupBtns}
+        isAvailable
+        onChangeHours={this.handleChangeEventDayHours.bind(this)}
+        onResetHours={this.handleResetEventDayHours.bind(this)}
+        updatingHours={updatingHours}
+      />
     );
   };
 
@@ -166,6 +181,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
 
 const mapStateToProps = state => ({
   mergedList: get(state, 'timesheetVerification.mergedList', []),
+  updatingHours: get(state, 'timesheetVerification.updatingHours', {}),
   isLoading: get(state, 'timesheetVerification.isLoading', false),
   popupMsg: get(state, 'timesheetVerification.popupMsg', '')
 });
@@ -173,6 +189,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   getVerificationTimesheetByParams: payload => dispatch(getVerificationTimesheetByParams(payload)),
   resetVerificationTimesheet: payload => dispatch(resetVerificationTimesheet(payload)),
+  modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
+  resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 

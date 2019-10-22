@@ -4,6 +4,7 @@ import {
   getVerificationTimesheetByParams,
   resetVerificationTimesheet,
   setPopupMessage,
+  setUpdatingEventDayHours,
   setVerificationTimesheetByParams
 } from '../../actions/timesheet/verification';
 
@@ -33,6 +34,10 @@ export default handleActions(
     [setPopupMessage]: (state, actions) => ({
       ...state,
       popupMsg: actions.payload
+    }),
+    [setUpdatingEventDayHours]: (state, actions) => ({
+      ...state,
+      updatingHours: actions.payload
     })
   },
   initialState
