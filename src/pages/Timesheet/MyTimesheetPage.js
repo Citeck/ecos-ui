@@ -86,7 +86,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
     super.handleChangeCurrentDate(currentDate, this.getData);
   }
 
-  handleChangeStatus(data) {
+  handleChangeStatus() {
     const { status } = this.props;
     const outcome = MyTimesheetService.getMyStatusOutcomeByCurrent(status.key);
 
@@ -237,7 +237,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
         </div>
         <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
 
-        {super.renderCommentModal()}
+        {this.renderCommentModal()}
       </div>
     );
   }

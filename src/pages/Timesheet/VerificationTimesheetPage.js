@@ -181,7 +181,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         </div>
         <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
 
-        {super.renderCommentModal(true)}
+        {this.renderCommentModal(true)}
       </div>
     );
   }
