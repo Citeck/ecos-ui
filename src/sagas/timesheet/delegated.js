@@ -69,7 +69,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(thirdState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetSubordinates sagaModifyStatus saga] error', e.message);
+    logger.error('[timesheetDelegated sagaModifyStatus saga] error', e.message);
   }
 }
 
@@ -85,7 +85,7 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(secondState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetSubordinates sagaResetEventDayHours saga] error', e.message);
+    logger.error('[timesheetDelegated sagaResetEventDayHours saga] error', e.message);
   }
 }
 
