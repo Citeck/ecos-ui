@@ -290,8 +290,16 @@ export default class AsyncDataComponent extends BaseComponent {
       this.activeAsyncActionsCounter++;
 
       const setValue = value => {
-        self.setValue(value);
-        self.activeAsyncActionsCounter--;
+        if (data === self[dataField]) {
+          self.setValue(value);
+
+          //fix submit before all values calculated
+          setTimeout(() => {
+            self.activeAsyncActionsCounter--;
+          }, 200);
+        } else {
+          self.activeAsyncActionsCounter--;
+        }
       };
 
       let actionImpl = () => {
