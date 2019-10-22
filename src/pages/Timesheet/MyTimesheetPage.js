@@ -86,12 +86,24 @@ class MyTimesheetPage extends BaseTimesheetPage {
     super.handleChangeCurrentDate(currentDate, this.getData);
   }
 
-  handleChangeStatus() {
+  handleChangeStatus(data) {
     const { status } = this.props;
     const outcome = MyTimesheetService.getMyStatusOutcomeByCurrent(status.key);
 
+    if (status.key === ServerStatusKeys.CORRECTION) {
+      this.handleSentImprove({ outcome, status });
+
+      return;
+    }
+
     this.props.modifyStatus && this.props.modifyStatus({ outcome, status });
   }
+
+  handleSendComment = comment => {
+    this.props.modifyStatus && this.props.modifyStatus({ ...this.state.currenTimesheetData, comment });
+
+    this.clearCommentModalData();
+  };
 
   handleToggleDelegated(isDelegated) {
     this.setState(state => {
@@ -224,6 +236,8 @@ class MyTimesheetPage extends BaseTimesheetPage {
           {this.renderTimesheet()}
         </div>
         <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
+
+        {super.renderCommentModal()}
       </div>
     );
   }

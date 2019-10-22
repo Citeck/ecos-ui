@@ -63,7 +63,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK)
+            onClick: this.handleSentImprove
           },
           {
             ...BaseConfigGroupButtons.APPROVE,
@@ -75,7 +75,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK)
+            onClick: this.handleSentImprove
           },
           {
             ...BaseConfigGroupButtons.APPROVE,
@@ -86,7 +86,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK)
+            onClick: this.handleSentImprove
           },
           {}
         ];
@@ -113,6 +113,12 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
   handleChangeStatus = (data, outcome) => {
     const { currentDate } = this.state;
     const { taskId, userName } = data;
+  };
+
+  handleSendComment = comment => {
+    this.handleChangeStatus({ ...this.state.currenTimesheetData, comment }, ServerStatusOutcomeKeys.SEND_BACK);
+
+    this.clearCommentModalData();
   };
 
   renderTimesheet = () => {
@@ -174,6 +180,8 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
           {this.renderTimesheet()}
         </div>
         <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
+
+        {super.renderCommentModal(true)}
       </div>
     );
   }

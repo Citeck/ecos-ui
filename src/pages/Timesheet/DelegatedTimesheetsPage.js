@@ -112,7 +112,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
           return [
             {
               ...BaseConfigGroupButtons.SENT_IMPROVE,
-              onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK)
+              onClick: this.handleSentImprove
             },
             {
               ...BaseConfigGroupButtons.APPROVE,
@@ -161,6 +161,12 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     const { currentDate } = this.state;
     const { taskId, userName } = data;
     console.log('handleChangeStatus', { outcome, taskId, userName, currentDate });
+  };
+
+  handleSendComment = comment => {
+    this.handleChangeStatus({ ...this.state.currenTimesheetData, comment }, ServerStatusOutcomeKeys.SEND_BACK);
+
+    this.clearCommentModalData();
   };
 
   renderTimesheet = () => {
@@ -248,6 +254,8 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
           {this.renderTimesheet()}
         </div>
         <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
+
+        {this.renderCommentModal(true)}
       </div>
     );
   }

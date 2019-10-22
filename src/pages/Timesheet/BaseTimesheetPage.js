@@ -1,10 +1,12 @@
 import React from 'react';
 import debounce from 'lodash/debounce';
+
 import { deepClone } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, getNewDateByDayNumber, isOnlyContent } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
+import { CommentModal } from '../../components/Timesheet';
 
 import './style.scss';
 
@@ -25,7 +27,9 @@ class BaseTimesheetPage extends React.Component {
       statusTabs: [],
       daysOfMonth: this.getDaysOfMonth(new Date()),
       isDelegated: false,
-      turnOnTimerPopup: false
+      turnOnTimerPopup: false,
+      isOpenCommentModal: false,
+      currenTimesheetData: null
     };
   }
 
@@ -126,11 +130,42 @@ class BaseTimesheetPage extends React.Component {
     this.props.resetEventDayHours && this.props.resetEventDayHours({ value, date, eventType, number, userName });
   }
 
+  clearCommentModalData() {
+    this.setState({
+      isOpenCommentModal: false,
+      currenTimesheetData: null
+    });
+  }
+
+  handleCloseCommentModal = () => {
+    this.clearCommentModalData();
+  };
+
+  handleSentImprove = (data = {}) => {
+    this.setState({
+      isOpenCommentModal: true,
+      currenTimesheetData: deepClone(data)
+    });
+  };
+
   renderNoData() {
     return (
       <div className="ecos-timesheet__white-block">
         <div className="ecos-timesheet__no-data">{CommonLabels.NO_DATA}</div>
       </div>
+    );
+  }
+
+  renderCommentModal(isRequired = false) {
+    const { isOpenCommentModal } = this.state;
+
+    return (
+      <CommentModal
+        isOpen={isOpenCommentModal}
+        isRequired={isRequired}
+        onCancel={this.handleCloseCommentModal}
+        onSend={this.handleSendComment}
+      />
     );
   }
 
