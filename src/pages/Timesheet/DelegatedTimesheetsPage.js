@@ -179,7 +179,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
         daysOfMonth={daysOfMonth}
         isAvailable={!isDelegated}
         lockedMessage={this.lockDescription}
-        handleChangeEventDayHours
+        onChangeHours={this.handleChangeEventDayHours.bind(this)}
       />
     );
   }

@@ -51,7 +51,7 @@ export class TimesheetCommonApi extends RecordService {
   };
 
   getInfoPeopleList = ({ userNames }) => {
-    const queryNames = userNames.map(name => `@ggodic:geSupervisorId:${name}`).join(' OR ');
+    const queryNames = userNames.map(name => `@cm:userName:${name}`).join(' OR ');
 
     if (!queryNames) {
       return {};

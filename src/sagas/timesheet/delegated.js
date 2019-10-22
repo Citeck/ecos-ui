@@ -15,26 +15,29 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
       userName,
       action
     });
-    console.log(requestList);
+
     const userNames = CommonTimesheetService.getUserNameList(requestList.records);
+
     const peopleList = yield api.timesheetCommon.getInfoPeopleList({ userNames });
+
     const othCounts = yield api.timesheetDelegated.getTotalCountsByAction({ userName, action });
     const actionCounts = CommonTimesheetService.getTotalCounts(othCounts, { [action]: requestList.totalCount || 0 });
 
-    // const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
-    //   month: currentDate.getMonth(),
-    //   year: currentDate.getFullYear(),
-    //   userNames: userNames
-    // });
+    const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
+      month: currentDate.getMonth(),
+      year: currentDate.getFullYear(),
+      userNames: userNames
+    });
 
     const list = DelegatedTimesheetService.mergeManyToOneList({
       requestList: requestList.records,
-      peopleList: peopleList.records
+      peopleList: peopleList.records,
+      calendarEvents
     });
 
     const mergedList = DelegatedTimesheetConverter.getDelegatedEventsListForWeb(list);
 
-    yield put(setDelegatedTimesheetByParams({ mergedList, userNames, calendarEvents: [], actionCounts }));
+    yield put(setDelegatedTimesheetByParams({ mergedList, userNames, calendarEvents, actionCounts }));
   } catch (e) {
     logger.error('[timesheetDelegated sagaGetDelegatedTimesheetByParams saga] error', e.message);
   }
