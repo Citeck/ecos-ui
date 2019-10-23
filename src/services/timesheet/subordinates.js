@@ -1,5 +1,3 @@
-import { deepClone } from '../../helpers/util';
-
 export default class SubordinatesTimesheetService {
   static mergeManyToOneList({ subordinates, calendarEvents, statuses }) {
     const target = [];
@@ -17,11 +15,5 @@ export default class SubordinatesTimesheetService {
     }
 
     return target;
-  }
-
-  static deleteRecordLocalByUserName(mergedList, userName) {
-    let updatedML = deepClone(mergedList);
-
-    return updatedML.filter(item => item.userName !== userName);
   }
 }

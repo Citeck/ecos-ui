@@ -323,4 +323,10 @@ export default class CommonTimesheetService {
 
     return target;
   }
+
+  static deleteRecordLocalByUserName(mergedList, userName) {
+    let updatedML = deepClone(mergedList);
+
+    return updatedML.filter(item => item.userName !== userName);
+  }
 }

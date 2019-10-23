@@ -63,7 +63,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
       comment
     });
 
-    const newMergedList = SubordinatesTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
+    const newMergedList = CommonTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
 
     yield put(setMergedList(newMergedList));
   } catch (e) {

@@ -16,7 +16,6 @@ import CommonTimesheetService from '../../services/timesheet/common';
 import { selectTVerificationMergedList, selectTVerificationUpdatingHours } from '../../selectors/timesheet';
 import { TimesheetMessages } from '../../helpers/timesheet/constants';
 import { selectUserName } from '../../selectors/user';
-import SubordinatesTimesheetService from '../../services/timesheet/subordinates';
 
 function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -103,7 +102,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
       comment
     });
 
-    const newMergedList = SubordinatesTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
+    const newMergedList = CommonTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
 
     yield put(setMergedList(newMergedList));
   } catch (e) {
