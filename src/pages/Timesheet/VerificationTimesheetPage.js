@@ -14,6 +14,7 @@ import {
 import {
   getVerificationTimesheetByParams,
   modifyEventDayHours,
+  modifyStatus,
   resetEventDayHours,
   resetVerificationTimesheet,
   setPopupMessage
@@ -111,7 +112,10 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
 
   handleChangeStatus = (data, outcome) => {
     const { currentDate } = this.state;
-    const { taskId, userName } = data;
+    const { taskId, userName, comment = '' } = data;
+    const status = this.selectedStatus.key;
+
+    this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, currentDate, comment, status });
   };
 
   handleSendComment = comment => {
@@ -195,6 +199,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   getVerificationTimesheetByParams: payload => dispatch(getVerificationTimesheetByParams(payload)),
   resetVerificationTimesheet: payload => dispatch(resetVerificationTimesheet(payload)),
+  modifyStatus: payload => dispatch(modifyStatus(payload)),
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
   resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))

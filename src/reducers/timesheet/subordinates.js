@@ -22,6 +22,14 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [setLoading]: (state, actions) => ({
+      ...state,
+      isLoading: actions.payload
+    }),
+    [setPopupMessage]: (state, actions) => ({
+      ...state,
+      popupMsg: actions.payload
+    }),
     [resetSubordinatesTimesheet]: (state, actions) => ({
       ...initialState
     }),
@@ -43,14 +51,6 @@ export default handleActions(
     [modifyStatus]: (state, actions) => ({
       ...state,
       isLoading: true
-    }),
-    [setLoading]: (state, actions) => ({
-      ...state,
-      isLoading: actions.payload
-    }),
-    [setPopupMessage]: (state, actions) => ({
-      ...state,
-      popupMsg: actions.payload
     }),
     [setUpdatingEventDayHours]: (state, actions) => ({
       ...state,

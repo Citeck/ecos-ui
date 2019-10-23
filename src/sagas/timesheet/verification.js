@@ -2,7 +2,9 @@ import { put, select, takeLatest } from 'redux-saga/effects';
 import {
   getVerificationTimesheetByParams,
   modifyEventDayHours,
+  modifyStatus,
   resetEventDayHours,
+  setLoading,
   setPopupMessage,
   setUpdatingEventDayHours,
   setVerificationTimesheetByParams
@@ -12,6 +14,7 @@ import VerificationTimesheetConverter from '../../dto/timesheet/verification';
 import CommonTimesheetService from '../../services/timesheet/common';
 import { selectTimesheetSubordinatesUpdatingHours } from '../../selectors/timesheet';
 import { TimesheetMessages } from '../../helpers/timesheet/constants';
+import { selectUserName } from '../../selectors/user';
 
 function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -84,10 +87,31 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
   }
 }
 
+function* sagaModifyTaskStatus({ api, logger }, { payload }) {
+  try {
+    const currentUser = yield select(selectUserName);
+    const { outcome, taskId, comment, currentDate, status } = payload;
+
+    yield api.timesheetCommon.modifyStatus({
+      outcome,
+      taskId,
+      currentUser,
+      comment
+    });
+
+    yield put(getVerificationTimesheetByParams({ currentDate, status }));
+  } catch (e) {
+    yield put(setLoading(false));
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
+    logger.error('[timesheetSubordinates sagaModifyTaskStatus saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getVerificationTimesheetByParams().type, sagaGetVerificationTimesheetByParams, ea);
   yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
   yield takeLatest(resetEventDayHours().type, sagaResetEventDayHours, ea);
+  yield takeLatest(modifyStatus().type, sagaModifyTaskStatus, ea);
 }
 
 export default saga;

@@ -6,8 +6,11 @@ export const getVerificationTimesheetByParams = createAction(prefix + 'GET_VERIF
 export const setVerificationTimesheetByParams = createAction(prefix + 'SET_VERIFICATION_TIMESHEET_BY_PARAMS');
 export const resetVerificationTimesheet = createAction(prefix + 'RESET_VERIFICATION_TIMESHEET');
 
+export const modifyStatus = createAction(prefix + 'MODIFY_STATUS');
+
 export const modifyEventDayHours = createAction(prefix + 'MODIFY_EVENT_DAY_HOURS');
 export const resetEventDayHours = createAction(prefix + 'RESET_EVENT_DAY_HOURS');
 export const setUpdatingEventDayHours = createAction(prefix + 'SET_UPDATING_EVENT_DAY_HOURS');
 
 export const setPopupMessage = createAction(prefix + 'SET_POPUP_MESSAGE');
+export const setLoading = createAction(prefix + 'SET_LOADING');
