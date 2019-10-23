@@ -28,7 +28,7 @@ class EventHistoryModal extends React.Component {
   };
 
   render() {
-    const { onClose, isOpen, record, comment } = this.props;
+    const { onClose, isOpen, record } = this.props;
     const isMobile = isMobileDevice();
 
     return (

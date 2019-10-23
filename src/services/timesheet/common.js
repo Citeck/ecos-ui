@@ -62,6 +62,12 @@ export default class CommonTimesheetService {
     }));
   };
 
+  static getAllowedStatusKeys(type, action) {
+    const filters = CommonTimesheetService.getStatusFilters(type, action);
+
+    return filters.map(item => item.key).flat();
+  }
+
   static getSheetTabs = (isOnlyContent, location) => {
     return [
       {
