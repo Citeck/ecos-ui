@@ -7,7 +7,6 @@ import {
   setLoading,
   setMergedList,
   setPopupMessage,
-  setStatusList,
   setSubordinatesTimesheetByParams,
   setUpdatingEventDayHours
 } from '../../actions/timesheet/subordinates';
@@ -15,9 +14,6 @@ import {
 const initialState = {
   isLoading: false,
   mergedList: [],
-  subordinates: [],
-  calendarEvents: [],
-  statuses: [],
   updatingHours: {},
   popupMsg: ''
 };
@@ -37,19 +33,12 @@ export default handleActions(
     [setSubordinatesTimesheetByParams]: (state, actions) => ({
       ...state,
       mergedList: get(actions, 'payload.mergedList', []),
-      subordinates: get(actions, 'payload.subordinates.records', []),
-      calendarEvents: get(actions, 'payload.calendarEvents', []),
-      statuses: get(actions, 'payload.statuses.records', []),
       isLoading: false
     }),
     [setMergedList]: (state, actions) => ({
       ...state,
-      mergedList: get(actions, 'payload.mergedList', []),
+      mergedList: actions.payload || [],
       isLoading: false
-    }),
-    [setStatusList]: (state, actions) => ({
-      ...state,
-      statuses: get(actions, 'payload.statuses.records', [])
     }),
     [modifyStatus]: (state, actions) => ({
       ...state,

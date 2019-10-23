@@ -40,7 +40,7 @@ function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
 
     const mergedEvents = CommonTimesheetConverter.getCalendarEventsForWeb(calendarEvents);
 
-    yield put(setMyTimesheetByParams({ status, mergedEvents, calendarEvents }));
+    yield put(setMyTimesheetByParams({ status, mergedEvents }));
   } catch (e) {
     logger.error('[timesheetMine sagaGetMyTimesheetByParams saga] error', e.message);
   }

@@ -11,9 +11,6 @@ import {
 const initialState = {
   isLoading: false,
   mergedList: [],
-  subordinates: [],
-  calendarEvents: [],
-  statuses: [],
   popupMsg: '',
   actionCounts: {
     all: 0
@@ -35,9 +32,6 @@ export default handleActions(
     [setDelegatedTimesheetByParams]: (state, actions) => ({
       ...state,
       mergedList: get(actions, 'payload.mergedList', []),
-      subordinates: get(actions, 'payload.subordinates.records', []),
-      calendarEvents: get(actions, 'payload.calendarEvents', []),
-      statuses: get(actions, 'payload.statuses.records', []),
       actionCounts: get(actions, 'payload.actionCounts', {}),
       isLoading: false
     }),

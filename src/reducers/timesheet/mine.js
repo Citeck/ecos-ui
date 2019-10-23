@@ -19,7 +19,6 @@ const initialState = {
   isUpdatingStatus: false,
   status: {},
   countAttemptGetStatus: 0,
-  calendarEvents: [],
   mergedEvents: [],
   updatingHours: {},
   popupMsg: ''
@@ -41,7 +40,6 @@ export default handleActions(
     [setMyTimesheetByParams]: (state, actions) => ({
       ...state,
       status: get(actions, 'payload.status', {}),
-      calendarEvents: get(actions, 'payload.calendarEvents', []),
       mergedEvents: get(actions, 'payload.mergedEvents', []),
       isLoading: false,
       isLoadingStatus: false
