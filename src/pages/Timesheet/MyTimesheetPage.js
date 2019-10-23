@@ -90,7 +90,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
     const outcome = MyTimesheetService.getMyStatusOutcomeByCurrent(status.key);
 
     if (status.key === ServerStatusKeys.CORRECTION) {
-      this.handleSentImprove({ outcome, status });
+      this.handleOpenCommentModal({ outcome, status });
 
       return;
     }
@@ -98,8 +98,8 @@ class MyTimesheetPage extends BaseTimesheetPage {
     this.props.modifyStatus && this.props.modifyStatus({ outcome, status });
   }
 
-  handleSendComment = comment => {
-    this.props.modifyStatus && this.props.modifyStatus({ ...this.state.currenTimesheetData, comment });
+  handleSendCommentModal = comment => {
+    this.props.modifyStatus && this.props.modifyStatus({ ...this.state.currentTimesheetData, comment });
 
     this.clearCommentModalData();
   };

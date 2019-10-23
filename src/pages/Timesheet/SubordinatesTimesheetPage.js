@@ -69,7 +69,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: this.handleSentImprove
+            onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
           },
           {
             ...BaseConfigGroupButtons.APPROVE,
@@ -87,8 +87,10 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
     this.props.getSubordinatesTimesheetByParams({ currentDate });
   };
 
-  handleSendComment = comment => {
-    this.handleChangeStatus({ ...this.state.currenTimesheetData, comment }, ServerStatusOutcomeKeys.SEND_BACK);
+  handleSendCommentModal = comment => {
+    const { outcome, ...data } = this.state.currentTimesheetData;
+
+    this.handleChangeStatus({ ...data, comment }, outcome);
 
     this.clearCommentModalData();
   };

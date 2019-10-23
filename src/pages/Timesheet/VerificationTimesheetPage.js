@@ -63,7 +63,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: this.handleSentImprove
+            onClick: data => this.handleOpenCommentModal(data, ServerStatusOutcomeKeys.SEND_BACK)
           },
           {
             ...BaseConfigGroupButtons.APPROVE,
@@ -75,7 +75,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: this.handleSentImprove
+            onClick: data => this.handleOpenCommentModal(data, ServerStatusOutcomeKeys.SEND_BACK)
           },
           {
             ...BaseConfigGroupButtons.APPROVE,
@@ -86,7 +86,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: this.handleSentImprove
+            onClick: data => this.handleOpenCommentModal(data, ServerStatusOutcomeKeys.SEND_BACK)
           },
           {}
         ];
@@ -118,8 +118,10 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
     this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, currentDate, comment, status });
   };
 
-  handleSendComment = comment => {
-    this.handleChangeStatus({ ...this.state.currenTimesheetData, comment }, ServerStatusOutcomeKeys.SEND_BACK);
+  handleSendCommentModal = comment => {
+    const { outcome, ...data } = this.state.currentTimesheetData;
+
+    this.handleChangeStatus({ ...data, comment }, outcome);
 
     this.clearCommentModalData();
   };
