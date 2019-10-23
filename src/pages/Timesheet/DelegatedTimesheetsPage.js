@@ -163,6 +163,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
   };
 
   handleSendComment = comment => {
+    console.warn('comment => ', comment);
     this.handleChangeStatus({ ...this.state.currenTimesheetData, comment }, ServerStatusOutcomeKeys.SEND_BACK);
 
     this.clearCommentModalData();

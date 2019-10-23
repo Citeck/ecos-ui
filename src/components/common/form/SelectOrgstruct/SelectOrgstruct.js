@@ -25,6 +25,7 @@ SelectOrgstruct.defaultProps = {
 SelectOrgstruct.propTypes = {
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
   onChange: PropTypes.func,
+  onCancelSelect: PropTypes.func,
   onError: PropTypes.func,
   multiple: PropTypes.bool,
   isCompact: PropTypes.bool,
@@ -33,7 +34,10 @@ SelectOrgstruct.propTypes = {
   allowedGroupTypes: PropTypes.array,
   allowedGroupSubTypes: PropTypes.array,
   viewOnly: PropTypes.bool,
-  renderView: PropTypes.func
+  openByDefault: PropTypes.bool,
+  withoutInput: PropTypes.bool,
+  renderView: PropTypes.func,
+  modalTitle: PropTypes.string
 };
 
 export default SelectOrgstruct;

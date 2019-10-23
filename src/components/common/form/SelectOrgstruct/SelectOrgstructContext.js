@@ -8,10 +8,10 @@ export const SelectOrgstructContext = React.createContext();
 
 export const SelectOrgstructProvider = props => {
   const { orgStructApi, controlProps } = props;
-  const { multiple, defaultValue, allUsersGroup, allowedAuthorityTypes } = controlProps;
+  const { multiple, defaultValue, allUsersGroup, allowedAuthorityTypes, openByDefault, onCancelSelect, modalTitle } = controlProps;
   const allUsersGroupShortName = allUsersGroup || ALL_USERS_GROUP_SHORT_NAME;
 
-  const [isSelectModalOpen, toggleSelectModal] = useState(false);
+  const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
   const [currentTab, setCurrentTab] = useState(TAB_BY_LEVELS);
   const [isRootGroupsFetched, setIsRootGroupsFetched] = useState(false);
   const [searchText, updateSearchText] = useState('');
@@ -143,9 +143,16 @@ export const SelectOrgstructProvider = props => {
         currentTab,
         tabItems,
         isAllUsersGroupsExists,
+        modalTitle,
 
         toggleSelectModal: () => {
           toggleSelectModal(!isSelectModalOpen);
+
+          if (isSelectModalOpen) {
+            if (typeof onCancelSelect === 'function') {
+              onCancelSelect();
+            }
+          }
         },
 
         onCancelSelect: () => {

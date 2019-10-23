@@ -23,6 +23,14 @@ class Switch extends Component {
     };
   }
 
+  static getDerivedStateFromProps(props, state) {
+    if (props.checked !== state.checked) {
+      return { checked: props.checked };
+    }
+
+    return null;
+  }
+
   handleToggle = () => {
     const { checked } = this.state;
 

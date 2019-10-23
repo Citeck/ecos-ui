@@ -30,6 +30,7 @@ class BaseTimesheetPage extends React.Component {
       isDelegated: false,
       turnOnTimerPopup: false,
       isOpenCommentModal: false,
+      isOpenSelectUserModal: false,
       currenTimesheetData: null
     };
   }

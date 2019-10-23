@@ -23,7 +23,7 @@ import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
-import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
+import Timesheet, { DateSlider, Tabs, SelectUserModal } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 
 class SubordinatesTimesheetPage extends BaseTimesheetPage {
@@ -104,9 +104,20 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
     this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, currentDate, comment });
   };
 
-  handleToggleDelegated(isDelegated) {
-    this.setState({ isDelegated });
-  }
+  handleToggleDelegated = isDelegated => {
+    // this.setState({ isDelegated });
+    this.setState({ isOpenSelectUserModal: isDelegated });
+  };
+
+  handleSelectUser = user => {
+    console.warn('user => ', user);
+    this.setState({ isOpenSelectUserModal: false, isDelegated: Boolean(user) });
+  };
+
+  handleCloseSelectUserModal = () => {
+    console.warn('handleCloseSelectUserModal');
+    this.setState({ isOpenSelectUserModal: false, isDelegated: false });
+  };
 
   renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
@@ -142,7 +153,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
   };
 
   render() {
-    const { sheetTabs, isDelegated, currentDate, statusTabs } = this.state;
+    const { sheetTabs, isDelegated, currentDate, statusTabs, isOpenSelectUserModal } = this.state;
     const { isLoading } = this.props;
 
     return (
@@ -160,11 +171,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
             <div className="ecos-timesheet__delegation-title">{t(CommonLabels.HEADLINE_DELEGATION)}</div>
 
             <div className="ecos-timesheet__delegation-switch">
-              <Switch
-                checked={isDelegated}
-                className="ecos-timesheet__delegation-switch-checkbox"
-                onToggle={this.handleToggleDelegated.bind(this)}
-              />
+              <Switch checked={isDelegated} className="ecos-timesheet__delegation-switch-checkbox" onToggle={this.handleToggleDelegated} />
 
               <span className="ecos-timesheet__delegation-switch-label">{t(SubTimesheetLabels.DELEGATION_DESCRIPTION_1)}</span>
             </div>
@@ -192,6 +199,8 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
         </div>
         {this.renderPopupMessage()}
         {this.renderCommentModal(true)}
+
+        <SelectUserModal isOpen={isOpenSelectUserModal} onSelect={this.handleSelectUser} onCancel={this.handleCloseSelectUserModal} />
       </div>
     );
   }
