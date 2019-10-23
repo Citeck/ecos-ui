@@ -5,6 +5,7 @@ const prefix = 'timesheet/verification/';
 export const getVerificationTimesheetByParams = createAction(prefix + 'GET_VERIFICATION_TIMESHEET_BY_PARAMS');
 export const setVerificationTimesheetByParams = createAction(prefix + 'SET_VERIFICATION_TIMESHEET_BY_PARAMS');
 export const resetVerificationTimesheet = createAction(prefix + 'RESET_VERIFICATION_TIMESHEET');
+export const setMergedList = createAction(prefix + 'SET_MERGED_LIST');
 
 export const modifyStatus = createAction(prefix + 'MODIFY_STATUS');
 

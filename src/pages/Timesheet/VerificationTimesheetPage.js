@@ -63,7 +63,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: data => this.handleOpenCommentModal(data, ServerStatusOutcomeKeys.SEND_BACK)
+            onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
           },
           {
             ...BaseConfigGroupButtons.APPROVE,
@@ -75,7 +75,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: data => this.handleOpenCommentModal(data, ServerStatusOutcomeKeys.SEND_BACK)
+            onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
           },
           {
             ...BaseConfigGroupButtons.APPROVE,
@@ -86,7 +86,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: data => this.handleOpenCommentModal(data, ServerStatusOutcomeKeys.SEND_BACK)
+            onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
           },
           {}
         ];
@@ -111,11 +111,10 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
   }
 
   handleChangeStatus = (data, outcome) => {
-    const { currentDate } = this.state;
     const { taskId, userName, comment = '' } = data;
     const status = this.selectedStatus.key;
 
-    this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, currentDate, comment, status });
+    this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, comment });
   };
 
   handleSendCommentModal = comment => {
@@ -130,26 +129,22 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
     const { daysOfMonth } = this.state;
     const { mergedList, isLoading, updatingHours } = this.props;
 
-    if (isLoading) {
-      return null;
+    if (mergedList && mergedList.length) {
+      return (
+        <Timesheet
+          groupBy={'user'}
+          eventTypes={mergedList}
+          daysOfMonth={daysOfMonth}
+          configGroupBtns={this.configGroupBtns}
+          isAvailable
+          onChangeHours={this.handleChangeEventDayHours.bind(this)}
+          onResetHours={this.handleResetEventDayHours.bind(this)}
+          updatingHours={updatingHours}
+        />
+      );
     }
 
-    if (mergedList && !mergedList.length) {
-      return this.renderNoData();
-    }
-
-    return (
-      <Timesheet
-        groupBy={'user'}
-        eventTypes={mergedList}
-        daysOfMonth={daysOfMonth}
-        configGroupBtns={this.configGroupBtns}
-        isAvailable
-        onChangeHours={this.handleChangeEventDayHours.bind(this)}
-        onResetHours={this.handleResetEventDayHours.bind(this)}
-        updatingHours={updatingHours}
-      />
-    );
+    return isLoading ? null : this.renderNoData();
   };
 
   render() {

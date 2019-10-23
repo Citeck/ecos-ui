@@ -30,6 +30,11 @@ export default handleActions(
       ...state,
       popupMsg: actions.payload
     }),
+    [setMergedList]: (state, actions) => ({
+      ...state,
+      mergedList: actions.payload || [],
+      isLoading: false
+    }),
     [resetSubordinatesTimesheet]: (state, actions) => ({
       ...initialState
     }),
@@ -41,11 +46,6 @@ export default handleActions(
     [setSubordinatesTimesheetByParams]: (state, actions) => ({
       ...state,
       mergedList: get(actions, 'payload.mergedList', []),
-      isLoading: false
-    }),
-    [setMergedList]: (state, actions) => ({
-      ...state,
-      mergedList: actions.payload || [],
       isLoading: false
     }),
     [modifyStatus]: (state, actions) => ({

@@ -5,6 +5,7 @@ import {
   modifyStatus,
   resetVerificationTimesheet,
   setLoading,
+  setMergedList,
   setPopupMessage,
   setUpdatingEventDayHours,
   setVerificationTimesheetByParams
@@ -27,6 +28,11 @@ export default handleActions(
     [setLoading]: (state, actions) => ({
       ...state,
       isLoading: actions.payload
+    }),
+    [setMergedList]: (state, actions) => ({
+      ...state,
+      mergedList: actions.payload || [],
+      isLoading: false
     }),
     [resetVerificationTimesheet]: (state, actions) => ({
       ...initialState
