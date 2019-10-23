@@ -126,18 +126,7 @@ class App extends Component {
   }
 
   render() {
-    const {
-      changeActiveTab,
-      isInit,
-      isInitFailure,
-      isAuthenticated,
-      isMobile,
-      isShow,
-      tabs,
-      setTabs,
-      getActiveTabTitle,
-      isLoadingTitle
-    } = this.props;
+    const { isInit, isInitFailure, isAuthenticated, isMobile } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
