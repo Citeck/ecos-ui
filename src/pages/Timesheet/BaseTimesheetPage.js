@@ -1,10 +1,11 @@
 import React from 'react';
 import debounce from 'lodash/debounce';
 
-import { deepClone } from '../../helpers/util';
+import { deepClone, t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/constants';
 import { getDaysOfMonth, getNewDateByDayNumber, isOnlyContent } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
+import { TunableDialog } from '../../components/common/dialogs';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { CommentModal } from '../../components/Timesheet';
 
@@ -166,6 +167,14 @@ class BaseTimesheetPage extends React.Component {
         onCancel={this.handleCloseCommentModal}
         onSend={this.handleSendComment}
       />
+    );
+  }
+
+  renderPopupMessage() {
+    const { popupMsg } = this.props;
+
+    return (
+      <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
     );
   }
 

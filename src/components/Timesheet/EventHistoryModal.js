@@ -4,10 +4,10 @@ import classNames from 'classnames';
 import EcosModal from '../common/EcosModal';
 import { isMobileDevice, t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/constants';
+import CommonTimesheetService from '../../services/timesheet/common';
+import { EventsHistory } from '../EventsHistory';
 
 import './style.scss';
-import { EventsHistory } from '../EventsHistory';
-import CommonTimesheetService from '../../services/timesheet/common';
 
 class EventHistoryModal extends React.Component {
   static propTypes = {
@@ -20,7 +20,7 @@ class EventHistoryModal extends React.Component {
   constructor(props) {
     super(props);
 
-    this.stateId = `ecos-ts-event-story-${props.record}`;
+    this.stateId = `ecos-ts-e-history-modal-${props.record}`;
   }
 
   onClose = () => {
@@ -36,7 +36,7 @@ class EventHistoryModal extends React.Component {
         reactstrapProps={{
           backdrop: 'static'
         }}
-        className={classNames('ecos-ts-event-story', {
+        className={classNames('ecos-ts-e-history-modal', {
           'ecos-modal_width-lg': !isMobile,
           'ecos-modal_width-xs': isMobile
         })}

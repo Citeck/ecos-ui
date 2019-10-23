@@ -23,7 +23,6 @@ import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
-import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 
@@ -144,7 +143,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
   render() {
     const { sheetTabs, isDelegated, currentDate, statusTabs } = this.state;
-    const { isLoading, popupMsg } = this.props;
+    const { isLoading } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -191,8 +190,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
           {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
           {this.renderTimesheet()}
         </div>
-        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
-
+        {this.renderPopupMessage()}
         {this.renderCommentModal(true)}
       </div>
     );

@@ -19,7 +19,6 @@ import MyTimesheetService from '../../services/timesheet/mine';
 
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
-import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { BlockStatus, DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 import { debounce } from 'lodash';
@@ -195,7 +194,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
 
   render() {
     const { sheetTabs, currentDate } = this.state;
-    const { isLoading, isLoadingStatus, isUpdatingStatus, status, popupMsg } = this.props;
+    const { isLoading, isLoadingStatus, isUpdatingStatus, status } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -235,8 +234,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
           {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
           {this.renderTimesheet()}
         </div>
-        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
-
+        {this.renderPopupMessage()}
         {this.renderCommentModal()}
       </div>
     );

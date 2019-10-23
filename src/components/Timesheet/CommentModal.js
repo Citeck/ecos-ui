@@ -107,18 +107,18 @@ class CommentModal extends Component {
     return (
       <EcosModal className="ecos-modal_width-xs" title={this.title} isOpen={isOpen} hideModal={this.handleCancel}>
         <Textarea
-          className="ecos-ts-cm__textarea"
+          className="ecos-ts-comment-modal__textarea"
           value={this.state.comment}
           placeholder={this.placeholder}
           onChange={this.handleChangeComment}
         />
 
-        <div className="ecos-ts-cm__btns">
-          <Btn className="ecos-ts-cm__btns-item" onClick={this.handleCancel}>
+        <div className="ecos-ts-comment-modal__btns">
+          <Btn className="ecos-ts-comment-modal__btns-item" onClick={this.handleCancel}>
             {t(LABELS.BTN_CANCEL)}
           </Btn>
           <Btn
-            className="ecos-btn_blue ecos-btn_hover_light-blue ecos-ts-cm__btns-item"
+            className="ecos-btn_blue ecos-btn_hover_light-blue ecos-ts-comment-modal__btns-item"
             onClick={this.handleSend}
             disabled={this.isSendDisabled}
           >
