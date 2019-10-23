@@ -5,3 +5,5 @@ export const selectTMineUpdatingHours = state => state.timesheetMine.updatingHou
 
 export const selectTVerificationMergedList = state => state.timesheetVerification.mergedList || {};
 export const selectTVerificationUpdatingHours = state => state.timesheetVerification.updatingHours || {};
+
+export const selectTDelegatedUpdatingHours = state => state.timesheetDelegated.updatingHours || {};
