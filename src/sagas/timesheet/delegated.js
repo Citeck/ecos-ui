@@ -3,13 +3,16 @@ import { TimesheetMessages } from '../../helpers/timesheet/constants';
 import {
   getDelegatedTimesheetByParams,
   modifyEventDayHours,
+  modifyStatus,
   resetEventDayHours,
   setDelegatedTimesheetByParams,
+  setLoading,
+  setMergedList,
   setPopupMessage,
   setUpdatingEventDayHours
 } from '../../actions/timesheet/delegated';
 import { selectUserName } from '../../selectors/user';
-import { selectTDelegatedUpdatingHours } from '../../selectors/timesheet';
+import { selectTDelegatedMergedList, selectTDelegatedUpdatingHours } from '../../selectors/timesheet';
 import CommonTimesheetService from '../../services/timesheet/common';
 import DelegatedTimesheetService from '../../services/timesheet/delegated';
 import DelegatedTimesheetConverter from '../../dto/timesheet/delegated';
@@ -89,10 +92,35 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
   }
 }
 
+function* sagaModifyTaskStatus({ api, logger }, { payload }) {
+  try {
+    const currentUser = yield select(selectUserName);
+    const { outcome, taskId, userName, comment } = payload;
+
+    const mergedList = yield select(selectTDelegatedMergedList);
+
+    yield api.timesheetCommon.modifyStatus({
+      outcome,
+      taskId,
+      currentUser,
+      comment
+    });
+
+    const newMergedList = CommonTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
+
+    yield put(setMergedList(newMergedList));
+  } catch (e) {
+    yield put(setLoading(false));
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
+    logger.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getDelegatedTimesheetByParams().type, sagaGetDelegatedTimesheetByParams, ea);
   yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
   yield takeLatest(resetEventDayHours().type, sagaResetEventDayHours, ea);
+  yield takeLatest(modifyStatus().type, sagaModifyTaskStatus, ea);
 }
 
 export default saga;

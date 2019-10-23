@@ -112,17 +112,8 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
 
   handleChangeStatus = (data, outcome) => {
     const { taskId, userName, comment = '' } = data;
-    const status = this.selectedStatus.key;
 
     this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, comment });
-  };
-
-  handleSendCommentModal = comment => {
-    const { outcome, ...data } = this.state.currentTimesheetData;
-
-    this.handleChangeStatus({ ...data, comment }, outcome);
-
-    this.clearCommentModalData();
   };
 
   renderTimesheet = () => {

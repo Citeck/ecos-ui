@@ -4,6 +4,8 @@ import {
   getDelegatedTimesheetByParams,
   resetDelegatedTimesheet,
   setDelegatedTimesheetByParams,
+  setLoading,
+  setMergedList,
   setPopupMessage,
   setUpdatingEventDayHours
 } from '../../actions/timesheet/delegated';
@@ -24,6 +26,15 @@ export default handleActions(
     [setPopupMessage]: (state, actions) => ({
       ...state,
       popupMsg: actions.payload
+    }),
+    [setLoading]: (state, actions) => ({
+      ...state,
+      isLoading: actions.payload
+    }),
+    [setMergedList]: (state, actions) => ({
+      ...state,
+      mergedList: actions.payload || [],
+      isLoading: false
     }),
     [resetDelegatedTimesheet]: (state, actions) => ({
       ...initialState

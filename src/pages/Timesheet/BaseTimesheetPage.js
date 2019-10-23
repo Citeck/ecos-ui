@@ -149,6 +149,14 @@ class BaseTimesheetPage extends React.Component {
     });
   };
 
+  handleSendCommentModal = comment => {
+    const { outcome, ...data } = this.state.currentTimesheetData || {};
+
+    this.handleChangeStatus({ ...data, comment }, outcome);
+
+    this.clearCommentModalData();
+  };
+
   renderNoData() {
     return (
       <div className="ecos-timesheet__white-block">

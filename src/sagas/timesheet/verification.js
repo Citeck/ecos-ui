@@ -108,7 +108,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading(false));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
-    logger.error('[timesheetSubordinates sagaModifyTaskStatus saga] error', e.message);
+    logger.error('[timesheetVerification sagaModifyTaskStatus saga] error', e.message);
   }
 }
 
