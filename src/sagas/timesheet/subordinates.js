@@ -58,7 +58,7 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
 function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   try {
     const currentUser = yield select(selectUserName);
-    const { outcome, taskId, userName, currentDate } = payload;
+    const { outcome, taskId, userName, currentDate, comment } = payload;
 
     const mergedList = yield select(selectTimesheetSubordinatesMergedList);
     const statuses = yield select(selectTimesheetSubordinatesStatuses);
@@ -66,7 +66,8 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
     yield api.timesheetCommon.modifyStatus({
       outcome,
       taskId,
-      currentUser
+      currentUser,
+      comment
     });
 
     const statusRes = yield api.timesheetCommon.getTimesheetStatusList({

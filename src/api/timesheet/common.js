@@ -84,13 +84,17 @@ export class TimesheetCommonApi extends RecordService {
     return this.putJson(`${TASKS_URI}change-task-owner/${taskId}`, data, true).then(resp => resp);
   };
 
-  modifyStatus = function*({ outcome, taskId, currentUser }) {
+  modifyStatus = function*({ outcome, taskId, currentUser, comment = '' }) {
     yield this.changeTaskOwner({ taskId, currentUser });
 
     const task = Records.get(`wftask@${taskId}`);
 
     task.att(`outcome_${outcome}`, 'true');
     task.att('cm:owner', currentUser);
+
+    if (comment) {
+      task.att('comment', comment);
+    }
 
     return task.save().then(res => res);
   };

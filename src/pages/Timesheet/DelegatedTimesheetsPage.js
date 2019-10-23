@@ -24,7 +24,6 @@ import {
 
 import { Loader } from '../../components/common';
 import { Btn } from '../../components/common/btns';
-import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 
@@ -112,7 +111,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
           return [
             {
               ...BaseConfigGroupButtons.SENT_IMPROVE,
-              onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK)
+              onClick: this.handleSentImprove
             },
             {
               ...BaseConfigGroupButtons.APPROVE,
@@ -163,6 +162,12 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     console.log('handleChangeStatus', { outcome, taskId, userName, currentDate });
   };
 
+  handleSendComment = comment => {
+    this.handleChangeStatus({ ...this.state.currenTimesheetData, comment }, ServerStatusOutcomeKeys.SEND_BACK);
+
+    this.clearCommentModalData();
+  };
+
   renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
     const { mergedList, isLoading, updatingHours } = this.props;
@@ -202,7 +207,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
 
   render() {
     const { sheetTabs, currentDate, statusTabs, actionDelegatedTabs } = this.state;
-    const { isLoading, popupMsg } = this.props;
+    const { isLoading } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -247,7 +252,8 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
           {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
           {this.renderTimesheet()}
         </div>
-        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
+        {this.renderPopupMessage()}
+        {this.renderCommentModal(true)}
       </div>
     );
   }

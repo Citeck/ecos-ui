@@ -21,7 +21,6 @@ import {
 import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
-import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 
@@ -63,7 +62,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK)
+            onClick: this.handleSentImprove
           },
           {
             ...BaseConfigGroupButtons.APPROVE,
@@ -75,7 +74,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK)
+            onClick: this.handleSentImprove
           },
           {
             ...BaseConfigGroupButtons.APPROVE,
@@ -86,7 +85,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK)
+            onClick: this.handleSentImprove
           },
           {}
         ];
@@ -113,6 +112,12 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
   handleChangeStatus = (data, outcome) => {
     const { currentDate } = this.state;
     const { taskId, userName } = data;
+  };
+
+  handleSendComment = comment => {
+    this.handleChangeStatus({ ...this.state.currenTimesheetData, comment }, ServerStatusOutcomeKeys.SEND_BACK);
+
+    this.clearCommentModalData();
   };
 
   renderTimesheet = () => {
@@ -143,7 +148,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
 
   render() {
     const { dateTabs, currentDate, statusTabs } = this.state;
-    const { isLoading, popupMsg } = this.props;
+    const { isLoading } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -173,7 +178,8 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
           {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
           {this.renderTimesheet()}
         </div>
-        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
+        {this.renderPopupMessage()}
+        {this.renderCommentModal(true)}
       </div>
     );
   }
