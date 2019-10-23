@@ -87,14 +87,6 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
     this.props.getSubordinatesTimesheetByParams({ currentDate });
   };
 
-  handleSendCommentModal = comment => {
-    const { outcome, ...data } = this.state.currentTimesheetData;
-
-    this.handleChangeStatus({ ...data, comment }, outcome);
-
-    this.clearCommentModalData();
-  };
-
   handleChangeCurrentDate(currentDate) {
     super.handleChangeCurrentDate(currentDate, this.getData);
   }
