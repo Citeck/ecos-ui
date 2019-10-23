@@ -19,21 +19,9 @@ export default class SubordinatesTimesheetService {
     return target;
   }
 
-  static setUserStatusInLists({ mergedList, statuses, userName, status }) {
-    const updatedML = deepClone(mergedList);
-    const updatedSL = deepClone(statuses);
+  static deleteRecordLocalByUserName(mergedList, userName) {
+    let updatedML = deepClone(mergedList);
 
-    updatedML.forEach(item => {
-      if (item.userName === userName) {
-        item.status = status;
-      }
-    });
-    updatedSL.forEach(item => {
-      if (item.userName === userName) {
-        item.status = status;
-      }
-    });
-
-    return { mergedList: updatedML, statuses: updatedSL };
+    return updatedML.filter(item => item.userName !== userName);
   }
 }

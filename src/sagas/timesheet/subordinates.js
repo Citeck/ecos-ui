@@ -8,18 +8,12 @@ import {
   setLoading,
   setMergedList,
   setPopupMessage,
-  setStatusList,
   setSubordinatesTimesheetByParams,
   setUpdatingEventDayHours
 } from '../../actions/timesheet/subordinates';
-import {
-  selectTimesheetSubordinatesMergedList,
-  selectTimesheetSubordinatesStatuses,
-  selectTimesheetSubordinatesUpdatingHours
-} from '../../selectors/timesheet';
+import { selectTimesheetSubordinatesMergedList, selectTimesheetSubordinatesUpdatingHours } from '../../selectors/timesheet';
 import { selectUserName } from '../../selectors/user';
 import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
-import CommonTimesheetConverter from '../../dto/timesheet/common';
 import CommonTimesheetService from '../../services/timesheet/common';
 import SubordinatesTimesheetService from '../../services/timesheet/subordinates';
 
@@ -49,7 +43,7 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
 
     const mergedList = SubordinatesTimesheetConverter.getSubordinatesEventsListForWeb(list);
 
-    yield put(setSubordinatesTimesheetByParams({ mergedList, userNames, subordinates, calendarEvents, statuses }));
+    yield put(setSubordinatesTimesheetByParams({ mergedList }));
   } catch (e) {
     logger.error('[timesheetSubordinates sagaGetSubordinatesTimesheetByParams saga] error', e.message);
   }
@@ -58,32 +52,20 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
 function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   try {
     const currentUser = yield select(selectUserName);
-    const { outcome, taskId, userName, currentDate } = payload;
+    const { outcome, taskId, userName, comment } = payload;
 
     const mergedList = yield select(selectTimesheetSubordinatesMergedList);
-    const statuses = yield select(selectTimesheetSubordinatesStatuses);
 
     yield api.timesheetCommon.modifyStatus({
       outcome,
       taskId,
-      currentUser
+      currentUser,
+      comment
     });
 
-    const statusRes = yield api.timesheetCommon.getTimesheetStatusList({
-      month: currentDate.getMonth(),
-      year: currentDate.getFullYear(),
-      userNames: [userName]
-    });
+    const newMergedList = SubordinatesTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
 
-    const status = CommonTimesheetConverter.getStatusForWeb(statusRes);
-    const listsAfter = SubordinatesTimesheetService.setUserStatusInLists({
-      mergedList,
-      statuses,
-      userName,
-      status: status.key
-    });
-    yield put(setMergedList(listsAfter.mergedList));
-    yield put(setStatusList(listsAfter.statuses));
+    yield put(setMergedList(newMergedList));
   } catch (e) {
     yield put(setLoading(false));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));

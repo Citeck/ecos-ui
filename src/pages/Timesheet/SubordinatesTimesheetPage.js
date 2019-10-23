@@ -23,7 +23,6 @@ import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
-import { TunableDialog } from '../../components/common/dialogs';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 
@@ -70,7 +69,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.SEND_BACK)
+            onClick: this.handleSentImprove
           },
           {
             ...BaseConfigGroupButtons.APPROVE,
@@ -88,15 +87,21 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
     this.props.getSubordinatesTimesheetByParams({ currentDate });
   };
 
+  handleSendComment = comment => {
+    this.handleChangeStatus({ ...this.state.currenTimesheetData, comment }, ServerStatusOutcomeKeys.SEND_BACK);
+
+    this.clearCommentModalData();
+  };
+
   handleChangeCurrentDate(currentDate) {
     super.handleChangeCurrentDate(currentDate, this.getData);
   }
 
   handleChangeStatus = (data, outcome) => {
     const { currentDate } = this.state;
-    const { taskId, userName } = data;
+    const { taskId, userName, comment = '' } = data;
 
-    this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, currentDate });
+    this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, currentDate, comment });
   };
 
   handleToggleDelegated(isDelegated) {
@@ -138,7 +143,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
   render() {
     const { sheetTabs, isDelegated, currentDate, statusTabs } = this.state;
-    const { isLoading, popupMsg } = this.props;
+    const { isLoading } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -185,7 +190,8 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
           {isLoading && <Loader className="ecos-timesheet__loader" height={100} width={100} blur />}
           {this.renderTimesheet()}
         </div>
-        <TunableDialog isOpen={!!popupMsg} content={popupMsg} onClose={this.handleClosePopup.bind(this)} title={t(CommonLabels.NOTICE)} />
+        {this.renderPopupMessage()}
+        {this.renderCommentModal(true)}
       </div>
     );
   }

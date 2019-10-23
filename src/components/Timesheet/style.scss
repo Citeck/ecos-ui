@@ -983,5 +983,24 @@
   }
 }
 
-.ecos-ts-event-history {
+.ecos-ts-e-history-modal {
+}
+
+.ecos-ts-comment-modal {
+  &__textarea {
+    padding: 10px 15px;
+    margin-bottom: 20px;
+  }
+
+  &__btns {
+    display: flex;
+
+    &-item {
+      flex-basis: 50%;
+
+      &:not(:last-child) {
+        margin-right: 12px;
+      }
+    }
+  }
 }

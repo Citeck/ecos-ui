@@ -46,7 +46,7 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
 
     const mergedList = DelegatedTimesheetConverter.getDelegatedEventsListForWeb(list);
 
-    yield put(setDelegatedTimesheetByParams({ mergedList, userNames, calendarEvents, actionCounts }));
+    yield put(setDelegatedTimesheetByParams({ mergedList, actionCounts }));
   } catch (e) {
     logger.error('[timesheetDelegated sagaGetDelegatedTimesheetByParams saga] error', e.message);
   }
