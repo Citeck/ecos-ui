@@ -16,7 +16,8 @@ export class TimesheetDelegatedApi extends RecordService {
       attributes: {
         userName: 'timesheet:requestorUsername',
         status: 'timesheet:status?str',
-        taskId: 'timesheet:currentTaskId'
+        taskId: 'timesheet:currentTaskId',
+        uid: 'sys:node-uuid'
       }
     }).then(res => res);
   };

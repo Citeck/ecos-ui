@@ -14,6 +14,7 @@ export default class DelegatedTimesheetConverter {
       newItem.status = get(item, 'status', '');
       newItem.taskId = get(item, 'taskId', '');
       newItem.eventTypes = CommonTimesheetConverter.getCalendarEventsForWeb(item.calendarEvents);
+      newItem.nodeRef = `workspace://SpacesStore/${item.uid}`;
 
       target.push(newItem);
     });
