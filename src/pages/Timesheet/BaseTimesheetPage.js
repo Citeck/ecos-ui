@@ -150,7 +150,7 @@ class BaseTimesheetPage extends React.Component {
   };
 
   handleSendCommentModal = comment => {
-    const { outcome, ...data } = this.state.currentTimesheetData;
+    const { outcome, ...data } = this.state.currentTimesheetData || {};
 
     this.handleChangeStatus({ ...data, comment }, outcome);
 

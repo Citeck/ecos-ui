@@ -17,6 +17,7 @@ import DelegatedTimesheetService from '../../services/timesheet/delegated';
 import {
   getDelegatedTimesheetByParams,
   modifyEventDayHours,
+  modifyStatus,
   resetDelegatedTimesheet,
   resetEventDayHours,
   setPopupMessage
@@ -92,7 +93,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
         },
         {
           ...BaseConfigGroupButtons.SENT_APPROVE,
-          onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.TASK_DONE)
+          onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.TASK_DONE })
         }
       ];
     }
@@ -111,7 +112,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
           return [
             {
               ...BaseConfigGroupButtons.SENT_IMPROVE,
-              onClick: this.handleSentImprove
+              onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
             },
             {
               ...BaseConfigGroupButtons.APPROVE,
@@ -157,29 +158,14 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
   };
 
   handleChangeStatus = (data, outcome) => {
-    const { currentDate } = this.state;
-    const { taskId, userName } = data;
-    console.log('handleChangeStatus', { outcome, taskId, userName, currentDate });
-  };
+    const { taskId, userName, comment = '' } = data;
 
-  handleSendComment = comment => {
-    this.handleChangeStatus({ ...this.state.currenTimesheetData, comment }, ServerStatusOutcomeKeys.SEND_BACK);
-
-    this.clearCommentModalData();
+    this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, comment });
   };
 
   renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
     const { mergedList, isLoading, updatingHours } = this.props;
-
-    if (isLoading) {
-      return null;
-    }
-
-    if (mergedList && !mergedList.length) {
-      return this.renderNoData();
-    }
-
     const activeStatus = this.selectedStatus;
 
     const filteredList = mergedList.filter(item => {
@@ -190,24 +176,29 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
       return item.status === activeStatus.key;
     });
 
-    return (
-      <Timesheet
-        groupBy={'user'}
-        configGroupBtns={this.configGroupBtns}
-        eventTypes={filteredList}
-        daysOfMonth={daysOfMonth}
-        isAvailable={!isDelegated}
-        lockedMessage={this.lockDescription}
-        onChangeHours={this.handleChangeEventDayHours.bind(this)}
-        onResetHours={this.handleResetEventDayHours.bind(this)}
-        updatingHours={updatingHours}
-      />
-    );
+    if (filteredList.length > 0) {
+      return (
+        <Timesheet
+          groupBy={'user'}
+          configGroupBtns={this.configGroupBtns}
+          eventTypes={filteredList}
+          daysOfMonth={daysOfMonth}
+          isAvailable={!isDelegated}
+          lockedMessage={this.lockDescription}
+          onChangeHours={this.handleChangeEventDayHours.bind(this)}
+          onResetHours={this.handleResetEventDayHours.bind(this)}
+          updatingHours={updatingHours}
+        />
+      );
+    }
+
+    return isLoading ? null : this.renderNoData();
   };
 
   render() {
-    const { sheetTabs, currentDate, statusTabs, actionDelegatedTabs } = this.state;
+    const { sheetTabs, currentDate, statusTabs, actionDelegatedTabs, currentTimesheetData } = this.state;
     const { isLoading } = this.props;
+    const { outcome } = currentTimesheetData || {};
 
     return (
       <div className="ecos-timesheet">
@@ -253,7 +244,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
           {this.renderTimesheet()}
         </div>
         {this.renderPopupMessage()}
-        {this.renderCommentModal(true)}
+        {this.renderCommentModal(outcome === ServerStatusOutcomeKeys.SEND_BACK)}
       </div>
     );
   }
@@ -270,6 +261,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   getDelegatedTimesheetByParams: payload => dispatch(getDelegatedTimesheetByParams(payload)),
   resetDelegatedTimesheet: payload => dispatch(resetDelegatedTimesheet(payload)),
+  modifyStatus: payload => dispatch(modifyStatus(payload)),
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
   resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
