@@ -21,6 +21,10 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [setPopupMessage]: (state, actions) => ({
+      ...state,
+      popupMsg: actions.payload
+    }),
     [resetDelegatedTimesheet]: (state, actions) => ({
       ...initialState
     }),
@@ -34,10 +38,6 @@ export default handleActions(
       mergedList: get(actions, 'payload.mergedList', []),
       actionCounts: get(actions, 'payload.actionCounts', {}),
       isLoading: false
-    }),
-    [setPopupMessage]: (state, actions) => ({
-      ...state,
-      popupMsg: actions.payload
     }),
     [setUpdatingEventDayHours]: (state, actions) => ({
       ...state,

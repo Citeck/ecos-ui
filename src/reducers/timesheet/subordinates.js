@@ -22,6 +22,19 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [setLoading]: (state, actions) => ({
+      ...state,
+      isLoading: actions.payload
+    }),
+    [setPopupMessage]: (state, actions) => ({
+      ...state,
+      popupMsg: actions.payload
+    }),
+    [setMergedList]: (state, actions) => ({
+      ...state,
+      mergedList: actions.payload || [],
+      isLoading: false
+    }),
     [resetSubordinatesTimesheet]: (state, actions) => ({
       ...initialState
     }),
@@ -35,22 +48,9 @@ export default handleActions(
       mergedList: get(actions, 'payload.mergedList', []),
       isLoading: false
     }),
-    [setMergedList]: (state, actions) => ({
-      ...state,
-      mergedList: actions.payload || [],
-      isLoading: false
-    }),
     [modifyStatus]: (state, actions) => ({
       ...state,
       isLoading: true
-    }),
-    [setLoading]: (state, actions) => ({
-      ...state,
-      isLoading: actions.payload
-    }),
-    [setPopupMessage]: (state, actions) => ({
-      ...state,
-      popupMsg: actions.payload
     }),
     [setUpdatingEventDayHours]: (state, actions) => ({
       ...state,

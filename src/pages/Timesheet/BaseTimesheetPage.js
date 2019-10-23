@@ -30,7 +30,7 @@ class BaseTimesheetPage extends React.Component {
       isDelegated: false,
       turnOnTimerPopup: false,
       isOpenCommentModal: false,
-      currenTimesheetData: null
+      currentTimesheetData: null
     };
   }
 
@@ -134,7 +134,7 @@ class BaseTimesheetPage extends React.Component {
   clearCommentModalData() {
     this.setState({
       isOpenCommentModal: false,
-      currenTimesheetData: null
+      currentTimesheetData: null
     });
   }
 
@@ -142,10 +142,10 @@ class BaseTimesheetPage extends React.Component {
     this.clearCommentModalData();
   };
 
-  handleSentImprove = (data = {}) => {
+  handleOpenCommentModal = (data = {}) => {
     this.setState({
       isOpenCommentModal: true,
-      currenTimesheetData: deepClone(data)
+      currentTimesheetData: deepClone(data)
     });
   };
 
@@ -165,7 +165,7 @@ class BaseTimesheetPage extends React.Component {
         isOpen={isOpenCommentModal}
         isRequired={isRequired}
         onCancel={this.handleCloseCommentModal}
-        onSend={this.handleSendComment}
+        onSend={this.handleSendCommentModal}
       />
     );
   }

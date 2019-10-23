@@ -14,6 +14,7 @@ import {
 import {
   getVerificationTimesheetByParams,
   modifyEventDayHours,
+  modifyStatus,
   resetEventDayHours,
   resetVerificationTimesheet,
   setPopupMessage
@@ -62,7 +63,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: this.handleSentImprove
+            onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
           },
           {
             ...BaseConfigGroupButtons.APPROVE,
@@ -74,7 +75,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: this.handleSentImprove
+            onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
           },
           {
             ...BaseConfigGroupButtons.APPROVE,
@@ -85,7 +86,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: this.handleSentImprove
+            onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
           },
           {}
         ];
@@ -110,12 +111,16 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
   }
 
   handleChangeStatus = (data, outcome) => {
-    const { currentDate } = this.state;
-    const { taskId, userName } = data;
+    const { taskId, userName, comment = '' } = data;
+    const status = this.selectedStatus.key;
+
+    this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, comment });
   };
 
-  handleSendComment = comment => {
-    this.handleChangeStatus({ ...this.state.currenTimesheetData, comment }, ServerStatusOutcomeKeys.SEND_BACK);
+  handleSendCommentModal = comment => {
+    const { outcome, ...data } = this.state.currentTimesheetData;
+
+    this.handleChangeStatus({ ...data, comment }, outcome);
 
     this.clearCommentModalData();
   };
@@ -124,26 +129,22 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
     const { daysOfMonth } = this.state;
     const { mergedList, isLoading, updatingHours } = this.props;
 
-    if (isLoading) {
-      return null;
+    if (mergedList && mergedList.length) {
+      return (
+        <Timesheet
+          groupBy={'user'}
+          eventTypes={mergedList}
+          daysOfMonth={daysOfMonth}
+          configGroupBtns={this.configGroupBtns}
+          isAvailable
+          onChangeHours={this.handleChangeEventDayHours.bind(this)}
+          onResetHours={this.handleResetEventDayHours.bind(this)}
+          updatingHours={updatingHours}
+        />
+      );
     }
 
-    if (mergedList && !mergedList.length) {
-      return this.renderNoData();
-    }
-
-    return (
-      <Timesheet
-        groupBy={'user'}
-        eventTypes={mergedList}
-        daysOfMonth={daysOfMonth}
-        configGroupBtns={this.configGroupBtns}
-        isAvailable
-        onChangeHours={this.handleChangeEventDayHours.bind(this)}
-        onResetHours={this.handleResetEventDayHours.bind(this)}
-        updatingHours={updatingHours}
-      />
-    );
+    return isLoading ? null : this.renderNoData();
   };
 
   render() {
@@ -195,6 +196,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   getVerificationTimesheetByParams: payload => dispatch(getVerificationTimesheetByParams(payload)),
   resetVerificationTimesheet: payload => dispatch(resetVerificationTimesheet(payload)),
+  modifyStatus: payload => dispatch(modifyStatus(payload)),
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
   resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))

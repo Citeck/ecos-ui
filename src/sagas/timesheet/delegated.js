@@ -9,7 +9,7 @@ import {
   setUpdatingEventDayHours
 } from '../../actions/timesheet/delegated';
 import { selectUserName } from '../../selectors/user';
-import { selectTimesheetSubordinatesUpdatingHours } from '../../selectors/timesheet';
+import { selectTDelegatedUpdatingHours } from '../../selectors/timesheet';
 import CommonTimesheetService from '../../services/timesheet/common';
 import DelegatedTimesheetService from '../../services/timesheet/delegated';
 import DelegatedTimesheetConverter from '../../dto/timesheet/delegated';
@@ -53,7 +53,7 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
 }
 
 function* sagaModifyEventDayHours({ api, logger }, { payload }) {
-  const updatingHoursState = yield select(selectTimesheetSubordinatesUpdatingHours);
+  const updatingHoursState = yield select(selectTDelegatedUpdatingHours);
   const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload);
 
   yield put(setUpdatingEventDayHours(firstState));
@@ -74,7 +74,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
 }
 
 function* sagaResetEventDayHours({ api, logger }, { payload }) {
-  const updatingHoursState = yield select(selectTimesheetSubordinatesUpdatingHours);
+  const updatingHoursState = yield select(selectTDelegatedUpdatingHours);
 
   try {
     const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);

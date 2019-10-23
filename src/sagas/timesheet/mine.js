@@ -13,7 +13,7 @@ import {
   setUpdatingStatus
 } from '../../actions/timesheet/mine';
 import { selectUserName } from '../../selectors/user';
-import { selectTimesheetMineUpdatingHours } from '../../selectors/timesheet';
+import { selectTMineUpdatingHours } from '../../selectors/timesheet';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
 import CommonTimesheetService from '../../services/timesheet/common';
 
@@ -87,7 +87,7 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
 
 function* sagaModifyEventDayHours({ api, logger }, { payload }) {
   const userName = yield select(selectUserName);
-  const updatingHoursState = yield select(selectTimesheetMineUpdatingHours);
+  const updatingHoursState = yield select(selectTMineUpdatingHours);
   const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload);
 
   yield put(setUpdatingEventDayHours(firstState));
@@ -108,7 +108,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
 }
 
 function* sagaResetEventDayHours({ api, logger }, { payload }) {
-  const updatingHoursState = yield select(selectTimesheetMineUpdatingHours);
+  const updatingHoursState = yield select(selectTMineUpdatingHours);
 
   try {
     const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
