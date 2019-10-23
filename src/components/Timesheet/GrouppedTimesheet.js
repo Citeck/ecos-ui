@@ -16,6 +16,7 @@ import { CalendarCell, CalendarRow, Collapse, Header } from './Calendar';
 import BaseTimesheet from './BaseTimesheet';
 import Tabs from './Tabs';
 import Tooltip from './Tooltip';
+import EventHistoryModal from './EventHistoryModal';
 
 import './style.scss';
 
@@ -23,6 +24,12 @@ const FILTER_BY = {
   PEOPLE: 'user',
   COMPANY: 'organization',
   EVENT: 'event'
+};
+
+const initEventHistory = {
+  isOpen: false,
+  record: '',
+  comment: ''
 };
 
 class GrouppedTimesheet extends BaseTimesheet {
@@ -68,7 +75,8 @@ class GrouppedTimesheet extends BaseTimesheet {
           isAvailable: true
         }
       ],
-      draggableNode: null
+      draggableNode: null,
+      eventHistory: initEventHistory
     };
 
     console.warn(this.initGroupsStatuses(props) || {});
@@ -179,6 +187,14 @@ class GrouppedTimesheet extends BaseTimesheet {
     this.setState({ eventsFilterTabs }, () => this.filterTypes(this.state.typeFilter));
   };
 
+  handleOpenEventHistory = item => {
+    this.setState({ eventHistory: { isOpen: true, record: item.nodeRef, comment: '' } });
+  };
+
+  handleCloseEventHistory = () => {
+    this.setState({ eventHistory: initEventHistory });
+  };
+
   filterTypes(typeFilter = '') {
     let filteredEventTypes = deepClone(this.props.eventTypes);
 
@@ -225,6 +241,28 @@ class GrouppedTimesheet extends BaseTimesheet {
       >
         <div className="ecos-timesheet__table-events">{group.map((item, index) => this.renderEventType(item, index, key))}</div>
       </SortableContainer>
+    );
+  }
+
+  renderEventHistoryBtn(index, item) {
+    const hasComment = item.comment;
+
+    return (
+      <>
+        <Icon
+          id={`timesheet-group-${index}-history`}
+          className={classNames({
+            'icon-history ecos-timesheet__table-group-header-history': !hasComment,
+            'icon-notify-dialogue ecos-timesheet__table-group-header-message': hasComment
+          })}
+          onClick={() => this.handleOpenEventHistory(item)}
+        />
+        <Tooltip
+          target={`timesheet-group-${index}-history`}
+          content={hasComment ? t(CommonLabels.SHOW_COMMENT_TIP) : t(CommonLabels.SHOW_EVEN_HISTORY_TIP)}
+          innerClassName="ecos-timesheet__table-group-tooltip"
+        />
+      </>
     );
   }
 
@@ -293,34 +331,8 @@ class GrouppedTimesheet extends BaseTimesheet {
                       <div className="ecos-timesheet__table-group-header-title">{item.user}</div>
                     </div>
 
-                    {/* TODO: использовать проверку на наличие новых комментариев */}
-
                     <div className="ecos-timesheet__table-group-number">
-                      {this.getGroupStatus(item.user) ? (
-                        <>
-                          <Icon
-                            id={`timesheet-group-${index}-history`}
-                            className="icon-history ecos-timesheet__table-group-header-history"
-                          />
-                          <Tooltip
-                            target={`timesheet-group-${index}-history`}
-                            content={t(CommonLabels.SHOW_EVEN_HISTORY_TIP)}
-                            innerClassName="ecos-timesheet__table-group-tooltip"
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <Icon
-                            id={`timesheet-group-${index}-message`}
-                            className="icon-notify-dialogue ecos-timesheet__table-group-header-message"
-                          />
-                          <Tooltip
-                            target={`timesheet-group-${index}-message`}
-                            content={t(CommonLabels.SHOW_COMMENT_TIP)}
-                            innerClassName="ecos-timesheet__table-group-tooltip"
-                          />
-                        </>
-                      )}
+                      {this.renderEventHistoryBtn(index, item)}
                       <div className="ecos-timesheet__table-group-header-badge">{item.timesheetNumber}</div>
                     </div>
                   </div>
@@ -427,6 +439,19 @@ class GrouppedTimesheet extends BaseTimesheet {
     );
   }
 
+  renderEventHistoryModal() {
+    const { eventHistory = {} } = this.state;
+
+    return (
+      <EventHistoryModal
+        onClose={this.handleCloseEventHistory}
+        isOpen={eventHistory.isOpen}
+        record={eventHistory.record}
+        comment={eventHistory.comment}
+      />
+    );
+  }
+
   render() {
     const leftId = uniqueId('tableLeftColumn_');
     const rightId = uniqueId('tableRightColumn_');
@@ -446,6 +471,7 @@ class GrouppedTimesheet extends BaseTimesheet {
           {this.renderLock()}
         </div>
         {isEmpty(filteredEventTypes) && this.renderNoData()}
+        {this.renderEventHistoryModal()}
       </>
     );
   }

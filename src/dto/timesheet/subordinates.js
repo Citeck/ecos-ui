@@ -13,6 +13,7 @@ export default class SubordinatesTimesheetConverter {
       newItem.timesheetNumber = get(item, 'user.userName', '');
       newItem.status = get(item, 'status.status', '');
       newItem.taskId = get(item, 'status.taskId', '');
+      newItem.nodeRef = get(item, 'status.nodeRef', '');
       newItem.eventTypes = CommonTimesheetConverter.getCalendarEventsForWeb(item.calendarEvents);
 
       target.push(newItem);
