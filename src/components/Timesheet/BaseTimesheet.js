@@ -7,7 +7,7 @@ import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels } from '../../helpers/timesheet/constants';
+import { CommonLabels } from '../../helpers/timesheet/dictionary';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Icon, ResizeBoxes } from '../common';

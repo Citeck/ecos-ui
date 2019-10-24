@@ -2,7 +2,7 @@ import React from 'react';
 import debounce from 'lodash/debounce';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels } from '../../helpers/timesheet/constants';
+import { CommonLabels } from '../../helpers/timesheet/dictionary';
 import { getDaysOfMonth, getNewDateByDayNumber, isOnlyContent } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 import { TunableDialog } from '../../components/common/dialogs';

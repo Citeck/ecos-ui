@@ -14,7 +14,7 @@ import VerificationTimesheetService from '../../services/timesheet/verification'
 import VerificationTimesheetConverter from '../../dto/timesheet/verification';
 import CommonTimesheetService from '../../services/timesheet/common';
 import { selectTVerificationMergedList, selectTVerificationUpdatingHours } from '../../selectors/timesheet';
-import { TimesheetMessages } from '../../helpers/timesheet/constants';
+import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import { selectUserName } from '../../selectors/user';
 
 function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {

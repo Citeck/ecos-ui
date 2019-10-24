@@ -1,6 +1,6 @@
 import get from 'lodash/get';
 import { handleActions } from 'redux-actions';
-import { MaxAttempts } from '../../helpers/timesheet/constants';
+import { MaxAttempts } from '../../constants/timesheet';
 import {
   getMyTimesheetByParams,
   getStatus,

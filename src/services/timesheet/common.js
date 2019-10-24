@@ -1,11 +1,5 @@
-import {
-  CommonLabels,
-  GroupedStatuses,
-  ServerEventTypes,
-  ServerStatusKeys,
-  StatusActionFilters,
-  TimesheetTypes
-} from '../../helpers/timesheet/constants';
+import { CommonLabels } from '../../helpers/timesheet/dictionary';
+import { GroupedStatuses, ServerEventTypes, ServerStatusKeys, StatusActionFilters, TimesheetTypes } from '../../constants/timesheet';
 import { deepClone, t } from '../../helpers/util';
 import { URL } from '../../constants';
 

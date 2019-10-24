@@ -1,5 +1,6 @@
 import { t } from '../../helpers/util';
-import { CommonLabels, StatusActionFilters } from '../../helpers/timesheet/constants';
+import { CommonLabels } from '../../helpers/timesheet/dictionary';
+import { StatusActionFilters } from '../../constants/timesheet';
 
 export default class DelegatedTimesheetService {
   static mergeManyToOneList({ peopleList = [], calendarEvents = [], requestList = [] }) {

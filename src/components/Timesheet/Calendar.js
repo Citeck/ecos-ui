@@ -4,7 +4,7 @@ import MyCollapse from 'react-css-collapse';
 import uuid from 'uuidv4';
 
 import { t } from '../../helpers/util';
-import { CommonLabels } from '../../helpers/timesheet/constants';
+import { CommonLabels } from '../../helpers/timesheet/dictionary';
 import Tooltip from './Tooltip';
 
 export const CalendarRow = React.memo(({ children = null, className, ...props }) => (

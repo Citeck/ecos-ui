@@ -4,7 +4,8 @@ import values from 'lodash/values';
 import { connect } from 'react-redux';
 
 import { t } from '../../helpers/util';
-import { CommonLabels, MyTimesheetLabels, ServerStatusKeys } from '../../helpers/timesheet/constants';
+import { CommonLabels, MyTimesheetLabels } from '../../helpers/timesheet/dictionary';
+import { ServerStatusKeys } from '../../constants/timesheet';
 import {
   getMyTimesheetByParams,
   getStatus,

@@ -4,13 +4,8 @@ import { connect } from 'react-redux';
 
 import { t } from '../../helpers/util';
 import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
-import {
-  CommonLabels,
-  ServerStatusKeys,
-  ServerStatusOutcomeKeys,
-  TimesheetTypes,
-  VerifyTimesheetLabels
-} from '../../helpers/timesheet/constants';
+import { CommonLabels, VerifyTimesheetLabels } from '../../helpers/timesheet/dictionary';
+import { ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '../../constants/timesheet';
 import {
   getVerificationTimesheetByParams,
   modifyEventDayHours,

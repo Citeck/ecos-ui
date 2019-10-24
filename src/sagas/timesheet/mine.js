@@ -1,5 +1,5 @@
 import { put, select, takeLatest } from 'redux-saga/effects';
-import { TimesheetMessages } from '../../helpers/timesheet/constants';
+import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
   getMyTimesheetByParams,
   getStatus,

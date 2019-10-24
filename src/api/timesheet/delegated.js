@@ -1,6 +1,6 @@
 import { RecordService } from '../recordService';
 import Records from '../../components/Records';
-import { StatusActionFilters, TimesheetTypes } from '../../helpers/timesheet/constants';
+import { StatusActionFilters, TimesheetTypes } from '../../constants/timesheet';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 function getQueryStatuses(action) {

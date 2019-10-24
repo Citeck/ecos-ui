@@ -3,14 +3,8 @@ import get from 'lodash/get';
 import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
-import {
-  CommonLabels,
-  DelegateTimesheetLabels,
-  ServerStatusKeys,
-  ServerStatusOutcomeKeys,
-  StatusActionFilters,
-  TimesheetTypes
-} from '../../helpers/timesheet/constants';
+import { CommonLabels, DelegateTimesheetLabels } from '../../helpers/timesheet/dictionary';
+import { ServerStatusKeys, ServerStatusOutcomeKeys, StatusActionFilters, TimesheetTypes } from '../../constants/timesheet';
 import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 import DelegatedTimesheetService from '../../services/timesheet/delegated';

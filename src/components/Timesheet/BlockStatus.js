@@ -4,7 +4,8 @@ import classNames from 'classnames';
 import values from 'lodash/values';
 
 import { t } from '../../helpers/util';
-import { CommonLabels, ServerStatusKeys } from '../../helpers/timesheet/constants';
+import { CommonLabels } from '../../helpers/timesheet/dictionary';
+import { ServerStatusKeys } from '../../constants/timesheet';
 
 import { PointsLoader } from '../common';
 import { Btn, IcoBtn } from '../../components/common/btns';

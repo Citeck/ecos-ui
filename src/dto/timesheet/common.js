@@ -1,7 +1,7 @@
 import get from 'lodash/get';
 import moment from 'moment';
 import { deepClone } from '../../helpers/util';
-import { ServerDateFormats } from '../../helpers/timesheet/constants';
+import { ServerDateFormats } from '../../constants/timesheet';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 const eventTypes = CommonTimesheetService.getEventTypes();

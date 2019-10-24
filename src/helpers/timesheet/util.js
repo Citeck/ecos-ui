@@ -2,8 +2,9 @@ import moment from 'moment';
 import 'moment-business-days';
 import get from 'lodash/get';
 import { pagesWithOnlyContent } from '../../constants';
-import { CommonLabels, ServerDateFormats } from './constants';
+import { ServerDateFormats } from '../../constants/timesheet';
 import { t } from '../util';
+import { CommonLabels } from './labels';
 
 export function getDaysOfMonth(currentDate) {
   const arr = Array.from({ length: moment(currentDate).daysInMonth() }, (x, i) => {
