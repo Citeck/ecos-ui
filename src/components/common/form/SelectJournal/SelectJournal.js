@@ -330,6 +330,23 @@ export default class SelectJournal extends Component {
     });
   };
 
+  fillCanEdit = rows => {
+    return Records.get(rows.map(r => r.id))
+      .load('.att(n:"permissions"){has(n:"Write")}')
+      .then(permissions => {
+        let result = [];
+
+        for (let i = 0; i < rows.length; i++) {
+          result.push({
+            ...rows[i],
+            canEdit: permissions[i]
+          });
+        }
+
+        return result;
+      });
+  };
+
   fetchDisplayNames = selectedRows => {
     let computedDispName = lodashGet(this.props, 'computed.valueDisplayName', null);
 
@@ -364,35 +381,37 @@ export default class SelectJournal extends Component {
       selected = [selected];
     }
 
-    return this.fetchDisplayNames(selected).then(selected => {
-      let newValue;
-      if (multiple) {
-        newValue = selected.map(item => item.id);
-      } else {
-        newValue = selected.length > 0 ? selected[0]['id'] : '';
-      }
+    return this.fetchDisplayNames(selected)
+      .then(this.fillCanEdit)
+      .then(selected => {
+        let newValue;
+        if (multiple) {
+          newValue = selected.map(item => item.id);
+        } else {
+          newValue = selected.length > 0 ? selected[0]['id'] : '';
+        }
 
-      return new Promise(resolve => {
-        this.setState(
-          prevState => {
-            return {
-              value: newValue,
-              selectedRows: selected,
-              gridData: {
-                ...prevState.gridData,
-                selected: selected.map(item => item.id)
+        return new Promise(resolve => {
+          this.setState(
+            prevState => {
+              return {
+                value: newValue,
+                selectedRows: selected,
+                gridData: {
+                  ...prevState.gridData,
+                  selected: selected.map(item => item.id)
+                }
+              };
+            },
+            () => {
+              if (shouldTriggerOnChange && typeof onChange === 'function') {
+                onChange(newValue, selected);
               }
-            };
-          },
-          () => {
-            if (shouldTriggerOnChange && typeof onChange === 'function') {
-              onChange(newValue, selected);
+              resolve();
             }
-            resolve();
-          }
-        );
+          );
+        });
       });
-    });
   };
 
   onCancelSelect = () => {
