@@ -5,10 +5,10 @@ import { TASKS_URI } from '../../constants/alfresco';
 import { TimesheetSourcesId } from '../../constants/timesheet';
 
 export class TimesheetCommonApi extends RecordService {
-  getTimesheetStatusList = ({ month, year, userNames }) => {
+  getTimesheetStatusList = ({ month, year, userNames, status = '' }) => {
     return Records.query(
       {
-        query: { month, year, userNames },
+        query: { month, year, userNames, status },
         language: 'json',
         maxItems: 100,
         sourceId: TimesheetSourcesId.STATUS,

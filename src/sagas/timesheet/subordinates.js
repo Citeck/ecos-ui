@@ -19,14 +19,18 @@ import SubordinatesTimesheetService from '../../services/timesheet/subordinates'
 
 function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
   try {
-    const { currentDate } = payload;
+    const { currentDate, status } = payload;
     const userName = yield select(selectUserName);
+
     const subordinates = yield api.timesheetSubordinates.getSubordinatesList({ userName });
+
     const userNames = CommonTimesheetService.getUserNameList(subordinates.records);
+
     const statuses = yield api.timesheetCommon.getTimesheetStatusList({
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userNames
+      userNames,
+      status
     });
 
     const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
