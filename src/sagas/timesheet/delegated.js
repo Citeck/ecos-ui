@@ -20,21 +20,22 @@ import DelegatedTimesheetConverter from '../../dto/timesheet/delegated';
 
 function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
   try {
-    const { currentDate, delegationType } = payload;
+    const { currentDate, delegationType, status } = payload;
     const userName = yield select(selectUserName);
     const requestList = yield api.timesheetDelegated.getRequestListByType({
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
       userName,
-      delegationType
+      delegationType,
+      statuses: Array.isArray(status) ? status : [status]
     });
 
     const userNames = CommonTimesheetService.getUserNameList(requestList.records);
 
     const peopleList = yield api.timesheetCommon.getInfoPeopleList({ userNames });
 
-    const othCounts = yield api.timesheetDelegated.getTotalCountsByType({ userName, delegationType });
-    const innerCounts = CommonTimesheetService.getTotalCounts(othCounts, { [delegationType]: requestList.totalCount || 0 });
+    const counts = yield api.timesheetDelegated.getTotalCountsForTypes({ userName, delegationType });
+    const innerCounts = CommonTimesheetService.getTotalCounts(counts);
 
     const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
       month: currentDate.getMonth(),

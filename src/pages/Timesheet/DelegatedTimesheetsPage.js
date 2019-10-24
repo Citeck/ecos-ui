@@ -47,16 +47,17 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     super.componentWillReceiveProps(nextProps, nextContext);
 
     const { innerCounts } = this.props;
+    const badge = key => (nextProps.isLoading ? '• • •' : nextProps.innerCounts[key] || 0);
 
     if (JSON.stringify(innerCounts) !== JSON.stringify(nextProps.innerCounts)) {
       const delegationTypeTabs = this.state.delegationTypeTabs.map(item => ({
         ...item,
-        badge: nextProps.innerCounts[item.type] || 0
+        badge: badge(item.type)
       }));
 
       const sheetTabs = this.state.sheetTabs.map(item => ({
         ...item,
-        badge: item.key === TimesheetTypes.DELEGATED ? nextProps.innerCounts.all || 0 : null
+        badge: item.key === TimesheetTypes.DELEGATED ? badge('all') : null
       }));
 
       this.setState({ delegationTypeTabs, sheetTabs });
@@ -125,11 +126,13 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
   getData = () => {
     const { currentDate } = this.state;
     const delegationType = this.selectedDType;
+    const status = this.selectedStatus.key;
 
     this.props.getDelegatedTimesheetByParams &&
       this.props.getDelegatedTimesheetByParams({
         currentDate,
-        delegationType
+        delegationType,
+        status
       });
   };
 
@@ -154,6 +157,10 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     this.setState({ delegationTypeTabs, statusTabs }, this.getData);
   }
 
+  handleChangeStatusTab(tabIndex) {
+    super.handleChangeStatusTab(tabIndex, this.getData);
+  }
+
   handleClickOffDelegation = data => {
     const { userName } = data;
     const delegationType = this.selectedDType;
@@ -169,34 +176,21 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
 
   renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
-    const { mergedList, isLoading, updatingHours } = this.props;
-    const activeStatus = this.selectedStatus;
+    const { mergedList, updatingHours } = this.props;
 
-    const filteredList = mergedList.filter(item => {
-      if (Array.isArray(activeStatus.key)) {
-        return activeStatus.key.includes(item.status);
-      }
-
-      return item.status === activeStatus.key;
-    });
-
-    if (filteredList.length > 0) {
-      return (
-        <Timesheet
-          groupBy={'user'}
-          configGroupBtns={this.configGroupBtns}
-          eventTypes={filteredList}
-          daysOfMonth={daysOfMonth}
-          isAvailable={!isDelegated}
-          lockedMessage={this.lockDescription}
-          onChangeHours={this.handleChangeEventDayHours.bind(this)}
-          onResetHours={this.handleResetEventDayHours.bind(this)}
-          updatingHours={updatingHours}
-        />
-      );
-    }
-
-    return isLoading ? null : this.renderNoData();
+    return (
+      <Timesheet
+        groupBy={'user'}
+        configGroupBtns={this.configGroupBtns}
+        eventTypes={mergedList}
+        daysOfMonth={daysOfMonth}
+        isAvailable={!isDelegated}
+        lockedMessage={this.lockDescription}
+        onChangeHours={this.handleChangeEventDayHours.bind(this)}
+        onResetHours={this.handleResetEventDayHours.bind(this)}
+        updatingHours={updatingHours}
+      />
+    );
   };
 
   render() {

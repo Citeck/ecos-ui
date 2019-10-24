@@ -19,26 +19,32 @@ import SubordinatesTimesheetService from '../../services/timesheet/subordinates'
 
 function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
   try {
-    const { currentDate } = payload;
+    const { currentDate, status } = payload;
     const userName = yield select(selectUserName);
+
     const subordinates = yield api.timesheetSubordinates.getSubordinatesList({ userName });
+
     const userNames = CommonTimesheetService.getUserNameList(subordinates.records);
-    const statuses = yield api.timesheetCommon.getTimesheetStatusList({
+
+    const requestList = yield api.timesheetSubordinates.getRequestListByStatus({
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userNames
+      userNames,
+      statuses: Array.isArray(status) ? status : [status]
     });
+
+    const userNamesPure = CommonTimesheetService.getUserNameList(requestList.records);
 
     const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userNames: userNames
+      userNames: userNamesPure
     });
 
     const list = SubordinatesTimesheetService.mergeManyToOneList({
-      subordinates: subordinates.records,
+      peopleList: subordinates.records,
       calendarEvents,
-      statuses: statuses.records
+      requestList: requestList.records
     });
 
     const mergedList = SubordinatesTimesheetConverter.getSubordinatesEventsListForWeb(list);

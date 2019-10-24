@@ -78,12 +78,17 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
   getData = () => {
     const { currentDate } = this.state;
+    const status = this.selectedStatus.key;
 
-    this.props.getSubordinatesTimesheetByParams({ currentDate });
+    this.props.getSubordinatesTimesheetByParams({ currentDate, status });
   };
 
   handleChangeCurrentDate(currentDate) {
     super.handleChangeCurrentDate(currentDate, this.getData);
+  }
+
+  handleChangeStatusTab(tabIndex) {
+    super.handleChangeStatusTab(tabIndex, this.getData);
   }
 
   handleChangeStatus = (data, outcome) => {
@@ -99,35 +104,21 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
   renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
-    const { mergedList, isLoading, updatingHours } = this.props;
+    const { mergedList, updatingHours } = this.props;
 
-    const activeStatus = this.selectedStatus;
-
-    const filteredList = mergedList.filter(item => {
-      if (Array.isArray(activeStatus.key)) {
-        return activeStatus.key.includes(item.status);
-      }
-
-      return item.status === activeStatus.key;
-    });
-
-    if (filteredList.length > 0) {
-      return (
-        <Timesheet
-          groupBy={'user'}
-          eventTypes={filteredList}
-          daysOfMonth={daysOfMonth}
-          isAvailable={!isDelegated}
-          lockedMessage={this.lockDescription}
-          configGroupBtns={this.configGroupBtns}
-          onChangeHours={this.handleChangeEventDayHours.bind(this)}
-          onResetHours={this.handleResetEventDayHours.bind(this)}
-          updatingHours={updatingHours}
-        />
-      );
-    }
-
-    return isLoading ? null : this.renderNoData();
+    return (
+      <Timesheet
+        groupBy={'user'}
+        eventTypes={mergedList}
+        daysOfMonth={daysOfMonth}
+        isAvailable={!isDelegated}
+        lockedMessage={this.lockDescription}
+        configGroupBtns={this.configGroupBtns}
+        onChangeHours={this.handleChangeEventDayHours.bind(this)}
+        onResetHours={this.handleResetEventDayHours.bind(this)}
+        updatingHours={updatingHours}
+      />
+    );
   };
 
   render() {
