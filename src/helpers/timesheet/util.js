@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import { pagesWithOnlyContent } from '../../constants';
 import { ServerDateFormats } from '../../constants/timesheet';
 import { t } from '../util';
-import { CommonLabels } from './labels';
+import { CommonLabels } from './dictionary';
 
 export function getDaysOfMonth(currentDate) {
   const arr = Array.from({ length: moment(currentDate).daysInMonth() }, (x, i) => {
