@@ -65,7 +65,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
     const { isDelegated } = this.state;
     const { status } = this.props;
 
-    if ([ServerStatusKeys.MANAGER_APPROVAL, ServerStatusKeys.SENT_TO_ACCOUNTING_SYSTEM].includes(status.key)) {
+    if (status.key === ServerStatusKeys.MANAGER_APPROVAL) {
       return t(MyTimesheetLabels.LOCK_DESCRIPTION_1);
     }
 
