@@ -126,7 +126,11 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     const { currentDate } = this.state;
     const delegationType = this.selectedDType;
 
-    this.props.getDelegatedTimesheetByParams && this.props.getDelegatedTimesheetByParams({ currentDate, delegationType });
+    this.props.getDelegatedTimesheetByParams &&
+      this.props.getDelegatedTimesheetByParams({
+        currentDate,
+        delegationType
+      });
   };
 
   handleChangeCurrentDate(currentDate) {
@@ -151,7 +155,10 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
   }
 
   handleClickOffDelegation = data => {
-    console.log('handleClickOffDelegation', data);
+    const { userName } = data;
+    const delegationType = this.selectedDType;
+
+    this.props.declineDelegation && this.props.declineDelegation({ userName, delegationType });
   };
 
   handleChangeStatus = (data, outcome) => {
@@ -259,6 +266,7 @@ const mapDispatchToProps = dispatch => ({
   getDelegatedTimesheetByParams: payload => dispatch(getDelegatedTimesheetByParams(payload)),
   resetDelegatedTimesheet: payload => dispatch(resetDelegatedTimesheet(payload)),
   modifyStatus: payload => dispatch(modifyStatus(payload)),
+  declineDelegation: payload => dispatch(declineDelegation(payload)),
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
   resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))

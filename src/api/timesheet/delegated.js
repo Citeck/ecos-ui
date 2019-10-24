@@ -56,4 +56,35 @@ export class TimesheetDelegatedApi extends RecordService {
       attributes: { id: 'id' }
     }).then(res => ({ [reqType]: res.totalCount }));
   };
+
+  getRecords = ({ userName, deputyName, delegationType }) => {
+    return Records.query(
+      {
+        query: {
+          user: userName,
+          deputy: deputyName,
+          delegationType: delegationType
+        },
+        sourceId: TimesheetSourcesId.DELEGATION,
+        language: 'json'
+      },
+      {
+        nodeRef: 'nodeRef'
+      }
+    ).then(res => res);
+  };
+
+  setRecord = ({ userName, deputyName, delegationType }) => {
+    var delegation = Records.get(`${TimesheetSourcesId.DELEGATION}@`);
+
+    delegation.att('user', userName);
+    delegation.att('deputy', deputyName);
+    delegation.att('delegationType', delegationType);
+
+    return delegation.save().then(res => res);
+  };
+
+  removeRecord = ({ userName, deputyName, delegationType }) => {
+    return Records.remove([`${TimesheetSourcesId.DELEGATION}@${userName}-${deputyName}-${delegationType}`]).then(res => res);
+  };
 }

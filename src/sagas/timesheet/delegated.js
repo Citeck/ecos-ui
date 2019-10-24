@@ -96,9 +96,8 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   try {
     const currentUser = yield select(selectUserName);
-    const { outcome, taskId, userName, comment } = payload;
-
     const mergedList = yield select(selectTDelegatedMergedList);
+    const { outcome, taskId, userName, comment } = payload;
 
     yield api.timesheetCommon.modifyStatus({
       outcome,
@@ -117,11 +116,34 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   }
 }
 
+function* sagaDeclineDelegation({ api, logger }, { payload }) {
+  try {
+    const deputyName = yield select(selectUserName);
+    const mergedList = yield select(selectTDelegatedMergedList);
+    const { userName, delegationType } = payload;
+
+    yield api.timesheetDelegated.removeRecord({
+      userName,
+      delegationType,
+      deputyName
+    });
+
+    const newMergedList = CommonTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
+
+    yield put(setMergedList(newMergedList));
+  } catch (e) {
+    yield put(setLoading(false));
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
+    logger.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getDelegatedTimesheetByParams().type, sagaGetDelegatedTimesheetByParams, ea);
   yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
   yield takeLatest(resetEventDayHours().type, sagaResetEventDayHours, ea);
   yield takeLatest(modifyStatus().type, sagaModifyTaskStatus, ea);
+  yield takeLatest(declineDelegation().type, sagaDeclineDelegation, ea);
 }
 
 export default saga;
