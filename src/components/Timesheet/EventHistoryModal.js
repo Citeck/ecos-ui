@@ -49,7 +49,7 @@ class EventHistoryModal extends React.Component {
         {/*<div className="ecos-timesheet__white-block">*/}
         {/*  {comment}*/}
         {/*</div>}*/}
-        <EventsHistory record={record} stateId={this.stateId} myColumns={CommonTimesheetService.getColumnsEventHistory()} minHeight={500} />
+        <EventsHistory record={record} stateId={this.stateId} myColumns={CommonTimesheetService.getColumnsEventHistory()} height={500} />
       </EcosModal>
     );
   }

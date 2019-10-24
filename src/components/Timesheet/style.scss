@@ -160,7 +160,7 @@
 
   &__status {
     @extend #{$root}__white-block;
-    flex-basis: 35%;
+    min-width: 35%;
 
     &-title {
       margin-right: 9px;
@@ -910,6 +910,7 @@
       left: calc(50% - 1em / 2);
       line-height: 1em;
       color: $color-gray-5;
+      opacity: inherit;
     }
   }
 

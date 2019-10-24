@@ -58,8 +58,17 @@ export default class CommonTimesheetService {
 
   static getAllowedStatusKeys(type, delegationType) {
     const filters = CommonTimesheetService.getStatusFilters(type, delegationType);
+    const flated = [];
 
-    return filters.map(item => item.key).flat();
+    filters.forEach(item => {
+      if (Array.isArray(item.key)) {
+        Array.prototype.push.apply(flated, item.key);
+      } else {
+        flated.push(item.key);
+      }
+    });
+
+    return flated;
   }
 
   static getSheetTabs = (isOnlyContent, location) => {
@@ -312,8 +321,9 @@ export default class CommonTimesheetService {
 
   static getTotalCounts(others, current) {
     const target = { ...others, ...current };
+    const keys = Object.getOwnPropertyNames(target);
 
-    target.all = Object.values(target).reduce((accumulator, current) => accumulator + current);
+    target.all = keys.reduce((accumulator, key) => accumulator + target[key], 0);
 
     return target;
   }
