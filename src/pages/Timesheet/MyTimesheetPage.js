@@ -65,7 +65,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
     const { isDelegated } = this.state;
     const { status } = this.props;
 
-    if (status.key === ServerStatusKeys.MANAGER_APPROVAL) {
+    if ([ServerStatusKeys.MANAGER_APPROVAL, ServerStatusKeys.SENT_TO_ACCOUNTING_SYSTEM].includes(status.key)) {
       return t(MyTimesheetLabels.LOCK_DESCRIPTION_1);
     }
 
@@ -74,6 +74,13 @@ class MyTimesheetPage extends BaseTimesheetPage {
     }
 
     return '';
+  }
+
+  get isAvailable() {
+    const { status } = this.props;
+    const { isDelegated } = this.state;
+
+    return ![ServerStatusKeys.MANAGER_APPROVAL, ServerStatusKeys.SENT_TO_ACCOUNTING_SYSTEM].includes(status.key) && !isDelegated;
   }
 
   getData = () => {
@@ -130,14 +137,14 @@ class MyTimesheetPage extends BaseTimesheetPage {
   }
 
   renderTimesheet = () => {
-    const { daysOfMonth, isDelegated } = this.state;
-    const { status, mergedEvents, updatingHours } = this.props;
+    const { daysOfMonth } = this.state;
+    const { mergedEvents, updatingHours } = this.props;
 
     return (
       <Timesheet
         eventTypes={mergedEvents}
         daysOfMonth={daysOfMonth}
-        isAvailable={status.key !== ServerStatusKeys.MANAGER_APPROVAL && !isDelegated}
+        isAvailable={this.isAvailable}
         lockedMessage={this.lockDescription}
         onChangeHours={this.handleChangeEventDayHours.bind(this)}
         onResetHours={this.handleResetEventDayHours.bind(this)}
@@ -196,6 +203,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
   render() {
     const { sheetTabs, currentDate } = this.state;
     const { isLoading, isLoadingStatus, isUpdatingStatus, status } = this.props;
+    const noActionBtn = !status.taskId || !values(ServerStatusKeys).includes(status.key);
 
     return (
       <div className="ecos-timesheet">
@@ -225,7 +233,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
           <BlockStatus
             currentStatus={status.key}
             onChangeStatus={this.handleChangeStatus.bind(this)}
-            noActionBtn={!status.taskId || !values(ServerStatusKeys).includes(status.key)}
+            noActionBtn={noActionBtn}
             isLoading={isLoadingStatus || isUpdatingStatus}
             record={status.recordRef}
             comment={status.comment}
