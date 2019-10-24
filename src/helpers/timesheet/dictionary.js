@@ -24,6 +24,7 @@ export const CommonLabels = {
   STATUS_VAL_WAITING_APPROVAL: 'timesheets.allForms.status.waitingForApproval',
   STATUS_VAL_NEED_IMPROVED: 'timesheets.allForms.status.sendBack',
   STATUS_VAL_APPROVED: 'Согласован',
+  STATUS_VAL_SENT_TO_ACCOUNTING_SYSTEM: 'Согласован',
 
   STATUS_BTN_SENT_IMPROVE: 'timesheets.allForms.buttons.sentBack',
   STATUS_BTN_APPROVE: 'timesheets.allForms.buttons.approve',
@@ -68,6 +69,7 @@ export const CommonLabels = {
   EVENT_HISTORY_COL_DATE: 'Дата',
   EVENT_HISTORY_COL_PERSON: 'Участник',
   EVENT_HISTORY_COL_TASK: 'Задача',
+  EVENT_HISTORY_COL_OUTCOME: 'Результат',
   EVENT_HISTORY_COL_COMMENT: 'Комментарий',
 
   MODAL_IN_PROGRESS: 'timesheets.allForms.modal.inProgress',

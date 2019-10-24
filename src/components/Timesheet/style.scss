@@ -161,6 +161,7 @@
   &__status {
     @extend #{$root}__white-block;
     min-width: 35%;
+    justify-content: flex-start;
 
     &-title {
       margin-right: 9px;
