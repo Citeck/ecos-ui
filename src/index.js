@@ -124,10 +124,7 @@ idleTimer
   .setCheckInterval(60000)
   .setIdleTimeout(60000 * 60 * 3)
   .setNoIdleCallback(() => {
-    api.app.touch().catch(() => {
-      console.log('Session expired');
-      idleTimer.stop();
-    });
+    api.app.touch().catch(() => {});
   })
   .run();
 
