@@ -300,6 +300,10 @@ export default class CommonTimesheetService {
         text: t(CommonLabels.EVENT_HISTORY_COL_TASK)
       },
       {
+        attribute: 'event:taskOutcomeTitle',
+        text: t(CommonLabels.EVENT_HISTORY_COL_OUTCOME)
+      },
+      {
         attribute: 'event:taskComment',
         text: t(CommonLabels.EVENT_HISTORY_COL_COMMENT),
         width: 230

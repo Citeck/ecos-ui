@@ -66,7 +66,7 @@ class BlockStatus extends React.Component {
             {t(btn)}
           </Btn>
         )}
-        {noActionBtn && this.getEmptyBlock()}
+        {(!btn || noActionBtn) && this.getEmptyBlock()}
       </>
     );
   };
@@ -98,6 +98,8 @@ class BlockStatus extends React.Component {
         });
       case ServerStatusKeys.APPROVED_BY_HR:
         return this.getCommonViewStatus({ value: CommonLabels.STATUS_VAL_APPROVED });
+      case ServerStatusKeys.SENT_TO_ACCOUNTING_SYSTEM:
+        return this.getCommonViewStatus({ value: CommonLabels.STATUS_VAL_SENT_TO_ACCOUNTING_SYSTEM });
       default:
         return this.getCommonViewStatus({ value: CommonLabels.STATUS_VAL_NONE });
     }
