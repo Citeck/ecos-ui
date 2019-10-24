@@ -1,6 +1,7 @@
 import { put, select, takeLatest } from 'redux-saga/effects';
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
+  declineDelegation,
   getDelegatedTimesheetByParams,
   modifyEventDayHours,
   modifyStatus,
@@ -19,21 +20,21 @@ import DelegatedTimesheetConverter from '../../dto/timesheet/delegated';
 
 function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
   try {
-    const { currentDate, action } = payload;
+    const { currentDate, delegationType } = payload;
     const userName = yield select(selectUserName);
-    const requestList = yield api.timesheetDelegated.getRequestListByAction({
+    const requestList = yield api.timesheetDelegated.getRequestListByType({
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
       userName,
-      action
+      delegationType
     });
 
     const userNames = CommonTimesheetService.getUserNameList(requestList.records);
 
     const peopleList = yield api.timesheetCommon.getInfoPeopleList({ userNames });
 
-    const othCounts = yield api.timesheetDelegated.getTotalCountsByAction({ userName, action });
-    const actionCounts = CommonTimesheetService.getTotalCounts(othCounts, { [action]: requestList.totalCount || 0 });
+    const othCounts = yield api.timesheetDelegated.getTotalCountsByType({ userName, delegationType });
+    const innerCounts = CommonTimesheetService.getTotalCounts(othCounts, { [delegationType]: requestList.totalCount || 0 });
 
     const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
       month: currentDate.getMonth(),
@@ -49,7 +50,7 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
 
     const mergedList = DelegatedTimesheetConverter.getDelegatedEventsListForWeb(list);
 
-    yield put(setDelegatedTimesheetByParams({ mergedList, actionCounts }));
+    yield put(setDelegatedTimesheetByParams({ mergedList, innerCounts }));
   } catch (e) {
     logger.error('[timesheetDelegated sagaGetDelegatedTimesheetByParams saga] error', e.message);
   }

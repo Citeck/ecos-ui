@@ -1,7 +1,9 @@
 import get from 'lodash/get';
 import { handleActions } from 'redux-actions';
 import {
+  declineDelegation,
   getDelegatedTimesheetByParams,
+  modifyStatus,
   resetDelegatedTimesheet,
   setDelegatedTimesheetByParams,
   setLoading,
@@ -14,7 +16,7 @@ const initialState = {
   isLoading: false,
   mergedList: [],
   popupMsg: '',
-  actionCounts: {
+  innerCounts: {
     all: 0
   }
 };
@@ -47,12 +49,20 @@ export default handleActions(
     [setDelegatedTimesheetByParams]: (state, actions) => ({
       ...state,
       mergedList: get(actions, 'payload.mergedList', []),
-      actionCounts: get(actions, 'payload.actionCounts', {}),
+      innerCounts: get(actions, 'payload.innerCounts', {}),
       isLoading: false
     }),
     [setUpdatingEventDayHours]: (state, actions) => ({
       ...state,
       updatingHours: actions.payload
+    }),
+    [modifyStatus]: (state, actions) => ({
+      ...state,
+      isLoading: true
+    }),
+    [declineDelegation]: (state, actions) => ({
+      ...state,
+      isLoading: true
     })
   },
   initialState

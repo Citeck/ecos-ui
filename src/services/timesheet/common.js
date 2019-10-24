@@ -1,5 +1,5 @@
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
-import { GroupedStatuses, ServerEventTypes, ServerStatusKeys, StatusActionFilters, TimesheetTypes } from '../../constants/timesheet';
+import { DelegationTypes, GroupedStatuses, ServerEventTypes, ServerStatusKeys, TimesheetTypes } from '../../constants/timesheet';
 import { deepClone, t } from '../../helpers/util';
 import { URL } from '../../constants';
 
@@ -7,7 +7,7 @@ const Types = TimesheetTypes;
 const Statuses = ServerStatusKeys;
 
 export default class CommonTimesheetService {
-  static getStatusFilters = (type, action) => {
+  static getStatusFilters = (type, delegationType) => {
     let arrStatuses = [];
 
     switch (type) {
@@ -20,13 +20,13 @@ export default class CommonTimesheetService {
         ];
         break;
       case Types.DELEGATED:
-        if (action === StatusActionFilters.FILL) {
+        if (delegationType === DelegationTypes.FILL) {
           arrStatuses = [
             { key: Statuses.NOT_FILLED, label: CommonLabels.STATUSES_VAL_NOT_FILLED, isActive: true },
             { key: Statuses.CORRECTION, label: CommonLabels.STATUSES_VAL_UNDER_REVISION },
             { key: Statuses.MANAGER_APPROVAL, label: CommonLabels.STATUSES_VAL_ON_AGREEMENT }
           ];
-        } else if (action === StatusActionFilters.APPROVE) {
+        } else if (delegationType === DelegationTypes.APPROVE) {
           arrStatuses = [
             { key: Statuses.MANAGER_APPROVAL, label: CommonLabels.STATUSES_VAL_WAITING_APPROVAL, isActive: true },
             { key: Statuses.CORRECTION, label: CommonLabels.STATUSES_VAL_SENT_FOR_REVISION },
@@ -56,8 +56,8 @@ export default class CommonTimesheetService {
     }));
   };
 
-  static getAllowedStatusKeys(type, action) {
-    const filters = CommonTimesheetService.getStatusFilters(type, action);
+  static getAllowedStatusKeys(type, delegationType) {
+    const filters = CommonTimesheetService.getStatusFilters(type, delegationType);
 
     return filters.map(item => item.key).flat();
   }

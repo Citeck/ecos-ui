@@ -44,7 +44,7 @@ export const GroupedStatuses = {
   APPROVED: [ServerStatusKeys.APPROVED_BY_MANAGER, ServerStatusKeys.APPROVED_BY_HR]
 };
 
-export const StatusActionFilters = {
+export const DelegationTypes = {
   FILL: 'filling',
   APPROVE: 'approval'
 };
