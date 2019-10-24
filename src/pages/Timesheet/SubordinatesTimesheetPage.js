@@ -87,6 +87,10 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
     super.handleChangeCurrentDate(currentDate, this.getData);
   }
 
+  handleChangeStatusTab(tabIndex) {
+    super.handleChangeStatusTab(tabIndex, this.getData);
+  }
+
   handleChangeStatus = (data, outcome) => {
     const { currentDate } = this.state;
     const { taskId, userName, comment = '' } = data;
