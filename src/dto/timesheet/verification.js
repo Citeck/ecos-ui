@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import CommonTimesheetConverter from './common';
+import { TimesheetTypes } from '../../constants/timesheet';
 
 export default class VerificationTimesheetConverter {
   static getVerificationEventsListForWeb(source = []) {
@@ -13,7 +14,7 @@ export default class VerificationTimesheetConverter {
       newItem.timesheetNumber = get(item, 'userName', '');
       newItem.status = get(item, 'status', '');
       newItem.taskId = get(item, 'taskId', '');
-      newItem.eventTypes = CommonTimesheetConverter.getCalendarEventsForWeb(item.calendarEvents);
+      newItem.eventTypes = CommonTimesheetConverter.getCalendarEventsForWeb(item.calendarEvents, TimesheetTypes.VERIFICATION);
       newItem.nodeRef = `workspace://SpacesStore/${item.uid}`;
 
       target.push(newItem);
