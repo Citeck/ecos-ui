@@ -1,8 +1,30 @@
 import { RecordService } from '../recordService';
 import Records from '../../components/Records';
 import { SourcesId } from '../../constants';
+import { getQueryFewValues } from './common';
 
 export class TimesheetSubordinatesApi extends RecordService {
+  getRequestListByStatus = ({ month, year, statuses, userNames }) => {
+    const queryStatuses = `AND (@timesheet:status:${getQueryFewValues(statuses)})`;
+    const queryTime = `AND @timesheet:currentYear:${year} AND @timesheet:currentMonth:${month + 1}`;
+    const queryPeople = `AND (@timesheet:requestorUsername:${getQueryFewValues(userNames)})`;
+
+    return Records.query(
+      {
+        query: `TYPE:'timesheet:Request' ${queryStatuses} ${queryTime} ${queryPeople}`,
+        language: 'fts-alfresco',
+        maxItems: 100,
+        debug: false
+      },
+      {
+        userName: 'timesheet:requestorUsername',
+        status: 'timesheet:status?str',
+        taskId: 'timesheet:currentTaskId',
+        uid: 'sys:node-uuid'
+      }
+    ).then(res => res);
+  };
+
   getSubordinatesList = ({ userName }) => {
     return Records.query(
       {

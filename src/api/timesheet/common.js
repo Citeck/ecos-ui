@@ -4,11 +4,21 @@ import { SourcesId } from '../../constants';
 import { TASKS_URI } from '../../constants/alfresco';
 import { TimesheetSourcesId } from '../../constants/timesheet';
 
+export function getQueryFewValues(values) {
+  return values && values.map(status => `${status}`).join(' OR ');
+}
+
 export class TimesheetCommonApi extends RecordService {
-  getTimesheetStatusList = ({ month, year, userNames, status = '' }) => {
+  getTimesheetStatusList = ({ month, year, userNames, statuses }) => {
+    const query = { month, year, userNames };
+
+    if (Array.isArray(statuses) && statuses.length) {
+      query.status = statuses;
+    }
+
     return Records.query(
       {
-        query: { month, year, userNames, status },
+        query,
         language: 'json',
         maxItems: 100,
         sourceId: TimesheetSourcesId.STATUS,
