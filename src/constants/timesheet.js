@@ -55,3 +55,9 @@ export const TimesheetTypes = {
   SUBORDINATES: 'subordinates',
   VERIFICATION: 'verification'
 };
+
+export const TimesheetSourcesId = {
+  DELEGATION: 'timesheet-delegation',
+  STATUS: 'timesheet-status',
+  CALENDAR: 'timesheet-calendar'
+};

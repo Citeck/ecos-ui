@@ -1,5 +1,6 @@
 import { RecordService } from '../recordService';
 import Records from '../../components/Records';
+import { SourcesId } from '../../constants';
 
 export class TimesheetSubordinatesApi extends RecordService {
   getSubordinatesList = ({ userName }) => {
@@ -10,7 +11,7 @@ export class TimesheetSubordinatesApi extends RecordService {
         query: `@ggodic:geSupervisorId:${userName}`,
         language: 'fts-alfresco',
         maxItems: 100,
-        sourceId: 'people',
+        sourceId: SourcesId.PEOPLE,
         debug: false
       },
       {

@@ -1,6 +1,8 @@
 import { RecordService } from '../recordService';
 import Records from '../../components/Records';
+import { SourcesId } from '../../constants';
 import { TASKS_URI } from '../../constants/alfresco';
+import { TimesheetSourcesId } from '../../constants/timesheet';
 
 export class TimesheetCommonApi extends RecordService {
   getTimesheetStatusList = ({ month, year, userNames }) => {
@@ -9,7 +11,7 @@ export class TimesheetCommonApi extends RecordService {
         query: { month, year, userNames },
         language: 'json',
         maxItems: 100,
-        sourceId: 'timesheet-status',
+        sourceId: TimesheetSourcesId.STATUS,
         debug: false
       },
       {
@@ -27,7 +29,7 @@ export class TimesheetCommonApi extends RecordService {
         query: { month, year, userName },
         language: 'json',
         maxItems: 100,
-        sourceId: 'timesheet-calendar',
+        sourceId: TimesheetSourcesId.CALENDAR,
         debug: false
       },
       {
@@ -62,7 +64,7 @@ export class TimesheetCommonApi extends RecordService {
         query: `${queryNames}`,
         language: 'fts-alfresco',
         maxItems: 100,
-        sourceId: 'people',
+        sourceId: SourcesId.PEOPLE,
         debug: false
       },
       {

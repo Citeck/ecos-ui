@@ -2,6 +2,7 @@ import { RecordService } from '../recordService';
 import Records from '../../components/Records';
 import { StatusActionFilters, TimesheetTypes } from '../../constants/timesheet';
 import CommonTimesheetService from '../../services/timesheet/common';
+import { SourcesId } from '../../constants';
 
 function getQueryStatuses(action) {
   const expectedStatuses = CommonTimesheetService.getAllowedStatusKeys(TimesheetTypes.DELEGATED, action);
@@ -25,7 +26,7 @@ export class TimesheetDelegatedApi extends RecordService {
         query: `TYPE:'timesheet:Request' ${queryAction} ${queryStatuses} ${queryTime}`,
         language: 'fts-alfresco',
         maxItems: 100,
-        sourceId: 'people',
+        sourceId: SourcesId.PEOPLE,
         debug: false
       },
       attributes: {
@@ -49,7 +50,7 @@ export class TimesheetDelegatedApi extends RecordService {
         query: `TYPE:'timesheet:Request' ${queryAction} ${queryStatuses}`,
         language: 'fts-alfresco',
         maxItems: 100,
-        sourceId: 'people',
+        sourceId: SourcesId.PEOPLE,
         debug: false
       },
       attributes: { id: 'id' }
