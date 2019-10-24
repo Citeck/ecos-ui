@@ -4,9 +4,13 @@ import { DelegationTypes, TimesheetSourcesId, TimesheetTypes } from '../../const
 import CommonTimesheetService from '../../services/timesheet/common';
 import { SourcesId } from '../../constants';
 
+function getQueryFewStatuses(statuses) {
+  return statuses && statuses.map(status => `@timesheet:status:${status}`).join(' OR ');
+}
+
 function getQueryStatuses(delegationType) {
   const expectedStatuses = CommonTimesheetService.getAllowedStatusKeys(TimesheetTypes.DELEGATED, delegationType);
-  const queryStatuses = expectedStatuses && expectedStatuses.map(status => `@timesheet:status:${status}`).join(' OR ');
+  const queryStatuses = getQueryFewStatuses(expectedStatuses);
 
   if (!queryStatuses) {
     return '';
@@ -16,9 +20,9 @@ function getQueryStatuses(delegationType) {
 }
 
 export class TimesheetDelegatedApi extends RecordService {
-  getRequestListByType = ({ userName, delegationType, year, month }) => {
+  getRequestListByType = ({ userName, delegationType, year, month, statuses }) => {
     const queryType = `AND @timesheet:${delegationType}Delegated:true AND @timesheet:${delegationType}Deputy:${userName}`;
-    const queryStatuses = getQueryStatuses(delegationType);
+    const queryStatuses = `AND (${getQueryFewStatuses(statuses)})`;
     const queryTime = `AND @timesheet:currentYear:${year} AND @timesheet:currentMonth:${month + 1}`;
 
     return Records.query({
@@ -38,12 +42,9 @@ export class TimesheetDelegatedApi extends RecordService {
     }).then(res => res);
   };
 
-  getTotalCountsByType = ({ userName, delegationType }) => {
-    const delegationTypes = [DelegationTypes.FILL, DelegationTypes.APPROVE].filter(item => item !== delegationType);
-
-    const reqType = delegationTypes[0];
-    const queryType = `AND @timesheet:${reqType}Delegated:true AND @timesheet:${reqType}Deputy:${userName}`;
-    const queryStatuses = getQueryStatuses(reqType);
+  getTotalCountByType = ({ userName, delegationType }) => {
+    const queryType = `AND @timesheet:${delegationType}Delegated:true AND @timesheet:${delegationType}Deputy:${userName}`;
+    const queryStatuses = getQueryStatuses(delegationType);
 
     return Records.query({
       query: {
@@ -53,8 +54,19 @@ export class TimesheetDelegatedApi extends RecordService {
         sourceId: SourcesId.PEOPLE,
         debug: false
       },
-      attributes: { id: 'id' }
-    }).then(res => ({ [reqType]: res.totalCount }));
+      attributes: { _tc: '_tc' }
+    }).then(res => (res ? res.totalCount : 0));
+  };
+
+  getTotalCountsForTypes = function*({ userName }) {
+    const delegationTypes = [DelegationTypes.FILL, DelegationTypes.APPROVE];
+    const counts = {};
+
+    for (let delegationType of delegationTypes) {
+      counts[delegationType] = yield this.getTotalCountByType({ userName, delegationType });
+    }
+
+    return counts;
   };
 
   getRecords = ({ userName, deputyName, delegationType }) => {

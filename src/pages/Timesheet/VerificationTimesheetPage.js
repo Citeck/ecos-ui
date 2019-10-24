@@ -115,22 +115,18 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
     const { daysOfMonth } = this.state;
     const { mergedList, isLoading, updatingHours } = this.props;
 
-    if (mergedList && mergedList.length) {
-      return (
-        <Timesheet
-          groupBy={'user'}
-          eventTypes={mergedList}
-          daysOfMonth={daysOfMonth}
-          configGroupBtns={this.configGroupBtns}
-          isAvailable
-          onChangeHours={this.handleChangeEventDayHours.bind(this)}
-          onResetHours={this.handleResetEventDayHours.bind(this)}
-          updatingHours={updatingHours}
-        />
-      );
-    }
-
-    return isLoading ? null : this.renderNoData();
+    return (
+      <Timesheet
+        groupBy={'user'}
+        eventTypes={mergedList}
+        daysOfMonth={daysOfMonth}
+        configGroupBtns={this.configGroupBtns}
+        isAvailable
+        onChangeHours={this.handleChangeEventDayHours.bind(this)}
+        onResetHours={this.handleResetEventDayHours.bind(this)}
+        updatingHours={updatingHours}
+      />
+    );
   };
 
   render() {
