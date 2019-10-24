@@ -45,8 +45,8 @@ export const CommonLabels = {
   STATUSES_VAL_ON_AGREEMENT_BY_MANAGER: 'timesheets.allForms.statuses.onManagerApproval',
   STATUSES_VAL_AGREED_BY_MANAGER: 'timesheets.allForms.statuses.approvedByManager',
 
-  STATUS_ACTION_FILL_IN: 'timesheets.allForms.status.action.fillIn',
-  STATUS_ACTION_TO_APPROVE: 'timesheets.allForms.status.action.approve',
+  DELEGATION_TYPE_FILL_IN: 'timesheets.allForms.status.action.fillIn',
+  DELEGATION_TYPE_TO_APPROVE: 'timesheets.allForms.status.action.approve',
 
   EVENT_TYPE_DAYTIME_WORK: 'timesheets.allForms.eventType.dayTimeWork',
   EVENT_TYPE_BUSINESS_TRIP: 'timesheets.allForms.eventType.businessTrip',

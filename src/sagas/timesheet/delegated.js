@@ -1,6 +1,7 @@
 import { put, select, takeLatest } from 'redux-saga/effects';
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
+  declineDelegation,
   getDelegatedTimesheetByParams,
   modifyEventDayHours,
   modifyStatus,
@@ -19,21 +20,21 @@ import DelegatedTimesheetConverter from '../../dto/timesheet/delegated';
 
 function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
   try {
-    const { currentDate, action } = payload;
+    const { currentDate, delegationType } = payload;
     const userName = yield select(selectUserName);
-    const requestList = yield api.timesheetDelegated.getRequestListByAction({
+    const requestList = yield api.timesheetDelegated.getRequestListByType({
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
       userName,
-      action
+      delegationType
     });
 
     const userNames = CommonTimesheetService.getUserNameList(requestList.records);
 
     const peopleList = yield api.timesheetCommon.getInfoPeopleList({ userNames });
 
-    const othCounts = yield api.timesheetDelegated.getTotalCountsByAction({ userName, action });
-    const actionCounts = CommonTimesheetService.getTotalCounts(othCounts, { [action]: requestList.totalCount || 0 });
+    const othCounts = yield api.timesheetDelegated.getTotalCountsByType({ userName, delegationType });
+    const innerCounts = CommonTimesheetService.getTotalCounts(othCounts, { [delegationType]: requestList.totalCount || 0 });
 
     const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
       month: currentDate.getMonth(),
@@ -49,7 +50,7 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
 
     const mergedList = DelegatedTimesheetConverter.getDelegatedEventsListForWeb(list);
 
-    yield put(setDelegatedTimesheetByParams({ mergedList, actionCounts }));
+    yield put(setDelegatedTimesheetByParams({ mergedList, innerCounts }));
   } catch (e) {
     logger.error('[timesheetDelegated sagaGetDelegatedTimesheetByParams saga] error', e.message);
   }
@@ -95,9 +96,8 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   try {
     const currentUser = yield select(selectUserName);
-    const { outcome, taskId, userName, comment } = payload;
-
     const mergedList = yield select(selectTDelegatedMergedList);
+    const { outcome, taskId, userName, comment } = payload;
 
     yield api.timesheetCommon.modifyStatus({
       outcome,
@@ -116,11 +116,34 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   }
 }
 
+function* sagaDeclineDelegation({ api, logger }, { payload }) {
+  try {
+    const deputyName = yield select(selectUserName);
+    const mergedList = yield select(selectTDelegatedMergedList);
+    const { userName, delegationType } = payload;
+
+    yield api.timesheetDelegated.removeRecord({
+      userName,
+      delegationType,
+      deputyName
+    });
+
+    const newMergedList = CommonTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
+
+    yield put(setMergedList(newMergedList));
+  } catch (e) {
+    yield put(setLoading(false));
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
+    logger.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getDelegatedTimesheetByParams().type, sagaGetDelegatedTimesheetByParams, ea);
   yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
   yield takeLatest(resetEventDayHours().type, sagaResetEventDayHours, ea);
   yield takeLatest(modifyStatus().type, sagaModifyTaskStatus, ea);
+  yield takeLatest(declineDelegation().type, sagaDeclineDelegation, ea);
 }
 
 export default saga;

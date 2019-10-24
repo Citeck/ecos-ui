@@ -4,11 +4,12 @@ import { connect } from 'react-redux';
 
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels, DelegateTimesheetLabels } from '../../helpers/timesheet/dictionary';
-import { ServerStatusKeys, ServerStatusOutcomeKeys, StatusActionFilters, TimesheetTypes } from '../../constants/timesheet';
+import { DelegationTypes, ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '../../constants/timesheet';
 import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 import DelegatedTimesheetService from '../../services/timesheet/delegated';
 import {
+  declineDelegation,
   getDelegatedTimesheetByParams,
   modifyEventDayHours,
   modifyStatus,
@@ -22,18 +23,18 @@ import { Btn } from '../../components/common/btns';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 
-const initAction = StatusActionFilters.FILL;
+const initDType = DelegationTypes.FILL;
 const initStatus = ServerStatusKeys.CORRECTION;
 
 class DelegatedTimesheetsPage extends BaseTimesheetPage {
   constructor(props) {
     super(props);
 
-    const actions = DelegatedTimesheetService.getDelegatedActions();
+    const delegationTypes = DelegatedTimesheetService.getDelegationType();
 
-    this.state.statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, initAction);
+    this.state.statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, initDType);
     this.state.currentStatus = initStatus;
-    this.state.actionDelegatedTabs = actions.map(item => ({ ...item, isActive: initAction === item.action }));
+    this.state.delegationTypeTabs = delegationTypes.map(item => ({ ...item, isActive: initDType === item.type }));
     this.state.delegatedTo = '';
     this.state.delegationRejected = true;
   }
@@ -45,20 +46,20 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
   componentWillReceiveProps(nextProps, nextContext) {
     super.componentWillReceiveProps(nextProps, nextContext);
 
-    const { actionCounts } = this.props;
+    const { innerCounts } = this.props;
 
-    if (JSON.stringify(actionCounts) !== JSON.stringify(nextProps.actionCounts)) {
-      const actionDelegatedTabs = this.state.actionDelegatedTabs.map(item => ({
+    if (JSON.stringify(innerCounts) !== JSON.stringify(nextProps.innerCounts)) {
+      const delegationTypeTabs = this.state.delegationTypeTabs.map(item => ({
         ...item,
-        badge: nextProps.actionCounts[item.action] || 0
+        badge: nextProps.innerCounts[item.type] || 0
       }));
 
       const sheetTabs = this.state.sheetTabs.map(item => ({
         ...item,
-        badge: item.key === TimesheetTypes.DELEGATED ? nextProps.actionCounts.all || 0 : null
+        badge: item.key === TimesheetTypes.DELEGATED ? nextProps.innerCounts.all || 0 : null
       }));
 
-      this.setState({ actionDelegatedTabs, sheetTabs });
+      this.setState({ delegationTypeTabs, sheetTabs });
     }
   }
 
@@ -66,18 +67,18 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     this.props.resetDelegatedTimesheet();
   }
 
-  get selectedAction() {
-    const { actionDelegatedTabs } = this.state;
+  get selectedDType() {
+    const { delegationTypeTabs } = this.state;
 
-    return (actionDelegatedTabs.find(item => item.isActive) || {}).action;
+    return (delegationTypeTabs.find(item => item.isActive) || {}).type;
   }
 
   get configGroupBtns() {
     const status = this.selectedStatus;
-    const action = this.selectedAction;
+    const delegationType = this.selectedDType;
     const key = Array.isArray(status.key) ? status.key[0] : status.key;
 
-    if (action === StatusActionFilters.FILL) {
+    if (delegationType === DelegationTypes.FILL) {
       return [
         {
           id: 'ecos-timesheet__table-group-btn_off-delegation_id',
@@ -92,7 +93,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
       ];
     }
 
-    if (action === StatusActionFilters.APPROVE) {
+    if (delegationType === DelegationTypes.APPROVE) {
       switch (key) {
         case ServerStatusKeys.CORRECTION:
           return [
@@ -113,6 +114,8 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
               onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.APPROVE)
             }
           ];
+        default:
+          return [{}, {}];
       }
     }
 
@@ -121,34 +124,41 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
 
   getData = () => {
     const { currentDate } = this.state;
-    const action = this.selectedAction;
+    const delegationType = this.selectedDType;
 
-    this.props.getDelegatedTimesheetByParams && this.props.getDelegatedTimesheetByParams({ currentDate, action });
+    this.props.getDelegatedTimesheetByParams &&
+      this.props.getDelegatedTimesheetByParams({
+        currentDate,
+        delegationType
+      });
   };
 
   handleChangeCurrentDate(currentDate) {
     super.handleChangeCurrentDate(currentDate, this.getData);
   }
 
-  handleChangeActionTab(tabIndex) {
-    const actionDelegatedTabs = deepClone(this.state.actionDelegatedTabs);
-    let selectedAction = '';
+  handleChangeDTypeTab(tabIndex) {
+    const delegationTypeTabs = deepClone(this.state.delegationTypeTabs);
+    let selectedDType = '';
 
-    actionDelegatedTabs.forEach((tab, index) => {
+    delegationTypeTabs.forEach((tab, index) => {
       tab.isActive = index === tabIndex;
 
       if (tab.isActive) {
-        selectedAction = tab.action;
+        selectedDType = tab.type;
       }
     });
 
-    const statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, selectedAction);
+    const statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.DELEGATED, selectedDType);
 
-    this.setState({ actionDelegatedTabs, statusTabs }, this.getData);
+    this.setState({ delegationTypeTabs, statusTabs }, this.getData);
   }
 
   handleClickOffDelegation = data => {
-    console.log('handleClickOffDelegation', data);
+    const { userName } = data;
+    const delegationType = this.selectedDType;
+
+    this.props.declineDelegation && this.props.declineDelegation({ userName, delegationType });
   };
 
   handleChangeStatus = (data, outcome) => {
@@ -190,7 +200,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
   };
 
   render() {
-    const { sheetTabs, currentDate, statusTabs, actionDelegatedTabs, currentTimesheetData } = this.state;
+    const { sheetTabs, currentDate, statusTabs, delegationTypeTabs, currentTimesheetData } = this.state;
     const { isLoading } = this.props;
     const { outcome } = currentTimesheetData || {};
 
@@ -205,7 +215,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
             </div>
           </div>
 
-          {this.selectedAction === StatusActionFilters.APPROVE && (
+          {this.selectedDType === DelegationTypes.APPROVE && (
             <div className="ecos-timesheet__column ecos-timesheet__delegation">
               <div className="ecos-timesheet__delegation-title">
                 {t(CommonLabels.HEADLINE_DELEGATION)}
@@ -214,7 +224,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
                 </Btn>
               </div>
 
-              <div className="ecos-timesheet__delegation-label">{DelegateTimesheetLabels.DELEGATION_DESCRIPTION_1}</div>
+              <div className="ecos-timesheet__delegation-label">{t(DelegateTimesheetLabels.DELEGATION_DESCRIPTION_1)}</div>
             </div>
           )}
         </div>
@@ -222,7 +232,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
         <div className="ecos-timesheet__header">
           <div className="ecos-timesheet__header-box">
             <div className="ecos-timesheet__white-block">
-              <Tabs tabs={actionDelegatedTabs} isSmall onClick={this.handleChangeActionTab.bind(this)} />
+              <Tabs tabs={delegationTypeTabs} isSmall onClick={this.handleChangeDTypeTab.bind(this)} />
             </div>
             <div className="ecos-timesheet__date-settings">
               <DateSlider onChange={this.handleChangeCurrentDate.bind(this)} date={currentDate} />
@@ -246,7 +256,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
 
 const mapStateToProps = state => ({
   mergedList: get(state, 'timesheetDelegated.mergedList', []),
-  actionCounts: get(state, 'timesheetDelegated.actionCounts', []),
+  innerCounts: get(state, 'timesheetDelegated.innerCounts', []),
   updatingHours: get(state, 'timesheetDelegated.updatingHours', {}),
   isLoading: get(state, 'timesheetDelegated.isLoading', false),
   popupMsg: get(state, 'timesheetDelegated.popupMsg', '')
@@ -256,6 +266,7 @@ const mapDispatchToProps = dispatch => ({
   getDelegatedTimesheetByParams: payload => dispatch(getDelegatedTimesheetByParams(payload)),
   resetDelegatedTimesheet: payload => dispatch(resetDelegatedTimesheet(payload)),
   modifyStatus: payload => dispatch(modifyStatus(payload)),
+  declineDelegation: payload => dispatch(declineDelegation(payload)),
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
   resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload))

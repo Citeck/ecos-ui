@@ -9,6 +9,8 @@ export const setMergedList = createAction(prefix + 'SET_MERGED_LIST');
 
 export const modifyStatus = createAction(prefix + 'MODIFY_STATUS');
 
+export const declineDelegation = createAction(prefix + 'DECLINE_DELEGATION');
+
 export const modifyEventDayHours = createAction(prefix + 'MODIFY_EVENT_DAY_HOURS');
 export const resetEventDayHours = createAction(prefix + 'RESET_EVENT_DAY_HOURS');
 export const setUpdatingEventDayHours = createAction(prefix + 'SET_UPDATING_EVENT_DAY_HOURS');
