@@ -21,7 +21,11 @@ export default [
     validate: {
       required: false
     },
-    weight: 19
+    weight: 19,
+    customConditional: `
+      const allowedTypes = data.allowedAuthorityType.split(',').map(item => item.trim());
+      show = allowedTypes.indexOf('GROUP') !== -1;
+    `
   },
   {
     type: 'textfield',
@@ -33,7 +37,11 @@ export default [
     validate: {
       required: false
     },
-    weight: 20
+    weight: 20,
+    customConditional: `
+      const allowedTypes = data.allowedAuthorityType.split(',').map(item => item.trim());
+      show = allowedTypes.indexOf('GROUP') !== -1;
+    `
   },
   {
     type: 'textfield',

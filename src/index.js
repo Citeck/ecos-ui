@@ -124,7 +124,10 @@ idleTimer
   .setCheckInterval(60000)
   .setIdleTimeout(60000 * 60 * 3)
   .setNoIdleCallback(() => {
-    fetch('/share/proxy/alfresco/citeck/ecos/touch', { credentials: 'include' });
+    api.app.touch().catch(() => {
+      console.log('Session expired');
+      idleTimer.stop();
+    });
   })
   .run();
 
