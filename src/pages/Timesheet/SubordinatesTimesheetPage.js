@@ -99,7 +99,19 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
   };
 
   handleToggleDelegated = isDelegated => {
-    this.setState({ isOpenSelectUserModal: isDelegated });
+    this.setState(state => {
+      const newState = {};
+
+      if (isDelegated) {
+        newState.isOpenSelectUserModal = true;
+      }
+
+      if (!isDelegated) {
+        newState.isDelegated = false;
+      }
+
+      return newState;
+    });
   };
 
   handleSelectUser = user => {
@@ -108,7 +120,6 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
   };
 
   handleCloseSelectUserModal = () => {
-    console.warn('handleCloseSelectUserModal');
     this.setState({ isOpenSelectUserModal: false, isDelegated: false });
   };
 
