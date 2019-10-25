@@ -20,7 +20,7 @@ import MyTimesheetService from '../../services/timesheet/mine';
 
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
-import Timesheet, { BlockStatus, DateSlider, Tabs } from '../../components/Timesheet';
+import Timesheet, { BlockStatus, DateSlider, SelectUserModal, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 import { debounce } from 'lodash';
 
@@ -32,6 +32,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
 
     this.state.delegatedTo = '';
     this.state.delegationRejected = true;
+    this.state.isOpenSelectUserModal = false;
   }
 
   statusPing = debounce(() => {
@@ -115,13 +116,17 @@ class MyTimesheetPage extends BaseTimesheetPage {
   handleToggleDelegated(isDelegated) {
     this.setState(state => {
       const newState = {
-        isDelegated,
         delegatedTo: ''
       };
 
       if (isDelegated) {
-        newState.delegatedTo = 'Петренко Сергей Васильевич';
+        newState.isOpenSelectUserModal = true;
         newState.delegationRejected = false;
+      }
+
+      if (!isDelegated) {
+        newState.delegationRejected = true;
+        newState.isDelegated = false;
       }
 
       return newState;
@@ -135,6 +140,15 @@ class MyTimesheetPage extends BaseTimesheetPage {
       isDelegated: false
     });
   }
+
+  handleSelectUser = user => {
+    console.warn('user => ', user);
+    this.setState({ isOpenSelectUserModal: false, isDelegated: Boolean(user), delegatedTo: 'Selected User' });
+  };
+
+  handleCloseSelectUserModal = () => {
+    this.setState({ isOpenSelectUserModal: false, isDelegated: false, delegatedTo: '' });
+  };
 
   renderTimesheet = () => {
     const { daysOfMonth } = this.state;
@@ -200,6 +214,12 @@ class MyTimesheetPage extends BaseTimesheetPage {
     );
   }
 
+  renderSelectUserModal() {
+    const { isOpenSelectUserModal } = this.state;
+
+    return <SelectUserModal isOpen={isOpenSelectUserModal} onSelect={this.handleSelectUser} onCancel={this.handleCloseSelectUserModal} />;
+  }
+
   render() {
     const { sheetTabs, currentDate } = this.state;
     const { isLoading, isLoadingStatus, isUpdatingStatus, status } = this.props;
@@ -245,6 +265,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
         </div>
         {this.renderPopupMessage()}
         {this.renderCommentModal()}
+        {this.renderSelectUserModal()}
       </div>
     );
   }
