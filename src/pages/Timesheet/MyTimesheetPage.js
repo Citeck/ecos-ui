@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 import { t } from '../../helpers/util';
 import { CommonLabels, MyTimesheetLabels } from '../../helpers/timesheet/dictionary';
-import { ServerStatusKeys } from '../../constants/timesheet';
+import { ServerStatusKeys, DelegationTypes } from '../../constants/timesheet';
 import {
   getMyTimesheetByParams,
   getStatus,
@@ -14,7 +14,8 @@ import {
   resetEventDayHours,
   resetMyTimesheet,
   setPopupMessage,
-  setUpdatingStatus
+  setUpdatingStatus,
+  delegateTo
 } from '../../actions/timesheet/mine';
 import MyTimesheetService from '../../services/timesheet/mine';
 
@@ -141,9 +142,13 @@ class MyTimesheetPage extends BaseTimesheetPage {
     });
   }
 
-  handleSelectUser = user => {
-    console.warn('user => ', user);
-    this.setState({ isOpenSelectUserModal: false, isDelegated: Boolean(user), delegatedTo: 'Selected User' });
+  handleSelectUser = deputy => {
+    if (!!deputy) {
+      this.props.delegateTo({ deputy, delegationType: DelegationTypes.FILL });
+    }
+
+    console.warn('user => ', deputy);
+    this.setState({ isOpenSelectUserModal: false, isDelegated: Boolean(deputy), delegatedTo: 'Selected User' });
   };
 
   handleCloseSelectUserModal = () => {
@@ -290,7 +295,8 @@ const mapDispatchToProps = dispatch => ({
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
   resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
   getStatus: payload => dispatch(getStatus(payload)),
-  setPopupMessage: payload => dispatch(setPopupMessage(payload))
+  setPopupMessage: payload => dispatch(setPopupMessage(payload)),
+  delegateTo: payload => dispatch(delegateTo(payload))
 });
 
 export default connect(

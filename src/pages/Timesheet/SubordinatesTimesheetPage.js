@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { t } from '../../helpers/util';
 import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
 import { CommonLabels, SubTimesheetLabels } from '../../helpers/timesheet/dictionary';
-import { ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '../../constants/timesheet';
+import { ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes, DelegationTypes } from '../../constants/timesheet';
 import {
   getSubordinatesTimesheetByParams,
   modifyEventDayHours,
@@ -15,6 +15,7 @@ import {
   setPopupMessage
 } from '../../actions/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
+import { delegateTo } from '../../actions/timesheet/mine';
 
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
@@ -114,9 +115,13 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
     });
   };
 
-  handleSelectUser = user => {
-    console.warn('user => ', user);
-    this.setState({ isOpenSelectUserModal: false, isDelegated: Boolean(user) });
+  handleSelectUser = deputy => {
+    if (!!deputy) {
+      this.props.delegateTo({ deputy, delegationType: DelegationTypes.APPROVE });
+    }
+
+    console.warn('deputy => ', deputy);
+    this.setState({ isOpenSelectUserModal: false, isDelegated: Boolean(deputy) });
   };
 
   handleCloseSelectUserModal = () => {
@@ -209,7 +214,8 @@ const mapDispatchToProps = dispatch => ({
   modifyStatus: payload => dispatch(modifyStatus(payload)),
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
   resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
-  setPopupMessage: payload => dispatch(setPopupMessage(payload))
+  setPopupMessage: payload => dispatch(setPopupMessage(payload)),
+  delegateTo: payload => dispatch(delegateTo(payload))
 });
 
 export default connect(

@@ -10,7 +10,8 @@ import {
   setPopupMessage,
   setStatus,
   setUpdatingEventDayHours,
-  setUpdatingStatus
+  setUpdatingStatus,
+  delegateTo
 } from '../../actions/timesheet/mine';
 import { selectUserName } from '../../selectors/user';
 import { selectTMineUpdatingHours } from '../../selectors/timesheet';
@@ -123,12 +124,31 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
   }
 }
 
+function* sagaDelegateTo({ api, logger }, { payload }) {
+  const userName = yield select(selectUserName);
+
+  try {
+    console.warn('payload => ', payload);
+    const result = api.timesheetDelegated.setRecord({
+      userName,
+      deputyName: payload.deputy,
+      delegationType: payload.delegationType
+    });
+
+    console.warn('result => ', result);
+  } catch (e) {
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_DELEGATE_TO));
+    logger.error('[timesheetMine sagaDelegateTo saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getStatus().type, sagaGetStatus, ea);
   yield takeLatest(modifyStatus().type, sagaModifyStatus, ea);
   yield takeLatest(getMyTimesheetByParams().type, sagaGetMyTimesheetByParams, ea);
   yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
   yield takeLatest(resetEventDayHours().type, sagaResetEventDayHours, ea);
+  yield takeLatest(delegateTo().type, sagaDelegateTo, ea);
 }
 
 export default saga;

@@ -123,5 +123,6 @@ export const VerifyTimesheetLabels = {
 
 export const TimesheetMessages = {
   ERROR_SAVE_STATUS: 'Ошибка обновления статуса',
-  ERROR_SAVE_EVENT_HOURS: 'Ошибка обновления часов'
+  ERROR_SAVE_EVENT_HOURS: 'Ошибка обновления часов',
+  ERROR_DELEGATE_TO: 'Ошибка делегирования табеля'
 };
