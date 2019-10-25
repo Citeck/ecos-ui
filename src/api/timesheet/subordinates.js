@@ -1,13 +1,13 @@
 import { RecordService } from '../recordService';
 import Records from '../../components/Records';
 import { SourcesId } from '../../constants';
-import { getQueryFewValues } from './common';
+import { getQueryAndOrs } from './common';
 
 export class TimesheetSubordinatesApi extends RecordService {
   getRequestListByStatus = ({ month, year, statuses, userNames }) => {
-    const queryStatuses = `AND (@timesheet:status:${getQueryFewValues(statuses)})`;
+    const queryStatuses = getQueryAndOrs('@timesheet:status:', statuses);
     const queryTime = `AND @timesheet:currentYear:${year} AND @timesheet:currentMonth:${month + 1}`;
-    const queryPeople = `AND (@timesheet:requestorUsername:${getQueryFewValues(userNames)})`;
+    const queryPeople = getQueryAndOrs('@timesheet:requestorUsername:', userNames);
 
     return Records.query(
       {
