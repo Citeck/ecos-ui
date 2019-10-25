@@ -23,8 +23,8 @@ class Search extends Component {
             }
           ];
         } else {
-          const { fields } = this.context;
-          const fieldsPredicates = fields
+          const { allFields } = this.context;
+          const fieldsPredicates = allFields
             .filter(item => {
               return item.default && (item.type === COLUMN_DATA_TYPE_TEXT || item.type === COLUMN_DATA_TYPE_MLTEXT || !item.type);
             })
