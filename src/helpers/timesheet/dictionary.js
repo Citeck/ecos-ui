@@ -5,6 +5,7 @@ export const CommonLabels = {
 
   NOTICE: 'Уведомление',
   NO_DATA: 'Нет данных',
+  NO_DATA_BY_FILTERS: 'Нет данных, удовлетворяющих условиям поиска',
 
   MAIN_TAB_1: 'timesheets.tabs.myTimesheetTab',
   MAIN_TAB_2: 'timesheets.tabs.mySubordinatesTab',

@@ -3,23 +3,18 @@ import Records from '../../components/Records';
 import { DelegationTypes, TimesheetSourcesId, TimesheetTypes } from '../../constants/timesheet';
 import CommonTimesheetService from '../../services/timesheet/common';
 import { SourcesId } from '../../constants';
-import { getQueryFewValues } from './common';
+import { getQueryAndOrs } from './common';
 
 function getQueryStatuses(delegationType) {
   const expectedStatuses = CommonTimesheetService.getAllowedStatusKeys(TimesheetTypes.DELEGATED, delegationType);
-  const queryStatuses = getQueryFewValues(expectedStatuses);
 
-  if (!queryStatuses) {
-    return '';
-  }
-
-  return `AND (@timesheet:status:${queryStatuses})`;
+  return getQueryAndOrs('@timesheet:status:', expectedStatuses);
 }
 
 export class TimesheetDelegatedApi extends RecordService {
   getRequestListByType = ({ userName, delegationType, year, month, statuses }) => {
     const queryType = `AND @timesheet:${delegationType}Delegated:true AND @timesheet:${delegationType}Deputy:${userName}`;
-    const queryStatuses = `AND (@timesheet:status:${getQueryFewValues(statuses)})`;
+    const queryStatuses = getQueryAndOrs('@timesheet:status:', statuses);
     const queryTime = `AND @timesheet:currentYear:${year} AND @timesheet:currentMonth:${month + 1}`;
 
     return Records.query({

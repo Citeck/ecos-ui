@@ -4,8 +4,18 @@ import { SourcesId } from '../../constants';
 import { TASKS_URI } from '../../constants/alfresco';
 import { TimesheetSourcesId } from '../../constants/timesheet';
 
-export function getQueryFewValues(values) {
-  return values && values.map(status => `${status}`).join(' OR ');
+export function getQueryFewValues(prefix, values) {
+  return values && values.map(value => `${prefix}${value}`).join(' OR ');
+}
+
+export function getQueryAndOrs(prefix, values) {
+  const ORs = getQueryFewValues(prefix, values);
+
+  if (!ORs) {
+    return '';
+  }
+
+  return `AND (${ORs})`;
 }
 
 export class TimesheetCommonApi extends RecordService {
@@ -63,11 +73,11 @@ export class TimesheetCommonApi extends RecordService {
   };
 
   getInfoPeopleList = ({ userNames }) => {
-    const queryNames = userNames.map(name => `@cm:userName:${name}`).join(' OR ');
-
-    if (!queryNames) {
+    if (!userNames || !userNames.length) {
       return {};
     }
+
+    const queryNames = getQueryFewValues('@cm:userName:', userNames);
 
     return Records.query(
       {
