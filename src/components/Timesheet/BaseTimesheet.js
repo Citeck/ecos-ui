@@ -7,7 +7,7 @@ import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels } from '../../helpers/timesheet/constants';
+import { CommonLabels } from '../../helpers/timesheet/dictionary';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Icon, ResizeBoxes } from '../common';
@@ -214,7 +214,7 @@ class BaseTimesheet extends Component {
   renderNoData() {
     return (
       <div className="ecos-timesheet__white-block">
-        <div className="ecos-timesheet__no-data">{CommonLabels.NO_DATA}</div>
+        <div className="ecos-timesheet__no-data">{CommonLabels.NO_DATA_BY_FILTERS}</div>
       </div>
     );
   }

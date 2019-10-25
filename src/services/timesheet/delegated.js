@@ -1,5 +1,6 @@
 import { t } from '../../helpers/util';
-import { CommonLabels, StatusActionFilters } from '../../helpers/timesheet/constants';
+import { CommonLabels } from '../../helpers/timesheet/dictionary';
+import { DelegationTypes } from '../../constants/timesheet';
 
 export default class DelegatedTimesheetService {
   static mergeManyToOneList({ peopleList = [], calendarEvents = [], requestList = [] }) {
@@ -19,21 +20,21 @@ export default class DelegatedTimesheetService {
     return target;
   }
 
-  static getDelegatedActions() {
+  static getDelegationType() {
     return [
       {
-        name: t(CommonLabels.STATUS_ACTION_FILL_IN),
+        name: t(CommonLabels.DELEGATION_TYPE_FILL_IN),
         isActive: false,
         isAvailable: true,
         badge: 0,
-        action: StatusActionFilters.FILL
+        type: DelegationTypes.FILL
       },
       {
-        name: t(CommonLabels.STATUS_ACTION_TO_APPROVE),
+        name: t(CommonLabels.DELEGATION_TYPE_TO_APPROVE),
         isActive: false,
         isAvailable: true,
         badge: 0,
-        action: StatusActionFilters.APPROVE
+        type: DelegationTypes.APPROVE
       }
     ];
   }

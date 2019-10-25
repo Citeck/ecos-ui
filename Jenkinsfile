@@ -1,3 +1,6 @@
+properties([
+    buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '7')),
+])
 timestamps {
   node {
     mattermostSend endpoint: 'https://mm.citeck.ru/hooks/9ytch3uox3retkfypuq7xi3yyr', channel: "build_notifications", color: 'good', message: " :arrow_forward: Build info - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"

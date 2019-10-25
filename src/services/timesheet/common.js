@@ -1,11 +1,5 @@
-import {
-  CommonLabels,
-  GroupedStatuses,
-  ServerEventTypes,
-  ServerStatusKeys,
-  StatusActionFilters,
-  TimesheetTypes
-} from '../../helpers/timesheet/constants';
+import { CommonLabels } from '../../helpers/timesheet/dictionary';
+import { DelegationTypes, GroupedStatuses, ServerEventTypes, ServerStatusKeys, TimesheetTypes } from '../../constants/timesheet';
 import { deepClone, t } from '../../helpers/util';
 import { URL } from '../../constants';
 
@@ -13,7 +7,7 @@ const Types = TimesheetTypes;
 const Statuses = ServerStatusKeys;
 
 export default class CommonTimesheetService {
-  static getStatusFilters = (type, action) => {
+  static getStatusFilters = (type, delegationType) => {
     let arrStatuses = [];
 
     switch (type) {
@@ -26,13 +20,13 @@ export default class CommonTimesheetService {
         ];
         break;
       case Types.DELEGATED:
-        if (action === StatusActionFilters.FILL) {
+        if (delegationType === DelegationTypes.FILL) {
           arrStatuses = [
             { key: Statuses.NOT_FILLED, label: CommonLabels.STATUSES_VAL_NOT_FILLED, isActive: true },
             { key: Statuses.CORRECTION, label: CommonLabels.STATUSES_VAL_UNDER_REVISION },
             { key: Statuses.MANAGER_APPROVAL, label: CommonLabels.STATUSES_VAL_ON_AGREEMENT }
           ];
-        } else if (action === StatusActionFilters.APPROVE) {
+        } else if (delegationType === DelegationTypes.APPROVE) {
           arrStatuses = [
             { key: Statuses.MANAGER_APPROVAL, label: CommonLabels.STATUSES_VAL_WAITING_APPROVAL, isActive: true },
             { key: Statuses.CORRECTION, label: CommonLabels.STATUSES_VAL_SENT_FOR_REVISION },
@@ -62,10 +56,19 @@ export default class CommonTimesheetService {
     }));
   };
 
-  static getAllowedStatusKeys(type, action) {
-    const filters = CommonTimesheetService.getStatusFilters(type, action);
+  static getAllowedStatusKeys(type, delegationType) {
+    const filters = CommonTimesheetService.getStatusFilters(type, delegationType);
+    const flated = [];
 
-    return filters.map(item => item.key).flat();
+    filters.forEach(item => {
+      if (Array.isArray(item.key)) {
+        Array.prototype.push.apply(flated, item.key);
+      } else {
+        flated.push(item.key);
+      }
+    });
+
+    return flated;
   }
 
   static getSheetTabs = (isOnlyContent, location) => {
@@ -297,6 +300,10 @@ export default class CommonTimesheetService {
         text: t(CommonLabels.EVENT_HISTORY_COL_TASK)
       },
       {
+        attribute: 'event:taskOutcomeTitle',
+        text: t(CommonLabels.EVENT_HISTORY_COL_OUTCOME)
+      },
+      {
         attribute: 'event:taskComment',
         text: t(CommonLabels.EVENT_HISTORY_COL_COMMENT),
         width: 230
@@ -318,9 +325,16 @@ export default class CommonTimesheetService {
 
   static getTotalCounts(others, current) {
     const target = { ...others, ...current };
+    const keys = Object.getOwnPropertyNames(target);
 
-    target.all = Object.values(target).reduce((accumulator, current) => accumulator + current);
+    target.all = keys.reduce((accumulator, key) => accumulator + target[key], 0);
 
     return target;
+  }
+
+  static deleteRecordLocalByUserName(mergedList, userName) {
+    let updatedML = deepClone(mergedList);
+
+    return updatedML.filter(item => item.userName !== userName);
   }
 }

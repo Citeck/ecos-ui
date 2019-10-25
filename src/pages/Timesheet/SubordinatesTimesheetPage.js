@@ -4,13 +4,8 @@ import { connect } from 'react-redux';
 
 import { t } from '../../helpers/util';
 import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
-import {
-  CommonLabels,
-  ServerStatusKeys,
-  ServerStatusOutcomeKeys,
-  SubTimesheetLabels,
-  TimesheetTypes
-} from '../../helpers/timesheet/constants';
+import { CommonLabels, SubTimesheetLabels } from '../../helpers/timesheet/dictionary';
+import { ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '../../constants/timesheet';
 import {
   getSubordinatesTimesheetByParams,
   modifyEventDayHours,
@@ -69,7 +64,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
         return [
           {
             ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: this.handleSentImprove
+            onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
           },
           {
             ...BaseConfigGroupButtons.APPROVE,
@@ -83,18 +78,17 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
   getData = () => {
     const { currentDate } = this.state;
+    const status = this.selectedStatus.key;
 
-    this.props.getSubordinatesTimesheetByParams({ currentDate });
-  };
-
-  handleSendComment = comment => {
-    this.handleChangeStatus({ ...this.state.currenTimesheetData, comment }, ServerStatusOutcomeKeys.SEND_BACK);
-
-    this.clearCommentModalData();
+    this.props.getSubordinatesTimesheetByParams({ currentDate, status });
   };
 
   handleChangeCurrentDate(currentDate) {
     super.handleChangeCurrentDate(currentDate, this.getData);
+  }
+
+  handleChangeStatusTab(tabIndex) {
+    super.handleChangeStatusTab(tabIndex, this.getData);
   }
 
   handleChangeStatus = (data, outcome) => {
@@ -121,35 +115,21 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
   renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
-    const { mergedList, isLoading, updatingHours } = this.props;
+    const { mergedList, updatingHours } = this.props;
 
-    const activeStatus = this.selectedStatus;
-
-    const filteredList = mergedList.filter(item => {
-      if (Array.isArray(activeStatus.key)) {
-        return activeStatus.key.includes(item.status);
-      }
-
-      return item.status === activeStatus.key;
-    });
-
-    if (filteredList.length > 0) {
-      return (
-        <Timesheet
-          groupBy={'user'}
-          eventTypes={filteredList}
-          daysOfMonth={daysOfMonth}
-          isAvailable={!isDelegated}
-          lockedMessage={this.lockDescription}
-          configGroupBtns={this.configGroupBtns}
-          onChangeHours={this.handleChangeEventDayHours.bind(this)}
-          onResetHours={this.handleResetEventDayHours.bind(this)}
-          updatingHours={updatingHours}
-        />
-      );
-    }
-
-    return isLoading ? null : this.renderNoData();
+    return (
+      <Timesheet
+        groupBy={'user'}
+        eventTypes={mergedList}
+        daysOfMonth={daysOfMonth}
+        isAvailable={!isDelegated}
+        lockedMessage={this.lockDescription}
+        configGroupBtns={this.configGroupBtns}
+        onChangeHours={this.handleChangeEventDayHours.bind(this)}
+        onResetHours={this.handleResetEventDayHours.bind(this)}
+        updatingHours={updatingHours}
+      />
+    );
   };
 
   render() {

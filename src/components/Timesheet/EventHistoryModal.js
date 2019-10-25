@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import EcosModal from '../common/EcosModal';
 import { isMobileDevice, t } from '../../helpers/util';
-import { CommonLabels } from '../../helpers/timesheet/constants';
+import { CommonLabels } from '../../helpers/timesheet/dictionary';
 import CommonTimesheetService from '../../services/timesheet/common';
 import { EventsHistory } from '../EventsHistory';
 
@@ -49,7 +49,7 @@ class EventHistoryModal extends React.Component {
         {/*<div className="ecos-timesheet__white-block">*/}
         {/*  {comment}*/}
         {/*</div>}*/}
-        <EventsHistory record={record} stateId={this.stateId} myColumns={CommonTimesheetService.getColumnsEventHistory()} minHeight={500} />
+        <EventsHistory record={record} stateId={this.stateId} myColumns={CommonTimesheetService.getColumnsEventHistory()} height={500} />
       </EcosModal>
     );
   }

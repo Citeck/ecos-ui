@@ -1,5 +1,5 @@
 import { put, select, takeLatest } from 'redux-saga/effects';
-import { TimesheetMessages } from '../../helpers/timesheet/constants';
+import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
   getSubordinatesTimesheetByParams,
   modifyEventDayHours,
@@ -11,7 +11,7 @@ import {
   setSubordinatesTimesheetByParams,
   setUpdatingEventDayHours
 } from '../../actions/timesheet/subordinates';
-import { selectTimesheetSubordinatesMergedList, selectTimesheetSubordinatesUpdatingHours } from '../../selectors/timesheet';
+import { selectTSubordinatesMergedList, selectTSubordinatesUpdatingHours } from '../../selectors/timesheet';
 import { selectUserName } from '../../selectors/user';
 import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
@@ -19,26 +19,32 @@ import SubordinatesTimesheetService from '../../services/timesheet/subordinates'
 
 function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
   try {
-    const { currentDate } = payload;
+    const { currentDate, status } = payload;
     const userName = yield select(selectUserName);
+
     const subordinates = yield api.timesheetSubordinates.getSubordinatesList({ userName });
+
     const userNames = CommonTimesheetService.getUserNameList(subordinates.records);
-    const statuses = yield api.timesheetCommon.getTimesheetStatusList({
+
+    const requestList = yield api.timesheetSubordinates.getRequestListByStatus({
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userNames
+      userNames,
+      statuses: Array.isArray(status) ? status : [status]
     });
+
+    const userNamesPure = CommonTimesheetService.getUserNameList(requestList.records);
 
     const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userNames: userNames
+      userNames: userNamesPure
     });
 
     const list = SubordinatesTimesheetService.mergeManyToOneList({
-      subordinates: subordinates.records,
+      peopleList: subordinates.records,
       calendarEvents,
-      statuses: statuses.records
+      requestList: requestList.records
     });
 
     const mergedList = SubordinatesTimesheetConverter.getSubordinatesEventsListForWeb(list);
@@ -54,7 +60,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
     const currentUser = yield select(selectUserName);
     const { outcome, taskId, userName, comment } = payload;
 
-    const mergedList = yield select(selectTimesheetSubordinatesMergedList);
+    const mergedList = yield select(selectTSubordinatesMergedList);
 
     yield api.timesheetCommon.modifyStatus({
       outcome,
@@ -63,7 +69,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
       comment
     });
 
-    const newMergedList = SubordinatesTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
+    const newMergedList = CommonTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
 
     yield put(setMergedList(newMergedList));
   } catch (e) {
@@ -74,7 +80,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
 }
 
 function* sagaModifyEventDayHours({ api, logger }, { payload }) {
-  const updatingHoursState = yield select(selectTimesheetSubordinatesUpdatingHours);
+  const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
   const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload);
 
   yield put(setUpdatingEventDayHours(firstState));
@@ -95,7 +101,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
 }
 
 function* sagaResetEventDayHours({ api, logger }, { payload }) {
-  const updatingHoursState = yield select(selectTimesheetSubordinatesUpdatingHours);
+  const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
 
   try {
     const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);

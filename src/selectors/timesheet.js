@@ -1,4 +1,10 @@
-export const selectTimesheetSubordinatesMergedList = state => state.timesheetSubordinates.mergedList || [];
-export const selectTimesheetSubordinatesUpdatingHours = state => state.timesheetSubordinates.updatingHours || {};
+export const selectTSubordinatesMergedList = state => state.timesheetSubordinates.mergedList || [];
+export const selectTSubordinatesUpdatingHours = state => state.timesheetSubordinates.updatingHours || {};
 
-export const selectTimesheetMineUpdatingHours = state => state.timesheetMine.updatingHours || {};
+export const selectTMineUpdatingHours = state => state.timesheetMine.updatingHours || {};
+
+export const selectTVerificationMergedList = state => state.timesheetVerification.mergedList || {};
+export const selectTVerificationUpdatingHours = state => state.timesheetVerification.updatingHours || {};
+
+export const selectTDelegatedMergedList = state => state.timesheetDelegated.mergedList || {};
+export const selectTDelegatedUpdatingHours = state => state.timesheetDelegated.updatingHours || {};

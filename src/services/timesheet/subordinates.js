@@ -1,27 +1,18 @@
-import { deepClone } from '../../helpers/util';
-
 export default class SubordinatesTimesheetService {
-  static mergeManyToOneList({ subordinates, calendarEvents, statuses }) {
+  static mergeManyToOneList({ peopleList, calendarEvents, requestList }) {
     const target = [];
 
-    if (Array.isArray(subordinates)) {
-      subordinates.forEach(item => {
-        const newItem = {};
+    if (Array.isArray(requestList)) {
+      requestList.forEach(item => {
+        const newItem = { ...item };
 
-        newItem.user = item;
+        newItem.user = Array.isArray(peopleList) ? peopleList.find(us => item.userName === us.userName) || {} : {};
         newItem.calendarEvents = calendarEvents[item.userName] || {};
-        newItem.status = statuses.find(status => item.userName === status.userName) || {};
 
         target.push(newItem);
       });
     }
 
     return target;
-  }
-
-  static deleteRecordLocalByUserName(mergedList, userName) {
-    let updatedML = deepClone(mergedList);
-
-    return updatedML.filter(item => item.userName !== userName);
   }
 }

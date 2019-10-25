@@ -1,6 +1,6 @@
 import get from 'lodash/get';
 import { handleActions } from 'redux-actions';
-import { MaxAttempts } from '../../helpers/timesheet/constants';
+import { MaxAttempts } from '../../constants/timesheet';
 import {
   getMyTimesheetByParams,
   getStatus,
@@ -28,6 +28,10 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [setPopupMessage]: (state, actions) => ({
+      ...state,
+      popupMsg: actions.payload
+    }),
     [resetMyTimesheet]: (state, actions) => ({
       ...initialState
     }),
@@ -50,19 +54,15 @@ export default handleActions(
       isLoadingStatus: true,
       countAttemptGetStatus: state.isUpdatingStatus && state.countAttemptGetStatus > 0 ? state.countAttemptGetStatus - 1 : 0
     }),
-    [setStatus]: (state, actions) => ({
-      ...state,
-      status: actions.payload,
-      isLoadingStatus: false
-    }),
     [modifyStatus]: (state, actions) => ({
       ...state,
       status: {},
       isLoadingStatus: true
     }),
-    [setPopupMessage]: (state, actions) => ({
+    [setStatus]: (state, actions) => ({
       ...state,
-      popupMsg: actions.payload
+      status: actions.payload,
+      isLoadingStatus: false
     }),
     [setUpdatingStatus]: (state, actions) => ({
       ...state,

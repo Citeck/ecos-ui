@@ -1,15 +1,37 @@
 import { RecordService } from '../recordService';
 import Records from '../../components/Records';
+import { SourcesId } from '../../constants';
 import { TASKS_URI } from '../../constants/alfresco';
+import { TimesheetSourcesId } from '../../constants/timesheet';
+
+export function getQueryFewValues(prefix, values) {
+  return values && values.map(value => `${prefix}${value}`).join(' OR ');
+}
+
+export function getQueryAndOrs(prefix, values) {
+  const ORs = getQueryFewValues(prefix, values);
+
+  if (!ORs) {
+    return '';
+  }
+
+  return `AND (${ORs})`;
+}
 
 export class TimesheetCommonApi extends RecordService {
-  getTimesheetStatusList = ({ month, year, userNames }) => {
+  getTimesheetStatusList = ({ month, year, userNames, statuses }) => {
+    const query = { month, year, userNames };
+
+    if (Array.isArray(statuses) && statuses.length) {
+      query.status = statuses;
+    }
+
     return Records.query(
       {
-        query: { month, year, userNames },
+        query,
         language: 'json',
         maxItems: 100,
-        sourceId: 'timesheet-status',
+        sourceId: TimesheetSourcesId.STATUS,
         debug: false
       },
       {
@@ -27,7 +49,7 @@ export class TimesheetCommonApi extends RecordService {
         query: { month, year, userName },
         language: 'json',
         maxItems: 100,
-        sourceId: 'timesheet-calendar',
+        sourceId: TimesheetSourcesId.CALENDAR,
         debug: false
       },
       {
@@ -51,18 +73,18 @@ export class TimesheetCommonApi extends RecordService {
   };
 
   getInfoPeopleList = ({ userNames }) => {
-    const queryNames = userNames.map(name => `@cm:userName:${name}`).join(' OR ');
-
-    if (!queryNames) {
+    if (!userNames || !userNames.length) {
       return {};
     }
+
+    const queryNames = getQueryFewValues('@cm:userName:', userNames);
 
     return Records.query(
       {
         query: `${queryNames}`,
         language: 'fts-alfresco',
         maxItems: 100,
-        sourceId: 'people',
+        sourceId: SourcesId.PEOPLE,
         debug: false
       },
       {

@@ -2,7 +2,7 @@ import React from 'react';
 import debounce from 'lodash/debounce';
 
 import { deepClone, t } from '../../helpers/util';
-import { CommonLabels } from '../../helpers/timesheet/constants';
+import { CommonLabels } from '../../helpers/timesheet/dictionary';
 import { getDaysOfMonth, getNewDateByDayNumber, isOnlyContent } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 import { TunableDialog } from '../../components/common/dialogs';
@@ -31,7 +31,7 @@ class BaseTimesheetPage extends React.Component {
       turnOnTimerPopup: false,
       isOpenCommentModal: false,
       isOpenSelectUserModal: false,
-      currenTimesheetData: null
+      currentTimesheetData: null
     };
   }
 
@@ -135,7 +135,7 @@ class BaseTimesheetPage extends React.Component {
   clearCommentModalData() {
     this.setState({
       isOpenCommentModal: false,
-      currenTimesheetData: null
+      currentTimesheetData: null
     });
   }
 
@@ -143,17 +143,25 @@ class BaseTimesheetPage extends React.Component {
     this.clearCommentModalData();
   };
 
-  handleSentImprove = (data = {}) => {
+  handleOpenCommentModal = (data = {}) => {
     this.setState({
       isOpenCommentModal: true,
-      currenTimesheetData: deepClone(data)
+      currentTimesheetData: deepClone(data)
     });
+  };
+
+  handleSendCommentModal = comment => {
+    const { outcome, ...data } = this.state.currentTimesheetData || {};
+
+    this.handleChangeStatus({ ...data, comment }, outcome);
+
+    this.clearCommentModalData();
   };
 
   renderNoData() {
     return (
       <div className="ecos-timesheet__white-block">
-        <div className="ecos-timesheet__no-data">{CommonLabels.NO_DATA}</div>
+        <div className="ecos-timesheet__no-data">{CommonLabels.NO_DATA_BY_FILTERS}</div>
       </div>
     );
   }
@@ -166,7 +174,7 @@ class BaseTimesheetPage extends React.Component {
         isOpen={isOpenCommentModal}
         isRequired={isRequired}
         onCancel={this.handleCloseCommentModal}
-        onSend={this.handleSendComment}
+        onSend={this.handleSendCommentModal}
       />
     );
   }

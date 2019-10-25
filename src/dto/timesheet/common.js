@@ -1,7 +1,8 @@
 import get from 'lodash/get';
 import moment from 'moment';
+import set from 'lodash/set';
 import { deepClone } from '../../helpers/util';
-import { ServerDateFormats } from '../../helpers/timesheet/constants';
+import { ServerDateFormats, TimesheetTypes } from '../../constants/timesheet';
 import CommonTimesheetService from '../../services/timesheet/common';
 
 const eventTypes = CommonTimesheetService.getEventTypes();
@@ -19,8 +20,22 @@ export default class CommonTimesheetConverter {
     return target;
   }
 
-  static getCalendarEventsForWeb(source = []) {
+  static setParamsEventTypes({ timesheetType }) {
     const target = deepClone(eventTypes);
+
+    if (timesheetType) {
+      target.forEach(item => {
+        if (timesheetType === TimesheetTypes.VERIFICATION) {
+          set(item, 'hours.editable', true);
+        }
+      });
+    }
+
+    return target;
+  }
+
+  static getCalendarEventsForWeb(source = [], timesheetType = '') {
+    const target = CommonTimesheetConverter.setParamsEventTypes({ timesheetType });
 
     if (Array.isArray(source)) {
       source.forEach(day => {

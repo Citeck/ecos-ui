@@ -1,4 +1,4 @@
-import { ServerStatusKeys, ServerStatusOutcomeKeys } from '../../helpers/timesheet/constants';
+import { ServerStatusKeys, ServerStatusOutcomeKeys } from '../../constants/timesheet';
 
 export default class MyTimesheetService {
   static getMyStatusOutcomeByCurrent(currentStatus) {

@@ -1,61 +1,3 @@
-export const ServerStatusKeys = {
-  NULL: null,
-  NOT_FILLED: 'Not_Started',
-  CORRECTION: 'Correction',
-  MANAGER_APPROVAL: 'Manager_Approval',
-  APPROVED_BY_MANAGER: 'Approved_By_Manager',
-  APPROVED_BY_HR: 'Approved_By_HR',
-  SENT_TO_ACCOUNTING_SYSTEM: 'Sent_To_Accounting_System'
-};
-
-export const ServerStatusOutcomeKeys = {
-  TASK_DONE: 'Task_Done',
-  SEND_BACK: 'Send_Back',
-  APPROVE: 'Approve',
-  HR_APPROVE: 'HR_Approve'
-};
-
-export const ServerEventTypes = {
-  DAYTIME_WORK: 'daytime-work',
-  BUSINESS_TRIP: 'business-trip',
-  ABSENCE: 'absence',
-  ANNUAL_BASIC_PAID_LEAVE: 'annual-basic-paid-leave',
-  BASIC_UNPAID_LEAVE: 'basic-unpaid-leave',
-  ONE_OF_FIVE: 'one-of-five',
-  NORTH_PAID_LEAVE: 'north-paid-leave',
-  IRREGULAR_PAID_LEAVE: 'irregular-paid-leave',
-  COMPENSATORY_LEAVE: 'compensatory-leave',
-  WEEKENDS_HOLIDAYS_WORK_HOLIDAY_AND_COMPENSATION: 'weekends-holidays-work-holiday-and-compensation',
-  WEEKENDS_HOLIDAYS_WORK_DOUBLED_COMPENSATION: 'weekends-holidays-work-doubled-compensation',
-  OVERTIME_WORK: 'overtime-work',
-  NIGHT_WORK: 'night-work',
-  HARMFUL_PAID_LEAVE: 'harmful-paid-leave'
-};
-
-export const ServerDateFormats = {
-  DDMMYYYY: 'DD.MM.YYYY'
-};
-
-export const MaxAttempts = {
-  STATUS: 3
-};
-
-export const GroupedStatuses = {
-  APPROVED: [ServerStatusKeys.APPROVED_BY_MANAGER, ServerStatusKeys.APPROVED_BY_HR]
-};
-
-export const StatusActionFilters = {
-  FILL: 'filling',
-  APPROVE: 'approval'
-};
-
-export const TimesheetTypes = {
-  DELEGATED: 'delegated',
-  MINE: 'mine',
-  SUBORDINATES: 'subordinates',
-  VERIFICATION: 'verification'
-};
-
 export const CommonLabels = {
   TIMESHEET_TITLE: 'timesheets.allForms.title',
 
@@ -63,6 +5,7 @@ export const CommonLabels = {
 
   NOTICE: 'Уведомление',
   NO_DATA: 'Нет данных',
+  NO_DATA_BY_FILTERS: 'Нет данных, удовлетворяющих условиям поиска',
 
   MAIN_TAB_1: 'timesheets.tabs.myTimesheetTab',
   MAIN_TAB_2: 'timesheets.tabs.mySubordinatesTab',
@@ -82,6 +25,7 @@ export const CommonLabels = {
   STATUS_VAL_WAITING_APPROVAL: 'timesheets.allForms.status.waitingForApproval',
   STATUS_VAL_NEED_IMPROVED: 'timesheets.allForms.status.sendBack',
   STATUS_VAL_APPROVED: 'Согласован',
+  STATUS_VAL_SENT_TO_ACCOUNTING_SYSTEM: 'Согласован',
 
   STATUS_BTN_SENT_IMPROVE: 'timesheets.allForms.buttons.sentBack',
   STATUS_BTN_APPROVE: 'timesheets.allForms.buttons.approve',
@@ -103,8 +47,8 @@ export const CommonLabels = {
   STATUSES_VAL_ON_AGREEMENT_BY_MANAGER: 'timesheets.allForms.statuses.onManagerApproval',
   STATUSES_VAL_AGREED_BY_MANAGER: 'timesheets.allForms.statuses.approvedByManager',
 
-  STATUS_ACTION_FILL_IN: 'timesheets.allForms.status.action.fillIn',
-  STATUS_ACTION_TO_APPROVE: 'timesheets.allForms.status.action.approve',
+  DELEGATION_TYPE_FILL_IN: 'timesheets.allForms.status.action.fillIn',
+  DELEGATION_TYPE_TO_APPROVE: 'timesheets.allForms.status.action.approve',
 
   EVENT_TYPE_DAYTIME_WORK: 'timesheets.allForms.eventType.dayTimeWork',
   EVENT_TYPE_BUSINESS_TRIP: 'timesheets.allForms.eventType.businessTrip',
@@ -126,6 +70,7 @@ export const CommonLabels = {
   EVENT_HISTORY_COL_DATE: 'Дата',
   EVENT_HISTORY_COL_PERSON: 'Участник',
   EVENT_HISTORY_COL_TASK: 'Задача',
+  EVENT_HISTORY_COL_OUTCOME: 'Результат',
   EVENT_HISTORY_COL_COMMENT: 'Комментарий',
 
   MODAL_IN_PROGRESS: 'timesheets.allForms.modal.inProgress',
