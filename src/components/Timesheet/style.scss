@@ -1006,3 +1006,78 @@
     }
   }
 }
+
+.ecos-ts-deputy-list {
+  $list: &;
+
+  &-modal {
+  }
+
+  &__box {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 38px;
+
+    &:hover {
+      #{$list}__cell {
+        &_hover {
+          visibility: visible;
+        }
+      }
+    }
+
+    &:not(:last-child) {
+      border-bottom: 2px solid $color-gray-4;
+    }
+
+    &_deleted {
+      color: $color-gray-5;
+    }
+  }
+
+  &__cell {
+    &-user {
+      @extend %ellipsis;
+    }
+
+    &-btns {
+      flex: auto;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    &_hover {
+      visibility: hidden;
+    }
+  }
+
+  &__label {
+    margin-right: 20px;
+  }
+
+  &__buttons {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 19px;
+
+    & :nth-child(n):not(:last-child) {
+      margin-right: 10px;
+    }
+  }
+
+  &__scroll {
+    border-top: 2px solid $color-gray-4;
+    border-bottom: 2px solid $color-gray-4;
+  }
+
+  &__v-scroll {
+    @extend %v-scroll;
+  }
+}

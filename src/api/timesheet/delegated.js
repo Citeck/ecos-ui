@@ -61,6 +61,21 @@ export class TimesheetDelegatedApi extends RecordService {
     return counts;
   };
 
+  getDeputyList = ({ userName, type }) => {
+    return Records.query({
+      query: {
+        query: `TYPE:'timesheetdl:${type}' AND @timesheetdl:deputyUsername:${userName}`,
+        language: 'fts-alfresco',
+        maxItems: 100,
+        debug: false
+      },
+      attributes: {
+        userName: 'timesheetdl:delegatorUsername',
+        userFullName: 'timesheetdl:delegator'
+      }
+    }).then(res => res);
+  };
+
   getRecords = ({ userName, deputyName, delegationType }) => {
     return Records.query(
       {
@@ -89,6 +104,12 @@ export class TimesheetDelegatedApi extends RecordService {
   };
 
   removeRecord = ({ userName, deputyName, delegationType }) => {
-    return Records.remove([`${TimesheetSourcesId.DELEGATION}@${userName}-${deputyName}-${delegationType}`]).then(res => res);
+    if (Array.isArray(deputyName)) {
+      deputyName.forEach(item => {
+        Records.remove([`${TimesheetSourcesId.DELEGATION}@${userName}-${deputyName}-${delegationType}`]).then(res => res);
+      });
+    } else {
+      return Records.remove([`${TimesheetSourcesId.DELEGATION}@${userName}-${deputyName}-${delegationType}`]).then(res => res);
+    }
   };
 }

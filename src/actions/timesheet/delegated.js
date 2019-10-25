@@ -15,5 +15,8 @@ export const modifyEventDayHours = createAction(prefix + 'MODIFY_EVENT_DAY_HOURS
 export const resetEventDayHours = createAction(prefix + 'RESET_EVENT_DAY_HOURS');
 export const setUpdatingEventDayHours = createAction(prefix + 'SET_UPDATING_EVENT_DAY_HOURS');
 
+export const getDelegatedDeputies = createAction(prefix + 'GET_DELEGATED_DEPUTIES');
+export const setDelegatedDeputies = createAction(prefix + 'SET_DELEGATED_DEPUTIES');
+
 export const setPopupMessage = createAction(prefix + 'SET_POPUP_MESSAGE');
 export const setLoading = createAction(prefix + 'SET_LOADING');
