@@ -21,4 +21,20 @@ export default class DelegatedTimesheetConverter {
 
     return target;
   }
+
+  static getDeputyListForWeb(source = []) {
+    const target = [];
+
+    source &&
+      source.forEach(item => {
+        const newItem = {};
+
+        newItem.userFullName = [get(item, 'userFullName', ''), get(item, 'firstName', ''), get(item, 'middleName', '')].join(' ');
+        newItem.userName = get(item, 'userName', '');
+
+        target.push(newItem);
+      });
+
+    return target;
+  }
 }

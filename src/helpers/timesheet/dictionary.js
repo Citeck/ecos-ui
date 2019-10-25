@@ -6,6 +6,11 @@ export const CommonLabels = {
   NOTICE: 'Уведомление',
   NO_DATA: 'Нет данных',
   NO_DATA_BY_FILTERS: 'Нет данных, удовлетворяющих условиям поиска',
+  CANCEL: 'Отмена',
+  CONFIRM: 'Подтвердить',
+  DELETE: 'Удалить',
+  DELETED: 'Удалено',
+  REVERT: 'Вернуть',
 
   MAIN_TAB_1: 'timesheets.tabs.myTimesheetTab',
   MAIN_TAB_2: 'timesheets.tabs.mySubordinatesTab',
@@ -107,7 +112,8 @@ export const SubTimesheetLabels = {
 export const DelegateTimesheetLabels = {
   DELEGATION_DESCRIPTION_1: 'timesheets.delegatedForApprovalForm.descriptions.manageDeligatedTimesheets',
 
-  DELEGATION_BTN_SET: 'timesheets.delegatedForApprovalForm.button.setUpTimsheetList'
+  DELEGATION_BTN_SET: 'timesheets.delegatedForApprovalForm.button.setUpTimsheetList',
+  MODAL_DELEgGATED_SHEETS_TITLE: 'Вам делегировали табели'
 };
 
 export const VerifyTimesheetLabels = {

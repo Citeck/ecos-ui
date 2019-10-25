@@ -22,6 +22,7 @@ import { Loader } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
+import DelegatedDeputiesModal from '../../components/Timesheet/DelegatedDeputiesModal';
 
 const initDType = DelegationTypes.FILL;
 const initStatus = ServerStatusKeys.CORRECTION;
@@ -37,6 +38,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     this.state.delegationTypeTabs = delegationTypes.map(item => ({ ...item, isActive: initDType === item.type }));
     this.state.delegatedTo = '';
     this.state.delegationRejected = true;
+    this.state.isOpenDeputiesModal = false;
   }
 
   componentDidMount() {
@@ -174,6 +176,18 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     this.props.modifyStatus && this.props.modifyStatus({ outcome, taskId, userName, comment });
   };
 
+  handleOpenDeputiesModal = () => {
+    this.setState({ isOpenDeputiesModal: true });
+  };
+
+  handleCloseDeputiesModal = isNeedUpdate => {
+    this.setState({ isOpenDeputiesModal: false });
+
+    if (isNeedUpdate) {
+      this.getData();
+    }
+  };
+
   renderTimesheet = () => {
     const { daysOfMonth, isDelegated } = this.state;
     const { mergedList, updatingHours } = this.props;
@@ -194,7 +208,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
   };
 
   render() {
-    const { sheetTabs, currentDate, statusTabs, delegationTypeTabs, currentTimesheetData } = this.state;
+    const { sheetTabs, currentDate, statusTabs, delegationTypeTabs, currentTimesheetData, isOpenDeputiesModal } = this.state;
     const { isLoading } = this.props;
     const { outcome } = currentTimesheetData || {};
 
@@ -213,7 +227,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
             <div className="ecos-timesheet__column ecos-timesheet__delegation">
               <div className="ecos-timesheet__delegation-title">
                 {t(CommonLabels.HEADLINE_DELEGATION)}
-                <Btn className="ecos-timesheet__delegation-btn-set ecos-btn_grey7 ecos-btn_narrow">
+                <Btn className="ecos-timesheet__delegation-btn-set ecos-btn_grey7 ecos-btn_narrow" onClick={this.handleOpenDeputiesModal}>
                   {t(DelegateTimesheetLabels.DELEGATION_BTN_SET)}
                 </Btn>
               </div>
@@ -243,6 +257,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
         </div>
         {this.renderPopupMessage()}
         {this.renderCommentModal(outcome === ServerStatusOutcomeKeys.SEND_BACK)}
+        {isOpenDeputiesModal && <DelegatedDeputiesModal onClose={this.handleCloseDeputiesModal} isOpen type={this.selectedDType} />}
       </div>
     );
   }

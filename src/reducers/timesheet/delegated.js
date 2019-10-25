@@ -2,9 +2,11 @@ import get from 'lodash/get';
 import { handleActions } from 'redux-actions';
 import {
   declineDelegation,
+  getDelegatedDeputies,
   getDelegatedTimesheetByParams,
   modifyStatus,
   resetDelegatedTimesheet,
+  setDelegatedDeputies,
   setDelegatedTimesheetByParams,
   setLoading,
   setMergedList,
@@ -14,7 +16,9 @@ import {
 
 const initialState = {
   isLoading: false,
+  isLoadingDeputies: false,
   mergedList: [],
+  deputyList: [],
   popupMsg: '',
   innerCounts: {
     all: 0
@@ -63,6 +67,16 @@ export default handleActions(
     [declineDelegation]: (state, actions) => ({
       ...state,
       isLoading: true
+    }),
+    [getDelegatedDeputies]: (state, actions) => ({
+      ...state,
+      isLoadingDeputies: true,
+      deputyList: []
+    }),
+    [setDelegatedDeputies]: (state, actions) => ({
+      ...state,
+      isLoadingDeputies: false,
+      deputyList: actions.payload
     })
   },
   initialState
