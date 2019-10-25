@@ -82,18 +82,25 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     const key = Array.isArray(status.key) ? status.key[0] : status.key;
 
     if (delegationType === DelegationTypes.FILL) {
-      return [
-        {
-          id: 'ecos-timesheet__table-group-btn_off-delegation_id',
-          className: 'ecos-timesheet__table-group-btn_off-delegation',
-          title: t(CommonLabels.STATUS_BTN_OFF_DELEGATION),
-          onClick: data => this.handleClickOffDelegation(data)
-        },
-        {
+      const fillingBtns = [];
+
+      fillingBtns.push({
+        id: 'ecos-timesheet__table-group-btn_off-delegation_id',
+        className: 'ecos-timesheet__table-group-btn_off-delegation',
+        title: t(CommonLabels.STATUS_BTN_OFF_DELEGATION),
+        onClick: data => this.handleClickOffDelegation(data)
+      });
+
+      if (key === ServerStatusKeys.MANAGER_APPROVAL) {
+        fillingBtns.push({});
+      } else {
+        fillingBtns.push({
           ...BaseConfigGroupButtons.SENT_APPROVE,
           onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.TASK_DONE })
-        }
-      ];
+        });
+      }
+
+      return fillingBtns;
     }
 
     if (delegationType === DelegationTypes.APPROVE) {
