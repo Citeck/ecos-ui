@@ -79,6 +79,7 @@ export const CommonLabels = {
   EVENT_HISTORY_COL_COMMENT: 'Комментарий',
 
   MODAL_IN_PROGRESS: 'timesheets.allForms.modal.inProgress',
+  MODAL_SELECT_ORG_STRUCT_TITLE: 'Выберите сотрудника',
 
   SHOW_EVEN_HISTORY_TIP: 'timesheets.allForms.tips.showEventHistory',
   SHOW_COMMENT_TIP: 'timesheets.allForms.tips.showComment',

@@ -1,13 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-
-import EcosModal from '../common/EcosModal';
 import { SelectOrgstruct } from '../common/form';
 import { AUTHORITY_TYPE_USER } from '../common/form/SelectOrgstruct/constants';
-
-const LABELS = {
-  TITLE: 'Выберите сотрудника'
-};
+import { CommonLabels } from '../../helpers/timesheet/dictionary';
 
 class SelectUserModal extends Component {
   static propTypes = {
@@ -37,7 +32,7 @@ class SelectUserModal extends Component {
         isCompact
         openByDefault
         withoutInput
-        modalTitle="Выберите сотрудника"
+        modalTitle={CommonLabels.MODAL_SELECT_ORG_STRUCT_TITLE}
       />
     );
   }

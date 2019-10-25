@@ -18,7 +18,7 @@ import CommonTimesheetService from '../../services/timesheet/common';
 
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
-import Timesheet, { DateSlider, Tabs, SelectUserModal } from '../../components/Timesheet';
+import Timesheet, { DateSlider, SelectUserModal, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 
 class SubordinatesTimesheetPage extends BaseTimesheetPage {
@@ -99,7 +99,6 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
   };
 
   handleToggleDelegated = isDelegated => {
-    // this.setState({ isDelegated });
     this.setState({ isOpenSelectUserModal: isDelegated });
   };
 
