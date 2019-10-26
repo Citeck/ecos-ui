@@ -9,13 +9,18 @@ import {
   setMergedList,
   setPopupMessage,
   setSubordinatesTimesheetByParams,
-  setUpdatingEventDayHours
+  setUpdatingEventDayHours,
+  delegateTo,
+  setDelegatedTo,
+  removeDelegation
 } from '../../actions/timesheet/subordinates';
-import { selectTSubordinatesMergedList, selectTSubordinatesUpdatingHours } from '../../selectors/timesheet';
+import { selectTSubordinatesDelegatedTo, selectTSubordinatesMergedList, selectTSubordinatesUpdatingHours } from '../../selectors/timesheet';
 import { selectUserName } from '../../selectors/user';
 import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
 import SubordinatesTimesheetService from '../../services/timesheet/subordinates';
+import DelegationTimesheetConverter from '../../dto/timesheet/delegated';
+import { DelegationTypes } from '../../constants/timesheet';
 
 function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -116,11 +121,45 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
   }
 }
 
+function* sagaDelegateTo({ api, logger }, { payload }) {
+  const deputy = DelegationTimesheetConverter.getDeputyData(payload.deputy);
+  const userName = yield select(selectUserName);
+
+  try {
+    const result = yield api.timesheetDelegated.setRecord({
+      userName,
+      deputyName: deputy.name,
+      delegationType: payload.delegationType
+    });
+
+    yield put(setDelegatedTo(deputy));
+  } catch (e) {
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_DELEGATE_TO));
+    logger.error('[timesheetSubordinates sagaDelegateTo saga] error', e.message);
+  }
+}
+
+function* sagaRemoveDelegation({ api, logger }) {
+  const userName = yield select(selectUserName);
+  const deputyName = yield select(selectTSubordinatesDelegatedTo);
+
+  try {
+    const result = yield api.timesheetDelegated.removeRecord({ userName, deputyName, delegationType: DelegationTypes.FILL });
+
+    yield put(setDelegatedTo(DelegationTimesheetConverter.getDeputyData()));
+  } catch (e) {
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_REMOVE_DELEGATED_TO));
+    logger.error('[timesheetSubordinates sagaRemoveDelegation saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getSubordinatesTimesheetByParams().type, sagaGetSubordinatesTimesheetByParams, ea);
   yield takeLatest(modifyStatus().type, sagaModifyTaskStatus, ea);
   yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
   yield takeLatest(resetEventDayHours().type, sagaResetEventDayHours, ea);
+  yield takeLatest(delegateTo().type, sagaDelegateTo, ea);
+  yield takeLatest(removeDelegation().type, sagaRemoveDelegation, ea);
 }
 
 export default saga;

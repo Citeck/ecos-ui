@@ -5,14 +5,16 @@ import { connect } from 'react-redux';
 import { t } from '../../helpers/util';
 import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
 import { CommonLabels, SubTimesheetLabels } from '../../helpers/timesheet/dictionary';
-import { ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '../../constants/timesheet';
+import { ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes, DelegationTypes } from '../../constants/timesheet';
 import {
   getSubordinatesTimesheetByParams,
   modifyEventDayHours,
   modifyStatus,
   resetEventDayHours,
   resetSubordinatesTimesheet,
-  setPopupMessage
+  setPopupMessage,
+  delegateTo,
+  removeDelegation
 } from '../../actions/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
 
@@ -108,19 +110,30 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
       if (!isDelegated) {
         newState.isDelegated = false;
+
+        this.props.removeDelegation();
       }
 
       return newState;
     });
   };
 
-  handleSelectUser = user => {
-    console.warn('user => ', user);
-    this.setState({ isOpenSelectUserModal: false, isDelegated: Boolean(user) });
+  handleSelectUser = deputy => {
+    const isDelegated = Boolean(deputy);
+
+    if (isDelegated) {
+      this.props.delegateTo({ deputy, delegationType: DelegationTypes.APPROVE });
+    }
+
+    this.setState({ isOpenSelectUserModal: false, isDelegated });
   };
 
   handleCloseSelectUserModal = () => {
     this.setState({ isOpenSelectUserModal: false, isDelegated: false });
+  };
+
+  handleChangeDelegatedToUser = () => {
+    this.setState({ isOpenSelectUserModal: true });
   };
 
   renderTimesheet = () => {
@@ -144,7 +157,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
   render() {
     const { sheetTabs, isDelegated, currentDate, statusTabs, isOpenSelectUserModal } = this.state;
-    const { isLoading } = this.props;
+    const { isLoading, delegatedToRef, delegatedToDisplayName } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -161,9 +174,25 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
             <div className="ecos-timesheet__delegation-title">{t(CommonLabels.HEADLINE_DELEGATION)}</div>
 
             <div className="ecos-timesheet__delegation-switch">
-              <Switch checked={isDelegated} className="ecos-timesheet__delegation-switch-checkbox" onToggle={this.handleToggleDelegated} />
+              <Switch
+                checked={Boolean(isDelegated && delegatedToRef)}
+                className="ecos-timesheet__delegation-switch-checkbox"
+                onToggle={this.handleToggleDelegated}
+              />
 
-              <span className="ecos-timesheet__delegation-switch-label">{t(SubTimesheetLabels.DELEGATION_DESCRIPTION_1)}</span>
+              {delegatedToDisplayName && isDelegated ? (
+                <span className="ecos-timesheet__delegation-switch-label">
+                  {t(SubTimesheetLabels.DELEGATION_DESCRIPTION_2)}{' '}
+                  <span
+                    className="ecos-timesheet__delegation-switch-label ecos-timesheet__delegation-switch-label_link"
+                    onClick={this.handleChangeDelegatedToUser}
+                  >
+                    {delegatedToDisplayName}
+                  </span>
+                </span>
+              ) : (
+                <span className="ecos-timesheet__delegation-switch-label">{t(SubTimesheetLabels.DELEGATION_DESCRIPTION_1)}</span>
+              )}
             </div>
           </div>
         </div>
@@ -190,7 +219,13 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
         {this.renderPopupMessage()}
         {this.renderCommentModal(true)}
 
-        <SelectUserModal isOpen={isOpenSelectUserModal} onSelect={this.handleSelectUser} onCancel={this.handleCloseSelectUserModal} />
+        <SelectUserModal
+          getFullData
+          defaultValue={delegatedToRef}
+          isOpen={isOpenSelectUserModal}
+          onSelect={this.handleSelectUser}
+          onCancel={this.handleCloseSelectUserModal}
+        />
       </div>
     );
   }
@@ -200,7 +235,9 @@ const mapStateToProps = state => ({
   mergedList: get(state, 'timesheetSubordinates.mergedList', []),
   isLoading: get(state, 'timesheetSubordinates.isLoading', false),
   updatingHours: get(state, 'timesheetSubordinates.updatingHours', {}),
-  popupMsg: get(state, 'timesheetSubordinates.popupMsg', '')
+  popupMsg: get(state, 'timesheetSubordinates.popupMsg', ''),
+  delegatedToDisplayName: get(state, 'timesheetSubordinates.delegatedToDisplayName', ''),
+  delegatedToRef: get(state, 'timesheetSubordinates.delegatedToRef', '')
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -209,7 +246,9 @@ const mapDispatchToProps = dispatch => ({
   modifyStatus: payload => dispatch(modifyStatus(payload)),
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
   resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
-  setPopupMessage: payload => dispatch(setPopupMessage(payload))
+  setPopupMessage: payload => dispatch(setPopupMessage(payload)),
+  delegateTo: payload => dispatch(delegateTo(payload)),
+  removeDelegation: payload => dispatch(removeDelegation(payload))
 });
 
 export default connect(

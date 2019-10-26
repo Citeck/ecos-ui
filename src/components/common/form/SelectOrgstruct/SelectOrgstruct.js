@@ -36,6 +36,10 @@ SelectOrgstruct.propTypes = {
   viewOnly: PropTypes.bool,
   openByDefault: PropTypes.bool,
   withoutInput: PropTypes.bool,
+  // return full data about selected user, not only nodeRef
+  getFullData: PropTypes.bool,
+  // search by key down
+  liveSearch: PropTypes.bool,
   renderView: PropTypes.func,
   modalTitle: PropTypes.string
 };

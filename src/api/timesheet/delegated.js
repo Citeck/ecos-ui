@@ -94,7 +94,7 @@ export class TimesheetDelegatedApi extends RecordService {
   };
 
   setRecord = ({ userName, deputyName, delegationType }) => {
-    var delegation = Records.get(`${TimesheetSourcesId.DELEGATION}@`);
+    const delegation = Records.get(`${TimesheetSourcesId.DELEGATION}@`);
 
     delegation.att('user', userName);
     delegation.att('deputy', deputyName);

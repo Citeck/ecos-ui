@@ -10,12 +10,17 @@ import {
   setPopupMessage,
   setStatus,
   setUpdatingEventDayHours,
-  setUpdatingStatus
+  setUpdatingStatus,
+  delegateTo,
+  setDelegatedTo,
+  removeDelegation
 } from '../../actions/timesheet/mine';
 import { selectUserName } from '../../selectors/user';
-import { selectTMineUpdatingHours } from '../../selectors/timesheet';
+import { selectTMineUpdatingHours, selectTMineDelegatedTo } from '../../selectors/timesheet';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
+import DelegationTimesheetConverter from '../../dto/timesheet/delegated';
 import CommonTimesheetService from '../../services/timesheet/common';
+import { DelegationTypes } from '../../constants/timesheet';
 
 function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -123,12 +128,46 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
   }
 }
 
+function* sagaDelegateTo({ api, logger }, { payload }) {
+  const deputy = DelegationTimesheetConverter.getDeputyData(payload.deputy);
+  const userName = yield select(selectUserName);
+
+  try {
+    const result = yield api.timesheetDelegated.setRecord({
+      userName,
+      deputyName: deputy.name,
+      delegationType: payload.delegationType
+    });
+
+    yield put(setDelegatedTo(deputy));
+  } catch (e) {
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_DELEGATE_TO));
+    logger.error('[timesheetMine sagaDelegateTo saga] error', e.message);
+  }
+}
+
+function* sagaRemoveDelegation({ api, logger }) {
+  const userName = yield select(selectUserName);
+  const deputyName = yield select(selectTMineDelegatedTo);
+
+  try {
+    yield api.timesheetDelegated.removeRecord({ userName, deputyName, delegationType: DelegationTypes.FILL });
+
+    yield put(setDelegatedTo(DelegationTimesheetConverter.getDeputyData()));
+  } catch (e) {
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_REMOVE_DELEGATED_TO));
+    logger.error('[timesheetMine sagaRemoveDelegation saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getStatus().type, sagaGetStatus, ea);
   yield takeLatest(modifyStatus().type, sagaModifyStatus, ea);
   yield takeLatest(getMyTimesheetByParams().type, sagaGetMyTimesheetByParams, ea);
   yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
   yield takeLatest(resetEventDayHours().type, sagaResetEventDayHours, ea);
+  yield takeLatest(delegateTo().type, sagaDelegateTo, ea);
+  yield takeLatest(removeDelegation().type, sagaRemoveDelegation, ea);
 }
 
 export default saga;
