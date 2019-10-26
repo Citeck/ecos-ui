@@ -1080,4 +1080,8 @@
   &__v-scroll {
     @extend %v-scroll;
   }
+
+  &__no-data {
+    justify-content: center;
+  }
 }

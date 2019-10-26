@@ -130,8 +130,10 @@ class DelegatedDeputiesModal extends React.Component {
                 })}
             </div>
           )}
-
-          {isLoadingDeputies && <Loader />}
+          {!isLoadingDeputies && (!deputyList || !deputyList.length) && (
+            <div className="ecos-ts-deputy-list__row ecos-ts-deputy-list__no-data">{t(CommonLabels.NO_DATA)}</div>
+          )}
+          {isLoadingDeputies && <Loader blur />}
         </Scrollbars>
 
         <div className="ecos-ts-deputy-list__buttons">
