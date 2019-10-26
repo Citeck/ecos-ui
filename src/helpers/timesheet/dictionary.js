@@ -106,6 +106,7 @@ export const MyTimesheetLabels = {
 
 export const SubTimesheetLabels = {
   DELEGATION_DESCRIPTION_1: 'timesheets.subordinatesForm.descriptions.delegationIsOff',
+  DELEGATION_DESCRIPTION_2: 'timesheets.myTimesheetForm.descriptions.delegationIsOn',
 
   LOCK_DESCRIPTION_1: 'timesheets.subordinatesForm.descriptions.delegationIsOn'
 };
@@ -124,5 +125,6 @@ export const VerifyTimesheetLabels = {
 export const TimesheetMessages = {
   ERROR_SAVE_STATUS: 'Ошибка обновления статуса',
   ERROR_SAVE_EVENT_HOURS: 'Ошибка обновления часов',
-  ERROR_DELEGATE_TO: 'Ошибка делегирования табеля'
+  ERROR_DELEGATE_TO: 'Ошибка делегирования табеля',
+  ERROR_REMOVE_DELEGATED_TO: 'Ошибка отмены делегирования табеля'
 };

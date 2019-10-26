@@ -18,3 +18,5 @@ export const setUpdatingEventDayHours = createAction(prefix + 'SET_UPDATING_EVEN
 export const setPopupMessage = createAction(prefix + 'SET_POPUP_MESSAGE');
 
 export const delegateTo = createAction(prefix + 'DELEGATE_TO');
+export const setDelegatedTo = createAction(prefix + 'SET_DELEGATED_TO');
+export const removeDelegation = createAction(prefix + 'REMOVE_DELEGATION');

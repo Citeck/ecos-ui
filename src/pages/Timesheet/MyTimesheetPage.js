@@ -15,7 +15,8 @@ import {
   resetMyTimesheet,
   setPopupMessage,
   setUpdatingStatus,
-  delegateTo
+  delegateTo,
+  removeDelegation
 } from '../../actions/timesheet/mine';
 import MyTimesheetService from '../../services/timesheet/mine';
 
@@ -31,7 +32,6 @@ class MyTimesheetPage extends BaseTimesheetPage {
 
     this.state.statusTabs = null;
 
-    this.state.delegatedTo = '';
     this.state.delegationRejected = true;
     this.state.isOpenSelectUserModal = false;
   }
@@ -116,9 +116,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
 
   handleToggleDelegated(isDelegated) {
     this.setState(state => {
-      const newState = {
-        delegatedTo: ''
-      };
+      const newState = {};
 
       if (isDelegated) {
         newState.isOpenSelectUserModal = true;
@@ -128,6 +126,8 @@ class MyTimesheetPage extends BaseTimesheetPage {
       if (!isDelegated) {
         newState.delegationRejected = true;
         newState.isDelegated = false;
+
+        this.props.removeDelegation();
       }
 
       return newState;
@@ -136,23 +136,27 @@ class MyTimesheetPage extends BaseTimesheetPage {
 
   handleClickDelegationRejectedConfirm() {
     this.setState({
-      delegatedTo: '',
       delegationRejected: false,
       isDelegated: false
     });
   }
 
   handleSelectUser = deputy => {
-    if (!!deputy) {
+    const isDelegated = Boolean(deputy);
+
+    if (isDelegated) {
       this.props.delegateTo({ deputy, delegationType: DelegationTypes.FILL });
     }
 
-    console.warn('user => ', deputy);
-    this.setState({ isOpenSelectUserModal: false, isDelegated: Boolean(deputy), delegatedTo: 'Selected User' });
+    this.setState({ isOpenSelectUserModal: false, isDelegated });
   };
 
   handleCloseSelectUserModal = () => {
-    this.setState({ isOpenSelectUserModal: false, isDelegated: false, delegatedTo: '' });
+    this.setState({ isOpenSelectUserModal: false, isDelegated: false });
+  };
+
+  handleChangeDelegatedToUser = () => {
+    this.setState({ isOpenSelectUserModal: true });
   };
 
   renderTimesheet = () => {
@@ -173,7 +177,8 @@ class MyTimesheetPage extends BaseTimesheetPage {
   };
 
   renderDelegation() {
-    const { isDelegated, delegatedTo, delegationRejected } = this.state;
+    const { delegatedToDisplayName, delegatedToRef } = this.props;
+    const { isDelegated, delegationRejected } = this.state;
     let description = '';
 
     if (!isDelegated) {
@@ -184,7 +189,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
       description = MyTimesheetLabels.DELEGATION_DESCRIPTION_3;
     }
 
-    if (delegatedTo) {
+    if (delegatedToDisplayName) {
       description = MyTimesheetLabels.DELEGATION_DESCRIPTION_2;
     }
 
@@ -194,15 +199,20 @@ class MyTimesheetPage extends BaseTimesheetPage {
 
         <div className="ecos-timesheet__delegation-switch">
           <Switch
-            checked={isDelegated}
+            checked={Boolean(isDelegated && delegatedToRef)}
             className="ecos-timesheet__delegation-switch-checkbox"
             onToggle={this.handleToggleDelegated.bind(this)}
           />
 
           <span className="ecos-timesheet__delegation-switch-label">
             {t(description)}{' '}
-            {delegatedTo && (
-              <span className="ecos-timesheet__delegation-switch-label ecos-timesheet__delegation-switch-label_link">{delegatedTo}</span>
+            {delegatedToDisplayName && isDelegated && (
+              <span
+                className="ecos-timesheet__delegation-switch-label ecos-timesheet__delegation-switch-label_link"
+                onClick={this.handleChangeDelegatedToUser}
+              >
+                {delegatedToDisplayName}
+              </span>
             )}
           </span>
 
@@ -220,9 +230,18 @@ class MyTimesheetPage extends BaseTimesheetPage {
   }
 
   renderSelectUserModal() {
+    const { delegatedToRef } = this.props;
     const { isOpenSelectUserModal } = this.state;
 
-    return <SelectUserModal isOpen={isOpenSelectUserModal} onSelect={this.handleSelectUser} onCancel={this.handleCloseSelectUserModal} />;
+    return (
+      <SelectUserModal
+        getFullData
+        defaultValue={delegatedToRef}
+        isOpen={isOpenSelectUserModal}
+        onSelect={this.handleSelectUser}
+        onCancel={this.handleCloseSelectUserModal}
+      />
+    );
   }
 
   render() {
@@ -284,7 +303,9 @@ const mapStateToProps = state => ({
   countAttemptGetStatus: get(state, 'timesheetMine.countAttemptGetStatus', 0),
   mergedEvents: get(state, 'timesheetMine.mergedEvents', []),
   updatingHours: get(state, 'timesheetMine.updatingHours', {}),
-  popupMsg: get(state, 'timesheetMine.popupMsg', '')
+  popupMsg: get(state, 'timesheetMine.popupMsg', ''),
+  delegatedToRef: get(state, 'timesheetMine.delegatedToRef', ''),
+  delegatedToDisplayName: get(state, 'timesheetMine.delegatedToDisplayName', '')
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -296,7 +317,8 @@ const mapDispatchToProps = dispatch => ({
   resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
   getStatus: payload => dispatch(getStatus(payload)),
   setPopupMessage: payload => dispatch(setPopupMessage(payload)),
-  delegateTo: payload => dispatch(delegateTo(payload))
+  delegateTo: payload => dispatch(delegateTo(payload)),
+  removeDelegation: payload => dispatch(removeDelegation(payload))
 });
 
 export default connect(

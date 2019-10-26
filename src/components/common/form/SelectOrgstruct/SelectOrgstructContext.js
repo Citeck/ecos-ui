@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+
 import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
 import { TAB_BY_LEVELS, TAB_ALL_USERS, TAB_ONLY_SELECTED, ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER } from './constants';
 import { handleResponse, prepareSelected } from './helpers';
@@ -8,11 +9,22 @@ export const SelectOrgstructContext = React.createContext();
 
 export const SelectOrgstructProvider = props => {
   const { orgStructApi, controlProps } = props;
-  const { multiple, defaultValue, allUsersGroup, allowedAuthorityTypes, openByDefault, onCancelSelect, modalTitle } = controlProps;
+  const {
+    multiple,
+    defaultValue,
+    allUsersGroup,
+    allowedAuthorityTypes,
+    openByDefault,
+    onCancelSelect,
+    modalTitle,
+    getFullData,
+    defaultTab = TAB_BY_LEVELS,
+    liveSearch
+  } = controlProps;
   const allUsersGroupShortName = allUsersGroup || ALL_USERS_GROUP_SHORT_NAME;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
-  const [currentTab, setCurrentTab] = useState(TAB_BY_LEVELS);
+  const [currentTab, setCurrentTab] = useState(defaultTab);
   const [isRootGroupsFetched, setIsRootGroupsFetched] = useState(false);
   const [searchText, updateSearchText] = useState('');
   const [selectedRows, setSelectedRows] = useState([]);
@@ -25,6 +37,42 @@ export const SelectOrgstructProvider = props => {
   const [isAllUsersGroupsExists, setIsAllUsersGroupsExists] = useState(false);
   const [isAllUsersGroupsFetched, setIsAllUsersGroupFetched] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
+  const onSubmitSearchForm = (search = searchText) => {
+    // TODO: https://citeck.atlassian.net/browse/ECOSCOM-2129
+    const trimSearchText = search.trim();
+
+    orgStructApi
+      .fetchGroup({
+        groupName: ROOT_ORGSTRUCT_GROUP,
+        searchText: trimSearchText
+      })
+      .then(handleResponse)
+      .then(items => {
+        const allUsersFiltered = trimSearchText
+          ? allUsers.filter(item => {
+              return item.label.toUpperCase().indexOf(trimSearchText.toUpperCase()) !== -1;
+            })
+          : allUsers.map(newItem => {
+              return {
+                ...newItem,
+                isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
+              };
+            });
+
+        setTabItems({
+          ...tabItems,
+          [TAB_BY_LEVELS]: items
+            .filter(item => item.attributes.shortName !== allUsersGroupShortName)
+            .map(newItem => {
+              return {
+                ...newItem,
+                isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
+              };
+            }),
+          [TAB_ALL_USERS]: allUsersFiltered
+        });
+      });
+  };
 
   // fetch root group list
   useEffect(() => {
@@ -144,6 +192,7 @@ export const SelectOrgstructProvider = props => {
         tabItems,
         isAllUsersGroupsExists,
         modalTitle,
+        liveSearch,
 
         toggleSelectModal: () => {
           toggleSelectModal(!isSelectModalOpen);
@@ -220,6 +269,12 @@ export const SelectOrgstructProvider = props => {
 
         updateSearchText: e => {
           updateSearchText(e.target.value);
+
+          console.warn('e.target.value => ', e.target.value);
+
+          if (liveSearch) {
+            onSubmitSearchForm(e.target.value);
+          }
         },
 
         onSelect: () => {
@@ -227,9 +282,14 @@ export const SelectOrgstructProvider = props => {
 
           let newValue;
           if (multiple) {
-            newValue = tabItems[TAB_ONLY_SELECTED].map(item => item.id);
+            newValue = tabItems[TAB_ONLY_SELECTED].map(item => (getFullData ? item : item.id));
           } else {
-            newValue = tabItems[TAB_ONLY_SELECTED].length > 0 ? tabItems[TAB_ONLY_SELECTED][0]['id'] : '';
+            newValue =
+              tabItems[TAB_ONLY_SELECTED].length > 0
+                ? getFullData
+                  ? tabItems[TAB_ONLY_SELECTED][0]
+                  : tabItems[TAB_ONLY_SELECTED][0]['id']
+                : '';
           }
 
           typeof onChange === 'function' && onChange(newValue);
@@ -239,42 +299,7 @@ export const SelectOrgstructProvider = props => {
           toggleSelectModal(false);
         },
 
-        onSubmitSearchForm: () => {
-          // TODO: https://citeck.atlassian.net/browse/ECOSCOM-2129
-          const trimSearchText = searchText.trim();
-
-          orgStructApi
-            .fetchGroup({
-              groupName: ROOT_ORGSTRUCT_GROUP,
-              searchText: trimSearchText
-            })
-            .then(handleResponse)
-            .then(items => {
-              const allUsersFiltered = trimSearchText
-                ? allUsers.filter(item => {
-                    return item.label.toUpperCase().indexOf(trimSearchText.toUpperCase()) !== -1;
-                  })
-                : allUsers.map(newItem => {
-                    return {
-                      ...newItem,
-                      isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
-                    };
-                  });
-
-              setTabItems({
-                ...tabItems,
-                [TAB_BY_LEVELS]: items
-                  .filter(item => item.attributes.shortName !== allUsersGroupShortName)
-                  .map(newItem => {
-                    return {
-                      ...newItem,
-                      isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
-                    };
-                  }),
-                [TAB_ALL_USERS]: allUsersFiltered
-              });
-            });
-        },
+        onSubmitSearchForm,
 
         setCurrentTab: tabId => {
           setCurrentTab(tabId);

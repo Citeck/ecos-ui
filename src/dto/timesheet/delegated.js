@@ -37,4 +37,18 @@ export default class DelegatedTimesheetConverter {
 
     return target;
   }
+
+  static getDeputyData(source = {}) {
+    const target = {
+      name: '',
+      ref: '',
+      displayName: ''
+    };
+
+    target.name = get(source, 'attributes.fullName', '');
+    target.ref = get(source, 'id', '');
+    target.displayName = get(source, 'attributes.displayName', '');
+
+    return target;
+  }
 }

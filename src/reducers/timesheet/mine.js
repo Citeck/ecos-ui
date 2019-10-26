@@ -10,7 +10,8 @@ import {
   setPopupMessage,
   setStatus,
   setUpdatingEventDayHours,
-  setUpdatingStatus
+  setUpdatingStatus,
+  setDelegatedTo
 } from '../../actions/timesheet/mine';
 
 const initialState = {
@@ -21,7 +22,10 @@ const initialState = {
   countAttemptGetStatus: 0,
   mergedEvents: [],
   updatingHours: {},
-  popupMsg: ''
+  popupMsg: '',
+  delegatedToRef: '',
+  delegatedToUserName: '',
+  delegatedToDisplayName: ''
 };
 
 Object.freeze(initialState);
@@ -72,6 +76,12 @@ export default handleActions(
     [setUpdatingEventDayHours]: (state, actions) => ({
       ...state,
       updatingHours: actions.payload
+    }),
+    [setDelegatedTo]: (state, actions) => ({
+      ...state,
+      delegatedToRef: actions.payload.ref,
+      delegatedToUserName: actions.payload.name,
+      delegatedToDisplayName: actions.payload.displayName
     })
   },
   initialState
