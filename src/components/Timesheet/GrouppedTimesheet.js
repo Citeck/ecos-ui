@@ -278,7 +278,7 @@ class GrouppedTimesheet extends BaseTimesheet {
           const data = this.state.filteredEventTypes[index];
           config.onClick(data);
         },
-        id: `${config.id || 'ecos-timesheet-btn'}-${index}`
+        id: uniqueId(`${config.id || 'ecos-timesheet-btn'}-${index}-`)
       };
 
       if (config.icon) {
