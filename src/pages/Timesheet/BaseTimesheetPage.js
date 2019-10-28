@@ -3,10 +3,9 @@ import debounce from 'lodash/debounce';
 
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
-import { getDaysOfMonth, getNewDateByDayNumber, isOnlyContent } from '../../helpers/timesheet/util';
+import { getDaysOfMonth, getNewDateByDayNumber } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 import { TunableDialog } from '../../components/common/dialogs';
-import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { CommentModal } from '../../components/Timesheet';
 
 import './style.scss';
@@ -15,15 +14,10 @@ class BaseTimesheetPage extends React.Component {
   constructor(props) {
     super(props);
 
-    const {
-      history: { location }
-    } = props;
-
     this.cacheDays = new Map();
 
     this.state = {
       currentDate: new Date(),
-      sheetTabs: CommonTimesheetService.getSheetTabs(this.isOnlyContent, location),
       dateTabs: CommonTimesheetService.getPeriodFiltersTabs(),
       statusTabs: [],
       daysOfMonth: this.getDaysOfMonth(new Date()),
@@ -33,10 +27,6 @@ class BaseTimesheetPage extends React.Component {
       isOpenSelectUserModal: false,
       currentTimesheetData: null
     };
-  }
-
-  get isOnlyContent() {
-    return isOnlyContent(this.props);
   }
 
   get selectedStatus() {
@@ -78,20 +68,6 @@ class BaseTimesheetPage extends React.Component {
 
   handleClosePopup() {
     this.props.setPopupMessage && this.props.setPopupMessage('');
-  }
-
-  handleChangeActiveSheetTab(tabIndex) {
-    const sheetTabs = deepClone(this.state.sheetTabs);
-
-    sheetTabs.forEach((tab, index) => {
-      tab.isActive = index === tabIndex;
-
-      if (tab.isActive) {
-        changeUrlLink(tab.link);
-      }
-    });
-
-    this.setState({ sheetTabs });
   }
 
   handleChangeActiveDateTab(tabIndex) {

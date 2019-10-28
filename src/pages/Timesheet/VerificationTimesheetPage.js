@@ -24,7 +24,6 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
   constructor(props) {
     super(props);
 
-    this.state.sheetTabs = null;
     this.state.isDelegated = null;
 
     this.state.statusTabs = CommonTimesheetService.getStatusFilters(TimesheetTypes.VERIFICATION);
