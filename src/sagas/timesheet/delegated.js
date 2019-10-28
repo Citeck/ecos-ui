@@ -37,8 +37,7 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
 
     const peopleList = yield api.timesheetCommon.getInfoPeopleList({ userNames });
 
-    const counts = yield api.timesheetDelegated.getTotalCountsForTypes({ userName, delegationType });
-    const innerCounts = CommonTimesheetService.getTotalCounts(counts);
+    const innerCounts = yield api.timesheetDelegated.getTotalCountsForTypes({ userName, delegationType });
 
     const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
       month: currentDate.getMonth(),

@@ -20,9 +20,7 @@ const initialState = {
   mergedList: [],
   deputyList: [],
   popupMsg: '',
-  innerCounts: {
-    all: 0
-  }
+  innerCounts: {}
 };
 
 Object.freeze(initialState);

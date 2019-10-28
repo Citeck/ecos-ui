@@ -128,4 +128,22 @@ export class TimesheetCommonApi extends RecordService {
 
     return event.save().then(res => res);
   };
+
+  getTotalCountDelegated = ({ month, year, userName }) => {
+    const queryType = `AND (@timesheet:fillingDelegated:true OR @timesheet:approvalDelegated:true)`;
+    const queryTypeUser = `AND (@timesheet:fillingDeputy:${userName} OR @timesheet:approvalDeputy:${userName})`;
+    const queryTime = `AND @timesheet:currentYear:${year} AND @timesheet:currentMonth:${month + 1}`;
+
+    return Records.query({
+      query: {
+        query: `TYPE:'timesheet:Request' ${queryType} ${queryTypeUser} ${queryTime}`,
+        language: 'fts-alfresco',
+        maxItems: 100,
+        debug: false
+      },
+      attributes: {
+        userName: 'timesheet:requestorUsername'
+      }
+    }).then(res => res.totalCount);
+  };
 }

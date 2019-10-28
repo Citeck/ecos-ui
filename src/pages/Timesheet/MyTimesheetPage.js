@@ -2,29 +2,30 @@ import React from 'react';
 import get from 'lodash/get';
 import values from 'lodash/values';
 import { connect } from 'react-redux';
+import { debounce } from 'lodash';
 
 import { t } from '../../helpers/util';
 import { CommonLabels, MyTimesheetLabels } from '../../helpers/timesheet/dictionary';
-import { ServerStatusKeys, DelegationTypes } from '../../constants/timesheet';
+import { DelegationTypes, ServerStatusKeys } from '../../constants/timesheet';
 import {
+  delegateTo,
   getMyTimesheetByParams,
   getStatus,
   modifyEventDayHours,
   modifyStatus,
+  removeDelegation,
   resetEventDayHours,
   resetMyTimesheet,
   setPopupMessage,
-  setUpdatingStatus,
-  delegateTo,
-  removeDelegation
+  setUpdatingStatus
 } from '../../actions/timesheet/mine';
 import MyTimesheetService from '../../services/timesheet/mine';
 
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
-import Timesheet, { BlockStatus, DateSlider, SelectUserModal, Tabs } from '../../components/Timesheet';
+import Timesheet, { BlockStatus, DateSlider, SelectUserModal } from '../../components/Timesheet';
+import RouteTypeTabs from '../../components/Timesheet/RouteTypeTabs';
 import BaseTimesheetPage from './BaseTimesheetPage';
-import { debounce } from 'lodash';
 
 class MyTimesheetPage extends BaseTimesheetPage {
   constructor(props) {
@@ -245,7 +246,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
   }
 
   render() {
-    const { sheetTabs, currentDate } = this.state;
+    const { currentDate } = this.state;
     const { isLoading, isLoadingStatus, isUpdatingStatus, status } = this.props;
     const noActionBtn = !status.taskId || !values(ServerStatusKeys).includes(status.key);
 
@@ -254,10 +255,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
         <div className="ecos-timesheet__row">
           <div className="ecos-timesheet__column">
             <div className="ecos-timesheet__title">{t(CommonLabels.TIMESHEET_TITLE)}</div>
-
-            <div className="ecos-timesheet__type">
-              <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab.bind(this)} />
-            </div>
+            <RouteTypeTabs currentDate={currentDate} />
           </div>
 
           {this.renderDelegation()}

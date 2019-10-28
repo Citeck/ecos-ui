@@ -353,21 +353,6 @@ class GrouppedTimesheet extends BaseTimesheet {
     );
   }
 
-  renderEventType = (item, position, groupPosition) => (
-    <SortableElement key={item.title} index={position}>
-      <div className="ecos-timesheet__table-events-item">
-        <SortableHandle>
-          <Icon className="icon-drag ecos-timesheet__table-events-item-dnd" />
-        </SortableHandle>
-
-        <div className="ecos-timesheet__table-events-item-filter" style={{ backgroundColor: item.color || '#D0D0D0' }} />
-        <div className="ecos-timesheet__table-events-item-title">{item.title}</div>
-        {/*<Icon className="icon-plus ecos-timesheet__table-events-item-add-btn" id={`event-type-${position}-group-${groupPosition}`} />*/}
-        {/*<Tooltip target={`event-type-${position}-group-${groupPosition}`} content={t(CommonLabels.ADD_DAYS)} />*/}
-      </div>
-    </SortableElement>
-  );
-
   renderCountByDay = day => (
     <CalendarCell
       key={day.title}

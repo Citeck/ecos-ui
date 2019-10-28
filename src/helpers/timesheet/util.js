@@ -25,8 +25,8 @@ export function getDaysOfMonth(currentDate) {
   }));
 }
 
-export function isOnlyContent(props) {
-  const url = get(props, ['history', 'location', 'pathname'], '/');
+export function isOnlyContent() {
+  const url = get(window, ['location', 'pathname'], '/');
 
   return pagesWithOnlyContent.includes(url);
 }
