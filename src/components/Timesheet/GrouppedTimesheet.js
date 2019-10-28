@@ -109,7 +109,9 @@ class GrouppedTimesheet extends BaseTimesheet {
     const activeFilter = eventsFilterTabs.find(item => item.isActive);
 
     if (activeFilter.key === FILTER_BY.PEOPLE) {
-      return data.filter(item => item.user.toLowerCase().includes(filter.toLowerCase()));
+      return data.filter(
+        item => item.user.toLowerCase().includes(filter.toLowerCase()) || item.userName.toLowerCase().includes(filter.toLowerCase())
+      );
     }
 
     if (activeFilter.key === FILTER_BY.COMPANY) {
