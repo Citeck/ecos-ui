@@ -15,7 +15,7 @@ import {
   setUpdatingEventDayHours
 } from '../../actions/timesheet/delegated';
 import { selectUserName } from '../../selectors/user';
-import { selectTDelegatedMergedList, selectTDelegatedUpdatingHours, selectTSubordinatesUpdatingHours } from '../../selectors/timesheet';
+import { selectTDelegatedMergedList, selectTDelegatedUpdatingHours } from '../../selectors/timesheet';
 import CommonTimesheetService from '../../services/timesheet/common';
 import DelegatedTimesheetService from '../../services/timesheet/delegated';
 import DelegatedTimesheetConverter from '../../dto/timesheet/delegated';
@@ -69,12 +69,12 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
   try {
     yield api.timesheetCommon.modifyEventHours({ ...payload });
 
-    const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
+    const updatingHoursState = yield select(selectTDelegatedUpdatingHours);
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
 
     yield put(setUpdatingEventDayHours(secondState));
   } catch (e) {
-    const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
+    const updatingHoursState = yield select(selectTDelegatedUpdatingHours);
     const thirdState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
 
     yield put(setUpdatingEventDayHours(thirdState));
@@ -91,7 +91,7 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(firstState));
   } catch (e) {
-    const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
+    const updatingHoursState = yield select(selectTDelegatedUpdatingHours);
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
 
     yield put(setUpdatingEventDayHours(secondState));

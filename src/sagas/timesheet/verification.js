@@ -13,11 +13,7 @@ import {
 import VerificationTimesheetService from '../../services/timesheet/verification';
 import VerificationTimesheetConverter from '../../dto/timesheet/verification';
 import CommonTimesheetService from '../../services/timesheet/common';
-import {
-  selectTSubordinatesUpdatingHours,
-  selectTVerificationMergedList,
-  selectTVerificationUpdatingHours
-} from '../../selectors/timesheet';
+import { selectTVerificationUpdatingHours, selectTVerificationMergedList } from '../../selectors/timesheet';
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import { selectUserName } from '../../selectors/user';
 
@@ -64,12 +60,12 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
   try {
     yield api.timesheetCommon.modifyEventHours({ ...payload });
 
-    const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
+    const updatingHoursState = yield select(selectTVerificationUpdatingHours);
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
 
     yield put(setUpdatingEventDayHours(secondState));
   } catch (e) {
-    const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
+    const updatingHoursState = yield select(selectTVerificationUpdatingHours);
     const thirdState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
 
     yield put(setUpdatingEventDayHours(thirdState));
@@ -86,7 +82,7 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(firstState));
   } catch (e) {
-    const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
+    const updatingHoursState = yield select(selectTVerificationUpdatingHours);
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
 
     yield put(setUpdatingEventDayHours(secondState));
