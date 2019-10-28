@@ -36,7 +36,6 @@ import {
   TasksApi,
   UserApi,
   VersionsJournalApi,
-  DocAssociationsApi,
   ViewApi
 } from './api';
 import { fakeApi } from './api/fakeApi';

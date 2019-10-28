@@ -52,7 +52,7 @@ class Header extends React.Component {
 
   render() {
     const { widthHeader } = this.state;
-    const { isMobile } = this.props;
+    const { isMobile, hideSiteMenu, theme } = this.props;
 
     return (
       <React.Fragment>
