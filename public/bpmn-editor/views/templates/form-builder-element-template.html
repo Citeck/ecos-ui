@@ -2,14 +2,14 @@
 
   <div class="actions" ng-show="(!formMode || formMode != 'read')">
     <button class="btn btn-clean" ng-click="openFieldPopover()"><i class="glyphicon glyphicon-pencil"></i></button>
-    <button class="btn btn-clean" ng-click="removeFormElement(formElement)"><i class="icon icon-remove"></i></button>
+    <button class="btn btn-clean" ng-click="removeFormElement(formElement)"><i class="glyphicon glyphicon-remove"></i></button>
   </div>
 
   <div ng-switch-when="text" class="form-group">
       <label class="control-label form-field-label">{{formElement.name}}</label><span class="marker" ng-if="formElement.required">*</span>
       <input type="text" class="form-control" style="cursor:default;background-color:#fff;" value="Text" disabled>
   </div>
-  
+
     <div ng-switch-when="password" class="form-group">
       <label class="control-label form-field-label">{{formElement.name}}</label><span class="marker" ng-if="formElement.required">*</span>
       <input type="text" class="form-control" style="cursor:default;background-color:#fff;" value="Password" disabled>
@@ -59,12 +59,12 @@
       <label class="control-label form-field-label">{{formElement.name}} <span class="marker" ng-if="formElement.required">*</span></label>
       <input type="number" class="form-control" style="cursor:default;background-color:#fff;" value="123" disabled>
   </div>
-  
+
   <div ng-switch-when="decimal" class="form-group">
       <label class="control-label form-field-label">{{formElement.name}} <span class="marker" ng-if="formElement.required">*</span></label>
       <input type="number" class="form-control" style="cursor:default;background-color:#fff;" value="123.12" disabled>
   </div>
-  
+
   <div ng-switch-when="dropdown" class="form-group">
     <label class="control-label form-field-label">{{formElement.name}} <span class="marker" ng-if="formElement.required">*</span></label>
     <select class="form-control" style="cursor:default;" disabled>

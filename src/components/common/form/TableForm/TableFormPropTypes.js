@@ -8,6 +8,7 @@ export default {
   onError: PropTypes.func,
   disabled: PropTypes.bool,
   isCompact: PropTypes.bool,
+  isStaticModalTitle: PropTypes.bool,
   parentForm: PropTypes.object,
   triggerEventOnTableChange: PropTypes.func,
   viewOnly: PropTypes.bool

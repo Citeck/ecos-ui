@@ -160,17 +160,6 @@ flowableModeler
   .run(['$rootScope', '$timeout', '$modal', '$translate', '$location', '$http', '$window', 'appResourceRoot',
         function($rootScope, $timeout, $modal, $translate, $location, $http, $window, appResourceRoot) {
 
-            require(['ecosui!idle-timer'], function(IdleTimer) {
-                const idleTimer = new IdleTimer.default();
-                idleTimer
-                    .setCheckInterval(60000)
-                    .setIdleTimeout(60000 * 60 * 3)
-                    .setNoIdleCallback(() => {
-                        fetch('/share/proxy/alfresco/citeck/ecos/touch', { credentials: 'include' });
-                    })
-                    .run();
-            });
-
             // set angular translate fallback language
             $translate.fallbackLanguage(['en']);
 

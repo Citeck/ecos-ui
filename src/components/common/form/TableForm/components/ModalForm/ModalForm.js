@@ -8,10 +8,13 @@ import Records from '../../../../../Records';
 const ModalForm = () => {
   const context = useContext(TableFormContext);
   const { record, formMode, isModalFormOpen, toggleModal, onCreateFormSubmit, onEditFormSubmit, controlProps } = context;
-  const { parentForm } = controlProps;
+  const { parentForm, isStaticModalTitle } = controlProps;
 
-  const [displayName, setDisplayName] = useState();
+  const [displayName, setDisplayName] = useState('');
   useEffect(() => {
+    if (isStaticModalTitle) {
+      return;
+    }
     Records.get(record)
       .load('.disp')
       .then(disp => setDisplayName(disp));

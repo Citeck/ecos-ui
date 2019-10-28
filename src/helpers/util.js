@@ -38,7 +38,7 @@ export function setCookie(name, value, options = {}) {
 
 export const utcAsLocal = jsonDate =>
   moment(jsonDate)
-    .zone(0)
+    .utcOffset(0)
     .format(UTC_AS_LOCAL_FORMAT);
 
 export const revokeUtcAsLocal = jsonDate => moment(jsonDate).format(UTC_AS_LOCAL_FORMAT) + 'Z';
