@@ -2,8 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { t } from '../../../../helpers/util';
 import { RemoveDialog } from '../index';
+import { Btn } from '../../btns';
+import EcosModal from '../../EcosModal';
 
 const REMOVE_DIALOG_ID = 'DialogManager-remove-dialog';
+const INFO_DIALOG_ID = 'DialogManager-info-dialog';
 
 class DialogWrapper extends React.Component {
   constructor(props) {
@@ -75,6 +78,36 @@ const dialogsById = {
     };
 
     return <RemoveDialog {...dProps} />;
+  },
+  [INFO_DIALOG_ID]: props => {
+    const dialogProps = props.dialogProps || {};
+
+    const { onClose = () => {} } = dialogProps;
+
+    let dProps = Object.assign(
+      {
+        title: '',
+        text: ''
+      },
+      dialogProps,
+      {
+        isOpen: props.isVisible
+      }
+    );
+
+    dProps.onClose = () => {
+      props.setVisible(false);
+      onClose();
+    };
+
+    return (
+      <EcosModal isOpen={dProps.isOpen} hideModal={dProps.onClose}>
+        <div>{t(dProps.title)}</div>
+        <div>
+          <Btn onClick={this.onCancel}>{t('button.close-modal')}</Btn>
+        </div>
+      </EcosModal>
+    );
   }
 };
 
@@ -108,6 +141,10 @@ const showDialog = (id, props) => {
 export default class DialogManager {
   static showRemoveDialog(props) {
     return showDialog(REMOVE_DIALOG_ID, props);
+  }
+
+  static showInfoDialog(props) {
+    return showDialog(INFO_DIALOG_ID, props);
   }
 }
 

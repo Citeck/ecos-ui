@@ -622,5 +622,7 @@
   "versions-journal-widget.title": "Журнал версий",
   "versions-journal-widget.version": "Версия",
   "view-table.labels.actions": "Действия",
-  "widget.document.title.preview": "Предпросмотр документа"
+  "widget.document.title.preview": "Предпросмотр документа",
+  "action.result.success": "Действие успешно выполнено",
+  "action.result.error": "Во время выполнения действия произошла ошибка"
 }
