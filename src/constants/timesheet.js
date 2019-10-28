@@ -12,7 +12,8 @@ export const ServerStatusOutcomeKeys = {
   TASK_DONE: 'Task_Done',
   SEND_BACK: 'Send_Back',
   APPROVE: 'Approve',
-  HR_APPROVE: 'HR_Approve'
+  HR_APPROVE: 'HR_Approve',
+  MANAGER_APPROVE: 'Manager_Approve'
 };
 
 export const ServerEventTypes = {

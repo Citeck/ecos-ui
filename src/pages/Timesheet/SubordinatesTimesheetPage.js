@@ -5,16 +5,16 @@ import { connect } from 'react-redux';
 import { t } from '../../helpers/util';
 import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
 import { CommonLabels, SubTimesheetLabels } from '../../helpers/timesheet/dictionary';
-import { ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes, DelegationTypes } from '../../constants/timesheet';
+import { DelegationTypes, ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '../../constants/timesheet';
 import {
+  delegateTo,
   getSubordinatesTimesheetByParams,
   modifyEventDayHours,
   modifyStatus,
+  removeDelegation,
   resetEventDayHours,
   resetSubordinatesTimesheet,
-  setPopupMessage,
-  delegateTo,
-  removeDelegation
+  setPopupMessage
 } from '../../actions/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
 
@@ -49,33 +49,37 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
   }
 
   get configGroupBtns() {
+    const first = 0;
+    const second = 1;
+    const arrBtns = [{}, {}];
+
     const status = this.selectedStatus;
-    const key = Array.isArray(status.key) ? status.key[0] : status.key;
+    const key = Array.isArray(status.key) ? status.key[first] : status.key;
 
     switch (key) {
       case ServerStatusKeys.NOT_FILLED:
       case ServerStatusKeys.CORRECTION:
-        return [
-          {},
-          {
-            ...BaseConfigGroupButtons.APPROVE,
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.TASK_DONE)
-          }
-        ];
+        arrBtns[second] = {
+          ...BaseConfigGroupButtons.APPROVE,
+          tooltip: CommonLabels.STATUS_TIP_APPROVE_3,
+          onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.MANAGER_APPROVE)
+        };
+        break;
       case ServerStatusKeys.MANAGER_APPROVAL:
-        return [
-          {
-            ...BaseConfigGroupButtons.SENT_IMPROVE,
-            onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
-          },
-          {
-            ...BaseConfigGroupButtons.APPROVE,
-            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.APPROVE)
-          }
-        ];
+        arrBtns[first] = {
+          ...BaseConfigGroupButtons.SENT_IMPROVE,
+          onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
+        };
+        arrBtns[second] = {
+          ...BaseConfigGroupButtons.APPROVE,
+          onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.APPROVE)
+        };
+        break;
       default:
-        return [{}, {}];
+        break;
     }
+
+    return arrBtns;
   }
 
   getData = () => {
