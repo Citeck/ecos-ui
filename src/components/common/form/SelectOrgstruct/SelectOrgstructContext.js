@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
 
 import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
 import { TAB_BY_LEVELS, TAB_ALL_USERS, TAB_ONLY_SELECTED, ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER } from './constants';
@@ -19,7 +20,10 @@ export const SelectOrgstructProvider = props => {
     modalTitle,
     getFullData,
     defaultTab = TAB_BY_LEVELS,
-    liveSearch
+    liveSearch,
+    withoutTabs,
+    renderListItem,
+    filterFields = []
   } = controlProps;
   const allUsersGroupShortName = allUsersGroup || ALL_USERS_GROUP_SHORT_NAME;
 
@@ -50,7 +54,11 @@ export const SelectOrgstructProvider = props => {
       .then(items => {
         const allUsersFiltered = trimSearchText
           ? allUsers.filter(item => {
-              return item.label.toUpperCase().indexOf(trimSearchText.toUpperCase()) !== -1;
+              if (!filterFields.length) {
+                return item.label.toUpperCase().indexOf(trimSearchText.toUpperCase()) !== -1;
+              }
+
+              return filterFields.map(field => get(item, field, '').indexOf(trimSearchText.toUpperCase()) !== -1).includes(true);
             })
           : allUsers.map(newItem => {
               return {
@@ -168,13 +176,19 @@ export const SelectOrgstructProvider = props => {
                 ...newItem,
                 isSelected: selectedItems.findIndex(item => item.id === newItem.id) !== -1
               };
+            }),
+            [TAB_ALL_USERS]: tabItems[TAB_ALL_USERS].map(newItem => {
+              return {
+                ...newItem,
+                isSelected: selectedItems.findIndex(item => item.id === newItem.id) !== -1
+              };
             })
           });
 
           setSelectedRows([...selectedItems]);
         });
     }
-  }, []);
+  }, [allUsers]);
 
   return (
     <SelectOrgstructContext.Provider
@@ -193,6 +207,15 @@ export const SelectOrgstructProvider = props => {
         isAllUsersGroupsExists,
         modalTitle,
         liveSearch,
+        withoutTabs,
+
+        renderListItem: item => {
+          if (typeof renderListItem === 'function') {
+            return renderListItem(item);
+          }
+
+          return item.label;
+        },
 
         toggleSelectModal: () => {
           toggleSelectModal(!isSelectModalOpen);
@@ -223,6 +246,10 @@ export const SelectOrgstructProvider = props => {
           });
 
           toggleSelectModal(false);
+
+          if (typeof onCancelSelect === 'function') {
+            onCancelSelect();
+          }
         },
 
         deleteSelectedItem: targetId => {
@@ -269,8 +296,6 @@ export const SelectOrgstructProvider = props => {
 
         updateSearchText: e => {
           updateSearchText(e.target.value);
-
-          console.warn('e.target.value => ', e.target.value);
 
           if (liveSearch) {
             onSubmitSearchForm(e.target.value);

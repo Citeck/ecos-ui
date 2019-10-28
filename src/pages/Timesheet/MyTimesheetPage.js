@@ -32,8 +32,6 @@ class MyTimesheetPage extends BaseTimesheetPage {
     super(props);
 
     this.state.statusTabs = null;
-
-    this.state.delegationRejected = true;
     this.state.isOpenSelectUserModal = false;
   }
 
@@ -65,14 +63,13 @@ class MyTimesheetPage extends BaseTimesheetPage {
   }
 
   get lockDescription() {
-    const { isDelegated } = this.state;
-    const { status } = this.props;
+    const { status, delegatedToRef } = this.props;
 
     if (status.key === ServerStatusKeys.MANAGER_APPROVAL) {
       return t(MyTimesheetLabels.LOCK_DESCRIPTION_1);
     }
 
-    if (isDelegated) {
+    if (delegatedToRef) {
       return t(MyTimesheetLabels.LOCK_DESCRIPTION_2);
     }
 
@@ -80,10 +77,9 @@ class MyTimesheetPage extends BaseTimesheetPage {
   }
 
   get isAvailable() {
-    const { status } = this.props;
-    const { isDelegated } = this.state;
+    const { status, delegatedToRef } = this.props;
 
-    return ![ServerStatusKeys.MANAGER_APPROVAL, ServerStatusKeys.SENT_TO_ACCOUNTING_SYSTEM].includes(status.key) && !isDelegated;
+    return ![ServerStatusKeys.MANAGER_APPROVAL, ServerStatusKeys.SENT_TO_ACCOUNTING_SYSTEM].includes(status.key) && !delegatedToRef;
   }
 
   getData = () => {
@@ -115,32 +111,21 @@ class MyTimesheetPage extends BaseTimesheetPage {
     this.clearCommentModalData();
   };
 
-  handleToggleDelegated(isDelegated) {
+  handleToggleDelegated = isDelegated => {
     this.setState(state => {
       const newState = {};
 
       if (isDelegated) {
         newState.isOpenSelectUserModal = true;
-        newState.delegationRejected = false;
       }
 
       if (!isDelegated) {
-        newState.delegationRejected = true;
-        newState.isDelegated = false;
-
         this.props.removeDelegation();
       }
 
       return newState;
     });
-  }
-
-  handleClickDelegationRejectedConfirm() {
-    this.setState({
-      delegationRejected: false,
-      isDelegated: false
-    });
-  }
+  };
 
   handleSelectUser = deputy => {
     const isDelegated = Boolean(deputy);
@@ -149,11 +134,11 @@ class MyTimesheetPage extends BaseTimesheetPage {
       this.props.delegateTo({ deputy, delegationType: DelegationTypes.FILL });
     }
 
-    this.setState({ isOpenSelectUserModal: false, isDelegated });
+    this.setState({ isOpenSelectUserModal: false });
   };
 
   handleCloseSelectUserModal = () => {
-    this.setState({ isOpenSelectUserModal: false, isDelegated: false });
+    this.setState({ isOpenSelectUserModal: false });
   };
 
   handleChangeDelegatedToUser = () => {
@@ -179,15 +164,10 @@ class MyTimesheetPage extends BaseTimesheetPage {
 
   renderDelegation() {
     const { delegatedToDisplayName, delegatedToRef } = this.props;
-    const { isDelegated, delegationRejected } = this.state;
     let description = '';
 
-    if (!isDelegated) {
+    if (!delegatedToRef) {
       description = MyTimesheetLabels.DELEGATION_DESCRIPTION_1;
-    }
-
-    if (delegationRejected) {
-      description = MyTimesheetLabels.DELEGATION_DESCRIPTION_3;
     }
 
     if (delegatedToDisplayName) {
@@ -200,14 +180,14 @@ class MyTimesheetPage extends BaseTimesheetPage {
 
         <div className="ecos-timesheet__delegation-switch">
           <Switch
-            checked={Boolean(isDelegated && delegatedToRef)}
+            checked={Boolean(delegatedToRef)}
             className="ecos-timesheet__delegation-switch-checkbox"
-            onToggle={this.handleToggleDelegated.bind(this)}
+            onToggle={this.handleToggleDelegated}
           />
 
           <span className="ecos-timesheet__delegation-switch-label">
             {t(description)}{' '}
-            {delegatedToDisplayName && isDelegated && (
+            {delegatedToDisplayName && (
               <span
                 className="ecos-timesheet__delegation-switch-label ecos-timesheet__delegation-switch-label_link"
                 onClick={this.handleChangeDelegatedToUser}
@@ -216,15 +196,6 @@ class MyTimesheetPage extends BaseTimesheetPage {
               </span>
             )}
           </span>
-
-          {delegationRejected && (
-            <div
-              className="ecos-timesheet__delegation-btn ecos-timesheet__delegation-btn-ok"
-              onClick={this.handleClickDelegationRejectedConfirm.bind(this)}
-            >
-              {t(MyTimesheetLabels.DELEGATION_LABEL_REJECT_OK)}
-            </div>
-          )}
         </div>
       </div>
     );
@@ -263,12 +234,6 @@ class MyTimesheetPage extends BaseTimesheetPage {
 
         <div className="ecos-timesheet__header">
           <div className="ecos-timesheet__date-settings">
-            {/*<Tabs*/}
-            {/*tabs={dateTabs}*/}
-            {/*isSmall*/}
-            {/*onClick={this.handleChangeActiveDateTab}*/}
-            {/*classNameItem="ecos-timesheet__date-settings-tabs-item"*/}
-            {/*/>*/}
             <DateSlider onChange={this.handleChangeCurrentDate.bind(this)} date={currentDate} />
           </div>
 

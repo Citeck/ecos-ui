@@ -39,6 +39,7 @@
 
   &__delegation {
     max-width: 410px;
+    flex-basis: 40%;
 
     &-title {
       @extend .ecos-timesheet__title;

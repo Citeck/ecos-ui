@@ -40,6 +40,9 @@ SelectOrgstruct.propTypes = {
   getFullData: PropTypes.bool,
   // search by key down
   liveSearch: PropTypes.bool,
+  // array fields for searching (['label', 'attributes.fullName'])
+  filterFields: PropTypes.array,
+  withoutTabs: PropTypes.bool,
   renderView: PropTypes.func,
   modalTitle: PropTypes.string
 };

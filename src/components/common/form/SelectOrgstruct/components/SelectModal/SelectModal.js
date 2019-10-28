@@ -10,7 +10,7 @@ import './SelectModal.scss';
 
 const SelectModal = () => {
   const context = useContext(SelectOrgstructContext);
-  const { isSelectModalOpen, toggleSelectModal, onCancelSelect, onSelect, modalTitle } = context;
+  const { isSelectModalOpen, toggleSelectModal, onCancelSelect, onSelect, modalTitle, withoutTabs } = context;
 
   return (
     <EcosModal
@@ -21,7 +21,7 @@ const SelectModal = () => {
     >
       <div className={'select-orgstruct-control-panel'}>
         <Search />
-        <Tabs />
+        {!withoutTabs && <Tabs />}
       </div>
 
       <Body />
