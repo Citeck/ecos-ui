@@ -11,16 +11,11 @@ import { Icon, Loader } from '../';
 
 import './style.scss';
 
-const Themes = {
-  DARK: 'dark',
-  LIGHT: 'light'
-};
-
 export default class SearchSelect extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     formattedSearchResult: PropTypes.array,
-    theme: PropTypes.oneOf([Themes.DARK, Themes.LIGHT]),
+    theme: PropTypes.string,
     autocomplete: PropTypes.bool,
     noResults: PropTypes.bool,
     isMobile: PropTypes.bool,
@@ -188,7 +183,12 @@ export default class SearchSelect extends React.Component {
     const { className, theme, autocomplete, formattedSearchResult, noResults, isLoading, collapsible, isMobile } = this.props;
     const isSearchCollapsed = collapsible && collapsed;
     const stateSearch = isSearchCollapsed ? 'close' : 'open';
-    const classNameContainer = classNames(className, this.className, `${this.className}_${theme}`, `${this.className}_${stateSearch}`);
+    const classNameContainer = classNames(
+      className,
+      this.className,
+      `${this.className}_theme_${theme}`,
+      `${this.className}_${stateSearch}`
+    );
     const commonIcon = `${this.className}__icon`;
     const isOpen = (!isEmpty(formattedSearchResult) || noResults || isLoading) && autocomplete && searchText && focused;
 

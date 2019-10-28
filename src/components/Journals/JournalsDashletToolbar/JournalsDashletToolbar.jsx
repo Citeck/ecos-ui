@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 import Export from '../../Export/Export';
@@ -9,6 +9,7 @@ import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { onJournalSelect, onJournalSettingsSelect } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
+import { goToCardDetailsPage } from '../../../helpers/urls';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 const mapStateToProps = (state, props) => {
@@ -17,7 +18,9 @@ const mapStateToProps = (state, props) => {
   return {
     journals: newState.journals,
     journalConfig: newState.journalConfig,
-    journalSettings: newState.journalSettings
+    journalSettings: newState.journalSettings,
+    config: newState.config,
+    grid: newState.grid
   };
 };
 
@@ -38,7 +41,11 @@ class JournalsDashletToolbar extends Component {
       }
     } = this.props;
 
-    FormManager.createRecordByVariant(createVariants[0]);
+    FormManager.createRecordByVariant(createVariants[0], {
+      onSubmit: record => {
+        goToCardDetailsPage(record.id);
+      }
+    });
   };
 
   onChangeJournal = journal => this.props.onJournalSelect(journal.nodeRef);
@@ -57,7 +64,9 @@ class JournalsDashletToolbar extends Component {
       },
       journalSettings,
       measurer,
-      isSmall
+      isSmall,
+      grid,
+      config
     } = this.props;
 
     return (
@@ -99,7 +108,7 @@ class JournalsDashletToolbar extends Component {
           </Dropdown>
         )}
 
-        {!isSmall && <Export config={journalConfig} />}
+        {!isSmall && <Export journalConfig={journalConfig} grid={grid} dashletConfig={config} />}
 
         {!isSmall && (
           <div className={'ecos-journal-dashlet__actions'}>

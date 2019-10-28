@@ -2,6 +2,7 @@ import React, { Component, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
+import { NotificationContainer } from 'react-notifications';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
@@ -9,7 +10,6 @@ import Header from '../Header';
 import Notification from '../Notification';
 import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
-import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 
 import { changeActiveTab, getActiveTabTitle, getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
@@ -18,24 +18,15 @@ import { MENU_TYPE, URL } from '../../constants';
 
 import './App.scss';
 
+const LoginForm = lazy(() => import('../LoginForm'));
+
 const BPMNDesignerPage = lazy(() => import('../../pages/BPMNDesignerPage'));
 const DashboardPage = lazy(() => import('../../pages/Dashboard'));
 const DashboardSettingsPage = lazy(() => import('../../pages/DashboardSettings'));
 const JournalsPage = lazy(() => import('../../pages/JournalsPage'));
 
-const CardDetailsPage = lazy(() => import('../../pages/CardDetailsPage'));
-const DocPreviewPage = lazy(() => import('../../pages/debug/DocPreview'));
-const JournalsDashboardPage = lazy(() => import('../../pages/debug/JournalsDashboardPage'));
-const PropertiesPage = lazy(() => import('../../pages/debug/Properties/PropertiesPage'));
-const TasksDashletPage = lazy(() => import('../../pages/debug/Tasks/TasksDashletPage'));
 const EcosFormPage = lazy(() => import('../../pages/debug/EcosFormPage'));
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
-const CommentsWidgetPage = lazy(() => import('../../pages/debug/CommentsWidget'));
-const CurrentTasksPage = lazy(() => import('../../pages/debug/CurrentTasks/CurrentTasksPage'));
-const DocStatusPage = lazy(() => import('../../pages/debug/DocStatus/DocStatusPage'));
-const EventsHistoryPage = lazy(() => import('../../pages/debug/EventsHistoryPage'));
-const VersionsJournalWidgetPage = lazy(() => import('../../pages/debug/VersionsJournalWidgetPage'));
-const DocAssociations = lazy(() => import('../../pages/debug/DocAssociations'));
 
 class App extends Component {
   componentDidMount() {
@@ -67,7 +58,8 @@ class App extends Component {
       tabs,
       setTabs,
       getActiveTabTitle,
-      isLoadingTitle
+      isLoadingTitle,
+      theme
     } = this.props;
 
     if (!isInit) {
@@ -81,7 +73,11 @@ class App extends Component {
     }
 
     if (!isAuthenticated) {
-      return <LoginForm />;
+      return (
+        <Suspense fallback={null}>
+          <LoginForm theme={theme} />
+        </Suspense>
+      );
     }
 
     const appClassNames = classNames('app-container', { mobile: isMobile });
@@ -140,6 +136,8 @@ class App extends Component {
             </div>
           </div>
         </div>
+
+        <NotificationContainer />
       </div>
     );
   }

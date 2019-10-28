@@ -14,21 +14,10 @@ export const TITLE = {
   [URL.JOURNAL]: 'page-tabs.journal',
   [URL.DASHBOARD]: 'header.site-menu.home-page',
   [URL.DASHBOARD_SETTINGS]: 'page-tabs.dashboard-settings',
-  [URL.BPMN_DESIGNER]: 'page-tabs.bpmn-designer',
-  // temporary pages
-  '/v2/card-details': 'Карточка',
-  [URL.JOURNAL_DASHBOARD]: 'Журнал дашборд [temp]',
-  [URL.WIDGET_TASKS]: 'Задачи [temp]',
-  [URL.WIDGET_COMMENTS]: 'Комментарии [temp]',
-  [URL.WIDGET_PROPERTIES]: 'Свойства [temp]',
-  [URL.WIDGET_DOC_PREVIEW]: 'Предпросмотр [temp]',
-  [URL.CURRENT_TASKS]: 'Текущие задачи [temp]',
-  [URL.WIDGET_DOC_STATUS]: 'Статус документа [temp]',
-  [URL.WIDGET_EVENTS_HISTORY]: 'История событий [temp]'
+  [URL.BPMN_DESIGNER]: 'page-tabs.bpmn-designer'
 };
 
 export const URL_MASK = {
-  '^/v2/([0-9A-Za-z-]*)/card-details$': TITLE[URL.CARD_DETAILS],
   '^/v2/dashboard/([0-9A-Za-z-]*)/settings$': TITLE[URL.DASHBOARD_SETTINGS],
   '^/v2/dashboard/([0-9A-Za-z-]*)$': TITLE[URL.DASHBOARD]
 };

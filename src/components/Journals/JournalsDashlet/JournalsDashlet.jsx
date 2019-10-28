@@ -87,12 +87,11 @@ class JournalsDashlet extends Component {
     const {
       config: { journalsListId = '', journalSettingId = '' },
       journalConfig: {
-        id = '',
         meta: { nodeRef = '' }
       }
     } = this.props;
 
-    goToJournalsPage({ journalsListId, journalId: id, journalSettingId, nodeRef });
+    goToJournalsPage({ journalsListId, journalId: nodeRef, journalSettingId, nodeRef });
   };
 
   render() {

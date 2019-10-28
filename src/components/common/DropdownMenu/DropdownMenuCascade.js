@@ -12,8 +12,7 @@ export default class DropdownMenuCascade extends React.Component {
   };
 
   static defaultProps = {
-    groups: [],
-    onClick: () => {}
+    groups: []
   };
 
   state = {

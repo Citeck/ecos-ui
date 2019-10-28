@@ -1,4 +1,4 @@
-@import '../../../constants';
+@import '../../../styles/constants';
 
 .ecos-journal-dashlet-editor {
   margin-bottom: 15px;
@@ -6,6 +6,10 @@
 
 .ecos-journal-dashlet-editor__body {
   padding: 30px 29px 0 29px;
+}
+
+.ecos-journal-dashlet-editor__body_small {
+  padding: 30px 15px 0 15px;
 }
 
 .ecos-journal-dashlet-editor__caption {
@@ -19,6 +23,22 @@
   padding: 0 21px;
 }
 
+.ecos-journal-dashlet-editor__actions_small {
+  margin-top: 5px;
+  height: 93px;
+  padding: 0 15px;
+}
+
 .ecos-journal-dashlet-editor__select {
   max-width: 360px;
+}
+
+.ecos-journal-dashlet-editor_small-btn {
+  width: calc(50% - 5px);
+  margin-top: 20px;
+  margin-right: 0;
+}
+
+.ecos-journal-dashlet-editor_small-btn_full-width {
+  width: 100%;
 }

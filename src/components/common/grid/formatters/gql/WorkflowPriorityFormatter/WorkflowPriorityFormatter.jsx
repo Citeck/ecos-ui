@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import DefaultGqlFormatter from '../DefaultGqlFormatter';
+import { t } from '../../../../../../helpers/util';
 
 import './WorkflowPriorityFormatter.scss';
 
@@ -16,9 +17,7 @@ export default class WorkflowPriorityFormatter extends DefaultGqlFormatter {
       priority = codes[cell];
 
     return { priority } ? (
-      <span className={`workflow-priority-formatter workflow-priority-formatter_${priority}`}>
-        {window.Alfresco.util.message('priority.' + priority)}
-      </span>
+      <span className={`workflow-priority-formatter workflow-priority-formatter_${priority}`}>{t('priority.' + priority)}</span>
     ) : (
       <Fragment>{this.value(cell)}</Fragment>
     );

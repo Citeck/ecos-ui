@@ -176,14 +176,36 @@ export class DashboardApi extends RecordService {
 
     switch (type) {
       case DashboardTypes.CASE_DETAILS:
-        return yield Records.get(recordRef)
-          .load({
-            modifier: '.att(n:"cm:modifier"){disp,str}',
-            modified: 'cm:modified',
-            displayName: '.disp',
-            version: 'version'
-          })
-          .then(response => response);
+        return yield new Promise(resolve => {
+          const MAX_ATTEMPT_NUMBER = 10;
+          let attemptNumber = 0;
+          let isForceLoad = false;
+          let checkInterval;
+
+          const fetchDisplayName = () => {
+            Records.get(recordRef)
+              .load(
+                {
+                  displayName: '.disp',
+                  version: 'version',
+                  pendingUpdate: 'pendingUpdate?bool'
+                },
+                isForceLoad
+              )
+              .then(response => {
+                if (!response.pendingUpdate || attemptNumber > MAX_ATTEMPT_NUMBER) {
+                  clearInterval(checkInterval);
+                  resolve(response);
+                } else {
+                  attemptNumber++;
+                  isForceLoad = true;
+                }
+              });
+          };
+
+          fetchDisplayName();
+          checkInterval = setInterval(fetchDisplayName, 2000);
+        });
       case DashboardTypes.SITE:
       case DashboardTypes.PROFILE:
       default: {

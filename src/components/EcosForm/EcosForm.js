@@ -11,6 +11,7 @@ import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import DataGridAssocComponent from './../../forms/components/custom/datagridAssoc/DataGridAssoc';
 import { t, getCurrentLocale } from '../../helpers/util';
+import { PROXY_URI } from '../../constants/alfresco';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -56,7 +57,7 @@ class EcosForm extends React.Component {
     options.recordId = recordId;
 
     let alfConstants = (window.Alfresco || {}).constants || {};
-    let proxyUri = alfConstants.PROXY_URI || '/';
+    let proxyUri = PROXY_URI || '/';
 
     proxyUri = proxyUri.substring(0, proxyUri.length - 1);
     Formio.setProjectUrl(proxyUri);
@@ -153,8 +154,27 @@ class EcosForm extends React.Component {
             }
           };
 
+          let fireSubmit = (submission, finishTime) => {
+            if (form.changing) {
+              if (new Date().getTime() < finishTime) {
+                setTimeout(() => {
+                  fireSubmit(submission, finishTime);
+                }, 300);
+              } else {
+                console.warn('Form will be submitted, but changing flag is still true');
+                if (form.checkValidity()) {
+                  self.submitForm(form, submission);
+                }
+              }
+            } else {
+              if (form.checkValidity()) {
+                self.submitForm(form, submission);
+              }
+            }
+          };
+
           form.on('submit', submission => {
-            self.submitForm(form, submission);
+            fireSubmit(submission, new Date().getTime() + 5000);
           });
 
           let handlersPrefix = 'onForm';

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import { DropdownMenu as Menu } from '../common';
@@ -51,16 +52,13 @@ export default class LanguageSwitcher extends React.Component {
 
   render() {
     const { language, dropdownOpen } = this.state;
-    const { items } = this.props;
+    const { items, theme } = this.props;
 
     if (!language) {
       return null;
     }
 
-    const classNameIcoBtn = classNames('ecos-header-lang__btn ecos-btn_blue ecos-btn_hover_t-blue ecos-btn_padding_small ecos-btn_r_6', {
-      'ecos-btn_active_blue': dropdownOpen,
-      'ecos-btn_active_blue2': !dropdownOpen
-    });
+    const classNameIcoBtn = classNames(`ecos-header-lang__btn ecos-btn_theme_${theme} ecos-btn_padding_small ecos-btn_r_6`);
 
     const currentLanguage = items.find(item => item.id === language);
     if (!currentLanguage) {
@@ -84,3 +82,7 @@ export default class LanguageSwitcher extends React.Component {
     );
   }
 }
+
+LanguageSwitcher.propTypes = {
+  theme: PropTypes.string
+};

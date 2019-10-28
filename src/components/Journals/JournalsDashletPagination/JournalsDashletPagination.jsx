@@ -4,6 +4,7 @@ import Pagination from '../../common/Pagination/Pagination';
 import { PAGINATION_SIZES } from '../../Journals/constants';
 import { reloadGrid } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
+import classNames from 'classnames';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -26,10 +27,6 @@ class JournalsDashletPagination extends Component {
     this.reloadGrid(pagination);
   };
 
-  changeMaxItems = item => {
-    this.reloadGrid({ ...this.props.grid.pagination, maxItems: item.value });
-  };
-
   reloadGrid = pagination => {
     this.props.reloadGrid({ pagination });
   };
@@ -37,8 +34,11 @@ class JournalsDashletPagination extends Component {
   render() {
     const {
       grid: { total, pagination, groupBy },
-      hasPageSize
+      hasPageSize,
+      className
     } = this.props;
+
+    const cssClasses = classNames('ecos-journal-dashlet__pagination', className);
 
     if (groupBy && groupBy.length) {
       return null;
@@ -46,12 +46,11 @@ class JournalsDashletPagination extends Component {
 
     return (
       <Pagination
-        className={'ecos-journal-dashlet__pagination'}
+        className={cssClasses}
         total={total}
         {...pagination}
         sizes={PAGINATION_SIZES}
         onChange={this.changePage}
-        onChangeMaxItems={this.changeMaxItems}
         hasPageSize={hasPageSize}
       />
     );

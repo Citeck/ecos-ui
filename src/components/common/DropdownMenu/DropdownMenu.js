@@ -37,8 +37,7 @@ export default class DropdownMenu extends React.Component {
     },
     setCascade: {
       collapseOneItem: false
-    },
-    onClick: () => {}
+    }
   };
 
   renderMode() {

@@ -14,3 +14,4 @@ export { EventsHistoryApi } from './eventsHistory';
 export { VersionsJournalApi } from './versionsJournal';
 export { RecordActionsApi } from './recordActions';
 export { DocAssociationsApi } from './docAssociations';
+export { ViewApi } from './view';

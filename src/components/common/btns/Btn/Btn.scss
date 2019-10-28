@@ -1,4 +1,4 @@
-@import '../../../../constants';
+@import '../../../../styles/constants';
 
 button {
   &.ecos-btn {
@@ -33,6 +33,7 @@ button {
     &:focus {
       background-color: $color-gray-1;
       box-shadow: none;
+      outline: 0;
     }
   }
 
@@ -82,6 +83,10 @@ button {
 
   &.ecos-btn_float_right {
     float: right;
+  }
+
+  &.ecos-btn_float_left {
+    float: left;
   }
 
   &.ecos-btn_padding_small {
@@ -249,6 +254,38 @@ button {
   }
 
   /*Colors*/
+  &.ecos-btn_theme_citeckTheme {
+    background: $color-blue-dark;
+    color: $color-white;
+
+    &:disabled {
+      background-color: $color-blue-light2;
+    }
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: $color-blue-dark;
+      background: $color-white;
+    }
+  }
+
+  &.ecos-btn_theme_uedmsTheme {
+    background: $color-green-dark;
+    color: $color-white;
+
+    &:disabled {
+      background-color: $color-green-light2;
+    }
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: $color-green-dark;
+      background: $color-white;
+    }
+  }
+
   &.ecos-btn_blue {
     background: $color-blue-dark;
     color: $color-white;

@@ -1,8 +1,10 @@
-import { t } from '../helpers/util';
+import { URL_SERVICECONTEXT, URL_RESCONTEXT } from '../constants/alfresco';
+import { t, dynamicallyLoadScript } from '../helpers/util';
 import { goToCardDetailsPage } from '../helpers/urls';
 import { hideModal, showModal } from '../actions/modal';
 import FormManager from '../components/EcosForm/FormManager';
 import { becomeSiteManagerRequest, joinSiteRequest, leaveSiteRequest, requestSiteMembership } from '../actions/handleControl';
+import { requireShareAssets } from '../legacy/share';
 
 export const HandleControlTypes = {
   ALF_DOLOGOUT: 'ALF_DOLOGOUT',
@@ -22,7 +24,7 @@ const HCT = HandleControlTypes;
 export default function handleControl(type, payload, dispatch) {
   switch (type) {
     case HCT.ALF_DOLOGOUT:
-      fetch(window.Alfresco.constants.URL_SERVICECONTEXT + 'dologout', {
+      fetch(URL_SERVICECONTEXT + 'dologout', {
         method: 'POST'
       }).then(() => {
         window.location.reload();
@@ -30,13 +32,36 @@ export default function handleControl(type, payload, dispatch) {
       break;
 
     case HCT.ALF_SHOW_MODAL_MAKE_UNAVAILABLE:
-      return window.Citeck.forms.dialog('deputy:selfAbsenceEvent', '', {
-        fn: function(node) {
-          handleControl(HCT.ALF_NAVIGATE_TO_PAGE, {
-            url: payload.targetUrl
+      return (() => {
+        const openDialog = () => {
+          window.Citeck.forms.dialog('deputy:selfAbsenceEvent', '', {
+            fn: function() {
+              handleControl(HCT.ALF_NAVIGATE_TO_PAGE, {
+                url: payload.targetUrl
+              });
+            }
           });
+        };
+
+        const isCiteckFormDialogReady = () => {
+          return window.Citeck && window.Citeck.forms && window.Citeck.forms.dialog && typeof window.Citeck.forms.dialog === 'function';
+        };
+
+        if (isCiteckFormDialogReady()) {
+          return openDialog();
         }
-      });
+
+        return requireShareAssets().then(() => {
+          const intervalId = setInterval(() => {
+            if (!isCiteckFormDialogReady()) {
+              return;
+            }
+
+            clearInterval(intervalId);
+            openDialog();
+          }, 300);
+        });
+      })();
 
     case HCT.ALF_NAVIGATE_TO_PAGE:
       // TODO improve it
@@ -52,10 +77,11 @@ export default function handleControl(type, payload, dispatch) {
       if (window.Alfresco && window.Alfresco.module && typeof window.Alfresco.module.getCreateSiteInstance === 'function') {
         window.Alfresco.module.getCreateSiteInstance().show();
       } else {
-        const legacyCreateSiteResource =
-          window.Alfresco.constants.URL_RESCONTEXT + 'modules/create-site' + (window.Alfresco.constants.DEBUG ? '.js' : '-min.js');
-        window.require([legacyCreateSiteResource], function() {
-          window.Alfresco.module.getCreateSiteInstance().show();
+        const createSiteScript = `${URL_RESCONTEXT}modules/create-site${process.env.NODE_ENV === 'development' ? '.js' : '-min.js'}`;
+        requireShareAssets().then(() => {
+          dynamicallyLoadScript(createSiteScript, function() {
+            window.Alfresco.module.getCreateSiteInstance().show();
+          });
         });
       }
 
@@ -67,8 +93,7 @@ export default function handleControl(type, payload, dispatch) {
           shortName: payload.site
         });
       } else {
-        const legacyEditSiteResource =
-          window.Alfresco.constants.URL_RESCONTEXT + 'modules/edit-site' + (window.Alfresco.constants.DEBUG ? '.js' : '-min.js');
+        const legacyEditSiteResource = URL_RESCONTEXT + 'modules/edit-site' + (process.env.NODE_ENV === 'development' ? '.js' : '-min.js');
         window.require([legacyEditSiteResource], function() {
           window.Alfresco.module.getEditSiteInstance().show({
             shortName: payload.site

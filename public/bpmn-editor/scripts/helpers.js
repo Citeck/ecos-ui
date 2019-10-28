@@ -51,15 +51,6 @@ function getCookie(name) {
     return response.json();
   };
 
-  // TODO
-  window.Citeck.helpers.getCurrentThemeName = function() {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve('citeckTheme');
-      }, 0);
-    });
-  };
-
 })();
 
 

@@ -2,9 +2,22 @@ import Records from '../Records';
 import { getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
+import { URL_PAGECONTEXT } from '../../../constants/alfresco';
+
+const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
+
+const globalTaskPatterns = [/active-tasks/, /completed-tasks/, /controlled/, /subordinate-tasks/, /task-statistic/, /initiator-tasks/];
 
 export const EditAction = {
-  execute: ({ record }) => {
+  disabledFor: [/task-statistic/, /completed-tasks/],
+
+  execute: ({ record, context }) => {
+    if (globalTasks.indexOf(context.scope) > -1) {
+      const name = record.att('cm:name?disp') || '';
+      window.open(`${URL_PAGECONTEXT}task-edit?taskId=${name}&formMode=edit`, '_blank');
+      return false;
+    }
+
     return new Promise(resolve => {
       EcosFormUtils.editRecord({
         recordRef: record.id,
@@ -13,13 +26,29 @@ export const EditAction = {
         onCancel: () => resolve(false)
       });
     });
+  },
+
+  canBeExecuted: ({ context }) => {
+    const { scope = '' } = context;
+    for (let pattern of EditAction.disabledFor) {
+      if (pattern.test(scope)) {
+        return false;
+      }
+    }
+    return true;
   }
 };
 
 export const ViewAction = {
-  disabledFor: [/^event-lines.*/],
+  disabledFor: [/^event-lines.*/, /task-statistic/],
 
-  execute: ({ record }) => {
+  execute: ({ record, context }) => {
+    if (globalTasks.indexOf(context.scope) > -1) {
+      const name = record.att('cm:name?disp') || '';
+      window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
+      return false;
+    }
+
     goToCardDetailsPage(record.id);
     return false;
   },
@@ -55,7 +84,7 @@ export const DownloadAction = {
 };
 
 export const RemoveAction = {
-  disabledFor: [/^event-lines.*/],
+  disabledFor: [/^event-lines.*/, ...globalTaskPatterns],
 
   groupExec: ({ records }) => {
     return new Promise(resolve => {

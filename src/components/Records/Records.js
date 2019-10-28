@@ -4,6 +4,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import lodashGet from 'lodash/get';
 import isArray from 'lodash/isArray';
+import { getCurrentLocale } from '../../helpers/util';
 
 const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
@@ -58,6 +59,7 @@ function recordsFetch(url, body) {
     method: 'POST',
     credentials: 'include',
     headers: {
+      'Accept-Language': getCurrentLocale(),
       'Content-type': 'application/json;charset=UTF-8'
     },
     body: JSON.stringify(body)
@@ -618,7 +620,20 @@ class Record {
     if (arguments.length > 1) {
       this._setAttributeValueImpl(localName, value);
     } else {
-      return (this._attributes[localName] || {}).value;
+      let attribute = this._attributes[localName];
+      if (!attribute && localName.indexOf('.') !== 0 && localName.indexOf('?') === -1) {
+        attribute = this._attributes[localName + '?disp'];
+        if (!attribute) {
+          attribute = this._attributes[localName + '?str'];
+        }
+        if (!attribute) {
+          attribute = this._attributes['.att(n:"' + localName + '"){str}'];
+        }
+        if (!attribute) {
+          attribute = this._attributes['.att(n:"' + localName + '"){disp}'];
+        }
+      }
+      return (attribute || {}).value;
     }
   }
 

@@ -18,7 +18,8 @@ const JournalsSettingsBar = ({
   refresh,
   onSearch,
   journalConfig,
-  addRecord
+  addRecord,
+  grid
 }) => {
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
@@ -44,7 +45,7 @@ const JournalsSettingsBar = ({
 
       <Search onSearch={onSearch} className={`search_border_white ${step}`} />
 
-      <Export config={journalConfig}>
+      <Export journalConfig={journalConfig} grid={grid}>
         <IcoBtn
           invert
           icon={'icon-down'}
@@ -57,7 +58,7 @@ const JournalsSettingsBar = ({
       <IcoBtn title={t('dashlet.update.title')} icon={'icon-reload'} className={`${grey} ${step}`} onClick={refresh} />
 
       <div className={'ecos-journal__settings-bar_right '}>
-        <JournalsDashletPagination stateId={stateId} />
+        <JournalsDashletPagination stateId={stateId} className={step} />
 
         <IcoBtn
           title={t('journal.title')}

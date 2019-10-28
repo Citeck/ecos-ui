@@ -20,8 +20,8 @@ export class OrgStructApi extends RecordService {
     return this.getJson(url).catch(() => []);
   };
 
-  fetchGroup = (query = this._defaultQuery) => {
-    const queryStr = JSON.stringify(query);
+  fetchGroup = ({ query = this._defaultQuery, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [] }) => {
+    const queryStr = JSON.stringify({ query, excludeAuthoritiesByName, excludeAuthoritiesByType });
 
     if (this._loadedGroups[queryStr]) {
       return Promise.resolve(this._loadedGroups[queryStr]);
@@ -29,15 +29,23 @@ export class OrgStructApi extends RecordService {
 
     const { groupName, searchText } = query;
 
-    let url = `${PROXY_URI}/api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true&user=true&excludeAuthorities=all_users`;
+    let url = `${PROXY_URI}/api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true&user=true&excludeAuthorities=${excludeAuthoritiesByName}`;
     if (searchText) {
       url += `&filter=${encodeURIComponent(searchText)}&recurse=true`;
     }
+
+    // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2812: filter by group type or subtype
+    const filterByType = items =>
+      items.filter(item => {
+        return excludeAuthoritiesByType.indexOf(item.groupType) === -1 && excludeAuthoritiesByType.indexOf(item.groupSubType) === -1;
+      });
+
     return this.getJson(url)
       .then(result => {
         this._loadedGroups[queryStr] = result;
         return result;
       })
+      .then(filterByType)
       .catch(() => []);
   };
 

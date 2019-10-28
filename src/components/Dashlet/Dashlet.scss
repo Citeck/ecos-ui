@@ -1,4 +1,4 @@
-@import '../../constants';
+@import '../../styles/constants';
 
 .dashlet {
   $root: &;
@@ -62,25 +62,6 @@
         height: 100%;
         background: linear-gradient(to right, rgba(255, 255, 255, 0), $color-white);
         margin: 0;
-      }
-    }
-
-    &:hover {
-      #{$root} {
-        &__header-actions {
-          &:not(:empty) {
-          }
-        }
-      }
-    }
-
-    &:not(:hover) {
-      #{$root} {
-        &__btn {
-          &_hidden {
-            display: none;
-          }
-        }
       }
     }
   }

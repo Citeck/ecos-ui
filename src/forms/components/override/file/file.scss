@@ -24,6 +24,14 @@
           font-weight: $font-weight-normal;
           line-height: 38px;
 
+          &.col-md-9 {
+            //line-height: 1em;
+            //align-self: center;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+
           padding: 3px 10px;
 
           select {

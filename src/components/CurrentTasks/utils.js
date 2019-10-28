@@ -8,7 +8,7 @@ export const CurrentTaskPropTypes = {
   id: PropTypes.string,
   title: PropTypes.string,
   actors: PropTypes.string,
-  usersGroup: PropTypes.string,
+  usersGroup: PropTypes.array,
   deadline: PropTypes.any
 };
 

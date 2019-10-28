@@ -1,5 +1,6 @@
 import lodashGet from 'lodash/get';
 import moment from 'moment';
+import i18next from 'i18next';
 import { DataFormatTypes, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
 import * as queryString from 'query-string';
@@ -37,7 +38,7 @@ export function setCookie(name, value, options = {}) {
 
 export const utcAsLocal = jsonDate =>
   moment(jsonDate)
-    .zone(0)
+    .utcOffset(0)
     .format(UTC_AS_LOCAL_FORMAT);
 
 export const revokeUtcAsLocal = jsonDate => moment(jsonDate).format(UTC_AS_LOCAL_FORMAT) + 'Z';
@@ -160,9 +161,9 @@ export function isMobileDevice() {
 }
 
 export function getCurrentLocale() {
-  const manualLocale = getCookie(COOKIE_KEY_LOCALE);
-  if (manualLocale) {
-    return manualLocale;
+  const cookiesLocale = getCookie(COOKIE_KEY_LOCALE);
+  if (cookiesLocale) {
+    return cookiesLocale;
   }
 
   if (!window.navigator) {
@@ -176,7 +177,9 @@ export function getCurrentLocale() {
 
 export function dynamicallyLoadScript(url, callback) {
   const script = document.createElement('script');
-  script.src = url;
+
+  const prefix = url.indexOf('?') === -1 ? '?' : '&v=';
+  script.src = `${url}${prefix}${process.env.REACT_APP_BUILD_VERSION}`;
 
   document.body.appendChild(script);
 
@@ -185,27 +188,22 @@ export function dynamicallyLoadScript(url, callback) {
   }
 }
 
-// TODO
-export function t(messageId, multipleValues, scope = 'global') {
-  // https://dev.alfresco.com/resource/docs/aikau-jsdoc/Core.js.html
-  if (!messageId) {
+export function t(key, options, scope = 'global') {
+  if (!key) {
     return '';
   }
 
+  if (i18next.exists(key)) {
+    return i18next.t(key, options);
+  }
+
+  // TODO remove in future
   const Alfresco = window.Alfresco;
-
-  if (!Alfresco || !Alfresco.util || !Alfresco.util.message) {
-    // console.warn('[t]: Alfresco.util.message is not available');
-    return messageId;
+  if (Alfresco && Alfresco.util && Alfresco.util.message) {
+    return Alfresco.util.message(key, scope, options);
   }
 
-  const translatedMessage = Alfresco.util.message(messageId, scope, multipleValues);
-
-  if (translatedMessage === messageId) {
-    // console.warn(`[t]: looks like message '${messageId}' has not translation`);
-  }
-
-  return translatedMessage;
+  return key;
 }
 
 export function cellMsg(prefix) {
@@ -282,13 +280,13 @@ export function getRelativeTime(from, to) {
   };
 
   if (minutes_ago <= 0) {
-    return fnTime('relative.seconds', seconds_ago);
+    return fnTime('relative.seconds', { value: seconds_ago });
   }
   if (minutes_ago === 1) {
     return fnTime('relative.minute');
   }
   if (minutes_ago < 45) {
-    return fnTime('relative.minutes', minutes_ago);
+    return fnTime('relative.minutes', { value: minutes_ago });
   }
   if (minutes_ago < 90) {
     return fnTime('relative.hour');
@@ -296,7 +294,7 @@ export function getRelativeTime(from, to) {
 
   const hours_ago = Math.round(minutes_ago / 60);
   if (minutes_ago < 1440) {
-    return fnTime('relative.hours', hours_ago);
+    return fnTime('relative.hours', { value: hours_ago });
   }
   if (minutes_ago < 2880) {
     return fnTime('relative.day');
@@ -304,7 +302,7 @@ export function getRelativeTime(from, to) {
 
   const days_ago = Math.round(minutes_ago / 1440);
   if (minutes_ago < 43200) {
-    return fnTime('relative.days', days_ago);
+    return fnTime('relative.days', { value: days_ago });
   }
   if (minutes_ago < 86400) {
     return fnTime('relative.month');
@@ -312,14 +310,14 @@ export function getRelativeTime(from, to) {
 
   const months_ago = Math.round(minutes_ago / 43200);
   if (minutes_ago < 525960) {
-    return fnTime('relative.months', months_ago);
+    return fnTime('relative.months', { value: months_ago });
   }
   if (minutes_ago < 1051920) {
     return fnTime('relative.year');
   }
 
   const years_ago = Math.round(minutes_ago / 525960);
-  return fnTime('relative.years', years_ago);
+  return fnTime('relative.years', { value: years_ago });
 }
 
 export function getScrollbarWidth() {
@@ -565,4 +563,43 @@ export function removeItemFromArray(array = [], item = '', byKey = '') {
 
 export function isNodeRef(str) {
   return typeof str === 'string' && str.indexOf('workspace://SpacesStore/') === 0;
+}
+
+/**
+ * Convert from ISO8601 date to JavaScript date
+ */
+export function fromISO8601(formattedString) {
+  var isoRegExp = /^(?:(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(.\d+)?)?((?:[+-](\d{2}):(\d{2}))|Z)?)?$/;
+
+  var match = isoRegExp.exec(formattedString);
+  var result = null;
+
+  if (match) {
+    match.shift();
+    if (match[1]) {
+      match[1]--;
+    } // Javascript Date months are 0-based
+    if (match[6]) {
+      match[6] *= 1000;
+    } // Javascript Date expects fractional seconds as milliseconds
+
+    result = new Date(match[0] || 1970, match[1] || 0, match[2] || 1, match[3] || 0, match[4] || 0, match[5] || 0, match[6] || 0);
+
+    var offset = 0;
+    var zoneSign = match[7] && match[7].charAt(0);
+    if (zoneSign !== 'Z') {
+      offset = (match[8] || 0) * 60 + (Number(match[9]) || 0);
+      if (zoneSign !== '-') {
+        offset *= -1;
+      }
+    }
+    if (zoneSign) {
+      offset -= result.getTimezoneOffset();
+    }
+    if (offset) {
+      result.setTime(result.getTime() + offset * 60000);
+    }
+  }
+
+  return result; // Date or null
 }

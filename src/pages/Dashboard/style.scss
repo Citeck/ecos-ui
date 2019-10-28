@@ -1,4 +1,4 @@
-@import '../../constants.scss';
+@import '../../styles/constants';
 
 .ecos-dashboard {
   &__header {
@@ -12,6 +12,12 @@
       justify-content: flex-start;
       align-items: center;
       margin-top: 17px;
+    }
+
+    &-placeholder {
+      display: flex;
+      align-items: center;
+      height: 22px;
     }
 
     &-name {

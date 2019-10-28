@@ -1,0 +1,91 @@
+.login-company-logo {
+  height: 34px;
+  width: 428px;
+  background: transparent url(/share/res/themes/citeckTheme/images/citeck-logo.png) no-repeat;
+
+  &_theme_uedmsTheme {
+    height: 95px;
+    width: 428px;
+    background: transparent url(/share/res/themes/uedmsTheme/images/logo.png) no-repeat;
+    position: fixed;
+    margin-left: 280px;
+    margin-top: 45px;
+  }
+}
+
+.login-form {
+  padding: 1em 0 0 0;
+
+  &_theme_uedmsTheme {
+    padding: 35px 1.5em 1.5em 0;
+  }
+}
+
+.login-button {
+  background-color: #ffa028;
+  border-color: #ffa028;
+  border: none;
+  padding: 3px 10px;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 3px;
+  cursor: pointer;
+
+  &:active {
+    color: #eee;
+  }
+
+  &_theme_uedmsTheme {
+    background-color: #00b388;
+    border-color: #00b388;
+    font-weight: normal;
+    border-radius: 0;
+    font-size: 13px;
+
+    &:hover {
+      background-color: #007367;
+      border-color: #007367;
+    }
+
+    &:active {
+      color: #fff;
+    }
+  }
+}
+
+.login-form-field {
+  margin: 0 1em 1em 0;
+
+  label {
+    margin: 0;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &_theme_uedmsTheme {
+    label {
+      font-size: 13px;
+      line-height: 0.7;
+    }
+  }
+}
+
+.login-form-container {
+  width: 470px;
+
+  font-family: Open Sans, Arial, Helvetica, sans-serif;
+  color: #333;
+  border: 1px solid #eee;
+  background-color: #fff;
+  box-shadow: 0.33px 2px 8px rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  padding: 1.5em;
+  max-width: 100%;
+  position: relative;
+
+  &_theme_uedmsTheme {
+    width: 440px;
+  }
+}

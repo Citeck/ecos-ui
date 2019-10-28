@@ -7,6 +7,8 @@ import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import * as serviceWorker from './serviceWorker';
 
+import { i18nInit } from './i18n';
+
 import moment from 'moment';
 import 'moment/locale/ru';
 import 'moment/locale/en-gb';
@@ -16,8 +18,8 @@ import datePickerLocaleRu from 'date-fns/locale/ru';
 import { getCurrentLocale } from './helpers/util';
 
 import configureStore, { getHistory } from './store';
-import { requireShareAssets } from './share';
-import { initAppRequest, loadThemeRequest } from './actions/app';
+import { initAppRequest } from './actions/app';
+import { loadThemeRequest } from './actions/view';
 import {
   AppApi,
   BpmnApi,
@@ -33,12 +35,14 @@ import {
   RecordActionsApi,
   TasksApi,
   UserApi,
-  VersionsJournalApi
+  VersionsJournalApi,
+  DocAssociationsApi,
+  ViewApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
-import './index.scss';
+import './styles/index.scss';
 
 import './build-info';
 
@@ -76,6 +80,7 @@ api.eventsHistory = new EventsHistoryApi(store);
 api.versionsJournal = new VersionsJournalApi(store);
 api.recordActions = new RecordActionsApi(store);
 api.docAssociations = new DocAssociationsApi(store);
+api.view = new ViewApi(store);
 
 /**
  * todo: Maybe need such union all api?
@@ -91,20 +96,26 @@ api.docAssociations = new DocAssociationsApi(store);
 
 const history = getHistory();
 
-store.dispatch(initAppRequest());
+// TODO simplify
 store.dispatch(
   loadThemeRequest({
-    onSuccess: themeName => {
-      requireShareAssets(themeName).then(() => {
-        ReactDOM.render(
-          <Provider store={store}>
-            <ConnectedRouter history={history}>
-              <App />
-            </ConnectedRouter>
-          </Provider>,
-          document.getElementById('root')
-        );
-      });
+    onSuccess: () => {
+      store.dispatch(
+        initAppRequest({
+          onSuccess: () => {
+            i18nInit({ debug: process.env.NODE_ENV === 'development' }).then(() => {
+              ReactDOM.render(
+                <Provider store={store}>
+                  <ConnectedRouter history={history}>
+                    <App />
+                  </ConnectedRouter>
+                </Provider>,
+                document.getElementById('root')
+              );
+            });
+          }
+        })
+      );
     }
   })
 );
@@ -114,7 +125,7 @@ idleTimer
   .setCheckInterval(60000)
   .setIdleTimeout(60000 * 60 * 3)
   .setNoIdleCallback(() => {
-    fetch('/share/proxy/alfresco/citeck/ecos/touch', { credentials: 'include' });
+    api.app.touch().catch(() => {});
   })
   .run();
 

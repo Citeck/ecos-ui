@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import moment from 'moment';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 import { DateEditor } from '../../editors';
+import { fromISO8601 } from '../../../../../helpers/util';
 
 const DATE_FORMAT = 'DD.MM.YYYY';
 const DATE_TIME_FORMAT = 'DD.MM.YYYY HH:mm';
@@ -20,7 +21,7 @@ export default class DateTimeFormatter extends DefaultGqlFormatter {
     let date = '';
 
     if (cell) {
-      date = window.Alfresco.util.fromISO8601(cell);
+      date = fromISO8601(cell);
 
       const hours = date.getHours();
       const minutes = date.getMinutes();
