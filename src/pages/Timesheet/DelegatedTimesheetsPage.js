@@ -80,60 +80,60 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     const status = this.selectedStatus;
     const delegationType = this.selectedDType;
     const key = Array.isArray(status.key) ? status.key[0] : status.key;
+    const arrBtns = [{}, {}];
+    const F = 0,
+      S = 1;
 
     if (delegationType === DelegationTypes.FILL) {
-      const fillingBtns = [];
-
-      fillingBtns.push({
+      arrBtns[F] = {
         id: 'ecos-timesheet__table-group-btn_off-delegation_id',
         className: 'ecos-timesheet__table-group-btn_off-delegation',
         title: t(CommonLabels.STATUS_BTN_OFF_DELEGATION),
         onClick: data => this.handleClickOffDelegation(data)
-      });
+      };
 
       if (key === ServerStatusKeys.MANAGER_APPROVAL) {
-        fillingBtns.push({
+        arrBtns[S] = {
           ...BaseConfigGroupButtons.SENT_IMPROVE,
           onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
-        });
+        };
       } else {
-        fillingBtns.push({
+        arrBtns[S] = {
           ...BaseConfigGroupButtons.SENT_APPROVE,
           onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.TASK_DONE })
-        });
+        };
       }
-
-      return fillingBtns;
-    }
-
-    if (delegationType === DelegationTypes.APPROVE) {
+    } else if (delegationType === DelegationTypes.APPROVE) {
       switch (key) {
         case ServerStatusKeys.NOT_FILLED:
+          arrBtns[S] = {
+            ...BaseConfigGroupButtons.APPROVE,
+            tooltip: CommonLabels.STATUS_TIP_APPROVE_3,
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.MANAGER_APPROVE)
+          };
+          break;
         case ServerStatusKeys.CORRECTION:
-          return [
-            {},
-            {
-              ...BaseConfigGroupButtons.APPROVE,
-              onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.TASK_DONE)
-            }
-          ];
+          arrBtns[S] = {
+            ...BaseConfigGroupButtons.APPROVE,
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.TASK_DONE)
+          };
+          break;
         case ServerStatusKeys.MANAGER_APPROVAL:
-          return [
-            {
-              ...BaseConfigGroupButtons.SENT_IMPROVE,
-              onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
-            },
-            {
-              ...BaseConfigGroupButtons.APPROVE,
-              onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.APPROVE)
-            }
-          ];
+          arrBtns[F] = {
+            ...BaseConfigGroupButtons.SENT_IMPROVE,
+            onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
+          };
+          arrBtns[S] = {
+            ...BaseConfigGroupButtons.APPROVE,
+            onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.APPROVE)
+          };
+          break;
         default:
-          return [{}, {}];
+          break;
       }
     }
 
-    return [{}, {}];
+    return arrBtns;
   }
 
   getData = () => {
