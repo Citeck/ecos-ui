@@ -59,7 +59,7 @@ class Header extends React.Component {
         <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
         <div className={classNames('ecos-header', `ecos-header_theme_${theme}`, { 'ecos-header_small': isMobile })}>
           <div className="ecos-header__side ecos-header__side_left">
-            <SlideMenuBtn theme={theme} />
+            <SlideMenuBtn />
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className="ecos-header__side ecos-header__side_right">
