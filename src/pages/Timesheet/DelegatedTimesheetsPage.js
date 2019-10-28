@@ -23,6 +23,7 @@ import { Btn } from '../../components/common/btns';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 import DelegatedDeputiesModal from '../../components/Timesheet/DelegatedDeputiesModal';
+import RouteTypeTabs from '../../components/Timesheet/RouteTypeTabs';
 
 const initDType = DelegationTypes.FILL;
 const initStatus = ServerStatusKeys.CORRECTION;
@@ -57,12 +58,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
         badge: badge(item.type)
       }));
 
-      const sheetTabs = this.state.sheetTabs.map(item => ({
-        ...item,
-        badge: item.key === TimesheetTypes.DELEGATED ? badge('all') : null
-      }));
-
-      this.setState({ delegationTypeTabs, sheetTabs });
+      this.setState({ delegationTypeTabs });
     }
   }
 
@@ -215,7 +211,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
   };
 
   render() {
-    const { sheetTabs, currentDate, statusTabs, delegationTypeTabs, currentTimesheetData, isOpenDeputiesModal } = this.state;
+    const { currentDate, statusTabs, delegationTypeTabs, currentTimesheetData, isOpenDeputiesModal } = this.state;
     const { isLoading } = this.props;
     const { outcome } = currentTimesheetData || {};
 
@@ -224,10 +220,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
         <div className="ecos-timesheet__row">
           <div className="ecos-timesheet__column">
             <div className="ecos-timesheet__title">{t(CommonLabels.TIMESHEET_TITLE)}</div>
-
-            <div className="ecos-timesheet__type">
-              <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab.bind(this)} />
-            </div>
+            <RouteTypeTabs currentDate={currentDate} />
           </div>
 
           {this.selectedDType === DelegationTypes.APPROVE && (

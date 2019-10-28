@@ -22,6 +22,7 @@ import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
 import Timesheet, { DateSlider, SelectUserModal, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
+import RouteTypeTabs from '../../components/Timesheet/RouteTypeTabs';
 
 class SubordinatesTimesheetPage extends BaseTimesheetPage {
   constructor(props) {
@@ -158,7 +159,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
   };
 
   render() {
-    const { sheetTabs, currentDate, statusTabs, isOpenSelectUserModal } = this.state;
+    const { currentDate, statusTabs, isOpenSelectUserModal } = this.state;
     const { isLoading, delegatedToRef, delegatedToDisplayName } = this.props;
 
     return (
@@ -166,10 +167,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
         <div className="ecos-timesheet__row">
           <div className="ecos-timesheet__column">
             <div className="ecos-timesheet__title">{t(CommonLabels.TIMESHEET_TITLE)}</div>
-
-            <div className="ecos-timesheet__type">
-              <Tabs tabs={sheetTabs} className="ecos-tabs-v2_bg-white" onClick={this.handleChangeActiveSheetTab.bind(this)} />
-            </div>
+            <RouteTypeTabs currentDate={currentDate} />
           </div>
 
           <div className="ecos-timesheet__column ecos-timesheet__delegation">

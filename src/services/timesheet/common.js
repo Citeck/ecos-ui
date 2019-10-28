@@ -1,7 +1,9 @@
-import { CommonLabels } from '../../helpers/timesheet/dictionary';
-import { DelegationTypes, GroupedStatuses, ServerEventTypes, ServerStatusKeys, TimesheetTypes } from '../../constants/timesheet';
+import get from 'lodash/get';
 import { deepClone, t } from '../../helpers/util';
+import { CommonLabels } from '../../helpers/timesheet/dictionary';
+import { isOnlyContent } from '../../helpers/timesheet/util';
 import { URL } from '../../constants';
+import { DelegationTypes, GroupedStatuses, ServerEventTypes, ServerStatusKeys, TimesheetTypes } from '../../constants/timesheet';
 
 const Types = TimesheetTypes;
 const Statuses = ServerStatusKeys;
@@ -72,27 +74,30 @@ export default class CommonTimesheetService {
     return flated;
   }
 
-  static getSheetTabs = (isOnlyContent, location) => {
+  static getSheetTabs = () => {
+    const hasFrame = isOnlyContent();
+    const pathname = get(window, ['location', 'pathname'], '');
+
     return [
       {
         key: TimesheetTypes.MINE,
         name: t(CommonLabels.MAIN_TAB_1),
-        link: isOnlyContent ? URL.TIMESHEET_IFRAME : URL.TIMESHEET,
-        isActive: [URL.TIMESHEET, URL.TIMESHEET_IFRAME].includes(location.pathname),
+        link: hasFrame ? URL.TIMESHEET_IFRAME : URL.TIMESHEET,
+        isActive: [URL.TIMESHEET, URL.TIMESHEET_IFRAME].includes(pathname),
         isAvailable: true
       },
       {
         key: TimesheetTypes.SUBORDINATES,
         name: t(CommonLabels.MAIN_TAB_2),
-        link: isOnlyContent ? URL.TIMESHEET_IFRAME_SUBORDINATES : URL.TIMESHEET_SUBORDINATES,
-        isActive: [URL.TIMESHEET_SUBORDINATES, URL.TIMESHEET_IFRAME_SUBORDINATES].includes(location.pathname),
+        link: hasFrame ? URL.TIMESHEET_IFRAME_SUBORDINATES : URL.TIMESHEET_SUBORDINATES,
+        isActive: [URL.TIMESHEET_SUBORDINATES, URL.TIMESHEET_IFRAME_SUBORDINATES].includes(pathname),
         isAvailable: true
       },
       {
         key: TimesheetTypes.DELEGATED,
         name: t(CommonLabels.MAIN_TAB_3),
-        link: isOnlyContent ? URL.TIMESHEET_IFRAME_DELEGATED : URL.TIMESHEET_DELEGATED,
-        isActive: [URL.TIMESHEET_IFRAME_DELEGATED, URL.TIMESHEET_DELEGATED].includes(location.pathname),
+        link: hasFrame ? URL.TIMESHEET_IFRAME_DELEGATED : URL.TIMESHEET_DELEGATED,
+        isActive: [URL.TIMESHEET_IFRAME_DELEGATED, URL.TIMESHEET_DELEGATED].includes(pathname),
         isAvailable: true,
         badge: null
       }
