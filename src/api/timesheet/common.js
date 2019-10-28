@@ -129,7 +129,7 @@ export class TimesheetCommonApi extends RecordService {
     return event.save().then(res => res);
   };
 
-  getTimesheetDelegationStatus = function*(user) {
+  getTimesheetDelegationStatus = function(user) {
     return Records.query(
       {
         query: { user },
