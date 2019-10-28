@@ -246,6 +246,10 @@ export const SelectOrgstructProvider = props => {
           });
 
           toggleSelectModal(false);
+
+          if (typeof onCancelSelect === 'function') {
+            onCancelSelect();
+          }
         },
 
         deleteSelectedItem: targetId => {

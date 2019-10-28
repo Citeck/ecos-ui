@@ -39,9 +39,9 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
   }
 
   get lockDescription() {
-    const { isDelegated } = this.state;
+    const { delegatedToRef } = this.props;
 
-    if (isDelegated) {
+    if (delegatedToRef) {
       return t(SubTimesheetLabels.LOCK_DESCRIPTION_1);
     }
 
@@ -113,8 +113,6 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
       }
 
       if (!isDelegated) {
-        newState.isDelegated = false;
-
         this.props.removeDelegation();
       }
 
@@ -129,11 +127,11 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
       this.props.delegateTo({ deputy, delegationType: DelegationTypes.APPROVE });
     }
 
-    this.setState({ isOpenSelectUserModal: false, isDelegated });
+    this.setState({ isOpenSelectUserModal: false });
   };
 
   handleCloseSelectUserModal = () => {
-    this.setState({ isOpenSelectUserModal: false, isDelegated: false });
+    this.setState({ isOpenSelectUserModal: false });
   };
 
   handleChangeDelegatedToUser = () => {
@@ -141,15 +139,15 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
   };
 
   renderTimesheet = () => {
-    const { daysOfMonth, isDelegated } = this.state;
-    const { mergedList, updatingHours } = this.props;
+    const { daysOfMonth } = this.state;
+    const { mergedList, updatingHours, delegatedToRef } = this.props;
 
     return (
       <Timesheet
         groupBy={'user'}
         eventTypes={mergedList}
         daysOfMonth={daysOfMonth}
-        isAvailable={!isDelegated}
+        isAvailable={!delegatedToRef}
         lockedMessage={this.lockDescription}
         configGroupBtns={this.configGroupBtns}
         onChangeHours={this.handleChangeEventDayHours.bind(this)}
@@ -160,7 +158,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
   };
 
   render() {
-    const { sheetTabs, isDelegated, currentDate, statusTabs, isOpenSelectUserModal } = this.state;
+    const { sheetTabs, currentDate, statusTabs, isOpenSelectUserModal } = this.state;
     const { isLoading, delegatedToRef, delegatedToDisplayName } = this.props;
 
     return (
@@ -179,12 +177,12 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
             <div className="ecos-timesheet__delegation-switch">
               <Switch
-                checked={Boolean(isDelegated && delegatedToRef)}
+                checked={Boolean(delegatedToRef)}
                 className="ecos-timesheet__delegation-switch-checkbox"
                 onToggle={this.handleToggleDelegated}
               />
 
-              {delegatedToDisplayName && isDelegated ? (
+              {delegatedToDisplayName ? (
                 <span className="ecos-timesheet__delegation-switch-label">
                   {t(SubTimesheetLabels.DELEGATION_DESCRIPTION_2)}{' '}
                   <span

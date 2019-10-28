@@ -280,7 +280,9 @@ class BaseTimesheet extends Component {
           <span>{t('Редактирование заблокировано')}</span>
         </div>
 
-        <Tooltip innerClassName="ecos-timesheet__table-lock-tooltip" target="timesheet-locked-tooltip" content={lockedMessage} />
+        {lockedMessage && (
+          <Tooltip innerClassName="ecos-timesheet__table-lock-tooltip" target="timesheet-locked-tooltip" content={lockedMessage} />
+        )}
       </div>
     );
   }
