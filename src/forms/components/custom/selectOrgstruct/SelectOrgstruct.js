@@ -16,7 +16,13 @@ export default class SelectOrgstructComponent extends BaseComponent {
       {
         label: 'SelectOrgstruct',
         key: 'selectOrgstruct',
-        type: 'selectOrgstruct'
+        type: 'selectOrgstruct',
+        allUsersGroup: 'all',
+        allowedAuthorityType: 'USER, GROUP',
+        allowedGroupType: 'ROLE, BRANCH',
+        allowedGroupSubType: '',
+        excludeAuthoritiesByName: '',
+        excludeAuthoritiesByType: ''
       },
       ...extend
     );
@@ -97,11 +103,15 @@ export default class SelectOrgstructComponent extends BaseComponent {
     let allowedGroupSubType = this.component.allowedGroupSubType || '';
     const allowedAuthorityTypes = allowedAuthorityType.split(',').map(item => item.trim());
     const allowedGroupTypes = allowedGroupType.split(',').map(item => item.trim());
-
     allowedGroupSubType = allowedGroupSubType.trim();
-    const allowedGroupSubTypes = allowedGroupSubType.length > 0 ? allowedGroupSubType.split(',').map(item => item.trim()) : [];
 
+    const allowedGroupSubTypes = allowedGroupSubType.length > 0 ? allowedGroupSubType.split(',').map(item => item.trim()) : [];
     const onChange = this.onValueChange.bind(this);
+
+    const excludeAuthoritiesByName = this.component.excludeAuthoritiesByName;
+    const excludeAuthoritiesByType = this.component.excludeAuthoritiesByType;
+    const excludedAuthoritiesByType =
+      excludeAuthoritiesByType.length > 0 ? excludeAuthoritiesByType.split(',').map(item => item.trim()) : [];
 
     let renderControl = function() {
       ReactDOM.render(
@@ -115,6 +125,8 @@ export default class SelectOrgstructComponent extends BaseComponent {
           allowedAuthorityTypes={allowedAuthorityTypes}
           allowedGroupTypes={allowedGroupTypes}
           allowedGroupSubTypes={allowedGroupSubTypes}
+          excludeAuthoritiesByName={excludeAuthoritiesByName}
+          excludeAuthoritiesByType={excludedAuthoritiesByType}
           onChange={onChange}
           viewOnly={self.viewOnly}
           onError={err => {

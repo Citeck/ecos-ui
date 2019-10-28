@@ -8,7 +8,7 @@ import { TaskPropTypes } from './utils';
 
 class TaskList extends React.Component {
   static propTypes = {
-    tasks: PropTypes.arrayOf(TaskPropTypes).isRequired,
+    tasks: PropTypes.arrayOf(PropTypes.shape(TaskPropTypes)).isRequired,
     className: PropTypes.string,
     height: PropTypes.string,
     isLoading: PropTypes.bool,

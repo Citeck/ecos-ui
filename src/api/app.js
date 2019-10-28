@@ -8,4 +8,9 @@ export class AppApi extends CommonApi {
       .then(resp => resp.value)
       .catch(() => '');
   };
+
+  touch = () => {
+    const url = `${PROXY_URI}citeck/ecos/touch`;
+    return this.getJson(url);
+  };
 }

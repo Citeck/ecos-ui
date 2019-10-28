@@ -154,8 +154,27 @@ class EcosForm extends React.Component {
             }
           };
 
+          let fireSubmit = (submission, finishTime) => {
+            if (form.changing) {
+              if (new Date().getTime() < finishTime) {
+                setTimeout(() => {
+                  fireSubmit(submission, finishTime);
+                }, 300);
+              } else {
+                console.warn('Form will be submitted, but changing flag is still true');
+                if (form.checkValidity()) {
+                  self.submitForm(form, submission);
+                }
+              }
+            } else {
+              if (form.checkValidity()) {
+                self.submitForm(form, submission);
+              }
+            }
+          };
+
           form.on('submit', submission => {
-            self.submitForm(form, submission);
+            fireSubmit(submission, new Date().getTime() + 5000);
           });
 
           let handlersPrefix = 'onForm';

@@ -102,7 +102,7 @@ store.dispatch(
       store.dispatch(
         initAppRequest({
           onSuccess: () => {
-            i18nInit().then(() => {
+            i18nInit({ debug: process.env.NODE_ENV === 'development' }).then(() => {
               ReactDOM.render(
                 <Provider store={store}>
                   <ConnectedRouter history={history}>
@@ -124,7 +124,7 @@ idleTimer
   .setCheckInterval(60000)
   .setIdleTimeout(60000 * 60 * 3)
   .setNoIdleCallback(() => {
-    fetch('/share/proxy/alfresco/citeck/ecos/touch', { credentials: 'include' });
+    api.app.touch().catch(() => {});
   })
   .run();
 
