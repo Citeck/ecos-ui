@@ -105,6 +105,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
 
     if (delegationType === DelegationTypes.APPROVE) {
       switch (key) {
+        case ServerStatusKeys.NOT_FILLED:
         case ServerStatusKeys.CORRECTION:
           return [
             {},
