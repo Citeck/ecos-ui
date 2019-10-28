@@ -16,8 +16,7 @@ import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
 import { PROXY_URI } from '../../../constants/alfresco';
-import { ActionModes } from '../../../constants';
-import RecordActions from '../../Records/actions';
+
 import {
   deleteRecords,
   execRecordsAction,
@@ -129,59 +128,43 @@ class JournalsDashletGrid extends Component {
 
   showGridInlineToolSettings = options => {
     this.setSelectedRow(options.row);
-    this.getCurrentRowInlineActions().then(actions => {
-      this.props.setGridInlineToolSettings(
-        Object.assign(
-          {
-            actions: actions
-          },
-          options
-        )
-      );
-    });
+    this.props.setGridInlineToolSettings(
+      Object.assign(
+        {
+          actions: this.getCurrentRowInlineActions()
+        },
+        options
+      )
+    );
   };
 
   getCurrentRowInlineActions() {
     const {
-      journalConfig = {},
       execRecordsAction,
       selectedRecords,
-      grid: { groupBy = [] }
+      grid: { groupBy = [], actions }
     } = this.props;
     let currentRow = this.getSelectedRow().id;
 
     if (selectedRecords.length) {
-      return Promise.resolve([]);
+      return [];
     }
 
     if (groupBy.length) {
-      return Promise.resolve([
+      return [
         {
           title: t('grid.inline-tools.details'),
           onClick: () => this.goToJournalPageWithFilter(),
           icon: 'icon-big-arrow'
         }
-      ]);
+      ];
     }
 
-    const context = {
-      mode: ActionModes.JOURNAL,
-      scope: journalConfig.id,
-      journalConfig
-    };
-
-    return RecordActions.getActions(currentRow, context)
-      .then(actions => {
-        return actions.map(action => {
-          return Object.assign({}, action, {
-            onClick: () => execRecordsAction([currentRow], action, context)
-          });
-        });
-      })
-      .catch(e => {
-        console.error(e);
-        return [];
+    return ((actions || {})[currentRow] || []).map(action => {
+      return Object.assign({}, action, {
+        onClick: () => execRecordsAction([currentRow], action)
       });
+    });
   }
 
   hideGridInlineToolSettings = () => {

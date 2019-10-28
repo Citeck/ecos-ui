@@ -85,6 +85,7 @@ function getGridParams(journalConfig, journalSetting, stateId, pagination) {
   const { sortBy, groupBy, columns, predicate: journalSettingPredicate } = journalSetting;
 
   return {
+    journalId: journalConfig.id,
     createVariants,
     predicate,
     sourceId: sourceId,

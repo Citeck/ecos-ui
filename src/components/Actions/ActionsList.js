@@ -49,7 +49,7 @@ class ActionsList extends React.Component {
               )}
               onClick={() => (hasVariants ? null : this.onClick(action))}
             >
-              <div className="ecos-actions-list__item-title">{action.title}</div>
+              <div className="ecos-actions-list__item-title">{action.name}</div>
               {hasVariants && (
                 <div className="ecos-actions-list__item-variants">
                   {!isEmpty(action.variants) &&
@@ -61,7 +61,7 @@ class ActionsList extends React.Component {
                         })}
                         onClick={() => this.onClick(action)}
                       >
-                        {variant.title}
+                        {variant.name}
                       </div>
                     ))}
                 </div>
