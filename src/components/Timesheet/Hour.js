@@ -68,7 +68,7 @@ class Hour extends Component {
   get isLoader() {
     const { updatingInfo } = this.props;
 
-    return !!updatingInfo;
+    return updatingInfo !== null;
   }
 
   get isEmpty() {

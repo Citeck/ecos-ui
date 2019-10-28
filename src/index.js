@@ -43,9 +43,12 @@ import {
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
+import { polyfills } from './helpers/polyfills';
 import './index.scss';
 
 import './build-info';
+
+polyfills();
 
 const logger = Logger.create('EcoS');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);

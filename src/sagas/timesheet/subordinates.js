@@ -1,4 +1,4 @@
-import { put, select, takeLatest } from 'redux-saga/effects';
+import { put, select, takeLatest, takeEvery } from 'redux-saga/effects';
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
   getSubordinatesTimesheetByParams,
@@ -93,10 +93,12 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
   try {
     yield api.timesheetCommon.modifyEventHours({ ...payload });
 
+    const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
 
     yield put(setUpdatingEventDayHours(secondState));
   } catch (e) {
+    const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
     const thirdState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
 
     yield put(setUpdatingEventDayHours(thirdState));
@@ -113,6 +115,7 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(firstState));
   } catch (e) {
+    const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
 
     yield put(setUpdatingEventDayHours(secondState));
@@ -156,7 +159,7 @@ function* sagaRemoveDelegation({ api, logger }) {
 function* saga(ea) {
   yield takeLatest(getSubordinatesTimesheetByParams().type, sagaGetSubordinatesTimesheetByParams, ea);
   yield takeLatest(modifyStatus().type, sagaModifyTaskStatus, ea);
-  yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
+  yield takeEvery(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
   yield takeLatest(resetEventDayHours().type, sagaResetEventDayHours, ea);
   yield takeLatest(delegateTo().type, sagaDelegateTo, ea);
   yield takeLatest(removeDelegation().type, sagaRemoveDelegation, ea);

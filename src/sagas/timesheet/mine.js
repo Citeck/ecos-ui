@@ -1,4 +1,4 @@
-import { put, select, takeLatest } from 'redux-saga/effects';
+import { put, select, takeLatest, takeEvery } from 'redux-saga/effects';
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
   getMyTimesheetByParams,
@@ -16,7 +16,7 @@ import {
   removeDelegation
 } from '../../actions/timesheet/mine';
 import { selectUserName } from '../../selectors/user';
-import { selectTMineUpdatingHours, selectTMineDelegatedTo } from '../../selectors/timesheet';
+import { selectTMineUpdatingHours, selectTMineDelegatedTo, selectTSubordinatesUpdatingHours } from '../../selectors/timesheet';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
 import DelegationTimesheetConverter from '../../dto/timesheet/delegated';
 import CommonTimesheetService from '../../services/timesheet/common';
@@ -100,10 +100,12 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
   try {
     yield api.timesheetCommon.modifyEventHours({ ...payload, userName });
 
+    const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
 
     yield put(setUpdatingEventDayHours(secondState));
   } catch (e) {
+    const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
     const thirdState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
 
     yield put(setUpdatingEventDayHours(thirdState));
@@ -120,6 +122,7 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(firstState));
   } catch (e) {
+    const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
 
     yield put(setUpdatingEventDayHours(secondState));
@@ -164,7 +167,7 @@ function* saga(ea) {
   yield takeLatest(getStatus().type, sagaGetStatus, ea);
   yield takeLatest(modifyStatus().type, sagaModifyStatus, ea);
   yield takeLatest(getMyTimesheetByParams().type, sagaGetMyTimesheetByParams, ea);
-  yield takeLatest(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
+  yield takeEvery(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
   yield takeLatest(resetEventDayHours().type, sagaResetEventDayHours, ea);
   yield takeLatest(delegateTo().type, sagaDelegateTo, ea);
   yield takeLatest(removeDelegation().type, sagaRemoveDelegation, ea);
