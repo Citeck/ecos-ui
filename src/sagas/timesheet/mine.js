@@ -40,7 +40,8 @@ function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
       year: currentDate.getFullYear(),
       userNames: [userName]
     });
-
+    const delegationStatus = yield api.timesheetCommon.getTimesheetDelegationStatus(userName);
+    // const deputy
     const calendarEvents = calendar[userName] || [];
 
     const mergedEvents = CommonTimesheetConverter.getCalendarEventsForWeb(calendarEvents);
