@@ -40,6 +40,7 @@ class Hour extends Component {
 
     this.state = {
       isEdit: false,
+      isChanged: false,
       value: props.count
     };
     this._input = React.createRef();
@@ -125,7 +126,10 @@ class Hour extends Component {
       return;
     }
 
-    this.setState(state => ({ isEdit: !state.isEdit }));
+    this.setState(state => ({
+      isEdit: !state.isEdit,
+      isChanged: state.isEdit ? false : state.isChanged
+    }));
   };
 
   handleChangeValue = event => {
@@ -135,7 +139,7 @@ class Hour extends Component {
       value = 0;
     }
 
-    this.setState({ value });
+    this.setState({ value, isChanged: true });
   };
 
   handleInputKeyDown = event => {
@@ -145,7 +149,10 @@ class Hour extends Component {
       event.preventDefault();
       event.stopPropagation();
 
-      this.saveValue(this.state.value);
+      if (this.state.isChanged) {
+        this.saveValue(this.state.value);
+      }
+
       this.handleToggleInput();
 
       return;
@@ -155,7 +162,7 @@ class Hour extends Component {
       event.preventDefault();
       event.stopPropagation();
 
-      this.setState(state => ({ value: state.value + 1 }));
+      this.setState(state => ({ value: state.value + 1, isChanged: true }));
 
       return;
     }
@@ -173,7 +180,7 @@ class Hour extends Component {
           value = 0;
         }
 
-        return { value };
+        return { value, isChanged: true };
       });
 
       return;
@@ -185,6 +192,7 @@ class Hour extends Component {
 
       this.setState((state, props) => ({
         isEdit: false,
+        isChanged: false,
         value: props.count
       }));
     }
@@ -195,6 +203,17 @@ class Hour extends Component {
 
     this.setState({ value: 0 });
     this.saveValue(0);
+  };
+
+  handleInputBlur = event => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (this.state.isChanged) {
+      this.saveValue(this.state.value);
+    }
+
+    this.handleToggleInput();
   };
 
   renderEmpty() {
@@ -243,6 +262,7 @@ class Hour extends Component {
         autoFocus
         onChange={this.handleChangeValue}
         onKeyDown={this.handleInputKeyDown}
+        onBlur={this.handleInputBlur}
         getInputRef={this.inputRef}
       />
     );
