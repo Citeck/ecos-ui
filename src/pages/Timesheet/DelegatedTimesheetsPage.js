@@ -92,7 +92,10 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
       });
 
       if (key === ServerStatusKeys.MANAGER_APPROVAL) {
-        fillingBtns.push({});
+        fillingBtns.push({
+          ...BaseConfigGroupButtons.SENT_IMPROVE,
+          onClick: data => this.handleOpenCommentModal({ ...data, outcome: ServerStatusOutcomeKeys.SEND_BACK })
+        });
       } else {
         fillingBtns.push({
           ...BaseConfigGroupButtons.SENT_APPROVE,
