@@ -85,12 +85,15 @@ export const ViewAction = {
 
 export const DownloadAction = {
   execute: ({ record, action }) => {
-    const url = (action.config || {}).url || getDownloadContentUrl(record.id);
+    const config = action.config || {};
+
+    const url = config.url || getDownloadContentUrl(record.id);
+    const name = config.filename || 'file';
 
     const a = document.createElement('A', { target: '_blank' });
 
     a.href = url;
-    a.download = url;
+    a.download = name;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
