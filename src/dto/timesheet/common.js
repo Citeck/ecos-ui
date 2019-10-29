@@ -5,8 +5,6 @@ import { deepClone } from '../../helpers/util';
 import { ServerDateFormats, TimesheetTypes } from '../../constants/timesheet';
 import CommonTimesheetService from '../../services/timesheet/common';
 
-const eventTypes = CommonTimesheetService.getEventTypes();
-
 export default class CommonTimesheetConverter {
   static getStatusForWeb(source = []) {
     const st = get(source, 'records[0]', {});
@@ -20,7 +18,7 @@ export default class CommonTimesheetConverter {
     return target;
   }
 
-  static setParamsEventTypes({ timesheetType }) {
+  static setParamsEventTypes({ eventTypes, timesheetType }) {
     const target = deepClone(eventTypes);
 
     if (timesheetType) {
@@ -35,7 +33,8 @@ export default class CommonTimesheetConverter {
   }
 
   static getCalendarEventsForWeb(source = [], timesheetType = '') {
-    const target = CommonTimesheetConverter.setParamsEventTypes({ timesheetType });
+    const eventTypes = CommonTimesheetService.getEventTypes();
+    const target = CommonTimesheetConverter.setParamsEventTypes({ eventTypes, timesheetType });
 
     if (Array.isArray(source)) {
       source.forEach(day => {
