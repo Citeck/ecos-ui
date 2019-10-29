@@ -3,71 +3,61 @@ import dialogManager from '../../common/dialogs/Manager';
 
 export const CaseRequestAction = {
   execute: ({ action }) => {
-    /*
+    let onConfirmResult = () => {};
 
-    var makeRequest = function() {
-*/
+    const promise = new Promise(resolve => [(onConfirmResult = success => resolve(success))]);
 
-    return fetch(PROXY_URI + action.config.url, {
-      method: action.config.requestMethod,
-      credentials: 'include'
-    })
-      .then(response => {
-        return response.json().then(body => {
-          if (response.status >= 200 && response.status < 300) {
-            return body;
-          }
-          if (body.message) {
-            throw new Error(body.message);
-          } else {
-            throw new Error(response.statusText);
-          }
-        });
+    var makeRequest = () => {
+      fetch(PROXY_URI + action.config.url, {
+        method: action.config.requestMethod,
+        credentials: 'include'
       })
-      .then(() => {
-        dialogManager.showInfoDialog({
-          title: 'action.result.success',
-          text: 'action.result.success'
-        });
-
-        return true;
-      })
-      .catch(e => {
-        dialogManager.showInfoDialog({
-          title: 'action.result.error',
-          text: 'action.result.error'
-        });
-
-        return false;
-      });
-
-    /*if (props.confirmationMessage) {
-      Alfresco.util.PopupManager.displayPrompt({
-        title: props.title,
-        text: props.confirmationMessage,
-        noEscape: true,
-        buttons: [
-          {
-            text: this.msg("button.yes"),
-            handler: function dlA_onActionDelete_ok() {
-              this.destroy();
-              makeRequest();
+        .then(response => {
+          return response.json().then(body => {
+            if (response.status >= 200 && response.status < 300) {
+              return body;
             }
-          },
-          {
-            text: this.msg("button.cancel"),
-            handler: function dlA_onActionDelete_cancel() {
-              this.destroy();
-            },
-            isDefault: true
-          }]
+            if (body.message) {
+              throw new Error(body.message);
+            } else {
+              throw new Error(response.statusText);
+            }
+          });
+        })
+        .then(() => {
+          dialogManager.showInfoDialog({
+            title: 'action.result.success',
+            text: 'action.result.success',
+            onClose: () => onConfirmResult(true)
+          });
+        })
+        .catch(e => {
+          console.error(e);
+          dialogManager.showInfoDialog({
+            title: 'action.result.error',
+            text: 'action.result.error',
+            onClose: () => onConfirmResult(false)
+          });
+        });
+    };
+
+    if (action.config.confirmationMessage) {
+      dialogManager.confirmDialog({
+        title: action.config.confirmationMessage,
+        text: action.config.confirmationMessage,
+        onNo: () => onConfirmResult(false),
+        onYes: makeRequest
       });
     } else {
       makeRequest();
     }
 
-
-*/
+    return promise.then(result => {
+      if (result) {
+        window.location.reload();
+      }
+      return result;
+    });
   },
 
   getDefaultModel: () => {

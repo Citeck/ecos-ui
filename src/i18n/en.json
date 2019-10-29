@@ -620,5 +620,8 @@
   "view-table.labels.actions": "Actions",
   "widget.document.title.preview": "Document preview",
   "action.result.success": "Action success",
-  "action.result.error": "Action error"
+  "action.result.error": "Action error",
+  "userActions.contract.property.addApprover": "Add approver",
+  "userActions.contract.property.approvalCancelation": "Approval cancellation",
+  "userActions.contract.property.delete": "Delete"
 }
