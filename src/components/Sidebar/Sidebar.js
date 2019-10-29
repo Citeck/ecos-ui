@@ -2,29 +2,16 @@ import React from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
+import { Scrollbars } from 'react-custom-scrollbars';
+
 import { fetchLargeLogoSrc, fetchSlideMenuItems, fetchSmallLogoSrc, getSiteDashboardEnable, toggleIsOpen } from '../../actions/slideMenu';
 import ULS from '../../services/userLocalSettings';
+
 import { Separator } from '../common';
 import Logo from './Logo';
 import List from './List';
 
 import './style.scss';
-
-const mapStateToProps = state => ({
-  isOpen: state.slideMenu.isOpen,
-  isReady: state.slideMenu.isReady,
-  items: state.slideMenu.items,
-  smallLogoSrc: state.slideMenu.smallLogo,
-  largeLogoSrc: state.slideMenu.largeLogo
-});
-
-const mapDispatchToProps = dispatch => ({
-  fetchSmallLogoSrc: () => dispatch(fetchSmallLogoSrc()),
-  fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
-  fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
-  toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
-  getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable())
-});
 
 const isOpenMenu = () => {
   return get(ULS.getMenuMode(), 'isSlideMenuOpen', true);
@@ -81,17 +68,40 @@ class Sidebar extends React.Component {
           'ecos-sidebar_collapsed': !isOpen
         })}
       >
-        <Logo large={isOpen} logo={isOpen ? largeLogoSrc : smallLogoSrc} />
-        {!isOpen && (
-          <div className="ecos-sidebar-separator">
+        <div className={classNames('ecos-sidebar-head', { 'ecos-sidebar-head_expanded': isOpen })}>
+          <Logo large={isOpen} logos={{ large: largeLogoSrc, small: smallLogoSrc }} />
+          <div className="ecos-sidebar-head__separator">
             <Separator noIndents />
           </div>
-        )}
-        <List data={items} />
+        </div>
+        <Scrollbars
+          style={{ height: '100%' }}
+          className="ecos-sidebar-scroll"
+          autoHide
+          renderTrackVertical={props => <div {...props} className={classNames({ 'ecos-sidebar-scroll_v': isOpen })} />}
+        >
+          <List data={items} />
+        </Scrollbars>
       </div>
     );
   }
 }
+
+const mapStateToProps = state => ({
+  isOpen: state.slideMenu.isOpen,
+  isReady: state.slideMenu.isReady,
+  items: state.slideMenu.items,
+  smallLogoSrc: state.slideMenu.smallLogo,
+  largeLogoSrc: state.slideMenu.largeLogo
+});
+
+const mapDispatchToProps = dispatch => ({
+  fetchSmallLogoSrc: () => dispatch(fetchSmallLogoSrc()),
+  fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
+  fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
+  toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
+  getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable())
+});
 
 export default connect(
   mapStateToProps,

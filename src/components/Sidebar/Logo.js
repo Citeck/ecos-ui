@@ -2,9 +2,9 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-const logoLinkHref = '/share/page';
+import { URL } from '../../constants';
 
-const Logo = ({ logo, large = false }) => {
+const Logo = ({ logos, large = false }) => {
   return (
     <div
       className={classNames('ecos-sidebar-logo', {
@@ -12,8 +12,19 @@ const Logo = ({ logo, large = false }) => {
         'ecos-sidebar-logo_large': large
       })}
     >
-      <a href={logoLinkHref}>
-        <img className="ecos-sidebar-logo__img" src={logo} alt="logo" />
+      <a className="ecos-sidebar-logo__link" href={URL.DASHBOARD}>
+        <img
+          className="ecos-sidebar-logo__img ecos-sidebar-logo__img_large"
+          src={logos.large}
+          alt="logo"
+          style={{ opacity: Number(large) }}
+        />
+        <img
+          className="ecos-sidebar-logo__img ecos-sidebar-logo__img_small"
+          src={logos.small}
+          alt="logo"
+          style={{ opacity: Number(!large) }}
+        />
       </a>
     </div>
   );

@@ -10,34 +10,53 @@
   width: 72px;
   transition: width 0.4s;
   background: $color-white;
+  overflow: hidden;
 
   &_expanded {
     width: 300px;
   }
 
-  &-separator {
-    padding: 0 11px;
+  &-head {
+    min-height: 87px;
+
+    &_expanded {
+      min-height: 49px;
+    }
+
+    &__separator {
+      padding: 0 11px;
+    }
+
+    &_expanded > &__separator {
+      display: none;
+    }
   }
 
   &-logo {
     $logo: &;
-
-    transition: opacity 0.4s;
-    text-align: center;
+    position: relative;
+    padding-left: 26px;
+    padding-top: 18px;
 
     &_small {
-      padding: 15px 26px 24px;
-
-      #{$logo}__img {
-        width: 20px;
-      }
+      height: 66px;
     }
 
-    &_large {
-      padding: 19px 26px;
+    &__link {
+      display: block;
+      height: 100%;
+    }
 
-      #{$logo}__img {
-        width: 99px;
+    &__img {
+      transition: opacity 0.4s;
+      position: absolute;
+
+      &_small {
+        height: 22px;
+      }
+
+      &_large {
+        height: 17px;
       }
     }
   }
@@ -51,7 +70,7 @@
       display: flex;
       align-items: center;
       position: relative;
-      height: 40px;
+      height: 38px;
       width: 100%;
       cursor: pointer;
     }
