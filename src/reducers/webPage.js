@@ -1,6 +1,6 @@
 import { handleActions } from 'redux-actions';
 import { getCurrentStateById } from '../helpers/redux';
-import { getPageData, setPageData, setError, initPage, loadedPage, reloadPageData } from '../actions/webPage';
+import { getPageData, startLoadingPage, setPageData, setError, initPage, loadedPage, reloadPageData } from '../actions/webPage';
 
 export const initialState = {
   fetchIsLoading: false,
@@ -39,7 +39,7 @@ export default handleActions(
         ...getCurrentStateById(state, payload.stateId, initialState),
         ...payload.data,
         fetchIsLoading: false,
-        pageIsLoading: true,
+        pageIsLoading: false,
         error: ''
       }
     }),
@@ -69,6 +69,14 @@ export default handleActions(
         url: '',
         fetchIsLoading: true,
         pageIsLoading: false
+      }
+    }),
+    [startLoadingPage]: (state, { payload }) => ({
+      ...state,
+      [payload.stateId]: {
+        ...getCurrentStateById(state, payload.stateId, initialState),
+        error: '',
+        pageIsLoading: true
       }
     })
   },

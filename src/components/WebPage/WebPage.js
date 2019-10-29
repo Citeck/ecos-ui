@@ -12,7 +12,7 @@ import Dashlet from '../Dashlet/Dashlet';
 import { t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
-import { initPage, setPageData, getPageData, loadedPage, reloadPageData } from '../../actions/webPage';
+import { initPage, setPageData, getPageData, loadedPage, reloadPageData, startLoadingPage } from '../../actions/webPage';
 import { selectStateById } from '../../selectors/webPage';
 
 import './style.scss';
@@ -77,6 +77,9 @@ class WebPage extends Component {
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
     };
 
+    console.warn('props.config => ', props.config);
+
+    props.initPage();
     props.setPageData(props.config);
   }
 
@@ -100,6 +103,15 @@ class WebPage extends Component {
     }
 
     return null;
+  }
+
+  componentDidUpdate(prevProps) {
+    const { url, title } = this.props;
+
+    // if (url && (url !== prevProps.url)) {
+    //   console.warn('url !== prevProps.url => ', url, prevProps.url)
+    //   this.props.reloadPageData({ url, title });
+    // }
   }
 
   componentWillUnmount() {
@@ -190,6 +202,7 @@ class WebPage extends Component {
   };
 
   handleLoadFrame = event => {
+    // console.warn('handleLoadFrame => ');
     this.props.loadedPage();
     this.setState({
       pageIsLoaded: true,
@@ -276,10 +289,10 @@ class WebPage extends Component {
   }
 
   renderError() {
-    const { error, fetchIsLoading, pageIsLoading } = this.props;
+    const { error, fetchIsLoading, pageIsLoading, url } = this.props;
     const { hasFrameContent, settingsIsShow } = this.state;
 
-    if ((!error && hasFrameContent) || settingsIsShow || fetchIsLoading || pageIsLoading) {
+    if (!error || settingsIsShow || fetchIsLoading || pageIsLoading) {
       return null;
     }
 
@@ -299,11 +312,18 @@ class WebPage extends Component {
   }
 
   renderPage() {
-    const { url, title } = this.props;
+    const { url, title, startLoadingPage, pageIsLoading } = this.props;
     const { settingsIsShow, pageIsLoaded, hasFrameContent } = this.state;
 
-    if (!url || settingsIsShow || (pageIsLoaded && !hasFrameContent)) {
+    // console.warn('!url || settingsIsShow || (pageIsLoaded && !hasFrameContent => ', !url, settingsIsShow, pageIsLoaded, !hasFrameContent);
+
+    if (!url || settingsIsShow) {
+      // || (pageIsLoaded && !hasFrameContent)) {
       return null;
+    }
+
+    if (!pageIsLoaded && !pageIsLoading) {
+      startLoadingPage();
     }
 
     const { userHeight = 0, resizable, contentHeight, fitHeights } = this.state;
@@ -377,6 +397,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   initPage: () => dispatch(initPage(ownProps.id)),
   getPageData: () => dispatch(getPageData(ownProps.id)),
   reloadPageData: data => dispatch(reloadPageData({ stateId: ownProps.id, data })),
+  startLoadingPage: () => dispatch(startLoadingPage(ownProps.id)),
   loadedPage: () => dispatch(loadedPage(ownProps.id)),
   setPageData: data => dispatch(setPageData({ stateId: ownProps.id, data }))
 });
