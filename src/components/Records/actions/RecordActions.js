@@ -3,8 +3,17 @@ import Records from '../Records';
 import lodash from 'lodash';
 import { t } from '../../../helpers/util';
 
+const DEFAULT_MODEL = {
+  name: '',
+  type: '',
+  variants: [],
+  theme: '',
+  icon: '',
+  order: 0.0,
+  config: {}
+};
+
 let RecordActions;
-let cache = {};
 
 class RecordActionsService {
   getActions(records, context) {
@@ -14,46 +23,87 @@ class RecordActionsService {
       isSingleRecord = true;
     }
 
-    let result = {};
+    return this.__getRecordsActions(records.map(r => (r.id ? r.id : r)), context).then(recordsWithActions => {
+      let result = {};
 
-    for (let record of records) {
-      record = Records.get(record);
+      recordsWithActions.forEach(recordData => {
+        let record = Records.get(recordData.record);
 
-      let actions = RecordActionsService.__getDefaultActions();
+        result[recordData.record] = recordData.actions
+          .filter(action => {
+            if (!action.type) {
+              console.warn('action without type', action);
+              return false;
+            }
+            let executor = RecordActionExecutorsRegistry.get(action.type);
+            if (!executor) {
+              console.warn('action without executor', action);
+              return false;
+            }
 
-      let cacheKey = `${context.mode || ''}__${context.scope || ''}__${record.id}`;
-      let recActions = cache[cacheKey];
-      if (!recActions) {
-        recActions = actions.filter(action => {
-          let executor = RecordActionExecutorsRegistry.get(action.type);
-          return executor && (!executor.canBeExecuted || executor.canBeExecuted({ record, action, context }));
-        });
-        cache[cacheKey] = recActions;
+            return !executor.canBeExecuted || executor.canBeExecuted({ record, action, context });
+          })
+          .map(action => {
+            let executor = RecordActionExecutorsRegistry.get(action.type);
+            let executorDefaultModel = executor.getDefaultModel ? executor.getDefaultModel() || {} : {};
+
+            let resultAction = {};
+
+            for (let field in DEFAULT_MODEL) {
+              if (DEFAULT_MODEL.hasOwnProperty(field)) {
+                resultAction[field] = action[field] || executorDefaultModel[field] || DEFAULT_MODEL[field];
+              }
+            }
+
+            resultAction.name = t(resultAction.name) || resultAction.name;
+            resultAction.context = Object.assign({}, context);
+
+            return resultAction;
+          });
+      });
+
+      if (isSingleRecord) {
+        return result[Object.keys(result)[0]];
       }
 
-      result[record.id] = recActions;
-    }
-
-    if (Object.keys(cache).length > 200) {
-      cache = {};
-    }
-
-    if (isSingleRecord) {
-      return Promise.resolve(result[Object.keys(result)[0]]);
-    }
-
-    return Promise.resolve(result);
+      return result;
+    });
   }
 
-  execAction(records, action, context) {
+  __getRecordsActions(records, context) {
+    //temp condition to prevent major changes in journal actions
+    if (context.mode === 'journal') {
+      let actions = RecordActionsService.__getDefaultActions();
+      return Promise.resolve(
+        records.map(record => {
+          return {
+            record,
+            actions
+          };
+        })
+      );
+    }
+
+    return Records.query(
+      {
+        sourceId: 'uiserv/action',
+        query: {
+          records: records,
+          predicate: context.predicate
+        }
+      },
+      { record: 'record', actions: 'actions[]?json' }
+    ).then(resp => resp.records);
+  }
+
+  execAction(records, action) {
     let executor = RecordActionExecutorsRegistry.get(action.type);
     if (lodash.isArray(records)) {
       if (executor.groupExec) {
         return Promise.resolve(
           executor.groupExec({
             records: Records.get(records),
-            action,
-            context
+            action
           })
         );
       } else {
@@ -61,8 +111,7 @@ class RecordActionsService {
           records.map(r =>
             executor.execute({
               record: Records.get(r),
-              action,
-              context
+              action
             })
           )
         );
@@ -72,16 +121,14 @@ class RecordActionsService {
       return Promise.resolve(
         executor.execute({
           record: Records.get(records),
-          action,
-          context
+          action
         })
       );
     } else {
       return Promise.all(
         executor.groupExec({
           records: [Records.get(records)],
-          action,
-          context
+          action
         })
       ).then(result => {
         return result[0];
@@ -109,7 +156,7 @@ class RecordActionsService {
       },
       {
         title: t('grid.inline-tools.delete'),
-        type: 'remove',
+        type: 'delete',
         icon: 'icon-delete',
         theme: 'danger'
       },
