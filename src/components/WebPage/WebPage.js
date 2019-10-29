@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import debounce from 'lodash/debounce';
+import get from 'lodash/get';
+import classNames from 'classnames';
 
 import { Loader, DefineHeight } from '../common';
 import { Btn } from '../common/btns';
@@ -11,8 +12,8 @@ import { Label, Input } from '../common/form';
 import Dashlet from '../Dashlet/Dashlet';
 import { t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
-import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
-import { initPage, setPageData, getPageData, loadedPage, reloadPageData, startLoadingPage } from '../../actions/webPage';
+import { MIN_WIDTH_DASHLET_SMALL, MIN_WIDTH_DASHLET_LARGE } from '../../constants';
+import { initPage, changePageData, loadedPage, reloadPageData } from '../../actions/webPage';
 import { selectStateById } from '../../selectors/webPage';
 
 import './style.scss';
@@ -23,7 +24,7 @@ const LABELS = {
   SETTINGS_LABEL_TITLE: 'Заголовок виджета',
   SETTINGS_PLACEHOLDER_TITLE: 'Например название веб-ресурса',
   SETTINGS_LABEL_URL: 'URL-адрес ресурса',
-  SETTINGS_PLACEHOLDER_URL: 'www.google.com',
+  SETTINGS_PLACEHOLDER_URL: 'https://www.google.com',
   SETTINGS_BTN_CANCEL: 'Отмена',
   SETTINGS_BTN_SAVE: 'Готово',
   ERROR: 'Ошибка!',
@@ -41,7 +42,6 @@ class WebPage extends Component {
     title: PropTypes.string,
     onSave: PropTypes.func.isRequired,
     initPage: PropTypes.func.isRequired,
-    setPageData: PropTypes.func.isRequired,
     loadedPage: PropTypes.func.isRequired,
     reloadPageData: PropTypes.func.isRequired,
     fetchIsLoading: PropTypes.bool,
@@ -53,7 +53,6 @@ class WebPage extends Component {
     title: '',
     fetchIsLoading: false,
     pageIsLoading: false,
-    // todo: возможно, стоит сохранять данные не в config, а просто в props виджета дашборда
     config: {
       url: '',
       title: ''
@@ -71,20 +70,13 @@ class WebPage extends Component {
       resizable: false,
       pageIsLoaded: false,
       hasFrameContent: false,
-      title: props.title,
-      url: props.url,
+      title: get(props, 'config.title', ''),
+      url: get(props, 'config.url', ''),
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
     };
 
-    console.warn('props.config => ', props.config);
-
-    props.initPage();
-    props.setPageData(props.config);
-  }
-
-  componentDidMount() {
-    this.props.initPage();
+    props.initPage(props.config);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -105,15 +97,6 @@ class WebPage extends Component {
     return null;
   }
 
-  componentDidUpdate(prevProps) {
-    const { url, title } = this.props;
-
-    // if (url && (url !== prevProps.url)) {
-    //   console.warn('url !== prevProps.url => ', url, prevProps.url)
-    //   this.props.reloadPageData({ url, title });
-    // }
-  }
-
   componentWillUnmount() {
     this.handleCancelResizable.cancel();
   }
@@ -122,6 +105,12 @@ class WebPage extends Component {
     const { title, url } = this.state;
 
     return title && url;
+  }
+
+  get isSmallSize() {
+    const { width } = this.state;
+
+    return width < MIN_WIDTH_DASHLET_LARGE;
   }
 
   setContentHeight = contentHeight => {
@@ -185,28 +174,25 @@ class WebPage extends Component {
   };
 
   handleSaveEdit = () => {
-    this.setState(
-      {
-        settingsIsShow: false,
-        pageIsLoaded: false,
-        hasFrameContent: false
-      },
-      () => {
-        const { onSave, id, setPageData } = this.props;
-        const { url, title } = this.state;
+    const { onSave, id, changePageData } = this.props;
+    const { url, title } = this.state;
 
-        onSave(id, { config: { url, title } });
-        setPageData({ url, title });
-      }
-    );
+    onSave(id, { config: { url, title } });
+    changePageData({ url, title });
+
+    this.setState({
+      settingsIsShow: false,
+      pageIsLoaded: false,
+      hasFrameContent: false
+    });
   };
 
   handleLoadFrame = event => {
-    // console.warn('handleLoadFrame => ');
     this.props.loadedPage();
+
     this.setState({
       pageIsLoaded: true,
-      hasFrameContent: Boolean(event.currentTarget.contentWindow.length)
+      hasFrameContent: Boolean(get(event, 'currentTarget.contentWindow', []).length)
     });
   };
 
@@ -262,19 +248,32 @@ class WebPage extends Component {
           defaultValue={url}
         />
 
-        <Btn className="ecos-btn_grey5 ecos-btn_hover_grey1 ecos-wpage__settings-btn" onClick={this.handleCancelEdit}>
-          <span className="ecos-vj__btn-add-title">{t(LABELS.SETTINGS_BTN_CANCEL)}</span>
-        </Btn>
+        <div className="ecos-wpage__settings-btn-wrapper">
+          <Btn
+            className={classNames('ecos-btn_grey5 ecos-btn_hover_grey1 ecos-wpage__settings-btn', {
+              'ecos-wpage__settings-btn_big': this.isSmallSize
+            })}
+            onClick={this.handleCancelEdit}
+          >
+            {t(LABELS.SETTINGS_BTN_CANCEL)}
+          </Btn>
 
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" disabled={!this.canSave} onClick={this.handleSaveEdit}>
-          <span className="ecos-vj__btn-add-title">{t(LABELS.SETTINGS_BTN_SAVE)}</span>
-        </Btn>
+          <Btn
+            className={classNames('ecos-btn_blue ecos-btn_hover_light-blue', {
+              'ecos-wpage__settings-btn_big': this.isSmallSize
+            })}
+            disabled={!this.canSave}
+            onClick={this.handleSaveEdit}
+          >
+            {t(LABELS.SETTINGS_BTN_SAVE)}
+          </Btn>
+        </div>
       </div>
     );
   }
 
   renderLoading() {
-    const { fetchIsLoading, pageIsLoading, url } = this.props;
+    const { fetchIsLoading, pageIsLoading } = this.props;
     const { pageIsLoaded } = this.state;
 
     if ((!fetchIsLoading && !pageIsLoading) || pageIsLoaded) {
@@ -289,10 +288,10 @@ class WebPage extends Component {
   }
 
   renderError() {
-    const { error, fetchIsLoading, pageIsLoading, url } = this.props;
+    const { error, fetchIsLoading, pageIsLoading } = this.props;
     const { hasFrameContent, settingsIsShow } = this.state;
 
-    if (!error || settingsIsShow || fetchIsLoading || pageIsLoading) {
+    if ((!error && hasFrameContent) || settingsIsShow || fetchIsLoading || pageIsLoading) {
       return null;
     }
 
@@ -312,21 +311,14 @@ class WebPage extends Component {
   }
 
   renderPage() {
-    const { url, title, startLoadingPage, pageIsLoading } = this.props;
+    const { url, title } = this.props;
     const { settingsIsShow, pageIsLoaded, hasFrameContent } = this.state;
 
-    // console.warn('!url || settingsIsShow || (pageIsLoaded && !hasFrameContent => ', !url, settingsIsShow, pageIsLoaded, !hasFrameContent);
-
-    if (!url || settingsIsShow) {
-      // || (pageIsLoaded && !hasFrameContent)) {
+    if (!url || settingsIsShow || (!hasFrameContent && pageIsLoaded)) {
       return null;
     }
 
-    if (!pageIsLoaded && !pageIsLoading) {
-      startLoadingPage();
-    }
-
-    const { userHeight = 0, resizable, contentHeight, fitHeights } = this.state;
+    const { userHeight = 0, resizable } = this.state;
     const fixHeight = userHeight ? userHeight : pageIsLoaded && hasFrameContent ? 572 : 203;
 
     return (
@@ -348,7 +340,7 @@ class WebPage extends Component {
     const { title, pageIsLoaded, hasFrameContent } = this.props;
     const { isCollapsed } = this.state;
 
-    const { userHeight = 0, resizable, contentHeight, fitHeights } = this.state;
+    const { userHeight = 0, contentHeight, fitHeights } = this.state;
     const fixHeight = userHeight ? userHeight : pageIsLoaded && hasFrameContent ? 572 : 203;
 
     return (
@@ -394,12 +386,10 @@ class WebPage extends Component {
 const mapStateToProps = (state, ownProps) => ({ ...selectStateById(state, ownProps.id) });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  initPage: () => dispatch(initPage(ownProps.id)),
-  getPageData: () => dispatch(getPageData(ownProps.id)),
+  initPage: data => dispatch(initPage({ stateId: ownProps.id, data })),
   reloadPageData: data => dispatch(reloadPageData({ stateId: ownProps.id, data })),
-  startLoadingPage: () => dispatch(startLoadingPage(ownProps.id)),
   loadedPage: () => dispatch(loadedPage(ownProps.id)),
-  setPageData: data => dispatch(setPageData({ stateId: ownProps.id, data }))
+  changePageData: data => dispatch(changePageData({ stateId: ownProps.id, data }))
 });
 
 export default connect(
