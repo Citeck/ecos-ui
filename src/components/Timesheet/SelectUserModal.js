@@ -36,7 +36,7 @@ class SelectUserModal extends Component {
 
     return (
       <SelectOrgstruct
-        allUsersGroup={'TimesheetDelegatorList'}
+        allUsersGroup={'RU_GE_Users'}
         defaultValue={defaultValue}
         allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
         onChange={onSelect}
