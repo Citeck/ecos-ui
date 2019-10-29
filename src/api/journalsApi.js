@@ -148,7 +148,8 @@ export class JournalsApi extends RecordService {
       query,
       language: 'predicate',
       page: pagination,
-      consistency: 'EVENTUAL'
+      consistency: 'EVENTUAL',
+      sortBy: [{ attribute: 'sys:node-dbid', ascending: true }]
     };
 
     if (sourceId) {
