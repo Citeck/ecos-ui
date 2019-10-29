@@ -9,18 +9,18 @@ class Badge extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     text: PropTypes.string,
-    isError: PropTypes.bool
+    state: PropTypes.string
   };
 
   static defaultProps = {
     className: '',
     text: '',
-    isError: false
+    state: 'info'
   };
 
   render() {
-    const { className, isError, text } = this.props;
-    const classes = classNames('ecos-badge', className, { 'ecos-badge_error': isError });
+    const { className, state, text } = this.props;
+    const classes = classNames('ecos-badge', `ecos-badge_${state}`, className);
 
     return isEmpty(text) ? null : <span className={classes}>{text}</span>;
   }

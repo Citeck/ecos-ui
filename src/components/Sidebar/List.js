@@ -33,8 +33,8 @@ class List extends React.Component {
           'ecos-sidebar-list_expanded': isExpanded
         })}
       >
-        {data.map(item => (
-          <Item data={item} level={level} />
+        {data.map((item, i) => (
+          <Item data={item} level={level} key={`lvl-${level}-${i}-${item.id}`} />
         ))}
       </ul>
     );

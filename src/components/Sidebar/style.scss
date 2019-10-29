@@ -63,6 +63,7 @@
 
   &-scroll_v {
     @extend %v-scroll;
+    right: 3px;
   }
 
   &-item {
@@ -110,12 +111,7 @@
     }
 
     &__badge {
-      padding: 4px 5px;
-      background: $color-red-1;
       font-size: $font-size-extra-small;
-      font-weight: $font-weight-bold;
-      color: $color-white;
-      border-radius: 100px;
     }
 
     &__point {

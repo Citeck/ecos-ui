@@ -65,10 +65,16 @@ class Item extends React.Component {
     };
   }
 
-  getMover(noMove) {
+  get noMove() {
+    const { items } = this.parseData();
+    const noItems = isEmpty(items);
+    return !noItems;
+  }
+
+  getMover() {
     const { actionType } = this.parseData();
 
-    if (noMove) {
+    if (this.noMove) {
       return ({ children }) => <div className="ecos-sidebar-item__link">{children}</div>;
     }
 
@@ -76,32 +82,40 @@ class Item extends React.Component {
   }
 
   toggleList = e => {
-    const { isExpanded } = this.state;
+    const { styleProps = {} } = this.state;
+    const { noToggle } = styleProps;
 
-    this.setState({ isExpanded: !isExpanded });
-    e.stopPropagation();
+    if (this.noMove && !noToggle) {
+      const { isExpanded } = this.state;
+
+      this.setState({ isExpanded: !isExpanded });
+      e.stopPropagation();
+    }
   };
 
   render() {
     const { isOpen, isSiteDashboardEnable, data, level } = this.props;
     const { isExpanded, styleProps = {} } = this.state;
-    const { noIcon, noBadge, noToggle, isRemoteBadge, collapsed, noMoveIfItems } = styleProps;
+    const { noIcon, noBadge, noToggle, isRemoteBadge, collapsed } = styleProps;
 
     if (isEmpty(data)) {
       return null;
     }
+
     const extraParams = { isSiteDashboardEnable };
     const { items } = this.parseData();
     const noItems = isEmpty(items);
-    const noMove = !noItems && noMoveIfItems;
-    const Mover = this.getMover(noMove);
+    const Mover = this.getMover();
 
     return (
       <li className="ecos-sidebar-item">
         {(isOpen || (!isOpen && !collapsed.noName)) && (
-          <div className={classNames('ecos-sidebar-item__name-wrapper', { 'ecos-sidebar-item__name-wrapper_no-action': noMove })}>
+          <div
+            className={classNames('ecos-sidebar-item__name-wrapper', { 'ecos-sidebar-item__name-wrapper_no-action': this.noMove })}
+            onClick={this.toggleList}
+          >
             <Mover data={data} extraParams={extraParams}>
-              {!noIcon && <ItemIcon iconName={data.icon} />}
+              {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : data.label} />}
               <div className="ecos-sidebar-item__label">{data.label}</div>
             </Mover>
 
@@ -115,7 +129,6 @@ class Item extends React.Component {
                   'icon-down': !isExpanded && isOpen,
                   'icon-up': isExpanded && isOpen
                 })}
-                onClick={this.toggleList}
               />
             )}
           </div>

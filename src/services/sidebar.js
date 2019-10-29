@@ -20,7 +20,6 @@ export default class SidebarService {
       isRemoteBadge: false,
       noToggle: true,
       isDefExpanded: true,
-      noMoveIfItems: false,
       collapsed: {
         noName: false
       }
@@ -43,8 +42,7 @@ export default class SidebarService {
         isRemoteBadge: actionType && ![ATypes.CREATE_SITE].includes(actionType)
       },
       2: {
-        ...common,
-        noMoveIfItems: true
+        ...common
       },
       3: {
         ...common
