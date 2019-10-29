@@ -46,6 +46,9 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
       userNames: userNamesPure
     });
 
+    const delegationStatus = yield api.timesheetDelegated.getDelegationInfo({ user: userName, delegationType: DelegationTypes.APPROVE });
+    const deputy = DelegationTimesheetConverter.getDelegationInfo(delegationStatus.records);
+
     const list = SubordinatesTimesheetService.mergeManyToOneList({
       peopleList: subordinates.records,
       calendarEvents,
@@ -54,7 +57,7 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
 
     const mergedList = SubordinatesTimesheetConverter.getSubordinatesEventsListForWeb(list);
 
-    yield put(setSubordinatesTimesheetByParams({ mergedList }));
+    yield put(setSubordinatesTimesheetByParams({ mergedList, deputy }));
   } catch (e) {
     logger.error('[timesheetSubordinates sagaGetSubordinatesTimesheetByParams saga] error', e.message);
   }
@@ -129,7 +132,7 @@ function* sagaDelegateTo({ api, logger }, { payload }) {
   const userName = yield select(selectUserName);
 
   try {
-    const result = yield api.timesheetDelegated.setRecord({
+    yield api.timesheetDelegated.setRecord({
       userName,
       deputyName: deputy.name,
       delegationType: payload.delegationType
@@ -147,7 +150,7 @@ function* sagaRemoveDelegation({ api, logger }) {
   const deputyName = yield select(selectTSubordinatesDelegatedTo);
 
   try {
-    const result = yield api.timesheetDelegated.removeRecord({ userName, deputyName, delegationType: DelegationTypes.FILL });
+    yield api.timesheetDelegated.removeRecord({ userName, deputyName, delegationType: DelegationTypes.APPROVE });
 
     yield put(setDelegatedTo(DelegationTimesheetConverter.getDeputyData()));
   } catch (e) {

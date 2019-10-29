@@ -50,6 +50,7 @@ export default handleActions(
     [setSubordinatesTimesheetByParams]: (state, actions) => ({
       ...state,
       mergedList: get(actions, 'payload.mergedList', []),
+      ...get(actions, 'payload.deputy', {}),
       isLoading: false
     }),
     [modifyStatus]: (state, actions) => ({

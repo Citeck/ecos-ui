@@ -44,10 +44,34 @@ export default class DelegatedTimesheetConverter {
       ref: '',
       displayName: ''
     };
+    const name = get(source, 'attributes.fullName', '');
+    let displayName = get(source, 'attributes.displayName', '');
 
-    target.name = get(source, 'attributes.fullName', '');
+    if (!displayName.includes(name)) {
+      displayName += ` (${name})`;
+    }
+
+    target.name = name;
     target.ref = get(source, 'id', '');
-    target.displayName = get(source, 'attributes.displayName', '');
+    target.displayName = displayName;
+
+    return target;
+  }
+
+  static getDelegationInfo(source = []) {
+    const target = {
+      delegatedToRef: '',
+      delegatedToUserName: '',
+      delegatedToDisplayName: ''
+    };
+
+    if (!source.length) {
+      return target;
+    }
+
+    target.delegatedToRef = get(source, ['0', 'deputyNodeRef'], '');
+    target.delegatedToUserName = get(source, ['0', 'deputyUsername'], '');
+    target.delegatedToDisplayName = get(source, ['0', 'displayName'], '');
 
     return target;
   }

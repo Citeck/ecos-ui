@@ -49,6 +49,7 @@ export default handleActions(
       ...state,
       status: get(actions, 'payload.status', {}),
       mergedEvents: get(actions, 'payload.mergedEvents', []),
+      ...get(actions, 'payload.deputy', {}),
       isLoading: false,
       isLoadingStatus: false
     }),
