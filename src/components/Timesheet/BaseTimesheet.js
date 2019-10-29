@@ -229,7 +229,12 @@ class BaseTimesheet extends Component {
         const count = +(eventDay.hours || 0);
 
         return (
-          <CalendarCell key={`calendar-cell-${day.number}`}>
+          <CalendarCell
+            key={`calendar-cell-${day.number}`}
+            className={classNames({
+              'ecos-timesheet__table-calendar-cell_not-available': !get(eventItem, 'hours.editable', false)
+            })}
+          >
             <Hour
               color={eventItem.color}
               count={count}

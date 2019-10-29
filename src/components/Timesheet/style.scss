@@ -499,6 +499,17 @@
           background-color: $color-yellow-10;
           color: $color-yellow-30;
         }
+
+        &_not-available {
+          $color: white;
+          $transparent: rgba(0, 0, 0, 0);
+
+          background: linear-gradient(-45deg, $transparent 49.9%, $color 49.9%, $color 60%, $transparent 60%),
+            linear-gradient(-45deg, $color 10%, $transparent 10%);
+          background-size: 2em 2em;
+          background-color: $color-gray;
+          font: 5px/2 'Trebuchet MS', Verdana, sans-serif;
+        }
       }
 
       &_not-available {
