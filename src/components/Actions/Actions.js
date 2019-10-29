@@ -84,12 +84,10 @@ class Actions extends React.Component {
 
   executeAction = action => {
     const { runExecuteAction, record, stateId } = this.props;
-    const context = this.getContext();
 
     runExecuteAction({
       stateId,
       record,
-      context,
       action
     });
   };

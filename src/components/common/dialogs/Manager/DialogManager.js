@@ -2,8 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { t } from '../../../../helpers/util';
 import { RemoveDialog } from '../index';
+import { Btn } from '../../btns';
+import EcosModal from '../../EcosModal';
 
 const REMOVE_DIALOG_ID = 'DialogManager-remove-dialog';
+const INFO_DIALOG_ID = 'DialogManager-info-dialog';
+const CONFIRM_DIALOG_ID = 'DialogManager-confirm-dialog';
 
 class DialogWrapper extends React.Component {
   constructor(props) {
@@ -75,6 +79,72 @@ const dialogsById = {
     };
 
     return <RemoveDialog {...dProps} />;
+  },
+  [INFO_DIALOG_ID]: props => {
+    const dialogProps = props.dialogProps || {};
+
+    const { onClose = () => {} } = dialogProps;
+
+    let dProps = Object.assign(
+      {
+        title: '',
+        text: ''
+      },
+      dialogProps,
+      {
+        isOpen: props.isVisible
+      }
+    );
+
+    dProps.onClose = () => {
+      props.setVisible(false);
+      onClose();
+    };
+
+    return (
+      <EcosModal isOpen={dProps.isOpen} hideModal={dProps.onClose}>
+        <div>{t(dProps.title)}</div>
+        <div>
+          <Btn onClick={dProps.onClose}>{t('button.close-modal')}</Btn>
+        </div>
+      </EcosModal>
+    );
+  },
+  [CONFIRM_DIALOG_ID]: props => {
+    const dialogProps = props.dialogProps || {};
+
+    const { onNo = () => {}, onYes = () => {} } = dialogProps;
+
+    let dProps = Object.assign(
+      {
+        title: '',
+        text: ''
+      },
+      dialogProps,
+      {
+        isOpen: props.isVisible
+      }
+    );
+
+    dProps.onNo = () => {
+      props.setVisible(false);
+      onNo();
+    };
+
+    dProps.onYes = () => {
+      props.setVisible(false);
+      onYes();
+    };
+
+    return (
+      <EcosModal isOpen={dProps.isOpen} hideModal={dProps.onNo}>
+        <div>{t(dProps.title)}</div>
+        <div>
+          <Btn onClick={dProps.onYes}>{t('boolean.yes')}</Btn>
+          <Btn onClick={dProps.onNo}>{t('boolean.no')}</Btn>
+        </div>
+      </EcosModal>
+    );
   }
 };
 
@@ -108,6 +178,14 @@ const showDialog = (id, props) => {
 export default class DialogManager {
   static showRemoveDialog(props) {
     return showDialog(REMOVE_DIALOG_ID, props);
+  }
+
+  static showInfoDialog(props) {
+    return showDialog(INFO_DIALOG_ID, props);
+  }
+
+  static confirmDialog(props) {
+    return showDialog(CONFIRM_DIALOG_ID, props);
   }
 }
 

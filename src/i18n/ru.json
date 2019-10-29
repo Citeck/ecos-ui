@@ -624,5 +624,10 @@
   "versions-journal-widget.version": "Версия",
   "view-table.labels.actions": "Действия",
   "widget.document.title.preview": "Предпросмотр документа",
-  "web-page-widget.title": "Веб-страница"
+  "web-page-widget.title": "Веб-страница",
+  "action.result.success": "Действие успешно выполнено",
+  "action.result.error": "Во время выполнения действия произошла ошибка",
+  "userActions.contract.property.addApprover": "Добавить дополнительного согласующего",
+  "userActions.contract.property.approvalCancelation": "Отмена согласования",
+  "userActions.contract.property.delete": "Удалить"
 }

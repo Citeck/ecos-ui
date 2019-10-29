@@ -7,6 +7,10 @@ import * as ls from '../helpers/ls';
 import { DocPreviewApi } from './docPreview';
 import { PREDICATE_OR, COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS } from '../components/common/form/SelectJournal/predicates';
 
+import { ActionModes } from '../constants';
+
+import RecordActions from '../components/Records/actions';
+
 export class JournalsApi extends RecordService {
   lsJournalSettingIdsKey = ls.generateKey('journal-setting-ids', true);
 
@@ -51,7 +55,7 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId, recordRef }) => {
+  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId, recordRef, journalId }) => {
     const query = {
       t: 'and',
       val: [
@@ -103,7 +107,20 @@ export class JournalsApi extends RecordService {
 
     return dataSource.load().then(function({ data, total }) {
       const columns = dataSource.getColumns();
-      return { data, total, columns };
+
+      const actionsContext = {
+        mode: ActionModes.JOURNAL,
+        scope: journalId
+      };
+
+      return RecordActions.getActions((data || []).map(r => r.id), actionsContext).then(actions => {
+        return {
+          data,
+          actions,
+          total,
+          columns
+        };
+      });
     });
   };
 
