@@ -146,22 +146,4 @@ export class TimesheetCommonApi extends RecordService {
       }
     }).then(res => res.totalCount);
   };
-
-  getTimesheetDelegationStatus = function(user) {
-    return Records.query(
-      {
-        query: { user },
-        sourceId: 'timesheet-delegation',
-        language: 'json'
-      },
-      {
-        deputyNodeRef: 'deputyNodeRef',
-        deputyUsername: 'deputyUsername',
-        delegationType: 'delegationType',
-        firstName: 'firstName',
-        lastName: 'lastName',
-        displayName: 'displayName'
-      }
-    ).then(res => res);
-  };
 }

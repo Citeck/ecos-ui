@@ -112,4 +112,22 @@ export class TimesheetDelegatedApi extends RecordService {
       return Records.remove([`${TimesheetSourcesId.DELEGATION}@${userName}-${deputyName}-${delegationType}`]).then(res => res);
     }
   };
+
+  getDelegationInfo = ({ user, delegationType }) => {
+    return Records.query(
+      {
+        query: { user, delegationType },
+        sourceId: 'timesheet-delegation',
+        language: 'json'
+      },
+      {
+        deputyNodeRef: 'deputyNodeRef',
+        deputyUsername: 'deputyUsername',
+        delegationType: 'delegationType',
+        firstName: 'firstName',
+        lastName: 'lastName',
+        displayName: 'displayName'
+      }
+    ).then(res => res);
+  };
 }

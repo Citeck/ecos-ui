@@ -40,13 +40,12 @@ function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
       year: currentDate.getFullYear(),
       userNames: [userName]
     });
-    const delegationStatus = yield api.timesheetCommon.getTimesheetDelegationStatus(userName);
-    // const deputy
+    const delegationStatus = yield api.timesheetDelegated.getDelegationInfo({ user: userName, delegationType: DelegationTypes.FILL });
+    const deputy = DelegationTimesheetConverter.getDelegationInfo(delegationStatus.records);
     const calendarEvents = calendar[userName] || [];
-
     const mergedEvents = CommonTimesheetConverter.getCalendarEventsForWeb(calendarEvents);
 
-    yield put(setMyTimesheetByParams({ status, mergedEvents }));
+    yield put(setMyTimesheetByParams({ status, mergedEvents, deputy }));
   } catch (e) {
     logger.error('[timesheetMine sagaGetMyTimesheetByParams saga] error', e.message);
   }
@@ -137,7 +136,7 @@ function* sagaDelegateTo({ api, logger }, { payload }) {
   const userName = yield select(selectUserName);
 
   try {
-    const result = yield api.timesheetDelegated.setRecord({
+    yield api.timesheetDelegated.setRecord({
       userName,
       deputyName: deputy.name,
       delegationType: payload.delegationType
