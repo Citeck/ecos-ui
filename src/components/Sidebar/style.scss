@@ -136,8 +136,8 @@
       border: 4px solid $color-white;
       border-radius: 50%;
       position: absolute;
-      right: 15px;
-      top: 5px;
+      right: 5px;
+      top: 0;
     }
   }
 
@@ -235,8 +235,11 @@
 
   &_collapsed {
     #{$menu-list}_lvl-1 {
-      #{$menu-item}__label {
-        display: none;
+      #{$menu-item}_lvl-1 {
+        margin: 0 11px;
+        padding: 0 15px;
+        width: initial;
+        border-radius: $border-radius-large;
       }
     }
   }
