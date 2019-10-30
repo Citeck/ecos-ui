@@ -2,11 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 import set from 'lodash/set';
 import classNames from 'classnames';
 
 import { deepClone, t } from '../../helpers/util';
 import { DndUtils, DragItem, Droppable } from '../../components/Drag-n-Drop';
+import Components from '../../components/Components';
 
 import './style.scss';
 
@@ -38,6 +40,10 @@ class SetWidgets extends React.Component {
   state = {
     draggableDestination: ''
   };
+
+  getWidgetLabel(widget) {
+    return t(get(Components.components, [widget.name, 'label'], get(widget, 'label', ''))) || get(widget, 'localizedLabel', '');
+  }
 
   handleDragUpdate = provided => {
     const { destination, source } = provided;
@@ -130,7 +136,7 @@ class SetWidgets extends React.Component {
                       draggableId={widget.dndId}
                       draggableIndex={indexWidget}
                       className={'ecos-dashboard-settings__column-widgets__items__cell'}
-                      title={widget.label}
+                      title={this.getWidgetLabel(widget)}
                       selected={true}
                       canRemove={true}
                       removeItem={response => {
@@ -180,7 +186,7 @@ class SetWidgets extends React.Component {
                     key={item.dndId}
                     draggableId={item.dndId}
                     draggableIndex={index}
-                    title={item.label}
+                    title={this.getWidgetLabel(item)}
                     getPositionAdjusment={positionAdjustment}
                   />
                 ))}

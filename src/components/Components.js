@@ -108,16 +108,20 @@ export default class Components {
     const components = new Map();
 
     Components.getWidgetsForAllDasboards().forEach(component => {
-      components.set(component.name, t(component.label));
+      components.set(component.name, component.label);
     });
 
     Object.entries(Components.components).forEach(([name, component]) => {
       if (component.supportedDashboardTypes.includes(dashboardType)) {
-        components.set(name, t(component.label));
+        components.set(name, component.label);
       }
     });
 
-    const arrComponents = [...components].map(([name, label]) => ({ name, label }));
+    const arrComponents = [...components].map(([name, label]) => ({
+      name,
+      label,
+      localizedLabel: t(label)
+    }));
 
     components.clear();
 
