@@ -1,5 +1,14 @@
 @import '../../styles/constants';
 
+%menu-item-separator {
+  content: '';
+  display: block;
+  height: 2px;
+  background: $color-gray-4;
+  position: absolute;
+  width: 100%;
+}
+
 .ecos-sidebar {
   $menu-item: '.ecos-sidebar-item';
   $menu-list: '.ecos-sidebar-list';
@@ -67,13 +76,15 @@
   }
 
   &-item {
-    &__name-wrapper {
-      display: flex;
-      align-items: center;
-      position: relative;
-      height: 38px;
-      width: 100%;
-      cursor: pointer;
+    display: flex;
+    align-items: center;
+    position: relative;
+    height: 38px;
+    width: 100%;
+    cursor: pointer;
+
+    &:hover {
+      background: $color-gray-16;
     }
 
     &__toggle {
@@ -102,8 +113,11 @@
     }
 
     &__label {
-      flex: auto;
       @extend %ellipsis;
+      flex: auto;
+      color: $text-color-dark;
+      font-weight: $font-weight-bold;
+      font-size: $font-size-standard;
     }
 
     &__icon + &__label {
@@ -138,97 +152,89 @@
     }
 
     &_lvl-0 {
-      #{$menu-item}__name-wrapper {
-        padding: 6px 15px 7px 26px;
-      }
+      #{$menu-item}_lvl-0 {
+        padding: 0 15px 0 26px;
 
-      #{$menu-item}__label {
-        color: $color-gray-5;
-        font-size: $font-size-large;
-        font-weight: $font-weight-bold;
+        &:hover {
+          background: initial;
+        }
+
+        #{$menu-item}__label {
+          color: $color-gray-5;
+          font-size: $font-size-large;
+        }
       }
     }
 
     &_lvl-1 {
-      #{$list}_expanded {
-        border-bottom: 1px solid $color-gray-4;
+      #{$list}_expanded::after {
+        @extend %menu-item-separator;
       }
 
-      #{$menu-item}__name-wrapper {
+      #{$menu-item}_lvl-1 {
         padding: 0 15px 0 26px;
 
-        &:hover {
-          background: $color-gray-16;
-        }
-      }
+        &#{$menu-item}_expanded:not(:hover) {
+          background: $color-blue-light;
 
-      #{$menu-item}__label {
-        font-weight: $font-weight-bold;
-        color: $text-color-dark;
-        font-size: $font-size-standard;
+          #{$menu-item}__icon,
+          #{$menu-item}__label,
+          #{$menu-item}__toggle {
+            color: $color-white;
+          }
+        }
       }
     }
 
     &_lvl-2 {
-      #{$menu-item}__name-wrapper {
+      #{$menu-item}_lvl-2 {
         padding: 9px 35px;
 
-        &:hover {
-          background: $color-gray-16;
+        &:not(:last-child)::after {
+          @extend %menu-item-separator;
+          bottom: 0;
         }
 
-        &_no-action {
+        &#{$menu-item}_no-action {
           pointer-events: none;
 
           &:hover {
             background: unset;
           }
         }
-      }
 
-      #{$menu-item}__label {
-        color: $text-color-dark;
-        font-size: $font-size-standard;
-        font-weight: $font-weight-semi-bold;
+        #{$menu-item}__label {
+          font-weight: $font-weight-semi-bold;
+        }
       }
     }
 
     &_lvl-3 {
       padding: 0 14px 0 26px;
 
-      #{$menu-item}__name-wrapper {
+      #{$menu-item}_lvl-3 {
         height: 25px;
         padding: 0 9px;
 
         &:hover {
-          background: $color-gray-16;
           border-radius: $border-radius-standard;
         }
-      }
 
-      #{$menu-item}__label {
-        color: $text-color-gray;
-        font-size: $font-size-small;
-        font-weight: $font-weight-semi-bold;
+        &:last-child {
+          margin-bottom: 12px;
+        }
+
+        #{$menu-item}__label {
+          color: $text-color-gray;
+          font-size: $font-size-small;
+          font-weight: $font-weight-semi-bold;
+        }
       }
     }
   }
 
   &_collapsed {
-    //#{$menu-list}_lvl-0 {
-    //  & > #{$menu-item}__name-wrapper {
-    //    display: none;
-    //  }
-    //}
-
     #{$menu-list}_lvl-1 {
-      //& > #{$menu-item}__name-wrapper {
-      //  width: unset;
-      //  margin: 0 11px;
-      //  padding: 0 15px;
-      //  border-radius: $border-radius-standard;
-      //}
-
       #{$menu-item}__label {
         display: none;
       }

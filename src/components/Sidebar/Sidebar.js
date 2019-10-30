@@ -78,7 +78,7 @@ class Sidebar extends React.Component {
           style={{ height: '100%' }}
           className="ecos-sidebar-scroll"
           autoHide
-          renderTrackVertical={props => <div {...props} className={classNames({ 'ecos-sidebar-scroll_v': isOpen })} />}
+          renderTrackVertical={props => <div {...props} className="ecos-sidebar-scroll_v" />}
         >
           <List data={items} />
         </Scrollbars>

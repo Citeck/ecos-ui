@@ -27,7 +27,7 @@ class List extends React.Component {
     }
 
     return (
-      <ul
+      <div
         className={classNames('ecos-sidebar-list', `ecos-sidebar-list_lvl-${level}`, className, {
           'ecos-sidebar-list_collapsed': !isExpanded,
           'ecos-sidebar-list_expanded': isExpanded
@@ -36,7 +36,7 @@ class List extends React.Component {
         {data.map((item, i) => (
           <Item data={item} level={level} key={`lvl-${level}-${i}-${item.id}`} />
         ))}
-      </ul>
+      </div>
     );
   }
 }

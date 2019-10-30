@@ -10,11 +10,6 @@ import List from './List';
 import RemoteBadge from './RemoteBadge';
 import { ItemBtn, ItemIcon, ItemLink } from './itemComponents';
 
-const mapStateToProps = state => ({
-  isOpen: state.slideMenu.isOpen,
-  isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable
-});
-
 class Item extends React.Component {
   static propTypes = {
     data: PropTypes.array,
@@ -68,6 +63,7 @@ class Item extends React.Component {
   get noMove() {
     const { items } = this.parseData();
     const noItems = isEmpty(items);
+
     return !noItems;
   }
 
@@ -108,10 +104,14 @@ class Item extends React.Component {
     const Mover = this.getMover();
 
     return (
-      <li className="ecos-sidebar-item">
+      <>
         {(isOpen || (!isOpen && !collapsed.noName)) && (
           <div
-            className={classNames('ecos-sidebar-item__name-wrapper', { 'ecos-sidebar-item__name-wrapper_no-action': this.noMove })}
+            className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
+              'ecos-sidebar-item_no-action': this.noMove,
+              'ecos-sidebar-item_no-items': noItems,
+              'ecos-sidebar-item_expanded': isExpanded && !noItems
+            })}
             onClick={this.toggleList}
           >
             <Mover data={data} extraParams={extraParams}>
@@ -133,11 +133,16 @@ class Item extends React.Component {
             )}
           </div>
         )}
-        <List isExpanded={isExpanded} data={items} level={level + 1} />
-      </li>
+        {!noItems && <List isExpanded={isExpanded} data={items} level={level + 1} />}
+      </>
     );
   }
 }
+
+const mapStateToProps = state => ({
+  isOpen: state.slideMenu.isOpen,
+  isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable
+});
 
 export default connect(
   mapStateToProps,
