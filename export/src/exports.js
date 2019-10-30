@@ -33,4 +33,5 @@ export default {
   'journalsApi': () => journalsApi,
   'header': () => import('../../src/components/Header/export'),
   'slide-menu': () => import('../../src/components/SlideMenu/export'),
+  'legacy-slide-menu': () => import('../../src/legacy/SlideMenu/export'),
 };

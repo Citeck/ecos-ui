@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import ListItemLink from '../ListItemLink';
 import ListItemCreateSite from '../ListItemCreateSite';
-import { setScrollTop, toggleExpanded } from '../../../actions/slideMenu';
+import { setScrollTop, toggleExpanded } from '../../actions/slideMenu';
 
 const mapStateToProps = (state, ownProps) => ({
   selectedId: state.slideMenu.selectedId
