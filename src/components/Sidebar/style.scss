@@ -32,12 +32,12 @@
       min-height: 49px;
     }
 
-    &__separator {
-      padding: 0 11px;
-    }
-
-    &_expanded > &__separator {
-      display: none;
+    &:not(&_expanded)::after {
+      content: '';
+      display: block;
+      height: 2px;
+      background: $color-gray-4;
+      margin: 0 11px;
     }
   }
 

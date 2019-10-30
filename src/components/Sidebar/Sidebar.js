@@ -6,8 +6,6 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import { fetchLargeLogoSrc, fetchSlideMenuItems, fetchSmallLogoSrc, getSiteDashboardEnable, toggleIsOpen } from '../../actions/slideMenu';
 import ULS from '../../services/userLocalSettings';
-
-import { Separator } from '../common';
 import Logo from './Logo';
 import List from './List';
 
@@ -70,9 +68,6 @@ class Sidebar extends React.Component {
       >
         <div className={classNames('ecos-sidebar-head', { 'ecos-sidebar-head_expanded': isOpen })}>
           <Logo large={isOpen} logos={{ large: largeLogoSrc, small: smallLogoSrc }} />
-          <div className="ecos-sidebar-head__separator">
-            <Separator noIndents />
-          </div>
         </div>
         <Scrollbars
           style={{ height: '100%' }}
