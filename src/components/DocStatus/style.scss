@@ -74,6 +74,12 @@
 
   &__loader {
     position: relative;
-    width: 100%;
+
+    &_circle {
+      width: 100%;
+    }
+
+    &_points {
+    }
   }
 }

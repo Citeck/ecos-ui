@@ -2,6 +2,7 @@
 
 .dashlet {
   $root: &;
+
   min-height: auto !important;
   padding-top: 0 !important;
   position: relative;
@@ -128,5 +129,17 @@
 
   &__footer {
     padding: 2px 0 5px;
+  }
+
+  &_mobile {
+    #{$root} {
+      &__header-wrapper {
+        padding: 0 15px;
+      }
+
+      &__caption {
+        font-size: $font-size-standard;
+      }
+    }
   }
 }

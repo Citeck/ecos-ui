@@ -142,6 +142,7 @@
           }
         }
       }
+
       //
       //#{$search}-result:not(:last-of-type) {
       //  #{$search}-result__content {
@@ -157,11 +158,13 @@
             &-icon {
               color: $color-green-light2;
             }
+
             &-avatar {
               .ecos-avatar__icon {
                 color: $color-green-light2;
               }
             }
+
             &-title {
               color: $color-green-dark;
             }

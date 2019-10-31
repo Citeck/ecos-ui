@@ -1,7 +1,9 @@
 @import '../../../../styles/constants';
 
 .ecos-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   white-space: nowrap;
   font-weight: $font-weight-bold;
   font-size: $font-size-standard;
@@ -9,6 +11,7 @@
   padding: 2px 5px;
   line-height: unset;
   border-radius: $border-radius-biggest;
+  min-width: 20px;
 
   &_info {
     background-color: $color-gray-5;
@@ -16,5 +19,11 @@
 
   &_danger {
     background-color: $color-red-2;
+  }
+
+  &_small {
+    font-size: $font-size-small;
+    line-height: 1.4;
+    padding: 0 5px;
   }
 }
