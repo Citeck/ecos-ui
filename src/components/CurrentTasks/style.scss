@@ -59,6 +59,7 @@
         min-height: 17px;
         font-weight: $font-weight-semi-bold;
         width: 30%;
+        min-width: 30%;
         color: $text-color-gray;
         font-style: normal;
         font-size: $font-size-small;
@@ -95,6 +96,10 @@
           margin-top: 10px;
           margin-bottom: 10px;
           font-weight: bold;
+          max-width: 100%;
+        }
+
+        &_full {
           max-width: 100%;
         }
       }

@@ -25,7 +25,7 @@ export class PageTabsApi {
     return tabs;
   };
 
-  checkOldVersion(userName) {
+  checkOldVersion = userName => {
     if (userName === USER_GUEST || this.lsKey.includes(this._newVersionKeyPath)) {
       return;
     }
@@ -35,7 +35,7 @@ export class PageTabsApi {
 
     ls.transferData(currentVersion, newVersionKey, true);
     this.lsKey = newVersionKey;
-  }
+  };
 
   set = tabs => {
     const upTabs = deepClone(tabs);

@@ -11,7 +11,7 @@ const globalTaskPatterns = [/active-tasks/, /completed-tasks/, /controlled/, /su
 export const EditAction = {
   disabledFor: [/task-statistic/, /completed-tasks/],
 
-  execute: ({ record, context }) => {
+  execute: ({ record, action: { context } }) => {
     if (globalTasks.indexOf(context.scope) > -1) {
       const name = record.att('cm:name?disp') || '';
       window.open(`${URL_PAGECONTEXT}task-edit?taskId=${name}&formMode=edit`, '_blank');
@@ -28,6 +28,14 @@ export const EditAction = {
     });
   },
 
+  getDefaultModel: () => {
+    return {
+      name: 'grid.inline-tools.edit',
+      type: 'edit',
+      icon: 'icon-edit'
+    };
+  },
+
   canBeExecuted: ({ context }) => {
     const { scope = '' } = context;
     for (let pattern of EditAction.disabledFor) {
@@ -42,7 +50,7 @@ export const EditAction = {
 export const ViewAction = {
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
-  execute: ({ record, context }) => {
+  execute: ({ record, action: { context } }) => {
     if (globalTasks.indexOf(context.scope) > -1) {
       const name = record.att('cm:name?disp') || '';
       window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
@@ -53,8 +61,19 @@ export const ViewAction = {
     return false;
   },
 
+  getDefaultModel: () => {
+    return {
+      name: 'grid.inline-tools.show',
+      type: 'view',
+      icon: 'icon-on'
+    };
+  },
+
   canBeExecuted: ({ context }) => {
-    const { scope = '' } = context;
+    const { scope = '', mode = '' } = context;
+    if (mode === 'dashboard') {
+      return false;
+    }
     for (let pattern of ViewAction.disabledFor) {
       if (pattern.test(scope)) {
         return false;
@@ -65,12 +84,16 @@ export const ViewAction = {
 };
 
 export const DownloadAction = {
-  execute: ({ record }) => {
-    const url = getDownloadContentUrl(record.id);
+  execute: ({ record, action }) => {
+    const config = action.config || {};
+
+    const url = config.url || getDownloadContentUrl(record.id);
+    const name = config.filename || 'file';
+
     const a = document.createElement('A', { target: '_blank' });
 
     a.href = url;
-    a.download = url;
+    a.download = name;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -78,12 +101,20 @@ export const DownloadAction = {
     return false;
   },
 
+  getDefaultModel: () => {
+    return {
+      name: 'grid.inline-tools.download',
+      type: 'download',
+      icon: 'icon-download'
+    };
+  },
+
   canBeExecuted: ({ record }) => {
-    return !!record.att('.has(n:"cm:content")');
+    return record.att('.has(n:"cm:content")') !== false;
   }
 };
 
-export const RemoveAction = {
+export const DeleteAction = {
   disabledFor: [/^event-lines.*/, ...globalTaskPatterns],
 
   groupExec: ({ records }) => {
@@ -106,9 +137,18 @@ export const RemoveAction = {
     });
   },
 
+  getDefaultModel: () => {
+    return {
+      name: 'grid.inline-tools.delete',
+      type: 'delete',
+      icon: 'icon-delete',
+      theme: 'danger'
+    };
+  },
+
   canBeExecuted: ({ context }) => {
     const { scope = '' } = context;
-    for (let pattern of RemoveAction.disabledFor) {
+    for (let pattern of DeleteAction.disabledFor) {
       if (pattern.test(scope)) {
         return false;
       }
@@ -137,6 +177,14 @@ export const MoveToLinesJournal = {
     });
 
     return false;
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'grid.inline-tools.details',
+      type: 'move-to-lines',
+      icon: 'icon-big-arrow'
+    };
   },
 
   canBeExecuted: ({ context }) => {
