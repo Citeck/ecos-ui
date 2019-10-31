@@ -19,16 +19,16 @@ import { selectStateById } from '../../selectors/webPage';
 import './style.scss';
 
 const LABELS = {
-  EMPTY_DATA: 'Содержимого нет. Укажите в настройках адрес веб-страницы.',
-  SETTINGS_BTN: 'Настроить',
-  SETTINGS_LABEL_TITLE: 'Заголовок виджета',
-  SETTINGS_PLACEHOLDER_TITLE: 'Например название веб-ресурса',
-  SETTINGS_LABEL_URL: 'URL-адрес ресурса',
-  SETTINGS_PLACEHOLDER_URL: 'https://www.google.com',
-  SETTINGS_BTN_CANCEL: 'Отмена',
-  SETTINGS_BTN_SAVE: 'Готово',
-  ERROR: 'Ошибка!',
-  UPDATE_BTN: 'Обновить'
+  EMPTY_DATA: 'web-page-widget.empty',
+  SETTINGS_BTN: 'web-page-widget.btn.settings',
+  SETTINGS_LABEL_TITLE: 'web-page-widget.settings.title-label',
+  SETTINGS_PLACEHOLDER_TITLE: 'web-page-widget.settings.title-placeholder',
+  SETTINGS_LABEL_URL: 'web-page-widget.settings.url-label',
+  SETTINGS_PLACEHOLDER_URL: 'web-page-widget.settings.url-placeholder',
+  SETTINGS_BTN_CANCEL: 'web-page-widget.btn.cancel',
+  SETTINGS_BTN_SAVE: 'web-page-widget.btn.save',
+  ERROR: 'web-page-widget.error',
+  UPDATE_BTN: 'web-page-widget.btn.update'
 };
 
 class WebPage extends Component {
@@ -82,12 +82,14 @@ class WebPage extends Component {
   static getDerivedStateFromProps(props, state) {
     const newState = {};
 
-    if (!state.url && props.url) {
-      newState.url = props.url;
-    }
+    if (!state.settingsIsShow) {
+      if (!state.url && props.url) {
+        newState.url = props.url;
+      }
 
-    if (!state.title && props.title) {
-      newState.title = props.title;
+      if (!state.title && props.title) {
+        newState.title = props.title;
+      }
     }
 
     if (Object.keys(newState).length) {
@@ -131,6 +133,12 @@ class WebPage extends Component {
   };
 
   handleEdit = () => {
+    const { fetchIsLoading, pageIsLoading } = this.props;
+
+    if (fetchIsLoading || pageIsLoading) {
+      return;
+    }
+
     this.setState({ settingsIsShow: true });
   };
 
@@ -177,6 +185,10 @@ class WebPage extends Component {
     const { onSave, id, changePageData } = this.props;
     const { url, title } = this.state;
 
+    if (!url || !title) {
+      return;
+    }
+
     onSave(id, { config: { url, title } });
     changePageData({ url, title });
 
@@ -209,7 +221,7 @@ class WebPage extends Component {
         <div className="ecos-wpage__text">{t(LABELS.EMPTY_DATA)}</div>
 
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleEdit}>
-          <span className="ecos-vj__btn-add-title">{t(LABELS.SETTINGS_BTN)}</span>
+          {t(LABELS.SETTINGS_BTN)}
         </Btn>
       </div>
     );
@@ -288,10 +300,10 @@ class WebPage extends Component {
   }
 
   renderError() {
-    const { error, fetchIsLoading, pageIsLoading } = this.props;
+    const { error, fetchIsLoading, pageIsLoading, url } = this.props;
     const { hasFrameContent, settingsIsShow } = this.state;
 
-    if ((!error && hasFrameContent) || settingsIsShow || fetchIsLoading || pageIsLoading) {
+    if ((!error && hasFrameContent) || settingsIsShow || fetchIsLoading || pageIsLoading || (!error && !url)) {
       return null;
     }
 
@@ -304,7 +316,7 @@ class WebPage extends Component {
         </div>
 
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleReload}>
-          <span className="ecos-vj__btn-add-title">{t(LABELS.UPDATE_BTN)}</span>
+          {t(LABELS.UPDATE_BTN)}
         </Btn>
       </div>
     );
