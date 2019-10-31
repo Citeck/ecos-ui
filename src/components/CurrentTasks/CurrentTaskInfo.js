@@ -28,6 +28,8 @@ class CurrentTaskInfo extends React.Component {
     const { task, isMobile } = this.props;
     const { isOpen } = this.state;
 
+    console.warn(task.usersGroup);
+
     return (
       <div className="ecos-current-task-info">
         <Headline>{task[DC.title.key]}</Headline>
@@ -37,30 +39,34 @@ class CurrentTaskInfo extends React.Component {
 
             <div
               className={classNames('ecos-current-task-info-value', {
-                'ecos-current-task-info-value_mobile': isMobile
+                'ecos-current-task-info-value_mobile': isMobile,
+                'ecos-current-task-info-value_full': !task.usersGroup.length
               })}
             >
               <span
                 className={classNames('ecos-current-task-info-value', {
-                  'ecos-current-task-info-value_mobile-val': isMobile
+                  'ecos-current-task-info-value_mobile-val': isMobile,
+                  'ecos-current-task-info-value_full': !task.usersGroup.length
                 })}
               >
                 {task[DC.actors.key] || noData}
               </span>
 
-              <IconInfo
-                iconClass={'icon-usergroup'}
-                id={uniqueId(cleanTaskId(task.id))}
-                isShow={task.isGroup}
-                noTooltip={isMobile}
-                handleClick={res => this.setState({ isOpen: res })}
-              >
-                {task.usersGroup.map((user, position) => (
-                  <div key={position} className="ecos-current-task__tooltip-list-item">
-                    {user}
-                  </div>
-                ))}
-              </IconInfo>
+              {task.usersGroup && (
+                <IconInfo
+                  iconClass={'icon-usergroup'}
+                  id={uniqueId(cleanTaskId(task.id))}
+                  isShow={task.isGroup}
+                  noTooltip={isMobile}
+                  handleClick={res => this.setState({ isOpen: res })}
+                >
+                  {task.usersGroup.map((user, position) => (
+                    <div key={position} className="ecos-current-task__tooltip-list-item">
+                      {user}
+                    </div>
+                  ))}
+                </IconInfo>
+              )}
             </div>
           </div>
 
