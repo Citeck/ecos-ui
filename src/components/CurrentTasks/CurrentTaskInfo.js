@@ -28,8 +28,6 @@ class CurrentTaskInfo extends React.Component {
     const { task, isMobile } = this.props;
     const { isOpen } = this.state;
 
-    console.warn(task.usersGroup);
-
     return (
       <div className="ecos-current-task-info">
         <Headline>{task[DC.title.key]}</Headline>
