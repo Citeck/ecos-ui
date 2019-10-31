@@ -1,9 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import { connect } from 'react-redux';
+import { Tooltip } from 'reactstrap';
+
 import SS from '../../services/sidebar';
 import { Icon } from '../common';
 import List from './List';
@@ -12,6 +14,7 @@ import { ItemBtn, ItemIcon, ItemLink } from './itemComponents';
 
 class Item extends React.Component {
   static propTypes = {
+    id: PropTypes.string.isRequired,
     data: PropTypes.array,
     level: PropTypes.number,
     isDefExpanded: PropTypes.bool,
@@ -60,11 +63,20 @@ class Item extends React.Component {
     };
   }
 
-  get noMove() {
+  get hasSubItems() {
     const { items } = this.parseData();
-    const noItems = isEmpty(items);
 
-    return !noItems;
+    return !isEmpty(items);
+  }
+
+  get noMove() {
+    return this.hasSubItems;
+  }
+
+  get isDropList() {
+    const { isOpen, level } = this.props;
+
+    return !isOpen && SS.DROP_MENU_BEGIN_FROM === level + 1;
   }
 
   getMover() {
@@ -75,6 +87,40 @@ class Item extends React.Component {
     }
 
     return SS.ActionTypes.CREATE_SITE === actionType ? ItemBtn : ItemLink;
+  }
+
+  getItemContainer() {
+    const { level, id } = this.props;
+    const { isExpanded } = this.state;
+    const { items } = this.parseData();
+
+    return ({ children }) => (
+      <div
+        id={id}
+        className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
+          'ecos-sidebar-item_no-action': this.noMove,
+          'ecos-sidebar-item_no-items': !this.hasSubItems,
+          'ecos-sidebar-item_expanded': isExpanded && this.hasSubItems
+        })}
+        onClick={this.toggleList}
+      >
+        {children}
+        {this.isDropList && (
+          <Tooltip
+            placement="right"
+            boundariesElement="window"
+            target={id}
+            trigger="click"
+            isOpen={isExpanded}
+            className="ecos-sidebar-list-tooltip"
+            innerClassName="ecos-sidebar-list-tooltip-inner"
+            arrowClassName="ecos-sidebar-list-tooltip-arrow"
+          >
+            <List isExpanded data={items} level={level + 1} />
+          </Tooltip>
+        )}
+      </div>
+    );
   }
 
   toggleList = e => {
@@ -89,51 +135,69 @@ class Item extends React.Component {
     }
   };
 
-  render() {
-    const { isOpen, isSiteDashboardEnable, data, level } = this.props;
+  renderLabel() {
+    const { isOpen, isSiteDashboardEnable, data } = this.props;
+    const { styleProps = {} } = this.state;
+    const { noIcon } = styleProps;
+    const extraParams = { isSiteDashboardEnable };
+
+    const Mover = this.getMover();
+
+    return (
+      <Mover data={data} extraParams={extraParams}>
+        {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : data.label} />}
+        <div className="ecos-sidebar-item__label">{data.label}</div>
+      </Mover>
+    );
+  }
+
+  renderBadge() {
+    const { isOpen, data } = this.props;
+    const { styleProps = {} } = this.state;
+    const { noBadge, isRemoteBadge } = styleProps;
+
+    return !noBadge && isRemoteBadge ? <RemoteBadge data={data} isOpen={isOpen} /> : null;
+  }
+
+  renderToggle() {
+    const { isOpen } = this.props;
     const { isExpanded, styleProps = {} } = this.state;
-    const { noIcon, noBadge, noToggle, isRemoteBadge, collapsed } = styleProps;
+    const { noToggle } = styleProps;
+
+    return this.hasSubItems && !noToggle ? (
+      <Icon
+        className={classNames('ecos-sidebar-item__toggle', {
+          'ecos-sidebar-item__toggle_v': isOpen,
+          'ecos-sidebar-item__toggle_h icon-right': !isOpen,
+          'icon-down': !isExpanded && isOpen,
+          'icon-up': isExpanded && isOpen
+        })}
+      />
+    ) : null;
+  }
+
+  render() {
+    const { isOpen, data, level, id } = this.props;
+    const { isExpanded, styleProps = {} } = this.state;
+    const { collapsed } = styleProps;
+    const { items } = this.parseData();
 
     if (isEmpty(data)) {
       return null;
     }
 
-    const extraParams = { isSiteDashboardEnable };
-    const { items } = this.parseData();
-    const noItems = isEmpty(items);
-    const Mover = this.getMover();
+    const ItemContainer = this.getItemContainer();
 
     return (
       <>
         {(isOpen || (!isOpen && !collapsed.noName)) && (
-          <div
-            className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
-              'ecos-sidebar-item_no-action': this.noMove,
-              'ecos-sidebar-item_no-items': noItems,
-              'ecos-sidebar-item_expanded': isExpanded && !noItems
-            })}
-            onClick={this.toggleList}
-          >
-            <Mover data={data} extraParams={extraParams}>
-              {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : data.label} />}
-              <div className="ecos-sidebar-item__label">{data.label}</div>
-            </Mover>
-
-            {!noBadge && isRemoteBadge && <RemoteBadge data={data} isOpen={isOpen} />}
-
-            {!noItems && !noToggle && (
-              <Icon
-                className={classNames('ecos-sidebar-item__toggle', {
-                  'ecos-sidebar-item__toggle_v': isOpen,
-                  'ecos-sidebar-item__toggle_h icon-right': !isOpen && false,
-                  'icon-down': !isExpanded && isOpen,
-                  'icon-up': isExpanded && isOpen
-                })}
-              />
-            )}
-          </div>
+          <ItemContainer>
+            {this.renderLabel()}
+            {this.renderBadge()}
+            {this.renderToggle()}
+          </ItemContainer>
         )}
-        {!noItems && <List isExpanded={isExpanded} data={items} level={level + 1} />}
+        {!this.isDropList && <List isExpanded={isExpanded} data={items} level={level + 1} />}
       </>
     );
   }

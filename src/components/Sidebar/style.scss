@@ -91,10 +91,6 @@
       display: block;
       color: $color-gray-5;
       font-size: $font-size-standard;
-
-      &_h {
-        margin-left: 5px;
-      }
     }
 
     &__link {
@@ -147,10 +143,6 @@
     min-height: 0;
     transition: height 0.4s;
 
-    &_collapsed {
-      display: none;
-    }
-
     &_lvl-0 {
       #{$menu-item}_lvl-0 {
         padding: 0 15px 0 26px;
@@ -190,9 +182,9 @@
       #{$menu-item}_lvl-2 {
         padding: 9px 35px;
 
-        &:not(:last-child)::after {
+        &:not(:first-child)::before {
           @extend %menu-item-separator;
-          bottom: 0;
+          top: 0;
         }
 
         &#{$menu-item}_no-action {
@@ -231,6 +223,63 @@
         }
       }
     }
+
+    &-tooltip {
+      & .tooltip.show {
+        opacity: 1;
+      }
+
+      & &-inner {
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
+        border-radius: $border-radius-extra-large;
+        background-color: $color-white;
+        text-align: left;
+        padding: 0;
+      }
+
+      & &-arrow {
+        &:before {
+          display: none;
+        }
+      }
+
+      #{$menu-list}_lvl-2 {
+        #{$menu-item}_lvl-2 {
+          padding: 0 18px;
+
+          &:first-child:hover {
+            border-top-left-radius: $border-radius-extra-large;
+            border-top-right-radius: $border-radius-extra-large;
+          }
+
+          &:last-child:hover {
+            border-bottom-left-radius: $border-radius-extra-large;
+            border-bottom-right-radius: $border-radius-extra-large;
+          }
+
+          &:not(:first-child)::before {
+            width: 80%;
+            left: 10%;
+          }
+        }
+      }
+
+      #{$menu-list}_lvl-3 {
+        padding: 0 9px;
+
+        &:last-child {
+          padding-bottom: 9px;
+        }
+
+        #{$menu-item}_lvl-3 {
+          padding: 0 9px;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
   }
 
   &_collapsed {
@@ -240,6 +289,12 @@
         padding: 0 15px;
         width: initial;
         border-radius: $border-radius-large;
+
+        &:hover {
+          #{$menu-item}__point {
+            border: 4px solid $color-gray-16;
+          }
+        }
       }
     }
   }
