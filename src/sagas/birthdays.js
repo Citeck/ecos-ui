@@ -1,11 +1,13 @@
 import { put, takeEvery, call } from 'redux-saga/effects';
-import { getBirthdays } from '../actions/birthdays';
+import { getBirthdays, setBirthdays } from '../actions/birthdays';
+import { getBirthdayDateForWeb } from '../dto/birthday';
 
 function* sagaGetBirthdays({ api, logger }, action) {
   try {
-    const result = api.birthdays.getBirthdays();
+    const result = yield api.birthdays.getBirthdays();
+    const data = result.records.map(getBirthdayDateForWeb);
 
-    console.warn(result);
+    yield put(setBirthdays({ stateId: action.payload, data }));
   } catch (e) {
     logger.error('[birthdays sagaGetBirthdays saga error', e.message);
   }

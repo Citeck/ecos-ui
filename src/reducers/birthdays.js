@@ -28,8 +28,8 @@ export default handleActions(
     },
     [getBirthdays]: (state, { payload }) => ({
       ...state,
-      [payload.stateId]: {
-        ...state[payload.stateId],
+      [payload]: {
+        ...state[payload],
         isLoading: true
       }
     }),

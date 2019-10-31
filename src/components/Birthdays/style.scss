@@ -5,16 +5,25 @@
     padding: 15px 20px;
 
     &-item {
+      display: flex;
       border-bottom: 1px $color-gray-4 solid;
+      padding-bottom: 10px;
 
       &-photo {
         width: 49px;
         height: 49px;
         border-radius: 50%;
+        margin-right: 10px;
+
+        img {
+          border: none;
+        }
       }
 
       &-info {
         display: flex;
+        flex-direction: column;
+        align-self: center;
       }
 
       &-date {
