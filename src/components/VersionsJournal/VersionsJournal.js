@@ -432,7 +432,7 @@ class VersionsJournal extends Component {
 
     if (addModalIsShow) {
       const { versions, addModalIsLoading, addModalErrorMessage } = this.props;
-      const currentVersion = versions.length ? versions[0].version : 1;
+      const currentVersion = get(versions, '[0].version', 1);
 
       return (
         <AddModal
