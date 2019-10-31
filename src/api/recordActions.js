@@ -6,7 +6,7 @@ export class RecordActionsApi extends CommonApi {
     return RecordActions.getActions(records, context);
   };
 
-  executeAction = ({ records, action, context }) => {
-    return RecordActions.execAction(records, action, context);
+  executeAction = ({ records, action }) => {
+    return RecordActions.execAction(records, action);
   };
 }

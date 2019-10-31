@@ -23,7 +23,7 @@ class InlineTools extends Component {
     return (
       <IcoBtn
         key={idx}
-        title={action.title}
+        title={action.name}
         icon={action.icon}
         onClick={action.onClick}
         className={classNames(inlineToolsActionClassName, themeClass)}
