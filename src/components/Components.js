@@ -19,7 +19,8 @@ export const ComponentKeys = {
   EVENTS_HISTORY: 'events-history',
   VERSIONS_JOURNAL: 'versions-journal',
   DOC_ASSOCIATIONS: 'doc-associations',
-  RECORD_ACTIONS: 'record-actions'
+  RECORD_ACTIONS: 'record-actions',
+  BIRTHDAYS: 'birthdays'
 };
 
 /**
@@ -89,6 +90,11 @@ export default class Components {
       path: './Actions',
       label: 'dashboard-settings.widget.actions',
       supportedDashboardTypes: []
+    },
+    [ComponentKeys.BIRTHDAYS]: {
+      path: './Birthdays',
+      label: 'dashboard-settings.widget.birthdays',
+      supportedDashboardTypes: [DashboardTypes.USER]
     }
   });
 

@@ -12,7 +12,8 @@ export const SourcesId = {
   STATUS: 'status',
   COMMENT: 'comment',
   VERSION: 'version',
-  PEOPLE: 'people'
+  PEOPLE: 'people',
+  BIRTHDAYS: 'birthdays'
 };
 
 export const ActionModes = {
