@@ -1,4 +1,37 @@
 @import '../../styles/constants';
 
 .ecos-hb2u {
+  &__list {
+    padding: 15px 20px;
+
+    &-item {
+      border-bottom: 1px $color-gray-4 solid;
+
+      &-photo {
+        width: 49px;
+        height: 49px;
+        border-radius: 50%;
+      }
+
+      &-info {
+        display: flex;
+      }
+
+      &-date {
+        font-style: normal;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 22px;
+        color: $text-color-dark;
+      }
+
+      &-name {
+        font-style: normal;
+        font-weight: bold;
+        font-size: 12px;
+        line-height: 16px;
+        color: $color-gray-5;
+      }
+    }
+  }
 }

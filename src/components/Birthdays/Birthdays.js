@@ -29,6 +29,8 @@ class Birthdays extends Component {
     props.init();
   }
 
+  componentDidMount() {}
+
   setFitHeights = fitHeights => {
     this.setState({ fitHeights });
   };
