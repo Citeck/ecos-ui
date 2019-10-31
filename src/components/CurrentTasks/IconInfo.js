@@ -75,8 +75,7 @@ export default class IconInfo extends React.Component {
           <Icon
             id={domId}
             className={classNames('ecos-current-task__icon', iconClass, {
-              'ecos-current-task__icon_open': isOpen,
-              'ecos-current-task__icon_big': noTooltip
+              'ecos-current-task__icon_open': isOpen
             })}
             onClick={this.setTooltipOpen}
           />
