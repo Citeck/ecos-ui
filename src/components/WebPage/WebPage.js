@@ -263,7 +263,7 @@ class WebPage extends Component {
 
         <div className="ecos-wpage__settings-btn-wrapper">
           <Btn
-            className={classNames('ecos-btn_grey5 ecos-btn_hover_grey1 ecos-wpage__settings-btn', {
+            className={classNames('ecos-wpage__settings-btn', {
               'ecos-wpage__settings-btn_big': this.isSmallSize
             })}
             onClick={this.handleCancelEdit}
