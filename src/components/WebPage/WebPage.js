@@ -28,7 +28,8 @@ const LABELS = {
   SETTINGS_BTN_CANCEL: 'web-page-widget.btn.cancel',
   SETTINGS_BTN_SAVE: 'web-page-widget.btn.save',
   ERROR: 'web-page-widget.error',
-  UPDATE_BTN: 'web-page-widget.btn.update'
+  UPDATE_BTN: 'web-page-widget.btn.update',
+  SERVER_NOT_FOUND: 'web-page-widget.error-server-not-found'
 };
 
 class WebPage extends Component {
@@ -312,7 +313,7 @@ class WebPage extends Component {
         <div className="ecos-wpage__text">
           {t(LABELS.ERROR)}
           <br />
-          {t('Сервер не найден.')}
+          {t(LABELS.SERVER_NOT_FOUND)}
         </div>
 
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleReload}>
