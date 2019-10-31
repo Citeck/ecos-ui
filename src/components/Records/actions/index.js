@@ -1,7 +1,7 @@
 import Registry from './RecordActionExecutorsRegistry';
 import { EditAction, ViewAction, DownloadAction, DeleteAction, MoveToLinesJournal } from './DefaultActions';
 
-import { CaseRequestAction } from './CaseActions';
+import { CaseRequestAction, CaseCreateNodeAction } from './CaseActions';
 
 export { default } from './RecordActions';
 
@@ -14,5 +14,6 @@ Registry.addExecutors({
 
   //legacy case actions
 
-  REQUEST: CaseRequestAction
+  REQUEST: CaseRequestAction,
+  CREATE_NODE: CaseCreateNodeAction
 });

@@ -1,11 +1,39 @@
 import { PROXY_URI } from '../../../constants/alfresco';
 import dialogManager from '../../common/dialogs/Manager';
+import EcosFormUtils from '../../EcosForm/EcosFormUtils';
+
+export const CaseCreateNodeAction = {
+  execute: ({ action }) => {
+    return new Promise(resolve => {
+      let config = action.config;
+      let recordRef = 'dict@' + config.nodeType;
+
+      try {
+        EcosFormUtils.eform(recordRef, {
+          params: {
+            onSubmit: () => resolve(true),
+            onFormCancel: () => resolve(false),
+            attributes: {
+              _parent: config.destination,
+              _parentAtt: config.destinationAssoc
+            }
+          },
+          class: 'ecos-modal_width-lg',
+          isBigHeader: true
+        });
+      } catch (e) {
+        console.error(e);
+        resolve(false);
+      }
+    });
+  }
+};
 
 export const CaseRequestAction = {
   execute: ({ action }) => {
-    let onConfirmResult = () => {};
+    let onRequestResult = () => {};
 
-    const promise = new Promise(resolve => [(onConfirmResult = success => resolve(success))]);
+    const promise = new Promise(resolve => [(onRequestResult = success => resolve(success))]);
 
     var makeRequest = () => {
       fetch(PROXY_URI + action.config.url, {
@@ -28,7 +56,7 @@ export const CaseRequestAction = {
           dialogManager.showInfoDialog({
             title: 'action.result.success',
             text: 'action.result.success',
-            onClose: () => onConfirmResult(true)
+            onClose: () => onRequestResult(true)
           });
         })
         .catch(e => {
@@ -36,7 +64,7 @@ export const CaseRequestAction = {
           dialogManager.showInfoDialog({
             title: 'action.result.error',
             text: 'action.result.error',
-            onClose: () => onConfirmResult(false)
+            onClose: () => onRequestResult(false)
           });
         });
     };
@@ -45,7 +73,7 @@ export const CaseRequestAction = {
       dialogManager.confirmDialog({
         title: action.config.confirmationMessage,
         text: action.config.confirmationMessage,
-        onNo: () => onConfirmResult(false),
+        onNo: () => onRequestResult(false),
         onYes: makeRequest
       });
     } else {
