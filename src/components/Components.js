@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import uuidV4 from 'uuid/v4';
-import { deepClone, t } from '../helpers/util';
+import { deepClone } from '../helpers/util';
 import { DashboardTypes } from '../constants/dashboard';
 
 export const ComponentKeys = {
@@ -119,8 +119,7 @@ export default class Components {
 
     const arrComponents = [...components].map(([name, label]) => ({
       name,
-      label,
-      localizedLabel: t(label)
+      label
     }));
 
     components.clear();

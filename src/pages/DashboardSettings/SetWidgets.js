@@ -42,7 +42,7 @@ class SetWidgets extends React.Component {
   };
 
   getWidgetLabel(widget) {
-    return t(get(Components.components, [widget.name, 'label'], get(widget, 'label', ''))) || get(widget, 'localizedLabel', '');
+    return t(get(Components.components, [widget.name, 'label'], get(widget, 'label', '')));
   }
 
   handleDragUpdate = provided => {
