@@ -58,3 +58,8 @@ export const DataFormatTypes = {
 export const USER_CURRENT = '$CURRENT';
 export const USER_ADMIN = 'admin';
 export const USER_GUEST = 'guest';
+
+export const LoaderTypes = {
+  CIRCLE: 'circle',
+  POINTS: 'points'
+};

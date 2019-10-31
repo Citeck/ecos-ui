@@ -93,8 +93,9 @@ class CurrentTasks extends React.Component {
     this.setState({ contentHeight });
   };
 
-  render() {
-    const { currentTasks, isLoading, isMobile, isSmallMode, className, height, minHeight, maxHeight } = this.props;
+  renderCurrentTaskList = () => {
+    const { currentTasks, isLoading, isMobile, isSmallMode, className } = this.props;
+
     const childProps = {
       currentTasks,
       className,
@@ -102,7 +103,18 @@ class CurrentTasks extends React.Component {
       isMobile,
       isSmallMode
     };
+
+    return <CurrentTaskList {...childProps} />;
+  };
+
+  render() {
+    const { currentTasks, isLoading, isMobile, height, minHeight, maxHeight } = this.props;
+
     const { contentHeight } = this.state;
+
+    if (isMobile) {
+      return this.renderCurrentTaskList();
+    }
 
     return (
       <Scrollbars
@@ -117,7 +129,7 @@ class CurrentTasks extends React.Component {
           isMin={isLoading || isEmpty(currentTasks)}
           getOptimalHeight={this.setHeight}
         >
-          <CurrentTaskList {...childProps} />
+          {this.renderCurrentTaskList()}
         </DefineHeight>
       </Scrollbars>
     );
