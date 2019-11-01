@@ -113,6 +113,12 @@
 
     &__badge {
       font-size: $font-size-extra-small;
+      opacity: 1;
+      transition: opacity 0.4s;
+
+      &_hide {
+        opacity: 0;
+      }
     }
 
     &__point {
@@ -123,8 +129,14 @@
       border: 4px solid $color-white;
       border-radius: 50%;
       position: absolute;
-      right: 5px;
+      left: 30px;
       top: 0;
+      opacity: 1;
+      transition: opacity 0.4s;
+
+      &_hide {
+        opacity: 0;
+      }
     }
   }
 
@@ -292,8 +304,8 @@
   &_collapsed {
     #{$menu-list}_lvl-1 {
       #{$menu-item}_lvl-1 {
-        margin: 0 11px 1px;
-        padding: 0;
+        margin: 0 11px;
+        padding: 0 15px;
         width: initial;
         border-radius: $border-radius-large;
 
@@ -301,14 +313,6 @@
           #{$menu-item}__point {
             border: 4px solid $color-gray-25;
           }
-        }
-
-        #{$menu-item}__link {
-          justify-content: center;
-        }
-
-        #{$menu-item}__label {
-          display: none;
         }
       }
     }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import classNames from 'classnames';
 import get from 'lodash/get';
-import isNumber from 'lodash/isNumber';
 import { MenuApi } from '../../api';
 import { Badge } from '../common/form';
 
@@ -15,20 +15,21 @@ function RemoteBadge({ data, isOpen }) {
   useEffect(() => {
     if (journalId) {
       menuApi.getJournalTotalCount(journalId).then(count => {
-        setJournalTotalCount(count);
+        setJournalTotalCount(count ? count.toString() : '');
       });
     }
   }, [journalId]);
 
-  if (isNumber(journalTotalCount) && journalTotalCount > 0) {
-    return isOpen ? (
-      <Badge text={journalTotalCount.toString()} className="ecos-sidebar-item__badge" state="danger" />
-    ) : (
-      <div className="ecos-sidebar-item__point" />
-    );
-  } else {
-    return <></>;
-  }
+  return (
+    <>
+      <Badge
+        text={journalTotalCount}
+        className={classNames('ecos-sidebar-item__badge', { 'ecos-sidebar-item__badge_hide': !isOpen })}
+        state="danger"
+      />
+      <div className={classNames('ecos-sidebar-item__point', { 'ecos-sidebar-item__point_hide': isOpen || !journalTotalCount })} />
+    </>
+  );
 }
 
 export default RemoteBadge;
