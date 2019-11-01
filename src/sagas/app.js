@@ -8,12 +8,14 @@ import { detectMobileDevice } from '../actions/view';
 export function* initApp({ api, fakeApi, logger }, { payload }) {
   try {
     // --- Validate user ---
+    let isAuthenticated = false;
     const checkAuthResp = yield call(api.user.checkIsAuthenticated);
     if (checkAuthResp.success) {
       const resp = yield call(api.user.getUserData);
       if (!resp.success) {
         yield put(validateUserFailure());
       } else {
+        isAuthenticated = true;
         yield put(validateUserSuccess(resp.payload));
 
         // TODO remove in future: see src/helpers/util.js getCurrentUserName()
@@ -29,7 +31,7 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
     yield put(initAppSuccess());
 
     if (payload && payload.onSuccess) {
-      typeof payload.onSuccess === 'function' && payload.onSuccess();
+      typeof payload.onSuccess === 'function' && payload.onSuccess(isAuthenticated);
     }
   } catch (e) {
     logger.error('[initApp saga] error', e.message);
