@@ -1,20 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
+import moment from 'moment';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import moment from 'moment';
 import { ContentState, convertFromRaw, convertToRaw, Editor, EditorState, RichUtils } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
-import classNames from 'classnames';
 
-import Dashlet from '../Dashlet/Dashlet';
-import { Btn, IcoBtn } from '../common/btns';
-import { Avatar, DefineHeight, Loader } from '../common';
 import { num2str, t } from '../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { selectStateByNodeRef } from '../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../actions/comments';
+
+import { Avatar, DefineHeight, Loader } from '../common';
+import { Btn, IcoBtn } from '../common/btns';
+import Dashlet from '../Dashlet/Dashlet';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
@@ -620,7 +621,7 @@ class Comments extends React.Component {
   };
 
   renderComments() {
-    const { comments } = this.props;
+    const { comments, isMobile } = this.props;
 
     if (!comments.length) {
       return null;
@@ -631,6 +632,16 @@ class Comments extends React.Component {
     const headerHeight = _commentsHeader.offsetHeight || 0;
     const fixHeight = userHeight ? userHeight - headerHeight : null;
 
+    const renderCommentList = () => (
+      <div className="ecos-comments__list" ref={this._list}>
+        {comments.map(this.renderComment)}
+      </div>
+    );
+
+    if (isMobile) {
+      return renderCommentList();
+    }
+
     return (
       <Scrollbars autoHide ref={this._scroll} style={{ height: contentHeight || '100%' }}>
         <DefineHeight
@@ -639,9 +650,7 @@ class Comments extends React.Component {
           minHeight={1}
           getOptimalHeight={this.setContentHeight}
         >
-          <div className="ecos-comments__list" ref={this._list}>
-            {comments.map(this.renderComment)}
-          </div>
+          {renderCommentList()}
         </DefineHeight>
       </Scrollbars>
     );
@@ -687,7 +696,10 @@ class Comments extends React.Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({ ...selectStateByNodeRef(state, ownProps.record) });
+const mapStateToProps = (state, ownProps) => ({
+  ...selectStateByNodeRef(state, ownProps.record),
+  isMobile: state.view.isMobile
+});
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getComments: () => dispatch(getComments(ownProps.record)),

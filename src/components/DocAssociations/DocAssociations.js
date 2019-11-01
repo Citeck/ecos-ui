@@ -1,20 +1,21 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'reactstrap';
-import classNames from 'classnames';
 
-import Dashlet from '../Dashlet/Dashlet';
+import { getAdaptiveNumberStr, removeItemFromArray, t } from '../../helpers/util';
+import { MIN_WIDTH_DASHLET_SMALL, URL } from '../../constants';
+import { getDocuments, getMenu, getSectionList, initStore, saveDocuments } from '../../actions/docAssociations';
+import { selectStateByKey } from '../../selectors/docAssociations';
+import UserLocalSettingsService from '../../services/userLocalSettings';
+import { getDocumentsRecords } from '../../dto/docAssociations';
+
+import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../common';
 import { RemoveDialog } from '../common/dialogs';
 import SelectJournal from '../common/form/SelectJournal';
-import UserLocalSettingsService from '../../services/userLocalSettings';
-import { MIN_WIDTH_DASHLET_SMALL, URL } from '../../constants';
-import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../common';
-import { getSectionList, initStore, getDocuments, getMenu, saveDocuments } from '../../actions/docAssociations';
-import { selectStateByKey } from '../../selectors/docAssociations';
-import { getAdaptiveNumberStr, removeItemFromArray, t } from '../../helpers/util';
-import { getDocumentsRecords } from '../../dto/docAssociations';
+import Dashlet from '../Dashlet/Dashlet';
 
 import './style.scss';
 
@@ -327,7 +328,7 @@ class DocAssociations extends Component {
   }
 
   render() {
-    const { canDragging, dragHandleProps, isCollapsed, documentsTotalCount, isLoading } = this.props;
+    const { canDragging, dragHandleProps, isCollapsed, documentsTotalCount, isLoading, isMobile } = this.props;
     const { userHeight = 0, fitHeights, contentHeight } = this.state;
     const fixHeight = userHeight || null;
 
@@ -353,12 +354,15 @@ class DocAssociations extends Component {
         badgeText={getAdaptiveNumberStr(documentsTotalCount)}
         noBody={!documentsTotalCount && !isLoading}
       >
-        <Scrollbars autoHide style={{ height: contentHeight || '100%' }}>
-          <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
-            {this.renderDocuments()}
-          </DefineHeight>
-        </Scrollbars>
-
+        {isMobile ? (
+          this.renderDocuments()
+        ) : (
+          <Scrollbars autoHide style={{ height: contentHeight || '100%' }}>
+            <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
+              {this.renderDocuments()}
+            </DefineHeight>
+          </Scrollbars>
+        )}
         {this.renderLoader()}
         {this.renderSelectJournalModal()}
         {this.renderConfirmRemoveDialog()}
@@ -367,13 +371,23 @@ class DocAssociations extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({ ...selectStateByKey(state, ownProps.record) });
+const mapStateToProps = (state, ownProps) => ({
+  ...selectStateByKey(state, ownProps.record),
+  isMobile: state.view.isMobile
+});
 const mapDispatchToProps = (dispatch, ownProps) => ({
   initStore: () => dispatch(initStore(ownProps.record)),
   getSectionList: () => dispatch(getSectionList(ownProps.record)),
   getDocuments: () => dispatch(getDocuments(ownProps.record)),
   getMenu: () => dispatch(getMenu(ownProps.record)),
-  saveDocuments: (connectionId, documents) => dispatch(saveDocuments({ record: ownProps.record, connectionId, documents }))
+  saveDocuments: (connectionId, documents) =>
+    dispatch(
+      saveDocuments({
+        record: ownProps.record,
+        connectionId,
+        documents
+      })
+    )
 });
 
 export default connect(

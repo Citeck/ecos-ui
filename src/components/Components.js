@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import uuidV4 from 'uuid/v4';
-import { deepClone, t } from '../helpers/util';
+import { deepClone } from '../helpers/util';
 import { DashboardTypes } from '../constants/dashboard';
 
 export const ComponentKeys = {
@@ -20,6 +20,7 @@ export const ComponentKeys = {
   VERSIONS_JOURNAL: 'versions-journal',
   DOC_ASSOCIATIONS: 'doc-associations',
   RECORD_ACTIONS: 'record-actions',
+  WEB_PAGE: 'web-page',
   BIRTHDAYS: 'birthdays'
 };
 
@@ -91,6 +92,11 @@ export default class Components {
       label: 'dashboard-settings.widget.actions',
       supportedDashboardTypes: []
     },
+    [ComponentKeys.WEB_PAGE]: {
+      path: './WebPage',
+      label: 'dashboard-settings.widget.web-page',
+      supportedDashboardTypes: []
+    },
     [ComponentKeys.BIRTHDAYS]: {
       path: './Birthdays',
       label: 'dashboard-settings.widget.birthdays',
@@ -98,7 +104,7 @@ export default class Components {
     }
   });
 
-  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.RECORD_ACTIONS];
+  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.RECORD_ACTIONS, ComponentKeys.WEB_PAGE];
 
   static get(component) {
     const link = get(Components.components, [component, 'path']);
@@ -114,16 +120,19 @@ export default class Components {
     const components = new Map();
 
     Components.getWidgetsForAllDasboards().forEach(component => {
-      components.set(component.name, t(component.label));
+      components.set(component.name, component.label);
     });
 
     Object.entries(Components.components).forEach(([name, component]) => {
       if (component.supportedDashboardTypes.includes(dashboardType)) {
-        components.set(name, t(component.label));
+        components.set(name, component.label);
       }
     });
 
-    const arrComponents = [...components].map(([name, label]) => ({ name, label }));
+    const arrComponents = [...components].map(([name, label]) => ({
+      name,
+      label
+    }));
 
     components.clear();
 

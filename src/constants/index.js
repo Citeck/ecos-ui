@@ -60,4 +60,9 @@ export const USER_CURRENT = '$CURRENT';
 export const USER_ADMIN = 'admin';
 export const USER_GUEST = 'guest';
 
+export const LoaderTypes = {
+  CIRCLE: 'circle',
+  POINTS: 'points'
+};
+
 export const IMAGE_URL_PATH = '/share/proxy/alfresco/citeck/ecos/image/thumbnail';
