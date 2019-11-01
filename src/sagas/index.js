@@ -17,6 +17,7 @@ import versionsJournal from './versionsJournal';
 import recordActions from './recordActions';
 import docAssociations from './docAssociations';
 import view from './view';
+import webPage from './webPage';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -37,6 +38,7 @@ export default function* rootSaga(extraArguments) {
     versionsJournal(extraArguments),
     recordActions(extraArguments),
     docAssociations(extraArguments),
-    view(extraArguments)
+    view(extraArguments),
+    webPage(extraArguments)
   ]);
 }
