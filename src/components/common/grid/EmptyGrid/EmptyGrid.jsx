@@ -27,7 +27,7 @@ export default class EmptyGrid extends Component {
   getChild = height => {
     return React.Children.map(this.props.children, child => {
       return React.cloneElement(child, {
-        minHeight: height
+        // minHeight: height
       });
     });
   };
@@ -37,7 +37,10 @@ export default class EmptyGrid extends Component {
     const { height } = this.state;
 
     return maxItems ? (
-      <div ref={this._ref} style={{ height: height || 'auto' }}>
+      <div
+        ref={this._ref}
+        // style={{ height: height || 'auto' }}
+      >
         {height ? (
           this.getChild(height)
         ) : (

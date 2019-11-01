@@ -521,9 +521,12 @@ class Grid extends Component {
       scrollable ? (
         <Scrollbars
           ref={refCallback}
+          autoHeight
+          autoHeightMin={40}
+          autoHeightMax={props.minHeight || 502}
           onScrollStart={this.onScrollStart}
           onScrollFrame={this.onScrollFrame}
-          style={style}
+          // style={style}
           hideTracksWhenNotNeeded={true}
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
           renderTrackHorizontal={props => <div {...props} className="ecos-grid__h-scroll" />}
