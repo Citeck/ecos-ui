@@ -62,7 +62,7 @@ export default handleActions(
       return {
         ...state,
         expandableItems: (() => {
-          const expandableItem = state.expandableItems.find(fi => fi.id === action.payload);
+          const expandableItem = state.expandableItems.find(fi => fi.id === action.payload) || {};
           const listWithoutItem = state.expandableItems.filter(fi => fi.id !== action.payload);
           return [
             ...listWithoutItem,

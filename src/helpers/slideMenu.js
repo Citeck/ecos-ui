@@ -50,5 +50,5 @@ export function setSelected(value) {
 }
 
 export function getSelected() {
-  getSessionData(SELECTED_MENU_ITEM_ID_KEY);
+  return getSessionData(SELECTED_MENU_ITEM_ID_KEY);
 }

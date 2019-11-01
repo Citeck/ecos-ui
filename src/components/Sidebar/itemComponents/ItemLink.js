@@ -16,11 +16,11 @@ class ItemLink extends React.Component {
   };
 
   render() {
-    const { children, data, extraParams } = this.props;
+    const { children, data, extraParams, ...props } = this.props;
     const { targetUrl, attributes } = SS.getPropsUrl(data, extraParams);
 
     return (
-      <a href={targetUrl} {...attributes} className="ecos-sidebar-item__link">
+      <a href={targetUrl} {...attributes} {...props} className="ecos-sidebar-item__link">
         {children}
       </a>
     );

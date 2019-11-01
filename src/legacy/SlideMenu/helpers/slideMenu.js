@@ -1,5 +1,3 @@
-export const selectedMenuItemIdKey = 'selectedMenuItemId';
-
 export function fetchExpandableItems(items, selectedId) {
   let flatList = [];
   items.map(item => {

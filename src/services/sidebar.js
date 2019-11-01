@@ -65,56 +65,58 @@ export default class SidebarService {
       switch (item.action.type) {
         case ATypes.FILTER_LINK:
         case ATypes.JOURNAL_LINK:
-          let listId = 'tasks';
-          if (params.siteName) {
-            listId = params.listId || 'main';
-          }
+          {
+            let listId = 'tasks';
 
-          if (isNewVersionPage()) {
-            targetUrl = getJournalPageUrl({
-              journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
-              journalId: params.journalRef,
-              journalSettingId: '', // TODO?
-              nodeRef: params.journalRef,
-              filter: params.filterRef
-            });
-
-            ignoreTabHandler = false;
-            attributes.target = '_blank';
-            attributes.rel = 'noopener noreferrer';
-            // attributes[REMOTE_TITLE_ATTR_NAME] = true; // TODO
-          } else {
-            targetUrl = PAGE_PREFIX;
             if (params.siteName) {
-              targetUrl += `/site/${params.siteName}`;
-            }
-            targetUrl += `/journals2/list/${listId}#`;
-
-            if (params.journalRef) {
-              targetUrl += `journal=${params.journalRef}`;
+              listId = params.listId || 'main';
             }
 
-            if (params.filterRef) {
-              targetUrl += `&filter=${params.filterRef}`;
+            if (isNewVersionPage()) {
+              targetUrl = getJournalPageUrl({
+                journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
+                journalId: params.journalRef,
+                journalSettingId: '', // TODO?
+                nodeRef: params.journalRef,
+                filter: params.filterRef
+              });
+
+              ignoreTabHandler = false;
+              attributes.target = '_blank';
+              attributes.rel = 'noopener noreferrer';
+              // attributes[REMOTE_TITLE_ATTR_NAME] = true; // TODO
             } else {
-              targetUrl += `&filter=`;
-            }
+              targetUrl = PAGE_PREFIX;
+              if (params.siteName) {
+                targetUrl += `/site/${params.siteName}`;
+              }
+              targetUrl += `/journals2/list/${listId}#`;
 
-            if (params.settings) {
-              targetUrl += `&settings=${params.settings}`;
-            }
+              if (params.journalRef) {
+                targetUrl += `journal=${params.journalRef}`;
+              }
 
-            if (params.skipCount) {
-              targetUrl += `&skipCount=${params.skipCount}`;
-            }
+              if (params.filterRef) {
+                targetUrl += `&filter=${params.filterRef}`;
+              } else {
+                targetUrl += `&filter=`;
+              }
 
-            if (params.maxItems) {
-              targetUrl += `&maxItems=${params.maxItems}`;
-            }
+              if (params.settings) {
+                targetUrl += `&settings=${params.settings}`;
+              }
 
-            targetUrl = menuApi.getNewJournalPageUrl(params);
+              if (params.skipCount) {
+                targetUrl += `&skipCount=${params.skipCount}`;
+              }
+
+              if (params.maxItems) {
+                targetUrl += `&maxItems=${params.maxItems}`;
+              }
+
+              targetUrl = menuApi.getNewJournalPageUrl(params);
+            }
           }
-
           break;
         case 'PAGE_LINK':
           let sectionPostfix = params.section ? params.section : '';

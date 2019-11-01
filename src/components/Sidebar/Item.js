@@ -6,6 +6,8 @@ import get from 'lodash/get';
 import { connect } from 'react-redux';
 import { Tooltip } from 'reactstrap';
 
+import { setSelected } from '../../helpers/slideMenu';
+import { setScrollTop, setSelectedId, toggleExpanded } from '../../actions/slideMenu';
 import SS from '../../services/sidebar';
 import { Icon } from '../common';
 import ClickOutside from '../ClickOutside';
@@ -16,7 +18,7 @@ import { ItemBtn, ItemIcon, ItemLink } from './itemComponents';
 class Item extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
-    data: PropTypes.array,
+    data: PropTypes.object,
     level: PropTypes.number,
     isDefExpanded: PropTypes.bool,
     noIcon: PropTypes.bool,
@@ -50,15 +52,25 @@ class Item extends React.Component {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
+    // const { itemId } = this.parseData(nextProps);
+
     if (!nextProps.isOpen && this.props.isOpen) {
       this.setState({ isExpanded: this.state.styleProps.isDefExpanded });
     }
+
+    // const isNestedListExpandedNext = (nextProps.expandableItems.find(fi => fi.id === itemId) || {}).isNestedListExpanded;
+    // const isNestedListExpandedOld = (this.props.expandableItems.find(fi => fi.id === itemId) || {}).isNestedListExpanded;
+    //
+    // if (isNestedListExpandedNext && isNestedListExpandedNext !== isNestedListExpandedOld) {
+    //   this.setState({ isExpanded: isNestedListExpandedNext || this.state.styleProps.isDefExpanded });
+    // }
   }
 
   parseData(props = this.props) {
     const { data } = props;
 
     return {
+      itemId: get(data, 'id', ''),
       items: get(data, 'items', null),
       actionType: get(data, 'action.type', '')
     };
@@ -135,6 +147,7 @@ class Item extends React.Component {
   }
 
   toggleList = e => {
+    const { itemId } = this.parseData();
     const { styleProps = {} } = this.state;
     const { noToggle } = styleProps;
 
@@ -142,6 +155,7 @@ class Item extends React.Component {
       const { isExpanded } = this.state;
 
       this.setState({ isExpanded: !isExpanded });
+      this.props.setExpanded && this.props.setExpanded(itemId);
       e.stopPropagation();
     }
   };
@@ -156,15 +170,16 @@ class Item extends React.Component {
   };
 
   renderLabel() {
-    const { isOpen, isSiteDashboardEnable, data } = this.props;
+    const { isOpen, isSiteDashboardEnable, data, setSelectItem } = this.props;
     const { styleProps = {} } = this.state;
     const { noIcon } = styleProps;
     const extraParams = { isSiteDashboardEnable };
+    const { itemId } = this.parseData();
 
     const Mover = this.getMover();
 
     return (
-      <Mover data={data} extraParams={extraParams}>
+      <Mover data={data} extraParams={extraParams} onClick={() => setSelectItem(itemId)}>
         {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : data.label} />}
         <div className="ecos-sidebar-item__label">{data.label}</div>
       </Mover>
@@ -224,10 +239,21 @@ class Item extends React.Component {
 
 const mapStateToProps = state => ({
   isOpen: state.slideMenu.isOpen,
-  isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable
+  isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable,
+  selectedId: state.slideMenu.selectedId,
+  expandableItems: state.slideMenu.expandableItems
+});
+
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  setSelectItem: id => {
+    setSelected(id);
+    dispatch(setSelectedId(id));
+  },
+  setExpanded: id => dispatch(toggleExpanded(id)),
+  setScrollTop: value => dispatch(setScrollTop(value))
 });
 
 export default connect(
   mapStateToProps,
-  null
+  mapDispatchToProps
 )(Item);

@@ -10,7 +10,7 @@ const menuApi = new MenuApi();
 
 function RemoteBadge({ data, isOpen }) {
   const journalId = get(data, 'params.journalId', '');
-  const [journalTotalCount, setJournalTotalCount] = useState(0);
+  const [journalTotalCount, setJournalTotalCount] = useState('');
 
   useEffect(() => {
     if (journalId) {
