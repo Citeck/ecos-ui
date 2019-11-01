@@ -1,10 +1,11 @@
 import { handleActions } from 'redux-actions';
 
-import { init, getBirthdays, setBirthdays } from '../actions/birthdays';
+import { init, getBirthdays, setBirthdays, setError } from '../actions/birthdays';
 
 export const initialState = {
   birthdays: [],
   isLoading: false,
+  totalCount: 0,
   error: ''
 };
 
@@ -30,6 +31,7 @@ export default handleActions(
       ...state,
       [payload]: {
         ...state[payload],
+        error: '',
         isLoading: true
       }
     }),
@@ -37,7 +39,15 @@ export default handleActions(
       ...state,
       [payload.stateId]: {
         ...state[payload.stateId],
-        birthdays: payload.data,
+        ...payload.data,
+        isLoading: false
+      }
+    }),
+    [setError]: (state, { payload }) => ({
+      ...state,
+      [payload.stateId]: {
+        ...state[payload.stateId],
+        error: payload.data,
         isLoading: false
       }
     })

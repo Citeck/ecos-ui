@@ -1,13 +1,20 @@
 @import '../../styles/constants';
 
 .ecos-hb2u {
+  &__container {
+    min-height: 50px;
+  }
+
   &__list {
-    padding: 15px 20px;
+    padding: 0 20px;
 
     &-item {
+      $item: &;
+
       display: flex;
       border-bottom: 1px $color-gray-4 solid;
-      padding-bottom: 10px;
+      padding: 15px 0;
+      position: relative;
 
       &-photo {
         width: 49px;
@@ -41,6 +48,45 @@
         line-height: 16px;
         color: $color-gray-5;
       }
+
+      &-btn {
+        height: 40px;
+        position: absolute;
+        right: 0;
+        top: calc(50% - 40px / 2);
+      }
+
+      &_small {
+        &:hover {
+          cursor: pointer;
+
+          #{$item}-name {
+            color: $color-blue-dark;
+          }
+        }
+      }
+    }
+  }
+
+  &__error {
+    display: flex;
+    flex-direction: column;
+    padding: 25px 20px;
+    align-items: center;
+
+    &-message {
+      font-style: normal;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 18px;
+      color: $color-red-1;
+      max-width: 330px;
+      text-align: center;
+    }
+
+    &-reload-btn {
+      max-width: 207px;
+      margin-top: 30px;
     }
   }
 }

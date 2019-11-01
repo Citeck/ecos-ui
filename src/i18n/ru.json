@@ -627,5 +627,9 @@
   "action.result.error": "Во время выполнения действия произошла ошибка",
   "userActions.contract.property.addApprover": "Добавить дополнительного согласующего",
   "userActions.contract.property.approvalCancelation": "Отмена согласования",
-  "userActions.contract.property.delete": "Удалить"
+  "userActions.contract.property.delete": "Удалить",
+  "birthdays-widget.title": "Дни рождения",
+  "birthdays-widget.error.default-message": "Ошибка загрузки дней рождений!",
+  "birthdays-widget.btn.go-to-profile": "Перейти в профиль",
+  "birthdays-widget.btn.try-one-more-time": "Попробовать еще раз"
 }
