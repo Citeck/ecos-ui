@@ -175,7 +175,7 @@ export function getCurrentLocale() {
   return language.substr(0, 2).toLowerCase();
 }
 
-export function dynamicallyLoadScript(url, callback) {
+export function loadScript(url, callback) {
   const script = document.createElement('script');
 
   const prefix = url.indexOf('?') === -1 ? '?' : '&v=';

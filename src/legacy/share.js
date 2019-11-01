@@ -1,5 +1,5 @@
 import { DEFAULT_THEME } from '../constants/theme';
-import { getCurrentLocale, dynamicallyLoadScript } from '../helpers/util';
+import { getCurrentLocale, loadScript } from '../helpers/util';
 import lodashSet from 'lodash/set';
 
 export function fillConstants() {
@@ -67,17 +67,17 @@ export function requireStyles(themeName) {
 
 export function loadCoreScripts() {
   return new Promise(resolve => {
-    dynamicallyLoadScript(`/share/service/surf/dojo/bootstrap.js`, function() {
+    loadScript(`/share/service/surf/dojo/bootstrap.js`, function() {
       if (window.dojoConfig) {
         window.dojoConfig.cacheBust = process.env.REACT_APP_BUILD_VERSION;
 
-        dynamicallyLoadScript(`/share/res/js/lib/dojo-1.10.4/dojo/dojo.js`, function() {
-          dynamicallyLoadScript(`/share/res/js/yui-common.js`, function() {
+        loadScript(`/share/res/js/lib/dojo-1.10.4/dojo/dojo.js`, function() {
+          loadScript(`/share/res/js/yui-common.js`, function() {
             if (!window.Alfresco || !window.Alfresco.messages) {
               lodashSet(window, 'Alfresco.messages', { global: null, scope: {} });
             }
-            dynamicallyLoadScript(`/share/service/messages.js?locale=${getCurrentLocale()}`, () => {
-              dynamicallyLoadScript(`/share/res/js/alfresco.js`, function() {
+            loadScript(`/share/service/messages.js?locale=${getCurrentLocale()}`, () => {
+              loadScript(`/share/res/js/alfresco.js`, function() {
                 resolve();
               });
             });
@@ -93,7 +93,7 @@ export function loadLegacyMessages() {
     if (!window.Alfresco || !window.Alfresco.messages) {
       lodashSet(window, 'Alfresco.messages', { global: null, scope: {} });
     }
-    dynamicallyLoadScript(`/share/service/messages.js?locale=${getCurrentLocale()}`, () => {
+    loadScript(`/share/service/messages.js?locale=${getCurrentLocale()}`, () => {
       resolve();
     });
   });
