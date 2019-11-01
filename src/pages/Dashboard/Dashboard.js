@@ -371,7 +371,7 @@ class Dashboard extends Component {
       <div
         className={classNames('ecos-dashboard__header', {
           'ecos-dashboard__header_mobile': isMobile,
-          'ecos-dashboard__header_no-next': !this.isShowTabs
+          'ecos-dashboard__header_no-next': isMobile && !this.isShowTabs
         })}
       >
         {title}
