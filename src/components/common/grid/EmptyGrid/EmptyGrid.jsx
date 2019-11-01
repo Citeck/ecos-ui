@@ -27,7 +27,7 @@ export default class EmptyGrid extends Component {
   getChild = height => {
     return React.Children.map(this.props.children, child => {
       return React.cloneElement(child, {
-        // minHeight: height
+        minHeight: height
       });
     });
   };

@@ -395,14 +395,22 @@ class JournalsDashletGrid extends Component {
     }
 
     const HeightCalculation = ({ doNotCount, children, maxItems, minHeight }) =>
-      doNotCount ? <div style={{ height: minHeight }}>{children}</div> : <EmptyGrid maxItems={maxItems}>{children}</EmptyGrid>;
+      doNotCount ? (
+        <div
+        // style={{ height: minHeight }}
+        >
+          {children}
+        </div>
+      ) : (
+        <EmptyGrid maxItems={maxItems}>{children}</EmptyGrid>
+      );
 
     return (
       <Fragment>
         <div className={'ecos-journal-dashlet__grid'}>
           <HeightCalculation maxItems={maxItems} doNotCount={doNotCount} minHeight={minHeight}>
             {loading ? (
-              <Loader />
+              <Loader style={{ height: minHeight }} />
             ) : (
               <Grid
                 data={data}

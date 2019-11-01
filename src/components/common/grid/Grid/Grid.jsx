@@ -523,7 +523,7 @@ class Grid extends Component {
           ref={refCallback}
           autoHeight
           autoHeightMin={40}
-          autoHeightMax={props.minHeight || 502}
+          autoHeightMax={props.minHeight}
           onScrollStart={this.onScrollStart}
           onScrollFrame={this.onScrollFrame}
           // style={style}
