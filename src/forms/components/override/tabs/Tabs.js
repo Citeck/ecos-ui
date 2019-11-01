@@ -91,11 +91,20 @@ export default class TabsComponent extends NestedComponent {
 
   updateTabsVisibility() {
     let tabsVisibility = new Array(this.tabs.length).fill(false);
+    let tabsDisability = new Array(this.tabs.length).fill(false);
+    const visibleTabs = new Set();
     for (let component of this.getComponents()) {
       let tabIdx = lodashGet(component, 'component.tab', -1);
       if (tabIdx >= 0 && component.visible) {
         tabsVisibility[tabIdx] = true;
+        visibleTabs.add(tabIdx);
       }
+    }
+
+    // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2847. Disable tab, if it is the only one
+    if (visibleTabs.size === 1) {
+      const iterator = visibleTabs.values();
+      tabsDisability[iterator.next().value] = true;
     }
 
     if (!tabsVisibility[this.currentTab]) {
@@ -125,6 +134,16 @@ export default class TabsComponent extends NestedComponent {
           this.removeClass(tabLink, 'hidden');
         } else {
           this.addClass(tabLink, 'hidden');
+        }
+      }
+
+      let shouldBeDisabled = tabsDisability[i];
+      const isAlreadyDisabled = tabLink.classList.contains('disabled');
+      if (isAlreadyDisabled !== shouldBeDisabled) {
+        if (shouldBeDisabled) {
+          this.addClass(tabLink, 'disabled');
+        } else {
+          this.removeClass(tabLink, 'disabled');
         }
       }
     });
