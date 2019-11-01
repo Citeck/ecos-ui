@@ -43,7 +43,10 @@ class Birthdays extends Component {
     getBirthdays: PropTypes.func.isRequired
   };
 
-  static defaultProps = {};
+  static defaultProps = {
+    isLoading: false,
+    error: ''
+  };
 
   constructor(props) {
     super(props);
