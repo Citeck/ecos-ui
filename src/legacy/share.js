@@ -73,7 +73,9 @@ export function loadCoreScripts() {
 
         dynamicallyLoadScript(`/share/res/js/lib/dojo-1.10.4/dojo/dojo.js`, function() {
           dynamicallyLoadScript(`/share/res/js/yui-common.js`, function() {
-            lodashSet(window, 'Alfresco.messages', { global: null, scope: {} });
+            if (!window.Alfresco || !window.Alfresco.messages) {
+              lodashSet(window, 'Alfresco.messages', { global: null, scope: {} });
+            }
             dynamicallyLoadScript(`/share/service/messages.js?locale=${getCurrentLocale()}`, () => {
               dynamicallyLoadScript(`/share/res/js/alfresco.js`, function() {
                 resolve();
@@ -82,6 +84,17 @@ export function loadCoreScripts() {
           });
         });
       }
+    });
+  });
+}
+
+export function loadLegacyMessages() {
+  return new Promise(resolve => {
+    if (!window.Alfresco || !window.Alfresco.messages) {
+      lodashSet(window, 'Alfresco.messages', { global: null, scope: {} });
+    }
+    dynamicallyLoadScript(`/share/service/messages.js?locale=${getCurrentLocale()}`, () => {
+      resolve();
     });
   });
 }
