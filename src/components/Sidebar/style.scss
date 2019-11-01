@@ -70,13 +70,18 @@
     cursor: pointer;
 
     &:hover {
-      background: $color-gray-16;
+      background: $color-gray-25;
     }
 
     &__toggle {
       display: block;
       color: $color-gray-5;
       font-size: $font-size-standard;
+
+      &_h {
+        position: absolute;
+        right: 0;
+      }
     }
 
     &__link {
@@ -288,14 +293,22 @@
     #{$menu-list}_lvl-1 {
       #{$menu-item}_lvl-1 {
         margin: 0 11px 1px;
-        padding: 0 15px;
+        padding: 0;
         width: initial;
         border-radius: $border-radius-large;
 
         &:hover {
           #{$menu-item}__point {
-            border: 4px solid $color-gray-16;
+            border: 4px solid $color-gray-25;
           }
+        }
+
+        #{$menu-item}__link {
+          justify-content: center;
+        }
+
+        #{$menu-item}__label {
+          display: none;
         }
       }
     }

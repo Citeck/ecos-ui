@@ -97,6 +97,7 @@ class Item extends React.Component {
     const {
       collapsed: { divInsteadName }
     } = styleProps;
+    const itemSeparator = !isOpen && divInsteadName;
 
     return ({ children }) => (
       <>
@@ -108,11 +109,11 @@ class Item extends React.Component {
               'ecos-sidebar-item_no-items': !this.hasSubItems,
               'ecos-sidebar-item_expanded': isExpanded && this.hasSubItems,
               'ecos-sidebar-item_selected': false,
-              'ecos-sidebar-item_separator': !isOpen && divInsteadName
+              'ecos-sidebar-item_separator': itemSeparator
             })}
             onClick={this.toggleList}
           >
-            {!divInsteadName && children}
+            {!itemSeparator && children}
           </div>
         </ClickOutside>
         {this.isDropList && (
