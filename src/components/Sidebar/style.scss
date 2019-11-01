@@ -13,6 +13,7 @@
   $menu-item: '.ecos-sidebar-item';
   $menu-list: '.ecos-sidebar-list';
 
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
 
@@ -26,19 +27,8 @@
   }
 
   &-head {
-    min-height: 87px;
-
-    &_expanded {
-      min-height: 49px;
-    }
-
-    &:not(&_expanded)::after {
-      content: '';
-      display: block;
-      height: 2px;
-      background: $color-gray-4;
-      margin: 0 11px;
-    }
+    min-height: 49px;
+    max-height: 49px;
   }
 
   &-logo {
@@ -46,10 +36,6 @@
     position: relative;
     padding-left: 26px;
     padding-top: 18px;
-
-    &_small {
-      height: 66px;
-    }
 
     &__link {
       display: block;
@@ -61,11 +47,11 @@
       position: absolute;
 
       &_small {
-        height: 22px;
+        width: 20px;
       }
 
       &_large {
-        height: 17px;
+        width: 99px;
       }
     }
   }
@@ -151,6 +137,14 @@
           background: initial;
         }
 
+        &#{$menu-item}_separator {
+          &::after {
+            @extend %menu-item-separator;
+            width: 70%;
+            left: 15%;
+          }
+        }
+
         #{$menu-item}__label {
           color: $color-gray-5;
           font-size: $font-size-large;
@@ -167,6 +161,10 @@
         padding: 0 15px 0 26px;
 
         &#{$menu-item}_expanded:not(:hover) {
+          background: $color-gray-4;
+        }
+
+        &#{$menu-item}_selected:not(:hover) {
           background: $color-blue-light;
 
           #{$menu-item}__icon,
@@ -179,6 +177,10 @@
     }
 
     &_lvl-2 {
+      &#{$menu-list}_collapsed {
+        display: none;
+      }
+
       #{$menu-item}_lvl-2 {
         padding: 9px 35px;
 
@@ -285,7 +287,7 @@
   &_collapsed {
     #{$menu-list}_lvl-1 {
       #{$menu-item}_lvl-1 {
-        margin: 0 11px;
+        margin: 0 11px 1px;
         padding: 0 15px;
         width: initial;
         border-radius: $border-radius-large;

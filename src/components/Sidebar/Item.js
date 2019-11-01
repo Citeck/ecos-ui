@@ -8,6 +8,7 @@ import { Tooltip } from 'reactstrap';
 
 import SS from '../../services/sidebar';
 import { Icon } from '../common';
+import ClickOutside from '../ClickOutside';
 import List from './List';
 import RemoteBadge from './RemoteBadge';
 import { ItemBtn, ItemIcon, ItemLink } from './itemComponents';
@@ -90,28 +91,37 @@ class Item extends React.Component {
   }
 
   getItemContainer() {
-    const { level, id } = this.props;
-    const { isExpanded } = this.state;
+    const { level, id, isOpen } = this.props;
     const { items } = this.parseData();
+    const { isExpanded, styleProps = {} } = this.state;
+    const {
+      collapsed: { divInsteadName }
+    } = styleProps;
 
     return ({ children }) => (
-      <div
-        id={id}
-        className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
-          'ecos-sidebar-item_no-action': this.noMove,
-          'ecos-sidebar-item_no-items': !this.hasSubItems,
-          'ecos-sidebar-item_expanded': isExpanded && this.hasSubItems
-        })}
-        onClick={this.toggleList}
-      >
-        {children}
+      <>
+        <ClickOutside handleClickOutside={this.closeTooltip}>
+          <div
+            id={id}
+            className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
+              'ecos-sidebar-item_no-action': this.noMove,
+              'ecos-sidebar-item_no-items': !this.hasSubItems,
+              'ecos-sidebar-item_expanded': isExpanded && this.hasSubItems,
+              'ecos-sidebar-item_selected': false,
+              'ecos-sidebar-item_separator': !isOpen && divInsteadName
+            })}
+            onClick={this.toggleList}
+          >
+            {!divInsteadName && children}
+          </div>
+        </ClickOutside>
         {this.isDropList && (
           <Tooltip
-            placement="right"
-            boundariesElement="window"
             target={id}
-            trigger="click"
             isOpen={isExpanded}
+            placement="right"
+            trigger="click"
+            boundariesElement="div.ecos-base-content"
             className="ecos-sidebar-list-tooltip"
             innerClassName="ecos-sidebar-list-tooltip-inner"
             arrowClassName="ecos-sidebar-list-tooltip-arrow"
@@ -119,7 +129,7 @@ class Item extends React.Component {
             <List isExpanded data={items} level={level + 1} />
           </Tooltip>
         )}
-      </div>
+      </>
     );
   }
 
@@ -132,6 +142,15 @@ class Item extends React.Component {
 
       this.setState({ isExpanded: !isExpanded });
       e.stopPropagation();
+    }
+  };
+
+  closeTooltip = e => {
+    const { isOpen } = this.props;
+    const { isExpanded } = this.state;
+
+    if (!isOpen && isExpanded) {
+      this.setState({ isExpanded: false });
     }
   };
 
@@ -177,9 +196,8 @@ class Item extends React.Component {
   }
 
   render() {
-    const { isOpen, data, level, id } = this.props;
-    const { isExpanded, styleProps = {} } = this.state;
-    const { collapsed } = styleProps;
+    const { isOpen, data, level } = this.props;
+    const { isExpanded } = this.state;
     const { items } = this.parseData();
 
     if (isEmpty(data)) {
@@ -190,14 +208,14 @@ class Item extends React.Component {
 
     return (
       <>
-        {(isOpen || (!isOpen && !collapsed.noName)) && (
-          <ItemContainer>
-            {this.renderLabel()}
-            {this.renderBadge()}
-            {this.renderToggle()}
-          </ItemContainer>
+        <ItemContainer>
+          {this.renderLabel()}
+          {this.renderBadge()}
+          {this.renderToggle()}
+        </ItemContainer>
+        {!this.isDropList && (
+          <List isExpanded={isExpanded || (!isOpen && level > SS.DROP_MENU_BEGIN_FROM)} data={items} level={level + 1} />
         )}
-        {!this.isDropList && <List isExpanded={isExpanded} data={items} level={level + 1} />}
       </>
     );
   }

@@ -2,6 +2,8 @@
 
 .ecos-dashboard {
   &__header {
+    $header: &;
+
     display: flex;
     flex-direction: column;
     padding: 0 18px;
@@ -64,12 +66,12 @@
       border-bottom: 2px solid $color-gray-4;
       position: relative;
       z-index: 1;
-    }
 
-    &_no-next {
-      margin-bottom: 10px;
-      border-bottom: none;
-      box-shadow: 0 5px 5px 1px rgba(0, 0, 0, 0.15);
+      #{$header}_no-next {
+        margin-bottom: 10px;
+        border-bottom: none;
+        box-shadow: 0 5px 5px 1px rgba(0, 0, 0, 0.15);
+      }
     }
   }
 

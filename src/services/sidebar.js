@@ -23,7 +23,7 @@ export default class SidebarService {
       noToggle: true,
       isDefExpanded: true,
       collapsed: {
-        noName: false
+        divInsteadName: false
       }
     };
 
@@ -32,7 +32,7 @@ export default class SidebarService {
         ...common,
         collapsed: {
           ...common.collapsed,
-          noName: true
+          divInsteadName: true
         }
       },
       1: {
