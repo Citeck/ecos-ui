@@ -107,7 +107,7 @@ class Actions extends React.Component {
     const { contentHeight } = this.state;
 
     if (isMobile) {
-      return this.renderActionsList;
+      return this.renderActionsList();
     }
 
     return (
@@ -117,7 +117,7 @@ class Actions extends React.Component {
         renderTrackVertical={props => <div {...props} className="ecos-actions__v-scroll" />}
       >
         <DefineHeight fixHeight={height} minHeight={minHeight} isMin={isEmpty(list)} getOptimalHeight={this.setHeight}>
-          {this.renderActionsList}
+          {this.renderActionsList()}
         </DefineHeight>
       </Scrollbars>
     );

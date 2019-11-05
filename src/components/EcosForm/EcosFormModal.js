@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 
 import IcoBtn from '../common/btns/IcoBtn';
-import EcosForm from './EcosForm';
+import EcosForm, { FORM_MODE_EDIT } from './EcosForm';
 import EcosModal from '../common/EcosModal';
 import Records from '../Records';
 import { t } from '../../helpers/util';
@@ -119,7 +119,7 @@ export default class EcosFormModal extends React.Component {
     let formProps = Object.assign({}, this.props);
 
     let formOptions = formProps.options || {};
-    formOptions['formMode'] = recordData.formMode;
+    formOptions['formMode'] = recordData.formMode || formOptions['formMode'] || FORM_MODE_EDIT;
     formProps['options'] = formOptions;
 
     formProps['onSubmit'] = (record, form) => {

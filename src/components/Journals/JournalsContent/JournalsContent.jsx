@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import { Well } from '../../common/form';
 import JournalsDashletGrid from '../JournalsDashletGrid';
@@ -39,9 +39,9 @@ const Preview = ({ stateId }) => (
 );
 
 const Pie = () => (
-  <Fragment>
+  <>
     <div>{'showPie'}</div>
-  </Fragment>
+  </>
 );
 
 class JournalsContent extends Component {
