@@ -107,7 +107,7 @@ class Actions extends React.Component {
     const { contentHeight } = this.state;
 
     if (isMobile) {
-      return this.renderActionsList;
+      return this.renderActionsList();
     }
 
     return (
