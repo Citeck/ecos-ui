@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import classNames from 'classnames';
 import lodash from 'lodash';
 import connect from 'react-redux/es/connect/connect';
@@ -379,7 +379,8 @@ class JournalsDashletGrid extends Component {
         columns,
         sortBy,
         pagination: { maxItems },
-        groupBy
+        groupBy,
+        total
       },
       doInlineToolsOnRowClick = false,
       performGroupActionResponse,
@@ -394,13 +395,23 @@ class JournalsDashletGrid extends Component {
       editable = false;
     }
 
-    const HeightCalculation = ({ doNotCount, children, maxItems, minHeight }) =>
-      doNotCount ? <div style={{ height: minHeight }}>{children}</div> : <EmptyGrid maxItems={maxItems}>{children}</EmptyGrid>;
+    const HeightCalculation = ({ doNotCount, children, maxItems, minHeight, total }) => {
+      if (doNotCount) {
+        return <div style={{ height: minHeight }}>{children}</div>;
+      }
+
+      let rowsNumber = total > maxItems ? maxItems : total;
+      if (rowsNumber < 1) {
+        rowsNumber = 1;
+      }
+
+      return <EmptyGrid maxItems={rowsNumber}>{children}</EmptyGrid>;
+    };
 
     return (
-      <Fragment>
+      <>
         <div className={'ecos-journal-dashlet__grid'}>
-          <HeightCalculation maxItems={maxItems} doNotCount={doNotCount} minHeight={minHeight}>
+          <HeightCalculation maxItems={maxItems} doNotCount={doNotCount} minHeight={minHeight} total={total}>
             {loading ? (
               <Loader />
             ) : (
@@ -451,7 +462,7 @@ class JournalsDashletGrid extends Component {
           onCancel={this.closeDialog}
           onClose={this.closeDialog}
         />
-      </Fragment>
+      </>
     );
   }
 }
