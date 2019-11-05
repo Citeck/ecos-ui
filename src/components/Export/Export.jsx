@@ -98,7 +98,7 @@ export default class ColumnsSetup extends Component {
   render() {
     const { right, ...props } = this.props;
     const cssClasses = classNames('export', props.className);
-    const attributes = omit(props, ['journalConfig', 'dashletConfig']);
+    const attributes = omit(props, ['journalConfig', 'dashletConfig', 'grid']);
 
     return (
       <div {...attributes} className={cssClasses}>
@@ -129,7 +129,7 @@ export default class ColumnsSetup extends Component {
           )}
         </Dropdown>
 
-        <form ref={this.form} id="export-form" action="" method="" encType="multipart/form-data" target="">
+        <form ref={this.form} id="export-form" method="post" encType="multipart/form-data">
           <input ref={this.textInput} type="hidden" name="jsondata" value="" />
         </form>
       </div>

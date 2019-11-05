@@ -64,6 +64,19 @@ $tabs-height: 26px;
         }
       }
 
+      &.disabled {
+        .nav-link {
+          color: $color-gray-disabled;
+          cursor: default;
+
+          &.active {
+            background: $color-gray-4;
+            color: $color-gray-disabled;
+            border-color: $color-gray-4;
+          }
+        }
+      }
+
       &.first-visible-tab {
         .nav-link {
           border-top-left-radius: $border-radius-standard;
