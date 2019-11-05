@@ -43,10 +43,6 @@ export default class EcosModalHeight extends React.Component {
   };
 
   render() {
-    return (
-      <div className={'modal-height'} ref={this._ref}>
-        {this.props.children(this.state.height)}
-      </div>
-    );
+    return <div ref={this._ref}>{this.props.children(this.state.height)}</div>;
   }
 }

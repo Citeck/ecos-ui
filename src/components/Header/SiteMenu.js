@@ -10,7 +10,8 @@ import Icon from '../common/icons/Icon/Icon';
 import { DropdownMenu as Menu } from '../common';
 
 const mapStateToProps = state => ({
-  items: state.header.siteMenu.items
+  items: state.header.siteMenu.items,
+  theme: state.view.theme
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -25,8 +26,6 @@ class SiteMenu extends React.Component {
   static defaultProps = {
     items: []
   };
-
-  className = 'ecos-header-site';
 
   state = {
     dropdownOpen: false
@@ -45,22 +44,18 @@ class SiteMenu extends React.Component {
 
   render() {
     const { dropdownOpen } = this.state;
-    const { items } = this.props;
+    const { items, theme } = this.props;
     const disabled = isEmpty(items) || !isArray(items);
-    const classNameIcoBtn = classNames(
-      `${this.className}__btn ecos-btn_blue ecos-btn_hover_t-blue ecos-btn_padding_small ecos-btn_r_6`,
-      { 'ecos-btn_active_blue': dropdownOpen },
-      { 'ecos-btn_active_blue2': !dropdownOpen }
-    );
+    const classNameIcoBtn = classNames(`ecos-header-site__btn ecos-btn_theme_${theme} ecos-btn_padding_small ecos-btn_r_6`);
 
     return (
-      <Dropdown className={`${this.className} ecos-header-dropdown`} isOpen={dropdownOpen} toggle={this.toggle}>
+      <Dropdown className="ecos-header-site ecos-header-dropdown" isOpen={dropdownOpen} toggle={this.toggle}>
         <DropdownToggle tag="div">
           <IcoBtn invert className={classNameIcoBtn} disabled={disabled} icon={dropdownOpen ? 'icon-up' : 'icon-down'}>
-            <Icon className={'icon-settings'} />
+            <Icon className="icon-settings" />
           </IcoBtn>
         </DropdownToggle>
-        <DropdownMenu className={`${this.className}__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links`}>
+        <DropdownMenu className="ecos-header-site__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">
           <Menu items={items} onClick={this.handelItem} />
         </DropdownMenu>
       </Dropdown>

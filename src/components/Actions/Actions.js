@@ -5,11 +5,12 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
 import { DefineHeight } from '../common';
 import { selectDataRecordActionsByStateId } from '../../selectors/recordActions';
-import { getActions, runExecuteAction } from '../../actions/recordActions';
+import { getActions, resetActions, runExecuteAction } from '../../actions/recordActions';
 import ActionsList from './ActionsList';
 
 import './style.scss';
 import { selectIdentificationForView } from '../../selectors/dashboard';
+import { ActionModes } from '../../constants';
 
 const mapStateToProps = (state, context) => {
   const aState = selectDataRecordActionsByStateId(state, context.stateId) || {};
@@ -24,7 +25,8 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = dispatch => ({
   getActions: payload => dispatch(getActions(payload)),
-  runExecuteAction: payload => dispatch(runExecuteAction(payload))
+  runExecuteAction: payload => dispatch(runExecuteAction(payload)),
+  resetActions: payload => dispatch(resetActions(payload))
 });
 
 class Actions extends React.Component {
@@ -51,22 +53,32 @@ class Actions extends React.Component {
   };
 
   componentDidMount() {
-    this.getEventsHistory();
+    this.getActions();
   }
 
   componentWillUnmount() {
-    const { resetEventsHistory, stateId } = this.props;
+    const { resetActions, stateId } = this.props;
 
-    resetEventsHistory({ stateId });
+    resetActions({ stateId });
   }
 
-  getEventsHistory = () => {
-    const { getActions, record, stateId, dashboardId } = this.props;
+  getContext() {
+    const { dashboardId } = this.props;
+
+    return {
+      mode: ActionModes.DASHBOARD,
+      dashboardId
+    };
+  }
+
+  getActions = () => {
+    const { getActions, record, stateId } = this.props;
+    const context = this.getContext();
 
     getActions({
       stateId,
       record,
-      dashboardId
+      context
     });
   };
 
@@ -84,18 +96,28 @@ class Actions extends React.Component {
     this.setState({ contentHeight });
   };
 
+  renderActionsList = () => {
+    const { isLoading, className, list, isMobile } = this.props;
+
+    return <ActionsList className={className} list={list} isLoading={isLoading} isMobile={isMobile} executeAction={this.executeAction} />;
+  };
+
   render() {
-    const { isLoading, className, height, minHeight, list, isMobile } = this.props;
+    const { height, minHeight, list, isMobile } = this.props;
     const { contentHeight } = this.state;
+
+    if (isMobile) {
+      return this.renderActionsList();
+    }
 
     return (
       <Scrollbars
         style={{ height: contentHeight || '100%' }}
-        className="ecos-actions"
+        className="ecos-actions__scroll"
         renderTrackVertical={props => <div {...props} className="ecos-actions__v-scroll" />}
       >
         <DefineHeight fixHeight={height} minHeight={minHeight} isMin={isEmpty(list)} getOptimalHeight={this.setHeight}>
-          <ActionsList list={list} isLoading={isLoading} className={className} executeAction={this.executeAction} isMobile={isMobile} />
+          {this.renderActionsList()}
         </DefineHeight>
       </Scrollbars>
     );

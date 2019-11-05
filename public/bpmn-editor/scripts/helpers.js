@@ -1,3 +1,10 @@
+function getCookie(name) {
+  var matches = document.cookie.match(new RegExp(
+    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+  ));
+  return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
 (function() {
 
   if (typeof window.Citeck === "undefined" || !window.Citeck) {
@@ -7,6 +14,11 @@
   window.Citeck.helpers = window.Citeck.helpers || {};
 
   window.Citeck.helpers.getCurrentLocale = function() {
+    const manualLocale = getCookie("alf_share_locale");
+    if (manualLocale) {
+      return manualLocale;
+    }
+
     if (!window.navigator) {
       return 'en';
     }
@@ -37,15 +49,6 @@
 
   window.Citeck.helpers.parseJSON = function(response) {
     return response.json();
-  };
-
-  // TODO
-  window.Citeck.helpers.getCurrentThemeName = function() {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve('citeckTheme');
-      }, 0);
-    });
   };
 
 })();

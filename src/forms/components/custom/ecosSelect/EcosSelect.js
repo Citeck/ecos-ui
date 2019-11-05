@@ -1089,4 +1089,44 @@ export default class SelectComponent extends BaseComponent {
   focus() {
     this.focusableElement.focus();
   }
+
+  attachRefreshEvent(refreshData) {
+    this.on(
+      'change',
+      event => {
+        if (refreshData === 'data') {
+          this.refresh(this.data, refreshData);
+        } else if (
+          event.changed &&
+          event.changed.component &&
+          event.changed.component.key === refreshData &&
+          this.inContext(event.changed.instance)
+        ) {
+          this.refresh(event.changed.value, refreshData); // Cause https://citeck.atlassian.net/browse/ECOSCOM-2465
+        }
+      },
+      true
+    );
+  }
+
+  refresh(value, refreshOnKey) {
+    // Cause https://citeck.atlassian.net/browse/ECOSCOM-2465
+    if (this.hasOwnProperty('refreshOnValue')) {
+      this.refreshOnChanged = !_.isEqual(value, this.refreshOnValue[refreshOnKey]);
+      this.refreshOnValue[refreshOnKey] = value;
+    } else {
+      this.refreshOnChanged = true;
+      this.refreshOnValue = {
+        [refreshOnKey]: value
+      };
+    }
+
+    if (this.refreshOnChanged) {
+      if (this.component.clearOnRefresh) {
+        this.setValue(null);
+      }
+
+      this.triggerRedraw();
+    }
+  }
 }

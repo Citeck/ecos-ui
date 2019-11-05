@@ -27,4 +27,15 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
 
     return super.beforeSubmit();
   }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2673
+  updateValue(flags, value) {
+    const isChanged = super.updateValue(flags, value);
+
+    if (isChanged) {
+      this.setPristine(false);
+    }
+
+    return isChanged;
+  }
 }

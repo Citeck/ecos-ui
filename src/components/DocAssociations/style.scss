@@ -1,0 +1,186 @@
+@import '../../styles/constants';
+
+.ecos-doc-associations {
+  $root: &;
+
+  min-width: 290px;
+
+  .dashlet__header {
+    overflow: unset;
+  }
+
+  &__headline {
+    display: flex;
+    justify-content: space-between;
+    background-color: $color-blue-light4;
+    height: 34px;
+    width: 100%;
+    padding: 5px 20px;
+
+    &-text {
+      font-style: normal;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 23px;
+    }
+  }
+
+  &__icon {
+    $icon: &;
+
+    &-plus {
+      cursor: pointer;
+      color: $color-gray-5;
+      line-height: inherit;
+      font-size: 16px;
+
+      &:hover {
+        color: $color-blue-light;
+      }
+    }
+
+    &-delete {
+      cursor: pointer;
+      color: $color-gray-1;
+
+      &:hover {
+        &,
+        #{$root}__table-row:hover & {
+          color: $color-red-1;
+        }
+      }
+    }
+
+    &_hidden {
+      display: none;
+    }
+  }
+
+  &__empty {
+    display: flex;
+    margin: auto;
+    padding: 16px 0;
+    width: 100%;
+
+    &-message {
+      font-style: normal;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 22px;
+      color: $color-gray-5;
+      margin: auto;
+    }
+  }
+
+  &__table {
+    $table: &;
+
+    padding: 0 20px;
+    margin-bottom: 15px;
+
+    &-cell {
+      @extend %ellipsis;
+
+      display: flex;
+      align-items: center;
+      flex-basis: 100%;
+      padding: 0 12px;
+      font-style: normal;
+      font-size: 12px;
+      color: $text-color-dark;
+    }
+
+    &-header {
+      height: 36px;
+      display: flex;
+      margin: 8px 0;
+
+      &-cell {
+        line-height: 36px;
+        font-weight: bold;
+        font-size: 14px;
+
+        &:not(:last-child) {
+          border-right: 2px $color-gray-4 solid;
+        }
+      }
+    }
+
+    &-body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    &-row {
+      position: relative;
+      display: flex;
+      height: 38px;
+      border-bottom: 2px solid $color-gray-4;
+
+      &:first-child {
+        border-top: 2px solid $color-gray-4;
+      }
+
+      #{$table}:not(#{$table}_small) &:hover {
+        outline: 2px solid $color-brown-2;
+        border: none;
+        padding-bottom: 2px;
+
+        &:first-child {
+          padding-top: 2px;
+        }
+      }
+
+      &:hover {
+        #{$root} {
+          &__icon_hidden {
+            display: block;
+          }
+
+          &__icon {
+            color: $color-brown-2;
+          }
+        }
+      }
+    }
+
+    &-actions {
+      height: 100%;
+      position: absolute;
+      right: 17px;
+      top: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    &_small {
+      #{$table} {
+        &-header {
+          display: none;
+        }
+
+        &-row {
+          flex-wrap: wrap;
+          padding: 11px 0;
+          height: auto;
+        }
+
+        &-cell {
+          padding: 0;
+
+          &:not(:last-of-type) {
+            margin-bottom: 5px;
+          }
+        }
+
+        &-actions {
+          right: 0;
+        }
+      }
+    }
+  }
+
+  &__link {
+    color: $color-blue-dark;
+  }
+}

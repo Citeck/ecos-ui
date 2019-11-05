@@ -95,8 +95,11 @@ function* doCheckUpdatedSettings({ api, logger }, { payload }) {
 
       if (!checkResult.exist) {
         saveWay = DashboardService.SaveWays.CREATE;
-        dashboardId = '';
       }
+    }
+
+    if (saveWay === DashboardService.SaveWays.CREATE) {
+      dashboardId = '';
     }
 
     yield put(setCheckUpdatedDashboardConfig({ saveWay, dashboardId }));
@@ -123,7 +126,12 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
 
     const parseDashboard = DashboardService.parseRequestResult(dashboardResult);
 
-    yield call(api.dashboard.deleteFromCache, [identification.key, identification.user, newIdentification.key, newIdentification.user]);
+    yield call(api.dashboard.deleteFromCache, [
+      DashboardService.getCacheKey(identification.key, payload.recordRef),
+      identification.user,
+      DashboardService.getCacheKey(newIdentification.key, payload.recordRef),
+      newIdentification.user
+    ]);
     yield put(saveMenuConfig(menu));
     yield put(
       setRequestResultDashboard({

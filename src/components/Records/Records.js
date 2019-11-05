@@ -3,6 +3,8 @@ import isString from 'lodash/isString';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import lodashGet from 'lodash/get';
+import isArray from 'lodash/isArray';
+import { getCurrentLocale } from '../../helpers/util';
 
 const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
@@ -40,12 +42,18 @@ function isRecordWithAppName(record) {
 }
 
 function recordsFetch(url, body) {
+  //for request identification
+  let urlKey = '';
+
   let withAppName = false;
   if (body.query) {
+    urlKey = 'q_' + (body.query.sourceId || '');
     withAppName = lodashGet(body, 'query.sourceId', '').indexOf('/') > -1;
   } else if (body.record) {
+    urlKey = 'rec_' + body.record;
     withAppName = isRecordWithAppName(body.record);
   } else if (body.records) {
+    urlKey = 'recs_' + (body.records[0] || '');
     withAppName = isAnyWithAppName(body.records);
   }
 
@@ -53,10 +61,11 @@ function recordsFetch(url, body) {
     url = GATEWAY_URL_MAP[url];
   }
 
-  return fetch(url, {
+  return fetch(url + '?k=' + encodeURIComponent(urlKey), {
     method: 'POST',
     credentials: 'include',
     headers: {
+      'Accept-Language': getCurrentLocale(),
       'Content-type': 'application/json;charset=UTF-8'
     },
     body: JSON.stringify(body)
@@ -75,68 +84,9 @@ function recordsFetch(url, body) {
 }
 
 function convertAttributePath(path) {
-  if (path[0] === '.') {
-    return path;
-  }
-  if (!path) {
-    return null;
-  }
-
-  let attName;
-  let attSchema;
-  let attPath = path;
-
-  let isEdge = path[0] === '#';
-  if (isEdge) {
-    attPath = attPath.substring(1);
-  }
-
-  let qIdx = attPath.indexOf('?');
-  if (qIdx >= 0) {
-    attName = attPath.substring(0, qIdx);
-    attSchema = attPath.substring(qIdx + 1);
-  } else {
-    if (isEdge) {
-      throw new Error("Incorrect attribute: '" + path + "'. Missing ?...");
-    }
-    attName = attPath;
-    attSchema = 'disp';
-  }
-
-  let result = '.';
-
-  if (isEdge) {
-    if (attSchema === 'options') {
-      attSchema = 'options{label:disp,value:str}';
-    } else if (attSchema === 'createVariants') {
-      attSchema = 'createVariants{json}';
-    }
-    result += 'edge(n:"' + attName + '"){' + attSchema + '}';
-  } else {
-    let attPath = attName.split('.');
-    for (let i = 0; i < attPath.length; i++) {
-      if (i > 0) {
-        result += '{';
-      }
-      result += 'att';
-
-      let pathElem = attPath[i];
-      if (pathElem.indexOf('[]') === pathElem.length - 2) {
-        result += 's';
-        pathElem = pathElem.substring(0, pathElem.length - 2);
-      }
-      pathElem = pathElem.replace(/\\./g, '.');
-
-      result += '(n:"' + pathElem + '")';
-    }
-
-    result += '{' + attSchema + '}';
-    for (let i = 1; i < attPath.length; i++) {
-      result += '}';
-    }
-  }
-
-  return result;
+  //A server should convert an attribute
+  //maybe remove spaces for cache purposes? '  {  ' -> '{'
+  return path;
 }
 
 function extractFirstAttName(path) {
@@ -168,6 +118,17 @@ class RecordsComponent {
     if (!id) {
       return new Record('');
     }
+    if (id instanceof Record) {
+      return id;
+    }
+    if (isArray(id)) {
+      let result = id.map(i => this.get(i));
+      result.load = function() {
+        return Promise.all(this.map(r => r.load.apply(r, arguments)));
+      };
+      return result;
+    }
+
     let rec = this._records[id];
     if (!rec) {
       rec = new Record(id);
@@ -192,6 +153,7 @@ class RecordsComponent {
   }
 
   remove(records) {
+    records = records.map(r => (r.id ? r.id : r));
     return recordsFetch(DELETE_URL, { records });
   }
 
@@ -214,7 +176,7 @@ class RecordsComponent {
     });
   }
 
-  query(query, attributes) {
+  query(query, attributes, foreach) {
     if (query.attributes && arguments.length === 1) {
       attributes = query.attributes;
       query = query.query;
@@ -241,17 +203,14 @@ class RecordsComponent {
       }
     }
 
-    return recordsFetch(QUERY_URL, {
-      query: query,
-      attributes: queryAttributes
-    }).then(response => {
+    const processRespRecords = respRecords => {
       let records = [];
-      for (let idx in response.records) {
-        if (!response.records.hasOwnProperty(idx)) {
+      for (let idx in respRecords) {
+        if (!respRecords.hasOwnProperty(idx)) {
           continue;
         }
 
-        let recordMeta = response.records[idx];
+        let recordMeta = respRecords[idx];
 
         if (recordMeta.id) {
           let record = self.get(recordMeta.id);
@@ -273,6 +232,30 @@ class RecordsComponent {
           );
         } else {
           records.push(recordMeta.id);
+        }
+      }
+
+      return records;
+    };
+
+    let queryBody = {
+      query: query,
+      attributes: queryAttributes
+    };
+
+    if (foreach) {
+      queryBody.foreach = foreach;
+    }
+
+    return recordsFetch(QUERY_URL, queryBody).then(response => {
+      let records;
+      if (!foreach) {
+        records = processRespRecords(response.records);
+      } else {
+        records = [];
+        let recordsArr = response.records || [];
+        for (let resRecs of recordsArr) {
+          records.push(processRespRecords(resRecs));
         }
       }
 
@@ -643,7 +626,20 @@ class Record {
     if (arguments.length > 1) {
       this._setAttributeValueImpl(localName, value);
     } else {
-      return (this._attributes[localName] || {}).value;
+      let attribute = this._attributes[localName];
+      if (!attribute && localName.indexOf('.') !== 0 && localName.indexOf('?') === -1) {
+        attribute = this._attributes[localName + '?disp'];
+        if (!attribute) {
+          attribute = this._attributes[localName + '?str'];
+        }
+        if (!attribute) {
+          attribute = this._attributes['.att(n:"' + localName + '"){str}'];
+        }
+        if (!attribute) {
+          attribute = this._attributes['.att(n:"' + localName + '"){disp}'];
+        }
+      }
+      return (attribute || {}).value;
     }
   }
 

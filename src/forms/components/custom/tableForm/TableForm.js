@@ -22,7 +22,8 @@ export default class TableFormComponent extends BaseReactComponent {
             record: null,
             attribute: null
           }
-        }
+        },
+        isStaticModalTitle: false
       },
       ...extend
     );
@@ -46,7 +47,9 @@ export default class TableFormComponent extends BaseReactComponent {
     return [];
   }
 
-  viewOnlyBuild() {} // hide control for viewOnly mode
+  viewOnlyBuild() {
+    this.buildHiddenElement();
+  }
 
   getComponentToRender() {
     return TableForm;
@@ -82,6 +85,7 @@ export default class TableFormComponent extends BaseReactComponent {
         multiple: component.multiple,
         placeholder: component.placeholder,
         disabled: component.disabled,
+        isStaticModalTitle: component.isStaticModalTitle,
         source: source,
         onChange: this.onReactValueChanged,
         viewOnly: this.viewOnly,

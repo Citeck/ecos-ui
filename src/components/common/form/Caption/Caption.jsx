@@ -6,7 +6,7 @@ import './Caption.scss';
 
 class Caption extends Component {
   render() {
-    const { children, className, extra, large, middle, small } = { ...this.props };
+    const { children, className, extra, large, middle, small, normal } = { ...this.props };
     const commonClassName = classNames('ecos-caption', className);
 
     switch (true) {
@@ -18,6 +18,8 @@ class Caption extends Component {
         return <h3 className={classNames('ecos-caption_middle', commonClassName)}>{children}</h3>;
       case small:
         return <h4 className={classNames('ecos-caption_small', commonClassName)}>{children}</h4>;
+      case normal:
+        return <h3 className={classNames('ecos-caption_normal', commonClassName)}>{children}</h3>;
       default:
         return <div className={commonClassName}>{children}</div>;
     }
@@ -29,7 +31,8 @@ Caption.propTypes = {
   extra: PropTypes.bool,
   large: PropTypes.bool,
   middle: PropTypes.bool,
-  small: PropTypes.bool
+  small: PropTypes.bool,
+  normal: PropTypes.bool
 };
 
 Caption.defaultProps = {
@@ -37,7 +40,8 @@ Caption.defaultProps = {
   extra: false,
   large: false,
   middle: false,
-  small: false
+  small: false,
+  normal: false
 };
 
 export default Caption;

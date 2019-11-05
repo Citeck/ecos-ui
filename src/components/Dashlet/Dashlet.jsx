@@ -32,6 +32,7 @@ const Header = ({
   customButtons,
   titleClassName,
   isMobile,
+  isCollapsed,
   badgeText
 }) => {
   const btnGoTo = isMobile ? null : (
@@ -92,7 +93,14 @@ const Header = ({
   }
 
   if (isMobile) {
-    toggleIcon = <Icon className="dashlet__header-collapser icon-down" />;
+    toggleIcon = (
+      <Icon
+        className={classNames('dashlet__header-collapser', {
+          'icon-down': isCollapsed,
+          'icon-up': !isCollapsed
+        })}
+      />
+    );
   }
 
   return (
@@ -102,7 +110,7 @@ const Header = ({
         {title}
       </span>
 
-      <Badge text={badgeText} />
+      <Badge text={badgeText} small={isMobile} />
 
       {needGoTo && btnGoTo}
 
@@ -309,15 +317,14 @@ class Dashlet extends Component {
       noBody
     } = this.props;
     const { isCollapsed } = this.state;
-    const cssClasses = classNames('dashlet', className);
 
     return (
       <div ref={this.refDashlet}>
         <Panel
           {...this.props}
-          className={cssClasses}
+          className={classNames('dashlet', className, { dashlet_mobile: isMobile })}
           headClassName={classNames('dashlet__header-wrapper', {
-            'dashlet__header-wrapper_rounded': noBody || (isMobile && isCollapsed)
+            'dashlet__header-wrapper_collapsed': noBody || (isMobile && isCollapsed)
           })}
           bodyClassName={classNames('dashlet__body', bodyClassName, {
             dashlet__body_collapsed: noBody || (isMobile && isCollapsed)
@@ -342,6 +349,7 @@ class Dashlet extends Component {
                   customButtons={customButtons}
                   titleClassName={titleClassName}
                   isMobile={isMobile}
+                  isCollapsed={isCollapsed}
                   badgeText={badgeText}
                 />
               </Measurer>

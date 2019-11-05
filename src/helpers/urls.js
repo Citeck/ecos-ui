@@ -4,7 +4,7 @@ import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJournal/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
 import { changeUrlLink } from '../components/PageTabs/PageTabs';
-import { isNewVersionPage } from './export/urls';
+import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
 const JOURNAL_ID_KEY = 'journalId';
@@ -13,9 +13,17 @@ const TYPE_KEY = 'type';
 const DESTINATION_KEY = 'destination';
 const FILTER_KEY = 'filter';
 
-export { NEW_VERSION_PREFIX, isNewVersionPage } from './export/urls';
+export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
 export const OLD_LINKS = false;
+
+const changeUrl = (url, opts = {}) => {
+  if (isNewVersionSharePage()) {
+    window.open(url, opts.openNewTab === true ? '_blank' : '_self');
+  } else {
+    changeUrlLink(url, opts);
+  }
+};
 
 const getPredicateFilterParam = options => {
   const filter = ParserPredicate.getRowPredicates(options);
@@ -88,7 +96,7 @@ export const getCreateRecordUrl = ({ type, destination }) => {
     [DESTINATION_KEY]: destination
   });
 
-  return `${URL_PAGECONTEXT}node-create?${qString}&viewId=`;
+  return `${URL_PAGECONTEXT}node-create-page-v2?${qString}&viewId=`;
 };
 
 export const getZipUrl = nodeRef => {
@@ -101,23 +109,23 @@ export const goToJournalsPage = options => {
   if (OLD_LINKS || !isNewVersionPage()) {
     window.open(journalPageUrl, '_blank');
   } else {
-    changeUrlLink(journalPageUrl, { openNewTab: true, remoteTitle: true });
+    changeUrl(journalPageUrl, { openNewTab: true, remoteTitle: true });
   }
 };
 
 export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_blank');
 
 export const goToCardDetailsPage = nodeRef => {
+  const dashboardLink = `${URL.DASHBOARD}?recordRef=${nodeRef}`;
+
   if (isNewVersionPage()) {
-    changeUrlLink(`${URL.DASHBOARD}?recordRef=${nodeRef}`, { openNewTab: true, remoteTitle: true });
-
-    return;
+    changeUrl(dashboardLink, { openNewTab: true, remoteTitle: true });
+  } else {
+    window.open(`${URL_PAGECONTEXT}card-details?nodeRef=${nodeRef}`, '_blank');
   }
-
-  window.open(`${URL_PAGECONTEXT}card-details?nodeRef=${nodeRef}`, '_blank');
 };
 
-export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page?nodeRef=${nodeRef}`, '_blank');
+export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page-v2?nodeRef=${nodeRef}`, '_blank');
 
 /**
  * Метод перебирает и сортирует параметры из url
@@ -154,4 +162,12 @@ export const getSortedUrlParams = (params = window.location.search) => {
 
 export const getSearchParams = (params = window.location.search) => {
   return queryString.parse(params);
+};
+
+export const decodeLink = link => {
+  try {
+    return decodeURIComponent(link);
+  } catch (e) {
+    return link;
+  }
 };

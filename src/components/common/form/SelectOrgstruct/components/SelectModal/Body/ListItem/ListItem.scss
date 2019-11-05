@@ -1,4 +1,4 @@
-@import '../../../../../../../../constants';
+@import '../../../../../../../../styles/constants';
 
 .select-orgstruct__list-item {
   border-bottom: 2px solid $color-gray-4;
@@ -32,6 +32,18 @@
 
 .select-orgstruct__list-item_level-4 {
   padding-left: 80px;
+}
+
+.select-orgstruct__list-item_level-5 {
+  padding-left: 100px;
+}
+
+.select-orgstruct__list-item_level-6 {
+  padding-left: 120px;
+}
+
+.select-orgstruct__list-item_level-7 {
+  padding-left: 140px;
 }
 
 .select-orgstruct__list-item-label {

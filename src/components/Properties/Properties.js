@@ -26,9 +26,8 @@ class Properties extends React.Component {
     isReady: true
   };
 
-  className = 'ecos-properties';
-
   _ecosForm = React.createRef();
+  _hiddenEcosForm = React.createRef();
 
   state = {
     loaded: false,
@@ -59,8 +58,10 @@ class Properties extends React.Component {
   };
 
   onShowBuilder = () => {
-    if (this._ecosForm.current) {
-      this._ecosForm.current.onShowFormBuilder();
+    if (this._hiddenEcosForm.current) {
+      this._hiddenEcosForm.current.onShowFormBuilder(() => {
+        this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
+      });
     }
   };
 
@@ -71,7 +72,7 @@ class Properties extends React.Component {
   renderLoader() {
     const { loaded } = this.state;
     if (!loaded) {
-      return <Loader className={`${this.className}__loader`} />;
+      return <Loader className="ecos-properties__loader" />;
     }
 
     return null;
@@ -99,7 +100,18 @@ class Properties extends React.Component {
           onSubmit={this.onSubmitForm}
           onFormSubmitDone={onUpdate}
           onReady={this.onReady}
-          className={`${this.className}__formio`}
+          className="ecos-properties__formio"
+        />
+        {/* Cause: https://citeck.atlassian.net/browse/ECOSCOM-2654 */}
+        <EcosForm
+          ref={this._hiddenEcosForm}
+          record={record}
+          options={{
+            formMode: FORM_MODE_EDIT
+          }}
+          onSubmit={this.onSubmitForm}
+          onFormSubmitDone={onUpdate}
+          className="d-none"
         />
       </>
     ) : (
@@ -118,8 +130,8 @@ class Properties extends React.Component {
     return (
       <Scrollbars
         style={{ height: contentHeight || '100%' }}
-        className={`${this.className}__scroll`}
-        renderTrackVertical={props => <div {...props} className={`${this.className}__scroll_v`} />}
+        className="ecos-properties__scroll"
+        renderTrackVertical={props => <div {...props} className="ecos-properties__scroll_v" />}
       >
         <DefineHeight fixHeight={height} minHeight={minHeight} isMin={!loaded} getOptimalHeight={this.setHeight}>
           {this.renderForm()}

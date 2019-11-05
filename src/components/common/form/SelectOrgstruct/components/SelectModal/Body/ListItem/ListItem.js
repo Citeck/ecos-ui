@@ -2,15 +2,16 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { SelectOrgstructContext } from '../../../../SelectOrgstructContext';
-import { AUTHORITY_TYPE_GROUP } from '../../../../constants';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../../../constants';
 import './ListItem.scss';
 
 const ListItem = ({ item, nestingLevel, nestedList }) => {
   const context = useContext(SelectOrgstructContext);
   const { controlProps } = context;
-  const { allowedAuthorityTypes, allowedGroupTypes } = controlProps;
+  const { allowedAuthorityTypes, allowedGroupTypes, allowedGroupSubTypes } = controlProps;
   const itemAuthorityType = item.attributes.authorityType;
   const itemGroupType = (item.attributes.groupType || '').toUpperCase();
+  const itemGroupSubType = item.attributes.groupSubType || '';
 
   let collapseHandler = null;
   let onClickLabel = null;
@@ -27,7 +28,12 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
 
   let selectHandler = null;
   if (allowedAuthorityTypes.indexOf(itemAuthorityType) !== -1) {
-    if (itemAuthorityType !== AUTHORITY_TYPE_GROUP || allowedGroupTypes.indexOf(itemGroupType) !== -1) {
+    if (
+      itemAuthorityType === AUTHORITY_TYPE_USER ||
+      (itemAuthorityType === AUTHORITY_TYPE_GROUP &&
+        allowedGroupTypes.indexOf(itemGroupType) !== -1 &&
+        (allowedGroupSubTypes.length === 0 || allowedGroupSubTypes.indexOf(itemGroupSubType) !== -1))
+    ) {
       const selectHandlerClassNames = classNames('icon', 'select-orgstruct__select-handler', {
         'icon-plus': !item.isSelected,
         'select-orgstruct__select-handler_not-selected': !item.isSelected,

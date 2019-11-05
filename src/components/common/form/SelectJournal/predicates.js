@@ -249,7 +249,7 @@ export function getPredicateInput(field, sourceId, metaRecord) {
           selected: predicateValue,
           onChange: function(value) {
             //if the type is date, then reset the time to 00:00:00
-            if (field.type === COLUMN_DATA_TYPE_DATE) {
+            if (value && field.type === COLUMN_DATA_TYPE_DATE) {
               const format = 'DD.MM.YYYY';
               const dateStrWithoutTime = moment(value).format(format);
 
@@ -276,6 +276,7 @@ export function getPredicateInput(field, sourceId, metaRecord) {
     case COLUMN_DATA_TYPE_OPTIONS:
       const loadOptions = () => {
         return new Promise(resolve => {
+          //todo: replace to using Records.js
           recordServiceAPI
             .query({
               attributes: {

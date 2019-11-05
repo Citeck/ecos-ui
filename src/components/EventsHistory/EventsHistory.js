@@ -1,14 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
-import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import { Scrollbars } from 'react-custom-scrollbars';
+
 import { DefineHeight } from '../common';
 import { selectDataEventsHistoryByStateId } from '../../selectors/eventsHistory';
 import { filterEventsHistory, getEventsHistory, resetEventsHistory } from '../../actions/eventsHistory';
-import EventsHistoryList from './EventsHistoryList';
 import EventsHistoryService from '../../services/eventsHistory';
+import EventsHistoryList from './EventsHistoryList';
 
 import './style.scss';
 
@@ -18,7 +20,11 @@ const mapStateToProps = (state, context) => {
   return {
     list: ahState.list,
     isLoading: ahState.isLoading,
-    columns: isEmpty(ahState.columns) ? EventsHistoryService.config.columns : ahState.columns,
+    columns: isEmpty(ahState.columns)
+      ? isEmpty(context.myColumns)
+        ? EventsHistoryService.config.columns
+        : context.myColumns
+      : ahState.columns,
     isMobile: state.view.isMobile
   };
 };
@@ -39,14 +45,16 @@ class EventsHistory extends React.Component {
     isLoading: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    myColumns: PropTypes.array
   };
 
   static defaultProps = {
     className: '',
     isSmallMode: false,
     isMobile: false,
-    isLoading: false
+    isLoading: false,
+    myColumns: []
   };
 
   state = {
@@ -90,44 +98,55 @@ class EventsHistory extends React.Component {
     });
   };
 
+  renderEventList = () => {
+    const { isLoading, isMobile, isSmallMode, list, columns } = this.props;
+
+    return (
+      <EventsHistoryList
+        list={list}
+        columns={columns}
+        isLoading={isLoading}
+        isSmallMode={isSmallMode}
+        isMobile={isMobile}
+        onFilter={this.onFilter}
+      />
+    );
+  };
+
   render() {
-    const { isLoading, isMobile, isSmallMode, className, height, minHeight, maxHeight, list, columns } = this.props;
+    const { isLoading, isMobile, className, height, minHeight, maxHeight, list } = this.props;
     const { contentHeight } = this.state;
 
     const filterHeight = get(this._filter, 'current.offsetHeight', 0);
     const fixHeight = height ? height - filterHeight : null;
 
     return (
-      <>
+      <div className={classNames('ecos-event-history', className)}>
         <div ref={this._filter}>
           {/*{(isMobile || isSmallMode) && (
-            <DropdownFilter columns={columns} className={`${this.className}__filter`} onFilter={this.onFilter} />
+            <DropdownFilter columns={columns} className="ecos-event-history__filter" onFilter={this.onFilter} />
           )}*/}
         </div>
-        <Scrollbars
-          style={{ height: contentHeight || '100%' }}
-          className="ecos-event-history"
-          renderTrackVertical={props => <div {...props} className="ecos-event-history__v-scroll" />}
-        >
-          <DefineHeight
-            fixHeight={fixHeight}
-            maxHeight={maxHeight - filterHeight}
-            minHeight={minHeight}
-            isMin={isLoading || isEmpty(list)}
-            getOptimalHeight={this.setHeight}
+        {isMobile ? (
+          this.renderEventList()
+        ) : (
+          <Scrollbars
+            style={{ height: contentHeight || '100%' }}
+            className="ecos-event-history__scroll"
+            renderTrackVertical={props => <div {...props} className="ecos-event-history__v-scroll" />}
           >
-            <EventsHistoryList
-              list={list}
-              columns={columns}
-              isLoading={isLoading}
-              isSmallMode={isSmallMode}
-              isMobile={isMobile}
-              className={className}
-              onFilter={this.onFilter}
-            />
-          </DefineHeight>
-        </Scrollbars>
-      </>
+            <DefineHeight
+              fixHeight={fixHeight}
+              maxHeight={maxHeight - filterHeight}
+              minHeight={minHeight}
+              isMin={isLoading || isEmpty(list)}
+              getOptimalHeight={this.setHeight}
+            >
+              {this.renderEventList()}
+            </DefineHeight>
+          </Scrollbars>
+        )}
+      </div>
     );
   }
 }

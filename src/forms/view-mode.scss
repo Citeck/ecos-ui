@@ -1,4 +1,4 @@
-@import '../constants';
+@import '../styles/constants';
 
 .formio-form_view-mode {
   dl {
@@ -31,6 +31,20 @@
     font-weight: $font-weight-bold;
     margin-bottom: 0;
     flex-grow: 1;
+
+    &.dd-html {
+      font-weight: $font-weight-normal;
+
+      ol {
+        list-style-position: inside;
+        padding-left: 0;
+      }
+
+      ul {
+        list-style: disc inside;
+        padding-left: 0;
+      }
+    }
   }
 
   &.formio-form .card {

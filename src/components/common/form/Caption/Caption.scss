@@ -1,4 +1,4 @@
-@import '../../../../constants';
+@import '../../../../styles/constants';
 
 .ecos-caption {
   color: $text-color-dark;
@@ -15,6 +15,11 @@
 .ecos-caption_middle {
   font-size: 18px;
   font-weight: $font-weight-semi-bold;
+}
+
+.ecos-caption_normal {
+  font-size: 16px;
+  font-weight: $font-weight-bold;
 }
 
 .ecos-caption_small {

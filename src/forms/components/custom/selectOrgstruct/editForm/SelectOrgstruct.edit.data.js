@@ -21,7 +21,27 @@ export default [
     validate: {
       required: false
     },
-    weight: 19
+    weight: 19,
+    customConditional: `
+      const allowedTypes = data.allowedAuthorityType.split(',').map(item => item.trim());
+      show = allowedTypes.indexOf('GROUP') !== -1;
+    `
+  },
+  {
+    type: 'textfield',
+    input: true,
+    key: 'allowedGroupSubType',
+    label: 'Allowed group subtype',
+    placeholder: 'Example: company, subdivision, manager, employee, director, department',
+    defaultValue: '',
+    validate: {
+      required: false
+    },
+    weight: 20,
+    customConditional: `
+      const allowedTypes = data.allowedAuthorityType.split(',').map(item => item.trim());
+      show = allowedTypes.indexOf('GROUP') !== -1;
+    `
   },
   {
     type: 'textfield',
@@ -33,7 +53,31 @@ export default [
     validate: {
       required: false
     },
-    weight: 20
+    weight: 21
+  },
+  {
+    type: 'textfield',
+    input: true,
+    key: 'excludeAuthoritiesByName',
+    label: 'Exclude authorities by name',
+    placeholder: 'Example: groupName1, groupName2',
+    defaultValue: '',
+    validate: {
+      required: false
+    },
+    weight: 22
+  },
+  {
+    type: 'textfield',
+    input: true,
+    key: 'excludeAuthoritiesByType',
+    label: 'Exclude authorities by group type or subtype',
+    placeholder: 'Example: groupType1, groupType2, groupSubType',
+    defaultValue: '',
+    validate: {
+      required: false
+    },
+    weight: 23
   },
   {
     label: 'Current user by default',
@@ -46,6 +90,6 @@ export default [
     input: true,
     key: 'currentUserByDefault',
     defaultValue: false,
-    weight: 21
+    weight: 24
   }
 ];

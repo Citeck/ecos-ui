@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import InputView from '../InputView';
-import ViewMode from '../ViewMode';
 import SelectModal from '../SelectModal';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 
@@ -17,7 +16,7 @@ const SelectOrgstructRoot = () => {
 
   return (
     <div className={wrapperClasses}>
-      {viewOnly ? <ViewMode /> : <InputView />}
+      <InputView />
       {viewOnly ? null : <SelectModal />}
     </div>
   );

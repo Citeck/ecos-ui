@@ -4,6 +4,8 @@ import Formio from 'formiojs/Formio';
 
 import Records from '../../../../components/Records';
 
+let ajaxGetCache = {};
+
 export default class AsyncDataComponent extends BaseComponent {
   static schema(...extend) {
     return BaseComponent.schema(
@@ -64,7 +66,7 @@ export default class AsyncDataComponent extends BaseComponent {
   }
 
   isReadyToSubmit() {
-    return this.isReadyToSubmitFlag !== false;
+    return this.activeAsyncActionsCounter === 0;
   }
 
   get defaultSchema() {
@@ -209,24 +211,43 @@ export default class AsyncDataComponent extends BaseComponent {
               url = baseUrl + url;
             }
 
-            return fetch(url, {
-              method: ajaxConfig.method,
-              credentials: 'include',
-              headers: {
-                'Content-type': 'application/json;charset=UTF-8'
-              },
-              body: body
-            })
-              .then(response => {
+            const fetchData = (url, body, method) => {
+              return fetch(url, {
+                method: method,
+                credentials: 'include',
+                headers: {
+                  'Content-type': 'application/json;charset=UTF-8'
+                },
+                body: body
+              }).then(response => {
                 return response.json();
-              })
-              .then(response => {
-                if (ajaxConfig.mapping) {
-                  return self.evaluate(ajaxConfig.mapping, { data: response }, 'value', true);
-                } else {
-                  return response;
-                }
               });
+            };
+
+            const resultMapping = response => {
+              if (ajaxConfig.mapping) {
+                return self.evaluate(ajaxConfig.mapping, { data: response }, 'value', true);
+              } else {
+                return response;
+              }
+            };
+
+            if (ajaxConfig.method === 'GET') {
+              let valueFromCache = ajaxGetCache[url];
+              if (valueFromCache) {
+                return valueFromCache.then(resultMapping);
+              } else {
+                let value = fetchData(url, null, 'GET');
+                ajaxGetCache[url] = value;
+                if (Object.keys(ajaxGetCache).length > 100) {
+                  //avoid memory leak
+                  ajaxGetCache = {};
+                }
+                return value.then(resultMapping);
+              }
+            } else {
+              return fetchData(url, body, ajaxConfig.method).then(resultMapping);
+            }
           },
           null,
           forceUpdate
@@ -266,11 +287,19 @@ export default class AsyncDataComponent extends BaseComponent {
     if (forceUpdate || !_.isEqual(currentValue, data)) {
       this[dataField] = data;
 
-      this.isReadyToSubmitFlag = false;
+      this.activeAsyncActionsCounter++;
 
       const setValue = value => {
-        self.setValue(value);
-        self.isReadyToSubmitFlag = true;
+        if (data === self[dataField]) {
+          self.setValue(value);
+
+          //fix submit before all values calculated
+          setTimeout(() => {
+            self.activeAsyncActionsCounter--;
+          }, 200);
+        } else {
+          self.activeAsyncActionsCounter--;
+        }
       };
 
       let actionImpl = () => {
@@ -290,6 +319,8 @@ export default class AsyncDataComponent extends BaseComponent {
               setValue(result);
             }
           }
+        } else {
+          self.activeAsyncActionsCounter--;
         }
       };
 
@@ -303,6 +334,8 @@ export default class AsyncDataComponent extends BaseComponent {
 
   build() {
     super.build();
+
+    this.activeAsyncActionsCounter = 0;
 
     if (this.options.builder) {
       // We need to see it in builder mode.
@@ -349,7 +382,9 @@ export default class AsyncDataComponent extends BaseComponent {
     }
   }
 
-  viewOnlyBuild() {} // hide control for viewOnly mode
+  viewOnlyBuild() {
+    this.buildHiddenElement();
+  }
 
   createLabel() {}
   createErrorElement() {}

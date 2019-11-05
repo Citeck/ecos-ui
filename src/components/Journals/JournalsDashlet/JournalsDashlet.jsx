@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -87,16 +87,50 @@ class JournalsDashlet extends Component {
     const {
       config: { journalsListId = '', journalSettingId = '' },
       journalConfig: {
-        id = '',
         meta: { nodeRef = '' }
       }
     } = this.props;
 
-    goToJournalsPage({ journalsListId, journalId: id, journalSettingId, nodeRef });
+    goToJournalsPage({ journalsListId, journalId: nodeRef, journalSettingId, nodeRef });
   };
 
+  renderEditor() {
+    const { editorMode, id } = this.props;
+
+    if (!editorMode) {
+      return null;
+    }
+
+    return (
+      <Measurer>
+        <JournalsDashletEditor id={id} stateId={this._stateId} recordRef={this.recordRef} />
+      </Measurer>
+    );
+  }
+
+  renderJournal() {
+    const { editorMode } = this.props;
+    const { width } = this.state;
+
+    if (editorMode) {
+      return null;
+    }
+
+    return (
+      <>
+        <Measurer>
+          <JournalsDashletToolbar stateId={this._stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
+        </Measurer>
+
+        <JournalsDashletGrid stateId={this._stateId} />
+
+        <JournalsDashletFooter stateId={this._stateId} />
+      </>
+    );
+  }
+
   render() {
-    const { journalConfig, className, id, editorMode, reloadGrid, dragHandleProps } = this.props;
+    const { journalConfig, className, reloadGrid, dragHandleProps } = this.props;
     const { width, isCollapsed } = this.state;
 
     if (!journalConfig) {
@@ -121,21 +155,8 @@ class JournalsDashlet extends Component {
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
       >
-        {editorMode ? (
-          <Measurer>
-            <JournalsDashletEditor id={id} stateId={this._stateId} recordRef={this.recordRef} />
-          </Measurer>
-        ) : (
-          <Fragment>
-            <Measurer>
-              <JournalsDashletToolbar stateId={this._stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
-            </Measurer>
-
-            <JournalsDashletGrid stateId={this._stateId} />
-
-            <JournalsDashletFooter stateId={this._stateId} />
-          </Fragment>
-        )}
+        {this.renderEditor()}
+        {this.renderJournal()}
       </Dashlet>
     );
   }

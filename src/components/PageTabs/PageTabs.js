@@ -1,9 +1,9 @@
 import React from 'react';
-import * as PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { deepClone, getScrollbarWidth, t, arrayMove } from '../../helpers/util';
+import { arrayMove, deepClone, getScrollbarWidth, t } from '../../helpers/util';
 import { SortableContainer, SortableElement } from '../Drag-n-Drop';
 import {
   getTitleByUrl,
@@ -14,7 +14,7 @@ import {
   TITLE
 } from '../../constants/pageTabs';
 import { PointsLoader } from '../common';
-import { isNewVersionPage } from '../../helpers/urls';
+import { decodeLink, isNewVersionPage } from '../../helpers/urls';
 
 import './style.scss';
 
@@ -95,7 +95,22 @@ class PageTabs extends React.Component {
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     if (nextProps.isShow) {
       if (nextProps.isShow !== this.props.isShow && !nextProps.tabs.length) {
-        const tabs = [this.generateNewTab({ tabsCount: 0, props: nextProps })];
+        const hasRecordRef = this.linkFromUrl.includes('recordRef');
+
+        let propsFirstTab = {
+          tabsCount: 0,
+          props: nextProps
+        };
+
+        if (hasRecordRef) {
+          propsFirstTab = {
+            ...propsFirstTab,
+            link: this.linkFromUrl,
+            remoteTitle: true
+          };
+        }
+
+        const tabs = [this.generateNewTab(propsFirstTab)];
 
         nextProps.saveTabs(tabs);
         this.setState({ tabs });
@@ -115,6 +130,16 @@ class PageTabs extends React.Component {
     document.removeEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent);
     window.removeEventListener('popstate', this.handlePopState);
     this.checkArrowID = null;
+  }
+
+  get linkFromUrl() {
+    const {
+      history: {
+        location: { pathname, search, hash }
+      }
+    } = this.props;
+
+    return decodeLink([pathname, search, hash].join(''));
   }
 
   initArrows() {
@@ -142,16 +167,11 @@ class PageTabs extends React.Component {
   }
 
   checkUrls() {
-    const {
-      saveTabs,
-      history: {
-        location: { pathname, search, hash }
-      }
-    } = this.props;
+    const { saveTabs } = this.props;
     const { tabs: oldTabs, isNewTab } = this.state;
     const tabs = deepClone(oldTabs);
     const activeTab = tabs.find(tab => tab.isActive === true);
-    const linkFromUrl = [pathname, search, hash].join('');
+    const linkFromUrl = this.linkFromUrl;
 
     if (isNewTab) {
       return;
@@ -178,7 +198,11 @@ class PageTabs extends React.Component {
 
   generateNewTab(params = {}) {
     const { props = this.props, link = '', remoteTitle = false } = params;
-    const { homepageLink } = props;
+    const { homepageLink, getActiveTabTitle } = props;
+
+    if (remoteTitle) {
+      getActiveTabTitle();
+    }
 
     return {
       id: Math.random()
@@ -219,7 +243,6 @@ class PageTabs extends React.Component {
      */
     const {
       params: {
-        link = '',
         checkUrl = false,
         openNewTab = false,
         openNewBrowserTab = false,
@@ -229,6 +252,7 @@ class PageTabs extends React.Component {
       }
     } = event;
     const tabs = deepClone(this.state.tabs);
+    const link = decodeLink(event.params.link || '');
 
     if (closeActiveTab) {
       const activeIndex = tabs.findIndex(tab => tab.isActive);
@@ -250,7 +274,7 @@ class PageTabs extends React.Component {
       return;
     }
 
-    const { saveTabs, history, getActiveTabTitle } = this.props;
+    const { saveTabs, history } = this.props;
 
     event.preventDefault();
 
@@ -276,12 +300,7 @@ class PageTabs extends React.Component {
       if (newActiveTab) {
         this.activeTab(newActiveTab, tabs);
       } else {
-        tabs.forEach(item => {
-          item.isActive = false;
-        });
-        if (remoteTitle) {
-          getActiveTabTitle();
-        }
+        tabs.forEach(item => (item.isActive = false));
         tabs.push(this.generateNewTab({ link, remoteTitle }));
         saveTabs(tabs);
         history.push.call(this, link);
@@ -307,16 +326,10 @@ class PageTabs extends React.Component {
   };
 
   handlePopState = () => {
-    const {
-      tabs,
-      saveTabs,
-      history: {
-        location: { pathname, search, hash }
-      }
-    } = this.props;
+    const { tabs, saveTabs } = this.props;
     const newTabs = deepClone(tabs);
     const tab = newTabs.find(tab => tab.isActive);
-    const linkFromUrl = [pathname, search, hash].join('');
+    const linkFromUrl = this.linkFromUrl;
 
     tab.link = linkFromUrl;
     tab.title = this.getTitle(linkFromUrl);
@@ -341,9 +354,9 @@ class PageTabs extends React.Component {
       return;
     }
 
-    const { saveTabs, history, getActiveTabTitle } = this.props;
+    const { saveTabs, history } = this.props;
     const tabs = deepClone(this.state.tabs);
-    const link = elem.getAttribute('href');
+    const link = decodeLink(elem.getAttribute('href'));
     const isNewTab = elem.getAttribute('target') === '_blank';
     const withLinkTabIndex = tabs.findIndex(tab => tab.link === link);
 
@@ -366,13 +379,9 @@ class PageTabs extends React.Component {
     }
 
     if (isNewTab) {
-      tabs.forEach(tab => {
-        tab.isActive = false;
-      });
       let remoteTitle = !!elem.getAttribute(REMOTE_TITLE_ATTR_NAME);
-      if (remoteTitle) {
-        getActiveTabTitle();
-      }
+
+      tabs.forEach(tab => (tab.isActive = false));
       tabs.push(this.generateNewTab({ link, remoteTitle }));
     } else {
       const tab = tabs.find(tab => tab.isActive);
@@ -650,7 +659,7 @@ class PageTabs extends React.Component {
       <SortableElement key={item.id} index={position} onSortEnd={this.handleSortEnd}>
         <div key={item.id} className={className.join(' ')} title={t(item.title)} onClick={this.handleClickTab.bind(this, item)}>
           <span className="page-tab__tabs-item-title">
-            {isLoadingTitle && item.isActive && <PointsLoader className={'page-tab__tabs-item-title-loader'} />}
+            {isLoadingTitle && item.isActive && <PointsLoader className={'page-tab__tabs-item-title-loader'} color={'light-blue'} />}
             {t(item.title)}
           </span>
           {closeButton}

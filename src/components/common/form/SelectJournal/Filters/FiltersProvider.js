@@ -4,6 +4,7 @@ import { getPredicates, getPredicateInput } from '../predicates';
 
 export default class FiltersProvider extends Component {
   state = {
+    allFields: [],
     fields: [],
     searchText: '',
     isReady: false
@@ -12,7 +13,7 @@ export default class FiltersProvider extends Component {
   componentDidMount() {
     const { columns } = this.props;
     if (columns) {
-      this.setFields(columns.filter(item => item.default));
+      this.setFields(columns);
     }
   }
 
@@ -21,7 +22,7 @@ export default class FiltersProvider extends Component {
     const { isReady } = this.state;
 
     if (columns && !isReady) {
-      this.setFields(columns.filter(item => item.default));
+      this.setFields(columns);
     }
   }
 
@@ -29,17 +30,20 @@ export default class FiltersProvider extends Component {
     const { sourceId } = this.props;
 
     this.setState({
-      fields: fields.map(item => {
-        const predicates = getPredicates(item);
-        const input = getPredicateInput(item, sourceId);
-        return {
-          ...item,
-          predicates,
-          selectedPredicate: predicates[0],
-          predicateValue: input ? input.defaultValue : null,
-          input
-        };
-      }),
+      allFields: fields,
+      fields: fields
+        .filter(item => item.default)
+        .map(item => {
+          const predicates = getPredicates(item);
+          const input = getPredicateInput(item, sourceId);
+          return {
+            ...item,
+            predicates,
+            selectedPredicate: predicates[0],
+            predicateValue: input ? input.defaultValue : null,
+            input
+          };
+        }),
       isReady: true
     });
   };
@@ -69,6 +73,7 @@ export default class FiltersProvider extends Component {
     return (
       <FiltersContext.Provider
         value={{
+          allFields: this.state.allFields,
           fields: this.state.fields,
           searchText: this.state.searchText,
           updateSearchText: e => {

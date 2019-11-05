@@ -304,23 +304,22 @@ class DashboardSettings extends React.Component {
     const {
       location: { search }
     } = props;
-    const searchParams = queryString.parse(search);
-    const { recordRef, dashboardId } = searchParams;
 
-    return {
-      recordRef,
-      dashboardId
-    };
+    return queryString.parse(search);
   }
 
   getUrlToDashboard() {
     const { identification = {}, dashboardKeyItems = [] } = this.props;
     const { selectedDashboardKey } = this.state;
-    const { recordRef } = this.getPathInfo();
+    const { recordRef, dashboardKey } = this.getPathInfo();
     const pathDashboardParams = {};
 
     if (recordRef) {
       pathDashboardParams.recordRef = recordRef;
+    }
+
+    if (dashboardKey) {
+      pathDashboardParams.dashboardKey = dashboardKey;
     }
 
     const oldKeyI = dashboardKeyItems.findIndex(k => k.key === identification.key);
@@ -548,6 +547,8 @@ class DashboardSettings extends React.Component {
 
   acceptChanges = checkResultId => {
     const { saveSettings, identification, userData } = this.props;
+    const { recordRef } = this.getPathInfo();
+
     const {
       selectedWidgets: widgets,
       selectedMenuItems: menuLinks,
@@ -571,6 +572,7 @@ class DashboardSettings extends React.Component {
       tabs,
       menuType,
       menuLinks,
+      recordRef,
       mobile: {
         widgets: mobileSelectedWidgets,
         tabs: mobileTabs

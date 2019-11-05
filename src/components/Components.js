@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import uuidV4 from 'uuid/v4';
-import { deepClone, t } from '../helpers/util';
+import { deepClone } from '../helpers/util';
 import { DashboardTypes } from '../constants/dashboard';
 
 export const ComponentKeys = {
@@ -17,7 +17,9 @@ export const ComponentKeys = {
   CURRENT_TASKS: 'current-tasks',
   DOC_STATUS: 'doc-status',
   EVENTS_HISTORY: 'events-history',
-  VERSIONS_JOURNAL: 'versions-journal'
+  VERSIONS_JOURNAL: 'versions-journal',
+  DOC_ASSOCIATIONS: 'doc-associations',
+  RECORD_ACTIONS: 'record-actions'
 };
 
 /**
@@ -77,10 +79,20 @@ export default class Components {
       path: './VersionsJournal',
       label: 'dashboard-settings.widget.versions-journal',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+    },
+    [ComponentKeys.DOC_ASSOCIATIONS]: {
+      path: './DocAssociations',
+      label: 'dashboard-settings.widget.doc-associations',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+    },
+    [ComponentKeys.RECORD_ACTIONS]: {
+      path: './Actions',
+      label: 'dashboard-settings.widget.actions',
+      supportedDashboardTypes: []
     }
   });
 
-  static allDashboardsComponents = [ComponentKeys.JOURNAL];
+  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.RECORD_ACTIONS];
 
   static get(component) {
     const link = get(Components.components, [component, 'path']);
@@ -96,16 +108,19 @@ export default class Components {
     const components = new Map();
 
     Components.getWidgetsForAllDasboards().forEach(component => {
-      components.set(component.name, t(component.label));
+      components.set(component.name, component.label);
     });
 
     Object.entries(Components.components).forEach(([name, component]) => {
       if (component.supportedDashboardTypes.includes(dashboardType)) {
-        components.set(name, t(component.label));
+        components.set(name, component.label);
       }
     });
 
-    const arrComponents = [...components].map(([name, label]) => ({ name, label }));
+    const arrComponents = [...components].map(([name, label]) => ({
+      name,
+      label
+    }));
 
     components.clear();
 

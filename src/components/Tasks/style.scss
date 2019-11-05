@@ -1,4 +1,4 @@
-@import '../../constants';
+@import '../../styles/constants';
 
 %h-indents {
   padding: 0 20px;
@@ -89,13 +89,17 @@
   &__assign-btn {
     $btn: &;
 
-    &:not(:last-of-type) {
-      margin-right: 10px;
-    }
-
     &__wrapper {
       &_small-mode {
         margin: 13px 0;
+      }
+
+      &:not(&_small-mode) > :nth-child(n) {
+        margin-left: 10px;
+      }
+
+      .select-orgstruct {
+        display: inline;
       }
     }
 

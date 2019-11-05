@@ -1,4 +1,4 @@
-@import '../../../../../../constants';
+@import '../../../../../../styles/constants';
 
 .ecos-table-form__value-not-selected {
   line-height: 36px;
@@ -13,4 +13,5 @@
 
 .ecos-table-form__grid {
   margin-bottom: 15px;
+  overflow: auto;
 }

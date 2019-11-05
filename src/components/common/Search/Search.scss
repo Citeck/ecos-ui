@@ -1,4 +1,4 @@
-@import '../../../constants';
+@import '../../../styles/constants';
 
 .search {
   border-radius: $border-radius-standard;
@@ -35,4 +35,8 @@
   position: absolute;
   line-height: normal;
   z-index: 1;
+}
+
+.search_border_white {
+  border: 2px solid $color-white;
 }

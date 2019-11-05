@@ -181,7 +181,6 @@ class PropertiesDashlet extends React.Component {
         <PropertiesEditModal
           record={record}
           isOpen={isEditProps}
-          customButtons={this.renderDashletCustomButtons()}
           onFormCancel={this.closeModal}
           onFormSubmit={this.updateProps}
           formIsChanged={formIsChanged}

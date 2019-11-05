@@ -1,9 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 
 import IcoBtn from '../common/btns/IcoBtn';
-import EcosForm from './EcosForm';
+import EcosForm, { FORM_MODE_EDIT } from './EcosForm';
 import EcosModal from '../common/EcosModal';
 import Records from '../Records';
 import { t } from '../../helpers/util';
@@ -20,14 +21,32 @@ export default class EcosFormModal extends React.Component {
     super(props);
 
     this.state = {
-      isModalOpen: true
+      isModalOpen: false
     };
   }
 
+  componentWillUpdate(nextProps, nextState) {
+    if (nextProps.isModalOpen !== this.state.isModalOpen) {
+      if (nextProps.isModalOpen) {
+        window.addEventListener('beforeunload', this._onbeforeunload);
+      }
+
+      this.setState({ isModalOpen: nextProps.isModalOpen });
+    }
+  }
+
   hide() {
-    this.setState({
-      isModalOpen: false
-    });
+    const { onHideModal } = this.props;
+
+    if (typeof onHideModal === 'function') {
+      onHideModal();
+    } else {
+      this.setState({
+        isModalOpen: false
+      });
+    }
+
+    window.removeEventListener('beforeunload', this._onbeforeunload);
   }
 
   componentDidMount() {
@@ -42,6 +61,16 @@ export default class EcosFormModal extends React.Component {
         });
       });
   }
+
+  componentWillUnmount() {
+    window.removeEventListener('beforeunload', this._onbeforeunload);
+  }
+
+  _onbeforeunload = e => {
+    // https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event#Examples
+    e.preventDefault();
+    e.returnValue = '';
+  };
 
   onClickShowFormBuilder = () => {
     if (this._formRef.current) {
@@ -79,7 +108,7 @@ export default class EcosFormModal extends React.Component {
   }
 
   render() {
-    const record = this.props.record;
+    const { record, title, isBigHeader } = this.props;
 
     let recordData = this.state.recordData;
 
@@ -90,7 +119,7 @@ export default class EcosFormModal extends React.Component {
     let formProps = Object.assign({}, this.props);
 
     let formOptions = formProps.options || {};
-    formOptions['formMode'] = recordData.formMode;
+    formOptions['formMode'] = recordData.formMode || formOptions['formMode'] || FORM_MODE_EDIT;
     formProps['options'] = formOptions;
 
     formProps['onSubmit'] = (record, form) => {
@@ -111,8 +140,6 @@ export default class EcosFormModal extends React.Component {
       }
     };
 
-    let title = t('eform.header.' + recordData.formMode + '.title');
-
     return (
       <div>
         <EcosModal
@@ -120,8 +147,8 @@ export default class EcosFormModal extends React.Component {
             backdrop: 'static'
           }}
           className="ecos-modal_width-lg ecos-form-modal"
-          isBigHeader={true}
-          title={title}
+          isBigHeader={isBigHeader}
+          title={title || t('eform.header.' + recordData.formMode + '.title')}
           isOpen={this.state.isModalOpen}
           hideModal={() => this.hide()}
           customButtons={[this.renderConstructorButton()]}
@@ -133,3 +160,20 @@ export default class EcosFormModal extends React.Component {
     );
   }
 }
+
+EcosFormModal.propTypes = {
+  record: PropTypes.string.isRequired,
+  formKey: PropTypes.string,
+  isModalOpen: PropTypes.bool,
+  isBigHeader: PropTypes.bool,
+  options: PropTypes.object,
+  onFormCancel: PropTypes.func,
+  onSubmit: PropTypes.func,
+  onReady: PropTypes.func,
+  onHideModal: PropTypes.func,
+  title: PropTypes.string
+};
+
+EcosFormModal.defaultProps = {
+  isBigHeader: true
+};

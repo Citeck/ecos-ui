@@ -41,4 +41,15 @@ export default class BaseComponent extends FormIOBase {
       recordId: this.getRecordId()
     });
   }
+
+  buildHiddenElement() {
+    this.element = this.ce(
+      'dl',
+      {
+        id: this.id,
+        class: 'd-none'
+      },
+      this.component.key
+    );
+  }
 }

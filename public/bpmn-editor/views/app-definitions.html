@@ -22,12 +22,12 @@
                 </li>
             </ul>
         </div>
-        
+
         <div class="col-xs-10 item-wrapper" id="list-items">
             <div class="dropdown-subtle pull-right" ng-show="model.apps.size != 0">
                 <div class="btn-group btn-group-sm" activiti-fix-dropdown-bug>
                     <button type="button" class="btn btn-default dropdown-toggle"
-                        data-toggle="dropdown">{{'FORMS-LIST.SORT.' + model.activeSort.labelKey | translate}} <i class="caret"></i></button>
+                        data-toggle="dropdown">{{'FORMS-LIST.SORT.' + model.activeSort.labelKey | translate}} </button>
                     <ul class="dropdown-menu pull-right">
                         <li ng-repeat="sort in model.sorts">
                             <a ng-click="activateSort(sort)">{{'APPS-LIST.SORT.' + sort.labelKey | translate}}</a>
@@ -81,7 +81,7 @@
                     <a ng-click="showAppDetails(app)">
                         <div class="app-content">
                             <h3>{{app.name}}</h3>
-                
+
                             <p>{{app.description}}</p>
                         </div>
                         <div class="backdrop">
@@ -95,7 +95,7 @@
                     </a>
                 </div>
             </div>
-            
+
             <div class="show-more" ng-if="model.apps.data.length < model.apps.total">
                 <a>{{'APPS-LIST.ACTION.SHOW-MORE' | translate}}</a>
             </div>

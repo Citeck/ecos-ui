@@ -9,6 +9,7 @@ import './style.scss';
 export default class Avatar extends React.Component {
   static propTypes = {
     url: PropTypes.string,
+    theme: PropTypes.string,
     className: PropTypes.string,
     classNameEmpty: PropTypes.string,
     userName: PropTypes.string
@@ -65,8 +66,12 @@ export default class Avatar extends React.Component {
   }
 
   render() {
-    const { className, classNameEmpty } = this.props;
+    const { className, classNameEmpty, theme } = this.props;
 
-    return <div className={classNames(this.className, className, { [classNameEmpty]: this.empty })}>{this.renderContent()}</div>;
+    return (
+      <div className={classNames(this.className, `${this.className}_theme_${theme}`, className, { [classNameEmpty]: this.empty })}>
+        {this.renderContent()}
+      </div>
+    );
   }
 }

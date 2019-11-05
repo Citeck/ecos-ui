@@ -1,4 +1,4 @@
-@import '../../../constants';
+@import '../../../styles/constants';
 
 .ecos-loader {
   display: flex;
@@ -17,6 +17,10 @@
 
   &_darkened {
     background-color: $background-loader;
+  }
+
+  &_rounded {
+    border-radius: $border-radius-extra-large;
   }
 }
 

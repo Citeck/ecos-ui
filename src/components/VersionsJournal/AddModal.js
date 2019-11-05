@@ -123,8 +123,13 @@ class AddModal extends Component {
       this.setState({ file, clientError: '' });
     }
 
+    body.append('filedata', file, file.name);
+    body.append('filename', file.name);
+    body.append('overwrite', 'false');
+
     return {
-      url: 'https://httpbin.org/post',
+      url: '/share/proxy/alfresco/api/upload',
+      method: 'POST',
       body
     };
   };

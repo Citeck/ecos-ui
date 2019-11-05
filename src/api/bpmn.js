@@ -3,6 +3,7 @@ import { ROOT_CATEGORY_NODE_REF } from '../constants/bpmn';
 
 export class BpmnApi extends RecordService {
   fetchCategories = () => {
+    //todo: replace to using Records.js
     return this.query({
       query: {
         query: {
@@ -30,6 +31,7 @@ export class BpmnApi extends RecordService {
   };
 
   createCategory = (title, parent = ROOT_CATEGORY_NODE_REF) => {
+    //todo: replace to using Records.js
     return this.mutate({
       record: {
         attributes: {
@@ -48,6 +50,7 @@ export class BpmnApi extends RecordService {
       attributes['cm:title'] = title;
     }
 
+    //todo: replace to using Records.js
     return this.mutate({
       record: {
         id,
@@ -57,6 +60,7 @@ export class BpmnApi extends RecordService {
   };
 
   deleteCategory = id => {
+    //todo: replace to using Records.js
     return this.delete({
       record: id
     });
@@ -119,6 +123,7 @@ export class BpmnApi extends RecordService {
       attributes['ecosbpm:validTo'] = validTo;
     }
 
+    //todo: replace to using Records.js
     return this.mutate({
       record: {
         attributes
@@ -149,6 +154,7 @@ export class BpmnApi extends RecordService {
       attributes['ecosbpm:validTo'] = validTo;
     }
 
+    //todo: replace to using Records.js
     return this.mutate({
       record: {
         attributes
@@ -157,6 +163,7 @@ export class BpmnApi extends RecordService {
   };
 
   deleteProcessModel = id => {
+    //todo: replace to using Records.js
     return this.delete({
       record: id
     });

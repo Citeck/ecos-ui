@@ -1,0 +1,15 @@
+@import '../../../constants';
+
+.formio-dialog-content .preview-panel,
+.formio-form {
+  .ck.ck-editor__editable_inline {
+    ul {
+      list-style: disc outside;
+      padding: 0 20px;
+    }
+
+    ol {
+      padding: 0 20px;
+    }
+  }
+}

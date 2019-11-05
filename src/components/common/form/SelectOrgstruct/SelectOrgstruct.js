@@ -18,7 +18,8 @@ const SelectOrgstruct = props => {
 
 SelectOrgstruct.defaultProps = {
   allowedAuthorityTypes: [AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER],
-  allowedGroupTypes: [GROUP_TYPE_BRANCH, GROUP_TYPE_ROLE]
+  allowedGroupTypes: [GROUP_TYPE_BRANCH, GROUP_TYPE_ROLE],
+  allowedGroupSubTypes: []
 };
 
 SelectOrgstruct.propTypes = {
@@ -30,7 +31,11 @@ SelectOrgstruct.propTypes = {
   allUsersGroup: PropTypes.string,
   allowedAuthorityTypes: PropTypes.array,
   allowedGroupTypes: PropTypes.array,
-  viewOnly: PropTypes.bool
+  allowedGroupSubTypes: PropTypes.array,
+  excludeAuthoritiesByName: PropTypes.string,
+  excludeAuthoritiesByType: PropTypes.array,
+  viewOnly: PropTypes.bool,
+  renderView: PropTypes.func
 };
 
 export default SelectOrgstruct;

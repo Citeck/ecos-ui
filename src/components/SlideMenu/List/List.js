@@ -21,7 +21,7 @@ const ListPure = ({ items, toggleSlideMenu, isExpanded, isNested, expandableItem
 
     return (
       <ListItem
-        key={item.id}
+        key={`${item.id}_${item.label}`}
         toggleSlideMenu={toggleSlideMenu}
         item={item}
         nestedList={nestedList}

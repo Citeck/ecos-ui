@@ -1,9 +1,11 @@
-@import '../../constants';
+@import '../../styles/constants';
 
 .dashlet {
   $root: &;
+
   min-height: auto !important;
   padding-top: 0 !important;
+  position: relative;
 
   &__header {
     height: 100%;
@@ -23,6 +25,11 @@
 
       &_rounded {
         border-bottom: none;
+        border-radius: $border-radius-extra-large;
+      }
+
+      &_collapsed {
+        border: none;
         border-radius: $border-radius-extra-large;
       }
     }
@@ -58,45 +65,20 @@
         margin: 0;
       }
     }
-
-    &:hover {
-      #{$root} {
-        &__header-actions {
-          &:not(:empty) {
-          }
-        }
-      }
-    }
-
-    &:not(:hover) {
-      #{$root} {
-        &__btn {
-          &_hidden {
-            display: none;
-          }
-        }
-      }
-    }
   }
 
   &__caption {
     display: inline-block;
-    text-align: center;
-    vertical-align: middle;
     border: 1px solid transparent;
-    text-decoration: none;
-
-    @extend %ellipsis;
-
     background: inherit;
     color: $text-color-gray;
     font-family: $font-family;
     font-size: $font-size-large;
     font-weight: $font-weight-bold;
-    font-style: normal;
-    line-height: 1;
     box-sizing: border-box;
     padding-right: 12px;
+
+    @extend %ellipsis;
   }
 
   &__body {
@@ -147,5 +129,17 @@
 
   &__footer {
     padding: 2px 0 5px;
+  }
+
+  &_mobile {
+    #{$root} {
+      &__header-wrapper {
+        padding: 0 15px;
+      }
+
+      &__caption {
+        font-size: $font-size-standard;
+      }
+    }
   }
 }

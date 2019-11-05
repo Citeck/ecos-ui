@@ -9,7 +9,10 @@ import '../../../forms/components';
 import Formio from 'formiojs/Formio';
 import './temp.scss';
 
-// import SelectJournal from '../../components/common/form/SelectJournal';
+import SelectJournal from '../../../components/common/form/SelectJournal';
+import SelectOrgstruct from '../../../components/common/form/SelectOrgstruct';
+import Btn from '../../../components/common/btns/Btn';
+import { AUTHORITY_TYPE_USER } from '../../../components/common/form/SelectOrgstruct/constants';
 
 class FormIOPage extends React.Component {
   componentDidMount() {
@@ -85,7 +88,25 @@ class FormIOPage extends React.Component {
         <Row>
           <Col md={12}>
             <div className={'white-container'}>
-              {/*<SelectJournal />*/}
+              <SelectOrgstruct
+                allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
+                renderView={props => {
+                  return <Btn onClick={props.toggleSelectModal}>Select orgstruct</Btn>;
+                }}
+                onChange={value => {
+                  console.log('Selected value: ', value);
+                }}
+              />
+              <br />
+              <SelectJournal
+                journalId={'payments'}
+                renderView={props => {
+                  return <p onClick={props.openSelectModal}>Select payment</p>;
+                }}
+                onChange={value => {
+                  console.log('onChange', value);
+                }}
+              />
 
               <div id="formio" />
               <br />

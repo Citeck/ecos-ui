@@ -1,22 +1,26 @@
 import React, { Component } from 'react';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
+import { Scrollbars } from 'react-custom-scrollbars';
+import ReactPlaceholder from 'react-placeholder';
+import { RectShape, RoundShape } from 'react-placeholder/lib/placeholders';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
-import { Scrollbars } from 'react-custom-scrollbars';
-import classNames from 'classnames';
 
-import { getDashboardConfig, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
-import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
-import Layout from '../../components/Layout';
-import { DndUtils } from '../../components/Drag-n-Drop';
-import TopMenu from '../../components/Layout/TopMenu';
-import { Loader, ScrollArrow, Tabs } from '../../components/common';
-import { MENU_TYPE } from '../../constants';
+import { LoaderTypes, MENU_TYPE } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
+import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
+import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
+import { Loader, ScrollArrow, Tabs } from '../../components/common';
+import { Badge } from '../../components/common/form';
+import { DocStatus } from '../../components/DocStatus';
+import Layout from '../../components/Layout';
+import { DndUtils } from '../../components/Drag-n-Drop';
+import TopMenu from '../../components/Layout/TopMenu';
 
 import './style.scss';
 
@@ -39,6 +43,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
   getDashboardConfig: payload => dispatch(getDashboardConfig(payload)),
+  getDashboardTitle: payload => dispatch(getDashboardTitle(payload)),
   saveDashboardConfig: payload => dispatch(saveDashboardConfig(payload)),
   initMenuSettings: payload => dispatch(getMenuConfig(payload)),
   saveMenuConfig: config => dispatch(saveMenuConfig(config)),
@@ -109,10 +114,11 @@ class Dashboard extends Component {
   }
 
   getConfig(props) {
-    const { getDashboardConfig } = this.props;
+    const { getDashboardConfig, getDashboardTitle } = this.props;
     const { recordRef, dashboardKey } = this.getPathInfo(props);
 
     getDashboardConfig({ recordRef, dashboardKey });
+    getDashboardTitle({ recordRef });
   }
 
   get wrapperStyle() {
@@ -165,13 +171,21 @@ class Dashboard extends Component {
     return [];
   }
 
+  get isShowTabs() {
+    return this.tabList.length > 1;
+  }
+
+  saveDashboardConfig = payload => {
+    this.props.saveDashboardConfig && this.props.saveDashboardConfig(payload);
+  };
+
   updateActiveConfig(activeLayout) {
     const { config, activeLayoutId } = this.state;
     const upConfig = deepClone(config, []);
 
-    upConfig.forEach(item => {
+    upConfig.forEach((item, i) => {
       if (item.id === activeLayoutId) {
-        config[activeLayoutId] = activeLayout;
+        upConfig[i] = activeLayout;
       }
     });
 
@@ -206,11 +220,8 @@ class Dashboard extends Component {
     }
 
     const config = this.updateActiveConfig(activeLayout);
-    this.saveDashboardConfig({ config });
-  };
 
-  saveDashboardConfig = payload => {
-    this.props.saveDashboardConfig(payload);
+    this.saveDashboardConfig({ config });
   };
 
   handleSaveMenu = links => {
@@ -236,6 +247,7 @@ class Dashboard extends Component {
     activeLayout.columns = columns;
 
     const config = this.updateActiveConfig(activeLayout);
+
     this.saveDashboardConfig({ config });
   };
 
@@ -246,7 +258,7 @@ class Dashboard extends Component {
   };
 
   renderTabs() {
-    if (this.tabList.length < 2) {
+    if (!this.isShowTabs) {
       return null;
     }
 
@@ -317,16 +329,31 @@ class Dashboard extends Component {
     const {
       titleInfo: { name = '', version = '' },
       dashboardType,
-      isMobile
+      isMobile,
+      isLoadingDashboard
     } = this.props;
+    const { recordRef } = this.getPathInfo();
+
     let title = null;
 
     switch (dashboardType) {
       case DashboardTypes.CASE_DETAILS:
         title = (
           <div className="ecos-dashboard__header-title" key="title">
-            {name && <div className="ecos-dashboard__header-name">{t(name)}</div>}
-            {version && <div className="ecos-dashboard__header-version">{version}</div>}
+            <ReactPlaceholder
+              type="textRow"
+              ready={!!name}
+              showLoadingAnimation={true}
+              customPlaceholder={
+                <div className="ecos-dashboard__header-placeholder">
+                  <RectShape color="#b7b7b7" style={{ width: 150, height: 18 }} />
+                  <RoundShape color="#b7b7b7" style={{ width: 32, height: 20 }} />
+                </div>
+              }
+            >
+              <div className="ecos-dashboard__header-name">{t(name)}</div>
+              {version && <Badge text={version} small={isMobile} />}
+            </ReactPlaceholder>
           </div>
         );
         break;
@@ -338,13 +365,24 @@ class Dashboard extends Component {
         break;
     }
 
+    const showStatus = isMobile && [DashboardTypes.CASE_DETAILS].includes(dashboardType);
+
     return (
       <div
         className={classNames('ecos-dashboard__header', {
-          'ecos-dashboard__header_mobile': isMobile
+          'ecos-dashboard__header_mobile': isMobile,
+          'ecos-dashboard__header_no-next': isMobile && !this.isShowTabs
         })}
       >
         {title}
+        {showStatus && (
+          <DocStatus
+            record={recordRef}
+            className="ecos-dashboard__header-status"
+            loaderType={LoaderTypes.POINTS}
+            noLoader={isLoadingDashboard}
+          />
+        )}
       </div>
     );
   }
