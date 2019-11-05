@@ -75,6 +75,11 @@
       #{$menu-item}__point {
         border-color: $color-gray-25;
       }
+
+      &#{$menu-item}::before,
+      & + #{$menu-item}::before {
+        display: none;
+      }
     }
 
     &#{$menu-item}_selected:not(#{$menu-item}_expanded):not(:hover) {
@@ -94,6 +99,11 @@
       #{$menu-item}__point {
         background: $color-white;
         border-color: $color-blue-light;
+      }
+
+      &::before,
+      & + #{$menu-item}::before {
+        display: none;
       }
     }
 
@@ -207,7 +217,7 @@
       }
 
       #{$menu-item}_lvl-1 {
-        padding: 0 15px 0 26px;
+        padding: 0 15px 0 25px;
 
         &#{$menu-item}_expanded:not(:hover) {
           background: $color-gray-4;
@@ -274,6 +284,7 @@
         text-align: left;
         padding: 0;
         margin: 0;
+        max-width: initial;
       }
 
       & &-arrow {
@@ -286,19 +297,20 @@
         #{$menu-item}_lvl-2 {
           padding: 0 18px;
 
-          &:first-child:hover {
+          &:first-child {
             border-top-left-radius: $border-radius-extra-large;
             border-top-right-radius: $border-radius-extra-large;
           }
 
-          &:last-child:hover {
+          &:last-child {
             border-bottom-left-radius: $border-radius-extra-large;
             border-bottom-right-radius: $border-radius-extra-large;
           }
 
           &:not(:first-child)::before {
-            width: 80%;
-            left: 10%;
+            border-right: 15px solid white;
+            border-left: 15px solid white;
+            right: 0;
           }
         }
       }

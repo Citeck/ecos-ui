@@ -10,6 +10,7 @@ import { setSelected } from '../../helpers/slideMenu';
 import { setScrollTop, setSelectedId, toggleExpanded } from '../../actions/slideMenu';
 import SS from '../../services/sidebar';
 import { Icon } from '../common';
+import ClickOutside from '../ClickOutside';
 import List from './List';
 import RemoteBadge from './RemoteBadge';
 import { ItemBtn, ItemIcon, ItemLink } from './item-components';
@@ -92,14 +93,10 @@ class Item extends React.Component {
   }
 
   get isSelectedItem() {
-    const { isOpen, selectedId, expandableItems } = this.props;
+    const { selectedId } = this.props;
     const { itemId } = this.parseData();
 
-    if (isOpen) {
-      return selectedId === itemId;
-    }
-
-    return expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).isNestedListExpanded;
+    return selectedId === itemId;
   }
 
   getMover() {
@@ -132,7 +129,7 @@ class Item extends React.Component {
             'ecos-sidebar-item_selected': this.isSelectedItem,
             'ecos-sidebar-item_separator': itemSeparator
           })}
-          onClick={this.toggleList}
+          onClick={this.onToggleList}
         >
           {!itemSeparator && children}
         </div>
@@ -147,14 +144,16 @@ class Item extends React.Component {
             innerClassName="ecos-sidebar-list-tooltip-inner"
             arrowClassName="ecos-sidebar-list-tooltip-arrow"
           >
-            <List isExpanded data={items} level={level + 1} />
+            <ClickOutside handleClickOutside={this.onCloseTooltip} onClick={this.onCloseTooltip}>
+              <List isExpanded data={items} level={level + 1} />
+            </ClickOutside>
           </Tooltip>
         )}
       </>
     );
   }
 
-  toggleList = e => {
+  onToggleList = e => {
     const { itemId } = this.parseData();
     const { styleProps = {} } = this.state;
     const { noToggle } = styleProps;
@@ -168,7 +167,7 @@ class Item extends React.Component {
     }
   };
 
-  closeTooltip = e => {
+  onCloseTooltip = () => {
     const { isOpen } = this.props;
     const { isExpanded } = this.state;
 
@@ -177,17 +176,23 @@ class Item extends React.Component {
     }
   };
 
+  onClickItem = () => {
+    const { itemId } = this.parseData();
+    const { setSelectItem } = this.props;
+
+    setSelectItem(itemId);
+  };
+
   renderLabel() {
-    const { isOpen, isSiteDashboardEnable, data, setSelectItem } = this.props;
+    const { isOpen, isSiteDashboardEnable, data } = this.props;
     const { styleProps = {} } = this.state;
     const { noIcon } = styleProps;
     const extraParams = { isSiteDashboardEnable };
-    const { itemId } = this.parseData();
 
     const Mover = this.getMover();
 
     return (
-      <Mover data={data} extraParams={extraParams} onClick={() => setSelectItem(itemId)}>
+      <Mover data={data} extraParams={extraParams} onClick={this.onClickItem}>
         {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : data.label} />}
         <div className="ecos-sidebar-item__label">{data.label}</div>
       </Mover>
