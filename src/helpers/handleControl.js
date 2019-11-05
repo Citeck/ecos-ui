@@ -1,5 +1,5 @@
 import { URL_SERVICECONTEXT, URL_RESCONTEXT } from '../constants/alfresco';
-import { t, dynamicallyLoadScript } from '../helpers/util';
+import { t, loadScript } from '../helpers/util';
 import { goToCardDetailsPage } from '../helpers/urls';
 import { hideModal, showModal } from '../actions/modal';
 import FormManager from '../components/EcosForm/FormManager';
@@ -79,7 +79,7 @@ export default function handleControl(type, payload, dispatch) {
       } else {
         const createSiteScript = `${URL_RESCONTEXT}modules/create-site${process.env.NODE_ENV === 'development' ? '.js' : '-min.js'}`;
         requireShareAssets().then(() => {
-          dynamicallyLoadScript(createSiteScript, function() {
+          loadScript(createSiteScript, function() {
             window.Alfresco.module.getCreateSiteInstance().show();
           });
         });
