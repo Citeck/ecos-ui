@@ -154,6 +154,7 @@
   "dashboard-settings.widget.tasks": "My tasks",
   "dashboard-settings.widget.versions-journal": "Versions journal",
   "dashboard-settings.widget.web-page": "Web Page",
+  "dashboard-settings.widget.birthdays": "Birthdays",
   "dashboard-settings.widgets.placeholder": "No available widgets",
   "dashboard-settings.widgets.subtitle": "Choose the widgets location.",
   "dashboard-settings.widgets.subtitle-mobile": "Choose the widgets location by dragging them to the column on the right.",

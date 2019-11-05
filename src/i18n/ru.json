@@ -154,6 +154,7 @@
   "dashboard-settings.widget.tasks": "Мои задачи",
   "dashboard-settings.widget.versions-journal": "Журнал версий",
   "dashboard-settings.widget.web-page": "Веб-страница",
+  "dashboard-settings.widget.birthdays": "Дни рождения",
   "dashboard-settings.widgets.placeholder": "Нет доступных виджетов",
   "dashboard-settings.widgets.subtitle": "Выберите где и какие виджеты отображать.",
   "dashboard-settings.widgets.subtitle-mobile": "Выберите порядок расположения виджетов, перетащив их в колонку справа",
