@@ -52,27 +52,25 @@ class Item extends React.Component {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    // const { itemId } = this.parseData(nextProps);
+    const isNestedListExpandedNext = this.getIsNestedListExpanded(nextProps);
 
     if (!nextProps.isOpen && this.props.isOpen) {
       this.setState({ isExpanded: this.state.styleProps.isDefExpanded });
     }
 
-    // const isNestedListExpandedNext = (nextProps.expandableItems.find(fi => fi.id === itemId) || {}).isNestedListExpanded;
-    // const isNestedListExpandedOld = (this.props.expandableItems.find(fi => fi.id === itemId) || {}).isNestedListExpanded;
-    //
-    // if (isNestedListExpandedNext && isNestedListExpandedNext !== isNestedListExpandedOld) {
-    //   this.setState({ isExpanded: isNestedListExpandedNext || this.state.styleProps.isDefExpanded });
-    // }
+    if (nextProps.isOpen && isNestedListExpandedNext) {
+      this.setState({ isExpanded: isNestedListExpandedNext || this.state.styleProps.isDefExpanded });
+    }
   }
 
   parseData(props = this.props) {
-    const { data } = props;
+    const { data, isSiteDashboardEnable } = props;
 
     return {
       itemId: get(data, 'id', ''),
       items: get(data, 'items', null),
-      actionType: get(data, 'action.type', '')
+      actionType: get(data, 'action.type', ''),
+      itemUrl: SS.getPropsUrl(data, { isSiteDashboardEnable })
     };
   }
 
@@ -99,14 +97,25 @@ class Item extends React.Component {
     return selectedId === itemId;
   }
 
-  getMover() {
+  get isLink() {
     const { actionType } = this.parseData();
 
+    return ![SS.ActionTypes.CREATE_SITE].includes(actionType);
+  }
+
+  getIsNestedListExpanded(props = this.props) {
+    const { expandableItems } = props;
+    const { itemId } = this.parseData();
+
+    return expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).isNestedListExpanded;
+  }
+
+  getMover() {
     if (this.noMove) {
       return ({ children }) => <div className="ecos-sidebar-item__link">{children}</div>;
     }
 
-    return SS.ActionTypes.CREATE_SITE === actionType ? ItemBtn : ItemLink;
+    return this.isLink ? ItemLink : ItemBtn;
   }
 
   getItemContainer() {
@@ -177,10 +186,12 @@ class Item extends React.Component {
   };
 
   onClickItem = () => {
-    const { itemId } = this.parseData();
-    const { setSelectItem } = this.props;
+    if (this.isLink || !this.hasSubItems) {
+      const { itemId } = this.parseData();
+      const { setSelectItem } = this.props;
 
-    setSelectItem(itemId);
+      setSelectItem(itemId);
+    }
   };
 
   renderLabel() {
