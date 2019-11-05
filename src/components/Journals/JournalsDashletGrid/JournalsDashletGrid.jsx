@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import classNames from 'classnames';
 import lodash from 'lodash';
 import connect from 'react-redux/es/connect/connect';
@@ -403,11 +403,11 @@ class JournalsDashletGrid extends Component {
       );
 
     return (
-      <Fragment>
+      <>
         <div className={'ecos-journal-dashlet__grid'}>
           <HeightCalculation maxItems={maxItems} doNotCount={doNotCount} minHeight={minHeight}>
             {loading ? (
-              <Loader style={{ height: minHeight }} />
+              <Loader />
             ) : (
               <Grid
                 data={data}
@@ -456,7 +456,7 @@ class JournalsDashletGrid extends Component {
           onCancel={this.closeDialog}
           onClose={this.closeDialog}
         />
-      </Fragment>
+      </>
     );
   }
 }
