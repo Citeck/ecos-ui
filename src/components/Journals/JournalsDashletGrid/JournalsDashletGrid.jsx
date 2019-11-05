@@ -379,7 +379,8 @@ class JournalsDashletGrid extends Component {
         columns,
         sortBy,
         pagination: { maxItems },
-        groupBy
+        groupBy,
+        total
       },
       doInlineToolsOnRowClick = false,
       performGroupActionResponse,
@@ -396,13 +397,9 @@ class JournalsDashletGrid extends Component {
 
     const HeightCalculation = ({ doNotCount, children, maxItems, minHeight }) =>
       doNotCount ? (
-        <div
-        // style={{ height: minHeight }}
-        >
-          {children}
-        </div>
+        <div style={{ height: minHeight }}>{children}</div>
       ) : (
-        <EmptyGrid maxItems={maxItems}>{children}</EmptyGrid>
+        <EmptyGrid maxItems={total > maxItems ? maxItems : total}>{children}</EmptyGrid>
       );
 
     return (
