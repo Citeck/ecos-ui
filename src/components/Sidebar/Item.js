@@ -10,10 +10,9 @@ import { setSelected } from '../../helpers/slideMenu';
 import { setScrollTop, setSelectedId, toggleExpanded } from '../../actions/slideMenu';
 import SS from '../../services/sidebar';
 import { Icon } from '../common';
-import ClickOutside from '../ClickOutside';
 import List from './List';
 import RemoteBadge from './RemoteBadge';
-import { ItemBtn, ItemIcon, ItemLink } from './itemComponents';
+import { ItemBtn, ItemIcon, ItemLink } from './item-components';
 
 class Item extends React.Component {
   static propTypes = {
@@ -92,6 +91,17 @@ class Item extends React.Component {
     return !isOpen && SS.DROP_MENU_BEGIN_FROM === level + 1;
   }
 
+  get isSelectedItem() {
+    const { isOpen, selectedId, expandableItems } = this.props;
+    const { itemId } = this.parseData();
+
+    if (isOpen) {
+      return selectedId === itemId;
+    }
+
+    return expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).isNestedListExpanded;
+  }
+
   getMover() {
     const { actionType } = this.parseData();
 
@@ -113,21 +123,19 @@ class Item extends React.Component {
 
     return ({ children }) => (
       <>
-        <ClickOutside handleClickOutside={this.closeTooltip}>
-          <div
-            id={id}
-            className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
-              'ecos-sidebar-item_no-action': this.noMove,
-              'ecos-sidebar-item_no-items': !this.hasSubItems,
-              'ecos-sidebar-item_expanded': isExpanded && this.hasSubItems,
-              'ecos-sidebar-item_selected': false,
-              'ecos-sidebar-item_separator': itemSeparator
-            })}
-            onClick={this.toggleList}
-          >
-            {!itemSeparator && children}
-          </div>
-        </ClickOutside>
+        <div
+          id={id}
+          className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
+            'ecos-sidebar-item_no-action': this.noMove,
+            'ecos-sidebar-item_no-items': !this.hasSubItems,
+            'ecos-sidebar-item_expanded': isExpanded && this.hasSubItems,
+            'ecos-sidebar-item_selected': this.isSelectedItem,
+            'ecos-sidebar-item_separator': itemSeparator
+          })}
+          onClick={this.toggleList}
+        >
+          {!itemSeparator && children}
+        </div>
         {this.isDropList && (
           <Tooltip
             target={id}
