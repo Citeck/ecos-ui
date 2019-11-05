@@ -22,10 +22,11 @@
   height: 50px;
 }
 
-.ecos-base-content {
+.ecos-base-page {
   display: flex;
 }
 
-.ecos-base-side {
+.ecos-main-area {
   flex: auto;
+  overflow-x: hidden;
 }
