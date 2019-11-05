@@ -63,8 +63,7 @@
     min-width: 190px;
     width: 100%;
     position: relative;
-
-    padding-left: 60px;
+    padding: 0 19px 0 17px;
 
     &_disabled {
       pointer-events: none;
@@ -74,6 +73,11 @@
     &:hover {
       #{$root}-actions_hover {
         visibility: visible;
+        background: white;
+
+        &:first-child {
+          box-shadow: -5px 0px 8px rgb(255, 255, 255);
+        }
       }
     }
   }
@@ -109,6 +113,7 @@
     align-items: center;
     position: absolute;
     right: 0;
+    height: 100%;
 
     &_none,
     &_hover {
@@ -119,23 +124,22 @@
       padding-right: 5px;
     }
 
-    &-edit,
-    &-delete {
+    &__icon {
       color: $color-gray-5;
       font-size: $font-size-standard;
 
       &:hover {
-        color: $text-color-gray;
+        color: $color-blue-light;
       }
-    }
 
-    &-move {
-      color: $color-gray-1;
-      font-size: $font-size-extra-large;
-      cursor: grab;
+      &_move {
+        color: $color-gray-1;
+        font-size: $font-size-extra-large;
+        cursor: grab;
 
-      &:hover {
-        color: $color-gray-5;
+        &:hover {
+          color: $color-gray-5;
+        }
       }
     }
   }
@@ -146,20 +150,19 @@
     }
 
     #{$root}-actions {
-      &-edit,
-      &-delete {
+      &__icon {
         color: $color-blue-light2;
 
         &:hover {
           color: $color-white;
         }
-      }
 
-      &-move {
-        color: $color-blue-light;
+        &_move {
+          color: $color-blue-light;
 
-        &:hover {
-          color: $color-blue-light2;
+          &:hover {
+            color: $color-blue-light2;
+          }
         }
       }
     }

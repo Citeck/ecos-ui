@@ -6,7 +6,6 @@ import { deepClone, t } from '../../../helpers/util';
 import { Input } from '../form';
 import { Icon } from '../';
 import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
-
 import './Tabs.scss';
 
 const SortableContainer = sortableContainer(({ children }) => {
@@ -17,7 +16,7 @@ const SortableElement = sortableElement(({ children }) => {
   return children;
 });
 
-const DragHandle = sortableHandle(() => <Icon className={'icon-drag ecos-tab-actions-move'} />);
+const DragHandle = sortableHandle(() => <Icon className="icon-drag ecos-tab-actions__icon ecos-tab-actions__icon_move" />);
 
 class Tab extends React.Component {
   static propTypes = {
@@ -97,9 +96,7 @@ class Tab extends React.Component {
     return (
       <div className={tabClassNames} onClick={onClick} title={hasHint ? t(label) : ''}>
         <div
-          className={classNames('ecos-tab-label', {
-            'ecos-tab-label_edit': isEdit
-          })}
+          className={classNames('ecos-tab-label', { 'ecos-tab-label_edit': isEdit })}
           style={{
             minWidth: `${textSize > 330 ? 330 : textSize}px`
           }}
@@ -122,11 +119,9 @@ class Tab extends React.Component {
             t(label)
           )}
         </div>
-        <div className={classNames('ecos-tab-actions')}>
-          {!isEdit && <Icon className={classNames('icon-edit ecos-tab-actions-edit ecos-tab-actions_hover')} onClick={this.startEdit} />}
-          {!isEdit && !disabled && (
-            <Icon className={classNames('icon-close ecos-tab-actions-delete ecos-tab-actions_hover')} onClick={this.onDelete} />
-          )}
+        <div className="ecos-tab-actions">
+          {!isEdit && <Icon className="ecos-tab-actions__icon icon-edit ecos-tab-actions_hover" onClick={this.startEdit} />}
+          {!isEdit && !disabled && <Icon className="ecos-tab-actions__icon icon-close ecos-tab-actions_hover" onClick={this.onDelete} />}
           {!disabled && <DragHandle />}
         </div>
       </div>
