@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import getCadespluginAPI from 'async-cadesplugin';
 import get from 'lodash/get';
 
@@ -80,4 +82,11 @@ class Esign extends Component {
   }
 }
 
-export default Esign;
+const mapStateToProps = (state, ownProps) => ({});
+
+const mapDispatchToProps = (dispatch, ownProps) => ({});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Esign);
