@@ -2,35 +2,23 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import getCadespluginAPI from 'async-cadesplugin';
-import get from 'lodash/get';
 
 import { Btn } from '../common/btns';
 import { EsignApi } from '../../api/esign';
+import { selectStateByKey } from '../../selectors/esign';
+import { init, getCertificates } from '../../actions/esign';
 
-const esignApi = new EsignApi();
+// const esignApi = new EsignApi();
 
 class Esign extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      api: get(window, 'cadesplugin.api', null),
-      base64: ''
+      isOpenModal: false
     };
-    this.init();
-  }
 
-  async init() {
-    if (this.state.api !== null) {
-      return;
-    }
-
-    try {
-      const api = await getCadespluginAPI();
-
-      this.setState({ api });
-      window.cadesplugin.api = api;
-    } catch (e) {}
+    this.props.init();
   }
 
   async sign() {
@@ -51,24 +39,23 @@ class Esign extends Component {
   }
 
   handleClickSign = () => {
-    this.sign();
-
-    this.getRefInfo();
+    this.props.getCertificates();
+    this.setState({ isOpenModal: true });
     // documentSign('workspace://SpacesStore/e617a72f-02fa-4fcd-9ba3-685cd8b3f9f6')
   };
 
   getRefInfo() {
-    esignApi.getDocumentData(this.props.nodeRef).then(
-      async function(result) {
-        const base64 = get(result, 'data.0.base64');
-        const certificate = await this.state.api.getFirstValidCertificate();
-
-        this.setState({ base64 });
-        const signature = await this.state.api.signBase64(certificate.thumbprint, base64);
-
-        console.warn('signature => ', signature);
-      }.bind(this)
-    );
+    // esignApi.getDocumentData(this.props.nodeRef).then(
+    //   async function(result) {
+    //     const base64 = get(result, 'data.0.base64');
+    //     const certificate = await this.state.api.getFirstValidCertificate();
+    //
+    //     this.setState({ base64 });
+    //     const signature = await this.state.api.signBase64(certificate.thumbprint, base64);
+    //
+    //     console.warn('signature => ', signature);
+    //   }.bind(this)
+    // );
   }
 
   render() {
@@ -82,9 +69,14 @@ class Esign extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({});
+const mapStateToProps = (state, ownProps) => ({
+  ...selectStateByKey(state, ownProps.nodeRef)
+});
 
-const mapDispatchToProps = (dispatch, ownProps) => ({});
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  init: () => dispatch(init(ownProps.nodeRef)),
+  getCertificates: () => dispatch(getCertificates(ownProps.nodeRef))
+});
 
 export default connect(
   mapStateToProps,

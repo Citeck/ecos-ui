@@ -1,9 +1,9 @@
 import { handleActions } from 'redux-actions';
 
-import { init } from '../actions/esign';
+import { init, setApi, getCertificates, setCertificates } from '../actions/esign';
 
 export const initialState = {
-  apiIsAvailable: false,
+  cadespluginApi: null,
   documentBase64: '',
   selectedCertificate: '',
   certificates: [],
@@ -14,18 +14,40 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
-    [init]: (state, action) => {
+    [init]: (state, { payload }) => {
       let ownState = { ...initialState };
 
-      if (state[action.payload]) {
-        ownState = { ...ownState, ...state[action.payload] };
+      if (state[payload]) {
+        ownState = { ...ownState, ...state[payload] };
       }
 
       return {
         ...state,
-        [action.payload]: { ...ownState }
+        [payload]: { ...ownState }
       };
-    }
+    },
+    [setApi]: (state, { payload }) => ({
+      ...state,
+      [payload.id]: {
+        ...state[payload.id],
+        cadespluginApi: { ...payload.cadespluginApi }
+      }
+    }),
+    [getCertificates]: (state, { payload }) => ({
+      ...state,
+      [payload]: {
+        ...state[payload],
+        isLoading: true
+      }
+    }),
+    [setCertificates]: (state, { payload }) => ({
+      ...state,
+      [payload.id]: {
+        ...state[payload.id],
+        certificates: payload.certificates,
+        isLoading: false
+      }
+    })
   },
   {}
 );
