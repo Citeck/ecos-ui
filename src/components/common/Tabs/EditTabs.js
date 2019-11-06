@@ -16,7 +16,7 @@ const SortableElement = sortableElement(({ children }) => {
   return children;
 });
 
-const DragHandle = sortableHandle(() => <Icon className="icon-drag ecos-tab-actions__icon ecos-tab-actions__icon_move" />);
+const DragHandle = sortableHandle(() => <Icon className="icon-drag ecos-tab-actions__icon ecos-tab-actions__icon_paler" />);
 
 class Tab extends React.Component {
   static propTypes = {
@@ -36,7 +36,7 @@ class Tab extends React.Component {
   };
 
   state = {
-    edit: false,
+    editing: false,
     text: ''
   };
 
@@ -44,7 +44,7 @@ class Tab extends React.Component {
     const { label, isNew } = this.props;
 
     e.stopPropagation();
-    this.setState({ edit: true, text: isNew ? '' : label });
+    this.setState({ editing: true, text: isNew ? '' : label });
   };
 
   endEdit = () => {
@@ -52,7 +52,7 @@ class Tab extends React.Component {
     const { text } = this.state;
     const newLabel = text || label;
 
-    this.setState({ edit: false, text: '' });
+    this.setState({ editing: false, text: '' });
 
     onEdit(newLabel);
   };
@@ -82,32 +82,29 @@ class Tab extends React.Component {
 
   render() {
     const { label, isActive, onClick, hasHover, hasHint, disabled, isNew, className } = this.props;
-    const { edit, text } = this.state;
-    const isEdit = edit || isNew;
+    const { editing, text } = this.state;
+    const isEdit = editing || isNew;
     const tabClassNames = classNames('ecos-tab', 'ecos-tab_edit', className, {
       'ecos-tab_active': isActive,
       'ecos-tab_hover': hasHover,
-      'ecos-tab_disabled': disabled,
-      'ecos-tab_symmetrican-padding': isEdit
+      'ecos-tab_disabled': disabled
     });
     const placeholder = isNew ? t(label) : t('page-tabs.tab-name');
+    const inputStyle = {};
     const textSize = text.length * 8;
+
+    if (textSize) {
+      inputStyle.width = `${textSize}px`;
+    }
 
     return (
       <div className={tabClassNames} onClick={onClick} title={hasHint ? t(label) : ''}>
-        <div
-          className={classNames('ecos-tab-label', { 'ecos-tab-label_edit': isEdit })}
-          style={{
-            minWidth: `${textSize > 330 ? 330 : textSize}px`
-          }}
-        >
+        <div className={classNames('ecos-tab-label', { 'ecos-tab-label_edit': isEdit })}>
           {isEdit ? (
             <Input
               className="ecos-tab-label__input"
               autoFocus
-              style={{
-                width: textSize ? `${textSize}px` : 'auto'
-              }}
+              style={inputStyle}
               value={text}
               placeholder={placeholder}
               onChange={this.onChange}

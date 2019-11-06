@@ -50,20 +50,45 @@
     color: $color-white;
     background-color: $color-blue-dark;
     border-color: $color-blue-dark;
-  }
 
-  &_hover:not(&_active):hover {
-    background: $color-white;
-    color: $color-blue-dark;
+    #{$root}-label__input {
+      color: $color-white;
+    }
+
+    #{$root}-actions {
+      &__icon {
+        --color-actions: #{$color-blue-light2};
+
+        &:hover {
+          --color-actions_hover: #{$color-white};
+        }
+
+        &_paler {
+          --color-actions_paler: #{$color-blue-light};
+
+          &:hover {
+            --color-actions_paler_hover: #{$color-blue-light2};
+          }
+        }
+      }
+    }
+
+    &#{$root}_edit {
+      &:hover {
+        #{$root}-actions_hover {
+          --back-actions_hover: #{$color-blue-dark};
+        }
+      }
+    }
   }
 
   &_edit {
     display: inline-flex;
     align-items: center;
-    min-width: 190px;
-    width: 100%;
+    justify-content: center;
+    min-width: 105px;
     position: relative;
-    padding: 0 19px 0 17px;
+    padding: 0 23px 0 17px;
 
     &_disabled {
       pointer-events: none;
@@ -72,38 +97,32 @@
 
     &:hover {
       #{$root}-actions_hover {
+        --back-actions_hover: #{$color-white};
+
         visibility: visible;
-        background: white;
+        background: var(--back-actions_hover);
 
         &:first-child {
-          box-shadow: -5px 0px 8px rgb(255, 255, 255);
+          box-shadow: -5px 0px 8px var(--back-actions_hover);
         }
       }
     }
   }
 
-  &_symmetrican-padding {
-    padding: 0 10px !important;
-  }
-
   &-label {
-    flex: auto;
     @extend %ellipsis;
-
     text-align: center;
-    width: 100%;
 
     &__input {
       background: transparent;
       border: none;
-      color: $text-color-dark;
       text-align: center;
-      padding: 0 12px;
-      min-width: 190px;
+      padding: 0;
+      transition: width 0.1s linear;
+      width: 135px;
     }
 
     &_edit {
-      display: flex;
       padding: 0;
     }
   }
@@ -124,45 +143,34 @@
       padding-right: 5px;
     }
 
+    & :last-child {
+      padding-right: 7px;
+    }
+
     &__icon {
-      color: $color-gray-5;
+      --color-actions: #{$color-gray-5};
+
+      color: var(--color-actions);
       font-size: $font-size-standard;
+      padding: 5px 0;
 
       &:hover {
-        color: $color-blue-light;
+        --color-actions_hover: #{$color-blue-light};
+
+        color: var(--color-actions_hover);
       }
 
-      &_move {
-        color: $color-gray-1;
+      &_paler {
+        --color-actions_paler: #{$color-gray-1};
+
+        color: var(--color-actions_paler);
         font-size: $font-size-extra-large;
         cursor: grab;
 
         &:hover {
-          color: $color-gray-5;
-        }
-      }
-    }
-  }
+          --color-actions_paler_hover: #{$color-gray-5};
 
-  &_active {
-    #{$root}-label__input {
-      color: $color-white;
-    }
-
-    #{$root}-actions {
-      &__icon {
-        color: $color-blue-light2;
-
-        &:hover {
-          color: $color-white;
-        }
-
-        &_move {
-          color: $color-blue-light;
-
-          &:hover {
-            color: $color-blue-light2;
-          }
+          color: var(--color-actions_paler_hover);
         }
       }
     }
