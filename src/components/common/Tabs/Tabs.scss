@@ -73,7 +73,7 @@
       }
     }
 
-    &#{$root}_edit {
+    &#{$root}_editable {
       &:hover {
         #{$root}-actions_hover {
           --back-actions_hover: #{$color-blue-dark};
@@ -82,13 +82,13 @@
     }
   }
 
-  &_edit {
+  &_editable {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 105px;
     position: relative;
-    padding: 0 23px 0 17px;
+    padding: 0 20px 0 17px;
 
     &_disabled {
       pointer-events: none;
@@ -109,6 +109,12 @@
     }
   }
 
+  &_editing {
+    #{$root}-label__input {
+      padding: 0;
+    }
+  }
+
   &-label {
     @extend %ellipsis;
     text-align: center;
@@ -120,10 +126,6 @@
       padding: 0;
       transition: width 0.1s linear;
       width: 135px;
-    }
-
-    &_edit {
-      padding: 0;
     }
   }
 

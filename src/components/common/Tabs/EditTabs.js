@@ -84,10 +84,11 @@ class Tab extends React.Component {
     const { label, isActive, onClick, hasHover, hasHint, disabled, isNew, className } = this.props;
     const { editing, text } = this.state;
     const isEdit = editing || isNew;
-    const tabClassNames = classNames('ecos-tab', 'ecos-tab_edit', className, {
+    const tabClassNames = classNames('ecos-tab', 'ecos-tab_editable', className, {
       'ecos-tab_active': isActive,
       'ecos-tab_hover': hasHover,
-      'ecos-tab_disabled': disabled
+      'ecos-tab_disabled': disabled,
+      'ecos-tab_editing': isEdit
     });
     const placeholder = isNew ? t(label) : t('page-tabs.tab-name');
     const inputStyle = {};
@@ -99,7 +100,7 @@ class Tab extends React.Component {
 
     return (
       <div className={tabClassNames} onClick={onClick} title={hasHint ? t(label) : ''}>
-        <div className={classNames('ecos-tab-label', { 'ecos-tab-label_edit': isEdit })}>
+        <div className="ecos-tab-label">
           {isEdit ? (
             <Input
               className="ecos-tab-label__input"
@@ -179,7 +180,7 @@ class EditTabs extends React.Component {
       <SortableContainer axis="x" lockAxis="x" onSortEnd={this.handleSortEnd} useDragHandle>
         <div className={tabsClassNames}>
           {items.map((item, index) => (
-            <SortableElement key={`${item[keyField]}-${index}-edit`} index={index} disabled={disabled}>
+            <SortableElement key={`${item[keyField]}-${index}-editable`} index={index} disabled={disabled}>
               <Tab
                 {...item}
                 className={classNameTab}
