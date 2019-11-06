@@ -52,9 +52,15 @@ export default class FileComponent extends FormIOFileComponent {
       return this.defaultViewOnlyValue;
     }
 
+    const classList = ['file-list-view-mode'];
+
+    if (this.component && this.component.hideLabel) {
+      classList.push('file-list-view-mode_hide-label');
+    }
+
     return this.ce(
       'ul',
-      { class: 'file-list_view-mode' },
+      { class: classList.join(' ') },
       Array.isArray(value) ? value.map(fileInfo => this.createFileListItemViewMode(fileInfo)) : this.createFileListItemViewMode(value)
     );
   }
