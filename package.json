@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@loadable/component": "^5.10.1",
+    "async-cadesplugin": "^0.9.9",
     "body-parser": "^1.18.3",
     "bootstrap": "4",
     "choices.js": "^6.0.3",
