@@ -632,6 +632,7 @@
   "web-page-widget.btn.update": "Update",
   "web-page-widget.error": "Error!",
   "web-page-widget.error-server-not-found": "Server not found.",
+  "action.confirm.title": "Confirmation",
   "action.result.success": "Action success",
   "action.result.error": "Action error",
   "userActions.contract.property.addApprover": "Add approver",

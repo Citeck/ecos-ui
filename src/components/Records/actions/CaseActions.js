@@ -1,6 +1,7 @@
 import { PROXY_URI } from '../../../constants/alfresco';
 import dialogManager from '../../common/dialogs/Manager';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
+import { t } from '../../../helpers/util';
 
 export const CaseCreateNodeAction = {
   execute: ({ action }) => {
@@ -54,16 +55,15 @@ export const CaseRequestAction = {
         })
         .then(() => {
           dialogManager.showInfoDialog({
-            title: 'action.result.success',
-            text: 'action.result.success',
+            title: t('action.result.success'),
+            text: t('action.result.success'),
             onClose: () => onRequestResult(true)
           });
         })
         .catch(e => {
-          console.error(e);
           dialogManager.showInfoDialog({
-            title: 'action.result.error',
-            text: 'action.result.error',
+            title: t('action.result.error'),
+            text: e.message,
             onClose: () => onRequestResult(false)
           });
         });
@@ -71,8 +71,8 @@ export const CaseRequestAction = {
 
     if (action.config.confirmationMessage) {
       dialogManager.confirmDialog({
-        title: action.config.confirmationMessage,
-        text: action.config.confirmationMessage,
+        title: t('action.confirm.title'),
+        text: t(action.config.confirmationMessage),
         onNo: () => onRequestResult(false),
         onYes: makeRequest
       });

@@ -636,6 +636,7 @@
   "web-page-widget.btn.update": "Обновить",
   "web-page-widget.error": "Ошибка!",
   "web-page-widget.error-server-not-found": "Сервер не найден.",
+  "action.confirm.title": "Подтверждение действия",
   "action.result.success": "Действие успешно выполнено",
   "action.result.error": "Во время выполнения действия произошла ошибка",
   "userActions.contract.property.addApprover": "Добавить дополнительного согласующего",
