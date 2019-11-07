@@ -4,11 +4,14 @@ import { connect } from 'react-redux';
 import getCadespluginAPI from 'async-cadesplugin';
 
 import { Btn } from '../common/btns';
-import { EsignApi } from '../../api/esign';
 import { selectStateByKey } from '../../selectors/esign';
 import { init, getCertificates } from '../../actions/esign';
+import EsignModal from './EsignModal';
+import { t } from '../../helpers/util';
 
-// const esignApi = new EsignApi();
+const LABELS = {
+  MODAL_TITLE: 'Выбор сертификата для подписи'
+};
 
 class Esign extends Component {
   constructor(props) {
@@ -58,12 +61,21 @@ class Esign extends Component {
     // );
   }
 
+  handleCancelSign = () => {
+    this.setState({ isOpenModal: false });
+  };
+
   render() {
+    const { isLoading } = this.props;
+    const { isOpenModal } = this.state;
+
     return (
       <>
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleClickSign} disabled={this.state.api === null}>
           Подписать
         </Btn>
+
+        <EsignModal isShow={isOpenModal} isLoading={isLoading} title={t(LABELS.MODAL_TITLE)} onHideModal={this.handleCancelSign} />
       </>
     );
   }
