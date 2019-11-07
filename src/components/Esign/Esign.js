@@ -10,7 +10,11 @@ import EsignModal from './EsignModal';
 import { t } from '../../helpers/util';
 
 const LABELS = {
-  MODAL_TITLE: 'Выбор сертификата для подписи'
+  MODAL_TITLE: 'Выбор сертификата для подписи',
+  MODAL_ALREADY_SIGNED_TITLE: 'Документ уже был подписан',
+  MODAL_NO_CERTIFICATES_TITLE: 'Нет доступных сертификатов',
+  MODAL_INSTALL_EXTENSION_TITLE: 'Установите расширение',
+  MODAL_INSTALL_EXTENSION_DESCRIPTION: 'Чтобы продолжить, установите расширение КриптоПро для браузера с сайта cryptopro.ru'
 };
 
 class Esign extends Component {
@@ -20,6 +24,8 @@ class Esign extends Component {
     this.state = {
       isOpenModal: false
     };
+
+    window.cadesplugin_skip_extension_install = true;
 
     this.props.init();
   }
@@ -65,17 +71,33 @@ class Esign extends Component {
     this.setState({ isOpenModal: false });
   };
 
+  renderInfoMessage() {
+    const { isLoading, certificates } = this.props;
+    const { isOpenModal } = this.state;
+
+    return null;
+  }
+
   render() {
-    const { isLoading } = this.props;
+    const { isLoading, certificates, cadespluginApi, selectedCertificate } = this.props;
     const { isOpenModal } = this.state;
 
     return (
       <>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleClickSign} disabled={this.state.api === null}>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleClickSign} disabled={cadespluginApi === null}>
           Подписать
         </Btn>
 
-        <EsignModal isShow={isOpenModal} isLoading={isLoading} title={t(LABELS.MODAL_TITLE)} onHideModal={this.handleCancelSign} />
+        <EsignModal
+          isShow={isOpenModal && certificates.length}
+          isLoading={isLoading}
+          title={t(LABELS.MODAL_TITLE)}
+          onHideModal={this.handleCancelSign}
+          certificates={certificates}
+          selected={selectedCertificate}
+        />
+
+        {this.renderInfoMessage()}
       </>
     );
   }

@@ -4,6 +4,7 @@ import { init, setApi, getCertificates, setCertificates } from '../actions/esign
 
 export const initialState = {
   cadespluginApi: null,
+  cadespluginVersion: null,
   documentBase64: '',
   selectedCertificate: '',
   certificates: [],
@@ -45,6 +46,7 @@ export default handleActions(
       [payload.id]: {
         ...state[payload.id],
         certificates: payload.certificates,
+        selectedCertificate: payload.selectedCertificate,
         isLoading: false
       }
     })

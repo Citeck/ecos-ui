@@ -7,6 +7,7 @@ import Records from '../components/Records';
 
 export class EsignApi extends RecordService {
   static _cadespluginApi = null;
+  static _hasCadesplugin = false;
 
   get cadespluginApi() {
     return EsignApi._cadespluginApi;
@@ -16,11 +17,30 @@ export class EsignApi extends RecordService {
     EsignApi._cadespluginApi = api;
   }
 
-  getCadespluginApi = () => {
+  get hasCadesplugin() {
+    return EsignApi._hasCadesplugin;
+  }
+
+  set hasCadesplugin(hasCadesplugin) {
+    EsignApi._hasCadesplugin = hasCadesplugin;
+  }
+
+  getCadespluginApi = async () => {
     const api = get(window, 'cadesplugin.api', null);
 
     if (!api) {
-      return getCadespluginAPI();
+      const api = await getCadespluginAPI();
+
+      if (api === null) {
+        EsignApi._hasCadesplugin = false;
+
+        throw new Error();
+      }
+
+      EsignApi._hasCadesplugin = true;
+      this.cadespluginApi = api;
+
+      return api;
     }
 
     return api;
@@ -32,8 +52,12 @@ export class EsignApi extends RecordService {
     set(window, 'cadesplugin.api', api);
   };
 
-  getCertificates() {
-    return this.cadespluginApi.getValidCertificates();
+  async getCertificates() {
+    return await this.cadespluginApi.getValidCertificates();
+  }
+
+  getPluginVersion() {
+    return this.cadespluginApi.about();
   }
 
   getDocumentData = record => {

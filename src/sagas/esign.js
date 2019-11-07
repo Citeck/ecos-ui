@@ -1,17 +1,29 @@
 import { delay } from 'redux-saga';
 import { put, select, call, takeEvery } from 'redux-saga/effects';
+import get from 'lodash/get';
 
-import { setApi, init, setCertificates, getCertificates } from '../actions/esign';
+import { setApi, init, setCertificates, getCertificates, setError } from '../actions/esign';
 import EsignConverter from '../dto/esign';
 
 function* sagaInit({ api, logger }, action) {
   try {
     const cadespluginApi = yield api.esign.getCadespluginApi();
+    const version = yield api.esign.getPluginVersion();
 
-    api.esign.setCadespluginApi(cadespluginApi);
+    console.warn('version => ', version);
+
     yield put(setApi({ id: action.payload, cadespluginApi }));
     yield put(getCertificates(action.payload));
   } catch (e) {
+    yield put(
+      setError({
+        id: action.payload,
+        message: api.esign.hasCadesplugin
+          ? e.message
+          : 'Чтобы продолжить, установите расширение Cryptopro для браузера с сайта cryptopro.ru'
+      })
+    );
+    console.warn(e);
     logger.error('[esign sagaInit saga error', e.message);
   }
 }
@@ -26,7 +38,13 @@ function* sagaGetCertificates({ api, logger }, action) {
 
     yield delay(1000);
 
-    yield put(setCertificates({ id: action.payload, certificates }));
+    yield put(
+      setCertificates({
+        id: action.payload,
+        certificates,
+        selectedCertificate: get(certificates, '0.id', '')
+      })
+    );
   } catch (e) {
     logger.error('[esign sagaGetCertificates saga error', e.message);
   }
