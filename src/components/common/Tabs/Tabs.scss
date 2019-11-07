@@ -85,7 +85,6 @@
   &_editable {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     min-width: 105px;
     position: relative;
     padding: 0 20px 0 17px;
@@ -118,14 +117,14 @@
   &-label {
     @extend %ellipsis;
     text-align: center;
+    transition: width 0.1s linear;
 
     &__input {
       background: transparent;
       border: none;
       text-align: center;
       padding: 0;
-      transition: width 0.1s linear;
-      width: 135px;
+      width: 100%;
     }
   }
 

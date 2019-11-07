@@ -92,20 +92,19 @@ class Tab extends React.Component {
     });
     const placeholder = isNew ? t(label) : t('page-tabs.tab-name');
     const inputStyle = {};
-    const textSize = text.length * 8;
+    const textSize = (text.length || placeholder.length) * 8.5;
 
-    if (textSize) {
+    if (isEdit) {
       inputStyle.width = `${textSize}px`;
     }
 
     return (
       <div className={tabClassNames} onClick={onClick} title={hasHint ? t(label) : ''}>
-        <div className="ecos-tab-label">
+        <div className="ecos-tab-label" style={inputStyle}>
           {isEdit ? (
             <Input
               className="ecos-tab-label__input"
               autoFocus
-              style={inputStyle}
               value={text}
               placeholder={placeholder}
               onChange={this.onChange}
