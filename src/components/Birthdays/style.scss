@@ -50,10 +50,13 @@
       }
 
       &-btn {
-        height: 40px;
-        position: absolute;
-        right: 0;
-        top: calc(50% - 40px / 2);
+        &.ecos-btn {
+          height: 40px;
+          position: absolute;
+          right: 0;
+          top: calc(50% - 40px / 2);
+          display: none;
+        }
       }
 
       &_small {
@@ -62,6 +65,14 @@
 
           #{$item}-name {
             color: $color-blue-dark;
+          }
+        }
+      }
+
+      &:hover {
+        #{$item}-btn {
+          &.ecos-btn {
+            display: inline-block;
           }
         }
       }

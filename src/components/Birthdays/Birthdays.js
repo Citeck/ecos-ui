@@ -120,6 +120,7 @@ class Birthdays extends Component {
             className={classNames('ecos-hb2u__list-item', {
               'ecos-hb2u__list-item_small': !this.isLargeSize
             })}
+            title={this.isLargeSize ? '' : t(LABELS.BTN_TO_PROFILE)}
             key={item.id}
             onClick={this.isLargeSize ? null : () => this.handleGoToProfile(item.url)}
           >
