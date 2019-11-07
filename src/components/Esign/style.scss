@@ -1,0 +1,46 @@
+@import '../../styles/constants.scss';
+
+.esign {
+  &-message {
+    &.ecos-modal {
+      max-width: 468px;
+    }
+
+    &_title-center {
+      .modal-title {
+        text-align: center;
+        width: 100%;
+        padding: 10px 0;
+      }
+    }
+
+    &__description {
+      font-style: normal;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 22px;
+      color: $text-color-dark;
+      max-width: 330px;
+      margin: auto;
+    }
+
+    &__btns {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      margin-top: 20px;
+
+      .ecos-btn {
+        &:not(:last-child) {
+          margin-right: 10px;
+        }
+      }
+    }
+
+    &__btn {
+      &-full {
+        width: 100%;
+      }
+    }
+  }
+}

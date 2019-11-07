@@ -4,10 +4,14 @@ import { connect } from 'react-redux';
 import getCadespluginAPI from 'async-cadesplugin';
 
 import { Btn } from '../common/btns';
-import { selectStateByKey } from '../../selectors/esign';
+import { selectStateByKey, selectGeneralState } from '../../selectors/esign';
 import { init, getCertificates } from '../../actions/esign';
 import EsignModal from './EsignModal';
+import MessageModal from './MessageModal';
 import { t } from '../../helpers/util';
+
+import './style.scss';
+import { ErrorTypes } from '../../constants/esign';
 
 const LABELS = {
   MODAL_TITLE: 'Выбор сертификата для подписи',
@@ -48,7 +52,7 @@ class Esign extends Component {
   }
 
   handleClickSign = () => {
-    this.props.getCertificates();
+    // this.props.getCertificates();
     this.setState({ isOpenModal: true });
     // documentSign('workspace://SpacesStore/e617a72f-02fa-4fcd-9ba3-685cd8b3f9f6')
   };
@@ -67,15 +71,49 @@ class Esign extends Component {
     // );
   }
 
-  handleCancelSign = () => {
+  handleCloseModal = () => {
     this.setState({ isOpenModal: false });
   };
 
-  renderInfoMessage() {
-    const { isLoading, certificates } = this.props;
-    const { isOpenModal } = this.state;
+  handleGoToPlugin = () => {
+    window.open('https://www.cryptopro.ru/products/cades/plugin', '_blank');
+  };
 
-    return null;
+  renderInfoMessage() {
+    const { messageTitle, messageDescription, errorType } = this.props;
+    const { isOpenModal } = this.state;
+    let buttons = null;
+
+    switch (errorType) {
+      case ErrorTypes.NO_CADESPLUGIN:
+        buttons = (
+          <>
+            <Btn onClick={this.handleCloseModal}>Отмена</Btn>
+            <Btn className="ecos-btn_blue ecos-btn_hover_light-blue esign-message__btn-full" onClick={this.handleGoToPlugin}>
+              Перейти на страницу установки
+            </Btn>
+          </>
+        );
+        break;
+      default:
+        buttons = (
+          <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleCloseModal}>
+            OK
+          </Btn>
+        );
+        break;
+    }
+
+    return (
+      <MessageModal
+        isOpen={Boolean(isOpenModal && (messageTitle || messageDescription))}
+        title={messageTitle}
+        description={messageDescription}
+        onHideModal={this.handleCloseModal}
+      >
+        <div className="esign-message__btns">{buttons}</div>
+      </MessageModal>
+    );
   }
 
   render() {
@@ -84,15 +122,15 @@ class Esign extends Component {
 
     return (
       <>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleClickSign} disabled={cadespluginApi === null}>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleClickSign} disabled={isLoading}>
           Подписать
         </Btn>
 
         <EsignModal
-          isShow={isOpenModal && certificates.length}
+          isOpen={Boolean(isOpenModal && cadespluginApi)}
           isLoading={isLoading}
           title={t(LABELS.MODAL_TITLE)}
-          onHideModal={this.handleCancelSign}
+          onHideModal={this.handleCloseModal}
           certificates={certificates}
           selected={selectedCertificate}
         />
@@ -104,6 +142,7 @@ class Esign extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
+  ...selectGeneralState(state),
   ...selectStateByKey(state, ownProps.nodeRef)
 });
 

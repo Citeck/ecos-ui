@@ -2,8 +2,10 @@ import { delay } from 'redux-saga';
 import { put, select, call, takeEvery } from 'redux-saga/effects';
 import get from 'lodash/get';
 
-import { setApi, init, setCertificates, getCertificates, setError } from '../actions/esign';
+import { setApi, init, setCertificates, getCertificates, setMessage, setErrorType } from '../actions/esign';
+import { selectGeneralState } from '../selectors/esign';
 import EsignConverter from '../dto/esign';
+import { ErrorTypes } from '../constants/esign';
 
 function* sagaInit({ api, logger }, action) {
   try {
@@ -15,12 +17,19 @@ function* sagaInit({ api, logger }, action) {
     yield put(setApi({ id: action.payload, cadespluginApi }));
     yield put(getCertificates(action.payload));
   } catch (e) {
+    const hasPlugin = api.esign.hasCadesplugin;
+
     yield put(
-      setError({
+      setMessage({
         id: action.payload,
-        message: api.esign.hasCadesplugin
-          ? e.message
-          : 'Чтобы продолжить, установите расширение Cryptopro для браузера с сайта cryptopro.ru'
+        messageTitle: hasPlugin ? 'Ошибка' : 'Установите расширение',
+        messageDescription: hasPlugin ? e.message : 'Чтобы продолжить, установите расширение Cryptopro для браузера с сайта cryptopro.ru'
+      })
+    );
+    yield put(
+      setErrorType({
+        id: action.payload,
+        errorType: hasPlugin ? ErrorTypes.DEFAULT : ErrorTypes.NO_CADESPLUGIN
       })
     );
     console.warn(e);
@@ -30,6 +39,12 @@ function* sagaInit({ api, logger }, action) {
 
 function* sagaGetCertificates({ api, logger }, action) {
   try {
+    const { cadespluginApi } = yield select(selectGeneralState);
+
+    if (cadespluginApi === null) {
+      throw new Error();
+    }
+
     const certificates = yield Promise.all(
       (yield api.esign.getCertificates()).map(async function(certificate) {
         return await EsignConverter.getCertificateForModal(certificate);
@@ -42,9 +57,20 @@ function* sagaGetCertificates({ api, logger }, action) {
       setCertificates({
         id: action.payload,
         certificates,
-        selectedCertificate: get(certificates, '0.id', '')
+        selectedCertificate: get(certificates, '0.id', ''),
+        messageTitle: certificates.length ? '' : 'Нет доступных сертификатов',
+        messageDescription: ''
       })
     );
+
+    if (!certificates.length) {
+      yield put(
+        setErrorType({
+          id: action.payload,
+          errorType: ErrorTypes.NO_CERTIFICATES
+        })
+      );
+    }
   } catch (e) {
     logger.error('[esign sagaGetCertificates saga error', e.message);
   }

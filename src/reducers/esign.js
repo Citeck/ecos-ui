@@ -1,17 +1,23 @@
 import { handleActions } from 'redux-actions';
 
-import { init, setApi, getCertificates, setCertificates } from '../actions/esign';
+import { init, setApi, getCertificates, setCertificates, setMessage, setErrorType } from '../actions/esign';
 
 export const initialState = {
-  cadespluginApi: null,
-  cadespluginVersion: null,
   documentBase64: '',
   selectedCertificate: '',
   certificates: [],
-  isLoading: false
+  isLoading: false,
+  messageTitle: '',
+  messageDescription: '',
+  errorType: ''
+};
+export const generalState = {
+  cadespluginApi: null,
+  cadespluginVersion: null
 };
 
 Object.freeze(initialState);
+Object.freeze(generalState);
 
 export default handleActions(
   {
@@ -24,15 +30,19 @@ export default handleActions(
 
       return {
         ...state,
-        [payload]: { ...ownState }
+        [payload]: {
+          ...ownState,
+          isLoading: true,
+          messageTitle: '',
+          messageDescription: '',
+          errorType: ''
+        }
       };
     },
     [setApi]: (state, { payload }) => ({
       ...state,
-      [payload.id]: {
-        ...state[payload.id],
-        cadespluginApi: { ...payload.cadespluginApi }
-      }
+      cadespluginApi: { ...payload.cadespluginApi },
+      isLoading: false
     }),
     [getCertificates]: (state, { payload }) => ({
       ...state,
@@ -49,7 +59,23 @@ export default handleActions(
         selectedCertificate: payload.selectedCertificate,
         isLoading: false
       }
+    }),
+    [setMessage]: (state, { payload }) => ({
+      ...state,
+      [payload.id]: {
+        ...state[payload.id],
+        messageTitle: payload.messageTitle,
+        messageDescription: payload.messageDescription,
+        isLoading: false
+      }
+    }),
+    [setErrorType]: (state, { payload }) => ({
+      ...state,
+      [payload.id]: {
+        ...state[payload.id],
+        errorType: payload.errorType
+      }
     })
   },
-  {}
+  generalState
 );
