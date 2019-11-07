@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import moment from 'moment';
 import Formio from 'formiojs/Formio';
 import { cloneDeep } from 'lodash';
 
@@ -10,7 +11,7 @@ import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import DataGridAssocComponent from './../../forms/components/custom/datagridAssoc/DataGridAssoc';
-import { t, getCurrentLocale } from '../../helpers/util';
+import { t, getCurrentLocale, utcAsLocal } from '../../helpers/util';
 import { PROXY_URI } from '../../constants/alfresco';
 
 import './formio.full.min.css';
@@ -260,6 +261,11 @@ class EcosForm extends React.Component {
         // cause: https://citeck.atlassian.net/browse/ECOSCOM-2561
         if (input && input.component.type === 'ecosSelect' && !value) {
           value = null;
+        }
+
+        // cause: https://citeck.atlassian.net/browse/ECOSCOM-2581
+        if (value && input && input.component.type === 'datetime' && input.component.enableDate && !input.component.enableTime) {
+          value = moment(value).format('YYYY-MM-DD');
         }
 
         record.att(keysMapping[key] || key, value);
