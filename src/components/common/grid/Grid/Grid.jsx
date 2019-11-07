@@ -513,7 +513,6 @@ class Grid extends Component {
     props = this.setAdditionalOptions(props);
 
     const toolsVisible = this.toolsVisible();
-
     const gridStyle = props.minHeight ? { minHeight: props.minHeight } : { height: '100%' };
     const scrollStyle = props.minHeight ? { height: props.minHeight } : { autoHeight: true };
 
