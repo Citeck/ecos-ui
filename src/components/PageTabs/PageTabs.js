@@ -391,9 +391,10 @@ class PageTabs extends React.Component {
     }
 
     saveTabs(tabs);
-    history.push.call(this, link);
 
     this.setState({ tabs }, () => {
+      history.push.call(this, link);
+
       if (this.checkScrollPosition()) {
         this.checkNeedArrow();
       }
