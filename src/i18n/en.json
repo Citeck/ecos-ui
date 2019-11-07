@@ -619,6 +619,7 @@
   "versions-journal-widget.version": "Version",
   "view-table.labels.actions": "Actions",
   "widget.document.title.preview": "Document preview",
+  "action.confirm.title": "Confirmation",
   "action.result.success": "Action success",
   "action.result.error": "Action error",
   "userActions.contract.property.addApprover": "Add approver",
