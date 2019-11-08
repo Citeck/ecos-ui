@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import Item from './Item';
+import SS from '../../services/sidebar';
+import { connect } from 'react-redux';
 
 class List extends React.Component {
   static propTypes = {
@@ -19,8 +21,24 @@ class List extends React.Component {
     isExpanded: true
   };
 
+  state = {
+    isExpandedSublist: false,
+    styleProps: {}
+  };
+
+  constructor(props) {
+    super(props);
+
+    const { actionType } = this.parseData(props);
+    const styleProps = SS.getPropsStyleLevel({ level: props.level, actionType });
+
+    this.state.isExpanded = styleProps.isDefExpanded;
+    this.state.styleProps = styleProps;
+  }
+
   render() {
-    const { data, className, level, isExpanded } = this.props;
+    const { data, className, level, isExpanded, isOpen } = this.props;
+    const nextLvl = level + 1;
 
     if (isEmpty(data)) {
       return null;
@@ -33,14 +51,42 @@ class List extends React.Component {
           'ecos-sidebar-list_expanded': isExpanded
         })}
       >
-        {data.map((item, i) => {
-          const id = `lvl-${level}-${i}-${item.id}`;
+        {data.map(item => {
+          const id = `lvl-${level}-${item.id}`;
 
-          return <Item data={item} level={level} key={id} id={id} />;
+          return (
+            <React.Fragment key={id}>
+              <Item data={item} level={level} id={id} isExpanded={isExpanded} />
+              <List isExpanded={isExpanded} data={item.items} level={nextLvl} />
+              {/*{this.isDropList && (*/}
+              {/*  <Tooltip*/}
+              {/*    target={id}*/}
+              {/*    isOpen={isExpanded}*/}
+              {/*    placement="right"*/}
+              {/*    trigger="click"*/}
+              {/*    boundariesElement="div.ecos-base-content"*/}
+              {/*    className="ecos-sidebar-list-tooltip"*/}
+              {/*    innerClassName="ecos-sidebar-list-tooltip-inner"*/}
+              {/*    arrowClassName="ecos-sidebar-list-tooltip-arrow"*/}
+              {/*  >*/}
+              {/*    <ClickOutside handleClickOutside={this.onCloseTooltip} onClick={this.onCloseTooltip}>*/}
+              {/*      <List isExpanded data={items} level={level + 1}/>*/}
+              {/*    </ClickOutside>*/}
+              {/*  </Tooltip>*/}
+              {/*)}*/}
+            </React.Fragment>
+          );
         })}
       </div>
     );
   }
 }
 
-export default List;
+const mapStateToProps = state => ({
+  isOpen: state.slideMenu.isOpen
+});
+
+export default connect(
+  mapStateToProps,
+  null
+)(List);
