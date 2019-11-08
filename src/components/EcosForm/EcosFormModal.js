@@ -140,6 +140,16 @@ export default class EcosFormModal extends React.Component {
       }
     };
 
+    let modalTitle = '';
+    if (title) {
+      modalTitle = title;
+    } else {
+      modalTitle = t('eform.header.' + recordData.formMode + '.title');
+      if (recordData.displayName) {
+        modalTitle += ` ${recordData.displayName}`;
+      }
+    }
+
     return (
       <div>
         <EcosModal
@@ -148,7 +158,7 @@ export default class EcosFormModal extends React.Component {
           }}
           className="ecos-modal_width-lg ecos-form-modal"
           isBigHeader={isBigHeader}
-          title={title || t('eform.header.' + recordData.formMode + '.title')}
+          title={modalTitle}
           isOpen={this.state.isModalOpen}
           hideModal={() => this.hide()}
           customButtons={[this.renderConstructorButton()]}
