@@ -56,27 +56,21 @@
     }
 
     #{$root}-actions {
+      --back-actions: #{$color-blue-dark};
+
       &__icon {
         --color-actions: #{$color-blue-light2};
 
         &:hover {
-          --color-actions_hover: #{$color-white};
+          --color-actions: #{$color-white};
         }
 
         &_paler {
-          --color-actions_paler: #{$color-blue-light};
+          --color-actions: #{$color-blue-light};
 
           &:hover {
-            --color-actions_paler_hover: #{$color-blue-light2};
+            --color-actions: #{$color-blue-light2};
           }
-        }
-      }
-    }
-
-    &#{$root}_editable {
-      &:hover {
-        #{$root}-actions_hover {
-          --back-actions_hover: #{$color-blue-dark};
         }
       }
     }
@@ -84,68 +78,40 @@
 
   &_editable {
     display: inline-flex;
-    align-items: center;
-    min-width: 105px;
     position: relative;
-    padding: 0 23px 0 17px;
-
-    &_disabled {
-      pointer-events: none;
-      cursor: none;
-    }
+    padding: 0 17px;
 
     &:hover {
-      #{$root}-actions_hover {
-        --back-actions_hover: #{$color-white};
-
-        visibility: visible;
-        background: var(--back-actions_hover);
-
-        &:first-child {
-          box-shadow: -5px 0px 8px var(--back-actions_hover);
-        }
+      #{$root}-actions__icon_hidden {
+        display: block;
       }
     }
   }
 
-  &_editing {
-    #{$root}-label__input {
-      padding: 0;
-    }
-  }
-
   &-label {
-    @extend %ellipsis;
-    text-align: center;
     transition: width 0.1s linear;
 
-    &__input {
-      background: transparent;
-      border: none;
-      text-align: center;
-      padding: 0;
-      width: 100%;
+    &:not(&_editing) {
+      #{$root}-label {
+        @extend %ellipsis;
+        text-align: center;
+      }
     }
   }
 
   &-actions {
-    display: inline-flex;
-    align-items: center;
+    --back-actions: #{$color-white};
+
     position: absolute;
     right: 0;
     height: 100%;
-
-    &_none,
-    &_hover {
-      visibility: hidden;
-    }
+    display: inline-flex;
+    align-items: center;
+    background: var(--back-actions);
+    box-shadow: -10px 0px 10px var(--back-actions);
 
     & :nth-child(n) {
-      padding-right: 5px;
-    }
-
-    & :last-child {
-      padding-right: 7px;
+      padding-right: 10px;
     }
 
     &__icon {
@@ -153,26 +119,26 @@
 
       color: var(--color-actions);
       font-size: $font-size-standard;
-      padding: 5px 0;
 
       &:hover {
-        --color-actions_hover: #{$color-blue-light};
+        --color-actions: #{$color-blue-light};
+      }
 
-        color: var(--color-actions_hover);
+      &_hidden {
+        display: none;
       }
 
       &_paler {
-        --color-actions_paler: #{$color-gray-1};
-
-        color: var(--color-actions_paler);
-        font-size: $font-size-extra-large;
-        cursor: grab;
+        --color-actions: #{$color-gray-1};
 
         &:hover {
-          --color-actions_paler_hover: #{$color-gray-5};
-
-          color: var(--color-actions_paler_hover);
+          --color-actions: #{$color-gray-5};
         }
+      }
+
+      &.icon-drag {
+        font-size: $font-size-extra-large;
+        cursor: grab;
       }
     }
   }

@@ -110,7 +110,6 @@ class SetTabs extends React.Component {
           {!empty && (
             <ScrollArrow medium scrollToEnd={scrollTabToEnd} className="ecos-dashboard-settings__layout-tabs-arrows">
               <EditTabs
-                className="ecos-dashboard-settings__layout-tabs-block"
                 classNameTab="ecos-dashboard-settings__layout-tabs-item"
                 hasHover
                 hasHint

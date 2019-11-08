@@ -2,8 +2,8 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
-import { deepClone, t } from '../../../helpers/util';
-import { Input } from '../form';
+import ContentEditable from 'react-contenteditable';
+import { deepClone, placeCaretAtEnd, t } from '../../../helpers/util';
 import { Icon } from '../';
 import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
 import './Tabs.scss';
@@ -117,8 +117,10 @@ class Tab extends React.Component {
           )}
         </div>
         <div className="ecos-tab-actions">
-          {!isEdit && <Icon className="ecos-tab-actions__icon icon-edit ecos-tab-actions_hover" onClick={this.startEdit} />}
-          {!isEdit && !disabled && <Icon className="ecos-tab-actions__icon icon-close ecos-tab-actions_hover" onClick={this.onDelete} />}
+          {!isEdit && <Icon className="icon-edit ecos-tab-actions__icon ecos-tab-actions__icon_hidden" onClick={this.startEdit} />}
+          {!isEdit && <Icon className="icon-delete ecos-tab-actions__icon ecos-tab-actions__icon_hidden" onClick={this.onDelete} />}
+          {isEdit && text && <Icon className="icon-close ecos-tab-actions__icon" onClick={this.onClear} />}
+          {isEdit && !text && <Icon className="icon-close ecos-tab-actions__icon" onClick={this.onDelete} />}
           {!disabled && <DragHandle />}
         </div>
       </div>
