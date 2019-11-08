@@ -8,6 +8,8 @@ import { Icon } from '../';
 import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
 import './Tabs.scss';
 
+const EMPTY_STR = '';
+
 const SortableContainer = sortableContainer(({ children }) => {
   return children;
 });
@@ -35,93 +37,119 @@ class Tab extends React.Component {
     onEdit: () => null
   };
 
-  state = {
-    editing: false,
-    text: ''
-  };
+  constructor(props) {
+    super(props);
+
+    this.labelRef = React.createRef();
+
+    this.state = {
+      editing: props.isNew,
+      text: props.isNew ? EMPTY_STR : props.label
+    };
+  }
+
+  get isEditable() {
+    const { disabled } = this.props;
+    const { editing } = this.state;
+
+    return !disabled && editing;
+  }
+
+  setFocus() {
+    const elm = this.labelRef.current || {};
+    elm.focus();
+    placeCaretAtEnd(elm);
+  }
 
   startEdit = e => {
-    const { label, isNew } = this.props;
-
+    if (!this.isEditable) {
+      this.setState({ editing: true }, this.setFocus);
+    }
     e.stopPropagation();
-    this.setState({ editing: true, text: isNew ? '' : label });
   };
 
   endEdit = () => {
-    const { onEdit = () => null, label } = this.props;
-    const { text } = this.state;
-    const newLabel = text || label;
-
-    this.setState({ editing: false, text: '' });
-
-    onEdit(newLabel);
-  };
-
-  onKeyPress = e => {
-    e.stopPropagation();
-
-    switch (e.key) {
-      case 'Enter':
-      case 'Escape':
-        this.endEdit();
-        break;
-      default:
-        break;
-    }
-  };
-
-  onDelete = e => {
-    const { onDelete = () => null } = this.props;
-    e.stopPropagation();
-    onDelete();
+    this.props.onEdit && this.props.onEdit(this.state.text);
+    this.setState({ editing: false });
   };
 
   onChange = e => {
     this.setState({ text: e.target.value });
   };
 
+  onKeyPress = e => {
+    switch (e.key) {
+      case 'Enter':
+        this.endEdit();
+        e.preventDefault();
+        break;
+      case 'Escape':
+        this.onReset();
+        e.preventDefault();
+        break;
+      default:
+        break;
+    }
+
+    e.stopPropagation();
+  };
+
+  onClear = e => {
+    e.stopPropagation();
+    this.setState({ text: EMPTY_STR }, this.setFocus);
+  };
+
+  onReset = () => {
+    if (this.isEditable) {
+      this.setState({ editing: false, text: this.props.label });
+    }
+  };
+
+  onDelete = e => {
+    this.props.onDelete && this.props.onDelete();
+    e.stopPropagation();
+  };
+
+  onClick = e => {
+    if (this.isEditable) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   render() {
     const { label, isActive, onClick, hasHover, hasHint, disabled, isNew, className } = this.props;
-    const { editing, text } = this.state;
-    const isEdit = editing || isNew;
+    const { text } = this.state;
+    const isEdit = this.isEditable;
     const tabClassNames = classNames('ecos-tab', 'ecos-tab_editable', className, {
       'ecos-tab_active': isActive,
       'ecos-tab_hover': hasHover,
       'ecos-tab_disabled': disabled,
       'ecos-tab_editing': isEdit
     });
-    const placeholder = isNew ? t(label) : t('page-tabs.tab-name');
-    const inputStyle = {};
-    const textSize = (text.length || placeholder.length) * 8.5;
-
-    if (isEdit) {
-      inputStyle.width = `${textSize}px`;
-    }
+    const placeholder = isNew ? label : t('page-tabs.tab-name');
 
     return (
-      <div className={tabClassNames} onClick={onClick} title={hasHint ? t(label) : ''}>
-        <div className="ecos-tab-label" style={inputStyle}>
-          {isEdit ? (
-            <Input
-              className="ecos-tab-label__input"
-              autoFocus
-              value={text}
-              placeholder={placeholder}
-              onChange={this.onChange}
-              onKeyPress={this.onKeyPress}
-              onBlur={() => this.endEdit()}
-              onClick={e => e.stopPropagation()}
-            />
-          ) : (
-            t(label)
-          )}
-        </div>
+      <div className={tabClassNames} onClick={onClick}>
+        <ContentEditable
+          tagName="div"
+          html={text}
+          placeholder={placeholder}
+          title={hasHint ? label : EMPTY_STR}
+          disabled={!isEdit}
+          className={classNames('ecos-tab-label', { 'ecos-tab-label_editing': isEdit })}
+          innerRef={this.labelRef}
+          onChange={this.onChange}
+          onKeyPress={this.onKeyPress}
+          onBlur={this.onReset}
+          onClick={this.onClick}
+        />
         <div className="ecos-tab-actions">
           {!isEdit && <Icon className="icon-edit ecos-tab-actions__icon ecos-tab-actions__icon_hidden" onClick={this.startEdit} />}
           {!isEdit && <Icon className="icon-delete ecos-tab-actions__icon ecos-tab-actions__icon_hidden" onClick={this.onDelete} />}
           {isEdit && text && <Icon className="icon-close ecos-tab-actions__icon" onClick={this.onClear} />}
           {isEdit && !text && <Icon className="icon-close ecos-tab-actions__icon" onClick={this.onDelete} />}
-          {!disabled && <DragHandle />}
+          {!isEdit && <DragHandle />}
         </div>
       </div>
     );
@@ -140,17 +168,13 @@ class EditTabs extends React.Component {
   static defaultProps = commonTabsDefaultProps;
 
   onEditItem = (item, text, index) => {
-    const { onEdit = () => null } = this.props;
-
     item.label = text;
 
-    onEdit(item, index);
+    this.props.onEdit && this.props.onEdit(item, index);
   };
 
   onDeleteItem = (item, index) => {
-    const { onDelete = () => null } = this.props;
-
-    onDelete(item, index);
+    this.props.onDelete && this.props.onDelete(item, index);
   };
 
   handleSortEnd = ({ oldIndex, newIndex }) => {

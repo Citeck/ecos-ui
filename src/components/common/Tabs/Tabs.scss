@@ -79,7 +79,8 @@
   &_editable {
     display: inline-flex;
     position: relative;
-    padding: 0 17px;
+    padding: 0 35px 0 17px;
+    min-width: 90px;
 
     &:hover {
       #{$root}-actions__icon_hidden {
@@ -90,12 +91,20 @@
 
   &-label {
     transition: width 0.1s linear;
+    width: 100%;
+    overflow: hidden;
+
+    &:focus {
+      outline: none;
+    }
 
     &:not(&_editing) {
-      #{$root}-label {
-        @extend %ellipsis;
-        text-align: center;
-      }
+      @extend %ellipsis;
+      text-align: center;
+    }
+
+    &_editing + &-actions {
+      box-shadow: none;
     }
   }
 
@@ -105,13 +114,17 @@
     position: absolute;
     right: 0;
     height: 100%;
+    padding-left: 3px;
     display: inline-flex;
     align-items: center;
     background: var(--back-actions);
-    box-shadow: -10px 0px 10px var(--back-actions);
 
     & :nth-child(n) {
       padding-right: 10px;
+    }
+
+    & :first-child:not(:last-child) {
+      box-shadow: -15px 0px 10px var(--back-actions);
     }
 
     &__icon {
@@ -119,6 +132,7 @@
 
       color: var(--color-actions);
       font-size: $font-size-standard;
+      cursor: pointer;
 
       &:hover {
         --color-actions: #{$color-blue-light};
