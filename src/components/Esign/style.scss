@@ -43,4 +43,102 @@
       }
     }
   }
+
+  &-cert {
+    min-width: 250px;
+
+    &__list {
+      width: 100%;
+      height: 124px;
+      border: 2px solid $color-gray-6;
+      box-sizing: border-box;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 20px;
+
+      &-track-vertical {
+        right: 6px;
+        bottom: 10px;
+        top: 6px;
+        border-radius: 3px;
+      }
+
+      &-item {
+        min-height: 40px;
+        font-style: normal;
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 20px;
+        color: $text-color-dark;
+        align-items: center;
+        display: flex;
+        padding: 10px 15px;
+
+        &_selected {
+          background-color: $color-blue-light;
+          color: $color-white;
+        }
+
+        &:not(&_selected):hover {
+          background-color: lighten($color-blue-light, 30%);
+          cursor: pointer;
+        }
+      }
+    }
+
+    &__info {
+      &-title {
+        background: $color-yellow;
+        border-radius: 6px;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 20px;
+        color: $text-color-dark;
+        padding: 5px 12px;
+        margin-bottom: 15px;
+      }
+
+      &-list {
+        &-item {
+          display: flex;
+          border-bottom: 2px $color-gray solid;
+          padding: 10px 0;
+          align-items: center;
+
+          &-label {
+            flex-grow: 1;
+            width: 30%;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 12px;
+            line-height: 0;
+            color: $text-color-gray;
+
+            &:after {
+              content: ':';
+            }
+          }
+
+          &-value {
+            flex-grow: 2;
+            width: 70%;
+            font-style: normal;
+            font-weight: bold;
+            font-size: 12px;
+            line-height: 16px;
+            color: $text-color-dark;
+          }
+        }
+      }
+    }
+
+    &__btns {
+      margin-top: 25px;
+
+      button:not(:last-child) {
+        margin-right: 10px;
+      }
+    }
+  }
 }

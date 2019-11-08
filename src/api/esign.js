@@ -1,6 +1,6 @@
+import getCadespluginAPI from 'async-cadesplugin';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import getCadespluginAPI from 'async-cadesplugin';
 
 import { RecordService } from './recordService';
 import Records from '../components/Records';
@@ -15,6 +15,7 @@ export class EsignApi extends RecordService {
 
   set cadespluginApi(api) {
     EsignApi._cadespluginApi = api;
+    set(window, 'cadesplugin.api', api);
   }
 
   get hasCadesplugin() {
@@ -64,6 +65,25 @@ export class EsignApi extends RecordService {
     return fetch(`/share/proxy/alfresco/acm/digestAndAttr?nodeRef=${record}`, {
       method: 'GET',
       credentials: 'include'
+    }).then(response => response.json());
+  };
+
+  getSignedDocument = (thumbprint, base64) => {
+    return this.cadespluginApi.signBase64(thumbprint, base64);
+  };
+
+  verifySigned = (signedMessage, signedDocument) => {
+    return this.cadespluginApi.verifyBase64(signedMessage, signedDocument);
+  };
+
+  sendSignedDocument = (nodeRef, sign, signer) => {
+    // return Records.queryOne({
+    //   query: { nodeRef, sign, signer }
+    // }).then(response => response);
+    return fetch('/share/proxy/alfresco/acm/digitalSignaturePut', {
+      method: 'POST',
+      credentials: 'include',
+      body: JSON.stringify({ nodeRef, sign, signer })
     }).then(response => response.json());
   };
 }

@@ -3,11 +3,17 @@ import { createAction } from 'redux-actions';
 const prefix = 'esign/';
 
 export const init = createAction(prefix + 'INIT');
+export const initSuccess = createAction(prefix + 'INIT_SUCCESS');
+export const initError = createAction(prefix + 'INIT_ERROR');
+
+export const fetchApi = createAction(prefix + 'FETCH_API');
 
 export const setApi = createAction(prefix + 'SET_API');
 
 export const setMessage = createAction(prefix + 'SET_MESSAGE');
 export const setErrorType = createAction(prefix + 'SET_ERROR_TYPE');
+
+export const selectCertificate = createAction(prefix + 'SELECT_CERTIFICATE');
 
 export const getCertificates = createAction(prefix + 'GET_CERTIFICATES');
 export const setCertificates = createAction(prefix + 'SET_CERTIFICATES');

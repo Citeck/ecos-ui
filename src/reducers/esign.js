@@ -1,19 +1,36 @@
 import { handleActions } from 'redux-actions';
 
-import { init, setApi, getCertificates, setCertificates, setMessage, setErrorType } from '../actions/esign';
+import {
+  init,
+  setApi,
+  getCertificates,
+  setCertificates,
+  setMessage,
+  setErrorType,
+  selectCertificate,
+  signDocument,
+  signDocumentSuccess,
+  initSuccess,
+  fetchApi,
+  initError
+} from '../actions/esign';
 
 export const initialState = {
   documentBase64: '',
   selectedCertificate: '',
-  certificates: [],
   isLoading: false,
   messageTitle: '',
   messageDescription: '',
-  errorType: ''
+  errorType: '',
+  documentSigned: false
 };
+
+// TODO: возможно, нужно добавить в generalState состояние лоадера api
 export const generalState = {
   cadespluginApi: null,
-  cadespluginVersion: null
+  cadespluginVersion: null,
+  certificates: [],
+  isFetchingApi: false
 };
 
 Object.freeze(initialState);
@@ -39,10 +56,33 @@ export default handleActions(
         }
       };
     },
+    [fetchApi]: state => ({
+      ...state,
+      isFetchingApi: true
+    }),
+    [initError]: (state, { payload }) => ({
+      ...state,
+      isFetchingApi: false,
+      [payload]: {
+        ...state[payload],
+        isLoading: false
+      }
+    }),
+    [initSuccess]: (state, { payload }) => ({
+      ...state,
+      [payload]: {
+        ...state[payload],
+        isLoading: false
+      }
+    }),
     [setApi]: (state, { payload }) => ({
       ...state,
       cadespluginApi: { ...payload.cadespluginApi },
-      isLoading: false
+      isFetchingApi: false,
+      [payload.id]: {
+        ...state[payload.id],
+        isLoading: false
+      }
     }),
     [getCertificates]: (state, { payload }) => ({
       ...state,
@@ -53,9 +93,9 @@ export default handleActions(
     }),
     [setCertificates]: (state, { payload }) => ({
       ...state,
+      certificates: payload.certificates,
       [payload.id]: {
         ...state[payload.id],
-        certificates: payload.certificates,
         selectedCertificate: payload.selectedCertificate,
         isLoading: false
       }
@@ -74,6 +114,28 @@ export default handleActions(
       [payload.id]: {
         ...state[payload.id],
         errorType: payload.errorType
+      }
+    }),
+    [selectCertificate]: (state, { payload }) => ({
+      ...state,
+      [payload.id]: {
+        ...state[payload.id],
+        selectedCertificate: payload.certificate
+      }
+    }),
+    [signDocument]: (state, { payload }) => ({
+      ...state,
+      [payload.id]: {
+        ...state[payload.id],
+        isLoading: true
+      }
+    }),
+    [signDocumentSuccess]: (state, { payload }) => ({
+      ...state,
+      [payload]: {
+        ...state[payload],
+        isLoading: false,
+        documentSigned: true
       }
     })
   },

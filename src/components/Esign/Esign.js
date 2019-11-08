@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import getCadespluginAPI from 'async-cadesplugin';
+import get from 'lodash/get';
 
 import { Btn } from '../common/btns';
 import { selectStateByKey, selectGeneralState } from '../../selectors/esign';
-import { init, getCertificates } from '../../actions/esign';
+import { init, getCertificates, selectCertificate, signDocument } from '../../actions/esign';
 import EsignModal from './EsignModal';
 import MessageModal from './MessageModal';
 import { t } from '../../helpers/util';
@@ -22,6 +22,10 @@ const LABELS = {
 };
 
 class Esign extends Component {
+  static propTypes = {};
+
+  static defaultProps = {};
+
   constructor(props) {
     super(props);
 
@@ -29,54 +33,61 @@ class Esign extends Component {
       isOpenModal: false
     };
 
+    /**
+     * Отключаем стандартные уведомления от плагина
+     */
     window.cadesplugin_skip_extension_install = true;
 
-    this.props.init();
+    props.init();
   }
 
-  async sign() {
-    const certificates = await this.state.api.getValidCertificates();
+  static getDerivedStateFromProps(props, state) {
+    const newState = {};
 
-    console.warn('certificates => ', certificates);
+    if (props.documentSigned && state.isOpenModal) {
+      const id = get(props.certificates, '0.id', '');
 
-    try {
-      const base64DataToSign = btoa('Hello world');
-      const api = await getCadespluginAPI();
-      const certificate = await api.getFirstValidCertificate();
-      const signature = await api.signBase64(certificate.thumbprint, base64DataToSign);
-
-      console.log(await certificate.privateKey.ProviderName, await certificate.privateKey.ProviderType);
-    } catch (error) {
-      console.log(error.message);
+      newState.isOpenModal = false;
+      props.selectCertificate(id);
     }
+
+    if (!Object.keys(newState).length) {
+      return null;
+    }
+
+    return newState;
+  }
+
+  get hasErrors() {
+    const { errorType, messageTitle, messageDescription } = this.props;
+
+    return Boolean(errorType || messageTitle || messageDescription);
   }
 
   handleClickSign = () => {
-    // this.props.getCertificates();
     this.setState({ isOpenModal: true });
-    // documentSign('workspace://SpacesStore/e617a72f-02fa-4fcd-9ba3-685cd8b3f9f6')
   };
 
-  getRefInfo() {
-    // esignApi.getDocumentData(this.props.nodeRef).then(
-    //   async function(result) {
-    //     const base64 = get(result, 'data.0.base64');
-    //     const certificate = await this.state.api.getFirstValidCertificate();
-    //
-    //     this.setState({ base64 });
-    //     const signature = await this.state.api.signBase64(certificate.thumbprint, base64);
-    //
-    //     console.warn('signature => ', signature);
-    //   }.bind(this)
-    // );
-  }
-
   handleCloseModal = () => {
+    const { certificates, selectCertificate } = this.props;
+    const id = get(certificates, '0.id', '');
+
     this.setState({ isOpenModal: false });
+    selectCertificate(id);
   };
 
   handleGoToPlugin = () => {
     window.open('https://www.cryptopro.ru/products/cades/plugin', '_blank');
+  };
+
+  handleSelectCertificate = id => {
+    this.props.selectCertificate(id);
+  };
+
+  handleSignDocument = () => {
+    const { signDocument, selectedCertificate } = this.props;
+
+    signDocument(selectedCertificate);
   };
 
   renderInfoMessage() {
@@ -117,20 +128,26 @@ class Esign extends Component {
   }
 
   render() {
-    const { isLoading, certificates, cadespluginApi, selectedCertificate } = this.props;
+    const { isLoading, isFetchingApi, certificates, cadespluginApi, selectedCertificate, documentSigned } = this.props;
     const { isOpenModal } = this.state;
+
+    if (documentSigned) {
+      return null;
+    }
 
     return (
       <>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleClickSign} disabled={isLoading}>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleClickSign} disabled={isLoading || isFetchingApi}>
           Подписать
         </Btn>
 
         <EsignModal
-          isOpen={Boolean(isOpenModal && cadespluginApi)}
+          isOpen={Boolean(isOpenModal && cadespluginApi && !this.hasErrors)}
           isLoading={isLoading}
           title={t(LABELS.MODAL_TITLE)}
           onHideModal={this.handleCloseModal}
+          onSelectCertificate={this.handleSelectCertificate}
+          onSign={this.handleSignDocument}
           certificates={certificates}
           selected={selectedCertificate}
         />
@@ -148,7 +165,9 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   init: () => dispatch(init(ownProps.nodeRef)),
-  getCertificates: () => dispatch(getCertificates(ownProps.nodeRef))
+  getCertificates: () => dispatch(getCertificates(ownProps.nodeRef)),
+  selectCertificate: certificate => dispatch(selectCertificate({ id: ownProps.nodeRef, certificate })),
+  signDocument: certificateId => dispatch(signDocument({ id: ownProps.nodeRef, certificateId }))
 });
 
 export default connect(
