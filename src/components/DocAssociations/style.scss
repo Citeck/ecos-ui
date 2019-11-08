@@ -182,5 +182,6 @@
 
   &__link {
     color: $color-blue-dark;
+    @extend %ellipsis;
   }
 }
