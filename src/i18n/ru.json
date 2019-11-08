@@ -154,6 +154,7 @@
   "dashboard-settings.widget.tasks": "Мои задачи",
   "dashboard-settings.widget.versions-journal": "Журнал версий",
   "dashboard-settings.widget.web-page": "Веб-страница",
+  "dashboard-settings.widget.birthdays": "Дни рождения",
   "dashboard-settings.widgets.placeholder": "Нет доступных виджетов",
   "dashboard-settings.widgets.subtitle": "Выберите где и какие виджеты отображать.",
   "dashboard-settings.widgets.subtitle-mobile": "Выберите порядок расположения виджетов, перетащив их в колонку справа",
@@ -641,5 +642,9 @@
   "action.result.error": "Во время выполнения действия произошла ошибка",
   "userActions.contract.property.addApprover": "Добавить дополнительного согласующего",
   "userActions.contract.property.approvalCancelation": "Отмена согласования",
-  "userActions.contract.property.delete": "Удалить"
+  "userActions.contract.property.delete": "Удалить",
+  "birthdays-widget.title": "Дни рождения",
+  "birthdays-widget.error.default-message": "Ошибка загрузки дней рождений!",
+  "birthdays-widget.btn.go-to-profile": "Перейти в профиль",
+  "birthdays-widget.btn.try-one-more-time": "Попробовать еще раз"
 }

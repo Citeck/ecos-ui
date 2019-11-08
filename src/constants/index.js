@@ -12,7 +12,8 @@ export const SourcesId = {
   STATUS: 'status',
   COMMENT: 'comment',
   VERSION: 'version',
-  PEOPLE: 'people'
+  PEOPLE: 'people',
+  BIRTHDAYS: 'birthdays'
 };
 
 export const ActionModes = {
@@ -63,3 +64,5 @@ export const LoaderTypes = {
   CIRCLE: 'circle',
   POINTS: 'points'
 };
+
+export const IMAGE_URL_PATH = '/share/proxy/alfresco/citeck/ecos/image/thumbnail';

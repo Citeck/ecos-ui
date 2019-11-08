@@ -154,6 +154,7 @@
   "dashboard-settings.widget.tasks": "My tasks",
   "dashboard-settings.widget.versions-journal": "Versions journal",
   "dashboard-settings.widget.web-page": "Web Page",
+  "dashboard-settings.widget.birthdays": "Birthdays",
   "dashboard-settings.widgets.placeholder": "No available widgets",
   "dashboard-settings.widgets.subtitle": "Choose the widgets location.",
   "dashboard-settings.widgets.subtitle-mobile": "Choose the widgets location by dragging them to the column on the right.",
@@ -637,5 +638,9 @@
   "action.result.error": "Action error",
   "userActions.contract.property.addApprover": "Add approver",
   "userActions.contract.property.approvalCancelation": "Approval cancellation",
-  "userActions.contract.property.delete": "Delete"
+  "userActions.contract.property.delete": "Delete",
+  "birthdays-widget.title": "Birthdays",
+  "birthdays-widget.error.default-message": "Error loading birthdays!",
+  "birthdays-widget.btn.go-to-profile": "Go to profile",
+  "birthdays-widget.btn.try-one-more-time": "To try one more time"
 }
