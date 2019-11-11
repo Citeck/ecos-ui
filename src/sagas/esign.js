@@ -1,3 +1,4 @@
+import { delay } from 'redux-saga';
 import { put, select, takeEvery } from 'redux-saga/effects';
 import get from 'lodash/get';
 
@@ -5,61 +6,69 @@ import {
   init,
   initError,
   initSuccess,
+  fetchApi,
   setApi,
   setCertificates,
   getCertificates,
   setMessage,
   setErrorType,
   signDocument,
-  fetchApi,
-  signDocumentSuccess
+  signDocumentSuccess,
+  setDocStatus
 } from '../actions/esign';
 import { selectGeneralState, selectCertificate } from '../selectors/esign';
 import { selectUserName } from '../selectors/user';
 import EsignConverter from '../dto/esign';
-import { ErrorTypes } from '../constants/esign';
+import { ErrorTypes, DocStatuses, Labels } from '../constants/esign';
 
-function* sagaInit({ api, logger }, action) {
+function* sagaInit({ api, logger }, { payload }) {
   try {
     const { cadespluginApi: cadesApi, isFetchingApi } = yield select(selectGeneralState);
 
-    if (cadesApi === null && !isFetchingApi) {
-      yield put(fetchApi());
+    /**
+     * Запрашиваем статус документа, чтобы определить, нужна подпись или нет
+     */
+    const status = yield api.esign.checkDocumentStatus(payload);
 
-      const cadespluginApi = yield api.esign.getCadespluginApi();
+    yield put(setDocStatus({ id: payload, isNeedToSign: get(status, 'statusId', '') === DocStatuses.SIGNING }));
 
-      yield put(setApi({ id: action.payload, cadespluginApi }));
+    if (isFetchingApi) {
+      yield put(initSuccess(payload));
+
+      return;
     }
 
-    yield put(getCertificates(action.payload));
-    yield put(initSuccess(action.payload));
+    if (cadesApi === null) {
+      yield put(fetchApi());
+      const cadespluginApi = yield api.esign.getCadespluginApi();
+
+      yield delay(5000);
+      yield put(setApi({ id: payload, cadespluginApi }));
+    }
+
+    yield put(initSuccess(payload));
   } catch (e) {
     const hasPlugin = api.esign.hasCadesplugin;
 
     yield put(
       setMessage({
-        id: action.payload,
-        messageTitle: hasPlugin ? 'Ошибка' : 'Установите расширение',
-        messageDescription: hasPlugin ? e.message : 'Чтобы продолжить, установите расширение Cryptopro для браузера с сайта cryptopro.ru'
-      })
-    );
-    yield put(
-      setErrorType({
-        id: action.payload,
+        id: payload,
+        messageTitle: hasPlugin ? Labels.ERROR : Labels.ADD_PLUGIN,
+        messageDescription: hasPlugin ? e.message : Labels.ADD_PLUGIN_MESSAGE,
         errorType: hasPlugin ? ErrorTypes.DEFAULT : ErrorTypes.NO_CADESPLUGIN
       })
     );
-    yield put(initError(action.payload));
+    yield put(initError(payload));
     logger.error('[esign sagaInit saga error', e.message);
   }
 }
 
-function* sagaGetCertificates({ api, logger }, action) {
+function* sagaGetCertificates({ api, logger }, { payload }) {
   try {
     const { cadespluginApi } = yield select(selectGeneralState);
 
     if (cadespluginApi === null) {
-      throw new Error();
+      throw new Error('cadespluginApi is null');
     }
 
     const certificates = yield Promise.all(
@@ -70,10 +79,8 @@ function* sagaGetCertificates({ api, logger }, action) {
 
     yield put(
       setCertificates({
-        id: action.payload,
         certificates,
-        selectedCertificate: get(certificates, '0.id', ''),
-        messageTitle: certificates.length ? '' : 'Нет доступных сертификатов',
+        messageTitle: certificates.length ? '' : Labels.NO_CERTIFICATES_MESSAGE,
         messageDescription: ''
       })
     );
@@ -81,35 +88,57 @@ function* sagaGetCertificates({ api, logger }, action) {
     if (!certificates.length) {
       yield put(
         setErrorType({
-          id: action.payload,
+          id: payload,
           errorType: ErrorTypes.NO_CERTIFICATES
         })
       );
     }
   } catch (e) {
+    const hasPlugin = api.esign.hasCadesplugin;
+
+    yield put(
+      setMessage({
+        id: payload,
+        messageTitle: hasPlugin ? Labels.ERROR : Labels.ADD_PLUGIN,
+        messageDescription: hasPlugin ? e.message : Labels.ADD_PLUGIN_MESSAGE,
+        errorType: hasPlugin ? ErrorTypes.DEFAULT : ErrorTypes.NO_CADESPLUGIN
+      })
+    );
     logger.error('[esign sagaGetCertificates saga error', e.message);
   }
 }
 
 function* sagaSignDocument({ api, logger }, { payload }) {
   try {
-    // TODO: разобраться с ошибками на примере community стенда
     const document = yield api.esign.getDocumentData(payload.id);
     const base64 = get(document, 'data.0.base64', '');
 
     if (!base64) {
-      // TODO: Error message
-
+      yield put(
+        setMessage({
+          id: payload.id,
+          messageTitle: Labels.ERROR,
+          messageDescription: Labels.NO_BASE64_DOC_MESSAGE,
+          errorType: ErrorTypes.DEFAULT
+        })
+      );
       return;
     }
 
     /**
-     * получаем thumbprint значение сертификата по id
+     * получаем отпечаток сертификата по id
      */
-    const thumbprint = yield select(state => selectCertificate(state, payload.id));
+    const thumbprint = yield select(state => selectCertificate(state, payload.id, payload.certificateId));
 
     if (!thumbprint) {
-      // TODO: Error message
+      yield put(
+        setMessage({
+          id: payload.id,
+          messageTitle: Labels.ERROR,
+          messageDescription: Labels.NO_CERTIFICATE_THUMBPRINT_MESSAGE,
+          errorType: ErrorTypes.DEFAULT
+        })
+      );
 
       return;
     }
@@ -125,29 +154,37 @@ function* sagaSignDocument({ api, logger }, { payload }) {
     const isVerified = yield api.esign.verifySigned(signedMessage, base64);
 
     if (!isVerified) {
-      // TODO: Error message
-
+      yield put(
+        setMessage({
+          id: payload.id,
+          messageTitle: Labels.ERROR,
+          messageDescription: Labels.SIGN_FAILED_VERIFICATION_MESSAGE,
+          errorType: ErrorTypes.DEFAULT
+        })
+      );
       return;
     }
 
     const user = yield select(selectUserName);
-    const response = yield api.esign.sendSignedDocument(payload.id, signedMessage, user);
 
-    if (!response.data) {
-      // TODO: Error message
-
-      return;
-    }
-
+    yield api.esign.sendSignedDocument(payload.id, signedMessage, user);
     yield put(signDocumentSuccess(payload.id));
   } catch (e) {
+    yield put(
+      setMessage({
+        id: payload.id,
+        messageTitle: Labels.ERROR,
+        messageDescription: Labels.SIGN_FAILED_MESSAGE,
+        errorType: ErrorTypes.DEFAULT
+      })
+    );
     logger.error('[esign sagaSignDocument saga error', e.message);
   }
 }
 
 function* saga(ea) {
   yield takeEvery(init().type, sagaInit, ea);
-  yield takeEvery(getCertificates().type, sagaGetCertificates, ea);
+  yield takeEvery([getCertificates().type, setApi().type], sagaGetCertificates, ea);
   yield takeEvery(signDocument().type, sagaSignDocument, ea);
 }
 

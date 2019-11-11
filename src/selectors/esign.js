@@ -12,9 +12,8 @@ export const selectGeneralState = state => ({
   isFetchingApi: get(state, 'esign.isFetchingApi', false)
 });
 
-export const selectCertificate = (state, key) => {
+export const selectCertificate = (state, key, selected) => {
   const certificates = get(state, ['esign', 'certificates']);
-  const selected = get(state, ['esign', key, 'selectedCertificate']);
 
   return get(certificates.find(item => item.id === selected), 'thumbprint', '');
 };

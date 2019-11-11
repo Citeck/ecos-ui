@@ -2,30 +2,29 @@ import { handleActions } from 'redux-actions';
 
 import {
   init,
+  initSuccess,
+  initError,
+  fetchApi,
   setApi,
-  getCertificates,
   setCertificates,
   setMessage,
+  clearMessage,
   setErrorType,
-  selectCertificate,
   signDocument,
   signDocumentSuccess,
-  initSuccess,
-  fetchApi,
-  initError
+  setDocStatus
 } from '../actions/esign';
 
 export const initialState = {
   documentBase64: '',
-  selectedCertificate: '',
   isLoading: false,
+  isNeedToSign: false,
   messageTitle: '',
   messageDescription: '',
   errorType: '',
   documentSigned: false
 };
 
-// TODO: возможно, нужно добавить в generalState состояние лоадера api
 export const generalState = {
   cadespluginApi: null,
   cadespluginVersion: null,
@@ -78,27 +77,11 @@ export default handleActions(
     [setApi]: (state, { payload }) => ({
       ...state,
       cadespluginApi: { ...payload.cadespluginApi },
-      isFetchingApi: false,
-      [payload.id]: {
-        ...state[payload.id],
-        isLoading: false
-      }
-    }),
-    [getCertificates]: (state, { payload }) => ({
-      ...state,
-      [payload]: {
-        ...state[payload],
-        isLoading: true
-      }
+      isFetchingApi: false
     }),
     [setCertificates]: (state, { payload }) => ({
       ...state,
-      certificates: payload.certificates,
-      [payload.id]: {
-        ...state[payload.id],
-        selectedCertificate: payload.selectedCertificate,
-        isLoading: false
-      }
+      certificates: payload.certificates
     }),
     [setMessage]: (state, { payload }) => ({
       ...state,
@@ -106,6 +89,17 @@ export default handleActions(
         ...state[payload.id],
         messageTitle: payload.messageTitle,
         messageDescription: payload.messageDescription,
+        errorType: payload.errorType,
+        isLoading: false
+      }
+    }),
+    [clearMessage]: (state, { payload }) => ({
+      ...state,
+      [payload]: {
+        ...state[payload],
+        messageTitle: '',
+        messageDescription: '',
+        errorType: '',
         isLoading: false
       }
     }),
@@ -114,13 +108,6 @@ export default handleActions(
       [payload.id]: {
         ...state[payload.id],
         errorType: payload.errorType
-      }
-    }),
-    [selectCertificate]: (state, { payload }) => ({
-      ...state,
-      [payload.id]: {
-        ...state[payload.id],
-        selectedCertificate: payload.certificate
       }
     }),
     [signDocument]: (state, { payload }) => ({
@@ -136,6 +123,13 @@ export default handleActions(
         ...state[payload],
         isLoading: false,
         documentSigned: true
+      }
+    }),
+    [setDocStatus]: (state, { payload }) => ({
+      ...state,
+      [payload.id]: {
+        ...state[payload.id],
+        isNeedToSign: payload.isNeedToSign
       }
     })
   },

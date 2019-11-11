@@ -10,18 +10,47 @@ import { t } from '../../helpers/util';
 class EsignModal extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      selected: props.selected || ''
+    };
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    const newState = {};
+
+    if (!state.selected && props.selected) {
+      newState.selected = props.selected;
+    }
+
+    if (!Object.keys(newState).length) {
+      return null;
+    }
+
+    return newState;
   }
 
   handleHideModal = () => {
     this.props.onHideModal();
+    this.setState({ selected: '' });
+  };
+
+  handleSelectCertificate = selected => {
+    this.setState({ selected });
+  };
+
+  handleSignDocument = () => {
+    this.props.onSign(this.state.selected);
   };
 
   renderList() {
-    const { certificates, onSelectCertificate, selected } = this.props;
+    const { certificates } = this.props;
 
     if (!certificates) {
       return null;
     }
+
+    const { selected } = this.state;
 
     return (
       <div className="esign-cert__list">
@@ -38,7 +67,7 @@ class EsignModal extends Component {
                 'esign-cert__list-item_selected': item.id === selected
               })}
               key={item.id}
-              onClick={() => onSelectCertificate(item.id)}
+              onClick={() => this.handleSelectCertificate(item.id)}
             >
               {item.name}
             </div>
@@ -49,12 +78,13 @@ class EsignModal extends Component {
   }
 
   renderInfo() {
-    const { selected, certificates } = this.props;
+    const { selected } = this.state;
 
     if (!selected) {
       return null;
     }
 
+    const { certificates } = this.props;
     const certificate = certificates.find(item => item.id === selected);
 
     return (
@@ -91,7 +121,7 @@ class EsignModal extends Component {
     return (
       <div className="esign-cert__btns">
         <Btn onClick={this.handleHideModal}>Отмена</Btn>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.props.onSign}>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleSignDocument}>
           Подписать
         </Btn>
       </div>

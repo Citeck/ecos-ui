@@ -7,13 +7,13 @@ export const initSuccess = createAction(prefix + 'INIT_SUCCESS');
 export const initError = createAction(prefix + 'INIT_ERROR');
 
 export const fetchApi = createAction(prefix + 'FETCH_API');
-
 export const setApi = createAction(prefix + 'SET_API');
 
-export const setMessage = createAction(prefix + 'SET_MESSAGE');
-export const setErrorType = createAction(prefix + 'SET_ERROR_TYPE');
+export const setDocStatus = createAction(prefix + 'SET_DOC_STATUS');
 
-export const selectCertificate = createAction(prefix + 'SELECT_CERTIFICATE');
+export const setMessage = createAction(prefix + 'SET_MESSAGE');
+export const clearMessage = createAction(prefix + 'CLEAR_MESSAGE');
+export const setErrorType = createAction(prefix + 'SET_ERROR_TYPE');
 
 export const getCertificates = createAction(prefix + 'GET_CERTIFICATES');
 export const setCertificates = createAction(prefix + 'SET_CERTIFICATES');

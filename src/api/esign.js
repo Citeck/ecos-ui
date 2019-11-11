@@ -77,13 +77,17 @@ export class EsignApi extends RecordService {
   };
 
   sendSignedDocument = (nodeRef, sign, signer) => {
-    // return Records.queryOne({
-    //   query: { nodeRef, sign, signer }
-    // }).then(response => response);
     return fetch('/share/proxy/alfresco/acm/digitalSignaturePut', {
       method: 'POST',
       credentials: 'include',
       body: JSON.stringify({ nodeRef, sign, signer })
+    }).then(response => response.json());
+  };
+
+  checkDocumentStatus = record => {
+    return fetch(`/share/proxy/alfresco/citeck/case/status?nodeRef=${record}`, {
+      method: 'GET',
+      credentials: 'include'
     }).then(response => response.json());
   };
 }

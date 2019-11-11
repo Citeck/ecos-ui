@@ -5,7 +5,7 @@ import get from 'lodash/get';
 
 import { Btn } from '../common/btns';
 import { selectStateByKey, selectGeneralState } from '../../selectors/esign';
-import { init, getCertificates, selectCertificate, signDocument } from '../../actions/esign';
+import { init, getCertificates, signDocument, clearMessage } from '../../actions/esign';
 import EsignModal from './EsignModal';
 import MessageModal from './MessageModal';
 import { t } from '../../helpers/util';
@@ -45,10 +45,7 @@ class Esign extends Component {
     const newState = {};
 
     if (props.documentSigned && state.isOpenModal) {
-      const id = get(props.certificates, '0.id', '');
-
       newState.isOpenModal = false;
-      props.selectCertificate(id);
     }
 
     if (!Object.keys(newState).length) {
@@ -66,26 +63,20 @@ class Esign extends Component {
 
   handleClickSign = () => {
     this.setState({ isOpenModal: true });
+    this.props.getCertificates();
   };
 
   handleCloseModal = () => {
-    const { certificates, selectCertificate } = this.props;
-    const id = get(certificates, '0.id', '');
-
+    this.props.clearMessage();
     this.setState({ isOpenModal: false });
-    selectCertificate(id);
   };
 
   handleGoToPlugin = () => {
     window.open('https://www.cryptopro.ru/products/cades/plugin', '_blank');
   };
 
-  handleSelectCertificate = id => {
-    this.props.selectCertificate(id);
-  };
-
-  handleSignDocument = () => {
-    const { signDocument, selectedCertificate } = this.props;
+  handleSignDocument = selectedCertificate => {
+    const { signDocument } = this.props;
 
     signDocument(selectedCertificate);
   };
@@ -128,10 +119,10 @@ class Esign extends Component {
   }
 
   render() {
-    const { isLoading, isFetchingApi, certificates, cadespluginApi, selectedCertificate, documentSigned } = this.props;
+    const { isLoading, isFetchingApi, certificates, cadespluginApi, isNeedToSign, documentSigned } = this.props;
     const { isOpenModal } = this.state;
 
-    if (documentSigned) {
+    if (documentSigned || !isNeedToSign) {
       return null;
     }
 
@@ -146,10 +137,9 @@ class Esign extends Component {
           isLoading={isLoading}
           title={t(LABELS.MODAL_TITLE)}
           onHideModal={this.handleCloseModal}
-          onSelectCertificate={this.handleSelectCertificate}
           onSign={this.handleSignDocument}
           certificates={certificates}
-          selected={selectedCertificate}
+          selected={get(certificates, '0.id', '')}
         />
 
         {this.renderInfoMessage()}
@@ -165,8 +155,8 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   init: () => dispatch(init(ownProps.nodeRef)),
+  clearMessage: () => dispatch(clearMessage(ownProps.nodeRef)),
   getCertificates: () => dispatch(getCertificates(ownProps.nodeRef)),
-  selectCertificate: certificate => dispatch(selectCertificate({ id: ownProps.nodeRef, certificate })),
   signDocument: certificateId => dispatch(signDocument({ id: ownProps.nodeRef, certificateId }))
 });
 
