@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
 
 import { Btn } from '../common/btns';
 import EcosModal from '../common/EcosModal';
@@ -9,6 +10,35 @@ import { t } from '../../helpers/util';
 import { Labels } from '../../constants/esign';
 
 class EsignModal extends Component {
+  static propTypes = {
+    isOpen: PropTypes.bool,
+    isLoading: PropTypes.bool,
+    title: PropTypes.string,
+    onHideModal: PropTypes.func,
+    onSign: PropTypes.func,
+    certificates: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string,
+        thumbprint: PropTypes.string,
+        subject: PropTypes.string,
+        issuer: PropTypes.string,
+        dateFrom: PropTypes.string,
+        dateTo: PropTypes.string,
+        provider: PropTypes.string,
+        name: PropTypes.string,
+        friendlySubjectInfo: PropTypes.array,
+        friendlyIssuerInfo: PropTypes.array
+      })
+    ),
+    selected: PropTypes.string
+  };
+
+  static defaultProps = {
+    title: '',
+    selected: '',
+    certificates: []
+  };
+
   constructor(props) {
     super(props);
 

@@ -4,12 +4,16 @@ import classNames from 'classnames';
 import EcosModal from '../common/EcosModal';
 
 export default function(props) {
-  const { isOpen, onHideModal, title, description, children } = props;
+  const { isOpen = false, onHideModal, title = '', description = '', children = null } = props;
 
   return (
     <EcosModal
       isOpen={isOpen}
-      hideModal={onHideModal}
+      hideModal={() => {
+        if (typeof onHideModal === 'function') {
+          onHideModal();
+        }
+      }}
       title={title}
       className={classNames('esign-message', {
         'esign-message_title-center': !description

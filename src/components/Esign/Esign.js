@@ -8,15 +8,39 @@ import { selectStateByKey, selectGeneralState } from '../../selectors/esign';
 import { init, getCertificates, signDocument, clearMessage } from '../../actions/esign';
 import EsignModal from './EsignModal';
 import MessageModal from './MessageModal';
-import { t } from '../../helpers/util';
+import { getSearchParams, t } from '../../helpers/util';
 import { ErrorTypes, Labels, PLUGIN_URL } from '../../constants/esign';
 
 import './style.scss';
 
 class Esign extends Component {
-  static propTypes = {};
-
-  static defaultProps = {};
+  static propTypes = {
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    documentSigned: PropTypes.bool,
+    isLoading: PropTypes.bool,
+    isNeedToSign: PropTypes.bool,
+    documentBase64: PropTypes.string,
+    messageTitle: PropTypes.string,
+    messageDescription: PropTypes.string,
+    errorType: PropTypes.string,
+    cadespluginApi: PropTypes.object,
+    cadespluginVersion: PropTypes.object,
+    certificates: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string,
+        thumbprint: PropTypes.string,
+        subject: PropTypes.string,
+        issuer: PropTypes.string,
+        dateFrom: PropTypes.string,
+        dateTo: PropTypes.string,
+        provider: PropTypes.string,
+        name: PropTypes.string,
+        friendlySubjectInfo: PropTypes.array,
+        friendlyIssuerInfo: PropTypes.array
+      })
+    ),
+    isFetchingApi: PropTypes.bool
+  };
 
   constructor(props) {
     super(props);
@@ -140,17 +164,25 @@ class Esign extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  ...selectGeneralState(state),
-  ...selectStateByKey(state, ownProps.nodeRef)
-});
+const mapStateToProps = (state, ownProps) => {
+  const id = get(ownProps, 'nodeRef', get(getSearchParams(), 'nodeRef', ''));
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  init: () => dispatch(init(ownProps.nodeRef)),
-  clearMessage: () => dispatch(clearMessage(ownProps.nodeRef)),
-  getCertificates: () => dispatch(getCertificates(ownProps.nodeRef)),
-  signDocument: certificateId => dispatch(signDocument({ id: ownProps.nodeRef, certificateId }))
-});
+  return {
+    ...selectGeneralState(state),
+    ...selectStateByKey(state, id)
+  };
+};
+
+const mapDispatchToProps = (dispatch, ownProps) => {
+  const id = get(ownProps, 'nodeRef', get(getSearchParams(), 'nodeRef', ''));
+
+  return {
+    init: () => dispatch(init(id)),
+    clearMessage: () => dispatch(clearMessage(id)),
+    getCertificates: () => dispatch(getCertificates(id)),
+    signDocument: certificateId => dispatch(signDocument({ id, certificateId }))
+  };
+};
 
 export default connect(
   mapStateToProps,

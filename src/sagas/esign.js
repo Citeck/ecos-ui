@@ -24,6 +24,10 @@ import { t } from '../helpers/util';
 
 function* sagaInit({ api, logger }, { payload }) {
   try {
+    if (!payload) {
+      throw new Error(t(Labels.NODE_REF_NOT_FOUND));
+    }
+
     const { cadespluginApi: cadesApi, isFetchingApi } = yield select(selectGeneralState);
 
     /**
