@@ -143,10 +143,6 @@ class Tab extends React.Component {
       'ecos-tab_editing': isEdit
     });
     const placeholder = t('page-tabs.tab-name');
-    const textStyle = {};
-    if (isEdit) {
-      textStyle.width = (text.length || placeholder.length) * 8.5;
-    }
 
     return (
       <ClickOutside className={tabClassNames} onClick={onClick} handleClickOutside={this.onReset}>
@@ -156,7 +152,6 @@ class Tab extends React.Component {
           placeholder={placeholder}
           title={hasHint ? text : EMPTY_STR}
           disabled={!isEdit}
-          style={textStyle}
           className={classNames('ecos-tab-label', { 'ecos-tab-label_editing': isEdit })}
           innerRef={this.labelRef}
           onChange={this.onChange}
