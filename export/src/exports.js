@@ -1,4 +1,3 @@
-
 import reactDefault, * as react from 'react';
 import reactDomDefault, * as reactDom from 'react-dom';
 import reduxThunk from 'redux-thunk';
@@ -33,5 +32,5 @@ export default {
   'journalsApi': () => journalsApi,
   'header': () => import('../../src/components/Header/export'),
   'slide-menu': () => import('../../src/legacy/SlideMenu/export'),
-  'slide-menu-next': () => import('../../src/components/SlideMenu/export'),
+  'slide-menu-next': () => import('../../src/components/Sidebar/export'),
 };
