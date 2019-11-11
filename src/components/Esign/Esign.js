@@ -9,17 +9,9 @@ import { init, getCertificates, signDocument, clearMessage } from '../../actions
 import EsignModal from './EsignModal';
 import MessageModal from './MessageModal';
 import { t } from '../../helpers/util';
+import { ErrorTypes, Labels, PLUGIN_URL } from '../../constants/esign';
 
 import './style.scss';
-import { ErrorTypes } from '../../constants/esign';
-
-const LABELS = {
-  MODAL_TITLE: 'Выбор сертификата для подписи',
-  MODAL_ALREADY_SIGNED_TITLE: 'Документ уже был подписан',
-  MODAL_NO_CERTIFICATES_TITLE: 'Нет доступных сертификатов',
-  MODAL_INSTALL_EXTENSION_TITLE: 'Установите расширение',
-  MODAL_INSTALL_EXTENSION_DESCRIPTION: 'Чтобы продолжить, установите расширение КриптоПро для браузера с сайта cryptopro.ru'
-};
 
 class Esign extends Component {
   static propTypes = {};
@@ -72,7 +64,7 @@ class Esign extends Component {
   };
 
   handleGoToPlugin = () => {
-    window.open('https://www.cryptopro.ru/products/cades/plugin', '_blank');
+    window.open(PLUGIN_URL, '_blank');
   };
 
   handleSignDocument = selectedCertificate => {
@@ -90,9 +82,9 @@ class Esign extends Component {
       case ErrorTypes.NO_CADESPLUGIN:
         buttons = (
           <>
-            <Btn onClick={this.handleCloseModal}>Отмена</Btn>
+            <Btn onClick={this.handleCloseModal}>{t(Labels.CANCEL_BTN)}</Btn>
             <Btn className="ecos-btn_blue ecos-btn_hover_light-blue esign-message__btn-full" onClick={this.handleGoToPlugin}>
-              Перейти на страницу установки
+              {t(Labels.GO_TO_PLUGIN_PAGE_BTN)}
             </Btn>
           </>
         );
@@ -100,7 +92,7 @@ class Esign extends Component {
       default:
         buttons = (
           <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleCloseModal}>
-            OK
+            {t(Labels.OK_BTN)}
           </Btn>
         );
         break;
@@ -129,13 +121,13 @@ class Esign extends Component {
     return (
       <>
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleClickSign} disabled={isLoading || isFetchingApi}>
-          Подписать
+          {t(Labels.SIGN_BTN)}
         </Btn>
 
         <EsignModal
           isOpen={Boolean(isOpenModal && cadespluginApi && !this.hasErrors)}
           isLoading={isLoading}
-          title={t(LABELS.MODAL_TITLE)}
+          title={t(Labels.MODAL_TITLE)}
           onHideModal={this.handleCloseModal}
           onSign={this.handleSignDocument}
           certificates={certificates}

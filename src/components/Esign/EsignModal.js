@@ -6,6 +6,7 @@ import get from 'lodash/get';
 import { Btn } from '../common/btns';
 import EcosModal from '../common/EcosModal';
 import { t } from '../../helpers/util';
+import { Labels } from '../../constants/esign';
 
 class EsignModal extends Component {
   constructor(props) {
@@ -89,28 +90,28 @@ class EsignModal extends Component {
 
     return (
       <div className="esign-cert__info">
-        <div className="esign-cert__info-title">Свойства сертификата</div>
+        <div className="esign-cert__info-title">{t(Labels.MODAL_CERTIFICATE_PROPERTIES)}</div>
 
         <div className="esign-cert__info-list">
           <div className="esign-cert__info-list-item">
-            <div className="esign-cert__info-list-item-label">{t('Subject')}</div>
-            <div className="esign-cert__info-list-item-value">{get(certificate, 'subject', 'нет даных')}</div>
+            <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_SUBJECT)}</div>
+            <div className="esign-cert__info-list-item-value">{get(certificate, 'subject', t(Labels.NO_DATA))}</div>
           </div>
           <div className="esign-cert__info-list-item">
-            <div className="esign-cert__info-list-item-label">{t('Issuer')}</div>
-            <div className="esign-cert__info-list-item-value">{get(certificate, 'issuer', 'нет даных')}</div>
+            <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_ISSUER)}</div>
+            <div className="esign-cert__info-list-item-value">{get(certificate, 'issuer', t(Labels.NO_DATA))}</div>
           </div>
           <div className="esign-cert__info-list-item">
-            <div className="esign-cert__info-list-item-label">{t('From')}</div>
-            <div className="esign-cert__info-list-item-value">{get(certificate, 'dateFrom', 'нет даных')}</div>
+            <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_DATE_FROM)}</div>
+            <div className="esign-cert__info-list-item-value">{get(certificate, 'dateFrom', t(Labels.NO_DATA))}</div>
           </div>
           <div className="esign-cert__info-list-item">
-            <div className="esign-cert__info-list-item-label">{t('To')}</div>
-            <div className="esign-cert__info-list-item-value">{get(certificate, 'dateTo', 'нет даных')}</div>
+            <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_DATE_TO)}</div>
+            <div className="esign-cert__info-list-item-value">{get(certificate, 'dateTo', t(Labels.NO_DATA))}</div>
           </div>
           <div className="esign-cert__info-list-item">
-            <div className="esign-cert__info-list-item-label">{t('Provider')}</div>
-            <div className="esign-cert__info-list-item-value">{get(certificate, 'provider', 'нет даных')}</div>
+            <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_PROVIDER)}</div>
+            <div className="esign-cert__info-list-item-value">{get(certificate, 'provider', t(Labels.NO_DATA))}</div>
           </div>
         </div>
       </div>
@@ -120,9 +121,9 @@ class EsignModal extends Component {
   renderButtons() {
     return (
       <div className="esign-cert__btns">
-        <Btn onClick={this.handleHideModal}>Отмена</Btn>
+        <Btn onClick={this.handleHideModal}>{t(Labels.CANCEL_BTN)}</Btn>
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleSignDocument}>
-          Подписать
+          {t(Labels.SIGN_BTN)}
         </Btn>
       </div>
     );

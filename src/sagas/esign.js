@@ -20,6 +20,7 @@ import { selectGeneralState, selectCertificate } from '../selectors/esign';
 import { selectUserName } from '../selectors/user';
 import EsignConverter from '../dto/esign';
 import { ErrorTypes, DocStatuses, Labels } from '../constants/esign';
+import { t } from '../helpers/util';
 
 function* sagaInit({ api, logger }, { payload }) {
   try {
@@ -53,9 +54,9 @@ function* sagaInit({ api, logger }, { payload }) {
     yield put(
       setMessage({
         id: payload,
-        messageTitle: hasPlugin ? Labels.ERROR : Labels.ADD_PLUGIN,
-        messageDescription: hasPlugin ? e.message : Labels.ADD_PLUGIN_MESSAGE,
-        errorType: hasPlugin ? ErrorTypes.DEFAULT : ErrorTypes.NO_CADESPLUGIN
+        messageTitle: hasPlugin ? t(Labels.ERROR) : t(Labels.ADD_PLUGIN),
+        messageDescription: hasPlugin ? e.message : t(Labels.ADD_PLUGIN_MESSAGE),
+        errorType: hasPlugin ? t(ErrorTypes.DEFAULT) : t(ErrorTypes.NO_CADESPLUGIN)
       })
     );
     yield put(initError(payload));
@@ -80,7 +81,7 @@ function* sagaGetCertificates({ api, logger }, { payload }) {
     yield put(
       setCertificates({
         certificates,
-        messageTitle: certificates.length ? '' : Labels.NO_CERTIFICATES_MESSAGE,
+        messageTitle: certificates.length ? '' : t(Labels.NO_CERTIFICATES_MESSAGE),
         messageDescription: ''
       })
     );
@@ -99,9 +100,9 @@ function* sagaGetCertificates({ api, logger }, { payload }) {
     yield put(
       setMessage({
         id: payload,
-        messageTitle: hasPlugin ? Labels.ERROR : Labels.ADD_PLUGIN,
-        messageDescription: hasPlugin ? e.message : Labels.ADD_PLUGIN_MESSAGE,
-        errorType: hasPlugin ? ErrorTypes.DEFAULT : ErrorTypes.NO_CADESPLUGIN
+        messageTitle: hasPlugin ? t(Labels.ERROR) : t(Labels.ADD_PLUGIN),
+        messageDescription: hasPlugin ? e.message : t(Labels.ADD_PLUGIN_MESSAGE),
+        errorType: hasPlugin ? t(ErrorTypes.DEFAULT) : t(ErrorTypes.NO_CADESPLUGIN)
       })
     );
     logger.error('[esign sagaGetCertificates saga error', e.message);
@@ -117,9 +118,9 @@ function* sagaSignDocument({ api, logger }, { payload }) {
       yield put(
         setMessage({
           id: payload.id,
-          messageTitle: Labels.ERROR,
-          messageDescription: Labels.NO_BASE64_DOC_MESSAGE,
-          errorType: ErrorTypes.DEFAULT
+          messageTitle: t(Labels.ERROR),
+          messageDescription: t(Labels.NO_BASE64_DOC_MESSAGE),
+          errorType: t(ErrorTypes.DEFAULT)
         })
       );
       return;
@@ -134,9 +135,9 @@ function* sagaSignDocument({ api, logger }, { payload }) {
       yield put(
         setMessage({
           id: payload.id,
-          messageTitle: Labels.ERROR,
-          messageDescription: Labels.NO_CERTIFICATE_THUMBPRINT_MESSAGE,
-          errorType: ErrorTypes.DEFAULT
+          messageTitle: t(Labels.ERROR),
+          messageDescription: t(Labels.NO_CERTIFICATE_THUMBPRINT_MESSAGE),
+          errorType: t(ErrorTypes.DEFAULT)
         })
       );
 
@@ -157,9 +158,9 @@ function* sagaSignDocument({ api, logger }, { payload }) {
       yield put(
         setMessage({
           id: payload.id,
-          messageTitle: Labels.ERROR,
-          messageDescription: Labels.SIGN_FAILED_VERIFICATION_MESSAGE,
-          errorType: ErrorTypes.DEFAULT
+          messageTitle: t(Labels.ERROR),
+          messageDescription: t(Labels.SIGN_FAILED_VERIFICATION_MESSAGE),
+          errorType: t(ErrorTypes.DEFAULT)
         })
       );
       return;
@@ -173,9 +174,9 @@ function* sagaSignDocument({ api, logger }, { payload }) {
     yield put(
       setMessage({
         id: payload.id,
-        messageTitle: Labels.ERROR,
-        messageDescription: Labels.SIGN_FAILED_MESSAGE,
-        errorType: ErrorTypes.DEFAULT
+        messageTitle: t(Labels.ERROR),
+        messageDescription: t(Labels.SIGN_FAILED_MESSAGE),
+        errorType: t(ErrorTypes.DEFAULT)
       })
     );
     logger.error('[esign sagaSignDocument saga error', e.message);
