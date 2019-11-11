@@ -89,6 +89,10 @@ class Hour extends Component {
     this._input = ref;
   }
 
+  get inputRef() {
+    return this._input;
+  }
+
   get settings() {
     return { ...(this.props.settings || {}) };
   }
