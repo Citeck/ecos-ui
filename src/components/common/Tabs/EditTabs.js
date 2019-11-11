@@ -31,11 +31,7 @@ class Tab extends React.Component {
   };
 
   static defaultProps = {
-    ...commonOneTabDefaultProps,
-    disabled: false,
-    isNew: false,
-    onDelete: () => null,
-    onEdit: () => null
+    ...commonOneTabDefaultProps
   };
 
   constructor(props) {
