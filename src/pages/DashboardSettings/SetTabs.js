@@ -30,6 +30,14 @@ class SetTabs extends React.Component {
     removedTab: null
   };
 
+  doScrollEnd() {
+    debounce(() => {
+      this.setState({ scrollTabToEnd: true }, () => {
+        this.setState({ scrollTabToEnd: false });
+      });
+    }, 10)();
+  }
+
   onClickTabLayout = tab => {
     let { activeTabKey, setData } = this.props;
 
@@ -47,14 +55,8 @@ class SetTabs extends React.Component {
     newTab.isNew = true;
 
     tabs.push(newTab);
-
     setData({ tabs });
-
-    debounce(() => {
-      this.setState({ scrollTabToEnd: true }, () => {
-        this.setState({ scrollTabToEnd: false });
-      });
-    }, 50)();
+    this.doScrollEnd();
   };
 
   onEditTab = (tab, index) => {
@@ -62,8 +64,8 @@ class SetTabs extends React.Component {
     const { label, idLayout } = tab;
 
     set(tabs, [index], { label, idLayout });
-
     setData({ tabs });
+    this.doScrollEnd();
   };
 
   onConfirmDeleteTab = (tab, index) => {

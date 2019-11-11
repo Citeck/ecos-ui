@@ -98,9 +98,17 @@
       outline: none;
     }
 
+    &_editing {
+      text-align: left;
+
+      &:empty:before {
+        content: attr(placeholder);
+        color: $color-gray-6;
+      }
+    }
+
     &:not(&_editing) {
       @extend %ellipsis;
-      text-align: center;
     }
 
     &_editing + &-actions {

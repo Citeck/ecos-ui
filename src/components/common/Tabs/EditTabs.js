@@ -5,6 +5,7 @@ import { sortableContainer, sortableElement, sortableHandle } from 'react-sortab
 import ContentEditable from 'react-contenteditable';
 import { deepClone, placeCaretAtEnd, t } from '../../../helpers/util';
 import { Icon } from '../';
+import ClickOutside from '../../ClickOutside';
 import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
 import './Tabs.scss';
 
@@ -48,6 +49,12 @@ class Tab extends React.Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.isNew && prevProps.isNew) {
+      this.setFocus();
+    }
+  }
+
   get isEditable() {
     const { disabled } = this.props;
     const { editing } = this.state;
@@ -55,9 +62,11 @@ class Tab extends React.Component {
     return !disabled && editing;
   }
 
-  setFocus() {
+  setFocus(scrollLeft) {
     const elm = this.labelRef.current || {};
+
     elm.focus();
+    elm.scrollLeft = scrollLeft ? 0 : elm.scrollWidth;
     placeCaretAtEnd(elm);
   }
 
@@ -65,10 +74,14 @@ class Tab extends React.Component {
     if (!this.isEditable) {
       this.setState({ editing: true }, this.setFocus);
     }
+
     e.stopPropagation();
   };
 
   endEdit = () => {
+    const elm = this.labelRef.current || {};
+
+    elm.scrollLeft = 0;
     this.props.onEdit && this.props.onEdit(this.state.text);
     this.setState({ editing: false });
   };
@@ -95,13 +108,19 @@ class Tab extends React.Component {
   };
 
   onClear = e => {
+    this.setState({ text: EMPTY_STR }, this.setFocus.bind(this, true));
     e.stopPropagation();
-    this.setState({ text: EMPTY_STR }, this.setFocus);
   };
 
   onReset = () => {
+    const { label, isNew } = this.props;
+
     if (this.isEditable) {
-      this.setState({ editing: false, text: this.props.label });
+      if (isNew) {
+        this.props.onEdit && this.props.onEdit(label);
+      }
+
+      this.setState({ editing: false, text: label }, this.setFocus.bind(this, true));
     }
   };
 
@@ -118,7 +137,7 @@ class Tab extends React.Component {
   };
 
   render() {
-    const { label, isActive, onClick, hasHover, hasHint, disabled, isNew, className } = this.props;
+    const { isActive, onClick, hasHover, hasHint, disabled, className } = this.props;
     const { text } = this.state;
     const isEdit = this.isEditable;
     const tabClassNames = classNames('ecos-tab', 'ecos-tab_editable', className, {
@@ -127,21 +146,25 @@ class Tab extends React.Component {
       'ecos-tab_disabled': disabled,
       'ecos-tab_editing': isEdit
     });
-    const placeholder = isNew ? label : t('page-tabs.tab-name');
+    const placeholder = t('page-tabs.tab-name');
+    const textStyle = {};
+    if (isEdit) {
+      textStyle.width = (text.length || placeholder.length) * 8.5;
+    }
 
     return (
-      <div className={tabClassNames} onClick={onClick}>
+      <ClickOutside className={tabClassNames} onClick={onClick} handleClickOutside={this.onReset}>
         <ContentEditable
           tagName="div"
           html={text}
           placeholder={placeholder}
-          title={hasHint ? label : EMPTY_STR}
+          title={hasHint ? text : EMPTY_STR}
           disabled={!isEdit}
+          style={textStyle}
           className={classNames('ecos-tab-label', { 'ecos-tab-label_editing': isEdit })}
           innerRef={this.labelRef}
           onChange={this.onChange}
           onKeyPress={this.onKeyPress}
-          onBlur={this.onReset}
           onClick={this.onClick}
         />
         <div className="ecos-tab-actions">
@@ -151,7 +174,7 @@ class Tab extends React.Component {
           {isEdit && !text && <Icon className="icon-close ecos-tab-actions__icon" onClick={this.onDelete} />}
           {!isEdit && <DragHandle />}
         </div>
-      </div>
+      </ClickOutside>
     );
   }
 }
