@@ -3,7 +3,6 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 
 import { RecordService } from './recordService';
-import Records from '../components/Records';
 
 export class EsignApi extends RecordService {
   static _cadespluginApi = null;
