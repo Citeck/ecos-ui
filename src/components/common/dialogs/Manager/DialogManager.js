@@ -4,6 +4,7 @@ import { t } from '../../../../helpers/util';
 import { RemoveDialog } from '../index';
 import { Btn } from '../../btns';
 import EcosModal from '../../EcosModal';
+import './DialogManager.scss';
 
 const REMOVE_DIALOG_ID = 'DialogManager-remove-dialog';
 const INFO_DIALOG_ID = 'DialogManager-info-dialog';
@@ -102,9 +103,9 @@ const dialogsById = {
     };
 
     return (
-      <EcosModal isOpen={dProps.isOpen} hideModal={dProps.onClose}>
-        <div>{t(dProps.title)}</div>
-        <div>
+      <EcosModal title={dProps.title} isOpen={dProps.isOpen} hideModal={dProps.onClose} className="ecos-dialog ecos-dialog_info">
+        <div className="ecos-dialog__body">{dProps.text}</div>
+        <div className="ecos-dialog__buttons">
           <Btn onClick={dProps.onClose}>{t('button.close-modal')}</Btn>
         </div>
       </EcosModal>
@@ -137,9 +138,9 @@ const dialogsById = {
     };
 
     return (
-      <EcosModal isOpen={dProps.isOpen} hideModal={dProps.onNo}>
-        <div>{t(dProps.title)}</div>
-        <div>
+      <EcosModal title={dProps.title} isOpen={dProps.isOpen} hideModal={dProps.onNo} className="ecos-dialog ecos-dialog_confirm">
+        <div className="ecos-dialog__body">{dProps.text}</div>
+        <div className="ecos-dialog__buttons">
           <Btn onClick={dProps.onYes}>{t('boolean.yes')}</Btn>
           <Btn onClick={dProps.onNo}>{t('boolean.no')}</Btn>
         </div>

@@ -6,15 +6,21 @@ import './ColoredFormatter.scss';
 
 export default class ColoredFormatter extends DefaultGqlFormatter {
   value(cell) {
+    if (!cell) {
+      return '';
+    }
     return cell.disp || cell._disp || '';
   }
 
   getId(cell) {
+    if (!cell) {
+      return '';
+    }
     return cell.str || cell._str || '';
   }
 
   render() {
-    const { cell, params = {} } = this.props;
+    const { cell = '', params = {} } = this.props;
     const color = params.color || {};
 
     let cellColor = params.defaultColor || '#FFFFFF';
