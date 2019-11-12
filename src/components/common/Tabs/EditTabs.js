@@ -27,7 +27,8 @@ class Tab extends React.Component {
     disabled: PropTypes.bool,
     isNew: PropTypes.bool,
     onDelete: PropTypes.func,
-    onEdit: PropTypes.func
+    onEdit: PropTypes.func,
+    index: PropTypes.number
   };
 
   static defaultProps = {
@@ -41,7 +42,8 @@ class Tab extends React.Component {
 
     this.state = {
       editing: props.isNew,
-      text: props.isNew ? EMPTY_STR : props.label
+      text: props.isNew ? EMPTY_STR : props.label,
+      defText: `${t('page-tabs.tab-name-default')} ${props.index}`
     };
   }
 
@@ -76,10 +78,16 @@ class Tab extends React.Component {
 
   endEdit = () => {
     const elm = this.labelRef.current || {};
+    const state = {};
+    const { text, defText } = this.state;
 
     elm.scrollLeft = 0;
-    this.props.onEdit && this.props.onEdit(this.state.text);
-    this.setState({ editing: false });
+
+    state.text = text || defText;
+    state.editing = false;
+
+    this.setState(state);
+    this.props.onEdit && this.props.onEdit(state.text);
   };
 
   onChange = e => {
@@ -142,7 +150,7 @@ class Tab extends React.Component {
       'ecos-tab_disabled': disabled,
       'ecos-tab_editing': isEdit
     });
-    const placeholder = t('page-tabs.tab-name');
+    const placeholder = t('page-tabs.tab-name-tip');
 
     return (
       <ClickOutside className={tabClassNames} onClick={onClick} handleClickOutside={this.onReset}>
@@ -222,8 +230,9 @@ class EditTabs extends React.Component {
             <SortableElement key={`${item[keyField]}-${index}-editable`} index={index} disabled={disabled}>
               <Tab
                 {...item}
-                className={classNameTab}
                 id={item[keyField]}
+                index={index}
+                className={classNameTab}
                 label={classNames(valuePrefix, item[valueField])}
                 isActive={item.isActive || item[keyField] === activeTabKey}
                 onClick={() => onClick(item, index)}

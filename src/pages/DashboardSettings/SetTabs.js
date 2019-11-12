@@ -51,7 +51,7 @@ class SetTabs extends React.Component {
     const idLayout = DashboardService.newIdLayout;
     const newTab = DashboardService.defaultDashboardTab(idLayout);
 
-    newTab.label += ` ${tabs.length + 1}`;
+    newTab.label = '';
     newTab.isNew = true;
 
     tabs.push(newTab);
