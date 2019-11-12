@@ -1,8 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
 import get from 'lodash/get';
+import { Tooltip } from 'reactstrap';
+
 import SidebarService from '../../services/sidebar';
+import { toggleExpanded } from '../../actions/slideMenu';
 import Item from './Item';
 
 class List extends React.Component {
@@ -21,14 +25,16 @@ class List extends React.Component {
     level: 0
   };
 
-  get isTooltipList() {
+  onCloseTooltip = (id, expanded) => {
     const { isOpen, level } = this.props;
 
-    return !isOpen && SidebarService.DROP_MENU_BEGIN_FROM === level;
-  }
+    if (!isOpen && expanded && level === 1) {
+      this.props.toggleExpanded && this.props.toggleExpanded(id);
+    }
+  };
 
   render() {
-    const { data, className, level, isExpanded, expandableItems } = this.props;
+    const { data, className, level, isExpanded, expandableItems, isOpen } = this.props;
     const nextLevel = level + 1;
 
     if (!data || !data.length) {
@@ -43,14 +49,32 @@ class List extends React.Component {
         })}
       >
         {data.map((item, i) => {
-          const id = `lvl-${level}-${i}-${item.id}`;
+          const domId = `lvl-${level}-${i}-${item.id}`;
           const isSubExpanded = SidebarService.isExpanded(expandableItems, item.id);
-          const styleProps = SidebarService.getPropsStyleLevel({ level, actionType: get(this.props, 'data.action.type', '') });
+          const styleProps = SidebarService.getPropsStyleLevel({
+            level,
+            actionType: get(this.props, 'data.action.type', '')
+          });
+          const SubList = expanded => <ConnectList data={item.items} level={nextLevel} isExpanded={expanded} />;
 
           return (
-            <React.Fragment key={id}>
-              <Item data={item} level={level} id={id} isExpanded={isSubExpanded} styleProps={styleProps} />
-              <List data={item.items} level={nextLevel} isExpanded={isSubExpanded} expandableItems={expandableItems} />
+            <React.Fragment key={`key-${domId}`}>
+              <Item domId={domId} data={item} level={level} isExpanded={isSubExpanded} styleProps={styleProps} />
+              {SubList(isOpen && isSubExpanded)}
+              {level === 1 && (
+                <Tooltip
+                  target={domId}
+                  isOpen={!isOpen && isSubExpanded}
+                  placement="right"
+                  trigger="hover"
+                  boundariesElement="div.ecos-base-content"
+                  className="ecos-sidebar-list-tooltip"
+                  innerClassName="ecos-sidebar-list-tooltip-inner"
+                  arrowClassName="ecos-sidebar-list-tooltip-arrow"
+                >
+                  <div onMouseLeave={this.onCloseTooltip.bind(this, item.id, isSubExpanded)}>{SubList(true)}</div>
+                </Tooltip>
+              )}
             </React.Fragment>
           );
         })}
@@ -59,4 +83,18 @@ class List extends React.Component {
   }
 }
 
-export default List;
+const mapStateToProps = state => ({
+  isOpen: state.slideMenu.isOpen,
+  expandableItems: state.slideMenu.expandableItems
+});
+
+const mapDispatchToProps = dispatch => ({
+  toggleExpanded: id => dispatch(toggleExpanded(id))
+});
+
+const ConnectList = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(List);
+
+export default ConnectList;

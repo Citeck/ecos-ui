@@ -5,8 +5,6 @@ import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../consta
 import { MenuApi } from '../api';
 
 export default class SidebarService {
-  static DROP_MENU_BEGIN_FROM = 2;
-
   static ActionTypes = {
     CREATE_SITE: 'CREATE_SITE',
     FILTER_LINK: 'FILTER_LINK',

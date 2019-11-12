@@ -8,6 +8,7 @@ import {
   fetchSlideMenuItems,
   fetchSmallLogoSrc,
   getSiteDashboardEnable,
+  toggleExpanded,
   toggleIsOpen
 } from '../../actions/slideMenu';
 import Logo from './Logo';
@@ -70,7 +71,7 @@ class Sidebar extends React.Component {
           autoHide
           renderTrackVertical={props => <div {...props} className="ecos-sidebar-scroll_v" />}
         >
-          <List data={items} isExpanded expandableItems={expandableItems} />
+          <List data={items} isExpanded />
         </Scrollbars>
       </div>
     );
@@ -91,6 +92,7 @@ const mapDispatchToProps = dispatch => ({
   fetchSmallLogoSrc: () => dispatch(fetchSmallLogoSrc()),
   fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
+  toggleExpanded: id => dispatch(toggleExpanded(id)),
   getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable()),
   collapseAllItems: () => dispatch(collapseAllItems())
 });

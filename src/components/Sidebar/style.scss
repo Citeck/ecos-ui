@@ -199,6 +199,9 @@
         }
 
         &#{$menu-item}_separator {
+          cursor: none;
+          pointer-events: none;
+
           &::after {
             @extend %menu-item-separator;
             width: 70%;
@@ -240,6 +243,7 @@
         &:not(:first-child)::before {
           @extend %menu-item-separator;
           top: 0;
+          left: 35px;
         }
 
         &#{$menu-item}_no-action {
@@ -293,6 +297,7 @@
         padding: 0;
         margin: 0;
         max-width: initial;
+        width: 277px;
       }
 
       & &-arrow {
@@ -303,7 +308,9 @@
 
       #{$menu-list}_lvl-2 {
         #{$menu-item}_lvl-2 {
-          padding: 0 18px;
+          #{$menu-item}__link {
+            padding: 0 18px;
+          }
 
           &:first-child {
             border-top-left-radius: $border-radius-extra-large;
@@ -319,6 +326,7 @@
             border-right: 15px solid white;
             border-left: 15px solid white;
             right: 0;
+            left: 0;
           }
         }
       }

@@ -12,7 +12,7 @@ import { ItemBtn, ItemIcon, ItemLink } from './item-components';
 
 class Item extends React.Component {
   static propTypes = {
-    id: PropTypes.string.isRequired,
+    domId: PropTypes.string.isRequired,
     data: PropTypes.object,
     styleProps: PropTypes.object,
     level: PropTypes.number,
@@ -137,7 +137,7 @@ class Item extends React.Component {
   render() {
     const {
       level,
-      id,
+      domId,
       isOpen,
       isExpanded,
       styleProps: {
@@ -146,9 +146,19 @@ class Item extends React.Component {
     } = this.props;
     const itemSeparator = !isOpen && asSeparator;
 
+    const events = {};
+
+    if (isOpen) {
+      events.onClick = this.onToggleList;
+    }
+
+    if (!isOpen && !isExpanded) {
+      events.onMouseOver = this.onToggleList;
+    }
+
     return (
       <div
-        id={id}
+        id={domId}
         className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
           'ecos-sidebar-item_no-action': this.noMove,
           'ecos-sidebar-item_no-items': !this.hasSubItems,
@@ -156,7 +166,7 @@ class Item extends React.Component {
           'ecos-sidebar-item_selected': this.isSelectedItem,
           'ecos-sidebar-item_separator': itemSeparator
         })}
-        onClick={this.onToggleList}
+        {...events}
       >
         {!itemSeparator && (
           <>

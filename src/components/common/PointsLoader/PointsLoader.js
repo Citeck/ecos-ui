@@ -7,7 +7,7 @@ import './style.scss';
 export default class PointsLoader extends React.Component {
   static propTypes = {
     className: PropTypes.string,
-    color: PropTypes.oneOf('white', 'light-blue')
+    color: PropTypes.oneOf(['white', 'light-blue'])
   };
 
   static defaultProps = {
