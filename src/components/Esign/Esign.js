@@ -5,20 +5,32 @@ import get from 'lodash/get';
 
 import { Btn } from '../common/btns';
 import { selectStateByKey, selectGeneralState } from '../../selectors/esign';
-import { init, getCertificates, signDocument, clearMessage } from '../../actions/esign';
+import { init, getCertificates, signDocument, clearMessage, toggleSignModal } from '../../actions/esign';
 import EsignModal from './EsignModal';
 import MessageModal from './MessageModal';
 import { getSearchParams, t } from '../../helpers/util';
-import { ErrorTypes, Labels, PLUGIN_URL } from '../../constants/esign';
+import { ErrorTypes, Labels, PLUGIN_URL, TOGGLE_SIGN_MODAL_EVENT } from '../../constants/esign';
 
 import './style.scss';
 
+const customEvent = document.createEvent('Event');
+
+customEvent.initEvent(TOGGLE_SIGN_MODAL_EVENT, true, true);
+
+export const openSignModal = nodeRef => {
+  customEvent.customParams = { nodeRef };
+
+  document.dispatchEvent(customEvent);
+};
+
 class Esign extends Component {
   static propTypes = {
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    nodeRef: PropTypes.string,
+    viewElement: PropTypes.oneOfType([PropTypes.node, PropTypes.element, PropTypes.func]),
+    isOpen: PropTypes.bool,
+    singleton: PropTypes.bool,
     documentSigned: PropTypes.bool,
     isLoading: PropTypes.bool,
-    isNeedToSign: PropTypes.bool,
     documentBase64: PropTypes.string,
     messageTitle: PropTypes.string,
     messageDescription: PropTypes.string,
@@ -39,36 +51,39 @@ class Esign extends Component {
         friendlyIssuerInfo: PropTypes.array
       })
     ),
-    isFetchingApi: PropTypes.bool
+    isFetchingApi: PropTypes.bool,
+    /**
+     * колбек-функция при успешном подписании документа
+     */
+    onSigned: PropTypes.func
+  };
+
+  static defaultProps = {
+    nodeRef: get(getSearchParams(), 'nodeRef', '')
   };
 
   constructor(props) {
     super(props);
 
-    this.state = {
-      isOpenModal: false
-    };
-
     /**
      * Отключаем стандартные уведомления от плагина
      */
     window.cadesplugin_skip_extension_install = true;
-
     props.init();
   }
 
-  static getDerivedStateFromProps(props, state) {
-    const newState = {};
+  componentDidMount() {
+    document.addEventListener(TOGGLE_SIGN_MODAL_EVENT, this.handleToggleSignModal, false);
+  }
 
-    if (props.documentSigned && state.isOpenModal) {
-      newState.isOpenModal = false;
+  componentDidUpdate(prevProps) {
+    const { documentSigned, onSigned } = this.props;
+
+    if (prevProps.documentSigned && !documentSigned) {
+      if (typeof onSigned === 'function') {
+        onSigned();
+      }
     }
-
-    if (!Object.keys(newState).length) {
-      return null;
-    }
-
-    return newState;
   }
 
   get hasErrors() {
@@ -77,14 +92,22 @@ class Esign extends Component {
     return Boolean(errorType || messageTitle || messageDescription);
   }
 
+  handleToggleSignModal = event => {
+    const { nodeRef, singleton, toggleSignModal } = this.props;
+    const ref = get(event, 'customParams.nodeRef', '');
+
+    if (singleton || ref === nodeRef) {
+      toggleSignModal();
+    }
+  };
+
   handleClickSign = () => {
-    this.setState({ isOpenModal: true });
     this.props.getCertificates();
   };
 
   handleCloseModal = () => {
     this.props.clearMessage();
-    this.setState({ isOpenModal: false });
+    this.props.toggleSignModal();
   };
 
   handleGoToPlugin = () => {
@@ -98,8 +121,7 @@ class Esign extends Component {
   };
 
   renderInfoMessage() {
-    const { messageTitle, messageDescription, errorType } = this.props;
-    const { isOpenModal } = this.state;
+    const { messageTitle, messageDescription, errorType, isOpen } = this.props;
     let buttons = null;
 
     switch (errorType) {
@@ -124,7 +146,7 @@ class Esign extends Component {
 
     return (
       <MessageModal
-        isOpen={Boolean(isOpenModal && (messageTitle || messageDescription))}
+        isOpen={Boolean(isOpen && (messageTitle || messageDescription))}
         title={messageTitle}
         description={messageDescription}
         onHideModal={this.handleCloseModal}
@@ -134,22 +156,29 @@ class Esign extends Component {
     );
   }
 
-  render() {
-    const { isLoading, isFetchingApi, certificates, cadespluginApi, isNeedToSign, documentSigned } = this.props;
-    const { isOpenModal } = this.state;
+  renderViewElement() {
+    const { viewElement: ViewElement, toggleSignModal } = this.props;
 
-    if (documentSigned || !isNeedToSign) {
+    if (!ViewElement) {
+      return null;
+    }
+
+    return <ViewElement onClick={toggleSignModal} />;
+  }
+
+  render() {
+    const { isOpen, isLoading, certificates, cadespluginApi, documentSigned } = this.props;
+
+    if (documentSigned) {
       return null;
     }
 
     return (
       <>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleClickSign} disabled={isLoading || isFetchingApi}>
-          {t(Labels.SIGN_BTN)}
-        </Btn>
+        {this.renderViewElement()}
 
         <EsignModal
-          isOpen={Boolean(isOpenModal && cadespluginApi && !this.hasErrors)}
+          isOpen={Boolean(isOpen && cadespluginApi && !this.hasErrors)}
           isLoading={isLoading}
           title={t(Labels.MODAL_TITLE)}
           onHideModal={this.handleCloseModal}
@@ -178,6 +207,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 
   return {
     init: () => dispatch(init(id)),
+    toggleSignModal: () => dispatch(toggleSignModal(id)),
     clearMessage: () => dispatch(clearMessage(id)),
     getCertificates: () => dispatch(getCertificates(id)),
     signDocument: certificateId => dispatch(signDocument({ id, certificateId }))

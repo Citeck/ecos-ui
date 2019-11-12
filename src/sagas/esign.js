@@ -13,13 +13,12 @@ import {
   setMessage,
   setErrorType,
   signDocument,
-  signDocumentSuccess,
-  setDocStatus
+  signDocumentSuccess
 } from '../actions/esign';
 import { selectGeneralState, selectCertificate } from '../selectors/esign';
 import { selectUserName } from '../selectors/user';
 import EsignConverter from '../dto/esign';
-import { ErrorTypes, DocStatuses, Labels } from '../constants/esign';
+import { ErrorTypes, Labels } from '../constants/esign';
 import { t } from '../helpers/util';
 
 function* sagaInit({ api, logger }, { payload }) {
@@ -29,13 +28,6 @@ function* sagaInit({ api, logger }, { payload }) {
     }
 
     const { cadespluginApi: cadesApi, isFetchingApi } = yield select(selectGeneralState);
-
-    /**
-     * Запрашиваем статус документа, чтобы определить, нужна подпись или нет
-     */
-    const status = yield api.esign.checkDocumentStatus(payload);
-
-    yield put(setDocStatus({ id: payload, isNeedToSign: get(status, 'statusId', '') === DocStatuses.SIGNING }));
 
     if (isFetchingApi) {
       yield put(initSuccess(payload));

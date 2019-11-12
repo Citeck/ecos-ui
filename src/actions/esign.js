@@ -9,7 +9,7 @@ export const initError = createAction(prefix + 'INIT_ERROR');
 export const fetchApi = createAction(prefix + 'FETCH_API');
 export const setApi = createAction(prefix + 'SET_API');
 
-export const setDocStatus = createAction(prefix + 'SET_DOC_STATUS');
+export const toggleSignModal = createAction(prefix + 'TOGGLE_SIGN_MODAL');
 
 export const setMessage = createAction(prefix + 'SET_MESSAGE');
 export const clearMessage = createAction(prefix + 'CLEAR_MESSAGE');

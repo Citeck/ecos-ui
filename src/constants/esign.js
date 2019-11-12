@@ -40,3 +40,5 @@ export const Labels = {
 };
 
 export const PLUGIN_URL = 'https://www.cryptopro.ru/products/cades/plugin';
+
+export const TOGGLE_SIGN_MODAL_EVENT = 'toggle-sign-modal';

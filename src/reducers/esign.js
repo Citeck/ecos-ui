@@ -12,13 +12,13 @@ import {
   setErrorType,
   signDocument,
   signDocumentSuccess,
-  setDocStatus
+  toggleSignModal
 } from '../actions/esign';
 
 export const initialState = {
   documentBase64: '',
+  isOpen: false,
   isLoading: false,
-  isNeedToSign: false,
   messageTitle: '',
   messageDescription: '',
   errorType: '',
@@ -74,6 +74,13 @@ export default handleActions(
         isLoading: false
       }
     }),
+    [toggleSignModal]: (state, { payload }) => ({
+      ...state,
+      [payload]: {
+        ...state[payload],
+        isOpen: !state[payload].isOpen
+      }
+    }),
     [setApi]: (state, { payload }) => ({
       ...state,
       cadespluginApi: { ...payload.cadespluginApi },
@@ -121,15 +128,9 @@ export default handleActions(
       ...state,
       [payload]: {
         ...state[payload],
+        isOpen: false,
         isLoading: false,
         documentSigned: true
-      }
-    }),
-    [setDocStatus]: (state, { payload }) => ({
-      ...state,
-      [payload.id]: {
-        ...state[payload.id],
-        isNeedToSign: payload.isNeedToSign
       }
     })
   },
