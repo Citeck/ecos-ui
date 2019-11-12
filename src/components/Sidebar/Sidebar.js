@@ -2,9 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-
 import { fetchLargeLogoSrc, fetchSlideMenuItems, fetchSmallLogoSrc, getSiteDashboardEnable, toggleIsOpen } from '../../actions/slideMenu';
-
 import Logo from './Logo';
 import List from './List';
 
@@ -37,7 +35,7 @@ class Sidebar extends React.Component {
   };
 
   render() {
-    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items } = this.props;
+    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, expandableItems } = this.props;
 
     if (!isReady) {
       return null;
@@ -59,7 +57,7 @@ class Sidebar extends React.Component {
           autoHide
           renderTrackVertical={props => <div {...props} className="ecos-sidebar-scroll_v" />}
         >
-          <List data={items} isExpanded />
+          <List data={items} isExpanded expandableItems={expandableItems} />
         </Scrollbars>
       </div>
     );
@@ -71,7 +69,8 @@ const mapStateToProps = state => ({
   isReady: state.slideMenu.isReady,
   items: state.slideMenu.items,
   smallLogoSrc: state.slideMenu.smallLogo,
-  largeLogoSrc: state.slideMenu.largeLogo
+  largeLogoSrc: state.slideMenu.largeLogo,
+  expandableItems: state.slideMenu.expandableItems
 });
 
 const mapDispatchToProps = dispatch => ({
