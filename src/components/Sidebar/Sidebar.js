@@ -1,26 +1,14 @@
 import React from 'react';
 import classNames from 'classnames';
-import get from 'lodash/get';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { fetchLargeLogoSrc, fetchSlideMenuItems, fetchSmallLogoSrc, getSiteDashboardEnable, toggleIsOpen } from '../../actions/slideMenu';
-import ULS from '../../services/userLocalSettings';
+
 import Logo from './Logo';
 import List from './List';
 
 import './style.scss';
-
-const isOpenMenu = () => {
-  return get(ULS.getMenuMode(), 'isSlideMenuOpen', true);
-};
-
-const setOpenMenu = isSlideMenuOpen => {
-  ULS.setMenuMode({
-    ...ULS.getMenuMode(),
-    isSlideMenuOpen
-  });
-};
 
 class Sidebar extends React.Component {
   slideMenuToggle = null;
@@ -29,7 +17,6 @@ class Sidebar extends React.Component {
     this.props.fetchSmallLogoSrc();
     this.props.fetchLargeLogoSrc();
     this.props.fetchSlideMenuItems();
-    this.props.toggleIsOpen(isOpenMenu());
     this.props.getSiteDashboardEnable();
 
     this.slideMenuToggle = document.getElementById('slide-menu-toggle');
@@ -46,10 +33,7 @@ class Sidebar extends React.Component {
   }
 
   toggleSlideMenu = () => {
-    const { isOpen } = this.props;
-
-    setOpenMenu(!isOpen);
-    this.props.toggleIsOpen(!isOpen);
+    this.props.toggleIsOpen(!this.props.isOpen);
   };
 
   render() {
@@ -75,7 +59,7 @@ class Sidebar extends React.Component {
           autoHide
           renderTrackVertical={props => <div {...props} className="ecos-sidebar-scroll_v" />}
         >
-          <List data={items} />
+          <List data={items} isExpanded />
         </Scrollbars>
       </div>
     );
@@ -91,9 +75,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
   fetchSmallLogoSrc: () => dispatch(fetchSmallLogoSrc()),
   fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
-  fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
   getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable())
 });

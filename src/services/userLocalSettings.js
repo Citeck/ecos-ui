@@ -47,7 +47,7 @@ export default class UserLocalSettingsService {
   static setMenuMode(data) {
     const userName = getCurrentUserName();
 
-    setData(`${prefixMenu}${userName}`, data);
+    setData(`${prefixMenu}${userName}`, { ...UserLocalSettingsService.getMenuMode(), ...data });
   }
 
   static getMenuMode() {

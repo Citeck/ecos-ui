@@ -183,6 +183,10 @@ export default class SidebarService {
       attributes
     };
   }
+
+  static isExpanded(expandableItems = [], itemId) {
+    return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).isNestedListExpanded) : true;
+  }
 }
 
 const ATypes = SidebarService.ActionTypes;
