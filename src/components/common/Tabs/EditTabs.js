@@ -43,7 +43,7 @@ class Tab extends React.Component {
     this.state = {
       editing: props.isNew,
       text: props.isNew ? EMPTY_STR : props.label,
-      defText: `${t('page-tabs.tab-name-default')} ${props.index}`
+      defText: `${t('page-tabs.tab-name-default')} ${props.index + 1}`
     };
   }
 
@@ -83,7 +83,7 @@ class Tab extends React.Component {
 
     elm.scrollLeft = 0;
 
-    state.text = text || defText;
+    state.text = text || this.props.label || defText;
     state.editing = false;
 
     this.setState(state);
@@ -141,8 +141,8 @@ class Tab extends React.Component {
   };
 
   render() {
-    const { isActive, onClick, hasHover, hasHint, disabled, className } = this.props;
-    const { text } = this.state;
+    const { isActive, onClick, hasHover, hasHint, disabled, className, isNew } = this.props;
+    const { text, defText } = this.state;
     const isEdit = this.isEditable;
     const tabClassNames = classNames('ecos-tab', 'ecos-tab_editable', className, {
       'ecos-tab_active': isActive,
@@ -150,10 +150,10 @@ class Tab extends React.Component {
       'ecos-tab_disabled': disabled,
       'ecos-tab_editing': isEdit
     });
-    const placeholder = t('page-tabs.tab-name-tip');
+    const placeholder = isNew ? defText : '';
 
     return (
-      <ClickOutside className={tabClassNames} onClick={onClick} handleClickOutside={this.onReset}>
+      <ClickOutside className={tabClassNames} onClick={onClick} handleClickOutside={this.endEdit}>
         <ContentEditable
           tagName="div"
           html={text}
