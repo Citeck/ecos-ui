@@ -3,6 +3,7 @@ import formatterStore from '../formatters/formatterStore';
 import Mapper from '../mapping/Mapper';
 import Records from '../../../Records';
 import { getCurrentLocale, t } from '../../../../helpers/util';
+import lodashGet from 'lodash/get';
 
 const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
 
@@ -117,6 +118,12 @@ export default class GqlDataSource extends BaseDataSource {
     });
 
     attributes.hasContent = '.has(n:"cm:content")';
+
+    let groupAtts = lodashGet(this.options || {}, 'ajax.body.query.groupBy', []);
+    for (let i = 0; i < groupAtts.length; i++) {
+      let att = groupAtts[i];
+      attributes['groupBy_' + att] = att + '?str';
+    }
 
     return attributes;
   }

@@ -447,6 +447,17 @@ export default class EcosFormUtils {
                 submission[att] = EcosFormUtils.initJsonRecord(recordData[att]);
               } else if (input && input.component && input.component.type === 'file') {
                 submission[att] = EcosFormUtils.removeEmptyValuesFromArray(recordData[att]);
+              } else if (
+                input &&
+                input.component &&
+                input.component.type === 'datetime' &&
+                input.component.ignoreTimeZone &&
+                input.component.enableDate &&
+                !input.component.enableTime
+              ) {
+                const serverDate = new Date(recordData[att]);
+                serverDate.setHours(serverDate.getHours() + serverDate.getTimezoneOffset() / 60);
+                submission[att] = serverDate.toISOString();
               } else {
                 submission[att] = recordData[att];
               }

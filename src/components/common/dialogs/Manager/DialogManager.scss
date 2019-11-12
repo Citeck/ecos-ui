@@ -1,0 +1,9 @@
+.ecos-dialog {
+  &__buttons {
+    margin-top: 2em;
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: end;
+    grid-gap: 1em;
+  }
+}
