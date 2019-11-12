@@ -451,10 +451,10 @@ export default class EcosFormUtils {
                 input &&
                 input.component &&
                 input.component.type === 'datetime' &&
+                input.component.ignoreTimeZone &&
                 input.component.enableDate &&
                 !input.component.enableTime
               ) {
-                // TODO add "ignoreTimeZone" component option; do it if "ignoreTimeZone" === true
                 const serverDate = new Date(recordData[att]);
                 serverDate.setHours(serverDate.getHours() + serverDate.getTimezoneOffset() / 60);
                 submission[att] = serverDate.toISOString();

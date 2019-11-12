@@ -1,6 +1,19 @@
 import FormIODateTimeComponent from 'formiojs/components/datetime/DateTime';
 
 export default class DateTimeComponent extends FormIODateTimeComponent {
+  static schema(...extend) {
+    return FormIODateTimeComponent.schema(
+      {
+        ignoreTimeZone: false
+      },
+      ...extend
+    );
+  }
+
+  get defaultSchema() {
+    return DateTimeComponent.schema();
+  }
+
   // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2673
   // пришлось отказаться от этого решения из-за бага https://citeck.atlassian.net/browse/ECOSCOM-2831
   // updateValue(flags, value) {
