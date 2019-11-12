@@ -264,8 +264,14 @@ class EcosForm extends React.Component {
         }
 
         // cause: https://citeck.atlassian.net/browse/ECOSCOM-2581
-        // TODO add "ignoreTimeZone" component option; do it if "ignoreTimeZone" === true
-        if (value && input && input.component.type === 'datetime' && input.component.enableDate && !input.component.enableTime) {
+        if (
+          value &&
+          input &&
+          input.component.type === 'datetime' &&
+          input.component.ignoreTimeZone &&
+          input.component.enableDate &&
+          !input.component.enableTime
+        ) {
           value = moment(value).format('YYYY-MM-DD');
         }
 
