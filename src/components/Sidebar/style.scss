@@ -119,9 +119,11 @@
     }
 
     &__link {
-      text-decoration: none;
-      display: inline-flex;
       width: 100%;
+      height: 100%;
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
     }
 
     &__icon {
@@ -217,10 +219,14 @@
       }
 
       #{$menu-item}_lvl-1 {
-        padding: 0 15px 0 25px;
+        padding-right: 15px;
 
         &#{$menu-item}_expanded:not(:hover) {
           background: $color-gray-25;
+        }
+
+        #{$menu-item}__link {
+          padding: 0 3px 0 25px;
         }
       }
     }
@@ -231,8 +237,6 @@
       }
 
       #{$menu-item}_lvl-2 {
-        padding: 9px 35px;
-
         &:not(:first-child)::before {
           @extend %menu-item-separator;
           top: 0;
@@ -244,6 +248,10 @@
           &:hover {
             background: unset;
           }
+        }
+
+        #{$menu-item}__link {
+          padding: 9px 35px;
         }
 
         #{$menu-item}__label {

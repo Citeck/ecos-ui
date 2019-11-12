@@ -2,7 +2,14 @@ import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { fetchLargeLogoSrc, fetchSlideMenuItems, fetchSmallLogoSrc, getSiteDashboardEnable, toggleIsOpen } from '../../actions/slideMenu';
+import {
+  collapseAllItems,
+  fetchLargeLogoSrc,
+  fetchSlideMenuItems,
+  fetchSmallLogoSrc,
+  getSiteDashboardEnable,
+  toggleIsOpen
+} from '../../actions/slideMenu';
 import Logo from './Logo';
 import List from './List';
 
@@ -31,7 +38,13 @@ class Sidebar extends React.Component {
   }
 
   toggleSlideMenu = () => {
-    this.props.toggleIsOpen(!this.props.isOpen);
+    const isOpen = this.props.isOpen;
+
+    this.props.toggleIsOpen(!isOpen);
+
+    if (isOpen) {
+      this.props.collapseAllItems();
+    }
   };
 
   render() {
@@ -78,7 +91,8 @@ const mapDispatchToProps = dispatch => ({
   fetchSmallLogoSrc: () => dispatch(fetchSmallLogoSrc()),
   fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
-  getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable())
+  getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable()),
+  collapseAllItems: () => dispatch(collapseAllItems())
 });
 
 export default connect(

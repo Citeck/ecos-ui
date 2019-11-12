@@ -19,11 +19,9 @@ export default class SidebarService {
     const common = {
       noIcon: true,
       noBadge: true,
-      isRemoteBadge: false,
       noToggle: true,
-      isDefExpanded: true,
       collapsed: {
-        divInsteadName: false
+        asSeparator: false
       }
     };
 
@@ -32,16 +30,14 @@ export default class SidebarService {
         ...common,
         collapsed: {
           ...common.collapsed,
-          divInsteadName: true
+          asSeparator: true
         }
       },
       1: {
         ...common,
         noIcon: false,
         noToggle: false,
-        isDefExpanded: false,
-        noBadge: [ATypes.CREATE_SITE].includes(actionType),
-        isRemoteBadge: actionType && ![ATypes.CREATE_SITE].includes(actionType)
+        noBadge: !actionType && [ATypes.CREATE_SITE].includes(actionType)
       },
       2: {
         ...common

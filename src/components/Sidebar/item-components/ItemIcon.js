@@ -4,10 +4,6 @@ import { connect } from 'react-redux';
 import { loadMenuItemIconUrl } from '../../../actions/slideMenu';
 import { Icon } from '../../common';
 
-const mapDispatchToProps = dispatch => ({
-  loadMenuItemIconUrl: (iconName, cb) => dispatch(loadMenuItemIconUrl(iconName, cb))
-});
-
 class ItemIcon extends React.Component {
   static propTypes = {
     iconName: PropTypes.string,
@@ -23,13 +19,27 @@ class ItemIcon extends React.Component {
     data: null
   };
 
+  fetchIcon = false;
+
   componentDidMount() {
     const { iconName, loadMenuItemIconUrl } = this.props;
 
     if (iconName) {
-      loadMenuItemIconUrl(iconName, data => this.setState({ data }));
+      this.fetchIcon = true;
+      loadMenuItemIconUrl(iconName, this.setIcon);
     }
   }
+
+  componentWillUnmount() {
+    this.fetchIcon = false;
+  }
+
+  setIcon = data => {
+    if (this.fetchIcon) {
+      this.setState({ data });
+      this.fetchIcon = false;
+    }
+  };
 
   render() {
     const { data } = this.state;
@@ -57,6 +67,10 @@ class ItemIcon extends React.Component {
     }
   }
 }
+
+const mapDispatchToProps = dispatch => ({
+  loadMenuItemIconUrl: (iconName, cb) => dispatch(loadMenuItemIconUrl(iconName, cb))
+});
 
 export default connect(
   null,

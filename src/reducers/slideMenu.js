@@ -1,5 +1,6 @@
 import { handleActions } from 'redux-actions';
 import {
+  collapseAllItems,
   setIsReady,
   setLargeLogo,
   setScrollTop,
@@ -72,6 +73,12 @@ export default handleActions(
             }
           ];
         })()
+      };
+    },
+    [collapseAllItems]: (state, action) => {
+      return {
+        ...state,
+        expandableItems: state.expandableItems.map(item => ({ ...item, isNestedListExpanded: false }))
       };
     },
     [toggleIsOpen]: (state, action) => {

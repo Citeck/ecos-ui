@@ -32,4 +32,4 @@ function RemoteBadge({ data, isOpen }) {
   );
 }
 
-export default RemoteBadge;
+export default React.memo(RemoteBadge);
