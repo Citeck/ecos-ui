@@ -109,7 +109,7 @@ class SetWidgets extends React.Component {
           'ecos-dashboard-settings__drag-container_widgets-to_mobile': isMobile
         })}
       >
-        {columns.map((column, indexColumn) => {
+        {[].concat(...columns).map((column, indexColumn) => {
           const key_id = `column-widgets-${indexColumn}`;
 
           return (

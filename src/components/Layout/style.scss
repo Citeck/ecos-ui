@@ -45,8 +45,11 @@ $indents-of-items: 10px;
         background: $color-gray-1;
         border-color: $color-gray-5;
 
-        #{$root}__item-template-column {
-          border-color: $color-gray-5;
+        #{$root}__item-template {
+          &-column,
+          &-row {
+            border-color: $color-gray-5;
+          }
         }
 
         #{$root}__menu {
@@ -70,6 +73,20 @@ $indents-of-items: 10px;
         }
       }
 
+      &-row {
+        display: flex;
+        width: 100%;
+        height: 100%;
+
+        &:not(:first-child) {
+          border-top: 1px $color-gray-9 solid;
+        }
+
+        &:not(:last-child) {
+          border-bottom: 1px $color-gray-9 solid;
+        }
+      }
+
       &-columns-wrapper {
         display: flex;
         width: 100%;
@@ -88,7 +105,8 @@ $indents-of-items: 10px;
       }
 
       #{$root}__item-template {
-        &-column {
+        &-column,
+        &-row {
           border-color: $color-blue-dark !important;
         }
       }
