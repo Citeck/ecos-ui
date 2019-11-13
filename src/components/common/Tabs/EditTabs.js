@@ -79,16 +79,17 @@ class Tab extends React.Component {
   };
 
   endEdit = () => {
-    const elm = this.labelRef.current || {};
     const state = {};
     const { text, defText } = this.state;
-
-    elm.scrollLeft = 0;
 
     state.text = text || this.props.label || defText;
     state.editing = false;
 
-    this.setState(state);
+    this.setState(state, () => {
+      const elm = this.labelRef.current || {};
+      elm.scrollLeft = 0;
+    });
+
     this.props.onEdit && this.props.onEdit(state.text);
   };
 
