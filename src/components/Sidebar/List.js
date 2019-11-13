@@ -25,11 +25,10 @@ class List extends React.Component {
     level: 0
   };
 
-  onCloseTooltip = (id, expanded) => {
-    const { isOpen, level } = this.props;
-
-    if (!isOpen && expanded && level === 1) {
+  onToggleSubMenu = (id, e) => {
+    if (e && !this.props.isOpen) {
       this.props.toggleExpanded && this.props.toggleExpanded(id);
+      e.stopPropagation();
     }
   };
 
@@ -65,14 +64,17 @@ class List extends React.Component {
                 <Tooltip
                   target={domId}
                   isOpen={!isOpen && isSubExpanded}
-                  placement="right"
+                  placement="right-start"
                   trigger="hover"
+                  delay={250}
+                  autohide={false}
+                  toggle={this.onToggleSubMenu.bind(this, item.id)}
                   boundariesElement="div.ecos-base-content"
                   className="ecos-sidebar-list-tooltip"
                   innerClassName="ecos-sidebar-list-tooltip-inner"
                   arrowClassName="ecos-sidebar-list-tooltip-arrow"
                 >
-                  <div onMouseLeave={this.onCloseTooltip.bind(this, item.id, isSubExpanded)}>{SubList(true)}</div>
+                  {SubList(true)}
                 </Tooltip>
               )}
             </React.Fragment>

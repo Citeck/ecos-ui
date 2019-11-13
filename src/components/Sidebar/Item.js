@@ -152,10 +152,6 @@ class Item extends React.Component {
       events.onClick = this.onToggleList;
     }
 
-    if (!isOpen && !isExpanded) {
-      events.onMouseOver = this.onToggleList;
-    }
-
     return (
       <div
         id={domId}
