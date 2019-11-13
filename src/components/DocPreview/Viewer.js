@@ -6,9 +6,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import PropTypes from 'prop-types';
 import { DefineHeight } from '../common';
 
-export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
-  let _viewer = `${ctrClass}__viewer`;
-
+export default function getViewer(WrappedComponent, isPdf) {
   return class extends Component {
     static propTypes = {
       pdf: PropTypes.object,
@@ -139,12 +137,9 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
         getContentHeight,
         resizable
       } = this.props;
-      let _doc = `${_viewer}-doc`;
-      let _fullscreen = `${_viewer}_fullscreen`;
-      let _scroll_area = `${_doc}-scroll-area`;
-      let newProps = { ...this.props, ctrClass: _doc, refViewer: this.refViewer };
+      let newProps = { ...this.props, refViewer: this.refViewer };
 
-      const renderView = props => <div {...props} className={classNames(_scroll_area)} />;
+      const renderView = props => <div {...props} className="ecos-doc-preview__viewer-scroll-area" />;
 
       if (this.failed) {
         return null;
@@ -152,7 +147,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
 
       return (
         <Scrollbars
-          className={classNames({ [_fullscreen]: isFullscreen && isPdf })}
+          className={classNames({ 'ecos-doc-preview__viewer_fullscreen': isFullscreen && isPdf })}
           renderView={renderView}
           ref="refScrollbar"
           onScroll={this.onScroll}
@@ -173,7 +168,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
 
     render() {
       return this.failed ? null : (
-        <div className={classNames(_viewer)} ref={this.refViewer}>
+        <div className="ecos-doc-preview__viewer" ref={this.refViewer}>
           {this.renderDocument()}
         </div>
       );

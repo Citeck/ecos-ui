@@ -114,7 +114,7 @@ class PdfPage extends Component {
     return (
       <Fragment>
         <canvas ref={this.refContainer} />
-        <div ref={this.refTextLayout} className={'textLayer'} />
+        <div ref={this.refTextLayout} className="textLayer" />
       </Fragment>
     );
   }

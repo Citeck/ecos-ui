@@ -51,10 +51,7 @@ class DocPreview extends Component {
     setUserScale: () => null
   };
 
-  static className = 'ecos-doc-preview';
-
   state = {};
-
   refToolbar = React.createRef();
   refBody = React.createRef();
 
@@ -306,7 +303,7 @@ class DocPreview extends Component {
   renderLoader() {
     const { isLoading } = this.state;
 
-    return isLoading && <Loader className={`${DocPreview.className}__loader`} />;
+    return isLoading && <Loader className="ecos-doc-preview__loader" />;
   }
 
   renderMessage() {
@@ -318,12 +315,14 @@ class DocPreview extends Component {
   render() {
     const { className, noIndents } = this.props;
     const { isLoading } = this.state;
-    const CN = DocPreview.className;
 
     return (
-      <div className={classNames(CN, className, { [`${CN}_hidden`]: this.hiddenTool })} style={{ height: this.height }}>
+      <div
+        className={classNames('ecos-doc-preview', className, { 'ecos-doc-preview_hidden': this.hiddenTool })}
+        style={{ height: this.height }}
+      >
         {!isLoading && (
-          <div ref={this.refBody} className={classNames(`${CN}__container`, { [`${CN}_indents`]: !noIndents })}>
+          <div ref={this.refBody} className={classNames('ecos-doc-preview__container', { 'ecos-doc-preview_indents': !noIndents })}>
             {this.renderToolbar()}
             {this.renderViewer()}
             {this.renderMessage()}
@@ -335,7 +334,7 @@ class DocPreview extends Component {
   }
 }
 
-const Pdf = getViewer(PdfViewer, DocPreview.className, true);
-const Img = getViewer(ImgViewer, DocPreview.className);
+const Pdf = getViewer(PdfViewer, true);
+const Img = getViewer(ImgViewer, false);
 
 export default DocPreview;
