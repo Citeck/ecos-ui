@@ -14,7 +14,8 @@ export default class ScrollArrow extends React.Component {
     small: PropTypes.bool,
     updateWhenDataChange: PropTypes.bool,
     scrollToEnd: PropTypes.bool,
-    scrollToSide: PropTypes.oneOf([0, -1, 1])
+    scrollToSide: PropTypes.oneOf([0, -1, 1]),
+    innerRef: PropTypes.object
   };
 
   static defaultProps = {
@@ -26,13 +27,17 @@ export default class ScrollArrow extends React.Component {
     scrollToSide: 0
   };
 
-  refScroll = React.createRef();
-
   state = {
     isShowArrows: false,
     isActiveLeft: false,
     isActiveRight: true
   };
+
+  constructor(props) {
+    super(props);
+
+    this.refScroll = props.innerRef || React.createRef();
+  }
 
   componentWillReceiveProps(nextProps, nextContext) {
     const { scrollToEnd, scrollToSide } = this.props;
@@ -90,11 +95,11 @@ export default class ScrollArrow extends React.Component {
   };
 
   render() {
-    const { className, children, small, medium } = this.props;
+    const { className, children, small, medium, innerRef } = this.props;
     const { isShowArrows, isActiveLeft, isActiveRight } = this.state;
 
     return (
-      <div className={classNames('ecos-scrollbar-arrow', className)}>
+      <div className={classNames('ecos-scrollbar-arrow', className)} ref={innerRef}>
         {isShowArrows && (
           <IcoBtn
             className={classNames('ecos-scrollbar-arrow__btn', 'ecos-btn_white ecos-btn_hover_blue2 ecos-btn_circle', {

@@ -30,12 +30,14 @@ class SetTabs extends React.Component {
     removedTab: null
   };
 
-  doScrollEnd() {
+  wrapperTabsRef = React.createRef();
+
+  doScrollEnd(time = 0) {
     debounce(() => {
       this.setState({ scrollTabToEnd: true }, () => {
         this.setState({ scrollTabToEnd: false });
       });
-    }, 10)();
+    }, time)();
   }
 
   onClickTabLayout = tab => {
@@ -65,7 +67,6 @@ class SetTabs extends React.Component {
 
     set(tabs, [index], { label, idLayout });
     setData({ tabs });
-    this.doScrollEnd();
   };
 
   onConfirmDeleteTab = (tab, index) => {
@@ -100,6 +101,14 @@ class SetTabs extends React.Component {
     this.setState({ removedTab: null });
   };
 
+  onResizeTabs = w => {
+    const wTabs = get(this.wrapperTabsRef, 'current.clientWidth');
+
+    if (wTabs && wTabs < w) {
+      this.doScrollEnd(300);
+    }
+  };
+
   render() {
     const { tabs, activeTabKey } = this.props;
     const { scrollTabToEnd, removedTab } = this.state;
@@ -110,19 +119,25 @@ class SetTabs extends React.Component {
         <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
         <div className="ecos-dashboard-settings__layout-tabs-wrapper">
           {!empty && (
-            <ScrollArrow medium scrollToEnd={scrollTabToEnd} className="ecos-dashboard-settings__layout-tabs-arrows">
+            <ScrollArrow
+              medium
+              scrollToEnd={scrollTabToEnd}
+              className="ecos-dashboard-settings__layout-tabs-arrows"
+              innerRef={this.wrapperTabsRef}
+            >
               <EditTabs
                 classNameTab="ecos-dashboard-settings__layout-tabs-item"
                 hasHover
                 hasHint
                 items={tabs}
                 keyField={'idLayout'}
+                disabled={tabs.length < 2}
+                activeTabKey={activeTabKey}
                 onDelete={this.onConfirmDeleteTab}
                 onSort={this.onSortTabs}
                 onEdit={this.onEditTab}
                 onClick={this.onClickTabLayout}
-                disabled={tabs.length < 2}
-                activeTabKey={activeTabKey}
+                onResize={this.onResizeTabs}
               />
             </ScrollArrow>
           )}

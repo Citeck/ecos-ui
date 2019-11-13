@@ -3,6 +3,8 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
 import ContentEditable from 'react-contenteditable';
+import ReactResizeDetector from 'react-resize-detector';
+
 import { deepClone, placeCaretAtEnd, t } from '../../../helpers/util';
 import { Icon } from '../';
 import ClickOutside from '../../ClickOutside';
@@ -26,9 +28,9 @@ class Tab extends React.Component {
     ...commonOneTabPropTypes,
     disabled: PropTypes.bool,
     isNew: PropTypes.bool,
+    index: PropTypes.number,
     onDelete: PropTypes.func,
-    onEdit: PropTypes.func,
-    index: PropTypes.number
+    onEdit: PropTypes.func
   };
 
   static defaultProps = {
@@ -184,7 +186,8 @@ class EditTabs extends React.Component {
     disabled: PropTypes.bool,
     onSort: PropTypes.func,
     onDelete: PropTypes.func,
-    onEdit: PropTypes.func
+    onEdit: PropTypes.func,
+    onResize: PropTypes.func
   };
 
   static defaultProps = commonTabsDefaultProps;
@@ -205,6 +208,10 @@ class EditTabs extends React.Component {
     arr[newIndex] = items[oldIndex];
     arr[oldIndex] = items[newIndex];
     onSort(arr);
+  };
+
+  onResize = w => {
+    this.props.onResize && this.props.onResize(w);
   };
 
   render() {
@@ -244,6 +251,7 @@ class EditTabs extends React.Component {
               />
             </SortableElement>
           ))}
+          <ReactResizeDetector handleWidth onResize={this.onResize} nodeType="span" />
         </div>
       </SortableContainer>
     );
