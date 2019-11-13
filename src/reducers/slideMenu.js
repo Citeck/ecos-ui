@@ -62,17 +62,23 @@ export default handleActions(
     [toggleExpanded]: (state, action) => {
       return {
         ...state,
-        expandableItems: (() => {
-          const expandableItem = state.expandableItems.find(fi => fi.id === action.payload) || {};
-          const listWithoutItem = state.expandableItems.filter(fi => fi.id !== action.payload);
-          return [
-            ...listWithoutItem,
-            {
-              ...expandableItem,
-              isNestedListExpanded: !expandableItem.isNestedListExpanded
-            }
-          ];
-        })()
+        expandableItems: state.expandableItems.map(item => {
+          if (!state.isOpen) {
+            return {
+              ...item,
+              isNestedListExpanded: item.id === action.payload ? !item.isNestedListExpanded : false
+            };
+          }
+
+          if (item.id === action.payload) {
+            return {
+              ...item,
+              isNestedListExpanded: !item.isNestedListExpanded
+            };
+          }
+
+          return item;
+        })
       };
     },
     [collapseAllItems]: (state, action) => {
