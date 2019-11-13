@@ -175,7 +175,7 @@ export default class SelectJournal extends Component {
   };
 
   getJournalConfig = () => {
-    const { journalId, displayColumns } = this.props;
+    const { journalId, displayColumns, presetFilterPredicates } = this.props;
 
     return new Promise((resolve, reject) => {
       if (!journalId) {
@@ -203,7 +203,7 @@ export default class SelectJournal extends Component {
               ...prevState.requestParams,
               columns,
               journalPredicate: predicate,
-              predicates: []
+              predicates: presetFilterPredicates || []
             },
             journalConfig,
             isJournalConfigFetched: true
@@ -547,7 +547,8 @@ export default class SelectJournal extends Component {
       autoFocus,
       onBlur,
       renderView,
-      isFullScreenWidthModal
+      isFullScreenWidthModal,
+      presetFilterPredicates
     } = this.props;
     const {
       isGridDataReady,
@@ -610,7 +611,12 @@ export default class SelectJournal extends Component {
       <div className={wrapperClasses}>
         {typeof renderView === 'function' ? renderView(inputViewProps) : defaultView}
 
-        <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} api={this.api}>
+        <FiltersProvider
+          columns={journalConfig.columns}
+          sourceId={journalConfig.sourceId}
+          api={this.api}
+          presetFilterPredicates={presetFilterPredicates}
+        >
           <EcosModal title={selectModalTitle} isOpen={isSelectModalOpen} hideModal={this.hideSelectModal} className={selectModalClasses}>
             <div className={'select-journal-collapse-panel'}>
               <div className={'select-journal-collapse-panel__controls'}>
@@ -706,6 +712,13 @@ SelectJournal.propTypes = {
   hideEditRowButton: PropTypes.bool,
   hideDeleteRowButton: PropTypes.bool,
   displayColumns: PropTypes.array,
+  presetFilterPredicates: PropTypes.arrayOf(
+    PropTypes.shape({
+      t: PropTypes.string.isRequired,
+      att: PropTypes.string.isRequired,
+      val: PropTypes.any
+    })
+  ),
   viewOnly: PropTypes.bool,
   renderView: PropTypes.func,
   searchField: PropTypes.string,

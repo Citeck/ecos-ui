@@ -27,7 +27,7 @@ export default class FiltersProvider extends Component {
   }
 
   setFields = fields => {
-    const { sourceId } = this.props;
+    const { sourceId, presetFilterPredicates } = this.props;
 
     this.setState({
       allFields: fields,
@@ -36,11 +36,22 @@ export default class FiltersProvider extends Component {
         .map(item => {
           const predicates = getPredicates(item);
           const input = getPredicateInput(item, sourceId);
+
+          let predicateValue = input ? input.defaultValue : null;
+          let selectedPredicate = predicates[0];
+          if (Array.isArray(presetFilterPredicates)) {
+            const presetFilterPredicate = presetFilterPredicates.find(i => item.attribute === i.att);
+            if (presetFilterPredicate) {
+              predicateValue = presetFilterPredicate.val;
+              selectedPredicate = predicates.find(i => i.value === presetFilterPredicate.t) || predicates[0];
+            }
+          }
+
           return {
             ...item,
             predicates,
-            selectedPredicate: predicates[0],
-            predicateValue: input ? input.defaultValue : null,
+            selectedPredicate,
+            predicateValue,
             input
           };
         }),
