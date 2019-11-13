@@ -10,6 +10,11 @@ const CUSTOM = 'custom';
 const AUTO = 'auto';
 const ZOOM_STEP = 0.15;
 
+const Labels = {
+  OUT_OF: 'doc-preview.out-of',
+  DOWNLOAD: 'doc-preview.download'
+};
+
 class Toolbar extends Component {
   static propTypes = {
     isPDF: PropTypes.bool.isRequired,
@@ -164,7 +169,7 @@ class Toolbar extends Component {
         {!!totalPages && (
           <>
             <Input type="text" onChange={this.goToPage} value={currentPage} className="ecos-doc-preview__toolbar-pager-input" />
-            <span className="ecos-doc-preview__toolbar-pager-text"> {`${t('doc-preview.out-of')} ${totalPages}`} </span>
+            <span className="ecos-doc-preview__toolbar-pager-text"> {`${t(Labels.OUT_OF)} ${totalPages}`} </span>
           </>
         )}
         <IcoBtn
@@ -214,7 +219,7 @@ class Toolbar extends Component {
     return (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-extra-btns">
         <a href={link} download={fileName} data-external>
-          <IcoBtn icon={'icon-download'} className="ecos-btn_sq_sm ecos-btn_tight" title={t('doc-preview.download')} />
+          <IcoBtn icon={'icon-download'} className="ecos-btn_sq_sm ecos-btn_tight" title={t(Labels.DOWNLOAD)} />
         </a>
       </div>
     );
