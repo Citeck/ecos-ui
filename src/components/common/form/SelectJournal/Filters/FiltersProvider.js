@@ -32,7 +32,9 @@ export default class FiltersProvider extends Component {
     this.setState({
       allFields: fields,
       fields: fields
-        .filter(item => item.default)
+        .filter(item => {
+          return item.default || (Array.isArray(presetFilterPredicates) && presetFilterPredicates.find(i => item.attribute === i.att));
+        })
         .map(item => {
           const predicates = getPredicates(item);
           const input = getPredicateInput(item, sourceId);

@@ -207,6 +207,7 @@ export default class SelectJournal extends Component {
             },
             journalConfig,
             isJournalConfigFetched: true
+            // isCollapsePanelOpen: Array.isArray(presetFilterPredicates) && presetFilterPredicates.length > 0
           };
         }, resolve);
       });
