@@ -19,7 +19,9 @@ export const ComponentKeys = {
   EVENTS_HISTORY: 'events-history',
   VERSIONS_JOURNAL: 'versions-journal',
   DOC_ASSOCIATIONS: 'doc-associations',
-  RECORD_ACTIONS: 'record-actions'
+  RECORD_ACTIONS: 'record-actions',
+  WEB_PAGE: 'web-page',
+  BIRTHDAYS: 'birthdays'
 };
 
 /**
@@ -89,10 +91,20 @@ export default class Components {
       path: './Actions',
       label: 'dashboard-settings.widget.actions',
       supportedDashboardTypes: []
+    },
+    [ComponentKeys.WEB_PAGE]: {
+      path: './WebPage',
+      label: 'dashboard-settings.widget.web-page',
+      supportedDashboardTypes: []
+    },
+    [ComponentKeys.BIRTHDAYS]: {
+      path: './Birthdays',
+      label: 'dashboard-settings.widget.birthdays',
+      supportedDashboardTypes: [DashboardTypes.USER]
     }
   });
 
-  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.RECORD_ACTIONS];
+  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.RECORD_ACTIONS, ComponentKeys.WEB_PAGE];
 
   static get(component) {
     const link = get(Components.components, [component, 'path']);

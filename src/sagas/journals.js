@@ -520,8 +520,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     if (id === 'event-lines-stat') {
       //todo: move to journal config
 
-      let eventType = yield call(api.journals.getRecord, { id: row.id, attributes: '.att(n:"skifem:eventTypeAssoc"){disp,assoc}' });
-      let eventRef = (eventType || {}).assoc;
+      let eventRef = row['groupBy_skifem:eventTypeAssoc'];
       let eventTypeId = yield call(api.journals.getRecord, { id: eventRef, attributes: 'skifdm:eventTypeId?str' });
       id = 'event-lines-' + eventTypeId;
     } else {

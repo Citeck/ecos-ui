@@ -157,12 +157,11 @@ class Layout extends Component {
       height: '100%',
       borderRadius: '5px'
     };
-    const otherWidth = columns
-      .map(column => column.width || '')
-      .filter(item => item !== '')
-      .join(' + ');
+    const otherWidth = columns.map(column => column.width || '').filter(item => item !== '');
     const withoutSize = columns.filter(column => !column.width).length;
-    const availableWidth = otherWidth ? `(100% - ${otherWidth})` : '100%';
+    const availableWidth = otherWidth
+      ? `(100% - ${otherWidth.length > 1 ? `(${otherWidth.join(' + ')})` : otherWidth.join(' + ')})`
+      : '100%';
 
     if (!column.width) {
       styles.width = `calc(${availableWidth} / ${withoutSize})`;
