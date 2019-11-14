@@ -61,9 +61,15 @@ export const Layouts = [
   },
   {
     position: 9,
-    type: LAYOUT_TYPE.CUSTOM,
+    type: LAYOUT_TYPE.FRANKENSTEIN,
     isActive: false,
-    columns: [[{}, {}, {}], [{}], [{}, {}, { width: '80%' }], [{}, {}], [{}]]
+    columns: [[{}, {}, {}], [{}], [{}, {}, { width: '80%' }], [{}, {}], [{}], [{}, {}, {}], [{}]]
+  },
+  {
+    position: 10,
+    type: LAYOUT_TYPE.CLASSIC_SITE,
+    isActive: false,
+    columns: [[{}], [{}, {}, {}], [{}]]
   },
 
   {

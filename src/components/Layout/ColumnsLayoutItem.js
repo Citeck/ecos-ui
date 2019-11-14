@@ -11,16 +11,23 @@ export default class ColumnsLayoutItem extends BaseLayoutItem {
   };
 
   _templateRef = React.createRef();
+  _order = 0;
 
-  renderColumn = (params, index = 0, ...other) => {
-    console.warn(params, index, other);
-
+  renderColumn = (params, index = 0) => {
     if (Array.isArray(params)) {
       if (this._templateRef.current) {
+        const {
+          config: { columns }
+        } = this.props;
+
         this._templateRef.current.style.flexDirection = 'column';
+        this._templateRef.current.style.fontSize = `calc(24px - (2px * ${columns.length}))`;
+        this._templateRef.current.dataset.countRows = columns.length;
       }
-      return <div className="ecos-layout__item-template-row">{params.map((data, i) => this.renderColumn(data, data.length))}</div>;
+      return <div className="ecos-layout__item-template-row">{params.map(this.renderColumn)}</div>;
     }
+
+    this._order += 1;
 
     return (
       <div
@@ -31,7 +38,7 @@ export default class ColumnsLayoutItem extends BaseLayoutItem {
           minWidth: params.width,
           width: params.width
         }}
-        data-order={index}
+        data-order={this._order}
       />
     );
   };
@@ -45,6 +52,8 @@ export default class ColumnsLayoutItem extends BaseLayoutItem {
       return null;
     }
 
+    this._order = 0;
+
     return columns.map(this.renderColumn);
   }
 
@@ -55,7 +64,6 @@ export default class ColumnsLayoutItem extends BaseLayoutItem {
       <div className={this.className}>
         <div className="ecos-layout__item-template" onClick={onClick} ref={this._templateRef}>
           {this.renderColumns()}
-          {this.renderActiveIcon()}
         </div>
 
         {this.renderDescription()}

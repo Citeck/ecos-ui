@@ -149,6 +149,10 @@ class Layout extends Component {
   }
 
   renderColumn = (column, index) => {
+    if (Array.isArray(column)) {
+      return column.map(this.renderColumn);
+    }
+
     const { columns, type, canDragging } = this.props;
     const { draggableDestination } = this.state;
     const styles = {
@@ -202,6 +206,8 @@ class Layout extends Component {
     if (!columns) {
       return null;
     }
+
+    console.warn('columns => ', columns);
 
     return <div className="ecos-layout__column-wrapper">{columns && columns.map(this.renderColumn)}</div>;
   }

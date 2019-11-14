@@ -9,6 +9,8 @@ export const LAYOUT_TYPE = {
   THREE_COLUMNS_CB_FOOTER: '3-columns-center-big-with-footer',
   FOUR_COLUMNS_FOOTER: '4-columns-with-footer',
   CUSTOM: 'custom',
+  FRANKENSTEIN: 'frankenstein',
+  CLASSIC_SITE: 'classic-site',
   MOBILE: 'mobile'
 };
 

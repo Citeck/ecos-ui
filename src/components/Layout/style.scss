@@ -29,13 +29,15 @@ $indents-of-items: 10px;
       $template: &;
 
       display: flex;
-      height: 100px;
+      min-height: 100px;
+      height: 100%;
       background: $color-gray-4;
       border: $border-width-standard solid $color-gray-8;
       box-sizing: border-box;
       border-radius: $border-radius-standard;
       cursor: pointer;
       z-index: 1;
+      font-size: 24px;
 
       #{$root}__menu {
         padding: 10px;
@@ -49,6 +51,7 @@ $indents-of-items: 10px;
           &-column,
           &-row {
             border-color: $color-gray-5;
+            color: $color-gray-5;
           }
         }
 
@@ -61,8 +64,14 @@ $indents-of-items: 10px;
       }
 
       &-column {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
         flex-grow: 1;
         width: 100%;
+        position: relative;
+        color: $color-gray-6;
 
         &:not(:first-child) {
           border-left: 1px $color-gray-9 solid;
@@ -70,6 +79,12 @@ $indents-of-items: 10px;
 
         &:not(:last-child) {
           border-right: 1px $color-gray-9 solid;
+        }
+
+        &:before {
+          content: attr(data-order);
+          font-style: normal;
+          font-weight: bold;
         }
       }
 
@@ -108,6 +123,7 @@ $indents-of-items: 10px;
         &-column,
         &-row {
           border-color: $color-blue-dark !important;
+          color: $color-blue-dark;
         }
       }
 
