@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
 import ContentEditable from 'react-contenteditable';
-import ReactResizeDetector from 'react-resize-detector';
 
 import { deepClone, placeCaretAtEnd, t } from '../../../helpers/util';
 import { Icon } from '../';
@@ -13,13 +12,9 @@ import './Tabs.scss';
 
 const EMPTY_STR = '';
 
-const SortableContainer = sortableContainer(({ children }) => {
-  return children;
-});
+const SortableContainer = sortableContainer(({ children }) => children);
 
-const SortableElement = sortableElement(({ children }) => {
-  return children;
-});
+const SortableElement = sortableElement(({ children }) => children);
 
 const DragHandle = sortableHandle(() => <Icon className="icon-drag ecos-tab-actions__icon ecos-tab-actions__icon_paler" />);
 
@@ -93,8 +88,8 @@ class Tab extends React.Component {
     this.props.onEdit && this.props.onEdit(state.text);
   };
 
-  onChange = e => {
-    this.setState({ text: e.target.value });
+  onChange = ({ target: { value: text } }) => {
+    this.setState({ text });
   };
 
   onKeyPress = e => {
@@ -211,10 +206,6 @@ class EditTabs extends React.Component {
     onSort(arr);
   };
 
-  onResize = w => {
-    this.props.onResize && this.props.onResize(w);
-  };
-
   render() {
     const {
       items = [],
@@ -252,7 +243,6 @@ class EditTabs extends React.Component {
               />
             </SortableElement>
           ))}
-          <ReactResizeDetector handleWidth onResize={this.onResize} nodeType="span" />
         </div>
       </SortableContainer>
     );

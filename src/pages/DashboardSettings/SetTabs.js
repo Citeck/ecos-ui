@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import debounce from 'lodash/debounce';
 import DashboardService from '../../services/dashboard';
 import { t } from '../../helpers/util';
 import { EditTabs, ScrollArrow } from '../../components/common';
@@ -30,14 +29,10 @@ class SetTabs extends React.Component {
     removedTab: null
   };
 
-  wrapperTabsRef = React.createRef();
-
-  doScrollEnd(time = 0) {
-    debounce(() => {
-      this.setState({ scrollTabToEnd: true }, () => {
-        this.setState({ scrollTabToEnd: false });
-      });
-    }, time)();
+  doScrollEnd() {
+    this.setState({ scrollTabToEnd: true }, () => {
+      this.setState({ scrollTabToEnd: false });
+    });
   }
 
   onClickTabLayout = tab => {
@@ -101,14 +96,6 @@ class SetTabs extends React.Component {
     this.setState({ removedTab: null });
   };
 
-  onResizeTabs = w => {
-    const wTabs = get(this.wrapperTabsRef, 'current.clientWidth');
-
-    if (wTabs && wTabs < w) {
-      this.doScrollEnd(300);
-    }
-  };
-
   render() {
     const { tabs, activeTabKey } = this.props;
     const { scrollTabToEnd, removedTab } = this.state;
@@ -119,12 +106,7 @@ class SetTabs extends React.Component {
         <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
         <div className="ecos-dashboard-settings__layout-tabs-wrapper">
           {!empty && (
-            <ScrollArrow
-              medium
-              scrollToEnd={scrollTabToEnd}
-              className="ecos-dashboard-settings__layout-tabs-arrows"
-              innerRef={this.wrapperTabsRef}
-            >
+            <ScrollArrow medium scrollToEnd={scrollTabToEnd} className="ecos-dashboard-settings__layout-tabs-arrows">
               <EditTabs
                 classNameTab="ecos-dashboard-settings__layout-tabs-item"
                 hasHover
@@ -137,7 +119,6 @@ class SetTabs extends React.Component {
                 onSort={this.onSortTabs}
                 onEdit={this.onEditTab}
                 onClick={this.onClickTabLayout}
-                onResize={this.onResizeTabs}
               />
             </ScrollArrow>
           )}
