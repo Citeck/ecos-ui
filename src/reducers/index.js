@@ -22,6 +22,8 @@ import eventsHistory from './eventsHistory';
 import versionsJournal from './versionsJournal';
 import recordActions from './recordActions';
 import docAssociations from './docAssociations';
+import webPage from './webPage';
+import birthdays from './birthdays';
 
 const reducers = {
   app,
@@ -44,7 +46,9 @@ const reducers = {
   eventsHistory,
   versionsJournal,
   recordActions,
-  docAssociations
+  docAssociations,
+  webPage,
+  birthdays
 };
 
 export default history =>
