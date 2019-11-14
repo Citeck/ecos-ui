@@ -201,11 +201,12 @@ class Toolbar extends Component {
           titleField={'title'}
           onChange={this.onChangeZoomOption}
           hideSelected={selectedZoom === CUSTOM}
+          className="ecos-doc-preview__toolbar-zoom-dropdown"
         >
           <IcoBtn
             invert
             icon={'icon-down'}
-            className="ecos-btn_sq_sm ecos-btn_tight ecos-btn_drop-down ecos-doc-preview__toolbar-zoom__btn-select"
+            className="ecos-btn_sq_sm ecos-btn_tight ecos-btn_drop-down ecos-doc-preview__toolbar-zoom-selector"
           />
         </Dropdown>
         <IcoBtn icon={'glyphicon glyphicon-fullscreen'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={this.setFullScreen} />

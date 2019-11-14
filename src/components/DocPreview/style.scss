@@ -43,7 +43,8 @@ $border-base: #c1c1c1;
   }
 
   &-dashlet {
-    &_small {
+    &_small,
+    &_mobile_small {
       #{$root} {
         &__toolbar {
           &-pager {
@@ -53,9 +54,27 @@ $border-base: #c1c1c1;
             }
           }
 
-          &-zoom {
+          &-zoom-dropdown {
             display: none;
           }
+        }
+      }
+    }
+
+    &_mobile:not(&_mobile_small) {
+      #{$root} {
+        &__toolbar {
+          &-zoom-dropdown {
+            display: none;
+          }
+        }
+      }
+    }
+
+    &_mobile_small {
+      #{$root} {
+        &__toolbar > * {
+          padding: 0 5px;
         }
       }
     }
@@ -114,7 +133,7 @@ $border-base: #c1c1c1;
     }
 
     &-zoom {
-      &__btn-select {
+      &__selector {
         @extend %base-flex;
       }
     }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { t } from '../../helpers/util';
+import { isMobileDevice, t } from '../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
@@ -73,8 +73,11 @@ class DocPreviewDashlet extends Component {
   render() {
     const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName } = this.props;
     const { width, height, fitHeights, scale, isCollapsed } = this.state;
+    const isMobile = isMobileDevice();
     const classesDashlet = classNames('ecos-doc-preview-dashlet', classNameDashlet, {
-      'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE
+      'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE && !isMobile,
+      'ecos-doc-preview-dashlet_mobile': isMobile,
+      'ecos-doc-preview-dashlet_mobile_small': isMobile && width < 400
     });
 
     return (
