@@ -252,8 +252,9 @@ class DocPreview extends Component {
 
   pdfViewer() {
     const { pdf } = this.state;
+    const { maxHeight } = this.props;
 
-    return <Pdf pdf={pdf} scrollPage={this.setScrollPage} {...this.commonProps} />;
+    return <Pdf pdf={pdf} defHeight={maxHeight} scrollPage={this.setScrollPage} {...this.commonProps} />;
   }
 
   imgViewer() {

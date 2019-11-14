@@ -5,6 +5,7 @@ import PdfPage from './PdfPage';
 class PdfViewer extends React.PureComponent {
   static propTypes = {
     pdf: PropTypes.object.isRequired,
+    defHeight: PropTypes.number,
     settings: PropTypes.shape({
       scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       isFullscreen: PropTypes.bool,
@@ -17,13 +18,8 @@ class PdfViewer extends React.PureComponent {
     settings: {}
   };
 
-  get pageProps() {
-    const { ...props } = this.props;
-
-    return props;
-  }
-
   render() {
+    const { ...props } = this.props;
     let { pdf } = this.props;
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
@@ -43,7 +39,7 @@ class PdfViewer extends React.PureComponent {
             <div className="ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_pdf" key={key}>
               <div className="ecos-doc-preview__viewer-page-number">{pageN}</div>
               <div className="ecos-doc-preview__viewer-page-content">
-                <PdfPage {...this.pageProps} pageNumber={pageN} />
+                <PdfPage {...props} pageNumber={pageN} />
               </div>
             </div>
           );

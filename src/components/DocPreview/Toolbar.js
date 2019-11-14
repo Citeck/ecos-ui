@@ -8,7 +8,7 @@ import { Dropdown, Input } from '../common/form';
 import { getScaleModes, t } from '../../helpers/util';
 
 const CUSTOM = 'custom';
-const DEFAULT_SCALE = 'auto'; //page-width
+const DEFAULT_SCALE = 'auto';
 const ZOOM_STEP = 0.15;
 
 const Labels = {
