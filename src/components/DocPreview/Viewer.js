@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import fscreen from 'fscreen';
-import { get } from 'lodash';
+import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
 import PropTypes from 'prop-types';
+
 import { DefineHeight } from '../common';
 
 export default function getViewer(WrappedComponent, isPdf) {
@@ -154,12 +155,7 @@ export default function getViewer(WrappedComponent, isPdf) {
           onScrollFrame={this.onScrollFrame}
           autoHide
         >
-          <DefineHeight
-            className={classNames({
-              'ecos-doc-preview__viewer-dh': resizable
-            })}
-            getContentHeight={getContentHeight}
-          >
+          <DefineHeight className={classNames({ 'ecos-doc-preview__viewer-dh': resizable })} getContentHeight={getContentHeight}>
             <WrappedComponent {...newProps} />
           </DefineHeight>
         </Scrollbars>

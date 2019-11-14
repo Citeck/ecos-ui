@@ -54,6 +54,10 @@ $border-base: #c1c1c1;
           }
         }
       }
+
+      &__viewer-page-number {
+        display: none;
+      }
     }
 
     &_mobile:not(&_mobile_small) {
@@ -62,6 +66,10 @@ $border-base: #c1c1c1;
           &-zoom-dropdown {
             display: none;
           }
+        }
+
+        &__viewer-page-number {
+          display: none;
         }
       }
     }
@@ -160,7 +168,6 @@ $border-base: #c1c1c1;
     }
 
     &-scroll-area {
-      padding-right: 13px;
     }
 
     &-page {
@@ -171,15 +178,7 @@ $border-base: #c1c1c1;
       height: 100%;
 
       &_pdf {
-        padding: 12px;
-
-        &:first-of-type {
-          padding-top: 24px;
-        }
-
-        &:last-of-type {
-          padding-bottom: 24px;
-        }
+        margin: 12px 0;
       }
 
       &_img {

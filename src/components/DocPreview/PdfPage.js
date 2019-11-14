@@ -1,8 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { getScale } from '../../helpers/util';
+
 import { TextLayerBuilder } from 'pdfjs-dist/lib/web/text_layer_builder.js';
 import 'pdfjs-dist/web/pdf_viewer.css';
+
+import { getScale } from '../../helpers/util';
 
 class PdfPage extends Component {
   static propTypes = {
@@ -80,9 +82,11 @@ class PdfPage extends Component {
     canvas.width = viewport.width;
 
     const $textLayer = this.elTextLayout;
+
     if (!$textLayer) {
       return null;
     }
+
     $textLayer.style.height = viewport.height + 'px';
     $textLayer.style.width = viewport.width + 'px';
     $textLayer.style.top = canvas.offsetTop + 'px';
@@ -114,7 +118,7 @@ class PdfPage extends Component {
     return (
       <Fragment>
         <canvas ref={this.refContainer} />
-        <div ref={this.refTextLayout} className="textLayer" />
+        <div ref={this.refTextLayout} className="ecos-doc-preview__viewer-page-content-text textLayer" />
       </Fragment>
     );
   }

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import fscreen from 'fscreen';
+
 import { getScale } from '../../helpers/util';
 
 class ImgViewer extends Component {

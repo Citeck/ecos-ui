@@ -5,6 +5,7 @@ import pdfjs from 'pdfjs-dist';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+
 import { getOptimalHeight } from '../../helpers/layout';
 import { isPDFbyStr, t } from '../../helpers/util';
 import { DocPreviewApi } from '../../api';

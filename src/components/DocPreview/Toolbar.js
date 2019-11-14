@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
+
 import { IcoBtn } from '../common/btns';
 import { Dropdown, Input } from '../common/form';
 import { getScaleModes, t } from '../../helpers/util';
 
 const CUSTOM = 'custom';
-const AUTO = 'auto';
+const DEFAULT_SCALE = 'auto'; //page-width
 const ZOOM_STEP = 0.15;
 
 const Labels = {
@@ -28,7 +29,7 @@ class Toolbar extends Component {
   };
 
   static defaultProps = {
-    scale: AUTO,
+    scale: DEFAULT_SCALE,
     className: '',
     link: '',
     fileName: ''
@@ -48,7 +49,7 @@ class Toolbar extends Component {
   }
 
   componentDidMount() {
-    const { scale = AUTO } = this.state;
+    const { scale = DEFAULT_SCALE } = this.state;
 
     let foundScale = this.zoomOptions.find(el => el.scale === scale);
     foundScale = foundScale || { id: CUSTOM, scale };

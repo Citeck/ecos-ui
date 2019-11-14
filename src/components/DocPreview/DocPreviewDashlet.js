@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+
 import { isMobileDevice, t } from '../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
