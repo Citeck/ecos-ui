@@ -1,5 +1,17 @@
 @import '../../styles/constants';
 
+$expanded-sidebar-width: 300px;
+
+.ecos-base-page {
+  display: flex;
+  height: calc(100vh - 60px);
+}
+
+.ecos-main-area {
+  flex: auto;
+  overflow-x: hidden;
+}
+
 %menu-item-separator {
   content: '';
   display: block;
@@ -21,9 +33,10 @@
   transition: width 0.4s;
   background: $color-white;
   overflow: hidden;
+  height: 100%;
 
   &_expanded {
-    width: 300px;
+    width: $expanded-sidebar-width;
   }
 
   &-head {
@@ -355,6 +368,16 @@
           opacity: 0;
         }
       }
+    }
+  }
+}
+
+@media screen and (max-width: 550px) {
+  .ecos-sidebar {
+    width: 0;
+
+    &_expanded {
+      width: $expanded-sidebar-width;
     }
   }
 }

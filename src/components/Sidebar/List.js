@@ -48,7 +48,8 @@ class List extends React.Component {
         })}
       >
         {data.map((item, i) => {
-          const domId = `lvl-${level}-${i}-${item.id}`;
+          const listItemDomId = `${item.id}-${level}-${i}`;
+          const listItemKey = `${item.id}-${item.label}-${level}`;
           const isSubExpanded = SidebarService.isExpanded(expandableItems, item.id);
           const styleProps = SidebarService.getPropsStyleLevel({
             level,
@@ -57,12 +58,12 @@ class List extends React.Component {
           const SubList = expanded => <ConnectList data={item.items} level={nextLevel} isExpanded={expanded} />;
 
           return (
-            <React.Fragment key={`key-${domId}`}>
-              <Item domId={domId} data={item} level={level} isExpanded={isSubExpanded} styleProps={styleProps} />
+            <React.Fragment key={listItemKey}>
+              <Item domId={listItemDomId} data={item} level={level} isExpanded={isSubExpanded} styleProps={styleProps} />
               {SubList(isOpen && isSubExpanded)}
               {level === 1 && (
                 <Tooltip
-                  target={domId}
+                  target={listItemDomId}
                   isOpen={!isOpen && isSubExpanded}
                   placement="right-start"
                   trigger="hover"
