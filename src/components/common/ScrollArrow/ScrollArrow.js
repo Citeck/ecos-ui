@@ -1,7 +1,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { get, isEmpty, set } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
+import set from 'lodash/set';
+import debounce from 'lodash/debounce';
+import ReactResizeDetector from 'react-resize-detector';
+
 import { IcoBtn } from '../btns';
 
 import './style.scss';
@@ -9,6 +14,7 @@ import './style.scss';
 export default class ScrollArrow extends React.Component {
   static propTypes = {
     className: PropTypes.string,
+    selectorToObserve: PropTypes.string,
     step: PropTypes.number,
     medium: PropTypes.bool,
     small: PropTypes.bool,
@@ -44,7 +50,7 @@ export default class ScrollArrow extends React.Component {
     }
 
     if (nextProps.scrollToSide !== 0 && scrollToSide !== nextProps.scrollToSide) {
-      this.doScroll(nextProps.scrollToSide);
+      this.doScrollBySide(nextProps.scrollToSide);
     }
   }
 
@@ -56,10 +62,16 @@ export default class ScrollArrow extends React.Component {
     this.checkArrows();
   }
 
-  doScroll = (factor = 1) => {
+  doScrollBySide = (factor = 1) => {
+    const step = this.props.step * factor;
+
+    this.doScrollByStep(step);
+  };
+
+  doScrollByStep = step => {
     const curScroll = get(this.refScroll, 'current.scrollLeft', 0);
 
-    set(this.refScroll, 'current.scrollLeft', curScroll + this.props.step * factor);
+    set(this.refScroll, 'current.scrollLeft', curScroll + step);
     this.checkArrows();
   };
 
@@ -89,8 +101,19 @@ export default class ScrollArrow extends React.Component {
     }
   };
 
+  onResize = w => {
+    debounce(() => {
+      const { prevWidth } = this.state;
+      const widthBtn = 40;
+      const diff = w - prevWidth + widthBtn;
+
+      this.doScrollByStep(diff);
+      this.setState({ prevWidth: w });
+    }, 300)();
+  };
+
   render() {
-    const { className, children, small, medium } = this.props;
+    const { className, children, small, medium, selectorToObserve } = this.props;
     const { isShowArrows, isActiveLeft, isActiveRight } = this.state;
 
     return (
@@ -103,7 +126,7 @@ export default class ScrollArrow extends React.Component {
               'ecos-scrollbar-arrow__btn_small': small
             })}
             icon="icon-left"
-            onClick={() => this.doScroll(-1)}
+            onClick={() => this.doScrollBySide(-1)}
           />
         )}
         <div
@@ -115,7 +138,10 @@ export default class ScrollArrow extends React.Component {
             'ecos-scrollbar-arrow__scroll_small': small
           })}
         >
-          <div className="ecos-scrollbar-arrow__child">{children}</div>
+          <div className="ecos-scrollbar-arrow__child">
+            {children}
+            {selectorToObserve && <ReactResizeDetector handleWidth onResize={this.onResize} querySelector={selectorToObserve} />}
+          </div>
         </div>
         {isShowArrows && (
           <IcoBtn
@@ -125,7 +151,7 @@ export default class ScrollArrow extends React.Component {
               'ecos-scrollbar-arrow__btn_small': small
             })}
             icon="icon-right"
-            onClick={() => this.doScroll()}
+            onClick={() => this.doScrollBySide()}
           />
         )}
       </div>

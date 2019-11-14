@@ -20,8 +20,7 @@ class SetTabs extends React.Component {
 
   static defaultProps = {
     activeTabKey: '',
-    tabs: [],
-    setData: () => {}
+    tabs: []
   };
 
   state = {
@@ -39,7 +38,7 @@ class SetTabs extends React.Component {
     let { activeTabKey, setData } = this.props;
 
     if (tab.idLayout !== activeTabKey) {
-      setData({ activeTabKey: tab.idLayout });
+      setData && setData({ activeTabKey: tab.idLayout });
     }
   };
 
@@ -52,7 +51,7 @@ class SetTabs extends React.Component {
     newTab.isNew = true;
 
     tabs.push(newTab);
-    setData({ tabs });
+    setData && setData({ tabs });
     this.doScrollEnd();
   };
 
@@ -61,7 +60,7 @@ class SetTabs extends React.Component {
     const { label, idLayout } = tab;
 
     set(tabs, [index], { label, idLayout });
-    setData({ tabs });
+    setData && setData({ tabs });
   };
 
   onConfirmDeleteTab = (tab, index) => {
@@ -71,9 +70,10 @@ class SetTabs extends React.Component {
   onSortTabs = sortedTabs => {
     const { setData } = this.props;
 
-    setData({
-      tabs: sortedTabs.map(({ label, idLayout }) => ({ label, idLayout }))
-    });
+    setData &&
+      setData({
+        tabs: sortedTabs.map(({ label, idLayout }) => ({ label, idLayout }))
+      });
   };
 
   onDeleteTab = () => {
@@ -89,7 +89,7 @@ class SetTabs extends React.Component {
     }
 
     this.closeDialog();
-    setData({ tabs, activeTabKey });
+    setData && setData({ tabs, activeTabKey });
   };
 
   closeDialog = () => {
@@ -106,8 +106,14 @@ class SetTabs extends React.Component {
         <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
         <div className="ecos-dashboard-settings__layout-tabs-wrapper">
           {!empty && (
-            <ScrollArrow medium scrollToEnd={scrollTabToEnd} className="ecos-dashboard-settings__layout-tabs-arrows">
+            <ScrollArrow
+              medium
+              scrollToEnd={scrollTabToEnd}
+              className="ecos-dashboard-settings__layout-tabs-arrows"
+              selectorToObserve="div.ecos-tabs.ecos-dashboard-settings__layout-tabs-wrap"
+            >
               <EditTabs
+                className="ecos-dashboard-settings__layout-tabs-wrap"
                 classNameTab="ecos-dashboard-settings__layout-tabs-item"
                 hasHover
                 hasHint

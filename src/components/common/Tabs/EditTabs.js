@@ -220,11 +220,10 @@ class EditTabs extends React.Component {
       disabled,
       onClick
     } = this.props;
-    const tabsClassNames = classNames('ecos-tabs', className);
 
     return (
       <SortableContainer axis="x" lockAxis="x" onSortEnd={this.handleSortEnd} useDragHandle>
-        <div className={tabsClassNames}>
+        <div className={classNames('ecos-tabs', className)}>
           {items.map((item, index) => (
             <SortableElement key={`${item[keyField]}-${index}-editable`} index={index} disabled={disabled}>
               <Tab
