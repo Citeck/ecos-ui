@@ -156,7 +156,7 @@ export default function getViewer(WrappedComponent, isPdf) {
         >
           <DefineHeight
             className={classNames({
-              'ecos-doc-preview__viewer-define': resizable
+              'ecos-doc-preview__viewer-dh': resizable
             })}
             getContentHeight={getContentHeight}
           >

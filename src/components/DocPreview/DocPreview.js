@@ -322,7 +322,7 @@ class DocPreview extends Component {
         style={{ height: this.height }}
       >
         {!isLoading && (
-          <div ref={this.refBody} className={classNames('ecos-doc-preview__container', { 'ecos-doc-preview_indents': !noIndents })}>
+          <div ref={this.refBody} className={classNames('ecos-doc-preview__content', { 'ecos-doc-preview__content_indents': !noIndents })}>
             {this.renderToolbar()}
             {this.renderViewer()}
             {this.renderMessage()}

@@ -3,7 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import { getData, setData, transferData } from '../helpers/ls';
 import { getCurrentUserName } from '../helpers/util';
 
-const prefix = 'dashletSettings_';
+const prefix = 'ecos-ui-dashlet-settings_id-';
 const newVersionPath = '/user-';
 
 function getDashletSettings(key) {
