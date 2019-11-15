@@ -1,3 +1,5 @@
+import { HandleControlTypes } from '../helpers/handleControl';
+
 export const fakeApi = {
   getIsExternalAuthentication: () => {
     return new Promise(resolve => {
@@ -84,7 +86,7 @@ export const fakeApi = {
               label: 'edit_site_details.label',
               publishPayload: { userFullName: 'Ivan Tkachenko', site: 'contracts', user: 'admin', siteTitle: 'Договоры' },
               iconClass: 'alf-edit-icon',
-              publishTopic: 'ALF_EDIT_SITE'
+              publishTopic: HandleControlTypes.ALF_EDIT_SITE
             }
           },
           {
@@ -105,7 +107,7 @@ export const fakeApi = {
               label: 'leave_site.label',
               publishPayload: { userFullName: 'Ivan Tkachenko', site: 'contracts', user: 'admin', siteTitle: 'Договоры' },
               iconClass: 'alf-leave-icon',
-              publishTopic: 'ALF_LEAVE_SITE'
+              publishTopic: HandleControlTypes.ALF_LEAVE_SITE
             }
           }
         ];

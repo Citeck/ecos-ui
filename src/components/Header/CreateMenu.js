@@ -23,8 +23,6 @@ class CreateMenu extends React.Component {
     isMobile: false
   };
 
-  className = 'ecos-header-create';
-
   state = {
     dropdownOpen: false
   };
@@ -39,14 +37,14 @@ class CreateMenu extends React.Component {
     const { dropdownOpen } = this.state;
     const { items, isCascade, isMobile, theme } = this.props;
     const disabled = !(!isEmpty(items) && isArray(items));
-    const classNameMenu = classNames(`${this.className}__menu ecos-dropdown__menu ecos-dropdown__menu_links`, {
+    const classNameMenu = classNames('ecos-header-create__menu ecos-dropdown__menu ecos-dropdown__menu_links', {
       'ecos-dropdown__menu_cascade': isCascade
     });
-    const classNameIcoBtn = classNames(`${this.className}__btn ecos-btn_theme_${theme} ecos-btn_padding_small ecos-btn_r_6`);
+    const classNameIcoBtn = classNames(`ecos-header-create__btn ecos-btn_theme_${theme} ecos-btn_padding_small ecos-btn_r_6`);
     const mode = isCascade && !isMobile ? 'cascade' : 'group';
 
     return (
-      <Dropdown className={`${this.className} ecos-header-dropdown`} isOpen={dropdownOpen} toggle={this.toggle}>
+      <Dropdown className="ecos-header-create ecos-header-dropdown" isOpen={dropdownOpen} toggle={this.toggle}>
         <DropdownToggle tag="div">
           <IcoBtn icon={'icon-big-plus'} className={classNameIcoBtn} disabled={disabled}>
             {!isMobile && t('create_case.label')}

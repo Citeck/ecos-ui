@@ -6,15 +6,15 @@ import {
   getSiteDashboardEnable,
   setIsReady,
   setLargeLogo,
+  setNewJournalsPageEnable,
   setSelectedId,
   setSiteDashboardEnable,
   setSlideMenuExpandableItems,
   setSlideMenuItems,
-  setSmallLogo,
-  setNewJournalsPageEnable
+  setSmallLogo
 } from '../actions/slideMenu';
-
-import { fetchExpandableItems, selectedMenuItemIdKey, getNewJournalsPageEnable } from '../helpers/slideMenu';
+import { getSelected } from '../../../helpers/slideMenu';
+import { fetchExpandableItems, getNewJournalsPageEnable } from '../helpers/slideMenu';
 
 function* fetchSmallLogo({ api, fakeApi, logger }) {
   try {
@@ -40,16 +40,10 @@ function* fetchSlideMenu({ api, fakeApi, logger }) {
   try {
     const apiData = yield call(api.menu.getSlideMenuItems);
     const menuItems = apiData.items;
-    // console.log('menuItems', menuItems);
-
-    let selectedId = null;
-    if (sessionStorage && sessionStorage.getItem) {
-      selectedId = sessionStorage.getItem(selectedMenuItemIdKey);
-      yield put(setSelectedId(selectedId));
-    }
-
+    const selectedId = getSelected();
     const expandableItems = fetchExpandableItems(menuItems, selectedId);
 
+    yield put(setSelectedId(selectedId));
     yield put(setSlideMenuItems(menuItems));
     yield put(setSlideMenuExpandableItems(expandableItems));
 

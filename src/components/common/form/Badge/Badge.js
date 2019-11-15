@@ -9,21 +9,20 @@ class Badge extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     text: PropTypes.string,
-    isError: PropTypes.bool,
-    small: PropTypes.bool
+    small: PropTypes.bool,
+    state: PropTypes.string
   };
 
   static defaultProps = {
     className: '',
     text: '',
-    isError: false,
-    small: false
+    small: false,
+    state: 'info'
   };
 
   render() {
-    const { className, isError, text, small } = this.props;
-    const classes = classNames('ecos-badge', className, {
-      'ecos-badge_error': isError,
+    const { className, state, text, small } = this.props;
+    const classes = classNames('ecos-badge', `ecos-badge_${state}`, className, {
       'ecos-badge_small': small
     });
 

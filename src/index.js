@@ -25,6 +25,7 @@ import {
   BpmnApi,
   CommentsApi,
   DashboardApi,
+  DocAssociationsApi,
   DocStatusApi,
   EventsHistoryApi,
   JournalsApi,
@@ -35,7 +36,6 @@ import {
   TasksApi,
   UserApi,
   VersionsJournalApi,
-  DocAssociationsApi,
   ViewApi,
   BirthdaysApi
 } from './api';

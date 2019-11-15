@@ -1,13 +1,13 @@
-import { put, takeEvery, all, call } from 'redux-saga/effects';
+import { all, put, takeEvery, call } from 'redux-saga/effects';
 import {
-  getSectionList,
-  setSectionList,
   getDocuments,
-  setDocuments,
-  setAllowedConnections,
   getMenu,
+  getSectionList,
+  saveDocuments,
+  setAllowedConnections,
+  setDocuments,
   setMenu,
-  saveDocuments
+  setSectionList
 } from '../actions/docAssociations';
 import { getDocumentsForWeb, getDocumentsTotalCount, getJournalForWeb, getMenuForWeb } from '../dto/docAssociations';
 
