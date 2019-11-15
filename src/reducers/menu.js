@@ -5,8 +5,8 @@ import {
   initMenuSettings,
   saveMenuConfig,
   setAvailableMenuItems,
-  setResultSaveMenuConfig,
-  setMenuConfig
+  setMenuConfig,
+  setRequestResultMenuConfig
 } from '../actions/menu';
 
 const initialState = {
@@ -14,7 +14,7 @@ const initialState = {
   links: [],
   availableMenuItems: [],
   isLoading: false,
-  saveResult: {
+  requestResult: {
     status: ''
   }
 };
@@ -40,12 +40,12 @@ export default handleActions(
         isLoading: false
       };
     },
-    [setResultSaveMenuConfig]: (state, { payload }) => {
+    [setRequestResultMenuConfig]: (state, { payload }) => {
       const { status } = payload;
 
       return {
         ...state,
-        saveResult: {
+        requestResult: {
           status
         },
         isLoading: false

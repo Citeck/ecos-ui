@@ -1,0 +1,107 @@
+@import '../../../../styles/constants';
+
+.ecos-radio {
+  $root: &;
+
+  display: flex;
+  position: relative;
+  padding-left: 34px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  font-size: 22px;
+  user-select: none;
+
+  &:hover {
+    #{$root}__checkmark {
+      border-color: $color-blue-light;
+    }
+  }
+
+  &_error {
+    &:hover {
+      #{$root}__checkmark {
+        border-color: darken($color-red-1, 10);
+        border-width: 2px;
+      }
+    }
+
+    #{$root} {
+      &__checkmark {
+        border-color: $color-red-1;
+        border-width: 2px;
+      }
+
+      &__label {
+        color: $color-red-1;
+      }
+    }
+  }
+
+  &_checked {
+    &:hover {
+      #{$root}__checkmark {
+        border-color: $color-blue-dark;
+        border-width: 7px;
+      }
+    }
+
+    #{$root} {
+      &__checkmark {
+        border-color: $color-blue-dark;
+        border-width: 7px;
+      }
+
+      &__label {
+        color: $text-color-dark;
+      }
+    }
+  }
+
+  &_disabled {
+    cursor: not-allowed;
+
+    &:hover {
+      #{$root}__checkmark {
+        border-color: $color-gray-4;
+        border-width: 7px;
+      }
+    }
+
+    #{$root} {
+      &__checkmark {
+        border-color: $color-gray-4;
+        border-width: 7px;
+      }
+
+      &__label {
+        color: $color-gray-5;
+      }
+    }
+  }
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  &__checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 24px;
+    width: 24px;
+    background-color: white;
+    border-width: 2px;
+    border-style: solid;
+    border-color: $color-gray-6;
+    border-radius: 50%;
+  }
+
+  &__label {
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 22px;
+    color: $text-color-dark;
+  }
+}

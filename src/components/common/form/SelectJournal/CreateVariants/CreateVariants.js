@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Btn } from '../../../../common/btns';
-import EcosForm from '../../../../EcosForm/EcosForm';
+import EcosForm, { FORM_MODE_CREATE } from '../../../../EcosForm/EcosForm';
 import EcosModal from '../../../EcosModal';
 import Records from '../../../../Records';
 import Dropdown from '../../Dropdown/Dropdown';
@@ -14,6 +14,7 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
   }
 
   const [record, setRecord] = useState(null);
+  const [formKey, setFormKey] = useState(null);
   const [displayName, setDisplayName] = useState();
   useEffect(() => {
     Records.get(record)
@@ -29,7 +30,9 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
   let createButton;
   if (items.length === 1) {
     const onClick = () => {
-      setRecord(`dict@${items[0]['type']}`);
+      const variant = items[0];
+      setRecord(variant.recordRef || `dict@${variant.type}`);
+      setFormKey(variant.formKey);
       toggleCreateModal();
     };
 
@@ -39,8 +42,9 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
       </Btn>
     );
   } else {
-    const onSelect = selected => {
-      setRecord(`dict@${selected.type}`);
+    const onSelect = variant => {
+      setRecord(variant.recordRef || `dict@${variant.type}`);
+      setFormKey(variant.formKey);
       toggleCreateModal();
     };
 
@@ -63,8 +67,11 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
       title={title}
       isOpen={isCreateModalOpen}
       hideModal={toggleCreateModal}
+      options={{
+        formMode: FORM_MODE_CREATE
+      }}
     >
-      <EcosForm record={record} onSubmit={onCreateFormSubmit} onFormCancel={toggleCreateModal} />
+      <EcosForm record={record} formKey={formKey} onSubmit={onCreateFormSubmit} onFormCancel={toggleCreateModal} />
     </EcosModal>
   ) : null;
 

@@ -1,4 +1,4 @@
-@import '../../../constants';
+@import '../../../styles/constants';
 
 .pagination {
   display: inline-block !important;
@@ -31,4 +31,11 @@
 
 .pagination__step {
   margin-right: 17px;
+}
+
+.pagination__page-size {
+  display: inline-block;
+  position: relative;
+  top: 3px;
+  width: 67px;
 }

@@ -1,7 +1,19 @@
 import * as ls from '../helpers/ls';
+import { USER_GUEST } from '../constants';
+import { deepClone } from '../helpers/util';
+import { decodeLink } from '../helpers/urls';
 
 export class PageTabsApi {
-  lsKey = ls.generateKey('page-tabs', true);
+  _lsKey = ls.generateKey('page-tabs', true);
+  _newVersionKeyPath = '/user';
+
+  get lsKey() {
+    return this._lsKey;
+  }
+
+  set lsKey(key) {
+    this._lsKey = key;
+  }
 
   getAll = () => {
     let tabs = [];
@@ -13,7 +25,23 @@ export class PageTabsApi {
     return tabs;
   };
 
+  checkOldVersion = userName => {
+    if (userName === USER_GUEST || this.lsKey.includes(this._newVersionKeyPath)) {
+      return;
+    }
+
+    const currentVersion = this.lsKey;
+    const newVersionKey = `${this.lsKey}${this._newVersionKeyPath}-${userName}`;
+
+    ls.transferData(currentVersion, newVersionKey, true);
+    this.lsKey = newVersionKey;
+  };
+
   set = tabs => {
-    ls.setData(this.lsKey, tabs);
+    const upTabs = deepClone(tabs);
+
+    upTabs.forEach(item => (item.link = decodeLink(item.link)));
+
+    ls.setData(this.lsKey, upTabs);
   };
 }

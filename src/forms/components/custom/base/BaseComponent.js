@@ -14,6 +14,22 @@ export default class BaseComponent extends FormIOBase {
     return (this.component.properties || {}).attribute || this.key;
   }
 
+  isReadyToSubmit() {
+    return true;
+  }
+
+  checkValidity(data, dirty, rowData) {
+    let isValid = super.checkValidity(data, dirty, rowData);
+    if (!isValid) {
+      return false;
+    }
+    if (!this.isReadyToSubmit()) {
+      this.setCustomValidity('Form is not ready');
+      return false;
+    }
+    return true;
+  }
+
   /**
    * Create an evaluation context for all script executions and interpolations.
    *
@@ -24,5 +40,16 @@ export default class BaseComponent extends FormIOBase {
     return Object.assign(super.evalContext(additional), {
       recordId: this.getRecordId()
     });
+  }
+
+  buildHiddenElement() {
+    this.element = this.ce(
+      'dl',
+      {
+        id: this.id,
+        class: 'd-none'
+      },
+      this.component.key
+    );
   }
 }

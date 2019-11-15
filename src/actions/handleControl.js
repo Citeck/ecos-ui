@@ -1,9 +1,10 @@
-import { t } from '../helpers/util';
+import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
+import { t, getCurrentUserName } from '../helpers/util';
 import { showModal } from './modal';
 
 export function leaveSiteRequest({ site, siteTitle, user, userFullName }) {
   return (dispatch, getState, api) => {
-    const url = window.Alfresco.constants.PROXY_URI + `api/sites/${encodeURIComponent(site)}/memberships/${encodeURIComponent(user)}`;
+    const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/memberships/${encodeURIComponent(user)}`;
     return fetch(url, {
       method: 'DELETE'
     })
@@ -29,7 +30,7 @@ export function leaveSiteRequest({ site, siteTitle, user, userFullName }) {
           })
         );
 
-        window.location.href = window.Alfresco.constants.URL_PAGECONTEXT + 'user/' + encodeURIComponent(user) + '/dashboard';
+        window.location.href = URL_PAGECONTEXT + 'user/' + encodeURIComponent(user) + '/dashboard';
       })
       .catch(err => {
         console.log('error', err);
@@ -39,7 +40,7 @@ export function leaveSiteRequest({ site, siteTitle, user, userFullName }) {
 
 export function joinSiteRequest({ site, siteTitle, user, userFullName }) {
   return (dispatch, getState, api) => {
-    const url = window.Alfresco.constants.PROXY_URI + `api/sites/${encodeURIComponent(site)}/memberships`;
+    const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/memberships`;
     const data = {
       role: 'SiteConsumer',
       person: {
@@ -77,11 +78,11 @@ export function joinSiteRequest({ site, siteTitle, user, userFullName }) {
 
 export function becomeSiteManagerRequest({ site, siteTitle, user, userFullName }) {
   return (dispatch, getState, api) => {
-    const url = window.Alfresco.constants.PROXY_URI + `api/sites/${encodeURIComponent(site)}/memberships`;
+    const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/memberships`;
     const data = {
       role: 'SiteManager',
       person: {
-        userName: user ? user : window.Alfresco.constants.USERNAME
+        userName: user ? user : getCurrentUserName()
       }
     };
 
@@ -109,7 +110,7 @@ export function becomeSiteManagerRequest({ site, siteTitle, user, userFullName }
 
 export function requestSiteMembership({ site, siteTitle, user, userFullName }) {
   return (dispatch, getState, api) => {
-    const url = window.Alfresco.constants.PROXY_URI + `api/sites/${encodeURIComponent(site)}/invitations`;
+    const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/invitations`;
     const data = {
       invitationType: 'MODERATED',
       inviteeRoleName: 'SiteConsumer',
@@ -145,7 +146,7 @@ export function requestSiteMembership({ site, siteTitle, user, userFullName }) {
             title: t('message.request-join-success-title'),
             content: t('message.request-join-success', { '0': user, '1': siteTitle || site }),
             onCloseCallback: () => {
-              window.location.href = window.Alfresco.constants.URL_PAGECONTEXT + 'user/' + encodeURIComponent(user) + '/dashboard';
+              window.location.href = URL_PAGECONTEXT + 'user/' + encodeURIComponent(user) + '/dashboard';
             },
             buttons: [
               {

@@ -1,43 +1,50 @@
 import React, { Component, Fragment } from 'react';
-import connect from 'react-redux/es/connect/connect';
 import queryString from 'query-string';
-import { push } from 'connected-react-router';
+import isEmpty from 'lodash/isEmpty';
 import { withRouter } from 'react-router';
 import { trigger, getBool } from '../../helpers/util';
-
-const mapDispatchToProps = dispatch => ({
-  push: url => dispatch(push(url))
-});
+import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 
 class UrlManager extends Component {
-  constructor(props) {
-    super(props);
-    this.urlParams = this.setBools(queryString.parse(this.props.history.location.search));
-    this.triggerParse(this.urlParams);
-  }
+  _prevUrlParams = {};
 
-  updateUrl(params) {
+  updateUrl(params, prevUrlParams) {
     const {
-      push,
       history: {
-        location: { pathname }
+        location: { pathname, search }
       }
     } = this.props;
-    let needUpdate = false;
+    let fromUrlParams = this.setBools(queryString.parse(search));
 
-    for (let key in params) {
-      const value = params[key];
+    if (isEmpty(params)) {
+      for (let key in fromUrlParams) {
+        const fromUrlValue = fromUrlParams[key];
+        const prevUrlValue = prevUrlParams[key];
 
-      if (value !== this.urlParams[key]) {
-        this.urlParams[key] = value;
-        needUpdate = true;
+        if (fromUrlValue !== prevUrlValue) {
+          this.triggerParse(fromUrlParams);
+          break;
+        }
+      }
+    } else {
+      let needUpdate = false;
+
+      for (let key in params) {
+        const value = params[key];
+
+        if (value !== fromUrlParams[key]) {
+          fromUrlParams[key] = value;
+          needUpdate = true;
+        }
+      }
+
+      if (needUpdate) {
+        changeUrlLink(`${pathname}?${queryString.stringify(fromUrlParams)}`);
+        this.triggerParse(fromUrlParams);
       }
     }
 
-    if (needUpdate) {
-      push(`${pathname}?${queryString.stringify(this.urlParams)}`);
-      this.triggerParse(this.urlParams);
-    }
+    return fromUrlParams;
   }
 
   triggerParse = params => {
@@ -53,20 +60,20 @@ class UrlManager extends Component {
     return obj;
   };
 
+  onChildrenRender = () => {
+    trigger.call(this, 'onChildrenRender');
+  };
+
   render() {
-    let { children, params } = this.props;
+    const { children, params } = this.props;
+    const urlParams = (this._prevUrlParams = this.updateUrl(params, this._prevUrlParams));
 
-    if (params) {
-      this.updateUrl(params);
-    }
-
-    children = typeof children.type === 'function' ? React.cloneElement(children, { urlParams: this.urlParams }) : children;
-
-    return <Fragment>{children}</Fragment>;
+    return (
+      <Fragment>
+        {typeof children.type === 'function' ? React.cloneElement(children, { urlParams, onRender: this.onChildrenRender }) : children}
+      </Fragment>
+    );
   }
 }
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(withRouter(UrlManager));
+export default withRouter(UrlManager);

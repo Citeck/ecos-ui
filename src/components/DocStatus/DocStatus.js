@@ -1,25 +1,31 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { debounce, isEmpty } from 'lodash';
+import debounce from 'lodash/debounce';
+import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
-import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus } from '../../actions/docStatus';
+
 import { deepClone } from '../../helpers/util';
-import { IcoBtn } from '../common/btns';
-import Dropdown from '../common/form/Dropdown';
-import Loader from '../common/Loader/Loader';
-import './style.scss';
+import { LoaderTypes } from '../../constants';
+import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus, resetDocStatus, updateDocStatus } from '../../actions/docStatus';
+import { selectStateDocStatusById } from '../../selectors/docStatus';
 import DocStatusService from '../../services/docStatus';
+import { Loader, PointsLoader } from '../common';
+import { IcoBtn } from '../common/btns';
+import { Caption, Dropdown } from '../common/form';
+
+import './style.scss';
 
 const mapStateToProps = (state, context) => {
-  const stateDS = state.docStatus[context.stateId] || {};
+  const stateDS = selectStateDocStatusById(state, context.stateId);
 
   return {
     status: stateDS.status,
     isUpdating: stateDS.isUpdating,
     countAttempt: stateDS.countAttempt,
     isLoading: stateDS.isLoading,
-    availableToChangeStatuses: stateDS.availableToChangeStatuses
+    availableToChangeStatuses: stateDS.availableToChangeStatuses,
+    updateRequestRecord: state.docStatus.updateRequestRecord
   };
 };
 
@@ -27,23 +33,30 @@ const mapDispatchToProps = dispatch => ({
   initDocStatus: payload => dispatch(initDocStatus(payload)),
   changeDocStatus: payload => dispatch(changeDocStatus(payload)),
   getDocStatus: payload => dispatch(getDocStatus(payload)),
-  getCheckDocStatus: payload => dispatch(getCheckDocStatus(payload))
+  getCheckDocStatus: payload => dispatch(getCheckDocStatus(payload)),
+  updateDocStatus: payload => dispatch(updateDocStatus(payload)),
+  resetDocStatus: payload => dispatch(resetDocStatus(payload))
 });
 
-const MAX_ATTEMPT = 3;
+const MAX_ATTEMPT = 10;
 
 class DocStatus extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
-    className: PropTypes.string
+    className: PropTypes.string,
+    title: PropTypes.string,
+    isMobile: PropTypes.bool,
+    loaderType: PropTypes.oneOf([LoaderTypes.CIRCLE, LoaderTypes.POINTS]),
+    noLoader: PropTypes.bool
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
+    title: '',
+    isMobile: false,
+    loaderType: LoaderTypes.CIRCLE
   };
-
-  className = 'ecos-doc-status';
 
   state = {
     wasChanged: false
@@ -53,7 +66,7 @@ class DocStatus extends React.Component {
     const { stateId, record, getCheckDocStatus } = this.props;
 
     getCheckDocStatus({ stateId, record });
-  }, 3000);
+  }, 2000);
 
   componentDidMount() {
     const { stateId, record, initDocStatus } = this.props;
@@ -62,15 +75,29 @@ class DocStatus extends React.Component {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    const { stateId, record, getDocStatus, isLoading } = this.props;
+    const { stateId, record, isLoading, getDocStatus, updateDocStatus } = this.props;
+
+    if (nextProps.updateRequestRecord === record) {
+      updateDocStatus({ stateId });
+    }
 
     if (!isLoading) {
       if (nextProps.isUpdating && nextProps.countAttempt < MAX_ATTEMPT) {
         this.checkDocStatusPing();
-      } else if ((!nextProps.isUpdating || nextProps.countAttempt === MAX_ATTEMPT) && isEmpty(nextProps.status)) {
-        getDocStatus({ stateId, record });
+      } else if (!nextProps.isUpdating || nextProps.countAttempt === MAX_ATTEMPT) {
+        this.checkDocStatusPing.cancel();
+
+        if (isEmpty(nextProps.status)) {
+          getDocStatus({ stateId, record });
+        }
       }
     }
+  }
+
+  componentWillUnmount() {
+    const { resetDocStatus, stateId } = this.props;
+
+    resetDocStatus({ stateId });
   }
 
   get isNoStatus() {
@@ -86,9 +113,9 @@ class DocStatus extends React.Component {
   }
 
   get isShowLoader() {
-    const { isLoading, isUpdating, countAttempt, status } = this.props;
+    const { isLoading, isUpdating, countAttempt, status, noLoader } = this.props;
 
-    return isLoading || (isUpdating && countAttempt < MAX_ATTEMPT) || isEmpty(status);
+    return (!noLoader && isLoading) || (isUpdating && countAttempt < MAX_ATTEMPT) || isEmpty(status);
   }
 
   onChangeStatus = () => {
@@ -98,30 +125,30 @@ class DocStatus extends React.Component {
     changeDocStatus({ stateId, record });
   };
 
-  renderLoader() {
-    return (
-      <div className={`${this.className}__loader-wrapper`}>
-        <Loader height={'45'} width={'45'} />
-      </div>
-    );
-  }
-
   renderReadField() {
     const { status = {} } = this.props;
-    const classStatus = classNames(`${this.className}_read`, { [`${this.className}_no-status`]: this.isNoStatus });
+    const classStatus = classNames('ecos-doc-status__data ecos-doc-status__data_read', {
+      'ecos-doc-status__data_no-status': this.isNoStatus
+    });
 
-    return <div className={classStatus}>{status.name}</div>;
+    return (
+      <div className={classStatus} title={status.name}>
+        {status.name}
+      </div>
+    );
   }
 
   renderManualField() {
     const { availableToChangeStatuses = [], status } = this.props;
     const source = deepClone(availableToChangeStatuses);
-    const classStatus = classNames('ecos-btn_drop-down ecos-btn_full-width', { 'ecos-btn_blue': !this.isNoStatus || this.isShowLoader });
+    const classStatus = classNames('ecos-btn_drop-down ecos-btn_full-width ecos-btn_narrow', {
+      'ecos-btn_blue': !this.isNoStatus || this.isShowLoader
+    });
 
     source.push(status);
 
     return (
-      <div className={`${this.className}_manual`}>
+      <div className="ecos-doc-status__data ecos-doc-status__data_manual">
         <Dropdown source={source} value={status.id} valueField={'id'} titleField={'name'} onChange={this.onChangeStatus} hideSelected>
           <IcoBtn invert icon={'icon-down'} className={classStatus} loading={this.isShowLoader} />
         </Dropdown>
@@ -129,18 +156,35 @@ class DocStatus extends React.Component {
     );
   }
 
+  renderLoader() {
+    const { loaderType } = this.props;
+    const className = classNames('ecos-doc-status__loader', `ecos-doc-status__loader_${loaderType}`);
+
+    if (loaderType === LoaderTypes.POINTS) {
+      return <PointsLoader className={className} color={'light-blue'} />;
+    }
+
+    return <Loader className={className} />;
+  }
+
   render() {
+    const { isMobile, title, className } = this.props;
     const { wasChanged } = this.state;
 
     return (
-      <div className={this.className}>
+      <div className={classNames('ecos-doc-status', className, { 'ecos-doc-status_narrow': !isMobile })}>
         {this.isShowLoader && !wasChanged ? (
           this.renderLoader()
         ) : (
-          <React.Fragment>
+          <>
+            {!isMobile && title && (
+              <Caption middle className="ecos-doc-status__title">
+                {title}
+              </Caption>
+            )}
             {this.isReadField && this.renderReadField()}
             {!this.isReadField && this.renderManualField()}
-          </React.Fragment>
+          </>
         )}
       </div>
     );

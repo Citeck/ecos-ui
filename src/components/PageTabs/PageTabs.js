@@ -1,10 +1,21 @@
 import React from 'react';
-import * as PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { deepClone, getScrollbarWidth, t } from '../../helpers/util';
-import { SortableContainer, SortableElement } from './sortable';
-import { getTitleByUrl, IGNORE_TABS_HANDLER_ATTR_NAME, LINK_TAG, SCROLL_STEP, TITLE } from '../../constants/pageTabs';
+
+import { arrayMove, deepClone, getScrollbarWidth, t } from '../../helpers/util';
+import { SortableContainer, SortableElement } from '../Drag-n-Drop';
+import {
+  getTitleByUrl,
+  IGNORE_TABS_HANDLER_ATTR_NAME,
+  LINK_TAG,
+  REMOTE_TITLE_ATTR_NAME,
+  SCROLL_STEP,
+  TITLE
+} from '../../constants/pageTabs';
+import { PointsLoader } from '../common';
+import { decodeLink, isNewVersionPage } from '../../helpers/urls';
+
 import './style.scss';
 
 const CHANGE_URL_LINK_EVENT = 'CHANGE_URL_LINK_EVENT';
@@ -33,8 +44,8 @@ class PageTabs extends React.Component {
       push: PropTypes.func.isRequired
     }),
     homepageLink: PropTypes.string.isRequired,
-    homepageName: PropTypes.string,
     isShow: PropTypes.bool,
+    isLoadingTitle: PropTypes.bool,
     tabs: PropTypes.array,
     linkIgnoreAttr: PropTypes.string,
 
@@ -44,13 +55,14 @@ class PageTabs extends React.Component {
 
   static defaultProps = {
     children: null,
-    homepageName: TITLE.HOMEPAGE,
     isShow: false,
+    isLoadingTitle: false,
     tabs: [],
     linkIgnoreAttr: IGNORE_TABS_HANDLER_ATTR_NAME,
 
     saveTabs: () => {},
-    changeActiveTab: () => {}
+    changeActiveTab: () => {},
+    getActiveTabTitle: () => {}
   };
 
   state = {
@@ -83,7 +95,22 @@ class PageTabs extends React.Component {
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     if (nextProps.isShow) {
       if (nextProps.isShow !== this.props.isShow && !nextProps.tabs.length) {
-        const tabs = [this.generateNewTab({ tabsCount: 0, props: nextProps })];
+        const hasRecordRef = this.linkFromUrl.includes('recordRef');
+
+        let propsFirstTab = {
+          tabsCount: 0,
+          props: nextProps
+        };
+
+        if (hasRecordRef) {
+          propsFirstTab = {
+            ...propsFirstTab,
+            link: this.linkFromUrl,
+            remoteTitle: true
+          };
+        }
+
+        const tabs = [this.generateNewTab(propsFirstTab)];
 
         nextProps.saveTabs(tabs);
         this.setState({ tabs });
@@ -99,10 +126,20 @@ class PageTabs extends React.Component {
 
   componentWillUnmount() {
     window.clearInterval(this.checkArrowID);
-    this.checkArrowID = null;
     document.removeEventListener('click', this.handleClickLink);
     document.removeEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent);
     window.removeEventListener('popstate', this.handlePopState);
+    this.checkArrowID = null;
+  }
+
+  get linkFromUrl() {
+    const {
+      history: {
+        location: { pathname, search, hash }
+      }
+    } = this.props;
+
+    return decodeLink([pathname, search, hash].join(''));
   }
 
   initArrows() {
@@ -130,16 +167,11 @@ class PageTabs extends React.Component {
   }
 
   checkUrls() {
-    const {
-      saveTabs,
-      history: {
-        location: { pathname, search, hash }
-      }
-    } = this.props;
+    const { saveTabs } = this.props;
     const { tabs: oldTabs, isNewTab } = this.state;
     const tabs = deepClone(oldTabs);
     const activeTab = tabs.find(tab => tab.isActive === true);
-    const linkFromUrl = [pathname, search, hash].join('');
+    const linkFromUrl = this.linkFromUrl;
 
     if (isNewTab) {
       return;
@@ -165,17 +197,20 @@ class PageTabs extends React.Component {
   }
 
   generateNewTab(params = {}) {
-    const { countTabs = this.props.tabs.length, props = this.props, link = '' } = params;
-    const { homepageLink, homepageName } = props;
+    const { props = this.props, link = '', remoteTitle = false } = params;
+    const { homepageLink, getActiveTabTitle } = props;
+
+    if (remoteTitle) {
+      getActiveTabTitle();
+    }
 
     return {
       id: Math.random()
         .toString(36)
         .substring(6),
-      position: countTabs,
       isActive: true,
       link: link || homepageLink,
-      title: this.getTitle(link || homepageLink) || homepageName
+      title: remoteTitle ? TITLE.NEW_TAB : this.getTitle(link || homepageLink)
     };
   }
 
@@ -208,15 +243,16 @@ class PageTabs extends React.Component {
      */
     const {
       params: {
-        link = '',
         checkUrl = false,
         openNewTab = false,
         openNewBrowserTab = false,
         reopenBrowserTab = false,
-        closeActiveTab = false
+        closeActiveTab = false,
+        remoteTitle = false
       }
     } = event;
     const tabs = deepClone(this.state.tabs);
+    const link = decodeLink(event.params.link || '');
 
     if (closeActiveTab) {
       const activeIndex = tabs.findIndex(tab => tab.isActive);
@@ -238,7 +274,7 @@ class PageTabs extends React.Component {
       return;
     }
 
-    const { saveTabs, history, homepageName } = this.props;
+    const { saveTabs, history } = this.props;
 
     event.preventDefault();
 
@@ -264,10 +300,8 @@ class PageTabs extends React.Component {
       if (newActiveTab) {
         this.activeTab(newActiveTab, tabs);
       } else {
-        tabs.forEach(item => {
-          item.isActive = false;
-        });
-        tabs.push(this.generateNewTab({ link }));
+        tabs.forEach(item => (item.isActive = false));
+        tabs.push(this.generateNewTab({ link, remoteTitle }));
         saveTabs(tabs);
         history.push.call(this, link);
 
@@ -285,27 +319,20 @@ class PageTabs extends React.Component {
     const tab = tabs.find(tab => tab.isActive);
 
     tab.link = link;
-    tab.title = this.getTitle(link) || homepageName;
+    tab.title = this.getTitle(link);
 
     saveTabs(tabs);
     history.replace.call(this, link);
   };
 
   handlePopState = () => {
-    const {
-      tabs,
-      saveTabs,
-      homepageName,
-      history: {
-        location: { pathname, search, hash }
-      }
-    } = this.props;
+    const { tabs, saveTabs } = this.props;
     const newTabs = deepClone(tabs);
     const tab = newTabs.find(tab => tab.isActive);
-    const linkFromUrl = [pathname, search, hash].join('');
+    const linkFromUrl = this.linkFromUrl;
 
     tab.link = linkFromUrl;
-    tab.title = this.getTitle(linkFromUrl) || homepageName;
+    tab.title = this.getTitle(linkFromUrl);
 
     saveTabs(newTabs);
     this.setState({ tabs: newTabs });
@@ -327,11 +354,15 @@ class PageTabs extends React.Component {
       return;
     }
 
-    const { saveTabs, history, homepageName } = this.props;
+    const { saveTabs, history } = this.props;
     const tabs = deepClone(this.state.tabs);
-    const link = elem.getAttribute('href');
+    const link = decodeLink(elem.getAttribute('href'));
     const isNewTab = elem.getAttribute('target') === '_blank';
     const withLinkTabIndex = tabs.findIndex(tab => tab.link === link);
+
+    if (!isNewVersionPage(link)) {
+      return;
+    }
 
     event.preventDefault();
 
@@ -348,22 +379,22 @@ class PageTabs extends React.Component {
     }
 
     if (isNewTab) {
-      tabs.forEach(tab => {
-        tab.isActive = false;
-      });
+      let remoteTitle = !!elem.getAttribute(REMOTE_TITLE_ATTR_NAME);
 
-      tabs.push(this.generateNewTab({ link }));
+      tabs.forEach(tab => (tab.isActive = false));
+      tabs.push(this.generateNewTab({ link, remoteTitle }));
     } else {
       const tab = tabs.find(tab => tab.isActive);
 
       tab.link = link;
-      tab.title = this.getTitle(link) || homepageName;
+      tab.title = this.getTitle(link);
     }
 
     saveTabs(tabs);
-    history.push.call(this, link);
 
     this.setState({ tabs }, () => {
+      history.push.call(this, link);
+
       if (this.checkScrollPosition()) {
         this.checkNeedArrow();
       }
@@ -380,7 +411,7 @@ class PageTabs extends React.Component {
       return;
     }
 
-    this.props.changeActiveTab();
+    this.props.changeActiveTab({ url: tab.link });
     this.activeTab(tab);
   }
 
@@ -501,14 +532,7 @@ class PageTabs extends React.Component {
     draggableNode.classList.toggle('page-tab__tabs-item_sorting');
 
     this.setState(state => {
-      const tabs = deepClone(state.tabs);
-      const draggableTab = tabs[oldIndex];
-
-      tabs.splice(oldIndex, 1);
-      tabs.splice(newIndex, 0, draggableTab);
-      tabs.forEach((tab, index) => {
-        tab.position = index;
-      });
+      const tabs = arrayMove(state.tabs, oldIndex, newIndex);
 
       this.props.saveTabs(tabs);
 
@@ -545,20 +569,10 @@ class PageTabs extends React.Component {
       history.push.call(this, link);
     }
 
-    for (let i = index; i < tabs.length; i++) {
-      tabs[i].position -= 1;
-    }
-
     tabs.splice(index, 1);
     saveTabs(tabs);
 
     this.setState({ tabs }, this.checkNeedArrow.bind(this));
-  }
-
-  get sortableTabs() {
-    const { tabs } = this.state;
-
-    return tabs.sort((first, second) => (first.position > second.position ? 1 : -1));
   }
 
   activeTab = (tab, allTabs = this.state.tabs) => {
@@ -580,7 +594,7 @@ class PageTabs extends React.Component {
 
     cleanUrl = cleanUrl.replace(/#.*/i, '');
 
-    return getTitleByUrl(cleanUrl);
+    return getTitleByUrl(cleanUrl) || TITLE.NEW_TAB;
   }
 
   renderLeftButton() {
@@ -627,8 +641,9 @@ class PageTabs extends React.Component {
     );
   }
 
-  renderTabItem = item => {
+  renderTabItem = (item, position) => {
     const { tabs } = this.state;
+    const { isLoadingTitle } = this.props;
     const className = ['page-tab__tabs-item'];
     const closeButton =
       tabs.length > 1 ? <div className="page-tab__tabs-item-close icon-close" onClick={this.handleCloseTab.bind(this, item.id)} /> : null;
@@ -637,10 +652,17 @@ class PageTabs extends React.Component {
       className.push('page-tab__tabs-item_active');
     }
 
+    if (isLoadingTitle) {
+      className.push('page-tab__tabs-item_disabled');
+    }
+
     return (
-      <SortableElement key={item.id} index={item.position} onSortEnd={this.handleSortEnd}>
+      <SortableElement key={item.id} index={position} onSortEnd={this.handleSortEnd}>
         <div key={item.id} className={className.join(' ')} title={t(item.title)} onClick={this.handleClickTab.bind(this, item)}>
-          <span className="page-tab__tabs-item-title">{t(item.title)}</span>
+          <span className="page-tab__tabs-item-title">
+            {isLoadingTitle && item.isActive && <PointsLoader className={'page-tab__tabs-item-title-loader'} color={'light-blue'} />}
+            {t(item.title)}
+          </span>
           {closeButton}
         </div>
       </SortableElement>
@@ -668,7 +690,7 @@ class PageTabs extends React.Component {
     }
 
     return (
-      <div className={className.join(' ')}>
+      <div className={className.join(' ')} key="tabs-wrapper">
         {this.renderLeftButton()}
         <SortableContainer
           axis="x"
@@ -678,7 +700,7 @@ class PageTabs extends React.Component {
           onSortEnd={this.handleSortEnd}
         >
           <div className="page-tab__tabs" ref={this.$tabWrapper}>
-            {this.sortableTabs.map(this.renderTabItem)}
+            {tabs.map(this.renderTabItem)}
           </div>
         </SortableContainer>
         <div className="page-tab__tabs-add icon-plus" onClick={this.handleAddTab} />
@@ -692,7 +714,7 @@ class PageTabs extends React.Component {
 
     if (isShow && children) {
       return (
-        <div className="page-tab__body">
+        <div className="page-tab__body" key="children">
           <Scrollbars className="page-tab__body-scroll" style={{ height: '100%' }}>
             <div className="page-tab__body-content">{children}</div>
           </Scrollbars>
@@ -705,10 +727,10 @@ class PageTabs extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <>
         {this.renderTabWrapper()}
         {this.renderChildren()}
-      </React.Fragment>
+      </>
     );
   }
 }

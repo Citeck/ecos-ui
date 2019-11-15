@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-
-import Dashlet from '../Dashlet/Dashlet';
-import DocPreview from './DocPreview';
 import { t } from '../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import UserLocalSettingsService from '../../services/userLocalSettings';
+import Dashlet from '../Dashlet/Dashlet';
+import DocPreview from './DocPreview';
 
 import './style.scss';
 
@@ -13,10 +13,10 @@ class DocPreviewDashlet extends Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
     title: PropTypes.string,
+    fileName: PropTypes.string,
     classNamePreview: PropTypes.string,
     classNameDashlet: PropTypes.string,
     config: PropTypes.shape({
-      height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       link: PropTypes.string.isRequired
     }),
     dragHandleProps: PropTypes.object,
@@ -26,40 +26,89 @@ class DocPreviewDashlet extends Component {
   static defaultProps = {
     title: t('doc-preview.preview'),
     classNamePreview: '',
+    fileName: '',
     classNameDashlet: '',
     dragHandleProps: {},
     canDragging: false
   };
 
-  state = {
-    width: MIN_WIDTH_DASHLET_SMALL
-  };
+  className = 'ecos-doc-preview-dashlet';
 
-  handleResize = width => {
+  constructor(props) {
+    super(props);
+
+    UserLocalSettingsService.checkOldData(props.id);
+
+    this.state = {
+      width: MIN_WIDTH_DASHLET_SMALL,
+      height: UserLocalSettingsService.getDashletHeight(props.id),
+      scale: UserLocalSettingsService.getDashletScale(props.id) || 'auto',
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
+      fitHeights: {}
+    };
+  }
+
+  onResize = width => {
     this.setState({ width });
   };
 
+  onChangeHeight = height => {
+    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    this.setState({ height });
+  };
+
+  setFitHeights = fitHeights => {
+    this.setState({ fitHeights });
+  };
+
+  setUserScale = scale => {
+    if (scale) {
+      UserLocalSettingsService.setDashletScale(this.props.id, scale);
+    }
+  };
+
+  handleToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+  };
+
   render() {
-    const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging } = this.props;
-    const { width } = this.state;
-    const classesDashlet = classNames('ecos-dp-dashlet', classNameDashlet, {
-      'ecos-dp-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE
+    const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName } = this.props;
+    const { width, height, fitHeights, scale, isCollapsed } = this.state;
+    const classesDashlet = classNames(this.className, classNameDashlet, {
+      [`${this.className}_small`]: width < MIN_WIDTH_DASHLET_LARGE
     });
 
     return (
       <Dashlet
         title={title}
-        bodyClassName={'ecos-dp-dashlet__body'}
+        bodyClassName={`${this.className}__body`}
         className={classesDashlet}
         actionReload={false}
         actionEdit={false}
         actionHelp={false}
         needGoTo={false}
         canDragging={canDragging}
-        onResize={this.handleResize}
+        onResize={this.onResize}
+        onChangeHeight={this.onChangeHeight}
         dragHandleProps={dragHandleProps}
+        resizable
+        getFitHeights={this.setFitHeights}
+        onToggleCollapse={this.handleToggleContent}
+        isCollapsed={isCollapsed}
       >
-        <DocPreview {...config} className={classNamePreview} />
+        <DocPreview
+          link={config.link}
+          height={height}
+          className={classNamePreview}
+          minHeight={fitHeights.min}
+          maxHeight={fitHeights.max}
+          scale={scale}
+          fileName={fileName}
+          setUserScale={this.setUserScale}
+          resizable
+          isCollapsed={isCollapsed}
+        />
       </Dashlet>
     );
   }

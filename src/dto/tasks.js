@@ -1,4 +1,5 @@
-import { isArray, isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+import isArray from 'lodash/isArray';
 import TasksService from '../services/tasks';
 
 export default class TasksConverter {
@@ -38,7 +39,7 @@ export default class TasksConverter {
     target.actors = TasksService.getActorsDisplayNameStr(actors);
     target.deadline = source.dueDate;
     target.isGroup = TasksService.getIsGroup(actors);
-    target.usersGroup = TasksService.getUsersOfGroupStr(actors.containedUsers);
+    target.usersGroup = TasksService.getUsersOfGroupArrayStr(actors.containedUsers);
 
     return target;
   }

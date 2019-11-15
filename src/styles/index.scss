@@ -1,0 +1,53 @@
+@import '~react-placeholder/lib/reactPlaceholder.css';
+@import './bootstrap';
+@import '../fonts/citeck/css/citeck.css';
+@import '../fonts/open-sans/open-sans.css';
+@import './constants';
+@import './scrollbars';
+@import './notifications';
+
+html {
+  overflow: auto;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: $font-family;
+  margin: 0;
+  padding: 0;
+  font-size: $font-size-standard;
+  letter-spacing: 0;
+  color: $text-color-dark;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+// for check scrollbar width in your browser
+.scrollbar-measure {
+  width: 100px;
+  height: 100px;
+  overflow: scroll;
+  position: absolute;
+  top: -9999px;
+}
+
+// for set z-index and correctly displaying child elements
+#alf-hd {
+  position: relative;
+}

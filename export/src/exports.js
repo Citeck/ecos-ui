@@ -8,6 +8,7 @@ import Records from '../../src/components/Records';
 import { MenuApi } from '../../src/api/menu';
 import lodash from 'lodash';
 import '../../src/build-info';
+import * as journalsApi from '../../src/api/export/journalsApi';
 
 export default {
   'react': { default: reactDefault, ...react },
@@ -29,4 +30,8 @@ export default {
   'menu-api': () => MenuApi,
   'lodash': () => lodash,
   'cardlet-node-view': () => import('../../src/legacy/cardlets/node-view/node-view'),
+  'journalsApi': () => journalsApi,
+  'header': () => import('../../src/components/Header/export'),
+  'slide-menu': () => import('../../src/legacy/SlideMenu/export'),
+  'slide-menu-next': () => import('../../src/components/SlideMenu/export'),
 };

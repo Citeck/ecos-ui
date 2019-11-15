@@ -1,3 +1,4 @@
+import moment from 'moment';
 import Input from '../../../common/form/Input';
 import DatePicker from '../../../common/form/DatePicker';
 import Select from '../../../common/form/Select';
@@ -92,8 +93,8 @@ export const SEARCH_EQUAL_PREDICATES_MAP = {
   [COLUMN_DATA_TYPE_LONG]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_FLOAT]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_DOUBLE]: PREDICATE_EQ,
-  [COLUMN_DATA_TYPE_DATE]: PREDICATE_EQ,
-  [COLUMN_DATA_TYPE_DATETIME]: PREDICATE_EQ,
+  // [COLUMN_DATA_TYPE_DATE]: PREDICATE_EQ,
+  // [COLUMN_DATA_TYPE_DATETIME]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_BOOLEAN]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_QNAME]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_NODEREF]: PREDICATE_EQ,
@@ -137,7 +138,8 @@ const PREDICATE_LIST_TYPE_STRING = [
   PREDICATE_NOT_EMPTY
 ];
 const PREDICATE_LIST_TYPE_OPTIONS = PREDICATE_LIST_TYPE_STRING;
-const PREDICATE_LIST_TYPE_DATE = [PREDICATE_GE, PREDICATE_LT, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
+const PREDICATE_LIST_TYPE_DATE = [PREDICATE_EQ, PREDICATE_NOT_EQ, PREDICATE_GE, PREDICATE_LE, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
+const PREDICATE_LIST_TYPE_DATETIME = [PREDICATE_GE, PREDICATE_LT, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_NODE_REF = [PREDICATE_CONTAINS, PREDICATE_NOT_CONTAINS, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_NUMBER = [PREDICATE_EQ, PREDICATE_NOT_EQ, PREDICATE_LT, PREDICATE_LE, PREDICATE_GT, PREDICATE_GE];
 const PREDICATE_LIST_TYPE_BOOLEAN = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
@@ -176,8 +178,9 @@ export function getPredicates(field) {
       return filterPredicates(PREDICATE_LIST_TYPE_NODE_REF);
 
     case COLUMN_DATA_TYPE_DATE:
-    case COLUMN_DATA_TYPE_DATETIME:
       return filterPredicates(PREDICATE_LIST_TYPE_DATE);
+    case COLUMN_DATA_TYPE_DATETIME:
+      return filterPredicates(PREDICATE_LIST_TYPE_DATETIME);
 
     case COLUMN_DATA_TYPE_OPTIONS:
       return filterPredicates(PREDICATE_LIST_TYPE_OPTIONS);
@@ -206,7 +209,7 @@ export function getPredicates(field) {
 
 const recordServiceAPI = new RecordService();
 
-export function getPredicateInput(field, sourceId) {
+export function getPredicateInput(field, sourceId, metaRecord) {
   const defaultValue = {
     label: t('react-select.default-value.label'),
     value: null
@@ -247,6 +250,10 @@ export function getPredicateInput(field, sourceId) {
           showIcon: true,
           selected: predicateValue,
           onChange: function(value) {
+            if (value && field.type === COLUMN_DATA_TYPE_DATE) {
+              value = moment(value).format('YYYY-MM-DD');
+            }
+
             changePredicateValue(value);
           },
           showTimeInput: field.type === COLUMN_DATA_TYPE_DATETIME
@@ -267,12 +274,13 @@ export function getPredicateInput(field, sourceId) {
     case COLUMN_DATA_TYPE_OPTIONS:
       const loadOptions = () => {
         return new Promise(resolve => {
+          //todo: replace to using Records.js
           recordServiceAPI
             .query({
               attributes: {
                 opt: `#${field.attribute}?options`
               },
-              record: `${sourceId || ''}@`
+              record: metaRecord || `${sourceId || ''}@`
             })
             .then(record => record.attributes.opt || [])
             .then(opt =>
@@ -311,11 +319,13 @@ export function getPredicateInput(field, sourceId) {
       return {
         component: Select,
         defaultValue: null,
-        getProps: ({ predicateValue, changePredicateValue }) => ({
-          className: 'select_narrow',
+        getProps: ({ predicateValue, changePredicateValue, selectClassName }) => ({
+          className: `select_narrow ${selectClassName}`,
           isSearchable: false,
           defaultValue: defaultValue,
           options: booleanOptions,
+          value: predicateValue,
+          handleSetValue: (value, options) => options.filter(o => o.value === value)[0],
           onChange: function(selected) {
             changePredicateValue(selected.value);
           }

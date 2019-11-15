@@ -1,6 +1,7 @@
 import UserNameLinkFormatter from './gql/UserNameLinkFormatter';
 import FunctionFormatter from './gql/FunctionFormatter';
 import DateTimeFormatter from './gql/DateTimeFormatter';
+import DateFormatter from './gql/DateFormatter';
 import DefaultGqlFormatter from './gql/DefaultGqlFormatter';
 import CardDetailsLinkFormatter from './gql/CardDetailsLinkFormatter';
 import WorkflowPriorityFormatter from './gql/WorkflowPriorityFormatter/WorkflowPriorityFormatter';
@@ -13,11 +14,13 @@ import BooleanFormatter from './gql/BooleanFormatter';
 import SelectFormatter from './gql/SelectFormatter';
 import FormFieldFormatter from './gql/FormFieldFormatter';
 import StrAndDispFormatter from './gql/StrAndDispFormatter';
+import ColoredFormatter from './gql/ColoredFormatter/ColoredFormatter';
 
 const formatterStore = {
   UserNameLinkFormatter,
   FunctionFormatter,
   DateTimeFormatter,
+  DateFormatter,
   DefaultGqlFormatter,
   CardDetailsLinkFormatter,
   WorkflowPriorityFormatter,
@@ -29,7 +32,8 @@ const formatterStore = {
   BooleanFormatter,
   SelectFormatter,
   FormFieldFormatter,
-  StrAndDispFormatter
+  StrAndDispFormatter,
+  ColoredFormatter
 };
 
 export default formatterStore;

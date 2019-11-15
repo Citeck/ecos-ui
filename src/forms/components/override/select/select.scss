@@ -11,6 +11,7 @@
 
     .choices__list--dropdown {
       margin-top: 5px;
+      margin-bottom: 5px;
       border-radius: $border-radius-standard;
       box-shadow: $box-shadow-default;
       border: none;
@@ -84,7 +85,25 @@
         }
 
         .choices__button {
-          display: none;
+          background: none;
+          text-indent: 0;
+          font-size: 0;
+          height: 100%;
+          width: 25px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          top: 0;
+          margin-top: 0;
+          margin-right: 30px;
+
+          &:after {
+            font-family: $font-family-citeck;
+            font-size: 16px;
+            font-weight: normal;
+            content: $citeck-icon-close;
+            color: $color-gray-6;
+          }
         }
 
         .form-control {
@@ -92,7 +111,7 @@
             font-family: $font-family-citeck;
             font-size: 16px;
             font-weight: normal;
-            content: '\6e';
+            content: $citeck-icon-down;
             position: absolute;
             top: 0;
             right: $input-padding;
@@ -118,7 +137,7 @@
             color: $color-white;
 
             &:after {
-              content: '\54';
+              content: $citeck-icon-up;
               color: $color-white;
             }
           }

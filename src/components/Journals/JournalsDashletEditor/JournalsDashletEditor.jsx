@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
-import { Caption, Select, Field } from '../../common/form';
+import { Caption, Select, Field, Checkbox } from '../../common/form';
 import { Btn } from '../../common/btns';
 
 import {
@@ -11,7 +11,8 @@ import {
   setSettingItem,
   saveDashlet,
   setEditorMode,
-  setDashletConfig
+  setDashletConfig,
+  setOnlyLinked
 } from '../../../actions/journals';
 
 import { t, getSelectedValue } from '../../../helpers/util';
@@ -41,6 +42,7 @@ const mapDispatchToProps = (dispatch, props) => {
     setJournalsListItem: item => dispatch(setJournalsListItem(w(item))),
     setJournalsItem: item => dispatch(setJournalsItem(w(item))),
     setSettingItem: id => dispatch(setSettingItem(w(id))),
+    setOnlyLinked: onlyLinked => dispatch(setOnlyLinked(w(onlyLinked))),
     setDashletConfig: config => dispatch(setDashletConfig(w(config))),
     saveDashlet: (config, id) => dispatch(saveDashlet(w({ config: config, id: id })))
   };
@@ -58,8 +60,13 @@ class JournalsDashletEditor extends Component {
   };
 
   save = () => {
-    const props = this.props;
-    props.saveDashlet(props.config, props.id);
+    let { config, id, saveDashlet, recordRef } = this.props;
+
+    if (recordRef) {
+      config = config && config.onlyLinked === undefined ? { ...config, onlyLinked: true } : config;
+    }
+
+    saveDashlet(config, id);
   };
 
   clear = () => {
@@ -68,6 +75,10 @@ class JournalsDashletEditor extends Component {
 
   setSettingItem = item => {
     this.props.setSettingItem(item[JOURNAL_SETTING_ID_FIELD]);
+  };
+
+  setOnlyLinked = ({ checked }) => {
+    this.props.setOnlyLinked(checked);
   };
 
   componentDidUpdate(prevProps) {
@@ -84,15 +95,18 @@ class JournalsDashletEditor extends Component {
     const config = props.config || {};
     const cssClasses = classNames('ecos-journal-dashlet-editor', props.className);
     const measurer = props.measurer;
-    const padding = isSmall => (isSmall ? 'ecos-btn_padding_small' : '');
+    const isSmall = measurer.xxs || measurer.xxxs;
+    const checkSmall = isSmall => className => (isSmall ? className : '');
+    const ifSmall = checkSmall(isSmall);
 
     return (
       <div className={cssClasses}>
-        <div className={'ecos-journal-dashlet-editor__body'}>
-          <Caption middle className={'ecos-journal-dashlet-editor__caption'}>
+        <div className={classNames('ecos-journal-dashlet-editor__body', ifSmall('ecos-journal-dashlet-editor__body_small'))}>
+          <Caption middle className={classNames('ecos-journal-dashlet-editor__caption')}>
             {t('journals.action.edit-dashlet')}
           </Caption>
-          <Field label={t('journals.list.name')}>
+
+          <Field label={t('journals.list.name')} isSmall={isSmall}>
             <Select
               className={'ecos-journal-dashlet-editor__select'}
               placeholder={t('journals.action.select-journal-list')}
@@ -104,7 +118,7 @@ class JournalsDashletEditor extends Component {
             />
           </Field>
 
-          <Field label={t('journals.name')}>
+          <Field label={t('journals.name')} isSmall={isSmall}>
             <Select
               className={'ecos-journal-dashlet-editor__select'}
               placeholder={t('journals.action.select-journal')}
@@ -116,7 +130,7 @@ class JournalsDashletEditor extends Component {
             />
           </Field>
 
-          <Field label={t('journals.settings')}>
+          <Field label={t('journals.settings')} isSmall={isSmall}>
             <Select
               className={'ecos-journal-dashlet-editor__select'}
               placeholder={t('journals.default')}
@@ -127,21 +141,39 @@ class JournalsDashletEditor extends Component {
               value={getSelectedValue(props.journalSettings, JOURNAL_SETTING_ID_FIELD, config.journalSettingId)}
             />
           </Field>
+
+          {props.recordRef ? (
+            <Field label={t('journals.action.only-linked')} isSmall={isSmall}>
+              <Checkbox checked={config.onlyLinked === undefined ? true : config.onlyLinked} onChange={this.setOnlyLinked} />
+            </Field>
+          ) : null}
         </div>
 
-        <div className={'ecos-journal-dashlet-editor__actions'}>
-          <Btn className={`ecos-btn_x-step_10 ${padding(measurer.xxs || measurer.xxxs)}`} onClick={this.clear}>
-            {measurer.xxs || measurer.xxxs ? t('journals.action.reset') : t('journals.action.reset-settings')}
+        <div className={classNames('ecos-journal-dashlet-editor__actions', ifSmall('ecos-journal-dashlet-editor__actions_small'))}>
+          <Btn
+            className={classNames(`ecos-btn_x-step_10`, ifSmall('ecos-journal-dashlet-editor_small-btn_full-width'))}
+            onClick={this.clear}
+          >
+            {t('journals.action.reset-settings')}
           </Btn>
 
           <Btn
-            className={`ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_float_right ${padding(measurer.xxs || measurer.xxxs)}`}
+            className={classNames(
+              `ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_float_right`,
+              ifSmall('ecos-journal-dashlet-editor_small-btn')
+            )}
             onClick={this.save}
           >
             {t('journals.action.save')}
           </Btn>
 
-          <Btn className={`ecos-btn_x-step_10 ecos-btn_float_right ${padding(measurer.xxs || measurer.xxxs)}`} onClick={this.cancel}>
+          <Btn
+            className={classNames(
+              `ecos-btn_x-step_10 ecos-btn_float_right`,
+              ifSmall('ecos-journal-dashlet-editor_small-btn ecos-btn_float_left')
+            )}
+            onClick={this.cancel}
+          >
             {t('journals.action.cancel')}
           </Btn>
         </div>

@@ -3,24 +3,59 @@ import { PROXY_URI, MICRO_URI } from '../constants/alfresco';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 import Records from '../components/Records';
 import { queryByCriteria, t, debounce } from '../helpers/util';
+import * as ls from '../helpers/ls';
+import { DocPreviewApi } from './docPreview';
+import { PREDICATE_OR, COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS } from '../components/common/form/SelectJournal/predicates';
+
+import { ActionModes } from '../constants';
+
+import RecordActions from '../components/Records/actions';
 
 export class JournalsApi extends RecordService {
-  getRecord = ({ id, attributes }) => {
+  lsJournalSettingIdsKey = ls.generateKey('journal-setting-ids', true);
+
+  getLsJournalSettingIds = () => {
+    let ids = [];
+
+    if (ls.hasData(this.lsJournalSettingIdsKey, 'array')) {
+      ids = ls.getData(this.lsJournalSettingIdsKey);
+    }
+
+    return ids;
+  };
+
+  setLsJournalSettingIds = ids => {
+    ls.setData(this.lsJournalSettingIdsKey, ids);
+  };
+
+  setLsJournalSettingId = (journalConfigId, journalSettingId) => {
+    const ids = this.getLsJournalSettingIds().filter(j => j.key !== journalConfigId);
+    ids.push({ key: journalConfigId, value: journalSettingId });
+    this.setLsJournalSettingIds(ids);
+  };
+
+  getLsJournalSettingId = journalConfigId => {
+    return (this.getLsJournalSettingIds().filter(j => j.key === journalConfigId)[0] || {}).value;
+  };
+
+  getRecord = ({ id, attributes, noCache = false }) => {
     return Records.get(id)
-      .load(attributes)
+      .load(attributes, noCache)
       .then(resp => resp)
       .catch(() => null);
   };
 
   saveRecords = ({ id, attributes }) => {
-    return this.mutate({ record: { id, attributes } });
+    //todo: replace to using Records.js
+    return this.mutate({ record: { id, attributes } }).catch(() => null);
   };
 
   deleteRecords = records => {
+    //todo: replace to using Records.js
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId }) => {
+  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId, recordRef, journalId }) => {
     const query = {
       t: 'and',
       val: [
@@ -30,6 +65,21 @@ export class JournalsApi extends RecordService {
         })
       ]
     };
+
+    if (recordRef) {
+      query.val.push({
+        t: PREDICATE_OR,
+        val: columns
+          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC)
+          .map(a => {
+            return {
+              t: PREDICATE_CONTAINS,
+              val: recordRef,
+              att: a.attribute
+            };
+          })
+      });
+    }
 
     let bodyQery = {
       consistency: 'EVENTUAL',
@@ -57,7 +107,20 @@ export class JournalsApi extends RecordService {
 
     return dataSource.load().then(function({ data, total }) {
       const columns = dataSource.getColumns();
-      return { data, total, columns };
+
+      const actionsContext = {
+        mode: ActionModes.JOURNAL,
+        scope: journalId
+      };
+
+      return RecordActions.getActions((data || []).map(r => r.id), actionsContext).then(actions => {
+        return {
+          data,
+          actions,
+          total,
+          columns
+        };
+      });
     });
   };
 
@@ -85,7 +148,8 @@ export class JournalsApi extends RecordService {
       query,
       language: 'predicate',
       page: pagination,
-      consistency: 'EVENTUAL'
+      consistency: 'EVENTUAL',
+      sortBy: [{ attribute: 'sys:node-dbid', ascending: true }]
     };
 
     if (sourceId) {
@@ -212,15 +276,7 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getPreviewUrl = nodeRef => {
-    return Records.get(nodeRef)
-      .load('previewInfo?json', true)
-      .then(resp => {
-        resp = resp || {};
-        const { url = '', ext = '' } = resp;
-        return url && ext ? `${url}.${ext}` : '';
-      });
-  };
+  getPreviewUrl = DocPreviewApi.getLinkByRecord;
 
   performGroupAction = ({ groupAction, selected, criteria, journalId }) => {
     const { id, type, params } = groupAction;

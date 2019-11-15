@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import ReactDOM from 'react-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -82,14 +82,17 @@ export default class DndList extends Component {
   };
 
   render() {
-    const { className, classNameItem, draggableClassName = '', ...props } = this.props;
+    const { className, classNameItem, draggableClassName = '', noScroll, ...props } = this.props;
     const cssClasses = classNames('ecos-dnd-list', className);
     const cssItemClasses = classNames('ecos-dnd-list__item', classNameItem);
 
     const list = this.view(this.state.data, props);
 
+    const Scroll = ({ noScroll, children }) =>
+      noScroll ? <Fragment>{children}</Fragment> : <Scrollbars style={{ height: '100%' }}>{children}</Scrollbars>;
+
     return (
-      <Scrollbars style={{ height: '100%' }}>
+      <Scroll noScroll={noScroll}>
         <DragDropContext onDragEnd={this.onDragEnd}>
           <Droppable droppableId={this._id}>
             {provided => (
@@ -119,7 +122,7 @@ export default class DndList extends Component {
             )}
           </Droppable>
         </DragDropContext>
-      </Scrollbars>
+      </Scroll>
     );
   }
 }

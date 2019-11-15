@@ -1,0 +1,10 @@
+@import '../../../../../../styles/constants';
+
+.colored-formatter {
+  font-size: $font-size-extra-small;
+  font-weight: $font-weight-normal;
+  padding: 4px 15px;
+  height: 20px;
+  display: inline-block;
+  border-radius: $border-radius-extra-large;
+}

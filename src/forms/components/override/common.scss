@@ -18,6 +18,31 @@
     }
   }
 
+  .formio-disabled-input {
+    .form-control {
+      border-color: $color-gray-disabled;
+      background-color: $color-gray-disabled-2;
+      color: $color-gray-disabled;
+      cursor: not-allowed;
+
+      input {
+        background-color: $color-gray-disabled-2;
+      }
+
+      &:after {
+        color: $color-gray-disabled !important;
+      }
+
+      &:focus {
+        border-color: $color-gray-disabled;
+      }
+
+      &:hover {
+        border-color: $color-gray-disabled;
+      }
+    }
+  }
+
   .form-control {
     display: block;
     box-sizing: border-box;
@@ -116,5 +141,19 @@
     &:before {
       content: none;
     }
+  }
+
+  .loader-wrapper {
+    background: none;
+  }
+
+  .loader {
+    margin-left: -22px;
+    margin-top: -25px;
+    border: 2px solid #b8cae6;
+    border-top: 2px solid $color-blue-light;
+    width: 45px;
+    height: 45px;
+    animation: spin 1s linear infinite;
   }
 }

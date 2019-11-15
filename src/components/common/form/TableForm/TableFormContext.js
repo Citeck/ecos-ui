@@ -2,15 +2,14 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import TableFormPropTypes from './TableFormPropTypes';
 import { JournalsApi } from '../../../../api/journalsApi';
+import { isNodeRef } from '../../../../helpers/util';
 import Records from '../../../Records/Records';
+import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import _ from 'lodash';
 
 export const TableFormContext = React.createContext();
-
-export const FORM_MODE_CREATE = 'CREATE';
-export const FORM_MODE_EDIT = 'EDIT';
 
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
@@ -252,14 +251,13 @@ export const TableFormContextProvider = props => {
 
         onEditFormSubmit: (record, form) => {
           let editRecordId = record.id;
-          let isNodeRef = editRecordId.indexOf('workspace://SpacesStore/') === 0;
           let isAlias = editRecordId.indexOf('-alias') !== -1;
 
           let newSelectedRows = [...selectedRows];
 
           const newRow = { ...record.toJson()['attributes'], id: editRecordId };
 
-          if (isNodeRef && isAlias) {
+          if (isNodeRef(editRecordId) && isAlias) {
             // replace base record row by newRow in values list
             const baseRecord = record.getBaseRecord();
             const baseRecordId = baseRecord.id;

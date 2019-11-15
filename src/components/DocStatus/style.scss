@@ -1,48 +1,85 @@
-@import '../../constants';
+@import '../../styles/constants';
 
 .ecos-doc-status {
   $root: &;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  height: 34px;
 
-  &_read {
-    background-color: $color-blue-light2;
-    color: $color-blue-dark;
-    padding: 10px 0;
-    text-align: center;
-    font-weight: $font-weight-bold;
-    font-size: $font-size-large;
-  }
+  &-dashlet {
+    $dashlet: &;
 
-  &_no-status {
-    background-color: $color-gray-4;
-    color: $text-color-gray;
-  }
+    &__body {
+      padding-top: 7px;
+    }
 
-  &_manual {
-    padding: 0 16px;
-
-    .ecos-dropdown {
-      width: 100%;
-
-      &__menu {
-        width: 100%;
-      }
-
-      .ecos-btn {
-        margin-top: 0;
+    &_mobile {
+      #{$root}__data {
+        max-width: unset;
       }
     }
   }
 
-  &__loader-wrapper {
-    position: relative;
-    height: 40px;
+  &__title {
+    display: inline-block;
+    color: $text-color-gray;
+    font-weight: $font-weight-bold;
+    padding-right: 12px;
+    min-width: fit-content;
+    @extend %ellipsis;
   }
 
-  &-dashlet {
-    overflow: unset;
+  &__data {
+    flex: auto;
+    max-width: 223px;
+    min-width: 0;
 
-    &__body {
-      padding: 16px 0;
+    &_read {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 26px;
+      padding: 0 15px;
+      border-radius: $border-radius-standard;
+      background: $color-blue-light2;
+      color: $color-blue-dark;
+      font-weight: $font-weight-bold;
+      font-size: $font-size-standard;
+
+      @extend %ellipsis;
+    }
+
+    &_manual {
+      .ecos-dropdown {
+        width: 100%;
+
+        &__menu {
+          width: 100%;
+        }
+      }
+
+      .ecos-btn {
+        margin-top: 0;
+        font-weight: $font-weight-bold;
+        font-size: $font-size-standard;
+      }
+    }
+
+    &_no-status {
+      background-color: $color-gray-4;
+      color: $text-color-gray;
+    }
+  }
+
+  &__loader {
+    position: relative;
+
+    &_circle {
+      width: 100%;
+    }
+
+    &_points {
     }
   }
 }

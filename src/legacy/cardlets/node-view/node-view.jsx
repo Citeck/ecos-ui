@@ -3,6 +3,8 @@ import NodeCardlet from '../node-cardlet';
 import RemoteCardlet from '../remote/remote';
 import EcosForm from '../../../components/EcosForm/export';
 import { t } from '../../../helpers/util';
+import { FORM_MODE_EDIT } from '../../../components/EcosForm';
+import Records from '../../../components/Records';
 
 export default class NodeViewFormCardlet extends NodeCardlet {
   state = {
@@ -10,33 +12,47 @@ export default class NodeViewFormCardlet extends NodeCardlet {
   };
 
   static fetchData(ownProps, onSuccess, onFailure) {
-    const checkUrl = `${window.Alfresco.constants.PROXY_URI}citeck/invariants/view-check?nodeRef=${ownProps.nodeRef}&viewId=&mode=view`;
+    const openEcosFormIfExists = () => {
+      const checkUrl = `${window.Alfresco.constants.PROXY_URI}citeck/invariants/view-check?nodeRef=${ownProps.nodeRef}&viewId=&mode=view`;
+      window.Alfresco.util.Ajax.jsonGet({
+        url: checkUrl,
+        successCallback: {
+          fn: function(response) {
+            const resp = response.json;
+            if (!resp.eformExists) {
+              return RemoteCardlet.fetchData(ownProps, onSuccess, onFailure);
+            }
 
-    window.Alfresco.util.Ajax.jsonGet({
-      url: checkUrl,
-      successCallback: {
-        fn: function(response) {
-          const resp = response.json;
-          if (!resp.eformExists) {
+            onSuccess({
+              htmlId: `card-details-cardlet_${ownProps.id}`,
+              eformExists: true,
+              nodeRef: ownProps.nodeRef,
+              column: ownProps.column,
+              hideTwister: ownProps.controlProps.hideTwister,
+              header: t(ownProps.controlProps.header || 'cardlets.node-view.twister-header')
+            });
+          }
+        },
+        failureCallback: {
+          fn: function(response) {
             RemoteCardlet.fetchData(ownProps, onSuccess, onFailure);
           }
+        }
+      });
+    };
 
-          onSuccess({
-            htmlId: `card-details-cardlet_${ownProps.id}`,
-            eformExists: true,
-            nodeRef: ownProps.nodeRef,
-            column: ownProps.column,
-            hideTwister: ownProps.controlProps.hideTwister,
-            header: t(ownProps.controlProps.header || 'cardlets.node-view.twister-header')
-          });
+    Records.get('ecos-config@ecos-forms-card-enable')
+      .load('.bool')
+      .then(isEnabled => {
+        if (!isEnabled) {
+          return RemoteCardlet.fetchData(ownProps, onSuccess, onFailure);
         }
-      },
-      failureCallback: {
-        fn: function(response) {
-          RemoteCardlet.fetchData(ownProps, onSuccess, onFailure);
-        }
-      }
-    });
+
+        openEcosFormIfExists();
+      })
+      .catch(() => {
+        return RemoteCardlet.fetchData(ownProps, onSuccess, onFailure);
+      });
   }
 
   componentDidMount() {
@@ -77,6 +93,8 @@ export default class NodeViewFormCardlet extends NodeCardlet {
     const { eformExists, nodeRef, htmlId, header, column } = this.props.data;
     const { isReady } = this.state;
 
+    const isSmallMode = column === 'right';
+
     if (eformExists) {
       return (
         <div id={`${htmlId}-panel`} className="document-children document-details-panel">
@@ -99,9 +117,11 @@ export default class NodeViewFormCardlet extends NodeCardlet {
                 options={{
                   readOnly: true,
                   viewAsHtml: true,
+                  fullWidthColumns: isSmallMode,
                   viewAsHtmlConfig: {
-                    fullWidthColumns: column === 'right'
-                  }
+                    hidePanels: isSmallMode
+                  },
+                  formMode: FORM_MODE_EDIT
                 }}
               />
             ) : null}

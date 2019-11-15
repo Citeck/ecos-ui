@@ -1,18 +1,19 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { isEmpty, uniqueId } from 'lodash';
-import { Scrollbars } from 'react-custom-scrollbars';
-import { getOutputFormat, t } from '../../helpers/util';
+import uniqueId from 'lodash/uniqueId';
+import isEmpty from 'lodash/isEmpty';
+
+import { getOutputFormat, isLastItem, t } from '../../helpers/util';
 import * as ArrayOfObjects from '../../helpers/arrayOfObjects';
 import { Grid } from '../common/grid';
-import { Loader, Separator } from '../common';
+import { InfoText, Loader, Separator } from '../common';
 import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
 import CurrentTaskInfo from './CurrentTaskInfo';
 import IconInfo from './IconInfo';
 
 class CurrentTaskList extends React.Component {
   static propTypes = {
-    currentTasks: PropTypes.arrayOf(CurrentTaskPropTypes).isRequired,
+    currentTasks: PropTypes.arrayOf(PropTypes.shape(CurrentTaskPropTypes)).isRequired,
     className: PropTypes.string,
     height: PropTypes.string,
     isSmallMode: PropTypes.bool,
@@ -29,29 +30,15 @@ class CurrentTaskList extends React.Component {
     isLoading: false
   };
 
-  className = 'ecos-current-task-list';
-
-  renderLoader() {
-    return (
-      <div className={`${this.className}__loader-wrapper`}>
-        <Loader />
-      </div>
-    );
-  }
-
-  renderEmpty() {
-    return <div className={this.className + '_empty'}>{t('current-tasks-widget.no-tasks')}</div>;
-  }
-
   renderEnum() {
     const { currentTasks, isMobile } = this.props;
 
     return (
-      <div className={`${this.className}_view-enum`}>
+      <div className="ecos-current-task-list_view-enum">
         {currentTasks.map((item, i) => (
           <React.Fragment key={item.id + i}>
             <CurrentTaskInfo task={item} isMobile={isMobile} />
-            <Separator noIndents />
+            {!isLastItem(currentTasks, i) && <Separator noIndents />}
           </React.Fragment>
         ))}
       </div>
@@ -63,9 +50,15 @@ class CurrentTaskList extends React.Component {
     const formatTasks = currentTasks.map((task, i) => ({
       [DC.title.key]: task[DC.title.key] || noData,
       [DC.actors.key]: (
-        <React.Fragment>
+        <React.Fragment key={uniqueId(cleanTaskId(task.id))}>
           {task[DC.actors.key] || noData}
-          <IconInfo iconClass={'icon-usergroup'} id={uniqueId(cleanTaskId(task.id))} text={task.usersGroup} isShow={task.isGroup} />
+          <IconInfo iconClass={'icon-usergroup'} id={uniqueId(cleanTaskId(task.id))} isShow={task.isGroup}>
+            {task.usersGroup.map((user, position) => (
+              <div key={position} className="ecos-current-task__tooltip-list-item">
+                {user}
+              </div>
+            ))}
+          </IconInfo>
         </React.Fragment>
       ),
       [DC.deadline.key]: getOutputFormat(DC.deadline.format, task[DC.deadline.key]) || noData
@@ -75,19 +68,19 @@ class CurrentTaskList extends React.Component {
     const updCols = ArrayOfObjects.replaceKeys(cols, { key: 'dataField', label: 'text' });
     const gridCols = ArrayOfObjects.filterKeys(updCols, ['dataField', 'text']);
 
-    return <Grid data={formatTasks} columns={gridCols} scrollable={true} className={`${this.className}_view-table`} />;
+    return <Grid data={formatTasks} columns={gridCols} scrollable={false} className="ecos-current-task-list_view-table" />;
   }
 
-  renderSwitch() {
+  render() {
     const { isSmallMode, isLoading, currentTasks, isMobile } = this.props;
     const isEmptyList = isEmpty(currentTasks);
 
     if (isLoading) {
-      return this.renderLoader();
+      return <Loader className="ecos-current-task-list__loader" />;
     }
 
     if (isEmptyList) {
-      return this.renderEmpty();
+      return <InfoText text={t('current-tasks-widget.no-tasks')} />;
     }
 
     if (isSmallMode || isMobile) {
@@ -95,20 +88,6 @@ class CurrentTaskList extends React.Component {
     }
 
     return this.renderTable();
-  }
-
-  render() {
-    const { height } = this.props;
-
-    return (
-      <Scrollbars
-        style={{ height }}
-        className={this.className}
-        renderTrackVertical={props => <div {...props} className={`${this.className}__v-scroll`} />}
-      >
-        {this.renderSwitch()}
-      </Scrollbars>
-    );
   }
 }
 

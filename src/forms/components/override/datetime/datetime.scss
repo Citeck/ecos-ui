@@ -27,9 +27,31 @@
 
         &:before {
           font-family: $font-family-citeck;
-          content: '\46';
+          content: $citeck-icon-calendar;
           display: inline-block;
           line-height: $form-input-height;
+        }
+      }
+    }
+
+    &.has-error {
+      .form-control {
+        border-color: $color-red-1;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='11' viewBox='0 0 12 11' fill='none'%3E%3Cpath d='M6 0C6.4 0 6.7 0.2 6.9 0.5L11.9 9.5C12 9.8 12 10.2 11.9 10.5 11.7 10.8 11.4 11 11 11H1C0.6 11 0.3 10.8 0.1 10.5 0 10.2 0 9.8 0.1 9.5L5.1 0.5C5.3 0.2 5.6 0 6 0ZM2.7 9H9.3L6 3.1 2.7 9Z' fill='%23FF5721'/%3E%3C/svg%3E%0A");
+        background-position: top 12px right 12px;
+        background-size: 12px;
+        background-repeat: no-repeat;
+        cursor: help;
+
+        &:focus {
+          box-shadow: none;
+          border-color: $color-red-1;
+        }
+      }
+
+      .input-group-addon .input-group-text {
+        .glyphicon-calendar {
+          color: $color-red-1;
         }
       }
     }

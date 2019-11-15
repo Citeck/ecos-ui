@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { TableFormContext, FORM_MODE_CREATE } from '../../TableFormContext';
-import EcosForm from '../../../../../EcosForm/EcosForm';
+import { TableFormContext } from '../../TableFormContext';
+import EcosForm, { FORM_MODE_CREATE } from '../../../../../EcosForm/EcosForm';
 import EcosModal from '../../../../EcosModal';
 import { t } from '../../../../../../helpers/util';
 import Records from '../../../../../Records';
@@ -8,10 +8,13 @@ import Records from '../../../../../Records';
 const ModalForm = () => {
   const context = useContext(TableFormContext);
   const { record, formMode, isModalFormOpen, toggleModal, onCreateFormSubmit, onEditFormSubmit, controlProps } = context;
-  const { parentForm } = controlProps;
+  const { parentForm, isStaticModalTitle } = controlProps;
 
-  const [displayName, setDisplayName] = useState();
+  const [displayName, setDisplayName] = useState('');
   useEffect(() => {
+    if (isStaticModalTitle) {
+      return;
+    }
     Records.get(record)
       .load('.disp')
       .then(disp => setDisplayName(disp));

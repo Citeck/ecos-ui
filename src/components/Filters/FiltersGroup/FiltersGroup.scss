@@ -1,4 +1,4 @@
-@import '../../../constants';
+@import '../../../styles/constants';
 
 .ecos-filters-group {
 }
@@ -29,4 +29,9 @@
 
 .ecos-filters-group__empty {
   height: 40px;
+}
+
+.ecos-filters-group__delete-btn {
+  position: absolute;
+  right: 0;
 }

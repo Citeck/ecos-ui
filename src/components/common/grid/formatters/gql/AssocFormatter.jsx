@@ -1,10 +1,27 @@
 import React, { Fragment } from 'react';
+import { isNodeRef } from '../../../../../helpers/util';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 import Records from '../../../../../components/Records';
+import { AssocEditor } from '../../editors';
 
 export default class AssocFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {
-    return `${attribute}?assoc`;
+    return `.att(n:"${attribute}"){disp,assoc}`;
+  }
+
+  static getEditor(editorProps, value, row, column) {
+    return <AssocEditor {...editorProps} value={value} column={column} />;
+  }
+
+  value(cell) {
+    if (typeof cell === 'string') {
+      return cell;
+    }
+    return cell.disp || '';
+  }
+
+  getId(cell) {
+    return cell.assoc || '';
   }
 
   state = {
@@ -13,18 +30,17 @@ export default class AssocFormatter extends DefaultGqlFormatter {
 
   componentDidMount() {
     let cell = this.props.cell;
-    if (cell) {
+
+    if (isNodeRef(cell)) {
       Records.get(cell)
         .load('.disp')
-        .then(displayName => {
-          this.setState({
-            displayName
-          });
-        });
+        .then(displayName => this.setState({ displayName }));
+    } else {
+      this.setState({ displayName: this.value(cell || {}) });
     }
   }
 
   render() {
-    return <Fragment>{this.state.displayName || this.props.cell}</Fragment>;
+    return <Fragment>{this.state.displayName}</Fragment>;
   }
 }

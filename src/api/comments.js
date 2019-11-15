@@ -1,4 +1,5 @@
 import { RecordService } from './recordService';
+import { SourcesId } from '../constants';
 
 export class CommentsApi extends RecordService {
   getAll = record => {
@@ -7,7 +8,7 @@ export class CommentsApi extends RecordService {
         query: {
           record
         },
-        sourceId: 'comment'
+        sourceId: SourcesId.COMMENT
       },
       {
         text: 'text',
@@ -31,7 +32,7 @@ export class CommentsApi extends RecordService {
           skipCount,
           maxItems
         },
-        sourceId: 'comment'
+        sourceId: SourcesId.COMMENT
       },
       {
         text: 'text',

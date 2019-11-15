@@ -4,11 +4,19 @@ import {
   getAvailableToChangeStatuses,
   getCheckDocStatus,
   getDocStatus,
+  initDocStatus,
+  resetDocStatus,
   setAvailableToChangeStatuses,
   setCheckDocStatus,
-  setDocStatus
+  setDocStatus,
+  updateDocStatus,
+  updateRequestDocStatus
 } from '../actions/docStatus';
 import { getCurrentStateById } from '../helpers/redux';
+
+const commonInitialState = {
+  updateRequestRecord: null
+};
 
 const initialState = {
   isLoading: false,
@@ -35,6 +43,12 @@ const increaseAttempt = (state, stateId) => {
 
 export default handleActions(
   {
+    [initDocStatus]: (state, { payload: { stateId } }) => ({
+      ...state,
+      [stateId]: {
+        ...initialState
+      }
+    }),
     [getDocStatus]: startLoading,
     [getAvailableToChangeStatuses]: startLoading,
     [getCheckDocStatus]: (state, { payload: { stateId } }) => ({
@@ -54,6 +68,21 @@ export default handleActions(
         isUpdating: true,
         countAttempt: 0
       }
+    }),
+    [updateRequestDocStatus]: (state, { payload: { record } }) => ({
+      ...state,
+      updateRequestRecord: record
+    }),
+    [updateDocStatus]: (state, { payload: { stateId } }) => ({
+      ...state,
+      [stateId]: {
+        ...getCurrentStateById(state, stateId, initialState),
+        status: {},
+        isLoading: false,
+        isUpdating: false,
+        countAttempt: 0
+      },
+      updateRequestRecord: null
     }),
     [setDocStatus]: (state, { payload: { stateId, status } }) => ({
       ...state,
@@ -78,7 +107,12 @@ export default handleActions(
         isUpdating,
         isLoading: false
       }
-    })
+    }),
+    [resetDocStatus]: (state, { payload: { stateId } }) => {
+      delete state[stateId];
+
+      return state;
+    }
   },
-  {}
+  commonInitialState
 );

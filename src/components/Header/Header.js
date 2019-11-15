@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
@@ -8,6 +9,7 @@ import HamburgerIcon from './HamburgerIcon';
 import UserMenu from './UserMenu';
 import SiteMenu from './SiteMenu';
 import Search from './Search';
+import LanguageSwitcher from './LanguageSwitcher';
 import { MENU_TYPE } from '../../constants';
 
 import './style.scss';
@@ -26,12 +28,11 @@ const mapDispatchToProps = dispatch => ({
 
 const mapStateToProps = state => ({
   isMobile: state.view.isMobile,
-  menuType: state.menu.type
+  theme: state.view.theme,
+  menuType: state.menu ? state.menu.type : ''
 });
 
 class Header extends React.Component {
-  className = 'ecos-header';
-
   state = {
     widthHeader: 0
   };
@@ -58,21 +59,24 @@ class Header extends React.Component {
 
   render() {
     const { widthHeader } = this.state;
-    const { isMobile } = this.props;
-    const classNameContainer = classNames(this.className, { [`${this.className}_small`]: isMobile });
-    const classNameSide = `${this.className}__side`;
+    const { isMobile, hideSiteMenu, theme } = this.props;
+    const classNameContainer = classNames('ecos-header', `ecos-header_theme_${theme}`, {
+      'ecos-header_small': isMobile
+    });
+    const classNameSide = 'ecos-header__side';
 
     return (
       <React.Fragment>
         <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
         <div className={classNameContainer}>
           <div className={`${classNameSide} ${classNameSide}_left`}>
-            <HamburgerIcon />
+            <HamburgerIcon theme={theme} />
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className={`${classNameSide} ${classNameSide}_right`}>
             <Search isMobile={widthHeader <= 600} />
-            {isMobile || (widthHeader > 600 && <SiteMenu />)}
+            {hideSiteMenu || isMobile || (widthHeader > 600 && <SiteMenu />)}
+            {isMobile || (widthHeader > 600 && <LanguageSwitcher theme={theme} />)}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
           </div>
         </div>
@@ -80,6 +84,10 @@ class Header extends React.Component {
     );
   }
 }
+
+Header.propTypes = {
+  hideSiteMenu: PropTypes.bool
+};
 
 export default connect(
   mapStateToProps,

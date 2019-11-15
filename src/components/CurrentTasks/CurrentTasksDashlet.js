@@ -1,8 +1,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import ReactResizeDetector from 'react-resize-detector';
-import { isSmallMode, t } from '../../helpers/util';
+
+import { getAdaptiveNumberStr, isSmallMode, t } from '../../helpers/util';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import CurrentTasks from './CurrentTasks';
 
@@ -29,41 +30,86 @@ class CurrentTasksDashlet extends React.Component {
     canDragging: false
   };
 
-  className = 'ecos-current-task-list-dashlet';
+  constructor(props) {
+    super(props);
 
-  state = {
-    isSmallMode: false,
-    isUpdating: false
-  };
+    UserLocalSettingsService.checkOldData(props.id);
+
+    this.state = {
+      isSmallMode: false,
+      isUpdating: false,
+      fitHeights: {},
+      height: UserLocalSettingsService.getDashletHeight(props.id),
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
+      totalCount: 0,
+      isLoading: true
+    };
+  }
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
+  };
+
+  onChangeHeight = height => {
+    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    this.setState({ height });
   };
 
   onReload = () => {
     this.setState({ isUpdating: true }, () => this.setState({ isUpdating: false }));
   };
 
+  setFitHeights = fitHeights => {
+    this.setState({ fitHeights });
+  };
+
+  handleToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+  };
+
+  setInfo = data => {
+    this.setState(data);
+  };
+
   render() {
-    const { id, title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isUpdating } = this.state;
-    const classDashlet = classNames(this.className, classNameDashlet);
+    const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
+    const { isSmallMode, isUpdating, height, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
+    const classDashlet = classNames('ecos-current-task-list-dashlet', classNameDashlet);
 
     return (
       <Dashlet
         title={title || t('current-tasks-widget.title')}
-        bodyClassName={`${this.className}__body`}
+        bodyClassName="ecos-current-task-list-dashlet__body"
         className={classDashlet}
-        resizable={true}
+        resizable
         onReload={this.onReload}
         needGoTo={false}
         actionEdit={false}
         canDragging={canDragging}
         actionHelp={false}
         dragHandleProps={dragHandleProps}
+        onChangeHeight={this.onChangeHeight}
+        getFitHeights={this.setFitHeights}
+        onResize={this.onResize}
+        onToggleCollapse={this.handleToggleContent}
+        isCollapsed={isCollapsed}
+        badgeText={getAdaptiveNumberStr(totalCount)}
+        noBody={!totalCount && !isLoading}
       >
-        <ReactResizeDetector handleWidth onResize={this.onResize} />
-        {!isUpdating && <CurrentTasks {...config} className={classNameTasks} record={record} isSmallMode={isSmallMode} stateId={id} />}
+        {!isUpdating && (
+          <CurrentTasks
+            {...config}
+            className={classNameTasks}
+            record={record}
+            isSmallMode={isSmallMode}
+            stateId={record}
+            height={height}
+            minHeight={fitHeights.min}
+            maxHeight={fitHeights.max}
+            setInfo={this.setInfo}
+          />
+        )}
       </Dashlet>
     );
   }

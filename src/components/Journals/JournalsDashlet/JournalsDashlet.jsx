@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -9,12 +9,14 @@ import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletFooter from '../JournalsDashletFooter';
 import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet/Dashlet';
-import { getDashletConfig, initState, reloadGrid, setEditorMode } from '../../../actions/journals';
+import queryString from 'query-string';
+import { getDashletConfig, initState, reloadGrid, setEditorMode, setRecordRef } from '../../../actions/journals';
 import { goToJournalsPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
 import { MIN_WIDTH_DASHLET_SMALL, MIN_WIDTH_DASHLET_LARGE } from '../../../constants';
 
 import './JournalsDashlet.scss';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId || props.id] || {};
@@ -33,6 +35,7 @@ const mapDispatchToProps = (dispatch, props) => {
     initState: stateId => dispatch(initState(stateId)),
 
     getDashletConfig: id => dispatch(getDashletConfig(w(id))),
+    setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
     reloadGrid: options => dispatch(reloadGrid(w(options)))
   };
@@ -48,24 +51,34 @@ class JournalsDashlet extends Component {
     dragHandleProps: {}
   };
 
-  state = {
-    width: MIN_WIDTH_DASHLET_SMALL
-  };
-
   constructor(props) {
     super(props);
 
     this._stateId = props.stateId || props.id;
+    this.state = {
+      width: MIN_WIDTH_DASHLET_SMALL,
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
+    };
 
     this.props.initState(this._stateId);
+
+    this.recordRef = queryString.parse(window.location.search).recordRef;
   }
 
   componentDidMount() {
-    this.props.getDashletConfig(this.props.id);
+    const { setRecordRef, getDashletConfig, id } = this.props;
+
+    setRecordRef(this.recordRef);
+    getDashletConfig(id);
   }
 
   handleResize = width => {
     this.setState({ width });
+  };
+
+  handleToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
   };
 
   showEditor = () => this.props.setEditorMode(true);
@@ -74,17 +87,51 @@ class JournalsDashlet extends Component {
     const {
       config: { journalsListId = '', journalSettingId = '' },
       journalConfig: {
-        id = '',
         meta: { nodeRef = '' }
       }
     } = this.props;
 
-    goToJournalsPage({ journalsListId, journalId: id, journalSettingId, nodeRef });
+    goToJournalsPage({ journalsListId, journalId: nodeRef, journalSettingId, nodeRef });
   };
 
-  render() {
-    const { journalConfig, className, id, editorMode, reloadGrid, dragHandleProps } = this.props;
+  renderEditor() {
+    const { editorMode, id } = this.props;
+
+    if (!editorMode) {
+      return null;
+    }
+
+    return (
+      <Measurer>
+        <JournalsDashletEditor id={id} stateId={this._stateId} recordRef={this.recordRef} />
+      </Measurer>
+    );
+  }
+
+  renderJournal() {
+    const { editorMode } = this.props;
     const { width } = this.state;
+
+    if (editorMode) {
+      return null;
+    }
+
+    return (
+      <>
+        <Measurer>
+          <JournalsDashletToolbar stateId={this._stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
+        </Measurer>
+
+        <JournalsDashletGrid stateId={this._stateId} />
+
+        <JournalsDashletFooter stateId={this._stateId} />
+      </>
+    );
+  }
+
+  render() {
+    const { journalConfig, className, reloadGrid, dragHandleProps } = this.props;
+    const { width, isCollapsed } = this.state;
 
     if (!journalConfig) {
       return null;
@@ -105,22 +152,11 @@ class JournalsDashlet extends Component {
         }}
         onResize={this.handleResize}
         dragHandleProps={dragHandleProps}
+        onToggleCollapse={this.handleToggleContent}
+        isCollapsed={isCollapsed}
       >
-        {editorMode ? (
-          <Measurer>
-            <JournalsDashletEditor id={id} stateId={this._stateId} />
-          </Measurer>
-        ) : (
-          <Fragment>
-            <Measurer>
-              <JournalsDashletToolbar stateId={this._stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
-            </Measurer>
-
-            <JournalsDashletGrid stateId={this._stateId} />
-
-            <JournalsDashletFooter stateId={this._stateId} />
-          </Fragment>
-        )}
+        {this.renderEditor()}
+        {this.renderJournal()}
       </Dashlet>
     );
   }

@@ -2,6 +2,7 @@ import React, { Component, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
+import { NotificationContainer } from 'react-notifications';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
@@ -9,32 +10,23 @@ import Header from '../Header';
 import Notification from '../Notification';
 import SlideMenu from '../SlideMenu';
 import ReduxModal from '../ReduxModal';
-import Footer from '../Footer';
-import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 
-import { getShowTabsStatus, getTabs, setTabs, changeActiveTab } from '../../actions/pageTabs';
+import { changeActiveTab, getActiveTabTitle, getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
 import { MENU_TYPE, URL } from '../../constants';
 
 import './App.scss';
+
+const LoginForm = lazy(() => import('../LoginForm'));
 
 const BPMNDesignerPage = lazy(() => import('../../pages/BPMNDesignerPage'));
 const DashboardPage = lazy(() => import('../../pages/Dashboard'));
 const DashboardSettingsPage = lazy(() => import('../../pages/DashboardSettings'));
 const JournalsPage = lazy(() => import('../../pages/JournalsPage'));
 
-const CardDetailsPage = lazy(() => import('../../pages/CardDetailsPage'));
-const DocPreviewPage = lazy(() => import('../../pages/debug/DocPreview'));
-const JournalsDashboardPage = lazy(() => import('../../pages/debug/JournalsDashboardPage'));
-const PropertiesPage = lazy(() => import('../../pages/debug/Properties/PropertiesPage'));
-const TasksDashletPage = lazy(() => import('../../pages/debug/Tasks/TasksDashletPage'));
 const EcosFormPage = lazy(() => import('../../pages/debug/EcosFormPage'));
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
-const CommentsWidgetPage = lazy(() => import('../../pages/debug/CommentsWidget'));
-const CurrentTasksPage = lazy(() => import('../../pages/debug/CurrentTasks/CurrentTasksPage'));
-const DocStatusPage = lazy(() => import('../../pages/debug/DocStatus/DocStatusPage'));
-const BarcodePage = lazy(() => import('../../pages/debug/Barcode/BarcodePage'));
 
 class App extends Component {
   componentDidMount() {
@@ -57,7 +49,19 @@ class App extends Component {
   }
 
   render() {
-    const { changeActiveTab, isInit, isInitFailure, isAuthenticated, isMobile, theme, isShow, tabs, setTabs } = this.props;
+    const {
+      changeActiveTab,
+      isInit,
+      isInitFailure,
+      isAuthenticated,
+      isMobile,
+      isShow,
+      tabs,
+      setTabs,
+      getActiveTabTitle,
+      isLoadingTitle,
+      theme
+    } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -70,7 +74,11 @@ class App extends Component {
     }
 
     if (!isAuthenticated) {
-      return <LoginForm />;
+      return (
+        <Suspense fallback={null}>
+          <LoginForm theme={theme} />
+        </Suspense>
+      );
     }
 
     const appClassNames = classNames('app-container', { mobile: isMobile });
@@ -85,7 +93,15 @@ class App extends Component {
             <Notification />
           </div>
 
-          <PageTabs homepageLink={URL.DASHBOARD} isShow={isShow} tabs={tabs} saveTabs={setTabs} changeActiveTab={changeActiveTab} />
+          <PageTabs
+            homepageLink={URL.DASHBOARD}
+            isShow={isShow && !isMobile}
+            tabs={tabs}
+            saveTabs={setTabs}
+            changeActiveTab={changeActiveTab}
+            getActiveTabTitle={getActiveTabTitle}
+            isLoadingTitle={isLoadingTitle}
+          />
 
           {this.renderMenu()}
 
@@ -99,26 +115,16 @@ class App extends Component {
               <Route path={URL.DASHBOARD} exact component={DashboardPage} />
               <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
               <Route path={URL.JOURNAL} component={JournalsPage} />
-              {/*<Route component={NotFoundPage} />*/}
               {/* temporary routes */}
-              <Route path={URL.JOURNAL_OLD} component={JournalsPage} />
-              <Route path={URL.CARD_DETAILS} component={CardDetailsPage} />
-              <Route path={URL.JOURNAL_DASHBOARD} component={JournalsDashboardPage} />
-              <Route path={URL.WIDGET_DOC_PREVIEW} component={DocPreviewPage} />
-              <Route path={URL.WIDGET_PROPERTIES} component={PropertiesPage} />
-              <Route path={URL.WIDGET_COMMENTS} component={CommentsWidgetPage} />
-              <Route path={URL.WIDGET_TASKS} exact component={TasksDashletPage} />
-              <Route path={URL.CURRENT_TASKS} component={CurrentTasksPage} />
-              <Route path={URL.WIDGET_DOC_STATUS} exact component={DocStatusPage} />
-              <Route path={URL.WIDGET_BARCODE} component={BarcodePage} />
               <Route path="/v2/debug/formio-develop" component={FormIOPage} />
               <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
+
+              {/*<Route component={NotFoundPage} />*/}
             </Switch>
           </Suspense>
-
-          <div className="sticky-push" />
         </div>
-        <Footer key="card-details-footer" theme={theme} />
+
+        <NotificationContainer />
       </div>
     );
   }
@@ -132,6 +138,7 @@ const mapStateToProps = state => ({
   isAuthenticated: get(state, ['user', 'isAuthenticated']),
   isShow: get(state, ['pageTabs', 'isShow']),
   tabs: get(state, ['pageTabs', 'tabs']),
+  isLoadingTitle: get(state, ['pageTabs', 'isLoadingTitle']),
   menuType: get(state, ['menu', 'type'])
 });
 
@@ -140,6 +147,7 @@ const mapDispatchToProps = dispatch => ({
   getTabs: () => dispatch(getTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
   changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
+  getActiveTabTitle: () => dispatch(getActiveTabTitle()),
   initMenuSettings: () => dispatch(initMenuSettings())
 });
 

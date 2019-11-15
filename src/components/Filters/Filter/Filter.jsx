@@ -33,11 +33,13 @@ export default class Filter extends Component {
       filter: {
         meta: { column },
         predicate
-      }
+      },
+      sourceId,
+      metaRecord
     } = this.props;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
-    const predicateInput = getPredicateInput(column);
+    const predicateInput = getPredicateInput(column, sourceId, metaRecord);
     const predicateProps = predicateInput.getProps({
       predicateValue: predicate.val,
       changePredicateValue: this.changeValue,

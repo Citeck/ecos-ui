@@ -1,0 +1,9 @@
+.ecos-form-modal {
+  &__btn {
+    &-settings {
+      & .icon-settings {
+        font-size: 16px;
+      }
+    }
+  }
+}

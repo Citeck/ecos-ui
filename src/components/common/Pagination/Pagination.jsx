@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import { PAGINATION_SIZES } from '../../../components/Journals/constants';
+import Select from '../../common/form/Select';
 import { IcoBtn } from '../../common/btns';
 import { t } from '../../../helpers/util';
 
@@ -27,16 +29,17 @@ export default class Pagination extends Component {
   };
 
   prev = () => {
-    this.min > 1 && this.triggerChange(this.props.page - 1);
+    const { page, maxItems } = this.props;
+    this.min > 1 && this.triggerChange(page - 1, maxItems);
   };
 
   next = () => {
-    const { total, page } = this.props;
-    this.max < total && this.triggerChange(page + 1);
+    const { total, page, maxItems } = this.props;
+    this.max < total && this.triggerChange(page + 1, maxItems);
   };
 
-  triggerChange = page => {
-    const { onChange, maxItems } = this.props;
+  triggerChange = (page, maxItems) => {
+    const { onChange } = this.props;
     if (typeof onChange === 'function') {
       onChange({
         skipCount: (page - 1) * maxItems,
@@ -46,10 +49,31 @@ export default class Pagination extends Component {
     }
   };
 
+  onChangeMaxItems = item => {
+    const maxItems = item.value;
+    const page = Math.ceil(this.min / maxItems);
+
+    this.triggerChange(page, maxItems);
+  };
+
+  getPageSize = () => {
+    const { maxItems, sizes } = this.props;
+    let value = sizes.filter(s => s.value === maxItems)[0];
+
+    if (!value) {
+      value = { value: maxItems, label: maxItems };
+      sizes.push(value);
+    }
+
+    return { value, sizes };
+  };
+
   render() {
-    const { maxItems, total, page, className } = this.props;
+    const { maxItems, total, page, className, hasPageSize } = this.props;
 
     this.calculate(page, maxItems, total);
+
+    const { value: pageSizeValue, sizes } = this.getPageSize();
 
     if (!total) {
       return null;
@@ -70,10 +94,26 @@ export default class Pagination extends Component {
         />
         <IcoBtn
           icon={'icon-right'}
-          className={'ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue'}
+          className={`ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue pagination__text ${
+            hasPageSize ? 'pagination__step' : ''
+          }`}
           onClick={this.next}
         />
+
+        {hasPageSize ? (
+          <Select
+            className={'select_narrow pagination__page-size select_page-size'}
+            options={sizes}
+            value={pageSizeValue}
+            onChange={this.onChangeMaxItems}
+            menuPlacement={'auto'}
+          />
+        ) : null}
       </div>
     );
   }
 }
+
+Pagination.defaultProps = {
+  sizes: PAGINATION_SIZES
+};

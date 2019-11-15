@@ -1,14 +1,35 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 import ReactLoader from 'react-loader-spinner';
 
 import './Loader.scss';
 
 export default class Loader extends Component {
+  static propTypes = {
+    height: PropTypes.number,
+    width: PropTypes.number,
+    className: PropTypes.string,
+    blur: PropTypes.bool,
+    darkened: PropTypes.bool,
+    rounded: PropTypes.bool
+  };
+
+  static defaultProps = {
+    height: 45,
+    width: 45,
+    className: '',
+    blur: false,
+    darkened: false,
+    rounded: false
+  };
+
   render() {
-    const { className, blur, height = '100', width = '100' } = this.props;
+    const { className, blur, darkened, height, width, rounded } = this.props;
     const cssClasses = classNames('ecos-loader', className, {
-      'ecos-loader_blur': blur
+      'ecos-loader_blur': blur,
+      'ecos-loader_darkened': darkened,
+      'ecos-loader_rounded': rounded
     });
 
     return (

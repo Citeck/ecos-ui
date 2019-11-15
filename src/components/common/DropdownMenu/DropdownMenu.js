@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { deepClone } from '../../../helpers/util';
 import DropdownMenuCascade from './DropdownMenuCascade';
 import DropdownMenuGroup from './DropdownMenuGroup';
 import { DropdownMenuItem } from './index';
@@ -15,38 +16,60 @@ const MenuModes = {
 
 export default class DropdownMenu extends React.Component {
   static propTypes = {
-    isCascade: PropTypes.bool,
-    isGroup: PropTypes.bool,
-    showLabel: PropTypes.bool,
-    showSeparator: PropTypes.bool,
     items: PropTypes.array,
-    mode: PropTypes.oneOf([MenuModes.CASCADE, MenuModes.GROUP, MenuModes.LIST])
+    mode: PropTypes.oneOf([MenuModes.CASCADE, MenuModes.GROUP, MenuModes.LIST]),
+    setGroup: PropTypes.shape({
+      showGroupName: PropTypes.bool,
+      showSeparator: PropTypes.bool
+    }),
+    setCascade: PropTypes.shape({
+      collapseOneItem: PropTypes.bool
+    }),
+    onClick: PropTypes.func
   };
 
   static defaultProps = {
-    isCascade: false,
-    isGroup: false,
-    showLabel: false,
-    showSeparator: false,
     items: [],
-    mode: MenuModes.LIST
+    mode: MenuModes.LIST,
+    setGroup: {
+      showGroupName: false,
+      showSeparator: false
+    },
+    setCascade: {
+      collapseOneItem: false
+    }
   };
 
   renderMode() {
-    const { mode, items, showLabel, showSeparator, ...someProps } = this.props;
+    const { mode, items, setGroup, setCascade, onClick, ...someProps } = this.props;
+
+    let menu = deepClone(items, []);
+
+    if (mode === MenuModes.CASCADE && setCascade.collapseOneItem) {
+      menu = menu.map(item => {
+        if (item.items && item.items.length === 1) {
+          return item.items[0];
+        }
+
+        return item;
+      });
+    }
 
     switch (mode) {
       case MenuModes.CASCADE:
-        return <DropdownMenuCascade groups={items} />;
-      case MenuModes.GROUP:
-        return <DropdownMenuGroup groups={items} showLabel={showLabel} showSeparator={showSeparator} />;
+        return <DropdownMenuCascade groups={menu} onClick={onClick} />;
+      case MenuModes.GROUP: {
+        const { showGroupName, showSeparator } = setGroup;
+
+        return <DropdownMenuGroup groups={menu} showGroupName={showGroupName} showSeparator={showSeparator} />;
+      }
       case MenuModes.LIST:
       default:
-        return items.map((item, key) => <DropdownMenuItem key={key} data={item} {...someProps} />);
+        return menu.map((item, key) => <DropdownMenuItem key={key} data={item} onClick={onClick} {...someProps} />);
     }
   }
 
   render() {
-    return <div className={'ecos-dropdown-menu'}>{this.renderMode()}</div>;
+    return <div className="ecos-dropdown-menu">{this.renderMode()}</div>;
   }
 }

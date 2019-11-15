@@ -24,6 +24,14 @@
           font-weight: $font-weight-normal;
           line-height: 38px;
 
+          &.col-md-9 {
+            //line-height: 1em;
+            //align-self: center;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+
           padding: 3px 10px;
 
           select {
@@ -73,6 +81,25 @@
     .alert.alert-warning {
       margin-top: 5px;
     }
+  }
+}
+
+.file-list-view-mode {
+  background: $color-gray-4;
+  border-radius: $border-radius-standard;
+  padding: 5px 15px;
+  margin: 0 0 0 -15px;
+
+  &_hide-label {
+    margin-left: 0;
+  }
+}
+
+.file-item_view-mode {
+  margin-bottom: 7px;
+
+  &:last-child {
+    margin-bottom: 0;
   }
 }
 

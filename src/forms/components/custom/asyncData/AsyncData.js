@@ -4,6 +4,8 @@ import Formio from 'formiojs/Formio';
 
 import Records from '../../../../components/Records';
 
+let ajaxGetCache = {};
+
 export default class AsyncDataComponent extends BaseComponent {
   static schema(...extend) {
     return BaseComponent.schema(
@@ -63,6 +65,10 @@ export default class AsyncDataComponent extends BaseComponent {
     };
   }
 
+  isReadyToSubmit() {
+    return this.activeAsyncActionsCounter === 0;
+  }
+
   get defaultSchema() {
     return AsyncDataComponent.schema();
   }
@@ -75,17 +81,26 @@ export default class AsyncDataComponent extends BaseComponent {
     return info;
   }
 
+  updatedOnce = false;
+
   checkConditions(data) {
     let result = super.checkConditions(data);
 
     let comp = this.component;
 
-    if (_.get(comp, 'update.type', '') !== 'any-change') {
-      return result;
-    }
+    const updateType = _.get(comp, 'update.type', '');
 
-    if (this.shouldUpdate) {
-      this._updateValue(false);
+    if (updateType === 'any-change') {
+      if (this.shouldExecute) {
+        this._updateValue(false);
+      }
+      return result;
+    } else if (updateType === 'once' && !this.updatedOnce) {
+      if (this.shouldExecute) {
+        this.updatedOnce = true;
+        this._updateValue(false);
+      }
+      return result;
     }
 
     return result;
@@ -95,7 +110,7 @@ export default class AsyncDataComponent extends BaseComponent {
     return false;
   }
 
-  get shouldUpdate() {
+  get shouldExecute() {
     let comp = this.component;
 
     if (comp.executionCondition) {
@@ -164,10 +179,7 @@ export default class AsyncDataComponent extends BaseComponent {
             if (recQueryConfig.isSingle) {
               return Records.queryOne(query, attributes);
             } else {
-              return Records.query({
-                query: query,
-                attributes: attributes
-              });
+              return Records.query(query, attributes);
             }
           },
           {},
@@ -199,24 +211,43 @@ export default class AsyncDataComponent extends BaseComponent {
               url = baseUrl + url;
             }
 
-            return fetch(url, {
-              method: ajaxConfig.method,
-              credentials: 'include',
-              headers: {
-                'Content-type': 'application/json;charset=UTF-8'
-              },
-              body: body
-            })
-              .then(response => {
+            const fetchData = (url, body, method) => {
+              return fetch(url, {
+                method: method,
+                credentials: 'include',
+                headers: {
+                  'Content-type': 'application/json;charset=UTF-8'
+                },
+                body: body
+              }).then(response => {
                 return response.json();
-              })
-              .then(response => {
-                if (ajaxConfig.mapping) {
-                  return self.evaluate(ajaxConfig.mapping, { data: response }, 'value', true);
-                } else {
-                  return response;
-                }
               });
+            };
+
+            const resultMapping = response => {
+              if (ajaxConfig.mapping) {
+                return self.evaluate(ajaxConfig.mapping, { data: response }, 'value', true);
+              } else {
+                return response;
+              }
+            };
+
+            if (ajaxConfig.method === 'GET') {
+              let valueFromCache = ajaxGetCache[url];
+              if (valueFromCache) {
+                return valueFromCache.then(resultMapping);
+              } else {
+                let value = fetchData(url, null, 'GET');
+                ajaxGetCache[url] = value;
+                if (Object.keys(ajaxGetCache).length > 100) {
+                  //avoid memory leak
+                  ajaxGetCache = {};
+                }
+                return value.then(resultMapping);
+              }
+            } else {
+              return fetchData(url, body, ajaxConfig.method).then(resultMapping);
+            }
           },
           null,
           forceUpdate
@@ -256,6 +287,21 @@ export default class AsyncDataComponent extends BaseComponent {
     if (forceUpdate || !_.isEqual(currentValue, data)) {
       this[dataField] = data;
 
+      this.activeAsyncActionsCounter++;
+
+      const setValue = value => {
+        if (data === self[dataField]) {
+          self.setValue(value);
+
+          //fix submit before all values calculated
+          setTimeout(() => {
+            self.activeAsyncActionsCounter--;
+          }, 200);
+        } else {
+          self.activeAsyncActionsCounter--;
+        }
+      };
+
       let actionImpl = () => {
         if (data === self[dataField]) {
           let result = action.call(self, data);
@@ -263,16 +309,18 @@ export default class AsyncDataComponent extends BaseComponent {
             if (result.then) {
               result
                 .then(data => {
-                  self.setValue(data);
+                  setValue(data);
                 })
                 .catch(e => {
                   console.warn(e);
-                  self.setValue(defaultValue);
+                  setValue(defaultValue);
                 });
             } else {
-              self.setValue(result);
+              setValue(result);
             }
           }
+        } else {
+          self.activeAsyncActionsCounter--;
         }
       };
 
@@ -287,6 +335,8 @@ export default class AsyncDataComponent extends BaseComponent {
   build() {
     super.build();
 
+    this.activeAsyncActionsCounter = 0;
+
     if (this.options.builder) {
       // We need to see it in builder mode.
       this.append(this.text(this.name + ' (' + this.key + ')'));
@@ -299,14 +349,15 @@ export default class AsyncDataComponent extends BaseComponent {
       this.on(
         this.component.update.event,
         () => {
-          if (this.shouldUpdate) {
+          if (this.shouldExecute) {
             const isForceUpdate = _.get(this.component, 'update.force', false);
             this._updateValue(isForceUpdate);
           }
         },
         true
       );
-    } else if (updateType === 'once') {
+    } else if (updateType === 'once' && !this.updatedOnce && this.shouldExecute) {
+      this.updatedOnce = true;
       this._updateValue(false);
     }
 
@@ -317,13 +368,11 @@ export default class AsyncDataComponent extends BaseComponent {
         event => {
           // console.log('changed event', event)
           if (
-            this.shouldUpdate &&
             event.changed &&
             event.changed.component &&
-            (refreshOn.findIndex(item => item.value === event.changed.component.key) !== -1) &
-              // Make sure the changed component is not in a different "context". Solves issues where refreshOn being set
-              // in fields inside EditGrids could alter their state from other rows (which is bad).
-              this.inContext(event.changed.instance)
+            refreshOn.findIndex(item => item.value === event.changed.component.key) !== -1 &&
+            this.inContext(event.changed.instance) && // Make sure the changed component is not in a different "context". Solves issues where refreshOn being set in fields inside EditGrids could alter their state from other rows (which is bad).
+            this.shouldExecute // !!! это условие должно быть последним в этом "if" во избежание ненужных вызовов this.shouldExecute
           ) {
             this._updateValue(false);
           }
@@ -333,9 +382,12 @@ export default class AsyncDataComponent extends BaseComponent {
     }
   }
 
-  viewOnlyBuild() {} // hide control for viewOnly mode
+  viewOnlyBuild() {
+    this.buildHiddenElement();
+  }
 
   createLabel() {}
+  createErrorElement() {}
 
   get emptyValue() {
     return {};

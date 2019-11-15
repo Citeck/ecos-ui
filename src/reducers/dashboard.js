@@ -1,23 +1,26 @@
 import { handleActions } from 'redux-actions';
 import {
+  getDashboardConfig,
+  resetDashboardConfig,
   setDashboardConfig,
   setDashboardIdentification,
   setDashboardTitleInfo,
-  setResultSaveDashboardConfig,
-  resetDashboardConfig
+  setLoading,
+  setMobileDashboardConfig,
+  setRequestResultDashboard
 } from '../actions/dashboard';
 import { changeActiveTab } from '../actions/pageTabs';
 
 const initialState = {
+  isLoading: false,
   identification: {
     key: null,
     id: null,
-    type: null
+    type: null,
+    user: null
   },
-  config: {
-    columns: [],
-    type: ''
-  },
+  config: [],
+  mobileConfig: [],
   titleInfo: {
     modifierName: '',
     modifierUrl: '',
@@ -25,8 +28,7 @@ const initialState = {
     name: '',
     version: ''
   },
-  isLoading: false,
-  saveResult: {
+  requestResult: {
     status: '',
     dashboardId: ''
   }
@@ -36,6 +38,19 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [getDashboardConfig]: state => {
+      return {
+        ...state,
+        isLoading: true
+      };
+    },
+    [changeActiveTab]: state => {
+      return {
+        ...state,
+        isLoading: true
+      };
+    },
+
     [setDashboardIdentification]: (state, { payload }) => {
       const { identification } = payload;
 
@@ -45,39 +60,43 @@ export default handleActions(
       };
     },
     [setDashboardConfig]: (state, { payload }) => {
-      const { ...config } = payload;
-
       return {
         ...state,
-        config,
+        config: payload,
         isLoading: false
       };
     },
-    [setResultSaveDashboardConfig]: (state, { payload }) => {
+    [setMobileDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
-        saveResult: payload,
+        mobileConfig: payload,
         isLoading: false
       };
     },
-    [changeActiveTab]: state => {
+    [setRequestResultDashboard]: (state, { payload }) => {
       return {
         ...state,
-        ...initialState,
-        isLoading: true
+        requestResult: payload,
+        isLoading: false
       };
     },
     [setDashboardTitleInfo]: (state, { payload }) => {
       return {
         ...state,
-        ...initialState,
         titleInfo: payload
       };
     },
+
     [resetDashboardConfig]: state => {
       return {
-        ...state,
         ...initialState
+      };
+    },
+
+    [setLoading]: (state, { payload }) => {
+      return {
+        ...state,
+        isLoading: payload
       };
     }
   },

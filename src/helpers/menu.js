@@ -1,5 +1,6 @@
+import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 import { URL } from '../constants';
-import { isEmpty } from 'lodash';
 
 export function processCreateVariantsItems(sites) {
   let menuItems = [];
@@ -25,14 +26,16 @@ export function processCreateVariantsItems(sites) {
   for (let site of sites) {
     let createVariants = [];
     for (let variant of site.createVariants) {
-      // variant.isDefault
       if (!variant.canCreate) {
         continue;
       }
       createVariants.push({
         id: 'HEADER_' + (site.siteId + '_' + variant.type).replace(/-/g, '_').toUpperCase(),
         label: variant.title,
-        targetUrl: '/share/page/node-create?type=' + variant.type + '&viewId=' + variant.formId + '&destination=' + variant.destination
+        control: {
+          type: 'ECOS_CREATE_VARIANT',
+          payload: variant
+        }
       });
     }
 
@@ -153,20 +156,27 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
   return siteMenuItems;
 }
 
-export function makeSiteMenu() {
-  return [
-    {
-      id: 'HOME_PAGE',
-      label: 'header.site-menu.home-page',
-      targetUrl: URL.DASHBOARD,
-      targetUrlType: 'FULL_PATH'
-    },
+export function makeSiteMenu(params = {}) {
+  const isDashboardPage = get(params, ['isDashboardPage'], false);
+  const menu = [
+    // {
+    //   id: 'HOME_PAGE',
+    //   label: 'header.site-menu.home-page',
+    //   targetUrl: URL.DASHBOARD,
+    //   targetUrlType: 'FULL_PATH'
+    // },
     {
       id: 'SETTINGS_HOME_PAGE',
-      label: 'header.site-menu.home-page-settings',
+      label: 'header.site-menu.page-settings',
       targetUrl: URL.DASHBOARD_SETTINGS,
       targetUrlType: 'FULL_PATH'
     },
+    // { //todo: when page will be
+    //   id: 'SETTINGS_HOME_PAGE',
+    //   label: 'header.site-menu.menu-settings',
+    //   targetUrl: URL.DASHBOARD_SETTINGS,
+    //   targetUrlType: 'FULL_PATH'
+    // },
     {
       id: 'GO_ADMIN_PAGE',
       label: 'header.site-menu.admin-page',
@@ -174,6 +184,16 @@ export function makeSiteMenu() {
       targetUrlType: 'FULL_PATH'
     }
   ];
+
+  return menu.filter(item => {
+    let status = true;
+
+    if (!isDashboardPage) {
+      status = item.id !== 'SETTINGS_HOME_PAGE';
+    }
+
+    return status;
+  });
 }
 
 export function getIconClassMenu(id, specialClass) {

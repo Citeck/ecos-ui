@@ -1,7 +1,47 @@
 import lodashGet from 'lodash/get';
 import moment from 'moment';
+import i18next from 'i18next';
 import { DataFormatTypes, MIN_WIDTH_DASHLET_LARGE } from '../constants';
+import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
 import * as queryString from 'query-string';
+
+const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
+
+export function getCookie(name) {
+  // eslint-disable-next-line
+  let matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
+  return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
+export function setCookie(name, value, options = {}) {
+  options = {
+    path: '/',
+    ...options
+  };
+
+  if (options.expires && options.expires.toUTCString) {
+    options.expires = options.expires.toUTCString();
+  }
+
+  let updatedCookie = encodeURIComponent(name) + '=' + encodeURIComponent(value);
+
+  for (let optionKey in options) {
+    updatedCookie += '; ' + optionKey;
+    let optionValue = options[optionKey];
+    if (optionValue !== true) {
+      updatedCookie += '=' + optionValue;
+    }
+  }
+
+  document.cookie = updatedCookie;
+}
+
+export const utcAsLocal = jsonDate =>
+  moment(jsonDate)
+    .utcOffset(0)
+    .format(UTC_AS_LOCAL_FORMAT);
+
+export const revokeUtcAsLocal = jsonDate => moment(jsonDate).format(UTC_AS_LOCAL_FORMAT) + 'Z';
 
 export const debounce = (func, ms = 0) => {
   let timer = null;
@@ -121,6 +161,11 @@ export function isMobileDevice() {
 }
 
 export function getCurrentLocale() {
+  const cookiesLocale = getCookie(COOKIE_KEY_LOCALE);
+  if (cookiesLocale) {
+    return cookiesLocale;
+  }
+
   if (!window.navigator) {
     return 'en';
   }
@@ -130,9 +175,11 @@ export function getCurrentLocale() {
   return language.substr(0, 2).toLowerCase();
 }
 
-export function dynamicallyLoadScript(url, callback) {
+export function loadScript(url, callback) {
   const script = document.createElement('script');
-  script.src = url;
+
+  const prefix = url.indexOf('?') === -1 ? '?' : '&v=';
+  script.src = `${url}${prefix}${process.env.REACT_APP_BUILD_VERSION}`;
 
   document.body.appendChild(script);
 
@@ -141,27 +188,28 @@ export function dynamicallyLoadScript(url, callback) {
   }
 }
 
-// TODO
-export function t(messageId, multipleValues, scope = 'global') {
-  // https://dev.alfresco.com/resource/docs/aikau-jsdoc/Core.js.html
-  if (!messageId) {
+export function t(key, options, scope = 'global') {
+  if (!key) {
     return '';
   }
 
+  if (i18next.exists(key)) {
+    return i18next.t(key, options);
+  }
+
+  // TODO remove in future
   const Alfresco = window.Alfresco;
-
-  if (!Alfresco || !Alfresco.util || !Alfresco.util.message) {
-    // console.warn('[t]: Alfresco.util.message is not available');
-    return messageId;
+  if (Alfresco && Alfresco.util && Alfresco.util.message) {
+    return Alfresco.util.message(key, scope, options);
   }
 
-  const translatedMessage = Alfresco.util.message(messageId, scope, multipleValues);
+  return key;
+}
 
-  if (translatedMessage === messageId) {
-    // console.warn(`[t]: looks like message '${messageId}' has not translation`);
-  }
-
-  return translatedMessage;
+export function cellMsg(prefix) {
+  return function(elCell, oRecord, oColumn, sData) {
+    elCell.innerHTML = t(prefix + sData);
+  };
 }
 
 const BYTES_KB = 1024;
@@ -232,13 +280,13 @@ export function getRelativeTime(from, to) {
   };
 
   if (minutes_ago <= 0) {
-    return fnTime('relative.seconds', seconds_ago);
+    return fnTime('relative.seconds', { value: seconds_ago });
   }
   if (minutes_ago === 1) {
     return fnTime('relative.minute');
   }
   if (minutes_ago < 45) {
-    return fnTime('relative.minutes', minutes_ago);
+    return fnTime('relative.minutes', { value: minutes_ago });
   }
   if (minutes_ago < 90) {
     return fnTime('relative.hour');
@@ -246,7 +294,7 @@ export function getRelativeTime(from, to) {
 
   const hours_ago = Math.round(minutes_ago / 60);
   if (minutes_ago < 1440) {
-    return fnTime('relative.hours', hours_ago);
+    return fnTime('relative.hours', { value: hours_ago });
   }
   if (minutes_ago < 2880) {
     return fnTime('relative.day');
@@ -254,7 +302,7 @@ export function getRelativeTime(from, to) {
 
   const days_ago = Math.round(minutes_ago / 1440);
   if (minutes_ago < 43200) {
-    return fnTime('relative.days', days_ago);
+    return fnTime('relative.days', { value: days_ago });
   }
   if (minutes_ago < 86400) {
     return fnTime('relative.month');
@@ -262,14 +310,14 @@ export function getRelativeTime(from, to) {
 
   const months_ago = Math.round(minutes_ago / 43200);
   if (minutes_ago < 525960) {
-    return fnTime('relative.months', months_ago);
+    return fnTime('relative.months', { value: months_ago });
   }
   if (minutes_ago < 1051920) {
     return fnTime('relative.year');
   }
 
   const years_ago = Math.round(minutes_ago / 525960);
-  return fnTime('relative.years', years_ago);
+  return fnTime('relative.years', { value: years_ago });
 }
 
 export function getScrollbarWidth() {
@@ -278,17 +326,15 @@ export function getScrollbarWidth() {
   scrollDiv.className = 'scrollbar-measure';
   document.body.appendChild(scrollDiv);
 
-  // Get the scrollbar width
   const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
 
-  // Delete the DIV
   document.body.removeChild(scrollDiv);
 
   return scrollbarWidth;
 }
 
-export function deepClone(data) {
-  return JSON.parse(JSON.stringify(data));
+export function deepClone(data, defaultValue = '') {
+  return JSON.parse(JSON.stringify(data || defaultValue));
 }
 
 export function isPDFbyStr(str) {
@@ -427,10 +473,10 @@ export function num2str(n = 0, textForms = []) {
 
 export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
   if (!byField) {
-    return JSON.parse(JSON.stringify(arr1)) === JSON.parse(JSON.stringify(arr2));
+    return JSON.stringify(arr1) === JSON.stringify(arr2);
   }
 
-  return JSON.parse(JSON.stringify(arr1.map(item => item[byField]))) === JSON.parse(JSON.stringify(arr2.map(item => item[byField])));
+  return JSON.stringify(arr1.map(item => item[byField])) === JSON.stringify(arr2.map(item => item[byField]));
 }
 
 export function getSearchParams(searchString = window.location.search) {
@@ -445,6 +491,8 @@ export function getOutputFormat(format, value) {
   switch (format) {
     case DataFormatTypes.DATE:
       return moment(value).format('DD.MM.YYYY');
+    case DataFormatTypes.DATETIME:
+      return moment(value).format('DD.MM.YYYY, hh:mm');
     default:
       return value;
   }
@@ -463,4 +511,95 @@ export function getIconFileByMimetype(mimetype) {
     default:
       return 'icon-filetype-none';
   }
+}
+
+/**
+ * Функция для сортировки элементов массива
+ *
+ * @param array
+ * @param indexFrom
+ * @param indexTo
+ * @returns {array}
+ */
+export function arrayMove(array, indexFrom, indexTo) {
+  const newArray = deepClone(array);
+
+  newArray.splice(indexTo < 0 ? newArray.length + indexTo : indexTo, 0, newArray.splice(indexFrom, 1)[0]);
+
+  return newArray;
+}
+
+export function documentScrollTop() {
+  const elementScrollTop = lodashGet(document.scrollingElement || document.documentElement, ['scrollTop'], 0);
+  const bodyScrollTop = lodashGet(document.querySelector('body'), ['scrollTop'], 0);
+
+  if (!elementScrollTop && !bodyScrollTop) {
+    return 0;
+  }
+
+  return elementScrollTop || bodyScrollTop;
+}
+
+export function getAdaptiveNumberStr(number) {
+  let num = parseInt(number);
+  if (num >= 1000) {
+    let res = parseInt((num / 1000).toString());
+    const end = num % 1000;
+    res = (end * 2).toString().length > end.toString().length ? res + 1 : res;
+
+    num = res.toString() + 'k';
+  }
+
+  return num.toString();
+}
+
+export function removeItemFromArray(array = [], item = '', byKey = '') {
+  if (byKey) {
+    return array.filter(elem => elem[byKey] !== item[byKey]);
+  }
+
+  return array.filter(elem => elem !== item);
+}
+
+export function isNodeRef(str) {
+  return typeof str === 'string' && str.indexOf('workspace://SpacesStore/') === 0;
+}
+
+/**
+ * Convert from ISO8601 date to JavaScript date
+ */
+export function fromISO8601(formattedString) {
+  var isoRegExp = /^(?:(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(.\d+)?)?((?:[+-](\d{2}):(\d{2}))|Z)?)?$/;
+
+  var match = isoRegExp.exec(formattedString);
+  var result = null;
+
+  if (match) {
+    match.shift();
+    if (match[1]) {
+      match[1]--;
+    } // Javascript Date months are 0-based
+    if (match[6]) {
+      match[6] *= 1000;
+    } // Javascript Date expects fractional seconds as milliseconds
+
+    result = new Date(match[0] || 1970, match[1] || 0, match[2] || 1, match[3] || 0, match[4] || 0, match[5] || 0, match[6] || 0);
+
+    var offset = 0;
+    var zoneSign = match[7] && match[7].charAt(0);
+    if (zoneSign !== 'Z') {
+      offset = (match[8] || 0) * 60 + (Number(match[9]) || 0);
+      if (zoneSign !== '-') {
+        offset *= -1;
+      }
+    }
+    if (zoneSign) {
+      offset -= result.getTimezoneOffset();
+    }
+    if (offset) {
+      result.setTime(result.getTime() + offset * 60000);
+    }
+  }
+
+  return result; // Date or null
 }

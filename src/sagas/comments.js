@@ -14,7 +14,6 @@ import {
   updateCommentRequest,
   updateCommentSuccess
 } from '../actions/comments';
-import { setNotificationMessage } from '../actions/notification';
 import { selectAllComments } from '../selectors/comments';
 import { getCommentForWeb } from '../dto/comments';
 import { t } from '../helpers/util';
@@ -56,11 +55,10 @@ function* sagaCreateComment({ api, logger }, action) {
 
     yield put(createCommentSuccess({ comments, nodeRef }));
     yield put(sendingEnd(nodeRef));
-    yield put(setNotificationMessage(t('Комментарий успешно добавлен')));
   } catch (e) {
     yield put(
       setError({
-        message: t('Ошибка отправки! Попробуйте еще раз'),
+        message: t('comments-widget.error'),
         nodeRef: action.payload.action
       })
     );
@@ -91,7 +89,6 @@ function* sagaUpdateComment({ api, logger }, action) {
     comments = yield select(state => selectAllComments(state, nodeRef));
     comments[commentIndex] = { ...comments[commentIndex], ...updatedComment };
     yield put(updateCommentSuccess({ comments, nodeRef }));
-    yield put(setNotificationMessage(t('Комментарий успешно отредактирован')));
   } catch (e) {
     logger.error('[comments sagaUpdateComment saga error', e.message);
   }
@@ -109,7 +106,6 @@ function* sagaDeleteComment({ api, logger }, action) {
     }
 
     yield put(deleteCommentSuccess({ comments, nodeRef: action.payload.nodeRef }));
-    yield put(setNotificationMessage(t('Комментарий успешно удален')));
   } catch (e) {
     logger.error('[comments sagaDeleteComment saga error', e.message);
   }

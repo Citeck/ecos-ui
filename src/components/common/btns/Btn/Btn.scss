@@ -1,4 +1,4 @@
-@import '../../../../constants';
+@import '../../../../styles/constants';
 
 button {
   &.ecos-btn {
@@ -33,6 +33,7 @@ button {
     &:focus {
       background-color: $color-gray-1;
       box-shadow: none;
+      outline: 0;
     }
   }
 
@@ -61,6 +62,10 @@ button {
     }
   }
 
+  &.ecos-btn_line-height_normal {
+    line-height: normal;
+  }
+
   &.ecos-btn_tight {
     padding-right: 14px;
     padding-left: 14px;
@@ -69,13 +74,19 @@ button {
   &.ecos-btn_transparent {
     background-color: rgba(0, 0, 0, 0);
 
-    &:hover {
+    &:hover,
+    &:active,
+    &:focus {
       background-color: rgba(0, 0, 0, 0);
     }
   }
 
   &.ecos-btn_float_right {
     float: right;
+  }
+
+  &.ecos-btn_float_left {
+    float: left;
   }
 
   &.ecos-btn_padding_small {
@@ -118,6 +129,7 @@ button {
   }
 
   &.ecos-btn_settings-down {
+    .icon-up,
     .icon-down {
       font-size: 14px;
       display: inline-block;
@@ -131,8 +143,9 @@ button {
     padding: 9px 11px 9px 15px;
     //width: 165px;
     text-align: left;
-    //display: inline-flex;
+    display: inline-flex;
 
+    .icon-up,
     .icon-down {
       float: right;
     }
@@ -142,6 +155,7 @@ button {
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
+      flex: auto;
       //width: 85%;
     }
   }
@@ -167,6 +181,12 @@ button {
     padding: 0;
   }
 
+  &.ecos-btn_i_15 {
+    font-size: $font-size-15;
+    height: 20px;
+    padding: 0;
+  }
+
   &.ecos-btn_narrow {
     height: 26px;
     padding: 0 15px;
@@ -177,6 +197,11 @@ button {
   &.ecos-btn_sq_sm {
     @extend .ecos-btn_narrow;
     padding: 0 7px;
+  }
+
+  &.ecos-btn_sq_sm2 {
+    @extend .ecos-btn_narrow;
+    padding: 0 4px;
   }
 
   &.ecos-btn_narrow-t_standart {
@@ -229,6 +254,38 @@ button {
   }
 
   /*Colors*/
+  &.ecos-btn_theme_citeckTheme {
+    background: $color-blue-dark;
+    color: $color-white;
+
+    &:disabled {
+      background-color: $color-blue-light2;
+    }
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: $color-blue-dark;
+      background: $color-white;
+    }
+  }
+
+  &.ecos-btn_theme_uedmsTheme {
+    background: $color-green-dark;
+    color: $color-white;
+
+    &:disabled {
+      background-color: $color-green-light2;
+    }
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: $color-green-dark;
+      background: $color-white;
+    }
+  }
+
   &.ecos-btn_blue {
     background: $color-blue-dark;
     color: $color-white;
@@ -262,6 +319,18 @@ button {
     color: $color-white;
   }
 
+  &.ecos-btn_color_blue-light2 {
+    color: $color-blue-light2;
+  }
+
+  &.ecos-btn_color_red {
+    color: $color-red-1;
+  }
+
+  &.ecos-btn_color_green {
+    color: $color-green1;
+  }
+
   &.ecos-btn_white {
     background: $color-white;
     color: $color-gray-5;
@@ -270,6 +339,15 @@ button {
     &:active {
       background: $color-white;
       color: $color-gray-5;
+    }
+  }
+
+  &.ecos-btn_white2 {
+    background: $color-white;
+    border: $border-width-standard solid $color-gray-6;
+
+    .ecos-btn__i_right {
+      color: $color-gray-6;
     }
   }
 
@@ -345,6 +423,19 @@ button {
     }
   }
 
+  &.ecos-btn_brown2 {
+    background-color: $color-brown-1;
+    color: $color-white;
+
+    &:hover {
+      background-color: $color-brown-2;
+    }
+
+    &:active {
+      background-color: $color-brown-1;
+    }
+  }
+
   &.ecos-btn_bgr-inherit {
     background: inherit;
 
@@ -369,6 +460,20 @@ button {
     }
   }
 
+  &.ecos-btn_red {
+    background: $color-red-1;
+    color: $color-white;
+
+    &:focus {
+      background: $color-red-1;
+      color: $color-white;
+    }
+
+    &:hover {
+      background: lighten($color-red-1, 10%);
+    }
+  }
+
   /*hovers*/
   &.ecos-btn_blue {
     &:focus,
@@ -388,6 +493,24 @@ button {
     &:hover {
       color: $color-red-1;
       background: $color-white;
+    }
+  }
+
+  &.ecos-btn_hover_t_light-red {
+    &:hover {
+      color: lighten($color-red-1, 10%);
+    }
+  }
+
+  &.ecos-btn_hover_t_light-green {
+    &:hover {
+      color: lighten($color-green1, 10%);
+    }
+  }
+
+  &.ecos-btn_hover_t_white {
+    &:hover {
+      color: $color-white;
     }
   }
 
@@ -463,6 +586,12 @@ button {
     }
   }
 
+  &.ecos-btn_hover_color-grey {
+    &:hover {
+      color: $text-color-gray;
+    }
+  }
+
   /*active, focus*/
   &.ecos-btn_active_blue {
     &:focus,
@@ -490,17 +619,10 @@ button {
     height: 100%;
   }
 
-  &.ecos-btn_red {
-    background: $color-red-1;
-    color: $color-white;
-
-    &:focus {
-      background: $color-red-1;
-      color: $color-white;
-    }
-
-    &:hover {
-      background: lighten($color-red-1, 10%);
-    }
+  /*Shapes */
+  &.ecos-btn_circle {
+    border-radius: 50%;
+    padding: 0;
+    text-align: center;
   }
 }

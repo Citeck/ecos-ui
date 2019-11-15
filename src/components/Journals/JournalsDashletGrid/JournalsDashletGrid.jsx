@@ -1,19 +1,25 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
+import classNames from 'classnames';
 import lodash from 'lodash';
 import connect from 'react-redux/es/connect/connect';
 import Loader from '../../common/Loader/Loader';
 import JournalsDownloadZip from '../JournalsDownloadZip';
 import EcosModal from '../../common/EcosModal/EcosModal';
-import { EmptyGrid, Grid, InlineTools, Tools } from '../../common/grid';
+import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import FormManager from '../../EcosForm/FormManager';
+import { EmptyGrid, Grid, InlineTools, Tools } from '../../common/grid';
 import { IcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
-import { getDownloadContentUrl, goToCardDetailsPage, goToNodeEditPage } from '../../../helpers/urls';
+import { RemoveDialog } from '../../common/dialogs';
+import { goToNodeEditPage } from '../../../helpers/urls';
 import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
-import classNames from 'classnames';
+import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
+import { PROXY_URI } from '../../../constants/alfresco';
+
 import {
   deleteRecords,
+  execRecordsAction,
   goToJournalsPage,
   performGroupAction,
   reloadGrid,
@@ -46,6 +52,7 @@ const mapDispatchToProps = (dispatch, props) => {
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     deleteRecords: records => dispatch(deleteRecords(w(records))),
     saveRecords: ({ id, attributes }) => dispatch(saveRecords(w({ id, attributes }))),
+    execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
     setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
     setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(w(visible))),
@@ -56,21 +63,14 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-class DownloadContentLink extends Component {
-  render() {
-    const { children, row } = this.props;
-
-    if (!row.hasContent) {
-      return null;
-    }
-
-    return <a href={getDownloadContentUrl(row.id)}>{children}</a>;
-  }
-}
-
 class JournalsDashletGrid extends Component {
   filters = [];
   selectedRow = {};
+  scrollPosition = {};
+
+  state = {
+    isDialogShow: false
+  };
 
   setSelectedRecords = e => {
     const props = this.props;
@@ -92,15 +92,13 @@ class JournalsDashletGrid extends Component {
   };
 
   onFilter = predicates => {
-    const props = this.props;
-    const { columns } = props.journalConfig;
-
     this.filters = predicates;
 
-    this.reloadGrid({ columns, predicates });
+    this.reloadGrid({ predicates });
   };
 
   reloadGrid(options) {
+    options = options || {};
     this.hideGridInlineToolSettings();
     this.props.reloadGrid({ ...options });
   }
@@ -130,12 +128,48 @@ class JournalsDashletGrid extends Component {
 
   showGridInlineToolSettings = options => {
     this.setSelectedRow(options.row);
-    this.props.setGridInlineToolSettings(options);
+    this.props.setGridInlineToolSettings(
+      Object.assign(
+        {
+          actions: this.getCurrentRowInlineActions()
+        },
+        options
+      )
+    );
   };
+
+  getCurrentRowInlineActions() {
+    const {
+      execRecordsAction,
+      selectedRecords,
+      grid: { groupBy = [], actions }
+    } = this.props;
+    let currentRow = this.getSelectedRow().id;
+
+    if (selectedRecords.length) {
+      return [];
+    }
+
+    if (groupBy.length) {
+      return [
+        {
+          title: t('grid.inline-tools.details'),
+          onClick: () => this.goToJournalPageWithFilter(),
+          icon: 'icon-big-arrow'
+        }
+      ];
+    }
+
+    return ((actions || {})[currentRow] || []).map(action => {
+      return Object.assign({}, action, {
+        onClick: () => execRecordsAction([currentRow], action)
+      });
+    });
+  }
 
   hideGridInlineToolSettings = () => {
     this.clearSelectedRow();
-    this.props.setGridInlineToolSettings({ height: 0, top: 0, row: {} });
+    this.props.setGridInlineToolSettings(DEFAULT_INLINE_TOOL_SETTINGS);
   };
 
   goToJournalPageWithFilter = () => {
@@ -143,79 +177,26 @@ class JournalsDashletGrid extends Component {
     this.props.goToJournalsPage(selectedRow);
   };
 
-  goToCardDetailsPage = () => {
+  edit = () => {
     const selectedRow = this.getSelectedRow();
-    goToCardDetailsPage(selectedRow.id);
-  };
+    const recordRef = selectedRow.id;
 
-  goToNodeEditPage = () => {
-    const selectedRow = this.getSelectedRow();
-    goToNodeEditPage(selectedRow.id);
+    EcosFormUtils.editRecord({
+      recordRef: recordRef,
+      fallback: () => goToNodeEditPage(recordRef),
+      onSubmit: () => this.reloadGrid()
+    });
   };
 
   inlineTools = () => {
-    const {
-      stateId,
-      selectedRecords,
-      grid: { groupBy = [] }
-    } = this.props;
-    const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_x-step_10';
-    const tools = [
-      <IcoBtn
-        title={t('grid.inline-tools.show')}
-        icon={'icon-on'}
-        onClick={this.goToCardDetailsPage}
-        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
-      />,
-      <DownloadContentLink>
-        <IcoBtn
-          title={t('grid.inline-tools.download')}
-          icon={'icon-download'}
-          className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
-        />
-      </DownloadContentLink>,
-      <IcoBtn
-        title={t('grid.inline-tools.edit')}
-        icon={'icon-edit'}
-        onClick={this.goToNodeEditPage}
-        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
-      />,
-      <IcoBtn
-        title={t('grid.inline-tools.delete')}
-        icon={'icon-delete'}
-        onClick={this.deleteRecord}
-        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t_red')}
-      />
-    ];
-
-    if (selectedRecords.length) {
-      return null;
-    }
-
-    if (groupBy.length) {
-      tools.push(
-        <IcoBtn
-          title={t('grid.inline-tools.details')}
-          onClick={this.goToJournalPageWithFilter}
-          icon={'icon-big-arrow'}
-          className={inlineToolsActionClassName}
-        />
-      );
-    }
-
-    return <InlineTools tools={tools} stateId={stateId} />;
-  };
-
-  deleteRecord = () => {
-    const selectedRow = this.getSelectedRow();
-    this.props.deleteRecords([selectedRow.id]);
-    this.clearSelectedRow();
-    this.hideGridInlineToolSettings();
+    const { stateId } = this.props;
+    return <InlineTools stateId={stateId} />;
   };
 
   deleteRecords = () => {
     const { selectedRecords, deleteRecords } = this.props;
     deleteRecords(selectedRecords);
+    this.closeDialog();
   };
 
   tools = selected => {
@@ -254,11 +235,17 @@ class JournalsDashletGrid extends Component {
             icon={'icon-delete'}
             className={classNames(toolsActionClassName, 'ecos-btn_hover_t_red')}
             title={t('grid.tools.delete')}
-            onClick={this.deleteRecords}
+            onClick={this.showDeleteRecordsDialog}
           />,
           <Dropdown
             className={'grid-tools__item_left_5'}
-            source={groupActions}
+            source={groupActions.filter(g => {
+              if (selectAllRecords) {
+                return g.type === 'filtered';
+              }
+
+              return g.type === 'selected';
+            })}
             valueField={'id'}
             titleField={'title'}
             isButton={true}
@@ -306,6 +293,80 @@ class JournalsDashletGrid extends Component {
     }
   };
 
+  delete = () => {};
+
+  closeDialog = () => {
+    this.setState({ isDialogShow: false });
+  };
+
+  showDeleteRecordsDialog = () => {
+    this.setState({ isDialogShow: true });
+    this.delete = this.deleteRecords;
+  };
+
+  renderPerformGroupActionResponse = performGroupActionResponse => {
+    const { className } = this.props;
+    const performGroupActionResponseUrl = (performGroupActionResponse[0] || {}).url;
+
+    return (
+      <EmptyGrid maxItems={performGroupActionResponse.length}>
+        {performGroupActionResponseUrl ? (
+          <Grid
+            keyField={'link'}
+            data={[
+              {
+                status: t('group-action.label.report'),
+                link: performGroupActionResponseUrl
+              }
+            ]}
+            columns={[
+              {
+                dataField: 'status',
+                text: t('group-action.label.status')
+              },
+              {
+                dataField: 'link',
+                text: t('actions.document.download'),
+                formatExtraData: {
+                  formatter: ({ cell }) => {
+                    const html = `<a href="${PROXY_URI + cell}" onclick="event.stopPropagation()">${t('actions.document.download')}</a>`;
+                    return <span dangerouslySetInnerHTML={{ __html: html }} />;
+                  }
+                }
+              }
+            ]}
+            className={className}
+          />
+        ) : (
+          <Grid
+            keyField={'nodeRef'}
+            data={performGroupActionResponse}
+            columns={[
+              {
+                dataField: 'title',
+                text: t('group-action.label.record')
+              },
+              {
+                dataField: 'status',
+                text: t('group-action.label.status')
+              },
+              {
+                dataField: 'message',
+                text: t('group-action.label.message')
+              }
+            ]}
+            className={className}
+          />
+        )}
+      </EmptyGrid>
+    );
+  };
+
+  onScrolling = e => {
+    this.scrollPosition = e;
+    this.hideGridInlineToolSettings();
+  };
+
   render() {
     const {
       selectedRecords,
@@ -317,16 +378,40 @@ class JournalsDashletGrid extends Component {
         data,
         columns,
         sortBy,
-        pagination: { maxItems }
+        pagination: { maxItems },
+        groupBy,
+        total
       },
       doInlineToolsOnRowClick = false,
-      performGroupActionResponse
+      performGroupActionResponse,
+      doNotCount,
+      minHeight,
+      journalConfig: { params = {} }
     } = this.props;
 
+    let editable = true;
+
+    if ((groupBy && groupBy.length) || params.disableTableEditing) {
+      editable = false;
+    }
+
+    const HeightCalculation = ({ doNotCount, children, maxItems, minHeight, total }) => {
+      if (doNotCount) {
+        return <div style={{ height: minHeight }}>{children}</div>;
+      }
+
+      let rowsNumber = total > maxItems ? maxItems : total;
+      if (rowsNumber < 1) {
+        rowsNumber = 1;
+      }
+
+      return <EmptyGrid maxItems={rowsNumber}>{children}</EmptyGrid>;
+    };
+
     return (
-      <Fragment>
+      <>
         <div className={'ecos-journal-dashlet__grid'}>
-          <EmptyGrid maxItems={maxItems}>
+          <HeightCalculation maxItems={maxItems} doNotCount={doNotCount} minHeight={minHeight} total={total}>
             {loading ? (
               <Loader />
             ) : (
@@ -336,7 +421,7 @@ class JournalsDashletGrid extends Component {
                 className={className}
                 freezeCheckboxes
                 filterable
-                editable
+                editable={editable}
                 multiSelectable
                 sortBy={sortBy}
                 changeTrOptionsByRowClick={doInlineToolsOnRowClick}
@@ -349,13 +434,15 @@ class JournalsDashletGrid extends Component {
                 onRowClick={doInlineToolsOnRowClick && this.onRowClick}
                 onMouseLeave={!doInlineToolsOnRowClick && this.hideGridInlineToolSettings}
                 onChangeTrOptions={this.showGridInlineToolSettings}
-                onScrolling={this.hideGridInlineToolSettings}
+                onScrolling={this.onScrolling}
                 onEdit={saveRecords}
                 selected={selectedRecords}
                 selectAll={selectAllRecords}
+                minHeight={minHeight}
+                scrollPosition={this.scrollPosition}
               />
             )}
-          </EmptyGrid>
+          </HeightCalculation>
         </div>
 
         <EcosModal
@@ -364,29 +451,18 @@ class JournalsDashletGrid extends Component {
           hideModal={this.closePerformGroupActionDialog}
           className={'journal__dialog'}
         >
-          <EmptyGrid maxItems={performGroupActionResponse.length}>
-            <Grid
-              keyField={'nodeRef'}
-              data={performGroupActionResponse}
-              columns={[
-                {
-                  dataField: 'title',
-                  text: 'Запись'
-                },
-                {
-                  dataField: 'status',
-                  text: 'Статус'
-                },
-                {
-                  dataField: 'message',
-                  text: 'Описание'
-                }
-              ]}
-              className={className}
-            />
-          </EmptyGrid>
+          {this.renderPerformGroupActionResponse(performGroupActionResponse)}
         </EcosModal>
-      </Fragment>
+
+        <RemoveDialog
+          isOpen={this.state.isDialogShow}
+          title={t('journals.action.delete-records-msg')}
+          text={t('journals.action.remove-records-msg')}
+          onDelete={this.delete}
+          onCancel={this.closeDialog}
+          onClose={this.closeDialog}
+        />
+      </>
     );
   }
 }

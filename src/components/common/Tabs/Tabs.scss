@@ -1,4 +1,4 @@
-@import '../../../constants';
+@import '../../../styles/constants';
 
 .ecos-tabs {
   display: inline-flex;
@@ -17,6 +17,8 @@
 }
 
 .ecos-tab {
+  $root: &;
+
   font-size: $font-size-standard;
   background: $color-white;
   color: $text-color-gray;
@@ -43,10 +45,123 @@
     border-bottom-right-radius: $border-radius-standard;
     margin-right: 0;
   }
-}
 
-.ecos-tab_active {
-  color: $color-white;
-  background-color: $color-blue-dark;
-  border-color: $color-blue-dark;
+  &_active {
+    color: $color-white;
+    background-color: $color-blue-dark;
+    border-color: $color-blue-dark;
+  }
+
+  &_hover:not(&_active):hover {
+    background: $color-white;
+    color: $color-blue-dark;
+  }
+
+  &_edit {
+    display: inline-flex;
+    align-items: center;
+    min-width: 190px;
+    width: 100%;
+    position: relative;
+
+    padding-left: 60px;
+
+    &_disabled {
+      pointer-events: none;
+      cursor: none;
+    }
+
+    &:hover {
+      #{$root}-actions_hover {
+        visibility: visible;
+      }
+    }
+  }
+
+  &_symmetrican-padding {
+    padding: 0 10px !important;
+  }
+
+  &-label {
+    flex: auto;
+    @extend %ellipsis;
+
+    text-align: center;
+    width: 100%;
+
+    &__input {
+      background: transparent;
+      border: none;
+      color: $text-color-dark;
+      text-align: center;
+      padding: 0 12px;
+      min-width: 190px;
+    }
+
+    &_edit {
+      display: flex;
+      padding: 0;
+    }
+  }
+
+  &-actions {
+    display: inline-flex;
+    align-items: center;
+    position: absolute;
+    right: 0;
+
+    &_none,
+    &_hover {
+      visibility: hidden;
+    }
+
+    & :nth-child(n) {
+      padding-right: 5px;
+    }
+
+    &-edit,
+    &-delete {
+      color: $color-gray-5;
+      font-size: $font-size-standard;
+
+      &:hover {
+        color: $text-color-gray;
+      }
+    }
+
+    &-move {
+      color: $color-gray-1;
+      font-size: $font-size-extra-large;
+      cursor: grab;
+
+      &:hover {
+        color: $color-gray-5;
+      }
+    }
+  }
+
+  &_active {
+    #{$root}-label__input {
+      color: $color-white;
+    }
+
+    #{$root}-actions {
+      &-edit,
+      &-delete {
+        color: $color-blue-light2;
+
+        &:hover {
+          color: $color-white;
+        }
+      }
+
+      &-move {
+        color: $color-blue-light;
+
+        &:hover {
+          color: $color-blue-light2;
+        }
+      }
+    }
+  }
 }

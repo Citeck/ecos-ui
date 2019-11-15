@@ -3,12 +3,33 @@ import FormIOColumnComponent from 'formiojs/components/columns/Column';
 export default class ColumnComponent extends FormIOColumnComponent {
   get className() {
     const comp = this.component;
+    const options = this.options;
     const classList = [];
 
-    if (this.options.viewAsHtmlConfig && this.options.viewAsHtmlConfig.fullWidthColumns) {
-      classList.push('col-12', 'p-0', 'm-0');
+    if (options.fullWidthColumns) {
+      classList.push('col-12', 'col-12-manual', 'p-0', 'm-0');
 
       return classList.join(' ');
+    }
+
+    // exclude options.fullWidthColumns case
+    if (this.parent.component.inlineColumns) {
+      return 'col-inline-block';
+    }
+
+    if (this.viewOnly) {
+      if (
+        this.parent &&
+        this.parent.parent &&
+        this.parent.parent.component &&
+        this.parent.parent.component.type === 'panel' &&
+        this.parent.parent.component.title &&
+        !this.parent.parent.component.hideLabel
+      ) {
+        classList.push('col-12');
+
+        return classList.join(' ');
+      }
     }
 
     // TODO check it

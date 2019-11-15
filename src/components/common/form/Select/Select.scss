@@ -1,4 +1,4 @@
-@import '../../../../constants';
+@import '../../../../styles/constants';
 
 .ecos-select {
   .select__indicator-separator {
@@ -222,6 +222,14 @@
 
     .select__single-value {
       top: 14px;
+    }
+  }
+}
+
+.select_page-size {
+  .select__control {
+    .select__single-value {
+      top: 1px;
     }
   }
 }

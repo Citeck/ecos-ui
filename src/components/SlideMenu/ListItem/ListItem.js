@@ -37,7 +37,7 @@ class ListItem extends React.Component {
       toggleCollapse = <div className={classes.join(' ')} onClick={() => setExpanded(itemId)} />;
     }
 
-    let component = null;
+    let component = <ListItemLink {...this.props} withNestedList={nestedList} />;
     if (item.action) {
       switch (item.action.type) {
         case 'CREATE_SITE':

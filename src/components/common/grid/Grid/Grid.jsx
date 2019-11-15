@@ -1,18 +1,25 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 import BootstrapTable from 'react-bootstrap-table-next';
 import cellEditFactory from 'react-bootstrap-table2-editor';
-import Checkbox from '../../form/Checkbox/Checkbox';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { closest, getId, t, trigger } from '../../../../helpers/util';
+import Checkbox from '../../form/Checkbox/Checkbox';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
-import { t, getId, trigger, closest } from '../../../../helpers/util';
+import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../form/SelectJournal/predicates';
 
-import 'react-perfect-scrollbar/dist/css/styles.css';
 import './Grid.scss';
 
 const CLOSE_FILTER_EVENT = 'closeFilterEvent';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const REACT_BOOTSTRAP_TABLE_CLASS = 'react-bootstrap-table';
+
+const ECOS_GRID_FREEZE_TOP_CLASS = 'ecos-grid__freeze-top';
+const ECOS_GRID_FREEZE_LEFT_CLASS = 'ecos-grid__freeze-left';
+const ECOS_GRID_CHECKBOX_DEVIDER_CLASS = 'ecos-grid__checkbox-devider';
+const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
+const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 
 const Selector = ({ mode, ...rest }) => (
   <div className={'ecos-grid__checkbox'}>
@@ -21,15 +28,15 @@ const Selector = ({ mode, ...rest }) => (
 );
 
 const SelectorHeader = ({ indeterminate, ...rest }) => (
-  <Fragment>
+  <>
     <div className={'ecos-grid__checkbox'}>
       {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
-      <div className={'ecos-grid__checkbox-devider'} />
+      <div className={ECOS_GRID_CHECKBOX_DEVIDER_CLASS} />
     </div>
-  </Fragment>
+  </>
 );
 
-export default class Grid extends Component {
+class Grid extends Component {
   constructor(props) {
     super(props);
     this._selected = [];
@@ -40,12 +47,44 @@ export default class Grid extends Component {
     this._scrollValues = {};
     this._tr = null;
     this._tableDom = null;
+    this._ref = React.createRef();
+    this._scrollRef = null;
+    this._freezeTopGridNode = null;
+    this._freezeLeftGridNode = null;
+    this._freezeTopGridFirstThNode = null;
+    this._freezeTopGridFirstThDeviderNode = null;
+    this._shadowHeadNode = null;
+    this._shadowLeftNode = null;
   }
 
   componentDidMount() {
     this.createCloseFilterEvent();
     this.createColumnResizeEvents();
     this.createKeydownEvents();
+
+    const current = this._ref.current;
+
+    if (current) {
+      this._freezeLeftGridNode = current.getElementsByClassName(ECOS_GRID_FREEZE_LEFT_CLASS)[0];
+      this._freezeTopGridNode = current.getElementsByClassName(ECOS_GRID_FREEZE_TOP_CLASS)[0];
+      this._shadowHeadNode = current.getElementsByClassName(ECOS_GRID_HEAD_SHADOW)[0];
+      this._shadowLeftNode = current.getElementsByClassName(ECOS_GRID_LEFT_SHADOW)[0];
+      this._freezeTopGridFirstThNode = this._freezeTopGridNode ? this._freezeTopGridNode.getElementsByTagName('th')[0] : null;
+      this._freezeTopGridFirstThDeviderNode = this._freezeTopGridFirstThNode
+        ? this._freezeTopGridFirstThNode.getElementsByClassName(ECOS_GRID_CHECKBOX_DEVIDER_CLASS)[0]
+        : null;
+    }
+
+    const { scrollPosition = {} } = this.props;
+    const { scrollLeft, scrollTop } = scrollPosition;
+
+    if (this._scrollRef && scrollLeft !== undefined) {
+      this._scrollRef.scrollLeft(scrollLeft);
+    }
+
+    if (this._scrollRef && scrollTop !== undefined) {
+      this._scrollRef.scrollTop(scrollTop);
+    }
   }
 
   componentWillUnmount() {
@@ -96,7 +135,9 @@ export default class Grid extends Component {
         column.hidden = !column.default;
       }
 
-      column = this.setHeaderFormatter(column, props.filterable, column.sortable);
+      const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
+
+      column = this.setHeaderFormatter(column, filterable, column.sortable);
 
       column.formatter = this.initFormatter(props.editable);
 
@@ -105,6 +146,8 @@ export default class Grid extends Component {
 
     if (props.editable) {
       props.cellEdit = this.setEditable(props.editable);
+    } else {
+      props.cellEdit = undefined;
     }
 
     props.rowEvents = props.rowEvents || {};
@@ -211,8 +254,14 @@ export default class Grid extends Component {
     return (cell, row, rowIndex, formatExtraData) => {
       formatExtraData = formatExtraData || {};
       const Formatter = formatExtraData.formatter;
+      const errorAttribute = row.error;
+
       return (
-        <div className={`ecos-grid__td ${editable ? 'ecos-grid__td_editable' : ''}`}>
+        <div
+          className={`ecos-grid__td ${editable ? 'ecos-grid__td_editable' : ''} ${
+            errorAttribute && row[errorAttribute] === cell ? 'ecos-grid__td_error' : ''
+          }`}
+        >
           {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
         </div>
       );
@@ -311,7 +360,7 @@ export default class Grid extends Component {
       trigger.call(this, 'onEdit', {
         id: row[this._keyField],
         attributes: {
-          [column.attribute]: newValue
+          [column.attribute]: column.formatExtraData.formatter.getId(newValue)
         }
       });
     }
@@ -412,11 +461,42 @@ export default class Grid extends Component {
   onScrollFrame = e => {
     this._scrollValues = e;
 
+    this.handleFreezeCols(e);
+
     if (this._tr) {
       this.getTrOptions(this._tr);
     }
 
     trigger.call(this, 'onScrolling', e);
+  };
+
+  scrollRefCallback = scroll => {
+    this._scrollRef = scroll;
+  };
+
+  handleFreezeCols = scrollingEvent => {
+    if (this._freezeTopGridNode) {
+      const scrollTop = scrollingEvent.scrollTop;
+      const scrollLeft = scrollingEvent.scrollLeft;
+
+      if (scrollTop) {
+        this._shadowHeadNode.style.display = 'block';
+      } else {
+        this._shadowHeadNode.style.display = 'none';
+      }
+
+      if (scrollLeft) {
+        this._shadowLeftNode.style.display = 'block';
+        this._freezeTopGridFirstThDeviderNode.style.display = 'none';
+      } else {
+        this._shadowLeftNode.style.display = 'none';
+        this._freezeTopGridFirstThDeviderNode.style.display = 'block';
+      }
+
+      this._freezeTopGridNode.style.left = scrollLeft ? '-' + scrollLeft + 'px' : scrollLeft + 'px';
+      this._freezeLeftGridNode.style.top = scrollTop ? '-' + scrollTop + 'px' : scrollTop + 'px';
+      this._freezeTopGridFirstThNode.style.left = scrollLeft + 'px';
+    }
   };
 
   render() {
@@ -433,28 +513,30 @@ export default class Grid extends Component {
     props = this.setAdditionalOptions(props);
 
     const toolsVisible = this.toolsVisible();
-
     const gridStyle = props.minHeight ? { minHeight: props.minHeight } : { height: '100%' };
     const scrollStyle = props.minHeight ? { height: props.minHeight } : { autoHeight: true };
 
-    const Scroll = ({ scrollable, children, style }) =>
+    const Scroll = ({ scrollable, children, style, refCallback }) =>
       scrollable ? (
         <Scrollbars
+          ref={refCallback}
           onScrollStart={this.onScrollStart}
           onScrollFrame={this.onScrollFrame}
           style={style}
           hideTracksWhenNotNeeded={true}
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+          renderTrackHorizontal={props => <div {...props} className="ecos-grid__h-scroll" />}
         >
           {children}
         </Scrollbars>
       ) : (
-        <Fragment>{children}</Fragment>
+        <>{children}</>
       );
 
     if (props.columns.length) {
       return (
         <div
+          ref={this._ref}
           key={this._id}
           style={gridStyle}
           className={classNames(
@@ -466,15 +548,21 @@ export default class Grid extends Component {
         >
           {toolsVisible ? this.tools(props.selected) : null}
 
-          <Scroll scrollable={props.scrollable} style={scrollStyle}>
+          <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback}>
             <BootstrapTable {...props} />
-
-            {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
-              <BootstrapTable {...props} classes={'ecos-grid__freeze'} />
-            ) : null}
 
             {this.inlineTools()}
           </Scroll>
+
+          {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
+            <>
+              <BootstrapTable {...props} classes={ECOS_GRID_FREEZE_LEFT_CLASS} />
+              <BootstrapTable {...props} classes={ECOS_GRID_FREEZE_TOP_CLASS} />
+
+              <div className={ECOS_GRID_HEAD_SHADOW} />
+              <div className={ECOS_GRID_LEFT_SHADOW} />
+            </>
+          ) : null}
         </div>
       );
     }
@@ -482,3 +570,24 @@ export default class Grid extends Component {
     return null;
   }
 }
+
+Grid.propTypes = {
+  className: PropTypes.string,
+  keyField: PropTypes.string,
+  dataField: PropTypes.string,
+
+  filterable: PropTypes.bool,
+  editable: PropTypes.bool,
+  multiSelectable: PropTypes.bool,
+  singleSelectable: PropTypes.bool,
+  selectAll: PropTypes.bool,
+  scrollable: PropTypes.bool,
+
+  columns: PropTypes.array,
+  data: PropTypes.array,
+  filters: PropTypes.array,
+  sortBy: PropTypes.array,
+  selected: PropTypes.array
+};
+
+export default Grid;

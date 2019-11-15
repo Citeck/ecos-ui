@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import LogoBlock from './LogoBlock';
 import RootList from './RootList';
 import './slide-menu.css';
-import { fetchSmallLogoSrc, fetchLargeLogoSrc, fetchSlideMenuItems, toggleIsOpen } from '../../actions/slideMenu';
+import { fetchLargeLogoSrc, fetchSlideMenuItems, fetchSmallLogoSrc, getSiteDashboardEnable, toggleIsOpen } from '../../actions/slideMenu';
 import { t } from '../../helpers/util';
 
 const mapStateToProps = state => ({
@@ -13,16 +13,11 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchSmallLogoSrc: () => {
-    dispatch(fetchSmallLogoSrc());
-  },
-  fetchLargeLogoSrc: () => {
-    dispatch(fetchLargeLogoSrc());
-  },
-  fetchSlideMenuItems: () => {
-    dispatch(fetchSlideMenuItems());
-  },
-  toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen))
+  fetchSmallLogoSrc: () => dispatch(fetchSmallLogoSrc()),
+  fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
+  fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
+  toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
+  getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable())
 });
 
 class SlideMenu extends React.Component {
@@ -55,6 +50,7 @@ class SlideMenu extends React.Component {
     this.props.fetchSmallLogoSrc();
     this.props.fetchLargeLogoSrc();
     this.props.fetchSlideMenuItems();
+    this.props.getSiteDashboardEnable();
   }
 
   componentDidUpdate() {

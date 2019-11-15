@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import ReactSelect from 'react-select';
 import AsyncSelect from 'react-select/lib/Async';
 import isString from 'lodash/isString';
+import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
 import { t } from '../../../../helpers/util';
 import './Select.scss';
@@ -34,7 +35,7 @@ export default class Select extends Component {
   handleSetValue = (value, options) => {
     let { handleSetValue, defaultValue } = this.props;
 
-    if (isString(value) && isFunction(handleSetValue)) {
+    if ((isString(value) || isBoolean(value)) && isFunction(handleSetValue)) {
       value = handleSetValue(value, options || []);
     }
 

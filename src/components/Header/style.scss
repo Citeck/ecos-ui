@@ -1,4 +1,4 @@
-@import '../../constants';
+@import '../../styles/constants';
 
 .ecos-header {
   $root: &;
@@ -7,6 +7,10 @@
   padding: 10px 26px;
   display: flex;
   justify-content: space-between;
+
+  &_theme_uedmsTheme {
+    background: $color-green-light;
+  }
 
   & .ecos-btn {
     display: inline-flex;
@@ -106,9 +110,11 @@
           }
 
           &-avatar {
+            margin-right: 10px;
+
             .ecos-avatar__icon {
               color: $color-blue-light2;
-              padding-right: 10px;
+              background: $color-white;
             }
           }
 
@@ -132,12 +138,35 @@
           }
         }
       }
+
       //
       //#{$search}-result:not(:last-of-type) {
       //  #{$search}-result__content {
       //    border-bottom: 2px solid $color-gray-4;
       //  }
       //}
+    }
+
+    &_theme_uedmsTheme {
+      .ecos-dropdown__menu {
+        #{$search}-result {
+          &__content {
+            &-icon {
+              color: $color-green-light2;
+            }
+
+            &-avatar {
+              .ecos-avatar__icon {
+                color: $color-green-light2;
+              }
+            }
+
+            &-title {
+              color: $color-green-dark;
+            }
+          }
+        }
+      }
     }
 
     &-result {
@@ -170,8 +199,31 @@
 
   &-user {
     &__btn {
-      max-width: 242px;
-      @extend %ellipsis;
+      max-width: 152px;
+
+      .ecos-btn__text {
+        @extend %ellipsis;
+      }
+    }
+  }
+
+  &-lang {
+    &__btn {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+
+    &__img {
+      width: 22px;
+      margin-right: 7px;
+    }
+
+    &__menu {
+      min-width: 100% !important;
+
+      li a {
+        padding: 9px 10px;
+      }
     }
   }
 
@@ -185,7 +237,11 @@
 
   &-hamburger {
     &__btn {
-      position: relative;
+      &.ecos-btn {
+        position: relative;
+        padding: 0;
+        margin-right: 15px;
+      }
 
       .ecos-btn__i {
         margin-right: 0;

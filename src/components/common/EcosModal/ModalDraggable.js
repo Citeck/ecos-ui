@@ -13,6 +13,7 @@ import {
   setScrollbarWidth,
   TransitionTimeouts
 } from 'reactstrap/lib/utils';
+import { Loader } from '../';
 
 function noop() {}
 
@@ -20,6 +21,7 @@ const FadePropTypes = PropTypes.shape(Fade.propTypes); // eslint-disable-line
 
 const propTypes = {
   isOpen: PropTypes.bool,
+  isLoading: PropTypes.bool,
   autoFocus: PropTypes.bool,
   centered: PropTypes.bool,
   scrollable: PropTypes.bool,
@@ -54,6 +56,7 @@ const propsToOmit = Object.keys(propTypes);
 
 const defaultProps = {
   isOpen: false,
+  isLoading: false,
   autoFocus: true,
   centered: false,
   scrollable: false,
@@ -237,7 +240,7 @@ class Modal extends React.Component {
     }
     this._element = document.createElement('div');
     this._element.setAttribute('tabindex', '-1');
-    this._element.style.position = 'relative';
+    this._element.style.position = 'absolute';
     this._element.style.zIndex = this.props.zIndex;
     this._originalBodyPadding = getOriginalBodyPadding();
 
@@ -296,10 +299,22 @@ class Modal extends React.Component {
         <Draggable {...this.props.draggableProps}>
           <div className={mapToCssModules(classNames('modal-content', this.props.contentClassName), this.props.cssModule)}>
             {this.props.children}
+
+            {this.renderLoading()}
           </div>
         </Draggable>
       </div>
     );
+  }
+
+  renderLoading() {
+    const { isLoading } = this.props;
+
+    if (!isLoading) {
+      return null;
+    }
+
+    return <Loader blur className="modal-loading" />;
   }
 
   render() {

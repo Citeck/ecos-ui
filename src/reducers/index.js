@@ -10,7 +10,6 @@ import slideMenu from './slideMenu';
 import user from './user';
 import view from './view';
 import journals from './journals';
-import { rootReducer as cardDetails } from './cardDetails';
 import pageTabs from './pageTabs';
 import tasks from './tasks';
 import comments from './comments';
@@ -19,12 +18,16 @@ import dashboard from './dashboard';
 import menu from './menu';
 import currentTasks from './currentTasks';
 import docStatus from './docStatus';
-import barcode from './barcode';
+import eventsHistory from './eventsHistory';
+import versionsJournal from './versionsJournal';
+import recordActions from './recordActions';
+import docAssociations from './docAssociations';
+import webPage from './webPage';
+import birthdays from './birthdays';
 
 const reducers = {
   app,
   bpmn,
-  cardDetails,
   header,
   modal,
   notification,
@@ -40,7 +43,12 @@ const reducers = {
   menu,
   currentTasks,
   docStatus,
-  barcode
+  eventsHistory,
+  versionsJournal,
+  recordActions,
+  docAssociations,
+  webPage,
+  birthdays
 };
 
 export default history =>

@@ -1,4 +1,4 @@
-@import '../../../constants';
+@import '../../../styles/constants';
 
 .ecos-dropdown-menu {
   $dropdown: &;
@@ -85,5 +85,10 @@
         color: $color-red-1;
       }
     }
+  }
+
+  &__img {
+    width: 22px;
+    margin-right: 7px;
   }
 }

@@ -61,6 +61,14 @@
       &.button_full_width {
         width: 100%;
       }
+
+      &.btn_narrow {
+        height: 26px;
+        line-height: 26px;
+        padding: 0 15px;
+        border-radius: $border-radius-standard;
+        font-size: $font-size-small;
+      }
     }
   }
 }

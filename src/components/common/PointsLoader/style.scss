@@ -1,4 +1,4 @@
-@import '../../../constants';
+@import '../../../styles/constants';
 
 .ecos-points-loader {
   $animationDuration: 1.4s;
@@ -29,10 +29,17 @@
   &-child {
     width: 1em; // 8px;
     height: 1em; // 8px;
-    background-color: $color-white;
     border-radius: 50%;
     animation: loading $animationDuration ease-in-out 0s infinite alternate;
     opacity: 0;
+
+    &_white {
+      background-color: $color-white;
+    }
+
+    &_light-blue {
+      background-color: $color-blue-light;
+    }
 
     &-1 {
       animation-delay: -$delayRange;

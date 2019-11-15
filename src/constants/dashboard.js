@@ -1,7 +1,7 @@
 import { MENU_TYPE } from './';
 import { LAYOUT_TYPE } from './layout';
 
-export const LAYOUTS = [
+export const Layouts = [
   {
     position: 0,
     type: LAYOUT_TYPE.TWO_COLUMNS_BS,
@@ -31,10 +31,17 @@ export const LAYOUTS = [
     type: LAYOUT_TYPE.ONE_COLUMN,
     isActive: false,
     columns: [{}]
+  },
+  {
+    position: 5,
+    type: LAYOUT_TYPE.MOBILE,
+    isActive: false,
+    excluded: true,
+    columns: [{}]
   }
 ];
 
-export const TYPE_MENU = [
+export const MenuTypes = [
   {
     position: 0,
     isActive: true,
@@ -49,8 +56,20 @@ export const TYPE_MENU = [
   }
 ];
 
-export const DASHBOARD_TYPE = {
+export const DashboardTypes = {
   CASE_DETAILS: 'case-details',
   USER: 'user-dashboard',
-  SITE: 'site-details'
+  SITE: 'site-details',
+  PROFILE: 'profile-details'
 };
+
+export const DeviceTabs = [
+  {
+    key: 'desktop',
+    label: 'dashboard-settings.tabs.desktop'
+  },
+  {
+    key: 'mobile',
+    label: 'dashboard-settings.tabs.mobile'
+  }
+];

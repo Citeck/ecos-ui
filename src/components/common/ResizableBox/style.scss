@@ -1,0 +1,27 @@
+@import '../../../styles/constants';
+
+.ecos-resize {
+  &__bottom {
+    padding-top: 1px;
+    padding-bottom: 6px;
+  }
+
+  &__control {
+    height: 20px;
+    align-items: flex-end;
+    display: flex;
+    justify-content: center;
+    color: $color-gray-6;
+
+    cursor: row-resize;
+
+    .icon {
+      font-size: $font-size-small;
+      line-height: 0;
+
+      &::before {
+        width: 4em;
+      }
+    }
+  }
+}

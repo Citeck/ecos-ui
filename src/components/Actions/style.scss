@@ -1,0 +1,111 @@
+@import '../../styles/constants';
+
+%hover {
+  background: $color-blue-light;
+  cursor: pointer;
+  border-radius: $border-radius-standard;
+  color: $color-white;
+}
+
+.ecos-actions {
+  $root: &;
+
+  &-dashlet {
+  }
+
+  &__v-scroll {
+    @extend %v-scroll;
+  }
+
+  &-list {
+    padding: 8px 20px;
+
+    &__loader {
+      height: 100%;
+    }
+
+    &__text-empty {
+      padding: 15px;
+    }
+
+    &__item {
+      &-title {
+        display: flex;
+        align-items: center;
+        height: 40px;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-standard;
+        padding: 0 10px;
+        @extend %ellipsis;
+      }
+
+      &_group {
+        margin: 5px 0;
+      }
+
+      &_disabled {
+        pointer-events: none;
+      }
+
+      &_warning {
+        color: $color-red-1;
+      }
+
+      &:not(&_group, &_disabled) > &-title {
+        &:hover {
+          @extend %hover;
+        }
+      }
+
+      &-variants {
+        position: relative;
+        background: $color-gray-4;
+        border-radius: $border-radius-standard;
+
+        &__item {
+          display: flex;
+          align-items: center;
+          padding: 0 22px;
+          height: 40px;
+          font-weight: $font-weight-semi-bold;
+          font-size: $font-size-standard;
+
+          &_disabled {
+            pointer-events: none;
+          }
+
+          &:not(&_disabled):hover {
+            @extend %hover;
+            border-radius: 0;
+
+            &:last-child {
+              border-radius: 0 0 $border-radius-standard $border-radius-standard;
+            }
+
+            &:first-child {
+              border-radius: $border-radius-standard $border-radius-standard 0 0;
+
+              &::after {
+                background: $color-blue-light;
+              }
+            }
+          }
+
+          &:first-child {
+            &::after {
+              content: '';
+              display: block;
+              position: absolute;
+              width: 17px;
+              height: 17px;
+              transform: rotate(45deg);
+              background: $color-gray-4;
+              right: 15px;
+              top: -8px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

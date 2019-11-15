@@ -1,13 +1,7 @@
-@import '../../constants';
+@import '../../styles/constants';
 
 %h-indents {
   padding: 0 20px;
-}
-
-%ellipsis {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
 }
 
 .ecos-current-task {
@@ -18,19 +12,11 @@
       @extend %v-scroll;
     }
 
-    &_empty {
-      margin: 33px 0;
-      text-align: center;
-      color: $color-gray-5;
-      font-size: $font-size-standard;
-      font-weight: $font-weight-semi-bold;
-    }
-
     &-dashlet {
       height: fit-content;
     }
 
-    &__loader-wrapper {
+    &__loader {
       height: 100%;
     }
 
@@ -61,41 +47,43 @@
   &-info {
     $info: &;
 
-    &__title {
-      height: 51px;
-      padding: 0 20px;
-      font-size: $font-size-standard;
-      font-weight: $font-weight-bold;
-      color: $color-gray-dark;
-      background-color: $color-gray-10;
-      line-height: 3.5;
-      @extend %ellipsis;
-    }
-
     &__separator {
       margin: 11px 0;
     }
 
     &__fields {
-      margin: 14px 16px;
+      margin: 0 16px 7px;
       color: $text-color-dark;
 
       #{$info}-label {
         min-height: 17px;
-        font-weight: $font-weight-bold;
-        margin-bottom: 9px;
+        font-weight: $font-weight-semi-bold;
+        width: 30%;
+        min-width: 30%;
+        color: $text-color-gray;
+        font-style: normal;
+        font-size: $font-size-small;
+        line-height: 21px;
+        margin-right: 34px;
       }
 
       #{$info}-value {
-        font-weight: $font-weight-semi-bold;
-        font-size: $font-size-small;
+        font-weight: $font-weight-bold;
+        font-size: $font-size-standard;
         min-height: 20px;
+        color: $text-color-dark;
+        font-style: normal;
+        line-height: 22px;
+
+        display: inline-block;
+        max-width: calc(100% - 32px);
+        vertical-align: middle;
 
         &_mobile {
           display: flex;
 
           &-val {
-            flex: 1;
+            width: auto;
           }
 
           &-icon {
@@ -105,9 +93,25 @@
         }
 
         &_add {
-          margin-top: 23px;
-          font-weight: $font-weight-semi-bold;
+          margin-top: 10px;
+          margin-bottom: 10px;
+          font-weight: bold;
+          max-width: 100%;
         }
+
+        &_full {
+          max-width: 100%;
+        }
+      }
+
+      &-item {
+        display: flex;
+      }
+    }
+
+    &-value {
+      &_add {
+        max-width: 348px;
       }
     }
   }
@@ -117,8 +121,15 @@
     font-size: 17px;
     margin-left: 10px;
 
+    &-wrap {
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    &:hover,
     &_open {
       color: $color-blue-light;
+      cursor: pointer;
     }
 
     &_big {
@@ -133,7 +144,11 @@
   &__tooltip {
     .ecos-base-tooltip-inner {
       text-align: left;
-      white-space: pre;
+      white-space: pre-line;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      word-break: break-word;
+      max-width: 348px;
       padding: 0;
       font-size: $font-size-small;
       line-height: 18px;
@@ -142,10 +157,24 @@
     &-text {
       padding: 15px 0 15px 15px;
       min-width: 153px;
+
+      &-inner {
+        margin-right: 15px;
+      }
+    }
+
+    &-list {
+      &-item {
+        @extend %ellipsis;
+      }
     }
 
     &__v-scroll {
       @extend %v-scroll;
+    }
+
+    .tooltip.show {
+      opacity: 1;
     }
   }
 }

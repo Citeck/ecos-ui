@@ -2,18 +2,28 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import { FiltersGroup } from './';
 import { ParserPredicate } from './predicates';
+import { RemoveDialog } from '../common/dialogs';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { trigger } from '../../helpers/util';
+import { t, trigger } from '../../helpers/util';
 
 import './Filters.scss';
 
 export default class Filters extends Component {
+  state = {
+    isDialogShow: false,
+    dialogTitle: '',
+    dialogText: ''
+  };
+
   onChangeFilter = ({ filter, index, groupIndex }) => {
     this.groups[groupIndex].filters[index] = filter;
     this.triggerChange(this.groups);
   };
 
-  onDeleteFilter = ({ index, groupIndex }) => {
+  onDeleteFilter = () => {
+    const index = this._filterIndex;
+    const groupIndex = this._groupIndex;
+
     let filters = this.groups[groupIndex].filters;
     filters.splice(index, 1);
 
@@ -22,6 +32,20 @@ export default class Filters extends Component {
     }
 
     this.triggerChange(this.groups.length === 1 && !this.groups[0].filters.length ? [] : this.groups);
+
+    this.closeDialog();
+  };
+
+  onDeleteGroup = () => {
+    if (this._groupIndex) {
+      const groupIndex = this._groupIndex;
+
+      this.groups.splice(groupIndex, 1);
+
+      this.triggerChange(this.groups.length === 1 && !this.groups[0].filters.length ? [] : this.groups);
+    }
+
+    this.closeDialog();
   };
 
   onAddFilter = ({ filter, groupIndex }) => {
@@ -49,17 +73,20 @@ export default class Filters extends Component {
     trigger.call(this, 'onChange', predicate);
   };
 
-  createGroup = (group, first, idx) => {
+  createGroup = (group, first, idx, sourceId, metaRecord) => {
     return (
       <FiltersGroup
         key={idx}
         index={idx}
         first={first}
         group={group}
+        sourceId={sourceId}
+        metaRecord={metaRecord}
         columns={this.props.columns}
         onAddGroup={this.addGroup}
         onChangeFilter={this.onChangeFilter}
-        onDeleteFilter={this.onDeleteFilter}
+        onDeleteFilter={this.showDeleteFilterDialog}
+        onDeleteGroup={this.showDeleteGroupDialog}
         onAddFilter={this.onAddFilter}
         onChangeGroupFilterCondition={this.onChangeGroupFilterCondition}
         onChangeFilterCondition={this.onChangeFilterCondition}
@@ -67,14 +94,14 @@ export default class Filters extends Component {
     );
   };
 
-  createSubGroup = (group, notLast, idx) => {
+  createSubGroup = (group, notLast, idx, sourceId, metaRecord) => {
     return (
       <div key={idx} className={'ecos-filters__shift'}>
         <div className={'ecos-filters__bend'} />
 
         {notLast && <div className={'ecos-filters__v-line'} />}
 
-        <div className={'ecos-filters__shift-slot'}>{this.createGroup(group, false, idx)}</div>
+        <div className={'ecos-filters__shift-slot'}>{this.createGroup(group, false, idx, sourceId, metaRecord)}</div>
       </div>
     );
   };
@@ -142,17 +169,66 @@ export default class Filters extends Component {
     }
   };
 
+  closeDialog = () => {
+    this.setState({ isDialogShow: false });
+  };
+
+  showDeleteGroupDialog = groupIndex => {
+    this._groupIndex = groupIndex;
+
+    this.setState({
+      isDialogShow: true,
+      dialogTitle: t('journals.action.delete-filter-group-msg'),
+      dialogText: `${t('journals.action.remove-filter-group-msg')}`
+    });
+
+    this.delete = this.onDeleteGroup;
+  };
+
+  showDeleteFilterDialog = ({ index, groupIndex }) => {
+    this._groupIndex = groupIndex;
+    this._filterIndex = index;
+
+    this.setState({
+      isDialogShow: true,
+      dialogTitle: t('journals.action.delete-filter-msg'),
+      dialogText: `${t('journals.action.remove-filter-msg')}`
+    });
+
+    this.delete = this.onDeleteFilter;
+  };
+
+  delete = () => {};
+
   render() {
+    const { isDialogShow, dialogTitle, dialogText } = this.state;
     const props = this.props;
     const groups = (this.groups = ParserPredicate.parse(props.predicate, props.columns));
     const length = groups.length;
     const lastIdx = length ? length - 1 : 0;
+    const sourceId = props.sourceId;
+    const metaRecord = props.metaRecord;
 
     return (
       <div className={classNames('ecos-filters', this.props.className)}>
         <DragDropContext onDragEnd={this.onDragEnd}>
-          {groups.map((group, idx) => (idx > 0 ? this.createSubGroup(group, lastIdx !== idx, idx) : this.createGroup(group, true, idx)))}
+          {groups.map((group, idx) => {
+            if (idx > 0) {
+              return this.createSubGroup(group, lastIdx !== idx, idx, sourceId, metaRecord);
+            } else {
+              return this.createGroup(group, true, idx, sourceId, metaRecord);
+            }
+          })}
         </DragDropContext>
+
+        <RemoveDialog
+          isOpen={isDialogShow}
+          title={dialogTitle}
+          text={dialogText}
+          onDelete={this.delete}
+          onCancel={this.closeDialog}
+          onClose={this.closeDialog}
+        />
       </div>
     );
   }

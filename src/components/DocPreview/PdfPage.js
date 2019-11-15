@@ -13,7 +13,8 @@ class PdfPage extends Component {
       isFullscreen: PropTypes.bool,
       currentPage: PropTypes.number
     }),
-    calcScale: PropTypes.func
+    calcScale: PropTypes.func,
+    refViewer: PropTypes.object
   };
 
   static defaultProps = {
@@ -55,7 +56,7 @@ class PdfPage extends Component {
   }
 
   get elTextLayout() {
-    return this.refTextLayout.current || {};
+    return this.refTextLayout.current;
   }
 
   renderPage() {
@@ -73,13 +74,15 @@ class PdfPage extends Component {
     const [, , width, height] = page.getViewport().viewBox;
     const { clientWidth: cW, clientHeight: cH } = elContainer;
     const calcScale = getScale(scale, { width: cW, height: cH }, { width, height }, cW / 3);
-
-    const viewport = page.getViewport(calcScale);
+    const viewport = page.getViewport({ scale: calcScale });
 
     canvas.height = viewport.height;
     canvas.width = viewport.width;
 
     const $textLayer = this.elTextLayout;
+    if (!$textLayer) {
+      return null;
+    }
     $textLayer.style.height = viewport.height + 'px';
     $textLayer.style.width = viewport.width + 'px';
     $textLayer.style.top = canvas.offsetTop + 'px';

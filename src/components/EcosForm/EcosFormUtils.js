@@ -1,11 +1,226 @@
-import Records from '../Records/Records';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
+import Records from '../Records/Records';
+import { getCurrentUserName, t } from '../../helpers/util';
+import { EcosForm } from '../EcosForm';
+import Modal from '../common/EcosModal/CiteckEcosModal';
 
 const EDGE_PREFIX = 'edge__';
 
 export default class EcosFormUtils {
+  static isCurrentUserInGroup(group) {
+    const currentPersonName = getCurrentUserName();
+
+    return Records.queryOne(
+      {
+        query: 'TYPE:"cm:authority" AND =cm:authorityName:"' + group + '"',
+        language: 'fts-alfresco'
+      },
+      'cm:member[].cm:userName'
+    ).then(function(userNames) {
+      return (userNames || []).indexOf(currentPersonName) !== -1;
+    });
+  }
+
+  static isShouldDisplayForms() {
+    return Records.get('ecos-config@default-ui-left-menu-access-groups')
+      .load('.str')
+      .then(function(groupsInOneString) {
+        if (!groupsInOneString) {
+          return false;
+        }
+
+        const groups = groupsInOneString.split(',');
+        const results = [];
+
+        for (let groupsCounter = 0; groupsCounter < groups.length; ++groupsCounter) {
+          results.push(EcosFormUtils.isCurrentUserInGroup(groups[groupsCounter]));
+        }
+
+        return Promise.all(results).then(function(values) {
+          return values.indexOf(false) === -1;
+        });
+      });
+  }
+
+  static isShouldDisplayFormsForUser() {
+    return Records.get('ecos-config@default-ui-main-menu')
+      .load('.str')
+      .then(function(result) {
+        if (result === 'left') {
+          return EcosFormUtils.isShouldDisplayForms();
+        }
+        return false;
+      });
+  }
+
+  static eform(record, config) {
+    if (!config) {
+      config = {};
+    }
+
+    if (!config.reactstrapProps) {
+      config.reactstrapProps = {};
+    }
+
+    if (!config.reactstrapProps.backdrop) {
+      config.reactstrapProps.backdrop = 'static';
+    }
+
+    if (!config.reactstrapProps.keyboard) {
+      config.reactstrapProps.keyboard = false;
+    }
+
+    let modal = null;
+
+    if (!config.formContainer) {
+      modal = new Modal();
+    }
+
+    const formParams = Object.assign(
+      {
+        record: record
+      },
+      config.params || {}
+    );
+
+    const configParams = config.params || {};
+
+    formParams['options'] = configParams.options || {};
+
+    formParams['onSubmit'] = function(record, form) {
+      if (modal) {
+        modal.close();
+      }
+
+      if (configParams.onSubmit) {
+        configParams.onSubmit(record, form);
+      }
+    };
+
+    formParams['onFormCancel'] = function(record, form) {
+      if (modal) {
+        modal.close();
+      }
+
+      if (configParams.onFormCancel) {
+        configParams.onFormCancel(record, form);
+      }
+    };
+
+    formParams['onReady'] = function() {
+      setTimeout(function(record, form) {
+        if (configParams.onReady) {
+          configParams.onReady(record, form);
+        }
+      }, 100);
+    };
+
+    Records.get(record)
+      .load({
+        displayName: '.disp',
+        formMode: '_formMode'
+      })
+      .then(function(recordData) {
+        const displayName = recordData.displayName || '';
+        const formMode = recordData.formMode || 'EDIT';
+
+        if (formMode === 'CREATE') {
+          Records.get(record).reset();
+        }
+
+        const options = formParams.options || {};
+
+        options.formMode = formMode;
+        formParams.options = options;
+
+        const prefixId = 'eform.header.' + formMode + '.title';
+        const prefix = t(prefixId);
+
+        if (!prefix || prefix === prefixId) {
+          config.header = displayName;
+        } else {
+          config.header = prefix + ' ' + displayName;
+        }
+
+        const formInstance = React.createElement(EcosForm, formParams);
+
+        if (config.formContainer) {
+          let container = config.formContainer;
+
+          if (typeof config.formContainer === 'string') {
+            container = document.getElementById(config.formContainer);
+          }
+
+          ReactDOM.render(formInstance, container);
+        } else {
+          modal.open(formInstance, config);
+        }
+      });
+  }
+
+  static editRecord(config) {
+    const recordRef = config.recordRef,
+      fallback = config.fallback,
+      forceNewForm = config.forceNewForm,
+      formKey = config.formKey;
+
+    const showForm = recordRef => {
+      if (recordRef) {
+        const params = {
+          attributes: config.attributes || {},
+          onSubmit: config.onSubmit
+        };
+
+        if (formKey) {
+          params.formKey = config.formKey;
+        }
+
+        EcosFormUtils.eform(recordRef, {
+          params: params,
+          class: 'ecos-modal_width-lg',
+          isBigHeader: true,
+          formContainer: config.formContainer || null
+        });
+      } else {
+        fallback();
+      }
+    };
+
+    let isFormsEnabled;
+
+    if (!forceNewForm) {
+      isFormsEnabled = Records.get('ecos-config@ecos-forms-enable').load('.bool');
+    } else {
+      isFormsEnabled = Promise.resolve(true);
+    }
+
+    const isShouldDisplay = EcosFormUtils.isShouldDisplayFormsForUser();
+
+    Promise.all([isFormsEnabled, isShouldDisplay])
+      .then(function(values) {
+        if (values[0] || values[1]) {
+          EcosFormUtils.hasForm(recordRef).then(function(result) {
+            if (result) {
+              showForm(recordRef);
+            } else {
+              showForm(null);
+            }
+          });
+        } else {
+          showForm(null);
+        }
+      })
+      .catch(function(e) {
+        console.error(e);
+        showForm(null);
+      });
+  }
+
   static isNewFormsEnabled() {
     return Records.get('ecos-config@ecos-forms-enable').load('.bool');
   }
@@ -26,28 +241,13 @@ export default class EcosFormUtils {
     let recordInstance = isString(record) ? Records.get(record) : record;
     recordInstance = recordInstance.getBaseRecord();
 
-    let getFormByRecord = () => {
-      const query = {
-        sourceId: 'eform',
-        query: {
-          record: recordInstance.id,
-          formKey: formKey
-        }
-      };
-      if (attributes) {
-        return Records.queryOne(query, attributes);
-      } else {
-        return Records.queryOne(query);
-      }
-    };
-
     let getFormByKeysFromRecord = (keys, idx) => {
-      if (idx >= keys.length) {
+      if (!keys || idx >= keys.length) {
         return null;
       }
 
       let query = {
-        sourceId: 'eform',
+        sourceId: 'uiserv/eform',
         query: {
           record: recordInstance.id,
           formKey: keys[idx]
@@ -70,18 +270,13 @@ export default class EcosFormUtils {
       });
     };
 
-    if (!formKey && recordInstance && (recordInstance.id || '').indexOf('/') > 0) {
-      return recordInstance.load('_formKey[]').then(keys => {
+    if (!formKey) {
+      return recordInstance.load('_formKey[]?str').then(keys => {
         return getFormByKeysFromRecord(keys, 0);
       });
     } else {
-      return getFormByRecord();
+      return getFormByKeysFromRecord([formKey], 0);
     }
-  }
-
-  static getCurrentLanguage() {
-    let lang = navigator.language || navigator.userLanguage || 'en';
-    return lang.split('_')[0];
   }
 
   static getCreateVariants(record, attribute) {
@@ -170,6 +365,7 @@ export default class EcosFormUtils {
           case 'selectJournal':
             attributeSchema = 'assoc';
             break;
+          case 'datamap':
           case 'container':
             attributeSchema = 'json';
             break;
@@ -205,7 +401,7 @@ export default class EcosFormUtils {
   }
 
   static getI18n(defaultI18n, attributes, formI18n) {
-    let global = lodashGet(window, 'Alfresco.messages.global', {});
+    let global = lodashGet(window, 'Alfresco.messages.ecosForms', {});
 
     let result = cloneDeep(defaultI18n);
 
@@ -249,6 +445,19 @@ export default class EcosFormUtils {
               let input = inputByKey[att];
               if (input && input.dataType === 'json-record') {
                 submission[att] = EcosFormUtils.initJsonRecord(recordData[att]);
+              } else if (input && input.component && input.component.type === 'file') {
+                submission[att] = EcosFormUtils.removeEmptyValuesFromArray(recordData[att]);
+              } else if (
+                input &&
+                input.component &&
+                input.component.type === 'datetime' &&
+                input.component.ignoreTimeZone &&
+                input.component.enableDate &&
+                !input.component.enableTime
+              ) {
+                const serverDate = new Date(recordData[att]);
+                serverDate.setHours(serverDate.getHours() + serverDate.getTimezoneOffset() / 60);
+                submission[att] = serverDate.toISOString();
               } else {
                 submission[att] = recordData[att];
               }
@@ -261,6 +470,14 @@ export default class EcosFormUtils {
           submission
         };
       });
+  }
+
+  static removeEmptyValuesFromArray(data) {
+    if (!Array.isArray(data)) {
+      return data;
+    }
+
+    return data.filter(item => !isEmpty(item));
   }
 
   static initJsonRecord(data) {
@@ -307,5 +524,14 @@ export default class EcosFormUtils {
     }
 
     return id;
+  }
+
+  static saveFormBuilder(form, formId) {
+    let moduleId = formId.replace('uiserv/eform@', 'eapps/module@form$');
+    const record = Records.get(moduleId);
+
+    record.att('definition?json', form);
+
+    return record.save();
   }
 }

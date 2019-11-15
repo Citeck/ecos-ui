@@ -1,23 +1,65 @@
-@import '../constants';
+@import '../styles/constants';
 
 .formio-form_view-mode {
   dl {
     margin-bottom: 0;
-    padding: 9px 0 22px 0;
+    padding: 10px 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    border-bottom: 2px solid #e8edef;
+
+    &:empty {
+      padding: 0;
+      border-bottom: none;
+    }
   }
 
   dt {
-    color: $text-color-dark;
+    color: $text-color-gray;
     font-size: $font-size-small;
-    font-weight: $font-weight-normal;
-    line-height: 18px;
+    font-weight: $font-weight-semi-bold;
+    padding-right: 15px;
+    display: inline-block;
+    width: 40%;
+    flex-shrink: 0;
   }
 
   dd {
     color: $text-color-dark;
-    font-size: 16px;
+    font-size: $font-size-small;
     font-weight: $font-weight-bold;
-    line-height: 24px;
     margin-bottom: 0;
+    flex-grow: 1;
+
+    &.dd-html {
+      font-weight: $font-weight-normal;
+
+      ol {
+        list-style-position: inside;
+        padding-left: 0;
+      }
+
+      ul {
+        list-style: disc inside;
+        padding-left: 0;
+      }
+    }
+  }
+
+  &.formio-form .card {
+    .card-body {
+      padding-top: 0;
+    }
+
+    .card-title {
+      font-weight: $font-weight-bold !important;
+      font-size: 16px;
+      color: $text-color-dark;
+    }
+  }
+
+  .panel-body {
+    margin-bottom: 10px;
   }
 }

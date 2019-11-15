@@ -11,23 +11,27 @@ export class TasksApi extends RecordService {
   };
 
   static getTasks = (sourceId, document, actor, attrs) => {
-    return Records.query(
-      {
-        sourceId,
-        query: {
-          actor,
-          active: true,
-          document
+    if (document) {
+      return Records.query(
+        {
+          sourceId,
+          query: {
+            actor,
+            active: true,
+            document
+          },
+          page: { skipCount: 0 }
         },
-        page: { skipCount: 0 }
-      },
-      attrs
-    ).then(res => res);
+        attrs
+      ).then(res => res);
+    }
+
+    return { records: [] };
   };
 
   getTasksForUser = ({ document }) => {
     return TasksApi.getTasks(SOURCE_ID_CURRENT_TASKS, document, USER_CURRENT, {
-      formKey: '_formKey',
+      formKey: '_formKey?str',
       title: 'title',
       started: 'started',
       dueDate: 'dueDate',
@@ -42,7 +46,7 @@ export class TasksApi extends RecordService {
   };
 
   getCurrentTasksForUser = ({ document }) => {
-    return TasksApi.getTasks(SOURCE_ID_CURRENT_TASKS, document, USER_CURRENT, {
+    return TasksApi.getTasks(SOURCE_ID_CURRENT_TASKS, document, undefined, {
       title: 'title',
       dueDate: 'dueDate',
       actors: 'actors?json'

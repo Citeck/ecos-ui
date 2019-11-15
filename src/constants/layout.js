@@ -4,12 +4,14 @@ export const LAYOUT_TYPE = {
   THREE_COLUMNS_CB: '3-columns-center-big',
   FOUR_COLUMNS: '4-columns',
   ONE_COLUMN: '1-column',
-  CUSTOM: 'custom'
+  CUSTOM: 'custom',
+  MOBILE: 'mobile'
 };
 
 export const MIN_WIDTH_COLUMN = {
   ONE_QUARTER: '290px',
   TWO_QUARTERS: '‭345‬px',
   THREE_QUARTERS: '593px',
-  FULL: '690px'
+  FULL: '690px',
+  AUTO: 'auto'
 };

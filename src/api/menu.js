@@ -2,11 +2,43 @@ import { CommonApi } from './common';
 import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records';
-import { QueryKeys } from '../constants';
+import { QueryEntityKeys, URL } from '../constants';
 
 const PREFIX = 'uiserv/config@';
 
 export class MenuApi extends CommonApi {
+  getNewJournalPageUrl = params => {
+    let listId = params.listId;
+    let siteId = params.siteName;
+    let journalRef = params.journalRef || '';
+
+    if (listId) {
+      let tokens = listId.split('-');
+
+      if (tokens.length > 1) {
+        if (tokens[0] === 'site') {
+          siteId = listId.substring('site-'.length, listId.length - tokens[tokens.length - 1].length - 1);
+
+          listId = tokens[tokens.length - 1];
+        } else if (tokens[0] === 'global') {
+          siteId = null;
+
+          listId = listId.substring('global-'.length);
+        }
+      }
+    } else {
+      listId = 'main';
+    }
+
+    if (siteId) {
+      listId = 'site-' + siteId + '-' + listId;
+    } else {
+      listId = 'global-' + listId;
+    }
+
+    return `${URL.JOURNAL}?journalId=${journalRef}&journalSettingId=&journalsListId=${listId}`;
+  };
+
   getCreateVariantsForAllSites = () => {
     const url = `${PROXY_URI}api/journals/create-variants/site/ALL`;
     return this.getJson(url).catch(() => []);
@@ -30,7 +62,7 @@ export class MenuApi extends CommonApi {
   getSlideMenuItems = () => {
     const username = getCurrentUserName();
     return this.getJsonWithSessionCache({
-      url: `${PROXY_URI}citeck/menu/menu?${username}`,
+      url: `${PROXY_URI}citeck/menu/menu?username=${username}`,
       timeout: 14400000 //4h
     }).catch(() => {});
   };
@@ -60,17 +92,32 @@ export class MenuApi extends CommonApi {
 
   getMenuConfig = (disabledCache = false) => {
     return Records.get(`${PREFIX}menu-config`)
-      .load([QueryKeys.VALUE_JSON], disabledCache)
-      .then(resp => resp);
+      .load([QueryEntityKeys.VALUE_JSON], disabledCache)
+      .then(resp => resp)
+      .catch(e => {
+        console.error(e);
+        return {
+          [QueryEntityKeys.VALUE_JSON]: {
+            type: 'LEFT',
+            links: []
+          }
+        };
+      });
   };
 
   saveMenuConfig = ({ config = {}, title = '', description = '' }) => {
     const record = Records.get(`${PREFIX}menu-config`);
 
-    record.att(QueryKeys.VALUE_JSON, config);
-    record.att(QueryKeys.TITLE, title);
-    record.att(QueryKeys.DESCRIPTION, description);
+    record.att(QueryEntityKeys.VALUE_JSON, config);
+    record.att(QueryEntityKeys.TITLE, title);
+    record.att(QueryEntityKeys.DESCRIPTION, description);
 
     return record.save().then(resp => resp);
+  };
+
+  checkSiteDashboardEnable = () => {
+    return Records.get('uiserv/config@site-dashboard-enable')
+      .load('value?bool')
+      .then(resp => resp);
   };
 }
