@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
-import { getGeneratedBarcode, printBarcode } from '../../actions/barcode';
+import { BarcodeApi } from '../../api';
+import { getGeneratedBarcode } from '../../actions/barcode';
 import { t } from '../../helpers/util';
 import { Btn } from '../common/btns';
 
@@ -20,8 +21,7 @@ const mapStateToProps = (state, context) => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  generateBarcode: payload => dispatch(getGeneratedBarcode(payload)),
-  printBarcode: payload => dispatch(printBarcode(payload))
+  generateBarcode: payload => dispatch(getGeneratedBarcode(payload))
 });
 
 class Barcode extends React.Component {
@@ -42,9 +42,10 @@ class Barcode extends React.Component {
   };
 
   runPrint = () => {
-    const { stateId, record, printBarcode } = this.props;
+    const { record } = this.props;
+    const url = new BarcodeApi().getPrintBarcode({ record });
 
-    printBarcode({ stateId, record });
+    window.open(url, '_blank');
   };
 
   render() {
@@ -54,15 +55,17 @@ class Barcode extends React.Component {
       <div className={classNames('ecos-barcode', className)}>
         <div className="ecos-barcode__container">
           {error && <div className="ecos-barcode__error">{error}</div>}
-          <Btn className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no" loading={isLoading} disabled={isLoading}
-               onClick={this.runGenerateBarcode}>
+          <Btn
+            className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no"
+            loading={isLoading}
+            disabled={isLoading}
+            onClick={this.runGenerateBarcode}
+          >
             {!barcode ? t('barcode-widget.btn.generate') : t('barcode-widget.btn.generate-new')}
           </Btn>
-          {barcode &&
-          <img className="ecos-barcode__image" src={barcode} alt={t('barcode-widget.dashlet.title')}/>}
+          {barcode && <img className="ecos-barcode__image" src={barcode} alt={t('barcode-widget.dashlet.title')} />}
         </div>
-        <Btn className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no" disabled={!barcode && !isLoading}
-             onClick={this.runPrint}>
+        <Btn className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no" onClick={this.runPrint}>
           {t('barcode-widget.btn.print')}
         </Btn>
       </div>
