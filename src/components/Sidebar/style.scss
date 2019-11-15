@@ -56,9 +56,13 @@
     }
   }
 
-  &-scroll_v {
+  &-scroll-v {
     @extend %v-scroll;
     right: 3px;
+  }
+
+  &-scroll-area {
+    overflow-x: hidden !important;
   }
 
   &-item {
@@ -114,7 +118,7 @@
 
       &_h {
         position: absolute;
-        right: 5px;
+        right: 7px;
       }
     }
 

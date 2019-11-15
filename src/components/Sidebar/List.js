@@ -35,6 +35,7 @@ class List extends React.Component {
   render() {
     const { data, className, level, isExpanded, expandableItems, isOpen } = this.props;
     const nextLevel = level + 1;
+    const boundariesElement = this.props.boundariesElement || document.querySelector('#root') || 'viewport';
 
     if (!data || !data.length) {
       return null;
@@ -54,13 +55,16 @@ class List extends React.Component {
             level,
             actionType: get(this.props, 'data.action.type', '')
           });
-          const SubList = expanded => <ConnectList data={item.items} level={nextLevel} isExpanded={expanded} />;
+          const hasSubItems = !!(item.items && item.items.length);
+          const SubList = expanded => (
+            <ConnectList data={item.items} level={nextLevel} isExpanded={expanded} boundariesElement={boundariesElement} />
+          );
 
           return (
             <React.Fragment key={`key-${domId}`}>
               <Item domId={domId} data={item} level={level} isExpanded={isSubExpanded} styleProps={styleProps} />
-              {SubList(isOpen && isSubExpanded)}
-              {level === 1 && (
+              {hasSubItems && SubList(isOpen && isSubExpanded)}
+              {level === 1 && hasSubItems && (
                 <Tooltip
                   target={domId}
                   isOpen={!isOpen && isSubExpanded}
@@ -69,10 +73,11 @@ class List extends React.Component {
                   delay={250}
                   autohide={false}
                   toggle={this.onToggleSubMenu.bind(this, item.id)}
-                  boundariesElement="div.ecos-base-content"
+                  boundariesElement={boundariesElement}
                   className="ecos-sidebar-list-tooltip"
                   innerClassName="ecos-sidebar-list-tooltip-inner"
                   arrowClassName="ecos-sidebar-list-tooltip-arrow"
+                  modifiers={{ flip: { behavior: ['right-start', 'right-end'] } }}
                 >
                   {SubList(true)}
                 </Tooltip>
