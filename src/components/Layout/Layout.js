@@ -207,8 +207,6 @@ class Layout extends Component {
       return null;
     }
 
-    console.warn('columns => ', columns);
-
     return <div className="ecos-layout__column-wrapper">{columns && columns.map(this.renderColumn)}</div>;
   }
 

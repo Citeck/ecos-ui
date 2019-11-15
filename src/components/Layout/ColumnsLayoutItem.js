@@ -13,17 +13,30 @@ export default class ColumnsLayoutItem extends BaseLayoutItem {
   _templateRef = React.createRef();
   _order = 0;
 
+  componentDidMount() {
+    this.checkStyle();
+  }
+
+  componentDidUpdate() {
+    this.checkStyle();
+  }
+
+  checkStyle() {
+    const {
+      config: { columns }
+    } = this.props;
+
+    if (this._templateRef.current && Array.isArray(columns[0])) {
+      this._templateRef.current.style.flexDirection = 'column';
+      this._templateRef.current.style.fontSize = `calc(24px - (2px * ${columns.length}))`;
+      this._templateRef.current.dataset.countRows = columns.length;
+    }
+  }
+
   renderColumn = (params, index = 0) => {
     if (Array.isArray(params)) {
-      if (this._templateRef.current) {
-        const {
-          config: { columns }
-        } = this.props;
+      this.checkStyle();
 
-        this._templateRef.current.style.flexDirection = 'column';
-        this._templateRef.current.style.fontSize = `calc(24px - (2px * ${columns.length}))`;
-        this._templateRef.current.dataset.countRows = columns.length;
-      }
       return <div className="ecos-layout__item-template-row">{params.map(this.renderColumn)}</div>;
     }
 
