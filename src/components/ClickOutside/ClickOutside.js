@@ -1,6 +1,16 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 export default class ClickOutside extends React.Component {
+  static propTypes = {
+    handleClickOutside: PropTypes.func,
+    className: PropTypes.string
+  };
+
+  static defaultProps = {
+    className: ''
+  };
+
   constructor(props) {
     super(props);
 
@@ -27,9 +37,11 @@ export default class ClickOutside extends React.Component {
   }
 
   render() {
+    const { handleClickOutside, className, children, ...props } = this.props;
+
     return (
-      <div className={this.props.className} ref={this.setWrapperRef}>
-        {this.props.children}
+      <div className={className} ref={this.setWrapperRef} {...props}>
+        {children}
       </div>
     );
   }

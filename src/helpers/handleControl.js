@@ -1,15 +1,29 @@
 import { URL_SERVICECONTEXT, URL_RESCONTEXT } from '../constants/alfresco';
 import { t, loadScript } from '../helpers/util';
 import { goToCardDetailsPage } from '../helpers/urls';
-import { showModal, hideModal } from '../actions/modal';
-
-import { leaveSiteRequest, joinSiteRequest, becomeSiteManagerRequest, requestSiteMembership } from '../actions/handleControl';
+import { hideModal, showModal } from '../actions/modal';
 import FormManager from '../components/EcosForm/FormManager';
+import { becomeSiteManagerRequest, joinSiteRequest, leaveSiteRequest, requestSiteMembership } from '../actions/handleControl';
 import { requireShareAssets } from '../legacy/share';
+
+export const HandleControlTypes = {
+  ALF_DOLOGOUT: 'ALF_DOLOGOUT',
+  ALF_SHOW_MODAL_MAKE_UNAVAILABLE: 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE',
+  ALF_NAVIGATE_TO_PAGE: 'ALF_NAVIGATE_TO_PAGE',
+  ALF_CREATE_SITE: 'ALF_CREATE_SITE',
+  ALF_EDIT_SITE: 'ALF_EDIT_SITE',
+  ALF_LEAVE_SITE: 'ALF_LEAVE_SITE',
+  ALF_JOIN_SITE: 'ALF_JOIN_SITE',
+  ALF_BECOME_SITE_MANAGER: 'ALF_BECOME_SITE_MANAGER',
+  ALF_REQUEST_SITE_MEMBERSHIP: 'ALF_REQUEST_SITE_MEMBERSHIP',
+  ECOS_CREATE_VARIANT: 'ECOS_CREATE_VARIANT'
+};
+
+const HCT = HandleControlTypes;
 
 export default function handleControl(type, payload, dispatch) {
   switch (type) {
-    case 'ALF_DOLOGOUT':
+    case HCT.ALF_DOLOGOUT:
       fetch(URL_SERVICECONTEXT + 'dologout', {
         method: 'POST'
       }).then(() => {
@@ -17,12 +31,12 @@ export default function handleControl(type, payload, dispatch) {
       });
       break;
 
-    case 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE':
+    case HCT.ALF_SHOW_MODAL_MAKE_UNAVAILABLE:
       return (() => {
         const openDialog = () => {
           window.Citeck.forms.dialog('deputy:selfAbsenceEvent', '', {
             fn: function() {
-              handleControl('ALF_NAVIGATE_TO_PAGE', {
+              handleControl(HCT.ALF_NAVIGATE_TO_PAGE, {
                 url: payload.targetUrl
               });
             }
@@ -49,7 +63,7 @@ export default function handleControl(type, payload, dispatch) {
         });
       })();
 
-    case 'ALF_NAVIGATE_TO_PAGE':
+    case HCT.ALF_NAVIGATE_TO_PAGE:
       // TODO improve it
       // if (payload.targetUrlType === 'FULL_PATH')
       if (payload.target && payload.target === '_blank') {
@@ -59,7 +73,7 @@ export default function handleControl(type, payload, dispatch) {
       }
       break;
 
-    case 'ALF_CREATE_SITE':
+    case HCT.ALF_CREATE_SITE:
       if (window.Alfresco && window.Alfresco.module && typeof window.Alfresco.module.getCreateSiteInstance === 'function') {
         window.Alfresco.module.getCreateSiteInstance().show();
       } else {
@@ -73,7 +87,7 @@ export default function handleControl(type, payload, dispatch) {
 
       break;
 
-    case 'ALF_EDIT_SITE':
+    case HCT.ALF_EDIT_SITE:
       if (window.Alfresco && window.Alfresco.module && typeof window.Alfresco.module.getEditSiteInstance === 'function') {
         window.Alfresco.module.getEditSiteInstance().show({
           shortName: payload.site
@@ -89,7 +103,7 @@ export default function handleControl(type, payload, dispatch) {
 
       break;
 
-    case 'ALF_LEAVE_SITE':
+    case HCT.ALF_LEAVE_SITE:
       dispatch(
         showModal({
           title: t('message.leave', { '0': payload.siteTitle }),
@@ -112,19 +126,19 @@ export default function handleControl(type, payload, dispatch) {
       );
       break;
 
-    case 'ALF_JOIN_SITE':
+    case HCT.ALF_JOIN_SITE:
       dispatch(joinSiteRequest(payload));
       break;
 
-    case 'ALF_BECOME_SITE_MANAGER':
+    case HCT.ALF_BECOME_SITE_MANAGER:
       dispatch(becomeSiteManagerRequest(payload));
       break;
 
-    case 'ALF_REQUEST_SITE_MEMBERSHIP':
+    case HCT.ALF_REQUEST_SITE_MEMBERSHIP:
       dispatch(requestSiteMembership(payload));
       break;
 
-    case 'ECOS_CREATE_VARIANT':
+    case HCT.ECOS_CREATE_VARIANT:
       FormManager.createRecordByVariant(payload, {
         onSubmit: record => {
           goToCardDetailsPage(record.id);

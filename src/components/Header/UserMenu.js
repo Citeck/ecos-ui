@@ -25,8 +25,6 @@ class UserMenu extends React.Component {
     isMobile: false
   };
 
-  className = 'ecos-header-user';
-
   state = {
     dropdownOpen: false
   };
@@ -43,7 +41,7 @@ class UserMenu extends React.Component {
     const medium = widthParent > 600 && widthParent < 910;
     const disabled = !(!isEmpty(items) && isArray(items));
     const mob = isMobile || medium;
-    const classNameIcoBtn = classNames(`${this.className}__btn ecos-btn_tight ecos-btn_r_6`, {
+    const classNameIcoBtn = classNames(`ecos-header-user__btn ecos-btn_tight ecos-btn_r_6`, {
       [`ecos-btn_theme_${theme}`]: !mob,
       'ecos-btn_no-back ecos-btn_width_auto': mob
     });
@@ -51,14 +49,14 @@ class UserMenu extends React.Component {
     return (
       <>
         {!mob ? <Avatar theme={theme} url={userPhotoUrl} /> : null}
-        <Dropdown className={`${this.className} ecos-header-dropdown`} isOpen={dropdownOpen} toggle={this.toggle}>
-          <DropdownToggle tag="div" className={'ecos-header-dropdown__toggle'}>
+        <Dropdown className="ecos-header-user ecos-header-dropdown" isOpen={dropdownOpen} toggle={this.toggle}>
+          <DropdownToggle tag="div" className="ecos-header-dropdown__toggle">
             {mob ? <Avatar theme={theme} url={userPhotoUrl} /> : null}
             <IcoBtn invert={true} icon={dropdownOpen ? 'icon-up' : 'icon-down'} className={classNameIcoBtn} disabled={disabled}>
               {!mob && userFullName}
             </IcoBtn>
           </DropdownToggle>
-          <DropdownMenu className={`${this.className}__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links`}>
+          <DropdownMenu className="ecos-header-user__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">
             <Menu items={items} />
           </DropdownMenu>
         </Dropdown>

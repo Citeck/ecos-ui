@@ -224,3 +224,9 @@
 .icon-actual {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe85a;&nbsp;');
 }
+.icon-empty-icon {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe88d;&nbsp;');
+}
+.icon-hamburger-menu {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe88e;&nbsp;');
+}

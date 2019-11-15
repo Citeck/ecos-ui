@@ -7,9 +7,9 @@ import lodashGet from 'lodash/get';
 import { MenuApi } from '../../../../api/menu';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../../../../constants/pageTabs';
 import { getJournalPageUrl, isNewVersionPage, NEW_VERSION_PREFIX } from '../../../../helpers/urls';
+import { setSelected } from '../../../../helpers/slideMenu';
 import { URL } from '../../../../constants';
 
-const SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
 const PAGE_PREFIX = '/share/page';
 const menuApi = new MenuApi();
 
@@ -21,7 +21,7 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   onSelectItem: id => {
-    sessionStorage && sessionStorage.setItem && sessionStorage.setItem(SELECTED_MENU_ITEM_ID_KEY, id);
+    setSelected(id);
     ownProps.toggleSlideMenu();
     dispatch(setSelectedId(id));
   },

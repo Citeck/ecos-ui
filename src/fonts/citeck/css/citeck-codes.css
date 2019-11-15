@@ -211,3 +211,9 @@
 .icon-actual:before {
   content: '\e85a';
 } /* '' */
+.icon-empty-icon:before {
+  content: '\e88d';
+} /* '' */
+.icon-hamburger-menu:before {
+  content: '\e88e';
+} /* '' */
