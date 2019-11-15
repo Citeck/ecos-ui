@@ -372,12 +372,17 @@ $expanded-sidebar-width: 300px;
   }
 }
 
-@media screen and (max-width: 550px) {
+@media screen and (max-width: 600px) {
   .ecos-sidebar {
     width: 0;
+    position: absolute;
+    top: 60px;
+    z-index: 101;
+    height: calc(100% - 60px);
+    transition: width 0.2s;
 
     &_expanded {
-      width: $expanded-sidebar-width;
+      width: 100%;
     }
   }
 }
