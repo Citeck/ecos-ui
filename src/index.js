@@ -22,6 +22,8 @@ import { initAppRequest } from './actions/app';
 import { loadThemeRequest } from './actions/view';
 import {
   AppApi,
+  BarcodeApi,
+  BirthdaysApi,
   BpmnApi,
   CommentsApi,
   DashboardApi,
@@ -37,7 +39,6 @@ import {
   UserApi,
   VersionsJournalApi,
   ViewApi,
-  BirthdaysApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
@@ -82,6 +83,7 @@ api.recordActions = new RecordActionsApi(store);
 api.docAssociations = new DocAssociationsApi(store);
 api.view = new ViewApi(store);
 api.birthdays = new BirthdaysApi(store);
+api.barcode = new BarcodeApi(store);
 
 /**
  * todo: Maybe need such union all api?

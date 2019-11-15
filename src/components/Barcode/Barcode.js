@@ -1,10 +1,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import ReactToPrint from 'react-to-print';
-import { getBarcode } from '../../actions/barcode';
+import classNames from 'classnames';
+
+import { getGeneratedBarcode, printBarcode } from '../../actions/barcode';
 import { t } from '../../helpers/util';
 import { Btn } from '../common/btns';
+
 import './style.scss';
 
 const mapStateToProps = (state, context) => {
@@ -18,7 +20,8 @@ const mapStateToProps = (state, context) => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  getBarcode: payload => dispatch(getBarcode(payload))
+  generateBarcode: payload => dispatch(getGeneratedBarcode(payload)),
+  printBarcode: payload => dispatch(printBarcode(payload))
 });
 
 class Barcode extends React.Component {
@@ -32,35 +35,37 @@ class Barcode extends React.Component {
     className: ''
   };
 
-  className = 'ecos-barcode';
-
   runGenerateBarcode = () => {
-    const { stateId, record, getBarcode } = this.props;
+    const { stateId, record, generateBarcode } = this.props;
 
-    getBarcode({ stateId, record });
+    generateBarcode({ stateId, record });
+  };
+
+  runPrint = () => {
+    const { stateId, record, printBarcode } = this.props;
+
+    printBarcode({ stateId, record });
   };
 
   render() {
-    const { isLoading, barcode, error } = this.props;
-    const comClassesBtn = 'ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no';
+    const { isLoading, barcode, error, className } = this.props;
+
     return (
-      <React.Fragment>
-        <div className={`${this.className}__container`}>
-          {error && <div className={`${this.className}__error`}>{error}</div>}
-          <Btn loading={isLoading} className={comClassesBtn} onClick={this.runGenerateBarcode} disabled={isLoading}>
-            {!barcode ? t('Сгенерировать') : t('Сгенерировать новый')}
+      <div className={classNames('ecos-barcode', className)}>
+        <div className="ecos-barcode__container">
+          {error && <div className="ecos-barcode__error">{error}</div>}
+          <Btn className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no" loading={isLoading} disabled={isLoading}
+               onClick={this.runGenerateBarcode}>
+            {!barcode ? t('barcode-widget.btn.generate') : t('barcode-widget.btn.generate-new')}
           </Btn>
-          {barcode && <img className={`${this.className}__image`} ref={el => (this.componentRef = el)} src={barcode} alt={''} />}
+          {barcode &&
+          <img className="ecos-barcode__image" src={barcode} alt={t('barcode-widget.dashlet.title')}/>}
         </div>
-        <ReactToPrint
-          content={() => this.componentRef}
-          trigger={() => (
-            <Btn disabled={!barcode && !isLoading} className={comClassesBtn}>
-              {t('Распечатать')}
-            </Btn>
-          )}
-        />
-      </React.Fragment>
+        <Btn className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no" disabled={!barcode && !isLoading}
+             onClick={this.runPrint}>
+          {t('barcode-widget.btn.print')}
+        </Btn>
+      </div>
     );
   }
 }

@@ -1,29 +1,41 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { delay } from 'redux-saga';
-import { getBarcode, setBarcode } from '../actions/barcode';
+import { getGeneratedBarcode, printBarcode, setGeneratedBarcode } from '../actions/barcode';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 
-function* sagaGetBarcode({ api, logger }, { payload }) {
-  const err = t('Ошибка получения данных');
+function* sagaGetGeneratedBarcode({ api, logger }, { payload }) {
+  const err = t('barcode-widget.saga.error1');
 
   try {
     const { record, stateId } = payload;
-    yield delay(1000);
-    const res = yield call(api.barcode.getBarcode, { record });
+    const res = yield call(api.barcode.getGeneratedBarcode, { record });
+
     if (res && res.barcode) {
-      yield put(setBarcode({ stateId, barcode: res.barcode, error: '' }));
+      yield put(setGeneratedBarcode({ stateId, barcode: res.barcode, error: '' }));
     } else {
-      yield put(setBarcode({ stateId, barcode: '', error: res.error }));
+      yield put(setGeneratedBarcode({ stateId, barcode: '', error: res.error }));
     }
   } catch (e) {
     yield put(setNotificationMessage(err));
-    logger.error('[barcode/sagaGetBarcode saga] error', e.message);
+    logger.error('[barcode/sagaGetGeneratedBarcode saga] error', e.message);
+  }
+}
+function* sagaPrintBarcode({ api, logger }, { payload }) {
+  const err = t('barcode-widget.saga.error2');
+
+  try {
+    const { record } = payload;
+
+    yield call(api.barcode.runPrintBarcode, { record });
+  } catch (e) {
+    yield put(setNotificationMessage(err));
+    logger.error('[barcode/sagaPrintBarcode saga] error', e.message);
   }
 }
 
 function* barcodeSaga(ea) {
-  yield takeEvery(getBarcode().type, sagaGetBarcode, ea);
+  yield takeEvery(getGeneratedBarcode().type, sagaGetGeneratedBarcode, ea);
+  yield takeEvery(printBarcode().type, sagaPrintBarcode, ea);
 }
 
 export default barcodeSaga;

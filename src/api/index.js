@@ -16,3 +16,4 @@ export { RecordActionsApi } from './recordActions';
 export { DocAssociationsApi } from './docAssociations';
 export { ViewApi } from './view';
 export { BirthdaysApi } from './birthdays';
+export { BarcodeApi } from './barcode';

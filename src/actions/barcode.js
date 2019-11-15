@@ -2,6 +2,7 @@ import { createAction } from 'redux-actions';
 
 const prefix = 'barcode/';
 
-export const getBarcode = createAction(prefix + 'GET_BARCODE');
+export const getGeneratedBarcode = createAction(prefix + 'GET_GENERATED_BARCODE');
+export const setGeneratedBarcode = createAction(prefix + 'SET_GENERATED_BARCODE');
 
-export const setBarcode = createAction(prefix + 'SET_BARCODE');
+export const printBarcode = createAction(prefix + 'PRINT_BARCODE');

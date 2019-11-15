@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { getBarcode, setBarcode } from '../actions/barcode';
+import { getGeneratedBarcode, setGeneratedBarcode } from '../actions/barcode';
 import { getCurrentStateById } from '../helpers/redux';
 
 const initialState = {
@@ -20,8 +20,8 @@ const startLoading = (state, { payload: { stateId } }) => ({
 
 export default handleActions(
   {
-    [getBarcode]: startLoading,
-    [setBarcode]: (state, { payload: { stateId, barcode, error } }) => ({
+    [getGeneratedBarcode]: startLoading,
+    [setGeneratedBarcode]: (state, { payload: { stateId, barcode, error } }) => ({
       ...state,
       [stateId]: {
         ...getCurrentStateById(state, stateId, initialState),

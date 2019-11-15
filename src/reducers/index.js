@@ -24,6 +24,7 @@ import recordActions from './recordActions';
 import docAssociations from './docAssociations';
 import webPage from './webPage';
 import birthdays from './birthdays';
+import barcode from './barcode';
 
 const reducers = {
   app,
@@ -48,7 +49,8 @@ const reducers = {
   recordActions,
   docAssociations,
   webPage,
-  birthdays
+  birthdays,
+  barcode,
 };
 
 export default history =>

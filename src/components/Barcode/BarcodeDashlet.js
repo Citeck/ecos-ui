@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+
 import { isMobileDevice, t } from '../../helpers/util';
 import Dashlet from '../Dashlet/Dashlet';
 import Barcode from './Barcode';
@@ -18,22 +19,19 @@ class BarcodeDashlet extends React.Component {
   };
 
   static defaultProps = {
-    title: t('Штрих-код документа'),
+    title: t('barcode-widget.dashlet.title'),
     classNameBarcode: '',
     classNameDashlet: ''
   };
 
-  className = 'ecos-barcode-dashlet';
-
   render() {
     const { id, title, config, classNameBarcode, classNameDashlet, record } = this.props;
-    const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
       <Dashlet
         title={title}
-        bodyClassName={`${this.className}__body`}
-        className={classDashlet}
+        bodyClassName="ecos-barcode-dashlet__body"
+        className={classNames('ecos-barcode-dashlet', classNameDashlet)}
         resizable={false}
         needGoTo={false}
         actionHelp={false}

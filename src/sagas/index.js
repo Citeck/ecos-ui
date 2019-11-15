@@ -19,6 +19,7 @@ import docAssociations from './docAssociations';
 import view from './view';
 import webPage from './webPage';
 import birthdays from './birthdays';
+import barcode from './barcode';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -41,6 +42,7 @@ export default function* rootSaga(extraArguments) {
     docAssociations(extraArguments),
     view(extraArguments),
     webPage(extraArguments),
-    birthdays(extraArguments)
+    birthdays(extraArguments),
+    barcode(extraArguments),
   ]);
 }
