@@ -2,19 +2,19 @@ import { getSessionData, setSessionData } from './ls';
 
 export const SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
 
-export function fetchExpandableItems(items, selectedId) {
+export function fetchExpandableItems(items, selectedId, isSlideMenuOpen) {
   let flatList = [];
   items.map(item => {
     const hasNestedList = !!item.items;
     if (hasNestedList) {
-      let isNestedListExpanded = !!item.sectionTitle || hasChildWithId(item.items, selectedId);
+      let isNestedListExpanded = !!item.sectionTitle || (isSlideMenuOpen && hasChildWithId(item.items, selectedId));
       flatList.push(
         {
           id: item.id,
           hasNestedList,
           isNestedListExpanded
         },
-        ...fetchExpandableItems(item.items, selectedId)
+        ...fetchExpandableItems(item.items, selectedId, isSlideMenuOpen)
       );
     }
     return null;

@@ -8,7 +8,6 @@ import {
   fetchSlideMenuItems,
   fetchSmallLogoSrc,
   getSiteDashboardEnable,
-  toggleExpanded,
   toggleIsOpen
 } from '../../actions/slideMenu';
 import Logo from './Logo';
@@ -94,7 +93,6 @@ const mapDispatchToProps = dispatch => ({
   fetchSmallLogoSrc: () => dispatch(fetchSmallLogoSrc()),
   fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
-  toggleExpanded: id => dispatch(toggleExpanded(id)),
   getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable()),
   collapseAllItems: () => dispatch(collapseAllItems())
 });

@@ -43,7 +43,7 @@ function* fetchSlideMenu({ api, fakeApi, logger }) {
     const menuItems = apiData.items;
     const selectedId = getSelected();
     const isOpen = get(ULS.getMenuMode(), 'isSlideMenuOpen', true);
-    const expandableItems = fetchExpandableItems(menuItems, selectedId);
+    const expandableItems = fetchExpandableItems(menuItems, selectedId, isOpen);
 
     yield put(toggleIsOpen(isOpen));
     yield put(setSelectedId(selectedId));
