@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import ReactResizeDetector from 'react-resize-detector';
+import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 
 import Panel from '../common/panels/Panel/Panel';
@@ -366,7 +367,7 @@ class Dashlet extends Component {
           </div>
         </Panel>
 
-        <ReactResizeDetector handleWidth handleHeight onResize={onResize} />
+        <ReactResizeDetector handleWidth handleHeight onResize={debounce(onResize, 100)} />
       </div>
     );
   }
