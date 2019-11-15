@@ -26,7 +26,7 @@ class ItemBtn extends React.Component {
   };
 
   render() {
-    const { children, data } = this.props;
+    const { children } = this.props;
 
     return (
       <div onClick={this.clickHandler} className="ecos-sidebar-item__link">

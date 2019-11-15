@@ -17,6 +17,7 @@ import { MIN_WIDTH_DASHLET_SMALL, MIN_WIDTH_DASHLET_LARGE } from '../../../const
 
 import './JournalsDashlet.scss';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
+import debounce from 'lodash/debounce';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId || props.id] || {};
@@ -75,6 +76,8 @@ class JournalsDashlet extends Component {
   handleResize = width => {
     this.setState({ width });
   };
+
+  debouncedResizeHandler = debounce(this.handleResize.bind(this), 100);
 
   handleToggleContent = (isCollapsed = false) => {
     this.setState({ isCollapsed });
@@ -150,7 +153,7 @@ class JournalsDashlet extends Component {
         style={{
           minWidth: `${MIN_WIDTH_DASHLET_SMALL}px`
         }}
-        onResize={this.handleResize}
+        onResize={this.debouncedResizeHandler}
         dragHandleProps={dragHandleProps}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}

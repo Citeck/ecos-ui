@@ -49,7 +49,7 @@ class Sidebar extends React.Component {
   };
 
   render() {
-    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, expandableItems } = this.props;
+    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items } = this.props;
 
     if (!isReady) {
       return null;
