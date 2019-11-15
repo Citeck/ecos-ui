@@ -8,8 +8,6 @@
   font-weight: $font-weight-bold;
   font-size: $font-size-standard;
   color: $color-white;
-  padding: 2px 5px;
-  line-height: unset;
   border-radius: $border-radius-biggest;
   min-width: 20px;
 
@@ -25,5 +23,15 @@
     font-size: $font-size-small;
     line-height: 1.4;
     padding: 0 5px;
+  }
+
+  &_medium {
+    padding: 2px 5px;
+    line-height: unset;
+  }
+
+  &_large {
+    padding: 0 9px;
+    line-height: 20px;
   }
 }

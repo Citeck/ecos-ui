@@ -111,7 +111,7 @@ const Header = ({
         {title}
       </span>
 
-      <Badge text={badgeText} small={isMobile} />
+      <Badge text={badgeText} size={isMobile ? 'small' : 'large'} />
 
       {needGoTo && btnGoTo}
 

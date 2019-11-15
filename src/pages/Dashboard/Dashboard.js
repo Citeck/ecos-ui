@@ -322,7 +322,7 @@ class Dashboard extends Component {
               }
             >
               <div className="ecos-dashboard__header-name">{t(name)}</div>
-              {version && <Badge text={version} small={isMobile} />}
+              {version && <Badge text={version} size={isMobile ? 'small' : 'large'} />}
             </ReactPlaceholder>
           </div>
         );

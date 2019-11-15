@@ -9,22 +9,21 @@ class Badge extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     text: PropTypes.string,
-    small: PropTypes.bool,
+    short: PropTypes.bool,
+    size: PropTypes.oneOf(['small', 'medium', 'large']),
     state: PropTypes.string
   };
 
   static defaultProps = {
     className: '',
     text: '',
-    small: false,
+    size: 'large',
     state: 'info'
   };
 
   render() {
-    const { className, state, text, small } = this.props;
-    const classes = classNames('ecos-badge', `ecos-badge_${state}`, className, {
-      'ecos-badge_small': small
-    });
+    const { className, state, text, size } = this.props;
+    const classes = classNames('ecos-badge', `ecos-badge_${state}`, `ecos-badge_${size}`, className);
 
     return isEmpty(text) ? null : <span className={classes}>{text}</span>;
   }

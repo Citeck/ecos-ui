@@ -26,6 +26,7 @@ function RemoteBadge({ data, isOpen }) {
         text={journalTotalCount}
         className={classNames('ecos-sidebar-item__badge', { 'ecos-sidebar-item__badge_hide': !isOpen })}
         state="danger"
+        size="medium"
       />
       <div className={classNames('ecos-sidebar-item__point', { 'ecos-sidebar-item__point_hide': isOpen || !journalTotalCount })} />
     </>
