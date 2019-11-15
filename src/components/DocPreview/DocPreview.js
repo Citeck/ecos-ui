@@ -44,12 +44,7 @@ class DocPreview extends Component {
     scale: 'auto',
     firstPageNumber: 1,
     recordKey: 'recordRef',
-    byLink: false,
-    noIndents: false,
-    resizable: false,
-    isCollapsed: false,
-    fileName: '',
-    setUserScale: () => null
+    fileName: ''
   };
 
   state = {};
@@ -122,13 +117,19 @@ class DocPreview extends Component {
   get commonProps() {
     const { settings } = this.state;
 
-    return {
+    const props = {
       settings,
       isLoading: !this.loaded,
       calcScale: this.setCalcScale,
       onFullscreen: this.onFullscreen,
       getContentHeight: this.getContentHeight
     };
+
+    if (this.props.getContainerPageHeight) {
+      props.getContainerPageHeight = this.props.getContainerPageHeight;
+    }
+
+    return props;
   }
 
   get loaded() {
@@ -220,7 +221,7 @@ class DocPreview extends Component {
 
   onChangeSettings = settings => {
     this.setState({ settings });
-    this.props.setUserScale(settings.scale);
+    this.props.setUserScale && this.props.setUserScale(settings.scale);
   };
 
   onFullscreen = (isFullscreen = false) => {

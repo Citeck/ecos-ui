@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { TextLayerBuilder } from 'pdfjs-dist/lib/web/text_layer_builder.js';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-import { getScale } from '../../helpers/util';
+import { getScale, isMobileDevice } from '../../helpers/util';
 
 class PdfPage extends Component {
   static propTypes = {
@@ -17,6 +17,7 @@ class PdfPage extends Component {
       currentPage: PropTypes.number
     }),
     calcScale: PropTypes.func,
+    getContainerPageHeight: PropTypes.func,
     refViewer: PropTypes.object
   };
 
@@ -68,6 +69,7 @@ class PdfPage extends Component {
   }
 
   setPageParams = page => {
+    const isMob = isMobileDevice();
     const {
       settings: { scale },
       defHeight
@@ -77,7 +79,7 @@ class PdfPage extends Component {
     const [, , width, height] = page.getViewport().viewBox;
     let { clientWidth: cW, clientHeight: cH } = elContainer;
 
-    if (!cH && defHeight) {
+    if (!cH && defHeight && !isMob) {
       cH = defHeight;
     }
 
@@ -117,6 +119,14 @@ class PdfPage extends Component {
 
     if (Number.isNaN(parseFloat(scale))) {
       this.props.calcScale && this.props.calcScale(calcScale);
+    }
+
+    if (isMob) {
+      const margin = 30;
+      const diff = elContainer.parentElement.clientHeight - elContainer.clientHeight + margin;
+      const containerPageHeight = viewport.height + diff;
+
+      this.props.getContainerPageHeight && this.props.getContainerPageHeight(containerPageHeight);
     }
   };
 

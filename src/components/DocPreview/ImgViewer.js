@@ -19,8 +19,7 @@ class ImgViewer extends Component {
     settings: {
       scale: 1,
       isFullscreen: false
-    },
-    onError: () => null
+    }
   };
 
   refImg = React.createRef();
@@ -32,7 +31,10 @@ class ImgViewer extends Component {
 
   componentDidMount() {
     this.elImage.addEventListener('fullscreenchange', this.onFullscreenchange, false);
-    this.elImage.onerror = this.props.onError;
+
+    if (this.props.onError) {
+      this.elImage.onerror = this.props.onError;
+    }
   }
 
   componentWillReceiveProps(nextProps) {

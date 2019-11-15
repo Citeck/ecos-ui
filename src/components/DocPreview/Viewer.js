@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import fscreen from 'fscreen';
 import get from 'lodash/get';
+import set from 'lodash/set';
 import { Scrollbars } from 'react-custom-scrollbars';
 import PropTypes from 'prop-types';
 
@@ -23,18 +24,12 @@ export default function getViewer(WrappedComponent, isPdf) {
     };
 
     static defaultProps = {
-      isLoading: false,
-      resizable: false,
-      scrollPage: () => null,
       settings: {}
     };
 
     constructor(props) {
       super(props);
 
-      this.state = {
-        scrollPage: 1
-      };
       this.refViewer = React.createRef();
       this.fullScreenOff = true;
     }
@@ -45,28 +40,44 @@ export default function getViewer(WrappedComponent, isPdf) {
       }
     }
 
-    componentWillReceiveProps(nextProps) {
-      let oldSet = this.props.settings;
-      let { isLoading } = this.props;
-      let { currentPage, isFullscreen } = nextProps.settings;
-
+    getSnapshotBeforeUpdate(prevProps) {
       if (isPdf) {
-        if (this.elScrollbar && !isLoading && currentPage !== oldSet.currentPage) {
-          let children = this.childrenScroll;
-          let childrenLen = children.length;
+        const snapshot = {
+          openFullscreen: false,
+          page: null
+        };
 
-          currentPage = currentPage > 0 && currentPage <= childrenLen ? currentPage : 1;
+        const { currentPage: prevCurrentPage, isFullscreen: prevIsFullscreen } = prevProps.settings;
+        const { currentPage, isFullscreen, isLoading } = this.props.settings;
 
-          let scrollPage = get(children, `${[currentPage - 1]}.offsetTop`, 0) + 12;
-
-          this.elScrollbar.scrollTop(scrollPage);
-          this.setState({ scrollPage: currentPage });
+        if (!!prevIsFullscreen !== !!isFullscreen) {
+          snapshot.openFullscreen = isFullscreen;
         }
 
-        if (!!isFullscreen !== !!oldSet.isFullscreen) {
-          if (isFullscreen) {
-            fscreen.requestFullscreen(this.elViewer);
-          }
+        if (!isLoading && this.elScrollbar && currentPage !== prevCurrentPage) {
+          const children = this.childrenScroll;
+          const childrenLen = children.length;
+
+          snapshot.page = currentPage > 0 && currentPage <= childrenLen ? currentPage : 1;
+        }
+
+        return snapshot;
+      }
+
+      return null;
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+      if (snapshot !== null) {
+        if (snapshot.openFullscreen) {
+          fscreen.requestFullscreen(this.elViewer);
+        }
+
+        if (snapshot.page !== null) {
+          const children = this.childrenScroll;
+          const scrollTo = get(children, `${[snapshot.page - 1]}.offsetTop`, 0);
+
+          set(this.elScrollbar, 'view.scrollTop', scrollTo);
         }
       }
     }
@@ -86,8 +97,8 @@ export default function getViewer(WrappedComponent, isPdf) {
     }
 
     get childrenScroll() {
-      if (this.elScrollbar) {
-        return this.elScrollbar.view.children || [];
+      if (this.elScrollbar && this.elScrollbar.view) {
+        return this.elScrollbar.view.querySelectorAll('.ecos-doc-preview__viewer-page');
       }
 
       return [];
@@ -117,10 +128,8 @@ export default function getViewer(WrappedComponent, isPdf) {
         let coords = Array.from(children).map(el => get(el, 'offsetTop', 0));
         let found = coords.reverse().find(val => get(e, 'scrollTop', 0) + get(children, '[0].offsetHeight', 0) / 5 >= val);
         let foundIdx = coords.reverse().findIndex(val => found === val);
-        let scrollPage = foundIdx + 1;
 
-        this.setState({ scrollPage });
-        this.props.scrollPage(scrollPage);
+        this.props.scrollPage && this.props.scrollPage(foundIdx + 1);
       }
     };
 

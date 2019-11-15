@@ -29,8 +29,7 @@ class DocPreviewDashlet extends Component {
     classNamePreview: '',
     fileName: '',
     classNameDashlet: '',
-    dragHandleProps: {},
-    canDragging: false
+    dragHandleProps: {}
   };
 
   constructor(props) {
@@ -41,7 +40,7 @@ class DocPreviewDashlet extends Component {
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
       height: UserLocalSettingsService.getDashletHeight(props.id),
-      scale: UserLocalSettingsService.getDashletScale(props.id) || 'auto',
+      scale: UserLocalSettingsService.getDashletScale(props.id) || (isMobileDevice() ? 0.65 : undefined),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       fitHeights: {}
     };
@@ -63,6 +62,18 @@ class DocPreviewDashlet extends Component {
   setUserScale = scale => {
     if (scale) {
       UserLocalSettingsService.setDashletScale(this.props.id, scale);
+    }
+  };
+
+  setContainerPageHeight = height => {
+    if (height !== this.state.height) {
+      this.setState({
+        height,
+        fitHeights: {
+          ...this.state.fitHeights,
+          max: height
+        }
+      });
     }
   };
 
@@ -108,6 +119,7 @@ class DocPreviewDashlet extends Component {
           scale={scale}
           fileName={fileName}
           setUserScale={this.setUserScale}
+          getContainerPageHeight={this.setContainerPageHeight}
           resizable
           isCollapsed={isCollapsed}
         />

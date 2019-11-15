@@ -8,7 +8,6 @@ import { Dropdown, Input } from '../common/form';
 import { getScaleModes, t } from '../../helpers/util';
 
 const CUSTOM = 'custom';
-const DEFAULT_SCALE = 'auto';
 const ZOOM_STEP = 0.15;
 
 const Labels = {
@@ -29,7 +28,7 @@ class Toolbar extends Component {
   };
 
   static defaultProps = {
-    scale: DEFAULT_SCALE,
+    scale: '',
     className: '',
     link: '',
     fileName: ''
@@ -49,7 +48,7 @@ class Toolbar extends Component {
   }
 
   componentDidMount() {
-    const { scale = DEFAULT_SCALE } = this.state;
+    const { scale } = this.state;
 
     let foundScale = this.zoomOptions.find(el => el.scale === scale);
     foundScale = foundScale || { id: CUSTOM, scale };
@@ -210,7 +209,11 @@ class Toolbar extends Component {
             className="ecos-btn_sq_sm ecos-btn_tight ecos-btn_drop-down ecos-doc-preview__toolbar-zoom-selector"
           />
         </Dropdown>
-        <IcoBtn icon={'glyphicon glyphicon-fullscreen'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={this.setFullScreen} />
+        <IcoBtn
+          icon={'glyphicon glyphicon-fullscreen'}
+          className="ecos-doc-preview__toolbar-zoom-fullscreen ecos-btn_sq_sm ecos-btn_tight"
+          onClick={this.setFullScreen}
+        />
       </div>
     );
   }
