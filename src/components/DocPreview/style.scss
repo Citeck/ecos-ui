@@ -52,6 +52,10 @@ $border-base: #c1c1c1;
           &-zoom-dropdown {
             display: none;
           }
+
+          &-zoom-fullscreen {
+            display: none;
+          }
         }
 
         &__viewer-page-number {
@@ -64,6 +68,10 @@ $border-base: #c1c1c1;
       #{$root} {
         &__toolbar {
           &-zoom-dropdown {
+            display: none;
+          }
+
+          &-zoom-fullscreen {
             display: none;
           }
         }
