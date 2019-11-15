@@ -50,7 +50,7 @@ const reducers = {
   docAssociations,
   webPage,
   birthdays,
-  barcode,
+  barcode
 };
 
 export default history =>

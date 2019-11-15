@@ -21,7 +21,7 @@ export const ComponentKeys = {
   DOC_ASSOCIATIONS: 'doc-associations',
   RECORD_ACTIONS: 'record-actions',
   WEB_PAGE: 'web-page',
-  BARCODE: 'barcode',
+  BARCODE: 'barcode'
 };
 
 /**

@@ -43,6 +43,6 @@ export default function* rootSaga(extraArguments) {
     view(extraArguments),
     webPage(extraArguments),
     birthdays(extraArguments),
-    barcode(extraArguments),
+    barcode(extraArguments)
   ]);
 }
