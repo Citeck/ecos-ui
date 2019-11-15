@@ -39,6 +39,15 @@ class Layout extends Component {
 
   // for caching loaded components
   _components = {};
+  _wrapperRef = React.createRef();
+
+  componentDidMount() {
+    this.checkWrapperStyle();
+  }
+
+  componentDidUpdate() {
+    this.checkWrapperStyle();
+  }
 
   get className() {
     const { className } = this.props;
@@ -55,6 +64,12 @@ class Layout extends Component {
     }
 
     return -menu.clientWidth;
+  }
+
+  checkWrapperStyle() {
+    if (this._wrapperRef.current) {
+      this._wrapperRef.current.style.flexDirection = 'column';
+    }
   }
 
   draggablePositionAdjusment = () => {
@@ -149,8 +164,12 @@ class Layout extends Component {
   }
 
   renderColumn = (column, index) => {
+    console.warn('column => ', column);
+
     if (Array.isArray(column)) {
-      return column.map(this.renderColumn);
+      this.checkWrapperStyle();
+
+      return <div className="ecos-layout__row">{column.map(this.renderColumn)}</div>;
     }
 
     const { columns, type, canDragging } = this.props;
@@ -200,14 +219,18 @@ class Layout extends Component {
     );
   };
 
-  renderColumns() {
+  renderLayout() {
     const { columns } = this.props;
 
     if (!columns) {
       return null;
     }
 
-    return <div className="ecos-layout__column-wrapper">{columns && columns.map(this.renderColumn)}</div>;
+    return (
+      <div className="ecos-layout__wrapper" ref={this._wrapperRef}>
+        {columns && columns.map(this.renderColumn)}
+      </div>
+    );
   }
 
   render() {
@@ -216,12 +239,12 @@ class Layout extends Component {
     if (canDragging) {
       return (
         <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDragEnd}>
-          <div className={this.className}>{this.renderColumns()}</div>
+          <div className={this.className}>{this.renderLayout()}</div>
         </DragDropContext>
       );
     }
 
-    return <div className={this.className}>{this.renderColumns()}</div>;
+    return <div className={this.className}>{this.renderLayout()}</div>;
   }
 }
 

@@ -176,6 +176,14 @@ $indents-of-items: 10px;
     }
   }
 
+  &__row {
+    display: flex;
+
+    &:not(:last-child) {
+      margin-bottom: $indents-of-items;
+    }
+  }
+
   &__column {
     width: 100%;
     height: auto !important;
@@ -184,11 +192,11 @@ $indents-of-items: 10px;
     &:not(:first-child) {
       margin-left: $indents-of-items;
     }
+  }
 
-    &-wrapper {
-      display: flex;
-      justify-content: space-between;
-    }
+  &__wrapper {
+    display: flex;
+    justify-content: space-between;
   }
 
   &__menu {
