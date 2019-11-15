@@ -20,6 +20,7 @@ function* sagaGetGeneratedBarcode({ api, logger }, { payload }) {
     logger.error('[barcode/sagaGetGeneratedBarcode saga] error', e.message);
   }
 }
+
 function* sagaPrintBarcode({ api, logger }, { payload }) {
   const err = t('barcode-widget.saga.error2');
 
