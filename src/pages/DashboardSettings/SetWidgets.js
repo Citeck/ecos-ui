@@ -142,7 +142,7 @@ class SetWidgets extends React.Component {
                       removeItem={response => {
                         this.handleRemoveWidget(response, indexColumn, indexWidget);
                       }}
-                      getPositionAdjusment={positionAdjustment}
+                      // getPositionAdjusment={positionAdjustment}
                       item={widget}
                     />
                   ))}
@@ -187,7 +187,7 @@ class SetWidgets extends React.Component {
                     draggableId={item.dndId}
                     draggableIndex={index}
                     title={this.getWidgetLabel(item)}
-                    getPositionAdjusment={positionAdjustment}
+                    // getPositionAdjusment={positionAdjustment}
                   />
                 ))}
             </Droppable>

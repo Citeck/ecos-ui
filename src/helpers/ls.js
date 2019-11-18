@@ -104,7 +104,7 @@ export function isExistSessionStorage() {
 }
 
 export function getSessionData(key = '') {
-  if (!key) {
+  if (!key || !isExistSessionStorage()) {
     return null;
   }
 
@@ -112,7 +112,7 @@ export function getSessionData(key = '') {
 }
 
 export function setSessionData(key = '', data = null) {
-  if (!key) {
+  if (!key || !isExistSessionStorage()) {
     return null;
   }
 

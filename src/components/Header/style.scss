@@ -66,6 +66,10 @@
     & > :not(:last-child) {
       margin-right: 10px;
     }
+
+    #{$root}-hamburger {
+      margin-right: 26px;
+    }
   }
 
   &-create {
@@ -172,9 +176,6 @@
     &-result {
       $result: &;
 
-      &__separator {
-      }
-
       &:hover {
         margin-top: -2px;
         padding: 2px 15px 0 !important;
@@ -236,26 +237,15 @@
   }
 
   &-hamburger {
-    &__btn {
-      &.ecos-btn {
-        position: relative;
-        padding: 0;
-        margin-right: 15px;
-      }
+    color: $color-white;
+    display: inline-flex;
+    align-items: center;
+    line-height: normal;
+    font-weight: normal;
+    cursor: pointer;
 
-      .ecos-btn__i {
-        margin-right: 0;
-        font-size: 18px;
-      }
-    }
-
-    &__label {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      left: 0;
-      margin: 0;
+    .icon {
+      font-size: 17px;
     }
   }
 }
@@ -283,7 +273,7 @@
 
         max-width: $size !important;
         width: $size !important;
-        z-index: 1;
+        z-index: 102;
 
         & ~ .ecos-avatar,
         & ~ .ecos-header-user {
@@ -292,11 +282,5 @@
         }
       }
     }
-  }
-}
-
-@media screen and (min-width: 551px) {
-  .ecos-header .ecos-header-hamburger__btn {
-    display: none !important;
   }
 }

@@ -3,27 +3,22 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
+import { MENU_TYPE } from '../../constants';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
+
+import SlideMenuBtn from './SlideMenuBtn';
 import CreateMenu from './CreateMenu';
-import HamburgerIcon from './HamburgerIcon';
 import UserMenu from './UserMenu';
 import SiteMenu from './SiteMenu';
 import Search from './Search';
 import LanguageSwitcher from './LanguageSwitcher';
-import { MENU_TYPE } from '../../constants';
 
 import './style.scss';
 
 const mapDispatchToProps = dispatch => ({
-  fetchCreateCaseWidgetData: () => {
-    dispatch(fetchCreateCaseWidgetData());
-  },
-  fetchUserMenuData: () => {
-    dispatch(fetchUserMenuData());
-  },
-  fetchSiteMenuData: () => {
-    dispatch(fetchSiteMenuData());
-  }
+  fetchCreateCaseWidgetData: () => dispatch(fetchCreateCaseWidgetData()),
+  fetchUserMenuData: () => dispatch(fetchUserMenuData()),
+  fetchSiteMenuData: () => dispatch(fetchSiteMenuData())
 });
 
 const mapStateToProps = state => ({
@@ -52,28 +47,22 @@ class Header extends React.Component {
   }
 
   onResize = width => {
-    const widthHeader = width >= 550 ? width + this.menuWidth : width;
-
-    this.setState({ widthHeader });
+    this.setState({ widthHeader: width });
   };
 
   render() {
     const { widthHeader } = this.state;
     const { isMobile, hideSiteMenu, theme } = this.props;
-    const classNameContainer = classNames('ecos-header', `ecos-header_theme_${theme}`, {
-      'ecos-header_small': isMobile
-    });
-    const classNameSide = 'ecos-header__side';
 
     return (
       <React.Fragment>
         <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
-        <div className={classNameContainer}>
-          <div className={`${classNameSide} ${classNameSide}_left`}>
-            <HamburgerIcon theme={theme} />
+        <div className={classNames('ecos-header', `ecos-header_theme_${theme}`, { 'ecos-header_small': isMobile })}>
+          <div className="ecos-header__side ecos-header__side_left">
+            <SlideMenuBtn />
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
-          <div className={`${classNameSide} ${classNameSide}_right`}>
+          <div className="ecos-header__side ecos-header__side_right">
             <Search isMobile={widthHeader <= 600} />
             {hideSiteMenu || isMobile || (widthHeader > 600 && <SiteMenu />)}
             {isMobile || (widthHeader > 600 && <LanguageSwitcher theme={theme} />)}

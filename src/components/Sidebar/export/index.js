@@ -7,19 +7,19 @@ import ReactDOM from 'react-dom';
 import Logger from 'logplease';
 import { Provider } from 'react-redux';
 
-import SlideMenu from '../SlideMenu';
+import Sidebar from '../Sidebar';
 
 import { MenuApi } from '../../../api/menu';
 import { ViewApi } from '../../../api/view';
 import { fakeApi } from '../../../api/fakeApi';
 
-import { loadThemeRequest, detectMobileDevice } from '../../../actions/view';
+import { detectMobileDevice, loadThemeRequest } from '../../../actions/view';
 import { initMenuSettings } from '../../../actions/menu';
 
 import configureStore from './store';
 import { i18nInit } from '../../../i18n';
 
-const logger = Logger.create('SlideMenu');
+const logger = Logger.create('Sidebar');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);
 
 const api = {};
@@ -42,7 +42,7 @@ const render = (elementId, props, callback) => {
         i18nInit({ debug: false }).then(() => {
           ReactDOM.render(
             <Provider store={store}>
-              <SlideMenu {...props} />
+              <Sidebar {...props} />
             </Provider>,
             document.getElementById(elementId),
             callback

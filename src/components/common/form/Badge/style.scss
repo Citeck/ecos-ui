@@ -7,14 +7,15 @@
   white-space: nowrap;
   font-weight: $font-weight-bold;
   font-size: $font-size-standard;
-  background-color: $color-gray-5;
   color: $color-white;
-  padding: 0 9px;
-  line-height: 20px;
   border-radius: $border-radius-biggest;
   min-width: 20px;
 
-  &_error {
+  &_info {
+    background-color: $color-gray-5;
+  }
+
+  &_danger {
     background-color: $color-red-2;
   }
 
@@ -22,5 +23,15 @@
     font-size: $font-size-small;
     line-height: 1.4;
     padding: 0 5px;
+  }
+
+  &_medium {
+    padding: 2px 5px;
+    line-height: unset;
+  }
+
+  &_large {
+    padding: 0 9px;
+    line-height: 20px;
   }
 }

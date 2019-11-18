@@ -50,82 +50,83 @@
   <div class="sticky-wrapper" >
     <div id="alf-hd">
       <div id="share-header"></div>
-      <div id="slide-menu"></div>
     </div>
-    <div>
+    <div class="ecos-base-page">
+      <div id="slide-menu"></div>
+      <div class="ecos-main-area">
+        <div class="navbar navbar-inverse" role="navigation" id="main-header" ng-show="showNav">
+          <div class="fixed-container">
+            <div class="navbar-header">
+              <!--<a ng-click="backToLanding()" class="landing-logo" ng-if="account != null && account != undefined" title="{{'GENERAL.MAIN-TITLE' | translate}}">-->
+                <!--<img ng-src="{{appResourceRoot}}images/flowable-logo.png" ng-srcset="{{appResourceRoot}}images/flowable-logo.png 1x, {{appResourceRoot}}images/flowable-logo@2x.png 2x">-->
+              <!--</a>-->
+              <ul class="nav navbar-nav" id="main-nav">
+                <li ng-class="{'active' : item.id == mainPage.id}" ng-repeat="item in $root.mainNavigation">
+                  <a ng-click="setMainPage(item)">{{item.title | translate}}</a>
+                </li>
+              </ul>
+            </div>
+            <!--<div class="pull-right {{currentAppDefinition.definition.theme}}"-->
+                 <!--ng-class="{'app-indicator': currentAppDefinition}" ng-if="authenticated" ng-cloack>-->
+                  <!--<span ng-if="currentAppDefinition.definition.theme">-->
+                      <!--{{currentAppDefinition.name}}-->
+                  <!--</span>-->
+              <!--<i class="glyphicon {{currentAppDefinition.definition.icon}}"></i>-->
 
-      <div class="navbar navbar-inverse" role="navigation" id="main-header" ng-show="showNav">
-        <div class="fixed-container">
-          <div class="navbar-header">
-            <!--<a ng-click="backToLanding()" class="landing-logo" ng-if="account != null && account != undefined" title="{{'GENERAL.MAIN-TITLE' | translate}}">-->
-              <!--<img ng-src="{{appResourceRoot}}images/flowable-logo.png" ng-srcset="{{appResourceRoot}}images/flowable-logo.png 1x, {{appResourceRoot}}images/flowable-logo@2x.png 2x">-->
-            <!--</a>-->
-            <ul class="nav navbar-nav" id="main-nav">
-              <li ng-class="{'active' : item.id == mainPage.id}" ng-repeat="item in $root.mainNavigation">
-                <a ng-click="setMainPage(item)">{{item.title | translate}}</a>
-              </li>
-            </ul>
-          </div>
-          <!--<div class="pull-right {{currentAppDefinition.definition.theme}}"-->
-               <!--ng-class="{'app-indicator': currentAppDefinition}" ng-if="authenticated" ng-cloack>-->
-                <!--<span ng-if="currentAppDefinition.definition.theme">-->
-                    <!--{{currentAppDefinition.name}}-->
-                <!--</span>-->
-            <!--<i class="glyphicon {{currentAppDefinition.definition.icon}}"></i>-->
-
-            <!--<div class="dropdown btn-group btn-group-sm" activiti-fix-dropdown-bug>-->
-              <!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">-->
-                <!--{{account.firstName && account.firstName != 'null' ? account.firstName : ''}} {{account.lastName && account.lastName != 'null' ? account.lastName : ''}}-->
-                <!--<span class="glyphicon glyphicon-chevron-down" style="font-size: 10px" aria-hidden="true"></span>-->
-              <!--</button>-->
-              <!--<ul class="dropdown-menu pull-right">-->
-                <!--<li><a href="" ng-click="logout()" translate>GENERAL.ACTION.LOGOUT</a></li>-->
-              <!--</ul>-->
+              <!--<div class="dropdown btn-group btn-group-sm" activiti-fix-dropdown-bug>-->
+                <!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">-->
+                  <!--{{account.firstName && account.firstName != 'null' ? account.firstName : ''}} {{account.lastName && account.lastName != 'null' ? account.lastName : ''}}-->
+                  <!--<span class="glyphicon glyphicon-chevron-down" style="font-size: 10px" aria-hidden="true"></span>-->
+                <!--</button>-->
+                <!--<ul class="dropdown-menu pull-right">-->
+                  <!--<li><a href="" ng-click="logout()" translate>GENERAL.ACTION.LOGOUT</a></li>-->
+                <!--</ul>-->
+              <!--</div>-->
             <!--</div>-->
-          <!--</div>-->
-        </div>
-      </div>
-
-      <!--[if lt IE 9]>
-      <div class="unsupported-browser">
-        <p class="alert error">You are using an unsupported browser. Please upgrade your browser in order to use the
-          editor.</p>
-      </div>
-      <![endif]-->
-      <!--[if IE 9]>
-      <div id="no-flash-message" class="unsupported-browser" style="display: none">
-        <p class="alert error">No Adobe Flash installed. Please install Adobe Flash in order to use the file upload capabilities on this version of Internet Explorer.</p>
-      </div>
-      <script>
-        var hasFlash = false;
-        try {
-          hasFlash = Boolean(new ActiveXObject('ShockwaveFlash.ShockwaveFlash'));
-        } catch(exception) {
-          hasFlash = ('undefined' != typeof navigator.mimeTypes['application/x-shockwave-flash']);
-        }
-        if (!hasFlash) {
-          var showNoFlashMessage = function () {
-            var element = document.getElementById('no-flash-message');
-            element.style.display="block";
-          };
-          showNoFlashMessage();
-        }
-      </script>
-      <![endif]-->
-
-      <div class="alert-wrapper" ng-cloak>
-        <div class="alert fadein {{alerts.current.type}}" ng-show="alerts.current" ng-click="dismissAlert()">
-          <i class="glyphicon"
-             ng-class="{'glyphicon-ok': alerts.current.type == 'info', 'glyphicon-remove': alerts.current.type == 'error'}"></i>
-          <span>{{alerts.current.message}}</span>
-
-          <div class="pull-right" ng-show="alerts.queue.length > 0">
-            <span class="badge">{{alerts.queue.length + 1}}</span>
           </div>
         </div>
-      </div>
 
-      <div id="main" class="wrapper full clearfix" ng-view="" ng-cloak ng-style="{height: (window.height - 62) + 'px'}"></div>
+        <!--[if lt IE 9]>
+        <div class="unsupported-browser">
+          <p class="alert error">You are using an unsupported browser. Please upgrade your browser in order to use the
+            editor.</p>
+        </div>
+        <![endif]-->
+        <!--[if IE 9]>
+        <div id="no-flash-message" class="unsupported-browser" style="display: none">
+          <p class="alert error">No Adobe Flash installed. Please install Adobe Flash in order to use the file upload capabilities on this version of Internet Explorer.</p>
+        </div>
+        <script>
+          var hasFlash = false;
+          try {
+            hasFlash = Boolean(new ActiveXObject('ShockwaveFlash.ShockwaveFlash'));
+          } catch(exception) {
+            hasFlash = ('undefined' != typeof navigator.mimeTypes['application/x-shockwave-flash']);
+          }
+          if (!hasFlash) {
+            var showNoFlashMessage = function () {
+              var element = document.getElementById('no-flash-message');
+              element.style.display="block";
+            };
+            showNoFlashMessage();
+          }
+        </script>
+        <![endif]-->
+
+        <div class="alert-wrapper" ng-cloak>
+          <div class="alert fadein {{alerts.current.type}}" ng-show="alerts.current" ng-click="dismissAlert()">
+            <i class="glyphicon"
+               ng-class="{'glyphicon-ok': alerts.current.type == 'info', 'glyphicon-remove': alerts.current.type == 'error'}"></i>
+            <span>{{alerts.current.message}}</span>
+
+            <div class="pull-right" ng-show="alerts.queue.length > 0">
+              <span class="badge">{{alerts.queue.length + 1}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="main" class="wrapper full clearfix" ng-view="" ng-cloak ng-style="{height: (window.height - 62) + 'px'}"></div>
+      </div>
     </div>
 
     <!--<div class="sticky-push"></div>-->
@@ -308,15 +309,15 @@
       redirectToBPMNDesignerPage();
     }
 
-    require([
-      'ecosui!slide-menu-next'
-    ], function(SlideMenu) {
-      SlideMenu.render('slide-menu');
-    });
-
     require(['ecosui!header'], function(Header) {
       Header.render('share-header', {
         hideSiteMenu: true
+      }, () => {
+        require([
+          'ecosui!slide-menu-next'
+        ], function(SlideMenu) {
+          SlideMenu.render('slide-menu');
+        });
       });
     });
 

@@ -8,7 +8,7 @@ import get from 'lodash/get';
 
 import Header from '../Header';
 import Notification from '../Notification';
-import SlideMenu from '../SlideMenu';
+import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
 
@@ -37,15 +37,44 @@ class App extends Component {
     initMenuSettings();
   }
 
+  get wrapperStyle() {
+    const tabs = document.querySelector('.page-tab');
+    const alfrescoHeader = document.querySelector('#alf-hd');
+    const alfrescoFooter = document.querySelector('#alf-ft');
+    let height = ['3px'];
+
+    if (tabs) {
+      const style = window.getComputedStyle(tabs);
+      const outerHeight = tabs.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
+
+      height.push(`${outerHeight}px`);
+    }
+
+    if (alfrescoHeader) {
+      const style = window.getComputedStyle(alfrescoHeader);
+      const outerHeight = alfrescoHeader.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
+
+      height.push(`${outerHeight}px`);
+    }
+
+    if (alfrescoFooter) {
+      const style = window.getComputedStyle(alfrescoFooter);
+      const outerHeight = alfrescoFooter.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
+
+      height.push(`${outerHeight}px`);
+    }
+
+    return { height: `calc(100vh - (${height.join(' + ')}))` };
+  }
+
   renderMenu() {
     const { menuType } = this.props;
 
-    switch (menuType) {
-      case MENU_TYPE.LEFT:
-        return <SlideMenu />;
-      default:
-        return null;
+    if (menuType === MENU_TYPE.LEFT) {
+      return <Menu />;
     }
+
+    return null;
   }
 
   render() {
@@ -92,36 +121,39 @@ class App extends Component {
             <Header />
             <Notification />
           </div>
+          <div className="ecos-base-page">
+            {this.renderMenu()}
 
-          <PageTabs
-            homepageLink={URL.DASHBOARD}
-            isShow={isShow && !isMobile}
-            tabs={tabs}
-            saveTabs={setTabs}
-            changeActiveTab={changeActiveTab}
-            getActiveTabTitle={getActiveTabTitle}
-            isLoadingTitle={isLoadingTitle}
-          />
-
-          {this.renderMenu()}
-
-          <Suspense fallback={null}>
-            <Switch>
-              {/*<Route path="/share/page" exact component={DashboardPage} />*/}
-              <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
-              <Route exact path="/share" render={() => <Redirect to={URL.DASHBOARD} />} />
-              {/* TODO delete redirect some day */}
-              <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
-              <Route path={URL.DASHBOARD} exact component={DashboardPage} />
-              <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
-              <Route path={URL.JOURNAL} component={JournalsPage} />
-              {/* temporary routes */}
-              <Route path="/v2/debug/formio-develop" component={FormIOPage} />
-              <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
-
-              {/*<Route component={NotFoundPage} />*/}
-            </Switch>
-          </Suspense>
+            <div className="ecos-main-area">
+              <PageTabs
+                homepageLink={URL.DASHBOARD}
+                isShow={isShow && !isMobile}
+                tabs={tabs}
+                saveTabs={setTabs}
+                changeActiveTab={changeActiveTab}
+                getActiveTabTitle={getActiveTabTitle}
+                isLoadingTitle={isLoadingTitle}
+              />
+              <div className="ecos-main-content" style={this.wrapperStyle}>
+                <Suspense fallback={null}>
+                  <Switch>
+                    {/*<Route path="/share/page" exact component={DashboardPage} />*/}
+                    <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
+                    <Route exact path="/share" render={() => <Redirect to={URL.DASHBOARD} />} />
+                    {/* TODO delete redirect some day */}
+                    <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
+                    <Route path={URL.DASHBOARD} exact component={DashboardPage} />
+                    <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
+                    <Route path={URL.JOURNAL} component={JournalsPage} />
+                    {/* temporary routes */}
+                    <Route path="/v2/debug/formio-develop" component={FormIOPage} />
+                    <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
+                    {/*<Route component={NotFoundPage} />*/}
+                  </Switch>
+                </Suspense>
+              </div>
+            </div>
+          </div>
         </div>
 
         <NotificationContainer />
