@@ -1,5 +1,8 @@
 import React from 'react';
+import get from 'lodash/get';
+
 import BaseLayoutItem from './BaseLayoutItem';
+
 import './style.scss';
 
 export default class ColumnsLayoutItem extends BaseLayoutItem {
@@ -14,37 +17,41 @@ export default class ColumnsLayoutItem extends BaseLayoutItem {
   _order = 0;
 
   componentDidMount() {
-    this.checkStyle();
+    this.checkTemplateStyle();
   }
 
   componentDidUpdate() {
-    this.checkStyle();
+    this.checkTemplateStyle();
   }
 
-  checkStyle() {
+  checkTemplateStyle() {
     const {
       config: { columns }
     } = this.props;
 
-    if (this._templateRef.current && Array.isArray(columns[0])) {
+    if (this._templateRef.current && Array.isArray(get(columns, '0', null))) {
       this._templateRef.current.style.flexDirection = 'column';
       this._templateRef.current.style.fontSize = `calc(24px - (2px * ${columns.length}))`;
       this._templateRef.current.dataset.countRows = columns.length;
     }
   }
 
-  renderColumn = (params, index = 0) => {
+  renderColumn = (params, columnNumber) => {
     if (Array.isArray(params)) {
-      this.checkStyle();
+      this.checkTemplateStyle();
 
-      return <div className="ecos-layout__item-template-row">{params.map(this.renderColumn)}</div>;
+      return (
+        <div key={columnNumber} className="ecos-layout__item-template-row">
+          {params.map(this.renderColumn)}
+        </div>
+      );
     }
 
     this._order += 1;
 
     return (
       <div
-        key={index}
+        key={this._order}
         className="ecos-layout__item-template-column"
         style={{
           flexBasis: params.width,

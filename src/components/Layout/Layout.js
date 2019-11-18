@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
+import get from 'lodash/get';
 
 import { getMinWidthColumn } from '../../helpers/layout';
 import Components from '../Components';
@@ -14,10 +15,18 @@ import './style.scss';
 class Layout extends Component {
   static propTypes = {
     columns: PropTypes.arrayOf(
-      PropTypes.shape({
-        width: PropTypes.string,
-        widgets: PropTypes.array
-      })
+      PropTypes.oneOfType([
+        PropTypes.arrayOf(
+          PropTypes.shape({
+            width: PropTypes.string,
+            widgets: PropTypes.array
+          })
+        ),
+        PropTypes.shape({
+          width: PropTypes.string,
+          widgets: PropTypes.array
+        })
+      ])
     ).isRequired,
     menuType: PropTypes.string,
     className: PropTypes.string,
@@ -39,6 +48,7 @@ class Layout extends Component {
 
   // for caching loaded components
   _components = {};
+
   _wrapperRef = React.createRef();
 
   componentDidMount() {
@@ -67,7 +77,9 @@ class Layout extends Component {
   }
 
   checkWrapperStyle() {
-    if (this._wrapperRef.current) {
+    const { columns } = this.props;
+
+    if (this._wrapperRef.current && Array.isArray(get(columns, '0', null))) {
       this._wrapperRef.current.style.flexDirection = 'column';
     }
   }
@@ -164,12 +176,14 @@ class Layout extends Component {
   }
 
   renderColumn = (column, index) => {
-    console.warn('column => ', column);
-
     if (Array.isArray(column)) {
       this.checkWrapperStyle();
 
-      return <div className="ecos-layout__row">{column.map(this.renderColumn)}</div>;
+      return (
+        <div className="ecos-layout__row" key={index}>
+          {column.map(this.renderColumn)}
+        </div>
+      );
     }
 
     const { columns, type, canDragging } = this.props;

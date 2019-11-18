@@ -158,7 +158,7 @@ class SetWidgets extends React.Component {
     const { availableWidgets, positionAdjustment, isMobile } = this.props;
 
     return (
-      <React.Fragment>
+      <>
         <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.widgets.title')}</h5>
         <h6 className="ecos-dashboard-settings__container-subtitle">
           {isMobile ? t('dashboard-settings.widgets.subtitle-mobile') : t('dashboard-settings.widgets.subtitle')}
@@ -194,7 +194,7 @@ class SetWidgets extends React.Component {
             {this.renderWidgetColumns()}
           </DragDropContext>
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }
