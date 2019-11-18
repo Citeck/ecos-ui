@@ -25,7 +25,8 @@ class SetTabs extends React.Component {
 
   state = {
     scrollTabToEnd: false,
-    removedTab: null
+    removedTab: null,
+    editableTab: 0
   };
 
   doScrollEnd() {
@@ -63,6 +64,11 @@ class SetTabs extends React.Component {
     setData && setData({ tabs });
   };
 
+  onStartEditTab = (position = 0) => {
+    console.warn(position);
+    this.setState({ editableTab: position });
+  };
+
   onConfirmDeleteTab = (tab, index) => {
     this.setState({ removedTab: { ...tab, index } });
   };
@@ -98,7 +104,7 @@ class SetTabs extends React.Component {
 
   render() {
     const { tabs, activeTabKey } = this.props;
-    const { scrollTabToEnd, removedTab } = this.state;
+    const { scrollTabToEnd, removedTab, editableTab } = this.state;
     const empty = isEmpty(tabs);
 
     return (
@@ -108,6 +114,7 @@ class SetTabs extends React.Component {
           {!empty && (
             <ScrollArrow
               medium
+              changeScrollPosition={editableTab !== 0}
               scrollToEnd={scrollTabToEnd}
               className="ecos-dashboard-settings__layout-tabs-arrows"
               selectorToObserve="div.ecos-tabs.ecos-dashboard-settings__layout-tabs-wrap"
@@ -124,6 +131,7 @@ class SetTabs extends React.Component {
                 onDelete={this.onConfirmDeleteTab}
                 onSort={this.onSortTabs}
                 onEdit={this.onEditTab}
+                onStartEdit={this.onStartEditTab}
                 onClick={this.onClickTabLayout}
               />
             </ScrollArrow>

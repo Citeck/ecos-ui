@@ -25,7 +25,8 @@ class Tab extends React.Component {
     isNew: PropTypes.bool,
     index: PropTypes.number,
     onDelete: PropTypes.func,
-    onEdit: PropTypes.func
+    onEdit: PropTypes.func,
+    onStartEdit: PropTypes.func
   };
 
   static defaultProps = {
@@ -66,8 +67,11 @@ class Tab extends React.Component {
   }
 
   startEdit = e => {
+    // console.warn('startEdit e => ', e, this.props.index);
     if (!this.isEditable) {
       this.setState({ editing: true }, this.setFocus);
+
+      this.props.onStartEdit && this.props.onStartEdit(this.props.index);
     }
 
     e.stopPropagation();
@@ -132,6 +136,7 @@ class Tab extends React.Component {
   };
 
   onClick = e => {
+    // console.warn(e);
     if (this.isEditable) {
       e.preventDefault();
       e.stopPropagation();
@@ -183,7 +188,8 @@ class EditTabs extends React.Component {
     onSort: PropTypes.func,
     onDelete: PropTypes.func,
     onEdit: PropTypes.func,
-    onResize: PropTypes.func
+    onResize: PropTypes.func,
+    onStartEdit: PropTypes.func
   };
 
   static defaultProps = commonTabsDefaultProps;
@@ -196,6 +202,11 @@ class EditTabs extends React.Component {
 
   onDeleteItem = (item, index) => {
     this.props.onDelete && this.props.onDelete(item, index);
+  };
+
+  onStartEditItem = (position = 0) => {
+    console.warn(position);
+    this.props.onStartEdit && this.props.onStartEdit(position);
   };
 
   handleSortEnd = ({ oldIndex, newIndex }) => {
@@ -236,6 +247,7 @@ class EditTabs extends React.Component {
                 onClick={() => onClick(item, index)}
                 onDelete={() => this.onDeleteItem(item, index)}
                 onEdit={text => this.onEditItem(item, text, index)}
+                onStartEdit={this.onStartEditItem}
                 hasHover={hasHover}
                 hasHint={hasHint}
                 disabled={disabled}

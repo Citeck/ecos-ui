@@ -20,7 +20,8 @@ export default class ScrollArrow extends React.Component {
     small: PropTypes.bool,
     updateWhenDataChange: PropTypes.bool,
     scrollToEnd: PropTypes.bool,
-    scrollToSide: PropTypes.oneOf([0, -1, 1])
+    scrollToSide: PropTypes.oneOf([0, -1, 1]),
+    changeScrollPosition: PropTypes.bool
   };
 
   static defaultProps = {
@@ -29,6 +30,7 @@ export default class ScrollArrow extends React.Component {
     medium: false,
     small: false,
     scrollToEnd: false,
+    changeScrollPosition: true,
     scrollToSide: 0
   };
 
@@ -37,7 +39,8 @@ export default class ScrollArrow extends React.Component {
   state = {
     isShowArrows: false,
     isActiveLeft: false,
-    isActiveRight: true
+    isActiveRight: true,
+    prevWidth: 0
   };
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -71,7 +74,11 @@ export default class ScrollArrow extends React.Component {
   doScrollByStep = step => {
     const curScroll = get(this.refScroll, 'current.scrollLeft', 0);
 
-    set(this.refScroll, 'current.scrollLeft', curScroll + step);
+    if (this.refScroll.current) {
+      this.refScroll.current.scrollTo({ left: curScroll + step, behavior: 'smooth' });
+    }
+
+    // set(this.refScroll, 'current.scrollLeft', curScroll + step);
     this.checkArrows();
   };
 
@@ -102,14 +109,17 @@ export default class ScrollArrow extends React.Component {
   };
 
   onResize = w => {
-    debounce(() => {
-      const { prevWidth } = this.state;
-      const widthBtn = 40;
-      const diff = w - prevWidth + widthBtn;
+    const { changeScrollPosition } = this.props;
+    const { prevWidth } = this.state;
+    const widthBtn = 40;
+    // const diff = w - prevWidth + widthBtn;
+    const diff = Math.ceil(w - prevWidth);
 
+    if (diff > 0 && prevWidth && changeScrollPosition) {
       this.doScrollByStep(diff);
-      this.setState({ prevWidth: w });
-    }, 300)();
+    }
+
+    this.setState({ prevWidth: w });
   };
 
   render() {

@@ -51,7 +51,7 @@
     background-color: $color-blue-dark;
     border-color: $color-blue-dark;
 
-    #{$root}-label__input {
+    #{$root}-label_editing {
       color: $color-white;
     }
 
@@ -79,7 +79,7 @@
   &_editable {
     display: inline-flex;
     position: relative;
-    padding: 0 30px 0 17px;
+    padding: 0 27px 0 14px;
     min-width: 90px;
 
     &:hover {
@@ -93,6 +93,8 @@
     transition: width 0.1s linear;
     width: 100%;
     overflow: hidden;
+    padding: 0 1px;
+    //margin: 0 1px;
 
     &:focus {
       outline: none;
@@ -123,7 +125,7 @@
     position: absolute;
     right: 0;
     height: 100%;
-    padding-left: 3px;
+    //padding-left: 3px;
     display: inline-flex;
     align-items: center;
     background: var(--back-actions);
