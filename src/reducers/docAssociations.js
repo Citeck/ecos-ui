@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { setMenu, setSectionList, initStore, setDocuments, setAllowedConnections, getDocuments } from '../actions/docAssociations';
+import { getDocuments, initStore, setAllowedConnections, setDocuments, setMenu, setSectionList } from '../actions/docAssociations';
 
 export const initialState = {
   // список разделов

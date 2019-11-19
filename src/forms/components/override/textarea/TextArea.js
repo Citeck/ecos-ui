@@ -1,5 +1,6 @@
 import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
+
 const ACEJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/ace.js';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {

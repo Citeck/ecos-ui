@@ -1,11 +1,11 @@
 import { RecordService } from './recordService';
-import { PROXY_URI, MICRO_URI } from '../constants/alfresco';
+import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 import Records from '../components/Records';
-import { queryByCriteria, t, debounce } from '../helpers/util';
+import { debounce, queryByCriteria, t } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import { DocPreviewApi } from './docPreview';
-import { PREDICATE_OR, COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS } from '../components/common/form/SelectJournal/predicates';
+import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/common/form/SelectJournal/predicates';
 
 import { ActionModes } from '../constants';
 
