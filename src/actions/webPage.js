@@ -8,5 +8,6 @@ export const setPageData = createAction(prefix + 'SET_PAGE_DATA');
 export const changePageData = createAction(prefix + 'CHANGE_PAGE_DATA');
 export const startLoadingPage = createAction(prefix + 'START_LOADING_PAGE');
 export const loadedPage = createAction(prefix + 'LOADED_PAGE');
+export const cancelPageLoading = createAction(prefix + 'CANCEL_PAGE_LOADING');
 export const setError = createAction(prefix + 'SET_ERROR');
 export const reloadPageData = createAction(prefix + 'RELOAD_PAGE_DATA');
