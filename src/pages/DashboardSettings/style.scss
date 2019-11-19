@@ -233,6 +233,7 @@
     display: flex;
     flex-direction: column;
     width: 199px;
+    margin-bottom: 16px;
 
     &:not(:last-of-type) {
       margin-right: 16px;

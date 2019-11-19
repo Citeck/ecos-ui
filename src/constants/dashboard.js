@@ -18,7 +18,7 @@ export const Layouts = [
     position: 2,
     type: LAYOUT_TYPE.THREE_COLUMNS_CB,
     isActive: false,
-    columns: [{ width: '25%' }, {}, { width: '25%' }]
+    columns: [{ width: '20%' }, {}, { width: '20%' }]
   },
   {
     position: 3,
@@ -32,8 +32,42 @@ export const Layouts = [
     isActive: false,
     columns: [{}]
   },
+
   {
     position: 5,
+    type: LAYOUT_TYPE.TWO_COLUMNS_BS_FOOTER,
+    isActive: false,
+    excluded: false,
+    columns: [[{}, { width: '25%' }], [{ height: '20%' }]]
+  },
+  {
+    position: 6,
+    type: LAYOUT_TYPE.TWO_COLUMNS_SB_FOOTER,
+    isActive: false,
+    excluded: false,
+    columns: [[{ width: '25%' }, {}], [{}]]
+  },
+  {
+    position: 7,
+    type: LAYOUT_TYPE.THREE_COLUMNS_CB_FOOTER,
+    isActive: false,
+    columns: [[{ width: '20%' }, {}, { width: '20%' }], [{}]]
+  },
+  {
+    position: 8,
+    type: LAYOUT_TYPE.FOUR_COLUMNS_FOOTER,
+    isActive: false,
+    columns: [[{}, {}, {}, {}], [{}]]
+  },
+  {
+    position: 9,
+    type: LAYOUT_TYPE.CLASSIC_SITE,
+    isActive: false,
+    columns: [[{}], [{}, {}, {}], [{}]]
+  },
+
+  {
+    position: 999,
     type: LAYOUT_TYPE.MOBILE,
     isActive: false,
     excluded: true,
