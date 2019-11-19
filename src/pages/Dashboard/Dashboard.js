@@ -245,7 +245,7 @@ class Dashboard extends Component {
 
     return (
       <div className="ecos-dashboard__tabs-wrapper">
-        <ScrollArrow className="ecos-dashboard__tabs-arrows">
+        <ScrollArrow className="ecos-dashboard__tabs-arrows" small>
           <Tabs
             hasHover
             hasHint

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import debounce from 'lodash/debounce';
 import DashboardService from '../../services/dashboard';
 import { t } from '../../helpers/util';
 import { EditTabs, ScrollArrow } from '../../components/common';
@@ -21,20 +20,33 @@ class SetTabs extends React.Component {
 
   static defaultProps = {
     activeTabKey: '',
-    tabs: [],
-    setData: () => {}
+    tabs: []
   };
 
   state = {
     scrollTabToEnd: false,
-    removedTab: null
+    updateScrollPosition: false,
+    removedTab: null,
+    editableTab: 0
   };
+
+  doScrollEnd() {
+    this.setState({ scrollTabToEnd: true }, () => {
+      this.setState({ scrollTabToEnd: false });
+    });
+  }
+
+  doScrollCheck() {
+    this.setState({ updateScrollPosition: true }, () => {
+      this.setState({ updateScrollPosition: false });
+    });
+  }
 
   onClickTabLayout = tab => {
     let { activeTabKey, setData } = this.props;
 
     if (tab.idLayout !== activeTabKey) {
-      setData({ activeTabKey: tab.idLayout });
+      setData && setData({ activeTabKey: tab.idLayout });
     }
   };
 
@@ -43,18 +55,12 @@ class SetTabs extends React.Component {
     const idLayout = DashboardService.newIdLayout;
     const newTab = DashboardService.defaultDashboardTab(idLayout);
 
-    newTab.label += ` ${tabs.length + 1}`;
+    newTab.label = '';
     newTab.isNew = true;
 
     tabs.push(newTab);
-
-    setData({ tabs });
-
-    debounce(() => {
-      this.setState({ scrollTabToEnd: true }, () => {
-        this.setState({ scrollTabToEnd: false });
-      });
-    }, 50)();
+    setData && setData({ tabs });
+    this.doScrollEnd();
   };
 
   onEditTab = (tab, index) => {
@@ -62,8 +68,11 @@ class SetTabs extends React.Component {
     const { label, idLayout } = tab;
 
     set(tabs, [index], { label, idLayout });
+    setData && setData({ tabs });
+  };
 
-    setData({ tabs });
+  onStartEditTab = (position = 0) => {
+    this.setState({ editableTab: position });
   };
 
   onConfirmDeleteTab = (tab, index) => {
@@ -73,9 +82,10 @@ class SetTabs extends React.Component {
   onSortTabs = sortedTabs => {
     const { setData } = this.props;
 
-    setData({
-      tabs: sortedTabs.map(({ label, idLayout }) => ({ label, idLayout }))
-    });
+    setData &&
+      setData({
+        tabs: sortedTabs.map(({ label, idLayout }) => ({ label, idLayout }))
+      });
   };
 
   onDeleteTab = () => {
@@ -91,7 +101,8 @@ class SetTabs extends React.Component {
     }
 
     this.closeDialog();
-    setData({ tabs, activeTabKey });
+    setData && setData({ tabs, activeTabKey });
+    this.doScrollCheck();
   };
 
   closeDialog = () => {
@@ -100,7 +111,7 @@ class SetTabs extends React.Component {
 
   render() {
     const { tabs, activeTabKey } = this.props;
-    const { scrollTabToEnd, removedTab } = this.state;
+    const { scrollTabToEnd, removedTab, editableTab, updateScrollPosition } = this.state;
     const empty = isEmpty(tabs);
 
     return (
@@ -108,20 +119,28 @@ class SetTabs extends React.Component {
         <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
         <div className="ecos-dashboard-settings__layout-tabs-wrapper">
           {!empty && (
-            <ScrollArrow scrollToEnd={scrollTabToEnd} className="ecos-dashboard-settings__layout-tabs-arrows">
+            <ScrollArrow
+              medium
+              changeScrollPosition={editableTab !== 0}
+              scrollToEnd={scrollTabToEnd}
+              updateWhenDataChange={updateScrollPosition}
+              className="ecos-dashboard-settings__layout-tabs-arrows"
+              selectorToObserve="div.ecos-tabs.ecos-dashboard-settings__layout-tabs-wrap"
+            >
               <EditTabs
-                className="ecos-dashboard-settings__layout-tabs-block"
+                className="ecos-dashboard-settings__layout-tabs-wrap"
                 classNameTab="ecos-dashboard-settings__layout-tabs-item"
                 hasHover
                 hasHint
                 items={tabs}
                 keyField={'idLayout'}
+                disabled={tabs.length < 2}
+                activeTabKey={activeTabKey}
                 onDelete={this.onConfirmDeleteTab}
                 onSort={this.onSortTabs}
                 onEdit={this.onEditTab}
+                onStartEdit={this.onStartEditTab}
                 onClick={this.onClickTabLayout}
-                disabled={tabs.length < 2}
-                activeTabKey={activeTabKey}
               />
             </ScrollArrow>
           )}
