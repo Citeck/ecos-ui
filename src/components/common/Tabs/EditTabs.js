@@ -30,7 +30,10 @@ class Tab extends React.Component {
   };
 
   static defaultProps = {
-    ...commonOneTabDefaultProps
+    ...commonOneTabDefaultProps,
+    disabled: false,
+    isNew: false,
+    index: 0
   };
 
   constructor(props) {
@@ -43,6 +46,27 @@ class Tab extends React.Component {
       text: props.isNew ? EMPTY_STR : props.label,
       defText: `${t('page-tabs.tab-name-default')} ${props.index + 1}`
     };
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    const { index, isActive, hasHover, label, hasHint, disabled, isNew, editing, text } = this.props;
+    let needUpdate = false;
+
+    if (
+      nextProps.index !== index ||
+      nextProps.isActive !== isActive ||
+      nextProps.hasHover !== hasHover ||
+      nextProps.label !== label ||
+      nextProps.hasHint !== hasHint ||
+      nextProps.disabled !== disabled ||
+      nextProps.isNew !== isNew ||
+      nextState.editing !== editing ||
+      nextState.text !== text
+    ) {
+      needUpdate = true;
+    }
+
+    return needUpdate;
   }
 
   componentDidUpdate(prevProps) {
@@ -67,7 +91,6 @@ class Tab extends React.Component {
   }
 
   startEdit = e => {
-    // console.warn('startEdit e => ', e, this.props.index);
     if (!this.isEditable) {
       this.setState({ editing: true }, this.setFocus);
 
@@ -136,7 +159,6 @@ class Tab extends React.Component {
   };
 
   onClick = e => {
-    // console.warn(e);
     if (this.isEditable) {
       e.preventDefault();
       e.stopPropagation();
