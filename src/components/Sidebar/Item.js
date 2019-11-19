@@ -99,7 +99,7 @@ class Item extends React.Component {
 
     return (
       <Mover data={data} extraParams={extraParams} onClick={this.onClickItem}>
-        {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : data.label} />}
+        {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : get(data, 'label', '')} />}
         <div className="ecos-sidebar-item__label">{data.label}</div>
       </Mover>
     );
@@ -136,11 +136,13 @@ class Item extends React.Component {
 
   render() {
     const {
+      data,
       level,
       domId,
       isOpen,
       isExpanded,
       styleProps: {
+        noIcon,
         collapsed: { asSeparator }
       }
     } = this.props;
@@ -162,6 +164,7 @@ class Item extends React.Component {
           'ecos-sidebar-item_selected': this.isSelectedItem,
           'ecos-sidebar-item_separator': itemSeparator
         })}
+        title={!isOpen && !noIcon ? get(data, 'label', '') : ''}
         {...events}
       >
         {!itemSeparator && (
