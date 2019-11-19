@@ -25,6 +25,7 @@ class SetTabs extends React.Component {
 
   state = {
     scrollTabToEnd: false,
+    updateScrollPosition: false,
     removedTab: null,
     editableTab: 0
   };
@@ -32,6 +33,12 @@ class SetTabs extends React.Component {
   doScrollEnd() {
     this.setState({ scrollTabToEnd: true }, () => {
       this.setState({ scrollTabToEnd: false });
+    });
+  }
+
+  doScrollCheck() {
+    this.setState({ updateScrollPosition: true }, () => {
+      this.setState({ updateScrollPosition: false });
     });
   }
 
@@ -65,7 +72,6 @@ class SetTabs extends React.Component {
   };
 
   onStartEditTab = (position = 0) => {
-    console.warn(position);
     this.setState({ editableTab: position });
   };
 
@@ -96,6 +102,7 @@ class SetTabs extends React.Component {
 
     this.closeDialog();
     setData && setData({ tabs, activeTabKey });
+    this.doScrollCheck();
   };
 
   closeDialog = () => {
@@ -104,7 +111,7 @@ class SetTabs extends React.Component {
 
   render() {
     const { tabs, activeTabKey } = this.props;
-    const { scrollTabToEnd, removedTab, editableTab } = this.state;
+    const { scrollTabToEnd, removedTab, editableTab, updateScrollPosition } = this.state;
     const empty = isEmpty(tabs);
 
     return (
@@ -116,6 +123,7 @@ class SetTabs extends React.Component {
               medium
               changeScrollPosition={editableTab !== 0}
               scrollToEnd={scrollTabToEnd}
+              updateWhenDataChange={updateScrollPosition}
               className="ecos-dashboard-settings__layout-tabs-arrows"
               selectorToObserve="div.ecos-tabs.ecos-dashboard-settings__layout-tabs-wrap"
             >

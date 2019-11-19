@@ -40,29 +40,49 @@ export default class ScrollArrow extends React.Component {
     isShowArrows: false,
     isActiveLeft: false,
     isActiveRight: true,
-    prevWidth: 0
+    prevWidth: 0,
+    scrollLeft: 0
   };
-
-  componentWillReceiveProps(nextProps, nextContext) {
-    const { scrollToEnd, scrollToSide } = this.props;
-
-    if (!scrollToEnd && nextProps.scrollToEnd) {
-      const width = get(this.refScroll, 'current.scrollWidth', 0);
-
-      set(this.refScroll, 'current.scrollLeft', width);
-    }
-
-    if (nextProps.scrollToSide !== 0 && scrollToSide !== nextProps.scrollToSide) {
-      this.doScrollBySide(nextProps.scrollToSide);
-    }
-  }
 
   componentDidMount() {
     this.checkArrows();
   }
 
-  componentDidUpdate() {
-    this.checkArrows();
+  componentDidUpdate(prevProps, prevState) {
+    const { scrollToSide, scrollToEnd, updateWhenDataChange } = this.props;
+    const { scrollLeft, isShowArrows } = this.state;
+
+    if (scrollLeft !== prevState.scrollLeft) {
+      set(this.refScroll, 'current.scrollLeft', scrollLeft);
+      this.checkArrows();
+    }
+
+    if (scrollToSide !== 0 && prevProps.scrollToSide !== scrollToSide) {
+      this.doScrollBySide(scrollToSide);
+    }
+
+    if (!prevProps.scrollToEnd && scrollToEnd) {
+      const scrollWidth = get(this.refScroll, 'current.scrollWidth', 0);
+      const width = get(this.refScroll, 'current.offsetWidth', 0);
+
+      this.setState({ scrollLeft: scrollWidth - width });
+    }
+
+    if (updateWhenDataChange && !prevProps.updateWhenDataChange) {
+      const scroll = get(this.refScroll, 'current.scrollLeft', 0);
+
+      this.setState({ scrollLeft: scroll });
+      set(this.refScroll, 'current.scrollLeft', scroll);
+      this.checkArrows();
+    }
+
+    if (scrollLeft > get(this.refScroll, 'current.scrollWidth', 0)) {
+      this.setState({ scrollLeft: get(this.refScroll, 'current.scrollLeft', 0) });
+    }
+
+    if (!prevState.isShowArrows && isShowArrows && scrollLeft) {
+      this.setState({ scrollLeft: scrollLeft + 100 });
+    }
   }
 
   doScrollBySide = (factor = 1) => {
@@ -74,17 +94,15 @@ export default class ScrollArrow extends React.Component {
   doScrollByStep = step => {
     const curScroll = get(this.refScroll, 'current.scrollLeft', 0);
 
-    if (this.refScroll.current) {
-      this.refScroll.current.scrollTo({ left: curScroll + step, behavior: 'smooth' });
-    }
+    this.setState({ scrollLeft: curScroll + step });
 
-    // set(this.refScroll, 'current.scrollLeft', curScroll + step);
+    set(this.refScroll, 'current.scrollLeft', curScroll + step);
     this.checkArrows();
   };
 
   checkArrows = () => {
-    const { isShowArrows: oldShow, isActiveRight: oldRight, isActiveLeft: oldLeft } = this.state;
-    const { offsetWidth, scrollWidth, scrollLeft } = get(this.refScroll, 'current', {});
+    const { isShowArrows: oldShow, isActiveRight: oldRight, isActiveLeft: oldLeft, scrollLeft } = this.state;
+    const { offsetWidth, scrollWidth } = get(this.refScroll, 'current', {});
 
     const state = {};
     const isShowArrows = scrollWidth > offsetWidth;
@@ -108,19 +126,19 @@ export default class ScrollArrow extends React.Component {
     }
   };
 
-  onResize = w => {
+  onResize = debounce(w => {
     const { changeScrollPosition } = this.props;
     const { prevWidth } = this.state;
-    const widthBtn = 40;
-    // const diff = w - prevWidth + widthBtn;
+    const scrollWidth = get(this.refScroll, 'current.scrollWidth', 0);
+    const width = get(this.refScroll, 'current.offsetWidth', 0);
     const diff = Math.ceil(w - prevWidth);
 
-    if (diff > 0 && prevWidth && changeScrollPosition) {
+    if (changeScrollPosition && diff > 0 && scrollWidth > width) {
       this.doScrollByStep(diff);
     }
 
     this.setState({ prevWidth: w });
-  };
+  }, 300);
 
   render() {
     const { className, children, small, medium, selectorToObserve } = this.props;

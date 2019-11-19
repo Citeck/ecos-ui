@@ -205,7 +205,6 @@ class EditTabs extends React.Component {
   };
 
   onStartEditItem = (position = 0) => {
-    console.warn(position);
     this.props.onStartEdit && this.props.onStartEdit(position);
   };
 
