@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import fscreen from 'fscreen';
+
 import { getScale } from '../../helpers/util';
 
 class ImgViewer extends Component {
   static propTypes = {
-    ctrClass: PropTypes.string.isRequired,
     src: PropTypes.string.isRequired,
     settings: PropTypes.shape({
       scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -20,8 +19,7 @@ class ImgViewer extends Component {
     settings: {
       scale: 1,
       isFullscreen: false
-    },
-    onError: () => null
+    }
   };
 
   refImg = React.createRef();
@@ -33,7 +31,10 @@ class ImgViewer extends Component {
 
   componentDidMount() {
     this.elImage.addEventListener('fullscreenchange', this.onFullscreenchange, false);
-    this.elImage.onerror = this.props.onError;
+
+    if (this.props.onError) {
+      this.elImage.onerror = this.props.onError;
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -97,12 +98,11 @@ class ImgViewer extends Component {
   };
 
   render() {
-    const { ctrClass, src } = this.props;
-    const _pageCtr = `${ctrClass}-page-container`;
+    const { src } = this.props;
 
     return (
-      <div className={classNames(_pageCtr, `${_pageCtr}_img`)} ref={this.refImgCtr}>
-        <img src={src} alt={src} style={this.styleZoom} className={`${_pageCtr}-content`} ref={this.refImg} />
+      <div className="ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_img" ref={this.refImgCtr}>
+        <img src={src} alt={src} style={this.styleZoom} className="ecos-doc-preview__viewer-page-content" ref={this.refImg} />
       </div>
     );
   }

@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import fscreen from 'fscreen';
-import { get } from 'lodash';
+import get from 'lodash/get';
+import set from 'lodash/set';
 import { Scrollbars } from 'react-custom-scrollbars';
 import PropTypes from 'prop-types';
+
 import { DefineHeight } from '../common';
 
-export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
-  let _viewer = `${ctrClass}__viewer`;
-
+export default function getViewer(WrappedComponent, isPdf) {
   return class extends Component {
     static propTypes = {
       pdf: PropTypes.object,
@@ -24,18 +24,12 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     };
 
     static defaultProps = {
-      isLoading: false,
-      resizable: false,
-      scrollPage: () => null,
       settings: {}
     };
 
     constructor(props) {
       super(props);
 
-      this.state = {
-        scrollPage: 1
-      };
       this.refViewer = React.createRef();
       this.fullScreenOff = true;
     }
@@ -46,28 +40,44 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
       }
     }
 
-    componentWillReceiveProps(nextProps) {
-      let oldSet = this.props.settings;
-      let { isLoading } = this.props;
-      let { currentPage, isFullscreen } = nextProps.settings;
-
+    getSnapshotBeforeUpdate(prevProps) {
       if (isPdf) {
-        if (this.elScrollbar && !isLoading && currentPage !== oldSet.currentPage) {
-          let children = this.childrenScroll;
-          let childrenLen = children.length;
+        const snapshot = {
+          openFullscreen: false,
+          page: null
+        };
 
-          currentPage = currentPage > 0 && currentPage <= childrenLen ? currentPage : 1;
+        const { currentPage: prevCurrentPage, isFullscreen: prevIsFullscreen } = prevProps.settings;
+        const { currentPage, isFullscreen, isLoading } = this.props.settings;
 
-          let scrollPage = get(children, `${[currentPage - 1]}.offsetTop`, 0) + 12;
-
-          this.elScrollbar.scrollTop(scrollPage);
-          this.setState({ scrollPage: currentPage });
+        if (!!prevIsFullscreen !== !!isFullscreen) {
+          snapshot.openFullscreen = isFullscreen;
         }
 
-        if (!!isFullscreen !== !!oldSet.isFullscreen) {
-          if (isFullscreen) {
-            fscreen.requestFullscreen(this.elViewer);
-          }
+        if (!isLoading && this.elScrollbar && currentPage !== prevCurrentPage) {
+          const children = this.childrenScroll;
+          const childrenLen = children.length;
+
+          snapshot.page = currentPage > 0 && currentPage <= childrenLen ? currentPage : 1;
+        }
+
+        return snapshot;
+      }
+
+      return null;
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+      if (snapshot !== null) {
+        if (snapshot.openFullscreen) {
+          fscreen.requestFullscreen(this.elViewer);
+        }
+
+        if (snapshot.page !== null) {
+          const children = this.childrenScroll;
+          const scrollTo = get(children, `${[snapshot.page - 1]}.offsetTop`, 0);
+
+          set(this.elScrollbar, 'view.scrollTop', scrollTo);
         }
       }
     }
@@ -87,8 +97,8 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
     }
 
     get childrenScroll() {
-      if (this.elScrollbar) {
-        return this.elScrollbar.view.children || [];
+      if (this.elScrollbar && this.elScrollbar.view) {
+        return this.elScrollbar.view.querySelectorAll('.ecos-doc-preview__viewer-page');
       }
 
       return [];
@@ -118,10 +128,8 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
         let coords = Array.from(children).map(el => get(el, 'offsetTop', 0));
         let found = coords.reverse().find(val => get(e, 'scrollTop', 0) + get(children, '[0].offsetHeight', 0) / 5 >= val);
         let foundIdx = coords.reverse().findIndex(val => found === val);
-        let scrollPage = foundIdx + 1;
 
-        this.setState({ scrollPage });
-        this.props.scrollPage(scrollPage);
+        this.props.scrollPage && this.props.scrollPage(foundIdx + 1);
       }
     };
 
@@ -139,12 +147,9 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
         getContentHeight,
         resizable
       } = this.props;
-      let _doc = `${_viewer}-doc`;
-      let _fullscreen = `${_viewer}_fullscreen`;
-      let _scroll_area = `${_doc}-scroll-area`;
-      let newProps = { ...this.props, ctrClass: _doc, refViewer: this.refViewer };
+      let newProps = { ...this.props, refViewer: this.refViewer };
 
-      const renderView = props => <div {...props} className={classNames(_scroll_area)} />;
+      const renderView = props => <div {...props} className="ecos-doc-preview__viewer-scroll-area" />;
 
       if (this.failed) {
         return null;
@@ -152,19 +157,14 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
 
       return (
         <Scrollbars
-          className={classNames({ [_fullscreen]: isFullscreen && isPdf })}
+          className={classNames({ 'ecos-doc-preview__viewer_fullscreen': isFullscreen && isPdf })}
           renderView={renderView}
           ref="refScrollbar"
           onScroll={this.onScroll}
           onScrollFrame={this.onScrollFrame}
           autoHide
         >
-          <DefineHeight
-            className={classNames({
-              'ecos-doc-preview__viewer-define': resizable
-            })}
-            getContentHeight={getContentHeight}
-          >
+          <DefineHeight className={classNames({ 'ecos-doc-preview__viewer-dh': resizable })} getContentHeight={getContentHeight}>
             <WrappedComponent {...newProps} />
           </DefineHeight>
         </Scrollbars>
@@ -173,7 +173,7 @@ export default function getViewer(WrappedComponent, ctrClass = '', isPdf) {
 
     render() {
       return this.failed ? null : (
-        <div className={classNames(_viewer)} ref={this.refViewer}>
+        <div className="ecos-doc-preview__viewer" ref={this.refViewer}>
           {this.renderDocument()}
         </div>
       );
