@@ -208,6 +208,8 @@ $expanded-sidebar-width: 300px;
     transition: height 0.4s;
 
     &_lvl-0 {
+      padding-bottom: 30px;
+
       #{$menu-item}_lvl-0 {
         padding: 0 15px 0 26px;
 
