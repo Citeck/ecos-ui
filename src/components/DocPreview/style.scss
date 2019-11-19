@@ -42,6 +42,10 @@ $border-base: #c1c1c1;
     &_mobile_small {
       #{$root} {
         &__toolbar {
+          > * {
+            padding: 0 5px;
+          }
+
           &-pager {
             &-input,
             &-text {
@@ -50,10 +54,6 @@ $border-base: #c1c1c1;
           }
 
           &-zoom-dropdown {
-            display: none;
-          }
-
-          &-zoom-fullscreen {
             display: none;
           }
         }
@@ -70,22 +70,10 @@ $border-base: #c1c1c1;
           &-zoom-dropdown {
             display: none;
           }
-
-          &-zoom-fullscreen {
-            display: none;
-          }
         }
 
         &__viewer-page-number {
           display: none;
-        }
-      }
-    }
-
-    &_mobile_small {
-      #{$root} {
-        &__toolbar > * {
-          padding: 0 5px;
         }
       }
     }
