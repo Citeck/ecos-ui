@@ -38,7 +38,7 @@ api.menu = new MenuApi(store);
 api.user = new UserApi(store);
 api.view = new ViewApi(store);
 
-const render = (elementId, props) => {
+const render = (elementId, props, callback) => {
   store.dispatch(
     initAppRequest({
       onSuccess: () => {
@@ -53,7 +53,8 @@ const render = (elementId, props) => {
                   <Provider store={store}>
                     <Header {...props} />
                   </Provider>,
-                  document.getElementById(elementId)
+                  document.getElementById(elementId),
+                  callback
                 );
               });
             }

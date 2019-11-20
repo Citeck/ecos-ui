@@ -23,6 +23,8 @@ import versionsJournal from './versionsJournal';
 import recordActions from './recordActions';
 import docAssociations from './docAssociations';
 import esign from './esign';
+import webPage from './webPage';
+import birthdays from './birthdays';
 
 const reducers = {
   app,
@@ -46,6 +48,8 @@ const reducers = {
   versionsJournal,
   recordActions,
   docAssociations,
+  webPage,
+  birthdays,
   esign
 };
 

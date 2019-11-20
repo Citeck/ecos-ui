@@ -1,19 +1,23 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { getScale } from '../../helpers/util';
+
 import { TextLayerBuilder } from 'pdfjs-dist/lib/web/text_layer_builder.js';
 import 'pdfjs-dist/web/pdf_viewer.css';
+
+import { getScale, isMobileDevice } from '../../helpers/util';
 
 class PdfPage extends Component {
   static propTypes = {
     pdf: PropTypes.object.isRequired,
     pageNumber: PropTypes.number.isRequired,
+    defHeight: PropTypes.number,
     settings: PropTypes.shape({
       scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       isFullscreen: PropTypes.bool,
       currentPage: PropTypes.number
     }),
     calcScale: PropTypes.func,
+    getContainerPageHeight: PropTypes.func,
     refViewer: PropTypes.object
   };
 
@@ -21,8 +25,7 @@ class PdfPage extends Component {
     settings: {
       scale: 1,
       isFullscreen: false
-    },
-    calcScale: () => {}
+    }
   };
 
   refContainer = React.createRef();
@@ -66,13 +69,20 @@ class PdfPage extends Component {
   }
 
   setPageParams = page => {
+    const isMob = isMobileDevice();
     const {
-      settings: { scale }
+      settings: { scale },
+      defHeight
     } = this.props;
     const canvas = this.elCanvas;
     const elContainer = this.elContainer;
     const [, , width, height] = page.getViewport().viewBox;
-    const { clientWidth: cW, clientHeight: cH } = elContainer;
+    let { clientWidth: cW, clientHeight: cH } = elContainer;
+
+    if (!cH && defHeight && !isMob) {
+      cH = defHeight;
+    }
+
     const calcScale = getScale(scale, { width: cW, height: cH }, { width, height }, cW / 3);
     const viewport = page.getViewport({ scale: calcScale });
 
@@ -80,9 +90,11 @@ class PdfPage extends Component {
     canvas.width = viewport.width;
 
     const $textLayer = this.elTextLayout;
+
     if (!$textLayer) {
       return null;
     }
+
     $textLayer.style.height = viewport.height + 'px';
     $textLayer.style.width = viewport.width + 'px';
     $textLayer.style.top = canvas.offsetTop + 'px';
@@ -106,7 +118,15 @@ class PdfPage extends Component {
     });
 
     if (Number.isNaN(parseFloat(scale))) {
-      this.props.calcScale(calcScale);
+      this.props.calcScale && this.props.calcScale(calcScale);
+    }
+
+    if (isMob) {
+      const margin = 30;
+      const diff = elContainer.parentElement.clientHeight - elContainer.clientHeight + margin;
+      const containerPageHeight = viewport.height + diff;
+
+      this.props.getContainerPageHeight && this.props.getContainerPageHeight(containerPageHeight);
     }
   };
 
@@ -114,7 +134,7 @@ class PdfPage extends Component {
     return (
       <Fragment>
         <canvas ref={this.refContainer} />
-        <div ref={this.refTextLayout} className={'textLayer'} />
+        <div ref={this.refTextLayout} className="ecos-doc-preview__viewer-page-content-text textLayer" />
       </Fragment>
     );
   }

@@ -25,6 +25,7 @@ import {
   BpmnApi,
   CommentsApi,
   DashboardApi,
+  DocAssociationsApi,
   DocStatusApi,
   EventsHistoryApi,
   JournalsApi,
@@ -35,8 +36,8 @@ import {
   TasksApi,
   UserApi,
   VersionsJournalApi,
-  DocAssociationsApi,
   ViewApi,
+  BirthdaysApi,
   EsignApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
@@ -81,6 +82,7 @@ api.versionsJournal = new VersionsJournalApi(store);
 api.recordActions = new RecordActionsApi(store);
 api.docAssociations = new DocAssociationsApi(store);
 api.view = new ViewApi(store);
+api.birthdays = new BirthdaysApi(store);
 api.esign = new EsignApi(store);
 
 /**

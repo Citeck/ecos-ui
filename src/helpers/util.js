@@ -393,7 +393,7 @@ export function getScaleModes() {
  * @param paddingContainer
  * @returns {Number} масштаб
  */
-export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, ratioAuto = 50, paddingContainer = 0) {
+export function getScale(scale, paramsContainer, paramsScaleObject, ratioAuto = 50, paddingContainer = 0) {
   let { width: soW, height: soH } = paramsScaleObject || {};
   let { width: cW, height: cH } = paramsContainer || {};
 

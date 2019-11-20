@@ -17,6 +17,8 @@ import versionsJournal from './versionsJournal';
 import recordActions from './recordActions';
 import docAssociations from './docAssociations';
 import view from './view';
+import webPage from './webPage';
+import birthdays from './birthdays';
 import esign from './esign';
 
 export default function* rootSaga(extraArguments) {
@@ -39,6 +41,8 @@ export default function* rootSaga(extraArguments) {
     recordActions(extraArguments),
     docAssociations(extraArguments),
     view(extraArguments),
+    webPage(extraArguments),
+    birthdays(extraArguments),
     esign(extraArguments)
   ]);
 }

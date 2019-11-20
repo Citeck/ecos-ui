@@ -76,17 +76,8 @@
       width: auto;
     }
 
-    &-block {
-      flex: auto;
-      display: flex;
-    }
-
     &-item {
       max-width: 350px;
-      padding: 0 60px;
-      width: auto;
-      //flex: 1;
-      //padding: 0 60px 0 0;
     }
 
     &-add-tab {
@@ -233,6 +224,7 @@
     display: flex;
     flex-direction: column;
     width: 199px;
+    margin-bottom: 16px;
 
     &:not(:last-of-type) {
       margin-right: 16px;

@@ -121,36 +121,6 @@ class Dashboard extends Component {
     getDashboardTitle({ recordRef });
   }
 
-  get wrapperStyle() {
-    const tabs = document.querySelector('.page-tab');
-    const alfrescoHeader = document.querySelector('#alf-hd');
-    const alfrescoFooter = document.querySelector('#alf-ft');
-    let height = ['3px'];
-
-    if (tabs) {
-      const style = window.getComputedStyle(tabs);
-      const outerHeight = tabs.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
-
-      height.push(`${outerHeight}px`);
-    }
-
-    if (alfrescoHeader) {
-      const style = window.getComputedStyle(alfrescoHeader);
-      const outerHeight = alfrescoHeader.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
-
-      height.push(`${outerHeight}px`);
-    }
-
-    if (alfrescoFooter) {
-      const style = window.getComputedStyle(alfrescoFooter);
-      const outerHeight = alfrescoFooter.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
-
-      height.push(`${outerHeight}px`);
-    }
-
-    return { height: `calc(100vh - (${height.join(' + ')}))` };
-  }
-
   get activeLayout() {
     const { config, activeLayoutId } = this.state;
 
@@ -275,7 +245,7 @@ class Dashboard extends Component {
 
     return (
       <div className="ecos-dashboard__tabs-wrapper">
-        <ScrollArrow className="ecos-dashboard__tabs-arrows">
+        <ScrollArrow className="ecos-dashboard__tabs-arrows" small>
           <Tabs
             hasHover
             hasHint
@@ -352,7 +322,7 @@ class Dashboard extends Component {
               }
             >
               <div className="ecos-dashboard__header-name">{t(name)}</div>
-              {version && <Badge text={version} small={isMobile} />}
+              {version && <Badge text={version} size={isMobile ? 'small' : 'large'} />}
             </ReactPlaceholder>
           </div>
         );
@@ -397,19 +367,17 @@ class Dashboard extends Component {
 
   render() {
     return (
-      <div style={this.wrapperStyle}>
-        <Scrollbars
-          style={{ height: '100%' }}
-          renderTrackHorizontal={props => <div {...props} hidden />}
-          renderThumbHorizontal={props => <div {...props} hidden />}
-        >
-          {this.renderTopMenu()}
-          {this.renderHeader()}
-          {this.renderTabs()}
-          {this.renderLayout()}
-          {this.renderLoader()}
-        </Scrollbars>
-      </div>
+      <Scrollbars
+        style={{ height: '100%' }}
+        renderTrackHorizontal={props => <div {...props} hidden />}
+        renderThumbHorizontal={props => <div {...props} hidden />}
+      >
+        {this.renderTopMenu()}
+        {this.renderHeader()}
+        {this.renderTabs()}
+        {this.renderLayout()}
+        {this.renderLoader()}
+      </Scrollbars>
     );
   }
 }
