@@ -22,6 +22,7 @@ export const Labels = {
   NO_CERTIFICATE_THUMBPRINT_MESSAGE: 'esign.message.no-certificate-data',
   SIGN_FAILED_VERIFICATION_MESSAGE: 'esign.message.sign-failed-verification',
   SIGN_FAILED_MESSAGE: 'esign.message.sign-failed',
+  PLUGIN_IS_FETCHING_MESSAGE: 'esign.message.plugin-is-fetching',
 
   MODAL_TITLE: 'esign.modal.sign.title',
   MODAL_ALREADY_SIGNED_TITLE: 'esign.message.document-has-been-signed',

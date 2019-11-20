@@ -246,6 +246,17 @@ function* sagaToggleSignModal({ api, logger }, { payload }) {
         })
       );
     }
+
+    if (isFetchingApi) {
+      return yield put(
+        setMessage({
+          id: payload.id,
+          messageTitle: t(Labels.ERROR),
+          messageDescription: t(Labels.PLUGIN_IS_FETCHING_MESSAGE),
+          errorType: t(ErrorTypes.DEFAULT)
+        })
+      );
+    }
   } catch (e) {
     logger.error('[esign sagaToggleSignModal saga error', e.message);
   }
