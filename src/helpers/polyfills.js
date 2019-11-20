@@ -1,7 +1,6 @@
+/* eslint no-extend-native: ["error", { "exceptions": ["String", "Object", "Array"] }] */
+
 export const polyfills = () => {
-  /**
-   * startsWith
-   */
   if (!String.prototype.startsWith) {
     Object.defineProperty(String.prototype, 'startsWith', {
       enumerable: false,

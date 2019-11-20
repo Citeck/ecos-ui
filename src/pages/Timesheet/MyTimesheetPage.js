@@ -202,11 +202,12 @@ class MyTimesheetPage extends BaseTimesheetPage {
   }
 
   renderSelectUserModal() {
-    const { delegatedToRef } = this.props;
+    const { delegatedToRef, allUsersGroupName } = this.props;
     const { isOpenSelectUserModal } = this.state;
 
     return (
       <SelectUserModal
+        allUsersGroupName={allUsersGroupName}
         getFullData
         defaultValue={delegatedToRef}
         isOpen={isOpenSelectUserModal}
@@ -259,6 +260,7 @@ class MyTimesheetPage extends BaseTimesheetPage {
 }
 
 const mapStateToProps = state => ({
+  allUsersGroupName: get(state, 'app.allUsersGroupName'),
   isLoading: get(state, 'timesheetMine.isLoading', false),
   isLoadingStatus: get(state, 'timesheetMine.isLoadingStatus', false),
   isUpdatingStatus: get(state, 'timesheetMine.isUpdatingStatus', false),

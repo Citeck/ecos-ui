@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 
 import { SelectOrgstruct } from '../common/form';
-import { AUTHORITY_TYPE_USER, TAB_ALL_USERS } from '../common/form/SelectOrgstruct/constants';
+import { AUTHORITY_TYPE_USER, TAB_ALL_USERS, ALL_USERS_GROUP_SHORT_NAME } from '../common/form/SelectOrgstruct/constants';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
 
 class SelectUserModal extends Component {
@@ -12,7 +12,8 @@ class SelectUserModal extends Component {
     getFullData: PropTypes.bool,
     defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
     onSelect: PropTypes.func,
-    onCancel: PropTypes.func
+    onCancel: PropTypes.func,
+    allUsersGroupName: PropTypes.string
   };
 
   static defaultProps = {
@@ -20,7 +21,8 @@ class SelectUserModal extends Component {
     getFullData: false,
     defaultValue: '',
     onSelect: () => null,
-    onCancel: () => null
+    onCancel: () => null,
+    allUsersGroupName: ALL_USERS_GROUP_SHORT_NAME
   };
 
   renderListItem = item => {
@@ -28,7 +30,7 @@ class SelectUserModal extends Component {
   };
 
   render() {
-    const { isOpen, onSelect, onCancel, defaultValue } = this.props;
+    const { isOpen, onSelect, onCancel, defaultValue, allUsersGroupName } = this.props;
 
     if (!isOpen) {
       return null;
@@ -36,7 +38,7 @@ class SelectUserModal extends Component {
 
     return (
       <SelectOrgstruct
-        allUsersGroup={'RU_GE_Users'}
+        allUsersGroup={allUsersGroupName}
         defaultValue={defaultValue}
         allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
         onChange={onSelect}

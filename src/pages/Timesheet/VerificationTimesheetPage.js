@@ -112,7 +112,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
 
   renderTimesheet = () => {
     const { daysOfMonth } = this.state;
-    const { mergedList, isLoading, updatingHours } = this.props;
+    const { mergedList, updatingHours } = this.props;
 
     return (
       <Timesheet
@@ -129,7 +129,8 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
   };
 
   render() {
-    const { dateTabs, currentDate, statusTabs } = this.state;
+    const { currentDate, statusTabs } = this.state;
+    // const { dateTabs } = this.state;
     const { isLoading } = this.props;
 
     return (
