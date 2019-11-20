@@ -3,22 +3,24 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ReactPlaceholder from 'react-placeholder';
-import { RoundShape, RectShape } from 'react-placeholder/lib/placeholders';
+import { RectShape, RoundShape } from 'react-placeholder/lib/placeholders';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 
-import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
-import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
-import Layout from '../../components/Layout';
-import { DndUtils } from '../../components/Drag-n-Drop';
-import TopMenu from '../../components/Layout/TopMenu';
-import { Loader, ScrollArrow, Tabs } from '../../components/common';
-import { MENU_TYPE } from '../../constants';
+import { LoaderTypes, MENU_TYPE } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
+import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
+import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
+import { Loader, ScrollArrow, Tabs } from '../../components/common';
+import { Badge } from '../../components/common/form';
+import { DocStatus } from '../../components/DocStatus';
+import Layout from '../../components/Layout';
+import { DndUtils } from '../../components/Drag-n-Drop';
+import TopMenu from '../../components/Layout/TopMenu';
 
 import './style.scss';
 
@@ -119,36 +121,6 @@ class Dashboard extends Component {
     getDashboardTitle({ recordRef });
   }
 
-  get wrapperStyle() {
-    const tabs = document.querySelector('.page-tab');
-    const alfrescoHeader = document.querySelector('#alf-hd');
-    const alfrescoFooter = document.querySelector('#alf-ft');
-    let height = ['3px'];
-
-    if (tabs) {
-      const style = window.getComputedStyle(tabs);
-      const outerHeight = tabs.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
-
-      height.push(`${outerHeight}px`);
-    }
-
-    if (alfrescoHeader) {
-      const style = window.getComputedStyle(alfrescoHeader);
-      const outerHeight = alfrescoHeader.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
-
-      height.push(`${outerHeight}px`);
-    }
-
-    if (alfrescoFooter) {
-      const style = window.getComputedStyle(alfrescoFooter);
-      const outerHeight = alfrescoFooter.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
-
-      height.push(`${outerHeight}px`);
-    }
-
-    return { height: `calc(100vh - (${height.join(' + ')}))` };
-  }
-
   get activeLayout() {
     const { config, activeLayoutId } = this.state;
 
@@ -167,6 +139,10 @@ class Dashboard extends Component {
     }
 
     return [];
+  }
+
+  get isShowTabs() {
+    return this.tabList.length > 1;
   }
 
   saveDashboardConfig = payload => {
@@ -252,7 +228,7 @@ class Dashboard extends Component {
   };
 
   renderTabs() {
-    if (this.tabList.length < 2) {
+    if (!this.isShowTabs) {
       return null;
     }
 
@@ -269,7 +245,7 @@ class Dashboard extends Component {
 
     return (
       <div className="ecos-dashboard__tabs-wrapper">
-        <ScrollArrow className="ecos-dashboard__tabs-arrows">
+        <ScrollArrow className="ecos-dashboard__tabs-arrows" small>
           <Tabs
             hasHover
             hasHint
@@ -323,8 +299,11 @@ class Dashboard extends Component {
     const {
       titleInfo: { name = '', version = '' },
       dashboardType,
-      isMobile
+      isMobile,
+      isLoadingDashboard
     } = this.props;
+    const { recordRef } = this.getPathInfo();
+
     let title = null;
 
     switch (dashboardType) {
@@ -343,7 +322,7 @@ class Dashboard extends Component {
               }
             >
               <div className="ecos-dashboard__header-name">{t(name)}</div>
-              {version && <div className="ecos-dashboard__header-version">{version}</div>}
+              {version && <Badge text={version} size={isMobile ? 'small' : 'large'} />}
             </ReactPlaceholder>
           </div>
         );
@@ -356,13 +335,24 @@ class Dashboard extends Component {
         break;
     }
 
+    const showStatus = isMobile && [DashboardTypes.CASE_DETAILS].includes(dashboardType);
+
     return (
       <div
         className={classNames('ecos-dashboard__header', {
-          'ecos-dashboard__header_mobile': isMobile
+          'ecos-dashboard__header_mobile': isMobile,
+          'ecos-dashboard__header_no-next': isMobile && !this.isShowTabs
         })}
       >
         {title}
+        {showStatus && (
+          <DocStatus
+            record={recordRef}
+            className="ecos-dashboard__header-status"
+            loaderType={LoaderTypes.POINTS}
+            noLoader={isLoadingDashboard}
+          />
+        )}
       </div>
     );
   }
@@ -377,19 +367,17 @@ class Dashboard extends Component {
 
   render() {
     return (
-      <div style={this.wrapperStyle}>
-        <Scrollbars
-          style={{ height: '100%' }}
-          renderTrackHorizontal={props => <div {...props} hidden />}
-          renderThumbHorizontal={props => <div {...props} hidden />}
-        >
-          {this.renderTopMenu()}
-          {this.renderHeader()}
-          {this.renderTabs()}
-          {this.renderLayout()}
-          {this.renderLoader()}
-        </Scrollbars>
-      </div>
+      <Scrollbars
+        style={{ height: '100%' }}
+        renderTrackHorizontal={props => <div {...props} hidden />}
+        renderThumbHorizontal={props => <div {...props} hidden />}
+      >
+        {this.renderTopMenu()}
+        {this.renderHeader()}
+        {this.renderTabs()}
+        {this.renderLayout()}
+        {this.renderLoader()}
+      </Scrollbars>
     );
   }
 }

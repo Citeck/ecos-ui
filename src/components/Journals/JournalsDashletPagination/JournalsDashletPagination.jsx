@@ -27,10 +27,6 @@ class JournalsDashletPagination extends Component {
     this.reloadGrid(pagination);
   };
 
-  changeMaxItems = item => {
-    this.reloadGrid({ ...this.props.grid.pagination, maxItems: item.value });
-  };
-
   reloadGrid = pagination => {
     this.props.reloadGrid({ pagination });
   };
@@ -55,7 +51,6 @@ class JournalsDashletPagination extends Component {
         {...pagination}
         sizes={PAGINATION_SIZES}
         onChange={this.changePage}
-        onChangeMaxItems={this.changeMaxItems}
         hasPageSize={hasPageSize}
       />
     );

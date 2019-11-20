@@ -10,7 +10,6 @@ import slideMenu from './slideMenu';
 import user from './user';
 import view from './view';
 import journals from './journals';
-import { rootReducer as cardDetails } from './cardDetails';
 import pageTabs from './pageTabs';
 import tasks from './tasks';
 import comments from './comments';
@@ -28,11 +27,12 @@ import timesheetMine from './timesheet/mine';
 import timesheetVerification from './timesheet/verification';
 import timesheetDelegated from './timesheet/delegated';
 import timesheetCommon from './timesheet/common';
+import webPage from './webPage';
+import birthdays from './birthdays';
 
 const reducers = {
   app,
   bpmn,
-  cardDetails,
   header,
   modal,
   notification,
@@ -56,7 +56,9 @@ const reducers = {
   timesheetMine,
   timesheetVerification,
   timesheetDelegated,
-  timesheetCommon
+  timesheetCommon,
+  webPage,
+  birthdays
 };
 
 export default history =>

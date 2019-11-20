@@ -1,4 +1,4 @@
-@import '../../constants';
+@import '../../styles/constants';
 
 .ecos-doc-status {
   $root: &;
@@ -74,6 +74,12 @@
 
   &__loader {
     position: relative;
-    width: 100%;
+
+    &_circle {
+      width: 100%;
+    }
+
+    &_points {
+    }
   }
 }

@@ -1,7 +1,8 @@
-@import '../../constants';
+@import '../../styles/constants';
 
 .dashlet {
   $root: &;
+
   min-height: auto !important;
   padding-top: 0 !important;
   position: relative;
@@ -62,25 +63,6 @@
         height: 100%;
         background: linear-gradient(to right, rgba(255, 255, 255, 0), $color-white);
         margin: 0;
-      }
-    }
-
-    &:hover {
-      #{$root} {
-        &__header-actions {
-          &:not(:empty) {
-          }
-        }
-      }
-    }
-
-    &:not(:hover) {
-      #{$root} {
-        &__btn {
-          &_hidden {
-            display: none;
-          }
-        }
       }
     }
   }
@@ -147,5 +129,17 @@
 
   &__footer {
     padding: 2px 0 5px;
+  }
+
+  &_mobile {
+    #{$root} {
+      &__header-wrapper {
+        padding: 0 15px;
+      }
+
+      &__caption {
+        font-size: $font-size-standard;
+      }
+    }
   }
 }

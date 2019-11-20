@@ -42,12 +42,18 @@ function isRecordWithAppName(record) {
 }
 
 function recordsFetch(url, body) {
+  //for request identification
+  let urlKey = '';
+
   let withAppName = false;
   if (body.query) {
+    urlKey = 'q_' + (body.query.sourceId || '');
     withAppName = lodashGet(body, 'query.sourceId', '').indexOf('/') > -1;
   } else if (body.record) {
+    urlKey = 'rec_' + body.record;
     withAppName = isRecordWithAppName(body.record);
   } else if (body.records) {
+    urlKey = 'recs_' + (body.records[0] || '');
     withAppName = isAnyWithAppName(body.records);
   }
 
@@ -55,7 +61,7 @@ function recordsFetch(url, body) {
     url = GATEWAY_URL_MAP[url];
   }
 
-  return fetch(url, {
+  return fetch(url + '?k=' + encodeURIComponent(urlKey), {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -620,7 +626,20 @@ class Record {
     if (arguments.length > 1) {
       this._setAttributeValueImpl(localName, value);
     } else {
-      return (this._attributes[localName] || {}).value;
+      let attribute = this._attributes[localName];
+      if (!attribute && localName.indexOf('.') !== 0 && localName.indexOf('?') === -1) {
+        attribute = this._attributes[localName + '?disp'];
+        if (!attribute) {
+          attribute = this._attributes[localName + '?str'];
+        }
+        if (!attribute) {
+          attribute = this._attributes['.att(n:"' + localName + '"){str}'];
+        }
+        if (!attribute) {
+          attribute = this._attributes['.att(n:"' + localName + '"){disp}'];
+        }
+      }
+      return (attribute || {}).value;
     }
   }
 

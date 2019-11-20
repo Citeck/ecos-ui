@@ -241,28 +241,13 @@ export default class EcosFormUtils {
     let recordInstance = isString(record) ? Records.get(record) : record;
     recordInstance = recordInstance.getBaseRecord();
 
-    let getFormByRecord = () => {
-      const query = {
-        sourceId: 'eform',
-        query: {
-          record: recordInstance.id,
-          formKey: formKey
-        }
-      };
-      if (attributes) {
-        return Records.queryOne(query, attributes);
-      } else {
-        return Records.queryOne(query);
-      }
-    };
-
     let getFormByKeysFromRecord = (keys, idx) => {
       if (!keys || idx >= keys.length) {
         return null;
       }
 
       let query = {
-        sourceId: 'eform',
+        sourceId: 'uiserv/eform',
         query: {
           record: recordInstance.id,
           formKey: keys[idx]
@@ -285,12 +270,12 @@ export default class EcosFormUtils {
       });
     };
 
-    if (!formKey && recordInstance && (recordInstance.id || '').indexOf('/') > 0) {
+    if (!formKey) {
       return recordInstance.load('_formKey[]?str').then(keys => {
         return getFormByKeysFromRecord(keys, 0);
       });
     } else {
-      return getFormByRecord();
+      return getFormByKeysFromRecord([formKey], 0);
     }
   }
 
@@ -380,6 +365,7 @@ export default class EcosFormUtils {
           case 'selectJournal':
             attributeSchema = 'assoc';
             break;
+          case 'datamap':
           case 'container':
             attributeSchema = 'json';
             break;
@@ -415,7 +401,7 @@ export default class EcosFormUtils {
   }
 
   static getI18n(defaultI18n, attributes, formI18n) {
-    let global = lodashGet(window, 'Alfresco.messages.global', {});
+    let global = lodashGet(window, 'Alfresco.messages.ecosForms', {});
 
     let result = cloneDeep(defaultI18n);
 
@@ -461,6 +447,17 @@ export default class EcosFormUtils {
                 submission[att] = EcosFormUtils.initJsonRecord(recordData[att]);
               } else if (input && input.component && input.component.type === 'file') {
                 submission[att] = EcosFormUtils.removeEmptyValuesFromArray(recordData[att]);
+              } else if (
+                input &&
+                input.component &&
+                input.component.type === 'datetime' &&
+                input.component.ignoreTimeZone &&
+                input.component.enableDate &&
+                !input.component.enableTime
+              ) {
+                const serverDate = new Date(recordData[att]);
+                serverDate.setHours(serverDate.getHours() + serverDate.getTimezoneOffset() / 60);
+                submission[att] = serverDate.toISOString();
               } else {
                 submission[att] = recordData[att];
               }
@@ -530,7 +527,8 @@ export default class EcosFormUtils {
   }
 
   static saveFormBuilder(form, formId) {
-    const record = Records.get(formId);
+    let moduleId = formId.replace('uiserv/eform@', 'eapps/module@form$');
+    const record = Records.get(moduleId);
 
     record.att('definition?json', form);
 

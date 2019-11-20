@@ -31,7 +31,7 @@ timestamps {
           def jsonOut = readJSON text: groovy.json.JsonOutput.toJson(build_info)
           writeJSON(file: 'build/build-info.json', json: jsonOut, pretty: 2)
           if (!fileExists("/opt/ecos-ui-static/${env.BRANCH_NAME}")) {
-            sh "mkdir /opt/ecos-ui-static/${env.BRANCH_NAME}"
+            sh "mkdir -p /opt/ecos-ui-static/${env.BRANCH_NAME}"
           }
           sh "rm -rf /opt/ecos-ui-static/${env.BRANCH_NAME}/*"
           fileOperations([folderCopyOperation(destinationFolderPath: '/opt/ecos-ui-static/'+"${env.BRANCH_NAME}"+'/build', sourceFolderPath: "build")])

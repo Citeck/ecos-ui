@@ -1,7 +1,9 @@
-@import '../../constants.scss';
+@import '../../styles/constants';
 
 .ecos-dashboard {
   &__header {
+    $header: &;
+
     display: flex;
     flex-direction: column;
     padding: 0 18px;
@@ -12,6 +14,10 @@
       justify-content: flex-start;
       align-items: center;
       margin-top: 17px;
+
+      & > :nth-child(n):not(:last-child) {
+        margin-right: 15px;
+      }
     }
 
     &-placeholder {
@@ -26,21 +32,18 @@
       font-size: 16px;
       line-height: 22px;
       color: $text-color-dark;
-      margin-right: 15px;
     }
 
-    &-version {
-      font-style: normal;
-      font-weight: bold;
-      font-size: 16px;
-      line-height: 20px;
-      color: $color-white;
-      padding: 0 9px;
-      background: $color-gray-5;
-      border-radius: 100px;
-      display: inline-flex;
-      align-items: center;
-      text-align: center;
+    &-status {
+      padding: 0;
+
+      .ecos-doc-status__data {
+        flex: unset;
+      }
+
+      .ecos-doc-status__loader {
+        margin: 0;
+      }
     }
 
     &-mod {
@@ -59,10 +62,16 @@
     &_mobile {
       background-color: $color-white;
       margin-bottom: 0;
-      padding-bottom: 15px;
+      padding-bottom: 10px;
       border-bottom: 2px solid $color-gray-4;
       position: relative;
       z-index: 1;
+
+      #{$header}_no-next {
+        margin-bottom: 10px;
+        border-bottom: none;
+        box-shadow: 0 5px 5px 1px rgba(0, 0, 0, 0.15);
+      }
     }
   }
 
@@ -72,14 +81,6 @@
     }
 
     &-block {
-    }
-
-    &-arrows {
-      .ecos-btn_circle {
-        width: 26px;
-        height: 26px;
-        padding: 0 5px;
-      }
     }
 
     &-item {
@@ -92,18 +93,19 @@
     }
 
     &_mobile {
-      width: 100%;
-      overflow: auto;
-      padding: 16px 15px;
-      background-color: $color-white;
-
       position: sticky;
       top: 0;
-      z-index: 1;
+      z-index: 100;
+      width: 100%;
       margin-bottom: 10px;
+      padding: 16px 15px;
+      background-color: $color-white;
+      box-shadow: 0 5px 5px 1px rgba(0, 0, 0, 0.15);
 
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-
+      overflow: auto;
+      //hide scroll
+      -ms-overflow-style: none;
+      scrollbar-width: none;
       &::-webkit-scrollbar {
         display: none;
       }

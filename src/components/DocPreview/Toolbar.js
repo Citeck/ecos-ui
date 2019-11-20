@@ -2,13 +2,18 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
+
 import { IcoBtn } from '../common/btns';
 import { Dropdown, Input } from '../common/form';
 import { getScaleModes, t } from '../../helpers/util';
 
 const CUSTOM = 'custom';
-const AUTO = 'auto';
 const ZOOM_STEP = 0.15;
+
+const Labels = {
+  OUT_OF: 'doc-preview.out-of',
+  DOWNLOAD: 'doc-preview.download'
+};
 
 class Toolbar extends Component {
   static propTypes = {
@@ -23,15 +28,11 @@ class Toolbar extends Component {
   };
 
   static defaultProps = {
-    scale: AUTO,
+    scale: '',
     className: '',
     link: '',
     fileName: ''
   };
-
-  className = 'ecos-doc-preview__toolbar';
-  classNameGroup = 'ecos-doc-preview__toolbar-group';
-  commonBtnClasses = 'ecos-btn_sq_sm ecos-btn_tight';
 
   constructor(props) {
     super(props);
@@ -47,7 +48,7 @@ class Toolbar extends Component {
   }
 
   componentDidMount() {
-    const { scale = AUTO } = this.state;
+    const { scale } = this.state;
 
     let foundScale = this.zoomOptions.find(el => el.scale === scale);
     foundScale = foundScale || { id: CUSTOM, scale };
@@ -155,24 +156,27 @@ class Toolbar extends Component {
   renderPager() {
     const { currentPage } = this.state;
     const { totalPages } = this.props;
-    const pagerClass = `${this.className}-pager`;
 
     return (
-      <div className={classNames(this.classNameGroup, pagerClass)}>
+      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-pager">
         <IcoBtn
           icon={'icon-left'}
-          className={classNames(this.commonBtnClasses, `${pagerClass}-prev`, { 'ecos-btn_disabled': currentPage === 1 })}
+          className={classNames('ecos-btn_sq_sm ecos-btn_tight ecos-doc-preview__toolbar-pager-prev', {
+            'ecos-btn_disabled': currentPage === 1
+          })}
           onClick={this.handlePrev}
         />
         {!!totalPages && (
           <>
-            <Input type="text" onChange={this.goToPage} value={currentPage} className={classNames(`${pagerClass}-input`)} />
-            <span className={`${pagerClass}-text`}> {`${t('doc-preview.out-of')} ${totalPages}`} </span>
+            <Input type="text" onChange={this.goToPage} value={currentPage} className="ecos-doc-preview__toolbar-pager-input" />
+            <span className="ecos-doc-preview__toolbar-pager-text"> {`${t(Labels.OUT_OF)} ${totalPages}`} </span>
           </>
         )}
         <IcoBtn
           icon={'icon-right'}
-          className={classNames(this.commonBtnClasses, `${pagerClass}-next`, { 'ecos-btn_disabled': currentPage === totalPages })}
+          className={classNames('ecos-btn_sq_sm ecos-btn_tight ecos-doc-preview__toolbar-pager-next', {
+            'ecos-btn_disabled': currentPage === totalPages
+          })}
           onClick={this.handleNext}
         />
       </div>
@@ -181,16 +185,15 @@ class Toolbar extends Component {
 
   renderZoom() {
     const { scale, selectedZoom } = this.state;
-    const zoomClass = `${this.className}-zoom`;
 
     return (
-      <div className={classNames(`${this.classNameGroup} ${zoomClass}`)}>
+      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom">
         <IcoBtn
           icon={'icon-minus'}
-          className={classNames(this.commonBtnClasses, { 'ecos-btn_disabled': scale <= ZOOM_STEP })}
+          className={classNames('ecos-btn_sq_sm ecos-btn_tight', { 'ecos-btn_disabled': scale <= ZOOM_STEP })}
           onClick={e => this.setScale(-1)}
         />
-        <IcoBtn icon={'icon-plus'} className={this.commonBtnClasses} onClick={e => this.setScale(1)} />
+        <IcoBtn icon={'icon-plus'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={e => this.setScale(1)} />
         <Dropdown
           source={this.zoomOptions}
           value={selectedZoom}
@@ -198,10 +201,19 @@ class Toolbar extends Component {
           titleField={'title'}
           onChange={this.onChangeZoomOption}
           hideSelected={selectedZoom === CUSTOM}
+          className="ecos-doc-preview__toolbar-zoom-dropdown"
         >
-          <IcoBtn invert icon={'icon-down'} className={`${this.commonBtnClasses} ecos-btn_drop-down ${zoomClass}__btn-select`} />
+          <IcoBtn
+            invert
+            icon={'icon-down'}
+            className="ecos-btn_sq_sm ecos-btn_tight ecos-btn_drop-down ecos-doc-preview__toolbar-zoom-selector"
+          />
         </Dropdown>
-        <IcoBtn icon={'glyphicon glyphicon-fullscreen'} className={this.commonBtnClasses} onClick={this.setFullScreen} />
+        <IcoBtn
+          icon={'glyphicon glyphicon-fullscreen'}
+          className="ecos-doc-preview__toolbar-zoom-fullscreen ecos-btn_sq_sm ecos-btn_tight"
+          onClick={this.setFullScreen}
+        />
       </div>
     );
   }
@@ -210,9 +222,9 @@ class Toolbar extends Component {
     const { link, fileName } = this.props;
 
     return (
-      <div className={classNames(`${this.classNameGroup} ${this.className}-extra-btns`)}>
+      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-extra-btns">
         <a href={link} download={fileName} data-external>
-          <IcoBtn icon={'icon-download'} className={this.commonBtnClasses} title={t('doc-preview.download')} />
+          <IcoBtn icon={'icon-download'} className="ecos-btn_sq_sm ecos-btn_tight" title={t(Labels.DOWNLOAD)} />
         </a>
       </div>
     );
@@ -222,7 +234,7 @@ class Toolbar extends Component {
     const { isPDF, inputRef, className } = this.props;
 
     return (
-      <div ref={inputRef} className={classNames(this.className, className)}>
+      <div ref={inputRef} className={classNames('ecos-doc-preview__toolbar', className)}>
         {isPDF && this.renderPager()}
         {this.renderZoom()}
         {this.renderExtraBtns()}

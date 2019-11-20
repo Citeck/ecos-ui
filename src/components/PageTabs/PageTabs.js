@@ -398,9 +398,10 @@ class PageTabs extends React.Component {
     }
 
     saveTabs(tabs);
-    history.push.call(this, link);
 
     this.setState({ tabs }, () => {
+      history.push.call(this, link);
+
       if (this.checkScrollPosition()) {
         this.checkNeedArrow();
       }
@@ -666,7 +667,7 @@ class PageTabs extends React.Component {
       <SortableElement key={item.id} index={position} onSortEnd={this.handleSortEnd}>
         <div key={item.id} className={className.join(' ')} title={t(item.title)} onClick={this.handleClickTab.bind(this, item)}>
           <span className="page-tab__tabs-item-title">
-            {isLoadingTitle && item.isActive && <PointsLoader className={'page-tab__tabs-item-title-loader'} />}
+            {isLoadingTitle && item.isActive && <PointsLoader className={'page-tab__tabs-item-title-loader'} color={'light-blue'} />}
             {t(item.title)}
           </span>
           {closeButton}

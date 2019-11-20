@@ -33,6 +33,8 @@ SelectOrgstruct.propTypes = {
   allowedAuthorityTypes: PropTypes.array,
   allowedGroupTypes: PropTypes.array,
   allowedGroupSubTypes: PropTypes.array,
+  excludeAuthoritiesByName: PropTypes.string,
+  excludeAuthoritiesByType: PropTypes.array,
   viewOnly: PropTypes.bool,
   openByDefault: PropTypes.bool,
   withoutInput: PropTypes.bool,

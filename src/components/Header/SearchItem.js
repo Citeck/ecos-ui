@@ -19,8 +19,6 @@ export default class SearchItem extends React.PureComponent {
     onClick: () => {}
   };
 
-  className = 'ecos-header-search-result';
-
   onClick = () => {
     const { data, onClick } = this.props;
 
@@ -30,21 +28,20 @@ export default class SearchItem extends React.PureComponent {
   render() {
     const { data } = this.props;
     const { icon, title, description, groupName, avatarUrl, isLast, isAvatar } = data || {};
-    const cssContent = `${this.className}__content`;
 
     return groupName ? (
-      <li className={`${this.className}__group-name`}>{groupName}</li>
+      <li className="ecos-header-search-result__group-name">{groupName}</li>
     ) : (
-      <li onClick={this.onClick} className={this.className} data-separator={!isLast}>
-        <div className={classNames(cssContent, { [`${cssContent}_last`]: isLast })}>
-          {icon && <Icon className={`${icon} ${cssContent}-icon`} />}
-          {isAvatar && <Avatar url={avatarUrl} className={`${cssContent}-avatar`} />}
-          <div className={`${cssContent}-data`}>
-            <div className={`${cssContent}-title`}>{title}</div>
-            <div className={`${cssContent}-desc`}>{description}</div>
+      <li onClick={this.onClick} className="ecos-header-search-result" data-separator={!isLast}>
+        <div className={classNames('ecos-header-search-result__content', { 'ecos-header-search-result__content_last': isLast })}>
+          {icon && <Icon className={`${icon} ecos-header-search-result__content-icon`} />}
+          {isAvatar && <Avatar url={avatarUrl} className="ecos-header-search-result__content-avatar" />}
+          <div className="ecos-header-search-result__content-data">
+            <div className="ecos-header-search-result__content-title">{title}</div>
+            <div className="ecos-header-search-result__content-desc">{description}</div>
           </div>
         </div>
-        {!isLast && <Separator noIndents className={`${this.className}__separator`} />}
+        {!isLast && <Separator noIndents />}
       </li>
     );
   }

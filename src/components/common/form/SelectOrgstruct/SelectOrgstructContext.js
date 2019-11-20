@@ -15,6 +15,8 @@ export const SelectOrgstructProvider = props => {
     defaultValue,
     allUsersGroup,
     allowedAuthorityTypes,
+    excludeAuthoritiesByName,
+    excludeAuthoritiesByType,
     openByDefault,
     onCancelSelect,
     modalTitle,
@@ -47,8 +49,12 @@ export const SelectOrgstructProvider = props => {
 
     orgStructApi
       .fetchGroup({
-        groupName: ROOT_ORGSTRUCT_GROUP,
-        searchText: trimSearchText
+        query: {
+          groupName: ROOT_ORGSTRUCT_GROUP,
+          searchText: trimSearchText
+        },
+        excludeAuthoritiesByName,
+        excludeAuthoritiesByType
       })
       .then(handleResponse)
       .then(items => {
@@ -86,7 +92,10 @@ export const SelectOrgstructProvider = props => {
   useEffect(() => {
     if (!isRootGroupsFetched && isSelectModalOpen) {
       orgStructApi
-        .fetchGroup()
+        .fetchGroup({
+          excludeAuthoritiesByName,
+          excludeAuthoritiesByType
+        })
         .then(handleResponse)
         .then(items => {
           setTabItems({
@@ -115,7 +124,11 @@ export const SelectOrgstructProvider = props => {
     if (!isAllUsersGroupsFetched && currentTab === TAB_ALL_USERS) {
       orgStructApi
         .fetchGroup({
-          groupName: allUsersGroupShortName
+          query: {
+            groupName: allUsersGroupShortName
+          },
+          excludeAuthoritiesByName,
+          excludeAuthoritiesByType
         })
         .then(handleResponse)
         .then(items => {
@@ -405,7 +418,11 @@ export const SelectOrgstructProvider = props => {
           if (!targetItem.isLoaded && targetItem.hasChildren) {
             const groupName = targetItem.attributes.shortName;
             orgStructApi
-              .fetchGroup({ groupName })
+              .fetchGroup({
+                query: { groupName },
+                excludeAuthoritiesByName,
+                excludeAuthoritiesByType
+              })
               .then(handleResponse)
               .then(items => {
                 return items.map(newItem => ({
@@ -422,6 +439,7 @@ export const SelectOrgstructProvider = props => {
                     .concat([
                       {
                         ...targetItem,
+                        hasChildren: newItems.length > 0, // If no children, make not collapsible
                         isLoaded: true,
                         isOpen: !targetItem.isOpen
                       }

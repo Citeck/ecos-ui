@@ -235,7 +235,6 @@ class DashboardSettings extends React.Component {
 
   setStateMobileConfig(props) {
     const { mobileConfig } = props;
-
     let mobileActiveLayoutTabId = null;
     let mobileTabs = [];
     let mobileSelectedWidgets = {};
@@ -274,7 +273,7 @@ class DashboardSettings extends React.Component {
 
   setSelectedWidgets(item, availableWidgets) {
     const columns = item ? item.columns || [] : [];
-    const newWidgets = new Array(columns.length);
+    const newWidgets = new Array([].concat.apply([], columns).length);
 
     newWidgets.fill([]);
     newWidgets.forEach((value, index) => {
@@ -311,17 +310,21 @@ class DashboardSettings extends React.Component {
   getUrlToDashboard() {
     const { identification = {}, dashboardKeyItems = [] } = this.props;
     const { selectedDashboardKey } = this.state;
-    const { recordRef } = this.getPathInfo();
+    const { recordRef, dashboardKey } = this.getPathInfo();
     const pathDashboardParams = {};
 
     if (recordRef) {
       pathDashboardParams.recordRef = recordRef;
     }
 
+    if (dashboardKey) {
+      pathDashboardParams.dashboardKey = dashboardKey;
+    }
+
     const oldKeyI = dashboardKeyItems.findIndex(k => k.key === identification.key);
     const newKeyI = dashboardKeyItems.findIndex(k => k.key === selectedDashboardKey);
 
-    if (oldKeyI <= newKeyI) {
+    if (oldKeyI < newKeyI) {
       pathDashboardParams.dashboardKey = selectedDashboardKey;
     }
 

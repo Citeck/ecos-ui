@@ -27,7 +27,7 @@
 
         &:before {
           font-family: $font-family-citeck;
-          content: '\46';
+          content: $citeck-icon-calendar;
           display: inline-block;
           line-height: $form-input-height;
         }

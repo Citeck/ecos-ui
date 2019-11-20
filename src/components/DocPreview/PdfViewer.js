@@ -1,12 +1,11 @@
 import React, { Fragment } from 'react';
-import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import PdfPage from './PdfPage';
 
 class PdfViewer extends React.PureComponent {
   static propTypes = {
-    ctrClass: PropTypes.string.isRequired,
     pdf: PropTypes.object.isRequired,
+    defHeight: PropTypes.number,
     settings: PropTypes.shape({
       scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       isFullscreen: PropTypes.bool,
@@ -19,18 +18,12 @@ class PdfViewer extends React.PureComponent {
     settings: {}
   };
 
-  get pageProps() {
-    const { ...props } = this.props;
-
-    return props;
-  }
-
   render() {
-    let { pdf, ctrClass } = this.props;
+    const { ...props } = this.props;
+    let { pdf } = this.props;
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
     let arrayPages = [];
-    let _pageCtr = `${ctrClass}-page-container`;
 
     while (numPages) {
       arrayPages.push(numPages--);
@@ -40,13 +33,13 @@ class PdfViewer extends React.PureComponent {
     return (
       <Fragment>
         {arrayPages.map((pageN, idx) => {
-          let key = `${_pageCtr}-${pageN}-${idx}`;
+          let key = `ecos-doc-preview-page-${pageN}-${idx}`;
 
           return (
-            <div className={classNames(_pageCtr, `${_pageCtr}_pdf`)} key={key}>
-              <div className={`${_pageCtr}-number`}>{pageN}</div>
-              <div className={`${_pageCtr}-content`}>
-                <PdfPage {...this.pageProps} pageNumber={pageN} />
+            <div className="ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_pdf" key={key}>
+              <div className="ecos-doc-preview__viewer-page-number">{pageN}</div>
+              <div className="ecos-doc-preview__viewer-page-content">
+                <PdfPage {...props} pageNumber={pageN} />
               </div>
             </div>
           );

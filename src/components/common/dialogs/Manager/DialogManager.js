@@ -2,8 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { t } from '../../../../helpers/util';
 import { RemoveDialog } from '../index';
+import { Btn } from '../../btns';
+import EcosModal from '../../EcosModal';
+import './DialogManager.scss';
 
 const REMOVE_DIALOG_ID = 'DialogManager-remove-dialog';
+const INFO_DIALOG_ID = 'DialogManager-info-dialog';
+const CONFIRM_DIALOG_ID = 'DialogManager-confirm-dialog';
 
 class DialogWrapper extends React.Component {
   constructor(props) {
@@ -75,6 +80,72 @@ const dialogsById = {
     };
 
     return <RemoveDialog {...dProps} />;
+  },
+  [INFO_DIALOG_ID]: props => {
+    const dialogProps = props.dialogProps || {};
+
+    const { onClose = () => {} } = dialogProps;
+
+    let dProps = Object.assign(
+      {
+        title: '',
+        text: ''
+      },
+      dialogProps,
+      {
+        isOpen: props.isVisible
+      }
+    );
+
+    dProps.onClose = () => {
+      props.setVisible(false);
+      onClose();
+    };
+
+    return (
+      <EcosModal title={dProps.title} isOpen={dProps.isOpen} hideModal={dProps.onClose} className="ecos-dialog ecos-dialog_info">
+        <div className="ecos-dialog__body">{dProps.text}</div>
+        <div className="ecos-dialog__buttons">
+          <Btn onClick={dProps.onClose}>{t('button.close-modal')}</Btn>
+        </div>
+      </EcosModal>
+    );
+  },
+  [CONFIRM_DIALOG_ID]: props => {
+    const dialogProps = props.dialogProps || {};
+
+    const { onNo = () => {}, onYes = () => {} } = dialogProps;
+
+    let dProps = Object.assign(
+      {
+        title: '',
+        text: ''
+      },
+      dialogProps,
+      {
+        isOpen: props.isVisible
+      }
+    );
+
+    dProps.onNo = () => {
+      props.setVisible(false);
+      onNo();
+    };
+
+    dProps.onYes = () => {
+      props.setVisible(false);
+      onYes();
+    };
+
+    return (
+      <EcosModal title={dProps.title} isOpen={dProps.isOpen} hideModal={dProps.onNo} className="ecos-dialog ecos-dialog_confirm">
+        <div className="ecos-dialog__body">{dProps.text}</div>
+        <div className="ecos-dialog__buttons">
+          <Btn onClick={dProps.onYes}>{t('boolean.yes')}</Btn>
+          <Btn onClick={dProps.onNo}>{t('boolean.no')}</Btn>
+        </div>
+      </EcosModal>
+    );
   }
 };
 
@@ -108,6 +179,14 @@ const showDialog = (id, props) => {
 export default class DialogManager {
   static showRemoveDialog(props) {
     return showDialog(REMOVE_DIALOG_ID, props);
+  }
+
+  static showInfoDialog(props) {
+    return showDialog(INFO_DIALOG_ID, props);
+  }
+
+  static confirmDialog(props) {
+    return showDialog(CONFIRM_DIALOG_ID, props);
   }
 }
 

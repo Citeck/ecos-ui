@@ -1,4 +1,3 @@
-
 import reactDefault, * as react from 'react';
 import reactDomDefault, * as reactDom from 'react-dom';
 import reduxThunk from 'redux-thunk';
@@ -30,5 +29,8 @@ export default {
   'menu-api': () => MenuApi,
   'lodash': () => lodash,
   'cardlet-node-view': () => import('../../src/legacy/cardlets/node-view/node-view'),
-  'journalsApi': () => journalsApi
+  'journalsApi': () => journalsApi,
+  'header': () => import('../../src/components/Header/export'),
+  'slide-menu': () => import('../../src/legacy/SlideMenu/export'),
+  'slide-menu-next': () => import('../../src/components/Sidebar/export'),
 };

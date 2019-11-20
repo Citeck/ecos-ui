@@ -9,10 +9,11 @@ export default class RecordActionsConverter {
       return target;
     }
 
-    target.id = source.id || '';
     target.title = source.title || '';
+    target.type = source.type || '';
     target.variants = source.variants || [];
     target.theme = source.theme || '';
+    target.icon = source.icon || '';
 
     return target;
   }

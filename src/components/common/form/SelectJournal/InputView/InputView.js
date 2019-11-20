@@ -71,7 +71,9 @@ class InputView extends Component {
                 <span className="select-journal__values-list-disp">{item.disp}</span>
                 {disabled ? null : (
                   <div className="select-journal__values-list-actions">
-                    {hideEditRowButton ? null : <span data-id={item.id} className={'icon icon-edit'} onClick={editValue} />}
+                    {!item.canEdit || hideEditRowButton ? null : (
+                      <span data-id={item.id} className={'icon icon-edit'} onClick={editValue} />
+                    )}
                     {hideDeleteRowButton ? null : <span data-id={item.id} className={'icon icon-delete'} onClick={deleteValue} />}
                   </div>
                 )}

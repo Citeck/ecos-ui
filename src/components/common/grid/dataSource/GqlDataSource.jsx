@@ -2,7 +2,8 @@ import BaseDataSource from './BaseDataSource';
 import formatterStore from '../formatters/formatterStore';
 import Mapper from '../mapping/Mapper';
 import Records from '../../../Records';
-import { getCurrentLocale } from '../../../../helpers/util';
+import { getCurrentLocale, t } from '../../../../helpers/util';
+import lodashGet from 'lodash/get';
 
 const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
 
@@ -65,7 +66,7 @@ export default class GqlDataSource extends BaseDataSource {
       let newColumn = { ...column };
 
       newColumn.dataField = newColumn.dataField || newColumn.attribute;
-      newColumn.text = window.Alfresco.util.message(newColumn.text || newColumn.dataField);
+      newColumn.text = t(newColumn.text || newColumn.dataField);
 
       let formatterOptions = newColumn.formatter || Mapper.getFormatterOptions(newColumn, idx);
       let { formatter, params } = this._getFormatter(formatterOptions);
@@ -84,7 +85,7 @@ export default class GqlDataSource extends BaseDataSource {
       let newColumn = { ...column };
 
       newColumn.dataField = newColumn.dataField || newColumn.attribute;
-      newColumn.text = window.Alfresco.util.message(newColumn.text || newColumn.dataField);
+      newColumn.text = t(newColumn.text || newColumn.dataField);
 
       let formatterOptions = newColumn.formatter || Mapper.getFormatterOptions(newColumn, idx);
       let { formatter, params } = GqlDataSource.getFormatterStatic(formatterOptions);
@@ -117,6 +118,12 @@ export default class GqlDataSource extends BaseDataSource {
     });
 
     attributes.hasContent = '.has(n:"cm:content")';
+
+    let groupAtts = lodashGet(this.options || {}, 'ajax.body.query.groupBy', []);
+    for (let i = 0; i < groupAtts.length; i++) {
+      let att = groupAtts[i];
+      attributes['groupBy_' + att] = att + '?str';
+    }
 
     return attributes;
   }

@@ -1,4 +1,4 @@
-@import '../../constants.scss';
+@import '../../styles/constants';
 
 $indents-of-items: 10px;
 
@@ -29,13 +29,15 @@ $indents-of-items: 10px;
       $template: &;
 
       display: flex;
-      height: 100px;
+      min-height: 100px;
+      height: 100%;
       background: $color-gray-4;
       border: $border-width-standard solid $color-gray-8;
       box-sizing: border-box;
       border-radius: $border-radius-standard;
       cursor: pointer;
       z-index: 1;
+      font-size: 24px;
 
       #{$root}__menu {
         padding: 10px;
@@ -45,8 +47,12 @@ $indents-of-items: 10px;
         background: $color-gray-1;
         border-color: $color-gray-5;
 
-        #{$root}__item-template-column {
-          border-color: $color-gray-5;
+        #{$root}__item-template {
+          &-column,
+          &-row {
+            border-color: $color-gray-5;
+            color: $color-gray-5;
+          }
         }
 
         #{$root}__menu {
@@ -58,8 +64,14 @@ $indents-of-items: 10px;
       }
 
       &-column {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
         flex-grow: 1;
         width: 100%;
+        position: relative;
+        color: $color-gray-6;
 
         &:not(:first-child) {
           border-left: 1px $color-gray-9 solid;
@@ -68,12 +80,36 @@ $indents-of-items: 10px;
         &:not(:last-child) {
           border-right: 1px $color-gray-9 solid;
         }
+
+        &:before {
+          content: attr(data-order);
+          font-style: normal;
+          font-weight: bold;
+        }
+      }
+
+      &-row {
+        display: flex;
+        width: 100%;
+        height: 100%;
+
+        &:not(:first-child) {
+          border-top: 1px $color-gray-9 solid;
+        }
+
+        &:not(:last-child) {
+          border-bottom: 1px $color-gray-9 solid;
+        }
       }
 
       &-columns-wrapper {
         display: flex;
         width: 100%;
         height: 100%;
+      }
+
+      &_menu {
+        height: 100px;
       }
     }
 
@@ -88,8 +124,10 @@ $indents-of-items: 10px;
       }
 
       #{$root}__item-template {
-        &-column {
+        &-column,
+        &-row {
           border-color: $color-blue-dark !important;
+          color: $color-blue-dark;
         }
       }
 
@@ -142,6 +180,14 @@ $indents-of-items: 10px;
     }
   }
 
+  &__row {
+    display: flex;
+
+    &:not(:last-child) {
+      margin-bottom: $indents-of-items;
+    }
+  }
+
   &__column {
     width: 100%;
     height: auto !important;
@@ -150,11 +196,11 @@ $indents-of-items: 10px;
     &:not(:first-child) {
       margin-left: $indents-of-items;
     }
+  }
 
-    &-wrapper {
-      display: flex;
-      justify-content: space-between;
-    }
+  &__wrapper {
+    display: flex;
+    justify-content: space-between;
   }
 
   &__menu {
@@ -276,7 +322,7 @@ $indents-of-items: 10px;
   }
 
   &__element {
-    &:not(:last-child) {
+    &:not(:last-child):not(:empty) {
       margin-bottom: 10px;
     }
   }

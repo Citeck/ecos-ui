@@ -1,58 +1,46 @@
 import { put, takeLatest, call } from 'redux-saga/effects';
-import { initAppRequest, initAppSuccess, initAppFailure, loadThemeRequest } from '../actions/app';
+import lodashSet from 'lodash/set';
+import lodashGet from 'lodash/get';
+import { initAppRequest, initAppSuccess, initAppFailure } from '../actions/app';
 import { validateUserSuccess, validateUserFailure } from '../actions/user';
-import { setIsMobile, setTheme } from '../actions/view';
-import { isMobileDevice, applyTheme } from '../helpers/util';
+import { detectMobileDevice } from '../actions/view';
 
-export function* initApp({ api, fakeApi, logger }) {
+export function* initApp({ api, fakeApi, logger }, { payload }) {
   try {
     // --- Validate user ---
+    let isAuthenticated = false;
     const checkAuthResp = yield call(api.user.checkIsAuthenticated);
     if (checkAuthResp.success) {
       const resp = yield call(api.user.getUserData);
       if (!resp.success) {
         yield put(validateUserFailure());
       } else {
+        isAuthenticated = true;
         yield put(validateUserSuccess(resp.payload));
+
+        // TODO remove in future: see src/helpers/util.js getCurrentUserName()
+        lodashSet(window, 'Alfresco.constants.USERNAME', lodashGet(resp.payload, 'userName'));
       }
     }
 
-    // --- Detect mobile device ---
-    yield put(setIsMobile(isMobileDevice()));
-    //
-    // // --- Load theme ---
-    // const themeName = yield call(fakeApi.getCurrentThemeName);
-    // if (themeName) {
-    //   yield put(setTheme(themeName));
-    //   yield call(applyTheme, themeName);
-    // }
+    yield put(detectMobileDevice());
 
     // --- Load translation messages ---
     // TODO load translation messages
 
     yield put(initAppSuccess());
+
+    if (payload && payload.onSuccess) {
+      typeof payload.onSuccess === 'function' && payload.onSuccess(isAuthenticated);
+    }
   } catch (e) {
     logger.error('[initApp saga] error', e.message);
     yield put(initAppFailure());
   }
 }
 
-export function* loadTheme({ api, fakeApi, logger }, { payload }) {
-  try {
-    const themeName = yield call(api.app.getCurrentThemeName);
-    yield put(setTheme(themeName));
-    yield call(applyTheme, themeName);
-
-    typeof payload.onSuccess === 'function' && payload.onSuccess(themeName);
-  } catch (e) {
-    logger.error('[loadTheme saga] error', e.message);
-    yield put(initAppFailure());
-  }
-}
-
 function* appSaga(ea) {
   yield takeLatest(initAppRequest().type, initApp, ea);
-  yield takeLatest(loadThemeRequest().type, loadTheme, ea);
 }
 
 export default appSaga;

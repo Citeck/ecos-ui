@@ -3,7 +3,8 @@ import isEmpty from 'lodash/isEmpty';
 import { getData, setData, transferData } from '../helpers/ls';
 import { getCurrentUserName } from '../helpers/util';
 
-const prefix = 'dashletSettings_';
+const prefix = 'ecos-ui-dashlet-settings_id-';
+const prefixMenu = 'menuSettings_';
 const newVersionPath = '/user-';
 
 function getDashletSettings(key) {
@@ -41,6 +42,36 @@ export default class UserLocalSettingsService {
     transferData(oldKey, newKey, true);
   }
 
+  /*common settings*/
+
+  static setMenuMode(data) {
+    const userName = getCurrentUserName();
+
+    setData(`${prefixMenu}${userName}`, { ...UserLocalSettingsService.getMenuMode(), ...data });
+  }
+
+  static getMenuMode() {
+    const userName = getCurrentUserName();
+
+    return getData(`${prefixMenu}${userName}`);
+  }
+
+  /*dashlets settings*/
+
+  static setProperty(dashletId, property = {}) {
+    const key = UserLocalSettingsService.getKey(dashletId);
+    const data = getDashletSettings(key);
+
+    setDashletSettings(key, { ...data, ...property });
+  }
+
+  static getProperty(dashletId, propertyName) {
+    const key = UserLocalSettingsService.getKey(dashletId);
+    const data = getDashletSettings(key);
+
+    return get(data, [propertyName]);
+  }
+
   static getDashletHeight(dashletId) {
     const key = UserLocalSettingsService.getKey(dashletId);
 
@@ -69,19 +100,5 @@ export default class UserLocalSettingsService {
     dashletData.contentScale = scale;
 
     setDashletSettings(key, dashletData);
-  }
-
-  static setProperty(dashletId, property = {}) {
-    const key = UserLocalSettingsService.getKey(dashletId);
-    const data = getDashletSettings(key);
-
-    setDashletSettings(key, { ...data, ...property });
-  }
-
-  static getProperty(dashletId, propertyName) {
-    const key = UserLocalSettingsService.getKey(dashletId);
-    const data = getDashletSettings(key);
-
-    return get(data, [propertyName]);
   }
 }

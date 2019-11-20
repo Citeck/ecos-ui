@@ -19,3 +19,5 @@ export { TimesheetSubordinatesApi } from './timesheet/subordinates';
 export { MyTimesheetApi } from './timesheet/mine';
 export { TimesheetVerificationApi } from './timesheet/verification';
 export { TimesheetDelegatedApi } from './timesheet/delegated';
+export { ViewApi } from './view';
+export { BirthdaysApi } from './birthdays';

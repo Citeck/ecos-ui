@@ -18,7 +18,8 @@ const mapStateToProps = (state, context) => {
   return {
     tasks: tasksState.list,
     isLoading: tasksState.isLoading,
-    totalCount: tasksState.totalCount
+    totalCount: tasksState.totalCount,
+    isMobile: state.view.isMobile
   };
 };
 
@@ -37,19 +38,17 @@ class Tasks extends React.Component {
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
     isRunReload: PropTypes.bool,
-    setReloadDone: PropTypes.func,
-    setInfo: PropTypes.func,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    setReloadDone: PropTypes.func,
+    setInfo: PropTypes.func
   };
 
   static defaultProps = {
     className: '',
     isSmallMode: false,
-    isRunReload: false,
-    setReloadDone: () => {},
-    setInfo: () => {}
+    isRunReload: false
   };
 
   state = {
@@ -63,15 +62,15 @@ class Tasks extends React.Component {
   componentWillReceiveProps(nextProps, nextContext) {
     if (nextProps.isRunReload) {
       this.getTaskList();
-      this.props.setReloadDone(true);
+      this.props.setReloadDone && this.props.setReloadDone(true);
     }
 
     if (this.props.totalCount !== nextProps.totalCount) {
-      this.props.setInfo({ totalCount: nextProps.totalCount });
+      this.props.setInfo && this.props.setInfo({ totalCount: nextProps.totalCount });
     }
 
     if (this.props.isLoading !== nextProps.isLoading) {
-      this.props.setInfo({ isLoading: nextProps.isLoading });
+      this.props.setInfo && this.props.setInfo({ isLoading: nextProps.isLoading });
     }
   }
 
@@ -114,8 +113,9 @@ class Tasks extends React.Component {
     this.setState({ contentHeight });
   };
 
-  render() {
-    const { tasks, height, isLoading, isSmallMode, minHeight, maxHeight } = this.props;
+  renderTaskList = () => {
+    const { tasks, height, isLoading, isSmallMode } = this.props;
+
     const childProps = {
       tasks,
       height,
@@ -124,7 +124,17 @@ class Tasks extends React.Component {
       onAssignClick: this.onAssignClick,
       onSubmitForm: this.onSubmitForm
     };
+
+    return <TaskList {...childProps} />;
+  };
+
+  render() {
+    const { tasks, height, isLoading, minHeight, maxHeight, isMobile } = this.props;
     const { contentHeight } = this.state;
+
+    if (isMobile) {
+      return this.renderTaskList();
+    }
 
     return (
       <Scrollbars
@@ -139,7 +149,7 @@ class Tasks extends React.Component {
           isMin={isLoading || isEmpty(tasks)}
           getOptimalHeight={this.setHeight}
         >
-          <TaskList {...childProps} />
+          {this.renderTaskList()}
         </DefineHeight>
       </Scrollbars>
     );

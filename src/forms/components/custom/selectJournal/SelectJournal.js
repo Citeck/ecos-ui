@@ -1,6 +1,6 @@
 import BaseReactComponent from '../base/BaseReactComponent';
 import SelectJournal from '../../../../components/common/form/SelectJournal';
-import { evaluate as formioEvaluate } from 'formiojs//utils/utils';
+import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
 import _ from 'lodash';
 import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
@@ -13,6 +13,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         key: 'selectJournal',
         type: 'selectJournal',
         customPredicateJs: null,
+        presetFilterPredicatesJs: null,
         hideCreateButton: false,
         hideEditRowButton: false,
         hideDeleteRowButton: false,
@@ -59,6 +60,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
   getInitialReactProps() {
     let resolveProps = journalId => {
       let component = this.component;
+      let presetFilterPredicates = null;
+      if (component.presetFilterPredicatesJs) {
+        presetFilterPredicates = this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true);
+      }
 
       return {
         defaultValue: this.dataValue,
@@ -74,6 +79,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         hideEditRowButton: component.hideEditRowButton,
         hideDeleteRowButton: component.hideDeleteRowButton,
         isFullScreenWidthModal: component.isFullScreenWidthModal,
+        presetFilterPredicates,
         searchField: component.searchField,
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)

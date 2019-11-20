@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import uuidV4 from 'uuid/v4';
-import { deepClone, t } from '../helpers/util';
+import { deepClone } from '../helpers/util';
 import { DashboardTypes } from '../constants/dashboard';
 
 export const ComponentKeys = {
@@ -18,7 +18,10 @@ export const ComponentKeys = {
   DOC_STATUS: 'doc-status',
   EVENTS_HISTORY: 'events-history',
   VERSIONS_JOURNAL: 'versions-journal',
-  DOC_ASSOCIATIONS: 'doc-associations'
+  DOC_ASSOCIATIONS: 'doc-associations',
+  RECORD_ACTIONS: 'record-actions',
+  WEB_PAGE: 'web-page',
+  BIRTHDAYS: 'birthdays'
 };
 
 /**
@@ -83,10 +86,25 @@ export default class Components {
       path: './DocAssociations',
       label: 'dashboard-settings.widget.doc-associations',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+    },
+    [ComponentKeys.RECORD_ACTIONS]: {
+      path: './Actions',
+      label: 'dashboard-settings.widget.actions',
+      supportedDashboardTypes: []
+    },
+    [ComponentKeys.WEB_PAGE]: {
+      path: './WebPage',
+      label: 'dashboard-settings.widget.web-page',
+      supportedDashboardTypes: []
+    },
+    [ComponentKeys.BIRTHDAYS]: {
+      path: './Birthdays',
+      label: 'dashboard-settings.widget.birthdays',
+      supportedDashboardTypes: [DashboardTypes.USER]
     }
   });
 
-  static allDashboardsComponents = [ComponentKeys.JOURNAL];
+  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.RECORD_ACTIONS, ComponentKeys.WEB_PAGE];
 
   static get(component) {
     const link = get(Components.components, [component, 'path']);
@@ -102,16 +120,19 @@ export default class Components {
     const components = new Map();
 
     Components.getWidgetsForAllDasboards().forEach(component => {
-      components.set(component.name, t(component.label));
+      components.set(component.name, component.label);
     });
 
     Object.entries(Components.components).forEach(([name, component]) => {
       if (component.supportedDashboardTypes.includes(dashboardType)) {
-        components.set(name, t(component.label));
+        components.set(name, component.label);
       }
     });
 
-    const arrComponents = [...components].map(([name, label]) => ({ name, label }));
+    const arrComponents = [...components].map(([name, label]) => ({
+      name,
+      label
+    }));
 
     components.clear();
 
@@ -122,40 +143,46 @@ export default class Components {
     return Components.allDashboardsComponents.map(key => ({ ...Components.components[key], name: key }));
   }
 
+  static getDefaultWidget = widget => {
+    const defWidget = deepClone(widget);
+    const props = widget.props || {};
+    const config = props.config || {};
+
+    defWidget.id = widget.id || uuidV4();
+    defWidget.props = {
+      ...props,
+      id: props.id || defWidget.id,
+      config: {
+        ...config
+      }
+    };
+
+    switch (defWidget.name) {
+      case ComponentKeys.DOC_PREVIEW: {
+        defWidget.props.config.link = config.link || '';
+        break;
+      }
+      case ComponentKeys.JOURNAL: {
+        break;
+      }
+      default:
+        break;
+    }
+
+    return defWidget;
+  };
+
   static setDefaultPropsOfWidgets(items) {
     if (!isArray(items) || isEmpty(items)) {
       return [];
     }
 
     return items.map(item => {
-      return item.map(widget => {
-        const defWidget = deepClone(widget);
-        const props = widget.props || {};
-        const config = props.config || {};
+      if (Array.isArray(item)) {
+        return item.map(Components.getDefaultWidget);
+      }
 
-        defWidget.id = widget.id || uuidV4();
-        defWidget.props = {
-          ...props,
-          id: props.id || defWidget.id,
-          config: {
-            ...config
-          }
-        };
-
-        switch (defWidget.name) {
-          case ComponentKeys.DOC_PREVIEW: {
-            defWidget.props.config.link = config.link || '';
-            break;
-          }
-          case ComponentKeys.JOURNAL: {
-            break;
-          }
-          default:
-            break;
-        }
-
-        return defWidget;
-      });
+      return Components.getDefaultWidget(item);
     });
   }
 }

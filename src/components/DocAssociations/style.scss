@@ -1,4 +1,4 @@
-@import '../../constants.scss';
+@import '../../styles/constants';
 
 .ecos-doc-associations {
   $root: &;
@@ -182,5 +182,6 @@
 
   &__link {
     color: $color-blue-dark;
+    @extend %ellipsis;
   }
 }

@@ -1,53 +1,53 @@
-import { put, call, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import cloneDeep from 'lodash/cloneDeep';
 import {
-  getDashletEditorData,
-  getDashletConfig,
-  getJournalsData,
-  saveDashlet,
-  setGrid,
-  setEditorMode,
-  setJournalsList,
-  setJournals,
-  setDashletConfig,
-  reloadGrid,
-  initJournal,
-  reloadTreeGrid,
-  setJournalConfig,
-  execRecordsAction,
-  deleteRecords,
-  saveRecords,
-  setSelectedRecords,
-  saveJournalSetting,
+  cancelJournalSettingData,
   createJournalSetting,
+  createZip,
   deleteJournalSetting,
+  deleteRecords,
+  execRecordsAction,
+  getDashletConfig,
+  getDashletEditorData,
+  getJournalsData,
+  goToJournalsPage,
+  initJournal,
+  initJournalSettingData,
+  initPreview,
+  onJournalSelect,
+  onJournalSettingsSelect,
+  performGroupAction,
+  reloadGrid,
+  reloadTreeGrid,
+  renameJournalSetting,
+  saveDashlet,
+  saveJournalSetting,
+  saveRecords,
+  search,
+  setColumnsSetup,
+  setDashletConfig,
+  setEditorMode,
+  setGrid,
+  setGridInlineToolSettings,
+  setGrouping,
+  setJournalConfig,
+  setJournals,
   setJournalSetting,
   setJournalSettings,
-  setPredicate,
-  setColumnsSetup,
-  setGrouping,
-  initJournalSettingData,
-  onJournalSettingsSelect,
-  onJournalSelect,
-  initPreview,
-  setPreviewUrl,
-  goToJournalsPage,
-  search,
-  performGroupAction,
+  setJournalsList,
   setPerformGroupActionResponse,
-  createZip,
-  setZipNodeRef,
-  renameJournalSetting,
+  setPredicate,
+  setPreviewFileName,
+  setPreviewUrl,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setGridInlineToolSettings,
-  cancelJournalSettingData,
-  setPreviewFileName
+  setSelectedRecords,
+  setZipNodeRef
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { JOURNAL_SETTING_ID_FIELD, DEFAULT_JOURNALS_PAGINATION, DEFAULT_INLINE_TOOL_SETTINGS } from '../components/Journals/constants';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
-import { goToJournalsPage as goToJournalsPageUrl, getFilterUrlParam } from '../helpers/urls';
+import { getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
 import { t } from '../helpers/util';
 import { wrapSaga } from '../helpers/redux';
 
@@ -85,6 +85,7 @@ function getGridParams(journalConfig, journalSetting, stateId, pagination) {
   const { sortBy, groupBy, columns, predicate: journalSettingPredicate } = journalSetting;
 
   return {
+    journalId: journalConfig.id,
     createVariants,
     predicate,
     sourceId: sourceId,
@@ -184,20 +185,27 @@ function* getJournalSetting(api, journalSettingId, journalConfig, stateId, w) {
   }
 
   journalSetting = { ...journalSetting, [JOURNAL_SETTING_ID_FIELD]: journalSettingId };
-  journalSetting.predicate = url.filter ? JSON.parse(url.filter) : null || journalSetting.predicate;
+  const predicate = url.filter ? JSON.parse(url.filter) : null || journalSetting.predicate;
+  journalSetting.predicate = predicate;
+  journalSetting.predicate = url.selectionFilter ? JSON.parse(url.selectionFilter) : null || journalSetting.predicate;
+
+  journalSetting.columns = journalSetting.columns.map(column => {
+    const match = journalConfig.columns.filter(c => c.attribute === column.attribute)[0];
+    return match ? { ...column, sortable: match.sortable } : column;
+  });
 
   yield put(setJournalSetting(w(journalSetting)));
-  yield put(initJournalSettingData(w(journalSetting)));
+  yield put(initJournalSettingData(w({ journalSetting, predicate })));
 
   return journalSetting;
 }
 
 function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
   try {
-    const journalSetting = action.payload;
+    const { journalSetting, predicate } = action.payload;
     const journalConfig = yield select(state => state.journals[stateId].journalConfig);
 
-    yield put(setPredicate(w(journalSetting.predicate)));
+    yield put(setPredicate(w(predicate || journalSetting.predicate)));
 
     yield put(
       setColumnsSetup(
@@ -227,7 +235,7 @@ function* sagaCancelJournalSettingData({ api, logger, stateId, w }, action) {
     let journalConfig = yield select(state => state.journals[stateId].journalConfig);
 
     let journalSetting = yield getJournalSetting(api, journalSettingId, journalConfig, stateId, w);
-    yield put(initJournalSettingData(w(journalSetting)));
+    yield put(initJournalSettingData(w({ journalSetting })));
   } catch (e) {
     logger.error('[journals sagaCancelJournalSettingData saga error', e.message);
   }
@@ -248,6 +256,7 @@ function* getGridData(api, params, stateId) {
 }
 
 function* loadGrid(api, journalSettingId, journalConfig, stateId, w) {
+  const url = yield select(state => state.journals[stateId].url);
   const pagination = yield select(state => state.journals[stateId].grid.pagination);
   let journalSetting = yield getJournalSetting(api, journalSettingId, journalConfig, stateId, w);
   let params = getGridParams(journalConfig, journalSetting, stateId, pagination);
@@ -255,7 +264,7 @@ function* loadGrid(api, journalSettingId, journalConfig, stateId, w) {
   const gridData = yield getGridData(api, params, stateId);
 
   yield put(setSelectedRecords(w([])));
-  yield put(setSelectAllRecords(w(false)));
+  yield put(setSelectAllRecords(w(!!url.selectionFilter)));
   yield put(setSelectAllRecordsVisible(w(false)));
   yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
   yield put(setPerformGroupActionResponse(w([])));
@@ -377,7 +386,7 @@ function* sagaDeleteRecords({ api, logger, stateId, w }, action) {
 
 function* sagaExecRecordsAction({ api, logger, stateId, w }, action) {
   try {
-    const actionResult = yield call(api.recordActions.execAction, action.payload);
+    const actionResult = yield call(api.recordActions.executeAction, action.payload);
     if (actionResult !== false) {
       yield put(reloadGrid(w()));
       yield put(setSelectedRecords(w([])));
@@ -511,8 +520,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     if (id === 'event-lines-stat') {
       //todo: move to journal config
 
-      let eventType = yield call(api.journals.getRecord, { id: row.id, attributes: '.att(n:"skifem:eventTypeAssoc"){disp,assoc}' });
-      let eventRef = (eventType || {}).assoc;
+      let eventRef = row['groupBy_skifem:eventTypeAssoc'];
       let eventTypeId = yield call(api.journals.getRecord, { id: eventRef, attributes: 'skifdm:eventTypeId?str' });
       id = 'event-lines-' + eventTypeId;
     } else {

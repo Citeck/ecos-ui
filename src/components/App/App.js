@@ -2,14 +2,14 @@ import React, { Component, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
+import { NotificationContainer } from 'react-notifications';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
 import Header from '../Header';
 import Notification from '../Notification';
-import SlideMenu from '../SlideMenu';
+import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
-import LoginForm from '../LoginForm';
 import PageTabs from '../PageTabs';
 import Footer from '../Footer';
 
@@ -19,24 +19,17 @@ import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 
 import './App.scss';
 
+const LoginForm = lazy(() => import('../LoginForm'));
+
 const BPMNDesignerPage = lazy(() => import('../../pages/BPMNDesignerPage'));
 const DashboardPage = lazy(() => import('../../pages/Dashboard'));
 const DashboardSettingsPage = lazy(() => import('../../pages/DashboardSettings'));
 const JournalsPage = lazy(() => import('../../pages/JournalsPage'));
 
-const CardDetailsPage = lazy(() => import('../../pages/CardDetailsPage'));
-const DocPreviewPage = lazy(() => import('../../pages/debug/DocPreview'));
-const JournalsDashboardPage = lazy(() => import('../../pages/debug/JournalsDashboardPage'));
-const PropertiesPage = lazy(() => import('../../pages/debug/Properties/PropertiesPage'));
-const TasksDashletPage = lazy(() => import('../../pages/debug/Tasks/TasksDashletPage'));
 const EcosFormPage = lazy(() => import('../../pages/debug/EcosFormPage'));
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
-const CommentsWidgetPage = lazy(() => import('../../pages/debug/CommentsWidget'));
-const CurrentTasksPage = lazy(() => import('../../pages/debug/CurrentTasks/CurrentTasksPage'));
-const DocStatusPage = lazy(() => import('../../pages/debug/DocStatus/DocStatusPage'));
-const EventsHistoryPage = lazy(() => import('../../pages/debug/EventsHistoryPage'));
-const VersionsJournalWidgetPage = lazy(() => import('../../pages/debug/VersionsJournalWidgetPage'));
-const DocAssociations = lazy(() => import('../../pages/debug/DocAssociations'));
+
+// TODO: check and delete unused
 const MyTimesheetPage = lazy(() => import('../../pages/Timesheet/MyTimesheetPage'));
 const SubordinatesTimesheetPage = lazy(() => import('../../pages/Timesheet/SubordinatesTimesheetPage'));
 const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/VerificationTimesheetPage'));
@@ -57,6 +50,36 @@ class App extends Component {
     return pagesWithOnlyContent.includes(url);
   }
 
+  get wrapperStyle() {
+    const tabs = document.querySelector('.page-tab');
+    const alfrescoHeader = document.querySelector('#alf-hd');
+    const alfrescoFooter = document.querySelector('#alf-ft');
+    let height = ['3px'];
+
+    if (tabs) {
+      const style = window.getComputedStyle(tabs);
+      const outerHeight = tabs.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
+
+      height.push(`${outerHeight}px`);
+    }
+
+    if (alfrescoHeader) {
+      const style = window.getComputedStyle(alfrescoHeader);
+      const outerHeight = alfrescoHeader.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
+
+      height.push(`${outerHeight}px`);
+    }
+
+    if (alfrescoFooter) {
+      const style = window.getComputedStyle(alfrescoFooter);
+      const outerHeight = alfrescoFooter.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
+
+      height.push(`${outerHeight}px`);
+    }
+
+    return { height: `calc(100vh - (${height.join(' + ')}))` };
+  }
+
   renderMenu() {
     const { menuType } = this.props;
 
@@ -64,12 +87,11 @@ class App extends Component {
       return null;
     }
 
-    switch (menuType) {
-      case MENU_TYPE.LEFT:
-        return <SlideMenu />;
-      default:
-        return null;
+    if (menuType === MENU_TYPE.LEFT) {
+      return <Menu />;
     }
+
+    return null;
   }
 
   renderHeader() {
@@ -126,7 +148,19 @@ class App extends Component {
   }
 
   render() {
-    const { isInit, isInitFailure, isAuthenticated, isMobile } = this.props;
+    const {
+      changeActiveTab,
+      isInit,
+      isInitFailure,
+      isAuthenticated,
+      isMobile,
+      isShow,
+      tabs,
+      setTabs,
+      getActiveTabTitle,
+      isLoadingTitle,
+      theme
+    } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -139,7 +173,11 @@ class App extends Component {
     }
 
     if (!isAuthenticated) {
-      return <LoginForm />;
+      return (
+        <Suspense fallback={null}>
+          <LoginForm theme={theme} />
+        </Suspense>
+      );
     }
 
     const appClassNames = classNames('app-container', { mobile: isMobile });
@@ -149,48 +187,54 @@ class App extends Component {
         {this.renderReduxModal()}
 
         <div className="ecos-sticky-wrapper" id="sticky-wrapper">
-          {this.renderHeader()}
+          <div id="alf-hd">
+            <Header />
+            <Notification />
+          </div>
+          <div className="ecos-base-page">
+            {this.renderMenu()}
 
-          {this.renderTabs()}
-          {this.renderMenu()}
-
-          <Suspense fallback={null}>
-            <Switch>
-              {/*<Route path="/share/page" exact component={DashboardPage} />*/}
-              <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
-              <Route exact path="/share" render={() => <Redirect to={URL.DASHBOARD} />} />
-              {/* TODO delete redirect some day */}
-              <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
-              <Route path={URL.DASHBOARD} exact component={DashboardPage} />
-              <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
-              <Route path={URL.JOURNAL} component={JournalsPage} />
-              {/* temporary routes */}
-              <Route path="/v2/debug/formio-develop" component={FormIOPage} />
-              <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
-              <Route path={URL.JOURNAL_OLD} component={JournalsPage} />
-              <Route path={URL.CARD_DETAILS} component={CardDetailsPage} />
-              <Route path={URL.JOURNAL_DASHBOARD} component={JournalsDashboardPage} />
-              <Route path={URL.WIDGET_DOC_PREVIEW} component={DocPreviewPage} />
-              <Route path={URL.WIDGET_PROPERTIES} component={PropertiesPage} />
-              <Route path={URL.WIDGET_COMMENTS} component={CommentsWidgetPage} />
-              <Route path={URL.WIDGET_TASKS} exact component={TasksDashletPage} />
-              <Route path={URL.CURRENT_TASKS} component={CurrentTasksPage} />
-              <Route path={URL.WIDGET_DOC_STATUS} exact component={DocStatusPage} />
-              <Route path={URL.WIDGET_EVENTS_HISTORY} exact component={EventsHistoryPage} />
-              <Route path={URL.WIDGET_VERSIONS_JOURNAL} component={VersionsJournalWidgetPage} />
-              <Route path={URL.WIDGET_DOC_ASSOCIATIONS} component={DocAssociations} />
-              <Route path={URL.TIMESHEET} exact component={MyTimesheetPage} />
-              <Route path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
-              <Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
-              <Route path={URL.TIMESHEET_DELEGATED} component={DelegatedTimesheetsPage} />
-              <Route path={URL.TIMESHEET_IFRAME} exact component={MyTimesheetPage} />
-              <Route path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
-              <Route path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />
-              <Route path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
-              {/*<Route component={NotFoundPage} />*/}
-            </Switch>
-          </Suspense>
+            <div className="ecos-main-area">
+              <PageTabs
+                homepageLink={URL.DASHBOARD}
+                isShow={isShow && !isMobile}
+                tabs={tabs}
+                saveTabs={setTabs}
+                changeActiveTab={changeActiveTab}
+                getActiveTabTitle={getActiveTabTitle}
+                isLoadingTitle={isLoadingTitle}
+              />
+              <div className="ecos-main-content" style={this.wrapperStyle}>
+                <Suspense fallback={null}>
+                  <Switch>
+                    {/*<Route path="/share/page" exact component={DashboardPage} />*/}
+                    <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
+                    <Route exact path="/share" render={() => <Redirect to={URL.DASHBOARD} />} />
+                    {/* TODO delete redirect some day */}
+                    <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
+                    <Route path={URL.DASHBOARD} exact component={DashboardPage} />
+                    <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
+                    <Route path={URL.JOURNAL} component={JournalsPage} />
+                    {/* temporary routes */}
+                    <Route path="/v2/debug/formio-develop" component={FormIOPage} />
+                    <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
+                    <Route path={URL.TIMESHEET} exact component={MyTimesheetPage} />
+                    <Route path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
+                    <Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
+                    <Route path={URL.TIMESHEET_DELEGATED} component={DelegatedTimesheetsPage} />
+                    <Route path={URL.TIMESHEET_IFRAME} exact component={MyTimesheetPage} />
+                    <Route path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
+                    <Route path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />
+                    <Route path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
+                    {/*<Route component={NotFoundPage} />*/}
+                  </Switch>
+                </Suspense>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <NotificationContainer />
       </div>
     );
   }

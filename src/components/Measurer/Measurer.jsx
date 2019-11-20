@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { getId } from '../../helpers/util';
 
 const XXS = 376;
 const XS = 476;
@@ -54,7 +55,7 @@ export default class Measurer extends Component {
   render() {
     const { className, children } = this.props;
     return (
-      <div style={{ width: '100%' }} ref={this._ref} className={className}>
+      <div key={getId()} style={{ width: '100%' }} ref={this._ref} className={className}>
         {this.state.show && children ? React.cloneElement(children, { measurer: this.measurer }) : null}
       </div>
     );

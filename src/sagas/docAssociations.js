@@ -1,13 +1,13 @@
-import { put, takeEvery, all } from 'redux-saga/effects';
+import { all, put, takeEvery, call } from 'redux-saga/effects';
 import {
-  getSectionList,
-  setSectionList,
   getDocuments,
-  setDocuments,
-  setAllowedConnections,
   getMenu,
+  getSectionList,
+  saveDocuments,
+  setAllowedConnections,
+  setDocuments,
   setMenu,
-  saveDocuments
+  setSectionList
 } from '../actions/docAssociations';
 import { getDocumentsForWeb, getDocumentsTotalCount, getJournalForWeb, getMenuForWeb } from '../dto/docAssociations';
 
@@ -28,11 +28,11 @@ function* sagaGetSectionList({ api, logger }, action) {
 
 function* sagaGetDocuments({ api, logger }, action) {
   try {
-    const allowedConnections = yield api.docAssociations.getAllowedConnections(action.payload);
+    const allowedConnections = yield call(api.docAssociations.getAllowedConnections, action.payload);
 
     yield put(setAllowedConnections({ key: action.payload, allowedConnections }));
 
-    const response = yield api.docAssociations.getDocuments(action.payload, allowedConnections.map(item => item.name));
+    const response = yield call(api.docAssociations.getDocuments, action.payload, allowedConnections.map(item => item.name));
 
     yield put(
       setDocuments({
@@ -48,12 +48,12 @@ function* sagaGetDocuments({ api, logger }, action) {
 
 function* sagaGetMenu({ api, logger }, action) {
   try {
-    const firstLvl = yield api.docAssociations.getAllowedConnections(action.payload);
-    let { records: secondLvl } = yield api.docAssociations.getSectionList(action.payload);
+    const firstLvl = yield call(api.docAssociations.getAllowedConnections, action.payload);
+    let { records: secondLvl } = yield call(api.docAssociations.getSectionList, action.payload);
 
     secondLvl = yield all(
       secondLvl.map(function*(item) {
-        const journals = yield api.docAssociations.getJournalList(item.name);
+        const journals = yield call(api.docAssociations.getJournalList, item.name);
 
         item.items = journals.map(getJournalForWeb);
 

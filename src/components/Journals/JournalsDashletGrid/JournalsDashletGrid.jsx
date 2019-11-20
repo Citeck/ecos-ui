@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import classNames from 'classnames';
 import lodash from 'lodash';
 import connect from 'react-redux/es/connect/connect';
@@ -16,10 +16,10 @@ import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
 import { PROXY_URI } from '../../../constants/alfresco';
-import RecordActions from '../../Records/actions';
+
 import {
-  execRecordsAction,
   deleteRecords,
+  execRecordsAction,
   goToJournalsPage,
   performGroupAction,
   reloadGrid,
@@ -66,6 +66,7 @@ const mapDispatchToProps = (dispatch, props) => {
 class JournalsDashletGrid extends Component {
   filters = [];
   selectedRow = {};
+  scrollPosition = {};
 
   state = {
     isDialogShow: false
@@ -127,59 +128,43 @@ class JournalsDashletGrid extends Component {
 
   showGridInlineToolSettings = options => {
     this.setSelectedRow(options.row);
-    this.getCurrentRowInlineActions().then(actions => {
-      this.props.setGridInlineToolSettings(
-        Object.assign(
-          {
-            actions: actions
-          },
-          options
-        )
-      );
-    });
+    this.props.setGridInlineToolSettings(
+      Object.assign(
+        {
+          actions: this.getCurrentRowInlineActions()
+        },
+        options
+      )
+    );
   };
 
   getCurrentRowInlineActions() {
     const {
-      journalConfig = {},
       execRecordsAction,
       selectedRecords,
-      grid: { groupBy = [] }
+      grid: { groupBy = [], actions }
     } = this.props;
     let currentRow = this.getSelectedRow().id;
 
     if (selectedRecords.length) {
-      return Promise.resolve([]);
+      return [];
     }
 
     if (groupBy.length) {
-      return Promise.resolve([
+      return [
         {
           title: t('grid.inline-tools.details'),
           onClick: () => this.goToJournalPageWithFilter(),
           icon: 'icon-big-arrow'
         }
-      ]);
+      ];
     }
 
-    const context = {
-      mode: 'journal',
-      scope: journalConfig.id,
-      journalConfig
-    };
-
-    return RecordActions.getActions(currentRow, context)
-      .then(actions => {
-        return actions.map(action => {
-          return Object.assign({}, action, {
-            onClick: () => execRecordsAction([currentRow], action, context)
-          });
-        });
-      })
-      .catch(e => {
-        console.error(e);
-        return [];
+    return ((actions || {})[currentRow] || []).map(action => {
+      return Object.assign({}, action, {
+        onClick: () => execRecordsAction([currentRow], action)
       });
+    });
   }
 
   hideGridInlineToolSettings = () => {
@@ -377,6 +362,11 @@ class JournalsDashletGrid extends Component {
     );
   };
 
+  onScrolling = e => {
+    this.scrollPosition = e;
+    this.hideGridInlineToolSettings();
+  };
+
   render() {
     const {
       selectedRecords,
@@ -389,7 +379,8 @@ class JournalsDashletGrid extends Component {
         columns,
         sortBy,
         pagination: { maxItems },
-        groupBy
+        groupBy,
+        total
       },
       doInlineToolsOnRowClick = false,
       performGroupActionResponse,
@@ -404,13 +395,23 @@ class JournalsDashletGrid extends Component {
       editable = false;
     }
 
-    const HeightCalculation = ({ doNotCount, children, maxItems, minHeight }) =>
-      doNotCount ? <div style={{ height: minHeight }}>{children}</div> : <EmptyGrid maxItems={maxItems}>{children}</EmptyGrid>;
+    const HeightCalculation = ({ doNotCount, children, maxItems, minHeight, total }) => {
+      if (doNotCount) {
+        return <div style={{ height: minHeight }}>{children}</div>;
+      }
+
+      let rowsNumber = total > maxItems ? maxItems : total;
+      if (rowsNumber < 1) {
+        rowsNumber = 1;
+      }
+
+      return <EmptyGrid maxItems={rowsNumber}>{children}</EmptyGrid>;
+    };
 
     return (
-      <Fragment>
+      <>
         <div className={'ecos-journal-dashlet__grid'}>
-          <HeightCalculation maxItems={maxItems} doNotCount={doNotCount} minHeight={minHeight}>
+          <HeightCalculation maxItems={maxItems} doNotCount={doNotCount} minHeight={minHeight} total={total}>
             {loading ? (
               <Loader />
             ) : (
@@ -433,11 +434,12 @@ class JournalsDashletGrid extends Component {
                 onRowClick={doInlineToolsOnRowClick && this.onRowClick}
                 onMouseLeave={!doInlineToolsOnRowClick && this.hideGridInlineToolSettings}
                 onChangeTrOptions={this.showGridInlineToolSettings}
-                onScrolling={this.hideGridInlineToolSettings}
+                onScrolling={this.onScrolling}
                 onEdit={saveRecords}
                 selected={selectedRecords}
                 selectAll={selectAllRecords}
                 minHeight={minHeight}
+                scrollPosition={this.scrollPosition}
               />
             )}
           </HeightCalculation>
@@ -460,7 +462,7 @@ class JournalsDashletGrid extends Component {
           onCancel={this.closeDialog}
           onClose={this.closeDialog}
         />
-      </Fragment>
+      </>
     );
   }
 }
