@@ -61,6 +61,8 @@ class WebPage extends Component {
     }
   };
 
+  static _timeToDeclineRequest = 5000;
+
   _timer = null;
 
   constructor(props) {
@@ -125,9 +127,7 @@ class WebPage extends Component {
     const { url } = this.props;
     let formattedUrl = url;
 
-    formattedUrl = formattedUrl.replace(/^.*:\/\//i, '//');
-
-    if (!/\/{2}/gim.test(formattedUrl)) {
+    if (!/^\/{2}/gim.test(formattedUrl) && !/^.*:\/\//.test(url)) {
       formattedUrl = `//${formattedUrl}`;
     }
 
@@ -159,6 +159,8 @@ class WebPage extends Component {
 
   handleReload = () => {
     const { url, title, reloadPageData } = this.props;
+
+    this.clearTimeout(true);
 
     reloadPageData({ url, title });
     this.setState({
@@ -205,6 +207,8 @@ class WebPage extends Component {
       return;
     }
 
+    this.clearTimeout(true);
+
     onSave(id, { config: { url, title } });
     changePageData({ url, title });
 
@@ -216,33 +220,54 @@ class WebPage extends Component {
   };
 
   declineRequest = () => {
-    console.warn('end timeout');
-    this.props.setError('Decline load page');
-    this.clearTimeout();
-    this._timer = null;
+    this.props.setError(t(LABELS.SERVER_NOT_FOUND));
+    this.clearTimeout(true);
     this.setState({
       pageIsLoaded: false,
       hasFrameContent: false
     });
   };
 
-  clearTimeout() {
+  clearTimeout(clearTimer = false) {
     if (this._timer) {
       window.clearTimeout(this._timer);
-      // this._timer = null;
+    }
+
+    if (clearTimer) {
+      this._timer = null;
     }
   }
 
   handleLoadFrame = event => {
+    if (this.state.pageIsLoaded) {
+      return;
+    }
+
+    let hasFrameContent = false;
+
     this.props.loadedPage();
     this.clearTimeout();
 
-    console.warn(Boolean(get(event, 'currentTarget.contentWindow', []).length));
+    /**
+     * Столкнулся с проблемой, что не все url позволяют таким образом проверить
+     * есть ли в iframe контент
+     *
+     * Обходной путь - не делать эту проверку, но тогда не будет кастомной
+     * информации об ошибке, а только стандартная браузерная
+     *
+     * TODO: подумать об унивесальном решении
+     */
+    if (
+      get(event, 'currentTarget.contentWindow', []).length ||
+      get(event, 'target.contentWindow', []).length ||
+      (get(event, 'currentTarget.contentDocument', []) &&
+        get(event, 'currentTarget.contentDocument', null).getElementsByTagName('body').length) ||
+      (get(event, 'target.contentDocument', []) && get(event, 'target.contentDocument', null).getElementsByTagName('body').length)
+    ) {
+      hasFrameContent = true;
+    }
 
-    this.setState({
-      pageIsLoaded: true,
-      hasFrameContent: Boolean(get(event, 'currentTarget.contentWindow', []).length)
-    });
+    this.setState({ pageIsLoaded: true, hasFrameContent });
   };
 
   renderEmptyData() {
@@ -340,28 +365,9 @@ class WebPage extends Component {
     const { error, fetchIsLoading, pageIsLoading, url } = this.props;
     const { hasFrameContent, settingsIsShow } = this.state;
 
-    console.warn(
-      '!error || hasFrameContent || settingsIsShow || fetchIsLoading || pageIsLoading',
-      !error,
-      hasFrameContent,
-      settingsIsShow,
-      fetchIsLoading,
-      pageIsLoading,
-      !error || hasFrameContent || settingsIsShow || fetchIsLoading || pageIsLoading
-    );
-    if ((!error && hasFrameContent) || hasFrameContent || settingsIsShow || fetchIsLoading || pageIsLoading) {
+    if ((!error && hasFrameContent) || hasFrameContent || settingsIsShow || fetchIsLoading || pageIsLoading || (!error && !url)) {
       return null;
     }
-
-    console.warn(
-      '(!error && hasFrameContent) || settingsIsShow || fetchIsLoading || pageIsLoading || (!error && !url) => ',
-      error,
-      hasFrameContent,
-      settingsIsShow,
-      fetchIsLoading,
-      pageIsLoading,
-      url
-    );
 
     return (
       <div className="ecos-wpage__ground">
@@ -387,8 +393,7 @@ class WebPage extends Component {
     }
 
     if (!this._timer) {
-      console.warn('start timeout');
-      this._timer = window.setTimeout(this.declineRequest, 5000);
+      this._timer = window.setTimeout(this.declineRequest, WebPage._timeToDeclineRequest);
     }
 
     const { userHeight = 0, resizable } = this.state;
@@ -442,13 +447,11 @@ class WebPage extends Component {
             minHeight={1}
             getOptimalHeight={this.setContentHeight}
           >
-            <div className="ecos-wpage__container">
-              {this.renderEmptyData()}
-              {this.renderSettings()}
-              {this.renderLoading()}
-              {this.renderError()}
-              {this.renderPage()}
-            </div>
+            {this.renderEmptyData()}
+            {this.renderSettings()}
+            {this.renderLoading()}
+            {this.renderError()}
+            {this.renderPage()}
           </DefineHeight>
         </Scrollbars>
       </Dashlet>
