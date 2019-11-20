@@ -646,5 +646,6 @@
   "esign.modal.date-to": "To",
   "esign.modal.provider": "Provider",
   "esign.no-data": "No data",
-  "esign.no-document-ref": "No reference to document"
+  "esign.no-document-ref": "No reference to document",
+  "esign.no-get-document-method": "No URL to request a list of documents"
 }

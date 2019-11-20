@@ -21,7 +21,11 @@ class EsignPage extends Component {
       <div>
         {isShowSignBtn && (
           <Esign
-            nodeRef="workspace://SpacesStore/d8aed563-594c-4bc8-899f-36d320f035a7"
+            /**
+             * т.к. url's могут быть динамически настраиваться,
+             */
+            getDocumentsUrl="/share/proxy/alfresco/citeck/get-document-package?nodeRef=workspace://SpacesStore/73076562-0bda-4de4-9e32-a6720ae11e93"
+            nodeRef="workspace://SpacesStore/73076562-0bda-4de4-9e32-a6720ae11e93"
             viewElement={props => (
               <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" {...props}>
                 {t(Labels.SIGN_BTN)}
@@ -37,7 +41,11 @@ class EsignPage extends Component {
           Таким образом, функция openSignModal будет открывать только
           одну модалку
         */}
-        <Esign singleton />
+        <Esign
+          singleton
+          nodeRef="workspace://SpacesStore/aaddecb0-7aa6-4a26-8955-022c2afb1dac"
+          getDocumentsUrl="/share/proxy/alfresco/citeck/get-document-package?nodeRef=workspace://SpacesStore/aaddecb0-7aa6-4a26-8955-022c2afb1dac"
+        />
         <span onClick={() => openSignModal()} style={{ margin: '0 10px' }}>
           Click me!
         </span>

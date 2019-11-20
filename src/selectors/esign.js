@@ -7,7 +7,6 @@ export const selectStateByKey = (state, key) => ({
 
 export const selectGeneralState = state => ({
   cadespluginApi: get(state, 'esign.cadespluginApi', null),
-  cadespluginVersion: get(state, 'esign.cadespluginVersion', null),
   certificates: get(state, 'esign.certificates', null),
   isFetchingApi: get(state, 'esign.isFetchingApi', false)
 });

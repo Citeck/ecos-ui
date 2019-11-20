@@ -27,7 +27,6 @@ export const initialState = {
 
 export const generalState = {
   cadespluginApi: null,
-  cadespluginVersion: null,
   certificates: [],
   isFetchingApi: false
 };
@@ -76,9 +75,9 @@ export default handleActions(
     }),
     [toggleSignModal]: (state, { payload }) => ({
       ...state,
-      [payload]: {
-        ...state[payload],
-        isOpen: !state[payload].isOpen
+      [payload.id]: {
+        ...state[payload.id],
+        isOpen: !state[payload.id].isOpen
       }
     }),
     [setApi]: (state, { payload }) => ({

@@ -54,6 +54,10 @@ class EsignModal extends Component {
       newState.selected = props.selected;
     }
 
+    if (!props.isOpen && props.selected) {
+      newState.selected = '';
+    }
+
     if (!Object.keys(newState).length) {
       return null;
     }

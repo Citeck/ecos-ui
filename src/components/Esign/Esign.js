@@ -25,6 +25,7 @@ export const openSignModal = nodeRef => {
 
 class Esign extends Component {
   static propTypes = {
+    getDocumentsUrl: PropTypes.string.isRequired,
     nodeRef: PropTypes.string,
     viewElement: PropTypes.oneOfType([PropTypes.node, PropTypes.element, PropTypes.func]),
     isOpen: PropTypes.bool,
@@ -36,7 +37,6 @@ class Esign extends Component {
     messageDescription: PropTypes.string,
     errorType: PropTypes.string,
     cadespluginApi: PropTypes.object,
-    cadespluginVersion: PropTypes.object,
     certificates: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.string,
@@ -93,21 +93,19 @@ class Esign extends Component {
   }
 
   handleToggleSignModal = event => {
-    const { nodeRef, singleton, toggleSignModal } = this.props;
+    const { nodeRef, singleton, toggleSignModal, getDocumentsUrl } = this.props;
     const ref = get(event, 'customParams.nodeRef', '');
 
     if (singleton || ref === nodeRef) {
-      toggleSignModal();
+      toggleSignModal(getDocumentsUrl);
     }
   };
 
-  handleClickSign = () => {
-    this.props.getCertificates();
-  };
-
   handleCloseModal = () => {
-    this.props.clearMessage();
-    this.props.toggleSignModal();
+    const { clearMessage, toggleSignModal, getDocumentsUrl } = this.props;
+
+    clearMessage();
+    toggleSignModal(getDocumentsUrl);
   };
 
   handleGoToPlugin = () => {
@@ -115,9 +113,9 @@ class Esign extends Component {
   };
 
   handleSignDocument = selectedCertificate => {
-    const { signDocument } = this.props;
+    const { signDocument, getDocumentsUrl } = this.props;
 
-    signDocument(selectedCertificate);
+    signDocument(selectedCertificate, getDocumentsUrl);
   };
 
   renderInfoMessage() {
@@ -157,13 +155,13 @@ class Esign extends Component {
   }
 
   renderViewElement() {
-    const { viewElement: ViewElement, toggleSignModal } = this.props;
+    const { viewElement: ViewElement, toggleSignModal, getDocumentsUrl } = this.props;
 
     if (!ViewElement) {
       return null;
     }
 
-    return <ViewElement onClick={toggleSignModal} />;
+    return <ViewElement onClick={() => toggleSignModal(getDocumentsUrl)} />;
   }
 
   render() {
@@ -207,10 +205,10 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 
   return {
     init: () => dispatch(init(id)),
-    toggleSignModal: () => dispatch(toggleSignModal(id)),
+    toggleSignModal: url => dispatch(toggleSignModal({ id, url })),
     clearMessage: () => dispatch(clearMessage(id)),
     getCertificates: () => dispatch(getCertificates(id)),
-    signDocument: certificateId => dispatch(signDocument({ id, certificateId }))
+    signDocument: (certificateId, url) => dispatch(signDocument({ id, certificateId, url }))
   };
 };
 
