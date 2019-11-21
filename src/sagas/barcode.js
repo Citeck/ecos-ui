@@ -1,5 +1,5 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { getGeneratedBarcode, setGeneratedBarcode } from '../actions/barcode';
+import { getGeneratedBarcode, setGeneratedBarcode, getBase64Barcode, setBase64Barcode, setError } from '../actions/barcode';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 
@@ -9,6 +9,14 @@ function* sagaGetGeneratedBarcode({ api, logger }, { payload }) {
   try {
     const { record, stateId } = payload;
     const res = yield call(api.barcode.getGeneratedBarcode, { record });
+    const base64 = yield call(api.barcode.getBade64Barcode, {
+      record,
+      params: {
+        nodeRef: record,
+        width: 200,
+        height: 200
+      }
+    });
 
     if (res && res.barcode) {
       yield put(setGeneratedBarcode({ stateId, barcode: res.barcode, error: '' }));
@@ -21,8 +29,28 @@ function* sagaGetGeneratedBarcode({ api, logger }, { payload }) {
   }
 }
 
+function* sagaGetBase64Barcode({ api, logger }, { payload }) {
+  const { record, stateId } = payload;
+
+  try {
+    const response = yield api.barcode.getBade64Barcode({ record });
+
+    // response.data = 'iVBORw0KGgoAAAANSUhEUgAAAHUAAABlAQAAAABbqZGKAAAAJ0lEQVR42mP4/+G8/XkefhsbHntmg/8/GEb5o/xR/ih/lD/KJ4MPAFR2scPt+7UEAAAAAElFTkSuQmCC';
+
+    if (response.data) {
+      yield put(setBase64Barcode({ stateId, barcode: `data:image;base64,${response.data}` }));
+    } else {
+      yield put(setError({ stateId, error: response.error }));
+    }
+  } catch (e) {
+    yield put(setError({ stateId, error: t('barcode-widget.saga.error1') }));
+    logger.error('[barcode/sagaGetBase64Barcode saga] error', e.message);
+  }
+}
+
 function* barcodeSaga(ea) {
   yield takeEvery(getGeneratedBarcode().type, sagaGetGeneratedBarcode, ea);
+  yield takeEvery(getBase64Barcode().type, sagaGetBase64Barcode, ea);
 }
 
 export default barcodeSaga;

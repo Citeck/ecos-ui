@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 import { BarcodeApi } from '../../api';
-import { getGeneratedBarcode } from '../../actions/barcode';
+import { getGeneratedBarcode, getBase64Barcode } from '../../actions/barcode';
 import { t } from '../../helpers/util';
 import { Btn } from '../common/btns';
 
@@ -21,7 +21,8 @@ const mapStateToProps = (state, context) => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  generateBarcode: payload => dispatch(getGeneratedBarcode(payload))
+  generateBarcode: payload => dispatch(getGeneratedBarcode(payload)),
+  generateBase64Barcode: payload => dispatch(getBase64Barcode(payload))
 });
 
 class Barcode extends React.Component {
@@ -35,10 +36,16 @@ class Barcode extends React.Component {
     className: ''
   };
 
-  runGenerateBarcode = () => {
-    const { stateId, record, generateBarcode } = this.props;
+  constructor(props) {
+    super(props);
 
-    generateBarcode({ stateId, record });
+    props.generateBase64Barcode({ stateId: props.stateId, record: props.record });
+  }
+
+  runGenerateBarcode = () => {
+    const { stateId, record, generateBase64Barcode } = this.props;
+
+    generateBase64Barcode({ stateId, record });
   };
 
   runPrint = () => {
