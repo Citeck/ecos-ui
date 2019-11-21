@@ -10,7 +10,8 @@ import {
   initPage,
   loadedPage,
   reloadPageData,
-  changePageData
+  changePageData,
+  cancelPageLoading
 } from '../actions/webPage';
 
 export const initialState = {
@@ -64,6 +65,15 @@ export default handleActions(
       }
     }),
     [loadedPage]: (state, { payload }) => ({
+      ...state,
+      [payload]: {
+        ...getCurrentStateById(state, payload, initialState),
+        error: '',
+        fetchIsLoading: false,
+        pageIsLoading: false
+      }
+    }),
+    [cancelPageLoading]: (state, { payload }) => ({
       ...state,
       [payload]: {
         ...getCurrentStateById(state, payload, initialState),

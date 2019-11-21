@@ -5,6 +5,10 @@ $expanded-sidebar-width: 300px;
 .ecos-base-page {
   display: flex;
   height: calc(100vh - 60px);
+
+  &_headless {
+    height: 100vh;
+  }
 }
 
 .ecos-main-area {

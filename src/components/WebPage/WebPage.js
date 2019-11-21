@@ -13,7 +13,7 @@ import Dashlet from '../Dashlet/Dashlet';
 import { t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_SMALL, MIN_WIDTH_DASHLET_LARGE } from '../../constants';
-import { initPage, changePageData, loadedPage, reloadPageData } from '../../actions/webPage';
+import { initPage, changePageData, loadedPage, reloadPageData, cancelPageLoading, setError } from '../../actions/webPage';
 import { selectStateById } from '../../selectors/webPage';
 
 import './style.scss';
@@ -40,6 +40,7 @@ class WebPage extends Component {
       url: PropTypes.string
     }),
     url: PropTypes.string,
+    error: PropTypes.string,
     title: PropTypes.string,
     onSave: PropTypes.func.isRequired,
     initPage: PropTypes.func.isRequired,
@@ -59,6 +60,10 @@ class WebPage extends Component {
       title: ''
     }
   };
+
+  static _timeToDeclineRequest = 5000;
+
+  _timer = null;
 
   constructor(props) {
     super(props);
@@ -102,6 +107,8 @@ class WebPage extends Component {
 
   componentWillUnmount() {
     this.handleCancelResizable.cancel();
+
+    this.clearTimeout();
   }
 
   get canSave() {
@@ -114,6 +121,17 @@ class WebPage extends Component {
     const { width } = this.state;
 
     return width < MIN_WIDTH_DASHLET_LARGE;
+  }
+
+  get formattedUrl() {
+    const { url } = this.props;
+    let formattedUrl = url;
+
+    if (!/^\/{2}/gim.test(formattedUrl) && !/^.*:\/\//.test(url)) {
+      formattedUrl = `//${formattedUrl}`;
+    }
+
+    return formattedUrl;
   }
 
   setContentHeight = contentHeight => {
@@ -134,17 +152,15 @@ class WebPage extends Component {
   };
 
   handleEdit = () => {
-    const { fetchIsLoading, pageIsLoading } = this.props;
+    this.props.cancelPageLoading();
 
-    if (fetchIsLoading || pageIsLoading) {
-      return;
-    }
-
-    this.setState({ settingsIsShow: true });
+    this.setState({ settingsIsShow: true, hasFrameContent: false });
   };
 
   handleReload = () => {
     const { url, title, reloadPageData } = this.props;
+
+    this.clearTimeout(true);
 
     reloadPageData({ url, title });
     this.setState({
@@ -175,6 +191,7 @@ class WebPage extends Component {
   };
 
   handleCancelEdit = () => {
+    this.handleReload();
     this.setState((state, props) => ({
       settingsIsShow: false,
       url: props.url,
@@ -190,6 +207,8 @@ class WebPage extends Component {
       return;
     }
 
+    this.clearTimeout(true);
+
     onSave(id, { config: { url, title } });
     changePageData({ url, title });
 
@@ -200,13 +219,55 @@ class WebPage extends Component {
     });
   };
 
-  handleLoadFrame = event => {
-    this.props.loadedPage();
-
+  declineRequest = () => {
+    this.props.setError(t(LABELS.SERVER_NOT_FOUND));
+    this.clearTimeout(true);
     this.setState({
-      pageIsLoaded: true,
-      hasFrameContent: Boolean(get(event, 'currentTarget.contentWindow', []).length)
+      pageIsLoaded: false,
+      hasFrameContent: false
     });
+  };
+
+  clearTimeout(clearTimer = false) {
+    if (this._timer) {
+      window.clearTimeout(this._timer);
+    }
+
+    if (clearTimer) {
+      this._timer = null;
+    }
+  }
+
+  handleLoadFrame = event => {
+    if (this.state.pageIsLoaded) {
+      return;
+    }
+
+    let hasFrameContent = false;
+
+    this.props.loadedPage();
+    this.clearTimeout();
+
+    /**
+     * Столкнулся с проблемой, что не все url позволяют таким образом проверить
+     * есть ли в iframe контент
+     *
+     * Обходной путь - не делать эту проверку, но тогда не будет кастомной
+     * информации об ошибке, а только стандартная браузерная
+     *
+     * TODO: подумать об унивесальном решении
+     */
+    if (
+      get(event, 'currentTarget.contentWindow', []).length ||
+      get(event, 'target.contentWindow', []).length ||
+      (get(event, 'currentTarget.contentDocument', []) &&
+        get(event, 'currentTarget.contentDocument', null).getElementsByTagName('body').length) ||
+      (get(event, 'target.contentDocument', []) && get(event, 'target.contentDocument', null).getElementsByTagName('body').length)
+    ) {
+      hasFrameContent = true;
+    }
+
+    this.setState({ pageIsLoaded: true, hasFrameContent });
   };
 
   renderEmptyData() {
@@ -304,7 +365,7 @@ class WebPage extends Component {
     const { error, fetchIsLoading, pageIsLoading, url } = this.props;
     const { hasFrameContent, settingsIsShow } = this.state;
 
-    if ((!error && hasFrameContent) || settingsIsShow || fetchIsLoading || pageIsLoading || (!error && !url)) {
+    if ((!error && hasFrameContent) || hasFrameContent || settingsIsShow || fetchIsLoading || pageIsLoading || (!error && !url)) {
       return null;
     }
 
@@ -324,11 +385,15 @@ class WebPage extends Component {
   }
 
   renderPage() {
-    const { url, title } = this.props;
+    const { url, title, error } = this.props;
     const { settingsIsShow, pageIsLoaded, hasFrameContent } = this.state;
 
-    if (!url || settingsIsShow || (!hasFrameContent && pageIsLoaded)) {
+    if (!url || settingsIsShow || (!hasFrameContent && pageIsLoaded) || error) {
       return null;
+    }
+
+    if (!this._timer) {
+      this._timer = window.setTimeout(this.declineRequest, WebPage._timeToDeclineRequest);
     }
 
     const { userHeight = 0, resizable } = this.state;
@@ -337,7 +402,7 @@ class WebPage extends Component {
     return (
       <iframe
         title={title}
-        src={url}
+        src={this.formattedUrl}
         style={{
           width: '100%',
           height: `${fixHeight}px`,
@@ -382,13 +447,11 @@ class WebPage extends Component {
             minHeight={1}
             getOptimalHeight={this.setContentHeight}
           >
-            <div className="ecos-wpage__container">
-              {this.renderEmptyData()}
-              {this.renderSettings()}
-              {this.renderLoading()}
-              {this.renderError()}
-              {this.renderPage()}
-            </div>
+            {this.renderEmptyData()}
+            {this.renderSettings()}
+            {this.renderLoading()}
+            {this.renderError()}
+            {this.renderPage()}
           </DefineHeight>
         </Scrollbars>
       </Dashlet>
@@ -401,7 +464,9 @@ const mapStateToProps = (state, ownProps) => ({ ...selectStateById(state, ownPro
 const mapDispatchToProps = (dispatch, ownProps) => ({
   initPage: data => dispatch(initPage({ stateId: ownProps.id, data })),
   reloadPageData: data => dispatch(reloadPageData({ stateId: ownProps.id, data })),
+  cancelPageLoading: () => dispatch(cancelPageLoading(ownProps.id)),
   loadedPage: () => dispatch(loadedPage(ownProps.id)),
+  setError: data => dispatch(setError({ stateId: ownProps.id, data })),
   changePageData: data => dispatch(changePageData({ stateId: ownProps.id, data }))
 });
 

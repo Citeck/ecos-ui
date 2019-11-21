@@ -1,7 +1,7 @@
 import { put, takeLatest, call } from 'redux-saga/effects';
 import lodashSet from 'lodash/set';
 import lodashGet from 'lodash/get';
-import { initAppRequest, initAppSuccess, initAppFailure } from '../actions/app';
+import { initAppRequest, initAppSuccess, initAppFailure, setAllUsersGroupName } from '../actions/app';
 import { validateUserSuccess, validateUserFailure } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
 
@@ -24,6 +24,9 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
     }
 
     yield put(detectMobileDevice());
+
+    const allUsersGroupName = yield call(api.app.getOrgstructAllUsersGroupName);
+    yield put(setAllUsersGroupName(allUsersGroupName));
 
     // --- Load translation messages ---
     // TODO load translation messages

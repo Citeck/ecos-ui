@@ -47,3 +47,39 @@
     color: $color-blue-dark;
   }
 }
+
+.ecos-switch {
+  $slider-size: 30px;
+
+  position: relative;
+  background-color: $color-gray-5;
+  border-radius: 100px;
+  width: 52px;
+  min-width: 52px;
+  height: 24px;
+  cursor: pointer;
+  transition: 0.3s;
+
+  &:after {
+    content: '';
+    position: absolute;
+    background: $color-white;
+    z-index: 2;
+    left: 0;
+    top: calc(50% - #{$slider-size}/ 2);
+    width: $slider-size;
+    height: $slider-size;
+    border-radius: 50%;
+    border: 2px solid $color-gray-5;
+    transition: 0.3s;
+  }
+
+  &_checked {
+    background-color: $color-blue-dark;
+
+    &:after {
+      border-color: $color-blue-dark;
+      left: calc(100% - #{$slider-size});
+    }
+  }
+}
