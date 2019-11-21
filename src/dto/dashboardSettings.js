@@ -28,7 +28,6 @@ export default class DashboardSettingsConverter {
 
   static getDescConfigForWeb(config) {
     const target = [];
-
     const layouts = get(config, ['layouts'], []);
 
     DashboardService.movedToListLayout(config, layouts);
@@ -62,14 +61,13 @@ export default class DashboardSettingsConverter {
     target.id = layout.id;
     target.tab = layout.tab || DashboardService.defaultDashboardTab(layout.id);
     target.type = layout.type || LAYOUT_TYPE.TWO_COLUMNS_BS;
-    target.widgets = isArray(layout.columns) ? layout.columns.map(item => item.widgets) : [];
+    target.widgets = isArray(layout.columns) ? [].concat.apply([], layout.columns).map(item => item.widgets) : [];
 
     return target;
   }
 
   static getSettingsConfigForServer(source) {
     const target = [];
-
     const { tabs = [], layoutType, widgets = {} } = source;
 
     tabs.forEach(tab => {
@@ -112,17 +110,27 @@ export default class DashboardSettingsConverter {
 
   static getWidgetsForServer(columns = [], widgets = []) {
     let defProps = Components.setDefaultPropsOfWidgets(widgets);
-
-    return columns.map((column, index) => {
+    let order = 0;
+    const getWidget = column => {
       const data = {
-        widgets: defProps[index] || []
+        widgets: defProps[order] || []
       };
 
       if (column.width) {
         data.width = column.width;
       }
 
+      order += 1;
+
       return data;
+    };
+
+    return columns.map(column => {
+      if (Array.isArray(column)) {
+        return column.map(getWidget);
+      }
+
+      return getWidget(column);
     });
   }
 }

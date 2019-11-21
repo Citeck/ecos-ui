@@ -148,40 +148,46 @@ export default class Components {
     return Components.allDashboardsComponents.map(key => ({ ...Components.components[key], name: key }));
   }
 
+  static getDefaultWidget = widget => {
+    const defWidget = deepClone(widget);
+    const props = widget.props || {};
+    const config = props.config || {};
+
+    defWidget.id = widget.id || uuidV4();
+    defWidget.props = {
+      ...props,
+      id: props.id || defWidget.id,
+      config: {
+        ...config
+      }
+    };
+
+    switch (defWidget.name) {
+      case ComponentKeys.DOC_PREVIEW: {
+        defWidget.props.config.link = config.link || '';
+        break;
+      }
+      case ComponentKeys.JOURNAL: {
+        break;
+      }
+      default:
+        break;
+    }
+
+    return defWidget;
+  };
+
   static setDefaultPropsOfWidgets(items) {
     if (!isArray(items) || isEmpty(items)) {
       return [];
     }
 
     return items.map(item => {
-      return item.map(widget => {
-        const defWidget = deepClone(widget);
-        const props = widget.props || {};
-        const config = props.config || {};
+      if (Array.isArray(item)) {
+        return item.map(Components.getDefaultWidget);
+      }
 
-        defWidget.id = widget.id || uuidV4();
-        defWidget.props = {
-          ...props,
-          id: props.id || defWidget.id,
-          config: {
-            ...config
-          }
-        };
-
-        switch (defWidget.name) {
-          case ComponentKeys.DOC_PREVIEW: {
-            defWidget.props.config.link = config.link || '';
-            break;
-          }
-          case ComponentKeys.JOURNAL: {
-            break;
-          }
-          default:
-            break;
-        }
-
-        return defWidget;
-      });
+      return Components.getDefaultWidget(item);
     });
   }
 }
