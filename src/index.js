@@ -90,6 +90,11 @@ api.recordActions = new RecordActionsApi(store);
 api.docAssociations = new DocAssociationsApi(store);
 api.view = new ViewApi(store);
 api.birthdays = new BirthdaysApi(store);
+api.timesheetCommon = new TimesheetCommonApi(store);
+api.timesheetSubordinates = new TimesheetSubordinatesApi(store);
+api.timesheetMine = new MyTimesheetApi(store);
+api.timesheetVerification = new TimesheetVerificationApi(store);
+api.timesheetDelegated = new TimesheetDelegatedApi(store);
 
 /**
  * todo: Maybe need such union all api?
@@ -102,13 +107,6 @@ api.birthdays = new BirthdaysApi(store);
 //   name = name[0].toLowerCase() + name.slice(1);
 //   api[name] = new API[key](store);
 // }));
-
-//timesheets
-api.timesheetCommon = new TimesheetCommonApi(store);
-api.timesheetSubordinates = new TimesheetSubordinatesApi(store);
-api.timesheetMine = new MyTimesheetApi(store);
-api.timesheetVerification = new TimesheetVerificationApi(store);
-api.timesheetDelegated = new TimesheetDelegatedApi(store);
 
 const history = getHistory();
 

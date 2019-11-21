@@ -4,8 +4,6 @@ export const URL = {
   DASHBOARD: '/v2/dashboard',
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
   BPMN_DESIGNER: '/v2/bpmn-designer',
-
-  // TODO: check and delete unused
   TIMESHEET: '/v2/timesheet',
   TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates',
   TIMESHEET_FOR_VERIFICATION: '/v2/timesheet/for-verification',

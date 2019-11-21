@@ -25,15 +25,13 @@ const BPMNDesignerPage = lazy(() => import('../../pages/BPMNDesignerPage'));
 const DashboardPage = lazy(() => import('../../pages/Dashboard'));
 const DashboardSettingsPage = lazy(() => import('../../pages/DashboardSettings'));
 const JournalsPage = lazy(() => import('../../pages/JournalsPage'));
-
-const EcosFormPage = lazy(() => import('../../pages/debug/EcosFormPage'));
-const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
-
-// TODO: check and delete unused
 const MyTimesheetPage = lazy(() => import('../../pages/Timesheet/MyTimesheetPage'));
 const SubordinatesTimesheetPage = lazy(() => import('../../pages/Timesheet/SubordinatesTimesheetPage'));
 const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/VerificationTimesheetPage'));
 const DelegatedTimesheetsPage = lazy(() => import('../../pages/Timesheet/DelegatedTimesheetsPage'));
+
+const EcosFormPage = lazy(() => import('../../pages/debug/EcosFormPage'));
+const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
 
 class App extends Component {
   componentDidMount() {
@@ -185,17 +183,11 @@ class App extends Component {
               <div className="ecos-main-content" style={this.wrapperStyle}>
                 <Suspense fallback={null}>
                   <Switch>
-                    {/*<Route path="/share/page" exact component={DashboardPage} />*/}
                     <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
-                    <Route exact path="/share" render={() => <Redirect to={URL.DASHBOARD} />} />
-                    {/* TODO delete redirect some day */}
                     <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
                     <Route path={URL.DASHBOARD} exact component={DashboardPage} />
                     <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
                     <Route path={URL.JOURNAL} component={JournalsPage} />
-                    {/* temporary routes */}
-                    <Route path="/v2/debug/formio-develop" component={FormIOPage} />
-                    <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
                     <Route path={URL.TIMESHEET} exact component={MyTimesheetPage} />
                     <Route path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
                     <Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
@@ -204,7 +196,12 @@ class App extends Component {
                     <Route path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
                     <Route path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />
                     <Route path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
-                    {/*<Route component={NotFoundPage} />*/}
+
+                    {/* temporary routes */}
+                    <Route path="/v2/debug/formio-develop" component={FormIOPage} />
+                    <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
+
+                    <Redirect to={URL.DASHBOARD} />
                   </Switch>
                 </Suspense>
               </div>

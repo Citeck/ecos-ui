@@ -44,11 +44,11 @@ class SelectUserModal extends Component {
         onChange={onSelect}
         onCancelSelect={onCancel}
         renderListItem={this.renderListItem}
-        filterFields={['label', 'attributes.fullName']}
+        searchFields={['label', 'attributes.fullName']}
         isCompact
         openByDefault
-        withoutInput
-        withoutTabs
+        hideInputView
+        hideTabSwitcher
         getFullData
         defaultTab={TAB_ALL_USERS}
         liveSearch

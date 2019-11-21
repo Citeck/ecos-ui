@@ -15,9 +15,10 @@ export const TITLE = {
   [URL.DASHBOARD]: 'header.site-menu.home-page',
   [URL.DASHBOARD_SETTINGS]: 'page-tabs.dashboard-settings',
   [URL.BPMN_DESIGNER]: 'page-tabs.bpmn-designer',
-  // temporary pages
-  [URL.TIMESHEET]: 'Табель',
-  [URL.TIMESHEET_SUBORDINATES]: 'Табель подчиненных'
+  [URL.TIMESHEET]: 'page-tabs.timesheet',
+  [URL.TIMESHEET_SUBORDINATES]: 'page-tabs.timesheet',
+  [URL.TIMESHEET_FOR_VERIFICATION]: 'page-tabs.timesheet',
+  [URL.TIMESHEET_DELEGATED]: 'page-tabs.timesheet'
 };
 
 export const URL_MASK = {

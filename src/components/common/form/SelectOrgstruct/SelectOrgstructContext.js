@@ -23,9 +23,9 @@ export const SelectOrgstructProvider = props => {
     getFullData,
     defaultTab = TAB_BY_LEVELS,
     liveSearch,
-    withoutTabs,
+    hideTabSwitcher,
     renderListItem,
-    filterFields = []
+    searchFields
   } = controlProps;
   const allUsersGroupShortName = allUsersGroup || ALL_USERS_GROUP_SHORT_NAME;
 
@@ -60,11 +60,11 @@ export const SelectOrgstructProvider = props => {
       .then(items => {
         const allUsersFiltered = trimSearchText
           ? allUsers.filter(item => {
-              if (!filterFields.length) {
+              if (!searchFields.length) {
                 return item.label.toUpperCase().indexOf(trimSearchText.toUpperCase()) !== -1;
               }
 
-              return filterFields.map(field => get(item, field, '').indexOf(trimSearchText.toUpperCase()) !== -1).includes(true);
+              return searchFields.map(field => get(item, field, '').indexOf(trimSearchText.toUpperCase()) !== -1).includes(true);
             })
           : allUsers.map(newItem => {
               return {
@@ -220,7 +220,7 @@ export const SelectOrgstructProvider = props => {
         isAllUsersGroupsExists,
         modalTitle,
         liveSearch,
-        withoutTabs,
+        hideTabSwitcher,
 
         renderListItem: item => {
           if (typeof renderListItem === 'function') {
