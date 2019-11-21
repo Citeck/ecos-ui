@@ -13,6 +13,8 @@
   $ecos-dashboard-settings: &;
 
   position: relative;
+  padding-left: 0;
+  padding-right: 0;
 
   &__loader-wrapper {
     border-radius: $border-radius-extra-large;
