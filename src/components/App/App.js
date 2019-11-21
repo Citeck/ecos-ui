@@ -11,10 +11,11 @@ import Notification from '../Notification';
 import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
+import Footer from '../Footer';
 
 import { changeActiveTab, getActiveTabTitle, getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
-import { MENU_TYPE, URL } from '../../constants';
+import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 
 import './App.scss';
 
@@ -24,6 +25,10 @@ const BPMNDesignerPage = lazy(() => import('../../pages/BPMNDesignerPage'));
 const DashboardPage = lazy(() => import('../../pages/Dashboard'));
 const DashboardSettingsPage = lazy(() => import('../../pages/DashboardSettings'));
 const JournalsPage = lazy(() => import('../../pages/JournalsPage'));
+const MyTimesheetPage = lazy(() => import('../../pages/Timesheet/MyTimesheetPage'));
+const SubordinatesTimesheetPage = lazy(() => import('../../pages/Timesheet/SubordinatesTimesheetPage'));
+const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/VerificationTimesheetPage'));
+const DelegatedTimesheetsPage = lazy(() => import('../../pages/Timesheet/DelegatedTimesheetsPage'));
 
 const EcosFormPage = lazy(() => import('../../pages/debug/EcosFormPage'));
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
@@ -35,6 +40,12 @@ class App extends Component {
     getShowTabsStatus();
     getTabs();
     initMenuSettings();
+  }
+
+  get isOnlyContent() {
+    const url = get(this.props, ['history', 'location', 'pathname'], '/');
+
+    return pagesWithOnlyContent.includes(url);
   }
 
   get wrapperStyle() {
@@ -70,6 +81,10 @@ class App extends Component {
   renderMenu() {
     const { menuType } = this.props;
 
+    if (this.isOnlyContent) {
+      return null;
+    }
+
     if (menuType === MENU_TYPE.LEFT) {
       return <Menu />;
     }
@@ -77,20 +92,61 @@ class App extends Component {
     return null;
   }
 
+  renderHeader() {
+    if (this.isOnlyContent) {
+      return null;
+    }
+
+    return (
+      <div id="alf-hd">
+        <Header />
+        <Notification />
+      </div>
+    );
+  }
+
+  renderTabs() {
+    const { changeActiveTab, isShow, tabs, setTabs, getActiveTabTitle, isLoadingTitle, isMobile } = this.props;
+
+    return (
+      <PageTabs
+        homepageLink={URL.DASHBOARD}
+        isShow={isShow && !this.isOnlyContent && !isMobile}
+        tabs={tabs}
+        saveTabs={setTabs}
+        changeActiveTab={changeActiveTab}
+        getActiveTabTitle={getActiveTabTitle}
+        isLoadingTitle={isLoadingTitle}
+      />
+    );
+  }
+
+  renderStickyPush() {
+    if (this.isOnlyContent) {
+      return null;
+    }
+
+    return <div className="sticky-push" />;
+  }
+
+  renderFooter() {
+    if (this.isOnlyContent) {
+      return null;
+    }
+
+    return <Footer key="card-details-footer" theme={this.props.theme} />;
+  }
+
+  renderReduxModal() {
+    if (this.isOnlyContent) {
+      return null;
+    }
+
+    return <ReduxModal />;
+  }
+
   render() {
-    const {
-      changeActiveTab,
-      isInit,
-      isInitFailure,
-      isAuthenticated,
-      isMobile,
-      isShow,
-      tabs,
-      setTabs,
-      getActiveTabTitle,
-      isLoadingTitle,
-      theme
-    } = this.props;
+    const { isInit, isInitFailure, isAuthenticated, isMobile, theme } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -111,44 +167,41 @@ class App extends Component {
     }
 
     const appClassNames = classNames('app-container', { mobile: isMobile });
+    const basePageClassNames = classNames('ecos-base-page', { 'ecos-base-page_headless': this.isOnlyContent });
 
     return (
       <div className={appClassNames}>
-        <ReduxModal />
+        {this.renderReduxModal()}
 
         <div className="ecos-sticky-wrapper" id="sticky-wrapper">
-          <div id="alf-hd">
-            <Header />
-            <Notification />
-          </div>
-          <div className="ecos-base-page">
+          {this.renderHeader()}
+          <div className={basePageClassNames}>
             {this.renderMenu()}
 
             <div className="ecos-main-area">
-              <PageTabs
-                homepageLink={URL.DASHBOARD}
-                isShow={isShow && !isMobile}
-                tabs={tabs}
-                saveTabs={setTabs}
-                changeActiveTab={changeActiveTab}
-                getActiveTabTitle={getActiveTabTitle}
-                isLoadingTitle={isLoadingTitle}
-              />
+              {this.renderTabs()}
               <div className="ecos-main-content" style={this.wrapperStyle}>
                 <Suspense fallback={null}>
                   <Switch>
-                    {/*<Route path="/share/page" exact component={DashboardPage} />*/}
                     <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
-                    <Route exact path="/share" render={() => <Redirect to={URL.DASHBOARD} />} />
-                    {/* TODO delete redirect some day */}
                     <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
                     <Route path={URL.DASHBOARD} exact component={DashboardPage} />
                     <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
                     <Route path={URL.JOURNAL} component={JournalsPage} />
+                    <Route path={URL.TIMESHEET} exact component={MyTimesheetPage} />
+                    <Route path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
+                    <Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
+                    <Route path={URL.TIMESHEET_DELEGATED} component={DelegatedTimesheetsPage} />
+                    <Route path={URL.TIMESHEET_IFRAME} exact component={MyTimesheetPage} />
+                    <Route path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
+                    <Route path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />
+                    <Route path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
+
                     {/* temporary routes */}
                     <Route path="/v2/debug/formio-develop" component={FormIOPage} />
                     <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
-                    {/*<Route component={NotFoundPage} />*/}
+
+                    <Redirect to={URL.DASHBOARD} />
                   </Switch>
                 </Suspense>
               </div>

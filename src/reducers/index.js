@@ -22,6 +22,11 @@ import eventsHistory from './eventsHistory';
 import versionsJournal from './versionsJournal';
 import recordActions from './recordActions';
 import docAssociations from './docAssociations';
+import timesheetSubordinates from './timesheet/subordinates';
+import timesheetMine from './timesheet/mine';
+import timesheetVerification from './timesheet/verification';
+import timesheetDelegated from './timesheet/delegated';
+import timesheetCommon from './timesheet/common';
 import webPage from './webPage';
 import birthdays from './birthdays';
 
@@ -47,6 +52,11 @@ const reducers = {
   versionsJournal,
   recordActions,
   docAssociations,
+  timesheetSubordinates,
+  timesheetMine,
+  timesheetVerification,
+  timesheetDelegated,
+  timesheetCommon,
   webPage,
   birthdays
 };

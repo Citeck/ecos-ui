@@ -7,7 +7,7 @@ import './ListItem.scss';
 
 const ListItem = ({ item, nestingLevel, nestedList }) => {
   const context = useContext(SelectOrgstructContext);
-  const { controlProps } = context;
+  const { controlProps, renderListItem } = context;
   const { allowedAuthorityTypes, allowedGroupTypes, allowedGroupSubTypes } = controlProps;
   const itemAuthorityType = item.attributes.authorityType;
   const itemGroupType = (item.attributes.groupType || '').toUpperCase();
@@ -66,7 +66,7 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
       <div className={listItemClassNames}>
         <div className={listItemLabelClassNames} onClick={onClickLabel}>
           {collapseHandler}
-          {item.label}
+          {renderListItem(item)}
         </div>
         {selectHandler}
       </div>

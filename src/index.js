@@ -30,10 +30,15 @@ import {
   EventsHistoryApi,
   JournalsApi,
   MenuApi,
+  MyTimesheetApi,
   OrgStructApi,
   PageTabsApi,
   RecordActionsApi,
   TasksApi,
+  TimesheetCommonApi,
+  TimesheetDelegatedApi,
+  TimesheetSubordinatesApi,
+  TimesheetVerificationApi,
   UserApi,
   VersionsJournalApi,
   ViewApi,
@@ -42,9 +47,12 @@ import {
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
+import { polyfills } from './helpers/polyfills';
 import './styles/index.scss';
 
 import './build-info';
+
+polyfills();
 
 const logger = Logger.create('EcoS');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);
@@ -82,6 +90,11 @@ api.recordActions = new RecordActionsApi(store);
 api.docAssociations = new DocAssociationsApi(store);
 api.view = new ViewApi(store);
 api.birthdays = new BirthdaysApi(store);
+api.timesheetCommon = new TimesheetCommonApi(store);
+api.timesheetSubordinates = new TimesheetSubordinatesApi(store);
+api.timesheetMine = new MyTimesheetApi(store);
+api.timesheetVerification = new TimesheetVerificationApi(store);
+api.timesheetDelegated = new TimesheetDelegatedApi(store);
 
 /**
  * todo: Maybe need such union all api?
