@@ -1,6 +1,15 @@
 @import '../../styles/constants';
 
 .ecos-dashboard {
+  &__scrollbars {
+    &-track-vertical {
+      cursor: pointer;
+      border-radius: inherit;
+      background-color: rgba(0, 0, 0, 0.2);
+      z-index: $scroll-z-index;
+    }
+  }
+
   &__header {
     $header: &;
 
@@ -65,7 +74,7 @@
       padding-bottom: 10px;
       border-bottom: 2px solid $color-gray-4;
       position: relative;
-      z-index: 1;
+      z-index: $scroll-z-index + 1;
 
       #{$header}_no-next {
         margin-bottom: 10px;
