@@ -18,7 +18,7 @@ export class AppApi extends CommonApi {
 
   getOrgstructAllUsersGroupName = () => {
     return Records.get('uiserv/config@orgstruct-allUsers-group-shortName')
-      .load('value?string')
+      .load('value')
       .then(resp => resp || ALL_USERS_GROUP_SHORT_NAME)
       .catch(() => ALL_USERS_GROUP_SHORT_NAME);
   };
