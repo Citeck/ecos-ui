@@ -148,19 +148,7 @@ class App extends Component {
   }
 
   render() {
-    const {
-      changeActiveTab,
-      isInit,
-      isInitFailure,
-      isAuthenticated,
-      isMobile,
-      isShow,
-      tabs,
-      setTabs,
-      getActiveTabTitle,
-      isLoadingTitle,
-      theme
-    } = this.props;
+    const { isInit, isInitFailure, isAuthenticated, isMobile, theme } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -181,29 +169,19 @@ class App extends Component {
     }
 
     const appClassNames = classNames('app-container', { mobile: isMobile });
+    const basePageClassNames = classNames('ecos-base-page', { 'ecos-base-page_headless': this.isOnlyContent });
 
     return (
       <div className={appClassNames}>
         {this.renderReduxModal()}
 
         <div className="ecos-sticky-wrapper" id="sticky-wrapper">
-          <div id="alf-hd">
-            <Header />
-            <Notification />
-          </div>
-          <div className="ecos-base-page">
+          {this.renderHeader()}
+          <div className={basePageClassNames}>
             {this.renderMenu()}
 
             <div className="ecos-main-area">
-              <PageTabs
-                homepageLink={URL.DASHBOARD}
-                isShow={isShow && !isMobile}
-                tabs={tabs}
-                saveTabs={setTabs}
-                changeActiveTab={changeActiveTab}
-                getActiveTabTitle={getActiveTabTitle}
-                isLoadingTitle={isLoadingTitle}
-              />
+              {this.renderTabs()}
               <div className="ecos-main-content" style={this.wrapperStyle}>
                 <Suspense fallback={null}>
                   <Switch>
