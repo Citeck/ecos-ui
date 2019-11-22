@@ -17,7 +17,7 @@ export class BarcodeApi extends RecordService {
     const data = { ...params, nodeRef: record };
     const props = Object.keys(data).map(key => `${key}=${data[key]}`);
 
-    return fetch(`/share/proxy/alfresco/service/citeck/image/barcode?${props.join('&')}`, {
+    return fetch(`/share/proxy/alfresco/citeck/image/barcode?${props.join('&')}`, {
       method: 'GET',
       credentials: 'include'
       // headers: {
@@ -27,6 +27,6 @@ export class BarcodeApi extends RecordService {
   };
 
   getPrintBarcode = ({ record }) => {
-    return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&property=contracts:barcode&barcodeType=code-128&scale=1.0&margins=20,200,20,500&print=true`;
+    return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&property=contracts:barcode&barcodeType=code-128&scale=5.0&margins=20,200,20,500&print=true`;
   };
 }

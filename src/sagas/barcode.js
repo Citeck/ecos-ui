@@ -33,14 +33,15 @@ function* sagaGetBase64Barcode({ api, logger }, { payload }) {
   const { record, stateId } = payload;
 
   try {
-    const response = yield api.barcode.getBade64Barcode({ record });
-
-    // response.data = 'iVBORw0KGgoAAAANSUhEUgAAAHUAAABlAQAAAABbqZGKAAAAJ0lEQVR42mP4/+G8/XkefhsbHntmg/8/GEb5o/xR/ih/lD/KJ4MPAFR2scPt+7UEAAAAAElFTkSuQmCC';
+    const response = yield api.barcode.getBade64Barcode({
+      record,
+      params: { height: 100, width: 210 }
+    });
 
     if (response.data) {
-      yield put(setBase64Barcode({ stateId, barcode: `data:image;base64,${response.data}` }));
+      yield put(setBase64Barcode({ stateId, barcode: `data:image/png;base64,${response.data}` }));
     } else {
-      yield put(setError({ stateId, error: response.error }));
+      yield put(setError({ stateId, error: response.error || t('barcode-widget.saga.error1') }));
     }
   } catch (e) {
     yield put(setError({ stateId, error: t('barcode-widget.saga.error1') }));

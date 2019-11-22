@@ -72,7 +72,7 @@ class Barcode extends React.Component {
           </Btn>
           {barcode && <img className="ecos-barcode__image" src={barcode} alt={t('barcode-widget.dashlet.title')} />}
         </div>
-        <Btn className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no" onClick={this.runPrint}>
+        <Btn className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no" onClick={this.runPrint} disabled={error}>
           {t('barcode-widget.btn.print')}
         </Btn>
       </div>
