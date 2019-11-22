@@ -9528,6 +9528,11 @@ mkdirp@0.5.1, mkdirp@0.5.x, "mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1, mkdi
   dependencies:
     minimist "0.0.8"
 
+moment-business-days@^1.1.3:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/moment-business-days/-/moment-business-days-1.1.3.tgz#2922c3ffab8640a84dd27484336a5e0b3c07175a"
+  integrity sha512-VfpcLQxVWJ9ymq4ljaqPdzoco01kOJblX9sbfOCYguBvqCvVPYDJQTdez49a2gtSoSK8AjL8JfvLvmoQlrBMiQ==
+
 moment-timezone@^0.5.26:
   version "0.5.26"
   resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.26.tgz#c0267ca09ae84631aa3dc33f65bedbe6e8e0d772"
@@ -11656,6 +11661,11 @@ react-copy-to-clipboard@^5.0.1:
   dependencies:
     copy-to-clipboard "^3"
     prop-types "^15.5.8"
+
+react-css-collapse@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/react-css-collapse/-/react-css-collapse-3.6.0.tgz#a2a2a90d2cca799f1f8762afc64ee3b75bbe65f7"
+  integrity sha512-Xte8m4swG7HMngDZRky3ISGfXMvHfD2OHIMFSVI/hv2zZF2hXy2HYs4OH2xLnkkKRpAdfd+PXui0oZNtM3/nfQ==
 
 react-custom-scrollbars@^4.2.1:
   version "4.2.1"

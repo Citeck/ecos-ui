@@ -1,6 +1,15 @@
 @import '../../styles/constants';
 
 .ecos-dashboard {
+  &__scrollbars {
+    &-track-vertical {
+      cursor: pointer;
+      border-radius: inherit;
+      background-color: rgba(0, 0, 0, 0.2);
+      z-index: $scroll-z-index;
+    }
+  }
+
   &__header {
     $header: &;
 
@@ -35,7 +44,9 @@
     }
 
     &-status {
-      padding: 0;
+      &.ecos-doc-status {
+        padding: 0;
+      }
 
       .ecos-doc-status__data {
         flex: unset;
@@ -43,6 +54,8 @@
 
       .ecos-doc-status__loader {
         margin: 0;
+        justify-content: space-between;
+        width: 15%;
       }
     }
 
@@ -65,7 +78,7 @@
       padding-bottom: 10px;
       border-bottom: 2px solid $color-gray-4;
       position: relative;
-      z-index: 1;
+      z-index: $scroll-z-index + 1;
 
       #{$header}_no-next {
         margin-bottom: 10px;
@@ -78,9 +91,6 @@
   &__tabs {
     &-wrapper {
       padding: 0 19px 13px;
-    }
-
-    &-block {
     }
 
     &-item {

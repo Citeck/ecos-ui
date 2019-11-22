@@ -251,8 +251,15 @@ class PageTabs extends React.Component {
         remoteTitle = false
       }
     } = event;
+    const { isShow } = this.props;
     const tabs = deepClone(this.state.tabs);
     const link = decodeLink(event.params.link || '');
+
+    if (!isShow) {
+      this.props.history.push.call(this, link);
+
+      return;
+    }
 
     if (closeActiveTab) {
       const activeIndex = tabs.findIndex(tab => tab.isActive);
