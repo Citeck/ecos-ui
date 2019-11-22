@@ -6,6 +6,10 @@
   &-dashlet {
     &__body {
       padding: 17px 20px 19px;
+
+      .dashlet__body-actions {
+        padding: 0;
+      }
     }
   }
 

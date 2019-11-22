@@ -9,14 +9,6 @@ function* sagaGetGeneratedBarcode({ api, logger }, { payload }) {
   try {
     const { record, stateId } = payload;
     const res = yield call(api.barcode.getGeneratedBarcode, { record });
-    const base64 = yield call(api.barcode.getBade64Barcode, {
-      record,
-      params: {
-        nodeRef: record,
-        width: 200,
-        height: 200
-      }
-    });
 
     if (res && res.barcode) {
       yield put(setGeneratedBarcode({ stateId, barcode: res.barcode, error: '' }));
