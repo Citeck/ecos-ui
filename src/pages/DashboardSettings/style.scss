@@ -13,8 +13,6 @@
   $ecos-dashboard-settings: &;
 
   position: relative;
-  padding-left: 0;
-  padding-right: 0;
 
   &__loader-wrapper {
     border-radius: $border-radius-extra-large;
@@ -225,7 +223,7 @@
   &__column-widgets {
     display: flex;
     flex-direction: column;
-    width: 199px;
+    width: 195px;
     margin-bottom: 16px;
 
     &:not(:last-of-type) {
