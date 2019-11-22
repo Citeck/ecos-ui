@@ -200,7 +200,7 @@ class Layout extends Component {
     };
     const otherWidth = columns.map(column => column.width || '').filter(item => item !== '');
     const withoutSize = columns.filter(column => !column.width).length;
-    const availableWidth = otherWidth.length ? `(100% - ${otherWidth.join(' + ')})` : '100%';
+    const availableWidth = otherWidth.length ? `(100% - (${otherWidth.join(' + ')}))` : '100%';
     const id = JSON.stringify({ type: 'column', index });
 
     if (!column.width) {
