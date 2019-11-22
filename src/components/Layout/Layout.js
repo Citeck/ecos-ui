@@ -198,21 +198,14 @@ class Layout extends Component {
       height: '100%',
       borderRadius: '5px'
     };
-    const otherWidth = columns
-      .map(column => column.width || '')
-      .filter(item => item !== '')
-      .reduce((sum, current) => (sum += parseFloat(current)), 0);
+    const otherWidth = columns.map(column => column.width || '').filter(item => item !== '');
     const withoutSize = columns.filter(column => !column.width).length;
-    const availableWidth = otherWidth ? `(100% - ${otherWidth})` : '100%';
+    const availableWidth = otherWidth.length ? `(100% - ${otherWidth.join(' + ')})` : '100%';
+    const id = JSON.stringify({ type: 'column', index });
 
     if (!column.width) {
       styles.width = `calc(${availableWidth} / ${withoutSize})`;
     }
-
-    const id = JSON.stringify({
-      type: 'column',
-      index
-    });
 
     if (canDragging) {
       return (
