@@ -13,6 +13,17 @@
       padding: 0;
       border-bottom: none;
     }
+
+    &.inline-editing {
+      flex-direction: column;
+      border-left: 6px solid #c6d6f0;
+      padding-left: 10px;
+
+      /* TODO */
+      > * {
+        width: 100%;
+      }
+    }
   }
 
   dt {
