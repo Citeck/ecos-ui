@@ -26,6 +26,10 @@
 
     &__title {
       justify-content: space-between;
+
+      &-text {
+        @extend %ellipsis;
+      }
     }
 
     &__info-wrap {
