@@ -33,6 +33,8 @@ export default class FileComponent extends FormIOFileComponent {
     this.disabled = this.shouldDisable;
 
     super.build();
+
+    this.createInlineSaveButton();
   }
 
   setupValueElement(element) {
