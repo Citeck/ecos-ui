@@ -35,7 +35,9 @@
     }
 
     &-status {
-      padding: 0;
+      &.ecos-doc-status {
+        padding: 0;
+      }
 
       .ecos-doc-status__data {
         flex: unset;
@@ -43,6 +45,8 @@
 
       .ecos-doc-status__loader {
         margin: 0;
+        justify-content: space-between;
+        width: 15%;
       }
     }
 
