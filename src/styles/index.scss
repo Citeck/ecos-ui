@@ -51,3 +51,8 @@ ul {
 #alf-hd {
   position: relative;
 }
+
+// for fixing ECOSENT-1113
+.mask {
+  z-index: 999 !important;
+}
