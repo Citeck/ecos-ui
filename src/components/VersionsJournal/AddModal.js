@@ -149,6 +149,7 @@ class AddModal extends Component {
         }
         break;
       case FILE_STATUS.DONE:
+      case FILE_STATUS.ERROR_UPLOAD:
         remove();
         break;
       default:
