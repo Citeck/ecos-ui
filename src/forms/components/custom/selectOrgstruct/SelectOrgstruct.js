@@ -93,7 +93,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
     this.createDescription(this.element);
 
     // this.attachLogic();
-    this.createInlineSaveButton();
+    this.createInlineEditSaveAndCancelButtons();
   }
 
   renderReactComponent(config = {}) {
