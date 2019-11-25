@@ -5,7 +5,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   build() {
     super.build();
 
-    this.createInlineSaveButton();
+    this.createInlineEditSaveAndCancelButtons();
   }
 
   setupValueElement(element) {

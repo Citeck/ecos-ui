@@ -10,7 +10,11 @@
   }
 
   &__formio {
-    padding: 20px; //fixme временное решение: Отступы для read полей - требуется доработка верстки EcosForm.
+    padding: 20px;
+
+    &_small {
+      padding-top: 0;
+    }
   }
 
   &-dashlet {
