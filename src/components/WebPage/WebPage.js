@@ -61,10 +61,6 @@ class WebPage extends Component {
     }
   };
 
-  static _timeToDeclineRequest = 5000;
-
-  _timer = null;
-
   constructor(props) {
     super(props);
 
@@ -75,7 +71,6 @@ class WebPage extends Component {
       settingsIsShow: false,
       resizable: false,
       pageIsLoaded: false,
-      hasFrameContent: false,
       title: get(props, 'config.title', ''),
       url: get(props, 'config.url', ''),
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
@@ -107,8 +102,6 @@ class WebPage extends Component {
 
   componentWillUnmount() {
     this.handleCancelResizable.cancel();
-
-    this.clearTimeout();
   }
 
   get canSave() {
@@ -154,20 +147,17 @@ class WebPage extends Component {
   handleEdit = () => {
     this.props.cancelPageLoading();
 
-    this.setState({ settingsIsShow: true, hasFrameContent: false });
+    this.setState({ settingsIsShow: true });
   };
 
   handleReload = () => {
     const { url, title, reloadPageData } = this.props;
-
-    this.clearTimeout(true);
 
     reloadPageData({ url, title });
     this.setState({
       settingsIsShow: false,
       resizable: false,
       pageIsLoaded: false,
-      hasFrameContent: false,
       url: '',
       title: ''
     });
@@ -207,67 +197,28 @@ class WebPage extends Component {
       return;
     }
 
-    this.clearTimeout(true);
-
     onSave(id, { config: { url, title } });
     changePageData({ url, title });
 
     this.setState({
       settingsIsShow: false,
-      pageIsLoaded: false,
-      hasFrameContent: false
+      pageIsLoaded: false
     });
   };
 
   declineRequest = () => {
     this.props.setError(t(LABELS.SERVER_NOT_FOUND));
-    this.clearTimeout(true);
-    this.setState({
-      pageIsLoaded: false,
-      hasFrameContent: false
-    });
+    this.setState({ pageIsLoaded: false });
   };
 
-  clearTimeout(clearTimer = false) {
-    if (this._timer) {
-      window.clearTimeout(this._timer);
-    }
-
-    if (clearTimer) {
-      this._timer = null;
-    }
-  }
-
-  handleLoadFrame = event => {
+  handleLoadFrame = () => {
     if (this.state.pageIsLoaded) {
       return;
     }
 
-    let hasFrameContent = false;
-
     this.props.loadedPage();
-    this.clearTimeout();
 
-    /**
-     * Столкнулся с проблемой, что не все url позволяют таким образом проверить
-     * есть ли в iframe контент
-     *
-     * Обходной путь - не делать эту проверку, но тогда не будет кастомной
-     * информации об ошибке, а только стандартная браузерная
-     *
-     * TODO: подумать об унивесальном решении
-     */
-    if (
-      get(event, 'currentTarget.contentWindow', []).length ||
-      get(event, 'target.contentWindow', []).length ||
-      (get(event, 'currentTarget.contentDocument', []) &&
-        get(event, 'currentTarget.contentDocument', null).getElementsByTagName('body').length) ||
-      (get(event, 'target.contentDocument', []) && get(event, 'target.contentDocument', null).getElementsByTagName('body').length)
-    ) {
-      hasFrameContent = true;
-    }
-
-    this.setState({ pageIsLoaded: true, hasFrameContent });
+    this.setState({ pageIsLoaded: true });
   };
 
   renderEmptyData() {
@@ -361,43 +312,16 @@ class WebPage extends Component {
     );
   }
 
-  renderError() {
-    const { error, fetchIsLoading, pageIsLoading, url } = this.props;
-    const { hasFrameContent, settingsIsShow } = this.state;
-
-    if ((!error && hasFrameContent) || hasFrameContent || settingsIsShow || fetchIsLoading || pageIsLoading || (!error && !url)) {
-      return null;
-    }
-
-    return (
-      <div className="ecos-wpage__ground">
-        <div className="ecos-wpage__text">
-          {t(LABELS.ERROR)}
-          <br />
-          {t(LABELS.SERVER_NOT_FOUND)}
-        </div>
-
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleReload}>
-          {t(LABELS.UPDATE_BTN)}
-        </Btn>
-      </div>
-    );
-  }
-
   renderPage() {
     const { url, title, error } = this.props;
-    const { settingsIsShow, pageIsLoaded, hasFrameContent } = this.state;
+    const { settingsIsShow } = this.state;
 
-    if (!url || settingsIsShow || (!hasFrameContent && pageIsLoaded) || error) {
+    if (!url || settingsIsShow || error) {
       return null;
-    }
-
-    if (!this._timer) {
-      this._timer = window.setTimeout(this.declineRequest, WebPage._timeToDeclineRequest);
     }
 
     const { userHeight = 0, resizable } = this.state;
-    const fixHeight = userHeight ? userHeight : pageIsLoaded && hasFrameContent ? 572 : 203;
+    const fixHeight = userHeight ? userHeight : 203;
 
     return (
       <iframe
@@ -415,11 +339,11 @@ class WebPage extends Component {
   }
 
   render() {
-    const { title, pageIsLoaded, hasFrameContent } = this.props;
+    const { title, pageIsLoaded } = this.props;
     const { isCollapsed } = this.state;
 
     const { userHeight = 0, contentHeight, fitHeights } = this.state;
-    const fixHeight = userHeight ? userHeight : pageIsLoaded && hasFrameContent ? 572 : 203;
+    const fixHeight = userHeight ? userHeight : pageIsLoaded ? 572 : 203;
 
     return (
       <Dashlet
@@ -450,7 +374,6 @@ class WebPage extends Component {
             {this.renderEmptyData()}
             {this.renderSettings()}
             {this.renderLoading()}
-            {this.renderError()}
             {this.renderPage()}
           </DefineHeight>
         </Scrollbars>
