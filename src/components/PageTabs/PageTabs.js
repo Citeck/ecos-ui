@@ -641,8 +641,7 @@ class PageTabs extends React.Component {
   }
 
   handleResize = () => {
-    this.setState({ needScrollToActive: true });
-    this.scrollToActiveTab();
+    this.setState({ needScrollToActive: true }, this.scrollToActiveTab);
   };
 
   renderLeftButton() {
