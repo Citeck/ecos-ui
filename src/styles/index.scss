@@ -5,6 +5,7 @@
 @import './constants';
 @import './scrollbars';
 @import './notifications';
+@import '../legacy/share';
 
 html {
   overflow: auto;
@@ -50,9 +51,4 @@ ul {
 // for set z-index and correctly displaying child elements
 #alf-hd {
   position: relative;
-}
-
-// for fixing ECOSENT-1113
-.mask {
-  z-index: 999 !important;
 }
