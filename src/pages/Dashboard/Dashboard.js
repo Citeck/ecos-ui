@@ -75,12 +75,10 @@ class Dashboard extends Component {
     const newUrlParams = getSortedUrlParams();
     const state = {};
 
-    console.warn('urlParams !== newUrlParams => ', urlParams, newUrlParams);
-
     if (urlParams !== newUrlParams) {
       state.urlParams = newUrlParams;
       resetDashboardConfig();
-      this.getConfig(nextProps);
+      this.getConfig();
       initMenuSettings();
       state.urlParams = newUrlParams;
     } else if (urlParams === newUrlParams && isLoadingDashboard && !isEmpty(config)) {
@@ -89,8 +87,6 @@ class Dashboard extends Component {
 
     if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
       state.config = config;
-
-      console.warn(config);
     }
 
     if (
@@ -119,11 +115,9 @@ class Dashboard extends Component {
     };
   }
 
-  getConfig(props) {
+  getConfig() {
     const { getDashboardConfig, getDashboardTitle } = this.props;
     const { recordRef, dashboardKey } = this.getPathInfo();
-
-    console.warn('getConfig => ', props);
 
     getDashboardConfig({ recordRef, dashboardKey });
     getDashboardTitle({ recordRef });
