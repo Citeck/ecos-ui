@@ -2,6 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
+import get from 'lodash/get';
+import debounce from 'lodash/debounce';
+import ReactResizeDetector from 'react-resize-detector';
 
 import { arrayMove, deepClone, getScrollbarWidth, t } from '../../helpers/util';
 import { SortableContainer, SortableElement } from '../Drag-n-Drop';
@@ -71,13 +74,16 @@ class PageTabs extends React.Component {
     isActiveRightArrow: false,
     needArrow: false,
     draggableNode: null,
-    isNewTab: false
+    isNewTab: false,
+    activeTab: '',
+    needScrollToActive: false
   };
 
   constructor(props) {
     super(props);
 
     this.state.tabs = props.tabs;
+    this.state.activeTab = get(props.tabs.find(tab => tab.isActive), 'id', '');
     this.$tabWrapper = React.createRef();
   }
 
@@ -92,7 +98,7 @@ class PageTabs extends React.Component {
     window.addEventListener('popstate', this.handlePopState);
   }
 
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
+  shouldComponentUpdate(nextProps, nextState) {
     if (nextProps.isShow) {
       if (nextProps.isShow !== this.props.isShow && !nextProps.tabs.length) {
         const hasRecordRef = this.linkFromUrl.includes('recordRef');
@@ -117,11 +123,26 @@ class PageTabs extends React.Component {
       }
 
       if (JSON.stringify(nextProps.tabs) !== JSON.stringify(nextState.tabs)) {
-        this.setState({ tabs: nextProps.tabs }, () => (nextState.isNewTab ? null : this.checkUrls()));
+        this.setState(
+          {
+            tabs: nextProps.tabs,
+            needScrollToActive: true,
+            activeTab: get(nextProps.tabs.find(tab => tab.isActive), 'id', '')
+          },
+          () => (nextState.isNewTab ? null : this.checkUrls())
+        );
+      }
+
+      if (this.state.activeTab !== nextState.activeTab) {
+        this.setState({ needScrollToActive: true });
       }
     }
 
     return true;
+  }
+
+  componentDidUpdate() {
+    this.scrollToActiveTab();
   }
 
   componentWillUnmount() {
@@ -142,6 +163,22 @@ class PageTabs extends React.Component {
     return decodeLink([pathname, search, hash].join(''));
   }
 
+  scrollToActiveTab = () => {
+    const { needScrollToActive, needArrow } = this.state;
+
+    if (!needScrollToActive || !this.$tabWrapper.current || !needArrow) {
+      return;
+    }
+
+    const wrapper = this.$tabWrapper.current;
+    const activeTabElement = wrapper.querySelector('.page-tab__tabs-item_active');
+
+    wrapper.scrollLeft = activeTabElement.offsetLeft - wrapper.offsetWidth / 2 + activeTabElement.offsetWidth / 2;
+
+    this.checkNeedArrow();
+    this.setState({ needScrollToActive: false });
+  };
+
   initArrows() {
     this.checkArrowID = window.setInterval(() => {
       const { current } = this.$tabWrapper;
@@ -153,7 +190,6 @@ class PageTabs extends React.Component {
         let scrollValue = activeLeft - activeWidth / 2 - getScrollbarWidth() - current.offsetWidth / 2;
 
         scrollValue = current.scrollWidth > current.offsetWidth + getScrollbarWidth() ? scrollValue : 0;
-        current.scrollLeft = scrollValue;
 
         this.setState({
           isActiveRightArrow: current.scrollWidth - current.scrollLeft - current.offsetWidth > 0,
@@ -593,7 +629,7 @@ class PageTabs extends React.Component {
     saveTabs(tabs);
     history.replace.call(this, tab.link);
 
-    this.setState({ tabs });
+    this.setState({ tabs, activeTab: tab.id });
   };
 
   getTitle(url) {
@@ -603,6 +639,10 @@ class PageTabs extends React.Component {
 
     return getTitleByUrl(cleanUrl) || TITLE.NEW_TAB;
   }
+
+  handleResize = () => {
+    this.setState({ needScrollToActive: true }, this.scrollToActiveTab);
+  };
 
   renderLeftButton() {
     const { isActiveLeftArrow, needArrow } = this.state;
@@ -712,6 +752,8 @@ class PageTabs extends React.Component {
         </SortableContainer>
         <div className="page-tab__tabs-add icon-plus" onClick={this.handleAddTab} />
         {this.renderRightButton()}
+
+        <ReactResizeDetector handleWidth handleHeight onResize={debounce(this.handleResize, 100)} />
       </div>
     );
   }
