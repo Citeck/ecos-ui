@@ -16,6 +16,7 @@ export default class AsyncDataComponent extends BaseComponent {
         mask: false,
         inputType: 'asyncData',
         eventName: '',
+        eventDelay: 1500,
         executionCondition: '',
         refreshOn: [],
         source: {
@@ -410,14 +411,20 @@ export default class AsyncDataComponent extends BaseComponent {
   triggerEventOnChange = () => {
     const component = this.component;
     if (component.eventName) {
-      this.emit(this.interpolate(component.eventName), this.data);
-      this.events.emit(this.interpolate(component.eventName), this.data);
-      this.emit('customEvent', {
-        type: this.interpolate(component.eventName),
-        component: this.component,
-        data: this.data,
-        event: null
-      });
+      let eventDelay = parseInt(component.eventDelay);
+      if (isNaN(eventDelay)) {
+        eventDelay = 1500;
+      }
+      setTimeout(() => {
+        this.emit(this.interpolate(component.eventName), this.data);
+        this.events.emit(this.interpolate(component.eventName), this.data);
+        this.emit('customEvent', {
+          type: this.interpolate(component.eventName),
+          component: this.component,
+          data: this.data,
+          event: null
+        });
+      }, eventDelay);
     }
   };
 }
