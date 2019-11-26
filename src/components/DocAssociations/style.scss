@@ -28,6 +28,8 @@
   &__icon {
     $icon: &;
 
+    background: $color-white;
+
     &-plus {
       cursor: pointer;
       color: $color-gray-5;
@@ -163,6 +165,10 @@
           flex-wrap: wrap;
           padding: 11px 0;
           height: auto;
+
+          &:first-child {
+            border-top: none;
+          }
         }
 
         &-cell {
