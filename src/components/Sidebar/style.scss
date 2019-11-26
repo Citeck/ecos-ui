@@ -180,6 +180,8 @@ $expanded-sidebar-width: 300px;
       font-size: $font-size-extra-small;
       opacity: 1;
       transition: opacity 0.4s;
+      padding: 0 7px;
+      line-height: 18px;
 
       &_hide {
         opacity: 0;
