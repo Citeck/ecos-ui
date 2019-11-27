@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
+import FormioEventEmitter from 'formiojs/EventEmitter';
 import { cloneDeep } from 'lodash';
 
 import '../../forms/components';
@@ -125,6 +126,11 @@ class EcosForm extends React.Component {
         i18n[language] = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formI18N);
 
         options.i18n = i18n;
+        options.events = new FormioEventEmitter({
+          wildcard: false,
+          maxListeners: 0,
+          loadLimit: 200
+        });
 
         const containerElement = document.getElementById(this.state.containerId);
         if (!containerElement) {
