@@ -106,22 +106,6 @@ export default [
     }
   },
   {
-    type: 'textfield',
-    input: true,
-    key: 'eventDelay',
-    label: 'Event delay',
-    defaultValue: 1500,
-    validate: {
-      required: false
-    },
-    weight: 19,
-    conditional: {
-      json: {
-        and: [{ '==': [{ var: 'data.triggerEventOnChange' }, true] }]
-      }
-    }
-  },
-  {
     type: 'panel',
     title: 'Execution condition',
     collapsible: true,
