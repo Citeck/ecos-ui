@@ -13,7 +13,7 @@ import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
 import Footer from '../Footer';
 
-import { changeActiveTab, getActiveTabTitle, getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
+import { changeActiveTab, getActiveTabTitle, getShowTabsStatus, getTabs, getTabTitle, setTabs } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
 import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 
@@ -232,7 +232,7 @@ const mapDispatchToProps = dispatch => ({
   getTabs: () => dispatch(getTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
   changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
-  getActiveTabTitle: () => dispatch(getActiveTabTitle()),
+  getActiveTabTitle: (tabId, link) => dispatch(getTabTitle({ tabId, link })),
   initMenuSettings: () => dispatch(initMenuSettings())
 });
 

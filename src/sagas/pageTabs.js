@@ -1,11 +1,13 @@
-import { call, put, select, takeLatest } from 'redux-saga/effects';
+import { delay } from 'redux-saga';
+import { call, put, select, takeLatest, takeEvery } from 'redux-saga/effects';
+import get from 'lodash/get';
 
-import { getShowTabsStatus, getTabs, setActiveTabTitle, setShowTabsStatus, setTabs } from '../actions/pageTabs';
+import { getShowTabsStatus, getTabs, getTabTitle, setActiveTabTitle, setShowTabsStatus, setTabs, setTabTitle } from '../actions/pageTabs';
 import { selectTabs } from '../selectors/pageTabs';
 import { selectIsAuthenticated } from '../selectors/user';
 import Records from '../components/Records';
-import { deepClone, getCurrentUserName } from '../helpers/util';
-import { isNewVersionPage } from '../helpers/urls';
+import { t, deepClone, getCurrentUserName } from '../helpers/util';
+import { getSearchParams, isNewVersionPage } from '../helpers/urls';
 
 function* sagaGetShowTabsStatus({ api, logger }, action) {
   try {
@@ -74,11 +76,42 @@ function* sagaSetActiveTabTitle({ api, logger }, action) {
   }
 }
 
+function* sagaGetTabTitle({ api, logger }, { payload }) {
+  try {
+    yield delay(1000);
+    let tabs = deepClone(yield select(selectTabs));
+    const tab = tabs.find(tab => tab.id === payload.tabId);
+    const [link] = payload.link.match(/\?.*/gim);
+    const { recordRef, nodeRef } = getSearchParams(link);
+    let title = t('page-tabs.new-tab');
+
+    if (recordRef || nodeRef) {
+      const response = yield api.pageTabs.getTabTitle(recordRef || nodeRef);
+
+      title = get(response, 'displayName', t('page-tabs.new-tab'));
+    }
+
+    tab.title = title;
+    tab.isLoading = false;
+    tabs = deepClone(yield select(selectTabs));
+
+    const index = tabs.findIndex(tab => tab.id === payload.tabId);
+
+    tabs[index] = { ...tabs[index], ...tab };
+
+    yield put(setTabs([...tabs]));
+    yield put(setTabTitle(title));
+  } catch (e) {
+    logger.error('[pageTabs sagaGetTabTitle saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getShowTabsStatus().type, sagaGetShowTabsStatus, ea);
   yield takeLatest(getTabs().type, sagaGetTabs, ea);
   yield takeLatest(setTabs().type, sagaSetTabs, ea);
   yield takeLatest(setActiveTabTitle().type, sagaSetActiveTabTitle, ea);
+  yield takeEvery(getTabTitle().type, sagaGetTabTitle, ea);
 }
 
 export default saga;

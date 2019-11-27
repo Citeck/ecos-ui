@@ -2,7 +2,7 @@ import React from 'react';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 import { isNewVersionPage } from '../../../../../helpers/urls';
 import { URL } from '../../../../../constants';
-import { REMOTE_TITLE_ATTR_NAME } from '../../../../../constants/pageTabs';
+import { OPEN_IN_BACKGROUND, REMOTE_TITLE_ATTR_NAME } from '../../../../../constants/pageTabs';
 
 export default class CardDetailsLinkFormatter extends DefaultGqlFormatter {
   render() {
@@ -10,7 +10,16 @@ export default class CardDetailsLinkFormatter extends DefaultGqlFormatter {
 
     if (isNewVersionPage()) {
       return (
-        <a target="_blank" rel="noopener noreferrer" href={`${URL.DASHBOARD}?recordRef=${row.id}`} {...{ [REMOTE_TITLE_ATTR_NAME]: true }}>
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href={`${URL.DASHBOARD}?recordRef=${row.id}`}
+          {...{
+            [REMOTE_TITLE_ATTR_NAME]: true,
+            // TODO: remove
+            [OPEN_IN_BACKGROUND]: true
+          }}
+        >
           {this.value(cell)}
         </a>
       );

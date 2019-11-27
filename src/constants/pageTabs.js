@@ -3,6 +3,7 @@ import { URL } from './';
 
 export const IGNORE_TABS_HANDLER_ATTR_NAME = 'data-external';
 export const REMOTE_TITLE_ATTR_NAME = 'data-remote-title';
+export const OPEN_IN_BACKGROUND = 'data-open-in-background';
 
 export const SCROLL_STEP = 150;
 export const LINK_TAG = 'A';
