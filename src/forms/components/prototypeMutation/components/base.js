@@ -46,9 +46,7 @@ Base.prototype.addInputError = function(message, dirty) {
 
 // Cause: https://citeck.atlassian.net/browse/ECOSENT-832 - Add inline edit support in view mode to the ECOS forms
 Base.prototype.createInlineEditButton = function(container) {
-  if (this.disabled || this.component.disabled) {
-    return;
-  }
+  const isComponentDisabled = this.disabled || this.component.disabled;
 
   const canWrite = get(this, 'options.canWrite', false);
   if (!canWrite) {
@@ -56,28 +54,32 @@ Base.prototype.createInlineEditButton = function(container) {
   }
 
   const editButtonIcon = this.ce('span', { class: 'icon icon-edit' });
-  const editButton = this.ce(
-    'button',
-    { class: 'ecos-form__inline-edit-button ecos-btn ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue' },
-    editButtonIcon
-  );
+  let editButtonClassesList = ['ecos-btn ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-form__inline-edit-button'];
+  if (isComponentDisabled) {
+    editButtonClassesList.push('ecos-form__inline-edit-button_disabled');
+  } else {
+    editButtonClassesList.push('ecos-btn_hover_t-light-blue');
+  }
+  const editButton = this.ce('button', { class: editButtonClassesList.join(' ') }, editButtonIcon);
 
-  const onEditClick = () => {
-    const currentValue = this.getValue();
-    this._valueBeforeEdit = isObject(currentValue) ? clone(currentValue) : currentValue;
+  if (!isComponentDisabled) {
+    const onEditClick = () => {
+      const currentValue = this.getValue();
+      this._valueBeforeEdit = isObject(currentValue) ? clone(currentValue) : currentValue;
 
-    this.options.readOnly = false;
-    this.options.viewAsHtml = false;
-    this._isInlineEditingMode = true;
+      this.options.readOnly = false;
+      this.options.viewAsHtml = false;
+      this._isInlineEditingMode = true;
 
-    this.redraw();
-    container.classList.add('inline-editing');
-    editButton.removeEventListener('click', onEditClick);
+      this.redraw();
+      container.classList.add('inline-editing');
+      editButton.removeEventListener('click', onEditClick);
 
-    this.focus();
-  };
+      this.focus();
+    };
 
-  editButton.addEventListener('click', onEditClick);
+    editButton.addEventListener('click', onEditClick);
+  }
 
   container.appendChild(editButton);
 };
