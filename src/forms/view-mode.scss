@@ -29,10 +29,18 @@
       position: relative;
       top: -2px;
 
+      &.alert-danger {
+        background-color: $color-white;
+      }
+
       &.formio-component-formTable,
       &.formio-component-selectOrgstruct,
       &.formio-component-selectJournal {
         padding-bottom: 14px;
+
+        .help-block {
+          margin-bottom: 2.5rem;
+        }
       }
 
       > * {
@@ -61,14 +69,19 @@
         .icon {
           font-size: 12px;
         }
+      }
 
-        &_cancel {
-          margin-right: 10px;
-          background-color: $color-red-1;
-        }
+      &__cancel-button {
+        margin-right: 10px;
+        background-color: $color-red-1;
+      }
 
-        &_save {
-          background-color: $color-green1;
+      &__save-button {
+        background-color: $color-green1;
+
+        &_disabled {
+          background-color: $color_gray-1;
+          cursor: default;
         }
       }
     }

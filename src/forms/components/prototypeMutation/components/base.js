@@ -2,11 +2,17 @@ import Base from 'formiojs/components/base/Base';
 import isObject from 'lodash/isObject';
 import clone from 'lodash/clone';
 import isEqual from 'lodash/isEqual';
+import get from 'lodash/get';
+import Records from '../../../../components/Records';
+import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 
 const originalCreateTooltip = Base.prototype.createTooltip;
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
 const originalBuild = Base.prototype.build;
 const originalCreateViewOnlyElement = Base.prototype.createViewOnlyElement;
+const originalCheckValidity = Base.prototype.checkValidity;
+
+const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
 
 Base.prototype.createTooltip = function(container, component, classes) {
   originalCreateTooltip.call(this, container, component, classes);
@@ -41,6 +47,11 @@ Base.prototype.addInputError = function(message, dirty) {
 // Cause: https://citeck.atlassian.net/browse/ECOSENT-832 - Add inline edit support in view mode to the ECOS forms
 Base.prototype.createInlineEditButton = function(container) {
   if (this.disabled || this.component.disabled) {
+    return;
+  }
+
+  const canWrite = get(this, 'options.canWrite', false);
+  if (!canWrite) {
     return;
   }
 
@@ -87,10 +98,10 @@ Base.prototype.createViewOnlyElement = function(container) {
 
 Base.prototype.createInlineEditSaveAndCancelButtons = function() {
   if (this._isInlineEditingMode) {
-    const saveButton = this.ce(
+    this._inlineEditSaveButton = this.ce(
       'button',
       {
-        class: 'ecos-btn inline-editing__button inline-editing__button_save'
+        class: 'ecos-btn inline-editing__button inline-editing__save-button'
       },
       this.ce('span', { class: 'icon icon-check' })
     );
@@ -98,7 +109,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
     const cancelButton = this.ce(
       'button',
       {
-        class: 'ecos-btn inline-editing__button inline-editing__button_cancel'
+        class: 'ecos-btn inline-editing__button inline-editing__cancel-button'
       },
       this.ce('span', { class: 'icon icon-close' })
     );
@@ -115,14 +126,9 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       delete this._valueBeforeEdit;
     };
 
-    const onSaveButtonClick = () => {
-      switchToViewOnlyMode();
-    };
-
-    const onCancelButtonClick = () => {
+    const rollBack = () => {
       if (this.hasOwnProperty('_valueBeforeEdit')) {
         if (!isEqual(this.getValue(), this._valueBeforeEdit)) {
-          // this.setValue(this._valueBeforeEdit);
           this.dataValue = this._valueBeforeEdit;
         }
       }
@@ -130,13 +136,61 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       switchToViewOnlyMode();
     };
 
-    this._removeEventListeners = () => {
-      saveButton.removeEventListener('click', onSaveButtonClick);
-      cancelButton.removeEventListener('click', onCancelButtonClick);
-      this._removeEventListeners = null;
+    const onSaveButtonClick = () => {
+      const saveButtonClassList = this._inlineEditSaveButton.classList;
+      if (saveButtonClassList.contains(DISABLED_SAVE_BUTTON_CLASSNAME)) {
+        return;
+      }
+
+      const recordId = get(this, 'root.options.recordId');
+      const componentKey = get(this, 'component.key');
+      const form = get(this, 'root');
+      if (form.changing) {
+        return;
+      }
+
+      if (!this.checkValidity(this.getValue(), true)) {
+        return;
+      }
+
+      if (recordId && componentKey) {
+        const record = Records.get(recordId);
+        const inputs = EcosFormUtils.getFormInputs(form.component);
+        const keysMapping = EcosFormUtils.getKeysMapping(inputs);
+        const inputByKey = EcosFormUtils.getInputByKey(inputs);
+
+        let input = inputByKey[componentKey];
+        const value = EcosFormUtils.processValueBeforeSubmit(this.dataValue, input, keysMapping);
+
+        record.att(keysMapping[componentKey] || componentKey, value);
+        record
+          .save()
+          .then(() => {
+            switchToViewOnlyMode();
+            form.showErrors('', true);
+          })
+          .catch(e => {
+            form.showErrors(e, true);
+            rollBack();
+          });
+      } else {
+        rollBack();
+      }
     };
 
-    saveButton.addEventListener('click', onSaveButtonClick);
+    const onCancelButtonClick = () => {
+      rollBack();
+      this.setCustomValidity('');
+    };
+
+    this._removeEventListeners = () => {
+      this._inlineEditSaveButton.removeEventListener('click', onSaveButtonClick);
+      cancelButton.removeEventListener('click', onCancelButtonClick);
+      this._removeEventListeners = null;
+      this._inlineEditSaveButton = null;
+    };
+
+    this._inlineEditSaveButton.addEventListener('click', onSaveButtonClick);
     cancelButton.addEventListener('click', onCancelButtonClick);
 
     const buttonsWrapper = this.ce('div', {
@@ -144,7 +198,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
     });
 
     buttonsWrapper.appendChild(cancelButton);
-    buttonsWrapper.appendChild(saveButton);
+    buttonsWrapper.appendChild(this._inlineEditSaveButton);
     this.element.appendChild(buttonsWrapper);
   }
 };
@@ -153,4 +207,19 @@ Base.prototype.build = function(state) {
   originalBuild.call(this, state);
 
   this.createInlineEditSaveAndCancelButtons();
+};
+
+Base.prototype.checkValidity = function(data, dirty, rowData) {
+  const validity = originalCheckValidity.call(this, data, dirty, rowData);
+
+  if (this._inlineEditSaveButton) {
+    const saveButtonClassList = this._inlineEditSaveButton.classList;
+    if (validity && saveButtonClassList.contains(DISABLED_SAVE_BUTTON_CLASSNAME)) {
+      saveButtonClassList.remove(DISABLED_SAVE_BUTTON_CLASSNAME);
+    } else if (!validity && !saveButtonClassList.contains(DISABLED_SAVE_BUTTON_CLASSNAME)) {
+      saveButtonClassList.add(DISABLED_SAVE_BUTTON_CLASSNAME);
+    }
+  }
+
+  return validity;
 };
