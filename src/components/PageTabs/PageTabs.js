@@ -481,6 +481,12 @@ class PageTabs extends React.Component {
     this.closeTab(tabId);
   }
 
+  handleMouseUp(tab, event) {
+    if (get(event, 'nativeEvent.button', 0) === 1) {
+      this.handleCloseTab(tab.id, event);
+    }
+  }
+
   handleClickTab(tab) {
     if (tab.isActive) {
       return;
@@ -742,7 +748,13 @@ class PageTabs extends React.Component {
 
     return (
       <SortableElement key={item.id} index={position} onSortEnd={this.handleSortEnd}>
-        <div key={item.id} className={className.join(' ')} title={t(item.title)} onClick={this.handleClickTab.bind(this, item)}>
+        <div
+          key={item.id}
+          className={className.join(' ')}
+          title={t(item.title)}
+          onClick={this.handleClickTab.bind(this, item)}
+          onMouseUp={this.handleMouseUp.bind(this, item)}
+        >
           <span className="page-tab__tabs-item-title">
             {loading}
             {t(item.title)}
