@@ -49,7 +49,7 @@ class PageTabs extends React.Component {
     }),
     homepageLink: PropTypes.string.isRequired,
     isShow: PropTypes.bool,
-    isLoadingTitle: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
+    isLoadingTitle: PropTypes.bool,
     tabs: PropTypes.array,
     linkIgnoreAttr: PropTypes.string,
 
@@ -429,20 +429,8 @@ class PageTabs extends React.Component {
 
     event.preventDefault();
 
-    if (withLinkTabIndex !== -1) {
-      tabs.forEach((tab, index) => {
-        tab.isActive = withLinkTabIndex === index;
-      });
-
-      saveTabs(tabs);
-      history.push.call(this, link);
-      this.setState({ tabs });
-
-      return;
-    }
-
-    if (isBackgroundOpening) {
-      const newTab = this.generateNewTab({ link, remoteTitle, isActive: false });
+    if (isBackgroundOpening || (event.button === 0 && event.ctrlKey)) {
+      const newTab = this.generateNewTab({ link, remoteTitle: true, isActive: false });
 
       tabs.push(newTab);
       saveTabs(tabs);
@@ -451,6 +439,18 @@ class PageTabs extends React.Component {
           this.checkNeedArrow();
         }
       });
+
+      return;
+    }
+
+    if (withLinkTabIndex !== -1) {
+      tabs.forEach((tab, index) => {
+        tab.isActive = withLinkTabIndex === index;
+      });
+
+      saveTabs(tabs);
+      history.push.call(this, link);
+      this.setState({ tabs });
 
       return;
     }
