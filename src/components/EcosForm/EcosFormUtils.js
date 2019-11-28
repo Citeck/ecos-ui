@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import moment from 'moment';
 import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
@@ -8,6 +9,7 @@ import Records from '../Records/Records';
 import { getCurrentUserName, t } from '../../helpers/util';
 import { EcosForm } from '../EcosForm';
 import Modal from '../common/EcosModal/CiteckEcosModal';
+import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
 
 const EDGE_PREFIX = 'edge__';
 
@@ -400,6 +402,28 @@ export default class EcosFormUtils {
     return inputs;
   }
 
+  static getKeysMapping(inputs) {
+    let keysMapping = {};
+
+    for (let i = 0; i < inputs.length; i++) {
+      let key = inputs[i].component.key;
+      keysMapping[key] = inputs[i].schema;
+    }
+
+    return keysMapping;
+  }
+
+  static getInputByKey(inputs) {
+    let inputByKey = {};
+
+    for (let i = 0; i < inputs.length; i++) {
+      let key = inputs[i].component.key;
+      inputByKey[key] = inputs[i];
+    }
+
+    return inputByKey;
+  }
+
   static getI18n(defaultI18n, attributes, formI18n) {
     let global = lodashGet(window, 'Alfresco.messages.ecosForms', {});
 
@@ -413,6 +437,45 @@ export default class EcosFormUtils {
     }
 
     return Object.assign(result, attributes, formI18n);
+  }
+
+  static getCanWritePermission(recordId) {
+    return Records.get(recordId).load('.att(n:"permissions"){has(n:"Write")}');
+  }
+
+  static processValueBeforeSubmit(value, input, keysMapping) {
+    if (value && input && input.dataType === 'json-record') {
+      const mapping = v => JSON.stringify(Records.get(v).toJson());
+
+      if (Array.isArray(value)) {
+        value = value.map(mapping);
+      } else {
+        value = mapping(value);
+      }
+    }
+
+    if (value && input && input.component.type === 'datagridAssoc') {
+      value = DataGridAssocComponent.convertToAssoc(value, input, keysMapping);
+    }
+
+    // cause: https://citeck.atlassian.net/browse/ECOSCOM-2561
+    if (input && input.component.type === 'ecosSelect' && !value) {
+      value = null;
+    }
+
+    // cause: https://citeck.atlassian.net/browse/ECOSCOM-2581
+    if (
+      value &&
+      input &&
+      input.component.type === 'datetime' &&
+      input.component.ignoreTimeZone &&
+      input.component.enableDate &&
+      !input.component.enableTime
+    ) {
+      value = moment(value).format('YYYY-MM-DD');
+    }
+
+    return value;
   }
 
   static getData(recordId, inputs) {
