@@ -93,6 +93,10 @@
       height: auto;
       background: transparent;
       display: none;
+
+      &_disabled {
+        cursor: not-allowed;
+      }
     }
 
     &:hover {
