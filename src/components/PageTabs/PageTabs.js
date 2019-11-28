@@ -55,6 +55,7 @@ class PageTabs extends React.Component {
     linkIgnoreAttr: PropTypes.string,
 
     saveTabs: PropTypes.func,
+    getTabTitle: PropTypes.func,
     changeActiveTab: PropTypes.func
   };
 
@@ -67,7 +68,7 @@ class PageTabs extends React.Component {
 
     saveTabs: () => {},
     changeActiveTab: () => {},
-    getActiveTabTitle: () => {}
+    getTabTitle: () => {}
   };
 
   state = {
@@ -236,7 +237,7 @@ class PageTabs extends React.Component {
 
   generateNewTab(params = {}) {
     const { props = this.props, link = '', remoteTitle = false, isActive = true } = params;
-    const { homepageLink, getActiveTabTitle } = props;
+    const { homepageLink, getTabTitle } = props;
     const id = Math.random()
       .toString(36)
       .substring(6);
@@ -244,7 +245,7 @@ class PageTabs extends React.Component {
     let isLoading = false;
 
     if (remoteTitle) {
-      getActiveTabTitle(id, tabLink);
+      getTabTitle(id, tabLink, isActive);
       isLoading = true;
     }
 
@@ -368,9 +369,8 @@ class PageTabs extends React.Component {
     }
 
     if (openInBackground) {
-      const newTab = this.generateNewTab({ link, remoteTitle });
+      const newTab = this.generateNewTab({ link, remoteTitle, isActive: false });
 
-      newTab.isActive = false;
       tabs.push(newTab);
       saveTabs(tabs);
 
@@ -443,9 +443,8 @@ class PageTabs extends React.Component {
     }
 
     if (isBackgroundOpening) {
-      const newTab = this.generateNewTab({ link, remoteTitle });
+      const newTab = this.generateNewTab({ link, remoteTitle, isActive: false });
 
-      newTab.isActive = false;
       tabs.push(newTab);
       saveTabs(tabs);
       this.setState({ tabs }, () => {

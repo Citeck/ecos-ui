@@ -2,7 +2,16 @@ import { delay } from 'redux-saga';
 import { call, put, select, takeLatest, takeEvery } from 'redux-saga/effects';
 import get from 'lodash/get';
 
-import { getShowTabsStatus, getTabs, getTabTitle, setActiveTabTitle, setShowTabsStatus, setTabs, setTabTitle } from '../actions/pageTabs';
+import {
+  getActiveTabTitle,
+  getShowTabsStatus,
+  getTabs,
+  getTabTitle,
+  setActiveTabTitle,
+  setShowTabsStatus,
+  setTabs,
+  setTabTitle
+} from '../actions/pageTabs';
 import { selectTabs } from '../selectors/pageTabs';
 import { selectIsAuthenticated } from '../selectors/user';
 import Records from '../components/Records';
@@ -78,6 +87,10 @@ function* sagaSetActiveTabTitle({ api, logger }, action) {
 
 function* sagaGetTabTitle({ api, logger }, { payload }) {
   try {
+    if (payload.isActive) {
+      yield put(getActiveTabTitle());
+    }
+
     yield delay(1000);
     let tabs = deepClone(yield select(selectTabs));
     const tab = tabs.find(tab => tab.id === payload.tabId);
