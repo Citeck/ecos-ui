@@ -54,6 +54,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
   createViewOnlyValue(container) {
     this.reactContainer = this.ce('dd');
     container.appendChild(this.reactContainer);
+    this.createInlineEditButton(container);
     this.renderReactComponent();
   }
 
@@ -92,6 +93,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
     this.createDescription(this.element);
 
     // this.attachLogic();
+    this.createInlineEditSaveAndCancelButtons();
   }
 
   renderReactComponent(config = {}) {
