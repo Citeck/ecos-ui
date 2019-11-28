@@ -15,9 +15,7 @@ export default class CardDetailsLinkFormatter extends DefaultGqlFormatter {
           rel="noopener noreferrer"
           href={`${URL.DASHBOARD}?recordRef=${row.id}`}
           {...{
-            [REMOTE_TITLE_ATTR_NAME]: true,
-            // TODO: remove
-            [OPEN_IN_BACKGROUND]: true
+            [REMOTE_TITLE_ATTR_NAME]: true
           }}
         >
           {this.value(cell)}

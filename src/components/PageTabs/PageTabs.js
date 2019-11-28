@@ -38,7 +38,6 @@ const customEvent = document.createEvent('Event');
  */
 export const changeUrlLink = (link = '', params = {}) => {
   customEvent.params = { link, ...params };
-
   document.dispatchEvent(customEvent);
 };
 
@@ -369,7 +368,7 @@ class PageTabs extends React.Component {
     }
 
     if (openInBackground) {
-      const newTab = this.generateNewTab({ link, remoteTitle, isActive: false });
+      const newTab = this.generateNewTab({ link, remoteTitle: true, isActive: false });
 
       tabs.push(newTab);
       saveTabs(tabs);

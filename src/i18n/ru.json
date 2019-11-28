@@ -271,6 +271,7 @@
   "grid.inline-tools.download": "Скачать",
   "grid.inline-tools.edit": "Редактировать",
   "grid.inline-tools.show": "Смотреть документ",
+  "grid.inline-tools.open-in-background": "Открыть в фоновой вкладке",
   "grid.no-data-indication": "Нет элементов в списке",
   "grid.tools.copy-to": "Копировать в...",
   "grid.tools.delete": "Удалить",

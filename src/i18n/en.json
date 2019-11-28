@@ -271,6 +271,7 @@
   "grid.inline-tools.download": "Download",
   "grid.inline-tools.edit": "Edit",
   "grid.inline-tools.show": "View document",
+  "grid.inline-tools.open-in-background": "Open in background tab",
   "grid.no-data-indication": "No items in the list",
   "grid.tools.copy-to": "Copy to...",
   "grid.tools.delete": "Delete",
