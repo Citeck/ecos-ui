@@ -119,11 +119,11 @@ class DocAssociations extends Component {
   };
 
   handleToggleMenu = () => {
-    const { menu, getMenu, isLoadingMenu } = this.props;
+    const { menu, getMenu, isLoadingMenu, getSectionList } = this.props;
     const { isMenuOpen } = this.state;
 
     if (!menu.length && !isMenuOpen && !isLoadingMenu) {
-      this.props.getSectionList();
+      getSectionList();
       getMenu();
     }
 
