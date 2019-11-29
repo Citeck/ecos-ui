@@ -89,7 +89,7 @@ export default class ScrollArrow extends React.Component {
   doScrollBySide = (factor = 1) => {
     this._factor += factor;
 
-    document.getElementById('arrow-scroll').scrollLeft += this.props.step * this._factor;
+    this.refScroll.current.scrollLeft += this.props.step * this._factor;
     this.debounceScrollBySide();
   };
 
@@ -167,7 +167,6 @@ export default class ScrollArrow extends React.Component {
           />
         )}
         <div
-          id="arrow-scroll"
           ref={this.refScroll}
           className={classNames('ecos-scrollbar-arrow__scroll', {
             'ecos-scrollbar-arrow__scroll_intend-left': isActiveLeft,
