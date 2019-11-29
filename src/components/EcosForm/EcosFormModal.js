@@ -9,6 +9,7 @@ import EcosModal from '../common/EcosModal';
 import Records from '../Records';
 import { t } from '../../helpers/util';
 import './EcosFormModal.scss';
+import EcosFormUtils from './EcosFormUtils';
 
 const LABELS = {
   CONSTRUCTOR_BTN_TOOLTIP: 'Перейти в конструктор'
@@ -21,7 +22,8 @@ export default class EcosFormModal extends React.Component {
     super(props);
 
     this.state = {
-      isModalOpen: false
+      isModalOpen: false,
+      canEdit: false
     };
   }
 
@@ -50,6 +52,7 @@ export default class EcosFormModal extends React.Component {
   }
 
   componentDidMount() {
+    this.checkEditRights();
     Records.get(this.props.record)
       .load({
         displayName: '.disp',
@@ -64,6 +67,14 @@ export default class EcosFormModal extends React.Component {
 
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this._onbeforeunload);
+  }
+
+  checkEditRights() {
+    const { record } = this.props;
+
+    EcosFormUtils.getCanWritePermission(record).then(canEdit => {
+      this.setState({ canEdit });
+    });
   }
 
   _onbeforeunload = e => {
@@ -85,6 +96,12 @@ export default class EcosFormModal extends React.Component {
   };
 
   renderConstructorButton() {
+    const { canEdit } = this.state;
+
+    if (!canEdit) {
+      return null;
+    }
+
     return (
       <React.Fragment key="ecos-form-modal-constructor-btn">
         <IcoBtn
