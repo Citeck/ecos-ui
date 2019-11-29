@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
 import ContentEditable from 'react-contenteditable';
 
-import { deepClone, placeCaretAtEnd, t } from '../../../helpers/util';
+import { deepClone, arrayCompare, placeCaretAtEnd, t } from '../../../helpers/util';
 import { Icon } from '../';
 import ClickOutside from '../../ClickOutside';
 import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
@@ -49,7 +49,8 @@ class Tab extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    const { index, isActive, hasHover, label, hasHint, disabled, isNew, editing, text } = this.props;
+    const { index, isActive, hasHover, label, hasHint, disabled, isNew } = this.props;
+    const { editing, text } = this.state;
     let needUpdate = false;
 
     if (
@@ -215,6 +216,23 @@ class EditTabs extends React.Component {
   };
 
   static defaultProps = commonTabsDefaultProps;
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    const { items, hasHover, hasHint, keyField, valueField, activeTabKey } = this.props;
+
+    if (
+      !arrayCompare(items, nextProps.items) ||
+      hasHover !== nextProps.hasHover ||
+      hasHint !== nextProps.hasHint ||
+      keyField !== nextProps.keyField ||
+      valueField !== nextProps.valueField ||
+      activeTabKey !== nextProps.activeTabKey
+    ) {
+      return true;
+    }
+
+    return false;
+  }
 
   onEditItem = (item, text, index) => {
     item.label = text;
