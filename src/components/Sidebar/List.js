@@ -26,6 +26,7 @@ class List extends React.Component {
   };
 
   onToggleSubMenu = (id, e) => {
+    console.warn('onToggleSubMenu');
     if (e && !this.props.isOpen) {
       this.props.toggleExpanded && this.props.toggleExpanded(id);
       e.stopPropagation();
