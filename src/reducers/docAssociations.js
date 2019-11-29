@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { getDocuments, initStore, setAllowedConnections, setDocuments, setMenu, setSectionList } from '../actions/docAssociations';
+import { getDocuments, initStore, setAllowedConnections, setDocuments, getMenu, setMenu, setSectionList } from '../actions/docAssociations';
 
 export const initialState = {
   // список разделов
@@ -11,6 +11,7 @@ export const initialState = {
   // меню-выпадашка (состоит из 3х уровней)
   menu: [],
   isLoading: false,
+  isLoadingMenu: false,
   documentsTotalCount: 0
 };
 
@@ -18,57 +19,65 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
-    [initStore]: (state, action) => {
+    [initStore]: (state, { payload }) => {
       let ownState = { ...initialState };
 
-      if (state[action.payload]) {
-        ownState = { ...ownState, ...state[action.payload] };
+      if (state[payload]) {
+        ownState = { ...ownState, ...state[payload] };
       }
 
       return {
         ...state,
-        [action.payload]: { ...ownState }
+        [payload]: { ...ownState }
       };
     },
 
-    [setSectionList]: (state, action) => ({
+    [setSectionList]: (state, { payload }) => ({
       ...state,
-      [action.payload.key]: {
-        ...state[action.payload.key],
-        sectionList: action.payload.sectionList
+      [payload.key]: {
+        ...state[payload.key],
+        sectionList: payload.sectionList
       }
     }),
 
-    [setDocuments]: (state, action) => ({
+    [setDocuments]: (state, { payload }) => ({
       ...state,
-      [action.payload.key]: {
-        ...state[action.payload.key],
-        documents: action.payload.documents,
-        documentsTotalCount: action.payload.documentsTotalCount,
+      [payload.key]: {
+        ...state[payload.key],
+        documents: payload.documents,
+        documentsTotalCount: payload.documentsTotalCount,
         isLoading: false
       }
     }),
-    [getDocuments]: (state, action) => ({
+    [getDocuments]: (state, { payload }) => ({
       ...state,
-      [action.payload]: {
-        ...state[action.payload],
+      [payload]: {
+        ...state[payload],
         isLoading: true
       }
     }),
 
-    [setAllowedConnections]: (state, action) => ({
+    [setAllowedConnections]: (state, { payload }) => ({
       ...state,
-      [action.payload.key]: {
-        ...state[action.payload.key],
-        allowedConnections: action.payload.allowedConnections
+      [payload.key]: {
+        ...state[payload.key],
+        allowedConnections: payload.allowedConnections
       }
     }),
 
-    [setMenu]: (state, action) => ({
+    [getMenu]: (state, { payload }) => ({
       ...state,
-      [action.payload.key]: {
-        ...state[action.payload.key],
-        menu: action.payload.menu
+      [payload]: {
+        ...state[payload],
+        isLoadingMenu: true
+      }
+    }),
+    [setMenu]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        menu: payload.menu,
+        isLoadingMenu: false
       }
     })
   },
