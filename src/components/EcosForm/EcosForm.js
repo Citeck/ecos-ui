@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
+import FormioEventEmitter from 'formiojs/EventEmitter';
 import { cloneDeep } from 'lodash';
 
 import '../../forms/components';
@@ -133,6 +134,11 @@ class EcosForm extends React.Component {
         i18n[language] = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formI18N);
 
         options.i18n = i18n;
+        options.events = new FormioEventEmitter({
+          wildcard: false,
+          maxListeners: 0,
+          loadLimit: 200
+        });
 
         const containerElement = document.getElementById(this.state.containerId);
         if (!containerElement) {
@@ -161,27 +167,8 @@ class EcosForm extends React.Component {
             }
           };
 
-          let fireSubmit = (submission, finishTime) => {
-            if (form.changing) {
-              if (new Date().getTime() < finishTime) {
-                setTimeout(() => {
-                  fireSubmit(submission, finishTime);
-                }, 300);
-              } else {
-                console.warn('Form will be submitted, but changing flag is still true');
-                if (form.checkValidity()) {
-                  self.submitForm(form, submission);
-                }
-              }
-            } else {
-              if (form.checkValidity()) {
-                self.submitForm(form, submission);
-              }
-            }
-          };
-
           form.on('submit', submission => {
-            fireSubmit(submission, new Date().getTime() + 5000);
+            self.submitForm(form, submission);
           });
 
           let handlersPrefix = 'onForm';
