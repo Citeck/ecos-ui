@@ -70,7 +70,6 @@ class PropertiesDashlet extends React.Component {
     const { record } = this.props;
 
     EcosFormUtils.getCanWritePermission(record).then(canEdit => {
-      console.warn('canEdit => ', canEdit);
       this.setState({ canEdit });
     });
   };
