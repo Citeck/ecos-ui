@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
 import { MENU_TYPE } from '../../constants';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
@@ -56,7 +57,7 @@ class Header extends React.Component {
 
     return (
       <React.Fragment>
-        <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
+        <ReactResizeDetector handleWidth handleHeight onResize={debounce(this.onResize, 400)} />
         <div className={classNames('ecos-header', `ecos-header_theme_${theme}`, { 'ecos-header_small': isMobile })}>
           <div className="ecos-header__side ecos-header__side_left">
             <SlideMenuBtn />

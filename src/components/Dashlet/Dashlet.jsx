@@ -367,7 +367,7 @@ class Dashlet extends Component {
           </div>
         </Panel>
 
-        <ReactResizeDetector handleWidth handleHeight onResize={debounce(onResize, 100)} />
+        <ReactResizeDetector handleWidth handleHeight onResize={debounce(onResize, 400)} />
       </div>
     );
   }
