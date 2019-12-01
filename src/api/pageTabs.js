@@ -1,10 +1,14 @@
+import get from 'lodash/get';
+
 import Records from '../components/Records';
+import { RecordService } from './recordService';
 import * as ls from '../helpers/ls';
 import { USER_GUEST } from '../constants';
 import { deepClone } from '../helpers/util';
 import { decodeLink } from '../helpers/urls';
+import { PROXY_URI } from '../constants/alfresco';
 
-export class PageTabsApi {
+export class PageTabsApi extends RecordService {
   _lsKey = ls.generateKey('page-tabs', true);
   _newVersionKeyPath = '/user';
 
@@ -46,7 +50,11 @@ export class PageTabsApi {
     ls.setData(this.lsKey, upTabs);
   };
 
-  getTabTitle = recordRef => {
+  getTabTitle = ({ recordRef, journalId = null }) => {
+    if (journalId) {
+      return this.getJson(`${PROXY_URI}api/journals/all`).then(response => get(response, 'journals', []));
+    }
+
     return Records.get(recordRef)
       .load({ displayName: '.disp' }, true)
       .then(response => response);

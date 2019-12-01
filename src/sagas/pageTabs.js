@@ -95,13 +95,24 @@ function* sagaGetTabTitle({ api, logger }, { payload }) {
     let tabs = deepClone(yield select(selectTabs));
     const tab = tabs.find(tab => tab.id === payload.tabId);
     const [link] = payload.link.match(/\?.*/gim);
-    const { recordRef, nodeRef } = getSearchParams(link);
-    let title = t('page-tabs.new-tab');
+    const { recordRef, nodeRef, journalId } = getSearchParams(link);
+    let title = get(payload, 'defaultTitle', t('page-tabs.new-tab'));
 
     if (recordRef || nodeRef) {
-      const response = yield api.pageTabs.getTabTitle(recordRef || nodeRef);
+      const response = yield api.pageTabs.getTabTitle({ recordRef: recordRef || nodeRef });
 
       title = get(response, 'displayName', t('page-tabs.new-tab'));
+    }
+
+    if (journalId) {
+      const response = yield api.pageTabs.getTabTitle({ journalId });
+      const journalData = response.find(journal => journal.nodeRef === journalId);
+
+      title = get(journalData, 'title', t('journal.title'));
+
+      if (journalData.title) {
+        title = `${t('journal.title')} "${title}"`;
+      }
     }
 
     tab.title = title;
