@@ -2,6 +2,11 @@
 
 .formio-form {
   .formio-component-file {
+    // TODO
+    input[type='file'] {
+      display: none;
+    }
+
     .list-group {
       .list-group-item {
         padding: 0 5px;
@@ -88,7 +93,7 @@
   background: $color-gray-4;
   border-radius: $border-radius-standard;
   padding: 5px 15px;
-  margin: 0 0 0 -15px;
+  margin: -5px 0 -5px -15px;
 
   &_hide-label {
     margin-left: 0;

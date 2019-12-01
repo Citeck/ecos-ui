@@ -803,7 +803,7 @@ class PageTabs extends React.Component {
         <div className="page-tab__tabs-add icon-plus" onClick={this.handleAddTab} />
         {this.renderRightButton()}
 
-        <ReactResizeDetector handleWidth handleHeight onResize={debounce(this.handleResize, 100)} />
+        <ReactResizeDetector handleWidth handleHeight onResize={debounce(this.handleResize, 400)} />
       </div>
     );
   }

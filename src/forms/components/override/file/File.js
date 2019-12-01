@@ -14,6 +14,14 @@ export default class FileComponent extends FormIOFileComponent {
     // return fileLink;
   }
 
+  focus() {
+    if (!this.browseLink) {
+      return;
+    }
+
+    this.browseLink.focus();
+  }
+
   buildUpload() {
     const render = super.buildUpload();
     const allLinks = render.querySelectorAll('a');
@@ -33,6 +41,8 @@ export default class FileComponent extends FormIOFileComponent {
     this.disabled = this.shouldDisable;
 
     super.build();
+
+    this.createInlineEditSaveAndCancelButtons();
   }
 
   setupValueElement(element) {
