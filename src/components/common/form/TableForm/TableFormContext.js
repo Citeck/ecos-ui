@@ -17,6 +17,7 @@ export const TableFormContextProvider = props => {
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
   const [isModalFormOpen, setIsModalFormOpen] = useState(false);
+  const [createVariant, setCreateVariant] = useState(null);
   const [record, setRecord] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [columns, setColumns] = useState([]);
@@ -83,34 +84,29 @@ export const TableFormContextProvider = props => {
 
       let createVariantsPromise;
       if (!Array.isArray(createVariants) || createVariants.length < 1) {
-        createVariantsPromise = EcosFormUtils.getCreateVariants(custom.record, custom.attribute)
-          .then(r =>
-            r.map(item => {
-              return {
-                type: item.recordRef,
-                title: item.label
-              };
-            })
-          )
-          .then(items => {
-            setCreateVariants(items);
-            return items;
-          });
+        createVariantsPromise = EcosFormUtils.getCreateVariants(custom.record, custom.attribute);
       } else {
-        createVariantsPromise = Promise.all(createVariants.map(r => Records.get(r).load('.disp'))).then(dispNames => {
-          let result = [];
-          for (let i = 0; i < createVariants.length; i++) {
-            result.push({
-              type: createVariants[i],
-              title: dispNames[i] || createVariants[i]
-            });
-          }
-          setCreateVariants(result);
-          return result;
-        });
+        createVariantsPromise = Promise.all(
+          createVariants.map(variant => {
+            if (_.isObject(variant)) {
+              return variant;
+            }
+
+            return Records.get(variant)
+              .load('.disp')
+              .then(dispName => {
+                return {
+                  recordRef: variant,
+                  label: dispName
+                };
+              });
+          })
+        );
       }
 
       createVariantsPromise.then(cv => {
+        setCreateVariants(cv);
+
         if (cv.length < 1 || columns.length < 1) {
           return;
         }
@@ -220,13 +216,14 @@ export const TableFormContextProvider = props => {
           setIsModalFormOpen(!isModalFormOpen);
         },
 
-        showCreateForm: record => {
-          setRecord(record);
+        showCreateForm: createVariant => {
+          setCreateVariant(createVariant);
           setFormMode(FORM_MODE_CREATE);
           setIsModalFormOpen(true);
         },
 
         showEditForm: record => {
+          setCreateVariant(null);
           setRecord(record);
           setFormMode(FORM_MODE_EDIT);
           setIsModalFormOpen(true);

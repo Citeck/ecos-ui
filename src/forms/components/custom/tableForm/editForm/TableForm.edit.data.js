@@ -1,3 +1,5 @@
+const CUSTOM_CREATE_VARIANTS_FIELD = 'customCreateVariantsJs';
+
 export default [
   {
     type: 'checkbox',
@@ -105,6 +107,32 @@ export default [
         and: [{ '==': [{ var: 'data.source.type' }, 'custom'] }]
       }
     }
+  },
+  {
+    weight: 25,
+    type: 'panel',
+    title: 'Custom Create Variants',
+    collapsible: true,
+    collapsed: true,
+    style: {
+      'margin-bottom': '20px'
+    },
+    key: ''.concat(CUSTOM_CREATE_VARIANTS_FIELD, '-js'),
+    components: [
+      {
+        type: 'textarea',
+        key: CUSTOM_CREATE_VARIANTS_FIELD,
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+      }
+    ]
   },
   {
     type: 'asyncData',

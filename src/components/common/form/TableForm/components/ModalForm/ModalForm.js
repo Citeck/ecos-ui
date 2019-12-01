@@ -7,7 +7,7 @@ import Records from '../../../../../Records';
 
 const ModalForm = () => {
   const context = useContext(TableFormContext);
-  const { record, formMode, isModalFormOpen, toggleModal, onCreateFormSubmit, onEditFormSubmit, controlProps } = context;
+  const { record, createVariant, formMode, isModalFormOpen, toggleModal, onCreateFormSubmit, onEditFormSubmit, controlProps } = context;
   const { parentForm, isStaticModalTitle } = controlProps;
 
   const [displayName, setDisplayName] = useState('');

@@ -114,27 +114,74 @@ class RecordsComponent {
     this._records = {};
   }
 
-  get(id) {
+  get(id, owner) {
+    let record;
+
     if (!id) {
-      return new Record('');
-    }
-    if (id instanceof Record) {
-      return id;
-    }
-    if (isArray(id)) {
+      record = new Record('');
+    } else if (id instanceof Record) {
+      record = id;
+    } else if (isArray(id)) {
       let result = id.map(i => this.get(i));
       result.load = function() {
         return Promise.all(this.map(r => r.load.apply(r, arguments)));
       };
       return result;
+    } else {
+      record = this._records[id];
+      if (!record) {
+        record = new Record(id);
+        this._records[id] = record;
+      }
     }
 
-    let rec = this._records[id];
-    if (!rec) {
-      rec = new Record(id);
-      this._records[id] = rec;
+    if (owner) {
+      if (!record._owners) {
+        record._owners = {};
+      }
+      record._owners[owner] = true;
     }
-    return rec;
+
+    return record;
+  }
+
+  releaseAll(owner) {
+    for (let recId in this._records) {
+      if (this._records.hasOwnProperty(recId)) {
+        let record = this._records[recId];
+        if (record._owners[owner] !== undefined) {
+          this.release(recId, owner);
+        }
+      }
+    }
+  }
+
+  release(id, owner) {
+    if (!id) {
+      return;
+    }
+
+    let record;
+    if (id instanceof Record) {
+      record = id;
+    } else if (isArray(id)) {
+      for (let rec of id) {
+        this.release(rec, owner);
+      }
+      return;
+    } else {
+      record = this._records[id];
+    }
+
+    if (!record || !record._owners) {
+      return;
+    }
+
+    delete record._owners[owner];
+
+    if (Object.keys(record._owners).length === 0) {
+      this.forget(record.id);
+    }
   }
 
   forget(id) {

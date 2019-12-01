@@ -23,6 +23,7 @@ export default class TableFormComponent extends BaseReactComponent {
             attribute: null
           }
         },
+        customCreateVariantsJs: '',
         isStaticModalTitle: false
       },
       ...extend
@@ -121,15 +122,38 @@ export default class TableFormComponent extends BaseReactComponent {
           return resolveProps(source);
         }
       case 'custom':
-        return resolveProps({
-          ...source,
-          custom: {
-            ...source.custom,
-            record: this.getRecord(),
-            attribute: this.getAttributeToEdit(),
-            columns: source.custom.columns.map(item => item.name || item)
+        let resolve = createVariants => {
+          return resolveProps({
+            ...source,
+            custom: {
+              ...source.custom,
+              createVariants,
+              record: this.getRecord(),
+              attribute: this.getAttributeToEdit(),
+              columns: source.custom.columns.map(item => item.name || item)
+            }
+          });
+        };
+
+        let createVariants = null;
+        if (component.customCreateVariantsJs) {
+          try {
+            createVariants = this.evaluate(component.customCreateVariantsJs, {}, 'value', true);
+          } catch (e) {
+            console.error(e);
           }
-        });
+        } else if (source.custom.createVariants) {
+          createVariants = source.custom.createVariants;
+        }
+
+        if (createVariants && createVariants.then) {
+          return createVariants.then(resolve).catch(e => {
+            console.error(e);
+            resolve(null);
+          });
+        } else {
+          return resolve(createVariants);
+        }
       default:
         return resolveProps(null);
     }
