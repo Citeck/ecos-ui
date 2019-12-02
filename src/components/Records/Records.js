@@ -146,10 +146,13 @@ class RecordsComponent {
   }
 
   releaseAll(owner) {
+    if (!owner) {
+      return;
+    }
     for (let recId in this._records) {
       if (this._records.hasOwnProperty(recId)) {
         let record = this._records[recId];
-        if (record._owners[owner] !== undefined) {
+        if (record._owners && record._owners[owner] !== undefined) {
           this.release(recId, owner);
         }
       }

@@ -7,7 +7,17 @@ import Records from '../../../../../Records';
 
 const ModalForm = () => {
   const context = useContext(TableFormContext);
-  const { record, createVariant, formMode, isModalFormOpen, toggleModal, onCreateFormSubmit, onEditFormSubmit, controlProps } = context;
+  const {
+    record,
+    createVariant,
+    formMode,
+    isModalFormOpen,
+    toggleModal,
+    onCreateFormSubmit,
+    onEditFormSubmit,
+    controlProps,
+    computed
+  } = context;
   const { parentForm, isStaticModalTitle } = controlProps;
 
   const [displayName, setDisplayName] = useState('');
@@ -25,9 +35,21 @@ const ModalForm = () => {
     title = `${title}: ${displayName}`;
   }
 
+  let { recordRef, attributes, formKey, type } = createVariant || {};
+
+  if (record && computed && computed.valueFormKey) {
+    formKey = computed.valueFormKey(record);
+  }
+
+  if (!recordRef && type) {
+    recordRef = 'dict@' + type;
+  }
+
+  let recordForForm = recordRef || record;
+
   return (
     <div>
-      {record ? (
+      {recordForForm ? (
         <EcosModal
           reactstrapProps={{
             backdrop: 'static'
@@ -39,7 +61,9 @@ const ModalForm = () => {
           hideModal={toggleModal}
         >
           <EcosForm
-            record={record}
+            record={recordForForm}
+            formKey={formKey}
+            attributes={attributes}
             onSubmit={formMode === FORM_MODE_CREATE ? onCreateFormSubmit : onEditFormSubmit}
             onFormCancel={toggleModal}
             saveOnSubmit={false}

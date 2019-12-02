@@ -1,6 +1,9 @@
 import BaseReactComponent from '../base/BaseReactComponent';
 import TableForm from '../../../../components/common/form/TableForm';
 import lodashGet from 'lodash/get';
+import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
+import Records from '../../../../components/Records';
+import _ from 'lodash';
 
 export default class TableFormComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -22,6 +25,9 @@ export default class TableFormComponent extends BaseReactComponent {
             record: null,
             attribute: null
           }
+        },
+        computed: {
+          valueFormKey: null
         },
         customCreateVariantsJs: '',
         isStaticModalTitle: false
@@ -62,6 +68,32 @@ export default class TableFormComponent extends BaseReactComponent {
     });
   }
 
+  getValueFormKey(value) {
+    let formKeyJs = _.get(this.component, 'computed.valueFormKey', null);
+
+    if (formKeyJs) {
+      let model = { _ };
+
+      let recordsOwnerId;
+
+      if (_.isString(value)) {
+        recordsOwnerId = 'owner-' + this.component.id + '-' + this.component.key;
+        let recordId = value[0] === '{' ? EcosFormUtils.initJsonRecord(value, this.id, recordsOwnerId) : value;
+        model.record = Records.get(recordId);
+      } else {
+        model.record = value;
+      }
+
+      try {
+        return this.evaluate(formKeyJs, model, 'value', true);
+      } finally {
+        Records.releaseAll(recordsOwnerId);
+      }
+    } else {
+      return null;
+    }
+  }
+
   getInitialReactProps() {
     const component = this.component;
 
@@ -94,6 +126,9 @@ export default class TableFormComponent extends BaseReactComponent {
         triggerEventOnTableChange,
         onError: err => {
           // this.setCustomValidity(err, false);
+        },
+        computed: {
+          valueFormKey: value => this.getValueFormKey(value)
         }
       };
     };

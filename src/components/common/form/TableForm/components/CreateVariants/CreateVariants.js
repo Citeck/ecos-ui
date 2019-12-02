@@ -9,7 +9,7 @@ const CreateVariants = () => {
   const context = useContext(TableFormContext);
 
   const { disabled, multiple } = context.controlProps;
-  const { showCreateForm, createVariants, selectedRows } = context;
+  const { showCreateForm, createVariants = [], selectedRows } = context;
 
   const buttonClasses = classNames('ecos-btn_blue', {
     'ecos-btn_narrow': true //isCompact
@@ -20,10 +20,25 @@ const CreateVariants = () => {
   if (!multiple && selectedRows.length > 0) {
     isButtonDisabled = true;
   }
-  if (Array.isArray(createVariants) && createVariants.length > 0) {
-    if (createVariants.length === 1) {
+
+  const variantsToRender = [];
+  if (Array.isArray(createVariants)) {
+    for (let variant of createVariants) {
+      if (!variant.label && variant.title) {
+        variantsToRender.push({
+          ...variant,
+          label: variant.title
+        });
+      } else {
+        variantsToRender.push(variant);
+      }
+    }
+  }
+
+  if (variantsToRender.length > 0) {
+    if (variantsToRender.length === 1) {
       const onClick = () => {
-        showCreateForm(createVariants[0]);
+        showCreateForm(variantsToRender[0]);
       };
 
       createButton = (
@@ -37,7 +52,7 @@ const CreateVariants = () => {
       };
 
       createButton = (
-        <Dropdown source={createVariants} valueField={'type'} titleField={'title'} isStatic onChange={onSelect}>
+        <Dropdown source={variantsToRender} valueField={'type'} titleField={'label'} isStatic onChange={onSelect}>
           <IcoBtn
             invert
             icon="icon-down"

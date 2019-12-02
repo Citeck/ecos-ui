@@ -1,4 +1,5 @@
 const CUSTOM_CREATE_VARIANTS_FIELD = 'customCreateVariantsJs';
+const VALUE_FORM_KEY_FIELD = 'computed.valueFormKey';
 
 export default [
   {
@@ -131,6 +132,32 @@ export default [
         type: 'htmlelement',
         tag: 'div',
         content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+      }
+    ]
+  },
+  {
+    weight: 28,
+    type: 'panel',
+    title: 'Value Form Key',
+    collapsible: true,
+    collapsed: true,
+    style: {
+      'margin-bottom': '20px'
+    },
+    key: ''.concat(VALUE_FORM_KEY_FIELD, '-js'),
+    components: [
+      {
+        type: 'textarea',
+        key: VALUE_FORM_KEY_FIELD,
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. You can use "record" variable.</p>'
       }
     ]
   },

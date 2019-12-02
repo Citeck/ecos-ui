@@ -351,6 +351,9 @@ export default class EcosFormUtils {
   static getRecordFormInputsMap(record) {
     return EcosFormUtils.getForm(record, null, 'definition?json')
       .then(formDef => {
+        if (!formDef) {
+          return {};
+        }
         let inputs = this.getFormInputs(formDef) || [];
         let result = {};
         for (let input of inputs) {
@@ -466,7 +469,7 @@ export default class EcosFormUtils {
         let result = {};
 
         for (let att in recData) {
-          if (recData.hasOwnProperty(att)) {
+          if (recData.hasOwnProperty(att) && att.charAt(0) !== '.' && att !== '_alias' && att !== '_state' && att !== 'submit') {
             if (att === 'att_id') {
               result['id'] = recData[att];
             } else {

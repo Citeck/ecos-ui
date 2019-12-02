@@ -13,7 +13,7 @@ export const TableFormContext = React.createContext();
 
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
-  const { onChange, onError, source, defaultValue, triggerEventOnTableChange } = controlProps;
+  const { onChange, onError, source, defaultValue, triggerEventOnTableChange, computed } = controlProps;
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
   const [isModalFormOpen, setIsModalFormOpen] = useState(false);
@@ -52,19 +52,7 @@ export const TableFormContextProvider = props => {
       const displayColumns = journal.columns;
 
       journalsApi.getJournalConfig(journalId).then(journalConfig => {
-        // console.log('journalConfig', journalConfig);
-        setCreateVariants(
-          journalConfig.meta.createVariants.map(item => {
-            let itemType = item.type;
-            if (itemType.indexOf('@') === -1) {
-              itemType = `dict@${itemType}`;
-            }
-            return {
-              ...item,
-              type: itemType
-            };
-          }) || []
-        );
+        setCreateVariants(journalConfig.meta.createVariants || []);
 
         let columns = journalConfig.columns;
         if (Array.isArray(displayColumns) && displayColumns.length > 0) {
@@ -116,9 +104,9 @@ export const TableFormContextProvider = props => {
           atts[`.edge(n:"${item}"){title,type}`] = item;
         });
 
-        let cvType = cv[0].type;
+        let cvRecordRef = cv[0].recordRef;
 
-        let columnsInfoPromise = Records.get(cvType)
+        let columnsInfoPromise = Records.get(cvRecordRef)
           .load(Object.keys(atts))
           .then(loadedAtt => {
             let cols = [];
@@ -136,7 +124,7 @@ export const TableFormContextProvider = props => {
             return cols;
           });
 
-        Promise.all([columnsInfoPromise, EcosFormUtils.getRecordFormInputsMap(cvType)])
+        Promise.all([columnsInfoPromise, EcosFormUtils.getRecordFormInputsMap(cvRecordRef)])
           .then(columnsAndInputs => {
             let [columns, inputs] = columnsAndInputs;
 
@@ -206,11 +194,13 @@ export const TableFormContextProvider = props => {
         error,
         formMode,
         record,
+        createVariant,
         isModalFormOpen,
         selectedRows,
         columns,
         inlineToolsOffsets,
         createVariants,
+        computed,
 
         toggleModal: () => {
           setIsModalFormOpen(!isModalFormOpen);

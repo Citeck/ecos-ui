@@ -715,5 +715,11 @@
   "birthdays-widget.title": "Birthdays",
   "birthdays-widget.error.default-message": "Error loading birthdays!",
   "birthdays-widget.btn.go-to-profile": "Go to profile",
-  "birthdays-widget.btn.try-one-more-time": "To try one more time"
+  "birthdays-widget.btn.try-one-more-time": "To try one more time",
+  "action.edit.label": "Edit",
+  "action.view.label": "View",
+  "action.delete.label": "Delete",
+  "action.download.label": "Download",
+  "action.move-to-lines.label": "Go to lines",
+  "action.record-actions.label": "Server actions"
 }
