@@ -127,41 +127,53 @@ class SetTabs extends React.Component {
     this.setState({ removedTab: null });
   };
 
-  render() {
+  renderArrowTabs() {
     const { tabs, activeTabKey } = this.props;
-    const { scrollTabToEnd, removedTab, editableTab, updateScrollPosition } = this.state;
+    const { scrollTabToEnd, editableTab, updateScrollPosition } = this.state;
+    const empty = isEmpty(tabs);
+
+    if (empty) {
+      return null;
+    }
+
+    return (
+      <ScrollArrow
+        medium
+        changeScrollPosition={editableTab !== 0}
+        scrollToEnd={scrollTabToEnd}
+        updateWhenDataChange={updateScrollPosition}
+        className="ecos-dashboard-settings__layout-tabs-arrows"
+        selectorToObserve="div.ecos-tabs.ecos-dashboard-settings__layout-tabs-wrap"
+      >
+        <EditTabs
+          className="ecos-dashboard-settings__layout-tabs-wrap"
+          classNameTab="ecos-dashboard-settings__layout-tabs-item"
+          hasHover
+          hasHint
+          items={tabs}
+          keyField={'idLayout'}
+          disabled={tabs.length < 2}
+          activeTabKey={activeTabKey}
+          onDelete={this.onConfirmDeleteTab}
+          onSort={this.onSortTabs}
+          onEdit={this.onEditTab}
+          onStartEdit={this.onStartEditTab}
+          onClick={this.onClickTabLayout}
+        />
+      </ScrollArrow>
+    );
+  }
+
+  render() {
+    const { tabs } = this.props;
+    const { removedTab } = this.state;
     const empty = isEmpty(tabs);
 
     return (
       <>
         <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
         <div className="ecos-dashboard-settings__layout-tabs-wrapper">
-          {!empty && (
-            <ScrollArrow
-              medium
-              changeScrollPosition={editableTab !== 0}
-              scrollToEnd={scrollTabToEnd}
-              updateWhenDataChange={updateScrollPosition}
-              className="ecos-dashboard-settings__layout-tabs-arrows"
-              selectorToObserve="div.ecos-tabs.ecos-dashboard-settings__layout-tabs-wrap"
-            >
-              <EditTabs
-                className="ecos-dashboard-settings__layout-tabs-wrap"
-                classNameTab="ecos-dashboard-settings__layout-tabs-item"
-                hasHover
-                hasHint
-                items={tabs}
-                keyField={'idLayout'}
-                disabled={tabs.length < 2}
-                activeTabKey={activeTabKey}
-                onDelete={this.onConfirmDeleteTab}
-                onSort={this.onSortTabs}
-                onEdit={this.onEditTab}
-                onStartEdit={this.onStartEditTab}
-                onClick={this.onClickTabLayout}
-              />
-            </ScrollArrow>
-          )}
+          {this.renderArrowTabs()}
           {empty && <div className="ecos-dashboard-settings__layout-tabs_empty" />}
           <IcoBtn
             icon="icon-big-plus"
