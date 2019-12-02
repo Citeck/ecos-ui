@@ -78,7 +78,10 @@
     $table: &;
 
     padding: 0 20px;
-    margin-bottom: 15px;
+
+    &:not(:last-child) {
+      margin-bottom: 15px;
+    }
 
     &-cell {
       @extend %ellipsis;
