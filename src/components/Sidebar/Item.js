@@ -31,7 +31,7 @@ class Item extends React.Component {
     noToggle: true
   };
 
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
+  shouldComponentUpdate(nextProps) {
     if (
       JSON.stringify(nextProps.data) !== JSON.stringify(this.props.data) ||
       JSON.stringify(nextProps.styleProps) !== JSON.stringify(this.props.styleProps) ||
@@ -48,10 +48,9 @@ class Item extends React.Component {
           !get(nextProps, 'noIcon', true))) ||
       nextProps.isSiteDashboardEnable !== this.props.isSiteDashboardEnable
     ) {
-      // console.warn(nextProps);
       return true;
     }
-    // console.warn(JSON.stringify(nextProps.data) !== JSON.stringify(this.props.data));
+
     return false;
   }
 
