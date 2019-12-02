@@ -9,7 +9,7 @@ import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
-import { t, getCurrentLocale } from '../../helpers/util';
+import { t, getCurrentLocale, isMobileDevice } from '../../helpers/util';
 import { PROXY_URI } from '../../constants/alfresco';
 
 import './formio.full.min.css';
@@ -54,6 +54,7 @@ class EcosForm extends React.Component {
     });
 
     options.recordId = recordId;
+    options.isMobileDevice = isMobileDevice();
 
     let alfConstants = (window.Alfresco || {}).constants || {};
     let proxyUri = PROXY_URI || '/';
