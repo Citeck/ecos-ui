@@ -1,3 +1,4 @@
+import './Formio';
 import './Webform';
 
 import './components/base';
