@@ -53,12 +53,17 @@ Base.prototype.createInlineEditButton = function(container) {
     return;
   }
 
+  const isMobileDevice = get(this, 'options.isMobileDevice', false);
+
   const editButtonIcon = this.ce('span', { class: 'icon icon-edit' });
   let editButtonClassesList = ['ecos-btn ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-form__inline-edit-button'];
   if (isComponentDisabled) {
     editButtonClassesList.push('ecos-form__inline-edit-button_disabled');
   } else {
     editButtonClassesList.push('ecos-btn_hover_t-light-blue');
+    if (isMobileDevice) {
+      editButtonClassesList.push('ecos-form__inline-edit-button_mobile');
+    }
   }
   const editButton = this.ce('button', { class: editButtonClassesList.join(' ') }, editButtonIcon);
 
