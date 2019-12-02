@@ -35,6 +35,7 @@ export default class ScrollArrow extends React.Component {
   };
 
   refScroll = React.createRef();
+  _factor = 0;
 
   state = {
     isShowArrows: false,
@@ -86,10 +87,18 @@ export default class ScrollArrow extends React.Component {
   }
 
   doScrollBySide = (factor = 1) => {
-    const step = this.props.step * factor;
+    this._factor += factor;
 
-    this.doScrollByStep(step);
+    this.refScroll.current.scrollLeft += this.props.step * this._factor;
+    this.debounceScrollBySide();
   };
+
+  debounceScrollBySide = debounce(() => {
+    const step = this.props.step * this._factor;
+
+    this._factor = 0;
+    this.doScrollByStep(step);
+  }, 10);
 
   doScrollByStep = step => {
     const curScroll = get(this.refScroll, 'current.scrollLeft', 0);

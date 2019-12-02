@@ -4,7 +4,7 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import DashboardService from '../../services/dashboard';
-import { t } from '../../helpers/util';
+import { deepClone, t, arrayCompare } from '../../helpers/util';
 import { EditTabs, ScrollArrow } from '../../components/common';
 import { IcoBtn } from '../../components/common/btns';
 import { RemoveDialog } from '../../components/common/dialogs';
@@ -29,6 +29,23 @@ class SetTabs extends React.Component {
     removedTab: null,
     editableTab: 0
   };
+
+  shouldComponentUpdate(nextProps, nextState) {
+    const { tabs, activeTabKey } = this.props;
+    const { scrollTabToEnd, updateScrollPosition, removedTab } = this.state;
+
+    if (
+      !arrayCompare(tabs, nextProps.tabs) ||
+      activeTabKey !== nextProps.activeTabKey ||
+      scrollTabToEnd !== nextState.scrollTabToEnd ||
+      updateScrollPosition !== nextState.updateScrollPosition ||
+      removedTab !== nextState.removedTab
+    ) {
+      return true;
+    }
+
+    return false;
+  }
 
   doScrollEnd() {
     this.setState({ scrollTabToEnd: true }, () => {
@@ -58,17 +75,17 @@ class SetTabs extends React.Component {
     newTab.label = '';
     newTab.isNew = true;
 
-    tabs.push(newTab);
-    setData && setData({ tabs });
+    setData && setData({ tabs: [...tabs, newTab] });
     this.doScrollEnd();
   };
 
   onEditTab = (tab, index) => {
     const { tabs, setData } = this.props;
     const { label, idLayout } = tab;
+    const newTabs = deepClone(tabs);
 
-    set(tabs, [index], { label, idLayout });
-    setData && setData({ tabs });
+    set(newTabs, [index], { label, idLayout });
+    setData && setData({ tabs: newTabs });
   };
 
   onStartEditTab = (position = 0) => {
@@ -93,15 +110,16 @@ class SetTabs extends React.Component {
       removedTab: { index, idLayout }
     } = this.state;
     let { tabs, activeTabKey, setData } = this.props;
+    const newTabs = deepClone(tabs);
 
-    tabs.splice(index, 1);
+    newTabs.splice(index, 1);
 
     if (idLayout === activeTabKey) {
-      activeTabKey = get(tabs, '[0].idLayout', null);
+      activeTabKey = get(newTabs, '[0].idLayout', null);
     }
 
     this.closeDialog();
-    setData && setData({ tabs, activeTabKey });
+    setData && setData({ tabs: newTabs, activeTabKey });
     this.doScrollCheck();
   };
 

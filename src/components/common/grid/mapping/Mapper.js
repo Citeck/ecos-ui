@@ -81,15 +81,11 @@ const MAP = [
   },
   {
     options: () => 'AssocFormatter',
-    enable: column => column.type === 'person'
+    enable: column => column.type === 'person' || column.type === 'authority' || column.type === 'authorityGroup'
   },
   {
-    options: () => 'AssocFormatter',
-    enable: column => column.type === 'authority'
-  },
-  {
-    options: () => 'AssocFormatter',
-    enable: column => column.type === 'authorityGroup'
+    options: () => 'NumberFormatter',
+    enable: column => column.type === 'int' || column.type === 'long' || column.type === 'float' || column.type === 'double'
   }
 ];
 
