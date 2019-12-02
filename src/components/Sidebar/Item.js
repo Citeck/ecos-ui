@@ -42,8 +42,10 @@ class Item extends React.Component {
       nextProps.level !== this.props.level ||
       nextProps.domId !== this.props.domId ||
       (nextProps.isOpen !== this.props.isOpen &&
-        !get(nextProps, 'styleProps.noBadge', true) &&
-        !get(nextProps, 'styleProps.noIcon', true)) ||
+        (!get(nextProps, 'styleProps.noBadge', true) ||
+          !get(nextProps, 'styleProps.noIcon', true) ||
+          !get(nextProps, 'noBadge', true) ||
+          !get(nextProps, 'noIcon', true))) ||
       nextProps.isSiteDashboardEnable !== this.props.isSiteDashboardEnable
     ) {
       // console.warn(nextProps);
@@ -122,7 +124,9 @@ class Item extends React.Component {
     return (
       <Mover data={data} extraParams={extraParams} onClick={this.onClickItem}>
         {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : get(data, 'label', '')} />}
-        <div className="ecos-sidebar-item__label">{data.label}</div>
+        <div className="ecos-sidebar-item__label" title={data.label}>
+          {data.label}
+        </div>
       </Mover>
     );
   }
@@ -176,8 +180,6 @@ class Item extends React.Component {
       events.onClick = this.onToggleList;
     }
 
-    console.warn('Render Item');
-
     return (
       <div
         id={domId}
@@ -209,7 +211,7 @@ const mapStateToProps = state => ({
   selectedId: state.slideMenu.selectedId
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = dispatch => ({
   setSelectItem: id => dispatch(setSelectedId(id)),
   toggleExpanded: id => dispatch(toggleExpanded(id)),
   setScrollTop: value => dispatch(setScrollTop(value))
