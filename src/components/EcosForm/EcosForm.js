@@ -39,6 +39,10 @@ class EcosForm extends React.Component {
     };
   }
 
+  componentWillUnmount() {
+    Records.releaseAll(this.state.containerId);
+  }
+
   componentDidMount() {
     this.initForm();
   }
@@ -94,7 +98,7 @@ class EcosForm extends React.Component {
       });
 
       let inputs = EcosFormUtils.getFormInputs(formData.definition);
-      let recordDataPromise = EcosFormUtils.getData(recordId, inputs);
+      let recordDataPromise = EcosFormUtils.getData(recordId, inputs, this.state.containerId);
       let canWritePromise = false;
       if (options.readOnly && options.viewAsHtml) {
         canWritePromise = EcosFormUtils.getCanWritePermission(recordId);
@@ -256,6 +260,8 @@ class EcosForm extends React.Component {
     } else {
       onSubmit(record, form);
     }
+
+    Records.releaseAll(this.state.containerId);
   }
 
   onReload() {

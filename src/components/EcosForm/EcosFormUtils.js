@@ -10,8 +10,33 @@ import { getCurrentUserName, t } from '../../helpers/util';
 import { EcosForm } from '../EcosForm';
 import Modal from '../common/EcosModal/CiteckEcosModal';
 import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
+import uuidV4 from 'uuid/v4';
 
 const EDGE_PREFIX = 'edge__';
+
+const getComponentInnerAttSchema = component => {
+  let dataType = lodashGet(component, 'ecos.dataType', '');
+
+  if (dataType === 'json') {
+    return 'json';
+  }
+
+  switch (component.type) {
+    case 'checkbox':
+      return 'bool';
+    case 'datagridAssoc':
+    case 'tableForm':
+    case 'selectJournal':
+      return 'assoc';
+    case 'datamap':
+    case 'container':
+      return 'json';
+    case 'file':
+      return 'as(n:"content-data"){json}';
+    default:
+      return 'str';
+  }
+};
 
 export default class EcosFormUtils {
   static isCurrentUserInGroup(group) {
@@ -326,6 +351,9 @@ export default class EcosFormUtils {
   static getRecordFormInputsMap(record) {
     return EcosFormUtils.getForm(record, null, 'definition?json')
       .then(formDef => {
+        if (!formDef) {
+          return {};
+        }
         let inputs = this.getFormInputs(formDef) || [];
         let result = {};
         for (let input of inputs) {
@@ -347,56 +375,36 @@ export default class EcosFormUtils {
     this.forEachComponent(root, component => {
       let attribute = EcosFormUtils.getComponentAttribute(component);
 
-      if (attribute && component.input === true && component.type !== 'button') {
-        let questionIdx = attribute.indexOf('?');
-
-        if (questionIdx !== -1) {
-          attribute = attribute.substring(0, questionIdx);
-        }
-
-        let attributeSchema;
-
-        let dataType = lodashGet(component, 'ecos.dataType', '');
-
-        switch (component.type) {
-          case 'checkbox':
-            attributeSchema = 'bool';
-            break;
-          case 'datagridAssoc':
-          case 'tableForm':
-          case 'selectJournal':
-            attributeSchema = 'assoc';
-            break;
-          case 'datamap':
-          case 'container':
-            attributeSchema = 'json';
-            break;
-          case 'file':
-            attributeSchema = 'as(n:"content-data"){json}';
-            break;
-          default:
-            attributeSchema = 'str';
-        }
-
-        let multiplePostfix = component.multiple ? 's' : '';
-        let schema = '.att' + multiplePostfix + '(n:"' + attribute + '"){' + attributeSchema + '}';
-        let edgeSchema = '.edge(n:"' + attribute + '"){protected,';
-        if (component.label === attribute) {
-          edgeSchema += 'title}';
-        } else {
-          // Type is not used. Just to add more than 1 field in result to avoid simplifying
-          // result: {protected:true} -> result: true
-          edgeSchema += 'type}';
-        }
-
-        inputs.push({
-          attribute: attribute,
-          component: component,
-          schema: schema,
-          edgeSchema: edgeSchema,
-          dataType: dataType
-        });
+      if (!attribute || component.input !== true || component.type === 'button') {
+        return;
       }
+
+      let questionIdx = attribute.indexOf('?');
+
+      if (questionIdx !== -1) {
+        attribute = attribute.substring(0, questionIdx);
+      }
+
+      let innerAttSchema = getComponentInnerAttSchema(component);
+      let multiplePostfix = component.multiple ? 's' : '';
+      let schema = '.att' + multiplePostfix + '(n:"' + attribute + '"){' + innerAttSchema + '}';
+      let edgeSchema = '.edge(n:"' + attribute + '"){protected,';
+
+      if (component.label === attribute) {
+        edgeSchema += 'title}';
+      } else {
+        // Type is not used. Just to add more than 1 field in result to avoid simplifying
+        // result: {protected:true} -> result: true
+        edgeSchema += 'type}';
+      }
+
+      inputs.push({
+        attribute: attribute,
+        component: component,
+        schema: schema,
+        edgeSchema: edgeSchema,
+        dataType: lodashGet(component, 'ecos.dataType', '')
+      });
     });
 
     return inputs;
@@ -444,14 +452,34 @@ export default class EcosFormUtils {
   }
 
   static processValueBeforeSubmit(value, input, keysMapping) {
-    if (value && input && input.dataType === 'json-record') {
-      const mapping = v => JSON.stringify(Records.get(v).toJson());
-
+    const mapEachValue = (value, mapping) => {
       if (Array.isArray(value)) {
-        value = value.map(mapping);
+        return value.map(mapping);
       } else {
-        value = mapping(value);
+        return mapping(value);
       }
+    };
+
+    if (value && input && input.dataType === 'json-record') {
+      value = mapEachValue(value, v => JSON.stringify(Records.get(v).toJson()));
+    }
+    if (value && input && input.dataType === 'json') {
+      value = mapEachValue(value, v => {
+        let recData = (Records.get(v).toJson() || {}).attributes || {};
+        let result = {};
+
+        for (let att in recData) {
+          if (recData.hasOwnProperty(att) && att.charAt(0) !== '.' && att !== '_alias' && att !== '_state' && att !== 'submit') {
+            if (att === 'att_id') {
+              result['id'] = recData[att];
+            } else {
+              result[att] = recData[att];
+            }
+          }
+        }
+
+        return result;
+      });
     }
 
     if (value && input && input.component.type === 'datagridAssoc') {
@@ -471,7 +499,7 @@ export default class EcosFormUtils {
     return value;
   }
 
-  static getData(recordId, inputs) {
+  static getData(recordId, inputs, ownerId) {
     if (!recordId) {
       return Promise.resolve({});
     }
@@ -500,7 +528,9 @@ export default class EcosFormUtils {
             } else if (recordData[att] !== null) {
               let input = inputByKey[att];
               if (input && input.dataType === 'json-record') {
-                submission[att] = EcosFormUtils.initJsonRecord(recordData[att]);
+                submission[att] = EcosFormUtils.initJsonRecord(recordData[att], ownerId);
+              } else if (input && input.dataType === 'json' && input.component && input.component.type === 'tableForm') {
+                submission[att] = EcosFormUtils.initJsonRecord(recordData[att], ownerId);
               } else if (input && input.component && input.component.type === 'file') {
                 submission[att] = EcosFormUtils.removeEmptyValuesFromArray(recordData[att]);
               } else if (
@@ -535,11 +565,11 @@ export default class EcosFormUtils {
     return data.filter(item => !isEmpty(item));
   }
 
-  static initJsonRecord(data) {
+  static initJsonRecord(data, ownerId) {
     if (Array.isArray(data)) {
       let result = [];
       for (let v of data) {
-        let record = this.initJsonRecord(v);
+        let record = this.initJsonRecord(v, ownerId);
         if (record) {
           result.push(record);
         }
@@ -555,23 +585,37 @@ export default class EcosFormUtils {
       }
     }
 
-    let id = data.nodeRef || data.id;
-
-    if (!id) {
-      return null;
-    }
-
+    let id;
     let attributes = {};
-    if (data.nodeRef) {
-      let dataAttributes = data.attributes || [];
-      for (let att of dataAttributes) {
-        attributes[att.name] = att.value;
+
+    if (data.attributes) {
+      id = data.nodeRef || data.id;
+
+      if (!id) {
+        return null;
       }
-    } else if (data.id && data.attributes) {
-      attributes = data.attributes;
+
+      if (data.nodeRef) {
+        let dataAttributes = data.attributes || [];
+        for (let att of dataAttributes) {
+          attributes[att.name] = att.value;
+        }
+      } else if (data.id && data.attributes) {
+        attributes = data.attributes;
+      }
+    } else {
+      id = uuidV4();
+
+      for (let att in data) {
+        if (data.hasOwnProperty(att)) {
+          let attKey = att === 'id' ? 'att_id' : att;
+          attributes[attKey] = data[att];
+        }
+      }
     }
 
-    let record = Records.get(id);
+    let record = Records.get(id, ownerId);
+
     for (let att in attributes) {
       if (attributes.hasOwnProperty(att)) {
         record.persistedAtt(att, attributes[att]);
