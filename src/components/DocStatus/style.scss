@@ -46,8 +46,6 @@
       color: $color-blue-dark;
       font-weight: $font-weight-bold;
       font-size: $font-size-standard;
-
-      @extend %ellipsis;
     }
 
     &_manual {
@@ -69,6 +67,10 @@
     &_no-status {
       background-color: $color-gray-4;
       color: $text-color-gray;
+    }
+
+    &-label {
+      @extend %ellipsis;
     }
   }
 
