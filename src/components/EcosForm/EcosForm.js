@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import moment from 'moment';
 import Formio from 'formiojs/Formio';
 import FormioEventEmitter from 'formiojs/EventEmitter';
 import { cloneDeep } from 'lodash';
@@ -246,6 +247,11 @@ class EcosForm extends React.Component {
         // cause: https://citeck.atlassian.net/browse/ECOSCOM-2561
         if (input && input.component.type === 'ecosSelect' && !value) {
           value = null;
+        }
+
+        // cause: https://citeck.atlassian.net/browse/ECOSCOM-2581
+        if (value && input && input.component.type === 'datetime' && input.component.enableDate && !input.component.enableTime) {
+          value = moment(value).format('YYYY-MM-DD[T]00:00:00[Z]');
         }
 
         record.att(keysMapping[key] || key, value);
