@@ -1,5 +1,7 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+
 import {
   cancelJournalSettingData,
   createJournalSetting,
@@ -50,6 +52,7 @@ import { ParserPredicate } from '../components/Filters/predicates';
 import { getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
 import { t } from '../helpers/util';
 import { wrapSaga } from '../helpers/redux';
+import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -388,8 +391,10 @@ function* sagaExecRecordsAction({ api, logger, stateId, w }, action) {
   try {
     const actionResult = yield call(api.recordActions.executeAction, action.payload);
     if (actionResult !== false) {
-      yield put(reloadGrid(w()));
-      yield put(setSelectedRecords(w([])));
+      if (get(action, 'payload.action.type', '') !== BackgroundOpenAction.type) {
+        yield put(reloadGrid(w()));
+        yield put(setSelectedRecords(w([])));
+      }
     }
   } catch (e) {
     logger.error('[journals sagaExecRecordsAction saga error', e.message, e);

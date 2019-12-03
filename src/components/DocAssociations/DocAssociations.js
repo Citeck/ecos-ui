@@ -384,7 +384,7 @@ class DocAssociations extends Component {
         {isMobile ? (
           this.renderDocuments()
         ) : (
-          <Scrollbars autoHide style={{ height: contentHeight || '100%' }}>
+          <Scrollbars style={{ height: contentHeight || '100%' }}>
             <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
               {this.renderDocuments()}
             </DefineHeight>
