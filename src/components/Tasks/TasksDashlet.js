@@ -62,7 +62,7 @@ class TasksDashlet extends React.Component {
   };
 
   onChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
     this.setState({ height });
   };
 
@@ -115,7 +115,7 @@ class TasksDashlet extends React.Component {
       >
         <Tasks
           {...config}
-          ref={this.contentRef}
+          forwardedRef={this.contentRef}
           className={classNameTasks}
           record={record}
           stateId={record}

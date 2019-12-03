@@ -27,6 +27,8 @@ class TaskList extends React.Component {
     onSubmitForm: () => {}
   };
 
+  contentRef = React.createRef();
+
   renderLoader() {
     let { isLoading } = this.props;
 
@@ -66,11 +68,11 @@ class TaskList extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <div ref={this.props.forwardedRef}>
         {this.renderLoader()}
         {this.renderEmptyInfo()}
         {this.renderTaskDetailsList()}
-      </React.Fragment>
+      </div>
     );
   }
 }
