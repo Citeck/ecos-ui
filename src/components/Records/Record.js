@@ -1,39 +1,69 @@
-import isString from 'lodash/isString';
-import isEmpty from 'lodash/isEmpty';
-import { recordsQueryFetch, recordsMutateFetch, loadAttribute } from './recordsApi';
+import _ from 'lodash';
+import { recordsMutateFetch, loadAttribute } from './recordsApi';
+import Attribute from './Attribute';
 
-const ATT_NAME_REGEXP = /\.atts?\(n:"(.+?)"\).+/;
+const ATT_NAME_REGEXP = /\.atts?\(n:"(.+?)"\)\s*{(.+)}/;
+const SIMPLE_ATT_NAME_REGEXP = /(.+?){(.+)}/;
 
-function convertAttributePath(path) {
-  //A server should convert an attribute
-  //maybe remove spaces for cache purposes? '  {  ' -> '{'
-  return path;
-}
+const parseAttribute = (path, innerDefault = 'disp') => {
+  if (path[0] === '#') {
+    return null;
+  }
 
-function extractFirstAttName(path) {
   if (path[0] === '.') {
-    let nameMatch = path.match(ATT_NAME_REGEXP) || [];
-    return nameMatch[1] || path;
+    let attMatch = path.match(ATT_NAME_REGEXP);
+    if (!attMatch) {
+      return null;
+    }
+    return {
+      name: attMatch[1],
+      inner: attMatch[2].split(',').map(s => '.' + s.trim()),
+      isMultiple: path.indexOf('.atts') === 0
+    };
   } else {
     let name = path;
+    let inner;
 
     let dotIdx = path.indexOf('.');
     if (dotIdx >= 0) {
+      inner = name.substring(dotIdx + 1);
       name = name.substring(0, dotIdx);
-    }
-    let qIdx = path.indexOf('?');
-    if (qIdx >= 0) {
-      name = name.substring(0, qIdx);
+    } else {
+      let match = name.match(SIMPLE_ATT_NAME_REGEXP);
+
+      if (match == null) {
+        let qIdx = path.indexOf('?');
+        if (qIdx >= 0) {
+          inner = name.substring(qIdx + 1);
+          name = name.substring(0, qIdx);
+        } else {
+          inner = innerDefault;
+        }
+      } else {
+        name = match[1];
+        inner = match[2].split(',').map(s => s.trim());
+      }
     }
 
-    return name;
+    let isMultiple = false;
+    if (name.indexOf('[]') === name.length - 2) {
+      name = name.substring(0, name.length - 2);
+      isMultiple = true;
+    }
+
+    return {
+      name,
+      inner,
+      isMultiple
+    };
   }
-}
+};
 
 export default class Record {
-  constructor(id, baseRecord, records) {
+  constructor(id, records, baseRecord) {
     this._id = id;
     this._attributes = {};
+    this._rawAttributes = {};
     this._records = records;
     if (baseRecord) {
       this._baseRecord = baseRecord;
@@ -82,106 +112,79 @@ export default class Record {
   }
 
   load(attributes, force) {
-    let self = this;
+    let attsMapping = {};
+    let attsToLoad = [];
 
-    let toLoad = [];
-    let toLoadNames = {};
-    let loaded = {};
-
-    let isSingleAttribute = isString(attributes);
-    let attributesArr = isSingleAttribute ? [attributes] : attributes;
-
-    for (let att of attributesArr) {
-      //extract first att
-      let attribute = this._attributes[att];
-      if (!attribute) {
-        //attribute = new Attribute(this.id, att);
-        //this._attributes[att] =
-      }
-    }
-
-    /*let attributesObj = attributes;
-
+    let isSingleAttribute = _.isString(attributes);
     if (isSingleAttribute) {
-      attributesObj = { a: attributes };
-    } else if (Array.isArray(attributes)) {
-      attributesObj = {};
-      for (let v of attributes) {
-        attributesObj[v] = v;
-      }
-    }*/
-
-    for (let att in attributesObj) {
-      if (!attributesObj.hasOwnProperty(att)) {
-        continue;
-      }
-
-      let requestedAtt = attributesObj[att];
-      let attPath = convertAttributePath(requestedAtt);
-
-      if (!force) {
-        let existingValue = self._attributes[attPath];
-        let wasLoaded = false;
-        let loadedValue = null;
-        if (existingValue) {
-          loadedValue = existingValue.value;
-          wasLoaded = true;
+      attsToLoad = [attributes];
+    } else if (_.isArray(attributes)) {
+      attsToLoad = attributes;
+    } else if (_.isObject(attributes)) {
+      for (let attAlias in attributes) {
+        if (attributes.hasOwnProperty(attAlias)) {
+          let attToLoad = attributes[attAlias];
+          attsMapping[attributes[attAlias]] = attAlias;
+          attsToLoad.push(attToLoad);
         }
-        if (loadedValue === null && requestedAtt[0] !== '.' && requestedAtt[0] !== '#') {
-          let changedValue = this._changedSimpleValues[extractFirstAttName(requestedAtt)];
-          if (changedValue) {
-            loadedValue = changedValue;
-            wasLoaded = true;
-          }
-        }
-        if (!wasLoaded) {
-          toLoad.push(attPath);
-          toLoadNames[attPath] = att;
-        } else {
-          loaded[att] = loadedValue;
-        }
-      } else {
-        toLoad.push(attPath);
-        toLoadNames[attPath] = att;
       }
-    }
-
-    let formatResult = result => {
-      if (isSingleAttribute) {
-        return result.a;
-      } else {
-        return result;
-      }
-    };
-
-    if (toLoad.length === 0) {
-      return Promise.resolve(formatResult(loaded));
-    }
-
-    let result;
-    if (this._baseRecord) {
-      result = this._baseRecord.load(toLoad, force);
     } else {
-      result = recordsQueryFetch({
-        [isArrayOfIds ? 'records' : 'record']: self.id,
-        attributes: toLoad
-      }).then(resp => (isArrayOfIds ? resp.records || [] : resp.attributes || {}));
+      attsToLoad = attributes;
     }
 
-    return result.then(atts => {
-      const getResult = atts => {
-        for (let att in atts) {
-          if (!atts.hasOwnProperty(att)) {
-            continue;
+    return Promise.all(
+      attsToLoad.map(att => {
+        let parsedAtt = parseAttribute(att);
+        if (parsedAtt === null) {
+          let value = this._rawAttributes[att];
+          if (!force && value !== undefined) {
+            return value;
+          } else {
+            value = this._loadRecordAttImpl(att);
+            if (value && value.then) {
+              this._rawAttributes[att] = value
+                .then(loaded => {
+                  this._rawAttributes[att] = loaded;
+                  return loaded;
+                })
+                .catch(e => {
+                  console.error(e);
+                  this._rawAttributes[att] = null;
+                  return null;
+                });
+            } else {
+              this._rawAttributes[att] = value;
+            }
+            return this._rawAttributes[att];
           }
-          loaded[toLoadNames[att]] = atts[att];
-          self._attributes[att] = new Attribute(self, att, atts[att]);
+        } else {
+          let attribute = this._attributes[parsedAtt.name];
+          if (!attribute) {
+            attribute = new Attribute(this, parsedAtt.name);
+            this._attributes[parsedAtt.name] = attribute;
+          }
+          return attribute.getValue(parsedAtt.inner, parsedAtt.isMultiple, true, force);
         }
-        return formatResult(loaded);
-      };
+      })
+    ).then(loadedAtts => {
+      let result = {};
 
-      return Array.isArray(atts) ? atts.map(a => getResult(a.attributes || {})) : getResult(atts);
+      for (let i = 0; i < attsToLoad.length; i++) {
+        let attKey = attsToLoad[i];
+        attKey = attsMapping[attKey] || attKey;
+        result[attsMapping[attKey] || attKey] = loadedAtts[i];
+      }
+
+      return isSingleAttribute ? result[Object.keys(result)[0]] : result;
     });
+  }
+
+  _loadRecordAttImpl(attribute) {
+    if (this._baseRecord) {
+      return this._baseRecord.load(attribute);
+    } else {
+      return loadAttribute(this.id, attribute);
+    }
   }
 
   loadAttribute(attribute) {
@@ -204,6 +207,7 @@ export default class Record {
 
   reset() {
     this._attributes = {};
+    this._rawAttributes = {};
   }
 
   getRawAttributes() {
@@ -213,12 +217,8 @@ export default class Record {
       if (!this._attributes.hasOwnProperty(attName)) {
         continue;
       }
-
       let attribute = this._attributes[attName];
-      if (attName.startsWith('.att') && attName.indexOf('"') !== 1) {
-        attName = attName.split('"')[1];
-        attributes[attName] = attribute.value;
-      }
+      attributes[attName] = attribute.getValue();
     }
 
     return attributes;
@@ -235,20 +235,23 @@ export default class Record {
       let attribute = this._attributes[attName];
 
       if (!attribute.isPersisted()) {
-        attributesToPersist[attName] = attribute.value;
+        attributesToPersist[attName] = attribute.getValue();
+      } else {
+        console.log('Not persisted', attribute);
       }
     }
 
     return attributesToPersist;
   }
 
-  getAssocAttributes() {
+  _getNotPersistedAssocAttributes() {
     let attributes = [];
     for (let attName in this._attributes) {
       if (!this._attributes.hasOwnProperty(attName)) {
         continue;
       }
-      if (attName.startsWith('.att') && attName.endsWith('{assoc}')) {
+      let attribute = this._attributes[attName];
+      if (attribute.getNewValueInnerAtt() === 'assoc') {
         attributes.push(attName);
       }
     }
@@ -258,7 +261,7 @@ export default class Record {
   _getLinkedRecordsToSave() {
     let self = this;
 
-    let result = this.getAssocAttributes().reduce((acc, att) => {
+    let result = this._getNotPersistedAssocAttributes().reduce((acc, att) => {
       let value = self.att(att);
       value = Array.isArray(value) ? value : [value];
       return acc.concat(value.map(id => this._records.get(id)).filter(r => !r.isPersisted()));
@@ -275,7 +278,7 @@ export default class Record {
 
     for (let record of recordsToSave) {
       let attributesToPersist = record.getAttributesToPersist();
-      if (!isEmpty(attributesToPersist)) {
+      if (!_.isEmpty(attributesToPersist)) {
         let baseId = record.getBaseRecord().id;
 
         requestRecords.push({
@@ -316,64 +319,43 @@ export default class Record {
   }
 
   persistedAtt(name, value) {
-    if (!name) {
-      return;
-    }
-
-    let localName = convertAttributePath(name);
-
-    if (arguments.length > 1) {
-      this._setAttributePersistedValueImpl(localName, value);
-    } else {
-      return (this._attributes[localName] || {}).persisted;
-    }
+    return this._processAttField(
+      name,
+      value,
+      arguments.length === 1,
+      Attribute.prototype.getPersistedValue,
+      Attribute.prototype.setPersistedValue
+    );
   }
 
   att(name, value) {
+    return this._processAttField(name, value, arguments.length === 1, Attribute.prototype.getValue, Attribute.prototype.setValue);
+  }
+
+  _processAttField(name, value, isRead, getter, setter) {
     if (!name) {
-      return;
+      return null;
     }
 
-    let localName = convertAttributePath(name);
+    let parsedAtt = parseAttribute(name, 'str');
+    if (parsedAtt === null) {
+      return null;
+    }
 
-    if (arguments.length > 1) {
-      this._setAttributeValueImpl(localName, value);
-    } else {
-      let attribute = this._attributes[localName];
-      if (!attribute && localName.indexOf('.') !== 0 && localName.indexOf('?') === -1) {
-        attribute = this._attributes[localName + '?disp'];
-        if (!attribute) {
-          attribute = this._attributes[localName + '?str'];
-        }
-        if (!attribute) {
-          attribute = this._attributes['.att(n:"' + localName + '"){str}'];
-        }
-        if (!attribute) {
-          attribute = this._attributes['.att(n:"' + localName + '"){disp}'];
-        }
+    let att = this._attributes[parsedAtt.name];
+    if (!att) {
+      if (isRead) {
+        return parsedAtt.isMultiple ? [] : null;
+      } else {
+        att = new Attribute(this, parsedAtt.name);
+        this._attributes[parsedAtt.name] = att;
       }
-      return (attribute || {}).value;
     }
-  }
 
-  _setAttributePersistedValueImpl(name, value) {
-    let attribute = this._attributes[name];
-    if (!attribute) {
-      attribute = new Attribute(this, name, value);
-      this._attributes[name] = attribute;
+    if (isRead) {
+      return getter.call(att, parsedAtt.inner, parsedAtt.isMultiple, false);
     } else {
-      attribute.persisted = value;
+      return setter.call(att, parsedAtt.inner, value);
     }
-  }
-
-  _setAttributeValueImpl(name, value) {
-    let attribute = this._attributes[name];
-    if (!attribute) {
-      attribute = new Attribute(this, name, null);
-      this._attributes[name] = attribute;
-    }
-    attribute.value = value;
-
-    this._changedSimpleValues[extractFirstAttName(name)] = value;
   }
 }

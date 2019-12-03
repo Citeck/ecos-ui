@@ -118,8 +118,9 @@ export function loadAttribute(recordId, attribute) {
         attributes: attsKeys
       })
         .then(result => {
+          let attributes = result.attributes || {};
           for (let key of attsKeys) {
-            attributesBatch[key].resolve(result[key]);
+            attributesBatch[key].resolve(attributes[key]);
           }
         })
         .catch(e => {
@@ -129,4 +130,6 @@ export function loadAttribute(recordId, attribute) {
         });
     }, 10);
   }
+
+  return attInfo.promise;
 }

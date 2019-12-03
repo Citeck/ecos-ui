@@ -1,7 +1,6 @@
 import _ from 'lodash';
-import { loadAttribute } from './recordsApi';
 
-const mapValueToPersistedKey = value => {
+const mapValueToInnerAtt = value => {
   if (value === null || value === undefined || _.isString(value) || _.isDate(value)) {
     return 'str';
   } else if (_.isNumber(value)) {
@@ -15,16 +14,61 @@ const mapValueToPersistedKey = value => {
   }
 };
 
-const PersistedValue = (att, valueKey) => {
+const innerAttsMapping = {
+  '.disp': 'disp',
+  '.json': 'json',
+  '.str': 'str',
+  '.num': 'num',
+  '.bool': 'bool'
+};
+const convertInnerAtt = innerAtt => {
+  if (!innerAtt) {
+    return innerAtt;
+  }
+  return innerAttsMapping[innerAtt] || innerAtt;
+};
+
+const PersistedValue = function(att, innerAtt) {
   this._att = att;
   this._value = null;
   this._isLoaded = false;
-  this._valueKey = valueKey;
+  this._isArrayLoaded = false;
+  this._innerAtt = innerAtt;
 
-  this.getValue = forceReload => {
-    if (!this._isLoaded || forceReload) {
-      this._value = loadAttribute(this._att._recordId, this._att.getName() + '[]?' + this._valueKey);
+  this._convertAttResult = (value, multiple) => {
+    if (value && value.then) {
+      return value.then(loaded => this._convertAttResult(loaded, multiple));
+    }
+
+    if (multiple) {
+      if (_.isArray(value)) {
+        return value;
+      } else if (value === null) {
+        return [];
+      } else {
+        return [value];
+      }
+    } else {
+      if (_.isArray(value)) {
+        return value.length > 0 ? value[0] : null;
+      } else {
+        return value;
+      }
+    }
+  };
+
+  this.getValue = (multiple, withLoading, forceReload) => {
+    if (withLoading && (!this._isLoaded || forceReload || (multiple && !this._isArrayLoaded))) {
+      let attributeToLoad;
+      if (this._innerAtt.charAt(0) === '.') {
+        attributeToLoad = '.att' + (multiple ? 's' : '') + '(n:"' + this._att.getName() + '"){' + this._innerAtt.substring(1) + '}';
+      } else {
+        attributeToLoad = this._att.getName() + (multiple ? '[]' : '') + '?' + this._innerAtt;
+      }
+
+      this._value = this._att._record._loadRecordAttImpl(attributeToLoad);
       this._isLoaded = true;
+      this._isArrayLoaded = multiple;
       if (this._value != null && this._value.then) {
         this._value
           .then(res => {
@@ -36,27 +80,24 @@ const PersistedValue = (att, valueKey) => {
           });
       }
     }
-    return this._value;
+
+    return this._convertAttResult(this._value, multiple);
   };
 
   this.setValue = value => {
-    if (value === null) {
-      this._value = [];
-    } else if (_.isArray(value)) {
-      this._value = value;
-    } else {
-      this._value = [value];
-    }
+    this._value = value;
     this._isLoaded = true;
+    this._isArrayLoaded = true;
   };
 };
 
 export default class Attribute {
-  constructor(recordId, name) {
-    this._recordId = recordId;
+  constructor(record, name) {
+    this._record = record;
     this._name = name;
     this._persisted = {};
     this._newValue = null;
+    this._newValueInnerAtt = null;
     this._wasChanged = false;
   }
 
@@ -68,53 +109,93 @@ export default class Attribute {
     return !this._wasChanged;
   }
 
-  getPersistedValue(key, forceReload) {
-    if (this._wasChanged) {
-      return this._newValue;
-    } else {
-      let value = this._persisted[key];
-      if (!value) {
-        value = new PersistedValue();
-        this._persisted[key] = value;
+  getNewValueInnerAtt() {
+    return this._newValueInnerAtt;
+  }
+
+  getPersistedValue(innerAtt, multiple, withLoading, forceReload) {
+    innerAtt = convertInnerAtt(innerAtt);
+
+    if (!innerAtt) {
+      if (Object.keys(this._persisted).length === 0) {
+        return multiple ? [] : null;
+      } else {
+        let value = this._persisted['disp'] || this._persisted['str'] || this._persisted[Object.keys(this._persisted)[0]];
+        return value.getValue(multiple, false);
       }
-      return value.getValue(forceReload);
+    }
+    if (_.isArray(innerAtt)) {
+      innerAtt = innerAtt.join(',');
+    }
+    let value = this._persisted[innerAtt];
+    if (!value) {
+      value = new PersistedValue(this, innerAtt);
+      this._persisted[innerAtt] = value;
+    }
+
+    let result = value.getValue(multiple, withLoading, forceReload);
+    if (innerAtt === 'disp') {
+      if (result === null) {
+        return this.getPersistedValue('str', multiple, false);
+      } else if (result.then) {
+        return result.then(v => {
+          if (v === null) {
+            return this.getPersistedValue('str', multiple, false);
+          } else {
+            return v;
+          }
+        });
+      }
+    } else {
+      return result;
     }
   }
 
-  setPersistedValue(value) {
-    const key = mapValueToPersistedKey(value);
-    let persistedValue = this._persisted[key];
-    if (!value) {
-      persistedValue = new PersistedValue();
-      this._persisted[key] = persistedValue;
+  setPersistedValue(innerAtt, value) {
+    innerAtt = convertInnerAtt(innerAtt) || mapValueToInnerAtt(value);
+    let persistedValue = this._persisted[innerAtt];
+    if (!persistedValue) {
+      persistedValue = new PersistedValue(this, innerAtt);
+      this._persisted[innerAtt] = persistedValue;
     }
     persistedValue.setValue(_.cloneDeep(value));
 
     this._newValue = null;
+    this._newValueInnerAtt = null;
     this._wasChanged = false;
   }
 
-  getValue(key, forceReload) {
+  getValue(innerAtt, multiple, withLoading, forceReload) {
     if (this._wasChanged) {
       return this._newValue;
     } else {
-      return this.getPersistedValue(key, forceReload);
+      innerAtt = convertInnerAtt(innerAtt);
+      return this.getPersistedValue(innerAtt, multiple, withLoading, forceReload);
     }
   }
 
-  setValue(value) {
-    let persisted = this.getPersistedValue(mapValueToPersistedKey(value));
+  setValue(innerAtt, value) {
+    innerAtt = convertInnerAtt(innerAtt) || mapValueToInnerAtt(value);
 
-    if (!_.isEqual(persisted, value)) {
-      this._newValue = _.cloneDeep(value);
-      this._wasChanged = true;
+    let persisted = this.getPersistedValue(innerAtt, _.isArray(value), true);
+
+    const updateValue = currentValue => {
+      if (!_.isEqual(currentValue, value)) {
+        this._newValue = _.cloneDeep(value);
+        this._newValueInnerAtt = innerAtt;
+        this._wasChanged = true;
+      } else {
+        this._newValue = null;
+        this._newValueInnerAtt = null;
+        this._wasChanged = false;
+      }
+      return value;
+    };
+
+    if (persisted && persisted.then) {
+      return persisted.then(updateValue);
     } else {
-      this._newValue = null;
-      this._wasChanged = false;
+      return updateValue(persisted);
     }
-  }
-
-  isMultiple() {
-    return Array.isArray(this.getValue());
   }
 }

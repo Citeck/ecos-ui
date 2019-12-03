@@ -22,6 +22,8 @@ const getComponentInnerAttSchema = component => {
   }
 
   switch (component.type) {
+    case 'number':
+      return 'num';
     case 'checkbox':
       return 'bool';
     case 'datagridAssoc':

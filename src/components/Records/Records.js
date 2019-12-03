@@ -2,6 +2,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
 import { recordsQueryFetch, recordsDeleteFetch } from './recordsApi';
+import Record from './Record';
 
 let Records;
 
@@ -16,7 +17,7 @@ class RecordsComponent {
     let record;
 
     if (!id) {
-      record = new Record('');
+      record = new Record('', this);
     } else if (id instanceof Record) {
       record = id;
     } else if (isArray(id)) {
@@ -28,7 +29,7 @@ class RecordsComponent {
     } else {
       record = this._records[id];
       if (!record) {
-        record = new Record(id);
+        record = new Record(id, this);
         this._records[id] = record;
       }
     }
@@ -95,7 +96,7 @@ class RecordsComponent {
       return record;
     }
     let tmpId = id + '-alias-' + tmpRecordsCounter++;
-    let result = new Record(tmpId, record);
+    let result = new Record(tmpId, this, record);
     this._records[tmpId] = result;
     return result;
   }
