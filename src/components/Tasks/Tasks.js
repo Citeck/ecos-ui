@@ -42,7 +42,8 @@ class Tasks extends React.Component {
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     setReloadDone: PropTypes.func,
-    setInfo: PropTypes.func
+    setInfo: PropTypes.func,
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.elementType })])
   };
 
   static defaultProps = {

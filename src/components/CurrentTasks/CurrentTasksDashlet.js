@@ -8,6 +8,7 @@ import Dashlet from '../Dashlet/Dashlet';
 import CurrentTasks from './CurrentTasks';
 
 import './style.scss';
+import get from 'lodash/get';
 
 class CurrentTasksDashlet extends React.Component {
   static propTypes = {
@@ -20,14 +21,16 @@ class CurrentTasksDashlet extends React.Component {
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
     }),
     dragHandleProps: PropTypes.object,
-    canDragging: PropTypes.bool
+    canDragging: PropTypes.bool,
+    maxHeightByContent: PropTypes.bool
   };
 
   static defaultProps = {
     classNameTasks: '',
     classNameDashlet: '',
     dragHandleProps: {},
-    canDragging: false
+    canDragging: false,
+    maxHeightByContent: true
   };
 
   constructor(props) {
@@ -44,6 +47,15 @@ class CurrentTasksDashlet extends React.Component {
       totalCount: 0,
       isLoading: true
     };
+    this.contentRef = React.createRef();
+  }
+
+  get clientHeight() {
+    if (!this.props.maxHeightByContent) {
+      return null;
+    }
+
+    return get(this.contentRef, 'current.offsetHeight', 0);
   }
 
   onResize = width => {
@@ -83,6 +95,7 @@ class CurrentTasksDashlet extends React.Component {
         bodyClassName="ecos-current-task-list-dashlet__body"
         className={classDashlet}
         resizable
+        contentMaxHeight={this.clientHeight}
         onReload={this.onReload}
         needGoTo={false}
         actionEdit={false}
@@ -100,6 +113,7 @@ class CurrentTasksDashlet extends React.Component {
         {!isUpdating && (
           <CurrentTasks
             {...config}
+            forwardedRef={this.contentRef}
             className={classNameTasks}
             record={record}
             isSmallMode={isSmallMode}
