@@ -47,6 +47,8 @@ export default class ScrollArrow extends React.Component {
 
   componentDidMount() {
     this.checkArrows();
+
+    window.onresize = this.checkArrows;
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -115,8 +117,8 @@ export default class ScrollArrow extends React.Component {
 
     const state = {};
     const isShowArrows = scrollWidth > offsetWidth;
-    const isActiveRight = scrollWidth > offsetWidth + scrollLeft;
-    const isActiveLeft = scrollLeft > 0;
+    const isActiveRight = isShowArrows && scrollWidth > offsetWidth + scrollLeft;
+    const isActiveLeft = isShowArrows && scrollLeft > 0;
 
     if (isShowArrows !== oldShow) {
       state.isShowArrows = isShowArrows;
