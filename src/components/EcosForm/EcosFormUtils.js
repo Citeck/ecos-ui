@@ -377,7 +377,7 @@ export default class EcosFormUtils {
     this.forEachComponent(root, component => {
       let attribute = EcosFormUtils.getComponentAttribute(component);
 
-      if (!attribute || component.input !== true || component.type === 'button') {
+      if (!attribute || component.input !== true || component.type === 'button' || component.type === 'horizontalLine') {
         return;
       }
 
