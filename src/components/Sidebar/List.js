@@ -26,7 +26,6 @@ class List extends React.Component {
   };
 
   onToggleSubMenu = (id, e) => {
-    console.warn('onToggleSubMenu');
     if (e && !this.props.isOpen) {
       this.props.toggleExpanded && this.props.toggleExpanded(id);
       e.stopPropagation();
@@ -64,7 +63,7 @@ class List extends React.Component {
 
           return (
             <React.Fragment key={listItemKey}>
-              <Item domId={listItemDomId} data={item} level={level} isExpanded={isSubExpanded} styleProps={styleProps} />
+              <Item domId={listItemDomId} data={item} level={level} isExpanded={!isOpen} styleProps={styleProps} />
               {hasSubItems && SubList(isOpen && isSubExpanded)}
               {level === 1 && hasSubItems && (
                 <Tooltip
