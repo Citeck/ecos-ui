@@ -12,6 +12,7 @@ import {
   getTitleByUrl,
   IGNORE_TABS_HANDLER_ATTR_NAME,
   LINK_TAG,
+  OPEN_IN_BACKGROUND,
   REMOTE_TITLE_ATTR_NAME,
   SCROLL_STEP,
   TITLE
@@ -33,10 +34,10 @@ const customEvent = document.createEvent('Event');
  *    openNewBrowserTab - bool,
  *    reopenBrowserTab - bool,
  *    closeActiveTab - bool
+ *    openInBackground - bool
  */
 export const changeUrlLink = (link = '', params = {}) => {
   customEvent.params = { link, ...params };
-
   document.dispatchEvent(customEvent);
 };
 
@@ -53,6 +54,7 @@ class PageTabs extends React.Component {
     linkIgnoreAttr: PropTypes.string,
 
     saveTabs: PropTypes.func,
+    getTabTitle: PropTypes.func,
     changeActiveTab: PropTypes.func
   };
 
@@ -65,7 +67,7 @@ class PageTabs extends React.Component {
 
     saveTabs: () => {},
     changeActiveTab: () => {},
-    getActiveTabTitle: () => {}
+    getTabTitle: () => {}
   };
 
   state = {
@@ -233,19 +235,24 @@ class PageTabs extends React.Component {
   }
 
   generateNewTab(params = {}) {
-    const { props = this.props, link = '', remoteTitle = false } = params;
-    const { homepageLink, getActiveTabTitle } = props;
+    const { props = this.props, link = '', remoteTitle = false, isActive = true } = params;
+    const { homepageLink, getTabTitle } = props;
+    const id = Math.random()
+      .toString(36)
+      .substring(6);
+    const tabLink = link || homepageLink;
+    let isLoading = false;
 
     if (remoteTitle) {
-      getActiveTabTitle();
+      getTabTitle(id, tabLink, isActive);
+      isLoading = true;
     }
 
     return {
-      id: Math.random()
-        .toString(36)
-        .substring(6),
-      isActive: true,
-      link: link || homepageLink,
+      id,
+      isActive,
+      isLoading,
+      link: tabLink,
       title: remoteTitle ? TITLE.NEW_TAB : this.getTitle(link || homepageLink)
     };
   }
@@ -276,6 +283,7 @@ class PageTabs extends React.Component {
      *    openNewBrowserTab - bool,
      *    reopenBrowserTab - bool,
      *    closeActiveTab - bool
+     *    openInBackground - bool
      */
     const {
       params: {
@@ -284,7 +292,8 @@ class PageTabs extends React.Component {
         openNewBrowserTab = false,
         reopenBrowserTab = false,
         closeActiveTab = false,
-        remoteTitle = false
+        remoteTitle = false,
+        openInBackground = false
       }
     } = event;
     const { isShow } = this.props;
@@ -358,6 +367,15 @@ class PageTabs extends React.Component {
       return;
     }
 
+    if (openInBackground) {
+      const newTab = this.generateNewTab({ link, remoteTitle: true, isActive: false });
+
+      tabs.push(newTab);
+      saveTabs(tabs);
+
+      return;
+    }
+
     // default behavior - open on this tab with replace url
     const tab = tabs.find(tab => tab.isActive);
 
@@ -401,6 +419,8 @@ class PageTabs extends React.Component {
     const tabs = deepClone(this.state.tabs);
     const link = decodeLink(elem.getAttribute('href'));
     const isNewTab = elem.getAttribute('target') === '_blank';
+    const isBackgroundOpening = elem.getAttribute(OPEN_IN_BACKGROUND);
+    const remoteTitle = !!elem.getAttribute(REMOTE_TITLE_ATTR_NAME);
     const withLinkTabIndex = tabs.findIndex(tab => tab.link === link);
 
     if (!isNewVersionPage(link)) {
@@ -408,6 +428,20 @@ class PageTabs extends React.Component {
     }
 
     event.preventDefault();
+
+    if (isBackgroundOpening || (event.button === 0 && event.ctrlKey)) {
+      const newTab = this.generateNewTab({ link, remoteTitle: true, isActive: false });
+
+      tabs.push(newTab);
+      saveTabs(tabs);
+      this.setState({ tabs }, () => {
+        if (this.checkScrollPosition()) {
+          this.checkNeedArrow();
+        }
+      });
+
+      return;
+    }
 
     if (withLinkTabIndex !== -1) {
       tabs.forEach((tab, index) => {
@@ -422,8 +456,6 @@ class PageTabs extends React.Component {
     }
 
     if (isNewTab) {
-      let remoteTitle = !!elem.getAttribute(REMOTE_TITLE_ATTR_NAME);
-
       tabs.forEach(tab => (tab.isActive = false));
       tabs.push(this.generateNewTab({ link, remoteTitle }));
     } else {
@@ -447,6 +479,12 @@ class PageTabs extends React.Component {
   handleCloseTab(tabId, event) {
     event.stopPropagation();
     this.closeTab(tabId);
+  }
+
+  handleMouseUp(tab, event) {
+    if (get(event, 'nativeEvent.button', 0) === 1) {
+      this.handleCloseTab(tab.id, event);
+    }
   }
 
   handleClickTab(tab) {
@@ -694,6 +732,7 @@ class PageTabs extends React.Component {
     const className = ['page-tab__tabs-item'];
     const closeButton =
       tabs.length > 1 ? <div className="page-tab__tabs-item-close icon-close" onClick={this.handleCloseTab.bind(this, item.id)} /> : null;
+    let loading = null;
 
     if (item.isActive) {
       className.push('page-tab__tabs-item_active');
@@ -703,11 +742,21 @@ class PageTabs extends React.Component {
       className.push('page-tab__tabs-item_disabled');
     }
 
+    if ((item.isActive && isLoadingTitle) || item.isLoading) {
+      loading = <PointsLoader className={'page-tab__tabs-item-title-loader'} color={'light-blue'} />;
+    }
+
     return (
       <SortableElement key={item.id} index={position} onSortEnd={this.handleSortEnd}>
-        <div key={item.id} className={className.join(' ')} title={t(item.title)} onClick={this.handleClickTab.bind(this, item)}>
+        <div
+          key={item.id}
+          className={className.join(' ')}
+          title={t(item.title)}
+          onClick={this.handleClickTab.bind(this, item)}
+          onMouseUp={this.handleMouseUp.bind(this, item)}
+        >
           <span className="page-tab__tabs-item-title">
-            {isLoadingTitle && item.isActive && <PointsLoader className={'page-tab__tabs-item-title-loader'} color={'light-blue'} />}
+            {loading}
             {t(item.title)}
           </span>
           {closeButton}
