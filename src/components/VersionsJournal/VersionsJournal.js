@@ -238,22 +238,23 @@ class VersionsJournal extends Component {
   };
 
   get scrollableHeight() {
-    const { contentHeight } = this.state;
-    let scrollableHeight = contentHeight;
+    let scrollableHeight = this.state.contentHeight;
 
-    if (this.topPanel.current) {
-      scrollableHeight -= this.topPanel.current.offsetHeight;
-    }
+    scrollableHeight -= get(this.topPanel, 'current.offsetHeight', 0);
 
     return scrollableHeight;
   }
 
   get clientHeight() {
     if (!this.props.maxHeightByContent) {
-      return 0;
+      return null;
     }
 
-    return get(this.bodyRef, 'current.offsetHeight', 0) + get(this.topPanel, 'current.offsetHeight', 0);
+    return get(this.bodyRef, 'current.offsetHeight', 0);
+  }
+
+  get otherHeight() {
+    return get(this.topPanel, 'current.offsetHeight', 0);
   }
 
   handleToggleContent = (isCollapsed = false) => {
@@ -591,11 +592,11 @@ class VersionsJournal extends Component {
       return body;
     }
 
-    const { userHeight = 0, fitHeights } = this.state;
+    const { userHeight = 0, fitHeights, contentHeight } = this.state;
     const fixHeight = userHeight ? userHeight : null;
 
     return (
-      <Scrollbars autoHide style={{ height: this.scrollableHeight || '100%' }}>
+      <Scrollbars autoHide style={{ height: contentHeight - this.otherHeight || '100%' }}>
         <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
           {body}
         </DefineHeight>
@@ -618,7 +619,7 @@ class VersionsJournal extends Component {
         actionHelp={false}
         actionReload={false}
         resizable
-        contentMaxHeight={this.clientHeight}
+        contentMaxHeight={this.clientHeight + this.otherHeight}
         onResize={this.handleResize}
         onChangeHeight={this.handleChangeHeight}
         customButtons={[!isMobile && this.renderAddButton()]}

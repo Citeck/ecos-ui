@@ -80,9 +80,11 @@ export default class UserLocalSettingsService {
 
   static setDashletHeight(dashletId, height = null) {
     const key = UserLocalSettingsService.getKey(dashletId);
-    const { contentHeight, ...dashletData } = getDashletSettings(key);
+    const dashletData = getDashletSettings(key);
 
-    if (height !== null) {
+    if (height === null) {
+      delete dashletData.contentHeight;
+    } else {
       dashletData.contentHeight = height;
     }
 
