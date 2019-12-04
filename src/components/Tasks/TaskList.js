@@ -15,7 +15,7 @@ class TaskList extends React.Component {
     isSmallMode: PropTypes.bool,
     onAssignClick: PropTypes.func,
     onSubmitForm: PropTypes.func,
-    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.elementType })])
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {

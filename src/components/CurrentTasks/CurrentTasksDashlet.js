@@ -63,7 +63,7 @@ class CurrentTasksDashlet extends React.Component {
   };
 
   onChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
     this.setState({ height });
   };
 
