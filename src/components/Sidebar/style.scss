@@ -171,7 +171,6 @@ $transition-duration: 0.3s;
       font-weight: $font-weight-bold;
       font-size: $font-size-standard;
       opacity: 1;
-      transition: opacity $transition-duration;
     }
 
     &__icon + &__label {
@@ -370,16 +369,6 @@ $transition-duration: 0.3s;
           &:last-child {
             margin-bottom: 0;
           }
-        }
-      }
-    }
-  }
-
-  &_collapsed {
-    #{$menu-list}_lvl-1 {
-      #{$menu-item}_lvl-1 {
-        #{$menu-item}__label {
-          opacity: 0;
         }
       }
     }

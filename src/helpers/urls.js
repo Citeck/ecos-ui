@@ -115,11 +115,11 @@ export const goToJournalsPage = options => {
 
 export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_blank');
 
-export const goToCardDetailsPage = nodeRef => {
+export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true, remoteTitle: true }) => {
   const dashboardLink = `${URL.DASHBOARD}?recordRef=${nodeRef}`;
 
   if (isNewVersionPage()) {
-    changeUrl(dashboardLink, { openNewTab: true, remoteTitle: true });
+    changeUrl(dashboardLink, params);
   } else {
     window.open(`${URL_PAGECONTEXT}card-details?nodeRef=${nodeRef}`, '_blank');
   }

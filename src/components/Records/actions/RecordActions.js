@@ -140,6 +140,11 @@ class RecordActionsService {
     //temp
     return [
       {
+        title: t('grid.inline-tools.open-in-background'),
+        type: 'open-in-background',
+        icon: 'icon-newtab'
+      },
+      {
         title: t('grid.inline-tools.show'),
         type: 'view',
         icon: 'icon-on'
@@ -166,6 +171,22 @@ class RecordActionsService {
         icon: 'icon-big-arrow'
       }
     ];
+  }
+
+  getActionCreateVariants() {
+    let types = ['download', 'view', 'edit', 'delete', 'record-actions'];
+
+    return types.map(type => {
+      const formKey = 'action_' + type;
+      return {
+        recordRef: formKey,
+        formKey: formKey,
+        attributes: {
+          type
+        },
+        label: t('action.' + type + '.label')
+      };
+    });
   }
 }
 

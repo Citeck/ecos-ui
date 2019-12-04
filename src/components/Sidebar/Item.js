@@ -100,7 +100,9 @@ class Item extends React.Component {
     return (
       <Mover data={data} extraParams={extraParams} onClick={this.onClickItem}>
         {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : get(data, 'label', '')} />}
-        <div className="ecos-sidebar-item__label">{data.label}</div>
+        <div className="ecos-sidebar-item__label" title={data.label}>
+          {data.label}
+        </div>
       </Mover>
     );
   }
@@ -185,7 +187,7 @@ const mapStateToProps = state => ({
   selectedId: state.slideMenu.selectedId
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = dispatch => ({
   setSelectItem: id => dispatch(setSelectedId(id)),
   toggleExpanded: id => dispatch(toggleExpanded(id)),
   setScrollTop: value => dispatch(setScrollTop(value))

@@ -22,6 +22,8 @@ const getComponentInnerAttSchema = component => {
   }
 
   switch (component.type) {
+    case 'number':
+      return 'num';
     case 'checkbox':
       return 'bool';
     case 'datagridAssoc':
@@ -375,7 +377,7 @@ export default class EcosFormUtils {
     this.forEachComponent(root, component => {
       let attribute = EcosFormUtils.getComponentAttribute(component);
 
-      if (!attribute || component.input !== true || component.type === 'button') {
+      if (!attribute || component.input !== true || component.type === 'button' || component.type === 'horizontalLine') {
         return;
       }
 
@@ -469,7 +471,15 @@ export default class EcosFormUtils {
         let result = {};
 
         for (let att in recData) {
-          if (recData.hasOwnProperty(att) && att.charAt(0) !== '.' && att !== '_alias' && att !== '_state' && att !== 'submit') {
+          if (
+            recData.hasOwnProperty(att) &&
+            att.charAt(0) !== '.' &&
+            att !== '_alias' &&
+            att !== '_state' &&
+            att !== 'submit' &&
+            //id should be in att_id
+            att !== 'id'
+          ) {
             if (att === 'att_id') {
               result['id'] = recData[att];
             } else {
