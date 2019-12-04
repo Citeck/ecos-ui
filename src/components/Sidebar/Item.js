@@ -31,29 +31,6 @@ class Item extends React.Component {
     noToggle: true
   };
 
-  shouldComponentUpdate(nextProps) {
-    if (
-      JSON.stringify(nextProps.data) !== JSON.stringify(this.props.data) ||
-      JSON.stringify(nextProps.styleProps) !== JSON.stringify(this.props.styleProps) ||
-      nextProps.isExpanded !== this.props.isExpanded ||
-      nextProps.noIcon !== this.props.noIcon ||
-      nextProps.noBadge !== this.props.noBadge ||
-      nextProps.noToggle !== this.props.noToggle ||
-      nextProps.level !== this.props.level ||
-      nextProps.domId !== this.props.domId ||
-      (nextProps.isOpen !== this.props.isOpen &&
-        (!get(nextProps, 'styleProps.noBadge', true) ||
-          !get(nextProps, 'styleProps.noIcon', true) ||
-          !get(nextProps, 'noBadge', true) ||
-          !get(nextProps, 'noIcon', true))) ||
-      nextProps.isSiteDashboardEnable !== this.props.isSiteDashboardEnable
-    ) {
-      return true;
-    }
-
-    return false;
-  }
-
   get hasSubItems() {
     return !isEmpty(get(this.props, 'data.items'));
   }

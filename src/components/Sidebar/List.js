@@ -63,7 +63,7 @@ class List extends React.Component {
 
           return (
             <React.Fragment key={listItemKey}>
-              <Item domId={listItemDomId} data={item} level={level} isExpanded={!isOpen} styleProps={styleProps} />
+              <Item domId={listItemDomId} data={item} level={level} isExpanded={isSubExpanded} styleProps={styleProps} />
               {hasSubItems && SubList(isOpen && isSubExpanded)}
               {level === 1 && hasSubItems && (
                 <Tooltip
