@@ -172,6 +172,22 @@ class RecordActionsService {
       }
     ];
   }
+
+  getActionCreateVariants() {
+    let types = ['download', 'view', 'edit', 'delete', 'record-actions'];
+
+    return types.map(type => {
+      const formKey = 'action_' + type;
+      return {
+        recordRef: formKey,
+        formKey: formKey,
+        attributes: {
+          type
+        },
+        label: t('action.' + type + '.label')
+      };
+    });
+  }
 }
 
 window.Citeck = window.Citeck || {};
