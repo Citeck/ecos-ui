@@ -1,18 +1,5 @@
 import _ from 'lodash';
-
-const mapValueToInnerAtt = value => {
-  if (value === null || value === undefined || _.isString(value) || _.isDate(value)) {
-    return 'str';
-  } else if (_.isNumber(value)) {
-    return 'num';
-  } else if (_.isObject(value) || _.isArray(value)) {
-    return 'json';
-  } else if (_.isBoolean(value)) {
-    return 'bool';
-  } else {
-    return 'str';
-  }
-};
+import { mapValueToInnerAtt } from './recordUtils';
 
 const scalarFields = ['disp', 'json', 'str', 'num', 'bool', 'id', 'assoc'];
 
@@ -140,7 +127,7 @@ export default class Attribute {
       if (Object.keys(this._persisted).length === 0) {
         return multiple ? [] : null;
       } else {
-        let value = this._persisted['disp'] || this._persisted['str'] || this._persisted[Object.keys(this._persisted)[0]];
+        let value = this._persisted['str'] || this._persisted['disp'] || this._persisted[Object.keys(this._persisted)[0]];
         return value.getValue(multiple, false);
       }
     }

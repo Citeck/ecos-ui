@@ -244,7 +244,7 @@ export const TableFormContextProvider = props => {
 
           const newRow = { ...record.toJson()['attributes'], id: editRecordId };
 
-          if (isNodeRef(editRecordId) && isAlias) {
+          if (isAlias) {
             // replace base record row by newRow in values list
             const baseRecord = record.getBaseRecord();
             const baseRecordId = baseRecord.id;

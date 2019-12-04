@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { recordsMutateFetch, loadAttribute } from './recordsApi';
 import Attribute from './Attribute';
 import { EventEmitter2 } from 'eventemitter2';
+import { mapValueToInnerAtt } from './recordUtils';
 
 export const EVENT_CHANGE = 'change';
 
@@ -109,6 +110,15 @@ export default class Record {
 
   toJson() {
     let attributes = {};
+
+    if (this._baseRecord) {
+      let baseAtts = this._baseRecord._attributes;
+      for (let att in baseAtts) {
+        if (baseAtts.hasOwnProperty(att)) {
+          attributes[att] = baseAtts[att].getValue();
+        }
+      }
+    }
 
     for (let att in this._attributes) {
       if (this._attributes.hasOwnProperty(att)) {
@@ -368,7 +378,7 @@ export default class Record {
       return null;
     }
 
-    let parsedAtt = parseAttribute(name, 'str');
+    let parsedAtt = parseAttribute(name, mapValueToInnerAtt(value));
     if (parsedAtt === null) {
       return null;
     }
@@ -376,7 +386,12 @@ export default class Record {
     let att = this._attributes[parsedAtt.name];
     if (!att) {
       if (isRead) {
-        return parsedAtt.isMultiple ? [] : null;
+        if (this._baseRecord) {
+          att = this._baseRecord._attributes[parsedAtt.name];
+        }
+        if (!att) {
+          return parsedAtt.isMultiple ? [] : null;
+        }
       } else {
         att = new Attribute(this, parsedAtt.name);
         this._attributes[parsedAtt.name] = att;

@@ -471,7 +471,15 @@ export default class EcosFormUtils {
         let result = {};
 
         for (let att in recData) {
-          if (recData.hasOwnProperty(att) && att.charAt(0) !== '.' && att !== '_alias' && att !== '_state' && att !== 'submit') {
+          if (
+            recData.hasOwnProperty(att) &&
+            att.charAt(0) !== '.' &&
+            att !== '_alias' &&
+            att !== '_state' &&
+            att !== 'submit' &&
+            //id should be in att_id
+            att !== 'id'
+          ) {
             if (att === 'att_id') {
               result['id'] = recData[att];
             } else {

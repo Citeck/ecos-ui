@@ -24,14 +24,12 @@ const CreateVariants = () => {
   const variantsToRender = [];
   if (Array.isArray(createVariants)) {
     for (let variant of createVariants) {
-      if (!variant.label && variant.title) {
-        variantsToRender.push({
-          ...variant,
-          label: variant.title
-        });
-      } else {
-        variantsToRender.push(variant);
+      let variantToRender = Object.assign({}, variant);
+      if (!variantToRender.label && variantToRender.title) {
+        variantToRender.label = variantToRender.title;
       }
+      variantToRender.createVariantKey = variantToRender.recordRef + '-' + variantToRender.formKey + '-' + variantToRender.type;
+      variantsToRender.push(variantToRender);
     }
   }
 
@@ -52,7 +50,7 @@ const CreateVariants = () => {
       };
 
       createButton = (
-        <Dropdown source={variantsToRender} valueField={'type'} titleField={'label'} isStatic onChange={onSelect}>
+        <Dropdown source={variantsToRender} valueField={'createVariantKey'} titleField={'label'} isStatic onChange={onSelect}>
           <IcoBtn
             invert
             icon="icon-down"
