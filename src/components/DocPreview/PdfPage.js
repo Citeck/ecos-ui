@@ -59,8 +59,7 @@ class PdfPage extends React.Component {
     const isMob = isMobileDevice();
     const {
       settings: { scale },
-      defHeight,
-      pageSelector
+      defHeight
     } = this.props;
     const elPageArea = this.refContainer.current || {};
     const elCanvas = elPageArea.querySelector('.ecos-doc-preview__viewer-page-content-canvas');
