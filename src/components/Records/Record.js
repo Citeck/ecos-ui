@@ -1,6 +1,9 @@
 import _ from 'lodash';
 import { recordsMutateFetch, loadAttribute } from './recordsApi';
 import Attribute from './Attribute';
+import { EventEmitter2 } from 'eventemitter2';
+
+export const EVENT_CHANGE = 'change';
 
 const ATT_NAME_REGEXP = /\.atts?\(n:"(.+?)"\)\s*{(.+)}/;
 const SIMPLE_ATT_NAME_REGEXP = /(.+?){(.+)}/;
@@ -17,7 +20,12 @@ const parseAttribute = (path, innerDefault = 'disp') => {
     }
     return {
       name: attMatch[1],
-      inner: attMatch[2].split(',').map(s => '.' + s.trim()),
+      inner:
+        '.' +
+        attMatch[2]
+          .split(',')
+          .map(s => s.trim())
+          .join(','),
       isMultiple: path.indexOf('.atts') === 0
     };
   } else {
@@ -25,8 +33,14 @@ const parseAttribute = (path, innerDefault = 'disp') => {
     let inner;
 
     let dotIdx = path.indexOf('.');
-    if (dotIdx >= 0) {
+    let braceIdx = path.indexOf('{');
+
+    if (dotIdx > 0 && (braceIdx === -1 || dotIdx < braceIdx - 1)) {
       inner = name.substring(dotIdx + 1);
+      let qIdx = inner.indexOf('?');
+      if (qIdx === -1 && braceIdx === -1) {
+        inner += '?disp';
+      }
       name = name.substring(0, dotIdx);
     } else {
       let match = name.match(SIMPLE_ATT_NAME_REGEXP);
@@ -41,7 +55,10 @@ const parseAttribute = (path, innerDefault = 'disp') => {
         }
       } else {
         name = match[1];
-        inner = match[2].split(',').map(s => s.trim());
+        inner = match[2]
+          .split(',')
+          .map(s => s.trim())
+          .join(',');
       }
     }
 
@@ -63,7 +80,7 @@ export default class Record {
   constructor(id, records, baseRecord) {
     this._id = id;
     this._attributes = {};
-    this._rawAttributes = {};
+    this._recordFields = {};
     this._records = records;
     if (baseRecord) {
       this._baseRecord = baseRecord;
@@ -71,6 +88,15 @@ export default class Record {
     } else {
       this._baseRecord = null;
     }
+    this._emitter = new EventEmitter2();
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  get events() {
+    return this._emitter;
   }
 
   isBaseRecord() {
@@ -79,10 +105,6 @@ export default class Record {
 
   getBaseRecord() {
     return this._baseRecord || this;
-  }
-
-  get id() {
-    return this._id;
   }
 
   toJson() {
@@ -136,26 +158,26 @@ export default class Record {
       attsToLoad.map(att => {
         let parsedAtt = parseAttribute(att);
         if (parsedAtt === null) {
-          let value = this._rawAttributes[att];
+          let value = this._recordFields[att];
           if (!force && value !== undefined) {
             return value;
           } else {
             value = this._loadRecordAttImpl(att);
             if (value && value.then) {
-              this._rawAttributes[att] = value
+              this._recordFields[att] = value
                 .then(loaded => {
-                  this._rawAttributes[att] = loaded;
+                  this._recordFields[att] = loaded;
                   return loaded;
                 })
                 .catch(e => {
                   console.error(e);
-                  this._rawAttributes[att] = null;
+                  this._recordFields[att] = null;
                   return null;
                 });
             } else {
-              this._rawAttributes[att] = value;
+              this._recordFields[att] = value;
             }
-            return this._rawAttributes[att];
+            return this._recordFields[att];
           }
         } else {
           let attribute = this._attributes[parsedAtt.name];
@@ -207,7 +229,7 @@ export default class Record {
 
   reset() {
     this._attributes = {};
-    this._rawAttributes = {};
+    this._recordFields = {};
   }
 
   getRawAttributes() {
@@ -235,9 +257,7 @@ export default class Record {
       let attribute = this._attributes[attName];
 
       if (!attribute.isPersisted()) {
-        attributesToPersist[attName] = attribute.getValue();
-      } else {
-        console.log('Not persisted', attribute);
+        attributesToPersist[attribute.getNewValueAttName()] = attribute.getValue();
       }
     }
 
@@ -307,14 +327,25 @@ export default class Record {
         attributesToLoad[record.id] = recAtts;
       }
 
+      let loadPromises = [];
       for (let recordId in attributesToLoad) {
         if (attributesToLoad.hasOwnProperty(recordId)) {
-          this._records.get(recordId).load(attributesToLoad[recordId], true);
+          let record = this._records.get(recordId);
+          record.reset();
+          let promise = record.load(attributesToLoad[recordId], true);
+          if (promise && promise.then) {
+            loadPromises.push(promise);
+          }
         }
       }
 
-      let resultId = ((response.records || [])[0] || {}).id;
-      return resultId ? this._records.get(resultId) : self;
+      return Promise.all(loadPromises).then(() => {
+        for (let recordId of Object.keys(attributesToLoad)) {
+          this._records.get(recordId).events.emit(EVENT_CHANGE);
+        }
+        let resultId = ((response.records || [])[0] || {}).id;
+        return resultId ? this._records.get(resultId) : self;
+      });
     });
   }
 

@@ -14,18 +14,39 @@ const mapValueToInnerAtt = value => {
   }
 };
 
-const innerAttsMapping = {
-  '.disp': 'disp',
-  '.json': 'json',
-  '.str': 'str',
-  '.num': 'num',
-  '.bool': 'bool'
-};
+const scalarFields = ['disp', 'json', 'str', 'num', 'bool', 'id', 'assoc'];
+
+const innerAttsMapping = {};
+for (let field of scalarFields) {
+  innerAttsMapping['.' + field] = field;
+}
+
 const convertInnerAtt = innerAtt => {
   if (!innerAtt) {
     return innerAtt;
   }
   return innerAttsMapping[innerAtt] || innerAtt;
+};
+
+const convertToFullAttributeName = (name, inner, multiple) => {
+  let fullAttName;
+
+  if (inner.charAt(0) === '.') {
+    fullAttName = '.att' + (multiple ? 's' : '') + '(n:"' + name + '"){' + inner.substring(1) + '}';
+  } else {
+    fullAttName = name + (multiple ? '[]' : '');
+    const hasBracket = inner.indexOf('{') > -1;
+    const hasQChar = inner.indexOf('?') > -1;
+
+    if (hasBracket || hasQChar) {
+      fullAttName += '.' + inner;
+    } else {
+      const isScalar = scalarFields.indexOf(inner) > -1;
+      fullAttName += isScalar ? '?' + inner : '{' + inner + '}';
+    }
+  }
+
+  return fullAttName;
 };
 
 const PersistedValue = function(att, innerAtt) {
@@ -59,12 +80,7 @@ const PersistedValue = function(att, innerAtt) {
 
   this.getValue = (multiple, withLoading, forceReload) => {
     if (withLoading && (!this._isLoaded || forceReload || (multiple && !this._isArrayLoaded))) {
-      let attributeToLoad;
-      if (this._innerAtt.charAt(0) === '.') {
-        attributeToLoad = '.att' + (multiple ? 's' : '') + '(n:"' + this._att.getName() + '"){' + this._innerAtt.substring(1) + '}';
-      } else {
-        attributeToLoad = this._att.getName() + (multiple ? '[]' : '') + '?' + this._innerAtt;
-      }
+      let attributeToLoad = convertToFullAttributeName(this._att.getName(), this._innerAtt, multiple);
 
       this._value = this._att._record._loadRecordAttImpl(attributeToLoad);
       this._isLoaded = true;
@@ -109,6 +125,10 @@ export default class Attribute {
     return !this._wasChanged;
   }
 
+  getNewValueAttName() {
+    return convertToFullAttributeName(this.getName(), this.getNewValueInnerAtt(), false);
+  }
+
   getNewValueInnerAtt() {
     return this._newValueInnerAtt;
   }
@@ -146,9 +166,8 @@ export default class Attribute {
           }
         });
       }
-    } else {
-      return result;
     }
+    return result;
   }
 
   setPersistedValue(innerAtt, value) {
