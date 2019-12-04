@@ -145,6 +145,7 @@ class Dashlet extends Component {
     collapsible: PropTypes.bool,
     dragHandleProps: PropTypes.object,
     customButtons: PropTypes.array,
+    contentMaxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
     onEdit: PropTypes.func,
     onGoTo: PropTypes.func,
     onReload: PropTypes.func,
@@ -176,6 +177,7 @@ class Dashlet extends Component {
     dragButton: null,
     dragHandleProps: {},
     customButtons: [],
+    contentMaxHeight: null,
     onEdit: () => {},
     onGoTo: () => {},
     onReload: () => {},
@@ -241,10 +243,10 @@ class Dashlet extends Component {
   };
 
   onChangeHeight = height => {
-    const { onChangeHeight } = this.props;
+    const { onChangeHeight, contentMaxHeight } = this.props;
 
     if (typeof onChangeHeight === 'function') {
-      onChangeHeight(height);
+      onChangeHeight(height > contentMaxHeight && contentMaxHeight !== null ? contentMaxHeight : height);
 
       this.props.getFitHeights(this.fitHeightChildren);
     }

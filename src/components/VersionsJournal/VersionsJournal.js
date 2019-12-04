@@ -97,7 +97,9 @@ class VersionsJournal extends Component {
 
     changeVersionModalIsShow: PropTypes.bool,
     changeVersionModalIsLoading: PropTypes.bool,
-    changeVersionModalErrorMessage: PropTypes.string
+    changeVersionModalErrorMessage: PropTypes.string,
+
+    maxHeightByContent: PropTypes.bool
   };
 
   static defaultProps = {
@@ -111,7 +113,9 @@ class VersionsJournal extends Component {
 
     changeVersionModalIsShow: false,
     changeVersionModalIsLoading: false,
-    changeVersionModalErrorMessage: ''
+    changeVersionModalErrorMessage: '',
+
+    maxHeightByContent: true
   };
 
   constructor(props) {
@@ -134,6 +138,7 @@ class VersionsJournal extends Component {
     this.state = { ...state, ...VersionsJournal.getDefaultSelectedVersions(props) };
 
     this.topPanel = React.createRef();
+    this.bodyRef = React.createRef();
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -172,8 +177,6 @@ class VersionsJournal extends Component {
   handleResize = width => {
     this.setState({ width });
   };
-
-  handleClickShowModal = () => {};
 
   handleToggleAddModal = () => {
     this.props.toggleModal(MODAL.ADD);
@@ -222,7 +225,7 @@ class VersionsJournal extends Component {
   };
 
   handleChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
     this.setState({ userHeight: height });
   };
 
@@ -235,14 +238,23 @@ class VersionsJournal extends Component {
   };
 
   get scrollableHeight() {
-    const { contentHeight } = this.state;
-    let scrollableHeight = contentHeight;
+    let scrollableHeight = this.state.contentHeight;
 
-    if (this.topPanel.current) {
-      scrollableHeight -= this.topPanel.current.offsetHeight;
-    }
+    scrollableHeight -= get(this.topPanel, 'current.offsetHeight', 0);
 
     return scrollableHeight;
+  }
+
+  get clientHeight() {
+    if (!this.props.maxHeightByContent) {
+      return null;
+    }
+
+    return get(this.bodyRef, 'current.offsetHeight', 0);
+  }
+
+  get otherHeight() {
+    return get(this.topPanel, 'current.offsetHeight', 0);
   }
 
   handleToggleContent = (isCollapsed = false) => {
@@ -570,21 +582,21 @@ class VersionsJournal extends Component {
   renderBody() {
     const { isMobile } = this.props;
     const body = (
-      <>
+      <div ref={this.bodyRef}>
         {this.renderActualVersion()}
         {this.renderOldVersions()}
-      </>
+      </div>
     );
 
     if (isMobile) {
       return body;
     }
 
-    const { userHeight = 0, fitHeights } = this.state;
+    const { userHeight = 0, fitHeights, contentHeight } = this.state;
     const fixHeight = userHeight ? userHeight : null;
 
     return (
-      <Scrollbars autoHide style={{ height: this.scrollableHeight || '100%' }}>
+      <Scrollbars autoHide style={{ height: contentHeight - this.otherHeight || '100%' }}>
         <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
           {body}
         </DefineHeight>
@@ -607,6 +619,7 @@ class VersionsJournal extends Component {
         actionHelp={false}
         actionReload={false}
         resizable
+        contentMaxHeight={this.clientHeight + this.otherHeight}
         onResize={this.handleResize}
         onChangeHeight={this.handleChangeHeight}
         customButtons={[!isMobile && this.renderAddButton()]}

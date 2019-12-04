@@ -18,6 +18,7 @@ import SelectJournal from '../common/form/SelectJournal';
 import Dashlet from '../Dashlet/Dashlet';
 
 import './style.scss';
+import get from 'lodash/get';
 
 const LABELS = {
   TITLE: 'doc-associations-widget.title',
@@ -47,11 +48,13 @@ class DocAssociations extends Component {
     getSectionList: PropTypes.func,
     getDocuments: PropTypes.func,
     getMenu: PropTypes.func,
-    saveDocuments: PropTypes.func
+    saveDocuments: PropTypes.func,
+    maxHeightByContent: PropTypes.bool
   };
 
   static defaultProps = {
     canDragging: false,
+    maxHeightByContent: true,
     dragHandleProps: {}
   };
 
@@ -72,10 +75,18 @@ class DocAssociations extends Component {
     };
 
     props.initStore();
+    this.contentRef = React.createRef();
   }
 
   componentDidMount() {
     this.props.getDocuments();
+    this.checkHeight();
+  }
+
+  checkHeight() {
+    if (UserLocalSettingsService.getDashletHeight(this.props.id) > this.clientHeight) {
+      this.handleChangeHeight(this.clientHeight);
+    }
   }
 
   get isSmallWidget() {
@@ -96,6 +107,14 @@ class DocAssociations extends Component {
     return `${label}?`;
   }
 
+  get clientHeight() {
+    if (!this.props.maxHeightByContent) {
+      return null;
+    }
+
+    return get(this.contentRef, 'current.offsetHeight', 0);
+  }
+
   setContentHeight = contentHeight => {
     this.setState({ contentHeight });
   };
@@ -105,7 +124,7 @@ class DocAssociations extends Component {
   };
 
   handleChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
     this.setState({ userHeight: height });
   };
 
@@ -255,7 +274,7 @@ class DocAssociations extends Component {
   renderDocuments() {
     const { documents } = this.props;
 
-    return documents.map(this.renderDocumentsItem);
+    return <div ref={this.contentRef}>{documents.map(this.renderDocumentsItem)}</div>;
   }
 
   renderAddButton = () => {
@@ -351,6 +370,7 @@ class DocAssociations extends Component {
         actionReload={false}
         canDragging={canDragging}
         resizable
+        contentMaxHeight={this.clientHeight}
         onResize={this.handleResize}
         dragHandleProps={dragHandleProps}
         onChangeHeight={this.handleChangeHeight}
