@@ -64,7 +64,7 @@ function* sagaGetTabs({ api, logger }) {
 
 function* sagaSetTabs({ api, logger }, action) {
   try {
-    yield api.pageTabs.set(action.payload);
+    yield call(api.pageTabs.set, action.payload);
   } catch (e) {
     logger.error('[pageTabs sagaSetTabs saga error', e.message);
   }
@@ -99,18 +99,14 @@ function* sagaGetTabTitle({ api, logger }, { payload }) {
     let title = get(payload, 'defaultTitle', t('page-tabs.new-tab'));
 
     if (recordRef || nodeRef) {
-      const response = yield api.pageTabs.getTabTitle({ recordRef: recordRef || nodeRef });
-
+      const response = yield call(api.pageTabs.getTabTitle, { recordRef: recordRef || nodeRef });
       title = get(response, 'displayName', t('page-tabs.new-tab'));
     }
 
     if (journalId) {
-      const journalTitle = yield api.pageTabs.getTabTitle({ journalId });
-
+      const journalTitle = yield call(api.pageTabs.getTabTitle, { journalId });
       if (journalTitle) {
-        const quotes = String.fromCharCode(8221);
-
-        title = `${t('journal.title')} ${quotes}${journalTitle}${quotes}`;
+        title = `${t('journal.title')} "${journalTitle}"`;
       }
     }
 
