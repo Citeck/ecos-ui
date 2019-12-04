@@ -36,10 +36,10 @@ class PdfViewer extends React.PureComponent {
           let key = `ecos-doc-preview-page-${pageN}-${idx}`;
 
           return (
-            <div className="ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_pdf" key={key}>
+            <div className={`ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_pdf ${key}`} key={key}>
               <div className="ecos-doc-preview__viewer-page-number">{pageN}</div>
               <div className="ecos-doc-preview__viewer-page-content">
-                <PdfPage {...props} pageNumber={pageN} />
+                <PdfPage {...props} pageNumber={pageN} pageSelector={`.${key}`} />
               </div>
             </div>
           );

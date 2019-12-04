@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import { TextLayerBuilder } from 'pdfjs-dist/lib/web/text_layer_builder.js';
@@ -6,11 +6,12 @@ import 'pdfjs-dist/web/pdf_viewer.css';
 
 import { getScale, isMobileDevice } from '../../helpers/util';
 
-class PdfPage extends Component {
+class PdfPage extends React.Component {
   static propTypes = {
     pdf: PropTypes.object.isRequired,
     pageNumber: PropTypes.number.isRequired,
     defHeight: PropTypes.number,
+    pageSelector: PropTypes.string,
     settings: PropTypes.shape({
       scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       isFullscreen: PropTypes.bool,
@@ -72,7 +73,8 @@ class PdfPage extends Component {
     const isMob = isMobileDevice();
     const {
       settings: { scale },
-      defHeight
+      defHeight,
+      pageSelector
     } = this.props;
     const canvas = this.elCanvas;
     const elContainer = this.elContainer;
@@ -117,6 +119,8 @@ class PdfPage extends Component {
       textLayer.render();
     });
 
+    elContainer.querySelector(pageSelector).style.width = canvas.width + 'px';
+
     if (Number.isNaN(parseFloat(scale))) {
       this.props.calcScale && this.props.calcScale(calcScale);
     }
@@ -132,10 +136,10 @@ class PdfPage extends Component {
 
   render() {
     return (
-      <Fragment>
+      <>
         <canvas ref={this.refContainer} />
         <div ref={this.refTextLayout} className="ecos-doc-preview__viewer-page-content-text textLayer" />
-      </Fragment>
+      </>
     );
   }
 }
