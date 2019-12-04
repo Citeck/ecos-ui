@@ -1,3 +1,4 @@
+import Records from '../components/Records';
 import * as ls from '../helpers/ls';
 import { USER_GUEST } from '../constants';
 import { deepClone } from '../helpers/util';
@@ -43,5 +44,11 @@ export class PageTabsApi {
     upTabs.forEach(item => (item.link = decodeLink(item.link)));
 
     ls.setData(this.lsKey, upTabs);
+  };
+
+  getTabTitle = recordRef => {
+    return Records.get(recordRef)
+      .load({ displayName: '.disp' }, true)
+      .then(response => response);
   };
 }

@@ -140,6 +140,11 @@ class RecordActionsService {
     //temp
     return [
       {
+        title: t('grid.inline-tools.open-in-background'),
+        type: 'open-in-background',
+        icon: 'icon-newtab'
+      },
+      {
         title: t('grid.inline-tools.show'),
         type: 'view',
         icon: 'icon-on'

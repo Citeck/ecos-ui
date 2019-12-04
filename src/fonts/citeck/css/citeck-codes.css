@@ -220,6 +220,9 @@
 .icon-big_alert:before {
   content: '\e84c';
 } /* '' */
+.icon-newtab:before {
+  content: '\e84d';
+} /* '' */
 .icon-actual:before {
   content: '\e85a';
 } /* '' */

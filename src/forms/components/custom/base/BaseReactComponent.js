@@ -59,11 +59,13 @@ export default class BaseReactComponent extends BaseComponent {
     this.createDescription(this.element);
 
     // this.attachLogic();
+    this.createInlineEditSaveAndCancelButtons();
   }
 
   createViewOnlyValue(container) {
     this.react.container = this.ce('dd');
     container.appendChild(this.react.container);
+    this.createInlineEditButton(container);
     this.renderReactComponent();
   }
 
