@@ -49,10 +49,6 @@ class PdfPage extends React.Component {
     return newScale !== oldScale;
   }
 
-  get elTextLayout() {
-    return this.refTextLayout.current;
-  }
-
   renderPage() {
     const { pdf, pageNumber } = this.props;
 
