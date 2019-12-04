@@ -130,7 +130,7 @@ class Journals extends Component {
 
   render() {
     const { menuOpen, settingsVisible, showPreview, showPie } = this.state;
-    const { stateId, journalConfig, pageTabsIsShow, setActiveTabTitle, grid } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, grid } = this.props;
 
     if (!journalConfig) {
       return null;
@@ -150,13 +150,6 @@ class Journals extends Component {
     trigger.call(this, 'onRender');
 
     const visibleColumns = columns.filter(c => c.visible);
-
-    if (pageTabsIsShow && title && this.title !== title) {
-      const quotes = String.fromCharCode(8221);
-      setActiveTabTitle(`${t('page-tabs.journal')} ${quotes + title + quotes}`);
-      this.title = title;
-    }
-
     const journalSettingsClassName = 'ecos-journal__settings';
 
     return (

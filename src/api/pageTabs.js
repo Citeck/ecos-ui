@@ -4,7 +4,7 @@ import Records from '../components/Records';
 import { RecordService } from './recordService';
 import * as ls from '../helpers/ls';
 import { USER_GUEST } from '../constants';
-import { deepClone } from '../helpers/util';
+import { deepClone, isNodeRef } from '../helpers/util';
 import { decodeLink } from '../helpers/urls';
 import { PROXY_URI } from '../constants/alfresco';
 
@@ -52,7 +52,15 @@ export class PageTabsApi extends RecordService {
 
   getTabTitle = ({ recordRef, journalId = null }) => {
     if (journalId) {
-      return this.getJson(`${PROXY_URI}api/journals/all`).then(response => get(response, 'journals', []));
+      if (isNodeRef(journalId)) {
+        return Records.get(journalId)
+          .load('.disp')
+          .then(response => response);
+      }
+
+      return this.getJson(`${PROXY_URI}api/journals/config?journalId=${journalId}`)
+        .then(response => get(response, 'meta.title', ''))
+        .catch(() => {});
     }
 
     return Records.get(recordRef)

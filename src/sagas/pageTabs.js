@@ -105,13 +105,12 @@ function* sagaGetTabTitle({ api, logger }, { payload }) {
     }
 
     if (journalId) {
-      const response = yield api.pageTabs.getTabTitle({ journalId });
-      const journalData = response.find(journal => journal.nodeRef === journalId);
+      const journalTitle = yield api.pageTabs.getTabTitle({ journalId });
 
-      title = get(journalData, 'title', t('journal.title'));
+      if (journalTitle) {
+        const quotes = String.fromCharCode(8221);
 
-      if (journalData.title) {
-        title = `${t('journal.title')} "${title}"`;
+        title = `${t('journal.title')} ${quotes}${journalTitle}${quotes}`;
       }
     }
 
