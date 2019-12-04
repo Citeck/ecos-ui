@@ -136,7 +136,7 @@ class DocStatus extends React.Component {
     });
 
     return (
-      <div>
+      <>
         <div id={`tooltip-doc-status-${key}`} className={classStatus}>
           <div className="ecos-doc-status__data-label">{status.name}</div>
         </div>
@@ -150,7 +150,7 @@ class DocStatus extends React.Component {
         >
           {status.name}
         </UncontrolledTooltip>
-      </div>
+      </>
     );
   }
 
