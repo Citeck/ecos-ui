@@ -10,7 +10,7 @@ import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
-import { t, getCurrentLocale } from '../../helpers/util';
+import { t, getCurrentLocale, isMobileDevice } from '../../helpers/util';
 import { PROXY_URI } from '../../constants/alfresco';
 
 import './formio.full.min.css';
@@ -39,6 +39,10 @@ class EcosForm extends React.Component {
     };
   }
 
+  componentWillUnmount() {
+    Records.releaseAll(this.state.containerId);
+  }
+
   componentDidMount() {
     this.initForm();
   }
@@ -55,6 +59,7 @@ class EcosForm extends React.Component {
     });
 
     options.recordId = recordId;
+    options.isMobileDevice = isMobileDevice();
 
     let alfConstants = (window.Alfresco || {}).constants || {};
     let proxyUri = PROXY_URI || '/';
@@ -93,7 +98,7 @@ class EcosForm extends React.Component {
       });
 
       let inputs = EcosFormUtils.getFormInputs(formData.definition);
-      let recordDataPromise = EcosFormUtils.getData(recordId, inputs);
+      let recordDataPromise = EcosFormUtils.getData(recordId, inputs, this.state.containerId);
       let canWritePromise = false;
       if (options.readOnly && options.viewAsHtml) {
         canWritePromise = EcosFormUtils.getCanWritePermission(recordId);
@@ -225,36 +230,45 @@ class EcosForm extends React.Component {
     let inputByKey = EcosFormUtils.getInputByKey(inputs);
 
     let record = Records.get(this.state.recordId);
+    let attsPromises = [];
 
     for (let key in submission.data) {
       if (submission.data.hasOwnProperty(key)) {
         let value = submission.data[key];
         let input = inputByKey[key];
 
+        if (input && input.type === 'horizontalLine') {
+          continue;
+        }
+
         value = EcosFormUtils.processValueBeforeSubmit(value, input, keysMapping);
 
-        record.att(keysMapping[key] || key, value);
+        attsPromises.push(record.att(keysMapping[key] || key, value));
       }
     }
 
-    if (submission.state) {
-      record.att('_state', submission.state);
-    }
+    Promise.all(attsPromises).then(() => {
+      if (submission.state) {
+        record.att('_state', submission.state);
+      }
 
-    let onSubmit = self.props.onSubmit || (() => {});
+      let onSubmit = self.props.onSubmit || (() => {});
 
-    if (this.props.saveOnSubmit !== false) {
-      record
-        .save()
-        .then(persistedRecord => {
-          onSubmit(persistedRecord, form, record);
-        })
-        .catch(e => {
-          form.showErrors(e, true);
-        });
-    } else {
-      onSubmit(record, form);
-    }
+      if (this.props.saveOnSubmit !== false) {
+        record
+          .save()
+          .then(persistedRecord => {
+            onSubmit(persistedRecord, form, record);
+          })
+          .catch(e => {
+            form.showErrors(e, true);
+          });
+      } else {
+        onSubmit(record, form);
+      }
+
+      Records.releaseAll(this.state.containerId);
+    });
   }
 
   onReload() {

@@ -720,5 +720,11 @@
   "birthdays-widget.title": "Дни рождения",
   "birthdays-widget.error.default-message": "Ошибка загрузки дней рождений!",
   "birthdays-widget.btn.go-to-profile": "Перейти в профиль",
-  "birthdays-widget.btn.try-one-more-time": "Попробовать еще раз"
+  "birthdays-widget.btn.try-one-more-time": "Попробовать еще раз",
+  "action.edit.label": "Редактировать",
+  "action.view.label": "Просмотреть",
+  "action.delete.label": "Удалить",
+  "action.download.label": "Скачать",
+  "action.move-to-lines.label": "Перейти к строкам",
+  "action.record-actions.label": "Серверные действия"
 }

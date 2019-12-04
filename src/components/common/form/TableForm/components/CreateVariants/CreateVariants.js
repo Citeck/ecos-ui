@@ -9,7 +9,7 @@ const CreateVariants = () => {
   const context = useContext(TableFormContext);
 
   const { disabled, multiple } = context.controlProps;
-  const { showCreateForm, createVariants, selectedRows } = context;
+  const { showCreateForm, createVariants = [], selectedRows } = context;
 
   const buttonClasses = classNames('ecos-btn_blue', {
     'ecos-btn_narrow': true //isCompact
@@ -20,10 +20,23 @@ const CreateVariants = () => {
   if (!multiple && selectedRows.length > 0) {
     isButtonDisabled = true;
   }
-  if (Array.isArray(createVariants) && createVariants.length > 0) {
-    if (createVariants.length === 1) {
+
+  const variantsToRender = [];
+  if (Array.isArray(createVariants)) {
+    for (let variant of createVariants) {
+      let variantToRender = Object.assign({}, variant);
+      if (!variantToRender.label && variantToRender.title) {
+        variantToRender.label = variantToRender.title;
+      }
+      variantToRender.createVariantKey = variantToRender.recordRef + '-' + variantToRender.formKey + '-' + variantToRender.type;
+      variantsToRender.push(variantToRender);
+    }
+  }
+
+  if (variantsToRender.length > 0) {
+    if (variantsToRender.length === 1) {
       const onClick = () => {
-        showCreateForm(createVariants[0]['type']);
+        showCreateForm(variantsToRender[0]);
       };
 
       createButton = (
@@ -33,11 +46,11 @@ const CreateVariants = () => {
       );
     } else {
       const onSelect = selected => {
-        showCreateForm(selected.type);
+        showCreateForm(selected);
       };
 
       createButton = (
-        <Dropdown source={createVariants} valueField={'type'} titleField={'title'} isStatic onChange={onSelect}>
+        <Dropdown source={variantsToRender} valueField={'createVariantKey'} titleField={'label'} isStatic onChange={onSelect}>
           <IcoBtn
             invert
             icon="icon-down"

@@ -1,6 +1,6 @@
 import { handleActions } from 'redux-actions';
 
-import { getActiveTabTitle, setActiveTabTitle, setShowTabsStatus, setTabs, getTabTitle, setTabTitle } from '../actions/pageTabs';
+import { getActiveTabTitle, setActiveTabTitle, setShowTabsStatus, setTabs, setTabTitle } from '../actions/pageTabs';
 
 const initialState = {
   isShow: false,

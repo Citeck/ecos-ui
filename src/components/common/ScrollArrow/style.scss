@@ -31,12 +31,14 @@ $shadow-step_medium: 40px;
     &_medium.ecos-btn {
       height: $btn-circle_medium;
       width: $btn-circle_medium;
+      min-width: $btn-circle_medium;
       padding: 0 12px;
     }
 
     &_small.ecos-btn {
       height: $btn-circle_small;
       width: $btn-circle_small;
+      min-width: $btn-circle_small;
     }
   }
 
