@@ -110,8 +110,6 @@ class DocPreviewDashlet extends Component {
       'ecos-doc-preview-dashlet_mobile_small': isMobile && width < 400
     });
 
-    // console.warn(this.docPreviewRef.current)
-
     return (
       <Dashlet
         title={title}
