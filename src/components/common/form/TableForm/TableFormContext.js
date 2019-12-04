@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import TableFormPropTypes from './TableFormPropTypes';
 import { JournalsApi } from '../../../../api/journalsApi';
-import { isNodeRef } from '../../../../helpers/util';
 import Records from '../../../Records/Records';
 import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
@@ -207,6 +206,7 @@ export const TableFormContextProvider = props => {
         },
 
         showCreateForm: createVariant => {
+          setRecord(null);
           setCreateVariant(createVariant);
           setFormMode(FORM_MODE_CREATE);
           setIsModalFormOpen(true);
@@ -244,7 +244,7 @@ export const TableFormContextProvider = props => {
 
           const newRow = { ...record.toJson()['attributes'], id: editRecordId };
 
-          if (isNodeRef(editRecordId) && isAlias) {
+          if (isAlias) {
             // replace base record row by newRow in values list
             const baseRecord = record.getBaseRecord();
             const baseRecordId = baseRecord.id;

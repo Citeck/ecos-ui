@@ -230,38 +230,45 @@ class EcosForm extends React.Component {
     let inputByKey = EcosFormUtils.getInputByKey(inputs);
 
     let record = Records.get(this.state.recordId);
+    let attsPromises = [];
 
     for (let key in submission.data) {
       if (submission.data.hasOwnProperty(key)) {
         let value = submission.data[key];
         let input = inputByKey[key];
 
+        if (input && input.type === 'horizontalLine') {
+          continue;
+        }
+
         value = EcosFormUtils.processValueBeforeSubmit(value, input, keysMapping);
 
-        record.att(keysMapping[key] || key, value);
+        attsPromises.push(record.att(keysMapping[key] || key, value));
       }
     }
 
-    if (submission.state) {
-      record.att('_state', submission.state);
-    }
+    Promise.all(attsPromises).then(() => {
+      if (submission.state) {
+        record.att('_state', submission.state);
+      }
 
-    let onSubmit = self.props.onSubmit || (() => {});
+      let onSubmit = self.props.onSubmit || (() => {});
 
-    if (this.props.saveOnSubmit !== false) {
-      record
-        .save()
-        .then(persistedRecord => {
-          onSubmit(persistedRecord, form, record);
-        })
-        .catch(e => {
-          form.showErrors(e, true);
-        });
-    } else {
-      onSubmit(record, form);
-    }
+      if (this.props.saveOnSubmit !== false) {
+        record
+          .save()
+          .then(persistedRecord => {
+            onSubmit(persistedRecord, form, record);
+          })
+          .catch(e => {
+            form.showErrors(e, true);
+          });
+      } else {
+        onSubmit(record, form);
+      }
 
-    Records.releaseAll(this.state.containerId);
+      Records.releaseAll(this.state.containerId);
+    });
   }
 
   onReload() {
