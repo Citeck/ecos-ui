@@ -81,3 +81,11 @@ export const LoaderTypes = {
 };
 
 export const IMAGE_URL_PATH = '/share/proxy/alfresco/citeck/ecos/image/thumbnail';
+
+export const DocScaleOptions = {
+  AUTO: 'auto',
+  PAGE_WHOLE: 'page-whole',
+  PAGE_FIT: 'page-fit',
+  PAGE_HEIGHT: 'page-height',
+  PAGE_WIDTH: 'page-width'
+};

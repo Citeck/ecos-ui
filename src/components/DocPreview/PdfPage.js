@@ -65,15 +65,17 @@ class PdfPage extends React.Component {
     const elCanvas = elPageArea.querySelector('.ecos-doc-preview__viewer-page-content-canvas');
     const elTextLayer = elPageArea.querySelector('.ecos-doc-preview__viewer-page-content-text');
     const elViewer = this.props.refViewer.current || {};
-    const [, , width, height] = page.getViewport().viewBox;
-    let { clientWidth: cW, clientHeight: cH } = elViewer;
 
-    if (!cH && defHeight && !isMob) {
-      cH = defHeight;
-    }
+    let calcScale = 1;
+    let viewport = page.getViewport({ scale: calcScale });
 
-    const calcScale = getScale(scale, { width: cW, height: cH }, { width, height }, cW / 3);
-    const viewport = page.getViewport({ scale: calcScale });
+    const [, , origW, origH] = viewport.viewBox;
+    const { clientWidth: cW, clientHeight: cH } = elViewer;
+    const noHeight = !cH && defHeight && !isMob;
+
+    calcScale = getScale(scale, { width: cW, height: noHeight ? defHeight : cH }, { origW, origH, scaleW: viewport.width }, cW / 3);
+
+    viewport = page.getViewport({ scale: calcScale });
 
     if (!elTextLayer) {
       return null;
