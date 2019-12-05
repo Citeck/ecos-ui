@@ -230,7 +230,10 @@ class EcosForm extends React.Component {
     let inputByKey = EcosFormUtils.getInputByKey(inputs);
 
     let record = Records.get(this.state.recordId);
-    let attsPromises = [];
+
+    if (submission.state) {
+      record.att('_state', submission.state);
+    }
 
     for (let key in submission.data) {
       if (submission.data.hasOwnProperty(key)) {
@@ -243,32 +246,29 @@ class EcosForm extends React.Component {
 
         value = EcosFormUtils.processValueBeforeSubmit(value, input, keysMapping);
 
-        attsPromises.push(record.att(keysMapping[key] || key, value));
+        record.att(keysMapping[key] || key, value);
       }
     }
 
-    Promise.all(attsPromises).then(() => {
-      if (submission.state) {
-        record.att('_state', submission.state);
-      }
-
-      let onSubmit = self.props.onSubmit || (() => {});
-
-      if (this.props.saveOnSubmit !== false) {
-        record
-          .save()
-          .then(persistedRecord => {
-            onSubmit(persistedRecord, form, record);
-          })
-          .catch(e => {
-            form.showErrors(e, true);
-          });
-      } else {
-        onSubmit(record, form);
-      }
-
+    const onSubmit = (persistedRecord, form, record) => {
       Records.releaseAll(this.state.containerId);
-    });
+      if (self.props.onSubmit) {
+        self.props.onSubmit(persistedRecord, form, record);
+      }
+    };
+
+    if (this.props.saveOnSubmit !== false) {
+      record
+        .save()
+        .then(persistedRecord => {
+          onSubmit(persistedRecord, form, record);
+        })
+        .catch(e => {
+          form.showErrors(e, true);
+        });
+    } else {
+      onSubmit(record, form);
+    }
   }
 
   onReload() {
