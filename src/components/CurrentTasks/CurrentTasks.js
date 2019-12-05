@@ -94,7 +94,7 @@ class CurrentTasks extends React.Component {
   };
 
   renderCurrentTaskList = () => {
-    const { currentTasks, isLoading, isMobile, isSmallMode, className } = this.props;
+    const { currentTasks, isLoading, isMobile, isSmallMode, className, forwardedRef } = this.props;
 
     const childProps = {
       currentTasks,
@@ -104,7 +104,7 @@ class CurrentTasks extends React.Component {
       isSmallMode
     };
 
-    return <CurrentTaskList {...childProps} />;
+    return <CurrentTaskList forwardedRef={forwardedRef} {...childProps} />;
   };
 
   render() {
@@ -118,7 +118,7 @@ class CurrentTasks extends React.Component {
 
     return (
       <Scrollbars
-        style={{ height: contentHeight || '100%' }}
+        style={{ height: contentHeight + 7 || '100%' }}
         className="ecos-current-task-list"
         renderTrackVertical={props => <div {...props} className="ecos-current-task-list__v-scroll" />}
       >

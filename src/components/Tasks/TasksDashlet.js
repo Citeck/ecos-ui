@@ -7,6 +7,7 @@ import Dashlet from '../Dashlet/Dashlet';
 import Tasks from './Tasks';
 
 import './style.scss';
+import get from 'lodash/get';
 
 class TasksDashlet extends React.Component {
   static propTypes = {
@@ -19,14 +20,16 @@ class TasksDashlet extends React.Component {
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
     }),
     dragHandleProps: PropTypes.object,
-    canDragging: PropTypes.bool
+    canDragging: PropTypes.bool,
+    maxHeightByContent: PropTypes.bool
   };
 
   static defaultProps = {
     classNameTasks: '',
     classNameDashlet: '',
     dragHandleProps: {},
-    canDragging: false
+    canDragging: false,
+    maxHeightByContent: true
   };
 
   constructor(props) {
@@ -43,6 +46,15 @@ class TasksDashlet extends React.Component {
       totalCount: 0,
       isLoading: true
     };
+    this.contentRef = React.createRef();
+  }
+
+  get clientHeight() {
+    if (!this.props.maxHeightByContent) {
+      return null;
+    }
+
+    return get(this.contentRef, 'current.offsetHeight', 0);
   }
 
   onResize = width => {
@@ -50,7 +62,7 @@ class TasksDashlet extends React.Component {
   };
 
   onChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
     this.setState({ height });
   };
 
@@ -86,6 +98,7 @@ class TasksDashlet extends React.Component {
         bodyClassName="ecos-task-list-dashlet__body"
         className={classDashlet}
         resizable={true}
+        contentMaxHeight={this.clientHeight}
         onReload={this.onReload}
         needGoTo={false}
         actionEdit={false}
@@ -102,6 +115,7 @@ class TasksDashlet extends React.Component {
       >
         <Tasks
           {...config}
+          forwardedRef={this.contentRef}
           className={classNameTasks}
           record={record}
           stateId={record}

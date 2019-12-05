@@ -7,6 +7,7 @@ import Dashlet from '../Dashlet/Dashlet';
 
 import './style.scss';
 import Actions from './Actions';
+import get from 'lodash/get';
 
 class ActionsDashlet extends React.Component {
   static propTypes = {
@@ -17,14 +18,16 @@ class ActionsDashlet extends React.Component {
     classNameDashlet: PropTypes.string,
     config: PropTypes.object,
     dragHandleProps: PropTypes.object,
-    canDragging: PropTypes.bool
+    canDragging: PropTypes.bool,
+    maxHeightByContent: PropTypes.bool
   };
 
   static defaultProps = {
     classNameContent: '',
     classNameDashlet: '',
     dragHandleProps: {},
-    canDragging: false
+    canDragging: false,
+    maxHeightByContent: true
   };
 
   constructor(props) {
@@ -38,6 +41,15 @@ class ActionsDashlet extends React.Component {
       height: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
     };
+    this.contentRef = React.createRef();
+  }
+
+  get clientHeight() {
+    if (!this.props.maxHeightByContent) {
+      return null;
+    }
+
+    return get(this.contentRef, 'current.offsetHeight', 0);
   }
 
   onResize = width => {
@@ -45,7 +57,7 @@ class ActionsDashlet extends React.Component {
   };
 
   onChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
     this.setState({ height });
   };
 
@@ -68,6 +80,7 @@ class ActionsDashlet extends React.Component {
         bodyClassName="ecos-actions-dashlet__body"
         className={classNames('ecos-actions-dashlet', classNameDashlet)}
         resizable={true}
+        contentMaxHeight={this.clientHeight}
         actionEdit={false}
         actionReload={false}
         actionHelp={false}
@@ -82,6 +95,7 @@ class ActionsDashlet extends React.Component {
       >
         <Actions
           {...config}
+          forwardedRef={this.contentRef}
           className={classNameContent}
           record={record}
           isSmallMode={isSmallMode}

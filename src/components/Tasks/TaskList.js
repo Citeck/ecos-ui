@@ -14,7 +14,8 @@ class TaskList extends React.Component {
     isLoading: PropTypes.bool,
     isSmallMode: PropTypes.bool,
     onAssignClick: PropTypes.func,
-    onSubmitForm: PropTypes.func
+    onSubmitForm: PropTypes.func,
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
@@ -26,6 +27,8 @@ class TaskList extends React.Component {
     onAssignClick: () => {},
     onSubmitForm: () => {}
   };
+
+  contentRef = React.createRef();
 
   renderLoader() {
     let { isLoading } = this.props;
@@ -66,11 +69,11 @@ class TaskList extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <div ref={this.props.forwardedRef}>
         {this.renderLoader()}
         {this.renderEmptyInfo()}
         {this.renderTaskDetailsList()}
-      </React.Fragment>
+      </div>
     );
   }
 }
