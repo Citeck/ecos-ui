@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+
 import { t } from '../../../helpers/util';
 import { Icon } from '../';
 
@@ -70,7 +71,7 @@ export default class ResizableBox extends React.Component {
     const { classNameBox, classNameResizer, children, resizable } = this.props;
 
     return (
-      <React.Fragment>
+      <>
         <div ref={this.refBox} className={classNames('ecos-resize__container', classNameBox)}>
           {children}
         </div>
@@ -81,7 +82,7 @@ export default class ResizableBox extends React.Component {
             </div>
           )}
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }

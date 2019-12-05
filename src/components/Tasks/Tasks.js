@@ -42,7 +42,8 @@ class Tasks extends React.Component {
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     setReloadDone: PropTypes.func,
-    setInfo: PropTypes.func
+    setInfo: PropTypes.func,
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
@@ -54,6 +55,8 @@ class Tasks extends React.Component {
   state = {
     contentHeight: 0
   };
+
+  listRef = React.createRef();
 
   componentDidMount() {
     this.getTaskList();
@@ -114,7 +117,7 @@ class Tasks extends React.Component {
   };
 
   renderTaskList = () => {
-    const { tasks, height, isLoading, isSmallMode } = this.props;
+    const { tasks, height, isLoading, isSmallMode, forwardedRef } = this.props;
 
     const childProps = {
       tasks,
@@ -125,7 +128,7 @@ class Tasks extends React.Component {
       onSubmitForm: this.onSubmitForm
     };
 
-    return <TaskList {...childProps} />;
+    return <TaskList forwardedRef={forwardedRef} {...childProps} />;
   };
 
   render() {

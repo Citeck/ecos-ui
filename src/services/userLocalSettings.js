@@ -78,11 +78,15 @@ export default class UserLocalSettingsService {
     return get(getDashletSettings(key), 'contentHeight');
   }
 
-  static setDashletHeight(dashletId, height) {
+  static setDashletHeight(dashletId, height = null) {
     const key = UserLocalSettingsService.getKey(dashletId);
     const dashletData = getDashletSettings(key);
 
-    dashletData.contentHeight = height;
+    if (height === null) {
+      delete dashletData.contentHeight;
+    } else {
+      dashletData.contentHeight = height;
+    }
 
     setDashletSettings(key, dashletData);
   }

@@ -20,7 +20,8 @@ export default function getViewer(WrappedComponent, isPdf) {
         scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
         isFullscreen: PropTypes.bool,
         currentPage: PropTypes.number
-      })
+      }),
+      forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
     };
 
     static defaultProps = {

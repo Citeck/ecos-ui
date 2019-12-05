@@ -18,7 +18,8 @@ class CurrentTaskList extends React.Component {
     height: PropTypes.string,
     isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool,
-    isLoading: PropTypes.bool
+    isLoading: PropTypes.bool,
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
@@ -31,10 +32,10 @@ class CurrentTaskList extends React.Component {
   };
 
   renderEnum() {
-    const { currentTasks, isMobile } = this.props;
+    const { currentTasks, isMobile, forwardedRef } = this.props;
 
     return (
-      <div className="ecos-current-task-list_view-enum">
+      <div className="ecos-current-task-list_view-enum" ref={forwardedRef}>
         {currentTasks.map((item, i) => (
           <React.Fragment key={item.id + i}>
             <CurrentTaskInfo task={item} isMobile={isMobile} />
@@ -72,7 +73,7 @@ class CurrentTaskList extends React.Component {
   }
 
   render() {
-    const { isSmallMode, isLoading, currentTasks, isMobile } = this.props;
+    const { isSmallMode, isLoading, currentTasks, isMobile, forwardedRef } = this.props;
     const isEmptyList = isEmpty(currentTasks);
 
     if (isLoading) {
