@@ -232,7 +232,7 @@ const mapDispatchToProps = dispatch => ({
   getTabs: () => dispatch(getTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
   changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
-  getTabTitle: (tabId, link, isActive) => dispatch(getTabTitle({ tabId, link, isActive })),
+  getTabTitle: params => dispatch(getTabTitle(params)),
   initMenuSettings: () => dispatch(initMenuSettings())
 });
 

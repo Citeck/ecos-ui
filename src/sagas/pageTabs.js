@@ -64,7 +64,7 @@ function* sagaGetTabs({ api, logger }) {
 
 function* sagaSetTabs({ api, logger }, action) {
   try {
-    yield api.pageTabs.set(action.payload);
+    yield call(api.pageTabs.set, action.payload);
   } catch (e) {
     logger.error('[pageTabs sagaSetTabs saga error', e.message);
   }
@@ -95,13 +95,19 @@ function* sagaGetTabTitle({ api, logger }, { payload }) {
     let tabs = deepClone(yield select(selectTabs));
     const tab = tabs.find(tab => tab.id === payload.tabId);
     const [link] = payload.link.match(/\?.*/gim);
-    const { recordRef, nodeRef } = getSearchParams(link);
-    let title = t('page-tabs.new-tab');
+    const { recordRef, nodeRef, journalId } = getSearchParams(link);
+    let title = get(payload, 'defaultTitle', t('page-tabs.new-tab'));
 
     if (recordRef || nodeRef) {
-      const response = yield api.pageTabs.getTabTitle(recordRef || nodeRef);
-
+      const response = yield call(api.pageTabs.getTabTitle, { recordRef: recordRef || nodeRef });
       title = get(response, 'displayName', t('page-tabs.new-tab'));
+    }
+
+    if (journalId) {
+      const journalTitle = yield call(api.pageTabs.getTabTitle, { journalId });
+      if (journalTitle) {
+        title = `${t('journal.title')} "${journalTitle}"`;
+      }
     }
 
     tab.title = title;
