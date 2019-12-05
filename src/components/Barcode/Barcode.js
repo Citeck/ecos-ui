@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
-import { BarcodeApi } from '../../api';
-import { getGeneratedBarcode, getBase64Barcode } from '../../actions/barcode';
+import { getBase64Barcode } from '../../actions/barcode';
+import { getBarcodePrintUrl } from '../../helpers/urls';
 import { t } from '../../helpers/util';
 import { Btn } from '../common/btns';
 
@@ -21,7 +21,6 @@ const mapStateToProps = (state, context) => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  generateBarcode: payload => dispatch(getGeneratedBarcode(payload)),
   generateBase64Barcode: payload => dispatch(getBase64Barcode(payload))
 });
 
@@ -38,6 +37,7 @@ class Barcode extends React.Component {
 
   componentDidMount() {
     const { generateBase64Barcode, record, stateId } = this.props;
+
     generateBase64Barcode({ stateId, record });
   }
 
@@ -49,7 +49,7 @@ class Barcode extends React.Component {
 
   runPrint = () => {
     const { record } = this.props;
-    const url = new BarcodeApi().getPrintBarcode({ record });
+    const url = getBarcodePrintUrl(record);
 
     window.open(url, '_blank');
   };

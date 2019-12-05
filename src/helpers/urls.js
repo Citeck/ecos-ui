@@ -171,3 +171,7 @@ export const decodeLink = link => {
     return link;
   }
 };
+
+export const getBarcodePrintUrl = record => {
+  return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&property=contracts:barcode&barcodeType=code-128&scale=5.0&margins=20,200,20,500&print=true`;
+};

@@ -20,7 +20,9 @@ const startLoading = (state, { payload: { stateId } }) => ({
 
 export default handleActions(
   {
+    // deprecated?
     [getGeneratedBarcode]: startLoading,
+    // deprecated?
     [setGeneratedBarcode]: (state, { payload: { stateId, barcode, error } }) => ({
       ...state,
       [stateId]: {

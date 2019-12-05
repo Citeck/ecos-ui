@@ -3,6 +3,7 @@ import { getGeneratedBarcode, setGeneratedBarcode, getBase64Barcode, setBase64Ba
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 
+// deprecated?
 function* sagaGetGeneratedBarcode({ api, logger }, { payload }) {
   const err = t('barcode-widget.saga.error1');
 
@@ -25,7 +26,7 @@ function* sagaGetBase64Barcode({ api, logger }, { payload }) {
   const { record, stateId } = payload;
 
   try {
-    const response = yield api.barcode.getBade64Barcode({
+    const response = yield call(api.barcode.getBade64Barcode, {
       record,
       params: { height: 100, width: 210 }
     });
@@ -42,7 +43,7 @@ function* sagaGetBase64Barcode({ api, logger }, { payload }) {
 }
 
 function* barcodeSaga(ea) {
-  yield takeEvery(getGeneratedBarcode().type, sagaGetGeneratedBarcode, ea);
+  yield takeEvery(getGeneratedBarcode().type, sagaGetGeneratedBarcode, ea); // deprecated?
   yield takeEvery(getBase64Barcode().type, sagaGetBase64Barcode, ea);
 }
 
