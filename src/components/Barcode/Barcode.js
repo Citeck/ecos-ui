@@ -36,10 +36,9 @@ class Barcode extends React.Component {
     className: ''
   };
 
-  constructor(props) {
-    super(props);
-
-    props.generateBase64Barcode({ stateId: props.stateId, record: props.record });
+  componentDidMount() {
+    const { generateBase64Barcode, record, stateId } = this.props;
+    generateBase64Barcode({ stateId, record });
   }
 
   runGenerateBarcode = () => {
