@@ -41,17 +41,17 @@ class EsignPage extends Component {
           Таким образом, функция openSignModal будет открывать только
           одну модалку
         */}
-        <Esign
-          singleton
-          nodeRef="workspace://SpacesStore/aaddecb0-7aa6-4a26-8955-022c2afb1dac"
-          getDocumentsUrl="/share/proxy/alfresco/citeck/get-document-package?nodeRef=workspace://SpacesStore/aaddecb0-7aa6-4a26-8955-022c2afb1dac"
-        />
-        <span onClick={() => openSignModal()} style={{ margin: '0 10px' }}>
-          Click me!
-        </span>
-        <span onClick={() => openSignModal()} style={{ margin: '0 10px' }}>
-          And me!
-        </span>
+        {/*<Esign*/}
+        {/*singleton*/}
+        {/*nodeRef="workspace://SpacesStore/aaddecb0-7aa6-4a26-8955-022c2afb1dac"*/}
+        {/*getDocumentsUrl="/share/proxy/alfresco/citeck/get-document-package?nodeRef=workspace://SpacesStore/aaddecb0-7aa6-4a26-8955-022c2afb1dac"*/}
+        {/*/>*/}
+        {/*<span onClick={() => openSignModal()} style={{ margin: '0 10px' }}>*/}
+        {/*Click me!*/}
+        {/*</span>*/}
+        {/*<span onClick={() => openSignModal()} style={{ margin: '0 10px' }}>*/}
+        {/*And me!*/}
+        {/*</span>*/}
       </div>
     );
   }

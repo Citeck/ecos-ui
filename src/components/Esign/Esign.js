@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 
+import EsignService from '../../services/esign';
+
 import { Btn } from '../common/btns';
 import { selectStateByKey, selectGeneralState } from '../../selectors/esign';
 import { init, getCertificates, signDocument, clearMessage, toggleSignModal } from '../../actions/esign';
@@ -62,6 +64,19 @@ class Esign extends Component {
     nodeRef: get(getSearchParams(), 'nodeRef', '')
   };
 
+  state = {
+    isOpen: false,
+    documentSigned: false,
+    isLoading: false,
+    documentBase64: '',
+    messageTitle: '',
+    messageDescription: '',
+    errorType: '',
+    cadespluginApi: null,
+    certificates: [],
+    isFetchingApi: true
+  };
+
   constructor(props) {
     super(props);
 
@@ -69,20 +84,30 @@ class Esign extends Component {
      * Отключаем стандартные уведомления от плагина
      */
     window.cadesplugin_skip_extension_install = true;
-    props.init();
+    // props.init();
+
+    EsignService.init()
+      .then(cadespluginApi => this.setState({ isFetchingApi: false, cadespluginApi }))
+      .catch(this.setError);
   }
 
   componentDidMount() {
     document.addEventListener(TOGGLE_SIGN_MODAL_EVENT, this.handleToggleSignModal, false);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const { documentSigned, onSigned } = this.props;
 
     if (prevProps.documentSigned && !documentSigned) {
       if (typeof onSigned === 'function') {
         onSigned();
       }
+    }
+
+    if (prevState.isFetchingApi && !this.state.isFetchingApi) {
+      EsignService.getCertificates()
+        .then(certificates => this.setState({ certificates }))
+        .catch(this.setError);
     }
   }
 
@@ -91,6 +116,10 @@ class Esign extends Component {
 
     return Boolean(errorType || messageTitle || messageDescription);
   }
+
+  setError = ({ messageTitle, messageDescription, errorType }) => {
+    this.setState({ messageTitle, messageDescription, errorType });
+  };
 
   handleToggleSignModal = event => {
     const { nodeRef, singleton, toggleSignModal, getDocumentsUrl } = this.props;
