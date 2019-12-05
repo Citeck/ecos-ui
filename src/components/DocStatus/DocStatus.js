@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
+import { UncontrolledTooltip } from 'reactstrap';
+import uuid from 'uuidv4';
 
 import { deepClone } from '../../helpers/util';
 import { LoaderTypes } from '../../constants';
@@ -59,7 +61,8 @@ class DocStatus extends React.Component {
   };
 
   state = {
-    wasChanged: false
+    wasChanged: false,
+    key: uuid()
   };
 
   checkDocStatusPing = debounce(() => {
@@ -74,7 +77,7 @@ class DocStatus extends React.Component {
     initDocStatus({ stateId, record });
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps(nextProps) {
     const { stateId, record, isLoading, getDocStatus, updateDocStatus } = this.props;
 
     if (nextProps.updateRequestRecord === record) {
@@ -127,14 +130,28 @@ class DocStatus extends React.Component {
 
   renderReadField() {
     const { status = {} } = this.props;
+    const { key } = this.state;
+    const id = `tooltip-doc-status-${key}`;
     const classStatus = classNames('ecos-doc-status__data ecos-doc-status__data_read', {
       'ecos-doc-status__data_no-status': this.isNoStatus
     });
 
     return (
-      <div className={classStatus} title={status.name}>
-        {status.name}
-      </div>
+      <>
+        <div id={id} className={classStatus}>
+          <div className="ecos-doc-status__data-label">{status.name}</div>
+        </div>
+        <UncontrolledTooltip
+          placement="top"
+          boundariesElement="window"
+          className="ecos-base-tooltip"
+          innerClassName="ecos-base-tooltip-inner"
+          arrowClassName="ecos-base-tooltip-arrow"
+          target={id}
+        >
+          {status.name}
+        </UncontrolledTooltip>
+      </>
     );
   }
 
