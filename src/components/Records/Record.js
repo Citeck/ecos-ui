@@ -256,7 +256,7 @@ export default class Record {
     return attributes;
   }
 
-  getAttributesToPersist() {
+  getAttributesToSave() {
     let attributesToPersist = {};
 
     for (let attName in this._attributes) {
@@ -306,57 +306,89 @@ export default class Record {
     let recordsToSave = [this, ...this._getLinkedRecordsToSave()];
     let requestRecords = [];
 
-    for (let record of recordsToSave) {
-      let attributesToPersist = record.getAttributesToPersist();
-      if (!_.isEmpty(attributesToPersist)) {
-        let baseId = record.getBaseRecord().id;
+    return Promise.all(
+      recordsToSave.map(
+        rec =>
+          new Promise((resolve, reject) => {
+            rec._waitUntilReadyToSave(0, resolve, reject);
+          })
+      )
+    ).then(() => {
+      for (let record of recordsToSave) {
+        let attributesToSave = record.getAttributesToSave();
+        if (!_.isEmpty(attributesToSave)) {
+          let baseId = record.getBaseRecord().id;
 
-        requestRecords.push({
-          id: baseId,
-          attributes: attributesToPersist
+          requestRecords.push({
+            id: baseId,
+            attributes: attributesToSave
+          });
+        }
+      }
+
+      if (!requestRecords.length) {
+        return Promise.resolve(this);
+      }
+
+      return recordsMutateFetch({ records: requestRecords }).then(response => {
+        let attributesToLoad = {};
+
+        for (let record of requestRecords) {
+          let recAtts = attributesToLoad[record.id] || {};
+
+          for (let att in record.attributes) {
+            if (record.attributes.hasOwnProperty(att)) {
+              recAtts[att] = att;
+            }
+          }
+
+          attributesToLoad[record.id] = recAtts;
+        }
+
+        let loadPromises = [];
+        for (let recordId in attributesToLoad) {
+          if (attributesToLoad.hasOwnProperty(recordId)) {
+            let record = this._records.get(recordId);
+            record.reset();
+            let promise = record.load(attributesToLoad[recordId], true);
+            if (promise && promise.then) {
+              loadPromises.push(promise);
+            }
+          }
+        }
+
+        return Promise.all(loadPromises).then(() => {
+          for (let recordId of Object.keys(attributesToLoad)) {
+            this._records.get(recordId).events.emit(EVENT_CHANGE);
+          }
+          let resultId = ((response.records || [])[0] || {}).id;
+          return resultId ? this._records.get(resultId) : self;
         });
-      }
-    }
-
-    if (!requestRecords.length) {
-      return Promise.resolve(this);
-    }
-
-    return recordsMutateFetch({ records: requestRecords }).then(response => {
-      let attributesToLoad = {};
-
-      for (let record of requestRecords) {
-        let recAtts = attributesToLoad[record.id] || {};
-
-        for (let att in record.attributes) {
-          if (record.attributes.hasOwnProperty(att)) {
-            recAtts[att] = att;
-          }
-        }
-
-        attributesToLoad[record.id] = recAtts;
-      }
-
-      let loadPromises = [];
-      for (let recordId in attributesToLoad) {
-        if (attributesToLoad.hasOwnProperty(recordId)) {
-          let record = this._records.get(recordId);
-          record.reset();
-          let promise = record.load(attributesToLoad[recordId], true);
-          if (promise && promise.then) {
-            loadPromises.push(promise);
-          }
-        }
-      }
-
-      return Promise.all(loadPromises).then(() => {
-        for (let recordId of Object.keys(attributesToLoad)) {
-          this._records.get(recordId).events.emit(EVENT_CHANGE);
-        }
-        let resultId = ((response.records || [])[0] || {}).id;
-        return resultId ? this._records.get(resultId) : self;
       });
     });
+  }
+
+  _waitUntilReadyToSave(tryCounter, resolve, reject) {
+    let notReadyAtts = [];
+    for (let attName in this._attributes) {
+      if (!this._attributes.hasOwnProperty(attName)) {
+        continue;
+      }
+      let att = this._attributes[attName];
+      if (!att.isReadyToSave()) {
+        notReadyAtts.push(attName);
+      }
+    }
+    if (notReadyAtts.length > 0) {
+      if (tryCounter > 100) {
+        console.error('Not ready attributes:', notReadyAtts);
+        reject('Waiting aborted');
+      } else {
+        setTimeout(() => this._waitUntilReadyToSave(tryCounter + 1, resolve, reject), 100);
+      }
+    } else {
+      resolve();
+    }
   }
 
   persistedAtt(name, value) {

@@ -243,8 +243,9 @@ class PageTabs extends React.Component {
     const tabLink = link || homepageLink;
     let isLoading = false;
 
+    getTabTitle({ tabId: id, link: tabLink, isActive, defaultTitle: remoteTitle ? TITLE.NEW_TAB : this.getTitle(link || homepageLink) });
+
     if (remoteTitle) {
-      getTabTitle(id, tabLink, isActive);
       isLoading = true;
     }
 

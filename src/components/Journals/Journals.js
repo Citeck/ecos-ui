@@ -22,6 +22,7 @@ import { Well } from '../common/form';
 import { t, trigger } from '../../helpers/util';
 import { goToCardDetailsPage } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
+import { selectActiveTab } from '../../selectors/pageTabs';
 
 import './Journals.scss';
 
@@ -30,6 +31,7 @@ const mapStateToProps = (state, props) => {
 
   return {
     pageTabsIsShow: state.pageTabs.isShow,
+    activeTab: selectActiveTab(state),
     journalConfig: newState.journalConfig,
     grid: newState.grid
   };
@@ -56,12 +58,12 @@ class Journals extends Component {
       showPreview: this.props.urlParams.showPreview,
       showPie: false
     };
-
-    this.title = '';
   }
 
   componentDidMount() {
     this.getJournalsData();
+    this.setActiveTabTitle();
+    trigger.call(this, 'onRender');
   }
 
   componentDidUpdate(prevProps) {
@@ -70,6 +72,29 @@ class Journals extends Component {
 
     if (journalId !== prevJournalId) {
       this.getJournalsData();
+    }
+
+    this.setActiveTabTitle();
+    trigger.call(this, 'onRender');
+  }
+
+  // TODO rid of this dirty hack.
+  setActiveTabTitle() {
+    const { journalConfig, pageTabsIsShow, setActiveTabTitle, activeTab } = this.props;
+
+    if (!journalConfig) {
+      return null;
+    }
+
+    const {
+      meta: { title = '' }
+    } = journalConfig;
+
+    if (pageTabsIsShow && title && activeTab) {
+      const newTitle = `${t('page-tabs.journal')} "${title}"`;
+      if (activeTab.title !== newTitle) {
+        setActiveTabTitle(newTitle);
+      }
     }
   }
 
@@ -130,7 +155,7 @@ class Journals extends Component {
 
   render() {
     const { menuOpen, settingsVisible, showPreview, showPie } = this.state;
-    const { stateId, journalConfig, pageTabsIsShow, setActiveTabTitle, grid } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, grid } = this.props;
 
     if (!journalConfig) {
       return null;
@@ -147,16 +172,7 @@ class Journals extends Component {
       return null;
     }
 
-    trigger.call(this, 'onRender');
-
     const visibleColumns = columns.filter(c => c.visible);
-
-    if (pageTabsIsShow && title && this.title !== title) {
-      const quotes = String.fromCharCode(8221);
-      setActiveTabTitle(`${t('page-tabs.journal')} ${quotes + title + quotes}`);
-      this.title = title;
-    }
-
     const journalSettingsClassName = 'ecos-journal__settings';
 
     return (

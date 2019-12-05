@@ -87,7 +87,16 @@ class RecordsComponent {
   }
 
   forget(id) {
-    delete this._records[id];
+    if (isArray(id)) {
+      for (let idElem of id) {
+        this.forget(idElem);
+      }
+    } else {
+      if (!isString(id) && id.id) {
+        id = id.id;
+      }
+      delete this._records[id];
+    }
   }
 
   getRecordToEdit(id) {
@@ -103,7 +112,7 @@ class RecordsComponent {
 
   remove(records) {
     records = records.map(r => (r.id ? r.id : r));
-    return recordsDeleteFetch({ records });
+    return recordsDeleteFetch({ records }).then(() => this.forget(records));
   }
 
   queryOne(query, attributes, defaultResult = null) {

@@ -34,7 +34,8 @@ class DocPreview extends Component {
     resizable: PropTypes.bool,
     isCollapsed: PropTypes.bool,
     fileName: PropTypes.string,
-    setUserScale: PropTypes.func
+    setUserScale: PropTypes.func,
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
@@ -252,19 +253,20 @@ class DocPreview extends Component {
   };
 
   pdfViewer() {
+    const { maxHeight, forwardedRef } = this.props;
     const { pdf } = this.state;
-    const { maxHeight } = this.props;
 
-    return <Pdf pdf={pdf} defHeight={maxHeight} scrollPage={this.setScrollPage} {...this.commonProps} />;
+    return <Pdf pdf={pdf} forwardedRef={forwardedRef} defHeight={maxHeight} scrollPage={this.setScrollPage} {...this.commonProps} />;
   }
 
   imgViewer() {
-    const { resizable } = this.props;
+    const { resizable, forwardedRef } = this.props;
     const { link } = this.state;
 
     return (
       <Img
         src={link}
+        forwardedRef={forwardedRef}
         resizable={resizable}
         {...this.commonProps}
         onError={() => {

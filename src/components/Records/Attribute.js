@@ -102,6 +102,7 @@ export default class Attribute {
     this._newValue = null;
     this._newValueInnerAtt = null;
     this._wasChanged = false;
+    this._readyToSave = true;
   }
 
   getName() {
@@ -110,6 +111,10 @@ export default class Attribute {
 
   isPersisted() {
     return !this._wasChanged;
+  }
+
+  isReadyToSave() {
+    return this._readyToSave;
   }
 
   getNewValueAttName() {
@@ -186,6 +191,8 @@ export default class Attribute {
     let persisted = this.getPersistedValue(innerAtt, _.isArray(value), true);
 
     const updateValue = currentValue => {
+      this._readyToSave = true;
+
       if (!_.isEqual(currentValue, value)) {
         this._newValue = _.cloneDeep(value);
         this._newValueInnerAtt = innerAtt;
@@ -198,8 +205,13 @@ export default class Attribute {
       return value;
     };
 
+    this._readyToSave = false;
+
     if (persisted && persisted.then) {
-      return persisted.then(updateValue);
+      return persisted.then(updateValue).catch(e => {
+        this._readyToSave = true;
+        throw e;
+      });
     } else {
       return updateValue(persisted);
     }
