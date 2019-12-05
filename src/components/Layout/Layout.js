@@ -79,8 +79,12 @@ class Layout extends Component {
   checkWrapperStyle() {
     const { columns } = this.props;
 
-    if (this._wrapperRef.current && Array.isArray(get(columns, '0', null))) {
-      this._wrapperRef.current.style.flexDirection = 'column';
+    if (this._wrapperRef.current) {
+      this._wrapperRef.current.style.flexDirection = '';
+
+      if (Array.isArray(get(columns, '0', null))) {
+        this._wrapperRef.current.style.flexDirection = 'column';
+      }
     }
   }
 
@@ -175,18 +179,18 @@ class Layout extends Component {
     return components;
   }
 
-  renderColumn = (column, index) => {
+  renderColumn = (columns, column, index) => {
     if (Array.isArray(column)) {
       this.checkWrapperStyle();
 
       return (
         <div className="ecos-layout__row" key={index}>
-          {column.map(this.renderColumn)}
+          {column.map(this.renderColumn.bind(this, column))}
         </div>
       );
     }
 
-    const { columns, type, canDragging } = this.props;
+    const { type, canDragging } = this.props;
     const { draggableDestination } = this.state;
     const styles = {
       minWidth: getMinWidthColumn(type, index),
@@ -196,18 +200,12 @@ class Layout extends Component {
     };
     const otherWidth = columns.map(column => column.width || '').filter(item => item !== '');
     const withoutSize = columns.filter(column => !column.width).length;
-    const availableWidth = otherWidth
-      ? `(100% - ${otherWidth.length > 1 ? `(${otherWidth.join(' + ')})` : otherWidth.join(' + ')})`
-      : '100%';
+    const availableWidth = otherWidth.length ? `(100% - (${otherWidth.join(' + ')}))` : '100%';
+    const id = JSON.stringify({ type: 'column', index });
 
     if (!column.width) {
       styles.width = `calc(${availableWidth} / ${withoutSize})`;
     }
-
-    const id = JSON.stringify({
-      type: 'column',
-      index
-    });
 
     if (canDragging) {
       return (
@@ -242,7 +240,7 @@ class Layout extends Component {
 
     return (
       <div className="ecos-layout__wrapper" ref={this._wrapperRef}>
-        {columns && columns.map(this.renderColumn)}
+        {columns && columns.map(this.renderColumn.bind(this, columns))}
       </div>
     );
   }

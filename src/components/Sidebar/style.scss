@@ -1,6 +1,7 @@
 @import '../../styles/constants';
 
 $expanded-sidebar-width: 300px;
+$transition-duration: 0.3s;
 
 .ecos-base-page {
   display: flex;
@@ -34,10 +35,11 @@ $expanded-sidebar-width: 300px;
   flex-direction: column;
 
   width: 72px;
-  transition: width 0.4s;
+  transition: width $transition-duration;
   background: $color-white;
   overflow: hidden;
   height: 100%;
+  will-change: width;
 
   &_expanded {
     width: $expanded-sidebar-width;
@@ -60,7 +62,7 @@ $expanded-sidebar-width: 300px;
     }
 
     &__img {
-      transition: opacity 0.4s;
+      transition: opacity $transition-duration;
       position: absolute;
 
       &_small {
@@ -169,7 +171,6 @@ $expanded-sidebar-width: 300px;
       font-weight: $font-weight-bold;
       font-size: $font-size-standard;
       opacity: 1;
-      transition: opacity 0.4s;
     }
 
     &__icon + &__label {
@@ -179,7 +180,9 @@ $expanded-sidebar-width: 300px;
     &__badge {
       font-size: $font-size-extra-small;
       opacity: 1;
-      transition: opacity 0.4s;
+      transition: opacity $transition-duration;
+      padding: 0 7px;
+      line-height: 18px;
 
       &_hide {
         opacity: 0;
@@ -197,7 +200,7 @@ $expanded-sidebar-width: 300px;
       right: 15px;
       top: 0;
       opacity: 1;
-      transition: opacity 0.4s;
+      transition: opacity $transition-duration;
 
       &_hide {
         opacity: 0;
@@ -209,7 +212,7 @@ $expanded-sidebar-width: 300px;
     $list: &;
 
     min-height: 0;
-    transition: height 0.4s;
+    transition: height $transition-duration;
 
     &_lvl-0 {
       padding-bottom: 30px;
@@ -370,16 +373,6 @@ $expanded-sidebar-width: 300px;
       }
     }
   }
-
-  &_collapsed {
-    #{$menu-list}_lvl-1 {
-      #{$menu-item}_lvl-1 {
-        #{$menu-item}__label {
-          opacity: 0;
-        }
-      }
-    }
-  }
 }
 
 @media screen and (max-width: 600px) {
@@ -389,7 +382,7 @@ $expanded-sidebar-width: 300px;
     top: 60px;
     z-index: 101;
     height: calc(100% - 60px);
-    transition: width 0.2s;
+    transition: width $transition-duration;
 
     &_expanded {
       width: 100%;

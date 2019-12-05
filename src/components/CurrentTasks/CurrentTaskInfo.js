@@ -30,7 +30,11 @@ class CurrentTaskInfo extends React.Component {
 
     return (
       <div className="ecos-current-task-info">
-        <Headline>{task[DC.title.key]}</Headline>
+        <Headline>
+          <div title={task[DC.title.key]} className="ecos-current-task-info__title">
+            {task[DC.title.key]}
+          </div>
+        </Headline>
         <div className="ecos-current-task-info__fields">
           <div className="ecos-current-task-info__fields-item">
             {this.renderLabel('actors')}

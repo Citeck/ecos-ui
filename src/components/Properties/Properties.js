@@ -1,5 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { t } from '../../helpers/util';
 import EcosForm, { FORM_MODE_EDIT } from '../EcosForm';
@@ -82,6 +83,10 @@ class Properties extends React.Component {
     const { record, isSmallMode, isReady, onUpdate } = this.props;
     const { isReadySubmit, hideForm } = this.state;
 
+    const formClassNames = classNames('ecos-properties__formio', {
+      'ecos-properties__formio_small': isSmallMode
+    });
+
     return !hideForm && isReady && isReadySubmit ? (
       <>
         {this.renderLoader()}
@@ -100,7 +105,7 @@ class Properties extends React.Component {
           onSubmit={this.onSubmitForm}
           onFormSubmitDone={onUpdate}
           onReady={this.onReady}
-          className="ecos-properties__formio"
+          className={formClassNames}
         />
         {/* Cause: https://citeck.atlassian.net/browse/ECOSCOM-2654 */}
         <EcosForm

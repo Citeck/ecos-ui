@@ -35,6 +35,7 @@ export default class ScrollArrow extends React.Component {
   };
 
   refScroll = React.createRef();
+  _factor = 0;
 
   state = {
     isShowArrows: false,
@@ -46,6 +47,12 @@ export default class ScrollArrow extends React.Component {
 
   componentDidMount() {
     this.checkArrows();
+
+    window.addEventListener('resize', this.checkArrowsDebounced);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.checkArrowsDebounced);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -86,10 +93,18 @@ export default class ScrollArrow extends React.Component {
   }
 
   doScrollBySide = (factor = 1) => {
-    const step = this.props.step * factor;
+    this._factor += factor;
 
-    this.doScrollByStep(step);
+    this.refScroll.current.scrollLeft += this.props.step * this._factor;
+    this.debounceScrollBySide();
   };
+
+  debounceScrollBySide = debounce(() => {
+    const step = this.props.step * this._factor;
+
+    this._factor = 0;
+    this.doScrollByStep(step);
+  }, 10);
 
   doScrollByStep = step => {
     const curScroll = get(this.refScroll, 'current.scrollLeft', 0);
@@ -106,8 +121,8 @@ export default class ScrollArrow extends React.Component {
 
     const state = {};
     const isShowArrows = scrollWidth > offsetWidth;
-    const isActiveRight = scrollWidth > offsetWidth + scrollLeft;
-    const isActiveLeft = scrollLeft > 0;
+    const isActiveRight = isShowArrows && scrollWidth > offsetWidth + scrollLeft;
+    const isActiveLeft = isShowArrows && scrollLeft > 0;
 
     if (isShowArrows !== oldShow) {
       state.isShowArrows = isShowArrows;
@@ -125,6 +140,8 @@ export default class ScrollArrow extends React.Component {
       this.setState(state);
     }
   };
+
+  checkArrowsDebounced = debounce(this.checkArrows, 100);
 
   onResize = debounce(w => {
     const { changeScrollPosition } = this.props;

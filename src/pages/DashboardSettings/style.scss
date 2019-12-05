@@ -223,7 +223,7 @@
   &__column-widgets {
     display: flex;
     flex-direction: column;
-    width: 199px;
+    width: 195px;
     margin-bottom: 16px;
 
     &:not(:last-of-type) {
@@ -246,7 +246,7 @@
 
     &__items {
       width: 100%;
-      height: 320px;
+      min-height: 320px;
       box-sizing: border-box;
 
       &__cell {

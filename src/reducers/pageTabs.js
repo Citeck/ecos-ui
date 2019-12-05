@@ -1,5 +1,6 @@
 import { handleActions } from 'redux-actions';
-import { getActiveTabTitle, setActiveTabTitle, setShowTabsStatus, setTabs } from '../actions/pageTabs';
+
+import { getActiveTabTitle, setActiveTabTitle, setShowTabsStatus, setTabs, setTabTitle } from '../actions/pageTabs';
 
 const initialState = {
   isShow: false,
@@ -11,19 +12,23 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
-    [setShowTabsStatus]: (state, actions) => ({
+    [setShowTabsStatus]: (state, { payload }) => ({
       ...state,
-      isShow: actions.payload
+      isShow: payload
     }),
-    [setTabs]: (state, actions) => ({
+    [setTabs]: (state, { payload }) => ({
       ...state,
-      tabs: actions.payload
+      tabs: payload
     }),
-    [getActiveTabTitle]: (state, actions) => ({
+    [setTabTitle]: state => ({
+      ...state,
+      isLoadingTitle: false
+    }),
+    [getActiveTabTitle]: state => ({
       ...state,
       isLoadingTitle: true
     }),
-    [setActiveTabTitle]: (state, actions) => ({
+    [setActiveTabTitle]: state => ({
       ...state,
       isLoadingTitle: false
     })

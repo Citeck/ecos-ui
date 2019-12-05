@@ -284,7 +284,7 @@ class JournalsDashletGrid extends Component {
         onSubmit: rec => {
           let action = lodash.cloneDeep(groupAction);
           action.params = action.params || {};
-          action.params.attributes = rec.getAttributesToPersist();
+          action.params.attributes = rec.getAttributesToSave();
           performGroupAction({ groupAction: action, selected: selectedRecords });
         }
       });

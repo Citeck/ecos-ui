@@ -40,6 +40,7 @@ class DocAssociations extends Component {
     sectionList: PropTypes.array,
     documents: PropTypes.array,
     isLoading: PropTypes.bool,
+    isLoadingMenu: PropTypes.bool,
     menu: PropTypes.array,
     documentsTotalCount: PropTypes.number,
     initStore: PropTypes.func,
@@ -74,9 +75,7 @@ class DocAssociations extends Component {
   }
 
   componentDidMount() {
-    this.props.getSectionList();
     this.props.getDocuments();
-    this.props.getMenu();
   }
 
   get isSmallWidget() {
@@ -120,6 +119,14 @@ class DocAssociations extends Component {
   };
 
   handleToggleMenu = () => {
+    const { menu, getMenu, isLoadingMenu, getSectionList } = this.props;
+    const { isMenuOpen } = this.state;
+
+    if (!menu.length && !isMenuOpen && !isLoadingMenu) {
+      getSectionList();
+      getMenu();
+    }
+
     this.setState(state => ({
       isMenuOpen: !state.isMenuOpen
     }));
@@ -252,7 +259,7 @@ class DocAssociations extends Component {
   }
 
   renderAddButton = () => {
-    const { menu, id, isMobile } = this.props;
+    const { menu, id, isMobile, isLoadingMenu } = this.props;
     const { isMenuOpen } = this.state;
 
     if (isMobile) {
@@ -275,7 +282,7 @@ class DocAssociations extends Component {
           </UncontrolledTooltip>
         </DropdownToggle>
         <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_cascade">
-          <Menu items={menu} mode="cascade" onClick={this.handleSelectMenuItem} />
+          <Menu items={menu} mode="cascade" isLoading={isLoadingMenu} onClick={this.handleSelectMenuItem} />
         </DropdownMenu>
       </Dropdown>
     );
@@ -357,7 +364,7 @@ class DocAssociations extends Component {
         {isMobile ? (
           this.renderDocuments()
         ) : (
-          <Scrollbars autoHide style={{ height: contentHeight || '100%' }}>
+          <Scrollbars style={{ height: contentHeight || '100%' }}>
             <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
               {this.renderDocuments()}
             </DefineHeight>

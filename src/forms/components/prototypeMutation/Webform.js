@@ -2,6 +2,7 @@ import Webform from 'formiojs/Webform';
 
 const originalSetElement = Webform.prototype.setElement;
 const originalOnSubmit = Webform.prototype.onSubmit;
+const originalSubmit = Webform.prototype.submit;
 
 Webform.prototype.setElement = function(element) {
   originalSetElement.call(this, element);
@@ -18,4 +19,25 @@ Webform.prototype.setElement = function(element) {
 Webform.prototype.onSubmit = function(submission, saved) {
   originalOnSubmit.call(this, submission, saved);
   this.setAlert(false);
+};
+
+Webform.prototype.submit = function(before, options) {
+  const form = this;
+
+  let fireSubmit = finishTime => {
+    if (form.changing) {
+      if (new Date().getTime() < finishTime) {
+        setTimeout(() => {
+          fireSubmit(finishTime);
+        }, 300);
+      } else {
+        console.warn('Form will be submitted, but changing flag is still true');
+        originalSubmit.call(this, before, options);
+      }
+    } else {
+      originalSubmit.call(this, before, options);
+    }
+  };
+
+  fireSubmit(new Date().getTime() + 5000);
 };

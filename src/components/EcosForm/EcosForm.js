@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import moment from 'moment';
 import Formio from 'formiojs/Formio';
+import FormioEventEmitter from 'formiojs/EventEmitter';
 import { cloneDeep } from 'lodash';
 
 import '../../forms/components';
@@ -10,8 +10,7 @@ import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
-import DataGridAssocComponent from './../../forms/components/custom/datagridAssoc/DataGridAssoc';
-import { t, getCurrentLocale } from '../../helpers/util';
+import { t, getCurrentLocale, isMobileDevice } from '../../helpers/util';
 import { PROXY_URI } from '../../constants/alfresco';
 
 import './formio.full.min.css';
@@ -40,6 +39,10 @@ class EcosForm extends React.Component {
     };
   }
 
+  componentWillUnmount() {
+    Records.releaseAll(this.state.containerId);
+  }
+
   componentDidMount() {
     this.initForm();
   }
@@ -56,6 +59,7 @@ class EcosForm extends React.Component {
     });
 
     options.recordId = recordId;
+    options.isMobileDevice = isMobileDevice();
 
     let alfConstants = (window.Alfresco || {}).constants || {};
     let proxyUri = PROXY_URI || '/';
@@ -94,9 +98,17 @@ class EcosForm extends React.Component {
       });
 
       let inputs = EcosFormUtils.getFormInputs(formData.definition);
-      let recordDataPromise = EcosFormUtils.getData(recordId, inputs);
+      let recordDataPromise = EcosFormUtils.getData(recordId, inputs, this.state.containerId);
+      let canWritePromise = false;
+      if (options.readOnly && options.viewAsHtml) {
+        canWritePromise = EcosFormUtils.getCanWritePermission(recordId);
+      }
 
-      recordDataPromise.then(recordData => {
+      Promise.all([recordDataPromise, canWritePromise]).then(([recordData, canWrite]) => {
+        if (canWrite) {
+          options.canWrite = canWrite;
+        }
+
         const definition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
         let formDefinition = cloneDeep(definition);
 
@@ -127,6 +139,11 @@ class EcosForm extends React.Component {
         i18n[language] = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formI18N);
 
         options.i18n = i18n;
+        options.events = new FormioEventEmitter({
+          wildcard: false,
+          maxListeners: 0,
+          loadLimit: 200
+        });
 
         const containerElement = document.getElementById(this.state.containerId);
         if (!containerElement) {
@@ -155,27 +172,8 @@ class EcosForm extends React.Component {
             }
           };
 
-          let fireSubmit = (submission, finishTime) => {
-            if (form.changing) {
-              if (new Date().getTime() < finishTime) {
-                setTimeout(() => {
-                  fireSubmit(submission, finishTime);
-                }, 300);
-              } else {
-                console.warn('Form will be submitted, but changing flag is still true');
-                if (form.checkValidity()) {
-                  self.submitForm(form, submission);
-                }
-              }
-            } else {
-              if (form.checkValidity()) {
-                self.submitForm(form, submission);
-              }
-            }
-          };
-
           form.on('submit', submission => {
-            fireSubmit(submission, new Date().getTime() + 5000);
+            self.submitForm(form, submission);
           });
 
           let handlersPrefix = 'onForm';
@@ -228,62 +226,36 @@ class EcosForm extends React.Component {
     let self = this;
 
     let inputs = EcosFormUtils.getFormInputs(form.component);
-    let keysMapping = {};
-    let inputByKey = {};
-
-    for (let i = 0; i < inputs.length; i++) {
-      let key = inputs[i].component.key;
-      keysMapping[key] = inputs[i].schema;
-      inputByKey[key] = inputs[i];
-    }
+    let keysMapping = EcosFormUtils.getKeysMapping(inputs);
+    let inputByKey = EcosFormUtils.getInputByKey(inputs);
 
     let record = Records.get(this.state.recordId);
+
+    if (submission.state) {
+      record.att('_state', submission.state);
+    }
 
     for (let key in submission.data) {
       if (submission.data.hasOwnProperty(key)) {
         let value = submission.data[key];
         let input = inputByKey[key];
 
-        if (value && input && input.dataType === 'json-record') {
-          const mapping = v => JSON.stringify(Records.get(v).toJson());
-
-          if (Array.isArray(value)) {
-            value = value.map(mapping);
-          } else {
-            value = mapping(value);
-          }
+        if (input && input.type === 'horizontalLine') {
+          continue;
         }
 
-        if (value && input && input.component.type === 'datagridAssoc') {
-          value = DataGridAssocComponent.convertToAssoc(value, input, keysMapping);
-        }
-
-        // cause: https://citeck.atlassian.net/browse/ECOSCOM-2561
-        if (input && input.component.type === 'ecosSelect' && !value) {
-          value = null;
-        }
-
-        // cause: https://citeck.atlassian.net/browse/ECOSCOM-2581
-        if (
-          value &&
-          input &&
-          input.component.type === 'datetime' &&
-          input.component.ignoreTimeZone &&
-          input.component.enableDate &&
-          !input.component.enableTime
-        ) {
-          value = moment(value).format('YYYY-MM-DD');
-        }
+        value = EcosFormUtils.processValueBeforeSubmit(value, input, keysMapping);
 
         record.att(keysMapping[key] || key, value);
       }
     }
 
-    if (submission.state) {
-      record.att('_state', submission.state);
-    }
-
-    let onSubmit = self.props.onSubmit || (() => {});
+    const onSubmit = (persistedRecord, form, record) => {
+      Records.releaseAll(this.state.containerId);
+      if (self.props.onSubmit) {
+        self.props.onSubmit(persistedRecord, form, record);
+      }
+    };
 
     if (this.props.saveOnSubmit !== false) {
       record

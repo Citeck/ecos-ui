@@ -87,7 +87,12 @@ export default [
     key: 'triggerEventOnChange',
     label: 'Trigger event on change value',
     weight: 18,
-    defaultValue: false
+    defaultValue: false,
+    conditional: {
+      json: {
+        and: [{ '==': [{ var: 'data.triggerEventOnChange' }, true] }]
+      }
+    }
   },
   {
     type: 'textfield',

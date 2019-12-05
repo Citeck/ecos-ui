@@ -13,7 +13,7 @@ import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
 import Footer from '../Footer';
 
-import { changeActiveTab, getActiveTabTitle, getShowTabsStatus, getTabs, setTabs } from '../../actions/pageTabs';
+import { changeActiveTab, getShowTabsStatus, getTabs, getTabTitle, setTabs } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
 import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 
@@ -107,7 +107,7 @@ class App extends Component {
   }
 
   renderTabs() {
-    const { changeActiveTab, isShow, tabs, setTabs, getActiveTabTitle, isLoadingTitle, isMobile } = this.props;
+    const { changeActiveTab, isShow, tabs, setTabs, getTabTitle, isLoadingTitle, isMobile } = this.props;
 
     return (
       <PageTabs
@@ -116,7 +116,7 @@ class App extends Component {
         tabs={tabs}
         saveTabs={setTabs}
         changeActiveTab={changeActiveTab}
-        getActiveTabTitle={getActiveTabTitle}
+        getTabTitle={getTabTitle}
         isLoadingTitle={isLoadingTitle}
       />
     );
@@ -234,7 +234,7 @@ const mapDispatchToProps = dispatch => ({
   getTabs: () => dispatch(getTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
   changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
-  getActiveTabTitle: () => dispatch(getActiveTabTitle()),
+  getTabTitle: (tabId, link, isActive) => dispatch(getTabTitle({ tabId, link, isActive })),
   initMenuSettings: () => dispatch(initMenuSettings())
 });
 

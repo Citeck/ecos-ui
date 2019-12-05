@@ -36,6 +36,7 @@ const mapStateToProps = state => {
     menuType: get(state, ['menu', 'type']),
     links: get(state, ['menu', 'links']),
     dashboardType: get(state, ['dashboard', 'identification', 'type']),
+    identificationId: get(state, ['dashboard', 'identification', 'id'], null),
     titleInfo: get(state, ['dashboard', 'titleInfo']),
     isMobile
   };
@@ -69,7 +70,7 @@ class Dashboard extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { initMenuSettings, config, isLoadingDashboard, resetDashboardConfig, setLoading } = nextProps;
+    const { initMenuSettings, config, isLoadingDashboard, resetDashboardConfig, setLoading, identificationId } = nextProps;
     const { urlParams, activeLayoutId } = this.state;
     const newUrlParams = getSortedUrlParams();
     const state = {};
@@ -77,8 +78,9 @@ class Dashboard extends Component {
     if (urlParams !== newUrlParams) {
       state.urlParams = newUrlParams;
       resetDashboardConfig();
-      this.getConfig(nextProps);
+      this.getConfig();
       initMenuSettings();
+      state.urlParams = newUrlParams;
     } else if (urlParams === newUrlParams && isLoadingDashboard && !isEmpty(config)) {
       setLoading(false);
     }
@@ -87,7 +89,10 @@ class Dashboard extends Component {
       state.config = config;
     }
 
-    if (JSON.stringify(config) !== JSON.stringify(this.props.config) || isEmpty(activeLayoutId)) {
+    if (
+      (JSON.stringify(config) !== JSON.stringify(this.props.config) && identificationId !== this.props.identificationId) ||
+      isEmpty(activeLayoutId)
+    ) {
       state.activeLayoutId = get(config, '[0].id');
     }
 
@@ -98,10 +103,7 @@ class Dashboard extends Component {
     this.props.resetDashboardConfig();
   }
 
-  getPathInfo(props) {
-    const {
-      location: { search }
-    } = props || this.props;
+  getPathInfo(search = window.location.search) {
     const searchParams = queryString.parse(search);
     const { recordRef, dashboardId, dashboardKey } = searchParams;
 
@@ -113,9 +115,9 @@ class Dashboard extends Component {
     };
   }
 
-  getConfig(props) {
+  getConfig() {
     const { getDashboardConfig, getDashboardTitle } = this.props;
-    const { recordRef, dashboardKey } = this.getPathInfo(props);
+    const { recordRef, dashboardKey } = this.getPathInfo();
 
     getDashboardConfig({ recordRef, dashboardKey });
     getDashboardTitle({ recordRef });
@@ -203,8 +205,7 @@ class Dashboard extends Component {
   handleSaveWidgetProps = (id, props = {}) => {
     const activeLayout = deepClone(this.activeLayout, {});
     const columns = activeLayout.columns || [];
-
-    columns.forEach(column => {
+    const eachColumns = column => {
       const index = column.widgets.findIndex(widget => widget.id === id);
 
       if (index !== -1) {
@@ -213,6 +214,14 @@ class Dashboard extends Component {
       }
 
       return true;
+    };
+
+    columns.forEach(column => {
+      if (Array.isArray(column)) {
+        column.forEach(eachColumns);
+      } else {
+        eachColumns(column);
+      }
     });
     activeLayout.columns = columns;
 
@@ -370,6 +379,7 @@ class Dashboard extends Component {
       <Scrollbars
         style={{ height: '100%' }}
         renderTrackHorizontal={props => <div {...props} hidden />}
+        renderThumbVertical={props => <div {...props} className="ecos-dashboard__scrollbars-track-vertical" />}
         renderThumbHorizontal={props => <div {...props} hidden />}
       >
         {this.renderTopMenu()}

@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
-import get from 'lodash/get';
 import { UncontrolledTooltip } from 'reactstrap';
 
 import { isSmallMode, t } from '../../helpers/util';
@@ -11,6 +9,7 @@ import Dashlet from '../Dashlet/Dashlet';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
 import IcoBtn from '../common/btns/IcoBtn';
+import EcosFormUtils from '../EcosForm/EcosFormUtils';
 
 import './style.scss';
 
@@ -19,10 +18,6 @@ const LABELS = {
   EDIT_TITLE: 'properties-widget.action-edit.title',
   CONSTRUCTOR_BTN_TOOLTIP: 'Перейти в конструктор'
 };
-
-const mapStateToProps = state => ({
-  isAdmin: get(state, ['user', 'isAdmin'], false)
-});
 
 class PropertiesDashlet extends React.Component {
   static propTypes = {
@@ -60,11 +55,24 @@ class PropertiesDashlet extends React.Component {
       isSmall: false,
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       height: UserLocalSettingsService.getDashletHeight(props.id),
-      fitHeights: {}
+      fitHeights: {},
+      canEdit: false
     };
   }
 
+  componentDidMount() {
+    this.checkEditRights();
+  }
+
   className = 'ecos-properties-dashlet';
+
+  checkEditRights = () => {
+    const { record } = this.props;
+
+    EcosFormUtils.getCanWritePermission(record).then(canEdit => {
+      this.setState({ canEdit });
+    });
+  };
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
@@ -107,17 +115,18 @@ class PropertiesDashlet extends React.Component {
   };
 
   renderDashletCustomButtons(isDashlet = false) {
-    const { isAdmin, id } = this.props;
+    const { id } = this.props;
+    const { canEdit } = this.state;
     const buttons = [];
 
-    if (isAdmin) {
+    if (canEdit) {
       buttons.push(
         <React.Fragment key={`settings-button-${id}`}>
           <IcoBtn
             icon="icon-settings"
             id={`settings-icon-${id}-${isDashlet ? '-dashlet' : '-properties'}`}
             className={classNames('ecos-properties-dashlet__btn-settings ecos-btn_grey ecos-btn_sq_sm2 ecos-btn_hover_color-grey ', {
-              'dashlet__btn_hidden mr-2': isDashlet,
+              dashlet__btn_hidden: isDashlet,
               'ml-2': !isDashlet
             })}
             onClick={this.onClickShowFormBuilder}
@@ -190,7 +199,4 @@ class PropertiesDashlet extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  {}
-)(PropertiesDashlet);
+export default PropertiesDashlet;
