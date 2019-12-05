@@ -76,15 +76,17 @@ class PdfPage extends Component {
     } = this.props;
     const canvas = this.elCanvas;
     const elContainer = this.elContainer;
-    const [, , width, height] = page.getViewport().viewBox;
-    let { clientWidth: cW, clientHeight: cH } = elContainer;
 
-    if (!cH && defHeight && !isMob) {
-      cH = defHeight;
-    }
+    let calcScale = 1;
+    let viewport = page.getViewport({ scale: calcScale });
 
-    const calcScale = getScale(scale, { width: cW, height: cH }, { width, height }, cW / 3);
-    const viewport = page.getViewport({ scale: calcScale });
+    const [, , origW, origH] = viewport.viewBox;
+    const { clientWidth: cW, clientHeight: cH } = elContainer;
+    const noHeight = !cH && defHeight && !isMob;
+
+    calcScale = getScale(scale, { width: cW, height: noHeight ? defHeight : cH }, { origW, origH, scaleW: viewport.width }, cW / 3);
+
+    viewport = page.getViewport({ scale: calcScale });
 
     canvas.height = viewport.height;
     canvas.width = viewport.width;

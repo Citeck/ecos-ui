@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { isMobileDevice, t } from '../../helpers/util';
-import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import { DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import DocPreview from './DocPreview';
@@ -40,7 +40,7 @@ class DocPreviewDashlet extends Component {
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
       height: UserLocalSettingsService.getDashletHeight(props.id),
-      scale: UserLocalSettingsService.getDashletScale(props.id) || (isMobileDevice() ? 0.65 : undefined),
+      scale: UserLocalSettingsService.getDashletScale(props.id) || (isMobileDevice() ? DocScaleOptions.AUTO_MOBILE : DocScaleOptions.AUTO),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       fitHeights: {}
     };

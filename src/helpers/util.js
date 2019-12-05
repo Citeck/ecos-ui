@@ -1,7 +1,7 @@
 import lodashGet from 'lodash/get';
 import moment from 'moment';
 import i18next from 'i18next';
-import { DataFormatTypes, MIN_WIDTH_DASHLET_LARGE } from '../constants';
+import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
 import * as queryString from 'query-string';
 
@@ -369,10 +369,10 @@ export function fileDownload(link) {
  */
 export function getScaleModes() {
   return [
-    { id: 'auto', title: t('doc-preview.scale.auto'), scale: 'auto' },
-    { id: 'pageFit', title: t('doc-preview.scale.page-fit'), scale: 'page-fit' },
-    { id: 'pageHeight', title: t('doc-preview.scale.page-height'), scale: 'page-height' },
-    { id: 'pageWidth', title: t('doc-preview.scale.page-width'), scale: 'page-width' },
+    { id: 'auto', title: t('doc-preview.scale.auto'), scale: DocScaleOptions.AUTO },
+    { id: 'pageFit', title: t('doc-preview.scale.page-fit'), scale: DocScaleOptions.PAGE_FIT },
+    { id: 'pageHeight', title: t('doc-preview.scale.page-height'), scale: DocScaleOptions.PAGE_HEIGHT },
+    { id: 'pageWidth', title: t('doc-preview.scale.page-width'), scale: DocScaleOptions.PAGE_WIDTH },
     { id: '50', title: '50%', scale: 0.5 },
     { id: '75', title: '75%', scale: 0.75 },
     { id: '100', title: '100%', scale: 1 },
@@ -388,35 +388,37 @@ export function getScaleModes() {
  * Вычисление масштабирования для строковых режимов
  * @param scale {Number|String} - режим см getScaleModes
  * @param paramsContainer {Object} - ширина и высота объекта масштабирования
- * @param paramsScaleObject {Object} - ширина и высота контейнера
+ * @param paramsPage {Object} - ширина и высота контейнера
  * @param ratioAuto
- * @param paddingContainer
  * @returns {Number} масштаб
  */
-export function getScale(scale, paramsContainer, paramsScaleObject, ratioAuto = 50, paddingContainer = 0) {
-  let { width: soW, height: soH } = paramsScaleObject || {};
+export function getScale(scale, paramsContainer, paramsPage, ratioAuto = 50) {
+  let { origW, origH, scaleW } = paramsPage || {};
   let { width: cW, height: cH } = paramsContainer || {};
 
   let calcScale = (c, so) => {
-    return +Number((c - paddingContainer) / so).toFixed(2);
+    return +Number(c / so).toFixed(2);
   };
 
   let fit = ratio => {
     if (Math.min(cH, cW) === cH) {
-      return calcScale(cH + ratio, soH);
+      return calcScale(cH + ratio, origH);
     }
-    return calcScale(cW + ratio, soW);
+
+    return calcScale(cW + ratio, origW);
   };
 
   switch (scale) {
-    case 'page-height':
-      return calcScale(cH, soH);
-    case 'page-width':
-      return calcScale(cW, soW);
-    case 'page-fit':
+    case DocScaleOptions.PAGE_HEIGHT:
+      return calcScale(cH, origH);
+    case DocScaleOptions.PAGE_WIDTH:
+      return calcScale(cW, origW);
+    case DocScaleOptions.PAGE_FIT:
       return fit(0);
-    case 'auto':
+    case DocScaleOptions.AUTO:
       return fit(ratioAuto);
+    case DocScaleOptions.AUTO_MOBILE:
+      return calcScale(cW - 10, scaleW);
     default:
       if (scale && !Number.isNaN(parseFloat(scale))) {
         return scale;

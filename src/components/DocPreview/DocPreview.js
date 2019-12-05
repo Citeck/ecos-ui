@@ -14,6 +14,7 @@ import Toolbar from './Toolbar';
 import PdfViewer from './PdfViewer';
 import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
+import { DocScaleOptions } from '../../constants';
 
 // 2.2.228 version of worker for 2.2.228 version of pdfjs-dist:
 // pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.2.228/build/pdf.worker.min.js';
@@ -41,7 +42,7 @@ class DocPreview extends Component {
     link: null,
     className: '',
     height: 'inherit',
-    scale: 'auto',
+    scale: DocScaleOptions.AUTO,
     firstPageNumber: 1,
     recordKey: 'recordRef',
     fileName: ''
