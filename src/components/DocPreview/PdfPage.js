@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import { TextLayerBuilder } from 'pdfjs-dist/lib/web/text_layer_builder.js';
@@ -6,7 +6,7 @@ import 'pdfjs-dist/web/pdf_viewer.css';
 
 import { getScale, isMobileDevice } from '../../helpers/util';
 
-class PdfPage extends Component {
+class PdfPage extends React.Component {
   static propTypes = {
     pdf: PropTypes.object.isRequired,
     pageNumber: PropTypes.number.isRequired,
@@ -29,7 +29,6 @@ class PdfPage extends Component {
   };
 
   refContainer = React.createRef();
-  refTextLayout = React.createRef();
 
   componentDidMount() {
     this.renderPage();
@@ -50,18 +49,6 @@ class PdfPage extends Component {
     return newScale !== oldScale;
   }
 
-  get elCanvas() {
-    return this.refContainer.current || {};
-  }
-
-  get elContainer() {
-    return this.props.refViewer.current || {};
-  }
-
-  get elTextLayout() {
-    return this.refTextLayout.current;
-  }
-
   renderPage() {
     const { pdf, pageNumber } = this.props;
 
@@ -74,10 +61,12 @@ class PdfPage extends Component {
       settings: { scale },
       defHeight
     } = this.props;
-    const canvas = this.elCanvas;
-    const elContainer = this.elContainer;
+    const elPageArea = this.refContainer.current || {};
+    const elCanvas = elPageArea.querySelector('.ecos-doc-preview__viewer-page-content-canvas');
+    const elTextLayer = elPageArea.querySelector('.ecos-doc-preview__viewer-page-content-text');
+    const elViewer = this.props.refViewer.current || {};
     const [, , width, height] = page.getViewport().viewBox;
-    let { clientWidth: cW, clientHeight: cH } = elContainer;
+    let { clientWidth: cW, clientHeight: cH } = elViewer;
 
     if (!cH && defHeight && !isMob) {
       cH = defHeight;
@@ -86,29 +75,29 @@ class PdfPage extends Component {
     const calcScale = getScale(scale, { width: cW, height: cH }, { width, height }, cW / 3);
     const viewport = page.getViewport({ scale: calcScale });
 
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
-
-    const $textLayer = this.elTextLayout;
-
-    if (!$textLayer) {
+    if (!elTextLayer) {
       return null;
     }
 
-    $textLayer.style.height = viewport.height + 'px';
-    $textLayer.style.width = viewport.width + 'px';
-    $textLayer.style.top = canvas.offsetTop + 'px';
-    $textLayer.style.left = canvas.offsetLeft + 'px';
+    elCanvas.height = viewport.height;
+    elCanvas.width = viewport.width;
+
+    elPageArea.style.width = viewport.width + 'px';
+
+    elTextLayer.style.height = viewport.height + 'px';
+    elTextLayer.style.width = viewport.width + 'px';
+    elTextLayer.style.top = elCanvas.offsetTop + 'px';
+    elTextLayer.style.left = elCanvas.offsetLeft + 'px';
 
     const renderContext = {
-      canvasContext: canvas.getContext('2d'),
+      canvasContext: elCanvas.getContext('2d'),
       viewport: viewport
     };
 
     page.render(renderContext);
     page.getTextContent().then(function(textContent) {
       let textLayer = new TextLayerBuilder({
-        textLayerDiv: $textLayer,
+        textLayerDiv: elTextLayer,
         pageIndex: page.pageIndex,
         viewport: viewport
       });
@@ -123,7 +112,7 @@ class PdfPage extends Component {
 
     if (isMob) {
       const margin = 30;
-      const diff = elContainer.parentElement.clientHeight - elContainer.clientHeight + margin;
+      const diff = elViewer.parentElement.clientHeight - elViewer.clientHeight + margin;
       const containerPageHeight = viewport.height + diff;
 
       this.props.getContainerPageHeight && this.props.getContainerPageHeight(containerPageHeight);
@@ -131,11 +120,16 @@ class PdfPage extends Component {
   };
 
   render() {
+    const { pageNumber } = this.props;
+
     return (
-      <Fragment>
-        <canvas ref={this.refContainer} />
-        <div ref={this.refTextLayout} className="ecos-doc-preview__viewer-page-content-text textLayer" />
-      </Fragment>
+      <div className="ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_pdf" ref={this.refContainer}>
+        <div className="ecos-doc-preview__viewer-page-number">{pageNumber}</div>
+        <div className="ecos-doc-preview__viewer-page-content">
+          <canvas className="ecos-doc-preview__viewer-page-content-canvas" />
+          <div className="ecos-doc-preview__viewer-page-content-text textLayer" />
+        </div>
+      </div>
     );
   }
 }

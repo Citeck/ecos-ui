@@ -33,18 +33,9 @@ class PdfViewer extends React.PureComponent {
 
     return (
       <div ref={forwardedRef}>
-        {arrayPages.map((pageN, idx) => {
-          let key = `ecos-doc-preview-page-${pageN}-${idx}`;
-
-          return (
-            <div className="ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_pdf" key={key}>
-              <div className="ecos-doc-preview__viewer-page-number">{pageN}</div>
-              <div className="ecos-doc-preview__viewer-page-content">
-                <PdfPage {...props} pageNumber={pageN} />
-              </div>
-            </div>
-          );
-        })}
+        {arrayPages.map((pageN, idx) => (
+          <PdfPage key={`ecos-doc-preview-page-${pageN}-${idx}`} {...props} pageNumber={pageN} />
+        ))}
       </div>
     );
   }
