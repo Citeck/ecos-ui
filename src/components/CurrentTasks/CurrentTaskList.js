@@ -73,7 +73,7 @@ class CurrentTaskList extends React.Component {
   }
 
   render() {
-    const { isSmallMode, isLoading, currentTasks, isMobile, forwardedRef } = this.props;
+    const { isSmallMode, isLoading, currentTasks, isMobile } = this.props;
     const isEmptyList = isEmpty(currentTasks);
 
     if (isLoading) {
