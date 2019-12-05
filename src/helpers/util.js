@@ -417,7 +417,7 @@ export function getScale(scale, paramsContainer, paramsPage, ratioAuto = 50) {
       return fit(0);
     case DocScaleOptions.AUTO:
       return fit(ratioAuto);
-    case DocScaleOptions.AUTO_MOBILE:
+    case DocScaleOptions.PAGE_WHOLE:
       return calcScale(cW - 10, scaleW);
     default:
       if (scale && !Number.isNaN(parseFloat(scale))) {

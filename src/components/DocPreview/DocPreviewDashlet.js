@@ -46,7 +46,7 @@ class DocPreviewDashlet extends Component {
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
       height: UserLocalSettingsService.getDashletHeight(props.id),
-      scale: UserLocalSettingsService.getDashletScale(props.id) || (isMobileDevice() ? DocScaleOptions.AUTO_MOBILE : DocScaleOptions.AUTO),
+      scale: UserLocalSettingsService.getDashletScale(props.id) || (isMobileDevice() ? DocScaleOptions.PAGE_WHOLE : DocScaleOptions.AUTO),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       fitHeights: {}
     };
