@@ -1,37 +1,8 @@
 import { handleActions } from 'redux-actions';
-import { getGeneratedBarcode, setGeneratedBarcode, setError, getBase64Barcode, setBase64Barcode } from '../actions/barcode';
-import { getCurrentStateById } from '../helpers/redux';
-
-const initialState = {
-  isLoading: false,
-  barcode: '',
-  error: ''
-};
-
-const startLoading = (state, { payload: { stateId } }) => ({
-  ...state,
-  [stateId]: {
-    ...getCurrentStateById(state, stateId, initialState),
-    isLoading: true,
-    barcode: '',
-    error: ''
-  }
-});
+import { getBase64Barcode, setBase64Barcode, setError } from '../actions/barcode';
 
 export default handleActions(
   {
-    // deprecated?
-    [getGeneratedBarcode]: startLoading,
-    // deprecated?
-    [setGeneratedBarcode]: (state, { payload: { stateId, barcode, error } }) => ({
-      ...state,
-      [stateId]: {
-        ...getCurrentStateById(state, stateId, initialState),
-        barcode,
-        error,
-        isLoading: false
-      }
-    }),
     [setError]: (state, { payload: { stateId, error } }) => ({
       ...state,
       [stateId]: {
