@@ -131,13 +131,14 @@ class DocStatus extends React.Component {
   renderReadField() {
     const { status = {} } = this.props;
     const { key } = this.state;
+    const id = `tooltip-doc-status-${key}`;
     const classStatus = classNames('ecos-doc-status__data ecos-doc-status__data_read', {
       'ecos-doc-status__data_no-status': this.isNoStatus
     });
 
     return (
       <>
-        <div id={`tooltip-doc-status-${key}`} className={classStatus}>
+        <div id={id} className={classStatus}>
           <div className="ecos-doc-status__data-label">{status.name}</div>
         </div>
         <UncontrolledTooltip
@@ -146,7 +147,7 @@ class DocStatus extends React.Component {
           className="ecos-base-tooltip"
           innerClassName="ecos-base-tooltip-inner"
           arrowClassName="ecos-base-tooltip-arrow"
-          target={`tooltip-doc-status-${key}`}
+          target={id}
         >
           {status.name}
         </UncontrolledTooltip>
