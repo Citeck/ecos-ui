@@ -7,7 +7,7 @@ import { getMinWidthColumn } from '../../helpers/layout';
 import Components from '../Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
 import { MENU_TYPE } from '../../constants';
-import { getSearchParams, documentScrollTop } from '../../helpers/util';
+import { documentScrollTop, getSearchParams } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
@@ -164,13 +164,14 @@ class Layout extends Component {
               id={`${widget.props.id}-${urlParams}`}
               record={recordRef}
               onSave={this.props.onSaveWidgetProps}
+              isOnDashboard
             />
           </DragItem>
         );
       } else {
         components.push(
           <div key={key} className="ecos-layout__element">
-            <Widget {...widget.props} canDragging={canDragging} record={recordRef} onSave={this.props.onSaveWidgetProps} />
+            <Widget {...widget.props} canDragging={canDragging} record={recordRef} onSave={this.props.onSaveWidgetProps} isOnDashboard />
           </div>
         );
       }

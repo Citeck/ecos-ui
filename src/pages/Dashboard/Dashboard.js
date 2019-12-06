@@ -281,9 +281,7 @@ class Dashboard extends Component {
 
     return (
       <Layout
-        className={classNames({
-          'ecos-layout_mobile': isMobile
-        })}
+        className={classNames({ 'ecos-layout_mobile': isMobile })}
         columns={columns}
         onSaveWidget={this.prepareWidgetsConfig}
         type={type}

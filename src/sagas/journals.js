@@ -10,6 +10,7 @@ import {
   deleteRecords,
   execRecordsAction,
   getDashletConfig,
+  getDashletConfigFromLocalSourse,
   getDashletEditorData,
   getJournalsData,
   goToJournalsPage,
@@ -131,6 +132,26 @@ function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
   }
 }
 
+function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
+  try {
+    const config = action.payload.config;
+
+    if (config) {
+      yield put(setEditorMode(w(false)));
+      yield put(setDashletConfig(w(config)));
+
+      const { journalsListId, journalId, journalSettingId = '' } = config;
+      yield getJournals(api, journalsListId, w);
+
+      yield put(initJournal(w({ journalId, journalSettingId })));
+    } else {
+      yield put(setEditorMode(w(true)));
+    }
+  } catch (e) {
+    logger.error('[journals sagaSetDashletConfigFromParams saga error', e.message);
+  }
+}
+
 function* sagaGetJournalsData({ api, logger, stateId, w }) {
   try {
     const url = yield select(state => state.journals[stateId].url);
@@ -142,7 +163,7 @@ function* sagaGetJournalsData({ api, logger, stateId, w }) {
 
     yield put(initJournal(w({ journalId, journalSettingId })));
   } catch (e) {
-    logger.error('[journals sagaGetDashletConfig saga error', e.message);
+    logger.error('[journals sagaGetJournalsData saga error', e.message);
   }
 }
 
@@ -316,9 +337,15 @@ function* sagaReloadTreeGrid({ api, logger, stateId, w }) {
 
 function* sagaSaveDashlet({ api, logger, stateId, w }, action) {
   try {
-    const { id, config } = action.payload;
+    const { id, config, isOnDashboard } = action.payload;
+
     yield call(api.journals.saveDashletConfig, config, id);
-    yield put(getDashletConfig(w(id)));
+
+    if (isOnDashboard) {
+      yield put(getDashletConfig(w(id)));
+    } else {
+      yield put(getDashletConfigFromLocalSourse(w({ id, config })));
+    }
   } catch (e) {
     logger.error('[journals sagaSaveDashlet saga error', e.message);
   }
@@ -629,6 +656,7 @@ function* sagaCreateZip({ api, logger, stateId, w }, action) {
 
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
+  yield takeEvery(getDashletConfigFromLocalSourse().type, wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
   yield takeEvery(getDashletEditorData().type, wrapSaga, { ...ea, saga: sagaGetDashletEditorData });
   yield takeLatest(getJournalsData().type, wrapSaga, { ...ea, saga: sagaGetJournalsData });
   yield takeEvery(saveDashlet().type, wrapSaga, { ...ea, saga: sagaSaveDashlet });
