@@ -29,8 +29,8 @@ export default class PanelComponent extends FormIOPanelComponent {
   }
 
   destroyComponents() {
-    super.destroyComponents();
     this.removeEventListeners();
+    return super.destroyComponents();
   }
 
   addEventListeners() {
