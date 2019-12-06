@@ -132,14 +132,35 @@ export const getJournalPageUrl = params => {
   if (isNewVersionPage()) {
     return getNewPageUrl(preparedParams);
   } else {
-    return Records.get('ecos-config@new-journals-page-enable')
-      .load('.bool')
-      .then(value => {
-        if (value === true) {
-          return getNewPageUrl(preparedParams);
-        } else {
-          return getOldPageUrl(preparedParams);
-        }
-      });
+    const isCurrentUserInGroup = group => {
+      const currentPersonName = getCurrentUserName();
+      return Records.queryOne({
+        query: `TYPE:"cm:authority" AND =cm:authorityName:"${group}"`,
+        language: "fts-alfresco"
+      }, 'cm:member[].cm:userName').then(usernames => usernames.includes(currentPersonName));
+    };
+
+    const checkJournalsAvailability = () => {
+      return Records.get("ecos-config@default-ui-new-journals-access-groups")
+        .load(".str").then(groupsInOneString => {
+          return !!groupsInOneString ? () => {
+            const groups = groupsInOneString.split(',');
+            const results = [];
+            groups.forEach(group => results.push(isCurrentUserInGroup.call(this, group)));
+            return Promise.all(results).then(values => values.includes(true));
+          } : false;
+        });
+    };
+
+    const checkJournalsAvailabilityForUser = () => {
+      return Records.get("ecos-config@default-ui-main-menu").load(".str")
+        .then(result => result === "left" ? checkJournalsAvailability.call(this) : false);
+    };
+
+    const isNewJournalPageEnable = Records.get('ecos-config@new-journals-page-enable').load('.bool');
+    const isJournalAvailibleForUser = checkJournalsAvailabilityForUser.call(this);
+
+    return Promise.all([isNewJournalPageEnable, isJournalAvailibleForUser])
+      .then(values => values.includes(true) ? getNewPageUrl(preparedParams) : getOldPageUrl(preparedParams));
   }
 };
