@@ -155,6 +155,7 @@
   "dashboard-settings.widget.versions-journal": "Журнал версий",
   "dashboard-settings.widget.web-page": "Веб-страница",
   "dashboard-settings.widget.birthdays": "Дни рождения",
+  "dashboard-settings.widget.barcode": "Штрих-код документа",
   "dashboard-settings.widgets.placeholder": "Нет доступных виджетов",
   "dashboard-settings.widgets.subtitle": "Выберите где и какие виджеты отображать.",
   "dashboard-settings.widgets.subtitle-mobile": "Выберите порядок расположения виджетов, перетащив их в колонку справа",
@@ -726,5 +727,11 @@
   "action.delete.label": "Удалить",
   "action.download.label": "Скачать",
   "action.move-to-lines.label": "Перейти к строкам",
-  "action.record-actions.label": "Серверные действия"
+  "action.record-actions.label": "Серверные действия",
+  "barcode-widget.saga.error1": "Ошибка получения штрих-кода",
+  "barcode-widget.saga.error2": "Ошибка печати штрих-кода",
+  "barcode-widget.btn.print": "Распечатать",
+  "barcode-widget.btn.generate": "Сгенерировать",
+  "barcode-widget.btn.generate-new": "Сгенерировать новый",
+  "barcode-widget.dashlet.title": "Штрих-код документа"
 }
