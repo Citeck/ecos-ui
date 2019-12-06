@@ -60,12 +60,12 @@ export class EsignApi extends RecordService {
     return this.cadespluginApi.about();
   }
 
-  getDocuments = url => {
+  getDocuments(url) {
     return fetch(url, {
       method: 'GET',
       credentials: 'include'
     }).then(response => response.json());
-  };
+  }
 
   getDocumentData = record => {
     return fetch(`/share/proxy/alfresco/acm/digestAndAttr?nodeRef=${record}`, {

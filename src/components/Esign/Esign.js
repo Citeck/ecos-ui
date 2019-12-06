@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import get from 'lodash/get';
 
 import EsignService from '../../services/esign';
@@ -87,7 +86,13 @@ class Esign extends Component {
     // props.init();
 
     EsignService.init()
-      .then(cadespluginApi => this.setState({ isFetchingApi: false, cadespluginApi }))
+      .then(cadespluginApi =>
+        this.setState({
+          isFetchingApi: false,
+          isOpen: true,
+          cadespluginApi
+        })
+      )
       .catch(this.setError);
   }
 
@@ -96,13 +101,14 @@ class Esign extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { documentSigned, onSigned } = this.props;
+    const { onSigned } = this.props;
+    const { documentSigned } = this.state;
 
-    if (prevProps.documentSigned && !documentSigned) {
-      if (typeof onSigned === 'function') {
-        onSigned();
-      }
-    }
+    // if (prevState.documentSigned && !documentSigned) {
+    //   if (typeof onSigned === 'function') {
+    //     onSigned();
+    //   }
+    // }
 
     if (prevState.isFetchingApi && !this.state.isFetchingApi) {
       EsignService.getCertificates()
@@ -112,7 +118,7 @@ class Esign extends Component {
   }
 
   get hasErrors() {
-    const { errorType, messageTitle, messageDescription } = this.props;
+    const { errorType, messageTitle, messageDescription } = this.state;
 
     return Boolean(errorType || messageTitle || messageDescription);
   }
@@ -133,8 +139,8 @@ class Esign extends Component {
   handleCloseModal = () => {
     const { clearMessage, toggleSignModal, getDocumentsUrl } = this.props;
 
-    clearMessage();
-    toggleSignModal(getDocumentsUrl);
+    this.clearMessage();
+    this.setState({ isOpen: false });
   };
 
   handleGoToPlugin = () => {
@@ -142,10 +148,25 @@ class Esign extends Component {
   };
 
   handleSignDocument = selectedCertificate => {
-    const { signDocument, getDocumentsUrl } = this.props;
+    const { getDocumentsUrl, onSigned } = this.props;
 
-    signDocument(selectedCertificate, getDocumentsUrl);
+    EsignService.signDocument(getDocumentsUrl, selectedCertificate)
+      .then(documentSigned => {
+        this.setState({ documentSigned });
+
+        if (documentSigned && typeof onSigned === 'function') {
+          onSigned();
+        }
+      })
+      .catch(this.setError);
   };
+
+  clearMessage = () =>
+    this.setState({
+      messageTitle: '',
+      messageDescription: '',
+      errorType: ''
+    });
 
   renderInfoMessage() {
     const { messageTitle, messageDescription, errorType, isOpen } = this.props;
@@ -194,7 +215,7 @@ class Esign extends Component {
   }
 
   render() {
-    const { isOpen, isLoading, certificates, cadespluginApi, documentSigned } = this.props;
+    const { isOpen, isLoading, certificates, cadespluginApi, documentSigned } = this.state;
 
     if (documentSigned) {
       return null;
@@ -241,7 +262,4 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Esign);
+export default Esign;
