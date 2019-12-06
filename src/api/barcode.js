@@ -1,13 +1,10 @@
-import { RecordService } from './recordService';
+import { CommonApi } from './common';
 
-export class BarcodeApi extends RecordService {
+export class BarcodeApi extends CommonApi {
   getBade64Barcode = ({ record, params = {} }) => {
     const data = { ...params, nodeRef: record };
     const props = Object.keys(data).map(key => `${key}=${data[key]}`);
 
-    return fetch(`/share/proxy/alfresco/citeck/image/barcode?${props.join('&')}`, {
-      method: 'GET',
-      credentials: 'include'
-    }).then(response => response.json());
+    return this.getJson(`/share/proxy/alfresco/citeck/image/barcode?${props.join('&')}`);
   };
 }
