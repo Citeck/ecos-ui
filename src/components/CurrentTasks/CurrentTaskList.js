@@ -47,7 +47,7 @@ class CurrentTaskList extends React.Component {
   }
 
   renderTable() {
-    const { currentTasks, forwardedRef } = this.props;
+    const { currentTasks } = this.props;
     const formatTasks = currentTasks.map((task, i) => ({
       [DC.title.key]: task[DC.title.key] || noData,
       [DC.actors.key]: (
@@ -69,14 +69,10 @@ class CurrentTaskList extends React.Component {
     const updCols = ArrayOfObjects.replaceKeys(cols, { key: 'dataField', label: 'text' });
     const gridCols = ArrayOfObjects.filterKeys(updCols, ['dataField', 'text']);
 
-    return (
-      <div ref={forwardedRef}>
-        <Grid data={formatTasks} columns={gridCols} scrollable={false} className="ecos-current-task-list_view-table" />
-      </div>
-    );
+    return <Grid data={formatTasks} columns={gridCols} scrollable={false} className="ecos-current-task-list_view-table" />;
   }
 
-  render() {
+  renderContent() {
     const { isSmallMode, isLoading, currentTasks, isMobile } = this.props;
     const isEmptyList = isEmpty(currentTasks);
 
@@ -93,6 +89,12 @@ class CurrentTaskList extends React.Component {
     }
 
     return this.renderTable();
+  }
+
+  render() {
+    const { forwardedRef } = this.props;
+
+    return <div ref={forwardedRef}>{this.renderContent()}</div>;
   }
 }
 

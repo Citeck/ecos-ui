@@ -17,7 +17,8 @@ class Properties extends React.Component {
     isReady: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
@@ -28,7 +29,6 @@ class Properties extends React.Component {
   };
 
   _ecosForm = React.createRef();
-  _contentRef = React.createRef();
   _hiddenEcosForm = React.createRef();
 
   state = {
@@ -89,7 +89,7 @@ class Properties extends React.Component {
     });
 
     return !hideForm && isReady && isReadySubmit ? (
-      <div ref={this._contentRef}>
+      <>
         {this.renderLoader()}
         <EcosForm
           ref={this._ecosForm}
@@ -119,15 +119,15 @@ class Properties extends React.Component {
           onFormSubmitDone={onUpdate}
           className="d-none"
         />
-      </div>
+      </>
     ) : (
-      <InfoText ref={this._contentRef} text={t('properties-widget.no-form.text')} />
+      <InfoText text={t('properties-widget.no-form.text')} />
     );
   }
 
   render() {
+    const { height, minHeight, forwardedRef } = this.props;
     const { loaded, contentHeight } = this.state;
-    const { height, minHeight } = this.props;
 
     return (
       <Scrollbars
@@ -136,7 +136,7 @@ class Properties extends React.Component {
         renderTrackVertical={props => <div {...props} className="ecos-properties__scroll_v" />}
       >
         <DefineHeight fixHeight={height} minHeight={minHeight} isMin={!loaded} getOptimalHeight={this.setHeight}>
-          {this.renderForm()}
+          <div ref={forwardedRef}>{this.renderForm()}</div>
         </DefineHeight>
       </Scrollbars>
     );

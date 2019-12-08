@@ -25,6 +25,10 @@ class BaseWidget extends Component {
   handleChangeHeight = height => {
     const pureHeight = height > 0 ? height : 0;
 
+    if (this.state.userHeight === pureHeight) {
+      return;
+    }
+
     UserLocalSettingsService.setDashletHeight(this.props.id, pureHeight >= this.clientHeight ? null : pureHeight);
     this.setState({ userHeight: pureHeight });
   };

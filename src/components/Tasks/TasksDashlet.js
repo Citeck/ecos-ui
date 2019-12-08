@@ -1,15 +1,16 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import Tasks from './Tasks';
+import BaseWidget from '../BaseWidget';
 
 import './style.scss';
-import get from 'lodash/get';
 
-class TasksDashlet extends React.Component {
+class TasksDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string.isRequired,
     record: PropTypes.string.isRequired,
@@ -40,34 +41,16 @@ class TasksDashlet extends React.Component {
     this.state = {
       isSmallMode: false,
       isRunReload: false,
-      height: UserLocalSettingsService.getDashletHeight(props.id),
+      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       fitHeights: {},
       totalCount: 0,
       isLoading: true
     };
-    this.contentRef = React.createRef();
-  }
-
-  get clientHeight() {
-    if (!this.props.maxHeightByContent) {
-      return null;
-    }
-
-    return get(this.contentRef, 'current.offsetHeight', 0);
   }
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
-  };
-
-  onChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
-    this.setState({ height });
-  };
-
-  setFitHeights = fitHeights => {
-    this.setState({ fitHeights });
   };
 
   onReload = () => {
@@ -78,18 +61,13 @@ class TasksDashlet extends React.Component {
     this.setState({ isRunReload: !isDone });
   };
 
-  handleToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
-  };
-
   setInfo = data => {
     this.setState(data);
   };
 
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isRunReload, isSmallMode, height, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
+    const { isRunReload, isSmallMode, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const classDashlet = classNames('ecos-task-list-dashlet', classNameDashlet);
 
     return (
@@ -105,7 +83,7 @@ class TasksDashlet extends React.Component {
         canDragging={canDragging}
         actionHelp={false}
         dragHandleProps={dragHandleProps}
-        onChangeHeight={this.onChangeHeight}
+        onChangeHeight={this.handleChangeHeight}
         getFitHeights={this.setFitHeights}
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
@@ -122,7 +100,7 @@ class TasksDashlet extends React.Component {
           isRunReload={isRunReload}
           setReloadDone={this.setReload}
           isSmallMode={isSmallMode}
-          height={height}
+          height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           setInfo={this.setInfo}

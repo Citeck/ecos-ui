@@ -10,9 +10,9 @@ import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
 import IcoBtn from '../common/btns/IcoBtn';
 import EcosFormUtils from '../EcosForm/EcosFormUtils';
+import BaseWidget from '../BaseWidget';
 
 import './style.scss';
-import get from 'lodash/get';
 
 const LABELS = {
   WIDGET_TITLE: 'properties-widget.title',
@@ -20,7 +20,7 @@ const LABELS = {
   CONSTRUCTOR_BTN_TOOLTIP: 'Перейти в конструктор'
 };
 
-class PropertiesDashlet extends React.Component {
+class PropertiesDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string.isRequired,
     record: PropTypes.string.isRequired,
@@ -43,8 +43,6 @@ class PropertiesDashlet extends React.Component {
     maxHeightByContent: true
   };
 
-  _propertiesRef = React.createRef();
-
   constructor(props) {
     super(props);
 
@@ -57,24 +55,15 @@ class PropertiesDashlet extends React.Component {
       formIsChanged: false,
       isSmall: false,
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
-      height: UserLocalSettingsService.getDashletHeight(props.id),
+      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       fitHeights: {},
       canEdit: false
     };
+    this._propertiesRef = React.createRef();
   }
 
   componentDidMount() {
     this.checkEditRights();
-  }
-
-  className = 'ecos-properties-dashlet';
-
-  get clientHeight() {
-    if (!this.props.maxHeightByContent) {
-      return null;
-    }
-
-    return get(this._propertiesRef, 'current._contentRef.current.offsetHeight', 0);
   }
 
   checkEditRights = () => {
@@ -89,16 +78,7 @@ class PropertiesDashlet extends React.Component {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
-  onChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
-    this.setState({ height });
-  };
-
-  setFitHeights = fitHeights => {
-    this.setState({ fitHeights });
-  };
-
-  openModal = e => {
+  openModal = () => {
     this.setState({ isEditProps: true });
   };
 
@@ -118,11 +98,6 @@ class PropertiesDashlet extends React.Component {
 
   onUpdateProperties = () => {
     this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
-  };
-
-  handleToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
   };
 
   renderDashletCustomButtons(isDashlet = false) {
@@ -163,14 +138,14 @@ class PropertiesDashlet extends React.Component {
 
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isReady, isEditProps, height, fitHeights, formIsChanged, isCollapsed } = this.state;
-    const classDashlet = classNames(this.className, classNameDashlet);
+    const { isSmallMode, isReady, isEditProps, userHeight, fitHeights, formIsChanged, isCollapsed } = this.state;
+    const classDashlet = classNames('ecos-properties-dashlet', classNameDashlet);
 
     return (
       <Dashlet
         title={title || t(LABELS.WIDGET_TITLE)}
         className={classDashlet}
-        bodyClassName={`${this.className}__body`}
+        bodyClassName={'ecos-properties-dashlet__body'}
         actionEditTitle={t(LABELS.EDIT_TITLE)}
         resizable={true}
         contentMaxHeight={this.clientHeight}
@@ -180,7 +155,7 @@ class PropertiesDashlet extends React.Component {
         canDragging={canDragging}
         onEdit={this.openModal}
         dragHandleProps={dragHandleProps}
-        onChangeHeight={this.onChangeHeight}
+        onChangeHeight={this.handleChangeHeight}
         getFitHeights={this.setFitHeights}
         onResize={this.onResize}
         customButtons={this.renderDashletCustomButtons(true)}
@@ -189,12 +164,13 @@ class PropertiesDashlet extends React.Component {
       >
         <Properties
           ref={this._propertiesRef}
+          forwardedRef={this.contentRef}
           className={classNameProps}
           record={record}
           isSmallMode={isSmallMode}
           isReady={isReady}
           stateId={id}
-          height={height}
+          height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           onUpdate={this.onUpdateProperties}
