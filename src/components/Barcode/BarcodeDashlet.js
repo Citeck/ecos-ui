@@ -5,10 +5,11 @@ import classNames from 'classnames';
 import { isMobileDevice, t } from '../../helpers/util';
 import Dashlet from '../Dashlet/Dashlet';
 import Barcode from './Barcode';
+import BaseWidget from '../BaseWidget';
 
 import './style.scss';
 
-class BarcodeDashlet extends React.Component {
+class BarcodeDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string.isRequired,
     record: PropTypes.string.isRequired,

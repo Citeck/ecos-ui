@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'reactstrap';
 
+import BaseWidget from '../BaseWidget';
 import { getAdaptiveNumberStr, removeItemFromArray, t } from '../../helpers/util';
 import { MIN_WIDTH_DASHLET_SMALL, URL } from '../../constants';
 import { getDocuments, getMenu, getSectionList, initStore, saveDocuments } from '../../actions/docAssociations';
@@ -33,7 +34,7 @@ const LABELS = {
   CONFIRM_REMOVE_MODAL_TEXT: 'doc-associations-widget.confirm-remove-modal.text'
 };
 
-class DocAssociations extends Component {
+class DocAssociations extends BaseWidget {
   static propTypes = {
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     canDragging: PropTypes.bool,
@@ -75,7 +76,6 @@ class DocAssociations extends Component {
     };
 
     props.initStore();
-    this.contentRef = React.createRef();
   }
 
   componentDidMount() {
@@ -106,36 +106,6 @@ class DocAssociations extends Component {
 
     return `${label}?`;
   }
-
-  get clientHeight() {
-    if (!this.props.maxHeightByContent) {
-      return null;
-    }
-
-    return get(this.contentRef, 'current.offsetHeight', 0);
-  }
-
-  setContentHeight = contentHeight => {
-    this.setState({ contentHeight });
-  };
-
-  handleResize = width => {
-    this.setState({ width });
-  };
-
-  handleChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
-    this.setState({ userHeight: height });
-  };
-
-  handleSetFitHeights = fitHeights => {
-    this.setState({ fitHeights });
-  };
-
-  handleToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
-  };
 
   handleToggleMenu = () => {
     const { menu, getMenu, isLoadingMenu, getSectionList } = this.props;
@@ -374,7 +344,7 @@ class DocAssociations extends Component {
         onResize={this.handleResize}
         dragHandleProps={dragHandleProps}
         onChangeHeight={this.handleChangeHeight}
-        getFitHeights={this.handleSetFitHeights}
+        getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
         customButtons={[this.renderAddButton()]}

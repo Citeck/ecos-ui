@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
@@ -13,6 +13,7 @@ import { t } from '../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../constants/versionsJournal';
 
+import BaseWidget from '../BaseWidget';
 import { Avatar, DefineHeight, Icon, Loader } from '../common';
 import { Btn, IcoBtn } from '../common/btns';
 import { Dropdown, Headline } from '../common/form';
@@ -64,7 +65,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   setActiveVersion: payload => dispatch(setActiveVersion({ ...payload, record: ownProps.record, id: ownProps.id }))
 });
 
-class VersionsJournal extends Component {
+class VersionsJournal extends BaseWidget {
   static propTypes = {
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     versions: PropTypes.arrayOf(
@@ -138,7 +139,6 @@ class VersionsJournal extends Component {
     this.state = { ...state, ...VersionsJournal.getDefaultSelectedVersions(props) };
 
     this.topPanel = React.createRef();
-    this.bodyRef = React.createRef();
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -173,10 +173,6 @@ class VersionsJournal extends Component {
   componentDidMount() {
     this.props.getVersionsList();
   }
-
-  handleResize = width => {
-    this.setState({ width });
-  };
 
   handleToggleAddModal = () => {
     this.props.toggleModal(MODAL.ADD);
@@ -224,19 +220,6 @@ class VersionsJournal extends Component {
     this.props.toggleModal(MODAL.COMPARISON);
   };
 
-  handleChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
-    this.setState({ userHeight: height });
-  };
-
-  handleGetFitHeights = fitHeights => {
-    this.setState({ fitHeights });
-  };
-
-  setContentHeight = contentHeight => {
-    this.setState({ contentHeight });
-  };
-
   get scrollableHeight() {
     let scrollableHeight = this.state.contentHeight;
 
@@ -245,22 +228,9 @@ class VersionsJournal extends Component {
     return scrollableHeight;
   }
 
-  get clientHeight() {
-    if (!this.props.maxHeightByContent) {
-      return null;
-    }
-
-    return get(this.bodyRef, 'current.offsetHeight', 0);
-  }
-
   get otherHeight() {
     return get(this.topPanel, 'current.offsetHeight', 0);
   }
-
-  handleToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
-  };
 
   renderAddButton(isModal = false) {
     const { id, record } = this.props;
@@ -311,7 +281,6 @@ class VersionsJournal extends Component {
           'ecos-vj__version-actions_mobile': isMobile
         })}
       >
-        {/*<Icon onClick={this.handleClickShowModal} className="icon-on ecos-vj__version-actions-item" />*/}
         <Icon
           id={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
           onClick={this.handleOpenSetActiveVersionModal.bind(null, version)}
@@ -582,7 +551,7 @@ class VersionsJournal extends Component {
   renderBody() {
     const { isMobile } = this.props;
     const body = (
-      <div ref={this.bodyRef}>
+      <div ref={this.contentRef}>
         {this.renderActualVersion()}
         {this.renderOldVersions()}
       </div>
@@ -623,7 +592,7 @@ class VersionsJournal extends Component {
         onResize={this.handleResize}
         onChangeHeight={this.handleChangeHeight}
         customButtons={[!isMobile && this.renderAddButton()]}
-        getFitHeights={this.handleGetFitHeights}
+        getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
       >

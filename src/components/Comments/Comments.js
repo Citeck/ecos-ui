@@ -8,6 +8,7 @@ import { ContentState, convertFromRaw, convertToRaw, Editor, EditorState, RichUt
 import { stateToHTML } from 'draft-js-export-html';
 import get from 'lodash/get';
 
+import BaseWidget from '../BaseWidget';
 import { num2str, t } from '../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
@@ -29,7 +30,7 @@ const BUTTONS_TYPE = {
   LIST: 'unordered-list-item'
 };
 
-class Comments extends React.Component {
+class Comments extends BaseWidget {
   static propTypes = {
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     comments: PropTypes.arrayOf(
@@ -86,7 +87,7 @@ class Comments extends React.Component {
   constructor(props) {
     super(props);
 
-    this._list = React.createRef();
+    this.contentRef = React.createRef();
     this._scroll = React.createRef();
     this._header = React.createRef();
 
@@ -225,23 +226,15 @@ class Comments extends React.Component {
   get scrollbarHeight() {
     let height = this.props.commentListMaxHeight;
 
-    if (!this._list.current) {
+    if (!this.contentRef.current) {
       return `${height}px`;
     }
 
-    const { clientHeight } = this._list.current;
+    const { clientHeight } = this.contentRef.current;
 
     height = clientHeight > height ? height : clientHeight;
 
     return `${height}px`;
-  }
-
-  get clientHeight() {
-    if (!this.props.maxHeightByContent) {
-      return null;
-    }
-
-    return get(this._list, 'current.offsetHeight', 0);
   }
 
   get otherHeight() {
@@ -266,10 +259,6 @@ class Comments extends React.Component {
     if (this._scroll.current) {
       this._scroll.current.container.style.minHeight = this.scrollbarHeight;
     }
-  };
-
-  handleResize = width => {
-    this.setState({ width });
   };
 
   handleShowEditor = () => {
@@ -405,24 +394,6 @@ class Comments extends React.Component {
     const { getComments } = this.props;
 
     getComments();
-  };
-
-  handleChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
-    this.setState({ userHeight: height });
-  };
-
-  setContentHeight = contentHeight => {
-    this.setState({ contentHeight });
-  };
-
-  setFitHeights = fitHeights => {
-    this.setState({ fitHeights });
-  };
-
-  handleToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
   };
 
   renderHeader() {
@@ -648,7 +619,7 @@ class Comments extends React.Component {
     const fixHeight = userHeight ? userHeight - headerHeight : null;
 
     const renderCommentList = () => (
-      <div className="ecos-comments__list" ref={this._list}>
+      <div className="ecos-comments__list" ref={this.contentRef}>
         {comments.map(this.renderComment)}
       </div>
     );
