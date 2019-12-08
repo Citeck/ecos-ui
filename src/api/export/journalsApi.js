@@ -134,8 +134,8 @@ export const getJournalPageUrl = params => {
     const isNewJournalPageEnable = Records.get('ecos-config@new-journals-page-enable').load('.bool');
     const isJournalAvailibleForUser = checkFunctionalAvailabilityForUser('default-ui-new-journals-access-groups');
 
-    return Promise.all([isNewJournalPageEnable, isJournalAvailibleForUser]).then(values =>
-      values.includes(true) ? getNewPageUrl(preparedParams) : getOldPageUrl(preparedParams)
-    );
+    return Promise.all([isNewJournalPageEnable, isJournalAvailibleForUser]).then(values => {
+      return values.includes(true) ? getNewPageUrl(preparedParams) : getOldPageUrl(preparedParams);
+    });
   }
 };
