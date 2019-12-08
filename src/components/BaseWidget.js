@@ -23,8 +23,10 @@ class BaseWidget extends Component {
   };
 
   handleChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
-    this.setState({ userHeight: height });
+    const pureHeight = height > 0 ? height : 0;
+
+    UserLocalSettingsService.setDashletHeight(this.props.id, pureHeight >= this.clientHeight ? null : pureHeight);
+    this.setState({ userHeight: pureHeight });
   };
 
   handleToggleContent = (isCollapsed = false) => {

@@ -58,7 +58,7 @@ class CurrentTasks extends React.Component {
     this.getCurrentTaskList();
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps(nextProps) {
     const { record, isLoading } = this.props;
 
     if (!isLoading && !isEmpty(nextProps.updateRequestRecord) && nextProps.updateRequestRecord === record) {

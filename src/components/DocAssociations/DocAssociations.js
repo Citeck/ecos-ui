@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
@@ -19,7 +19,6 @@ import SelectJournal from '../common/form/SelectJournal';
 import Dashlet from '../Dashlet/Dashlet';
 
 import './style.scss';
-import get from 'lodash/get';
 
 const LABELS = {
   TITLE: 'doc-associations-widget.title',
