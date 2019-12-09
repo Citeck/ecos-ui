@@ -134,15 +134,13 @@ function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
 
 function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
   try {
-    const config = action.payload.config;
+    const config = action.payload.config || {};
+    const { journalsListId, journalId, journalSettingId = '' } = config;
 
-    if (config) {
+    if (journalsListId) {
       yield put(setEditorMode(w(false)));
       yield put(setDashletConfig(w(config)));
-
-      const { journalsListId, journalId, journalSettingId = '' } = config;
       yield getJournals(api, journalsListId, w);
-
       yield put(initJournal(w({ journalId, journalSettingId })));
     } else {
       yield put(setEditorMode(w(true)));

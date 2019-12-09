@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import get from 'lodash/get';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
 
@@ -33,8 +34,7 @@ const mapStateToProps = (state, props) => {
   return {
     editorMode: newState.editorMode,
     journalConfig: newState.journalConfig,
-    config: newState.config,
-    configFromDashboard: props.isOnDashboard ? props.configFromDashboard || props.config : null
+    config: newState.config
   };
 };
 
@@ -42,7 +42,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId || props.id);
 
   return {
-    initState: stateId => dispatch(initState(stateId)),
+    initState: (id, params = {}) => dispatch(initState({ id, params })),
     getDashletConfig: id => dispatch(getDashletConfig(w(id))),
     setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
@@ -50,6 +50,17 @@ const mapDispatchToProps = (dispatch, props) => {
     getDashletConfigFromLocalSourse: (id, config) => dispatch(getDashletConfigFromLocalSourse(w({ id, config })))
   };
 };
+
+function mergeProps(state, dispatchProps, props) {
+  const newState = get(state, ['journals', props.stateId || props.id], {});
+
+  return {
+    ...props,
+    ...state,
+    ...dispatchProps,
+    config: props.isOnDashboard ? props.config : newState.config
+  };
+}
 
 class JournalsDashlet extends Component {
   static propTypes = {
@@ -83,11 +94,11 @@ class JournalsDashlet extends Component {
   }
 
   componentDidMount() {
-    const { setRecordRef, getDashletConfig, getDashletConfigFromLocalSourse, id, configFromDashboard, isOnDashboard } = this.props;
+    const { setRecordRef, getDashletConfig, getDashletConfigFromLocalSourse, id, config, isOnDashboard } = this.props;
 
     setRecordRef(this.recordRef);
     !isOnDashboard && getDashletConfig(id);
-    isOnDashboard && getDashletConfigFromLocalSourse(id, configFromDashboard);
+    isOnDashboard && getDashletConfigFromLocalSourse(id, config);
   }
 
   handleResize = width => {
@@ -188,5 +199,6 @@ class JournalsDashlet extends Component {
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
+  mergeProps
 )(JournalsDashlet);

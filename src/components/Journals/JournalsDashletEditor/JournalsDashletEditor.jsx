@@ -91,7 +91,7 @@ class JournalsDashletEditor extends Component {
       setEditorMode
     } = this.props;
 
-    if (prevConfig.journalsListId !== config.journalsListId || prevConfig.journalId !== config.journalId) {
+    if (config && (prevConfig.journalsListId !== config.journalsListId || prevConfig.journalId !== config.journalId)) {
       getDashletEditorData(config);
     }
 

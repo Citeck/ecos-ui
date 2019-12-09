@@ -109,7 +109,7 @@ Object.freeze(initialState);
 export default handleActions(
   {
     [initState]: (state, action) => {
-      const id = action.payload;
+      const { id, params } = action.payload;
 
       if (state[id]) {
         return { ...state };
@@ -117,7 +117,10 @@ export default handleActions(
 
       return {
         ...state,
-        [id]: deepClone(defaultState)
+        [id]: {
+          ...deepClone(defaultState),
+          ...params
+        }
       };
     },
     [setUrl]: (state, action) => {
