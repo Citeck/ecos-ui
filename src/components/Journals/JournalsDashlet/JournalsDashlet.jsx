@@ -6,6 +6,7 @@ import queryString from 'query-string';
 
 import { goToJournalsPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
+import { t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import {
@@ -25,7 +26,6 @@ import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletFooter from '../JournalsDashletFooter';
 
 import './JournalsDashlet.scss';
-import { t } from '../../../helpers/util';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId || props.id] || {};

@@ -337,15 +337,9 @@ function* sagaReloadTreeGrid({ api, logger, stateId, w }) {
 
 function* sagaSaveDashlet({ api, logger, stateId, w }, action) {
   try {
-    const { id, config, isOnDashboard } = action.payload;
-
+    const { id, config } = action.payload;
     yield call(api.journals.saveDashletConfig, config, id);
-
-    if (isOnDashboard) {
-      yield put(getDashletConfig(w(id)));
-    } else {
-      yield put(getDashletConfigFromLocalSourse(w({ id, config })));
-    }
+    yield put(getDashletConfig(w(id)));
   } catch (e) {
     logger.error('[journals sagaSaveDashlet saga error', e.message);
   }

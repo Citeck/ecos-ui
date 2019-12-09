@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
 import { Caption, Checkbox, Field, Select } from '../../common/form';
 import { Btn } from '../../common/btns';
 
 import {
+  getDashletConfigFromLocalSourse,
   getDashletEditorData,
   saveDashlet,
   setDashletConfig,
@@ -31,7 +33,9 @@ const mapStateToProps = (state, props) => {
     journals: newState.journals,
     journalSettings: newState.journalSettings,
     config: newState.config,
-    initConfig: newState.initConfig
+    initConfig: newState.initConfig,
+    editorMode: newState.editorMode,
+    resultDashboard: get(state, 'dashboard.requestResult', {})
   };
 };
 
@@ -41,6 +45,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
     getDashletEditorData: config => dispatch(getDashletEditorData(w(config))),
+    getDashletConfigFromLocalSourse: (id, config) => dispatch(getDashletConfigFromLocalSourse(w({ id, config }))),
     setJournalsListItem: item => dispatch(setJournalsListItem(w(item))),
     setJournalsItem: item => dispatch(setJournalsItem(w(item))),
     setSettingItem: id => dispatch(setSettingItem(w(id))),
@@ -67,17 +72,32 @@ class JournalsDashletEditor extends Component {
   };
 
   componentDidMount() {
-    const { config, isOnDashboard, getDashletEditorData } = this.props;
+    const { config, getDashletEditorData } = this.props;
 
-    getDashletEditorData({ config, isOnDashboard });
+    getDashletEditorData(config);
   }
 
   componentDidUpdate(prevProps) {
     const prevConfig = prevProps.config || {};
-    const { config = {}, isOnDashboard, getDashletEditorData } = this.props;
+    const prevResultDashboard = prevProps.resultDashboard || {};
+    const {
+      config = {},
+      id,
+      editorMode,
+      resultDashboard = {},
+      isOnDashboard,
+      getDashletEditorData,
+      getDashletConfigFromLocalSourse,
+      setEditorMode
+    } = this.props;
 
     if (prevConfig.journalsListId !== config.journalsListId || prevConfig.journalId !== config.journalId) {
-      getDashletEditorData({ config, isOnDashboard });
+      getDashletEditorData(config);
+    }
+
+    if (editorMode && isOnDashboard && prevResultDashboard.status !== resultDashboard.status && resultDashboard.status) {
+      getDashletConfigFromLocalSourse(id, config);
+      setEditorMode(false);
     }
   }
 
