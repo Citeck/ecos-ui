@@ -53,6 +53,7 @@ export class EsignApi extends RecordService {
   };
 
   async getCertificates() {
+    // return await this.cadespluginApi.getCertsList();
     return await this.cadespluginApi.getValidCertificates();
   }
 
@@ -75,11 +76,13 @@ export class EsignApi extends RecordService {
   };
 
   getSignedDocument = (thumbprint, base64) => {
+    // console.warn({ thumbprint, base64 });
+    // this.cadespluginApi.signBase64(thumbprint, base64).then(res => console.warn(res));
     return this.cadespluginApi.signBase64(thumbprint, base64);
   };
 
-  verifySigned = (signedMessage, signedDocument) => {
-    return this.cadespluginApi.verifyBase64(signedMessage, signedDocument);
+  verifySigned = async (signedMessage, signedDocument) => {
+    return await this.cadespluginApi.verifyBase64(signedMessage, signedDocument);
   };
 
   sendSignedDocument = (nodeRef, sign, signer) => {

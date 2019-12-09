@@ -1,21 +1,14 @@
+import React from 'react';
 import ReactDOM from 'react-dom';
 import get from 'lodash/get';
-import set from 'lodash/set';
-import { delay } from 'redux-saga';
-import { call, select, all } from 'redux-saga/effects';
 
 import { EsignApi } from '../api/esign';
 import EsignConverter from '../dto/esign';
 import { t } from '../helpers/util';
 import { ErrorTypes, Labels } from '../constants/esign';
-import { selectCertificate } from '../selectors/esign';
-import { selectUserName } from '../selectors/user';
-import DialogManager from '../components/common/dialogs/Manager';
 import { default as EsignWidget } from '../components/Esign';
-import React from 'react';
 
 const api = new EsignApi();
-const exemplars = {};
 const runGenerator = generator => {
   const g = generator();
 
@@ -39,13 +32,17 @@ export default class EsignService {
 
       const cadespluginApi = await api.getCadespluginApi();
 
-      // await new Promise(resolve => setTimeout(resolve, 5000));
-
-      // set(window, 'Citeck.Esign.cadespluginApi', cadespluginApi);
-
       return cadespluginApi;
     } catch (e) {
+      const hasPlugin = api.hasCadesplugin;
+
       console.error('[EsignService init] error ', e.message);
+
+      return Promise.reject({
+        messageTitle: hasPlugin ? t(Labels.ERROR) : t(Labels.ADD_PLUGIN),
+        messageDescription: hasPlugin ? e.message : t(Labels.ADD_PLUGIN_MESSAGE),
+        errorType: hasPlugin ? t(ErrorTypes.DEFAULT) : t(ErrorTypes.NO_CADESPLUGIN)
+      });
     }
   };
 
@@ -95,8 +92,6 @@ export default class EsignService {
       const documentResponse = await api.getDocumentData(document);
       const base64 = get(documentResponse, 'data.0.base64', '');
 
-      console.warn('base64 => ', base64);
-
       if (!base64) {
         return Promise.reject({
           messageTitle: t(Labels.ERROR),
@@ -105,10 +100,10 @@ export default class EsignService {
         });
       }
 
+      console.warn({ thumbprint, base64 });
+
       const signedMessage = await api.getSignedDocument(thumbprint, base64);
       const isVerified = await api.verifySigned(signedMessage, base64);
-
-      console.warn('isVerified => ', isVerified);
 
       if (!isVerified) {
         return Promise.reject({
@@ -118,11 +113,8 @@ export default class EsignService {
         });
       }
 
-      // const user = await select(selectUserName);
       const user = await get(window, 'Alfresco.constants.USERNAME', '');
       const signResponse = await api.sendSignedDocument(document, signedMessage, user);
-
-      console.warn('signResponse => ', signResponse);
 
       return get(signResponse, 'data', false);
     } catch (e) {
@@ -158,7 +150,15 @@ export default class EsignService {
 
       console.warn('documents => ', documents);
 
-      const signStatuses = await Promise.all(documents.map(async document => await EsignService.signDocumentByNode(thumbprint, document)));
+      const signStatuses = [];
+
+      for (const document of documents) {
+        const status = await EsignService.signDocumentByNode(thumbprint, document);
+
+        signStatuses.push(status);
+      }
+
+      // const signStatuses = await Promise.all(documents.map(async document => await EsignService.signDocumentByNode(thumbprint, document)));
 
       console.warn('signStatuses => ', signStatuses);
 

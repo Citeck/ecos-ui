@@ -124,7 +124,12 @@ class Esign extends Component {
   }
 
   setError = ({ messageTitle, messageDescription, errorType }) => {
-    this.setState({ messageTitle, messageDescription, errorType });
+    this.setState({
+      isOpen: true,
+      messageTitle,
+      messageDescription,
+      errorType
+    });
   };
 
   handleToggleSignModal = event => {
@@ -169,7 +174,7 @@ class Esign extends Component {
     });
 
   renderInfoMessage() {
-    const { messageTitle, messageDescription, errorType, isOpen } = this.props;
+    const { messageTitle, messageDescription, errorType, isOpen } = this.state;
     let buttons = null;
 
     switch (errorType) {
