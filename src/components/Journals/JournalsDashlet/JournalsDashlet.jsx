@@ -97,8 +97,12 @@ class JournalsDashlet extends Component {
     const { setRecordRef, getDashletConfig, getDashletConfigFromLocalSourse, id, config, isOnDashboard } = this.props;
 
     setRecordRef(this.recordRef);
-    !isOnDashboard && getDashletConfig(id);
-    isOnDashboard && getDashletConfigFromLocalSourse(id, config);
+
+    if (isOnDashboard) {
+      getDashletConfigFromLocalSourse(id, config);
+    } else {
+      getDashletConfig(id);
+    }
   }
 
   handleResize = width => {
