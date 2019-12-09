@@ -8,10 +8,10 @@ import { Caption, Checkbox, Field, Select } from '../../common/form';
 import { Btn } from '../../common/btns';
 
 import {
-  getDashletConfigFromLocalSourse,
   getDashletEditorData,
   saveDashlet,
   setDashletConfig,
+  setDashletConfigByParams,
   setEditorMode,
   setJournalsItem,
   setJournalsListItem,
@@ -45,7 +45,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
     getDashletEditorData: config => dispatch(getDashletEditorData(w(config))),
-    getDashletConfigFromLocalSourse: (id, config) => dispatch(getDashletConfigFromLocalSourse(w({ id, config }))),
+    setDashletConfigByParams: (id, config) => dispatch(setDashletConfigByParams(w({ id, config }))),
     setJournalsListItem: item => dispatch(setJournalsListItem(w(item))),
     setJournalsItem: item => dispatch(setJournalsItem(w(item))),
     setSettingItem: id => dispatch(setSettingItem(w(id))),
@@ -87,7 +87,7 @@ class JournalsDashletEditor extends Component {
       resultDashboard = {},
       isOnDashboard,
       getDashletEditorData,
-      getDashletConfigFromLocalSourse,
+      setDashletConfigByParams,
       setEditorMode
     } = this.props;
 
@@ -96,7 +96,7 @@ class JournalsDashletEditor extends Component {
     }
 
     if (editorMode && isOnDashboard && prevResultDashboard.status !== resultDashboard.status && resultDashboard.status) {
-      getDashletConfigFromLocalSourse(id, config);
+      setDashletConfigByParams(id, config);
       setEditorMode(false);
     }
   }

@@ -10,7 +10,6 @@ import {
   deleteRecords,
   execRecordsAction,
   getDashletConfig,
-  getDashletConfigFromLocalSourse,
   getDashletEditorData,
   getJournalsData,
   goToJournalsPage,
@@ -29,6 +28,7 @@ import {
   search,
   setColumnsSetup,
   setDashletConfig,
+  setDashletConfigByParams,
   setEditorMode,
   setGrid,
   setGridInlineToolSettings,
@@ -648,7 +648,7 @@ function* sagaCreateZip({ api, logger, stateId, w }, action) {
 
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
-  yield takeEvery(getDashletConfigFromLocalSourse().type, wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
+  yield takeEvery(setDashletConfigByParams().type, wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
   yield takeEvery(getDashletEditorData().type, wrapSaga, { ...ea, saga: sagaGetDashletEditorData });
   yield takeLatest(getJournalsData().type, wrapSaga, { ...ea, saga: sagaGetJournalsData });
   yield takeEvery(saveDashlet().type, wrapSaga, { ...ea, saga: sagaSaveDashlet });

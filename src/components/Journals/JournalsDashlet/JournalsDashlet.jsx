@@ -10,14 +10,7 @@ import { wrapArgs } from '../../../helpers/redux';
 import { t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import {
-  getDashletConfig,
-  getDashletConfigFromLocalSourse,
-  initState,
-  reloadGrid,
-  setEditorMode,
-  setRecordRef
-} from '../../../actions/journals';
+import { getDashletConfig, initState, reloadGrid, setDashletConfigByParams, setEditorMode, setRecordRef } from '../../../actions/journals';
 
 import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet/Dashlet';
@@ -47,7 +40,7 @@ const mapDispatchToProps = (dispatch, props) => {
     setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
-    getDashletConfigFromLocalSourse: (id, config) => dispatch(getDashletConfigFromLocalSourse(w({ id, config })))
+    setDashletConfigByParams: (id, config) => dispatch(setDashletConfigByParams(w({ id, config })))
   };
 };
 
@@ -94,12 +87,12 @@ class JournalsDashlet extends Component {
   }
 
   componentDidMount() {
-    const { setRecordRef, getDashletConfig, getDashletConfigFromLocalSourse, id, config, isOnDashboard } = this.props;
+    const { setRecordRef, getDashletConfig, setDashletConfigByParams, id, config, isOnDashboard } = this.props;
 
     setRecordRef(this.recordRef);
 
     if (isOnDashboard) {
-      getDashletConfigFromLocalSourse(id, config);
+      setDashletConfigByParams(id, config);
     } else {
       getDashletConfig(id);
     }
