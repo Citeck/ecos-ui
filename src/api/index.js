@@ -21,4 +21,5 @@ export { TimesheetVerificationApi } from './timesheet/verification';
 export { TimesheetDelegatedApi } from './timesheet/delegated';
 export { ViewApi } from './view';
 export { BirthdaysApi } from './birthdays';
+export { BarcodeApi } from './barcode';
 export { EsignApi } from './esign';

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
 import { isMobileDevice, t } from '../../helpers/util';
-import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import { DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import DocPreview from './DocPreview';
@@ -21,7 +22,8 @@ class DocPreviewDashlet extends Component {
       link: PropTypes.string.isRequired
     }),
     dragHandleProps: PropTypes.object,
-    canDragging: PropTypes.bool
+    canDragging: PropTypes.bool,
+    maxHeightByContent: PropTypes.bool
   };
 
   static defaultProps = {
@@ -29,8 +31,12 @@ class DocPreviewDashlet extends Component {
     classNamePreview: '',
     fileName: '',
     classNameDashlet: '',
-    dragHandleProps: {}
+    dragHandleProps: {},
+    maxHeightByContent: true
   };
+
+  contentRef = React.createRef();
+  docPreviewRef = React.createRef();
 
   constructor(props) {
     super(props);
@@ -40,18 +46,30 @@ class DocPreviewDashlet extends Component {
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
       height: UserLocalSettingsService.getDashletHeight(props.id),
-      scale: UserLocalSettingsService.getDashletScale(props.id) || (isMobileDevice() ? 0.65 : undefined),
+      scale: UserLocalSettingsService.getDashletScale(props.id) || (isMobileDevice() ? DocScaleOptions.PAGE_WHOLE : DocScaleOptions.AUTO),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       fitHeights: {}
     };
+  }
+
+  get clientHeight() {
+    if (!this.props.maxHeightByContent) {
+      return null;
+    }
+
+    return (
+      get(this.contentRef, 'current.offsetHeight', 0) + 24 + get(this.docPreviewRef, 'current.refToolbar.current.offsetHeight', 0) + 14
+    );
   }
 
   onResize = width => {
     this.setState({ width });
   };
 
-  onChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+  onChangeHeight = h => {
+    const height = h;
+
+    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
     this.setState({ height });
   };
 
@@ -106,11 +124,14 @@ class DocPreviewDashlet extends Component {
         onChangeHeight={this.onChangeHeight}
         dragHandleProps={dragHandleProps}
         resizable
+        contentMaxHeight={this.clientHeight}
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
       >
         <DocPreview
+          ref={this.docPreviewRef}
+          forwardedRef={this.contentRef}
           link={config.link}
           height={height}
           className={classNamePreview}

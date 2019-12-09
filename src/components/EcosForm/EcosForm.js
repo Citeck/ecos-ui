@@ -24,6 +24,7 @@ let formCounter = 0;
 
 class EcosForm extends React.Component {
   _formBuilderModal = React.createRef();
+  _form = null;
 
   constructor(props) {
     super(props);
@@ -41,6 +42,9 @@ class EcosForm extends React.Component {
 
   componentWillUnmount() {
     Records.releaseAll(this.state.containerId);
+    if (this._form) {
+      this._form.destroy();
+    }
   }
 
   componentDidMount() {
@@ -155,6 +159,9 @@ class EcosForm extends React.Component {
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
           let form = formAndCustom[0];
           let customModule = formAndCustom[1];
+
+          this._form = form;
+
           form.ecos = {
             custom: customModule
           };

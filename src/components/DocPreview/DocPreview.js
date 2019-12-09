@@ -14,6 +14,7 @@ import Toolbar from './Toolbar';
 import PdfViewer from './PdfViewer';
 import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
+import { DocScaleOptions } from '../../constants';
 
 // 2.2.228 version of worker for 2.2.228 version of pdfjs-dist:
 // pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.2.228/build/pdf.worker.min.js';
@@ -34,14 +35,15 @@ class DocPreview extends Component {
     resizable: PropTypes.bool,
     isCollapsed: PropTypes.bool,
     fileName: PropTypes.string,
-    setUserScale: PropTypes.func
+    setUserScale: PropTypes.func,
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
     link: null,
     className: '',
     height: 'inherit',
-    scale: 'auto',
+    scale: DocScaleOptions.AUTO,
     firstPageNumber: 1,
     recordKey: 'recordRef',
     fileName: ''
@@ -252,19 +254,20 @@ class DocPreview extends Component {
   };
 
   pdfViewer() {
+    const { maxHeight, forwardedRef } = this.props;
     const { pdf } = this.state;
-    const { maxHeight } = this.props;
 
-    return <Pdf pdf={pdf} defHeight={maxHeight} scrollPage={this.setScrollPage} {...this.commonProps} />;
+    return <Pdf pdf={pdf} forwardedRef={forwardedRef} defHeight={maxHeight} scrollPage={this.setScrollPage} {...this.commonProps} />;
   }
 
   imgViewer() {
-    const { resizable } = this.props;
+    const { resizable, forwardedRef } = this.props;
     const { link } = this.state;
 
     return (
       <Img
         src={link}
+        forwardedRef={forwardedRef}
         resizable={resizable}
         {...this.commonProps}
         onError={() => {

@@ -30,6 +30,7 @@ import timesheetDelegated from './timesheet/delegated';
 import timesheetCommon from './timesheet/common';
 import webPage from './webPage';
 import birthdays from './birthdays';
+import barcode from './barcode';
 
 const reducers = {
   app,
@@ -60,6 +61,7 @@ const reducers = {
   timesheetCommon,
   webPage,
   birthdays,
+  barcode,
   esign
 };
 

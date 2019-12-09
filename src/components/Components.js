@@ -21,7 +21,7 @@ export const ComponentKeys = {
   DOC_ASSOCIATIONS: 'doc-associations',
   RECORD_ACTIONS: 'record-actions',
   WEB_PAGE: 'web-page',
-  BIRTHDAYS: 'birthdays'
+  BARCODE: 'barcode'
 };
 
 /**
@@ -101,6 +101,11 @@ export default class Components {
       path: './Birthdays',
       label: 'dashboard-settings.widget.birthdays',
       supportedDashboardTypes: [DashboardTypes.USER]
+    },
+    [ComponentKeys.BARCODE]: {
+      path: './Barcode',
+      label: 'dashboard-settings.widget.barcode',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     }
   });
 

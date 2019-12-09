@@ -10,6 +10,10 @@
     position: absolute;
     cursor: pointer;
 
+    &_hidden {
+      display: none;
+    }
+
     &-search {
       $isearch: &;
 
@@ -34,6 +38,10 @@
 
     &_empty {
       padding-right: 0;
+    }
+
+    &_hidden {
+      display: none;
     }
   }
 
@@ -134,9 +142,5 @@
     #{$root}__loader {
       padding: 15px 0;
     }
-  }
-
-  & .hide {
-    display: none;
   }
 }

@@ -12,6 +12,7 @@ import IcoBtn from '../common/btns/IcoBtn';
 import EcosFormUtils from '../EcosForm/EcosFormUtils';
 
 import './style.scss';
+import get from 'lodash/get';
 
 const LABELS = {
   WIDGET_TITLE: 'properties-widget.title',
@@ -30,14 +31,16 @@ class PropertiesDashlet extends React.Component {
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
     }),
     dragHandleProps: PropTypes.object,
-    canDragging: PropTypes.bool
+    canDragging: PropTypes.bool,
+    maxHeightByContent: PropTypes.bool
   };
 
   static defaultProps = {
     classNameProps: '',
     classNameDashlet: '',
     dragHandleProps: {},
-    canDragging: false
+    canDragging: false,
+    maxHeightByContent: true
   };
 
   _propertiesRef = React.createRef();
@@ -66,6 +69,14 @@ class PropertiesDashlet extends React.Component {
 
   className = 'ecos-properties-dashlet';
 
+  get clientHeight() {
+    if (!this.props.maxHeightByContent) {
+      return null;
+    }
+
+    return get(this._propertiesRef, 'current._contentRef.current.offsetHeight', 0);
+  }
+
   checkEditRights = () => {
     const { record } = this.props;
 
@@ -79,7 +90,7 @@ class PropertiesDashlet extends React.Component {
   };
 
   onChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
     this.setState({ height });
   };
 
@@ -162,6 +173,7 @@ class PropertiesDashlet extends React.Component {
         bodyClassName={`${this.className}__body`}
         actionEditTitle={t(LABELS.EDIT_TITLE)}
         resizable={true}
+        contentMaxHeight={this.clientHeight}
         needGoTo={false}
         actionHelp={false}
         actionReload={false}

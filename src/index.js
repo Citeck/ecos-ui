@@ -22,6 +22,8 @@ import { initAppRequest } from './actions/app';
 import { loadThemeRequest } from './actions/view';
 import {
   AppApi,
+  BarcodeApi,
+  BirthdaysApi,
   BpmnApi,
   CommentsApi,
   DashboardApi,
@@ -42,7 +44,6 @@ import {
   UserApi,
   VersionsJournalApi,
   ViewApi,
-  BirthdaysApi,
   EsignApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
@@ -91,6 +92,7 @@ api.recordActions = new RecordActionsApi(store);
 api.docAssociations = new DocAssociationsApi(store);
 api.view = new ViewApi(store);
 api.birthdays = new BirthdaysApi(store);
+api.barcode = new BarcodeApi(store);
 api.esign = new EsignApi(store);
 api.timesheetCommon = new TimesheetCommonApi(store);
 api.timesheetSubordinates = new TimesheetSubordinatesApi(store);
