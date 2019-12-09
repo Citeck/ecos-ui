@@ -113,9 +113,9 @@ class SetWidgets extends React.Component {
           const key_id = `column-widgets-${indexColumn}`;
 
           return (
-            <div className={'ecos-dashboard-settings__column-widgets'} key={key_id}>
+            <div className="ecos-dashboard-settings__column-widgets" key={key_id}>
               {isMobile ? null : (
-                <div className={'ecos-dashboard-settings__column-widgets__title'}>
+                <div className="ecos-dashboard-settings__column-widgets__title">
                   {`${t('dashboard-settings.column')} ${indexColumn + 1}`}
                 </div>
               )}
@@ -135,7 +135,7 @@ class SetWidgets extends React.Component {
                       key={widget.dndId}
                       draggableId={widget.dndId}
                       draggableIndex={indexWidget}
-                      className={'ecos-dashboard-settings__column-widgets__items__cell'}
+                      className="ecos-dashboard-settings__column-widgets__items__cell"
                       title={this.getWidgetLabel(widget)}
                       selected={true}
                       canRemove={true}
