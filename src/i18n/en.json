@@ -155,6 +155,7 @@
   "dashboard-settings.widget.versions-journal": "Versions journal",
   "dashboard-settings.widget.web-page": "Web Page",
   "dashboard-settings.widget.birthdays": "Birthdays",
+  "dashboard-settings.widget.barcode": "Barcode",
   "dashboard-settings.widgets.placeholder": "No available widgets",
   "dashboard-settings.widgets.subtitle": "Choose the widgets location.",
   "dashboard-settings.widgets.subtitle-mobile": "Choose the widgets location by dragging them to the column on the right.",
@@ -722,5 +723,11 @@
   "action.delete.label": "Delete",
   "action.download.label": "Download",
   "action.move-to-lines.label": "Go to lines",
-  "action.record-actions.label": "Server actions"
+  "action.record-actions.label": "Server actions",
+  "barcode-widget.saga.error1": "Error. Failure to fetch data",
+  "barcode-widget.saga.error2": "Error. Unable to print",
+  "barcode-widget.btn.print": "Print",
+  "barcode-widget.btn.generate": "Generate",
+  "barcode-widget.btn.generate-new": "Generate new",
+  "barcode-widget.dashlet.title": "Barcode"
 }

@@ -244,8 +244,8 @@ export default class TabsComponent extends NestedComponent {
   };
 
   destroyComponents() {
-    super.destroyComponents();
     this.removeEventListeners();
+    return super.destroyComponents();
   }
 
   createElement() {

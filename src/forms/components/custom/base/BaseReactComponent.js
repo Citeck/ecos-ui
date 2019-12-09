@@ -144,7 +144,7 @@ export default class BaseReactComponent extends BaseComponent {
       this.react.wrapper = null;
     }
 
-    super.destroy();
+    return super.destroy();
   }
 
   get emptyValue() {

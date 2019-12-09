@@ -22,6 +22,8 @@ import { initAppRequest } from './actions/app';
 import { loadThemeRequest } from './actions/view';
 import {
   AppApi,
+  BarcodeApi,
+  BirthdaysApi,
   BpmnApi,
   CommentsApi,
   DashboardApi,
@@ -41,8 +43,7 @@ import {
   TimesheetVerificationApi,
   UserApi,
   VersionsJournalApi,
-  ViewApi,
-  BirthdaysApi
+  ViewApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
@@ -90,6 +91,7 @@ api.recordActions = new RecordActionsApi(store);
 api.docAssociations = new DocAssociationsApi(store);
 api.view = new ViewApi(store);
 api.birthdays = new BirthdaysApi(store);
+api.barcode = new BarcodeApi(store);
 api.timesheetCommon = new TimesheetCommonApi(store);
 api.timesheetSubordinates = new TimesheetSubordinatesApi(store);
 api.timesheetMine = new MyTimesheetApi(store);
