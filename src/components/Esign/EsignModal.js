@@ -75,7 +75,9 @@ class EsignModal extends Component {
   };
 
   handleSignDocument = () => {
-    this.props.onSign(this.state.selected);
+    const { certificates } = this.props;
+
+    this.props.onSign(certificates.find(certificate => certificate.id === this.state.selected));
   };
 
   renderList() {

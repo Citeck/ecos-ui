@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import get from 'lodash/get';
+import getCadespluginAPI from 'async-cadesplugin';
 
 import { EsignApi } from '../api/esign';
 import EsignConverter from '../dto/esign';
@@ -100,10 +101,18 @@ export default class EsignService {
         });
       }
 
-      console.warn({ thumbprint, base64 });
+      // await api.getCadespluginApi(true);
 
+      // const signedMessage = await API.signBase64(thumbprint, base64);
       const signedMessage = await api.getSignedDocument(thumbprint, base64);
+
+      console.warn('signedMessage => ', signedMessage);
+
+      // console.warn({ thumbprint, base64 });
+
+      // const signedMessage = await api.getSignedDocument(thumbprint, base64);
       const isVerified = await api.verifySigned(signedMessage, base64);
+      // const isVerified = await API.verifyBase64(signedMessage, base64);
 
       if (!isVerified) {
         return Promise.reject({
@@ -128,7 +137,7 @@ export default class EsignService {
     }
   };
 
-  static signDocument = async (url = '', thumbprint = '') => {
+  static signDocument = async (url = '', certificate = null) => {
     try {
       if (!url) {
         return Promise.reject({
@@ -138,7 +147,7 @@ export default class EsignService {
         });
       }
 
-      if (!thumbprint) {
+      if (!certificate) {
         return Promise.reject({
           messageTitle: t(Labels.ERROR),
           messageDescription: t(Labels.NO_CERTIFICATE_THUMBPRINT_MESSAGE),
@@ -150,15 +159,25 @@ export default class EsignService {
 
       console.warn('documents => ', documents);
 
-      const signStatuses = [];
+      // const signStatuses = await Promise.all(
+      //   documents.map(async function(document) {
+      //     return await EsignService.signDocumentByNode(thumbprint, document);
+      //   })
+      // );
 
-      for (const document of documents) {
-        const status = await EsignService.signDocumentByNode(thumbprint, document);
+      // console.warn('signStatuses => ', signStatuses);
 
-        signStatuses.push(status);
-      }
+      // const signStatuses = [];
+      //
+      // for (const document of documents) {
+      //   const status = await EsignService.signDocumentByNode(certificate.thumbprint, document);
+      //
+      //   signStatuses.push(status);
+      // }
 
-      // const signStatuses = await Promise.all(documents.map(async document => await EsignService.signDocumentByNode(thumbprint, document)));
+      const signStatuses = await Promise.all(
+        documents.map(async document => await EsignService.signDocumentByNode(certificate.thumbprint, document))
+      );
 
       console.warn('signStatuses => ', signStatuses);
 
@@ -197,10 +216,9 @@ class Esign {
       this.container = document.createElement('div');
     }
 
-    this.widget = ReactDOM.render(<EsignWidget {...props} />, this.container);
-    document.body.appendChild(this.container);
+    this.widget = ReactDOM.render(<EsignWidget {...props} onClose={this.close} />, this.container);
 
-    console.warn('this.container => ', this.container);
+    document.body.appendChild(this.container);
 
     return this;
   };

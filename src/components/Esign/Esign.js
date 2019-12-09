@@ -28,45 +28,22 @@ class Esign extends Component {
   static propTypes = {
     getDocumentsUrl: PropTypes.string.isRequired,
     nodeRef: PropTypes.string,
-    viewElement: PropTypes.oneOfType([PropTypes.node, PropTypes.element, PropTypes.func]),
-    isOpen: PropTypes.bool,
-    singleton: PropTypes.bool,
-    documentSigned: PropTypes.bool,
-    isLoading: PropTypes.bool,
-    documentBase64: PropTypes.string,
-    messageTitle: PropTypes.string,
-    messageDescription: PropTypes.string,
-    errorType: PropTypes.string,
-    cadespluginApi: PropTypes.object,
-    certificates: PropTypes.arrayOf(
-      PropTypes.shape({
-        id: PropTypes.string,
-        thumbprint: PropTypes.string,
-        subject: PropTypes.string,
-        issuer: PropTypes.string,
-        dateFrom: PropTypes.string,
-        dateTo: PropTypes.string,
-        provider: PropTypes.string,
-        name: PropTypes.string,
-        friendlySubjectInfo: PropTypes.array,
-        friendlyIssuerInfo: PropTypes.array
-      })
-    ),
-    isFetchingApi: PropTypes.bool,
     /**
-     * колбек-функция при успешном подписании документа
+     * callback function upon successful signing of a document
      */
-    onSigned: PropTypes.func
+    onSigned: PropTypes.func,
+    onClose: PropTypes.func
   };
 
   static defaultProps = {
-    nodeRef: get(getSearchParams(), 'nodeRef', '')
+    nodeRef: get(getSearchParams(), 'nodeRef', ''),
+    onClose: () => {}
   };
 
   state = {
     isOpen: false,
     documentSigned: false,
-    isLoading: false,
+    isLoading: true,
     documentBase64: '',
     messageTitle: '',
     messageDescription: '',
@@ -80,16 +57,17 @@ class Esign extends Component {
     super(props);
 
     /**
-     * Отключаем стандартные уведомления от плагина
+     * Disable standard notifications from the plugin
      */
     window.cadesplugin_skip_extension_install = true;
-    // props.init();
+
+    this.state.isOpen = true;
 
     EsignService.init()
       .then(cadespluginApi =>
         this.setState({
           isFetchingApi: false,
-          isOpen: true,
+          isLoading: false,
           cadespluginApi
         })
       )
@@ -104,15 +82,17 @@ class Esign extends Component {
     const { onSigned } = this.props;
     const { documentSigned } = this.state;
 
-    // if (prevState.documentSigned && !documentSigned) {
-    //   if (typeof onSigned === 'function') {
-    //     onSigned();
-    //   }
-    // }
+    if (prevState.documentSigned && !documentSigned) {
+      if (typeof onSigned === 'function') {
+        onSigned();
+      }
+    }
 
     if (prevState.isFetchingApi && !this.state.isFetchingApi) {
       EsignService.getCertificates()
-        .then(certificates => this.setState({ certificates }))
+        .then(certificates => {
+          this.setState({ certificates });
+        })
         .catch(this.setError);
     }
   }
@@ -142,10 +122,7 @@ class Esign extends Component {
   };
 
   handleCloseModal = () => {
-    const { clearMessage, toggleSignModal, getDocumentsUrl } = this.props;
-
-    this.clearMessage();
-    this.setState({ isOpen: false });
+    this.setState({ isOpen: false }, this.props.onClose);
   };
 
   handleGoToPlugin = () => {
@@ -154,6 +131,8 @@ class Esign extends Component {
 
   handleSignDocument = selectedCertificate => {
     const { getDocumentsUrl, onSigned } = this.props;
+
+    this.setState({ isLoading: true });
 
     EsignService.signDocument(getDocumentsUrl, selectedCertificate)
       .then(documentSigned => {
@@ -245,26 +224,5 @@ class Esign extends Component {
     );
   }
 }
-
-const mapStateToProps = (state, ownProps) => {
-  const id = get(ownProps, 'nodeRef', get(getSearchParams(), 'nodeRef', ''));
-
-  return {
-    ...selectGeneralState(state),
-    ...selectStateByKey(state, id)
-  };
-};
-
-const mapDispatchToProps = (dispatch, ownProps) => {
-  const id = get(ownProps, 'nodeRef', get(getSearchParams(), 'nodeRef', ''));
-
-  return {
-    init: () => dispatch(init(id)),
-    toggleSignModal: url => dispatch(toggleSignModal({ id, url })),
-    clearMessage: () => dispatch(clearMessage(id)),
-    getCertificates: () => dispatch(getCertificates(id)),
-    signDocument: (certificateId, url) => dispatch(signDocument({ id, certificateId, url }))
-  };
-};
 
 export default Esign;

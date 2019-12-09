@@ -25,10 +25,10 @@ export class EsignApi extends RecordService {
     EsignApi._hasCadesplugin = hasCadesplugin;
   }
 
-  getCadespluginApi = async () => {
+  getCadespluginApi = async (forcibly = false) => {
     const api = get(window, 'cadesplugin.api', null);
 
-    if (!api) {
+    if (!api || forcibly) {
       const api = await getCadespluginAPI();
 
       if (api === null) {
@@ -75,11 +75,11 @@ export class EsignApi extends RecordService {
     }).then(response => response.json());
   };
 
-  getSignedDocument = (thumbprint, base64) => {
-    // console.warn({ thumbprint, base64 });
+  async getSignedDocument(thumbprint, base64) {
+    // const api = await getCadespluginAPI();
     // this.cadespluginApi.signBase64(thumbprint, base64).then(res => console.warn(res));
-    return this.cadespluginApi.signBase64(thumbprint, base64);
-  };
+    return await this.cadespluginApi.signBase64(thumbprint, base64);
+  }
 
   verifySigned = async (signedMessage, signedDocument) => {
     return await this.cadespluginApi.verifyBase64(signedMessage, signedDocument);
