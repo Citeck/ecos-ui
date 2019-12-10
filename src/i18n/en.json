@@ -407,7 +407,7 @@
   "journals.action.delete-records-msg": "Delete records",
   "journals.action.delete-tpl-msg": "Delete template",
   "journals.action.dialog-msg": "Enter template name",
-  "journals.action.edit-dashlet": "Dashlet editing",
+  "journals.action.edit-dashlet": "Setting widget",
   "journals.action.hide-menu": "Hide menu",
   "journals.action.only-linked": "Display only linked records",
   "journals.action.remove-filter-group-msg": "Remove filter group?",

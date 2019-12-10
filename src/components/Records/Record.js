@@ -431,7 +431,11 @@ export default class Record {
     }
 
     if (isRead) {
-      return getter.call(att, parsedAtt.inner, parsedAtt.isMultiple, false);
+      let innerAtt = parsedAtt.inner;
+      if (value === undefined && name.indexOf('?') === -1 && name[0] !== '.') {
+        innerAtt = null;
+      }
+      return getter.call(att, innerAtt, parsedAtt.isMultiple, false);
     } else {
       return setter.call(att, parsedAtt.inner, value);
     }
