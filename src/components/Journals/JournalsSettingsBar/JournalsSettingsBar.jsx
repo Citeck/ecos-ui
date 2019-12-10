@@ -1,9 +1,10 @@
 import React from 'react';
+import { t } from '../../../helpers/util';
+
 import { IcoBtn } from '../../common/btns';
 import Search from '../../common/Search/Search';
 import Export from '../../Export/Export';
 import JournalsDashletPagination from '../JournalsDashletPagination';
-import { t } from '../../../helpers/util';
 
 import './JournalsSettingsBar.scss';
 
@@ -19,7 +20,8 @@ const JournalsSettingsBar = ({
   onSearch,
   journalConfig,
   addRecord,
-  grid
+  grid,
+  isMobile
 }) => {
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
@@ -27,23 +29,25 @@ const JournalsSettingsBar = ({
 
   return (
     <div className={'ecos-journal__settings-bar'}>
-      {journalConfig && journalConfig.meta && Array.isArray(journalConfig.meta.createVariants) && journalConfig.meta.createVariants[0] ? (
+      {journalConfig && journalConfig.meta && Array.isArray(journalConfig.meta.createVariants) && journalConfig.meta.createVariants[0] && (
         <IcoBtn
           icon={'icon-plus'}
           className={`ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
           onClick={addRecord}
           title={t('journals.create-record-btn')}
         />
-      ) : null}
+      )}
 
-      <IcoBtn
-        title={t('journals.settings')}
-        icon={'icon-settings'}
-        className={`ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
-        onClick={toggleSettings}
-      />
+      {!isMobile && (
+        <IcoBtn
+          title={t('journals.settings')}
+          icon={'icon-settings'}
+          className={`ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
+          onClick={toggleSettings}
+        />
+      )}
 
-      <Search onSearch={onSearch} className={`search_border_white ${step}`} />
+      <Search onSearch={onSearch} className={`search_border-white ${step}`} collapsed={isMobile} cleaner />
 
       <Export journalConfig={journalConfig} grid={grid}>
         <IcoBtn

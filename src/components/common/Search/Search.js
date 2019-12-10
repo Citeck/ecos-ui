@@ -1,14 +1,35 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { t, trigger } from '../../../helpers/util';
+import { Icon } from '../index';
 
 import './Search.scss';
 
 export default class Search extends Component {
-  text = '';
+  static propTypes = {
+    className: PropTypes.string,
+    collapsed: PropTypes.bool,
+    cleaner: PropTypes.bool
+  };
+
+  state = {
+    text: '',
+    collapsed: false
+  };
+
+  constructor(props) {
+    super(props);
+
+    this.state.collapsed = !!props.collapsed;
+  }
 
   onPressBtn = () => {
-    this.triggerSearch();
+    if (this.state.collapsed) {
+      this.setState({ collapsed: false });
+    } else {
+      this.triggerSearch();
+    }
   };
 
   onKeyDown = e => {
@@ -22,21 +43,52 @@ export default class Search extends Component {
   };
 
   onChange = e => {
-    this.text = e.target.value;
+    const text = e.target.value;
+
+    if (this.state.text !== text) {
+      this.setState({ text });
+    }
+  };
+
+  onClean = () => {
+    this.setState(state => {
+      const st = {};
+
+      if (state.text) {
+        st.text = '';
+      }
+
+      if (this.props.collapsed && !state.collapsed) {
+        st.text = true;
+      }
+
+      return st;
+    });
   };
 
   triggerSearch = () => {
-    trigger.call(this, 'onSearch', this.text);
+    if (this.state.text) {
+      trigger.call(this, 'onSearch', this.state.text);
+    }
   };
 
   render() {
-    const props = this.props;
-    const cssClasses = classNames('search', props.className);
+    const { className, cleaner } = this.props;
+    const { collapsed, text } = this.state;
+    const cssClasses = classNames('search', { search_collapsed: collapsed }, className);
 
     return (
       <div className={cssClasses}>
-        <label className="icon-search search__icon-search" onClick={this.onPressBtn} />
-        <input type="text" placeholder={t('search.placeholder')} onChange={this.onChange} onKeyDown={this.onKeyDown} />
+        <Icon className="icon-search search__icon-search" onClick={this.onPressBtn} />
+        <input
+          className={classNames('search__input', { 'search__input_with-cleaner': cleaner && text })}
+          type="text"
+          placeholder={t('search.placeholder')}
+          onChange={this.onChange}
+          onKeyDown={this.onKeyDown}
+          value={text}
+        />
+        {cleaner && text && <Icon className="icon-close search__icon-cleaner" onClick={this.onClean} />}
       </div>
     );
   }

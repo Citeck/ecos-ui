@@ -8,8 +8,18 @@
   background: $color-white;
   position: relative;
   width: 220px;
+  transition: width 0.5s;
 
-  input {
+  &_border-white {
+    border: 2px solid $color-white;
+  }
+
+  &_collapsed {
+    width: 40px;
+    padding-left: 8px;
+  }
+
+  &__input {
     outline: none !important;
     border: none !important;
     font-weight: bold !important;
@@ -23,20 +33,25 @@
     &::placeholder {
       color: $color-gray-5;
     }
+
+    &_with-cleaner {
+      padding-right: 30px;
+    }
   }
-}
 
-.search__icon-search {
-  color: $color-gray-5;
-  font-size: 20px;
-  width: 24px;
-  top: 5px;
-  cursor: pointer;
-  position: absolute;
-  line-height: normal;
-  z-index: 1;
-}
+  &__icon-search {
+    color: $color-gray-5;
+    cursor: pointer;
+    position: absolute;
+    z-index: 1;
+  }
 
-.search_border_white {
-  border: 2px solid $color-white;
+  &__icon-cleaner {
+    color: $color-gray-5;
+    cursor: pointer;
+    position: absolute;
+    right: 12px;
+    top: 8px;
+    font-size: 14px;
+  }
 }
