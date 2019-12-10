@@ -61,7 +61,7 @@ class SetBind extends React.Component {
             <IcoBtn invert icon={isOpenKeys ? 'icon-up' : 'icon-down'} className="ecos-btn_white2 ecos-btn_focus_no ecos-btn_drop-down" />
           </Dropdown>
           {isAdmin && (
-            <Checkbox checked={isForAllUsers} onChange={this.onChangeKeyForAllUser} className="ecos-dashboard-settings__keys-checkbox">
+            <Checkbox checked={isForAllUsers} onChange={this.onChangeKeyForAllUser} className="ecos-dashboard-settings__all-users">
               {t('dashboard-settings.for-all')}
             </Checkbox>
           )}

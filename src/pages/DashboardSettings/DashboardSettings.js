@@ -483,7 +483,7 @@ class DashboardSettings extends React.Component {
     } = this.props;
     const { isForAllUsers } = this.state;
 
-    if (!this.isUserType && !isAdmin) {
+    if (!(this.isUserType && isAdmin)) {
       return null;
     }
 
@@ -493,7 +493,7 @@ class DashboardSettings extends React.Component {
 
     return (
       <div className="ecos-dashboard-settings__container-group">
-        <Checkbox checked={isForAllUsers} onChange={onChangeKeyForAllUser} className="ecos-dashboard-settings__keys-checkbox">
+        <Checkbox checked={isForAllUsers} onChange={onChangeKeyForAllUser} className="ecos-dashboard-settings__all-users">
           {t('dashboard-settings.for-all')}
         </Checkbox>
       </div>
