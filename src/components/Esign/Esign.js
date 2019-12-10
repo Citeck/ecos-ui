@@ -108,13 +108,15 @@ class Esign extends Component {
   };
 
   documentSigned = documentSigned => {
-    const { onSigned } = this.props;
+    const { onSigned, onClose } = this.props;
 
     this.setState({ documentSigned });
 
     if (documentSigned && typeof onSigned === 'function') {
       onSigned();
     }
+
+    onClose();
   };
 
   clearMessage = () =>
