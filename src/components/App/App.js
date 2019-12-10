@@ -32,7 +32,6 @@ const DelegatedTimesheetsPage = lazy(() => import('../../pages/Timesheet/Delegat
 
 const EcosFormPage = lazy(() => import('../../pages/debug/EcosFormPage'));
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
-const EsignPage = lazy(() => import('../../pages/debug/EsignPage'));
 
 class App extends Component {
   componentDidMount() {
@@ -201,7 +200,6 @@ class App extends Component {
                     {/* temporary routes */}
                     <Route path="/v2/debug/formio-develop" component={FormIOPage} />
                     <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
-                    <Route path="/v2/debug/esign" component={EsignPage} />
 
                     <Redirect to={URL.DASHBOARD} />
                   </Switch>

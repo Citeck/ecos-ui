@@ -1,1 +1,1 @@
-export { default, openSignModal } from './Esign';
+export { default } from './Esign';

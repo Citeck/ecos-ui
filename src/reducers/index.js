@@ -22,7 +22,6 @@ import eventsHistory from './eventsHistory';
 import versionsJournal from './versionsJournal';
 import recordActions from './recordActions';
 import docAssociations from './docAssociations';
-import esign from './esign';
 import timesheetSubordinates from './timesheet/subordinates';
 import timesheetMine from './timesheet/mine';
 import timesheetVerification from './timesheet/verification';
@@ -61,8 +60,7 @@ const reducers = {
   timesheetCommon,
   webPage,
   birthdays,
-  barcode,
-  esign
+  barcode
 };
 
 export default history =>

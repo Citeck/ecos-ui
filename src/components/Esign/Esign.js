@@ -5,24 +5,12 @@ import get from 'lodash/get';
 import EsignService from '../../services/esign';
 
 import { Btn } from '../common/btns';
-import { selectStateByKey, selectGeneralState } from '../../selectors/esign';
-import { init, getCertificates, signDocument, clearMessage, toggleSignModal } from '../../actions/esign';
 import EsignModal from './EsignModal';
 import MessageModal from './MessageModal';
 import { getSearchParams, t } from '../../helpers/util';
-import { ErrorTypes, Labels, PLUGIN_URL, TOGGLE_SIGN_MODAL_EVENT } from '../../constants/esign';
+import { ErrorTypes, Labels, PLUGIN_URL } from '../../constants/esign';
 
 import './style.scss';
-
-const customEvent = document.createEvent('Event');
-
-customEvent.initEvent(TOGGLE_SIGN_MODAL_EVENT, true, true);
-
-export const openSignModal = nodeRef => {
-  customEvent.customParams = { nodeRef };
-
-  document.dispatchEvent(customEvent);
-};
 
 class Esign extends Component {
   static propTypes = {
@@ -74,10 +62,6 @@ class Esign extends Component {
       .catch(this.setError);
   }
 
-  componentDidMount() {
-    document.addEventListener(TOGGLE_SIGN_MODAL_EVENT, this.handleToggleSignModal, false);
-  }
-
   componentDidUpdate(prevProps, prevState) {
     const { onSigned } = this.props;
     const { documentSigned } = this.state;
@@ -110,15 +94,6 @@ class Esign extends Component {
       messageDescription,
       errorType
     });
-  };
-
-  handleToggleSignModal = event => {
-    const { nodeRef, singleton, toggleSignModal, getDocumentsUrl } = this.props;
-    const ref = get(event, 'customParams.nodeRef', '');
-
-    if (singleton || ref === nodeRef) {
-      toggleSignModal(getDocumentsUrl);
-    }
   };
 
   handleCloseModal = () => {

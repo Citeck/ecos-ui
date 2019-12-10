@@ -43,16 +43,17 @@ import {
   TimesheetVerificationApi,
   UserApi,
   VersionsJournalApi,
-  ViewApi,
-  EsignApi
+  ViewApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
 import { polyfills } from './helpers/polyfills';
+
 import './styles/index.scss';
 
 import './build-info';
+import './services/esign';
 
 polyfills();
 
@@ -93,7 +94,6 @@ api.docAssociations = new DocAssociationsApi(store);
 api.view = new ViewApi(store);
 api.birthdays = new BirthdaysApi(store);
 api.barcode = new BarcodeApi(store);
-api.esign = new EsignApi(store);
 api.timesheetCommon = new TimesheetCommonApi(store);
 api.timesheetSubordinates = new TimesheetSubordinatesApi(store);
 api.timesheetMine = new MyTimesheetApi(store);

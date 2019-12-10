@@ -4,9 +4,8 @@ import set from 'lodash/set';
 
 import { RecordService } from './recordService';
 
-export class EsignApi extends RecordService {
+class EsignApi extends RecordService {
   static _cadespluginApi = null;
-  static _hasCadesplugin = false;
 
   get cadespluginApi() {
     return EsignApi._cadespluginApi;
@@ -18,11 +17,7 @@ export class EsignApi extends RecordService {
   }
 
   get hasCadesplugin() {
-    return EsignApi._hasCadesplugin;
-  }
-
-  set hasCadesplugin(hasCadesplugin) {
-    EsignApi._hasCadesplugin = hasCadesplugin;
+    return this.cadespluginApi !== null;
   }
 
   getCadespluginApi = async (forcibly = false) => {
@@ -31,13 +26,12 @@ export class EsignApi extends RecordService {
     if (!api || forcibly) {
       const api = await getCadespluginAPI();
 
-      if (api === null) {
-        EsignApi._hasCadesplugin = false;
+      this.cadespluginApi = api;
 
+      if (api === null) {
         throw new Error();
       }
 
-      EsignApi._hasCadesplugin = true;
       this.cadespluginApi = api;
 
       return api;
@@ -46,19 +40,8 @@ export class EsignApi extends RecordService {
     return api;
   };
 
-  setCadespluginApi = api => {
-    this.cadespluginApi = api;
-
-    set(window, 'cadesplugin.api', api);
-  };
-
   async getCertificates() {
-    // return await this.cadespluginApi.getCertsList();
     return await this.cadespluginApi.getValidCertificates();
-  }
-
-  getPluginVersion() {
-    return this.cadespluginApi.about();
   }
 
   getDocuments(url) {
@@ -76,8 +59,6 @@ export class EsignApi extends RecordService {
   };
 
   async getSignedDocument(thumbprint, base64) {
-    // const api = await getCadespluginAPI();
-    // this.cadespluginApi.signBase64(thumbprint, base64).then(res => console.warn(res));
     return await this.cadespluginApi.signBase64(thumbprint, base64);
   }
 
@@ -92,11 +73,6 @@ export class EsignApi extends RecordService {
       body: JSON.stringify({ nodeRef, sign, signer })
     }).then(response => response.json());
   };
-
-  checkDocumentStatus = record => {
-    return fetch(`/share/proxy/alfresco/citeck/case/status?nodeRef=${record}`, {
-      method: 'GET',
-      credentials: 'include'
-    }).then(response => response.json());
-  };
 }
+
+export default new EsignApi();
