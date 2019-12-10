@@ -1,8 +1,8 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import {
   getDashboardConfig,
-  saveDashboardConfig,
   getDashboardTitle,
+  saveDashboardConfig,
   setDashboardConfig,
   setDashboardIdentification,
   setDashboardTitleInfo,
@@ -51,6 +51,8 @@ function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
 }
 
 function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
+  yield put(setRequestResultDashboard({}));
+
   try {
     const identification = yield select(selectIdentificationForView);
     const config = yield select(selectDashboardConfigs);
