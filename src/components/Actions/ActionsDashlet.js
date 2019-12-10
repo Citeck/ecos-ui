@@ -1,15 +1,16 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+
 import { isSmallMode, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
+import Actions from './Actions';
+import BaseWidget from '../BaseWidget';
 
 import './style.scss';
-import Actions from './Actions';
-import get from 'lodash/get';
 
-class ActionsDashlet extends React.Component {
+class ActionsDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string.isRequired,
     record: PropTypes.string.isRequired,
@@ -38,41 +39,18 @@ class ActionsDashlet extends React.Component {
     this.state = {
       isSmallMode: false,
       fitHeights: {},
-      height: UserLocalSettingsService.getDashletHeight(props.id),
+      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
     };
-    this.contentRef = React.createRef();
-  }
-
-  get clientHeight() {
-    if (!this.props.maxHeightByContent) {
-      return null;
-    }
-
-    return get(this.contentRef, 'current.offsetHeight', 0);
   }
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
-  onChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
-    this.setState({ height });
-  };
-
-  setFitHeights = fitHeights => {
-    this.setState({ fitHeights });
-  };
-
-  handleToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
-  };
-
   render() {
     const { id, title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, height, fitHeights, isCollapsed } = this.state;
+    const { isSmallMode, userHeight, fitHeights, isCollapsed } = this.state;
 
     return (
       <Dashlet
@@ -87,7 +65,7 @@ class ActionsDashlet extends React.Component {
         needGoTo={false}
         canDragging={canDragging}
         dragHandleProps={dragHandleProps}
-        onChangeHeight={this.onChangeHeight}
+        onChangeHeight={this.handleChangeHeight}
         getFitHeights={this.setFitHeights}
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
@@ -100,9 +78,10 @@ class ActionsDashlet extends React.Component {
           record={record}
           isSmallMode={isSmallMode}
           stateId={id}
-          height={height}
+          height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
+          onActionsChanged={this.checkHeight}
         />
       </Dashlet>
     );
