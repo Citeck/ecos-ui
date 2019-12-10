@@ -20,6 +20,7 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
+    isMobile: state.view.isMobile,
     pageTabsIsShow: state.pageTabs.isShow,
     journals: newState.journals,
     journalSettings: newState.journalSettings,
@@ -283,7 +284,8 @@ class JournalsMenu extends Component {
         id: journalId,
         meta: { nodeRef }
       },
-      pageTabsIsShow
+      pageTabsIsShow,
+      isMobile
     } = this.props;
     const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
 
@@ -305,7 +307,7 @@ class JournalsMenu extends Component {
               invert
               className={'ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest'}
             >
-              {t('journals.action.hide-menu')}
+              {isMobile ? t('journals.action.hide-menu_sm') : t('journals.action.hide-menu')}
             </IcoBtn>
           </div>
 

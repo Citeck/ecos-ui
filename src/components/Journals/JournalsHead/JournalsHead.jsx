@@ -1,14 +1,15 @@
 import React from 'react';
+import classNames from 'classnames';
+import { t } from '../../../helpers/util';
 import { Caption } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
-import { t } from '../../../helpers/util';
 
 import './JournalsHead.scss';
 
-const JournalsHead = ({ menuOpen, toggleMenu, title, pageTabsIsShow }) => {
+const JournalsHead = ({ menuOpen, toggleMenu, title, isMobile }) => {
   return (
-    <div className={`journals-head ${pageTabsIsShow ? 'journals-head_with-tabs' : ''}`}>
-      <Caption normal className={'journals-head__caption'}>
+    <div className="journals-head">
+      <Caption normal className={classNames('journals-head__caption', { 'journals-head__caption_small': isMobile })}>
         {title}
       </Caption>
 
@@ -19,7 +20,7 @@ const JournalsHead = ({ menuOpen, toggleMenu, title, pageTabsIsShow }) => {
             icon={'icon-arrow-left'}
             className={'ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standart ecos-btn_r_biggest'}
           >
-            {t('journals.action.show-menu')}
+            {isMobile ? t('journals.action.show-menu_sm') : t('journals.action.show-menu')}
           </IcoBtn>
         )}
       </div>

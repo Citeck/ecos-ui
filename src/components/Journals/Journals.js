@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
 import PageHeight from './PageHeight';
@@ -15,10 +17,9 @@ import JournalsContent from './JournalsContent';
 import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
-import { Scrollbars } from 'react-custom-scrollbars';
+import { Well } from '../common/form';
 import { getJournalsData, reloadGrid, search } from '../../actions/journals';
 import { setActiveTabTitle } from '../../actions/pageTabs';
-import { Well } from '../common/form';
 import { t, trigger } from '../../helpers/util';
 import { goToCardDetailsPage } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
@@ -30,6 +31,7 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
+    isMobile: state.view.isMobile,
     pageTabsIsShow: state.pageTabs.isShow,
     activeTab: selectActiveTab(state),
     journalConfig: newState.journalConfig,
@@ -155,7 +157,7 @@ class Journals extends Component {
 
   render() {
     const { menuOpen, settingsVisible, showPreview, showPie } = this.state;
-    const { stateId, journalConfig, pageTabsIsShow, grid } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile } = this.props;
 
     if (!journalConfig) {
       return null;
@@ -179,8 +181,14 @@ class Journals extends Component {
       <PageHeight>
         {height => (
           <div className={'ecos-journal'} style={{ height }}>
-            <div className={`ecos-journal__body ${menuOpen ? 'ecos-journal__body_with-menu' : ''}`}>
-              <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} pageTabsIsShow={pageTabsIsShow} />
+            <div
+              className={classNames('ecos-journal__body', {
+                'ecos-journal__body_with-menu': menuOpen,
+                'ecos-journal__body_with-tabs': pageTabsIsShow,
+                'ecos-journal__body_mobile': isMobile
+              })}
+            >
+              <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} isMobile={isMobile} />
 
               <JournalsSettingBar
                 grid={grid}
@@ -195,6 +203,7 @@ class Journals extends Component {
                 refresh={this.refresh}
                 onSearch={this.search}
                 addRecord={this.addRecord}
+                isMobile={isMobile}
               />
 
               <EcosModal
