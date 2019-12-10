@@ -22,14 +22,28 @@ class BaseWidget extends Component {
     this.setState({ fitHeights });
   };
 
+  checkHeight = () => {
+    if (this.state.userHeight > this.clientHeight) {
+      UserLocalSettingsService.setDashletHeight(this.props.id, null);
+      this.setState({ userHeight: this.clientHeight });
+    }
+  };
+
   handleChangeHeight = height => {
-    const pureHeight = height > 0 ? height : 0;
+    let pureHeight = height > 0 ? height : 0;
 
     if (this.state.userHeight === pureHeight) {
       return;
     }
 
-    UserLocalSettingsService.setDashletHeight(this.props.id, pureHeight >= this.clientHeight ? null : pureHeight);
+    let deleteFromLs = false;
+
+    if (pureHeight >= this.clientHeight) {
+      deleteFromLs = true;
+      pureHeight = this.clientHeight;
+    }
+
+    UserLocalSettingsService.setDashletHeight(this.props.id, deleteFromLs ? null : pureHeight);
     this.setState({ userHeight: pureHeight });
   };
 

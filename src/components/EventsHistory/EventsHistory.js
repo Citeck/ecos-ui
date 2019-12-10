@@ -46,7 +46,8 @@ class EventsHistory extends React.Component {
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    myColumns: PropTypes.array
+    myColumns: PropTypes.array,
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
@@ -99,10 +100,11 @@ class EventsHistory extends React.Component {
   };
 
   renderEventList = () => {
-    const { isLoading, isMobile, isSmallMode, list, columns } = this.props;
+    const { isLoading, isMobile, isSmallMode, list, columns, forwardedRef } = this.props;
 
     return (
       <EventsHistoryList
+        forwardedRef={forwardedRef}
         list={list}
         columns={columns}
         isLoading={isLoading}

@@ -14,7 +14,8 @@ class EventsHistoryList extends React.Component {
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool,
-    isLoading: PropTypes.bool
+    isLoading: PropTypes.bool,
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
@@ -65,7 +66,7 @@ class EventsHistoryList extends React.Component {
     );
   }
 
-  render() {
+  renderContent() {
     const { isSmallMode, isMobile, isLoading, list, columns } = this.props;
 
     if (isLoading) {
@@ -85,6 +86,12 @@ class EventsHistoryList extends React.Component {
     }
 
     return this.renderTable();
+  }
+
+  render() {
+    const { forwardedRef } = this.props;
+
+    return <div ref={forwardedRef}>{this.renderContent()}</div>;
   }
 }
 
