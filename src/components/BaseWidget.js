@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 
 import UserLocalSettingsService from '../services/userLocalSettings';
 
@@ -14,6 +15,14 @@ class BaseWidget extends Component {
     return get(this.contentRef, 'current.offsetHeight', 0);
   }
 
+  get otherHeight() {
+    return null;
+  }
+
+  get fullHeight() {
+    return this.clientHeight + this.otherHeight;
+  }
+
   setContentHeight = contentHeight => {
     this.setState({ contentHeight });
   };
@@ -22,12 +31,11 @@ class BaseWidget extends Component {
     this.setState({ fitHeights });
   };
 
-  checkHeight = () => {
-    if (this.state.userHeight === undefined || this.state.userHeight > this.clientHeight) {
-      UserLocalSettingsService.setDashletHeight(this.props.id, null);
-      this.setState({ userHeight: this.clientHeight });
+  checkHeight = debounce((force = false) => {
+    if (this.state.userHeight === undefined || this.state.userHeight > this.fullHeight || force) {
+      this.setState({ userHeight: this.fullHeight });
     }
-  };
+  }, 400);
 
   handleChangeHeight = height => {
     let pureHeight = height > 0 ? height : 0;
@@ -36,14 +44,11 @@ class BaseWidget extends Component {
       return;
     }
 
-    let deleteFromLs = false;
-
-    if (pureHeight >= this.clientHeight) {
-      deleteFromLs = true;
-      pureHeight = this.clientHeight;
+    if (pureHeight > this.fullHeight) {
+      pureHeight = this.fullHeight;
     }
 
-    UserLocalSettingsService.setDashletHeight(this.props.id, deleteFromLs ? null : pureHeight);
+    UserLocalSettingsService.setDashletHeight(this.props.id, pureHeight);
     this.setState({ userHeight: pureHeight });
   };
 

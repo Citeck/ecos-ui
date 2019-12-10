@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
@@ -8,10 +8,11 @@ import { DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } fro
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import DocPreview from './DocPreview';
+import BaseWidget from '../BaseWidget';
 
 import './style.scss';
 
-class DocPreviewDashlet extends Component {
+class DocPreviewDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string.isRequired,
     title: PropTypes.string,
@@ -35,7 +36,6 @@ class DocPreviewDashlet extends Component {
     maxHeightByContent: true
   };
 
-  contentRef = React.createRef();
   docPreviewRef = React.createRef();
 
   constructor(props) {
@@ -45,36 +45,23 @@ class DocPreviewDashlet extends Component {
 
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
-      height: UserLocalSettingsService.getDashletHeight(props.id),
+      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       scale: UserLocalSettingsService.getDashletScale(props.id) || (isMobileDevice() ? DocScaleOptions.PAGE_WHOLE : DocScaleOptions.AUTO),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       fitHeights: {}
     };
   }
 
-  get clientHeight() {
+  get otherHeight() {
     if (!this.props.maxHeightByContent) {
       return null;
     }
 
-    return (
-      get(this.contentRef, 'current.offsetHeight', 0) + 24 + get(this.docPreviewRef, 'current.refToolbar.current.offsetHeight', 0) + 14
-    );
+    return get(this.docPreviewRef, 'current.refToolbar.current.offsetHeight', 0) + 24 + 14;
   }
 
   onResize = width => {
     this.setState({ width });
-  };
-
-  onChangeHeight = h => {
-    const height = h;
-
-    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
-    this.setState({ height });
-  };
-
-  setFitHeights = fitHeights => {
-    this.setState({ fitHeights });
   };
 
   setUserScale = scale => {
@@ -84,9 +71,9 @@ class DocPreviewDashlet extends Component {
   };
 
   setContainerPageHeight = height => {
-    if (height !== this.state.height) {
+    if (height !== this.state.userHeight) {
       this.setState({
-        height,
+        userHeight: height,
         fitHeights: {
           ...this.state.fitHeights,
           max: height
@@ -95,14 +82,9 @@ class DocPreviewDashlet extends Component {
     }
   };
 
-  handleToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
-  };
-
   render() {
     const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName } = this.props;
-    const { width, height, fitHeights, scale, isCollapsed } = this.state;
+    const { width, userHeight, fitHeights, scale, isCollapsed } = this.state;
     const isMobile = isMobileDevice();
     const classesDashlet = classNames('ecos-doc-preview-dashlet', classNameDashlet, {
       'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE && !isMobile,
@@ -121,10 +103,10 @@ class DocPreviewDashlet extends Component {
         needGoTo={false}
         canDragging={canDragging}
         onResize={this.onResize}
-        onChangeHeight={this.onChangeHeight}
+        onChangeHeight={this.handleChangeHeight}
         dragHandleProps={dragHandleProps}
         resizable
-        contentMaxHeight={this.clientHeight}
+        contentMaxHeight={this.clientHeight + this.otherHeight}
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
@@ -133,7 +115,7 @@ class DocPreviewDashlet extends Component {
           ref={this.docPreviewRef}
           forwardedRef={this.contentRef}
           link={config.link}
-          height={height}
+          height={userHeight}
           className={classNamePreview}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}

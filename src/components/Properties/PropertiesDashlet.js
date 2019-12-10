@@ -106,11 +106,13 @@ class PropertiesDashlet extends BaseWidget {
     const buttons = [];
 
     if (canEdit) {
+      const target = `settings-icon-${id}-${isDashlet ? '-dashlet' : '-properties'}`;
+
       buttons.push(
         <React.Fragment key={`settings-button-${id}`}>
           <IcoBtn
             icon="icon-settings"
-            id={`settings-icon-${id}-${isDashlet ? '-dashlet' : '-properties'}`}
+            id={target}
             className={classNames('ecos-properties-dashlet__btn-settings ecos-btn_grey ecos-btn_sq_sm2 ecos-btn_hover_color-grey ', {
               dashlet__btn_hidden: isDashlet,
               'ml-2': !isDashlet
@@ -118,7 +120,7 @@ class PropertiesDashlet extends BaseWidget {
             onClick={this.onClickShowFormBuilder}
           />
           <UncontrolledTooltip
-            target={`settings-icon-${id}-${isDashlet ? '-dashlet' : '-properties'}`}
+            target={target}
             delay={0}
             placement="top"
             className={classNames('ecos-base-tooltip', {
