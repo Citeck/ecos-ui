@@ -164,14 +164,13 @@ class Layout extends Component {
               id={`${widget.props.id}-${urlParams}`}
               record={recordRef}
               onSave={this.props.onSaveWidgetProps}
-              isOnDashboard
             />
           </DragItem>
         );
       } else {
         components.push(
           <div key={key} className="ecos-layout__element">
-            <Widget {...widget.props} canDragging={canDragging} record={recordRef} onSave={this.props.onSaveWidgetProps} isOnDashboard />
+            <Widget {...widget.props} canDragging={canDragging} record={recordRef} onSave={this.props.onSaveWidgetProps} />
           </div>
         );
       }

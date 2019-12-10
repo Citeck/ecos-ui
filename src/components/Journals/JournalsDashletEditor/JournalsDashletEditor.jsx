@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
@@ -25,8 +25,8 @@ import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constan
 
 import './JournalsDashletEditor.scss';
 
-const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+const mapStateToProps = (state, ownProps) => {
+  const newState = state.journals[ownProps.stateId] || {};
 
   return {
     journalsList: newState.journalsList,
@@ -39,8 +39,8 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const mapDispatchToProps = (dispatch, props) => {
-  const w = wrapArgs(props.stateId);
+const mapDispatchToProps = (dispatch, ownProps) => {
+  const w = wrapArgs(ownProps.stateId);
 
   return {
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
@@ -58,7 +58,6 @@ const mapDispatchToProps = (dispatch, props) => {
 class JournalsDashletEditor extends Component {
   static propTypes = {
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    isOnDashboard: PropTypes.bool,
     recordRef: PropTypes.string,
     className: PropTypes.string,
     measurer: PropTypes.object,
@@ -85,7 +84,7 @@ class JournalsDashletEditor extends Component {
       id,
       editorMode,
       resultDashboard = {},
-      isOnDashboard,
+      onSave,
       getDashletEditorData,
       setDashletConfigByParams,
       setEditorMode
@@ -95,7 +94,7 @@ class JournalsDashletEditor extends Component {
       getDashletEditorData(config);
     }
 
-    if (editorMode && isOnDashboard && prevResultDashboard.status !== resultDashboard.status && resultDashboard.status) {
+    if (editorMode && onSave && prevResultDashboard.status !== resultDashboard.status && resultDashboard.status) {
       setDashletConfigByParams(id, config);
       setEditorMode(false);
     }
@@ -108,13 +107,13 @@ class JournalsDashletEditor extends Component {
   };
 
   save = () => {
-    let { config, id, recordRef, isOnDashboard, onSave, saveDashlet } = this.props;
+    let { config, id, recordRef, onSave, saveDashlet } = this.props;
 
     if (recordRef) {
       config = config && config.onlyLinked === undefined ? { ...config, onlyLinked: true } : config;
     }
 
-    if (isOnDashboard) {
+    if (onSave) {
       onSave(id, { config });
     } else {
       saveDashlet(config, id);

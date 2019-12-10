@@ -21,8 +21,8 @@ import JournalsDashletFooter from '../JournalsDashletFooter';
 
 import './JournalsDashlet.scss';
 
-const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId || props.id] || {};
+const mapStateToProps = (state, ownProps) => {
+  const newState = state.journals[ownProps.stateId || ownProps.id] || {};
 
   return {
     editorMode: newState.editorMode,
@@ -31,8 +31,8 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const mapDispatchToProps = (dispatch, props) => {
-  const w = wrapArgs(props.stateId || props.id);
+const mapDispatchToProps = (dispatch, ownProps) => {
+  const w = wrapArgs(ownProps.stateId || ownProps.id);
 
   return {
     initState: (id, params = {}) => dispatch(initState({ id, params })),
@@ -44,14 +44,14 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-function mergeProps(state, dispatchProps, props) {
-  const newState = get(state, ['journals', props.stateId || props.id], {});
+function mergeProps(stateProps, dispatchProps, ownProps) {
+  const newState = get(stateProps, ['journals', ownProps.stateId || ownProps.id], {});
 
   return {
-    ...props,
-    ...state,
+    ...ownProps,
+    ...stateProps,
     ...dispatchProps,
-    config: props.isOnDashboard ? props.config : newState.config
+    config: ownProps.onSave ? ownProps.config : newState.config
   };
 }
 
@@ -62,7 +62,6 @@ class JournalsDashlet extends Component {
     dragHandleProps: PropTypes.object,
     config: PropTypes.object,
     onSave: PropTypes.func,
-    isOnDashboard: PropTypes.bool,
 
     editorMode: PropTypes.bool,
     journalConfig: PropTypes.object
@@ -87,11 +86,11 @@ class JournalsDashlet extends Component {
   }
 
   componentDidMount() {
-    const { setRecordRef, getDashletConfig, setDashletConfigByParams, id, config, isOnDashboard } = this.props;
+    const { setRecordRef, getDashletConfig, setDashletConfigByParams, id, config, onSave } = this.props;
 
     setRecordRef(this.recordRef);
 
-    if (isOnDashboard) {
+    if (onSave) {
       setDashletConfigByParams(id, config);
     } else {
       getDashletConfig(id);
@@ -121,12 +120,12 @@ class JournalsDashlet extends Component {
   };
 
   renderEditor() {
-    const { editorMode, id, config, onSave, isOnDashboard } = this.props;
+    const { editorMode, id, config, onSave } = this.props;
 
     let addProps = {};
 
-    if (isOnDashboard) {
-      addProps = { isOnDashboard, onSave, config };
+    if (onSave) {
+      addProps = { onSave, config };
     }
 
     if (!editorMode) {
