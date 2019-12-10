@@ -231,3 +231,29 @@ export const MoveToLinesJournal = {
     return MoveToLinesJournal.enabledFor.indexOf(scope) > -1;
   }
 };
+
+export const DownloadCardTemplate = {
+  execute: ({ record, action = {}, action: { config = {} } }) => {
+    let url =
+      '/share/proxy/alfresco/citeck/print/metadata-printpdf' +
+      '?nodeRef=' +
+      record.id +
+      '&templateType=' +
+      config.templateType +
+      '&print=true&format=' +
+      config.format;
+
+    DownloadAction.execute({
+      record: record,
+      action: {
+        ...action,
+        config: {
+          url,
+          filename: 'template.' + config.format
+        }
+      }
+    });
+  },
+
+  getDefaultModel: () => DownloadAction.getDefaultModel()
+};
