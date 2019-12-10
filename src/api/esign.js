@@ -2,9 +2,7 @@ import getCadespluginAPI from 'async-cadesplugin';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
-import { RecordService } from './recordService';
-
-class EsignApi extends RecordService {
+class EsignApi {
   static _cadespluginApi = null;
 
   get cadespluginApi() {

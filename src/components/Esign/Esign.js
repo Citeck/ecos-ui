@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 
 import EsignService from '../../services/esign';
-
 import { Btn } from '../common/btns';
 import EsignModal from './EsignModal';
 import MessageModal from './MessageModal';
@@ -52,33 +51,8 @@ class Esign extends Component {
     this.state.isOpen = true;
 
     EsignService.init()
-      .then(cadespluginApi =>
-        this.setState({
-          isFetchingApi: false,
-          isLoading: false,
-          cadespluginApi
-        })
-      )
+      .then(this.serviceInitialized)
       .catch(this.setError);
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { onSigned } = this.props;
-    const { documentSigned } = this.state;
-
-    if (prevState.documentSigned && !documentSigned) {
-      if (typeof onSigned === 'function') {
-        onSigned();
-      }
-    }
-
-    if (prevState.isFetchingApi && !this.state.isFetchingApi) {
-      EsignService.getCertificates()
-        .then(certificates => {
-          this.setState({ certificates });
-        })
-        .catch(this.setError);
-    }
   }
 
   get hasErrors() {
@@ -96,6 +70,25 @@ class Esign extends Component {
     });
   };
 
+  getCertificates() {
+    EsignService.getCertificates()
+      .then(this.setCertificates)
+      .catch(this.setError);
+  }
+
+  setCertificates = certificates => {
+    this.setState({ certificates });
+  };
+
+  serviceInitialized = cadespluginApi => {
+    this.getCertificates();
+    this.setState({
+      isFetchingApi: false,
+      isLoading: false,
+      cadespluginApi
+    });
+  };
+
   handleCloseModal = () => {
     this.setState({ isOpen: false }, this.props.onClose);
   };
@@ -105,19 +98,23 @@ class Esign extends Component {
   };
 
   handleSignDocument = selectedCertificate => {
-    const { getDocumentsUrl, onSigned } = this.props;
+    const { getDocumentsUrl } = this.props;
 
     this.setState({ isLoading: true });
 
     EsignService.signDocument(getDocumentsUrl, selectedCertificate)
-      .then(documentSigned => {
-        this.setState({ documentSigned });
-
-        if (documentSigned && typeof onSigned === 'function') {
-          onSigned();
-        }
-      })
+      .then(this.documentSigned)
       .catch(this.setError);
+  };
+
+  documentSigned = documentSigned => {
+    const { onSigned } = this.props;
+
+    this.setState({ documentSigned });
+
+    if (documentSigned && typeof onSigned === 'function') {
+      onSigned();
+    }
   };
 
   clearMessage = () =>

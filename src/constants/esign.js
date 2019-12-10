@@ -5,11 +5,6 @@ export const ErrorTypes = {
   NO_CERTIFICATES: 'no-certificates'
 };
 
-export const DocStatuses = {
-  SIGNING: 'signing',
-  COUNTERPARTY_SIGNING: 'counterparty-signing'
-};
-
 export const Labels = {
   ERROR: 'esign.error',
   ADD_PLUGIN: 'esign.add-plugin.title',
