@@ -126,7 +126,9 @@ export const DownloadAction = {
   execute: ({ record, action }) => {
     const config = action.config || {};
 
-    const url = config.url || getDownloadContentUrl(record.id);
+    let url = config.url || getDownloadContentUrl(record.id);
+    url = url.replace('${recordRef}', record.id);
+
     const name = config.filename || 'file';
 
     const a = document.createElement('A', { target: '_blank' });
@@ -243,7 +245,7 @@ export const DownloadCardTemplate = {
       '&print=true&format=' +
       config.format;
 
-    DownloadAction.execute({
+    return DownloadAction.execute({
       record: record,
       action: {
         ...action,
