@@ -1,28 +1,65 @@
 @import '../../../styles/constants';
 
 .ecos-journal__settings-bar {
+  $root: &;
   display: flex;
   position: relative;
   width: 100%;
   margin-bottom: 12px;
+  height: 40px;
+  overflow: auto;
+  @extend %hidden-scrollbar;
 
   .ecos-btn.ecos-journal__add-record {
     font-size: 24px;
   }
+
+  .search_expanded {
+    & ~ #{$root}-download,
+    & ~ #{$root}-update {
+      display: none;
+    }
+  }
+
+  &-update {
+    min-width: 40px;
+  }
+
+  &-pagination {
+    &_mobile {
+      margin-right: 0;
+
+      .ecos-pagination__arrow {
+        &,
+        &:active,
+        &:hover {
+          background: $color-gray-5;
+          color: $color-white;
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          padding: 0;
+        }
+      }
+    }
+  }
 }
 
 .ecos-journal__settings-bar_step {
-  margin-right: 10px;
-
-  &-mobile {
+  &:not(:last-child) {
     margin-right: 15px;
+  }
+
+  &-mobile:not(:last-child) {
+    margin-right: 10px;
   }
 }
 
 .ecos-journal__settings-bar_right {
-  position: absolute;
-  right: 0;
-  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: auto;
 }
 
 .ecos-journal__settings-bar_right-btn {

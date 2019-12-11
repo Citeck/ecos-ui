@@ -52,11 +52,11 @@ const JournalsSettingsBar = ({
 
       <Search onSearch={onSearch} className={`search_border-white ${step}`} collapsed={isMobile} cleaner />
 
-      <Export journalConfig={journalConfig} grid={grid}>
+      <Export journalConfig={journalConfig} grid={grid} className={classNames('ecos-journal__settings-bar-download', step)}>
         <IcoBtn
           invert
           icon={isMobile ? 'icon-download' : 'icon-down'}
-          className={classNames('ecos-btn_hover_blue2 ecos-btn_r_6 ecos-btn_line-height_normal', step, {
+          className={classNames('ecos-btn_hover_blue2 ecos-btn_r_6 ecos-btn_line-height_normal', {
             'ecos-btn_drop-down ecos-btn_grey3': !isMobile,
             'ecos-btn_i ecos-btn_white': isMobile
           })}
@@ -68,15 +68,20 @@ const JournalsSettingsBar = ({
       <IcoBtn
         title={t('dashlet.update.title')}
         icon={'icon-reload'}
-        className={classNames(step, {
+        className={classNames('ecos-journal__settings-bar-update', step, {
           [grey]: !isMobile,
           'ecos-btn_i ecos-btn_white': isMobile
         })}
         onClick={refresh}
       />
 
-      <div className={'ecos-journal__settings-bar_right '}>
-        <JournalsDashletPagination stateId={stateId} className={step} />
+      <div className="ecos-journal__settings-bar_right">
+        <JournalsDashletPagination
+          stateId={stateId}
+          className={classNames('ecos-journal__settings-bar-pagination', step, {
+            'ecos-journal__settings-bar-pagination_mobile': isMobile
+          })}
+        />
         {!isMobile && (
           <>
             <IcoBtn

@@ -8,6 +8,7 @@
   background: $color-white;
   position: relative;
   width: 220px;
+  min-width: 40px;
   transition: width 0.5s;
 
   &_border-white {

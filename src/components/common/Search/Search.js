@@ -77,7 +77,7 @@ export default class Search extends Component {
     const { collapsed, text } = this.state;
 
     return (
-      <div className={classNames('search', { search_collapsed: collapsed }, className)}>
+      <div className={classNames('search', { search_collapsed: collapsed, search_expanded: !collapsed }, className)}>
         <Icon className="icon-search search__icon search__icon-search" onClick={this.onPressBtn} />
         <input
           className={classNames('search__input', { 'search__input_with-cleaner': !collapsed && cleaner })}
