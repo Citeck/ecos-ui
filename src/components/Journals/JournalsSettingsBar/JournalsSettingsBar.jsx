@@ -1,5 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
 import { t } from '../../../helpers/util';
 import { IcoBtn } from '../../common/btns';
@@ -27,21 +28,18 @@ const JournalsSettingsBar = ({
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const step = classNames('ecos-journal__settings-bar_step', { 'ecos-journal__settings-bar_step-mobile': isMobile });
+  const hasCreateVariants = !!get(journalConfig, 'meta.createVariants[0]', false);
 
   return (
     <div className={'ecos-journal__settings-bar'}>
-      {!isMobile &&
-        journalConfig &&
-        journalConfig.meta &&
-        Array.isArray(journalConfig.meta.createVariants) &&
-        journalConfig.meta.createVariants[0] && (
-          <IcoBtn
-            icon={'icon-plus'}
-            className={`ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
-            onClick={addRecord}
-            title={t('journals.create-record-btn')}
-          />
-        )}
+      {!isMobile && hasCreateVariants && (
+        <IcoBtn
+          icon={'icon-plus'}
+          className={`ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
+          onClick={addRecord}
+          title={t('journals.create-record-btn')}
+        />
+      )}
 
       {!isMobile && (
         <IcoBtn
@@ -83,7 +81,7 @@ const JournalsSettingsBar = ({
           <>
             <IcoBtn
               title={t('journal.title')}
-              icon={'icon-list'}
+              icon={'icon-list-1'}
               className={`${!showPie && !showPreview ? blue : grey} ${step} ecos-journal__settings-bar_right-btn`}
               onClick={showGrid}
             />
