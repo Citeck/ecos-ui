@@ -58,8 +58,8 @@ export default class Search extends Component {
         st.text = '';
       }
 
-      if (this.props.collapsed && !state.collapsed) {
-        st.text = true;
+      if (this.props.collapsed && !state.collapsed && !state.text) {
+        st.collapsed = true;
       }
 
       return st;
@@ -75,20 +75,19 @@ export default class Search extends Component {
   render() {
     const { className, cleaner } = this.props;
     const { collapsed, text } = this.state;
-    const cssClasses = classNames('search', { search_collapsed: collapsed }, className);
 
     return (
-      <div className={cssClasses}>
-        <Icon className="icon-search search__icon-search" onClick={this.onPressBtn} />
+      <div className={classNames('search', { search_collapsed: collapsed }, className)}>
+        <Icon className="icon-search search__icon search__icon-search" onClick={this.onPressBtn} />
         <input
-          className={classNames('search__input', { 'search__input_with-cleaner': cleaner && text })}
+          className={classNames('search__input', { 'search__input_with-cleaner': !collapsed && cleaner })}
           type="text"
           placeholder={t('search.placeholder')}
           onChange={this.onChange}
           onKeyDown={this.onKeyDown}
           value={text}
         />
-        {cleaner && text && <Icon className="icon-close search__icon-cleaner" onClick={this.onClean} />}
+        {cleaner && !collapsed && <Icon className="icon-close search__icon search__icon-cleaner" onClick={this.onClean} />}
       </div>
     );
   }

@@ -1,5 +1,31 @@
 @import '../../../styles/constants';
 
-button.ecos-journal__add-record {
-  font-size: 24px;
+.ecos-journal__settings-bar {
+  display: flex;
+  position: relative;
+  width: 100%;
+  margin-bottom: 12px;
+
+  .ecos-btn.ecos-journal__add-record {
+    font-size: 24px;
+  }
+}
+
+.ecos-journal__settings-bar_step {
+  margin-right: 10px;
+
+  &-mobile {
+    margin-right: 15px;
+  }
+}
+
+.ecos-journal__settings-bar_right {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.ecos-journal__settings-bar_right-btn {
+  position: relative;
+  top: -1px;
 }

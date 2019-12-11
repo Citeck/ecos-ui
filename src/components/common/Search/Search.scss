@@ -39,19 +39,19 @@
     }
   }
 
-  &__icon-search {
+  &__icon {
     color: $color-gray-5;
     cursor: pointer;
     position: absolute;
     z-index: 1;
-  }
-
-  &__icon-cleaner {
-    color: $color-gray-5;
-    cursor: pointer;
-    position: absolute;
-    right: 12px;
     top: 8px;
-    font-size: 14px;
+
+    &-search {
+    }
+
+    &-cleaner {
+      right: 12px;
+      font-size: 14px;
+    }
   }
 }
