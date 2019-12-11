@@ -35,7 +35,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   const w = wrapArgs(ownProps.stateId || ownProps.id);
 
   return {
-    initState: (id, params = {}) => dispatch(initState({ id, params })),
+    initState: stateId => dispatch(initState(stateId)),
     getDashletConfig: id => dispatch(getDashletConfig(w(id))),
     setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),

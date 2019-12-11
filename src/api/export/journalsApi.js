@@ -1,5 +1,6 @@
 import { URL } from '../../constants';
 import { isNewVersionPage } from '../../helpers/export/urls';
+import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import Records from '../../components/Records';
 
 const prepareJournalLinkParams = params => {
@@ -130,16 +131,11 @@ export const getJournalPageUrl = params => {
   const preparedParams = prepareJournalLinkParams(params);
 
   if (isNewVersionPage()) {
-    return getNewPageUrl(preparedParams);
-  } else {
-    return Records.get('ecos-config@new-journals-page-enable')
-      .load('.bool')
-      .then(value => {
-        if (value === true) {
-          return getNewPageUrl(preparedParams);
-        } else {
-          return getOldPageUrl(preparedParams);
-        }
-      });
+    const isNewJournalPageEnable = Records.get('ecos-config@new-journals-page-enable').load('.bool');
+    const isJournalAvailibleForUser = checkFunctionalAvailabilityForUser('default-ui-new-journals-access-groups');
+
+    return Promise.all([isNewJournalPageEnable, isJournalAvailibleForUser]).then(values => {
+      return values.includes(true) ? getNewPageUrl(preparedParams) : getOldPageUrl(preparedParams);
+    });
   }
 };
