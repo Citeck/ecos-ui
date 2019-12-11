@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import BootstrapTable from 'react-bootstrap-table-next';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
+
 import { closest, getId, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
@@ -15,8 +16,7 @@ const CLOSE_FILTER_EVENT = 'closeFilterEvent';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const REACT_BOOTSTRAP_TABLE_CLASS = 'react-bootstrap-table';
 
-const ECOS_GRID_FREEZE_TOP_CLASS = 'ecos-grid__freeze-top';
-const ECOS_GRID_FREEZE_LEFT_CLASS = 'ecos-grid__freeze-left';
+const ECOS_GRID_FREEZE_CLASS = 'ecos-grid_freeze';
 const ECOS_GRID_CHECKBOX_DEVIDER_CLASS = 'ecos-grid__checkbox-devider';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
@@ -28,12 +28,10 @@ const Selector = ({ mode, ...rest }) => (
 );
 
 const SelectorHeader = ({ indeterminate, ...rest }) => (
-  <>
-    <div className={'ecos-grid__checkbox'}>
-      {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
-      <div className={ECOS_GRID_CHECKBOX_DEVIDER_CLASS} />
-    </div>
-  </>
+  <div className={'ecos-grid__checkbox'}>
+    {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
+    <div className={ECOS_GRID_CHECKBOX_DEVIDER_CLASS} />
+  </div>
 );
 
 class Grid extends Component {
@@ -49,12 +47,10 @@ class Grid extends Component {
     this._tableDom = null;
     this._ref = React.createRef();
     this._scrollRef = null;
-    this._freezeTopGridNode = null;
-    this._freezeLeftGridNode = null;
-    this._freezeTopGridFirstThNode = null;
-    this._freezeTopGridFirstThDeviderNode = null;
     this._shadowHeadNode = null;
     this._shadowLeftNode = null;
+    this._firstHeaderCellNode = null;
+    this._inlineActionsNode = null;
   }
 
   componentDidMount() {
@@ -65,14 +61,10 @@ class Grid extends Component {
     const current = this._ref.current;
 
     if (current) {
-      this._freezeLeftGridNode = current.getElementsByClassName(ECOS_GRID_FREEZE_LEFT_CLASS)[0];
-      this._freezeTopGridNode = current.getElementsByClassName(ECOS_GRID_FREEZE_TOP_CLASS)[0];
       this._shadowHeadNode = current.getElementsByClassName(ECOS_GRID_HEAD_SHADOW)[0];
       this._shadowLeftNode = current.getElementsByClassName(ECOS_GRID_LEFT_SHADOW)[0];
-      this._freezeTopGridFirstThNode = this._freezeTopGridNode ? this._freezeTopGridNode.getElementsByTagName('th')[0] : null;
-      this._freezeTopGridFirstThDeviderNode = this._freezeTopGridFirstThNode
-        ? this._freezeTopGridFirstThNode.getElementsByClassName(ECOS_GRID_CHECKBOX_DEVIDER_CLASS)[0]
-        : null;
+      this._firstHeaderCellNode = current.querySelector(`thead > tr > th:first-child .${ECOS_GRID_CHECKBOX_DEVIDER_CLASS}`);
+      this._inlineActionsNode = current.querySelector('.ecos-inline-tools-actions');
     }
 
     const { scrollPosition = {} } = this.props;
@@ -459,44 +451,15 @@ class Grid extends Component {
   };
 
   onScrollFrame = e => {
-    this._scrollValues = e;
-
-    this.handleFreezeCols(e);
-
-    if (this._tr) {
-      this.getTrOptions(this._tr);
-    }
+    this._shadowLeftNode.style.display = e.scrollLeft > 0 ? 'block' : 'none';
+    this._shadowHeadNode.style.display = e.scrollTop > 0 ? 'block' : 'none';
+    this._firstHeaderCellNode.style.display = e.scrollLeft > 0 ? 'none' : 'block';
 
     trigger.call(this, 'onScrolling', e);
   };
 
   scrollRefCallback = scroll => {
     this._scrollRef = scroll;
-  };
-
-  handleFreezeCols = scrollingEvent => {
-    if (this._freezeTopGridNode) {
-      const scrollTop = scrollingEvent.scrollTop;
-      const scrollLeft = scrollingEvent.scrollLeft;
-
-      if (scrollTop) {
-        this._shadowHeadNode.style.display = 'block';
-      } else {
-        this._shadowHeadNode.style.display = 'none';
-      }
-
-      if (scrollLeft) {
-        this._shadowLeftNode.style.display = 'block';
-        this._freezeTopGridFirstThDeviderNode.style.display = 'none';
-      } else {
-        this._shadowLeftNode.style.display = 'none';
-        this._freezeTopGridFirstThDeviderNode.style.display = 'block';
-      }
-
-      this._freezeTopGridNode.style.left = scrollLeft ? '-' + scrollLeft + 'px' : scrollLeft + 'px';
-      this._freezeLeftGridNode.style.top = scrollTop ? '-' + scrollTop + 'px' : scrollTop + 'px';
-      this._freezeTopGridFirstThNode.style.left = scrollLeft + 'px';
-    }
   };
 
   render() {
@@ -549,16 +512,18 @@ class Grid extends Component {
           {toolsVisible ? this.tools(props.selected) : null}
 
           <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback}>
-            <BootstrapTable {...props} />
+            <BootstrapTable
+              {...props}
+              classes={classNames('', {
+                [ECOS_GRID_FREEZE_CLASS]: props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable)
+              })}
+            />
 
             {this.inlineTools()}
           </Scroll>
 
           {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
             <>
-              <BootstrapTable {...props} classes={ECOS_GRID_FREEZE_LEFT_CLASS} />
-              <BootstrapTable {...props} classes={ECOS_GRID_FREEZE_TOP_CLASS} />
-
               <div className={ECOS_GRID_HEAD_SHADOW} />
               <div className={ECOS_GRID_LEFT_SHADOW} />
             </>
