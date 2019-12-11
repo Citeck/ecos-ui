@@ -1,8 +1,9 @@
-import { RecordService } from './recordService';
+import { CommonApi } from './common';
 import { PROXY_URI, URL_CONTEXT } from '../constants/alfresco';
 import { SourcesId } from '../constants';
+import Records from '../components/Records';
 
-export class UserApi extends RecordService {
+export class UserApi extends CommonApi {
   getPhotoSize = userNodeRef => {
     const url = `${PROXY_URI}citeck/node?nodeRef=${userNodeRef}&props=ecos:photo`;
     return this.getJson(url).then(data => {
@@ -20,24 +21,23 @@ export class UserApi extends RecordService {
   };
 
   getUserData = () => {
-    //todo: replace to using Records.js
-    return this.query({
-      query: {
+    return Records.query(
+      {
         sourceId: SourcesId.PEOPLE
       },
-      attributes: {
+      {
         userName: 'userName',
-        isAvailable: 'isAvailable',
-        isMutable: 'isMutable',
+        isAvailable: 'isAvailable?bool',
+        isMutable: 'isMutable?bool',
         firstName: 'cm:firstName',
         lastName: 'cm:lastName',
         middleName: 'cm:middleName',
-        isAdmin: 'isAdmin',
+        isAdmin: 'isAdmin?bool',
         fullName: 'fullName',
         uid: 'cm:name',
         isBpmAdmin: '.att(n:"authorities"){has(n:"GROUP_BPM_APP_ADMIN")}'
       }
-    }).then(resp => {
+    ).then(resp => {
       if (resp.records.length < 1) {
         return {
           success: false
@@ -47,7 +47,7 @@ export class UserApi extends RecordService {
       return {
         success: true,
         payload: {
-          ...resp.records[0].attributes
+          ...resp.records[0]
         }
       };
     });

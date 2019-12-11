@@ -9,7 +9,7 @@ import EcosModal from '../common/EcosModal';
 import Records from '../Records';
 import { t } from '../../helpers/util';
 import './EcosFormModal.scss';
-import EcosFormUtils from './EcosFormUtils';
+import { SourcesId } from '../../constants';
 
 const LABELS = {
   CONSTRUCTOR_BTN_TOOLTIP: 'Перейти в конструктор'
@@ -23,7 +23,7 @@ export default class EcosFormModal extends React.Component {
 
     this.state = {
       isModalOpen: false,
-      canEdit: false
+      isAdmin: false
     };
   }
 
@@ -70,10 +70,12 @@ export default class EcosFormModal extends React.Component {
   }
 
   checkEditRights() {
-    const { record } = this.props;
+    Records.query({ sourceId: SourcesId.PEOPLE }, { isAdmin: 'isAdmin?bool' }).then(result => {
+      if (!Array.isArray(result.records) || result.records.length < 1) {
+        return;
+      }
 
-    EcosFormUtils.getCanWritePermission(record).then(canEdit => {
-      this.setState({ canEdit });
+      this.setState({ isAdmin: result.records[0].isAdmin });
     });
   }
 
@@ -96,9 +98,9 @@ export default class EcosFormModal extends React.Component {
   };
 
   renderConstructorButton() {
-    const { canEdit } = this.state;
+    const { isAdmin } = this.state;
 
-    if (!canEdit) {
+    if (!isAdmin) {
       return null;
     }
 
