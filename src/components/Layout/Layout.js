@@ -7,7 +7,7 @@ import { getMinWidthColumn } from '../../helpers/layout';
 import Components from '../Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
 import { MENU_TYPE } from '../../constants';
-import { getSearchParams, documentScrollTop } from '../../helpers/util';
+import { documentScrollTop, getSearchParams } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
-import FormioEventEmitter from 'formiojs/EventEmitter';
+import CustomEventEmitter from '../../forms/EventEmitter';
 import { cloneDeep } from 'lodash';
 
 import '../../forms/components';
@@ -143,10 +143,15 @@ class EcosForm extends React.Component {
         i18n[language] = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formI18N);
 
         options.i18n = i18n;
-        options.events = new FormioEventEmitter({
+        options.events = new CustomEventEmitter({
           wildcard: false,
           maxListeners: 0,
-          loadLimit: 200
+          loadLimit: 200,
+          onOverload: () => {
+            if (this._form) {
+              this._form.showErrors('Infinite loop detected');
+            }
+          }
         });
 
         const containerElement = document.getElementById(this.state.containerId);

@@ -4,7 +4,7 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import DashboardService from '../../services/dashboard';
-import { deepClone, t, arrayCompare } from '../../helpers/util';
+import { arrayCompare, deepClone, t } from '../../helpers/util';
 import { EditTabs, ScrollArrow } from '../../components/common';
 import { IcoBtn } from '../../components/common/btns';
 import { RemoveDialog } from '../../components/common/dialogs';
@@ -34,17 +34,13 @@ class SetTabs extends React.Component {
     const { tabs, activeTabKey } = this.props;
     const { scrollTabToEnd, updateScrollPosition, removedTab } = this.state;
 
-    if (
+    return (
       !arrayCompare(tabs, nextProps.tabs) ||
       activeTabKey !== nextProps.activeTabKey ||
       scrollTabToEnd !== nextState.scrollTabToEnd ||
       updateScrollPosition !== nextState.updateScrollPosition ||
       removedTab !== nextState.removedTab
-    ) {
-      return true;
-    }
-
-    return false;
+    );
   }
 
   doScrollEnd() {
@@ -177,7 +173,7 @@ class SetTabs extends React.Component {
           {empty && <div className="ecos-dashboard-settings__layout-tabs_empty" />}
           <IcoBtn
             icon="icon-big-plus"
-            className={'ecos-dashboard-settings__layout-tabs-add-tab ecos-btn_i ecos-btn_blue2 ecos-btn_hover_blue2'}
+            className="ecos-dashboard-settings__layout-tabs-add-tab ecos-btn_i ecos-btn_blue2 ecos-btn_hover_blue2"
             onClick={this.onCreateTab}
           />
         </div>

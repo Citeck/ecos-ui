@@ -1,44 +1,51 @@
 import React, { Component } from 'react';
-import connect from 'react-redux/es/connect/connect';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { Caption, Select, Field, Checkbox } from '../../common/form';
+import get from 'lodash/get';
+
+import { Caption, Checkbox, Field, Select } from '../../common/form';
 import { Btn } from '../../common/btns';
 
 import {
   getDashletEditorData,
-  setJournalsListItem,
-  setJournalsItem,
-  setSettingItem,
   saveDashlet,
-  setEditorMode,
   setDashletConfig,
-  setOnlyLinked
+  setDashletConfigByParams,
+  setEditorMode,
+  setJournalsItem,
+  setJournalsListItem,
+  setOnlyLinked,
+  setSettingItem
 } from '../../../actions/journals';
 
-import { t, getSelectedValue } from '../../../helpers/util';
+import { getSelectedValue, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { JOURNAL_SETTING_ID_FIELD, JOURNAL_SETTING_DATA_FIELD } from '../constants';
+import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 import './JournalsDashletEditor.scss';
 
-const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+const mapStateToProps = (state, ownProps) => {
+  const newState = state.journals[ownProps.stateId] || {};
 
   return {
     journalsList: newState.journalsList,
     journals: newState.journals,
     journalSettings: newState.journalSettings,
     config: newState.config,
-    initConfig: newState.initConfig
+    initConfig: newState.initConfig,
+    editorMode: newState.editorMode,
+    resultDashboard: get(state, 'dashboard.requestResult', {})
   };
 };
 
-const mapDispatchToProps = (dispatch, props) => {
-  const w = wrapArgs(props.stateId);
+const mapDispatchToProps = (dispatch, ownProps) => {
+  const w = wrapArgs(ownProps.stateId);
 
   return {
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
     getDashletEditorData: config => dispatch(getDashletEditorData(w(config))),
+    setDashletConfigByParams: (id, config) => dispatch(setDashletConfigByParams(w({ id, config }))),
     setJournalsListItem: item => dispatch(setJournalsListItem(w(item))),
     setJournalsItem: item => dispatch(setJournalsItem(w(item))),
     setSettingItem: id => dispatch(setSettingItem(w(id))),
@@ -49,8 +56,48 @@ const mapDispatchToProps = (dispatch, props) => {
 };
 
 class JournalsDashletEditor extends Component {
+  static propTypes = {
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    recordRef: PropTypes.string,
+    className: PropTypes.string,
+    measurer: PropTypes.object,
+    config: PropTypes.object,
+    journals: PropTypes.array,
+    journalsList: PropTypes.array,
+    journalSettings: PropTypes.array,
+    onSave: PropTypes.func,
+    setJournalsListItem: PropTypes.func,
+    setJournalsItem: PropTypes.func
+  };
+
   componentDidMount() {
-    this.props.getDashletEditorData(this.props.config);
+    const { config, getDashletEditorData } = this.props;
+
+    getDashletEditorData(config);
+  }
+
+  componentDidUpdate(prevProps) {
+    const prevConfig = prevProps.config || {};
+    const prevResultDashboard = prevProps.resultDashboard || {};
+    const {
+      config = {},
+      id,
+      editorMode,
+      resultDashboard = {},
+      onSave,
+      getDashletEditorData,
+      setDashletConfigByParams,
+      setEditorMode
+    } = this.props;
+
+    if (config && (prevConfig.journalsListId !== config.journalsListId || prevConfig.journalId !== config.journalId)) {
+      getDashletEditorData(config);
+    }
+
+    if (editorMode && onSave && prevResultDashboard.status !== resultDashboard.status && resultDashboard.status) {
+      setDashletConfigByParams(id, config);
+      setEditorMode(false);
+    }
   }
 
   cancel = () => {
@@ -60,13 +107,17 @@ class JournalsDashletEditor extends Component {
   };
 
   save = () => {
-    let { config, id, saveDashlet, recordRef } = this.props;
+    let { config, id, recordRef, onSave, saveDashlet } = this.props;
 
     if (recordRef) {
       config = config && config.onlyLinked === undefined ? { ...config, onlyLinked: true } : config;
     }
 
-    saveDashlet(config, id);
+    if (onSave) {
+      onSave(id, { config });
+    } else {
+      saveDashlet(config, id);
+    }
   };
 
   clear = () => {
@@ -81,26 +132,15 @@ class JournalsDashletEditor extends Component {
     this.props.setOnlyLinked(checked);
   };
 
-  componentDidUpdate(prevProps) {
-    const prevConfig = prevProps.config || {};
-    const config = this.props.config || {};
-
-    if (prevConfig.journalsListId !== config.journalsListId || prevConfig.journalId !== config.journalId) {
-      this.props.getDashletEditorData(config);
-    }
-  }
-
   render() {
-    const props = this.props;
-    const config = props.config || {};
-    const cssClasses = classNames('ecos-journal-dashlet-editor', props.className);
-    const measurer = props.measurer;
-    const isSmall = measurer.xxs || measurer.xxxs;
+    const { className, measurer, recordRef, journals, journalsList, journalSettings, setJournalsListItem, setJournalsItem } = this.props;
+    const config = this.props.config || {};
+    const isSmall = measurer && (measurer.xxs || measurer.xxxs);
     const checkSmall = isSmall => className => (isSmall ? className : '');
     const ifSmall = checkSmall(isSmall);
 
     return (
-      <div className={cssClasses}>
+      <div className={classNames('ecos-journal-dashlet-editor', className)}>
         <div className={classNames('ecos-journal-dashlet-editor__body', ifSmall('ecos-journal-dashlet-editor__body_small'))}>
           <Caption middle className={classNames('ecos-journal-dashlet-editor__caption')}>
             {t('journals.action.edit-dashlet')}
@@ -110,11 +150,11 @@ class JournalsDashletEditor extends Component {
             <Select
               className={'ecos-journal-dashlet-editor__select'}
               placeholder={t('journals.action.select-journal-list')}
-              options={props.journalsList}
+              options={journalsList}
               getOptionLabel={option => option.title}
               getOptionValue={option => option.id}
-              onChange={props.setJournalsListItem}
-              value={getSelectedValue(props.journalsList, 'id', config.journalsListId)}
+              onChange={setJournalsListItem}
+              value={getSelectedValue(journalsList, 'id', config.journalsListId)}
             />
           </Field>
 
@@ -122,11 +162,11 @@ class JournalsDashletEditor extends Component {
             <Select
               className={'ecos-journal-dashlet-editor__select'}
               placeholder={t('journals.action.select-journal')}
-              options={props.journals}
+              options={journals}
               getOptionLabel={option => option.title}
               getOptionValue={option => option.nodeRef}
-              onChange={props.setJournalsItem}
-              value={getSelectedValue(props.journals, 'nodeRef', config.journalId)}
+              onChange={setJournalsItem}
+              value={getSelectedValue(journals, 'nodeRef', config.journalId)}
             />
           </Field>
 
@@ -134,15 +174,15 @@ class JournalsDashletEditor extends Component {
             <Select
               className={'ecos-journal-dashlet-editor__select'}
               placeholder={t('journals.default')}
-              options={props.journalSettings}
+              options={journalSettings}
               getOptionLabel={option => option[JOURNAL_SETTING_DATA_FIELD].title}
               getOptionValue={option => option[JOURNAL_SETTING_ID_FIELD]}
               onChange={this.setSettingItem}
-              value={getSelectedValue(props.journalSettings, JOURNAL_SETTING_ID_FIELD, config.journalSettingId)}
+              value={getSelectedValue(journalSettings, JOURNAL_SETTING_ID_FIELD, config.journalSettingId)}
             />
           </Field>
 
-          {props.recordRef ? (
+          {recordRef ? (
             <Field label={t('journals.action.only-linked')} isSmall={isSmall}>
               <Checkbox checked={config.onlyLinked === undefined ? true : config.onlyLinked} onChange={this.setOnlyLinked} />
             </Field>
