@@ -127,7 +127,7 @@ export const DownloadAction = {
     const config = action.config || {};
 
     let url = config.url || getDownloadContentUrl(record.id);
-    url = url.replace('${recordRef}', record.id);
+    url = url.replace('${recordRef}', record.id); // eslint-disable-line no-template-curly-in-string
 
     const name = config.filename || 'file';
 
