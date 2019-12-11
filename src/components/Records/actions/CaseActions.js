@@ -1,7 +1,23 @@
-import { PROXY_URI } from '../../../constants/alfresco';
+import { PROXY_URI, URL_PAGECONTEXT } from '../../../constants/alfresco';
 import dialogManager from '../../common/dialogs/Manager';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import { t } from '../../../helpers/util';
+
+export const CaseRedirectAction = {
+  execute: ({
+    action,
+    action: {
+      config: { url = '', target = '_self' }
+    }
+  }) => {
+    if (!url) {
+      console.error(action);
+      throw new Error('Redirect action url is missing!');
+    }
+
+    window.open(URL_PAGECONTEXT + url, target);
+  }
+};
 
 export const CaseCreateNodeAction = {
   execute: ({ action }) => {

@@ -1,41 +1,41 @@
 import { handleActions } from 'redux-actions';
 import get from 'lodash/get';
 import {
-  setEditorMode,
-  setJournalsList,
-  setJournals,
-  setGrid,
+  initState,
+  setColumnsSetup,
   setDashletConfig,
-  setJournalsListItem,
-  setJournalsItem,
-  setSettingItem,
-  setOnlyLinked,
-  setJournalConfig,
-  setSelectedRecords,
-  setSelectAllRecords,
-  setSelectAllRecordsVisible,
+  setEditorMode,
+  setGrid,
   setGridInlineToolSettings,
+  setGrouping,
+  setJournalConfig,
+  setJournals,
   setJournalSetting,
   setJournalSettings,
-  setPredicate,
-  setColumnsSetup,
-  setGrouping,
-  setPreviewUrl,
-  setUrl,
-  initState,
+  setJournalsItem,
+  setJournalsList,
+  setJournalsListItem,
+  setOnlyLinked,
   setPerformGroupActionResponse,
-  setZipNodeRef,
+  setPredicate,
   setPreviewFileName,
-  setRecordRef
+  setPreviewUrl,
+  setRecordRef,
+  setSelectAllRecords,
+  setSelectAllRecordsVisible,
+  setSelectedRecords,
+  setSettingItem,
+  setUrl,
+  setZipNodeRef
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { t, deepClone } from '../helpers/util';
+import { deepClone, t } from '../helpers/util';
 import { handleAction, handleState } from '../helpers/redux';
 import {
-  JOURNAL_SETTING_ID_FIELD,
-  JOURNAL_SETTING_DATA_FIELD,
+  DEFAULT_INLINE_TOOL_SETTINGS,
   DEFAULT_PAGINATION,
-  DEFAULT_INLINE_TOOL_SETTINGS
+  JOURNAL_SETTING_DATA_FIELD,
+  JOURNAL_SETTING_ID_FIELD
 } from '../components/Journals/constants';
 
 const defaultState = {
@@ -109,7 +109,7 @@ Object.freeze(initialState);
 export default handleActions(
   {
     [initState]: (state, action) => {
-      const id = action.payload;
+      const { id, params } = action.payload;
 
       if (state[id]) {
         return { ...state };
@@ -117,7 +117,10 @@ export default handleActions(
 
       return {
         ...state,
-        [id]: deepClone(defaultState)
+        [id]: {
+          ...deepClone(defaultState),
+          ...params
+        }
       };
     },
     [setUrl]: (state, action) => {

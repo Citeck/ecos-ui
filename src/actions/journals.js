@@ -4,6 +4,7 @@ const prefix = 'journals/';
 
 export const getDashletConfig = createAction(prefix + 'GET_DASHLET_CONFIG');
 export const setDashletConfig = createAction(prefix + 'SET_DASHLET_CONFIG');
+export const setDashletConfigByParams = createAction(prefix + 'SET_DASHLET_CONFIG_BY_PARAMS');
 export const saveDashlet = createAction(prefix + 'SAVE_DASHLET');
 export const getDashletEditorData = createAction(prefix + 'GET_DASHLET_EDITOR_DATA');
 export const setEditorMode = createAction(prefix + 'SET_EDITOR_MODE');

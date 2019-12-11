@@ -1,25 +1,28 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import get from 'lodash/get';
 import PropTypes from 'prop-types';
+import queryString from 'query-string';
 
+import { goToJournalsPage } from '../../../helpers/urls';
+import { wrapArgs } from '../../../helpers/redux';
+import { t } from '../../../helpers/util';
+import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
+import { getDashletConfig, initState, reloadGrid, setDashletConfigByParams, setEditorMode, setRecordRef } from '../../../actions/journals';
+
+import Measurer from '../../Measurer/Measurer';
+import Dashlet from '../../Dashlet/Dashlet';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsDashletToolbar from '../JournalsDashletToolbar';
 import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletFooter from '../JournalsDashletFooter';
-import Measurer from '../../Measurer/Measurer';
-import Dashlet from '../../Dashlet/Dashlet';
-import queryString from 'query-string';
-import { getDashletConfig, initState, reloadGrid, setEditorMode, setRecordRef } from '../../../actions/journals';
-import { goToJournalsPage } from '../../../helpers/urls';
-import { wrapArgs } from '../../../helpers/redux';
-import { MIN_WIDTH_DASHLET_SMALL, MIN_WIDTH_DASHLET_LARGE } from '../../../constants';
 
 import './JournalsDashlet.scss';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
 
-const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId || props.id] || {};
+const mapStateToProps = (state, ownProps) => {
+  const newState = state.journals[ownProps.stateId || ownProps.id] || {};
 
   return {
     editorMode: newState.editorMode,
@@ -28,23 +31,40 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const mapDispatchToProps = (dispatch, props) => {
-  const w = wrapArgs(props.stateId || props.id);
+const mapDispatchToProps = (dispatch, ownProps) => {
+  const w = wrapArgs(ownProps.stateId || ownProps.id);
 
   return {
-    initState: stateId => dispatch(initState(stateId)),
-
+    initState: (id, params = {}) => dispatch(initState({ id, params })),
     getDashletConfig: id => dispatch(getDashletConfig(w(id))),
     setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
-    reloadGrid: options => dispatch(reloadGrid(w(options)))
+    reloadGrid: options => dispatch(reloadGrid(w(options))),
+    setDashletConfigByParams: (id, config) => dispatch(setDashletConfigByParams(w({ id, config })))
   };
 };
 
+function mergeProps(stateProps, dispatchProps, ownProps) {
+  const newState = get(stateProps, ['journals', ownProps.stateId || ownProps.id], {});
+
+  return {
+    ...ownProps,
+    ...stateProps,
+    ...dispatchProps,
+    config: ownProps.onSave ? ownProps.config : newState.config
+  };
+}
+
 class JournalsDashlet extends Component {
   static propTypes = {
-    id: PropTypes.string.isRequired,
-    dragHandleProps: PropTypes.object
+    id: PropTypes.string,
+    stateId: PropTypes.string,
+    dragHandleProps: PropTypes.object,
+    config: PropTypes.object,
+    onSave: PropTypes.func,
+
+    editorMode: PropTypes.bool,
+    journalConfig: PropTypes.object
   };
 
   static defaultProps = {
@@ -66,10 +86,15 @@ class JournalsDashlet extends Component {
   }
 
   componentDidMount() {
-    const { setRecordRef, getDashletConfig, id } = this.props;
+    const { setRecordRef, getDashletConfig, setDashletConfigByParams, id, config, onSave } = this.props;
 
     setRecordRef(this.recordRef);
-    getDashletConfig(id);
+
+    if (onSave) {
+      setDashletConfigByParams(id, config);
+    } else {
+      getDashletConfig(id);
+    }
   }
 
   handleResize = width => {
@@ -95,7 +120,13 @@ class JournalsDashlet extends Component {
   };
 
   renderEditor() {
-    const { editorMode, id } = this.props;
+    const { editorMode, id, config, onSave } = this.props;
+
+    let addProps = {};
+
+    if (onSave) {
+      addProps = { onSave, config };
+    }
 
     if (!editorMode) {
       return null;
@@ -103,7 +134,7 @@ class JournalsDashlet extends Component {
 
     return (
       <Measurer>
-        <JournalsDashletEditor id={id} stateId={this._stateId} recordRef={this.recordRef} />
+        <JournalsDashletEditor id={id} stateId={this._stateId} recordRef={this.recordRef} {...addProps} />
       </Measurer>
     );
   }
@@ -142,7 +173,7 @@ class JournalsDashlet extends Component {
         {...this.props}
         className={classNames('ecos-journal-dashlet', className)}
         bodyClassName={'ecos-journal-dashlet__body'}
-        title={journalConfig.meta.title || ''}
+        title={journalConfig.meta.title || t('journal.title')}
         onReload={reloadGrid}
         onEdit={this.showEditor}
         onGoTo={this.goToJournalsPage}
@@ -164,5 +195,6 @@ class JournalsDashlet extends Component {
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
+  mergeProps
 )(JournalsDashlet);

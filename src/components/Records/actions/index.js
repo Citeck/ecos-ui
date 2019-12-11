@@ -1,7 +1,15 @@
 import Registry from './RecordActionExecutorsRegistry';
-import { EditAction, ViewAction, DownloadAction, DeleteAction, MoveToLinesJournal, BackgroundOpenAction } from './DefaultActions';
+import {
+  EditAction,
+  ViewAction,
+  DownloadAction,
+  DeleteAction,
+  MoveToLinesJournal,
+  BackgroundOpenAction,
+  DownloadCardTemplate
+} from './DefaultActions';
 
-import { CaseRequestAction, CaseCreateNodeAction } from './CaseActions';
+import { CaseRequestAction, CaseCreateNodeAction, CaseRedirectAction } from './CaseActions';
 
 export { default } from './RecordActions';
 
@@ -12,9 +20,11 @@ Registry.addExecutors({
   download: DownloadAction,
   delete: DeleteAction,
   'move-to-lines': MoveToLinesJournal,
+  'download-card-template': DownloadCardTemplate,
 
   //legacy case actions
 
   REQUEST: CaseRequestAction,
-  CREATE_NODE: CaseCreateNodeAction
+  CREATE_NODE: CaseCreateNodeAction,
+  REDIRECT: CaseRedirectAction
 });
