@@ -64,14 +64,7 @@ $transition-duration: 0.3s;
     &__img {
       transition: opacity $transition-duration;
       position: absolute;
-
-      &_small {
-        width: 20px;
-      }
-
-      &_large {
-        width: 99px;
-      }
+      max-height: 20px;
     }
   }
 
