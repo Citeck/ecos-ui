@@ -24,8 +24,8 @@ export default class FormManager {
           isNewFormShouldBeUsed = EcosFormUtils.isNewFormsEnabled();
         }
 
-        const isShouldDisplayNewFormsForUser = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
-        isNewFormShouldBeUsed = Promise.all([isNewFormShouldBeUsed, isShouldDisplayNewFormsForUser])
+        const shouldDisplayNewFormsForUser = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
+        isNewFormShouldBeUsed = Promise.all([isNewFormShouldBeUsed, shouldDisplayNewFormsForUser])
           .then(function(values) {
             if (values.includes(true)) {
               return EcosFormUtils.hasForm(recordRef, variant.formKey);
