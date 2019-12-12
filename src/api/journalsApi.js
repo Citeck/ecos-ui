@@ -7,7 +7,7 @@ import * as ls from '../helpers/ls';
 import { DocPreviewApi } from './docPreview';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/common/form/SelectJournal/predicates';
 
-import { ActionModes } from '../constants';
+import { ActionModes, Permissions } from '../constants';
 
 import RecordActions from '../components/Records/actions';
 
@@ -102,7 +102,8 @@ export class JournalsApi extends RecordService {
           query: bodyQery
         }
       },
-      columns: columns || []
+      columns: columns || [],
+      permissions: [Permissions.Write]
     });
 
     return dataSource.load().then(function({ data, total }) {
@@ -164,7 +165,8 @@ export class JournalsApi extends RecordService {
           query: bodyQuery
         }
       },
-      columns: columns || []
+      columns: columns || [],
+      permissions: [Permissions.Write]
     });
 
     return dataSource.load().then(function({ data, total }) {

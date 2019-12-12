@@ -105,7 +105,7 @@ class EcosForm extends React.Component {
       let recordDataPromise = EcosFormUtils.getData(recordId, inputs, this.state.containerId);
       let canWritePromise = false;
       if (options.readOnly && options.viewAsHtml) {
-        canWritePromise = EcosFormUtils.getCanWritePermission(recordId);
+        canWritePromise = EcosFormUtils.hasWritePermission(recordId);
       }
 
       Promise.all([recordDataPromise, canWritePromise]).then(([recordData, canWrite]) => {

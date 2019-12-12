@@ -7,6 +7,7 @@ import { UncontrolledTooltip } from 'reactstrap';
 
 import { isSmallMode, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
+import EcosFormUtils from '../EcosForm/EcosFormUtils';
 import Dashlet from '../Dashlet/Dashlet';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
@@ -63,8 +64,15 @@ class PropertiesDashlet extends React.Component {
       isSmall: false,
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       height: UserLocalSettingsService.getDashletHeight(props.id),
-      fitHeights: {}
+      fitHeights: {},
+      canEditRecord: false
     };
+  }
+
+  componentDidMount() {
+    EcosFormUtils.hasWritePermission(this.props.record).then(canEditRecord => {
+      this.setState({ canEditRecord });
+    });
   }
 
   className = 'ecos-properties-dashlet';
@@ -154,7 +162,7 @@ class PropertiesDashlet extends React.Component {
 
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isReady, isEditProps, height, fitHeights, formIsChanged, isCollapsed } = this.state;
+    const { isSmallMode, isReady, isEditProps, height, fitHeights, formIsChanged, isCollapsed, canEditRecord } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -162,6 +170,7 @@ class PropertiesDashlet extends React.Component {
         title={title || t(LABELS.WIDGET_TITLE)}
         className={classDashlet}
         bodyClassName={`${this.className}__body`}
+        actionEdit={canEditRecord}
         actionEditTitle={t(LABELS.EDIT_TITLE)}
         resizable={true}
         contentMaxHeight={this.clientHeight}
