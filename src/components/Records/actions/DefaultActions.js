@@ -126,7 +126,9 @@ export const DownloadAction = {
   execute: ({ record, action }) => {
     const config = action.config || {};
 
-    const url = config.url || getDownloadContentUrl(record.id);
+    let url = config.url || getDownloadContentUrl(record.id);
+    url = url.replace('${recordRef}', record.id); // eslint-disable-line no-template-curly-in-string
+
     const name = config.filename || 'file';
 
     const a = document.createElement('A', { target: '_blank' });
@@ -230,4 +232,30 @@ export const MoveToLinesJournal = {
     const { scope = '' } = context;
     return MoveToLinesJournal.enabledFor.indexOf(scope) > -1;
   }
+};
+
+export const DownloadCardTemplate = {
+  execute: ({ record, action = {}, action: { config = {} } }) => {
+    let url =
+      '/share/proxy/alfresco/citeck/print/metadata-printpdf' +
+      '?nodeRef=' +
+      record.id +
+      '&templateType=' +
+      config.templateType +
+      '&print=true&format=' +
+      config.format;
+
+    return DownloadAction.execute({
+      record: record,
+      action: {
+        ...action,
+        config: {
+          url,
+          filename: 'template.' + config.format
+        }
+      }
+    });
+  },
+
+  getDefaultModel: () => DownloadAction.getDefaultModel()
 };

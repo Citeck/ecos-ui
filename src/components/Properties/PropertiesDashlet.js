@@ -1,16 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import get from 'lodash/get';
 import { UncontrolledTooltip } from 'reactstrap';
 
-import { isSmallMode, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
 import IcoBtn from '../common/btns/IcoBtn';
-import EcosFormUtils from '../EcosForm/EcosFormUtils';
 import BaseWidget from '../BaseWidget';
+import EcosFormUtils from '../EcosForm/EcosFormUtils';
+import { isSmallMode, t } from '../../helpers/util';
 
 import './style.scss';
 
@@ -56,10 +57,8 @@ class PropertiesDashlet extends BaseWidget {
       isSmall: false,
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      fitHeights: {},
-      canEdit: false
+      fitHeights: {}
     };
-    this._propertiesRef = React.createRef();
   }
 
   componentDidMount() {
@@ -165,7 +164,6 @@ class PropertiesDashlet extends BaseWidget {
         isCollapsed={isCollapsed}
       >
         <Properties
-          ref={this._propertiesRef}
           forwardedRef={this.contentRef}
           className={classNameProps}
           record={record}

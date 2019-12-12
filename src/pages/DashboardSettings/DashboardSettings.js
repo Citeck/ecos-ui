@@ -28,6 +28,7 @@ import { DndUtils } from '../../components/Drag-n-Drop';
 import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { Loader, Tabs } from '../../components/common';
 import { Btn } from '../../components/common/btns';
+import { Checkbox } from '../../components/common/form';
 import { TunableDialog } from '../../components/common/dialogs';
 
 import SetBind from './SetBind';
@@ -476,6 +477,29 @@ class DashboardSettings extends React.Component {
     return <SetTabs tabs={currentTabs} activeTabKey={active} setData={setData} />;
   }
 
+  renderGeneralSettingsBlock() {
+    const {
+      userData: { isAdmin }
+    } = this.props;
+    const { isForAllUsers } = this.state;
+
+    if (!(this.isUserType && isAdmin)) {
+      return null;
+    }
+
+    const onChangeKeyForAllUser = field => {
+      this.setState({ isForAllUsers: field.checked });
+    };
+
+    return (
+      <div className="ecos-dashboard-settings__container-group">
+        <Checkbox checked={isForAllUsers} onChange={onChangeKeyForAllUser} className="ecos-dashboard-settings__all-users">
+          {t('dashboard-settings.for-all')}
+        </Checkbox>
+      </div>
+    );
+  }
+
   renderLayoutsBlock() {
     const setData = layout => {
       const { activeLayoutTabId, selectedWidgets, selectedLayout } = this.state;
@@ -589,11 +613,11 @@ class DashboardSettings extends React.Component {
 
   renderButtons() {
     return (
-      <div className={'ecos-dashboard-settings__actions'}>
-        <Btn className={'ecos-btn_x-step_10'} onClick={this.handleCloseSettings}>
+      <div className="ecos-dashboard-settings__actions">
+        <Btn className="ecos-btn_x-step_10" onClick={this.handleCloseSettings}>
           {t('dashboard-settings.button.cancel')}
         </Btn>
-        <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.handleCheckChanges}>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleCheckChanges}>
           {t('dashboard-settings.button.save')}
         </Btn>
       </div>
@@ -622,7 +646,7 @@ class DashboardSettings extends React.Component {
             <Btn key="handleCancel" onClick={handleCancel}>
               {t('dashboard-settings.cancel')}
             </Btn>,
-            <Btn key="handleReplace" onClick={handleReplace} className={'ecos-btn_blue'}>
+            <Btn key="handleReplace" onClick={handleReplace} className="ecos-btn_blue">
               {t('dashboard-settings.replace')}
             </Btn>
           ]}
@@ -652,6 +676,7 @@ class DashboardSettings extends React.Component {
         {this.renderDeviceTabsBlock()}
         {this.renderLayoutTabsBlock()}
         <div className="ecos-dashboard-settings__container">
+          {this.renderGeneralSettingsBlock()}
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
           {this.renderMenuBlock()}
