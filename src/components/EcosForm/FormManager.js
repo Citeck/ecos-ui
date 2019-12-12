@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import EcosFormUtils from './EcosFormUtils';
 import EcosFormModal from './EcosFormModal';
+import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 
 export default class FormManager {
   static createRecordByVariant(variant, options = {}) {
@@ -12,7 +13,6 @@ export default class FormManager {
     }
 
     let recordRef = variant.recordRef || (variant.type ? 'dict@' + variant.type : '');
-
     let isNewFormShouldBeUsed = variant.formKey || !variant.type;
     let isNewFormCanBeUsed = isNewFormShouldBeUsed || !!recordRef;
 
@@ -23,11 +23,16 @@ export default class FormManager {
         } else {
           isNewFormShouldBeUsed = EcosFormUtils.isNewFormsEnabled();
         }
-        isNewFormShouldBeUsed = isNewFormShouldBeUsed
-          .then(value => {
-            return value ? EcosFormUtils.hasForm(recordRef, variant.formKey) : false;
+
+        const shouldDisplayNewFormsForUser = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
+        isNewFormShouldBeUsed = Promise.all([isNewFormShouldBeUsed, shouldDisplayNewFormsForUser])
+          .then(function(values) {
+            if (values.includes(true)) {
+              return EcosFormUtils.hasForm(recordRef, variant.formKey);
+            }
+            return false;
           })
-          .catch(e => {
+          .catch(function(e) {
             console.error(e);
             return false;
           });

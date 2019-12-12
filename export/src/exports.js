@@ -33,4 +33,5 @@ export default {
   'header': () => import('../../src/components/Header/export'),
   'slide-menu': () => import('../../src/legacy/SlideMenu/export'),
   'slide-menu-next': () => import('../../src/components/Sidebar/export'),
+  'user-in-groups-list-helper': () => import('../../src/helpers/export/userInGroupsHelper'),
 };
