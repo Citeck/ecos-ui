@@ -88,7 +88,10 @@ export default class Search extends Component {
           onKeyDown={this.onKeyDown}
           value={text}
         />
-        {hasCleaner && <Icon className="icon-close search__icon search__icon-cleaner" onClick={this.onClean} />}
+        <Icon
+          className={classNames('icon-close search__icon search__icon-cleaner', { 'search__icon-cleaner_show': hasCleaner })}
+          onClick={this.onClean}
+        />
       </div>
     );
   }

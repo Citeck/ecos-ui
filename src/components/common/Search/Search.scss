@@ -10,6 +10,7 @@
   width: 220px;
   min-width: 40px;
   transition: width 0.5s;
+  overflow: hidden;
 
   &_border-white {
     border: 2px solid $color-white;
@@ -26,7 +27,7 @@
     font-weight: bold !important;
     font-size: $font-size-standard !important;
     width: calc(100% - 40px) !important;
-    background: $color-white;
+    transition: width 0.5s;
     position: absolute;
     left: 35px;
     color: $text-color-dark;
@@ -44,15 +45,24 @@
     color: $color-gray-5;
     cursor: pointer;
     position: absolute;
-    z-index: 1;
     top: 8px;
 
     &-search {
+      z-index: 10;
     }
 
     &-cleaner {
+      z-index: 5;
       right: 12px;
       font-size: 14px;
+      opacity: 0;
+      transition: opacity 0s;
+      transition-delay: 0s;
+
+      &_show {
+        opacity: 1;
+        transition-delay: 0.5s;
+      }
     }
   }
 }
