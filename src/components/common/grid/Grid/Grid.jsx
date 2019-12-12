@@ -451,6 +451,7 @@ class Grid extends Component {
   };
 
   onScrollFrame = e => {
+    this._scrollValues = e;
     this._shadowLeftNode.style.display = e.scrollLeft > 0 ? 'block' : 'none';
     this._shadowHeadNode.style.display = e.scrollTop > 0 ? 'block' : 'none';
     this._firstHeaderCellNode.style.display = e.scrollLeft > 0 ? 'none' : 'block';
