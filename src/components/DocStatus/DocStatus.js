@@ -15,6 +15,7 @@ import DocStatusService from '../../services/docStatus';
 import { Loader, PointsLoader } from '../common';
 import { IcoBtn } from '../common/btns';
 import { Caption, Dropdown } from '../common/form';
+import BaseWidget from '../BaseWidget';
 
 import './style.scss';
 
@@ -42,7 +43,7 @@ const mapDispatchToProps = dispatch => ({
 
 const MAX_ATTEMPT = 10;
 
-class DocStatus extends React.Component {
+class DocStatus extends BaseWidget {
   static propTypes = {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,

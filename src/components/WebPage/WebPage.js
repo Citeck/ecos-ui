@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -10,11 +10,12 @@ import { Loader, DefineHeight } from '../common';
 import { Btn } from '../common/btns';
 import { Label, Input } from '../common/form';
 import Dashlet from '../Dashlet/Dashlet';
-import { t } from '../../helpers/util';
+import BaseWidget from '../BaseWidget';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_SMALL, MIN_WIDTH_DASHLET_LARGE } from '../../constants';
 import { initPage, changePageData, loadedPage, reloadPageData, cancelPageLoading, setError } from '../../actions/webPage';
 import { selectStateById } from '../../selectors/webPage';
+import { t } from '../../helpers/util';
 
 import './style.scss';
 
@@ -32,7 +33,7 @@ const LABELS = {
   SERVER_NOT_FOUND: 'web-page-widget.error-server-not-found'
 };
 
-class WebPage extends Component {
+class WebPage extends BaseWidget {
   static propTypes = {
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     config: PropTypes.shape({
@@ -135,15 +136,6 @@ class WebPage extends Component {
     this.setState({ resizable: false });
   }, 300);
 
-  handleGetFitHeights = fitHeights => {
-    this.setState({ fitHeights });
-  };
-
-  handleToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
-  };
-
   handleEdit = () => {
     this.props.cancelPageLoading();
 
@@ -161,10 +153,6 @@ class WebPage extends Component {
       url: '',
       title: ''
     });
-  };
-
-  handleResize = width => {
-    this.setState({ width });
   };
 
   handleChangeHeight = height => {
@@ -204,11 +192,6 @@ class WebPage extends Component {
       settingsIsShow: false,
       pageIsLoaded: false
     });
-  };
-
-  declineRequest = () => {
-    this.props.setError(t(LABELS.SERVER_NOT_FOUND));
-    this.setState({ pageIsLoaded: false });
   };
 
   handleLoadFrame = () => {
@@ -359,7 +342,7 @@ class WebPage extends Component {
         onChangeHeight={this.handleChangeHeight}
         onEdit={this.handleEdit}
         onReload={this.handleReload}
-        getFitHeights={this.handleGetFitHeights}
+        getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
       >

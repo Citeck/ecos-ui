@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
@@ -18,6 +18,7 @@ import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsDashletToolbar from '../JournalsDashletToolbar';
 import JournalsDashletEditor from '../JournalsDashletEditor';
 import JournalsDashletFooter from '../JournalsDashletFooter';
+import BaseWidget from '../../BaseWidget';
 
 import './JournalsDashlet.scss';
 
@@ -55,7 +56,7 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
   };
 }
 
-class JournalsDashlet extends Component {
+class JournalsDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string,
     stateId: PropTypes.string,
