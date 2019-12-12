@@ -751,7 +751,6 @@
   "esign.modal.date-to": "To",
   "esign.modal.provider": "Provider",
   "esign.no-data": "No data",
-  "esign.no-document-ref": "No reference to document",
-  "esign.no-get-document-method": "No URL to request a list of documents",
+  "esign.no-document-ref": "No documents to sign",
   "esign.message.plugin-is-fetching": "The process of initializing the extension for working with digital signature"
 }

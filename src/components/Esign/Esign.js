@@ -13,8 +13,7 @@ import './style.scss';
 
 class Esign extends Component {
   static propTypes = {
-    getDocumentsUrl: PropTypes.string.isRequired,
-    nodeRef: PropTypes.string,
+    recordRefs: PropTypes.arrayOf(PropTypes.string).isRequired,
     /**
      * callback function upon successful signing of a document
      */
@@ -23,7 +22,6 @@ class Esign extends Component {
   };
 
   static defaultProps = {
-    nodeRef: get(getSearchParams(), 'nodeRef', ''),
     onClose: () => {}
   };
 
@@ -50,7 +48,7 @@ class Esign extends Component {
 
     this.state.isOpen = true;
 
-    EsignService.init()
+    EsignService.init(props.recordRefs)
       .then(this.serviceInitialized)
       .catch(this.setError);
   }
@@ -98,11 +96,9 @@ class Esign extends Component {
   };
 
   handleSignDocument = selectedCertificate => {
-    const { getDocumentsUrl } = this.props;
-
     this.setState({ isLoading: true });
 
-    EsignService.signDocument(getDocumentsUrl, selectedCertificate)
+    EsignService.signDocument(this.props.recordRefs, selectedCertificate)
       .then(this.documentSigned)
       .catch(this.setError);
   };
@@ -118,13 +114,6 @@ class Esign extends Component {
 
     onClose();
   };
-
-  clearMessage = () =>
-    this.setState({
-      messageTitle: '',
-      messageDescription: '',
-      errorType: ''
-    });
 
   renderInfoMessage() {
     const { messageTitle, messageDescription, errorType, isOpen } = this.state;
@@ -163,13 +152,13 @@ class Esign extends Component {
   }
 
   renderViewElement() {
-    const { viewElement: ViewElement, toggleSignModal, getDocumentsUrl } = this.props;
+    const { viewElement: ViewElement, toggleSignModal } = this.props;
 
     if (!ViewElement) {
       return null;
     }
 
-    return <ViewElement onClick={() => toggleSignModal(getDocumentsUrl)} />;
+    return <ViewElement onClick={() => toggleSignModal()} />;
   }
 
   render() {

@@ -42,13 +42,6 @@ class EsignApi {
     return await this.cadespluginApi.getValidCertificates();
   }
 
-  getDocuments(url) {
-    return fetch(url, {
-      method: 'GET',
-      credentials: 'include'
-    }).then(response => response.json());
-  }
-
   getDocumentData = record => {
     return fetch(`/share/proxy/alfresco/acm/digestAndAttr?nodeRef=${record}`, {
       method: 'GET',

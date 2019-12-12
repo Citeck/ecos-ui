@@ -9,8 +9,16 @@ import { ErrorTypes, Labels } from '../constants/esign';
 import { t } from '../helpers/util';
 
 export default class EsignService {
-  static init = async () => {
+  static init = async (recordRefs = []) => {
     try {
+      if (!recordRefs.length) {
+        return Promise.reject({
+          messageTitle: t(Labels.ERROR),
+          messageDescription: t(Labels.NODE_REF_NOT_FOUND),
+          errorType: t(ErrorTypes.DEFAULT)
+        });
+      }
+
       if (api.cadespluginApi) {
         return api.cadespluginApi;
       }
@@ -111,9 +119,9 @@ export default class EsignService {
     }
   };
 
-  static signDocument = async (url = '', certificate = null) => {
+  static signDocument = async (documents = [], certificate = null) => {
     try {
-      if (!url) {
+      if (!documents.length) {
         return Promise.reject({
           messageTitle: t(Labels.ERROR),
           messageDescription: t(Labels.NODE_REF_NOT_FOUND),
@@ -129,7 +137,6 @@ export default class EsignService {
         });
       }
 
-      const documents = await api.getDocuments(url);
       const signStatuses = await Promise.all(
         documents.map(async document => await EsignService.signDocumentByNode(certificate.thumbprint, document))
       );
@@ -159,21 +166,21 @@ class Esign {
   container = null;
   widget = null;
 
-  open = (props = {}) => {
-    const keys = Object.keys(props);
-    let requireProps = ['getDocumentsUrl', 'nodeRef'];
+  sign = (recordRefs, params = {}) => {
+    const keys = Object.keys({ recordRefs, ...params });
+    let requireProps = ['recordRefs'];
 
     requireProps = requireProps.filter(key => !keys.includes(key));
 
     if (requireProps.length) {
-      return new Error(`Required props [${requireProps.join(', ')}] not found`);
+      return new Error(`Required params [${requireProps.join(', ')}] not found`);
     }
 
     if (this.container === null) {
       this.container = document.createElement('div');
     }
 
-    this.widget = ReactDOM.render(<EsignWidget {...props} onClose={this.close} />, this.container);
+    this.widget = ReactDOM.render(<EsignWidget recordRefs={recordRefs} {...params} onClose={this.close} />, this.container);
 
     document.body.appendChild(this.container);
 
@@ -198,7 +205,7 @@ if (!window.Citeck.Esign) {
 
   window.Citeck.Esign = {
     init: api.getCadespluginApi,
-    open: esign.open,
+    sign: esign.sign,
     close: esign.close,
     get apiIsReady() {
       return esign.apiIsReady();

@@ -755,7 +755,6 @@
   "esign.modal.date-to": "Действителен до",
   "esign.modal.provider": "Поставщик",
   "esign.no-data": "Нет данных",
-  "esign.no-document-ref": "Нет ссылки на документ",
-  "esign.no-get-document-method": "Нет URL для получения списка документов",
+  "esign.no-document-ref": "Нет документов для подписи",
   "esign.message.plugin-is-fetching": "Идёт процесс инициализации расширения для работы с цифровой подписью"
 }

@@ -11,7 +11,6 @@ export const Labels = {
   ADD_PLUGIN_MESSAGE: 'esign.message.add-plugin',
   NODE_NOT_FOUND_MESSAGE: 'esign.message.node-not-found',
   NODE_REF_NOT_FOUND: 'esign.no-document-ref',
-  GET_DOCUMENT_URL_NOT_FOUND: 'esign.no-get-document-method',
   NO_CERTIFICATES_MESSAGE: 'esign.message.no-certificates',
   NO_BASE64_DOC_MESSAGE: 'esign.message.no-document-base64',
   NO_CERTIFICATE_THUMBPRINT_MESSAGE: 'esign.message.no-certificate-data',
