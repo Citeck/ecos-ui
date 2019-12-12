@@ -23,10 +23,10 @@ export default handleActions(
       return {
         ...state,
         ...action.payload,
-        isAvailable: action.payload.isAvailable === 'true',
-        isMutable: action.payload.isMutable === 'true',
-        isAdmin: action.payload.isAdmin === 'true',
-        fullName: action.payload.fullName.trim(),
+        isAvailable: action.payload.isAvailable,
+        isMutable: action.payload.isMutable,
+        isAdmin: action.payload.isAdmin,
+        fullName: action.payload.fullName,
         nodeRef: `workspace://SpacesStore/${action.payload.uid}`,
         isAuthenticated: true
       };

@@ -64,14 +64,7 @@ $transition-duration: 0.3s;
     &__img {
       transition: opacity $transition-duration;
       position: absolute;
-
-      &_small {
-        width: 20px;
-      }
-
-      &_large {
-        width: 99px;
-      }
+      max-height: 20px;
     }
   }
 
@@ -157,11 +150,11 @@ $transition-duration: 0.3s;
     }
 
     &__icon-img {
-      min-width: 20px;
-      max-width: 20px;
-      max-height: 20px;
       background-repeat: no-repeat;
       background-size: cover;
+      height: 20px;
+      width: 25px;
+      flex-shrink: 0;
     }
 
     &__label {
@@ -173,7 +166,8 @@ $transition-duration: 0.3s;
       opacity: 1;
     }
 
-    &__icon + &__label {
+    &__icon + &__label,
+    &__icon-img + &__label {
       margin-left: 9px;
     }
 
@@ -323,6 +317,8 @@ $transition-duration: 0.3s;
         padding: 0;
         margin: 0;
         max-width: 277px;
+        max-height: 100vh;
+        overflow-y: auto;
       }
 
       & &-arrow {
