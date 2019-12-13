@@ -52,8 +52,8 @@ function recordsFetch(url, body) {
 
   url += '?k=' + encodeURIComponent(urlKey);
 
-  return ecosFetch(url, { body }).then(response =>
-    response.json().then(body => {
+  return ecosFetch(url, { headers: { 'Content-type': 'application/json;charset=UTF-8' }, body }).then(response => {
+    return response.json().then(body => {
       if (response.ok) {
         return body;
       }
@@ -63,8 +63,8 @@ function recordsFetch(url, body) {
       } else {
         throw new Error(response.statusText);
       }
-    })
-  );
+    });
+  });
 }
 
 export function recordsDeleteFetch(body) {

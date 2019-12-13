@@ -1,6 +1,7 @@
 import isObject from 'lodash/isObject';
 import isFunction from 'lodash/isFunction';
 import $ from 'jquery';
+import { ecosFetch } from './ecosWrappers';
 
 export const getURLParameterByName = function(name) {
   name = name.replace(/[[]/, '\\[').replace(/[\]]/, '\\]');
@@ -126,9 +127,7 @@ export const loadHtml = function(url, args, htmlDest, successCallback, failureCa
 
   let fullUrl = config.url + (config.args ? '?' + $.param(config.args) : '');
 
-  return fetch(fullUrl, {
-    credentials: 'include'
-  })
+  return ecosFetch(fullUrl)
     .then(response => {
       return response.text();
     })

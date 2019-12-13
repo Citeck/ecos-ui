@@ -50,9 +50,7 @@ const getFirstJournalByList = listId => {
     return fromCache;
   }
 
-  let request = fetch(`/share/proxy/alfresco/api/journals/list?journalsList=${listId}`, {
-    credentials: 'include'
-  })
+  let request = ecosFetch(`/share/proxy/alfresco/api/journals/list?journalsList=${listId}`)
     .then(response => {
       if (response.status >= 200 && response.status < 300) {
         return response.json();

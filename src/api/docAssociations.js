@@ -1,6 +1,7 @@
 import { RecordService } from './recordService';
 import Records from '../components/Records';
 import { t } from '../helpers/util';
+import { ecosFetch } from '../helpers/ecosWrappers';
 
 export class DocAssociationsApi extends RecordService {
   /**
@@ -70,12 +71,9 @@ export class DocAssociationsApi extends RecordService {
    * @returns {Promise<any | never>}
    */
   getJournalList = site => {
-    return fetch(`/share/proxy/alfresco/api/journals/list?journalsList=site-${site}-main`, {
+    return ecosFetch(`/share/proxy/alfresco/api/journals/list?journalsList=site-${site}-main`, {
       method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-type': 'application/json;charset=UTF-8'
-      }
+      headers: { 'Content-type': 'application/json;charset=UTF-8' }
     }).then(response => response.json().then(response => response.journals));
   };
 
