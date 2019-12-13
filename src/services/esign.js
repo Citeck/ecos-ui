@@ -3,12 +3,45 @@ import ReactDOM from 'react-dom';
 import get from 'lodash/get';
 
 import api from '../api/esign';
-import EsignWidget from '../components/Esign';
+import EsignComponent from '../components/Esign';
 import EsignConverter from '../dto/esign';
 import { ErrorTypes, Labels } from '../constants/esign';
 import { t } from '../helpers/util';
 
-export default class EsignService {
+class Esign {
+  sign(recordRefs, params = {}) {
+    if (!recordRefs) {
+      return new Error(`The "recordRefs" argument is required`);
+    }
+
+    if (!Array.isArray(recordRefs)) {
+      recordRefs = [recordRefs];
+    }
+
+    const container = document.createElement('div');
+    ReactDOM.render(
+      <EsignComponent
+        recordRefs={recordRefs}
+        {...params}
+        onClose={() => {
+          this._onClose(container);
+        }}
+      />,
+      container
+    );
+
+    document.body.appendChild(container);
+  }
+
+  _onClose(container) {
+    ReactDOM.unmountComponentAtNode(container);
+    document.body.removeChild(container);
+  }
+
+  get isApiReady() {
+    return api.hasCadesplugin;
+  }
+
   static init = async (recordRefs = []) => {
     try {
       if (!recordRefs.length) {
@@ -23,9 +56,7 @@ export default class EsignService {
         return api.cadespluginApi;
       }
 
-      const cadespluginApi = await api.getCadespluginApi();
-
-      return cadespluginApi;
+      return await api.getCadespluginApi();
     } catch (e) {
       const hasPlugin = api.hasCadesplugin;
 
@@ -138,7 +169,7 @@ export default class EsignService {
       }
 
       const signStatuses = await Promise.all(
-        documents.map(async document => await EsignService.signDocumentByNode(certificate.thumbprint, document))
+        documents.map(async document => await Esign.signDocumentByNode(certificate.thumbprint, document))
       );
 
       if (signStatuses.includes(false)) {
@@ -162,53 +193,9 @@ export default class EsignService {
   };
 }
 
-class Esign {
-  container = null;
-  widget = null;
-
-  sign = (recordRefs, params = {}) => {
-    const keys = Object.keys({ recordRefs, ...params });
-    let requireProps = ['recordRefs'];
-
-    requireProps = requireProps.filter(key => !keys.includes(key));
-
-    if (requireProps.length) {
-      return new Error(`Required params [${requireProps.join(', ')}] not found`);
-    }
-
-    if (this.container === null) {
-      this.container = document.createElement('div');
-    }
-
-    this.widget = ReactDOM.render(<EsignWidget recordRefs={recordRefs} {...params} onClose={this.close} />, this.container);
-
-    document.body.appendChild(this.container);
-
-    return this;
-  };
-
-  close = () => {
-    ReactDOM.unmountComponentAtNode(this.container);
-
-    return this;
-  };
-
-  apiIsReady = () => {
-    return api.hasCadesplugin;
-  };
-}
-
 window.Citeck = window.Citeck || {};
+const EsignService = window.Citeck.Esign || new Esign();
+window.Citeck.Esign = EsignService;
 
-if (!window.Citeck.Esign) {
-  const esign = new Esign();
-
-  window.Citeck.Esign = {
-    init: api.getCadespluginApi,
-    sign: esign.sign,
-    close: esign.close,
-    get apiIsReady() {
-      return esign.apiIsReady();
-    }
-  };
-}
+export { Esign };
+export default EsignService;

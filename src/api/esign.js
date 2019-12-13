@@ -1,6 +1,7 @@
 import getCadespluginAPI from 'async-cadesplugin';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import { PROXY_URI } from '../constants/alfresco';
 
 class EsignApi {
   static _cadespluginApi = null;
@@ -43,7 +44,7 @@ class EsignApi {
   }
 
   getDocumentData = record => {
-    return fetch(`/share/proxy/alfresco/acm/digestAndAttr?nodeRef=${record}`, {
+    return fetch(`${PROXY_URI}acm/digestAndAttr?nodeRef=${record}`, {
       method: 'GET',
       credentials: 'include'
     }).then(response => response.json());
@@ -58,7 +59,7 @@ class EsignApi {
   };
 
   sendSignedDocument = (nodeRef, sign, signer) => {
-    return fetch('/share/proxy/alfresco/acm/digitalSignaturePut', {
+    return fetch(`${PROXY_URI}acm/digitalSignaturePut`, {
       method: 'POST',
       credentials: 'include',
       body: JSON.stringify({ nodeRef, sign, signer })

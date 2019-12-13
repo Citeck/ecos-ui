@@ -2,16 +2,16 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 
-import EsignService from '../../services/esign';
+import { Esign } from '../../services/esign';
 import { Btn } from '../common/btns';
 import EsignModal from './EsignModal';
 import MessageModal from './MessageModal';
-import { getSearchParams, t } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import { ErrorTypes, Labels, PLUGIN_URL } from '../../constants/esign';
 
 import './style.scss';
 
-class Esign extends Component {
+class EsignComponent extends Component {
   static propTypes = {
     recordRefs: PropTypes.arrayOf(PropTypes.string).isRequired,
     /**
@@ -48,7 +48,7 @@ class Esign extends Component {
 
     this.state.isOpen = true;
 
-    EsignService.init(props.recordRefs)
+    Esign.init(props.recordRefs)
       .then(this.serviceInitialized)
       .catch(this.setError);
   }
@@ -69,7 +69,7 @@ class Esign extends Component {
   };
 
   getCertificates() {
-    EsignService.getCertificates()
+    Esign.getCertificates()
       .then(this.setCertificates)
       .catch(this.setError);
   }
@@ -98,7 +98,7 @@ class Esign extends Component {
   handleSignDocument = selectedCertificate => {
     this.setState({ isLoading: true });
 
-    EsignService.signDocument(this.props.recordRefs, selectedCertificate)
+    Esign.signDocument(this.props.recordRefs, selectedCertificate)
       .then(this.documentSigned)
       .catch(this.setError);
   };
@@ -188,4 +188,4 @@ class Esign extends Component {
   }
 }
 
-export default Esign;
+export default EsignComponent;
