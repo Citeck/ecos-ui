@@ -78,8 +78,8 @@ const JournalsSettingsBar = ({
       <div className="ecos-journal__settings-bar_right">
         <JournalsDashletPagination
           stateId={stateId}
-          className={classNames('ecos-journal__settings-bar-pagination', step, {
-            'ecos-journal__settings-bar-pagination_mobile': isMobile
+          className={classNames('ecos-journal__pagination', step, {
+            'ecos-journal__pagination_mobile': isMobile
           })}
         />
         {!isMobile && (

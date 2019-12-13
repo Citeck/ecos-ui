@@ -237,11 +237,17 @@ class Journals extends Component {
               <JournalsContent stateId={stateId} showPreview={showPreview} showPie={showPie} height={height - 165} />
 
               <div className={'ecos-journal__footer'}>
-                <JournalsDashletPagination stateId={stateId} hasPageSize />
+                <JournalsDashletPagination
+                  stateId={stateId}
+                  hasPageSize={!isMobile}
+                  className={classNames('ecos-journal__pagination', {
+                    'ecos-journal__pagination_mobile': isMobile
+                  })}
+                />
               </div>
             </div>
 
-            <div className={`ecos-journal__menu ${pageTabsIsShow ? 'ecos-journal__menu_with-tabs' : ''}`} style={{ height }}>
+            <div className={classNames('ecos-journal__menu', { 'ecos-journal__menu_with-tabs': pageTabsIsShow })} style={{ height }}>
               <JournalsMenu stateId={stateId} open={menuOpen} onClose={this.toggleMenu} height={height} />
             </div>
           </div>

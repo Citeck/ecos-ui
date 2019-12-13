@@ -100,7 +100,7 @@ export default class Pagination extends Component {
 
         {hasPageSize ? (
           <Select
-            className={'pagination__page-size select_narrow select_page-size'}
+            className={'ecos-pagination__page-size select_narrow select_page-size'}
             options={sizes}
             value={pageSizeValue}
             onChange={this.onChangeMaxItems}
