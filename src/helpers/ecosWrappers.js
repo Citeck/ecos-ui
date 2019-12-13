@@ -5,20 +5,23 @@ import { getCurrentLocale } from '../helpers/util';
 
 const acceptLanguage = getCurrentLocale();
 
-export function ecosFetch(url, data) {
-  const { method = 'POST', headers = {}, body } = data || {};
-
+export function ecosFetch(url, data = {}) {
   if (!url) {
     return;
   }
+
+  if (data === null) {
+    return fetch(url);
+  }
+
+  const { method = 'POST', headers = {}, body } = data;
 
   const params = {
     method,
     credentials: 'include',
     headers: {
       ...headers,
-      'Accept-Language': acceptLanguage,
-      'Content-type': 'application/json;charset=UTF-8'
+      'Accept-Language': acceptLanguage
     }
   };
 
