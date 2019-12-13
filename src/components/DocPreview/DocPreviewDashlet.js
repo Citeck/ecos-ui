@@ -11,6 +11,8 @@ import DocPreview from './DocPreview';
 
 import './style.scss';
 
+const isMobile = isMobileDevice();
+
 class DocPreviewDashlet extends Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
@@ -46,7 +48,7 @@ class DocPreviewDashlet extends Component {
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
       height: UserLocalSettingsService.getDashletHeight(props.id),
-      scale: UserLocalSettingsService.getDashletScale(props.id) || (isMobileDevice() ? DocScaleOptions.PAGE_WHOLE : DocScaleOptions.AUTO),
+      scale: isMobile ? DocScaleOptions.PAGE_WHOLE : UserLocalSettingsService.getDashletScale(props.id) || DocScaleOptions.AUTO,
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       fitHeights: {}
     };
@@ -78,7 +80,7 @@ class DocPreviewDashlet extends Component {
   };
 
   setUserScale = scale => {
-    if (scale) {
+    if (scale && !isMobile) {
       UserLocalSettingsService.setDashletScale(this.props.id, scale);
     }
   };
@@ -103,7 +105,6 @@ class DocPreviewDashlet extends Component {
   render() {
     const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName } = this.props;
     const { width, height, fitHeights, scale, isCollapsed } = this.state;
-    const isMobile = isMobileDevice();
     const classesDashlet = classNames('ecos-doc-preview-dashlet', classNameDashlet, {
       'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE && !isMobile,
       'ecos-doc-preview-dashlet_mobile': isMobile,
