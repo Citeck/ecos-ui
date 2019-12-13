@@ -15,6 +15,14 @@
     &_small {
       padding-top: 0;
     }
+
+    > div {
+      > div {
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
   }
 
   &-dashlet {
