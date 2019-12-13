@@ -66,12 +66,12 @@ $tabs-height: 26px;
 
       &.disabled {
         .nav-link {
-          color: $color-gray-disabled;
+          color: $color-gray-6;
           cursor: default;
 
           &.active {
             background: $color-gray-4;
-            color: $color-gray-disabled;
+            color: $color-gray-6;
             border-color: $color-gray-4;
           }
         }
