@@ -2,7 +2,7 @@ import { PROXY_URI, URL_PAGECONTEXT } from '../../../constants/alfresco';
 import dialogManager from '../../common/dialogs/Manager';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import { t } from '../../../helpers/util';
-import { ecosFetch } from '../../../helpers/ecosWrappers';
+import ecosFetch from '../../../helpers/ecosFetch';
 
 export const CaseRedirectAction = {
   execute: ({

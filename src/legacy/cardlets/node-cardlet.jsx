@@ -1,5 +1,5 @@
 import React from 'react';
-import { ecosFetch } from '../../helpers/ecosWrappers';
+import ecosFetch from '../../helpers/ecosFetch';
 
 export default class NodeCardlet extends React.Component {
   static getFetchKey(ownProps) {

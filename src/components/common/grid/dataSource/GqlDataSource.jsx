@@ -4,7 +4,7 @@ import Mapper from '../mapping/Mapper';
 import Records from '../../../Records';
 import { getCurrentLocale, t } from '../../../../helpers/util';
 import lodashGet from 'lodash/get';
-import { ecosFetch } from '../../../../helpers/ecosWrappers';
+import ecosFetch from '../../../../helpers/ecosFetch';
 
 const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
 

@@ -5,7 +5,7 @@ import { hideModal, showModal } from '../actions/modal';
 import FormManager from '../components/EcosForm/FormManager';
 import { becomeSiteManagerRequest, joinSiteRequest, leaveSiteRequest, requestSiteMembership } from '../actions/handleControl';
 import { requireShareAssets } from '../legacy/share';
-import { ecosFetch } from './ecosWrappers';
+import ecosFetch from './ecosFetch';
 
 export const HandleControlTypes = {
   ALF_DOLOGOUT: 'ALF_DOLOGOUT',

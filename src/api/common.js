@@ -1,6 +1,6 @@
 import { getCurrentLocale } from '../helpers/util';
 import { setIsAuthenticated } from '../actions/user';
-import { ecosFetch } from '../helpers/ecosWrappers';
+import ecosFetch from '../helpers/ecosFetch';
 
 const getOptions = {
   credentials: 'include',

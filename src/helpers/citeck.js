@@ -1,7 +1,7 @@
 import isObject from 'lodash/isObject';
 import isFunction from 'lodash/isFunction';
 import $ from 'jquery';
-import { ecosFetch } from './ecosWrappers';
+import ecosFetch from './ecosFetch';
 
 export const getURLParameterByName = function(name) {
   name = name.replace(/[[]/, '\\[').replace(/[\]]/, '\\]');

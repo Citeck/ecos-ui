@@ -1,7 +1,7 @@
 import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
 import { getCurrentUserName, t } from '../helpers/util';
 import { showModal } from './modal';
-import { ecosFetch } from '../helpers/ecosWrappers';
+import ecosFetch from '../helpers/ecosFetch';
 
 export function leaveSiteRequest({ site, siteTitle, user, userFullName }) {
   return (dispatch, getState, api) => {

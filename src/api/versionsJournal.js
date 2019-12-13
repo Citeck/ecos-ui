@@ -1,7 +1,7 @@
 import { RecordService } from './recordService';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
-import { ecosFetch } from '../helpers/ecosWrappers';
+import ecosFetch from '../helpers/ecosFetch';
 
 export class VersionsJournalApi extends RecordService {
   getVersions = record => {

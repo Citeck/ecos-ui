@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import Formio from 'formiojs/Formio';
 import BaseComponent from '../base/BaseComponent';
-import { ecosFetch } from '../../../../helpers/ecosWrappers';
+import ecosFetch from '../../../../helpers/ecosFetch';
 import Records from '../../../../components/Records';
 
 let ajaxGetCache = {};

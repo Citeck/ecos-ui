@@ -1,7 +1,7 @@
 import { RecordService } from './recordService';
 import Records from '../components/Records';
 import { t } from '../helpers/util';
-import { ecosFetch } from '../helpers/ecosWrappers';
+import ecosFetch from '../helpers/ecosFetch';
 
 export class DocAssociationsApi extends RecordService {
   /**

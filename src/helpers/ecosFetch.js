@@ -5,7 +5,7 @@ import { getCurrentLocale } from '../helpers/util';
 
 const acceptLanguage = getCurrentLocale();
 
-export function ecosFetch(url, data = {}) {
+export default function(url, data = {}) {
   if (!url) {
     return;
   }
