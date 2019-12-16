@@ -3,6 +3,7 @@ import { URL } from './';
 
 export const IGNORE_TABS_HANDLER_ATTR_NAME = 'data-external';
 export const REMOTE_TITLE_ATTR_NAME = 'data-remote-title';
+export const OPEN_IN_BACKGROUND = 'data-open-in-background';
 
 export const SCROLL_STEP = 150;
 export const LINK_TAG = 'A';
@@ -14,7 +15,11 @@ export const TITLE = {
   [URL.JOURNAL]: 'page-tabs.journal',
   [URL.DASHBOARD]: 'header.site-menu.home-page',
   [URL.DASHBOARD_SETTINGS]: 'page-tabs.dashboard-settings',
-  [URL.BPMN_DESIGNER]: 'page-tabs.bpmn-designer'
+  [URL.BPMN_DESIGNER]: 'page-tabs.bpmn-designer',
+  [URL.TIMESHEET]: 'page-tabs.timesheet',
+  [URL.TIMESHEET_SUBORDINATES]: 'page-tabs.timesheet',
+  [URL.TIMESHEET_FOR_VERIFICATION]: 'page-tabs.timesheet',
+  [URL.TIMESHEET_DELEGATED]: 'page-tabs.timesheet'
 };
 
 export const URL_MASK = {

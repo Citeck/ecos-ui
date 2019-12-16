@@ -10,7 +10,14 @@ export default class CardDetailsLinkFormatter extends DefaultGqlFormatter {
 
     if (isNewVersionPage()) {
       return (
-        <a target="_blank" rel="noopener noreferrer" href={`${URL.DASHBOARD}?recordRef=${row.id}`} {...{ [REMOTE_TITLE_ATTR_NAME]: true }}>
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href={`${URL.DASHBOARD}?recordRef=${row.id}`}
+          {...{
+            [REMOTE_TITLE_ATTR_NAME]: true
+          }}
+        >
           {this.value(cell)}
         </a>
       );

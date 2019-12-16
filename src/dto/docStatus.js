@@ -1,4 +1,4 @@
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 
 export default class DocStatusConverter {
   static getStatusForWeb(source = {}) {

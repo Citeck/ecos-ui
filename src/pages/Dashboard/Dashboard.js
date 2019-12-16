@@ -36,6 +36,7 @@ const mapStateToProps = state => {
     menuType: get(state, ['menu', 'type']),
     links: get(state, ['menu', 'links']),
     dashboardType: get(state, ['dashboard', 'identification', 'type']),
+    identificationId: get(state, ['dashboard', 'identification', 'id'], null),
     titleInfo: get(state, ['dashboard', 'titleInfo']),
     isMobile
   };
@@ -69,7 +70,7 @@ class Dashboard extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { initMenuSettings, config, isLoadingDashboard, resetDashboardConfig, setLoading } = nextProps;
+    const { initMenuSettings, config, isLoadingDashboard, resetDashboardConfig, setLoading, identificationId } = nextProps;
     const { urlParams, activeLayoutId } = this.state;
     const newUrlParams = getSortedUrlParams();
     const state = {};
@@ -77,8 +78,9 @@ class Dashboard extends Component {
     if (urlParams !== newUrlParams) {
       state.urlParams = newUrlParams;
       resetDashboardConfig();
-      this.getConfig(nextProps);
+      this.getConfig();
       initMenuSettings();
+      state.urlParams = newUrlParams;
     } else if (urlParams === newUrlParams && isLoadingDashboard && !isEmpty(config)) {
       setLoading(false);
     }
@@ -87,7 +89,10 @@ class Dashboard extends Component {
       state.config = config;
     }
 
-    if (JSON.stringify(config) !== JSON.stringify(this.props.config) || isEmpty(activeLayoutId)) {
+    if (
+      (JSON.stringify(config) !== JSON.stringify(this.props.config) && identificationId !== this.props.identificationId) ||
+      isEmpty(activeLayoutId)
+    ) {
       state.activeLayoutId = get(config, '[0].id');
     }
 
@@ -98,10 +103,7 @@ class Dashboard extends Component {
     this.props.resetDashboardConfig();
   }
 
-  getPathInfo(props) {
-    const {
-      location: { search }
-    } = props || this.props;
+  getPathInfo(search = window.location.search) {
     const searchParams = queryString.parse(search);
     const { recordRef, dashboardId, dashboardKey } = searchParams;
 
@@ -113,42 +115,12 @@ class Dashboard extends Component {
     };
   }
 
-  getConfig(props) {
+  getConfig() {
     const { getDashboardConfig, getDashboardTitle } = this.props;
-    const { recordRef, dashboardKey } = this.getPathInfo(props);
+    const { recordRef, dashboardKey } = this.getPathInfo();
 
     getDashboardConfig({ recordRef, dashboardKey });
     getDashboardTitle({ recordRef });
-  }
-
-  get wrapperStyle() {
-    const tabs = document.querySelector('.page-tab');
-    const alfrescoHeader = document.querySelector('#alf-hd');
-    const alfrescoFooter = document.querySelector('#alf-ft');
-    let height = ['3px'];
-
-    if (tabs) {
-      const style = window.getComputedStyle(tabs);
-      const outerHeight = tabs.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
-
-      height.push(`${outerHeight}px`);
-    }
-
-    if (alfrescoHeader) {
-      const style = window.getComputedStyle(alfrescoHeader);
-      const outerHeight = alfrescoHeader.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
-
-      height.push(`${outerHeight}px`);
-    }
-
-    if (alfrescoFooter) {
-      const style = window.getComputedStyle(alfrescoFooter);
-      const outerHeight = alfrescoFooter.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
-
-      height.push(`${outerHeight}px`);
-    }
-
-    return { height: `calc(100vh - (${height.join(' + ')}))` };
   }
 
   get activeLayout() {
@@ -233,8 +205,7 @@ class Dashboard extends Component {
   handleSaveWidgetProps = (id, props = {}) => {
     const activeLayout = deepClone(this.activeLayout, {});
     const columns = activeLayout.columns || [];
-
-    columns.forEach(column => {
+    const eachColumns = column => {
       const index = column.widgets.findIndex(widget => widget.id === id);
 
       if (index !== -1) {
@@ -243,6 +214,14 @@ class Dashboard extends Component {
       }
 
       return true;
+    };
+
+    columns.forEach(column => {
+      if (Array.isArray(column)) {
+        column.forEach(eachColumns);
+      } else {
+        eachColumns(column);
+      }
     });
     activeLayout.columns = columns;
 
@@ -275,7 +254,7 @@ class Dashboard extends Component {
 
     return (
       <div className="ecos-dashboard__tabs-wrapper">
-        <ScrollArrow className="ecos-dashboard__tabs-arrows">
+        <ScrollArrow className="ecos-dashboard__tabs-arrows" small>
           <Tabs
             hasHover
             hasHint
@@ -302,9 +281,7 @@ class Dashboard extends Component {
 
     return (
       <Layout
-        className={classNames({
-          'ecos-layout_mobile': isMobile
-        })}
+        className={classNames({ 'ecos-layout_mobile': isMobile })}
         columns={columns}
         onSaveWidget={this.prepareWidgetsConfig}
         type={type}
@@ -352,7 +329,7 @@ class Dashboard extends Component {
               }
             >
               <div className="ecos-dashboard__header-name">{t(name)}</div>
-              {version && <Badge text={version} small={isMobile} />}
+              {version && <Badge text={version} size={isMobile ? 'small' : 'large'} />}
             </ReactPlaceholder>
           </div>
         );
@@ -397,19 +374,18 @@ class Dashboard extends Component {
 
   render() {
     return (
-      <div style={this.wrapperStyle}>
-        <Scrollbars
-          style={{ height: '100%' }}
-          renderTrackHorizontal={props => <div {...props} hidden />}
-          renderThumbHorizontal={props => <div {...props} hidden />}
-        >
-          {this.renderTopMenu()}
-          {this.renderHeader()}
-          {this.renderTabs()}
-          {this.renderLayout()}
-          {this.renderLoader()}
-        </Scrollbars>
-      </div>
+      <Scrollbars
+        style={{ height: '100%' }}
+        renderTrackHorizontal={props => <div {...props} hidden />}
+        renderThumbVertical={props => <div {...props} className="ecos-dashboard__scrollbars-track-vertical" />}
+        renderThumbHorizontal={props => <div {...props} hidden />}
+      >
+        {this.renderTopMenu()}
+        {this.renderHeader()}
+        {this.renderTabs()}
+        {this.renderLayout()}
+        {this.renderLoader()}
+      </Scrollbars>
     );
   }
 }

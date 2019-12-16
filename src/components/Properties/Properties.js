@@ -1,5 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { t } from '../../helpers/util';
 import EcosForm, { FORM_MODE_EDIT } from '../EcosForm';
@@ -27,6 +28,7 @@ class Properties extends React.Component {
   };
 
   _ecosForm = React.createRef();
+  _contentRef = React.createRef();
   _hiddenEcosForm = React.createRef();
 
   state = {
@@ -82,8 +84,12 @@ class Properties extends React.Component {
     const { record, isSmallMode, isReady, onUpdate } = this.props;
     const { isReadySubmit, hideForm } = this.state;
 
+    const formClassNames = classNames('ecos-properties__formio', {
+      'ecos-properties__formio_small': isSmallMode
+    });
+
     return !hideForm && isReady && isReadySubmit ? (
-      <>
+      <div ref={this._contentRef}>
         {this.renderLoader()}
         <EcosForm
           ref={this._ecosForm}
@@ -100,7 +106,7 @@ class Properties extends React.Component {
           onSubmit={this.onSubmitForm}
           onFormSubmitDone={onUpdate}
           onReady={this.onReady}
-          className="ecos-properties__formio"
+          className={formClassNames}
         />
         {/* Cause: https://citeck.atlassian.net/browse/ECOSCOM-2654 */}
         <EcosForm
@@ -113,19 +119,15 @@ class Properties extends React.Component {
           onFormSubmitDone={onUpdate}
           className="d-none"
         />
-      </>
+      </div>
     ) : (
-      <InfoText text={t('properties-widget.no-form.text')} />
+      <InfoText ref={this._contentRef} text={t('properties-widget.no-form.text')} />
     );
   }
 
   render() {
     const { loaded, contentHeight } = this.state;
-    const {
-      height,
-      minHeight
-      // maxHeight
-    } = this.props;
+    const { height, minHeight } = this.props;
 
     return (
       <Scrollbars

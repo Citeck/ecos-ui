@@ -125,7 +125,13 @@ export default class DashboardService {
         type: LAYOUT_TYPE.MOBILE,
         columns: [
           {
-            widgets: columns.reduce((result, current) => [...result, ...current.widgets], [])
+            widgets: columns.reduce((result, current) => {
+              if (Array.isArray(current)) {
+                return [...result, ...[].concat.apply([], current)];
+              }
+
+              return [...result, ...current.widgets];
+            }, [])
           }
         ]
       });

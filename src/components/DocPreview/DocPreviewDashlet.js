@@ -1,13 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { t } from '../../helpers/util';
-import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import get from 'lodash/get';
+
+import { isMobileDevice, t } from '../../helpers/util';
+import { DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import Dashlet from '../Dashlet/Dashlet';
 import DocPreview from './DocPreview';
 
 import './style.scss';
+
+const isMobile = isMobileDevice();
 
 class DocPreviewDashlet extends Component {
   static propTypes = {
@@ -20,7 +24,8 @@ class DocPreviewDashlet extends Component {
       link: PropTypes.string.isRequired
     }),
     dragHandleProps: PropTypes.object,
-    canDragging: PropTypes.bool
+    canDragging: PropTypes.bool,
+    maxHeightByContent: PropTypes.bool
   };
 
   static defaultProps = {
@@ -29,10 +34,11 @@ class DocPreviewDashlet extends Component {
     fileName: '',
     classNameDashlet: '',
     dragHandleProps: {},
-    canDragging: false
+    maxHeightByContent: true
   };
 
-  className = 'ecos-doc-preview-dashlet';
+  contentRef = React.createRef();
+  docPreviewRef = React.createRef();
 
   constructor(props) {
     super(props);
@@ -42,18 +48,30 @@ class DocPreviewDashlet extends Component {
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
       height: UserLocalSettingsService.getDashletHeight(props.id),
-      scale: UserLocalSettingsService.getDashletScale(props.id) || 'auto',
+      scale: isMobile ? DocScaleOptions.PAGE_WHOLE : UserLocalSettingsService.getDashletScale(props.id) || DocScaleOptions.AUTO,
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       fitHeights: {}
     };
+  }
+
+  get clientHeight() {
+    if (!this.props.maxHeightByContent) {
+      return null;
+    }
+
+    return (
+      get(this.contentRef, 'current.offsetHeight', 0) + 24 + get(this.docPreviewRef, 'current.refToolbar.current.offsetHeight', 0) + 14
+    );
   }
 
   onResize = width => {
     this.setState({ width });
   };
 
-  onChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+  onChangeHeight = h => {
+    const height = h;
+
+    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
     this.setState({ height });
   };
 
@@ -62,8 +80,20 @@ class DocPreviewDashlet extends Component {
   };
 
   setUserScale = scale => {
-    if (scale) {
+    if (scale && !isMobile) {
       UserLocalSettingsService.setDashletScale(this.props.id, scale);
+    }
+  };
+
+  setContainerPageHeight = height => {
+    if (height !== this.state.height) {
+      this.setState({
+        height,
+        fitHeights: {
+          ...this.state.fitHeights,
+          max: height
+        }
+      });
     }
   };
 
@@ -75,14 +105,16 @@ class DocPreviewDashlet extends Component {
   render() {
     const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName } = this.props;
     const { width, height, fitHeights, scale, isCollapsed } = this.state;
-    const classesDashlet = classNames(this.className, classNameDashlet, {
-      [`${this.className}_small`]: width < MIN_WIDTH_DASHLET_LARGE
+    const classesDashlet = classNames('ecos-doc-preview-dashlet', classNameDashlet, {
+      'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE && !isMobile,
+      'ecos-doc-preview-dashlet_mobile': isMobile,
+      'ecos-doc-preview-dashlet_mobile_small': isMobile && width < 400
     });
 
     return (
       <Dashlet
         title={title}
-        bodyClassName={`${this.className}__body`}
+        bodyClassName="ecos-doc-preview-dashlet__body"
         className={classesDashlet}
         actionReload={false}
         actionEdit={false}
@@ -93,11 +125,14 @@ class DocPreviewDashlet extends Component {
         onChangeHeight={this.onChangeHeight}
         dragHandleProps={dragHandleProps}
         resizable
+        contentMaxHeight={this.clientHeight}
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
       >
         <DocPreview
+          ref={this.docPreviewRef}
+          forwardedRef={this.contentRef}
           link={config.link}
           height={height}
           className={classNamePreview}
@@ -106,6 +141,7 @@ class DocPreviewDashlet extends Component {
           scale={scale}
           fileName={fileName}
           setUserScale={this.setUserScale}
+          getContainerPageHeight={this.setContainerPageHeight}
           resizable
           isCollapsed={isCollapsed}
         />

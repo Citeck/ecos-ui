@@ -35,12 +35,12 @@
   overflow: hidden;
   user-select: none;
 
-  &:first-child {
+  &:first-of-type {
     border-top-left-radius: $border-radius-standard;
     border-bottom-left-radius: $border-radius-standard;
   }
 
-  &:last-child {
+  &:last-of-type {
     border-top-right-radius: $border-radius-standard;
     border-bottom-right-radius: $border-radius-standard;
     margin-right: 0;
@@ -50,117 +50,120 @@
     color: $color-white;
     background-color: $color-blue-dark;
     border-color: $color-blue-dark;
-  }
 
-  &_hover:not(&_active):hover {
-    background: $color-white;
-    color: $color-blue-dark;
-  }
-
-  &_edit {
-    display: inline-flex;
-    align-items: center;
-    min-width: 190px;
-    width: 100%;
-    position: relative;
-
-    padding-left: 60px;
-
-    &_disabled {
-      pointer-events: none;
-      cursor: none;
-    }
-
-    &:hover {
-      #{$root}-actions_hover {
-        visibility: visible;
-      }
-    }
-  }
-
-  &_symmetrican-padding {
-    padding: 0 10px !important;
-  }
-
-  &-label {
-    flex: auto;
-    @extend %ellipsis;
-
-    text-align: center;
-    width: 100%;
-
-    &__input {
-      background: transparent;
-      border: none;
-      color: $text-color-dark;
-      text-align: center;
-      padding: 0 12px;
-      min-width: 190px;
-    }
-
-    &_edit {
-      display: flex;
-      padding: 0;
-    }
-  }
-
-  &-actions {
-    display: inline-flex;
-    align-items: center;
-    position: absolute;
-    right: 0;
-
-    &_none,
-    &_hover {
-      visibility: hidden;
-    }
-
-    & :nth-child(n) {
-      padding-right: 5px;
-    }
-
-    &-edit,
-    &-delete {
-      color: $color-gray-5;
-      font-size: $font-size-standard;
-
-      &:hover {
-        color: $text-color-gray;
-      }
-    }
-
-    &-move {
-      color: $color-gray-1;
-      font-size: $font-size-extra-large;
-      cursor: grab;
-
-      &:hover {
-        color: $color-gray-5;
-      }
-    }
-  }
-
-  &_active {
-    #{$root}-label__input {
+    #{$root}-label_editing {
       color: $color-white;
     }
 
     #{$root}-actions {
-      &-edit,
-      &-delete {
-        color: $color-blue-light2;
+      --back-actions: #{$color-blue-dark};
+
+      &__icon {
+        --color-actions: #{$color-blue-light2};
 
         &:hover {
-          color: $color-white;
+          --color-actions: #{$color-white};
+        }
+
+        &_paler {
+          --color-actions: #{$color-blue-light};
+
+          &:hover {
+            --color-actions: #{$color-blue-light2};
+          }
+        }
+      }
+    }
+  }
+
+  &_editable {
+    display: inline-flex;
+    position: relative;
+    padding: 0 27px 0 14px;
+    min-width: 90px;
+
+    &:hover {
+      #{$root}-actions__icon_hidden {
+        display: block;
+      }
+    }
+  }
+
+  &-label {
+    transition: width 0.1s linear;
+    width: 100%;
+    overflow: hidden;
+    padding: 0 1px;
+    //margin: 0 1px;
+
+    &:focus {
+      outline: none;
+    }
+
+    &_editing {
+      text-align: left;
+      color: $text-color-dark;
+
+      &:empty:before {
+        content: attr(placeholder);
+        color: $color-gray-6;
+      }
+    }
+
+    &:not(&_editing) {
+      @extend %ellipsis;
+    }
+
+    &_editing + &-actions {
+      box-shadow: none;
+    }
+  }
+
+  &-actions {
+    --back-actions: #{$color-white};
+
+    position: absolute;
+    right: 0;
+    height: 100%;
+    //padding-left: 3px;
+    display: inline-flex;
+    align-items: center;
+    background: var(--back-actions);
+
+    & :nth-child(n) {
+      padding-right: 10px;
+    }
+
+    & :first-of-type:not(:last-of-type) {
+      box-shadow: -15px 0px 10px var(--back-actions);
+    }
+
+    &__icon {
+      --color-actions: #{$color-gray-5};
+
+      color: var(--color-actions);
+      font-size: $font-size-standard;
+      cursor: pointer;
+
+      &:hover {
+        --color-actions: #{$color-blue-light};
+      }
+
+      &_hidden {
+        display: none;
+      }
+
+      &_paler {
+        --color-actions: #{$color-gray-1};
+
+        &:hover {
+          --color-actions: #{$color-gray-5};
         }
       }
 
-      &-move {
-        color: $color-blue-light;
-
-        &:hover {
-          color: $color-blue-light2;
-        }
+      &.icon-drag {
+        font-size: $font-size-extra-large;
+        cursor: grab;
       }
     }
   }

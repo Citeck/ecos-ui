@@ -10,18 +10,18 @@ import './SelectModal.scss';
 
 const SelectModal = () => {
   const context = useContext(SelectOrgstructContext);
-  const { isSelectModalOpen, toggleSelectModal, onCancelSelect, onSelect } = context;
+  const { isSelectModalOpen, toggleSelectModal, onCancelSelect, onSelect, modalTitle, hideTabSwitcher } = context;
 
   return (
     <EcosModal
-      title={t('select-orgstruct.select-modal.title')}
+      title={modalTitle || t('select-orgstruct.select-modal.title')}
       isOpen={isSelectModalOpen}
       hideModal={toggleSelectModal}
       className={'select-orgstruct-select-modal ecos-modal_width-sm'}
     >
       <div className={'select-orgstruct-control-panel'}>
         <Search />
-        <Tabs />
+        {!hideTabSwitcher && <Tabs />}
       </div>
 
       <Body />

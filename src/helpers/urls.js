@@ -115,11 +115,11 @@ export const goToJournalsPage = options => {
 
 export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_blank');
 
-export const goToCardDetailsPage = nodeRef => {
+export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true, remoteTitle: true }) => {
   const dashboardLink = `${URL.DASHBOARD}?recordRef=${nodeRef}`;
 
   if (isNewVersionPage()) {
-    changeUrl(dashboardLink, { openNewTab: true, remoteTitle: true });
+    changeUrl(dashboardLink, params);
   } else {
     window.open(`${URL_PAGECONTEXT}card-details?nodeRef=${nodeRef}`, '_blank');
   }
@@ -170,4 +170,8 @@ export const decodeLink = link => {
   } catch (e) {
     return link;
   }
+};
+
+export const getBarcodePrintUrl = record => {
+  return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&property=contracts:barcode&barcodeType=code-128&scale=5.0&margins=20,200,20,500&print=true`;
 };

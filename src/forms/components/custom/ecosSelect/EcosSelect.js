@@ -1078,12 +1078,13 @@ export default class SelectComponent extends BaseComponent {
   }
 
   destroy() {
-    super.destroy();
     if (this.choices) {
       this.choices.destroyed = true;
       this.choices.destroy();
       this.choices = null;
     }
+
+    return super.destroy();
   }
 
   focus() {

@@ -3,8 +3,23 @@ export const URL = {
   JOURNAL: '/v2/journals',
   DASHBOARD: '/v2/dashboard',
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
-  BPMN_DESIGNER: '/v2/bpmn-designer'
+  BPMN_DESIGNER: '/v2/bpmn-designer',
+  TIMESHEET: '/v2/timesheet',
+  TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates',
+  TIMESHEET_FOR_VERIFICATION: '/v2/timesheet/for-verification',
+  TIMESHEET_DELEGATED: '/v2/timesheet/delegated',
+  TIMESHEET_IFRAME: '/v2/pure-timesheet',
+  TIMESHEET_IFRAME_SUBORDINATES: '/v2/pure-timesheet/subordinates',
+  TIMESHEET_IFRAME_FOR_VERIFICATION: '/v2/pure-timesheet/for-verification',
+  TIMESHEET_IFRAME_DELEGATED: '/v2/pure-timesheet/delegated'
 };
+
+export const pagesWithOnlyContent = [
+  URL.TIMESHEET_IFRAME,
+  URL.TIMESHEET_IFRAME_SUBORDINATES,
+  URL.TIMESHEET_IFRAME_FOR_VERIFICATION,
+  URL.TIMESHEET_IFRAME_DELEGATED
+];
 
 export const SourcesId = {
   DASHBOARD: 'uiserv/dashboard',
@@ -12,7 +27,8 @@ export const SourcesId = {
   STATUS: 'status',
   COMMENT: 'comment',
   VERSION: 'version',
-  PEOPLE: 'people'
+  PEOPLE: 'people',
+  BIRTHDAYS: 'birthdays'
 };
 
 export const ActionModes = {
@@ -62,4 +78,19 @@ export const USER_GUEST = 'guest';
 export const LoaderTypes = {
   CIRCLE: 'circle',
   POINTS: 'points'
+};
+
+export const IMAGE_URL_PATH = '/share/proxy/alfresco/citeck/ecos/image/thumbnail';
+
+export const DocScaleOptions = {
+  AUTO: 'auto',
+  PAGE_WHOLE: 'page-whole',
+  PAGE_FIT: 'page-fit',
+  PAGE_HEIGHT: 'page-height',
+  PAGE_WIDTH: 'page-width'
+};
+
+export const Permissions = {
+  Write: 'Write',
+  Read: 'Read'
 };

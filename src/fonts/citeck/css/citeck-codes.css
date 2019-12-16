@@ -181,6 +181,18 @@
 .icon-usergroup:before {
   content: '\e83c';
 } /* '' */
+.icon-lock:before {
+  content: '\e83d';
+} /* '' */
+.icon-history:before {
+  content: '\e83e';
+} /* '' */
+.icon-v_resize:before {
+  content: '\e83f';
+} /* '' */
+.icon-drag-small:before {
+  content: '\e840';
+} /* '' */
 .icon-print:before {
   content: '\e843';
 } /* '' */
@@ -208,6 +220,15 @@
 .icon-big_alert:before {
   content: '\e84c';
 } /* '' */
+.icon-newtab:before {
+  content: '\e84d';
+} /* '' */
 .icon-actual:before {
   content: '\e85a';
 } /* '' */
+.icon-empty-icon:before {
+  content: '\e88d';
+} /* '' */
+.icon-hamburger-menu:before {
+  content: '\e88e';
+} /* '' */

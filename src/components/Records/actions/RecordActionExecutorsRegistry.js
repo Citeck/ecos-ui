@@ -18,6 +18,10 @@ class RecordActionExecutorsRegistry {
       }
     }
   }
+
+  getSupportedTypes() {
+    return Object.keys(this.registry);
+  }
 }
 
 window.Citeck = window.Citeck || {};

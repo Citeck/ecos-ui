@@ -47,6 +47,10 @@
   &-info {
     $info: &;
 
+    &__title {
+      @extend %ellipsis;
+    }
+
     &__separator {
       margin: 11px 0;
     }

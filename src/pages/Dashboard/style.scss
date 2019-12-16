@@ -1,7 +1,18 @@
 @import '../../styles/constants';
 
 .ecos-dashboard {
+  &__scrollbars {
+    &-track-vertical {
+      cursor: pointer;
+      border-radius: inherit;
+      background-color: rgba(0, 0, 0, 0.2);
+      z-index: $scroll-z-index;
+    }
+  }
+
   &__header {
+    $header: &;
+
     display: flex;
     flex-direction: column;
     padding: 0 18px;
@@ -33,7 +44,9 @@
     }
 
     &-status {
-      padding: 0;
+      &.ecos-doc-status {
+        padding: 0;
+      }
 
       .ecos-doc-status__data {
         flex: unset;
@@ -41,6 +54,8 @@
 
       .ecos-doc-status__loader {
         margin: 0;
+        justify-content: space-between;
+        width: 15%;
       }
     }
 
@@ -63,30 +78,19 @@
       padding-bottom: 10px;
       border-bottom: 2px solid $color-gray-4;
       position: relative;
-      z-index: 1;
-    }
+      z-index: $scroll-z-index + 1;
 
-    &_no-next {
-      margin-bottom: 10px;
-      border-bottom: none;
-      box-shadow: 0 5px 5px 1px rgba(0, 0, 0, 0.15);
+      #{$header}_no-next {
+        margin-bottom: 10px;
+        border-bottom: none;
+        box-shadow: 0 5px 5px 1px rgba(0, 0, 0, 0.15);
+      }
     }
   }
 
   &__tabs {
     &-wrapper {
       padding: 0 19px 13px;
-    }
-
-    &-block {
-    }
-
-    &-arrows {
-      .ecos-btn_circle {
-        width: 26px;
-        height: 26px;
-        padding: 0 5px;
-      }
     }
 
     &-item {
@@ -101,7 +105,7 @@
     &_mobile {
       position: sticky;
       top: 0;
-      z-index: 9999;
+      z-index: 100;
       width: 100%;
       margin-bottom: 10px;
       padding: 16px 15px;

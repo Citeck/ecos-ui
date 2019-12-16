@@ -7,11 +7,119 @@
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
-    border-bottom: 2px solid #e8edef;
+    border-bottom: 2px solid $color-gray-4;
+    position: relative;
 
     &:empty {
       padding: 0;
       border-bottom: none;
+    }
+
+    &.inline-editing {
+      flex-direction: column;
+
+      border: 2px solid $color-blue-light2;
+      border-radius: 8px;
+
+      margin: 13px -10px -2px -10px;
+      padding-left: 14px;
+      padding-right: 14px;
+      padding-bottom: 54px;
+
+      position: relative;
+      top: -2px;
+
+      &.alert-danger {
+        background-color: $color-white;
+      }
+
+      &.formio-component-formTable,
+      &.formio-component-selectOrgstruct,
+      &.formio-component-selectJournal {
+        padding-bottom: 14px;
+
+        .help-block {
+          margin-bottom: 2.5rem;
+        }
+      }
+
+      > * {
+        width: 100%;
+      }
+    }
+
+    .inline-editing {
+      &__buttons {
+        position: absolute;
+        width: auto;
+        right: 14px;
+        bottom: 14px;
+      }
+
+      &__button {
+        height: 26px;
+        width: 26px;
+        padding: 0;
+        border-radius: 6px;
+        color: $color-white;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+
+        .icon {
+          font-size: 12px;
+        }
+      }
+
+      &__cancel-button {
+        margin-right: 10px;
+        background-color: $color-red-1;
+      }
+
+      &__save-button {
+        background-color: $color-green1;
+
+        &_disabled {
+          background-color: $color_gray-1;
+          cursor: default;
+        }
+      }
+    }
+
+    .ecos-form__inline-edit-button {
+      position: absolute;
+      right: 2px;
+      top: 2px;
+      height: auto;
+      background: transparent;
+      display: none;
+
+      &_disabled {
+        cursor: not-allowed;
+      }
+
+      &_mobile {
+        top: 4px;
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        background: rgba(255, 255, 255, 0.7);
+        border: 2px solid $color-gray-1;
+        border-radius: 50%;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+
+        .icon {
+          font-size: 16px;
+        }
+      }
+    }
+
+    &:hover {
+      .ecos-form__inline-edit-button {
+        display: block;
+      }
     }
   }
 

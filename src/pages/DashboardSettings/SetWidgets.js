@@ -99,7 +99,7 @@ class SetWidgets extends React.Component {
   };
 
   renderWidgetColumns() {
-    const { activeWidgets, columns, positionAdjustment, isMobile } = this.props;
+    const { activeWidgets, columns, isMobile } = this.props;
     const { draggableDestination } = this.state;
 
     return (
@@ -109,13 +109,13 @@ class SetWidgets extends React.Component {
           'ecos-dashboard-settings__drag-container_widgets-to_mobile': isMobile
         })}
       >
-        {columns.map((column, indexColumn) => {
+        {[].concat(...columns).map((column, indexColumn) => {
           const key_id = `column-widgets-${indexColumn}`;
 
           return (
-            <div className={'ecos-dashboard-settings__column-widgets'} key={key_id}>
+            <div className="ecos-dashboard-settings__column-widgets" key={key_id}>
               {isMobile ? null : (
-                <div className={'ecos-dashboard-settings__column-widgets__title'}>
+                <div className="ecos-dashboard-settings__column-widgets__title">
                   {`${t('dashboard-settings.column')} ${indexColumn + 1}`}
                 </div>
               )}
@@ -135,14 +135,13 @@ class SetWidgets extends React.Component {
                       key={widget.dndId}
                       draggableId={widget.dndId}
                       draggableIndex={indexWidget}
-                      className={'ecos-dashboard-settings__column-widgets__items__cell'}
+                      className="ecos-dashboard-settings__column-widgets__items__cell"
                       title={this.getWidgetLabel(widget)}
                       selected={true}
                       canRemove={true}
                       removeItem={response => {
                         this.handleRemoveWidget(response, indexColumn, indexWidget);
                       }}
-                      getPositionAdjusment={positionAdjustment}
                       item={widget}
                     />
                   ))}
@@ -155,10 +154,10 @@ class SetWidgets extends React.Component {
   }
 
   render() {
-    const { availableWidgets, positionAdjustment, isMobile } = this.props;
+    const { availableWidgets, isMobile } = this.props;
 
     return (
-      <React.Fragment>
+      <>
         <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.widgets.title')}</h5>
         <h6 className="ecos-dashboard-settings__container-subtitle">
           {isMobile ? t('dashboard-settings.widgets.subtitle-mobile') : t('dashboard-settings.widgets.subtitle')}
@@ -181,20 +180,13 @@ class SetWidgets extends React.Component {
               {availableWidgets &&
                 availableWidgets.length &&
                 availableWidgets.map((item, index) => (
-                  <DragItem
-                    isCloning
-                    key={item.dndId}
-                    draggableId={item.dndId}
-                    draggableIndex={index}
-                    title={this.getWidgetLabel(item)}
-                    getPositionAdjusment={positionAdjustment}
-                  />
+                  <DragItem isCloning key={item.dndId} draggableId={item.dndId} draggableIndex={index} title={this.getWidgetLabel(item)} />
                 ))}
             </Droppable>
             {this.renderWidgetColumns()}
           </DragDropContext>
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }

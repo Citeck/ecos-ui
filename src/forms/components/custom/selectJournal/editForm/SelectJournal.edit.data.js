@@ -1,4 +1,5 @@
 const CUSTOM_PREDICATE_FIELD = 'customPredicateJs';
+const FILTER_PREDICATES_FIELD = 'presetFilterPredicatesJs';
 const VALUE_DISPLAY_NAME_FIELD = 'computed.valueDisplayName';
 
 export default [
@@ -120,6 +121,30 @@ export default [
       required: false
     },
     weight: 26
+  },
+  {
+    weight: 27,
+    type: 'panel',
+    title: 'Preset filter predicates',
+    collapsible: true,
+    collapsed: true,
+    customClass: 'mb-3',
+    key: ''.concat(FILTER_PREDICATES_FIELD, '-js'),
+    components: [
+      {
+        type: 'textarea',
+        key: FILTER_PREDICATES_FIELD,
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+      }
+    ]
   },
   {
     type: 'asyncData',

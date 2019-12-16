@@ -83,11 +83,52 @@ export const ViewAction = {
   }
 };
 
+export const BackgroundOpenAction = {
+  type: 'open-in-background',
+
+  disabledFor: [/^event-lines.*/, /task-statistic/],
+
+  execute: ({ record, action: { context } }) => {
+    if (globalTasks.indexOf(context.scope) > -1) {
+      const name = record.att('cm:name?disp') || '';
+
+      window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
+      return false;
+    }
+
+    goToCardDetailsPage(record.id, { openInBackground: true });
+    return false;
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'grid.inline-tools.open-in-background',
+      type: BackgroundOpenAction.type,
+      icon: 'icon-on'
+    };
+  },
+
+  canBeExecuted: ({ context }) => {
+    const { scope = '', mode = '' } = context;
+    if (mode === 'dashboard') {
+      return false;
+    }
+    for (let pattern of ViewAction.disabledFor) {
+      if (pattern.test(scope)) {
+        return false;
+      }
+    }
+    return true;
+  }
+};
+
 export const DownloadAction = {
   execute: ({ record, action }) => {
     const config = action.config || {};
 
-    const url = config.url || getDownloadContentUrl(record.id);
+    let url = config.url || getDownloadContentUrl(record.id);
+    url = url.replace('${recordRef}', record.id); // eslint-disable-line no-template-curly-in-string
+
     const name = config.filename || 'file';
 
     const a = document.createElement('A', { target: '_blank' });
@@ -191,4 +232,30 @@ export const MoveToLinesJournal = {
     const { scope = '' } = context;
     return MoveToLinesJournal.enabledFor.indexOf(scope) > -1;
   }
+};
+
+export const DownloadCardTemplate = {
+  execute: ({ record, action = {}, action: { config = {} } }) => {
+    let url =
+      '/share/proxy/alfresco/citeck/print/metadata-printpdf' +
+      '?nodeRef=' +
+      record.id +
+      '&templateType=' +
+      config.templateType +
+      '&print=true&format=' +
+      config.format;
+
+    return DownloadAction.execute({
+      record: record,
+      action: {
+        ...action,
+        config: {
+          url,
+          filename: 'template.' + config.format
+        }
+      }
+    });
+  },
+
+  getDefaultModel: () => DownloadAction.getDefaultModel()
 };

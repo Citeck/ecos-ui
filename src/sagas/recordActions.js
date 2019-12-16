@@ -10,7 +10,7 @@ function* sagaGetActions({ api, logger }, { payload }) {
 
     yield put(setActions({ stateId, list: res }));
   } catch (e) {
-    logger.error('[tasks/sagaGetCurrentTasks saga] error', e.message);
+    logger.error('[recordActions/sagaGetActions saga] error', e.message);
   }
 }
 
@@ -27,7 +27,7 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
     }
   } catch (e) {
     yield put(setNotificationMessage(t('records-actions.action-failed')));
-    logger.error('[tasks/sagaGetCurrentTasks saga] error', e.message);
+    logger.error('[recordActions/sagaExecuteAction saga] error', e.message);
   }
 }
 

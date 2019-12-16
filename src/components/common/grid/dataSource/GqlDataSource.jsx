@@ -12,7 +12,7 @@ export default class GqlDataSource extends BaseDataSource {
     super(options);
 
     this._createVariants = this.options.createVariants;
-    this.options.ajax.body = this._getBodyJson(this.options.ajax.body, this.options.columns);
+    this.options.ajax.body = this._getBodyJson(this.options.ajax.body, this.options.columns, this.options.permissions);
     this._columns = this._getColumns(this.options.columns);
   }
 
@@ -99,9 +99,12 @@ export default class GqlDataSource extends BaseDataSource {
     });
   }
 
-  _getBodyJson(body, columns) {
+  _getBodyJson(body, columns, permissions) {
     let defaultBody = {
-      attributes: this._getAttributes(columns)
+      attributes: {
+        ...this._getAttributes(columns),
+        ...this._getPermissions(permissions)
+      }
     };
 
     return JSON.stringify({ ...defaultBody, ...body });
@@ -123,6 +126,17 @@ export default class GqlDataSource extends BaseDataSource {
     for (let i = 0; i < groupAtts.length; i++) {
       let att = groupAtts[i];
       attributes['groupBy_' + att] = att + '?str';
+    }
+
+    return attributes;
+  }
+
+  _getPermissions(permissions) {
+    let attributes = {};
+
+    for (let i = 0; i < permissions.length; i++) {
+      let permission = permissions[i];
+      attributes[`hasPerission${permission}`] = `.att(n:"permissions"){has(n:"${permission}")}`;
     }
 
     return attributes;

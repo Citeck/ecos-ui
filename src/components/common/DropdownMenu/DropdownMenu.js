@@ -1,9 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { deepClone } from '../../../helpers/util';
+import classNames from 'classnames';
+
+import Loader from '../Loader/Loader';
 import DropdownMenuCascade from './DropdownMenuCascade';
 import DropdownMenuGroup from './DropdownMenuGroup';
 import { DropdownMenuItem } from './index';
+import { deepClone } from '../../../helpers/util';
 
 import './style.scss';
 import '../form/Dropdown/Dropdown.scss';
@@ -25,6 +28,7 @@ export default class DropdownMenu extends React.Component {
     setCascade: PropTypes.shape({
       collapseOneItem: PropTypes.bool
     }),
+    isLoading: PropTypes.bool,
     onClick: PropTypes.func
   };
 
@@ -37,11 +41,16 @@ export default class DropdownMenu extends React.Component {
     },
     setCascade: {
       collapseOneItem: false
-    }
+    },
+    isLoading: false
   };
 
   renderMode() {
-    const { mode, items, setGroup, setCascade, onClick, ...someProps } = this.props;
+    const { mode, items, setGroup, setCascade, onClick, isLoading, ...someProps } = this.props;
+
+    if (isLoading) {
+      return <Loader height={30} />;
+    }
 
     let menu = deepClone(items, []);
 
@@ -70,6 +79,14 @@ export default class DropdownMenu extends React.Component {
   }
 
   render() {
-    return <div className="ecos-dropdown-menu">{this.renderMode()}</div>;
+    return (
+      <div
+        className={classNames('ecos-dropdown-menu', {
+          'ecos-dropdown-menu_loading': this.props.isLoading
+        })}
+      >
+        {this.renderMode()}
+      </div>
+    );
   }
 }

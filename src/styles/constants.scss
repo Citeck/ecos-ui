@@ -9,8 +9,6 @@ $color-blue-light: #7396cd;
 $color-blue-light2: #c6d6f0;
 $color-blue-light3: #f8fbfd;
 $color-blue-light4: #f3f7f9;
-$color-gray-disabled: #cccccc;
-$color-gray-disabled-2: #eeeeee;
 $color-gray: #e5e5e5;
 $color-gray-1: #d8dee1;
 $color-gray-2: #cdd3d6;
@@ -27,12 +25,18 @@ $color-gray-12: #757575;
 $color-gray-13: #fbfbfb;
 $color-gray-14: #c8c7c8;
 $color-gray-15: #f5f5f5;
+$color-gray-25: #f3f3f3;
 $color-gray-dark: #141414;
 $color-red-1: #ff5721;
 $color-red-2: #ec4f1d;
+$color-red-3: #ff5721;
+$color-red-10: #ec4f1d;
 $color-yellow: #fff6d9;
 $color-yellow2: #ffedad;
 $color-yellow3: #ffc700;
+$color-yellow-10: #ffeac0;
+$color-yellow-20: #efcd92;
+$color-yellow-30: #cd842f;
 
 $color-orange: #ff792d;
 
@@ -42,11 +46,15 @@ $color-brown-2: #e4d9b8;
 $color-brown-3: #ada690;
 
 $color-pink: #ffbcb3;
+$color-pink-2: #ffe9e9;
+$color-pink-3: #ebcdcd;
 $color-green: #cbf8cd;
 $color-green1: #00c308;
 $color-green-dark: #138e6d;
 $color-green-light: #1ab289;
 $color-green-light2: #c0ede1;
+
+$color-green-10: #00a707;
 
 $font-weight-bold: 700;
 $font-weight-semi-bold: 600;
@@ -105,6 +113,7 @@ $background-loader: rgba($color-gray-5, 0.3);
 
 $scroll-size: 6px;
 $scroll-border-radius: 3px;
+$scroll-z-index: 12;
 
 %v-scroll {
   position: absolute;
@@ -114,7 +123,7 @@ $scroll-border-radius: 3px;
   top: 6px;
   border-radius: $scroll-border-radius;
   visibility: visible;
-  z-index: 11;
+  z-index: $scroll-z-index;
 }
 
 %ellipsis {

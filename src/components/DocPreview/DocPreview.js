@@ -5,6 +5,7 @@ import pdfjs from 'pdfjs-dist';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+
 import { getOptimalHeight } from '../../helpers/layout';
 import { isPDFbyStr, t } from '../../helpers/util';
 import { DocPreviewApi } from '../../api';
@@ -13,6 +14,7 @@ import Toolbar from './Toolbar';
 import PdfViewer from './PdfViewer';
 import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
+import { DocScaleOptions } from '../../constants';
 
 // 2.2.228 version of worker for 2.2.228 version of pdfjs-dist:
 // pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.2.228/build/pdf.worker.min.js';
@@ -33,28 +35,21 @@ class DocPreview extends Component {
     resizable: PropTypes.bool,
     isCollapsed: PropTypes.bool,
     fileName: PropTypes.string,
-    setUserScale: PropTypes.func
+    setUserScale: PropTypes.func,
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
     link: null,
     className: '',
     height: 'inherit',
-    scale: 'auto',
+    scale: DocScaleOptions.AUTO,
     firstPageNumber: 1,
     recordKey: 'recordRef',
-    byLink: false,
-    noIndents: false,
-    resizable: false,
-    isCollapsed: false,
-    fileName: '',
-    setUserScale: () => null
+    fileName: ''
   };
 
-  static className = 'ecos-doc-preview';
-
   state = {};
-
   refToolbar = React.createRef();
   refBody = React.createRef();
 
@@ -124,13 +119,19 @@ class DocPreview extends Component {
   get commonProps() {
     const { settings } = this.state;
 
-    return {
+    const props = {
       settings,
       isLoading: !this.loaded,
       calcScale: this.setCalcScale,
       onFullscreen: this.onFullscreen,
       getContentHeight: this.getContentHeight
     };
+
+    if (this.props.getContainerPageHeight) {
+      props.getContainerPageHeight = this.props.getContainerPageHeight;
+    }
+
+    return props;
   }
 
   get loaded() {
@@ -222,7 +223,7 @@ class DocPreview extends Component {
 
   onChangeSettings = settings => {
     this.setState({ settings });
-    this.props.setUserScale(settings.scale);
+    this.props.setUserScale && this.props.setUserScale(settings.scale);
   };
 
   onFullscreen = (isFullscreen = false) => {
@@ -253,18 +254,20 @@ class DocPreview extends Component {
   };
 
   pdfViewer() {
+    const { maxHeight, forwardedRef } = this.props;
     const { pdf } = this.state;
 
-    return <Pdf pdf={pdf} scrollPage={this.setScrollPage} {...this.commonProps} />;
+    return <Pdf pdf={pdf} forwardedRef={forwardedRef} defHeight={maxHeight} scrollPage={this.setScrollPage} {...this.commonProps} />;
   }
 
   imgViewer() {
-    const { resizable } = this.props;
+    const { resizable, forwardedRef } = this.props;
     const { link } = this.state;
 
     return (
       <Img
         src={link}
+        forwardedRef={forwardedRef}
         resizable={resizable}
         {...this.commonProps}
         onError={() => {
@@ -306,7 +309,7 @@ class DocPreview extends Component {
   renderLoader() {
     const { isLoading } = this.state;
 
-    return isLoading && <Loader className={`${DocPreview.className}__loader`} />;
+    return isLoading && <Loader className="ecos-doc-preview__loader" />;
   }
 
   renderMessage() {
@@ -318,12 +321,14 @@ class DocPreview extends Component {
   render() {
     const { className, noIndents } = this.props;
     const { isLoading } = this.state;
-    const CN = DocPreview.className;
 
     return (
-      <div className={classNames(CN, className, { [`${CN}_hidden`]: this.hiddenTool })} style={{ height: this.height }}>
+      <div
+        className={classNames('ecos-doc-preview', className, { 'ecos-doc-preview_hidden': this.hiddenTool })}
+        style={{ height: this.height }}
+      >
         {!isLoading && (
-          <div ref={this.refBody} className={classNames(`${CN}__container`, { [`${CN}_indents`]: !noIndents })}>
+          <div ref={this.refBody} className={classNames('ecos-doc-preview__content', { 'ecos-doc-preview__content_indents': !noIndents })}>
             {this.renderToolbar()}
             {this.renderViewer()}
             {this.renderMessage()}
@@ -335,7 +340,7 @@ class DocPreview extends Component {
   }
 }
 
-const Pdf = getViewer(PdfViewer, DocPreview.className, true);
-const Img = getViewer(ImgViewer, DocPreview.className);
+const Pdf = getViewer(PdfViewer, true);
+const Img = getViewer(ImgViewer, false);
 
 export default DocPreview;

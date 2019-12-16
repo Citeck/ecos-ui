@@ -7,6 +7,7 @@ import { UncontrolledTooltip } from 'reactstrap';
 
 import { isSmallMode, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
+import EcosFormUtils from '../EcosForm/EcosFormUtils';
 import Dashlet from '../Dashlet/Dashlet';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
@@ -27,6 +28,7 @@ const mapStateToProps = state => ({
 class PropertiesDashlet extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
+    isAdmin: PropTypes.bool,
     record: PropTypes.string.isRequired,
     title: PropTypes.string,
     classNameProps: PropTypes.string,
@@ -35,14 +37,16 @@ class PropertiesDashlet extends React.Component {
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
     }),
     dragHandleProps: PropTypes.object,
-    canDragging: PropTypes.bool
+    canDragging: PropTypes.bool,
+    maxHeightByContent: PropTypes.bool
   };
 
   static defaultProps = {
     classNameProps: '',
     classNameDashlet: '',
     dragHandleProps: {},
-    canDragging: false
+    canDragging: false,
+    maxHeightByContent: true
   };
 
   _propertiesRef = React.createRef();
@@ -60,18 +64,33 @@ class PropertiesDashlet extends React.Component {
       isSmall: false,
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       height: UserLocalSettingsService.getDashletHeight(props.id),
-      fitHeights: {}
+      fitHeights: {},
+      canEditRecord: false
     };
   }
 
+  componentDidMount() {
+    EcosFormUtils.hasWritePermission(this.props.record).then(canEditRecord => {
+      this.setState({ canEditRecord });
+    });
+  }
+
   className = 'ecos-properties-dashlet';
+
+  get clientHeight() {
+    if (!this.props.maxHeightByContent) {
+      return null;
+    }
+
+    return get(this._propertiesRef, 'current._contentRef.current.offsetHeight', 0);
+  }
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
   onChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
     this.setState({ height });
   };
 
@@ -107,7 +126,7 @@ class PropertiesDashlet extends React.Component {
   };
 
   renderDashletCustomButtons(isDashlet = false) {
-    const { isAdmin, id } = this.props;
+    const { id, isAdmin } = this.props;
     const buttons = [];
 
     if (isAdmin) {
@@ -117,7 +136,7 @@ class PropertiesDashlet extends React.Component {
             icon="icon-settings"
             id={`settings-icon-${id}-${isDashlet ? '-dashlet' : '-properties'}`}
             className={classNames('ecos-properties-dashlet__btn-settings ecos-btn_grey ecos-btn_sq_sm2 ecos-btn_hover_color-grey ', {
-              'dashlet__btn_hidden mr-2': isDashlet,
+              dashlet__btn_hidden: isDashlet,
               'ml-2': !isDashlet
             })}
             onClick={this.onClickShowFormBuilder}
@@ -143,7 +162,7 @@ class PropertiesDashlet extends React.Component {
 
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isReady, isEditProps, height, fitHeights, formIsChanged, isCollapsed } = this.state;
+    const { isSmallMode, isReady, isEditProps, height, fitHeights, formIsChanged, isCollapsed, canEditRecord } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -151,8 +170,10 @@ class PropertiesDashlet extends React.Component {
         title={title || t(LABELS.WIDGET_TITLE)}
         className={classDashlet}
         bodyClassName={`${this.className}__body`}
+        actionEdit={canEditRecord}
         actionEditTitle={t(LABELS.EDIT_TITLE)}
         resizable={true}
+        contentMaxHeight={this.clientHeight}
         needGoTo={false}
         actionHelp={false}
         actionReload={false}
@@ -190,7 +211,4 @@ class PropertiesDashlet extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  {}
-)(PropertiesDashlet);
+export default connect(mapStateToProps)(PropertiesDashlet);

@@ -10,7 +10,8 @@ class ActionsList extends React.Component {
     list: PropTypes.array,
     isMobile: PropTypes.bool,
     isLoading: PropTypes.bool,
-    executeAction: PropTypes.func
+    executeAction: PropTypes.func,
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
@@ -29,10 +30,10 @@ class ActionsList extends React.Component {
   };
 
   render() {
-    const { isLoading, list = [], isMobile } = this.props;
+    const { isLoading, list = [], isMobile, forwardedRef } = this.props;
 
     return (
-      <div className="ecos-actions-list">
+      <div className="ecos-actions-list" ref={forwardedRef}>
         {isLoading && <Loader className="ecos-actions-list__loader" blur />}
         {!isLoading && isEmpty(list) && <InfoText className="ecos-actions-list__text-empty" text={t('records-actions.no-available')} />}
         {list.map((action, index) => {

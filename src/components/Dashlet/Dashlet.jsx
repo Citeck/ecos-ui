@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import ReactResizeDetector from 'react-resize-detector';
+import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 
 import Panel from '../common/panels/Panel/Panel';
@@ -110,7 +111,7 @@ const Header = ({
         {title}
       </span>
 
-      <Badge text={badgeText} small={isMobile} />
+      <Badge text={badgeText} size={isMobile ? 'small' : 'large'} />
 
       {needGoTo && btnGoTo}
 
@@ -144,6 +145,7 @@ class Dashlet extends Component {
     collapsible: PropTypes.bool,
     dragHandleProps: PropTypes.object,
     customButtons: PropTypes.array,
+    contentMaxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
     onEdit: PropTypes.func,
     onGoTo: PropTypes.func,
     onReload: PropTypes.func,
@@ -175,6 +177,7 @@ class Dashlet extends Component {
     dragButton: null,
     dragHandleProps: {},
     customButtons: [],
+    contentMaxHeight: null,
     onEdit: () => {},
     onGoTo: () => {},
     onReload: () => {},
@@ -240,10 +243,10 @@ class Dashlet extends Component {
   };
 
   onChangeHeight = height => {
-    const { onChangeHeight } = this.props;
+    const { onChangeHeight, contentMaxHeight } = this.props;
 
     if (typeof onChangeHeight === 'function') {
-      onChangeHeight(height);
+      onChangeHeight(height > contentMaxHeight && contentMaxHeight !== null ? contentMaxHeight : height);
 
       this.props.getFitHeights(this.fitHeightChildren);
     }
@@ -366,7 +369,7 @@ class Dashlet extends Component {
           </div>
         </Panel>
 
-        <ReactResizeDetector handleWidth handleHeight onResize={onResize} />
+        <ReactResizeDetector handleWidth handleHeight onResize={debounce(onResize, 400)} />
       </div>
     );
   }

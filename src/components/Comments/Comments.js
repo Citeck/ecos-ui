@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { ContentState, convertFromRaw, convertToRaw, Editor, EditorState, RichUtils } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
+import get from 'lodash/get';
 
 import { num2str, t } from '../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
@@ -53,6 +54,7 @@ class Comments extends React.Component {
     fetchIsLoading: PropTypes.bool,
     hasMore: PropTypes.bool,
     canDragging: PropTypes.bool,
+    maxHeightByContent: PropTypes.bool,
     commentListMaxHeight: PropTypes.number,
     onSave: PropTypes.func,
     onDelete: PropTypes.func,
@@ -70,6 +72,7 @@ class Comments extends React.Component {
     saveIsLoading: false,
     fetchIsLoading: false,
     canDragging: false,
+    maxHeightByContent: true,
     commentListMaxHeight: 217,
     onSave: () => {},
     onDelete: () => {},
@@ -233,6 +236,18 @@ class Comments extends React.Component {
     return `${height}px`;
   }
 
+  get clientHeight() {
+    if (!this.props.maxHeightByContent) {
+      return null;
+    }
+
+    return get(this._list, 'current.offsetHeight', 0);
+  }
+
+  get otherHeight() {
+    return get(this._header, 'current.offsetHeight', 0);
+  }
+
   updateEditorHeight = () => {
     if (this.editor) {
       this.setState({ editorHeight: this.editor.editor.clientHeight || 0 });
@@ -393,7 +408,7 @@ class Comments extends React.Component {
   };
 
   handleChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    UserLocalSettingsService.setDashletHeight(this.props.id, height >= this.clientHeight ? null : height);
     this.setState({ userHeight: height });
   };
 
@@ -418,14 +433,14 @@ class Comments extends React.Component {
         {isEdit ? (
           this.renderEditor()
         ) : (
-          <React.Fragment>
+          <>
             <div className="ecos-comments__count">
               <span className="ecos-comments__count-text">{this.countComments}</span>
             </div>
             <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__add-btn" onClick={this.handleShowEditor}>
               {t('comments-widget.add')}
             </Btn>
-          </React.Fragment>
+          </>
         )}
       </div>
     );
@@ -679,6 +694,7 @@ class Comments extends React.Component {
           actionHelp={false}
           canDragging={canDragging}
           resizable
+          contentMaxHeight={this.clientHeight + this.otherHeight}
           onReload={this.handleReloadData}
           onResize={this.handleResize}
           dragHandleProps={dragHandleProps}

@@ -17,4 +17,19 @@ export default class NumberComponent extends FormIONumberComponent {
 
     return value;
   }
+
+  setupValueElement(element) {
+    let value = this.getValue();
+
+    if (this.isEmpty(value)) {
+      value = this.defaultViewOnlyValue;
+    } else {
+      value = this.parseNumber(this.getView(value));
+      if (!isNaN(value)) {
+        value = value.toLocaleString();
+      }
+    }
+
+    element.innerHTML = value;
+  }
 }

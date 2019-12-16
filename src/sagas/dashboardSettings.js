@@ -16,10 +16,10 @@ import { setNotificationMessage } from '../actions/notification';
 import { selectIdentificationForSet } from '../selectors/dashboard';
 import { saveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
+import { DASHBOARD_DEFAULT_KEY, RequestStatuses } from '../constants';
 import DashboardService from '../services/dashboard';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
 import MenuConverter from '../dto/menu';
-import { RequestStatuses } from '../constants';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
@@ -79,7 +79,10 @@ function* doCheckUpdatedSettings({ api, logger }, { payload }) {
     const eqKey = identification.key === payload.dashboardKey;
     const hasUser = !!identification.user;
 
-    let saveWay = DashboardService.defineWaySavingDashboard(eqKey, payload.isForAllUsers, hasUser);
+    let saveWay =
+      payload.dashboardKey === DASHBOARD_DEFAULT_KEY
+        ? DashboardService.SaveWays.UPDATE
+        : DashboardService.defineWaySavingDashboard(eqKey, payload.isForAllUsers, hasUser);
     let dashboardId = identification.id;
 
     if (saveWay === DashboardService.SaveWays.CONFIRM) {

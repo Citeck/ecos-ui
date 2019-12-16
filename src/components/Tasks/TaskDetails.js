@@ -94,7 +94,9 @@ class TaskDetails extends React.Component {
     return (
       <div className={classNames('ecos-task-ins', className)}>
         <Headline className="ecos-task-ins__title">
-          <div>{details.title}</div>
+          <div title={details.title} className="ecos-task-ins__title-text">
+            {details.title}
+          </div>
           {!isSmallMode && this.renderAssignmentPanel()}
         </Headline>
         <div className="ecos-task-ins__info-wrap">

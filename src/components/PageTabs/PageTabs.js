@@ -2,6 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { Scrollbars } from 'react-custom-scrollbars';
+import get from 'lodash/get';
+import debounce from 'lodash/debounce';
+import ReactResizeDetector from 'react-resize-detector';
 
 import { arrayMove, deepClone, getScrollbarWidth, t } from '../../helpers/util';
 import { SortableContainer, SortableElement } from '../Drag-n-Drop';
@@ -9,6 +12,7 @@ import {
   getTitleByUrl,
   IGNORE_TABS_HANDLER_ATTR_NAME,
   LINK_TAG,
+  OPEN_IN_BACKGROUND,
   REMOTE_TITLE_ATTR_NAME,
   SCROLL_STEP,
   TITLE
@@ -30,10 +34,10 @@ const customEvent = document.createEvent('Event');
  *    openNewBrowserTab - bool,
  *    reopenBrowserTab - bool,
  *    closeActiveTab - bool
+ *    openInBackground - bool
  */
 export const changeUrlLink = (link = '', params = {}) => {
   customEvent.params = { link, ...params };
-
   document.dispatchEvent(customEvent);
 };
 
@@ -50,6 +54,7 @@ class PageTabs extends React.Component {
     linkIgnoreAttr: PropTypes.string,
 
     saveTabs: PropTypes.func,
+    getTabTitle: PropTypes.func,
     changeActiveTab: PropTypes.func
   };
 
@@ -62,7 +67,7 @@ class PageTabs extends React.Component {
 
     saveTabs: () => {},
     changeActiveTab: () => {},
-    getActiveTabTitle: () => {}
+    getTabTitle: () => {}
   };
 
   state = {
@@ -71,13 +76,16 @@ class PageTabs extends React.Component {
     isActiveRightArrow: false,
     needArrow: false,
     draggableNode: null,
-    isNewTab: false
+    isNewTab: false,
+    activeTab: '',
+    needScrollToActive: false
   };
 
   constructor(props) {
     super(props);
 
     this.state.tabs = props.tabs;
+    this.state.activeTab = get(props.tabs.find(tab => tab.isActive), 'id', '');
     this.$tabWrapper = React.createRef();
   }
 
@@ -92,7 +100,7 @@ class PageTabs extends React.Component {
     window.addEventListener('popstate', this.handlePopState);
   }
 
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
+  shouldComponentUpdate(nextProps, nextState) {
     if (nextProps.isShow) {
       if (nextProps.isShow !== this.props.isShow && !nextProps.tabs.length) {
         const hasRecordRef = this.linkFromUrl.includes('recordRef');
@@ -117,11 +125,26 @@ class PageTabs extends React.Component {
       }
 
       if (JSON.stringify(nextProps.tabs) !== JSON.stringify(nextState.tabs)) {
-        this.setState({ tabs: nextProps.tabs }, () => (nextState.isNewTab ? null : this.checkUrls()));
+        this.setState(
+          {
+            tabs: nextProps.tabs,
+            needScrollToActive: true,
+            activeTab: get(nextProps.tabs.find(tab => tab.isActive), 'id', '')
+          },
+          () => (nextState.isNewTab ? null : this.checkUrls())
+        );
+      }
+
+      if (this.state.activeTab !== nextState.activeTab) {
+        this.setState({ needScrollToActive: true });
       }
     }
 
     return true;
+  }
+
+  componentDidUpdate() {
+    this.scrollToActiveTab();
   }
 
   componentWillUnmount() {
@@ -142,6 +165,22 @@ class PageTabs extends React.Component {
     return decodeLink([pathname, search, hash].join(''));
   }
 
+  scrollToActiveTab = () => {
+    const { needScrollToActive, needArrow } = this.state;
+
+    if (!needScrollToActive || !this.$tabWrapper.current || !needArrow) {
+      return;
+    }
+
+    const wrapper = this.$tabWrapper.current;
+    const activeTabElement = wrapper.querySelector('.page-tab__tabs-item_active');
+
+    wrapper.scrollLeft = activeTabElement.offsetLeft - wrapper.offsetWidth / 2 + activeTabElement.offsetWidth / 2;
+
+    this.checkNeedArrow();
+    this.setState({ needScrollToActive: false });
+  };
+
   initArrows() {
     this.checkArrowID = window.setInterval(() => {
       const { current } = this.$tabWrapper;
@@ -153,7 +192,6 @@ class PageTabs extends React.Component {
         let scrollValue = activeLeft - activeWidth / 2 - getScrollbarWidth() - current.offsetWidth / 2;
 
         scrollValue = current.scrollWidth > current.offsetWidth + getScrollbarWidth() ? scrollValue : 0;
-        current.scrollLeft = scrollValue;
 
         this.setState({
           isActiveRightArrow: current.scrollWidth - current.scrollLeft - current.offsetWidth > 0,
@@ -197,19 +235,25 @@ class PageTabs extends React.Component {
   }
 
   generateNewTab(params = {}) {
-    const { props = this.props, link = '', remoteTitle = false } = params;
-    const { homepageLink, getActiveTabTitle } = props;
+    const { props = this.props, link = '', remoteTitle = false, isActive = true } = params;
+    const { homepageLink, getTabTitle } = props;
+    const id = Math.random()
+      .toString(36)
+      .substring(6);
+    const tabLink = link || homepageLink;
+    let isLoading = false;
+
+    getTabTitle({ tabId: id, link: tabLink, isActive, defaultTitle: remoteTitle ? TITLE.NEW_TAB : this.getTitle(link || homepageLink) });
 
     if (remoteTitle) {
-      getActiveTabTitle();
+      isLoading = true;
     }
 
     return {
-      id: Math.random()
-        .toString(36)
-        .substring(6),
-      isActive: true,
-      link: link || homepageLink,
+      id,
+      isActive,
+      isLoading,
+      link: tabLink,
       title: remoteTitle ? TITLE.NEW_TAB : this.getTitle(link || homepageLink)
     };
   }
@@ -240,6 +284,7 @@ class PageTabs extends React.Component {
      *    openNewBrowserTab - bool,
      *    reopenBrowserTab - bool,
      *    closeActiveTab - bool
+     *    openInBackground - bool
      */
     const {
       params: {
@@ -248,11 +293,19 @@ class PageTabs extends React.Component {
         openNewBrowserTab = false,
         reopenBrowserTab = false,
         closeActiveTab = false,
-        remoteTitle = false
+        remoteTitle = false,
+        openInBackground = false
       }
     } = event;
+    const { isShow } = this.props;
     const tabs = deepClone(this.state.tabs);
     const link = decodeLink(event.params.link || '');
+
+    if (!isShow) {
+      this.props.history.push.call(this, link);
+
+      return;
+    }
 
     if (closeActiveTab) {
       const activeIndex = tabs.findIndex(tab => tab.isActive);
@@ -315,6 +368,15 @@ class PageTabs extends React.Component {
       return;
     }
 
+    if (openInBackground) {
+      const newTab = this.generateNewTab({ link, remoteTitle: true, isActive: false });
+
+      tabs.push(newTab);
+      saveTabs(tabs);
+
+      return;
+    }
+
     // default behavior - open on this tab with replace url
     const tab = tabs.find(tab => tab.isActive);
 
@@ -358,6 +420,8 @@ class PageTabs extends React.Component {
     const tabs = deepClone(this.state.tabs);
     const link = decodeLink(elem.getAttribute('href'));
     const isNewTab = elem.getAttribute('target') === '_blank';
+    const isBackgroundOpening = elem.getAttribute(OPEN_IN_BACKGROUND);
+    const remoteTitle = !!elem.getAttribute(REMOTE_TITLE_ATTR_NAME);
     const withLinkTabIndex = tabs.findIndex(tab => tab.link === link);
 
     if (!isNewVersionPage(link)) {
@@ -365,6 +429,20 @@ class PageTabs extends React.Component {
     }
 
     event.preventDefault();
+
+    if (isBackgroundOpening || (event.button === 0 && event.ctrlKey)) {
+      const newTab = this.generateNewTab({ link, remoteTitle: true, isActive: false });
+
+      tabs.push(newTab);
+      saveTabs(tabs);
+      this.setState({ tabs }, () => {
+        if (this.checkScrollPosition()) {
+          this.checkNeedArrow();
+        }
+      });
+
+      return;
+    }
 
     if (withLinkTabIndex !== -1) {
       tabs.forEach((tab, index) => {
@@ -379,8 +457,6 @@ class PageTabs extends React.Component {
     }
 
     if (isNewTab) {
-      let remoteTitle = !!elem.getAttribute(REMOTE_TITLE_ATTR_NAME);
-
       tabs.forEach(tab => (tab.isActive = false));
       tabs.push(this.generateNewTab({ link, remoteTitle }));
     } else {
@@ -404,6 +480,12 @@ class PageTabs extends React.Component {
   handleCloseTab(tabId, event) {
     event.stopPropagation();
     this.closeTab(tabId);
+  }
+
+  handleMouseUp(tab, event) {
+    if (get(event, 'nativeEvent.button', 0) === 1) {
+      this.handleCloseTab(tab.id, event);
+    }
   }
 
   handleClickTab(tab) {
@@ -586,7 +668,7 @@ class PageTabs extends React.Component {
     saveTabs(tabs);
     history.replace.call(this, tab.link);
 
-    this.setState({ tabs });
+    this.setState({ tabs, activeTab: tab.id });
   };
 
   getTitle(url) {
@@ -596,6 +678,10 @@ class PageTabs extends React.Component {
 
     return getTitleByUrl(cleanUrl) || TITLE.NEW_TAB;
   }
+
+  handleResize = () => {
+    this.setState({ needScrollToActive: true }, this.scrollToActiveTab);
+  };
 
   renderLeftButton() {
     const { isActiveLeftArrow, needArrow } = this.state;
@@ -647,6 +733,7 @@ class PageTabs extends React.Component {
     const className = ['page-tab__tabs-item'];
     const closeButton =
       tabs.length > 1 ? <div className="page-tab__tabs-item-close icon-close" onClick={this.handleCloseTab.bind(this, item.id)} /> : null;
+    let loading = null;
 
     if (item.isActive) {
       className.push('page-tab__tabs-item_active');
@@ -656,11 +743,21 @@ class PageTabs extends React.Component {
       className.push('page-tab__tabs-item_disabled');
     }
 
+    if ((item.isActive && isLoadingTitle) || item.isLoading) {
+      loading = <PointsLoader className={'page-tab__tabs-item-title-loader'} color={'light-blue'} />;
+    }
+
     return (
       <SortableElement key={item.id} index={position} onSortEnd={this.handleSortEnd}>
-        <div key={item.id} className={className.join(' ')} title={t(item.title)} onClick={this.handleClickTab.bind(this, item)}>
+        <div
+          key={item.id}
+          className={className.join(' ')}
+          title={t(item.title)}
+          onClick={this.handleClickTab.bind(this, item)}
+          onMouseUp={this.handleMouseUp.bind(this, item)}
+        >
           <span className="page-tab__tabs-item-title">
-            {isLoadingTitle && item.isActive && <PointsLoader className={'page-tab__tabs-item-title-loader'} color={'light-blue'} />}
+            {loading}
             {t(item.title)}
           </span>
           {closeButton}
@@ -705,6 +802,8 @@ class PageTabs extends React.Component {
         </SortableContainer>
         <div className="page-tab__tabs-add icon-plus" onClick={this.handleAddTab} />
         {this.renderRightButton()}
+
+        <ReactResizeDetector handleWidth handleHeight onResize={debounce(this.handleResize, 400)} />
       </div>
     );
   }
