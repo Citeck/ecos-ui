@@ -8,8 +8,12 @@ import { t } from '../../../../../../helpers/util';
 const CreateVariants = () => {
   const context = useContext(TableFormContext);
 
-  const { disabled, multiple } = context.controlProps;
+  const { disabled, multiple, viewOnly } = context.controlProps;
   const { showCreateForm, createVariants, selectedRows } = context;
+
+  if (viewOnly) {
+    return null;
+  }
 
   const buttonClasses = classNames('ecos-btn_blue', {
     'ecos-btn_narrow': true //isCompact

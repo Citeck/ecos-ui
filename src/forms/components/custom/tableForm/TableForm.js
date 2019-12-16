@@ -47,10 +47,6 @@ export default class TableFormComponent extends BaseReactComponent {
     return [];
   }
 
-  viewOnlyBuild() {
-    this.buildHiddenElement();
-  }
-
   getComponentToRender() {
     return TableForm;
   }
@@ -59,6 +55,35 @@ export default class TableFormComponent extends BaseReactComponent {
     this.setReactProps({
       defaultValue: value
     });
+  }
+
+  viewOnlyBuild() {
+    super.viewOnlyBuild();
+    this.refreshElementHasValueClasses();
+  }
+
+  updateValue(flags, value) {
+    const changed = super.updateValue(flags, value);
+
+    this.refreshElementHasValueClasses();
+
+    return changed;
+  }
+
+  refreshElementHasValueClasses() {
+    if (!this.element) {
+      return;
+    }
+
+    const viewOnlyHasValueClassName = 'formio-component-tableForm_viewOnly-hasValue';
+    const hasValue = Array.isArray(this.dataValue) && this.dataValue.length > 0;
+    const elementHasClass = this.element.classList.contains(viewOnlyHasValueClassName);
+
+    if (!hasValue && elementHasClass) {
+      this.element.classList.remove(viewOnlyHasValueClassName);
+    } else if (hasValue && !elementHasClass) {
+      this.element.classList.add(viewOnlyHasValueClassName);
+    }
   }
 
   getInitialReactProps() {
