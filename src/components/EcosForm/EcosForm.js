@@ -52,15 +52,26 @@ class EcosForm extends React.Component {
   }
 
   initForm(newFormDefinition = this.state.formDefinition) {
-    const { record, formKey, options: propsOptions } = this.props;
+    const { record, formKey, options: propsOptions, formId } = this.props;
     const { recordId } = this.state;
 
     const options = cloneDeep(propsOptions);
-    let formLoadingPromise = EcosFormUtils.getForm(record, formKey, {
-      definition: 'definition?json',
-      customModule: 'customModule',
-      i18n: 'i18n?json'
-    });
+    let formLoadingPromise = null;
+
+    // uiserv/eform@e45afae4-a970-420e-b3f0-7f4888e2fb83
+    if (formId) {
+      formLoadingPromise = EcosFormUtils.getFormById(formId, {
+        definition: 'definition?json',
+        customModule: 'customModule',
+        i18n: 'i18n?json'
+      });
+    } else {
+      formLoadingPromise = EcosFormUtils.getForm(record, formKey, {
+        definition: 'definition?json',
+        customModule: 'customModule',
+        i18n: 'i18n?json'
+      });
+    }
 
     options.recordId = recordId;
     options.isMobileDevice = isMobileDevice();
@@ -309,6 +320,7 @@ EcosForm.propTypes = {
   attributes: PropTypes.object,
   options: PropTypes.object,
   formKey: PropTypes.string,
+  formId: PropTypes.string,
   onSubmit: PropTypes.func,
   onReady: PropTypes.func, // Form ready, but not rendered yet
   onFormCancel: PropTypes.func,

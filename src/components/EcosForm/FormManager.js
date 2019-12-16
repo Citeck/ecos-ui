@@ -52,15 +52,21 @@ export default class FormManager {
             attributes['_parent'] = variant.destination;
           }
 
-          this.openFormModal({
+          const props = {
             record: recordRef,
             formKey: variant.formKey,
-            attributes: attributes,
+            attributes,
             options: {
               params: this.parseCreateArguments(variant.createArguments)
             },
             ...options
-          });
+          };
+
+          if (EcosFormUtils.isFormId(variant.formId)) {
+            props.formId = variant.formId;
+          }
+
+          this.openFormModal(props);
         } else {
           goToCreateRecordPage(variant);
         }

@@ -270,8 +270,12 @@ export default class EcosFormUtils {
     let recordInstance = isString(record) ? Records.get(record) : record;
     recordInstance = recordInstance.getBaseRecord();
 
-    let getFormByKeysFromRecord = (keys, idx) => {
-      if (!keys || idx >= keys.length) {
+    let getFormByKeysFromRecord = (data, idx) => {
+      if (EcosFormUtils.isFormId(data.formId)) {
+        return EcosFormUtils.getFormById(data.formId, attributes);
+      }
+
+      if (!data.formKey || idx >= data.formKey.length) {
         return null;
       }
 
@@ -279,7 +283,7 @@ export default class EcosFormUtils {
         sourceId: 'uiserv/eform',
         query: {
           record: recordInstance.id,
-          formKey: keys[idx]
+          formKey: data.formKey[idx]
         }
       };
 
@@ -293,19 +297,44 @@ export default class EcosFormUtils {
       return formRec.then(res => {
         if (res) {
           return res;
-        } else {
-          return getFormByKeysFromRecord(keys, idx + 1);
         }
+
+        return getFormByKeysFromRecord(data, idx + 1);
       });
     };
 
     if (!formKey) {
-      return recordInstance.load('_formKey[]?str').then(keys => {
-        return getFormByKeysFromRecord(keys, 0);
-      });
+      return recordInstance
+        .load({
+          formKey: '_formKey[]?str',
+          formId: '_etype.form?id'
+        })
+        .then(keys => {
+          return getFormByKeysFromRecord(keys, 0);
+        });
     } else {
       return getFormByKeysFromRecord([formKey], 0);
     }
+  }
+
+  // todo: need correct query
+  static getFormById(formId, attributes = null) {
+    let getFormByKeysFromRecord = () => {
+      let query = {
+        sourceId: 'uiserv/eform',
+        query: {
+          record: formId
+        }
+      };
+
+      if (attributes) {
+        return Records.queryOne(query, attributes);
+      }
+
+      return Records.queryOne(query);
+    };
+
+    return getFormByKeysFromRecord();
   }
 
   static getCreateVariants(record, attribute) {
@@ -642,5 +671,9 @@ export default class EcosFormUtils {
     record.att('definition?json', form);
 
     return record.save();
+  }
+
+  static isFormId(formId = '') {
+    return formId && /^uiserv\/eform@/.test(formId);
   }
 }
