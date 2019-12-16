@@ -50,7 +50,12 @@ const JournalsSettingsBar = ({
         />
       )}
 
-      <Search onSearch={onSearch} className={`search_border-white ${step}`} collapsed={isMobile} cleaner />
+      <Search
+        onSearch={onSearch}
+        className={`ecos-journal__settings-bar-search search_border-white ${step}`}
+        collapsed={isMobile}
+        cleaner
+      />
 
       <Export journalConfig={journalConfig} grid={grid} className={classNames('ecos-journal__settings-bar-download', step)}>
         <IcoBtn

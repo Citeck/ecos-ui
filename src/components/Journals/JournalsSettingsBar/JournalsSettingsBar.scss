@@ -14,15 +14,26 @@
     font-size: 24px;
   }
 
-  .search_expanded {
-    & ~ #{$root}-download,
-    & ~ #{$root}-update {
-      display: none;
-    }
-  }
-
   &-update {
     min-width: 40px;
+  }
+
+  &-download,
+  &-update {
+    transition: all 0.4s;
+  }
+
+  &-search {
+    &.search_expanded {
+      & ~ #{$root}-download,
+      & ~ #{$root}-update {
+        transform: scale(0);
+        width: 0;
+        min-width: 0;
+        margin: 0;
+        opacity: 0;
+      }
+    }
   }
 }
 
