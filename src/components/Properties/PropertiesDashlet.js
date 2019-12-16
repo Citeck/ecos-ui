@@ -1,18 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
+import get from 'lodash/get';
 import { UncontrolledTooltip } from 'reactstrap';
 
 import { isSmallMode, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
+import EcosFormUtils from '../EcosForm/EcosFormUtils';
 import Dashlet from '../Dashlet/Dashlet';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
 import IcoBtn from '../common/btns/IcoBtn';
-import EcosFormUtils from '../EcosForm/EcosFormUtils';
 
 import './style.scss';
-import get from 'lodash/get';
 
 const LABELS = {
   WIDGET_TITLE: 'properties-widget.title',
@@ -20,9 +21,14 @@ const LABELS = {
   CONSTRUCTOR_BTN_TOOLTIP: 'Перейти в конструктор'
 };
 
+const mapStateToProps = state => ({
+  isAdmin: get(state, ['user', 'isAdmin'], false)
+});
+
 class PropertiesDashlet extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
+    isAdmin: PropTypes.bool,
     record: PropTypes.string.isRequired,
     title: PropTypes.string,
     classNameProps: PropTypes.string,
@@ -59,12 +65,14 @@ class PropertiesDashlet extends React.Component {
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       height: UserLocalSettingsService.getDashletHeight(props.id),
       fitHeights: {},
-      canEdit: false
+      canEditRecord: false
     };
   }
 
   componentDidMount() {
-    this.checkEditRights();
+    EcosFormUtils.hasWritePermission(this.props.record).then(canEditRecord => {
+      this.setState({ canEditRecord });
+    });
   }
 
   className = 'ecos-properties-dashlet';
@@ -76,14 +84,6 @@ class PropertiesDashlet extends React.Component {
 
     return get(this._propertiesRef, 'current._contentRef.current.offsetHeight', 0);
   }
-
-  checkEditRights = () => {
-    const { record } = this.props;
-
-    EcosFormUtils.getCanWritePermission(record).then(canEdit => {
-      this.setState({ canEdit });
-    });
-  };
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
@@ -126,11 +126,10 @@ class PropertiesDashlet extends React.Component {
   };
 
   renderDashletCustomButtons(isDashlet = false) {
-    const { id } = this.props;
-    const { canEdit } = this.state;
+    const { id, isAdmin } = this.props;
     const buttons = [];
 
-    if (canEdit) {
+    if (isAdmin) {
       buttons.push(
         <React.Fragment key={`settings-button-${id}`}>
           <IcoBtn
@@ -163,7 +162,7 @@ class PropertiesDashlet extends React.Component {
 
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isReady, isEditProps, height, fitHeights, formIsChanged, isCollapsed } = this.state;
+    const { isSmallMode, isReady, isEditProps, height, fitHeights, formIsChanged, isCollapsed, canEditRecord } = this.state;
     const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
@@ -171,6 +170,7 @@ class PropertiesDashlet extends React.Component {
         title={title || t(LABELS.WIDGET_TITLE)}
         className={classDashlet}
         bodyClassName={`${this.className}__body`}
+        actionEdit={canEditRecord}
         actionEditTitle={t(LABELS.EDIT_TITLE)}
         resizable={true}
         contentMaxHeight={this.clientHeight}
@@ -211,4 +211,4 @@ class PropertiesDashlet extends React.Component {
   }
 }
 
-export default PropertiesDashlet;
+export default connect(mapStateToProps)(PropertiesDashlet);

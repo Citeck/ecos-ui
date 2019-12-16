@@ -2,6 +2,7 @@ import RecordActionExecutorsRegistry from './RecordActionExecutorsRegistry';
 import Records from '../Records';
 import lodash from 'lodash';
 import { t } from '../../../helpers/util';
+import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 
 const DEFAULT_MODEL = {
   name: '',
@@ -73,15 +74,14 @@ class RecordActionsService {
   __getRecordsActions(records, context) {
     //temp condition to prevent major changes in journal actions
     if (context.mode === 'journal') {
-      let actions = RecordActionsService.__getDefaultActions();
-      return Promise.resolve(
-        records.map(record => {
+      return EcosFormUtils.hasWritePermission(records).then(hasWritePermission => {
+        return records.map((record, idx) => {
           return {
             record,
-            actions
+            actions: RecordActionsService.__getDefaultActions(hasWritePermission[idx])
           };
-        })
-      );
+        });
+      });
     }
 
     return Records.query(
@@ -136,9 +136,9 @@ class RecordActionsService {
     }
   }
 
-  static __getDefaultActions() {
+  static __getDefaultActions(hasWritePermission) {
     //temp
-    return [
+    const actions = [
       {
         title: t('grid.inline-tools.open-in-background'),
         type: 'open-in-background',
@@ -153,24 +153,32 @@ class RecordActionsService {
         title: t('grid.inline-tools.download'),
         type: 'download',
         icon: 'icon-download'
-      },
-      {
-        title: t('grid.inline-tools.edit'),
-        type: 'edit',
-        icon: 'icon-edit'
-      },
-      {
-        title: t('grid.inline-tools.delete'),
-        type: 'delete',
-        icon: 'icon-delete',
-        theme: 'danger'
-      },
-      {
-        title: t('grid.inline-tools.details'),
-        type: 'move-to-lines',
-        icon: 'icon-big-arrow'
       }
     ];
+
+    if (hasWritePermission) {
+      actions.push(
+        {
+          title: t('grid.inline-tools.edit'),
+          type: 'edit',
+          icon: 'icon-edit'
+        },
+        {
+          title: t('grid.inline-tools.delete'),
+          type: 'delete',
+          icon: 'icon-delete',
+          theme: 'danger'
+        }
+      );
+    }
+
+    actions.push({
+      title: t('grid.inline-tools.details'),
+      type: 'move-to-lines',
+      icon: 'icon-big-arrow'
+    });
+
+    return actions;
   }
 
   getActionCreateVariants() {

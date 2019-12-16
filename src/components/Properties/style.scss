@@ -10,10 +10,18 @@
   }
 
   &__formio {
-    padding: 20px;
+    padding: 20px 20px 0;
 
     &_small {
       padding-top: 0;
+    }
+
+    > div {
+      > div {
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
     }
   }
 
