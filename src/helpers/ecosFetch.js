@@ -6,6 +6,8 @@ import { getCurrentLocale } from '../helpers/util';
 const acceptLanguage = getCurrentLocale();
 
 export default function(url, data = {}) {
+  // Token.check();
+
   if (!url) {
     return;
   }
@@ -22,6 +24,7 @@ export default function(url, data = {}) {
     headers: {
       ...headers,
       'Accept-Language': acceptLanguage
+      //'Authorization': `Bearer ${Token.get().access_token}`
     }
   };
 
