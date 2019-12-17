@@ -49,9 +49,11 @@ import { fakeApi } from './api/fakeApi';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
 import { polyfills } from './helpers/polyfills';
+
 import './styles/index.scss';
 
 import './build-info';
+import './services/esign';
 
 polyfills();
 

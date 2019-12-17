@@ -89,3 +89,8 @@ export const DocScaleOptions = {
   PAGE_HEIGHT: 'page-height',
   PAGE_WIDTH: 'page-width'
 };
+
+export const Permissions = {
+  Write: 'Write',
+  Read: 'Read'
+};

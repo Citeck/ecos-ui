@@ -20,25 +20,25 @@
 
   .formio-disabled-input {
     .form-control {
-      border-color: $color-gray-disabled;
-      background-color: $color-gray-disabled-2;
-      color: $color-gray-disabled;
+      border-color: $color-gray-6;
+      background-color: $color-gray-4;
+      color: $text-color-gray;
       cursor: not-allowed;
 
       input {
-        background-color: $color-gray-disabled-2;
+        background-color: $color-gray-4;
       }
 
       &:after {
-        color: $color-gray-disabled !important;
+        color: $color-gray-6 !important;
       }
 
       &:focus {
-        border-color: $color-gray-disabled;
+        border-color: $color-gray-6;
       }
 
       &:hover {
-        border-color: $color-gray-disabled;
+        border-color: $color-gray-6;
       }
     }
   }

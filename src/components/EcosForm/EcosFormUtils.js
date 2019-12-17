@@ -449,7 +449,7 @@ export default class EcosFormUtils {
     return Object.assign(result, attributes, formI18n);
   }
 
-  static getCanWritePermission(recordId) {
+  static hasWritePermission(recordId) {
     return Records.get(recordId).load('.att(n:"permissions"){has(n:"Write")}');
   }
 
