@@ -72,7 +72,6 @@ export class DocAssociationsApi extends RecordService {
    */
   getJournalList = site => {
     return ecosFetch(`/share/proxy/alfresco/api/journals/list?journalsList=site-${site}-main`, {
-      method: 'GET',
       headers: { 'Content-type': 'application/json;charset=UTF-8' }
     }).then(response => response.json().then(response => response.journals));
   };

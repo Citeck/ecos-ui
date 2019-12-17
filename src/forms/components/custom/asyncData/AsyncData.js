@@ -213,9 +213,9 @@ export default class AsyncDataComponent extends BaseComponent {
 
             const fetchData = (url, body, method) => {
               return ecosFetch(url, {
-                method: method,
+                method,
                 headers: { 'Content-type': 'application/json;charset=UTF-8' },
-                body: body
+                body
               }).then(response => {
                 return response.json();
               });

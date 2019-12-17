@@ -47,14 +47,7 @@ export function joinSiteRequest({ site, siteTitle, user, userFullName }) {
       }
     };
 
-    return ecosFetch(url, {
-      method: 'PUT',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
+    return ecosFetch(url, { method: 'PUT', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: data })
       .then(resp => {
         if (resp.status !== 200) {
           console.log('joinSiteRequest err', resp);
