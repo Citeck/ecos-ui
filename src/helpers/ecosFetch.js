@@ -5,28 +5,27 @@ import { getCurrentLocale } from '../helpers/util';
 
 const acceptLanguage = getCurrentLocale();
 
-export default function(url, data = {}) {
+export default function(url, options = {}) {
   // Token.check();
 
-  if (!url) {
-    return;
-  }
-
-  if (data === null) {
+  if (options === null) {
     return fetch(url);
   }
 
-  const { method = 'POST', headers = {}, body } = data;
+  const { method = 'POST', headers = {}, body } = options;
 
   const params = {
     method,
-    credentials: 'include',
     headers: {
       ...headers,
       'Accept-Language': acceptLanguage
       //'Authorization': `Bearer ${Token.get().access_token}`
     }
   };
+
+  if (url && url.includes('http')) {
+    params.credentials = 'include';
+  }
 
   if (isObject(body)) {
     params.body = JSON.stringify(body);
