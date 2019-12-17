@@ -11,6 +11,7 @@ const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
 const originalBuild = Base.prototype.build;
 const originalCreateViewOnlyElement = Base.prototype.createViewOnlyElement;
 const originalCheckValidity = Base.prototype.checkValidity;
+const originalCheckConditions = Base.prototype.checkConditions;
 
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
 
@@ -229,4 +230,13 @@ Base.prototype.checkValidity = function(data, dirty, rowData) {
   }
 
   return validity;
+};
+
+Base.prototype.checkConditions = function(data) {
+  // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2967
+  if (!this.parentVisible) {
+    return false;
+  }
+
+  return originalCheckConditions.call(this, data);
 };
