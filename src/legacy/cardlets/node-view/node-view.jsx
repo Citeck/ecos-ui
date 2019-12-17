@@ -5,6 +5,7 @@ import EcosForm from '../../../components/EcosForm/export';
 import { t } from '../../../helpers/util';
 import { FORM_MODE_EDIT } from '../../../components/EcosForm';
 import Records from '../../../components/Records';
+import { checkFunctionalAvailabilityForUser } from '../../../helpers/export/userInGroupsHelper';
 
 export default class NodeViewFormCardlet extends NodeCardlet {
   state = {
@@ -41,10 +42,12 @@ export default class NodeViewFormCardlet extends NodeCardlet {
       });
     };
 
-    Records.get('ecos-config@ecos-forms-card-enable')
-      .load('.bool')
-      .then(isEnabled => {
-        if (!isEnabled) {
+    const newFormsOnCardIsEnable = Records.get('ecos-config@ecos-forms-card-enable').load('.bool');
+    const isNewFormsAvaliableForUser = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
+
+    Promise.all([newFormsOnCardIsEnable, isNewFormsAvaliableForUser])
+      .then(values => {
+        if (!values.includes(true)) {
           return RemoteCardlet.fetchData(ownProps, onSuccess, onFailure);
         }
 
