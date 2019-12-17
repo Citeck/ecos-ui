@@ -35,6 +35,27 @@
     }
   }
 
+  &-settings {
+    &__title {
+      font-weight: $font-weight-bold;
+      font-size: $font-size-large;
+    }
+
+    &__subtitle {
+      background: #f3f3f3;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    &__form-list {
+      &-dropdown {
+        width: 100%;
+        min-width: 430px;
+      }
+    }
+  }
+
   &__loader {
     margin-top: 7px;
   }

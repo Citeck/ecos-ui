@@ -7,11 +7,11 @@ import { UncontrolledTooltip } from 'reactstrap';
 
 import { isSmallMode, t } from '../../helpers/util';
 import UserLocalSettingsService from '../../services/userLocalSettings';
+import IcoBtn from '../common/btns/IcoBtn';
 import EcosFormUtils from '../EcosForm/EcosFormUtils';
 import Dashlet from '../Dashlet/Dashlet';
-import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
-import IcoBtn from '../common/btns/IcoBtn';
+import PropertiesSettings from './PropertiesSettings';
 
 import './style.scss';
 
@@ -29,7 +29,7 @@ class PropertiesDashlet extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
     isAdmin: PropTypes.bool,
-    record: PropTypes.string.isRequired,
+    record: PropTypes.string,
     title: PropTypes.string,
     classNameProps: PropTypes.string,
     classNameDashlet: PropTypes.string,
@@ -187,18 +187,19 @@ class PropertiesDashlet extends React.Component {
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
       >
-        <Properties
-          ref={this._propertiesRef}
-          className={classNameProps}
-          record={record}
-          isSmallMode={isSmallMode}
-          isReady={isReady}
-          stateId={id}
-          height={height}
-          minHeight={fitHeights.min}
-          maxHeight={fitHeights.max}
-          onUpdate={this.onUpdateProperties}
-        />
+        {/*<Properties*/}
+        {/*  ref={this._propertiesRef}*/}
+        {/*  className={classNameProps}*/}
+        {/*  record={record}*/}
+        {/*  isSmallMode={isSmallMode}*/}
+        {/*  isReady={isReady}*/}
+        {/*  stateId={id}*/}
+        {/*  height={height}*/}
+        {/*  minHeight={fitHeights.min}*/}
+        {/*  maxHeight={fitHeights.max}*/}
+        {/*  onUpdate={this.onUpdateProperties}*/}
+        {/*/>*/}
+        <PropertiesSettings record={record} stateId={id} />
         <PropertiesEditModal
           record={record}
           isOpen={isEditProps}

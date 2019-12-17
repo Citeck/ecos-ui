@@ -35,6 +35,7 @@ import {
   MyTimesheetApi,
   OrgStructApi,
   PageTabsApi,
+  PropertiesApi,
   RecordActionsApi,
   TasksApi,
   TimesheetCommonApi,
@@ -99,6 +100,7 @@ api.timesheetSubordinates = new TimesheetSubordinatesApi(store);
 api.timesheetMine = new MyTimesheetApi(store);
 api.timesheetVerification = new TimesheetVerificationApi(store);
 api.timesheetDelegated = new TimesheetDelegatedApi(store);
+api.properties = new PropertiesApi(store);
 
 /**
  * todo: Maybe need such union all api?
