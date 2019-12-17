@@ -187,6 +187,8 @@ export default class ScrollArrow extends React.Component {
             {children}
             {selectorToObserve && <ReactResizeDetector handleWidth onResize={this.onResize} querySelector={selectorToObserve} />}
           </div>
+
+          <ReactResizeDetector handleWidth handleHeight onResize={this.checkArrowsDebounced} />
         </div>
         {isShowArrows && (
           <IcoBtn
