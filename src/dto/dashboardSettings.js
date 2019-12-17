@@ -4,7 +4,7 @@ import isArray from 'lodash/isArray';
 import head from 'lodash/head';
 import { LAYOUT_TYPE } from '../constants/layout';
 import { Layouts } from '../constants/dashboard';
-import Components from '../components/Components';
+import Components from '../components/widgets/Components';
 import DashboardService from '../services/dashboard';
 import DashboardConverter from './dashboard';
 

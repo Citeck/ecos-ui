@@ -1,0 +1,41 @@
+@import '../../../styles/constants';
+
+.ecos-properties {
+  $root: &;
+
+  &__scroll {
+    &_v {
+      @extend %v-scroll;
+    }
+  }
+
+  &__formio {
+    padding: 20px 20px 0;
+
+    &_small {
+      padding-top: 0;
+    }
+
+    > div {
+      > div {
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  &-dashlet {
+    &__btn {
+      &-settings {
+        & .icon-settings {
+          font-size: 16px;
+        }
+      }
+    }
+  }
+
+  &__loader {
+    margin-top: 7px;
+  }
+}

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
-import DocPreview from '../../DocPreview/DocPreview';
-import '../../DocPreview/style.scss';
+import DocPreview from '../../widgets/DocPreview/DocPreview';
+import '../../widgets/DocPreview/style.scss';
 import './JournalsPreview.scss';
 
 const mapStateToProps = (state, props) => {
