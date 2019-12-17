@@ -25,7 +25,7 @@ const HCT = HandleControlTypes;
 export default function handleControl(type, payload, dispatch) {
   switch (type) {
     case HCT.ALF_DOLOGOUT:
-      ecosFetch(URL_SERVICECONTEXT + 'dologout').then(() => {
+      ecosFetch(URL_SERVICECONTEXT + 'dologout', { method: 'POST' }).then(() => {
         window.location.reload();
       });
       break;

@@ -2,26 +2,28 @@ import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 
 import { getCurrentLocale } from '../helpers/util';
+//import Token from '../helpers/tokenData';
 
 const acceptLanguage = getCurrentLocale();
 
 export default function(url, options = {}) {
   // Token.check();
 
-  if (options === null) {
-    return fetch(url);
+  const { method, headers = {}, body, noHeaders = false } = options;
+
+  const params = {};
+
+  if (method) {
+    params.method = method;
   }
 
-  const { method = 'POST', headers = {}, body } = options;
-
-  const params = {
-    method,
-    headers: {
+  if (!noHeaders) {
+    params.headers = {
       ...headers,
       'Accept-Language': acceptLanguage
       //'Authorization': `Bearer ${Token.get().access_token}`
-    }
-  };
+    };
+  }
 
   if (url && url.includes('http')) {
     params.credentials = 'include';
