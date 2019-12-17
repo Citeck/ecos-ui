@@ -58,7 +58,6 @@ class EcosForm extends React.Component {
     const options = cloneDeep(propsOptions);
     let formLoadingPromise = null;
 
-    // uiserv/eform@e45afae4-a970-420e-b3f0-7f4888e2fb83
     if (formId) {
       formLoadingPromise = EcosFormUtils.getFormById(formId, {
         definition: 'definition?json',

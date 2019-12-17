@@ -270,12 +270,8 @@ export default class EcosFormUtils {
     let recordInstance = isString(record) ? Records.get(record) : record;
     recordInstance = recordInstance.getBaseRecord();
 
-    let getFormByKeysFromRecord = (data, idx) => {
-      if (EcosFormUtils.isFormId(data.formId)) {
-        return EcosFormUtils.getFormById(data.formId, attributes);
-      }
-
-      if (!data.formKey || idx >= data.formKey.length) {
+    let getFormByKeysFromRecord = (keys, idx) => {
+      if (!keys || idx >= keys.length) {
         return null;
       }
 
@@ -283,7 +279,7 @@ export default class EcosFormUtils {
         sourceId: 'uiserv/eform',
         query: {
           record: recordInstance.id,
-          formKey: data.formKey[idx]
+          formKey: keys[idx]
         }
       };
 
@@ -299,7 +295,7 @@ export default class EcosFormUtils {
           return res;
         }
 
-        return getFormByKeysFromRecord(data, idx + 1);
+        return getFormByKeysFromRecord(keys, idx + 1);
       });
     };
 
@@ -309,32 +305,24 @@ export default class EcosFormUtils {
           formKey: '_formKey[]?str',
           formId: '_etype.form?id'
         })
-        .then(keys => {
-          return getFormByKeysFromRecord(keys, 0);
+        .then(({ formId, formKey }) => {
+          if (EcosFormUtils.isFormId(formId)) {
+            return EcosFormUtils.getFormById(formId, attributes);
+          }
+
+          return getFormByKeysFromRecord(formKey, 0);
         });
     } else {
       return getFormByKeysFromRecord([formKey], 0);
     }
   }
 
-  // todo: need correct query
   static getFormById(formId, attributes = null) {
-    let getFormByKeysFromRecord = () => {
-      let query = {
-        sourceId: 'uiserv/eform',
-        query: {
-          record: formId
-        }
-      };
+    if (attributes) {
+      return Records.get(formId).load(attributes);
+    }
 
-      if (attributes) {
-        return Records.queryOne(query, attributes);
-      }
-
-      return Records.queryOne(query);
-    };
-
-    return getFormByKeysFromRecord();
+    return Records.get(formId);
   }
 
   static getCreateVariants(record, attribute) {
