@@ -1,4 +1,4 @@
-import loadable from '@loadable/component';
+import { lazy } from 'react';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
@@ -7,7 +7,6 @@ import { deepClone } from '../../helpers/util';
 import { DashboardTypes } from '../../constants/dashboard';
 
 export const ComponentKeys = {
-  LOGIN: 'login',
   PAGINATION: 'pagination',
   DOC_PREVIEW: 'doc-preview',
   JOURNAL: 'journal',
@@ -38,72 +37,72 @@ export const ComponentKeys = {
 export default class Components {
   static components = Object.freeze({
     [ComponentKeys.DOC_PREVIEW]: {
-      path: './DocPreview',
+      load: () => lazy(() => import('./DocPreview')),
       label: 'dashboard-settings.widget.preview',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.JOURNAL]: {
-      path: './JournalsDashlet/JournalsDashlet',
+      load: () => lazy(() => import('./JournalsDashlet/JournalsDashlet')),
       label: 'dashboard-settings.widget.journal',
       supportedDashboardTypes: []
     },
     [ComponentKeys.COMMENTS]: {
-      path: './Comments',
+      load: () => lazy(() => import('./Comments')),
       label: 'dashboard-settings.widget.comments',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.PROPERTIES]: {
-      path: './Properties',
+      load: () => lazy(() => import('./Properties')),
       label: 'dashboard-settings.widget.properties',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.PROFILE]
     },
     [ComponentKeys.TASKS]: {
-      path: './Tasks',
+      load: () => lazy(() => import('./Tasks')),
       label: 'dashboard-settings.widget.tasks',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.CURRENT_TASKS]: {
-      path: './CurrentTasks',
+      load: () => lazy(() => import('./CurrentTasks')),
       label: 'dashboard-settings.widget.current-tasks',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.DOC_STATUS]: {
-      path: './DocStatus',
+      load: () => lazy(() => import('./DocStatus')),
       label: 'dashboard-settings.widget.doc-status',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.EVENTS_HISTORY]: {
-      path: './EventsHistory',
+      load: () => lazy(() => import('./EventsHistory')),
       label: 'dashboard-settings.widget.events-history',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.VERSIONS_JOURNAL]: {
-      path: './VersionsJournal',
+      load: () => lazy(() => import('./VersionsJournal')),
       label: 'dashboard-settings.widget.versions-journal',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.DOC_ASSOCIATIONS]: {
-      path: './DocAssociations',
+      load: () => lazy(() => import('./DocAssociations')),
       label: 'dashboard-settings.widget.doc-associations',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.RECORD_ACTIONS]: {
-      path: './Actions',
+      load: () => lazy(() => import('./Actions')),
       label: 'dashboard-settings.widget.actions',
       supportedDashboardTypes: []
     },
     [ComponentKeys.WEB_PAGE]: {
-      path: './WebPage',
+      load: () => lazy(() => import('./WebPage')),
       label: 'dashboard-settings.widget.web-page',
       supportedDashboardTypes: []
     },
     [ComponentKeys.BIRTHDAYS]: {
-      path: './Birthdays',
+      load: () => lazy(() => import('./Birthdays')),
       label: 'dashboard-settings.widget.birthdays',
       supportedDashboardTypes: [DashboardTypes.USER]
     },
     [ComponentKeys.BARCODE]: {
-      path: './Barcode',
+      load: () => lazy(() => import('./Barcode')),
       label: 'dashboard-settings.widget.barcode',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     }
@@ -112,13 +111,13 @@ export default class Components {
   static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.RECORD_ACTIONS, ComponentKeys.WEB_PAGE];
 
   static get(component) {
-    const link = get(Components.components, [component, 'path']);
+    const loadComponent = get(Components.components, [component, 'load']);
 
-    if (!link) {
+    if (!loadComponent) {
       return () => null;
     }
 
-    return loadable(() => import(`${link}`));
+    return loadComponent();
   }
 
   static getComponentsFullData(dashboardType = DashboardTypes.CASE_DETAILS) {
