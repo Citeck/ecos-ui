@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import BaseComponent from '../base/BaseComponent';
 import Formio from 'formiojs/Formio';
-
+import BaseComponent from '../base/BaseComponent';
+import ecosFetch from '../../../../helpers/ecosFetch';
 import Records from '../../../../components/Records';
 
 let ajaxGetCache = {};
@@ -212,13 +212,10 @@ export default class AsyncDataComponent extends BaseComponent {
             }
 
             const fetchData = (url, body, method) => {
-              return fetch(url, {
-                method: method,
-                credentials: 'include',
-                headers: {
-                  'Content-type': 'application/json;charset=UTF-8'
-                },
-                body: body
+              return ecosFetch(url, {
+                method,
+                headers: { 'Content-type': 'application/json;charset=UTF-8' },
+                body
               }).then(response => {
                 return response.json();
               });

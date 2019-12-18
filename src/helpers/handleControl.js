@@ -1,10 +1,11 @@
-import { URL_SERVICECONTEXT, URL_RESCONTEXT } from '../constants/alfresco';
-import { t, loadScript } from '../helpers/util';
+import { URL_RESCONTEXT, URL_SERVICECONTEXT } from '../constants/alfresco';
+import { loadScript, t } from '../helpers/util';
 import { goToCardDetailsPage } from '../helpers/urls';
 import { hideModal, showModal } from '../actions/modal';
 import FormManager from '../components/EcosForm/FormManager';
 import { becomeSiteManagerRequest, joinSiteRequest, leaveSiteRequest, requestSiteMembership } from '../actions/handleControl';
 import { requireShareAssets } from '../legacy/share';
+import ecosFetch from './ecosFetch';
 
 export const HandleControlTypes = {
   ALF_DOLOGOUT: 'ALF_DOLOGOUT',
@@ -24,9 +25,7 @@ const HCT = HandleControlTypes;
 export default function handleControl(type, payload, dispatch) {
   switch (type) {
     case HCT.ALF_DOLOGOUT:
-      fetch(URL_SERVICECONTEXT + 'dologout', {
-        method: 'POST'
-      }).then(() => {
+      ecosFetch(URL_SERVICECONTEXT + 'dologout', { method: 'POST' }).then(() => {
         window.location.reload();
       });
       break;
