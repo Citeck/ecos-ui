@@ -58,6 +58,7 @@ class EditTabs extends React.Component {
   handleSortEnd = ({ oldIndex, newIndex }) => {
     const { items = [], onSort = () => null } = this.props;
     const arr = deepClone(items);
+
     arr[newIndex] = items[oldIndex];
     arr[oldIndex] = items[newIndex];
     onSort(arr);
