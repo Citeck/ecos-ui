@@ -25,7 +25,7 @@ export class VersionsJournalApi extends RecordService {
   };
 
   addNewVersion = body => {
-    return ecosFetch('/share/proxy/alfresco/api/upload', { body }).then(response => response.json());
+    return ecosFetch('/share/proxy/alfresco/api/upload', { method: 'POST', body }).then(response => response.json());
   };
 
   setActiveVersion = ({ id, ...attributes }) => {
