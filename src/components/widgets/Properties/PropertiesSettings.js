@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 
-import { t } from '../../helpers/util';
-import { getFormList } from '../../actions/properties';
-import { Caption, Dropdown } from '../common/form';
-import { Btn, IcoBtn } from '../common/btns';
+import { t } from '../../../helpers/util';
+import { getFormList } from '../../../actions/properties';
+import { Caption, Dropdown } from '../../common/form';
+import { Btn, IcoBtn } from '../../common/btns';
 
 import './style.scss';
 

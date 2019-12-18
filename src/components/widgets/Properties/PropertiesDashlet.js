@@ -8,6 +8,7 @@ import UserLocalSettingsService from '../../../services/userLocalSettings';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import IcoBtn from '../../common/btns/IcoBtn';
 import Dashlet from '../../Dashlet/Dashlet';
+import BaseWidget from '../BaseWidget';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
 import PropertiesSettings from './PropertiesSettings';
