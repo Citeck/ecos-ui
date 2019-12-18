@@ -41,21 +41,9 @@ const Header = ({
       {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
     </IcoBtn>
   );
-  const actions = [...customButtons];
+  const actions = [];
   let toggleIcon = null;
   let dragBtn = null;
-
-  if (actionReload) {
-    actions.push(
-      <IcoBtn
-        key="action-reload"
-        icon={'icon-reload'}
-        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-        onClick={onReload}
-        title={t('dashlet.update.title')}
-      />
-    );
-  }
 
   if (actionEdit) {
     actions.push(
@@ -79,6 +67,20 @@ const Header = ({
       />
     );
   }
+
+  if (actionReload) {
+    actions.push(
+      <IcoBtn
+        key="action-reload"
+        icon={'icon-reload'}
+        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+        onClick={onReload}
+        title={t('dashlet.update.title')}
+      />
+    );
+  }
+
+  Array.prototype.push.apply(actions, customButtons);
 
   if (actionDrag) {
     dragBtn = (
