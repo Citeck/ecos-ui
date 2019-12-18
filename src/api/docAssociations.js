@@ -4,27 +4,46 @@ import { t } from '../helpers/util';
 
 export class DocAssociationsApi extends RecordService {
   /**
-   * Список доступных связей
-   * Используется при формировании меню (первый уровень) и в отрисовке документов
+   * List of available associations
+   * It is used when forming a menu (first level) and in render of documents
    *
    * @returns {*[]}
    */
-  getAllowedConnections = () => {
-    // TODO use real api
+  getAllowedConnections = recordRef => {
     return [
       {
-        name: 'assoc:associatedWith',
-        title: t('doc-associations-widget.assoc-with-docs')
+        id: 'assoc:associatedWith',
+        name: t('doc-associations-widget.assoc-with-docs'),
+        direction: 'TARGET'
+      },
+      {
+        id: 'payments:basis',
+        name: 'Документ-основание',
+        direction: 'SOURCE'
+      },
+      {
+        id: 'contracts:closingDocumentAgreement',
+        name: 'Учётные документы',
+        direction: 'BOTH'
       }
-      // {
-      //   name: 'payments:basis',
-      //   title: 'Документ-основание'
-      // },
-      // {
-      //   name: 'contracts:closingDocumentAgreement',
-      //   title: 'Учётные документы'
-      // }
     ];
+
+    return Records.get(recordRef).load('_etype.associations[]{id,name,direction}');
+
+    // return [
+    //   {
+    //     name: 'assoc:associatedWith',
+    //     title: t('doc-associations-widget.assoc-with-docs')
+    //   }
+    //   // {
+    //   //   name: 'payments:basis',
+    //   //   title: 'Документ-основание'
+    //   // },
+    //   // {
+    //   //   name: 'contracts:closingDocumentAgreement',
+    //   //   title: 'Учётные документы'
+    //   // }
+    // ];
   };
 
   /**
@@ -79,12 +98,16 @@ export class DocAssociationsApi extends RecordService {
     }).then(response => response.json().then(response => response.journals));
   };
 
-  sagaSaveDocuments = data => {
+  saveDocuments = data => {
     const { connectionId, recordRef, documents } = data;
     const record = Records.get(recordRef);
 
     record.att(connectionId, documents);
 
     return record.save().then(response => response);
+  };
+
+  getAssociation = (settings, recordRef) => {
+    return Records.get(recordRef).load(settings);
   };
 }

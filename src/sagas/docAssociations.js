@@ -11,6 +11,7 @@ import {
   setSectionList
 } from '../actions/docAssociations';
 import { getDocumentsForWeb, getDocumentsTotalCount, getJournalForWeb, getMenuForWeb } from '../dto/docAssociations';
+import { DIRECTIONS } from '../constants/docAssociations';
 
 function* sagaGetSectionList({ api, logger }, action) {
   try {
@@ -23,27 +24,62 @@ function* sagaGetSectionList({ api, logger }, action) {
       })
     );
   } catch (e) {
-    logger.error('[comments sagaGetSectionList saga error', e.message);
+    logger.error('[docAssociations sagaGetSectionList saga error', e.message);
   }
 }
 
-function* sagaGetDocuments({ api, logger }, action) {
+function* getAssociation({ id, direction }, api, recordRef) {
   try {
-    const allowedConnections = yield call(api.docAssociations.getAllowedConnections, action.payload);
+    if (direction === DIRECTIONS.TARGET) {
+      return yield call(api.docAssociations.getAssociation, {
+        settings: `${id}[]?assoc`,
+        recordRef
+      });
+    }
 
-    yield put(setAllowedConnections({ key: action.payload, allowedConnections }));
+    if (direction === DIRECTIONS.SOURCE) {
+      return yield call(api.docAssociations.getAssociation, {
+        settings: `assoc_src_${id}[]?assoc`,
+        recordRef
+      });
+    }
 
-    const response = yield call(api.docAssociations.getDocuments, action.payload, allowedConnections.map(item => item.name));
+    if (direction === DIRECTIONS.BOTH) {
+      const target = yield call(api.docAssociations.getAssociation, {
+        settings: `${id}[]?assoc`,
+        recordRef
+      });
+      const source = yield call(api.docAssociations.getAssociation, {
+        settings: `assoc_src_${id}[]?assoc`,
+        recordRef
+      });
+
+      return target.concat(source);
+    }
+  } catch (e) {
+    logger.error('[docAssociations getAssociation saga error', e.message);
+  }
+}
+
+function* sagaGetDocuments({ api, logger }, { payload }) {
+  try {
+    const allowedConnections = yield call(api.docAssociations.getAllowedConnections, payload);
+
+    console.warn('allowedConnections => ', allowedConnections);
+
+    yield put(setAllowedConnections({ key: payload, allowedConnections }));
+
+    const response = yield call(api.docAssociations.getDocuments, payload, allowedConnections.map(item => item.name));
 
     yield put(
       setDocuments({
-        key: action.payload,
+        key: payload,
         documents: getDocumentsForWeb(response, allowedConnections),
         documentsTotalCount: getDocumentsTotalCount(response)
       })
     );
   } catch (e) {
-    logger.error('[comments sagaGetDocuments saga error', e.message);
+    logger.error('[docAssociations sagaGetDocuments saga error', e.message);
   }
 }
 
@@ -64,7 +100,7 @@ function* sagaGetMenu({ api, logger }, action) {
 
     yield put(setMenu({ key: action.payload, menu: getMenuForWeb(firstLvl, secondLvl) }));
   } catch (e) {
-    logger.error('[comments sagaGetMenu saga error', e.message);
+    logger.error('[docAssociations sagaGetMenu saga error', e.message);
   }
 }
 
@@ -72,10 +108,10 @@ function* sagaSaveDocuments({ api, logger }, action) {
   try {
     const { connectionId, record, documents } = action.payload;
 
-    yield api.docAssociations.sagaSaveDocuments({ connectionId, recordRef: record, documents });
+    yield call(api.docAssociations.saveDocuments, { connectionId, recordRef: record, documents });
     yield put(getDocuments(record));
   } catch (e) {
-    logger.error('[comments sagaSaveDocuments saga error', e.message);
+    logger.error('[docAssociations sagaSaveDocuments saga error', e.message);
   }
 }
 
