@@ -52,7 +52,7 @@ function recordsFetch(url, body) {
 
   url += '?k=' + encodeURIComponent(urlKey);
 
-  return ecosFetch(url, { headers: { 'Content-type': 'application/json;charset=UTF-8' }, body }).then(response => {
+  return ecosFetch(url, { method: 'POST', headers: { 'Content-type': 'application/json;charset=UTF-8' }, body }).then(response => {
     return response.json().then(body => {
       if (response.ok) {
         return body;
