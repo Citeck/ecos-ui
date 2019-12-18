@@ -11,7 +11,7 @@ import { MIN_WIDTH_DASHLET_SMALL, URL } from '../../../constants/index';
 import { getDocuments, getMenu, getSectionList, initStore, saveDocuments } from '../../../actions/docAssociations';
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { getDocumentsRecords } from '../../../dto/docAssociations';
+import DocAssociationsConverter from '../../../dto/docAssociations';
 
 import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/index';
 import { RemoveDialog } from '../../common/dialogs/index';
@@ -138,7 +138,10 @@ class DocAssociations extends BaseWidget {
     const { documents } = this.props;
     const { connectionId } = this.state;
 
-    this.props.saveDocuments(this.state.connectionId, [...getDocumentsRecords(documents, connectionId), ...selectedJournals]);
+    this.props.saveDocuments(this.state.connectionId, [
+      ...DocAssociationsConverter.getDocumentsRecords(documents, connectionId),
+      ...selectedJournals
+    ]);
 
     this.setState({ journalId: '' });
   };
@@ -161,7 +164,7 @@ class DocAssociations extends BaseWidget {
     const { documents, saveDocuments } = this.props;
     const { connectionId, record } = selectedDocument;
 
-    saveDocuments(connectionId, [...removeItemFromArray(getDocumentsRecords(documents, connectionId), record)]);
+    saveDocuments(connectionId, [...removeItemFromArray(DocAssociationsConverter.getDocumentsRecords(documents, connectionId), record)]);
     this.closeConfirmRemovingModal();
   };
 
