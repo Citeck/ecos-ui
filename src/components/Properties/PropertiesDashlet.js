@@ -12,18 +12,14 @@ import EcosFormUtils from '../EcosForm/EcosFormUtils';
 import Dashlet from '../Dashlet/Dashlet';
 import PropertiesEditModal from './PropertiesEditModal';
 import PropertiesSettings from './PropertiesSettings';
-
 import './style.scss';
+//import Properties from './Properties';
 
-const LABELS = {
+const Labels = {
   WIDGET_TITLE: 'properties-widget.title',
   EDIT_TITLE: 'properties-widget.action-edit.title',
   CONSTRUCTOR_BTN_TOOLTIP: 'Перейти в конструктор'
 };
-
-const mapStateToProps = state => ({
-  isAdmin: get(state, ['user', 'isAdmin'], false)
-});
 
 class PropertiesDashlet extends React.Component {
   static propTypes = {
@@ -75,8 +71,6 @@ class PropertiesDashlet extends React.Component {
     });
   }
 
-  className = 'ecos-properties-dashlet';
-
   get clientHeight() {
     if (!this.props.maxHeightByContent) {
       return null;
@@ -94,19 +88,11 @@ class PropertiesDashlet extends React.Component {
     this.setState({ height });
   };
 
-  setFitHeights = fitHeights => {
-    this.setState({ fitHeights });
-  };
-
-  openModal = e => {
+  onOpenModal = e => {
     this.setState({ isEditProps: true });
   };
 
-  updateProps = () => {
-    this.setState({ isReady: false, isEditProps: false }, () => this.setState({ isReady: true }));
-  };
-
-  closeModal = () => {
+  onCloseModal = () => {
     this.setState({ isEditProps: false });
   };
 
@@ -116,13 +102,21 @@ class PropertiesDashlet extends React.Component {
     }
   };
 
-  onUpdateProperties = () => {
-    this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
-  };
-
-  handleToggleContent = (isCollapsed = false) => {
+  onToggleContent = (isCollapsed = false) => {
     this.setState({ isCollapsed });
     UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+  };
+
+  setFitHeights = fitHeights => {
+    this.setState({ fitHeights });
+  };
+
+  updateProps = () => {
+    this.setState({ isReady: false, isEditProps: false }, () => this.setState({ isReady: true }));
+  };
+
+  updateProperties = () => {
+    this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
   };
 
   renderDashletCustomButtons(isDashlet = false) {
@@ -151,7 +145,7 @@ class PropertiesDashlet extends React.Component {
             innerClassName="ecos-base-tooltip-inner"
             arrowClassName="ecos-base-tooltip-arrow"
           >
-            {t(LABELS.CONSTRUCTOR_BTN_TOOLTIP)}
+            {t(Labels.CONSTRUCTOR_BTN_TOOLTIP)}
           </UncontrolledTooltip>
         </React.Fragment>
       );
@@ -163,28 +157,27 @@ class PropertiesDashlet extends React.Component {
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isSmallMode, isReady, isEditProps, height, fitHeights, formIsChanged, isCollapsed, canEditRecord } = this.state;
-    const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
       <Dashlet
-        title={title || t(LABELS.WIDGET_TITLE)}
-        className={classDashlet}
-        bodyClassName={`${this.className}__body`}
+        title={title || t(Labels.WIDGET_TITLE)}
+        className={classNames('ecos-properties-dashlet', classNameDashlet)}
+        bodyClassName="ecos-properties-dashlet__body"
         actionEdit={canEditRecord}
-        actionEditTitle={t(LABELS.EDIT_TITLE)}
+        actionEditTitle={t(Labels.EDIT_TITLE)}
         resizable={true}
         contentMaxHeight={this.clientHeight}
         needGoTo={false}
         actionHelp={false}
         actionReload={false}
         canDragging={canDragging}
-        onEdit={this.openModal}
+        onEdit={this.onOpenModal}
         dragHandleProps={dragHandleProps}
         onChangeHeight={this.onChangeHeight}
         getFitHeights={this.setFitHeights}
         onResize={this.onResize}
         customButtons={this.renderDashletCustomButtons(true)}
-        onToggleCollapse={this.handleToggleContent}
+        onToggleCollapse={this.onToggleContent}
         isCollapsed={isCollapsed}
       >
         {/*<Properties*/}
@@ -203,7 +196,7 @@ class PropertiesDashlet extends React.Component {
         <PropertiesEditModal
           record={record}
           isOpen={isEditProps}
-          onFormCancel={this.closeModal}
+          onFormCancel={this.onCloseModal}
           onFormSubmit={this.updateProps}
           formIsChanged={formIsChanged}
         />
@@ -211,5 +204,9 @@ class PropertiesDashlet extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  isAdmin: get(state, ['user', 'isAdmin'], false)
+});
 
 export default connect(mapStateToProps)(PropertiesDashlet);

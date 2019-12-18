@@ -11,14 +11,6 @@ const initialState = {
   }
 };
 
-const startLoading = (state, { payload: { stateId } }) => ({
-  ...state,
-  [stateId]: {
-    ...getCurrentStateById(state, stateId, initialState),
-    isLoading: true
-  }
-});
-
 export default handleActions(
   {
     [getFormList]: (state, { payload }) => {
