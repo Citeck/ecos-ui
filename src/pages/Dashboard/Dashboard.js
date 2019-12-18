@@ -17,7 +17,7 @@ import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashbo
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import { Loader, ScrollArrow, Tabs } from '../../components/common';
 import { Badge } from '../../components/common/form';
-import { DocStatus } from '../../components/DocStatus';
+import { DocStatus } from '../../components/widgets/DocStatus';
 import Layout from '../../components/Layout';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';

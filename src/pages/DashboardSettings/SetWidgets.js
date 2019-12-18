@@ -8,7 +8,7 @@ import classNames from 'classnames';
 
 import { deepClone, t } from '../../helpers/util';
 import { DndUtils, DragItem, Droppable } from '../../components/Drag-n-Drop';
-import Components from '../../components/Components';
+import Components from '../../components/widgets/Components';
 
 import './style.scss';
 

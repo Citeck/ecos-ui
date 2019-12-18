@@ -21,6 +21,11 @@ export class OrgStructApi extends RecordService {
   };
 
   fetchGroup = ({ query = this._defaultQuery, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [] }) => {
+    excludeAuthoritiesByName = excludeAuthoritiesByName
+      .split(',')
+      .map(item => item.trim())
+      .join(',');
+
     const queryStr = JSON.stringify({ query, excludeAuthoritiesByName, excludeAuthoritiesByType });
 
     if (this._loadedGroups[queryStr]) {
@@ -41,11 +46,11 @@ export class OrgStructApi extends RecordService {
       });
 
     return this.getJson(url)
-      .then(result => {
-        this._loadedGroups[queryStr] = result;
-        return result;
-      })
       .then(filterByType)
+      .then(filtered => {
+        this._loadedGroups[queryStr] = filtered;
+        return filtered;
+      })
       .catch(() => []);
   };
 

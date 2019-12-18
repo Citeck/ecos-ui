@@ -1,0 +1,66 @@
+@import '../../../styles/constants';
+
+.ecos-properties {
+  $root: &;
+
+  &__scroll {
+    &_v {
+      @extend %v-scroll;
+    }
+  }
+
+  &__formio {
+    padding: 20px 20px 0;
+
+    &_small {
+      padding-top: 0;
+    }
+
+    > div {
+      > div {
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  &-dashlet {
+    &__btn {
+      &-settings {
+        & .icon-settings {
+          font-size: 16px;
+        }
+      }
+    }
+  }
+
+  &-settings {
+    padding: 23px 20px 0;
+
+    &__title {
+    }
+
+    &__title + &__subtitle {
+      margin-top: 17px;
+    }
+
+    &__subtitle {
+      background: #f3f3f3;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    &__form-list {
+      &-dropdown {
+        width: 100%;
+        min-width: 430px;
+      }
+    }
+  }
+
+  &__loader {
+    margin-top: 7px;
+  }
+}
