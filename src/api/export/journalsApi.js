@@ -2,6 +2,7 @@ import { URL } from '../../constants';
 import { isNewVersionPage } from '../../helpers/export/urls';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import Records from '../../components/Records';
+import ecosFetch from '../../helpers/ecosFetch';
 
 const prepareJournalLinkParams = params => {
   let listId = params.listId || params.journalsListId;
