@@ -3,6 +3,8 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import ReactLoader from 'react-loader-spinner';
 
+import PointsLoader from '../PointsLoader/PointsLoader';
+
 import './Loader.scss';
 
 export default class Loader extends Component {
@@ -10,6 +12,8 @@ export default class Loader extends Component {
     height: PropTypes.number,
     width: PropTypes.number,
     className: PropTypes.string,
+    color: PropTypes.oneOf(['white', 'light-blue']),
+    type: PropTypes.oneOf(['circle', 'points']),
     blur: PropTypes.bool,
     darkened: PropTypes.bool,
     rounded: PropTypes.bool
@@ -19,13 +23,21 @@ export default class Loader extends Component {
     height: 45,
     width: 45,
     className: '',
+    color: 'light-blue',
+    type: 'circle',
     blur: false,
     darkened: false,
     rounded: false
   };
 
   render() {
-    const { className, blur, darkened, height, width, rounded } = this.props;
+    const { height, width, type, color } = this.props;
+
+    if (type === 'points') {
+      return <PointsLoader color={color} width={width} height={height} />;
+    }
+
+    const { className, blur, darkened, rounded } = this.props;
     const cssClasses = classNames('ecos-loader', className, {
       'ecos-loader_blur': blur,
       'ecos-loader_darkened': darkened,

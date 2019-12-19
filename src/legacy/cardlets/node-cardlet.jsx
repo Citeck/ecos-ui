@@ -1,4 +1,5 @@
 import React from 'react';
+import ecosFetch from '../../helpers/ecosFetch';
 
 export default class NodeCardlet extends React.Component {
   static getFetchKey(ownProps) {
@@ -9,7 +10,7 @@ export default class NodeCardlet extends React.Component {
     let getFetchUrl = this.prototype.constructor.getFetchUrl;
     if (getFetchUrl) {
       let url = getFetchUrl(ownProps);
-      fetch(url, { credentials: 'include' })
+      ecosFetch(url)
         .then(response => {
           return response.json();
         })

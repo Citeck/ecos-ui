@@ -49,7 +49,7 @@ export default class DropdownMenu extends React.Component {
     const { mode, items, setGroup, setCascade, onClick, isLoading, ...someProps } = this.props;
 
     if (isLoading) {
-      return <Loader height={30} />;
+      return <Loader type="points" height={40} width={38} />;
     }
 
     let menu = deepClone(items, []);

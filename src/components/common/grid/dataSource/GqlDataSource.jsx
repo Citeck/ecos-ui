@@ -4,6 +4,7 @@ import Mapper from '../mapping/Mapper';
 import Records from '../../../Records';
 import { getCurrentLocale, t } from '../../../../helpers/util';
 import lodashGet from 'lodash/get';
+import ecosFetch from '../../../../helpers/ecosFetch';
 
 const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
 
@@ -38,7 +39,7 @@ export default class GqlDataSource extends BaseDataSource {
 
   _legacyLoad() {
     let options = this.options;
-    return fetch(options.url, options.ajax)
+    return ecosFetch(options.url, options.ajax)
       .then(response => {
         return response.json();
       })

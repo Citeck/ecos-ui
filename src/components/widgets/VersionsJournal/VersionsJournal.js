@@ -9,7 +9,7 @@ import get from 'lodash/get';
 import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../../actions/versionsJournal';
 import { selectLabelsVersions } from '../../../selectors/versionsJournal';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { t } from '../../../helpers/util';
+import { t, arrayCompare } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../../constants/versionsJournal';
 
@@ -156,7 +156,7 @@ class VersionsJournal extends BaseWidget {
     };
 
     if (props.versionsLabels.length) {
-      const [comparisonFirstVersion, comparisonSecondVersion] = props.versionsLabels;
+      const [comparisonSecondVersion, comparisonFirstVersion] = props.versionsLabels.slice(0, 2);
 
       if (comparisonFirstVersion) {
         state.comparisonFirstVersion = comparisonFirstVersion.id;
@@ -172,6 +172,14 @@ class VersionsJournal extends BaseWidget {
 
   componentDidMount() {
     this.props.getVersionsList();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!arrayCompare(prevProps.versionsLabels, this.props.versionsLabels)) {
+      this.setState({
+        ...VersionsJournal.getDefaultSelectedVersions(this.props)
+      });
+    }
   }
 
   handleToggleAddModal = () => {
