@@ -25,6 +25,7 @@
     }
 
     &_view-table {
+      display: table;
       padding: 0 20px;
 
       .table {
@@ -41,6 +42,30 @@
 
       .ecos-grid__td {
         font-weight: $font-weight-semi-bold;
+      }
+
+      thead {
+        display: table-row-group;
+        width: 100%;
+        table-layout: fixed;
+        background: white;
+        position: absolute;
+        top: 0;
+      }
+
+      tbody {
+        display: block;
+        padding-top: 52px;
+
+        tr {
+          display: flex;
+          width: 100%;
+          table-layout: fixed;
+
+          td {
+            display: inline-flex;
+          }
+        }
       }
     }
   }
