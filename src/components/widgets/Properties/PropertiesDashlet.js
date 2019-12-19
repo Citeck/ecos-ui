@@ -102,6 +102,11 @@ class PropertiesDashlet extends BaseWidget {
     this.setState(state => ({ isShowSetting: !state.isShowSetting }));
   };
 
+  onSaveFormSettings = config => {
+    this.props.onSave && this.props.onSave(this.props.id, { config });
+    this.onClickShowFormSettings();
+  };
+
   updateProps = () => {
     this.setState({ isReady: false, isEditProps: false }, () => this.setState({ isReady: true }));
   };
@@ -122,7 +127,7 @@ class PropertiesDashlet extends BaseWidget {
     const keySettingsBtn = `settings-btn-${id}`;
 
     buttons.push(
-      <React.Fragment>
+      <React.Fragment key={keySettingsBtn}>
         <IcoBtn
           id={keySettingsBtn}
           icon="icon-settings"
@@ -171,7 +176,7 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   render() {
-    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
+    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
     const {
       isSmallMode,
       isReady,
@@ -183,6 +188,7 @@ class PropertiesDashlet extends BaseWidget {
       canEditRecord,
       isShowSetting
     } = this.state;
+    const { formId = null } = config || {};
 
     return (
       <Dashlet
@@ -218,9 +224,18 @@ class PropertiesDashlet extends BaseWidget {
             minHeight={fitHeights.min}
             maxHeight={fitHeights.max}
             onUpdate={this.updateProperties}
+            formId={formId}
           />
         )}
-        {isShowSetting && <PropertiesSettings record={record} stateId={id} />}
+        {isShowSetting && (
+          <PropertiesSettings
+            record={record}
+            stateId={id}
+            formId={formId}
+            onCancel={this.onClickShowFormSettings}
+            onSave={this.onSaveFormSettings}
+          />
+        )}
         <PropertiesEditModal
           record={record}
           isOpen={isEditProps}

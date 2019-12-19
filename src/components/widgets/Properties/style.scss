@@ -28,19 +28,26 @@
   &-settings {
     padding: 23px 20px 0;
 
-    &__title {
+    &__block {
+      max-width: 434px;
     }
 
-    &__title + &__subtitle {
-      margin-top: 17px;
+    &__title {
+      margin-bottom: 17px;
     }
 
     &__subtitle {
-      background: #f3f3f3;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 12px;
+      background: $color-gray-25;
+      border-radius: $border-radius-standard;
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-small;
       padding: 5px 10px;
+    }
+
+    &__msg {
+      font-size: $font-size-small;
+      justify-content: left;
+      margin-top: 5px;
     }
 
     &__form-list {
@@ -66,6 +73,7 @@
         .ecos-btn__i {
           position: absolute;
           right: 15px;
+          top: 12px;
         }
       }
     }

@@ -5,6 +5,7 @@ import get from 'lodash/get';
 
 import { t } from '../../../helpers/util';
 import { getFormList } from '../../../actions/properties';
+import { InfoText } from '../../common';
 import { Caption, Dropdown } from '../../common/form';
 import { Btn, IcoBtn } from '../../common/btns';
 
@@ -15,19 +16,30 @@ const Labels = {
   SETTINGS_BTN_CANCEL: 'properties-widget.settings.btn.cancel',
   SETTINGS_BTN_SAVE: 'properties-widget.settings.btn.save',
   DISPLAYED_PROPERTIES: 'properties-widget.settings.displayed-properties',
-  FORM_NOT_CHOSEN: 'properties-widget.settings.form-not-chosen'
+  FORM_NOT_CHOSEN: 'properties-widget.settings.form-not-chosen',
+  FORM_NOT_EXISTED: 'properties-widget.settings.form-not-existed-in-list',
+  FORM_LIST_NOT_EXISTED: 'properties-widget.settings.form-list-not-existed'
 };
 
 class PropertiesSettings extends React.Component {
   static propTypes = {
     record: PropTypes.string,
-    stateId: PropTypes.string
+    stateId: PropTypes.string,
+    formId: PropTypes.string,
+    onSave: PropTypes.func,
+    onCancel: PropTypes.func
+  };
+
+  static defaultProps = {
+    formId: null
   };
 
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      formId: props.formId
+    };
   }
 
   componentDidMount() {
@@ -36,39 +48,62 @@ class PropertiesSettings extends React.Component {
     this.props.getFormList({ stateId, record });
   }
 
-  onChangeForm = () => {};
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.formId !== this.props.formId && this.state.formId !== this.props.formId) {
+      return { formId: this.props.formId };
+    }
+  }
 
-  onCancel = () => {};
+  onChangeForm = form => {
+    this.setState({ formId: form.id || null });
+  };
 
-  onSave = () => {};
+  onCancel = () => {
+    this.props.onCancel();
+  };
+
+  onSave = () => {
+    const { formId } = this.state;
+
+    this.props.onSave({ formId });
+  };
 
   render() {
     const { forms, isLoading } = this.props;
-    const arr = forms.slice();
-    arr.unshift({ id: null, title: t(Labels.FORM_NOT_CHOSEN) });
-    const selected = null;
+    const { formId } = this.state;
+    const arrForms = forms.slice();
+
+    arrForms.unshift({ id: null, title: t(Labels.FORM_NOT_CHOSEN) });
+
+    const isExist = arrForms.find(form => form.id === formId);
 
     return (
       <div className="ecos-properties-settings">
         <Caption middle className="ecos-properties-settings__title">
           {t(Labels.SETTINGS_TITLE)}
         </Caption>
-        <div className="ecos-properties-settings__subtitle">{t(Labels.DISPLAYED_PROPERTIES)}</div>
-        <div className="ecos-properties-settings__form-list">
-          <Dropdown
-            source={arr}
-            value={selected}
-            valueField={'id'}
-            titleField={'title'}
-            onChange={this.onChangeForm}
-            hideSelected
-            hasEmpty
-            className="ecos-properties-settings__form-list-dropdown"
-            toggleClassName="ecos-properties-settings__form-list-toggle"
-            full
-          >
-            <IcoBtn invert icon={'icon-down'} className="ecos-properties-settings__form-list-btn" loading={isLoading} />
-          </Dropdown>
+        <div className="ecos-properties-settings__block">
+          <div className="ecos-properties-settings__subtitle">{t(Labels.DISPLAYED_PROPERTIES)}</div>
+          <div className="ecos-properties-settings__form-list">
+            <Dropdown
+              source={arrForms}
+              value={formId}
+              valueField={'id'}
+              titleField={'title'}
+              onChange={this.onChangeForm}
+              hideSelected
+              hasEmpty
+              className="ecos-properties-settings__form-list-dropdown"
+              toggleClassName="ecos-properties-settings__form-list-toggle"
+              full
+            >
+              <IcoBtn invert icon="icon-down" className="ecos-properties-settings__form-list-btn" loading={isLoading} />
+            </Dropdown>
+          </div>
+          {(!forms || !forms.length) && (
+            <InfoText text={t(Labels.FORM_LIST_NOT_EXISTED)} type="warn" noIndents className="ecos-properties-settings__msg" />
+          )}
+          {!isExist && <InfoText text={t(Labels.FORM_NOT_EXISTED)} type="warn" noIndents className="ecos-properties-settings__msg" />}
         </div>
         <div className="ecos-properties-settings__buttons">
           <Btn className="ecos-btn_hover_light-blue" onClick={this.onCancel}>

@@ -12,6 +12,7 @@ class Properties extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
+    formId: PropTypes.string,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
     isReady: PropTypes.bool,
@@ -81,9 +82,8 @@ class Properties extends React.Component {
   }
 
   renderForm() {
-    const { record, isSmallMode, isReady, onUpdate } = this.props;
+    const { record, isSmallMode, isReady, onUpdate, formId } = this.props;
     const { isReadySubmit, hideForm } = this.state;
-
     const formClassNames = classNames('ecos-properties__formio', {
       'ecos-properties__formio_small': isSmallMode
     });
@@ -107,6 +107,7 @@ class Properties extends React.Component {
           onFormSubmitDone={onUpdate}
           onReady={this.onReady}
           className={formClassNames}
+          formId={formId}
         />
         {/* Cause: https://citeck.atlassian.net/browse/ECOSCOM-2654 */}
         <EcosForm
