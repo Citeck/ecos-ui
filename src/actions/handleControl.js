@@ -1,13 +1,12 @@
 import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
-import { t, getCurrentUserName } from '../helpers/util';
+import { getCurrentUserName, t } from '../helpers/util';
 import { showModal } from './modal';
+import ecosFetch from '../helpers/ecosFetch';
 
 export function leaveSiteRequest({ site, siteTitle, user, userFullName }) {
   return (dispatch, getState, api) => {
     const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/memberships/${encodeURIComponent(user)}`;
-    return fetch(url, {
-      method: 'DELETE'
-    })
+    return ecosFetch(url, { method: 'DELETE' })
       .then(resp => {
         if (resp.status !== 200) {
           return dispatch(
@@ -48,14 +47,7 @@ export function joinSiteRequest({ site, siteTitle, user, userFullName }) {
       }
     };
 
-    return fetch(url, {
-      method: 'PUT',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
+    return ecosFetch(url, { method: 'PUT', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: data })
       .then(resp => {
         if (resp.status !== 200) {
           console.log('joinSiteRequest err', resp);
@@ -86,14 +78,7 @@ export function becomeSiteManagerRequest({ site, siteTitle, user, userFullName }
       }
     };
 
-    return fetch(url, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
+    return ecosFetch(url, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: data })
       .then(resp => {
         if (resp.status !== 200) {
           console.log('becomeSiteManagerRequest err', resp);
@@ -118,13 +103,10 @@ export function requestSiteMembership({ site, siteTitle, user, userFullName }) {
       inviteeComments: ''
     };
 
-    return fetch(url, {
+    return ecosFetch(url, {
       method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: data
     })
       .then(resp => {
         // console.log('requestSiteMembership resp', resp);

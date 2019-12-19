@@ -1,9 +1,10 @@
 import lodashGet from 'lodash/get';
 import moment from 'moment';
 import i18next from 'i18next';
+import * as queryString from 'query-string';
+
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
-import * as queryString from 'query-string';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
 
@@ -604,4 +605,26 @@ export function fromISO8601(formattedString) {
   }
 
   return result; // Date or null
+}
+
+export function animateScrollTo(element = null, scrollTo = {}) {
+  if (!element) {
+    return;
+  }
+
+  const { scrollLeft, scrollTop } = scrollTo;
+
+  if (scrollLeft !== undefined) {
+    element.scrollTo({
+      left: scrollLeft,
+      behavior: 'smooth'
+    });
+  }
+
+  if (scrollTop !== undefined) {
+    element.scrollTo({
+      top: scrollTop,
+      behavior: 'smooth'
+    });
+  }
 }

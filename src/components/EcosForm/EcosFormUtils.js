@@ -293,19 +293,36 @@ export default class EcosFormUtils {
       return formRec.then(res => {
         if (res) {
           return res;
-        } else {
-          return getFormByKeysFromRecord(keys, idx + 1);
         }
+
+        return getFormByKeysFromRecord(keys, idx + 1);
       });
     };
 
     if (!formKey) {
-      return recordInstance.load('_formKey[]?str').then(keys => {
-        return getFormByKeysFromRecord(keys, 0);
-      });
+      return recordInstance
+        .load({
+          formKey: '_formKey[]?str',
+          formId: '_etype.form?id'
+        })
+        .then(({ formId, formKey }) => {
+          if (EcosFormUtils.isFormId(formId)) {
+            return EcosFormUtils.getFormById(formId, attributes);
+          }
+
+          return getFormByKeysFromRecord(formKey, 0);
+        });
     } else {
       return getFormByKeysFromRecord([formKey], 0);
     }
+  }
+
+  static getFormById(formId, attributes = null) {
+    if (attributes) {
+      return Records.get(formId).load(attributes);
+    }
+
+    return Records.get(formId);
   }
 
   static getCreateVariants(record, attribute) {
@@ -642,5 +659,9 @@ export default class EcosFormUtils {
     record.att('definition?json', form);
 
     return record.save();
+  }
+
+  static isFormId(formId = '') {
+    return formId && /^uiserv\/eform@/.test(formId);
   }
 }

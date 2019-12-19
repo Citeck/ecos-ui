@@ -2,6 +2,7 @@ import { PROXY_URI, URL_PAGECONTEXT } from '../../../constants/alfresco';
 import dialogManager from '../../common/dialogs/Manager';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import { t } from '../../../helpers/util';
+import ecosFetch from '../../../helpers/ecosFetch';
 
 export const CaseRedirectAction = {
   execute: ({
@@ -53,10 +54,7 @@ export const CaseRequestAction = {
     const promise = new Promise(resolve => [(onRequestResult = success => resolve(success))]);
 
     var makeRequest = () => {
-      fetch(PROXY_URI + action.config.url, {
-        method: action.config.requestMethod,
-        credentials: 'include'
-      })
+      ecosFetch(PROXY_URI + action.config.url, { method: action.config.requestMethod })
         .then(response => {
           return response.json().then(body => {
             if (response.status >= 200 && response.status < 300) {
