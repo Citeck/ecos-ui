@@ -99,10 +99,11 @@ class EcosForm extends React.Component {
 
     formLoadingPromise.then(
       formData => {
-        if (!formData) {
+        if (!formData || !formData.definition) {
           self.setState({
             error: new Error(t('ecos-form.empty-form-data'))
           });
+          self.props.onReady && self.props.onReady();
           return null;
         }
 
