@@ -2,7 +2,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
-import debounce from 'lodash/debounce';
 
 import { t } from '../../../helpers/util';
 import { Grid } from '../../common/grid/index';
