@@ -3,10 +3,8 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import ReactResizeDetector from 'react-resize-detector';
-import { UncontrolledTooltip } from 'reactstrap';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
-import uniqueId from 'lodash/uniqueId';
 
 import Panel from '../common/panels/Panel/Panel';
 import Measurer from '../Measurer/Measurer';
@@ -36,58 +34,21 @@ const Header = ({
   titleClassName,
   isMobile,
   isCollapsed,
-  badgeText,
-  dashletId
+  badgeText
 }) => {
   const btnGoTo = isMobile ? null : (
     <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className="dashlet__btn ecos-btn_narrow" onClick={onGoTo}>
       {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
     </IcoBtn>
   );
-  const actions = [];
+  const actions = [...customButtons];
   let toggleIcon = null;
   let dragBtn = null;
-
-  if (actionEdit) {
-    const keyAction = `action-edit-${dashletId}`;
-
-    actions.push(
-      <React.Fragment key={keyAction}>
-        <IcoBtn
-          id={keyAction}
-          icon={'icon-edit'}
-          className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-          onClick={onEdit}
-        />
-        <UncontrolledTooltip
-          target={keyAction}
-          delay={0}
-          placement="top"
-          className="ecos-base-tooltip"
-          innerClassName="ecos-base-tooltip-inner"
-          arrowClassName="ecos-base-tooltip-arrow"
-        >
-          {actionEditTitle || t('dashlet.edit.tooltip')}
-        </UncontrolledTooltip>
-      </React.Fragment>
-    );
-  }
-
-  if (actionHelp) {
-    actions.push(
-      <IcoBtn
-        key={`action-help-${dashletId}`}
-        icon={'icon-question'}
-        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-        title={t('dashlet.help.title')}
-      />
-    );
-  }
 
   if (actionReload) {
     actions.push(
       <IcoBtn
-        key={`action-reload-${dashletId}`}
+        key="action-reload"
         icon={'icon-reload'}
         className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
         onClick={onReload}
@@ -96,7 +57,28 @@ const Header = ({
     );
   }
 
-  Array.prototype.push.apply(actions, customButtons);
+  if (actionEdit) {
+    actions.push(
+      <IcoBtn
+        key="action-edit"
+        icon={'icon-edit'}
+        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+        onClick={onEdit}
+        title={actionEditTitle || t('dashlet.edit.title')}
+      />
+    );
+  }
+
+  if (actionHelp) {
+    actions.push(
+      <IcoBtn
+        key="action-help"
+        icon={'icon-question'}
+        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+        title={t('dashlet.help.title')}
+      />
+    );
+  }
 
   if (actionDrag) {
     dragBtn = (
@@ -209,8 +191,6 @@ class Dashlet extends Component {
 
   constructor(props) {
     super(props);
-
-    this.dashletId = uniqueId('dashlet-id');
 
     this.state = {
       isCollapsed: props.isCollapsed || false
@@ -374,7 +354,6 @@ class Dashlet extends Component {
                   isMobile={isMobile}
                   isCollapsed={isCollapsed}
                   badgeText={badgeText}
-                  dashletId={this.dashletId}
                 />
               </Measurer>
             )
