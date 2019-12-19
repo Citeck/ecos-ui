@@ -16,9 +16,8 @@ const Labels = {
   SETTINGS_BTN_CANCEL: 'properties-widget.settings.btn.cancel',
   SETTINGS_BTN_SAVE: 'properties-widget.settings.btn.save',
   DISPLAYED_PROPERTIES: 'properties-widget.settings.displayed-properties',
-  FORM_NOT_CHOSEN: 'properties-widget.settings.form-not-chosen',
-  FORM_NOT_EXISTED: 'properties-widget.settings.form-not-existed-in-list',
-  FORM_LIST_NOT_EXISTED: 'properties-widget.settings.form-list-not-existed'
+  DEFAULT_FORM: 'properties-widget.settings.default-form',
+  FORM_NOT_EXISTED: 'properties-widget.settings.form-not-existed-in-list'
 };
 
 class PropertiesSettings extends React.Component {
@@ -73,7 +72,7 @@ class PropertiesSettings extends React.Component {
     const { formId } = this.state;
     const arrForms = forms.slice();
 
-    arrForms.unshift({ id: null, title: t(Labels.FORM_NOT_CHOSEN) });
+    arrForms.unshift({ id: null, title: t(Labels.DEFAULT_FORM) });
 
     const isExist = arrForms.find(form => form.id === formId);
 
@@ -100,9 +99,6 @@ class PropertiesSettings extends React.Component {
               <IcoBtn invert icon="icon-down" className="ecos-properties-settings__form-list-btn" loading={isLoading} />
             </Dropdown>
           </div>
-          {(!forms || !forms.length) && (
-            <InfoText text={t(Labels.FORM_LIST_NOT_EXISTED)} type="warn" noIndents className="ecos-properties-settings__msg" />
-          )}
           {!isExist && <InfoText text={t(Labels.FORM_NOT_EXISTED)} type="warn" noIndents className="ecos-properties-settings__msg" />}
         </div>
         <div className="ecos-properties-settings__buttons">

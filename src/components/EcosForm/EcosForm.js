@@ -34,9 +34,7 @@ class EcosForm extends React.Component {
     this.state = {
       containerId: 'ecos-ui-form-' + formCounter++,
       recordId: record.id,
-      formId: 'eform@',
-      error: null,
-      formDefinition: {}
+      ...this.initState
     };
   }
 
@@ -49,6 +47,21 @@ class EcosForm extends React.Component {
 
   componentDidMount() {
     this.initForm();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.formId !== this.props.formId) {
+      this.setState({ ...this.initState });
+      this.initForm();
+    }
+  }
+
+  get initState() {
+    return {
+      formId: 'eform@',
+      error: null,
+      formDefinition: {}
+    };
   }
 
   initForm(newFormDefinition = this.state.formDefinition) {
@@ -222,7 +235,7 @@ class EcosForm extends React.Component {
         self.setState({
           error: new Error(t('ecos-form.error-get-form'))
         });
-        self.props.onReady();
+        self.props.onReady && self.props.onReady();
         return null;
       }
     );

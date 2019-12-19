@@ -212,21 +212,19 @@ class PropertiesDashlet extends BaseWidget {
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
       >
-        {!isShowSetting && (
-          <Properties
-            forwardedRef={this.contentRef}
-            className={classNameProps}
-            record={record}
-            isSmallMode={isSmallMode}
-            isReady={isReady}
-            stateId={id}
-            height={userHeight}
-            minHeight={fitHeights.min}
-            maxHeight={fitHeights.max}
-            onUpdate={this.updateProperties}
-            formId={formId}
-          />
-        )}
+        <Properties
+          forwardedRef={this.contentRef}
+          className={classNames(classNameProps, { 'ecos-properties_hidden': isShowSetting })}
+          record={record}
+          isSmallMode={isSmallMode}
+          isReady={isReady}
+          stateId={id}
+          height={userHeight}
+          minHeight={fitHeights.min}
+          maxHeight={fitHeights.max}
+          onUpdate={this.updateProperties}
+          formId={formId}
+        />
         {isShowSetting && (
           <PropertiesSettings
             record={record}
