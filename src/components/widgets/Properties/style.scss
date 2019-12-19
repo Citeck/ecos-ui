@@ -25,16 +25,6 @@
     }
   }
 
-  &-dashlet {
-    &__btn {
-      &-settings {
-        & .icon-settings {
-          font-size: 16px;
-        }
-      }
-    }
-  }
-
   &-settings {
     padding: 23px 20px 0;
 
@@ -50,12 +40,41 @@
       border-radius: 6px;
       font-weight: 600;
       font-size: 12px;
+      padding: 5px 10px;
     }
 
     &__form-list {
+      margin-top: 5px;
+
       &-dropdown {
         width: 100%;
         min-width: 430px;
+      }
+
+      &-toggle {
+        display: inline-block;
+        width: 100%;
+      }
+
+      &-btn.ecos-btn {
+        text-align: left;
+        padding-right: 15px;
+        width: 100%;
+        border: $border-width-standard solid $color-gray-6;
+        background: $color-white;
+
+        .ecos-btn__i {
+          position: absolute;
+          right: 15px;
+        }
+      }
+    }
+
+    &__buttons {
+      margin-top: 22px;
+
+      & > :nth-child(even) {
+        margin-left: 10px;
       }
     }
   }

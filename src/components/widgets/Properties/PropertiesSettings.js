@@ -64,6 +64,8 @@ class PropertiesSettings extends React.Component {
             hideSelected
             hasEmpty
             className="ecos-properties-settings__form-list-dropdown"
+            toggleClassName="ecos-properties-settings__form-list-toggle"
+            full
           >
             <IcoBtn invert icon={'icon-down'} className="ecos-properties-settings__form-list-btn" loading={isLoading} />
           </Dropdown>
