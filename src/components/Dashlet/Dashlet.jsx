@@ -3,8 +3,10 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import ReactResizeDetector from 'react-resize-detector';
+import { UncontrolledTooltip } from 'reactstrap';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
+import uniqueId from 'lodash/uniqueId';
 
 import Panel from '../common/panels/Panel/Panel';
 import Measurer from '../Measurer/Measurer';
@@ -15,6 +17,31 @@ import { t } from '../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 
 import './Dashlet.scss';
+
+const BtnAction = ({ id, text, icon, onClick }) => {
+  return (
+    <>
+      <IcoBtn
+        id={id}
+        icon={icon}
+        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+        onClick={onClick}
+      />
+      {text && (
+        <UncontrolledTooltip
+          target={id}
+          delay={0}
+          placement="top"
+          className="ecos-base-tooltip"
+          innerClassName="ecos-base-tooltip-inner"
+          arrowClassName="ecos-base-tooltip-arrow"
+        >
+          {text}
+        </UncontrolledTooltip>
+      )}
+    </>
+  );
+};
 
 const Header = ({
   dragHandleProps,
@@ -27,6 +54,7 @@ const Header = ({
   actionReload,
   actionEdit,
   actionHelp,
+  actionSetting,
   actionDrag,
   measurer,
   actionEditTitle,
@@ -34,51 +62,61 @@ const Header = ({
   titleClassName,
   isMobile,
   isCollapsed,
-  badgeText
+  badgeText,
+  dashletId
 }) => {
   const btnGoTo = isMobile ? null : (
     <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className="dashlet__btn ecos-btn_narrow" onClick={onGoTo}>
       {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
     </IcoBtn>
   );
-  const actions = [...customButtons];
+  const actions = [];
   let toggleIcon = null;
   let dragBtn = null;
 
-  if (actionReload) {
-    actions.push(
-      <IcoBtn
-        key="action-reload"
-        icon={'icon-reload'}
-        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-        onClick={onReload}
-        title={t('dashlet.update.title')}
-      />
-    );
-  }
-
   if (actionEdit) {
     actions.push(
-      <IcoBtn
-        key="action-edit"
-        icon={'icon-edit'}
-        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+      <BtnAction
+        text={actionEditTitle || t('dashlet.edit.title')}
+        id={`action-edit-${dashletId}`}
+        key={`action-edit-${dashletId}`}
+        icon="icon-edit"
         onClick={onEdit}
-        title={actionEditTitle || t('dashlet.edit.title')}
       />
     );
   }
 
   if (actionHelp) {
     actions.push(
-      <IcoBtn
-        key="action-help"
-        icon={'icon-question'}
-        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-        title={t('dashlet.help.title')}
+      <BtnAction text={t('dashlet.help.title')} id={`action-help-${dashletId}`} key={`action-help-${dashletId}`} icon="icon-question" />
+    );
+  }
+
+  if (actionReload) {
+    actions.push(
+      <BtnAction
+        text={t('dashlet.update.title')}
+        id={`action-reload-${dashletId}`}
+        key={`action-reload-${dashletId}`}
+        icon="icon-reload"
+        onClick={onReload}
       />
     );
   }
+
+  if (actionSetting) {
+    actions.push(
+      <BtnAction
+        text={t('dashlet.settings.title')}
+        id={`action-reload-${dashletId}`}
+        key={`action-reload-${dashletId}`}
+        icon="icon-settings"
+        onClick={onReload}
+      />
+    );
+  }
+
+  Array.prototype.push.apply(actions, customButtons);
 
   if (actionDrag) {
     dragBtn = (
@@ -191,6 +229,8 @@ class Dashlet extends Component {
 
   constructor(props) {
     super(props);
+
+    this.dashletId = uniqueId('dashlet-id');
 
     this.state = {
       isCollapsed: props.isCollapsed || false
@@ -354,6 +394,7 @@ class Dashlet extends Component {
                   isMobile={isMobile}
                   isCollapsed={isCollapsed}
                   badgeText={badgeText}
+                  dashletId={this.dashletId}
                 />
               </Measurer>
             )
