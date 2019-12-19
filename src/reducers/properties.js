@@ -20,7 +20,7 @@ export default handleActions(
         ...state,
         [stateId]: {
           ...getCurrentStateById(state, stateId, initialState),
-          forms: initialState.forms
+          forms: { ...initialState.forms, isLoading: true }
         }
       };
     },

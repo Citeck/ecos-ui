@@ -96,7 +96,13 @@ class PropertiesSettings extends React.Component {
               toggleClassName="ecos-properties-settings__form-list-toggle"
               full
             >
-              <IcoBtn invert icon="icon-down" className="ecos-properties-settings__form-list-btn" loading={isLoading} />
+              <IcoBtn
+                invert
+                icon="icon-down"
+                className="ecos-properties-settings__form-list-btn"
+                loading={isLoading}
+                colorLoader="light-blue"
+              />
             </Dropdown>
           </div>
           {!isExist && <InfoText text={t(Labels.FORM_NOT_EXISTED)} type="warn" noIndents className="ecos-properties-settings__msg" />}
