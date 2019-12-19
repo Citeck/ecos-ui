@@ -214,6 +214,15 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
 Base.prototype.build = function(state) {
   originalBuild.call(this, state);
 
+  const { options = {} } = this;
+  const { isDebugModeOn = false } = options;
+
+  if (isDebugModeOn) {
+    this.on('change', change => {
+      console.log(`This component is changed ${this.label}`);
+    });
+  }
+
   this.createInlineEditSaveAndCancelButtons();
 };
 
