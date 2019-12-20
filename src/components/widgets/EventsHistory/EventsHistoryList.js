@@ -37,7 +37,7 @@ class EventsHistoryList extends React.Component {
     const wrapper = get(forwardedRef, 'current', null);
 
     if (!wrapper) {
-      return;
+      return [];
     }
 
     const table = wrapper.querySelector('table');
