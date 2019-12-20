@@ -56,6 +56,7 @@ class Journals extends Component {
 
     this.state = {
       menuOpen: false,
+      menuOpenAnimate: false,
       settingsVisible: false,
       showPreview: this.props.urlParams.showPreview,
       showPie: false
@@ -148,7 +149,14 @@ class Journals extends Component {
   };
 
   toggleMenu = () => {
-    this.setState({ menuOpen: !this.state.menuOpen });
+    this.setState({ menuOpenAnimate: !this.state.menuOpenAnimate });
+
+    setTimeout(
+      () => {
+        this.setState({ menuOpen: !this.state.menuOpen });
+      },
+      this.state.menuOpen ? 500 : 0
+    );
   };
 
   search = text => {
@@ -156,7 +164,7 @@ class Journals extends Component {
   };
 
   render() {
-    const { menuOpen, settingsVisible, showPreview, showPie } = this.state;
+    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie } = this.state;
     const { stateId, journalConfig, pageTabsIsShow, grid, isMobile } = this.props;
 
     if (!journalConfig) {
@@ -179,7 +187,7 @@ class Journals extends Component {
     return (
       <PageHeight>
         {height => (
-          <div className="ecos-journal" style={{ height }}>
+          <div className={classNames('ecos-journal', { 'ecos-journal_mobile': isMobile })} style={{ height }}>
             <div
               className={classNames('ecos-journal__body', {
                 'ecos-journal__body_with-tabs': pageTabsIsShow,
@@ -248,7 +256,8 @@ class Journals extends Component {
             <div
               className={classNames('ecos-journal__menu', {
                 'ecos-journal__menu_with-tabs': pageTabsIsShow,
-                'ecos-journal__menu_mobile': isMobile && menuOpen
+                'ecos-journal__menu_mobile': isMobile,
+                'ecos-journal__menu_expanded': menuOpenAnimate
               })}
               style={{ height }}
             >

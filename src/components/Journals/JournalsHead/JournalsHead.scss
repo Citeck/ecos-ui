@@ -17,5 +17,11 @@
   &__menu-btn {
     text-align: right;
     height: inherit;
+    opacity: 1;
+    transition: opacity 0.2s;
+
+    &_hidden {
+      opacity: 0;
+    }
   }
 }

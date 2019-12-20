@@ -5,6 +5,11 @@
   height: 100%;
   width: 100%;
   overflow: hidden;
+  display: flex;
+
+  &_mobile {
+    display: block;
+  }
 
   &__pagination {
     &_mobile {
@@ -27,6 +32,7 @@
 }
 
 .ecos-journal__body {
+  flex: auto;
   padding: 19px 26px 0 24px;
   height: 100%;
 
@@ -46,11 +52,22 @@
 }
 
 .ecos-journal__menu {
-  float: right;
-  width: 273px;
+  $root: &;
+  width: 0;
+  transition: width 0.5s;
 
   &_with-tabs {
     padding: 15px 0;
+  }
+
+  &_expanded {
+    width: 273px;
+    max-width: 273px;
+  }
+
+  &_close {
+    width: 0;
+    max-width: 0;
   }
 
   &_mobile {
@@ -59,8 +76,13 @@
     top: 0;
     right: 0;
     padding: 0;
-    width: 100%;
+    width: 0;
     height: 100% !important;
+
+    &#{$root}_expanded {
+      width: 100%;
+      max-width: 100%;
+    }
   }
 }
 
