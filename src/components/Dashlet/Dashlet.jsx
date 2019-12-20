@@ -3,120 +3,45 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import ReactResizeDetector from 'react-resize-detector';
-import { UncontrolledTooltip } from 'reactstrap';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import uniqueId from 'lodash/uniqueId';
 
+import { t } from '../../helpers/util';
+import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 import Panel from '../common/panels/Panel/Panel';
 import Measurer from '../Measurer/Measurer';
 import { Btn, IcoBtn } from '../common/btns';
 import { Badge } from '../common/form';
 import { Icon, ResizableBox } from '../common';
-import { t } from '../../helpers/util';
-import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
+import BtnActions from './BtnActions';
 
 import './Dashlet.scss';
 
-const BtnAction = ({ id, text, icon, onClick }) => {
-  return (
-    <>
-      <IcoBtn
-        id={id}
-        icon={icon}
-        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-        onClick={onClick}
-      />
-      {text && (
-        <UncontrolledTooltip
-          target={id}
-          delay={0}
-          placement="top"
-          className="ecos-base-tooltip"
-          innerClassName="ecos-base-tooltip-inner"
-          arrowClassName="ecos-base-tooltip-arrow"
-        >
-          {text}
-        </UncontrolledTooltip>
-      )}
-    </>
-  );
-};
-
 const Header = ({
+  dashletId,
   dragHandleProps,
   title,
   needGoTo,
   onGoTo,
-  onReload,
-  onEdit,
   onToggleCollapse,
-  actionReload,
-  actionEdit,
-  actionHelp,
-  actionSetting,
   actionDrag,
   measurer,
-  actionEditTitle,
-  customButtons,
   titleClassName,
   isMobile,
   isCollapsed,
   badgeText,
-  dashletId
+  configActions,
+  orderActions
 }) => {
   const btnGoTo = isMobile ? null : (
     <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className="dashlet__btn ecos-btn_narrow" onClick={onGoTo}>
       {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
     </IcoBtn>
   );
-  const actions = [];
+
   let toggleIcon = null;
   let dragBtn = null;
-
-  if (actionEdit) {
-    actions.push(
-      <BtnAction
-        text={actionEditTitle || t('dashlet.edit.title')}
-        id={`action-edit-${dashletId}`}
-        key={`action-edit-${dashletId}`}
-        icon="icon-edit"
-        onClick={onEdit}
-      />
-    );
-  }
-
-  if (actionHelp) {
-    actions.push(
-      <BtnAction text={t('dashlet.help.title')} id={`action-help-${dashletId}`} key={`action-help-${dashletId}`} icon="icon-question" />
-    );
-  }
-
-  if (actionReload) {
-    actions.push(
-      <BtnAction
-        text={t('dashlet.update.title')}
-        id={`action-reload-${dashletId}`}
-        key={`action-reload-${dashletId}`}
-        icon="icon-reload"
-        onClick={onReload}
-      />
-    );
-  }
-
-  if (actionSetting) {
-    actions.push(
-      <BtnAction
-        text={t('dashlet.settings.title')}
-        id={`action-reload-${dashletId}`}
-        key={`action-reload-${dashletId}`}
-        icon="icon-settings"
-        onClick={onReload}
-      />
-    );
-  }
-
-  Array.prototype.push.apply(actions, customButtons);
 
   if (actionDrag) {
     dragBtn = (
@@ -154,7 +79,7 @@ const Header = ({
       {needGoTo && btnGoTo}
 
       <div className="dashlet__header-actions">
-        {!isMobile && actions}
+        {!isMobile && <BtnActions configActions={configActions} orderActions={orderActions} dashletId={dashletId} />}
         {dragBtn}
       </div>
     </div>
@@ -167,14 +92,10 @@ class Dashlet extends Component {
     className: PropTypes.string,
     bodyClassName: PropTypes.string,
     titleClassName: PropTypes.string,
-    actionEditTitle: PropTypes.string,
     badgeText: PropTypes.string,
     noHeader: PropTypes.bool,
     noBody: PropTypes.bool,
     needGoTo: PropTypes.bool,
-    actionReload: PropTypes.bool,
-    actionEdit: PropTypes.bool,
-    actionHelp: PropTypes.bool,
     actionDrag: PropTypes.bool,
     resizable: PropTypes.bool,
     canDragging: PropTypes.bool,
@@ -182,16 +103,22 @@ class Dashlet extends Component {
     isCollapsed: PropTypes.bool,
     collapsible: PropTypes.bool,
     dragHandleProps: PropTypes.object,
-    customButtons: PropTypes.array,
     contentMaxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
-    onEdit: PropTypes.func,
     onGoTo: PropTypes.func,
-    onReload: PropTypes.func,
     onResize: PropTypes.func,
     onToggleCollapse: PropTypes.func,
     dragButton: PropTypes.func,
     onChangeHeight: PropTypes.func,
-    getFitHeights: PropTypes.func
+    getFitHeights: PropTypes.func,
+    configActions: PropTypes.object,
+    orderActions: PropTypes.object,
+    //-------------------------------------
+    actionEditTitle: PropTypes.string,
+    actionReload: PropTypes.bool,
+    actionEdit: PropTypes.bool,
+    actionHelp: PropTypes.bool,
+    onEdit: PropTypes.func,
+    onReload: PropTypes.func
   };
 
   static defaultProps = {
@@ -203,9 +130,6 @@ class Dashlet extends Component {
     noHeader: false,
     noBody: false,
     needGoTo: true,
-    actionReload: true,
-    actionEdit: true,
-    actionHelp: true,
     actionDrag: true,
     resizable: false,
     canDragging: false,
@@ -214,11 +138,8 @@ class Dashlet extends Component {
     collapsible: true,
     dragButton: null,
     dragHandleProps: {},
-    customButtons: [],
     contentMaxHeight: null,
-    onEdit: () => {},
     onGoTo: () => {},
-    onReload: () => {},
     onResize: () => {},
     onToggleCollapse: () => {},
     onChangeHeight: () => null,
@@ -258,27 +179,11 @@ class Dashlet extends Component {
     return headerH + resizerH;
   }
 
-  onEdit = () => {
-    const { onEdit } = this.props;
-
-    if (typeof onEdit === 'function') {
-      onEdit.call(this);
-    }
-  };
-
   onGoTo = () => {
     const { onGoTo } = this.props;
 
     if (typeof onGoTo === 'function') {
       onGoTo.call(this);
-    }
-  };
-
-  onReload = () => {
-    const { onReload } = this.props;
-
-    if (typeof onReload === 'function') {
-      onReload.call(this);
     }
   };
 
@@ -344,20 +249,17 @@ class Dashlet extends Component {
       className,
       bodyClassName,
       titleClassName,
-      actionEditTitle,
       badgeText,
       needGoTo,
-      actionReload,
-      actionEdit,
-      actionHelp,
       actionDrag,
       onResize,
       dragHandleProps,
       canDragging,
-      customButtons,
       isMobile,
       noHeader,
-      noBody
+      noBody,
+      configActions,
+      orderActions
     } = this.props;
     const { isCollapsed } = this.state;
 
@@ -380,31 +282,22 @@ class Dashlet extends Component {
                   title={title}
                   needGoTo={needGoTo}
                   onGoTo={this.onGoTo}
-                  actionReload={actionReload}
-                  onReload={this.onReload}
                   onToggleCollapse={this.onToggle}
-                  actionEdit={actionEdit}
-                  onEdit={this.onEdit}
-                  actionHelp={actionHelp}
                   actionDrag={actionDrag && canDragging}
                   dragHandleProps={dragHandleProps}
-                  actionEditTitle={actionEditTitle}
-                  customButtons={customButtons}
                   titleClassName={titleClassName}
                   isMobile={isMobile}
                   isCollapsed={isCollapsed}
                   badgeText={badgeText}
                   dashletId={this.dashletId}
+                  configActions={configActions}
+                  orderActions={orderActions}
                 />
               </Measurer>
             )
           }
         >
-          <div
-            className={classNames('dashlet__body-content', {
-              'dashlet__body-content_hidden': noBody || (isMobile && isCollapsed)
-            })}
-          >
+          <div className={classNames('dashlet__body-content', { 'dashlet__body-content_hidden': noBody || (isMobile && isCollapsed) })}>
             {this.renderContent()}
             {this.renderHideButton()}
           </div>
