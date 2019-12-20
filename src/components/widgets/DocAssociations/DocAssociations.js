@@ -326,6 +326,11 @@ class DocAssociations extends BaseWidget {
     const { canDragging, dragHandleProps, isCollapsed, documentsTotalCount, isLoading, isMobile } = this.props;
     const { userHeight = 0, fitHeights, contentHeight } = this.state;
     const fixHeight = userHeight || null;
+    const actions = {
+      plus: {
+        component: this.renderAddButton()
+      }
+    };
 
     return (
       <Dashlet
@@ -334,9 +339,8 @@ class DocAssociations extends BaseWidget {
         })}
         title={t(LABELS.TITLE)}
         needGoTo={false}
-        actionEdit={false}
-        actionHelp={false}
-        actionReload={false}
+        configActions={actions}
+        orderActions={['plus']}
         canDragging={canDragging}
         resizable
         contentMaxHeight={this.clientHeight}

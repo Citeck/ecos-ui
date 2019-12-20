@@ -70,6 +70,10 @@ const BtnActions = ({ configActions = {}, orderActions, dashletId }) => {
     const action = actions[actionKey];
     const id = `action-${actionKey}-${dashletId}-${i}`;
 
+    if (action.component) {
+      return action.component;
+    }
+
     return action.onClick ? <BtnAction text={action.text} id={id} key={id} icon={action.icon} onClick={action.onClick} /> : null;
   });
   const dropActions = orderActions.slice(4);

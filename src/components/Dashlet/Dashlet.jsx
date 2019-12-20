@@ -113,7 +113,6 @@ class Dashlet extends Component {
     configActions: PropTypes.object,
     orderActions: PropTypes.object,
     //-------------------------------------
-    actionEditTitle: PropTypes.string,
     actionReload: PropTypes.bool,
     actionEdit: PropTypes.bool,
     actionHelp: PropTypes.bool,
