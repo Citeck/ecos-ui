@@ -6,14 +6,14 @@ import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import classNames from 'classnames';
 
-import { Loader, DefineHeight } from '../../common/index';
+import { DefineHeight, Loader } from '../../common/index';
 import { Btn } from '../../common/btns/index';
-import { Label, Input } from '../../common/form/index';
+import { Input, Label } from '../../common/form/index';
 import Dashlet from '../../Dashlet/Dashlet';
 import BaseWidget from '../BaseWidget';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { MIN_WIDTH_DASHLET_SMALL, MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
-import { initPage, changePageData, loadedPage, reloadPageData, cancelPageLoading, setError } from '../../../actions/webPage';
+import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
+import { cancelPageLoading, changePageData, initPage, loadedPage, reloadPageData, setError } from '../../../actions/webPage';
 import { selectStateById } from '../../../selectors/webPage';
 import { t } from '../../../helpers/util';
 
@@ -327,6 +327,14 @@ class WebPage extends BaseWidget {
 
     const { userHeight = 0, contentHeight, fitHeights } = this.state;
     const fixHeight = userHeight ? userHeight : pageIsLoaded ? 572 : 203;
+    const actions = {
+      edit: {
+        onClick: this.handleEdit
+      },
+      reload: {
+        onClick: this.handleReload
+      }
+    };
 
     return (
       <Dashlet
@@ -334,14 +342,10 @@ class WebPage extends BaseWidget {
         className="ecos-wpage"
         bodyClassName="ecos-wpage__body"
         needGoTo={false}
-        actionHelp={false}
-        actionEdit
-        actionReload
+        configActions={actions}
         resizable
         onResize={this.handleResize}
         onChangeHeight={this.handleChangeHeight}
-        onEdit={this.handleEdit}
-        onReload={this.handleReload}
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}

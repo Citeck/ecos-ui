@@ -32,7 +32,8 @@ const Header = ({
   isCollapsed,
   badgeText,
   configActions,
-  orderActions
+  orderActions,
+  noActions
 }) => {
   const btnGoTo = isMobile ? null : (
     <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className="dashlet__btn ecos-btn_narrow" onClick={onGoTo}>
@@ -79,7 +80,7 @@ const Header = ({
       {needGoTo && btnGoTo}
 
       <div className="dashlet__header-actions">
-        {!isMobile && <BtnActions configActions={configActions} orderActions={orderActions} dashletId={dashletId} />}
+        {!(isMobile || noActions) && <BtnActions configActions={configActions} orderActions={orderActions} dashletId={dashletId} />}
         {dragBtn}
       </div>
     </div>
@@ -112,6 +113,7 @@ class Dashlet extends Component {
     getFitHeights: PropTypes.func,
     configActions: PropTypes.object,
     orderActions: PropTypes.object,
+    noActions: PropTypes.bool,
     //-------------------------------------
     actionReload: PropTypes.bool,
     actionEdit: PropTypes.bool,
@@ -258,7 +260,8 @@ class Dashlet extends Component {
       noHeader,
       noBody,
       configActions,
-      orderActions
+      orderActions,
+      noActions
     } = this.props;
     const { isCollapsed } = this.state;
 
@@ -291,6 +294,7 @@ class Dashlet extends Component {
                   dashletId={this.dashletId}
                   configActions={configActions}
                   orderActions={orderActions}
+                  noActions={noActions}
                 />
               </Measurer>
             )

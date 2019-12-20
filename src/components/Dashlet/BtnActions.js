@@ -42,9 +42,7 @@ const BtnActions = ({ configActions = {}, orderActions, dashletId }) => {
     },
     help: {
       icon: 'icon-question',
-      onClick: () => {
-        alert('Hello');
-      },
+      onClick: null,
       text: t('dashlet.help.title')
     },
     reload: {
@@ -70,11 +68,13 @@ const BtnActions = ({ configActions = {}, orderActions, dashletId }) => {
     const action = actions[actionKey];
     const id = `action-${actionKey}-${dashletId}-${i}`;
 
+    if (!action || !(action.component || action.onClick)) return null;
+
     if (action.component) {
       return action.component;
     }
 
-    return action.onClick ? <BtnAction text={action.text} id={id} key={id} icon={action.icon} onClick={action.onClick} /> : null;
+    return <BtnAction text={action.text} id={id} key={id} icon={action.icon} onClick={action.onClick} />;
   });
   const dropActions = orderActions.slice(4);
 

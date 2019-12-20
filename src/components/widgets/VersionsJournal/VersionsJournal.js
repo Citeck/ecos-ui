@@ -9,7 +9,7 @@ import get from 'lodash/get';
 import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../../actions/versionsJournal';
 import { selectLabelsVersions } from '../../../selectors/versionsJournal';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { t, arrayCompare } from '../../../helpers/util';
+import { arrayCompare, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../../constants/versionsJournal';
 
@@ -592,9 +592,7 @@ class VersionsJournal extends BaseWidget {
         titleClassName="ecos-vj__dashboard-title"
         style={{ minWidth: MIN_WIDTH_DASHLET_SMALL }}
         needGoTo={false}
-        actionEdit={false}
-        actionHelp={false}
-        actionReload={false}
+        noActions
         resizable
         contentMaxHeight={this.clientHeight + this.otherHeight}
         onResize={this.handleResize}
