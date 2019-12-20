@@ -10,7 +10,7 @@ import JournalsFilters from './JournalsFilters';
 import JournalsColumnsSetup from './JournalsColumnsSetup';
 import JournalsSettingsFooter from './JournalsSettingsFooter';
 import JournalsMenu from './JournalsMenu';
-import JournalsSettingBar from './JournalsSettingsBar';
+import JournalsSettingsBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
 
@@ -175,22 +175,20 @@ class Journals extends Component {
     }
 
     const visibleColumns = columns.filter(c => c.visible);
-    const journalSettingsClassName = 'ecos-journal__settings';
 
     return (
       <PageHeight>
         {height => (
-          <div className={'ecos-journal'} style={{ height }}>
+          <div className="ecos-journal" style={{ height }}>
             <div
               className={classNames('ecos-journal__body', {
-                'ecos-journal__body_with-menu': menuOpen,
                 'ecos-journal__body_with-tabs': pageTabsIsShow,
                 'ecos-journal__body_mobile': isMobile
               })}
             >
               <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} isMobile={isMobile} />
 
-              <JournalsSettingBar
+              <JournalsSettingsBar
                 grid={grid}
                 journalConfig={journalConfig}
                 stateId={stateId}
@@ -213,7 +211,7 @@ class Journals extends Component {
                 isBigHeader
                 className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
               >
-                <Well className={journalSettingsClassName}>
+                <Well className="ecos-journal__settings">
                   <EcosModalHeight>
                     {height => (
                       <Scrollbars style={{ height }}>
@@ -225,7 +223,7 @@ class Journals extends Component {
                   </EcosModalHeight>
 
                   <JournalsSettingsFooter
-                    parentClass={journalSettingsClassName}
+                    parentClass="ecos-journal__settings"
                     stateId={stateId}
                     journalId={journalId}
                     onApply={this.toggleSettings}
@@ -239,7 +237,7 @@ class Journals extends Component {
               <div className={'ecos-journal__footer'}>
                 <JournalsDashletPagination
                   stateId={stateId}
-                  hasPageSize={!isMobile}
+                  hasPageSize
                   className={classNames('ecos-journal__pagination', {
                     'ecos-journal__pagination_mobile': isMobile
                   })}
@@ -247,7 +245,13 @@ class Journals extends Component {
               </div>
             </div>
 
-            <div className={classNames('ecos-journal__menu', { 'ecos-journal__menu_with-tabs': pageTabsIsShow })} style={{ height }}>
+            <div
+              className={classNames('ecos-journal__menu', {
+                'ecos-journal__menu_with-tabs': pageTabsIsShow,
+                'ecos-journal__menu_mobile': isMobile && menuOpen
+              })}
+              style={{ height }}
+            >
               <JournalsMenu stateId={stateId} open={menuOpen} onClose={this.toggleMenu} height={height} />
             </div>
           </div>
