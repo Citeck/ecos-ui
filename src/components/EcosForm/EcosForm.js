@@ -104,18 +104,18 @@ class EcosForm extends React.Component {
       let inputs = EcosFormUtils.getFormInputs(formData.definition);
       let recordDataPromise = EcosFormUtils.getData(recordId, inputs, this.state.containerId);
       let canWritePromise = false;
-      const isDebugModeOn = Records.get('ecos-config@new-forms-logging-enabled').load('.bool');
+      const isDebugModeOn = localStorage.enableLoggerForNewForms;
       if (options.readOnly && options.viewAsHtml) {
         canWritePromise = EcosFormUtils.hasWritePermission(recordId);
       }
 
-      Promise.all([recordDataPromise, canWritePromise, isDebugModeOn]).then(([recordData, canWrite, isDebugModeOn]) => {
+      if (isDebugModeOn) {
+        options.isDebugModeOn = isDebugModeOn;
+      }
+
+      Promise.all([recordDataPromise, canWritePromise]).then(([recordData, canWrite]) => {
         if (canWrite) {
           options.canWrite = canWrite;
-        }
-
-        if (isDebugModeOn) {
-          options.isDebugModeOn = isDebugModeOn;
         }
 
         const definition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
