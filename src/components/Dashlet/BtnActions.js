@@ -36,13 +36,11 @@ const BtnActions = ({ configActions = {}, orderActions, dashletId }) => {
 
   const actions = {
     edit: {
-      id: `action-edit-${dashletId}`,
       icon: 'icon-edit',
       onClick: null,
       text: t('dashlet.edit.title')
     },
     help: {
-      id: `action-help-${dashletId}`,
       icon: 'icon-question',
       onClick: () => {
         alert('Hello');
@@ -50,13 +48,11 @@ const BtnActions = ({ configActions = {}, orderActions, dashletId }) => {
       text: t('dashlet.help.title')
     },
     reload: {
-      id: `action-update-${dashletId}`,
       icon: 'icon-reload',
       onClick: null,
       text: t('dashlet.update.title')
     },
     settings: {
-      id: `action-settings-${dashletId}`,
       icon: 'icon-settings',
       onClick: null,
       text: t('dashlet.settings.title')
@@ -70,12 +66,11 @@ const BtnActions = ({ configActions = {}, orderActions, dashletId }) => {
     };
   }
 
-  const iconActions = orderActions.slice(0, 4).map(actionKey => {
+  const iconActions = orderActions.slice(0, 4).map((actionKey, i) => {
     const action = actions[actionKey];
+    const id = `action-${actionKey}-${dashletId}-${i}`;
 
-    return action.onClick ? (
-      <BtnAction text={action.text} id={action.id} key={action.id} icon={action.icon} onClick={action.onClick} />
-    ) : null;
+    return action.onClick ? <BtnAction text={action.text} id={id} key={id} icon={action.icon} onClick={action.onClick} /> : null;
   });
   const dropActions = orderActions.slice(4);
 
