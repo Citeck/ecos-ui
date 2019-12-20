@@ -4,7 +4,7 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import get from 'lodash/get';
 
 import { getMinWidthColumn } from '../../helpers/layout';
-import Components from '../Components';
+import Components from '../widgets/Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
 import { MENU_TYPE } from '../../constants';
 import { documentScrollTop, getSearchParams } from '../../helpers/util';

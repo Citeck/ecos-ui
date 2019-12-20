@@ -9,10 +9,6 @@ const TableFormRoot = () => {
   const { controlProps } = context;
   const { isCompact, viewOnly } = controlProps;
 
-  if (viewOnly) {
-    return null;
-  }
-
   const wrapperClasses = classNames('ecos-table-form', {
     'ecos-table-form_compact': isCompact
   });
@@ -20,7 +16,7 @@ const TableFormRoot = () => {
   return (
     <div className={wrapperClasses}>
       <InputView />
-      <ModalForm />
+      {!viewOnly ? <ModalForm /> : null}
     </div>
   );
 };
