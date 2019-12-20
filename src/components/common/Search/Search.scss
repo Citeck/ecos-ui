@@ -8,14 +8,26 @@
   background: $color-white;
   position: relative;
   width: 220px;
+  min-width: 40px;
+  transition: width 0.5s;
+  overflow: hidden;
 
-  input {
+  &_border-white {
+    border: 2px solid $color-white;
+  }
+
+  &_collapsed {
+    width: 40px;
+    padding-left: 8px;
+  }
+
+  &__input {
     outline: none !important;
     border: none !important;
     font-weight: bold !important;
     font-size: $font-size-standard !important;
     width: calc(100% - 40px) !important;
-    background: $color-white;
+    transition: width 0.5s;
     position: absolute;
     left: 35px;
     color: $text-color-dark;
@@ -23,20 +35,34 @@
     &::placeholder {
       color: $color-gray-5;
     }
+
+    &_with-cleaner {
+      padding-right: 30px;
+    }
   }
-}
 
-.search__icon-search {
-  color: $color-gray-5;
-  font-size: 20px;
-  width: 24px;
-  top: 5px;
-  cursor: pointer;
-  position: absolute;
-  line-height: normal;
-  z-index: 1;
-}
+  &__icon {
+    color: $color-gray-5;
+    cursor: pointer;
+    position: absolute;
+    top: 8px;
 
-.search_border_white {
-  border: 2px solid $color-white;
+    &-search {
+      z-index: 10;
+    }
+
+    &-cleaner {
+      z-index: 5;
+      right: 12px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0s;
+      transition-delay: 0s;
+
+      &_show {
+        opacity: 1;
+        transition-delay: 0.5s;
+      }
+    }
+  }
 }
