@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
+import get from 'lodash/get';
 import { UncontrolledTooltip } from 'reactstrap';
 
 import UserLocalSettingsService from '../../../services/userLocalSettings';
@@ -20,9 +22,14 @@ const LABELS = {
   CONSTRUCTOR_BTN_TOOLTIP: 'Перейти в конструктор'
 };
 
+const mapStateToProps = state => ({
+  isAdmin: get(state, ['user', 'isAdmin'], false)
+});
+
 class PropertiesDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string.isRequired,
+    isAdmin: PropTypes.bool,
     record: PropTypes.string.isRequired,
     title: PropTypes.string,
     classNameProps: PropTypes.string,
@@ -42,6 +49,8 @@ class PropertiesDashlet extends BaseWidget {
     canDragging: false,
     maxHeightByContent: true
   };
+
+  _propertiesRef = React.createRef();
 
   constructor(props) {
     super(props);
@@ -102,11 +111,10 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   renderDashletCustomButtons(isDashlet = false) {
-    const { id } = this.props;
-    const { canEdit } = this.state;
+    const { id, isAdmin } = this.props;
     const buttons = [];
 
-    if (canEdit) {
+    if (isAdmin) {
       const target = `settings-icon-${id}-${isDashlet ? '-dashlet' : '-properties'}`;
 
       buttons.push(
@@ -167,6 +175,7 @@ class PropertiesDashlet extends BaseWidget {
         isCollapsed={isCollapsed}
       >
         <Properties
+          ref={this._propertiesRef}
           forwardedRef={this.contentRef}
           className={classNameProps}
           record={record}
@@ -190,4 +199,4 @@ class PropertiesDashlet extends BaseWidget {
   }
 }
 
-export default PropertiesDashlet;
+export default connect(mapStateToProps)(PropertiesDashlet);
