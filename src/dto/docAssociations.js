@@ -11,14 +11,19 @@ export default class DocAssociationsConverter {
       return target;
     }
 
-    return keys.map(key => ({
-      key,
-      documents: get(source, [key], []).map(item => DocAssociationsConverter.getDocumentForWeb(item, key)),
-      title: get(allowedConnections.find(item => item.name === key), ['title'], '')
-    }));
+    return keys.map(key => {
+      const connection = allowedConnections.find(item => item.name === key);
+      const direction = get(connection, 'direction', '');
+
+      return {
+        key,
+        documents: get(source, key, []).map(item => DocAssociationsConverter.getDocumentForWeb(item, key, direction)),
+        title: get(connection, 'title', '')
+      };
+    });
   }
 
-  static getDocumentForWeb(source, connectionId) {
+  static getDocumentForWeb(source, connectionId, direction) {
     if (isEmpty(source)) {
       return {};
     }
@@ -29,6 +34,7 @@ export default class DocAssociationsConverter {
     target.date = moment(source.created || moment()).format('DD.MM.YYYY h:mm');
     target.record = source.id;
     target.connectionId = connectionId;
+    target.direction = direction;
 
     return target;
   }
@@ -47,7 +53,7 @@ export default class DocAssociationsConverter {
     return target;
   }
 
-  static getMenuForWeb(firstLvl, secondLvl) {
+  static getMenuForWeb(firstLvl = [], secondLvl = []) {
     if (isEmpty(firstLvl)) {
       return [];
     }
@@ -67,9 +73,9 @@ export default class DocAssociationsConverter {
     return firstLvl.map(item => {
       const target = {};
 
-      target.id = item.name;
-      target.label = item.title;
-      target.items = (secondLvl || []).map(i => mappingNextLevel(i, item.name)).filter(i => i.items.length);
+      target.id = item.id;
+      target.label = item.name;
+      target.items = secondLvl.map(i => mappingNextLevel(i, item.id)).filter(i => i.items.length);
 
       return target;
     });
@@ -79,11 +85,27 @@ export default class DocAssociationsConverter {
     return get(documents.find(doc => doc.key === key), ['documents'], []).map(document => document.record);
   }
 
-  static getDocumentsTotalCount(data = {}) {
-    return Object.keys(data).reduce((result, key) => result + data[key].length, 0);
+  static getDocumentsTotalCount(source = {}) {
+    return Object.keys(source).reduce((result, key) => result + source[key].length, 0);
   }
 
   static getAssociationsByDirection(data = [], direction) {
-    return data.map(association => ({ ...association, direction }));
+    return data.map(association => ({ recordRef: association, direction }));
+  }
+
+  static getAllowedConnections(data = []) {
+    if (isEmpty(data)) {
+      return [];
+    }
+
+    return data.map((source = {}) => {
+      const target = {};
+
+      target.name = source.id;
+      target.title = source.name;
+      target.direction = source.direction;
+
+      return target;
+    });
   }
 }

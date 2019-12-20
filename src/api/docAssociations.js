@@ -14,37 +14,17 @@ export class DocAssociationsApi extends RecordService {
     return [
       {
         id: 'assoc:associatedWith',
-        name: t('doc-associations-widget.assoc-with-docs'),
-        direction: 'TARGET'
+        name: 'Связан с',
+        direction: 'BOTH'
       },
       {
         id: 'payments:basis',
         name: 'Документ-основание',
-        direction: 'SOURCE'
-      },
-      {
-        id: 'contracts:closingDocumentAgreement',
-        name: 'Учётные документы',
-        direction: 'BOTH'
+        direction: 'TARGET'
       }
     ];
 
     return Records.get(recordRef).load('_etype.associations[]{id,name,direction}');
-
-    // return [
-    //   {
-    //     name: 'assoc:associatedWith',
-    //     title: t('doc-associations-widget.assoc-with-docs')
-    //   }
-    //   // {
-    //   //   name: 'payments:basis',
-    //   //   title: 'Документ-основание'
-    //   // },
-    //   // {
-    //   //   name: 'contracts:closingDocumentAgreement',
-    //   //   title: 'Учётные документы'
-    //   // }
-    // ];
   };
 
   /**
@@ -106,9 +86,11 @@ export class DocAssociationsApi extends RecordService {
 
   getTargetAssociations = (id, recordRef) => {
     return Records.get(recordRef).load(`${id}[]?assoc`);
+    return Records.get(recordRef).load(`.atts(n:"${key}"){id: assoc, displayName: disp, created: att(n:"cm:created"){str}}`);
   };
 
   getSourceAssociations = (id, recordRef) => {
+    return Records.get(recordRef).load(`assoc_src_${id}[]?assoc`);
     return Records.get(recordRef).load(`assoc_src_${id}[]?assoc`);
   };
 }

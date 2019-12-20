@@ -1,4 +1,5 @@
-import { all, put, takeEvery, call } from 'redux-saga/effects';
+import { all, put, takeEvery, call, select } from 'redux-saga/effects';
+import get from 'lodash/get';
 
 import {
   getDocuments,
@@ -12,6 +13,13 @@ import {
 } from '../actions/docAssociations';
 import DocAssociationsConverter from '../dto/docAssociations';
 import { DIRECTIONS } from '../constants/docAssociations';
+
+const allowedConnectionsDirectionByKey = (state, recordRef) => {
+  return get(state, ['docAssociations', recordRef, 'allowedConnections'], []).reduce(
+    (res, cur) => ({ ...res, [cur.name]: cur.direction }),
+    {}
+  );
+};
 
 function* sagaGetSectionList({ api, logger }, action) {
   try {
@@ -43,10 +51,16 @@ function* getAssociation({ api, logger }, { id, direction }, recordRef) {
     }
 
     if (direction === DIRECTIONS.BOTH) {
-      const target = yield call(api.docAssociations.getTargetAssociations, id, recordRef);
-      const source = yield call(api.docAssociations.getSourceAssociations, id, recordRef);
+      const target = DocAssociationsConverter.getAssociationsByDirection(
+        yield call(api.docAssociations.getTargetAssociations, id, recordRef),
+        DIRECTIONS.TARGET
+      );
+      const source = DocAssociationsConverter.getAssociationsByDirection(
+        yield call(api.docAssociations.getSourceAssociations, id, recordRef),
+        DIRECTIONS.SOURCE
+      );
 
-      return DocAssociationsConverter.getAssociationsByDirection(target, DIRECTIONS.TARGET).concat(source);
+      return target.concat(source);
     }
   } catch (e) {
     logger.error('[docAssociations getAssociation saga error', e.message);
@@ -55,16 +69,23 @@ function* getAssociation({ api, logger }, { id, direction }, recordRef) {
 
 function* sagaGetDocuments({ api, logger }, { payload }) {
   try {
-    const allowedConnections = yield call(api.docAssociations.getAllowedConnections, payload);
-
-    console.warn('allowedConnections => ', allowedConnections);
+    const allowedConnections = DocAssociationsConverter.getAllowedConnections(
+      yield call(api.docAssociations.getAllowedConnections, payload)
+    );
 
     yield put(setAllowedConnections({ key: payload, allowedConnections }));
 
-    const response = yield allowedConnections.map(item => getAssociation({ api, logger }, item, payload));
-    // const response = yield call(api.docAssociations.getDocuments, payload, allowedConnections.map(item => item.name));
+    const response = yield call(api.docAssociations.getDocuments, payload, allowedConnections.map(item => item.name));
 
-    console.warn('response => ', response);
+    const connectionsByKey = yield select(state => allowedConnectionsDirectionByKey(state, payload));
+
+    console.log(connectionsByKey, response, allowedConnections);
+
+    const newDocs = yield allowedConnections.map(function*(connection) {
+      return yield getAssociation({ api, logger }, { id: connection.name, direction: connection.direction }, payload);
+    });
+
+    console.warn(DocAssociationsConverter.getDocumentsForWeb(response, allowedConnections), newDocs);
 
     yield put(
       setDocuments({
