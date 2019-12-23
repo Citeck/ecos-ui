@@ -122,7 +122,7 @@ class PropertiesDashlet extends BaseWidget {
     this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
   };
 
-  renderDashletCustomButtons(isDashlet = false) {
+  renderDashletCustomButtons() {
     const { id, isAdmin } = this.props;
     const { isShowSetting } = this.state;
     const buttons = [];
@@ -131,7 +131,7 @@ class PropertiesDashlet extends BaseWidget {
       return buttons;
     }
 
-    const target = `settings-icon-${id}-${isDashlet ? '-dashlet' : '-properties'}`;
+    const keySettingsBtn = `settings-btn-${id}`;
 
     buttons.push(
       <React.Fragment key={keySettingsBtn}>

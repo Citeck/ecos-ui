@@ -105,7 +105,9 @@ class PropertiesSettings extends React.Component {
               />
             </Dropdown>
           </div>
-          {!isExist && <InfoText text={t(Labels.FORM_NOT_EXISTED)} type="warn" noIndents className="ecos-properties-settings__msg" />}
+          {!isLoading && !isExist && (
+            <InfoText text={t(Labels.FORM_NOT_EXISTED)} type="warn" noIndents className="ecos-properties-settings__msg" />
+          )}
         </div>
         <div className="ecos-properties-settings__buttons">
           <Btn className="ecos-btn_hover_light-blue" onClick={this.onCancel}>
