@@ -1,5 +1,6 @@
 import { all, put, takeEvery, call, select } from 'redux-saga/effects';
 import get from 'lodash/get';
+import concat from 'lodash/concat';
 
 import {
   getDocuments,
@@ -41,13 +42,13 @@ function* getAssociation({ api, logger }, { id, direction }, recordRef) {
     if (direction === DIRECTIONS.TARGET) {
       const data = yield call(api.docAssociations.getTargetAssociations, id, recordRef);
 
-      return DocAssociationsConverter.getAssociationsByDirection(data, direction);
+      return DocAssociationsConverter.getAssociationsByDirection(data, DIRECTIONS.TARGET);
     }
 
     if (direction === DIRECTIONS.SOURCE) {
       const data = yield call(api.docAssociations.getSourceAssociations, id, recordRef);
 
-      return DocAssociationsConverter.getAssociationsByDirection(data, direction);
+      return DocAssociationsConverter.getAssociationsByDirection(data, DIRECTIONS.SOURCE);
     }
 
     if (direction === DIRECTIONS.BOTH) {
@@ -60,7 +61,7 @@ function* getAssociation({ api, logger }, { id, direction }, recordRef) {
         DIRECTIONS.SOURCE
       );
 
-      return target.concat(source);
+      return concat(target, source);
     }
   } catch (e) {
     logger.error('[docAssociations getAssociation saga error', e.message);
@@ -75,23 +76,18 @@ function* sagaGetDocuments({ api, logger }, { payload }) {
 
     yield put(setAllowedConnections({ key: payload, allowedConnections }));
 
-    const response = yield call(api.docAssociations.getDocuments, payload, allowedConnections.map(item => item.name));
+    const response = yield allowedConnections.map(function*(connection) {
+      const result = yield getAssociation({ api, logger }, { id: connection.name, direction: connection.direction }, payload);
 
-    const connectionsByKey = yield select(state => allowedConnectionsDirectionByKey(state, payload));
-
-    console.log(connectionsByKey, response, allowedConnections);
-
-    const newDocs = yield allowedConnections.map(function*(connection) {
-      return yield getAssociation({ api, logger }, { id: connection.name, direction: connection.direction }, payload);
+      return { [connection.name]: result };
     });
-
-    console.warn(DocAssociationsConverter.getDocumentsForWeb(response, allowedConnections), newDocs);
+    const formattedResponse = DocAssociationsConverter.getDocumentsByDirection(response);
 
     yield put(
       setDocuments({
         key: payload,
-        documents: DocAssociationsConverter.getDocumentsForWeb(response, allowedConnections),
-        documentsTotalCount: DocAssociationsConverter.getDocumentsTotalCount(response)
+        documents: DocAssociationsConverter.getDocumentsForWeb(formattedResponse, allowedConnections),
+        documentsTotalCount: DocAssociationsConverter.getDocumentsTotalCount(formattedResponse)
       })
     );
   } catch (e) {

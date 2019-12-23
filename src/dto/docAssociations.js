@@ -2,6 +2,8 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import moment from 'moment';
 
+import { DIRECTIONS } from '../constants/docAssociations';
+
 export default class DocAssociationsConverter {
   static getDocumentsForWeb(source, allowedConnections) {
     const keys = Object.keys(source);
@@ -82,7 +84,11 @@ export default class DocAssociationsConverter {
   }
 
   static getDocumentsRecords(documents = [], key) {
-    return get(documents.find(doc => doc.key === key), ['documents'], []).map(document => document.record);
+    return get(
+      documents.find(doc => doc.key === key),
+      ['documents'],
+      []
+    ).map(document => document.record);
   }
 
   static getDocumentsTotalCount(source = {}) {
@@ -90,7 +96,11 @@ export default class DocAssociationsConverter {
   }
 
   static getAssociationsByDirection(data = [], direction) {
-    return data.map(association => ({ recordRef: association, direction }));
+    return data.map(association => ({ ...association, direction }));
+  }
+
+  static getDocumentsByDirection(data = []) {
+    return data.reduce((result, current) => ({ ...result, ...current }), {});
   }
 
   static getAllowedConnections(data = []) {
@@ -103,7 +113,7 @@ export default class DocAssociationsConverter {
 
       target.name = source.id;
       target.title = source.name;
-      target.direction = source.direction;
+      target.direction = source.direction === DIRECTIONS.NULL ? DIRECTIONS.TARGET : source.direction;
 
       return target;
     });

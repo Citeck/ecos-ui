@@ -11,18 +11,18 @@ export class DocAssociationsApi extends RecordService {
    * @returns {*[]}
    */
   getAllowedConnections = recordRef => {
-    return [
-      {
-        id: 'assoc:associatedWith',
-        name: 'Связан с',
-        direction: 'BOTH'
-      },
-      {
-        id: 'payments:basis',
-        name: 'Документ-основание',
-        direction: 'TARGET'
-      }
-    ];
+    // return [
+    //   {
+    //     id: 'assoc:associatedWith',
+    //     name: 'Связан с',
+    //     direction: 'null'
+    //   },
+    //   {
+    //     id: 'payments:basis',
+    //     name: 'Документ-основание',
+    //     direction: 'BOTH'
+    //   }
+    // ];
 
     return Records.get(recordRef).load('_etype.associations[]{id,name,direction}');
   };
@@ -85,12 +85,10 @@ export class DocAssociationsApi extends RecordService {
   };
 
   getTargetAssociations = (id, recordRef) => {
-    return Records.get(recordRef).load(`${id}[]?assoc`);
-    return Records.get(recordRef).load(`.atts(n:"${key}"){id: assoc, displayName: disp, created: att(n:"cm:created"){str}}`);
+    return Records.get(recordRef).load(`${id}[]{id:.assoc,displayName:.disp,created}`);
   };
 
   getSourceAssociations = (id, recordRef) => {
-    return Records.get(recordRef).load(`assoc_src_${id}[]?assoc`);
-    return Records.get(recordRef).load(`assoc_src_${id}[]?assoc`);
+    return Records.get(recordRef).load(`assoc_src_${id}[]{id:.assoc,displayName:.disp,created}`);
   };
 }
