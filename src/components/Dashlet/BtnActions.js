@@ -7,13 +7,19 @@ import { IcoBtn } from '../common/btns';
 import { t } from '../../helpers/util';
 
 const BtnAction = ({ id, text, icon, onClick }) => {
+  const handleClick = () => {
+    if (typeof onClick === 'function') {
+      onClick.call(this);
+    }
+  };
+
   return (
     <>
       <IcoBtn
         id={id}
         icon={icon}
         className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-        onClick={onClick}
+        onClick={handleClick}
       />
       {text && (
         <UncontrolledTooltip
