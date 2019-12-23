@@ -1,10 +1,8 @@
 import React from 'react';
 import { UncontrolledTooltip } from 'reactstrap';
-import slice from 'lodash/slice';
-
-import { IcoBtn } from '../common/btns';
 
 import { t } from '../../helpers/util';
+import { IcoBtn } from '../common/btns';
 
 const BtnAction = ({ id, text, icon, onClick }) => {
   const handleClick = () => {
@@ -37,8 +35,44 @@ const BtnAction = ({ id, text, icon, onClick }) => {
   );
 };
 
+const DropdownActions = ({ list, dashletId }) => {
+  const id = `action-dropdown-${dashletId}`;
+
+  const handleClick = onClick => {
+    if (typeof onClick === 'function') {
+      return onClick.bind(this);
+    }
+  };
+
+  return (
+    <>
+      <IcoBtn
+        id={id}
+        icon="icon-menu-normal-press"
+        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+      />
+      <UncontrolledTooltip
+        trigger="click"
+        target={id}
+        delay={0}
+        placement="bottom"
+        className="ecos-base-tooltip"
+        innerClassName="ecos-base-tooltip-inner"
+        arrowClassName="ecos-base-tooltip-arrow"
+      >
+        {list.map(({ id, text, icon, onClick }) => (
+          <IcoBtn key={id} icon={icon} onClick={handleClick(onClick)} className="ecos-btn_white">
+            {text}
+          </IcoBtn>
+        ))}
+      </UncontrolledTooltip>
+    </>
+  );
+};
+
 const BtnActions = ({ configActions = {}, orderActions, dashletId }) => {
   orderActions = orderActions || ['edit', 'help', 'reload', 'settings'];
+  const countShowBtns = 1;
 
   const actions = {
     edit: {
@@ -70,7 +104,7 @@ const BtnActions = ({ configActions = {}, orderActions, dashletId }) => {
     };
   }
 
-  const iconActions = orderActions.slice(0, 4).map((actionKey, i) => {
+  const renderIconActions = orderActions.slice(0, countShowBtns).map((actionKey, i) => {
     const action = actions[actionKey];
     const id = `action-${actionKey}-${dashletId}-${i}`;
 
@@ -82,9 +116,31 @@ const BtnActions = ({ configActions = {}, orderActions, dashletId }) => {
 
     return <BtnAction text={action.text} id={id} key={id} icon={action.icon} onClick={action.onClick} />;
   });
-  const dropActions = orderActions.slice(4);
 
-  return <>{iconActions}</>;
+  const renderDropActions = () => {
+    const dropActions = orderActions
+      .slice(countShowBtns)
+      .filter(actionKey => actions[actionKey] && actions[actionKey].onClick)
+      .map((actionKey, i) => {
+        const action = actions[actionKey];
+        const id = `action-${actionKey}-${dashletId}-${i}`;
+
+        return { ...action, id };
+      });
+
+    if (!(dropActions && dropActions.length)) {
+      return null;
+    }
+
+    return <DropdownActions list={dropActions} />;
+  };
+
+  return (
+    <>
+      {renderIconActions}
+      {renderDropActions()}
+    </>
+  );
 };
 
 export default BtnActions;
