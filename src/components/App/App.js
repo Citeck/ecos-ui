@@ -52,7 +52,7 @@ class App extends Component {
     const tabs = document.querySelector('.page-tab');
     const alfrescoHeader = document.querySelector('#alf-hd');
     const alfrescoFooter = document.querySelector('#alf-ft');
-    let height = ['3px'];
+    let height = [];
 
     if (tabs) {
       const style = window.getComputedStyle(tabs);
