@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+
 import Pagination from '../../common/Pagination/Pagination';
 import { PAGINATION_SIZES } from '../../Journals/constants';
 import { reloadGrid } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
-import classNames from 'classnames';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -23,6 +25,13 @@ const mapDispatchToProps = (dispatch, props) => {
 };
 
 class JournalsDashletPagination extends Component {
+  static propTypes = {
+    className: PropTypes.string,
+    grid: PropTypes.object,
+    hasPageSize: PropTypes.bool,
+    reloadGrid: PropTypes.func
+  };
+
   changePage = pagination => {
     this.reloadGrid(pagination);
   };

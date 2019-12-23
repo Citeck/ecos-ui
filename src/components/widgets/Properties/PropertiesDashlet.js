@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import Dashlet from '../../Dashlet/Dashlet';
@@ -18,9 +20,14 @@ const LABELS = {
   CONSTRUCTOR_BTN_TOOLTIP: 'Перейти в конструктор'
 };
 
+const mapStateToProps = state => ({
+  isAdmin: get(state, ['user', 'isAdmin'], false)
+});
+
 class PropertiesDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string.isRequired,
+    isAdmin: PropTypes.bool,
     record: PropTypes.string.isRequired,
     title: PropTypes.string,
     classNameProps: PropTypes.string,
@@ -40,6 +47,8 @@ class PropertiesDashlet extends BaseWidget {
     canDragging: false,
     maxHeightByContent: true
   };
+
+  _propertiesRef = React.createRef();
 
   constructor(props) {
     super(props);
@@ -99,6 +108,43 @@ class PropertiesDashlet extends BaseWidget {
     this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
   };
 
+  renderDashletCustomButtons(isDashlet = false) {
+    const { id, isAdmin } = this.props;
+    const buttons = [];
+
+    if (isAdmin) {
+      const target = `settings-icon-${id}-${isDashlet ? '-dashlet' : '-properties'}`;
+
+      buttons.push(
+        <React.Fragment key={`settings-button-${id}`}>
+          <IcoBtn
+            icon="icon-settings"
+            id={target}
+            className={classNames('ecos-properties-dashlet__btn-settings ecos-btn_grey ecos-btn_sq_sm2 ecos-btn_hover_color-grey ', {
+              dashlet__btn_hidden: isDashlet,
+              'ml-2': !isDashlet
+            })}
+            onClick={this.onClickShowFormBuilder}
+          />
+          <UncontrolledTooltip
+            target={target}
+            delay={0}
+            placement="top"
+            className={classNames('ecos-base-tooltip', {
+              'ecos-modal-tooltip': !isDashlet
+            })}
+            innerClassName="ecos-base-tooltip-inner"
+            arrowClassName="ecos-base-tooltip-arrow"
+          >
+            {t(LABELS.CONSTRUCTOR_BTN_TOOLTIP)}
+          </UncontrolledTooltip>
+        </React.Fragment>
+      );
+    }
+
+    return buttons;
+  }
+
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isSmallMode, isReady, isEditProps, userHeight, fitHeights, formIsChanged, isCollapsed, canEditRecord, canEdit } = this.state;
@@ -139,6 +185,7 @@ class PropertiesDashlet extends BaseWidget {
         isCollapsed={isCollapsed}
       >
         <Properties
+          ref={this._propertiesRef}
           forwardedRef={this.contentRef}
           className={classNameProps}
           record={record}
@@ -162,4 +209,4 @@ class PropertiesDashlet extends BaseWidget {
   }
 }
 
-export default PropertiesDashlet;
+export default connect(mapStateToProps)(PropertiesDashlet);

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
 
@@ -99,6 +100,24 @@ class EventsHistory extends React.Component {
     });
   };
 
+  get tableHead() {
+    const tableHead = get(this.props, 'forwardedRef.current', null);
+
+    if (!tableHead) {
+      return {};
+    }
+
+    return tableHead.querySelector('thead');
+  }
+
+  set tableHeadPosition(top) {
+    set(this.tableHead, 'style.top', `${top}px`);
+  }
+
+  onScrollFrame = event => {
+    this.tableHeadPosition = event.scrollTop;
+  };
+
   renderEventList = () => {
     const { isLoading, isMobile, isSmallMode, list, columns, forwardedRef } = this.props;
 
@@ -135,6 +154,7 @@ class EventsHistory extends React.Component {
           <Scrollbars
             style={{ height: contentHeight || '100%' }}
             className="ecos-event-history__scroll"
+            onScrollFrame={this.onScrollFrame}
             renderTrackVertical={props => <div {...props} className="ecos-event-history__v-scroll" />}
           >
             <DefineHeight
