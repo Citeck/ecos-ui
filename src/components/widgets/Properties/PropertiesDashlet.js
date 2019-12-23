@@ -5,21 +5,23 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import { UncontrolledTooltip } from 'reactstrap';
 
+import { isSmallMode, t } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
+import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import { IcoBtn } from '../../common/btns';
 import Dashlet from '../../Dashlet/Dashlet';
+import BaseWidget from '../BaseWidget';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
-import BaseWidget from '../BaseWidget';
-import EcosFormUtils from '../../EcosForm/EcosFormUtils';
-import { isSmallMode, t } from '../../../helpers/util';
+import PropertiesSettings from './PropertiesSettings';
 
 import './style.scss';
 
-const LABELS = {
+const Labels = {
   WIDGET_TITLE: 'properties-widget.title',
-  EDIT_TITLE: 'properties-widget.action-edit.title',
-  CONSTRUCTOR_BTN_TOOLTIP: 'Перейти в конструктор'
+  BTN_EDIT_TIP: 'properties-widget.action-edit.title',
+  BTN_SET_TIP: 'properties-widget.action-settings.title',
+  BTN_BUILD_TIP: 'properties-widget.action-constructor.title'
 };
 
 const mapStateToProps = state => ({
@@ -28,9 +30,8 @@ const mapStateToProps = state => ({
 
 class PropertiesDashlet extends BaseWidget {
   static propTypes = {
-    id: PropTypes.string.isRequired,
-    isAdmin: PropTypes.bool,
-    record: PropTypes.string.isRequired,
+    id: PropTypes.string,
+    record: PropTypes.string,
     title: PropTypes.string,
     classNameProps: PropTypes.string,
     classNameDashlet: PropTypes.string,
@@ -38,6 +39,7 @@ class PropertiesDashlet extends BaseWidget {
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
     }),
     dragHandleProps: PropTypes.object,
+    isAdmin: PropTypes.bool,
     canDragging: PropTypes.bool,
     maxHeightByContent: PropTypes.bool
   };
@@ -66,7 +68,8 @@ class PropertiesDashlet extends BaseWidget {
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       fitHeights: {},
-      canEditRecord: false
+      canEditRecord: false,
+      isShowSetting: false
     };
   }
 
@@ -88,15 +91,11 @@ class PropertiesDashlet extends BaseWidget {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
-  openModal = () => {
+  onOpenModal = () => {
     this.setState({ isEditProps: true });
   };
 
-  updateProps = () => {
-    this.setState({ isReady: false, isEditProps: false }, () => this.setState({ isReady: true }));
-  };
-
-  closeModal = () => {
+  onCloseModal = () => {
     this.setState({ isEditProps: false });
   };
 
@@ -106,39 +105,75 @@ class PropertiesDashlet extends BaseWidget {
     }
   };
 
-  onUpdateProperties = () => {
+  onClickShowFormSettings = () => {
+    this.setState(state => ({ isShowSetting: !state.isShowSetting }));
+  };
+
+  onSaveFormSettings = config => {
+    this.props.onSave && this.props.onSave(this.props.id, { config });
+    this.onClickShowFormSettings();
+  };
+
+  updateProps = () => {
+    this.setState({ isReady: false, isEditProps: false }, () => this.setState({ isReady: true }));
+  };
+
+  updateProperties = () => {
     this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
   };
 
-  renderDashletCustomButtons(isDashlet = false) {
+  renderDashletCustomButtons() {
     const { id, isAdmin } = this.props;
+    const { isShowSetting } = this.state;
     const buttons = [];
 
+    if (isShowSetting) {
+      return buttons;
+    }
+
+    const keySettingsBtn = `settings-btn-${id}`;
+
+    buttons.push(
+      <React.Fragment key={keySettingsBtn}>
+        <IcoBtn
+          id={keySettingsBtn}
+          icon="icon-settings"
+          className="ecos-properties-dashlet__btn-settings ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+          onClick={this.onClickShowFormSettings}
+        />
+        <UncontrolledTooltip
+          target={keySettingsBtn}
+          delay={0}
+          placement="top"
+          className="ecos-base-tooltip ecos-modal-tooltip"
+          innerClassName="ecos-base-tooltip-inner"
+          arrowClassName="ecos-base-tooltip-arrow"
+        >
+          {t(Labels.BTN_SET_TIP)}
+        </UncontrolledTooltip>
+      </React.Fragment>
+    );
+
     if (isAdmin) {
-      const target = `settings-icon-${id}-${isDashlet ? '-dashlet' : '-properties'}`;
+      const keyConstructorBtn = `constructor-btn-${id}`;
 
       buttons.push(
-        <React.Fragment key={`settings-button-${id}`}>
+        <React.Fragment key={keyConstructorBtn}>
           <IcoBtn
-            icon="icon-settings"
-            id={target}
-            className={classNames('ecos-properties-dashlet__btn-settings ecos-btn_grey ecos-btn_sq_sm2 ecos-btn_hover_color-grey ', {
-              dashlet__btn_hidden: isDashlet,
-              'ml-2': !isDashlet
-            })}
+            id={keyConstructorBtn}
+            icon="icon-forms"
+            className="ecos-properties-dashlet__btn-settings ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
             onClick={this.onClickShowFormBuilder}
           />
           <UncontrolledTooltip
-            target={target}
+            target={keyConstructorBtn}
             delay={0}
             placement="top"
-            className={classNames('ecos-base-tooltip', {
-              'ecos-modal-tooltip': !isDashlet
-            })}
+            className="ecos-base-tooltip ecos-modal-tooltip"
             innerClassName="ecos-base-tooltip-inner"
             arrowClassName="ecos-base-tooltip-arrow"
           >
-            {t(LABELS.CONSTRUCTOR_BTN_TOOLTIP)}
+            {t(Labels.BTN_BUILD_TIP)}
           </UncontrolledTooltip>
         </React.Fragment>
       );
@@ -148,20 +183,33 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   render() {
-    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isReady, isEditProps, userHeight, fitHeights, formIsChanged, isCollapsed, canEditRecord, canEdit } = this.state;
-    const classDashlet = classNames('ecos-properties-dashlet', classNameDashlet);
+    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config, isAdmin } = this.props;
+    const {
+      isSmallMode,
+      isReady,
+      isEditProps,
+      userHeight,
+      fitHeights,
+      formIsChanged,
+      isCollapsed,
+      canEditRecord,
+      isShowSetting
+    } = this.state;
+    const { formId = null } = config || {};
     const actions = {
-      edit: {
-        text: t(LABELS.EDIT_TITLE),
-        onClick: this.openModal
-      },
       reload: {
         onClick: this.updateProps
       }
     };
 
-    if (canEdit) {
+    if (canEditRecord && !isShowSetting) {
+      actions.edit = {
+        text: t(LABELS.BTN_EDIT_TIP),
+        onClick: this.onOpenModal
+      };
+    }
+
+    if (isAdmin) {
       actions.builder = {
         icon: 'icon-forms',
         text: t(LABELS.CONSTRUCTOR_BTN_TOOLTIP),
@@ -171,10 +219,9 @@ class PropertiesDashlet extends BaseWidget {
 
     return (
       <Dashlet
-        title={title || t(LABELS.WIDGET_TITLE)}
-        className={classDashlet}
-        bodyClassName={'ecos-properties-dashlet__body'}
-        configActions={actions}
+        title={title || t(Labels.WIDGET_TITLE)}
+        className={classNames('ecos-properties-dashlet', classNameDashlet)}
+        bodyClassName="ecos-properties-dashlet__body"
         resizable={true}
         contentMaxHeight={this.clientHeight}
         needGoTo={false}
@@ -183,13 +230,14 @@ class PropertiesDashlet extends BaseWidget {
         getFitHeights={this.setFitHeights}
         onChangeHeight={this.handleChangeHeight}
         onResize={this.onResize}
+        customButtons={this.renderDashletCustomButtons()}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
       >
         <Properties
           ref={this._propertiesRef}
           forwardedRef={this.contentRef}
-          className={classNameProps}
+          className={classNames(classNameProps, { 'ecos-properties_hidden': isShowSetting })}
           record={record}
           isSmallMode={isSmallMode}
           isReady={isReady}
@@ -197,12 +245,22 @@ class PropertiesDashlet extends BaseWidget {
           height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
-          onUpdate={this.onUpdateProperties}
+          onUpdate={this.updateProperties}
+          formId={formId}
         />
+        {isShowSetting && (
+          <PropertiesSettings
+            record={record}
+            stateId={id}
+            formId={formId}
+            onCancel={this.onClickShowFormSettings}
+            onSave={this.onSaveFormSettings}
+          />
+        )}
         <PropertiesEditModal
           record={record}
           isOpen={isEditProps}
-          onFormCancel={this.closeModal}
+          onFormCancel={this.onCloseModal}
           onFormSubmit={this.updateProps}
           formIsChanged={formIsChanged}
         />

@@ -12,6 +12,7 @@ class Properties extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
+    formId: PropTypes.string,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
     isReady: PropTypes.bool,
@@ -47,6 +48,12 @@ class Properties extends React.Component {
     }
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.formId !== this.props.formId) {
+      this.setState({ loaded: false });
+    }
+  }
+
   onSubmitForm = () => {
     if (this._ecosForm.current) {
       this._ecosForm.current.onReload();
@@ -74,16 +81,15 @@ class Properties extends React.Component {
   renderLoader() {
     const { loaded } = this.state;
     if (!loaded) {
-      return <Loader className="ecos-properties__loader" />;
+      return <Loader className="ecos-properties__loader" blur />;
     }
 
     return null;
   }
 
   renderForm() {
-    const { record, isSmallMode, isReady, onUpdate } = this.props;
+    const { record, isSmallMode, isReady, onUpdate, formId } = this.props;
     const { isReadySubmit, hideForm } = this.state;
-
     const formClassNames = classNames('ecos-properties__formio', {
       'ecos-properties__formio_small': isSmallMode
     });
@@ -107,6 +113,7 @@ class Properties extends React.Component {
           onFormSubmitDone={onUpdate}
           onReady={this.onReady}
           className={formClassNames}
+          formId={formId}
         />
         {/* Cause: https://citeck.atlassian.net/browse/ECOSCOM-2654 */}
         <EcosForm
@@ -126,13 +133,13 @@ class Properties extends React.Component {
   }
 
   render() {
-    const { height, minHeight, forwardedRef } = this.props;
+    const { height, minHeight, forwardedRef, className } = this.props;
     const { loaded, contentHeight } = this.state;
 
     return (
       <Scrollbars
         style={{ height: contentHeight || '100%' }}
-        className="ecos-properties__scroll"
+        className={classNames('ecos-properties__scroll', className)}
         renderTrackVertical={props => <div {...props} className="ecos-properties__scroll_v" />}
       >
         <DefineHeight fixHeight={height} minHeight={minHeight} isMin={!loaded} getOptimalHeight={this.setHeight}>
