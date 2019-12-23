@@ -143,3 +143,22 @@
     }
   }
 }
+
+.header-action {
+  &__btn {
+    &_with-text {
+      padding: 15px 10px;
+
+      .ecos-btn__i {
+        color: $color-gray-5;
+        margin-right: 10px;
+      }
+    }
+  }
+
+  &__tooltip {
+    .ecos-base-tooltip-inner {
+      padding: 0;
+    }
+  }
+}

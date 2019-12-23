@@ -16,7 +16,7 @@ const BtnAction = ({ id, text, icon, onClick }) => {
       <IcoBtn
         id={id}
         icon={icon}
-        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+        className="header-action__btn ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
         onClick={handleClick}
       />
       {text && (
@@ -24,7 +24,7 @@ const BtnAction = ({ id, text, icon, onClick }) => {
           target={id}
           delay={0}
           placement="top"
-          className="ecos-base-tooltip"
+          className="header-action__tooltip ecos-base-tooltip"
           innerClassName="ecos-base-tooltip-inner"
           arrowClassName="ecos-base-tooltip-arrow"
         >
@@ -49,19 +49,19 @@ const DropdownActions = ({ list, dashletId }) => {
       <IcoBtn
         id={id}
         icon="icon-menu-normal-press"
-        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+        className="header-action__drop-btn ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
       />
       <UncontrolledTooltip
         trigger="click"
         target={id}
         delay={0}
         placement="bottom"
-        className="ecos-base-tooltip"
+        className="header-action__tooltip ecos-base-tooltip"
         innerClassName="ecos-base-tooltip-inner"
         arrowClassName="ecos-base-tooltip-arrow"
       >
         {list.map(({ id, text, icon, onClick }) => (
-          <IcoBtn key={id} icon={icon} onClick={handleClick(onClick)} className="ecos-btn_white">
+          <IcoBtn key={id} icon={icon} onClick={handleClick(onClick)} className="header-action__btn_with-text ecos-btn_grey6">
             {text}
           </IcoBtn>
         ))}
