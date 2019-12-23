@@ -204,7 +204,7 @@ class PropertiesDashlet extends BaseWidget {
 
     if (canEditRecord && !isShowSetting) {
       actions.edit = {
-        text: t(LABELS.BTN_EDIT_TIP),
+        text: t(Labels.BTN_EDIT_TIP),
         onClick: this.onOpenModal
       };
     }
@@ -212,7 +212,7 @@ class PropertiesDashlet extends BaseWidget {
     if (isAdmin) {
       actions.builder = {
         icon: 'icon-forms',
-        text: t(LABELS.CONSTRUCTOR_BTN_TOOLTIP),
+        text: t(Labels.CONSTRUCTOR_BTN_TOOLTIP),
         onClick: this.onClickShowFormBuilder
       };
     }
