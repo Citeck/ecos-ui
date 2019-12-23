@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
+import get from 'lodash/get';
 import { UncontrolledTooltip } from 'reactstrap';
 
 import { isSmallMode, t } from '../../../helpers/util';
@@ -22,6 +24,10 @@ const Labels = {
   BTN_BUILD_TIP: 'properties-widget.action-constructor.title'
 };
 
+const mapStateToProps = state => ({
+  isAdmin: get(state, ['user', 'isAdmin'], false)
+});
+
 class PropertiesDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string,
@@ -33,6 +39,7 @@ class PropertiesDashlet extends BaseWidget {
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
     }),
     dragHandleProps: PropTypes.object,
+    isAdmin: PropTypes.bool,
     canDragging: PropTypes.bool,
     maxHeightByContent: PropTypes.bool
   };
@@ -115,16 +122,16 @@ class PropertiesDashlet extends BaseWidget {
     this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
   };
 
-  renderDashletCustomButtons() {
-    const { id } = this.props;
-    const { canEdit, isShowSetting } = this.state;
+  renderDashletCustomButtons(isDashlet = false) {
+    const { id, isAdmin } = this.props;
+    const { isShowSetting } = this.state;
     const buttons = [];
 
     if (isShowSetting) {
       return buttons;
     }
 
-    const keySettingsBtn = `settings-btn-${id}`;
+    const target = `settings-icon-${id}-${isDashlet ? '-dashlet' : '-properties'}`;
 
     buttons.push(
       <React.Fragment key={keySettingsBtn}>
@@ -147,7 +154,7 @@ class PropertiesDashlet extends BaseWidget {
       </React.Fragment>
     );
 
-    if (canEdit) {
+    if (isAdmin) {
       const keyConstructorBtn = `constructor-btn-${id}`;
 
       buttons.push(
@@ -213,6 +220,7 @@ class PropertiesDashlet extends BaseWidget {
         isCollapsed={isCollapsed}
       >
         <Properties
+          ref={this._propertiesRef}
           forwardedRef={this.contentRef}
           className={classNames(classNameProps, { 'ecos-properties_hidden': isShowSetting })}
           record={record}
@@ -246,4 +254,4 @@ class PropertiesDashlet extends BaseWidget {
   }
 }
 
-export default PropertiesDashlet;
+export default connect(mapStateToProps)(PropertiesDashlet);

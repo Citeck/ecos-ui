@@ -12,8 +12,18 @@ const originalBuild = Base.prototype.build;
 const originalCreateViewOnlyElement = Base.prototype.createViewOnlyElement;
 const originalCheckValidity = Base.prototype.checkValidity;
 const originalCheckConditions = Base.prototype.checkConditions;
+const originalSetValue = Base.prototype.setValue;
 
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
+
+Base.prototype.setValue = function(value, flags) {
+  // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2980
+  if (this.viewOnly) {
+    this.dataValue = value;
+  }
+
+  return originalSetValue.call(this, value, flags);
+};
 
 Base.prototype.createTooltip = function(container, component, classes) {
   originalCreateTooltip.call(this, container, component, classes);
@@ -137,7 +147,8 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
     const rollBack = () => {
       if (this.hasOwnProperty('_valueBeforeEdit')) {
         if (!isEqual(this.getValue(), this._valueBeforeEdit)) {
-          this.dataValue = this._valueBeforeEdit;
+          // this.dataValue = this._valueBeforeEdit;
+          this.setValue(this._valueBeforeEdit);
         }
       }
 
@@ -213,6 +224,15 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
 
 Base.prototype.build = function(state) {
   originalBuild.call(this, state);
+
+  const { options = {} } = this;
+  const { isDebugModeOn = false } = options;
+
+  if (isDebugModeOn) {
+    this.on('change', change => {
+      console.log(`This component is changed ${this.label}`);
+    });
+  }
 
   this.createInlineEditSaveAndCancelButtons();
 };

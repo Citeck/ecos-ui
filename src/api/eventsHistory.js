@@ -1,10 +1,10 @@
 import { RecordService } from './recordService';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 import { PROXY_URI } from '../constants/alfresco';
-import { SourcesId } from '../constants';
+import { Permissions, SourcesId } from '../constants';
 
 export class EventsHistoryApi extends RecordService {
-  getEventsHistory = ({ record, columns = [], predicates = [] }) => {
+  getEventsHistory = ({ record, columns = [] }) => {
     const query = {
       query: {
         nodeRef: record,
@@ -19,7 +19,8 @@ export class EventsHistoryApi extends RecordService {
       url: `${PROXY_URI}citeck/ecos/records`,
       dataSourceName: 'GqlDataSource',
       ajax: { body: { query } },
-      columns: columns || []
+      columns,
+      permissions: [Permissions.Read]
     });
 
     return dataSource

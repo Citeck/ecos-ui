@@ -5,28 +5,85 @@
   height: 100%;
   width: 100%;
   overflow: hidden;
+  display: flex;
+
+  &_mobile {
+    display: block;
+  }
+
+  &__pagination {
+    &_mobile {
+      margin-right: 0;
+
+      .ecos-pagination__arrow {
+        &,
+        &:active,
+        &:hover {
+          background: $color-gray-5;
+          color: $color-white;
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          padding: 0;
+        }
+      }
+    }
+  }
 }
 
 .ecos-journal__body {
-  padding-top: 18px;
-  padding-right: 26px;
-  padding-left: 26px;
+  flex: auto;
+  padding: 19px 26px 0 24px;
   height: 100%;
-}
 
-.ecos-journal__body_with-menu {
-  float: left;
-  width: calc(100% - 273px);
-  padding-right: 15px;
+  &_with-menu {
+    float: left;
+    width: calc(100% - 273px);
+    padding-right: 15px;
+  }
+
+  &_with-tabs {
+    padding-top: 17px;
+  }
+
+  &_mobile {
+    padding: 16px;
+  }
 }
 
 .ecos-journal__menu {
-  float: right;
-  width: 273px;
-}
+  $root: &;
+  width: 0;
+  transition: width 0.5s;
 
-.ecos-journal__menu_with-tabs {
-  padding: 15px 0;
+  &_with-tabs {
+    padding: 15px 0;
+  }
+
+  &_expanded {
+    width: 273px;
+    max-width: 273px;
+  }
+
+  &_close {
+    width: 0;
+    max-width: 0;
+  }
+
+  &_mobile {
+    position: absolute;
+    z-index: 100;
+    top: 0;
+    right: 0;
+    padding: 0;
+    width: 0;
+    height: 100% !important;
+
+    &#{$root}_expanded {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
 }
 
 /*Tools*/
@@ -49,28 +106,6 @@
   padding: 21px 0;
 }
 
-.ecos-journal__settings-bar {
-  display: flex;
-  position: relative;
-  width: 100%;
-  margin-bottom: 12px;
-}
-
-.ecos-journal__settings-bar_step {
-  margin-right: 10px;
-}
-
-.ecos-journal__settings-bar_right {
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-
-.ecos-journal__settings-bar_right-btn {
-  position: relative;
-  top: -1px;
-}
-
 .ecos-journal__settings-footer {
   padding: 21px 21px 0 21px;
 }
@@ -78,6 +113,7 @@
 /*Grid*/
 .ecos-journal__footer {
   width: 100%;
+  margin-top: 5px;
 }
 
 .ecos-journal_right {
