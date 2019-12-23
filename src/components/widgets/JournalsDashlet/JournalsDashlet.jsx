@@ -169,19 +169,25 @@ class JournalsDashlet extends BaseWidget {
       return null;
     }
 
+    const actions = {
+      edit: {
+        onClick: this.showEditor
+      },
+      reload: {
+        onClick: reloadGrid
+      }
+    };
+
     return (
       <Dashlet
         {...this.props}
         className={classNames('ecos-journal-dashlet', className)}
         bodyClassName={'ecos-journal-dashlet__body'}
+        style={{ minWidth: `${MIN_WIDTH_DASHLET_SMALL}px` }}
         title={journalConfig.meta.title || t('journal.title')}
-        onReload={reloadGrid}
-        onEdit={this.showEditor}
         onGoTo={this.goToJournalsPage}
         needGoTo={width >= MIN_WIDTH_DASHLET_LARGE}
-        style={{
-          minWidth: `${MIN_WIDTH_DASHLET_SMALL}px`
-        }}
+        configActions={actions}
         onResize={this.handleResize}
         dragHandleProps={dragHandleProps}
         onToggleCollapse={this.handleToggleContent}

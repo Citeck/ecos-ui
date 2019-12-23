@@ -7,85 +7,14 @@ import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import uniqueId from 'lodash/uniqueId';
 
-import { t } from '../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 import Panel from '../common/panels/Panel/Panel';
 import Measurer from '../Measurer/Measurer';
-import { Btn, IcoBtn } from '../common/btns';
-import { Badge } from '../common/form';
-import { Icon, ResizableBox } from '../common';
-import BtnActions from './BtnActions';
+import { Btn } from '../common/btns';
+import { ResizableBox } from '../common';
+import Header from './Header';
 
 import './Dashlet.scss';
-
-const Header = ({
-  dashletId,
-  dragHandleProps,
-  title,
-  needGoTo,
-  onGoTo,
-  onToggleCollapse,
-  actionDrag,
-  measurer,
-  titleClassName,
-  isMobile,
-  isCollapsed,
-  badgeText,
-  configActions,
-  orderActions,
-  noActions
-}) => {
-  const btnGoTo = isMobile ? null : (
-    <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className="dashlet__btn ecos-btn_narrow" onClick={onGoTo}>
-      {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
-    </IcoBtn>
-  );
-
-  let toggleIcon = null;
-  let dragBtn = null;
-
-  if (actionDrag) {
-    dragBtn = (
-      <span className="dashlet__btn_move-wrapper" {...dragHandleProps}>
-        <IcoBtn
-          key="action-drag"
-          icon={'icon-drag'}
-          className="ecos-btn_i dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1"
-          title={t('dashlet.move.title')}
-        />
-      </span>
-    );
-  }
-
-  if (isMobile) {
-    toggleIcon = (
-      <Icon
-        className={classNames('dashlet__header-collapser', {
-          'icon-down': isCollapsed,
-          'icon-up': !isCollapsed
-        })}
-      />
-    );
-  }
-
-  return (
-    <div className="dashlet__header" onClick={onToggleCollapse}>
-      <span className={classNames('dashlet__caption', titleClassName)}>
-        {toggleIcon}
-        {title}
-      </span>
-
-      <Badge text={badgeText} size={isMobile ? 'small' : 'large'} />
-
-      {needGoTo && btnGoTo}
-
-      <div className="dashlet__header-actions">
-        {!(isMobile || noActions) && <BtnActions configActions={configActions} orderActions={orderActions} dashletId={dashletId} />}
-        {dragBtn}
-      </div>
-    </div>
-  );
-};
 
 class Dashlet extends Component {
   static propTypes = {
@@ -113,13 +42,7 @@ class Dashlet extends Component {
     getFitHeights: PropTypes.func,
     configActions: PropTypes.object,
     orderActions: PropTypes.object,
-    noActions: PropTypes.bool,
-    //-------------------------------------
-    actionReload: PropTypes.bool,
-    actionEdit: PropTypes.bool,
-    actionHelp: PropTypes.bool,
-    onEdit: PropTypes.func,
-    onReload: PropTypes.func
+    noActions: PropTypes.bool
   };
 
   static defaultProps = {

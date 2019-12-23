@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import { UncontrolledTooltip } from 'reactstrap';
 
 import UserLocalSettingsService from '../../../services/userLocalSettings';
+import { IcoBtn } from '../../common/btns';
 import Dashlet from '../../Dashlet/Dashlet';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
