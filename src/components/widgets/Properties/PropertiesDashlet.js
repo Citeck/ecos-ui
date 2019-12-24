@@ -91,11 +91,11 @@ class PropertiesDashlet extends BaseWidget {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
-  onOpenModal = () => {
+  openModal = () => {
     this.setState({ isEditProps: true });
   };
 
-  onCloseModal = () => {
+  closeModal = () => {
     this.setState({ isEditProps: false });
   };
 
@@ -105,20 +105,20 @@ class PropertiesDashlet extends BaseWidget {
     }
   };
 
-  onClickShowFormSettings = () => {
+  toggleDisplayFormSettings = () => {
     this.setState(state => ({ isShowSetting: !state.isShowSetting }));
   };
 
   onSaveFormSettings = config => {
     this.props.onSave && this.props.onSave(this.props.id, { config });
-    this.onClickShowFormSettings();
+    this.toggleDisplayFormSettings();
   };
 
-  updateProps = () => {
+  onPropertiesEditFormSubmit = () => {
     this.setState({ isReady: false, isEditProps: false }, () => this.setState({ isReady: true }));
   };
 
-  updateProperties = () => {
+  onPropertiesUpdate = () => {
     this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
   };
 
@@ -139,7 +139,7 @@ class PropertiesDashlet extends BaseWidget {
           id={keySettingsBtn}
           icon="icon-settings"
           className="ecos-properties-dashlet__btn-settings ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-          onClick={this.onClickShowFormSettings}
+          onClick={this.toggleDisplayFormSettings}
         />
         <UncontrolledTooltip
           target={keySettingsBtn}
@@ -210,7 +210,7 @@ class PropertiesDashlet extends BaseWidget {
         actionHelp={false}
         actionReload={false}
         canDragging={canDragging}
-        onEdit={this.onOpenModal}
+        onEdit={this.openModal}
         dragHandleProps={dragHandleProps}
         onChangeHeight={this.handleChangeHeight}
         getFitHeights={this.setFitHeights}
@@ -230,7 +230,7 @@ class PropertiesDashlet extends BaseWidget {
           height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
-          onUpdate={this.updateProperties}
+          onUpdate={this.onPropertiesUpdate}
           formId={formId}
         />
         {isShowSetting && (
@@ -238,15 +238,15 @@ class PropertiesDashlet extends BaseWidget {
             record={record}
             stateId={id}
             formId={formId}
-            onCancel={this.onClickShowFormSettings}
+            onCancel={this.toggleDisplayFormSettings}
             onSave={this.onSaveFormSettings}
           />
         )}
         <PropertiesEditModal
           record={record}
           isOpen={isEditProps}
-          onFormCancel={this.onCloseModal}
-          onFormSubmit={this.updateProps}
+          onFormCancel={this.closeModal}
+          onFormSubmit={this.onPropertiesEditFormSubmit}
           formIsChanged={formIsChanged}
         />
       </Dashlet>
