@@ -41,7 +41,7 @@ class Dashlet extends Component {
     onChangeHeight: PropTypes.func,
     getFitHeights: PropTypes.func,
     actionConfig: PropTypes.object,
-    actionRules: PropTypes.array,
+    actionRules: PropTypes.object,
     noActions: PropTypes.bool
   };
 

@@ -258,6 +258,7 @@
   "eform.header.CREATE.title": "Create",
   "eform.header.EDIT.title": "Edit",
   "eform.header.VIEW.title": "View",
+  "eform.btn.tooltip.constructor": "Go to form builder",
   "events-history-widget.info.no-columns": "No display settings",
   "events-history-widget.info.no-events": "No events",
   "events-history-widget.title": "Events history",

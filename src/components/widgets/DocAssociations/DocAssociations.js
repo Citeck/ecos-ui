@@ -247,12 +247,8 @@ class DocAssociations extends BaseWidget {
   }
 
   renderAddButton = () => {
-    const { menu, id, isMobile, isLoadingMenu } = this.props;
+    const { menu, id, isLoadingMenu } = this.props;
     const { isMenuOpen } = this.state;
-
-    if (isMobile) {
-      return null;
-    }
 
     return (
       <Dropdown isOpen={isMenuOpen} toggle={this.handleToggleMenu} key="add-button">
@@ -326,12 +322,15 @@ class DocAssociations extends BaseWidget {
     const { canDragging, dragHandleProps, isCollapsed, documentsTotalCount, isLoading, isMobile } = this.props;
     const { userHeight = 0, fitHeights, contentHeight } = this.state;
     const fixHeight = userHeight || null;
-    const actions = {
-      plus: {
-        component: this.renderAddButton()
-      }
-    };
+    const actions = {};
     const actionRules = { orderActions: ['plus'] };
+
+    if (!isMobile) {
+      actions.plus = {
+        component: this.renderAddButton(),
+        text: t(LABELS.TOOLTIP_ADD_LINK)
+      };
+    }
 
     return (
       <Dashlet
@@ -351,7 +350,6 @@ class DocAssociations extends BaseWidget {
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
-        customButtons={[this.renderAddButton()]}
         badgeText={getAdaptiveNumberStr(documentsTotalCount)}
         noBody={!documentsTotalCount && !isLoading}
       >

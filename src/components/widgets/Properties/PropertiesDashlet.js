@@ -104,7 +104,7 @@ class PropertiesDashlet extends BaseWidget {
     if (isAdmin) {
       actions.builder = {
         icon: 'icon-forms',
-        text: t(Labels.CONSTRUCTOR_BTN_TOOLTIP),
+        text: t(Labels.BTN_BUILD_TIP),
         onClick: this.onClickShowFormBuilder
       };
     }

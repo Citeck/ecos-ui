@@ -4,27 +4,27 @@ import { UncontrolledTooltip } from 'reactstrap';
 import { t } from '../../helpers/util';
 import { IcoBtn } from '../common/btns';
 
-const BtnAction = ({ id, text, icon, onClick }) => {
-  const handleClick = () => {
-    if (typeof onClick === 'function') {
-      onClick.call(this);
-    }
-  };
+const handleClick = onClick => {
+  if (typeof onClick === 'function') {
+    return onClick.bind(this);
+  }
+};
 
+const BtnAction = ({ id, text, icon, onClick }) => {
   return (
     <>
       <IcoBtn
         id={id}
         icon={icon}
-        className="header-action__btn ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-        onClick={handleClick}
+        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+        onClick={handleClick(onClick)}
       />
       {text && (
         <UncontrolledTooltip
           target={id}
           delay={0}
           placement="top"
-          className="header-action__tooltip ecos-base-tooltip"
+          className="ecos-base-tooltip"
           innerClassName="ecos-base-tooltip-inner"
           arrowClassName="ecos-base-tooltip-arrow"
         >
@@ -38,41 +38,46 @@ const BtnAction = ({ id, text, icon, onClick }) => {
 const DropdownActions = ({ list, dashletId }) => {
   const id = `action-dropdown-${dashletId}`;
 
-  const handleClick = onClick => {
-    if (typeof onClick === 'function') {
-      return onClick.bind(this);
-    }
-  };
-
   return (
     <>
       <IcoBtn
         id={id}
         icon="icon-menu-normal-press"
-        className="header-action__drop-btn ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
       />
       <UncontrolledTooltip
         target={id}
         trigger="hover"
-        delay={250}
+        delay={50}
         autohide={false}
         placement="bottom-end"
-        className="header-action__tooltip ecos-base-tooltip"
-        innerClassName="ecos-base-tooltip-inner"
-        arrowClassName="ecos-base-tooltip-arrow"
+        className="header-action-dropmenu"
+        innerClassName="header-action-dropmenu-inner"
+        arrowClassName="header-action-dropmenu-arrow"
       >
-        {list.map(({ id, text, icon, onClick }) => (
-          <IcoBtn key={id} icon={icon} onClick={handleClick(onClick)} className="header-action__btn_with-text ecos-btn_grey6">
-            {text}
-          </IcoBtn>
-        ))}
+        {list.map(({ id, text, icon, onClick, component }) =>
+          component ? (
+            <React.Fragment key={id}>
+              {component} {!!text && text}
+            </React.Fragment>
+          ) : (
+            <IcoBtn
+              key={id}
+              icon={icon}
+              onClick={handleClick(onClick)}
+              className="header-action-dropmenu__btn header-action-dropmenu__btn_with-text ecos-btn_grey6 ecos-btn_r_0"
+            >
+              {text}
+            </IcoBtn>
+          )
+        )}
       </UncontrolledTooltip>
     </>
   );
 };
 
 const BtnActions = ({ actionConfig = {}, dashletId, actionRules }) => {
-  const { orderActions, countShow = 2 } = actionRules || {};
+  const { orderActions, countShow = 4 } = actionRules || {};
   const baseOrderActions = ['edit', 'help', 'reload', 'settings'];
   const orderedActions = [];
   const actions = {
@@ -108,9 +113,9 @@ const BtnActions = ({ actionConfig = {}, dashletId, actionRules }) => {
   }
 
   if (!updatedOrderActions.length) {
-    Array.prototype.push.apply(updatedOrderActions, baseOrderActions);
     const leftoverKeys = Object.getOwnPropertyNames(actionConfig).filter(item => !baseOrderActions.includes(item));
-    Array.prototype.push.apply(updatedOrderActions, leftoverKeys);
+
+    Array.prototype.push.apply(updatedOrderActions, baseOrderActions.concat(leftoverKeys));
   }
 
   updatedOrderActions = updatedOrderActions.filter(item => actions[item] && (actions[item].onClick || actions[item].component));
@@ -141,7 +146,7 @@ const BtnActions = ({ actionConfig = {}, dashletId, actionRules }) => {
       return null;
     }
 
-    return <DropdownActions list={dropActions} />;
+    return <DropdownActions list={dropActions} dashletId={dashletId} />;
   };
 
   return (

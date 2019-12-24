@@ -258,6 +258,7 @@
   "eform.header.CREATE.title": "Создать",
   "eform.header.EDIT.title": "Редактировать",
   "eform.header.VIEW.title": "Просмотр",
+  "eform.btn.tooltip.constructor": "Перейти в конструктор",
   "events-history-widget.info.no-columns": "Нет настроек отображения",
   "events-history-widget.info.no-events": "Нет событий",
   "events-history-widget.title": "История событий",
