@@ -6,12 +6,11 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'reactstrap';
 
 import BaseWidget from '../BaseWidget';
-import { getAdaptiveNumberStr, removeItemFromArray, t } from '../../../helpers/util';
+import { getAdaptiveNumberStr, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_SMALL, URL } from '../../../constants/index';
-import { getDocuments, getMenu, getSectionList, initStore, saveDocuments } from '../../../actions/docAssociations';
+import { getDocuments, getMenu, getSectionList, initStore, addDocuments, removeDocuments } from '../../../actions/docAssociations';
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import DocAssociationsConverter from '../../../dto/docAssociations';
 
 import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/index';
 import { RemoveDialog } from '../../common/dialogs/index';
@@ -48,7 +47,8 @@ class DocAssociations extends BaseWidget {
     getSectionList: PropTypes.func,
     getDocuments: PropTypes.func,
     getMenu: PropTypes.func,
-    saveDocuments: PropTypes.func,
+    addDocuments: PropTypes.func,
+    removeDocuments: PropTypes.func,
     maxHeightByContent: PropTypes.bool
   };
 
@@ -70,6 +70,7 @@ class DocAssociations extends BaseWidget {
       isMenuOpen: false,
       isConfirmRemoveDialogOpen: false,
       journalId: '',
+      journalRef: '',
       connectionId: '',
       selectedDocument: null
     };
@@ -127,21 +128,20 @@ class DocAssociations extends BaseWidget {
       return;
     }
 
+    console.warn('selected menu item => ', item);
+
     this.setState({
       journalId: item.id,
+      journalRef: item.nodeRef,
       connectionId: item.connectionId,
       isMenuOpen: false
     });
   };
 
   handleSelectJournal = selectedJournals => {
-    const { documents } = this.props;
-    const { connectionId } = this.state;
+    const { connectionId, journalRef } = this.state;
 
-    this.props.saveDocuments(this.state.connectionId, [
-      ...DocAssociationsConverter.getDocumentsRecords(documents, connectionId),
-      ...selectedJournals
-    ]);
+    this.props.addDocuments(connectionId, journalRef, selectedJournals);
 
     this.setState({ journalId: '' });
   };
@@ -161,10 +161,10 @@ class DocAssociations extends BaseWidget {
       return;
     }
 
-    const { documents, saveDocuments } = this.props;
-    const { connectionId, record } = selectedDocument;
+    const { removeDocuments } = this.props;
+    const { record, connectionId } = selectedDocument;
 
-    saveDocuments(connectionId, [...removeItemFromArray(DocAssociationsConverter.getDocumentsRecords(documents, connectionId), record)]);
+    removeDocuments(connectionId, record, [record]);
     this.closeConfirmRemovingModal();
   };
 
@@ -379,17 +379,24 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   getSectionList: () => dispatch(getSectionList(ownProps.record)),
   getDocuments: () => dispatch(getDocuments(ownProps.record)),
   getMenu: () => dispatch(getMenu(ownProps.record)),
-  saveDocuments: (connectionId, documents) =>
+  addDocuments: (connectionId, journalRef, documents) =>
     dispatch(
-      saveDocuments({
+      addDocuments({
         record: ownProps.record,
         connectionId,
+        journalRef,
+        documents
+      })
+    ),
+  removeDocuments: (associationId, journalRef, documents) =>
+    dispatch(
+      removeDocuments({
+        record: ownProps.record,
+        associationId,
+        journalRef,
         documents
       })
     )
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DocAssociations);
+export default connect(mapStateToProps, mapDispatchToProps)(DocAssociations);

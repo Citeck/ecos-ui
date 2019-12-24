@@ -75,20 +75,27 @@ export class DocAssociationsApi extends RecordService {
     }).then(response => response.json().then(response => response.journals));
   };
 
-  saveDocuments = data => {
-    const { connectionId, recordRef, documents } = data;
-    const record = Records.get(recordRef);
-
-    record.att(connectionId, documents);
-
-    return record.save().then(response => response);
-  };
-
   getTargetAssociations = (id, recordRef) => {
     return Records.get(recordRef).load(`${id}[]{id:.assoc,displayName:.disp,created}`);
   };
 
   getSourceAssociations = (id, recordRef) => {
     return Records.get(recordRef).load(`assoc_src_${id}[]{id:.assoc,displayName:.disp,created}`);
+  };
+
+  addDocuments = ({ associationId, documents, recordRef }) => {
+    const record = Records.getRecordToEdit(recordRef);
+
+    record.att(`att_add_${associationId}`, documents);
+
+    return record.save().then(response => response);
+  };
+
+  removeDocuments = ({ associationId, documents, recordRef }) => {
+    const record = Records.getRecordToEdit(recordRef);
+
+    record.att(`att_rem_${associationId}`, documents);
+
+    return record.save().then(response => response);
   };
 }

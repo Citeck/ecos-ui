@@ -19,3 +19,10 @@ export const selectDocuments = (state, key, connectionId) => {
 
   return get(docs, ['documents'], []).map(doc => doc.record);
 };
+
+export const selectAllowedDirectionsByKey = (state, recordRef) => {
+  return get(state, ['docAssociations', recordRef, 'allowedConnections'], []).reduce(
+    (res, cur) => ({ ...res, [cur.name]: cur.direction }),
+    {}
+  );
+};
