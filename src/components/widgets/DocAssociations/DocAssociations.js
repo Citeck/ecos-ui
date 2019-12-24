@@ -29,7 +29,8 @@ const LABELS = {
   MESSAGE_NOT_ADDED: 'doc-associations-widget.not-added',
   TOOLTIP_ADD_LINK: 'doc-associations-widget.add-association',
   TITLE_CONFIRM_REMOVE_MODAL: 'doc-associations-widget.confirm-remove-modal.title',
-  CONFIRM_REMOVE_MODAL_TEXT: 'doc-associations-widget.confirm-remove-modal.text'
+  CONFIRM_REMOVE_MODAL_TEXT: 'doc-associations-widget.confirm-remove-modal.text',
+  EMPTY_ALLOWED_ASSOCIATIONS_MESSAGE: 'doc-associations-widget.empty-allowed-associations.message'
 };
 
 class DocAssociations extends BaseWidget {
@@ -271,7 +272,13 @@ class DocAssociations extends BaseWidget {
           </UncontrolledTooltip>
         </DropdownToggle>
         <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_cascade">
-          <Menu items={menu} mode="cascade" isLoading={isLoadingMenu} onClick={this.handleSelectMenuItem} />
+          <Menu
+            emptyMessage={t(LABELS.EMPTY_ALLOWED_ASSOCIATIONS_MESSAGE)}
+            items={menu}
+            mode="cascade"
+            isLoading={isLoadingMenu}
+            onClick={this.handleSelectMenuItem}
+          />
         </DropdownMenu>
       </Dropdown>
     );

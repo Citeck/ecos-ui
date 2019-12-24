@@ -176,6 +176,7 @@
   "doc-associations-widget.table-cell.creation-date": "Creation date",
   "doc-associations-widget.table-cell.headline": "Headline",
   "doc-associations-widget.title": "Document associations",
+  "doc-associations-widget.empty-allowed-associations.message": "No Associations Available",
   "doc-preview.download": "Download",
   "doc-preview.error.failure-to-fetch": "Failure to fetch the document",
   "doc-preview.error.loading-failure": "There was a problem loading the document. Try to download the document",
