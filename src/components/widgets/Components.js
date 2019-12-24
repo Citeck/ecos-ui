@@ -20,7 +20,9 @@ export const ComponentKeys = {
   DOC_ASSOCIATIONS: 'doc-associations',
   RECORD_ACTIONS: 'record-actions',
   WEB_PAGE: 'web-page',
-  BARCODE: 'barcode'
+  BARCODE: 'barcode',
+  BIRTHDAYS: 'birthdays',
+  DOCUMENTS: 'documents'
 };
 
 /**
@@ -105,6 +107,11 @@ export default class Components {
       load: () => lazy(() => import('./Barcode')),
       label: 'dashboard-settings.widget.barcode',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+    },
+    [ComponentKeys.DOCUMENTS]: {
+      load: () => lazy(() => import('./Documents')),
+      label: 'dashboard-settings.widget.documents',
+      supportedDashboardTypes: [DashboardTypes.USER]
     }
   });
 

@@ -160,6 +160,7 @@
   "dashboard-settings.widgets.subtitle": "Choose the widgets location.",
   "dashboard-settings.widgets.subtitle-mobile": "Choose the widgets location by dragging them to the column on the right.",
   "dashboard-settings.widgets.title": "Widgets",
+  "dashboard-settings.widget.documents": "Documents",
   "dashlet.edit.title": "Configure this dashlet",
   "dashlet.edit.tooltip": "Edit data",
   "dashlet.goto": "Go to section",
