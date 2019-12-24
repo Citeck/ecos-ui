@@ -222,7 +222,7 @@ class DocAssociations extends BaseWidget {
     </div>
   );
 
-  renderDocumentsItem = data => {
+  renderAssociationsItem = data => {
     const { id } = this.props;
     const { associations, title } = data;
 
@@ -241,10 +241,10 @@ class DocAssociations extends BaseWidget {
     );
   };
 
-  renderDocuments() {
+  renderAssociations() {
     const { associations } = this.props;
 
-    return <div ref={this.contentRef}>{associations.map(this.renderDocumentsItem)}</div>;
+    return <div ref={this.contentRef}>{associations.map(this.renderAssociationsItem)}</div>;
   }
 
   renderAddButton = () => {
@@ -352,11 +352,11 @@ class DocAssociations extends BaseWidget {
         noBody={!associationsTotalCount && !isLoading}
       >
         {isMobile ? (
-          this.renderDocuments()
+          this.renderAssociations()
         ) : (
           <Scrollbars style={{ height: contentHeight || '100%' }}>
             <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
-              {this.renderDocuments()}
+              {this.renderAssociations()}
             </DefineHeight>
           </Scrollbars>
         )}
