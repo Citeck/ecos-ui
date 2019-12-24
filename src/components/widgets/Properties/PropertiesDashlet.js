@@ -7,7 +7,7 @@ import get from 'lodash/get';
 import { isSmallMode, t } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
-import Dashlet from '../../Dashlet/Dashlet';
+import Dashlet, { BaseActions } from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
@@ -86,10 +86,10 @@ class PropertiesDashlet extends BaseWidget {
     }
 
     const actions = {
-      reload: {
+      [BaseActions.RELOAD]: {
         onClick: this.updateProps
       },
-      settings: {
+      [BaseActions.SETTINGS]: {
         onClick: this.toggleDisplayFormSettings
       }
     };

@@ -16,7 +16,7 @@ import { getDocumentsRecords } from '../../../dto/docAssociations';
 import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/index';
 import { RemoveDialog } from '../../common/dialogs/index';
 import SelectJournal from '../../common/form/SelectJournal/index';
-import Dashlet from '../../Dashlet/Dashlet';
+import Dashlet from '../../Dashlet';
 
 import './style.scss';
 
@@ -326,7 +326,7 @@ class DocAssociations extends BaseWidget {
     const actionRules = { orderedVisible: ['plus'] };
 
     if (!isMobile) {
-      actions.plus = {
+      actions.addLink = {
         component: this.renderAddButton(),
         text: t(LABELS.TOOLTIP_ADD_LINK)
       };

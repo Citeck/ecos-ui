@@ -8,8 +8,8 @@ import classNames from 'classnames';
 
 import { DefineHeight, Loader } from '../../common/index';
 import { Btn } from '../../common/btns/index';
-import { Input, Label } from '../../common/form/index';
-import Dashlet from '../../Dashlet/Dashlet';
+import { Caption, Input, Label } from '../../common/form/index';
+import Dashlet, { BaseActions } from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
@@ -22,6 +22,7 @@ import './style.scss';
 const LABELS = {
   EMPTY_DATA: 'web-page-widget.empty',
   SETTINGS_BTN: 'web-page-widget.btn.settings',
+  SETTINGS_CAPTION: 'web-page-widget.settings.caption',
   SETTINGS_LABEL_TITLE: 'web-page-widget.settings.title-label',
   SETTINGS_PLACEHOLDER_TITLE: 'web-page-widget.settings.title-placeholder',
   SETTINGS_LABEL_URL: 'web-page-widget.settings.url-label',
@@ -234,6 +235,9 @@ class WebPage extends BaseWidget {
 
     return (
       <div className="ecos-wpage__settings">
+        <Caption middle className="ecos-wpage__settings-caption">
+          {t(LABELS.SETTINGS_CAPTION)}
+        </Caption>
         <Label htmlFor="title-input" className="ecos-wpage__settings-label">
           {t(LABELS.SETTINGS_LABEL_TITLE)}
         </Label>
@@ -323,18 +327,20 @@ class WebPage extends BaseWidget {
 
   render() {
     const { title, pageIsLoaded } = this.props;
-    const { isCollapsed } = this.state;
+    const { isCollapsed, settingsIsShow } = this.state;
 
     const { userHeight = 0, contentHeight, fitHeights } = this.state;
     const fixHeight = userHeight ? userHeight : pageIsLoaded ? 572 : 203;
-    const actions = {
-      edit: {
+    const actions = {};
+
+    if (!settingsIsShow) {
+      actions[BaseActions.SETTINGS] = {
         onClick: this.handleEdit
-      },
-      reload: {
+      };
+      actions[BaseActions.RELOAD] = {
         onClick: this.handleReload
-      }
-    };
+      };
+    }
 
     return (
       <Dashlet

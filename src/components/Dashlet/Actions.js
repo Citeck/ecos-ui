@@ -4,12 +4,6 @@ import { UncontrolledTooltip } from 'reactstrap';
 import { t } from '../../helpers/util';
 import { IcoBtn } from '../common/btns';
 
-const handleClick = onClick => {
-  if (typeof onClick === 'function') {
-    return onClick.bind(this);
-  }
-};
-
 const BtnAction = ({ id, text, icon, onClick, component }) => {
   if (component) {
     return component;
@@ -21,7 +15,7 @@ const BtnAction = ({ id, text, icon, onClick, component }) => {
         id={id}
         icon={icon}
         className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-        onClick={handleClick(onClick)}
+        onClick={onClick}
       />
       {text && (
         <UncontrolledTooltip
@@ -68,7 +62,7 @@ const DropdownActions = ({ list, dashletId }) => {
             <IcoBtn
               key={id}
               icon={icon}
-              onClick={handleClick(onClick)}
+              onClick={onClick}
               className="header-action-dropmenu__btn header-action-dropmenu__btn_with-text ecos-btn_grey6 ecos-btn_r_0"
             >
               {text}
@@ -80,9 +74,9 @@ const DropdownActions = ({ list, dashletId }) => {
   );
 };
 
-const BtnActions = ({ actionConfig = {}, dashletId, actionRules }) => {
+const Actions = ({ actionConfig = {}, dashletId, actionRules }) => {
   const { orderedVisible, countShow = 4 } = actionRules || {};
-  const baseOrderActions = ['edit', 'help', 'reload', 'settings'];
+  const baseOrderActions = [BaseActions.EDIT, BaseActions.HELP, BaseActions.RELOAD, BaseActions.SETTINGS];
   const orderedActions = [];
   const actions = {
     edit: {
@@ -163,4 +157,11 @@ const BtnActions = ({ actionConfig = {}, dashletId, actionRules }) => {
   );
 };
 
-export default BtnActions;
+export default Actions;
+
+export const BaseActions = {
+  EDIT: 'edit',
+  HELP: 'help',
+  RELOAD: 'reload',
+  SETTINGS: 'settings'
+};

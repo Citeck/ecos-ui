@@ -711,6 +711,7 @@
   "widget.document.title.preview": "Document preview",
   "web-page-widget.title": "Web Page",
   "web-page-widget.empty": "No content. Specify the address of the web page in the settings.",
+  "web-page-widget.settings.caption": "Setting widget",
   "web-page-widget.settings.title-label": "The title of the widget",
   "web-page-widget.settings.title-placeholder": "For example, the name of the web property",
   "web-page-widget.settings.url-label": "Resource URL",

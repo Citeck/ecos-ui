@@ -5,7 +5,7 @@ import { t } from '../../helpers/util';
 import { Icon } from '../common';
 import { Badge } from '../common/form';
 import { IcoBtn } from '../common/btns';
-import BtnActions from './BtnActions';
+import Actions from './Actions';
 
 const Header = ({
   dashletId,
@@ -69,7 +69,7 @@ const Header = ({
       {needGoTo && btnGoTo}
 
       <div className="dashlet__header-actions">
-        {!(isMobile || noActions) && <BtnActions actionConfig={actionConfig} actionRules={actionRules} dashletId={dashletId} />}
+        {!(isMobile || noActions) && <Actions actionConfig={actionConfig} actionRules={actionRules} dashletId={dashletId} />}
         {dragBtn}
       </div>
     </div>

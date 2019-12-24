@@ -13,7 +13,7 @@ import UserLocalSettingsService from '../../../services/userLocalSettings';
 import { getDashletConfig, initState, reloadGrid, setDashletConfigByParams, setEditorMode, setRecordRef } from '../../../actions/journals';
 
 import Measurer from '../../Measurer/Measurer';
-import Dashlet from '../../Dashlet/Dashlet';
+import Dashlet, { BaseActions } from '../../Dashlet';
 import JournalsDashletGrid from '../../Journals/JournalsDashletGrid/index';
 import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar/index';
 import JournalsDashletEditor from '../../Journals/JournalsDashletEditor/index';
@@ -109,6 +109,10 @@ class JournalsDashlet extends BaseWidget {
 
   showEditor = () => this.props.setEditorMode(true);
 
+  handleReload = () => {
+    this.props.reloadGrid && this.props.reloadGrid();
+  };
+
   goToJournalsPage = () => {
     const {
       config: { journalsListId = '', journalSettingId = '' },
@@ -162,7 +166,7 @@ class JournalsDashlet extends BaseWidget {
   }
 
   render() {
-    const { journalConfig, className, reloadGrid, dragHandleProps } = this.props;
+    const { journalConfig, className, dragHandleProps, editorMode } = this.props;
     const { width, isCollapsed } = this.state;
 
     if (!journalConfig) {
@@ -170,13 +174,19 @@ class JournalsDashlet extends BaseWidget {
     }
 
     const actions = {
-      edit: {
-        onClick: this.showEditor
-      },
-      reload: {
-        onClick: reloadGrid
+      [BaseActions.HELP]: {
+        onClick: () => null
       }
     };
+
+    if (!editorMode) {
+      actions[BaseActions.SETTINGS] = {
+        onClick: this.showEditor
+      };
+      actions[BaseActions.RELOAD] = {
+        onClick: this.handleReload
+      };
+    }
 
     return (
       <Dashlet

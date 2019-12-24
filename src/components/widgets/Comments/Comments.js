@@ -17,7 +17,7 @@ import { createCommentRequest, deleteCommentRequest, getComments, setError, upda
 
 import { Avatar, DefineHeight, Loader } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
-import Dashlet from '../../Dashlet/Dashlet';
+import Dashlet, { BaseActions } from '../../Dashlet';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
@@ -656,7 +656,7 @@ class Comments extends BaseWidget {
     const { dragHandleProps, canDragging } = this.props;
     const { isCollapsed } = this.state;
     const actions = {
-      reload: {
+      [BaseActions.RELOAD]: {
         onClick: this.handleReloadData
       }
     };

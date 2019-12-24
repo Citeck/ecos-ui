@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import Dashlet from '../../Dashlet/Dashlet';
+import Dashlet, { BaseActions } from '../../Dashlet';
 import CurrentTasks from './CurrentTasks';
 import BaseWidget from '../BaseWidget';
 
@@ -65,7 +65,7 @@ class CurrentTasksDashlet extends BaseWidget {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isSmallMode, isUpdating, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
-      reload: {
+      [BaseActions.RELOAD]: {
         onClick: this.onReload
       }
     };

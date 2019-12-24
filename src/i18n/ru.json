@@ -715,6 +715,7 @@
   "widget.document.title.preview": "Предпросмотр документа",
   "web-page-widget.title": "Веб-страница",
   "web-page-widget.empty": "Содержимого нет. Укажите в настройках адрес веб-страницы.",
+  "web-page-widget.settings.caption": "Настройки виджета",
   "web-page-widget.settings.title-label": "Заголовок виджета",
   "web-page-widget.settings.title-placeholder": "Например название веб-ресурса",
   "web-page-widget.settings.url-label": "URL-адрес ресурса",
