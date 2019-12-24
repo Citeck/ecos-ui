@@ -109,7 +109,7 @@ class Properties extends React.Component {
             },
             formMode: FORM_MODE_EDIT
           }}
-          onSubmit={this.onSubmitForm}
+          // onSubmit={this.onSubmitForm}
           onFormSubmitDone={onUpdate}
           onReady={this.onReady}
           className={formClassNames}

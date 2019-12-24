@@ -90,14 +90,14 @@ class PropertiesDashlet extends BaseWidget {
         onClick: this.updateProps
       },
       settings: {
-        onClick: this.onClickShowFormSettings
+        onClick: this.toggleDisplayFormSettings
       }
     };
 
     if (canEditRecord) {
       actions.edit = {
         text: t(Labels.BTN_EDIT_TIP),
-        onClick: this.onOpenModal
+        onClick: this.openModal
       };
     }
 
@@ -124,11 +124,11 @@ class PropertiesDashlet extends BaseWidget {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
-  onOpenModal = () => {
+  openModal = () => {
     this.setState({ isEditProps: true });
   };
 
-  onCloseModal = () => {
+  closeModal = () => {
     this.setState({ isEditProps: false });
   };
 
@@ -138,20 +138,20 @@ class PropertiesDashlet extends BaseWidget {
     }
   };
 
-  onClickShowFormSettings = () => {
+  toggleDisplayFormSettings = () => {
     this.setState(state => ({ isShowSetting: !state.isShowSetting }));
   };
 
   onSaveFormSettings = config => {
     this.props.onSave && this.props.onSave(this.props.id, { config });
-    this.onClickShowFormSettings();
+    this.toggleDisplayFormSettings();
   };
 
-  updateProps = () => {
+  onPropertiesEditFormSubmit = () => {
     this.setState({ isReady: false, isEditProps: false }, () => this.setState({ isReady: true }));
   };
 
-  updateProperties = () => {
+  onPropertiesUpdate = () => {
     this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
   };
 
@@ -188,7 +188,7 @@ class PropertiesDashlet extends BaseWidget {
           height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
-          onUpdate={this.updateProperties}
+          onUpdate={this.onPropertiesUpdate}
           formId={formId}
         />
         {isShowSetting && (
@@ -196,15 +196,15 @@ class PropertiesDashlet extends BaseWidget {
             record={record}
             stateId={id}
             formId={formId}
-            onCancel={this.onClickShowFormSettings}
+            onCancel={this.toggleDisplayFormSettings}
             onSave={this.onSaveFormSettings}
           />
         )}
         <PropertiesEditModal
           record={record}
           isOpen={isEditProps}
-          onFormCancel={this.onCloseModal}
-          onFormSubmit={this.updateProps}
+          onFormCancel={this.closeModal}
+          onFormSubmit={this.onPropertiesEditFormSubmit}
           formIsChanged={formIsChanged}
         />
       </Dashlet>

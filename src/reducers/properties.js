@@ -14,7 +14,7 @@ const initialState = {
 export default handleActions(
   {
     [getFormList]: (state, { payload }) => {
-      const { stateId, ...data } = payload;
+      const { stateId } = payload;
 
       return {
         ...state,
