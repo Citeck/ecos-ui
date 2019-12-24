@@ -259,7 +259,7 @@ class DocAssociations extends BaseWidget {
     return (
       <Dropdown isOpen={isMenuOpen} toggle={this.handleToggleMenu} key="add-button">
         <DropdownToggle tag="div">
-          <Icon id={`tooltip-plus-${id}`} className="icon-plus ecos-doc-associations__icon-plus" />
+          <Icon id={`tooltip-plus-${id}`} className="icon-big-plus ecos-doc-associations__icon-plus" />
           <UncontrolledTooltip
             placement="top"
             boundariesElement="window"
