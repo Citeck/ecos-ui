@@ -5,7 +5,7 @@ import moment from 'moment';
 import { DIRECTIONS } from '../constants/docAssociations';
 
 export default class DocAssociationsConverter {
-  static getDocumentsForWeb(source, allowedConnections) {
+  static getAssociationsForWeb(source, allowedAssociations) {
     const keys = Object.keys(source);
     const target = [];
 
@@ -14,18 +14,18 @@ export default class DocAssociationsConverter {
     }
 
     return keys.map(key => {
-      const connection = allowedConnections.find(item => item.name === key);
+      const connection = allowedAssociations.find(item => item.name === key);
       const direction = get(connection, 'direction', '');
 
       return {
         key,
-        documents: get(source, key, []).map(item => DocAssociationsConverter.getDocumentForWeb(item, key, direction)),
+        associations: get(source, key, []).map(item => DocAssociationsConverter.getAssociationForWeb(item, key, direction)),
         title: get(connection, 'title', '')
       };
     });
   }
 
-  static getDocumentForWeb(source, connectionId, direction) {
+  static getAssociationForWeb(source, associationId, direction) {
     if (isEmpty(source)) {
       return {};
     }
@@ -35,7 +35,7 @@ export default class DocAssociationsConverter {
     target.name = source.displayName;
     target.date = moment(source.created || moment()).format('DD.MM.YYYY h:mm');
     target.record = source.id;
-    target.connectionId = connectionId;
+    target.associationId = associationId;
     target.direction = direction;
 
     return target;
@@ -60,14 +60,14 @@ export default class DocAssociationsConverter {
       return [];
     }
 
-    const mappingNextLevel = (item, connectionId) => {
+    const mappingNextLevel = (item, associationId) => {
       const target = {};
 
       target.id = item.name;
       target.label = item.title;
       target.nodeRef = item.id;
-      target.connectionId = connectionId;
-      target.items = (item.items || []).map(i => ({ ...i, connectionId }));
+      target.associationId = associationId;
+      target.items = (item.items || []).map(i => ({ ...i, associationId }));
 
       return target;
     };
@@ -83,27 +83,19 @@ export default class DocAssociationsConverter {
     });
   }
 
-  static getDocumentsRecords(documents = [], key) {
-    return get(
-      documents.find(doc => doc.key === key),
-      ['documents'],
-      []
-    ).map(document => document.record);
-  }
-
-  static getDocumentsTotalCount(source = {}) {
+  static getAssociationsTotalCount(source = {}) {
     return Object.keys(source).reduce((result, key) => result + source[key].length, 0);
   }
 
-  static getAssociationsByDirection(data = [], direction) {
+  static getAssociationsWithDirection(data = [], direction) {
     return data.map(association => ({ ...association, direction }));
   }
 
-  static getDocumentsByDirection(data = []) {
+  static getAssociationsByDirection(data = []) {
     return data.reduce((result, current) => ({ ...result, ...current }), {});
   }
 
-  static getAllowedConnections(data = []) {
+  static getAllowedAssociations(data = []) {
     if (isEmpty(data)) {
       return [];
     }

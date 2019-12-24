@@ -8,7 +8,7 @@ import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'rea
 import BaseWidget from '../BaseWidget';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_SMALL, URL } from '../../../constants/index';
-import { getDocuments, getMenu, getSectionList, initStore, addDocuments, removeDocuments } from '../../../actions/docAssociations';
+import { getAssociations, getMenu, getSectionList, initStore, addAssociations, removeAssociations } from '../../../actions/docAssociations';
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 
@@ -38,17 +38,17 @@ class DocAssociations extends BaseWidget {
     canDragging: PropTypes.bool,
     dragHandleProps: PropTypes.object,
     sectionList: PropTypes.array,
-    documents: PropTypes.array,
+    associations: PropTypes.array,
     isLoading: PropTypes.bool,
     isLoadingMenu: PropTypes.bool,
     menu: PropTypes.array,
-    documentsTotalCount: PropTypes.number,
+    associationsTotalCount: PropTypes.number,
     initStore: PropTypes.func,
     getSectionList: PropTypes.func,
-    getDocuments: PropTypes.func,
+    getAssociations: PropTypes.func,
     getMenu: PropTypes.func,
-    addDocuments: PropTypes.func,
-    removeDocuments: PropTypes.func,
+    addAssociations: PropTypes.func,
+    removeAssociations: PropTypes.func,
     maxHeightByContent: PropTypes.bool
   };
 
@@ -71,7 +71,7 @@ class DocAssociations extends BaseWidget {
       isConfirmRemoveDialogOpen: false,
       journalId: '',
       journalRef: '',
-      connectionId: '',
+      associationId: '',
       selectedDocument: null
     };
 
@@ -79,7 +79,7 @@ class DocAssociations extends BaseWidget {
   }
 
   componentDidMount() {
-    this.props.getDocuments();
+    this.props.getAssociations();
     this.checkHeight();
   }
 
@@ -128,20 +128,18 @@ class DocAssociations extends BaseWidget {
       return;
     }
 
-    console.warn('selected menu item => ', item);
-
     this.setState({
       journalId: item.id,
       journalRef: item.nodeRef,
-      connectionId: item.connectionId,
+      associationId: item.associationId,
       isMenuOpen: false
     });
   };
 
-  handleSelectJournal = selectedJournals => {
-    const { connectionId, journalRef } = this.state;
+  handleSelectJournal = associations => {
+    const { associationId, journalRef } = this.state;
 
-    this.props.addDocuments(connectionId, journalRef, selectedJournals);
+    this.props.addAssociations(associationId, journalRef, associations);
 
     this.setState({ journalId: '' });
   };
@@ -161,10 +159,10 @@ class DocAssociations extends BaseWidget {
       return;
     }
 
-    const { removeDocuments } = this.props;
-    const { record, connectionId } = selectedDocument;
+    const { removeAssociations } = this.props;
+    const { record, associationId } = selectedDocument;
 
-    removeDocuments(connectionId, record, [record]);
+    removeAssociations(associationId, record);
     this.closeConfirmRemovingModal();
   };
 
@@ -226,9 +224,9 @@ class DocAssociations extends BaseWidget {
 
   renderDocumentsItem = data => {
     const { id } = this.props;
-    const { documents, title } = data;
+    const { associations, title } = data;
 
-    if (!documents.length) {
+    if (!associations.length) {
       return null;
     }
 
@@ -238,15 +236,15 @@ class DocAssociations extends BaseWidget {
           <div className="ecos-doc-associations__headline-text">{t(title)}</div>
         </div>
 
-        {this.renderTable(documents)}
+        {this.renderTable(associations)}
       </React.Fragment>
     );
   };
 
   renderDocuments() {
-    const { documents } = this.props;
+    const { associations } = this.props;
 
-    return <div ref={this.contentRef}>{documents.map(this.renderDocumentsItem)}</div>;
+    return <div ref={this.contentRef}>{associations.map(this.renderDocumentsItem)}</div>;
   }
 
   renderAddButton = () => {
@@ -326,7 +324,7 @@ class DocAssociations extends BaseWidget {
   }
 
   render() {
-    const { canDragging, dragHandleProps, isCollapsed, documentsTotalCount, isLoading, isMobile } = this.props;
+    const { canDragging, dragHandleProps, isCollapsed, associationsTotalCount, isLoading, isMobile } = this.props;
     const { userHeight = 0, fitHeights, contentHeight } = this.state;
     const fixHeight = userHeight || null;
 
@@ -350,8 +348,8 @@ class DocAssociations extends BaseWidget {
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
         customButtons={[this.renderAddButton()]}
-        badgeText={getAdaptiveNumberStr(documentsTotalCount)}
-        noBody={!documentsTotalCount && !isLoading}
+        badgeText={getAdaptiveNumberStr(associationsTotalCount)}
+        noBody={!associationsTotalCount && !isLoading}
       >
         {isMobile ? (
           this.renderDocuments()
@@ -377,24 +375,23 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch, ownProps) => ({
   initStore: () => dispatch(initStore(ownProps.record)),
   getSectionList: () => dispatch(getSectionList(ownProps.record)),
-  getDocuments: () => dispatch(getDocuments(ownProps.record)),
+  getAssociations: () => dispatch(getAssociations(ownProps.record)),
   getMenu: () => dispatch(getMenu(ownProps.record)),
-  addDocuments: (connectionId, journalRef, documents) =>
+  addAssociations: (associationId, journalRef, associations) =>
     dispatch(
-      addDocuments({
-        record: ownProps.record,
-        connectionId,
-        journalRef,
-        documents
-      })
-    ),
-  removeDocuments: (associationId, journalRef, documents) =>
-    dispatch(
-      removeDocuments({
+      addAssociations({
         record: ownProps.record,
         associationId,
         journalRef,
-        documents
+        associations
+      })
+    ),
+  removeAssociations: (associationId, associationRef) =>
+    dispatch(
+      removeAssociations({
+        record: ownProps.record,
+        associationId,
+        associationRef
       })
     )
 });

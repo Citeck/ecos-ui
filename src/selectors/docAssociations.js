@@ -6,22 +6,22 @@ export const selectStateByKey = (state, key) => {
 
   return {
     sectionList: get(ownState, ['sectionList'], []),
-    documents: get(ownState, ['documents'], []),
+    associations: get(ownState, ['associations'], []),
     isLoading: get(ownState, ['isLoading'], false),
     isLoadingMenu: get(ownState, ['isLoadingMenu'], false),
     menu: get(ownState, ['menu'], []),
-    documentsTotalCount: get(ownState, ['documentsTotalCount'], 0)
+    associationsTotalCount: get(ownState, ['associationsTotalCount'], 0)
   };
 };
 
-export const selectDocuments = (state, key, connectionId) => {
-  const docs = get(state, ['docAssociations', key, 'documents'], []).find(item => item.key === connectionId);
+export const selectDocuments = (state, key, associationId) => {
+  const docs = get(state, ['docAssociations', key, 'associations'], []).find(item => item.key === associationId);
 
-  return get(docs, ['documents'], []).map(doc => doc.record);
+  return get(docs, ['associations'], []).map(doc => doc.record);
 };
 
 export const selectAllowedDirectionsByKey = (state, recordRef) => {
-  return get(state, ['docAssociations', recordRef, 'allowedConnections'], []).reduce(
+  return get(state, ['docAssociations', recordRef, 'allowedAssociations'], []).reduce(
     (res, cur) => ({ ...res, [cur.name]: cur.direction }),
     {}
   );

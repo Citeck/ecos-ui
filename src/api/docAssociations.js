@@ -1,6 +1,5 @@
 import { RecordService } from './recordService';
 import Records from '../components/Records';
-import { t } from '../helpers/util';
 import ecosFetch from '../helpers/ecosFetch';
 
 export class DocAssociationsApi extends RecordService {
@@ -10,31 +9,18 @@ export class DocAssociationsApi extends RecordService {
    *
    * @returns {*[]}
    */
-  getAllowedConnections = recordRef => {
-    // return [
-    //   {
-    //     id: 'assoc:associatedWith',
-    //     name: 'Связан с',
-    //     direction: 'null'
-    //   },
-    //   {
-    //     id: 'payments:basis',
-    //     name: 'Документ-основание',
-    //     direction: 'BOTH'
-    //   }
-    // ];
-
+  getAllowedAssociations = recordRef => {
     return Records.get(recordRef).load('_etype.associations[]{id,name,direction}');
   };
 
   /**
-   * Список выбранных документов (используется для отрисовки связей)
+   * List of selected documents (used to draw associations)
    *
    * @param recordRef
    * @param connections
    * @returns {*}
    */
-  getDocuments = (recordRef, connections) => {
+  getAssociations = (recordRef, connections) => {
     return Records.get(recordRef)
       .load(
         {
@@ -49,7 +35,7 @@ export class DocAssociationsApi extends RecordService {
   };
 
   /**
-   * Список разделов - второй уровень меню
+   * Partition List - Second Level Menu
    *
    * @returns {*}
    */
@@ -64,7 +50,7 @@ export class DocAssociationsApi extends RecordService {
   };
 
   /**
-   * Список журналов - третий уровень меню
+   * Journal List - Third Level Menu
    *
    * @param site
    * @returns {Promise<any | never>}
@@ -83,18 +69,18 @@ export class DocAssociationsApi extends RecordService {
     return Records.get(recordRef).load(`assoc_src_${id}[]{id:.assoc,displayName:.disp,created}`);
   };
 
-  addDocuments = ({ associationId, documents, recordRef }) => {
+  addAssociations = ({ associationId, associations, recordRef }) => {
     const record = Records.getRecordToEdit(recordRef);
 
-    record.att(`att_add_${associationId}`, documents);
+    record.att(`att_add_${associationId}`, associations);
 
     return record.save().then(response => response);
   };
 
-  removeDocuments = ({ associationId, documents, recordRef }) => {
+  removeAssociations = ({ associationId, association, recordRef }) => {
     const record = Records.getRecordToEdit(recordRef);
 
-    record.att(`att_rem_${associationId}`, documents);
+    record.att(`att_rem_${associationId}`, [association]);
 
     return record.save().then(response => response);
   };

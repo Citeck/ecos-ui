@@ -7,10 +7,10 @@ export const initStore = createAction(prefix + 'INIT_STORE');
 export const getSectionList = createAction(prefix + 'GET_SECTION_LIST');
 export const setSectionList = createAction(prefix + 'SET_SECTION_LIST');
 
-export const getDocuments = createAction(prefix + 'GET_DOCUMENTS');
-export const setDocuments = createAction(prefix + 'SET_DOCUMENTS');
-export const addDocuments = createAction(prefix + 'ADD_DOCUMENTS');
-export const removeDocuments = createAction(prefix + 'REMOVE_DOCUMENTS');
+export const getAssociations = createAction(prefix + 'GET_ASSOCIATIONS');
+export const setAssociations = createAction(prefix + 'SET_ASSOCIATIONS');
+export const addAssociations = createAction(prefix + 'ADD_ASSOCIATIONS');
+export const removeAssociations = createAction(prefix + 'REMOVE_ASSOCIATIONS');
 
 export const setAllowedConnections = createAction(prefix + 'SET_ALLOWED_CONNECTIONS');
 
