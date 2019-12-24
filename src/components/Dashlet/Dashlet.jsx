@@ -40,8 +40,8 @@ class Dashlet extends Component {
     dragButton: PropTypes.func,
     onChangeHeight: PropTypes.func,
     getFitHeights: PropTypes.func,
-    configActions: PropTypes.object,
-    orderActions: PropTypes.array,
+    actionConfig: PropTypes.object,
+    actionRules: PropTypes.array,
     noActions: PropTypes.bool
   };
 
@@ -182,8 +182,8 @@ class Dashlet extends Component {
       isMobile,
       noHeader,
       noBody,
-      configActions,
-      orderActions,
+      actionConfig,
+      actionRules,
       noActions
     } = this.props;
     const { isCollapsed } = this.state;
@@ -215,8 +215,8 @@ class Dashlet extends Component {
                   isCollapsed={isCollapsed}
                   badgeText={badgeText}
                   dashletId={this.dashletId}
-                  configActions={configActions}
-                  orderActions={orderActions}
+                  actionConfig={actionConfig}
+                  actionRules={actionRules}
                   noActions={noActions}
                 />
               </Measurer>

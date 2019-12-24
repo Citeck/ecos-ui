@@ -342,7 +342,7 @@ class WebPage extends BaseWidget {
         className="ecos-wpage"
         bodyClassName="ecos-wpage__body"
         needGoTo={false}
-        configActions={actions}
+        actionConfig={actions}
         resizable
         onResize={this.handleResize}
         onChangeHeight={this.handleChangeHeight}

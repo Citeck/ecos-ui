@@ -665,7 +665,7 @@ class Comments extends BaseWidget {
       <div className={this.className}>
         <Dashlet
           title={t('comments-widget.title')}
-          configActions={actions}
+          actionConfig={actions}
           needGoTo={false}
           canDragging={canDragging}
           dragHandleProps={dragHandleProps}

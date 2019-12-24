@@ -3,12 +3,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import { UncontrolledTooltip } from 'reactstrap';
 
 import { isSmallMode, t } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
-import { IcoBtn } from '../../common/btns';
 import Dashlet from '../../Dashlet/Dashlet';
 import BaseWidget from '../BaseWidget';
 import Properties from './Properties';
@@ -79,6 +77,41 @@ class PropertiesDashlet extends BaseWidget {
     });
   }
 
+  get dashletActions() {
+    const { isAdmin } = this.props;
+    const { canEditRecord, isShowSetting } = this.state;
+
+    if (isShowSetting) {
+      return {};
+    }
+
+    const actions = {
+      reload: {
+        onClick: this.updateProps
+      },
+      settings: {
+        onClick: this.onClickShowFormSettings
+      }
+    };
+
+    if (canEditRecord) {
+      actions.edit = {
+        text: t(Labels.BTN_EDIT_TIP),
+        onClick: this.onOpenModal
+      };
+    }
+
+    if (isAdmin) {
+      actions.builder = {
+        icon: 'icon-forms',
+        text: t(Labels.CONSTRUCTOR_BTN_TOOLTIP),
+        onClick: this.onClickShowFormBuilder
+      };
+    }
+
+    return actions;
+  }
+
   checkEditRights = () => {
     const { record } = this.props;
 
@@ -122,106 +155,17 @@ class PropertiesDashlet extends BaseWidget {
     this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
   };
 
-  renderDashletCustomButtons() {
-    const { id, isAdmin } = this.props;
-    const { isShowSetting } = this.state;
-    const buttons = [];
-
-    if (isShowSetting) {
-      return buttons;
-    }
-
-    const keySettingsBtn = `settings-btn-${id}`;
-
-    buttons.push(
-      <React.Fragment key={keySettingsBtn}>
-        <IcoBtn
-          id={keySettingsBtn}
-          icon="icon-settings"
-          className="ecos-properties-dashlet__btn-settings ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-          onClick={this.onClickShowFormSettings}
-        />
-        <UncontrolledTooltip
-          target={keySettingsBtn}
-          delay={0}
-          placement="top"
-          className="ecos-base-tooltip ecos-modal-tooltip"
-          innerClassName="ecos-base-tooltip-inner"
-          arrowClassName="ecos-base-tooltip-arrow"
-        >
-          {t(Labels.BTN_SET_TIP)}
-        </UncontrolledTooltip>
-      </React.Fragment>
-    );
-
-    if (isAdmin) {
-      const keyConstructorBtn = `constructor-btn-${id}`;
-
-      buttons.push(
-        <React.Fragment key={keyConstructorBtn}>
-          <IcoBtn
-            id={keyConstructorBtn}
-            icon="icon-forms"
-            className="ecos-properties-dashlet__btn-settings ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-            onClick={this.onClickShowFormBuilder}
-          />
-          <UncontrolledTooltip
-            target={keyConstructorBtn}
-            delay={0}
-            placement="top"
-            className="ecos-base-tooltip ecos-modal-tooltip"
-            innerClassName="ecos-base-tooltip-inner"
-            arrowClassName="ecos-base-tooltip-arrow"
-          >
-            {t(Labels.BTN_BUILD_TIP)}
-          </UncontrolledTooltip>
-        </React.Fragment>
-      );
-    }
-
-    return buttons;
-  }
-
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config, isAdmin } = this.props;
-    const {
-      isSmallMode,
-      isReady,
-      isEditProps,
-      userHeight,
-      fitHeights,
-      formIsChanged,
-      isCollapsed,
-      canEditRecord,
-      isShowSetting
-    } = this.state;
+    const { isSmallMode, isReady, isEditProps, userHeight, fitHeights, formIsChanged, isCollapsed, isShowSetting } = this.state;
     const { formId = null } = config || {};
-    const actions = {
-      reload: {
-        onClick: this.updateProps
-      }
-    };
-
-    if (canEditRecord && !isShowSetting) {
-      actions.edit = {
-        text: t(Labels.BTN_EDIT_TIP),
-        onClick: this.onOpenModal
-      };
-    }
-
-    if (isAdmin) {
-      actions.builder = {
-        icon: 'icon-forms',
-        text: t(Labels.CONSTRUCTOR_BTN_TOOLTIP),
-        onClick: this.onClickShowFormBuilder
-      };
-    }
 
     return (
       <Dashlet
         title={title || t(Labels.WIDGET_TITLE)}
         className={classNames('ecos-properties-dashlet', classNameDashlet)}
         bodyClassName="ecos-properties-dashlet__body"
+        actionConfig={this.dashletActions}
         resizable={true}
         contentMaxHeight={this.clientHeight}
         needGoTo={false}
@@ -230,7 +174,6 @@ class PropertiesDashlet extends BaseWidget {
         getFitHeights={this.setFitHeights}
         onChangeHeight={this.handleChangeHeight}
         onResize={this.onResize}
-        customButtons={this.renderDashletCustomButtons()}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
       >

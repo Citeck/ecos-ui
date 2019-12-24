@@ -77,7 +77,7 @@ class CurrentTasksDashlet extends BaseWidget {
         className={classNames('ecos-current-task-list-dashlet', classNameDashlet)}
         resizable
         contentMaxHeight={this.clientHeight}
-        configActions={actions}
+        actionConfig={actions}
         needGoTo={false}
         canDragging={canDragging}
         dragHandleProps={dragHandleProps}

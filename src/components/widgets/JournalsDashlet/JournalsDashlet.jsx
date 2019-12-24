@@ -187,7 +187,7 @@ class JournalsDashlet extends BaseWidget {
         title={journalConfig.meta.title || t('journal.title')}
         onGoTo={this.goToJournalsPage}
         needGoTo={width >= MIN_WIDTH_DASHLET_LARGE}
-        configActions={actions}
+        actionConfig={actions}
         onResize={this.handleResize}
         dragHandleProps={dragHandleProps}
         onToggleCollapse={this.handleToggleContent}

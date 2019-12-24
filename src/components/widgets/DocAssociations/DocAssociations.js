@@ -331,6 +331,7 @@ class DocAssociations extends BaseWidget {
         component: this.renderAddButton()
       }
     };
+    const actionRules = { orderActions: ['plus'] };
 
     return (
       <Dashlet
@@ -339,8 +340,8 @@ class DocAssociations extends BaseWidget {
         })}
         title={t(LABELS.TITLE)}
         needGoTo={false}
-        configActions={actions}
-        orderActions={['plus']}
+        actionConfig={actions}
+        actionRules={actionRules}
         canDragging={canDragging}
         resizable
         contentMaxHeight={this.clientHeight}

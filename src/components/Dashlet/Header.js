@@ -20,8 +20,8 @@ const Header = ({
   isMobile,
   isCollapsed,
   badgeText,
-  configActions,
-  orderActions,
+  actionConfig,
+  actionRules,
   noActions
 }) => {
   const btnGoTo = isMobile ? null : (
@@ -69,7 +69,7 @@ const Header = ({
       {needGoTo && btnGoTo}
 
       <div className="dashlet__header-actions">
-        {!(isMobile || noActions) && <BtnActions configActions={configActions} orderActions={orderActions} dashletId={dashletId} />}
+        {!(isMobile || noActions) && <BtnActions actionConfig={actionConfig} actionRules={actionRules} dashletId={dashletId} />}
         {dragBtn}
       </div>
     </div>

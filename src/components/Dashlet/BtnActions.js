@@ -52,10 +52,11 @@ const DropdownActions = ({ list, dashletId }) => {
         className="header-action__drop-btn ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
       />
       <UncontrolledTooltip
-        trigger="click"
         target={id}
-        delay={0}
-        placement="bottom"
+        trigger="hover"
+        delay={250}
+        autohide={false}
+        placement="bottom-end"
         className="header-action__tooltip ecos-base-tooltip"
         innerClassName="ecos-base-tooltip-inner"
         arrowClassName="ecos-base-tooltip-arrow"
@@ -70,10 +71,10 @@ const DropdownActions = ({ list, dashletId }) => {
   );
 };
 
-const BtnActions = ({ configActions = {}, orderActions, dashletId }) => {
-  orderActions = orderActions || ['edit', 'help', 'reload', 'settings'];
-  const countShowBtns = 1;
-
+const BtnActions = ({ actionConfig = {}, dashletId, actionRules }) => {
+  const { orderActions, countShow = 2 } = actionRules || {};
+  const baseOrderActions = ['edit', 'help', 'reload', 'settings'];
+  const orderedActions = [];
   const actions = {
     edit: {
       icon: 'icon-edit',
@@ -97,36 +98,44 @@ const BtnActions = ({ configActions = {}, orderActions, dashletId }) => {
     }
   };
 
-  for (const action in configActions) {
+  let updatedOrderActions = orderActions ? orderActions : [];
+
+  for (const action in actionConfig) {
     actions[action] = {
       ...actions[action],
-      ...configActions[action]
+      ...actionConfig[action]
     };
   }
 
-  const renderIconActions = orderActions.slice(0, countShowBtns).map((actionKey, i) => {
-    const action = actions[actionKey];
-    const id = `action-${actionKey}-${dashletId}-${i}`;
+  if (!updatedOrderActions.length) {
+    Array.prototype.push.apply(updatedOrderActions, baseOrderActions);
+    const leftoverKeys = Object.getOwnPropertyNames(actionConfig).filter(item => !baseOrderActions.includes(item));
+    Array.prototype.push.apply(updatedOrderActions, leftoverKeys);
+  }
 
-    if (!action || !(action.component || action.onClick)) return null;
+  updatedOrderActions = updatedOrderActions.filter(item => actions[item] && (actions[item].onClick || actions[item].component));
 
-    if (action.component) {
-      return action.component;
+  updatedOrderActions.forEach((key, i) => {
+    const action = actions[key];
+    const id = `action-${key}-${dashletId}-${i}`;
+
+    if (action && (action.component || action.onClick)) {
+      orderedActions.push({ ...action, id });
     }
-
-    return <BtnAction text={action.text} id={id} key={id} icon={action.icon} onClick={action.onClick} />;
   });
 
-  const renderDropActions = () => {
-    const dropActions = orderActions
-      .slice(countShowBtns)
-      .filter(actionKey => actions[actionKey] && actions[actionKey].onClick)
-      .map((actionKey, i) => {
-        const action = actions[actionKey];
-        const id = `action-${actionKey}-${dashletId}-${i}`;
+  const renderIconActions = () => {
+    const count = orderedActions.length > countShow ? countShow - 1 : countShow;
 
-        return { ...action, id };
-      });
+    return orderedActions.slice(0, count).map(action => <BtnAction key={action.id} {...action} />);
+  };
+
+  const renderDropActions = () => {
+    if (orderedActions.length <= countShow) {
+      return null;
+    }
+
+    const dropActions = orderedActions.slice(countShow - 1);
 
     if (!(dropActions && dropActions.length)) {
       return null;
@@ -137,7 +146,7 @@ const BtnActions = ({ configActions = {}, orderActions, dashletId }) => {
 
   return (
     <>
-      {renderIconActions}
+      {renderIconActions()}
       {renderDropActions()}
     </>
   );

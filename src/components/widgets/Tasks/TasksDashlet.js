@@ -81,7 +81,7 @@ class TasksDashlet extends BaseWidget {
         className={classNames('ecos-task-list-dashlet', classNameDashlet)}
         resizable={true}
         needGoTo={false}
-        configActions={actions}
+        actionConfig={actions}
         canDragging={canDragging}
         dragHandleProps={dragHandleProps}
         contentMaxHeight={this.clientHeight}
