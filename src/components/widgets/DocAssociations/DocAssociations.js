@@ -323,7 +323,7 @@ class DocAssociations extends BaseWidget {
     const { userHeight = 0, fitHeights, contentHeight } = this.state;
     const fixHeight = userHeight || null;
     const actions = {};
-    const actionRules = { orderedVisible: ['plus'] };
+    const actionRules = { orderedVisible: ['addLink'] };
 
     if (!isMobile) {
       actions.addLink = {
