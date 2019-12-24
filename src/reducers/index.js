@@ -30,6 +30,7 @@ import timesheetCommon from './timesheet/common';
 import webPage from './webPage';
 import birthdays from './birthdays';
 import barcode from './barcode';
+import properties from './properties';
 
 const reducers = {
   app,
@@ -60,7 +61,8 @@ const reducers = {
   timesheetCommon,
   webPage,
   birthdays,
-  barcode
+  barcode,
+  properties
 };
 
 export default history =>

@@ -350,10 +350,12 @@ export default class EcosFormUtils {
   static forEachComponent(root, action) {
     let components = [];
 
-    if (root.type === 'columns') {
-      components = root.columns || [];
-    } else {
-      components = root.components || [];
+    if (root) {
+      if (root.type === 'columns') {
+        components = root.columns || [];
+      } else {
+        components = root.components || [];
+      }
     }
 
     for (let i = 0; i < components.length; i++) {

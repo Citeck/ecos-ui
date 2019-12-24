@@ -23,6 +23,7 @@ export const pagesWithOnlyContent = [
 
 export const SourcesId = {
   DASHBOARD: 'uiserv/dashboard',
+  EFORM: 'uiserv/eform',
   HISTORY: 'history',
   STATUS: 'status',
   COMMENT: 'comment',
