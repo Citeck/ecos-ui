@@ -10,7 +10,11 @@ const handleClick = onClick => {
   }
 };
 
-const BtnAction = ({ id, text, icon, onClick }) => {
+const BtnAction = ({ id, text, icon, onClick, component }) => {
+  if (component) {
+    return component;
+  }
+
   return (
     <>
       <IcoBtn
@@ -77,7 +81,7 @@ const DropdownActions = ({ list, dashletId }) => {
 };
 
 const BtnActions = ({ actionConfig = {}, dashletId, actionRules }) => {
-  const { orderActions, countShow = 4 } = actionRules || {};
+  const { orderedVisible, countShow = 4 } = actionRules || {};
   const baseOrderActions = ['edit', 'help', 'reload', 'settings'];
   const orderedActions = [];
   const actions = {
@@ -103,10 +107,13 @@ const BtnActions = ({ actionConfig = {}, dashletId, actionRules }) => {
     }
   };
 
-  let updatedOrderActions = orderActions ? orderActions : [];
+  let updatedOrderActions = orderedVisible ? orderedVisible : [];
 
   for (const action in actionConfig) {
+    const id = `action-${action}-${dashletId}`;
+
     actions[action] = {
+      id,
       ...actions[action],
       ...actionConfig[action]
     };
@@ -122,10 +129,9 @@ const BtnActions = ({ actionConfig = {}, dashletId, actionRules }) => {
 
   updatedOrderActions.forEach((key, i) => {
     const action = actions[key];
-    const id = `action-${key}-${dashletId}-${i}`;
 
     if (action && (action.component || action.onClick)) {
-      orderedActions.push({ ...action, id });
+      orderedActions.push({ ...action });
     }
   });
 
