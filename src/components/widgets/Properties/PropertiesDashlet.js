@@ -156,7 +156,7 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   render() {
-    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config, isAdmin } = this.props;
+    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
     const { isSmallMode, isReady, isEditProps, userHeight, fitHeights, formIsChanged, isCollapsed, isShowSetting } = this.state;
     const { formId = null } = config || {};
 
