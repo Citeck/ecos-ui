@@ -1,7 +1,7 @@
 import React from 'react';
 import { Well } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
-import Search from '../../common/Search/Search';
+import { Search } from '../../common';
 import Export from '../../Export/Export';
 import { t } from '../../../helpers/util';
 
