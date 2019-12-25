@@ -131,11 +131,11 @@ export default class Dropdown extends Component {
     return (
       <Wrapper>
         <ul>
-          {filteredSource.map(item =>
+          {filteredSource.map((item, i) =>
             CustomItem ? (
-              <CustomItem key={item[valueField]} onClick={this.onChange} item={item} />
+              <CustomItem key={item[valueField] || i} onClick={this.onChange} item={item} />
             ) : (
-              <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
+              <MenuItem key={item[valueField] || i} onClick={this.onChange} item={item}>
                 {getPropByStringKey(item, titleField)}
               </MenuItem>
             )
