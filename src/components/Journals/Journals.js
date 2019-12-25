@@ -109,14 +109,8 @@ class Journals extends Component {
     this.props.getJournalsData();
   }
 
-  addRecord = () => {
-    let {
-      journalConfig: {
-        meta: { createVariants = [{}] }
-      }
-    } = this.props;
-
-    FormManager.createRecordByVariant(createVariants[0], {
+  addRecord = createVariant => {
+    FormManager.createRecordByVariant(createVariant, {
       onSubmit: record => {
         goToCardDetailsPage(record.id);
       }
