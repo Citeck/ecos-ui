@@ -25,6 +25,7 @@ import view from './view';
 import webPage from './webPage';
 import birthdays from './birthdays';
 import barcode from './barcode';
+import properties from './properties';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -53,6 +54,7 @@ export default function* rootSaga(extraArguments) {
     view(extraArguments),
     webPage(extraArguments),
     birthdays(extraArguments),
-    barcode(extraArguments)
+    barcode(extraArguments),
+    properties(extraArguments)
   ]);
 }

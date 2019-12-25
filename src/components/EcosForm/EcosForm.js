@@ -10,7 +10,7 @@ import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
-import { t, getCurrentLocale, isMobileDevice } from '../../helpers/util';
+import { getCurrentLocale, isMobileDevice, t } from '../../helpers/util';
 import { PROXY_URI } from '../../constants/alfresco';
 
 import './formio.full.min.css';
@@ -34,9 +34,7 @@ class EcosForm extends React.Component {
     this.state = {
       containerId: 'ecos-ui-form-' + formCounter++,
       recordId: record.id,
-      formId: 'eform@',
-      error: null,
-      formDefinition: {}
+      ...this.initState
     };
   }
 
@@ -49,6 +47,21 @@ class EcosForm extends React.Component {
 
   componentDidMount() {
     this.initForm();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.formId !== this.props.formId) {
+      this.setState({ ...this.initState });
+      this.initForm();
+    }
+  }
+
+  get initState() {
+    return {
+      formId: 'eform@',
+      error: null,
+      formDefinition: {}
+    };
   }
 
   initForm(newFormDefinition = this.state.formDefinition) {
@@ -84,17 +97,20 @@ class EcosForm extends React.Component {
 
     let self = this;
 
+    const onFormLoadingFailure = () => {
+      self.setState({
+        error: new Error(t('ecos-form.empty-form-data'))
+      });
+      self.props.onReady && self.props.onReady();
+    };
+
     formLoadingPromise.then(formData => {
-      if (!formData) {
-        self.setState({
-          error: new Error(t('ecos-form.empty-form-data'))
-        });
+      if (!formData || !formData.definition) {
+        onFormLoadingFailure();
         return null;
       }
 
-      this.setState({ formId: formData.id });
-
-      let customModulePromise = new Promise(function(resolve, reject) {
+      let customModulePromise = new Promise(function(resolve) {
         if (formData.customModule) {
           window.require([formData.customModule], function(Module) {
             resolve(
@@ -216,12 +232,14 @@ class EcosForm extends React.Component {
             }
           }
 
+          this.setState({ formId: formData.id });
+
           if (self.props.onReady) {
             self.props.onReady(form);
           }
         });
       });
-    });
+    }, onFormLoadingFailure);
   }
 
   fireEvent(event, data) {
