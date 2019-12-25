@@ -4,40 +4,50 @@ import Components from 'formiojs/components/Components';
 import Button from './override/button';
 import { Column, Columns } from './override/columns';
 import Checkbox from './override/checkbox';
+import Currency from './override/currency';
 import DateTime from './override/datetime';
+import Email from './override/email';
 import File from './override/file';
 import Number from './override/number';
 import Panel from './override/panel';
+import PhoneNumber from './override/phonenumber';
 import Tabs from './override/tabs';
 import TextArea from './override/textarea';
+import TextField from './override/textfield';
+import Url from './override/url';
 
+import AsyncData from './custom/asyncData';
+import DataGridAssoc from './custom/datagridAssoc';
+import EcosSelect from './custom/ecosSelect';
+import HorizontalLine from './custom/horizontalLine';
 import SelectJournal from './custom/selectJournal';
 import SelectOrgstruct from './custom/selectOrgstruct';
-import EcosSelect from './custom/ecosSelect';
-import AsyncData from './custom/asyncData';
 import TableForm from './custom/tableForm';
-import HorizontalLine from './custom/horizontalLine';
-import DataGridAssoc from './custom/datagridAssoc';
 
 import './prototypeMutation';
 
 Components.setComponents({
   ...DefaultComponents,
+  asyncData: AsyncData,
   button: Button,
+  checkbox: Checkbox,
   column: Column,
   columns: Columns,
-  checkbox: Checkbox,
+  currency: Currency,
+  datagridAssoc: DataGridAssoc,
   datetime: DateTime,
+  ecosSelect: EcosSelect,
+  email: Email,
   file: File,
+  horizontalLine: HorizontalLine,
   number: Number,
   panel: Panel,
-  tabs: Tabs,
-  textarea: TextArea,
+  phoneNumber: PhoneNumber,
   selectJournal: SelectJournal,
   selectOrgstruct: SelectOrgstruct,
-  ecosSelect: EcosSelect,
-  asyncData: AsyncData,
   tableForm: TableForm,
-  horizontalLine: HorizontalLine,
-  datagridAssoc: DataGridAssoc
+  tabs: Tabs,
+  textarea: TextArea,
+  textfield: TextField,
+  url: Url
 });
