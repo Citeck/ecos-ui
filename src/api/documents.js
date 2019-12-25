@@ -1,8 +1,8 @@
 import Records from '../components/Records';
 
-export class DocumentsApi extends Records {
+export class DocumentsApi {
   getDocumentTypes = () => {
-    return this.query(
+    return Records.query(
       {
         sourceId: 'emodel/type'
       },

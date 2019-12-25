@@ -111,7 +111,7 @@ export default class Components {
     [ComponentKeys.DOCUMENTS]: {
       load: () => lazy(() => import('./Documents')),
       label: 'dashboard-settings.widget.documents',
-      supportedDashboardTypes: [DashboardTypes.USER]
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     }
   });
 

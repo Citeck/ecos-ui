@@ -6,6 +6,8 @@ import Dashlet from '../../Dashlet/Dashlet';
 import { t } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
+import { getDocumentTypes, init } from '../../../actions/documents';
+import { selectStateByKey } from '../../../selectors/documents';
 
 import './style.scss';
 
@@ -26,12 +28,14 @@ class Documents extends BaseWidget {
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
     };
+
+    props.init();
   }
 
   handleReloadData = () => {};
 
   render() {
-    const { dragHandleProps, canDragging } = this.props;
+    const { dragHandleProps, canDragging, types } = this.props;
     const { isCollapsed } = this.state;
 
     return (
@@ -53,7 +57,11 @@ class Documents extends BaseWidget {
           isCollapsed={isCollapsed}
         >
           <div className="ecos-docs">
-            <div className="ecos-docs__types" />
+            <div className="ecos-docs__types">
+              {types.map(type => (
+                <div key={type.id}>{type.name}</div>
+              ))}
+            </div>
             <div className="ecos-docs__table" />
           </div>
         </Dashlet>
@@ -63,9 +71,12 @@ class Documents extends BaseWidget {
 }
 
 const mapStateToProps = (state, ownProps) => ({
+  ...selectStateByKey(state, ownProps.record),
   isMobile: state.view.isMobile
 });
-const mapDispatchToProps = (dispatch, ownProps) => ({});
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  init: () => dispatch(init(ownProps.record))
+});
 
 export default connect(
   mapStateToProps,
