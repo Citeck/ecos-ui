@@ -697,6 +697,7 @@
   "versions-journal-widget.modal.dropzone_placeholder": "Drag the file here or select manually",
   "versions-journal-widget.modal.dropzone_select_button": "Select file",
   "versions-journal-widget.modal.error-file-size": "Can't upload file VAL, because it size is VAL bytes.",
+  "versions-journal-widget.modal.error-file-upload": "Can't upload file. Contact administrator",
   "versions-journal-widget.modal.save": "Save",
   "versions-journal-widget.modal.version_major": "Major changes",
   "versions-journal-widget.modal.version_minor": "Minor changes",

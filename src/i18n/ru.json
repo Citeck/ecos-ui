@@ -701,6 +701,7 @@
   "versions-journal-widget.modal.dropzone_placeholder": "Перетяните сюда файл или выберете вручную",
   "versions-journal-widget.modal.dropzone_select_button": "Выбрать файл",
   "versions-journal-widget.modal.error-file-size": "Файл VAL имеет размер VAL байт, передать этот файл невозможно.",
+  "versions-journal-widget.modal.error-file-upload": "Файл не загружен. Обратитесь к администратору",
   "versions-journal-widget.modal.save": "Сохранить",
   "versions-journal-widget.modal.version_major": "Существенные изменения",
   "versions-journal-widget.modal.version_minor": "Незначительные изменения",

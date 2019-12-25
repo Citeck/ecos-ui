@@ -30,7 +30,8 @@ const LABELS = {
   ],
 
   Messages: {
-    ERROR_FILE_SIZE_MIN: 'versions-journal-widget.modal.error-file-size'
+    ERROR_FILE_SIZE_MIN: 'versions-journal-widget.modal.error-file-size',
+    ERROR_FILE_UPLOAD: 'versions-journal-widget.modal.error-file-upload'
   }
 };
 
@@ -134,15 +135,21 @@ class AddModal extends Component {
     };
   };
 
-  handleChangeStatus = ({ meta, file, remove, xhr }, status) => {
-    this.setState({ fileStatus: status });
+  handleChangeStatus = ({ meta, file, remove, xhr, ...d }, status) => {
+    const { status: _status, clientError: _clientError } = this.state;
+
+    if (_status !== status) {
+      this.setState({ fileStatus: status });
+    }
 
     switch (status) {
       case FILE_STATUS.PREPARING:
         const clientError = this.validateUploadedFile(file);
 
         if (clientError) {
-          this.setState({ file: null, clientError });
+          if (_clientError !== clientError) {
+            this.setState({ file: null, clientError });
+          }
           remove();
         } else {
           this.setState({ clientError: '' });
@@ -150,6 +157,11 @@ class AddModal extends Component {
         break;
       case FILE_STATUS.DONE:
       case FILE_STATUS.ERROR_UPLOAD:
+        const { status: reqStatus, statusText } = xhr || {};
+
+        if (_clientError !== reqStatus) {
+          this.setState({ file: null, clientError: `${t(LABELS.Messages.ERROR_FILE_UPLOAD)}: ${reqStatus} ${statusText}` });
+        }
         remove();
         break;
       default:
