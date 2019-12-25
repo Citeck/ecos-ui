@@ -7,6 +7,8 @@ import { t } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 
+import './style.scss';
+
 const LABELS = {
   TITLE: 'Документы'
 };
@@ -50,7 +52,10 @@ class Documents extends BaseWidget {
           onToggleCollapse={this.handleToggleContent}
           isCollapsed={isCollapsed}
         >
-          Документы
+          <div className="ecos-docs">
+            <div className="ecos-docs__types" />
+            <div className="ecos-docs__table" />
+          </div>
         </Dashlet>
       </div>
     );
