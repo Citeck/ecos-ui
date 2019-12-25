@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
-import Export from '../../Export/Export';
-import JournalsDashletPagination from '../JournalsDashletPagination';
-import FormManager from '../../EcosForm/FormManager';
-import { IcoBtn, TwoIcoBtn } from '../../common/btns';
-import { Dropdown } from '../../common/form';
 import { onJournalSelect, onJournalSettingsSelect } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
 import { goToCardDetailsPage } from '../../../helpers/urls';
+import { IcoBtn, TwoIcoBtn } from '../../common/btns';
+import { Dropdown } from '../../common/form';
+import Export from '../../Export/Export';
+import FormManager from '../../EcosForm/FormManager';
+import JournalsDashletPagination from '../JournalsDashletPagination';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 const mapStateToProps = (state, props) => {
@@ -48,6 +49,33 @@ class JournalsDashletToolbar extends Component {
     this.props.onJournalSettingsSelect(setting[JOURNAL_SETTING_ID_FIELD]);
   };
 
+  renderCreateMenu = () => {
+    const createVariants = get(this.props, 'journalConfig.meta.createVariants') || [];
+
+    if (!createVariants.length) {
+      return null;
+    }
+
+    if (createVariants.length === 1) {
+      return (
+        <IcoBtn
+          icon={'icon-big-plus'}
+          className="ecos-btn_i ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10 ecos-journal-dashlet__create-btn"
+          onClick={() => this.addRecord(createVariants[0])}
+        />
+      );
+    }
+
+    return (
+      <Dropdown hasEmpty isButton source={createVariants} valueField="destination" titleField="title" onChange={this.addRecord}>
+        <TwoIcoBtn
+          icons={['icon-big-plus', 'icon-down']}
+          className="ecos-btn_settings-down ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10 ecos-journal-dashlet__create-btn"
+        />
+      </Dropdown>
+    );
+  };
+
   render() {
     const {
       stateId,
@@ -65,14 +93,7 @@ class JournalsDashletToolbar extends Component {
 
     return (
       <div className={'ecos-journal-dashlet__toolbar'}>
-        {!!(createVariants && createVariants.length) && (
-          <Dropdown hasEmpty isButton source={createVariants} valueField="destination" titleField="title" onChange={this.addRecord}>
-            <TwoIcoBtn
-              icons={['icon-big-plus', 'icon-down']}
-              className="ecos-btn_settings-down ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10"
-            />
-          </Dropdown>
-        )}
+        {this.renderCreateMenu()}
 
         <Dropdown
           hasEmpty

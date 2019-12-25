@@ -20,7 +20,9 @@
   }
 
   &__create-btn {
-    flex-shrink: 0;
+    &.ecos-btn_i {
+      padding: 5px 10px;
+    }
   }
 
   &__actions {

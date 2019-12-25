@@ -29,19 +29,38 @@ const JournalsSettingsBar = ({
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const step = classNames('ecos-journal__settings-bar_step', { 'ecos-journal__settings-bar_step-mobile': isMobile });
-  const createVariants = get(journalConfig, 'meta.createVariants') || [];
+
+  const renderCreateMenu = () => {
+    const createVariants = get(journalConfig, 'meta.createVariants') || [];
+
+    if (isMobile || !createVariants.length) {
+      return null;
+    }
+
+    if (createVariants.length === 1) {
+      return (
+        <IcoBtn
+          icon={'icon-big-plus'}
+          className={`ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
+          onClick={() => this.addRecord(createVariants[0])}
+        />
+      );
+    }
+
+    return (
+      <Dropdown hasEmpty isButton source={createVariants} valueField="destination" titleField="title" onChange={addRecord} className={step}>
+        <TwoIcoBtn
+          icons={['icon-plus', 'icon-down']}
+          className="ecos-journal__add-record ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
+          title={t('journals.create-record-btn')}
+        />
+      </Dropdown>
+    );
+  };
 
   return (
-    <div className={'ecos-journal__settings-bar'}>
-      {!isMobile && !!createVariants.length && (
-        <Dropdown hasEmpty isButton source={createVariants} valueField="destination" titleField="title" onChange={addRecord}>
-          <TwoIcoBtn
-            icons={['icon-plus', 'icon-down']}
-            className="ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2 ecos-btn_x-step_10"
-            title={t('journals.create-record-btn')}
-          />
-        </Dropdown>
-      )}
+    <div className="ecos-journal__settings-bar">
+      {renderCreateMenu()}
 
       {!isMobile && (
         <IcoBtn
