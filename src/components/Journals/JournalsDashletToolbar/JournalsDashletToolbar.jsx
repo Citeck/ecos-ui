@@ -34,14 +34,8 @@ const mapDispatchToProps = (dispatch, props) => {
 };
 
 class JournalsDashletToolbar extends Component {
-  addRecord = () => {
-    let {
-      journalConfig: {
-        meta: { createVariants = [{}] }
-      }
-    } = this.props;
-
-    FormManager.createRecordByVariant(createVariants[0], {
+  addRecord = createVariant => {
+    FormManager.createRecordByVariant(createVariant, {
       onSubmit: record => {
         goToCardDetailsPage(record.id);
       }
@@ -71,15 +65,14 @@ class JournalsDashletToolbar extends Component {
 
     return (
       <div className={'ecos-journal-dashlet__toolbar'}>
-        {createVariants[0] ? (
-          <IcoBtn
-            icon={'icon-big-plus'}
-            className={
-              'ecos-btn_i ecos-btn_i-big-plus ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10 ecos-journal-dashlet__create-btn'
-            }
-            onClick={this.addRecord}
-          />
-        ) : null}
+        {!!(createVariants && createVariants.length) && (
+          <Dropdown hasEmpty isButton source={createVariants} valueField="destination" titleField="title" onChange={this.addRecord}>
+            <TwoIcoBtn
+              icons={['icon-big-plus', 'icon-down']}
+              className="ecos-btn_settings-down ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10"
+            />
+          </Dropdown>
+        )}
 
         <Dropdown
           hasEmpty
@@ -101,7 +94,7 @@ class JournalsDashletToolbar extends Component {
             value={0}
             valueField={JOURNAL_SETTING_ID_FIELD}
             titleField={`${JOURNAL_SETTING_DATA_FIELD}.title`}
-            isButton={true}
+            isButton
             onChange={this.onChangeJournalSetting}
           >
             <TwoIcoBtn icons={['icon-settings', 'icon-down']} className={'ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10'} />

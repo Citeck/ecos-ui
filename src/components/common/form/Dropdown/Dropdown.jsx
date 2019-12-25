@@ -21,16 +21,17 @@ class MenuItem extends React.PureComponent {
 
 export default class Dropdown extends Component {
   static propTypes = {
-    titleField: PropTypes.string,
     valueField: PropTypes.any,
+    titleField: PropTypes.string,
     className: PropTypes.string,
     menuClassName: PropTypes.string,
     toggleClassName: PropTypes.string,
     direction: PropTypes.string,
     hasEmpty: PropTypes.bool,
-    isStatic: PropTypes.bool,
     right: PropTypes.bool,
     full: PropTypes.bool,
+    isButton: PropTypes.bool,
+    isStatic: PropTypes.bool,
     isLinks: PropTypes.bool,
     cascade: PropTypes.bool,
     withScrollbar: PropTypes.bool,
