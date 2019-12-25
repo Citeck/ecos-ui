@@ -82,7 +82,7 @@ class JournalsDashletToolbar extends Component {
       journals,
       journalConfig,
       journalConfig: {
-        meta: { nodeRef = '', createVariants }
+        meta: { nodeRef = '' }
       },
       journalSettings,
       measurer,
