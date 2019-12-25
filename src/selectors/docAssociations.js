@@ -9,7 +9,6 @@ export const selectStateByKey = (state, key) => {
     associations: get(ownState, ['associations'], []),
     isLoading: get(ownState, ['isLoading'], false),
     isLoadingMenu: get(ownState, ['isLoadingMenu'], false),
-    errorMessage: get(ownState, ['errorMessage'], ''),
     menu: get(ownState, ['menu'], []),
     associationsTotalCount: get(ownState, ['associationsTotalCount'], 0)
   };
