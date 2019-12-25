@@ -10,7 +10,7 @@ export class DocAssociationsApi extends RecordService {
    * @returns {*[]}
    */
   getAllowedAssociations = recordRef => {
-    return Records.get(recordRef).load('_etype.associations[]{id,name,direction}');
+    return Records.get(recordRef).load('_etype.assocsFull[]{id,name,direction}');
   };
 
   /**
