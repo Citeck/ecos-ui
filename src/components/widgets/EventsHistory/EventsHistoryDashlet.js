@@ -61,9 +61,7 @@ class EventsHistoryDashlet extends BaseWidget {
         bodyClassName={`${this.className}__body`}
         className={classDashlet}
         resizable={true}
-        actionEdit={false}
-        actionReload={false}
-        actionHelp={false}
+        noActions
         needGoTo={false}
         canDragging={canDragging}
         dragHandleProps={dragHandleProps}

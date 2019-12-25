@@ -58,10 +58,8 @@ class DocStatusDashlet extends React.Component {
         resizable={false}
         collapsible={!isBig}
         needGoTo={false}
-        actionHelp={false}
-        actionReload={false}
+        noActions
         actionDrag={isMobile}
-        actionEdit={false}
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}

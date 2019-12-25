@@ -9,7 +9,7 @@ import get from 'lodash/get';
 import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../../actions/versionsJournal';
 import { selectLabelsVersions } from '../../../selectors/versionsJournal';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { t, arrayCompare } from '../../../helpers/util';
+import { arrayCompare, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../../constants/versionsJournal';
 
@@ -240,42 +240,12 @@ class VersionsJournal extends BaseWidget {
     return get(this.topPanel, 'current.offsetHeight', 0);
   }
 
-  renderAddButton(isModal = false) {
-    const { id, record } = this.props;
-
-    if (!record) {
-      return null;
-    }
-
-    if (isModal) {
-      return (
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-vj__btn-add" onClick={this.handleToggleAddModal}>
-          <Icon className="icon-plus ecos-vj__btn-add-icon" />
-          <span className="ecos-vj__btn-add-title">{t('versions-journal-widget.add-version')}</span>
-        </Btn>
-      );
-    }
-
+  renderAddButton() {
     return (
-      <span key="add-button">
-        <IcoBtn
-          id={`${TOOLTIP.ADD_NEW_VERSION}-${id}`}
-          key="action-open-modal"
-          icon="icon-plus"
-          onClick={this.handleToggleAddModal}
-          className="ecos-btn_i dashlet__btn_hidden dashlet__btn_next ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-        />
-        <UncontrolledTooltip
-          placement="top"
-          boundariesElement="window"
-          key="action-open-modal-tooltip"
-          innerClassName="ecos-vj__tooltip"
-          arrowClassName="ecos-vj__tooltip-arrow"
-          target={`${TOOLTIP.ADD_NEW_VERSION}-${id}`}
-        >
-          {t('versions-journal-widget.add-version')}
-        </UncontrolledTooltip>
-      </span>
+      <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-vj__btn-add" onClick={this.handleToggleAddModal}>
+        <Icon className="icon-plus ecos-vj__btn-add-icon" />
+        <span className="ecos-vj__btn-add-title">{t('versions-journal-widget.add-version')}</span>
+      </Btn>
     );
   }
 
@@ -582,8 +552,17 @@ class VersionsJournal extends BaseWidget {
   }
 
   render() {
-    const { isMobile, versionsLabels } = this.props;
+    const { isMobile, versionsLabels, record } = this.props;
     const { isCollapsed } = this.state;
+    const actions = {};
+
+    if (!isMobile && record) {
+      actions.addVersion = {
+        icon: 'icon-plus',
+        text: t('versions-journal-widget.add-version'),
+        onClick: this.handleToggleAddModal
+      };
+    }
 
     return (
       <Dashlet
@@ -592,14 +571,11 @@ class VersionsJournal extends BaseWidget {
         titleClassName="ecos-vj__dashboard-title"
         style={{ minWidth: MIN_WIDTH_DASHLET_SMALL }}
         needGoTo={false}
-        actionEdit={false}
-        actionHelp={false}
-        actionReload={false}
+        actionConfig={actions}
         resizable
-        contentMaxHeight={this.clientHeight + this.otherHeight}
         onResize={this.handleResize}
+        contentMaxHeight={this.clientHeight + this.otherHeight}
         onChangeHeight={this.handleChangeHeight}
-        customButtons={[!isMobile && this.renderAddButton()]}
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
@@ -608,7 +584,7 @@ class VersionsJournal extends BaseWidget {
           <div className="ecos-vj__block" ref={this.topPanel}>
             {this.renderComparison()}
 
-            {isMobile && this.renderAddButton(isMobile)}
+            {isMobile && record && this.renderAddButton()}
           </div>
         )}
 

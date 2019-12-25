@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import Records from '../../Records/index';
 import EcosFormModal from '../../EcosForm/EcosFormModal';

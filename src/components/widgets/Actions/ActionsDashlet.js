@@ -59,9 +59,7 @@ class ActionsDashlet extends BaseWidget {
         className={classNames('ecos-actions-dashlet', classNameDashlet)}
         resizable={true}
         contentMaxHeight={this.clientHeight}
-        actionEdit={false}
-        actionReload={false}
-        actionHelp={false}
+        noActions
         needGoTo={false}
         canDragging={canDragging}
         dragHandleProps={dragHandleProps}
