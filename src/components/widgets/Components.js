@@ -111,7 +111,7 @@ export default class Components {
     }
   });
 
-  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.RECORD_ACTIONS, ComponentKeys.WEB_PAGE];
+  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.WEB_PAGE];
 
   static get allDashboardTypes() {
     return Object.values(DashboardTypes);
