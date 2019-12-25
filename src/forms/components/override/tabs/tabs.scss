@@ -95,11 +95,11 @@ $tabs-height: 26px;
 
     &_scrollable {
       .nav-item {
-        &:first-child {
+        &.first-visible-tab {
           border-left: 10px solid transparent;
         }
 
-        &:last-child {
+        &.last-visible-tab {
           border-right: 10px solid transparent;
         }
       }
