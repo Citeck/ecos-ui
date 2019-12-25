@@ -98,9 +98,7 @@ class DocPreviewDashlet extends BaseWidget {
         title={title}
         bodyClassName="ecos-doc-preview-dashlet__body"
         className={classesDashlet}
-        actionReload={false}
-        actionEdit={false}
-        actionHelp={false}
+        noActions
         needGoTo={false}
         canDragging={canDragging}
         onResize={this.onResize}

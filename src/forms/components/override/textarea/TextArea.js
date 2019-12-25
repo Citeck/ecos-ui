@@ -1,9 +1,16 @@
 import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
+import { overrideTriggerChange } from '../misc';
 
 const ACEJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/ace.js';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
+  constructor(...args) {
+    super(...args);
+
+    overrideTriggerChange.call(this);
+  }
+
   createViewOnlyElement() {
     this.element = super.createViewOnlyElement();
 

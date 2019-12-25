@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import Dashlet from '../../Dashlet/Dashlet';
+import Dashlet, { BaseActions } from '../../Dashlet';
 import CurrentTasks from './CurrentTasks';
 import BaseWidget from '../BaseWidget';
 
@@ -64,20 +64,22 @@ class CurrentTasksDashlet extends BaseWidget {
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isSmallMode, isUpdating, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
-    const classDashlet = classNames('ecos-current-task-list-dashlet', classNameDashlet);
+    const actions = {
+      [BaseActions.RELOAD]: {
+        onClick: this.onReload
+      }
+    };
 
     return (
       <Dashlet
         title={title || t('current-tasks-widget.title')}
         bodyClassName="ecos-current-task-list-dashlet__body"
-        className={classDashlet}
+        className={classNames('ecos-current-task-list-dashlet', classNameDashlet)}
         resizable
         contentMaxHeight={this.clientHeight}
-        onReload={this.onReload}
+        actionConfig={actions}
         needGoTo={false}
-        actionEdit={false}
         canDragging={canDragging}
-        actionHelp={false}
         dragHandleProps={dragHandleProps}
         onChangeHeight={this.handleChangeHeight}
         getFitHeights={this.setFitHeights}

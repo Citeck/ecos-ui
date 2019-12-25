@@ -15,7 +15,7 @@ import UserLocalSettingsService from '../../../services/userLocalSettings';
 import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/index';
 import { RemoveDialog } from '../../common/dialogs/index';
 import SelectJournal from '../../common/form/SelectJournal/index';
-import Dashlet from '../../Dashlet/Dashlet';
+import Dashlet from '../../Dashlet';
 
 import './style.scss';
 
@@ -249,12 +249,8 @@ class DocAssociations extends BaseWidget {
   }
 
   renderAddButton = () => {
-    const { menu, id, isMobile, isLoadingMenu } = this.props;
+    const { menu, id, isLoadingMenu } = this.props;
     const { isMenuOpen } = this.state;
-
-    if (isMobile) {
-      return null;
-    }
 
     return (
       <Dropdown isOpen={isMenuOpen} toggle={this.handleToggleMenu} key="add-button">
@@ -334,6 +330,15 @@ class DocAssociations extends BaseWidget {
     const { canDragging, dragHandleProps, isCollapsed, associationsTotalCount, isLoading, isMobile } = this.props;
     const { userHeight = 0, fitHeights, contentHeight } = this.state;
     const fixHeight = userHeight || null;
+    const actions = {};
+    const actionRules = { orderedVisible: ['addLink'] };
+
+    if (!isMobile) {
+      actions.addLink = {
+        component: this.renderAddButton(),
+        text: t(LABELS.TOOLTIP_ADD_LINK)
+      };
+    }
 
     return (
       <Dashlet
@@ -342,9 +347,8 @@ class DocAssociations extends BaseWidget {
         })}
         title={t(LABELS.TITLE)}
         needGoTo={false}
-        actionEdit={false}
-        actionHelp={false}
-        actionReload={false}
+        actionConfig={actions}
+        actionRules={actionRules}
         canDragging={canDragging}
         resizable
         contentMaxHeight={this.clientHeight}
@@ -354,7 +358,6 @@ class DocAssociations extends BaseWidget {
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
-        customButtons={[this.renderAddButton()]}
         badgeText={getAdaptiveNumberStr(associationsTotalCount)}
         noBody={!associationsTotalCount && !isLoading}
       >
@@ -403,4 +406,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     )
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(DocAssociations);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DocAssociations);

@@ -33,6 +33,9 @@ export const ComponentKeys = {
  * Если виджет должен отображаться только на определенных типах дашбордов,
  * необходимо при регистрации в объект components, в поле supportedDashboardTypes
  * указать поддерживаемые типы дашбордов (их ключи)
+ *
+ * С помощью Components.getAllDashboardTypesExcept в поле supportedDashboardTypes
+ * можно указать типы дашбордов, на которых не следует отображать виджет
  */
 export default class Components {
   static components = Object.freeze({
@@ -89,7 +92,7 @@ export default class Components {
     [ComponentKeys.RECORD_ACTIONS]: {
       load: () => lazy(() => import('./Actions')),
       label: 'dashboard-settings.widget.actions',
-      supportedDashboardTypes: []
+      supportedDashboardTypes: Components.getAllDashboardTypesExcept([DashboardTypes.USER])
     },
     [ComponentKeys.WEB_PAGE]: {
       load: () => lazy(() => import('./WebPage')),
@@ -108,7 +111,15 @@ export default class Components {
     }
   });
 
-  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.RECORD_ACTIONS, ComponentKeys.WEB_PAGE];
+  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.WEB_PAGE];
+
+  static get allDashboardTypes() {
+    return Object.values(DashboardTypes);
+  }
+
+  static get widgetsForAllDasboards() {
+    return Components.allDashboardsComponents.map(key => ({ ...Components.components[key], name: key }));
+  }
 
   static get(component) {
     const loadComponent = get(Components.components, [component, 'load']);
@@ -123,12 +134,12 @@ export default class Components {
   static getComponentsFullData(dashboardType = DashboardTypes.CASE_DETAILS) {
     const components = new Map();
 
-    Components.getWidgetsForAllDasboards().forEach(component => {
+    Components.widgetsForAllDasboards.forEach(component => {
       components.set(component.name, component.label);
     });
 
     Object.entries(Components.components).forEach(([name, component]) => {
-      if (component.supportedDashboardTypes.includes(dashboardType)) {
+      if (component.supportedDashboardTypes && component.supportedDashboardTypes.includes(dashboardType)) {
         components.set(name, component.label);
       }
     });
@@ -141,10 +152,6 @@ export default class Components {
     components.clear();
 
     return deepClone(arrComponents);
-  }
-
-  static getWidgetsForAllDasboards() {
-    return Components.allDashboardsComponents.map(key => ({ ...Components.components[key], name: key }));
   }
 
   static getDefaultWidget = widget => {
@@ -188,5 +195,9 @@ export default class Components {
 
       return Components.getDefaultWidget(item);
     });
+  }
+
+  static getAllDashboardTypesExcept(types = []) {
+    return Components.allDashboardTypes.filter(item => !types.includes(item));
   }
 }

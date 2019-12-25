@@ -12,7 +12,7 @@ import './EcosFormModal.scss';
 import { SourcesId } from '../../constants';
 
 const LABELS = {
-  CONSTRUCTOR_BTN_TOOLTIP: 'Перейти в конструктор'
+  CONSTRUCTOR_BTN_TOOLTIP: 'eform.btn.tooltip.constructor'
 };
 
 export default class EcosFormModal extends React.Component {

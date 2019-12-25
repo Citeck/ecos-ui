@@ -1,9 +1,9 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import lodashGet from 'lodash/get';
 import throttle from 'lodash/throttle';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../constants/pageTabs';
+import { IGNORE_TABS_HANDLER_ATTR_NAME, SCROLL_STEP } from '../../../../constants/pageTabs';
+import { animateScrollTo } from '../../../../helpers/util';
 
-const SCROLL_STEP = 120;
 const SCROLLABLE_CLASS = 'formio-component-tabs_scrollable';
 
 //Override default tabs component to fix validation in inner fields
@@ -395,11 +395,11 @@ export default class TabsComponent extends NestedComponent {
   _calculateTabsContentHeightThrottled = throttle(this._calculateTabsContentHeight, 300);
 
   onLeftButtonClick = () => {
-    this.tabsBar.scrollLeft -= SCROLL_STEP;
+    animateScrollTo(this.tabsBar, { scrollLeft: this.tabsBar.scrollLeft - SCROLL_STEP });
   };
 
   onRightButtonClick = () => {
-    this.tabsBar.scrollLeft += SCROLL_STEP;
+    animateScrollTo(this.tabsBar, { scrollLeft: this.tabsBar.scrollLeft + SCROLL_STEP });
   };
 
   onVisibilityChange = () => {
