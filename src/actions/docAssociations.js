@@ -16,3 +16,5 @@ export const setAllowedConnections = createAction(prefix + 'SET_ALLOWED_CONNECTI
 
 export const getMenu = createAction(prefix + 'GET_MENU');
 export const setMenu = createAction(prefix + 'SET_MENU');
+
+export const setError = createAction(prefix + 'SET_ERROR');

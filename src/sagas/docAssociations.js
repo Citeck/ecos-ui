@@ -10,7 +10,8 @@ import {
   setAllowedConnections,
   setAssociations,
   setMenu,
-  setSectionList
+  setSectionList,
+  setError
 } from '../actions/docAssociations';
 import DocAssociationsConverter from '../dto/docAssociations';
 import { DIRECTIONS } from '../constants/docAssociations';
@@ -85,6 +86,7 @@ function* sagaGetAssociations({ api, logger }, { payload }) {
       })
     );
   } catch (e) {
+    yield put(setError({ key: payload }));
     logger.error('[docAssociations sagaGetAssociations saga error', e.message);
   }
 }
@@ -111,27 +113,35 @@ function* sagaGetMenu({ api, logger }, { payload }) {
       })
     );
   } catch (e) {
+    yield put(setError({ key: payload }));
     logger.error('[docAssociations sagaGetMenu saga error', e.message);
   }
 }
 
 function* sagaAddAssociations({ api, logger }, { payload }) {
   try {
-    const { associationId, record, associations, journalRef } = payload;
+    const { associationId, record, associations } = payload;
     const directions = yield select(state => selectAllowedDirectionsByKey(state, record));
-    let recordRef = record;
 
     if (directions[associationId] === DIRECTIONS.SOURCE) {
-      recordRef = journalRef;
+      yield associations.map(function*(recordRef) {
+        return yield call(api.docAssociations.addAssociations, {
+          recordRef,
+          associations: [record],
+          associationId
+        });
+      });
+    } else {
+      yield call(api.docAssociations.addAssociations, {
+        recordRef: record,
+        associations,
+        associationId
+      });
     }
 
-    yield call(api.docAssociations.addAssociations, {
-      recordRef,
-      associations,
-      associationId
-    });
     yield put(getAssociations(record));
   } catch (e) {
+    yield put(setError({ key: payload.record }));
     logger.error('[docAssociations sagaAddAssociations saga error', e.message);
   }
 }
@@ -155,6 +165,7 @@ function* sagaRemoveAssociations({ api, logger }, { payload }) {
     });
     yield put(getAssociations(record));
   } catch (e) {
+    yield put(setError({ key: payload.record }));
     logger.error('[docAssociations sagaRemoveAssociations saga error', e.message);
   }
 }

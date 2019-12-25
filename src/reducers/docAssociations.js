@@ -6,7 +6,10 @@ import {
   setAssociations,
   getMenu,
   setMenu,
-  setSectionList
+  setSectionList,
+  addAssociations,
+  setError,
+  removeAssociations
 } from '../actions/docAssociations';
 
 export const initialState = {
@@ -64,6 +67,20 @@ export default handleActions(
         isLoading: true
       }
     }),
+    [addAssociations]: (state, { payload }) => ({
+      ...state,
+      [payload.record]: {
+        ...state[payload.record],
+        isLoading: true
+      }
+    }),
+    [removeAssociations]: (state, { payload }) => ({
+      ...state,
+      [payload.record]: {
+        ...state[payload.record],
+        isLoading: true
+      }
+    }),
 
     [setAllowedConnections]: (state, { payload }) => ({
       ...state,
@@ -86,6 +103,14 @@ export default handleActions(
         ...state[payload.key],
         menu: payload.menu,
         isLoadingMenu: false
+      }
+    }),
+
+    [setError]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        isLoading: false
       }
     })
   },
