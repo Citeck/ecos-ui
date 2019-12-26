@@ -334,15 +334,18 @@
     height: 160px;
     flex-direction: column;
 
+    &:focus {
+      outline: none;
+    }
+
+    &_disabled {
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
     &_uploading {
       flex-direction: column;
       justify-content: center;
-    }
-  }
-
-  &__dropzone {
-    &:focus {
-      outline: none;
     }
 
     &-label {
@@ -377,6 +380,41 @@
     }
   }
 
+  &__progress-bar {
+    transition: width 1s ease-out;
+    border: 0;
+    height: 6px;
+    border-radius: 3px;
+    background-color: $color-blue-dark;
+    margin: 15px auto;
+
+    &::-webkit-progress-bar {
+      border: 0;
+      height: 6px;
+      border-radius: 3px;
+    }
+
+    &::-webkit-progress-value {
+      border: 0;
+      height: 6px;
+      border-radius: 3px;
+    }
+
+    &::-moz-progress-bar {
+      border: 0;
+      height: 6px;
+      border-radius: 3px;
+    }
+
+    &[value]::-webkit-progress-bar {
+      background-color: $color-gray-6;
+    }
+
+    &[value]::-webkit-progress-value {
+      background-color: $color-blue-dark;
+    }
+  }
+
   .dzu {
     &-preview {
       &Image {
@@ -394,36 +432,6 @@
 
       &StatusContainer {
         margin: 18px auto 30px !important;
-
-        progress {
-          border: 0;
-          height: 6px;
-          border-radius: 3px;
-          background-color: $color-blue-dark !important;
-        }
-        progress::-webkit-progress-bar {
-          border: 0;
-          height: 6px;
-          border-radius: 3px;
-        }
-        progress::-webkit-progress-value {
-          border: 0;
-          height: 6px;
-          border-radius: 3px;
-        }
-        progress::-moz-progress-bar {
-          border: 0;
-          height: 6px;
-          border-radius: 3px;
-        }
-
-        progress[value]::-webkit-progress-bar {
-          background-color: $color-gray-6;
-        }
-
-        progress[value]::-webkit-progress-value {
-          background-color: $color-blue-dark;
-        }
       }
     }
 

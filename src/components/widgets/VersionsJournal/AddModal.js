@@ -4,13 +4,12 @@ import Dropzone from 'react-dropzone';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
-import EcosModal from '../../common/EcosModal';
 import { t } from '../../../helpers/util';
+import { FileStatuses } from '../../../helpers/ecosXhr';
+import { VERSIONS } from '../../../constants/versionsJournal';
+import EcosModal from '../../common/EcosModal';
 import Radio from '../../common/form/Radio';
 import Btn from '../../common/btns/Btn/Btn';
-import { FILE_STATUS, VERSIONS } from '../../../constants/versionsJournal';
-
-import 'react-dropzone-uploader/dist/styles.css';
 
 const Labels = {
   DROPZONE_PLACEHOLDER: 'versions-journal-widget.modal.dropzone_placeholder',
@@ -59,6 +58,7 @@ class AddModal extends Component {
   state = {
     file: null,
     fileStatus: '',
+    filePercent: 0,
     selectedVersion: VERSIONS.MINOR,
     comment: '',
     isMajorVersion: false,
@@ -72,6 +72,10 @@ class AddModal extends Component {
     const { comment } = this.state;
 
     return comment.length <= commentMaxLength;
+  }
+
+  get disabledForm() {
+    return this.props.isLoading;
   }
 
   getVersion(oldVersion, isMajor = false) {
@@ -103,34 +107,27 @@ class AddModal extends Component {
     return clientError.join(' ');
   };
 
-  _handleChangeStatus = ({ meta, file, remove, xhr, ...d }, status) => {
-    const { status: _status, clientError: _clientError } = this.state;
+  handleChangeStatus = state => {
+    const { fileStatus: _fileStatus, clientError: _clientError } = this.state;
+    const { status: fileStatus, percent: filePercent, response } = state;
 
-    if (_status !== status) {
-      this.setState({ fileStatus: status });
-    }
+    this.setState({ fileStatus, filePercent });
 
-    switch (status) {
-      case FILE_STATUS.PREPARING:
-        const clientError = this.validateUploadedFile(file);
-
-        if (clientError) {
-          if (_clientError !== clientError) {
-            this.setState({ file: null, clientError });
-          }
-          remove();
-        } else {
-          this.setState({ clientError: '' });
-        }
+    switch (fileStatus) {
+      case FileStatuses.PREPARING:
+        this.setState({ clientError: '' });
         break;
-      case FILE_STATUS.DONE:
-      case FILE_STATUS.ERROR_UPLOAD:
-        const { status: reqStatus, statusText } = xhr || {};
+      case FileStatuses.DONE:
+        this.setState({ file: null, clientError: '' });
+        break;
+      case FileStatuses.ERROR_UPLOAD:
+        const { message, status } = response || {};
+        const { description } = status || {};
+        const clientError = `${t(Labels.Messages.ERROR_FILE_UPLOAD)}. ${message} ${description}`;
 
-        if (_clientError !== reqStatus) {
-          this.setState({ file: null, clientError: `${t(Labels.Messages.ERROR_FILE_UPLOAD)}: ${reqStatus} ${statusText}` });
+        if (_clientError !== clientError) {
+          this.setState({ file: null, clientError });
         }
-        remove();
         break;
       default:
         break;
@@ -157,7 +154,8 @@ class AddModal extends Component {
     this.props.onCreate({
       file,
       comment,
-      isMajor: selectedVersion === VERSIONS.MAJOR
+      isMajor: selectedVersion === VERSIONS.MAJOR,
+      handleProgress: this.handleChangeStatus
     });
   };
 
@@ -193,10 +191,14 @@ class AddModal extends Component {
   renderDropzone() {
     return (
       <>
-        <Dropzone ref={this.dropzoneRef} multiple={false} onDrop={this.handleDropFile} noClick noKeyboard>
+        <Dropzone ref={this.dropzoneRef} multiple={false} onDrop={this.handleDropFile} noClick noKeyboard disabled={this.disabledForm}>
           {({ getRootProps, getInputProps }) => {
             return (
-              <div className="vj-modal__dropzone" {...getRootProps()} onClick={event => event.preventDefault()}>
+              <div
+                className={classNames('vj-modal__dropzone', { 'vj-modal__dropzone_disabled': this.disabledForm })}
+                {...getRootProps()}
+                onClick={event => event.preventDefault()}
+              >
                 <input {...getInputProps()} />
                 <div className="vj-modal__dropzone-label">{this.renderDropzoneInputContent()}</div>
               </div>
@@ -218,6 +220,7 @@ class AddModal extends Component {
           label={`${t(Labels.VERSION_MINOR)} (v ${this.getVersion(currentVersion)})`}
           name="version-radio"
           checked={selectedVersion === VERSIONS.MINOR}
+          disabled={this.disabledForm}
           onChange={isChecked => {
             if (isChecked) {
               this.setState({
@@ -231,6 +234,7 @@ class AddModal extends Component {
           label={`${t(Labels.VERSION_MAJOR)} (v ${this.getVersion(currentVersion, true)})`}
           name="version-radio"
           checked={selectedVersion === VERSIONS.MAJOR}
+          disabled={this.disabledForm}
           onChange={isChecked => {
             if (isChecked) {
               this.setState({
@@ -280,6 +284,7 @@ class AddModal extends Component {
             className="vj-modal__comment-input"
             onChange={this.handleChangeComment}
             defaultValue={comment}
+            disabled={this.disabledForm}
           />
         </div>
       </div>
@@ -291,13 +296,13 @@ class AddModal extends Component {
 
     return (
       <div className="vj-modal__footer">
-        <Btn className="ecos-btn_grey ecos-btn_hover_grey vj-modal__btn-cancel" onClick={this.handleHideModal}>
+        <Btn className="ecos-btn_grey ecos-btn_hover_grey vj-modal__btn-cancel" onClick={this.handleHideModal} disabled={this.disabledForm}>
           {t(Labels.CANCEL)}
         </Btn>
         <Btn
           className="ecos-btn_blue ecos-btn_hover_light-blue vj-modal__btn-add"
           onClick={this.handleSave}
-          disabled={!this.isValidComment || !selectedVersion || !file}
+          disabled={!this.isValidComment || !selectedVersion || !file || this.disabledForm}
         >
           {t(Labels.ADD)}
         </Btn>
@@ -313,19 +318,28 @@ class AddModal extends Component {
       return null;
     }
 
-    return <div className="vj-modal__error">{errorMessage || clientError}</div>;
+    return <div className="vj-modal__error">{clientError || errorMessage}</div>;
+  }
+
+  renderProgressBar() {
+    const { filePercent } = this.state;
+
+    return this.props.isLoading ? (
+      <progress max="100" value={filePercent} style={{ width: `${filePercent}%` }} className="vj-modal__progress-bar" />
+    ) : null;
   }
 
   render() {
-    const { isShow, isLoading, title } = this.props;
+    const { isShow, title } = this.props;
 
     return (
-      <EcosModal isOpen={isShow} isLoading={isLoading} hideModal={this.handleHideModal} title={title} className="vj-modal">
+      <EcosModal isOpen={isShow} hideModal={this.handleHideModal} title={title} className="vj-modal">
         {this.renderDropzone()}
         {this.renderErrorMessage()}
         {this.renderFile()}
         {this.renderVersions()}
         {this.renderComment()}
+        {this.renderProgressBar()}
         {this.renderActionButtons()}
       </EcosModal>
     );

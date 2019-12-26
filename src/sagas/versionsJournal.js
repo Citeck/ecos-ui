@@ -3,14 +3,14 @@ import get from 'lodash/get';
 
 import {
   addNewVersion,
-  addNewVersionSuccess,
   addNewVersionError,
+  addNewVersionSuccess,
   getVersions,
-  setVersions,
-  setActiveVersion,
-  setActiveVersionSuccess,
-  setActiveVersionError,
   getVersionsComparison,
+  setActiveVersion,
+  setActiveVersionError,
+  setActiveVersionSuccess,
+  setVersions,
   setVersionsComparison
 } from '../actions/versionsJournal';
 import VersionsJournalConverter from '../dto/versionsJournal';
@@ -33,7 +33,10 @@ function* sagaGetVersions({ api, logger }, { payload }) {
 
 function* sagaAddNewVersion({ api, logger }, { payload }) {
   try {
-    const result = yield call(api.versionsJournal.addNewVersion, VersionsJournalConverter.getAddVersionFormDataForServer(payload));
+    const result = yield call(api.versionsJournal.addNewVersion, {
+      body: VersionsJournalConverter.getAddVersionFormDataForServer(payload),
+      handleProgress: payload.handleProgress
+    });
 
     if (result.status.code === 200) {
       yield put(addNewVersionSuccess(payload.id));
