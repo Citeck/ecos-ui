@@ -343,9 +343,9 @@
       pointer-events: none;
     }
 
-    &_uploading {
-      flex-direction: column;
-      justify-content: center;
+    &-uploading {
+      width: 190px;
+      position: relative;
     }
 
     &-label {
@@ -386,7 +386,19 @@
     height: 6px;
     border-radius: 3px;
     background-color: $color-blue-dark;
-    margin: 15px auto;
+    margin: 28px auto 20px;
+    z-index: 2;
+
+    &:before {
+      display: block;
+      content: ' ';
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background-color: $color-gray-6;
+      position: absolute;
+      z-index: 1;
+    }
 
     &::-webkit-progress-bar {
       border: 0;
