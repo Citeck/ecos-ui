@@ -11,6 +11,7 @@ const originalCreateViewOnlyElement = Base.prototype.createViewOnlyElement;
 const originalCheckValidity = Base.prototype.checkValidity;
 const originalCheckConditions = Base.prototype.checkConditions;
 const originalSetValue = Base.prototype.setValue;
+const originalT = Base.prototype.t;
 
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
 
@@ -242,4 +243,28 @@ Base.prototype.checkConditions = function(data) {
   }
 
   return originalCheckConditions.call(this, data);
+};
+
+// Cause: https://citeck.atlassian.net/browse/ECOSCOM-3000
+Base.prototype.__t = function(content, params) {
+  const replacements = content.match(new RegExp(/__t\((.*?)\)/, 'g'));
+  if (!replacements) {
+    return content;
+  }
+
+  let result = content;
+
+  replacements.forEach(item => {
+    result = result.replace(item, this.t(item.slice(4, -1), params));
+  });
+
+  return result;
+};
+
+Base.prototype.t = function(text, params) {
+  if (text.includes('__t(')) {
+    return this.__t(text, params);
+  }
+
+  return originalT.call(this, text, params);
 };
