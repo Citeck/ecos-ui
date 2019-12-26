@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Dropzone from 'react-dropzone-uploader';
+import Dropzone from 'react-dropzone';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
@@ -12,7 +12,7 @@ import { FILE_STATUS, VERSIONS } from '../../../constants/versionsJournal';
 
 import 'react-dropzone-uploader/dist/styles.css';
 
-const LABELS = {
+const Labels = {
   DROPZONE_PLACEHOLDER: 'versions-journal-widget.modal.dropzone_placeholder',
   DROPZONE_SELECT_BUTTON: 'versions-journal-widget.modal.dropzone_select_button',
 
@@ -65,18 +65,7 @@ class AddModal extends Component {
     clientError: ''
   };
 
-  get dropzoneClassName() {
-    const { fileStatus } = this.state;
-    const classes = ['vj-modal__dropzone'];
-
-    if (
-      [FILE_STATUS.PREPARING, FILE_STATUS.UPLOADING, FILE_STATUS.GETTING_UPLOAD_PARAMS, FILE_STATUS.HEADERS_RECEIVED].includes(fileStatus)
-    ) {
-      classes.push('vj-modal__dropzone_uploading');
-    }
-
-    return classes.join(' ');
-  }
+  dropzoneRef = React.createRef();
 
   get isValidComment() {
     const { commentMaxLength } = this.props;
@@ -104,7 +93,7 @@ class AddModal extends Component {
     let clientError = [];
 
     if (!file.size) {
-      const arrMsg = t(LABELS.Messages.ERROR_FILE_SIZE_MIN).split('VAL');
+      const arrMsg = t(Labels.Messages.ERROR_FILE_SIZE_MIN).split('VAL');
       const vals = [file.name, file.size];
       const msg = arrMsg.map((item, i) => item + get(vals, i.toString(), ''));
 
@@ -114,28 +103,7 @@ class AddModal extends Component {
     return clientError.join(' ');
   };
 
-  getUploadParams = ({ file }) => {
-    const body = new FormData();
-    const clientError = this.state.clientError || this.validateUploadedFile(file);
-
-    if (clientError) {
-      this.setState({ file: null, clientError });
-    } else {
-      this.setState({ file, clientError: '' });
-    }
-
-    body.append('filedata', file, file.name);
-    body.append('filename', file.name);
-    body.append('overwrite', 'false');
-
-    return {
-      url: '/share/proxy/alfresco/api/upload',
-      method: 'POST',
-      body
-    };
-  };
-
-  handleChangeStatus = ({ meta, file, remove, xhr, ...d }, status) => {
+  _handleChangeStatus = ({ meta, file, remove, xhr, ...d }, status) => {
     const { status: _status, clientError: _clientError } = this.state;
 
     if (_status !== status) {
@@ -160,17 +128,13 @@ class AddModal extends Component {
         const { status: reqStatus, statusText } = xhr || {};
 
         if (_clientError !== reqStatus) {
-          this.setState({ file: null, clientError: `${t(LABELS.Messages.ERROR_FILE_UPLOAD)}: ${reqStatus} ${statusText}` });
+          this.setState({ file: null, clientError: `${t(Labels.Messages.ERROR_FILE_UPLOAD)}: ${reqStatus} ${statusText}` });
         }
         remove();
         break;
       default:
         break;
     }
-  };
-
-  handleSubmit = (files, allFiles) => {
-    allFiles.forEach(f => f.remove());
   };
 
   handleHideModal = () => {
@@ -197,46 +161,49 @@ class AddModal extends Component {
     });
   };
 
-  renderDropzoneInputContent = () => [
-    <label className="vj-modal__input-label-in" key={LABELS.DROPZONE_PLACEHOLDER}>
-      {t(LABELS.DROPZONE_PLACEHOLDER)}
-    </label>,
-    <div className="vj-modal__input-button" key={LABELS.DROPZONE_SELECT_BUTTON}>
-      {t(LABELS.DROPZONE_SELECT_BUTTON)}
-    </div>
-  ];
+  handleDropFile = ([file = null]) => {
+    const clientError = this.validateUploadedFile(file);
 
-  renderDropzoneSubmitButton = props => (
-    <div
-      className="vj-modal__input-button"
-      onClick={() => {
-        props.files[0].cancel();
-        props.files[0].remove();
-        this.setState({ file: null, clientError: '' });
-      }}
-    >
-      {t(LABELS.CANCEL)}
-    </div>
-  );
+    if (clientError) {
+      this.setState({ file: null, clientError });
+    } else {
+      this.setState({ file, clientError: '' });
+    }
+  };
+
+  handleOpenFileDialog = () => {
+    if (this.dropzoneRef && this.dropzoneRef.current) {
+      this.dropzoneRef.current.open();
+    }
+  };
+
+  renderDropzoneInputContent() {
+    return (
+      <>
+        <div className="vj-modal__dropzone-label-in" key={Labels.DROPZONE_PLACEHOLDER}>
+          {t(Labels.DROPZONE_PLACEHOLDER)}
+        </div>
+        <div className="vj-modal__dropzone-button" key={Labels.DROPZONE_SELECT_BUTTON} onClick={this.handleOpenFileDialog}>
+          {t(Labels.DROPZONE_SELECT_BUTTON)}
+        </div>
+      </>
+    );
+  }
 
   renderDropzone() {
     return (
-      <Dropzone
-        multiple={false}
-        canCancel={false}
-        canRemove={false}
-        canRestart={false}
-        maxFiles={1}
-        getUploadParams={this.getUploadParams}
-        onChangeStatus={this.handleChangeStatus}
-        onSubmit={this.handleSubmit}
-        inputContent={this.renderDropzoneInputContent}
-        SubmitButtonComponent={this.renderDropzoneSubmitButton}
-        classNames={{
-          dropzone: this.dropzoneClassName,
-          inputLabel: 'vj-modal__input-label'
-        }}
-      />
+      <>
+        <Dropzone ref={this.dropzoneRef} multiple={false} onDrop={this.handleDropFile} noClick noKeyboard>
+          {({ getRootProps, getInputProps }) => {
+            return (
+              <div className="vj-modal__dropzone" {...getRootProps()} onClick={event => event.preventDefault()}>
+                <input {...getInputProps()} />
+                <div className="vj-modal__dropzone-label">{this.renderDropzoneInputContent()}</div>
+              </div>
+            );
+          }}
+        </Dropzone>
+      </>
     );
   }
 
@@ -248,7 +215,7 @@ class AddModal extends Component {
       <div className="vj-modal__radio">
         <Radio
           key={VERSIONS.MINOR}
-          label={`${t(LABELS.VERSION_MINOR)} (v ${this.getVersion(currentVersion)})`}
+          label={`${t(Labels.VERSION_MINOR)} (v ${this.getVersion(currentVersion)})`}
           name="version-radio"
           checked={selectedVersion === VERSIONS.MINOR}
           onChange={isChecked => {
@@ -261,7 +228,7 @@ class AddModal extends Component {
         />
         <Radio
           key={VERSIONS.MAJOR}
-          label={`${t(LABELS.VERSION_MAJOR)} (v ${this.getVersion(currentVersion, true)})`}
+          label={`${t(Labels.VERSION_MAJOR)} (v ${this.getVersion(currentVersion, true)})`}
           name="version-radio"
           checked={selectedVersion === VERSIONS.MAJOR}
           onChange={isChecked => {
@@ -293,7 +260,7 @@ class AddModal extends Component {
     return (
       <div className="vj-modal__comment">
         <div className="vj-modal__comment-header">
-          <div className="vj-modal__comment-title">{t(LABELS.COMMENT_TITLE)}</div>
+          <div className="vj-modal__comment-title">{t(Labels.COMMENT_TITLE)}</div>
           <div className="vj-modal__comment-counter">
             <div
               className={classNames('vj-modal__comment-counter-number', {
@@ -307,8 +274,8 @@ class AddModal extends Component {
         </div>
         <div className="vj-modal__comment-body">
           <textarea
-            placeholder={`${t(LABELS.COMMENT_PLACEHOLDER[0])} (${t(LABELS.COMMENT_PLACEHOLDER[1])} ${commentMaxLength} ${t(
-              LABELS.COMMENT_PLACEHOLDER[2]
+            placeholder={`${t(Labels.COMMENT_PLACEHOLDER[0])} (${t(Labels.COMMENT_PLACEHOLDER[1])} ${commentMaxLength} ${t(
+              Labels.COMMENT_PLACEHOLDER[2]
             )})`}
             className="vj-modal__comment-input"
             onChange={this.handleChangeComment}
@@ -325,14 +292,14 @@ class AddModal extends Component {
     return (
       <div className="vj-modal__footer">
         <Btn className="ecos-btn_grey ecos-btn_hover_grey vj-modal__btn-cancel" onClick={this.handleHideModal}>
-          {t(LABELS.CANCEL)}
+          {t(Labels.CANCEL)}
         </Btn>
         <Btn
           className="ecos-btn_blue ecos-btn_hover_light-blue vj-modal__btn-add"
           onClick={this.handleSave}
           disabled={!this.isValidComment || !selectedVersion || !file}
         >
-          {t(LABELS.ADD)}
+          {t(Labels.ADD)}
         </Btn>
       </div>
     );

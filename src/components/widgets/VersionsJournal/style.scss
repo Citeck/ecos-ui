@@ -340,7 +340,11 @@
     }
   }
 
-  &__input {
+  &__dropzone {
+    &:focus {
+      outline: none;
+    }
+
     &-label {
       color: $text-color-dark;
       font-weight: 600;
@@ -350,7 +354,6 @@
       width: 190px;
 
       &-in {
-        max-width: 167px;
         margin-bottom: 15px;
       }
     }
