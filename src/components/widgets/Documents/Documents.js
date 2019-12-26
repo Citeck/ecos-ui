@@ -1,5 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
+import get from 'lodash/get';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
@@ -8,6 +10,7 @@ import UserLocalSettingsService from '../../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import { getDocumentTypes, init } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
+import { typesStatuses } from '../../../constants/documents';
 
 import './style.scss';
 
@@ -22,6 +25,7 @@ class Documents extends BaseWidget {
     UserLocalSettingsService.checkOldData(props.id);
 
     this.state = {
+      selectedType: '',
       fitHeights: {},
       contentHeight: null,
       width: MIN_WIDTH_DASHLET_SMALL,
@@ -34,8 +38,76 @@ class Documents extends BaseWidget {
 
   handleReloadData = () => {};
 
+  handleClickType = () => {};
+
+  handleToggleTypesSettings = () => {};
+
+  handleClearSelectedType = () => {};
+
+  handleSelectedType = () => {};
+
+  renderTypes() {
+    const { selectedType } = this.state;
+    const types = [
+      {
+        id: 0,
+        name: 'Вложения заявки на коммандировку',
+        status: typesStatuses.MULTI_FILES_ADDED.KEY,
+        countFiles: 3
+      },
+      {
+        id: 1,
+        name: 'Счёт',
+        status: typesStatuses.NEED_ADD_FILES.KEY,
+        countFiles: 0
+      },
+      {
+        id: 2,
+        name: 'Отсканированный документ',
+        status: typesStatuses.CAN_ADD_FILES.KEY,
+        countFiles: 0
+      }
+    ];
+
+    return (
+      <div className="ecos-docs__types">
+        <div
+          onClick={this.handleClearSelectedType}
+          className={classNames('ecos-docs__types-item', {
+            'ecos-docs__types-item_selected': !selectedType
+          })}
+        >
+          <div className="ecos-docs__types-item-label">{t('Все типы')}</div>
+          <div className="ecos-docs__types-item-settings" onClick={this.handleToggleTypesSettings} />
+        </div>
+
+        {types.map(this.renderType)}
+      </div>
+    );
+  }
+
+  renderType = type => {
+    const { dynamicTypes } = this.props;
+    const { selectedType } = this.state;
+
+    // console.warn('dynamicTypes => ', dynamicTypes);
+
+    return (
+      <div
+        key={type.id}
+        onClick={() => this.handleSelectedType(type.id)}
+        className={classNames('ecos-docs__types-item', {
+          'ecos-docs__types-item_selected': selectedType === type.id
+        })}
+      >
+        <div className="ecos-docs__types-item-label">{t(type.name)}</div>
+        <div className={classNames('ecos-docs__types-item-status', `ecos-docs__types-item-status_${type.status}`)}>{type.countFiles}</div>
+      </div>
+    );
+  };
+
   render() {
-    const { dragHandleProps, canDragging, types } = this.props;
+    const { dragHandleProps, canDragging } = this.props;
     const { isCollapsed } = this.state;
 
     return (
@@ -57,11 +129,7 @@ class Documents extends BaseWidget {
           isCollapsed={isCollapsed}
         >
           <div className="ecos-docs">
-            <div className="ecos-docs__types">
-              {types.map(type => (
-                <div key={type.id}>{type.name}</div>
-              ))}
-            </div>
+            {this.renderTypes()}
             <div className="ecos-docs__table" />
           </div>
         </Dashlet>

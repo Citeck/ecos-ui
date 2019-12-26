@@ -1,9 +1,12 @@
 import { handleActions } from 'redux-actions';
 
-import { init, getDocumentTypes, setDocumentTypes } from '../actions/documents';
+import { init, getAvailableTypes, setAvailableTypes, setDynamicTypes, setDocuments } from '../actions/documents';
 
 export const initialState = {
   types: [],
+  availableTypes: [],
+  dynamicTypes: [],
+  documents: [],
   isLoading: false
 };
 
@@ -23,19 +26,35 @@ export default handleActions(
         [payload]: { ...ownState }
       };
     },
-    [getDocumentTypes]: (state, { payload }) => ({
+    [getAvailableTypes]: (state, { payload }) => ({
       ...state,
       [payload]: {
         ...state[payload],
         isLoading: true
       }
     }),
-    [setDocumentTypes]: (state, { payload }) => ({
+    [setAvailableTypes]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
-        types: payload.types,
+        availableTypes: payload.types,
         isLoading: false
+      }
+    }),
+
+    [setDynamicTypes]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        dynamicTypes: payload.dynamicTypes
+      }
+    }),
+
+    [setDocuments]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        documents: payload.documents
       }
     })
   },
