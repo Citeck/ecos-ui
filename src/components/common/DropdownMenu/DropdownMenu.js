@@ -29,6 +29,7 @@ export default class DropdownMenu extends React.Component {
       collapseOneItem: PropTypes.bool
     }),
     isLoading: PropTypes.bool,
+    emptyMessage: PropTypes.string,
     onClick: PropTypes.func
   };
 
@@ -42,17 +43,22 @@ export default class DropdownMenu extends React.Component {
     setCascade: {
       collapseOneItem: false
     },
+    emptyMessage: '',
     isLoading: false
   };
 
   renderMode() {
-    const { mode, items, setGroup, setCascade, onClick, isLoading, ...someProps } = this.props;
+    const { mode, items, setGroup, setCascade, onClick, isLoading, emptyMessage, ...someProps } = this.props;
 
     if (isLoading) {
       return <Loader type="points" height={40} width={38} />;
     }
 
     let menu = deepClone(items, []);
+
+    if (!menu.length && emptyMessage) {
+      return <div className="ecos-dropdown-menu__empty">{emptyMessage}</div>;
+    }
 
     if (mode === MenuModes.CASCADE && setCascade.collapseOneItem) {
       menu = menu.map(item => {

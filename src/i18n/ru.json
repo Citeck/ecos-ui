@@ -177,6 +177,7 @@
   "doc-associations-widget.table-cell.creation-date": "Дата создания",
   "doc-associations-widget.table-cell.headline": "Заголовок",
   "doc-associations-widget.title": "Связи документа",
+  "doc-associations-widget.empty-allowed-associations.message": "Нет доступных связей",
   "doc-preview.download": "Скачать",
   "doc-preview.error.failure-to-fetch": "Документ не получен",
   "doc-preview.error.loading-failure": "Возникла проблема при загрузке документа. Попробуйте скачать документ",
