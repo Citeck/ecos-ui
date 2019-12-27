@@ -60,17 +60,23 @@ class AddModal extends Component {
   };
 
   state = {
-    file: null,
-    xhr: null,
-    fileStatus: '',
-    filePercent: 0,
+    ...this.initStateFile,
     selectedVersion: VERSIONS.MINOR,
     comment: '',
-    isMajorVersion: false,
-    clientError: ''
+    isMajorVersion: false
   };
 
   dropzoneRef = React.createRef();
+
+  get initStateFile() {
+    return {
+      file: null,
+      xhr: null,
+      fileStatus: '',
+      filePercent: 0,
+      clientError: ''
+    };
+  }
 
   get isValidComment() {
     const { commentMaxLength } = this.props;
@@ -118,7 +124,7 @@ class AddModal extends Component {
     console.log(state);
     const { fileStatus: _fileStatus, clientError: _clientError } = this.state;
     const { status: fileStatus, percent: filePercent, response } = state;
-    const newState = { fileStatus, filePercent };
+    let newState = { fileStatus, filePercent };
 
     switch (fileStatus) {
       case FileStatuses.PREPARING:
@@ -126,14 +132,17 @@ class AddModal extends Component {
         newState.xhr = xhr;
         break;
       case FileStatuses.DONE:
-        newState.clientError = '';
-        newState.file = null;
-        newState.xhr = null;
+        newState = {
+          ...this.initStateFile,
+          ...newState
+        };
         break;
       case FileStatuses.ABORTED:
-        newState.clientError = t(Labels.Messages.ERROR_FILE_ABORTED);
-        newState.file = null;
-        newState.xhr = null;
+        newState = {
+          ...this.initStateFile,
+          ...newState,
+          clientError: t(Labels.Messages.ERROR_FILE_ABORTED)
+        };
         break;
       case FileStatuses.ERROR_UPLOAD:
         const { message, status } = response || {};
@@ -141,9 +150,11 @@ class AddModal extends Component {
         const clientError = `${t(Labels.Messages.ERROR_FILE_UPLOAD)}. ${message} ${description}`;
 
         if (_clientError !== clientError) {
-          newState.clientError = clientError;
-          newState.file = null;
-          newState.xhr = null;
+          newState = {
+            ...this.initStateFile,
+            ...newState,
+            clientError
+          };
         }
         break;
       default:
@@ -156,10 +167,7 @@ class AddModal extends Component {
   handleHideModal = () => {
     this.props.onHideModal();
     this.setState({
-      file: null,
-      xhr: null,
-      fileStatus: '',
-      filePercent: 0,
+      ...this.initStateFile,
       selectedVersion: VERSIONS.MINOR,
       comment: ''
     });
