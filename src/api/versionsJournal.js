@@ -28,7 +28,6 @@ export class VersionsJournalApi extends RecordService {
     return ecosXhr('/share/proxy/alfresco/api/upload', {
       method: 'POST',
       body,
-      followState: true,
       handleProgress
     }).then(
       response => response,
