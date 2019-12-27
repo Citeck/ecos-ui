@@ -3,11 +3,32 @@
 .ecos-docs {
   display: flex;
 
+  &__column {
+    position: relative;
+    display: flex;
+
+    &_table {
+      flex-shrink: 2;
+      width: 100%;
+    }
+
+    &_types {
+      width: 314px;
+      min-width: 150px;
+      max-width: 100%;
+      flex-shrink: 0;
+    }
+
+    &:not(:last-child) {
+      margin-right: 10px;
+      border-right: 2px $color-gray-4 solid;
+    }
+  }
+
   &__types {
     display: flex;
+    width: 100%;
     flex-direction: column;
-    flex-basis: 314px;
-    flex-shrink: 0;
     padding: 16px 19px 16px 11px;
 
     &-item {
@@ -78,8 +99,6 @@
   }
 
   &__table {
-    display: flex;
-    flex-shrink: 2;
     width: 100%;
     height: auto !important;
   }

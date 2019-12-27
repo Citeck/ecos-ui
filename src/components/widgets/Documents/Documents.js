@@ -5,7 +5,7 @@ import { UncontrolledTooltip } from 'reactstrap';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
-import { Icon } from '../../common';
+import { Icon, ResizeBoxes } from '../../common';
 import { Grid } from '../../common/grid';
 
 import { t } from '../../../helpers/util';
@@ -16,6 +16,7 @@ import { typesStatuses } from '../../../constants/documents';
 
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import './style.scss';
+import uniqueId from 'lodash/uniqueId';
 
 const LABELS = {
   TITLE: 'Документы'
@@ -28,6 +29,8 @@ class Documents extends BaseWidget {
     UserLocalSettingsService.checkOldData(props.id);
 
     this.state = {
+      leftColumnId: uniqueId('leftColumn_'),
+      rightColumnId: uniqueId('rightColumn_'),
       selectedType: '',
       fitHeights: {},
       contentHeight: null,
@@ -48,27 +51,35 @@ class Documents extends BaseWidget {
   };
 
   handleSelectType = selectedType => {
+    if (selectedType === this.state.selectedType) {
+      return;
+    }
+
     this.props.getDocuments(selectedType);
     this.setState({ selectedType });
   };
 
   renderTypes() {
     const { dynamicTypes } = this.props;
-    const { selectedType } = this.state;
+    const { selectedType, leftColumnId, rightColumnId } = this.state;
 
     return (
-      <div className="ecos-docs__types">
-        <div
-          onClick={this.handleClearSelectedType}
-          className={classNames('ecos-docs__types-item', {
-            'ecos-docs__types-item_selected': !selectedType
-          })}
-        >
-          <div className="ecos-docs__types-item-label">{t('Все типы')}</div>
-          <div className="ecos-docs__types-item-settings" onClick={this.handleToggleTypesSettings} />
+      <div id={leftColumnId} className="ecos-docs__column ecos-docs__column_types">
+        <div className="ecos-docs__types">
+          <div
+            onClick={this.handleClearSelectedType}
+            className={classNames('ecos-docs__types-item', {
+              'ecos-docs__types-item_selected': !selectedType
+            })}
+          >
+            <div className="ecos-docs__types-item-label">{t('Все типы')}</div>
+            <div className="ecos-docs__types-item-settings" onClick={this.handleToggleTypesSettings} />
+          </div>
+
+          {dynamicTypes.map(this.renderType)}
         </div>
 
-        {dynamicTypes.map(this.renderType)}
+        <ResizeBoxes className="ecos-timesheet__resizer" leftId={leftColumnId} rightId={rightColumnId} />
       </div>
     );
   }
@@ -132,8 +143,8 @@ class Documents extends BaseWidget {
 
   renderTable() {
     const { documents, dynamicTypes } = this.props;
-    const { selectedType } = this.state;
-    let columns = [];
+    const { selectedType, rightColumnId } = this.state;
+    let columns = [{ dataField: 'name', text: 'Название' }];
     let data = selectedType ? documents : dynamicTypes;
 
     if (selectedType) {
@@ -142,11 +153,13 @@ class Documents extends BaseWidget {
         { dataField: 'loadedBy', text: 'Загрузил' },
         { dataField: 'modified', text: 'Обновлено' }
       ];
-    } else {
-      columns = [{ dataField: 'name', text: 'Название' }];
     }
 
-    return <Grid className="ecos-docs__table" data={data} columns={columns} scrollable />;
+    return (
+      <div id={rightColumnId} className="ecos-docs__column ecos-docs__column_table">
+        <Grid className="ecos-docs__table" data={data} columns={columns} scrollable />
+      </div>
+    );
   }
 
   render() {
