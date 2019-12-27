@@ -28,6 +28,7 @@ import './style.scss';
 
 const mapStateToProps = (state, context) => {
   const stateDS = selectStateDocStatusById(state, context.stateId);
+  const record = context.record;
 
   return {
     status: stateDS.status,
@@ -35,7 +36,7 @@ const mapStateToProps = (state, context) => {
     countAttempt: stateDS.countAttempt,
     isLoading: stateDS.isLoading,
     availableToChangeStatuses: stateDS.availableToChangeStatuses,
-    updateRequestRecord: state.docStatus.updateRequestRecord
+    updateRequestRecord: state.commonUpdates[record]
   };
 };
 
@@ -85,21 +86,22 @@ class DocStatus extends BaseWidget {
     initDocStatus({ stateId, record });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { stateId, record, isLoading, getDocStatus, updateDocStatus } = this.props;
+  componentDidUpdate(prevProps) {
+    const props = this.props;
+    const { stateId, record } = props;
 
-    if (nextProps.updateRequestRecord === record) {
-      updateDocStatus({ stateId });
+    if (!prevProps.updateRequestRecord && props.updateRequestRecord) {
+      props.updateDocStatus({ stateId });
     }
 
-    if (!isLoading) {
-      if (nextProps.isUpdating && nextProps.countAttempt < MAX_ATTEMPT) {
+    if (!props.isLoading) {
+      if (props.isUpdating && props.countAttempt < MAX_ATTEMPT) {
         this.checkDocStatusPing();
-      } else if (!nextProps.isUpdating || nextProps.countAttempt === MAX_ATTEMPT) {
+      } else if (!props.isUpdating || props.countAttempt === MAX_ATTEMPT) {
         this.checkDocStatusPing.cancel();
 
-        if (isEmpty(nextProps.status)) {
-          getDocStatus({ stateId, record });
+        if (isEmpty(props.status)) {
+          props.getDocStatus({ stateId, record });
         }
       }
     }
