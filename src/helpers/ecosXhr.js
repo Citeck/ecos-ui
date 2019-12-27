@@ -17,17 +17,16 @@ export default function(url, options = {}) {
     };
 
     let data = {};
-    let contentType = {};
+    let contentType = '';
 
     xhr.open(method, url, true);
     xhr.responseType = responseType;
 
-    if (isString(body)) {
+    if (body instanceof FormData) {
+      data = body;
+    } else if (isString(body)) {
       data = body;
       contentType = 'text/plain';
-    } else if (body instanceof FormData) {
-      data = body;
-      contentType = 'multipart/form-data';
     } else {
       data = JSON.stringify(body);
       contentType = 'application/json; charset=utf-8';
@@ -36,11 +35,14 @@ export default function(url, options = {}) {
     if (!noHeaders) {
       const header = {
         ...headers,
-        'Content-type': contentType,
         'Accept-Language': acceptLanguage,
         'X-Requested-With': 'XMLHttpRequest'
         //'Authorization': `Bearer ${Token.get().access_token}`
       };
+
+      if (contentType) {
+        header['Content-type'] = contentType;
+      }
 
       for (const name in header) {
         xhr.setRequestHeader(name, header[name]);
@@ -62,16 +64,21 @@ export default function(url, options = {}) {
     xhr.onerror = reject;
 
     if (handleProgress) {
-      xhr.upload.addEventListener('loadstart', () => {
+      xhr.upload.onloadstart = function() {
         handleProgress({ ...state, status: FileStatuses.UPLOADING }, xhr);
-      });
+      };
 
-      xhr.upload.addEventListener('progress', e => {
+      xhr.upload.onprogress = function(e) {
         state.percent = (e.loaded * 100.0) / e.total || 100;
         handleProgress(state, xhr);
-      });
+      };
 
-      xhr.addEventListener('readystatechange', () => {
+      xhr.onabort = function() {
+        handleProgress({ ...state, status: FileStatuses.ABORTED }, xhr);
+        reject('');
+      };
+
+      xhr.onreadystatechange = function() {
         if (xhr.readyState !== 2 && xhr.readyState !== 4) return;
 
         if (xhr.status === 0) {
@@ -93,7 +100,7 @@ export default function(url, options = {}) {
         }
 
         handleProgress({ ...state, response: xhr.response }, xhr);
-      });
+      };
     }
 
     handleProgress && handleProgress(state, xhr);

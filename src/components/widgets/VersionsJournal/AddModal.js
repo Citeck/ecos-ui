@@ -31,7 +31,10 @@ const Labels = {
 
   Messages: {
     ERROR_FILE_SIZE_MIN: 'versions-journal-widget.modal.error-file-size',
-    ERROR_FILE_UPLOAD: 'versions-journal-widget.modal.error-file-upload'
+    ERROR_FILE_UPLOAD: 'versions-journal-widget.modal.error-file-upload',
+    ERROR_FILE_ABORTED: 'versions-journal-widget.modal.error-file-aborted',
+    ERROR_FILE_NOT_CHOSEN: 'versions-journal-widget.modal.error-file-not-chosen',
+    ERROR_FILE_ONLY_ONE: 'versions-journal-widget.modal.error-file-only-one'
   }
 };
 
@@ -97,8 +100,10 @@ class AddModal extends Component {
 
   validateUploadedFile = file => {
     let clientError = [];
-
-    if (!file.size) {
+    if (!file) {
+      clientError.push(t(Labels.Messages.ERROR_FILE_NOT_CHOSEN));
+      clientError.push(t(Labels.Messages.ERROR_FILE_ONLY_ONE));
+    } else if (!file.size) {
       const arrMsg = t(Labels.Messages.ERROR_FILE_SIZE_MIN).split('VAL');
       const vals = [file.name, file.size];
       const msg = arrMsg.map((item, i) => item + get(vals, i.toString(), ''));
@@ -122,6 +127,11 @@ class AddModal extends Component {
         break;
       case FileStatuses.DONE:
         newState.clientError = '';
+        newState.file = null;
+        newState.xhr = null;
+        break;
+      case FileStatuses.ABORTED:
+        newState.clientError = t(Labels.Messages.ERROR_FILE_ABORTED);
         newState.file = null;
         newState.xhr = null;
         break;
@@ -170,7 +180,8 @@ class AddModal extends Component {
     });
   };
 
-  handleDropFile = ([file = null]) => {
+  handleDropFile = acceptedFiles => {
+    const [file = null] = acceptedFiles;
     const clientError = this.validateUploadedFile(file);
 
     if (clientError) {
@@ -205,7 +216,7 @@ class AddModal extends Component {
 
     return (
       <div className="vj-modal__dropzone-uploading">
-        <progress max="100" value={filePercent} style={{ width: `${filePercent}%` }} className="vj-modal__progress-bar" />
+        <progress max="100" value={filePercent} className="vj-modal__progress-bar" />
         <div className="vj-modal__dropzone-button" onClick={cancelUpload}>
           {t(Labels.DROPZONE_BUTTON_CANCEL)}
         </div>
@@ -218,11 +229,14 @@ class AddModal extends Component {
 
     return (
       <>
-        <Dropzone ref={this.dropzoneRef} multiple={false} onDrop={this.handleDropFile} noClick noKeyboard disabled={this.disabledForm}>
-          {({ getRootProps, getInputProps }) => {
+        <Dropzone ref={this.dropzoneRef} multiple={false} onDrop={this.handleDropFile} noClick noKeyboard disabled={isLoading}>
+          {({ getRootProps, getInputProps, isDragActive }) => {
             return (
               <div
-                className={classNames('vj-modal__dropzone', { 'vj-modal__dropzone_disabled': this.disabledForm })}
+                className={classNames('vj-modal__dropzone', {
+                  'vj-modal__dropzone_active': isDragActive,
+                  'vj-modal__dropzone_loading': isLoading
+                })}
                 {...getRootProps()}
                 onClick={event => event.preventDefault()}
               >
