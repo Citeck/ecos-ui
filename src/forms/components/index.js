@@ -8,6 +8,7 @@ import Currency from './override/currency';
 import DateTime from './override/datetime';
 import Email from './override/email';
 import File from './override/file';
+import HTML from './override/html';
 import Number from './override/number';
 import Panel from './override/panel';
 import PhoneNumber from './override/phonenumber';
@@ -40,6 +41,7 @@ Components.setComponents({
   email: Email,
   file: File,
   horizontalLine: HorizontalLine,
+  htmlelement: HTML,
   number: Number,
   panel: Panel,
   phoneNumber: PhoneNumber,

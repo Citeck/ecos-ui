@@ -6,12 +6,11 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'reactstrap';
 
 import BaseWidget from '../BaseWidget';
-import { getAdaptiveNumberStr, removeItemFromArray, t } from '../../../helpers/util';
+import { getAdaptiveNumberStr, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_SMALL, URL } from '../../../constants/index';
-import { getDocuments, getMenu, getSectionList, initStore, saveDocuments } from '../../../actions/docAssociations';
+import { getAssociations, getMenu, getSectionList, initStore, addAssociations, removeAssociations } from '../../../actions/docAssociations';
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { getDocumentsRecords } from '../../../dto/docAssociations';
 
 import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/index';
 import { RemoveDialog } from '../../common/dialogs/index';
@@ -30,7 +29,8 @@ const LABELS = {
   MESSAGE_NOT_ADDED: 'doc-associations-widget.not-added',
   TOOLTIP_ADD_LINK: 'doc-associations-widget.add-association',
   TITLE_CONFIRM_REMOVE_MODAL: 'doc-associations-widget.confirm-remove-modal.title',
-  CONFIRM_REMOVE_MODAL_TEXT: 'doc-associations-widget.confirm-remove-modal.text'
+  CONFIRM_REMOVE_MODAL_TEXT: 'doc-associations-widget.confirm-remove-modal.text',
+  EMPTY_ALLOWED_ASSOCIATIONS_MESSAGE: 'doc-associations-widget.empty-allowed-associations.message'
 };
 
 class DocAssociations extends BaseWidget {
@@ -39,16 +39,17 @@ class DocAssociations extends BaseWidget {
     canDragging: PropTypes.bool,
     dragHandleProps: PropTypes.object,
     sectionList: PropTypes.array,
-    documents: PropTypes.array,
+    associations: PropTypes.array,
     isLoading: PropTypes.bool,
     isLoadingMenu: PropTypes.bool,
     menu: PropTypes.array,
-    documentsTotalCount: PropTypes.number,
+    associationsTotalCount: PropTypes.number,
     initStore: PropTypes.func,
     getSectionList: PropTypes.func,
-    getDocuments: PropTypes.func,
+    getAssociations: PropTypes.func,
     getMenu: PropTypes.func,
-    saveDocuments: PropTypes.func,
+    addAssociations: PropTypes.func,
+    removeAssociations: PropTypes.func,
     maxHeightByContent: PropTypes.bool
   };
 
@@ -70,7 +71,8 @@ class DocAssociations extends BaseWidget {
       isMenuOpen: false,
       isConfirmRemoveDialogOpen: false,
       journalId: '',
-      connectionId: '',
+      journalRef: '',
+      associationId: '',
       selectedDocument: null
     };
 
@@ -78,7 +80,7 @@ class DocAssociations extends BaseWidget {
   }
 
   componentDidMount() {
-    this.props.getDocuments();
+    this.props.getAssociations();
     this.checkHeight();
   }
 
@@ -129,16 +131,16 @@ class DocAssociations extends BaseWidget {
 
     this.setState({
       journalId: item.id,
-      connectionId: item.connectionId,
+      journalRef: item.nodeRef,
+      associationId: item.associationId,
       isMenuOpen: false
     });
   };
 
-  handleSelectJournal = selectedJournals => {
-    const { documents } = this.props;
-    const { connectionId } = this.state;
+  handleSelectJournal = associations => {
+    const { associationId, journalRef } = this.state;
 
-    this.props.saveDocuments(this.state.connectionId, [...getDocumentsRecords(documents, connectionId), ...selectedJournals]);
+    this.props.addAssociations(associationId, journalRef, associations);
 
     this.setState({ journalId: '' });
   };
@@ -158,10 +160,10 @@ class DocAssociations extends BaseWidget {
       return;
     }
 
-    const { documents, saveDocuments } = this.props;
-    const { connectionId, record } = selectedDocument;
+    const { removeAssociations } = this.props;
+    const { record, associationId } = selectedDocument;
 
-    saveDocuments(connectionId, [...removeItemFromArray(getDocumentsRecords(documents, connectionId), record)]);
+    removeAssociations(associationId, record);
     this.closeConfirmRemovingModal();
   };
 
@@ -221,11 +223,11 @@ class DocAssociations extends BaseWidget {
     </div>
   );
 
-  renderDocumentsItem = data => {
+  renderAssociationsItem = data => {
     const { id } = this.props;
-    const { documents, title } = data;
+    const { associations, title } = data;
 
-    if (!documents.length) {
+    if (!associations.length) {
       return null;
     }
 
@@ -235,15 +237,15 @@ class DocAssociations extends BaseWidget {
           <div className="ecos-doc-associations__headline-text">{t(title)}</div>
         </div>
 
-        {this.renderTable(documents)}
+        {this.renderTable(associations)}
       </React.Fragment>
     );
   };
 
-  renderDocuments() {
-    const { documents } = this.props;
+  renderAssociations() {
+    const { associations } = this.props;
 
-    return <div ref={this.contentRef}>{documents.map(this.renderDocumentsItem)}</div>;
+    return <div ref={this.contentRef}>{associations.map(this.renderAssociationsItem)}</div>;
   }
 
   renderAddButton = () => {
@@ -253,7 +255,7 @@ class DocAssociations extends BaseWidget {
     return (
       <Dropdown isOpen={isMenuOpen} toggle={this.handleToggleMenu} key="add-button">
         <DropdownToggle tag="div">
-          <Icon id={`tooltip-plus-${id}`} className="icon-plus ecos-doc-associations__icon-plus" />
+          <Icon id={`tooltip-plus-${id}`} className="icon-big-plus ecos-doc-associations__icon-plus" />
           <UncontrolledTooltip
             placement="top"
             boundariesElement="window"
@@ -266,7 +268,13 @@ class DocAssociations extends BaseWidget {
           </UncontrolledTooltip>
         </DropdownToggle>
         <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_cascade">
-          <Menu items={menu} mode="cascade" isLoading={isLoadingMenu} onClick={this.handleSelectMenuItem} />
+          <Menu
+            emptyMessage={t(LABELS.EMPTY_ALLOWED_ASSOCIATIONS_MESSAGE)}
+            items={menu}
+            mode="cascade"
+            isLoading={isLoadingMenu}
+            onClick={this.handleSelectMenuItem}
+          />
         </DropdownMenu>
       </Dropdown>
     );
@@ -319,7 +327,7 @@ class DocAssociations extends BaseWidget {
   }
 
   render() {
-    const { canDragging, dragHandleProps, isCollapsed, documentsTotalCount, isLoading, isMobile } = this.props;
+    const { canDragging, dragHandleProps, isCollapsed, associationsTotalCount, isLoading, isMobile } = this.props;
     const { userHeight = 0, fitHeights, contentHeight } = this.state;
     const fixHeight = userHeight || null;
     const actions = {};
@@ -350,15 +358,15 @@ class DocAssociations extends BaseWidget {
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
-        badgeText={getAdaptiveNumberStr(documentsTotalCount)}
-        noBody={!documentsTotalCount && !isLoading}
+        badgeText={getAdaptiveNumberStr(associationsTotalCount)}
+        noBody={!associationsTotalCount && !isLoading}
       >
         {isMobile ? (
-          this.renderDocuments()
+          this.renderAssociations()
         ) : (
           <Scrollbars style={{ height: contentHeight || '100%' }}>
             <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
-              {this.renderDocuments()}
+              {this.renderAssociations()}
             </DefineHeight>
           </Scrollbars>
         )}
@@ -377,14 +385,23 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch, ownProps) => ({
   initStore: () => dispatch(initStore(ownProps.record)),
   getSectionList: () => dispatch(getSectionList(ownProps.record)),
-  getDocuments: () => dispatch(getDocuments(ownProps.record)),
+  getAssociations: () => dispatch(getAssociations(ownProps.record)),
   getMenu: () => dispatch(getMenu(ownProps.record)),
-  saveDocuments: (connectionId, documents) =>
+  addAssociations: (associationId, journalRef, associations) =>
     dispatch(
-      saveDocuments({
+      addAssociations({
         record: ownProps.record,
-        connectionId,
-        documents
+        associationId,
+        journalRef,
+        associations
+      })
+    ),
+  removeAssociations: (associationId, associationRef) =>
+    dispatch(
+      removeAssociations({
+        record: ownProps.record,
+        associationId,
+        associationRef
       })
     )
 });
