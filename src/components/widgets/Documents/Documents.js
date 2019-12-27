@@ -1,14 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import get from 'lodash/get';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
 import { t } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
-import { getDocumentTypes, init } from '../../../actions/documents';
+import { getDocumentsByType, init } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
 import { typesStatuses } from '../../../constants/documents';
 
@@ -44,7 +43,9 @@ class Documents extends BaseWidget {
 
   handleClearSelectedType = () => {};
 
-  handleSelectedType = () => {};
+  handleSelectType = type => {
+    this.props.getDocuments(type);
+  };
 
   renderTypes() {
     const { selectedType } = this.state;
@@ -95,7 +96,7 @@ class Documents extends BaseWidget {
     return (
       <div
         key={type.id}
-        onClick={() => this.handleSelectedType(type.id)}
+        onClick={() => this.handleSelectType(type.id)}
         className={classNames('ecos-docs__types-item', {
           'ecos-docs__types-item_selected': selectedType === type.id
         })}
@@ -143,7 +144,8 @@ const mapStateToProps = (state, ownProps) => ({
   isMobile: state.view.isMobile
 });
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  init: () => dispatch(init(ownProps.record))
+  init: () => dispatch(init(ownProps.record)),
+  getDocuments: type => dispatch(getDocumentsByType({ record: ownProps.record, type }))
 });
 
 export default connect(

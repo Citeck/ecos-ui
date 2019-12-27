@@ -1,7 +1,10 @@
 import Records from '../components/Records';
+import { DocumentsApiRequests } from './stubs';
 
 export class DocumentsApi {
   getDocumentTypes = () => {
+    return DocumentsApiRequests.getDocumentTypes();
+
     return Records.query(
       {
         sourceId: 'emodel/type'
@@ -14,25 +17,7 @@ export class DocumentsApi {
   };
 
   getDynamicTypes = recordRef => {
-    return {
-      records: [
-        {
-          id: 'alfresco/documents@123',
-          type: 'emodel/type@base',
-          multiple: true,
-          mandatory: false
-        },
-        {
-          id: 'alfresco/documents@125',
-          type: 'emodel/type@contracts-cat-doctype-payment',
-          multiple: true,
-          mandatory: false
-        }
-      ],
-      errors: [],
-      hasMore: false,
-      totalCount: 2
-    };
+    return DocumentsApiRequests.getDynamicTypes();
 
     return Records.query(
       {
@@ -48,13 +33,8 @@ export class DocumentsApi {
     );
   };
 
-  getDocumentsByTypes = (recordRef, types = []) => {
-    return {
-      records: [[], ['alfresco/@workspace://SpacesStore/bcdcee26-c1ee-429e-927b-ef2a721790de']],
-      errors: [],
-      hasMore: false,
-      totalCount: 2
-    };
+  getCountDocumentsByTypes = (recordRef, types = []) => {
+    return DocumentsApiRequests.getCountDocumentsByTypes();
 
     return Records.query(
       {
@@ -81,5 +61,42 @@ export class DocumentsApi {
       null,
       types
     ).then(response => response);
+  };
+
+  getDocumentsByType = (recordRef, type) => {
+    return DocumentsApiRequests.getDocumentsByType();
+
+    return Records.query(
+      {
+        sourceId: 'alfresco/',
+        query: {
+          t: 'and',
+          val: [
+            {
+              t: 'eq',
+              att: '_parent',
+              // in val you need to pass RecordRef from the URL
+              val: recordRef
+            },
+            {
+              t: 'eq',
+              att: '_etype',
+              val: type
+            }
+          ]
+        },
+        language: 'predicate'
+      },
+      {
+        loadedBy: '_modifier', //загрузил
+        modified: '_modified' //обновлено
+      }
+    );
+  };
+
+  getFormIdByType = type => {
+    return DocumentsApiRequests.getFormIdByType();
+
+    return Records.get(type).load('form?id');
   };
 }
