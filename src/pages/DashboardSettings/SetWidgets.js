@@ -92,10 +92,10 @@ class SetWidgets extends React.Component {
 
   handleRemoveWidget = ({ item }, indexColumn, indexWidget) => {
     const { activeWidgets, setData } = this.props;
+    const newActiveWidgets = deepClone(activeWidgets);
 
-    activeWidgets[indexColumn].splice(indexWidget, 1);
-
-    setData(activeWidgets);
+    newActiveWidgets[indexColumn].splice(indexWidget, 1);
+    setData(newActiveWidgets);
   };
 
   renderWidgetColumns() {
