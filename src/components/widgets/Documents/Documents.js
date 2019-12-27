@@ -1,16 +1,20 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import { UncontrolledTooltip } from 'reactstrap';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
+import { Icon } from '../../common';
+import { Grid } from '../../common/grid';
+
 import { t } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import { getDocumentsByType, init } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
 import { typesStatuses } from '../../../constants/documents';
 
+import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import './style.scss';
 
 const LABELS = {
@@ -37,38 +41,20 @@ class Documents extends BaseWidget {
 
   handleReloadData = () => {};
 
-  handleClickType = () => {};
-
   handleToggleTypesSettings = () => {};
 
-  handleClearSelectedType = () => {};
+  handleClearSelectedType = () => {
+    this.setState({ selectedType: '' });
+  };
 
-  handleSelectType = type => {
-    this.props.getDocuments(type);
+  handleSelectType = selectedType => {
+    this.props.getDocuments(selectedType);
+    this.setState({ selectedType });
   };
 
   renderTypes() {
+    const { dynamicTypes } = this.props;
     const { selectedType } = this.state;
-    const types = [
-      {
-        id: 0,
-        name: 'Вложения заявки на коммандировку',
-        status: typesStatuses.MULTI_FILES_ADDED.KEY,
-        countFiles: 3
-      },
-      {
-        id: 1,
-        name: 'Счёт',
-        status: typesStatuses.NEED_ADD_FILES.KEY,
-        countFiles: 0
-      },
-      {
-        id: 2,
-        name: 'Отсканированный документ',
-        status: typesStatuses.CAN_ADD_FILES.KEY,
-        countFiles: 0
-      }
-    ];
 
     return (
       <div className="ecos-docs__types">
@@ -82,30 +68,86 @@ class Documents extends BaseWidget {
           <div className="ecos-docs__types-item-settings" onClick={this.handleToggleTypesSettings} />
         </div>
 
-        {types.map(this.renderType)}
+        {dynamicTypes.map(this.renderType)}
       </div>
     );
   }
 
   renderType = type => {
-    const { dynamicTypes } = this.props;
+    const { id } = this.props;
     const { selectedType } = this.state;
+    const target = `${type.id}-${id}`.replace(/[^\d\w-]/g, '');
 
-    // console.warn('dynamicTypes => ', dynamicTypes);
+    let status = typesStatuses.CAN_ADD_FILES;
+
+    if (type.countDocuments === 1) {
+      status = typesStatuses.FILE_ADDED;
+    }
+
+    if (type.countDocuments > 1) {
+      status = typesStatuses.MULTI_FILES_ADDED;
+    }
+
+    if (type.mandatory && !type.countDocuments) {
+      status = typesStatuses.NEED_ADD_FILES;
+    }
 
     return (
       <div
         key={type.id}
-        onClick={() => this.handleSelectType(type.id)}
+        onClick={() => this.handleSelectType(type.type)}
         className={classNames('ecos-docs__types-item', {
-          'ecos-docs__types-item_selected': selectedType === type.id
+          'ecos-docs__types-item_selected': selectedType === type.type
         })}
       >
         <div className="ecos-docs__types-item-label">{t(type.name)}</div>
-        <div className={classNames('ecos-docs__types-item-status', `ecos-docs__types-item-status_${type.status}`)}>{type.countFiles}</div>
+        <div
+          id={target}
+          className={classNames('ecos-docs__types-item-status', {
+            'ecos-docs__types-item-status_files-need': !type.countDocuments && type.mandatory,
+            'ecos-docs__types-item-status_files-can': !type.countDocuments && !type.mandatory
+          })}
+        >
+          <Icon
+            className={classNames('ecos-docs__types-item-status-icon', {
+              'icon-check': type.countDocuments,
+              'icon-close': !type.countDocuments
+            })}
+          />
+          <div className="ecos-docs__types-item-status-counter">{type.countDocuments}</div>
+        </div>
+        <UncontrolledTooltip
+          placement="top"
+          boundariesElement="window"
+          className="ecos-base-tooltip"
+          innerClassName="ecos-base-tooltip-inner"
+          arrowClassName="ecos-base-tooltip-arrow"
+          target={target}
+        >
+          {status}
+        </UncontrolledTooltip>
       </div>
     );
   };
+
+  renderTable() {
+    const { documents, dynamicTypes } = this.props;
+    const { selectedType } = this.state;
+    let columns = [];
+    let data = selectedType ? documents : dynamicTypes;
+
+    if (selectedType) {
+      columns = [
+        { dataField: 'typeName', text: 'Тип' },
+        { dataField: 'loadedBy', text: 'Загрузил' },
+        { dataField: 'modified', text: 'Обновлено' }
+      ];
+    } else {
+      columns = [{ dataField: 'name', text: 'Название' }];
+    }
+
+    return <Grid className="ecos-docs__table" data={data} columns={columns} scrollable />;
+  }
 
   render() {
     const { dragHandleProps, canDragging } = this.props;
@@ -131,7 +173,7 @@ class Documents extends BaseWidget {
         >
           <div className="ecos-docs">
             {this.renderTypes()}
-            <div className="ecos-docs__table" />
+            {this.renderTable()}
           </div>
         </Dashlet>
       </div>

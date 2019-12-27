@@ -33,6 +33,11 @@ export const selectTypeNames = createSelector(
   }
 );
 
+export const selectDynamicTypes = createSelector(
+  selectState,
+  state => get(state, 'dynamicTypes', [])
+);
+
 export const selectGrouppedAvailableTypes = createSelector(
   selectAvailableTypes,
   availableTypes => {

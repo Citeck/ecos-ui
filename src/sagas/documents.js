@@ -1,6 +1,6 @@
 import { put, select, takeEvery, call } from 'redux-saga/effects';
 
-import { selectTypeNames } from '../selectors/documents';
+import { selectTypeNames, selectDynamicTypes } from '../selectors/documents';
 import { init, getAvailableTypes, setAvailableTypes, setDynamicTypes, getDocumentsByType, setDocuments } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
 
@@ -66,14 +66,24 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
       throw new Error(errors.join(' '));
     }
 
+    const typesNames = yield select(state => selectTypeNames(state, payload.record));
+
     yield put(
       setDocuments({
         key: payload.record,
-        documents: DocumentsConverter.getDocuments(records)
+        documents: DocumentsConverter.getDocuments({
+          documents: records,
+          type: payload.type,
+          typeName: typesNames[payload.type]
+        })
       })
     );
 
-    yield;
+    const dynamicTypes = yield select(state => selectDynamicTypes(state, payload.record));
+
+    dynamicTypes.find(item => item.type === payload.type).countDocuments = records.length;
+
+    yield put(setDynamicTypes({ key: payload.record, dynamicTypes }));
   } catch (e) {
     logger.error('[documents sagaGetDocumentsByType saga error', e.message);
   }

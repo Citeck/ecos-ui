@@ -9,11 +9,11 @@ export default class DocumentsConverter {
     return types.map((item, index) => ({
       ...item,
       name: typeNames[item.type],
-      count: countByTypes[index].length
+      countDocuments: countByTypes[index].length
     }));
   };
 
-  static getDocuments = documents => {
+  static getDocuments = ({ documents, type, typeName }) => {
     return documents.map(document => {
       const target = {};
 
@@ -22,6 +22,8 @@ export default class DocumentsConverter {
       }
 
       target.id = document.id;
+      target.type = type;
+      target.typeName = typeName;
       target.loadedBy = document.loadedBy;
       target.modified = moment(document.modified).format('DD.MM.YYYY HH:mm');
 
