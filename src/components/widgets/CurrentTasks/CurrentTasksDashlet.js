@@ -38,6 +38,8 @@ class CurrentTasksDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
+    this.recordEvents.observeTaskChanges(this.onReload);
+
     this.state = {
       isSmallMode: false,
       isUpdating: false,
@@ -49,12 +51,18 @@ class CurrentTasksDashlet extends BaseWidget {
     };
   }
 
+  componentWillUnmount() {
+    this.recordEvents.offTaskChanges(this.onReload);
+  }
+
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
-  onReload = () => {
-    this.setState({ isUpdating: true }, () => this.setState({ isUpdating: false }));
+  onReload = inputRecord => {
+    if (!inputRecord || inputRecord === this.props.record) {
+      this.setState({ isUpdating: true }, () => this.setState({ isUpdating: false }));
+    }
   };
 
   setInfo = data => {
@@ -66,7 +74,7 @@ class CurrentTasksDashlet extends BaseWidget {
     const { isSmallMode, isUpdating, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
       [BaseActions.RELOAD]: {
-        onClick: this.onReload
+        onClick: () => this.onReload()
       }
     };
 
@@ -89,20 +97,19 @@ class CurrentTasksDashlet extends BaseWidget {
         badgeText={getAdaptiveNumberStr(totalCount)}
         noBody={!totalCount && !isLoading}
       >
-        {!isUpdating && (
-          <CurrentTasks
-            {...config}
-            forwardedRef={this.contentRef}
-            className={classNameTasks}
-            record={record}
-            isSmallMode={isSmallMode}
-            stateId={record}
-            height={userHeight}
-            minHeight={fitHeights.min}
-            maxHeight={fitHeights.max}
-            setInfo={this.setInfo}
-          />
-        )}
+        <CurrentTasks
+          {...config}
+          forwardedRef={this.contentRef}
+          className={classNameTasks}
+          record={record}
+          isSmallMode={isSmallMode}
+          stateId={record}
+          height={userHeight}
+          minHeight={fitHeights.min}
+          maxHeight={fitHeights.max}
+          setInfo={this.setInfo}
+          isUpdating={isUpdating}
+        />
       </Dashlet>
     );
   }

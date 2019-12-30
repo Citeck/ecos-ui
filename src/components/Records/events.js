@@ -17,15 +17,15 @@ export default class EventService {
     return this.#emitter;
   }
 
-  notifyTaskChanged(record) {
+  notifyTaskChanges(record) {
     this.#emitter.emit(EventTypes.TASK_CHANGED, record);
   }
 
-  observeTaskChanged(func) {
+  observeTaskChanges(func) {
     this.#emitter.on(EventTypes.TASK_CHANGED, func);
   }
 
-  offTaskChanged(func) {
+  offTaskChanges(func) {
     this.#emitter.off(EventTypes.TASK_CHANGED, func);
   }
 }

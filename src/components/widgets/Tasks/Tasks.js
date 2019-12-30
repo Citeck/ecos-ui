@@ -99,7 +99,7 @@ class Tasks extends React.Component {
   };
 
   onSubmitForm = () => {
-    this.props.events.notifyTaskChanged(this.props.record);
+    this.props.events.notifyTaskChanges(this.props.record);
 
     this.getTaskList();
   };
