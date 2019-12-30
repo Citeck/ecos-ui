@@ -308,7 +308,7 @@ export default class EcosFormUtils {
         .then(({ typeId, formKey }) => {
           if (typeId && typeId.indexOf('emodel/type@') === 0) {
             return Records.get(typeId)
-              .load('form?id')
+              .load('inheritedForm?id')
               .then(formId => {
                 if (EcosFormUtils.isFormId(formId)) {
                   return EcosFormUtils.getFormById(formId, attributes);
