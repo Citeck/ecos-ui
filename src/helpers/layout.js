@@ -39,7 +39,7 @@ export function getOptimalHeight(fixedHeight, contentHeight, minHeight, maxHeigh
   }
 
   if (isSafeInteger(parseInt(fixedHeight))) {
-    return fixedHeight;
+    return fixedHeight > max ? max : fixedHeight;
   }
 
   if (checkNumber(cH)) {
@@ -53,4 +53,6 @@ export function getOptimalHeight(fixedHeight, contentHeight, minHeight, maxHeigh
 
     return cH;
   }
+
+  return min;
 }

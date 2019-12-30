@@ -262,6 +262,7 @@
   "eform.btn.tooltip.constructor": "Перейти в конструктор",
   "events-history-widget.info.no-columns": "Нет настроек отображения",
   "events-history-widget.info.no-events": "Нет событий",
+  "events-history-widget.info.no-data": "Нет данных",
   "events-history-widget.title": "История событий",
   "export.list.html-load": "HTML (скачивание)",
   "export.list.html-read": "HTML (просмотр)",

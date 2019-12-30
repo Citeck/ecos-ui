@@ -262,6 +262,7 @@
   "eform.btn.tooltip.constructor": "Go to form builder",
   "events-history-widget.info.no-columns": "No display settings",
   "events-history-widget.info.no-events": "No events",
+  "events-history-widget.info.no-data": "No data",
   "events-history-widget.title": "Events history",
   "export.list.html-load": "HTML (download)",
   "export.list.html-read": "HTML (view)",
