@@ -4,8 +4,6 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { isEmpty } from 'lodash';
 import { changeTaskAssignee, getTaskList, resetTaskList } from '../../../actions/tasks';
-import { updateRequestCurrentTasks } from '../../../actions/currentTasks';
-import { requestUpdateDataByRecord, resetUpdateDataByRecord } from '../../../actions/commonUpdates';
 import { selectStateTasksById } from '../../../selectors/tasks';
 import { DefineHeight } from '../../common/index';
 import TaskList from './TaskList';
@@ -26,9 +24,6 @@ const mapStateToProps = (state, context) => {
 const mapDispatchToProps = dispatch => ({
   getTaskList: payload => dispatch(getTaskList(payload)),
   changeTaskAssignee: payload => dispatch(changeTaskAssignee(payload)),
-  updateRequestCurrentTasks: payload => dispatch(updateRequestCurrentTasks(payload)),
-  requestUpdateDataByRecord: payload => dispatch(requestUpdateDataByRecord(payload)),
-  resetUpdateDataByRecord: payload => dispatch(resetUpdateDataByRecord(payload)),
   resetTaskList: payload => dispatch(resetTaskList(payload))
 });
 
@@ -103,13 +98,6 @@ class Tasks extends React.Component {
   };
 
   onSubmitForm = () => {
-    const { updateRequestCurrentTasks, requestUpdateDataByRecord, resetUpdateDataByRecord, record } = this.props;
-
-    requestUpdateDataByRecord(record);
-    resetUpdateDataByRecord(record);
-
-    updateRequestCurrentTasks({ record });
-
     this.getTaskList();
   };
 

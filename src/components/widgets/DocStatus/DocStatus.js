@@ -28,15 +28,13 @@ import './style.scss';
 
 const mapStateToProps = (state, context) => {
   const stateDS = selectStateDocStatusById(state, context.stateId);
-  const record = context.record;
 
   return {
     status: stateDS.status,
     isUpdating: stateDS.isUpdating,
     countAttempt: stateDS.countAttempt,
     isLoading: stateDS.isLoading,
-    availableToChangeStatuses: stateDS.availableToChangeStatuses,
-    updateRequestRecord: state.commonUpdates[record]
+    availableToChangeStatuses: stateDS.availableToChangeStatuses
   };
 };
 
@@ -90,7 +88,7 @@ class DocStatus extends BaseWidget {
     const props = this.props;
     const { stateId, record } = props;
 
-    if (!prevProps.updateRequestRecord && props.updateRequestRecord) {
+    if (false) {
       props.updateDocStatus({ stateId });
     }
 
