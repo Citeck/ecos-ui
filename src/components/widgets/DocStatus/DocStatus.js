@@ -9,14 +9,7 @@ import uuid from 'uuidv4';
 
 import { deepClone } from '../../../helpers/util';
 import { LoaderTypes } from '../../../constants/index';
-import {
-  changeDocStatus,
-  getCheckDocStatus,
-  getDocStatus,
-  initDocStatus,
-  resetDocStatus,
-  updateDocStatus
-} from '../../../actions/docStatus';
+import { changeDocStatus, getCheckDocStatus, getDocStatus, initDocStatus, resetDocStatus } from '../../../actions/docStatus';
 import { selectStateDocStatusById } from '../../../selectors/docStatus';
 import DocStatusService from '../../../services/docStatus';
 import { Loader, PointsLoader } from '../../common/index';
@@ -43,7 +36,6 @@ const mapDispatchToProps = dispatch => ({
   changeDocStatus: payload => dispatch(changeDocStatus(payload)),
   getDocStatus: payload => dispatch(getDocStatus(payload)),
   getCheckDocStatus: payload => dispatch(getCheckDocStatus(payload)),
-  updateDocStatus: payload => dispatch(updateDocStatus(payload)),
   resetDocStatus: payload => dispatch(resetDocStatus(payload))
 });
 
@@ -67,6 +59,12 @@ class DocStatus extends BaseWidget {
     loaderType: LoaderTypes.CIRCLE
   };
 
+  constructor(props) {
+    super(props);
+
+    this.recordEvents.observeTaskChanged(this.setStatus);
+  }
+
   state = {
     wasChanged: false,
     key: uuid()
@@ -79,18 +77,12 @@ class DocStatus extends BaseWidget {
   }, 2000);
 
   componentDidMount() {
-    const { stateId, record, initDocStatus } = this.props;
-
-    initDocStatus({ stateId, record });
+    this.setStatus();
   }
 
   componentDidUpdate(prevProps) {
     const props = this.props;
     const { stateId, record } = props;
-
-    if (false) {
-      props.updateDocStatus({ stateId });
-    }
 
     if (!props.isLoading) {
       if (props.isUpdating && props.countAttempt < MAX_ATTEMPT) {
@@ -109,6 +101,8 @@ class DocStatus extends BaseWidget {
     const { resetDocStatus, stateId } = this.props;
 
     resetDocStatus({ stateId });
+
+    this.recordEvents.offTaskChanged(this.setStatus);
   }
 
   get isNoStatus() {
@@ -128,6 +122,14 @@ class DocStatus extends BaseWidget {
 
     return (!noLoader && isLoading) || (isUpdating && countAttempt < MAX_ATTEMPT) || isEmpty(status);
   }
+
+  setStatus = inputRecord => {
+    const { stateId, record, initDocStatus } = this.props;
+
+    if (!inputRecord || inputRecord === record) {
+      initDocStatus({ stateId, record });
+    }
+  };
 
   onChangeStatus = () => {
     const { stateId, record, changeDocStatus } = this.props;

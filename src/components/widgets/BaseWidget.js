@@ -3,9 +3,18 @@ import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 
 import UserLocalSettingsService from '../../services/userLocalSettings';
+import Records from '../Records/Records';
 
 class BaseWidget extends Component {
   contentRef = React.createRef();
+
+  get instanceRecord() {
+    return Records.get(this.props.record);
+  }
+
+  get recordEvents() {
+    return this.instanceRecord.eventService;
+  }
 
   get clientHeight() {
     if (!this.props.maxHeightByContent) {

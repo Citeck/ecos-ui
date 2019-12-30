@@ -39,7 +39,8 @@ class Tasks extends React.Component {
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     setReloadDone: PropTypes.func,
     setInfo: PropTypes.func,
-    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
+    events: PropTypes.object
   };
 
   static defaultProps = {
@@ -98,6 +99,8 @@ class Tasks extends React.Component {
   };
 
   onSubmitForm = () => {
+    this.props.events.notifyTaskChanged(this.props.record);
+
     this.getTaskList();
   };
 

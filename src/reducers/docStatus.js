@@ -8,8 +8,7 @@ import {
   resetDocStatus,
   setAvailableToChangeStatuses,
   setCheckDocStatus,
-  setDocStatus,
-  updateDocStatus
+  setDocStatus
 } from '../actions/docStatus';
 import { getCurrentStateById } from '../helpers/redux';
 
@@ -63,16 +62,6 @@ export default handleActions(
         status: {},
         isLoading: true,
         isUpdating: true,
-        countAttempt: 0
-      }
-    }),
-    [updateDocStatus]: (state, { payload: { stateId } }) => ({
-      ...state,
-      [stateId]: {
-        ...getCurrentStateById(state, stateId, initialState),
-        status: {},
-        isLoading: false,
-        isUpdating: false,
         countAttempt: 0
       }
     }),

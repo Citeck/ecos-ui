@@ -1,10 +1,8 @@
 import _ from 'lodash';
-import { recordsMutateFetch, loadAttribute } from './recordsApi';
+import { loadAttribute, recordsMutateFetch } from './recordsApi';
 import Attribute from './Attribute';
-import { EventEmitter2 } from 'eventemitter2';
+import EventService, { EventTypes } from './events';
 import { mapValueToInnerAtt } from './recordUtils';
-
-export const EVENT_CHANGE = 'change';
 
 const ATT_NAME_REGEXP = /\.atts?\(n:"(.+?)"\)\s*{(.+)}/;
 const SIMPLE_ATT_NAME_REGEXP = /(.+?){(.+)}/;
@@ -89,7 +87,8 @@ export default class Record {
     } else {
       this._baseRecord = null;
     }
-    this._emitter = new EventEmitter2();
+    this.eventService = new EventService();
+    this._emitter = this.eventService.emitter;
   }
 
   get id() {
@@ -359,7 +358,7 @@ export default class Record {
 
         return Promise.all(loadPromises).then(() => {
           for (let recordId of Object.keys(attributesToLoad)) {
-            this._records.get(recordId).events.emit(EVENT_CHANGE);
+            this._records.get(recordId).events.emit(EventTypes.CHANGE);
           }
           let resultId = ((response.records || [])[0] || {}).id;
           return resultId ? this._records.get(resultId) : self;
