@@ -1,17 +1,136 @@
-import { cloneDeep, isEmpty } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
+import isEmpty from 'lodash/isEmpty';
+import queryString from 'query-string';
 import FormIOFileComponent from 'formiojs/components/file/File';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../constants/pageTabs';
+import { FILE_CLICK_ACTION_DOWNLOAD, FILE_CLICK_ACTION_OPEN_DASHBOARD, FILE_CLICK_ACTION_NOOP } from './editForm/File.edit.file';
+import RecordActionExecutorsRegistry from '../../../../components/Records/actions/RecordActionExecutorsRegistry';
+import Records from '../../../../components/Records';
 import { isNewVersionPage } from '../../../../helpers/urls';
+import { t } from '../../../../helpers/util';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../constants/pageTabs';
 import { URL } from '../../../../constants';
 
 export default class FileComponent extends FormIOFileComponent {
-  createFileLink(file) {
-    return file.originalName || file.name;
+  static schema(...extend) {
+    return FormIOFileComponent.schema(
+      {
+        onFileClick: FILE_CLICK_ACTION_OPEN_DASHBOARD
+      },
+      ...extend
+    );
+  }
 
-    // If we need a download link, uncomment this
-    // const fileLink = super.createFileLink(file);
-    // fileLink.setAttribute(IGNORE_TABS_HANDLER_ATTR_NAME, true);
-    // return fileLink;
+  get defaultSchema() {
+    return FileComponent.schema();
+  }
+
+  static extractFileRecordRef(file) {
+    let recordRef = null;
+    if (file.data && file.data.recordRef) {
+      recordRef = file.data.recordRef;
+    } else if (file.data && file.data.nodeRef) {
+      recordRef = file.data.nodeRef;
+    } else {
+      const documentUrl = file.url;
+      const documentUrlParts = documentUrl.split('?');
+      if (documentUrlParts.length !== 2) {
+        throw new Error("Cant't extract recordRef");
+      }
+
+      const queryPart = documentUrlParts[1];
+      const urlParams = queryString.parse(queryPart);
+      if (!urlParams.recordRef && !urlParams.nodeRef) {
+        throw new Error("Cant't extract recordRef");
+      }
+
+      recordRef = urlParams.recordRef || urlParams.nodeRef;
+    }
+
+    return recordRef;
+  }
+
+  static getDownloadExecutor() {
+    const downloadExecutor = RecordActionExecutorsRegistry.get('download');
+    if (!downloadExecutor) {
+      throw new Error("Cant't extract downloadExecutor");
+    }
+
+    return downloadExecutor;
+  }
+
+  static downloadFile(recordRef, fileName) {
+    try {
+      const downloadExecutor = FileComponent.getDownloadExecutor();
+      downloadExecutor.execute({
+        record: Records.get(recordRef),
+        action: {
+          config: {
+            filename: fileName
+          }
+        }
+      });
+    } catch (e) {
+      console.error(`EcosForm File: Failure to download file. Cause: ${e.message}`);
+    }
+  }
+
+  static buildDocumentUrl(recordRef) {
+    if (isNewVersionPage()) {
+      return `${URL.DASHBOARD}?recordRef=${recordRef}`;
+    }
+
+    return `/share/page/card-details?nodeRef=${recordRef}`;
+  }
+
+  createFileLink(f) {
+    const file = cloneDeep(f);
+    const fileName = file.originalName || file.name;
+    let onFileClickAction = this.component.onFileClick;
+
+    if (!onFileClickAction && this.viewOnly) {
+      onFileClickAction = FILE_CLICK_ACTION_OPEN_DASHBOARD;
+    }
+
+    if (!onFileClickAction || onFileClickAction === FILE_CLICK_ACTION_NOOP) {
+      return fileName;
+    }
+
+    let documentUrl = file.url;
+    let recordRef;
+    try {
+      recordRef = FileComponent.extractFileRecordRef(file);
+      documentUrl = FileComponent.buildDocumentUrl(recordRef);
+    } catch (e) {
+      console.warn(`EcosForm File: ${e.message}`);
+      return fileName;
+    }
+
+    const linkAttributes = {
+      href: documentUrl,
+      target: '_blank'
+    };
+
+    if (!isNewVersionPage(documentUrl)) {
+      linkAttributes[IGNORE_TABS_HANDLER_ATTR_NAME] = true;
+    }
+
+    if (onFileClickAction === FILE_CLICK_ACTION_DOWNLOAD) {
+      linkAttributes.onClick = e => {
+        e.stopPropagation();
+        e.preventDefault();
+        FileComponent.downloadFile(recordRef, fileName);
+      };
+    } else if (onFileClickAction === FILE_CLICK_ACTION_OPEN_DASHBOARD && !this.viewOnly) {
+      linkAttributes.onClick = e => {
+        const confirmation = window.confirm(t('eform.file.on-click-confirmation'));
+        if (!confirmation) {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      };
+    }
+
+    return this.ce('a', linkAttributes, fileName);
   }
 
   focus() {
@@ -76,31 +195,7 @@ export default class FileComponent extends FormIOFileComponent {
   }
 
   createFileListItemViewMode(fileInfo) {
-    return this.ce('li', { class: 'file-item_view-mode' }, this.createFileLinkViewMode(fileInfo));
-  }
-
-  createFileLinkViewMode(f) {
-    const file = cloneDeep(f);
-
-    if (isNewVersionPage()) {
-      file.url = file.url.replace(/\/share\/page\/(.*\/)?card-details/, URL.DASHBOARD);
-      file.url = file.url.replace('nodeRef', 'recordRef');
-    }
-
-    if (this.options.uploadOnly) {
-      return file.originalName || file.name;
-    }
-
-    const linkAttributes = {
-      href: file.url,
-      target: '_blank'
-    };
-
-    if (!isNewVersionPage(file.url)) {
-      linkAttributes[IGNORE_TABS_HANDLER_ATTR_NAME] = true;
-    }
-
-    return this.ce('a', linkAttributes, file.originalName || file.name);
+    return this.ce('li', { class: 'file-item_view-mode' }, this.createFileLink(fileInfo));
   }
 
   // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2667

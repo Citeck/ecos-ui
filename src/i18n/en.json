@@ -256,6 +256,7 @@
   "ecos.forms.previous": "Previous",
   "ecos.forms.required": "{{field}} is required",
   "edit_site_details.label": "Edit Project Details",
+  "eform.file.on-click-confirmation": "The form will be closed. Are you sure you want to continue?",
   "eform.header.CREATE.title": "Create",
   "eform.header.EDIT.title": "Edit",
   "eform.header.VIEW.title": "View",
