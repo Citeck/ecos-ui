@@ -57,6 +57,8 @@ class PropertiesDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
+    this.recordEvents.observeTaskChanges(this.onReload);
+
     this.state = {
       isSmallMode: false,
       isReady: true,
@@ -77,6 +79,10 @@ class PropertiesDashlet extends BaseWidget {
     });
   }
 
+  componentWillUnmount() {
+    this.recordEvents.offTaskChanges(this.onReload);
+  }
+
   get dashletActions() {
     const { isAdmin } = this.props;
     const { canEditRecord, isShowSetting } = this.state;
@@ -87,7 +93,7 @@ class PropertiesDashlet extends BaseWidget {
 
     const actions = {
       [BaseActions.RELOAD]: {
-        onClick: this.updateProps
+        onClick: this.onReload
       },
       [BaseActions.SETTINGS]: {
         onClick: this.toggleDisplayFormSettings
@@ -118,6 +124,10 @@ class PropertiesDashlet extends BaseWidget {
     EcosFormUtils.getCanWritePermission(record).then(canEdit => {
       this.setState({ canEdit });
     });
+  };
+
+  onReload = () => {
+    this.setState({ isReady: false }, () => this.setState({ isReady: true }));
   };
 
   onResize = width => {
