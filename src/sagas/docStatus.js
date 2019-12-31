@@ -3,29 +3,21 @@ import { call, put, takeEvery } from 'redux-saga/effects';
 import {
   changeDocStatus,
   getAvailableToChangeStatuses,
-  getCheckDocStatus,
   getDocStatus,
   initDocStatus,
   setAvailableToChangeStatuses,
-  setCheckDocStatus,
   setDocStatus
 } from '../actions/docStatus';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import DocStatusConverter from '../dto/docStatus';
 import DocStatusService from '../services/docStatus';
+import { CommonApi } from '../api/common';
 
 function* sagaInitDocStatus({ api, logger }, { payload }) {
-  yield put(getCheckDocStatus(payload));
   yield put(getAvailableToChangeStatuses(payload));
-}
-
-function* sagaCheckDocStatus({ api, logger }, { payload }) {
-  const { record, stateId } = payload;
-
-  const isUpdating = yield call(api.docStatus.isUpdateDocStatus, { record });
-
-  yield put(setCheckDocStatus({ isUpdating, stateId }));
+  yield CommonApi.isUpdatingRecordState(payload.record);
+  yield put(getDocStatus(payload));
 }
 
 function* sagaGetDocStatus({ api, logger }, { payload }) {
@@ -75,7 +67,7 @@ function* sagaChangeDocStatus({ api, logger }, { payload }) {
 
   try {
     yield call(api.docStatus.setDocStatus, { record });
-    yield put(getCheckDocStatus(payload));
+    yield put(initDocStatus, payload);
   } catch (e) {
     yield put(setNotificationMessage(err));
     logger.error('[docStatus/sagaChangeDocStatus saga] error', e.message);
@@ -87,7 +79,6 @@ function* docStatusSaga(ea) {
   yield takeEvery(getDocStatus().type, sagaGetDocStatus, ea);
   yield takeEvery(getAvailableToChangeStatuses().type, sagaGetAvailableToChangeStatuses, ea);
   yield takeEvery(changeDocStatus().type, sagaChangeDocStatus, ea);
-  yield takeEvery(getCheckDocStatus().type, sagaCheckDocStatus, ea);
 }
 
 export default docStatusSaga;

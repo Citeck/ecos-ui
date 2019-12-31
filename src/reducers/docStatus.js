@@ -2,12 +2,10 @@ import { handleActions } from 'redux-actions';
 import {
   changeDocStatus,
   getAvailableToChangeStatuses,
-  getCheckDocStatus,
   getDocStatus,
   initDocStatus,
   resetDocStatus,
   setAvailableToChangeStatuses,
-  setCheckDocStatus,
   setDocStatus
 } from '../actions/docStatus';
 import { getCurrentStateById } from '../helpers/redux';
@@ -16,8 +14,6 @@ const commonInitialState = {};
 
 const initialState = {
   isLoading: false,
-  isUpdating: true,
-  countAttempt: 0,
   status: {},
   availableToChangeStatuses: []
 };
@@ -30,13 +26,6 @@ const startLoading = (state, { payload: { stateId } }) => ({
   }
 });
 
-const increaseAttempt = (state, stateId) => {
-  const cState = getCurrentStateById(state, stateId, initialState);
-  const count = cState.countAttempt || 0;
-
-  return { countAttempt: count + 1 };
-};
-
 export default handleActions(
   {
     [initDocStatus]: (state, { payload: { stateId } }) => ({
@@ -46,25 +35,6 @@ export default handleActions(
       }
     }),
     [getDocStatus]: startLoading,
-    [getAvailableToChangeStatuses]: startLoading,
-    [getCheckDocStatus]: (state, { payload: { stateId } }) => ({
-      ...state,
-      [stateId]: {
-        ...getCurrentStateById(state, stateId, initialState),
-        ...increaseAttempt(state, stateId),
-        isLoading: true
-      }
-    }),
-    [changeDocStatus]: (state, { payload: { stateId } }) => ({
-      ...state,
-      [stateId]: {
-        ...getCurrentStateById(state, stateId, initialState),
-        status: {},
-        isLoading: true,
-        isUpdating: true,
-        countAttempt: 0
-      }
-    }),
     [setDocStatus]: (state, { payload: { stateId, status } }) => ({
       ...state,
       [stateId]: {
@@ -73,20 +43,20 @@ export default handleActions(
         isLoading: false
       }
     }),
+    [getAvailableToChangeStatuses]: startLoading,
     [setAvailableToChangeStatuses]: (state, { payload: { stateId, availableToChangeStatuses } }) => ({
       ...state,
       [stateId]: {
         ...getCurrentStateById(state, stateId, initialState),
-        availableToChangeStatuses,
-        isLoading: false
+        availableToChangeStatuses
       }
     }),
-    [setCheckDocStatus]: (state, { payload: { stateId, isUpdating } }) => ({
+    [changeDocStatus]: (state, { payload: { stateId } }) => ({
       ...state,
       [stateId]: {
         ...getCurrentStateById(state, stateId, initialState),
-        isUpdating,
-        isLoading: false
+        status: {},
+        isLoading: true
       }
     }),
     [resetDocStatus]: (state, { payload: { stateId } }) => {

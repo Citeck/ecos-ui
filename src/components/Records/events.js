@@ -3,7 +3,8 @@ import { EventEmitter2 } from 'eventemitter2';
 export const EventTypes = {
   CHANGE: 'change',
   TASK_CHANGED: 'task-changed',
-  VERSION_CHANGED: 'version-changed'
+  VERSION_CHANGED: 'version-changed',
+  RECORD_UPDATED: 'record-updated'
 };
 
 export default class EventService {
@@ -16,6 +17,11 @@ export default class EventService {
   get emitter() {
     return this.#emitter;
   }
+
+  /**
+   * emitter Task Changes
+   * @param record
+   */
 
   notifyTaskChanges(record) {
     this.#emitter.emit(EventTypes.TASK_CHANGED, record);
