@@ -164,7 +164,7 @@ export function isMobileDevice() {
 export function getCurrentLocale() {
   const cookiesLocale = getCookie(COOKIE_KEY_LOCALE);
   if (cookiesLocale) {
-    return cookiesLocale;
+    return cookiesLocale.substr(0, 2).toLowerCase();
   }
 
   if (!window.navigator) {

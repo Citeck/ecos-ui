@@ -334,13 +334,28 @@
     height: 160px;
     flex-direction: column;
 
-    &_uploading {
-      flex-direction: column;
-      justify-content: center;
+    &:focus {
+      outline: none;
     }
-  }
 
-  &__input {
+    &_disabled {
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    &_active {
+      background: $color-gray-3;
+    }
+
+    &_loading {
+      border: none;
+    }
+
+    &-uploading {
+      width: 190px;
+      position: relative;
+    }
+
     &-label {
       color: $text-color-dark;
       font-weight: 600;
@@ -350,7 +365,6 @@
       width: 190px;
 
       &-in {
-        max-width: 167px;
         margin-bottom: 15px;
       }
     }
@@ -374,6 +388,37 @@
     }
   }
 
+  &__progress-bar {
+    border: 0;
+    height: 6px;
+    border-radius: 3px;
+    background-color: $color-blue-dark;
+    margin: 28px auto 20px;
+    width: 100%;
+
+    &::-webkit-progress-bar {
+      background-color: $color-gray-6;
+      border: 0;
+      height: 6px;
+      border-radius: 3px;
+    }
+
+    &::-webkit-progress-value {
+      transition: width 1s ease-out;
+      border: 0;
+      height: 6px;
+      border-radius: 3px;
+      background-color: $color-blue-dark;
+    }
+
+    &::-moz-progress-bar {
+      background-color: $color-gray-6;
+      border: 0;
+      height: 6px;
+      border-radius: 3px;
+    }
+  }
+
   .dzu {
     &-preview {
       &Image {
@@ -391,36 +436,6 @@
 
       &StatusContainer {
         margin: 18px auto 30px !important;
-
-        progress {
-          border: 0;
-          height: 6px;
-          border-radius: 3px;
-          background-color: $color-blue-dark !important;
-        }
-        progress::-webkit-progress-bar {
-          border: 0;
-          height: 6px;
-          border-radius: 3px;
-        }
-        progress::-webkit-progress-value {
-          border: 0;
-          height: 6px;
-          border-radius: 3px;
-        }
-        progress::-moz-progress-bar {
-          border: 0;
-          height: 6px;
-          border-radius: 3px;
-        }
-
-        progress[value]::-webkit-progress-bar {
-          background-color: $color-gray-6;
-        }
-
-        progress[value]::-webkit-progress-value {
-          background-color: $color-blue-dark;
-        }
       }
     }
 

@@ -1,4 +1,3 @@
-import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 
 import { getCurrentLocale } from '../helpers/util';
@@ -29,10 +28,10 @@ export default function(url, options = {}) {
     params.credentials = 'include';
   }
 
-  if (isObject(body)) {
-    params.body = JSON.stringify(body);
-  } else if (isString(body)) {
+  if (isString(body) || body instanceof FormData) {
     params.body = body;
+  } else {
+    params.body = JSON.stringify(body);
   }
 
   return fetch(url, params);
