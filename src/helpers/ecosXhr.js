@@ -54,7 +54,7 @@ export default function(url, options = {}) {
     }
 
     xhr.onload = function() {
-      if (xhr.status == 200) {
+      if (xhr.status === 200) {
         resolve(xhr.response);
       } else {
         reject(Error(`${xhr.status} ${xhr.statusText}`));

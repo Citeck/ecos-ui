@@ -121,7 +121,7 @@ class AddModal extends Component {
   };
 
   handleChangeStatus = (state, xhr) => {
-    const { fileStatus: _fileStatus, clientError: _clientError } = this.state;
+    const { clientError: _clientError } = this.state;
     const { status: fileStatus, percent: filePercent, response } = state;
     let newState = { fileStatus, filePercent };
 
