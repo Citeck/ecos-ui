@@ -38,6 +38,7 @@ class EventsHistoryDashlet extends BaseWidget {
     UserLocalSettingsService.checkOldData(props.id);
 
     this.recordEvents.observeTaskChanges(this.onReload);
+    this.recordEvents.observeVersionChanges(this.onReload);
 
     this.state = {
       isSmallMode: false,
@@ -49,6 +50,7 @@ class EventsHistoryDashlet extends BaseWidget {
 
   componentWillUnmount() {
     this.recordEvents.offTaskChanges(this.onReload);
+    this.recordEvents.offVersionChanges(this.onReload);
   }
 
   onResize = width => {
