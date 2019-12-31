@@ -102,6 +102,9 @@
 
 .file-item_view-mode {
   margin-bottom: 7px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 
   &:last-child {
     margin-bottom: 0;

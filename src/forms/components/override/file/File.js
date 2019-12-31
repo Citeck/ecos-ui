@@ -195,7 +195,14 @@ export default class FileComponent extends FormIOFileComponent {
   }
 
   createFileListItemViewMode(fileInfo) {
-    return this.ce('li', { class: 'file-item_view-mode' }, this.createFileLink(fileInfo));
+    return this.ce(
+      'li',
+      {
+        class: 'file-item_view-mode',
+        title: fileInfo.originalName || fileInfo.name
+      },
+      this.createFileLink(fileInfo)
+    );
   }
 
   // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2667
