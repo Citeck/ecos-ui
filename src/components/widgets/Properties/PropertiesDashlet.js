@@ -126,8 +126,10 @@ class PropertiesDashlet extends BaseWidget {
     });
   };
 
-  onReload = () => {
-    this.setState({ isReady: false }, () => this.setState({ isReady: true }));
+  onReload = inputRecord => {
+    if (!inputRecord || inputRecord === this.props.record) {
+      this.setState({ isReady: false }, () => this.setState({ isReady: true }));
+    }
   };
 
   onResize = width => {
