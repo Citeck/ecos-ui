@@ -65,7 +65,8 @@ export default function(url, options = {}) {
 
     if (handleProgress) {
       xhr.upload.onloadstart = function() {
-        handleProgress({ ...state, status: FileStatuses.UPLOADING }, xhr);
+        state.status = FileStatuses.UPLOADING;
+        handleProgress(state, xhr);
       };
 
       xhr.upload.onprogress = function(e) {
@@ -74,7 +75,8 @@ export default function(url, options = {}) {
       };
 
       xhr.onabort = function() {
-        handleProgress({ ...state, status: FileStatuses.ABORTED }, xhr);
+        state.status = FileStatuses.ABORTED;
+        handleProgress(state, xhr);
         reject('');
       };
 
