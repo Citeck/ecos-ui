@@ -36,7 +36,7 @@ export class CommonApi {
     }
   }
 
-  static isUpdatingRecordState = function*(record) {
+  static isUpdatingRecordState = function*({ record }) {
     const getState = () =>
       Records.get(record)
         .load('pendingUpdate?bool', true)

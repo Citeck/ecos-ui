@@ -15,9 +15,15 @@ import DocStatusService from '../services/docStatus';
 import { CommonApi } from '../api/common';
 
 function* sagaInitDocStatus({ api, logger }, { payload }) {
-  yield put(getAvailableToChangeStatuses(payload));
-  yield CommonApi.isUpdatingRecordState(payload.record);
-  yield put(getDocStatus(payload));
+  const { record } = payload;
+
+  try {
+    yield put(getAvailableToChangeStatuses(payload));
+    yield call(CommonApi.isUpdatingRecordState, { record });
+    yield put(getDocStatus(payload));
+  } catch (e) {
+    logger.error('[docStatus/sagaInitDocStatus saga] error', e.message);
+  }
 }
 
 function* sagaGetDocStatus({ api, logger }, { payload }) {

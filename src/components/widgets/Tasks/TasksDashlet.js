@@ -106,7 +106,6 @@ class TasksDashlet extends BaseWidget {
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           setInfo={this.setInfo}
-          events={this.recordEvents}
         />
       </Dashlet>
     );

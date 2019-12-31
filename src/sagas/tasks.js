@@ -1,10 +1,12 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 import isEmpty from 'lodash/isEmpty';
-import { changeTaskAssignee, getTaskList, setTaskAssignee, setTaskList } from '../actions/tasks';
+import { changeTaskAssignee, checkRecordUpdates, getTaskList, setTaskAssignee, setTaskList } from '../actions/tasks';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import TasksConverter from '../dto/tasks';
 import TasksService from '../services/tasks';
+import { CommonApi } from '../api/common';
+import Records from '../components/Records';
 
 function* sagaGetTasks({ api, logger }, { payload }) {
   const err = t('tasks-widget.saga.error1');
@@ -53,9 +55,25 @@ function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
   }
 }
 
+function* sagaCheckRecordUpdates({ api, logger }, { payload }) {
+  const err = t('tasks-widget.saga.error1');
+
+  try {
+    const { document: record } = payload;
+
+    yield call(CommonApi.isUpdatingRecordState, { record });
+    yield put(getTaskList(payload));
+    Records.get(record).eventService.notifyTaskChanges(record);
+  } catch (e) {
+    yield put(setNotificationMessage(err));
+    logger.error('[tasks/sagaCheckRecordUpdates saga] error', e.message);
+  }
+}
+
 function* tasksSaga(ea) {
   yield takeEvery(getTaskList().type, sagaGetTasks, ea);
   yield takeEvery(changeTaskAssignee().type, sagaChangeTaskAssignee, ea);
+  yield takeEvery(checkRecordUpdates().type, sagaCheckRecordUpdates, ea);
 }
 
 export default tasksSaga;

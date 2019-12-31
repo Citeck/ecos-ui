@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { isEmpty } from 'lodash';
-import { changeTaskAssignee, getTaskList, resetTaskList } from '../../../actions/tasks';
+import { changeTaskAssignee, checkRecordUpdates, getTaskList, resetTaskList } from '../../../actions/tasks';
 import { selectStateTasksById } from '../../../selectors/tasks';
 import { DefineHeight } from '../../common/index';
 import TaskList from './TaskList';
@@ -24,7 +24,8 @@ const mapStateToProps = (state, context) => {
 const mapDispatchToProps = dispatch => ({
   getTaskList: payload => dispatch(getTaskList(payload)),
   changeTaskAssignee: payload => dispatch(changeTaskAssignee(payload)),
-  resetTaskList: payload => dispatch(resetTaskList(payload))
+  resetTaskList: payload => dispatch(resetTaskList(payload)),
+  checkRecordUpdates: payload => dispatch(checkRecordUpdates(payload))
 });
 
 class Tasks extends React.Component {
@@ -39,8 +40,7 @@ class Tasks extends React.Component {
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     setReloadDone: PropTypes.func,
     setInfo: PropTypes.func,
-    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
-    events: PropTypes.object
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
@@ -79,12 +79,9 @@ class Tasks extends React.Component {
   }
 
   getTaskList = () => {
-    const { getTaskList, record, stateId } = this.props;
+    const { getTaskList, record: document, stateId } = this.props;
 
-    getTaskList({
-      stateId,
-      document: record
-    });
+    getTaskList({ stateId, document });
   };
 
   onAssignClick = ({ taskId, actionOfAssignment, ownerUserName }) => {
@@ -99,9 +96,9 @@ class Tasks extends React.Component {
   };
 
   onSubmitForm = () => {
-    this.props.events.notifyTaskChanges(this.props.record);
+    const { record: document, stateId } = this.props;
 
-    this.getTaskList();
+    this.props.checkRecordUpdates({ stateId, document });
   };
 
   setHeight = contentHeight => {
