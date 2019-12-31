@@ -56,7 +56,7 @@ class DocStatus extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.recordEvents.observeTaskChanges(this.setStatus);
+    this.recordEvents.observeTaskChanges(this.updateStatus);
   }
 
   state = {
@@ -85,7 +85,7 @@ class DocStatus extends BaseWidget {
 
     resetDocStatus({ stateId });
 
-    this.recordEvents.offTaskChanges(this.setStatus);
+    this.recordEvents.offTaskChanges(this.updateStatus);
   }
 
   get isNoStatus() {
