@@ -16,12 +16,13 @@ export const selectStateByKey = createSelector(
   })
 );
 
-export const selectAvailableTypes = state => get(state, 'availableTypes', []);
+const getAvailableTypes = state => get(state, 'availableTypes', []);
+const getDynamicTypes = state => get(state, 'dynamicTypes', []);
 
 export const selectTypeNames = createSelector(
   selectState,
   state => {
-    const availableTypes = selectAvailableTypes(state);
+    const availableTypes = getAvailableTypes(state);
 
     return availableTypes.reduce(
       (result, current) => ({
@@ -35,11 +36,16 @@ export const selectTypeNames = createSelector(
 
 export const selectDynamicTypes = createSelector(
   selectState,
-  state => get(state, 'dynamicTypes', [])
+  getDynamicTypes
+);
+
+export const selectAvailableTypes = createSelector(
+  selectState,
+  getAvailableTypes
 );
 
 export const selectGrouppedAvailableTypes = createSelector(
-  selectAvailableTypes,
+  getAvailableTypes,
   availableTypes => {
     const getChilds = (filtered = [], types = filtered) => {
       return filtered.map(item => {

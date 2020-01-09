@@ -2,24 +2,26 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
+import uniqueId from 'lodash/uniqueId';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
-import { Icon, ResizeBoxes } from '../../common';
+import { Icon, ResizeBoxes, EcosModal, Search } from '../../common';
 import { Grid } from '../../common/grid';
 
-import { t } from '../../../helpers/util';
+import { t, prepareTooltipId } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import { getDocumentsByType, init } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
-import { typesStatuses } from '../../../constants/documents';
-
+import { typesStatuses, tooltips } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
+
 import './style.scss';
-import uniqueId from 'lodash/uniqueId';
+import Tree from './Tree';
 
 const LABELS = {
-  TITLE: 'Документы'
+  TITLE: 'Документы',
+  SETTINGS: 'Настройка типов документов'
 };
 
 class Documents extends BaseWidget {
@@ -36,7 +38,8 @@ class Documents extends BaseWidget {
       contentHeight: null,
       width: MIN_WIDTH_DASHLET_SMALL,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
+      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
+      isOpenSettings: true
     };
 
     props.init();
@@ -44,7 +47,10 @@ class Documents extends BaseWidget {
 
   handleReloadData = () => {};
 
-  handleToggleTypesSettings = () => {};
+  handleToggleTypesSettings = event => {
+    event.stopPropagation();
+    this.setState(state => ({ isOpenSettings: !state.isOpenSettings }));
+  };
 
   handleClearSelectedType = () => {
     this.setState({ selectedType: '' });
@@ -60,8 +66,9 @@ class Documents extends BaseWidget {
   };
 
   renderTypes() {
-    const { dynamicTypes } = this.props;
+    const { dynamicTypes, id } = this.props;
     const { selectedType, leftColumnId, rightColumnId } = this.state;
+    const settingsId = prepareTooltipId(`settings-${id}`);
 
     return (
       <div id={leftColumnId} className="ecos-docs__column ecos-docs__column_types">
@@ -73,7 +80,17 @@ class Documents extends BaseWidget {
             })}
           >
             <div className="ecos-docs__types-item-label">{t('Все типы')}</div>
-            <div className="ecos-docs__types-item-settings" onClick={this.handleToggleTypesSettings} />
+            <Icon id={settingsId} className="icon-settings ecos-docs__types-item-settings" onClick={this.handleToggleTypesSettings} />
+            <UncontrolledTooltip
+              placement="top"
+              boundariesElement="window"
+              className="ecos-base-tooltip"
+              innerClassName="ecos-base-tooltip-inner"
+              arrowClassName="ecos-base-tooltip-arrow"
+              target={settingsId}
+            >
+              {tooltips.SETTINGS}
+            </UncontrolledTooltip>
           </div>
 
           {dynamicTypes.map(this.renderType)}
@@ -87,7 +104,7 @@ class Documents extends BaseWidget {
   renderType = type => {
     const { id } = this.props;
     const { selectedType } = this.state;
-    const target = `${type.id}-${id}`.replace(/[^\d\w-]/g, '');
+    const target = prepareTooltipId(`${type.id}-${id}`);
 
     let status = typesStatuses.CAN_ADD_FILES;
 
@@ -162,6 +179,26 @@ class Documents extends BaseWidget {
     );
   }
 
+  renderSettings() {
+    const { availableTypes } = this.props;
+    const { isOpenSettings } = this.state;
+
+    return (
+      <EcosModal
+        title={t(LABELS.SETTINGS)}
+        isOpen={isOpenSettings}
+        className="ecos-docs__settings"
+        hideModal={this.handleToggleTypesSettings}
+        onResize={this.handleResize}
+      >
+        <Search cleaner liveSearch onSearch={console.warn.bind(this)} className="ecos-docs__settings-search" />
+        <div className="ecos-docs__settings-field">
+          <Tree data={availableTypes} />
+        </div>
+      </EcosModal>
+    );
+  }
+
   render() {
     const { dragHandleProps, canDragging } = this.props;
     const { isCollapsed } = this.state;
@@ -187,6 +224,7 @@ class Documents extends BaseWidget {
           <div className="ecos-docs">
             {this.renderTypes()}
             {this.renderTable()}
+            {this.renderSettings()}
           </div>
         </Dashlet>
       </div>

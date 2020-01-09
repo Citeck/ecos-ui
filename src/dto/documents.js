@@ -30,4 +30,10 @@ export default class DocumentsConverter {
       return target;
     });
   };
+
+  static getAvailableTypes = (availavleTypes = [], dynamicTypeKeys = []) =>
+    availavleTypes.map(item => ({
+      ...item,
+      isSelected: dynamicTypeKeys.includes(item.id)
+    }));
 }

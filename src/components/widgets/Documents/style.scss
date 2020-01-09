@@ -79,6 +79,14 @@
         }
       }
 
+      &-settings {
+        color: $color-gray-6;
+
+        &:hover {
+          color: darken($color-gray-6, 5%);
+        }
+      }
+
       &_selected {
         background: $color-blue-light;
         border-radius: 6px;
@@ -93,6 +101,14 @@
             line-height: 18px;
             padding: 0 9px;
           }
+
+          &-settings {
+            color: $color-blue-light2;
+
+            &:hover {
+              color: darken($color-blue-light2, 5%);
+            }
+          }
         }
       }
     }
@@ -101,5 +117,103 @@
   &__table {
     width: 100%;
     height: auto !important;
+  }
+
+  &__settings {
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+    }
+
+    &-search {
+      width: 100%;
+      height: 40px;
+      margin-bottom: 10px;
+    }
+
+    &-field {
+      width: 100%;
+      height: 400px;
+      background: $color-gray-4;
+      border: 2px solid $color-gray-1;
+      box-sizing: border-box;
+      border-radius: 12px;
+      padding: 15px;
+    }
+  }
+}
+
+.ecos-tree {
+  &__item {
+    $item: &;
+    $indent: 42px;
+
+    margin-bottom: 11px;
+
+    &-element {
+      background: $color-white;
+      border-radius: 6px;
+      height: 60px;
+      padding: 19px 18px;
+      margin-bottom: 11px;
+    }
+
+    &_child {
+      margin-left: $indent;
+      margin-bottom: 6px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      #{$item} {
+        &-element {
+          position: relative;
+          height: 40px;
+          padding: 9px 11px;
+          margin-bottom: 0;
+
+          &:before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: calc(#{$indent} / 2 * (-1));
+            width: 20px;
+            height: 20px;
+            border-radius: 0 0 0 4px;
+            border-color: $color-gray-6;
+            border-width: 0 0 4px 4px;
+            border-style: solid;
+            z-index: 2;
+          }
+
+          &:after {
+            content: '';
+            position: absolute;
+            top: 22px;
+            left: calc(#{$indent} / 2 * (-1));
+            width: 4px;
+            background: $color-gray-4;
+            height: 6px;
+            z-index: 1;
+          }
+        }
+      }
+    }
+
+    &_parent {
+      position: relative;
+
+      &:before {
+        content: '';
+        position: absolute;
+        top: 64px;
+        left: calc(#{$indent} / 2);
+        width: 4px;
+        background: $color-gray-6;
+        height: calc(100% - 64px - 20px);
+      }
+    }
   }
 }

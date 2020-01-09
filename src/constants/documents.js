@@ -4,3 +4,7 @@ export const typesStatuses = {
   NEED_ADD_FILES: 'Необходимо добавить файлы',
   CAN_ADD_FILES: 'Можно добавить файлы'
 };
+
+export const tooltips = {
+  SETTINGS: 'Настроить типы и колонки'
+};

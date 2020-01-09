@@ -2,6 +2,7 @@ import lodashGet from 'lodash/get';
 import moment from 'moment';
 import i18next from 'i18next';
 import * as queryString from 'query-string';
+import uuidV4 from 'uuid/v4';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
@@ -627,4 +628,8 @@ export function animateScrollTo(element = null, scrollTo = {}) {
       behavior: 'smooth'
     });
   }
+}
+
+export function prepareTooltipId(id = uuidV4()) {
+  return `${id}`.replace(/[^\d\w-]/g, '');
 }

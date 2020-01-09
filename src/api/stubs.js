@@ -10,6 +10,26 @@ export class DocumentsApiRequests {
         id: 'emodel/type@base',
         parent: null,
         name: 'Базовый тип'
+      },
+      {
+        id: 'emodel/type@uchdoc',
+        parent: null,
+        name: 'Учетный документ'
+      },
+      {
+        id: 'emodel/type@act',
+        parent: 'emodel/type@uchdoc',
+        name: 'Акт'
+      },
+      {
+        id: 'emodel/type@n',
+        parent: 'emodel/type@uchdoc',
+        name: 'Накладная'
+      },
+      {
+        id: 'emodel/type@sf',
+        parent: 'emodel/type@uchdoc',
+        name: 'Счёт-фактура'
       }
     ],
     errors: [],
@@ -67,7 +87,7 @@ export class DocumentsApiRequests {
         modified: '2019-04-02T20:20:20Z'
       }
     ];
-    const count = Math.random() * (documents.length + 1);
+    const count = Math.random() * documents.length;
 
     return {
       records: documents.slice(0, count),
