@@ -7,8 +7,6 @@
   width: 100%;
   margin-bottom: 12px;
   height: 40px;
-  overflow: auto;
-  @extend %hidden-scrollbar;
 
   .ecos-btn.ecos-journal__add-record {
     font-size: 24px;

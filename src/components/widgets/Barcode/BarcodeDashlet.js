@@ -35,10 +35,8 @@ class BarcodeDashlet extends BaseWidget {
         className={classNames('ecos-barcode-dashlet', classNameDashlet)}
         resizable={false}
         needGoTo={false}
-        actionHelp={false}
-        actionReload={false}
+        noActions
         actionDrag={isMobileDevice()}
-        actionEdit={false}
       >
         <Barcode {...config} className={classNameBarcode} record={record} stateId={id} />
       </Dashlet>

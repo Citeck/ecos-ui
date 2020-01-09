@@ -303,14 +303,26 @@ export default class EcosFormUtils {
       return recordInstance
         .load({
           formKey: '_formKey[]?str',
-          formId: '_etype.form?id'
+          typeId: '_etype?id'
         })
-        .then(({ formId, formKey }) => {
-          if (EcosFormUtils.isFormId(formId)) {
-            return EcosFormUtils.getFormById(formId, attributes);
+        .then(({ typeId, formKey }) => {
+          if (typeId && typeId.indexOf('emodel/type@') === 0) {
+            return Records.get(typeId)
+              .load('inheritedForm?id')
+              .then(formId => {
+                if (EcosFormUtils.isFormId(formId)) {
+                  return EcosFormUtils.getFormById(formId, attributes);
+                } else {
+                  return getFormByKeysFromRecord(formKey, 0);
+                }
+              })
+              .catch(e => {
+                console.error(e);
+                return getFormByKeysFromRecord(formKey, 0);
+              });
+          } else {
+            return getFormByKeysFromRecord(formKey, 0);
           }
-
-          return getFormByKeysFromRecord(formKey, 0);
         });
     } else {
       return getFormByKeysFromRecord([formKey], 0);

@@ -9397,13 +9397,6 @@ react-draggable@^3.2.1:
     classnames "^2.2.5"
     prop-types "^15.6.0"
 
-react-dropzone-uploader@^2.10.1:
-  version "2.10.1"
-  resolved "https://registry.yarnpkg.com/react-dropzone-uploader/-/react-dropzone-uploader-2.10.1.tgz#f23fbe8cfb368214e3172a7e499fe857de1ec092"
-  integrity sha512-wMDsLpRekbuQbxVCViRf8Yjd9GOWebqwvD2HF4/KsKyQG6zoPnQDQoUwZDjv8YOVY3kZw8iZBoG+608+QIZYhQ==
-  dependencies:
-    "@babel/runtime" "^7.1.2"
-
 react-dropzone@^8.0.3:
   version "8.2.0"
   resolved "https://registry.yarnpkg.com/react-dropzone/-/react-dropzone-8.2.0.tgz#e889455c4259c018bc5595ab0e2a5f7d958d173a"

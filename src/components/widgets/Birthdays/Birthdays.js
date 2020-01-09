@@ -8,9 +8,9 @@ import get from 'lodash/get';
 import Dashlet from '../../Dashlet/Dashlet';
 import { selectStateByKey } from '../../../selectors/birthdays';
 import { getBirthdays, init } from '../../../actions/birthdays';
-import { MIN_WIDTH_DASHLET_SMALL, MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
+import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { DefineHeight, Avatar, Loader } from '../../common/index';
+import { Avatar, DefineHeight, Loader } from '../../common/index';
 import { Btn } from '../../common/btns/index';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
 import { changeUrlLink } from '../../PageTabs/PageTabs';
@@ -184,9 +184,7 @@ class Birthdays extends Component {
         className="ecos-hb2u"
         title={t(LABELS.TITLE)}
         needGoTo={false}
-        actionEdit={false}
-        actionHelp={false}
-        actionReload={false}
+        noActions
         canDragging={canDragging}
         resizable
         isCollapsed={isCollapsed}

@@ -3,6 +3,7 @@ import { recordsMutateFetch, loadAttribute } from './recordsApi';
 import Attribute from './Attribute';
 import { EventEmitter2 } from 'eventemitter2';
 import { mapValueToInnerAtt } from './recordUtils';
+import RecordWatcher from './RecordWatcher';
 
 export const EVENT_CHANGE = 'change';
 
@@ -90,6 +91,10 @@ export default class Record {
       this._baseRecord = null;
     }
     this._emitter = new EventEmitter2();
+    this._modified = null;
+    this._pendingUpdate = false;
+    this._updatePromise = Promise.resolve();
+    this._watchers = [];
   }
 
   get id() {
@@ -102,6 +107,14 @@ export default class Record {
 
   isBaseRecord() {
     return !this._baseRecord;
+  }
+
+  isPendingUpdate() {
+    return this._pendingUpdate;
+  }
+
+  getUpdatePromise() {
+    return this._updatePromise;
   }
 
   getBaseRecord() {
@@ -141,6 +154,105 @@ export default class Record {
       }
     }
     return true;
+  }
+
+  _innerUpdate(resolve, reject) {
+    return this.load(
+      {
+        modified: 'cm:modified?str', //todo: change att to _modified?str
+        pendingUpdate: 'pendingUpdate?bool'
+      },
+      true
+    ).then(({ modified, pendingUpdate }) => {
+      if (pendingUpdate === true) {
+        setTimeout(() => {
+          this._innerUpdate(resolve, reject);
+        }, 2000);
+      } else {
+        if (this._modified !== modified) {
+          this._modified = modified;
+
+          Promise.all(
+            this._watchers.map(watcher => {
+              return this.load(watcher.getWatchedAttributes(), true)
+                .then(loadedAtts => {
+                  return {
+                    watcher,
+                    loadedAtts
+                  };
+                })
+                .catch(e => {
+                  console.error(e);
+                  return {
+                    watcher,
+                    loadedAtts: watcher.getAttributes()
+                  };
+                });
+            })
+          ).then(watchersData => {
+            for (let data of watchersData) {
+              try {
+                data.watcher.setAttributes(data.loadedAtts);
+              } catch (e) {
+                console.error(e);
+              }
+            }
+            resolve();
+          });
+        } else {
+          resolve();
+        }
+      }
+    });
+  }
+
+  update() {
+    this._pendingUpdate = true;
+
+    let promise = null;
+    const cleanUpdateStatus = () => {
+      if (this._updatePromise === promise) {
+        this._pendingUpdate = false;
+      }
+    };
+
+    promise = new Promise((resolve, reject) => {
+      this._innerUpdate(resolve, reject);
+    })
+      .then(cleanUpdateStatus)
+      .catch(e => {
+        console.log(e);
+        cleanUpdateStatus();
+      });
+    this._updatePromise = promise;
+    return promise;
+  }
+
+  unwatch(watcher) {
+    for (let i = 0; i < this._watchers; i++) {
+      if (this._watchers[i] === watcher) {
+        this._watchers.splice(i, 1);
+        break;
+      }
+    }
+  }
+
+  watch(attributes, callback) {
+    const watcher = new RecordWatcher(this, attributes, callback);
+    this._watchers.push(watcher);
+    let attsPromise = this.load(attributes);
+    Promise.all([attsPromise, this.load('pendingUpdate?bool')])
+      .then(([loadedAtts, pendingUpdate]) => {
+        if (pendingUpdate) {
+          this.update();
+        }
+        watcher.setAttributes(loadedAtts);
+      })
+      .catch(e => {
+        console.error(e);
+        attsPromise.then(atts => watcher.setAttributes(atts));
+      });
+    return watcher;
   }
 
   load(attributes, force) {
@@ -359,7 +471,9 @@ export default class Record {
 
         return Promise.all(loadPromises).then(() => {
           for (let recordId of Object.keys(attributesToLoad)) {
-            this._records.get(recordId).events.emit(EVENT_CHANGE);
+            let record = this._records.get(recordId);
+            record.events.emit(EVENT_CHANGE);
+            record.update();
           }
           let resultId = ((response.records || [])[0] || {}).id;
           return resultId ? this._records.get(resultId) : self;

@@ -1,89 +1,181 @@
-import { all, put, takeEvery, call } from 'redux-saga/effects';
+import { all, put, takeEvery, call, select } from 'redux-saga/effects';
+import concat from 'lodash/concat';
 
 import {
-  getDocuments,
+  getAssociations,
   getMenu,
   getSectionList,
-  saveDocuments,
+  addAssociations,
+  removeAssociations,
   setAllowedConnections,
-  setDocuments,
+  setAssociations,
   setMenu,
-  setSectionList
+  setSectionList,
+  setError
 } from '../actions/docAssociations';
-import { getDocumentsForWeb, getDocumentsTotalCount, getJournalForWeb, getMenuForWeb } from '../dto/docAssociations';
+import DocAssociationsConverter from '../dto/docAssociations';
+import { DIRECTIONS } from '../constants/docAssociations';
+import { selectAllowedDirectionsByKey } from '../selectors/docAssociations';
 
-function* sagaGetSectionList({ api, logger }, action) {
+function* sagaGetSectionList({ api, logger }, { payload }) {
   try {
     const response = yield api.docAssociations.getSectionList();
 
     yield put(
       setSectionList({
-        key: action.payload,
+        key: payload,
         sectionList: response.records
       })
     );
   } catch (e) {
-    logger.error('[comments sagaGetSectionList saga error', e.message);
+    logger.error('[docAssociations sagaGetSectionList saga error', e.message);
   }
 }
 
-function* sagaGetDocuments({ api, logger }, action) {
+function* getAssociation({ api, logger }, { id, direction }, recordRef) {
   try {
-    const allowedConnections = yield call(api.docAssociations.getAllowedConnections, action.payload);
+    if (direction === DIRECTIONS.TARGET) {
+      const data = yield call(api.docAssociations.getTargetAssociations, id, recordRef);
 
-    yield put(setAllowedConnections({ key: action.payload, allowedConnections }));
+      return DocAssociationsConverter.getAssociationsWithDirection(data, DIRECTIONS.TARGET);
+    }
 
-    const response = yield call(api.docAssociations.getDocuments, action.payload, allowedConnections.map(item => item.name));
+    if (direction === DIRECTIONS.SOURCE) {
+      const data = yield call(api.docAssociations.getSourceAssociations, id, recordRef);
+
+      return DocAssociationsConverter.getAssociationsWithDirection(data, DIRECTIONS.SOURCE);
+    }
+
+    if (direction === DIRECTIONS.BOTH) {
+      const target = DocAssociationsConverter.getAssociationsWithDirection(
+        yield call(api.docAssociations.getTargetAssociations, id, recordRef),
+        DIRECTIONS.TARGET
+      );
+      const source = DocAssociationsConverter.getAssociationsWithDirection(
+        yield call(api.docAssociations.getSourceAssociations, id, recordRef),
+        DIRECTIONS.SOURCE
+      );
+
+      return concat(target, source);
+    }
+  } catch (e) {
+    logger.error('[docAssociations getAssociation saga error', e.message);
+  }
+}
+
+function* sagaGetAssociations({ api, logger }, { payload }) {
+  try {
+    const allowedAssociations = DocAssociationsConverter.getAllowedAssociations(
+      yield call(api.docAssociations.getAllowedAssociations, payload)
+    );
+
+    yield put(setAllowedConnections({ key: payload, allowedAssociations }));
+
+    const response = yield allowedAssociations.map(function*(connection) {
+      const result = yield getAssociation({ api, logger }, { id: connection.name, direction: connection.direction }, payload);
+
+      return { [connection.name]: result };
+    });
+    const formattedResponse = DocAssociationsConverter.getAssociationsByDirection(response);
 
     yield put(
-      setDocuments({
-        key: action.payload,
-        documents: getDocumentsForWeb(response, allowedConnections),
-        documentsTotalCount: getDocumentsTotalCount(response)
+      setAssociations({
+        key: payload,
+        associations: DocAssociationsConverter.getAssociationsForWeb(formattedResponse, allowedAssociations),
+        associationsTotalCount: DocAssociationsConverter.getAssociationsTotalCount(formattedResponse)
       })
     );
   } catch (e) {
-    logger.error('[comments sagaGetDocuments saga error', e.message);
+    yield put(setError({ key: payload }));
+    logger.error('[docAssociations sagaGetAssociations saga error', e.message);
   }
 }
 
-function* sagaGetMenu({ api, logger }, action) {
+function* sagaGetMenu({ api, logger }, { payload }) {
   try {
-    const firstLvl = yield call(api.docAssociations.getAllowedConnections, action.payload);
-    let { records: secondLvl } = yield call(api.docAssociations.getSectionList, action.payload);
+    const firstLvl = yield call(api.docAssociations.getAllowedAssociations, payload);
+    let { records: secondLvl } = yield call(api.docAssociations.getSectionList, payload);
 
     secondLvl = yield all(
       secondLvl.map(function*(item) {
         const journals = yield call(api.docAssociations.getJournalList, item.name);
 
-        item.items = journals.map(getJournalForWeb);
+        item.items = journals.map(DocAssociationsConverter.getJournalForWeb);
 
         return item;
       })
     );
 
-    yield put(setMenu({ key: action.payload, menu: getMenuForWeb(firstLvl, secondLvl) }));
+    yield put(
+      setMenu({
+        key: payload,
+        menu: DocAssociationsConverter.getMenuForWeb(firstLvl, secondLvl)
+      })
+    );
   } catch (e) {
-    logger.error('[comments sagaGetMenu saga error', e.message);
+    yield put(setError({ key: payload }));
+    logger.error('[docAssociations sagaGetMenu saga error', e.message);
   }
 }
 
-function* sagaSaveDocuments({ api, logger }, action) {
+function* sagaAddAssociations({ api, logger }, { payload }) {
   try {
-    const { connectionId, record, documents } = action.payload;
+    const { associationId, record, associations } = payload;
+    const directions = yield select(state => selectAllowedDirectionsByKey(state, record));
 
-    yield api.docAssociations.sagaSaveDocuments({ connectionId, recordRef: record, documents });
-    yield put(getDocuments(record));
+    if (directions[associationId] === DIRECTIONS.SOURCE) {
+      yield associations.map(function*(recordRef) {
+        return yield call(api.docAssociations.addAssociations, {
+          recordRef,
+          associations: [record],
+          associationId
+        });
+      });
+    } else {
+      yield call(api.docAssociations.addAssociations, {
+        recordRef: record,
+        associations,
+        associationId
+      });
+    }
+
+    yield put(getAssociations(record));
   } catch (e) {
-    logger.error('[comments sagaSaveDocuments saga error', e.message);
+    yield put(setError({ key: payload.record }));
+    logger.error('[docAssociations sagaAddAssociations saga error', e.message);
+  }
+}
+
+function* sagaRemoveAssociations({ api, logger }, { payload }) {
+  try {
+    const { associationId, record, associationRef } = payload;
+    const directions = yield select(state => selectAllowedDirectionsByKey(state, record));
+    let recordRef = record;
+    let association = associationRef;
+
+    if (directions[associationId] === DIRECTIONS.SOURCE) {
+      recordRef = associationRef;
+      association = record;
+    }
+
+    yield call(api.docAssociations.removeAssociations, {
+      recordRef,
+      association,
+      associationId
+    });
+    yield put(getAssociations(record));
+  } catch (e) {
+    yield put(setError({ key: payload.record }));
+    logger.error('[docAssociations sagaRemoveAssociations saga error', e.message);
   }
 }
 
 function* saga(ea) {
   yield takeEvery(getSectionList().type, sagaGetSectionList, ea);
-  yield takeEvery(getDocuments().type, sagaGetDocuments, ea);
+  yield takeEvery(getAssociations().type, sagaGetAssociations, ea);
   yield takeEvery(getMenu().type, sagaGetMenu, ea);
-  yield takeEvery(saveDocuments().type, sagaSaveDocuments, ea);
+  yield takeEvery(addAssociations().type, sagaAddAssociations, ea);
+  yield takeEvery(removeAssociations().type, sagaRemoveAssociations, ea);
 }
 
 export default saga;
