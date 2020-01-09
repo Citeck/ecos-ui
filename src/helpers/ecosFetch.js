@@ -1,4 +1,5 @@
 import isString from 'lodash/isString';
+import isEmpty from 'lodash/isEmpty';
 
 import { getCurrentLocale } from '../helpers/util';
 //import Token from '../helpers/tokenData';
@@ -30,7 +31,7 @@ export default function(url, options = {}) {
 
   if (isString(body) || body instanceof FormData) {
     params.body = body;
-  } else {
+  } else if (!isEmpty(body)) {
     params.body = JSON.stringify(body);
   }
 
