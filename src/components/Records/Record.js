@@ -92,6 +92,8 @@ export default class Record {
     }
     this._emitter = new EventEmitter2();
     this._modified = null;
+    this._pendingUpdate = false;
+    this._updatePromise = Promise.resolve();
     this._watchers = [];
   }
 
@@ -105,6 +107,14 @@ export default class Record {
 
   isBaseRecord() {
     return !this._baseRecord;
+  }
+
+  isPendingUpdate() {
+    return this._pendingUpdate;
+  }
+
+  getUpdatePromise() {
+    return this._updatePromise;
   }
 
   getBaseRecord() {
@@ -187,17 +197,35 @@ export default class Record {
                 console.error(e);
               }
             }
-            resolve(true);
+            resolve();
           });
+        } else {
+          resolve();
         }
       }
     });
   }
 
   update() {
-    return new Promise((resolve, reject) => {
+    this._pendingUpdate = true;
+
+    let promise = null;
+    const cleanUpdateStatus = () => {
+      if (this._updatePromise === promise) {
+        this._pendingUpdate = false;
+      }
+    };
+
+    promise = new Promise((resolve, reject) => {
       this._innerUpdate(resolve, reject);
-    });
+    })
+      .then(cleanUpdateStatus)
+      .catch(e => {
+        console.log(e);
+        cleanUpdateStatus();
+      });
+    this._updatePromise = promise;
+    return promise;
   }
 
   unwatch(watcher) {
@@ -212,12 +240,18 @@ export default class Record {
   watch(attributes, callback) {
     const watcher = new RecordWatcher(this, attributes, callback);
     this._watchers.push(watcher);
-    this.load(attributes).then(atts => watcher.setAttributes(atts));
-    this.load('pendingUpdate?bool', true).then(pendingUpdate => {
-      if (pendingUpdate) {
-        this.update();
-      }
-    });
+    let attsPromise = this.load(attributes);
+    Promise.all([attsPromise, this.load('pendingUpdate?bool')])
+      .then(([loadedAtts, pendingUpdate]) => {
+        if (pendingUpdate) {
+          this.update();
+        }
+        watcher.setAttributes(loadedAtts);
+      })
+      .catch(e => {
+        console.error(e);
+        attsPromise.then(atts => watcher.setAttributes(atts));
+      });
     return watcher;
   }
 
