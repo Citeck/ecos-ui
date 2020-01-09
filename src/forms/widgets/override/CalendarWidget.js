@@ -1,5 +1,6 @@
 import FormIOCalendarWidget from 'formiojs/widgets/CalendarWidget';
 import { getCurrentLocale } from '../../../helpers/util';
+import 'flatpickr/dist/l10n/ru.js';
 
 export default class CalendarWidget extends FormIOCalendarWidget {
   static get defaultSettings() {
