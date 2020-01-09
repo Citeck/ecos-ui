@@ -62,7 +62,7 @@ class DocPreview extends Component {
       isLoading: this.isPDF,
       scrollPage: props.firstPageNumber,
       isFullscreen: false,
-      recordId: this.getRecordId(props),
+      recordId: this.getRecordId(),
       link: props.link,
       contentHeight: 0,
       error: ''
@@ -80,34 +80,43 @@ class DocPreview extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const oldProps = this.props;
-    const { link, isLoading, byLink, isCollapsed } = nextProps;
+    const prevProps = this.props;
+    const { link, isLoading, byLink, isCollapsed, isUpdating } = nextProps;
     const { recordId } = this.state;
     const newRecordId = this.getRecordId(nextProps);
     const isPdf = isPDFbyStr(link);
-    let state = {};
+    const newState = {};
 
-    if (oldProps.isLoading !== isLoading && !isPdf) {
-      state = { isLoading };
+    if (isLoading !== prevProps.isLoading && !isPdf) {
+      newState.isLoading = isLoading;
     }
 
     if (
-      (byLink && oldProps.link !== link && isPdf) ||
-      (byLink && oldProps.link !== link && isPdf && oldProps.isCollapsed && !isCollapsed)
+      (byLink && prevProps.link !== link && isPdf) ||
+      (byLink && prevProps.link !== link && isPdf && prevProps.isCollapsed && !isCollapsed)
     ) {
-      state = { isLoading: true, pdf: {} };
+      newState.isLoading = true;
+      newState.pdf = {};
       this.loadPDF(link);
     }
 
-    if (oldProps.link !== link) {
-      state.link = link;
+    if (prevProps.link !== link) {
+      newState.link = link;
     }
 
-    if ((!byLink && recordId !== newRecordId) || (!byLink && oldProps.isCollapsed && !isCollapsed)) {
-      this.setState({ recordId: newRecordId }, this.getUrlByRecord);
+    if ((!byLink && recordId !== newRecordId) || (!byLink && prevProps.isCollapsed && !isCollapsed)) {
+      newState.recordId = newRecordId;
     }
 
-    this.setState({ ...state });
+    if (!prevProps.isUpdating && isUpdating) {
+      this.getUrlByRecord();
+    }
+
+    this.setState({ ...newState }, () => {
+      if (newState.recordId) {
+        this.getUrlByRecord();
+      }
+    });
   }
 
   get isPDF() {

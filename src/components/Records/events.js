@@ -18,21 +18,4 @@ export default class EventService {
   notifyRecordChanges() {
     this.#emitter.emit(EventTypes.CHANGE);
   }
-
-  /**
-   * emitter Version Changes
-   * @param record
-   */
-
-  notifyVersionChanges(record) {
-    this.#emitter.emit(EventTypes.VERSION_CHANGED, record);
-  }
-
-  observeVersionChanges(func) {
-    this.#emitter.on(EventTypes.VERSION_CHANGED, func);
-  }
-
-  offVersionChanges(func) {
-    this.#emitter.off(EventTypes.VERSION_CHANGED, func);
-  }
 }
