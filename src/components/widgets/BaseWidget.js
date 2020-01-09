@@ -12,10 +12,6 @@ class BaseWidget extends Component {
     return Records.get(this.props.record);
   }
 
-  get recordEvents() {
-    return this.instanceRecord.eventService;
-  }
-
   get clientHeight() {
     if (!this.props.maxHeightByContent) {
       return null;

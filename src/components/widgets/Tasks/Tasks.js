@@ -2,10 +2,13 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { isEmpty } from 'lodash';
-import { changeTaskAssignee, checkRecordUpdates, getTaskList, resetTaskList } from '../../../actions/tasks';
+import isEmpty from 'lodash/isEmpty';
+import debounce from 'lodash/debounce';
+
+import { changeTaskAssignee, getTaskList, resetTaskList } from '../../../actions/tasks';
 import { selectStateTasksById } from '../../../selectors/tasks';
-import { DefineHeight } from '../../common/index';
+import { DefineHeight } from '../../common';
+import Records from '../../Records';
 import TaskList from './TaskList';
 
 import './style.scss';
@@ -24,8 +27,7 @@ const mapStateToProps = (state, context) => {
 const mapDispatchToProps = dispatch => ({
   getTaskList: payload => dispatch(getTaskList(payload)),
   changeTaskAssignee: payload => dispatch(changeTaskAssignee(payload)),
-  resetTaskList: payload => dispatch(resetTaskList(payload)),
-  checkRecordUpdates: payload => dispatch(checkRecordUpdates(payload))
+  resetTaskList: payload => dispatch(resetTaskList(payload))
 });
 
 class Tasks extends React.Component {
@@ -55,6 +57,7 @@ class Tasks extends React.Component {
 
   componentDidMount() {
     this.getTaskList();
+    this.watcher = Records.get(this.props.record).watch('cm:modified', () => debounce(this.getTaskList, 300)());
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -73,15 +76,17 @@ class Tasks extends React.Component {
   }
 
   componentWillUnmount() {
-    const { resetTaskList, stateId } = this.props;
+    const { resetTaskList, stateId, record } = this.props;
 
     resetTaskList({ stateId });
+
+    Records.get(record).unwatch(this.watcher);
   }
 
   getTaskList = () => {
-    const { getTaskList, record: document, stateId } = this.props;
+    const { getTaskList, record, stateId } = this.props;
 
-    getTaskList({ stateId, document });
+    getTaskList({ stateId, record });
   };
 
   onAssignClick = ({ taskId, actionOfAssignment, ownerUserName }) => {
@@ -95,11 +100,7 @@ class Tasks extends React.Component {
     });
   };
 
-  onSubmitForm = () => {
-    const { record: document, stateId } = this.props;
-
-    this.props.checkRecordUpdates({ stateId, document });
-  };
+  onSubmitForm = () => Records.get(this.props.record).update();
 
   setHeight = contentHeight => {
     this.setState({ contentHeight });

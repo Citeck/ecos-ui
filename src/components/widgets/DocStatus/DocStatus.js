@@ -1,10 +1,11 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
-import { connect } from 'react-redux';
-import { UncontrolledTooltip } from 'reactstrap';
+import debounce from 'lodash/debounce';
 import uuid from 'uuidv4';
+import { UncontrolledTooltip } from 'reactstrap';
 
 import { deepClone } from '../../../helpers/util';
 import { LoaderTypes } from '../../../constants/index';
@@ -56,7 +57,7 @@ class DocStatus extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.recordEvents.observeTaskChanges(this.updateStatus);
+    this.watcher = this.instanceRecord.watch('cm:modified', debounce(this.updateStatus, 300));
   }
 
   state = {
@@ -85,7 +86,7 @@ class DocStatus extends BaseWidget {
 
     resetDocStatus({ stateId });
 
-    this.recordEvents.offTaskChanges(this.updateStatus);
+    this.instanceRecord.unwatch(this.watcher);
   }
 
   get isNoStatus() {
@@ -106,12 +107,10 @@ class DocStatus extends BaseWidget {
     return (!noLoader && isLoading) || isEmpty(status);
   }
 
-  updateStatus = inputRecord => {
+  updateStatus = () => {
     const { stateId, record, getDocStatus } = this.props;
 
-    if (!inputRecord || inputRecord === record) {
-      getDocStatus({ stateId, record });
-    }
+    getDocStatus({ stateId, record });
   };
 
   onChangeStatus = () => {

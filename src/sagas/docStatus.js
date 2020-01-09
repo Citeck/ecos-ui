@@ -12,14 +12,10 @@ import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import DocStatusConverter from '../dto/docStatus';
 import DocStatusService from '../services/docStatus';
-import { CommonApi } from '../api/common';
 
 function* sagaInitDocStatus({ api, logger }, { payload }) {
-  const { record } = payload;
-
   try {
     yield put(getAvailableToChangeStatuses(payload));
-    yield call(CommonApi.isUpdatingRecordState, { record });
     yield put(getDocStatus(payload));
   } catch (e) {
     logger.error('[docStatus/sagaInitDocStatus saga] error', e.message);

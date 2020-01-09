@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
 
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
@@ -38,7 +39,7 @@ class CurrentTasksDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
-    this.recordEvents.observeTaskChanges(this.onReload);
+    this.watcher = this.instanceRecord.watch('cm:modified', debounce(this.onReload, 300));
 
     this.state = {
       isSmallMode: false,
@@ -52,17 +53,15 @@ class CurrentTasksDashlet extends BaseWidget {
   }
 
   componentWillUnmount() {
-    this.recordEvents.offTaskChanges(this.onReload);
+    this.instanceRecord.unwatch(this.watcher);
   }
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
-  onReload = inputRecord => {
-    if (!inputRecord || inputRecord === this.props.record) {
-      this.setState({ isUpdating: true }, () => this.setState({ isUpdating: false }));
-    }
+  onReload = () => {
+    this.setState({ isUpdating: true }, () => this.setState({ isUpdating: false }));
   };
 
   setInfo = data => {
