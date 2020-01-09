@@ -1,10 +1,7 @@
 import { EventEmitter2 } from 'eventemitter2';
 
 export const EventTypes = {
-  CHANGE: 'change',
-  TASK_CHANGED: 'task-changed',
-  VERSION_CHANGED: 'version-changed',
-  RECORD_UPDATED: 'record-updated'
+  CHANGE: 'change'
 };
 
 export default class EventService {
@@ -18,21 +15,8 @@ export default class EventService {
     return this.#emitter;
   }
 
-  /**
-   * emitter Task Changes
-   * @param record
-   */
-
-  notifyTaskChanges(record) {
-    this.#emitter.emit(EventTypes.TASK_CHANGED, record);
-  }
-
-  observeTaskChanges(func) {
-    this.#emitter.on(EventTypes.TASK_CHANGED, func);
-  }
-
-  offTaskChanges(func) {
-    this.#emitter.off(EventTypes.TASK_CHANGED, func);
+  notifyRecordChanges() {
+    this.#emitter.emit(EventTypes.CHANGE);
   }
 
   /**
