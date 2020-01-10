@@ -1,7 +1,6 @@
 import { getCurrentLocale } from '../helpers/util';
 import { setIsAuthenticated } from '../actions/user';
 import ecosFetch from '../helpers/ecosFetch';
-import Records from '../components/Records';
 
 const getOptions = {
   credentials: 'include',
@@ -35,30 +34,6 @@ export class CommonApi {
       this.store = store;
     }
   }
-
-  static isUpdatingRecordState = function*({ record }) {
-    const getState = () =>
-      Records.get(record)
-        .load('pendingUpdate?bool', true)
-        .then(res => res);
-
-    const pingState = () =>
-      new Promise((resolve, reject) => {
-        setTimeout(() => {
-          resolve(getState());
-        }, 2000);
-      });
-
-    let isUpdating = yield getState();
-    let attempt = 0;
-
-    while (attempt < 10 && isUpdating) {
-      isUpdating = yield pingState().then(res => res);
-      attempt++;
-    }
-
-    return isUpdating;
-  };
 
   checkStatus = response => {
     if (response.status >= 200 && response.status < 300) {
