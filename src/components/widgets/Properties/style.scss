@@ -18,6 +18,10 @@
 
     &_small {
       padding-top: 0;
+
+      .formio-component-tabs .formio-component-tabs-wrapper {
+        margin-top: 20px;
+      }
     }
 
     > div {

@@ -44,7 +44,7 @@ class EventsHistory extends React.Component {
     isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool,
     isLoading: PropTypes.bool,
-    isUpdating: PropTypes.bool,
+    runUpdate: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -77,7 +77,7 @@ class EventsHistory extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (!prevProps.isUpdating && this.props.isUpdating) {
+    if (!prevProps.runUpdate && this.props.runUpdate) {
       this.getEventsHistory();
     }
   }

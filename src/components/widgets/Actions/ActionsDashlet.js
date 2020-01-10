@@ -1,7 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import debounce from 'lodash/debounce';
 
 import { isSmallMode, t } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
@@ -37,7 +36,7 @@ class ActionsDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
-    this.watcher = this.instanceRecord.watch('cm:modified', debounce(this.onReload, 300));
+    this.watcher = this.instanceRecord.watch(['caseStatus', 'idocs:documentStatus'], this.onReload);
 
     this.state = {
       isSmallMode: false,
@@ -52,7 +51,7 @@ class ActionsDashlet extends BaseWidget {
   }
 
   onReload = () => {
-    this.setState({ isUpdating: true }, () => this.setState({ isUpdating: false }));
+    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
   };
 
   onResize = width => {
@@ -61,7 +60,7 @@ class ActionsDashlet extends BaseWidget {
 
   render() {
     const { id, title, config, classNameDashlet, classNameContent, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, userHeight, fitHeights, isCollapsed, isUpdating } = this.state;
+    const { isSmallMode, userHeight, fitHeights, isCollapsed, runUpdate } = this.state;
 
     return (
       <Dashlet
@@ -91,7 +90,7 @@ class ActionsDashlet extends BaseWidget {
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           onActionsChanged={this.checkHeight}
-          isUpdating={isUpdating}
+          runUpdate={runUpdate}
         />
       </Dashlet>
     );

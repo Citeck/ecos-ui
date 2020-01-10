@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
-import debounce from 'lodash/debounce';
 import uuid from 'uuidv4';
 import { UncontrolledTooltip } from 'reactstrap';
 
@@ -57,7 +56,7 @@ class DocStatus extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.watcher = this.instanceRecord.watch('cm:modified', debounce(this.updateStatus, 300));
+    this.watcher = this.instanceRecord.watch(['caseStatus', 'idocs:documentStatus'], this.updateStatus);
   }
 
   state = {

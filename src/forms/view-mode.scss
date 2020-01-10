@@ -24,6 +24,11 @@
       .ecos-table-form__value-not-selected {
         display: none;
       }
+
+      dt,
+      dd {
+        width: 100%;
+      }
     }
 
     &.inline-editing {
