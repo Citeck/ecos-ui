@@ -83,8 +83,13 @@ export class CommonApi {
 
     let { timeout, onError, url } = config;
 
+    let shareProxyUrl = '';
+    if (process.env.NODE_ENV === 'development') {
+      shareProxyUrl = process.env.REACT_APP_SHARE_PROXY_URL;
+    }
+
     const locale = getCurrentLocale();
-    const key = `CommonApi_${locale}_${url}`;
+    const key = `CommonApi_${locale}_${shareProxyUrl}${url}`;
 
     let result = sessionStorage.getItem(key);
     if (result) {

@@ -5,7 +5,7 @@ import Formio from 'formiojs/Formio';
 import CustomEventEmitter from '../../forms/EventEmitter';
 import { cloneDeep } from 'lodash';
 
-import '../../forms/components';
+import '../../forms';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';

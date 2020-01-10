@@ -5,7 +5,7 @@ import FormBuilder from 'formiojs/FormBuilder';
 // import schema from './form.json';
 // import schema from './calendarForm.json';
 import schema from './contractor.json';
-import '../../../forms/components';
+import '../../../forms';
 import Formio from 'formiojs/Formio';
 import './temp.scss';
 

@@ -3,6 +3,7 @@ import isObject from 'lodash/isObject';
 import clone from 'lodash/clone';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
+import Widgets from '../../widgets';
 
 const originalCreateTooltip = Base.prototype.createTooltip;
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
@@ -267,4 +268,31 @@ Base.prototype.t = function(text, params) {
   }
 
   return originalT.call(this, text, params);
+};
+
+Base.prototype.createWidget = function() {
+  if (!this.component.widget) {
+    return null;
+  }
+
+  const settings =
+    typeof this.component.widget === 'string'
+      ? {
+          type: this.component.widget
+        }
+      : this.component.widget;
+
+  if (!Widgets.hasOwnProperty(settings.type)) {
+    return null;
+  }
+
+  settings.icons = this.options.icons;
+  settings.i18n = this.options.i18n;
+  settings.language = this.options.language;
+
+  const widget = new Widgets[settings.type](settings, this.component);
+  widget.on('update', () => this.updateValue(), true);
+  widget.on('redraw', () => this.redraw(), true);
+  this._widget = widget;
+  return widget;
 };
