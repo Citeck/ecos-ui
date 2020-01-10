@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { loadAttribute, recordsMutateFetch } from './recordsApi';
 import Attribute from './Attribute';
-import EventService from './events';
+import RecordEventsService from './RecordEventsService';
 import { mapValueToInnerAtt } from './recordUtils';
 import RecordWatcher from './RecordWatcher';
 
@@ -88,8 +88,8 @@ export default class Record {
     } else {
       this._baseRecord = null;
     }
-    this.eventService = new EventService();
-    this._emitter = this.eventService.emitter;
+    this.eventsService = new RecordEventsService();
+    this._emitter = this.eventsService.emitter;
     this._modified = null;
     this._pendingUpdate = false;
     this._updatePromise = Promise.resolve();
@@ -471,7 +471,7 @@ export default class Record {
         return Promise.all(loadPromises).then(() => {
           for (let recordId of Object.keys(attributesToLoad)) {
             let record = this._records.get(recordId);
-            record.eventService.notifyRecordChanges();
+            record.eventsService.notifyRecordChanges();
             record.update();
           }
           let resultId = ((response.records || [])[0] || {}).id;

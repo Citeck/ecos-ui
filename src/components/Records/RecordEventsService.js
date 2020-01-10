@@ -4,7 +4,7 @@ export const EventTypes = {
   CHANGE: 'change'
 };
 
-export default class EventService {
+export default class RecordEventsService {
   #emitter = null;
 
   constructor() {
