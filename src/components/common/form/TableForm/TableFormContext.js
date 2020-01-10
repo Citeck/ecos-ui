@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import TableFormPropTypes from './TableFormPropTypes';
 import { JournalsApi } from '../../../../api/journalsApi';
 import Records from '../../../Records/Records';
+import { parseAttribute } from '../../../Records/Record';
 import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
@@ -100,7 +101,7 @@ export const TableFormContextProvider = props => {
 
         let atts = {};
         columns.forEach(item => {
-          atts[`.edge(n:"${item}"){title,type}`] = item;
+          atts[`.edge(n:"${item}"){title,type,multiple}`] = item;
         });
 
         let cvRecordRef = cv[0].recordRef;
@@ -117,6 +118,7 @@ export const TableFormContextProvider = props => {
                 default: true,
                 type: loadedAtt[i].type,
                 text: loadedAtt[i].title,
+                multiple: loadedAtt[i].multiple,
                 attribute: atts[i]
               });
             }
@@ -164,9 +166,11 @@ export const TableFormContextProvider = props => {
     }
 
     if (initValue) {
-      let atts = ['id'];
+      let atts = [];
       columns.forEach(item => {
-        atts.push(`${item.attribute}`);
+        const multiplePostfix = item.multiple ? 's' : '';
+        const schema = `.att${multiplePostfix}(n:"${item.attribute}"){disp}`;
+        atts.push(schema);
       });
 
       Promise.all(
@@ -174,7 +178,21 @@ export const TableFormContextProvider = props => {
           return Records.get(r)
             .load(atts)
             .then(result => {
-              return { ...result, id: r };
+              const fetchedAtts = {};
+              for (let attSchema in result) {
+                if (!result.hasOwnProperty(attSchema)) {
+                  continue;
+                }
+
+                const attData = parseAttribute(attSchema);
+                if (!attData) {
+                  continue;
+                }
+
+                fetchedAtts[attData.name] = result[attSchema];
+              }
+
+              return { ...fetchedAtts, id: r };
             });
         })
       ).then(result => {

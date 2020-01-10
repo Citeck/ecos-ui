@@ -8,7 +8,7 @@ import RecordWatcher from './RecordWatcher';
 const ATT_NAME_REGEXP = /\.atts?\(n:"(.+?)"\)\s*{(.+)}/;
 const SIMPLE_ATT_NAME_REGEXP = /(.+?){(.+)}/;
 
-const parseAttribute = (path, innerDefault = 'disp') => {
+export const parseAttribute = (path, innerDefault = 'disp') => {
   if (path[0] === '#') {
     return null;
   }
