@@ -47,6 +47,7 @@ export const selectAvailableTypes = createSelector(
 export const selectGrouppedAvailableTypes = createSelector(
   getAvailableTypes,
   availableTypes => {
+    // console.warn('in selectors => ', availableTypes);
     const getChilds = (filtered = [], types = filtered) => {
       return filtered.map(item => {
         if (!item.parent) {

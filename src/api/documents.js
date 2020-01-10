@@ -30,7 +30,7 @@ export class DocumentsApi {
         multiple: 'multiple?bool',
         mandatory: 'mandatory?bool'
       }
-    );
+    ).then(response => response);
   };
 
   getCountDocumentsByTypes = (recordRef, types = []) => {
@@ -88,8 +88,8 @@ export class DocumentsApi {
         language: 'predicate'
       },
       {
-        loadedBy: '_modifier', //загрузил
-        modified: '_modified' //обновлено
+        loadedBy: '_modifier', // загрузил
+        modified: '_modified' // обновлено
       }
     );
   };

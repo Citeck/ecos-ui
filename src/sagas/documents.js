@@ -2,7 +2,15 @@ import { put, select, takeEvery, call } from 'redux-saga/effects';
 import set from 'lodash/set';
 
 import { selectTypeNames, selectDynamicTypes, getDynamicTypes, selectAvailableTypes } from '../selectors/documents';
-import { init, getAvailableTypes, setAvailableTypes, setDynamicTypes, getDocumentsByType, setDocuments } from '../actions/documents';
+import {
+  init,
+  getAvailableTypes,
+  setAvailableTypes,
+  setDynamicTypes,
+  getDocumentsByType,
+  setDocuments,
+  toggleType
+} from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
@@ -11,6 +19,44 @@ function* sagaInitWidget({ api, logger }, { payload }) {
     yield* sagaGetDynamicTypes({ api, logger }, { payload });
   } catch (e) {
     logger.error('[documents sagaInitWidget saga error', e.message);
+  }
+}
+
+function* sagaToggleType({ api, logger }, { payload }) {
+  try {
+    const availableTypes = yield select(state => selectAvailableTypes(state, payload.record));
+    const mutableItem = availableTypes.find(item => item.id === payload.id);
+    const dynamicTypes = yield select(state => selectDynamicTypes(state, payload.record));
+    const index = dynamicTypes.findIndex(item => item.type === payload.id);
+    const typesNames = yield select(state => selectTypeNames(state, payload));
+
+    mutableItem.isSelected = payload.checked;
+
+    if (!~index) {
+      const formId = yield call(api.documents.getFormIdByType, payload.record);
+
+      dynamicTypes.push(DocumentsConverter.getFormattedDynamicType({ ...mutableItem, formId }));
+    } else {
+      dynamicTypes.splice(index, 1);
+    }
+
+    // console.warn(DocumentsConverter.getAvailableTypes(availableTypes, dynamicTypes.map(item => item.type)))
+
+    yield put(
+      setAvailableTypes({
+        key: payload.record,
+        types: DocumentsConverter.getAvailableTypes(availableTypes, dynamicTypes.map(item => item.type))
+      })
+    );
+
+    yield put(
+      setDynamicTypes({
+        key: payload.record,
+        dynamicTypes: DocumentsConverter.getDynamicTypes(dynamicTypes, typesNames)
+      })
+    );
+  } catch (e) {
+    logger.error('[documents sagaToggleType saga error', e.message);
   }
 }
 
@@ -112,6 +158,7 @@ function* saga(ea) {
   yield takeEvery(init().type, sagaInitWidget, ea);
   yield takeEvery(getAvailableTypes().type, sagaGetAvailableTypes, ea);
   yield takeEvery(getDocumentsByType().type, sagaGetDocumentsByType, ea);
+  yield takeEvery(toggleType().type, sagaToggleType, ea);
 }
 
 export default saga;

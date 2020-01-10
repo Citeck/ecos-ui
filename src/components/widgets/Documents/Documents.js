@@ -11,7 +11,7 @@ import { Grid } from '../../common/grid';
 
 import { t, prepareTooltipId } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { getDocumentsByType, init } from '../../../actions/documents';
+import { getDocumentsByType, init, toggleType } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
 import { typesStatuses, tooltips } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
@@ -63,6 +63,10 @@ class Documents extends BaseWidget {
 
     this.props.getDocuments(selectedType);
     this.setState({ selectedType });
+  };
+
+  handleToggleSelectType = ({ id, checked }) => {
+    this.props.onToggleType(id, checked);
   };
 
   renderTypes() {
@@ -183,6 +187,8 @@ class Documents extends BaseWidget {
     const { availableTypes } = this.props;
     const { isOpenSettings } = this.state;
 
+    // console.warn('availableTypes => ', availableTypes);
+
     return (
       <EcosModal
         title={t(LABELS.SETTINGS)}
@@ -193,7 +199,7 @@ class Documents extends BaseWidget {
       >
         <Search cleaner liveSearch onSearch={console.warn.bind(this)} className="ecos-docs__settings-search" />
         <div className="ecos-docs__settings-field">
-          <Tree data={availableTypes} />
+          <Tree data={availableTypes} toggleSelect={this.handleToggleSelectType} />
         </div>
       </EcosModal>
     );
@@ -238,7 +244,8 @@ const mapStateToProps = (state, ownProps) => ({
 });
 const mapDispatchToProps = (dispatch, ownProps) => ({
   init: () => dispatch(init(ownProps.record)),
-  getDocuments: type => dispatch(getDocumentsByType({ record: ownProps.record, type }))
+  getDocuments: type => dispatch(getDocumentsByType({ record: ownProps.record, type })),
+  onToggleType: (id, checked) => dispatch(toggleType({ record: ownProps.record, id, checked }))
 });
 
 export default connect(

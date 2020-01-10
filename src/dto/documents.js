@@ -1,4 +1,5 @@
 import moment from 'moment';
+import get from 'lodash/get';
 
 export default class DocumentsConverter {
   static getDynamicTypes = (types = [], typeNames = {}, countByTypes = []) => {
@@ -36,4 +37,21 @@ export default class DocumentsConverter {
       ...item,
       isSelected: dynamicTypeKeys.includes(item.id)
     }));
+
+  static getFormattedDynamicType = (source = {}) => {
+    const target = {};
+
+    if (!Object.keys(source).length) {
+      return target;
+    }
+
+    target.id = get(source, 'formId', '');
+    target.type = get(source, 'id', '');
+    target.name = get(source, 'name', '');
+    target.multiple = get(source, 'multiple', false);
+    target.mandatory = get(source, 'mandatory', false);
+    target.countDocuments = get(source, 'countDocuments', 0);
+
+    return target;
+  };
 }

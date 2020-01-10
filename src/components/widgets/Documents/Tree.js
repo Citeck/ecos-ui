@@ -1,32 +1,107 @@
 import React, { Component } from 'react';
+import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 
-class Tree extends Component {
-  renderItem = (item, isChild = false) => {
-    let children = null;
+import { Icon } from '../../common';
+import { Checkbox } from '../../common/form';
 
-    if (item.items) {
-      children = item.items.map(item => this.renderItem(item, true));
+class TreeItem extends Component {
+  state = {
+    isOpen: false
+  };
+
+  handleToggleOpen = () => {
+    this.setState(state => ({ isOpen: !state.isOpen }));
+  };
+
+  handleToggleCheck = ({ checked }) => {
+    if (checked === this.props.item.isSelected) {
+      return;
+    }
+
+    this.props.toggleSelect({ id: this.props.item.id, checked });
+    // console.warn(checked, this.props.item.id);
+  };
+
+  handleToggleSettings = () => {};
+
+  renderArrow() {
+    const { item } = this.props;
+    const { isOpen } = this.state;
+
+    if (!item.items.length) {
+      return null;
     }
 
     return (
-      <div
-        key={item.id}
-        className={classNames('ecos-tree__item', {
-          'ecos-tree__item_child': isChild,
-          'ecos-tree__item_parent': item.items
+      <Icon
+        className={classNames('ecos-tree__item-element-arrow icon-right', {
+          'ecos-tree__item-element-arrow_open': isOpen
         })}
-      >
-        <div className="ecos-tree__item-element">{item.name}</div>
-        {children}
-      </div>
+        onClick={this.handleToggleOpen}
+      />
     );
-  };
+  }
+
+  renderChildren() {
+    const { item, toggleSelect } = this.props;
+    const { isOpen } = this.state;
+
+    if (!item.items.length) {
+      return null;
+    }
+
+    return (
+      <Collapse isOpen={isOpen} className="ecos-tree__item-element-children">
+        {item.items.map(item => (
+          <TreeItem item={item} isChild key={item.id} toggleSelect={toggleSelect} />
+        ))}
+      </Collapse>
+    );
+  }
+
+  renderSettings() {
+    return <Icon className="icon-settings ecos-tree__item-element-settings" onClick={this.handleToggleSettings} />;
+  }
 
   render() {
-    const { className, data } = this.props;
+    // TODO: need render optimisation
 
-    return <div className={classNames('ecos-tree', className)}>{data.map(item => this.renderItem(item))}</div>;
+    const { isChild, item } = this.props;
+    const { isOpen } = this.state;
+
+    return (
+      <div
+        className={classNames('ecos-tree__item', {
+          'ecos-tree__item_child': isChild,
+          'ecos-tree__item_parent': item.items.length,
+          'ecos-tree__item_open': isOpen,
+          'ecos-tree__item_not-selected': !item.isSelected
+        })}
+      >
+        <div className="ecos-tree__item-element">
+          {this.renderArrow()}
+          <Checkbox className="ecos-tree__item-element-check" onChange={this.handleToggleCheck} checked={item.isSelected} />
+          <div className="ecos-tree__item-element-label">{item.name}</div>
+          {this.renderSettings()}
+        </div>
+        {this.renderChildren()}
+      </div>
+    );
+  }
+}
+
+class Tree extends Component {
+  render() {
+    const { className, data, toggleSelect } = this.props;
+
+    return (
+      <div className={classNames('ecos-tree', className)}>
+        {data.map(item => (
+          <TreeItem item={item} key={item.id} toggleSelect={toggleSelect} />
+        ))}
+      </div>
+    );
   }
 }
 

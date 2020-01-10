@@ -30,6 +30,41 @@ export class DocumentsApiRequests {
         id: 'emodel/type@sf',
         parent: 'emodel/type@uchdoc',
         name: 'Счёт-фактура'
+      },
+      {
+        id: 'emodel/type@bpmn',
+        parent: null,
+        name: 'BPM Процесс'
+      },
+      {
+        id: 'emodel/type@sf1',
+        parent: 'emodel/type@sf',
+        name: 'Счёт-фактура #1'
+      },
+      {
+        id: 'emodel/type@sf2',
+        parent: 'emodel/type@sf',
+        name: 'Счёт-фактура #2'
+      },
+      {
+        id: 'emodel/type@sf3',
+        parent: 'emodel/type@sf',
+        name: 'Счёт-фактура #3'
+      },
+      {
+        id: 'emodel/type@sf3_1',
+        parent: 'emodel/type@sf3',
+        name: 'Счёт-фактура #3 part #1'
+      },
+      {
+        id: 'emodel/type@sf3_2',
+        parent: 'emodel/type@sf3',
+        name: 'Счёт-фактура #3 part #2'
+      },
+      {
+        id: 'emodel/type@sf3_2_1',
+        parent: 'emodel/type@sf3_2',
+        name: 'Счёт-фактура #3 part #2 item #1'
       }
     ],
     errors: [],
