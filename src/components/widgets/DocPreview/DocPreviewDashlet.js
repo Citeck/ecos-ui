@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import debounce from 'lodash/debounce';
 
 import { isMobileDevice, t } from '../../../helpers/util';
 import { DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
@@ -46,15 +45,14 @@ class DocPreviewDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
-    this.watcher = this.instanceRecord.watch('cm:modified', debounce(this.onReload, 300));
+    this.watcher = this.instanceRecord.watch('version', this.onReload);
 
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       scale: isMobile ? DocScaleOptions.PAGE_WHOLE : UserLocalSettingsService.getDashletScale(props.id) || DocScaleOptions.AUTO,
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
-      fitHeights: {},
-      isUpdating: false
+      fitHeights: {}
     };
   }
 
@@ -75,7 +73,7 @@ class DocPreviewDashlet extends BaseWidget {
   };
 
   onReload = () => {
-    this.setState({ isUpdating: true }, () => this.setState({ isUpdating: false }));
+    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
   };
 
   setUserScale = scale => {
@@ -98,7 +96,7 @@ class DocPreviewDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName } = this.props;
-    const { width, userHeight, fitHeights, scale, isCollapsed, isUpdating } = this.state;
+    const { width, userHeight, fitHeights, scale, isCollapsed, runUpdate } = this.state;
     const classesDashlet = classNames('ecos-doc-preview-dashlet', classNameDashlet, {
       'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE && !isMobile,
       'ecos-doc-preview-dashlet_mobile': isMobile,
@@ -136,7 +134,7 @@ class DocPreviewDashlet extends BaseWidget {
           getContainerPageHeight={this.setContainerPageHeight}
           resizable
           isCollapsed={isCollapsed}
-          isUpdating={isUpdating}
+          runUpdate={runUpdate}
         />
       </Dashlet>
     );
