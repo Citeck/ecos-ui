@@ -1,7 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import debounce from 'lodash/debounce';
 
 import { isSmallMode, t } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
@@ -39,7 +38,7 @@ class EventsHistoryDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
-    this.watcher = this.instanceRecord.watch('cm:modified', debounce(this.onReload, 300));
+    this.watcher = this.instanceRecord.watch('cm:modified', this.onReload);
 
     this.state = {
       isSmallMode: false,

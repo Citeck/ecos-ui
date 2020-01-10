@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import debounce from 'lodash/debounce';
 
 import { isSmallMode, t } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
@@ -58,7 +57,7 @@ class PropertiesDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
-    this.watcher = this.instanceRecord.watch('cm:modified', debounce(this.onReload, 300));
+    this.watcher = this.instanceRecord.watch('cm:modified', this.onReload);
 
     this.state = {
       isSmallMode: false,
