@@ -36,8 +36,8 @@ class Actions extends React.Component {
     stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
     isLoading: PropTypes.bool,
-    isUpdating: PropTypes.bool,
     isMobile: PropTypes.bool,
+    runUpdate: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -60,7 +60,7 @@ class Actions extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (!prevProps.isUpdating && this.props.isUpdating) {
+    if (!prevProps.runUpdate && this.props.runUpdate) {
       this.getActions();
     }
   }

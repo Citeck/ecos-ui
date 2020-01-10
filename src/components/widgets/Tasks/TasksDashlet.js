@@ -38,9 +38,10 @@ class TasksDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
+    this.watcher = this.instanceRecord.watch('cm:modified', this.onReload);
+
     this.state = {
       isSmallMode: false,
-      isRunReload: false,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       fitHeights: {},
@@ -49,16 +50,16 @@ class TasksDashlet extends BaseWidget {
     };
   }
 
+  componentWillUnmount() {
+    this.instanceRecord.unwatch(this.watcher);
+  }
+
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
   onReload = () => {
-    this.setReload(false);
-  };
-
-  setReload = isDone => {
-    this.setState({ isRunReload: !isDone });
+    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
   };
 
   setInfo = data => {
@@ -67,7 +68,7 @@ class TasksDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isRunReload, isSmallMode, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
+    const { runUpdate, isSmallMode, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
       [BaseActions.RELOAD]: {
         onClick: this.onReload
@@ -99,8 +100,7 @@ class TasksDashlet extends BaseWidget {
           className={classNameTasks}
           record={record}
           stateId={record}
-          isRunReload={isRunReload}
-          setReloadDone={this.setReload}
+          runUpdate={runUpdate}
           isSmallMode={isSmallMode}
           height={userHeight}
           minHeight={fitHeights.min}

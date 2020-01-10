@@ -57,12 +57,12 @@ class EventsHistoryDashlet extends BaseWidget {
   };
 
   onReload = () => {
-    this.setState({ isUpdating: true }, () => this.setState({ isUpdating: false }));
+    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
   };
 
   render() {
     const { id, title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isUpdating, userHeight, fitHeights, isCollapsed } = this.state;
+    const { isSmallMode, runUpdate, userHeight, fitHeights, isCollapsed } = this.state;
 
     return (
       <Dashlet
@@ -90,7 +90,7 @@ class EventsHistoryDashlet extends BaseWidget {
           height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
-          isUpdating={isUpdating}
+          runUpdate={runUpdate}
         />
       </Dashlet>
     );

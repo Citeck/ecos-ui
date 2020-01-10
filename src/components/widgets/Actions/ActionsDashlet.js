@@ -51,7 +51,7 @@ class ActionsDashlet extends BaseWidget {
   }
 
   onReload = () => {
-    this.setState({ isUpdating: true }, () => this.setState({ isUpdating: false }));
+    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
   };
 
   onResize = width => {
@@ -60,7 +60,7 @@ class ActionsDashlet extends BaseWidget {
 
   render() {
     const { id, title, config, classNameDashlet, classNameContent, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, userHeight, fitHeights, isCollapsed, isUpdating } = this.state;
+    const { isSmallMode, userHeight, fitHeights, isCollapsed, runUpdate } = this.state;
 
     return (
       <Dashlet
@@ -90,7 +90,7 @@ class ActionsDashlet extends BaseWidget {
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           onActionsChanged={this.checkHeight}
-          isUpdating={isUpdating}
+          runUpdate={runUpdate}
         />
       </Dashlet>
     );

@@ -36,7 +36,7 @@ class CurrentTasks extends React.Component {
     isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool,
     isLoading: PropTypes.bool,
-    isUpdating: PropTypes.bool,
+    runUpdate: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -60,7 +60,7 @@ class CurrentTasks extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { totalCount, isLoading, isUpdating, setInfo } = this.props;
+    const { totalCount, isLoading, runUpdate, setInfo } = this.props;
 
     if (totalCount !== prevProps.totalCount) {
       setInfo({ totalCount });
@@ -70,7 +70,7 @@ class CurrentTasks extends React.Component {
       setInfo({ isLoading });
     }
 
-    if (isUpdating && !prevProps.isUpdating) {
+    if (runUpdate && !prevProps.runUpdate) {
       this.getCurrentTaskList();
     }
   }

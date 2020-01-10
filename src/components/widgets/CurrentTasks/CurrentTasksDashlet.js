@@ -42,7 +42,6 @@ class CurrentTasksDashlet extends BaseWidget {
 
     this.state = {
       isSmallMode: false,
-      isUpdating: false,
       fitHeights: {},
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
@@ -60,7 +59,7 @@ class CurrentTasksDashlet extends BaseWidget {
   };
 
   onReload = () => {
-    this.setState({ isUpdating: true }, () => this.setState({ isUpdating: false }));
+    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
   };
 
   setInfo = data => {
@@ -69,7 +68,7 @@ class CurrentTasksDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isUpdating, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
+    const { isSmallMode, runUpdate, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
       [BaseActions.RELOAD]: {
         onClick: () => this.onReload()
@@ -106,7 +105,7 @@ class CurrentTasksDashlet extends BaseWidget {
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           setInfo={this.setInfo}
-          isUpdating={isUpdating}
+          runUpdate={runUpdate}
         />
       </Dashlet>
     );

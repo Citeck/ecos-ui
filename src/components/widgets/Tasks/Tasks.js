@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
-import debounce from 'lodash/debounce';
 
 import { changeTaskAssignee, getTaskList, resetTaskList } from '../../../actions/tasks';
 import { selectStateTasksById } from '../../../selectors/tasks';
@@ -36,19 +35,17 @@ class Tasks extends React.Component {
     stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
-    isRunReload: PropTypes.bool,
+    runUpdate: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    setReloadDone: PropTypes.func,
     setInfo: PropTypes.func,
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
     className: '',
-    isSmallMode: false,
-    isRunReload: false
+    isSmallMode: false
   };
 
   state = {
@@ -57,21 +54,19 @@ class Tasks extends React.Component {
 
   componentDidMount() {
     this.getTaskList();
-    this.watcher = Records.get(this.props.record).watch('cm:modified', () => debounce(this.getTaskList, 300)());
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
-    if (nextProps.isRunReload) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.props.runUpdate && !prevProps.runUpdate) {
       this.getTaskList();
-      this.props.setReloadDone && this.props.setReloadDone(true);
     }
 
-    if (this.props.totalCount !== nextProps.totalCount) {
-      this.props.setInfo && this.props.setInfo({ totalCount: nextProps.totalCount });
+    if (this.props.totalCount !== prevProps.totalCount) {
+      this.props.setInfo && this.props.setInfo({ totalCount: this.props.totalCount });
     }
 
-    if (this.props.isLoading !== nextProps.isLoading) {
-      this.props.setInfo && this.props.setInfo({ isLoading: nextProps.isLoading });
+    if (this.props.isLoading !== prevProps.isLoading) {
+      this.props.setInfo && this.props.setInfo({ isLoading: this.props.isLoading });
     }
   }
 
@@ -79,8 +74,6 @@ class Tasks extends React.Component {
     const { resetTaskList, stateId, record } = this.props;
 
     resetTaskList({ stateId });
-
-    Records.get(record).unwatch(this.watcher);
   }
 
   getTaskList = () => {
