@@ -3,6 +3,7 @@ import { getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeE
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
+import { FORM_MODE_CREATE } from '../../EcosForm';
 
 const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
 
@@ -258,4 +259,58 @@ export const DownloadCardTemplate = {
   },
 
   getDefaultModel: () => DownloadAction.getDefaultModel()
+};
+
+export const CreateNodeAction = {
+  execute: ({ record, action }) => {
+    const fromRecordRegexp = /^\$\$/;
+    let { config = {} } = action,
+      attributesFromRecord = {};
+
+    Object.entries(config.attributes || {})
+      .filter(entry => fromRecordRegexp.test(entry[1]))
+      .forEach(entry => {
+        attributesFromRecord[entry[0]] = entry[1].replace(fromRecordRegexp, '');
+      });
+
+    return new Promise(resolve => {
+      let params = {
+        formMode: FORM_MODE_CREATE,
+        attributes: config.attributes || {},
+        options: config.options || {},
+        onSubmit: () => resolve(true),
+        onFormCancel: () => resolve(false)
+      };
+
+      if (!!config.formId) {
+        params.formId = config.formId;
+      } else {
+        params.formKey = config.formKey;
+      }
+
+      try {
+        Records.get(record)
+          .load(attributesFromRecord)
+          .then(result => {
+            params.attributes = Object.assign(params.attributes, result);
+            EcosFormUtils.eform('dict@' + config.nodeType, {
+              params: params,
+              class: 'ecos-modal_width-lg',
+              isBigHeader: true
+            });
+          });
+      } catch (e) {
+        console.error(e);
+        resolve(false);
+      }
+    });
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'grid.inline-tools.create',
+      type: 'create',
+      icon: 'icon-plus'
+    };
+  }
 };
