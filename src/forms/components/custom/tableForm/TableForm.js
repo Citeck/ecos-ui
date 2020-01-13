@@ -108,8 +108,10 @@ export default class TableFormComponent extends BaseReactComponent {
       return;
     }
 
+    const isMultiple = this.component.multiple;
+
     const viewOnlyHasValueClassName = 'formio-component-tableForm_viewOnly-hasValue';
-    const hasValue = Array.isArray(this.dataValue) && this.dataValue.length > 0;
+    const hasValue = isMultiple ? Array.isArray(this.dataValue) && this.dataValue.length > 0 : !!this.dataValue;
     const elementHasClass = this.element.classList.contains(viewOnlyHasValueClassName);
 
     if (!hasValue && elementHasClass) {
@@ -190,7 +192,13 @@ export default class TableFormComponent extends BaseReactComponent {
               createVariants,
               record: this.getRecord(),
               attribute: this.getAttributeToEdit(),
-              columns: source.custom.columns.map(item => item.name || item)
+              columns: source.custom.columns.map(item => {
+                const col = { name: item.name };
+                if (item.formatter) {
+                  col.formatter = this.evaluate(item.formatter, {}, 'value', true);
+                }
+                return col;
+              })
             }
           });
         };
