@@ -4,11 +4,29 @@ import classNames from 'classnames';
 
 import { Icon } from '../../common';
 import { Checkbox } from '../../common/form';
+import { arrayCompare } from '../../../helpers/util';
 
 class TreeItem extends Component {
   state = {
     isOpen: false
   };
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    const { item, isChild } = this.props;
+    const { isOpen } = this.state;
+
+    if (
+      nextState.isOpen !== isOpen ||
+      !arrayCompare(nextProps.item.items, item.items) ||
+      nextProps.item.id !== item.id ||
+      nextProps.item.isSelected !== item.isSelected ||
+      nextProps.isChild !== isChild
+    ) {
+      return true;
+    }
+
+    return false;
+  }
 
   handleToggleOpen = () => {
     this.setState(state => ({ isOpen: !state.isOpen }));
@@ -20,7 +38,6 @@ class TreeItem extends Component {
     }
 
     this.props.toggleSelect({ id: this.props.item.id, checked });
-    // console.warn(checked, this.props.item.id);
   };
 
   handleToggleSettings = () => {};
@@ -65,8 +82,6 @@ class TreeItem extends Component {
   }
 
   render() {
-    // TODO: need render optimisation
-
     const { isChild, item } = this.props;
     const { isOpen } = this.state;
 

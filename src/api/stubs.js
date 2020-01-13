@@ -1,3 +1,5 @@
+import uuid from 'uuidv4';
+
 export class DocumentsApiRequests {
   static getDocumentTypes = () => ({
     records: [
@@ -132,5 +134,7 @@ export class DocumentsApiRequests {
     };
   };
 
-  static getFormIdByType = () => 'uiserv/eform@123123-123123-123123';
+  static getFormIdByType = () => {
+    return `uiserv/eform@${uuid()}`;
+  };
 }

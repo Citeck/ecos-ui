@@ -153,6 +153,8 @@
   &__item {
     $item: &;
 
+    position: relative;
+
     &:not(:first-child) {
       margin-top: 6px;
     }
@@ -185,6 +187,8 @@
       }
 
       &-label {
+        @extend %ellipsis;
+
         font-weight: bold;
         font-size: 14px;
         color: $text-color-dark;
@@ -224,7 +228,7 @@
         #{$item}-element {
           &:before {
             height: 27px;
-            top: -5px;
+            top: -6px;
           }
         }
       }
@@ -239,24 +243,14 @@
           &:before {
             content: '';
             position: absolute;
-            left: calc(var(--e-tree-left-indent) / 2 * (-1));
+            left: -24px;
             width: 20px;
             height: 100%;
             top: -50%;
-            border-radius: 0 0 0 4px;
+            border-radius: 0 0 0 6px;
             border-color: $color-gray-6;
             border-width: 0 0 4px 4px;
             border-style: solid;
-          }
-
-          &:after {
-            content: '';
-            position: absolute;
-            top: 22px;
-            left: calc(var(--e-tree-left-indent) / 2 * (-1));
-            width: 4px;
-            background: $color-gray-4;
-            height: 6px;
           }
 
           &-label {
@@ -291,7 +285,26 @@
     &_not-selected {
       & > #{$item} {
         &-element {
-          opacity: 0.5;
+          &:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(244, 246, 247, 0.5);
+            pointer-events: none;
+            height: var(--e-tree-parent-height);
+          }
+        }
+      }
+    }
+
+    &_not-selected &_child {
+      & > #{$item} {
+        &-element {
+          &:after {
+            height: var(--e-tree-child-height);
+          }
         }
       }
     }
