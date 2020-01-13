@@ -4,7 +4,6 @@ import { getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeE
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
-import { FORM_MODE_CREATE } from '../../EcosForm';
 
 const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
 
@@ -285,7 +284,7 @@ export const CreateNodeAction = {
     return new Promise(resolve => {
       let params = {
         attributes: config.attributes || {},
-        options: Object.assign({ formMode: FORM_MODE_CREATE }, config.options || {}),
+        options: config.options || {},
         onSubmit: () => resolve(true),
         onFormCancel: () => resolve(false)
       };
