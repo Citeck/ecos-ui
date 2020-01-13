@@ -20,4 +20,9 @@
 .ecos-table-form__grid {
   margin-bottom: 15px;
   overflow: auto;
+  position: static;
+
+  &-wrapper {
+    position: relative;
+  }
 }
