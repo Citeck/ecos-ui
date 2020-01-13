@@ -1,8 +1,6 @@
 @import '../../../../styles/constants';
 
 .ecos-grid {
-  $root: &;
-
   position: relative;
   overflow: hidden;
 
@@ -11,7 +9,7 @@
   }
 
   &_no-top-border {
-    #{$root}-table {
+    .ecos-grid__table.table {
       border-top: 0;
 
       th {
@@ -47,15 +45,11 @@
   }
 }
 
-.table.ecos-grid__table {
+.ecos-grid__table.table {
   border-top: 2px solid $color-gray-4;
   border-bottom: 2px solid $color-gray-4;
   margin-bottom: 13px;
   width: 100%;
-
-  tr {
-    vertical-align: baseline;
-  }
 
   td {
     height: 42px;
@@ -78,11 +72,10 @@
 
 .ecos-grid__td {
   display: inline-block;
-  align-items: center;
   width: 100%;
   min-height: 22px;
   //max-width: 300px;
-  padding: 0 5px;
+  padding: 10px 5px 0;
   border-radius: $border-radius-standard;
   color: $text-color-dark;
   font-size: $font-size-small;
@@ -90,6 +83,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+
+  &:empty {
+    display: none;
+  }
 
   &_editable {
     &:hover {
