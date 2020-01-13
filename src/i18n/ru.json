@@ -264,6 +264,7 @@
   "events-history-widget.info.no-columns": "Нет настроек отображения",
   "events-history-widget.info.no-events": "Нет событий",
   "events-history-widget.title": "История событий",
+  "events-history-widget.no-data": "Нет данных",
   "export.list.html-load": "HTML (скачивание)",
   "export.list.html-read": "HTML (просмотр)",
   "filter-list.add-criterion": "Добавить критерий",

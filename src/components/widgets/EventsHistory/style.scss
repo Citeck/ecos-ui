@@ -3,6 +3,9 @@
 .ecos-event-history {
   $root: &;
 
+  padding-left: 20px;
+  padding-top: 10px;
+
   &-dashlet {
   }
 
@@ -25,6 +28,23 @@
     }
 
     &_view-table {
+      .ecos-grid__table {
+        margin-top: 50px;
+      }
+
+      thead {
+        table-layout: fixed;
+        position: absolute;
+        top: 0;
+        z-index: 5;
+        background: $color-white;
+        border-bottom: 2px solid $color-gray-4;
+      }
+
+      tbody {
+        z-index: 1;
+      }
+
       .ecos-th {
         font-weight: $font-weight-bold;
       }

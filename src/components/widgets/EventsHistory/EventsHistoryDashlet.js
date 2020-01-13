@@ -31,8 +31,6 @@ class EventsHistoryDashlet extends BaseWidget {
     maxHeightByContent: true
   };
 
-  className = 'ecos-event-history-dashlet';
-
   constructor(props) {
     super(props);
 
@@ -53,13 +51,12 @@ class EventsHistoryDashlet extends BaseWidget {
   render() {
     const { id, title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isSmallMode, isUpdating, userHeight, fitHeights, isCollapsed } = this.state;
-    const classDashlet = classNames(this.className, classNameDashlet);
 
     return (
       <Dashlet
         title={title || t('events-history-widget.title')}
-        bodyClassName={`${this.className}__body`}
-        className={classDashlet}
+        bodyClassName="ecos-event-history-dashlet__body"
+        className={classNames('ecos-event-history-dashlet', classNameDashlet)}
         resizable={true}
         noActions
         needGoTo={false}

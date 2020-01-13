@@ -32,7 +32,11 @@ class EventsHistoryList extends React.Component {
     filters: []
   };
 
-  formattedColumnData = () => {
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    this.setColsWidth();
+  }
+
+  setColsWidth = () => {
     const { columns, forwardedRef } = this.props;
     const wrapper = get(forwardedRef, 'current', null);
 
@@ -49,10 +53,10 @@ class EventsHistoryList extends React.Component {
     const headCells = table.querySelectorAll('thead th');
     const bodyCells = table.querySelectorAll('tbody tr:first-child td');
 
-    return columns.map((column, index) => this.getColumnData(column, headCells[index], bodyCells[index]));
+    return columns.map((column, index) => this.setHeaderWidth(column, headCells[index], bodyCells[index]));
   };
 
-  getColumnData = (column, hCell = null, bCell = null) => {
+  setHeaderWidth = (column, hCell = null, bCell = null) => {
     if (!bCell || !hCell) {
       return column;
     }
@@ -61,12 +65,10 @@ class EventsHistoryList extends React.Component {
     const tdw = bCell.offsetWidth;
     const width = `${Math.max(thw, tdw)}px`;
 
-    return {
-      ...column
-      // width,
-      // style: () => ({ width }),
-      // headerStyle: () => ({ width })
-    };
+    hCell.style.width = width;
+    hCell.style.minWidth = width;
+    bCell.style.width = width;
+    bCell.style.minWidth = width;
   };
 
   onGridFilter = (newFilters = []) => {
@@ -93,17 +95,11 @@ class EventsHistoryList extends React.Component {
   }
 
   renderTable() {
-    const { list } = this.props;
+    const { list, columns } = this.props;
     //todo for server filer const { filters } = this.state;
 
     return (
-      <Grid
-        data={list}
-        columns={this.formattedColumnData()}
-        scrollable={false}
-        className="ecos-event-history-list_view-table ecos-grid_no-top-border"
-        fixedHeader
-      />
+      <Grid data={list} columns={columns} scrollable={false} className="ecos-event-history-list_view-table ecos-grid_no-top-border" />
       // filterable={false}
       // filters={filters}
       // onFilter={this.onGridFilter}
