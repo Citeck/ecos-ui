@@ -150,6 +150,10 @@
   --e-tree-child-height: 40px;
   --e-tree-left-indent: 42px;
 
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
   &__item {
     $item: &;
 
@@ -308,5 +312,18 @@
         }
       }
     }
+  }
+
+  &__empty {
+    padding: 11px 27px;
+    background: $color-white;
+    display: inline-flex;
+    border-radius: 12px;
+    margin: 91px auto auto;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 23px;
+    text-align: center;
+    color: $text-color-dark;
   }
 }

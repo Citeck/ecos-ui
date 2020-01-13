@@ -8,8 +8,9 @@ import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
 import { Icon, ResizeBoxes, EcosModal, Search } from '../../common';
 import { Grid } from '../../common/grid';
+import { Dropdown } from '../../common/form';
 
-import { t, prepareTooltipId } from '../../../helpers/util';
+import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import { getDocumentsByType, init, toggleType } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
@@ -39,10 +40,60 @@ class Documents extends BaseWidget {
       width: MIN_WIDTH_DASHLET_SMALL,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
-      isOpenSettings: true
+      isOpenSettings: false,
+      typesFilter: ''
     };
 
     props.init();
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    if (!props.dynamicTypes.find(item => item.type === state.selectedType)) {
+      return { selectedType: '' };
+    }
+
+    return null;
+  }
+
+  get availableTypes() {
+    const { availableTypes } = this.props;
+    const { typesFilter } = this.state;
+
+    if (!typesFilter) {
+      return availableTypes;
+    }
+
+    const check = originTypes => {
+      const types = deepClone(originTypes);
+      const checkName = type => type.name.toLowerCase().includes(typesFilter);
+
+      return types
+        .map(type => {
+          if (!type.items.length) {
+            if (checkName(type)) {
+              return type;
+            }
+
+            return null;
+          }
+
+          const items = check(type.items);
+
+          if (!items.length) {
+            type.items = [];
+
+            return checkName(type) ? type : null;
+          }
+
+          return {
+            ...type,
+            items
+          };
+        })
+        .filter(item => item !== null);
+    };
+
+    return check(availableTypes);
   }
 
   handleReloadData = () => {};
@@ -67,6 +118,10 @@ class Documents extends BaseWidget {
 
   handleToggleSelectType = ({ id, checked }) => {
     this.props.onToggleType(id, checked);
+  };
+
+  handleFilterTypes = (filter = '') => {
+    this.setState({ typesFilter: filter.toLowerCase() });
   };
 
   renderTypes() {
@@ -162,6 +217,21 @@ class Documents extends BaseWidget {
     );
   };
 
+  // renderTablePanel() {
+  //   const { selectedType } = this.state;
+  //   let upload = <div className="ecos-docs__upload"></div>;
+  //
+  //   if (selectedType) {
+  //
+  //   }
+  //
+  //   return (
+  //     <div className="ecos-docs__panel">
+  //       <div className="ecos-docs__upload"></div>
+  //     </div>
+  //   );
+  // }
+
   renderTable() {
     const { documents, dynamicTypes } = this.props;
     const { selectedType, rightColumnId } = this.state;
@@ -178,16 +248,14 @@ class Documents extends BaseWidget {
 
     return (
       <div id={rightColumnId} className="ecos-docs__column ecos-docs__column_table">
+        {/*{this.renderTablePanel()}*/}
         <Grid className="ecos-docs__table" data={data} columns={columns} scrollable />
       </div>
     );
   }
 
   renderSettings() {
-    const { availableTypes } = this.props;
     const { isOpenSettings } = this.state;
-
-    // console.warn('availableTypes => ', availableTypes);
 
     return (
       <EcosModal
@@ -197,9 +265,9 @@ class Documents extends BaseWidget {
         hideModal={this.handleToggleTypesSettings}
         onResize={this.handleResize}
       >
-        <Search cleaner liveSearch onSearch={console.warn.bind(this)} className="ecos-docs__settings-search" />
+        <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTypes} className="ecos-docs__settings-search" />
         <div className="ecos-docs__settings-field">
-          <Tree data={availableTypes} toggleSelect={this.handleToggleSelectType} />
+          <Tree data={this.availableTypes} toggleSelect={this.handleToggleSelectType} />
         </div>
       </EcosModal>
     );

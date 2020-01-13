@@ -14,6 +14,7 @@ export default class Search extends Component {
     collapsed: PropTypes.bool,
     cleaner: PropTypes.bool,
     liveSearch: PropTypes.bool,
+    searchWithEmpty: PropTypes.bool,
     delay: PropTypes.number,
     onSearch: PropTypes.func
   };
@@ -23,7 +24,8 @@ export default class Search extends Component {
     delay: 400,
     cleaner: false,
     collapsed: false,
-    liveSearch: false
+    liveSearch: false,
+    searchWithEmpty: false
   };
 
   state = {
@@ -85,7 +87,7 @@ export default class Search extends Component {
   };
 
   triggerSearch = () => {
-    if (this.state.text) {
+    if (this.state.text || this.props.searchWithEmpty) {
       trigger.call(this, 'onSearch', this.state.text);
     }
   };

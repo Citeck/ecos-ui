@@ -4,7 +4,11 @@ import classNames from 'classnames';
 
 import { Icon } from '../../common';
 import { Checkbox } from '../../common/form';
-import { arrayCompare } from '../../../helpers/util';
+import { arrayCompare, t } from '../../../helpers/util';
+
+const LABELS = {
+  EMPTY: 'Ничего не найдено'
+};
 
 class TreeItem extends Component {
   state = {
@@ -107,14 +111,33 @@ class TreeItem extends Component {
 }
 
 class Tree extends Component {
+  renderEmpty() {
+    const { data } = this.props;
+
+    if (data.length) {
+      return null;
+    }
+
+    return <div className="ecos-tree__empty">{t(LABELS.EMPTY)}</div>;
+  }
+
+  renderTree() {
+    const { data, toggleSelect } = this.props;
+
+    if (!data.length) {
+      return null;
+    }
+
+    return data.map(item => <TreeItem item={item} key={item.id} toggleSelect={toggleSelect} />);
+  }
+
   render() {
-    const { className, data, toggleSelect } = this.props;
+    const { className } = this.props;
 
     return (
       <div className={classNames('ecos-tree', className)}>
-        {data.map(item => (
-          <TreeItem item={item} key={item.id} toggleSelect={toggleSelect} />
-        ))}
+        {this.renderTree()}
+        {this.renderEmpty()}
       </div>
     );
   }
