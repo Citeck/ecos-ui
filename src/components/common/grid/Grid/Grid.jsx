@@ -16,19 +16,18 @@ const CLOSE_FILTER_EVENT = 'closeFilterEvent';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const REACT_BOOTSTRAP_TABLE_CLASS = 'react-bootstrap-table';
 
-const ECOS_GRID_FREEZE_CLASS = 'ecos-grid_freeze';
 const ECOS_GRID_CHECKBOX_DEVIDER_CLASS = 'ecos-grid__checkbox-devider';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 
 const Selector = ({ mode, ...rest }) => (
-  <div className={'ecos-grid__checkbox'}>
+  <div className="ecos-grid__checkbox">
     <Checkbox checked={rest.checked} />
   </div>
 );
 
 const SelectorHeader = ({ indeterminate, ...rest }) => (
-  <div className={'ecos-grid__checkbox'}>
+  <div className="ecos-grid__checkbox">
     {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
     <div className={ECOS_GRID_CHECKBOX_DEVIDER_CLASS} />
   </div>
@@ -250,9 +249,10 @@ class Grid extends Component {
 
       return (
         <div
-          className={`ecos-grid__td ${editable ? 'ecos-grid__td_editable' : ''} ${
-            errorAttribute && row[errorAttribute] === cell ? 'ecos-grid__td_error' : ''
-          }`}
+          className={classNames('ecos-grid__td', {
+            'ecos-grid__td_editable': editable,
+            'ecos-grid__td_error': errorAttribute && row[errorAttribute] === cell
+          })}
         >
           {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
         </div>
@@ -519,8 +519,9 @@ class Grid extends Component {
           <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback}>
             <BootstrapTable
               {...props}
-              classes={classNames('', {
-                [ECOS_GRID_FREEZE_CLASS]: props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable)
+              classes={classNames('ecos-grid__table', {
+                'ecos-grid_freeze': props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable),
+                'ecos-grid__table_fixed-header': props.fixedHeader
               })}
             />
 
@@ -550,8 +551,10 @@ Grid.propTypes = {
   editable: PropTypes.bool,
   multiSelectable: PropTypes.bool,
   singleSelectable: PropTypes.bool,
+  freezeCheckboxes: PropTypes.bool,
   selectAll: PropTypes.bool,
   scrollable: PropTypes.bool,
+  fixedHeader: PropTypes.bool,
 
   columns: PropTypes.array,
   data: PropTypes.array,

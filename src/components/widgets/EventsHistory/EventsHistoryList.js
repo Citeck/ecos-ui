@@ -62,9 +62,10 @@ class EventsHistoryList extends React.Component {
     const width = `${Math.max(thw, tdw)}px`;
 
     return {
-      ...column,
-      style: () => ({ width }),
-      headerStyle: () => ({ width })
+      ...column
+      // width,
+      // style: () => ({ width }),
+      // headerStyle: () => ({ width })
     };
   };
 
@@ -96,7 +97,13 @@ class EventsHistoryList extends React.Component {
     //todo for server filer const { filters } = this.state;
 
     return (
-      <Grid data={list} columns={this.formattedColumnData()} scrollable={false} className="ecos-event-history-list_view-table" />
+      <Grid
+        data={list}
+        columns={this.formattedColumnData()}
+        scrollable={false}
+        className="ecos-event-history-list_view-table ecos-grid_no-top-border"
+        fixedHeader
+      />
       // filterable={false}
       // filters={filters}
       // onFilter={this.onGridFilter}

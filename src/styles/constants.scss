@@ -126,6 +126,17 @@ $scroll-z-index: 12;
   z-index: $scroll-z-index;
 }
 
+%h-scroll {
+  position: absolute;
+  height: $scroll-size;
+  right: 5px;
+  bottom: 2px;
+  top: 6px;
+  border-radius: $scroll-border-radius;
+  visibility: visible;
+  z-index: $scroll-z-index;
+}
+
 %ellipsis {
   white-space: nowrap;
   text-overflow: ellipsis;

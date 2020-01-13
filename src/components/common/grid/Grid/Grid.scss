@@ -1,11 +1,17 @@
 @import '../../../../styles/constants';
 
 .ecos-grid {
+  $root: &;
+
   position: relative;
   overflow: hidden;
 
-  &.ecos-grid_no-top-border {
-    .table {
+  &_hovered {
+    background: $color-blue-light3;
+  }
+
+  &_no-top-border {
+    #{$root}-table {
       border-top: 0;
 
       th {
@@ -14,61 +20,64 @@
     }
   }
 
-  .table {
-    border-top: 2px solid $color-gray-4;
-    border-bottom: 2px solid $color-gray-4;
-    margin-bottom: 13px;
-    width: 100%;
+  &_transparent {
+    opacity: 0;
+  }
 
-    td {
-      height: 42px;
-      border-top: 2px solid $color-gray-4;
-      padding: 8px 0;
-      vertical-align: middle !important;
-      box-sizing: border-box;
+  &_checkable {
+    tbody > tr > td:nth-child(1),
+    thead > tr > th:nth-child(1) {
+      padding: 0;
+      width: 54px;
     }
+  }
 
-    th {
-      height: 52px;
-      padding: 8px 0;
-      border-bottom: 0;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: hidden;
-      vertical-align: middle !important;
-      box-sizing: border-box;
-    }
+  &_overflow_hidden {
+    overflow: hidden;
+  }
 
-    .react-bs-table-no-data {
-      padding: 0 14px;
-    }
+  &__v-scroll {
+    @extend %v-scroll;
+    top: 52px;
+  }
+
+  &__h-scroll {
+    @extend %h-scroll;
+    left: 55px;
   }
 }
 
-.ecos-grid__v-scroll {
-  position: absolute;
-  width: 6px;
-  right: 4px;
-  bottom: 2px;
-  top: 52px;
-  border-radius: 3px;
-  visibility: visible;
-  z-index: 11;
-}
+.table.ecos-grid__table {
+  border-top: 2px solid $color-gray-4;
+  border-bottom: 2px solid $color-gray-4;
+  margin-bottom: 13px;
+  width: 100%;
 
-.ecos-grid__h-scroll {
-  position: absolute;
-  height: 6px;
-  right: 2px;
-  bottom: 2px;
-  left: 55px;
-  border-radius: 3px;
-  visibility: visible;
-  z-index: 11;
+  tr {
+    vertical-align: baseline;
+  }
+
+  td {
+    height: 42px;
+    border-top: 2px solid $color-gray-4;
+    padding: 0;
+    vertical-align: initial;
+  }
+
+  th {
+    height: 52px;
+    padding: 8px 0;
+    border-bottom: 0;
+    @extend %ellipsis;
+  }
+
+  .react-bs-table-no-data {
+    padding: 0 14px;
+  }
 }
 
 .ecos-grid__td {
-  display: flex;
+  display: inline-block;
   align-items: center;
   width: 100%;
   min-height: 22px;
@@ -81,61 +90,38 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-}
 
-.ecos-grid__td_editable {
-  &:hover {
-    background: $color-gray-4;
-    cursor: pointer;
+  &_editable {
+    &:hover {
+      background: $color-gray-4;
+      cursor: pointer;
+    }
   }
-}
 
-.ecos-grid__td_error {
-  background: lighten($color-red-2, 40%);
-}
-
-.ecos-grid__body {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.ecos-grid_transparent {
-  opacity: 0;
-}
-
-.ecos-grid_overflow_hidden {
-  overflow: hidden;
-}
-
-/*Checkable*/
-.ecos-grid_checkable {
-  tbody > tr > td:nth-child(1),
-  thead > tr > th:nth-child(1) {
-    padding: 0;
-    width: 54px;
+  &_error {
+    background: lighten($color-red-2, 40%);
   }
 }
 
 .ecos-grid__checkbox {
   position: relative;
   width: 54px;
-  height: 22px;
+  height: 100%;
   background: $color-white;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  &-devider {
+    position: absolute;
+    width: 2px;
+    height: 34px;
+    right: 0;
+    background: $color-gray-4;
+  }
 }
 
-.ecos-grid__checkbox-devider {
-  position: absolute;
-  width: 2px;
-  height: 34px;
-  top: -6px;
-  right: 0;
-  background: $color-gray-4;
-}
-
-.ecos-grid__tr_selected {
+.ecos-grid__table:not(.ecos-grid_freeze) .ecos-grid__tr_selected {
   background: $color-yellow-1;
 
   .ecos-grid__checkbox {
@@ -144,10 +130,6 @@
 }
 
 .ecos-grid_freeze {
-  .ecos-grid__tr_selected {
-    background: none;
-  }
-
   .ecos-th {
     height: 34px;
   }
@@ -187,10 +169,6 @@
       z-index: 2;
     }
   }
-}
-
-.ecos-grid_hovered {
-  background: $color-blue-light3;
 }
 
 .ecos-grid__head-shadow {
