@@ -53,7 +53,7 @@ export default class EventsHistoryService {
       {
         attribute: 'event:taskComment',
         text: t('dochist.header.comment'),
-        width: 230
+        className: 'event-cell-task-comment'
       }
     ]
   };

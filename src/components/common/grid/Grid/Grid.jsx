@@ -137,7 +137,7 @@ class Grid extends Component {
 
       column = this.setHeaderFormatter(column, filterable, column.sortable);
 
-      column.formatter = this.initFormatter(props.editable);
+      column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
 
       return column;
     });
@@ -248,7 +248,7 @@ class Grid extends Component {
     trigger.call(this, 'onSort', e);
   };
 
-  initFormatter = editable => {
+  initFormatter = ({ editable, className }) => {
     return (cell, row, rowIndex, formatExtraData) => {
       formatExtraData = formatExtraData || {};
       const Formatter = formatExtraData.formatter;
@@ -258,7 +258,8 @@ class Grid extends Component {
         <div
           className={classNames('ecos-grid__td', {
             'ecos-grid__td_editable': editable,
-            'ecos-grid__td_error': errorAttribute && row[errorAttribute] === cell
+            'ecos-grid__td_error': errorAttribute && row[errorAttribute] === cell,
+            [className]: !!className
           })}
         >
           {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}

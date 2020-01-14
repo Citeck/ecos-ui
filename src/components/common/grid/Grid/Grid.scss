@@ -16,6 +16,10 @@
         border-top: 0;
       }
     }
+
+    .ecos-grid__head-shadow:before {
+      content: none;
+    }
   }
 
   &_transparent {
@@ -42,6 +46,7 @@
   &__h-scroll {
     @extend %h-scroll;
     left: 55px;
+    top: 3px;
   }
 }
 
@@ -52,10 +57,9 @@
   width: 100%;
 
   td {
-    height: 42px;
+    height: 40px;
     border-top: 2px solid $color-gray-4;
     padding: 0;
-    vertical-align: initial;
   }
 
   th {
@@ -72,17 +76,14 @@
 
 .ecos-grid__td {
   display: inline-block;
-  width: 100%;
+  width: inherit;
   min-height: 22px;
-  //max-width: 300px;
   padding: 10px 5px 0;
   border-radius: $border-radius-standard;
   color: $text-color-dark;
   font-size: $font-size-small;
   font-weight: $font-weight-normal;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  @extend %ellipsis;
 
   &:empty {
     display: none;
@@ -103,7 +104,7 @@
 .ecos-grid__checkbox {
   position: relative;
   width: 54px;
-  height: 100%;
+  height: inherit;
   background: $color-white;
   display: flex;
   align-items: center;

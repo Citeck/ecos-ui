@@ -49,7 +49,7 @@ class EventsHistoryDashlet extends BaseWidget {
   }
 
   onResize = width => {
-    this.setState({ isSmallMode: isSmallMode(width) }, this.checkHeight);
+    this.setState({ isSmallMode: isSmallMode(width) });
   };
 
   render() {

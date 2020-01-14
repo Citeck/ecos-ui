@@ -2,13 +2,6 @@
 
 .ecos-event-history {
   $root: &;
-
-  padding-left: 20px;
-  padding-top: 10px;
-
-  &-dashlet {
-  }
-
   &__v-scroll {
     @extend %v-scroll;
   }
@@ -24,13 +17,9 @@
       height: 100%;
     }
 
-    &_view-enum {
-    }
-
     &_view-table {
-      .ecos-grid__head-shadow:before {
-        content: none;
-      }
+      padding-left: 20px;
+      padding-top: 10px;
 
       .ecos-th {
         font-weight: $font-weight-bold;
@@ -38,6 +27,10 @@
 
       .ecos-grid__td {
         font-weight: $font-weight-semi-bold;
+
+        &.event-cell-task-comment {
+          white-space: initial;
+        }
       }
     }
   }
