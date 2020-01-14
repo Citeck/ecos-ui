@@ -2,6 +2,9 @@
 
 .ecos-event-history {
   $root: &;
+
+  padding-top: 10px;
+
   &__v-scroll {
     @extend %v-scroll;
   }
@@ -19,7 +22,6 @@
 
     &_view-table {
       padding-left: 20px;
-      padding-top: 10px;
 
       .ecos-th {
         font-weight: $font-weight-bold;
