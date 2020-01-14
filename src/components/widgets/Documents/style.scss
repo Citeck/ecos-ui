@@ -1,13 +1,22 @@
 @import '../../../styles/constants';
 
 .ecos-docs {
-  display: flex;
+  &__body {
+    display: flex;
+    height: 100%;
+  }
+
+  &__container {
+    height: 100%;
+  }
 
   &__column {
     position: relative;
     display: flex;
 
     &_table {
+      display: flex;
+      flex-direction: column;
       flex-shrink: 2;
       width: 100%;
     }
@@ -20,7 +29,6 @@
     }
 
     &:not(:last-child) {
-      margin-right: 10px;
       border-right: 2px $color-gray-4 solid;
     }
   }
@@ -116,31 +124,62 @@
 
   &__table {
     width: 100%;
-    height: auto !important;
   }
 
-  &__settings {
-    .modal-body {
+  &__modal {
+    &-settings {
+      .modal-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+      }
+
+      &-search {
+        width: 100%;
+        height: 40px;
+        margin-bottom: 10px;
+      }
+
+      &-field {
+        width: 100%;
+        height: 600px;
+        background: $color-gray-4;
+        border: 2px solid $color-gray-1;
+        box-sizing: border-box;
+        border-radius: 12px;
+        padding: 15px;
+        overflow-x: scroll;
+      }
+    }
+
+    &-upload {
+      max-width: 468px;
+    }
+  }
+
+  &__panel {
+    display: flex;
+    padding: 16px 19px;
+
+    &-upload {
       display: flex;
-      flex-direction: column;
-      justify-content: space-around;
+      width: 40px;
+      height: 40px;
+      background: $color-blue-light;
+      color: $color-white;
+      border-radius: 6px;
+      cursor: pointer;
+
+      &-icon {
+        margin: auto;
+      }
+
+      &:hover {
+        background: darken($color-blue-light, 5%);
+      }
     }
 
     &-search {
-      width: 100%;
-      height: 40px;
-      margin-bottom: 10px;
-    }
-
-    &-field {
-      width: 100%;
-      height: 600px;
-      background: $color-gray-4;
-      border: 2px solid $color-gray-1;
-      box-sizing: border-box;
-      border-radius: 12px;
-      padding: 15px;
-      overflow-x: scroll;
     }
   }
 }
@@ -169,6 +208,7 @@
 
     &-element {
       display: flex;
+      position: relative;
       background: $color-white;
       border-radius: 6px;
       height: var(--e-tree-parent-height);

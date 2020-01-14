@@ -3,22 +3,25 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 import uniqueId from 'lodash/uniqueId';
+import get from 'lodash/get';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
-import { Icon, ResizeBoxes, EcosModal, Search } from '../../common';
+import { Icon, ResizeBoxes, EcosModal, Search, DefineHeight } from '../../common';
 import { Grid } from '../../common/grid';
 import { Dropdown } from '../../common/form';
+import Tree from './Tree';
 
 import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import { getDocumentsByType, init, toggleType } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
-import { typesStatuses, tooltips } from '../../../constants/documents';
+import { typesStatuses, tooltips, typeStatusesByFields } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 
 import './style.scss';
-import Tree from './Tree';
+import isEmpty from 'lodash/isEmpty';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 const LABELS = {
   TITLE: 'Документы',
@@ -35,13 +38,16 @@ class Documents extends BaseWidget {
       leftColumnId: uniqueId('leftColumn_'),
       rightColumnId: uniqueId('rightColumn_'),
       selectedType: '',
+      selectedTypeForLoading: '',
       fitHeights: {},
       contentHeight: null,
       width: MIN_WIDTH_DASHLET_SMALL,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       isOpenSettings: false,
-      typesFilter: ''
+      isOpenUploadModal: false,
+      typesFilter: '',
+      tableFilter: ''
     };
 
     props.init();
@@ -96,11 +102,18 @@ class Documents extends BaseWidget {
     return check(availableTypes);
   }
 
+  get tableData() {
+    const { tableFilter, selectedType } = this.state;
+  }
+
   handleReloadData = () => {};
 
   handleToggleTypesSettings = event => {
     event.stopPropagation();
-    this.setState(state => ({ isOpenSettings: !state.isOpenSettings }));
+    this.setState(state => ({
+      isOpenSettings: !state.isOpenSettings,
+      typesFilter: ''
+    }));
   };
 
   handleClearSelectedType = () => {
@@ -122,6 +135,17 @@ class Documents extends BaseWidget {
 
   handleFilterTypes = (filter = '') => {
     this.setState({ typesFilter: filter.toLowerCase() });
+  };
+
+  handleToggleUploadModalByType = (type = null) => {
+    this.setState({
+      selectedTypeForLoading: type,
+      isOpenUploadModal: type !== null
+    });
+  };
+
+  handleFilterTable = (filter = '') => {
+    this.setState({ tableFilter: filter });
   };
 
   renderTypes() {
@@ -217,25 +241,54 @@ class Documents extends BaseWidget {
     );
   };
 
-  // renderTablePanel() {
-  //   const { selectedType } = this.state;
-  //   let upload = <div className="ecos-docs__upload"></div>;
-  //
-  //   if (selectedType) {
-  //
-  //   }
-  //
-  //   return (
-  //     <div className="ecos-docs__panel">
-  //       <div className="ecos-docs__upload"></div>
-  //     </div>
-  //   );
-  // }
+  renderUploadButton() {
+    const { dynamicTypes } = this.props;
+    const { selectedType } = this.state;
+
+    if (selectedType) {
+      const type = dynamicTypes.find(item => item.type === selectedType);
+
+      return (
+        <div className="ecos-docs__panel-upload" onClick={this.handleToggleUploadModalByType.bind(this, type)}>
+          <Icon className="icon-load ecos-docs__panel-upload-icon" />
+        </div>
+      );
+    }
+
+    return (
+      <Dropdown
+        isStatic
+        toggleClassName="ecos-docs__panel-upload"
+        valueField="type"
+        titleField="name"
+        source={dynamicTypes}
+        onChange={this.handleToggleUploadModalByType}
+      >
+        <Icon className="icon-load ecos-docs__panel-upload-icon" />
+      </Dropdown>
+    );
+  }
+
+  renderTablePanel() {
+    const { selectedType } = this.state;
+
+    return (
+      <div className="ecos-docs__panel">
+        {this.renderUploadButton()}
+        <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTable} className="ecos-docs__modal-settings-search" />
+      </div>
+    );
+  }
 
   renderTable() {
     const { documents, dynamicTypes } = this.props;
     const { selectedType, rightColumnId } = this.state;
-    let columns = [{ dataField: 'name', text: 'Название' }];
+    // let columns = [{ dataField: 'name', text: 'Название' }];
+    let columns = [
+      { dataField: 'name', text: 'Тип' },
+      { dataField: 'loadedBy', text: 'Загрузил' },
+      { dataField: 'modified', text: 'Обновлено' }
+    ];
     let data = selectedType ? documents : dynamicTypes;
 
     if (selectedType) {
@@ -248,7 +301,7 @@ class Documents extends BaseWidget {
 
     return (
       <div id={rightColumnId} className="ecos-docs__column ecos-docs__column_table">
-        {/*{this.renderTablePanel()}*/}
+        {this.renderTablePanel()}
         <Grid className="ecos-docs__table" data={data} columns={columns} scrollable />
       </div>
     );
@@ -261,25 +314,45 @@ class Documents extends BaseWidget {
       <EcosModal
         title={t(LABELS.SETTINGS)}
         isOpen={isOpenSettings}
-        className="ecos-docs__settings"
+        className="ecos-docs__modal-settings"
         hideModal={this.handleToggleTypesSettings}
         onResize={this.handleResize}
       >
-        <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTypes} className="ecos-docs__settings-search" />
-        <div className="ecos-docs__settings-field">
+        <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTypes} className="ecos-docs__modal-settings-search" />
+        <div className="ecos-docs__modal-settings-field">
           <Tree data={this.availableTypes} toggleSelect={this.handleToggleSelectType} />
         </div>
       </EcosModal>
     );
   }
 
+  renderUploadingModal() {
+    const {} = this.props;
+    const { selectedTypeForLoading, isOpenUploadModal } = this.state;
+
+    return (
+      <EcosModal
+        title={get(selectedTypeForLoading, 'name', '')}
+        isOpen={isOpenUploadModal}
+        className="ecos-docs__modal-upload"
+        hideModal={this.handleToggleUploadModalByType.bind(this, null)}
+      />
+    );
+  }
+
+  handleChangeHeight = height => {
+    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    this.setState({ userHeight: height });
+  };
+
   render() {
     const { dragHandleProps, canDragging } = this.props;
-    const { isCollapsed } = this.state;
+    const { isCollapsed, contentHeight, fitHeights, userHeight } = this.state;
 
     return (
       <div>
         <Dashlet
+          className="ecos-docs"
           title={t(LABELS.TITLE)}
           needGoTo={false}
           actionEdit={false}
@@ -295,11 +368,25 @@ class Documents extends BaseWidget {
           onToggleCollapse={this.handleToggleContent}
           isCollapsed={isCollapsed}
         >
-          <div className="ecos-docs">
-            {this.renderTypes()}
-            {this.renderTable()}
-            {this.renderSettings()}
-          </div>
+          <Scrollbars
+            style={{ height: contentHeight || '100%' }}
+            renderTrackVertical={props => <div {...props} className="ecos-current-task-list__v-scroll" />}
+          >
+            <DefineHeight
+              className="ecos-docs__container"
+              fixHeight={userHeight}
+              maxHeight={fitHeights.max}
+              minHeight={1}
+              getOptimalHeight={this.setContentHeight}
+            >
+              <div className="ecos-docs__body" ref={this.contentRef}>
+                {this.renderTypes()}
+                {this.renderTable()}
+                {this.renderSettings()}
+                {this.renderUploadingModal()}
+              </div>
+            </DefineHeight>
+          </Scrollbars>
         </Dashlet>
       </div>
     );
