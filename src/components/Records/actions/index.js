@@ -6,7 +6,8 @@ import {
   DeleteAction,
   MoveToLinesJournal,
   BackgroundOpenAction,
-  DownloadCardTemplate
+  DownloadCardTemplate,
+  CreateNodeAction
 } from './DefaultActions';
 
 import { CaseRequestAction, CaseCreateNodeAction, CaseRedirectAction } from './CaseActions';
@@ -21,6 +22,7 @@ Registry.addExecutors({
   delete: DeleteAction,
   'move-to-lines': MoveToLinesJournal,
   'download-card-template': DownloadCardTemplate,
+  create: CreateNodeAction,
 
   //legacy case actions
 

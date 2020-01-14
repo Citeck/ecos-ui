@@ -277,6 +277,7 @@
   "grid.inline-tools.delete": "Delete",
   "grid.inline-tools.details": "Details",
   "grid.inline-tools.download": "Download",
+  "grid.inline-tools.create": "Create",
   "grid.inline-tools.edit": "Edit",
   "grid.inline-tools.show": "View document",
   "grid.inline-tools.open-in-background": "Open in background tab",

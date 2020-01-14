@@ -6,6 +6,13 @@ import { PROXY_URI } from '../constants/alfresco';
 class EsignApi {
   static _cadespluginApi = null;
 
+  constructor() {
+    /**
+     * Disable standard notifications from the plugin
+     */
+    set(window, 'cadesplugin_skip_extension_install', true);
+  }
+
   get cadespluginApi() {
     return EsignApi._cadespluginApi;
   }
