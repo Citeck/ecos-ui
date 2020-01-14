@@ -52,10 +52,6 @@ const MAP = [
     enable: column => column.params && column.params.formatter
   },
   {
-    options: () => 'CardDetailsLinkFormatter',
-    enable: column => column.attribute === 'cm:name' || column.attribute === 'cm:title'
-  },
-  {
     options: () => 'DateFormatter',
     enable: column => column.attribute === 'bpm:startDate'
   },
@@ -87,6 +83,13 @@ const MAP = [
     options: () => 'NumberFormatter',
     enable: column => column.type === 'int' || column.type === 'long' || column.type === 'float' || column.type === 'double'
   }
+  // it is not used and breaks UX (users are uncomfortable when they cannot select elements with a simple click on the element,
+  // since it opens the viewing of the record they poked on). Return if necessary.
+  //
+  // {
+  //   options: () => 'CardDetailsLinkFormatter',
+  //   enable: column => column.attribute === 'cm:name' || column.attribute === 'cm:title'
+  // },
 ];
 
 export default class Mapper {
