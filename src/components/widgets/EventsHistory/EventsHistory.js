@@ -7,11 +7,14 @@ import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { DefineHeight } from '../../common/index';
-import { selectDataEventsHistoryByStateId } from '../../../selectors/eventsHistory';
 import { filterEventsHistory, getEventsHistory, resetEventsHistory } from '../../../actions/eventsHistory';
+import { selectDataEventsHistoryByStateId } from '../../../selectors/eventsHistory';
 import EventsHistoryService from '../../../services/eventsHistory';
-import EventsHistoryList from './EventsHistoryList';
+import { t } from '../../../helpers/util';
+import { getOptimalHeight } from '../../../helpers/layout';
+import { InfoText, Loader } from '../../common';
+import { Grid } from '../../common/grid';
+import EventsHistoryCard from './EventsHistoryCard';
 
 import './style.scss';
 
@@ -36,6 +39,19 @@ const mapDispatchToProps = dispatch => ({
   resetEventsHistory: payload => dispatch(resetEventsHistory(payload))
 });
 
+const Scroll = ({ scrollable, children, height = '100%' }) =>
+  scrollable ? (
+    <Scrollbars
+      style={{ height }}
+      className="ecos-event-history__scroll"
+      renderTrackVertical={props => <div {...props} className="ecos-event-history__v-scroll" />}
+    >
+      {children}
+    </Scrollbars>
+  ) : (
+    <>{children}</>
+  );
+
 class EventsHistory extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
@@ -48,7 +64,8 @@ class EventsHistory extends React.Component {
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     myColumns: PropTypes.array,
-    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
+    getContentHeight: PropTypes.func
   };
 
   static defaultProps = {
@@ -60,7 +77,8 @@ class EventsHistory extends React.Component {
   };
 
   state = {
-    contentHeight: 0
+    contentHeight: 0,
+    filters: []
   };
 
   _filter = React.createRef();
@@ -69,10 +87,48 @@ class EventsHistory extends React.Component {
     this.getEventsHistory();
   }
 
+  getSnapshotBeforeUpdate(prevProps, prevState) {
+    return { contentHeightOld: this.contentHeight };
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { isLoading, height, minHeight, maxHeight, getContentHeight } = this.props;
+    const table = get(this.props, 'forwardedRef.current', null);
+    const contentHeight = this.contentHeight;
+    const filterHeight = get(this._filter, 'current.offsetHeight', 0);
+    const fixHeight = height ? height - filterHeight : null;
+
+    if (contentHeight !== snapshot.contentHeightOld) {
+      getContentHeight(contentHeight);
+    }
+
+    if (contentHeight !== snapshot.contentHeightOld || height !== prevProps.height) {
+      const optimalHeight = getOptimalHeight(fixHeight, contentHeight, minHeight, maxHeight, isLoading || !contentHeight);
+
+      set(table, 'style.height', `${optimalHeight}px`);
+    }
+  }
+
   componentWillUnmount() {
     const { resetEventsHistory, stateId } = this.props;
 
     resetEventsHistory({ stateId });
+  }
+
+  get contentHeight() {
+    const { isSmallMode, isMobile } = this.props;
+    const table = get(this.props, 'forwardedRef.current', null);
+
+    if (table) {
+      const content =
+        isSmallMode || isMobile
+          ? table.querySelector('.ecos-event-history-list')
+          : table.querySelector('.ecos-event-history-list .ecos-grid__table');
+
+      return get(content, 'offsetHeight', 0);
+    }
+
+    return 0;
   }
 
   getEventsHistory = () => {
@@ -83,10 +139,6 @@ class EventsHistory extends React.Component {
       record,
       columns
     });
-  };
-
-  setHeight = contentHeight => {
-    this.setState({ contentHeight });
   };
 
   onFilter = predicates => {
@@ -100,46 +152,72 @@ class EventsHistory extends React.Component {
     });
   };
 
-  get tableHead() {
-    const tableHead = get(this.props, 'forwardedRef.current', null);
+  onGridFilter = (newFilters = []) => {
+    const { filters } = this.state;
+    const newFilter = get(newFilters, '0', {});
+    const upFilters = filters.filter(item => item.att !== newFilter.att).concat(newFilters || []);
 
-    if (!tableHead) {
-      return {};
-    }
-
-    return tableHead.querySelector('thead');
-  }
-
-  set tableHeadPosition(top) {
-    set(this.tableHead, 'style.top', `${top}px`);
-  }
-
-  onScrollFrame = event => {
-    this.tableHeadPosition = event.scrollTop;
+    this.setState({ filters: upFilters }, () => {
+      this.onFilter(this.state.filters);
+    });
   };
 
-  renderEventList = () => {
-    const { isLoading, isMobile, isSmallMode, list, columns, forwardedRef } = this.props;
+  renderEnum() {
+    const { list, columns, isMobile } = this.props;
 
     return (
-      <EventsHistoryList
-        forwardedRef={forwardedRef}
-        list={list}
-        columns={columns}
-        isLoading={isLoading}
-        isSmallMode={isSmallMode}
-        isMobile={isMobile}
-        onFilter={this.onFilter}
-      />
+      <Scroll scrollable={!isMobile}>
+        <div className="ecos-event-history-list ecos-event-history-list_view-enum">
+          {list.map((item, i) => (
+            <EventsHistoryCard key={item.id + i} columns={columns} event={item} />
+          ))}
+        </div>
+      </Scroll>
     );
-  };
+  }
+
+  renderTable() {
+    const { list, columns, isMobile } = this.props;
+    //todo for server filer const { filters } = this.state;
+
+    return (
+      <Grid
+        fixedHeader
+        data={list}
+        columns={columns}
+        scrollable={!isMobile}
+        className="ecos-event-history-list ecos-event-history-list_view-table ecos-grid_no-top-border"
+      />
+      // filterable={false}
+      // filters={filters}
+      // onFilter={this.onGridFilter}
+    );
+  }
+
+  renderContent() {
+    const { isSmallMode, isMobile, isLoading, list, columns } = this.props;
+
+    if (isLoading) {
+      return <Loader className="ecos-event-history-list__loader" />;
+    }
+
+    if (isEmpty(columns)) {
+      return <InfoText text={t('events-history-widget.info.no-columns')} />;
+    }
+
+    if (isEmpty(list)) {
+      return <InfoText text={t('events-history-widget.info.no-events')} />;
+    }
+
+    if (isSmallMode || isMobile) {
+      return this.renderEnum();
+    }
+
+    return this.renderTable();
+  }
 
   render() {
-    const { isLoading, isMobile, className, height, minHeight, maxHeight, list } = this.props;
-    const { contentHeight } = this.state;
-
-    const filterHeight = get(this._filter, 'current.offsetHeight', 0);
-    const fixHeight = height ? height - filterHeight : null;
+    const { className, forwardedRef } = this.props;
 
     return (
       <div className={classNames('ecos-event-history', className)}>
@@ -148,26 +226,7 @@ class EventsHistory extends React.Component {
             <DropdownFilter columns={columns} className="ecos-event-history__filter" onFilter={this.onFilter} />
           )}*/}
         </div>
-        {isMobile ? (
-          this.renderEventList()
-        ) : (
-          <Scrollbars
-            style={{ height: contentHeight || '100%' }}
-            className="ecos-event-history__scroll"
-            onScrollFrame={this.onScrollFrame}
-            renderTrackVertical={props => <div {...props} className="ecos-event-history__v-scroll" />}
-          >
-            <DefineHeight
-              fixHeight={fixHeight}
-              maxHeight={maxHeight - filterHeight}
-              minHeight={minHeight}
-              isMin={isLoading || isEmpty(list)}
-              getOptimalHeight={this.setHeight}
-            >
-              {this.renderEventList()}
-            </DefineHeight>
-          </Scrollbars>
-        )}
+        <div ref={forwardedRef}>{this.renderContent()}</div>
       </div>
     );
   }

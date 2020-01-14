@@ -112,12 +112,12 @@ class Dashlet extends Component {
   };
 
   onChangeHeight = height => {
-    const { onChangeHeight, contentMaxHeight } = this.props;
+    const { onChangeHeight, contentMaxHeight, getFitHeights } = this.props;
 
     if (typeof onChangeHeight === 'function') {
-      onChangeHeight(height > contentMaxHeight && contentMaxHeight !== null ? contentMaxHeight : height);
+      onChangeHeight(contentMaxHeight && height > contentMaxHeight ? contentMaxHeight : height);
 
-      this.props.getFitHeights(this.fitHeightChildren);
+      getFitHeights && getFitHeights(this.fitHeightChildren);
     }
   };
 
@@ -141,7 +141,7 @@ class Dashlet extends Component {
     }
 
     return (
-      <ResizableBox resizable={resizable} classNameResizer={'dashlet__resizer'} getHeight={this.onChangeHeight}>
+      <ResizableBox resizable={resizable} classNameResizer="dashlet__resizer" getHeight={this.onChangeHeight}>
         {children}
       </ResizableBox>
     );

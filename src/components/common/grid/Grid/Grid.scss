@@ -154,7 +154,7 @@
   }
 
   thead > tr > th {
-    top: 1px;
+    top: 0;
 
     &:not(:first-child) {
       position: sticky;

@@ -24,7 +24,11 @@ class BaseWidget extends Component {
   }
 
   setContentHeight = contentHeight => {
-    this.setState({ contentHeight });
+    const contentHeightState = this.state.contentHeight;
+
+    if (contentHeightState !== contentHeight) {
+      this.setState({ contentHeight });
+    }
   };
 
   setFitHeights = fitHeights => {
@@ -37,19 +41,19 @@ class BaseWidget extends Component {
     }
   }, 400);
 
-  handleChangeHeight = height => {
-    let pureHeight = height > 0 ? height : 0;
+  handleChangeHeight = userHeight => {
+    userHeight = userHeight > 0 ? userHeight : 0;
 
-    if (this.state.userHeight === pureHeight) {
+    if (this.state.userHeight === userHeight) {
       return;
     }
 
-    if (pureHeight > this.fullHeight) {
-      pureHeight = this.fullHeight;
+    if (this.fullHeight && userHeight > this.fullHeight) {
+      userHeight = this.fullHeight;
     }
 
-    UserLocalSettingsService.setDashletHeight(this.props.id, pureHeight);
-    this.setState({ userHeight: pureHeight });
+    UserLocalSettingsService.setDashletHeight(this.props.id, userHeight);
+    this.setState({ userHeight });
   };
 
   handleToggleContent = (isCollapsed = false) => {

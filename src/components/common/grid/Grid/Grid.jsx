@@ -4,11 +4,12 @@ import PropTypes from 'prop-types';
 import BootstrapTable from 'react-bootstrap-table-next';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
+import set from 'lodash/set';
 
 import { closest, getId, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
-import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../form/SelectJournal/predicates';
+import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 
 import './Grid.scss';
 
@@ -82,6 +83,12 @@ class Grid extends Component {
     this.removeCloseFilterEvent();
     this.removeColumnResizeEvents();
     this.removeKeydownEvents();
+  }
+
+  get fixedHeader() {
+    const { freezeCheckboxes, singleSelectable, multiSelectable, fixedHeader } = this.props;
+
+    return (freezeCheckboxes && (singleSelectable || multiSelectable)) || fixedHeader;
   }
 
   createKeydownEvents() {
@@ -451,13 +458,12 @@ class Grid extends Component {
   };
 
   onScrollFrame = e => {
-    const { freezeCheckboxes, singleSelectable, multiSelectable } = this.props;
-
     this._scrollValues = e;
-    if (freezeCheckboxes && (singleSelectable || multiSelectable)) {
-      this._shadowLeftNode.style.display = e.scrollLeft > 0 ? 'block' : 'none';
-      this._shadowHeadNode.style.display = e.scrollTop > 0 ? 'block' : 'none';
-      this._firstHeaderCellNode.style.display = e.scrollLeft > 0 ? 'none' : 'block';
+
+    if (this.fixedHeader) {
+      set(this._shadowLeftNode, 'style.display', e.scrollLeft > 0 ? 'block' : 'none');
+      set(this._shadowHeadNode, 'style.display', e.scrollTop > 0 ? 'block' : 'none');
+      set(this._firstHeaderCellNode, 'style.display', e.scrollLeft > 0 ? 'block' : 'none');
     }
 
     trigger.call(this, 'onScrolling', e);
@@ -517,18 +523,10 @@ class Grid extends Component {
           {toolsVisible ? this.tools(props.selected) : null}
 
           <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback}>
-            <BootstrapTable
-              {...props}
-              classes={classNames('ecos-grid__table', {
-                'ecos-grid_freeze': props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable),
-                'ecos-grid__table_fixed-header': props.fixedHeader
-              })}
-            />
-
+            <BootstrapTable {...props} classes={classNames('ecos-grid__table', { 'ecos-grid_freeze': this.fixedHeader })} />
             {this.inlineTools()}
           </Scroll>
-
-          {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
+          {this.fixedHeader ? (
             <>
               <div className={ECOS_GRID_HEAD_SHADOW} />
               <div className={ECOS_GRID_LEFT_SHADOW} />

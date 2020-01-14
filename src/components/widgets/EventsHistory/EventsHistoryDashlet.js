@@ -44,6 +44,10 @@ class EventsHistoryDashlet extends BaseWidget {
     };
   }
 
+  get fullHeight() {
+    return this.state.contentHeight;
+  }
+
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) }, this.checkHeight);
   };
@@ -79,6 +83,7 @@ class EventsHistoryDashlet extends BaseWidget {
             height={userHeight}
             minHeight={fitHeights.min}
             maxHeight={fitHeights.max}
+            getContentHeight={this.setContentHeight}
           />
         )}
       </Dashlet>
