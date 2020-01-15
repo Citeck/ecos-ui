@@ -93,20 +93,10 @@ class EventsHistory extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isLoading, height, minHeight, maxHeight, getContentHeight } = this.props;
-    const table = get(this.props, 'forwardedRef.current', null);
-    const contentHeight = this.contentHeight;
-    const filterHeight = get(this._filter, 'current.offsetHeight', 0);
-    const fixHeight = height ? height - filterHeight : null;
+    this.checkHeight({ contentHeightOld: snapshot.contentHeightOld, height: prevProps.height });
 
-    if (contentHeight !== snapshot.contentHeightOld) {
-      getContentHeight(contentHeight);
-    }
-
-    if (contentHeight !== snapshot.contentHeightOld || height !== prevProps.height) {
-      const optimalHeight = getOptimalHeight(fixHeight, contentHeight, minHeight, maxHeight, isLoading || !contentHeight);
-
-      set(table, 'style.height', `${optimalHeight}px`);
+    if (!prevProps.runUpdate && this.props.runUpdate) {
+      this.getEventsHistory();
     }
   }
 
@@ -114,12 +104,6 @@ class EventsHistory extends React.Component {
     const { resetEventsHistory, stateId } = this.props;
 
     resetEventsHistory({ stateId });
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (!prevProps.runUpdate && this.props.runUpdate) {
-      this.getEventsHistory();
-    }
   }
 
   get contentHeight() {
@@ -136,6 +120,24 @@ class EventsHistory extends React.Component {
     }
 
     return 0;
+  }
+
+  checkHeight(old) {
+    const { isLoading, height, minHeight, maxHeight, getContentHeight } = this.props;
+    const table = get(this.props, 'forwardedRef.current', null);
+    const contentHeight = this.contentHeight;
+    const filterHeight = get(this._filter, 'current.offsetHeight', 0);
+    const fixHeight = height ? height - filterHeight : null;
+
+    if (contentHeight !== old.contentHeightOld) {
+      getContentHeight(contentHeight);
+    }
+
+    if (contentHeight !== old.contentHeightOld || height !== old.height) {
+      const optimalHeight = getOptimalHeight(fixHeight, contentHeight, minHeight, maxHeight, isLoading || !contentHeight);
+
+      set(table, 'style.height', `${optimalHeight}px`);
+    }
   }
 
   getEventsHistory = () => {
