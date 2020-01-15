@@ -67,17 +67,18 @@
       }
 
       #{$info}-label {
-        flex: 0 0 30%;
+        flex: 0 0 114px;
+        padding-right: 4px;
         font-weight: $font-weight-semi-bold;
         color: $text-color-gray;
         font-style: normal;
         font-size: $font-size-small;
+        @extend %ellipsis;
       }
 
       #{$info}-value {
         flex: auto;
         max-width: 70%;
-        padding-left: 34px;
         font-weight: $font-weight-bold;
         font-size: $font-size-standard;
         color: $text-color-dark;
