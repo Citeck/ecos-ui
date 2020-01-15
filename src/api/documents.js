@@ -3,7 +3,7 @@ import { DocumentsApiRequests } from './stubs';
 
 export class DocumentsApi {
   getDocumentTypes = () => {
-    return DocumentsApiRequests.getDocumentTypes();
+    // return DocumentsApiRequests.getDocumentTypes();
 
     return Records.query(
       {
@@ -34,7 +34,7 @@ export class DocumentsApi {
   };
 
   getCountDocumentsByTypes = (recordRef, types = []) => {
-    return DocumentsApiRequests.getCountDocumentsByTypes();
+    // return DocumentsApiRequests.getCountDocumentsByTypes();
 
     return Records.query(
       {
@@ -49,7 +49,7 @@ export class DocumentsApi {
             },
             {
               t: 'eq',
-              att: '_etype',
+              // att: '_etype',
               // nstead of '$ _IT' you can pass a specific type, and in this case
               // 3 argument is not needed in the Records.query function
               val: '$_IT'
@@ -58,7 +58,14 @@ export class DocumentsApi {
         },
         language: 'predicate'
       },
-      null,
+      // null,
+      {
+        // TODO: Use this after finalizing the backend
+        // '_modified': '_modified',
+        // '_modifier': '_modifier',
+        _modified: 'cm:modified',
+        _modifier: 'cm:modifier'
+      },
       types
     ).then(response => response);
   };
