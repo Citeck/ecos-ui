@@ -250,9 +250,10 @@ class Grid extends Component {
 
       return (
         <div
-          className={`ecos-grid__td ${editable ? 'ecos-grid__td_editable' : ''} ${
-            errorAttribute && row[errorAttribute] === cell ? 'ecos-grid__td_error' : ''
-          }`}
+          className={classNames('ecos-grid__td', {
+            'ecos-grid__td_editable': editable,
+            'ecos-grid__td_error': errorAttribute && row[errorAttribute] === cell
+          })}
         >
           {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
         </div>

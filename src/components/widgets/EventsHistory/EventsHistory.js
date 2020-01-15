@@ -44,6 +44,7 @@ class EventsHistory extends React.Component {
     isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool,
     isLoading: PropTypes.bool,
+    runUpdate: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -73,6 +74,12 @@ class EventsHistory extends React.Component {
     const { resetEventsHistory, stateId } = this.props;
 
     resetEventsHistory({ stateId });
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!prevProps.runUpdate && this.props.runUpdate) {
+      this.getEventsHistory();
+    }
   }
 
   getEventsHistory = () => {
@@ -137,7 +144,6 @@ class EventsHistory extends React.Component {
   render() {
     const { isLoading, isMobile, className, height, minHeight, maxHeight, list } = this.props;
     const { contentHeight } = this.state;
-
     const filterHeight = get(this._filter, 'current.offsetHeight', 0);
     const fixHeight = height ? height - filterHeight : null;
 

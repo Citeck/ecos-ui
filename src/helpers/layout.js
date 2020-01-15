@@ -53,4 +53,6 @@ export function getOptimalHeight(fixedHeight, contentHeight, minHeight, maxHeigh
 
     return cH;
   }
+
+  return min;
 }

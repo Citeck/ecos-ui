@@ -2,12 +2,12 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+
 import { changeTaskAssignee, getTaskList, resetTaskList } from '../../../actions/tasks';
-import { updateRequestDocStatus } from '../../../actions/docStatus';
-import { updateRequestCurrentTasks } from '../../../actions/currentTasks';
 import { selectStateTasksById } from '../../../selectors/tasks';
-import { DefineHeight } from '../../common/index';
+import { DefineHeight } from '../../common';
+import Records from '../../Records';
 import TaskList from './TaskList';
 
 import './style.scss';
@@ -26,8 +26,6 @@ const mapStateToProps = (state, context) => {
 const mapDispatchToProps = dispatch => ({
   getTaskList: payload => dispatch(getTaskList(payload)),
   changeTaskAssignee: payload => dispatch(changeTaskAssignee(payload)),
-  updateRequestDocStatus: payload => dispatch(updateRequestDocStatus(payload)),
-  updateRequestCurrentTasks: payload => dispatch(updateRequestCurrentTasks(payload)),
   resetTaskList: payload => dispatch(resetTaskList(payload))
 });
 
@@ -37,43 +35,38 @@ class Tasks extends React.Component {
     stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
-    isRunReload: PropTypes.bool,
+    runUpdate: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    setReloadDone: PropTypes.func,
     setInfo: PropTypes.func,
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
     className: '',
-    isSmallMode: false,
-    isRunReload: false
+    isSmallMode: false
   };
 
   state = {
     contentHeight: 0
   };
 
-  listRef = React.createRef();
-
   componentDidMount() {
     this.getTaskList();
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
-    if (nextProps.isRunReload) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.props.runUpdate && !prevProps.runUpdate) {
       this.getTaskList();
-      this.props.setReloadDone && this.props.setReloadDone(true);
     }
 
-    if (this.props.totalCount !== nextProps.totalCount) {
-      this.props.setInfo && this.props.setInfo({ totalCount: nextProps.totalCount });
+    if (this.props.totalCount !== prevProps.totalCount) {
+      this.props.setInfo && this.props.setInfo({ totalCount: this.props.totalCount });
     }
 
-    if (this.props.isLoading !== nextProps.isLoading) {
-      this.props.setInfo && this.props.setInfo({ isLoading: nextProps.isLoading });
+    if (this.props.isLoading !== prevProps.isLoading) {
+      this.props.setInfo && this.props.setInfo({ isLoading: this.props.isLoading });
     }
   }
 
@@ -86,10 +79,7 @@ class Tasks extends React.Component {
   getTaskList = () => {
     const { getTaskList, record, stateId } = this.props;
 
-    getTaskList({
-      stateId,
-      document: record
-    });
+    getTaskList({ stateId, record });
   };
 
   onAssignClick = ({ taskId, actionOfAssignment, ownerUserName }) => {
@@ -103,14 +93,7 @@ class Tasks extends React.Component {
     });
   };
 
-  onSubmitForm = () => {
-    const { updateRequestDocStatus, updateRequestCurrentTasks, record } = this.props;
-
-    updateRequestDocStatus({ record });
-    updateRequestCurrentTasks({ record });
-
-    this.getTaskList();
-  };
+  onSubmitForm = () => Records.get(this.props.record).update();
 
   setHeight = contentHeight => {
     this.setState({ contentHeight });
