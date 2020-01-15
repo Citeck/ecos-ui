@@ -45,7 +45,7 @@ class DocPreviewDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
-    this.watcher = this.instanceRecord.watch('version', this.onReload);
+    this.watcher = this.instanceRecord.watch('version', this.reload);
 
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
@@ -70,10 +70,6 @@ class DocPreviewDashlet extends BaseWidget {
 
   onResize = width => {
     this.setState({ width });
-  };
-
-  onReload = () => {
-    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
   };
 
   setUserScale = scale => {
