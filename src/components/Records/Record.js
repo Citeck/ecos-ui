@@ -274,7 +274,7 @@ export default class Record {
     return attributesToPersist;
   }
 
-  _getNotPersistedAssocAttributes() {
+  _getAssocAttributes() {
     let attributes = [];
     for (let attName in this._attributes) {
       if (!this._attributes.hasOwnProperty(attName)) {
@@ -291,29 +291,23 @@ export default class Record {
   _getLinkedRecordsToSave() {
     let self = this;
 
-    let result = this._getNotPersistedAssocAttributes().reduce((acc, att) => {
+    let result = this._getAssocAttributes().reduce((acc, att) => {
       let value = self.att(att);
       value = Array.isArray(value) ? value : [value];
-      return acc.concat(value.map(id => this._records.get(id)).filter(r => !r.isPersisted()));
+      return acc.concat(value.map(id => this._records.get(id)).map(rec => rec._getWhenReadyToSave()));
     }, []);
 
-    return result.map(r => r._getLinkedRecordsToSave()).reduce((acc, recs) => acc.concat(recs), result);
+    return Promise.all(result).then(records => records.filter(r => !r.isPersisted()));
   }
 
   save() {
     let self = this;
 
-    let recordsToSave = [this, ...this._getLinkedRecordsToSave()];
+    let recordsToSavePromises = [this._getWhenReadyToSave(), this._getLinkedRecordsToSave()];
     let requestRecords = [];
 
-    return Promise.all(
-      recordsToSave.map(
-        rec =>
-          new Promise((resolve, reject) => {
-            rec._waitUntilReadyToSave(0, resolve, reject);
-          })
-      )
-    ).then(() => {
+    return Promise.all(recordsToSavePromises).then(([baseRecordToSave, linkedRecordsToSave]) => {
+      const recordsToSave = [baseRecordToSave, ...linkedRecordsToSave];
       for (let record of recordsToSave) {
         let attributesToSave = record.getAttributesToSave();
         if (!_.isEmpty(attributesToSave)) {
@@ -368,6 +362,13 @@ export default class Record {
     });
   }
 
+  _getWhenReadyToSave() {
+    return new Promise((resolve, reject) => {
+      const resolveWithNode = () => resolve(this);
+      this._waitUntilReadyToSave(0, resolveWithNode, reject);
+    });
+  }
+
   _waitUntilReadyToSave(tryCounter, resolve, reject) {
     let notReadyAtts = [];
     for (let attName in this._attributes) {
@@ -382,7 +383,7 @@ export default class Record {
     if (notReadyAtts.length > 0) {
       if (tryCounter > 100) {
         console.error('Not ready attributes:', notReadyAtts);
-        reject('Waiting aborted');
+        reject('Record _waitUntilReadyToSave aborted');
       } else {
         setTimeout(() => this._waitUntilReadyToSave(tryCounter + 1, resolve, reject), 100);
       }
