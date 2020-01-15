@@ -4,6 +4,7 @@ import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import { Btn, IcoBtn } from '../../../common/btns';
 import Grid from '../../../common/grid/Grid/Grid';
+import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mapping/helpers';
 import Pagination from '../../../common/Pagination/Pagination';
 import Loader from '../../../common/Loader/Loader';
 import EcosForm, { FORM_MODE_EDIT } from '../../../EcosForm';
@@ -184,7 +185,13 @@ export default class SelectJournal extends Component {
 
       this.api.getJournalConfig(journalId).then(journalConfig => {
         // console.log('journalConfig', journalConfig);
-        let columns = journalConfig.columns;
+        let columns = journalConfig.columns.map(item => {
+          const column = { ...item };
+          if (matchCardDetailsLinkFormatterColumn(item)) {
+            column.disableFormatter = true;
+          }
+          return column;
+        });
 
         if (Array.isArray(displayColumns) && displayColumns.length > 0) {
           columns = columns.map(item => {
