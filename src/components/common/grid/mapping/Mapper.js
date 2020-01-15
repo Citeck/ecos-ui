@@ -1,5 +1,3 @@
-import { matchCardDetailsLinkFormatterColumn } from './helpers';
-
 /*
 text
 mltext
@@ -17,6 +15,10 @@ noderef
 options
 +assoc
 */
+
+export function matchCardDetailsLinkFormatterColumn(column) {
+  return column.attribute === 'cm:name' || column.attribute === 'cm:title';
+}
 
 const MAP = [
   {

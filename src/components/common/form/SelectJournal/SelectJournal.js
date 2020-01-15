@@ -4,7 +4,7 @@ import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import { Btn, IcoBtn } from '../../../common/btns';
 import Grid from '../../../common/grid/Grid/Grid';
-import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mapping/helpers';
+import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mapping/Mapper';
 import Pagination from '../../../common/Pagination/Pagination';
 import Loader from '../../../common/Loader/Loader';
 import EcosForm, { FORM_MODE_EDIT } from '../../../EcosForm';
