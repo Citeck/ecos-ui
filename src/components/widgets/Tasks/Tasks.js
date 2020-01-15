@@ -71,7 +71,7 @@ class Tasks extends React.Component {
   }
 
   componentWillUnmount() {
-    const { resetTaskList, stateId, record } = this.props;
+    const { resetTaskList, stateId } = this.props;
 
     resetTaskList({ stateId });
   }
