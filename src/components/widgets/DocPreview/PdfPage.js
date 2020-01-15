@@ -61,7 +61,11 @@ class PdfPage extends React.Component {
       settings: { scale },
       defHeight
     } = this.props;
-    const elPageArea = this.refContainer.current || {};
+    const elPageArea = this.refContainer.current;
+    if (!elPageArea) {
+      return;
+    }
+
     const elCanvas = elPageArea.querySelector('.ecos-doc-preview__viewer-page-content-canvas');
     const elTextLayer = elPageArea.querySelector('.ecos-doc-preview__viewer-page-content-text');
     const elViewer = this.props.refViewer.current || {};
