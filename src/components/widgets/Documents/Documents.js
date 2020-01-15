@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
@@ -16,12 +17,10 @@ import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import { getDocumentsByType, init, toggleType } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
-import { typesStatuses, tooltips, typeStatusesByFields } from '../../../constants/documents';
+import { statusesKeys, typesStatuses, tooltips, typeStatusesByFields, tableFields } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 
 import './style.scss';
-import isEmpty from 'lodash/isEmpty';
-import { Scrollbars } from 'react-custom-scrollbars';
 
 const LABELS = {
   TITLE: 'Документы',
@@ -47,7 +46,8 @@ class Documents extends BaseWidget {
       isOpenSettings: false,
       isOpenUploadModal: false,
       typesFilter: '',
-      tableFilter: ''
+      tableFilter: '',
+      statusFilter: statusesKeys.ALL
     };
 
     props.init();
@@ -103,8 +103,61 @@ class Documents extends BaseWidget {
   }
 
   get tableData() {
-    const { tableFilter, selectedType } = this.state;
+    const { documents, dynamicTypes } = this.props;
+    const { tableFilter, selectedType, statusFilter } = this.state;
+    const data = selectedType ? documents : dynamicTypes;
+    const filter = (data = []) => {
+      if (!data.length) {
+        return [];
+      }
+
+      const fields = tableFields[selectedType ? 'DEFAULT' : 'ALL'];
+
+      return data.filter(item => {
+        const byStatus = statusFilter === statusesKeys.ALL ? true : this.getTypeStatus(item) === statusFilter;
+        const byText = fields
+          .map(field =>
+            get(item, [field.name], '')
+              .toLowerCase()
+              .includes(tableFilter)
+          )
+          .includes(true);
+
+        return byText && byStatus;
+      });
+    };
+
+    return filter(data);
   }
+
+  get dynamicTypes() {
+    const { dynamicTypes } = this.props;
+    const { statusFilter } = this.state;
+
+    if (statusFilter === statusesKeys.ALL) {
+      return dynamicTypes;
+    }
+
+    return dynamicTypes.filter(type => this.getTypeStatus(type) === statusFilter);
+  }
+
+  getTypeStatus = type => {
+    let status = statusesKeys.CAN_ADD_FILES;
+
+    if (type.countDocuments === 1) {
+      status = statusesKeys.FILE_ADDED;
+    }
+
+    if (type.countDocuments > 1) {
+      status = statusesKeys.MULTI_FILES_ADDED;
+    }
+
+    if (type.mandatory && !type.countDocuments) {
+      status = statusesKeys.NEED_ADD_FILES;
+    }
+
+    return status;
+  };
 
   handleReloadData = () => {};
 
@@ -126,7 +179,7 @@ class Documents extends BaseWidget {
     }
 
     this.props.getDocuments(selectedType);
-    this.setState({ selectedType });
+    this.setState({ selectedType, statusFilter: statusesKeys.ALL });
   };
 
   handleToggleSelectType = ({ id, checked }) => {
@@ -145,11 +198,25 @@ class Documents extends BaseWidget {
   };
 
   handleFilterTable = (filter = '') => {
-    this.setState({ tableFilter: filter });
+    this.setState({ tableFilter: filter.toLowerCase() });
+  };
+
+  handleChangeTypeFilter = (status = statusesKeys.ALL) => {
+    this.setState({
+      statusFilter: status.key
+    });
+  };
+
+  handleClickTableRow = row => {
+    if (this.state.selectedType) {
+      return;
+    }
+
+    this.handleSelectType(row.type);
   };
 
   renderTypes() {
-    const { dynamicTypes, id } = this.props;
+    const { id, dynamicTypes } = this.props;
     const { selectedType, leftColumnId, rightColumnId } = this.state;
     const settingsId = prepareTooltipId(`settings-${id}`);
 
@@ -188,20 +255,7 @@ class Documents extends BaseWidget {
     const { id } = this.props;
     const { selectedType } = this.state;
     const target = prepareTooltipId(`${type.id}-${id}`);
-
-    let status = typesStatuses.CAN_ADD_FILES;
-
-    if (type.countDocuments === 1) {
-      status = typesStatuses.FILE_ADDED;
-    }
-
-    if (type.countDocuments > 1) {
-      status = typesStatuses.MULTI_FILES_ADDED;
-    }
-
-    if (type.mandatory && !type.countDocuments) {
-      status = typesStatuses.NEED_ADD_FILES;
-    }
+    const status = typesStatuses[this.getTypeStatus(type)];
 
     return (
       <div
@@ -270,39 +324,45 @@ class Documents extends BaseWidget {
   }
 
   renderTablePanel() {
-    const { selectedType } = this.state;
+    const { statusFilter, selectedType } = this.state;
 
     return (
       <div className="ecos-docs__panel">
         {this.renderUploadButton()}
-        <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTable} className="ecos-docs__modal-settings-search" />
+        <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTable} className="ecos-docs__panel-search" />
+        {!selectedType && (
+          <Dropdown
+            className="ecos-docs__panel-filter"
+            controlClassName="ecos-docs__panel-filter-control"
+            valueField="key"
+            titleField="value"
+            value={statusFilter}
+            source={typeStatusesByFields}
+            onChange={this.handleChangeTypeFilter}
+          />
+        )}
       </div>
     );
   }
 
   renderTable() {
-    const { documents, dynamicTypes } = this.props;
     const { selectedType, rightColumnId } = this.state;
-    // let columns = [{ dataField: 'name', text: 'Название' }];
-    let columns = [
-      { dataField: 'name', text: 'Тип' },
-      { dataField: 'loadedBy', text: 'Загрузил' },
-      { dataField: 'modified', text: 'Обновлено' }
-    ];
-    let data = selectedType ? documents : dynamicTypes;
+    let columns = tableFields.ALL.map(item => ({
+      dataField: item.name,
+      text: item.label
+    }));
 
     if (selectedType) {
-      columns = [
-        { dataField: 'typeName', text: 'Тип' },
-        { dataField: 'loadedBy', text: 'Загрузил' },
-        { dataField: 'modified', text: 'Обновлено' }
-      ];
+      columns = tableFields.DEFAULT.map(item => ({
+        dataField: item.name,
+        text: item.label
+      }));
     }
 
     return (
       <div id={rightColumnId} className="ecos-docs__column ecos-docs__column_table">
         {this.renderTablePanel()}
-        <Grid className="ecos-docs__table" data={data} columns={columns} scrollable />
+        <Grid className="ecos-docs__table" data={this.tableData} columns={columns} onRowClick={this.handleClickTableRow} scrollable />
       </div>
     );
   }

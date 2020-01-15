@@ -3,7 +3,7 @@ import { DocumentsApiRequests } from './stubs';
 
 export class DocumentsApi {
   getDocumentTypes = () => {
-    // return DocumentsApiRequests.getDocumentTypes();
+    return DocumentsApiRequests.getDocumentTypes();
 
     return Records.query(
       {
@@ -34,7 +34,7 @@ export class DocumentsApi {
   };
 
   getCountDocumentsByTypes = (recordRef, types = []) => {
-    // return DocumentsApiRequests.getCountDocumentsByTypes();
+    return DocumentsApiRequests.getCountDocumentsByTypes();
 
     return Records.query(
       {
