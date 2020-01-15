@@ -38,7 +38,7 @@ class CurrentTasksDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
-    this.watcher = this.instanceRecord.watch('cm:modified', this.onReload);
+    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
 
     this.state = {
       isSmallMode: false,
@@ -58,10 +58,6 @@ class CurrentTasksDashlet extends BaseWidget {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
-  onReload = () => {
-    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
-  };
-
   setInfo = data => {
     this.setState(data);
   };
@@ -71,7 +67,7 @@ class CurrentTasksDashlet extends BaseWidget {
     const { isSmallMode, runUpdate, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
       [BaseActions.RELOAD]: {
-        onClick: () => this.onReload()
+        onClick: () => this.reload()
       }
     };
 

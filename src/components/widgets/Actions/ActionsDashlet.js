@@ -36,7 +36,7 @@ class ActionsDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
-    this.watcher = this.instanceRecord.watch(['caseStatus', 'idocs:documentStatus'], this.onReload);
+    this.watcher = this.instanceRecord.watch(['caseStatus', 'idocs:documentStatus'], this.reload);
 
     this.state = {
       isSmallMode: false,
@@ -49,10 +49,6 @@ class ActionsDashlet extends BaseWidget {
   componentWillUnmount() {
     this.instanceRecord.unwatch(this.watcher);
   }
-
-  onReload = () => {
-    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
-  };
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });

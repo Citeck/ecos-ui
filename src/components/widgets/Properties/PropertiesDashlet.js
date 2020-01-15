@@ -57,7 +57,7 @@ class PropertiesDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
-    this.watcher = this.instanceRecord.watch('cm:modified', this.reloadWidget);
+    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
 
     this.state = {
       isSmallMode: false,
@@ -94,7 +94,7 @@ class PropertiesDashlet extends BaseWidget {
 
     const actions = {
       [BaseActions.RELOAD]: {
-        onClick: this.reloadWidget
+        onClick: this.reload
       },
       [BaseActions.SETTINGS]: {
         onClick: this.toggleDisplayFormSettings
@@ -131,7 +131,7 @@ class PropertiesDashlet extends BaseWidget {
     this.setState({ wasLastModifiedWithInlineEditor: true });
   };
 
-  reloadWidget = () => {
+  reload = () => {
     if (this.state.wasLastModifiedWithInlineEditor) {
       this.setState({ wasLastModifiedWithInlineEditor: false });
     } else {

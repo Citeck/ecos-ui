@@ -38,7 +38,7 @@ class EventsHistoryDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
-    this.watcher = this.instanceRecord.watch('cm:modified', this.onReload);
+    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
 
     this.state = {
       isSmallMode: false,
@@ -54,10 +54,6 @@ class EventsHistoryDashlet extends BaseWidget {
 
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) }, this.checkHeight);
-  };
-
-  onReload = () => {
-    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
   };
 
   render() {
