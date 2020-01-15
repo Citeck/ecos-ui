@@ -175,6 +175,9 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
         .then(() => {
           switchToViewOnlyMode();
           form.showErrors('', true);
+          if (typeof this.options.onInlineEditSave === 'function') {
+            this.options.onInlineEditSave();
+          }
         })
         .catch(e => {
           form.showErrors(e, true);

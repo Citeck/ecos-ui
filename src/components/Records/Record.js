@@ -1,9 +1,11 @@
 import _ from 'lodash';
-import { loadAttribute, recordsMutateFetch } from './recordsApi';
+import { recordsMutateFetch, loadAttribute } from './recordsApi';
 import Attribute from './Attribute';
-import RecordEventsService from './RecordEventsService';
+import { EventEmitter2 } from 'eventemitter2';
 import { mapValueToInnerAtt } from './recordUtils';
 import RecordWatcher from './RecordWatcher';
+
+export const EVENT_CHANGE = 'change';
 
 const ATT_NAME_REGEXP = /\.atts?\(n:"(.+?)"\)\s*{(.+)}/;
 const SIMPLE_ATT_NAME_REGEXP = /(.+?){(.+)}/;
@@ -88,8 +90,7 @@ export default class Record {
     } else {
       this._baseRecord = null;
     }
-    this.eventsService = new RecordEventsService();
-    this._emitter = this.eventsService.emitter;
+    this._emitter = new EventEmitter2();
     this._modified = null;
     this._pendingUpdate = false;
     this._updatePromise = Promise.resolve();
@@ -385,7 +386,7 @@ export default class Record {
     return attributesToPersist;
   }
 
-  _getNotPersistedAssocAttributes() {
+  _getAssocAttributes() {
     let attributes = [];
     for (let attName in this._attributes) {
       if (!this._attributes.hasOwnProperty(attName)) {
@@ -402,29 +403,26 @@ export default class Record {
   _getLinkedRecordsToSave() {
     let self = this;
 
-    let result = this._getNotPersistedAssocAttributes().reduce((acc, att) => {
+    let result = this._getAssocAttributes().reduce((acc, att) => {
       let value = self.att(att);
+      if (!value) {
+        return acc;
+      }
       value = Array.isArray(value) ? value : [value];
-      return acc.concat(value.map(id => this._records.get(id)).filter(r => !r.isPersisted()));
+      return acc.concat(value.map(id => this._records.get(id)).map(rec => rec._getWhenReadyToSave()));
     }, []);
 
-    return result.map(r => r._getLinkedRecordsToSave()).reduce((acc, recs) => acc.concat(recs), result);
+    return Promise.all(result).then(records => records.filter(r => !r.isPersisted()));
   }
 
   save() {
     let self = this;
 
-    let recordsToSave = [this, ...this._getLinkedRecordsToSave()];
+    let recordsToSavePromises = [this._getWhenReadyToSave(), this._getLinkedRecordsToSave()];
     let requestRecords = [];
 
-    return Promise.all(
-      recordsToSave.map(
-        rec =>
-          new Promise((resolve, reject) => {
-            rec._waitUntilReadyToSave(0, resolve, reject);
-          })
-      )
-    ).then(() => {
+    return Promise.all(recordsToSavePromises).then(([baseRecordToSave, linkedRecordsToSave]) => {
+      const recordsToSave = [baseRecordToSave, ...linkedRecordsToSave];
       for (let record of recordsToSave) {
         let attributesToSave = record.getAttributesToSave();
         if (!_.isEmpty(attributesToSave)) {
@@ -471,13 +469,20 @@ export default class Record {
         return Promise.all(loadPromises).then(() => {
           for (let recordId of Object.keys(attributesToLoad)) {
             let record = this._records.get(recordId);
-            record.eventsService.notifyRecordChanges();
+            record.events.emit(EVENT_CHANGE);
             record.update();
           }
           let resultId = ((response.records || [])[0] || {}).id;
           return resultId ? this._records.get(resultId) : self;
         });
       });
+    });
+  }
+
+  _getWhenReadyToSave() {
+    return new Promise((resolve, reject) => {
+      const resolveWithNode = () => resolve(this);
+      this._waitUntilReadyToSave(0, resolveWithNode, reject);
     });
   }
 
@@ -495,7 +500,7 @@ export default class Record {
     if (notReadyAtts.length > 0) {
       if (tryCounter > 100) {
         console.error('Not ready attributes:', notReadyAtts);
-        reject('Waiting aborted');
+        reject('Record _waitUntilReadyToSave aborted');
       } else {
         setTimeout(() => this._waitUntilReadyToSave(tryCounter + 1, resolve, reject), 100);
       }

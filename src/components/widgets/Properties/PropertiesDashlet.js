@@ -57,7 +57,7 @@ class PropertiesDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
-    this.watcher = this.instanceRecord.watch('cm:modified', this.onReload);
+    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
 
     this.state = {
       isSmallMode: false,
@@ -69,7 +69,8 @@ class PropertiesDashlet extends BaseWidget {
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       fitHeights: {},
       canEditRecord: false,
-      isShowSetting: false
+      isShowSetting: false,
+      wasLastModifiedWithInlineEditor: false
     };
   }
 
@@ -93,7 +94,7 @@ class PropertiesDashlet extends BaseWidget {
 
     const actions = {
       [BaseActions.RELOAD]: {
-        onClick: this.onReload
+        onClick: this.reload
       },
       [BaseActions.SETTINGS]: {
         onClick: this.toggleDisplayFormSettings
@@ -126,8 +127,16 @@ class PropertiesDashlet extends BaseWidget {
     });
   };
 
-  onReload = inputRecord => {
-    this.setState({ isReady: false }, () => this.setState({ isReady: true }));
+  onInlineEditSave = () => {
+    this.setState({ wasLastModifiedWithInlineEditor: true });
+  };
+
+  reload = () => {
+    if (this.state.wasLastModifiedWithInlineEditor) {
+      this.setState({ wasLastModifiedWithInlineEditor: false });
+    } else {
+      this.setState({ isReady: false }, () => this.setState({ isReady: true }));
+    }
   };
 
   onResize = width => {
@@ -200,6 +209,7 @@ class PropertiesDashlet extends BaseWidget {
           maxHeight={fitHeights.max}
           onUpdate={this.onPropertiesUpdate}
           formId={formId}
+          onInlineEditSave={this.onInlineEditSave}
         />
         {isShowSetting && (
           <PropertiesSettings

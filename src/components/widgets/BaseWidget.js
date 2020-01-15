@@ -8,6 +8,15 @@ import Records from '../Records/Records';
 class BaseWidget extends Component {
   contentRef = React.createRef();
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      runUpdate: false,
+      userHeight: undefined
+    };
+  }
+
   get instanceRecord() {
     return Records.get(this.props.record);
   }
@@ -64,6 +73,10 @@ class BaseWidget extends Component {
 
   handleResize = width => {
     this.setState({ width });
+  };
+
+  reload = () => {
+    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
   };
 }
 
