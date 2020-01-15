@@ -77,8 +77,8 @@
       }
 
       #{$info}-value {
-        flex: auto;
-        max-width: 70%;
+        flex: 1 1 auto;
+        min-width: 0;
         font-weight: $font-weight-bold;
         font-size: $font-size-standard;
         color: $text-color-dark;
