@@ -405,6 +405,9 @@ export default class Record {
 
     let result = this._getAssocAttributes().reduce((acc, att) => {
       let value = self.att(att);
+      if (!value) {
+        return acc;
+      }
       value = Array.isArray(value) ? value : [value];
       return acc.concat(value.map(id => this._records.get(id)).map(rec => rec._getWhenReadyToSave()));
     }, []);
