@@ -85,11 +85,7 @@ class EventsHistory extends React.Component {
   getEventsHistory = () => {
     const { getEventsHistory, record, stateId, columns } = this.props;
 
-    getEventsHistory({
-      stateId,
-      record,
-      columns
-    });
+    getEventsHistory({ stateId, record, columns });
   };
 
   setHeight = contentHeight => {
@@ -99,12 +95,7 @@ class EventsHistory extends React.Component {
   onFilter = predicates => {
     const { filterEventsHistory, record, stateId, columns } = this.props;
 
-    filterEventsHistory({
-      stateId,
-      record,
-      columns,
-      predicates
-    });
+    filterEventsHistory({ stateId, record, columns, predicates });
   };
 
   get tableHead() {

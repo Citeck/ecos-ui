@@ -14,6 +14,7 @@ import {
   setVersionsComparison
 } from '../actions/versionsJournal';
 import VersionsJournalConverter from '../dto/versionsJournal';
+import Records from '../components/Records';
 
 function* sagaGetVersions({ api, logger }, { payload }) {
   try {
@@ -41,6 +42,7 @@ function* sagaAddNewVersion({ api, logger }, { payload }) {
     if (result.status.code === 200) {
       yield put(addNewVersionSuccess(payload.id));
       yield put(getVersions({ record: result.nodeRef, id: payload.id }));
+      Records.get(payload.record).update();
     } else {
       yield put(addNewVersionError({ message: result.message, id: payload.id }));
     }
