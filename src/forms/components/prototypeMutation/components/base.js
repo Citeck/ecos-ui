@@ -3,16 +3,24 @@ import isObject from 'lodash/isObject';
 import clone from 'lodash/clone';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
-import Records from '../../../../components/Records';
-import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 
 const originalCreateTooltip = Base.prototype.createTooltip;
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
 const originalBuild = Base.prototype.build;
 const originalCreateViewOnlyElement = Base.prototype.createViewOnlyElement;
 const originalCheckValidity = Base.prototype.checkValidity;
+const originalSetValue = Base.prototype.setValue;
 
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
+
+Base.prototype.setValue = function(value, flags) {
+  // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2980
+  if (this.viewOnly) {
+    this.dataValue = value;
+  }
+
+  return originalSetValue.call(this, value, flags);
+};
 
 Base.prototype.createTooltip = function(container, component, classes) {
   originalCreateTooltip.call(this, container, component, classes);
@@ -136,7 +144,8 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
     const rollBack = () => {
       if (this.hasOwnProperty('_valueBeforeEdit')) {
         if (!isEqual(this.getValue(), this._valueBeforeEdit)) {
-          this.dataValue = this._valueBeforeEdit;
+          // this.dataValue = this._valueBeforeEdit;
+          this.setValue(this._valueBeforeEdit);
         }
       }
 
@@ -149,8 +158,6 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
         return;
       }
 
-      const recordId = get(this, 'root.options.recordId');
-      const componentKey = get(this, 'component.key');
       const form = get(this, 'root');
       if (form.changing) {
         return;
@@ -160,29 +167,16 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
         return;
       }
 
-      if (recordId && componentKey) {
-        const record = Records.get(recordId);
-        const inputs = EcosFormUtils.getFormInputs(form.component);
-        const keysMapping = EcosFormUtils.getKeysMapping(inputs);
-        const inputByKey = EcosFormUtils.getInputByKey(inputs);
-
-        let input = inputByKey[componentKey];
-        const value = EcosFormUtils.processValueBeforeSubmit(this.dataValue, input, keysMapping);
-
-        record.att(keysMapping[componentKey] || componentKey, value);
-        record
-          .save()
-          .then(() => {
-            switchToViewOnlyMode();
-            form.showErrors('', true);
-          })
-          .catch(e => {
-            form.showErrors(e, true);
-            rollBack();
-          });
-      } else {
-        rollBack();
-      }
+      return form
+        .submit()
+        .then(() => {
+          switchToViewOnlyMode();
+          form.showErrors('', true);
+        })
+        .catch(e => {
+          form.showErrors(e, true);
+          rollBack();
+        });
     };
 
     const onCancelButtonClick = () => {

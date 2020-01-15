@@ -24,20 +24,28 @@ Webform.prototype.onSubmit = function(submission, saved) {
 Webform.prototype.submit = function(before, options) {
   const form = this;
 
-  let fireSubmit = finishTime => {
-    if (form.changing) {
-      if (new Date().getTime() < finishTime) {
-        setTimeout(() => {
-          fireSubmit(finishTime);
-        }, 300);
+  return new Promise((resolve, reject) => {
+    let fireSubmit = finishTime => {
+      if (form.changing) {
+        if (new Date().getTime() < finishTime) {
+          setTimeout(() => {
+            fireSubmit(finishTime);
+          }, 300);
+        } else {
+          console.warn('Form will be submitted, but changing flag is still true');
+          originalSubmit
+            .call(this, before, options)
+            .then(resolve)
+            .catch(reject);
+        }
       } else {
-        console.warn('Form will be submitted, but changing flag is still true');
-        originalSubmit.call(this, before, options);
+        originalSubmit
+          .call(this, before, options)
+          .then(resolve)
+          .catch(reject);
       }
-    } else {
-      originalSubmit.call(this, before, options);
-    }
-  };
+    };
 
-  fireSubmit(new Date().getTime() + 5000);
+    fireSubmit(new Date().getTime() + 5000);
+  });
 };

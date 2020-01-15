@@ -15,6 +15,17 @@
       border-bottom: none;
     }
 
+    &.formio-component-tableForm_viewOnly-hasValue {
+      display: grid;
+      grid-template-columns: 100%;
+      grid-gap: 10px;
+      border-bottom: none;
+
+      .ecos-table-form__value-not-selected {
+        display: none;
+      }
+    }
+
     &.inline-editing {
       flex-direction: column;
 

@@ -11,7 +11,7 @@ import './InputView.scss';
 const InputView = () => {
   const context = useContext(TableFormContext);
 
-  const { placeholder, disabled } = context.controlProps;
+  const { placeholder, disabled, viewOnly } = context.controlProps;
   const { selectedRows, columns, error, deleteSelectedItem, showEditForm, inlineToolsOffsets, setInlineToolsOffsets } = context;
 
   const wrapperRef = useRef(null);
@@ -45,23 +45,34 @@ const InputView = () => {
     showEditForm(inlineToolsOffsets.rowId);
   };
 
-  let valuesList = <p className={'ecos-table-form__value-not-selected'}>{placeholderText}</p>;
-  if (selectedRows.length > 0) {
-    const inlineTools = disabled
-      ? null
-      : () => {
-          const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
+  let valuesList = (
+    <p
+      className={classNames('ecos-table-form__value-not-selected', {
+        'ecos-table-form__value-not-selected_view-only': viewOnly
+      })}
+    >
+      {placeholderText}
+    </p>
+  );
 
-          return (
-            <InlineToolsDisconnected
-              {...inlineToolsOffsets}
-              tools={[
-                <IcoBtn key={'edit'} icon={'icon-edit'} className={inlineToolsActionClassName} onClick={onClickEdit} />,
-                <IcoBtn key={'delete'} icon={'icon-delete'} className={inlineToolsActionClassName} onClick={onClickDelete} />
-              ]}
-            />
-          );
-        };
+  if (selectedRows.length > 0) {
+    const inlineTools =
+      disabled || viewOnly
+        ? null
+        : () => {
+            const inlineToolsActionClassName =
+              'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
+
+            return (
+              <InlineToolsDisconnected
+                {...inlineToolsOffsets}
+                tools={[
+                  <IcoBtn key={'edit'} icon={'icon-edit'} className={inlineToolsActionClassName} onClick={onClickEdit} />,
+                  <IcoBtn key={'delete'} icon={'icon-delete'} className={inlineToolsActionClassName} onClick={onClickDelete} />
+                ]}
+              />
+            );
+          };
 
     valuesList = (
       <div ref={wrapperRef} className={'ecos-table-form__grid-wrapper'}>
