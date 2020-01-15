@@ -24,7 +24,7 @@ class EventsHistoryCard extends React.Component {
     let cell = event[column.dataField];
     const empty = isEmpty(cell);
 
-    cell = !empty ? cell : defV || t('events-history-widget.no-data');
+    cell = !empty ? cell : defV || t('events-history-widget.info.no-data');
 
     return (
       <div className={classNames('ecos-event-history-card-value', className, { 'ecos-event-history-card-value_none': empty })}>

@@ -1,22 +1,14 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
-import { connect } from 'react-redux';
-import { UncontrolledTooltip } from 'reactstrap';
 import uuid from 'uuidv4';
+import { UncontrolledTooltip } from 'reactstrap';
 
 import { deepClone } from '../../../helpers/util';
 import { LoaderTypes } from '../../../constants/index';
-import {
-  changeDocStatus,
-  getCheckDocStatus,
-  getDocStatus,
-  initDocStatus,
-  resetDocStatus,
-  updateDocStatus
-} from '../../../actions/docStatus';
+import { changeDocStatus, getDocStatus, initDocStatus, resetDocStatus } from '../../../actions/docStatus';
 import { selectStateDocStatusById } from '../../../selectors/docStatus';
 import DocStatusService from '../../../services/docStatus';
 import { Loader, PointsLoader } from '../../common/index';
@@ -31,11 +23,8 @@ const mapStateToProps = (state, context) => {
 
   return {
     status: stateDS.status,
-    isUpdating: stateDS.isUpdating,
-    countAttempt: stateDS.countAttempt,
     isLoading: stateDS.isLoading,
-    availableToChangeStatuses: stateDS.availableToChangeStatuses,
-    updateRequestRecord: state.docStatus.updateRequestRecord
+    availableToChangeStatuses: stateDS.availableToChangeStatuses
   };
 };
 
@@ -43,12 +32,8 @@ const mapDispatchToProps = dispatch => ({
   initDocStatus: payload => dispatch(initDocStatus(payload)),
   changeDocStatus: payload => dispatch(changeDocStatus(payload)),
   getDocStatus: payload => dispatch(getDocStatus(payload)),
-  getCheckDocStatus: payload => dispatch(getCheckDocStatus(payload)),
-  updateDocStatus: payload => dispatch(updateDocStatus(payload)),
   resetDocStatus: payload => dispatch(resetDocStatus(payload))
 });
-
-const MAX_ATTEMPT = 10;
 
 class DocStatus extends BaseWidget {
   static propTypes = {
@@ -68,16 +53,16 @@ class DocStatus extends BaseWidget {
     loaderType: LoaderTypes.CIRCLE
   };
 
+  constructor(props) {
+    super(props);
+
+    this.watcher = this.instanceRecord.watch(['caseStatus', 'idocs:documentStatus'], this.updateStatus);
+  }
+
   state = {
     wasChanged: false,
     key: uuid()
   };
-
-  checkDocStatusPing = debounce(() => {
-    const { stateId, record, getCheckDocStatus } = this.props;
-
-    getCheckDocStatus({ stateId, record });
-  }, 2000);
 
   componentDidMount() {
     const { stateId, record, initDocStatus } = this.props;
@@ -85,22 +70,12 @@ class DocStatus extends BaseWidget {
     initDocStatus({ stateId, record });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { stateId, record, isLoading, getDocStatus, updateDocStatus } = this.props;
+  componentDidUpdate(prevProps) {
+    const { isLoading, status } = this.props;
 
-    if (nextProps.updateRequestRecord === record) {
-      updateDocStatus({ stateId });
-    }
-
-    if (!isLoading) {
-      if (nextProps.isUpdating && nextProps.countAttempt < MAX_ATTEMPT) {
-        this.checkDocStatusPing();
-      } else if (!nextProps.isUpdating || nextProps.countAttempt === MAX_ATTEMPT) {
-        this.checkDocStatusPing.cancel();
-
-        if (isEmpty(nextProps.status)) {
-          getDocStatus({ stateId, record });
-        }
+    if (prevProps.isLoading && !isLoading) {
+      if (isEmpty(status)) {
+        this.updateStatus();
       }
     }
   }
@@ -109,6 +84,8 @@ class DocStatus extends BaseWidget {
     const { resetDocStatus, stateId } = this.props;
 
     resetDocStatus({ stateId });
+
+    this.instanceRecord.unwatch(this.watcher);
   }
 
   get isNoStatus() {
@@ -124,10 +101,16 @@ class DocStatus extends BaseWidget {
   }
 
   get isShowLoader() {
-    const { isLoading, isUpdating, countAttempt, status, noLoader } = this.props;
+    const { isLoading, status, noLoader } = this.props;
 
-    return (!noLoader && isLoading) || (isUpdating && countAttempt < MAX_ATTEMPT) || isEmpty(status);
+    return (!noLoader && isLoading) || isEmpty(status);
   }
+
+  updateStatus = () => {
+    const { stateId, record, getDocStatus } = this.props;
+
+    getDocStatus({ stateId, record });
+  };
 
   onChangeStatus = () => {
     const { stateId, record, changeDocStatus } = this.props;

@@ -37,6 +37,7 @@ class Actions extends React.Component {
     className: PropTypes.string,
     isLoading: PropTypes.bool,
     isMobile: PropTypes.bool,
+    runUpdate: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -56,6 +57,12 @@ class Actions extends React.Component {
 
   componentDidMount() {
     this.getActions();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!prevProps.runUpdate && this.props.runUpdate) {
+      this.getActions();
+    }
   }
 
   componentWillUnmount() {

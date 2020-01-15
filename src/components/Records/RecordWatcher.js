@@ -6,6 +6,7 @@ export default class RecordWatcher {
     this._watchedAttributes = watchedAttributes;
     this._callback = callback;
     this._attributes = null;
+    this._initialized = false;
   }
 
   getWatchedAttributes() {
@@ -15,7 +16,11 @@ export default class RecordWatcher {
   setAttributes(attributes) {
     if (!isEqual(this._attributes, attributes)) {
       this._attributes = attributes;
-      this._callback(attributes);
+      if (this._initialized) {
+        this._callback(attributes);
+      } else {
+        this._initialized = true;
+      }
     }
   }
 

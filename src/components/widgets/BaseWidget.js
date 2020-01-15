@@ -3,9 +3,23 @@ import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 
 import UserLocalSettingsService from '../../services/userLocalSettings';
+import Records from '../Records/Records';
 
 class BaseWidget extends Component {
   contentRef = React.createRef();
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      runUpdate: false,
+      userHeight: undefined
+    };
+  }
+
+  get instanceRecord() {
+    return Records.get(this.props.record);
+  }
 
   get clientHeight() {
     if (!this.props.maxHeightByContent) {
@@ -63,6 +77,10 @@ class BaseWidget extends Component {
 
   handleResize = width => {
     this.setState({ width });
+  };
+
+  reload = () => {
+    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
   };
 }
 

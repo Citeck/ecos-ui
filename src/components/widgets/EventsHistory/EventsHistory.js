@@ -60,6 +60,7 @@ class EventsHistory extends React.Component {
     isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool,
     isLoading: PropTypes.bool,
+    runUpdate: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -115,6 +116,12 @@ class EventsHistory extends React.Component {
     resetEventsHistory({ stateId });
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!prevProps.runUpdate && this.props.runUpdate) {
+      this.getEventsHistory();
+    }
+  }
+
   get contentHeight() {
     const { isSmallMode, isMobile } = this.props;
     const table = get(this.props, 'forwardedRef.current', null);
@@ -134,22 +141,13 @@ class EventsHistory extends React.Component {
   getEventsHistory = () => {
     const { getEventsHistory, record, stateId, columns } = this.props;
 
-    getEventsHistory({
-      stateId,
-      record,
-      columns
-    });
+    getEventsHistory({ stateId, record, columns });
   };
 
   onFilter = predicates => {
     const { filterEventsHistory, record, stateId, columns } = this.props;
 
-    filterEventsHistory({
-      stateId,
-      record,
-      columns,
-      predicates
-    });
+    filterEventsHistory({ stateId, record, columns, predicates });
   };
 
   onGridFilter = (newFilters = []) => {

@@ -3,12 +3,6 @@ import Records from '../components/Records';
 import { SourcesId } from '../constants';
 
 export class DocStatusApi extends RecordService {
-  isUpdateDocStatus = function({ record }) {
-    return Records.get(record)
-      .load('pendingUpdate?bool', true)
-      .then(res => res);
-  };
-
   getDocStatus = ({ record }) => {
     return Records.query(
       {

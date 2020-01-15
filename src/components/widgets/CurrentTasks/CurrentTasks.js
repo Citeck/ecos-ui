@@ -36,6 +36,7 @@ class CurrentTasks extends React.Component {
     isSmallMode: PropTypes.bool,
     isMobile: PropTypes.bool,
     isLoading: PropTypes.bool,
+    runUpdate: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -47,7 +48,7 @@ class CurrentTasks extends React.Component {
     isSmallMode: false,
     isMobile: false,
     isLoading: false,
-    setInfo: () => {}
+    setInfo: () => null
   };
 
   state = {
@@ -58,19 +59,19 @@ class CurrentTasks extends React.Component {
     this.getCurrentTaskList();
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { record, isLoading } = this.props;
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { totalCount, isLoading, runUpdate, setInfo } = this.props;
 
-    if (!isLoading && !isEmpty(nextProps.updateRequestRecord) && nextProps.updateRequestRecord === record) {
+    if (totalCount !== prevProps.totalCount) {
+      setInfo({ totalCount });
+    }
+
+    if (isLoading !== prevProps.isLoading) {
+      setInfo({ isLoading });
+    }
+
+    if (runUpdate && !prevProps.runUpdate) {
       this.getCurrentTaskList();
-    }
-
-    if (this.props.totalCount !== nextProps.totalCount) {
-      this.props.setInfo({ totalCount: nextProps.totalCount });
-    }
-
-    if (this.props.isLoading !== nextProps.isLoading) {
-      this.props.setInfo({ isLoading: nextProps.isLoading });
     }
   }
 
@@ -81,12 +82,9 @@ class CurrentTasks extends React.Component {
   }
 
   getCurrentTaskList = () => {
-    const { getCurrentTaskList, stateId, record } = this.props;
+    const { getCurrentTaskList, stateId, record: document } = this.props;
 
-    getCurrentTaskList({
-      stateId,
-      document: record
-    });
+    getCurrentTaskList({ stateId, document });
   };
 
   setHeight = contentHeight => {

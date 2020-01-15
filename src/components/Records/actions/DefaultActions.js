@@ -1,9 +1,9 @@
+import isEmpty from 'lodash/isEmpty';
 import Records from '../Records';
 import { getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
-import { FORM_MODE_CREATE } from '../../EcosForm';
 
 const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
 
@@ -263,7 +263,15 @@ export const DownloadCardTemplate = {
 
 export const CreateNodeAction = {
   execute: ({ record, action }) => {
-    const fromRecordRegexp = /^\$\$/;
+    const fromRecordRegexp = /^\$/,
+      showForm = (recordRef, params) => {
+        EcosFormUtils.eform(recordRef, {
+          params: params,
+          class: 'ecos-modal_width-lg',
+          isBigHeader: true
+        });
+      };
+
     let { config = {} } = action,
       attributesFromRecord = {};
 
@@ -275,7 +283,6 @@ export const CreateNodeAction = {
 
     return new Promise(resolve => {
       let params = {
-        formMode: FORM_MODE_CREATE,
         attributes: config.attributes || {},
         options: config.options || {},
         onSubmit: () => resolve(true),
@@ -289,16 +296,16 @@ export const CreateNodeAction = {
       }
 
       try {
-        Records.get(record)
-          .load(attributesFromRecord)
-          .then(result => {
-            params.attributes = Object.assign(params.attributes, result);
-            EcosFormUtils.eform('dict@' + config.nodeType, {
-              params: params,
-              class: 'ecos-modal_width-lg',
-              isBigHeader: true
+        if (!isEmpty(attributesFromRecord)) {
+          Records.get(record)
+            .load(attributesFromRecord)
+            .then(result => {
+              params.attributes = Object.assign({}, params.attributes, result);
+              showForm(config.recordRef, params);
             });
-          });
+        } else {
+          showForm(config.recordRef, params);
+        }
       } catch (e) {
         console.error(e);
         resolve(false);

@@ -10,7 +10,7 @@ function* sagaGetTasks({ api, logger }, { payload }) {
   const err = t('tasks-widget.saga.error1');
 
   try {
-    const { document, stateId } = payload;
+    const { record: document, stateId } = payload;
     const res = yield call(api.tasks.getTasksForUser, { document });
 
     if (isEmpty(res)) {

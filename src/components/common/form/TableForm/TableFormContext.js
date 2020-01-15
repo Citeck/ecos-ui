@@ -100,8 +100,12 @@ export const TableFormContextProvider = props => {
         }
 
         let atts = {};
+        let formatters = {};
         columns.forEach(item => {
-          atts[`.edge(n:"${item}"){title,type,multiple}`] = item;
+          atts[`.edge(n:"${item.name}"){title,type,multiple}`] = item.name;
+          if (item.formatter) {
+            formatters[item.name] = item.formatter;
+          }
         });
 
         let cvRecordRef = cv[0].recordRef;
@@ -139,6 +143,10 @@ export const TableFormContextProvider = props => {
                   name: 'FormFieldFormatter',
                   params: input
                 };
+              }
+
+              if (formatters.hasOwnProperty(column.attribute)) {
+                column.formatter = formatters[column.attribute];
               }
             }
             setColumns(GqlDataSource.getColumnsStatic(columns));

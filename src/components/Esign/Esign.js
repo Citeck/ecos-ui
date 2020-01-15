@@ -41,11 +41,6 @@ class EsignComponent extends Component {
   constructor(props) {
     super(props);
 
-    /**
-     * Disable standard notifications from the plugin
-     */
-    window.cadesplugin_skip_extension_install = true;
-
     this.state.isOpen = true;
 
     Esign.init(props.recordRefs)
