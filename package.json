@@ -1,6 +1,6 @@
 {
   "name": "ecos-ui",
-  "version": "1.8.2",
+  "version": "1.8.3-snapshot",
   "private": true,
   "dependencies": {
     "@loadable/component": "^5.10.1",
