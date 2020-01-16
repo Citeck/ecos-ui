@@ -52,8 +52,12 @@ class EventsHistoryDashlet extends BaseWidget {
     this.instanceRecord.unwatch(this.watcher);
   }
 
+  get fullHeight() {
+    return this.state.contentHeight;
+  }
+
   onResize = width => {
-    this.setState({ isSmallMode: isSmallMode(width) }, this.checkHeight);
+    this.setState({ isSmallMode: isSmallMode(width) });
   };
 
   render() {
@@ -81,12 +85,13 @@ class EventsHistoryDashlet extends BaseWidget {
           forwardedRef={this.contentRef}
           className={classNameContent}
           record={record}
-          isSmallMode={isSmallMode}
           stateId={id}
+          isSmallMode={isSmallMode}
+          runUpdate={runUpdate}
           height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
-          runUpdate={runUpdate}
+          getContentHeight={this.setContentHeight}
         />
       </Dashlet>
     );

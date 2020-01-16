@@ -4,11 +4,12 @@ import PropTypes from 'prop-types';
 import BootstrapTable from 'react-bootstrap-table-next';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
+import set from 'lodash/set';
 
 import { closest, getId, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
-import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../form/SelectJournal/predicates';
+import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 
 import './Grid.scss';
 
@@ -16,19 +17,18 @@ const CLOSE_FILTER_EVENT = 'closeFilterEvent';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const REACT_BOOTSTRAP_TABLE_CLASS = 'react-bootstrap-table';
 
-const ECOS_GRID_FREEZE_CLASS = 'ecos-grid_freeze';
 const ECOS_GRID_CHECKBOX_DEVIDER_CLASS = 'ecos-grid__checkbox-devider';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 
 const Selector = ({ mode, ...rest }) => (
-  <div className={'ecos-grid__checkbox'}>
+  <div className="ecos-grid__checkbox">
     <Checkbox checked={rest.checked} />
   </div>
 );
 
 const SelectorHeader = ({ indeterminate, ...rest }) => (
-  <div className={'ecos-grid__checkbox'}>
+  <div className="ecos-grid__checkbox">
     {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
     <div className={ECOS_GRID_CHECKBOX_DEVIDER_CLASS} />
   </div>
@@ -85,6 +85,18 @@ class Grid extends Component {
     this.removeKeydownEvents();
   }
 
+  get hasCheckboxes() {
+    const { singleSelectable, multiSelectable } = this.props;
+
+    return singleSelectable || multiSelectable;
+  }
+
+  get fixedHeader() {
+    const { freezeCheckboxes, fixedHeader } = this.props;
+
+    return (freezeCheckboxes && this.hasCheckboxes) || fixedHeader;
+  }
+
   createKeydownEvents() {
     document.addEventListener('keydown', this.onKeydown);
   }
@@ -131,7 +143,7 @@ class Grid extends Component {
 
       column = this.setHeaderFormatter(column, filterable, column.sortable);
 
-      column.formatter = this.initFormatter(props.editable);
+      column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
 
       return column;
     });
@@ -242,7 +254,7 @@ class Grid extends Component {
     trigger.call(this, 'onSort', e);
   };
 
-  initFormatter = editable => {
+  initFormatter = ({ editable, className }) => {
     return (cell, row, rowIndex, formatExtraData) => {
       formatExtraData = formatExtraData || {};
       const Formatter = formatExtraData.formatter;
@@ -252,7 +264,8 @@ class Grid extends Component {
         <div
           className={classNames('ecos-grid__td', {
             'ecos-grid__td_editable': editable,
-            'ecos-grid__td_error': errorAttribute && row[errorAttribute] === cell
+            'ecos-grid__td_error': errorAttribute && row[errorAttribute] === cell,
+            [className]: !!className
           })}
         >
           {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
@@ -452,13 +465,14 @@ class Grid extends Component {
   };
 
   onScrollFrame = e => {
-    const { freezeCheckboxes, singleSelectable, multiSelectable } = this.props;
-
     this._scrollValues = e;
-    if (freezeCheckboxes && (singleSelectable || multiSelectable)) {
-      this._shadowLeftNode.style.display = e.scrollLeft > 0 ? 'block' : 'none';
-      this._shadowHeadNode.style.display = e.scrollTop > 0 ? 'block' : 'none';
-      this._firstHeaderCellNode.style.display = e.scrollLeft > 0 ? 'none' : 'block';
+
+    if (this.fixedHeader) {
+      if (this.hasCheckboxes) {
+        set(this._shadowLeftNode, 'style.display', e.scrollLeft > 0 ? 'block' : 'none');
+      }
+      set(this._shadowHeadNode, 'style.display', e.scrollTop > 0 ? 'block' : 'none');
+      set(this._firstHeaderCellNode, 'style.display', e.scrollLeft > 0 ? 'block' : 'none');
     }
 
     trigger.call(this, 'onScrolling', e);
@@ -510,7 +524,10 @@ class Grid extends Component {
           style={gridStyle}
           className={classNames(
             'ecos-grid',
-            (props.singleSelectable || props.multiSelectable) && 'ecos-grid_checkable',
+            {
+              'ecos-grid_freeze': this.fixedHeader,
+              'ecos-grid_checkable': this.hasCheckboxes
+            },
             this.props.className
           )}
           onMouseLeave={this.onMouseLeave}
@@ -518,17 +535,10 @@ class Grid extends Component {
           {toolsVisible ? this.tools(props.selected) : null}
 
           <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback}>
-            <BootstrapTable
-              {...props}
-              classes={classNames('', {
-                [ECOS_GRID_FREEZE_CLASS]: props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable)
-              })}
-            />
-
+            <BootstrapTable {...props} classes="ecos-grid__table" />
             {this.inlineTools()}
           </Scroll>
-
-          {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
+          {this.fixedHeader ? (
             <>
               <div className={ECOS_GRID_HEAD_SHADOW} />
               <div className={ECOS_GRID_LEFT_SHADOW} />
@@ -551,8 +561,10 @@ Grid.propTypes = {
   editable: PropTypes.bool,
   multiSelectable: PropTypes.bool,
   singleSelectable: PropTypes.bool,
+  freezeCheckboxes: PropTypes.bool,
   selectAll: PropTypes.bool,
   scrollable: PropTypes.bool,
+  fixedHeader: PropTypes.bool,
 
   columns: PropTypes.array,
   data: PropTypes.array,
