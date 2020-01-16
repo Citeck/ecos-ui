@@ -85,10 +85,16 @@ class Grid extends Component {
     this.removeKeydownEvents();
   }
 
-  get fixedHeader() {
-    const { freezeCheckboxes, singleSelectable, multiSelectable, fixedHeader } = this.props;
+  get hasCheckboxes() {
+    const { singleSelectable, multiSelectable } = this.props;
 
-    return (freezeCheckboxes && (singleSelectable || multiSelectable)) || fixedHeader;
+    return singleSelectable || multiSelectable;
+  }
+
+  get fixedHeader() {
+    const { freezeCheckboxes, fixedHeader } = this.props;
+
+    return (freezeCheckboxes && this.hasCheckboxes) || fixedHeader;
   }
 
   createKeydownEvents() {
@@ -462,7 +468,9 @@ class Grid extends Component {
     this._scrollValues = e;
 
     if (this.fixedHeader) {
-      set(this._shadowLeftNode, 'style.display', e.scrollLeft > 0 ? 'block' : 'none');
+      if (this.hasCheckboxes) {
+        set(this._shadowLeftNode, 'style.display', e.scrollLeft > 0 ? 'block' : 'none');
+      }
       set(this._shadowHeadNode, 'style.display', e.scrollTop > 0 ? 'block' : 'none');
       set(this._firstHeaderCellNode, 'style.display', e.scrollLeft > 0 ? 'block' : 'none');
     }
@@ -516,7 +524,10 @@ class Grid extends Component {
           style={gridStyle}
           className={classNames(
             'ecos-grid',
-            (props.singleSelectable || props.multiSelectable) && 'ecos-grid_checkable',
+            {
+              'ecos-grid_freeze': this.fixedHeader,
+              'ecos-grid_checkable': this.hasCheckboxes
+            },
             this.props.className
           )}
           onMouseLeave={this.onMouseLeave}
@@ -524,7 +535,7 @@ class Grid extends Component {
           {toolsVisible ? this.tools(props.selected) : null}
 
           <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback}>
-            <BootstrapTable {...props} classes={classNames('ecos-grid__table', { 'ecos-grid_freeze': this.fixedHeader })} />
+            <BootstrapTable {...props} classes="ecos-grid__table" />
             {this.inlineTools()}
           </Scroll>
           {this.fixedHeader ? (

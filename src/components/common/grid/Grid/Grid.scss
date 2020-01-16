@@ -45,7 +45,14 @@
 
   &__h-scroll {
     @extend %h-scroll;
-    left: 55px;
+  }
+
+  &:not(&_freeze) .ecos-grid__tr_selected {
+    background: $color-yellow-1;
+
+    .ecos-grid__checkbox {
+      background: $color-yellow-1;
+    }
   }
 }
 
@@ -77,7 +84,8 @@
   display: inline-block;
   width: inherit;
   min-height: 22px;
-  padding: 10px 5px 0;
+  padding: 3px 5px;
+  margin-top: 8px;
   border-radius: $border-radius-standard;
   color: $text-color-dark;
   font-size: $font-size-small;
@@ -118,14 +126,6 @@
   }
 }
 
-.ecos-grid__table:not(.ecos-grid_freeze) .ecos-grid__tr_selected {
-  background: $color-yellow-1;
-
-  .ecos-grid__checkbox {
-    background: $color-yellow-1;
-  }
-}
-
 .ecos-grid_freeze {
   .ecos-th {
     height: 34px;
@@ -143,20 +143,30 @@
     }
   }
 
-  thead > tr > th,
-  tbody > tr > td {
-    &:nth-child(1) {
-      position: sticky;
-      z-index: 1;
-      background: $color-white;
-      left: 0;
+  &.ecos-grid_checkable {
+    .ecos-grid__h-scroll {
+      left: 55px;
+    }
+
+    thead > tr > th,
+    tbody > tr > td {
+      &:first-child {
+        position: sticky;
+        z-index: 1;
+        background: $color-white;
+        left: 0;
+      }
+    }
+
+    thead > tr > th:first-child {
+      z-index: 2;
     }
   }
 
   thead > tr > th {
     top: 0;
 
-    &:not(:first-child) {
+    &:nth-child(n) {
       position: sticky;
       z-index: 1;
       background: $color-white;
