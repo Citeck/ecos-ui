@@ -17,8 +17,7 @@ export default class SidebarService {
     const common = {
       noIcon: true,
       noBadge: true,
-      noToggle: true,
-      collapsed: {
+      collapsedMenu: {
         asSeparator: false
       }
     };
@@ -26,15 +25,14 @@ export default class SidebarService {
     const lvls = {
       0: {
         ...common,
-        collapsed: {
-          ...common.collapsed,
+        collapsedMenu: {
+          ...common.collapsedMenu,
           asSeparator: true
         }
       },
       1: {
         ...common,
         noIcon: false,
-        noToggle: false,
         noBadge: !actionType && [ATypes.CREATE_SITE].includes(actionType)
       },
       2: {

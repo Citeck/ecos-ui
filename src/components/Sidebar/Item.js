@@ -16,27 +16,25 @@ class Item extends React.Component {
     data: PropTypes.object,
     styleProps: PropTypes.object,
     level: PropTypes.number,
-    isExpanded: PropTypes.bool,
-    noIcon: PropTypes.bool,
-    noBadge: PropTypes.bool,
-    noToggle: PropTypes.bool
+    isExpanded: PropTypes.bool
   };
 
   static defaultProps = {
     data: {},
     styleProps: {},
-    level: 0,
-    noIcon: true,
-    noBadge: true,
-    noToggle: true
+    level: 0
   };
 
   get hasSubItems() {
     return !isEmpty(get(this.props, 'data.items'));
   }
 
-  get noMove() {
-    return this.hasSubItems;
+  get collapsible() {
+    return get(this.props, 'data.params.collapsible', false) && this.hasSubItems;
+  }
+
+  get dataId() {
+    return get(this.props, 'data.id');
   }
 
   get actionType() {
@@ -44,12 +42,7 @@ class Item extends React.Component {
   }
 
   get isSelectedItem() {
-    const {
-      selectedId,
-      data: { id }
-    } = this.props;
-
-    return selectedId === id;
+    return this.props.selectedId === this.dataId;
   }
 
   get isLink() {
@@ -57,7 +50,7 @@ class Item extends React.Component {
   }
 
   getMover() {
-    if (this.noMove) {
+    if (this.hasSubItems) {
       return ({ children }) => <div className="ecos-sidebar-item__link">{children}</div>;
     }
 
@@ -65,24 +58,15 @@ class Item extends React.Component {
   }
 
   onToggleList = e => {
-    const {
-      data: { id },
-      styleProps: { noToggle }
-    } = this.props;
-
-    if (this.noMove && !noToggle) {
-      this.props.toggleExpanded(id);
+    if (this.collapsible) {
+      this.props.toggleExpanded(this.dataId);
       e.stopPropagation();
     }
   };
 
   onClickItem = () => {
-    const {
-      data: { id }
-    } = this.props;
-
     if (this.isLink || !this.hasSubItems) {
-      this.props.setSelectItem(id);
+      this.props.setSelectItem(this.dataId);
     }
   };
 
@@ -118,13 +102,9 @@ class Item extends React.Component {
   }
 
   renderToggle() {
-    const {
-      isOpen,
-      isExpanded,
-      styleProps: { noToggle }
-    } = this.props;
+    const { isOpen, isExpanded } = this.props;
 
-    return this.hasSubItems && !noToggle ? (
+    return this.collapsible ? (
       <Icon
         className={classNames('ecos-sidebar-item__toggle', {
           'ecos-sidebar-item__toggle_v': isOpen,
@@ -145,11 +125,10 @@ class Item extends React.Component {
       isExpanded,
       styleProps: {
         noIcon,
-        collapsed: { asSeparator }
+        collapsedMenu: { asSeparator }
       }
     } = this.props;
     const itemSeparator = !isOpen && asSeparator;
-
     const events = {};
 
     if (isOpen) {
@@ -160,8 +139,8 @@ class Item extends React.Component {
       <div
         id={domId}
         className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
-          'ecos-sidebar-item_no-action': this.noMove,
-          'ecos-sidebar-item_no-items': !this.hasSubItems,
+          'ecos-sidebar-item_collapsible': this.collapsible,
+          'ecos-sidebar-item_last-lvl': !this.hasSubItems,
           'ecos-sidebar-item_expanded': isExpanded && this.hasSubItems,
           'ecos-sidebar-item_selected': this.isSelectedItem,
           'ecos-sidebar-item_separator': itemSeparator

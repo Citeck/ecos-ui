@@ -1,23 +1,25 @@
 import { getSessionData, setSessionData } from './ls';
+import get from 'lodash/get';
 
 export const SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
 
 export function fetchExpandableItems(items, selectedId, isSlideMenuOpen) {
   let flatList = [];
-  items.map(item => {
-    const hasNestedList = !!item.items;
-    if (hasNestedList) {
-      let isNestedListExpanded = !!item.sectionTitle || (isSlideMenuOpen && hasChildWithId(item.items, selectedId));
+
+  items.forEach(item => {
+    if (!!item.items) {
+      let isNestedListExpanded =
+        isSlideMenuOpen &&
+        (hasChildWithId(item.items, selectedId) || get(item, 'params.collapsible', false) ? get(item, 'params.collapsed', false) : true);
+
       flatList.push(
         {
           id: item.id,
-          hasNestedList,
           isNestedListExpanded
         },
         ...fetchExpandableItems(item.items, selectedId, isSlideMenuOpen)
       );
     }
-    return null;
   });
 
   return flatList;
@@ -25,6 +27,7 @@ export function fetchExpandableItems(items, selectedId, isSlideMenuOpen) {
 
 export function hasChildWithId(items, selectedId) {
   let childIndex = items.findIndex(item => item.id === selectedId);
+
   if (childIndex !== -1) {
     return true;
   }
@@ -37,6 +40,7 @@ export function hasChildWithId(items, selectedId) {
     }
 
     let hasChild = hasChildWithId(items[i].items, selectedId);
+
     if (hasChild) {
       return true;
     }

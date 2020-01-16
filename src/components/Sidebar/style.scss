@@ -94,7 +94,7 @@ $transition-duration: 0.3s;
 
       &#{$menu-item}::before,
       & + #{$menu-item}::before {
-        display: none;
+        content: none;
       }
     }
 
@@ -266,11 +266,12 @@ $transition-duration: 0.3s;
           left: 35px;
         }
 
-        &#{$menu-item}_no-action {
-          pointer-events: none;
+        &#{$menu-item}_collapsible {
+          background: unset;
 
-          &:hover {
-            background: unset;
+          &#{$menu-item}::before,
+          & + #{$menu-item}::before {
+            content: '';
           }
         }
 
@@ -281,11 +282,19 @@ $transition-duration: 0.3s;
         #{$menu-item}__label {
           font-weight: $font-weight-semi-bold;
         }
+
+        #{$menu-item}__toggle {
+          margin-right: 14px;
+        }
       }
     }
 
     &_lvl-3 {
       padding: 0 14px 0 26px;
+
+      &#{$menu-list}_collapsed {
+        display: none;
+      }
 
       #{$menu-item}_lvl-3 {
         height: 25px;
