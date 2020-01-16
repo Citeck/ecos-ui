@@ -72,7 +72,10 @@ const MAP = [
     enable: column => column.type === 'boolean'
   },
   {
-    options: () => 'SelectFormatter',
+    options: column => {
+      const params = column.params || {};
+      return { name: 'SelectFormatter', params: { ...params, column } };
+    },
     enable: column => column.type === 'options'
   },
   {
