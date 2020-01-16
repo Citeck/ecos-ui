@@ -17,13 +17,13 @@ export default handleActions(
     [init]: (state, { payload }) => {
       let ownState = { ...initialState };
 
-      if (state[payload]) {
-        ownState = { ...ownState, ...state[payload] };
+      if (state[payload.record]) {
+        ownState = { ...ownState, ...state[payload.record] };
       }
 
       return {
         ...state,
-        [payload]: { ...ownState }
+        [payload.record]: { ...ownState }
       };
     },
     [getAvailableTypes]: (state, { payload }) => ({

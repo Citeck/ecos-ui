@@ -12,6 +12,7 @@ import { Icon, ResizeBoxes, EcosModal, Search, DefineHeight } from '../../common
 import { Grid } from '../../common/grid';
 import { Dropdown } from '../../common/form';
 import Tree from './Tree';
+import DropZone from './DropZone';
 
 import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
@@ -21,6 +22,7 @@ import { statusesKeys, typesStatuses, tooltips, typeStatusesByFields, tableField
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 
 import './style.scss';
+import DocumentsConverter from '../../../dto/documents';
 
 const LABELS = {
   TITLE: 'Документы',
@@ -50,7 +52,7 @@ class Documents extends BaseWidget {
       statusFilter: statusesKeys.ALL
     };
 
-    props.init();
+    props.init(props.config);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -141,6 +143,21 @@ class Documents extends BaseWidget {
     return dynamicTypes.filter(type => this.getTypeStatus(type) === statusFilter);
   }
 
+  get dashletActionsConfig() {
+    const actions = {};
+
+    actions.reload = {
+      onClick: () => {}
+    };
+
+    actions.settings = {
+      onClick: this.handleToggleTypesSettings,
+      text: t(tooltips.SETTINGS)
+    };
+
+    return actions;
+  }
+
   getTypeStatus = type => {
     let status = statusesKeys.CAN_ADD_FILES;
 
@@ -162,11 +179,23 @@ class Documents extends BaseWidget {
   handleReloadData = () => {};
 
   handleToggleTypesSettings = event => {
+    const { id, onSave, config, dynamicTypes } = this.props;
+    const { isOpenSettings } = this.state;
+
     event.stopPropagation();
-    this.setState(state => ({
-      isOpenSettings: !state.isOpenSettings,
+    this.setState({
+      isOpenSettings: !isOpenSettings,
       typesFilter: ''
-    }));
+    });
+
+    if (isOpenSettings) {
+      onSave(id, {
+        config: {
+          ...config,
+          types: DocumentsConverter.getTypesForConfig(dynamicTypes)
+        }
+      });
+    }
   };
 
   handleClearSelectedType = () => {
@@ -215,6 +244,11 @@ class Documents extends BaseWidget {
     this.handleSelectType(row.type);
   };
 
+  handleChangeHeight = height => {
+    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    this.setState({ userHeight: height });
+  };
+
   renderTypes() {
     const { id, dynamicTypes } = this.props;
     const { selectedType, leftColumnId, rightColumnId } = this.state;
@@ -230,17 +264,16 @@ class Documents extends BaseWidget {
             })}
           >
             <div className="ecos-docs__types-item-label">{t('Все типы')}</div>
-            <Icon id={settingsId} className="icon-settings ecos-docs__types-item-settings" onClick={this.handleToggleTypesSettings} />
-            <UncontrolledTooltip
-              placement="top"
-              boundariesElement="window"
-              className="ecos-base-tooltip"
-              innerClassName="ecos-base-tooltip-inner"
-              arrowClassName="ecos-base-tooltip-arrow"
-              target={settingsId}
-            >
-              {tooltips.SETTINGS}
-            </UncontrolledTooltip>
+            {/*<UncontrolledTooltip*/}
+            {/*placement="top"*/}
+            {/*boundariesElement="window"*/}
+            {/*className="ecos-base-tooltip"*/}
+            {/*innerClassName="ecos-base-tooltip-inner"*/}
+            {/*arrowClassName="ecos-base-tooltip-arrow"*/}
+            {/*target={settingsId}*/}
+            {/*>*/}
+            {/*{tooltips.SETTINGS}*/}
+            {/*</UncontrolledTooltip>*/}
           </div>
 
           {dynamicTypes.map(this.renderType)}
@@ -396,14 +429,11 @@ class Documents extends BaseWidget {
         isOpen={isOpenUploadModal}
         className="ecos-docs__modal-upload"
         hideModal={this.handleToggleUploadModalByType.bind(this, null)}
-      />
+      >
+        <DropZone />
+      </EcosModal>
     );
   }
-
-  handleChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
-    this.setState({ userHeight: height });
-  };
 
   render() {
     const { dragHandleProps, canDragging } = this.props;
@@ -415,8 +445,7 @@ class Documents extends BaseWidget {
           className="ecos-docs"
           title={t(LABELS.TITLE)}
           needGoTo={false}
-          actionEdit={false}
-          actionHelp={false}
+          actionConfig={this.dashletActionsConfig}
           canDragging={canDragging}
           resizable
           contentMaxHeight={this.clientHeight}
@@ -458,7 +487,7 @@ const mapStateToProps = (state, ownProps) => ({
   isMobile: state.view.isMobile
 });
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  init: () => dispatch(init(ownProps.record)),
+  init: config => dispatch(init({ record: ownProps.record, config })),
   getDocuments: type => dispatch(getDocumentsByType({ record: ownProps.record, type })),
   onToggleType: (id, checked) => dispatch(toggleType({ record: ownProps.record, id, checked }))
 });

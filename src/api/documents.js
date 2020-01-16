@@ -3,7 +3,7 @@ import { DocumentsApiRequests } from './stubs';
 
 export class DocumentsApi {
   getDocumentTypes = () => {
-    return DocumentsApiRequests.getDocumentTypes();
+    // return DocumentsApiRequests.getDocumentTypes();
 
     return Records.query(
       {
@@ -17,7 +17,7 @@ export class DocumentsApi {
   };
 
   getDynamicTypes = recordRef => {
-    return DocumentsApiRequests.getDynamicTypes();
+    // return DocumentsApiRequests.getDynamicTypes();
 
     return Records.query(
       {
@@ -34,7 +34,7 @@ export class DocumentsApi {
   };
 
   getCountDocumentsByTypes = (recordRef, types = []) => {
-    return DocumentsApiRequests.getCountDocumentsByTypes();
+    // return DocumentsApiRequests.getCountDocumentsByTypes();
 
     return Records.query(
       {
@@ -61,17 +61,17 @@ export class DocumentsApi {
       // null,
       {
         // TODO: Use this after finalizing the backend
-        // '_modified': '_modified',
-        // '_modifier': '_modifier',
-        _modified: 'cm:modified',
-        _modifier: 'cm:modifier'
+        _modified: '_modified',
+        _modifier: '_modifier'
+        // _modified: 'cm:modified',
+        // _modifier: 'cm:modifier'
       },
       types
     ).then(response => response);
   };
 
   getDocumentsByType = (recordRef, type) => {
-    return DocumentsApiRequests.getDocumentsByType();
+    // return DocumentsApiRequests.getDocumentsByType();
 
     return Records.query(
       {

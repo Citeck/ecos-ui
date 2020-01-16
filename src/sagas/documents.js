@@ -1,4 +1,5 @@
 import { put, select, takeEvery, call } from 'redux-saga/effects';
+import get from 'lodash/get';
 import set from 'lodash/set';
 
 import { selectTypeNames, selectDynamicTypes, getDynamicTypes, selectAvailableTypes } from '../selectors/documents';
@@ -15,7 +16,7 @@ import DocumentsConverter from '../dto/documents';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
-    yield* sagaGetAvailableTypes({ api, logger }, { payload });
+    yield* sagaGetAvailableTypes({ api, logger }, { payload: payload.record });
     yield* sagaGetDynamicTypes({ api, logger }, { payload });
   } catch (e) {
     logger.error('[documents sagaInitWidget saga error', e.message);
@@ -62,36 +63,38 @@ function* sagaToggleType({ api, logger }, { payload }) {
 
 function* sagaGetDynamicTypes({ api, logger }, { payload }) {
   try {
-    const { records: dynamicTypes, errors: dtErrors } = yield call(api.documents.getDynamicTypes, payload);
+    const { records: dynamicTypes, errors: dtErrors } = yield call(api.documents.getDynamicTypes, payload.record);
 
     if (dtErrors.length) {
       throw new Error(dtErrors.join(' '));
     }
 
-    const typesNames = yield select(state => selectTypeNames(state, payload));
-    const dynamicTypeKeys = dynamicTypes.map(record => record.type);
+    const combinedTypes = DocumentsConverter.combineTypes(dynamicTypes, get(payload, 'config.types', []));
+    const typesNames = yield select(state => selectTypeNames(state, payload.record));
+    const dynamicTypeKeys = combinedTypes.map(record => record.type);
+
     const { records: countDocuments, errors: documentsErrors } = yield call(
       api.documents.getCountDocumentsByTypes,
-      payload,
+      payload.record,
       dynamicTypeKeys
     );
 
-    if (documentsErrors.length) {
-      throw new Error(documentsErrors.join(' '));
-    }
+    // if (documentsErrors.length) {
+    //   throw new Error(documentsErrors.join(' '));
+    // }
 
     yield put(
       setDynamicTypes({
-        key: payload,
-        dynamicTypes: DocumentsConverter.getDynamicTypes(dynamicTypes, typesNames, countDocuments)
+        key: payload.record,
+        dynamicTypes: DocumentsConverter.getDynamicTypes(combinedTypes, typesNames, countDocuments)
       })
     );
 
-    const types = yield select(state => selectAvailableTypes(state, payload));
+    const types = yield select(state => selectAvailableTypes(state, payload.record));
 
     yield put(
       setAvailableTypes({
-        key: payload,
+        key: payload.record,
         types: DocumentsConverter.getAvailableTypes(types, dynamicTypeKeys)
       })
     );

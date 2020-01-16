@@ -1,5 +1,6 @@
 import moment from 'moment';
 import get from 'lodash/get';
+import { deepClone } from '../helpers/util';
 
 export default class DocumentsConverter {
   static getDynamicTypes = (types = [], typeNames = {}, countByTypes = []) => {
@@ -53,5 +54,48 @@ export default class DocumentsConverter {
     target.countDocuments = get(source, 'countDocuments', 0);
 
     return target;
+  };
+
+  static getTypesForConfig = (source = []) => {
+    if (!source.length) {
+      return [];
+    }
+
+    return source.map((item = {}) => {
+      if (!Object.keys(item).length) {
+        return {};
+      }
+
+      const target = {};
+
+      target.id = get(item, 'id', '');
+      target.type = get(item, 'type', '');
+      target.multiple = get(item, 'multiple', false);
+      target.mandatory = get(item, 'mandatory', false);
+
+      return target;
+    });
+  };
+
+  static combineTypes = (baseTypes = [], userTypes = []) => {
+    const base = deepClone(baseTypes);
+    const user = deepClone(userTypes);
+
+    return user.reduce((result, current) => {
+      const index = result.findIndex(item => item.id === current.id);
+
+      if (~index) {
+        if (result[index].multiple !== current.multiple) {
+          current.multiple = result[index].multiple;
+          result[index] = current;
+        }
+
+        return result;
+      }
+
+      result.push(current);
+
+      return result;
+    }, base);
   };
 }
