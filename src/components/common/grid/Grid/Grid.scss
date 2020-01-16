@@ -47,7 +47,7 @@
     @extend %h-scroll;
   }
 
-  &:not(&_freeze) .ecos-grid__tr_selected {
+  .ecos-grid__tr_selected {
     background: $color-yellow-1;
 
     .ecos-grid__checkbox {
