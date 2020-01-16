@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import fscreen from 'fscreen';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import { Scrollbars } from 'react-custom-scrollbars';
-import PropTypes from 'prop-types';
 
-import { DefineHeight } from '../../common/index';
+import { DefineHeight } from '../../common';
+
+const $PAGE = '.ecos-doc-preview__viewer-page';
 
 export default function getViewer(WrappedComponent, isPdf) {
   return class extends Component {
@@ -99,12 +101,11 @@ export default function getViewer(WrappedComponent, isPdf) {
 
     get childrenScroll() {
       if (this.elScrollbar && this.elScrollbar.view) {
-        return this.elScrollbar.view.querySelectorAll('.ecos-doc-preview__viewer-page');
+        return this.elScrollbar.view.querySelectorAll($PAGE);
       }
 
       return [];
     }
-
     get failed() {
       const { pdf, src, isLoading } = this.props;
 
@@ -165,7 +166,11 @@ export default function getViewer(WrappedComponent, isPdf) {
           onScrollFrame={this.onScrollFrame}
           autoHide
         >
-          <DefineHeight className={classNames({ 'ecos-doc-preview__viewer-dh': resizable })} getContentHeight={getContentHeight}>
+          <DefineHeight
+            className={classNames({ 'ecos-doc-preview__viewer-dh': resizable })}
+            getContentHeight={getContentHeight}
+            querySelector={isPdf ? undefined : $PAGE}
+          >
             <WrappedComponent {...newProps} />
           </DefineHeight>
         </Scrollbars>

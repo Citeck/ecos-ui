@@ -53,13 +53,17 @@ class CurrentTaskList extends React.Component {
       [DC.actors.key]: (
         <React.Fragment key={uniqueId(cleanTaskId(task.id))}>
           {task[DC.actors.key] || noData}
-          <IconInfo iconClass={'icon-usergroup'} id={uniqueId(cleanTaskId(task.id))} isShow={task.isGroup}>
-            {task.usersGroup.map((user, position) => (
-              <div key={position} className="ecos-current-task__tooltip-list-item">
-                {user}
-              </div>
-            ))}
-          </IconInfo>
+          {task.usersGroup && (
+            <IconInfo iconClass={'icon-usergroup'} id={uniqueId(cleanTaskId(task.id))} isShow={task.isGroup}>
+              {!task.usersGroup.length
+                ? noData
+                : task.usersGroup.map((user, position) => (
+                    <div key={position} className="ecos-current-task__tooltip-list-item">
+                      {user}
+                    </div>
+                  ))}
+            </IconInfo>
+          )}
         </React.Fragment>
       ),
       [DC.deadline.key]: getOutputFormat(DC.deadline.format, task[DC.deadline.key]) || noData

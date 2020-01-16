@@ -8,6 +8,7 @@ class Headline extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     noHighlight: PropTypes.bool,
+    text: PropTypes.string,
     inline: PropTypes.bool
   };
 
@@ -18,13 +19,17 @@ class Headline extends React.Component {
   };
 
   render() {
-    const { className, children, noHighlight, inline } = this.props;
+    const { className, children, noHighlight, inline, text, ...props } = this.props;
     const classes = classNames('ecos-headline', className, {
       'ecos-headline_highlight': !noHighlight,
       'ecos-headline_inline': inline
     });
 
-    return <div className={classes}>{children}</div>;
+    return (
+      <div className={classes} {...props}>
+        {typeof text === 'string' ? <span className="ecos-headline__text">{text}</span> : children}
+      </div>
+    );
   }
 }
 

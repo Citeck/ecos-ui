@@ -46,7 +46,11 @@ class BaseWidget extends Component {
   };
 
   setFitHeights = fitHeights => {
-    this.setState({ fitHeights });
+    const fitHeightsState = this.state.fitHeights;
+
+    if (fitHeightsState !== fitHeights) {
+      this.setState({ fitHeights });
+    }
   };
 
   checkHeight = debounce((force = false) => {
