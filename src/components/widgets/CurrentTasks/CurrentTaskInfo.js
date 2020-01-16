@@ -24,36 +24,41 @@ class CurrentTaskInfo extends React.Component {
 
   renderLabel = key => <div className="ecos-current-task-info-label">{DC[key].label}</div>;
 
+  renderUsersGroup(list) {
+    if (!list || (list && !list.length)) {
+      return <div className="ecos-current-task__tooltip-list-item">{noData}</div>;
+    }
+
+    return (
+      <>
+        {list.map((user, position) => (
+          <div key={position} className="ecos-current-task__tooltip-list-item">
+            {user}
+          </div>
+        ))}
+      </>
+    );
+  }
+
   render() {
     const { task, isMobile } = this.props;
     const { isOpen } = this.state;
 
     return (
       <div className="ecos-current-task-info">
-        <Headline>
-          <div title={task[DC.title.key]} className="ecos-current-task-info__title">
-            {task[DC.title.key]}
-          </div>
-        </Headline>
+        <Headline className="ecos-current-task-info__title" title={task[DC.title.key]} text={task[DC.title.key]} />
         <div className="ecos-current-task-info__fields">
           <div className="ecos-current-task-info__fields-item">
             {this.renderLabel('actors')}
 
             <div
               className={classNames('ecos-current-task-info-value', {
-                'ecos-current-task-info-value_mobile': isMobile,
-                'ecos-current-task-info-value_full': !task.usersGroup.length
+                'ecos-current-task-info-value_mobile': isMobile
               })}
             >
-              <span
-                className={classNames('ecos-current-task-info-value', {
-                  'ecos-current-task-info-value_mobile-val': isMobile,
-                  'ecos-current-task-info-value_full': !task.usersGroup.length
-                })}
-              >
+              <div className="ecos-current-task-info-value__text" title={task[DC.actors.key] || ''}>
                 {task[DC.actors.key] || noData}
-              </span>
-
+              </div>
               {task.usersGroup && (
                 <IconInfo
                   iconClass={'icon-usergroup'}
@@ -62,24 +67,14 @@ class CurrentTaskInfo extends React.Component {
                   noTooltip={isMobile}
                   handleClick={res => this.setState({ isOpen: res })}
                 >
-                  {task.usersGroup.map((user, position) => (
-                    <div key={position} className="ecos-current-task__tooltip-list-item">
-                      {user}
-                    </div>
-                  ))}
+                  {this.renderUsersGroup(task.usersGroup)}
                 </IconInfo>
               )}
             </div>
           </div>
 
           {isMobile && isOpen && (
-            <div className="ecos-current-task-info-value ecos-current-task-info-value_add">
-              {task.usersGroup.map((user, position) => (
-                <div key={position} className="ecos-current-task__tooltip-list-item">
-                  {user}
-                </div>
-              ))}
-            </div>
+            <div className="ecos-current-task-info-value ecos-current-task-info-value_add">{this.renderUsersGroup(task.usersGroup)}</div>
           )}
 
           <div className="ecos-current-task-info__fields-item">
