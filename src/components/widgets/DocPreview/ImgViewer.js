@@ -12,6 +12,7 @@ class ImgViewer extends Component {
       isFullscreen: PropTypes.bool
     }),
     refViewer: PropTypes.object,
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
     onError: PropTypes.func
   };
 
@@ -22,12 +23,17 @@ class ImgViewer extends Component {
     }
   };
 
-  refImg = React.createRef();
-  refImgCtr = React.createRef();
-  fullScreenOff = true;
-  state = {
-    calcScale: 1
-  };
+  constructor(props) {
+    super(props);
+
+    this.refImgCtr = props.forwardedRef || React.createRef();
+    this.refImg = React.createRef();
+    this.fullScreenOff = true;
+
+    this.state = {
+      calcScale: 1
+    };
+  }
 
   componentDidMount() {
     this.elImage.addEventListener('fullscreenchange', this.onFullscreenchange, false);
@@ -99,9 +105,10 @@ class ImgViewer extends Component {
 
   render() {
     const { src } = this.props;
+    const style = { width: this.elImage.offsetWidth || 0 };
 
     return (
-      <div className="ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_img" ref={this.refImgCtr}>
+      <div className="ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_img" ref={this.refImgCtr} style={style}>
         <img src={src} alt={src} style={this.styleZoom} className="ecos-doc-preview__viewer-page-content" ref={this.refImg} />
       </div>
     );
