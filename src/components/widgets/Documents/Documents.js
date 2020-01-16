@@ -11,6 +11,7 @@ import Dashlet from '../../Dashlet/Dashlet';
 import { Icon, ResizeBoxes, EcosModal, Search, DefineHeight } from '../../common';
 import { Grid } from '../../common/grid';
 import { Dropdown } from '../../common/form';
+import FormManager from '../../EcosForm/FormManager';
 import Tree from './Tree';
 import DropZone from './DropZone';
 
@@ -220,6 +221,16 @@ class Documents extends BaseWidget {
   };
 
   handleToggleUploadModalByType = (type = null) => {
+    if (type !== null) {
+      FormManager.createRecordByVariant(
+        DocumentsConverter.getDataToCreate({
+          formId: type.formId,
+          type: type.type,
+          record: this.props.id
+        })
+      );
+    }
+
     this.setState({
       selectedTypeForLoading: type,
       isOpenUploadModal: type !== null
@@ -287,12 +298,12 @@ class Documents extends BaseWidget {
   renderType = type => {
     const { id } = this.props;
     const { selectedType } = this.state;
-    const target = prepareTooltipId(`${type.id}-${id}`);
+    const target = prepareTooltipId(`${type.type}-${id}`);
     const status = typesStatuses[this.getTypeStatus(type)];
 
     return (
       <div
-        key={type.id}
+        key={type.type}
         onClick={() => this.handleSelectType(type.type)}
         className={classNames('ecos-docs__types-item', {
           'ecos-docs__types-item_selected': selectedType === type.type
@@ -395,7 +406,14 @@ class Documents extends BaseWidget {
     return (
       <div id={rightColumnId} className="ecos-docs__column ecos-docs__column_table">
         {this.renderTablePanel()}
-        <Grid className="ecos-docs__table" data={this.tableData} columns={columns} onRowClick={this.handleClickTableRow} scrollable />
+        <Grid
+          className="ecos-docs__table"
+          data={this.tableData}
+          columns={columns}
+          onRowClick={this.handleClickTableRow}
+          scrollable
+          keyField="type"
+        />
       </div>
     );
   }

@@ -34,14 +34,12 @@ function* sagaToggleType({ api, logger }, { payload }) {
     mutableItem.isSelected = payload.checked;
 
     if (!~index) {
-      const formId = yield call(api.documents.getFormIdByType, payload.record);
+      const formId = yield call(api.documents.getFormIdByType, payload.id);
 
       dynamicTypes.push(DocumentsConverter.getFormattedDynamicType({ ...mutableItem, formId }));
     } else {
       dynamicTypes.splice(index, 1);
     }
-
-    // console.warn(DocumentsConverter.getAvailableTypes(availableTypes, dynamicTypes.map(item => item.type)))
 
     yield put(
       setAvailableTypes({
@@ -69,7 +67,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
       throw new Error(dtErrors.join(' '));
     }
 
-    const combinedTypes = DocumentsConverter.combineTypes(dynamicTypes, get(payload, 'config.types', []));
+    let combinedTypes = DocumentsConverter.combineTypes(dynamicTypes, get(payload, 'config.types', []));
     const typesNames = yield select(state => selectTypeNames(state, payload.record));
     const dynamicTypeKeys = combinedTypes.map(record => record.type);
 
@@ -82,6 +80,25 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     // if (documentsErrors.length) {
     //   throw new Error(documentsErrors.join(' '));
     // }
+
+    combinedTypes = yield combinedTypes
+      .map(function*(item) {
+        if (item.formId) {
+          return item;
+        }
+
+        const formId = yield call(api.documents.getFormIdByType, item.type);
+
+        if (!formId) {
+          return null;
+        }
+
+        return {
+          ...item,
+          formId
+        };
+      })
+      .filter(item => item !== null);
 
     yield put(
       setDynamicTypes({

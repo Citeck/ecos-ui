@@ -46,9 +46,9 @@ export default class DocumentsConverter {
       return target;
     }
 
-    target.id = get(source, 'formId', '');
     target.type = get(source, 'id', '');
     target.name = get(source, 'name', '');
+    target.formId = get(source, 'formId', '');
     target.multiple = get(source, 'multiple', false);
     target.mandatory = get(source, 'mandatory', false);
     target.countDocuments = get(source, 'countDocuments', 0);
@@ -68,8 +68,8 @@ export default class DocumentsConverter {
 
       const target = {};
 
-      target.id = get(item, 'id', '');
       target.type = get(item, 'type', '');
+      target.formId = get(item, 'formId', '');
       target.multiple = get(item, 'multiple', false);
       target.mandatory = get(item, 'mandatory', false);
 
@@ -82,7 +82,7 @@ export default class DocumentsConverter {
     const user = deepClone(userTypes);
 
     return user.reduce((result, current) => {
-      const index = result.findIndex(item => item.id === current.id);
+      const index = result.findIndex(item => item.type === current.type);
 
       if (~index) {
         if (result[index].multiple !== current.multiple) {
@@ -98,4 +98,14 @@ export default class DocumentsConverter {
       return result;
     }, base);
   };
+
+  static getDataToCreate = ({ type, record, formId }) => ({
+    recordRef: '',
+    formId,
+    attributes: {
+      _parent: record,
+      _parentAtt: 'icase:documents',
+      _etype: type
+    }
+  });
 }

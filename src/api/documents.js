@@ -102,7 +102,7 @@ export class DocumentsApi {
   };
 
   getFormIdByType = type => {
-    return DocumentsApiRequests.getFormIdByType();
+    // return DocumentsApiRequests.getFormIdByType();
 
     return Records.get(type).load('form?id');
   };
