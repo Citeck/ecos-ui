@@ -64,7 +64,7 @@ $transition-duration: 0.3s;
     &__img {
       transition: opacity $transition-duration;
       position: absolute;
-      max-height: 20px;
+      max-height: 25px;
     }
   }
 
@@ -98,7 +98,7 @@ $transition-duration: 0.3s;
       }
     }
 
-    &#{$menu-item}_selected:not(#{$menu-item}_expanded):not(:hover) {
+    &#{$menu-item}_selected:not(#{$menu-item}_nested-expanded):not(:hover) {
       background: $color-blue-light;
 
       #{$menu-item}__icon,
@@ -206,7 +206,13 @@ $transition-duration: 0.3s;
     $list: &;
 
     min-height: 0;
+    max-height: 100%;
     transition: height $transition-duration;
+
+    &_collapsed {
+      max-height: 0;
+      overflow: hidden;
+    }
 
     &_lvl-0 {
       padding-bottom: 30px;
@@ -222,10 +228,20 @@ $transition-duration: 0.3s;
           cursor: none;
           pointer-events: none;
 
+          & :nth-child(n) {
+            display: none;
+          }
+
           &::after {
             @extend %menu-item-separator;
             width: 70%;
             left: 15%;
+          }
+        }
+
+        &#{$menu-item}_collapsible {
+          #{$menu-item}__link {
+            width: calc(100% - 16px);
           }
         }
 
@@ -244,7 +260,7 @@ $transition-duration: 0.3s;
       #{$menu-item}_lvl-1 {
         padding-right: 15px;
 
-        &#{$menu-item}_expanded:not(:hover) {
+        &#{$menu-item}_nested-expanded:not(:hover) {
           background: $color-gray-25;
         }
 
@@ -255,10 +271,6 @@ $transition-duration: 0.3s;
     }
 
     &_lvl-2 {
-      &#{$menu-list}_collapsed {
-        display: none;
-      }
-
       #{$menu-item}_lvl-2 {
         &:not(:first-child)::before {
           @extend %menu-item-separator;
@@ -284,17 +296,13 @@ $transition-duration: 0.3s;
         }
 
         #{$menu-item}__toggle {
-          margin-right: 14px;
+          padding-right: 14px;
         }
       }
     }
 
     &_lvl-3 {
       padding: 0 14px 0 26px;
-
-      &#{$menu-list}_collapsed {
-        display: none;
-      }
 
       #{$menu-item}_lvl-3 {
         height: 25px;
@@ -313,7 +321,7 @@ $transition-duration: 0.3s;
       }
     }
 
-    &-tooltip {
+    &-dropdown-menu {
       & .tooltip.show {
         opacity: 1;
       }
@@ -338,8 +346,14 @@ $transition-duration: 0.3s;
 
       #{$menu-list}_lvl-2 {
         #{$menu-item}_lvl-2 {
+          transition: width $transition-duration;
+
           #{$menu-item}__link {
             padding: 0 18px;
+          }
+
+          #{$menu-item}__toggle {
+            position: initial;
           }
 
           &:first-child {

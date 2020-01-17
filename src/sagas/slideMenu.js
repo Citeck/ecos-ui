@@ -5,11 +5,11 @@ import {
   fetchSlideMenuItems,
   fetchSmallLogoSrc,
   getSiteDashboardEnable,
+  setInitExpandableItems,
   setIsReady,
   setLargeLogo,
   setSelectedId,
   setSiteDashboardEnable,
-  setSlideMenuExpandableItems,
   setSlideMenuItems,
   setSmallLogo,
   toggleIsOpen
@@ -48,7 +48,7 @@ function* fetchSlideMenu({ api, fakeApi, logger }) {
     yield put(toggleIsOpen(isOpen));
     yield put(setSelectedId(selectedId));
     yield put(setSlideMenuItems(menuItems));
-    yield put(setSlideMenuExpandableItems(expandableItems));
+    yield put(setInitExpandableItems(expandableItems));
     yield put(setIsReady(true));
   } catch (e) {
     logger.error('[fetchSlideMenu saga] error', e.message);

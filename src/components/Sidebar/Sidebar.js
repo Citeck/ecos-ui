@@ -8,6 +8,7 @@ import {
   fetchSlideMenuItems,
   fetchSmallLogoSrc,
   getSiteDashboardEnable,
+  setInitExpandableItems,
   toggleIsOpen
 } from '../../actions/slideMenu';
 import Logo from './Logo';
@@ -44,6 +45,8 @@ class Sidebar extends React.Component {
 
     if (isOpen) {
       this.props.collapseAllItems();
+    } else {
+      this.props.setInitExpandableItems();
     }
   };
 
@@ -94,6 +97,7 @@ const mapDispatchToProps = dispatch => ({
   fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
   getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable()),
+  setInitExpandableItems: () => dispatch(setInitExpandableItems()),
   collapseAllItems: () => dispatch(collapseAllItems())
 });
 

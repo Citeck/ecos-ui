@@ -13,6 +13,8 @@ export default class SidebarService {
     SITE_LINK: 'SITE_LINK'
   };
 
+  static DROPDOWN_LEVEL = 1;
+
   static getPropsStyleLevel = ({ level, actionType }) => {
     const common = {
       noIcon: true,

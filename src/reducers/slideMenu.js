@@ -1,6 +1,7 @@
 import { handleActions } from 'redux-actions';
 import {
   collapseAllItems,
+  setInitExpandableItems,
   setIsReady,
   setLargeLogo,
   setScrollTop,
@@ -12,6 +13,7 @@ import {
   toggleExpanded,
   toggleIsOpen
 } from '../actions/slideMenu';
+import { fetchExpandableItems } from '../helpers/slideMenu';
 
 const initialState = {
   smallLogo: null,
@@ -59,22 +61,33 @@ export default handleActions(
         expandableItems: action.payload
       };
     },
-    [toggleExpanded]: (state, action) => {
+    [setInitExpandableItems]: (state, action) => {
+      const expandableItems = fetchExpandableItems(state.items, state.selectedId, state.isOpen);
+
+      return {
+        ...state,
+        expandableItems
+      };
+    },
+    [toggleExpanded]: (state, { payload: selectedItem }) => {
+      const isObject = !!selectedItem && typeof selectedItem === 'object';
+      const idItem = isObject ? selectedItem.id : selectedItem;
+      const initNestedItems = isObject && fetchExpandableItems(selectedItem.items || [], state.selectedId, state.isOpen);
+
       return {
         ...state,
         expandableItems: state.expandableItems.map(item => {
-          if (!state.isOpen) {
-            return {
-              ...item,
-              isNestedListExpanded: item.id === action.payload ? !item.isNestedListExpanded : false
-            };
-          }
-
-          if (item.id === action.payload) {
+          if (item.id === idItem) {
             return {
               ...item,
               isNestedListExpanded: !item.isNestedListExpanded
             };
+          }
+
+          const nested = initNestedItems && initNestedItems.find(nested => item.id === nested.id);
+
+          if (nested) {
+            return nested;
           }
 
           return item;

@@ -16,7 +16,8 @@ class Item extends React.Component {
     data: PropTypes.object,
     styleProps: PropTypes.object,
     level: PropTypes.number,
-    isExpanded: PropTypes.bool
+    isExpanded: PropTypes.bool,
+    inDropdown: PropTypes.bool
   };
 
   static defaultProps = {
@@ -30,7 +31,9 @@ class Item extends React.Component {
   }
 
   get collapsible() {
-    return get(this.props, 'data.params.collapsible', false) && this.hasSubItems;
+    const collapsible = get(this.props, 'data.params.collapsible', false);
+
+    return (this.props.isOpen ? collapsible : this.props.level <= SidebarService.DROPDOWN_LEVEL || collapsible) && this.hasSubItems;
   }
 
   get dataId() {
@@ -59,7 +62,7 @@ class Item extends React.Component {
 
   onToggleList = e => {
     if (this.collapsible) {
-      this.props.toggleExpanded(this.dataId);
+      this.props.toggleExpanded(this.props.data);
       e.stopPropagation();
     }
   };
@@ -102,15 +105,15 @@ class Item extends React.Component {
   }
 
   renderToggle() {
-    const { isOpen, isExpanded } = this.props;
+    const { isOpen, isExpanded, inDropdown } = this.props;
 
     return this.collapsible ? (
       <Icon
         className={classNames('ecos-sidebar-item__toggle', {
           'ecos-sidebar-item__toggle_v': isOpen,
           'ecos-sidebar-item__toggle_h icon-right': !isOpen,
-          'icon-down': !isExpanded && isOpen,
-          'icon-up': isExpanded && isOpen
+          'icon-down': !isExpanded && (isOpen || inDropdown),
+          'icon-up': isExpanded && (isOpen || inDropdown)
         })}
       />
     ) : null;
@@ -123,6 +126,7 @@ class Item extends React.Component {
       domId,
       isOpen,
       isExpanded,
+      inDropdown,
       styleProps: {
         noIcon,
         collapsedMenu: { asSeparator }
@@ -131,7 +135,7 @@ class Item extends React.Component {
     const itemSeparator = !isOpen && asSeparator;
     const events = {};
 
-    if (isOpen) {
+    if (isOpen || inDropdown) {
       events.onClick = this.onToggleList;
     }
 
@@ -141,20 +145,16 @@ class Item extends React.Component {
         className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
           'ecos-sidebar-item_collapsible': this.collapsible,
           'ecos-sidebar-item_last-lvl': !this.hasSubItems,
-          'ecos-sidebar-item_expanded': isExpanded && this.hasSubItems,
+          'ecos-sidebar-item_nested-expanded': isExpanded && this.hasSubItems,
           'ecos-sidebar-item_selected': this.isSelectedItem,
           'ecos-sidebar-item_separator': itemSeparator
         })}
         title={!isOpen && !noIcon ? get(data, 'label', '') : ''}
         {...events}
       >
-        {!itemSeparator && (
-          <>
-            {this.renderLabel()}
-            {this.renderBadge()}
-            {this.renderToggle()}
-          </>
-        )}
+        {this.renderLabel()}
+        {this.renderBadge()}
+        {this.renderToggle()}
       </div>
     );
   }
@@ -168,7 +168,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   setSelectItem: id => dispatch(setSelectedId(id)),
-  toggleExpanded: id => dispatch(toggleExpanded(id)),
+  toggleExpanded: item => dispatch(toggleExpanded(item)),
   setScrollTop: value => dispatch(setScrollTop(value))
 });
 
