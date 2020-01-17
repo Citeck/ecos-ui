@@ -12,8 +12,8 @@ import { Icon, ResizeBoxes, EcosModal, Search, DefineHeight } from '../../common
 import { Grid } from '../../common/grid';
 import { Dropdown } from '../../common/form';
 import FormManager from '../../EcosForm/FormManager';
-import Tree from './Tree';
 import DropZone from './DropZone';
+import Settings from './Settings';
 
 import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
@@ -65,11 +65,11 @@ class Documents extends BaseWidget {
   }
 
   get availableTypes() {
-    const { availableTypes } = this.props;
+    const { grouppedAvailableTypes } = this.props;
     const { typesFilter } = this.state;
 
     if (!typesFilter) {
-      return availableTypes;
+      return grouppedAvailableTypes;
     }
 
     const check = originTypes => {
@@ -102,7 +102,7 @@ class Documents extends BaseWidget {
         .filter(item => item !== null);
     };
 
-    return check(availableTypes);
+    return check(grouppedAvailableTypes);
   }
 
   get tableData() {
@@ -258,6 +258,24 @@ class Documents extends BaseWidget {
   handleChangeHeight = height => {
     UserLocalSettingsService.setDashletHeight(this.props.id, height);
     this.setState({ userHeight: height });
+  };
+
+  handleCancelSettings = () => {
+    this.setState({ isOpenSettings: false });
+  };
+
+  handleSaveSettings = settings => {
+    const { availableTypes, onSave, id, config } = this.props;
+    const selectedTypes = settings.map(item => DocumentsConverter.getFormattedDynamicType(availableTypes.find(type => type.id === item)));
+
+    onSave(id, {
+      config: {
+        ...config,
+        types: DocumentsConverter.getTypesForConfig(selectedTypes)
+      }
+    });
+
+    console.warn('settings => ', settings, selectedTypes, config);
   };
 
   renderTypes() {
@@ -422,18 +440,13 @@ class Documents extends BaseWidget {
     const { isOpenSettings } = this.state;
 
     return (
-      <EcosModal
-        title={t(LABELS.SETTINGS)}
+      <Settings
         isOpen={isOpenSettings}
-        className="ecos-docs__modal-settings"
-        hideModal={this.handleToggleTypesSettings}
-        onResize={this.handleResize}
-      >
-        <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTypes} className="ecos-docs__modal-settings-search" />
-        <div className="ecos-docs__modal-settings-field">
-          <Tree data={this.availableTypes} toggleSelect={this.handleToggleSelectType} />
-        </div>
-      </EcosModal>
+        label={t(LABELS.SETTINGS)}
+        types={this.availableTypes}
+        onCancel={this.handleCancelSettings}
+        onSave={this.handleSaveSettings}
+      />
     );
   }
 

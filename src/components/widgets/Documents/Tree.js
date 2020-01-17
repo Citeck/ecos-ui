@@ -111,6 +111,34 @@ class TreeItem extends Component {
 }
 
 class Tree extends Component {
+  get formattedTree() {
+    const { data, groupBy } = this.props;
+
+    if (!groupBy) {
+      return data;
+    }
+
+    const getChilds = (filtered = [], types = filtered) => {
+      return filtered.map(item => {
+        if (!item[groupBy]) {
+          return item;
+        }
+
+        return {
+          ...item,
+          items: getChilds(types.filter(type => type[groupBy] && type[groupBy] === item.id), types)
+        };
+      });
+    };
+
+    return data
+      .filter(item => item[groupBy] === null)
+      .map(item => ({
+        ...item,
+        items: getChilds(data.filter(type => type[groupBy] === item.id), data)
+      }));
+  }
+
   renderEmpty() {
     const { data } = this.props;
 
@@ -122,7 +150,8 @@ class Tree extends Component {
   }
 
   renderTree() {
-    const { data, toggleSelect } = this.props;
+    const { toggleSelect } = this.props;
+    const data = this.formattedTree;
 
     if (!data.length) {
       return null;

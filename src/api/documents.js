@@ -11,7 +11,8 @@ export class DocumentsApi {
       },
       {
         name: 'name',
-        parent: 'parent?id'
+        parent: 'parent?id',
+        formId: 'form?id'
       }
     ).then(response => response);
   };
