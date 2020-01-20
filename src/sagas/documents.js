@@ -5,13 +5,15 @@ import set from 'lodash/set';
 import { selectTypeNames, selectDynamicTypes, getDynamicTypes, selectAvailableTypes } from '../selectors/documents';
 import {
   init,
-  initSuccessful,
+  initSuccess,
   getAvailableTypes,
   setAvailableTypes,
   setDynamicTypes,
   getDocumentsByType,
   setDocuments,
-  toggleType
+  toggleType,
+  saveSettings,
+  saveSettingsFinally
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
 
@@ -20,7 +22,7 @@ function* sagaInitWidget({ api, logger }, { payload }) {
     yield* sagaGetAvailableTypes({ api, logger }, { payload: payload.record });
     yield* sagaGetDynamicTypes({ api, logger }, { payload });
 
-    yield put(initSuccessful(payload.record));
+    yield put(initSuccess(payload.record));
   } catch (e) {
     logger.error('[documents sagaInitWidget saga error', e.message);
   }
@@ -46,14 +48,14 @@ function* sagaToggleType({ api, logger }, { payload }) {
 
     yield put(
       setAvailableTypes({
-        key: payload.record,
-        types: DocumentsConverter.getAvailableTypes(availableTypes, dynamicTypes.map(item => item.type))
+        record: payload.record,
+        types: availableTypes
       })
     );
 
     yield put(
       setDynamicTypes({
-        key: payload.record,
+        record: payload.record,
         dynamicTypes: DocumentsConverter.getDynamicTypes(dynamicTypes, typesNames)
       })
     );
@@ -105,7 +107,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
 
     yield put(
       setDynamicTypes({
-        key: payload.record,
+        record: payload.record,
         dynamicTypes: DocumentsConverter.getDynamicTypes(combinedTypes, typesNames, countDocuments)
       })
     );
@@ -114,8 +116,8 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
 
     yield put(
       setAvailableTypes({
-        key: payload.record,
-        types: DocumentsConverter.getAvailableTypes(types, dynamicTypeKeys)
+        record: payload.record,
+        types
       })
     );
   } catch (e) {
@@ -133,8 +135,8 @@ function* sagaGetAvailableTypes({ api, logger }, { payload }) {
 
     yield put(
       setAvailableTypes({
-        key: payload,
-        types: DocumentsConverter.getAvailableTypes(records)
+        record: payload,
+        types: records
       })
     );
   } catch (e) {
@@ -154,7 +156,7 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
 
     yield put(
       setDocuments({
-        key: payload.record,
+        record: payload.record,
         documents: DocumentsConverter.getDocuments({
           documents: records,
           type: payload.type,
@@ -171,9 +173,19 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
       set(type, 'countDocuments', records.length);
     }
 
-    yield put(setDynamicTypes({ key: payload.record, dynamicTypes }));
+    yield put(setDynamicTypes({ record: payload.record, dynamicTypes }));
   } catch (e) {
     logger.error('[documents sagaGetDocumentsByType saga error', e.message);
+  }
+}
+
+function* sagaSaveSettings({ api, logger }, { payload }) {
+  try {
+    yield put(setDynamicTypes({ record: payload.record, dynamicTypes: payload.types }));
+  } catch (e) {
+    logger.error('[documents sagaSaveSettings saga error', e.message);
+  } finally {
+    yield put(saveSettingsFinally(payload.record));
   }
 }
 
@@ -182,6 +194,7 @@ function* saga(ea) {
   yield takeEvery(getAvailableTypes().type, sagaGetAvailableTypes, ea);
   yield takeEvery(getDocumentsByType().type, sagaGetDocumentsByType, ea);
   yield takeEvery(toggleType().type, sagaToggleType, ea);
+  yield takeEvery(saveSettings().type, sagaSaveSettings, ea);
 }
 
 export default saga;

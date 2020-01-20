@@ -17,7 +17,7 @@ import Settings from './Settings';
 
 import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { getDocumentsByType, init, toggleType } from '../../../actions/documents';
+import { getDocumentsByType, init, toggleType, saveSettings } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
 import { statusesKeys, typesStatuses, tooltips, typeStatusesByFields, tableFields } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
@@ -47,22 +47,43 @@ class Documents extends BaseWidget {
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       isOpenSettings: false,
+      isSentSettingsToSave: false,
       isOpenUploadModal: false,
       typesFilter: '',
       tableFilter: '',
       statusFilter: statusesKeys.ALL
     };
 
-    // props.init(props.config);
     this.initWidget();
   }
 
   static getDerivedStateFromProps(props, state) {
+    const newState = {};
+
     if (!props.dynamicTypes.find(item => item.type === state.selectedType)) {
-      return { selectedType: '' };
+      newState.selectedType = '';
     }
 
-    return null;
+    if (!props.isLoadingSettings && state.isOpenSettings && state.isSentSettingsToSave) {
+      newState.isOpenSettings = false;
+      newState.isSentSettingsToSave = false;
+    }
+
+    if (!Object.keys(newState).length) {
+      return null;
+    }
+
+    return newState;
+  }
+
+  get widgetTitle() {
+    const { dynamicTypes } = this.props;
+
+    if (dynamicTypes.length === 1) {
+      return dynamicTypes[0].name;
+    }
+
+    return t(LABELS.TITLE);
   }
 
   get availableTypes() {
@@ -233,14 +254,14 @@ class Documents extends BaseWidget {
         DocumentsConverter.getDataToCreate({
           formId: type.formId,
           type: type.type,
-          record: this.props.id
+          record: this.props.record
         })
       );
     }
 
     this.setState({
       selectedTypeForLoading: type,
-      isOpenUploadModal: type !== null
+      isOpenUploadModal: type === null
     });
   };
 
@@ -268,11 +289,14 @@ class Documents extends BaseWidget {
   };
 
   handleCancelSettings = () => {
-    this.setState({ isOpenSettings: false });
+    this.setState({
+      isOpenSettings: false,
+      isSentSettingsToSave: false
+    });
   };
 
   handleSaveSettings = settings => {
-    const { availableTypes, onSave, id, config } = this.props;
+    const { availableTypes, onSave, id, config, onSaveSettings } = this.props;
     const selectedTypes = settings.map(item => DocumentsConverter.getFormattedDynamicType(availableTypes.find(type => type.id === item)));
 
     onSave(id, {
@@ -281,14 +305,17 @@ class Documents extends BaseWidget {
         types: DocumentsConverter.getTypesForConfig(selectedTypes)
       }
     });
-
-    console.warn('settings => ', settings, selectedTypes, config);
+    onSaveSettings(selectedTypes);
+    this.setState({ isSentSettingsToSave: true });
   };
 
   renderTypes() {
-    const { id, dynamicTypes } = this.props;
+    const { dynamicTypes } = this.props;
     const { selectedType, leftColumnId, rightColumnId } = this.state;
-    const settingsId = prepareTooltipId(`settings-${id}`);
+
+    if (dynamicTypes.length < 2) {
+      return null;
+    }
 
     return (
       <div id={leftColumnId} className="ecos-docs__column ecos-docs__column_types">
@@ -300,16 +327,6 @@ class Documents extends BaseWidget {
             })}
           >
             <div className="ecos-docs__types-item-label">{t('Все типы')}</div>
-            {/*<UncontrolledTooltip*/}
-            {/*placement="top"*/}
-            {/*boundariesElement="window"*/}
-            {/*className="ecos-base-tooltip"*/}
-            {/*innerClassName="ecos-base-tooltip-inner"*/}
-            {/*arrowClassName="ecos-base-tooltip-arrow"*/}
-            {/*target={settingsId}*/}
-            {/*>*/}
-            {/*{tooltips.SETTINGS}*/}
-            {/*</UncontrolledTooltip>*/}
           </div>
 
           {dynamicTypes.map(this.renderType)}
@@ -444,12 +461,14 @@ class Documents extends BaseWidget {
   }
 
   renderSettings() {
+    const { isLoadingSettings } = this.props;
     const { isOpenSettings } = this.state;
 
     return (
       <Settings
         isOpen={isOpenSettings}
         label={t(LABELS.SETTINGS)}
+        isLoading={isLoadingSettings}
         types={this.availableTypes}
         onCancel={this.handleCancelSettings}
         onSave={this.handleSaveSettings}
@@ -491,7 +510,7 @@ class Documents extends BaseWidget {
       <div>
         <Dashlet
           className="ecos-docs"
-          title={t(LABELS.TITLE)}
+          title={this.widgetTitle}
           needGoTo={false}
           actionConfig={this.dashletActionsConfig}
           canDragging={canDragging}
@@ -537,7 +556,8 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch, ownProps) => ({
   init: config => dispatch(init({ record: ownProps.record, config })),
   getDocuments: type => dispatch(getDocumentsByType({ record: ownProps.record, type })),
-  onToggleType: (id, checked) => dispatch(toggleType({ record: ownProps.record, id, checked }))
+  onToggleType: (id, checked) => dispatch(toggleType({ record: ownProps.record, id, checked })),
+  onSaveSettings: types => dispatch(saveSettings({ record: ownProps.record, types }))
 });
 
 export default connect(

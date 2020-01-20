@@ -94,7 +94,6 @@ class Settings extends Component {
       }
 
       if (get(item, 'items', []).length) {
-        console.warn(item.items);
         item.items.forEach(checkStatus);
       }
     };
@@ -128,10 +127,16 @@ class Settings extends Component {
   };
 
   render() {
-    const { isOpen, title } = this.props;
+    const { isOpen, title, isLoading } = this.props;
 
     return (
-      <EcosModal title={title} isOpen={isOpen} className="ecos-docs__modal-settings" hideModal={this.handleCloseModal}>
+      <EcosModal
+        title={title}
+        isOpen={isOpen}
+        isLoading={isLoading}
+        className="ecos-docs__modal-settings"
+        hideModal={this.handleCloseModal}
+      >
         <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTypes} className="ecos-docs__modal-settings-search" />
         <div className="ecos-docs__modal-settings-field">
           <Tree

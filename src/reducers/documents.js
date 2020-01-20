@@ -1,13 +1,23 @@
 import { handleActions } from 'redux-actions';
 
-import { init, initSuccessful, getAvailableTypes, setAvailableTypes, setDynamicTypes, setDocuments } from '../actions/documents';
+import {
+  init,
+  initSuccess,
+  getAvailableTypes,
+  setAvailableTypes,
+  setDynamicTypes,
+  setDocuments,
+  saveSettings,
+  saveSettingsFinally
+} from '../actions/documents';
 
 export const initialState = {
   types: [],
   availableTypes: [],
   dynamicTypes: [],
   documents: [],
-  isLoading: false
+  isLoading: false,
+  isLoadingSettings: false
 };
 
 Object.freeze(initialState);
@@ -25,11 +35,12 @@ export default handleActions(
         ...state,
         [payload.record]: {
           ...ownState,
-          isLoading: true
+          isLoading: true,
+          isLoadingSettings: false
         }
       };
     },
-    [initSuccessful]: (state, { payload }) => ({
+    [initSuccess]: (state, { payload }) => ({
       ...state,
       [payload]: {
         ...state[payload],
@@ -46,8 +57,8 @@ export default handleActions(
     }),
     [setAvailableTypes]: (state, { payload }) => ({
       ...state,
-      [payload.key]: {
-        ...state[payload.key],
+      [payload.record]: {
+        ...state[payload.record],
         availableTypes: payload.types,
         isLoading: false
       }
@@ -55,17 +66,32 @@ export default handleActions(
 
     [setDynamicTypes]: (state, { payload }) => ({
       ...state,
-      [payload.key]: {
-        ...state[payload.key],
+      [payload.record]: {
+        ...state[payload.record],
         dynamicTypes: payload.dynamicTypes
       }
     }),
 
     [setDocuments]: (state, { payload }) => ({
       ...state,
-      [payload.key]: {
-        ...state[payload.key],
+      [payload.record]: {
+        ...state[payload.record],
         documents: payload.documents
+      }
+    }),
+
+    [saveSettings]: (state, { payload }) => ({
+      ...state,
+      [payload.record]: {
+        ...state[payload.record],
+        isLoadingSettings: true
+      }
+    }),
+    [saveSettingsFinally]: (state, { payload }) => ({
+      ...state,
+      [payload]: {
+        ...state[payload],
+        isLoadingSettings: false
       }
     })
   },

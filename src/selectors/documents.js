@@ -14,7 +14,8 @@ export const selectStateByKey = createSelector(
     dynamicTypes: ownState.dynamicTypes,
     // typesForTable: selectTypesForTable(ownState),
     documents: ownState.documents,
-    isLoading: ownState.isLoading
+    isLoading: ownState.isLoading,
+    isLoadingSettings: ownState.isLoadingSettings
   })
 );
 
@@ -51,8 +52,9 @@ export const selectAvailableTypes = createSelector(
 
 export const selectGrouppedAvailableTypes = createSelector(
   getAvailableTypes,
-  availableTypes => {
-    // console.warn('in selectors => ', availableTypes);
+  getDynamicTypes,
+  (availableTypes, dynamicTypes) => {
+    const selectedTypes = dynamicTypes.map(item => item.type);
     const getChilds = (filtered = [], types = filtered) => {
       return filtered.map(item => {
         if (!item.parent) {
@@ -61,6 +63,7 @@ export const selectGrouppedAvailableTypes = createSelector(
 
         return {
           ...item,
+          isSelected: selectedTypes.includes(item.id),
           items: getChilds(types.filter(type => type.parent && type.parent === item.id), types)
         };
       });
@@ -70,6 +73,7 @@ export const selectGrouppedAvailableTypes = createSelector(
       .filter(item => item.parent === null)
       .map(item => ({
         ...item,
+        isSelected: selectedTypes.includes(item.id),
         items: getChilds(availableTypes.filter(type => type.parent === item.id), availableTypes)
       }));
   }

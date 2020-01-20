@@ -101,7 +101,6 @@ export default class Dropdown extends Component {
     }
 
     return React.Children.map(this.props.children, child => {
-      console.warn(child);
       return React.cloneElement(child, {
         children: props.isButton ? child.props.children || '' : text
       });

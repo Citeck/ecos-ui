@@ -33,12 +33,6 @@ export default class DocumentsConverter {
     });
   };
 
-  static getAvailableTypes = (availavleTypes = [], dynamicTypeKeys = []) =>
-    availavleTypes.map(item => ({
-      ...item,
-      isSelected: dynamicTypeKeys.includes(item.id)
-    }));
-
   static getFormattedDynamicType = (source = {}) => {
     const target = {};
 
@@ -100,7 +94,7 @@ export default class DocumentsConverter {
   };
 
   static getDataToCreate = ({ type, record, formId }) => ({
-    recordRef: '',
+    recordRef: 'dict@cm:content',
     formId,
     attributes: {
       _parent: record,
