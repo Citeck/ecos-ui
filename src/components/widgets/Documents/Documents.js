@@ -17,13 +17,13 @@ import Settings from './Settings';
 
 import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { getDocumentsByType, init, toggleType, saveSettings } from '../../../actions/documents';
+import { getDocumentsByType, init, toggleType, saveSettings, uploadFiles } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
 import { statusesKeys, typesStatuses, tooltips, typeStatusesByFields, tableFields } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
+import DocumentsConverter from '../../../dto/documents';
 
 import './style.scss';
-import DocumentsConverter from '../../../dto/documents';
 
 const LABELS = {
   TITLE: 'Документы',
@@ -130,7 +130,7 @@ class Documents extends BaseWidget {
   get tableData() {
     const { documents, dynamicTypes } = this.props;
     const { tableFilter, selectedType, statusFilter } = this.state;
-    const data = selectedType ? documents : dynamicTypes;
+    const data = selectedType || dynamicTypes.length === 1 ? documents : dynamicTypes;
     const filter = (data = []) => {
       if (!data.length) {
         return [];
@@ -249,6 +249,14 @@ class Documents extends BaseWidget {
   };
 
   handleToggleUploadModalByType = (type = null) => {
+    // todo: remove after test
+    this.setState(state => ({
+      selectedTypeForLoading: type,
+      isOpenUploadModal: !state.isOpenUploadModal
+    }));
+
+    return;
+
     if (type !== null) {
       FormManager.createRecordByVariant(
         DocumentsConverter.getDataToCreate({
@@ -307,6 +315,12 @@ class Documents extends BaseWidget {
     });
     onSaveSettings(selectedTypes);
     this.setState({ isSentSettingsToSave: true });
+  };
+
+  handleSelectUploadFiles = files => {
+    const { selectedTypeForLoading } = this.state;
+
+    this.props.onUploadFiles(files, selectedTypeForLoading);
   };
 
   renderTypes() {
@@ -385,8 +399,8 @@ class Documents extends BaseWidget {
     const { dynamicTypes } = this.props;
     const { selectedType } = this.state;
 
-    if (selectedType) {
-      const type = dynamicTypes.find(item => item.type === selectedType);
+    if (selectedType || dynamicTypes.length === 1) {
+      const type = dynamicTypes.find(item => item.type === selectedType) || dynamicTypes[0];
 
       return (
         <div className="ecos-docs__panel-upload" onClick={this.handleToggleUploadModalByType.bind(this, type)}>
@@ -410,13 +424,14 @@ class Documents extends BaseWidget {
   }
 
   renderTablePanel() {
+    const { dynamicTypes } = this.props;
     const { statusFilter, selectedType } = this.state;
 
     return (
       <div className="ecos-docs__panel">
         {this.renderUploadButton()}
         <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTable} className="ecos-docs__panel-search" />
-        {!selectedType && (
+        {!selectedType && dynamicTypes.length > 1 && (
           <Dropdown
             className="ecos-docs__panel-filter"
             controlClassName="ecos-docs__panel-filter-control"
@@ -432,13 +447,14 @@ class Documents extends BaseWidget {
   }
 
   renderTable() {
+    const { dynamicTypes } = this.props;
     const { selectedType, rightColumnId } = this.state;
     let columns = tableFields.ALL.map(item => ({
       dataField: item.name,
       text: item.label
     }));
 
-    if (selectedType) {
+    if (selectedType || dynamicTypes.length === 1) {
       columns = tableFields.DEFAULT.map(item => ({
         dataField: item.name,
         text: item.label
@@ -487,7 +503,7 @@ class Documents extends BaseWidget {
         className="ecos-docs__modal-upload"
         hideModal={this.handleToggleUploadModalByType.bind(this, null)}
       >
-        <DropZone />
+        <DropZone onSelect={this.handleSelectUploadFiles} multiple />
       </EcosModal>
     );
   }
@@ -557,7 +573,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   init: config => dispatch(init({ record: ownProps.record, config })),
   getDocuments: type => dispatch(getDocumentsByType({ record: ownProps.record, type })),
   onToggleType: (id, checked) => dispatch(toggleType({ record: ownProps.record, id, checked })),
-  onSaveSettings: types => dispatch(saveSettings({ record: ownProps.record, types }))
+  onSaveSettings: types => dispatch(saveSettings({ record: ownProps.record, types })),
+  onUploadFiles: (files, type) => dispatch(uploadFiles({ record: ownProps.record, files, type }))
 });
 
 export default connect(

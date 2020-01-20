@@ -1,5 +1,6 @@
 import Records from '../components/Records';
 import { DocumentsApiRequests } from './stubs';
+import ecosXhr from '../helpers/ecosXhr';
 
 export class DocumentsApi {
   getDocumentTypes = () => {
@@ -106,5 +107,36 @@ export class DocumentsApi {
     // return DocumentsApiRequests.getFormIdByType();
 
     return Records.get(type).load('form?id');
+  };
+
+  uploadFiles = (data, handleProgress) => {
+    // let record = Records.getRecordToEdit('');
+    //
+    // record.att('_parent', data.record);
+    // record.att('_parentAtt', 'icase:documents');
+    // record.att('_etype', data.type);
+    // record.att('_content', data.files);
+    //
+    // console.warn(record)
+    //
+    // return record.save().then(response => response);
+
+    console.warn('data.files => ', data.files);
+
+    return ecosXhr('/share/proxy/alfresco/eform/file', {
+      method: 'POST',
+      body: {
+        name: 'test',
+        _content: data.files,
+        _parent: data.record,
+        _etype: data.type
+      }
+      // handleProgress
+    }).then(
+      response => response,
+      error => {
+        throw error;
+      }
+    );
   };
 }

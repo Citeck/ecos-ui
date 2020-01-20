@@ -20,3 +20,5 @@ export const toggleType = createAction(prefix + 'TOGGLE_TYPE_IN_SETTINGS');
 
 export const saveSettings = createAction(prefix + 'SAVE_SETTINGS');
 export const saveSettingsFinally = createAction(prefix + 'SAVE_SETTINGS_FINALLY');
+
+export const uploadFiles = createAction(prefix + 'UPLOAD_FILES');

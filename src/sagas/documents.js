@@ -13,7 +13,8 @@ import {
   setDocuments,
   toggleType,
   saveSettings,
-  saveSettingsFinally
+  saveSettingsFinally,
+  uploadFiles
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
 
@@ -105,6 +106,18 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
       })
       .filter(item => item !== null);
 
+    if (combinedTypes.length === 1) {
+      yield* sagaGetDocumentsByType(
+        { api, logger },
+        {
+          payload: {
+            record: payload.record,
+            type: combinedTypes[0].type
+          }
+        }
+      );
+    }
+
     yield put(
       setDynamicTypes({
         record: payload.record,
@@ -189,12 +202,27 @@ function* sagaSaveSettings({ api, logger }, { payload }) {
   }
 }
 
+function* sagaUploadFiles({ api, logger }, { payload }) {
+  try {
+    const result = yield call(api.documents.uploadFiles, {
+      files: payload.files,
+      record: payload.record,
+      type: payload.type
+    });
+
+    console.warn('upload result => ', result);
+  } catch (e) {
+    logger.error('[documents sagaUploadFiles saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(init().type, sagaInitWidget, ea);
   yield takeEvery(getAvailableTypes().type, sagaGetAvailableTypes, ea);
   yield takeEvery(getDocumentsByType().type, sagaGetDocumentsByType, ea);
   yield takeEvery(toggleType().type, sagaToggleType, ea);
   yield takeEvery(saveSettings().type, sagaSaveSettings, ea);
+  yield takeEvery(uploadFiles().type, sagaUploadFiles, ea);
 }
 
 export default saga;

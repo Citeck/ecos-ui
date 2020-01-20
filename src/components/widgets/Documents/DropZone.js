@@ -24,13 +24,15 @@ class DropZone extends Component {
   static propTypes = {
     multiple: PropTypes.bool,
     isLoading: PropTypes.bool,
-    immediateUploading: PropTypes.bool
+    immediateUploading: PropTypes.bool,
+    onSelect: PropTypes.func
   };
 
   static defaultProps = {
     multiple: false,
     isLoading: false,
-    immediateUploading: false
+    immediateUploading: false,
+    onSelect: () => {}
   };
 
   state = {
@@ -46,10 +48,27 @@ class DropZone extends Component {
     const [file = null] = acceptedFiles;
     const clientError = this.validateUploadedFile(file);
 
+    console.warn(acceptedFiles);
+
     if (clientError) {
       this.setState({ file: null, clientError });
     } else {
       this.setState({ file, clientError: '' });
+
+      this.props.onSelect(
+        acceptedFiles.map(item => {
+          const target = new FormData();
+
+          target.append('data', item, item.name);
+          target.append('name', item.name);
+          target.append('size', item.size);
+
+          console.warn('target => ', target.get('data'));
+          console.warn('item => ', item);
+
+          return target;
+        })
+      );
     }
   };
 
