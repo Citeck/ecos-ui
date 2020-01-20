@@ -19,7 +19,8 @@ class Properties extends React.Component {
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
+    onInlineEditSave: PropTypes.func
   };
 
   static defaultProps = {
@@ -88,7 +89,7 @@ class Properties extends React.Component {
   }
 
   renderForm() {
-    const { record, isSmallMode, isReady, onUpdate, formId } = this.props;
+    const { record, isSmallMode, isReady, onUpdate, formId, onInlineEditSave } = this.props;
     const { isReadySubmit, hideForm } = this.state;
     const formClassNames = classNames('ecos-properties__formio', {
       'ecos-properties__formio_small': isSmallMode
@@ -107,7 +108,8 @@ class Properties extends React.Component {
             viewAsHtmlConfig: {
               hidePanels: isSmallMode
             },
-            formMode: FORM_MODE_EDIT
+            formMode: FORM_MODE_EDIT,
+            onInlineEditSave
           }}
           // onSubmit={this.onSubmitForm}
           onFormSubmitDone={onUpdate}

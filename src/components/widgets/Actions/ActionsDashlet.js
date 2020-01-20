@@ -4,9 +4,9 @@ import classNames from 'classnames';
 
 import { isSmallMode, t } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import Dashlet from '../../Dashlet/Dashlet';
-import Actions from './Actions';
+import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
+import Actions from './Actions';
 
 import './style.scss';
 
@@ -36,6 +36,8 @@ class ActionsDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
+    this.watcher = this.instanceRecord.watch(['caseStatus', 'idocs:documentStatus'], this.reload);
+
     this.state = {
       isSmallMode: false,
       fitHeights: {},
@@ -44,13 +46,17 @@ class ActionsDashlet extends BaseWidget {
     };
   }
 
+  componentWillUnmount() {
+    this.instanceRecord.unwatch(this.watcher);
+  }
+
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
   };
 
   render() {
-    const { id, title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, userHeight, fitHeights, isCollapsed } = this.state;
+    const { id, title, config, classNameDashlet, classNameContent, record, dragHandleProps, canDragging } = this.props;
+    const { isSmallMode, userHeight, fitHeights, isCollapsed, runUpdate } = this.state;
 
     return (
       <Dashlet
@@ -80,6 +86,7 @@ class ActionsDashlet extends BaseWidget {
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           onActionsChanged={this.checkHeight}
+          runUpdate={runUpdate}
         />
       </Dashlet>
     );

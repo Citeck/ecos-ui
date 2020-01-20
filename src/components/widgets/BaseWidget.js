@@ -3,9 +3,23 @@ import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 
 import UserLocalSettingsService from '../../services/userLocalSettings';
+import Records from '../Records/Records';
 
 class BaseWidget extends Component {
   contentRef = React.createRef();
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      runUpdate: false,
+      userHeight: undefined
+    };
+  }
+
+  get instanceRecord() {
+    return Records.get(this.props.record);
+  }
 
   get clientHeight() {
     if (!this.props.maxHeightByContent) {
@@ -24,11 +38,19 @@ class BaseWidget extends Component {
   }
 
   setContentHeight = contentHeight => {
-    this.setState({ contentHeight });
+    const contentHeightState = this.state.contentHeight;
+
+    if (contentHeightState !== contentHeight) {
+      this.setState({ contentHeight });
+    }
   };
 
   setFitHeights = fitHeights => {
-    this.setState({ fitHeights });
+    const fitHeightsState = this.state.fitHeights;
+
+    if (fitHeightsState !== fitHeights) {
+      this.setState({ fitHeights });
+    }
   };
 
   checkHeight = debounce((force = false) => {
@@ -37,19 +59,19 @@ class BaseWidget extends Component {
     }
   }, 400);
 
-  handleChangeHeight = height => {
-    let pureHeight = height > 0 ? height : 0;
+  handleChangeHeight = userHeight => {
+    userHeight = userHeight > 0 ? userHeight : 0;
 
-    if (this.state.userHeight === pureHeight) {
+    if (this.state.userHeight === userHeight) {
       return;
     }
 
-    if (pureHeight > this.fullHeight) {
-      pureHeight = this.fullHeight;
+    if (this.fullHeight && userHeight > this.fullHeight) {
+      userHeight = this.fullHeight;
     }
 
-    UserLocalSettingsService.setDashletHeight(this.props.id, pureHeight);
-    this.setState({ userHeight: pureHeight });
+    UserLocalSettingsService.setDashletHeight(this.props.id, userHeight);
+    this.setState({ userHeight });
   };
 
   handleToggleContent = (isCollapsed = false) => {
@@ -59,6 +81,10 @@ class BaseWidget extends Component {
 
   handleResize = width => {
     this.setState({ width });
+  };
+
+  reload = () => {
+    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
   };
 }
 

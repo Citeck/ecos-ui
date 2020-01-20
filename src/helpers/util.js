@@ -545,6 +545,8 @@ export function documentScrollTop() {
 }
 
 export function getAdaptiveNumberStr(number) {
+  number = number || 0;
+
   let num = parseInt(number);
   if (num >= 1000) {
     let res = parseInt((num / 1000).toString());

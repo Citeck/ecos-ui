@@ -45,6 +45,8 @@ class DocPreviewDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
+    this.watcher = this.instanceRecord.watch('version', this.reload);
+
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
@@ -52,6 +54,10 @@ class DocPreviewDashlet extends BaseWidget {
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
       fitHeights: {}
     };
+  }
+
+  componentWillUnmount() {
+    this.instanceRecord.unwatch(this.watcher);
   }
 
   get otherHeight() {
@@ -86,7 +92,7 @@ class DocPreviewDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName } = this.props;
-    const { width, userHeight, fitHeights, scale, isCollapsed } = this.state;
+    const { width, userHeight, fitHeights, scale, isCollapsed, runUpdate } = this.state;
     const classesDashlet = classNames('ecos-doc-preview-dashlet', classNameDashlet, {
       'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE && !isMobile,
       'ecos-doc-preview-dashlet_mobile': isMobile,
@@ -124,6 +130,7 @@ class DocPreviewDashlet extends BaseWidget {
           getContainerPageHeight={this.setContainerPageHeight}
           resizable
           isCollapsed={isCollapsed}
+          runUpdate={runUpdate}
         />
       </Dashlet>
     );

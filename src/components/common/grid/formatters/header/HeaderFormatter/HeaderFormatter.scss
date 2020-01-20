@@ -1,6 +1,8 @@
 @import '../../../../../../styles/constants';
 
 .ecos-grid__header {
+  width: 100%;
+
   th:last-child {
     .ecos-th__devider {
       display: none;

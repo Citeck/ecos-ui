@@ -57,6 +57,8 @@ class PropertiesDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
+    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
+
     this.state = {
       isSmallMode: false,
       isReady: true,
@@ -67,7 +69,8 @@ class PropertiesDashlet extends BaseWidget {
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       fitHeights: {},
       canEditRecord: false,
-      isShowSetting: false
+      isShowSetting: false,
+      wasLastModifiedWithInlineEditor: false
     };
   }
 
@@ -75,6 +78,10 @@ class PropertiesDashlet extends BaseWidget {
     EcosFormUtils.hasWritePermission(this.props.record).then(canEditRecord => {
       this.setState({ canEditRecord });
     });
+  }
+
+  componentWillUnmount() {
+    this.instanceRecord.unwatch(this.watcher);
   }
 
   get dashletActions() {
@@ -87,7 +94,7 @@ class PropertiesDashlet extends BaseWidget {
 
     const actions = {
       [BaseActions.RELOAD]: {
-        onClick: this.updateProps
+        onClick: this.reload
       },
       [BaseActions.SETTINGS]: {
         onClick: this.toggleDisplayFormSettings
@@ -118,6 +125,18 @@ class PropertiesDashlet extends BaseWidget {
     EcosFormUtils.getCanWritePermission(record).then(canEdit => {
       this.setState({ canEdit });
     });
+  };
+
+  onInlineEditSave = () => {
+    this.setState({ wasLastModifiedWithInlineEditor: true });
+  };
+
+  reload = () => {
+    if (this.state.wasLastModifiedWithInlineEditor) {
+      this.setState({ wasLastModifiedWithInlineEditor: false });
+    } else {
+      this.setState({ isReady: false }, () => this.setState({ isReady: true }));
+    }
   };
 
   onResize = width => {
@@ -190,6 +209,7 @@ class PropertiesDashlet extends BaseWidget {
           maxHeight={fitHeights.max}
           onUpdate={this.onPropertiesUpdate}
           formId={formId}
+          onInlineEditSave={this.onInlineEditSave}
         />
         {isShowSetting && (
           <PropertiesSettings

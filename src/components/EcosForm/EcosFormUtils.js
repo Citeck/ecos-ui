@@ -11,6 +11,7 @@ import { EcosForm } from '../EcosForm';
 import Modal from '../common/EcosModal/CiteckEcosModal';
 import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
 import uuidV4 from 'uuid/v4';
+import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 
 const EDGE_PREFIX = 'edge__';
 
@@ -53,38 +54,6 @@ export default class EcosFormUtils {
     ).then(function(userNames) {
       return (userNames || []).indexOf(currentPersonName) !== -1;
     });
-  }
-
-  static isShouldDisplayForms() {
-    return Records.get('ecos-config@default-ui-left-menu-access-groups')
-      .load('.str')
-      .then(function(groupsInOneString) {
-        if (!groupsInOneString) {
-          return false;
-        }
-
-        const groups = groupsInOneString.split(',');
-        const results = [];
-
-        for (let groupsCounter = 0; groupsCounter < groups.length; ++groupsCounter) {
-          results.push(EcosFormUtils.isCurrentUserInGroup(groups[groupsCounter]));
-        }
-
-        return Promise.all(results).then(function(values) {
-          return values.indexOf(false) === -1;
-        });
-      });
-  }
-
-  static isShouldDisplayFormsForUser() {
-    return Records.get('ecos-config@default-ui-main-menu')
-      .load('.str')
-      .then(function(result) {
-        if (result === 'left') {
-          return EcosFormUtils.isShouldDisplayForms();
-        }
-        return false;
-      });
   }
 
   static eform(record, config) {
@@ -228,7 +197,7 @@ export default class EcosFormUtils {
       isFormsEnabled = Promise.resolve(true);
     }
 
-    const isShouldDisplay = EcosFormUtils.isShouldDisplayFormsForUser();
+    const isShouldDisplay = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
 
     Promise.all([isFormsEnabled, isShouldDisplay])
       .then(function(values) {

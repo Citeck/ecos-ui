@@ -38,9 +38,10 @@ class CurrentTasksDashlet extends BaseWidget {
 
     UserLocalSettingsService.checkOldData(props.id);
 
+    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
+
     this.state = {
       isSmallMode: false,
-      isUpdating: false,
       fitHeights: {},
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
@@ -49,12 +50,12 @@ class CurrentTasksDashlet extends BaseWidget {
     };
   }
 
+  componentWillUnmount() {
+    this.instanceRecord.unwatch(this.watcher);
+  }
+
   onResize = width => {
     this.setState({ isSmallMode: isSmallMode(width) });
-  };
-
-  onReload = () => {
-    this.setState({ isUpdating: true }, () => this.setState({ isUpdating: false }));
   };
 
   setInfo = data => {
@@ -63,10 +64,10 @@ class CurrentTasksDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, isUpdating, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
+    const { isSmallMode, runUpdate, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
       [BaseActions.RELOAD]: {
-        onClick: this.onReload
+        onClick: () => this.reload()
       }
     };
 
@@ -89,20 +90,19 @@ class CurrentTasksDashlet extends BaseWidget {
         badgeText={getAdaptiveNumberStr(totalCount)}
         noBody={!totalCount && !isLoading}
       >
-        {!isUpdating && (
-          <CurrentTasks
-            {...config}
-            forwardedRef={this.contentRef}
-            className={classNameTasks}
-            record={record}
-            isSmallMode={isSmallMode}
-            stateId={record}
-            height={userHeight}
-            minHeight={fitHeights.min}
-            maxHeight={fitHeights.max}
-            setInfo={this.setInfo}
-          />
-        )}
+        <CurrentTasks
+          {...config}
+          forwardedRef={this.contentRef}
+          className={classNameTasks}
+          record={record}
+          isSmallMode={isSmallMode}
+          stateId={record}
+          height={userHeight}
+          minHeight={fitHeights.min}
+          maxHeight={fitHeights.max}
+          setInfo={this.setInfo}
+          runUpdate={runUpdate}
+        />
       </Dashlet>
     );
   }

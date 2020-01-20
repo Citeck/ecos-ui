@@ -3,8 +3,7 @@
 .ecos-event-history {
   $root: &;
 
-  &-dashlet {
-  }
+  padding-top: 10px;
 
   &__v-scroll {
     @extend %v-scroll;
@@ -21,20 +20,8 @@
       height: 100%;
     }
 
-    &_view-enum {
-    }
-
     &_view-table {
-      display: table;
-      padding: 0 20px;
-
-      .table {
-        border-top: none;
-
-        th {
-          border-top: none;
-        }
-      }
+      padding-left: 20px;
 
       .ecos-th {
         font-weight: $font-weight-bold;
@@ -42,29 +29,9 @@
 
       .ecos-grid__td {
         font-weight: $font-weight-semi-bold;
-      }
 
-      thead {
-        display: table-row-group;
-        width: 100%;
-        table-layout: fixed;
-        background: white;
-        position: absolute;
-        top: 0;
-      }
-
-      tbody {
-        display: block;
-        padding-top: 52px;
-
-        tr {
-          display: flex;
-          width: 100%;
-          table-layout: fixed;
-
-          td {
-            display: inline-flex;
-          }
+        &.event-cell-task-comment {
+          white-space: initial;
         }
       }
     }
