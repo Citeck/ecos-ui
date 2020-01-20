@@ -680,8 +680,8 @@ export default class SelectJournal extends Component {
             </div>
 
             <div className="select-journal-select-modal__buttons">
-              <Btn onClick={this.onCancelSelect}>{t('select-journal.select-modal.cancel-button')}</Btn>
-              <Btn className={'ecos-btn_blue'} onClick={this.onSelectFromJournalPopup}>
+              <Btn className={'select-journal-select-modal__buttons-cancel'} onClick={this.onCancelSelect}>{t('select-journal.select-modal.cancel-button')}</Btn>
+              <Btn className={'ecos-btn_blue select-journal-select-modal__buttons-ok'} onClick={this.onSelectFromJournalPopup}>
                 {t('select-journal.select-modal.ok-button')}
               </Btn>
             </div>
