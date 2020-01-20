@@ -50,7 +50,7 @@ class List extends React.Component {
   );
 
   renderItem = (item, i) => {
-    const { level, expandableItems, isOpen, inDropdown } = this.props;
+    const { level, expandableItems, isOpen, inDropdown, isExpanded, selectedId } = this.props;
     const listItemDomId = `${item.id}-${level}-${i}`;
     const listItemKey = `${item.id}-${item.label}-${level}`;
     const styleProps = SidebarService.getPropsStyleLevel({
@@ -59,12 +59,22 @@ class List extends React.Component {
     });
     const hasSubItems = !!(item.items && item.items.length);
     const isItemSeparator = !isOpen && get(styleProps, 'collapsedMenu.asSeparator', false);
-    const isItemExpanded = SidebarService.isExpanded(expandableItems, item.id);
+    const isItemExpanded = SidebarService.isExpanded(expandableItems, item.id) && isExpanded;
+    const isItemSelected = selectedId === item.id;
+    const isChildSelected = !isOpen && level === SidebarService.DROPDOWN_LEVEL && SidebarService.isSelectedChild(expandableItems, item.id);
     const isSubListExpanded = isItemSeparator || ((isOpen || inDropdown) && isItemExpanded);
 
     return (
       <React.Fragment key={listItemKey}>
-        <Item domId={listItemDomId} data={item} level={level} isExpanded={isItemExpanded} styleProps={styleProps} inDropdown={inDropdown} />
+        <Item
+          domId={listItemDomId}
+          data={item}
+          level={level}
+          isExpanded={isItemExpanded}
+          isSelected={isItemSelected || isChildSelected}
+          styleProps={styleProps}
+          inDropdown={inDropdown}
+        />
         {hasSubItems && this.renderSubList(item.items, isSubListExpanded, inDropdown)}
         {level === SidebarService.DROPDOWN_LEVEL && hasSubItems && (
           <Tooltip
@@ -110,7 +120,8 @@ class List extends React.Component {
 
 const mapStateToProps = state => ({
   isOpen: state.slideMenu.isOpen,
-  expandableItems: state.slideMenu.expandableItems
+  expandableItems: state.slideMenu.expandableItems,
+  selectedId: state.slideMenu.selectedId
 });
 
 const mapDispatchToProps = dispatch => ({

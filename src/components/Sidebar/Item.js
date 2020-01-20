@@ -17,6 +17,7 @@ class Item extends React.Component {
     styleProps: PropTypes.object,
     level: PropTypes.number,
     isExpanded: PropTypes.bool,
+    isSelected: PropTypes.bool,
     inDropdown: PropTypes.bool
   };
 
@@ -44,16 +45,12 @@ class Item extends React.Component {
     return get(this.props, 'data.action.type', '');
   }
 
-  get isSelectedItem() {
-    return this.props.selectedId === this.dataId;
-  }
-
   get isLink() {
     return ![SidebarService.ActionTypes.CREATE_SITE].includes(this.actionType);
   }
 
   getMover() {
-    if (this.hasSubItems) {
+    if (this.collapsible) {
       return ({ children }) => <div className="ecos-sidebar-item__link">{children}</div>;
     }
 
@@ -126,6 +123,7 @@ class Item extends React.Component {
       domId,
       isOpen,
       isExpanded,
+      isSelected,
       inDropdown,
       styleProps: {
         noIcon,
@@ -146,7 +144,7 @@ class Item extends React.Component {
           'ecos-sidebar-item_collapsible': this.collapsible,
           'ecos-sidebar-item_last-lvl': !this.hasSubItems,
           'ecos-sidebar-item_nested-expanded': isExpanded && this.hasSubItems,
-          'ecos-sidebar-item_selected': this.isSelectedItem,
+          'ecos-sidebar-item_selected': isSelected,
           'ecos-sidebar-item_separator': itemSeparator
         })}
         title={!isOpen && !noIcon ? get(data, 'label', '') : ''}
@@ -162,8 +160,7 @@ class Item extends React.Component {
 
 const mapStateToProps = state => ({
   isOpen: state.slideMenu.isOpen,
-  isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable,
-  selectedId: state.slideMenu.selectedId
+  isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable
 });
 
 const mapDispatchToProps = dispatch => ({

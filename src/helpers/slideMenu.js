@@ -8,14 +8,15 @@ export function fetchExpandableItems(items, selectedId, isSlideMenuOpen) {
 
   items.forEach(item => {
     if (!!item.items) {
-      let isNestedListExpanded =
-        isSlideMenuOpen &&
-        (hasChildWithId(item.items, selectedId) || get(item, 'params.collapsible', false) ? get(item, 'params.collapsed', false) : true);
+      const selectedChild = hasChildWithId(item.items, selectedId);
+      const isNestedListExpanded =
+        (isSlideMenuOpen && selectedChild) || (get(item, 'params.collapsible') ? !get(item, 'params.collapsed') : true);
 
       flatList.push(
         {
           id: item.id,
-          isNestedListExpanded
+          isNestedListExpanded,
+          selectedChild
         },
         ...fetchExpandableItems(item.items, selectedId, isSlideMenuOpen)
       );
