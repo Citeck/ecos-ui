@@ -10,7 +10,7 @@ export function fetchExpandableItems(items, selectedId, isSlideMenuOpen) {
     if (!!item.items) {
       const selectedChild = hasChildWithId(item.items, selectedId);
       const isNestedListExpanded =
-        (isSlideMenuOpen && selectedChild) || (get(item, 'params.collapsible') ? !get(item, 'params.collapsed') : true);
+        isSlideMenuOpen && (selectedChild || (get(item, 'params.collapsible') ? !get(item, 'params.collapsed') : true));
 
       flatList.push(
         {

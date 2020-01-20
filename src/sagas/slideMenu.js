@@ -14,7 +14,7 @@ import {
   setSmallLogo,
   toggleIsOpen
 } from '../actions/slideMenu';
-import { fetchExpandableItems, getSelected, setSelected } from '../helpers/slideMenu';
+import { getSelected, setSelected } from '../helpers/slideMenu';
 import ULS from '../services/userLocalSettings';
 
 function* fetchSmallLogo({ api, fakeApi, logger }) {
@@ -43,12 +43,11 @@ function* fetchSlideMenu({ api, fakeApi, logger }) {
     const menuItems = apiData.items;
     const selectedId = getSelected();
     const isOpen = get(ULS.getMenuMode(), 'isSlideMenuOpen', true);
-    const expandableItems = fetchExpandableItems(menuItems, selectedId, isOpen);
 
     yield put(toggleIsOpen(isOpen));
     yield put(setSelectedId(selectedId));
     yield put(setSlideMenuItems(menuItems));
-    yield put(setInitExpandableItems(expandableItems));
+    yield put(setInitExpandableItems());
     yield put(setIsReady(true));
   } catch (e) {
     logger.error('[fetchSlideMenu saga] error', e.message);
