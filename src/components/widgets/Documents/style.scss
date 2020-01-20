@@ -160,6 +160,16 @@
         padding: 15px;
         overflow-x: scroll;
       }
+
+      &-footer {
+        padding-top: 23px;
+
+        &-item {
+          &:not(:last-child) {
+            margin-right: 10px;
+          }
+        }
+      }
     }
 
     &-upload {
@@ -211,6 +221,10 @@
         }
       }
     }
+  }
+
+  &__loader {
+    z-index: 1000;
   }
 }
 

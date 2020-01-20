@@ -3,6 +3,7 @@ import { createAction } from 'redux-actions';
 const prefix = 'documents/';
 
 export const init = createAction(prefix + 'INIT_WIDGET');
+export const initSuccessful = createAction(prefix + 'INIT_WIDGET_SUCCESSFUL');
 
 export const getDocumentTypes = createAction(prefix + 'GET_DOCUMENT_TYPES');
 export const setDocumentTypes = createAction(prefix + 'SET_DOCUMENT_TYPES');

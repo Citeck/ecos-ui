@@ -1,6 +1,6 @@
 import { handleActions } from 'redux-actions';
 
-import { init, getAvailableTypes, setAvailableTypes, setDynamicTypes, setDocuments } from '../actions/documents';
+import { init, initSuccessful, getAvailableTypes, setAvailableTypes, setDynamicTypes, setDocuments } from '../actions/documents';
 
 export const initialState = {
   types: [],
@@ -23,9 +23,20 @@ export default handleActions(
 
       return {
         ...state,
-        [payload.record]: { ...ownState }
+        [payload.record]: {
+          ...ownState,
+          isLoading: true
+        }
       };
     },
+    [initSuccessful]: (state, { payload }) => ({
+      ...state,
+      [payload]: {
+        ...state[payload],
+        isLoading: false
+      }
+    }),
+
     [getAvailableTypes]: (state, { payload }) => ({
       ...state,
       [payload]: {

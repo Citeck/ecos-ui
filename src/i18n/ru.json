@@ -780,5 +780,7 @@
   "esign.modal.provider": "Поставщик",
   "esign.no-data": "Нет данных",
   "esign.no-document-ref": "Нет документов для подписи",
-  "esign.message.plugin-is-fetching": "Идёт процесс инициализации расширения для работы с цифровой подписью"
+  "esign.message.plugin-is-fetching": "Идёт процесс инициализации расширения для работы с цифровой подписью",
+  "documents-widget.settings-modal.button.cancel": "Отмена",
+  "documents-widget.settings-modal.button.ok": "Готово"
 }

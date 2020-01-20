@@ -7,6 +7,11 @@ import { Btn } from '../../common/btns';
 import Tree from './Tree';
 import { deepClone, t, arrayCompare } from '../../../helpers/util';
 
+const Labels = {
+  CANCEL_BUTTON: 'documents-widget.settings-modal.button.cancel',
+  OK_BUTTON: 'documents-widget.settings-modal.button.ok'
+};
+
 class Settings extends Component {
   static propTypes = {
     isOpen: PropTypes.bool
@@ -74,9 +79,9 @@ class Settings extends Component {
   }
 
   handleCloseModal = () => {
-    this.props.onClose();
-
     this.setState({ filter: '' });
+
+    this.props.onCancel();
   };
 
   handleClickSave = () => {
@@ -89,6 +94,7 @@ class Settings extends Component {
       }
 
       if (get(item, 'items', []).length) {
+        console.warn(item.items);
         item.items.forEach(checkStatus);
       }
     };
@@ -135,10 +141,12 @@ class Settings extends Component {
           />
         </div>
 
-        <div>
-          <Btn onClick={this.handleCloseModal}>{t('select-orgstruct.select-modal.cancel-button')}</Btn>
-          <Btn onClick={this.handleClickSave} className={'ecos-btn_blue'}>
-            {t('select-orgstruct.select-modal.ok-button')}
+        <div className="ecos-docs__modal-settings-footer">
+          <Btn onClick={this.handleCloseModal} className="ecos-docs__modal-settings-footer-item">
+            {t(Labels.CANCEL_BUTTON)}
+          </Btn>
+          <Btn onClick={this.handleClickSave} className="ecos-btn_blue ecos-docs__modal-settings-footer-item">
+            {t(Labels.OK_BUTTON)}
           </Btn>
         </div>
       </EcosModal>

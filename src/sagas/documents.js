@@ -5,6 +5,7 @@ import set from 'lodash/set';
 import { selectTypeNames, selectDynamicTypes, getDynamicTypes, selectAvailableTypes } from '../selectors/documents';
 import {
   init,
+  initSuccessful,
   getAvailableTypes,
   setAvailableTypes,
   setDynamicTypes,
@@ -18,6 +19,8 @@ function* sagaInitWidget({ api, logger }, { payload }) {
   try {
     yield* sagaGetAvailableTypes({ api, logger }, { payload: payload.record });
     yield* sagaGetDynamicTypes({ api, logger }, { payload });
+
+    yield put(initSuccessful(payload.record));
   } catch (e) {
     logger.error('[documents sagaInitWidget saga error', e.message);
   }

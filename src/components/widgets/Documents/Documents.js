@@ -8,7 +8,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
-import { Icon, ResizeBoxes, EcosModal, Search, DefineHeight } from '../../common';
+import { Icon, ResizeBoxes, EcosModal, Search, DefineHeight, Loader } from '../../common';
 import { Grid } from '../../common/grid';
 import { Dropdown } from '../../common/form';
 import FormManager from '../../EcosForm/FormManager';
@@ -53,7 +53,8 @@ class Documents extends BaseWidget {
       statusFilter: statusesKeys.ALL
     };
 
-    props.init(props.config);
+    // props.init(props.config);
+    this.initWidget();
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -148,7 +149,7 @@ class Documents extends BaseWidget {
     const actions = {};
 
     actions.reload = {
-      onClick: () => {}
+      onClick: this.initWidget
     };
 
     actions.settings = {
@@ -177,7 +178,13 @@ class Documents extends BaseWidget {
     return status;
   };
 
-  handleReloadData = () => {};
+  initWidget = () => {
+    this.props.init(this.props.config);
+  };
+
+  handleReloadData = () => {
+    this.props.init();
+  };
 
   handleToggleTypesSettings = event => {
     const { id, onSave, config, dynamicTypes } = this.props;
@@ -466,6 +473,16 @@ class Documents extends BaseWidget {
     );
   }
 
+  renderLoader() {
+    const { isLoading } = this.props;
+
+    if (!isLoading) {
+      return null;
+    }
+
+    return <Loader className="ecos-docs__loader" blur />;
+  }
+
   render() {
     const { dragHandleProps, canDragging } = this.props;
     const { isCollapsed, contentHeight, fitHeights, userHeight } = this.state;
@@ -480,7 +497,6 @@ class Documents extends BaseWidget {
           canDragging={canDragging}
           resizable
           contentMaxHeight={this.clientHeight}
-          onReload={this.handleReloadData}
           onResize={this.handleResize}
           dragHandleProps={dragHandleProps}
           onChangeHeight={this.handleChangeHeight}
@@ -504,6 +520,7 @@ class Documents extends BaseWidget {
                 {this.renderTable()}
                 {this.renderSettings()}
                 {this.renderUploadingModal()}
+                {this.renderLoader()}
               </div>
             </DefineHeight>
           </Scrollbars>
