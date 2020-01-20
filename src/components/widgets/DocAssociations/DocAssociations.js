@@ -8,7 +8,7 @@ import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'rea
 import BaseWidget from '../BaseWidget';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_SMALL, URL } from '../../../constants/index';
-import { getAssociations, getMenu, getSectionList, initStore, addAssociations, removeAssociations } from '../../../actions/docAssociations';
+import { addAssociations, getAssociations, getMenu, getSectionList, initStore, removeAssociations } from '../../../actions/docAssociations';
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 
@@ -259,7 +259,7 @@ class DocAssociations extends BaseWidget {
           <UncontrolledTooltip
             placement="top"
             boundariesElement="window"
-            className="ecos-base-tooltip"
+            className="ecos-base-tooltip ecos-base-tooltip_opaque"
             innerClassName="ecos-base-tooltip-inner"
             arrowClassName="ecos-base-tooltip-arrow"
             target={`tooltip-plus-${id}`}

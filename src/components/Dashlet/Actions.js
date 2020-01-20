@@ -22,8 +22,8 @@ const BtnAction = ({ id, text, icon, onClick, component }) => {
           target={id}
           delay={0}
           placement="top"
-          className="ecos-base-tooltip"
-          innerClassName="ecos-base-tooltip-inner"
+          className="ecos-base-tooltip ecos-base-tooltip_opaque header-action-tooltip"
+          innerClassName="ecos-base-tooltip-inner header-action-tooltip-inner"
           arrowClassName="ecos-base-tooltip-arrow"
         >
           {text}
@@ -49,9 +49,9 @@ const DropdownActions = ({ list, dashletId }) => {
         delay={50}
         autohide={false}
         placement="bottom-end"
-        className="header-action-dropmenu"
-        innerClassName="header-action-dropmenu-inner"
-        arrowClassName="header-action-dropmenu-arrow"
+        className="ecos-base-tooltip ecos-base-tooltip_opaque header-action-dropmenu"
+        innerClassName="ecos-base-tooltip-inner header-action-dropmenu-inner"
+        arrowClassName="ecos-base-tooltip-arrow header-action-dropmenu-arrow"
       >
         {list.map(({ id, text, icon, onClick, component }) =>
           component ? (
