@@ -5,13 +5,14 @@ import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
-import Records from '../Records/Records';
-import { getCurrentUserName, t } from '../../helpers/util';
-import { EcosForm } from '../EcosForm';
-import Modal from '../common/EcosModal/CiteckEcosModal';
-import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
 import uuidV4 from 'uuid/v4';
+
+import { getCurrentUserName, t } from '../../helpers/util';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
+import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
+import Modal from '../common/EcosModal/CiteckEcosModal';
+import Records from '../Records';
+import EcosForm, { FORM_MODE_CREATE, FORM_MODE_EDIT } from './';
 
 const EDGE_PREFIX = 'edge__';
 
@@ -124,10 +125,9 @@ export default class EcosFormUtils {
         formMode: '_formMode'
       })
       .then(function(recordData) {
-        const displayName = recordData.displayName || '';
-        const formMode = recordData.formMode || 'EDIT';
+        const formMode = recordData.formMode || FORM_MODE_EDIT;
 
-        if (formMode === 'CREATE') {
+        if (formMode === FORM_MODE_CREATE) {
           Records.get(record).reset();
         }
 
@@ -136,16 +136,9 @@ export default class EcosFormUtils {
         options.formMode = formMode;
         formParams.options = options;
 
-        const prefixId = 'eform.header.' + formMode + '.title';
-        const prefix = t(prefixId);
-
-        if (!prefix || prefix === prefixId) {
-          config.header = displayName;
-        } else {
-          config.header = prefix + ' ' + displayName;
-        }
-
         const formInstance = React.createElement(EcosForm, formParams);
+
+        config.header = EcosFormUtils.getFormTitle(recordData);
 
         if (config.formContainer) {
           let container = config.formContainer;
@@ -646,5 +639,25 @@ export default class EcosFormUtils {
 
   static isFormId(formId = '') {
     return formId && /^uiserv\/eform@/.test(formId);
+  }
+
+  static getFormTitle(data) {
+    const displayName = data.displayName || '';
+    const formMode = data.formMode || FORM_MODE_EDIT;
+
+    const titleKey = 'eform.header.' + formMode + '.title';
+    const titleVal = t(titleKey);
+
+    const titles = [];
+
+    if (titleVal && titleVal !== titleKey) {
+      titles.push(titleVal);
+    }
+
+    if (displayName) {
+      titles.push(displayName);
+    }
+
+    return titles.join(' ');
   }
 }
