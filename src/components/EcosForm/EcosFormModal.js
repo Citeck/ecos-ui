@@ -3,14 +3,15 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 
-import IcoBtn from '../common/btns/IcoBtn';
-import EcosForm, { FORM_MODE_EDIT } from './EcosForm';
-import EcosFormUtils from './EcosFormUtils';
-import EcosModal from '../common/EcosModal';
-import Records from '../Records';
 import { t } from '../../helpers/util';
-import './EcosFormModal.scss';
 import { SourcesId } from '../../constants';
+import Records from '../Records';
+import IcoBtn from '../common/btns/IcoBtn';
+import EcosModal from '../common/EcosModal';
+import EcosFormUtils from './EcosFormUtils';
+import EcosForm, { FORM_MODE_EDIT } from './';
+
+import './EcosFormModal.scss';
 
 const LABELS = {
   CONSTRUCTOR_BTN_TOOLTIP: 'eform.btn.tooltip.constructor'
