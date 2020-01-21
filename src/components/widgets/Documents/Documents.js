@@ -249,15 +249,9 @@ class Documents extends BaseWidget {
   };
 
   handleToggleUploadModalByType = (type = null) => {
-    // todo: remove after test
-    this.setState(state => ({
-      selectedTypeForLoading: type,
-      isOpenUploadModal: !state.isOpenUploadModal
-    }));
+    const formId = get(type, 'formId', null);
 
-    return;
-
-    if (type !== null) {
+    if (formId !== null) {
       FormManager.createRecordByVariant(
         DocumentsConverter.getDataToCreate({
           formId: type.formId,
@@ -269,7 +263,7 @@ class Documents extends BaseWidget {
 
     this.setState({
       selectedTypeForLoading: type,
-      isOpenUploadModal: type === null
+      isOpenUploadModal: formId === null
     });
   };
 
@@ -403,7 +397,12 @@ class Documents extends BaseWidget {
       const type = dynamicTypes.find(item => item.type === selectedType) || dynamicTypes[0];
 
       return (
-        <div className="ecos-docs__panel-upload" onClick={this.handleToggleUploadModalByType.bind(this, type)}>
+        <div
+          className={classNames('ecos-docs__panel-upload', {
+            'ecos-docs__panel-upload_not-available': !dynamicTypes.length
+          })}
+          onClick={this.handleToggleUploadModalByType.bind(this, type)}
+        >
           <Icon className="icon-load ecos-docs__panel-upload-icon" />
         </div>
       );
@@ -412,7 +411,9 @@ class Documents extends BaseWidget {
     return (
       <Dropdown
         isStatic
-        toggleClassName="ecos-docs__panel-upload"
+        toggleClassName={classNames('ecos-docs__panel-upload', {
+          'ecos-docs__panel-upload_not-available': !dynamicTypes.length
+        })}
         valueField="type"
         titleField="name"
         source={dynamicTypes}
@@ -453,12 +454,14 @@ class Documents extends BaseWidget {
       dataField: item.name,
       text: item.label
     }));
+    let keyField = 'type';
 
     if (selectedType || dynamicTypes.length === 1) {
       columns = tableFields.DEFAULT.map(item => ({
         dataField: item.name,
         text: item.label
       }));
+      keyField = 'id';
     }
 
     return (
@@ -470,7 +473,8 @@ class Documents extends BaseWidget {
           columns={columns}
           onRowClick={this.handleClickTableRow}
           scrollable
-          keyField="type"
+          // keyField="type"
+          keyField={keyField}
         />
       </div>
     );

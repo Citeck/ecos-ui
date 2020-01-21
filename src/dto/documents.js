@@ -3,15 +3,41 @@ import get from 'lodash/get';
 import { deepClone } from '../helpers/util';
 
 export default class DocumentsConverter {
-  static getDynamicTypes = (types = [], typeNames = {}, countByTypes = []) => {
-    if (!types.length || !Object.keys(typeNames).length) {
+  static formIdIsNull = (id = '') => {
+    let isNull = false;
+
+    if (!id) {
+      isNull = true;
+    }
+
+    if (id === 'uiserv/eform@null') {
+      isNull = true;
+    }
+
+    if (id === 'null') {
+      isNull = true;
+    }
+
+    return isNull;
+  };
+
+  static getAvailableTypes = (types = []) => {
+    return types.map(type => ({
+      ...type,
+      formId: DocumentsConverter.formIdIsNull(type.formId) ? null : type.formId
+    }));
+  };
+
+  static getDynamicTypes = ({ types = [], typeNames = {}, countByTypes = [] }) => {
+    if (!types.length) {
       return types;
     }
 
     return types.map((item, index) => ({
       ...item,
-      name: typeNames[item.type],
-      countDocuments: countByTypes[index].length
+      formId: DocumentsConverter.formIdIsNull(item.formId) ? null : item.formId,
+      name: item.name || get(typeNames, [item.type], ''),
+      countDocuments: get(countByTypes, [index], []).length
     }));
   };
 
@@ -25,6 +51,7 @@ export default class DocumentsConverter {
 
       target.id = document.id;
       target.type = type;
+      target.name = document.name;
       target.typeName = typeName;
       target.loadedBy = document.loadedBy;
       target.modified = moment(document.modified).format('DD.MM.YYYY HH:mm');

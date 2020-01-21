@@ -52,22 +52,16 @@ export class DocumentsApi {
             },
             {
               t: 'eq',
-              // att: '_etype',
-              // nstead of '$ _IT' you can pass a specific type, and in this case
-              // 3 argument is not needed in the Records.query function
+              att: '_etype',
               val: '$_IT'
             }
           ]
         },
         language: 'predicate'
       },
-      // null,
       {
-        // TODO: Use this after finalizing the backend
         _modified: '_modified',
         _modifier: '_modifier'
-        // _modified: 'cm:modified',
-        // _modifier: 'cm:modifier'
       },
       types
     ).then(response => response);
@@ -98,8 +92,9 @@ export class DocumentsApi {
         language: 'predicate'
       },
       {
-        loadedBy: '_modifier', // загрузил
-        modified: '_modified' // обновлено
+        loadedBy: '_modifier',
+        modified: '_modified',
+        name: 'name'
       }
     );
   };
@@ -110,34 +105,10 @@ export class DocumentsApi {
     return Records.get(type).load('form?id');
   };
 
-  uploadFiles = (data, handleProgress) => {
-    // let record = Records.getRecordToEdit('');
-    //
-    // record.att('_parent', data.record);
-    // record.att('_parentAtt', 'icase:documents');
-    // record.att('_etype', data.type);
-    // record.att('_content', data.files);
-    //
-    // console.warn(record)
-    //
-    // return record.save().then(response => response);
-
-    console.warn('data => ', data);
-
-    // return ecosFetch('/share/proxy/alfresco/eform/file', {
-    //   method: 'POST',
-    //   body: data
-    // });
-
+  uploadFile = (data, handleProgress) => {
     return ecosXhr('/share/proxy/alfresco/eform/file', {
       method: 'POST',
       body: data
-      // body: {
-      //   name: 'test',
-      //   _content: data.files,
-      //   _parent: data.record,
-      //   _etype: data.type
-      // }
       // handleProgress
     }).then(
       response => response,
@@ -145,5 +116,18 @@ export class DocumentsApi {
         throw error;
       }
     );
+  };
+
+  uploadFilesWithNodes = (data = {}) => {
+    const record = Records.getRecordToEdit('dict@cm:content');
+
+    record.att('_parent', data.record);
+    record.att('_parentAtt', 'icase:documents');
+    record.att('_etype', data.type);
+    record.att('_content', data.content);
+
+    console.warn(data);
+
+    return record.save().then(response => response);
   };
 }

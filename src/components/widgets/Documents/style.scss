@@ -201,6 +201,10 @@
       &:hover {
         background: darken($color-blue-light, 5%);
       }
+
+      &_not-available {
+        cursor: not-allowed;
+      }
     }
 
     &-search {

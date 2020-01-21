@@ -57,7 +57,7 @@ function* sagaToggleType({ api, logger }, { payload }) {
     yield put(
       setDynamicTypes({
         record: payload.record,
-        dynamicTypes: DocumentsConverter.getDynamicTypes(dynamicTypes, typesNames)
+        dynamicTypes: DocumentsConverter.getDynamicTypes({ types: dynamicTypes, typesNames })
       })
     );
   } catch (e) {
@@ -74,7 +74,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     }
 
     let combinedTypes = DocumentsConverter.combineTypes(dynamicTypes, get(payload, 'config.types', []));
-    const typesNames = yield select(state => selectTypeNames(state, payload.record));
+    const typeNames = yield select(state => selectTypeNames(state, payload.record));
     const dynamicTypeKeys = combinedTypes.map(record => record.type);
 
     const { records: countDocuments, errors: documentsErrors } = yield call(
@@ -83,9 +83,9 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
       dynamicTypeKeys
     );
 
-    // if (documentsErrors.length) {
-    //   throw new Error(documentsErrors.join(' '));
-    // }
+    if (documentsErrors.length) {
+      throw new Error(documentsErrors.join(' '));
+    }
 
     combinedTypes = yield combinedTypes
       .map(function*(item) {
@@ -121,7 +121,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     yield put(
       setDynamicTypes({
         record: payload.record,
-        dynamicTypes: DocumentsConverter.getDynamicTypes(combinedTypes, typesNames, countDocuments)
+        dynamicTypes: DocumentsConverter.getDynamicTypes({ types: combinedTypes, typeNames, countByTypes: countDocuments })
       })
     );
 
@@ -149,7 +149,7 @@ function* sagaGetAvailableTypes({ api, logger }, { payload }) {
     yield put(
       setAvailableTypes({
         record: payload,
-        types: records
+        types: DocumentsConverter.getAvailableTypes(records)
       })
     );
   } catch (e) {
@@ -165,7 +165,7 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
       throw new Error(errors.join(' '));
     }
 
-    const typesNames = yield select(state => selectTypeNames(state, payload.record));
+    const typeNames = yield select(state => selectTypeNames(state, payload.record));
 
     yield put(
       setDocuments({
@@ -173,12 +173,12 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
         documents: DocumentsConverter.getDocuments({
           documents: records,
           type: payload.type,
-          typeName: typesNames[payload.type]
+          typeName: typeNames[payload.type]
         })
       })
     );
 
-    const dynamicTypes = yield select(state => selectDynamicTypes(state, payload.record));
+    const dynamicTypes = JSON.parse(JSON.stringify(yield select(state => selectDynamicTypes(state, payload.record))));
 
     if (dynamicTypes.length) {
       const type = dynamicTypes.find(item => item.type === payload.type);
@@ -194,7 +194,21 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
 
 function* sagaSaveSettings({ api, logger }, { payload }) {
   try {
-    yield put(setDynamicTypes({ record: payload.record, dynamicTypes: payload.types }));
+    const dynamicTypeKeys = payload.types.map(record => record.type);
+
+    const { records: countDocuments, errors: documentsErrors } = yield call(
+      api.documents.getCountDocumentsByTypes,
+      payload.record,
+      dynamicTypeKeys
+    );
+
+    yield put(
+      setDynamicTypes({
+        record: payload.record,
+        dynamicTypes: DocumentsConverter.getDynamicTypes({ types: payload.types, countByTypes: countDocuments }), //
+        countDocuments
+      })
+    );
   } catch (e) {
     logger.error('[documents sagaSaveSettings saga error', e.message);
   } finally {
@@ -204,26 +218,32 @@ function* sagaSaveSettings({ api, logger }, { payload }) {
 
 function* sagaUploadFiles({ api, logger }, { payload }) {
   try {
-    console.warn('payload => ', payload);
+    const results = yield payload.files.map(
+      yield function*(file) {
+        const formData = new FormData();
 
-    const formData = new FormData();
+        formData.append('file', file);
+        formData.append('name', file.name);
 
-    Array.prototype.forEach.call(payload.files, function(file) {
-      formData.append('file', file);
+        const { nodeRef = null } = yield call(api.documents.uploadFile, formData);
+
+        if (!nodeRef) {
+          return null;
+        }
+
+        return {
+          size: file.size,
+          name: file.name,
+          data: { nodeRef }
+        };
+      }
+    );
+
+    yield call(api.documents.uploadFilesWithNodes, {
+      record: payload.record,
+      type: payload.type,
+      content: results.filter(item => item !== null)
     });
-
-    formData.append('_parent', payload.record);
-    formData.append('_etype', payload.type);
-    formData.append('name', 'filename-test');
-
-    // const result = yield call(api.documents.uploadFiles, {
-    //   files: payload.files,
-    //   record: payload.record,
-    //   type: payload.type
-    // });
-    const result = yield call(api.documents.uploadFiles, formData);
-
-    console.warn('upload result => ', result);
   } catch (e) {
     logger.error('[documents sagaUploadFiles saga error', e.message);
   }
