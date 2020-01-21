@@ -5,7 +5,7 @@ import EcosFormUtils from './EcosFormUtils';
 import EcosFormModal from './EcosFormModal';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 
-export default class FormManager {
+class FormManager {
   static createRecordByVariant(variant, options = {}) {
     if (!variant) {
       console.error("Create variant is undefined. Record creation can't be preformed");
@@ -111,3 +111,8 @@ export default class FormManager {
     ReactDOM.render(form, container);
   }
 }
+
+window.Citeck = window.Citeck || {};
+window.Citeck.FormManager = FormManager;
+
+export default FormManager;
