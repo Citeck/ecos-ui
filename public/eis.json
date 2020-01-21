@@ -1,4 +1,4 @@
 {
-  "realmId": "%REALM_ID",
-  "eisId": "%EIS_ID"
+  "realmId": "REALM_ID",
+  "eisId": "EIS_ID"
 }
