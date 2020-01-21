@@ -23,6 +23,7 @@ export default function(url, options = {}) {
     xhr.responseType = responseType;
 
     if (body instanceof FormData) {
+      console.warn('body instanceof FormData');
       data = body;
     } else if (isString(body)) {
       data = body;

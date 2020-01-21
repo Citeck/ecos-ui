@@ -1,6 +1,7 @@
 import Records from '../components/Records';
 import { DocumentsApiRequests } from './stubs';
 import ecosXhr from '../helpers/ecosXhr';
+import ecosFetch from '../helpers/ecosFetch';
 
 export class DocumentsApi {
   getDocumentTypes = () => {
@@ -121,16 +122,22 @@ export class DocumentsApi {
     //
     // return record.save().then(response => response);
 
-    console.warn('data.files => ', data.files);
+    console.warn('data => ', data);
+
+    // return ecosFetch('/share/proxy/alfresco/eform/file', {
+    //   method: 'POST',
+    //   body: data
+    // });
 
     return ecosXhr('/share/proxy/alfresco/eform/file', {
       method: 'POST',
-      body: {
-        name: 'test',
-        _content: data.files,
-        _parent: data.record,
-        _etype: data.type
-      }
+      body: data
+      // body: {
+      //   name: 'test',
+      //   _content: data.files,
+      //   _parent: data.record,
+      //   _etype: data.type
+      // }
       // handleProgress
     }).then(
       response => response,

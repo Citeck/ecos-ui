@@ -320,7 +320,7 @@ class Documents extends BaseWidget {
   handleSelectUploadFiles = files => {
     const { selectedTypeForLoading } = this.state;
 
-    this.props.onUploadFiles(files, selectedTypeForLoading);
+    this.props.onUploadFiles(files, selectedTypeForLoading.type);
   };
 
   renderTypes() {

@@ -204,11 +204,24 @@ function* sagaSaveSettings({ api, logger }, { payload }) {
 
 function* sagaUploadFiles({ api, logger }, { payload }) {
   try {
-    const result = yield call(api.documents.uploadFiles, {
-      files: payload.files,
-      record: payload.record,
-      type: payload.type
+    console.warn('payload => ', payload);
+
+    const formData = new FormData();
+
+    Array.prototype.forEach.call(payload.files, function(file) {
+      formData.append('file', file);
     });
+
+    formData.append('_parent', payload.record);
+    formData.append('_etype', payload.type);
+    formData.append('name', 'filename-test');
+
+    // const result = yield call(api.documents.uploadFiles, {
+    //   files: payload.files,
+    //   record: payload.record,
+    //   type: payload.type
+    // });
+    const result = yield call(api.documents.uploadFiles, formData);
 
     console.warn('upload result => ', result);
   } catch (e) {
