@@ -10,7 +10,19 @@ export class DocAssociationsApi extends RecordService {
    * @returns {*[]}
    */
   getAllowedAssociations = recordRef => {
-    return Records.get(recordRef).load('_etype.assocsFull[]{id,name,direction}');
+    return Records.get(recordRef)
+      .load('_etype?id')
+      .then(type => {
+        if (!type) {
+          return [];
+        }
+        return Records.get(type)
+          .load('assocsFull[]{id,name,direction}')
+          .catch(e => {
+            console.error(e);
+            return [];
+          });
+      });
   };
 
   /**
