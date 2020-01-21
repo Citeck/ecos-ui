@@ -32,7 +32,7 @@ class Item extends React.Component {
   }
 
   get collapsible() {
-    const collapsible = get(this.props, 'data.params.collapsible', false);
+    const collapsible = get(this.props, 'data.params.collapsible');
 
     return (this.props.isOpen ? collapsible : this.props.level <= SidebarService.DROPDOWN_LEVEL || collapsible) && this.hasSubItems;
   }

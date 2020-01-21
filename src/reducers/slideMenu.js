@@ -13,7 +13,7 @@ import {
   toggleExpanded,
   toggleIsOpen
 } from '../actions/slideMenu';
-import { fetchExpandableItems } from '../helpers/slideMenu';
+import SidebarService from '../services/sidebar';
 
 const initialState = {
   smallLogo: null,
@@ -62,7 +62,7 @@ export default handleActions(
       };
     },
     [setInitExpandableItems]: (state, action) => {
-      const expandableItems = fetchExpandableItems(state.items, state.selectedId, state.isOpen);
+      const expandableItems = SidebarService.getExpandableItems(state.items, state.selectedId, state.isOpen);
 
       return {
         ...state,
@@ -72,7 +72,7 @@ export default handleActions(
     [toggleExpanded]: (state, { payload: selectedItem }) => {
       const isObject = !!selectedItem && typeof selectedItem === 'object';
       const idItem = isObject ? selectedItem.id : selectedItem;
-      const initNestedItems = isObject && fetchExpandableItems(selectedItem.items || [], state.selectedId, state.isOpen);
+      const initNestedItems = isObject && SidebarService.getExpandableItems(selectedItem.items || [], state.selectedId, state.isOpen);
 
       return {
         ...state,
