@@ -7,7 +7,8 @@ import {
   MoveToLinesJournal,
   BackgroundOpenAction,
   DownloadCardTemplate,
-  CreateNodeAction
+  CreateNodeAction,
+  OpenURL
 } from './DefaultActions';
 
 import { CaseRequestAction, CaseCreateNodeAction, CaseRedirectAction } from './CaseActions';
@@ -23,6 +24,7 @@ Registry.addExecutors({
   'move-to-lines': MoveToLinesJournal,
   'download-card-template': DownloadCardTemplate,
   create: CreateNodeAction,
+  [OpenURL.type]: OpenURL,
 
   //legacy case actions
 

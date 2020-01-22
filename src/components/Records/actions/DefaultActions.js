@@ -84,6 +84,22 @@ export const ViewAction = {
   }
 };
 
+export const OpenURL = {
+  type: 'open-url',
+
+  execute: ({ record, action }) => {
+    const config = action.config || {};
+    const url = config.url.replace('${recordRef}', record.id); // eslint-disable-line no-template-curly-in-string
+
+    if (!url) {
+      console.error(action);
+      throw new Error('URL is a mandatory parameter! Record: ' + record.id + ' Action: ' + action.id);
+    }
+
+    window.open(url, config.target || '_blank');
+  }
+};
+
 export const BackgroundOpenAction = {
   type: 'open-in-background',
 
