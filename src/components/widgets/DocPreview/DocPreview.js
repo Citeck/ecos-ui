@@ -16,9 +16,19 @@ import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
 import { DocScaleOptions } from '../../../constants';
 
+import './style.scss';
+
 // 2.2.228 version of worker for 2.2.228 version of pdfjs-dist:
 // pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.2.228/build/pdf.worker.min.js';
 pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/js/lib/pdf.worker.min.js`;
+
+const Labels = {
+  Errors: {
+    FAILURE_FETCH: 'doc-preview.error.failure-to-fetch',
+    LOADING_FAILURE: 'doc-preview.error.loading-failure',
+    NOT_SPECIFIED: 'doc-preview.error.not-specified'
+  }
+};
 
 class DocPreview extends Component {
   static propTypes = {
@@ -41,7 +51,6 @@ class DocPreview extends Component {
   };
 
   static defaultProps = {
-    link: null,
     className: '',
     height: 'inherit',
     scale: DocScaleOptions.AUTO,
@@ -152,7 +161,7 @@ class DocPreview extends Component {
 
   get message() {
     const { pdf, link, error } = this.state;
-    const { isLoading } = this.props;
+    const { isLoading, byLink, link: customLink } = this.props;
 
     if (isLoading) {
       return null;
@@ -162,12 +171,12 @@ class DocPreview extends Component {
       return error;
     }
 
-    if (pdf === undefined && !link) {
-      return t('doc-preview.error.not-specified');
+    if ((byLink && !customLink) || (pdf === undefined && !link)) {
+      return t(Labels.Errors.NOT_SPECIFIED);
     }
 
     if (!isEmpty(pdf) && !pdf._pdfInfo) {
-      return t('doc-preview.error.loading-failure');
+      return t(Labels.Errors.LOADING_FAILURE);
     }
 
     return null;
@@ -204,7 +213,7 @@ class DocPreview extends Component {
 
     this.setState({ isLoading: true });
     DocPreviewApi.getLinkByRecord(searchParams[recordKey]).then(link => {
-      const error = link ? '' : t('doc-preview.error.failure-to-fetch');
+      const error = link ? '' : t(Labels.Errors.FAILURE_FETCH);
 
       this.setState({ isLoading: false, link, error });
 
@@ -226,7 +235,7 @@ class DocPreview extends Component {
       },
       err => {
         console.error(`Error during loading document: ${err}`);
-        this.setState({ isLoading: false, error: t('doc-preview.error.failure-to-fetch') });
+        this.setState({ isLoading: false, error: t(Labels.Errors.FAILURE_FETCH) });
       }
     );
   };
@@ -281,7 +290,7 @@ class DocPreview extends Component {
         resizable={resizable}
         {...this.commonProps}
         onError={() => {
-          this.setState({ error: t('doc-preview.error.failure-to-fetch') });
+          this.setState({ error: t(Labels.Errors.FAILURE_FETCH) });
         }}
       />
     );
