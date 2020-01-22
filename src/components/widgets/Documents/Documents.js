@@ -359,7 +359,9 @@ class Documents extends BaseWidget {
           'ecos-docs__types-item_selected': selectedType === type.type
         })}
       >
-        <div className="ecos-docs__types-item-label">{t(type.name)}</div>
+        <div className="ecos-docs__types-item-label" title={t(type.name)}>
+          {t(type.name)}
+        </div>
         <div
           id={target}
           className={classNames('ecos-docs__types-item-status', {
