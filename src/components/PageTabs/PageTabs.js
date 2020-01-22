@@ -521,7 +521,7 @@ class PageTabs extends React.Component {
       state => {
         const { history, saveTabs } = this.props;
         const tabs = deepClone(state.tabs);
-        const newTab = this.generateNewTab.call(this);
+        const newTab = this.generateNewTab({ isActive: true });
 
         tabs.forEach(tab => {
           tab.isActive = false;

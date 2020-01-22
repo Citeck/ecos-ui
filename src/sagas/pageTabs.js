@@ -114,7 +114,6 @@ function* sagaSetActiveTabTitle({ api, logger }, action) {
     if (activeIndex !== -1) {
       tabs[activeIndex].title = action.payload;
     }
-
     yield put(setTabs(tabs));
   } catch (e) {
     logger.error('[pageTabs sagaSetActiveTabTitle saga error', e.message);
@@ -181,7 +180,7 @@ function* sagaGetTabTitle({ api, logger }, { payload }) {
     const tabs = deepClone(yield select(selectTabs));
     const index = tabs.findIndex(tab => tab.id === payload.tabId);
 
-    tabs[index] = { ...tabs[index], ...tab };
+    tabs[index] = { ...tabs[index], title: tab.title, isLoading: tab.isLoading };
 
     yield put(setTabs([...tabs]));
     yield put(setTabTitle());
