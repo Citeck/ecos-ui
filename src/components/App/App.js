@@ -95,12 +95,13 @@ class App extends Component {
   }
 
   renderTabs() {
-    const { changeActiveTab, isShow, tabs, setTabs, getTabTitle, isLoadingTitle, isMobile } = this.props;
+    const { changeActiveTab, isShow, tabs, setTabs, getTabTitle, isLoadingTitle, isMobile, tabsInited } = this.props;
 
     return (
       <PageTabs
         homepageLink={URL.DASHBOARD}
         isShow={isShow && !this.isOnlyContent && !isMobile}
+        inited={tabsInited}
         tabs={tabs}
         saveTabs={setTabs}
         changeActiveTab={changeActiveTab}
@@ -193,8 +194,9 @@ const mapStateToProps = state => ({
   isMobile: get(state, ['view', 'isMobile']),
   theme: get(state, ['view', 'theme']),
   isAuthenticated: get(state, ['user', 'isAuthenticated']),
-  isShow: get(state, ['pageTabs', 'isShow']),
-  tabs: get(state, ['pageTabs', 'tabs']),
+  isShow: get(state, ['pageTabs', 'isShow'], false),
+  tabs: get(state, ['pageTabs', 'tabs'], []),
+  tabsInited: get(state, ['pageTabs', 'inited'], false),
   isLoadingTitle: get(state, ['pageTabs', 'isLoadingTitle']),
   menuType: get(state, ['menu', 'type'])
 });

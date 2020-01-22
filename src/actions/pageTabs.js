@@ -5,6 +5,7 @@ const prefix = 'pageTabs/';
 export const setShowTabsStatus = createAction(prefix + 'SET_SHOW_TABS_STATUS');
 
 export const initTabs = createAction(prefix + 'INIT_TABS');
+export const initTabsComplete = createAction(prefix + 'INIT_TABS_COMPLETE');
 export const setTabs = createAction(prefix + 'SET_TABS');
 export const getTabs = createAction(prefix + 'GET_TABS');
 

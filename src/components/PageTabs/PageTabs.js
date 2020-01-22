@@ -50,6 +50,7 @@ class PageTabs extends React.Component {
     }),
     homepageLink: PropTypes.string.isRequired,
     isShow: PropTypes.bool,
+    inited: PropTypes.bool,
     isLoadingTitle: PropTypes.bool,
     tabs: PropTypes.array,
     linkIgnoreAttr: PropTypes.string,
@@ -62,6 +63,7 @@ class PageTabs extends React.Component {
   static defaultProps = {
     children: null,
     isShow: false,
+    inited: false,
     isLoadingTitle: false,
     tabs: [],
     linkIgnoreAttr: IGNORE_TABS_HANDLER_ATTR_NAME,
@@ -91,19 +93,14 @@ class PageTabs extends React.Component {
   }
 
   componentDidMount() {
-    customEvent.initEvent(CHANGE_URL_LINK_EVENT, true, true);
-
-    this.checkUrls();
-    this.initArrows();
-
-    document.addEventListener('click', this.handleClickLink);
-    document.addEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
-    window.addEventListener('popstate', this.handlePopState);
+    if (this.props.isShow && this.props.inited) {
+      this.init();
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
     if (nextProps.isShow) {
-      if (nextProps.isShow !== this.props.isShow && !nextProps.tabs.length) {
+      if (nextProps.isShow !== this.props.isShow && !nextProps.tabs.length && nextProps.inited) {
         const hasRecordRef = this.linkFromUrl.includes('recordRef');
 
         let propsFirstTab = {
@@ -150,6 +147,10 @@ class PageTabs extends React.Component {
     if (!arrayCompare(prevState.tabs, this.state.tabs)) {
       this.checkNeedArrow();
     }
+
+    if (!prevProps.isShow && this.props.isShow && this.props.inited) {
+      this.init();
+    }
   }
 
   componentWillUnmount() {
@@ -158,6 +159,17 @@ class PageTabs extends React.Component {
     document.removeEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent);
     window.removeEventListener('popstate', this.handlePopState);
     this.checkArrowID = null;
+  }
+
+  init() {
+    customEvent.initEvent(CHANGE_URL_LINK_EVENT, true, true);
+
+    this.checkUrls();
+    this.initArrows();
+
+    document.addEventListener('click', this.handleClickLink);
+    document.addEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
+    window.addEventListener('popstate', this.handlePopState);
   }
 
   get linkFromUrl() {
@@ -211,13 +223,13 @@ class PageTabs extends React.Component {
   }
 
   checkUrls() {
-    const { saveTabs } = this.props;
+    const { saveTabs, inited } = this.props;
     const { tabs: oldTabs, isNewTab } = this.state;
     const tabs = deepClone(oldTabs);
     const activeTab = tabs.find(tab => tab.isActive === true);
     const linkFromUrl = this.linkFromUrl;
 
-    if (isNewTab) {
+    if (isNewTab || !inited) {
       return;
     }
 
@@ -425,10 +437,6 @@ class PageTabs extends React.Component {
     const { saveTabs, history } = this.props;
     const tabs = deepClone(this.state.tabs);
     const link = decodeLink(elem.getAttribute('href'));
-    const isNewTab = elem.getAttribute('target') === '_blank';
-    const isBackgroundOpening = elem.getAttribute(OPEN_IN_BACKGROUND);
-    const remoteTitle = !!elem.getAttribute(REMOTE_TITLE_ATTR_NAME);
-    const withLinkTabIndex = tabs.findIndex(tab => tab.link === link);
 
     if (!isNewVersionPage(link)) {
       return;
@@ -436,13 +444,18 @@ class PageTabs extends React.Component {
 
     event.preventDefault();
 
+    const isNewTab = elem.getAttribute('target') === '_blank';
+    const isBackgroundOpening = elem.getAttribute(OPEN_IN_BACKGROUND);
+    const remoteTitle = !!elem.getAttribute(REMOTE_TITLE_ATTR_NAME);
+    const withLinkTabIndex = tabs.findIndex(tab => tab.link === link);
+
     if (isBackgroundOpening || (event.button === 0 && event.ctrlKey)) {
       const newTab = this.generateNewTab({ link, remoteTitle: true, isActive: false });
 
       tabs.push(newTab);
       saveTabs(tabs);
       this.setState({ tabs }, () => {
-        if (this.checkScrollPosition()) {
+        if (this.checkScrollPosition(false)) {
           this.checkNeedArrow();
         }
       });
@@ -533,12 +546,14 @@ class PageTabs extends React.Component {
    *
    * @returns {boolean}
    */
-  checkScrollPosition() {
+  checkScrollPosition(needScollTo = true) {
     const { current } = this.$tabWrapper;
 
     if (current) {
       if (current.scrollWidth > current.offsetWidth + getScrollbarWidth()) {
-        animateScrollTo(current, { scrollLeft: current.scrollWidth });
+        if (needScollTo) {
+          animateScrollTo(current, { scrollLeft: current.scrollWidth });
+        }
 
         return true;
       }

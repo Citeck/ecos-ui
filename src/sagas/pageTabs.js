@@ -10,9 +10,10 @@ import {
   setShowTabsStatus,
   setTabs,
   initTabs,
+  initTabsComplete,
   setTabTitle
 } from '../actions/pageTabs';
-import { selectTabs } from '../selectors/pageTabs';
+import { selectTabs, selectInitStatus } from '../selectors/pageTabs';
 import { selectIsAuthenticated } from '../selectors/user';
 import { t, deepClone, getCurrentUserName } from '../helpers/util';
 import { getSearchParams } from '../helpers/urls';
@@ -28,17 +29,19 @@ function* sagaInitTabs({ api, logger }) {
       return;
     }
 
-    const isAuthorized = yield select(selectIsAuthenticated);
-
-    if (!isAuthorized) {
-      return;
-    }
-
     const userName = yield call(getCurrentUserName);
 
     yield call(api.pageTabs.checkOldVersion, userName);
 
     let tabs = yield call(api.pageTabs.getAll);
+
+    yield put(setTabs(tabs));
+
+    const isAuthorized = yield select(selectIsAuthenticated);
+
+    if (!isAuthorized) {
+      return;
+    }
 
     tabs = yield tabs.map(function*(tab) {
       const newTabData = yield* getTabWithTitle(tab, api);
@@ -49,6 +52,7 @@ function* sagaInitTabs({ api, logger }) {
       };
     });
 
+    yield put(initTabsComplete());
     yield put(setTabs(tabs));
     yield put(setShowTabsStatus(needShowTabs));
   } catch (e) {
@@ -58,6 +62,12 @@ function* sagaInitTabs({ api, logger }) {
 
 function* sagaGetTabs({ api, logger }) {
   try {
+    const inited = yield select(selectInitStatus);
+
+    if (!inited) {
+      return;
+    }
+
     const isAuthorized = yield select(selectIsAuthenticated);
 
     if (!isAuthorized) {
@@ -78,6 +88,12 @@ function* sagaGetTabs({ api, logger }) {
 
 function* sagaSetTabs({ api, logger }, action) {
   try {
+    const inited = yield select(selectInitStatus);
+
+    if (!inited) {
+      return;
+    }
+
     yield call(api.pageTabs.set, action.payload);
   } catch (e) {
     logger.error('[pageTabs sagaSetTabs saga error', e.message);
@@ -86,6 +102,12 @@ function* sagaSetTabs({ api, logger }, action) {
 
 function* sagaSetActiveTabTitle({ api, logger }, action) {
   try {
+    const inited = yield select(selectInitStatus);
+
+    if (!inited) {
+      return;
+    }
+
     const tabs = deepClone(yield select(selectTabs));
     const activeIndex = tabs.findIndex(tab => tab.isActive);
 
@@ -148,6 +170,12 @@ function* getTabWithTitle(data, api) {
 
 function* sagaGetTabTitle({ api, logger }, { payload }) {
   try {
+    const inited = yield select(selectInitStatus);
+
+    if (!inited) {
+      return;
+    }
+
     yield delay(1000);
     const tab = yield* getTabWithTitle(payload, api);
     const tabs = deepClone(yield select(selectTabs));
