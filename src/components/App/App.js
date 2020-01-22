@@ -12,7 +12,7 @@ import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
 
-import { changeActiveTab, getShowTabsStatus, getTabs, getTabTitle, setTabs } from '../../actions/pageTabs';
+import { changeActiveTab, initTabs, getTabTitle, setTabs } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
 import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 
@@ -33,10 +33,9 @@ const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
 
 class App extends Component {
   componentDidMount() {
-    const { getShowTabsStatus, getTabs, initMenuSettings } = this.props;
+    const { initTabs, initMenuSettings } = this.props;
 
-    getShowTabsStatus();
-    getTabs();
+    initTabs();
     initMenuSettings();
   }
 
@@ -201,8 +200,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  getShowTabsStatus: () => dispatch(getShowTabsStatus()),
-  getTabs: () => dispatch(getTabs()),
+  initTabs: () => dispatch(initTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
   changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
   getTabTitle: params => dispatch(getTabTitle(params)),

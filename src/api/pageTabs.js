@@ -1,14 +1,14 @@
 import get from 'lodash/get';
 
 import Records from '../components/Records';
-import { RecordService } from './recordService';
+import { CommonApi } from './common';
 import * as ls from '../helpers/ls';
 import { USER_GUEST } from '../constants';
 import { deepClone, isNodeRef } from '../helpers/util';
-import { decodeLink } from '../helpers/urls';
+import { decodeLink, isNewVersionPage } from '../helpers/urls';
 import { PROXY_URI } from '../constants/alfresco';
 
-export class PageTabsApi extends RecordService {
+export class PageTabsApi extends CommonApi {
   _lsKey = ls.generateKey('page-tabs', true);
   _newVersionKeyPath = '/user';
 
@@ -66,5 +66,20 @@ export class PageTabsApi extends RecordService {
     return Records.get(recordRef)
       .load({ displayName: '.disp' }, true)
       .then(response => response);
+  };
+
+  getShowStatus = () => {
+    if (!isNewVersionPage()) {
+      return Promise.resolve(false);
+    }
+
+    return Records.get('uiserv/config@tabs-enabled')
+      .load('value?bool')
+      .then(value => {
+        return value != null ? value : true;
+      })
+      .catch(() => {
+        return false;
+      });
   };
 }

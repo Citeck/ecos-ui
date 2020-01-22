@@ -632,6 +632,7 @@ class PageTabs extends React.Component {
     const { saveTabs, history } = this.props;
     let tabs = deepClone(this.state.tabs);
     const index = tabs.findIndex(tab => tab.id === tabId);
+    let needNewTab = false;
 
     if (index === -1) {
       return false;
@@ -641,13 +642,17 @@ class PageTabs extends React.Component {
       let link = '/';
 
       switch (index) {
+        case 0:
+          if (tabs.length === 1) {
+            needNewTab = true;
+          } else {
+            tabs[index + 1].isActive = true;
+            link = tabs[index + 1].link;
+          }
+          break;
         case tabs.length - 1:
           tabs[index - 1].isActive = true;
           link = tabs[index - 1].link;
-          break;
-        case 0:
-          tabs[index + 1].isActive = true;
-          link = tabs[index + 1].link;
           break;
         default:
           tabs[index + 1].isActive = true;
@@ -660,7 +665,13 @@ class PageTabs extends React.Component {
     tabs.splice(index, 1);
     saveTabs(tabs);
 
-    this.setState({ tabs }, this.checkNeedArrow.bind(this));
+    this.setState({ tabs }, () => {
+      this.checkNeedArrow.bind(this);
+
+      if (needNewTab) {
+        this.handleAddTab();
+      }
+    });
   }
 
   activeTab = (tab, allTabs = this.state.tabs) => {
