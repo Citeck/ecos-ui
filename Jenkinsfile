@@ -37,9 +37,9 @@ timestamps {
           fileOperations([folderCopyOperation(destinationFolderPath: '/opt/ecos-ui-static/'+"${env.BRANCH_NAME}"+'/build', sourceFolderPath: "build")])
         }
       }
-      stage('Building an ecos-ui docker images') {
+      stage('Building an ecos-proxy-odic docker images') {
         build job: 'build_ecos_ui_image', parameters: [
-          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-ui'), 
+          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-oidc'), 
           string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
         ]
       }
