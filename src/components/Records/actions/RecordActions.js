@@ -2,7 +2,6 @@ import RecordActionExecutorsRegistry from './RecordActionExecutorsRegistry';
 import Records from '../Records';
 import lodash from 'lodash';
 import { t } from '../../../helpers/util';
-import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 
 const DEFAULT_MODEL = {
   name: '',
@@ -19,81 +18,151 @@ let RecordActions;
 class RecordActionsService {
   getActions(records, context) {
     let isSingleRecord = false;
+
     if (!lodash.isArray(records)) {
       records = [records];
       isSingleRecord = true;
     }
 
-    return this.__getRecordsActions(records.map(r => (r.id ? r.id : r)), context).then(recordsWithActions => {
-      let result = {};
+    const recordsIds = records.map(r => (r.id ? r.id : r));
 
-      recordsWithActions.forEach(recordData => {
-        let record = Records.get(recordData.record);
+    return this.__getRecordsActionsWithContext(recordsIds, context)
+      .then(actionsByRecord => {
+        let result = {};
 
-        result[recordData.record] = recordData.actions
-          .filter(action => {
-            if (!action.type) {
-              console.warn('action without type', action);
-              return false;
-            }
-            let executor = RecordActionExecutorsRegistry.get(action.type);
-            if (!executor) {
-              console.warn('action without executor', action);
-              return false;
-            }
+        for (let recordId of records) {
+          result[recordId] = this.__filterAndConvertRecordActions(recordId, actionsByRecord[recordId], context);
+        }
 
-            return !executor.canBeExecuted || executor.canBeExecuted({ record, action, context });
-          })
-          .map(action => {
-            let executor = RecordActionExecutorsRegistry.get(action.type);
-            let executorDefaultModel = executor.getDefaultModel ? executor.getDefaultModel() || {} : {};
+        if (isSingleRecord) {
+          return result[Object.keys(result)[0]];
+        }
 
-            let resultAction = {};
-
-            for (let field in DEFAULT_MODEL) {
-              if (DEFAULT_MODEL.hasOwnProperty(field)) {
-                resultAction[field] = action[field] || executorDefaultModel[field] || DEFAULT_MODEL[field];
-              }
-            }
-
-            resultAction.name = t(resultAction.name) || resultAction.name;
-            resultAction.context = Object.assign({}, context);
-
-            return resultAction;
-          });
+        return result;
+      })
+      .catch(e => {
+        console.error(e);
+        let result = {};
+        for (let recordId of recordsIds) {
+          result[recordId] = [];
+        }
+        return result;
       });
+  }
 
-      if (isSingleRecord) {
-        return result[Object.keys(result)[0]];
+  __filterAndConvertRecordActions(recordId, actions, context) {
+    if (!actions || !actions.length) {
+      return [];
+    }
+
+    const record = Records.get(recordId);
+
+    return actions
+      .filter(action => {
+        if (!action.type) {
+          console.warn('action without type', action);
+          return false;
+        }
+        let executor = RecordActionExecutorsRegistry.get(action.type);
+        if (!executor) {
+          console.warn('action without executor', action);
+          return false;
+        }
+
+        return !executor.canBeExecuted || executor.canBeExecuted({ record, action, context });
+      })
+      .map(action => {
+        let executor = RecordActionExecutorsRegistry.get(action.type);
+        let executorDefaultModel = executor.getDefaultModel ? executor.getDefaultModel() || {} : {};
+
+        let resultAction = {};
+
+        for (let field in DEFAULT_MODEL) {
+          if (DEFAULT_MODEL.hasOwnProperty(field)) {
+            resultAction[field] = action[field] || executorDefaultModel[field] || DEFAULT_MODEL[field];
+          }
+        }
+
+        resultAction.name = t(resultAction.name) || resultAction.name;
+        resultAction.context = Object.assign({}, context);
+
+        return resultAction;
+      });
+  }
+
+  __getRecordsActionsWithContext(recordIds, context) {
+    let actions;
+
+    if (context.actions) {
+      if (!context.actions.length) {
+        return {};
       }
+      actions = this.__filterAndGetRecordsActionsConfig(recordIds, context.actions);
+    } else if (context.mode === 'dashboard') {
+      actions = this.__getRecordsActionsByType(recordIds);
+    }
 
-      return result;
+    return actions
+      .then(resolvedActions => {
+        let actionsByRecord = {};
+        for (let recordActions of resolvedActions) {
+          if (recordActions.record) {
+            actionsByRecord[recordActions.record] = recordActions.actions || [];
+          }
+        }
+        return actionsByRecord;
+      })
+      .catch(e => {
+        console.error(e);
+        return {};
+      });
+  }
+
+  __getRecordsActionsByType(recordsIds) {
+    if (!recordsIds || !recordsIds.length) {
+      return [];
+    }
+    let record = Records.get(recordsIds[0]);
+
+    return record.load('_etype?id').then(etype => {
+      if (etype) {
+        return Records.get(etype)
+          .load('_actions[]?str')
+          .then(actionsIds => {
+            return this.__filterAndGetRecordsActionsConfig([recordsIds[0]], actionsIds);
+          });
+      } else {
+        return record.load('_actions[]?json').then(actions => {
+          return [
+            {
+              record: record.id,
+              actions: actions || []
+            }
+          ];
+        });
+      }
     });
   }
 
-  __getRecordsActions(records, context) {
-    //temp condition to prevent major changes in journal actions
-    if (context.mode === 'journal') {
-      return EcosFormUtils.hasWritePermission(records).then(hasWritePermission => {
-        return records.map((record, idx) => {
-          return {
-            record,
-            actions: RecordActionsService.__getDefaultActions(hasWritePermission[idx])
-          };
-        });
-      });
+  __filterAndGetRecordsActionsConfig(recordsIds, actionsIds) {
+    if (!recordsIds.length || !actionsIds) {
+      return [];
     }
-
     return Records.query(
       {
         sourceId: 'uiserv/action',
         query: {
-          records: records,
-          predicate: context.predicate
+          records: recordsIds,
+          actions: actionsIds
         }
       },
       { record: 'record', actions: 'actions[]?json' }
-    ).then(resp => resp.records);
+    )
+      .then(resp => resp.records)
+      .catch(e => {
+        console.error(e);
+        return [];
+      });
   }
 
   execAction(records, action) {
@@ -134,51 +203,6 @@ class RecordActionsService {
         return result[0];
       });
     }
-  }
-
-  static __getDefaultActions(hasWritePermission) {
-    //temp
-    const actions = [
-      {
-        title: t('grid.inline-tools.open-in-background'),
-        type: 'open-in-background',
-        icon: 'icon-newtab'
-      },
-      {
-        title: t('grid.inline-tools.show'),
-        type: 'view',
-        icon: 'icon-on'
-      },
-      {
-        title: t('grid.inline-tools.download'),
-        type: 'download',
-        icon: 'icon-download'
-      }
-    ];
-
-    if (hasWritePermission) {
-      actions.push(
-        {
-          title: t('grid.inline-tools.edit'),
-          type: 'edit',
-          icon: 'icon-edit'
-        },
-        {
-          title: t('grid.inline-tools.delete'),
-          type: 'delete',
-          icon: 'icon-delete',
-          theme: 'danger'
-        }
-      );
-    }
-
-    actions.push({
-      title: t('grid.inline-tools.details'),
-      type: 'move-to-lines',
-      icon: 'icon-big-arrow'
-    });
-
-    return actions;
   }
 
   getActionCreateVariants() {

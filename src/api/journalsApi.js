@@ -55,7 +55,7 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId, recordRef, journalId }) => {
+  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId, recordRef, journalId, journalActions }) => {
     const query = {
       t: 'and',
       val: [
@@ -111,7 +111,8 @@ export class JournalsApi extends RecordService {
 
       const actionsContext = {
         mode: ActionModes.JOURNAL,
-        scope: journalId
+        scope: journalId,
+        actions: journalActions
       };
 
       return RecordActions.getActions((data || []).map(r => r.id), actionsContext).then(actions => {
