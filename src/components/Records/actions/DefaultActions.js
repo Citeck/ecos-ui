@@ -121,7 +121,7 @@ export const BackgroundOpenAction = {
     return {
       name: 'grid.inline-tools.open-in-background',
       type: BackgroundOpenAction.type,
-      icon: 'icon-on'
+      icon: 'icon-newtab'
     };
   },
 
@@ -143,18 +143,20 @@ export const DownloadAction = {
   execute: ({ record, action }) => {
     const config = action.config || {};
 
-    let url = config.url || getDownloadContentUrl(record.id);
-    url = url.replace('${recordRef}', record.id); // eslint-disable-line no-template-curly-in-string
+    if (config.downloadType === 'ecos_module') {
+      record.load({ title: 'title', name: 'name', module_id: 'module_id', json: '.json' }, true).then(data => {
+        let filename = config.filename || data.module_id || data.title || data.name;
+        filename = filename.replace(/[^a-zA-Zа-яА-Я0-9.]+/g, '_');
 
-    const name = config.filename || 'file';
-
-    const a = document.createElement('A', { target: '_blank' });
-
-    a.href = url;
-    a.download = name;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+        if (!filename.endsWith('.json')) {
+          filename += '.json';
+        }
+        DownloadAction._downloadText(JSON.stringify(data.json), filename, 'text/json');
+      });
+    } else {
+      const name = config.filename || 'file';
+      DownloadAction._downloadByUrl(config.url, name, record);
+    }
 
     return false;
   },
@@ -167,8 +169,27 @@ export const DownloadAction = {
     };
   },
 
-  canBeExecuted: ({ record }) => {
-    return record.att('.has(n:"cm:content")') !== false;
+  _downloadByUrl: (url, filename, record) => {
+    url = url || getDownloadContentUrl(record.id);
+    url = url.replace('${recordRef}', record.id); // eslint-disable-line no-template-curly-in-string
+
+    const a = document.createElement('A', { target: '_blank' });
+
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  },
+
+  _downloadText: (text, filename, mimetype) => {
+    const dataStr = 'data:' + mimetype + ';charset=utf-8,' + encodeURIComponent(text);
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute('href', dataStr);
+    downloadAnchorNode.setAttribute('download', filename);
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
   }
 };
 
