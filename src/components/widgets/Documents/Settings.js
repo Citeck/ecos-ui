@@ -5,6 +5,8 @@ import get from 'lodash/get';
 import { EcosModal, Search } from '../../common';
 import { Btn } from '../../common/btns';
 import Tree from './Tree';
+import TypeSettings from './TypeSettings';
+import { GrouppedTypeInterface } from './propsInterfaces';
 import { deepClone, t, arrayCompare } from '../../../helpers/util';
 
 const Labels = {
@@ -14,11 +16,23 @@ const Labels = {
 
 class Settings extends Component {
   static propTypes = {
-    isOpen: PropTypes.bool
+    isOpen: PropTypes.bool,
+    isLoading: PropTypes.bool,
+    label: PropTypes.string,
+    types: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
+    onCancel: PropTypes.func,
+    onSave: PropTypes.func,
+    getTypeData: PropTypes.func
   };
 
   static defaultProps = {
-    isOpen: false
+    isOpen: false,
+    isLoading: false,
+    label: '',
+    types: [],
+    onCancel: () => {},
+    onSave: () => {},
+    getTypeData: () => {}
   };
 
   constructor(props) {
@@ -26,7 +40,8 @@ class Settings extends Component {
 
     this.state = {
       types: props.types,
-      filter: ''
+      filter: '',
+      editableType: null
     };
   }
 
@@ -78,6 +93,42 @@ class Settings extends Component {
     return check(types);
   }
 
+  get editableType() {
+    const { getTypeData } = this.props;
+    const { editableType } = this.state;
+
+    if (editableType === null) {
+      return null;
+    }
+
+    return getTypeData(editableType);
+  }
+
+  setTypeData = (id = null, data = {}) => {
+    if (id === null) {
+      return;
+    }
+
+    const types = deepClone(this.state.types);
+    const checkItem = item => {
+      if (item.id === id) {
+        Object.keys(data).forEach(key => {
+          item[key] = data[key];
+        });
+
+        return item;
+      }
+
+      if (get(item, 'items', []).length) {
+        return item.items.forEach(checkItem);
+      }
+    };
+
+    types.forEach(checkItem);
+
+    this.setState({ types });
+  };
+
   handleCloseModal = () => {
     this.setState({ filter: '' });
 
@@ -90,7 +141,7 @@ class Settings extends Component {
 
     const checkStatus = item => {
       if (item.isSelected) {
-        selected.push(item.id);
+        selected.push(item);
       }
 
       if (get(item, 'items', []).length) {
@@ -104,57 +155,57 @@ class Settings extends Component {
   };
 
   handleToggleSelectType = ({ id, checked }) => {
-    const types = deepClone(this.state.types);
-    const findItem = item => {
-      if (item.id === id) {
-        item.isSelected = checked;
-
-        return item;
-      }
-
-      if (get(item, 'items', []).length) {
-        return item.items.find(findItem);
-      }
-    };
-
-    types.find(findItem);
-
-    this.setState({ types });
+    this.setTypeData(id, { isSelected: checked });
   };
 
   handleFilterTypes = (filter = '') => {
     this.setState({ filter: filter.toLowerCase() });
   };
 
+  handleToggleTypeSettings = (type = null) => {
+    this.setState({ editableType: type });
+  };
+
+  handleSaveTypeSettings = (settings = {}) => {
+    console.warn(this.state.editableType, settings);
+
+    this.setState({ editableType: null });
+  };
+
   render() {
     const { isOpen, title, isLoading } = this.props;
+    const { editableType } = this.state;
 
     return (
-      <EcosModal
-        title={title}
-        isOpen={isOpen}
-        isLoading={isLoading}
-        className="ecos-docs__modal-settings"
-        hideModal={this.handleCloseModal}
-      >
-        <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTypes} className="ecos-docs__modal-settings-search" />
-        <div className="ecos-docs__modal-settings-field">
-          <Tree
-            // groupBy="parent"
-            data={this.availableTypes}
-            toggleSelect={this.handleToggleSelectType}
-          />
-        </div>
+      <>
+        <EcosModal
+          title={title}
+          isOpen={isOpen}
+          isLoading={isLoading}
+          className="ecos-docs__modal-settings"
+          hideModal={this.handleCloseModal}
+        >
+          <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTypes} className="ecos-docs__modal-settings-search" />
+          <div className="ecos-docs__modal-settings-field">
+            <Tree data={this.availableTypes} onToggleSelect={this.handleToggleSelectType} onOpenSettings={this.handleToggleTypeSettings} />
+          </div>
 
-        <div className="ecos-docs__modal-settings-footer">
-          <Btn onClick={this.handleCloseModal} className="ecos-docs__modal-settings-footer-item">
-            {t(Labels.CANCEL_BUTTON)}
-          </Btn>
-          <Btn onClick={this.handleClickSave} className="ecos-btn_blue ecos-docs__modal-settings-footer-item">
-            {t(Labels.OK_BUTTON)}
-          </Btn>
-        </div>
-      </EcosModal>
+          <div className="ecos-docs__modal-settings-footer">
+            <Btn onClick={this.handleCloseModal} className="ecos-docs__modal-settings-footer-item">
+              {t(Labels.CANCEL_BUTTON)}
+            </Btn>
+            <Btn onClick={this.handleClickSave} className="ecos-btn_blue ecos-docs__modal-settings-footer-item">
+              {t(Labels.OK_BUTTON)}
+            </Btn>
+          </div>
+        </EcosModal>
+        <TypeSettings
+          type={this.editableType}
+          isOpen={editableType !== null}
+          onCancel={this.handleToggleTypeSettings}
+          onSave={this.handleSaveTypeSettings}
+        />
+      </>
     );
   }
 }

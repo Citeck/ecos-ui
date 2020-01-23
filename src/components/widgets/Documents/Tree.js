@@ -1,16 +1,33 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 
 import { Icon } from '../../common';
-import { Checkbox } from '../../common/form';
+import { Checkbox, Badge } from '../../common/form';
 import { arrayCompare, t } from '../../../helpers/util';
+import { GrouppedTypeInterface } from './propsInterfaces';
 
 const LABELS = {
-  EMPTY: 'Ничего не найдено'
+  EMPTY: 'Ничего не найдено',
+  NOT_SELECTED: 'Не выбран для отображения'
 };
 
 class TreeItem extends Component {
+  static propTypes = {
+    item: PropTypes.shape(GrouppedTypeInterface),
+    isChild: PropTypes.bool,
+    className: PropTypes.string,
+    onOpenSettings: PropTypes.func,
+    onToggleSelect: PropTypes.func
+  };
+
+  static defaultProps = {
+    item: {},
+    isChild: false,
+    className: ''
+  };
+
   state = {
     isOpen: false
   };
@@ -41,10 +58,12 @@ class TreeItem extends Component {
       return;
     }
 
-    this.props.toggleSelect({ id: this.props.item.id, checked });
+    this.props.onToggleSelect({ id: this.props.item.id, checked });
   };
 
-  handleToggleSettings = () => {};
+  handleToggleSettings = () => {
+    this.props.onOpenSettings(this.props.item.id);
+  };
 
   renderArrow() {
     const { item } = this.props;
@@ -65,7 +84,7 @@ class TreeItem extends Component {
   }
 
   renderChildren() {
-    const { item, toggleSelect } = this.props;
+    const { item, onToggleSelect, onOpenSettings } = this.props;
     const { isOpen } = this.state;
 
     if (!item.items.length) {
@@ -75,14 +94,30 @@ class TreeItem extends Component {
     return (
       <Collapse isOpen={isOpen} className="ecos-tree__item-element-children">
         {item.items.map(item => (
-          <TreeItem item={item} isChild key={item.id} toggleSelect={toggleSelect} />
+          <TreeItem item={item} isChild key={item.id} onToggleSelect={onToggleSelect} onOpenSettings={onOpenSettings} />
         ))}
       </Collapse>
     );
   }
 
   renderSettings() {
+    const { item } = this.props;
+
+    if (!item.isSelected) {
+      return null;
+    }
+
     return <Icon className="icon-settings ecos-tree__item-element-settings" onClick={this.handleToggleSettings} />;
+  }
+
+  renderBadge() {
+    const { item } = this.props;
+
+    if (item.isSelected) {
+      return null;
+    }
+
+    return <Badge text={t(LABELS.NOT_SELECTED)} className="ecos-tree__item-element-badge" />;
   }
 
   render() {
@@ -102,6 +137,7 @@ class TreeItem extends Component {
           {this.renderArrow()}
           <Checkbox className="ecos-tree__item-element-check" onChange={this.handleToggleCheck} checked={item.isSelected} />
           <div className="ecos-tree__item-element-label">{item.name}</div>
+          {this.renderBadge()}
           {this.renderSettings()}
         </div>
         {this.renderChildren()}
@@ -111,6 +147,22 @@ class TreeItem extends Component {
 }
 
 class Tree extends Component {
+  static propTypes = {
+    data: PropTypes.array,
+    groupBy: PropTypes.string,
+    className: PropTypes.string,
+    onOpenSettings: PropTypes.func,
+    onToggleSelect: PropTypes.func
+  };
+
+  static defaultProps = {
+    data: [],
+    groupBy: '',
+    className: '',
+    onOpenSettings: () => {},
+    onToggleSelect: () => {}
+  };
+
   get formattedTree() {
     const { data, groupBy } = this.props;
 
@@ -150,14 +202,16 @@ class Tree extends Component {
   }
 
   renderTree() {
-    const { toggleSelect } = this.props;
+    const { onToggleSelect } = this.props;
     const data = this.formattedTree;
 
     if (!data.length) {
       return null;
     }
 
-    return data.map(item => <TreeItem item={item} key={item.id} toggleSelect={toggleSelect} />);
+    return data.map(item => (
+      <TreeItem item={item} key={item.id} onToggleSelect={onToggleSelect} onOpenSettings={this.props.onOpenSettings} />
+    ));
   }
 
   render() {

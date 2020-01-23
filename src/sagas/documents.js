@@ -2,7 +2,7 @@ import { put, select, takeEvery, call } from 'redux-saga/effects';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
-import { selectTypeNames, selectDynamicTypes, getDynamicTypes, selectAvailableTypes } from '../selectors/documents';
+import { selectTypeNames, selectDynamicTypes, selectAvailableTypes } from '../selectors/documents';
 import {
   init,
   initSuccess,
@@ -14,7 +14,8 @@ import {
   toggleType,
   saveSettings,
   saveSettingsFinally,
-  uploadFiles
+  uploadFiles,
+  uploadFilesSuccess
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
 
@@ -47,6 +48,7 @@ function* sagaToggleType({ api, logger }, { payload }) {
       dynamicTypes.splice(index, 1);
     }
 
+    // todo: realy need it?
     yield put(
       setAvailableTypes({
         record: payload.record,
@@ -225,7 +227,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
         formData.append('file', file);
         formData.append('name', file.name);
 
-        const { nodeRef = null } = yield call(api.documents.uploadFile, formData);
+        const { nodeRef = null } = yield call(api.documents.uploadFile, formData, payload.callback);
 
         if (!nodeRef) {
           return null;
@@ -244,6 +246,8 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
       type: payload.type,
       content: results.filter(item => item !== null)
     });
+
+    yield put(uploadFilesSuccess(payload.record));
   } catch (e) {
     logger.error('[documents sagaUploadFiles saga error', e.message);
   }

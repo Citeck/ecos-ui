@@ -41,6 +41,25 @@ export default class DocumentsConverter {
     }));
   };
 
+  static getDynamicType = (source = {}) => {
+    const target = {};
+
+    if (!Object.keys(source).length) {
+      return target;
+    }
+
+    console.warn(source);
+
+    target.formId = DocumentsConverter.formIdIsNull(source.formId) ? null : source.formId;
+    target.multiple = get(source, 'multiple', false);
+    target.mandatory = get(source, 'mandatory', false);
+    target.type = get(source, 'type', '');
+    target.name = get(source, 'name', '');
+    target.countDocuments = get(source, 'countDocuments', 0);
+
+    return target;
+  };
+
   static getDocuments = ({ documents, type, typeName }) => {
     return documents.map(document => {
       const target = {};

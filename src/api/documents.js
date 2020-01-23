@@ -47,7 +47,7 @@ export class DocumentsApi {
           val: [
             {
               t: 'eq',
-              att: '_type',
+              att: '_parent',
               val: recordRef
             },
             {
@@ -105,11 +105,11 @@ export class DocumentsApi {
     return Records.get(type).load('form?id');
   };
 
-  uploadFile = (data, handleProgress) => {
+  uploadFile = (data, callback = () => {}) => {
     return ecosXhr('/share/proxy/alfresco/eform/file', {
       method: 'POST',
-      body: data
-      // handleProgress
+      body: data,
+      handleProgress: callback
     }).then(
       response => response,
       error => {
@@ -125,8 +125,6 @@ export class DocumentsApi {
     record.att('_parentAtt', 'icase:documents');
     record.att('_etype', data.type);
     record.att('_content', data.content);
-
-    console.warn(data);
 
     return record.save().then(response => response);
   };

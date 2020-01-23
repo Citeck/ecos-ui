@@ -8,7 +8,9 @@ import {
   setDynamicTypes,
   setDocuments,
   saveSettings,
-  saveSettingsFinally
+  saveSettingsFinally,
+  uploadFiles,
+  uploadFilesSuccess
 } from '../actions/documents';
 
 export const initialState = {
@@ -17,6 +19,7 @@ export const initialState = {
   dynamicTypes: [],
   documents: [],
   isLoading: false,
+  isUploadingFile: false,
   isLoadingSettings: false
 };
 
@@ -92,6 +95,21 @@ export default handleActions(
       [payload]: {
         ...state[payload],
         isLoadingSettings: false
+      }
+    }),
+
+    [uploadFiles]: (state, { payload }) => ({
+      ...state,
+      [payload.record]: {
+        ...state[payload.record],
+        isUploadingFile: true
+      }
+    }),
+    [uploadFilesSuccess]: (state, { payload }) => ({
+      ...state,
+      [payload]: {
+        ...state[payload],
+        isUploadingFile: false
       }
     })
   },

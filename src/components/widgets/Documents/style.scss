@@ -175,6 +175,50 @@
     &-upload {
       max-width: 468px;
     }
+
+    &-type-settings {
+      max-width: 645px;
+
+      &-footer {
+        &-item {
+          &:not(:last-child) {
+            margin-right: 10px;
+          }
+        }
+      }
+
+      &-tabs {
+        width: 100%;
+
+        &-item {
+          width: 50%;
+          height: 26px;
+          font-size: 14px;
+          line-height: 23px;
+          font-weight: bold;
+
+          &:not(.ecos-tab_active) {
+            background: $color-gray-4;
+          }
+        }
+      }
+
+      &-label {
+        background: $color-gray-25;
+        font-style: normal;
+        font-weight: 600;
+        font-size: 12px;
+        line-height: 16px;
+        color: $color-gray-dark;
+        border-radius: 6px;
+        margin-bottom: 5px;
+        padding: 5px 10px;
+      }
+
+      &-group {
+        margin-bottom: 30px;
+      }
+    }
   }
 
   &__panel {
@@ -214,6 +258,8 @@
     }
 
     &-filter {
+      $filter: &;
+
       max-width: calc(100% - var(--e-docs-panel-upload-width) - var(--e-docs-panel-search-width));
 
       &-control {
@@ -222,6 +268,13 @@
 
         & > .ecos-btn__text {
           @extend %ellipsis;
+        }
+      }
+
+      &.show {
+        &-control {
+          background: $color-blue-light;
+          color: $color-white;
         }
       }
     }
@@ -298,6 +351,7 @@
         font-weight: bold;
         font-size: 14px;
         color: $text-color-dark;
+        margin-right: 18px;
       }
 
       &-children {
@@ -325,6 +379,12 @@
         &:hover {
           color: $color-blue-light;
         }
+      }
+
+      &-badge {
+        border: 2px solid $color-gray-1;
+        background: $color-white;
+        color: $color-gray-5;
       }
 
       &:hover {
@@ -395,16 +455,7 @@
     &_not-selected {
       & > #{$item} {
         &-element {
-          &:after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            top: 0;
-            left: 0;
-            background: rgba(244, 246, 247, 0.5);
-            pointer-events: none;
-            height: var(--e-tree-parent-height);
-          }
+          opacity: 0.5;
         }
       }
     }

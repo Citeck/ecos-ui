@@ -15,6 +15,7 @@ export const selectStateByKey = createSelector(
     // typesForTable: selectTypesForTable(ownState),
     documents: ownState.documents,
     isLoading: ownState.isLoading,
+    isUploadingFile: ownState.isUploadingFile,
     isLoadingSettings: ownState.isLoadingSettings
   })
 );

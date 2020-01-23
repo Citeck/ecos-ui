@@ -5,6 +5,7 @@ import { default as DZ } from 'react-dropzone';
 import get from 'lodash/get';
 
 import { t } from '../../../helpers/util';
+import { FileStatuses } from '../../../helpers/ecosXhr';
 
 const Labels = {
   DROPZONE_PLACEHOLDER: 'versions-journal-widget.modal.dropzone_placeholder',
@@ -44,47 +45,58 @@ class DropZone extends Component {
 
   dropzoneRef = React.createRef();
 
+  handleChangeStatus = (state, xhr) => {
+    const { clientError: _clientError } = this.state;
+    const { status: fileStatus, percent: filePercent, response } = state;
+    let newState = { fileStatus, filePercent };
+
+    switch (fileStatus) {
+      case FileStatuses.PREPARING:
+        newState.clientError = '';
+        newState.xhr = xhr;
+        break;
+      case FileStatuses.DONE:
+        newState = {
+          ...this.initStateFile,
+          ...newState
+        };
+        break;
+      case FileStatuses.ABORTED:
+        newState = {
+          ...this.initStateFile,
+          ...newState,
+          clientError: t(Labels.Messages.ERROR_FILE_ABORTED)
+        };
+        break;
+      case FileStatuses.ERROR_UPLOAD:
+        const { message, status } = response || {};
+        const { description } = status || {};
+        const clientError = `${t(Labels.Messages.ERROR_FILE_UPLOAD)}. ${message} ${description}`;
+
+        if (_clientError !== clientError) {
+          newState = {
+            ...this.initStateFile,
+            ...newState,
+            clientError
+          };
+        }
+        break;
+      default:
+        break;
+    }
+
+    this.setState(newState);
+  };
+
   handleDropFile = acceptedFiles => {
     const [file = null] = acceptedFiles;
     const clientError = this.validateUploadedFile(file);
-
-    console.warn(acceptedFiles);
 
     if (clientError) {
       this.setState({ file: null, clientError });
     } else {
       this.setState({ file, clientError: '' });
-
-      // const target = new FormData();
-      //
-      // Array.prototype.forEach.call(acceptedFiles, function(index){
-      //   target.append('files', index);
-      // });
-
-      // target.append('filedata', file, file.name);
-      // target.append('filename', file.name);
-      // target.append('size', file.size);
-      //
-      // console.warn('target => ', target.get('filedata'), target, typeof target);
-      // console.warn('getAll("myFile") => ', target.getAll('myFile'));
-      // console.warn('target => ', target, target.getAll('files'));
-
-      this.props.onSelect(acceptedFiles);
-
-      // this.props.onSelect(
-      //   acceptedFiles.map(item => {
-      //     const target = new FormData();
-      //
-      //     target.append('filedata', item, item.name);
-      //     target.append('filename', item.name);
-      //     target.append('size', item.size);
-      //
-      //     console.warn('target => ', target.get('filedata'));
-      //     console.warn('item => ', item);
-      //
-      //     return target;
-      //   })
-      // );
+      this.props.onSelect(acceptedFiles, this.handleChangeStatus);
     }
   };
 
