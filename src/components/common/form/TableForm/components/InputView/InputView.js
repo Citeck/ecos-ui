@@ -1,5 +1,7 @@
 import React, { useContext, useRef, useEffect } from 'react';
 import classNames from 'classnames';
+import isBoolean from 'lodash/isBoolean';
+import get from 'lodash/get';
 import { IcoBtn } from '../../../../../common/btns';
 import Grid from '../../../../grid/Grid';
 import InlineToolsDisconnected from '../../../../grid/InlineTools/InlineToolsDisconnected';
@@ -11,7 +13,7 @@ import './InputView.scss';
 const InputView = () => {
   const context = useContext(TableFormContext);
 
-  const { placeholder, disabled, viewOnly } = context.controlProps;
+  const { placeholder, disabled, viewOnly, displayElements } = context.controlProps;
   const { selectedRows, columns, error, deleteSelectedItem, showEditForm, inlineToolsOffsets, setInlineToolsOffsets } = context;
 
   const wrapperRef = useRef(null);
@@ -56,23 +58,22 @@ const InputView = () => {
   );
 
   if (selectedRows.length > 0) {
-    const inlineTools =
-      disabled || viewOnly
-        ? null
-        : () => {
-            const inlineToolsActionClassName =
-              'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
+    const inlineTools = () => {
+      const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
+      const iconButtons = [];
 
-            return (
-              <InlineToolsDisconnected
-                {...inlineToolsOffsets}
-                tools={[
-                  <IcoBtn key={'edit'} icon={'icon-edit'} className={inlineToolsActionClassName} onClick={onClickEdit} />,
-                  <IcoBtn key={'delete'} icon={'icon-delete'} className={inlineToolsActionClassName} onClick={onClickDelete} />
-                ]}
-              />
-            );
-          };
+      const shouldShowEditButton = isBoolean(get(displayElements, 'edit')) ? displayElements.edit : !viewOnly;
+      if (shouldShowEditButton) {
+        iconButtons.push(<IcoBtn key={'edit'} icon={'icon-edit'} className={inlineToolsActionClassName} onClick={onClickEdit} />);
+      }
+
+      const shouldShowDeleteButton = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : !disabled && !viewOnly;
+      if (shouldShowDeleteButton) {
+        iconButtons.push(<IcoBtn key={'delete'} icon={'icon-delete'} className={inlineToolsActionClassName} onClick={onClickDelete} />);
+      }
+
+      return <InlineToolsDisconnected {...inlineToolsOffsets} tools={iconButtons} />;
+    };
 
     valuesList = (
       <div ref={wrapperRef} className={'ecos-table-form__grid-wrapper'}>

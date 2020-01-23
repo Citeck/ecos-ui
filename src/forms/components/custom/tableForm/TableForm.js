@@ -30,7 +30,8 @@ export default class TableFormComponent extends BaseReactComponent {
           valueFormKey: null
         },
         customCreateVariantsJs: '',
-        isStaticModalTitle: false
+        isStaticModalTitle: false,
+        displayElementsJS: {}
       },
       ...extend
     );
@@ -48,6 +49,24 @@ export default class TableFormComponent extends BaseReactComponent {
 
   get defaultSchema() {
     return TableFormComponent.schema();
+  }
+
+  checkConditions(data) {
+    let result = super.checkConditions(data);
+
+    if (!this.component.displayElementsJS) {
+      return result;
+    }
+
+    let displayElements = this.evaluate(this.component.displayElementsJS, {}, 'value', true);
+    if (!_.isEqual(displayElements, this.displayElementsValue)) {
+      this.displayElementsValue = displayElements;
+      this.setReactProps({
+        displayElements
+      });
+    }
+
+    return result;
   }
 
   get emptyValue() {
