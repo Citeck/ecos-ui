@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import fscreen from 'fscreen';
+import classnames from 'classnames';
 
 import { getScale } from '../../../helpers/util';
 
@@ -36,27 +37,27 @@ class ImgViewer extends Component {
   }
 
   componentDidMount() {
-    this.elImage.addEventListener('fullscreenchange', this.onFullscreenchange, false);
+    document.addEventListener('fullscreenchange', this.onFullscreenChange, false);
 
     if (this.props.onError) {
       this.elImage.onerror = this.props.onError;
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.settings.isFullscreen) {
-      fscreen.requestFullscreen(this.elImage);
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.props.settings.isFullscreen && !prevProps.settings.isFullscreen) {
+      fscreen.requestFullscreen(this.elContainer);
     }
 
     let {
       settings: { scale: newScale }
-    } = nextProps;
+    } = this.props;
     let {
       settings: { scale: oldScale }
-    } = this.props;
+    } = prevProps;
 
     if (newScale !== oldScale) {
-      let calcScale = this.getCalcScale(nextProps);
+      let calcScale = this.getCalcScale(this.props);
 
       this.setState({ calcScale });
 
@@ -67,7 +68,7 @@ class ImgViewer extends Component {
   }
 
   componentWillUnmount() {
-    document.removeEventListener('fullscreenchange', this.onFullscreenchange, false);
+    document.removeEventListener('fullscreenchange', this.onFullscreenChange, false);
   }
 
   get elImage() {
@@ -95,7 +96,7 @@ class ImgViewer extends Component {
     return getScale(scale, { width: cW, height: cH }, { width: iW, height: iH });
   };
 
-  onFullscreenchange = () => {
+  onFullscreenChange = () => {
     this.fullScreenOff = !this.fullScreenOff;
 
     if (this.fullScreenOff) {
@@ -104,11 +105,20 @@ class ImgViewer extends Component {
   };
 
   render() {
-    const { src } = this.props;
+    const {
+      src,
+      settings: { isFullscreen }
+    } = this.props;
     const style = { width: this.elImage.offsetWidth || 0 };
 
     return (
-      <div className="ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_img" ref={this.refImgCtr} style={style}>
+      <div
+        className={classnames('ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_img', {
+          'ecos-doc-preview__viewer-page_full': isFullscreen
+        })}
+        ref={this.refImgCtr}
+        style={style}
+      >
         <img src={src} alt={src} style={this.styleZoom} className="ecos-doc-preview__viewer-page-content" ref={this.refImg} />
       </div>
     );

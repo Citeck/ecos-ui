@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import fscreen from 'fscreen';
 import debounce from 'lodash/debounce';
 
 import { IcoBtn } from '../../common/btns/index';
@@ -209,11 +210,13 @@ class Toolbar extends Component {
             className="ecos-btn_sq_sm ecos-btn_tight ecos-btn_drop-down ecos-doc-preview__toolbar-zoom-selector"
           />
         </Dropdown>
-        <IcoBtn
-          icon={'glyphicon glyphicon-fullscreen'}
-          className="ecos-doc-preview__toolbar-zoom-fullscreen ecos-btn_sq_sm ecos-btn_tight"
-          onClick={this.setFullScreen}
-        />
+        {fscreen.fullscreenEnabled && (
+          <IcoBtn
+            icon="glyphicon glyphicon-fullscreen"
+            className="ecos-doc-preview__toolbar-zoom-fullscreen ecos-btn_sq_sm ecos-btn_tight"
+            onClick={this.setFullScreen}
+          />
+        )}
       </div>
     );
   }

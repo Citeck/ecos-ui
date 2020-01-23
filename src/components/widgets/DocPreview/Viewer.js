@@ -6,7 +6,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { DefineHeight } from '../../common';
+import { DefineHeight, Icon } from '../../common';
 
 const $PAGE = '.ecos-doc-preview__viewer-page';
 
@@ -38,8 +38,8 @@ export default function getViewer(WrappedComponent, isPdf) {
     }
 
     componentDidMount() {
-      if (isPdf && this.elViewer.addEventListener) {
-        this.elViewer.addEventListener('fullscreenchange', this.onFullscreenchange, false);
+      if (fscreen.fullscreenEnabled && isPdf && this.elViewer.addEventListener) {
+        this.elViewer.addEventListener('fullscreenchange', this.onFullscreenChange, false);
       }
     }
 
@@ -86,7 +86,7 @@ export default function getViewer(WrappedComponent, isPdf) {
     }
 
     componentWillUnmount() {
-      document.removeEventListener('fullscreenchange', this.onFullscreenchange, false);
+      document.removeEventListener('fullscreenchange', this.onFullscreenChange, false);
     }
 
     get elScrollbar() {
@@ -106,6 +106,7 @@ export default function getViewer(WrappedComponent, isPdf) {
 
       return [];
     }
+
     get failed() {
       const { pdf, src, isLoading } = this.props;
 
@@ -135,13 +136,29 @@ export default function getViewer(WrappedComponent, isPdf) {
       }
     };
 
-    onFullscreenchange = () => {
+    onCloseFullscreen = () => {
+      document.exitFullscreen();
+    };
+
+    onFullscreenChange = () => {
       this.fullScreenOff = !this.fullScreenOff;
 
       if (this.fullScreenOff) {
         this.props.onFullscreen(false);
       }
     };
+
+    renderBtnCloseFullscreen() {
+      let {
+        settings: { isFullscreen }
+      } = this.props;
+
+      return isFullscreen ? (
+        <div className="ecos-doc-preview__btn-close-fullscreen" onClick={this.onCloseFullscreen}>
+          <Icon className="icon-close" />
+        </div>
+      ) : null;
+    }
 
     renderDocument() {
       let {
@@ -167,7 +184,7 @@ export default function getViewer(WrappedComponent, isPdf) {
           autoHide
         >
           <DefineHeight
-            className={classNames({ 'ecos-doc-preview__viewer-dh': resizable })}
+            className={classNames({ 'ecos-doc-preview__viewer-dh': resizable || isFullscreen })}
             getContentHeight={getContentHeight}
             querySelector={isPdf ? undefined : $PAGE}
           >
@@ -181,6 +198,7 @@ export default function getViewer(WrappedComponent, isPdf) {
       return this.failed ? null : (
         <div className="ecos-doc-preview__viewer" ref={this.refViewer}>
           {this.renderDocument()}
+          {this.renderBtnCloseFullscreen()}
         </div>
       );
     }
