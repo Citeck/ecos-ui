@@ -216,7 +216,7 @@ $border-base: #c1c1c1;
 
   &__btn-close-fullscreen {
     position: absolute;
-    bottom: 10px;
+    top: 10px;
     right: 10px;
     @extend %grey-cycle;
 

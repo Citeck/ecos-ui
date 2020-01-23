@@ -52,3 +52,12 @@ ul {
 #alf-hd {
   position: relative;
 }
+
+.ecos-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100vh !important;
+  width: 100vw !important;
+  z-index: 5000 !important;
+}

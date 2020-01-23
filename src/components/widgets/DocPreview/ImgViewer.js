@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import fscreen from 'fscreen';
 import classnames from 'classnames';
 
 import { getScale } from '../../../helpers/util';
@@ -29,7 +28,6 @@ class ImgViewer extends Component {
 
     this.refImgCtr = props.forwardedRef || React.createRef();
     this.refImg = React.createRef();
-    this.fullScreenOff = true;
 
     this.state = {
       calcScale: 1
@@ -37,18 +35,12 @@ class ImgViewer extends Component {
   }
 
   componentDidMount() {
-    document.addEventListener('fullscreenchange', this.onFullscreenChange, false);
-
     if (this.props.onError) {
       this.elImage.onerror = this.props.onError;
     }
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.props.settings.isFullscreen && !prevProps.settings.isFullscreen) {
-      fscreen.requestFullscreen(this.elContainer);
-    }
-
     let {
       settings: { scale: newScale }
     } = this.props;
@@ -65,10 +57,6 @@ class ImgViewer extends Component {
         this.props.calcScale(calcScale);
       }
     }
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('fullscreenchange', this.onFullscreenChange, false);
   }
 
   get elImage() {
@@ -94,14 +82,6 @@ class ImgViewer extends Component {
     let { clientWidth: iW, clientHeight: iH } = this.elImage;
 
     return getScale(scale, { width: cW, height: cH }, { width: iW, height: iH });
-  };
-
-  onFullscreenChange = () => {
-    this.fullScreenOff = !this.fullScreenOff;
-
-    if (this.fullScreenOff) {
-      this.props.onFullscreen(false);
-    }
   };
 
   render() {

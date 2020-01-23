@@ -6,6 +6,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import { Scrollbars } from 'react-custom-scrollbars';
 
+import { ecosFullscreen } from '../../../helpers/util';
 import { DefineHeight, Icon } from '../../common';
 
 const $PAGE = '.ecos-doc-preview__viewer-page';
@@ -38,42 +39,39 @@ export default function getViewer(WrappedComponent, isPdf) {
     }
 
     componentDidMount() {
-      if (fscreen.fullscreenEnabled && isPdf && this.elViewer.addEventListener) {
-        this.elViewer.addEventListener('fullscreenchange', this.onFullscreenChange, false);
+      if (fscreen.fullscreenEnabled) {
+        document.addEventListener('fullscreenchange', this.onFullscreenChange, false);
       }
     }
 
     getSnapshotBeforeUpdate(prevProps) {
+      let snapshot = null;
+
+      const { currentPage: prevCurrentPage, isFullscreen: prevIsFullscreen } = prevProps.settings;
+      const { currentPage, isFullscreen, isLoading } = this.props.settings;
+
+      if (!!prevIsFullscreen !== !!isFullscreen) {
+        snapshot = snapshot || {};
+        snapshot.openFullscreen = isFullscreen;
+      }
+
       if (isPdf) {
-        const snapshot = {
-          openFullscreen: false,
-          page: null
-        };
-
-        const { currentPage: prevCurrentPage, isFullscreen: prevIsFullscreen } = prevProps.settings;
-        const { currentPage, isFullscreen, isLoading } = this.props.settings;
-
-        if (!!prevIsFullscreen !== !!isFullscreen) {
-          snapshot.openFullscreen = isFullscreen;
-        }
-
         if (!isLoading && this.elScrollbar && currentPage !== prevCurrentPage) {
           const children = this.childrenScroll;
           const childrenLen = children.length;
 
+          snapshot = snapshot || {};
           snapshot.page = currentPage > 0 && currentPage <= childrenLen ? currentPage : 1;
         }
-
-        return snapshot;
       }
 
-      return null;
+      return snapshot;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
       if (snapshot !== null) {
         if (snapshot.openFullscreen) {
-          fscreen.requestFullscreen(this.elViewer);
+          this.onOpenFullscreen();
         }
 
         if (snapshot.page !== null) {
@@ -136,8 +134,22 @@ export default function getViewer(WrappedComponent, isPdf) {
       }
     };
 
+    onOpenFullscreen = () => {
+      if (fscreen.fullscreenEnabled) {
+        fscreen.requestFullscreen(this.elViewer);
+      } else {
+        ecosFullscreen(this.elViewer, true);
+        this.onFullscreenChange();
+      }
+    };
+
     onCloseFullscreen = () => {
-      document.exitFullscreen();
+      if (fscreen.fullscreenEnabled) {
+        fscreen.exitFullscreen();
+      } else {
+        ecosFullscreen(this.elViewer, false);
+        this.onFullscreenChange();
+      }
     };
 
     onFullscreenChange = () => {
