@@ -62,7 +62,6 @@ class DocPreview extends Component {
       settings: {},
       isLoading: this.isPDF,
       scrollPage: props.firstPageNumber,
-      isFullscreen: false,
       recordId: this.getRecordId(),
       link: props.link,
       contentHeight: 0,
@@ -133,7 +132,6 @@ class DocPreview extends Component {
       settings,
       isLoading: !this.loaded,
       calcScale: this.setCalcScale,
-      onFullscreen: this.onFullscreen,
       getContentHeight: this.getContentHeight
     };
 
@@ -236,13 +234,23 @@ class DocPreview extends Component {
     this.props.setUserScale && this.props.setUserScale(settings.scale);
   };
 
-  onFullscreen = (isFullscreen = false) => {
-    this.setState(state => ({
-      settings: {
-        ...state.settings,
-        isFullscreen
+  onFullscreen = () => {
+    this.setState(
+      state => ({
+        settings: {
+          ...state.settings,
+          isFullscreen: true
+        }
+      }),
+      () => {
+        this.setState(state => ({
+          settings: {
+            ...state.settings,
+            isFullscreen: false
+          }
+        }));
       }
-    }));
+    );
   };
 
   setScrollPage = (scrollPage = this.props.firstPageNumber) => {

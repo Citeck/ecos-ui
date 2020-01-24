@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import fscreen from 'fscreen';
 import debounce from 'lodash/debounce';
 
 import { IcoBtn } from '../../common/btns/index';
@@ -41,8 +40,6 @@ class Toolbar extends Component {
     this.state = {
       scale: props.scale,
       currentPage: 1,
-      isFullscreen: false,
-
       selectedZoom: '',
       isCustom: false
     };
@@ -145,7 +142,7 @@ class Toolbar extends Component {
   }, 300);
 
   setFullScreen = () => {
-    this.props.onFullscreen(true);
+    this.props.onFullscreen();
   };
 
   onChangeSettings = newState => {
@@ -210,13 +207,11 @@ class Toolbar extends Component {
             className="ecos-btn_sq_sm ecos-btn_tight ecos-btn_drop-down ecos-doc-preview__toolbar-zoom-selector"
           />
         </Dropdown>
-        {fscreen.fullscreenEnabled && (
-          <IcoBtn
-            icon="glyphicon glyphicon-fullscreen"
-            className="ecos-doc-preview__toolbar-zoom-fullscreen ecos-btn_sq_sm ecos-btn_tight"
-            onClick={this.setFullScreen}
-          />
-        )}
+        <IcoBtn
+          icon="glyphicon glyphicon-fullscreen"
+          className="ecos-doc-preview__toolbar-zoom-fullscreen ecos-btn_sq_sm ecos-btn_tight"
+          onClick={this.setFullScreen}
+        />
       </div>
     );
   }

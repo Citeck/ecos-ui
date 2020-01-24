@@ -6,10 +6,10 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { ecosFullscreen } from '../../../helpers/util';
-import { DefineHeight, Icon } from '../../common';
+import { DefineHeight, Fullpage, Icon } from '../../common';
 
 const $PAGE = '.ecos-doc-preview__viewer-page';
+const fullscreenEnabled = fscreen.fullscreenEnabled;
 
 export default function getViewer(WrappedComponent, isPdf) {
   return class extends Component {
@@ -31,15 +31,16 @@ export default function getViewer(WrappedComponent, isPdf) {
       settings: {}
     };
 
+    state = {};
+
     constructor(props) {
       super(props);
 
       this.refViewer = React.createRef();
-      this.fullScreenOff = true;
     }
 
     componentDidMount() {
-      if (fscreen.fullscreenEnabled) {
+      if (fullscreenEnabled) {
         document.addEventListener('fullscreenchange', this.onFullscreenChange, false);
       }
     }
@@ -47,8 +48,8 @@ export default function getViewer(WrappedComponent, isPdf) {
     getSnapshotBeforeUpdate(prevProps) {
       let snapshot = null;
 
-      const { currentPage: prevCurrentPage, isFullscreen: prevIsFullscreen } = prevProps.settings;
-      const { currentPage, isFullscreen, isLoading } = this.props.settings;
+      const { currentPage: prevCurrentPage, isFullscreen: prevIsFullscreen } = prevProps.settings || {};
+      const { currentPage, isFullscreen, isLoading } = this.props.settings || {};
 
       if (!!prevIsFullscreen !== !!isFullscreen) {
         snapshot = snapshot || {};
@@ -135,51 +136,37 @@ export default function getViewer(WrappedComponent, isPdf) {
     };
 
     onOpenFullscreen = () => {
-      if (fscreen.fullscreenEnabled) {
+      if (fullscreenEnabled) {
         fscreen.requestFullscreen(this.elViewer);
       } else {
-        ecosFullscreen(this.elViewer, true);
         this.onFullscreenChange();
       }
     };
 
     onCloseFullscreen = () => {
-      if (fscreen.fullscreenEnabled) {
+      if (fullscreenEnabled) {
         fscreen.exitFullscreen();
       } else {
-        ecosFullscreen(this.elViewer, false);
         this.onFullscreenChange();
       }
     };
 
     onFullscreenChange = () => {
-      this.fullScreenOff = !this.fullScreenOff;
-
-      if (this.fullScreenOff) {
-        this.props.onFullscreen(false);
-      }
+      this.setState({ isFullscreenOn: !this.state.isFullscreenOn });
     };
 
     renderBtnCloseFullscreen() {
-      let {
-        settings: { isFullscreen }
-      } = this.props;
-
-      return isFullscreen ? (
+      return (
         <div className="ecos-doc-preview__btn-close-fullscreen" onClick={this.onCloseFullscreen}>
           <Icon className="icon-close" />
         </div>
-      ) : null;
+      );
     }
 
     renderDocument() {
-      let {
-        settings: { isFullscreen },
-        getContentHeight,
-        resizable
-      } = this.props;
-      let newProps = { ...this.props, refViewer: this.refViewer };
-
+      const { getContentHeight, resizable } = this.props;
+      const newProps = { ...this.props, refViewer: this.refViewer };
+      const { isFullscreenOn } = this.state;
       const renderView = props => <div {...props} className="ecos-doc-preview__viewer-scroll-area" />;
 
       if (this.failed) {
@@ -188,7 +175,7 @@ export default function getViewer(WrappedComponent, isPdf) {
 
       return (
         <Scrollbars
-          className={classNames({ 'ecos-doc-preview__viewer_fullscreen': isFullscreen && isPdf })}
+          className={classNames({ 'ecos-doc-preview__viewer_fullscreen': isFullscreenOn && isPdf })}
           renderView={renderView}
           ref="refScrollbar"
           onScroll={this.onScroll}
@@ -196,7 +183,7 @@ export default function getViewer(WrappedComponent, isPdf) {
           autoHide
         >
           <DefineHeight
-            className={classNames({ 'ecos-doc-preview__viewer-dh': resizable || isFullscreen })}
+            className={classNames({ 'ecos-doc-preview__viewer-dh': resizable || isFullscreenOn })}
             getContentHeight={getContentHeight}
             querySelector={isPdf ? undefined : $PAGE}
           >
@@ -207,10 +194,13 @@ export default function getViewer(WrappedComponent, isPdf) {
     }
 
     render() {
+      const { isFullscreenOn } = this.state;
+
       return this.failed ? null : (
         <div className="ecos-doc-preview__viewer" ref={this.refViewer}>
           {this.renderDocument()}
-          {this.renderBtnCloseFullscreen()}
+          {fullscreenEnabled && isFullscreenOn && this.renderBtnCloseFullscreen()}
+          {!fullscreenEnabled && isFullscreenOn && <Fullpage onClose={this.onCloseFullscreen}>{this.renderDocument()}</Fullpage>}
         </div>
       );
     }
