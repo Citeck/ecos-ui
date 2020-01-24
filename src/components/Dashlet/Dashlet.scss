@@ -77,7 +77,6 @@
     font-weight: $font-weight-bold;
     box-sizing: border-box;
     padding-right: 12px;
-
     @extend %ellipsis;
   }
 
@@ -171,6 +170,7 @@
           border-top-left-radius: $border-radius-standard;
           border-top-right-radius: $border-radius-standard;
         }
+
         &:last-of-type {
           border-bottom-left-radius: $border-radius-standard;
           border-bottom-right-radius: $border-radius-standard;
@@ -178,22 +178,25 @@
       }
     }
 
-    .tooltip.show {
-      opacity: 1;
+    & .show {
       padding: 0;
       margin-top: -5px;
     }
 
     & &-inner {
       padding: 0;
-      box-shadow: $box-shadow-tooltip;
-      background: $color-white;
       border-radius: $border-radius-standard;
       max-width: none;
     }
 
     & &-arrow.arrow {
       display: none;
+    }
+  }
+
+  &-tooltip {
+    & &-inner {
+      max-width: none;
     }
   }
 }
