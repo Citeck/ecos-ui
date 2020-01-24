@@ -25,9 +25,10 @@ import DocumentsConverter from '../../../dto/documents';
 
 import './style.scss';
 
-const LABELS = {
+const Labels = {
   TITLE: 'Документы',
-  SETTINGS: 'Настройка типов документов'
+  SETTINGS: 'Настройка типов документов',
+  UPLOAD_DROPZONE: 'Добавить файлы'
 };
 
 class Documents extends BaseWidget {
@@ -49,6 +50,7 @@ class Documents extends BaseWidget {
       isOpenSettings: false,
       isSentSettingsToSave: false,
       isOpenUploadModal: false,
+      isDragFiles: false,
       typesFilter: '',
       tableFilter: '',
       statusFilter: statusesKeys.ALL
@@ -69,7 +71,7 @@ class Documents extends BaseWidget {
     }
 
     if (!state.selectedTypeForLoading && props.dynamicTypes.length === 1) {
-      newState.selectedTypeForLoading = props.dynamicTypes[0].type;
+      newState.selectedTypeForLoading = props.dynamicTypes[0];
     }
 
     if (!props.isLoadingSettings && state.isOpenSettings && state.isSentSettingsToSave) {
@@ -85,7 +87,7 @@ class Documents extends BaseWidget {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (!prevProps.isUploadingFile && this.props.isUploadingFile && prevState.isOpenUploadModal) {
+    if (prevProps.isUploadingFile && !this.props.isUploadingFile && (prevState.isOpenUploadModal || prevState.isDragFiles)) {
       this.uploadingComplete();
     }
   }
@@ -97,7 +99,7 @@ class Documents extends BaseWidget {
       return dynamicTypes[0].name;
     }
 
-    return t(LABELS.TITLE);
+    return t(Labels.TITLE);
   }
 
   get availableTypes() {
@@ -213,7 +215,7 @@ class Documents extends BaseWidget {
       return defaultSettings;
     }
 
-    const type = dynamicTypes.find(item => item.type === selectedTypeForLoading);
+    const type = dynamicTypes.find(item => item.type === selectedTypeForLoading.type);
 
     return {
       ...defaultSettings,
@@ -266,9 +268,10 @@ class Documents extends BaseWidget {
   };
 
   uploadingComplete() {
-    this.setState({ isOpenUploadModal: false });
-    console.warn('this.state.selectedType => ', this.state.selectedType);
-    this.props.getDocuments(this.state.selectedType);
+    this.setState({
+      isOpenUploadModal: false,
+      isDragFiles: false
+    });
   }
 
   handleReloadData = () => {
@@ -299,13 +302,19 @@ class Documents extends BaseWidget {
     this.setState({ selectedType: '' });
   };
 
-  handleSelectType = selectedType => {
-    if (selectedType === this.state.selectedType) {
+  handleSelectType = (selectedType = {}) => {
+    const { type } = selectedType;
+
+    if (type === this.state.selectedType) {
       return;
     }
 
-    this.props.getDocuments(selectedType);
-    this.setState({ selectedType, statusFilter: statusesKeys.ALL });
+    this.props.getDocuments(type);
+    this.setState({
+      selectedType: type,
+      statusFilter: statusesKeys.ALL,
+      selectedTypeForLoading: selectedType
+    });
   };
 
   handleToggleSelectType = ({ id, checked }) => {
@@ -400,6 +409,20 @@ class Documents extends BaseWidget {
     this.props.onUploadFiles(files, selectedTypeForLoading.type, callback);
   };
 
+  handleDragIn = event => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.setState({ isDragFiles: true });
+  };
+
+  handleDragOut = event => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.setState({ isDragFiles: false });
+  };
+
   renderTypes() {
     const { dynamicTypes } = this.props;
     const { selectedType, leftColumnId, rightColumnId } = this.state;
@@ -423,7 +446,7 @@ class Documents extends BaseWidget {
           {dynamicTypes.map(this.renderType)}
         </div>
 
-        <ResizeBoxes className="ecos-timesheet__resizer" leftId={leftColumnId} rightId={rightColumnId} />
+        <ResizeBoxes className="ecos-docs__resizer" leftId={leftColumnId} rightId={rightColumnId} />
       </div>
     );
   }
@@ -437,7 +460,7 @@ class Documents extends BaseWidget {
     return (
       <div
         key={type.type}
-        onClick={() => this.handleSelectType(type.type)}
+        onClick={() => this.handleSelectType(type)}
         className={classNames('ecos-docs__types-item', {
           'ecos-docs__types-item_selected': selectedType === type.type
         })}
@@ -532,36 +555,79 @@ class Documents extends BaseWidget {
     );
   }
 
-  renderTable() {
-    const { dynamicTypes, isLoading, isLoadingTableData } = this.props;
-    const { selectedType, rightColumnId } = this.state;
-    let columns = tableFields.ALL.map(item => ({
+  renderDocumentsTable() {
+    const { dynamicTypes, isUploadingFile } = this.props;
+    const { selectedType, isDragFiles } = this.state;
+
+    if (!selectedType && dynamicTypes.length > 1) {
+      return null;
+    }
+
+    const columns = tableFields.DEFAULT.map(item => ({
       dataField: item.name,
       text: item.label
     }));
-    let keyField = 'type';
 
-    if (selectedType || dynamicTypes.length === 1) {
-      columns = tableFields.DEFAULT.map(item => ({
-        dataField: item.name,
-        text: item.label
-      }));
-      keyField = 'id';
+    return (
+      <div style={{ height: '100%' }} onDragEnter={this.handleDragIn} onDragLeave={this.handleDragOut}>
+        {!isDragFiles && !isUploadingFile && (
+          <Grid
+            className="ecos-docs__table"
+            data={this.tableData}
+            columns={columns}
+            onRowClick={this.handleClickTableRow}
+            scrollable
+            keyField="id"
+          />
+        )}
+        {isDragFiles && (
+          <DropZone
+            withoutButton
+            label={t(Labels.UPLOAD_DROPZONE)}
+            className="ecos-docs__table-dropzone"
+            onSelect={this.handleSelectUploadFiles}
+            isLoading={isUploadingFile}
+            {...this.uploadingSettings}
+          />
+        )}
+      </div>
+    );
+  }
+
+  renderTypesTable() {
+    const { selectedType } = this.state;
+
+    if (selectedType) {
+      return null;
     }
+
+    const columns = tableFields.ALL.map(item => ({
+      dataField: item.name,
+      text: item.label
+    }));
+
+    return (
+      <Grid
+        className="ecos-docs__table"
+        data={this.tableData}
+        columns={columns}
+        onRowClick={this.handleClickTableRow}
+        scrollable
+        keyField="type"
+      />
+    );
+  }
+
+  renderTable() {
+    const { isLoading, isLoadingTableData } = this.props;
+    const { rightColumnId } = this.state;
 
     return (
       <div id={rightColumnId} className="ecos-docs__column ecos-docs__column_table">
         {this.renderTablePanel()}
-        <Grid
-          className="ecos-docs__table"
-          data={this.tableData}
-          columns={columns}
-          onRowClick={this.handleClickTableRow}
-          scrollable
-          // keyField="type"
-          keyField={keyField}
-        />
-        {!isLoading && isLoadingTableData && <Loader className="ecos-docs__loader" blur />}
+        {this.renderDocumentsTable()}
+        {this.renderTypesTable()}
+        {!isLoading && isLoadingTableData && <Loader zIndex={999} blur />}
       </div>
     );
   }
@@ -573,7 +639,7 @@ class Documents extends BaseWidget {
     return (
       <Settings
         isOpen={isOpenSettings}
-        label={t(LABELS.SETTINGS)}
+        label={t(Labels.SETTINGS)}
         isLoading={isLoadingSettings}
         types={this.availableTypes}
         onCancel={this.handleCancelSettings}

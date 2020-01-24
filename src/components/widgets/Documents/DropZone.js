@@ -23,6 +23,9 @@ const Labels = {
 
 class DropZone extends Component {
   static propTypes = {
+    className: PropTypes.string,
+    label: PropTypes.string,
+    withoutButton: PropTypes.bool,
     multiple: PropTypes.bool,
     isLoading: PropTypes.bool,
     immediateUploading: PropTypes.bool,
@@ -30,7 +33,10 @@ class DropZone extends Component {
   };
 
   static defaultProps = {
+    className: '',
+    label: '',
     multiple: false,
+    withoutButton: false,
     isLoading: false,
     immediateUploading: false,
     onSelect: () => {}
@@ -44,6 +50,16 @@ class DropZone extends Component {
   };
 
   dropzoneRef = React.createRef();
+
+  get label() {
+    const { label } = this.props;
+
+    if (label) {
+      return label;
+    }
+
+    return t(Labels.DROPZONE_PLACEHOLDER);
+  }
 
   handleChangeStatus = (state, xhr) => {
     const { clientError: _clientError } = this.state;
@@ -125,13 +141,25 @@ class DropZone extends Component {
     return clientError.join(' ');
   };
 
+  renderSelectButton() {
+    const { withoutButton } = this.props;
+
+    if (withoutButton) {
+      return null;
+    }
+
+    return (
+      <div className="ecos-dropzone__label-part ecos-dropzone__button" onClick={this.handleOpenFileDialog}>
+        {t(Labels.DROPZONE_BUTTON_SELECT)}
+      </div>
+    );
+  }
+
   renderDropzoneInputContent() {
     return (
       <div className="ecos-dropzone__label">
-        <div className="ecos-dropzone__label-in">{t(Labels.DROPZONE_PLACEHOLDER)}</div>
-        <div className="ecos-dropzone__button" onClick={this.handleOpenFileDialog}>
-          {t(Labels.DROPZONE_BUTTON_SELECT)}
-        </div>
+        <div className="ecos-dropzone__label-part">{this.label}</div>
+        {this.renderSelectButton()}
       </div>
     );
   }
@@ -153,13 +181,13 @@ class DropZone extends Component {
   }
 
   render() {
-    const { multiple, isLoading } = this.props;
+    const { multiple, isLoading, className } = this.props;
 
     return (
       <DZ ref={this.dropzoneRef} multiple={multiple} onDrop={this.handleDropFile} noClick noKeyboard disabled={isLoading}>
         {({ getRootProps, getInputProps, isDragActive }) => (
           <div
-            className={classNames('ecos-dropzone', {
+            className={classNames('ecos-dropzone', className, {
               'ecos-dropzone_active': isDragActive,
               'ecos-dropzone_loading': isLoading
             })}

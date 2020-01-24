@@ -134,6 +134,13 @@
 
   &__table {
     width: 100%;
+
+    &-dropzone {
+      &.ecos-dropzone {
+        margin: 19px;
+        height: calc(100% - 2 * 19px);
+      }
+    }
   }
 
   &__modal {
@@ -282,6 +289,10 @@
 
   &__loader {
     z-index: 1000;
+  }
+
+  &__resizer {
+    top: 11px;
   }
 }
 
@@ -534,8 +545,10 @@
     text-align: center;
     width: 190px;
 
-    &-in {
-      margin-bottom: 15px;
+    &-part {
+      &:not(:last-child) {
+        margin-bottom: 15px;
+      }
     }
   }
 

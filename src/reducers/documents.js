@@ -11,7 +11,7 @@ import {
   saveSettings,
   saveSettingsFinally,
   uploadFiles,
-  uploadFilesSuccess,
+  uploadFilesFinally,
   setConfig
 } from '../actions/documents';
 
@@ -117,7 +117,7 @@ export default handleActions(
         isUploadingFile: true
       }
     }),
-    [uploadFilesSuccess]: (state, { payload }) => ({
+    [uploadFilesFinally]: (state, { payload }) => ({
       ...state,
       [payload]: {
         ...state[payload],

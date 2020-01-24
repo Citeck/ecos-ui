@@ -22,6 +22,6 @@ export const saveSettings = createAction(prefix + 'SAVE_SETTINGS');
 export const saveSettingsFinally = createAction(prefix + 'SAVE_SETTINGS_FINALLY');
 
 export const uploadFiles = createAction(prefix + 'UPLOAD_FILES');
-export const uploadFilesSuccess = createAction(prefix + 'UPLOAD_FILES_SUCCESS');
+export const uploadFilesFinally = createAction(prefix + 'UPLOAD_FILES_FINALLY');
 
 export const setConfig = createAction(prefix + 'SET_WIDGET_CONFIG');

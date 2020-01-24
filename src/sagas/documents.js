@@ -16,7 +16,7 @@ import {
   saveSettings,
   saveSettingsFinally,
   uploadFiles,
-  uploadFilesSuccess,
+  uploadFilesFinally,
   setConfig
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
@@ -162,7 +162,7 @@ function* sagaGetAvailableTypes({ api, logger }, { payload }) {
 
 function* sagaGetDocumentsByType({ api, logger }, { payload }) {
   try {
-    yield delay(1000);
+    yield delay(payload.delay || 1000);
     const { records, errors } = yield call(api.documents.getDocumentsByType, payload.record, payload.type);
 
     if (errors.length) {
@@ -250,10 +250,11 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
       type: payload.type,
       content: results.filter(item => item !== null)
     });
-
-    yield put(uploadFilesSuccess(payload.record));
+    yield put(getDocumentsByType({ record: payload.record, type: payload.type, delay: 10000 }));
   } catch (e) {
     logger.error('[documents sagaUploadFiles saga error', e.message);
+  } finally {
+    yield put(uploadFilesFinally(payload.record));
   }
 }
 
