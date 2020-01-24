@@ -41,7 +41,7 @@ export default function getViewer(WrappedComponent, isPdf) {
 
     componentDidMount() {
       if (fullscreenEnabled) {
-        document.addEventListener('fullscreenchange', this.onFullscreenChange, false);
+        document.addEventListener('fullscreenchange', this.onChangeFullscreen, false);
       }
     }
 
@@ -85,7 +85,7 @@ export default function getViewer(WrappedComponent, isPdf) {
     }
 
     componentWillUnmount() {
-      document.removeEventListener('fullscreenchange', this.onFullscreenChange, false);
+      document.removeEventListener('fullscreenchange', this.onChangeFullscreen, false);
     }
 
     get elScrollbar() {
@@ -139,7 +139,7 @@ export default function getViewer(WrappedComponent, isPdf) {
       if (fullscreenEnabled) {
         fscreen.requestFullscreen(this.elViewer);
       } else {
-        this.onFullscreenChange();
+        this.onChangeFullscreen();
       }
     };
 
@@ -147,11 +147,11 @@ export default function getViewer(WrappedComponent, isPdf) {
       if (fullscreenEnabled) {
         fscreen.exitFullscreen();
       } else {
-        this.onFullscreenChange();
+        this.onChangeFullscreen();
       }
     };
 
-    onFullscreenChange = () => {
+    onChangeFullscreen = () => {
       this.setState({ isFullscreenOn: !this.state.isFullscreenOn });
     };
 
