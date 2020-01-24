@@ -13,14 +13,9 @@
     position: absolute;
     top: 10px;
     right: 10px;
-    background-color: rgba(44, 44, 44, 0.25);
-    border-radius: 20px;
-    width: 25px;
-    height: 25px;
-    color: $color-white;
-    text-align: center;
     cursor: pointer;
-    padding-top: 2px;
+
+    @extend %grey-cycle;
 
     .icon {
       font-size: $font-size-small;
