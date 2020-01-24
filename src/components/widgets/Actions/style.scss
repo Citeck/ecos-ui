@@ -30,12 +30,10 @@
 
     &__item {
       &-title {
-        display: flex;
-        align-items: center;
         height: 40px;
         font-weight: $font-weight-semi-bold;
         font-size: $font-size-standard;
-        padding: 0 10px;
+        padding: 10px;
         @extend %ellipsis;
       }
 
