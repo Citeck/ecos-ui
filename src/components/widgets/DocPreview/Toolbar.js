@@ -40,8 +40,6 @@ class Toolbar extends Component {
     this.state = {
       scale: props.scale,
       currentPage: 1,
-      isFullscreen: false,
-
       selectedZoom: '',
       isCustom: false
     };
@@ -144,7 +142,7 @@ class Toolbar extends Component {
   }, 300);
 
   setFullScreen = () => {
-    this.props.onFullscreen(true);
+    this.props.onFullscreen();
   };
 
   onChangeSettings = newState => {
@@ -210,7 +208,7 @@ class Toolbar extends Component {
           />
         </Dropdown>
         <IcoBtn
-          icon={'glyphicon glyphicon-fullscreen'}
+          icon="glyphicon glyphicon-fullscreen"
           className="ecos-doc-preview__toolbar-zoom-fullscreen ecos-btn_sq_sm ecos-btn_tight"
           onClick={this.setFullScreen}
         />
