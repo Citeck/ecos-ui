@@ -98,6 +98,12 @@ $transition-duration: 0.3s;
       }
     }
 
+    &_collapsible {
+      #{$menu-item}__link {
+        width: calc(100% - 16px);
+      }
+    }
+
     &#{$menu-item}_selected:not(#{$menu-item}_nested-expanded):not(:hover) {
       background: $color-blue-light;
 
@@ -235,12 +241,6 @@ $transition-duration: 0.3s;
             @extend %menu-item-separator;
             width: 70%;
             left: 15%;
-          }
-        }
-
-        &#{$menu-item}_collapsible {
-          #{$menu-item}__link {
-            width: calc(100% - 16px);
           }
         }
 

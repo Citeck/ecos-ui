@@ -12,7 +12,7 @@ import Item from './Item';
 class List extends React.Component {
   static propTypes = {
     className: PropTypes.string,
-    data: PropTypes.array,
+    items: PropTypes.array,
     expandableItems: PropTypes.array,
     level: PropTypes.number,
     isExpanded: PropTypes.bool,
@@ -21,7 +21,7 @@ class List extends React.Component {
 
   static defaultProps = {
     className: '',
-    data: [],
+    items: [],
     expandableItems: [],
     level: 0
   };
@@ -41,7 +41,7 @@ class List extends React.Component {
 
   renderSubList = (items, expanded, inDropdown) => (
     <ConnectList
-      data={items}
+      items={items}
       level={this.props.level + 1}
       isExpanded={expanded}
       boundariesElement={this.boundariesElement}
@@ -55,7 +55,7 @@ class List extends React.Component {
     const listItemKey = `${item.id}-${item.label}-${level}`;
     const styleProps = SidebarService.getPropsStyleLevel({
       level,
-      actionType: get(this.props, 'data.action.type', '')
+      actionType: get(item, 'action.type', '')
     });
     const hasSubItems = !!(item.items && item.items.length);
     const isItemSeparator = !isOpen && get(styleProps, 'collapsedMenu.asSeparator', false);
@@ -99,9 +99,9 @@ class List extends React.Component {
   };
 
   render() {
-    const { data, className, level, isExpanded } = this.props;
+    const { items, className, level, isExpanded } = this.props;
 
-    if (!data || !data.length) {
+    if (!items || !items.length) {
       return null;
     }
 
@@ -112,7 +112,7 @@ class List extends React.Component {
           'ecos-sidebar-list_expanded': isExpanded
         })}
       >
-        {data.map(this.renderItem)}
+        {items.map(this.renderItem)}
       </div>
     );
   }

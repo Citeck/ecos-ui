@@ -75,7 +75,7 @@ class Sidebar extends React.Component {
           renderTrackHorizontal={props => <div hidden />}
           renderView={props => <div {...props} className="ecos-sidebar-scroll-area" />}
         >
-          <List data={items} isExpanded />
+          <List items={items} isExpanded />
         </Scrollbars>
       </div>
     );

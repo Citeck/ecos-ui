@@ -8,7 +8,7 @@ import { setScrollTop, setSelectedId, toggleExpanded } from '../../actions/slide
 import SidebarService from '../../services/sidebar';
 import { Icon } from '../common';
 import RemoteBadge from './RemoteBadge';
-import { ItemBtn, ItemIcon, ItemLink } from './item-components';
+import { ItemIcon, ItemLink } from './item-components';
 
 class Item extends React.Component {
   static propTypes = {
@@ -26,6 +26,15 @@ class Item extends React.Component {
     styleProps: {},
     level: 0
   };
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    return (
+      nextProps.isExpanded !== this.props.isExpanded ||
+      nextProps.isSelected !== this.props.isSelected ||
+      nextProps.inDropdown !== this.props.inDropdown ||
+      nextProps.isOpen !== this.props.isOpen
+    );
+  }
 
   get hasSubItems() {
     return !isEmpty(get(this.props, 'data.items'));
@@ -47,14 +56,6 @@ class Item extends React.Component {
 
   get isLink() {
     return ![SidebarService.ActionTypes.CREATE_SITE].includes(this.actionType);
-  }
-
-  getMover() {
-    if (this.collapsible) {
-      return ({ children }) => <div className="ecos-sidebar-item__link">{children}</div>;
-    }
-
-    return this.isLink ? ItemLink : ItemBtn;
   }
 
   onToggleList = e => {
@@ -79,15 +80,35 @@ class Item extends React.Component {
     } = this.props;
     const extraParams = { isSiteDashboardEnable };
 
-    const Mover = this.getMover();
+    if (this.collapsible) {
+      return (
+        <div className="ecos-sidebar-item__link">
+          {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : get(data, 'label', '')} />}
+          <div className="ecos-sidebar-item__label" title={data.label}>
+            {data.label}
+          </div>
+        </div>
+      );
+    }
+
+    if (this.isLink) {
+      return (
+        <ItemLink data={data} extraParams={extraParams} onClick={this.onClickItem}>
+          {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : get(data, 'label', '')} />}
+          <div className="ecos-sidebar-item__label" title={data.label}>
+            {data.label}
+          </div>
+        </ItemLink>
+      );
+    }
 
     return (
-      <Mover data={data} extraParams={extraParams} onClick={this.onClickItem}>
+      <ItemLink data={data} extraParams={extraParams} onClick={this.onClickItem}>
         {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : get(data, 'label', '')} />}
         <div className="ecos-sidebar-item__label" title={data.label}>
           {data.label}
         </div>
-      </Mover>
+      </ItemLink>
     );
   }
 
