@@ -53,7 +53,7 @@ class TypeSettings extends Component {
   static getDerivedStateFromProps(props, state) {
     const newState = {};
 
-    if (props.isOpen && !Object.keys(state.settings).length && Object.keys(state.settings).length) {
+    if (props.isOpen && !Object.keys(state.settings).length && Object.keys(props.type).length) {
       newState.settings = props.type;
     }
 

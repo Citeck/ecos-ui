@@ -16,7 +16,8 @@ export const selectStateByKey = createSelector(
     documents: ownState.documents,
     isLoading: ownState.isLoading,
     isUploadingFile: ownState.isUploadingFile,
-    isLoadingSettings: ownState.isLoadingSettings
+    isLoadingSettings: ownState.isLoadingSettings,
+    isLoadingTableData: ownState.isLoadingTableData
   })
 );
 
@@ -25,6 +26,11 @@ const getDynamicTypes = state => get(state, 'dynamicTypes', []);
 const getDocuments = state => get(state, 'dynamicTypes', []);
 
 export const selectTypesForTable = createSelector();
+
+export const selectConfigTypes = createSelector(
+  selectState,
+  state => get(state, 'config.types', [])
+);
 
 export const selectTypeNames = createSelector(
   selectState,
@@ -58,12 +64,23 @@ export const selectGrouppedAvailableTypes = createSelector(
     const selectedTypes = dynamicTypes.map(item => item.type);
     const getChilds = (filtered = [], types = filtered) => {
       return filtered.map(item => {
+        const dType = dynamicTypes.find(i => i.type === item.id);
+        const dTypeParams = {
+          multiple: get(dType, 'multiple', false),
+          mandatory: get(dType, 'mandatory', false),
+          countDocuments: get(dType, 'coundDocuments', 0)
+        };
+
         if (!item.parent) {
-          return item;
+          return {
+            ...item,
+            ...dTypeParams
+          };
         }
 
         return {
           ...item,
+          ...dTypeParams,
           isSelected: selectedTypes.includes(item.id),
           items: getChilds(types.filter(type => type.parent && type.parent === item.id), types)
         };
@@ -72,10 +89,20 @@ export const selectGrouppedAvailableTypes = createSelector(
 
     return availableTypes
       .filter(item => item.parent === null)
-      .map(item => ({
-        ...item,
-        isSelected: selectedTypes.includes(item.id),
-        items: getChilds(availableTypes.filter(type => type.parent === item.id), availableTypes)
-      }));
+      .map(item => {
+        const dType = dynamicTypes.find(i => i.type === item.id);
+        const dTypeParams = {
+          multiple: get(dType, 'multiple', false),
+          mandatory: get(dType, 'mandatory', false),
+          countDocuments: get(dType, 'coundDocuments', 0)
+        };
+
+        return {
+          ...item,
+          ...dTypeParams,
+          isSelected: selectedTypes.includes(item.id),
+          items: getChilds(availableTypes.filter(type => type.parent === item.id), availableTypes)
+        };
+      });
   }
 );

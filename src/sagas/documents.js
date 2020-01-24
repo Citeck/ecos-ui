@@ -1,8 +1,9 @@
+import { delay } from 'redux-saga';
 import { put, select, takeEvery, call } from 'redux-saga/effects';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
-import { selectTypeNames, selectDynamicTypes, selectAvailableTypes } from '../selectors/documents';
+import { selectTypeNames, selectDynamicTypes, selectAvailableTypes, selectConfigTypes } from '../selectors/documents';
 import {
   init,
   initSuccess,
@@ -15,12 +16,14 @@ import {
   saveSettings,
   saveSettingsFinally,
   uploadFiles,
-  uploadFilesSuccess
+  uploadFilesSuccess,
+  setConfig
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
+    yield put(setConfig({ record: payload.record, config: payload.config }));
     yield* sagaGetAvailableTypes({ api, logger }, { payload: payload.record });
     yield* sagaGetDynamicTypes({ api, logger }, { payload });
 
@@ -75,7 +78,8 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
       throw new Error(dtErrors.join(' '));
     }
 
-    let combinedTypes = DocumentsConverter.combineTypes(dynamicTypes, get(payload, 'config.types', []));
+    const configTypes = yield select(state => selectConfigTypes(state, payload.record));
+    let combinedTypes = DocumentsConverter.combineTypes(dynamicTypes, configTypes);
     const typeNames = yield select(state => selectTypeNames(state, payload.record));
     const dynamicTypeKeys = combinedTypes.map(record => record.type);
 
@@ -109,14 +113,11 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
       .filter(item => item !== null);
 
     if (combinedTypes.length === 1) {
-      yield* sagaGetDocumentsByType(
-        { api, logger },
-        {
-          payload: {
-            record: payload.record,
-            type: combinedTypes[0].type
-          }
-        }
+      yield put(
+        getDocumentsByType({
+          record: payload.record,
+          type: combinedTypes[0].type
+        })
       );
     }
 
@@ -161,6 +162,7 @@ function* sagaGetAvailableTypes({ api, logger }, { payload }) {
 
 function* sagaGetDocumentsByType({ api, logger }, { payload }) {
   try {
+    yield delay(1000);
     const { records, errors } = yield call(api.documents.getDocumentsByType, payload.record, payload.type);
 
     if (errors.length) {
@@ -211,6 +213,8 @@ function* sagaSaveSettings({ api, logger }, { payload }) {
         countDocuments
       })
     );
+
+    yield put(init({ record: payload.record, config: payload.config }));
   } catch (e) {
     logger.error('[documents sagaSaveSettings saga error', e.message);
   } finally {

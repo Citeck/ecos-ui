@@ -21,8 +21,7 @@ class Settings extends Component {
     label: PropTypes.string,
     types: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
     onCancel: PropTypes.func,
-    onSave: PropTypes.func,
-    getTypeData: PropTypes.func
+    onSave: PropTypes.func
   };
 
   static defaultProps = {
@@ -31,8 +30,7 @@ class Settings extends Component {
     label: '',
     types: [],
     onCancel: () => {},
-    onSave: () => {},
-    getTypeData: () => {}
+    onSave: () => {}
   };
 
   constructor(props) {
@@ -94,15 +92,32 @@ class Settings extends Component {
   }
 
   get editableType() {
-    const { getTypeData } = this.props;
     const { editableType } = this.state;
 
     if (editableType === null) {
       return null;
     }
 
-    return getTypeData(editableType);
+    return this.getType(editableType);
   }
+
+  getType = (id, types = this.state.types) => {
+    let type = {};
+    const searchItem = item => {
+      if (item.id === id) {
+        type = item;
+        return;
+      }
+
+      if (get(item, 'items', []).length) {
+        item.items.forEach(searchItem);
+      }
+    };
+
+    types.forEach(searchItem);
+
+    return type;
+  };
 
   setTypeData = (id = null, data = {}) => {
     if (id === null) {
@@ -150,7 +165,6 @@ class Settings extends Component {
     };
 
     types.forEach(checkStatus);
-
     this.props.onSave(selected);
   };
 
@@ -167,8 +181,7 @@ class Settings extends Component {
   };
 
   handleSaveTypeSettings = (settings = {}) => {
-    console.warn(this.state.editableType, settings);
-
+    this.setTypeData(this.state.editableType, settings);
     this.setState({ editableType: null });
   };
 

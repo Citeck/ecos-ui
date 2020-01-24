@@ -6,19 +6,23 @@ import {
   getAvailableTypes,
   setAvailableTypes,
   setDynamicTypes,
+  getDocumentsByType,
   setDocuments,
   saveSettings,
   saveSettingsFinally,
   uploadFiles,
-  uploadFilesSuccess
+  uploadFilesSuccess,
+  setConfig
 } from '../actions/documents';
 
 export const initialState = {
   types: [],
+  config: {},
   availableTypes: [],
   dynamicTypes: [],
   documents: [],
   isLoading: false,
+  isLoadingTableData: false,
   isUploadingFile: false,
   isLoadingSettings: false
 };
@@ -54,16 +58,16 @@ export default handleActions(
     [getAvailableTypes]: (state, { payload }) => ({
       ...state,
       [payload]: {
-        ...state[payload],
-        isLoading: true
+        ...state[payload]
+        // isLoading: true
       }
     }),
     [setAvailableTypes]: (state, { payload }) => ({
       ...state,
       [payload.record]: {
         ...state[payload.record],
-        availableTypes: payload.types,
-        isLoading: false
+        availableTypes: payload.types
+        // isLoading: false
       }
     }),
 
@@ -75,11 +79,19 @@ export default handleActions(
       }
     }),
 
+    [getDocumentsByType]: (state, { payload }) => ({
+      ...state,
+      [payload.record]: {
+        ...state[payload.record],
+        isLoadingTableData: true
+      }
+    }),
     [setDocuments]: (state, { payload }) => ({
       ...state,
       [payload.record]: {
         ...state[payload.record],
-        documents: payload.documents
+        documents: payload.documents,
+        isLoadingTableData: false
       }
     }),
 
@@ -110,6 +122,14 @@ export default handleActions(
       [payload]: {
         ...state[payload],
         isUploadingFile: false
+      }
+    }),
+
+    [setConfig]: (state, { payload }) => ({
+      ...state,
+      [payload.record]: {
+        ...state[payload.record],
+        config: payload.config
       }
     })
   },

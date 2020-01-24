@@ -101,7 +101,7 @@ export default class DocumentsConverter {
       return [];
     }
 
-    return source.map((item = {}) => {
+    return deepClone(source).map((item = {}) => {
       if (!Object.keys(item).length) {
         return {};
       }
