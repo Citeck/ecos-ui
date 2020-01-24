@@ -630,7 +630,3 @@ export function animateScrollTo(element = null, scrollTo = {}) {
     });
   }
 }
-
-export function ecosFullscreen(elem, open) {
-  elem && elem.classList.toggle('ecos-fullscreen', open);
-}

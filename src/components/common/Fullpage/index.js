@@ -1,11 +1,12 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
+
 import { Icon } from '../';
 
 import './style.scss';
 
-export default class Index extends React.Component {
+export default class Fullpage extends React.Component {
   static propTypes = {
     onClose: PropTypes.func
   };
