@@ -4,46 +4,70 @@ import get from 'lodash/get';
 
 import {
   getActiveTabTitle,
-  getShowTabsStatus,
   getTabs,
   getTabTitle,
   setActiveTabTitle,
   setShowTabsStatus,
   setTabs,
+  initTabs,
+  initTabsComplete,
   setTabTitle
 } from '../actions/pageTabs';
-import { selectTabs } from '../selectors/pageTabs';
+import { selectTabs, selectInitStatus } from '../selectors/pageTabs';
 import { selectIsAuthenticated } from '../selectors/user';
-import Records from '../components/Records';
 import { t, deepClone, getCurrentUserName } from '../helpers/util';
-import { getSearchParams, isNewVersionPage } from '../helpers/urls';
+import { getSearchParams } from '../helpers/urls';
+import { URL } from '../constants';
+import { TITLE } from '../constants/pageTabs';
 
-function* sagaGetShowTabsStatus({ api, logger }, action) {
+function* sagaInitTabs({ api, logger }) {
   try {
-    const result = yield call(function() {
-      if (!isNewVersionPage()) {
-        return Promise.resolve(false);
-      }
+    const needShowTabs = yield call(api.pageTabs.getShowStatus);
 
-      return Records.get('uiserv/config@tabs-enabled')
-        .load('value?bool')
-        .then(value => {
-          return value != null ? value : true;
-        })
-        .catch(e => {
-          logger.error('[pageTabs sagaGetShowTabsStatus saga error', e);
-          return false;
-        });
-    }, action.payload);
+    if (!needShowTabs) {
+      yield put(setShowTabsStatus(needShowTabs));
+      return;
+    }
 
-    yield put(setShowTabsStatus(result));
+    const userName = yield call(getCurrentUserName);
+
+    yield call(api.pageTabs.checkOldVersion, userName);
+
+    let tabs = yield call(api.pageTabs.getAll);
+
+    yield put(setTabs(tabs));
+
+    const isAuthorized = yield select(selectIsAuthenticated);
+
+    if (!isAuthorized) {
+      return;
+    }
+
+    tabs = yield tabs.map(function*(tab) {
+      const newTabData = yield* getTabWithTitle(tab, api);
+
+      return {
+        ...tab,
+        ...newTabData
+      };
+    });
+
+    yield put(initTabsComplete());
+    yield put(setTabs(tabs));
+    yield put(setShowTabsStatus(needShowTabs));
   } catch (e) {
-    logger.error('[pageTabs sagaGetShowTabsStatus saga error', e.message);
+    logger.error('[pageTabs sagaInitTabs saga error', e.message);
   }
 }
 
 function* sagaGetTabs({ api, logger }) {
   try {
+    const inited = yield select(selectInitStatus);
+
+    if (!inited) {
+      return;
+    }
+
     const isAuthorized = yield select(selectIsAuthenticated);
 
     if (!isAuthorized) {
@@ -54,7 +78,7 @@ function* sagaGetTabs({ api, logger }) {
 
     yield call(api.pageTabs.checkOldVersion, userName);
 
-    const tabs = yield call(api.pageTabs.getAll);
+    let tabs = yield call(api.pageTabs.getAll);
 
     yield put(setTabs(tabs));
   } catch (e) {
@@ -64,6 +88,12 @@ function* sagaGetTabs({ api, logger }) {
 
 function* sagaSetTabs({ api, logger }, action) {
   try {
+    const inited = yield select(selectInitStatus);
+
+    if (!inited) {
+      return;
+    }
+
     yield call(api.pageTabs.set, action.payload);
   } catch (e) {
     logger.error('[pageTabs sagaSetTabs saga error', e.message);
@@ -72,30 +102,33 @@ function* sagaSetTabs({ api, logger }, action) {
 
 function* sagaSetActiveTabTitle({ api, logger }, action) {
   try {
+    const inited = yield select(selectInitStatus);
+
+    if (!inited) {
+      return;
+    }
+
     const tabs = deepClone(yield select(selectTabs));
     const activeIndex = tabs.findIndex(tab => tab.isActive);
 
     if (activeIndex !== -1) {
       tabs[activeIndex].title = action.payload;
     }
-
     yield put(setTabs(tabs));
   } catch (e) {
     logger.error('[pageTabs sagaSetActiveTabTitle saga error', e.message);
   }
 }
 
-function* sagaGetTabTitle({ api, logger }, { payload }) {
+function* getTabWithTitle(data, api) {
   try {
-    if (payload.isActive) {
+    if (data.isActive) {
       yield put(getActiveTabTitle());
     }
 
-    yield delay(1000);
-    let tabs = deepClone(yield select(selectTabs));
-    const tab = tabs.find(tab => tab.id === payload.tabId);
-    let title = get(payload, 'defaultTitle', t('page-tabs.new-tab'));
-    const match = payload.link.match(/\?.*/gim);
+    const tab = deepClone(data);
+    let title = get(data, 'defaultTitle', t('page-tabs.new-tab'));
+    const match = data.link.match(/\?.*/gim);
 
     if (match) {
       const [link] = match;
@@ -103,34 +136,61 @@ function* sagaGetTabTitle({ api, logger }, { payload }) {
 
       if (recordRef || nodeRef) {
         const response = yield call(api.pageTabs.getTabTitle, { recordRef: recordRef || nodeRef });
+
         title = get(response, 'displayName', t('page-tabs.new-tab'));
       }
 
       if (journalId) {
         const journalTitle = yield call(api.pageTabs.getTabTitle, { journalId });
+
         if (journalTitle) {
           title = `${t('journal.title')} "${journalTitle}"`;
         }
+      }
+    } else {
+      if (data.link === URL.DASHBOARD) {
+        title = t(TITLE.HOMEPAGE);
       }
     }
 
     tab.title = title;
     tab.isLoading = false;
-    tabs = deepClone(yield select(selectTabs));
 
+    if (data.isActive) {
+      yield put(setActiveTabTitle());
+    }
+
+    return tab;
+  } catch (e) {
+    console.error(e);
+    throw new Error('[pageTabs getTabWithTitle function error');
+  }
+}
+
+function* sagaGetTabTitle({ api, logger }, { payload }) {
+  try {
+    const inited = yield select(selectInitStatus);
+
+    if (!inited) {
+      return;
+    }
+
+    yield delay(1000);
+    const tab = yield* getTabWithTitle(payload, api);
+    const tabs = deepClone(yield select(selectTabs));
     const index = tabs.findIndex(tab => tab.id === payload.tabId);
 
-    tabs[index] = { ...tabs[index], ...tab };
+    tabs[index] = { ...tabs[index], title: tab.title, isLoading: tab.isLoading };
 
     yield put(setTabs([...tabs]));
-    yield put(setTabTitle(title));
+    yield put(setTabTitle());
   } catch (e) {
     logger.error('[pageTabs sagaGetTabTitle saga error', e.message);
   }
 }
 
 function* saga(ea) {
-  yield takeLatest(getShowTabsStatus().type, sagaGetShowTabsStatus, ea);
+  yield takeLatest(initTabs().type, sagaInitTabs, ea);
   yield takeLatest(getTabs().type, sagaGetTabs, ea);
   yield takeLatest(setTabs().type, sagaSetTabs, ea);
   yield takeLatest(setActiveTabTitle().type, sagaSetActiveTabTitle, ea);
