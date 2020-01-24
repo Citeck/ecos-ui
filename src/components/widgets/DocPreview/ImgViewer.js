@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 
 import { getScale } from '../../../helpers/util';
 
@@ -8,8 +7,7 @@ class ImgViewer extends Component {
   static propTypes = {
     src: PropTypes.string.isRequired,
     settings: PropTypes.shape({
-      scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      isFullscreen: PropTypes.bool
+      scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
     }),
     refViewer: PropTypes.object,
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
@@ -18,8 +16,7 @@ class ImgViewer extends Component {
 
   static defaultProps = {
     settings: {
-      scale: 1,
-      isFullscreen: false
+      scale: 1
     }
   };
 
@@ -85,21 +82,12 @@ class ImgViewer extends Component {
   };
 
   render() {
-    const {
-      src,
-      settings: { isFullscreen }
-    } = this.props;
+    const { src } = this.props;
     const style = { width: this.elImage.offsetWidth || 0 };
 
     return (
-      <div
-        className={classnames('ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_img', {
-          'ecos-doc-preview__viewer-page_full': isFullscreen
-        })}
-        ref={this.refImgCtr}
-        style={style}
-      >
-        <img src={src} alt={src} style={this.styleZoom} className="ecos-doc-preview__viewer-page-content" ref={this.refImg} />
+      <div className="ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_img" style={style} ref={this.refImgCtr}>
+        <img src={src} alt={src} className="ecos-doc-preview__viewer-page-content" style={this.styleZoom} ref={this.refImg} />
       </div>
     );
   }
