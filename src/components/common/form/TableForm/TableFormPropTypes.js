@@ -11,5 +11,9 @@ export default {
   isStaticModalTitle: PropTypes.bool,
   parentForm: PropTypes.object,
   triggerEventOnTableChange: PropTypes.func,
-  viewOnly: PropTypes.bool
+  viewOnly: PropTypes.bool,
+  displayElements: PropTypes.shape({
+    edit: PropTypes.bool,
+    delete: PropTypes.bool
+  })
 };

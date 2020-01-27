@@ -62,7 +62,7 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
       reactstrapProps={{
         backdrop: 'static'
       }}
-      className="ecos-modal_width-lg"
+      className="ecos-modal_width-lg ecos-form-modal"
       isBigHeader={true}
       title={title}
       isOpen={isCreateModalOpen}

@@ -632,7 +632,7 @@ export default class SelectJournal extends Component {
                   <IcoBtn
                     invert
                     icon={isCollapsePanelOpen ? 'icon-up' : 'icon-down'}
-                    className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_blue ecos-btn_x-step_10"
+                    className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_blue ecos-btn_x-step_10 select-journal-collapse-panel__controls-left-btn-filter"
                     onClick={this.toggleCollapsePanel}
                   >
                     {t('select-journal.select-modal.filter-button')}
@@ -680,7 +680,9 @@ export default class SelectJournal extends Component {
             </div>
 
             <div className="select-journal-select-modal__buttons">
-              <Btn className={'select-journal-select-modal__buttons-cancel'} onClick={this.onCancelSelect}>{t('select-journal.select-modal.cancel-button')}</Btn>
+              <Btn className={'select-journal-select-modal__buttons-cancel'} onClick={this.onCancelSelect}>
+                {t('select-journal.select-modal.cancel-button')}
+              </Btn>
               <Btn className={'ecos-btn_blue select-journal-select-modal__buttons-ok'} onClick={this.onSelectFromJournalPopup}>
                 {t('select-journal.select-modal.ok-button')}
               </Btn>

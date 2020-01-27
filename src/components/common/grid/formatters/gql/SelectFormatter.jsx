@@ -24,7 +24,7 @@ export default class SelectFormatter extends DefaultGqlFormatter {
       const fallback = () => {
         if (typeof cell === 'string') {
           resolve(cell);
-        } else if (cell.disp) {
+        } else if (cell && cell.disp) {
           resolve(cell.disp);
         } else {
           resolve('');
