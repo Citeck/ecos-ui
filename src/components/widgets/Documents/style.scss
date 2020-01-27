@@ -20,13 +20,56 @@
       flex-shrink: 2;
       width: 100%;
 
-      tr > th:first-child,
-      tr > td:first-child {
+      tr:not(.ecos-grid_drag) > th:first-child,
+      tr:not(.ecos-grid_drag) > td:first-child {
         padding-left: 19px;
 
         .ecos-th,
         .ecos-grid__td {
           padding-left: 0;
+        }
+      }
+
+      .ecos-grid {
+        &_drag {
+          background: $color-yellow;
+          border: 2px solid $color-brown-2;
+          border-width: 0 3px;
+          outline: 2px solid $color-brown-2;
+
+          & > th:first-child,
+          & > td:first-child {
+            padding-left: 12px;
+          }
+        }
+
+        &__row {
+          position: relative;
+
+          &:hover {
+            outline: 2px solid $color-brown-2;
+            transform: scale(1);
+
+            & > th:first-child,
+            & > td:first-child {
+              //padding-left: 17px;
+            }
+
+            .ecos-docs__table-upload-label {
+              visibility: visible;
+            }
+
+            &:after {
+              //content: 'Перетяните сюда файл';
+              //position: absolute;
+              //right: 80px;
+              //top: calc(20px / 2);
+              //font-weight: bold;
+              //font-size: 14px;
+              //line-height: 20px;
+              //color: $color-brown-1;
+            }
+          }
         }
       }
     }
@@ -148,6 +191,22 @@
       &_hidden {
         display: none;
       }
+    }
+
+    &-count-status {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      margin: 9px 30px;
+    }
+
+    &-upload-label {
+      visibility: hidden;
+      margin-right: 17px;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 20px;
+      color: $color-brown-1;
     }
   }
 

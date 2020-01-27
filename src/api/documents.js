@@ -128,4 +128,27 @@ export class DocumentsApi {
 
     return record.save().then(response => response);
   };
+
+  getDocumentsByTypes = (recordRef = '', data = []) => {
+    let types = data;
+
+    if (typeof types === 'string') {
+      types = [types];
+    }
+
+    return Records.query(
+      {
+        sourceId: 'alfresco/documents',
+        query: {
+          recordRef,
+          types
+        },
+        language: 'types-documents'
+      },
+      {
+        documents: 'documents[]{id:.id, name:.disp, loadedBy:_modified, modifier:_modifier.fullName}',
+        type: 'type'
+      }
+    ).then(response => response);
+  };
 }

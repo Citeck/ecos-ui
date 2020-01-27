@@ -1,5 +1,6 @@
 import { delay } from 'redux-saga';
 import { put, select, takeEvery, call } from 'redux-saga/effects';
+import get from 'lodash/get';
 import set from 'lodash/set';
 
 import { selectTypeNames, selectDynamicTypes, selectAvailableTypes, selectConfigTypes } from '../selectors/documents';
@@ -165,19 +166,21 @@ function* sagaGetAvailableTypes({ api, logger }, { payload }) {
 function* sagaGetDocumentsByType({ api, logger }, { payload }) {
   try {
     yield delay(payload.delay || 1000);
-    const { records, errors } = yield call(api.documents.getDocumentsByType, payload.record, payload.type);
+    // const { records, errors } = yield call(api.documents.getDocumentsByType, payload.record, payload.type);
+    const { records, errors } = yield call(api.documents.getDocumentsByTypes, payload.record, payload.type);
 
     if (errors.length) {
       throw new Error(errors.join(' '));
     }
 
+    const documents = get(records, '[0].documents', []);
     const typeNames = yield select(state => selectTypeNames(state, payload.record));
 
     yield put(
       setDocuments({
         record: payload.record,
         documents: DocumentsConverter.getDocuments({
-          documents: records,
+          documents,
           type: payload.type,
           typeName: typeNames[payload.type]
         })
@@ -189,7 +192,7 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
     if (dynamicTypes.length) {
       const type = dynamicTypes.find(item => item.type === payload.type);
 
-      set(type, 'countDocuments', records.length);
+      set(type, 'countDocuments', documents.length);
     }
 
     yield put(setDynamicTypes({ record: payload.record, dynamicTypes }));
@@ -252,7 +255,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
       type: payload.type,
       content: results.filter(item => item !== null)
     });
-    yield put(getDocumentsByType({ record: payload.record, type: payload.type, delay: 10000 }));
+    yield put(getDocumentsByType({ record: payload.record, type: payload.type, delay: 0 }));
   } catch (e) {
     logger.error('[documents sagaUploadFiles saga error', e.message);
   } finally {

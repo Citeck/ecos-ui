@@ -36,6 +36,10 @@ export const tableFields = {
     {
       name: 'modified',
       label: 'Обновлено'
+    },
+    {
+      name: 'count',
+      label: 'Количество файлов'
     }
   ],
   DEFAULT: [

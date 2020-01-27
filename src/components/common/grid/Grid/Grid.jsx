@@ -16,6 +16,7 @@ import './Grid.scss';
 const CLOSE_FILTER_EVENT = 'closeFilterEvent';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
+const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
 const REACT_BOOTSTRAP_TABLE_CLASS = 'react-bootstrap-table';
 
 const ECOS_GRID_CHECKBOX_DEVIDER_CLASS = 'ecos-grid__checkbox-devider';
@@ -45,6 +46,7 @@ class Grid extends Component {
     this._keyField = props.keyField || 'id';
     this._scrollValues = {};
     this._tr = null;
+    this._dragTr = null;
     this._tableDom = null;
     this._ref = React.createRef();
     this._scrollRef = null;
@@ -58,6 +60,7 @@ class Grid extends Component {
     this.createCloseFilterEvent();
     this.createColumnResizeEvents();
     this.createKeydownEvents();
+    this.createDragEvents();
 
     const current = this._ref.current;
 
@@ -84,6 +87,7 @@ class Grid extends Component {
     this.removeCloseFilterEvent();
     this.removeColumnResizeEvents();
     this.removeKeydownEvents();
+    this.removeDragEvents();
   }
 
   get hasCheckboxes() {
@@ -104,6 +108,18 @@ class Grid extends Component {
 
   removeKeydownEvents() {
     document.removeEventListener('keydown', this.onKeydown);
+  }
+
+  createDragEvents() {
+    if (this.props.onRowDrop) {
+      document.addEventListener('dragenter', this.onDragEnter);
+    }
+  }
+
+  removeDragEvents() {
+    if (this.props.onRowDrop) {
+      document.removeEventListener('dragenter', this.onDragEnter);
+    }
   }
 
   onKeydown = e => {
@@ -144,7 +160,9 @@ class Grid extends Component {
 
       column = this.setHeaderFormatter(column, filterable, column.sortable);
 
-      column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
+      if (!column.formatter) {
+        column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
+      }
 
       return column;
     });
@@ -170,24 +188,8 @@ class Grid extends Component {
         trigger.call(this, 'onMouseEnter', e);
       },
       onMouseLeave: e => props.changeTrOptionsByRowClick && this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true),
-      onDragEnter: e => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const tr = e.currentTarget;
-
-        this.setHover(tr, ECOS_GRID_GRAG_CLASS, false, this._tr);
-        trigger.call(this, 'onRowDragEnter', this.props.data[tr.rowIndex - 1]);
-      },
-      onDragLeave: e => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const tr = e.currentTarget;
-
-        this.setHover(tr, ECOS_GRID_GRAG_CLASS, true, this._tr);
-        trigger.call(this, 'onRowDragLeave', this.props.data[tr.rowIndex - 1]);
-      },
+      onDragOver: this.onDragOver,
+      onDrop: this.onDrop,
       ...props.rowEvents
     };
 
@@ -210,7 +212,11 @@ class Grid extends Component {
     return props;
   }
 
-  setHover = (tr, className, needRemove, nonHoveredTr) => {
+  setHover = (tr = null, className, needRemove, nonHoveredTr) => {
+    if (!tr) {
+      return;
+    }
+
     const trClassList = tr.classList;
     const checkboxGridTrClassList = this.getCheckboxGridTrClassList(tr);
 
@@ -497,6 +503,68 @@ class Grid extends Component {
     trigger.call(this, 'onScrolling', e);
   };
 
+  onDragOver = e => {
+    if (this.props.onRowDrop) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+
+    if (!this.props.onDragOver) {
+      return false;
+    }
+
+    trigger.call(this, 'onDragOver', e);
+  };
+
+  onDragEnter = e => {
+    const target = e.target;
+    const tr = closest(target, ECOS_GRID_ROW_CLASS);
+
+    if (tr === null) {
+      this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
+      this._dragTr = null;
+
+      return;
+    }
+
+    if (tr === this._dragTr) {
+      return;
+    }
+
+    if (this._dragTr) {
+      this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
+    }
+
+    this.setHover(tr, ECOS_GRID_GRAG_CLASS, false, this._tr);
+    this._dragTr = tr;
+
+    e.stopPropagation();
+    e.preventDefault();
+    return false;
+  };
+
+  onDrop = e => {
+    if (!this.props.onRowDrop) {
+      return false;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const tr = e.currentTarget;
+
+    this.setHover(tr, ECOS_GRID_GRAG_CLASS, true, this._tr);
+
+    trigger.call(this, 'onRowDrop', {
+      files: e.dataTransfer.files,
+      type: this.props.data[tr.rowIndex - 1]
+    });
+    e.dataTransfer.clearData();
+
+    return false;
+  };
+
   scrollRefCallback = scroll => {
     this._scrollRef = scroll;
   };
@@ -554,7 +622,7 @@ class Grid extends Component {
           {toolsVisible ? this.tools(props.selected) : null}
 
           <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback}>
-            <BootstrapTable {...props} classes="ecos-grid__table" />
+            <BootstrapTable {...props} classes="ecos-grid__table" rowClasses={ECOS_GRID_ROW_CLASS} />
             {this.inlineTools()}
           </Scroll>
           {this.fixedHeader ? (
@@ -589,7 +657,12 @@ Grid.propTypes = {
   data: PropTypes.array,
   filters: PropTypes.array,
   sortBy: PropTypes.array,
-  selected: PropTypes.array
+  selected: PropTypes.array,
+
+  onRowDragEnter: PropTypes.func,
+  onRowDragLeave: PropTypes.func,
+  onRowDrop: PropTypes.func,
+  onDragOver: PropTypes.func
 };
 
 export default Grid;

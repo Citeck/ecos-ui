@@ -431,6 +431,17 @@ class Documents extends BaseWidget {
     this.setState({ isDragFiles: false });
   };
 
+  handleRowDrop = data => {
+    console.warn('handleRowDrop => ', data);
+  };
+
+  countFormatter = (...params) => (
+    <div className="ecos-docs__table-count-status">
+      <label className="ecos-docs__table-upload-label">{t('Перетяните сюда файл')}</label>
+      {this.renderCountStatus(params[1], 'grid')}
+    </div>
+  );
+
   renderTypes() {
     const { dynamicTypes } = this.props;
     const { selectedType, leftColumnId, rightColumnId } = this.state;
@@ -460,10 +471,7 @@ class Documents extends BaseWidget {
   }
 
   renderType = type => {
-    const { id } = this.props;
     const { selectedType } = this.state;
-    const target = prepareTooltipId(`${type.type}-${id}`);
-    const status = typesStatuses[this.getTypeStatus(type)];
 
     return (
       <div
@@ -476,6 +484,18 @@ class Documents extends BaseWidget {
         <div className="ecos-docs__types-item-label" title={t(type.name)}>
           {t(type.name)}
         </div>
+        {this.renderCountStatus(type)}
+      </div>
+    );
+  };
+
+  renderCountStatus = (type, keyPostfix = '') => {
+    const { id } = this.props;
+    const target = prepareTooltipId(`${type.type}-${id}-${keyPostfix}`);
+    const status = typesStatuses[this.getTypeStatus(type)];
+
+    return (
+      <>
         <div
           id={target}
           className={classNames('ecos-docs__types-item-status', {
@@ -501,7 +521,7 @@ class Documents extends BaseWidget {
         >
           {status}
         </UncontrolledTooltip>
-      </div>
+      </>
     );
   };
 
@@ -612,25 +632,32 @@ class Documents extends BaseWidget {
       return null;
     }
 
-    const columns = tableFields.ALL.map(item => ({
-      dataField: item.name,
-      text: item.label
-    }));
+    const columns = tableFields.ALL.map(item => {
+      const { name, label, ...other } = item;
+      const extendet = {};
+
+      if (name === 'count') {
+        extendet.formatter = this.countFormatter;
+      }
+
+      return {
+        dataField: name,
+        text: label,
+        ...other,
+        ...extendet
+      };
+    });
 
     return (
       <Grid
+        changeTrOptionsByRowClick
         className="ecos-docs__table"
         data={this.tableData}
         columns={columns}
         scrollable
         keyField="type"
         onRowClick={this.handleClickTableRow}
-        onRowDragEnter={rowData => {
-          console.log('onRowDragEnter => ', rowData);
-        }}
-        onRowDragLeave={rowData => {
-          console.log('onRowDragLeave => ', rowData);
-        }}
+        onRowDrop={this.handleRowDrop}
       />
     );
   }

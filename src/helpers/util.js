@@ -78,7 +78,11 @@ export const queryByCriteria = criteria => {
 
 export const getBool = val => (val === 'false' ? false : val === 'true' ? true : val);
 
-export function closest(node, selector) {
+export function closest(node = null, selector) {
+  if (!node) {
+    return null;
+  }
+
   const parent = node.parentElement;
 
   if (parent) {
