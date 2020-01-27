@@ -84,6 +84,7 @@ $transition-duration: 0.3s;
     height: 38px;
     width: 100%;
     cursor: pointer;
+    padding-right: 15px;
 
     &:hover {
       background: $color-gray-25;
@@ -146,6 +147,7 @@ $transition-duration: 0.3s;
       display: inline-flex;
       align-items: center;
       text-decoration: none;
+      padding-right: 3px;
     }
 
     &__icon {
@@ -220,10 +222,14 @@ $transition-duration: 0.3s;
     }
 
     &_lvl-0 {
-      padding-bottom: 30px;
+      &::after {
+        content: '';
+        padding-top: 10px;
+        display: block;
+      }
 
       #{$menu-item}_lvl-0 {
-        padding: 0 15px 0 26px;
+        padding-left: 26px;
 
         &:hover {
           background: initial;
@@ -257,14 +263,12 @@ $transition-duration: 0.3s;
       }
 
       #{$menu-item}_lvl-1 {
-        padding-right: 15px;
-
         &#{$menu-item}_nested-expanded:not(:hover) {
           background: $color-gray-25;
         }
 
         #{$menu-item}__link {
-          padding: 0 3px 0 25px;
+          padding-left: 25px;
         }
       }
     }
@@ -287,15 +291,11 @@ $transition-duration: 0.3s;
         }
 
         #{$menu-item}__link {
-          padding: 9px 35px;
+          padding-left: 35px;
         }
 
         #{$menu-item}__label {
           font-weight: $font-weight-semi-bold;
-        }
-
-        #{$menu-item}__toggle {
-          padding-right: 14px;
         }
       }
     }

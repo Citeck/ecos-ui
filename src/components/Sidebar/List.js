@@ -59,7 +59,7 @@ class List extends React.Component {
     });
     const hasSubItems = !!(item.items && item.items.length);
     const isItemSeparator = !isOpen && get(styleProps, 'collapsedMenu.asSeparator', false);
-    const isItemExpanded = SidebarService.isExpanded(expandableItems, item.id) && isExpanded;
+    const isItemExpanded = SidebarService.isExpanded(expandableItems, item.id);
     const isItemSelected = selectedId === item.id;
     const isChildSelected = !isOpen && level === SidebarService.DROPDOWN_LEVEL && SidebarService.isSelectedChild(expandableItems, item.id);
     const isSubListExpanded = isItemSeparator || ((isOpen || inDropdown) && isItemExpanded);
