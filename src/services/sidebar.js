@@ -1,8 +1,13 @@
-import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
+import get from 'lodash/get';
+
 import { getJournalPageUrl } from '../helpers/urls';
+import { getSessionData, setSessionData } from '../helpers/ls';
+import { hasChildWithId } from '../helpers/util';
+import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
 import { URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
 import { MenuApi } from '../api';
+import ULS from './userLocalSettings';
 
 export default class SidebarService {
   static ActionTypes = {
@@ -13,12 +18,38 @@ export default class SidebarService {
     SITE_LINK: 'SITE_LINK'
   };
 
+  static DROPDOWN_LEVEL = 1;
+  static SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
+
+  static getOpenState() {
+    return get(ULS.getMenuMode(), 'isSlideMenuOpen', true);
+  }
+
+  static setOpenState(isSlideMenuOpen) {
+    ULS.setMenuMode({ isSlideMenuOpen });
+  }
+
+  static getSelected() {
+    return getSessionData(SidebarService.SELECTED_MENU_ITEM_ID_KEY);
+  }
+
+  static setSelected(value) {
+    setSessionData(SidebarService.SELECTED_MENU_ITEM_ID_KEY, value);
+  }
+
+  static isExpanded(expandableItems = [], itemId) {
+    return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).isNestedListExpanded) : true;
+  }
+
+  static isSelectedChild(expandableItems = [], itemId) {
+    return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).selectedChild) : false;
+  }
+
   static getPropsStyleLevel = ({ level, actionType }) => {
     const common = {
       noIcon: true,
       noBadge: true,
-      noToggle: true,
-      collapsed: {
+      collapsedMenu: {
         asSeparator: false
       }
     };
@@ -26,15 +57,14 @@ export default class SidebarService {
     const lvls = {
       0: {
         ...common,
-        collapsed: {
-          ...common.collapsed,
+        collapsedMenu: {
+          ...common.collapsedMenu,
           asSeparator: true
         }
       },
       1: {
         ...common,
         noIcon: false,
-        noToggle: false,
         noBadge: !actionType && [ATypes.CREATE_SITE].includes(actionType)
       },
       2: {
@@ -178,8 +208,26 @@ export default class SidebarService {
     };
   }
 
-  static isExpanded(expandableItems = [], itemId) {
-    return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).isNestedListExpanded) : true;
+  static getExpandableItems(items, selectedId, isSlideMenuOpen) {
+    let flatList = [];
+
+    items.forEach(item => {
+      if (!!item.items) {
+        const selectedChild = hasChildWithId(item.items, selectedId);
+        const isNestedListExpanded = isSlideMenuOpen && (selectedChild || item.params.collapsible ? !item.params.collapsed : true);
+
+        flatList.push(
+          {
+            id: item.id,
+            isNestedListExpanded,
+            selectedChild
+          },
+          ...SidebarService.getExpandableItems(item.items, selectedId, isSlideMenuOpen)
+        );
+      }
+    });
+
+    return flatList;
   }
 }
 

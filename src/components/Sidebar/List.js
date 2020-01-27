@@ -12,32 +12,96 @@ import Item from './Item';
 class List extends React.Component {
   static propTypes = {
     className: PropTypes.string,
-    data: PropTypes.array,
+    items: PropTypes.array,
     expandableItems: PropTypes.array,
     level: PropTypes.number,
-    isExpanded: PropTypes.bool
+    isExpanded: PropTypes.bool,
+    inDropdown: PropTypes.bool
   };
 
   static defaultProps = {
     className: '',
-    data: [],
+    items: [],
     expandableItems: [],
     level: 0
   };
 
-  onToggleSubMenu = (id, e) => {
-    if (e && !this.props.isOpen) {
-      this.props.toggleExpanded && this.props.toggleExpanded(id);
+  get boundariesElement() {
+    return this.props.boundariesElement || document.querySelector('#root') || 'viewport';
+  }
+
+  onToggleSubMenu = (item, e) => {
+    const { toggleExpanded, isOpen } = this.props;
+
+    if (e && !isOpen) {
+      toggleExpanded && toggleExpanded(item);
       e.stopPropagation();
     }
   };
 
-  render() {
-    const { data, className, level, isExpanded, expandableItems, isOpen } = this.props;
-    const nextLevel = level + 1;
-    const boundariesElement = this.props.boundariesElement || document.querySelector('#root') || 'viewport';
+  renderSubList = (items, expanded, inDropdown) => (
+    <ConnectList
+      items={items}
+      level={this.props.level + 1}
+      isExpanded={expanded}
+      boundariesElement={this.boundariesElement}
+      inDropdown={inDropdown}
+    />
+  );
 
-    if (!data || !data.length) {
+  renderItem = (item, i) => {
+    const { level, expandableItems, isOpen, inDropdown, isExpanded, selectedId } = this.props;
+    const listItemDomId = `${item.id}-${level}-${i}`;
+    const listItemKey = `${item.id}-${item.label}-${level}`;
+    const styleProps = SidebarService.getPropsStyleLevel({
+      level,
+      actionType: get(item, 'action.type', '')
+    });
+    const hasSubItems = !!(item.items && item.items.length);
+    const isItemSeparator = !isOpen && get(styleProps, 'collapsedMenu.asSeparator', false);
+    const isItemExpanded = SidebarService.isExpanded(expandableItems, item.id);
+    const isItemSelected = selectedId === item.id;
+    const isChildSelected = !isOpen && level === SidebarService.DROPDOWN_LEVEL && SidebarService.isSelectedChild(expandableItems, item.id);
+    const isSubListExpanded = isItemSeparator || ((isOpen || inDropdown) && isItemExpanded);
+
+    return (
+      <React.Fragment key={listItemKey}>
+        <Item
+          domId={listItemDomId}
+          data={item}
+          level={level}
+          isExpanded={isItemExpanded}
+          isSelected={isItemSelected || isChildSelected}
+          styleProps={styleProps}
+          inDropdown={inDropdown}
+        />
+        {hasSubItems && this.renderSubList(item.items, isSubListExpanded, inDropdown)}
+        {level === SidebarService.DROPDOWN_LEVEL && hasSubItems && (
+          <Tooltip
+            target={listItemDomId}
+            isOpen={!isOpen && isItemExpanded}
+            placement="right-start"
+            trigger="hover"
+            delay={250}
+            autohide={false}
+            toggle={this.onToggleSubMenu.bind(this, item)}
+            boundariesElement={this.boundariesElement}
+            className="ecos-sidebar-list-dropdown-menu"
+            innerClassName="ecos-sidebar-list-dropdown-menu-inner"
+            arrowClassName="ecos-sidebar-list-dropdown-menu-arrow"
+            modifiers={{ flip: { behavior: ['right-start', 'right-end'] } }}
+          >
+            {this.renderSubList(item.items, true, true)}
+          </Tooltip>
+        )}
+      </React.Fragment>
+    );
+  };
+
+  render() {
+    const { items, className, level, isExpanded } = this.props;
+
+    if (!items || !items.length) {
       return null;
     }
 
@@ -48,44 +112,7 @@ class List extends React.Component {
           'ecos-sidebar-list_expanded': isExpanded
         })}
       >
-        {data.map((item, i) => {
-          const listItemDomId = `${item.id}-${level}-${i}`;
-          const listItemKey = `${item.id}-${item.label}-${level}`;
-          const isSubExpanded = SidebarService.isExpanded(expandableItems, item.id);
-          const styleProps = SidebarService.getPropsStyleLevel({
-            level,
-            actionType: get(this.props, 'data.action.type', '')
-          });
-          const hasSubItems = !!(item.items && item.items.length);
-          const SubList = expanded => (
-            <ConnectList data={item.items} level={nextLevel} isExpanded={expanded} boundariesElement={boundariesElement} />
-          );
-
-          return (
-            <React.Fragment key={listItemKey}>
-              <Item domId={listItemDomId} data={item} level={level} isExpanded={isSubExpanded} styleProps={styleProps} />
-              {hasSubItems && SubList(isOpen && isSubExpanded)}
-              {level === 1 && hasSubItems && (
-                <Tooltip
-                  target={listItemDomId}
-                  isOpen={!isOpen && isSubExpanded}
-                  placement="right-start"
-                  trigger="hover"
-                  delay={250}
-                  autohide={false}
-                  toggle={this.onToggleSubMenu.bind(this, item.id)}
-                  boundariesElement={boundariesElement}
-                  className="ecos-sidebar-list-tooltip"
-                  innerClassName="ecos-sidebar-list-tooltip-inner"
-                  arrowClassName="ecos-sidebar-list-tooltip-arrow"
-                  modifiers={{ flip: { behavior: ['right-start', 'right-end'] } }}
-                >
-                  {SubList(true)}
-                </Tooltip>
-              )}
-            </React.Fragment>
-          );
-        })}
+        {items.map(this.renderItem)}
       </div>
     );
   }
@@ -93,11 +120,12 @@ class List extends React.Component {
 
 const mapStateToProps = state => ({
   isOpen: state.slideMenu.isOpen,
-  expandableItems: state.slideMenu.expandableItems
+  expandableItems: state.slideMenu.expandableItems,
+  selectedId: state.slideMenu.selectedId
 });
 
 const mapDispatchToProps = dispatch => ({
-  toggleExpanded: id => dispatch(toggleExpanded(id))
+  toggleExpanded: item => dispatch(toggleExpanded(item))
 });
 
 const ConnectList = connect(

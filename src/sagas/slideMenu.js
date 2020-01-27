@@ -1,21 +1,20 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
-import get from 'lodash/get';
 import {
   fetchLargeLogoSrc,
   fetchSlideMenuItems,
   fetchSmallLogoSrc,
   getSiteDashboardEnable,
+  setInitExpandableItems,
   setIsReady,
   setLargeLogo,
   setSelectedId,
   setSiteDashboardEnable,
-  setSlideMenuExpandableItems,
   setSlideMenuItems,
   setSmallLogo,
   toggleIsOpen
 } from '../actions/slideMenu';
-import { fetchExpandableItems, getSelected, setSelected } from '../helpers/slideMenu';
-import ULS from '../services/userLocalSettings';
+import SidebarService from '../services/sidebar';
+import SidebarConverter from '../dto/sidebar';
 
 function* fetchSmallLogo({ api, fakeApi, logger }) {
   try {
@@ -40,15 +39,14 @@ function* fetchLargeLogo({ api, fakeApi, logger }) {
 function* fetchSlideMenu({ api, fakeApi, logger }) {
   try {
     const apiData = yield call(api.menu.getSlideMenuItems);
-    const menuItems = apiData.items;
-    const selectedId = getSelected();
-    const isOpen = get(ULS.getMenuMode(), 'isSlideMenuOpen', true);
-    const expandableItems = fetchExpandableItems(menuItems, selectedId, isOpen);
+    const menuItems = SidebarConverter.getMenuListWeb(apiData.items);
+    const selectedId = SidebarService.getSelected();
+    const isOpen = SidebarService.getOpenState();
 
     yield put(toggleIsOpen(isOpen));
     yield put(setSelectedId(selectedId));
     yield put(setSlideMenuItems(menuItems));
-    yield put(setSlideMenuExpandableItems(expandableItems));
+    yield put(setInitExpandableItems());
     yield put(setIsReady(true));
   } catch (e) {
     logger.error('[fetchSlideMenu saga] error', e.message);
@@ -67,7 +65,7 @@ function* fetchSiteDashboardEnable({ api, logger }) {
 
 function fetchToggleMenu({ api, logger }, action) {
   try {
-    ULS.setMenuMode({ isSlideMenuOpen: action.payload });
+    SidebarService.setOpenState(action.payload);
   } catch (e) {
     logger.error('[fetchToggleMenu saga] error', e.message);
   }
@@ -75,7 +73,7 @@ function fetchToggleMenu({ api, logger }, action) {
 
 function fetchSelectedId({ api, logger }, action) {
   try {
-    setSelected(action.payload);
+    SidebarService.setSelected(action.payload);
   } catch (e) {
     logger.error('[fetchToggleMenu saga] error', e.message);
   }

@@ -8,6 +8,7 @@ import {
   fetchSlideMenuItems,
   fetchSmallLogoSrc,
   getSiteDashboardEnable,
+  setInitExpandableItems,
   toggleIsOpen
 } from '../../actions/slideMenu';
 import Logo from './Logo';
@@ -44,6 +45,8 @@ class Sidebar extends React.Component {
 
     if (isOpen) {
       this.props.collapseAllItems();
+    } else {
+      this.props.setInitExpandableItems();
     }
   };
 
@@ -72,7 +75,7 @@ class Sidebar extends React.Component {
           renderTrackHorizontal={props => <div hidden />}
           renderView={props => <div {...props} className="ecos-sidebar-scroll-area" />}
         >
-          <List data={items} isExpanded />
+          <List items={items} isExpanded />
         </Scrollbars>
       </div>
     );
@@ -94,6 +97,7 @@ const mapDispatchToProps = dispatch => ({
   fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
   getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable()),
+  setInitExpandableItems: () => dispatch(setInitExpandableItems()),
   collapseAllItems: () => dispatch(collapseAllItems())
 });
 

@@ -17,72 +17,57 @@ class Item extends React.Component {
     styleProps: PropTypes.object,
     level: PropTypes.number,
     isExpanded: PropTypes.bool,
-    noIcon: PropTypes.bool,
-    noBadge: PropTypes.bool,
-    noToggle: PropTypes.bool
+    isSelected: PropTypes.bool,
+    inDropdown: PropTypes.bool
   };
 
   static defaultProps = {
     data: {},
     styleProps: {},
-    level: 0,
-    noIcon: true,
-    noBadge: true,
-    noToggle: true
+    level: 0
   };
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    return (
+      nextProps.isExpanded !== this.props.isExpanded ||
+      nextProps.isSelected !== this.props.isSelected ||
+      nextProps.inDropdown !== this.props.inDropdown ||
+      nextProps.isOpen !== this.props.isOpen
+    );
+  }
 
   get hasSubItems() {
     return !isEmpty(get(this.props, 'data.items'));
   }
 
-  get noMove() {
-    return this.hasSubItems;
+  get collapsible() {
+    const collapsible = get(this.props, 'data.params.collapsible');
+
+    return (this.props.isOpen ? collapsible : this.props.level <= SidebarService.DROPDOWN_LEVEL || collapsible) && this.hasSubItems;
+  }
+
+  get dataId() {
+    return get(this.props, 'data.id');
   }
 
   get actionType() {
     return get(this.props, 'data.action.type', '');
   }
 
-  get isSelectedItem() {
-    const {
-      selectedId,
-      data: { id }
-    } = this.props;
-
-    return selectedId === id;
-  }
-
   get isLink() {
     return ![SidebarService.ActionTypes.CREATE_SITE].includes(this.actionType);
   }
 
-  getMover() {
-    if (this.noMove) {
-      return ({ children }) => <div className="ecos-sidebar-item__link">{children}</div>;
-    }
-
-    return this.isLink ? ItemLink : ItemBtn;
-  }
-
   onToggleList = e => {
-    const {
-      data: { id },
-      styleProps: { noToggle }
-    } = this.props;
-
-    if (this.noMove && !noToggle) {
-      this.props.toggleExpanded(id);
+    if (this.collapsible) {
+      this.props.toggleExpanded(this.props.data);
       e.stopPropagation();
     }
   };
 
-  onClickItem = () => {
-    const {
-      data: { id }
-    } = this.props;
-
-    if (this.isLink || !this.hasSubItems) {
-      this.props.setSelectItem(id);
+  onClickLink = () => {
+    if (!this.hasSubItems) {
+      this.props.setSelectItem(this.dataId);
     }
   };
 
@@ -94,16 +79,31 @@ class Item extends React.Component {
       styleProps: { noIcon }
     } = this.props;
     const extraParams = { isSiteDashboardEnable };
-
-    const Mover = this.getMover();
-
-    return (
-      <Mover data={data} extraParams={extraParams} onClick={this.onClickItem}>
+    const content = (
+      <>
         {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : get(data, 'label', '')} />}
         <div className="ecos-sidebar-item__label" title={data.label}>
           {data.label}
         </div>
-      </Mover>
+      </>
+    );
+
+    if (this.collapsible) {
+      return <div className="ecos-sidebar-item__link">{content}</div>;
+    }
+
+    if (this.isLink) {
+      return (
+        <ItemLink data={data} extraParams={extraParams} onClick={this.onClickLink}>
+          {content}
+        </ItemLink>
+      );
+    }
+
+    return (
+      <ItemBtn data={data} extraParams={extraParams}>
+        {content}
+      </ItemBtn>
     );
   }
 
@@ -118,19 +118,15 @@ class Item extends React.Component {
   }
 
   renderToggle() {
-    const {
-      isOpen,
-      isExpanded,
-      styleProps: { noToggle }
-    } = this.props;
+    const { isOpen, isExpanded, inDropdown } = this.props;
 
-    return this.hasSubItems && !noToggle ? (
+    return this.collapsible ? (
       <Icon
         className={classNames('ecos-sidebar-item__toggle', {
           'ecos-sidebar-item__toggle_v': isOpen,
           'ecos-sidebar-item__toggle_h icon-right': !isOpen,
-          'icon-down': !isExpanded && isOpen,
-          'icon-up': isExpanded && isOpen
+          'icon-down': !isExpanded && (isOpen || inDropdown),
+          'icon-up': isExpanded && (isOpen || inDropdown)
         })}
       />
     ) : null;
@@ -143,16 +139,17 @@ class Item extends React.Component {
       domId,
       isOpen,
       isExpanded,
+      isSelected,
+      inDropdown,
       styleProps: {
         noIcon,
-        collapsed: { asSeparator }
+        collapsedMenu: { asSeparator }
       }
     } = this.props;
     const itemSeparator = !isOpen && asSeparator;
-
     const events = {};
 
-    if (isOpen) {
+    if (isOpen || inDropdown) {
       events.onClick = this.onToggleList;
     }
 
@@ -160,22 +157,18 @@ class Item extends React.Component {
       <div
         id={domId}
         className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
-          'ecos-sidebar-item_no-action': this.noMove,
-          'ecos-sidebar-item_no-items': !this.hasSubItems,
-          'ecos-sidebar-item_expanded': isExpanded && this.hasSubItems,
-          'ecos-sidebar-item_selected': this.isSelectedItem,
+          'ecos-sidebar-item_collapsible': this.collapsible,
+          'ecos-sidebar-item_last-lvl': !this.hasSubItems,
+          'ecos-sidebar-item_nested-expanded': isExpanded && this.hasSubItems,
+          'ecos-sidebar-item_selected': isSelected,
           'ecos-sidebar-item_separator': itemSeparator
         })}
         title={!isOpen && !noIcon ? get(data, 'label', '') : ''}
         {...events}
       >
-        {!itemSeparator && (
-          <>
-            {this.renderLabel()}
-            {this.renderBadge()}
-            {this.renderToggle()}
-          </>
-        )}
+        {this.renderLabel()}
+        {this.renderBadge()}
+        {this.renderToggle()}
       </div>
     );
   }
@@ -183,13 +176,12 @@ class Item extends React.Component {
 
 const mapStateToProps = state => ({
   isOpen: state.slideMenu.isOpen,
-  isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable,
-  selectedId: state.slideMenu.selectedId
+  isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable
 });
 
 const mapDispatchToProps = dispatch => ({
   setSelectItem: id => dispatch(setSelectedId(id)),
-  toggleExpanded: id => dispatch(toggleExpanded(id)),
+  toggleExpanded: item => dispatch(toggleExpanded(item)),
   setScrollTop: value => dispatch(setScrollTop(value))
 });
 
