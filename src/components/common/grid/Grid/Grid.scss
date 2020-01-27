@@ -38,6 +38,11 @@
     overflow: hidden;
   }
 
+  &_drag {
+    background: $color-yellow;
+    border: 2px solid $color-brown-2;
+  }
+
   &__v-scroll {
     @extend %v-scroll;
     top: 52px;

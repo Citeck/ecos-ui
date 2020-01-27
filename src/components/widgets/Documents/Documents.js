@@ -55,7 +55,9 @@ class Documents extends BaseWidget {
       tableFilter: '',
       statusFilter: statusesKeys.ALL
     };
+  }
 
+  componentDidMount() {
     this.initWidget();
   }
 
@@ -265,6 +267,9 @@ class Documents extends BaseWidget {
 
   initWidget = () => {
     this.props.init();
+    this.setState({
+      isDragFiles: false
+    });
   };
 
   uploadingComplete() {
@@ -311,6 +316,7 @@ class Documents extends BaseWidget {
 
     this.props.getDocuments(type);
     this.setState({
+      isDragFiles: false,
       selectedType: type,
       statusFilter: statusesKeys.ALL,
       selectedTypeForLoading: selectedType
@@ -368,7 +374,9 @@ class Documents extends BaseWidget {
       return;
     }
 
-    this.handleSelectType(row.type);
+    console.warn('row => ', row);
+
+    this.handleSelectType(row);
   };
 
   handleChangeHeight = height => {
@@ -557,39 +565,42 @@ class Documents extends BaseWidget {
 
   renderDocumentsTable() {
     const { dynamicTypes, isUploadingFile } = this.props;
-    const { selectedType, isDragFiles } = this.state;
+    const { selectedType, isDragFiles, selectedTypeForLoading } = this.state;
 
-    if (!selectedType && dynamicTypes.length > 1) {
+    if (!selectedType && dynamicTypes.length !== 1) {
       return null;
     }
 
+    const formId = get(selectedTypeForLoading, 'formId', null);
     const columns = tableFields.DEFAULT.map(item => ({
       dataField: item.name,
       text: item.label
     }));
+    const isShowDropZone = isDragFiles && !formId;
 
     return (
       <div style={{ height: '100%' }} onDragEnter={this.handleDragIn} onDragLeave={this.handleDragOut}>
-        {!isDragFiles && !isUploadingFile && (
-          <Grid
-            className="ecos-docs__table"
-            data={this.tableData}
-            columns={columns}
-            onRowClick={this.handleClickTableRow}
-            scrollable
-            keyField="id"
-          />
-        )}
-        {isDragFiles && (
-          <DropZone
-            withoutButton
-            label={t(Labels.UPLOAD_DROPZONE)}
-            className="ecos-docs__table-dropzone"
-            onSelect={this.handleSelectUploadFiles}
-            isLoading={isUploadingFile}
-            {...this.uploadingSettings}
-          />
-        )}
+        <Grid
+          className={classNames('ecos-docs__table', {
+            'ecos-docs__table_hidden': isShowDropZone || isUploadingFile
+          })}
+          data={this.tableData}
+          columns={columns}
+          onRowClick={this.handleClickTableRow}
+          scrollable
+          keyField="id"
+        />
+
+        <DropZone
+          withoutButton
+          label={t(Labels.UPLOAD_DROPZONE)}
+          className={classNames('ecos-docs__table-dropzone', {
+            'ecos-docs__table-dropzone_hidden': !isShowDropZone
+          })}
+          onSelect={this.handleSelectUploadFiles}
+          isLoading={isUploadingFile}
+          {...this.uploadingSettings}
+        />
       </div>
     );
   }
@@ -611,9 +622,15 @@ class Documents extends BaseWidget {
         className="ecos-docs__table"
         data={this.tableData}
         columns={columns}
-        onRowClick={this.handleClickTableRow}
         scrollable
         keyField="type"
+        onRowClick={this.handleClickTableRow}
+        onRowDragEnter={rowData => {
+          console.log('onRowDragEnter => ', rowData);
+        }}
+        onRowDragLeave={rowData => {
+          console.log('onRowDragLeave => ', rowData);
+        }}
       />
     );
   }

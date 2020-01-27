@@ -1,6 +1,5 @@
 import { delay } from 'redux-saga';
 import { put, select, takeEvery, call } from 'redux-saga/effects';
-import get from 'lodash/get';
 import set from 'lodash/set';
 
 import { selectTypeNames, selectDynamicTypes, selectAvailableTypes, selectConfigTypes } from '../selectors/documents';
@@ -93,24 +92,27 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
       throw new Error(documentsErrors.join(' '));
     }
 
-    combinedTypes = yield combinedTypes
-      .map(function*(item) {
-        if (item.formId) {
-          return item;
-        }
+    combinedTypes = yield combinedTypes.map(function*(item) {
+      if (item.formId) {
+        return item;
+      }
 
-        const formId = yield call(api.documents.getFormIdByType, item.type);
+      const formId = yield call(api.documents.getFormIdByType, item.type);
 
-        if (!formId) {
-          return null;
-        }
-
+      if (!formId) {
         return {
           ...item,
-          formId
+          formId: null
         };
-      })
-      .filter(item => item !== null);
+      }
+
+      return {
+        ...item,
+        formId
+      };
+    });
+
+    combinedTypes = combinedTypes.filter(item => item !== null);
 
     if (combinedTypes.length === 1) {
       yield put(

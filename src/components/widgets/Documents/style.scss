@@ -135,10 +135,18 @@
   &__table {
     width: 100%;
 
+    &_hidden {
+      display: none;
+    }
+
     &-dropzone {
       &.ecos-dropzone {
         margin: 19px;
         height: calc(100% - 2 * 19px);
+      }
+
+      &_hidden {
+        display: none;
       }
     }
   }

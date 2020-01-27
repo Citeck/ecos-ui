@@ -15,6 +15,7 @@ import './Grid.scss';
 
 const CLOSE_FILTER_EVENT = 'closeFilterEvent';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
+const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const REACT_BOOTSTRAP_TABLE_CLASS = 'react-bootstrap-table';
 
 const ECOS_GRID_CHECKBOX_DEVIDER_CLASS = 'ecos-grid__checkbox-devider';
@@ -169,6 +170,24 @@ class Grid extends Component {
         trigger.call(this, 'onMouseEnter', e);
       },
       onMouseLeave: e => props.changeTrOptionsByRowClick && this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true),
+      onDragEnter: e => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const tr = e.currentTarget;
+
+        this.setHover(tr, ECOS_GRID_GRAG_CLASS, false, this._tr);
+        trigger.call(this, 'onRowDragEnter', this.props.data[tr.rowIndex - 1]);
+      },
+      onDragLeave: e => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const tr = e.currentTarget;
+
+        this.setHover(tr, ECOS_GRID_GRAG_CLASS, true, this._tr);
+        trigger.call(this, 'onRowDragLeave', this.props.data[tr.rowIndex - 1]);
+      },
       ...props.rowEvents
     };
 
