@@ -232,6 +232,7 @@
   "ecos-table-form.create-button": "Создать",
   "ecos-table-form.create-modal.title": "Создать",
   "ecos-table-form.edit-modal.title": "Изменить свойства",
+  "ecos-table-form.view-modal.title": "Просмотр",
   "ecos-table-form.placeholder": "Нет",
   "ecos-ui.select.loading-message": "Загрузка...",
   "ecos-ui.select.no-options-message": "Не найдено",

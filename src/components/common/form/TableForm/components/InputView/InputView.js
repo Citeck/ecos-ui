@@ -14,7 +14,16 @@ const InputView = () => {
   const context = useContext(TableFormContext);
 
   const { placeholder, disabled, viewOnly, displayElements } = context.controlProps;
-  const { selectedRows, columns, error, deleteSelectedItem, showEditForm, inlineToolsOffsets, setInlineToolsOffsets } = context;
+  const {
+    selectedRows,
+    columns,
+    error,
+    deleteSelectedItem,
+    showEditForm,
+    inlineToolsOffsets,
+    setInlineToolsOffsets,
+    showViewOnlyForm
+  } = context;
 
   const wrapperRef = useRef(null);
 
@@ -47,6 +56,10 @@ const InputView = () => {
     showEditForm(inlineToolsOffsets.rowId);
   };
 
+  const onClickView = () => {
+    showViewOnlyForm(inlineToolsOffsets.rowId);
+  };
+
   let valuesList = (
     <p
       className={classNames('ecos-table-form__value-not-selected', {
@@ -61,6 +74,11 @@ const InputView = () => {
     const inlineTools = () => {
       const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
       const iconButtons = [];
+
+      const shouldShowViewButton = isBoolean(get(displayElements, 'view')) ? displayElements.view : true;
+      if (shouldShowViewButton) {
+        iconButtons.push(<IcoBtn key={'view'} icon={'icon-on'} className={inlineToolsActionClassName} onClick={onClickView} />);
+      }
 
       const shouldShowEditButton = isBoolean(get(displayElements, 'edit')) ? displayElements.edit : !viewOnly;
       if (shouldShowEditButton) {

@@ -21,7 +21,7 @@ export default [
         type: 'htmlelement',
         tag: 'div',
         content:
-          '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. The <strong>value</strong> variable can contain next boolean properties: <strong>edit</strong>, <strong>delete</strong>. For example, value = {edit: true, delete: false};</p>'
+          '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. The <strong>value</strong> variable can contain next boolean properties: <strong>view</strong>, <strong>edit</strong>, <strong>delete</strong>. For example, value = {view: false, edit: true, delete: false};</p>'
       }
     ]
   }

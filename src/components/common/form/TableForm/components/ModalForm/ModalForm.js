@@ -11,6 +11,7 @@ const ModalForm = () => {
     record,
     createVariant,
     formMode,
+    isViewOnlyForm,
     isModalFormOpen,
     toggleModal,
     onCreateFormSubmit,
@@ -30,7 +31,12 @@ const ModalForm = () => {
       .then(disp => setDisplayName(disp));
   }, [record, setDisplayName]);
 
-  let title = formMode === FORM_MODE_CREATE ? t('ecos-table-form.create-modal.title') : t('ecos-table-form.edit-modal.title');
+  let title = '';
+  if (isViewOnlyForm) {
+    title = t('ecos-table-form.view-modal.title');
+  } else {
+    title = formMode === FORM_MODE_CREATE ? t('ecos-table-form.create-modal.title') : t('ecos-table-form.edit-modal.title');
+  }
   if (displayName) {
     title = `${title}: ${displayName}`;
   }
@@ -46,6 +52,16 @@ const ModalForm = () => {
   }
 
   let recordForForm = recordRef || record;
+
+  const formOptions = {
+    parentForm,
+    formMode
+  };
+
+  if (isViewOnlyForm) {
+    formOptions.readOnly = true;
+    formOptions.viewAsHtml = true;
+  }
 
   return (
     <div>
@@ -67,10 +83,7 @@ const ModalForm = () => {
             onSubmit={formMode === FORM_MODE_CREATE ? onCreateFormSubmit : onEditFormSubmit}
             onFormCancel={toggleModal}
             saveOnSubmit={false}
-            options={{
-              parentForm,
-              formMode
-            }}
+            options={formOptions}
           />
         </EcosModal>
       ) : null}
