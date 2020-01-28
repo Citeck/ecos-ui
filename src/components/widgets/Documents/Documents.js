@@ -412,7 +412,7 @@ class Documents extends BaseWidget {
     const { selectedTypeForLoading } = this.state;
 
     if (selectedTypeForLoading.formId) {
-      this.props.onUploadFiles({ files, type: selectedTypeForLoading.type, openForm: this.openForm });
+      this.props.onUploadFiles({ files, type: selectedTypeForLoading.type, openForm: this.openForm, callback });
 
       return;
     }

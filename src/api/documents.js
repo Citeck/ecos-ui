@@ -61,7 +61,7 @@ export class DocumentsApi {
       },
       {
         _modified: '_modified',
-        _modifier: '_modifier'
+        _modifier: '_modifier.fullName'
       },
       types
     ).then(response => response);

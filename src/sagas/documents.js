@@ -249,6 +249,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
         }),
         handleProgress: payload.callback
       });
+      yield put(getDocumentsByType({ record: payload.record, type: payload.type, delay: 0 }));
 
       return;
     }
