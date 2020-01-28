@@ -11,8 +11,10 @@ import {
   saveSettings,
   saveSettingsFinally,
   uploadFiles,
+  setUploadError,
   uploadFilesFinally,
-  setConfig
+  setConfig,
+  setError
 } from '../actions/documents';
 
 export const initialState = {
@@ -24,7 +26,9 @@ export const initialState = {
   isLoading: false,
   isLoadingTableData: false,
   isUploadingFile: false,
-  isLoadingSettings: false
+  isLoadingSettings: false,
+  countFilesError: '',
+  uploadError: ''
 };
 
 Object.freeze(initialState);
@@ -43,7 +47,9 @@ export default handleActions(
         [payload.record]: {
           ...ownState,
           isLoading: true,
-          isLoadingSettings: false
+          isLoadingSettings: false,
+          uploadError: '',
+          countFilesError: ''
         }
       };
     },
@@ -59,7 +65,6 @@ export default handleActions(
       ...state,
       [payload]: {
         ...state[payload]
-        // isLoading: true
       }
     }),
     [setAvailableTypes]: (state, { payload }) => ({
@@ -67,7 +72,6 @@ export default handleActions(
       [payload.record]: {
         ...state[payload.record],
         availableTypes: payload.types
-        // isLoading: false
       }
     }),
 
@@ -75,7 +79,9 @@ export default handleActions(
       ...state,
       [payload.record]: {
         ...state[payload.record],
-        dynamicTypes: payload.dynamicTypes
+        dynamicTypes: payload.dynamicTypes,
+        uploadError: '',
+        countFilesError: ''
       }
     }),
 
@@ -91,7 +97,9 @@ export default handleActions(
       [payload.record]: {
         ...state[payload.record],
         documents: payload.documents,
-        isLoadingTableData: false
+        isLoadingTableData: false,
+        uploadError: '',
+        countFilesError: ''
       }
     }),
 
@@ -99,7 +107,9 @@ export default handleActions(
       ...state,
       [payload.record]: {
         ...state[payload.record],
-        isLoadingSettings: true
+        isLoadingSettings: true,
+        uploadError: '',
+        countFilesError: ''
       }
     }),
     [saveSettingsFinally]: (state, { payload }) => ({
@@ -114,7 +124,17 @@ export default handleActions(
       ...state,
       [payload.record]: {
         ...state[payload.record],
-        isUploadingFile: true
+        isUploadingFile: true,
+        uploadError: '',
+        countFilesError: ''
+      }
+    }),
+    [setUploadError]: (state, { payload }) => ({
+      ...state,
+      [payload.record]: {
+        ...state[payload.record],
+        uploadError: payload.message,
+        countFilesError: ''
       }
     }),
     [uploadFilesFinally]: (state, { payload }) => ({
@@ -130,6 +150,14 @@ export default handleActions(
       [payload.record]: {
         ...state[payload.record],
         config: payload.config
+      }
+    }),
+
+    [setError]: (state, { payload }) => ({
+      ...state,
+      [payload.record]: {
+        ...state[payload.record],
+        [payload.type]: payload.message
       }
     })
   },

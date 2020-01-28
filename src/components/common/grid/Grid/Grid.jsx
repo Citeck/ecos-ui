@@ -521,6 +521,10 @@ class Grid extends Component {
     const target = e.target;
     const tr = closest(target, ECOS_GRID_ROW_CLASS);
 
+    if (this.props.onRowDragEnter) {
+      this.props.onRowDragEnter();
+    }
+
     if (tr === null) {
       this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
       this._dragTr = null;
@@ -557,7 +561,7 @@ class Grid extends Component {
     this.setHover(tr, ECOS_GRID_GRAG_CLASS, true, this._tr);
 
     trigger.call(this, 'onRowDrop', {
-      files: e.dataTransfer.files,
+      files: Array.from(e.dataTransfer.files),
       type: this.props.data[tr.rowIndex - 1]
     });
     e.dataTransfer.clearData();
@@ -659,10 +663,9 @@ Grid.propTypes = {
   sortBy: PropTypes.array,
   selected: PropTypes.array,
 
-  onRowDragEnter: PropTypes.func,
-  onRowDragLeave: PropTypes.func,
   onRowDrop: PropTypes.func,
-  onDragOver: PropTypes.func
+  onDragOver: PropTypes.func,
+  onRowDragEnter: PropTypes.func
 };
 
 export default Grid;

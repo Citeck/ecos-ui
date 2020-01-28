@@ -181,10 +181,18 @@ class DropZone extends Component {
   }
 
   render() {
-    const { multiple, isLoading, className } = this.props;
+    const { multiple, isLoading, className, onDropRejected } = this.props;
 
     return (
-      <DZ ref={this.dropzoneRef} multiple={multiple} onDrop={this.handleDropFile} noClick noKeyboard disabled={isLoading}>
+      <DZ
+        ref={this.dropzoneRef}
+        multiple={multiple}
+        onDrop={this.handleDropFile}
+        onDropRejected={onDropRejected}
+        noClick
+        noKeyboard
+        disabled={isLoading}
+      >
         {({ getRootProps, getInputProps, isDragActive }) => (
           <div
             className={classNames('ecos-dropzone', className, {

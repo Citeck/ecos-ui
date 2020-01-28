@@ -12,12 +12,15 @@ export const selectStateByKey = createSelector(
     grouppedAvailableTypes: selectGrouppedAvailableTypes(ownState),
     availableTypes: getAvailableTypes(ownState),
     dynamicTypes: ownState.dynamicTypes,
-    // typesForTable: selectTypesForTable(ownState),
     documents: ownState.documents,
+
     isLoading: ownState.isLoading,
     isUploadingFile: ownState.isUploadingFile,
     isLoadingSettings: ownState.isLoadingSettings,
-    isLoadingTableData: ownState.isLoadingTableData
+    isLoadingTableData: ownState.isLoadingTableData,
+
+    uploadError: ownState.uploadError,
+    countFilesError: ownState.countFilesError
   })
 );
 
@@ -51,6 +54,12 @@ export const selectDynamicTypes = createSelector(
   selectState,
   getDynamicTypes
 );
+
+export const selectDynamicType = (state, record, id) => {
+  const types = selectDynamicTypes(state, record);
+
+  return types.find(type => type.type === id);
+};
 
 export const selectAvailableTypes = createSelector(
   selectState,

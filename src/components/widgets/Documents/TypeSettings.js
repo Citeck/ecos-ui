@@ -118,6 +118,8 @@ class TypeSettings extends Component {
   }
 
   renderColumns() {
+    return null;
+
     return (
       <section className="ecos-docs__modal-type-settings-group">
         <div className="ecos-docs__modal-type-settings-label">{t(Labels.SORT_LABEL)}</div>

@@ -67,45 +67,13 @@ export class DocumentsApi {
     ).then(response => response);
   };
 
-  getDocumentsByType = (recordRef, type) => {
-    // return DocumentsApiRequests.getDocumentsByType();
-
-    return Records.query(
-      {
-        sourceId: 'alfresco/',
-        query: {
-          t: 'and',
-          val: [
-            {
-              t: 'eq',
-              att: '_parent',
-              // in val you need to pass RecordRef from the URL
-              val: recordRef
-            },
-            {
-              t: 'eq',
-              att: '_etype',
-              val: type
-            }
-          ]
-        },
-        language: 'predicate'
-      },
-      {
-        loadedBy: '_modifier',
-        modified: '_modified',
-        name: 'name'
-      }
-    );
-  };
-
   getFormIdByType = type => {
     // return DocumentsApiRequests.getFormIdByType();
 
     return Records.get(type).load('form?id');
   };
 
-  uploadFile = (data, callback = () => {}) => {
+  uploadFile = (data, callback) => {
     return ecosXhr('/share/proxy/alfresco/eform/file', {
       method: 'POST',
       body: data,
@@ -146,7 +114,7 @@ export class DocumentsApi {
         language: 'types-documents'
       },
       {
-        documents: 'documents[]{id:.id, name:.disp, loadedBy:_modified, modifier:_modifier.fullName}',
+        documents: 'documents[]{id:.id, name:.disp, modified:_modified, loadedBy:_modifier.fullName}',
         type: 'type'
       }
     ).then(response => response);

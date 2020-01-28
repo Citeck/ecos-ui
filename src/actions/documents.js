@@ -22,6 +22,9 @@ export const saveSettings = createAction(prefix + 'SAVE_SETTINGS');
 export const saveSettingsFinally = createAction(prefix + 'SAVE_SETTINGS_FINALLY');
 
 export const uploadFiles = createAction(prefix + 'UPLOAD_FILES');
+export const setUploadError = createAction(prefix + 'SET_UPLOAD_ERROR');
 export const uploadFilesFinally = createAction(prefix + 'UPLOAD_FILES_FINALLY');
 
 export const setConfig = createAction(prefix + 'SET_WIDGET_CONFIG');
+
+export const setError = createAction(prefix + 'SET_ERROR');

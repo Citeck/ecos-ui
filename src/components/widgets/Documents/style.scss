@@ -33,13 +33,21 @@
       .ecos-grid {
         &_drag {
           background: $color-yellow;
-          border: 2px solid $color-brown-2;
-          border-width: 0 3px;
           outline: 2px solid $color-brown-2;
 
           & > th:first-child,
           & > td:first-child {
-            padding-left: 12px;
+            padding-left: 14px;
+          }
+        }
+
+        &_no-drag {
+          background: $color-yellow;
+          outline: 2px solid $color-red-1;
+
+          & > th:first-child,
+          & > td:first-child {
+            padding-left: 14px;
           }
         }
 
@@ -50,24 +58,8 @@
             outline: 2px solid $color-brown-2;
             transform: scale(1);
 
-            & > th:first-child,
-            & > td:first-child {
-              //padding-left: 17px;
-            }
-
             .ecos-docs__table-upload-label {
               visibility: visible;
-            }
-
-            &:after {
-              //content: 'Перетяните сюда файл';
-              //position: absolute;
-              //right: 80px;
-              //top: calc(20px / 2);
-              //font-weight: bold;
-              //font-size: 14px;
-              //line-height: 20px;
-              //color: $color-brown-1;
             }
           }
         }
@@ -197,6 +189,7 @@
       display: flex;
       flex-direction: row;
       justify-content: flex-end;
+      align-items: center;
       margin: 9px 30px;
     }
 
@@ -207,6 +200,11 @@
       font-size: 14px;
       line-height: 20px;
       color: $color-brown-1;
+
+      &_error {
+        visibility: visible;
+        color: $color-red-1;
+      }
     }
   }
 

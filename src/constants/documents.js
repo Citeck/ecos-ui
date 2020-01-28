@@ -3,7 +3,9 @@ export const statusesKeys = {
   FILE_ADDED: 'file-added',
   MULTI_FILES_ADDED: 'multi-files-added',
   NEED_ADD_FILES: 'need-add-files',
-  CAN_ADD_FILES: 'can-add-files'
+  NEED_ADD_FILE: 'need-add-file',
+  CAN_ADD_FILES: 'can-add-files',
+  CAN_ADD_FILE: 'can-add-file'
 };
 
 export const typesStatuses = {
@@ -11,6 +13,8 @@ export const typesStatuses = {
   [statusesKeys.FILE_ADDED]: 'Добавлен файл',
   [statusesKeys.MULTI_FILES_ADDED]: 'Добавлено несколько файлов',
   [statusesKeys.NEED_ADD_FILES]: 'Необходимо добавить файлы',
+  [statusesKeys.NEED_ADD_FILE]: 'Необходимо добавить файл',
+  [statusesKeys.CAN_ADD_FILE]: 'Можно добавить файл',
   [statusesKeys.CAN_ADD_FILES]: 'Можно добавить файлы'
 };
 
@@ -39,7 +43,7 @@ export const tableFields = {
     },
     {
       name: 'count',
-      label: 'Количество файлов'
+      label: ''
     }
   ],
   DEFAULT: [
@@ -57,3 +61,8 @@ export const tableFields = {
     }
   ]
 };
+
+export const errorTypes = Object.freeze({
+  UPLOAD: 'uploadError',
+  COUNT_FILES: 'countFilesError'
+});

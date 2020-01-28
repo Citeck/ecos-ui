@@ -3,7 +3,7 @@ import { put, select, takeEvery, call } from 'redux-saga/effects';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
-import { selectTypeNames, selectDynamicTypes, selectAvailableTypes, selectConfigTypes } from '../selectors/documents';
+import { selectTypeNames, selectDynamicTypes, selectAvailableTypes, selectConfigTypes, selectDynamicType } from '../selectors/documents';
 import {
   init,
   initSuccess,
@@ -17,9 +17,11 @@ import {
   saveSettingsFinally,
   uploadFiles,
   uploadFilesFinally,
-  setConfig
+  setConfig,
+  setUploadError
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
+import { deepClone } from '../helpers/util';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
@@ -166,7 +168,7 @@ function* sagaGetAvailableTypes({ api, logger }, { payload }) {
 function* sagaGetDocumentsByType({ api, logger }, { payload }) {
   try {
     yield delay(payload.delay || 1000);
-    // const { records, errors } = yield call(api.documents.getDocumentsByType, payload.record, payload.type);
+
     const { records, errors } = yield call(api.documents.getDocumentsByTypes, payload.record, payload.type);
 
     if (errors.length) {
@@ -187,12 +189,15 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
       })
     );
 
-    const dynamicTypes = JSON.parse(JSON.stringify(yield select(state => selectDynamicTypes(state, payload.record))));
+    const dynamicTypes = deepClone(yield select(state => selectDynamicTypes(state, payload.record)));
 
     if (dynamicTypes.length) {
       const type = dynamicTypes.find(item => item.type === payload.type);
+      const document = documents[documents.length - 1];
 
       set(type, 'countDocuments', documents.length);
+      set(type, 'loadedBy', document.loadedBy);
+      set(type, 'modified', DocumentsConverter.getFormattedDate(document.modified));
     }
 
     yield put(setDynamicTypes({ record: payload.record, dynamicTypes }));
@@ -229,6 +234,25 @@ function* sagaSaveSettings({ api, logger }, { payload }) {
 
 function* sagaUploadFiles({ api, logger }, { payload }) {
   try {
+    const type = yield select(state => selectDynamicType(state, payload.record, payload.type));
+
+    /**
+     * update version
+     */
+    if (!type.multiple && type.countDocuments > 0) {
+      // todo not updated data after uploading (maybe need type)
+      yield call(api.versionsJournal.addNewVersion, {
+        body: DocumentsConverter.getAddNewVersionFormDataForServer({
+          record: payload.record,
+          type: payload.type,
+          file: payload.files[0]
+        }),
+        handleProgress: payload.callback
+      });
+
+      return;
+    }
+
     const results = yield payload.files.map(
       yield function*(file) {
         const formData = new FormData();
@@ -257,6 +281,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
     });
     yield put(getDocumentsByType({ record: payload.record, type: payload.type, delay: 0 }));
   } catch (e) {
+    yield put(setUploadError({ record: payload.record, message: e.message }));
     logger.error('[documents sagaUploadFiles saga error', e.message);
   } finally {
     yield put(uploadFilesFinally(payload.record));

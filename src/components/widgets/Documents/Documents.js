@@ -17,9 +17,9 @@ import Settings from './Settings';
 
 import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { getDocumentsByType, init, toggleType, saveSettings, uploadFiles } from '../../../actions/documents';
+import { getDocumentsByType, init, toggleType, saveSettings, uploadFiles, setError } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
-import { statusesKeys, typesStatuses, tooltips, typeStatusesByFields, tableFields } from '../../../constants/documents';
+import { statusesKeys, typesStatuses, tooltips, typeStatusesByFields, tableFields, errorTypes } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import DocumentsConverter from '../../../dto/documents';
 
@@ -28,7 +28,10 @@ import './style.scss';
 const Labels = {
   TITLE: 'Документы',
   SETTINGS: 'Настройка типов документов',
-  UPLOAD_DROPZONE: 'Добавить файлы'
+  UPLOAD_DROPZONE: 'Добавить файлы',
+  UPLOAD_MESSAGE: 'Перетяните сюда файл',
+  ERROR_UPLOAD: 'Не удалось загрузить файл',
+  ERROR_ONLY_ONE_FILE: 'Можно загрузить только один файл'
 };
 
 class Documents extends BaseWidget {
@@ -217,16 +220,14 @@ class Documents extends BaseWidget {
       return defaultSettings;
     }
 
-    const type = dynamicTypes.find(item => item.type === selectedTypeForLoading.type);
-
     return {
       ...defaultSettings,
-      multiple: get(type, 'multyple', false)
+      multiple: get(selectedTypeForLoading, 'multiple', false)
     };
   }
 
   getTypeStatus = type => {
-    let status = statusesKeys.CAN_ADD_FILES;
+    let status = statusesKeys.CAN_ADD_FILE;
 
     if (type.countDocuments === 1) {
       status = statusesKeys.FILE_ADDED;
@@ -237,7 +238,11 @@ class Documents extends BaseWidget {
     }
 
     if (type.mandatory && !type.countDocuments) {
-      status = statusesKeys.NEED_ADD_FILES;
+      status = type.multiple ? statusesKeys.NEED_ADD_FILES : statusesKeys.NEED_ADD_FILE;
+    }
+
+    if (!type.countDocuments && !type.mandatory) {
+      status = type.multiple ? statusesKeys.CAN_ADD_FILES : statusesKeys.CAN_ADD_FILE;
     }
 
     return status;
@@ -344,13 +349,7 @@ class Documents extends BaseWidget {
     const formId = get(type, 'formId', null);
 
     if (formId !== null) {
-      FormManager.createRecordByVariant(
-        DocumentsConverter.getDataToCreate({
-          formId: type.formId,
-          type: type.type,
-          record: this.props.record
-        })
-      );
+      this.openForm(type);
     }
 
     this.setState({
@@ -414,7 +413,17 @@ class Documents extends BaseWidget {
   handleSelectUploadFiles = (files, callback) => {
     const { selectedTypeForLoading } = this.state;
 
-    this.props.onUploadFiles(files, selectedTypeForLoading.type, callback);
+    if (selectedTypeForLoading.formId) {
+      this.openForm(selectedTypeForLoading, files);
+
+      return;
+    }
+
+    this.props.onUploadFiles({ files, type: selectedTypeForLoading.type, callback });
+  };
+
+  handleDropRejected = () => {
+    this.setState({ isDragFiles: false });
   };
 
   handleDragIn = event => {
@@ -432,15 +441,90 @@ class Documents extends BaseWidget {
   };
 
   handleRowDrop = data => {
-    console.warn('handleRowDrop => ', data);
+    const { files = [], type = {} } = data;
+
+    if (!type.multiple && files.length > 1) {
+      this.setState({ selectedTypeForLoading: type });
+
+      this.props.setError(errorTypes.COUNT_FILES, t(Labels.ERROR_ONLY_ONE_FILE));
+
+      return false;
+    }
+
+    if (type.formId) {
+      // this.props.onUploadFiles({ files, type: type.type, formId: type.formId });
+    } else {
+      this.props.onUploadFiles({ files, type: type.type });
+    }
+
+    this.setState({ selectedTypeForLoading: type });
   };
 
-  countFormatter = (...params) => (
-    <div className="ecos-docs__table-count-status">
-      <label className="ecos-docs__table-upload-label">{t('Перетяните сюда файл')}</label>
-      {this.renderCountStatus(params[1], 'grid')}
-    </div>
-  );
+  handleRowDragEnter = () => {
+    if (this.props.uploadError) {
+      this.props.setError(errorTypes.UPLOAD, '');
+      this.props.setError(errorTypes.COUNT_FILES, '');
+    }
+  };
+
+  openForm = (type, files = []) => {
+    FormManager.createRecordByVariant(
+      DocumentsConverter.getDataToCreate({
+        formId: type.formId,
+        type: type.type,
+        record: this.props.record,
+        files
+      })
+    );
+  };
+
+  countFormatter = (...params) => {
+    const { uploadError, countFilesError, id } = this.props;
+    const { selectedTypeForLoading } = this.state;
+    const target = prepareTooltipId(`grid-label-${params[1].type}-${id}`);
+    let label = t(Labels.UPLOAD_MESSAGE);
+    let hasTooltip = false;
+    let hasError = false;
+
+    if (params[1].type === selectedTypeForLoading.type) {
+      if (uploadError) {
+        label = t(Labels.ERROR_UPLOAD);
+        hasTooltip = true;
+        hasError = true;
+      }
+
+      if (countFilesError) {
+        hasError = true;
+        label = t(countFilesError);
+      }
+    }
+
+    return (
+      <div className="ecos-docs__table-count-status">
+        <div
+          id={target}
+          className={classNames('ecos-docs__table-upload-label', {
+            'ecos-docs__table-upload-label_error': hasError
+          })}
+        >
+          {label}
+        </div>
+        {hasTooltip && (
+          <UncontrolledTooltip
+            placement="top"
+            boundariesElement="window"
+            className="ecos-base-tooltip"
+            innerClassName="ecos-base-tooltip-inner"
+            arrowClassName="ecos-base-tooltip-arrow"
+            target={target}
+          >
+            {uploadError}
+          </UncontrolledTooltip>
+        )}
+        {this.renderCountStatus(params[1], 'grid')}
+      </div>
+    );
+  };
 
   renderTypes() {
     const { dynamicTypes } = this.props;
@@ -596,7 +680,7 @@ class Documents extends BaseWidget {
       dataField: item.name,
       text: item.label
     }));
-    const isShowDropZone = isDragFiles && !formId;
+    const isShowDropZone = isDragFiles; // && !formId;
 
     return (
       <div style={{ height: '100%' }} onDragEnter={this.handleDragIn} onDragLeave={this.handleDragOut}>
@@ -618,6 +702,7 @@ class Documents extends BaseWidget {
             'ecos-docs__table-dropzone_hidden': !isShowDropZone
           })}
           onSelect={this.handleSelectUploadFiles}
+          onDropRejected={this.handleDropRejected}
           isLoading={isUploadingFile}
           {...this.uploadingSettings}
         />
@@ -634,17 +719,17 @@ class Documents extends BaseWidget {
 
     const columns = tableFields.ALL.map(item => {
       const { name, label, ...other } = item;
-      const extendet = {};
+      const extended = {};
 
       if (name === 'count') {
-        extendet.formatter = this.countFormatter;
+        extended.formatter = this.countFormatter;
       }
 
       return {
         dataField: name,
         text: label,
         ...other,
-        ...extendet
+        ...extended
       };
     });
 
@@ -658,12 +743,23 @@ class Documents extends BaseWidget {
         keyField="type"
         onRowClick={this.handleClickTableRow}
         onRowDrop={this.handleRowDrop}
+        onRowDragEnter={this.handleRowDragEnter}
       />
     );
   }
 
+  renderTableLoader() {
+    const { isLoading, isLoadingTableData, isUploadingFile } = this.props;
+    const { selectedType } = this.state;
+
+    if ((!isLoading && isLoadingTableData) || (isUploadingFile && !selectedType)) {
+      return <Loader zIndex={999} blur />;
+    }
+
+    return null;
+  }
+
   renderTable() {
-    const { isLoading, isLoadingTableData } = this.props;
     const { rightColumnId } = this.state;
 
     return (
@@ -671,7 +767,7 @@ class Documents extends BaseWidget {
         {this.renderTablePanel()}
         {this.renderDocumentsTable()}
         {this.renderTypesTable()}
-        {!isLoading && isLoadingTableData && <Loader zIndex={999} blur />}
+        {this.renderTableLoader()}
       </div>
     );
   }
@@ -774,7 +870,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   getDocuments: (type = '') => dispatch(getDocumentsByType({ record: ownProps.record, type })),
   onToggleType: (id, checked) => dispatch(toggleType({ record: ownProps.record, id, checked })),
   onSaveSettings: (types, config) => dispatch(saveSettings({ record: ownProps.record, types, config })),
-  onUploadFiles: (files, type, callback) => dispatch(uploadFiles({ record: ownProps.record, files, type, callback }))
+  onUploadFiles: data => dispatch(uploadFiles({ record: ownProps.record, ...data })),
+  setError: (type, message = '') => dispatch(setError({ record: ownProps.record, type, message }))
 });
 
 export default connect(
