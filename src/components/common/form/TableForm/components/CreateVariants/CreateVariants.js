@@ -9,7 +9,7 @@ const CreateVariants = () => {
   const context = useContext(TableFormContext);
 
   const { disabled, multiple, viewOnly } = context.controlProps;
-  const { showCreateForm, createVariants = [], selectedRows } = context;
+  const { showCreateForm, createVariants = [], gridRows } = context;
 
   if (viewOnly) {
     return null;
@@ -21,7 +21,7 @@ const CreateVariants = () => {
 
   let createButton = null;
   let isButtonDisabled = disabled;
-  if (!multiple && selectedRows.length > 0) {
+  if (!multiple && gridRows.length > 0) {
     isButtonDisabled = true;
   }
 
