@@ -127,10 +127,10 @@ export default class EcosFormModal extends React.Component {
   }
 
   render() {
-    const { record, title, isBigHeader } = this.props;
+    const { title, isBigHeader } = this.props;
     const { recordData, isModalOpen } = this.state;
 
-    if (!isModalOpen || !recordData || !record) {
+    if (!isModalOpen || !recordData) {
       return null;
     }
 
